@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.cpp,v 1.13 2001-11-29 17:30:52 adcockj Exp $
+// $Id: TimeShift.cpp,v 1.14 2002-02-09 11:09:50 temperton Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2001/11/29 17:30:52  adcockj
+// Reorgainised bt848 initilization
+// More Javadoc-ing
+//
 // Revision 1.12  2001/11/23 10:49:17  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -93,6 +97,8 @@
 #include "Cpu.h"          // CpuFeatureFlags
 /// \todo remove 
 #include "OutThreads.h"
+
+#include "Providers.h"
 
 bool CTimeShift::OnDestroy(void)
 {
@@ -929,22 +935,22 @@ CTimeShift::CTimeShift()
     AVIFileInit();
 
     // Default to full frames video.
-	memset(&m_infoVideo, 0, sizeof(m_infoVideo));
-	m_infoVideo.fccType = streamtypeVIDEO;
-	m_infoVideo.fccHandler = 0;//mmioFOURCC('D', 'I', 'B', ' ');
+    memset(&m_infoVideo, 0, sizeof(m_infoVideo));
+    m_infoVideo.fccType = streamtypeVIDEO;
+    m_infoVideo.fccHandler = 0;//mmioFOURCC('D', 'I', 'B', ' ');
     m_infoVideo.dwFlags = 0;
     m_infoVideo.dwCaps = 0;
     m_infoVideo.wPriority = 0;
     m_infoVideo.wLanguage = 0;
-	m_infoVideo.dwScale = 1;
-	m_infoVideo.dwRate = m_fps;
+    m_infoVideo.dwScale = 1;
+    m_infoVideo.dwRate = m_fps;
     m_infoVideo.dwStart = 0;
     m_infoVideo.dwLength = 0;
     m_infoVideo.dwInitialFrames = 0;
-	m_infoVideo.dwSuggestedBufferSize = m_bih.biSizeImage;
+    m_infoVideo.dwSuggestedBufferSize = m_bih.biSizeImage;
     m_infoVideo.dwQuality = (DWORD)-1;
     m_infoVideo.dwSampleSize = 0;
-	SetRect(&m_infoVideo.rcFrame, 0, 0, m_bih.biWidth, m_bih.biHeight);
+    SetRect(&m_infoVideo.rcFrame, 0, 0, m_bih.biWidth, m_bih.biHeight);
     m_infoVideo.dwEditCount = 0;
     m_infoVideo.dwFormatChangeCount = 0;
     strcpy(m_infoVideo.szName, "Video");
@@ -958,27 +964,27 @@ CTimeShift::CTimeShift()
     m_waveFormat.wBitsPerSample = 16;
     m_waveFormat.cbSize = 0;
 
-	memset(&m_infoAudio, 0, sizeof(m_infoAudio));
-	m_infoAudio.fccType = streamtypeAUDIO;
-	m_infoAudio.fccHandler = 0; // Zero for PCM audio.
+    memset(&m_infoAudio, 0, sizeof(m_infoAudio));
+    m_infoAudio.fccType = streamtypeAUDIO;
+    m_infoAudio.fccHandler = 0; // Zero for PCM audio.
     m_infoAudio.dwFlags = 0;
     m_infoAudio.dwCaps = 0;
     m_infoAudio.wPriority = 0;
     m_infoAudio.wLanguage = 0;
-	m_infoAudio.dwScale = m_waveFormat.nBlockAlign;
-	m_infoAudio.dwRate = m_waveFormat.nAvgBytesPerSec;
+    m_infoAudio.dwScale = m_waveFormat.nBlockAlign;
+    m_infoAudio.dwRate = m_waveFormat.nAvgBytesPerSec;
     m_infoAudio.dwStart = 0;
     m_infoAudio.dwLength = 0;
     m_infoAudio.dwInitialFrames = 0;
-	m_infoAudio.dwSuggestedBufferSize = m_infoAudio.dwRate / m_fps;
+    m_infoAudio.dwSuggestedBufferSize = m_infoAudio.dwRate / m_fps;
     m_infoAudio.dwQuality = 0;
     m_infoAudio.dwSampleSize = m_waveFormat.nBlockAlign;
-	SetRect(&m_infoAudio.rcFrame, 0, 0, 0, 0);
+    SetRect(&m_infoAudio.rcFrame, 0, 0, 0, 0);
     m_infoAudio.dwEditCount = 0;
     m_infoAudio.dwFormatChangeCount = 0;
     strcpy(m_infoAudio.szName, "Audio");
 
-	memset(&m_optsVideo, 0, sizeof(m_optsVideo));
+    memset(&m_optsVideo, 0, sizeof(m_optsVideo));
 
     // Overwrite any of the above defaults with whatever's in the ini file.
     ReadFromIni();
@@ -1202,6 +1208,11 @@ bool CTimeShift::Record(bool pause)
         return false;
     }
 
+    eVideoFormat VideoFormat = Providers_GetCurrentSource()->GetFormat();
+    m_fps = (GetTVFormat(VideoFormat)->Is25fps) ? 25 : 30;
+    m_infoVideo.dwRate = m_fps;
+    UpdateAudioInfo();
+
     // Create the video stream.
     AVIFileCreateStream(m_pfile, &m_psVideo, &m_infoVideo);
     if (m_setOpts)
@@ -1335,6 +1346,8 @@ bool CTimeShift::Play(void)
                 Stop();
             return false;
         }
+        
+        m_fps = m_infoVideo.dwRate;
 
         // Make sure the pixel width is ready for the incoming AVI's width.
         if (CurrentX != m_infoVideo.rcFrame.right)
@@ -1944,11 +1957,11 @@ bool CTimeShift::CompressionOptions(void)
     char fname[20] = "dstemp.avi";
     DeleteFile(fname);
 
-	PAVIFILE pfile;
+    PAVIFILE pfile;
     AVIFileOpen(&pfile, fname, OF_WRITE | OF_CREATE, NULL);
 
-	// Create the video stream and set its format.
-	PAVISTREAM psVideo = NULL;
+    // Create the video stream and set its format.
+    PAVISTREAM psVideo = NULL;
     AVIFileCreateStream(pfile, &psVideo, &m_infoVideo);
 
     // NOTE: Add space for the color table if we want to save 8-bit AVIs.
@@ -1959,21 +1972,21 @@ bool CTimeShift::CompressionOptions(void)
     bih.biCompression = m_infoVideo.fccHandler ? m_infoVideo.fccHandler :BI_RGB;
     AVIStreamSetFormat(psVideo, 0, &bih, sizeof(bih));
 
-	// Create the audio stream and set its format.
-	PAVISTREAM psAudio = NULL;
+    // Create the audio stream and set its format.
+    PAVISTREAM psAudio = NULL;
     AVIFileCreateStream(pfile, &psAudio, &m_infoAudio);
     AVIStreamSetFormat(psAudio, 0, &m_waveFormat, sizeof(WAVEFORMATEX));
 
     // Prompt for compression options.
-	AVICOMPRESSOPTIONS optsVideo = m_optsVideo;
-  	AVICOMPRESSOPTIONS optsAudio;
+    AVICOMPRESSOPTIONS optsVideo = m_optsVideo;
+    AVICOMPRESSOPTIONS optsAudio;
     memset(&optsAudio, 0, sizeof(optsAudio));
     const int numStreams = 2;
     PAVISTREAM streams[numStreams] = {psVideo, psAudio};
     LPAVICOMPRESSOPTIONS opts[numStreams] = {&optsVideo, &optsAudio};
 
     // hWnd is the main global hwnd.
-  	if (AVISaveOptions(hWnd, 0, numStreams, streams, opts))
+    if (AVISaveOptions(hWnd, 0, numStreams, streams, opts))
     {
         // For audio, we need to reset the wave format.
         if (optsAudio.lpFormat && optsAudio.cbFormat)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_Audio.cpp,v 1.22 2002-09-16 14:37:36 kooiman Exp $
+// $Id: BT848Source_Audio.cpp,v 1.23 2002-09-26 06:10:48 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2002/09/16 14:37:36  kooiman
+// Added stereo autodetection.
+//
 // Revision 1.21  2002/09/15 19:52:22  kooiman
 // Adressed some NICAM AM issues.
 //
@@ -307,9 +310,9 @@ void CBT848Source::AudioStandardDetectOnChange(long NewValue, long OldValue)
                 m_pBT848Card->SetAudioStandard(Standard, (eVideoFormat)m_VideoFormat->GetValue());
                 m_pBT848Card->SetAudioVolume(m_Volume->GetValue());
 
-                m_AudioStandardManual->SetValue(Standard, TRUE);
-                m_AudioStandardMajorCarrier->SetValue(m_pBT848Card->GetAudioStandardMajorCarrier(-1), TRUE);
-                m_AudioStandardMinorCarrier->SetValue(m_pBT848Card->GetAudioStandardMinorCarrier(-1), TRUE);
+                m_AudioStandardManual->SetValue(Standard, ONCHANGE_NONE);
+                m_AudioStandardMajorCarrier->SetValue(m_pBT848Card->GetAudioStandardMajorCarrier(-1), ONCHANGE_NONE);
+                m_AudioStandardMinorCarrier->SetValue(m_pBT848Card->GetAudioStandardMinorCarrier(-1), ONCHANGE_NONE);
 
                 if (m_AutoStereoSelect->GetValue())
                 {
@@ -339,8 +342,8 @@ void CBT848Source::AudioStandardDetectOnChange(long NewValue, long OldValue)
             }
             else
             {
-                m_AudioStandardMajorCarrier->SetValue(m_pBT848Card->GetAudioStandardMajorCarrier(-1), TRUE);
-                m_AudioStandardMinorCarrier->SetValue(m_pBT848Card->GetAudioStandardMinorCarrier(-1), TRUE);
+                m_AudioStandardMajorCarrier->SetValue(m_pBT848Card->GetAudioStandardMajorCarrier(-1), ONCHANGE_NONE);
+                m_AudioStandardMinorCarrier->SetValue(m_pBT848Card->GetAudioStandardMinorCarrier(-1), ONCHANGE_NONE);
             }
             m_pBT848Card->SetAudioVolume(m_Volume->GetValue());
             // Find stereo modes
@@ -369,7 +372,7 @@ void CBT848Source::SupportedSoundChannelsDetected(eSupportedSoundChannels suppor
         else
         {
             //Set value to compatible channel (probably mono)
-            m_AudioChannel->SetValue(m_pBT848Card->IsAudioChannelDetected((eSoundChannel)m_AudioChannel->GetValue()), TRUE);
+            m_AudioChannel->SetValue(m_pBT848Card->IsAudioChannelDetected((eSoundChannel)m_AudioChannel->GetValue()), ONCHANGE_NONE);
         }
     }    
 }
@@ -391,9 +394,9 @@ void CBT848Source::StaticAudioStandardDetected(void *pThis, int What, long Value
 
 void CBT848Source::AudioStandardDetected(long Standard)
 {    
-    m_AudioStandardManual->SetValue(Standard, TRUE);
-    m_AudioStandardMajorCarrier->SetValue(m_pBT848Card->GetAudioStandardMajorCarrier(-1), TRUE);
-    m_AudioStandardMinorCarrier->SetValue(m_pBT848Card->GetAudioStandardMinorCarrier(-1), TRUE);
+    m_AudioStandardManual->SetValue(Standard, ONCHANGE_NONE);
+    m_AudioStandardMajorCarrier->SetValue(m_pBT848Card->GetAudioStandardMajorCarrier(-1), ONCHANGE_NONE);
+    m_AudioStandardMinorCarrier->SetValue(m_pBT848Card->GetAudioStandardMinorCarrier(-1), ONCHANGE_NONE);
     
     m_pBT848Card->SetAudioVolume(m_Volume->GetValue());
     m_DetectingAudioStandard = 0;
@@ -405,8 +408,8 @@ void CBT848Source::AudioStandardManualOnChange(long NewValue, long OldValue)
     {
         m_pBT848Card->SetAudioStandard(NewValue, (eVideoFormat)m_VideoFormat->GetValue());
         m_pBT848Card->SetAudioVolume(m_Volume->GetValue());
-        m_AudioStandardMajorCarrier->SetValue(m_pBT848Card->GetAudioStandardMajorCarrier(NewValue), TRUE);
-        m_AudioStandardMinorCarrier->SetValue(m_pBT848Card->GetAudioStandardMinorCarrier(NewValue), TRUE);
+        m_AudioStandardMajorCarrier->SetValue(m_pBT848Card->GetAudioStandardMajorCarrier(NewValue), ONCHANGE_NONE);
+        m_AudioStandardMinorCarrier->SetValue(m_pBT848Card->GetAudioStandardMinorCarrier(NewValue), ONCHANGE_NONE);
     }
 }
 

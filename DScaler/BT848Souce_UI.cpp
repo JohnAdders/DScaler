@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.48 2002-09-25 15:11:11 adcockj Exp $
+// $Id: BT848Souce_UI.cpp,v 1.49 2002-09-26 06:10:48 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.48  2002/09/25 15:11:11  adcockj
+// Preliminary code for format specific support for settings per channel
+//
 // Revision 1.47  2002/09/16 14:37:36  kooiman
 // Added stereo autodetection.
 //
@@ -1385,7 +1388,7 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             m_AudioStandardDetect->SetValue(3);
             break;
 		case IDM_AUDIOSTANDARD_MANUAL:
-            m_AudioStandardDetect->SetValue(4, TRUE);
+            m_AudioStandardDetect->SetValue(4, ONCHANGE_NONE);
             DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_AUDIOSTANDARD_MANUAL), hWnd, AudioStandardManualProc, (LPARAM)this);
             break;
         case IDM_AUDIOSTANDARD_DETECTNOW:

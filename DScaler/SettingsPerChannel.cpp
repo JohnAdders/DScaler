@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsPerChannel.cpp,v 1.16 2002-09-25 15:11:12 adcockj Exp $
+// $Id: SettingsPerChannel.cpp,v 1.17 2002-09-26 06:10:48 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 DScaler team.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/09/25 15:11:12  adcockj
+// Preliminary code for format specific support for settings per channel
+//
 // Revision 1.15  2002/09/15 15:00:05  kooiman
 // Added check for Providers_GetCurrentSource() == NULL.
 //
@@ -376,7 +379,7 @@ void TChannelSetting::SetValue(long NewValue, BOOL bNoOnChange)
     {
         try 
         {
-            CSSetting->SetValue(NewValue, bNoOnChange);
+            CSSetting->SetValue(NewValue, bNoOnChange?ONCHANGE_SET_FORCE:ONCHANGE_NONE);
         } 
         catch (...)
         {

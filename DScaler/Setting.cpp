@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.cpp,v 1.28 2003-04-28 12:42:20 laurentg Exp $
+// $Id: Setting.cpp,v 1.29 2003-06-14 13:27:48 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2003/04/28 12:42:20  laurentg
+// Management of character string settings updated
+//
 // Revision 1.27  2003/04/26 23:19:15  laurentg
 // Character string settings
 //
@@ -329,6 +332,7 @@ LPCSTR CSimpleSetting::GetEntry()
 BOOL CSimpleSetting::ReadFromIniSubSection(LPCSTR szSubSection)
 {
     long nValue;
+    long nSavedValue;
     BOOL IsSettingInIniFile = TRUE;
 
     if(m_pSetting->szIniSection != NULL)
@@ -351,6 +355,7 @@ BOOL CSimpleSetting::ReadFromIniSubSection(LPCSTR szSubSection)
 		{
 			IsSettingInIniFile = FALSE;
 			nValue = m_pSetting->Default;
+			nSavedValue = nValue;
 		}
 		else
 		{
@@ -358,16 +363,21 @@ BOOL CSimpleSetting::ReadFromIniSubSection(LPCSTR szSubSection)
 
 			char* szValue = szBuffer;
 			nValue = atoi(szValue);
+			nSavedValue = nValue;
 		       
-			if(nValue < m_pSetting->MinValue)
+			// If the value is out of range, set it to its default value
+			if ( (nValue < m_pSetting->MinValue)
+			  || (nValue > m_pSetting->MaxValue) )
 			{
-				LOG(1, "%s %s Was out of range - %d is too low", szSubSection, szIniEntry, nValue);
-				nValue = m_pSetting->MinValue;
-			}
-			if(nValue > m_pSetting->MaxValue)
-			{
-				LOG(1, "%s %s Was out of range - %d is too high", szSubSection, szIniEntry, nValue);
-				nValue = m_pSetting->MaxValue;
+				if(nValue < m_pSetting->MinValue)
+				{
+					LOG(1, "toto %s %s Was out of range - %d is too low", szSubSection, szIniEntry, nValue);
+				}
+				else
+				{
+					LOG(1, "%s %s Was out of range - %d is too high", szSubSection, szIniEntry, nValue);
+				}
+				nValue = m_pSetting->Default;
 			}
 		}
 
@@ -381,7 +391,7 @@ BOOL CSimpleSetting::ReadFromIniSubSection(LPCSTR szSubSection)
 		    OnChange(*m_pSetting->pValue, OldValue);
 		}
 		
-        m_SectionLastSavedValue = nValue;
+	    m_SectionLastSavedValue = nSavedValue;
 		m_SectionLastSavedValueIniSection = szSubSection;
 
     }
@@ -398,6 +408,7 @@ BOOL CSimpleSetting::ReadFromIniSubSection(LPCSTR szSubSection)
 BOOL CSimpleSetting::ReadFromIni()
 {
     long nValue;
+    long nSavedValue;
     BOOL IsSettingInIniFile = TRUE;
 
     if(m_pSetting->szIniSection != NULL)
@@ -419,16 +430,21 @@ BOOL CSimpleSetting::ReadFromIni()
 
 			char* szValue = szBuffer;
 			nValue = atoi(szValue);
+			nSavedValue = nValue;
 		       
-			if(nValue < m_pSetting->MinValue)
+			// If the value is out of range, set it to its default value
+			if ( (nValue < m_pSetting->MinValue)
+			  || (nValue > m_pSetting->MaxValue) )
 			{
-				LOG(1, "%s %s Was out of range - %d is too low", m_pSetting->szIniSection, m_pSetting->szIniEntry, nValue);
-				nValue = m_pSetting->MinValue;
-			}
-			if(nValue > m_pSetting->MaxValue)
-			{
-				LOG(1, "%s %s Was out of range - %d is too high", m_pSetting->szIniSection, m_pSetting->szIniEntry, nValue);
-				nValue = m_pSetting->MaxValue;
+				if(nValue < m_pSetting->MinValue)
+				{
+					LOG(1, "titi %s %s Was out of range - %d is too low", m_pSetting->szIniSection, m_pSetting->szIniEntry, nValue);
+				}
+				else
+				{
+					LOG(1, "%s %s Was out of range - %d is too high", m_pSetting->szIniSection, m_pSetting->szIniEntry, nValue);
+				}
+				nValue = m_pSetting->Default;
 			}
 		}
         if (IsSettingInIniFile)
@@ -440,7 +456,7 @@ BOOL CSimpleSetting::ReadFromIni()
 	        {
 		        OnChange(*m_pSetting->pValue, OldValue);
 			}
-            m_pSetting->LastSavedValue = nValue;
+			m_pSetting->LastSavedValue = nSavedValue;
 			m_sLastSavedValueIniSection = m_pSetting->szIniSection;
         }        
         else

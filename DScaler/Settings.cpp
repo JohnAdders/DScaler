@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.51 2003-06-02 13:15:34 adcockj Exp $
+// $Id: Settings.cpp,v 1.52 2003-06-14 13:27:48 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.51  2003/06/02 13:15:34  adcockj
+// Fixes for CHARSTRING problems
+//
 // Revision 1.50  2003/04/28 12:42:22  laurentg
 // Management of character string settings updated
 //
@@ -788,6 +791,7 @@ BOOL Setting_SetFromControl(SETTING* pSetting, HWND hControl)
 BOOL Setting_ReadFromIni(SETTING* pSetting, BOOL bDontSetDefault)
 {
     long nValue;
+    long nSavedValue;
     BOOL IsSettingInIniFile = TRUE;
 
     if(pSetting->szIniSection != NULL)
@@ -823,20 +827,25 @@ BOOL Setting_ReadFromIni(SETTING* pSetting, BOOL bDontSetDefault)
 		{
 			nValue = GetPrivateProfileInt(pSetting->szIniSection, pSetting->szIniEntry, pSetting->MinValue - 100, szIniFile);
 			LOG(2, " Setting_ReadFromIni %s %s Value %d", pSetting->szIniSection, pSetting->szIniEntry, nValue);
+			nSavedValue = nValue;
 			if(nValue == pSetting->MinValue - 100)
 			{
 				nValue = pSetting->Default;            
 				IsSettingInIniFile = FALSE;
 			}
-			if(nValue < pSetting->MinValue)
+			// If the value is out of range, set it to its default value
+			if ( (nValue < pSetting->MinValue)
+			  || (nValue > pSetting->MaxValue) )
 			{
-				LOG(1, "%s %s Was out of range - %d is too low", pSetting->szIniSection, pSetting->szIniEntry, nValue);
-				nValue = pSetting->MinValue;
-			}
-			if(nValue > pSetting->MaxValue)
-			{
-				LOG(1, "%s %s Was out of range - %d is too high", pSetting->szIniSection, pSetting->szIniEntry, nValue);
-				nValue = pSetting->MaxValue;
+				if(nValue < pSetting->MinValue)
+				{
+					LOG(1, "%s %s Was out of range - %d is too low", pSetting->szIniSection, pSetting->szIniEntry, nValue);
+				}
+				else
+				{
+					LOG(1, "%s %s Was out of range - %d is too high", pSetting->szIniSection, pSetting->szIniEntry, nValue);
+				}
+				nValue = pSetting->Default;
 			}
 			if (IsSettingInIniFile || !bDontSetDefault)
 			{
@@ -844,7 +853,7 @@ BOOL Setting_ReadFromIni(SETTING* pSetting, BOOL bDontSetDefault)
 			}
 			if(IsSettingInIniFile)
 			{
-				pSetting->LastSavedValue = *pSetting->pValue;
+				pSetting->LastSavedValue = nSavedValue;
 			}
 			else
 			{

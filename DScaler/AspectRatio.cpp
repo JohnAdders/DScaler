@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////
 // AspectRatio.cpp
 /////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2000 Michael Samblanet  All rights reserved.
+/////////////////////////////////////////////////////////////////////////////
 //
 //	This file is subject to the terms of the GNU General Public License as
 //	published by the Free Software Foundation.  A copy of this license is
@@ -63,8 +65,10 @@
 //                                     Expieremental inversion code (invert source rect if options are enabled)
 // 07 May 2001   John Adcock           Reformmated code
 // 08 Jun 2001   Eric Schmidt          Added bounce amplitude to ini
+// 03 Jul 2001   John Adcock           Cleaned up Filter chain code
+//                                     Changed setings and behaviour for pan and scan
+//                                     to allow a variety of settings
 /////////////////////////////////////////////////////////////////////////////
-
 
 #include "stdafx.h"
 #include "Other.h"
@@ -74,18 +78,8 @@
 #include "Status.h"
 #include "BT848.h"
 #include "DScaler.h"
-#include "AspectRect.h"
-
-// From dtv.c .... We really need to reduce reliance on globals by going C++!
-// Perhaps in the meantime, it could be passed as a parameter to WorkoutOverlay()
-extern HMENU hMenu;
-extern BOOL  bIsFullScreen;
-extern void ShowText(HWND hWnd, LPCTSTR szText);
-extern BOOL Show_Menu;
-
-int HalfHeight = FALSE;
-
 #include "AspectFilters.h"
+#include "Deinterlace.h"
 
 #define AR_STRETCH       0
 #define AR_NONANAMORPHIC 1
@@ -128,113 +122,11 @@ double GetActualSourceFrameAspect()
 }
 
 //----------------------------------------------------------------------------
-// Enter or leave half-height mode.
-// True if we're in half-height mode (even or odd scanlines only).
-void SetHalfHeight(int IsHalfHeight)
-{
-	if (IsHalfHeight != HalfHeight)
-	{
-		HalfHeight = IsHalfHeight;
-		WorkoutOverlaySize();
-	}
-}
-
-CAspectFilter* BuildFilterChain()
-{
-	CAspectFilter *head, *cur;
-	if (aspectSettings.orbitEnabled)
-	{ 
-		int overscan = aspectSettings.InitialOverscan;
-		if (aspectSettings.orbitEnabled && overscan*2 < aspectSettings.orbitSize)
-		{
-			overscan = (aspectSettings.orbitSize+1)/2;
-		}
-		head = cur = new COverscanAspectFilter(aspectSettings.InitialOverscan);
-		cur->next = new COrbitAspectFilter(aspectSettings.orbitPeriodX, aspectSettings.orbitPeriodY, aspectSettings.orbitSize); 
-		cur = cur->next;
-	}
-	else 
-	{
-		head = cur = new COverscanAspectFilter(aspectSettings.InitialOverscan);
-	}
-	if (aspectSettings.aspect_mode)
-	{ 
-		CAspectFilter *position;
-		
-		if (aspectSettings.bounceEnabled)
-		{
-			position = new CBounceDestinationAspectFilter(aspectSettings.bouncePeriod);
-		}
-		else
-		{
-			double xPos, yPos;
-			switch (aspectSettings.HorizontalPos)
-			{
-			case HORZ_POS_LEFT:
-				xPos = -1; 
-				break;
-			case HORZ_POS_RIGHT:
-				xPos = 1; 
-				break;
-			default: 
-				xPos = 0; 
-				break;
-			}
-			switch (aspectSettings.VerticalPos)
-			{
-			case VERT_POS_TOP: 
-				yPos = -1;
-				break;
-			case VERT_POS_BOTTOM: 
-				yPos = 1; 
-				break;
-			default:
-				yPos = 0; 
-				break;
-			}
-			position = new CPositionDestinationAspectFilter(xPos,yPos);
-		}
-		
-		cur->next = position;
-		cur->next->firstChild = new CCropAspectFilter();
-
-		if (!aspectSettings.aspectImageClipped)
-		{
-			CAspectFilter *uncrop = new CUnCropAspectFilter(); 
-			uncrop->firstChild = cur->next;
-			cur->next = uncrop;
-		}
-		cur = cur->next;
-	}
-
-	// This like is where image zooming would be implemented...
-	// Sample code zooms in 2x on the center of the image
-	// See comments in AspectFilters.hpp for PanAndZoomAspectFilter details.
-	if (aspectSettings.xZoomFactor != 100 || aspectSettings.yZoomFactor != 100)
-	{
-		cur->next = new CPanAndZoomAspectFilter(aspectSettings.xZoomCenter,
-											   aspectSettings.yZoomCenter,
-											   aspectSettings.xZoomFactor,
-											   aspectSettings.yZoomFactor);
-		cur = cur->next;
-	}
-
-	cur->next = new CScreenSanityAspectFilter();
-	cur = cur->next;
-	if (aspectSettings.autoResizeWindow)
-	{
-		cur->next = new CResizeWindowAspectFilter();
-		cur = cur->next;
-	}
-	
-	return head;
-}
-
-//----------------------------------------------------------------------------
 // Calculate size and position coordinates for video overlay
 // Takes into account of aspect ratio control.
 void WorkoutOverlaySize(BOOL allowResize)
 {
+    CFilterChain FilterChain;
 	bIgnoreMouse = TRUE;
 
 	static BOOL InFunction = FALSE;
@@ -280,22 +172,17 @@ void WorkoutOverlaySize(BOOL allowResize)
 
 	// Build filter chain and apply
 	// TODO: Filter chain should be saved and only rebuilt if options are changed
-	CAspectFilter *head = BuildFilterChain();
-	if (head->applyFilters(ar, allowResize))
+	FilterChain.BuildFilterChain();
+	if (FilterChain.ApplyFilters(ar, allowResize))
 	{
-		delete head;
 		InFunction = FALSE;
 		WorkoutOverlaySize(FALSE); // Prevent further recursion - only allow 1 level of request for readjusting the overlay
 		return;
-	} 
-	else 
-	{
-		delete head;
 	}
 
 	// If we're in half-height mode, squish the source rectangle accordingly.  This
 	// allows the overlay hardware to do our bobbing for us.
-	if (HalfHeight)
+	if (InHalfHeightMode() == TRUE)
 	{
 		ar.rCurrentOverlaySrc.top /= 2;
 		ar.rCurrentOverlaySrc.bottom /= 2;

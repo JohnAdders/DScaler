@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////
 // AspectGUI.c
 /////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2000 Michael Samblanet  All rights reserved.
+/////////////////////////////////////////////////////////////////////////////
 //
 //	This file is subject to the terms of the GNU General Public License as
 //	published by the Free Software Foundation.  A copy of this license is
@@ -23,7 +25,6 @@
 // different aspect ratios.
 //
 // Portions copyright (C) 1999/2000 Espresso (echter_espresso@hotmail.com)
-// Portions copyright (C) 2000 John Adcock
 //
 /////////////////////////////////////////////////////////////////////////////
 // Change Log
@@ -950,25 +951,25 @@ SETTING AspectSettings[ASPECT_SETTING_LASTONE] =
 	},
 	{
 		"X Zoom Factor", SLIDER, 0, &aspectSettings.xZoomFactor,
-		100, 1, 500, 10, 100,
+		100, 1, 1000, 10, 100,
 		NULL,
 		"ASPECT", "XZoomFactor", XZoom_Factor_OnChange,
 	},
 	{
 		"Y Zoom Factor", SLIDER, 0, &aspectSettings.yZoomFactor,
-		100, 1, 500, 10, 100,
+		100, 1, 1000, 10, 100,
 		NULL,
 		"ASPECT", "YZoomFactor", YZoom_Factor_OnChange,
 	},
 	{
 		"X Zoom Center", SLIDER, 0, &aspectSettings.xZoomCenter,
-		50, 0, 100, 5, 100,
+		50, -100, 200, 5, 100,
 		NULL,
 		"ASPECT", "XZoomCenter", XZoom_Center_OnChange,
 	},
 	{
 		"Y Zoom Center", SLIDER, 0, &aspectSettings.yZoomCenter,
-		50, 0, 100, 5, 100,
+		50, -100, 200, 5, 100,
 		NULL,
 		"ASPECT", "YZoomCenter", YZoom_Center_OnChange,
 	},

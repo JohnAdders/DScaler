@@ -872,7 +872,7 @@ END
 // Bitmap
 //
 
-IDB_STARTUP             BITMAP  DISCARDABLE     "res\\STARTUP.BMP"
+IDB_STARTUP             BITMAP  DISCARDABLE     "res\\STARTUP.rle"
 IDB_VTCHARS             BITMAP  DISCARDABLE     "res\\Vtx15x18.bmp"
 
 /////////////////////////////////////////////////////////////////////////////

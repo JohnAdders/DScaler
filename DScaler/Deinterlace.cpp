@@ -222,6 +222,7 @@ void SetFilmDeinterlaceMode(eFILMPULLDOWNMODES mode)
 	if (gFilmPulldownMode != mode || bIsFilmMode == FALSE)
 	{
 		DWORD CurrentTickCount = GetTickCount();
+        BOOL WereInHalfHeight = InHalfHeightMode();
 
 		if (nInitialTicks == -1)
 		{
@@ -245,7 +246,10 @@ void SetFilmDeinterlaceMode(eFILMPULLDOWNMODES mode)
 		StatusBar_ShowText(STATUS_PAL, GetDeinterlaceModeName());
 		nTotalDeintModeChanges++;
 		FilmDeintMethods[gFilmPulldownMode].ModeChanges++;
-		SetHalfHeight(FilmDeintMethods[gFilmPulldownMode].bIsHalfHeight);
+        if(WereInHalfHeight != InHalfHeightMode())
+        {
+            WorkoutOverlaySize();
+        }
 	}
 }
 
@@ -254,6 +258,7 @@ void SetVideoDeinterlaceMode(int mode)
 	if (gVideoPulldownMode != mode || bIsFilmMode == TRUE)
 	{
 		DWORD CurrentTickCount = GetTickCount();
+        BOOL WereInHalfHeight = InHalfHeightMode();
 
 		if (nInitialTicks == -1)
 		{
@@ -277,7 +282,10 @@ void SetVideoDeinterlaceMode(int mode)
 		StatusBar_ShowText(STATUS_PAL, GetDeinterlaceModeName());
 		nTotalDeintModeChanges++;
 		VideoDeintMethods[gVideoPulldownMode]->ModeChanges++;
-		SetHalfHeight(VideoDeintMethods[gVideoPulldownMode]->bIsHalfHeight);
+        if(WereInHalfHeight != InHalfHeightMode())
+        {
+            WorkoutOverlaySize();
+        }
 	}
 }
 

@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////
 // AspectRatio.h
 /////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2000 Michael Samblanet.  All rights reserved.
+/////////////////////////////////////////////////////////////////////////////
 //
 //	This file is subject to the terms of the GNU General Public License as
 //	published by the Free Software Foundation.  A copy of this license is
@@ -38,8 +40,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef _ASPECT_H_
-#define _ASPECT_H_ 1
+#ifndef _ASPECTRATIO_H_
+#define _ASPECTRATIO_H_
 
 #include "settings.h"
 
@@ -77,7 +79,6 @@ void    WorkoutOverlaySize(BOOL allowResize = TRUE);
 void    PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect);
 int		FindAspectRatio(short** EvenField, short** OddField);
 void	AdjustAspectRatio(short** EvenField, short** OddField);
-void	SetHalfHeight(BOOL IsHalfHeight);
 void	GetSourceRect(RECT *rect);
 void    GetDestRect(RECT *rect);
 void	SwitchToRatio(int nMode, int nRatio);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2001 Lindsey Dubb.  All rights reserved.
+// Copyright (c) 2001, 2002 Lindsey Dubb.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 //
 //  This file is subject to the terms of the GNU General Public License as
@@ -16,6 +16,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/01/04 01:29:54  lindsey
+// Changed parameterization
+//
 // Revision 1.1.1.1  2001/12/31 01:25:17  lindsey
 // Added FLT_AdaptiveNoise
 //
@@ -35,21 +38,21 @@ long FilterAdaptiveNoise_DEBUG( TDeinterlaceInfo* pInfo )
 long FilterAdaptiveNoise( TDeinterlaceInfo* pInfo )
 #endif  // Name of core routine
 {
-    BYTE*           pSource = NULL;                                 // Pointer to current field
-    BYTE*           pLocalHistogram = NULL;                         // Copy of pointer to histogram array
+    BYTE*           pSource = NULL;                             // Pointer to current field
+    BYTE*           pLocalHistogram = NULL;                     // Copy of pointer to histogram array
     LONG            Index = 0;
-    const LONG      Cycles = (pInfo->LineLength/8)*8;               // Number of blocks per line * 8
+    const LONG      Cycles = (pInfo->LineLength/8);             // Number of blocks per line
     // Noise multiplier is (1/gNoiseReduction), in 0x10000 fixed point.
     // This times the measured noise gives the weight given to the new pixel color
-    __int64         qwNoiseBaseline = 0;                            // Lowest amount of color difference in pure noise
-    __int64         qwNoiseMultiplier = 0;                          // Amount to multiply times (color difference - baseline) to get
+    __int64         qwNoiseBaseline = 0;                        // Lowest amount of color difference in pure noise
+    __int64         qwNoiseMultiplier = 0;                      // Amount to multiply times (color difference - baseline) to get
+                                                                // the noise compensation
 
-    BYTE*           pLast = NULL;                                   // Pointer to field[t = -2]
+    BYTE*           pLast = NULL;                               // Pointer to field[t = -2]
     LONG            LongBaseline = 0;
-    const __int64   qwPositive = 0x0000000000007FFF;                // Used to limit values so a signed comparison can be used
-    const __int64   qwBlackMask = 0x0000000020202020;               // Minimum color value below which a pixel is left out of the histogram
-    const __int64   qwWhiteMask = 0x00000000EFEFEFEF;               // Maximum color value above which a pixel is left out of the histogram
-                                                                    // the noise compensation
+    const __int64   qwPositive = 0x0000000000007FFF;            // Used to limit values so a signed comparison can be used
+    const __int64   qwBlackMask = 0x0000000020202020;           // Minimum color value below which a pixel is left out of the histogram
+    const __int64   qwWhiteMask = 0x00000000EFEFEFEF;           // Maximum color value above which a pixel is left out of the histogram
 
     // Amount of motion correlation between adjacent (up-down or temporal) blocks
     const __int64   qwMotionDecay = (0x10000*gDecayCoefficient + 50)/100;
@@ -58,28 +61,30 @@ long FilterAdaptiveNoise( TDeinterlaceInfo* pInfo )
     const __int64   qwChromaMask = 0xFF00FF00FF00FF00;
     const __int64   qwOnes = 0x0101010101010101;
 
-    BYTE*           pMap= NULL;                                     // Motion map pointer
-    BYTE*           pMapDown= NULL;                                 // Pointer to next line's motion map
-    DWORD           BottomLine = pInfo->SourceRect.bottom/2;        // Limit processing to displayed picture; !!! Wrong for half-height !!!
-    DWORD           ThisLine = pInfo->SourceRect.top/2;             // !!! Wrong for half-height modes !!!
+    BYTE*           pMap= NULL;                                 // Motion map pointer
+    const DWORD     LocalInputPitch = pInfo->InputPitch;
+    DWORD           BottomLine = pInfo->SourceRect.bottom/2;    // Limit processing to displayed picture; !!! Wrong for half-height !!!
+    DWORD           ThisLine = pInfo->SourceRect.top/2;         // !!! Wrong for half-height modes !!!
     DWORD           OldSI;
     DWORD           OldSP;
     DWORD           DWordNoiseMultiplier = 0;
     DWORD           DWordMaxNoise = 0;
 
-    __int64         qwMaxNoise = 0;                                 // Maximum allowed movement measure
+    __int64         qwMaxNoise = 0;                             // Maximum allowed movement measure
     const __int64   qwHighDWord = 0xFFFFFFFF00000000;
-    const __int64   qwHistogramMax = HISTOGRAM_LENGTH - 1;          // Avoid histogram buffer overruns
+    const __int64   qwHistogramMax = HISTOGRAM_LENGTH - 1;      // Avoid histogram buffer overruns
     static DWORD    sLastInputPitch = 0;
     static DWORD    sLastFieldHeight = 0;
 
     // Most of this could be done with fixed point, but that would make my head hurt
-    static DOUBLE   sCumBaseline = 10.0;                            // The derived cumulative baseline noise color difference
-    static DOUBLE   sCumDifferencePeak = 20.0;                      // The derived average noise value from the color difference histogram
-    DOUBLE          CurveWidth = 0.0;                               // Estimated width of the noise distribution curve
-    DOUBLE          DoubleBaseline = 0.0;                           // Derived baseline for noise; affected by "Stability"
-    DOUBLE          DoubleNoiseThreshold = 0.0;                     // Derived multiplier for noise compensation; affected by "Noise Reduction"
+    static DOUBLE   sCumBaseline = INITIAL_BASELINE ;           // The derived cumulative baseline noise color difference
+    static DOUBLE   sCumDifferencePeak = INITIAL_PEAK_MEAN;     // The derived average noise value from the color difference histogram
+    DOUBLE          CurveWidth = 0.0;                           // Estimated width of the noise distribution curve
+    DOUBLE          DoubleBaseline = 0.0;                       // Derived baseline for noise; affected by "Stability"
+    DOUBLE          DoubleNoiseThreshold = 0.0;                 // Derived multiplier for noise compensation; affected by "Noise Reduction"
 
+    DOUBLE          MeanNoise = 0.0;
+    static BOOLEAN  sDoShowDot = FALSE;
 
 #if defined( IS_DEBUG_FLAG )
     __int64         qwPinkThreshold = 0x7FFFFFFF7FFFFFFF;
@@ -100,7 +105,6 @@ long FilterAdaptiveNoise( TDeinterlaceInfo* pInfo )
         sLastFieldHeight = pInfo->FieldHeight;
         CleanupAdaptiveNoise();
     }
-
 
 
 
@@ -145,17 +149,35 @@ long FilterAdaptiveNoise( TDeinterlaceInfo* pInfo )
     // Histogram needs to be emptied before each field
     for( Index = 0; Index < HISTOGRAM_LENGTH * sizeof(DWORD) / sizeof(DOUBLE); ++Index)
     {
-        ((DOUBLE*)gpHistogram)[Index] = 0;
+        ((DOUBLE*)gpHistogram)[Index] = 0.0;
     }
 
 
+    // Show the indicator dot.  Note that it is better to do this before processing rather than after,
+    // so that the dot isn't detected as motion.  (But it's still seen as motion when it turns on or
+    // off.)
+    // !! Assumes pixel width >= 32 !!
+
+    if( (gShowLockDot == TRUE) )
+    {
+        if( sDoShowDot == TRUE )
+        {
+            *((DWORD*)( pInfo->PictureHistory[0]->pData + (16 * pInfo->InputPitch) + 64)) = 0x4FFF;
+        }
+        // Set the motion map at the lock dot to 0
+        *((DWORD*)( gpChangeMap + (LOCK_DOT_V * pInfo->InputPitch) + LOCK_DOT_H*2)) = 0;
+    }
+
+
+
     // Interpret parameters
+    // Read FLT_AdaptiveNoise.c for a description of what's going on, here
 
     CurveWidth = sCumDifferencePeak - sCumBaseline;
 
-    DoubleNoiseThreshold = sCumBaseline + CurveWidth/4.0 + CurveWidth*gNoiseReduction/25.0;
+    DoubleNoiseThreshold = sCumBaseline + CurveWidth*gNoiseReduction/25.0;
     if( DoubleNoiseThreshold < 5.0 )
-    {
+    {   // Make sure DWordNoiseMultiplier is less than 0x10000/2, so we can use a signed multiply
         DoubleNoiseThreshold = 5.0;
     }
     DWordNoiseMultiplier = (DWORD)((0x10000+(DoubleNoiseThreshold/2.0))/DoubleNoiseThreshold);
@@ -174,11 +196,19 @@ long FilterAdaptiveNoise( TDeinterlaceInfo* pInfo )
     // Don't let the cumulative noise difference get too large -- otherwise, there will be a delay after a scene
     // change before noise reduction kicks in.  This also makes sense in terms of the noise statistic: A change of
     // 500 doesn't really give a better indicator of motion than a change of 250.
-    // This formula could be improved:  It's currently a quick and dirty solution
+
+    // This formula makes sure that -- after one field/block's distance, the motion evidence will be significantly
+    // greater than necessary to provide evidence for motion.  This doesn't sound like a really good idea -- Intuitively,
+    // you'd think that decay to allow a certain amount of color averaging would be better.  But this setup is necessary
+    // to prevent the color difference curve from getting an artifactual peak.  Well, actually, this method does not
+    // prevent the artifactual peak -- rather, it places it far enough from the real peak to allow it to be identified
+    // and ignored.
+
     if( gDecayCoefficient != 0 )
     {
-        DWordMaxNoise = (120*100*100)/((100 - gDecayCoefficient)*gDecayCoefficient);
-        DWordMaxNoise += (DWORD) ( sCumDifferencePeak + CurveWidth + 100.0*CurveWidth/gDecayCoefficient );
+        DWordMaxNoise = (DWORD) ( (DoubleNoiseThreshold +
+            NOISE_MAX_CURVE_WIDTHS*CurveWidth)*(100/gDecayCoefficient) +
+            NOISE_MAX_EXTRA );
         if( DWordMaxNoise > SHRT_MAX )
         {
             DWordMaxNoise = SHRT_MAX;
@@ -191,25 +221,27 @@ long FilterAdaptiveNoise( TDeinterlaceInfo* pInfo )
     qwMaxNoise = DWordMaxNoise;
 
 
-    // Make sure we have leave one line on the top and bottom unprocessed.  This avoids the need to make
-    // a special case for them.
+    // Make sure we leave one line on the top and bottom unprocessed.  This avoids the need to make
+    // a special during the image processing.
+
     if( ThisLine < 1 )
     {
         ThisLine = 1;
     }
-    if( (LONG)BottomLine > pInfo->FieldHeight - 1 )   // !!! Wrong for half height modes !!!
+    if( (LONG)BottomLine > pInfo->FieldHeight - 2 )   // !!! Wrong for half height modes !!!
     {
-        BottomLine = pInfo->FieldHeight - 1;
+        BottomLine = pInfo->FieldHeight - 2;
     }
 
     // Prepare pointers for image processing
+
     pSource = pInfo->PictureHistory[0]->pData + (ThisLine * pInfo->InputPitch);
     pLast = pInfo->PictureHistory[2]->pData + (ThisLine * pInfo->InputPitch);
     pMap = gpChangeMap + (ThisLine * pInfo->InputPitch);
-    pMapDown = pMap + pInfo->InputPitch;
     pLocalHistogram = gpHistogram;
 
     // Main image processing loop
+
     for( ; ThisLine < BottomLine; ++ThisLine )
     {
 
@@ -221,19 +253,17 @@ long FilterAdaptiveNoise( TDeinterlaceInfo* pInfo )
 
         _asm 
         {
+            mov     ecx, Cycles
+
             mov     OldSI, esi                  // Preserve si register
             mov     OldSP, esp                  // Preserve sp register
             
-            mov     ecx, Cycles
-
             // Load pointers into normal registers
             mov     edi, dword ptr[pSource]
             mov     ebx, dword ptr[pLast]
             mov     eax, dword ptr[pMap]
-            mov     edx, dword ptr[pMapDown]
 
-            pxor    mm7, mm7
-            pxor    mm5, mm5            
+            mov     edx, LocalInputPitch        // edx = bytes between lines in the map
 
 align 8
 MAINLOOP_LABEL:
@@ -242,37 +272,45 @@ MAINLOOP_LABEL:
 
             movq    mm0, qword ptr[edi]     // * mm0 = NewPixel
             movq    mm1, qword ptr[ebx]     // * mm1 = OldPixel
-            movq    mm3, qword ptr[eax]     // mm3 = mapValue
-            movq    mm6, qword ptr[edx]     // mm6 = mapDownValue
+            movq    mm3, qword ptr[eax + edx] // mm3 = mapValue
+            movq    mm6, qword ptr[eax]     // mm6 = upMapValue
 
+            // Get the noise/motion statistic "N"
 
-            // Get the noise adjustment multiplier
-            
-            // First find the cumulative color difference
+            // Find the cumulative color difference
+
             movq    mm2, mm0                // mm2 = NewPixel
             psadbw  mm2, mm1                // mm2 = Sum(|byte differences Old,New|)
             prefetchnta[edi + PREFETCH_STRIDE]
-            paddusw mm2, mm3                // mm2 = Cumulative weighted sum of differences
+            paddusw mm2, mm3                // mm2 = Cumulative weighted sum of differences ("N")
             movq    mm4, mm2                // mm4 = Cumulative weighted sum of differences
-
 
             // Deal with correlations
             
             // Decay the movement at this pixel
             pminsw  mm4, qwMaxNoise         // limit noise value to reasonable range
+
             pmulhuw mm4, qwMotionDecay      // mm4 = temporally decayed sum of differences
             prefetchnta[ebx + PREFETCH_STRIDE]
-            movq    qword ptr[eax], mm4     // store updated map
+            movq    qword ptr[eax + edx], mm4     // store updated map
+            movq    mm3, qword ptr[eax + 2*edx] // mm3 = downMapValue
 
             // Decay the movement below and to the right
             movq    mm5, qword ptr[eax + 8] // get next map
             movq    mm7, mm2                // mm7 = Cumulative weights
             pmulhuw mm7, qwHorizontalDecay  // mm7 = weight to apply to next horizontal block
-            prefetchnta[eax + PREFETCH_STRIDE]
+            prefetchnta[eax + 2*edx + PREFETCH_STRIDE]
             pmaxsw  mm5, mm7                // mm5 = max(old next weight, proposed new next weight)
             movq    qword ptr[eax + 8], mm5 // store updated next map
-            pmaxsw  mm6, mm4                // mm6 = max(down map value, decayed value at this pixel)
-            movq    qword ptr[edx], mm6     // store updated down map
+
+            movq    mm5, qword ptr[eax - 8] // get previous map
+            pmaxsw  mm5, mm7                // mm5 = max(old next weight, proposed new next weight)
+            movq    qword ptr[eax - 8], mm5 // store updated previous map
+
+            pmaxsw  mm6, mm4                // mm6 = max(up map value, decayed value at this pixel)
+            movq    qword ptr[eax], mm6
+            pmaxsw  mm3, mm4                // mm3 = max(down map value, decayed value at this pixel)
+            movq    qword ptr[eax + 2*edx], mm3
 
 
 #if defined( IS_DEBUG_FLAG )
@@ -326,6 +364,7 @@ MAINLOOP_LABEL:
             // Determine the proper muliplier to use:
             // NoiseMultiplier is always less than 0x10000/2, so we can use a signed multiply:
             pmaddwd mm2, qwNoiseMultiplier  // mm2 (low Dword) = Multiplier to move toward new pixel value
+            prefetchnta[eax + edx + PREFETCH_STRIDE]
             movq    mm3, mm2                // mm3 = same
             pxor    mm6, mm6                // mm6 = 0
             pcmpgtw mm2, mm6                // mm2 = 0x.......FFFF.... if ignoring old pixel value
@@ -354,7 +393,7 @@ MAINLOOP_LABEL:
             movq    mm3, qwChromaMask
             pand    mm7, mm3                // mm7 = bytewise |new - old| chroma
             pmulhuw mm7, mm2                // mm7 = amount of chroma to add/subtract from old, with remainders
-            prefetchnta[edx + PREFETCH_STRIDE]
+            prefetchnta[eax + PREFETCH_STRIDE]
             pand    mm7, mm3                // mm7 = amount of chroma to add/subtract from old
             pandn   mm3, mm4                // mm3 = bytewise |new - old| luma
             pmulhuw mm3, mm2                // mm3 = amount of luma to add/subtract from old
@@ -380,7 +419,8 @@ MAINLOOP_LABEL:
             add     eax, 8
             add     ebx, 8
 
-            sub     ecx, 8
+
+            dec     ecx
             jnz     MAINLOOP_LABEL
 
             mov     esi, OldSI                  // Restore si register
@@ -392,7 +432,6 @@ MAINLOOP_LABEL:
         pSource += pInfo->InputPitch;
         pLast += pInfo->InputPitch;
         pMap += pInfo->InputPitch;
-        pMapDown += pInfo->InputPitch;
     }
 
     // Some floating point operations follow
@@ -401,7 +440,7 @@ MAINLOOP_LABEL:
         emms
     }
 
-    AnalyzeHistogram( pInfo, DWordMaxNoise, &sCumBaseline, &sCumDifferencePeak );
+    AnalyzeHistogram( pInfo, DWordMaxNoise, &sCumBaseline, &sCumDifferencePeak, &sDoShowDot );
 
     return 1000;
 }

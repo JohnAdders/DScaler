@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////
 //
-// $Id: SAA7118.cpp,v 1.2 2002-09-19 22:10:08 adcockj Exp $
+// $Id: SAA7118.cpp,v 1.3 2002-09-26 16:32:34 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
@@ -19,6 +19,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/09/19 22:10:08  adcockj
+// Holo3D Fixes for PAL
+//
 // Revision 1.1  2002/09/11 18:32:43  adcockj
 // Preliminary support for H3D card
 //
@@ -113,6 +116,11 @@ void CSAA7118::DumpSettings()
 	}
 
     for(i = 0x40; i <= 0x62; ++i)
+	{
+		DumpRegister(hFile, i);
+	}
+
+    for(i = 0x80; i <= 0xBF; ++i)
 	{
 		DumpRegister(hFile, i);
 	}

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard_H3D.cpp,v 1.5 2002-09-22 17:47:04 adcockj Exp $
+// $Id: CT2388xCard_H3D.cpp,v 1.6 2002-09-26 16:32:33 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/09/22 17:47:04  adcockj
+// Fixes for holo3d
+//
 // Revision 1.4  2002/09/19 22:10:08  adcockj
 // Holo3D Fixes for PAL
 //
@@ -93,6 +96,27 @@ void CCT2388xCard::InitH3D()
     m_SAA7118->SetRegister(0x17, 0xc0);
     m_SAA7118->SetRegister(0x18, 0x40);
     m_SAA7118->SetRegister(0x19, 0x80);
+
+    m_SAA7118->SetRegister(0x23, 0x00);
+    m_SAA7118->SetRegister(0x24, 0x90);
+    m_SAA7118->SetRegister(0x25, 0x90);
+    m_SAA7118->SetRegister(0x29, 0x00);
+    m_SAA7118->SetRegister(0x2D, 0x00);
+    m_SAA7118->SetRegister(0x2E, 0x00);
+    m_SAA7118->SetRegister(0x2F, 0x00);
+
+    m_SAA7118->SetRegister(0x40, 0x40);
+    for(BYTE j(0x41); j <= 0x57; ++j)
+    {
+        m_SAA7118->SetRegister(j, 0xFF);
+    }
+    m_SAA7118->SetRegister(0x58, 0x00);
+    m_SAA7118->SetRegister(0x59, 0x47);
+    m_SAA7118->SetRegister(0x5C, 0x00);
+    m_SAA7118->SetRegister(0x5D, 0x3E);
+    m_SAA7118->SetRegister(0x5E, 0x00);
+    m_SAA7118->SetRegister(0x5F, 0x00);
+
 }
 
 void CCT2388xCard::H3DInputSelect(int nInput)
@@ -139,18 +163,19 @@ void CCT2388xCard::H3DSetFormat(int nInput, eVideoFormat TVFormat, BOOL IsProgre
 {
     BYTE ChrominanceControl(0x81);
     BYTE ChrominanceControl2(0x00);
+    BYTE ChrominanceGainControl(0x2A);
     BYTE LuminaceControl(0x40);
-
-    m_SAA7118->ReadFromSubAddress(0x0E, &ChrominanceControl, 1);
-
-    ChrominanceControl &= 0x8F;
 
     if(GetTVFormat(TVFormat)->wCropHeight == 576)
     {
+        m_SAA7118->SetRegister(0x5A, 0x03);
+        m_SAA7118->SetRegister(0x5A, 0x03);
         WriteByte(0x390007, 0xd0);
     }
     else
     {
+        m_SAA7118->SetRegister(0x5A, 0x06);
+        m_SAA7118->SetRegister(0x5A, 0x83);
         WriteByte(0x390007, 0x50);
     }
 
@@ -174,21 +199,19 @@ void CCT2388xCard::H3DSetFormat(int nInput, eVideoFormat TVFormat, BOOL IsProgre
         {
         case VIDEOFORMAT_PAL_M:
             ChrominanceControl |= 3 << 4;
-            ChrominanceControl |= 1 << 3;
             ChrominanceControl2 = 0x06;
             break;
         case VIDEOFORMAT_PAL_60:
             ChrominanceControl |= 1 << 4;
-            ChrominanceControl |= 1 << 3;
             ChrominanceControl2 = 0x06;
             break;
         case VIDEOFORMAT_NTSC_50:
             ChrominanceControl |= 1 << 4;
+            ChrominanceControl |= 1 << 3;
             ChrominanceControl2 = 0x0E;
             break;
         case VIDEOFORMAT_PAL_N_COMBO:
             ChrominanceControl |= 2 << 4;
-            ChrominanceControl |= 1 << 3;
             ChrominanceControl2 = 0x06;
             break;
         case VIDEOFORMAT_SECAM_B:
@@ -200,10 +223,13 @@ void CCT2388xCard::H3DSetFormat(int nInput, eVideoFormat TVFormat, BOOL IsProgre
         case VIDEOFORMAT_SECAM_L:
         case VIDEOFORMAT_SECAM_L1:
             ChrominanceControl = 0xD0;
+            ChrominanceControl2 = 0x00;
+            ChrominanceGainControl = 0x80;
             LuminaceControl = 0x1B;
             break;
         case VIDEOFORMAT_NTSC_M_Japan:
             ChrominanceControl |= 4 << 4;
+            ChrominanceControl |= 1 << 3;
             ChrominanceControl2 = 0x0E;
             break;
         case VIDEOFORMAT_PAL_B:
@@ -212,12 +238,12 @@ void CCT2388xCard::H3DSetFormat(int nInput, eVideoFormat TVFormat, BOOL IsProgre
         case VIDEOFORMAT_PAL_H:
         case VIDEOFORMAT_PAL_I:
             ChrominanceControl |= 0 << 4;
-            ChrominanceControl |= 1 << 3;
             ChrominanceControl2 = 0x06;
             break;
         case VIDEOFORMAT_NTSC_M:
         default:
             ChrominanceControl |= 0 << 4;
+            ChrominanceControl |= 1 << 3;
             ChrominanceControl2 = 0x0E;
             break;
         }
@@ -231,6 +257,7 @@ void CCT2388xCard::H3DSetFormat(int nInput, eVideoFormat TVFormat, BOOL IsProgre
     
     m_SAA7118->SetRegister(0x09, LuminaceControl);
     m_SAA7118->SetRegister(0x0E, ChrominanceControl);
+    m_SAA7118->SetRegister(0x0F, ChrominanceGainControl);
     m_SAA7118->SetRegister(0x10, ChrominanceControl2);
 
     if(IsProgressive)

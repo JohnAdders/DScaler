@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Status.cpp,v 1.12 2001-12-18 14:45:05 adcockj Exp $
+// $Id: Status.cpp,v 1.13 2002-03-17 10:00:25 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2001/12/18 14:45:05  adcockj
+// Moved to Common Controls status bar
+//
 // Revision 1.11  2001/11/23 10:49:17  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -93,10 +96,7 @@ BOOL StatusBar_IsVisible()
 
 void StatusBar_ShowText(eStatusBarBox Box, LPCTSTR szText)
 {
-    if (IsWindowVisible(hwndStatusBar))
-    {
-        SendMessage(hwndStatusBar, SB_SETTEXT, Box, (LPARAM) szText);
-    }
+    SendMessage(hwndStatusBar, SB_SETTEXT, Box, (LPARAM) szText);
 }
 
 

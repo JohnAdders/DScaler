@@ -1,5 +1,5 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Developer Studio generated include file.
+// Microsoft Visual C++ generated include file.
 // Used by DScalerRes.rc
 //
 #define IDM_POPUP_FILTERS               1
@@ -11,7 +11,6 @@
 #define IDD_ABOUT                       160
 #define IDD_ADV_VIDEOSETTINGS           161
 #define IDD_ANALOGSCAN                  162
-#define IDD_AUDIOEQUALIZER              163
 #define IDD_VTSTATUS                    164
 #define IDD_VPSSTATUS                   165
 #define IDD_VIDEOSETTINGS               166
@@ -39,6 +38,10 @@
 #define IDD_DSHOW_AUDIODEVICE           204
 #define IDD_DSHOW_VIDEOFMTS             205
 #define IDC_DSHOW_VIDEOFMTS_CONTEXTMENU 206
+#define IDD_AUDIOSETTINGS2              209
+#define ID_BTCARD_MSP34X0AUDIOSETTINGS  210
+#define ID_BTCARD_MSP34X0AUDIOSETTINGS211 211
+#define ID_BTCARD_MSP34X0AUIOSETTINGS   212
 #define IDM_VBI                         231
 #define IDM_CAPTURE_PAUSE               232
 #define IDM_CHANNEL_LIST                242
@@ -961,6 +964,36 @@
 #define IDC_DSHOW_VIDEOFMTS_WIDTH       8020
 #define IDC_DSHOW_VIDEOFMTS_HEIGHT      8021
 #define IDC_DSHOW_VIDEOFMTS_NAME        8022
+#define IDC_ENABLEEQUALIZER             8023
+#define IDC_LOUDNESS_SLIDER             8024
+#define IDC_SPATIALEFFECT_SLIDER        8025
+#define IDC_SUPERBASS                   8026
+#define IDC_FREQTEXT1                   8028
+#define IDC_BAND1_TEXT                  8028
+#define IDC_FREQTEXT2                   8029
+#define IDC_BAND2_TEXT                  8029
+#define IDC_FREQTEXT3                   8030
+#define IDC_BAND3_TEXT                  8030
+#define IDC_FREQTEXT4                   8031
+#define IDC_BAND4_TEXT                  8031
+#define IDC_FREQTEXT5                   8032
+#define IDC_BAND5_TEXT                  8032
+#define IDC_BAND1_SLIDER                8033
+#define IDC_BAND2_SLIDER                8034
+#define IDC_BAND3_SLIDER                8035
+#define IDC_BAND4_SLIDER                8036
+#define IDC_BAND5_SLIDER                8037
+#define IDC_BAND1_VAL                   8038
+#define IDC_BAND2_VAL                   8039
+#define IDC_BAND3_VAL                   8040
+#define IDC_BAND4_VAL                   8041
+#define IDC_BAND5_VAL                   8042
+#define IDC_VOLUMESLIDER                8047
+#define IDC_VOLUME_SLIDER               8047
+#define IDC_VOLUME_VAL                  8048
+#define IDC_BALANCE_SLIDER              8049
+#define IDC_BALANCE_VAL                 8050
+#define IDC_USEEQUALIZER                8051
 #define IDM_SETTINGS_FILTERSETTINGS     32771
 #define IDM_SOURCE_INITIAL              32772
 #define IDM_DSHOW_FILTERS               32773
@@ -1009,9 +1042,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        207
+#define _APS_NEXT_RESOURCE_VALUE        213
 #define _APS_NEXT_COMMAND_VALUE         32801
-#define _APS_NEXT_CONTROL_VALUE         8023
+#define _APS_NEXT_CONTROL_VALUE         8052
 #define _APS_NEXT_SYMED_VALUE           2391
 #endif
 #endif

@@ -340,83 +340,65 @@ BEGIN
     PUSHBUTTON      "&Default",IDC_DEFAULT,113,161,45,15
 END
 
-IDD_AUDIOSETTINGS DIALOG DISCARDABLE  0, 0, 170, 250
+IDD_AUDIOSETTINGS DIALOG DISCARDABLE  0, 0, 352, 202
 STYLE DS_SYSMODAL | DS_SETFOREGROUND | DS_3DLOOK | WS_POPUP | WS_VISIBLE | 
     WS_CAPTION | WS_SYSMENU
 CAPTION "Audio-Settings (Analog)"
 FONT 8, "MS Sans Serif"
 BEGIN
-    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,7,7,45,150
-    CTEXT           "Volume",IDC_STATIC,14,10,33,10
-    CTEXT           "Bass",IDC_STATIC,67,10,33,8
-    CTEXT           "Treble",IDC_STATIC,121,10,33,10
-    CTEXT           "(+/-)",IDC_STATIC,10,20,33,10
-    EDITTEXT        IDC_D1,13,32,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,7,7,45,164
+    CTEXT           "(+/-)",IDC_STATIC,11,36,33,10
+    EDITTEXT        IDC_VOLUME_VAL,12,48,35,12,ES_CENTER | ES_AUTOHSCROLL | 
                     WS_DISABLED
-    EDITTEXT        IDC_D4,65,32,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_BAND1_VAL,72,48,18,12,ES_CENTER | ES_AUTOHSCROLL | 
                     WS_DISABLED
-    EDITTEXT        IDC_D5,121,32,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_BAND2_VAL,102,48,18,12,ES_CENTER | ES_AUTOHSCROLL | 
                     WS_DISABLED
-    CONTROL         "Slider1",IDC_SLIDER1,"msctls_trackbar32",TBS_VERT | 
-                    TBS_BOTH | WS_TABSTOP,14,54,29,97
-    CONTROL         "Slider4",IDC_SLIDER4,"msctls_trackbar32",TBS_VERT | 
-                    TBS_BOTH | WS_TABSTOP,69,54,29,97
-    CONTROL         "Slider5",IDC_SLIDER5,"msctls_trackbar32",TBS_VERT | 
-                    TBS_BOTH | WS_TABSTOP,125,54,29,97
-    GROUPBOX        "",IDC_STATIC,6,155,157,44
-    CTEXT           "Balance",IDC_STATIC,45,165,33,10
-    EDITTEXT        IDC_D6,87,164,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+    CONTROL         "",IDC_VOLUME_SLIDER,"msctls_trackbar32",TBS_VERT | 
+                    TBS_BOTH | WS_TABSTOP,15,70,29,97
+    CONTROL         "",IDC_BAND1_SLIDER,"msctls_trackbar32",TBS_VERT | 
+                    TBS_BOTH | WS_TABSTOP,66,72,24,97
+    CONTROL         "",IDC_BAND2_SLIDER,"msctls_trackbar32",TBS_VERT | 
+                    TBS_BOTH | WS_TABSTOP,96,72,24,97
+    GROUPBOX        "",IDC_STATIC,227,114,118,57
+    CTEXT           "Balance",IDC_STATIC,242,129,33,10
+    EDITTEXT        IDC_BALANCE_VAL,281,129,35,12,ES_CENTER | ES_AUTOHSCROLL | 
                     WS_DISABLED
-    CONTROL         "Slider6",IDC_SLIDER6,"msctls_trackbar32",TBS_TOP | 
-                    WS_TABSTOP,7,178,152,15
-    CONTROL         "Activate Superbass",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,32,208,115,12
-    PUSHBUTTON      "Cancel",IDCANCEL,61,228,45,15
-    PUSHBUTTON      "Default",IDC_DEFAULT,118,228,45,15
-    DEFPUSHBUTTON   "OK",IDOK,7,228,45,15
-    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,61,7,45,150
-    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,118,7,45,150
-END
-
-IDD_AUDIOEQUALIZER DIALOG DISCARDABLE  0, 0, 257, 175
-STYLE DS_SYSMODAL | DS_SETFOREGROUND | DS_3DLOOK | WS_POPUP | WS_VISIBLE | 
-    WS_CAPTION | WS_SYSMENU
-CAPTION "Audio-Settings Equalizer"
-FONT 8, "MS Sans Serif"
-BEGIN
-    CONTROL         "",-1,"Static",SS_ETCHEDFRAME,5,5,45,150
-    CTEXT           "Channel 1",-1,10,10,33,10
-    EDITTEXT        IDC_D1,10,30,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+    CONTROL         "",IDC_BALANCE_SLIDER,"msctls_trackbar32",TBS_TOP | 
+                    WS_TABSTOP,235,145,102,23
+    CONTROL         "Activate Superbass",IDC_SUPERBASS,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,231,12,97,12
+    PUSHBUTTON      "Cancel",IDCANCEL,227,180,45,15
+    PUSHBUTTON      "Default",IDC_DEFAULT,7,180,45,15
+    DEFPUSHBUTTON   "OK",IDOK,300,180,45,15
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,59,7,160,165
+    LTEXT           "Spatial effect",IDC_STATIC,242,65,65,8
+    LTEXT           "Loudness",IDC_STATIC,243,29,32,8
+    CONTROL         "",IDC_LOUDNESS_SLIDER,"msctls_trackbar32",TBS_TOP | 
+                    WS_TABSTOP,243,41,94,23
+    CONTROL         "",IDC_SPATIALEFFECT_SLIDER,"msctls_trackbar32",TBS_TOP | 
+                    WS_TABSTOP,242,76,93,20
+    CONTROL         "Use equalizer",IDC_USEEQUALIZER,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,64,12,59,10
+    CONTROL         "",IDC_BAND5_SLIDER,"msctls_trackbar32",TBS_VERT | 
+                    TBS_BOTH | WS_TABSTOP,186,72,24,97
+    CONTROL         "",IDC_BAND4_SLIDER,"msctls_trackbar32",TBS_VERT | 
+                    TBS_BOTH | WS_TABSTOP,156,72,24,97
+    CONTROL         "",IDC_BAND3_SLIDER,"msctls_trackbar32",TBS_VERT | 
+                    TBS_BOTH | WS_TABSTOP,126,72,24,97
+    EDITTEXT        IDC_BAND3_VAL,132,48,18,12,ES_CENTER | ES_AUTOHSCROLL | 
                     WS_DISABLED
-    CONTROL         "Slider1",IDC_SLIDER1,"msctls_trackbar32",TBS_AUTOTICKS | 
-                    TBS_VERT | TBS_BOTH | WS_TABSTOP,13,47,29,97
-    CONTROL         "",-1,"Static",SS_ETCHEDFRAME,55,5,45,150
-    CTEXT           "Channel 2",-1,60,10,33,10
-    EDITTEXT        IDC_D2,60,30,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_BAND4_VAL,162,48,18,12,ES_CENTER | ES_AUTOHSCROLL | 
                     WS_DISABLED
-    CONTROL         "Slider2",IDC_SLIDER2,"msctls_trackbar32",TBS_AUTOTICKS | 
-                    TBS_VERT | TBS_BOTH | WS_TABSTOP,63,47,29,97
-    CONTROL         "",-1,"Static",SS_ETCHEDFRAME,105,5,45,150
-    CTEXT           "Channel 3",-1,110,10,33,10
-    EDITTEXT        IDC_D3,110,30,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_BAND5_VAL,192,48,18,12,ES_CENTER | ES_AUTOHSCROLL | 
                     WS_DISABLED
-    CONTROL         "Slider3",IDC_SLIDER3,"msctls_trackbar32",TBS_AUTOTICKS | 
-                    TBS_VERT | TBS_BOTH | WS_TABSTOP,113,47,29,97
-    CONTROL         "",-1,"Static",SS_ETCHEDFRAME,155,5,45,150
-    CTEXT           "Channel 4",-1,160,10,33,8
-    EDITTEXT        IDC_D4,160,30,35,12,ES_CENTER | ES_AUTOHSCROLL | 
-                    WS_DISABLED
-    CONTROL         "Slider4",IDC_SLIDER4,"msctls_trackbar32",TBS_AUTOTICKS | 
-                    TBS_VERT | TBS_BOTH | WS_TABSTOP,163,47,29,97
-    CONTROL         "",-1,"Static",SS_ETCHEDFRAME,205,5,45,150
-    CTEXT           "Channel 5",-1,210,10,33,10
-    EDITTEXT        IDC_D5,210,30,35,12,ES_CENTER | ES_AUTOHSCROLL | 
-                    WS_DISABLED
-    CONTROL         "Slider5",IDC_SLIDER5,"msctls_trackbar32",TBS_AUTOTICKS | 
-                    TBS_VERT | TBS_BOTH | WS_TABSTOP,213,47,29,97
-    PUSHBUTTON      "Cancel",IDCANCEL,7,160,45,15
-    PUSHBUTTON      "Default",IDC_DEFAULT,105,160,45,15
-    DEFPUSHBUTTON   "OK",IDOK,205,160,45,15
+    CTEXT           "120 Hz",IDC_BAND1_TEXT,72,30,18,18
+    CTEXT           "500 Hz",IDC_BAND2_TEXT,102,30,20,18
+    CTEXT           "1500 Hz",IDC_BAND3_TEXT,132,30,18,18
+    CTEXT           "5000 Hz",IDC_BAND4_TEXT,159,30,23,18
+    CTEXT           "10000 Hz",IDC_BAND5_TEXT,187,30,23,18
+    CTEXT           "Volume",IDC_STATIC,10,26,36,12
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,227,7,118,104
 END
 
 IDD_VTSTATUS DIALOG DISCARDABLE  22, 17, 162, 98
@@ -1256,11 +1238,7 @@ BEGIN
             MENUITEM SEPARATOR
             MENUITEM "&Automatic Stereo Adjustment", IDM_AUTOSTEREO, GRAYED
         END
-        POPUP "MSP 34x0 Audio Settings"
-        BEGIN
-            MENUITEM "&Volume and Tone",            IDM_AUDIOSETTINGS
-            MENUITEM "&Equalizer",                  IDM_MSP_EQUALIZER
-        END
+        MENUITEM "MSP 34x0 Audio Settings...",  IDM_AUDIOSETTINGS
         MENUITEM SEPARATOR
         MENUITEM "&Setup Card / Tuner ...",     IDM_SETUPCARD
         MENUITEM SEPARATOR
@@ -1352,164 +1330,6 @@ BEGIN
         , GRAYED
     END
 END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// DESIGNINFO
-//
-
-#ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO DISCARDABLE 
-BEGIN
-    IDD_HWINFO, DIALOG
-    BEGIN
-        RIGHTMARGIN, 199
-        BOTTOMMARGIN, 161
-    END
-
-    IDD_CHANNELLIST, DIALOG
-    BEGIN
-        LEFTMARGIN, 1
-        RIGHTMARGIN, 333
-        BOTTOMMARGIN, 176
-    END
-
-    IDD_SPLASHBOX, DIALOG
-    BEGIN
-        RIGHTMARGIN, 144
-    END
-
-    IDD_VIDEOSETTINGS, DIALOG
-    BEGIN
-        LEFTMARGIN, 6
-        RIGHTMARGIN, 350
-        TOPMARGIN, 5
-        BOTTOMMARGIN, 176
-    END
-
-    IDD_AUDIOSETTINGS, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 163
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 243
-    END
-
-    IDD_AUDIOEQUALIZER, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 250
-        TOPMARGIN, 7
-    END
-
-    IDD_VTSTATUS, DIALOG
-    BEGIN
-        BOTTOMMARGIN, 95
-    END
-
-    IDD_VPSSTATUS, DIALOG
-    BEGIN
-        RIGHTMARGIN, 185
-        BOTTOMMARGIN, 63
-    END
-
-    IDD_MIXERSETUP, DIALOG
-    BEGIN
-        LEFTMARGIN, 6
-        RIGHTMARGIN, 244
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 190
-    END
-
-    IDD_ABOUT, DIALOG
-    BEGIN
-        RIGHTMARGIN, 374
-        TOPMARGIN, 3
-        BOTTOMMARGIN, 272
-    END
-
-    IDD_SELECTCARD, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 293
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 122
-    END
-
-    IDD_ADV_VIDEOSETTINGS, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 201
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 119
-    END
-
-    IDD_DISASM_CRASH, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 343
-        TOPMARGIN, 5
-        BOTTOMMARGIN, 231
-    END
-
-    IDD_TSOPTIONS, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 232
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 168
-    END
-
-    IDD_OVERLAYSETTINGS, DIALOG
-    BEGIN
-        LEFTMARGIN, 6
-        RIGHTMARGIN, 350
-        TOPMARGIN, 5
-        BOTTOMMARGIN, 155
-    END
-
-    IDD_TREESETTINGS_NOPROPERTIES, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 179
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 134
-    END
-
-    IDD_VTSEARCH, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 179
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 58
-    END
-
-    IDD_HWSETUP, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 293
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 223
-    END
-
-    IDD_DSHOW_AUDIODEVICE, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 159
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 34
-    END
-
-    IDD_DSHOW_VIDEOFMTS, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 314
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 134
-    END
-END
-#endif    // APSTUDIO_INVOKED
 
 
 #ifndef _MAC

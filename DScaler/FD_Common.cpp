@@ -764,7 +764,7 @@ SETTING FD_CommonSettings[FD_COMMON_SETTING_LASTONE] =
 
 	},
 	{
-		"Include Chroma in Detection", ONOFF, 0, (long*)&UseChromaInDetect,
+		"Chroma Detect", ONOFF, 0, (long*)&UseChromaInDetect,
 		0, 0, 1, 1, 1,
 		NULL,
 		"Pulldown", "UseChroma", NULL,

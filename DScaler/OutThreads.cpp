@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.126 2003-08-15 10:27:12 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.127 2003-08-24 07:13:54 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.126  2003/08/15 10:27:12  laurentg
+// Wrong comment changed
+//
 // Revision 1.125  2003/08/15 09:22:28  atnak
 // Updated a comment
 //
@@ -490,7 +493,7 @@ HANDLE              g_hOutThread;
 DWORD OutThreadID=0;
 
 // Capture state variables
-BOOL                bCaptureStarted = FALSE;
+LONG                g_nCaptureStatus = 0;
 
 // Dynamically updated variables
 BOOL                bAutoDetectMode = TRUE;
@@ -733,10 +736,8 @@ void Pause_Toggle_Capture()
 ///////////////////////////////////////////////////////////////////////////////
 void Start_Capture()
 {
-    if (bCaptureStarted == FALSE)
+    if (g_nCaptureStatus++ == 0)
     {
-        bCaptureStarted = TRUE;
-
         // make sure half height Modes are set correctly
         Overlay_Clean();
         if (Providers_GetCurrentSource())
@@ -753,7 +754,7 @@ void Start_Capture()
 ///////////////////////////////////////////////////////////////////////////////
 void Stop_Capture()
 {
-    if (bCaptureStarted == TRUE)
+    if (g_nCaptureStatus-- == 1)
     {
         Audio_Mute();
 
@@ -772,7 +773,6 @@ void Stop_Capture()
             Providers_GetCurrentSource()->Stop();
         }
         UpdateSquarePixelsMode(FALSE);
-        bCaptureStarted = FALSE;
     }
 }
 

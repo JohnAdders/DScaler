@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsGeneric.h,v 1.10 2003-02-18 21:07:05 tobbej Exp $
+// $Id: TreeSettingsGeneric.h,v 1.11 2003-04-28 13:21:47 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -83,6 +83,7 @@ public:
     CSpinButtonCtrl m_Spin;
     CSliderCtrl m_Slider;
     CEdit   m_Edit;
+    CEdit   m_EditString;
     CButton m_DefaultButton;
     CHSListBox  m_ListBox;
 	CButton m_CheckGlobal;
@@ -110,6 +111,7 @@ protected:
     virtual BOOL OnInitDialog();
     afx_msg void OnSelchangeList();
     afx_msg void OnChangeEdit();
+    afx_msg void OnChangeEditString();
     afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
     afx_msg void OnSettingsDefault();
     afx_msg void OnCheckClick();

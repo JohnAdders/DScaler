@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsGeneric.cpp,v 1.12 2003-04-26 23:19:15 laurentg Exp $
+// $Id: TreeSettingsGeneric.cpp,v 1.13 2003-04-28 13:21:46 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2003/04/26 23:19:15  laurentg
+// Character string settings
+//
 // Revision 1.11  2003/01/10 17:38:38  adcockj
 // Interrim Check in of Settings rewrite
 //  - Removed SETTINGSEX structures and flags
@@ -152,6 +155,7 @@ void CTreeSettingsGeneric::DoDataExchange(CDataExchange* pDX)
     DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SPIN, m_Spin);
     DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SLIDER, m_Slider);
     DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_EDIT, m_Edit);
+    DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_EDIT2, m_EditString);
     DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_DEFAULT, m_DefaultButton);
     DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_LIST, m_ListBox);
 	DDX_Control(pDX, IDC_TREESETTINGS_GENERIC_SAVEPER_GLOBAL, m_CheckGlobalBox);
@@ -169,6 +173,7 @@ BEGIN_MESSAGE_MAP(CTreeSettingsGeneric, CTreeSettingsPage)
     //{{AFX_MSG_MAP(CTreeSettingsGeneric)
     ON_LBN_SELCHANGE(IDC_TREESETTINGS_GENERIC_LIST, OnSelchangeList)
     ON_EN_CHANGE(IDC_TREESETTINGS_GENERIC_EDIT, OnChangeEdit)
+    ON_EN_KILLFOCUS(IDC_TREESETTINGS_GENERIC_EDIT2, OnChangeEditString)
     ON_WM_HSCROLL()
     ON_BN_CLICKED(IDC_TREESETTINGS_GENERIC_DEFAULT, OnSettingsDefault)
     ON_BN_CLICKED(IDC_TREESETTINGS_GENERIC_CHECK, OnCheckClick)
@@ -232,6 +237,7 @@ void CTreeSettingsGeneric::OnSelchangeList()
         m_DefaultButton.ShowWindow(SW_SHOWNA);
         m_CheckBox.ShowWindow(SW_SHOWNA);
         m_Edit.ShowWindow(SW_HIDE);
+        m_EditString.ShowWindow(SW_HIDE);
         m_Slider.ShowWindow(SW_HIDE);
         m_Spin.ShowWindow(SW_HIDE);
         m_Combo.ShowWindow(SW_HIDE);
@@ -249,6 +255,7 @@ void CTreeSettingsGeneric::OnSelchangeList()
             m_Spin.ShowWindow(SW_HIDE);
         }
         m_Slider.ShowWindow(SW_SHOWNA);
+        m_EditString.ShowWindow(SW_HIDE);
         m_CheckBox.ShowWindow(SW_HIDE);
         m_Combo.ShowWindow(SW_HIDE);
         break;
@@ -257,6 +264,7 @@ void CTreeSettingsGeneric::OnSelchangeList()
         m_CheckBox.ShowWindow(SW_HIDE);
         m_DefaultButton.ShowWindow(SW_SHOWNA);
         m_Edit.ShowWindow(SW_HIDE);
+        m_EditString.ShowWindow(SW_HIDE);
         m_Slider.ShowWindow(SW_HIDE);
         m_Spin.ShowWindow(SW_HIDE);
         m_Combo.ShowWindow(SW_SHOWNA);
@@ -264,8 +272,9 @@ void CTreeSettingsGeneric::OnSelchangeList()
 
     case CHARSTRING:
         m_DefaultButton.ShowWindow(SW_SHOWNA);
+        m_EditString.ShowWindow(SW_SHOWNA);
         m_CheckBox.ShowWindow(SW_HIDE);
-        m_Edit.ShowWindow(SW_SHOWNA);
+        m_Edit.ShowWindow(SW_HIDE);
         m_Slider.ShowWindow(SW_HIDE);
         m_Spin.ShowWindow(SW_HIDE);
         m_Combo.ShowWindow(SW_HIDE);
@@ -275,6 +284,7 @@ void CTreeSettingsGeneric::OnSelchangeList()
         m_CheckBox.ShowWindow(SW_HIDE);
         m_DefaultButton.ShowWindow(SW_HIDE);
         m_Edit.ShowWindow(SW_HIDE);
+        m_EditString.ShowWindow(SW_HIDE);
         m_Slider.ShowWindow(SW_HIDE);
         m_Spin.ShowWindow(SW_HIDE);
         m_Combo.ShowWindow(SW_HIDE);
@@ -366,11 +376,15 @@ void CTreeSettingsGeneric::UpdateControls()
     if(m_Edit.GetStyle() & WS_VISIBLE)
     {
         CString newValue;
-		if (m_Settings[m_CurrentSetting]->GetType() == CHARSTRING)
-	        newValue.Format("%s", (char*)(m_Settings[m_CurrentSetting]->GetValue()));
-		else
-	        newValue.Format("%d", m_Settings[m_CurrentSetting]->GetValue());
+	    newValue.Format("%d", m_Settings[m_CurrentSetting]->GetValue());
         m_Edit.SetWindowText(newValue);
+    }
+
+    if(m_EditString.GetStyle() & WS_VISIBLE)
+    {
+        CString newValue;
+	    newValue.Format("%s", (char*)(m_Settings[m_CurrentSetting]->GetValue()));
+        m_EditString.SetWindowText(newValue);
     }
 
     if(m_CheckBox.GetStyle() & WS_VISIBLE)
@@ -476,10 +490,23 @@ void CTreeSettingsGeneric::OnChangeEdit()
 
     if (m_Settings[m_CurrentSetting] != NULL)
     {
-		if (m_Settings[m_CurrentSetting]->GetType() == CHARSTRING)
-	        m_Settings[m_CurrentSetting]->SetValue((long)Value.GetBuffer(255));
-		else
-		    m_Settings[m_CurrentSetting]->SetValue(atol(Value));
+		m_Settings[m_CurrentSetting]->SetValue(atol(Value));
+    }
+
+    UpdateControls();
+}
+
+void CTreeSettingsGeneric::OnChangeEditString()
+{
+    if(m_EditString.m_hWnd==NULL)
+        return;
+
+    CString Value;
+    m_EditString.GetWindowText(Value);
+
+    if (m_Settings[m_CurrentSetting] != NULL)
+    {
+	    m_Settings[m_CurrentSetting]->SetValue((long)Value.GetBuffer(255));
     }
 
     UpdateControls();

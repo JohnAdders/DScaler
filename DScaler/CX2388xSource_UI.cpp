@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_UI.cpp,v 1.18 2002-12-04 15:20:08 adcockj Exp $
+// $Id: CX2388xSource_UI.cpp,v 1.19 2002-12-04 15:54:09 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2002/12/04 15:20:08  adcockj
+// Fixed accedental test code check in
+//
 // Revision 1.17  2002/12/04 15:15:24  adcockj
 // Checked in test code by accident
 //
@@ -110,6 +113,7 @@
 #include "CX2388xSource.h"
 #include "CX2388x_Defines.h"
 #include "DScaler.h"
+#include "Providers.h"
 #include "OutThreads.h"
 #include "AspectRatio.h"
 #include "DebugLog.h"
@@ -647,7 +651,15 @@ void CCX2388xSource::ChangeChannelSectionNames()
             }        
             SettingsPerChannel_UnregisterSection(sOldSection.c_str());
         }
-    
+        
+        // if there are multiple sources then things go wrong
+        // so until the settings are sorted out this hacky fix will have
+        // to do
+        if(Providers_GetCurrentSource()  != (CSource*)this)
+        {
+            return;
+        }
+
         SettingsPerChannel_RegisterSetSection(m_ChannelSubSection.c_str());
         SettingsPerChannel_RegisterSetting("Brightness","CX2388x - Brightness",TRUE, m_Brightness);
         SettingsPerChannel_RegisterSetting("Hue","CX2388x - Hue",TRUE, m_Hue);            

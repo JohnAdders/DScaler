@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_UI.cpp,v 1.4 2002-12-03 16:34:11 adcockj Exp $
+// $Id: BT848Source_UI.cpp,v 1.5 2002-12-04 15:54:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/12/03 16:34:11  adcockj
+// Corrected channel settings groupings
+//
 // Revision 1.3  2002/11/28 21:37:26  adcockj
 // Fix for autodetect function thanks to Atsushi
 //
@@ -216,6 +219,7 @@
 #include "BT848Source.h"
 #include "BT848_Defines.h"
 #include "DScaler.h"
+#include "Providers.h"
 #include "OutThreads.h"
 #include "AspectRatio.h"
 #include "DebugLog.h"
@@ -1611,6 +1615,15 @@ void CBT848Source::ChangeChannelSectionNames()
             }        
             SettingsPerChannel_UnregisterSection(sOldSection.c_str());
         }
+
+        // if there are multiple sources then things go wrong
+        // so until the settings are sorted out this hacky fix will have
+        // to do
+        if(Providers_GetCurrentSource()  != (CSource*)this)
+        {
+            return;
+        }
+
     
         SettingsPerChannel_RegisterSetSection(m_ChannelSubSection.c_str());
         SettingsPerChannel_RegisterSetting("Brightness","BT8x8 - Brightness",TRUE, m_Brightness);

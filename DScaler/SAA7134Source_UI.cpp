@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.22 2002-11-28 13:38:01 atnak Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.23 2002-12-04 15:54:09 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2002/11/28 13:38:01  atnak
+// Removed saa7134res.dll checking where it was unneeded
+//
 // Revision 1.21  2002/11/10 09:30:56  atnak
 // Added Chroma only comb filter mode for SECAM
 //
@@ -97,6 +100,7 @@
 #include "SAA7134Source.h"
 #include "SAA7134_Defines.h"
 #include "DScaler.h"
+#include "Providers.h"
 #include "OutThreads.h"
 #include "AspectRatio.h"
 #include "DebugLog.h"
@@ -1813,6 +1817,14 @@ void CSAA7134Source::ChangeChannelSectionNames()
                 SettingsPerChannel_SaveChannelSettings(sOldSection.c_str(), m_VideoSource->GetValue(), m_CurrentChannel, GetFormat());
             }
             SettingsPerChannel_UnregisterSection(sOldSection.c_str());
+        }
+
+        // if there are multiple sources then things go wrong
+        // so until the settings are sorted out this hacky fix will have
+        // to do
+        if(Providers_GetCurrentSource()  != (CSource*)this)
+        {
+            return;
         }
 
         SettingsPerChannel_RegisterSetSection(m_ChannelSubSection.c_str());

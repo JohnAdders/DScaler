@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSFileSource.cpp,v 1.1 2002-08-20 16:19:42 tobbej Exp $
+// $Id: DSFileSource.cpp,v 1.2 2002-08-20 16:22:42 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/08/20 16:19:42  tobbej
+// split CDSSource into 3 different classes
+//
 /////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -80,7 +83,7 @@ BOOL CDSFileSource::OpenMediaFile(LPCSTR FileName, BOOL NewPlayList)
 		delete m_pDSGraph;
 		m_pDSGraph=NULL;
 	}
-	
+
 	m_filename="";
 	try
 	{

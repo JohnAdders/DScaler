@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.32 2001-09-22 18:04:55 laurentg Exp $
+// $Id: OSD.cpp,v 1.33 2001-09-29 10:40:58 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,14 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2001/09/22 18:04:55  laurentg
+// Minimum time to wait after each ajustment reduced
+// Fine adjustments made with more frames (50)
+// Brigthness now ajusted using several black bars
+// Contrast now ajusted using several white bars
+// Hue now ajusted using magenta, cyan and green bars
+// Fine ajustment only tests combinations of correct settings found in previous steps
+//
 // Revision 1.31  2001/09/21 20:39:12  laurentg
 // Text "auto" added in front of the source ratio in the OSD general screen when ratio automatic detection is activated
 //
@@ -292,7 +300,11 @@ void OSD_ShowText(HWND hWnd, LPCTSTR szText, double Size)
 // Stays on screen until a new OSD message replaces current OSD message.
 void OSD_ShowTextPersistent(HWND hWnd, LPCTSTR szText, double Size)
 {
-    if (bOverride) return;
+    if (bOverride)
+    {
+        return;
+    }
+
     if (strlen(szText))
     {
         OSD_ClearAllTexts();
@@ -552,6 +564,30 @@ static double OSD_GetLineYpos (int nLine, double dfMargin, double Size)
     return (dfY);
 }
 
+static void OSD_GetTextResult(int delta, char *text)
+{
+    if (delta <= 3)
+    {
+        strcpy (text, "very good");
+    }
+    else if (delta <= 9)
+    {
+        strcpy (text, "good");
+    }
+    else if (delta <= 18)
+    {
+        strcpy (text, "medium");
+    }
+    else if (delta <= 30)
+    {
+        strcpy (text, "bad");
+    }
+    else
+    {
+        strcpy (text, "very bad");
+    }
+}
+
 //---------------------------------------------------------------------------
 // Display/Refresh on screen the current information screen
 void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
@@ -565,8 +601,8 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
     DEINTERLACE_METHOD* DeintMethod;
     unsigned char   val1, val2, val3;
     int             dif_val1, dif_val2, dif_val3;
-    int             dif_total, dif_total1, dif_total2;
-    char            szQual[16];
+    int             dif_total1, dif_total2;
+    char            szResult[16];
     CTestPattern *pTestPattern;
     CSubPattern *pSubPattern;
     CColorBar* pColorBar;
@@ -1147,86 +1183,95 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
             if ( (pCalibration->GetType() == CAL_MANUAL)
               || (pCalibration->GetCurrentStep() == -1) )
             {
+                nLine = 4;
 
-            nLine = 5;
-
-    		pSubPattern = pCalibration->GetCurrentSubPattern();
-            if (pSubPattern != NULL)
-            {
-                pColorBar = pSubPattern->GetFirstColorBar();
-            }
-            else
-            {
-                pColorBar = NULL;
-            }
-            while (pColorBar != NULL)
-			{
-                if (pCalibration->GetType() == CAL_MANUAL)
+                if ( Setting_GetValue(Calibr_GetSetting(SHOW_RGB_DELTA))
+                  && (pCalibration->GetType() == CAL_MANUAL) )
                 {
-                    pColorBar->GetRefColor(FALSE, &val1, &val2, &val3);
-                    if ((val1 == 0) && (val2 == 0) && (val3 == 0))
-				    {
-				        Color = RGB(1, 0, 0);
-				    }
+                    OSD_AddText("Delta RGB", Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+                }
+                if ( Setting_GetValue(Calibr_GetSetting(SHOW_YUV_DELTA))
+                  && (pCalibration->GetType() == CAL_MANUAL) )
+                {
+                    OSD_AddText("Delta YUV", Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+                }
+                nLine++;
+
+        		pSubPattern = pCalibration->GetCurrentSubPattern();
+                if (pSubPattern != NULL)
+                {
+                    pColorBar = pSubPattern->GetFirstColorBar();
+                }
+                else
+                {
+                    pColorBar = NULL;
+                }
+                while (pColorBar != NULL)
+	    		{
+                    if ( ( Setting_GetValue(Calibr_GetSetting(SHOW_RGB_DELTA))
+                        || Setting_GetValue(Calibr_GetSetting(SHOW_YUV_DELTA)) )
+                      && (pCalibration->GetType() == CAL_MANUAL) )
+                    {
+                        pColorBar->GetRefColor(FALSE, &val1, &val2, &val3);
+                        if ((val1 == 0) && (val2 == 0) && (val3 == 0))
+		    		    {
+			    	        Color = RGB(1, 0, 0);
+				        }
+                        else
+    				    {
+	    			        Color = RGB(val1, val2, val3);
+		    		    }
+                    }
+                    pColorBar->GetDeltaColor(FALSE, &dif_val1, &dif_val2, &dif_val3, &dif_total1);
+                    if ( Setting_GetValue(Calibr_GetSetting(SHOW_RGB_DELTA))
+                      && (pCalibration->GetType() == CAL_MANUAL) )
+                    {
+                        sprintf (szInfo, "(%+d,%+d,%+d)", dif_val1, dif_val2, dif_val3);
+                        OSD_AddText(szInfo, Size, Color, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+                    }
+                    pColorBar->GetDeltaColor(TRUE, &dif_val1, &dif_val2, &dif_val3, &dif_total2);
+                    if ( Setting_GetValue(Calibr_GetSetting(SHOW_YUV_DELTA))
+                      && (pCalibration->GetType() == CAL_MANUAL) )
+                    {
+                        sprintf (szInfo, "(%+d,%+d,%+d)", dif_val1, dif_val2, dif_val3);
+                        OSD_AddText(szInfo, Size, Color, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+                    }
+
+                    if (pCalibration->GetType() == CAL_MANUAL)
+                    {
+                        if ( Setting_GetValue(Calibr_GetSetting(SHOW_RGB_DELTA))
+                          && ! Setting_GetValue(Calibr_GetSetting(SHOW_YUV_DELTA)) )
+                        {
+                            OSD_GetTextResult(dif_total1, szResult);
+                            sprintf (szInfo, "(%d) %s", dif_total1, szResult);
+                        }
+                        else if ( ! Setting_GetValue(Calibr_GetSetting(SHOW_RGB_DELTA))
+                               && Setting_GetValue(Calibr_GetSetting(SHOW_YUV_DELTA)) )
+                        {
+                            OSD_GetTextResult(dif_total2, szResult);
+                            sprintf (szInfo, "%s (%d)", szResult, dif_total2);
+                        }
+                        else if ( Setting_GetValue(Calibr_GetSetting(SHOW_RGB_DELTA))
+                               && Setting_GetValue(Calibr_GetSetting(SHOW_YUV_DELTA)) )
+                        {
+                            OSD_GetTextResult((dif_total1 < dif_total2) ? dif_total1 : dif_total2, szResult);
+                            sprintf (szInfo, "(%d) %s (%d)", dif_total1, szResult, dif_total2);
+                        }
+                        else
+                        {
+                            OSD_GetTextResult((dif_total1 < dif_total2) ? dif_total1 : dif_total2, szInfo);
+                        }
+		    		    OSD_AddText(szInfo, Size, 0, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine++, dfMargin, Size));
+                    }
                     else
-				    {
-				        Color = RGB(val1, val2, val3);
-				    }
-                }
-                pColorBar->GetDeltaColor(FALSE, &dif_val1, &dif_val2, &dif_val3, &dif_total1);
-                if (pCalibration->GetType() == CAL_MANUAL)
-                {
-                    sprintf (szInfo, "RGB (%+d,%+d,%+d)", dif_val1, dif_val2, dif_val3);
-                    OSD_AddText(szInfo, Size, Color, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
-                }
-                pColorBar->GetDeltaColor(TRUE, &dif_val1, &dif_val2, &dif_val3, &dif_total2);
-                if (pCalibration->GetType() == CAL_MANUAL)
-                {
-                    sprintf (szInfo, "YUV (%+d,%+d,%+d)", dif_val1, dif_val2, dif_val3);
-                    OSD_AddText(szInfo, Size, Color, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
-                }
+                    {
+                        OSD_GetTextResult(dif_total2, szResult);
+                        sprintf (szInfo, "%s (YUV %d)", szResult, dif_total2);
+		    		    OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+                    }
 
-                if (dif_total1 < dif_total2)
-                {
-                    dif_total = dif_total1;
-                }
-                else
-                {
-                    dif_total = dif_total2;
-                }
-				if (dif_total <= 3)
-				{
-					strcpy (szQual, "very good");
-				}
-				else if (dif_total <= 9)
-				{
-					strcpy (szQual, "good");
-				}
-				else if (dif_total <= 18)
-				{
-					strcpy (szQual, "medium");
-				}
-				else if (dif_total <= 30)
-				{
-					strcpy (szQual, "bad");
-				}
-				else
-				{
-					strcpy (szQual, "very bad");
-				}
-                if (pCalibration->GetType() == CAL_MANUAL)
-                {
-                    sprintf (szInfo, "(%d) %s (%d)", dif_total1, szQual, dif_total2);
-				    OSD_AddText(szInfo, Size, 0, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine++, dfMargin, Size));
-                }
-                else
-                {
-                    sprintf (szInfo, "%s (%s %d)", szQual, (dif_total == dif_total2) ? "YUV" : "RGB", dif_total);
-				    OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-                }
-
-                pColorBar = pSubPattern->GetNextColorBar();
-			}
+                    pColorBar = pSubPattern->GetNextColorBar();
+	    		}
             }
 		}
         break;
@@ -1298,7 +1343,10 @@ void OSD_ShowInfosScreen(HWND hWnd, int IdxScreen, double Size)
     int     NbScreens;      // number of OSD scrrens
     int     PrevIdxScreen;
 
-    if (bOverride) return;
+    if (bOverride)
+    {    
+        return;
+    }
 
     PrevIdxScreen = IdxCurrentScreen;
     NbScreens = sizeof (ActiveScreens) / sizeof (ActiveScreens[0]);

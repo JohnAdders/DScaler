@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DebugLog.cpp,v 1.20 2002-06-15 10:36:58 robmuller Exp $
+// $Id: DebugLog.cpp,v 1.21 2002-06-22 22:11:50 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2002/06/15 10:36:58  robmuller
+// FlushAfterEachWrite defaults to TRUE.
+//
 // Revision 1.19  2002/06/13 12:10:21  adcockj
 // Move to new Setings dialog for filers, video deint and advanced settings
 //
@@ -68,11 +71,14 @@
 #include "resource.h"
 #include "DebugLog.h"
 
+#define DEBUGLOGFILENAME "DScaler.log"
+
 static FILE* debugLog = NULL;
-char DebugLogFilename[MAX_PATH] = "DScaler.log";
+char DebugLogFilename[MAX_PATH];
 BOOL DebugLogEnabled = FALSE;
 long gDebugLogLevel = 1;
 BOOL FlushAfterEachWrite = FALSE;
+BOOL IsDebugLogFilenameInIni = FALSE;
 
 #if !defined(NOLOGGING)
 
@@ -184,6 +190,8 @@ SETTING* Debug_GetSetting(DEBUG_SETTING Setting)
     }
 }
 
+#define InvalidFileName ":*:"
+
 void Debug_ReadSettingsFromIni()
 {
     int i;
@@ -191,8 +199,13 @@ void Debug_ReadSettingsFromIni()
     {
         Setting_ReadFromIni(&(DebugSettings[i]));
     }
-
-    GetPrivateProfileString("Files", "DebugLogFilename", DebugLogFilename, DebugLogFilename, MAX_PATH, GetIniFileForSettings());
+    
+    GetPrivateProfileString("Files", "DebugLogFilename", InvalidFileName, DebugLogFilename, MAX_PATH, GetIniFileForSettings());
+    IsDebugLogFilenameInIni = strcmp(DebugLogFilename, InvalidFileName) != 0;
+    if(!IsDebugLogFilenameInIni)
+    {
+        strcpy(DebugLogFilename, DEBUGLOGFILENAME);
+    }
 }
 
 void Debug_WriteSettingsToIni(BOOL bOptimizeFileAccess)
@@ -202,9 +215,10 @@ void Debug_WriteSettingsToIni(BOOL bOptimizeFileAccess)
     {
         Setting_WriteToIni(&(DebugSettings[i]), bOptimizeFileAccess);
     }
-	if(bOptimizeFileAccess == FALSE)
+	if(bOptimizeFileAccess == FALSE || !IsDebugLogFilenameInIni)
 	{
 	    WritePrivateProfileString("Files", "DebugLogFilename", DebugLogFilename, GetIniFileForSettings());
+        IsDebugLogFilenameInIni = TRUE;
 	}
 }
 

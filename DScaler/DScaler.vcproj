@@ -2967,6 +2967,12 @@
 				RelativePath=".\SubItemCheckboxListCtrl.cpp">
 			</File>
 			<File
+				RelativePath=".\TDA8275.cpp">
+			</File>
+			<File
+				RelativePath=".\TDA8290.cpp">
+			</File>
+			<File
 				RelativePath="TDA9873AudioDecoder.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -4062,6 +4068,12 @@
 			</File>
 			<File
 				RelativePath=".\SubItemCheckboxListCtrl.h">
+			</File>
+			<File
+				RelativePath=".\TDA8275.h">
+			</File>
+			<File
+				RelativePath=".\TDA8290.h">
 			</File>
 			<File
 				RelativePath="TDA9873AudioDecoder.h">

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Audio.cpp,v 1.7 2002-10-04 23:40:46 atnak Exp $
+// $Id: SAA7134Card_Audio.cpp,v 1.8 2002-10-08 12:24:46 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/10/04 23:40:46  atnak
+// proper support for audio channels mono,stereo,lang1,lang2 added
+//
 // Revision 1.6  2002/10/03 23:36:23  atnak
 // Various changes (major): VideoStandard, AudioStandard, CSAA7134Common, cleanups, tweaks etc,
 //
@@ -103,7 +106,7 @@ void CSAA7134Card::InitAudio()
     WriteByte(SAA7134_I2S_OUTPUT_SELECT, 0x00);
     WriteByte(SAA7134_I2S_OUTPUT_LEVEL, 0x00);
 
-    SetAudioLockToVideo(TRUE);
+    SetAudioLockToVideo(FALSE);
 }
 
 
@@ -176,6 +179,57 @@ void CSAA7134Card::SetAudioStandard(eAudioStandard AudioStandard)
 
     m_AudioStandard = AudioStandard;
 }
+
+
+void CSAA7134Card::SetAudioCarrier1Freq(DWORD Carrier)
+{
+    WriteDword(SAA7134_CARRIER1_FREQ, Carrier);
+}
+
+
+void CSAA7134Card::SetAudioCarrier2Freq(DWORD Carrier)
+{
+    WriteDword(SAA7134_CARRIER2_FREQ, Carrier);
+}
+
+
+void CSAA7134Card::SetAudioCarrier1Mode(eAudioCarrierMode Mode)
+{
+    if (Mode == AUDIOCHANNELMODE_AM)
+    {
+        AndDataByte(SAA7134_DEMODULATOR, ~SAA7134_DEMODULATOR_CH1MODE);
+    }
+    else
+    {
+        OrDataByte(SAA7134_DEMODULATOR, SAA7134_DEMODULATOR_CH1MODE);
+    }
+}
+
+
+void CSAA7134Card::SetAudioCarrier2Mode(eAudioCarrierMode Mode)
+{
+    BYTE Demodulator = 0x00;
+
+    switch (Mode)
+    {
+    case AUDIOCHANNELMODE_FM:
+        Demodulator = 0x00;
+        break;
+
+    case AUDIOCHANNELMODE_AM:
+        Demodulator = 0x01;
+        break;
+
+    case AUDIOCHANNELMODE_NICAM:
+        Demodulator = 0x10;
+        break;
+    }
+
+    MaskDataByte(SAA7134_DEMODULATOR, Demodulator,
+        SAA7134_DEMODULATOR_CH2MOD0 |
+        SAA7134_DEMODULATOR_CH2MOD1);
+}
+
 
 void CSAA7134Card::SetAudioLockToVideo(BOOL bLockAudio)
 {

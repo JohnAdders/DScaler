@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.9 2002-10-06 12:14:52 atnak Exp $
+// $Id: SAA7134Card.h,v 1.10 2002-10-08 12:24:46 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/10/06 12:14:52  atnak
+// cleaned up SetPageTable(...)
+//
 // Revision 1.8  2002/10/04 23:40:46  atnak
 // proper support for audio channels mono,stereo,lang1,lang2 added
 //
@@ -315,6 +318,14 @@ public:
     BYTE DirectGetByte(DWORD dwAddress);
     void DirectSetBit(DWORD dwAddress, int nBit, BOOL bSet);
 
+    void SetAudioCarrier1Freq(DWORD Carrier);
+    void SetAudioCarrier2Freq(DWORD Carrier);
+    void SetAudioCarrier1Mode(eAudioCarrierMode Mode);
+    void SetAudioCarrier2Mode(eAudioCarrierMode Mode);
+
+    void SetCh1FMDeemphasis(eAudioFMDeemphasis FMDeemphasis);
+    void SetCh2FMDeemphasis(eAudioFMDeemphasis FMDeemphasis);
+
 
 protected:
     void SetTypicalSettings();
@@ -349,8 +360,6 @@ private:
     void FLYVIDEO2000CardInputSelect(int nInput);
     void MEDION5044CardInputSelect(int nInput);
 
-    void SetCh1FMDeemphasis(eAudioFMDeemphasis FMDeemphasis);
-    void SetCh2FMDeemphasis(eAudioFMDeemphasis FMDeemphasis);
     void SetAudioFMDematrix(eAudioFMDematrix FMDematrix);
     void SetFilterBandwidth(eAudioFilterBandwidth FilterBandwidth);
 

@@ -26,6 +26,12 @@
 #define	Y_BLACK		16
 #define	UV_BLACK	128
 
+#define MASK_NONE 0
+#define MASK_TRAPEZOID 1
+#define MASK_COMPLEX 2
+#define MASK_STRETCH 3
+
+
 FILTER_METHOD LinearCorrMethod;
 
 typedef struct _BlendStruct
@@ -53,12 +59,110 @@ int MaskParam2 = 0;
 int MaskParam3 = 0;
 int MaskParam4 = 0;
 
+void UpdStretchTables(int Width)
+{
+	int i, j;
+	double Start, End;
+	double pixel, pixel_before, pixel_after;
+	short pixel1Y, pixel2Y, pixel1UV, pixel2UV;
+    long Boundaries[3];
+    double StretchFactors[3] = {192.0, 144.0, 120.0};
+    double x;
+
+    Boundaries[0] = 0;
+    Boundaries[1] = (int)((double)Width * StretchFactors[0] / (144.0 * 2.0) / 5.0);
+    Boundaries[2] = (int)(((double)Width * StretchFactors[0] / (144.0 * 2.0) / 5.0) +
+                        ((double)Width * StretchFactors[1] / 144.0 / 5.0));
+
+	i=Width;
+	Start = (double)(Width - i) / 2.0;
+	End = Start + i - 1;
+    
+    for (j=0 ; j<Width ; j++)
+	{
+        x = (double)(j) / (double)Width;
+		pixel = (double)(-2 * x * x * x / 3.0 + x * x + 2.0 / 3.0 * x) * (double)Width;
+		pixel_before = floor(pixel);
+		pixel_after = ceil(pixel);
+
+		pixel1Y = (short)pixel_before;
+		pixel2Y = (short)pixel_after;
+		LinearFilterTab[Width][j].pixel1Y = pixel1Y * 2;
+		LinearFilterTab[Width][j].pixel2Y = pixel2Y * 2;
+
+        if (pixel1Y == pixel2Y)
+		{
+			if ((j % 2) == (pixel1Y % 2))
+			{
+				pixel1UV = pixel1Y;
+			}
+			else if ((j % 2) == 0)
+			{
+				pixel1UV = pixel1Y - 1;
+			}
+			else
+			{
+				pixel1UV = pixel1Y + 1;
+			}
+			pixel2UV = pixel1UV;
+		}
+		else
+		{
+			if ((j % 2) == (pixel1Y % 2))
+			{
+				if ((j % 2) == 0)
+				{
+					pixel1UV = pixel1Y;
+					pixel2UV = pixel1Y;
+				}
+				else
+				{
+					pixel1UV = pixel1Y;
+					pixel2UV = pixel2Y + 1;
+				}
+			}
+			else if ((j % 2) == (pixel2Y % 2))
+			{
+				if ((j % 2) == 0)
+				{
+					pixel1UV = pixel1Y - 1;
+					pixel2UV = pixel2Y;
+				}
+				else
+				{
+					pixel1UV = pixel2Y;
+					pixel2UV = pixel2Y;
+				}
+			}
+		}
+		LinearFilterTab[Width][j].pixel1UV = pixel1UV * 2 + 1;
+		LinearFilterTab[Width][j].pixel2UV = pixel2UV * 2 + 1;
+
+		if (pixel_before < pixel_after)
+		{
+			LinearFilterTab[Width][j].coef1 = (short)ceil((pixel_after - pixel) * 1024.0 - 0.5);
+			LinearFilterTab[Width][j].coef2 = (short)ceil((pixel - pixel_before) * 1024.0 - 0.5);
+		}
+		else
+		{
+			LinearFilterTab[Width][j].coef1 = 512;	// 0.5 * 1024
+			LinearFilterTab[Width][j].coef2 = 512;	// 0.5 * 1024
+		}
+	}
+}
+
 void UpdLinearFilterTables(int Width)
 {
 	int i, j;
 	double Start, End;
 	double pixel, pixel_before, pixel_after;
 	short pixel1Y, pixel2Y, pixel1UV, pixel2UV;
+
+    if(MaskType == MASK_STRETCH)
+    {
+        UpdStretchTables(Width);
+        return;
+    }
 
 	for (i=0 ; i<=Width ; i++)
 	{
@@ -165,7 +269,7 @@ void UpdNbPixelsPerLineTable(int Height, int Width)
 
 	switch (MaskType)
 	{
-	case 1: // Trapezoid
+	case MASK_TRAPEZOID: // Trapezoid
 		val1 = (double)((100 - 2 * MaskParam1) * Width) / 100.0;
 		val2 = (double)((100 - 2 * MaskParam2) * Width) / 100.0;
 		b = val1;
@@ -177,7 +281,7 @@ void UpdNbPixelsPerLineTable(int Height, int Width)
 		}
 		break;
 
-	case 2:
+	case MASK_COMPLEX:
 		val1 = (double)((100 - 2 * MaskParam1) * Width) / 100.0;
 		val2 = (double)((100 - 2 * MaskParam2) * Width) / 100.0;
 		val3 = (double)((100 - 2 * MaskParam3) * Width) / 100.0;
@@ -201,8 +305,7 @@ void UpdNbPixelsPerLineTable(int Height, int Width)
 	default:
 		for (x=0 ; x<Height ; x++)
 		{
-			val = (double)Width;
-			NbPixelsPerLineTab[x] = (int)ceil(val - 0.5);
+			NbPixelsPerLineTab[x] = Width;
 		}
 		break;
 	}
@@ -348,7 +451,7 @@ BOOL LinearCorrection(DEINTERLACE_INFO *info)
     {
 	    for (i = 1 ; i < PictureHeight ; i += 2)
 	    {
-		    if (NbPixelsPerLineTab[i] != PictureWidth)
+		    if (NbPixelsPerLineTab[i] != PictureWidth || MaskType == MASK_STRETCH)
 		    {
 			    ApplyLinearFilter((BYTE*)info->OddLines[0][i/2], NbPixelsPerLineTab[i], info->pMemcpy);
 		    }
@@ -358,7 +461,7 @@ BOOL LinearCorrection(DEINTERLACE_INFO *info)
     {
 	    for (i = 0 ; i < PictureHeight ; i += 2)
 	    {
-		    if (NbPixelsPerLineTab[i] != PictureWidth)
+		    if (NbPixelsPerLineTab[i] != PictureWidth || MaskType == MASK_STRETCH)
 		    {
 			    ApplyLinearFilter((BYTE*)info->EvenLines[0][i/2], NbPixelsPerLineTab[i], info->pMemcpy);
 		    }
@@ -367,7 +470,7 @@ BOOL LinearCorrection(DEINTERLACE_INFO *info)
 	return TRUE;
 }
 
-void __stdcall LinearCorrStart(void)
+void LinearCorrStart(void)
 {
 	// Update the internal tables of the filter
 	UpdNbPixelsPerLineTable(576, 720);

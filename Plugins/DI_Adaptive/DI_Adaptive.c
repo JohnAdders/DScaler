@@ -118,14 +118,17 @@ BOOL DeinterlaceAdaptive(DEINTERLACE_INFO *info)
 	{
 		MATCH_COUNT = 0;
 
-		// If we're in still mode, it might be okay to drop to
+		// If we're not in low-motion mode, it might be okay to drop to
 		// low-motion mode.
-		if (CurrentIndex == StaticImageMode &&
+		if (CurrentIndex != LowMotionMode &&
 			info->FieldDiff < AdaptiveThresPulldownMismatch)
 		{
 			UpdateAdaptiveMode(LowMotionMode);
 		}
-		else if(CurrentIndex != HighMotionMode)
+		// If we're not in high-motion mode, wwe might have
+        // to go to high-motion mode
+		if(CurrentIndex != HighMotionMode &&
+            info->FieldDiff >= AdaptiveThresPulldownMismatch)
 		{
 			UpdateAdaptiveMode(HighMotionMode);
 		}

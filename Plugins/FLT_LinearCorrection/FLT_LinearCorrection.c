@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_LinearCorrection.c,v 1.12 2001-09-11 14:33:48 adcockj Exp $
+// $Id: FLT_LinearCorrection.c,v 1.13 2001-09-11 18:07:05 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2001/09/11 14:33:48  adcockj
+// Fixes to allow parameters to be updated as you change them
+//
 // Revision 1.11  2001/08/30 12:04:37  adcockj
 // Replaced numbers with defines in mask mode setting
 //
@@ -296,6 +299,10 @@ void UpdNbPixelsPerLineTable(int Height, int Width)
         {
             val = a * x + b;
             NbPixelsPerLineTab[x] = (int)ceil(val - 0.5);
+            if(NbPixelsPerLineTab[x] < 0)
+            {
+                NbPixelsPerLineTab[x] = 0;
+            }
         }
         break;
 
@@ -310,6 +317,10 @@ void UpdNbPixelsPerLineTable(int Height, int Width)
         {
             val = a * x + b;
             NbPixelsPerLineTab[x] = (int)ceil(val - 0.5);
+            if(NbPixelsPerLineTab[x] < 0)
+            {
+                NbPixelsPerLineTab[x] = 0;
+            }
         }
         a = (val3 - val2) / ((double)(Height - 1) - val4);
         b = val3 - a * (double)(Height - 1);
@@ -317,6 +328,10 @@ void UpdNbPixelsPerLineTable(int Height, int Width)
         {
             val = a * x + b;
             NbPixelsPerLineTab[x] = (int)ceil(val - 0.5);
+            if(NbPixelsPerLineTab[x] < 0)
+            {
+                NbPixelsPerLineTab[x] = 0;
+            }
         }
         break;
 

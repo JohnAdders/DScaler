@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Tuner.cpp,v 1.20 2005-03-09 13:29:39 atnak Exp $
+// $Id: SAA7134Card_Tuner.cpp,v 1.21 2005-03-09 15:20:04 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2005/03/09 13:29:39  atnak
+// Added support for TDA8275 tuner and TDA8290.
+//
 // Revision 1.19  2005/03/09 09:49:34  atnak
 // Added a new ITuner::InitializeTuner() function for performing tuner chip
 // initializations.
@@ -117,18 +120,17 @@ BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
         m_Tuner = NULL;
     }
 
-	// Make sure there is a valid tuner.
-	if (tunerId == TUNER_AUTODETECT ||
-		tunerId == TUNER_USER_SETUP ||
-		tunerId == TUNER_ABSENT)
-	{
-		m_Tuner = new CNoTuner();
-		strcpy(m_TunerType, "None ");
-		return TRUE;
-	}
-
+	// Create a tuner object for the selected tuner.
     switch (tunerId)
     {
+	case TUNER_AUTODETECT:
+	case TUNER_USER_SETUP:
+	case TUNER_ABSENT:
+		m_Tuner = new CNoTuner();
+		strcpy(m_TunerType, "None ");
+		// There is nothing more to do with this tuner.
+		return TRUE;
+
     case TUNER_MT2032:
         m_Tuner = new CMT2032(VIDEOFORMAT_NTSC_M);
         strcpy(m_TunerType, "MT2032 ");
@@ -149,9 +151,9 @@ BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
 		m_Tuner = new CTDA8275();
 		strcpy(m_TunerType, "TDA8275 ");
 		break;
-	// The rest are handled by CGenericTuner.
-    case TUNER_PHILIPS_FM1216ME_MK3:
+
     default:
+		// The rest are handled by CGenericTuner.
         m_Tuner = new CGenericTuner(tunerId);
         strcpy(m_TunerType, "Generic ");
         break;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource.cpp,v 1.2 2002-09-15 14:20:38 adcockj Exp $
+// $Id: CT2388xSource.cpp,v 1.3 2002-09-16 19:34:19 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/09/15 14:20:38  adcockj
+// Fixed timing problems for cx2388x chips
+//
 // Revision 1.1  2002/09/11 18:19:37  adcockj
 // Prelimainary support for CT2388x based cards
 //
@@ -87,6 +90,8 @@ CCT2388xSource::CCT2388xSource(CCT2388xCard* pCard, CContigMemory* RiscDMAMem, C
 
     SetupCard();
     Reset();
+
+    NotifyInputChange(0, VIDEOINPUT, -1, m_VideoSource->GetValue());
 }
 
 CCT2388xSource::~CCT2388xSource()
@@ -259,7 +264,7 @@ void CCT2388xSource::CreateRiscCode()
             }
             else
             {
-                Instruction = RISC_RESYNC_ODD | RISC_CNT_RESET;
+                Instruction = RISC_RESYNC_ODD;
             }
         }
 
@@ -436,7 +441,7 @@ eVideoFormat CCT2388xSource::GetFormat()
 
 void CCT2388xSource::SetFormat(eVideoFormat NewFormat)
 {
-	m_VideoFormat->SetValue(NewFormat);
+    PostMessage(hWnd, WM_CT2388X_SETVALUE, CT2388XTVFORMAT, NewFormat);
 }
 
 
@@ -462,12 +467,26 @@ ISetting* CCT2388xSource::GetSaturation()
 
 ISetting* CCT2388xSource::GetSaturationU()
 {
-    return m_SaturationU;
+    if(m_CardType->GetValue() != CT2388xCARD_HOLO3D)
+    {
+        return m_SaturationU;
+    }
+    else
+    {
+        return NULL;
+    }
 }
 
 ISetting* CCT2388xSource::GetSaturationV()
 {
-    return m_SaturationV;
+    if(m_CardType->GetValue() != CT2388xCARD_HOLO3D)
+    {
+        return m_SaturationV;
+    }
+    else
+    {
+        return NULL;
+    }
 }
 
 ISetting* CCT2388xSource::GetOverscan()
@@ -731,11 +750,14 @@ void CCT2388xSource::GetNextFieldAccurateProg(TDeinterlaceInfo* pInfo)
 
 void CCT2388xSource::VideoSourceOnChange(long NewValue, long OldValue)
 {
+    NotifyInputChange(1, VIDEOINPUT, OldValue, NewValue);
+
     Stop_Capture();
     SaveInputSettings(TRUE);
     LoadInputSettings();
     Reset();
 
+    NotifyInputChange(0, VIDEOINPUT, OldValue, NewValue);
     // set up sound
     if(m_pCard->IsInputATuner(NewValue))
     {
@@ -776,7 +798,7 @@ void CCT2388xSource::SaturationUOnChange(long SatU, long OldValue)
         m_InSaturationUpdate = TRUE;
         m_Saturation->SetValue((SatU + m_SaturationV->GetValue()) / 2);
         m_Saturation->SetMin(abs(SatU - m_SaturationV->GetValue()) / 2);
-        m_Saturation->SetMax(511 - abs(SatU - m_SaturationV->GetValue()) / 2);
+        m_Saturation->SetMax(255 - abs(SatU - m_SaturationV->GetValue()) / 2);
         m_InSaturationUpdate = FALSE;
     }
 }
@@ -789,7 +811,7 @@ void CCT2388xSource::SaturationVOnChange(long SatV, long OldValue)
         m_InSaturationUpdate = TRUE;
         m_Saturation->SetValue((SatV + m_SaturationU->GetValue()) / 2);
         m_Saturation->SetMin(abs(SatV - m_SaturationU->GetValue()) / 2);
-        m_Saturation->SetMax(511 - abs(SatV - m_SaturationU->GetValue()) / 2);
+        m_Saturation->SetMax(255 - abs(SatV - m_SaturationU->GetValue()) / 2);
         m_InSaturationUpdate = FALSE;
     }
 }
@@ -805,7 +827,7 @@ void CCT2388xSource::SaturationOnChange(long Sat, long OldValue)
         m_SaturationU->SetValue(NewSaturationU);
         m_SaturationV->SetValue(NewSaturationV);
         m_Saturation->SetMin(abs(m_SaturationV->GetValue() - m_SaturationU->GetValue()) / 2);
-        m_Saturation->SetMax(511 - abs(m_SaturationV->GetValue() - m_SaturationU->GetValue()) / 2);
+        m_Saturation->SetMax(255 - abs(m_SaturationV->GetValue() - m_SaturationU->GetValue()) / 2);
         m_InSaturationUpdate = FALSE;
     }
 }

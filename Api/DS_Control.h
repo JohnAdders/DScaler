@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.88 2002-09-11 18:19:35 adcockj Exp $
+// $Id: DS_Control.h,v 1.89 2002-09-16 19:34:18 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.88  2002/09/11 18:19:35  adcockj
+// Prelimainary support for CT2388x based cards
+//
 // Revision 1.87  2002/09/06 15:08:10  kooiman
 // Mixer lines now source dependent.
 //
@@ -1308,6 +1311,8 @@ typedef enum
     CT2388XOVERSCAN,
     CT2388XVIDEOSOURCE,
     CT2388XTVFORMAT,
+    CT2388XCARDTYPE,
+    CT2388XTUNERTYPE,
     CT2388XSAVEPERINPUT,
     CT2388XSAVEPERFORMAT,
     CT2388XSAVETVFORMATPERINPUT,
@@ -1335,5 +1340,46 @@ typedef enum
 #define WM_FDPROG_SETVALUE            (WM_APP + 148)
 #define WM_FDPROG_CHANGEVALUE         (WM_APP + 248)
 
+/////////////////////////////////////////////////////////////////////////////
+// Control settings contained in SAA7146Source.c
+/////////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+    SAA7134BRIGHTNESS = 0,
+    SAA7134CONTRAST,
+    SAA7134HUE,
+    SAA7134SATURATION,
+    SAA7134OVERSCAN,
+    SAA7134PIXELWIDTH,
+    SAA7134CUSTOMPIXELWIDTH,
+    SAA7134VIDEOSOURCE,
+    SAA7134TVFORMAT,
+    SAA7134REVERSEPOLARITY,
+    SAA7134CARDTYPE,
+    SAA7134TUNERTYPE,
+    SAA7134NONSTANDARDSIGNAL,
+    SAA7134HDELAY,
+    SAA7134VDELAY,
+    SAA7134AUDIOSTANDARD,
+    SAA7134AUDIOCHANNEL,
+    SAA7134VOLUME,
+    SAA7134BASS,
+    SAA7134TREBLE,
+    SAA7134BALANCE,
+    SAA7134SAVEPERINPUT,
+    SAA7134SAVEPERFORMAT,
+    SAA7134AUDIOSOURCE1,
+    SAA7134AUDIOSOURCE2,
+    SAA7134AUDIOSOURCE3,
+    SAA7134AUDIOSOURCE4,
+    SAA7134AUDIOSOURCE5,
+    SAA7134AUDIOSOURCE6,
+    SAA7134_SETTING_LASTONE,
+} SAA7134_SETTING;
+
+#define WM_SAA7134_GETVALUE           (WM_APP + 49)
+#define WM_SAA7134_SETVALUE           (WM_APP + 149)
+#define WM_SAA7134_CHANGEVALUE        (WM_APP + 249)
 
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.h,v 1.20 2002-08-27 22:02:32 kooiman Exp $
+// $Id: Source.h,v 1.21 2002-09-16 19:34:19 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -101,7 +101,12 @@ public:
     virtual void SetMenu(HMENU hMenu) = 0;
     /// Handle any timers that you control
     virtual void HandleTimerMessages(int TimerId) = 0;
-    /// Set the video format e.g. PAL, NTSC
+    /** Set the video format e.g. PAL, NTSC
+        Will get called by auto forfat detect in the processing thread
+        so do not stop the processing to habdle this command
+        Normal processing is to post message to yourself using API
+
+    */
     virtual void SetFormat(eVideoFormat NewFormat) = 0;
     /// Tune into channel
     virtual BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat) = 0;

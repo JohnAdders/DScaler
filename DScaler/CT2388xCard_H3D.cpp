@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard_H3D.cpp,v 1.2 2002-09-11 19:33:06 adcockj Exp $
+// $Id: CT2388xCard_H3D.cpp,v 1.3 2002-09-16 19:34:18 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/09/11 19:33:06  adcockj
+// a few tidy ups
+//
 // Revision 1.1  2002/09/11 18:19:37  adcockj
 // Prelimainary support for CT2388x based cards
 //
@@ -53,7 +56,20 @@ void CCT2388xCard::InitH3D()
         m_SAA7118->DumpSettings();
     }
 
-    WriteByte(0x390007, 0x10);
+    FILE* hFile;
+
+    hFile = fopen("FPGA.txt", "w");
+    if(!hFile)
+    {
+        return;
+    }
+
+    for(DWORD i(0x390000); i <= 0x39000F; ++i)
+    {
+        fprintf(hFile, "%06x\t%02x\n", i, ReadByte(i));
+    }
+
+    fclose(hFile);
 }
 
 void CCT2388xCard::H3DInputSelect(int nInput)
@@ -129,6 +145,15 @@ void CCT2388xCard::H3DSetFormat(int nInput, eVideoFormat TVFormat, BOOL IsProgre
     m_SAA7118->ReadFromSubAddress(0x0E, &ChrominanceControl, 1);
 
     ChrominanceControl &= 0x8F;
+
+    if(GetTVFormat(TVFormat)->wCropHeight == 576)
+    {
+        WriteByte(0x390007, 0xd0);
+    }
+    else
+    {
+        WriteByte(0x390007, 0x50);
+    }
 
     switch(nInput)
     {

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.221 2002-09-11 18:19:38 adcockj Exp $
+// $Id: DScaler.cpp,v 1.222 2002-09-16 19:34:19 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.221  2002/09/11 18:19:38  adcockj
+// Prelimainary support for CT2388x based cards
+//
 // Revision 1.220  2002/08/13 21:19:18  kooiman
 // Moved settings per channel setup before first channel change.
 //
@@ -3437,6 +3440,13 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             if(!bDone)
             {
                 RetVal = Filter_HandleSettingsMsg(hWnd, message, wParam, lParam, &bDone);
+            }
+            if(!bDone)
+            {
+                if(Providers_GetCurrentSource() != NULL)
+                {
+                    RetVal = Providers_GetCurrentSource()->HandleSettingsMessage(hWnd, message, wParam, lParam, &bDone);
+                }
             }
 
             if(bDone)

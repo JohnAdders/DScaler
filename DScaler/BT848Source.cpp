@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.66 2002-09-16 14:37:36 kooiman Exp $
+// $Id: BT848Source.cpp,v 1.67 2002-09-16 19:34:18 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.66  2002/09/16 14:37:36  kooiman
+// Added stereo autodetection.
+//
 // Revision 1.65  2002/09/15 15:57:27  kooiman
 // Added Audio standard support.
 //
@@ -846,7 +849,7 @@ eVideoFormat CBT848Source::GetFormat()
 
 void CBT848Source::SetFormat(eVideoFormat NewFormat)
 {
-	m_VideoFormat->SetValue(NewFormat);
+    PostMessage(hWnd, WM_BT848_SETVALUE, TVFORMAT, NewFormat);
 }
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.7 2002-09-16 17:52:34 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.8 2002-09-16 19:34:19 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/09/16 17:52:34  atnak
+// Support for SAA7134Res.dll dialogs
+//
 // Revision 1.6  2002/09/15 14:28:07  atnak
 // Tweaked VBI and VDelay settings
 //
@@ -81,8 +84,7 @@ void SAA7134_OnSetup(void *pThis, int Start)
 }
 
 CSAA7134Source::CSAA7134Source(CSAA7134Card* pSAA7134Card, CContigMemory* PageTableDMAMem[4], CUserMemory* DisplayDMAMem[2], CUserMemory* VBIDMAMem[2], LPCSTR IniSection, LPCSTR ChipName, int DeviceIndex) :
-    // \todo FIXME
-    CSource(WM_BT848_GETVALUE, IDC_SAA7134),
+    CSource(WM_SAA7134_GETVALUE, IDC_SAA7134),
     m_pSAA7134Card(pSAA7134Card),
     m_CurrentX(768),
     m_CurrentY(576),
@@ -758,7 +760,7 @@ eVideoFormat CSAA7134Source::GetFormat()
 
 void CSAA7134Source::SetFormat(eVideoFormat NewFormat)
 {
-    m_VideoFormat->SetValue(NewFormat);
+    PostMessage(hWnd, WM_SAA7134_SETVALUE, SAA7134TVFORMAT, NewFormat);
 }
 
 

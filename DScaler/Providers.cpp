@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.43 2002-09-14 20:18:16 atnak Exp $
+// $Id: Providers.cpp,v 1.44 2002-09-16 19:34:19 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.43  2002/09/14 20:18:16  atnak
+// Prelimainary support for SAA713x based cards
+//
 // Revision 1.42  2002/09/11 18:19:43  adcockj
 // Prelimainary support for CT2388x based cards
 //
@@ -640,6 +643,7 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
     }
     return FALSE;
 }
+
 
 long Providers_GetNumber()
 {

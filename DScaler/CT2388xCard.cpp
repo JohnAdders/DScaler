@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard.cpp,v 1.4 2002-09-15 14:20:38 adcockj Exp $
+// $Id: CT2388xCard.cpp,v 1.5 2002-09-16 19:34:18 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/09/15 14:20:38  adcockj
+// Fixed timing problems for cx2388x chips
+//
 // Revision 1.3  2002/09/12 21:45:35  ittarnavsky
 // changed the IAudioControls to CAudioControls
 //
@@ -273,10 +276,6 @@ void CCT2388xCard::SetVIPSaturation(BYTE Saturation)
     WriteDword(CT2388X_VIP_SATURATION, dwval);
 }
 
-void SetFormat(int nInput, eVideoFormat TVFormat)
-{
-}
-
 
 LPCSTR CCT2388xCard::GetTunerType()
 {
@@ -299,8 +298,8 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         CurrentX = 720;
 		WriteByte(MO_PINMUX_IO, 0x02);
 
-        //SetPLL( 27e6, 2, FALSE );
-        //SetSampleRateConverter(28.63636E6);
+        SetPLL( 27e6, 2, FALSE );
+        SetSampleRateConverter(28.63636E6);
 
         // Since we are digital here we don't really care which
         // format we choose as long as it has the right number of lines
@@ -310,12 +309,12 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         if (CurrentY == 576)
         {
             // Enable PAL Mode (or SECAM)
-            VideoInput |= 0x0004;
+            VideoInput |= VideoFormatPALBDGHI;
         }
         else
         {
             // Enable NTSC Mode (or PAL60)
-            VideoInput |= 0x0001;
+            VideoInput |= VideoFormatNTSC;
         }
 
         WriteDword(CT2388X_VIDEO_INPUT, VideoInput);
@@ -345,8 +344,8 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
 
         CurrentX = 720;
 
-        //SetPLL( 27e6, 2, FALSE );
-        //SetSampleRateConverter(28.63636E6);
+        SetPLL( 27e6, 2, FALSE );
+        SetSampleRateConverter(28.63636E6);
 
         // Setup correct format
         // \todo work out correct way of storing this with format info

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2001 Lindsey Dubb.  All rights reserved.
+// Copyright (c) 2001, 2002 Lindsey Dubb.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 //
 //  This file is subject to the terms of the GNU General Public License as
@@ -16,13 +16,16 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/01/04 01:29:54  lindsey
+// Changed parameterization
+//
 // Revision 1.1.1.1  2001/12/31 01:25:19  lindsey
 // Added FLT_AdaptiveNoise
 //
 //
 /////////////////////////////////////////////////////////////////////////////
 
-//#define ADAPTIVE_NOISE_DEBUG
+#define ADAPTIVE_NOISE_DEBUG
 
 #include <limits.h>
 #include <math.h>
@@ -155,35 +158,35 @@ R = P' - Q' = "Curve width"  (which is used as a general measure of the curve's 
 
 The noise multiplier is determined as
 
-H = (low quantile) + (curve width)/4 + (curve width)*NoiseReduction/25
-H = Q' + R/4 + R*NoiseReduction/25
+H = (low quantile) + (curve width)*NoiseReduction/25
+H = Q' + R*NoiseReduction/25
 
 So H is in the range
-(Q' + R/4, Q' + 17R/4)
+(Q', Q' + 4R)
 with the default
-H = Q' + 5R/4 = P' + R/4
+H = Q' + R = P'
 
 And the baseline G is
 
 G = (Q' - R) + Stability% * (difference between (Q' - R) and the noise reduction value)
 G = Q' - R + (H - (Q' - R))*Stability/100
-  = Q' - R + (Q' + R/4 + R*NoiseReduction/25 - Q' + R)*Stability/100
-  = Q' - R + R(5/4 + NoiseReduction/25)*Stability/100
+  = Q' - R + (Q' + R*NoiseReduction/25 - Q' + R)*Stability/100
+  = Q' - R + R(1 + NoiseReduction/25)*Stability/100
 if (G < 0), G = 0
 
 So G is in the range
 (Q' - R, H)
 or, in terms of NoiseReduction
-(Q' - R, Q' + R*(1/4 + NoiseReduction/25))
+(Q' - R, Q' + R*NoiseReduction/25)
 This is limited on the low end to 0, if necessary.
 
 The default (Stability = 35) gives
-G = Q' - R + R(5/4 + NoiseReduction/25)*35/100
-  = Q' + R(-9/16 + 7*NoiseReduction/500)
+G = Q' - R + R(1 + NoiseReduction/25)*35/100
+  = Q' + R(-65/100 + 7*NoiseReduction/500)
 
 and for both defaults (Stability = 35, NoiseReduction = 25)
-G = Q' + R(-9/16 + 7*25/500)
-  = Q' - 17R/80
+G = Q' + R(-65/100 + 7*25/500)
+  = Q' - 3R/10
 
 
 Things tried and discarded:
@@ -200,8 +203,8 @@ Temporal gradients
 In most gradual motion, the color changes directionally -- or so you'd think.  I tried to
 use the direction of change at a pixel as an additional contribution to the motion evidence,
 but it was completely useless.  Using indicator pink pixels, it was clear that directionality
-of change was completely worthless as an indicator -- It showed up reliably only when the 
-motion was so obvious that the mechanisms already in place could identify it without help.
+of change was worthless as an indicator -- It showed up reliably only when the motion was so
+obvious that the mechanisms already in place could identify it without help.
 
 Things which need to be done:
 - Lots of cleanup.  This is still a mess, and there are a bunch of unnecessarily arbitrary
@@ -219,6 +222,13 @@ Potential improvements:
 - Delay one or more fields, and make use of future colors and motion.  I suspect this won't
   help all that much.
 - Use picture information to determine the decay coefficients used to calculate N
+- Consideration of variation in the picture when choosing the noise/motion tradeoff.  This
+  was very roughly incorporated in the model which was used to justify the averaging method
+  (see FLT_GradualNoise.c for its description).  But the lowering of noise compensation in
+  low contrast areas of the picture would greatly reduce blurring.  On the other hand, this
+  is completely impossible with flat backgrounds.  (On a flat background, you can never
+  distinguish noise from motion because there's no sign whatsoever of motion.)  So this would
+  have to be done in moderation.
 - Optimization: My sole optimization has been the addition of a few prefetch instructions.
   They sped the filter 2x (from 600 MHz to 300 MHz on my SDR Athlon), but there's probably
   a bit more to speed to be had.
@@ -236,6 +246,46 @@ Potential improvements:
 
 #define PREFETCH_STRIDE                         128
 
+// These constants help place the noise maximum, above which further indication
+// of motion is ignored.  This maximum results in a false peak in the histogram
+// which is due to motion map values above the noise peak, times one noise decay.
+
+// NOISE_MAX_CURVE_WIDTHS is the number of "curve widths" (distance from the ~1/16
+// quantile and the peak) away from the histogram peak at which to allow the
+// artifactual peak. NOISE_MAX_EXTRA is added directly to the noise threshold.
+
+#define NOISE_MAX_CURVE_WIDTHS                  8
+#define NOISE_MAX_EXTRA                         25
+
+// To get the baseline, we count the pixels in the histogram until we there
+// are lineLength/LOW_QUANTILE pixels with that or lower a value.
+
+#define LOW_QUANTILE                            16
+
+// Location (horizontal and vertical distance from the top left) of the "lock dot"
+// V is defined as lines within the field
+
+#define LOCK_DOT_H                              32
+#define LOCK_DOT_V                              15
+
+// Initial values of the reliability, baseline, and first and second moving moments of the
+// peak estimate.  The initial reliability should be low to reflect a lack of knowledge when
+// the filter is initialized.
+
+#define   INITIAL_RELIABILITY                   0.001
+#define   INITIAL_BASELINE                      150.0 
+#define   INITIAL_PEAK_MEAN                     200.0
+#define   INITIAL_PEAK_SQUARED_MEAN             40000.0
+
+// Used to scale up the estimate of reliability of the signal
+
+#define SIGNAL_STRENGTH_MULTIPLIER              50
+
+// Multiplier applied to reliability of peak estimate when it is potentially a "false peak"
+// (due to decay from the noise maximum)
+
+#define PAST_PEAK_REDUCTION                     0.2
+
 // Base rate at which the estimate of reliability is moved toward the new estimate
 
 #define RELIABILITY_DECAY                       0.008
@@ -243,12 +293,12 @@ Potential improvements:
 // Vertical scale of the histogram display: Each hash mark represents 10*HISTOGRAM_SCALE points of
 // the cumulative color difference.
 
-#define HISTOGRAM_SCALE                         2
+#define HISTOGRAM_SCALE                         8
 
 // Total length of the histogram
 // If gDecayCoefficient is increased above ~95%, this should be increased, too
 
-#define HISTOGRAM_LENGTH                        1024
+#define HISTOGRAM_LENGTH                        2048
 
 // Rate of decay of the mean and mean^2 averaging for determining peak variance
 
@@ -268,7 +318,8 @@ Potential improvements:
 long            FilterAdaptiveNoise( TDeinterlaceInfo* pInfo );
 long            FilterAdaptiveNoise_DEBUG( TDeinterlaceInfo* pInfo );
 
-void            AnalyzeHistogram( TDeinterlaceInfo* pInfo, DWORD MaxNoise, DOUBLE* pCumBaseline, DOUBLE* pCumDifferencePeak );
+void            AnalyzeHistogram( TDeinterlaceInfo* pInfo, DWORD MaxNoise, DOUBLE* pCumBaseline,
+                    DOUBLE* pCumDifferencePeak, BOOLEAN* pDoShowDot );
 
 void __cdecl    ExitAdaptiveNoise( void );
 void            CleanupAdaptiveNoise( void );
@@ -398,9 +449,9 @@ SETTING FLT_AdaptiveNoiseSettings[FLT_ANOISE_SETTING_LASTONE] =
 #else
         "Motion memory (percent)", NOT_PRESENT, 0, &gDecayCoefficient,
 #endif // Show motion memory slider when testing
-        78, 0, 95, 1, 1,
+        90, 0, 95, 1, 1,
         NULL,
-        "AdaptiveNoiseFilter", "MotionMemory", NULL,
+        "AdaptiveNoiseFilter", "MotionDecay", NULL,
     },
 #ifdef ADAPTIVE_NOISE_DEBUG
     {
@@ -521,7 +572,7 @@ void CleanupAdaptiveNoise( void )
 
 __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo( long CpuFeatureFlags )
 {
-    // We need psadbw and make use of the maximization instructions, so at least
+    // We need psadbw and make use of the max/min instructions, so at least
     // MMXEXT is required.
     if( CpuFeatureFlags & (FEATURE_SSE | FEATURE_MMXEXT) )
     {
@@ -552,14 +603,17 @@ BOOL WINAPI _DllMainCRTStartup( HANDLE hInst, ULONG ul_reason_for_call, LPVOID l
 
 Automated curve psychoanalysis:
 
-This is currently pretty sloppy code.  Yes, I hope to fix it eventually.
+This is currently poorly documented.  Yes, I hope to fix it eventually.
 
 Often, material (especially sports) will have a few brief parts with good information about the noise, but
-otherwise have too much noise to tell much.  This routine is designed to lock onto the good noise estimate,
+otherwise have too much motion to tell much.  This routine is designed to lock onto the good noise estimate,
 but to eventually give up and go with a poor estimate if that's all which is available.  The use of poor
 estimates is necessary when viewing material with heavy interference.
 
 The baseline of the noise is easy to determine -- It's just defined as a low quantile of the histogram.
+More exactly, it's defined as the value at which a fixed number of pixels (proportional to the pixel
+width) are at a lower value in the histogram.  That's not a real quantile, but it's more robust to bad
+peak estimates than a real quantile would be.
 
 The peak is a little tougher -- I use a median smoother followed by a simple hill climber.  The peak
 finder is meant to find the first moderately large peak.  This purposefully avoids higher valued peaks
@@ -568,13 +622,17 @@ the one which represents noise.  There are two drawbacks to this:
 - If the screen is showing material with two different noise levels, only the lower will be detected
 - If interference is affecting only part of the screen, only the cleanest part will be detected
 
+This peak finder works poorly when the histogram is bumpy.  This is mostly beneficial -- when the
+histogram is very bumpy, there's usually a lot of motion in the picture, so missing the strongest
+peak is a good idea.
+
 The reliability measure of an estimate depends on four factors:
 - The height of the histogram's peak
 - The (time weighted) coefficient of variation of the peak estimate
 - The difference between the new peak estimate and the old estimate
 - The reliability of the previous estimate
 
-This is handled in a really haphazard way, with lots of arbitrary powers and constants  -- I'll just refer you
+This is handled in a fairly haphazard way, with some arbitrary powers and constants  -- I'll just refer you
 to the code, since it's likely to change before I next update this comment.  Good luck, since the commenting in
 the code is poor.
 
@@ -596,45 +654,58 @@ tool for people working on motion detection.  The histogram shows:
 
 */
 
-void AnalyzeHistogram( TDeinterlaceInfo* pInfo, DWORD MaxNoise, DOUBLE* pCumBaseline, DOUBLE* pCumDifferencePeak )
+void AnalyzeHistogram( TDeinterlaceInfo* pInfo, DWORD MaxNoise, DOUBLE* pCumBaseline,
+                            DOUBLE* pCumDifferencePeak, BOOLEAN* pDoShowDot )
 {
     LONG            Index = 0;
-    static DOUBLE   sPeakMean = 20.0;           // Accumulated average of noise value peaks (for variance calculation)
-    static DOUBLE   sPeakSquaredMean = 400.0;   // Accumulated average of squared noise value peaks (for variance)
-    static DOUBLE   sReliability = 0.001;       // Reliability of current estimates; Set low to allow early data to count heavily
+
+    static DOUBLE   sReliability = INITIAL_RELIABILITY;             // Reliability of current estimates
+    static DOUBLE   sPeakMean = INITIAL_PEAK_MEAN;                  // Accumulated average of noise value peaks (for variance calculation)
+    static DOUBLE   sPeakSquaredMean = INITIAL_PEAK_SQUARED_MEAN;   // Accumulated average of squared noise value peaks (for variance)
+
+    // Reset the estimates if we've switched the picture source
+
+    if( pInfo->PictureHistory[0]->IsFirstInSeries )
+    {
+        sReliability = INITIAL_RELIABILITY;
+        sPeakMean = INITIAL_PEAK_MEAN;
+        sPeakSquaredMean = INITIAL_PEAK_SQUARED_MEAN;
+        *pCumBaseline = INITIAL_BASELINE;
+        *pCumDifferencePeak = INITIAL_PEAK_MEAN;
+    }
 
     // Medianish smoothing of the histogram (doesn't really need to be done for the whole histogram)
 
     for( Index = 1; Index < HISTOGRAM_LENGTH - 1; ++Index )
     {
-        DWORD           highest;
-        DWORD           lowest;
-        DWORD           thisTry;
+        DWORD           Highest = 0;
+        DWORD           Lowest = 0;
+        DWORD           ThisTry = 0;
         DWORD*          pDWordHistogram = (DWORD*)gpHistogram;
 
-        highest = pDWordHistogram[Index - 1];
-        lowest = highest;
-        thisTry = pDWordHistogram[Index];
-        if( thisTry > highest )
+        Highest = pDWordHistogram[Index - 1];
+        Lowest = Highest;
+        ThisTry = pDWordHistogram[Index];
+        if( ThisTry > Highest )
         {
-            highest = thisTry;
+            Highest = ThisTry;
         }
         else 
         {
-            lowest = thisTry;
+            Lowest = ThisTry;
         }
-        thisTry = pDWordHistogram[Index+1];
-        if( thisTry > highest )
+        ThisTry = pDWordHistogram[Index+1];
+        if( ThisTry > Highest )
         {
-            pDWordHistogram[Index] = highest;
+            pDWordHistogram[Index] = Highest;
         }
-        else if( thisTry < lowest )
+        else if( ThisTry < Lowest )
         {
-            pDWordHistogram[Index] = lowest;
+            pDWordHistogram[Index] = Lowest;
         }
         else
         {
-            pDWordHistogram[Index] = thisTry;
+            pDWordHistogram[Index] = ThisTry;
         }
     }
 
@@ -670,12 +741,25 @@ void AnalyzeHistogram( TDeinterlaceInfo* pInfo, DWORD MaxNoise, DOUBLE* pCumBase
         DWORD       Accumulator = 0;
         DWORD       Baseline = 0;
         DWORD       DeltaPeak = 0;
+        LONG        FalsePeak = 0;
+        
+        // Find the part of the histogram after which the false peak (due to decay from the MaxNoise threshold)
+        // will be found.
 
-        for( Index = 0; Index < HISTOGRAM_LENGTH - PEAK_FAR_COMPARISON; ++Index )
+        FalsePeak = (LONG)(MaxNoise*(gDecayCoefficient+1))/100;
+        if( FalsePeak > HISTOGRAM_LENGTH - PEAK_FAR_COMPARISON - 1 )
+        {
+            FalsePeak = HISTOGRAM_LENGTH - PEAK_FAR_COMPARISON - 1;
+        }
+
+        // Find baseline (  = LineLength / 16 accumulated value )
+        // Note that this isn't a real quantile.  But it is robust to poor peak estimates.
+        
+        for( Index = 0; Index <= FalsePeak; ++Index )
         {
 
             Accumulator += pDWordHistogram[Index];
-            if( Accumulator >  pInfo->LineLength/16)
+            if( (pDWordHistogram[Index] >= 5) && (Accumulator >  pInfo->LineLength/LOW_QUANTILE) )
             {
                 if( (gIndicator == TRUE) && (Index/HISTOGRAM_SCALE < pInfo->FieldHeight - 20) )
                 {   // Show this field's baseline
@@ -685,52 +769,54 @@ void AnalyzeHistogram( TDeinterlaceInfo* pInfo, DWORD MaxNoise, DOUBLE* pCumBase
                 break;
             }
         }
-        // Don't look for the peak past MaxNoise*Decay, since it will be artifactual. (Since noise is limited to an exact
-        // value, there will be a peak around MaxNoise*Decay).  !! Improve this !! 
-        for( ; (Index < HISTOGRAM_LENGTH) && ((Index < (LONG)(MaxNoise*(gDecayCoefficient+1))/100) || (Index < 100)); ++Index )
+
+        // Find lowest peak maximum:
+
+        for( ; Index < HISTOGRAM_LENGTH; ++Index )
         { // Simple peak finder -- It's designed to find the first moderately big peak
             if( (pDWordHistogram[Index] >= 5) &&
                 (pDWordHistogram[Index+PEAK_NEAR_COMPARISON] < pDWordHistogram[Index]) &&
                 (pDWordHistogram[Index+PEAK_MIDDLE_COMPARISON] <= pDWordHistogram[Index+PEAK_NEAR_COMPARISON]) &&
-                (pDWordHistogram[Index+PEAK_FAR_COMPARISON] <= pDWordHistogram[Index+PEAK_MIDDLE_COMPARISON])
-            ) {
+                (pDWordHistogram[Index+PEAK_FAR_COMPARISON] <= pDWordHistogram[Index+PEAK_MIDDLE_COMPARISON]) )
+            {
                 if( (gIndicator == TRUE) && (Index/HISTOGRAM_SCALE < pInfo->FieldHeight - 20) )
                 {   // Show this field's peak
                     *(pInfo->PictureHistory[0]->pData + ((Index/HISTOGRAM_SCALE+20) * pInfo->InputPitch) + 200) = 0xFF;
                 }
+
                 DeltaPeak = Index;
+
                 sPeakMean = sPeakMean * PEAK_VARIANCE_DECAY +
                     DeltaPeak * (1.0 - PEAK_VARIANCE_DECAY);
                 sPeakSquaredMean = sPeakSquaredMean * PEAK_VARIANCE_DECAY +
                     (DeltaPeak * DeltaPeak) * (1.0 - PEAK_VARIANCE_DECAY);
                 if( sPeakMean < .999 )
-                {   // Always slightly consider the alternative
+                {   // Avoid division by 0
                     CoeffVar = .999;
                 }
                 else
                 {
                     CoeffVar = sPeakSquaredMean - sPeakMean*sPeakMean;  // the variance
-                    CoeffVar /= sPeakSquaredMean; // really CV^2
+                    CoeffVar /= sPeakSquaredMean;                       // really CV^2
                 }
-                CoeffVar = 1.0 - sqrt(CoeffVar);
+                CoeffVar = 1.0 - sqrt(CoeffVar);                        // really 1.0 - CV
                 CoeffVar *= CoeffVar;
                 CoeffVar *= CoeffVar;
                 CoeffVar *= CoeffVar;
                 CoeffVar *= CoeffVar;
-                {   // Show Coefficient of variation statistic
+                // Show Coefficient of variation statistic
+                if( gIndicator == TRUE )
+                {
                     DWORD  Jindex = 0;
                     Jindex = (DWORD)(CoeffVar*pInfo->FrameWidth);
                     Jindex *= 2;
-                    if( gIndicator == TRUE )
-                    {
-                        *(pInfo->PictureHistory[0]->pData + (15 * pInfo->InputPitch) + Jindex) = 0xFF;
-                    }
+                    *(pInfo->PictureHistory[0]->pData + (15 * pInfo->InputPitch) + Jindex) = 0xFF;
                 }
-                SignalStrength = pDWordHistogram[DeltaPeak];
+
+                SignalStrength = pDWordHistogram[DeltaPeak]*sqrt((DOUBLE)DeltaPeak);
                 // Normalize the maximum strength of signal to the amount of data collected
-                // The divisor of pInfo->FrameWidth is more arbitrary than it looks: Any constant times
-                // the FrameWidth would be reasonable.
-                SignalStrength /= pInfo->FrameWidth;        
+                SignalStrength /= pInfo->FrameWidth*(pInfo->SourceRect.bottom - pInfo->SourceRect.top)/2;
+                SignalStrength *= SIGNAL_STRENGTH_MULTIPLIER;
                 SignalStrength *= CoeffVar;
                 if (SignalStrength > 1.0)
                 {
@@ -739,14 +825,25 @@ void AnalyzeHistogram( TDeinterlaceInfo* pInfo, DWORD MaxNoise, DOUBLE* pCumBase
                 SignalStrength *= SignalStrength;
                 SignalStrength *= SignalStrength;
                 SignalStrength *= RELIABILITY_DECAY;
+
+                // Jump out since we've found the peak
                 break;
             }
         }
+
+        // If the peak is after the false peak threshold, downweight it.
+        if( Index >= (LONG)(MaxNoise*(gDecayCoefficient+1))/100 )
+        {
+            SignalStrength *= PAST_PEAK_REDUCTION;
+        }
+
         // Update the baseline and peak estimates, weighting with new estimate reliability relative to old reliability
+
         *pCumBaseline = (*pCumBaseline)*(sReliability/(SignalStrength+sReliability)) +
             Baseline*SignalStrength/(sReliability+SignalStrength);
         *pCumDifferencePeak = (*pCumDifferencePeak)*(sReliability/(SignalStrength+sReliability)) +
             DeltaPeak*SignalStrength/(sReliability+SignalStrength);
+
         if( (gIndicator == TRUE) && ((*pCumBaseline)/HISTOGRAM_SCALE < pInfo->FieldHeight - 20) )
         {   // Show baseline estimate
             *(pInfo->PictureHistory[0]->pData + (((LONG)((*pCumBaseline)/HISTOGRAM_SCALE) + 20) * pInfo->InputPitch) + 400) = 0xFF;
@@ -755,7 +852,9 @@ void AnalyzeHistogram( TDeinterlaceInfo* pInfo, DWORD MaxNoise, DOUBLE* pCumBase
         {   // Show peak estimate
             *(pInfo->PictureHistory[0]->pData + (((LONG)((*pCumDifferencePeak)/HISTOGRAM_SCALE) + 20) * pInfo->InputPitch) + 500) = 0xFF;
         }
+
         // If we get a weak signal at the location of our current estimate, don't drop the reliability
+
         ProbSameSignal = (*pCumDifferencePeak) - DeltaPeak;
         ProbSameSignal = ProbSameSignal*ProbSameSignal/(*pCumDifferencePeak);
         ProbSameSignal = 1.0 - ProbSameSignal;
@@ -763,46 +862,44 @@ void AnalyzeHistogram( TDeinterlaceInfo* pInfo, DWORD MaxNoise, DOUBLE* pCumBase
         {
             ProbSameSignal = 0.0;
         }
-        // Bias toward the more reliable signals, since we can just ignore the lousy ones.
-        // Paradoxically, this means poor signals reduce the reliability less than mediocre signals do.  This is
-        // desirable behavior because the worse the signal, the more we want to hold onto the older estimate.
-        if( sReliability > SignalStrength/RELIABILITY_DECAY )
-        {
-            sReliability = sReliability*ProbSameSignal +
-                (1.0 - ProbSameSignal)*sReliability*(1.0-SignalStrength) +
-                (1.0 - ProbSameSignal)*(SignalStrength/RELIABILITY_DECAY)*SignalStrength;
+
+        // Detect whether the lock dot should be shown
+
+        if( ProbSameSignal > 0.001 )
+        {   
+            *pDoShowDot = TRUE;
         }
         else
         {
-            sReliability = sReliability*(1-SignalStrength) + (SignalStrength/RELIABILITY_DECAY)*SignalStrength;
+            *pDoShowDot = FALSE;
         }
-/*      This alternative causes reliability to fall too fast if it's already low
-        sReliability = sReliability*((sReliability)/(SignalStrength+sReliability)) +
-            (SignalStrength/0.008)*(SignalStrength)/(sReliability+SignalStrength);
-*/
+
+        // Bias toward the more reliable signals, since we can just ignore the lousy ones.
+        // Paradoxically, this means poor signals reduce the reliability less than mediocre signals do.  This is
+        // desirable behavior because the worse the signal, the more we want to hold onto the older estimate.
+
+        if( sReliability > SignalStrength/RELIABILITY_DECAY )
+        {
+            sReliability = sReliability*ProbSameSignal +
+                (1.0 - ProbSameSignal)*sReliability*((sReliability)/(SignalStrength+sReliability)) +
+                (1.0 - ProbSameSignal)*(SignalStrength/RELIABILITY_DECAY)*(SignalStrength)/(sReliability+SignalStrength);
+        }
+        else
+        {
+            sReliability = sReliability*((sReliability)/(SignalStrength+sReliability)) +
+                (SignalStrength/RELIABILITY_DECAY)*(SignalStrength)/(sReliability+SignalStrength);
+        }
+        // Show reliability estimate
         if( gIndicator == TRUE )
-        {   // Show reliability estimate
+        {
             DWORD  Jindex = (DWORD) (sReliability * pInfo->FrameWidth);
             *(pInfo->PictureHistory[0]->pData + (10 * pInfo->InputPitch) + Jindex*sizeof(WORD)) = 0xFF;
         }
-        if( gShowLockDot == TRUE )
-        {
-            if( ProbSameSignal > 0.001 )
-            {
-                *((DWORD*)( pInfo->PictureHistory[0]->pData +
-                    (16 * pInfo->InputPitch) + 64)) = 0x4FFF;
-            }
-        }
     }
 
-    if( ((LONG)(MaxNoise*(gDecayCoefficient+1))/400 < pInfo->FieldHeight - 20) && (gIndicator == TRUE) )
-    {   // Show MaxNoise point -- This is often off the bottom of the screen
-        *(pInfo->PictureHistory[0]->pData + ((((MaxNoise*(gDecayCoefficient+1))/400) + 20) * pInfo->InputPitch) + 600) = 0xFF;
-    }
-/*
-    if( (gIndicator == TRUE) && (pInfo->PictureHistory[0]->IsFirstInSeries) )
+    // Show MaxNoise point -- This is often off the bottom of the screen
+    if( ((LONG)(MaxNoise*(gDecayCoefficient+1))/(100*HISTOGRAM_SCALE) < pInfo->FieldHeight - 20) && (gIndicator == TRUE) )
     {
-        *((DWORD*)(pInfo->PictureHistory[0]->pData + ((Index+10) * pInfo->InputPitch) + 100)) = 0xFFFF;
+        *(pInfo->PictureHistory[0]->pData + ((((MaxNoise*(gDecayCoefficient+1))/(100*HISTOGRAM_SCALE)) + 20) * pInfo->InputPitch) + 600) = 0xFF;
     }
-*/
 }

@@ -1,5 +1,5 @@
 ;////////////////////////////////////////////////////////////////////////////
-;// $Id: dscaler.iss,v 1.15 2002-11-06 22:15:08 adcockj Exp $
+;// $Id: dscaler.iss,v 1.16 2002-11-25 09:52:13 adcockj Exp $
 ;/////////////////////////////////////////////////////////////////////////////
 ;// Copyright (c) 2002 Rob Muller.  All rights reserved.
 ;/////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 ;// CVS Log
 ;//
 ;// $Log: not supported by cvs2svn $
+;// Revision 1.15  2002/11/06 22:15:08  adcockj
+;// Include DSRend in alpha build
+;//
 ;// Revision 1.14  2002/11/02 11:42:37  robmuller
 ;// Added Skins folder.
 ;//
@@ -69,8 +72,8 @@
 ;  For more information about InnoSetup see http://www.innosetup.com
 
 [Setup]
-AppName=DScaler 4 Public Alpha 1
-AppVerName=DScaler 4.0.1
+AppName=DScaler 4.1.0
+AppVerName=DScaler 4.1.0
 AppPublisherURL=http://www.dscaler.org
 AppSupportURL=http://www.dscaler.org/phpBB/
 AppUpdatesURL=http://www.dscaler.org

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.297 2003-02-05 14:26:19 laurentg Exp $
+// $Id: DScaler.cpp,v 1.298 2003-02-05 14:40:56 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.297  2003/02/05 14:26:19  laurentg
+// DScaler in systray (Patch from Kristian Trenskow)
+//
 // Revision 1.296  2003/01/27 22:06:39  laurentg
 // Forbid key O or key Shift+O as soon as one of the overscans is at its minimum or maximum
 //
@@ -6210,6 +6213,12 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
         TRUE, 0, 1, 1, 1,
         NULL,
         "MainWindow", "SingleKeyTeletextToggle", NULL,
+    },
+    {
+        "Minimizes to the Windows system tray", ONOFF, 0, (long*)&bMinToTray,
+        FALSE, 0, 1, 1, 1,
+        NULL,
+        "MainWindow", "MinToTray", NULL,
     },
 };
 

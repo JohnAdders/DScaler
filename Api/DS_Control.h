@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.134 2003-01-24 08:08:43 atnak Exp $
+// $Id: DS_Control.h,v 1.135 2003-02-05 14:40:07 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.134  2003/01/24 08:08:43  atnak
+// Changes to OSDB
+//
 // Revision 1.133  2003/01/18 10:53:57  laurentg
 // Overscan setting specific to calibration deleted
 //
@@ -720,6 +723,7 @@ typedef enum
     VIDEOCARD,
 	REVERSECHANNELSCROLLING,
     SINGLEKEYTELETEXTTOGGLE,
+	MINTOTRAY,
     DSCALER_SETTING_LASTONE,
 } DSCALER_SETTING;
 

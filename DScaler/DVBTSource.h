@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DVBTSource.h,v 1.13 2003-01-07 23:27:03 laurentg Exp $
+// $Id: DVBTSource.h,v 1.14 2003-01-08 19:59:37 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,7 @@ public:
     ISetting* GetSaturation();
     ISetting* GetSaturationU();
     ISetting* GetSaturationV();
+    ISetting* GetAnalogueBlanking() {return NULL;};
     ISetting* GetTopOverscan();
     ISetting* GetBottomOverscan();
     ISetting* GetLeftOverscan();

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.127 2003-01-08 00:23:09 atnak Exp $
+// $Id: DS_Control.h,v 1.128 2003-01-08 19:57:40 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.127  2003/01/08 00:23:09  atnak
+// Put back VBI upscale divisor
+//
 // Revision 1.126  2003/01/07 23:23:40  laurentg
 // New overscan settings
 //
@@ -622,7 +625,6 @@ typedef enum
     ALLOWGREATERTHANSCREEN,
     MASKGREYSHADE,
     USEWSS,
-    ANALOGUEBLANKING,
     DEFAULTSOURCEASPECT,
 	DEFAULTASPECTMODE,
     ASPECT_SETTING_LASTONE,

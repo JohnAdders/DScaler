@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.h,v 1.28 2003-01-07 23:27:04 laurentg Exp $
+// $Id: Source.h,v 1.29 2003-01-08 19:59:38 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -83,6 +83,8 @@ public:
     virtual ISetting* GetSaturationU() = 0;
     /// returns NULL if there is no control over this value
     virtual ISetting* GetSaturationV() = 0;
+    /// returns NULL if there is no control over this value
+    virtual ISetting* GetAnalogueBlanking() = 0;
     /// returns NULL if there is no control over this value
     virtual ISetting* GetTopOverscan() = 0;
     /// returns NULL if there is no control over this value

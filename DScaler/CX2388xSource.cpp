@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.26 2003-01-07 23:27:02 laurentg Exp $
+// $Id: CX2388xSource.cpp,v 1.27 2003-01-08 19:59:36 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2003/01/07 23:27:02  laurentg
+// New overscan settings
+//
 // Revision 1.25  2003/01/07 16:49:07  adcockj
 // Changes to allow variable sampling rates for VBI
 //
@@ -375,6 +378,9 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
     m_SaturationV = new CSaturationVSetting(this, "Red Saturation", 128, 0, 255, IniSection, pVideoGroup, FlagsAll);
     m_Settings.push_back(m_SaturationV);
 
+    m_AnalogueBlanking = new CAnalogueBlankingSetting(this, "Analogue Blanking", FALSE, IniSection, pVideoGroup, FlagsAll);
+    m_Settings.push_back(m_AnalogueBlanking);
+
     m_TopOverscan = new CTopOverscanSetting(this, "Overscan at Top", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup, FlagsAll);
     m_Settings.push_back(m_TopOverscan);
 
@@ -528,6 +534,7 @@ void CCX2388xSource::SetupSettings()
         { m_Contrast,               PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
         { m_Saturation,             PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
         { m_Hue,                    PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_AnalogueBlanking,       PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
         { m_TopOverscan,            PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
         { m_BottomOverscan,         PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
         { m_LeftOverscan,           PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
@@ -546,6 +553,7 @@ void CCX2388xSource::SetupSettings()
         { m_Contrast,               PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
         { m_Saturation,             PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
         { m_Hue,                    PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_AnalogueBlanking,       PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
         { m_TopOverscan,            PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
         { m_BottomOverscan,         PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
         { m_LeftOverscan,           PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
@@ -1024,6 +1032,18 @@ ISetting* CCX2388xSource::GetSaturationV()
     }
 }
 
+ISetting* CCX2388xSource::GetAnalogueBlanking()
+{
+    if(m_CurrentX == 720)
+    {
+	    return m_AnalogueBlanking;
+    }
+	else
+	{
+	    return NULL;
+	}
+}
+
 ISetting* CCX2388xSource::GetTopOverscan()
 {
     return m_TopOverscan;
@@ -1389,6 +1409,12 @@ void CCX2388xSource::SaturationOnChange(long Sat, long OldValue)
     }
 }
 
+void CCX2388xSource::AnalogueBlankingOnChange(long NewValue, long OldValue)
+{
+    AspectSettings.bAnalogueBlanking = NewValue;
+    WorkoutOverlaySize(TRUE);
+}
+
 void CCX2388xSource::TopOverscanOnChange(long Overscan, long OldValue)
 {
     AspectSettings.InitialTopOverscan = Overscan;
@@ -1529,6 +1555,14 @@ void CCX2388xSource::SetOverscan()
     AspectSettings.InitialBottomOverscan = m_BottomOverscan->GetValue();
     AspectSettings.InitialLeftOverscan = m_LeftOverscan->GetValue();
     AspectSettings.InitialRightOverscan = m_RightOverscan->GetValue();
+    if(m_CurrentX == 720)
+    {
+	    AspectSettings.bAnalogueBlanking = m_AnalogueBlanking->GetValue();
+    }
+	else
+	{
+	    AspectSettings.bAnalogueBlanking = 0;
+	}
 }
 
 void CCX2388xSource::SavePerChannelSetup(int Start)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.56 2003-01-08 00:22:41 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.57 2003-01-08 19:59:38 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.56  2003/01/08 00:22:41  atnak
+// Put back VBI upscale divisor
+//
 // Revision 1.55  2003/01/07 23:27:03  laurentg
 // New overscan settings
 //
@@ -1299,6 +1302,7 @@ void CSAA7134Source::SetOverscan()
     AspectSettings.InitialBottomOverscan = m_BottomOverscan->GetValue();
     AspectSettings.InitialLeftOverscan = m_LeftOverscan->GetValue();
     AspectSettings.InitialRightOverscan = m_RightOverscan->GetValue();
+    AspectSettings.bAnalogueBlanking = FALSE;
 }
 
 

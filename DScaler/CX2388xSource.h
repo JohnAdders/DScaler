@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.h,v 1.16 2003-01-07 23:27:02 laurentg Exp $
+// $Id: CX2388xSource.h,v 1.17 2003-01-08 19:59:37 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -57,6 +57,7 @@ public:
     ISetting* GetSaturation();
     ISetting* GetSaturationU();
     ISetting* GetSaturationV();
+    ISetting* GetAnalogueBlanking();
     ISetting* GetTopOverscan();
     ISetting* GetBottomOverscan();
     ISetting* GetLeftOverscan();
@@ -163,6 +164,7 @@ private:
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, Saturation);
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, SaturationU);
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, SaturationV);
+    DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, AnalogueBlanking);
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, TopOverscan);
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, BottomOverscan);
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, LeftOverscan);

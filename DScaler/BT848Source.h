@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.49 2003-01-07 23:27:01 laurentg Exp $
+// $Id: BT848Source.h,v 1.50 2003-01-08 19:59:35 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.49  2003/01/07 23:27:01  laurentg
+// New overscan settings
+//
 // Revision 1.48  2002/11/07 20:33:16  adcockj
 // Promoted ACPI functions so that state management works properly
 //
@@ -78,6 +81,7 @@ public:
     ISetting* GetSaturation();
     ISetting* GetSaturationU();
     ISetting* GetSaturationV();
+    ISetting* GetAnalogueBlanking() {return NULL;};
     ISetting* GetTopOverscan();
     ISetting* GetBottomOverscan();
     ISetting* GetLeftOverscan();

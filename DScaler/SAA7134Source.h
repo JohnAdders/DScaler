@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.h,v 1.30 2003-01-08 00:22:41 atnak Exp $
+// $Id: SAA7134Source.h,v 1.31 2003-01-08 19:59:38 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2003/01/08 00:22:41  atnak
+// Put back VBI upscale divisor
+//
 // Revision 1.29  2003/01/07 23:27:04  laurentg
 // New overscan settings
 //
@@ -182,6 +185,7 @@ public:
     ISetting* GetSaturation();
     ISetting* GetSaturationU();
     ISetting* GetSaturationV();
+    ISetting* GetAnalogueBlanking() {return NULL;};
     ISetting* GetTopOverscan();
     ISetting* GetBottomOverscan();
     ISetting* GetLeftOverscan();

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.101 2003-01-07 23:27:01 laurentg Exp $
+// $Id: BT848Source.cpp,v 1.102 2003-01-08 19:59:34 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.101  2003/01/07 23:27:01  laurentg
+// New overscan settings
+//
 // Revision 1.100  2003/01/07 16:49:05  adcockj
 // Changes to allow variable sampling rates for VBI
 //
@@ -1633,6 +1636,7 @@ void CBT848Source::SetOverscan()
     AspectSettings.InitialBottomOverscan = m_BottomOverscan->GetValue();
     AspectSettings.InitialLeftOverscan = m_LeftOverscan->GetValue();
     AspectSettings.InitialRightOverscan = m_RightOverscan->GetValue();
+    AspectSettings.bAnalogueBlanking = FALSE;
 }
 
 void CBT848Source::ChannelChange(int PreChange, int OldChannel, int NewChannel)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.51 2003-01-04 13:36:42 laurentg Exp $
+// $Id: AspectGUI.cpp,v 1.52 2003-01-08 19:59:33 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.51  2003/01/04 13:36:42  laurentg
+// Two modes for AR autodetection
+//
 // Revision 1.50  2003/01/03 00:54:19  laurentg
 // New mode for AR autodetection using only WSS
 //
@@ -156,6 +159,7 @@
 #include "VBI.h"
 #include "OutThreads.h"
 #include "SettingsPerChannel.h"
+#include "Providers.h"
 
 
 // From DScaler.c .... We really need to reduce reliance on globals by going C++!
@@ -337,7 +341,8 @@ void AspectRatio_SetMenu(HMENU hMenu)
     CheckMenuItemBool(hMenu, IDM_WINPOS_BOUNCE, (AspectSettings.BounceEnabled));
     CheckMenuItemBool(hMenu, IDM_WINPOS_ORBIT, (AspectSettings.OrbitEnabled));
     CheckMenuItemBool(hMenu, IDM_WINPOS_AUTOSIZE, (AspectSettings.AutoResizeWindow));
-    CheckMenuItemBool(hMenu, IDM_ANALOGUE_BLANKING, (AspectSettings.bAnalogueBlanking));
+	CheckMenuItemBool(hMenu, IDM_ANALOGUE_BLANKING, (AspectSettings.bAnalogueBlanking));
+    EnableMenuItem(hMenu, IDM_ANALOGUE_BLANKING, Providers_GetCurrentSource()->GetAnalogueBlanking() ? MF_ENABLED : MF_GRAYED);
 
     // Zoom
     CheckMenuItemBool(hMenu, IDM_ZOOM_10, (AspectSettings.ZoomFactorX == 100 && AspectSettings.ZoomFactorY == 100));
@@ -440,8 +445,12 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         break;
 
     case IDM_ANALOGUE_BLANKING:
-        AspectSettings.bAnalogueBlanking = !AspectSettings.bAnalogueBlanking;
-        ShowText(hWnd, AspectSettings.bAnalogueBlanking ? "Analogue Blanking ON" : "Analogue Blanking OFF");
+		if (Providers_GetCurrentSource()->GetAnalogueBlanking() != NULL)
+		{
+			Providers_GetCurrentSource()->GetAnalogueBlanking()->SetValue(!Providers_GetCurrentSource()->GetAnalogueBlanking()->GetValue());
+			AspectSettings.bAnalogueBlanking = Providers_GetCurrentSource()->GetAnalogueBlanking()->GetValue();
+			ShowText(hWnd, AspectSettings.bAnalogueBlanking ? "Analogue Blanking ON" : "Analogue Blanking OFF");
+		}
         break;
 
 
@@ -1132,13 +1141,6 @@ BOOL MaskGreyShade_OnChange(long NewValue)
     return FALSE;
 }
 
-BOOL AnalogueBlanking_OnChange(long NewValue)
-{
-    AspectSettings.bAnalogueBlanking = NewValue;  
-    InvalidateRect(hWnd, NULL, FALSE);
-    return FALSE;
-}
-
 
 /////////////////////////////////////////////////////////////////////////////
 // Start of Settings related code
@@ -1361,12 +1363,6 @@ SETTING AspectGUISettings[ASPECT_SETTING_LASTONE] =
         FALSE, 0, 1, 1, 1,
         NULL,
         "ASPECT_DETECT", "UseWSS", NULL,
-    },
-    {
-        "Analogue Blanking", ONOFF, 0, (long*)&AspectSettings.bAnalogueBlanking,
-        FALSE, 0, 1, 1, 1,
-        NULL,
-        "ASPECT_DETECT", "AnalogueBlanking", AnalogueBlanking_OnChange,
     },
     {
         "Default Source Aspect", SLIDER, 0, (long*)&AspectSettings.DefaultSourceAspect,

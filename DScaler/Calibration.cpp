@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.75 2003-01-07 23:27:02 laurentg Exp $
+// $Id: Calibration.cpp,v 1.76 2003-01-08 19:59:36 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.75  2003/01/07 23:27:02  laurentg
+// New overscan settings
+//
 // Revision 1.74  2002/10/29 23:38:35  laurentg
 // Display of the calibration OSD
 //
@@ -1080,6 +1083,7 @@ void CCalibration::Start(eTypeCalibration type)
         AspectSettings.InitialBottomOverscan = SourceOverscan;
         AspectSettings.InitialLeftOverscan = SourceOverscan;
         AspectSettings.InitialRightOverscan = SourceOverscan;
+		AspectSettings.bAnalogueBlanking = FALSE;
         WorkoutOverlaySize(TRUE);
 
         m_IsRunning = TRUE;

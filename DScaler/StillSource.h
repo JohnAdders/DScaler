@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.53 2003-01-07 23:27:04 laurentg Exp $
+// $Id: StillSource.h,v 1.54 2003-01-08 19:59:39 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -114,6 +114,7 @@ public:
     ISetting* GetSaturation() {return NULL;};
     ISetting* GetSaturationU() {return NULL;};
     ISetting* GetSaturationV() {return NULL;};
+    ISetting* GetAnalogueBlanking() {return NULL;};
     ISetting* GetTopOverscan() {return NULL;};
     ISetting* GetBottomOverscan() {return NULL;};
     ISetting* GetLeftOverscan() {return NULL;};

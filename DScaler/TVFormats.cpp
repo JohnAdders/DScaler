@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TVFormats.cpp,v 1.9 2003-01-07 16:49:07 adcockj Exp $
+// $Id: TVFormats.cpp,v 1.10 2003-02-02 15:24:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2003/01/07 16:49:07  adcockj
+// Changes to allow variable sampling rates for VBI
+//
 // Revision 1.8  2002/10/27 19:17:25  adcockj
 // Fixes for cx2388x - PAL & NTSC tested
 //
@@ -104,10 +107,10 @@ static TTVFormat TVFormats[VIDEOFORMAT_LASTONE] =
     },
     // PAL-60
     {
-        480, 1135, 0x7f, 0x72, (BT848_IFORM_PAL_BDGHI|BT848_IFORM_XT1),
-        186, 922, 0x20, 0, FALSE, 400, 16,
-        4.43361875, (4.43361875 * 8), TRUE, 14,
-        13,
+        480, 1127, 0x7f, 0x72, (BT848_IFORM_PAL_BDGHI|BT848_IFORM_XT1),
+        169, 934, 0x1a, 0, FALSE, 400, 16,
+        4.43361875, (4.43361875 * 8), TRUE, 11,
+        10    
     },
     // PAL-NC thanks to Eduardo José Tagle
     { 

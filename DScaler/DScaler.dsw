@@ -195,6 +195,30 @@ Package=<4>
 
 ###############################################################################
 
+Project: "DSDrv95"=..\Driver\DSDrv95\DSDrv95.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "DSDrvNT"=..\Driver\DSDrvNT\DSDrvNT.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "DSRend"=..\..\DSRend\DSRend.dsp - Package Owner=<4>
 
 Package=<5>

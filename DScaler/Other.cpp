@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.29 2001-11-28 16:04:50 adcockj Exp $
+// $Id: Other.cpp,v 1.30 2001-12-16 17:04:37 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2001/11/28 16:04:50  adcockj
+// Major reorganization of STill support
+//
 // Revision 1.28  2001/11/26 13:02:27  adcockj
 // Bug Fixes and standards changes
 //
@@ -274,7 +277,7 @@ BOOL Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags)
             LeaveCriticalSection(&hDDCritSect);
             return FALSE;
         }
-        if (FAILED(ddrval))
+        if (FAILED(ddrval) && ddrval != DDERR_CURRENTLYNOTAVAIL)
         {
             // 2001-01-06 John Adcock
             // Now show return code

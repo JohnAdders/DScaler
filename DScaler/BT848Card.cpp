@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.12 2001-12-12 17:12:36 adcockj Exp $
+// $Id: BT848Card.cpp,v 1.13 2001-12-16 17:04:37 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2001/12/12 17:12:36  adcockj
+// Tidy up SetGeoSize
+//
 // Revision 1.11  2001/12/08 13:43:20  adcockj
 // Fixed logging and memory leak bugs
 //
@@ -1129,12 +1132,12 @@ void CBT848Card::SetSDA(bool value)
     }
     if (value)
     {
-        LOG(2, (m_I2CRegister & BT848_I2C_SDA) ? "d^" : "d/");
+        LOG(3, (m_I2CRegister & BT848_I2C_SDA) ? "BT848 SetSDA - d^" : "BT848 SetSDA - d/");
         m_I2CRegister |= BT848_I2C_SDA;
     }
     else
     {
-        LOG(2, (m_I2CRegister & BT848_I2C_SDA) ? "d\\" : "d_");
+        LOG(3, (m_I2CRegister & BT848_I2C_SDA) ? "BT848 SetSDA - d\\" : "BT848 SetSDA - d_");
         m_I2CRegister &= ~BT848_I2C_SDA;
     }
     WriteDword(BT848_I2C, m_I2CRegister);
@@ -1148,12 +1151,12 @@ void CBT848Card::SetSCL(bool value)
     }
     if (value)
     {
-        LOG(2, (m_I2CRegister & BT848_I2C_SCL) ? "c^" : "c/");
+        LOG(3, (m_I2CRegister & BT848_I2C_SCL) ? "BT848 SetSCL - c^" : "BT848 SetSCL - c/");
         m_I2CRegister |= BT848_I2C_SCL;
     }
     else
     {
-        LOG(2, (m_I2CRegister & BT848_I2C_SCL) ? "c\\" : "c_");
+        LOG(3, (m_I2CRegister & BT848_I2C_SCL) ? "BT848 SetSCL - c\\" : "BT848 SetSCL - c_");
         m_I2CRegister &= ~BT848_I2C_SCL;
     }
     WriteDword(BT848_I2C, m_I2CRegister);
@@ -1166,7 +1169,7 @@ bool CBT848Card::GetSDA()
         InitializeI2C();
     }
     bool state = ReadDword(BT848_I2C) & BT848_I2C_SDA ? true : false;
-    LOG(2, state ? ".d^" : ".d_");
+    LOG(3, state ? "BT848 GetSDA - d^" : "BT848 GetSDA - d_");
     return state;
 }
 
@@ -1177,6 +1180,6 @@ bool CBT848Card::GetSCL()
         InitializeI2C();
     }
     bool state = ReadDword(BT848_I2C) & BT848_I2C_SCL ? true : false;
-    LOG(2, state ? ".c^" : ".c_");
+    LOG(3, state ? "BT848 GetSCL - c^" : "BT848 GetSCL - c_");
     return state;
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DebugLog.cpp,v 1.14 2001-11-23 10:49:16 adcockj Exp $
+// $Id: DebugLog.cpp,v 1.15 2001-12-16 17:04:37 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2001/11/23 10:49:16  adcockj
+// Move resource includes back to top of files to avoid need to rebuild all
+//
 // Revision 1.13  2001/09/05 15:08:43  adcockj
 // Updated Loging
 //
@@ -55,6 +58,7 @@ static FILE* debugLog = NULL;
 char DebugLogFilename[MAX_PATH] = "DScaler.txt";
 BOOL DebugLogEnabled = FALSE;
 long gDebugLogLevel = 1;
+BOOL FlushAfterEachWrite = FALSE;
 
 #if !defined(NOLOGGING)
 
@@ -99,7 +103,10 @@ void LOG(int DebugLevel, LPCSTR Format, ...)
     va_end(Args);
 
     fputc('\n', debugLog);
-    fflush(debugLog);
+	if(FlushAfterEachWrite)
+	{
+	    fflush(debugLog);
+	}
 }
 #endif
 
@@ -133,6 +140,12 @@ SETTING DebugSettings[DEBUG_SETTING_LASTONE] =
         1, 0, 5, 1, 1,
         NULL,
         "Files", "DebugLevel", NULL,
+    },
+    {
+        "Flush After Each Write", ONOFF, 0, (long*)&FlushAfterEachWrite,
+        FALSE, 0, 1, 1, 1,
+        NULL,
+        "Files", "FlushAfterEachWrite", NULL,
     },
 };
 

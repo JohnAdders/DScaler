@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.43 2001-11-26 12:26:07 trbarry Exp $
+// $Id: DS_Control.h,v 1.44 2001-12-16 17:04:37 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.43  2001/11/26 12:26:07  trbarry
+// Missed update first commit?
+//
 // Revision 1.42  2001/11/02 10:45:29  adcockj
 // Merge in code from Multiple card branch
 //
@@ -826,6 +829,7 @@ typedef enum
 {
     DEBUGLOG = 0,
     DEBUGLEVEL,
+    DEBUGFLUSHAFTERWRITE,
     DEBUG_SETTING_LASTONE,
 } DEBUG_SETTING;
 

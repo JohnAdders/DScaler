@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.56 2002-05-06 15:48:53 laurentg Exp $
+// $Id: StillSource.cpp,v 1.57 2002-05-27 20:39:02 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.56  2002/05/06 15:48:53  laurentg
+// Informations saved in a DScaler still updated
+// Use of the comments field to show informations about a DScaler still
+//
 // Revision 1.55  2002/05/05 12:09:22  laurentg
 // All lines have now a pitch which is a multiple of 16
 // Width of picture is now forced to an even value
@@ -776,6 +780,12 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 
     switch(LOWORD(wParam))
     {
+    case IDM_PLAYLIST_CURRENT:
+        m_SlideShowActive = FALSE;
+        m_NewFileRequested = STILL_REQ_THIS_ONE;
+        m_NewFileReqPos = m_Position;
+        return TRUE;
+        break;
     case IDM_PLAYLIST_PREVIOUS:
         if(m_Position > 0)
         {
@@ -1299,6 +1309,20 @@ void CStillSource::SetOverscan()
 // Start of Settings related code
 /////////////////////////////////////////////////////////////////////////////
 
+BOOL Pattern_Height_OnChange(long NewValue)
+{
+    PatternHeight = (int)NewValue;
+    PostMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_CURRENT, 0);
+    return FALSE;
+}
+
+BOOL Pattern_Width_OnChange(long NewValue)
+{
+    PatternWidth = (int)NewValue;
+    PostMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_CURRENT, 0);
+    return FALSE;
+}
+
 SETTING StillSettings[STILL_SETTING_LASTONE] =
 {
     {
@@ -1323,13 +1347,13 @@ SETTING StillSettings[STILL_SETTING_LASTONE] =
         "Pattern height", SLIDER, 0, (long*)&PatternHeight,
          576, 480, DSCALER_MAX_HEIGHT, 1, 1,
          NULL,
-        "Pattern", "PatternHeight", NULL,
+        "Pattern", "PatternHeight", Pattern_Height_OnChange,
     },
     {
         "Pattern width", SLIDER, 0, (long*)&PatternWidth,
          720, 240, DSCALER_MAX_WIDTH, 1, 1,
          NULL,
-        "Pattern", "PatternWidth", NULL,
+        "Pattern", "PatternWidth", Pattern_Width_OnChange,
     },
 };
 

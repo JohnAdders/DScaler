@@ -940,6 +940,7 @@
 #define IDM_SLEEPMODE                   32778
 #define IDM_SCREENSAVEROFF              32779
 #define IDM_VT_AUTOCODEPAGE             32782
+#define IDM_PLAYLIST_CURRENT            32783
 #define IDC_STATIC                      -1
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
@@ -961,7 +962,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        203
-#define _APS_NEXT_COMMAND_VALUE         32783
+#define _APS_NEXT_COMMAND_VALUE         32784
 #define _APS_NEXT_CONTROL_VALUE         8000
 #define _APS_NEXT_SYMED_VALUE           2391
 #endif

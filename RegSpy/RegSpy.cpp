@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: RegSpy.cpp,v 1.11 2002-12-22 02:30:12 atnak Exp $
+// $Id: RegSpy.cpp,v 1.12 2003-01-26 12:49:53 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/12/22 02:30:12  atnak
+// Added SAA7133 registers
+//
 // Revision 1.10  2002/12/15 13:54:13  adcockj
 // Added code to reset card better
 //
@@ -1986,6 +1989,11 @@ void __cdecl LOG(int , LPCSTR, ...)
 {
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// This load of junk required so that we can link with
+// some of the Dscaler files
+///////////////////////////////////////////////////////////////////////////////
+
 HWND hWnd = NULL;
 
 void __cdecl HideSplashScreen()
@@ -2002,5 +2010,18 @@ void __cdecl OSD_Redraw(struct HWND__ *,struct HDC__ *)
 }
 
 void __cdecl OSD_ShowTextPersistent(struct HWND__ *,char const *,double)
+{
+}
+
+void __cdecl OSD_ProcessDisplayUpdate(struct HDC__ *,struct tagRECT *)
+{
+}
+
+int __cdecl GetDisplayAreaRect(struct HWND__ *,struct tagRECT *)
+{
+    return FALSE;
+}
+
+void __cdecl OSD_ShowTextPersistent(char const *,double)
 {
 }

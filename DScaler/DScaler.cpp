@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.242 2002-10-08 12:12:35 adcockj Exp $
+// $Id: DScaler.cpp,v 1.243 2002-10-08 13:23:19 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.242  2002/10/08 12:12:35  adcockj
+// Changed minimize behaviour back to how it was
+//
 // Revision 1.241  2002/10/08 08:23:32  kooiman
 // Fixed lost border buttons.
 //
@@ -4449,7 +4452,6 @@ LONG OnSize(HWND hWnd, UINT wParam, LONG lParam)
             break;
         case SIZE_MINIMIZED:
             Overlay_Update(NULL, NULL, DDOVER_HIDE);
-            Overlay_Destroy();
             bMinimized = TRUE;
             break;
         case SIZE_RESTORED:

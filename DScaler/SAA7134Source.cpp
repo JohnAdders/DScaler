@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.35 2002-10-29 03:07:18 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.36 2002-10-30 03:28:21 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.35  2002/10/29 03:07:18  atnak
+// Added SAA713x TreeSettings Page
+//
 // Revision 1.34  2002/10/28 11:10:12  atnak
 // Various changes and revamp to settings
 //
@@ -150,6 +153,8 @@
 #include "DebugLog.h"
 #include "AspectRatio.h"
 #include "SettingsPerChannel.h"
+#include "..\help\helpids.h"
+
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -2054,6 +2059,8 @@ ITuner* CSAA7134Source::GetTuner()
 
 CTreeSettingsGeneric* CSAA7134Source::GetTreeSettingsPage()
 {
+    CTreeSettingsGeneric* pPage;
+
     vector <CSimpleSetting*>vSettingsList;
 
     vSettingsList.push_back(m_AutomaticVolumeLevel);
@@ -2067,5 +2074,9 @@ CTreeSettingsGeneric* CSAA7134Source::GetTreeSettingsPage()
     vSettingsList.push_back(m_VDelay);
     vSettingsList.push_back(m_ReversePolarity);
 
-    return new CTreeSettingsGeneric("SAA713x Advanced", vSettingsList);
+    pPage = new CTreeSettingsGeneric("SAA713x Advanced", vSettingsList);
+    
+    pPage->SetHelpID(IDH_SAA713X_ADV);
+
+    return pPage;
 }

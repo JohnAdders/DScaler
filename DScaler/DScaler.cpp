@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.327 2003-06-14 19:38:10 laurentg Exp $
+// $Id: DScaler.cpp,v 1.328 2003-07-02 20:35:12 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.327  2003/06/14 19:38:10  laurentg
+// Preview mode improved
+//
 // Revision 1.326  2003/06/14 12:05:21  laurentg
 // Restore default position (on primary monitor) for the window if the old position was on a screen which is no more active
 //
@@ -2706,7 +2709,6 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         {
         case IDM_MUTE:
             Audio_SetUserMute(!Audio_GetUserMute());
-            ShowText(hWnd,"MUTE");
             ShowText(hWnd, Audio_GetUserMute() ? "MUTE" : "UNMUTE");
 			break;
 
@@ -6404,13 +6406,13 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
 {
     {
         "Window Left", SLIDER, 0, (long*)&MainWndLeft,
-        10, 0, 2048, 1, 1,
+        10, -2048, 2048, 1, 1,
         NULL,
         "MainWindow", "StartLeft", NULL,
     },
     {
         "Window Top", SLIDER, 0, (long*)&MainWndTop,
-        10, 0, 2048, 1, 1,
+        10, -2048, 2048, 1, 1,
         NULL,
         "MainWindow", "StartTop", NULL,
     },

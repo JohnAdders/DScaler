@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectFilters.cpp,v 1.31 2003-06-14 12:02:59 laurentg Exp $
+// $Id: AspectFilters.cpp,v 1.32 2003-07-02 20:35:11 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2003/06/14 12:02:59  laurentg
+// Comment added for something that should maybe need a correction
+//
 // Revision 1.30  2003/01/07 23:55:35  laurentg
 // Take into account the new overscans in the AR module
 //
@@ -639,15 +642,22 @@ BOOL CScreenSanityAspectFilter::adjustAspect(CAspectRectangles &ar)
     // always on the screen we will also update the source area to reflect this
     // so that we see the appropriate portion on the screen
     // (this should make us compatable with YXY)        
-    RECT screenRect = {0,0,GetSystemMetrics(SM_CXVIRTUALSCREEN),GetSystemMetrics(SM_CYVIRTUALSCREEN) };
-    RECT sourceRect = {0, 0, m_SrcWidth, m_SrcHeight};
-
-    if ((screenRect.right == 0) || (screenRect.bottom == 0))
-    {
-        screenRect.right = GetSystemMetrics(SM_CXSCREEN);
+    RECT screenRect;
+	if (GetSystemMetrics(SM_CXVIRTUALSCREEN) == 0 || GetSystemMetrics(SM_CYVIRTUALSCREEN) == 0)
+	{
+		screenRect.top = 0;
         screenRect.bottom = GetSystemMetrics(SM_CYSCREEN);
-    }
-    
+		screenRect.left = 0;
+        screenRect.right = GetSystemMetrics(SM_CXSCREEN);
+	}
+	else
+	{
+		screenRect.top = GetSystemMetrics(SM_YVIRTUALSCREEN);
+        screenRect.bottom = GetSystemMetrics(SM_YVIRTUALSCREEN)+GetSystemMetrics(SM_CYVIRTUALSCREEN);
+		screenRect.left = GetSystemMetrics(SM_XVIRTUALSCREEN);
+        screenRect.right = GetSystemMetrics(SM_XVIRTUALSCREEN)+GetSystemMetrics(SM_CXVIRTUALSCREEN);
+	}
+    RECT sourceRect = {0, 0, m_SrcWidth, m_SrcHeight};
 
     ar.m_CurrentOverlayDestRect.crop(screenRect,&ar.m_CurrentOverlaySrcRect);
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_Audio.cpp,v 1.15 2003-01-10 17:38:18 adcockj Exp $
+// $Id: SAA7134Source_Audio.cpp,v 1.16 2003-02-06 19:44:46 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2003/01/10 17:38:18  adcockj
+// Interrim Check in of Settings rewrite
+//  - Removed SETTINGSEX structures and flags
+//  - Removed Seperate settings per channel code
+//  - Removed Settings flags
+//  - Cut away some unused features
+//
 // Revision 1.14  2002/12/09 00:32:13  atnak
 // Added new muting stuff
 //
@@ -76,6 +83,7 @@
 #include "SAA7134Source.h"
 #include "SAA7134_Defines.h"
 #include "Status.h"
+#include "SoundChannel.h"
 
 
 void CSAA7134Source::Mute()

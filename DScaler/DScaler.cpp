@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.149 2002-04-27 16:02:59 laurentg Exp $
+// $Id: DScaler.cpp,v 1.150 2002-05-01 20:34:10 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.149  2002/04/27 16:02:59  laurentg
+// Initial source
+//
 // Revision 1.148  2002/04/24 19:10:38  tobbej
 // test of new tree based setting dialog
 //
@@ -771,7 +774,17 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
 
 LONG APIENTRY MainWndProcSafe(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 {
-    return MainWndProc(hWnd, message, wParam, lParam);
+    __try
+    {
+        return MainWndProc(hWnd, message, wParam, lParam);
+    }
+    // if there is any exception thrown then exit the process
+    __except (CrashHandler((EXCEPTION_POINTERS*)_exception_info())) 
+    { 
+        LOG(1, "Crash in MainWndProc");
+        ExitProcess(1);
+        return 0;
+    }
 }
 
 HMENU CreateDScalerPopupMenu()

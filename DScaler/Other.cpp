@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.71 2005-03-10 22:30:54 adcockj Exp $
+// $Id: Other.cpp,v 1.72 2005-03-11 13:03:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.71  2005/03/10 22:30:54  adcockj
+// fixed some bugs with MCE remote support
+//
 // Revision 1.70  2005/03/10 17:40:40  adcockj
 // first go at adding MCE remote support
 //
@@ -485,23 +488,38 @@ LONG OnInput(HWND hWnd, UINT wParam, LONG lParam)
                             {
                             case 13:
                                 // ehome (green button)
+                                // just exit if the user want to get
+                                // the media center home page
+                                // (or any of the other TV ones)
+                                PostMessage(hWnd, WM_CLOSE, 0, 0);
                                 break;
                             case 90:
                                 // teletext
+                                PostMessage(hWnd, WM_COMMAND, IDM_CALL_VIDEOTEXT, 0);
+                                bHandled = TRUE;
                                 break;
                             case 91:
                                 //red
+                                PostMessage(hWnd, WM_COMMAND, IDM_TELETEXT_KEY1, 0);
+                                bHandled = TRUE;
                                 break;
                             case 92:
                                 // green
+                                PostMessage(hWnd, WM_COMMAND, IDM_TELETEXT_KEY2, 0);
+                                bHandled = TRUE;
                                 break;
                             case 93:
                                 // yellow
+                                PostMessage(hWnd, WM_COMMAND, IDM_TELETEXT_KEY3, 0);
+                                bHandled = TRUE;
                                 break;
                             case 94:
                                 // blue
+                                PostMessage(hWnd, WM_COMMAND, IDM_TELETEXT_KEY4, 0);
+                                bHandled = TRUE;
                                 break;
                             default:
+                                LOG(1, "MCE Remote key %d", raw->data.hid.bRawData[1]);
                                 break;
                             }
                         }
@@ -512,9 +530,15 @@ LONG OnInput(HWND hWnd, UINT wParam, LONG lParam)
             delete[] lpb; 
         }
         
-        DefWindowProc(hWnd, WM_INPUT, wParam, lParam);
-        
-        return !bHandled;
+        if(bHandled)
+        {
+            return FALSE;
+        }
+        else
+        {
+            DefWindowProc(hWnd, WM_INPUT, wParam, lParam);
+            return TRUE;
+        }
     }
     else
     {

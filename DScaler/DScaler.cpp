@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.40 2001-07-12 16:20:07 adcockj Exp $
+// $Id: DScaler.cpp,v 1.41 2001-07-12 19:28:03 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -65,6 +65,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.40  2001/07/12 16:20:07  adcockj
+// Fixed typo in $Id
+//
 // Revision 1.39  2001/07/12 16:16:39  adcockj
 // Added CVS Id and Log
 //
@@ -500,7 +503,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_VT_PAGE_PLUS:
             if(VTState != VT_OFF)
             {
-                if(VTPage < 900)
+                if(VTPage < 899)
                 {
                     VTPage++;
                     VT_DoUpdate_Page(VTPage - 100);
@@ -1578,8 +1581,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             if(VTState != VT_OFF)
             {
                 VTPage = atoi(ChannelString);
-                VT_DoUpdate_Page(VTPage - 100);
-                InvalidateRect(hWnd, NULL, FALSE);
+				if(VTPage >= 100 && VTPage < 900)
+				{
+					VT_DoUpdate_Page(VTPage - 100);
+					InvalidateRect(hWnd, NULL, FALSE);
+				}
             }
             else
             {

@@ -5,7 +5,7 @@
 #include "ToolbarWindow.h"
 
 //For eSoundChannel
-#include "BT848_Defines.h"
+#include "SoundChannel.h"
 
 
 class CToolbarChannels : public CToolbarChild, public CEventObject 

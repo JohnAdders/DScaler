@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.69 2003-01-27 22:04:12 laurentg Exp $
+// $Id: SAA7134Source.cpp,v 1.70 2003-02-06 19:45:47 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.69  2003/01/27 22:04:12  laurentg
+// First step to merge setup hardware and hardware info dialog boxes
+// CPU flag information moved in the general hardware dialog box
+// Hardware info dialog box available for CX2388x
+//
 // Revision 1.68  2003/01/23 02:18:45  atnak
 // Minor changes
 //
@@ -431,7 +436,7 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
     m_ReversePolarity = new CYesNoSetting("Reverse Polarity", FALSE, IniSection, "ReversePolarity");
     m_Settings.push_back(m_ReversePolarity);
 
-    m_CardType = new CSliderSetting("Card Type", TVCARD_UNKNOWN, TVCARD_UNKNOWN, m_pSAA7134Card->GetMaxCards() - 1, IniSection, "CardType");
+    m_CardType = new CSliderSetting("Card Type", SAA7134CARDID_UNKNOWN, SAA7134CARDID_UNKNOWN, m_pSAA7134Card->GetMaxCards() - 1, IniSection, "CardType");
     m_Settings.push_back(m_CardType);
 
     m_TunerType = new CTunerTypeSetting(this, "Tuner Type", TUNER_ABSENT, TUNER_ABSENT, TUNER_LASTONE - 1, IniSection);
@@ -631,7 +636,7 @@ void CSAA7134Source::Start()
     Timing_Reset();
 
     // This timer is used to update STATUS_AUDIO
-    SetTimer(hWnd, TIMER_MSP, 1000, NULL);
+    SetTimer(hWnd, TIMER_MSP, TIMER_MSP_MS, NULL);
 
     NotifySquarePixelsCheck();
     m_ProcessingFieldID = -1;
@@ -1177,7 +1182,7 @@ void CSAA7134Source::SetupCard()
 {
     long OrigTuner = m_TunerType->GetValue();
 
-    if (m_CardType->GetValue() == TVCARD_UNKNOWN)
+    if (m_CardType->GetValue() == SAA7134CARDID_UNKNOWN)
     {
         // try to detect the card
         m_CardType->SetValue(m_pSAA7134Card->AutoDetectCardType());

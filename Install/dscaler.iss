@@ -1,5 +1,5 @@
 ;////////////////////////////////////////////////////////////////////////////
-;// $Id: dscaler.iss,v 1.26 2003-10-01 12:22:28 adcockj Exp $
+;// $Id: dscaler.iss,v 1.27 2004-03-13 14:02:13 adcockj Exp $
 ;/////////////////////////////////////////////////////////////////////////////
 ;// Copyright (c) 2002 Rob Muller.  All rights reserved.
 ;/////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 ;// CVS Log
 ;//
 ;// $Log: not supported by cvs2svn $
+;// Revision 1.26  2003/10/01 12:22:28  adcockj
+;// more pre relaese stuff
+;//
 ;// Revision 1.25  2003/06/26 17:55:39  adcockj
 ;// Prep for new version
 ;//
@@ -103,8 +106,8 @@
 ;  For more information about InnoSetup see http://www.innosetup.com
 
 [Setup]
-AppName=DScaler 4.1.8
-AppVerName=DScaler 4.1.8
+AppName=DScaler 4.1.9
+AppVerName=DScaler 4.1.9
 AppPublisherURL=http://www.dscaler.org
 AppSupportURL=http://www.dscaler.org/phpBB/
 AppUpdatesURL=http://www.dscaler.org
@@ -123,6 +126,9 @@ DisableStartupPrompt=yes
 BeveledLabel=DScaler
 WizardLicense=GPL License Agreement
 LicenseLabel2=Do you want to continue to install [name]? If you choose No, Setup will close.
+WizardInfoBefore=Warning
+InfoBeforeLabel=Please read the following important warning before continuing.
+InfoBeforeClickLabel=When you are ready and happy to continue with Setup, click Next.
 
 [Components]
 Name: "main"; Description: "Main Files"; Types: full compact custom; Flags: fixed

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.28 2002-04-27 00:38:33 laurentg Exp $
+// $Id: StillSource.h,v 1.29 2002-05-01 13:00:18 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,6 +44,7 @@ enum eStillNewFileRequest
 
 class CStillSource;
 class CTiffHelper;
+class CJpegHelper;
 class CPatternHelper;
 
 /** Base class for file type specific code that CStillSource uses to read
@@ -125,6 +126,7 @@ public:
     BOOL IsNavigOnly();
 
     friend class CTiffHelper;
+    friend class CJpegHelper;
     friend class CPatternHelper;
 
 private:

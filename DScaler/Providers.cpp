@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.36 2002-04-28 16:46:49 laurentg Exp $
+// $Id: Providers.cpp,v 1.37 2002-05-01 13:00:18 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.36  2002/04/28 16:46:49  laurentg
+// Reinit WSS data when switching source
+//
 // Revision 1.35  2002/04/27 16:02:59  laurentg
 // Initial source
 //
@@ -467,11 +470,12 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         char* FileFilters;
         FileFilters =
 #ifndef WANT_DSHOW_SUPPORT
-                        "All Supported Files\0*.d3u;*.pat;*.tif;*.tiff\0"
+                        "All Supported Files\0*.d3u;*.pat;*.tif;*.tiff;*.jpg;*.jpeg\0"
 #else
-                        "All Supported Files\0*.d3u;*.pat;*.tif;*.tiff;*.avi;*.mpg;*.mpeg;*.mpe;*.asf;*.wmv\0"
+                        "All Supported Files\0*.d3u;*.pat;*.tif;*.tiff;*.jpg;*.jpeg;*.avi;*.mpg;*.mpeg;*.mpe;*.asf;*.wmv\0"
 #endif
                         "TIFF Files\0*.tif;*.tiff\0"
+                        "JPEG Files\0*.jpg;*.jpeg\0"
                         "DScaler Playlists\0*.d3u\0"
                         "DScaler Patterns\0*.pat\0"
 #ifdef WANT_DSHOW_SUPPORT

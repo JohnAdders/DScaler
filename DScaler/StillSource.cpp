@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.50 2002-04-27 00:38:33 laurentg Exp $
+// $Id: StillSource.cpp,v 1.51 2002-05-01 13:00:18 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.50  2002/04/27 00:38:33  laurentg
+// New default source (still) used at DScaler startup or when there is no more source accessible
+//
 // Revision 1.49  2002/04/15 22:50:09  laurentg
 // Change again the available formats for still saving
 // Automatic switch to "square pixels" AR mode when needed
@@ -195,6 +198,7 @@
 #include "DebugLog.h"
 #include "Providers.h"
 #include "TiffHelper.h"
+#include "JpegHelper.h"
 #include "Calibration.h"
 #include "OutThreads.h"
 #include "AspectRatio.h"
@@ -392,8 +396,14 @@ BOOL CStillSource::OpenPictureFile(LPCSTR FileName)
     }
     else if(strlen(FileName) > 4 && stricmp(FileName + strlen(FileName) - 4, ".pat") == 0)
     {
-        CPatternHelper CPatternHelper(this);
-        FileRead = CPatternHelper.OpenMediaFile(FileName);
+        CPatternHelper PatternHelper(this);
+        FileRead = PatternHelper.OpenMediaFile(FileName);
+    }
+    else if(strlen(FileName) > 4 && stricmp(FileName + strlen(FileName) - 4, ".jpg") == 0 ||
+            strlen(FileName) > 5 && stricmp(FileName + strlen(FileName) - 5, ".jpeg") == 0)
+    {
+        CJpegHelper JpegHelper(this);
+        FileRead = JpegHelper.OpenMediaFile(FileName);
     }
 
     if (FileRead && ((m_Width > DSCALER_MAX_WIDTH) || (m_Height > DSCALER_MAX_HEIGHT)) )

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.183 2002-06-22 15:06:30 laurentg Exp $
+// $Id: DScaler.cpp,v 1.184 2002-06-22 21:50:47 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.183  2002/06/22 15:06:30  laurentg
+// New vertical flip mode
+//
 // Revision 1.182  2002/06/20 20:00:37  robmuller
 // Implemented videotext search highlighting.
 //
@@ -813,7 +816,11 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     // load up ini file settings after parsing parms as 
     // the ini file location may have changed
     LoadSettingsFromIni();
-    
+
+    // make sure dscaler.ini exists with many of the options in it.
+    // even if dscaler crashes a new user is able to make changes to dscaler.ini.
+    WriteSettingsToIni(TRUE);
+
     if(bDisplaySplashScreen)
     {
         ShowSpashScreen();

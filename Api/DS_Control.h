@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.109 2002-11-01 16:17:14 laurentg Exp $
+// $Id: DS_Control.h,v 1.110 2002-11-02 01:36:40 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.109  2002/11/01 16:17:14  laurentg
+// New option to keep ratio when taking a still and saving it in a file
+//
 // Revision 1.108  2002/10/31 14:47:19  adcockj
 // Added Sharpness
 //
@@ -1302,9 +1305,12 @@ typedef enum
     ANOISE_PREFETCH,
     ANOISE_REDUCTION,
     ANOISE_LOCK_DOT,
+    ANOISE_READOUT,
     ANOISE_ACTIVATE,
     ANOISE_INDICATOR,
     ANOISE_MOTION_MEMORY,
+    ANOISE_DO_SPATIAL,
+    ANOISE_SPATIAL,
     FLT_ANOISE_SETTING_LASTONE,
 } FLT_ANOISE_SETTING;
 
@@ -1322,7 +1328,7 @@ typedef enum
     HISTOGRAM_DISPLAY_MODE = 0,
     HISTOGRAM_PREFETCH,
     HISTOGRAM_ACTIVATE,
-    HISTOGRAM_USE_COMB,
+    HISTOGRAM_COMB_MODE,
     FLT_HISTOGRAM_SETTING_LASTONE,
 } FLT_HISTOGRAM_SETTING;
 

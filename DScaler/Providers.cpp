@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.70 2003-10-27 10:39:53 adcockj Exp $
+// $Id: Providers.cpp,v 1.71 2004-07-08 08:17:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.70  2003/10/27 10:39:53  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.69  2003/10/10 11:16:37  laurentg
 // Bug fixed : access to the audio mixer
 //
@@ -310,6 +313,8 @@ static long CurrentSource = 0;
 static long DefSourceIdx = -1;
 long InitSourceIdx = -1;
 
+extern char szIniFile[MAX_PATH];
+
 void Providers_MixerSetup()
 {
 	MessageBox(hWnd,
@@ -335,6 +340,7 @@ int Providers_Load(HMENU hMenu)
     TSource* Source;
     CSource* DefaultSource = NULL;
     MENUITEMINFO    MenuItemInfo;
+        bool AllowCx2388xDShow = false;
 
     HMENU hSubMenu = GetSubMenu(hMenu, 0);
 
@@ -372,6 +378,35 @@ int Providers_Load(HMENU hMenu)
         }
 
         CX2388xProvider = new CCX2388xProvider(HardwareDriver);
+
+        // if we have any of these cards warn the user about the driver issues
+        // hopefully this will be enought to get a new release out
+        if(CX2388xProvider->GetNumberOfSources() > 0)
+        {
+            int RegFlag = GetPrivateProfileInt("CX2388x", "UseDShow", -1, szIniFile);
+            if(RegFlag == -1)
+            {
+                int Resp = MessageBox(hWnd, " You have a CX2388x card.  There have been several reported instability "
+                    "problems with these cards if we allow the drivers to run.  Beacuse of this you can either run with "
+                    "DScaler's own drivers or with the DShow drivers but not both.  Do you want to use DScaler's own driver?",
+                    "CX2388x Question", MB_YESNO | MB_ICONQUESTION);
+                if(Resp == IDYES)
+                {
+                    AllowCx2388xDShow = false;
+                    WritePrivateProfileInt("CX2388x", "UseDShow", 0, szIniFile);
+                }
+                else
+                {
+                    AllowCx2388xDShow = true;
+                    WritePrivateProfileInt("CX2388x", "UseDShow", 1, szIniFile);
+                }
+            }
+            else
+            {
+                AllowCx2388xDShow = (RegFlag == 1);
+            }
+        }
+
         for(i = 0; i < CX2388xProvider->GetNumberOfSources(); ++i)
         {
             Source = new TSource;
@@ -464,23 +499,26 @@ int Providers_Load(HMENU hMenu)
     DSProvider = new CDSProvider();
     for(i = 0; i < DSProvider->GetNumberOfSources(); ++i)
     {
-        Source = new TSource;
-        Source->Name = DSProvider->GetSourceName(i);
-        Source->Name += " (DShow)";
-        Source->Object = DSProvider->GetSource(i);
-        Source->DisplayInMenu = TRUE;
-        Sources.push_back(Source);
+        if(AllowCx2388xDShow || strstr(DSProvider->GetSource(i)->IDString, "VEN_14F1&DEV_88") == NULL)
+        {
+            Source = new TSource;
+            Source->Name = DSProvider->GetSourceName(i);
+            Source->Name += " (DShow)";
+            Source->Object = DSProvider->GetSource(i);
+            Source->DisplayInMenu = TRUE;
+            Sources.push_back(Source);
 
-		// Set CurrentSource for Providers_GetCurrentSource function
-		// used in mixer code
-        CurrentSource = Sources.size()-1;
-		// The first time, setup the audio mixer for the card
-		if (((CDSSourceBase*)(DSProvider->GetSource(i)))->IsInitialSetup())
-		{
-            Providers_MixerSetup();
-		}
+		    // Set CurrentSource for Providers_GetCurrentSource function
+		    // used in mixer code
+            CurrentSource = Sources.size()-1;
+		    // The first time, setup the audio mixer for the card
+		    if (((CDSSourceBase*)(DSProvider->GetSource(i)))->IsInitialSetup())
+		    {
+                Providers_MixerSetup();
+		    }
 
-        DSProvider->GetSource(i)->Mute();
+            DSProvider->GetSource(i)->Mute();
+        }
     }
 #endif
 

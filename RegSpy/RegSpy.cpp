@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: RegSpy.cpp,v 1.2 2002-12-04 00:20:32 atnak Exp $
+// $Id: RegSpy.cpp,v 1.3 2002-12-04 14:15:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/12/04 00:20:32  atnak
+// Fixed: Registers not redrawing properly.  Some register disappearing off the list.   Untabified file
+//
 // Revision 1.1  2002/12/03 20:51:42  atnak
 // Added new app for monitoring register settings while other programs are running
 //
@@ -1488,4 +1491,12 @@ void __cdecl HideSplashScreen()
 extern "C"
 {
     long gBuildNum = 0;
+}
+
+void __cdecl OSD_Redraw(struct HWND__ *,struct HDC__ *)
+{
+}
+
+void __cdecl OSD_ShowTextPersistent(struct HWND__ *,char const *,double)
+{
 }

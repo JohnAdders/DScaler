@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareDriver.h,v 1.7 2002-02-03 22:47:31 robmuller Exp $
+// $Id: HardwareDriver.h,v 1.8 2002-12-04 14:15:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -62,6 +62,7 @@ private:
     SC_HANDLE   m_hService;
     HANDLE      m_hFile;
     BOOL        m_bWindows95;
+    BOOL        m_WeStartedDriver;
 };
 
 

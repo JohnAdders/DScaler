@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareDriver.cpp,v 1.18 2002-11-27 17:42:37 adcockj Exp $
+// $Id: HardwareDriver.cpp,v 1.19 2002-12-04 14:15:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2002/11/27 17:42:37  adcockj
+// Added RegLog to project
+//
 // Revision 1.17  2002/10/22 16:01:41  adcockj
 // Changed definition of IOCTLs
 //
@@ -108,6 +111,7 @@ CHardwareDriver::CHardwareDriver()
     ov.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
     GetVersionEx( &ov);
     m_bWindows95 = (ov.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS);
+    m_WeStartedDriver = TRUE;
 }
 
 CHardwareDriver::~CHardwareDriver()
@@ -192,6 +196,7 @@ BOOL CHardwareDriver::LoadDriver()
                 else if(Err == ERROR_SERVICE_ALREADY_RUNNING)
                 {
                     LOG(1, "Service already started");
+                    m_WeStartedDriver = FALSE;
                 }
                 else
                 {
@@ -303,10 +308,13 @@ void CHardwareDriver::UnloadDriver()
     {
         if (m_hService != NULL)
         {
-            SERVICE_STATUS ServiceStatus;
-            if(ControlService(m_hService, SERVICE_CONTROL_STOP, &ServiceStatus ) == FALSE)
+            if(m_WeStartedDriver)
             {
-                LOG(0,"SERVICE_CONTROL_STOP failed, error 0x%X", GetLastError());
+                SERVICE_STATUS ServiceStatus;
+                if(ControlService(m_hService, SERVICE_CONTROL_STOP, &ServiceStatus ) == FALSE)
+                {
+                    LOG(0,"SERVICE_CONTROL_STOP failed, error 0x%X", GetLastError());
+                }
             }
 
             if(m_hService != NULL)

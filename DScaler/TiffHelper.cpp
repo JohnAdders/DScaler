@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TiffHelper.cpp,v 1.2 2001-11-30 10:46:43 adcockj Exp $
+// $Id: TiffHelper.cpp,v 1.3 2001-12-05 00:08:41 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/11/30 10:46:43  adcockj
+// Fixed crashes and leaks
+//
 // Revision 1.1  2001/11/28 16:04:50  adcockj
 // Major reorganization of STill support
 //
@@ -39,384 +42,307 @@
 #include "Other.h"
 #include "Deinterlace.h"
 #include "DebugLog.h"
+#include "Dialogs.h"
+#include "..\ThirdParty\LibTiff\tiffio.h"
 
 
 #define LIMIT(x) (((x)<0)?0:((x)>255)?255:(x))
 
-#define STRUCT_OFFSET(s,f)  ((int)(((BYTE*)&(s)->f) - (BYTE*)(s)))
 
-CTiffHelper::CTiffHelper(CStillSource* pParent) :
+CTiffHelper::CTiffHelper(CStillSource* pParent, eTIFFClass FormatSaving) :
     CStillSourceHelper(pParent)
 {
+    m_FormatSaving = FormatSaving;
 }
 
 BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
 {
-    FILE* file;
-    TTiffHeader head;
-    TTiffDirEntry entry;
-    BYTE buf[255];
-    int i, j;
-    int y1, y2, cr, cb, r, g, b;
-    BYTE*   pBuf;
+    int y1, y2, cr, cb, r, g, b, i, j;
+    BYTE* pDestBuf;
+    TIFF* tif;
+    uint32 w, h;
+    uint16 Class;
+    size_t npixels;
+    uint32* bufPackedRGB;
+    int PackedABGRValue;
+    uint8* bufYCbCr;
+    uint8* pSrcBuf;;
+    tstrip_t Strip;
+    uint32* bc;
+    uint32 StripSize;
+    uint16 Compression;
 
     m_pParent->m_IsPictureRead = FALSE;
 
-    memset(&head, 0, sizeof(head));
-
-    LOG(2, "Graphic file %s", FileName);
-    file = fopen(FileName,"rb");
-    if (!file)
-    {
+    // Open the file
+    tif = TIFFOpen(FileName, "r");
+    if (!tif) {
         return FALSE;
-    }
-    LOG(2, "Graphic file opened");
-
-    if(m_pParent->m_OriginalFrame.pData != NULL)
-    {
-        free(m_pParent->m_OriginalFrame.pData);
-        m_pParent->m_OriginalFrame.pData = NULL;
     }
 
+    if (!TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &w) ||
+        !TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &h) ||
+        !TIFFGetField(tif, TIFFTAG_COMPRESSION, &Compression) ||
+        !TIFFGetField(tif, TIFFTAG_PHOTOMETRIC, &Class) )
+    {
+        TIFFClose(tif);
+        return FALSE;
+    }
 
-    //
-    // File Header
-    //
-    if (fread(head.byteOrder, sizeof(head.byteOrder), 1, file) != 1)
+    if ( (w > DSCALER_MAX_WIDTH) || (h > DSCALER_MAX_HEIGHT) )
     {
-        fclose(file);
+        TIFFClose(tif);
         return FALSE;
     }
-    if (fread(&(head.version), sizeof(head.version), 1, file) != 1)
-    {
-        fclose(file);
-        return FALSE;
-    }
-    if (fread(&(head.firstDirOffset), sizeof(head.firstDirOffset), 1, file) != 1)
-    {
-        fclose(file);
-        return FALSE;
-    }
-    i = fread(buf, head.firstDirOffset - sizeof(head.byteOrder) - sizeof(head.version) - sizeof(head.firstDirOffset), 1, file);
-    if ((i != 0) && (i != 1))
-    {
-        fclose(file);
-        return FALSE;
-    }
-    if (fread(&(head.numDirEntries), sizeof(head.numDirEntries), 1, file) != 1)
-    {
-        fclose(file);
-        return FALSE;
-    }
-    for (i=0 ; i<head.numDirEntries ; i++)
-    {
-        if (fread(&entry, sizeof(entry), 1, file) != 1)
-        {
-            fclose(file);
-            return FALSE;
-        }
-        switch (entry.Tag)
-        {
-        case 254:
-            memcpy(&(head.fileType), &entry, sizeof(entry));
-            break;
-        case 256:
-            memcpy(&(head.width), &entry, sizeof(entry));
-            break;
-        case 257:
-            memcpy(&(head.height), &entry, sizeof(entry));
-            break;
-        case 258:
-            memcpy(&(head.description), &entry, sizeof(entry));
-            break;
-        case 259:
-            memcpy(&(head.compression), &entry, sizeof(entry));
-            break;
-        case 262:
-            memcpy(&(head.photometricInterpretation), &entry, sizeof(entry));
-            break;
-        case 270:
-            memcpy(&(head.description), &entry, sizeof(entry));
-            break;
-        case 271:
-            memcpy(&(head.make), &entry, sizeof(entry));
-            break;
-        case 272:
-            memcpy(&(head.model), &entry, sizeof(entry));
-            break;
-        case 273:
-            memcpy(&(head.stripOffset), &entry, sizeof(entry));
-            break;
-        case 277:
-            memcpy(&(head.samplesPerPixel), &entry, sizeof(entry));
-            break;
-        case 278:
-            memcpy(&(head.rowsPerStrip), &entry, sizeof(entry));
-            break;
-        case 279:
-            memcpy(&(head.stripByteCounts), &entry, sizeof(entry));
-            break;
-        case 284:
-            memcpy(&(head.planarConfiguration), &entry, sizeof(entry));
-            break;
-        default:
-            break;
-        }
-    }
-    if (fread(&(head.nextDirOffset), sizeof(head.nextDirOffset), 1, file) != 1)
-    {
-        fclose(file);
-        return FALSE;
-    }
-    if (fread(head.descriptionText, sizeof(head.descriptionText), 1, file) != 1)
-    {
-        fclose(file);
-        return FALSE;
-    }
-    if (fread(head.makeText, sizeof(head.makeText), 1, file) != 1)
-    {
-        fclose(file);
-        return FALSE;
-    }
-    if (fread(head.modelText, sizeof(head.modelText), 1, file) != 1)
-    {
-        fclose(file);
-        return FALSE;
-    }
-    if (fread(&(head.bitCounts[0]), sizeof(head.bitCounts[0]), 1, file) != 1)
-    {
-        fclose(file);
-        return FALSE;
-    }
-    if (fread(&(head.bitCounts[1]), sizeof(head.bitCounts[1]), 1, file) != 1)
-    {
-        fclose(file);
-        return FALSE;
-    }
-    if (fread(&(head.bitCounts[2]), sizeof(head.bitCounts[2]), 1, file) != 1)
-    {
-        fclose(file);
-        return FALSE;
-    }
-    LOG(2, "Graphic file header read");
 
-    if ((head.fileType.Value != 0)
-     || (head.compression.Value != 1)
-     || (head.photometricInterpretation.Value != 2)
-     || (head.samplesPerPixel.Value != 3)
-     || (head.planarConfiguration.Value != 1)
-     || (head.bitCounts[0] != 8)
-     || (head.bitCounts[1] != 8)
-     || (head.bitCounts[2] != 8)
-     || (head.height.Value > DSCALER_MAX_HEIGHT)
-     || (head.width.Value > DSCALER_MAX_WIDTH))
-    {
-        fclose(file);
-        return FALSE;
-    }
-    LOG(2, "Graphic file header verified");
+    m_pParent->m_Height = h;
+    m_pParent->m_Width = w;
 
-    m_pParent->m_Height = head.height.Value;
-    m_pParent->m_Width = head.width.Value;
-    LOG(2, "Graphic file height = %d width = %d", m_pParent->m_Height, m_pParent->m_Width);
-
+    // Allocate memory buffer to store the YUYV values
     m_pParent->m_OriginalFrame.pData = (BYTE*)malloc(m_pParent->m_Width * 2 * m_pParent->m_Height * sizeof(BYTE));
     if (m_pParent->m_OriginalFrame.pData == NULL)
     {
-        free(m_pParent->m_OriginalFrame.pData);
-        m_pParent->m_OriginalFrame.pData = NULL;
-        fclose(file);
+        TIFFClose(tif);
         return FALSE;
     }
-    LOG(2, "Frame buffer allocated");
 
-    //
-    // RGB Pixels
-    //
-    pBuf = m_pParent->m_OriginalFrame.pData;
-    for (i=0 ; i < m_pParent->m_Height ; i++)
+    if ((Class == PHOTOMETRIC_YCBCR) && (Compression == COMPRESSION_NONE))
     {
-        for (j=0 ; j < (m_pParent->m_Width/2) ; j++)
+        if (!TIFFGetField(tif, TIFFTAG_STRIPBYTECOUNTS, &bc))
         {
-            if (fread(buf, 3, 1, file) != 1)
-            {
-                fclose(file);
-                free(m_pParent->m_OriginalFrame.pData);
-                m_pParent->m_OriginalFrame.pData = NULL;
-                return FALSE;
-            }
-
-            r = buf[0];
-            g = buf[1];
-            b = buf[2];
-
-            y1 = ( 16840*r + 33058*g +  6405*b + 1048576)>>16;
-            cb = ( -9713*r - 19068*g + 28781*b + 8388608)>>16;
-
-            if (fread(buf, 3, 1, file) != 1)
-            {
-                fclose(file);
-                free(m_pParent->m_OriginalFrame.pData);
-                m_pParent->m_OriginalFrame.pData = NULL;
-                return FALSE;
-            }
-
-            r = buf[0];
-            g = buf[1];
-            b = buf[2];
-
-            y2 = ( 16840*r + 33058*g +  6405*b + 1048576)>>16;
-            cr = ( 28781*r - 24110*g -  4671*b + 8388608)>>16;
-
-            *pBuf = LIMIT(y1);
-            ++pBuf;
-            *pBuf = LIMIT(cb);
-            ++pBuf;
-            *pBuf = LIMIT(y2);
-            ++pBuf;
-            *pBuf = LIMIT(cr);
-            ++pBuf;
+            free(m_pParent->m_OriginalFrame.pData);
+            TIFFClose(tif);
+            return FALSE;
         }
+
+        npixels = w * h;
+        bufYCbCr = (uint8*) _TIFFmalloc(npixels * 2 * sizeof (uint8));
+        if (bufYCbCr == NULL)
+        {
+            free(m_pParent->m_OriginalFrame.pData);
+            TIFFClose(tif);
+            return FALSE;
+        }
+
+        pSrcBuf = bufYCbCr;
+        for (Strip = 0 ; Strip < TIFFNumberOfStrips(tif) ; Strip++)
+        {
+            StripSize = bc[Strip];
+            if (TIFFReadRawStrip(tif, Strip, pSrcBuf, StripSize) != StripSize)
+            {
+                free(m_pParent->m_OriginalFrame.pData);
+                _TIFFfree(bufYCbCr);
+                TIFFClose(tif);
+                return FALSE;
+            }
+            pSrcBuf += StripSize;
+        }
+
+        // YYUV => YUYV
+        pDestBuf = m_pParent->m_OriginalFrame.pData;
+        for (i = 0 ; i < m_pParent->m_Height ; i++)
+        {
+            pSrcBuf = bufYCbCr + i * m_pParent->m_Width * 2;
+            for (j = 0 ; j < (m_pParent->m_Width/2) ; j++)
+            {
+                *pDestBuf = pSrcBuf[j * 4];
+                ++pDestBuf;
+                *pDestBuf = pSrcBuf[j * 4 + 2];
+                ++pDestBuf;
+                *pDestBuf = pSrcBuf[j * 4 + 1];
+                ++pDestBuf;
+                *pDestBuf = pSrcBuf[j * 4 + 3];
+                ++pDestBuf;
+            }
+        }
+
+        _TIFFfree(bufYCbCr);
+    }
+    else
+    {
+        npixels = w * h;
+        bufPackedRGB = (uint32*) _TIFFmalloc(npixels * sizeof (uint32));
+        if (bufPackedRGB == NULL)
+        {
+            free(m_pParent->m_OriginalFrame.pData);
+            TIFFClose(tif);
+            return FALSE;
+        }
+
+        // RGBA buffer filled in with data from file
+        if (!TIFFReadRGBAImage(tif, w, h, bufPackedRGB, 0))
+        {
+            free(m_pParent->m_OriginalFrame.pData);
+            _TIFFfree(bufPackedRGB);
+            TIFFClose(tif);
+            return FALSE;
+        }
+
+        // RGBRGB => YUYV
+        pDestBuf = m_pParent->m_OriginalFrame.pData;
+        for (i = (m_pParent->m_Height - 1) ; i >= 0 ; i--)
+        {
+            for (j = 0 ; j < (m_pParent->m_Width/2) ; j++)
+            {
+                PackedABGRValue = bufPackedRGB[i * m_pParent->m_Width + j * 2];
+                r = TIFFGetR(PackedABGRValue);
+                g = TIFFGetG(PackedABGRValue);
+                b = TIFFGetB(PackedABGRValue);
+
+                y1 = ( 16840*r + 33058*g +  6405*b + 1048576)>>16;
+                cb = ( -9713*r - 19068*g + 28781*b + 8388608)>>16;
+
+                PackedABGRValue = bufPackedRGB[i * m_pParent->m_Width + j * 2 + 1];
+                r = TIFFGetR(PackedABGRValue);
+                g = TIFFGetG(PackedABGRValue);
+                b = TIFFGetB(PackedABGRValue);
+
+                y2 = ( 16840*r + 33058*g +  6405*b + 1048576)>>16;
+                cr = ( 28781*r - 24110*g -  4671*b + 8388608)>>16;
+
+                *pDestBuf = LIMIT(y1);
+                ++pDestBuf;
+                *pDestBuf = LIMIT(cb);
+                ++pDestBuf;
+                *pDestBuf = LIMIT(y2);
+                ++pDestBuf;
+                *pDestBuf = LIMIT(cr);
+                ++pDestBuf;
+            }
+        }
+
+        _TIFFfree(bufPackedRGB);
     }
 
-    fclose(file);
+    // Close the file
+    TIFFClose(tif);
+
     m_pParent->m_IsPictureRead = TRUE;
-    LOG(1, "Graphic file loaded");
     return TRUE;
 }
 
 
-//-----------------------------------------------------------------------------
-// Fill a TIFF directory entry with information.
-void CTiffHelper::FillTiffDirEntry(TTiffDirEntry* entry, WORD Tag, DWORD Value, eTiffDataType Type)
-{
-    BYTE bValue;
-    WORD wValue;
-
-    entry->Tag = Tag;
-    entry->Count = 1;
-    entry->Type = (int) Type;
-
-    switch (Type) {
-    case Byte:
-        bValue = (BYTE) Value;
-        memcpy(&entry->Value, &bValue, 1);
-        break;
-
-    case Short:
-        wValue = (WORD) Value;
-        memcpy(&entry->Value, &wValue, 2);
-        break;
-
-    case String:    // in which case it's a file offset
-    case Long:
-        entry->Value = Value;
-        break;
-    }
-}
-
-
-//-----------------------------------------------------------------------------
-// Fill a TIFF header with information about the current image.
-void CTiffHelper::FillTiffHeader(TTiffHeader* head, char* description, char* make, char* model, int Height, int Width)
-{
-    memset(head, 0, sizeof(TTiffHeader));
-
-    strcpy(head->byteOrder, "II");      // Intel byte order
-    head->version = 42;                 // We're TIFF 5.0 compliant, but the version field is unused
-    head->firstDirOffset = STRUCT_OFFSET(head, numDirEntries);
-    head->numDirEntries = 14;
-    head->nextDirOffset = 0;            // No additional directories
-
-    strcpy(head->descriptionText, description);
-    strcpy(head->makeText, make);
-    strcpy(head->modelText, model);
-    head->bitCounts[0] = head->bitCounts[1] = head->bitCounts[2] = 8;
-
-    head->description.Tag = 270;
-    head->description.Type = 2;
-    head->description.Count = strlen(description) + 1;
-    head->description.Value = STRUCT_OFFSET(head, descriptionText);
-
-    head->make.Tag = 271;
-    head->make.Type = 2;
-    head->make.Count = strlen(make) + 1;
-    head->make.Value = STRUCT_OFFSET(head, makeText);
-
-    head->model.Tag = 272;
-    head->model.Type = 2;
-    head->model.Count = strlen(model) + 1;
-    head->model.Value = STRUCT_OFFSET(head, modelText);
-    
-    head->bitsPerSample.Tag = 258;
-    head->bitsPerSample.Type = Short;
-    head->bitsPerSample.Count = 3;
-    head->bitsPerSample.Value = STRUCT_OFFSET(head, bitCounts);
-
-    FillTiffDirEntry(&head->fileType, 254, 0, Long);                        // Just the image, no thumbnails
-    FillTiffDirEntry(&head->width, 256, Width, Short);
-    FillTiffDirEntry(&head->height, 257, Height, Short);
-    FillTiffDirEntry(&head->compression, 259, 1, Short);                    // No compression
-    FillTiffDirEntry(&head->photometricInterpretation, 262, 2, Short);      // RGB image data
-    FillTiffDirEntry(&head->stripOffset, 273, sizeof(TTiffHeader), Long);    // Image comes after header
-    FillTiffDirEntry(&head->samplesPerPixel, 277, 3, Short);                // RGB = 3 channels/pixel
-    FillTiffDirEntry(&head->rowsPerStrip, 278, Height, Short);            // Whole image is one strip
-    FillTiffDirEntry(&head->stripByteCounts, 279, Width * Height * 3, Long);   // Size of image data
-    FillTiffDirEntry(&head->planarConfiguration, 284, 1, Short);            // RGB bytes are interleaved
-}
-
 void CTiffHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch)
 {
-    int y, cr, cb, r, g, b, i, j, n = 0;
-    FILE* file;
-    BYTE rgb[3];
-    BYTE* buf;
-    TTiffHeader head;
+    int y, cr, cb, r, g, b;
     char description[80];
+    TIFF* tif;
+    BYTE *pBufOverlay;
+    uint8* buffer;
+    uint8* pBuf;
+    tsize_t size;
+    float ycbcrCoeffs[3] = { .299, .587, .114 };
+    float refBlackWhite[6] = { 15., 235., 128., 240., 128., 240. };
 
-    file = fopen(FilePath,"wb");
-    if (!file)
+    if (m_FormatSaving == TIFF_CLASS_Y)
+    {
+        size = Height * Width * 2;
+    }
+    else
+    {
+        size = Height * Width * 3;
+    }
+    buffer = (uint8*) _TIFFmalloc(size * sizeof (uint8));
+    if (buffer == NULL)
     {
         return;
     }
 
-    LOG(2, "WriteFrameInFile Width = %d Height %d", Width, Height);
-
-    sprintf(description, "DScaler image, deinterlace Mode %s", GetDeinterlaceModeName());
-    // How do we figure out our version number?!?!
-    FillTiffHeader(&head, description, "http://deinterlace.sourceforge.net/", "DScaler version 2.x", Height, Width);
-    fwrite(&head, sizeof(head), 1, file);
-
-    for (i = 0; i < Height; i++)
+    pBuf = buffer;
+    for (int i = 0; i < Height; i++)
     {
-        buf = pOverlay + i * OverlayPitch;
-        for (j = 0; j < Width ; j+=2)
+        pBufOverlay = pOverlay + i * OverlayPitch;
+        for (int j = 0; j < Width ; j+=2)
         {
-            cb = buf[1] - 128;
-            cr = buf[3] - 128;
-            y = buf[0] - 16;
+            if (m_FormatSaving == TIFF_CLASS_Y)
+            {
+                *pBuf++ = pBufOverlay[0];
+                *pBuf++ = pBufOverlay[2];
+                *pBuf++ = pBufOverlay[1];
+                *pBuf++ = pBufOverlay[3];
+            }
+            else
+            {
+                cb = pBufOverlay[1] - 128;
+                cr = pBufOverlay[3] - 128;
+                y = pBufOverlay[0] - 16;
+                r = ( 76284*y + 104595*cr             )>>16;
+                g = ( 76284*y -  53281*cr -  25624*cb )>>16;
+                b = ( 76284*y             + 132252*cb )>>16;
+                *pBuf++ = LIMIT(r);
+                *pBuf++ = LIMIT(g);
+                *pBuf++ = LIMIT(b);
 
-            r = ( 76284*y + 104595*cr             )>>16;
-            g = ( 76284*y -  53281*cr -  25624*cb )>>16;
-            b = ( 76284*y             + 132252*cb )>>16;
-            rgb[0] = LIMIT(r);
-            rgb[1] = LIMIT(g);
-            rgb[2] = LIMIT(b);
+                y = pBufOverlay[2] - 16;
+                r = ( 76284*y + 104595*cr             )>>16;
+                g = ( 76284*y -  53281*cr -  25624*cb )>>16;
+                b = ( 76284*y             + 132252*cb )>>16;
+                *pBuf++ = LIMIT(r);
+                *pBuf++ = LIMIT(g);
+                *pBuf++ = LIMIT(b);
+            }
 
-            fwrite(rgb,3,1,file) ;
-
-            y = buf[2] - 16;
-            r = ( 76284*y + 104595*cr             )>>16;
-            g = ( 76284*y -  53281*cr -  25624*cb )>>16;
-            b = ( 76284*y             + 132252*cb )>>16;
-            rgb[0] = LIMIT(r);
-            rgb[1] = LIMIT(g);
-            rgb[2] = LIMIT(b);
-            fwrite(rgb,3,1,file);
-
-            buf += 4;
+            pBufOverlay += 4;
         }
     }
-    fclose(file);
+
+    // Open the file
+    tif = TIFFOpen(FilePath, "w");
+    if (!tif)
+    {
+        _TIFFfree(buffer);
+        return;
+    }
+
+    //
+    // Fields of the directory
+    //
+    sprintf(description, "DScaler image, deinterlace Mode %s", GetDeinterlaceModeName());
+    if (!TIFFSetField(tif, TIFFTAG_SUBFILETYPE, 0) ||
+        !TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, 8) ||                 // 8 bits for each channel
+        !TIFFSetField(tif, TIFFTAG_COMPRESSION, COMPRESSION_NONE) ||    // No compression
+        !TIFFSetField(tif, TIFFTAG_IMAGEDESCRIPTION, description) ||
+        !TIFFSetField(tif, TIFFTAG_IMAGELENGTH, Height) ||
+        !TIFFSetField(tif, TIFFTAG_IMAGEWIDTH, Width) ||
+        !TIFFSetField(tif, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG) ||         // RGB bytes are interleaved
+        !TIFFSetField(tif, TIFFTAG_ROWSPERSTRIP, Height) ||             // Whole image is one strip
+        !TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, 3) ||               // RGB = 3 channels/pixel
+        !TIFFSetField(tif, TIFFTAG_SOFTWARE, GetProductNameAndVersion()))
+    {
+        _TIFFfree(buffer);
+        TIFFClose(tif);
+        return;
+    }
+    if (m_FormatSaving == TIFF_CLASS_Y)
+    {
+        if (!TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_YCBCR) ||
+            !TIFFSetField(tif, TIFFTAG_YCBCRCOEFFICIENTS, ycbcrCoeffs) ||
+            !TIFFSetField(tif, TIFFTAG_YCBCRPOSITIONING, YCBCRPOSITION_COSITED) ||
+            !TIFFSetField(tif, TIFFTAG_YCBCRSUBSAMPLING, 2, 1) ||
+            !TIFFSetField(tif, TIFFTAG_REFERENCEBLACKWHITE, refBlackWhite))
+        {
+            _TIFFfree(buffer);
+            TIFFClose(tif);
+            return;
+        }
+    }
+    else
+    {
+        if (!TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB))
+        {
+            _TIFFfree(buffer);
+            TIFFClose(tif);
+            return;
+        }
+    }
+
+    // Write the strip (data) in the file
+    TIFFWriteRawStrip(tif, 0, buffer, size);
+
+    _TIFFfree(buffer);
+
+    // Close the file
+    TIFFClose(tif);
+
     return;
 }

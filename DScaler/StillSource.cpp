@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.13 2001-11-30 10:46:43 adcockj Exp $
+// $Id: StillSource.cpp,v 1.14 2001-12-05 00:08:41 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2001/11/30 10:46:43  adcockj
+// Fixed crashes and leaks
+//
 // Revision 1.12  2001/11/28 16:04:50  adcockj
 // Major reorganization of STill support
 //
@@ -142,7 +145,7 @@ BOOL CStillSource::OpenPictureFile(LPCSTR FileName)
     if(strlen(FileName) > 4 && stricmp(FileName + strlen(FileName) - 4, ".tif") == 0 ||
         strlen(FileName) > 5 && stricmp(FileName + strlen(FileName) - 5, ".tiff") == 0)
     {
-        CTiffHelper TiffHelper(this);
+        CTiffHelper TiffHelper(this, TIFF_CLASS_R);
         return TiffHelper.OpenMediaFile(FileName);
     }
     else
@@ -223,11 +226,12 @@ BOOL CStillSource::ShowPreviousInPlayList()
     return FALSE;
 }
 
-
-
 void CStillSource::SaveSnapshot(LPCSTR FilePath, int FrameHeight, int FrameWidth, BYTE* pOverlay, LONG OverlayPitch)
 {
-    CTiffHelper TiffHelper(this);
+    // TUDO : add a parameter in ini file to choose the format of snapshot saving
+    // and take this parameter into account here to create the correct Helper
+    //CTiffHelper TiffHelper(this, TIFF_CLASS_Y);
+    CTiffHelper TiffHelper(this, TIFF_CLASS_R);
     TiffHelper.SaveSnapshot(FilePath, FrameHeight, FrameWidth, pOverlay, OverlayPitch);
 }
 

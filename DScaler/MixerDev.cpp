@@ -40,7 +40,7 @@
 #include "MixerDev.h"
 #include "DScaler.h"
 
-CSoundSystem* pSoundSystem;
+CSoundSystem* pSoundSystem = NULL;
 
 BOOL bSystemInMute = FALSE;
 BOOL bUseMixer = FALSE;
@@ -693,15 +693,19 @@ void Mixer_Exit()
 		// Mute all inputs
 		Mixer_OnInputChange(SOURCE_CCIR656_4);
 		pSoundSystem->SetMixer(-1);
+	}
+	if(pSoundSystem != NULL)
+	{
 		delete pSoundSystem;
+		pSoundSystem = NULL;
 	}
 }
 
 void Mixer_Init()
 {
+	pSoundSystem = new CSoundSystem();
 	if(bUseMixer)
 	{
-		pSoundSystem = new CSoundSystem();
 		pSoundSystem->SetMixer(MixerIndex);
 		if(pSoundSystem->GetMixer() != NULL)
 		{

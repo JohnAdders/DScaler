@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TVCards.cpp,v 1.25 2001-09-18 08:10:35 adcockj Exp $
+// $Id: TVCards.cpp,v 1.26 2001-10-19 18:44:25 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // The structures where taken from bttv driver version 7.37
 // bttv - Bt848 frame grabber driver
@@ -33,6 +33,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2001/09/18 08:10:35  adcockj
+// Added Aimslab VideoHighway Extreme (not 98) Thanks to Dax Sieger
+//
 // Revision 1.24  2001/09/09 17:46:29  laurentg
 // no message
 //
@@ -888,6 +891,21 @@ const TCardSetup TVCards[TVCARD_LASTONE] =
         TUNER_USER_SETUP,
         NULL,
     },
+    // 3dfx VoodooTV 200 (USA) / FM (Europa)
+	{
+        "3dfx VoodooTV 200 (USA) / FM (Europa)", // szName
+        4, // nVideoInputs
+        1, // nAudioInputs
+        0, // TunerInput
+        -1, // SVideoInput
+        0x4f8a00, // GPIOMask
+        { 2, 3, 0, 1,}, // MuxSelect
+        { 0x957fff, 0x997fff, 0x957fff, 0x957fff}, // AudioMuxSelect
+        0, // GPIOMuxMask
+        PLL_28, // ePLLFreq
+        TUNER_MT2032, // eTunerID
+        NULL,
+    },
 };
 
 const TAutoDectect878 AutoDectect878[] =
@@ -937,6 +955,9 @@ const TAutoDectect878 AutoDectect878[] =
     { 0x023214F1, TVCARD_CONEXANTFOGHORNREVB,  "Conexant Foghorn NTSC/ATSC-B" },
     { 0x033214F1, TVCARD_CONEXANTFOGHORNREVC,  "Conexant Foghorn NTSC/ATSC-C" },
     // MAE 5 Dec 2000 End of change
+    { 0x3000121A, TVCARD_VOODOOTV_200FM, "3dfx VoodooTV 200 (USA) / FM (Europa)"},
+    { 0x3100121A, TVCARD_VOODOOTV_200FM, "3dfx VoodooTV 200 (USA) / FM (Europa) (OEM)"},
+    // { 0x3060121A, TVCARD_VOODOOTV_100, "3dfx VoodooTV 100"},
     { 0, (eTVCardId)-1, NULL }
 };
 
@@ -1106,8 +1127,25 @@ const TTunerSetup Tuners[TUNER_LASTONE] =
     { 
         "Temic PAL* auto + FM (4009 FN5)", TEMIC, PAL,
         16*141.00, 16*464.00, 0xa0,0x90,0x30,0x8e,623
-    }
+    },
+    // TUNER_MT2032
+    { 
+        "MT2032 universal", MICROTUNE, NOTTYPE,
+        0, 0, 0, 0, 0, 0, 0
+    },
 };
+
+
+// reset/enable the MSP on some Hauppauge cards 
+// Thanks to Kyösti Mälkki (kmalkki@cc.hut.fi)! 
+static void initialize_msp34xx(int pin)
+{
+    int mask = 1 << pin;
+    BT848_AndOrDataDword(BT848_GPIO_DATA, mask, ~mask);
+    BT848_AndOrDataDword(BT848_GPIO_DATA, 0, ~mask);
+    Sleep(10);
+    BT848_AndOrDataDword(BT848_GPIO_DATA, mask, ~mask);
+}
 
 // do any specific card related initilaisation
 void Card_Init()
@@ -1116,9 +1154,10 @@ void Card_Init()
     {
     case TVCARD_HAUPPAUGE:
     case TVCARD_HAUPPAUGE878:
-        //hauppauge_readee(btv,eeprom_data,0xa0);
-        //hauppauge_eeprom(btv);
-        hauppauge_boot_msp34xx();
+        initialize_msp34xx(5);
+        break;
+    case TVCARD_VOODOOTV_200FM:
+        initialize_msp34xx(20);
         break;
     case TVCARD_PXC200:
         init_PXC200();
@@ -1133,18 +1172,6 @@ void Card_Init()
     default:
         break;
     }
-}
-
-// reset/enable the MSP on some Hauppauge cards 
-// Thanks to Kyösti Mälkki (kmalkki@cc.hut.fi)! 
-void hauppauge_boot_msp34xx()
-{
-    // reset/enable the MSP on some Hauppauge cards 
-    // Thanks to Kyösti Mälkki (kmalkki@cc.hut.fi)! 
-    BT848_AndOrDataDword(BT848_GPIO_DATA, 32, ~32);
-    BT848_AndOrDataDword(BT848_GPIO_DATA, 0, ~32);
-    Sleep(10);
-    BT848_AndOrDataDword(BT848_GPIO_DATA, 32, ~32);
 }
 
 
@@ -1562,6 +1589,7 @@ BOOL APIENTRY SelectCardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
     static long OrigProcessorSpeed;
     static long OrigTradeOff;
     static long OrigTuner;
+    int cardIndex = 0;
 
     switch (message)
     {
@@ -1574,6 +1602,7 @@ BOOL APIENTRY SelectCardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_SETITEMDATA, nIndex, i);
             if(i == CardType)
             {
+                cardIndex = i;
                 SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_SETCURSEL, nIndex, 0);
             }
         }
@@ -1581,9 +1610,11 @@ BOOL APIENTRY SelectCardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_RESETCONTENT, 0, 0);
         for(i = 0; i < TUNER_LASTONE; i++)
         {
-            SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_ADDSTRING, 0, (LONG)Tuners[i].szName);
+            int nIndex;
+            nIndex = SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_ADDSTRING, 0, (LONG)Tuners[i].szName);
+            if (i == TVCards[cardIndex].TunerId) 
+                SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETCURSEL, nIndex, 0);
         }
-        SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETCURSEL, TunerType, 0);
 
         SendMessage(GetDlgItem(hDlg, IDC_PROCESSOR_SPEED), CB_ADDSTRING, 0, (LONG)"Above 500 MHz");
         SendMessage(GetDlgItem(hDlg, IDC_PROCESSOR_SPEED), CB_ADDSTRING, 0, (LONG)"300 - 500 MHz");

@@ -38,8 +38,7 @@ long NumVideoModes = 0;
 long CurrentIndex = -1;
 DEINTERLACE_METHOD** DeintMethods = NULL;
 DEINTERLACE_METHOD* CurrentMethod = NULL;
-HWND ghwndStatus = NULL;
-
+DEINTERLACEPLUGINSETSTATUS* pfnSetStatus;
 LPSTR ModeList[100];
 
 
@@ -56,15 +55,25 @@ void UpdateAdaptiveMode(long Index)
 	if (CurrentIndex == Index && CurrentMethod != NULL)
 		return;
 
+	if (Index == INDEX_ADAPTIVE)
+	{
+		CurrentMethod = DeintMethods[0];
+		if(pfnSetStatus != NULL)
+		{
+    		pfnSetStatus("Adaptive - Recursion Error");
+        }
+		return;
+	}
+
 	for(i = 0; i < NumVideoModes && bFound == FALSE; i++)
 	{
 		if(DeintMethods[i]->nMethodIndex == Index)
 		{
 			CurrentMethod = DeintMethods[i];
             bFound = TRUE;
-			if(ghwndStatus != NULL && IsWindowVisible(ghwndStatus))
+			if(pfnSetStatus != NULL)
 			{
-				char AdaptiveName[200];
+				static char AdaptiveName[200];
 				char* ModeName;
 
 				ModeName = DeintMethods[i]->szShortName;
@@ -73,7 +82,7 @@ void UpdateAdaptiveMode(long Index)
 					ModeName = DeintMethods[i]->szName;
 				}
 				wsprintf(AdaptiveName, "Adaptive - %s", ModeName);
-				SendMessage(ghwndStatus, WM_SETTEXT, 0, (LPARAM) AdaptiveName);
+				pfnSetStatus(AdaptiveName);
 			}
 			CurrentIndex = Index;
 		}
@@ -82,9 +91,9 @@ void UpdateAdaptiveMode(long Index)
     if(bFound == FALSE)
     {
 		CurrentMethod = DeintMethods[0];
-		if(ghwndStatus != NULL)
+		if(pfnSetStatus != NULL)
 		{
-    		SendMessage(ghwndStatus, WM_SETTEXT, 0, (LPARAM)"Adaptive - Error Finding Index");
+    		pfnSetStatus("Adaptive - Error Finding Index");
         }
     }
 }
@@ -184,14 +193,14 @@ BOOL DeinterlaceAdaptive(DEINTERLACE_INFO *info)
 	}
 }
 
-void __cdecl AdaptiveStart(long NumPlugIns, DEINTERLACE_METHOD** OtherPlugins, HWND hwndStatus)
+void __cdecl AdaptiveStart(long NumPlugIns, DEINTERLACE_METHOD** OtherPlugins, DEINTERLACEPLUGINSETSTATUS* SetStatus)
 {
 	int i;
 	int j;
 	
 	DeintMethods = OtherPlugins;
 	NumVideoModes = NumPlugIns;
-	ghwndStatus = hwndStatus;
+	pfnSetStatus = SetStatus;
 
 	for(i = 0; i < 100; i++)
 	{

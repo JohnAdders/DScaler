@@ -29,8 +29,9 @@
 
 struct _DEINTERLACE_METHOD;
 
+typedef void (__cdecl DEINTERLACEPLUGINSETSTATUS)(LPCSTR StatusText);
 typedef void (__cdecl DEINTERLACEPLUGININIT)(void);
-typedef void (__cdecl DEINTERLACEPLUGINSTART)(long NumPlugIns, struct _DEINTERLACE_METHOD** OtherPlugins, HWND hwndStatus);
+typedef void (__cdecl DEINTERLACEPLUGINSTART)(long NumPlugIns, struct _DEINTERLACE_METHOD** OtherPlugins, DEINTERLACEPLUGINSETSTATUS* SetStatus);
 typedef void (__cdecl DEINTERLACEPLUGINSHOWUI)(HWND hwndMain);
 typedef void (__cdecl DEINTERLACEPLUGINEXIT)(void);
 

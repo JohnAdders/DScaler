@@ -525,6 +525,11 @@ void AddUIForDeintPlugin(HMENU hMenu, DEINTERLACE_METHOD* DeintMethod)
 	AppendMenu(hMenu, MF_STRING | MF_ENABLED, DeintMethod->MenuId, DeintMethod->szName);
 }
 
+void Deinterlace_SetStatus(LPCSTR StatusText)
+{
+	PostMessage(StatusBar_GetHWnd(STATUS_BAR), WM_USER + 10, 0, (LPARAM)StatusText);
+}
+
 BOOL LoadDeinterlacePlugins()
 {
 	WIN32_FIND_DATA FindFileData;
@@ -572,7 +577,7 @@ BOOL LoadDeinterlacePlugins()
 		{
 			if(VideoDeintMethods[i]->pfnPluginStart != NULL)
 			{
-		        VideoDeintMethods[i]->pfnPluginStart(NumVideoModes, VideoDeintMethods, StatusBar_GetHWnd(STATUS_PAL));
+		        VideoDeintMethods[i]->pfnPluginStart(NumVideoModes, VideoDeintMethods, Deinterlace_SetStatus);
 			}
 			AddUIForDeintPlugin(hMenu, VideoDeintMethods[i]);
             

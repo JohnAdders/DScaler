@@ -44,7 +44,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /G6 /W3 /Gm /GX /Zi /Od /I "..\driver\include\\" /D "_DEBUG" /D "_WINDOWS" /D "WIN32" /D "_MBCS" /FR /YX /FD /c
-# ADD CPP /nologo /G6 /MTd /W3 /GX /ZI /Od /I "..\api" /D "_DEBUG" /D "_WINDOWS" /D "WIN32" /D "_MBCS" /FR /Yu"stdafx.h" /FD /c
+# ADD CPP /nologo /G6 /MTd /W3 /GX /ZI /Od /Op /I "..\api" /D "_DEBUG" /D "_WINDOWS" /D "WIN32" /D "_MBCS" /FR /Yu"stdafx.h" /FD /c
 # ADD BASE MTL /D "_DEBUG" /mktyplib203 /win32
 # SUBTRACT BASE MTL /nologo
 # ADD MTL /D "_DEBUG" /mktyplib203 /win32
@@ -78,8 +78,8 @@ LINK32=link.exe
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /G6 /MT /W3 /Gi /Ot /I "..\driver\include\\" /D "NDEBUG" /D "_WINDOWS" /D "WIN32" /D "_MBCS" /YX /FD /c
 # SUBTRACT BASE CPP /Fr
-# ADD CPP /nologo /G6 /MT /W3 /Gi /GX /Ox /Ot /Ow /Og /Oi /Ob2 /Gf /Gy /I "..\api" /D "NDEBUG" /D "_WINDOWS" /D "WIN32" /D "_MBCS" /FAcs /Yu"stdafx.h" /FD /c
-# SUBTRACT CPP /Fr
+# ADD CPP /nologo /G6 /MT /W3 /Gi /GX /Ot /Ow /Oi /Op /Oy- /Ob1 /Gf /Gy /I "..\api" /D "NDEBUG" /D "_WINDOWS" /D "WIN32" /D "_MBCS" /FAcs /Yu"stdafx.h" /FD /c
+# SUBTRACT CPP /Ox /Og /Fr
 # ADD BASE MTL /D "NDEBUG" /mktyplib203 /win32
 # SUBTRACT BASE MTL /nologo
 # ADD MTL /D "NDEBUG" /mktyplib203 /win32
@@ -469,10 +469,6 @@ SOURCE=.\READ_ME_FIRST_NOW.txt
 # End Source File
 # End Target
 # End Project
-# Section DScaler : {F08DF954-8592-11D1-B16A-00C0F0283628}
-# 	2:21:DefaultSinkHeaderFile:slider.h
-# 	2:16:DefaultSinkClass:CSlider
-# End Section
 # Section DScaler : {F08DF952-8592-11D1-B16A-00C0F0283628}
 # 	2:5:Class:CSlider
 # 	2:10:HeaderFile:slider.h
@@ -482,4 +478,8 @@ SOURCE=.\READ_ME_FIRST_NOW.txt
 # 	2:5:Class:CPicture
 # 	2:10:HeaderFile:picture.h
 # 	2:8:ImplFile:picture.cpp
+# End Section
+# Section DScaler : {F08DF954-8592-11D1-B16A-00C0F0283628}
+# 	2:21:DefaultSinkHeaderFile:slider.h
+# 	2:16:DefaultSinkClass:CSlider
 # End Section

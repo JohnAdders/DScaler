@@ -60,6 +60,7 @@ BOOL DeinterlaceGreedy2Frame_MMX(DEINTERLACE_INFO *info)
 	DWORD OldSI;
 	DWORD OldSP;
 	BYTE* Dest;
+	BYTE* Dest2;
 	DWORD LineLength = info->LineLength;
 
 	const __int64 YMask    = 0x00ff00ff00ff00ff;
@@ -76,20 +77,17 @@ BOOL DeinterlaceGreedy2Frame_MMX(DEINTERLACE_INFO *info)
 	}
 
 	qwGreedyTwoFrameThreshold = GreedyTwoFrameThreshold;
-	qwGreedyTwoFrameThreshold += (qwGreedyTwoFrameThreshold << 56) +
-								(qwGreedyTwoFrameThreshold << 48) +
-								(qwGreedyTwoFrameThreshold << 40) + 
+	qwGreedyTwoFrameThreshold += (GreedyTwoFrameThreshold2 << 8);
+	qwGreedyTwoFrameThreshold += (qwGreedyTwoFrameThreshold << 48) +
 								(qwGreedyTwoFrameThreshold << 32) + 
-								(qwGreedyTwoFrameThreshold << 24) + 
-								(qwGreedyTwoFrameThreshold << 16) + 
-								(qwGreedyTwoFrameThreshold << 8);
+								(qwGreedyTwoFrameThreshold << 16);
 
-	// copy first even line no matter what, and the first odd line if we're
-	// processing an odd field.
-	info->pMemcpy(info->Overlay, info->EvenLines[0][0], info->LineLength);
-	if (!info->IsOdd)
+	Dest = info->Overlay;
+	// copy first even line if we're doing an even line
+	if(!info->IsOdd)
 	{
-		info->pMemcpy(info->Overlay + info->OverlayPitch, info->OddLines[0][0], info->LineLength);
+		info->pMemcpy(Dest, info->EvenLines[0][0], info->LineLength);
+		Dest += info->OverlayPitch;
 	}
 
 	for (Line = 0; Line < info->FieldHeight - 1; ++Line)
@@ -102,7 +100,6 @@ BOOL DeinterlaceGreedy2Frame_MMX(DEINTERLACE_INFO *info)
 			M0 = info->OddLines[1][Line];
 			T0 = info->EvenLines[1][Line];
 			B0 = info->EvenLines[1][Line + 1];
-			Dest = info->Overlay + (Line * 2 + 2) * info->OverlayPitch;
 		}
 		else
 		{
@@ -112,14 +109,14 @@ BOOL DeinterlaceGreedy2Frame_MMX(DEINTERLACE_INFO *info)
 			M0 = info->EvenLines[1][Line + 1];
 			T0 = info->OddLines[1][Line];
 			B0 = info->OddLines[1][Line + 1];
-			Dest = info->Overlay + (Line * 2 + 3) * info->OverlayPitch;
 		}
 
 		// Always use the most recent data verbatim.  By definition it's correct (it'd
 		// be shown on an interlaced display) and our job is to fill in the spaces
 		// between the new lines.
-		info->pMemcpy(Dest, B1, info->LineLength);
-		Dest -= info->OverlayPitch;
+		info->pMemcpy(Dest, T1, info->LineLength);
+		Dest += info->OverlayPitch;
+		Dest2 = Dest;
 
 	    _asm
 	    {
@@ -165,13 +162,37 @@ MAINLOOP_LABEL:
 		    paddw mm7, mm5					// mm7 = (T1 + B1) / 2
 #endif
 
-            // calculate |M1-M0| put result in mm4 nned to keep mm0 intact
+            // calculate |M1-M0| put result in mm4 need to keep mm0 intact
+			// if we have a good processor then make mm0 the average of M1 and M0
+			// which should make weave look better when there is small amounts of
+			// movement
+#if defined(IS_SSE)
+		    movq	mm4, mm0
+		    movq	mm5, mm2
+		    psubusb mm4, mm2
+		    psubusb mm5, mm0
+		    por		mm4, mm5
+		    psrlw	mm4, 1
+		    pavgb mm0, mm2
+		    pand	mm4, mm6
+#elif defined(IS_3DNOW)
+		    movq	mm4, mm0
+		    movq	mm5, mm2
+		    psubusb mm4, mm2
+		    psubusb mm5, mm0
+		    por		mm4, mm5
+		    psrlw	mm4, 1
+		    pavgusb mm0, mm2
+		    pand	mm4, mm6
+#else
 		    movq	mm4, mm0
 		    psubusb mm4, mm2
 		    psubusb mm2, mm0
 		    por		mm4, mm2
 		    psrlw	mm4, 1
 		    pand	mm4, mm6
+#endif
+
 
             // if |M1-M0| > Threshold we want dword worth of twos
 		    pcmpgtb mm4, qwGreedyTwoFrameThreshold
@@ -216,7 +237,7 @@ MAINLOOP_LABEL:
 		    // Get the dest pointer.
 		    add edi, 8
 		    mov dword ptr[B0], edi
-		    mov edi, dword ptr[Dest]
+		    mov edi, dword ptr[Dest2]
 
 		    pcmpgtd mm4, DwordTwo
 
@@ -247,7 +268,7 @@ MAINLOOP_LABEL:
 		    add eax, 8
 		    add ebx, 8
 		    add edx, 8
-		    mov dword ptr[Dest], edi
+		    mov dword ptr[Dest2], edi
 		    add esi, 8
 		    add esp, 8
 		    dec ecx
@@ -256,13 +277,23 @@ MAINLOOP_LABEL:
 		    mov esi, OldSI
 		    mov esp, OldSP
 	    }
-
+		Dest += info->OverlayPitch;
 	}
 
 	// Copy last odd line if we're processing an even field.
-	if (info->IsOdd)
+	if(info->IsOdd)
 	{
-		info->pMemcpy(info->Overlay + (info->FrameHeight - 1) * info->OverlayPitch,
+		info->pMemcpy(Dest,
+				  info->EvenLines[info->FieldHeight - 1],
+				  info->LineLength);
+		Dest += info->OverlayPitch;
+		info->pMemcpy(Dest,
+				  info->OddLines[info->FieldHeight - 1],
+				  info->LineLength);
+	}
+	else
+	{
+		info->pMemcpy(Dest,
 				  info->OddLines[info->FieldHeight - 1],
 				  info->LineLength);
 	}

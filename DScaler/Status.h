@@ -41,6 +41,7 @@ typedef enum
 	STATUS_FPS,
 	STATUS_KEY,
 	STATUS_AUDIO,
+	STATUS_BAR
 } eSTATUSBAR_BOX;
 
 BOOL StatusBar_Init();

@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 1
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "DI_GREEDY2FRAME_EXPORTS" /YX /FD /c
-# ADD CPP /nologo /MT /W3 /Ox /Ot /Ow /Og /Oi /Oy /Ob2 /I "..\..\Api" /D "DI_GREEDY2FRAME_EXPORTS" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FD /c
+# ADD CPP /nologo /MT /W3 /Ox /Ot /Ow /Og /Oi /Ob2 /I "..\..\Api" /D "DI_GREEDY2FRAME_EXPORTS" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
@@ -97,6 +97,18 @@ LINK32=link.exe
 # Begin Source File
 
 SOURCE=.\DI_Greedy2Frame.c
+
+!IF  "$(CFG)" == "DI_Greedy2Frame - Win32 Release"
+
+# ADD CPP /Oy- /FAs
+# SUBTRACT CPP /Ox /Ot /Ow /Og /Oi
+
+!ELSEIF  "$(CFG)" == "DI_Greedy2Frame - Win32 Debug"
+
+# SUBTRACT CPP /FA<none>
+
+!ENDIF 
+
 # End Source File
 # End Group
 # Begin Group "Header Files"

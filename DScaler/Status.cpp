@@ -179,6 +179,9 @@ HWND StatusBar_GetHWnd(eSTATUSBAR_BOX Box)
 	case STATUS_AUDIO:
 		return hwndAudioField;
 		break;
+	case STATUS_BAR:
+		return hwndStatusBar;
+		break;
 	default:
 		break;
 	}
@@ -407,6 +410,10 @@ LONG APIENTRY StatusProc(HWND hwnd, UINT msg, UINT wParam, LONG lParam)
 		EndPaint(hwnd, &ps);
 
 		return DefWindowProc(hwnd, msg, wParam, lParam);
+
+	case WM_USER + 10:
+		StatusBar_ShowText(STATUS_PAL, (LPCTSTR)lParam);
+		break;
 
 	default:
 		return DefWindowProc(hwnd, msg, wParam, lParam);

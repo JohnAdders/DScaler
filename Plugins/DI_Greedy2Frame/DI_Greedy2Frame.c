@@ -26,7 +26,8 @@
 #include "windows.h"
 #include "DS_Deinterlace.h"
 
-long GreedyTwoFrameThreshold = 8;
+long GreedyTwoFrameThreshold = 4;
+long GreedyTwoFrameThreshold2 = 8;
 
 #define IS_SSE 1
 #include "DI_Greedy2Frame.asm"
@@ -46,10 +47,16 @@ long GreedyTwoFrameThreshold = 8;
 SETTING DI_Greedy2FrameSettings[DI_GREEDY2FRAME_SETTING_LASTONE] =
 {
 	{
-		"Greedy 2 Frame Threshold", SLIDER, 0, &GreedyTwoFrameThreshold,
+		"Greedy 2 Frame Luma Threshold", SLIDER, 0, &GreedyTwoFrameThreshold,
 		4, 0, 128, 1, 1,
 		NULL,
 		"Deinterlace", "GreedyTwoFrameThreshold", NULL,
+	},
+	{
+		"Greedy 2 Frame Chroma Threshold", SLIDER, 0, &GreedyTwoFrameThreshold2,
+		8, 0, 128, 1, 1,
+		NULL,
+		"Deinterlace", "GreedyTwoFrameThreshold2", NULL,
 	},
 };
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA9887.h,v 1.16 2004-11-28 06:53:22 atnak Exp $
+// $Id: TDA9887.h,v 1.17 2004-12-01 17:47:01 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2002 John Adcock.  All rights reserved.
@@ -21,6 +21,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2004/11/28 06:53:22  atnak
+// Slight change to DetectAttach().
+//
 // Revision 1.15  2004/11/28 06:46:26  atnak
 // Added DetectAttach() to do the chip scanning work.
 //
@@ -250,11 +253,15 @@ enum eTDA9887Format
 // Bits for SetCardSpecifics(...)'s TTDA9887CardSpecifics
 enum
 {
-    TDA9887_SM_CARRIER_QSS          = 0x04,   // != Intercarrier
-	TDA9887_SM_OUTPUTPORT1_INACTIVE = 0x40,   // != Active
-	TDA9887_SM_OUTPUTPORT2_INACTIVE = 0x80,   // != Active
-	TDA9887_SM_TAKEOVERPOINT_MASK   = 0x1F,
-	TDA9887_SM_TAKEOVERPOINT_OFFSET = 0,
+    TDA9887_SM_CARRIER_QSS				= 0x04,	// != Intercarrier
+	TDA9887_SM_OUTPUTPORT1_INACTIVE		= 0x40,	// != Active
+	TDA9887_SM_OUTPUTPORT2_INACTIVE		= 0x80,	// != Active
+	TDA9887_SM_TAKEOVERPOINT_MASK		= 0x1F,
+	TDA9887_SM_TAKEOVERPOINT_OFFSET		= 0,
+
+	TDA9887_SM_TAKEOVERPOINT_DEFAULT	= 0x10,	// 0 dB
+	TDA9887_SM_TAKEOVERPOINT_MIN		= 0x00,	// -16 dB
+	TDA9887_SM_TAKEOVERPOINT_MAX		= 0x1F,	// +15 dB
 };
 
 // Only the modes specified in the enum above can be changed with

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.16 2002-02-02 01:31:18 laurentg Exp $
+// $Id: StillSource.h,v 1.17 2002-02-08 00:36:06 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -33,6 +33,7 @@ enum eStillFormat
 
 class CStillSource;
 class CTiffHelper;
+class CPatternHelper;
 
 /** Base class for file type specific code that CStillSource uses to read
     Still files
@@ -104,6 +105,7 @@ public:
     BOOL IsAccessAllowed();
 
     friend class CTiffHelper;
+    friend class CPatternHelper;
 
 private:
     void ClearPlayList();

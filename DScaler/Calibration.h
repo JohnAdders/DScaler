@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.h,v 1.20 2001-11-29 17:30:51 adcockj Exp $
+// $Id: Calibration.h,v 1.21 2002-02-08 00:36:06 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -29,16 +29,7 @@
 
 #include "TVFormats.h"
 #include "Setting.h"
-
-
-/// Maximum number of color bars in a test pattern
-#define MAX_COLOR_BARS      15
-
-/// Maximum number of subset of color bars in a test pattern
-#define MAX_SUB_PATTERNS     8
-
-/// Maximum number of test patterns managed by DScaler
-#define MAX_TEST_PATTERNS   20
+#include "StillSource.h"
 
 
 /// Define all types of content for test pattern
@@ -69,17 +60,6 @@ enum eTypeCalibration {
     CAL_AUTO_BRIGHT_CONTRAST,
     CAL_AUTO_COLOR,
     CAL_AUTO_FULL,
-};
-
-
-/// Define possible colors for a bar in a test pattern
-enum eColor {
-    COLOR_BLACK = 0,
-    COLOR_WHITE,
-    COLOR_RED,
-    COLOR_BLUE,
-    COLOR_GREEN,
-    COLOR_OTHER,
 };
 
 
@@ -114,29 +94,28 @@ public:
     /// This method draws in the video signal a rectangle around the color bar
     void DrawPosition(TDeinterlaceInfo* pInfo);
 
+    void Draw(BYTE* buffer, int height, int width);
+
 protected: 
     /** Left position of the rectangular zone in the full test pattern
         Range between 0 and 10000
     */
-    unsigned short int left_border;
+    unsigned short int m_LeftBorder;
 
     /** Right position of the rectangular zone in the full test pattern
         Range between 0 and 10000
     */
-    unsigned short int right_border;
+    unsigned short int m_RightBorder;
 
     /** Top position of the rectangular zone in the full test pattern
         Range between 0 and 10000
     */
-    unsigned short int top_border;
+    unsigned short int m_TopBorder;
 
     /** Bottom position of the rectangular zone in the full test pattern
         Range between 0 and 10000
     */
-    unsigned short int bottom_border;
-
-    /// Abstract color of the bar
-    eColor abstract_color;
+    unsigned short int m_BottomBorder;
 
     /// Reference value for luminance
     unsigned char ref_Y_val;
@@ -202,20 +181,6 @@ public:
     /// This method returns the type of settings that can be adjusted with this sub-pattern
     eTypeAdjust GetTypeAdjust();
 
-    /// This method allows to add a new color bar in the sub-pattern
-    int AddColorBar(CColorBar* color_bar);
-
-    /// This method returns the first bar of the test pattern
-    CColorBar* GetFirstColorBar();
-    
-    /// This method returns the next color bar of the sub-pattern
-    CColorBar* GetNextColorBar();
-
-    /** This function searches in the sub-pattern if it exists color
-        bars with same features as the one in argument
-    */
-    CColorBar* FindSameCoclorBar(CColorBar* pColorBar);
-
     /// This method analyzes the current overlay buffer
     BOOL CalcCurrentSubPattern(BOOL reinit, unsigned int nb_calc_needed, TDeinterlaceInfo* pInfo);
 
@@ -227,19 +192,12 @@ public:
     /// This method draws in the video signal rectangles around each color bar of the sub-pattern
     void DrawPositions(TDeinterlaceInfo* pInfo);
 
+    /// Color bars of the sub-pattern
+    vector<CColorBar*> m_ColorBars;
+
 protected:
     /// type of settings that can be adjusted with this sub-pattern
-    eTypeAdjust type_adjust;
-
-    /// Number of color bars in the sub-pattern
-    unsigned char nb_color_bars;
-
-    /// Color bars of the sub-pattern
-    CColorBar* color_bars[MAX_COLOR_BARS];
-
-private:
-    /// Index to current color bar
-    int idx_color_bar;
+    eTypeAdjust m_TypeAdjust;
 };
 
 
@@ -250,21 +208,22 @@ private:
 class CTestPattern
 {
 public:
-    CTestPattern(char* name, eVideoFormat format);
+    CTestPattern(char* name, int height);
+    CTestPattern(LPCSTR FileName);
     ~CTestPattern();
 
     /// This method returns the name of the test pattern
     char* GetName();
 
-    /// This method returns the video format of the test pattern
-    eVideoFormat GetVideoFormat();
+    /// This method returns the width of the test pattern
+    int GetWidth();
 
-    /// This method allows to add a new sub-pattern to the test pattern
-    int AddSubPattern(CSubPattern* sub_pattern);
+    /// This method returns the height (number of lines) of the test pattern
+    int GetHeight();
 
     /// This method allows to create a new sub-pattern to the test pattern
     /// which is a merge of all the others sub-patterns
-    int CreateGlobalSubPattern();
+    void CreateGlobalSubPattern();
 
     /** This method determines the type of content in the test pattern
         going all over the sub-patterns
@@ -274,28 +233,26 @@ public:
     /// This method returns the (first) sub-pattern allowing to adjust particular settings
     CSubPattern* GetSubPattern(eTypeAdjust type_adjust);
 
-protected:
-    /// Name of the test pattern
-    char pattern_name[64];
+    void Draw(BYTE* buffer);
 
-    /// Video format of the test pattern
-    eVideoFormat video_format;
-
-    /// Number of sub-patterns in the test pattern
-    unsigned char nb_sub_patterns;
+    /// Color bars of the test pattern
+    vector<CColorBar*> m_ColorBars;
 
     /// Sub-patterns of the test pattern
-    CSubPattern* sub_patterns[MAX_SUB_PATTERNS];
+    vector<CSubPattern*> m_SubPatterns;
+
+protected:
+    /// Name of the test pattern
+    char m_PatternName[64];
+
+    /// Width of the test pattern
+    int m_Width;
+
+    /// Height (number of lines) of the test pattern
+    int m_Height;
 
 private:
-    /// This method returns the first sub-pattern of the test pattern
-    CSubPattern* GetFirstSubPattern();
-    
-    /// This method returns the next sub-pattern of the test pattern
-    CSubPattern* GetNextSubPattern();
-
-    /// Index to current sub-pattern
-    int idx_sub_pattern;
+    void Log();
 };
 
 
@@ -373,12 +330,11 @@ public:
     void Make(TDeinterlaceInfo* pInfo, int tick_count);
 
 protected:
-    int nb_test_patterns;
-    CTestPattern* test_patterns[MAX_TEST_PATTERNS];
-    CTestPattern* current_test_pattern;
-    CSubPattern* current_sub_pattern;
-    eTypeCalibration type_calibration;
-    BOOL running;
+    vector<CTestPattern*> m_TestPatterns;
+    CTestPattern* m_CurTestPat;
+    CSubPattern* m_CurSubPat;
+    eTypeCalibration m_TypeCalibration;
+    BOOL m_IsRunning;
     CCalSetting* brightness;
     CCalSetting* contrast;
     CCalSetting* saturation_U;
@@ -401,6 +357,15 @@ private:
     CCalSetting* setting1;
     CCalSetting* setting2;
     CCalSetting* setting3;
+};
+
+
+class CPatternHelper : public CStillSourceHelper
+{
+public:
+    CPatternHelper(CStillSource* pParent);
+    BOOL OpenMediaFile(LPCSTR FileName);
+    void SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch);
 };
 
 

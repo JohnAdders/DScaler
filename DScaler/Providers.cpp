@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.18 2002-02-02 12:41:44 laurentg Exp $
+// $Id: Providers.cpp,v 1.19 2002-02-08 00:36:06 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2002/02/02 12:41:44  laurentg
+// CurrentX and CurrentY set when changing source and when switching between still files
+//
 // Revision 1.17  2002/02/02 01:31:18  laurentg
 // Access to the files of the playlist added in the menus
 // Save Playlist added
@@ -295,9 +298,10 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         OPENFILENAME OpenFileInfo;
         char FilePath[MAX_PATH];
         
-        char* FileFilters = "All Supported Files\0*.d3u;*.tif;*.tiff\0"
+        char* FileFilters = "All Supported Files\0*.d3u;*.pat;*.tif;*.tiff\0"
                            "TIFF Files\0*.tif;*.tiff\0"
-                           "DScaler Playlists\0*.d3u\0";
+                           "DScaler Playlists\0*.d3u\0"
+                           "DScaler Patterns\0*.pat\0";
 
         OpenFileInfo.lStructSize = sizeof(OpenFileInfo);
         OpenFileInfo.hwndOwner = hWnd;

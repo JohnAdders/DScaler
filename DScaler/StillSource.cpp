@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.25 2002-02-02 01:31:18 laurentg Exp $
+// $Id: StillSource.cpp,v 1.26 2002-02-08 00:36:06 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2002/02/02 01:31:18  laurentg
+// Access to the files of the playlist added in the menus
+// Save Playlist added
+// "Video Adjustments ..." restored in the popup menu
+//
 // Revision 1.24  2002/02/01 00:41:58  laurentg
 // Playlist code updated
 //
@@ -119,6 +124,7 @@
 #include "DebugLog.h"
 #include "Providers.h"
 #include "TiffHelper.h"
+#include "Calibration.h"
 #include "OutThreads.h"
 
 
@@ -189,6 +195,11 @@ BOOL CStillSource::OpenPictureFile(LPCSTR FileName)
         CTiffHelper TiffHelper(this, TIFF_CLASS_R);
         return TiffHelper.OpenMediaFile(FileName);
     }
+    else if(strlen(FileName) > 4 && stricmp(FileName + strlen(FileName) - 4, ".pat") == 0)
+    {
+        CPatternHelper CPatternHelper(this);
+        return CPatternHelper.OpenMediaFile(FileName);
+    }
     else
     {
         return FALSE;
@@ -208,29 +219,39 @@ BOOL CStillSource::OpenMediaFile(LPCSTR FileName, BOOL NewPlayList)
     // correct helper for the file type
     if(strlen(FileName) > 4 && stricmp(FileName + strlen(FileName) - 4, ".d3u") == 0)
     {
-        char Buffer[512];
+        char BufferLine[512];
+        char *Buffer;
+        struct stat st;
         BOOL FirstNewAdded = FALSE;
         FILE* Playlist = fopen(FileName, "r");
         if(Playlist != NULL)
         {
             while(!feof(Playlist))
             {
-                if(fgets(Buffer, 512, Playlist))
+                if(fgets(BufferLine, 512, Playlist))
                 {
-                    Buffer[511] = '\0';
-                    if(Buffer[0] != '#' && Buffer[0] != ';')
+                    BufferLine[511] = '\0';
+                    Buffer = BufferLine;
+                    while(strlen(Buffer) > 0 && *Buffer <= ' ')
+                    {
+                        Buffer++;
+                    }
+                    if(strlen(Buffer) > 0 && *Buffer != '#' && *Buffer != ';')
                     {
                         // take care of stuff that is at end of the line
                         while(strlen(Buffer) > 0 && Buffer[strlen(Buffer) - 1] <= ' ')
                         {
                             Buffer[strlen(Buffer) - 1] = '\0';
                         }
-                        CPlayListItem* Item = new CPlayListItem(Buffer, 10);
-                        m_PlayList.push_back(Item);
-                        if (!FirstNewAdded)
+                        if (strlen(Buffer) > 0 && !stat(Buffer, &st))
                         {
-                            m_Position = m_PlayList.size() - 1;
-                            FirstNewAdded = TRUE;
+                            CPlayListItem* Item = new CPlayListItem(Buffer, 10);
+                            m_PlayList.push_back(Item);
+                            if (!FirstNewAdded)
+                            {
+                                m_Position = m_PlayList.size() - 1;
+                                FirstNewAdded = TRUE;
+                            }
                         }
                     }
                 }
@@ -262,6 +283,7 @@ BOOL CStillSource::ShowNextInPlayList()
         ++m_Position;
     }
     m_Position = m_PlayList.size() - 1;
+//    OpenPictureFile("..\\Help\\images\\dscalerlogo.tif");
     return FALSE;
 }
 
@@ -582,7 +604,6 @@ BOOL CStillSource::ReadNextFrameInFile()
         return FALSE;
     }
 }
-
 
 LPCSTR CStillSource::GetStatus()
 {

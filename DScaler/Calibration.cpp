@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.38 2001-12-08 13:43:20 adcockj Exp $
+// $Id: Calibration.cpp,v 1.39 2002-02-08 00:36:06 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.38  2001/12/08 13:43:20  adcockj
+// Fixed logging and memory leak bugs
+//
 // Revision 1.37  2001/12/05 21:45:10  ittarnavsky
 // added changes for the AudioDecoder and AudioControls support
 //
@@ -66,6 +69,8 @@
 #include "Providers.h"
 #include "DebugLog.h"
 #include "AspectRatio.h"
+#include "OutThreads.h"
+#include "Other.h"
 
 
 // Minimum time in milliseconds between two consecutive evaluations
@@ -98,10 +103,10 @@ static BOOL ShowYUVDelta = TRUE;
 
 CColorBar::CColorBar(unsigned short int left, unsigned short int right, unsigned short int top, unsigned short int bottom, BOOL YUV, unsigned char R_Y, unsigned char G_U, unsigned char B_V)
 { 
-    left_border = left; 
-    right_border = right; 
-    top_border = top; 
-    bottom_border = bottom;
+    m_LeftBorder = left; 
+    m_RightBorder = right; 
+    m_TopBorder = top; 
+    m_BottomBorder = bottom;
     if (YUV)
     {
         ref_Y_val = R_Y;
@@ -128,10 +133,10 @@ CColorBar::CColorBar(CColorBar* pColorBar)
     unsigned short int left, right, top, bottom;
 
     pColorBar->GetPosition(&left, &right, &top, &bottom);
-    left_border = left; 
-    right_border = right; 
-    top_border = top; 
-    bottom_border = bottom;
+    m_LeftBorder = left; 
+    m_RightBorder = right; 
+    m_TopBorder = top; 
+    m_BottomBorder = bottom;
 
     pColorBar->GetRefColor(FALSE, &val1, &val2, &val3);
     ref_R_val = val1;
@@ -149,10 +154,10 @@ CColorBar::CColorBar(CColorBar* pColorBar)
 // This methode returns the position of the color bar
 void CColorBar::GetPosition(unsigned short int* left, unsigned short int* right, unsigned short int* top, unsigned short int* bottom)
 {
-    *left = left_border;
-    *right = right_border;
-    *top = top_border;
-    *bottom = bottom_border;
+    *left = m_LeftBorder;
+    *right = m_RightBorder;
+    *top = m_TopBorder;
+    *bottom = m_BottomBorder;
 }
 
 // This methode returns the reference color
@@ -239,7 +244,7 @@ BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, TDeinterl
     overscan = SourceOverscan*  width / (height*  2);
     left_crop = ((LeftCropping*  width) + 500) / 1000;
     total_crop = (((LeftCropping + RightCropping)*  width) + 500) / 1000;
-    left = (width + total_crop - 2*  overscan)*  left_border / 10000 - left_crop + overscan;
+    left = (width + total_crop - 2*  overscan)*  m_LeftBorder / 10000 - left_crop + overscan;
     if (left < 0)
     {
         left = 0;
@@ -248,7 +253,7 @@ BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, TDeinterl
     {
         left = width - 1;
     }
-    right = (width + total_crop - 2*  overscan)*  right_border / 10000 - left_crop + overscan;
+    right = (width + total_crop - 2*  overscan)*  m_RightBorder / 10000 - left_crop + overscan;
     if (right < 0)
     {
         right = 0;
@@ -258,8 +263,8 @@ BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, TDeinterl
         right = width - 1;
     }
     overscan = SourceOverscan;
-    top = (height - overscan)*  top_border / 10000 + overscan / 2;
-    bottom = (height - overscan)*  bottom_border / 10000 + overscan / 2;
+    top = (height - overscan)*  m_TopBorder / 10000 + overscan / 2;
+    bottom = (height - overscan)*  m_BottomBorder / 10000 + overscan / 2;
 
     // Sum separately Y, U and V in this rectangular zone
     // Each line is like this : YUYVYUYV...
@@ -353,7 +358,7 @@ void CColorBar::DrawPosition(TDeinterlaceInfo* pInfo)
     overscan = SourceOverscan*  width / (height*  2);
     left_crop = ((LeftCropping*  width) + 500) / 1000;
     total_crop = (((LeftCropping + RightCropping)*  width) + 500) / 1000;
-    left = (width + total_crop - 2*  overscan)*  left_border / 10000 - left_crop + overscan;
+    left = (width + total_crop - 2*  overscan)*  m_LeftBorder / 10000 - left_crop + overscan;
     if (left < 0)
     {
         left = 0;
@@ -362,7 +367,7 @@ void CColorBar::DrawPosition(TDeinterlaceInfo* pInfo)
     {
         left = width - 1;
     }
-    right = (width + total_crop - 2*  overscan)*  right_border / 10000 - left_crop + overscan;
+    right = (width + total_crop - 2*  overscan)*  m_RightBorder / 10000 - left_crop + overscan;
     if (right < 0)
     {
         right = 0;
@@ -372,8 +377,8 @@ void CColorBar::DrawPosition(TDeinterlaceInfo* pInfo)
         right = width - 1;
     }
     overscan = SourceOverscan;
-    top = (height - overscan)*  top_border / 10000 + overscan / 2;
-    bottom = (height - overscan)*  bottom_border / 10000 + overscan / 2;
+    top = (height - overscan)*  m_TopBorder / 10000 + overscan / 2;
+    bottom = (height - overscan)*  m_BottomBorder / 10000 + overscan / 2;
 
     if ((left % 2) == 1)
     {
@@ -406,6 +411,58 @@ void CColorBar::DrawPosition(TDeinterlaceInfo* pInfo)
         buf = pInfo->PictureHistory[0]->pData + (bottom * pInfo->InputPitch);
         buf[i*2] = (ref_Y_val < 128) ? 235 : 16;
         buf[i*2+1] = 128;
+    }
+}
+
+void CColorBar::Draw(BYTE* buffer, int height, int width)
+{
+    int left, right, top, bottom;
+
+    // Calculate the exact coordinates of rectangular zone in the buffer
+    left = width * m_LeftBorder / 10000;
+    if (left < 0)
+    {
+        left = 0;
+    }
+    else if (left >= width)
+    {
+        left = width - 1;
+    }
+    right = width * m_RightBorder / 10000;
+    if (right < 0)
+    {
+        right = 0;
+    }
+    else if (right >= width)
+    {
+        right = width - 1;
+    }
+    top = height * m_TopBorder / 10000;
+    if (top < 0)
+    {
+        top = 0;
+    }
+    else if (top >= height)
+    {
+        top = height - 1;
+    }
+    bottom = height * m_BottomBorder / 10000;
+    if (bottom < 0)
+    {
+        bottom = 0;
+    }
+    else if (bottom >= height)
+    {
+        bottom = height - 1;
+    }
+
+    for (int i = top ; i <= bottom ; i++)
+    {
+        for (int j = left ; j <= right ; j++)
+        {
+            buffer[i*width*2+j*2  ] = ref_Y_val;
+            buffer[i*width*2+j*2+1] = (j % 2) ? ref_V_val : ref_U_val;
+        }
     }
 }
 
@@ -450,121 +507,18 @@ void CColorBar::YUV2RGB(unsigned char Y, unsigned char U, unsigned char V, unsig
 
 CSubPattern::CSubPattern(eTypeAdjust type)
 {
-    type_adjust = type;
-    nb_color_bars = 0;
-    for (int i = 0 ; i < MAX_COLOR_BARS ; i++)
-    {
-        color_bars[i] = NULL;
-    }
-    idx_color_bar = -1;
+    m_TypeAdjust = type;
 }
 
 CSubPattern::~CSubPattern()
 {
-    for (int i = 0 ; i < MAX_COLOR_BARS ; i++)
-    {
-        if (color_bars[i] != NULL)
-        {
-            delete color_bars[i];
-        }
-    }
+    m_ColorBars.clear();
 }
 
 // This method returns the type of settings that can be adjusted with this sub-pattern
 eTypeAdjust CSubPattern::GetTypeAdjust()
 {
-    return type_adjust;
-}
-
-// This method allows to add a new color bar in the sub-pattern
-// Returns 0 if the color bar is correctly added
-int CSubPattern::AddColorBar(CColorBar* color_bar)
-{
-    int i;
-
-    for (i = 0 ; i < MAX_COLOR_BARS ; i++)
-    {
-        if (color_bars[i] == NULL)
-        {
-            break;
-        }
-    }
-    if (i < MAX_COLOR_BARS)
-    {
-        color_bars[i] = color_bar;
-        nb_color_bars++;
-        return 0;
-    }
-    else
-    {
-        return -1;
-    }
-}
-
-// This method returns the first bar of the test pattern
-// The first is the first added
-// Returns NULL pointer if no color bar is defined for the sub-pattern
-CColorBar* CSubPattern::GetFirstColorBar()
-{
-    for (idx_color_bar = 0 ; idx_color_bar < MAX_COLOR_BARS ; idx_color_bar++)
-    {
-        if (color_bars[idx_color_bar] != NULL)
-        {
-            return color_bars[idx_color_bar];
-        }
-    }
-    idx_color_bar = -1;
-    return NULL;
-}
-
-// This method returns the next color bar of the sub-pattern
-// GetFirstColorBar must be called at least one time before calling GetNextColorBar
-// Returns NULL pointer if we were already on the last color bar
-CColorBar* CSubPattern::GetNextColorBar()
-{
-    for (idx_color_bar++; idx_color_bar < MAX_COLOR_BARS ; idx_color_bar++)
-    {
-        if (color_bars[idx_color_bar] != NULL)
-        {
-            return color_bars[idx_color_bar];
-        }
-    }
-    idx_color_bar = -1;
-    return NULL;
-}
-
-// This function searches in the sub-pattern if it exists color
-// bars with same features as the one in argument
-// Returns one of the found color bars or NULL if no found
-CColorBar* CSubPattern::FindSameCoclorBar(CColorBar* pColorBar)
-{
-    CColorBar* pCurBar;
-    unsigned short int left, right, top, bottom;
-    unsigned char Y, U, V;
-    unsigned short int left2, right2, top2, bottom2;
-    unsigned char Y2, U2, V2;
-
-    pColorBar->GetPosition(&left, &right, &top, &bottom);
-    pColorBar->GetRefColor(TRUE, &Y, &U, &V);
-
-    pCurBar = GetFirstColorBar();
-    while (pCurBar != NULL)
-    {
-        pCurBar->GetPosition(&left2, &right2, &top2, &bottom2);
-        pCurBar->GetRefColor(TRUE, &Y2, &U2, &V2);
-        if ( (left == left2)
-          && (right == right2)
-          && (top == top2)
-          && (bottom == bottom2)
-          && (Y == Y2)
-          && (U == U2)
-          && (V == V2) )
-        {
-            break;
-        }
-        pCurBar = GetNextColorBar();
-    }
-    return pCurBar;
+    return m_TypeAdjust;
 }
 
 // This method analyzes the current overlay buffer
@@ -573,12 +527,11 @@ BOOL CSubPattern::CalcCurrentSubPattern(BOOL reinit, unsigned int nb_calc_needed
     BOOL result_avail;
 
     // Do the job for each defined color bar
-    for (int i = 0 ; i < MAX_COLOR_BARS ; i++)
+    for(vector<CColorBar*>::iterator it = m_ColorBars.begin(); 
+        it != m_ColorBars.end(); 
+        ++it)
     {
-        if (color_bars[i] != NULL)
-        {
-            result_avail = color_bars[i]->CalcAvgColor(reinit, nb_calc_needed, pInfo);
-        }
+        result_avail = (*it)->CalcAvgColor(reinit, nb_calc_needed, pInfo);
     }
 
     return result_avail;
@@ -588,25 +541,23 @@ BOOL CSubPattern::CalcCurrentSubPattern(BOOL reinit, unsigned int nb_calc_needed
 // and calculated average color through all the color bars
 void CSubPattern::GetSumDeltaColor(BOOL YUV, int* pR_Y, int* pG_U, int* pB_V, int* pTotal)
 {
-    int i, j;
     int delta[4];
     int sum_delta[4];
 
     // Set the sums to 0
-    for (j = 0 ; j <= 3 ; j++)
+    for (int j = 0 ; j <= 3 ; j++)
     {
         sum_delta[j] = 0;
     }
     // Go through all the color bars
-    for (i = 0 ; i < MAX_COLOR_BARS ; i++)
+    for(vector<CColorBar*>::iterator it = m_ColorBars.begin(); 
+        it != m_ColorBars.end(); 
+        ++it)
     {
-        if (color_bars[i] != NULL)
+        (*it)->GetDeltaColor(YUV, &delta[0], &delta[1], &delta[2], &delta[3]);
+        for (j = 0 ; j <= 3 ; j++)
         {
-            color_bars[i]->GetDeltaColor(YUV, &delta[0], &delta[1], &delta[2], &delta[3]);
-            for (j = 0 ; j <= 3 ; j++)
-            {
-                sum_delta[j] += ABSOLUTE_VALUE(delta[j]);
-            }
+            sum_delta[j] += ABSOLUTE_VALUE(delta[j]);
         }
     }
 
@@ -620,124 +571,461 @@ void CSubPattern::GetSumDeltaColor(BOOL YUV, int* pR_Y, int* pG_U, int* pB_V, in
 void CSubPattern::DrawPositions(TDeinterlaceInfo* pInfo)
 {
     // Do the job for each defined color bar
-    for (int i = 0 ; i < MAX_COLOR_BARS ; i++)
+    for(vector<CColorBar*>::iterator it = m_ColorBars.begin(); 
+        it != m_ColorBars.end(); 
+        ++it)
     {
-        if (color_bars[i] != NULL)
-        {
-            color_bars[i]->DrawPosition(pInfo);
-        }
+        (*it)->DrawPosition(pInfo);
     }
 }
 
 /////////////////////////////////////////////////////////////////////////////
 // Class CTestPattern
 
-CTestPattern::CTestPattern(char* name, eVideoFormat format)
+CTestPattern::CTestPattern(char* name, int height)
 {
-    strcpy(pattern_name, name);
-    video_format = format;
-    nb_sub_patterns = 0;
-    for (int i = 0 ; i < MAX_SUB_PATTERNS ; i++)
+    strcpy(m_PatternName, name);
+    m_Width = 720;
+    m_Height = height;
+}
+
+CTestPattern::CTestPattern(LPCSTR FileName)
+{
+    CColorBar* color_bar;
+    CColorBar* color_bar1;
+    CColorBar* color_bar2;
+    CColorBar* color_bar3;
+    CColorBar* color_bar4;
+    CColorBar* color_bar5;
+    CColorBar* color_bar6;
+    CColorBar* color_bar7;
+    CColorBar* color_bar8;
+    CColorBar* color_bar9;
+    CColorBar* color_bar10;
+    CColorBar* color_bar11;
+    CSubPattern* sub_pattern;
+    char BufferLine[512];
+    char *Buffer;
+    FILE* FilePat;
+    int i_val[16];
+    char s_val[512];
+    int n;
+    eTypeAdjust TypeAdjust;
+
+    if (!strcmp(FileName, "THX_NTSC_1.pat"))
     {
-        sub_patterns[i] = NULL;
+
+    strcpy(m_PatternName, "THX Optimode Ntsc - Monitor Performance");
+    m_Width = 720;
+    m_Height = 480;
+
+    color_bar1 = new CColorBar( 347,  764, 6875, 7500, FALSE,   0,   0,   0);
+    m_ColorBars.push_back(color_bar1);
+    color_bar2 = new CColorBar(1181, 1597, 6875, 7500, FALSE,  22,  24,  23);
+    m_ColorBars.push_back(color_bar2);
+    color_bar3 = new CColorBar(2014, 2431, 6875, 7500, FALSE,  48,  50,  49);
+    m_ColorBars.push_back(color_bar3);
+    color_bar4 = new CColorBar(7083, 7500, 6875, 7500, FALSE, 201, 203, 202);
+    m_ColorBars.push_back(color_bar4);
+    color_bar5 = new CColorBar(7917, 8333, 6875, 7500, FALSE, 227, 228, 227);
+    m_ColorBars.push_back(color_bar5);
+    color_bar6 = new CColorBar(8750, 9167, 6875, 7500, FALSE, 252, 253, 252);
+    m_ColorBars.push_back(color_bar6);
+
+    sub_pattern = new CSubPattern(ADJ_BRIGHTNESS_CONTRAST);
+    sub_pattern->m_ColorBars.push_back(color_bar1);
+    sub_pattern->m_ColorBars.push_back(color_bar2);
+    sub_pattern->m_ColorBars.push_back(color_bar3);
+    sub_pattern->m_ColorBars.push_back(color_bar4);
+    sub_pattern->m_ColorBars.push_back(color_bar5);
+    sub_pattern->m_ColorBars.push_back(color_bar6);
+    m_SubPatterns.push_back(sub_pattern);
+
+    sub_pattern = new CSubPattern(ADJ_BRIGHTNESS);
+    sub_pattern->m_ColorBars.push_back(color_bar1);
+    sub_pattern->m_ColorBars.push_back(color_bar2);
+    sub_pattern->m_ColorBars.push_back(color_bar3);
+    m_SubPatterns.push_back(sub_pattern);
+
+    sub_pattern = new CSubPattern(ADJ_CONTRAST);
+    sub_pattern->m_ColorBars.push_back(color_bar4);
+    sub_pattern->m_ColorBars.push_back(color_bar5);
+    sub_pattern->m_ColorBars.push_back(color_bar6);
+    m_SubPatterns.push_back(sub_pattern);
+
+    color_bar1 = new CColorBar( 278, 1042, 2396, 4167, FALSE, 251, 252, 251);
+    m_ColorBars.push_back(color_bar1);
+    color_bar2 = new CColorBar(1458, 2222, 2396, 4167, FALSE, 188, 190,   0);
+    m_ColorBars.push_back(color_bar2);
+    color_bar3 = new CColorBar(2708, 3472, 2396, 4167, FALSE,   0, 188, 185);
+    m_ColorBars.push_back(color_bar3);
+    color_bar4 = new CColorBar(3889, 4653, 2396, 4167, FALSE,   0, 188,   0);
+    m_ColorBars.push_back(color_bar4);
+    color_bar5 = new CColorBar(5139, 5903, 2396, 4167, FALSE, 187,   0, 187);
+    m_ColorBars.push_back(color_bar5);
+    color_bar6 = new CColorBar(6319, 7083, 2396, 4167, FALSE, 186,   0,   0);
+    m_ColorBars.push_back(color_bar6);
+    color_bar7 = new CColorBar(7569, 8333, 2396, 4167, FALSE,   0,   0, 187);
+    m_ColorBars.push_back(color_bar7);
+    color_bar8 = new CColorBar(8750, 9514, 2396, 4167, FALSE,   0,   0,   0);
+    m_ColorBars.push_back(color_bar8);
+    
+    sub_pattern = new CSubPattern(ADJ_COLOR);
+    sub_pattern->m_ColorBars.push_back(color_bar1);
+    sub_pattern->m_ColorBars.push_back(color_bar2);
+    sub_pattern->m_ColorBars.push_back(color_bar3);
+    sub_pattern->m_ColorBars.push_back(color_bar4);
+    sub_pattern->m_ColorBars.push_back(color_bar5);
+    sub_pattern->m_ColorBars.push_back(color_bar6);
+    sub_pattern->m_ColorBars.push_back(color_bar7);
+    sub_pattern->m_ColorBars.push_back(color_bar8);
+    m_SubPatterns.push_back(sub_pattern);
+
+    sub_pattern = new CSubPattern(ADJ_SATURATION_U);
+    sub_pattern->m_ColorBars.push_back(color_bar7);
+    m_SubPatterns.push_back(sub_pattern);
+
+    sub_pattern = new CSubPattern(ADJ_SATURATION_V);
+    sub_pattern->m_ColorBars.push_back(color_bar6);
+    m_SubPatterns.push_back(sub_pattern);
+
+    sub_pattern = new CSubPattern(ADJ_HUE);
+    sub_pattern->m_ColorBars.push_back(color_bar3);
+    sub_pattern->m_ColorBars.push_back(color_bar4);
+    sub_pattern->m_ColorBars.push_back(color_bar5);
+    m_SubPatterns.push_back(sub_pattern);
+
+    CreateGlobalSubPattern();
+
     }
-    idx_sub_pattern = -1;
+    else if (!strcmp(FileName, "THX_NTSC_2.pat"))
+    {
+
+    strcpy(m_PatternName, "THX Optimode Ntsc - tint color");
+    m_Width = 720;
+    m_Height = 480;
+
+    color_bar1 = new CColorBar( 417, 1111, 2500, 5625, FALSE, 188, 189, 188);
+    m_ColorBars.push_back(color_bar1);
+    color_bar2 = new CColorBar(1806, 2500, 2500, 5625, FALSE, 189, 190,   0);
+    m_ColorBars.push_back(color_bar2);
+    color_bar3 = new CColorBar(3194, 3889, 2500, 5625, FALSE,   0, 190, 188);
+    m_ColorBars.push_back(color_bar3);
+    color_bar4 = new CColorBar(4583, 5278, 2500, 5625, FALSE,   0, 189,   0);
+    m_ColorBars.push_back(color_bar4);
+    color_bar5 = new CColorBar(6042, 6736, 2500, 5625, FALSE, 188,   0, 190);
+    m_ColorBars.push_back(color_bar5);
+    color_bar6 = new CColorBar(7431, 8125, 2500, 5625, FALSE, 189,   0,   0);
+    m_ColorBars.push_back(color_bar6);
+    color_bar7 = new CColorBar(8889, 9583, 2500, 5625, FALSE,   0,   0, 189);
+    m_ColorBars.push_back(color_bar7);
+    
+    sub_pattern = new CSubPattern(ADJ_COLOR);
+    sub_pattern->m_ColorBars.push_back(color_bar1);
+    sub_pattern->m_ColorBars.push_back(color_bar2);
+    sub_pattern->m_ColorBars.push_back(color_bar3);
+    sub_pattern->m_ColorBars.push_back(color_bar4);
+    sub_pattern->m_ColorBars.push_back(color_bar5);
+    sub_pattern->m_ColorBars.push_back(color_bar6);
+    sub_pattern->m_ColorBars.push_back(color_bar7);
+    m_SubPatterns.push_back(sub_pattern);
+
+    sub_pattern = new CSubPattern(ADJ_SATURATION_U);
+    sub_pattern->m_ColorBars.push_back(color_bar7);
+    m_SubPatterns.push_back(sub_pattern);
+
+    sub_pattern = new CSubPattern(ADJ_SATURATION_V);
+    sub_pattern->m_ColorBars.push_back(color_bar6);
+    m_SubPatterns.push_back(sub_pattern);
+
+    sub_pattern = new CSubPattern(ADJ_HUE);
+    sub_pattern->m_ColorBars.push_back(color_bar3);
+    sub_pattern->m_ColorBars.push_back(color_bar4);
+    sub_pattern->m_ColorBars.push_back(color_bar5);
+    m_SubPatterns.push_back(sub_pattern);
+
+    CreateGlobalSubPattern();
+
+    }
+    else if (!strcmp(FileName, "AVIA_NTSC_1.pat"))
+    {
+
+    strcpy(m_PatternName, "AVIA - T 1 C 7 - range of gray");
+    m_Width = 720;
+    m_Height = 480;
+    
+    color_bar1 = new CColorBar( 208,  764, 2500, 7500, FALSE, 254, 251, 255);
+    m_ColorBars.push_back(color_bar1);
+    color_bar2 = new CColorBar(1111, 1667, 2500, 7500, FALSE, 226, 223, 227);
+    m_ColorBars.push_back(color_bar2);
+    color_bar3 = new CColorBar(2014, 2569, 2500, 7500, FALSE, 200, 197, 201);
+    m_ColorBars.push_back(color_bar3);
+    color_bar4 = new CColorBar(2917, 3472, 2500, 7500, FALSE, 172, 169, 173);
+    m_ColorBars.push_back(color_bar4);
+    color_bar5 = new CColorBar(3819, 4375, 2500, 7500, FALSE, 145, 142, 146);
+    m_ColorBars.push_back(color_bar5);
+    color_bar6 = new CColorBar(4722, 5278, 2500, 7500, FALSE, 117, 114, 118);
+    m_ColorBars.push_back(color_bar6);
+    color_bar7 = new CColorBar(5625, 6181, 2500, 7500, FALSE,  90,  87,  91);
+    m_ColorBars.push_back(color_bar7);
+    color_bar8 = new CColorBar(6528, 7083, 2500, 7500, FALSE,  62,  59,  63);
+    m_ColorBars.push_back(color_bar8);
+    color_bar9 = new CColorBar(7431, 7986, 2500, 7500, FALSE,  34,  31,  35);
+    m_ColorBars.push_back(color_bar9);
+    color_bar10 = new CColorBar(8333, 8889, 2500, 7500, FALSE,   7,   4,   8);
+    m_ColorBars.push_back(color_bar10);
+    color_bar11 = new CColorBar(9236, 9792, 2500, 7500, FALSE,   1,   0,   2);
+    m_ColorBars.push_back(color_bar11);
+    
+    sub_pattern = new CSubPattern(ADJ_BRIGHTNESS_CONTRAST);
+    sub_pattern->m_ColorBars.push_back(color_bar1);
+    sub_pattern->m_ColorBars.push_back(color_bar2);
+    sub_pattern->m_ColorBars.push_back(color_bar3);
+    sub_pattern->m_ColorBars.push_back(color_bar4);
+    sub_pattern->m_ColorBars.push_back(color_bar5);
+    sub_pattern->m_ColorBars.push_back(color_bar6);
+    sub_pattern->m_ColorBars.push_back(color_bar7);
+    sub_pattern->m_ColorBars.push_back(color_bar8);
+    sub_pattern->m_ColorBars.push_back(color_bar9);
+    sub_pattern->m_ColorBars.push_back(color_bar10);
+    sub_pattern->m_ColorBars.push_back(color_bar11);
+    m_SubPatterns.push_back(sub_pattern);
+
+    sub_pattern = new CSubPattern(ADJ_BRIGHTNESS);
+    sub_pattern->m_ColorBars.push_back(color_bar8);
+    sub_pattern->m_ColorBars.push_back(color_bar9);
+    sub_pattern->m_ColorBars.push_back(color_bar10);
+    sub_pattern->m_ColorBars.push_back(color_bar11);
+    m_SubPatterns.push_back(sub_pattern);
+
+    sub_pattern = new CSubPattern(ADJ_CONTRAST);
+    sub_pattern->m_ColorBars.push_back(color_bar1);
+    sub_pattern->m_ColorBars.push_back(color_bar2);
+    sub_pattern->m_ColorBars.push_back(color_bar3);
+    sub_pattern->m_ColorBars.push_back(color_bar4);
+    m_SubPatterns.push_back(sub_pattern);
+
+    CreateGlobalSubPattern();
+
+    }
+    else if (!strcmp(FileName, "AVIA_NTSC_2.pat"))
+    {
+
+    strcpy(m_PatternName, "AVIA - T 4 C 4 - color bars");
+    m_Width = 720;
+    m_Height = 480;
+    
+    color_bar1 = new CColorBar( 417, 1111, 2083, 4167, FALSE, 190, 190, 190);
+    m_ColorBars.push_back(color_bar1);
+    color_bar2 = new CColorBar(1806, 2500, 2083, 4167, FALSE, 190, 189,   0);
+    m_ColorBars.push_back(color_bar2);
+    color_bar3 = new CColorBar(3194, 3889, 2083, 4167, FALSE,   0, 189, 188);
+    m_ColorBars.push_back(color_bar3);
+    color_bar4 = new CColorBar(4583, 5278, 2083, 4167, FALSE,   0, 189,   0);
+    m_ColorBars.push_back(color_bar4);
+    color_bar5 = new CColorBar(6042, 6736, 2083, 4167, FALSE, 190,   0, 191);
+    m_ColorBars.push_back(color_bar5);
+    color_bar6 = new CColorBar(7431, 8125, 2083, 4167, FALSE, 190,   0,   0);
+    m_ColorBars.push_back(color_bar6);
+    color_bar7 = new CColorBar(8889, 9583, 2083, 4167, FALSE,   0,   0, 190);
+    m_ColorBars.push_back(color_bar7);
+    
+    sub_pattern = new CSubPattern(ADJ_COLOR);
+    sub_pattern->m_ColorBars.push_back(color_bar1);
+    sub_pattern->m_ColorBars.push_back(color_bar2);
+    sub_pattern->m_ColorBars.push_back(color_bar3);
+    sub_pattern->m_ColorBars.push_back(color_bar4);
+    sub_pattern->m_ColorBars.push_back(color_bar5);
+    sub_pattern->m_ColorBars.push_back(color_bar6);
+    sub_pattern->m_ColorBars.push_back(color_bar7);
+    m_SubPatterns.push_back(sub_pattern);
+
+    sub_pattern = new CSubPattern(ADJ_SATURATION_U);
+    sub_pattern->m_ColorBars.push_back(color_bar7);
+    m_SubPatterns.push_back(sub_pattern);
+
+    sub_pattern = new CSubPattern(ADJ_SATURATION_V);
+    sub_pattern->m_ColorBars.push_back(color_bar6);
+    m_SubPatterns.push_back(sub_pattern);
+
+    sub_pattern = new CSubPattern(ADJ_HUE);
+    sub_pattern->m_ColorBars.push_back(color_bar3);
+    sub_pattern->m_ColorBars.push_back(color_bar4);
+    sub_pattern->m_ColorBars.push_back(color_bar5);
+    m_SubPatterns.push_back(sub_pattern);
+
+    CreateGlobalSubPattern();
+
+    }
+    else
+    {
+
+    FilePat = fopen(FileName, "r");
+    if (!FilePat)
+    {
+        m_PatternName[0] = '\0';
+        m_Width = 0;
+        m_Height = 0;
+        return;
+    }
+
+    while(!feof(FilePat))
+    {
+        if(fgets(BufferLine, 512, FilePat))
+        {
+            BufferLine[511] = '\0';
+            Buffer = BufferLine;
+            while(strlen(Buffer) > 0 && *Buffer <= ' ')
+            {
+                Buffer++;
+            }
+            if(strlen(Buffer) == 0 || *Buffer == '#' || *Buffer == ';')
+            {
+                continue;
+            }
+            while(strlen(Buffer) > 0 && Buffer[strlen(Buffer) - 1] <= ' ')
+            {
+                Buffer[strlen(Buffer) - 1] = '\0';
+            }
+            if (strlen(Buffer) == 0)
+            {
+                continue;
+            }
+            if (sscanf(Buffer, "PAT %d %d %s", &i_val[0], &i_val[1], s_val) == 3)
+            {
+                LOG(5,"PAT %d %d %s", i_val[0], i_val[1], s_val);
+                m_Width = i_val[0];
+                m_Height = i_val[1];
+                strcpy(m_PatternName, strstr(&Buffer[4], s_val));
+            }
+            else if (sscanf(Buffer, "RECT %d %d %d %d %s %d %d %d", &i_val[0], &i_val[1], &i_val[2], &i_val[3], s_val, &i_val[4], &i_val[5], &i_val[6]) == 8)
+            {
+                if (!strcmp(s_val, "RGB"))
+                {
+                    LOG(5,"RECT RGB %d %d %d %d %d %d %d", i_val[0], i_val[1], i_val[2], i_val[3], i_val[4], i_val[5], i_val[6]);
+                    color_bar = new CColorBar(i_val[0], i_val[1], i_val[2], i_val[3], FALSE, i_val[4], i_val[5], i_val[6]);
+                    m_ColorBars.push_back(color_bar);
+                }
+                else if (!strcmp(s_val, "YUV"))
+                {
+                    LOG(5,"RECT YUV %d %d %d %d %d %d %d", i_val[0], i_val[1], i_val[2], i_val[3], i_val[4], i_val[5], i_val[6]);
+                    color_bar = new CColorBar(i_val[0], i_val[1], i_val[2], i_val[3], TRUE, i_val[4], i_val[5], i_val[6]);
+                    m_ColorBars.push_back(color_bar);
+                }
+            }
+            else if ((n = sscanf(Buffer, "GRP %s %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d", s_val, &i_val[0], &i_val[1], &i_val[2], &i_val[3], &i_val[4], &i_val[5], &i_val[6], &i_val[7], &i_val[8], &i_val[9], &i_val[10], &i_val[11], &i_val[12], &i_val[13], &i_val[14], &i_val[15])) >= 2)
+            {
+                LOG(5,"GRP %s", s_val);
+                if (!strcmp(s_val, "BRIGHTNESS_CONTRAST"))
+                {
+                    TypeAdjust = ADJ_BRIGHTNESS_CONTRAST;
+                }
+                else if (!strcmp(s_val, "BRIGHTNESS"))
+                {
+                    TypeAdjust = ADJ_BRIGHTNESS;
+                }
+                else if (!strcmp(s_val, "CONTRAST"))
+                {
+                    TypeAdjust = ADJ_CONTRAST;
+                }
+                else if (!strcmp(s_val, "COLOR"))
+                {
+                    TypeAdjust = ADJ_COLOR;
+                }
+                else if (!strcmp(s_val, "SATURATION_U"))
+                {
+                    TypeAdjust = ADJ_SATURATION_U;
+                }
+                else if (!strcmp(s_val, "SATURATION_V"))
+                {
+                    TypeAdjust = ADJ_SATURATION_V;
+                }
+                else if (!strcmp(s_val, "HUE"))
+                {
+                    TypeAdjust = ADJ_HUE;
+                }
+                else
+                {
+                    TypeAdjust = ADJ_MANUAL   ;
+                }
+                if (TypeAdjust != ADJ_MANUAL)
+                {
+                    sub_pattern = new CSubPattern(TypeAdjust);
+                    m_SubPatterns.push_back(sub_pattern);
+                    for (int i(0) ; i < (n-1) ; i++)
+                    {
+                        if (i_val[i] > 0 && i_val[i] <= m_ColorBars.size())
+                        {
+                            LOG(5,"GRP %d", i_val[i]);
+                            sub_pattern->m_ColorBars.push_back(m_ColorBars[i_val[i]-1]);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fclose(FilePat);
+
+    CreateGlobalSubPattern();
+
+    Log();
+    }
 }
 
 CTestPattern::~CTestPattern()
 {
-    for (int i = 0 ; i < MAX_SUB_PATTERNS ; i++)
+    for(vector<CSubPattern*>::iterator it = m_SubPatterns.begin(); 
+        it != m_SubPatterns.end(); 
+        ++it)
     {
-        if (sub_patterns[i] != NULL)
-        {
-            delete sub_patterns[i];
-        }
+        delete *it;
     }
+    m_SubPatterns.clear();
+    for(vector<CColorBar*>::iterator it2 = m_ColorBars.begin(); 
+        it2 != m_ColorBars.end(); 
+        ++it2)
+    {
+        delete *it2;
+    }
+    m_ColorBars.clear();
 }
 
 // This method returns the name of the test pattern
 char* CTestPattern::GetName()
 {
-    return pattern_name;
+    return m_PatternName;
 }
 
-// This method returns the video format of the test pattern
-eVideoFormat CTestPattern::GetVideoFormat()
+// This method returns the width of the test pattern
+int CTestPattern::GetWidth()
 {
-    return video_format;
+    return m_Width;
 }
 
-// This method allows to add a new sub-pattern to the test pattern
-// Returns 0 if the sub-pattern is correctly added
-int CTestPattern::AddSubPattern(CSubPattern* sub_pattern)
+// This method returns the height (number of lines) of the test pattern
+int CTestPattern::GetHeight()
 {
-    int i;
-
-    for (i = 0 ; i < MAX_SUB_PATTERNS ; i++)
-    {
-        if (sub_patterns[i] == NULL)
-        {
-            break;
-        }
-    }
-    if (i < MAX_SUB_PATTERNS)
-    {
-        sub_patterns[i] = sub_pattern;
-        nb_sub_patterns++;
-        return 0;
-    }
-    else
-    {
-        return -1;
-    }
+    return m_Height;
 }
 
 // This method allows to create a new sub-pattern to the test pattern
 // which is a merge of all the others sub-patterns
 // Returns 0 if the sub-pattern is correctly created
-int CTestPattern::CreateGlobalSubPattern()
+void CTestPattern::CreateGlobalSubPattern()
 {
-    int i;
     CSubPattern* sub_pattern;
-    CColorBar* pCurBar;
-    CColorBar* pNewBar;
 
     // Create the new sub-pattern
     sub_pattern = new CSubPattern(ADJ_MANUAL);
 
-    for (i = 0 ; i < MAX_SUB_PATTERNS ; i++)
+    for(vector<CColorBar*>::iterator it = m_ColorBars.begin(); 
+        it != m_ColorBars.end(); 
+        ++it)
     {
-        if (sub_patterns[i] == NULL)
-        {
-            break;
-        }
-        else
-        {
-            // Add all the color bars from the current sub-pattern
-            // to the new sub-pattern
-            pCurBar = sub_patterns[i]->GetFirstColorBar();
-            while (pCurBar != NULL)
-            {
-                if (sub_pattern->FindSameCoclorBar(pCurBar) == NULL)
-                {
-                    pNewBar = new CColorBar(pCurBar);
-                    sub_pattern->AddColorBar(pNewBar);
-                }
-                pCurBar = sub_patterns[i]->GetNextColorBar();
-            }
-        }
+        sub_pattern->m_ColorBars.push_back(*it);
     }
-    if (i < MAX_SUB_PATTERNS)
-    {
-        sub_patterns[i] = sub_pattern;
-        nb_sub_patterns++;
-        return 0;
-    }
-    else
-    {
-        delete sub_pattern;
-        return -1;
-    }
+    m_SubPatterns.push_back(sub_pattern);
 }
 
 // This method determines the type of content in the test pattern
@@ -767,50 +1055,67 @@ eTypeContentPattern CTestPattern::DetermineTypeContent()
 // Returns NULL pointer if no sub-pattern allows to do this type of adjustments
 CSubPattern* CTestPattern::GetSubPattern(eTypeAdjust type_adjust)
 {
-    CSubPattern* sub_pattern;
-
-    sub_pattern = GetFirstSubPattern();
-    while (sub_pattern != NULL)
+    for(vector<CSubPattern*>::iterator it = m_SubPatterns.begin(); 
+        it != m_SubPatterns.end(); 
+        ++it)
     {
-        if (sub_pattern->GetTypeAdjust() == type_adjust)
+        if ((*it)->GetTypeAdjust() == type_adjust)
         {
-            break;
-        }
-        sub_pattern = GetNextSubPattern();
-    }
-    return sub_pattern;
-}
-
-// This method returns the first sub-pattern of the test pattern
-// The first is the first added
-// Returns NULL pointer if no sub-pattern is defined for the test pattern
-CSubPattern* CTestPattern::GetFirstSubPattern()
-{
-    for (idx_sub_pattern = 0 ; idx_sub_pattern < MAX_SUB_PATTERNS ; idx_sub_pattern++)
-    {
-        if (sub_patterns[idx_sub_pattern] != NULL)
-        {
-            return sub_patterns[idx_sub_pattern];
+            return *it;
         }
     }
-    idx_sub_pattern = -1;
     return NULL;
 }
 
-// This method returns the next sub-pattern of the test pattern
-// GetFirstSubPattern must be called at least one time before calling GetNextSubPattern
-// Returns NULL pointer if we were already on the last sub-pattern
-CSubPattern* CTestPattern::GetNextSubPattern()
+void CTestPattern::Draw(BYTE* buffer)
 {
-    for (idx_sub_pattern++; idx_sub_pattern < MAX_SUB_PATTERNS ; idx_sub_pattern++)
+    // Background
+    for (int i = 0 ; i < m_Height ; i++)
     {
-        if (sub_patterns[idx_sub_pattern] != NULL)
+        for (int j = 0 ; j < m_Width ; j++)
         {
-            return sub_patterns[idx_sub_pattern];
+            buffer[i*m_Width*2+j*2  ] = 235;
+            buffer[i*m_Width*2+j*2+1] = 128;
         }
     }
-    idx_sub_pattern = -1;
-    return NULL;
+
+    // Do the job for each defined color bar
+    for(vector<CColorBar*>::iterator it = m_ColorBars.begin(); 
+        it != m_ColorBars.end(); 
+        ++it)
+    {
+        (*it)->Draw(buffer, m_Height, m_Width);
+    }
+}
+
+void CTestPattern::Log()
+{
+    unsigned char R, G, B, Y, U, V;
+    unsigned short int left, right, top, bottom;
+
+    LOG(3, "Pattern %s %dx%d", m_PatternName, m_Width, m_Height);
+    for(vector<CColorBar*>::iterator it2 = m_ColorBars.begin(); 
+        it2 != m_ColorBars.end(); 
+        ++it2)
+    {
+        (*it2)->GetPosition(&left, &right, &top, &bottom);
+        (*it2)->GetRefColor(FALSE, &R, &G, &B);
+        (*it2)->GetRefColor(TRUE, &Y, &U, &V);
+        LOG(3, "   T %4d B %4d L %4d R %4d - RGB %3d %3d %3d YUV %3d %3d %3d", top, bottom, left, right, R, G, B, Y, U, V);
+    }
+    for(vector<CSubPattern*>::iterator it = m_SubPatterns.begin(); 
+        it != m_SubPatterns.end(); 
+        ++it)
+    {
+        LOG(3, "   Sub-pattern %d", (*it)->GetTypeAdjust());
+        for(vector<CColorBar*>::iterator it2 = (*it)->m_ColorBars.begin(); 
+            it2 != (*it)->m_ColorBars.end(); 
+            ++it2)
+        {
+            (*it2)->GetPosition(&left, &right, &top, &bottom);
+            LOG(3, "      T %4d B %4d L %4d R %4d", top, bottom, left, right);
+        }
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1108,15 +1413,10 @@ void CCalSetting::Adjust(int value)
 
 CCalibration::CCalibration()
 {
-    nb_test_patterns = 0;
-    for (int i = 0 ; i < MAX_TEST_PATTERNS ; i++)
-    {
-        test_patterns[i] = NULL;
-    }
-    current_test_pattern = NULL;
-    current_sub_pattern = NULL;
-    type_calibration = CAL_MANUAL;
-    running = FALSE;
+    m_CurTestPat = NULL;
+    m_CurSubPat = NULL;
+    m_TypeCalibration = CAL_MANUAL;
+    m_IsRunning = FALSE;
 
     brightness   = NULL;
     contrast     = NULL;
@@ -1132,541 +1432,82 @@ CCalibration::~CCalibration()
 {
     UnloadTestPatterns();
 
-    delete brightness;
-    delete contrast;
-    delete saturation_U;
-    delete saturation_V;
-    delete hue;
+    if (brightness != NULL)
+        delete brightness;
+    if (contrast != NULL)
+        delete contrast;
+    if (saturation_U != NULL)
+        delete saturation_U;
+    if (saturation_V != NULL)
+        delete saturation_V;
+    if (hue != NULL)
+        delete hue;
 }
 
 // This method loads all the predefined test patterns
 void CCalibration::LoadTestPatterns()
 {
-    CColorBar* color_bar;
-    CSubPattern* sub_pattern;
-
-    test_patterns[nb_test_patterns] = new CTestPattern("THX Optimode - Monitor Performance", VIDEOFORMAT_NTSC_M);
-
-    sub_pattern = new CSubPattern(ADJ_BRIGHTNESS_CONTRAST);
-    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar( 347,  764, 6875, 7500, FALSE,   0,   0,   0);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(1181, 1597, 6875, 7500, FALSE,  22,  24,  23);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(2014, 2431, 6875, 7500, FALSE,  48,  50,  49);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(7083, 7500, 6875, 7500, FALSE, 201, 203, 202);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(7917, 8333, 6875, 7500, FALSE, 227, 228, 227);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(8750, 9167, 6875, 7500, FALSE, 252, 253, 252);
-    sub_pattern->AddColorBar(color_bar);
-
-    sub_pattern = new CSubPattern(ADJ_BRIGHTNESS);
-    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar( 347,  764, 6875, 7500, FALSE,   0,   0,   0);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(1181, 1597, 6875, 7500, FALSE,  22,  24,  23);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(2014, 2431, 6875, 7500, FALSE,  48,  50,  49);
-    sub_pattern->AddColorBar(color_bar);
-
-    sub_pattern = new CSubPattern(ADJ_CONTRAST);
-    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(7083, 7500, 6875, 7500, FALSE, 201, 203, 202);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(7917, 8333, 6875, 7500, FALSE, 227, 228, 227);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(8750, 9167, 6875, 7500, FALSE, 252, 253, 252);
-    sub_pattern->AddColorBar(color_bar);
-
-    sub_pattern = new CSubPattern(ADJ_COLOR);
-    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar( 278, 1042, 2396, 4167, FALSE, 251, 252, 251);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(1458, 2222, 2396, 4167, FALSE, 188, 190,   0);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(2708, 3472, 2396, 4167, FALSE,   0, 188, 185);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(3889, 4653, 2396, 4167, FALSE,   0, 188,   0);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(5139, 5903, 2396, 4167, FALSE, 187,   0, 187);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(6319, 7083, 2396, 4167, FALSE, 186,   0,   0);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(7569, 8333, 2396, 4167, FALSE,   0,   0, 187);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(8750, 9514, 2396, 4167, FALSE,   0,   0,   0);
-    sub_pattern->AddColorBar(color_bar);
+    CTestPattern* pattern;
+    char BufferLine[512];
+    char *Buffer;
+    struct stat st;
+    FILE* File;
     
-    sub_pattern = new CSubPattern(ADJ_SATURATION_U);
-    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(7569, 8333, 2396, 4167, FALSE,   0,   0, 187);
-    sub_pattern->AddColorBar(color_bar);
-
-    sub_pattern = new CSubPattern(ADJ_SATURATION_V);
-    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(6319, 7083, 2396, 4167, FALSE, 186,   0,   0);
-    sub_pattern->AddColorBar(color_bar);
-
-    sub_pattern = new CSubPattern(ADJ_HUE);
-    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(2708, 3472, 2396, 4167, FALSE,   0, 188, 185);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(3889, 4653, 2396, 4167, FALSE,   0, 188,   0);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(5139, 5903, 2396, 4167, FALSE, 187,   0, 187);
-    sub_pattern->AddColorBar(color_bar);
-
-    test_patterns[nb_test_patterns]->CreateGlobalSubPattern();
-
-    nb_test_patterns++;
-
-    ///////////////
-
-    test_patterns[nb_test_patterns] = new CTestPattern("THX Optimode - tint color", VIDEOFORMAT_NTSC_M);
-
-    sub_pattern = new CSubPattern(ADJ_COLOR);
-    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar( 417, 1111, 2500, 5625, FALSE, 188, 189, 188);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(1806, 2500, 2500, 5625, FALSE, 189, 190,   0);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(3194, 3889, 2500, 5625, FALSE,   0, 190, 188);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(4583, 5278, 2500, 5625, FALSE,   0, 189,   0);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(6042, 6736, 2500, 5625, FALSE, 188,   0, 190);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(7431, 8125, 2500, 5625, FALSE, 189,   0,   0);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(8889, 9583, 2500, 5625, FALSE,   0,   0, 189);
-    sub_pattern->AddColorBar(color_bar);
-    
-    sub_pattern = new CSubPattern(ADJ_SATURATION_U);
-    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(8889, 9583, 2500, 5625, FALSE,   0,   0, 189);
-    sub_pattern->AddColorBar(color_bar);
-
-    sub_pattern = new CSubPattern(ADJ_SATURATION_V);
-    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(7431, 8125, 2500, 5625, FALSE, 189,   0,   0);
-    sub_pattern->AddColorBar(color_bar);
-
-    sub_pattern = new CSubPattern(ADJ_HUE);
-    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(3194, 3889, 2500, 5625, FALSE,   0, 190, 188);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(4583, 5278, 2500, 5625, FALSE,   0, 189,   0);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(6042, 6736, 2500, 5625, FALSE, 188,   0, 190);
-    sub_pattern->AddColorBar(color_bar);
-
-    test_patterns[nb_test_patterns]->CreateGlobalSubPattern();
-
-    nb_test_patterns++;
-
-    ///////////////
-
-    test_patterns[nb_test_patterns] = new CTestPattern("VE - T 18 C 2 - range of gray", VIDEOFORMAT_NTSC_M);
-    
-    sub_pattern = new CSubPattern(ADJ_BRIGHTNESS_CONTRAST);
-    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar( 417,  972, 2500, 7500, FALSE,   0,   0,   0);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(1458, 2014, 2500, 7500, FALSE,  30,  30,  30);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(2361, 2917, 2500, 7500, FALSE,  60,  60,  60);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(3333, 3889, 2500, 7500, FALSE,  90,  90,  90);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(4236, 4792, 2500, 7500, FALSE, 117, 119, 119);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(5208, 5764, 2500, 7500, FALSE, 150, 150, 150);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(6181, 6736, 2500, 7500, FALSE, 177, 179, 179);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(7153, 7708, 2500, 7500, FALSE, 206, 209, 205);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(8125, 8681, 2500, 7500, FALSE, 236, 236, 236);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(9097, 9653, 2500, 7500, FALSE, 254, 254, 254);
-    sub_pattern->AddColorBar(color_bar);
-    
-    sub_pattern = new CSubPattern(ADJ_BRIGHTNESS);
-    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar( 417,  972, 2500, 7500, FALSE,   0,   0,   0);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(1458, 2014, 2500, 7500, FALSE,  30,  30,  30);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(2361, 2917, 2500, 7500, FALSE,  60,  60,  60);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(3333, 3889, 2500, 7500, FALSE,  90,  90,  90);
-    sub_pattern->AddColorBar(color_bar);
-
-    sub_pattern = new CSubPattern(ADJ_CONTRAST);
-    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(6181, 6736, 2500, 7500, FALSE, 177, 179, 179);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(7153, 7708, 2500, 7500, FALSE, 206, 209, 205);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(8125, 8681, 2500, 7500, FALSE, 236, 236, 236);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(9097, 9653, 2500, 7500, FALSE, 254, 254, 254);
-    sub_pattern->AddColorBar(color_bar);
-
-    test_patterns[nb_test_patterns]->CreateGlobalSubPattern();
-    
-    nb_test_patterns++;
-
-    ///////////////
-
-    test_patterns[nb_test_patterns] = new CTestPattern("VE - T 15 C 5 - color bars", VIDEOFORMAT_NTSC_M);
-    
-    sub_pattern = new CSubPattern(ADJ_COLOR);
-    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar( 417, 1111, 2500, 5208, FALSE, 190, 190, 190);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(1806, 2500, 2500, 5208, FALSE, 188, 190,   0);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(3194, 3889, 2500, 5208, FALSE,   0, 190, 189);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(4611, 5306, 2500, 5208, FALSE,   0, 190,   0);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(6069, 6764, 2500, 5208, FALSE, 190,   0, 189);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(7458, 8153, 2500, 5208, FALSE, 188,   0,   0);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(8889, 9583, 2500, 5208, FALSE,   0,   0, 187);
-    sub_pattern->AddColorBar(color_bar);
-    
-    sub_pattern = new CSubPattern(ADJ_SATURATION_U);
-    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(8889, 9583, 2500, 5208, FALSE,   0,   0, 187);
-    sub_pattern->AddColorBar(color_bar);
-
-    sub_pattern = new CSubPattern(ADJ_SATURATION_V);
-    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(7458, 8153, 2500, 5208, FALSE, 188,   0,   0);
-    sub_pattern->AddColorBar(color_bar);
-
-    sub_pattern = new CSubPattern(ADJ_HUE);
-    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(3194, 3889, 2500, 5208, FALSE,   0, 190, 189);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(4611, 5306, 2500, 5208, FALSE,   0, 190,   0);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(6069, 6764, 2500, 5208, FALSE, 190,   0, 189);
-    sub_pattern->AddColorBar(color_bar);
-
-    test_patterns[nb_test_patterns]->CreateGlobalSubPattern();
-    
-    nb_test_patterns++;
-
-    ///////////////
-
-    test_patterns[nb_test_patterns] = new CTestPattern("AVIA - T 1 C 7 - range of gray", VIDEOFORMAT_NTSC_M);
-    
-    sub_pattern = new CSubPattern(ADJ_BRIGHTNESS_CONTRAST);
-    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar( 208,  764, 2500, 7500, FALSE, 254, 251, 255);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(1111, 1667, 2500, 7500, FALSE, 226, 223, 227);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(2014, 2569, 2500, 7500, FALSE, 200, 197, 201);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(2917, 3472, 2500, 7500, FALSE, 172, 169, 173);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(3819, 4375, 2500, 7500, FALSE, 145, 142, 146);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(4722, 5278, 2500, 7500, FALSE, 117, 114, 118);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(5625, 6181, 2500, 7500, FALSE,  90,  87,  91);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(6528, 7083, 2500, 7500, FALSE,  62,  59,  63);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(7431, 7986, 2500, 7500, FALSE,  34,  31,  35);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(8333, 8889, 2500, 7500, FALSE,   7,   4,   8);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(9236, 9792, 2500, 7500, FALSE,   1,   0,   2);
-    sub_pattern->AddColorBar(color_bar);
-    
-    sub_pattern = new CSubPattern(ADJ_BRIGHTNESS);
-    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(6528, 7083, 2500, 7500, FALSE,  62,  59,  63);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(7431, 7986, 2500, 7500, FALSE,  34,  31,  35);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(8333, 8889, 2500, 7500, FALSE,   7,   4,   8);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(9236, 9792, 2500, 7500, FALSE,   1,   0,   2);
-    sub_pattern->AddColorBar(color_bar);
-
-    sub_pattern = new CSubPattern(ADJ_CONTRAST);
-    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar( 208,  764, 2500, 7500, FALSE, 254, 251, 255);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(1111, 1667, 2500, 7500, FALSE, 226, 223, 227);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(2014, 2569, 2500, 7500, FALSE, 200, 197, 201);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(2917, 3472, 2500, 7500, FALSE, 172, 169, 173);
-    sub_pattern->AddColorBar(color_bar);
-
-    test_patterns[nb_test_patterns]->CreateGlobalSubPattern();
-    
-    nb_test_patterns++;
-
-    ///////////////
-
-    test_patterns[nb_test_patterns] = new CTestPattern("AVIA - T 4 C 4 - color bars", VIDEOFORMAT_NTSC_M);
-    
-    sub_pattern = new CSubPattern(ADJ_COLOR);
-    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar( 417, 1111, 2083, 4167, FALSE, 190, 190, 190);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(1806, 2500, 2083, 4167, FALSE, 190, 189,   0);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(3194, 3889, 2083, 4167, FALSE,   0, 189, 188);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(4583, 5278, 2083, 4167, FALSE,   0, 189,   0);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(6042, 6736, 2083, 4167, FALSE, 190,   0, 191);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(7431, 8125, 2083, 4167, FALSE, 190,   0,   0);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(8889, 9583, 2083, 4167, FALSE,   0,   0, 190);
-    sub_pattern->AddColorBar(color_bar);
-    
-    sub_pattern = new CSubPattern(ADJ_SATURATION_U);
-    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(8889, 9583, 2083, 4167, FALSE,   0,   0, 190);
-    sub_pattern->AddColorBar(color_bar);
-
-    sub_pattern = new CSubPattern(ADJ_SATURATION_V);
-    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(7431, 8125, 2083, 4167, FALSE, 190,   0,   0);
-    sub_pattern->AddColorBar(color_bar);
-
-    sub_pattern = new CSubPattern(ADJ_HUE);
-    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(3194, 3889, 2083, 4167, FALSE,   0, 189, 188);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(4583, 5278, 2083, 4167, FALSE,   0, 189,   0);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(6042, 6736, 2083, 4167, FALSE, 190,   0, 191);
-    sub_pattern->AddColorBar(color_bar);
-
-    test_patterns[nb_test_patterns]->CreateGlobalSubPattern();
-    
-    nb_test_patterns++;
-
-    ///////////////
-
-    test_patterns[nb_test_patterns] = new CTestPattern("THX Optimode - Screen Performance", VIDEOFORMAT_PAL_B);
-
-    sub_pattern = new CSubPattern(ADJ_BRIGHTNESS_CONTRAST);
-    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar( 347,  764, 3472, 4167, FALSE,   0,   0,   1);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(1181, 1597, 3472, 4167, FALSE,  23,  24,  24);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(2014, 2431, 3472, 4167, FALSE,  49,  50,  50);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(7083, 7500, 3472, 4167, FALSE, 202, 203, 203);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(7917, 8333, 3472, 4167, FALSE, 228, 228, 229);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(8750, 9167, 3472, 4167, FALSE, 253, 253, 253);
-    sub_pattern->AddColorBar(color_bar);
-
-    sub_pattern = new CSubPattern(ADJ_BRIGHTNESS);
-    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar( 347,  764, 3472, 4167, FALSE,   0,   0,   1);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(1181, 1597, 3472, 4167, FALSE,  23,  24,  24);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(2014, 2431, 3472, 4167, FALSE,  49,  50,  50);
-    sub_pattern->AddColorBar(color_bar);
-
-    sub_pattern = new CSubPattern(ADJ_CONTRAST);
-    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(7083, 7500, 3472, 4167, FALSE, 202, 203, 203);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(7917, 8333, 3472, 4167, FALSE, 228, 228, 229);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(8750, 9167, 3472, 4167, FALSE, 253, 253, 253);
-    sub_pattern->AddColorBar(color_bar);
-
-    sub_pattern = new CSubPattern(ADJ_COLOR);
-    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar( 278, 1042, 2344, 3038, FALSE, 251, 253, 251);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(1458, 2222, 2344, 3038, FALSE, 189, 190,   0);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(2708, 3472, 2344, 3038, FALSE,   0, 190, 187);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(3889, 4653, 2344, 3038, FALSE,   0, 189,   0);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(5139, 5903, 2344, 3038, FALSE, 189,   0, 190);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(6319, 7083, 2344, 3038, FALSE, 188,   0,   0);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(7569, 8333, 2344, 3038, FALSE,  0,    0, 188);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(8750, 9514, 2344, 3038, FALSE,  0,    0,   0);
-    sub_pattern->AddColorBar(color_bar);
-    
-    sub_pattern = new CSubPattern(ADJ_SATURATION_U);
-    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(7569, 8333, 2344, 3038, FALSE,  0,    0, 188);
-    sub_pattern->AddColorBar(color_bar);
-
-    sub_pattern = new CSubPattern(ADJ_SATURATION_V);
-    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(6319, 7083, 2344, 3038, FALSE, 188,   0,   0);
-    sub_pattern->AddColorBar(color_bar);
-
-    sub_pattern = new CSubPattern(ADJ_HUE);
-    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(2708, 3472, 2344, 3038, FALSE,   0, 190, 187);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(3889, 4653, 2344, 3038, FALSE,   0, 189,   0);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(5139, 5903, 2344, 3038, FALSE, 189,   0, 190);
-    sub_pattern->AddColorBar(color_bar);
-
-    test_patterns[nb_test_patterns]->CreateGlobalSubPattern();
-
-    nb_test_patterns++;
-
-    ///////////////
-
-    test_patterns[nb_test_patterns] = new CTestPattern("Collector LAL 2000 - T 36 C 1 - range of gray", VIDEOFORMAT_PAL_B);
-    
-    sub_pattern = new CSubPattern(ADJ_BRIGHTNESS_CONTRAST);
-    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar( 278,  833, 2500, 7500, FALSE,   0,   0,   0);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(1153, 1708, 2500, 7500, FALSE,  20,  23,  20);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(2042, 2597, 2500, 7500, FALSE,  46,  49,  45);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(2917, 3472, 2500, 7500, FALSE,  72,  75,  71);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(3819, 4375, 2500, 7500, FALSE,  98, 101,  97);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(4722, 5278, 2500, 7500, FALSE, 123, 125, 122);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(5597, 6153, 2500, 7500, FALSE, 149, 151, 148);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(6486, 7042, 2500, 7500, FALSE, 174, 177, 173);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(7361, 7917, 2500, 7500, FALSE, 201, 203, 200);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(8264, 8819, 2500, 7500, FALSE, 227, 229, 226);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(9167, 9722, 2500, 7500, FALSE, 253, 252, 252);
-    sub_pattern->AddColorBar(color_bar);
-    
-    sub_pattern = new CSubPattern(ADJ_BRIGHTNESS);
-    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar( 278,  833, 2500, 7500, FALSE,   0,   0,   0);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(1153, 1708, 2500, 7500, FALSE,  20,  23,  20);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(2042, 2597, 2500, 7500, FALSE,  46,  49,  45);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(2917, 3472, 2500, 7500, FALSE,  72,  75,  71);
-    sub_pattern->AddColorBar(color_bar);
-
-    sub_pattern = new CSubPattern(ADJ_CONTRAST);
-    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(6486, 7042, 2500, 7500, FALSE, 174, 177, 173);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(7361, 7917, 2500, 7500, FALSE, 201, 203, 200);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(8264, 8819, 2500, 7500, FALSE, 227, 229, 226);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(9167, 9722, 2500, 7500, FALSE, 253, 252, 252);
-    sub_pattern->AddColorBar(color_bar);
-
-    test_patterns[nb_test_patterns]->CreateGlobalSubPattern();
-    
-    nb_test_patterns++;
-
-    ///////////////
-
-    test_patterns[nb_test_patterns] = new CTestPattern("Collector LAL 2000 - T 31 C 1 - color bars", VIDEOFORMAT_PAL_B);
-    
-    sub_pattern = new CSubPattern(ADJ_COLOR);
-    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar( 556, 1111, 2500, 7500, FALSE, 253, 253, 253);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(1736, 2292, 2500, 7500, FALSE, 189, 191,   0);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(2917, 3472, 2500, 7500, FALSE,   0, 189, 188);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(4097, 4653, 2500, 7500, FALSE,   0, 190,   0);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(5319, 5875, 2500, 7500, FALSE, 189,   0, 189);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(6500, 7056, 2500, 7500, FALSE, 189,   0,   0);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(7708, 8264, 2500, 7500, FALSE,   0,   0, 189);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(8889, 9444, 2500, 7500, FALSE,   0,   0,   0);
-    sub_pattern->AddColorBar(color_bar);
-    
-    sub_pattern = new CSubPattern(ADJ_SATURATION_U);
-    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(7708, 8264, 2500, 7500, FALSE,   0,   0, 189);
-    sub_pattern->AddColorBar(color_bar);
-
-    sub_pattern = new CSubPattern(ADJ_SATURATION_V);
-    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(6500, 7056, 2500, 7500, FALSE, 189,   0,   0);
-    sub_pattern->AddColorBar(color_bar);
-
-    sub_pattern = new CSubPattern(ADJ_HUE);
-    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(2917, 3472, 2500, 7500, FALSE,   0, 189, 188);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(4097, 4653, 2500, 7500, FALSE,   0, 190,   0);
-    sub_pattern->AddColorBar(color_bar);
-    color_bar = new CColorBar(5319, 5875, 2500, 7500, FALSE, 189,   0, 189);
-    sub_pattern->AddColorBar(color_bar);
-
-    test_patterns[nb_test_patterns]->CreateGlobalSubPattern();
-
-    nb_test_patterns++;
+    File = fopen("patterns/card_calibr.d3u", "r");
+    if(File != NULL)
+    {
+        while(!feof(File))
+        {
+            if(fgets(BufferLine, 512, File))
+            {
+                BufferLine[511] = '\0';
+                Buffer = BufferLine;
+                while(strlen(Buffer) > 0 && *Buffer <= ' ')
+                {
+                    Buffer++;
+                }
+                if(strlen(Buffer) > 0 && *Buffer != '#' && *Buffer != ';')
+                {
+                    // take care of stuff that is at end of the line
+                    while(strlen(Buffer) > 0 && Buffer[strlen(Buffer) - 1] <= ' ')
+                    {
+                        Buffer[strlen(Buffer) - 1] = '\0';
+                    }
+                    if (strlen(Buffer) > 0 && !stat(Buffer, &st))
+                    {
+                        pattern = new CTestPattern(Buffer);
+                        m_TestPatterns.push_back(pattern);
+                    }
+                }
+            }
+        }
+        fclose(File);
+    }
 }
 
 // This method unloads all the predefined test patterns
 void CCalibration::UnloadTestPatterns()
 {
     // Destroy all test patterns
-    for (int i = 0 ; i < MAX_TEST_PATTERNS ; i++)
+    for(vector<CTestPattern*>::iterator it = m_TestPatterns.begin(); 
+        it != m_TestPatterns.end(); 
+        ++it)
     {
-        if (test_patterns[i] != NULL)
-        {
-            delete test_patterns[i];
-            test_patterns[i] = NULL;
-        }
+        delete *it;
     }
-    nb_test_patterns = 0;
-    current_test_pattern = NULL;
-    current_sub_pattern = NULL;
+    m_TestPatterns.clear();
+    m_CurTestPat = NULL;
+    m_CurSubPat = NULL;
 }
 
 BOOL CCalibration::ProcessSelection(HWND hWnd, WORD wMenuId)
 {
-    int i;
-
-	for (i = 0; i < MAX_TEST_PATTERNS; i++)
-	{
-		if (test_patterns[i] != NULL && wMenuId == IDM_PATTERN_SELECT + i + 1)
+    int i = 0;
+    for(vector<CTestPattern*>::iterator it = m_TestPatterns.begin(); 
+        it != m_TestPatterns.end(); 
+        ++it, ++i)
+    {
+		if (wMenuId == IDM_PATTERN_SELECT + i + 1)
         {
 			pCalibration->SelectTestPattern(i);
 			return TRUE;
@@ -1693,23 +1534,21 @@ void CCalibration::UpdateMenu(HMENU hMenu)
         RemoveMenu(hMenuPatterns, i, MF_BYPOSITION);
     }
 
-	for (i=0; i < MAX_TEST_PATTERNS ; i++)
-	{
-		if (test_patterns[i] != NULL)
-        {
-			name = test_patterns[i]->GetName();
-			if (strlen (name) > 0)
-			{
-	            MenuItemInfo.cbSize = sizeof (MenuItemInfo);
-		        MenuItemInfo.fType = MFT_STRING;
-			    MenuItemInfo.dwTypeData = name;
-				MenuItemInfo.cch = strlen (name);
+    i = 0;
+    for(vector<CTestPattern*>::iterator it = m_TestPatterns.begin(); 
+        it != m_TestPatterns.end(); 
+        ++it, ++i)
+    {
+		name = (*it)->GetName();
 
-	            MenuItemInfo.fMask = MIIM_TYPE | MIIM_ID;
-		        MenuItemInfo.wID = IDM_PATTERN_SELECT + i + 1;
-			    InsertMenuItem(hMenuPatterns, i, TRUE, &MenuItemInfo);
-			}
-        }
+        MenuItemInfo.cbSize = sizeof (MenuItemInfo);
+        MenuItemInfo.fType = MFT_STRING;
+	    MenuItemInfo.dwTypeData = name;
+		MenuItemInfo.cch = strlen (name);
+
+        MenuItemInfo.fMask = MIIM_TYPE | MIIM_ID;
+        MenuItemInfo.wID = IDM_PATTERN_SELECT + i + 1;
+	    InsertMenuItem(hMenuPatterns, i, TRUE, &MenuItemInfo);
     }
 }
 
@@ -1720,14 +1559,14 @@ void CCalibration::SetMenu(HMENU hMenu)
 	char	*name;
     eTypeContentPattern type_content;
 
-    if ((current_test_pattern != NULL) && (current_test_pattern->GetVideoFormat() != Providers_GetCurrentSource()->GetFormat()))
+    if ((m_CurTestPat != NULL) && (m_CurTestPat->GetHeight() != Providers_GetCurrentSource()->GetHeight()))
     {
-        current_test_pattern = NULL;
+        m_CurTestPat = NULL;
     }
 
-    if (current_test_pattern != NULL)
+    if (m_CurTestPat != NULL)
     {
-        type_content = current_test_pattern->DetermineTypeContent();
+        type_content = m_CurTestPat->DetermineTypeContent();
     }
     else
     {
@@ -1737,52 +1576,48 @@ void CCalibration::SetMenu(HMENU hMenu)
     hMenuPatterns = GetPatternsSubmenu();
     if (hMenuPatterns == NULL) return;
 
-    for (i=0; i < MAX_TEST_PATTERNS ; i++)
+    i = 0;
+    for(vector<CTestPattern*>::iterator it = m_TestPatterns.begin(); 
+        it != m_TestPatterns.end(); 
+        ++it, ++i)
     {
-		if (test_patterns[i] != NULL)
-        {
-			name = test_patterns[i]->GetName();
-			if (strlen (name) > 0)
-			{
-				EnableMenuItem(hMenuPatterns, i, running ? MF_BYPOSITION | MF_GRAYED : MF_BYPOSITION | MF_ENABLED);
-				EnableMenuItem(hMenuPatterns, i, (running || (test_patterns[i]->GetVideoFormat() != Providers_GetCurrentSource()->GetFormat())) ? MF_BYPOSITION | MF_GRAYED : MF_BYPOSITION | MF_ENABLED);
-				CheckMenuItem(hMenuPatterns, i, (current_test_pattern == test_patterns[i]) ? MF_BYPOSITION | MF_CHECKED : MF_BYPOSITION | MF_UNCHECKED);
-			}
-        }
+		name = (*it)->GetName();
+		EnableMenuItem(hMenuPatterns, i, m_IsRunning ? MF_BYPOSITION | MF_GRAYED : MF_BYPOSITION | MF_ENABLED);
+		EnableMenuItem(hMenuPatterns, i, (m_IsRunning || ((*it)->GetHeight() != Providers_GetCurrentSource()->GetHeight())) ? MF_BYPOSITION | MF_GRAYED : MF_BYPOSITION | MF_ENABLED);
+		CheckMenuItem(hMenuPatterns, i, (m_CurTestPat == (*it)) ? MF_BYPOSITION | MF_CHECKED : MF_BYPOSITION | MF_UNCHECKED);
     }
 	
-	EnableMenuItem(hMenu, IDM_START_MANUAL_CALIBRATION, (running || (current_test_pattern == NULL)) ? MF_GRAYED : MF_ENABLED);
-	EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION, (running || (current_test_pattern == NULL) || (type_content != PAT_GRAY_AND_COLOR)) ? MF_GRAYED : MF_ENABLED);
-	EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION2, (running || (current_test_pattern == NULL) || ((type_content != PAT_GRAY_AND_COLOR) && (type_content != PAT_RANGE_OF_GRAY))) ? MF_GRAYED : MF_ENABLED);
-	EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION3, (running || (current_test_pattern == NULL) || ((type_content != PAT_GRAY_AND_COLOR) && (type_content != PAT_COLOR))) ? MF_GRAYED : MF_ENABLED);
-	EnableMenuItem(hMenu, IDM_STOP_CALIBRATION, (!running || (current_test_pattern == NULL)) ? MF_GRAYED : MF_ENABLED);
+	EnableMenuItem(hMenu, IDM_START_MANUAL_CALIBRATION, (m_IsRunning || (m_CurTestPat == NULL)) ? MF_GRAYED : MF_ENABLED);
+	EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION, (m_IsRunning || (m_CurTestPat == NULL) || (type_content != PAT_GRAY_AND_COLOR)) ? MF_GRAYED : MF_ENABLED);
+	EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION2, (m_IsRunning || (m_CurTestPat == NULL) || ((type_content != PAT_GRAY_AND_COLOR) && (type_content != PAT_RANGE_OF_GRAY))) ? MF_GRAYED : MF_ENABLED);
+	EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION3, (m_IsRunning || (m_CurTestPat == NULL) || ((type_content != PAT_GRAY_AND_COLOR) && (type_content != PAT_COLOR))) ? MF_GRAYED : MF_ENABLED);
+	EnableMenuItem(hMenu, IDM_STOP_CALIBRATION, (!m_IsRunning || (m_CurTestPat == NULL)) ? MF_GRAYED : MF_ENABLED);
 }
 
 void CCalibration::SelectTestPattern(int num)
 {
-	if (test_patterns[num] != NULL)
+    if ( (num >= 0) && (num < m_TestPatterns.size()) )
 	{
-		current_test_pattern = test_patterns[num];
+		m_CurTestPat = m_TestPatterns[num];
 	}
 	else
 	{
-		current_test_pattern = NULL;
+		m_CurTestPat = NULL;
 	}
-    current_sub_pattern = NULL;
 }
 
 CTestPattern* CCalibration::GetCurrentTestPattern()
 {
-	return current_test_pattern;
+	return m_CurTestPat;
 }
 
 CSubPattern* CCalibration::GetSubPattern(eTypeAdjust type_adjust)
 {
     CSubPattern* sub_pattern = NULL;
 
-    if (current_test_pattern != NULL)
+    if (m_CurTestPat != NULL)
     {
-        sub_pattern = current_test_pattern->GetSubPattern(type_adjust);
+        sub_pattern = m_CurTestPat->GetSubPattern(type_adjust);
     }
 
     return sub_pattern;
@@ -1790,7 +1625,7 @@ CSubPattern* CCalibration::GetSubPattern(eTypeAdjust type_adjust)
 
 CSubPattern* CCalibration::GetCurrentSubPattern()
 {
-	return current_sub_pattern;
+	return m_CurSubPat;
 }
 
 void CCalibration::SaveUsualOverscan()
@@ -1812,7 +1647,7 @@ void CCalibration::RestoreUsualOverscan(BOOL refresh)
 
 void CCalibration::Start(eTypeCalibration type)
 {
-    if (current_test_pattern == NULL)
+    if (m_CurTestPat == NULL)
         return;
 
     delete brightness;
@@ -1831,7 +1666,7 @@ void CCalibration::Start(eTypeCalibration type)
     saturation_V = new CCalSetting(static_cast<CSimpleSetting*>(pSource->GetSaturationV()));
     hue          = new CCalSetting(static_cast<CSimpleSetting*>(pSource->GetHue()));
 
-	type_calibration = type;
+	m_TypeCalibration = type;
 
     // Update the objet with current video settings
     brightness->Update();
@@ -1852,7 +1687,7 @@ void CCalibration::Start(eTypeCalibration type)
     // Set the overscan to a value specific to calibration
     Setting_SetValue(Aspect_GetSetting(OVERSCAN), SourceOverscan);
 
-    switch (type_calibration)
+    switch (m_TypeCalibration)
     {
     case CAL_AUTO_BRIGHT_CONTRAST:
         initial_step = 1;
@@ -1890,12 +1725,12 @@ void CCalibration::Start(eTypeCalibration type)
     // Display the specific OSD screen
     OSD_ShowInfosScreen(hWnd, 4, 0);
 
-    running = TRUE;
+    m_IsRunning = TRUE;
 }
 
 void CCalibration::Stop()
 {
-    if (type_calibration != CAL_MANUAL)
+    if (m_TypeCalibration != CAL_MANUAL)
     {
         OSD_ShowInfosScreen(hWnd, 4, 0);
         if ( (current_step != -1)
@@ -1915,12 +1750,12 @@ void CCalibration::Stop()
     // Erase the OSD screen
     OSD_Clear(hWnd);
 
-	running = FALSE;
+	m_IsRunning = FALSE;
 }
 
 BOOL CCalibration::IsRunning()
 {
-	return running;
+	return m_IsRunning;
 }
 
 BOOL CCalibration::GetCurrentStep()
@@ -1930,7 +1765,7 @@ BOOL CCalibration::GetCurrentStep()
 
 eTypeCalibration CCalibration::GetType()
 {
-	return type_calibration;
+	return m_TypeCalibration;
 }
 
 void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
@@ -1941,15 +1776,15 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
     BOOL new_settings;
     BOOL found;
 
-	if (!running
-	 || (current_test_pattern == NULL))
+	if (!m_IsRunning
+	 || (m_CurTestPat == NULL))
 		return;
 
 	if ((last_tick_count != -1) && ((tick_count - last_tick_count) < MIN_TIME_BETWEEN_CALC))
     {
-        if (current_sub_pattern != NULL)
+        if (m_CurSubPat != NULL)
         {
-            current_sub_pattern->DrawPositions(pInfo);
+            m_CurSubPat->DrawPositions(pInfo);
         }
 		return;
     }
@@ -1963,8 +1798,8 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
         break;
 
     case 0:     // Manual calibration
-        current_sub_pattern = GetSubPattern(ADJ_MANUAL);
-        if (current_sub_pattern == NULL)
+        m_CurSubPat = GetSubPattern(ADJ_MANUAL);
+        if (m_CurSubPat == NULL)
         {
             break;
         }
@@ -1977,8 +1812,8 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
         new_settings |= hue->Update();
 
         // Calculations with current setitngs
-        if ( current_sub_pattern->CalcCurrentSubPattern(first_calc || new_settings, NB_CALCULATIONS_LOW, pInfo)
-          && (type_calibration != CAL_MANUAL) )
+        if ( m_CurSubPat->CalcCurrentSubPattern(first_calc || new_settings, NB_CALCULATIONS_LOW, pInfo)
+          && (m_TypeCalibration != CAL_MANUAL) )
         {
             current_step = -1;
             last_tick_count = tick_count + 500;
@@ -2292,17 +2127,17 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
         first_calc = TRUE;
     }
 
-    if (current_sub_pattern != NULL)
+    if (m_CurSubPat != NULL)
     {
-        current_sub_pattern->DrawPositions(pInfo);
+        m_CurSubPat->DrawPositions(pInfo);
     }
 }
 
 BOOL CCalibration::step_init(eTypeAdjust type_adjust, CCalSetting* _setting1, CCalSetting* _setting2, CCalSetting* _setting3)
 {
     // Get the bar to use for this step
-    current_sub_pattern = GetSubPattern(type_adjust);
-    if (current_sub_pattern == NULL)
+    m_CurSubPat = GetSubPattern(type_adjust);
+    if (m_CurSubPat == NULL)
     {
         setting1 = (CCalSetting* )NULL;
         setting2 = (CCalSetting* )NULL;
@@ -2350,7 +2185,7 @@ BOOL CCalibration::step_process(TDeinterlaceInfo* pInfo, unsigned int sig_compon
 //    int dif;
 
     // Calculations with current settings
-    current_sub_pattern->CalcCurrentSubPattern(TRUE, 1, pInfo);
+    m_CurSubPat->CalcCurrentSubPattern(TRUE, 1, pInfo);
 
     // See how good is the red result
     if ((sig_component >= 1) && (sig_component <= 4))
@@ -2363,7 +2198,7 @@ BOOL CCalibration::step_process(TDeinterlaceInfo* pInfo, unsigned int sig_compon
         YUV = FALSE;
         idx = sig_component - 5;
     }
-    current_sub_pattern->GetSumDeltaColor(YUV, &val[0], &val[1], &val[2], &val[3]);
+    m_CurSubPat->GetSumDeltaColor(YUV, &val[0], &val[1], &val[2], &val[3]);
 //    dif = val[idx];
     total_dif += val[idx];
     nb_calcul++;
@@ -2441,6 +2276,53 @@ BOOL CCalibration::step_process(TDeinterlaceInfo* pInfo, unsigned int sig_compon
         }
         return TRUE;
     }
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+CPatternHelper::CPatternHelper(CStillSource* pParent) :
+    CStillSourceHelper(pParent)
+{
+}
+
+BOOL CPatternHelper::OpenMediaFile(LPCSTR FileName)
+{
+    m_pParent->m_IsPictureRead = FALSE;
+
+    m_pParent->m_Height = 480;
+    m_pParent->m_Width = 720;
+    CurrentX = m_pParent->m_Width;
+    CurrentY = m_pParent->m_Height;
+
+    CTestPattern pattern(FileName);
+
+    if ( (pattern.GetWidth() > DSCALER_MAX_WIDTH) || (pattern.GetHeight() > DSCALER_MAX_HEIGHT) )
+    {
+        return FALSE;
+    }
+
+    m_pParent->m_Height = pattern.GetHeight();
+    m_pParent->m_Width = pattern.GetWidth();
+    CurrentX = m_pParent->m_Width;
+    CurrentY = m_pParent->m_Height;
+
+    // Allocate memory buffer to store the YUYV values
+    m_pParent->m_OriginalFrame.pData = (BYTE*)malloc(m_pParent->m_Width * 2 * m_pParent->m_Height * sizeof(BYTE));
+    if (m_pParent->m_OriginalFrame.pData == NULL)
+    {
+        return FALSE;
+    }
+
+    pattern.Draw(m_pParent->m_OriginalFrame.pData);
+
+    m_pParent->m_IsPictureRead = TRUE;
+
+    return TRUE;
+}
+
+void CPatternHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch)
+{
+    return;
 }
 
 /////////////////////////////////////////////////////////////////////////////

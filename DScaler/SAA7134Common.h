@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Common.h,v 1.27 2004-11-16 08:58:58 atnak Exp $
+// $Id: SAA7134Common.h,v 1.28 2004-11-20 14:20:41 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2004/11/16 08:58:58  atnak
+// Renumbered eAudioInputSource constants for consistency to actual values
+//
 // Revision 1.26  2004/02/14 04:03:44  atnak
 // Put GPIO settings and AutoDetect IDs into the main card definition
 // to remove the need for extra tables and custom functions.
@@ -136,7 +139,7 @@ protected:
     enum eSAA7134CardId
     {
         SAA7134CARDID_UNKNOWN = 0,
-		// The rest are no longer used
+        // The rest are no longer used
     };
 
     enum eTaskID
@@ -217,14 +220,14 @@ protected:
 
     enum eAudioInputSource
     {
-		/// reserved, used in INPUTTYPE_FINAL
-		AUDIOINPUTSOURCE_NONE = -1,
+        /// reserved, used in INPUTTYPE_FINAL
+        AUDIOINPUTSOURCE_NONE = -1,
         /// internal line 1 input - 0x00
         AUDIOINPUTSOURCE_LINE1 = 0,
         /// internal line 2 input - 0x01
         AUDIOINPUTSOURCE_LINE2 = 1,
-		/// standard tuner line - 0x02
-		AUDIOINPUTSOURCE_DAC = 2,
+        /// standard tuner line - 0x02
+        AUDIOINPUTSOURCE_DAC = 2,
     };
 
     enum eAudioStandard
@@ -257,7 +260,7 @@ protected:
         AUDIOCHANNEL_STEREO,
         AUDIOCHANNEL_LANGUAGE1,
         AUDIOCHANNEL_LANGUAGE2,
-		AUDIOCHANNEL_EXTERNAL,
+        AUDIOCHANNEL_EXTERNAL,
     };
 
     enum eAudioCarrierMode

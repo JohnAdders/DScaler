@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HierarchicalConfigParser.cpp,v 1.2 2004-11-20 16:36:40 atnak Exp $
+// $Id: HierarchicalConfigParser.cpp,v 1.3 2004-11-21 14:17:38 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2004/11/20 16:36:40  atnak
+// Removed the use of ifstream and added custom buffered line reader.
+//
 // Revision 1.1  2004/11/19 23:51:04  atnak
 // Release of the configuration parser that is used for card list parsing.
 //
@@ -466,7 +469,7 @@ bool CHCParser::ProcessLine()
 	{
 		TrimLeft();
 
-		if (*m_linePoint == '\0')
+		if (*m_linePoint == '\0' || *m_linePoint == ';' || *m_linePoint == '#')
 		{
 			break;
 		}

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.41 2002-11-07 18:54:21 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.42 2002-11-07 20:33:17 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.41  2002/11/07 18:54:21  atnak
+// Redid getting next field -- fixes some issues
+//
 // Revision 1.40  2002/10/31 05:39:02  atnak
 // Added SoundChannel change event for toolbar
 //
@@ -206,14 +209,6 @@ CSAA7134Source::CSAA7134Source(CSAA7134Card* pSAA7134Card, CContigMemory* PageTa
     m_IDString = IniSection;
     CreateSettings(IniSection);
 
-    m_InitialACPIStatus = m_pSAA7134Card->GetACPIStatus();
-
-    // if the card is powered down we need to power it up
-    if (m_InitialACPIStatus != 0)
-    {
-        m_pSAA7134Card->SetACPIStatus(0);
-    }
-
     // Take over the card (not literally)
     m_pSAA7134Card->PrepareCard();
 
@@ -266,11 +261,6 @@ CSAA7134Source::CSAA7134Source(CSAA7134Card* pSAA7134Card, CContigMemory* PageTa
 CSAA7134Source::~CSAA7134Source()
 {
     SAA7134_OnSetup(this, 0);
-    // if the card was not in D0 state we restore the original ACPI power state
-    if (m_InitialACPIStatus != 0)
-    {
-        m_pSAA7134Card->SetACPIStatus(m_InitialACPIStatus);
-    }
 
     if (m_SettingsSetup != NULL)
     {

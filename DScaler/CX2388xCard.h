@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.h,v 1.6 2002-11-07 13:37:43 adcockj Exp $
+// $Id: CX2388xCard.h,v 1.7 2002-11-07 20:33:17 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -106,13 +106,9 @@ private:
     } TAutoDectect;
 
 public:
-    void SetACPIStatus(int ACPIStatus);
-    int GetACPIStatus();
 	void HandleTimerMessages(int TimerId);
     CCX2388xCard(CHardwareDriver* pDriver);
 	~CCX2388xCard();
-
-	void CloseCard();
 
     void StartCapture(BOOL bCaptureVBI);
     void StopCapture();
@@ -172,6 +168,10 @@ public:
 
 protected:
     void ManageMyState();
+    /// Card does support ACPI
+    BOOL SupportsACPI() {return TRUE;};
+    /// don't know how to reset
+    void ResetChip() {;};
 
 private:
     ULONG GetTickCount();

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.47 2002-11-05 14:36:22 adcockj Exp $
+// $Id: BT848Source.h,v 1.48 2002-11-07 20:33:16 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.47  2002/11/05 14:36:22  adcockj
+// Remove bt848 advanced flags dialog, now replaced by generic one
+//
 // Revision 1.46  2002/10/31 03:10:55  atnak
 // Changed CSource::GetTreeSettingsPage to return CTreeSettingsPage*
 //
@@ -241,7 +244,6 @@ private:
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AutoStereoDetectInterval);
 
 protected:
-    int m_InitialACPIStatus;
 };
 
 

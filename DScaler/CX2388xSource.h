@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.h,v 1.7 2002-11-06 11:11:23 adcockj Exp $
+// $Id: CX2388xSource.h,v 1.8 2002-11-07 20:33:17 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -174,7 +174,6 @@ private:
 	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, LowColorRemoval);
 
 protected:
-    int m_InitialACPIStatus;
 };
 
 

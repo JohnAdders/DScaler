@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.90 2002-10-31 03:10:55 atnak Exp $
+// $Id: BT848Source.cpp,v 1.91 2002-11-07 20:33:16 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.90  2002/10/31 03:10:55  atnak
+// Changed CSource::GetTreeSettingsPage to return CTreeSettingsPage*
+//
 // Revision 1.89  2002/10/29 03:05:48  atnak
 // Added a virtual GetTreeSettingsPage() to all CSources
 //
@@ -375,13 +378,6 @@ CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CU
     m_IDString = IniSection;
     CreateSettings(IniSection);
 
-    m_InitialACPIStatus = m_pBT848Card->GetACPIStatus();
-    // if the BT878 is powered down we need to power it up
-    if(m_InitialACPIStatus != 0)
-    {
-        m_pBT848Card->SetACPIStatus(0);
-    }
-    
     SettingsPerChannel_RegisterOnSetup(this, BT848_OnSetup);
     
     eEventType EventList[] = {EVENT_CHANNEL_PRECHANGE,EVENT_CHANNEL_CHANGE,EVENT_AUDIOSTANDARD_DETECTED,EVENT_AUDIOCHANNELSUPPORT_DETECTED,EVENT_ENDOFLIST};
@@ -426,11 +422,6 @@ CBT848Source::~CBT848Source()
     
     EventCollector->Unregister(this);
     BT848_OnSetup(this, 0);
-    // if the BT878 was not in D0 state we restore the original ACPI power state
-    if(m_InitialACPIStatus != 0)
-    {
-        m_pBT848Card->SetACPIStatus(m_InitialACPIStatus);
-    }
 
     KillTimer(hWnd, TIMER_MSP);
     delete m_pBT848Card;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCICard.cpp,v 1.12 2002-11-07 13:37:43 adcockj Exp $
+// $Id: PCICard.cpp,v 1.13 2002-11-07 20:33:17 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/11/07 13:37:43  adcockj
+// Added State restoration code to PCICard
+// Functionality disabled prior to testing and not done for SAA7134
+//
 // Revision 1.11  2002/10/29 11:05:28  adcockj
 // Renamed CT2388x to CX2388x
 //
@@ -80,7 +84,9 @@ CPCICard::CPCICard(CHardwareDriver* pDriver) :
             m_MemoryBase(0),
             m_bOpen(FALSE),
             m_hStateFile(INVALID_HANDLE_VALUE),
-            m_bStateIsReading(false)
+            m_bStateIsReading(false),
+            m_SupportsACPI(false),
+            m_InitialACPIStatus(0)
 {
 }
 
@@ -165,6 +171,15 @@ BOOL CPCICard::OpenPCICard(WORD VendorID, WORD DeviceID, int DeviceIndex)
         if (dwStatus == ERROR_SUCCESS)
         {
             m_bOpen = TRUE;
+
+            SaveState();
+
+            m_InitialACPIStatus = GetACPIStatus();
+            // if the chip is powered down we need to power it up
+            if(m_InitialACPIStatus != 0)
+            {
+                SetACPIStatus(0);
+            }
         }
         else
         {
@@ -177,9 +192,6 @@ BOOL CPCICard::OpenPCICard(WORD VendorID, WORD DeviceID, int DeviceIndex)
         LOG(1, "GetPCIInfo failed for %X %X failed 0x%x", VendorID, DeviceID, dwStatus);
     }
 
-    // commented out for the time being until
-    // I've tested it properly at home
-    //SaveState();
 
     return m_bOpen;
 }
@@ -190,7 +202,14 @@ void CPCICard::ClosePCICard()
     {
         // commented out for the time being until
         // I've tested it properly at home
-        //RestoreState();
+        RestoreState();
+
+        // if the chip was not in D0 state we restore the original ACPI power state
+        if(m_InitialACPIStatus != 0)
+        {
+            SetACPIStatus(m_InitialACPIStatus);
+        }
+
 
         TDSDrvParam hwParam;
 
@@ -611,3 +630,57 @@ void CPCICard::ManageByte(DWORD Offset)
         }
     }
 }
+
+
+// this functions returns 0 if the card is in ACPI state D0 or on error
+// returns 3 if in D3 state (full off)
+int CPCICard::GetACPIStatus()
+{
+    PCI_COMMON_CONFIG PCI_Config;
+
+    // only some cards are able to power down
+    if(!SupportsACPI())
+    {
+        return 0;
+    }
+    
+    if(GetPCIConfig(&PCI_Config, m_BusNumber, m_SlotNumber))
+    {
+        DWORD ACPIStatus = PCI_Config.DeviceSpecific[0x10] & 3;
+
+        LOG(1, "Bus %d Card %d ACPI status: D%d", m_BusNumber, m_SlotNumber, ACPIStatus);
+        return ACPIStatus;
+    }
+
+    return 0;
+}
+
+// Set ACPIStatus to 0 for D0/full on state. 3 for D3/full off
+void CPCICard::SetACPIStatus(int ACPIStatus)
+{
+    PCI_COMMON_CONFIG PCI_Config;
+
+    // only some cards are able to power down
+    if(!SupportsACPI())
+    {
+        return;
+    }
+    if(!GetPCIConfig(&PCI_Config, m_BusNumber, m_SlotNumber))
+    {
+        return;
+    }
+    PCI_Config.DeviceSpecific[0x10] &= ~3;
+    PCI_Config.DeviceSpecific[0x10] |= ACPIStatus;
+
+    LOG(1, "Attempting to set Bus %d Card %d ACPI status to D%d", m_BusNumber, m_SlotNumber, ACPIStatus);
+
+    SetPCIConfig(&PCI_Config, m_BusNumber, m_SlotNumber);
+
+    if(ACPIStatus == 0)
+    {
+        ::Sleep(500);
+        ResetChip();
+    }
+    LOG(1, "Set ACPI status complete");
+}
+

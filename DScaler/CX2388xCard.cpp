@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.11 2002-11-07 20:06:07 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.12 2002-11-07 20:33:16 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/11/07 20:06:07  adcockj
+// Fixed problems with manage state function
+//
 // Revision 1.10  2002/11/07 13:37:43  adcockj
 // Added State restoration code to PCICard
 // Functionality disabled prior to testing and not done for SAA7134
@@ -159,55 +162,6 @@ CCX2388xCard::~CCX2388xCard()
     delete m_Tuner;
     delete m_SAA7118;
 
-    ClosePCICard();
-}
-
-// this functions returns 0 if the BT878 is in ACPI state D0 or on error/BT848
-// returns 3 if in D3 state (full off)
-int CCX2388xCard::GetACPIStatus()
-{
-    PCI_COMMON_CONFIG PCI_Config;
-
-    if(GetPCIConfig(&PCI_Config, m_BusNumber, m_SlotNumber))
-    {
-        DWORD ACPIStatus = PCI_Config.DeviceSpecific[0x10] & 3;
-
-        LOG(1, "CX2388x ACPI status: D%d", ACPIStatus);
-        return ACPIStatus;
-    }
-
-    return 0;
-}
-
-// Set ACPIStatus to 0 for D0/full on state. 3 for D3/full off
-void CCX2388xCard::SetACPIStatus(int ACPIStatus)
-{
-    PCI_COMMON_CONFIG PCI_Config;
-
-    if(!GetPCIConfig(&PCI_Config, m_BusNumber, m_SlotNumber))
-    {
-        return;
-    }
-    PCI_Config.DeviceSpecific[0x10] &= ~3;
-    PCI_Config.DeviceSpecific[0x10] |= ACPIStatus;
-
-    LOG(1, "Attempting to set CX2388x ACPI status to D%d", ACPIStatus);
-
-    SetPCIConfig(&PCI_Config, m_BusNumber, m_SlotNumber);
-
-    if(ACPIStatus == 0)
-    {
-        ::Sleep(500);
-        // reset the chip
-        WriteDword( 0x310304, 0x1 );
-    }
-    LOG(1, "Set CX2388x ACPI status complete");
-}
-
-
-void CCX2388xCard::CloseCard()
-{
-    StopCapture();
     ClosePCICard();
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.7 2002-11-06 20:14:51 adcockj Exp $
+// $Id: CX2388xSource.cpp,v 1.8 2002-11-07 20:33:17 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/11/06 20:14:51  adcockj
+// Centered pixels to work with my equipment
+//
 // Revision 1.6  2002/11/06 11:11:23  adcockj
 // Added new Settings and applied Laurent's filter setup suggestions
 //
@@ -169,13 +172,6 @@ CCX2388xSource::CCX2388xSource(CCX2388xCard* pCard, CContigMemory* RiscDMAMem, C
     eEventType EventList[] = {EVENT_CHANNEL_PRECHANGE,EVENT_CHANNEL_CHANGE,EVENT_ENDOFLIST};
     EventCollector->Register(this, EventList);
     
-    m_InitialACPIStatus = m_pCard->GetACPIStatus();
-    // if the chip is powered down we need to power it up
-    if(m_InitialACPIStatus != 0)
-    {
-        m_pCard->SetACPIStatus(0);
-    }
-    
     ReadFromIni();
     ChangeDefaultsForCard();
     ChangeSectionNamesForInput();
@@ -204,11 +200,6 @@ CCX2388xSource::~CCX2388xSource()
     EventCollector->Unregister(this);
     CX2388x_OnSetup(this, 0);
 
-    // if the chip was not in D0 state we restore the original ACPI power state
-    if(m_InitialACPIStatus != 0)
-    {
-        m_pCard->SetACPIStatus(m_InitialACPIStatus);
-    }
     delete m_pCard;
 }
 

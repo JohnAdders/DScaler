@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCICard.h,v 1.13 2002-11-07 13:37:43 adcockj Exp $
+// $Id: PCICard.h,v 1.14 2002-11-07 20:33:17 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -53,6 +53,10 @@ protected:
         the DWORD at Offset.
         This function must only be called from ManageMyState
     */
+
+    virtual BOOL SupportsACPI() = 0;
+    virtual void ResetChip() = 0;
+
     void ManageDword(DWORD Offset);
     /** Tells the state management code to save and restore 
         the WORD at Offset
@@ -99,6 +103,9 @@ private:
     /// Called from ClosePCICard to restore the state of the card
     void RestoreState();
 
+    void SetACPIStatus(int ACPIStatus);
+    int GetACPIStatus();
+
 protected:
     DWORD   m_SubSystemId;
     WORD    m_DeviceId;
@@ -106,6 +113,8 @@ protected:
     DWORD   m_BusNumber;
     DWORD   m_SlotNumber;
     BOOL    m_bOpen;
+    BOOL    m_SupportsACPI;
+
 private:
     DWORD   m_MemoryAddress;
     DWORD   m_MemoryLength;
@@ -113,6 +122,7 @@ private:
     CHardwareDriver* m_pDriver;
     HANDLE  m_hStateFile;
     boolean m_bStateIsReading;
+    int     m_InitialACPIStatus;
 };
 
 

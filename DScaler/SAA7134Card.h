@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.22 2002-11-07 18:54:21 atnak Exp $
+// $Id: SAA7134Card.h,v 1.23 2002-11-07 20:33:17 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2002/11/07 18:54:21  atnak
+// Redid getting next field -- fixes some issues
+//
 // Revision 1.21  2002/11/07 13:37:43  adcockj
 // Added State restoration code to PCICard
 // Functionality disabled prior to testing and not done for SAA7134
@@ -296,13 +299,6 @@ public:
     BOOL Is25fpsSignalDetected();
     BOOL IsInterlacedSignalDetected();
 
-
-    /** Miscellaneous card
-     */
-    void SetACPIStatus(int ACPIStatus);
-    int GetACPIStatus();
-
-
     /** Audio
      */
     void InitAudio();
@@ -397,6 +393,10 @@ protected:
     BYTE TaskID2TaskMask(eTaskID TaskID);
 
     void ManageMyState();
+    /// Card does support ACPI
+    BOOL SupportsACPI() {return TRUE;};
+    /// don't know how to reset
+    void ResetChip() {;};
 
 
 private:

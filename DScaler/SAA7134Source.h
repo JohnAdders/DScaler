@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.h,v 1.24 2002-11-07 18:54:20 atnak Exp $
+// $Id: SAA7134Source.h,v 1.25 2002-11-07 20:33:17 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2002/11/07 18:54:20  atnak
+// Redid getting next field -- fixes some issues
+//
 // Revision 1.23  2002/10/31 05:39:02  atnak
 // Added SoundChannel change event for toolbar
 //
@@ -280,7 +283,6 @@ private:
     BOOL            m_SettingsByChannelStarted;
     std::string     m_ChipName;
     int             m_DeviceIndex;
-    int             m_InitialACPIStatus;
 
     std::string     m_Section;
     std::string     m_IDString;

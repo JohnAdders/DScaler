@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.cpp,v 1.26 2002-11-07 18:54:21 atnak Exp $
+// $Id: SAA7134Card.cpp,v 1.27 2002-11-07 20:33:17 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2002/11/07 18:54:21  atnak
+// Redid getting next field -- fixes some issues
+//
 // Revision 1.25  2002/11/07 13:37:43  adcockj
 // Added State restoration code to PCICard
 // Functionality disabled prior to testing and not done for SAA7134
@@ -829,61 +832,6 @@ BYTE CSAA7134Card::GetI2CData()
 {
     return ReadByte(SAA7134_I2C_DATA);
 }
-
-
-/*
- * ACPI STUFF
- */
-
-// this functions returns 0 if the card is in ACPI state D0 or error
-// returns 3 if in D3 state (full off)
-int CSAA7134Card::GetACPIStatus()
-{
-    PCI_COMMON_CONFIG PCI_Config;
-
-    // all new chips should be new enough to have power management
-    if (GetPCIConfig(&PCI_Config, m_BusNumber, m_SlotNumber))
-    {
-        DWORD ACPIStatus = PCI_Config.DeviceSpecific[0x10] & 3;
-
-        LOG(1, "SAA7134 ACPI status: D%d", ACPIStatus);
-        return ACPIStatus;
-    }
-
-    return 0;
-}
-
-
-// Set ACPIStatus to 0 for D0/full on state. 3 for D3/full off
-void CSAA7134Card::SetACPIStatus(int ACPIStatus)
-{
-    PCI_COMMON_CONFIG PCI_Config;
-
-    if (!GetPCIConfig(&PCI_Config, m_BusNumber, m_SlotNumber))
-    {
-        return;
-    }
-    PCI_Config.DeviceSpecific[0x10] &= ~3;
-    PCI_Config.DeviceSpecific[0x10] |= ACPIStatus;
-
-    LOG(1, "Attempting to set SAA7134 ACPI status to D%d", ACPIStatus);
-
-    SetPCIConfig(&PCI_Config, m_BusNumber, m_SlotNumber);
-
-    if (ACPIStatus == 0)
-    {
-        // wait half a second to start the hardware
-        ::Sleep(500);
-        // reset the chip
-        // \todo don't know how to reset
-    }
-    LOG(1, "Set SAA7134 ACPI status complete");
-}
-
-
-/*
- *
- */
 
 BOOL APIENTRY CSAA7134Card::ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {

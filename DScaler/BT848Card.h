@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.37 2002-11-07 13:37:42 adcockj Exp $
+// $Id: BT848Card.h,v 1.38 2002-11-07 20:33:16 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.37  2002/11/07 13:37:42  adcockj
+// Added State restoration code to PCICard
+// Functionality disabled prior to testing and not done for SAA7134
+//
 // Revision 1.36  2002/10/27 12:33:33  adcockj
 // Fixed UseInputPin1 code
 //
@@ -207,14 +211,9 @@ private:
     
 public:
     BOOL Is878Family();
-    void SetACPIStatus(int ACPIStatus);
-    int GetACPIStatus();
     void HandleTimerMessages(int TimerId);
     CBT848Card(CHardwareDriver* pDriver);
     ~CBT848Card();
-
-    //BOOL FindCard(WORD VendorID, WORD DeviceID, int CardIndex);
-    void CloseCard();
 
     void SetCardType(int CardType);
     eTVCardId GetCardType();
@@ -368,6 +367,8 @@ public:
 
 protected:
     void ManageMyState();
+    BOOL SupportsACPI() {return Is878Family();};
+    void ResetChip();
 
 private:
     ULONG GetTickCount();

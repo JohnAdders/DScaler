@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PlugTest.cpp,v 1.7 2001-07-13 16:15:44 adcockj Exp $
+// $Id: PlugTest.cpp,v 1.8 2001-07-16 18:27:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2001/07/13 16:15:44  adcockj
+// Changed lots of variables to match Coding standards
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
@@ -507,7 +510,7 @@ void ReadFromIni(SETTING* pSetting, char* szIniFile)
             nValue = pSetting->Default;
         }
         *pSetting->pValue = nValue;
-        pSetting->OriginalValue = *pSetting->pValue;
+        pSetting->LastSavedValue = *pSetting->pValue;
     }
 }
 

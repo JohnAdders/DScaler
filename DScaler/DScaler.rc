@@ -65,7 +65,7 @@ BEGIN
     LISTBOX         IDC_PROGRAMLIST,2,3,104,153,LBS_NOINTEGRALHEIGHT | 
                     WS_VSCROLL | WS_TABSTOP
     GROUPBOX        "Setup",IDC_STATIC,116,3,217,51
-    CONTROL         "Keyed Numbers are channels not postions",
+    CONTROL         "Keyed Numbers are channels not postions (US Style)",
                     IDC_CUTOMCHANNELORDER,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,124,17,195,8
     COMBOBOX        IDC_COUNTRY,121,35,152,75,CBS_DROPDOWNLIST | WS_VSCROLL | 
@@ -316,10 +316,10 @@ END
 IDD_ABOUT DIALOGEX 22, 17, 374, 274
 STYLE DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
 CAPTION "About DScaler"
-FONT 8, "MS Sans Serif", 0, 0, 0x1
+FONT 8, "MS Sans Serif"
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,305,9,58,19,WS_GROUP,WS_EX_CLIENTEDGE
-    CTEXT           "DScaler Version 2.x",IDC_VERSION,0,3,293,9
+    CTEXT           "DScaler Version 3.x",IDC_VERSION,0,3,293,9
     CTEXT           "Copyright (C) 2000, 2001 John Adcock",IDC_STATIC,0,24,
                     293,10
     GROUPBOX        "Based On",IDC_STATIC,6,144,364,56
@@ -364,9 +364,9 @@ BEGIN
                     WS_VSCROLL | WS_TABSTOP
     LTEXT           "Use this dialog to select the card closest to your card type.\nSome tuners are autodetected and will be selected here.  Otherwise you must try and find out what tuner you have.",
                     IDC_STATIC,7,7,286,25
-    LTEXT           "The easiest way is by looking at the documenation that came with the card otherwise you will have to see if there is any marking oin the silver tuner box on the card.",
+    LTEXT           "The easiest way is by looking at the documenation that came with the card otherwise you will have to see if there is any marking on the silver tuner box on the card.",
                     IDC_STATIC,7,34,286,22
-    LTEXT           "In order for DScaler to give the best results it needs to know how powerful your machine is.  Please select the nearest speed range to your machine.  If in doubt use the lower setting.",
+    LTEXT           "In order for DScaler to give the best results it needs to know how powerful your machine is.  Please select the nearest speed range to your machine.  If in doubt use the lower setting. (This setting is not detected)",
                     IDC_STATIC,7,101,277,26
     LTEXT           "For lower spec machines there is a tradeoff between picture quality and frame rate.  Choose the option below that best matches your preferences.",
                     IDC_STATIC,7,151,286,17
@@ -414,24 +414,6 @@ BEGIN
                     BS_AUTOCHECKBOX | WS_TABSTOP,106,78,83,10
     CONTROL         "Horizontal Filter",IDC_HOR_FILTER,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,106,91,83,10
-END
-
-IDD_UI_SUB_MENU DIALOG DISCARDABLE  0, 0, 375, 193
-STYLE DS_MODALFRAME | DS_3DLOOK | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Dialog"
-FONT 8, "MS Sans Serif"
-BEGIN
-    LTEXT           "Static1",IDC_STATIC1,10,13,108,10
-    LTEXT           "Static2",IDC_STATIC2,10,33,108,10
-    LTEXT           "Static3",IDC_STATIC3,10,53,108,10
-    LTEXT           "Static4",IDC_STATIC4,10,73,108,10
-    LTEXT           "Static5",IDC_STATIC5,10,93,108,10
-    LTEXT           "Static6",IDC_STATIC6,10,113,108,10
-    LTEXT           "Static7",IDC_STATIC7,10,133,108,10
-    LTEXT           "Static8",IDC_STATIC8,10,153,108,10
-    DEFPUSHBUTTON   "OK",IDOK,7,172,43,14
-    PUSHBUTTON      "Cancel",IDCANCEL,58,172,43,14
-    PUSHBUTTON      "&Defaults",IDDEFAULTS,107,172,43,14
 END
 
 IDD_SETTINGS DIALOGEX 0, 0, 245, 178
@@ -802,22 +784,22 @@ BEGIN
         BEGIN
             POPUP "Program"
             BEGIN
-                MENUITEM "NORMAL_PRIORITY_CLASS",       IDM_PRIORCLASS_0
-                MENUITEM "HIGH_PRIORITY_CLASS",         IDM_PRIORCLASS_1
-                MENUITEM "REALTIME_PRIORITY_CLASS",     IDM_PRIORCLASS_2
+                MENUITEM "Normal",                      IDM_PRIORCLASS_0
+                MENUITEM "High",                        IDM_PRIORCLASS_1
+                MENUITEM "Very High",                   IDM_PRIORCLASS_2
             END
             POPUP "Decoding and Output"
             BEGIN
-                MENUITEM "THREAD_PRIORITY_BELOW_NORMAL", IDM_TREADPRIOR_0
-                MENUITEM "THREAD_PRIORITY_NORMAL",      IDM_TREADPRIOR_1
-                MENUITEM "THREAD_PRIORITY_ABOVE_NORMAL", IDM_TREADPRIOR_2
-                MENUITEM "THREAD_PRIORITY_HIGHEST",     IDM_TREADPRIOR_3
-                MENUITEM "THREAD_PRIORITY_TIME_CRITICAL", IDM_TREADPRIOR_4
+                MENUITEM "Low",                         IDM_TREADPRIOR_0
+                MENUITEM "Normal",                      IDM_TREADPRIOR_1
+                MENUITEM "Above Normal",                IDM_TREADPRIOR_2
+                MENUITEM "High",                        IDM_TREADPRIOR_3
+                MENUITEM "Very High",                   IDM_TREADPRIOR_4
             END
         END
         POPUP "&Other Settings"
         BEGIN
-            MENUITEM "2:2 Pludown Detection",       IDM_22PULLDOWN_SETTINGS
+            MENUITEM "2:2 Pulldown Detection",      IDM_22PULLDOWN_SETTINGS
             MENUITEM "3:2 Pulldown Detection",      IDM_32PULLDOWN_SETTINGS
             MENUITEM "Pulldown Shared",             IDM_PULLDOWNCOMMON_SETTINGS
 
@@ -964,14 +946,6 @@ BEGIN
         RIGHTMARGIN, 201
         TOPMARGIN, 7
         BOTTOMMARGIN, 119
-    END
-
-    IDD_UI_SUB_MENU, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 368
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 186
     END
 
     IDD_SETTINGS, DIALOG

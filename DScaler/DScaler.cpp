@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.141 2002-03-12 23:29:45 robmuller Exp $
+// $Id: DScaler.cpp,v 1.142 2002-03-21 08:34:07 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.141  2002/03/12 23:29:45  robmuller
+// Implemented functions VT_GetNextPage() and VT_GetPreviousPage().
+//
 // Revision 1.140  2002/03/11 22:25:56  robmuller
 // Added hand cursor.
 //
@@ -733,6 +736,8 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
             DispatchMessage(&msg);
         }
     }
+
+    LOG(1,"Program exit");
 
     return msg.wParam;
 }

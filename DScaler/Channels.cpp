@@ -883,7 +883,7 @@ BOOL CCountryList::ReadASCII(LPCSTR szFilename)
     }
 
     fclose(CountryFile);
-    return TRUE;
+    return (GetSize() > 0);
 }
 
 // ------------ CCountryList END --------------

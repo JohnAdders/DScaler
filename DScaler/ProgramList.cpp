@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.86 2002-10-28 17:50:02 adcockj Exp $
+// $Id: ProgramList.cpp,v 1.87 2002-10-29 12:57:36 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.86  2002/10/28 17:50:02  adcockj
+// Fixes for channels combo
+// Reorganized scanning
+//
 // Revision 1.85  2002/10/28 08:09:33  adcockj
 // Fix for zero frequencies on inactive channels supplied by Denis Balazuc
 //
@@ -534,7 +538,7 @@ void RefreshChannelList(HWND hDlg, int iCountryCode)
     ComboBox_ResetContent(GetDlgItem(hDlg, IDC_CHANNEL));
     
     int Index = ComboBox_AddString(GetDlgItem(hDlg, IDC_CHANNEL), "None");
-    SendMessage(GetDlgItem(hDlg, IDC_CHANNEL), CB_SETITEMDATA, Index, 0);
+    ComboBox_SetItemData(GetDlgItem(hDlg, IDC_CHANNEL), Index, 0);
 
     const CCountryChannels* channels = MyCountries.GetChannels(iCountryCode);
     for(int i = 0; i < channels->GetSize(); i++)
@@ -780,7 +784,39 @@ void AddScannedChannel(HWND hDlg, CChannel* pNewChannel)
 
 //Scans the given country preset and adds it to the list
 //if found
-void ScanChannel(HWND hDlg, int iCurrentChannelIndex, int iCountryCode, BOOL AlwaysAdd)
+void ScanChannelPreset(HWND hDlg, int iCurrentChannelIndex, int iCountryCode)
+{            
+    ASSERT(iCountryCode >= 0);
+    ASSERT(iCountryCode < MyCountries.GetSize());
+
+    MyInUpdate = TRUE; 
+
+    CChannel* channel = MyCountries.GetChannels(iCountryCode)->GetChannel(iCurrentChannelIndex);
+    UpdateDetails(hDlg, channel);
+    DWORD ReturnedFreq = FindFrequency(channel->GetFrequency(), channel->GetFormat(), 0);
+
+    // add channel if frequency found
+    if (ReturnedFreq != 0)
+    {
+        char sbuf[256];
+
+        sprintf(sbuf, "Channel %d", MyChannels.GetSize() + 1);
+        CChannel* NewChannel = new CChannel(
+                                    sbuf,
+                                    ReturnedFreq,
+                                    channel->GetChannelNumber(),
+                                    channel->GetFormat(),
+                                    TRUE
+                                 );
+        AddScannedChannel(hDlg, NewChannel);
+    }   
+
+    MyInUpdate = FALSE;
+}
+
+//Scans the given country preset and adds it to the list
+// with active set appropriately
+void ScanChannelCustom(HWND hDlg, int iCurrentChannelIndex, int iCountryCode)
 {            
     ASSERT(iCountryCode >= 0);
     ASSERT(iCountryCode < MyCountries.GetSize());
@@ -796,16 +832,13 @@ void ScanChannel(HWND hDlg, int iCurrentChannelIndex, int iCountryCode, BOOL Alw
     CChannel* NewChannel = NULL;
     if (ReturnedFreq == 0)
     {        
-        if (TRUE == AlwaysAdd) 
-        {
-            NewChannel = new CChannel(
-                                        channel->GetName(),
-                                        channel->GetFrequency(),
-                                        channel->GetChannelNumber(),
-                                        channel->GetFormat(),
-                                        FALSE
-                                     );
-        }        
+        NewChannel = new CChannel(
+                                    channel->GetName(),
+                                    channel->GetFrequency(),
+                                    channel->GetChannelNumber(),
+                                    channel->GetFormat(),
+                                    FALSE
+                                 );
     }
     else
     {               
@@ -1048,7 +1081,9 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 errorMessage = errorMessage + SZ_DEFAULT_CHANNELS_FILENAME;
                 errorMessage = errorMessage + "\" is corrupted or missing";            
                 ErrorBox((LPCSTR)errorMessage);            
-                errorMessage.Empty();                         
+                errorMessage.Empty();  
+                EndDialog(hDlg, FALSE);
+                return TRUE;
             }
 
             ComboBox_ResetContent(GetDlgItem(hDlg, IDC_COUNTRY));            
@@ -1063,11 +1098,13 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 case SCAN_MODE_CUSTOM_ORDER :
                     Button_SetCheck(GetDlgItem(hDlg, IDC_CUSTOMCHANNELORDER), BST_CHECKED);
                     ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_COUNTRY), CountryCode);
+                    RefreshChannelList(hDlg, CountryCode);            
                     break;
 
                 case SCAN_MODE_PRESETS :
                     Button_SetCheck(GetDlgItem(hDlg, IDC_CUSTOMCHANNELORDER), BST_UNCHECKED);
                     ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_COUNTRY), CountryCode);
+                    RefreshChannelList(hDlg, CountryCode);            
                     break;
 
                 case SCAN_MODE_FULL_FREQUENCY :                
@@ -1083,12 +1120,10 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             Button_SetCheck(GetDlgItem(hDlg, IDC_SCAN_AFC), (MyIsUsingAFC) ? BST_CHECKED : BST_UNCHECKED);            
             Button_SetCheck(GetDlgItem(hDlg, IDC_CHANNEL_MUTE), ((TRUE == Audio_IsMuted()) ? BST_CHECKED : BST_UNCHECKED));            
 
-            RefreshProgramList(hDlg, 0);            
+            RefreshProgramList(hDlg, CurrentProgram);            
 
             MyInUpdate = FALSE;
 
-            RefreshChannelList(hDlg, 0);            
-            
             // if we have any channels then also fill the details box with the current program
             UpdateDetails(hDlg, CurrentProgram);
             UpdateAutoScanDetails(hDlg);
@@ -1144,7 +1179,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             const CChannelList* sourceChannels = MyCountries.GetChannels(lParam);
             if (wParam < sourceChannels->GetSize()) 
             {                
-                ScanChannel(hDlg, wParam, lParam, TRUE);
+                ScanChannelCustom(hDlg, wParam, lParam);
                 PostMessage(hDlg, WM_SCAN_CUSTOM_ORDER, wParam + 1, lParam);
             }
             else 
@@ -1163,7 +1198,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             const CChannelList* sourceChannels = MyCountries.GetChannels(lParam);
             if (wParam < sourceChannels->GetSize()) 
             {                
-                ScanChannel(hDlg, wParam, lParam, FALSE);
+                ScanChannelPreset(hDlg, wParam, lParam);
                 PostMessage(hDlg, WM_SCAN_PRESET_FREQ, wParam + 1, lParam);
             }
             else 

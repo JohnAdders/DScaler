@@ -1,5 +1,5 @@
 ;////////////////////////////////////////////////////////////////////////////
-;// $Id: dscaler.iss,v 1.24 2003-04-23 08:19:26 adcockj Exp $
+;// $Id: dscaler.iss,v 1.25 2003-06-26 17:55:39 adcockj Exp $
 ;/////////////////////////////////////////////////////////////////////////////
 ;// Copyright (c) 2002 Rob Muller.  All rights reserved.
 ;/////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 ;// CVS Log
 ;//
 ;// $Log: not supported by cvs2svn $
+;// Revision 1.24  2003/04/23 08:19:26  adcockj
+;// Chnaged text on licencing page so that users don't have to accept the GPL
+;//
 ;// Revision 1.23  2003/02/22 12:36:46  adcockj
 ;// Prepare for new alpha
 ;//
@@ -97,8 +100,8 @@
 ;  For more information about InnoSetup see http://www.innosetup.com
 
 [Setup]
-AppName=DScaler 4.1.6
-AppVerName=DScaler 4.1.6
+AppName=DScaler 4.1.7
+AppVerName=DScaler 4.1.7
 AppPublisherURL=http://www.dscaler.org
 AppSupportURL=http://www.dscaler.org/phpBB/
 AppUpdatesURL=http://www.dscaler.org
@@ -135,13 +138,16 @@ Source: "..\Release\RegSpy.exe"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Co
 Source: "..\Release\DI_Adaptive.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
 Source: "..\Release\DI_Greedy.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
 Source: "..\Release\DI_GreedyH.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
+Source: "..\Release\DI_MoComp2.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: beta
 Source: "..\Release\DI_OldGame.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
 Source: "..\Release\DI_ScalerBob.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
 Source: "..\Release\DI_TomsMoComp.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
 Source: "..\Release\DI_Weave.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
 Source: "..\Release\FLT_AdaptiveNoise.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
+Source: "..\Release\FLT_Chroma.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: beta
 Source: "..\Release\FLT_Gamma.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
 Source: "..\Release\FLT_GradualNoise.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
+Source: "..\Release\FLT_LinearCorrection.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: beta
 Source: "..\Release\FLT_Sharpness.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
 Source: "..\Release\FLT_TemporalComb.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
 Source: "..\Release\FLT_TNoise.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
@@ -177,9 +183,9 @@ Source: "..\Release\DI_Greedy2Frame.dll"; DestDir: "{app}"; CopyMode: alwaysover
 Source: "..\Release\FLT_ColourInversion.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite;  Components: extra
 
 ; beta
-Source: "..\Release\FLT_LinearCorrection.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: beta
-Source: "..\Release\FLT_Chroma.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: beta
-Source: "..\Release\DI_MoComp2.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: beta
+Source: "..\Release\FLT_LuminChromaShift.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: beta
+Source: "..\Release\FLT_DScopeVIDEO.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: beta
+Source: "..\Release\FLT_BlackWhite.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: beta
 
 [INI]
 Filename: "{app}\DScaler.url"; Section: "InternetShortcut"; Key: "URL"; String: "http://www.dscaler.org"

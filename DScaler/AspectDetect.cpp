@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectDetect.cpp,v 1.10 2001-08-02 16:43:05 adcockj Exp $
+// $Id: AspectDetect.cpp,v 1.11 2001-08-02 17:43:19 koreth Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -39,6 +39,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2001/08/02 16:43:05  adcockj
+// Added Debug level to LOG function
+//
 // Revision 1.9  2001/07/13 16:14:55  adcockj
 // Changed lots of variables to match Coding standards
 //
@@ -375,7 +378,7 @@ void AdjustAspectRatio(long SourceAspectAdjust, short** EvenField, short** OddFi
         if (newMode == 2)
         {
             // Convert ratio to a 16/9 ratio
-            newRatio *= 1333 / 1000;
+            newRatio = (newRatio * 1333) / 1000;
         }
 
         // The ratio must be at least the ratio defined in WSS data

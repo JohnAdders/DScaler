@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.61 2002-07-27 15:20:34 laurentg Exp $
+// $Id: ProgramList.cpp,v 1.62 2002-08-02 18:37:35 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.61  2002/07/27 15:20:34  laurentg
+// Channels menu updated
+//
 // Revision 1.60  2002/07/09 17:37:10  robmuller
 // Retry on tuner write error.
 //
@@ -900,6 +903,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 {
                     CurrentProgram = MyChannels.size() - 1;
                 }
+                Channel_Change(CurrentProgram);
                 TopIndex = ListBox_GetTopIndex(GetDlgItem(hDlg, IDC_PROGRAMLIST));
                 RefreshProgramList(hDlg, CurrentProgram);
                 ListBox_SetTopIndex(GetDlgItem(hDlg, IDC_PROGRAMLIST), TopIndex);

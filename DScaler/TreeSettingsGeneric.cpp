@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsGeneric.cpp,v 1.7 2002-10-23 09:46:46 adcockj Exp $
+// $Id: TreeSettingsGeneric.cpp,v 1.8 2002-10-24 12:03:18 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/10/23 09:46:46  adcockj
+// Allow NULL entries in Settings lists sent to Generic settings dialog
+//
 // Revision 1.6  2002/10/19 15:15:42  tobbej
 // Implemented new gradient header above active page.
 // Changed resizing a bit to minimize flashing when repainting window
@@ -76,6 +79,31 @@ CTreeSettingsGeneric::CTreeSettingsGeneric(CString name,SETTING* settings,long c
     //}}AFX_DATA_INIT
 
     m_SettingsCount = m_Settings.LoadSettingStructures(settings, 0, count);
+    m_DeleteSettingsOnExit = TRUE;
+}
+
+CTreeSettingsGeneric::CTreeSettingsGeneric(CString name,SETTING** settings,long count)
+	:CTreeSettingsPage(name,CTreeSettingsGeneric::IDD),
+	m_CurrentSetting(0),
+    m_Settings((SETTINGHOLDERID)0),
+    m_DeleteSettingsOnExit(FALSE)
+{
+    //{{AFX_DATA_INIT(CTreeSettingsGeneric)
+    //}}AFX_DATA_INIT
+
+    for (int i(0); i < count; i++)
+    {
+        m_Settings.AddSetting(settings[i]);
+    }
+
+    // This RegisterMe() function and its use seems
+    // VERY hacky and redundant.  It's protected so
+    // I can't call it here anyway.  AddSetting()
+    // calls it once in every loop above so it's
+    // really not necessary here.  --atnak 02-10-24
+    // m_Settings.RegisterMe();
+
+    m_SettingsCount = count;
     m_DeleteSettingsOnExit = TRUE;
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsGeneric.h,v 1.7 2002-10-15 15:04:01 kooiman Exp $
+// $Id: TreeSettingsGeneric.h,v 1.8 2002-10-24 12:03:18 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,9 +58,11 @@ public:
     /**
 	 * @param name name used in the tree
 	 * @param settings pointer to array of SETTING
+	 * @param psettings pointer to array of SETTING pointers
      * @param count size of settings array
 	 */
     CTreeSettingsGeneric(CString name,SETTING* settings,long count);
+    CTreeSettingsGeneric(CString name,SETTING** psettings,long count);
     CTreeSettingsGeneric(CString name,SETTINGEX* settings,long count);
     CTreeSettingsGeneric(CString name,vector<CSimpleSetting*> settings); 
     ~CTreeSettingsGeneric();

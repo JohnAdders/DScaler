@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.61 2002-06-22 15:00:22 laurentg Exp $
+// $Id: StillSource.cpp,v 1.62 2002-06-25 22:17:17 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.61  2002/06/22 15:00:22  laurentg
+// New vertical flip mode
+//
 // Revision 1.60  2002/06/21 23:14:19  laurentg
 // New way to store address of allocated memory buffer for still source
 //
@@ -606,6 +609,8 @@ BOOL CStillSource::ShowPreviousInPlayList()
 
 void CStillSource::SaveSnapshot(LPCSTR FilePath, int FrameHeight, int FrameWidth, BYTE* pOverlay, LONG OverlayPitch)
 {
+    BOOL NewToAdd;
+
     m_SquarePixels = AspectSettings.SquarePixels;
     switch ((eStillFormat)Setting_GetValue(Still_GetSetting(FORMATSAVING)))
     {
@@ -613,25 +618,36 @@ void CStillSource::SaveSnapshot(LPCSTR FilePath, int FrameHeight, int FrameWidth
         {
             CTiffHelper TiffHelper(this, TIFF_CLASS_R);
             TiffHelper.SaveSnapshot(FilePath, FrameHeight, FrameWidth, pOverlay, OverlayPitch);
-            OpenMediaFile(FilePath, FALSE);
+            NewToAdd = TRUE;
             break;
         }
     case STILL_TIFF_YCbCr:
         {
             CTiffHelper TiffHelper(this, TIFF_CLASS_Y);
             TiffHelper.SaveSnapshot(FilePath, FrameHeight, FrameWidth, pOverlay, OverlayPitch);
-            OpenMediaFile(FilePath, FALSE);
+            NewToAdd = TRUE;
             break;
         }
     case STILL_JPEG:
         {
             CJpegHelper JpegHelper(this);
             JpegHelper.SaveSnapshot(FilePath, FrameHeight, FrameWidth, pOverlay, OverlayPitch);
-            OpenMediaFile(FilePath, FALSE);
+            NewToAdd = TRUE;
             break;
         }
     default:
+        NewToAdd = FALSE;
         break;
+    }
+    if (NewToAdd)
+    {
+        CPlayListItem* Item = new CPlayListItem(FilePath, 10);
+        m_PlayList.push_back(Item);
+        if (m_PlayList.size() == 1)
+        {
+            m_Position = 0;
+        }
+        UpdateMenu();
     }
 }
 

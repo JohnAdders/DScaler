@@ -301,7 +301,7 @@
 		movq	mm3, mm0
 		psubusb	mm3, mm1
 		psubusb mm1, mm0
-		por		mm3, mm1			// abs(c,d)
+		por		mm3, mm1			// abs(b,e)
 		movq	mm1, mm3			// keep copy of diffs
 
 		pxor	mm4, mm4			

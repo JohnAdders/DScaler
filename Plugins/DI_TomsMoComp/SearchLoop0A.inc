@@ -7,7 +7,7 @@
 		__asm
 		{
 
-#ifdef IS_SSE
+#ifdef IS_SSE2
 		paddusb xmm7, ONES				// bias toward no motion
 #else
 		paddusb mm7, ONES				// bias toward no motion

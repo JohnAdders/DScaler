@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_LuminChromaShift.c,v 1.1 2003-03-29 22:33:57 laurentg Exp $
+// $Id: FLT_LuminChromaShift.c,v 1.2 2003-05-31 12:19:22 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2003/03/29 22:33:57  laurentg
+// New filter
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -27,7 +30,7 @@
 #include "..\help\helpids.h"
 
 // Taking a multiple of 2 for ONE_PIXEL_SHIFT is probably a good way to optimize the filter
-#define ONE_PIXEL_SHIFT		64
+#define ONE_PIXEL_SHIFT		16
 
 FILTER_METHOD LuminChromaShiftMethod;
 

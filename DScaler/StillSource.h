@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.6 2001-11-24 22:51:20 laurentg Exp $
+// $Id: StillSource.h,v 1.7 2001-11-25 10:41:26 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,7 @@ class CStillSource : public CSource
 {
 public:
     CStillSource(LPCSTR FilePath);
+    CStillSource(LPCSTR FilePath, int FrameHeight, int FrameWidth, BYTE* pOverlay, LONG OverlayPitch);
     ~CStillSource();
     void CreateSettings(LPCSTR IniSection);
     void Start();

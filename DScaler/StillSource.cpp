@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.8 2001-11-24 22:51:20 laurentg Exp $
+// $Id: StillSource.cpp,v 1.9 2001-11-25 10:41:26 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2001/11/24 22:51:20  laurentg
+// Bug fixes regarding still source
+//
 // Revision 1.7  2001/11/24 17:58:06  laurentg
 // Still source
 //
@@ -87,8 +90,48 @@ CStillSource::CStillSource(LPCSTR FilePath) :
     m_AlreadyTryToRead = FALSE;
 }
 
+CStillSource::CStillSource(LPCSTR FilePath, int FrameHeight, int FrameWidth, BYTE* pOverlay, LONG OverlayPitch) :
+    CSource(0, IDC_STILL)
+{
+    CreateSettings("StillSource");
+    if (strlen(FilePath) < 255)
+    {
+        strcpy(m_FilePath, FilePath);
+    }
+    else
+    {
+        *m_FilePath = '\0';
+    }
+    LOG(2, "CStillSource %d %d %d %d", FrameHeight, FrameWidth, pOverlay, OverlayPitch);
+    m_Width = FrameWidth;
+    m_Height = FrameHeight;
+    m_StillFrame.pData = (BYTE*)malloc(m_Width * 2 * m_Height * sizeof(BYTE));
+    if (m_StillFrame.pData != NULL)
+    {
+        BYTE* pBufSrc = pOverlay;
+        BYTE* pBufDest = m_StillFrame.pData;
+
+        for (int i(0); i < m_Height; ++i)
+        {
+            memcpy(pBufDest, pBufSrc, m_Width * 2);
+            pBufSrc += OverlayPitch;
+            pBufDest += m_Width * 2;
+            LOG(2, "CStillSource Line %d", i);
+        }
+    }
+    m_StillFrame.Flags = PICTURE_PROGRESSIVE;
+    m_StillFrame.IsFirstInSeries = FALSE;
+    m_FieldFrequency = 50.0;
+    m_FrameDuration = 1000.0 / m_FieldFrequency;
+    m_AlreadyTryToRead = TRUE;
+}
+
 CStillSource::~CStillSource()
 {
+    if (m_StillFrame.pData != NULL)
+    {
+        free(m_StillFrame.pData);
+    }
 }
 
 void CStillSource::CreateSettings(LPCSTR IniSection)
@@ -97,9 +140,7 @@ void CStillSource::CreateSettings(LPCSTR IniSection)
 
 void CStillSource::Start()
 {
-    m_StillFrame.pData = NULL;
     m_LastTickCount = 0;
-    m_AlreadyTryToRead = FALSE;
 }
 
 void CStillSource::Stop()
@@ -109,6 +150,7 @@ void CStillSource::Stop()
         free(m_StillFrame.pData);
         m_StillFrame.pData = NULL;
     }
+    m_AlreadyTryToRead = FALSE;
 }
 
 void CStillSource::Reset()

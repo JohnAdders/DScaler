@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TiffSource.cpp,v 1.2 2001-11-24 22:51:20 laurentg Exp $
+// $Id: TiffSource.cpp,v 1.3 2001-11-25 10:41:26 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/11/24 22:51:20  laurentg
+// Bug fixes regarding still source
+//
 // Revision 1.1  2001/11/24 17:55:23  laurentg
 // CTiffSource class added
 //
@@ -28,67 +31,102 @@
 #include "stdafx.h"
 #include "TiffSource.h"
 #include "Other.h"
+#include "Deinterlace.h"
 #include "DebugLog.h"
-
-// A TIFF image-file directory entry.  There are a bunch of
-// these in a TIFF file.
-typedef struct 
-{
-    WORD Tag;       // Entry Type
-    WORD Type;      // 1=byte, 2=C string, 3=word, 4=dword (we always use dword)
-    DWORD Count;    // Number of units (of Type specified by "Type") in Value
-    DWORD Value;
-} TTiffDirEntry;
-
-// Field data types.
-enum eTiffDataType
-{
-    Byte = 1,
-    String = 2,
-    Short = 3,
-    Long = 4
-};
-
-// A TIFF header with some hardwired fields.
-typedef struct 
-{
-    char byteOrder[2];
-    WORD version;
-    DWORD firstDirOffset;
-
-    // TIFF files contain a bunch of extra information, each of which is a
-    // tagged "directory" entry.  The entries must be in ascending numerical
-    // order.
-
-    WORD numDirEntries;
-    TTiffDirEntry fileType;      // What kind of file this is (Tag 254)
-    TTiffDirEntry width;         // Width of image (Tag 256)
-    TTiffDirEntry height;            // Height of image (Tag 257)
-    TTiffDirEntry bitsPerSample; // Number of bits per channel per pixel (Tag 258)
-    TTiffDirEntry compression;   // Compression settings (Tag 259)
-    TTiffDirEntry photometricInterpretation; // What kind of pixel data this is (Tag 262)
-    TTiffDirEntry description;   // Image description (Tag 270)
-    TTiffDirEntry make;          // "Scanner" maker, aka DScaler's URL (Tag 271)
-    TTiffDirEntry model;         // "Scanner" model, aka DScaler version (Tag 272)
-    TTiffDirEntry stripOffset;   // Offset to image data (Tag 273)
-    TTiffDirEntry samplesPerPixel; // Number of color channels (Tag 277)
-    TTiffDirEntry rowsPerStrip;  // Number of rows in a strip (Tag 278)
-    TTiffDirEntry stripByteCounts; // Number of bytes per strip (Tag 279)
-    TTiffDirEntry planarConfiguration; // Are channels interleaved? (Tag 284)
-    DWORD nextDirOffset;
-
-    char descriptionText[80];
-    char makeText[40];
-    char modelText[16];
-    WORD bitCounts[3];
-} TTiffHeader;
 
 
 #define LIMIT(x) (((x)<0)?0:((x)>255)?255:(x))
 
+#define STRUCT_OFFSET(s,f)  ((int)(((BYTE*)&(s)->f) - (BYTE*)(s)))
+
+
+//-----------------------------------------------------------------------------
+// Fill a TIFF directory entry with information.
+void CTiffSource::FillTiffDirEntry(TTiffDirEntry* entry, WORD Tag, DWORD Value, eTiffDataType Type)
+{
+    BYTE bValue;
+    WORD wValue;
+
+    entry->Tag = Tag;
+    entry->Count = 1;
+    entry->Type = (int) Type;
+
+    switch (Type) {
+    case Byte:
+        bValue = (BYTE) Value;
+        memcpy(&entry->Value, &bValue, 1);
+        break;
+
+    case Short:
+        wValue = (WORD) Value;
+        memcpy(&entry->Value, &wValue, 2);
+        break;
+
+    case String:    // in which case it's a file offset
+    case Long:
+        entry->Value = Value;
+        break;
+    }
+}
+
+
+//-----------------------------------------------------------------------------
+// Fill a TIFF header with information about the current image.
+void CTiffSource::FillTiffHeader(TTiffHeader* head, char* description, char* make, char* model)
+{
+    memset(head, 0, sizeof(TTiffHeader));
+
+    strcpy(head->byteOrder, "II");      // Intel byte order
+    head->version = 42;                 // We're TIFF 5.0 compliant, but the version field is unused
+    head->firstDirOffset = STRUCT_OFFSET(head, numDirEntries);
+    head->numDirEntries = 14;
+    head->nextDirOffset = 0;            // No additional directories
+
+    strcpy(head->descriptionText, description);
+    strcpy(head->makeText, make);
+    strcpy(head->modelText, model);
+    head->bitCounts[0] = head->bitCounts[1] = head->bitCounts[2] = 8;
+
+    head->description.Tag = 270;
+    head->description.Type = 2;
+    head->description.Count = strlen(description) + 1;
+    head->description.Value = STRUCT_OFFSET(head, descriptionText);
+
+    head->make.Tag = 271;
+    head->make.Type = 2;
+    head->make.Count = strlen(make) + 1;
+    head->make.Value = STRUCT_OFFSET(head, makeText);
+
+    head->model.Tag = 272;
+    head->model.Type = 2;
+    head->model.Count = strlen(model) + 1;
+    head->model.Value = STRUCT_OFFSET(head, modelText);
+    
+    head->bitsPerSample.Tag = 258;
+    head->bitsPerSample.Type = Short;
+    head->bitsPerSample.Count = 3;
+    head->bitsPerSample.Value = STRUCT_OFFSET(head, bitCounts);
+
+    FillTiffDirEntry(&head->fileType, 254, 0, Long);                        // Just the image, no thumbnails
+    FillTiffDirEntry(&head->width, 256, m_Width, Short);
+    FillTiffDirEntry(&head->height, 257, m_Height, Short);
+    FillTiffDirEntry(&head->compression, 259, 1, Short);                    // No compression
+    FillTiffDirEntry(&head->photometricInterpretation, 262, 2, Short);      // RGB image data
+    FillTiffDirEntry(&head->stripOffset, 273, sizeof(TTiffHeader), Long);    // Image comes after header
+    FillTiffDirEntry(&head->samplesPerPixel, 277, 3, Short);                // RGB = 3 channels/pixel
+    FillTiffDirEntry(&head->rowsPerStrip, 278, m_Height, Short);            // Whole image is one strip
+    FillTiffDirEntry(&head->stripByteCounts, 279, m_Width * m_Height * 3, Long);   // Size of image data
+    FillTiffDirEntry(&head->planarConfiguration, 284, 1, Short);            // RGB bytes are interleaved
+}
+
 
 CTiffSource::CTiffSource(LPCSTR FilePath) :
     CStillSource(FilePath)
+{
+}
+
+CTiffSource::CTiffSource(LPCSTR FilePath, int FrameHeight, int FrameWidth, BYTE* pOverlay, LONG OverlayPitch) :
+    CStillSource(FilePath, FrameHeight, FrameWidth, pOverlay, OverlayPitch)
 {
 }
 
@@ -354,3 +392,64 @@ BOOL CTiffSource::ReadNextFrameInFile()
         }
     }
 */
+
+BOOL CTiffSource::WriteFrameInFile()
+{
+    int y, cr, cb, r, g, b, i, j, n = 0;
+    FILE* file;
+    BYTE rgb[3];
+    BYTE* buf;
+    TTiffHeader head;
+    char description[80];
+
+    if (m_StillFrame.pData == NULL)
+    {
+        return FALSE;
+    }
+
+    file = fopen(m_FilePath,"wb");
+    if (!file)
+    {
+        return FALSE;
+    }
+
+    LOG(2, "WriteFrameInFile m_Width = %d m_Height %d", m_Width, m_Height);
+
+    sprintf(description, "DScaler image, deinterlace Mode %s", GetDeinterlaceModeName());
+    // How do we figure out our version number?!?!
+    FillTiffHeader(&head, description, "http://deinterlace.sourceforge.net/", "DScaler version 2.x");
+    fwrite(&head, sizeof(head), 1, file);
+
+    for (i = 0; i < m_Height; i++)
+    {
+        buf = m_StillFrame.pData + i * m_Width * 2;
+        for (j = 0; j < m_Width ; j+=2)
+        {
+            cb = buf[1] - 128;
+            cr = buf[3] - 128;
+            y = buf[0] - 16;
+
+            r = ( 76284*y + 104595*cr             )>>16;
+            g = ( 76284*y -  53281*cr -  25624*cb )>>16;
+            b = ( 76284*y             + 132252*cb )>>16;
+            rgb[0] = LIMIT(r);
+            rgb[1] = LIMIT(g);
+            rgb[2] = LIMIT(b);
+
+            fwrite(rgb,3,1,file) ;
+
+            y = buf[2] - 16;
+            r = ( 76284*y + 104595*cr             )>>16;
+            g = ( 76284*y -  53281*cr -  25624*cb )>>16;
+            b = ( 76284*y             + 132252*cb )>>16;
+            rgb[0] = LIMIT(r);
+            rgb[1] = LIMIT(g);
+            rgb[2] = LIMIT(b);
+            fwrite(rgb,3,1,file);
+
+            buf += 4;
+        }
+    }
+    fclose(file);
+    return TRUE;
+}

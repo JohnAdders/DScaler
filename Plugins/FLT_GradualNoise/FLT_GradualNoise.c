@@ -16,6 +16,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/10/13 07:48:26  lindsey
+// Corrected the HistoryRequired field
+//
 // Revision 1.10  2002/08/07 00:42:38  lindsey
 // Made prefetching into a user option.
 //
@@ -69,7 +72,9 @@ variations in pixels between adjacent frames.
 This algorithm is very similar to what Andrew Dowsey came up with in his "Adaptive
 Temporal Averaging" for his DirectShow filter.  The algorithms differ in 1) their
 block size,  2) their motion estimation (sum of absolute differences versus mean
-squared error), 3) rounding.
+squared error), 3) The addition of a "high tail," in which areas which have changed
+a lot (but not too much) still cause a small amount of averaging with the previous
+frame, and 4) rounding.
 
 
 The algorithm:
@@ -89,7 +94,8 @@ Somewhat more formally:
 
   N = Sum_block(|oldByte - newByte|)
   R = Noise Reduction parameter
-  M = (motion evidence) = 1     if N/R >= 1
+  M = (motion evidence) = 1     if N/R >= 1.2
+                          0.999 if 1.2 > N/R >= 1
                           N/R   otherwise
   Result pixel = (bytewise) oldPixel * (1 - M) + newPixel * M
 
@@ -237,7 +243,7 @@ static long gCpuFeatureFlags = 0;
 // The maximum sum of absolute differences in a four pixel
 // block.  Above this, the old pixel values will be ignored.
 
-long        gNoiseReduction = 40;
+long        gNoiseReduction = 35;
 
 
 FILTER_METHOD GradualNoiseMethod;
@@ -246,7 +252,7 @@ SETTING FLT_GradualNoiseSettings[FLT_GNOISE_SETTING_LASTONE] =
 {
     {
         "Noise Reduction", SLIDER, 0, &gNoiseReduction,
-        40, 5, 100, 1, 1,
+        35, 5, 100, 1, 1,
         NULL,
         "GradualNoiseFilter", "NoiseReduction", NULL,
     },

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.46 2003-02-06 00:58:53 laurentg Exp $
+// $Id: DScaler.h,v 1.47 2003-02-06 19:48:32 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -91,6 +91,9 @@ void SetTrayTip(const char* ChannelName);
 
 #define TIMER_STATUS        1
 #define TIMER_STATUS_MS     2000
+
+#define TIMER_MSP           8
+#define TIMER_MSP_MS        1000
 
 #define TIMER_MSP_INTERNAL  9
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Audio.cpp,v 1.35 2005-03-20 11:13:30 atnak Exp $
+// $Id: SAA7134Card_Audio.cpp,v 1.36 2005-03-21 08:20:37 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.35  2005/03/20 11:13:30  atnak
+// Added minor comment.
+//
 // Revision 1.34  2005/03/10 05:06:06  atnak
 // Added auxiliary via DAC lines.
 //
@@ -1735,7 +1738,7 @@ void CSAA7134Card::GetAudioDecoderStatus(char* pBuffer, WORD nBufferSize)
 	}
 
 	DWORD avStatus = ReadDword(SAA7134_AV_STATUS);
-	char buffer[256];
+	char buffer[256] = "";
 
 	if (avStatus & SAA7134_AV_STATUS_PILOT)
 	{
@@ -1798,7 +1801,11 @@ void CSAA7134Card::GetAudioDecoderStatus(char* pBuffer, WORD nBufferSize)
 		}
 	}
 
-	buffer[nBufferSize-1] = '\0';
+	if (nBufferSize < sizeof(buffer))
+	{
+		buffer[nBufferSize-1] = '\0';
+	}
+
 	strcpy(pBuffer, buffer);
 }
 

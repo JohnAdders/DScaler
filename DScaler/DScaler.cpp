@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.162 2002-05-27 20:17:05 robmuller Exp $
+// $Id: DScaler.cpp,v 1.163 2002-05-28 08:54:07 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.162  2002/05/27 20:17:05  robmuller
+// Patch #561180  by PietOO:
+// Autodetection of teletext code page.
+//
 // Revision 1.161  2002/05/26 10:33:35  robmuller
 // Screen redraw problem fixed.
 //
@@ -3388,37 +3392,58 @@ HMENU GetOrCreateSubSubSubMenu(int SubId, int SubSubId, int SubSubSubId, LPCSTR 
 
 HMENU GetFiltersSubmenu()
 {
-    return GetOrCreateSubSubMenu(4, 2, "Select &Filters");
+    HMENU hmenu = GetOrCreateSubSubMenu(4, 2, "Select &Filters");
+    ASSERT(hmenu != NULL);
+
+    return hmenu;
 }
 
 HMENU GetFilterSettingsSubmenu()
 {
-    return GetOrCreateSubSubMenu(4, 3, "Filter &Settings");
+    HMENU hmenu = GetOrCreateSubSubMenu(4, 3, "Filter &Settings");
+    ASSERT(hmenu != NULL);
+
+    return hmenu;
 }
 
 HMENU GetVideoDeinterlaceSubmenu()
 {
-    return GetOrCreateSubSubMenu(4, 1, "&Deinterlace Mode");
+    HMENU hmenu = GetOrCreateSubSubMenu(4, 1, "&Deinterlace Mode");
+    ASSERT(hmenu != NULL);
+
+    return hmenu;
 }
 
 HMENU GetChannelsSubmenu()
 {
-    return GetOrCreateSubSubMenu(1, 1, "Channel S&elect");
+    HMENU hmenu = GetOrCreateSubSubMenu(1, 1, "Channel S&elect");
+    ASSERT(hmenu != NULL);
+
+    return hmenu;
 }
 
 HMENU GetOSDSubmenu1()
 {
-    return GetOrCreateSubSubSubMenu(2, 8, 2, "&Show Screen");
+    HMENU hmenu = GetOrCreateSubSubSubMenu(2, 9, 2, "&Show Screen");
+    ASSERT(hmenu != NULL);
+
+    return hmenu;
 }
 
 HMENU GetOSDSubmenu2()
 {
-    return GetOrCreateSubSubSubMenu(2, 8, 3, "A&ctivate Screen");
+    HMENU hmenu = GetOrCreateSubSubSubMenu(2, 9, 3, "A&ctivate Screen");
+    ASSERT(hmenu != NULL);
+
+    return hmenu;
 }
 
 HMENU GetPatternsSubmenu()
 {
-    return GetOrCreateSubSubSubMenu(4, 8, 0, "Test &Patterns");
+    HMENU hmenu = GetOrCreateSubSubSubMenu(4, 8, 0, "Test &Patterns");
+    ASSERT(hmenu != NULL);
+
+    return hmenu;
 }
 
 //---------------------------------------------------------------------------

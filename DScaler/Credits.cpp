@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Credits.cpp,v 1.9 2003-10-27 10:39:51 adcockj Exp $
+// $Id: Credits.cpp,v 1.10 2004-08-30 16:16:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) 1998-2001 Mark Findlay.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2003/10/27 10:39:51  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.8  2003/06/26 12:00:35  adcockj
 // Fixed bug in developers list
 //
@@ -117,7 +120,7 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 
 char *ArrCredits[] = { 	"DScaler\n",
 						"",
-						"Copyright © 2003\f",
+						"Copyright © 2004\f",
 						"DScaler Team\f",
 						"All Rights Reserved\f",
 						"",
@@ -131,25 +134,26 @@ char *ArrCredits[] = { 	"DScaler\n",
 						"",
 						"Current Active Developers\t",
 						"",
-                        "Tom Barry\f",
-                        "Laurent Garnier\f",
                         "Torbjörn Jansson\f",
-						"Rob Muller\f",
 						"Atsushi Nakagawa\f",
-						"Ivan Tarnavsky\f",
+                        "Torsten Seeboth\f",
 						"",
 						"",
 						"Other Developers\t",
 						"",
+                        "Tom Barry\f",
 						"Denis Balazuc\f",
 						"Muljadi Budiman\f",
 						"Lindsey Dubb\f",
                         "Michael Eskin\f",
+                        "Laurent Garnier\f",
                         "Steve Grimm\f",
                         "Jeroen Kooiman\f",
+						"Rob Muller\f",
                         "Mark Rejhon\f",
                         "Michael Samblanet\f",
 						"Eric Schmidt\f",
+						"Ivan Tarnavsky\f",
                         "Jochen Trenner\f",
 						"Mike Temperton\f",
                         "",

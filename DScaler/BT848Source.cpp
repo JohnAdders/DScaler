@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.108 2003-01-13 17:46:44 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.109 2003-01-13 21:13:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.108  2003/01/13 17:46:44  adcockj
+// HDelay and VDelay turned from absolute to adjustments
+//
 // Revision 1.107  2003/01/12 16:19:32  adcockj
 // Added SettingsGroup activity setting
 // Corrected event sequence and channel change behaviour
@@ -1441,7 +1444,6 @@ void CBT848Source::PixelWidthOnChange(long NewValue, long OldValue)
 
 void CBT848Source::HDelayOnChange(long NewValue, long OldValue)
 {
-    Stop_Capture();
     m_pBT848Card->SetGeoSize(
                                 m_VideoSource->GetValue(), 
                                 (eVideoFormat)m_VideoFormat->GetValue(), 
@@ -1451,12 +1453,10 @@ void CBT848Source::HDelayOnChange(long NewValue, long OldValue)
                                 m_VDelay->GetValue(), 
                                 m_HDelay->GetValue()
                             );
-    Start_Capture();
 }
 
 void CBT848Source::VDelayOnChange(long NewValue, long OldValue)
 {
-    Stop_Capture();
     m_pBT848Card->SetGeoSize(
                                 m_VideoSource->GetValue(), 
                                 (eVideoFormat)m_VideoFormat->GetValue(), 
@@ -1466,7 +1466,6 @@ void CBT848Source::VDelayOnChange(long NewValue, long OldValue)
                                 m_VDelay->GetValue(), 
                                 m_HDelay->GetValue()
                             );
-    Start_Capture();
 }
 
 void CBT848Source::BrightnessOnChange(long Brightness, long OldValue)

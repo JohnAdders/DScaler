@@ -25,7 +25,7 @@ CFG=DSDrvNT - Win32 Debug
 # PROP AllowPerConfigDependencies 0
 # PROP Scc_ProjName ""
 # PROP Scc_LocalPath ""
-CPP=cl.exe
+CPP=xicl6.exe
 MTL=midl.exe
 RSC=rc.exe
 
@@ -44,7 +44,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /Gz /W3 /Z7 /Oi /Gy /I "c:\ddk" /I "..\dll" /I "..\include" /D "_DEBUG" /D "STD_CALL" /D CONDITION_HANDLING=1 /D NT_UP=1 /D NT_INST=0 /D _NT1X_=100 /D WINNT=1 /D _WIN32_WINNT=0x0400 /D WIN32_LEAN_AND_MEAN=1 /D DBG=1 /D DEVL=1 /D FPO=0 /D "NDEBUG" /D _DLL=1 /D _X86_=1 /D "_NTKERNEL_" /YX /FD /Zel -cbstring /QIfdiv- /QIf /GF /c
-# ADD CPP /nologo /Gz /W3 /Z7 /Oi /Gy /I "..\..\api" /D "_DEBUG" /D "STD_CALL" /D CONDITION_HANDLING=1 /D NT_UP=1 /D NT_INST=0 /D WIN32=100 /D _NT1X_=100 /D WINNT=1 /D _WIN32_WINNT=0x0400 /D WIN32_LEAN_AND_MEAN=1 /D DBG=1 /D DEVL=1 /D FPO=0 /D "NDEBUG" /D _DLL=1 /D _X86_=1 /D "_NTKERNEL_" /YX /FD /Zel -cbstring /QIfdiv- /QIf /QI0f /GF /c
+# ADD CPP /nologo /Gz /W3 /Z7 /Oi /Gy /I "..\..\api" /D "_DEBUG" /D "STD_CALL" /D CONDITION_HANDLING=1 /D NT_UP=1 /D NT_INST=0 /D WIN32=100 /D _NT1X_=100 /D WINNT=1 /D _WIN32_WINNT=0x0400 /D DBG=1 /D DEVL=1 /D FPO=0 /D "NDEBUG" /D _DLL=1 /D _X86_=1 /D "_NTKERNEL_" /YX /FD /Zel -cbstring /QIfdiv- /QIf /QI0f /GF /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o /win32 "NUL"
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o /win32 "NUL"
 # ADD BASE RSC /l 0x409 /i "i:\ddk.nt" /d "_DEBUG"
@@ -52,7 +52,7 @@ RSC=rc.exe
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-LINK32=link.exe
+LINK32=xilink6.exe
 # ADD BASE LINK32 int64.lib ntoskrnl.lib hal.lib /nologo /base:"0x10000" /version:4.0 /entry:"DriverEntry" /pdb:none /debug /debugtype:both /machine:IX86 /nodefaultlib /out:"..\bin/DSDrvNT.sys" /libpath:"l:\ddk.nt\i386\checked" /driver /debug:notmapped,FULL /IGNORE:4001,4037,4039,4065,4078,4087,4089,4096 /MERGE:_PAGE=PAGE /MERGE:_TEXT=.text /SECTION:INIT,d /MERGE:.rdata=.text /FULLBUILD /RELEASE /FORCE:MULTIPLE /OPT:REF /OPTIDATA /align:0x20 /osversion:4.00 /subsystem:native
 # ADD LINK32 ntoskrnl.lib hal.lib /nologo /base:"0x10000" /version:4.0 /stack:0x40000,0x1000 /entry:"DriverEntry" /incremental:no /map /debug /machine:IX86 /nodefaultlib /out:"..\..\Debug\DSDrvNT.sys" /driver /debug:notmapped,FULL /IGNORE:4001,4037,4039,4044,4065,4070,4078,4087,4089,4198 /MERGE:_PAGE=PAGE /MERGE:_TEXT=.text /SECTION:INIT,d /MERGE:.rdata=.text /FULLBUILD /RELEASE /FORCE:MULTIPLE /OPT:REF /OPTIDATA /align:0x20 /osversion:4.00 /subsystem:native
 # SUBTRACT LINK32 /pdb:none
@@ -72,7 +72,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /Gz /W3 /WX /Oy /Gy /I "c:\ddk" /I "..\dll" /I "..\include" /D "STD_CALL" /D CONDITION_HANDLING=1 /D NT_UP=1 /D NT_INST=0 /D _NT1X_=100 /D WINNT=1 /D _WIN32_WINNT=0x0400 /D WIN32_LEAN_AND_MEAN=1 /D DEVL=1 /D FPO=1 /D "_IDWBUILD" /D "NDEBUG" /D _DLL=1 /D _X86_=1 /D "_NTKERNEL_" /Oxs /Zel -cbstring /QIfdiv- /QIf /GF /c
-# ADD CPP /nologo /Gz /W3 /WX /Ox /Ow /Og /Oi /Os /Ob2 /Gy /I "..\..\api" /D "STD_CALL" /D CONDITION_HANDLING=1 /D NT_UP=1 /D NT_INST=0 /D WIN32=100 /D _NT1X_=100 /D WINNT=1 /D _WIN32_WINNT=0x0400 /D WIN32_LEAN_AND_MEAN=1 /D DEVL=1 /D FPO=1 /D "_IDWBUILD" /D "NDEBUG" /D _DLL=1 /D _X86_=1 /D "_NTKERNEL_" /YX /Oxs /Zel -cbstring /QIfdiv- /QIf /QI0f /GF /c
+# ADD CPP /nologo /Gz /W3 /WX /Ox /Ow /Og /Oi /Os /Ob2 /Gy /I "..\..\api" /D "STD_CALL" /D CONDITION_HANDLING=1 /D NT_UP=1 /D NT_INST=0 /D WIN32=100 /D _NT1X_=100 /D WINNT=1 /D _WIN32_WINNT=0x0400 /D DEVL=1 /D FPO=1 /D "_IDWBUILD" /D "NDEBUG" /D _DLL=1 /D _X86_=1 /D "_NTKERNEL_" /YX /Oxs /Zel -cbstring /QIfdiv- /QIf /QI0f /GF /c
 # SUBTRACT CPP /Ot
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o /win32 "NUL"
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o /win32 "NUL"
@@ -81,7 +81,7 @@ LINK32=link.exe
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-LINK32=link.exe
+LINK32=xilink6.exe
 # ADD BASE LINK32 int64.lib ntoskrnl.lib hal.lib /nologo /base:"0x10000" /version:4.0 /entry:"DriverEntry" /pdb:none /debug /debugtype:coff /machine:IX86 /nodefaultlib /out:".\i386\free\DSDrvNT.sys" /driver /debug:notmapped,MINIMAL /IGNORE:4001,4037,4039,4065,4070,4078,4087,4089,4096 /MERGE:_PAGE=PAGE /MERGE:_TEXT=.text /SECTION:INIT,d /MERGE:.rdata=.text /FULLBUILD /RELEASE /FORCE:MULTIPLE /OPT:REF /OPTIDATA /align:0x20 /osversion:4.00 /subsystem:native
 # ADD LINK32 ntoskrnl.lib hal.lib /nologo /base:"0x10000" /version:4.0 /stack:0x40000,0x1000 /entry:"DriverEntry" /map /debug /machine:IX86 /nodefaultlib /out:"..\..\Release\DSDrvNT.sys" /driver /debug:notmapped,MINIMAL /IGNORE:4001,4037,4039,4044,4065,4070,4078,4087,4089,4198 /MERGE:_PAGE=PAGE /MERGE:_TEXT=.text /SECTION:INIT,d /MERGE:.rdata=.text /FULLBUILD /RELEASE /FORCE:MULTIPLE /OPT:REF /OPTIDATA /align:0x20 /osversion:4.00 /subsystem:native
 # SUBTRACT LINK32 /pdb:none
@@ -98,22 +98,103 @@ LINK32=link.exe
 # Begin Source File
 
 SOURCE=.\DEBUGOUT.CPP
+DEP_CPP_DEBUG=\
+	"..\..\api\dsdrv.h"\
+	".\DEBUGOUT.H"\
+	".\Ioclass.h"\
+	".\precomp.h"\
+	{$(INCLUDE)}"alpharef.h"\
+	{$(INCLUDE)}"basetsd.h"\
+	{$(INCLUDE)}"bugcodes.h"\
+	{$(INCLUDE)}"devioctl.h"\
+	{$(INCLUDE)}"guiddef.h"\
+	{$(INCLUDE)}"ia64reg.h"\
+	{$(INCLUDE)}"ntddk.h"\
+	{$(INCLUDE)}"ntdef.h"\
+	{$(INCLUDE)}"ntiologc.h"\
+	{$(INCLUDE)}"ntstatus.h"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\DRVALLOC.CPP
+DEP_CPP_DRVAL=\
+	"..\..\api\dsdrv.h"\
+	".\DEBUGOUT.H"\
+	".\Ioclass.h"\
+	".\precomp.h"\
+	{$(INCLUDE)}"alpharef.h"\
+	{$(INCLUDE)}"basetsd.h"\
+	{$(INCLUDE)}"bugcodes.h"\
+	{$(INCLUDE)}"devioctl.h"\
+	{$(INCLUDE)}"guiddef.h"\
+	{$(INCLUDE)}"ia64reg.h"\
+	{$(INCLUDE)}"ntddk.h"\
+	{$(INCLUDE)}"ntdef.h"\
+	{$(INCLUDE)}"ntiologc.h"\
+	{$(INCLUDE)}"ntstatus.h"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\DSDrvNT.cpp
+DEP_CPP_DSDRV=\
+	"..\..\api\dsdrv.h"\
+	".\DEBUGOUT.H"\
+	".\DSDrvNT.h"\
+	".\Ioclass.h"\
+	".\precomp.h"\
+	{$(INCLUDE)}"alpharef.h"\
+	{$(INCLUDE)}"basetsd.h"\
+	{$(INCLUDE)}"bugcodes.h"\
+	{$(INCLUDE)}"devioctl.h"\
+	{$(INCLUDE)}"guiddef.h"\
+	{$(INCLUDE)}"ia64reg.h"\
+	{$(INCLUDE)}"ntddk.h"\
+	{$(INCLUDE)}"ntdef.h"\
+	{$(INCLUDE)}"ntiologc.h"\
+	{$(INCLUDE)}"ntstatus.h"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\Ioclass.cpp
+DEP_CPP_IOCLA=\
+	"..\..\api\dsdrv.h"\
+	".\DEBUGOUT.H"\
+	".\Ioclass.h"\
+	".\precomp.h"\
+	{$(INCLUDE)}"alpharef.h"\
+	{$(INCLUDE)}"basetsd.h"\
+	{$(INCLUDE)}"bugcodes.h"\
+	{$(INCLUDE)}"devioctl.h"\
+	{$(INCLUDE)}"guiddef.h"\
+	{$(INCLUDE)}"ia64reg.h"\
+	{$(INCLUDE)}"ntddk.h"\
+	{$(INCLUDE)}"ntdef.h"\
+	{$(INCLUDE)}"ntiologc.h"\
+	{$(INCLUDE)}"ntstatus.h"\
+	
 # End Source File
 # Begin Source File
 
 SOURCE=.\PCIENUM.CPP
+DEP_CPP_PCIEN=\
+	"..\..\api\dsdrv.h"\
+	".\DEBUGOUT.H"\
+	".\Ioclass.h"\
+	".\precomp.h"\
+	{$(INCLUDE)}"alpharef.h"\
+	{$(INCLUDE)}"basetsd.h"\
+	{$(INCLUDE)}"bugcodes.h"\
+	{$(INCLUDE)}"devioctl.h"\
+	{$(INCLUDE)}"guiddef.h"\
+	{$(INCLUDE)}"ia64reg.h"\
+	{$(INCLUDE)}"ntddk.h"\
+	{$(INCLUDE)}"ntdef.h"\
+	{$(INCLUDE)}"ntiologc.h"\
+	{$(INCLUDE)}"ntstatus.h"\
+	
 # End Source File
 # End Group
 # Begin Group "Resource Files"

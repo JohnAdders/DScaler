@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.20 2001-07-12 16:16:40 adcockj Exp $
+// $Id: OutThreads.cpp,v 1.21 2001-07-13 07:04:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -66,6 +66,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2001/07/12 16:16:40  adcockj
+// Added CVS Id and Log
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -90,6 +93,8 @@
 #include "FD_CommonFunctions.h"
 #include "CPU.h"
 #include "FieldTiming.h"
+#include "MixerDev.h"
+#include "Audio.h"
 
 // Thread related variables
 BOOL                bStopThread = FALSE;
@@ -146,6 +151,10 @@ void Start_Thread()
                              NULL,                          // Parameter.
                              (DWORD) 0,                     // Start immediatly.
                              (LPDWORD) & LinkThreadID);     // Thread ID.
+	if(!bSystemInMute)
+	{
+		Audio_Unmute();
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.41 2001-07-12 19:28:03 adcockj Exp $
+// $Id: DScaler.cpp,v 1.42 2001-07-13 07:04:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -65,6 +65,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.41  2001/07/12 19:28:03  adcockj
+// Limit VT display to valid pages
+//
 // Revision 1.40  2001/07/12 16:20:07  adcockj
 // Fixed typo in $Id
 //
@@ -1544,9 +1547,9 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         {
         //-------------------------------
         case TIMER_MSP:
+            Audio_MSP_Watch_Mode();
             if (bDisplayStatusBar == TRUE)
                 Audio_MSP_Print_Mode();
-            Audio_MSP_Watch_Mode();
             break;
         //-------------------------------
         case TIMER_STATUS:
@@ -1890,7 +1893,6 @@ void MainWndOnInitBT(HWND hWnd)
         if (Audio_MSP_Init(0x80, 0x81) == TRUE)
         {
             AddSplashTextLine("MSP Device OK");
-            Audio_Unmute();
         }
         else
         {
@@ -1906,7 +1908,7 @@ void MainWndOnInitBT(HWND hWnd)
             SetTimer(hWnd, TIMER_MSP, TIMER_MSP_MS, NULL);
         }
 
-        // resume mute status
+        // mute while we set things up
         if(bSystemInMute)
         {
             Audio_Mute();

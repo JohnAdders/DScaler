@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Audio.cpp,v 1.9 2001-07-12 16:16:39 adcockj Exp $
+// $Id: Audio.cpp,v 1.10 2001-07-13 07:04:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2001/07/12 16:16:39  adcockj
+// Added CVS Id and Log
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -513,6 +516,10 @@ BOOL Audio_MSP_Init(BYTE DWrite, BYTE DRead)
     Audio_MSP_Version();
     Sleep(4);
 
+	// set volume to Mute level
+    WriteDSP(0, 0x00 << 4);
+    WriteDSP(6, 0x00 << 4);
+
     // JA 20010108 Think this is right
     // MSP_init_data is indexed by MSPMode
     // elsewhere in the code
@@ -531,7 +538,6 @@ BOOL Audio_MSP_Init(BYTE DWrite, BYTE DRead)
         Sleep(4);
     }
 
-    Volume_OnChange(InitialVolume);
     Balance_OnChange(InitialBalance);
     SuperBass_OnChange(InitialSuperBass);
     Bass_OnChange(InitialBass);
@@ -543,7 +549,6 @@ BOOL Audio_MSP_Init(BYTE DWrite, BYTE DRead)
     Equalizer3_OnChange(InitialEqualizer[2]);
     Equalizer4_OnChange(InitialEqualizer[3]);
     Equalizer5_OnChange(InitialEqualizer[4]);
-    Audio_MSP_Set_MajorMinor_Mode(MSPMajorMode, MSPMinorMode);
     Audio_MSP_SetStereo(MSPMajorMode, MSPMinorMode, MSPStereo);
 
     return (TRUE);
@@ -1154,11 +1159,7 @@ void Audio_MSP_Watch_Mode()
 
     if (MSPStereo != newstereo)
     {
-        if (AutoStereoSelect == TRUE)
-            Audio_MSP_SetStereo(MSPMajorMode, MSPMinorMode, newstereo);
-        else
-            MSPNewStereo = newstereo;
-
+        Audio_MSP_SetStereo(MSPMajorMode, MSPMinorMode, newstereo);
     }
 }
 

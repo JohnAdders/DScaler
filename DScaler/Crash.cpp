@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Crash.cpp,v 1.3 2001-11-09 12:42:07 adcockj Exp $
+// $Id: Crash.cpp,v 1.4 2001-11-23 10:49:16 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) 1998-2001 Avery Lee.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -27,6 +27,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/11/09 12:42:07  adcockj
+// Separated most resources out into separate dll ready for localization
+//
 // Revision 1.2  2001/07/27 16:11:32  adcockj
 // Added support for new Crash dialog
 //
@@ -36,6 +39,8 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include "..\DScalerRes\resource.h"
+#include "resource.h"
 #include "DScaler.h"
 #include <crtdbg.h>
 

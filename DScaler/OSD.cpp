@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.39 2001-11-22 22:27:00 adcockj Exp $
+// $Id: OSD.cpp,v 1.40 2001-11-23 10:49:17 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.39  2001/11/22 22:27:00  adcockj
+// Bug Fixes
+//
 // Revision 1.38  2001/11/22 13:19:37  temperton
 // Added CPaintingHDC class for double buffering painting
 //
@@ -178,6 +181,8 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include "..\DScalerRes\resource.h"
+#include "resource.h"
 #include "OSD.h"
 #include "AspectRatio.h"
 #include "Other.h"

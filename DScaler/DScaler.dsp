@@ -696,6 +696,14 @@ SOURCE=.\RES\VTGREEKX15X18.bmp
 # End Source File
 # Begin Source File
 
+SOURCE=.\RES\VTHEBREWX15X18.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\RES\VTHUNGARIANX15X18.bmp
+# End Source File
+# Begin Source File
+
 SOURCE=.\RES\VTRUSSIANX15X18.bmp
 # End Source File
 # Begin Source File

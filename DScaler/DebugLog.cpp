@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DebugLog.cpp,v 1.13 2001-09-05 15:08:43 adcockj Exp $
+// $Id: DebugLog.cpp,v 1.14 2001-11-23 10:49:16 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2001/09/05 15:08:43  adcockj
+// Updated Loging
+//
 // Revision 1.12  2001/08/02 18:18:32  adcockj
 // Fixed release build problem
 //
@@ -43,6 +46,8 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "StdAfx.h"
+#include "..\DScalerRes\resource.h"
+#include "resource.h"
 #include "DebugLog.h"
 #include "SettingsDlg.h"
 

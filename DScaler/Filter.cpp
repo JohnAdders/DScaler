@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Filter.cpp,v 1.16 2001-11-22 22:32:09 adcockj Exp $
+// $Id: Filter.cpp,v 1.17 2001-11-23 10:49:17 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2001/11/22 22:32:09  adcockj
+// Removed extra filer settings menu item
+//
 // Revision 1.15  2001/11/21 15:21:39  adcockj
 // Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
 // Changed TDeinterlaceInfo structure to have history of pictures.
@@ -60,6 +63,8 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include "..\DScalerRes\resource.h"
+#include "resource.h"
 #include "Filter.h"
 #include "Settings.h"
 #include "CPU.h"

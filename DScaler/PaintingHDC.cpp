@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PaintingHDC.cpp,v 1.1 2001-11-22 13:19:37 temperton Exp $
+// $Id: PaintingHDC.cpp,v 1.2 2001-11-23 10:49:17 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Mike Temperton.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,10 +18,15 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/11/22 13:19:37  temperton
+// Added CPaintingHDC class for double buffering painting
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include "..\DScalerRes\resource.h"
+#include "resource.h"
 #include "PaintingHDC.h"
 
 CPaintingHDC::CPaintingHDC()

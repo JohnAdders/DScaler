@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareMemory.cpp,v 1.5 2001-11-02 16:30:08 adcockj Exp $
+// $Id: HardwareMemory.cpp,v 1.6 2001-11-23 10:49:17 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/11/02 16:30:08  adcockj
+// Check in merged code from multiple cards branch into main tree
+//
 // Revision 1.3.2.2  2001/08/14 21:25:57  adcockj
 // Bug fixes to get new version working
 //
@@ -34,6 +37,8 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include "..\DScalerRes\resource.h"
+#include "resource.h"
 #include "HardwareMemory.h"
 #include "DebugLog.h"
 

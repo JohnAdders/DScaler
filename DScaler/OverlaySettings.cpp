@@ -15,6 +15,8 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include "..\DScalerRes\resource.h"
+#include "resource.h"
 #include "Other.h"
 #include "OverlaySettings.h"
 

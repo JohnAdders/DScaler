@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsDlg.cpp,v 1.14 2001-08-03 19:03:52 adcockj Exp $
+// $Id: SettingsDlg.cpp,v 1.15 2001-11-23 10:49:17 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2001/08/03 19:03:52  adcockj
+// Fixed bug in initial display of settings dialog
+//
 // Revision 1.13  2001/07/29 12:39:28  tobbej
 // fix for saving settings when dialog is closed
 // modified spinbox check to use predefined constants
@@ -51,6 +54,8 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include "..\DScalerRes\resource.h"
+#include "resource.h"
 #include "SettingsDlg.h"
 #include "Settings.h"
 

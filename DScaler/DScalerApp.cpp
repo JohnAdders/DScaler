@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScalerApp.cpp,v 1.8 2001-11-19 14:02:48 adcockj Exp $
+// $Id: DScalerApp.cpp,v 1.9 2001-11-23 10:49:16 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2001/11/19 14:02:48  adcockj
+// Apply patches from Sandu Turcan
+//
 // Revision 1.7  2001/11/14 11:28:03  adcockj
 // Bug fixes
 //
@@ -44,6 +47,8 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include "..\DScalerRes\resource.h"
+#include "resource.h"
 #include "DScalerApp.h"
 #include "DScaler.h"
 

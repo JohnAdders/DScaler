@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: stdafx.h,v 1.9 2001-11-17 18:15:57 adcockj Exp $
+// $Id: stdafx.h,v 1.10 2001-11-23 10:49:17 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2001/11/17 18:15:57  adcockj
+// Bugfixes (including very silly performance bug)
+//
 // Revision 1.8  2001/11/09 12:42:07  adcockj
 // Separated most resources out into separate dll ready for localization
 //
@@ -71,8 +74,5 @@
 #ifdef IDC_STATIC
 #undef IDC_STATIC
 #endif
-
-#include "..\DScalerRes\resource.h"
-#include "resource.h"
 
 using namespace std;

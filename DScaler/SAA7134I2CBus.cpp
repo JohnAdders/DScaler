@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134I2CBus.cpp,v 1.2 2002-10-26 05:24:23 atnak Exp $
+// $Id: SAA7134I2CBus.cpp,v 1.3 2002-10-30 04:36:43 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/10/26 05:24:23  atnak
+// Minor cleanups
+//
 // Revision 1.1  2002/09/14 19:40:48  atnak
 // various changes
 //
@@ -44,12 +47,11 @@
 #include "DebugLog.h"
 
 
-CSAA7134I2CBus::CSAA7134I2CBus(ISAA7134I2CInterface* pSAA7134I2C)
+CSAA7134I2CBus::CSAA7134I2CBus(ISAA7134I2CInterface* pSAA7134I2C) :
+    m_InitializedSleep(FALSE)
 {
     ASSERT(pSAA7134I2C != 0);
     this->m_pSAA7134I2C = pSAA7134I2C;
-
-    InitializeSleep();
 }
 
 
@@ -187,6 +189,11 @@ bool CSAA7134I2CBus::BusyWait()
     int Retries = 0;
     BYTE Status;
 
+    if (m_InitializedSleep == FALSE)
+    {
+        InitializeSleep();
+    }
+
     while ((Status = m_pSAA7134I2C->GetI2CStatus()) ==
         ISAA7134I2CInterface::STATUS_BUSY)
     {
@@ -288,6 +295,7 @@ void CSAA7134I2CBus::InitializeSleep()
     }
     // calculate how many cycles a 50kHZ is (half I2C bus cycle)
     m_I2CSleepCycle = m_I2CSleepCycle / elapsed * 1000L / 50000L;
+    m_InitializedSleep = TRUE;
 }
 
 

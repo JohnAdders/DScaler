@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.119 2002-02-02 01:31:18 laurentg Exp $
+// $Id: DScaler.cpp,v 1.120 2002-02-03 10:31:22 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.119  2002/02/02 01:31:18  laurentg
+// Access to the files of the playlist added in the menus
+// Save Playlist added
+// "Video Adjustments ..." restored in the popup menu
+//
 // Revision 1.118  2002/01/31 18:07:15  robmuller
 // Fixed crash when using command line parameter /c.
 //
@@ -707,14 +712,21 @@ HMENU CreateDScalerPopupMenu()
 BOOL WINAPI OnContextMenu(HWND hWnd, int x, int y)
 { 
     RECT rc;                    // client area of window
-    POINT pt = { x, y };        // location of mouse click
+    POINT pt = {0,0};           // location of mouse click
     HMENU hMenuPopup = CreateDScalerPopupMenu();
 
     // Get the bounding rectangle of the client area.
     GetClientRect(hWnd, &rc);
 
-    // Convert the mouse position to client coordinates.
-    ScreenToClient(hWnd, &pt);
+    //if the context menu is opend with a keypress, x and y is -1
+    if(x!=-1 && y!=-1)
+    {
+        pt.x=x;
+        pt.y=y;
+
+        // Convert the mouse position to client coordinates.
+        ScreenToClient(hWnd, &pt);
+    }
 
     // If the position is in the client area, display a
     // shortcut menu.

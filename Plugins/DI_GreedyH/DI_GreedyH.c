@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_GreedyH.c,v 1.5 2001-07-30 17:56:26 trbarry Exp $
+// $Id: DI_GreedyH.c,v 1.6 2001-07-30 21:50:32 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -36,6 +36,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/07/30 17:56:26  trbarry
+// Add Greedy High Motion MMX, K6-II, K6-III, and Celeron support.
+// Tweak defaults.
+//
 // Revision 1.4  2001/07/28 18:47:24  trbarry
 // Fix Sharpness with Median Filter
 // Increase Sharpness default to make obvious
@@ -133,7 +137,7 @@ SETTING DI_GreedyHSettings[DI_GREEDYH_SETTING_LASTONE] =
 	},
 	{
 		"Auto Pull-Down", ONOFF, 0,		// szDisplayName, TYPE, orig val
-		&GreedyUsePulldown, TRUE, 0,	// *pValue,Default, Min
+		&GreedyUsePulldown, FALSE, 0,	// *pValue,Default, Min
 		1, 1, 1,						// Max, Step, OSDDivider
 		NULL, "Deinterlace",			// **pszList, Ini Section
 		"GreedyUsePulldown", NULL,		// Ini name, pfnOnChange
@@ -478,7 +482,7 @@ static BOOL ShowDiag = FALSE;
 			GreedyMedianFilterAmt = 3;			// Don't filter if > this
 			GreedyLowMotionPdLvl = 9;			// Do PullDown on if motion < this
 
-			GreedyUsePulldown = TRUE;			
+			GreedyUsePulldown = FALSE;			
 			GreedyUseInBetween = FALSE;
 			GreedyUseMedianFilter = FALSE;
 			GreedyUseVertFilter = FALSE;

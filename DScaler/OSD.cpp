@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.88 2003-11-12 22:14:30 robmuller Exp $
+// $Id: OSD.cpp,v 1.89 2004-05-02 14:09:32 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.88  2003/11/12 22:14:30  robmuller
+// Add some more info to the developers statistics screen.
+//
 // Revision 1.87  2003/11/11 22:16:30  robmuller
 // Add ability to include the performance statistics in a release build.
 //
@@ -1004,7 +1007,7 @@ void OSD_Redraw(HDC hDC, LPRECT lpRect)
 
                     SetBkMode(hDC, TRANSPARENT);
                     SetTextColor(hDC, OSD_Text[i].BackgroundColor);
-                    SetBkColor(hDC, Overlay_GetColor());
+                    SetBkColor(hDC, Overlay_GetCorrectedColor(hDC));
 
                     HBITMAP hBM = CreateBitmap(8, 8, 1, 1, (LPBYTE)bBrushBits); 
                     HBRUSH hBrush = CreatePatternBrush(hBM);

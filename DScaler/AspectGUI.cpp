@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.62 2003-10-27 10:39:50 adcockj Exp $
+// $Id: AspectGUI.cpp,v 1.63 2004-05-02 14:09:32 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.62  2003/10/27 10:39:50  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.61  2003/09/14 08:43:59  adcockj
 // Fixed Settings inconsistency
 //
@@ -952,7 +955,7 @@ void PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect, BOOL bNoMi
 
     if (bEnable && OverlayActive())
     {
-        Overlay = CreateSolidBrush(GetNearestColor(hDC, Overlay_GetColor()));
+        Overlay = CreateSolidBrush(Overlay_GetCorrectedColor(hDC));
     }
     else
     {

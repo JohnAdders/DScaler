@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.67 2003-10-27 10:39:52 adcockj Exp $
+// $Id: Other.cpp,v 1.68 2004-05-02 14:09:32 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.67  2003/10/27 10:39:52  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.66  2003/07/18 09:38:00  adcockj
 // Added some unused test code for flip timing
 //
@@ -289,8 +292,7 @@ BYTE*                   lpExtraMemoryForFilters = NULL;
 BOOL bCanColorKey=FALSE;
 DWORD DestSizeAlign;
 DWORD SrcSizeAlign;
-COLORREF OverlayColor = RGB(32, 16, 16);
-DWORD PhysicalOverlayColor = RGB(32, 16, 16);
+COLORREF g_OverlayColor = RGB(32, 16, 16);
 long BackBuffers = -1;     // Make new user parm, TRB 10/28/00
 BOOL bCanDoBob = FALSE;
 BOOL bCanDoFlipInterval = FALSE;
@@ -640,18 +642,31 @@ BOOL Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags)
         {
             dwFlags |= DDOVER_KEYDESTOVERRIDE;
 
-            PhysicalOverlayColor = Overlay_ColorMatch(lpDDSurface, OverlayColor);
-            if (PhysicalOverlayColor == 0 && OverlayColor != 0)      // sometimes we glitch and can't get the Value
+			COLORREF overlayColour;
+			HDC hDC;
+
+			if (SUCCEEDED(lpDDSurface->GetDC(&hDC)))
+			{
+				overlayColour = Overlay_GetCorrectedColor(hDC);
+				lpDDSurface->ReleaseDC(hDC);
+			}
+			else
+			{
+				overlayColour = Overlay_GetColor();
+			}
+
+            DWORD dwPhysicalOverlayColor = Overlay_ColorMatch(lpDDSurface, overlayColour);
+            if (dwPhysicalOverlayColor == 0 && overlayColour != 0)      // sometimes we glitch and can't get the Value
             {
                 LOG(3, "Physical overlay color is zero!  Retrying.");
-                PhysicalOverlayColor = Overlay_ColorMatch(lpDDSurface, OverlayColor);
+                dwPhysicalOverlayColor = Overlay_ColorMatch(lpDDSurface, overlayColour);
             }
-            LOG(3, "Physical overlay color is %x", PhysicalOverlayColor);
+            LOG(3, "Physical overlay color is %x", dwPhysicalOverlayColor);
 
-            VT_SetOverlayColour(OverlayColor);
+            VT_SetOverlayColour(overlayColour);
 
-            DDOverlayFX.dckDestColorkey.dwColorSpaceHighValue = PhysicalOverlayColor;
-            DDOverlayFX.dckDestColorkey.dwColorSpaceLowValue = PhysicalOverlayColor;
+            DDOverlayFX.dckDestColorkey.dwColorSpaceHighValue = dwPhysicalOverlayColor;
+            DDOverlayFX.dckDestColorkey.dwColorSpaceLowValue = dwPhysicalOverlayColor;
         }
         if(bCanDoBob)
         {
@@ -686,8 +701,8 @@ BOOL Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags)
             ddrval = lpDDOverlay->GetColorKey(DDCKEY_DESTOVERLAY, &ColorKey);
             if(SUCCEEDED(ddrval))
             {
-                OverlayColor = ColorKey.dwColorSpaceHighValue;
-                LOG(1, "Reset overlay color to %x", OverlayColor);
+                g_OverlayColor = ColorKey.dwColorSpaceHighValue;
+                LOG(1, "Reset overlay color to %x", g_OverlayColor);
             }
             dwFlags &= ~DDOVER_KEYDESTOVERRIDE;
             memset(&DDOverlayFX, 0x00, sizeof(DDOverlayFX));
@@ -1240,7 +1255,13 @@ BOOL Overlay_Destroy()
 
 COLORREF Overlay_GetColor()
 {
-    return OverlayColor;
+    return g_OverlayColor;
+}
+
+COLORREF Overlay_GetCorrectedColor(HDC hDC)
+{
+	COLORREF nearest = GetNearestColor(hDC, g_OverlayColor);
+	return (nearest == CLR_INVALID) ? g_OverlayColor : nearest;
 }
 
 
@@ -1662,7 +1683,7 @@ void ExitDD(void)
 
 BOOL Overlay_ColorKey_OnChange(long NewValue)
 {
-    OverlayColor = (COLORREF)NewValue;
+    g_OverlayColor = (COLORREF)NewValue;
     WorkoutOverlaySize(TRUE);
     return FALSE;
 }
@@ -1736,7 +1757,7 @@ SETTING OtherSettings[OTHER_SETTING_LASTONE] =
         "Overlay", "BackBuffers", NULL,
     },
     {
-        "Overlay Colorkey", SLIDER, 0, (long*)&OverlayColor,
+        "Overlay Colorkey", SLIDER, 0, (long*)&g_OverlayColor,
         RGB(32,16,16), 0, RGB(255,255,255), 1, 1,
         NULL,
         "Overlay", "OverlayColor", Overlay_ColorKey_OnChange,

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.39 2002-10-31 05:02:55 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.40 2002-10-31 05:39:02 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.39  2002/10/31 05:02:55  atnak
+// Settings cleanup and audio tweaks
+//
 // Revision 1.38  2002/10/31 03:10:55  atnak
 // Changed CSource::GetTreeSettingsPage to return CTreeSettingsPage*
 //
@@ -193,7 +196,8 @@ CSAA7134Source::CSAA7134Source(CSAA7134Card* pSAA7134Card, CContigMemory* PageTa
     m_DeviceIndex(DeviceIndex),
     m_LastFieldIndex(0),
     m_hSAA7134ResourceInst(NULL),
-    m_SettingsSetup(NULL)
+    m_SettingsSetup(NULL),
+    m_DetectedAudioChannel((eAudioChannel)-1)
 {
     m_IDString = IniSection;
     CreateSettings(IniSection);
@@ -1195,6 +1199,8 @@ BOOL CSAA7134Source::SetTunerFrequency(long FrequencyId, eVideoFormat VideoForma
     if (Success)
     {
         StatusBar_ShowText(STATUS_AUDIO, "");
+        m_DetectedAudioChannel = (eAudioChannel)-1;
+
         // This is used in DecodeVBI() so old VBI isn't
         // used for the new channel
         m_ChannelChangeTick = GetTickCount();

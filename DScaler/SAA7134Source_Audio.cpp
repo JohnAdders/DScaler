@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_Audio.cpp,v 1.12 2002-10-31 05:02:54 atnak Exp $
+// $Id: SAA7134Source_Audio.cpp,v 1.13 2002-10-31 05:39:02 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/10/31 05:02:54  atnak
+// Settings cleanup and audio tweaks
+//
 // Revision 1.11  2002/10/28 11:10:11  atnak
 // Various changes and revamp to settings
 //
@@ -122,52 +125,48 @@ void CSAA7134Source::SetupAudioStandard()
 
 void CSAA7134Source::UpdateAudioStatus()
 {
-    char Text[256];
-    char szAudioStandard[128];
+    eAudioChannel AudioChannel = m_pSAA7134Card->GetAudioChannel();
 
-    szAudioStandard[0] = '\0';
-/*
-    if (m_AudioStandardInStatusBar->GetValue())
+    if (AudioChannel != m_DetectedAudioChannel)
     {
-        if (m_DetectingAudioStandard)
+        char szAudioChannel[256] = "";
+
+        eSoundChannel BtSoundChannel;
+
+        switch(AudioChannel)
         {
-            strcpy(szAudioStandard," [Detecting...]");
-        }
-        else
-        {
-            char *s = (char*)m_pBT848Card->GetAudioStandardName(m_AudioStandardManual->GetValue());
-            if (s != NULL)
+        case AUDIOCHANNEL_MONO:
             {
-                sprintf(szAudioStandard," [%s]",s);
+                BtSoundChannel = SOUNDCHANNEL_MONO;
+                sprintf(szAudioChannel,"Mono");
+                break;
+            }
+        case AUDIOCHANNEL_STEREO:
+            {
+                BtSoundChannel = SOUNDCHANNEL_STEREO;
+                sprintf(szAudioChannel,"Stereo");
+                break;
+            }
+        case AUDIOCHANNEL_LANGUAGE1:
+            {
+                BtSoundChannel = SOUNDCHANNEL_LANGUAGE1;
+                sprintf(szAudioChannel,"Language 1");
+                break;
+            }
+        case AUDIOCHANNEL_LANGUAGE2:
+            {
+                BtSoundChannel = SOUNDCHANNEL_LANGUAGE2;
+                sprintf(szAudioChannel,"Language 2");
+                break;
             }
         }
-    }
-*/
-    switch(m_pSAA7134Card->GetAudioChannel())
-    {
-    case AUDIOCHANNEL_MONO:
-        {
-            sprintf(Text,"Mono%s",szAudioStandard);
-            break;
-        }
-    case AUDIOCHANNEL_STEREO:
-        {
-            sprintf(Text,"Stereo%s",szAudioStandard);
-            break;
-        }
-    case AUDIOCHANNEL_LANGUAGE1:
-        {
-            sprintf(Text,"Language 1%s",szAudioStandard);
-            break;
-        }
-    case AUDIOCHANNEL_LANGUAGE2:
-        {
-            sprintf(Text,"Language 2%s",szAudioStandard);
-            break;
-        }
-    }
 
-    StatusBar_ShowText(STATUS_AUDIO, Text);
+        StatusBar_ShowText(STATUS_AUDIO, szAudioChannel);
+        m_DetectedAudioChannel = AudioChannel;
+
+        // This is needed for the stereo indicator in the toolbar
+        EventCollector->RaiseEvent(this, EVENT_SOUNDCHANNEL, -1, BtSoundChannel);
+    }
 }
 
 

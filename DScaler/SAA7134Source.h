@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.h,v 1.22 2002-10-31 05:02:55 atnak Exp $
+// $Id: SAA7134Source.h,v 1.23 2002-10-31 05:39:02 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2002/10/31 05:02:55  atnak
+// Settings cleanup and audio tweaks
+//
 // Revision 1.21  2002/10/31 03:10:55  atnak
 // Changed CSource::GetTreeSettingsPage to return CTreeSettingsPage*
 //
@@ -280,6 +283,8 @@ private:
     int             m_CurrentFrame;
     BOOL            m_IsFieldOdd;
     int             m_LastFieldIndex;
+
+    eAudioChannel   m_DetectedAudioChannel;
 
     DWORD           m_ChannelChangeTick;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.40 2002-05-28 20:04:26 robmuller Exp $
+// $Id: VBI_VideoText.cpp,v 1.41 2002-05-29 18:44:52 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.40  2002/05/28 20:04:26  robmuller
+// Addition to patch #561180 by PietOO:
+// In auto code page mode the code page options are grayed and the current code page is checked.
+//
 // Revision 1.39  2002/05/27 20:17:05  robmuller
 // Patch #561180  by PietOO:
 // Autodetection of teletext code page.
@@ -169,6 +173,7 @@ bool VTSubPageLocked = false;
 bool VTShowHidden = false;
 bool VTShowFlashed = false;
 bool VTFlashTimerSet = false;
+bool VTAntiAlias = true;
 
 int VTSearchPage = -1;
 int VTSearchSubPage = -1;

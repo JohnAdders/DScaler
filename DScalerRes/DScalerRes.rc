@@ -1063,6 +1063,7 @@ BEGIN
             MENUITEM "Index\tF9",                   IDM_TELETEXT_KEY5
             MENUITEM "Conceal\t?",                  IDM_TELETEXT_KEY6
         END
+        MENUITEM "Teletext Font &Anti-aliasing", IDM_VT_ANTIALIAS
         MENUITEM "&Videotext Reset (After switch over Composite)  ", 
                                                 IDM_VT_RESET, GRAYED
         MENUITEM SEPARATOR

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDrawer.cpp,v 1.6 2002-05-24 14:49:10 robmuller Exp $
+// $Id: VTDrawer.cpp,v 1.7 2002-05-29 18:44:50 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (c) 2002 Mike Temperton.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/05/24 14:49:10  robmuller
+// Patch from PietOO:
+// Non antialiased font when in mixed mode. Shadowed text in mixed mode.
+//
 // Revision 1.5  2002/05/23 22:16:32  robmuller
 // Applied patch #559111 by PietOO.
 // Teletext: less sparse look for ttf fonts.
@@ -448,8 +452,13 @@ HFONT CVTDrawer::MakeFont(HDC hDC, double iSize, double iWidth, char* szFaceName
     // WidenFont = make X as wide as the average width of W and X
     BOOL bWiden = bWidenFont & (iWidth > 10);
 
-    // Antialiased looks better in non mixed mode
-    BYTE bQuality = VTState != VT_MIX ? ANTIALIASED_QUALITY : NONANTIALIASED_QUALITY;
+    BYTE bQuality = VTAntiAlias ? ANTIALIASED_QUALITY : NONANTIALIASED_QUALITY;
+
+    // Non-antialiased looks better in mixed mode
+    if(VTState == VT_MIX)
+    {
+        bQuality = NONANTIALIASED_QUALITY;
+    }
 
     // Small fonts blur when too heavy
     LONG bWeight = (iWidth > 10) ? FW_SEMIBOLD : FW_NORMAL; //bWiden ? FW_BOLD : FW_SEMIBOLD;

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.163 2002-05-28 08:54:07 robmuller Exp $
+// $Id: DScaler.cpp,v 1.164 2002-05-29 18:44:54 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.163  2002/05/28 08:54:07  robmuller
+// Fixed broken OSD menu.
+// Added ASSERTs to prevent similar errors in the future.
+//
 // Revision 1.162  2002/05/27 20:17:05  robmuller
 // Patch #561180  by PietOO:
 // Autodetection of teletext code page.
@@ -1841,6 +1845,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             bVTAutoCodePage = !bVTAutoCodePage;
             break;
         
+        case IDM_VT_ANTIALIAS:
+            VTAntiAlias = !VTAntiAlias;
+            InvalidateRect(hWnd, NULL, FALSE);
+            break;
+
         case IDM_SPLASH_ON_STARTUP:
             bDisplaySplashScreen = !bDisplaySplashScreen;
             break;
@@ -3282,6 +3291,7 @@ void SetMenuAnalog()
     CheckMenuItemBool(hMenu, IDM_ALWAYONTOPFULLSCREEN, bAlwaysOnTopFull);
     CheckMenuItemBool(hMenu, IDM_SCREENSAVEROFF, bScreensaverOff);
     CheckMenuItemBool(hMenu, IDM_VT_AUTOCODEPAGE, bVTAutoCodePage);
+    CheckMenuItemBool(hMenu, IDM_VT_ANTIALIAS, VTAntiAlias);
     CheckMenuItemBool(hMenu, IDM_SPLASH_ON_STARTUP, bDisplaySplashScreen);
     CheckMenuItemBool(hMenu, IDM_AUTOHIDE_OSD, Setting_GetValue(OSD_GetSetting(OSD_AUTOHIDE_SCREEN)));
     CheckMenuItemBool(hMenu, IDM_KEYBOARDLOCK, bKeyboardLock);
@@ -3954,6 +3964,12 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
         TRUE, 0, 1, 1, 1,
         NULL,
         "MainWindow", "AutoCodePage", NULL,
+    },
+    {
+        "VT Anti-alias", YESNO, 0, (long*)&VTAntiAlias,
+        TRUE, 0, 1, 1, 1,
+        NULL,
+        "MainWindow", "VTAntiAlias", NULL,
     },
     {
         "Initial source", SLIDER, 0, (long*)&InitSourceIdx,

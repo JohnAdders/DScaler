@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.H,v 1.23 2002-05-23 18:45:03 robmuller Exp $
+// $Id: VBI_VideoText.H,v 1.24 2002-05-29 18:44:51 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -218,6 +218,7 @@ extern int VTPage;
 extern int VTSubPage;
 extern bool VTSubPageLocked;
 extern bool VTShowHidden;
+extern bool VTAntiAlias;
 
 extern int VTSearchPage;
 extern int VTSearchSubPage;

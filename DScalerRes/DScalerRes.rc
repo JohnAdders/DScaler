@@ -495,8 +495,7 @@ BEGIN
                     10
     GROUPBOX        "DScaler contains code from these projects",IDC_STATIC,7,
                     143,177,58
-    GROUPBOX        "GPL Information && Open Source Policy",IDC_STATIC,5,203,
-                    364,65
+    GROUPBOX        "License Information",IDC_STATIC,5,203,364,65
     LTEXT           "This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.",
                     IDC_STATIC,11,214,354,24
     LTEXT           "This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.",
@@ -511,13 +510,13 @@ BEGIN
     LTEXT           "I2C Interface - Copyright © Gerd Knorr",IDC_STATIC,13,
                     177,160,10
     GROUPBOX        "Support",IDC_STATIC,194,37,180,100
-    LTEXT           "The best place to get support for DScaler are the support forums at DScaler's support forum. Click on link below.",
+    LTEXT           "The best place to get support for DScaler is in DScaler's very own forum. Click on link below.",
                     IDC_STATIC,200,47,166,27
     LTEXT           "Eric Schmidt\nMuljadi Budiman\nLindsey Dubb\nMike Temperton\nIvan Tarnavsky\nRob Muller",
                     IDC_STATIC,103,52,74,81
-    LTEXT           "Please read the Support section in the help and the FAQ before posting.",
+    LTEXT           "Please read the Support section in the help and the FAQ in the support forum before posting.",
                     IDC_STATIC,200,104,166,26
-    CTEXT           "http://www.dscaler.org/phpBB/index.php",IDC_LINK,201,81,
+    CTEXT           "http://www.dscaler.org/phpBB/index.php",IDC_LINK,201,78,
                     162,12,SS_NOTIFY | SS_CENTERIMAGE | SS_SUNKEN
     LTEXT           "VirtualDub - Copyright © Avery Lee",IDC_STATIC,13,189,
                     161,9

@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.cpp,v 1.6 2001-12-19 19:26:17 ittarnavsky Exp $
+// $Id: MSP34x0.cpp,v 1.7 2001-12-20 12:55:54 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/12/19 19:26:17  ittarnavsky
+// started rewrite of the sound standard selection
+//
 // Revision 1.5  2001/12/18 23:36:01  adcockj
 // Split up the MSP chip support into two parts to avoid probelms when deleting objects
 //
@@ -267,27 +270,208 @@ void CMSP34x0Decoder::SetCarrier(int cdo1, int cdo2)
     SetDEMRegister(DEM_WR_XXXXXXXX_FIXME, 0);
 }
 
-CMSP34x0Decoder::StandardDefinition CMSP34x0Decoder::m_MSPStandards[] =
+CMSP34x0Decoder::TStandardDefinition CMSP34x0Decoder::m_MSPStandards[] =
 {
-    { MSP34x0_STANDARD_M_DUAL_FM,           MSP34x0_CARRIER_4_5,  MSP34x0_CARRIER_4_724212,   "M-Dual FM-Stereo" },
-    { MSP34x0_STANDARD_BG_DUAL_FM,          MSP34x0_CARRIER_5_5,  MSP34x0_CARRIER_5_7421875,  "B/G-Dual FM-Stereo" },
-    { MSP34x0_STANDARD_DK1_DUAL_FM,         MSP34x0_CARRIER_6_5,  MSP34x0_CARRIER_6_2578125,  "D/K1-Dual FM-Stereo" },
-    { MSP34x0_STANDARD_DK2_DUAL_FM,         MSP34x0_CARRIER_6_5,  MSP34x0_CARRIER_6_7421875,  "D/K2-Dual FM-Stereo" },
-    { MSP34x0_STANDARD_DK_FM_MONO,          MSP34x0_CARRIER_6_5,  MSP34x0_CARRIER_6_5,        "D/K-FM-Mono with HDEV3" },
-    { MSP34x0_STANDARD_DK3_DUAL_FM,         MSP34x0_CARRIER_6_5,  MSP34x0_CARRIER_5_7421875,  "D/K3-Dual FM-Stereo" },
-    { MSP34x0_STANDARD_BG_NICAM_FM,         MSP34x0_CARRIER_5_5,  MSP34x0_CARRIER_5_85,       "B/G-NICAM-FM" },
-    { MSP34x0_STANDARD_L_NICAM_AM,          MSP34x0_CARRIER_6_5,  MSP34x0_CARRIER_5_85,       "L-NICAM-AM" },
-    { MSP34x0_STANDARD_I_NICAM_FM,          MSP34x0_CARRIER_6_0,  MSP34x0_CARRIER_6_552,      "I-NICAM-FM" },
-    { MSP34x0_STANDARD_DK_NICAM_FM,         MSP34x0_CARRIER_6_5,  MSP34x0_CARRIER_5_85,       "D/K-NICAM-FM" },
-    { MSP34x0_STANDARD_DK_NICAM_FM_HDEV2,   MSP34x0_CARRIER_6_5,  MSP34x0_CARRIER_5_85,       "D/K-NICAM-FM with HDEV2" },
-    { MSP34x0_STANDARD_DK_NICAM_FM_HDEV3,   MSP34x0_CARRIER_6_5,  MSP34x0_CARRIER_5_85,       "D/K-NICAM-FM with HDEV3" },
-    { MSP34x0_STANDARD_M_BTSC,              MSP34x0_CARRIER_4_5,  MSP34x0_CARRIER_4_5,        "M-BTSC-Stereo" },
-    { MSP34x0_STANDARD_M_BTSC_MONO,         MSP34x0_CARRIER_4_5,  MSP34x0_CARRIER_4_5,        "M-BTSC-Mono + SAP" },
-    { MSP34x0_STANDARD_M_EIA_J,             MSP34x0_CARRIER_4_5,  MSP34x0_CARRIER_4_5,        "M-EIA-J Japan Stereo" },
-    { MSP34x0_STANDARD_FM_RADIO,            MSP34x0_CARRIER_10_7, MSP34x0_CARRIER_10_7,       "FM-Stereo Radio" },
-    { MSP34x0_STANDARD_SAT_MONO,            MSP34x0_CARRIER_6_5,  MSP34x0_CARRIER_6_5,        "SAT-Mono" },
-    { MSP34x0_STANDARD_SAT,                 MSP34x0_CARRIER_7_02, MSP34x0_CARRIER_7_20,       "SAT-Stereo" },
-    { MSP34x0_STANDARD_SAT_ADR,             MSP34x0_CARRIER_6_12, MSP34x0_CARRIER_6_12,       "SAT ADR" },
+    { 
+        "M-Dual FM-Stereo",
+        MSP34x0_STANDARD_M_DUAL_FM,           
+        MSP34x0_CARRIER_4_5,  
+        MSP34x0_CARRIER_4_724212, 
+        MONO_FM,
+        STEREO_FM,
+        FIR_BG_DK_DUAL_FM,
+    },
+    { 
+        "B/G-Dual FM-Stereo",
+        MSP34x0_STANDARD_BG_DUAL_FM,          
+        MSP34x0_CARRIER_5_5,  
+        MSP34x0_CARRIER_5_7421875,
+        MONO_FM,
+        STEREO_FM,
+        FIR_BG_DK_DUAL_FM,
+    },
+    {
+        "D/K1-Dual FM-Stereo",
+        MSP34x0_STANDARD_DK1_DUAL_FM,         
+        MSP34x0_CARRIER_6_5,  
+        MSP34x0_CARRIER_6_2578125,
+        MONO_FM,
+        STEREO_FM,
+        FIR_BG_DK_DUAL_FM,
+    },
+    { 
+        "D/K2-Dual FM-Stereo",
+        MSP34x0_STANDARD_DK2_DUAL_FM,         
+        MSP34x0_CARRIER_6_5,  
+        MSP34x0_CARRIER_6_7421875,  
+        MONO_FM,
+        STEREO_FM,
+        FIR_BG_DK_DUAL_FM,
+    },
+    { 
+        "D/K-FM-Mono with HDEV3",
+        MSP34x0_STANDARD_DK_FM_MONO,          
+        MSP34x0_CARRIER_6_5,  
+        MSP34x0_CARRIER_6_5,        
+        MONO_FM,
+        STEREO_NONE,
+        FIR_BG_DK_DUAL_FM,
+    },
+    { 
+        "D/K3-Dual FM-Stereo",
+        MSP34x0_STANDARD_DK3_DUAL_FM,         
+        MSP34x0_CARRIER_6_5,  
+        MSP34x0_CARRIER_5_7421875,  
+        MONO_FM,
+        STEREO_FM,
+        FIR_BG_DK_DUAL_FM
+    },
+    { 
+        "B/G-NICAM-FM",
+        MSP34x0_STANDARD_BG_NICAM_FM,         
+        MSP34x0_CARRIER_5_5,  
+        MSP34x0_CARRIER_5_85,       
+        MONO_FM,
+        STEREO_NICAM,
+        FIR_BG_DK_NICAM,
+    },
+    { 
+        "L-NICAM-AM",
+        MSP34x0_STANDARD_L_NICAM_AM,          
+        MSP34x0_CARRIER_6_5,  
+        MSP34x0_CARRIER_5_85,       
+        MONO_AM,
+        STEREO_NICAM,
+        FIR_L_NICAM,
+    },
+    { 
+        "I-NICAM-FM",
+        MSP34x0_STANDARD_I_NICAM_FM,          
+        MSP34x0_CARRIER_6_0,  
+        MSP34x0_CARRIER_6_552,      
+        MONO_FM,
+        STEREO_NICAM,
+        FIR_I_NICAM,
+    },
+    { 
+        "D/K-NICAM-FM",
+        MSP34x0_STANDARD_DK_NICAM_FM,         
+        MSP34x0_CARRIER_6_5,  
+        MSP34x0_CARRIER_5_85,       
+        MONO_FM,
+        STEREO_NICAM,
+        FIR_BG_DK_NICAM,
+    },
+    { 
+        "D/K-NICAM-FM with HDEV2",
+        MSP34x0_STANDARD_DK_NICAM_FM_HDEV2,   
+        MSP34x0_CARRIER_6_5,  
+        MSP34x0_CARRIER_5_85,       
+        MONO_FM,
+        STEREO_NICAM,
+        FIR_BG_DK_NICAM,
+    },
+    { 
+        "D/K-NICAM-FM with HDEV3",
+        MSP34x0_STANDARD_DK_NICAM_FM_HDEV3,   
+        MSP34x0_CARRIER_6_5,  
+        MSP34x0_CARRIER_5_85,       
+        MONO_FM,
+        STEREO_NICAM,
+        FIR_BG_DK_NICAM,
+    },
+    { 
+        "M-BTSC-Stereo",
+        MSP34x0_STANDARD_M_BTSC,              
+        MSP34x0_CARRIER_4_5,  
+        MSP34x0_CARRIER_4_5,        
+        MONO_FM,
+        STEREO_BTSC,
+        FIR_BG_DK_DUAL_FM,
+    },
+    { 
+        "M-BTSC-Mono + SAP",
+        MSP34x0_STANDARD_M_BTSC_MONO,         
+        MSP34x0_CARRIER_4_5,  
+        MSP34x0_CARRIER_4_5,        
+        MONO_FM,
+        STEREO_MONO_SAP,
+        FIR_BG_DK_DUAL_FM,
+    },
+    { 
+        "M-EIA-J Japan Stereo",
+        MSP34x0_STANDARD_M_EIA_J,             
+        MSP34x0_CARRIER_4_5,  
+        MSP34x0_CARRIER_4_5,        
+        MONO_FM,
+        STEREO_FM,
+        FIR_BG_DK_DUAL_FM,
+    },
+    { 
+        "FM-Stereo Radio",
+        MSP34x0_STANDARD_FM_RADIO,            
+        MSP34x0_CARRIER_10_7, 
+        MSP34x0_CARRIER_10_7,       
+        MONO_FM,
+        STEREO_FM,
+        FIR_BG_DK_DUAL_FM,
+    },
+    { 
+        "SAT-Mono",
+        MSP34x0_STANDARD_SAT_MONO,            
+        MSP34x0_CARRIER_6_5,  
+        MSP34x0_CARRIER_6_5,        
+        MONO_FM,
+        STEREO_NONE,
+        FIR_BG_DK_DUAL_FM,
+    },
+    { 
+        "SAT-Stereo",
+        MSP34x0_STANDARD_SAT,                 
+        MSP34x0_CARRIER_7_02, 
+        MSP34x0_CARRIER_7_20,       
+        MONO_FM,
+        STEREO_FM,
+        FIR_BG_DK_DUAL_FM,
+    },
+    { 
+        "SAT ADR",
+        MSP34x0_STANDARD_SAT_ADR,             
+        MSP34x0_CARRIER_6_12, 
+        MSP34x0_CARRIER_6_12,       
+        MONO_FM,
+        STEREO_ADR,
+        FIR_BG_DK_DUAL_FM,
+    },
+    { 
+        NULL,
+        MSP34x0_STANDARD_NONE,
+        MSP34x0_CARRIER_6_5,  
+        MSP34x0_CARRIER_6_5,  
+        MONO_FM,
+        STEREO_NONE,
+        FIR_BG_DK_DUAL_FM,
+    },
+};
+
+CMSP34x0Decoder::TFIRType CMSP34x0Decoder::m_FIRTypes[] =
+{
+    {
+        { -2, -8, -10, 10, 50, 86 }, 
+        {  3, 18, 27, 48, 66, 72 },
+    },
+    {
+        {  2, 4, -6, -4, 40, 94 }, 
+        {  3, 18, 27, 48, 66, 72 },
+    },
+    {
+        {  -2, -8, -10, 10, 50, 86 }, 
+        {  -4, -12, -9, 23, 79, 126 },
+    },
+    {
+        {  3, 18, 27, 48, 66, 72 }, 
+        {  3, 18, 27, 48, 66, 72 },
+    },
 };
 
 WORD CMSP34x0Decoder::m_ScartMasks[MSP34x0_SCARTOUTPUT_LASTONE][MSP34x0_SCARTINPUT_LASTONE + 1] = 
@@ -310,8 +494,6 @@ void CMSP34x0Decoder::SetSCARTxbar(eScartOutput output, eScartInput input)
 
 void CMSP34x0Decoder::ReconfigureRevD()
 {
-    Reset();
-
     /// SCART Signal Path
     switch (m_AudioInput)
     {
@@ -337,16 +519,30 @@ void CMSP34x0Decoder::ReconfigureRevD()
     }
     else if (IsPALVideoFormat(m_VideoFormat))
     {
-        modus = 0x1003;
-    }
-    else if (IsNTSCVideoFormat(m_VideoFormat))
-    {
-        modus = 0x2003;
-        standard = MSP34x0_STANDARD_M_BTSC;
+        switch(m_VideoFormat)
+        {
+        case VIDEOFORMAT_PAL_D:
+            // make the autodetection prefer the NICAM or DK2 modes
+            modus = 0x1003;
+            break;
+        case VIDEOFORMAT_NTSC_M:
+            modus = 0x2003;
+            standard = MSP34x0_STANDARD_M_BTSC;
+            break;
+        case VIDEOFORMAT_NTSC_M_Japan:
+            modus = 0x4003;
+            break;
+        default:
+            break;
+        }
     }
 
     // 1. MODUS register
     SetDEMRegister(DEM_WR_MODUS, modus);
+
+    // set up so that we fall back to AM/FM if there is no NICAM
+    // required on D series chips
+    SetDEMRegister(DEM_WR_AUTO_FMAM, 0x0001);
 
     SetDSPRegister(DSP_WR_LDSPK_SOURCE, 0x0320);
     SetDSPRegister(DSP_WR_HEADPH_SOURCE, 0x0420);
@@ -439,7 +635,242 @@ void CMSP34x0Decoder::ReconfigureRevD()
 
 void CMSP34x0Decoder::Reconfigure()
 {
-    ReconfigureRevD();
+    Reset();
+
+    WORD Version = GetVersion();
+    if(Version & 0x0F00 >= 0x0400)
+    {
+        m_bHasRevD = true;
+        ReconfigureRevD();
+    }
+    else
+    {
+        m_bHasRevD = false;
+        ReconfigureRevA();
+    }
+}
+
+void CMSP34x0Decoder::ReconfigureRevA()
+{
+    int i;
+
+    /// SCART Signal Path
+    switch (m_AudioInput)
+    {
+    case AUDIOINPUT_RADIO:
+		SetSCARTxbar(MSP34x0_SCARTOUTPUT_DSP_INPUT, MSP34x0_SCARTINPUT_SCART_2);
+        break;
+    case AUDIOINPUT_EXTERNAL:
+		SetSCARTxbar(MSP34x0_SCARTOUTPUT_DSP_INPUT, MSP34x0_SCARTINPUT_SCART_1);
+        break;
+    case AUDIOINPUT_MUTE:
+        SetSCARTxbar(MSP34x0_SCARTOUTPUT_DSP_INPUT, MSP34x0_SCARTINPUT_MUTE);
+        break;
+    }
+
+    /// Guess the correct format
+    WORD standard;
+    switch(m_VideoFormat)
+    {
+    case VIDEOFORMAT_PAL_B:
+        standard = MSP34x0_STANDARD_BG_DUAL_FM;
+        break;
+    case VIDEOFORMAT_PAL_D:
+        standard = MSP34x0_STANDARD_DK_NICAM_FM;
+        break;
+    case VIDEOFORMAT_PAL_G:
+        standard = MSP34x0_STANDARD_BG_NICAM_FM;
+        break;
+    case VIDEOFORMAT_PAL_H:
+        // \todo FIXME
+        standard = MSP34x0_STANDARD_NONE;
+        break;
+    case VIDEOFORMAT_PAL_I:
+        standard = MSP34x0_STANDARD_I_NICAM_FM;
+        break;
+    case VIDEOFORMAT_PAL_M:
+        // \todo FIXME
+        standard = MSP34x0_STANDARD_NONE;
+        break;
+    case VIDEOFORMAT_PAL_N:
+        // \todo FIXME
+        standard = MSP34x0_STANDARD_NONE;
+        break;
+    case VIDEOFORMAT_PAL_N_COMBO:
+        // \todo FIXME
+        standard = MSP34x0_STANDARD_NONE;
+        break;
+    case VIDEOFORMAT_SECAM_B:
+        standard = MSP34x0_STANDARD_BG_DUAL_FM;
+        break;
+    case VIDEOFORMAT_SECAM_D:
+        standard = MSP34x0_STANDARD_DK_NICAM_FM;
+        break;
+    case VIDEOFORMAT_SECAM_G:
+        standard = MSP34x0_STANDARD_BG_NICAM_FM;
+        break;
+    case VIDEOFORMAT_SECAM_H:
+        standard = MSP34x0_STANDARD_DK_NICAM_FM;
+        break;
+    case VIDEOFORMAT_SECAM_K:
+        standard = MSP34x0_STANDARD_DK_NICAM_FM;
+        break;
+    case VIDEOFORMAT_SECAM_K1:
+        standard = MSP34x0_STANDARD_DK1_DUAL_FM;
+        break;
+    case VIDEOFORMAT_SECAM_L:
+        standard = MSP34x0_STANDARD_L_NICAM_AM;
+        break;
+    case VIDEOFORMAT_SECAM_L1:
+        standard = MSP34x0_STANDARD_L_NICAM_AM;
+        break;
+    case VIDEOFORMAT_NTSC_M:
+        standard = MSP34x0_STANDARD_M_BTSC;
+        break;
+    case VIDEOFORMAT_NTSC_M_Japan:
+        standard = MSP34x0_STANDARD_M_EIA_J;
+        break;
+    default:
+    case VIDEOFORMAT_PAL_60:
+    case VIDEOFORMAT_NTSC_50:
+        standard = MSP34x0_STANDARD_NONE;
+        break;
+    }
+
+    // Find the correct Standard in list
+    int MSPStandards(0);
+    while(m_MSPStandards[MSPStandards].Standard != standard && 
+            m_MSPStandards[MSPStandards].Name != NULL)
+    {
+        ++MSPStandards;
+    }
+
+    if(m_MSPStandards[MSPStandards].StereoType == STEREO_SAT)
+    {
+        SetDEMRegister(DEM_WR_AD_CV, 0x47);
+    }
+    else if(m_MSPStandards[MSPStandards].StereoType == STEREO_NICAM && 
+                m_MSPStandards[MSPStandards].MonoType == MONO_AM)
+    {
+        SetDEMRegister(DEM_WR_AD_CV, 0x47);
+    }
+    else
+    {
+        SetDEMRegister(DEM_WR_AD_CV, 0x51);
+    }
+
+    int FIRType = m_MSPStandards[MSPStandards].FIRType;
+    for (i = 5; i >= 0; i--)
+    {
+        SetDEMRegister(DEM_WR_FIR1, m_FIRTypes[FIRType].FIR1[i]);
+    }
+    
+    SetDEMRegister(DEM_WR_FIR2, 0x0004);
+    SetDEMRegister(DEM_WR_FIR2, 0x0040);
+    SetDEMRegister(DEM_WR_FIR2, 0x0000);
+    
+    for (i = 5; i >= 0; i--)
+    {
+        SetDEMRegister(DEM_WR_FIR2, m_FIRTypes[FIRType].FIR2[i]);
+    }
+
+    WORD ModeReg = 0x0000;
+    if(FIRType == FIR_BG_DK_DUAL_FM)
+    {
+        ModeReg |= 1 << 13;
+    }
+    if(m_MSPStandards[MSPStandards].StereoType == STEREO_NICAM)
+    {
+        ModeReg |= 1 << 6;
+    }
+
+    SetDEMRegister(DEM_WR_MODE_REG, ModeReg);
+
+    // load up carrier information
+    SetDEMRegister(DEM_WR_DCO1_LO, m_MSPStandards[MSPStandards].MajorCarrier & 0xfff);
+    SetDEMRegister(DEM_WR_DCO1_HI, m_MSPStandards[MSPStandards].MajorCarrier >> 12);
+    SetDEMRegister(DEM_WR_DCO2_LO, m_MSPStandards[MSPStandards].MinorCarrier & 0xfff);
+    SetDEMRegister(DEM_WR_DCO2_HI, m_MSPStandards[MSPStandards].MinorCarrier >> 12);
+    
+    // start the processing
+    SetDEMRegister(DEM_WR_XXXXXXXX_FIXME, 0);
+
+    // set up so that we fall back to AM/FM if there is no NICAM
+    // required on D series chips
+    SetDEMRegister(DEM_WR_AUTO_FMAM, 0x0001);
+
+    SetDSPRegister(DSP_WR_LDSPK_SOURCE, 0x0320);
+    SetDSPRegister(DSP_WR_HEADPH_SOURCE, 0x0420);
+    SetDSPRegister(DSP_WR_SCART1_SOURCE, 0x0120);
+
+    // 2. FM and NICAM prescale
+    SetDSPRegister(DSP_WR_FMAM_PRESCALE, 0x2403);
+    SetDSPRegister(DSP_WR_NICAM_PRESCALE, 0x5A00);
+    
+    // 3. STANDARD SELECT register
+    SetDEMRegister(DEM_WR_STANDARD_SELECT, standard);
+
+    // 4. FM matrix
+    WORD fmMatrix = 0x3000;
+    if (m_SoundChannel == SOUNDCHANNEL_STEREO)
+    {
+        if (m_AudioInput == AUDIOINPUT_TUNER || IsNTSCVideoFormat(m_VideoFormat))
+        {
+            fmMatrix |= 2;
+        }
+        else
+        {
+            fmMatrix |= 1;
+        }
+    }
+    else if (m_SoundChannel = SOUNDCHANNEL_LANGUAGE1)
+    {
+        fmMatrix |= 3;
+    }
+    else if (m_SoundChannel = SOUNDCHANNEL_LANGUAGE2)
+    {
+        fmMatrix |= 4;
+    }
+    SetDSPRegister(DSP_WR_FMAM_PRESCALE, fmMatrix);
+
+    /// SCART and I2S inputs
+
+    // 1. SCART prescale
+    SetDSPRegister(DSP_WR_SCART_PRESCALE, 0x1900);
+
+    // 2. I2S inputs prescale
+
+    /// Ouput channels
+
+    // 1. sources and matrix
+    WORD source = 0x0100;
+    if (m_AudioInput == AUDIOINPUT_RADIO)
+    {
+        source = 0x0220;
+    }
+    else
+    {
+        switch (m_SoundChannel)
+        {
+        case SOUNDCHANNEL_MONO:
+            source |= 0x30;
+            break;
+        case SOUNDCHANNEL_STEREO:
+            source |= 0x20;
+            break;
+        case SOUNDCHANNEL_LANGUAGE2:
+            source |= 0x10;
+        }
+    }
+
+    SetDSPRegister(DSP_WR_LDSPK_SOURCE, source);
+    SetDSPRegister(DSP_WR_HEADPH_SOURCE, source);
+    SetDSPRegister(DSP_WR_SCART1_SOURCE, source);
+    SetDSPRegister(DSP_WR_I2S_SOURCE, source);
+    // 2. audio baseband
+
+    // 3. volume
+    /// \todo FIXME
 }
 
 void CMSP34x0Decoder::SetVideoFormat(eVideoFormat videoFormat)

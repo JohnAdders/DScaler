@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.h,v 1.6 2001-12-19 19:26:17 ittarnavsky Exp $
+// $Id: MSP34x0.h,v 1.7 2001-12-20 12:55:54 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/12/19 19:26:17  ittarnavsky
+// started rewrite of the sound standard selection
+//
 // Revision 1.5  2001/12/18 23:36:01  adcockj
 // Split up the MSP chip support into two parts to avoid probelms when deleting objects
 //
@@ -275,6 +278,31 @@ private:
         MSP34x0_STANDARD_SAT_ADR = 0x0060,
         MSP34x0_STANDARD_AUDODETECTION_IN_PROGRESS = 0x07FF,
     };
+
+    enum eMonoType
+    {
+        MONO_FM,
+        MONO_AM,
+    };
+
+    enum eStereoType
+    {
+        STEREO_NONE,
+        STEREO_FM,
+        STEREO_NICAM,
+        STEREO_BTSC,
+        STEREO_MONO_SAP,
+        STEREO_SAT,
+        STEREO_ADR,
+    };
+
+    enum eFIRType
+    {
+        FIR_BG_DK_NICAM,
+        FIR_I_NICAM,
+        FIR_L_NICAM,
+        FIR_BG_DK_DUAL_FM,
+    };
     
 #define MSP_CARRIER(freq) ((int)((float)(freq/18.432)*(1<<24)))
     enum eCarrier
@@ -298,10 +326,20 @@ private:
     
     typedef struct
     {
-	    eStandard Standard;
-	    eCarrier MajorCarrier, MinorCarrier;
-	    char *Name;
-    } StandardDefinition;
+	    char*           Name;
+	    eStandard       Standard;
+	    eCarrier        MajorCarrier;
+        eCarrier        MinorCarrier;
+        eMonoType       MonoType;
+        eStereoType     StereoType;
+        eFIRType        FIRType;
+    } TStandardDefinition;
+
+    typedef struct
+    {
+	    BYTE       FIR1[6];
+	    BYTE       FIR2[6];
+    } TFIRType;
 
     enum eScartOutput
     {
@@ -324,14 +362,18 @@ private:
     };
     void SetSCARTxbar(eScartOutput output, eScartInput input);
 
-    void ReconfigureRevD();
     void Reconfigure();
 
     void SetCarrier(int cdo1, int cdo2);
 
 private:
+    void ReconfigureRevD();
+    void ReconfigureRevA();
+
+private:
     bool m_bHasRevD;
-    static StandardDefinition m_MSPStandards[];
+    static TStandardDefinition m_MSPStandards[];
+    static TFIRType            m_FIRTypes[];
     static WORD m_ScartMasks[MSP34x0_SCARTOUTPUT_LASTONE][MSP34x0_SCARTINPUT_LASTONE + 1];
 };
 

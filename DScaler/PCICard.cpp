@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCICard.cpp,v 1.13 2002-11-07 20:33:17 adcockj Exp $
+// $Id: PCICard.cpp,v 1.14 2002-11-07 21:06:12 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/11/07 20:33:17  adcockj
+// Promoted ACPI functions so that state management works properly
+//
 // Revision 1.12  2002/11/07 13:37:43  adcockj
 // Added State restoration code to PCICard
 // Functionality disabled prior to testing and not done for SAA7134
@@ -172,14 +175,14 @@ BOOL CPCICard::OpenPCICard(WORD VendorID, WORD DeviceID, int DeviceIndex)
         {
             m_bOpen = TRUE;
 
-            SaveState();
-
             m_InitialACPIStatus = GetACPIStatus();
             // if the chip is powered down we need to power it up
             if(m_InitialACPIStatus != 0)
             {
                 SetACPIStatus(0);
             }
+
+            SaveState();
         }
         else
         {
@@ -200,8 +203,6 @@ void CPCICard::ClosePCICard()
 {
     if(m_MemoryBase != NULL)
     {
-        // commented out for the time being until
-        // I've tested it properly at home
         RestoreState();
 
         // if the chip was not in D0 state we restore the original ACPI power state

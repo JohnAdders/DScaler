@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.12 2002-11-07 20:33:16 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.13 2002-11-07 21:06:12 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/11/07 20:33:16  adcockj
+// Promoted ACPI functions so that state management works properly
+//
 // Revision 1.11  2002/11/07 20:06:07  adcockj
 // Fixed problems with manage state function
 //
@@ -927,6 +930,14 @@ void CCX2388xCard::ManageMyState()
     ManageDword(MO_DMA26_CNT1);
     ManageDword(MO_DMA26_CNT2);
 
+    // do these last just in case the chip was
+    // left in a running mode
+    ManageDword(CX2388X_DEV_CNTRL2); 
+    ManageDword(CX2388X_VID_DMA_CNTRL);
+    ManageDword(CX2388X_CAPTURECONTROL);
+    
+    ManageDword(CX2388X_VID_INTMSK);
+
     ManageDword(CX2388X_VIDEO_INPUT);
     ManageDword(CX2388X_TEMPORAL_DEC);
     ManageDword(CX2388X_AGC_BURST_DELAY);
@@ -952,10 +963,8 @@ void CCX2388xCard::ManageMyState()
     ManageDword(CX2388X_FILTER_EVEN);     
     ManageDword(CX2388X_FILTER_ODD);      
     ManageDword(CX2388X_FORMAT_2HCOMB);
-    ManageDword(CX2388X_PLL);
-    ManageDword(CX2388X_PLL_ADJUST);
-    ManageDword(CX2388X_SUBCARRIERSTEP);  
-    ManageDword(CX2388X_SUBCARRIERSTEPDR);
+    //ManageDword(CX2388X_PLL);
+    //ManageDword(CX2388X_PLL_ADJUST);
     ManageDword(CX2388X_VBI_SIZE);
     ManageDword(CX2388X_FIELD_CAP_CNT);
     ManageDword(CX2388X_VIP_CONFIG);
@@ -963,9 +972,6 @@ void CCX2388xCard::ManageMyState()
     ManageDword(CX2388X_VIP_HSCALE);
     ManageDword(CX2388X_VIP_VSCALE);
     
-    ManageDword(CX2388X_SAMPLERATEFIFO);  
-    ManageDword(CX2388X_SAMPLERATECONV);  
-
     ManageDword(CX2388X_VIDEO_COLOR_FORMAT);
 
     ManageDword(MO_PDMA_STHRSH);
@@ -974,13 +980,10 @@ void CCX2388xCard::ManageMyState()
     ManageDword(CX2388X_AGC_SYNC_TIP1); 
     ManageDword(CX2388X_AGC_BACK_VBI); 
 
-    // do these last jsut in case the chip was
-    // left in a running mode
-    ManageDword(CX2388X_DEV_CNTRL2); 
-    ManageDword(CX2388X_VID_DMA_CNTRL);
-    ManageDword(CX2388X_CAPTURECONTROL);
-    
-    ManageDword(CX2388X_VID_INTMSK);
+    ManageDword(CX2388X_SAMPLERATEFIFO);  
+    ManageDword(CX2388X_SAMPLERATECONV);  
+    ManageDword(CX2388X_SUBCARRIERSTEP);  
+    ManageDword(CX2388X_SUBCARRIERSTEPDR);
 }
 
 void CCX2388xCard::ResetHardware()

@@ -881,6 +881,19 @@ BEGIN
     LTEXT           "",IDC_AUDIOSTANDARD_DESC,184,72,120,120
 END
 
+IDD_TOOLBAR_CHANNELS DIALOG DISCARDABLE  0, 0, 117, 13
+STYLE WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN
+FONT 8, "MS Sans Serif"
+BEGIN
+    PUSHBUTTON      "",IDC_TOOLBAR_CHANNELS_SPINUP,0,0,13,6,BS_BITMAP | NOT 
+                    WS_TABSTOP
+    PUSHBUTTON      "",IDC_TOOLBAR_CHANNELS_SPINDOWN,0,6,13,6,BS_BITMAP | 
+                    NOT WS_TABSTOP
+    COMBOBOX        IDC_TOOLBAR_CHANNELS_LIST,18,0,75,14,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "",IDC_TOOLBAR_CHANNELS_PREVIOUS,100,0,13,13,BS_BITMAP
+END
+
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -945,6 +958,23 @@ BEGIN
         MENUITEM "Always On &Top (Window)",     IDM_ON_TOP
         MENUITEM "Always On To&p (Full Screen)", IDM_ALWAYONTOPFULLSCREEN
         MENUITEM "A&uto-Size Window",           IDM_WINPOS_AUTOSIZE
+        MENUITEM SEPARATOR
+        POPUP "Toolbars"
+        BEGIN
+            MENUITEM "&Main toolbar",               IDM_VIEW_TOOLBARS_MAINTOOLBAR
+
+            MENUITEM SEPARATOR
+            MENUITEM "T&op",                        IDM_VIEW_MAINTOOLBAR_TOP
+            MENUITEM "&Channel change",             IDM_VIEW_MAINTOOLBAR_CHANNELS
+
+            MENUITEM "&Volume",                     IDM_VIEW_MAINTOOLBAR_VOLUME
+
+        END
+        POPUP "Skin"
+        BEGIN
+            MENUITEM "None",                        IDM_SKIN_NONE
+            MENUITEM SEPARATOR
+        END
         MENUITEM SEPARATOR
         MENUITEM "&Autodetect Image Aspect Ratio\tA", 
                                                 IDM_SASPECT_AUTO_TOGGLE
@@ -1614,10 +1644,89 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 215
     END
+
+    IDD_TOOLBAR_CHANNELS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 110
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 6
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_TOOLBAR_CHANNELS_UP BITMAP  DISCARDABLE     "toolbar_channels_up.bmp"
+IDB_TOOLBAR_CHANNELS_DOWN BITMAP  DISCARDABLE     "toolbar_channels_down.bmp"
+IDB_TOOLBAR_CHANNELS_PREVIOUS BITMAP  DISCARDABLE     "toolbar_channels_previous.bmp"
 #endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Dutch (Netherlands) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NLD)
+#ifdef _WIN32
+LANGUAGE LANG_DUTCH, SUBLANG_DUTCH
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_TOOLBAR_VOLUME DIALOG DISCARDABLE  0, 0, 100, 13
+STYLE WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN
+FONT 8, "MS Sans Serif"
+BEGIN
+    CHECKBOX        "",IDC_TOOLBAR_VOLUME_MUTE,3,1,8,9,BS_BITMAP
+    CONTROL         "Slider1",IDC_TOOLBAR_VOLUME_SLIDER,"msctls_trackbar32",
+                    TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,16,0,84,13
+END
+
+IDD_TOOLBAR_LOGO DIALOG DISCARDABLE  0, 0, 62, 8
+STYLE WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN
+FONT 14, "MS Sans Serif"
+BEGIN
+    CONTROL         "DScaler version 4.0",IDC_TOOLBAR_LOGO_LOGO,"Static",
+                    SS_LEFTNOWORDWRAP | SS_CENTERIMAGE | WS_GROUP,1,0,61,8
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_TOOLBAR_VOLUME, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 93
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 6
+    END
+
+    IDD_TOOLBAR_LOGO, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 55
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 1
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // Dutch (Netherlands) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

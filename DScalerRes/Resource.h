@@ -44,6 +44,12 @@
 #define ID_BTCARD_MSP34X0AUIOSETTINGS   212
 #define IDC_CT2388X                     213
 #define IDD_AUDIOSTANDARD_MANUAL        214
+#define IDD_TOOLBAR_CHANNELS            215
+#define IDD_TOOLBAR_VOLUME              216
+#define IDD_TOOLBAR_LOGO                217
+#define IDB_TOOLBAR_CHANNELS_UP         219
+#define IDB_TOOLBAR_CHANNELS_DOWN       220
+#define IDB_TOOLBAR_CHANNELS_PREVIOUS   221
 #define IDM_VBI                         231
 #define IDM_CAPTURE_PAUSE               232
 #define IDM_CHANNEL_LIST                242
@@ -273,8 +279,11 @@
 #define IDC_BT848                       1414
 #define IDC_BUTTON1                     1415
 #define IDC_SETFREQ                     1415
+#define IDC_TOOLBAR_CHANNELS_SPINUP     1415
 #define IDC_BUTTON2                     1416
+#define IDC_TOOLBAR_CHANNELS_SPINDOWN   1416
 #define IDC_BUTTON3                     1417
+#define IDC_TOOLBAR_CHANNELS_PREVIOUS   1417
 #define IDC_BUTTON4                     1418
 #define IDC_BUTTON5                     1419
 #define IDC_BUTTON6                     1420
@@ -291,6 +300,7 @@
 #define IDC_CHANGE                      1431
 #define IDC_CHANNEL                     1432
 #define IDC_CHECK1                      1433
+#define IDC_TOOLBAR_VOLUME_MUTE         1433
 #define IDC_CHECK2                      1434
 #define IDC_CHECK3                      1435
 #define IDC_CHECK4                      1436
@@ -947,6 +957,8 @@
 #define IDD_TREESETTINGS_TAB            2387
 #define IDC_TREESETTINGS_LINE           2389
 #define IDC_HELPBTN                     2390
+#define IDM_SKIN_FIRST                  2391
+#define IDM_SKIN_LAST                   2490
 #define IDC_MIXER_INPUT0NAME            8000
 #define IDC_MIXER_INPUT1NAME            8001
 #define IDC_MIXER_INPUT2NAME            8002
@@ -1004,6 +1016,9 @@
 #define IDC_AUDIOSTANDARD_DESC          8053
 #define IDC_AUDIOSTANDARD_LIST          8054
 #define IDC_AUDIOSTANDARD_MAJORCARRIER  8055
+#define IDC_TOOLBAR_CHANNELS_LIST       8056
+#define IDC_TOOLBAR_LOGO_LOGO           8057
+#define IDC_TOOLBAR_VOLUME_SLIDER       8058
 #define IDM_SETTINGS_FILTERSETTINGS     32771
 #define IDM_SOURCE_INITIAL              32772
 #define IDM_DSHOW_FILTERS               32773
@@ -1051,6 +1066,11 @@
 #define IDM_AUDIOSTANDARD_MANUAL        32818
 #define IDM_AUDIOSTANDARD_DETECTNOW     32820
 #define IDM_AUDIOSTANDARD_STANDARD      32821
+#define IDM_SKIN_NONE                   32823
+#define IDM_VIEW_TOOLBARS_MAINTOOLBAR   32824
+#define IDM_VIEW_MAINTOOLBAR_TOP        32825
+#define IDM_VIEW_MAINTOOLBAR_CHANNELS   32826
+#define IDM_VIEW_MAINTOOLBAR_VOLUME     32827
 #define IDC_STATIC                      -1
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
@@ -1071,9 +1091,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        215
-#define _APS_NEXT_COMMAND_VALUE         32822
-#define _APS_NEXT_CONTROL_VALUE         8056
-#define _APS_NEXT_SYMED_VALUE           2391
+#define _APS_NEXT_RESOURCE_VALUE        222
+#define _APS_NEXT_COMMAND_VALUE         32828
+#define _APS_NEXT_CONTROL_VALUE         8059
+#define _APS_NEXT_SYMED_VALUE           2491
 #endif
 #endif

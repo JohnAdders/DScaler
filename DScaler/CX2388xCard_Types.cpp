@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Types.cpp,v 1.26 2004-08-19 20:17:46 to_see Exp $
+// $Id: CX2388xCard_Types.cpp,v 1.27 2004-08-26 16:55:56 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2004/08/19 20:17:46  to_see
+// Changed write order GPIO's for Leadtek Expert card. It's importand to write first to MO_GP3_IO.
+//
 // Revision 1.25  2004/06/28 20:17:22  to_see
 // Added Patch for INPUTTYPE_COMPOSITE in card "Prolink PlayTV HD" from jstwo@...
 //
@@ -686,6 +689,8 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
         TUNER_MT2050_PAL,
         IDC_CX2388X,
     },
+
+	// GPIO's from Allen
     {
         "ATI TV Wonder Pro",
         3,
@@ -694,19 +699,19 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
                 "Tuner",
                 INPUTTYPE_TUNER,
                 0,
-                0x00000000,
+                0x000003ff,
             },
             {
                 "Composite",
                 INPUTTYPE_COMPOSITE,
                 1,
-                0x00000000,
+                0x000003fe,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
                 2,
-                0x00000000,
+                0x000003fe,
             },
         },
         NULL,
@@ -1191,59 +1196,38 @@ eTunerId CCX2388xCard::AutoDetectTuner(eCX2388xCardId CardId)
 	{
 		eTunerId Tuner = TUNER_ABSENT;
 		
+		// Read the whole EEPROM
+		BYTE Eeprom[256];
+		for (int i=0; i<256; i += 4)
+		{
+			// DWORD alignment needed
+			DWORD dwVal = ReadDword(MAP_EEPROM_DATA + i);
+			Eeprom[i+0] = LOBYTE(LOWORD(dwVal));
+			Eeprom[i+1] = HIBYTE(LOWORD(dwVal));
+			Eeprom[i+2] = LOBYTE(HIWORD(dwVal));
+			Eeprom[i+3] = HIBYTE(HIWORD(dwVal));
+		}
+
 		switch(CardId)
 		{
 		case CX2388xCARD_HAUPPAUGE_PCI_FM:
 		case CX2388xCARD_HAUPPAUGE_PCI_FM_TUNERSOUND:
+			if (Eeprom[8+0] != 0x84 || Eeprom[8+2] != 0)
 			{
-				BYTE Eeprom[256];
-
-				// read direct from registers
-				for (int i=0; i<256; i += 4)
-				{
-					// DWORD alignment needed
-					DWORD dwVal = ReadDword(MAP_EEPROM_DATA + i);
-					Eeprom[i+0] = LOBYTE(LOWORD(dwVal));
-					Eeprom[i+1] = HIBYTE(LOWORD(dwVal));
-					Eeprom[i+2] = LOBYTE(HIWORD(dwVal));
-					Eeprom[i+3] = HIBYTE(HIWORD(dwVal));
-				}
-
-				if (Eeprom[8+0] != 0x84 || Eeprom[8+2] != 0)
-				{
-					// 2.chance, read from I2C
-					LOG(1, "AutoDetectTuner: Hauppauge CX2388x Card direct read from Registers fails - try to read from I2C");
-
-					BYTE Out[] = { 0xA0 , 0 };
-					Eeprom[0] = 0;
-					
-					m_I2CBus->Read(Out,2,Eeprom,256);
-
-					if (Eeprom[8+0] != 0x84 || Eeprom[8+2] != 0) 
-					{
-						LOG(1, "AutoDetectTuner: Hauppauge CX2388x Card read from I2C - EEPROM error");
-						break;
-					}
-
-					LOG(2, "AutoDetectTuner: Hauppauge CX2388x Card, read from I2C. TunerId: 0x%02X",Eeprom[8+9]);
-					if (Eeprom[8+9] < (sizeof(m_Tuners_Hauppauge_CX2388x_Card) / sizeof(m_Tuners_Hauppauge_CX2388x_Card[0]))) 
-					{
-						Tuner = m_Tuners_Hauppauge_CX2388x_Card[Eeprom[8+9]];
-					}
-				}
-
-				else
-				{
-					LOG(2, "AutoDetectTuner: Hauppauge CX2388x Card - read from Registers. TunerId: 0x%02X",Eeprom[8+9]);
-					if (Eeprom[8+9] < (sizeof(m_Tuners_Hauppauge_CX2388x_Card) / sizeof(m_Tuners_Hauppauge_CX2388x_Card[0]))) 
-					{
-						Tuner = m_Tuners_Hauppauge_CX2388x_Card[Eeprom[8+9]];
-					}
-				}
-
-				break;
+				LOG(1, "AutoDetectTuner: Hauppauge CX2388x Card fails.");
 			}
-		}
+
+			else
+			{
+				LOG(2, "AutoDetectTuner: Hauppauge CX2388x Card. TunerId: 0x%02X",Eeprom[8+9]);
+				if (Eeprom[8+9] < (sizeof(m_Tuners_Hauppauge_CX2388x_Card) / sizeof(m_Tuners_Hauppauge_CX2388x_Card[0]))) 
+				{
+					Tuner = m_Tuners_Hauppauge_CX2388x_Card[Eeprom[8+9]];
+				}
+			}
+
+			break;
+		} // switch(CardId)
         
 		return Tuner;
 	}

@@ -65,6 +65,7 @@ class CChannelList
 public :
     enum FileFormat {
         FILE_FORMAT_ASCII = 0,
+        FILE_FORMAT_XML,
         FILE_FORMAT_LASTONE
     };
 
@@ -74,6 +75,7 @@ private:
 
 public :
     CChannelList();
+    CChannelList(const CChannelList&);
     ~CChannelList();
 
     void Clear();
@@ -92,8 +94,6 @@ public :
 
     CChannel* GetChannelByNumber(int iChannelNumber); //May return NULL
 
-    BOOL AddChannel(CChannel*); //The given channel will be destroyed when list is cleared
-
     inline BOOL AddChannel(LPCSTR szName, DWORD dwFreq, int iChannelNumber, int eFormat, BOOL bActive = TRUE) 
     {
         return AddChannel(szName, dwFreq, iChannelNumber, (eVideoFormat)eFormat, bActive);
@@ -102,12 +102,24 @@ public :
 
     BOOL AddChannel(LPCSTR szName, DWORD dwFreq, int iChannelNumber, eVideoFormat eFormat, BOOL bActive = TRUE); 
 
+    BOOL AddChannel(LPCSTR szName, DWORD dwFreq, eVideoFormat eFormat, BOOL bActive = TRUE); 
+
+    //Generates a name for you as the channels are not named
+    //in the channels.txt file (channels/country)
+    //It would be nice to use the comment next to the frequency
+    //but some are really too large..
+    BOOL AddChannel(DWORD dwFrequency, int iChannelNumber, eVideoFormat eVideoFormat = VIDEOFORMAT_LASTONE, BOOL bActive = TRUE);
+
+    //The given channel will be destroyed when list is cleared
+    BOOL AddChannel(CChannel*);
+    
     BOOL RemoveChannel(int index);
 
     BOOL SetChannel(int index, CChannel* pChannel);
 
     BOOL SwapChannels(int, int );
 
+    int AddChannels(const CChannelList* const);
     
     BOOL WriteFile(LPCSTR, CChannelList::FileFormat);
 
@@ -119,7 +131,10 @@ public :
     
     inline BOOL ReadASCII(LPCSTR szFilename) {return ReadFile(szFilename, CChannelList::FILE_FORMAT_ASCII);};
     
-    //CChannel* operator[](int index) {return m_Channels[index];};
+    inline BOOL WriteXML(LPCSTR szFilename) {return WriteFile(szFilename, CChannelList::FILE_FORMAT_XML);};
+    
+    inline BOOL ReadXML(LPCSTR szFilename) {return ReadFile(szFilename, CChannelList::FILE_FORMAT_XML);};
+    
     
     //Shortcuts..
     inline LPCSTR GetChannelName(int index) const {return GetChannel(index)->GetName();};
@@ -137,11 +152,21 @@ public :
 
     inline eVideoFormat GetChannelFormat(int index) const {return GetChannel(index)->GetFormat();};
 
+   
+protected :
 
-private:
+    void SetMinChannelNumber(int);
+    void SetMaxChannelNumber(int);
 
-    BOOL WriteASCIIImpl(LPCSTR szFilename);
-    BOOL ReadASCIIImpl(LPCSTR szFilename);
+    //update the members holding the boundary values 
+    //when a modification to the list is done (by adding/removing channels)
+    virtual void UpdateFields();
+
+    virtual BOOL WriteASCIIImpl(LPCSTR szFilename) = 0;
+    virtual BOOL ReadASCIIImpl(LPCSTR szFilename) = 0;
+
+    virtual BOOL WriteXMLImpl(LPCSTR szFilename) = 0;
+    virtual BOOL ReadXMLImpl(LPCSTR szFilename) = 0;
 
 private:
 
@@ -154,81 +179,99 @@ private:
     Channels m_Channels;
 };
 
-class CCountry
+
+class CUserChannels : public CChannelList
 {
+public:
+    CUserChannels();    
+    CUserChannels(const CUserChannels&);
+
+    ~CUserChannels();
 
 protected :
-    //This is legacy code and should go away...
-    //I think all the classes herein can actually be gathered together
-    //in just a wee bunch by using encapsulated vectors and maps
-    typedef struct 
-    {
-        DWORD Freq;
-        int Format;
-    } TCountryChannel;
+    
+    BOOL WriteASCIIImpl(LPCSTR szFilename);
+    BOOL ReadASCIIImpl(LPCSTR szFilename);
+
+    BOOL WriteXMLImpl(LPCSTR szFilename);
+    BOOL ReadXMLImpl(LPCSTR szFilename);
+
+};
+
+class CCountryList;
+
+class CCountryChannels : public CChannelList
+{
+
+    friend class CCountryList;
 
 public:
+    CCountryChannels(LPCSTR szSomeIdentifierString, eVideoFormat eCountryVideoFormat = VIDEOFORMAT_LASTONE);        
+    CCountryChannels(const CCountryChannels&);
 
-    CCountry(LPCSTR szName);
-    ~CCountry();    
+    ~CCountryChannels();
 
-
-    LPCSTR CCountry::GetName() const;
-
-    inline int GetMinChannel() const {return m_MinChannel;};
-    inline void SetMinChannel(int iChannelNumber)
-    {
-        m_MinChannel = iChannelNumber;
-    }
-
-    inline int GetMaxChannel() const {return m_MaxChannel;};
-    inline void SetMaxChannel(int iChannelNumber)
-    {
-        m_MaxChannel = iChannelNumber;
-    }
-         
+    const LPCSTR GetCountryName() const;
+    const eVideoFormat GetCountryFormat() const;
     
-    int GetMinChannelIndex() const;
-    int GetMaxChannelIndex() const;
-    
-    int GetMinChannelFrequency() const;
-    int GetMaxChannelFrequency() const;
+protected :
    
-    inline int GetSize() const {return m_Frequencies.size();};
+    BOOL WriteASCIIImpl(LPCSTR szFilename);
+    BOOL ReadASCIIImpl(LPCSTR szFilename);
 
-    inline DWORD GetFrequency(int iIndex) const {return m_Frequencies[iIndex].Freq;};
-    inline void SetFrequency(int iIndex, DWORD dwFrequency)
-    {
-        m_Frequencies[iIndex].Freq = dwFrequency;
-    }
+    BOOL WriteXMLImpl(LPCSTR szFilename);
+    BOOL ReadXMLImpl(LPCSTR szFilename);
 
-    inline int GetFormat(int iIndex) const {return m_Frequencies[iIndex].Format;};
-    inline void SetFormat(int iIndex, int iVideoFormat) 
-    {
-        m_Frequencies[iIndex].Format = iVideoFormat;
-    }
-
-   //Adds a New TCountryChannel and returns its position
-   int AddChannel(DWORD dwFrequency, int iVideoFormat);
-   
-private :
-    int m_MinChannel;
-    int m_MaxChannel;   
-
-    string m_Name;
-
-    vector<TCountryChannel> m_Frequencies;
+private:
+    string m_szName;
+    eVideoFormat m_Format;
 };
 
 
-//TODO->Transform into class
-typedef vector<CCountry*> COUNTRYLIST;
+class CCountryList 
+{
+private:
+    //could be a map too..would be better for lookups
+    typedef vector<CCountryChannels*> Countries;
 
-//TODO->Should be methods
-void Unload_Country_Settings(COUNTRYLIST *);
-BOOL Load_Country_Settings(LPCSTR szFilename, COUNTRYLIST * pCountries);
+public :
+    CCountryList();    
+    ~CCountryList();
+    
+    const CCountryChannels* GetChannels(int) const;
+
+    int GetSize() const;
+
+    int GetSize(int index) const {return GetChannels(index)->GetSize();};
+    
+    inline LPCSTR GetCountryName(int index) const {return GetChannels(index)->GetCountryName();};
+
+    inline int GetMinChannelNumber(int index) const {return GetChannels(index)->GetMinChannelNumber();};
+
+    inline int GetMaxChannelNumber(int index) const {return GetChannels(index)->GetMaxChannelNumber();};
+
+    inline DWORD GetLowerFrequency(int index) const {return GetChannels(index)->GetLowerFrequency();};
+
+    inline DWORD GetHigherFrequency(int index) const {return GetChannels(index)->GetHigherFrequency();};
+
+    //Adds the content of the given channel list
+    //(makes a deep copy)    
+    BOOL AddChannels(LPCSTR szName, CChannelList*);
+    
+    //Makes a shallow copy only
+    BOOL AddChannels(CCountryChannels*);
+
+    BOOL RemoveChannels(int);
+   
+    void Clear();
+    
+
+    BOOL ReadASCII(LPCSTR);
 
 
-//Some more helpers...
+private:
+    Countries m_Countries;
+
+};
 
 #endif

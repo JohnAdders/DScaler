@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.87 2002-10-29 12:57:36 adcockj Exp $
+// $Id: ProgramList.cpp,v 1.88 2002-10-29 19:23:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.87  2002/10/29 12:57:36  adcockj
+// Fixed channel numbering problem, crash with no channel.txt and curent program select on start
+//
 // Revision 1.86  2002/10/28 17:50:02  adcockj
 // Fixes for channels combo
 // Reorganized scanning
@@ -957,10 +960,13 @@ int GetCurrentChannelNumber(HWND hDlg)
 {
     int Channel(0);
     int ChannelIndex = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_CHANNEL));
-    CChannel* pChannel = (CChannel*)ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CHANNEL), ChannelIndex);
-    if(pChannel != NULL)
+    if(ChannelIndex != -1)
     {
-        Channel = pChannel->GetChannelNumber();
+        CChannel* pChannel = (CChannel*)ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CHANNEL), ChannelIndex);
+        if(pChannel != NULL)
+        {
+            Channel = pChannel->GetChannelNumber();
+        }
     }
     return Channel;
 }

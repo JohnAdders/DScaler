@@ -208,24 +208,9 @@ BOOL CChannelList::AddChannel(CChannel* pChannel)
     BOOL returned = FALSE;
     if (NULL != pChannel) 
     {
-        //We dont want to add the same channel twice
-        //("Same" meaning, a shallow ==)
-        BOOL found = FALSE;
-        for (int i = 0; i < GetSize(); i++)
-        {
-            CChannel* dummy = GetChannel(i);
-            if (dummy == pChannel)
-            {
-                found = TRUE;
-                break;
-            }           
-        }    
-        if (found == FALSE)
-        {
-            m_Channels.push_back(pChannel);
-            UpdateFields();
-            returned = TRUE;
-        }
+        m_Channels.push_back(pChannel);
+        UpdateFields();
+        returned = TRUE;
     }
     return returned;
 }
@@ -287,7 +272,7 @@ BOOL CChannelList::SetChannel(int index, CChannel* pChannel)
         
     if ((index >= 0) && (NULL != pChannel))     
     {
-        if (index == GetSize() - 1)
+        if (index >= GetSize())
         {
             returned = AddChannel(pChannel);
         }   

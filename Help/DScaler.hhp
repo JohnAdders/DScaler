@@ -12,16 +12,28 @@ Title=DScaler Help
 
 
 [FILES]
-DScaler_Readme.htm
-user_support.htm
+22Pulldown.HTM
+32Pulldown.HTM
+32spec.htm
+Aspect.HTM
 Authors.htm
 COPYING.html
+DScaler_Readme.htm
 FAQ.htm
+Gamma.HTM
 IniFile.HTM
 keyboard.htm
-Thanks.htm
-32spec.htm
+LinearCorrection.HTM
+Logging.HTM
+LogoKiller.HTM
+Noise.HTM
+Overlay.HTM
+PulldownShared.HTM
+Sharpness.HTM
 Standards.htm
+Thanks.htm
+Timing.HTM
+user_support.htm
 
 [INFOTYPES]
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.8 2001-11-24 22:54:25 laurentg Exp $
+// $Id: Providers.cpp,v 1.9 2001-11-25 21:29:50 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2001/11/24 22:54:25  laurentg
+// Close file added for still source
+//
 // Revision 1.7  2001/11/24 17:58:06  laurentg
 // Still source
 //
@@ -65,6 +68,7 @@
 #include "TiffSource.h"
 #include "HardwareDriver.h"
 #include "OutThreads.h"
+#include "DScaler.h"
 
 typedef vector<CSource*> SOURCELIST;
 
@@ -109,8 +113,8 @@ int Providers_Load(HMENU hMenu)
     {
         if(Sources.size() < 100)
         {
-            sprintf(Text, "Still %d", i + 1);
-            AppendMenu(hSubMenu, MF_STRING | MF_ENABLED, IDM_SOURCE_FIRST + Sources.size(), Text);
+//            sprintf(Text, "Still %d", i + 1);
+            AppendMenu(hSubMenu, MF_STRING | MF_ENABLED, IDM_SOURCE_FIRST + Sources.size(), StillProvider->GetSource(i)->GetMenuLabel());
         }
         Sources.push_back(StillProvider->GetSource(i));
     }
@@ -153,6 +157,29 @@ CSource* Providers_GetCurrentSource()
     }
 }
 
+CStillProvider* Providers_GetStillProvider()
+{
+    return StillProvider;
+}
+
+BOOL Providers_AddSource(CSource* pSource, HMENU hMenu, BOOL GoToNewSource)
+{
+    HMENU           hSubMenu = GetSubMenu(hMenu, 5);
+
+    AppendMenu(hSubMenu, MF_STRING | MF_ENABLED, IDM_SOURCE_FIRST + Sources.size(), pSource->GetMenuLabel());
+    Sources.push_back(pSource);
+    if (GoToNewSource)
+    {
+        Stop_Capture();
+        CheckMenuItemBool(hSubMenu, IDM_SOURCE_FIRST + CurrentSource, FALSE);
+        CurrentSource = Sources.size() - 1;
+        CheckMenuItemBool(hSubMenu, IDM_SOURCE_FIRST + CurrentSource, TRUE);
+        Providers_UpdateMenu(hMenu);
+        Start_Capture();
+    }
+    return TRUE;
+}
+
 BOOL Providers_RemoveSource(CSource* pSource, HMENU hMenu)
 {
     HMENU           hSubMenu = GetSubMenu(hMenu, 5);
@@ -160,6 +187,11 @@ BOOL Providers_RemoveSource(CSource* pSource, HMENU hMenu)
     MENUITEMINFO    MenuInfo;
     int             i, j;
     CSource*        pCurrentSource = Providers_GetCurrentSource();
+
+    if (pSource == pCurrentSource)
+    {
+        Stop_Capture();
+    }
 
     i = 0;
     for(vector<CSource*>::iterator it = Sources.begin();
@@ -196,9 +228,11 @@ BOOL Providers_RemoveSource(CSource* pSource, HMENU hMenu)
             SetMenuItemInfo(hSubMenu, IDM_SOURCE_FIRST + j + 1, FALSE, &MenuInfo);
             CheckMenuItemBool(hSubMenu, IDM_SOURCE_FIRST + j + 1, j == CurrentSource);
         }
+    }
 
-        StillProvider->RemoveStillSource((CStillSource*)pSource);
-        delete (CStillSource*)pSource;
+    if (pSource == pCurrentSource)
+    {
+        Start_Capture();
     }
 
     return Removed;
@@ -244,7 +278,7 @@ void Providers_UpdateMenu(HMENU hMenu)
 
         // get The name of our menu
         char Text[256];
-        HMENU hSubMenu = Sources[CurrentSource]->GetMenu();
+        HMENU hSubMenu = Sources[CurrentSource]->GetSourceMenu();
         GetMenuString(hSubMenu, 0, Text, 256, MF_BYPOSITION);
         // Add the new menu
         InsertMenu(hMenu, 6, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT)GetSubMenu(hSubMenu, 0), Text);
@@ -257,7 +291,8 @@ void Providers_UpdateMenu(HMENU hMenu)
 
 BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 {
-    CSource* pCurrentSource = Providers_GetCurrentSource();
+    CSource*    pCurrentSource = Providers_GetCurrentSource();
+    HMENU       hMenu = GetMenu(hWnd);
 
     if(LOWORD(wParam) >= IDM_SOURCE_FIRST && LOWORD(wParam) <= IDM_SOURCE_LAST)
     {
@@ -266,7 +301,7 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         {
             Stop_Capture();
             CurrentSource = NewSource;
-            Providers_UpdateMenu(GetMenu(hWnd));
+            Providers_UpdateMenu(hMenu);
             Start_Capture();
             return TRUE;
         }
@@ -294,27 +329,29 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         OpenFileInfo.lpstrDefExt = NULL;
         if (GetOpenFileName(&OpenFileInfo))
         {
-            HMENU hMenu = GetMenu(hWnd);
-            HMENU hSubMenu = GetSubMenu(hMenu, 5);
-
-            Stop_Capture();
             CTiffSource* TiffSource = new CTiffSource(FilePath);
             StillProvider->AddStillSource(TiffSource);
-            AppendMenu(hSubMenu, MF_STRING | MF_ENABLED, IDM_SOURCE_FIRST + Sources.size(), FilePath);
-            Sources.push_back(TiffSource);
-            CurrentSource = Sources.size() - 1;
-            Providers_UpdateMenu(hMenu);
-            Start_Capture();
+            Providers_AddSource(TiffSource, hMenu, TRUE);
             return TRUE;
         }
     }
-    else if (LOWORD(wParam) == IDM_CLOSE_FILE)
+    else if (LOWORD(wParam) == IDM_TAKESTILL)
     {
-        HMENU hMenu = GetMenu(hWnd);
+        Pause_Capture();
+        Sleep(100);
+        CTiffSource* TiffSource = SaveStill();
+        UnPause_Capture();
+        Sleep(100);
+        if (TiffSource != NULL)
+        {
+            char Text[128];
 
-        Stop_Capture();
-        Providers_RemoveSource(pCurrentSource, hMenu);
-        Start_Capture();
+            StillProvider->AddStillSource(TiffSource);
+            TiffSource->WriteFrameInFile();
+            Providers_AddSource(TiffSource, hMenu, FALSE);
+            sprintf(Text, "Snapshot (%s)", TiffSource->GetMenuLabel());
+            ShowText(hWnd, Text);
+        }
         return TRUE;
     }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.26 2001-11-25 10:41:26 laurentg Exp $
+// $Id: Other.cpp,v 1.27 2001-11-25 21:29:50 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2001/11/25 10:41:26  laurentg
+// TIFF code moved from Other.cpp to TiffSource.c + still capture updated
+//
 // Revision 1.25  2001/11/23 10:49:17  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -130,7 +133,6 @@
 #include "DebugLog.h"
 #include "SettingsDlg.h"
 #include "AspectRatio.h"
-#include "TiffSource.h"
 
 // cope with older DX header files
 #if !defined(DDFLIP_DONOTWAIT)
@@ -1072,22 +1074,18 @@ void ExitDD(void)
 
 //-----------------------------------------------------------------------------
 // Save still image snapshot as TIFF format to disk
-// FileName is an output parameter : the file generated
-BOOL SaveStill(char *FileName)
+CTiffSource* SaveStill()
 {
     int n = 0;
     char name[13];
     struct stat st;
     DDSURFACEDESC SurfaceDesc;
     HRESULT ddrval;
-    BOOL ret;
-
-    *FileName = '\0';
 
     if (lpDDOverlay == NULL)
     {
         ErrorBox("No Overlay");
-        return FALSE;
+        return NULL;
     }
 
     while (n < 100)
@@ -1099,10 +1097,8 @@ BOOL SaveStill(char *FileName)
     if(n == 100)
     {
         ErrorBox("Could not create a file.  You may have too many captures already.");
-        return FALSE;
+        return NULL;
     }
-
-    strcpy(FileName, name);
 
     memset(&SurfaceDesc, 0x00, sizeof(SurfaceDesc));
     SurfaceDesc.dwSize = sizeof(SurfaceDesc);
@@ -1111,10 +1107,10 @@ BOOL SaveStill(char *FileName)
     if (FAILED(ddrval))
     {
         ErrorBox("Error Locking Overlay");
-        return FALSE;
+        return NULL;
     }
 
-    CTiffSource* pTiffSource = new CTiffSource(FileName, CurrentY, CurrentX, (BYTE*)SurfaceDesc.lpSurface, SurfaceDesc.lPitch);
+    CTiffSource* pTiffSource = new CTiffSource(name, CurrentY, CurrentX, (BYTE*)SurfaceDesc.lpSurface, SurfaceDesc.lPitch);
 
     ddrval = IDirectDrawSurface_Unlock(lpDDOverlay, SurfaceDesc.lpSurface);
     if (FAILED(ddrval))
@@ -1122,11 +1118,7 @@ BOOL SaveStill(char *FileName)
         ErrorBox("Error Unlocking Overlay");
     }
 
-    ret = pTiffSource->WriteFrameInFile();
-
-    delete pTiffSource;
-
-    return ret;
+    return pTiffSource;
 }
 
 BOOL Overlay_ColorKey_OnChange(long NewValue)

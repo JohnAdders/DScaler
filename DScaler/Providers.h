@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.h,v 1.5 2001-11-24 22:54:25 laurentg Exp $
+// $Id: Providers.h,v 1.6 2001-11-25 21:29:50 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -20,12 +20,15 @@
 #define __PROVIDERS_H___
 
 #include "Source.h"
+#include "StillProvider.h"
 
 int Providers_Load(HMENU hMenu);
 void Providers_Unload();
 BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
 void Provider_HandleTimerMessages(int TimerId);
 CSource* Providers_GetCurrentSource();
+CStillProvider* Providers_GetStillProvider();
+BOOL Providers_AddSource(CSource* pSource, HMENU hMenu);
 BOOL Providers_RemoveSource(CSource* pSource, HMENU hMenu);
 void Providers_SetMenu(HMENU hMenu);
 void Providers_UpdateMenu(HMENU hMenu);

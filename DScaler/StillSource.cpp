@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.9 2001-11-25 10:41:26 laurentg Exp $
+// $Id: StillSource.cpp,v 1.10 2001-11-25 21:29:50 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2001/11/25 10:41:26  laurentg
+// TIFF code moved from Other.cpp to TiffSource.c + still capture updated
+//
 // Revision 1.8  2001/11/24 22:51:20  laurentg
 // Bug fixes regarding still source
 //
@@ -64,9 +67,11 @@
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
 #include "StillSource.h"
+#include "StillProvider.h"
 #include "DScaler.h"
 #include "FieldTiming.h"
 #include "DebugLog.h"
+#include "Providers.h"
 
 CStillSource::CStillSource(LPCSTR FilePath) :
     CSource(0, IDC_STILL)
@@ -102,7 +107,6 @@ CStillSource::CStillSource(LPCSTR FilePath, int FrameHeight, int FrameWidth, BYT
     {
         *m_FilePath = '\0';
     }
-    LOG(2, "CStillSource %d %d %d %d", FrameHeight, FrameWidth, pOverlay, OverlayPitch);
     m_Width = FrameWidth;
     m_Height = FrameHeight;
     m_StillFrame.pData = (BYTE*)malloc(m_Width * 2 * m_Height * sizeof(BYTE));
@@ -116,7 +120,6 @@ CStillSource::CStillSource(LPCSTR FilePath, int FrameHeight, int FrameWidth, BYT
             memcpy(pBufDest, pBufSrc, m_Width * 2);
             pBufSrc += OverlayPitch;
             pBufDest += m_Width * 2;
-            LOG(2, "CStillSource Line %d", i);
         }
     }
     m_StillFrame.Flags = PICTURE_PROGRESSIVE;
@@ -208,6 +211,13 @@ void CStillSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 
 BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 {
+    if (LOWORD(wParam) == IDM_CLOSE_FILE)
+    {
+        Providers_GetStillProvider()->RemoveStillSource(this);
+        Providers_RemoveSource(this, GetMenu(hWnd));
+        delete this;
+        return TRUE;
+    }
     return FALSE;
 }
 
@@ -249,3 +259,9 @@ void CStillSource::SetMenu(HMENU hMenu)
 void CStillSource::HandleTimerMessages(int TimerId)
 {
 }
+
+LPCSTR CStillSource::GetMenuLabel()
+{
+    return m_FilePath;
+}
+

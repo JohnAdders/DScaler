@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.92 2001-11-24 22:54:25 laurentg Exp $
+// $Id: DScaler.cpp,v 1.93 2001-11-25 21:29:50 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.92  2001/11/24 22:54:25  laurentg
+// Close file added for still source
+//
 // Revision 1.91  2001/11/24 18:01:39  laurentg
 // Still source
 //
@@ -664,7 +667,6 @@ void SetVTShowHidden(bool Enabled)
 LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 {
     char Text[128];
-    char Text1[128];
     int i;
     BOOL bDone;
     CSetting* pSetting = NULL;
@@ -1346,18 +1348,6 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
             break;
 
-        case IDM_TAKESTILL:
-            Pause_Capture();
-            Sleep(100);
-            if (SaveStill(Text1))
-            {
-                sprintf(Text, "Snapshot (%s)", Text1);
-                ShowText(hWnd, Text);
-            }
-            UnPause_Capture();
-            Sleep(100);
-            break;
-
         case IDM_TAKESTREAMSNAP:
             RequestStreamSnap();
             break;
@@ -1852,13 +1842,13 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         {
         //-------------------------------
         case TIMER_STATUS:
-            strcpy(Text1, Providers_GetCurrentSource()->GetStatus());
+            strcpy(Text, Providers_GetCurrentSource()->GetStatus());
 
             if (Setting_GetValue(Audio_GetSetting(SYSTEMINMUTE)) == TRUE)
 			{
-                sprintf(Text1, "Volume Mute");
+                sprintf(Text, "Volume Mute");
 			}
-            StatusBar_ShowText(STATUS_TEXT, Text1);
+            StatusBar_ShowText(STATUS_TEXT, Text);
             break;
         //-------------------------------
         case TIMER_KEYNUMBER:

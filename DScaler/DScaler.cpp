@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.260 2002-10-30 13:37:52 atnak Exp $
+// $Id: DScaler.cpp,v 1.261 2002-11-03 06:00:29 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.260  2002/10/30 13:37:52  atnak
+// Added "Single key teletext toggle" option. (Enables mixed mode menu item)
+//
 // Revision 1.259  2002/10/29 11:05:28  adcockj
 // Renamed CT2388x to CX2388x
 //
@@ -4847,6 +4850,14 @@ HMENU GetPatternsSubmenu()
     ASSERT(hmenu != NULL);
 
     return hmenu;
+}
+
+void RedrawMenuBar(HMENU)
+{
+    // We could use the 1st arg to make
+    // sure the changed menu is on our
+    // window, but it's not necessary.
+    DrawMenuBar(hWnd);
 }
 
 //---------------------------------------------------------------------------

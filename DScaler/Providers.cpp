@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.53 2002-11-02 12:40:28 laurentg Exp $
+// $Id: Providers.cpp,v 1.54 2002-11-03 06:00:29 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.53  2002/11/02 12:40:28  laurentg
+// Error message relative to DScaler.d3u updated
+//
 // Revision 1.52  2002/10/29 11:05:28  adcockj
 // Renamed CT2388x to CX2388x
 //
@@ -562,6 +565,8 @@ void Providers_UpdateMenu(HMENU hMenu)
         // Add an empty new menu
         InsertMenu(hMenu, 1, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT)CreatePopupMenu(), "No source");
     }
+
+    RedrawMenuBar(hMenu);
 }
 
 BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)

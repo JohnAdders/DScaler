@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.89 2002-10-31 14:02:53 adcockj Exp $
+// $Id: ProgramList.cpp,v 1.90 2002-11-03 06:00:29 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.89  2002/10/31 14:02:53  adcockj
+// Added Help Button
+//
 // Revision 1.88  2002/10/29 19:23:49  adcockj
 // Fix for duplicate channels on editing last entry
 //
@@ -1931,19 +1934,17 @@ void Channels_SetMenu(HMENU hMenu)
     // when the source has no tuner or when the tuner
     // is not the selected input
     HMENU hSubMenu = GetSubMenu(hMenu, 2);
-    if (!bHasTuner || !bInTunerMode)
+    if (hSubMenu != hMenuChannels)
     {
-        if (hSubMenu == hMenuChannels)
+        if (!bHasTuner || !bInTunerMode)
         {
             RemoveMenu(hMenu, 2, MF_BYPOSITION);
         }
-    }
-    else
-    {
-        if (hSubMenu != hMenuChannels)
+        else
         {
             InsertMenu(hMenu, 2, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT)hMenuChannels, "&Channels");
         }
+        RedrawMenuBar(hMenu);
     }
 }
 

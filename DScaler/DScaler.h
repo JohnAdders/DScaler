@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.37 2002-10-30 13:37:52 atnak Exp $
+// $Id: DScaler.h,v 1.38 2002-11-03 06:00:29 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -80,6 +80,8 @@ HMENU GetVideoDeinterlaceSubmenu();
 HMENU GetChannelsSubmenu();
 HMENU GetOSDSubmenu();
 HMENU GetPatternsSubmenu();
+
+void RedrawMenuBar(HMENU hChangedMenu);
 
 #define TIMER_STATUS        1
 #define TIMER_STATUS_MS     2000

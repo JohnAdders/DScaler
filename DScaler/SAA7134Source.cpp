@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.91 2004-08-06 16:23:00 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.92 2004-11-16 08:58:58 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.91  2004/08/06 16:23:00  atnak
+// Added typecast to make some warnings go away.
+//
 // Revision 1.90  2004/04/24 11:13:25  atnak
 // fixed memory page table boundary checking code
 //
@@ -577,7 +580,7 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
     m_Balance = new CBalanceSetting(this, "Balance", 0, -127, 127, IniSection, pAudioMiscGroup);
     m_Settings.push_back(m_Balance);
 
-    m_AudioSource = new CAudioSourceSetting(this, "Audio Source", AUDIOINPUTSOURCE_LINE1, AUDIOINPUTSOURCE_DAC, AUDIOINPUTSOURCE_LINE2, IniSection, pAudioSourceGroup);
+    m_AudioSource = new CAudioSourceSetting(this, "Audio Source", AUDIOINPUTSOURCE_LINE1, AUDIOINPUTSOURCE_LINE1, AUDIOINPUTSOURCE_DAC, IniSection, pAudioSourceGroup);
     m_Settings.push_back(m_AudioSource);
 
     m_CustomAudioStandard = new CCustomAudioStandardSetting(this, "Use Custom Audio Standard", FALSE, IniSection, pAudioCustomGroup);

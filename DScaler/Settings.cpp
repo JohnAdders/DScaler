@@ -73,6 +73,7 @@
 #include "VideoSettings.h"
 #include "Filter.h"
 #include "FieldTiming.h"
+#include "VBI_VideoText.h"
 
 typedef SETTING* (__cdecl GENERICGETSETTING)(long SettingIndex);
 typedef void (__cdecl GENERICREADSETTINGS)();
@@ -189,6 +190,12 @@ TFileWithSettings Settings[] =
         (GENERICGETSETTING*)Debug_GetSetting,
         Debug_ReadSettingsFromIni,
         Debug_WriteSettingsToIni,
+    },
+    {
+        WM_VT_GETVALUE,
+        (GENERICGETSETTING*)VT_GetSetting,
+        VT_ReadSettingsFromIni,
+        VT_WriteSettingsToIni,
     },
 };
 

@@ -2123,6 +2123,7 @@ void SetMenuAnalog()
 	Timing_SetMenu(hMenu);
 	MixerDev_SetMenu(hMenu);
 	Audio_SetMenu(hMenu);
+	VT_SetMenu(hMenu);
 }
 
 HMENU GetFiltersSubmenu()

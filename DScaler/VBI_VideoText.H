@@ -38,6 +38,15 @@
 #ifndef __VT_H___
 #define __VT_H___
 
+
+#include "settings.h"
+
+SETTING* VT_GetSetting(VT_SETTING Setting);
+void VT_ReadSettingsFromIni();
+void VT_WriteSettingsToIni();
+void VT_SetMenu(HMENU hMenu);
+
+
 typedef enum
 {
 	VT_OFF,

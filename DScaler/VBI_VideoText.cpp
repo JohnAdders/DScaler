@@ -1000,3 +1000,9 @@ void VT_WriteSettingsToIni()
 		Setting_WriteToIni(&(VTSettings[i]));
 	}
 }
+
+void VT_SetMenu(HMENU hMenu)
+{
+	CheckMenuItem(hMenu, IDM_VT_UK, (VTCodePage == VT_UK_CODE_PAGE)?MF_CHECKED:MF_UNCHECKED);
+	CheckMenuItem(hMenu, IDM_VT_FRENCH, (VTCodePage == VT_FRENCH_CODE_PAGE)?MF_CHECKED:MF_UNCHECKED);
+}

@@ -1,5 +1,5 @@
 //
-// $Id: I2CDevice.h,v 1.5 2003-10-27 10:39:52 adcockj Exp $
+// $Id: I2CDevice.h,v 1.6 2005-03-07 09:12:18 atnak Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2003/10/27 10:39:52  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.4  2001/12/18 23:36:01  adcockj
 // Split up the MSP chip support into two parts to avoid probelms when deleting objects
 //
@@ -64,6 +67,7 @@ public:
     virtual void Attach(CI2CBus* i2cBus, BYTE address = 0);
     CI2CBus* GetI2CBus() const;
     BYTE GetDeviceAddress() const;
+    bool WriteToSubAddress(BYTE subAddress, BYTE writeByte);
     bool WriteToSubAddress(BYTE subAddress, const BYTE* writeBuffer, size_t writeBufferSize);
     bool ReadFromSubAddress(BYTE subAddress, BYTE* readBuffer, size_t readBufferSize);
     bool ReadFromSubAddress(BYTE subAddress, const BYTE* writeBuffer, size_t writeBufferSize, BYTE* readBuffer, size_t readBufferSize);

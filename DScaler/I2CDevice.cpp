@@ -1,5 +1,5 @@
 //
-// $Id: I2CDevice.cpp,v 1.3 2003-10-27 10:39:52 adcockj Exp $
+// $Id: I2CDevice.cpp,v 1.4 2005-03-07 09:12:18 atnak Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2003/10/27 10:39:52  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.2  2001/11/26 13:02:27  adcockj
 // Bug Fixes and standards changes
 //
@@ -64,6 +67,11 @@ void CI2CDevice::Attach(CI2CBus* i2cBus, BYTE address)
 
     this->m_I2CBus = i2cBus;
     this->m_DeviceAddress = address;
+}
+
+bool CI2CDevice::WriteToSubAddress(BYTE subAddress, BYTE writeByte)
+{
+    return WriteToSubAddress(subAddress, &writeByte, 1);
 }
 
 bool CI2CDevice::WriteToSubAddress(BYTE subAddress, const BYTE* writeBuffer, size_t writeBufferSize)

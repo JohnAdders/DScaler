@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.111 2003-01-18 10:52:11 laurentg Exp $
+// $Id: BT848Source.cpp,v 1.112 2003-01-18 13:55:43 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.111  2003/01/18 10:52:11  laurentg
+// SetOverscan renamed SetAspectRatioData
+// Unnecessary call to SetOverscan deleted
+// Overscan setting specific to calibration deleted
+//
 // Revision 1.110  2003/01/16 13:30:49  adcockj
 // Fixes for various settings problems reported by Laurent 15/Jan/2003
 //
@@ -1145,6 +1150,16 @@ ISetting* CBT848Source::GetLeftOverscan()
 ISetting* CBT848Source::GetRightOverscan()
 {
     return m_RightOverscan;
+}
+
+ISetting* CBT848Source::GetHDelay()
+{
+    return m_HDelay;
+}
+
+ISetting* CBT848Source::GetVDelay()
+{
+    return m_VDelay;
 }
 
 void CBT848Source::BtAgcDisableOnChange(long NewValue, long OldValue)

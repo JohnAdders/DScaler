@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSFileSource.h,v 1.11 2003-01-18 10:49:10 laurentg Exp $
+// $Id: DSFileSource.h,v 1.12 2003-01-18 13:54:31 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2003/01/18 10:49:10  laurentg
+// SetOverscan renamed SetAspectRatioData
+//
 // Revision 1.10  2003/01/16 13:30:49  adcockj
 // Fixes for various settings problems reported by Laurent 15/Jan/2003
 //
@@ -99,6 +102,8 @@ public:
 	ISetting* GetBottomOverscan() {return NULL;};
 	ISetting* GetLeftOverscan() {return NULL;};
 	ISetting* GetRightOverscan() {return NULL;};
+	ISetting* GetHDelay() {return NULL;};
+	ISetting* GetVDelay() {return NULL;};
 	void SetAspectRatioData();
 
 	LPCSTR GetStatus();

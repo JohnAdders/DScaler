@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.39 2003-01-18 10:52:11 laurentg Exp $
+// $Id: CX2388xSource.cpp,v 1.40 2003-01-18 13:55:43 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.39  2003/01/18 10:52:11  laurentg
+// SetOverscan renamed SetAspectRatioData
+// Unnecessary call to SetOverscan deleted
+// Overscan setting specific to calibration deleted
+//
 // Revision 1.38  2003/01/16 14:21:17  adcockj
 // Added mute call for non-tuner inputs
 //
@@ -1037,6 +1042,16 @@ ISetting* CCX2388xSource::GetLeftOverscan()
 ISetting* CCX2388xSource::GetRightOverscan()
 {
     return m_RightOverscan;
+}
+
+ISetting* CCX2388xSource::GetHDelay()
+{
+    return m_HDelay;
+}
+
+ISetting* CCX2388xSource::GetVDelay()
+{
+    return m_VDelay;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

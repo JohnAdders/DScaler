@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.57 2003-01-18 10:52:12 laurentg Exp $
+// $Id: StillSource.h,v 1.58 2003-01-18 13:55:43 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -119,6 +119,8 @@ public:
     ISetting* GetBottomOverscan() {return NULL;};
     ISetting* GetLeftOverscan() {return NULL;};
     ISetting* GetRightOverscan() {return NULL;};
+	ISetting* GetHDelay() {return NULL;};
+	ISetting* GetVDelay() {return NULL;};
 
     CTreeSettingsPage* GetTreeSettingsPage() {return NULL;};
 

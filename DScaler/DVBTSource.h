@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DVBTSource.h,v 1.15 2003-01-18 10:52:11 laurentg Exp $
+// $Id: DVBTSource.h,v 1.16 2003-01-18 13:55:43 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -51,6 +51,8 @@ public:
     ISetting* GetBottomOverscan();
     ISetting* GetLeftOverscan();
     ISetting* GetRightOverscan();
+	ISetting* GetHDelay() {return NULL;};
+	ISetting* GetVDelay() {return NULL;};
     eVideoFormat GetFormat();
     BOOL IsInTunerMode() {return TRUE;}
     int GetWidth() {return 720;};

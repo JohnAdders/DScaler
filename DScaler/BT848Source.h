@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.53 2003-01-18 10:52:11 laurentg Exp $
+// $Id: BT848Source.h,v 1.54 2003-01-18 13:55:43 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,11 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.53  2003/01/18 10:52:11  laurentg
+// SetOverscan renamed SetAspectRatioData
+// Unnecessary call to SetOverscan deleted
+// Overscan setting specific to calibration deleted
+//
 // Revision 1.52  2003/01/16 13:30:49  adcockj
 // Fixes for various settings problems reported by Laurent 15/Jan/2003
 //
@@ -99,6 +104,8 @@ public:
     ISetting* GetBottomOverscan();
     ISetting* GetLeftOverscan();
     ISetting* GetRightOverscan();
+	ISetting* GetHDelay();
+	ISetting* GetVDelay();
     /// Gets the current field being processed by the card
     int GetRISCPosAsInt();
 	

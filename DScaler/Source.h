@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.h,v 1.32 2003-01-18 10:52:12 laurentg Exp $
+// $Id: Source.h,v 1.33 2003-01-18 13:55:43 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -93,6 +93,10 @@ public:
     virtual ISetting* GetLeftOverscan() = 0;
     /// returns NULL if there is no control over this value
     virtual ISetting* GetRightOverscan() = 0;
+    /// returns NULL if there is no control over this value
+    virtual ISetting* GetHDelay() = 0;
+    /// returns NULL if there is no control over this value
+    virtual ISetting* GetVDelay() = 0;
 	/// Get the tuner Id - this method may (and should) be overriden
     virtual eTunerId GetTunerId() 
     {

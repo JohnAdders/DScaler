@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.64 2003-01-18 10:52:11 laurentg Exp $
+// $Id: SAA7134Source.cpp,v 1.65 2003-01-18 13:55:43 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.64  2003/01/18 10:52:11  laurentg
+// SetOverscan renamed SetAspectRatioData
+// Unnecessary call to SetOverscan deleted
+// Overscan setting specific to calibration deleted
+//
 // Revision 1.63  2003/01/16 13:30:49  adcockj
 // Fixes for various settings problems reported by Laurent 15/Jan/2003
 //
@@ -1432,6 +1437,16 @@ ISetting* CSAA7134Source::GetLeftOverscan()
 ISetting* CSAA7134Source::GetRightOverscan()
 {
     return m_RightOverscan;
+}
+
+ISetting* CSAA7134Source::GetHDelay()
+{
+    return m_HDelay;
+}
+
+ISetting* CSAA7134Source::GetVDelay()
+{
+    return m_VDelay;
 }
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.h,v 1.20 2003-01-18 10:52:11 laurentg Exp $
+// $Id: CX2388xSource.h,v 1.21 2003-01-18 13:55:43 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -62,6 +62,8 @@ public:
     ISetting* GetBottomOverscan();
     ISetting* GetLeftOverscan();
     ISetting* GetRightOverscan();
+	ISetting* GetHDelay();
+	ISetting* GetVDelay();
     eVideoFormat GetFormat();
     void SetFormat(eVideoFormat NewFormat);
     BOOL IsInTunerMode();

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.53 2003-01-01 20:49:03 atnak Exp $
+// $Id: VBI_VideoText.cpp,v 1.54 2003-01-01 21:34:11 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.53  2003/01/01 20:49:03  atnak
+// Updated VBI_VideoText.* files for new videotext structure
+//
 // Revision 1.52  2002/10/30 13:37:52  atnak
 // Added "Single key teletext toggle" option. (Enables mixed mode menu item)
 //
@@ -206,6 +209,7 @@
 BOOL VT_SetCodepage(HDC hDC, LPRECT lpRect, eVTCodepage Codepage);
 void VT_DecoderEventProc(BYTE uMsg, DWORD dwParam);
 void VT_PerformUpscrollDuplicationFilter();
+void VT_PerformDoubleHeightSubtitlesFilter();
 void VT_DeleteHilightList(TVTLeftRight** pHilightList);
 void VT_UpdateHilightList(BOOL bUpdatedOnly = FALSE);
 BYTE VT_UpdateHilightListProc(TVTPage*, WORD, LPWORD, WORD, BYTE, BYTE, LPVOID);
@@ -1007,6 +1011,11 @@ BOOL VT_ProcessPageUpdate(HDC hDC, LPRECT lpRect, DWORD dwPageCode)
                 VT_PerformUpscrollDuplicationFilter();
             }
 
+            if (VTDoubleHeightSubtitlesFilter != FALSE)
+            {
+                VT_PerformDoubleHeightSubtitlesFilter();
+            }
+
             VTCursorRowCol = 0xFFFF;
 
             if (dwPageCode != VTLoadedPageCode)
@@ -1112,6 +1121,36 @@ void VT_PerformUpscrollDuplicationFilter()
                     memset(&VTVisiblePage.Frame[j][0], 0x0d, 1);
                     memset(&VTVisiblePage.Frame[j][1], 0x20, 39);
                     VTVisiblePage.LineState[j] |= CACHESTATE_UPDATED;
+                }
+            }
+        }
+    }
+}
+
+
+void VT_PerformDoubleHeightSubtitlesFilter()
+{
+    if ((VTVisiblePage.wControlBits & VTCONTROL_SUBTITLE) == 0)
+    {
+        return;
+    }
+
+    for (int i = 1; i <= 22; i++)
+    {
+        if (VTVisiblePage.LineState[i] & CACHESTATE_HASDATA)
+        {
+            for (int j = 0; j < 40; j++)
+            {
+                if (VTVisiblePage.Frame[i][j] == 0x20)
+                {
+                    // Replace the first occurance of a space
+                    // to a double height control character
+                    VTVisiblePage.Frame[i][j] = 0x0D;
+                    break;
+                }
+                else if (VTVisiblePage.Frame[i][j] == 0x0D)
+                {
+                    break;
                 }
             }
         }
@@ -1556,7 +1595,7 @@ SETTING VTSettings[VT_SETTING_LASTONE] =
         "VT", "SubstituteErrorsWithSpaces", VT_SubstituteErrorsWithSpacesOnChange,
     },
     {
-        "Filter: Upscroll Subtitle Duplication", ONOFF, 0,
+        "Filter: Upscroll Subtitle Duplication Remover", ONOFF, 0,
         (long*)&VTUpscrollDuplicationFilter,
         FALSE, 0, 1, 1, 1,
         NULL,

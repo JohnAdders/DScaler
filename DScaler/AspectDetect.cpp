@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectDetect.cpp,v 1.16 2001-08-06 22:32:13 laurentg Exp $
+// $Id: AspectDetect.cpp,v 1.17 2001-08-09 12:21:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -39,6 +39,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2001/08/06 22:32:13  laurentg
+// Little improvments for AR autodetection
+//
 // Revision 1.15  2001/08/05 20:14:49  laurentg
 // New OSD screen added for AR autodetection
 //
@@ -105,7 +108,7 @@ static int ratio_used[RATIO_HISTORY_CHANGES];
 static int ratio_time[RATIO_HISTORY_CHANGES];
 
 // Data structure for storing statistics
-RatioStatisticsStruct RatioStatistics[MAX_RATIO_STATISTICS];
+TRatioStatistics RatioStatistics[MAX_RATIO_STATISTICS];
 int nNbRatioSwitch = 0;
 
 

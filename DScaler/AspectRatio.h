@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.h,v 1.17 2001-08-06 22:32:13 laurentg Exp $
+// $Id: AspectRatio.h,v 1.18 2001-08-09 12:21:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -208,19 +208,19 @@ typedef struct
     // this is used by filters to adjust the aspect ratio
     int SourceAspectAdjust;
 
-} TAspectSettingsStruct;
+} TAspectSettings;
 
-extern TAspectSettingsStruct AspectSettings;
+extern TAspectSettings AspectSettings;
 
 // Data structure to store the different switch of ratio
-typedef struct _ratiostatistics 
+typedef struct
 {
     int  mode;
     int  ratio;
     int  switch_count;
-} RatioStatisticsStruct;
+} TRatioStatistics;
 
-extern RatioStatisticsStruct RatioStatistics[MAX_RATIO_STATISTICS];
+extern TRatioStatistics RatioStatistics[MAX_RATIO_STATISTICS];
 extern int nNbRatioSwitch;
 
 #endif

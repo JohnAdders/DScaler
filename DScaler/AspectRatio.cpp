@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.cpp,v 1.18 2001-08-06 22:32:13 laurentg Exp $
+// $Id: AspectRatio.cpp,v 1.19 2001-08-09 12:21:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -72,6 +72,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2001/08/06 22:32:13  laurentg
+// Little improvments for AR autodetection
+//
 // Revision 1.17  2001/07/13 16:14:55  adcockj
 // Changed lots of variables to match Coding standards
 //
@@ -97,7 +100,7 @@
 #define AR_ANAMORPHIC    2
 
 
-TAspectSettingsStruct AspectSettings = 
+TAspectSettings AspectSettings = 
 {
     1333,0,1,0,0,40,16,TRUE,3,17,FALSE,60,3,300,15,20,
     2000,VERT_POS_CENTRE,HORZ_POS_CENTRE,

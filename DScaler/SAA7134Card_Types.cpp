@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.15 2002-12-22 03:52:11 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.16 2002-12-22 04:03:58 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2002/12/22 03:52:11  atnak
+// Fixed FlyVideo2000 GPIO settings for input change
+//
 // Revision 1.14  2002/12/14 00:29:35  atnak
 // Added Manli M-TV001 card
 //
@@ -507,12 +510,13 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
 const CSAA7134Card::TAutoDetectSAA7134 CSAA7134Card::m_AutoDetectSAA7134[] =
 {
     // DeviceId, Subsystem vendor Id, Subsystem Id, Card Id
-    { 0x7134, 0x1131, 0x0000, SAA7134CARDID_UNKNOWN     },
-    { 0x7130, 0x1131, 0x0000, SAA7134CARDID_UNKNOWN     },
-    { 0x7134, 0x1131, 0x2001, SAA7134CARDID_PROTEUSPRO  },
-    { 0x7134, 0x1131, 0x6752, SAA7134CARDID_EMPRESS     },
-    { 0x7134, 0x1131, 0x4E85, SAA7134CARDID_MONSTERTV   },
-    { 0x7134, 0x153B, 0x1142, SAA7134CARDID_CINERGY400  },
+    { 0x7134, 0x1131, 0x0000, SAA7134CARDID_UNKNOWN      },
+    { 0x7130, 0x1131, 0x0000, SAA7134CARDID_UNKNOWN      },
+    { 0x7134, 0x1131, 0x2001, SAA7134CARDID_PROTEUSPRO   },
+    { 0x7134, 0x1131, 0x6752, SAA7134CARDID_EMPRESS      },
+    { 0x7134, 0x1131, 0x4E85, SAA7134CARDID_MONSTERTV    },
+    { 0x7134, 0x153B, 0x1142, SAA7134CARDID_CINERGY400   },
+    { 0x7130, 0x5168, 0x0138, SAA7134CARDID_FLYVIDEO2000 },
 };
 
 

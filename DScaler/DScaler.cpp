@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.325 2003-05-31 11:38:14 laurentg Exp $
+// $Id: DScaler.cpp,v 1.326 2003-06-14 12:05:21 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.325  2003/05/31 11:38:14  laurentg
+// Load dynamic functions earlier to have splash screen on correct screen and to be able to start in full screen mode on the second monitor
+//
 // Revision 1.324  2003/04/28 12:41:19  laurentg
 // PowerStrip settings access added
 //
@@ -1503,6 +1506,23 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
 	// to be sure to have the display on the correct screen
 	// Display in full screen mode is then done later when calling UpdateWindowState
     SetWindowPos(hWnd, 0, MainWndLeft, MainWndTop, MainWndWidth, MainWndHeight, SWP_SHOWWINDOW);
+
+	// Restore the default positions for the window if the window was previously placed on a screen
+	// which is no more active
+	// The default position is on the primary monitor
+	RECT screenRect;
+	GetMonitorRect(hWnd, &screenRect);
+	if ( (MainWndLeft > screenRect.right)
+	  || ((MainWndLeft+MainWndWidth) < screenRect.left)
+	  || (MainWndTop > screenRect.bottom)
+	  || ((MainWndTop+MainWndHeight) < screenRect.top) )
+	{
+		Setting_SetDefault(DScaler_GetSetting(STARTLEFT));
+		Setting_SetDefault(DScaler_GetSetting(STARTTOP));
+		Setting_SetDefault(DScaler_GetSetting(STARTWIDTH));
+		Setting_SetDefault(DScaler_GetSetting(STARTHEIGHT));
+	    SetWindowPos(hWnd, 0, MainWndLeft, MainWndTop, MainWndWidth, MainWndHeight, SWP_SHOWWINDOW);
+	}
 
 	// Show the splash screen after creating the main window
 	// to be sure to display it on the right monitor

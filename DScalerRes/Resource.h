@@ -1260,6 +1260,7 @@
 #define IDM_DISPLAY_EPG_NEXT_IN_PAGE    32987
 #define IDM_DISPLAY_EPG_PREV_IN_PAGE    32988
 #define IDM_EPG_VIEW_PROG               32989
+#define IDM_HIDE_EPG                    32990
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
 #define IDM_POPUP_MODE                  65535
@@ -1280,7 +1281,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        267
-#define _APS_NEXT_COMMAND_VALUE         32990
+#define _APS_NEXT_COMMAND_VALUE         32991
 #define _APS_NEXT_CONTROL_VALUE         1000
 #define _APS_NEXT_SYMED_VALUE           2526
 #endif

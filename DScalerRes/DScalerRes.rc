@@ -1438,6 +1438,8 @@ BEGIN
             MENUITEM "View Programme &Details\tCtrl+Shift+G", 
                                                     IDM_DISPLAY_EPG
             MENUITEM "&Browse Programmes\tG",       IDM_DISPLAY_EPG_NOW
+            MENUITEM "Hide EPG\tBackspace",         IDM_HIDE_EPG
+            MENUITEM SEPARATOR
             MENUITEM "Shift Time Frame &Earlier\tCtrl+G", 
                                                     IDM_DISPLAY_EPG_EARLIER
             MENUITEM "Shift Time Frame &Later\tShift+G", 
@@ -1447,10 +1449,10 @@ BEGIN
 
             MENUITEM "&Next\tShift+Dn",             IDM_DISPLAY_EPG_NEXT_IN_PAGE
 
-            MENUITEM "&View Program Now\tShift+Enter", IDM_EPG_VIEW_PROG
-            MENUITEM SEPARATOR
             MENUITEM "P&revious Page\tShift+PgUp",  IDM_DISPLAY_EPG_PREV
             MENUITEM "Ne&xt Page\tShift+PgDn",      IDM_DISPLAY_EPG_NEXT
+            MENUITEM SEPARATOR
+            MENUITEM "&Go to Program\tShift+Enter", IDM_EPG_VIEW_PROG
         END
     END
     POPUP "&Datacasting"

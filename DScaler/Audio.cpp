@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Audio.cpp,v 1.11 2001-07-13 16:14:55 adcockj Exp $
+// $Id: Audio.cpp,v 1.12 2001-07-13 18:13:24 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2001/07/13 16:14:55  adcockj
+// Changed lots of variables to match Coding standards
+//
 // Revision 1.10  2001/07/13 07:04:43  adcockj
 // Attemp 1 at fixing MSP muting
 //
@@ -85,6 +88,8 @@ eAudioMuxType AudioSource = AUDIOMUX_MUTE;
 #define WriteDSP(wAddr,wData) Audio_WriteMSP(MSP_WR_DSP,wAddr,wData) // I2C_MSP3400C_DEM
 #define ReadDem(wAddr) Audio_ReadMSP(MSP_RD_DEM,wAddr)  // I2C_MSP3400C_DFP
 #define ReadDSP(wAddr) Audio_ReadMSP(MSP_RD_DSP,wAddr)  // I2C_MSP3400C_DFP
+
+BOOL bSystemInMute = FALSE;
 
 typedef struct
 {
@@ -1175,6 +1180,60 @@ void Audio_MSP_Watch_Mode()
     }
 }
 
+void Audio_Mute()
+{
+	if (bUseMixer == FALSE)
+	{
+		Audio_SetSource(AUDIOMUX_MUTE);
+	}
+
+	if(bUseMixer == TRUE)
+	{
+		Mixer_Mute();
+	}
+
+	if (Audio_MSP_IsPresent())
+	{
+		Audio_MSP_Mute();
+	}
+}
+
+void Audio_Unmute()
+{
+	if(!bSystemInMute)
+	{
+		if (bUseMixer == FALSE)
+		{
+			Audio_SetSource(AudioSource);
+		}
+    
+		if(bUseMixer == TRUE)
+		{
+			Mixer_UnMute();
+		}
+    
+		if (Audio_MSP_IsPresent())
+		{
+			Audio_MSP_Unmute();
+		}
+	}
+}
+
+BOOL SystemInMute_OnChange(long NewValue)
+{
+	if(NewValue == TRUE)
+	{
+		bSystemInMute = TRUE;
+		Audio_Mute();
+	}
+	else
+	{
+		bSystemInMute = FALSE;
+		Audio_Unmute();
+	}
+	return FALSE;
+}
+
 BOOL AudioSource_OnChange(long NewValue)
 {
     AudioSource = (eAudioMuxType)NewValue;
@@ -1313,6 +1372,12 @@ SETTING AudioSettings[AUDIO_SETTING_LASTONE] =
         NULL,
         "MSP", "Equalizer5", Equalizer5_OnChange,
     },
+    {
+        "System in Mute", ONOFF, 0, (long*)&bSystemInMute,
+        FALSE, 0, 1, 1, 1, 
+        NULL,
+        NULL, NULL, SystemInMute_OnChange,
+    },
 };
 
 SETTING* Audio_GetSetting(AUDIO_SETTING Setting)
@@ -1380,40 +1445,7 @@ void Audio_SetMenu(HMENU hMenu)
     CheckMenuItemBool(hMenu, IDM_MINOR_CARRIER_7, (MSPMinorMode == 7));
 
     CheckMenuItemBool(hMenu, IDM_AUTOSTEREO, AutoStereoSelect);
+
+    CheckMenuItemBool(hMenu, IDM_MUTE, bSystemInMute);
 }
 
-void Audio_Mute()
-{
-    if (bUseMixer == FALSE)
-    {
-        Audio_SetSource(AUDIOMUX_MUTE);
-    }
-    
-    if(bUseMixer == TRUE)
-    {
-        Mixer_Mute();
-    }
-    
-    if (Audio_MSP_IsPresent())
-    {
-        Audio_MSP_Mute();
-    }
-}
-
-void Audio_Unmute()
-{
-    if (bUseMixer == FALSE)
-    {
-        Audio_SetSource(AudioSource);
-    }
-    
-    if(bUseMixer == TRUE)
-    {
-        Mixer_UnMute();
-    }
-    
-    if (Audio_MSP_IsPresent())
-    {
-        Audio_MSP_Unmute();
-    }
-}

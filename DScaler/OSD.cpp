@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.12 2001-07-13 16:14:56 adcockj Exp $
+// $Id: OSD.cpp,v 1.13 2001-07-13 18:13:24 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2001/07/13 16:14:56  adcockj
+// Changed lots of variables to match Coding standards
+//
 // Revision 1.11  2001/07/12 16:16:40  adcockj
 // Added CVS Id and Log
 //
@@ -125,7 +128,7 @@ void OSD_ClearAllTexts()
 
 //---------------------------------------------------------------------------
 // Add a new text to the list of texts for OSD
-void OSD_AddText(LPCTSTR szText, double Size, long TextColor, eOSDTextXPos TextXPos, double XPos, double YPos)
+void OSD_AddText(LPCTSTR szText, double Size, long NewTextColor, eOSDTextXPos TextXPos, double XPos, double YPos)
 {
     if ( (strlen(szText) == 0) || (NbText >= OSD_MAX_TEXT) )
     {
@@ -140,13 +143,13 @@ void OSD_AddText(LPCTSTR szText, double Size, long TextColor, eOSDTextXPos TextX
     {
         grOSD[NbText].Size = Size;
     }
-    if (TextColor == 0)
+    if (NewTextColor == 0)
     {
         grOSD[NbText].TextColor = TextColor;
     }
     else
     {
-        grOSD[NbText].TextColor = TextColor;
+        grOSD[NbText].TextColor = NewTextColor;
     }
     grOSD[NbText].TextXPos = TextXPos;
     grOSD[NbText].XPos = XPos;
@@ -556,7 +559,7 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
             strcpy(szInfo, "Audio : Unknown");
             break;
         }
-        if (bSystemInMute == TRUE)
+        if (Setting_GetValue(Audio_GetSetting(SYSTEMINMUTE)) == TRUE)
         {
             strcat (szInfo, " - MUTE");
         }

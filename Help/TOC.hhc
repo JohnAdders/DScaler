@@ -47,6 +47,11 @@
 		</OBJECT>
 	<UL>
 		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Coding Standards">
+			<param name="Local" value="Standards.htm">
+			<param name="ImageNumber" value="11">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Mark Rejhon's 3:2 Spec">
 			<param name="Local" value="32spec.htm">
 			<param name="ImageNumber" value="11">

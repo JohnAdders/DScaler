@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.23 2001-07-13 16:15:43 adcockj Exp $
+// $Id: DS_Control.h,v 1.24 2001-07-13 18:13:24 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2001/07/13 16:15:43  adcockj
+// Changed lots of variables to match Coding standards
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef __DS_CONTROL_H___
@@ -663,7 +666,6 @@ typedef enum
 typedef enum
 {
     USEMIXER = 0,
-    SYSTEMINMUTE,
     MIXERINDEX,
     DESTINDEX,
     TUNERINDEX,
@@ -739,6 +741,7 @@ typedef enum
     MSPEQ3,
     MSPEQ4,
     MSPEQ5,
+	SYSTEMINMUTE,
     AUDIO_SETTING_LASTONE,
 } AUDIO_SETTING;
 

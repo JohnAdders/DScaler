@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.26 2001-07-13 16:14:56 adcockj Exp $
+// $Id: ProgramList.cpp,v 1.27 2001-07-13 18:13:24 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2001/07/13 16:14:56  adcockj
+// Changed lots of variables to match Coding standards
+//
 // Revision 1.25  2001/07/12 16:16:40  adcockj
 // Added CVS Id and Log
 //
@@ -927,10 +930,7 @@ void Channel_Change(int NewChannel)
         {
             if (MyChannels[NewChannel]->GetFrequency() != 0)
             {
-                if(!bSystemInMute)
-                {
-                    Audio_Mute();
-                }
+                Audio_Mute();
                 PreviousProgramm = CurrentProgramm;
                 CurrentProgramm = NewChannel;
                 if(MyChannels[CurrentProgramm]->GetFormat() != -1)
@@ -950,10 +950,7 @@ void Channel_Change(int NewChannel)
                 Tuner_SetFrequency(MyChannels[CurrentProgramm]->GetFrequency());
                 Sleep(20);
                 VT_ChannelChange();
-                if(!bSystemInMute)
-                {
-                    Audio_Unmute();
-                }
+                Audio_Unmute();
                 StatusBar_ShowText(STATUS_KEY, MyChannels[CurrentProgramm]->GetName());
                 OSD_ShowText(hWnd,MyChannels[CurrentProgramm]->GetName(), 0);
             }

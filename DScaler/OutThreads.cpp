@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.22 2001-07-13 16:14:56 adcockj Exp $
+// $Id: OutThreads.cpp,v 1.23 2001-07-13 18:13:24 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -66,6 +66,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2001/07/13 16:14:56  adcockj
+// Changed lots of variables to match Coding standards
+//
 // Revision 1.21  2001/07/13 07:04:43  adcockj
 // Attemp 1 at fixing MSP muting
 //
@@ -154,10 +157,7 @@ void Start_Thread()
                              NULL,                          // Parameter.
                              (DWORD) 0,                     // Start immediatly.
                              (LPDWORD) & LinkThreadID);     // Thread ID.
-    if(!bSystemInMute)
-    {
-        Audio_Unmute();
-    }
+    Audio_Unmute();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.h,v 1.9 2001-07-13 16:14:56 adcockj Exp $
+// $Id: MixerDev.h,v 1.10 2001-07-13 18:13:24 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -112,7 +112,6 @@ private:
 BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 void Mixer_SetupDlg(HWND hWndParent);
 
-extern BOOL bSystemInMute;
 extern BOOL bUseMixer;
 
 void Mixer_Mute();

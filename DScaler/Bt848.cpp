@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Bt848.cpp,v 1.23 2001-07-13 16:14:55 adcockj Exp $
+// $Id: Bt848.cpp,v 1.24 2001-07-13 18:13:24 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,6 +44,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2001/07/13 16:14:55  adcockj
+// Changed lots of variables to match Coding standards
+//
 // Revision 1.22  2001/07/12 16:16:39  adcockj
 // Added CVS Id and Log
 //
@@ -1558,10 +1561,7 @@ BOOL APIENTRY AdvVideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lPa
 BOOL VideoSource_OnChange(long NewValue)
 {
     Stop_Capture();
-    if(!bSystemInMute)
-    {
-        Audio_Mute();
-    }
+    Audio_Mute();
     VideoSettings_SaveTVFormat();
     VideoSettings_Save();
     VideoSource = (eVideoSourceType)NewValue;
@@ -1603,11 +1603,7 @@ BOOL VideoSource_OnChange(long NewValue)
         break;
     }
 
-    Mixer_OnInputChange(VideoSource);
-    if(!bSystemInMute)
-    {
-        Audio_Unmute();
-    }
+    Audio_Unmute();
     Start_Capture();
     return FALSE;
 }

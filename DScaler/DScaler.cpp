@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.43 2001-07-13 16:14:55 adcockj Exp $
+// $Id: DScaler.cpp,v 1.44 2001-07-13 18:13:24 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -65,6 +65,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.43  2001/07/13 16:14:55  adcockj
+// Changed lots of variables to match Coding standards
+//
 // Revision 1.42  2001/07/13 07:04:43  adcockj
 // Attemp 1 at fixing MSP muting
 //
@@ -768,16 +771,14 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_MUTE:
-            if (bSystemInMute == FALSE)
+            if (Setting_GetValue(Audio_GetSetting(SYSTEMINMUTE)) == FALSE)
             {
-                bSystemInMute = TRUE;
-                Audio_Mute();
+                Setting_SetValue(Audio_GetSetting(SYSTEMINMUTE), TRUE);
                 ShowText(hWnd,"MUTE");
             }
             else
             {
-                bSystemInMute = FALSE;
-                Audio_Unmute();
+                Setting_SetValue(Audio_GetSetting(SYSTEMINMUTE), FALSE);
                 ShowText(hWnd,"UNMUTE");
             }
             break;
@@ -1553,8 +1554,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
                 strcpy(Text1, Text);
 
-                if (bSystemInMute == TRUE)
+                if (Setting_GetValue(Audio_GetSetting(SYSTEMINMUTE)) == TRUE)
+				{
                     sprintf(Text1, "Volume Mute");
+				}
                 StatusBar_ShowText(STATUS_TEXT, Text1);
             }
             break;
@@ -1886,16 +1889,6 @@ void MainWndOnInitBT(HWND hWnd)
         if (Audio_MSP_IsPresent() == TRUE)
         {
             SetTimer(hWnd, TIMER_MSP, TIMER_MSP_MS, NULL);
-        }
-
-        // mute while we set things up
-        if(bSystemInMute)
-        {
-            Audio_Mute();
-        }
-        else
-        {
-            Audio_Unmute();
         }
 
         if(Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)) == SOURCE_TUNER)

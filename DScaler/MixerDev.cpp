@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.11 2001-07-13 16:14:56 adcockj Exp $
+// $Id: MixerDev.cpp,v 1.12 2001-07-13 18:13:24 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2001/07/13 16:14:56  adcockj
+// Changed lots of variables to match Coding standards
+//
 // Revision 1.10  2001/07/12 16:16:40  adcockj
 // Added CVS Id and Log
 //
@@ -50,7 +53,6 @@
 
 CSoundSystem* pSoundSystem = NULL;
 
-BOOL bSystemInMute = FALSE;
 BOOL bUseMixer = FALSE;
 long MixerIndex = 0;
 long DestIndex = 0;
@@ -792,12 +794,6 @@ SETTING MixerDevSettings[MIXERDEV_SETTING_LASTONE] =
         "Mixer", "UseMixer", NULL,
     },
     {
-        "System in Mute", ONOFF, 0, (long*)&bSystemInMute,
-        FALSE, 0, 1, 1, 1, 
-        NULL,
-        "Sound", "System_In_Mute", NULL,
-    },
-    {
         "MixerIndex", SLIDER, 0, (long*)&MixerIndex,
         0, 0, 255, 1, 1,
         NULL,
@@ -869,5 +865,4 @@ void MixerDev_WriteSettingsToIni()
 
 void MixerDev_SetMenu(HMENU hMenu)
 {
-    CheckMenuItemBool(hMenu, IDM_MUTE, bSystemInMute);
 }

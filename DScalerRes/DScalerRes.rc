@@ -1508,6 +1508,7 @@ BEGIN
         MENUITEM "&Down",                       IDM_PLAYLIST_DOWN
         MENUITEM SEPARATOR
         MENUITEM "Slides&how",                  IDM_PLAYLIST_SLIDESHOW
+        MENUITEM "Previe&w (experimental)",     IDM_PLAYLIST_PREVIEW
     END
 END
 

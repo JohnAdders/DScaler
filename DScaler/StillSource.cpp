@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.90 2003-03-15 21:29:48 laurentg Exp $
+// $Id: StillSource.cpp,v 1.91 2003-03-19 23:53:28 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.90  2003/03/15 21:29:48  laurentg
+// ResizeFrame becomes a global function
+//
 // Revision 1.89  2003/03/09 19:48:28  laurentg
 // Updated field statistics
 //
@@ -331,6 +334,7 @@
 #include "Filter.h"
 #include "Dialogs.h"
 #include "OSD.h"
+#include "MultiFrames.h"
 
 
 #define TIMER_SLIDESHOW 50
@@ -828,6 +832,11 @@ BOOL CStillSource::ShowPreviousInPlayList()
         --Pos;
     }
     return FALSE;
+}
+
+int CStillSource::GetPlaylistPosition()
+{
+	return m_Position;
 }
 
 BOOL CStillSource::FindFileName(time_t TimeStamp, char* FileName)
@@ -1332,6 +1341,12 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         m_NewFileReqPos = m_Position;
         return TRUE;
         break;
+    case IDM_PLAYLIST_INDEX:
+        m_SlideShowActive = FALSE;
+        m_NewFileRequested = STILL_REQ_THIS_ONE;
+        m_NewFileReqPos = lParam;
+        return TRUE;
+        break;
     case IDM_PLAYLIST_PREVIOUS:
         if(m_Position > 0)
         {
@@ -1347,6 +1362,32 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             m_SlideShowActive = FALSE;
             m_NewFileRequested = STILL_REQ_NEXT;
             m_NewFileReqPos = m_Position + 1;
+        }
+        return TRUE;
+        break;
+    case IDM_PLAYLIST_PREVIOUS_CIRC:
+        m_SlideShowActive = FALSE;
+        m_NewFileRequested = STILL_REQ_PREVIOUS_CIRC;
+        if(m_Position > 0)
+        {
+            m_NewFileReqPos = m_Position - 1;
+        }
+		else
+        {
+            m_NewFileReqPos = m_PlayList.size() - 1;
+        }
+        return TRUE;
+        break;
+    case IDM_PLAYLIST_NEXT_CIRC:
+        m_SlideShowActive = FALSE;
+        m_NewFileRequested = STILL_REQ_NEXT_CIRC;
+        if(m_Position < m_PlayList.size() - 1)
+        {
+            m_NewFileReqPos = m_Position + 1;
+        }
+		else
+        {
+            m_NewFileReqPos = 0;
         }
         return TRUE;
         break;
@@ -1479,6 +1520,14 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 			SaveInFile(pos);
 		}
 		UpdateMenu();
+        return TRUE;
+        break;
+    case IDM_PLAYLIST_PREVIEW:
+        if (pMultiFrames == NULL)
+		{
+			pMultiFrames = new CMultiFrames(9, 0);
+		}
+		pMultiFrames->RequestSwitch();
         return TRUE;
         break;
     default:

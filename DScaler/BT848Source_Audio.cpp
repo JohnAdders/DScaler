@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_Audio.cpp,v 1.20 2002-09-15 15:57:27 kooiman Exp $
+// $Id: BT848Source_Audio.cpp,v 1.21 2002-09-15 19:52:22 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2002/09/15 15:57:27  kooiman
+// Added Audio standard support.
+//
 // Revision 1.19  2002/09/12 21:52:32  ittarnavsky
 // Removed references to HasMSP.  Few cosmetic name changes
 //
@@ -333,8 +336,9 @@ void CBT848Source::StaticAudioStandardDetected(void *pThis, long Standard)
 
 void CBT848Source::AudioStandardDetected(long Standard)
 {
-    m_AudioStandardMajorCarrier->SetValue(m_pBT848Card->GetAudioStandardMajorCarrier(Standard), TRUE);
-    m_AudioStandardMinorCarrier->SetValue(m_pBT848Card->GetAudioStandardMinorCarrier(Standard), TRUE);
+    m_AudioStandardManual->SetValue(Standard, TRUE);
+    m_AudioStandardMajorCarrier->SetValue(m_pBT848Card->GetAudioStandardMajorCarrier(-1), TRUE);
+    m_AudioStandardMinorCarrier->SetValue(m_pBT848Card->GetAudioStandardMinorCarrier(-1), TRUE);
     
     m_pBT848Card->SetAudioVolume(m_Volume->GetValue());
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.45 2002-09-15 15:57:27 kooiman Exp $
+// $Id: BT848Souce_UI.cpp,v 1.46 2002-09-15 19:52:22 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.45  2002/09/15 15:57:27  kooiman
+// Added Audio standard support.
+//
 // Revision 1.44  2002/09/12 21:54:12  ittarnavsky
 // Some changes due to the IAudioControls to CAudioControls transition
 //
@@ -1297,9 +1300,7 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             break;
         case IDM_AUDIOSTANDARD_DETECTNOW:
             {
-                long Val = m_AudioStandardDetect->GetValue();
-                m_AudioStandardDetect->SetValue(2); //Detect
-                m_AudioStandardDetect->SetValue(Val, TRUE); //Set value back without onchange call
+                m_pBT848Card->DetectAudioStandard(m_AudioStandardDetectInterval->GetValue(), this, StaticAudioStandardDetected); 
             }
             break;
 

@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.cpp,v 1.21 2002-09-15 15:58:33 kooiman Exp $
+// $Id: MSP34x0.cpp,v 1.22 2002-09-15 19:52:22 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2002/09/15 15:58:33  kooiman
+// Added Audio standard detection & some MSP fixes.
+//
 // Revision 1.20  2002/09/12 21:44:44  ittarnavsky
 // split the MSP34x0 in two files one for the AudioControls the other foe AudioDecoder
 //
@@ -607,6 +610,9 @@ void CMSP34x0Decoder::SetAudioInput(eAudioInput audioInput)
     default:
         break;
     }
+
+    SetDSPRegister(DSP_WR_SCART_PRESCALE, 0x1900);
+
 /*
     switch (m_AudioInput)
     {
@@ -1175,15 +1181,13 @@ void CMSP34x0Decoder::SetSoundChannel3400(eSoundChannel SoundChannel)
             case MSP34x0_STANDARD_DK_NICAM_FM:
             case MSP34x0_STANDARD_DK_NICAM_FM_HDEV2:
             case MSP34x0_STANDARD_DK_NICAM_FM_HDEV3:
+            case MSP34x0_STANDARD_L_NICAM_AM:
     			SetCarrier3400(m_MSPStandards[m_AudioStandard].MinorCarrier,m_MSPStandards[m_AudioStandard].MajorCarrier);
     			//if (m_NicamOn)
                 //{
     				  nicam=0x0100;
                 //}
     			break;
-            case MSP34x0_STANDARD_L_NICAM_AM:
-                break;
-
     		case MSP34x0_STANDARD_M_BTSC:
             case MSP34x0_STANDARD_M_BTSC_MONO:
     			nicam = 0x0300;
@@ -1217,7 +1221,8 @@ void CMSP34x0Decoder::SetSoundChannel3400(eSoundChannel SoundChannel)
         {
             source = 0x200;
             /// AM mono decoding is handled by tuner, not MSP chip
-            SetSCARTxbar(MSP34x0_SCARTOUTPUT_DSP_INPUT, MSP34x0_SCARTINPUT_MONO);
+            SetSCARTxbar(MSP34x0_SCARTOUTPUT_DSP_INPUT, MSP34x0_SCARTINPUT_MONO);            
+            SetDSPRegister(DSP_WR_SCART_PRESCALE, 0x1900);
 		 }
 	}
 	
@@ -1225,9 +1230,7 @@ void CMSP34x0Decoder::SetSoundChannel3400(eSoundChannel SoundChannel)
     SetDSPRegister(DSP_WR_HEADPH_SOURCE, source);
     SetDSPRegister(DSP_WR_SCART1_SOURCE, source);
     SetDSPRegister(DSP_WR_SCART2_SOURCE, source);
-    SetDSPRegister(DSP_WR_I2S_SOURCE, source);
-    
-	
+    SetDSPRegister(DSP_WR_I2S_SOURCE, source);    	
 }
 
 
@@ -1377,6 +1380,8 @@ void CMSP34x0Decoder::SetStandard3400(eStandard standard, eVideoFormat videoform
     case MSP34x0_STANDARD_AUTO:
         ModeReg = 0x500;
         break;
+    case MSP34x0_STANDARD_L_NICAM_AM:
+        ModeReg = 0x140;
     default:
         break;
     }
@@ -1417,7 +1422,6 @@ void CMSP34x0Decoder::SetStandard3400(eStandard standard, eVideoFormat videoform
     
     // reset the ident filter
     SetDSPRegister(DSP_WR_IDENT_MODE, 0x3f);    
-
     
     /*SetDSPRegister(DSP_WR_LDSPK_VOLUME, 0x7300);
     SetDSPRegister(DSP_WR_HEADPH_VOLUME, 0x7300);

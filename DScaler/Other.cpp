@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.36 2002-04-13 21:52:40 laurentg Exp $
+// $Id: Other.cpp,v 1.37 2002-04-27 11:46:28 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.36  2002/04/13 21:52:40  laurentg
+// Management of no current source
+//
 // Revision 1.35  2002/03/21 10:26:00  robmuller
 // Added CanDoOverlayColorControl().
 //
@@ -413,10 +416,9 @@ BOOL Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags)
                 // resizing the window smaller than the video size.
                 // 2001-01-06 John Adcock
                 // Now show return code
-// WARNING : Put in comments by Laurent Garnier to avoid this error when no source is selected
-//                char szErrorMsg[200];
-//                sprintf(szErrorMsg, "Error %x in UpdateOverlay", ddrval);
-//                ErrorBox(szErrorMsg);
+                char szErrorMsg[200];
+                sprintf(szErrorMsg, "Error %x in UpdateOverlay", ddrval);
+                ErrorBox(szErrorMsg);
             }
             LeaveCriticalSection(&hDDCritSect);
             return FALSE;

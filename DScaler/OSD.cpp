@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.47 2002-02-08 00:42:25 laurentg Exp $
+// $Id: OSD.cpp,v 1.48 2002-02-09 13:01:57 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.47  2002/02/08 00:42:25  laurentg
+// Support of a new type of file : DScaler patterns
+//
 // Revision 1.46  2002/02/02 12:44:01  laurentg
 // "Pixel width" replaced by "Source size" in the main OSD
 //
@@ -223,6 +226,7 @@
 #include "PaintingHDC.h"
 #include "Perf.h"
 #include "DebugLog.h"
+#include "SettingsDlg.h"
 
 extern long NumFilters;
 extern FILTER_METHOD* Filters[];
@@ -1788,4 +1792,9 @@ void OSD_WriteSettingsToIni(BOOL bOptimizeFileAccess)
             WritePrivateProfileString("OSD", szIniKey, ActiveScreens[i].active ? "1" : "0", GetIniFileForSettings());
         }
     }
+}
+
+void OSD_ShowUI()
+{
+    CSettingsDlg::ShowSettingsDlg("OSD Settings",OSDSettings, OSD_SETTING_LASTONE);
 }

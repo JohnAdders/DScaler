@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.h,v 1.9 2001-11-02 16:30:08 adcockj Exp $
+// $Id: OSD.h,v 1.10 2002-02-09 13:01:57 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -42,7 +42,7 @@
 SETTING* OSD_GetSetting(OSD_SETTING Setting);
 void OSD_ReadSettingsFromIni();
 void OSD_WriteSettingsToIni(BOOL bOptimizeFileAccess);
-void OSD_SetMenu(HMENU hMenu);
+void OSD_ShowUI();
 BOOL ProcessOSDSelection(HWND hWnd, WORD wMenuID);
 
 

@@ -5,7 +5,7 @@
 <frameset rows="*,60">
     <frameset cols="200,*">
          <frame name="contents" target="main" src="HelpContents.htm" scrolling="no">
-         <frame name="main" src="DScaler_Readme.htm" scrolling="auto">
+         <frame name="main" src="Help.htm" scrolling="auto">
     </frameset>
     <frame name="Nav" target="_top" src="Nav.htm" scrolling="no">
 <noframes>

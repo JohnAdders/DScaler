@@ -791,8 +791,10 @@ BOOL BT848_Saturation_OnChange(long Sat)
 
 BOOL BT848_SaturationU_OnChange(long SatU)
 {
-	BYTE bDataHi;
+	if(SatU > 255) SatU = 255;
+	if(SatU < 0) SatU = 0;
 
+	BYTE bDataHi;
 	bDataHi = (BYTE) (SatU >> 7) & 2;
 	BT848_WriteByte(BT848_SAT_U_LO, (BYTE) (SatU & 0xff));
 	BT848_MaskDataByte(BT848_E_CONTROL, bDataHi, 2);
@@ -806,6 +808,9 @@ BOOL BT848_SaturationU_OnChange(long SatU)
 
 BOOL BT848_SaturationV_OnChange(long SatV)
 {
+	if(SatV > 255) SatV = 255;
+	if(SatV < 0) SatV = 0;
+
 	BYTE bDataHi;
 
 	bDataHi = (BYTE) (SatV >> 8) & 1;

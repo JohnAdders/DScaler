@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.51 2002-03-10 23:14:45 robmuller Exp $
+// $Id: ProgramList.cpp,v 1.52 2002-03-11 21:38:24 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.51  2002/03/10 23:14:45  robmuller
+// Added Clear List button.
+// Scan no longer clears the program list.
+// Position in program list is maintained when removing an item.
+// Added support for the delete key in the program list.
+// Fixed typos.
+//
 // Revision 1.50  2002/02/26 19:21:32  adcockj
 // Add Format to Channel.txt file changes by Mike Temperton with some extra stuff by me
 //
@@ -863,21 +870,27 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         case IDC_UP:
             if(CurrentProgram > 0 && CurrentProgram < MyChannels.size())
             {
+                int TopIndex = 0;
                 CChannel* Temp = MyChannels[CurrentProgram];
                 MyChannels[CurrentProgram] = MyChannels[CurrentProgram - 1];
                 MyChannels[CurrentProgram - 1] = Temp;
                 --CurrentProgram; 
+                TopIndex = ListBox_GetTopIndex(GetDlgItem(hDlg, IDC_PROGRAMLIST));
                 RefreshProgramList(hDlg, CurrentProgram);
+                ListBox_SetTopIndex(GetDlgItem(hDlg, IDC_PROGRAMLIST), TopIndex);
             }
             break;
         case IDC_DOWN:
             if(CurrentProgram >= 0 && CurrentProgram < MyChannels.size() - 1)
             {
+                int TopIndex = 0;
                 CChannel* Temp = MyChannels[CurrentProgram];
                 MyChannels[CurrentProgram] = MyChannels[CurrentProgram + 1];
                 MyChannels[CurrentProgram + 1] = Temp;
                 ++CurrentProgram; 
+                TopIndex = ListBox_GetTopIndex(GetDlgItem(hDlg, IDC_PROGRAMLIST));
                 RefreshProgramList(hDlg, CurrentProgram);
+                ListBox_SetTopIndex(GetDlgItem(hDlg, IDC_PROGRAMLIST), TopIndex);
             }
             break;
         case IDC_CLEAR:
@@ -930,6 +943,8 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         case DL_BEGINDRAG:
             DragItemIndex = ListBox_GetCurSel(pDragInfo->hWnd);
             SetWindowLong(hDlg, DWL_MSGRESULT, TRUE);
+            Item = LBItemFromPt(pDragInfo->hWnd, pDragInfo->ptCursor, FALSE);
+            DrawInsert(hDlg, pDragInfo->hWnd, Item);
             break;
         case DL_DROPPED:
             DrawInsert(hDlg, pDragInfo->hWnd, -1);               
@@ -956,14 +971,18 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 }
                 MyChannels[Item] = Temp;
                 CurrentProgram = Item; 
+
+                int TopIndex = 0;
+                TopIndex = ListBox_GetTopIndex(GetDlgItem(hDlg, IDC_PROGRAMLIST));
                 RefreshProgramList(hDlg, CurrentProgram);
+                ListBox_SetTopIndex(GetDlgItem(hDlg, IDC_PROGRAMLIST), TopIndex);
             }
             break;
         case DL_CANCELDRAG:
             DrawInsert(hDlg, pDragInfo->hWnd, -1);
             break;
         case DL_DRAGGING:
-            Item = LBItemFromPt(pDragInfo->hWnd, pDragInfo->ptCursor, FALSE);
+            Item = LBItemFromPt(pDragInfo->hWnd, pDragInfo->ptCursor, TRUE);
             DrawInsert(hDlg, pDragInfo->hWnd, Item);
             SetWindowLong(hDlg, DWL_MSGRESULT, DL_MOVECURSOR);
             break;

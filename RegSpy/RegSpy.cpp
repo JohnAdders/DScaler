@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: RegSpy.cpp,v 1.14 2003-05-05 15:30:38 atnak Exp $
+// $Id: RegSpy.cpp,v 1.15 2003-08-12 16:57:54 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2003/05/05 15:30:38  atnak
+// Fixes crash when custom name is too long
+//
 // Revision 1.13  2003/05/05 12:57:56  adcockj
 // Added some support for saa7134
 //
@@ -2044,7 +2047,7 @@ void __cdecl OSD_ProcessDisplayUpdate(struct HDC__ *,struct tagRECT *)
 {
 }
 
-int __cdecl GetDisplayAreaRect(struct HWND__ *,struct tagRECT *)
+int __cdecl GetDisplayAreaRect(struct HWND__ *,struct tagRECT *, BOOL)
 {
     return FALSE;
 }

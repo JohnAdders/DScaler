@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.50 2003-05-29 17:07:27 laurentg Exp $
+// $Id: CX2388xSource.cpp,v 1.51 2003-05-30 12:21:20 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.50  2003/05/29 17:07:27  laurentg
+// no message
+//
 // Revision 1.49  2003/03/09 19:48:28  laurentg
 // Updated field statistics
 //
@@ -385,12 +388,21 @@ void CCX2388xSource::SetSourceAsCurrent()
     EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, -1, m_VideoFormat->GetValue());
     EventCollector->RaiseEvent(this, EVENT_VOLUME, 0, m_Volume->GetValue());
 
+    int OldFormat = m_VideoFormat->GetValue();
+
     // reset the tuner
     // this will kick of the change channel event
     // which must happen after the video input event
     if(IsInTunerMode())
     {
         Channel_Reset();
+    }
+
+    // tell the world if the format has changed
+    if(OldFormat != m_VideoFormat->GetValue())
+    {
+        EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldFormat, m_VideoFormat->GetValue());
+        EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldFormat, m_VideoFormat->GetValue());
     }
 
     // make sure the defaults are correct

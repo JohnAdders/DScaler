@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.80 2003-05-29 17:07:28 laurentg Exp $
+// $Id: SAA7134Source.cpp,v 1.81 2003-05-30 12:21:20 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.80  2003/05/29 17:07:28  laurentg
+// no message
+//
 // Revision 1.79  2003/05/29 15:55:25  laurentg
 // Settings management updated (saving of video format per video input deactivated)
 //
@@ -402,12 +405,21 @@ void CSAA7134Source::SetSourceAsCurrent()
     EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, -1, m_VideoFormat->GetValue());
     EventCollector->RaiseEvent(this, EVENT_AUDIOINPUT_CHANGE, -1, m_AudioSource->GetValue());
 
+    int OldFormat = m_VideoFormat->GetValue();
+
     // reset the tuner
     // this will kick of the change channel event
     // which must happen after the video input event
     if(IsInTunerMode())
     {
         Channel_Reset();
+    }
+    
+    // tell the world if the format has changed
+    if(OldFormat != m_VideoFormat->GetValue())
+    {
+        EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldFormat, m_VideoFormat->GetValue());
+        EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldFormat, m_VideoFormat->GetValue());
     }
 
     // make sure the defaults are correct

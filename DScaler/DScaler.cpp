@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.159 2002-05-24 18:22:46 robmuller Exp $
+// $Id: DScaler.cpp,v 1.160 2002-05-26 09:21:48 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.159  2002/05/24 18:22:46  robmuller
+// Turn off VideoText when VideoText capturing is disabled.
+//
 // Revision 1.158  2002/05/24 16:49:00  robmuller
 // VideoText searching improved.
 //
@@ -562,6 +565,7 @@ BOOL bDisplaySplashScreen = TRUE;
 BOOL bIsFullScreen = FALSE;
 BOOL bForceFullScreen = FALSE;
 BOOL bUseAutoSave = FALSE;
+BOOL bScreensaverOff = FALSE;
 
 BOOL bKeyboardLock = FALSE;
 HHOOK hKeyboardHook = NULL;
@@ -593,6 +597,7 @@ int SMPeriods[SMPeriodCount] =
 
 BOOL IsFullScreen_OnChange(long NewValue);
 BOOL DisplayStatusBar_OnChange(long NewValue);
+BOOL ScreensaverOff_OnChange(long NewValue);
 void Cursor_UpdateVisibility();
 void Cursor_SetVisibility(BOOL bVisible);
 int Cursor_SetType(int type);
@@ -601,6 +606,7 @@ void MainWndOnDestroy();
 void SetDirectoryToExe();
 int ProcessCommandLine(char* commandLine, char* argv[], int sizeArgv);
 void SetKeyboardLock(BOOL Enabled);
+bool bScreensaverDisabled = false;
 
 ///**************************************************************************
 //
@@ -1056,6 +1062,31 @@ BOOL SearchGotoVTPage(BOOL bSearchAllPages)
     }
 
     return bFound;
+}
+
+void SetScreensaverMode(BOOL bScreensaverOff)
+{
+    BOOL bScreensaverMode = false;
+    if( bScreensaverOff )
+    {
+        // Disable screensaver if enabled
+        SystemParametersInfo(SPI_GETSCREENSAVEACTIVE, 0, &bScreensaverMode, 0);
+        if( bScreensaverMode )
+        {
+            // Disable
+            SystemParametersInfo(SPI_SETSCREENSAVEACTIVE, 0 , NULL, 0);
+            bScreensaverDisabled = true;
+        } 
+    }
+    else
+    {
+        // Enable if disabled by us
+        if( bScreensaverDisabled )
+        {
+            SystemParametersInfo(SPI_SETSCREENSAVEACTIVE, 1, NULL, 0);
+            bScreensaverDisabled = false;    
+        }
+    }
 }
 
 void UpdateSleepMode(TSMState *SMState, char *Text)
@@ -1790,6 +1821,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             WorkoutOverlaySize(FALSE);
             break;
 
+        case IDM_SCREENSAVEROFF:
+            ScreensaverOff_OnChange(!bScreensaverOff);
+            break;
+        
         case IDM_SPLASH_ON_STARTUP:
             bDisplaySplashScreen = !bDisplaySplashScreen;
             break;
@@ -2818,6 +2853,9 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
     
     case WM_QUERYENDSESSION:
     case WM_DESTROY:
+        //Reset screensaver-mode if necessary
+        SetScreensaverMode(false);
+
         MainWndOnDestroy();
         PostQuitMessage(0);
         break;
@@ -3226,6 +3264,7 @@ void SetMenuAnalog()
     CheckMenuItemBool(hMenu, IDM_TOGGLE_MENU, bShowMenu);
     CheckMenuItemBool(hMenu, IDM_ON_TOP, bAlwaysOnTop);
     CheckMenuItemBool(hMenu, IDM_ALWAYONTOPFULLSCREEN, bAlwaysOnTopFull);
+    CheckMenuItemBool(hMenu, IDM_SCREENSAVEROFF, bScreensaverOff);
     CheckMenuItemBool(hMenu, IDM_SPLASH_ON_STARTUP, bDisplaySplashScreen);
     CheckMenuItemBool(hMenu, IDM_AUTOHIDE_OSD, Setting_GetValue(OSD_GetSetting(OSD_AUTOHIDE_SCREEN)));
     CheckMenuItemBool(hMenu, IDM_KEYBOARDLOCK, bKeyboardLock);
@@ -3705,6 +3744,13 @@ BOOL AlwaysOnTopFull_OnChange(long NewValue)
     return FALSE;
 }
 
+BOOL ScreensaverOff_OnChange(long NewValue)
+{
+    bScreensaverOff = (BOOL)NewValue;
+    SetScreensaverMode(bScreensaverOff);
+    return FALSE;
+}
+
 BOOL DisplayStatusBar_OnChange(long NewValue)
 {
     bDisplayStatusBar = (BOOL)NewValue;
@@ -3860,6 +3906,12 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
         "MainWindow", "KeyboardLock", KeyboardLock_OnChange,
     },
     {
+        "Disable Screensaver", YESNO, 0, (long*)&bScreensaverOff,
+        TRUE, 0, 1, 1, 1,
+        NULL,
+        "MainWindow", "ScreensaverOff", ScreensaverOff_OnChange,
+    },
+    {
         "Initial source", SLIDER, 0, (long*)&InitSourceIdx,
         -1, -1, 100, 1, 1,
         NULL,
@@ -3894,6 +3946,7 @@ void DScaler_ReadSettingsFromIni()
     {
         SetKeyboardLock(TRUE);
     }
+    ScreensaverOff_OnChange(bScreensaverOff);
 }
 
 void DScaler_WriteSettingsToIni(BOOL bOptimizeFileAccess)

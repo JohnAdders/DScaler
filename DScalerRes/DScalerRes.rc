@@ -860,6 +860,7 @@ BEGIN
         MENUITEM "&Splash Screen on Startup",   IDM_SPLASH_ON_STARTUP
         MENUITEM "&Always On Top (Window)",     IDM_ON_TOP
         MENUITEM "Always On Top (Full Screen)", IDM_ALWAYONTOPFULLSCREEN
+        MENUITEM "&Disable Screensaver",        IDM_SCREENSAVEROFF
         POPUP "&OSD"
         BEGIN
             MENUITEM "Show &Next\tEnter",           IDM_SHOW_OSD

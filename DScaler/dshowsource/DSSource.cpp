@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.10 2002-02-09 02:49:23 laurentg Exp $
+// $Id: DSSource.cpp,v 1.11 2002-02-13 17:02:08 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/02/09 02:49:23  laurentg
+// Overscan now stored in a setting of the source
+//
 // Revision 1.9  2002/02/07 22:08:23  tobbej
 // changed for new file input
 //
@@ -516,14 +519,21 @@ BOOL CDSSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		}
 		return TRUE;
 	}
+	else if(LOWORD(wParam)>=IDM_DSHOW_FILTER_0 && LOWORD(wParam<=IDM_DSHOW_FILTER_MAX))
+	{
+		try
+		{
+			m_pDSGraph->showPropertyPage(hWnd,LOWORD(wParam)-IDM_DSHOW_FILTER_0);
+		}
+		catch(CDShowException &e)
+		{
+			AfxMessageBox(CString("Failed to show property page\n\n")+e.getErrorText(),MB_OK|MB_ICONERROR);
+		}
+
+	}
 	
 	switch(LOWORD(wParam))
 	{
-	case IDM_DSHOW_RENDERERPROPERTIES:
-		m_pDSGraph->showRendererProperies(hWnd);
-		return TRUE;
-		break;
-
 	case IDM_DSHOW_PLAY:
 		try
 		{
@@ -567,6 +577,8 @@ void CDSSource::Start()
 {
 	m_pictureHistoryPos=0;
 	m_lastNumDroppedFrames=-1;
+	m_currentX=0;
+	m_currentY=0;
 	try
 	{
 		CWaitCursor wait;
@@ -761,7 +773,22 @@ void CDSSource::SetMenu(HMENU hMenu)
 	{
 		menu->EnableMenuItem(1,MF_BYPOSITION|MF_GRAYED);
 	}
-
+	
+	//filter properties submenu
+	CMenu filtersMenu;
+	filtersMenu.CreateMenu();
+	menu->GetMenuString(10,menuText,MF_BYPOSITION);
+	menu->ModifyMenu(10,MF_POPUP|MF_BYPOSITION,(UINT) filtersMenu.GetSafeHmenu(),menuText);
+	string name;
+	int index=0;
+	bool hasPropertyPage;
+	while(m_pDSGraph->getFilterName(index,name,hasPropertyPage))
+	{
+		ASSERT(IDM_DSHOW_FILTER_0+index<=IDM_DSHOW_FILTER_MAX);
+		filtersMenu.AppendMenu(MF_STRING| (hasPropertyPage ? MF_ENABLED : MF_GRAYED),IDM_DSHOW_FILTER_0+index,name.c_str());
+		index++;
+	}
+	menu->EnableMenuItem(10,MF_BYPOSITION|(index==0 ? MF_GRAYED : MF_ENABLED));
 
 	//set a radio checkmark infront of the current play/pause/stop menu entry
 	FILTER_STATE state=m_pDSGraph->getState();
@@ -796,15 +823,22 @@ void CDSSource::SetOverscan()
 
 LPCSTR CDSSource::GetStatus()
 {
-	if(m_pDSGraph!=NULL)
+	if(m_bIsFileSource)
 	{
-		if(m_pDSGraph->getSourceDevice()->getObjectType()==DSHOW_TYPE_SOURCE_FILE)
+		if(m_pDSGraph!=NULL)
 		{
-			CDShowFileSource *pFile=(CDShowFileSource*)m_pDSGraph->getSourceDevice();
-			return pFile->getFileName().c_str();
+			if(m_pDSGraph->getSourceDevice()->getObjectType()==DSHOW_TYPE_SOURCE_FILE)
+			{
+				CDShowFileSource *pFile=(CDShowFileSource*)m_pDSGraph->getSourceDevice();
+				return pFile->getFileName().c_str();
+			}
 		}
+		return "Unknown file";
 	}
-	return "This source dont work yet";
+	else
+	{
+		return m_deviceName.c_str();
+	}
 }
 
 void CDSSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
@@ -820,6 +854,21 @@ void CDSSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 	//get a new frame or not
 	if(m_bProcessingFirstField)
 	{
+		//info to return if we fail
+		pInfo->bRunningLate=TRUE;
+		pInfo->bMissedFrame=TRUE;
+		pInfo->FrameWidth=m_currentY==0 ? 10 : m_currentY;
+		pInfo->FrameHeight=m_currentX==0 ? 10 : m_currentX;
+
+		//clear the picture history
+		memset(pInfo->PictureHistory, 0, MAX_PICTURE_HISTORY * sizeof(TPicture*));
+		
+		//is the graph running? there is no point in continuing if it is stopped
+		if(m_pDSGraph->getState()==State_Stopped)
+		{
+			return;
+		}
+
 		//get the current media type
 		AM_MEDIA_TYPE mediaType;
 		memset(&mediaType,0,sizeof(mediaType));
@@ -827,9 +876,8 @@ void CDSSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 		{
 			m_pDSGraph->getConnectionMediatype(&mediaType);
 		}
-		catch(CDShowException &e)
+		catch(CDShowException e)
 		{
-			AfxMessageBox(e.getErrorText(),MB_OK|MB_ICONERROR);
 			return;
 		}
 		
@@ -845,11 +893,6 @@ void CDSSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 			bmi=&(videoInfo2->bmiHeader);
 		}
 		
-		//info to return if we fail
-		pInfo->bRunningLate=TRUE;
-		pInfo->bMissedFrame=TRUE;
-		pInfo->FrameWidth=10;
-		pInfo->FrameHeight=10;
 		CComPtr<IMediaSample> pSample;
 		if(!m_pDSGraph->getNextSample(pSample))
 		{

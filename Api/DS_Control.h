@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.142 2003-03-25 13:07:18 laurentg Exp $
+// $Id: DS_Control.h,v 1.143 2003-03-29 22:36:17 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.142  2003/03/25 13:07:18  laurentg
+// New settings for stills
+//
 // Revision 1.141  2003/03/22 13:10:23  laurentg
 // New filter from Michael Joubert
 //
@@ -1695,7 +1698,7 @@ typedef enum
 
 typedef enum
 {
-    USEBLACKWHITEFILTER,
+    USEBLACKWHITEFILTER = 0,
     FLT_BLACKWHITE_SETTING_LASTONE,
 } FLT_BLACKWHITE_SETTING;
 
@@ -1709,7 +1712,7 @@ typedef enum
 
 typedef enum
 {
-    USE_DSVIDEO,
+    USE_DSVIDEO = 0,
 	DSV_LINE,
     DSV_PLOTIINTENSITYINVERT,
     DSV_Y_SCALE,
@@ -1726,6 +1729,21 @@ typedef enum
 #define WM_FLT_DSV_GETVALUE     (WM_APP + 54)
 #define WM_FLT_DSV_SETVALUE     (WM_APP + 154)
 #define WM_FLT_DSV_CHANGEVALUE  (WM_APP + 254)
+
+/////////////////////////////////////////////////////////////////////////////
+// Control settings contained in FLT_LuminChromaShift.c
+/////////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+    USELUMINCHROMASHIFT = 0,
+	SHIFTVALUE,
+    FLT_LUMINCHROMASHIFT_SETTING_LASTONE,
+} FLT_LUMINCHROMASHIFT_SETTING;
+
+#define WM_FLT_LUMINCHROMASHIFT_GETVALUE     (WM_APP + 55)
+#define WM_FLT_LUMINCHROMASHIFT_SETVALUE     (WM_APP + 155)
+#define WM_FLT_LUMINCHROMASHIFT_CHANGEVALUE  (WM_APP + 255)
 
 
 #endif

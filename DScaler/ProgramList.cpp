@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.59 2002-06-18 19:46:06 adcockj Exp $
+// $Id: ProgramList.cpp,v 1.60 2002-07-09 17:37:10 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.59  2002/06/18 19:46:06  adcockj
+// Changed appliaction Messages to use WM_APP instead of WM_USER
+//
 // Revision 1.58  2002/06/13 14:00:41  adcockj
 // Removed old Settings dialog header
 //
@@ -1200,6 +1203,8 @@ void Load_Program_List_ASCII()
 //---------------------------------------------------------------------------
 void Channel_Change(int NewChannel)
 {
+    eVideoFormat VideoFormat;
+
     if (Providers_GetCurrentSource()->HasTuner() == TRUE)
     {
         if(NewChannel >= 0 && NewChannel < MyChannels.size())
@@ -1212,17 +1217,22 @@ void Channel_Change(int NewChannel)
                 CurrentProgram = NewChannel;
                 if(MyChannels[CurrentProgram]->GetFormat() != -1)
                 {
-                    Providers_GetCurrentSource()->SetTunerFrequency(
-                                                  MyChannels[CurrentProgram]->GetFrequency(), 
-                                                  (eVideoFormat)MyChannels[CurrentProgram]->GetFormat()
-                                                                   );
+                    VideoFormat = (eVideoFormat)MyChannels[CurrentProgram]->GetFormat();
                 }
                 else
                 {
-                    Providers_GetCurrentSource()->SetTunerFrequency(
-                                                  MyChannels[CurrentProgram]->GetFrequency(), 
-                                                  VIDEOFORMAT_LASTONE
-                                                                   );
+                    VideoFormat = VIDEOFORMAT_LASTONE;
+                }
+                // try up to three times if something goes wrong.
+                // \todo: fix tuner write errors
+                for(int i = 0; i < 3; i++)
+                {
+                    if(Providers_GetCurrentSource()->SetTunerFrequency(
+                                                     MyChannels[CurrentProgram]->GetFrequency(), 
+                                                     VideoFormat))
+                    {
+                        break;
+                    }
                 }
                 Sleep(PostSwitchMuteDelay);
                 VT_ChannelChange();

@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.cpp,v 1.19 2002-09-07 20:54:49 kooiman Exp $
+// $Id: MSP34x0.cpp,v 1.20 2002-09-12 21:44:44 ittarnavsky Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2002/09/07 20:54:49  kooiman
+// Added equalizer, loudness, spatial effects for MSP34xx
+//
 // Revision 1.18  2002/07/02 20:00:09  adcockj
 // New setting for MSP input pin selection
 //
@@ -139,15 +142,6 @@ void CMSP34x0::SetDSPRegister(eDSPWriteRegister reg, WORD value)
     SetRegister(0x12, (WORD)reg, value);
 }
 
-CMSP34x0Controls::CMSP34x0Controls() : CMSP34x0()
-{
-    m_Muted = false;
-    m_Volume = 900;
-    m_Balance = 0;
-    m_Bass = 0;
-    m_Treble = 0;
-}
-
 void CMSP34x0::Reset()
 {
     BYTE reset[2] = {0x80, 0};
@@ -176,184 +170,6 @@ WORD CMSP34x0::GetProductCode()
     return result;
 }
 
-
-void CMSP34x0Controls::SetLoudnessAndSuperBass(long nLoudness, bool bSuperBass)
-{
-    if (nLoudness > 68)
-    {
-        return;
-    }
-    SetDSPRegister(DSP_WR_LDSPK_LOUDNESS, ((nLoudness & 0xFF) << 8) | (bSuperBass ? 0x4 : 0));
-    SetDSPRegister(DSP_WR_HEADPH_LOUDNESS, ((nLoudness & 0xFF) << 8) | (bSuperBass ? 0x4 : 0));
-}
- 
-void CMSP34x0Controls::SetAutomaticVolumeCorrection(long nDecayTimeIndex)
-{
-	if (nDecayTimeIndex == 0)
-	{
-		SetDSPRegister(DSP_WR_AVC, 0x0000);
-	}
-	else
-	{
-		SetDSPRegister(DSP_WR_AVC, 0x8000 | ((nDecayTimeIndex&0x0F) << 8));
-	}
-}
-
-void CMSP34x0Controls::SetDolby(long Mode, long nNoise, long nSpatial, long nPan, long Panorama)
-{
-    //if (!m_HasDolby)
-    //{
-    //    return;
-    //}
-
-   // Disable spatial effects
-   SetDSPRegister(DSP_WR_LDSPK_SPATIALEFF, 0);
-
-    switch (Mode)
-    {
-      case 1: //through
-         SetDSPRegister(DSP_WR_SURROUND_PROCESSING, 0); 
-         SetDSPRegister(DSP_WR_SURROUND_NOISE, 0);
-         break;
-      case 2: //prologic
-         SetDSPRegister(DSP_WR_SURROUND_PROCESSING, 0x0100); 
-         SetDSPRegister(DSP_WR_SURROUND_NOISE, 0);
-         break;
-      case 3: //noise mode
-         SetDSPRegister(DSP_WR_SURROUND_PROCESSING, 0); 
-         SetDSPRegister(DSP_WR_SURROUND_NOISE, WORD(0x8000 | (nNoise&0xF0)));
-         break;
-    }
-
-    // Set Virtual surround Spatial effects		
-    SetDSPRegister(DSP_WR_SURROUND_SPATIAL, WORD(int(nSpatial) << 8) );
-
-	// Set Panorama effect...		
-    SetDSPRegister(DSP_WR_SURROUND_PANORAMA, WORD(int(nPan)     << 8) );
-
-	// Based on requested mode, set it.
-	SetDSPRegister(DSP_WR_SURROUND_PANORAMA_MODE, ((Panorama==1) ? 0x50 :
-			((Panorama==2) ? 0x60 : 0)));
-		
-}
-
-
-void CMSP34x0Controls::SetSpatialEffects(long nSpatial)
-{
-    if (nSpatial < 0)
-	{
-		nSpatial+=256;
-	}
-	// Mode A, Automatic high pass gain
-    SetDSPRegister(DSP_WR_LDSPK_SPATIALEFF, ((nSpatial & 0xFF) << 8) | 0x8);
-}
-
-void CMSP34x0Controls::SetEqualizer(long EqIndex, long nLevel)
-{
-    if (EqIndex == -1)
-	{
-		//Enable/disable equalizer	
-		//Disable means: bass & treble control is active
-		SetDSPRegister(DSP_WR_MODE_TONE_CTL, nLevel ? 0xFF00 : 0x0000);
-		return;
-	}
-	
-	if (EqIndex < 0 || EqIndex > 4)
-    {
-        return;
-    }
-    if (nLevel < -96 || nLevel > 96)
-    {
-        return;
-    }
-	
-    SetDSPRegister((eDSPWriteRegister)(DSP_WR_LDSPK_EQ1 + EqIndex), (nLevel & 0xFF) << 8);
-}
-
-void CMSP34x0Controls::SetMute(bool mute)
-{
-    m_Muted = mute;
-    if (m_Muted)
-    {
-        SetDSPRegister(DSP_WR_LDSPK_VOLUME, 0xFF00);
-        SetDSPRegister(DSP_WR_HEADPH_VOLUME, 0xFF00);
-    }
-    else
-    {
-        SetVolume(m_Volume);
-    }
-}
-
-bool CMSP34x0Controls::IsMuted()
-{
-    return m_Muted;
-}
-
-void CMSP34x0Controls::SetVolume(WORD nVolume)
-{
-    if (nVolume < 0 || nVolume > 1000)
-    {
-        return;
-    }
-    m_Volume = nVolume;
-    nVolume = MulDiv(nVolume, 0x7f0, 1000);
-    // Use Mute if less than 0x10
-    if(nVolume < 0x10)
-    {
-        nVolume = 0;
-    }
-    SetDSPRegister(DSP_WR_LDSPK_VOLUME, nVolume << 4);
-    SetDSPRegister(DSP_WR_HEADPH_VOLUME, nVolume << 4);
-}
-
-WORD CMSP34x0Controls::GetVolume()
-{
-    return m_Volume;
-}
-
-void CMSP34x0Controls::SetBalance(WORD nBalance)
-{
-    m_Balance = nBalance;
-    SetDSPRegister(DSP_WR_LDSPK_BALANCE, (nBalance & 0xFF) << 8);
-    SetDSPRegister(DSP_WR_HEADPH_BALANCE, (nBalance & 0xFF) << 8);
-}
-
-WORD CMSP34x0Controls::GetBalance()
-{
-    return m_Balance;
-}
-
-void CMSP34x0Controls::SetBass(WORD nBass)
-{
-    if (nBass < -96)
-    {
-        return;
-    }
-    m_Bass = nBass;
-    SetDSPRegister(DSP_WR_LDSPK_BASS, (nBass & 0xFF) << 8);
-    SetDSPRegister(DSP_WR_HEADPH_BASS, (nBass & 0xFF) << 8);
-}
-
-WORD CMSP34x0Controls::GetBass()
-{
-    return m_Bass;
-}
-
-void CMSP34x0Controls::SetTreble(WORD nTreble)
-{
-    if (nTreble < -96)
-    {
-        return;
-    }
-    m_Treble = nTreble;
-    SetDSPRegister(DSP_WR_LDSPK_TREBLE, (nTreble & 0xFF) << 8);
-    SetDSPRegister(DSP_WR_HEADPH_TREBLE, (nTreble & 0xFF) << 8);
-}
-
-WORD CMSP34x0Controls::GetTreble()
-{
-    return m_Treble;
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -579,11 +395,12 @@ void CMSP34x0Decoder::SetSCARTxbar(eScartOutput output, eScartInput input)
 	SetDSPRegister(DSP_WR_ACB, acb);
 }
 
-CMSP34x0Decoder::CMSP34x0Decoder() : CAudioDecoder(), CMSP34x0(),
-m_bHasEqualizer(false),
-m_bHasDolby(false)
+CMSP34x0Decoder::CMSP34x0Decoder() : CAudioDecoder(), CMSP34x0()
 {
     m_IsInitialized = false;
+    m_bHasEqualizer = false;
+    m_bHasDolby = false;
+    m_bUseInputPin1 = false;
 }
 
 CMSP34x0Decoder::~CMSP34x0Decoder()
@@ -693,9 +510,9 @@ void CMSP34x0Decoder::SetVideoFormat(eVideoFormat videoFormat)
     }
 }
 
-void CMSP34x0Decoder::SetSoundChannel(eSoundChannel soundChannel, bool UseInputPin1)
+void CMSP34x0Decoder::SetSoundChannel(eSoundChannel soundChannel)
 {
-    CAudioDecoder::SetSoundChannel(soundChannel, UseInputPin1);
+    CAudioDecoder::SetSoundChannel(soundChannel);
 
     if(m_MSPVersion != MSPVersionG)
     {
@@ -727,7 +544,7 @@ void CMSP34x0Decoder::SetSoundChannel(eSoundChannel soundChannel, bool UseInputP
     {
     case AUDIOINPUT_RADIO:
     case AUDIOINPUT_TUNER:
-        if(!UseInputPin1)
+        if(!m_bUseInputPin1)
         {
             modus |= 0x100;
         }

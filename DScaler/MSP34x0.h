@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.h,v 1.15 2002-09-07 20:54:49 kooiman Exp $
+// $Id: MSP34x0.h,v 1.16 2002-09-12 21:44:44 ittarnavsky Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2002/09/07 20:54:49  kooiman
+// Added equalizer, loudness, spatial effects for MSP34xx
+//
 // Revision 1.14  2002/07/02 20:00:10  adcockj
 // New setting for MSP input pin selection
 //
@@ -80,7 +83,7 @@
 #include "Setting.h"
 
 #include "I2CDevice.h"
-#include "IAudioControls.h"
+#include "AudioControls.h"
 #include "AudioDecoder.h"
 
 /** Class that allows control of feature on a MSP chip.
@@ -250,37 +253,6 @@ private:
     void SetRegister(BYTE subAddress, WORD reg, WORD value);
 };
 
-class CMSP34x0Controls : public CMSP34x0, public IAudioControls
-{
-public:
-    CMSP34x0Controls();
-	virtual ~CMSP34x0Controls() {};
-    void SetLoudnessAndSuperBass(long nLoudness, bool bSuperBass);
-    void SetSpatialEffects(long nSpatial);
-    void SetEqualizer(long EqIndex, long nLevel);
-	void SetDolby(long Mode, long nNoise, long nSpatial, long nPan, long Panorama);
-	void SetAutomaticVolumeCorrection(long nDecayTimeIndex);
-
-    // from IAudioControls
-    void SetMute(bool mute=true);
-    bool IsMuted();
-    void SetVolume(WORD volume);
-    WORD GetVolume();
-    void SetBalance(WORD balance);
-    WORD GetBalance();
-    void SetBass(WORD level);
-    WORD GetBass();
-    void SetTreble(WORD level);
-    WORD GetTreble();
-
-private:
-    bool m_Muted;
-    int m_Volume;
-    int m_Balance;
-    int m_Bass;
-    int m_Treble;
-};
-
 class CMSP34x0Decoder : public CMSP34x0, public CAudioDecoder
 {
 public:
@@ -288,13 +260,14 @@ public:
 	virtual ~CMSP34x0Decoder();
     // from CAudioDecoder the default Getters are used
     void SetVideoFormat(eVideoFormat videoFormat);
-    void SetSoundChannel(eSoundChannel soundChannel, bool UseInputPin1);
+    void SetSoundChannel(eSoundChannel soundChannel);
     void SetAudioInput(eAudioInput audioInput);
     eSoundChannel IsAudioChannelDetected(eSoundChannel desiredAudioChannel);	
 
 	BOOL HasEqualizer() { return m_bHasEqualizer; }
 	BOOL HasDolby() { return m_bHasDolby; }
 private:
+
     enum eStandard
     {
         MSP34x0_STANDARD_NONE = 0x0000,
@@ -426,6 +399,7 @@ private:
     static TStandardDefinition m_MSPStandards[];
     static TFIRType            m_FIRTypes[];
     static WORD m_ScartMasks[MSP34x0_SCARTOUTPUT_LASTONE][MSP34x0_SCARTINPUT_LASTONE + 1];
+    bool m_bUseInputPin1;
 };
 
 #endif // !defined(__MSP34X0_H__)

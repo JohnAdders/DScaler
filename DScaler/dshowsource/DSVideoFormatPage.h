@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSVideoFormatPage.h,v 1.2 2002-09-07 13:33:35 tobbej Exp $
+// $Id: DSVideoFormatPage.h,v 1.3 2002-09-11 16:41:03 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/09/07 13:33:35  tobbej
+// implemented delete and allow listbox to be reordered via drag and drop
+//
 // Revision 1.1  2002/09/04 17:08:31  tobbej
 // new video format configuration dialog (resolution)
 //
@@ -47,7 +50,8 @@
 #include "HSListBox.h"
 
 /**
- * CDSVideoFormatPage dialog
+ * CDSVideoFormatPage dialog.
+ * Makes it posibel to customize the resolution submenu. 
  */
 class CDSVideoFormatPage : public CTreeSettingsPage
 {
@@ -90,6 +94,7 @@ protected:
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
 	afx_msg void OnClickedDelete();
 	afx_msg void OnClickedNew();
+	afx_msg void OnClickedClear();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 	
@@ -99,6 +104,11 @@ private:
 	void UpdateControlls();
 	void GenerateName(int pos);
 	vector<CDShowGraph::CVideoFormat> m_VideoFmt;
+	
+	/**
+	 * Reference to the real video format vector that is used by dscaler,
+	 * this is the one we save the changes to when closing dialog by clicking on ok
+	 */
 	vector<CDShowGraph::CVideoFormat> &m_RealVideoFmt;
 
 	///flag to prevent controlls from messing with the settings when updating controlls

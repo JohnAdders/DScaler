@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSVideoFormatPage.cpp,v 1.2 2002-09-07 13:33:35 tobbej Exp $
+// $Id: DSVideoFormatPage.cpp,v 1.3 2002-09-11 16:41:02 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/09/07 13:33:35  tobbej
+// implemented delete and allow listbox to be reordered via drag and drop
+//
 // Revision 1.1  2002/09/04 17:08:31  tobbej
 // new video format configuration dialog (resolution)
 //
@@ -88,6 +91,7 @@ BEGIN_MESSAGE_MAP(CDSVideoFormatPage, CTreeSettingsPage)
 	ON_WM_CONTEXTMENU()
 	ON_BN_CLICKED(IDC_DSHOW_VIDEOFMTS_NEW,OnClickedNew)
 	ON_BN_CLICKED(IDC_DSHOW_VIDEOFMTS_DELETE,OnClickedDelete)
+	ON_BN_CLICKED(IDC_DSHOW_VIDEOFMTS_CLEAR,OnClickedClear)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -128,7 +132,6 @@ void CDSVideoFormatPage::OnOK()
 {
 	TRACE(_T("%s(%d) : CDSVideoFormatPage::OnOK\n"),__FILE__,__LINE__);
 	
-
 	//update the resoltion setting so it points to the right entry in the new vector
 	long OldResolution=m_pResolutionSetting->GetValue();
 	long NewResolution=-1;
@@ -185,6 +188,14 @@ void CDSVideoFormatPage::UpdateControlls()
 	int CurSel=m_ListBox.GetCurSel();
 	if(CurSel!=LB_ERR)
 	{
+		::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_VIDEOFMTS_NAME),TRUE);
+		::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_VIDEOFMTS_WIDTH),TRUE);
+		::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_VIDEOFMTS_WIDTH_SPIN),TRUE);
+		::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_VIDEOFMTS_HEIGHT_SPIN),TRUE);
+		::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_VIDEOFMTS_HEIGHT),TRUE);
+		::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_VIDEOFMTS_FIELDFMT),TRUE);
+		::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_VIDEOFMTS_YUY2),TRUE);
+		
 		DWORD pos=m_ListBox.GetItemData(CurSel);
 		SetDlgItemText(IDC_DSHOW_VIDEOFMTS_NAME,m_VideoFmt[pos].m_Name.c_str());
 		SetDlgItemInt(IDC_DSHOW_VIDEOFMTS_WIDTH,m_VideoFmt[pos].m_Width);
@@ -195,6 +206,16 @@ void CDSVideoFormatPage::UpdateControlls()
 		///@todo update the range of the spinboxes with proper values
 		m_SpinWidth.SetRange(16,DSCALER_MAX_WIDTH);
 		m_SpinHeight.SetRange(2,DSCALER_MAX_HEIGHT);
+	}
+	else
+	{
+		::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_VIDEOFMTS_NAME),FALSE);
+		::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_VIDEOFMTS_WIDTH),FALSE);
+		::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_VIDEOFMTS_WIDTH_SPIN),FALSE);
+		::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_VIDEOFMTS_HEIGHT_SPIN),FALSE);
+		::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_VIDEOFMTS_HEIGHT),FALSE);
+		::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_VIDEOFMTS_FIELDFMT),FALSE);
+		::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_VIDEOFMTS_YUY2),FALSE);
 	}
 	m_bInUpdateControlls=false;
 }
@@ -340,6 +361,13 @@ void CDSVideoFormatPage::OnChangeName()
 		DWORD pos=m_ListBox.GetItemData(CurSel);
 		CString name;
 		GetDlgItemText(IDC_DSHOW_VIDEOFMTS_NAME,name);
+		
+		//make sure control characters can't be used
+		if(name.Replace("&","")!=0 || name.Replace("#","")!=0)
+		{
+			SetDlgItemText(IDC_DSHOW_VIDEOFMTS_NAME,name);
+		}
+
 		m_VideoFmt[pos].m_Name=name;
 		
 		//replace item in the listbox with the new name
@@ -447,4 +475,14 @@ void CDSVideoFormatPage::OnClickedNew()
 	m_VideoFmt.push_back(NewFormat);
 	int pos=m_ListBox.AddString(NewFormat.m_Name.c_str());
 	m_ListBox.SetItemData(pos,m_VideoFmt.size()-1);
+}
+
+void CDSVideoFormatPage::OnClickedClear()
+{
+	TRACE(_T("%s(%d) : CDSVideoFormatPage::OnClickedClear\n"),__FILE__,__LINE__);
+
+	//remove everything
+	m_ListBox.ResetContent();
+	m_VideoFmt.erase(m_VideoFmt.begin(),m_VideoFmt.end());
+	UpdateControlls();
 }

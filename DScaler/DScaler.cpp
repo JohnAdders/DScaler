@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.186 2002-06-25 22:41:29 robmuller Exp $
+// $Id: DScaler.cpp,v 1.187 2002-06-30 00:33:39 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.186  2002/06/25 22:41:29  robmuller
+// Fixed: entering digits in non-tuner mode causes weird behaviour.
+//
 // Revision 1.185  2002/06/23 20:51:13  laurentg
 // Attachment of test patterns menu restored
 //
@@ -661,6 +664,8 @@ int InitialTextPage = -1;
 
 BOOL bInMenuOrDialogBox = FALSE;
 BOOL bShowCrashDialog = FALSE;
+BOOL bIsRightButtonDown = FALSE;
+BOOL bIgnoreNextRightButtonUpMsg = FALSE;
 
 UINT MsgWheel;
 
@@ -2603,11 +2608,15 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         break;
 
     case WM_LBUTTONUP:
+        Cursor_UpdateVisibility();
+        return 0;
     case WM_RBUTTONDOWN:
         Cursor_UpdateVisibility();
+        bIsRightButtonDown = TRUE;
         return 0;
     case WM_RBUTTONUP:
         Cursor_UpdateVisibility();
+        bIsRightButtonDown = FALSE;
         break;
 
     case WM_MOUSEMOVE:
@@ -2651,7 +2660,12 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         return 0;
         break;
 
-    case WM_CONTEXTMENU: 
+    case WM_CONTEXTMENU:
+        if(bIgnoreNextRightButtonUpMsg)
+        {
+            bIgnoreNextRightButtonUpMsg = FALSE;
+            return 0;
+        }
         if (!OnContextMenu(hWnd, GET_X_LPARAM(lParam),GET_Y_LPARAM(lParam)))
             return DefWindowProc(hWnd, message, wParam, lParam);
         break;
@@ -2842,8 +2856,8 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
     // support for mouse wheel
     // the WM_MOUSEWHEEL message is not defined but this is it's Value
     case WM_MOUSEWHEEL:
-        // if shift down change volume
-        if ((wParam & MK_SHIFT) != 0)
+        // if shift or right mouse button down change volume
+        if ((wParam & MK_SHIFT) != 0 || bIsRightButtonDown)
         {
             // crack the mouse wheel delta
             // +ve is forward (away from user)
@@ -2855,6 +2869,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             else
             {
                 PostMessage(hWnd, WM_COMMAND, IDM_VOLUMEMINUS, 0);
+            }
+            // make sure the context menu is not shown when the right mouse button is released
+            if(bIsRightButtonDown)
+            {
+                bIgnoreNextRightButtonUpMsg = TRUE;
             }
         }
         // else change the channel

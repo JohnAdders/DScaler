@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.19 2001-09-21 15:39:02 adcockj Exp $
+// $Id: VBI_VideoText.cpp,v 1.20 2001-09-21 16:43:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2001/09/21 15:39:02  adcockj
+// Added Russian and German code pages
+// Corrected UK code page
+//
 // Revision 1.18  2001/09/05 16:22:34  adcockj
 // Fix for new teletext painting overwritting other apps
 //
@@ -309,6 +313,10 @@ void VBI_decode_vt(unsigned char* dat)
     int nPage;
     int nPage1;
 
+	int p1, p2, p3;
+	int s1, s2, s3, s4;
+	int des;
+
     // dat: 55 55 27 %MPAG% 
     mpag = unham(dat + 3);
     mag = mpag & 7;
@@ -464,6 +472,34 @@ void VBI_decode_vt(unsigned char* dat)
         break;
     case 26:                    // PDC
     case 27:
+		if ((des=UnhamTab[dat[5]]&0x0f)<=3)
+		{
+			for(i = 1 ; i <= 6; i++)
+			{
+				p1 = UnhamTab[dat[6*i]] & 0x0f ;
+				p2 = UnhamTab[dat[6*i+1]] & 0x0f ;
+				p3 = mag ^ ((UnhamTab[dat[6*i+3]] & 0x08)>>3) ^ ((UnhamTab[dat[6*i+5]] & 0x0c)>>1);
+				p3 = (p3==0 ? 8 : p3) ;
+
+				s1 = UnhamTab[dat[6*i+2]] & 0x0f ; // subcode s1 (4 bits)
+				s2 = UnhamTab[dat[6*i+3]] & 0x07 ; // subcode s2 (3 bits)
+				s3 = UnhamTab[dat[6*i+4]] & 0x0f ; // subcode s3 (4 bits)
+				s4 = UnhamTab[dat[6*i+5]] & 0x03 ; // subcode s4 (2 bits)
+
+				if ((p1==0xF) && (p2==0xF))
+				{
+					VTPages[MagazineStates[mag].Page].FlofPage[des*6+i-1] = -1;
+					VTPages[MagazineStates[mag].Page].FlofSubPage[des*6+i-1] = 8191;
+				}
+	    		else
+				{
+					VTPages[MagazineStates[mag].Page].FlofPage[des*6+i-1] = p3*100+p2*10+p1;
+					VTPages[MagazineStates[mag].Page].FlofSubPage[des*6+i-1] = s1 + (s2<<4) + (s3<<7) + (s4<<11);
+				}
+			}
+		}
+		VTPages[MagazineStates[mag].Page].bFlofUpdated = TRUE;
+		break;
     case 28:
     case 29:
         break;
@@ -607,7 +643,7 @@ void VT_DoUpdate_Page(int Page)
         endrow = 25;
     }
 
-    for (row = 0; row < endrow; row++)
+    for (row = 0; row < 25/*endrow*/; row++) 
     {
         // if the last row has a double height character then skip to next line
         if (bHasDouble)
@@ -668,7 +704,10 @@ void VT_DoUpdate_Page(int Page)
         {
             for (n = 0; n < 40; n++)
             {
+				if (row < endrow) 
                 tmp[n] = VTPages[Page].Frame[row][n] & 0x7f;
+				else
+					tmp[n] = 0x20;
                 if(tmp[n] == 0x0d)
                 {
                     bHasDouble = TRUE;
@@ -1089,6 +1128,90 @@ void VT_WriteSettingsToIni(BOOL bOptimizeFileAccess)
     }
 }
 
+int IsNum(int Page, int x, int y)
+{
+	if ((x>39) || (y>24))
+		return -1;
+
+	int n = int(VTPages[Page].Frame[y][x] & 0x7F) - 0x30;
+	if ((n < 0) || (n > 9))
+		return -1;
+
+	return n;
+}
+
+TVTPage* VT_PageDirect(int Page)
+{
+	return &VTPages[Page-100];
+}
+
+int VT_GetPageNumberAt(int Page, int x, int y)
+{
+	float dx, dy;
+	float width, height;
+	int xfrom, xto;
+	int mul, n;
+
+	if ((Page < 0) || (Page > 899))
+		return 0;
+
+	if (!VTPages[Page].bUpdated)
+		return 0;
+	
+	RECT dest; 
+	GetDestRect(&dest);		
+	if ((dest.left <= x) && (x < dest.right) && (dest.top <= y) && (y < dest.bottom)) 
+	{
+		x-=dest.left;
+		y-=dest.top;
+		width = (dest.right-dest.left);
+		height = (dest.bottom-dest.top);
+		dx = width / (float) 40;
+		dy = height / (float) 25;
+		if(dx) 
+			x = float(x) / dx;
+		else
+			x = 0;
+		if(dy)
+			y = float(y) / dy;
+		else
+			y = 0;
+	}
+	else
+		return 0;
+
+	//TODO: doubleheight line checking
+	xto = x;
+	while (IsNum(Page, xto++, y) != -1);
+	xto-=2;
+	
+	xfrom=x;
+	while (IsNum(Page, xfrom--, y) != -1);
+	xfrom+=2;
+
+	if (xto-xfrom < 0)
+		return -1;
+
+	mul = 1; n = 0;
+	for (int a=xto; a>=xfrom; a--) {
+		n += (VTPages[Page].Frame[y][a] & 0x7F - 0x30) * mul;
+		mul*=10;
+	}
+
+	return n;
+}
+
+int VT_GetFlofPageNumber(int Page, int flof)
+{
+	if ((Page < 0) || (Page > 899))
+		return 0;
+
+	if (!VTPages[Page].bFlofUpdated)
+		return 0;
+
+	return VTPages[Page].FlofPage[flof];
+}
+
 void VT_SetMenu(HMENU hMenu)
 {
     CheckMenuItemBool(hMenu, IDM_VT_UK, (VTCodePage == VT_UK_CODE_PAGE));
@@ -1098,3 +1221,4 @@ void VT_SetMenu(HMENU hMenu)
     CheckMenuItemBool(hMenu, IDM_VT_RUSSIAN, (VTCodePage == VT_RUSSIAN_CODE_PAGE));
     CheckMenuItemBool(hMenu, IDM_VT_GERMAN, (VTCodePage == VT_GERMAN_CODE_PAGE));
 }
+

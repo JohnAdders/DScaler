@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.H,v 1.12 2001-09-21 15:39:02 adcockj Exp $
+// $Id: VBI_VideoText.H,v 1.13 2001-09-21 16:43:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -107,6 +107,11 @@ typedef struct
     } PDC;
 } TPacket30;
 
+#define NUM_FLOF    24
+#define FLOF_RED    0
+#define FLOF_GREEN  1
+#define FLOF_YELLOW 2
+#define FLOF_BLUE   3
 typedef struct
 {
     WORD wCtrl;
@@ -114,6 +119,9 @@ typedef struct
     BYTE Frame[25][40];
     BYTE LineUpdate[25];
     BYTE bUpdated;
+	BYTE bFlofUpdated;
+	int FlofPage[NUM_FLOF];
+	int FlofSubPage[NUM_FLOF];
     unsigned short SubPage;
 } TVTPage;
 
@@ -173,6 +181,9 @@ void VT_ResetStation();
 LPCSTR VT_GetStation();
 void VT_SetCodePage(eVTCodePage Codepage);
 
+TVTPage* VT_PageDirect(int Page);
+int VT_GetPageNumberAt(int Page, int x, int y);
+int VT_GetFlofPageNumber(int Page, int flof);
 
 extern eVTState VTState;
 

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.73 2001-09-21 15:39:01 adcockj Exp $
+// $Id: DScaler.cpp,v 1.74 2001-09-21 16:43:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.73  2001/09/21 15:39:01  adcockj
+// Added Russian and German code pages
+// Corrected UK code page
+//
 // Revision 1.72  2001/09/11 12:03:52  adcockj
 // Updated Help menu to go to help page
 //
@@ -233,6 +237,12 @@ int DecodeProcessor=0;
 int PriorClassId = 0;
 int ThreadClassId = 1;
 
+//Cursor defines and vars
+#define CURSOR_DEFAULT 0x0000
+#define CURSOR_HAND    0x0001
+HCURSOR hCursorDefault = NULL;
+HCURSOR hCursorHand = NULL;
+
 BOOL bShowCursor = TRUE;
 BOOL bAutoHideCursor = FALSE;
 
@@ -261,6 +271,8 @@ BOOL IsFullScreen_OnChange(long NewValue);
 BOOL DisplayStatusBar_OnChange(long NewValue);
 void Cursor_UpdateVisibility();
 void Cursor_SetVisibility(BOOL bVisible);
+int Cursor_SetType(int type);
+void Cursor_VTUpdate(bool PosValid, int x, int y);
 const char* GetSourceName(int nVideoSource);
 void MainWndOnDestroy();
 
@@ -309,13 +321,32 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
         ShowSpashScreen();
     }
 
+
+    // load up the cursors we want to use
+    // we load up arrow as the default and try and load up
+    // the hand cursor if we are running NT 5
+    // TODO: add or find hand cursor for win 95 and up
+    hCursorDefault = LoadCursor(NULL, IDC_ARROW);
+
+    OSVERSIONINFO version;
+    version.dwOSVersionInfoSize = sizeof(version);
+    GetVersionEx(&version);
+    if ((version.dwPlatformId == VER_PLATFORM_WIN32_NT) && (version.dwMajorVersion >= 5))
+    {
+        hCursorHand = LoadCursor(NULL, MAKEINTRESOURCE(32649));
+    }
+    else
+    {
+        hCursorHand = hCursorDefault;
+    }
+
     wc.style = CS_DBLCLKS;      // Allow double click
     wc.lpfnWndProc = (WNDPROC) MainWndProcSafe;
     wc.cbClsExtra = 0;
     wc.cbWndExtra = sizeof(LONG);
     wc.hInstance = hInstance;
     wc.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_DSCALER));
-    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wc.hCursor = hCursorDefault; 
     wc.hbrBackground = CreateSolidBrush(0);
     wc.lpszMenuName = NULL;
     wc.lpszClassName = DSCALER_APPNAME;
@@ -582,6 +613,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 {
                     VTPage--;
                     VT_DoUpdate_Page(VTPage - 100);
+                    Cursor_VTUpdate(false, 0, 0);
                     InvalidateRect(hWnd,NULL,FALSE);
                 }
             }
@@ -598,6 +630,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 {
                     VTPage++;
                     VT_DoUpdate_Page(VTPage - 100);
+                    Cursor_VTUpdate(false, 0, 0);
                     InvalidateRect(hWnd,NULL,FALSE);
                 }
             }
@@ -1123,6 +1156,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
             
             VT_DoUpdate_Page(VTPage - 100);
+            Cursor_VTUpdate(false, 0, 0);
 
             WorkoutOverlaySize();
 
@@ -1699,6 +1733,46 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 //      }
 //      break;
 
+    case WM_KEYDOWN:
+        if ((VK_F5 <= wParam) && (wParam <= VK_F8))
+        {
+            if(VTState != VT_OFF)
+            {
+                if(VTPage >= 100)
+                {
+                    i = VT_GetFlofPageNumber(VTPage-100, wParam - VK_F5);
+                    if (i) 
+                    {
+                        VTPage = i;
+                        VT_DoUpdate_Page(VTPage - 100);
+                        Cursor_VTUpdate(false, 0, 0);
+                        InvalidateRect(hWnd,NULL,FALSE);
+                    }
+                }
+            }
+        }
+        break;
+
+    case WM_LBUTTONDOWN:
+        if (VTState != VT_OFF) 
+        {
+            int a = VT_GetPageNumberAt(VTPage-100, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            if ((a >= 100) && (a <= 899)) 
+            {
+                VTPage = a;
+                VT_DoUpdate_Page(VTPage - 100);
+                Cursor_VTUpdate(false, 0, 0);
+                InvalidateRect(hWnd,NULL,FALSE);
+            }
+        }
+        break;
+
+
+    case WM_MOUSEMOVE:
+        if (VTState != VT_OFF) 
+            Cursor_VTUpdate(true, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        break;
+
     case WM_NCHITTEST:
         if (!bIgnoreMouse && !bInMenuOrDialogBox && bAutoHideCursor)
         {
@@ -1771,9 +1845,9 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 strcpy(Text1, Text);
 
                 if (Setting_GetValue(Audio_GetSetting(SYSTEMINMUTE)) == TRUE)
-				{
+                {
                     sprintf(Text1, "Volume Mute");
-				}
+                }
                 StatusBar_ShowText(STATUS_TEXT, Text1);
             }
             break;
@@ -1786,6 +1860,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 if(VTPage >= 100 && VTPage < 900)
                 {
                     VT_DoUpdate_Page(VTPage - 100);
+                    Cursor_VTUpdate(false, 0, 0);
                     InvalidateRect(hWnd, NULL, FALSE);
                 }
             }
@@ -2242,13 +2317,13 @@ void MainWndOnDestroy()
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Kill Timers");}
 
     // Kill timeshift before muting since it always exits unmuted on cleanup.
-	__try
-	{
-		LOG(1, "Try TimeShift::OnDestroy");
+    __try
+    {
+        LOG(1, "Try TimeShift::OnDestroy");
 
         TimeShift::OnDestroy();
-	}
-	__except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error TimeShift::OnDestroy");}
+    }
+    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error TimeShift::OnDestroy");}
 
     __try
     {
@@ -2657,14 +2732,66 @@ void Cursor_UpdateVisibility()
     else if (!bAutoHideCursor)
     {
         if (bIsFullScreen)
+        {
             Cursor_SetVisibility(FALSE);
+        }
         else
+        {
             Cursor_SetVisibility(bShowCursor);
+        }
     }
     else
     {
         Cursor_SetVisibility(TRUE);
         SetTimer(hWnd, TIMER_HIDECURSOR, TIMER_HIDECURSOR_MS, NULL);
+    }
+}
+
+int Cursor_SetType(int type)
+{
+    HCURSOR hCur;
+    switch (type)
+    {
+    case CURSOR_HAND:
+        hCur = hCursorHand;
+        break;
+    default:
+        hCur = hCursorDefault;
+        break;
+    }
+
+    SetClassLong(hWnd, GCL_HCURSOR, (long) hCur);
+
+    return true;
+}
+
+void Cursor_VTUpdate(bool PosValid, int x, int y)
+{
+    POINT pt;
+    int a;
+
+    if (VTState == VT_OFF)
+    {
+        Cursor_SetType(CURSOR_DEFAULT);
+    }
+    else 
+    {
+        if (!PosValid) 
+        {
+            GetCursorPos(&pt);
+            ScreenToClient(hWnd, &pt);
+            x = pt.x; y = pt.y;
+        }
+
+        a = VT_GetPageNumberAt(VTPage-100, x, y);
+        if ((a >= 100) && (a <= 899))
+        {
+            Cursor_SetType(CURSOR_HAND);
+        }
+        else
+        {
+            Cursor_SetType(CURSOR_DEFAULT);
+        }
     }
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.h,v 1.15 2001-11-29 17:30:52 adcockj Exp $
+// $Id: MixerDev.h,v 1.16 2002-10-18 03:33:19 flibuste2 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -130,6 +130,7 @@ extern BOOL bUseMixer;
 
 void Mixer_Mute();
 void Mixer_UnMute();
+BOOL Mixer_IsMuted();
 void Mixer_Volume_Up();
 void Mixer_Volume_Down();
 long Mixer_GetVolume();

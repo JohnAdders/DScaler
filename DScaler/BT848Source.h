@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.33 2002-08-27 22:02:32 kooiman Exp $
+// $Id: BT848Source.h,v 1.34 2002-09-02 19:07:21 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -84,6 +84,8 @@ public:
     int GetInput(eSourceInputType InputType);
     const char* GetInputName(eSourceInputType InputType, int Nr);
     BOOL InputHasTuner(eSourceInputType InputType, int Nr);
+
+    CTreeSettingsGeneric* BT848_GetTreeSettingsPage();
 
 private:
     virtual void CreateSettings(LPCSTR IniSection);

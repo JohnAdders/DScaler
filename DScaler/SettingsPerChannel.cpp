@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsPerChannel.cpp,v 1.12 2002-09-01 15:15:56 kooiman Exp $
+// $Id: SettingsPerChannel.cpp,v 1.13 2002-09-02 19:07:21 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 DScaler team.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/09/01 15:15:56  kooiman
+// Fixed bug introduced by bug fix.
+//
 // Revision 1.11  2002/08/31 16:30:17  kooiman
 // Fix duplicate names when changing sources.
 //
@@ -821,6 +824,19 @@ int SettingsPerChannel_RegisterAddSetting(const char *szSubSection, CSimpleSetti
 //
 int SettingsPerChannel_RegisterSetting(const char *szName,const char *szDescription,BOOL bDefault, CSimpleSetting *CSSetting, SETTING *Setting, long **pToggleValue)
 {    
+    if ((CSSetting == NULL) && (Setting==NULL) && (pToggleValue==NULL))
+    {
+        for(vector<TChannelSetting*>::iterator it = vSpcChannelSettings.begin();
+            it != vSpcChannelSettings.end();
+            ++it)
+        {
+            if (!(*it)->ToggleSettingIsLink && (*it)->CompareToggleSetting (szName, szDescription))        
+            {
+                return -1;
+            }
+        }    
+    }
+
     int n = SettingsPerChannel_RegisterAddSetting(sSpcSubSection.c_str(), CSSetting, Setting, pToggleValue);
     TChannelSetting *ChannelSetting;
     if (n < 0)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.cpp,v 1.15 2002-08-07 09:55:24 kooiman Exp $
+// $Id: TreeSettingsDlg.cpp,v 1.16 2002-09-02 19:07:21 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2002/08/07 09:55:24  kooiman
+// Added 'save per channel' settings to advanced settings.
+//
 // Revision 1.14  2002/08/04 17:19:08  tobbej
 // removed empty nodes in the tree
 //
@@ -86,6 +89,8 @@
 #include "Calibration.h"
 #include "OutThreads.h"
 #include "SettingsPerChannel.h"
+#include "Providers.h"
+#include "BT848Source.h"
 #include "..\help\helpids.h"
 
 #include <afxpriv.h>	//WM_COMMANDHELP
@@ -464,8 +469,17 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
     if (mask & ADVANCED_SETTINGS_MASK)
     {
         int Root = dlg.AddPage(&AdvRootPage);
-
-        CTreeSettingsGeneric* pPage = FD50_GetTreeSettingsPage();
+        CTreeSettingsGeneric* pPage;
+       
+        if (Providers_GetCurrentSource() && (strncmp(Providers_GetCurrentSource()->IDString(),"BT8",3)==0) )
+        {
+            CBT848Source *pBT848Source = (CBT848Source*)Providers_GetCurrentSource();
+            pPage = pBT848Source->BT848_GetTreeSettingsPage();
+            pages.push_back(pPage);
+            dlg.AddPage(pPage, Root);
+        }
+        
+        pPage = FD50_GetTreeSettingsPage();
 	    pPage->SetHelpID(IDH_22_PULLDOWN);
 	    pages.push_back(pPage);
 	    dlg.AddPage(pPage, Root);

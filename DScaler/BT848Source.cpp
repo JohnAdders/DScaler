@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.60 2002-08-27 22:02:32 kooiman Exp $
+// $Id: BT848Source.cpp,v 1.61 2002-09-02 19:07:21 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.60  2002/08/27 22:02:32  kooiman
+// Added Get/Set input for video and audio for all sources. Added source input change notification.
+//
 // Revision 1.59  2002/08/26 18:25:09  adcockj
 // Fixed problem with PAL/NTSC detection
 //
@@ -1444,4 +1447,35 @@ BOOL CBT848Source::InputHasTuner(eSourceInputType InputType, int Nr)
     }
   }
   return FALSE;
+}
+
+CTreeSettingsGeneric* CBT848Source::BT848_GetTreeSettingsPage()
+{
+    vector <CSimpleSetting*>vSettingsList;
+
+    vSettingsList.push_back(m_BDelay);
+    vSettingsList.push_back(m_BtAgcDisable);
+    vSettingsList.push_back(m_BtCrush);
+    vSettingsList.push_back(m_BtEvenChromaAGC);
+    vSettingsList.push_back(m_BtOddChromaAGC);
+    vSettingsList.push_back(m_BtEvenLumaPeak);
+    vSettingsList.push_back(m_BtOddLumaPeak);
+    vSettingsList.push_back(m_BtFullLumaRange);
+    vSettingsList.push_back(m_BtEvenLumaDec);
+    vSettingsList.push_back(m_BtOddLumaDec);
+    vSettingsList.push_back(m_BtEvenComb);
+    vSettingsList.push_back(m_BtOddComb);
+    vSettingsList.push_back(m_BtGammaCorrection);
+    vSettingsList.push_back(m_BtCoring);
+    vSettingsList.push_back(m_BtHorFilter);
+    vSettingsList.push_back(m_BtVertFilter);
+    vSettingsList.push_back(m_BtColorKill);
+    vSettingsList.push_back(m_BtWhiteCrushUp);
+    vSettingsList.push_back(m_BtWhiteCrushDown);
+    vSettingsList.push_back(m_CustomPixelWidth);
+    vSettingsList.push_back(m_HDelay);
+    vSettingsList.push_back(m_VDelay);
+    vSettingsList.push_back(m_ReversePolarity);
+
+    return new CTreeSettingsGeneric("BT8x8 Advanced",vSettingsList);
 }

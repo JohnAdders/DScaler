@@ -1,25 +1,29 @@
 
-int Search_Effort_0()		// we don't try at all ;-)
+#ifdef USE_STRANGE_BOB
+#define SEARCH_EFFORT_FUNC(n) Search_Effort_##n##_SB
+#else
+#define SEARCH_EFFORT_FUNC(n) Search_Effort_##n
+#endif
+
+int SEARCH_EFFORT_FUNC(0)()		// we don't try at all ;-)
 {
 		//see Search_Effort_Max for comments
 #define SKIP_SEARCH
-#define USE_STRANGE_BOB
 #include "SearchLoopTop.inc"	
 #include "SearchLoopBottom.inc"
 #undef SKIP_SEARCH
 }
 
-int Search_Effort_1()
+int SEARCH_EFFORT_FUNC(1)()
 {
 		//see Search_Effort_Max for comments
 #include "SearchLoopTop.inc"	
-#define USE_STRANGE_BOB
 	RESET_CHROMA		// pretend chroma diffs was 255 each
 #include "SearchLoop0A.inc"
 #include "SearchLoopBottom.inc"
 }
 
-int Search_Effort_3()
+int SEARCH_EFFORT_FUNC(3)()
 {
 		//see Search_Effort_Max for comments
 #include "SearchLoopTop.inc"	
@@ -29,7 +33,7 @@ int Search_Effort_3()
 #include "SearchLoopBottom.inc"
 }
 
-int Search_Effort_5()
+int SEARCH_EFFORT_FUNC(5)()
 {
 		//see Search_Effort_Max for comments
 #include "SearchLoopTop.inc"	
@@ -41,7 +45,7 @@ int Search_Effort_5()
 }
 
 // 3x3 search
-int Search_Effort_9()
+int SEARCH_EFFORT_FUNC(9)()
 {
 		//see SearchEffortMax() for comments
 #include "SearchLoopTop.inc"	
@@ -53,7 +57,7 @@ int Search_Effort_9()
 }
 
 // Search 9 with 2 H-half pels added
-int Search_Effort_11()
+int SEARCH_EFFORT_FUNC(11)()
 {
 		//see SearchEffortMax() for comments
 #include "SearchLoopTop.inc"	
@@ -66,7 +70,7 @@ int Search_Effort_11()
 }
 
 // Search 11 with 2 V-half pels added
-int Search_Effort_13()
+int SEARCH_EFFORT_FUNC(13)()
 {
 		//see SearchEffortMax() for comments
 #include "SearchLoopTop.inc"	
@@ -80,7 +84,7 @@ int Search_Effort_13()
 }
 
 // 5x3
-int Search_Effort_15()
+int SEARCH_EFFORT_FUNC(15)()
 {
 		//see SearchEffortMax() for comments
 #include "SearchLoopTop.inc"	
@@ -93,7 +97,7 @@ int Search_Effort_15()
 }
 
 // 5x3 + 4 half pels
-int Search_Effort_19()
+int SEARCH_EFFORT_FUNC(19)()
 {
 		//see SearchEffortMax() for comments
 #include "SearchLoopTop.inc"	
@@ -112,7 +116,7 @@ int Search_Effort_19()
 // Handle one 4x1 block of pixels
 // Search a 7x3 area, no half pels
 
-int Search_Effort_21()
+int SEARCH_EFFORT_FUNC(21)()
 {
 		//see SearchLoopTop.inc for comments
 #include "SearchLoopTop.inc"
@@ -138,7 +142,7 @@ int Search_Effort_21()
 
 // Handle one 4x1 block of pixels
 // Search a 9x3 area, no half pels
-int Search_Effort_Max()
+int SEARCH_EFFORT_FUNC(Max)()
 {
 		//see SearchLoopTop.inc for comments
 #include "SearchLoopTop.inc"
@@ -163,22 +167,4 @@ int Search_Effort_Max()
 #include "SearchLoopBottom.inc"
 }
 
-
-int Fieldcopy(void *dest, const void *src, size_t count, 
-				int rows, int dst_pitch, int src_pitch)
-{
-BYTE* pDest = (BYTE*) dest;
-BYTE* pSrc = (BYTE*) src;
-int i;
-	
-	for (i=0; i < rows; i++)
-	{
-		MyMemCopy(pDest, pSrc, count);
-		pSrc += src_pitch;
-		pDest += dst_pitch;
-	}
-	return 0;
-}
-
-
-
+#undef SEARCH_EFFORT_FUNC

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TomsMoCompAll.inc,v 1.1 2002-07-07 20:07:24 trbarry Exp $
+// $Id: TomsMoCompAll.inc,v 1.2 2002-11-26 21:32:14 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Tom Barry  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/07/07 20:07:24  trbarry
+// First cut at TomsMoComp, motion compensated deinterlace
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -117,67 +120,155 @@ BOOL FUNCT_NAME(TDeinterlaceInfo* pInfo)
 	// then go fill in the hard part, being variously lazy depending upon
 	// SearchEffort
 
-	if (SearchEffort == 0)
+#ifndef IS_MMX
+	if(UseStrangeBob == FALSE)
 	{
-		Search_Effort_0();
-	}
+#endif
+		if (SearchEffort == 0)
+		{
+			Search_Effort_0();
+		}
 
-	else if (SearchEffort <= 1)
-	{
-		Search_Effort_1();
-	}
+		else if (SearchEffort <= 1)
+		{
+			Search_Effort_1();
+		}
 
-/*	else if (SearchEffort <= 2)
-	{
-		Search_Effort_2();
-	}
-*/
-	else if (SearchEffort <= 3)
-	{
-		Search_Effort_3();
-	}
+	/*	else if (SearchEffort <= 2)
+		{
+			Search_Effort_2();
+		}
+	*/
+		else if (SearchEffort <= 3)
+		{
+			Search_Effort_3();
+		}
 
-	else if (SearchEffort <= 5)
-	{
-		Search_Effort_5();
-	}
+		else if (SearchEffort <= 5)
+		{
+			Search_Effort_5();
+		}
 
-	else if (SearchEffort <= 9)
-	{
-		Search_Effort_9();
-	}
+		else if (SearchEffort <= 9)
+		{
+			Search_Effort_9();
+		}
 
-	else if (SearchEffort <= 11)
-	{
-		Search_Effort_11();
-	}
+		else if (SearchEffort <= 11)
+		{
+			Search_Effort_11();
+		}
 
-	else if (SearchEffort <= 13)
-	{
-		Search_Effort_13();
-	}
+		else if (SearchEffort <= 13)
+		{
+			Search_Effort_13();
+		}
 
-	else if (SearchEffort <= 15)
-	{
-		Search_Effort_15();
-	}
-	else if (SearchEffort <= 19)
-	{
-		Search_Effort_19();
-	}
-	else if (SearchEffort <= 21)
-	{
-		Search_Effort_21();
-	}
+		else if (SearchEffort <= 15)
+		{
+			Search_Effort_15();
+		}
+		else if (SearchEffort <= 19)
+		{
+			Search_Effort_19();
+		}
+		else if (SearchEffort <= 21)
+		{
+			Search_Effort_21();
+		}
 
-	else 
-	{
-		Search_Effort_Max();
+		else 
+		{
+			Search_Effort_Max();
+		}
+#ifndef IS_MMX
 	}
+	else
+	{
+		if (SearchEffort == 0)
+		{
+			Search_Effort_0_SB();
+		}
 
+		else if (SearchEffort <= 1)
+		{
+			Search_Effort_1_SB();
+		}
+
+	/*	else if (SearchEffort <= 2)
+		{
+			Search_Effort_2_SB();
+		}
+	*/
+		else if (SearchEffort <= 3)
+		{
+			Search_Effort_3_SB();
+		}
+
+		else if (SearchEffort <= 5)
+		{
+			Search_Effort_5_SB();
+		}
+
+		else if (SearchEffort <= 9)
+		{
+			Search_Effort_9_SB();
+		}
+
+		else if (SearchEffort <= 11)
+		{
+			Search_Effort_11_SB();
+		}
+
+		else if (SearchEffort <= 13)
+		{
+			Search_Effort_13_SB();
+		}
+
+		else if (SearchEffort <= 15)
+		{
+			Search_Effort_15_SB();
+		}
+		else if (SearchEffort <= 19)
+		{
+			Search_Effort_19_SB();
+		}
+		else if (SearchEffort <= 21)
+		{
+			Search_Effort_21_SB();
+		}
+
+		else 
+		{
+			Search_Effort_Max_SB();
+		}
+	}
+#endif
 	__asm emms;
 
     return TRUE;
 }
+
+int Fieldcopy(void *dest, const void *src, size_t count, 
+				int rows, int dst_pitch, int src_pitch)
+{
+BYTE* pDest = (BYTE*) dest;
+BYTE* pSrc = (BYTE*) src;
+int i;
+	
+	for (i=0; i < rows; i++)
+	{
+		MyMemCopy(pDest, pSrc, count);
+		pSrc += src_pitch;
+		pDest += dst_pitch;
+	}
+	return 0;
+}
+
+
+
+#include "TomsMoCompAll2.inc"
+
+#define USE_STRANGE_BOB
 
 #include "TomsMoCompAll2.inc"

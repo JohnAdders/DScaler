@@ -16,6 +16,7 @@ BOOL DeinterlaceTomsMoComp_MMX(TDeinterlaceInfo* pInfo);
 BOOL DeinterlaceTomsMoComp_3DNOW(TDeinterlaceInfo* pInfo);
 #define MyMemCopy pMyMemcpy
 extern long SearchEffort;
+extern BOOL UseStrangeBob;
 
 #else
 //#define USE_VERTICAL_FILTER 
@@ -44,6 +45,17 @@ static int  Search_Effort_19();
 static int  Search_Effort_21();
 static int  Search_Effort_Max();
 
+static int  Search_Effort_0_SB();
+static int  Search_Effort_1_SB();
+static int  Search_Effort_3_SB();
+static int  Search_Effort_5_SB();
+static int  Search_Effort_9_SB();
+static int  Search_Effort_11_SB();
+static int  Search_Effort_13_SB();
+static int  Search_Effort_15_SB();
+static int  Search_Effort_19_SB();
+static int  Search_Effort_21_SB();
+static int  Search_Effort_Max_SB();
 
 
 __declspec(align(128))

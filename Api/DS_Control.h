@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.117 2002-11-12 15:22:44 adcockj Exp $
+// $Id: DS_Control.h,v 1.118 2002-11-26 21:32:14 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.117  2002/11/12 15:22:44  adcockj
+// Made new flag settings have default setting
+// Added pixel width for CX2388x cards
+//
 // Revision 1.116  2002/11/10 09:39:48  laurentg
 // Settings "Use OSD screen..."
 //
@@ -1421,6 +1425,7 @@ typedef enum
 typedef enum
 {
     TOMSMOCOMPSEARCHEFFORT = 0,
+    TOMSMOCOMPUSESTRANGEBOB,
     DI_TOMSMOCOMP_SETTING_LASTONE,
 } DI_TOMSMOCOMP_SETTING;
 

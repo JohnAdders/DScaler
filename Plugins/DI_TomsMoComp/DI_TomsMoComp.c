@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_TomsMoComp.c,v 1.3 2002-07-08 18:16:43 adcockj Exp $
+// $Id: DI_TomsMoComp.c,v 1.4 2002-11-26 21:32:14 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/07/08 18:16:43  adcockj
+// final fixes fro alpha 3
+//
 // Revision 1.2  2002/07/08 17:44:58  adcockj
 // Corrected Settings messages
 //
@@ -48,6 +51,7 @@
 #include "..\help\helpids.h"
 
 long SearchEffort = 03;
+BOOL UseStrangeBob = FALSE;
 
 /*
 #define IS_SSE 1
@@ -73,6 +77,12 @@ SETTING DI_TOMSMOCOMPSETTINGS[DI_TOMSMOCOMP_SETTING_LASTONE] =
         5, 0, 255, 1, 1,
         NULL,
         "Deinterlace", "SearchEffort", NULL,
+    },
+    {
+        "Use Strange Bob", YESNO, 0, &UseStrangeBob,
+        0, 0, 1, 1, 1,
+        NULL,
+        "Deinterlace", "UseStrangeBob", NULL,
     },
 };
 

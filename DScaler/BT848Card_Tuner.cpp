@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Tuner.cpp,v 1.13 2003-10-27 10:39:50 adcockj Exp $
+// $Id: BT848Card_Tuner.cpp,v 1.14 2003-12-18 15:57:41 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2003/10/27 10:39:50  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.12  2002/10/16 21:42:36  kooiman
 // Created seperate class for External IF Demodulator chips like TDA9887
 //
@@ -91,6 +94,7 @@
 #include "BT848_Defines.h"
 #include "NoTuner.h"
 #include "MT2032.h"
+#include "MT2050.h"
 #include "GenericTuner.h"
 #include "DebugLog.h"
 #include "TDA9887.h"
@@ -98,6 +102,8 @@
 
 BOOL CBT848Card::InitTuner(eTunerId tunerId)
 {
+    BOOL LookForIFDemod = FALSE;
+
     // clean up if we get called twice
     if(m_Tuner != NULL)
     {
@@ -109,11 +115,23 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
     {
     case TUNER_MT2032:
         m_Tuner = new CMT2032(VIDEOFORMAT_NTSC_M);
+        LookForIFDemod = TRUE;
         strcpy(m_TunerType, "MT2032 ");
         break;
     case TUNER_MT2032_PAL:
         m_Tuner = new CMT2032(VIDEOFORMAT_PAL_B);
+        LookForIFDemod = TRUE;
         strcpy(m_TunerType, "MT2032 ");
+        break;
+    case TUNER_MT2050:
+        m_Tuner = new CMT2050(VIDEOFORMAT_NTSC_M);
+        LookForIFDemod = TRUE;
+        strcpy(m_TunerType, "MT2050 ");
+        break;
+    case TUNER_MT2050_PAL:
+        m_Tuner = new CMT2050(VIDEOFORMAT_PAL_B);
+        LookForIFDemod = TRUE;
+        strcpy(m_TunerType, "MT2050 ");
         break;
     case TUNER_AUTODETECT:
     case TUNER_USER_SETUP:
@@ -121,6 +139,9 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
         m_Tuner = new CNoTuner();
         strcpy(m_TunerType, "None ");
         break;
+    case TUNER_PHILIPS_FM1216ME_MK3:
+        LookForIFDemod = TRUE;
+        // deliberate drop down
     default:
         m_Tuner = new CGenericTuner(tunerId);
         strcpy(m_TunerType, "Generic ");
@@ -142,14 +163,10 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
 
     IExternalIFDemodulator *pExternalIFDemodulator = NULL;
     BYTE IFDemDeviceAddress = 0;
-    eVideoFormat videoFormat = VIDEOFORMAT_NTSC_M;
+    eVideoFormat videoFormat = m_Tuner->GetDefaultVideoFormat();
 
-    if ((tunerId == TUNER_MT2032) || (tunerId == TUNER_MT2032_PAL))
+    if(LookForIFDemod)
     {        
-        // Only check for TDA9887 if there is a MT2032 chip. Is that correct?
-
-        videoFormat = (tunerId == TUNER_MT2032)?  VIDEOFORMAT_NTSC_M : VIDEOFORMAT_PAL_B;
-        
         switch (m_CardType)
         {        
         case TVCARD_MIRO:

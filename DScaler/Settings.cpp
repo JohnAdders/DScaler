@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.56 2003-10-27 10:39:54 adcockj Exp $
+// $Id: Settings.cpp,v 1.57 2003-12-18 15:57:41 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.56  2003/10/27 10:39:54  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.55  2003/09/14 08:45:30  adcockj
 // Fixed crash with fresj install
 //
@@ -852,6 +855,7 @@ BOOL Setting_ReadFromIni(SETTING* pSetting, BOOL bDontSetDefault)
 				strcpy(str, szValue);
 				*pSetting->pValue = (long)str;
 			}
+			LOG(2, " Setting_ReadFromIni %s %s Value %s", pSetting->szIniSection, pSetting->szIniEntry, *pSetting->pValue);
 		}
 		else
 		{

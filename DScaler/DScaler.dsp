@@ -527,6 +527,10 @@ SOURCE=.\MT2032.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\MT2050.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\MultiFrames.cpp
 # End Source File
 # Begin Source File
@@ -1180,6 +1184,10 @@ SOURCE=.\MSP34x0AudioDecoder.h
 # Begin Source File
 
 SOURCE=.\MT2032.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\MT2050.h
 # End Source File
 # Begin Source File
 

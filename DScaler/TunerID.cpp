@@ -1,5 +1,5 @@
 //
-// $Id: TunerID.cpp,v 1.2 2003-10-27 10:39:54 adcockj Exp $
+// $Id: TunerID.cpp,v 1.3 2003-12-18 15:57:41 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2003/10/27 10:39:54  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.1  2003/02/06 21:26:37  ittarnavsky
 // moved the tuner names here
 //
@@ -84,6 +87,8 @@ const char *TunerNames[TUNER_LASTONE] =
 	    "LG TAPC-new   [NTSC]",
         "MT2032 universal [PAL default]",
         "Philips FI1286 [NTCS M-J]",
+        "MT2050 [NTSC]",
+        "MT2050 [PAL]",
 };
 
 }

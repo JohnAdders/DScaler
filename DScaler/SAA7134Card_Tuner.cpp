@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Tuner.cpp,v 1.8 2003-10-27 10:39:53 adcockj Exp $
+// $Id: SAA7134Card_Tuner.cpp,v 1.9 2003-12-18 15:57:41 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2003/10/27 10:39:53  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.7  2003/01/28 07:22:28  atnak
 // Visual changes
 //
@@ -61,16 +64,19 @@
 #include "SAA7134_Defines.h"
 #include "NoTuner.h"
 #include "MT2032.h"
+#include "MT2050.h"
 #include "GenericTuner.h"
 #include "TDA9887.h"
 #include "DebugLog.h"
 
 BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
 {
-// clean up if we get called twice
+    BOOL LookForIFDemod = FALSE;
+
+    // clean up if we get called twice
     if(m_Tuner != NULL)
     {
-        delete m_Tuner;
+        delete m_Tuner; 
         m_Tuner = NULL;
     }
 
@@ -78,25 +84,40 @@ BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
     {
     case TUNER_MT2032:
         m_Tuner = new CMT2032(VIDEOFORMAT_NTSC_M);
-        strcpy(m_TunerType, "MT2032");
+        LookForIFDemod = TRUE;
+        strcpy(m_TunerType, "MT2032 ");
         break;
     case TUNER_MT2032_PAL:
         m_Tuner = new CMT2032(VIDEOFORMAT_PAL_B);
-        strcpy(m_TunerType, "MT2032");
+        LookForIFDemod = TRUE;
+        strcpy(m_TunerType, "MT2032 ");
+        break;
+    case TUNER_MT2050:
+        m_Tuner = new CMT2050(VIDEOFORMAT_NTSC_M);
+        LookForIFDemod = TRUE;
+        strcpy(m_TunerType, "MT2050 ");
+        break;
+    case TUNER_MT2050_PAL:
+        m_Tuner = new CMT2050(VIDEOFORMAT_PAL_B);
+        LookForIFDemod = TRUE;
+        strcpy(m_TunerType, "MT2050 ");
         break;
     case TUNER_AUTODETECT:
     case TUNER_USER_SETUP:
     case TUNER_ABSENT:
         m_Tuner = new CNoTuner();
-        strcpy(m_TunerType, "None");
+        strcpy(m_TunerType, "None ");
         break;
+    case TUNER_PHILIPS_FM1216ME_MK3:
+        LookForIFDemod = TRUE;
+        // deliberate drop down
     default:
         m_Tuner = new CGenericTuner(tunerId);
-        strcpy(m_TunerType, "Generic");
+        strcpy(m_TunerType, "Generic ");
         break;
     }
-
-
+      
+        
     // Finished if tuner type is CNoTuner
     switch (tunerId)
     {
@@ -106,25 +127,20 @@ BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
         return TRUE;
     }
 
+
     // Look for possible external IF demodulator
 
     IExternalIFDemodulator *pExternalIFDemodulator = NULL;
     BYTE IFDemDeviceAddress = 0;
-    eVideoFormat videoFormat = VIDEOFORMAT_NTSC_M;
+    eVideoFormat videoFormat = m_Tuner->GetDefaultVideoFormat();
 
-    if ((tunerId == TUNER_MT2032) || (tunerId == TUNER_MT2032_PAL))
-    {
-        // Only check for TDA9887 if there is a MT2032 chip. Is that correct?
-
-        videoFormat = (tunerId == TUNER_MT2032)?  VIDEOFORMAT_NTSC_M : VIDEOFORMAT_PAL_B;
-
-        //Try to detect a TDA9887 chip
-
+    if(LookForIFDemod)
+    {        
         CTDA9887 *pTDA9887 = new CTDA9887();
         pExternalIFDemodulator = pTDA9887;
         IFDemDeviceAddress = I2C_TDA9887_0;
     }
-
+        
     // Detect and attach IF demodulator to the tuner
     //  or delete the demodulator if the chip doesn't exist.
     if (pExternalIFDemodulator != NULL)
@@ -140,23 +156,22 @@ BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
             pExternalIFDemodulator->Init(TRUE, videoFormat);
         }
         else
-        {
+        {            
             delete pExternalIFDemodulator;
             pExternalIFDemodulator = NULL;
         }
     }
-
-
+ 
     // Scan the I2C bus addresses 0xC0 - 0xCF for tuners
     BOOL bFoundTuner = FALSE;
-
+    
     int kk = strlen(m_TunerType);
     for (BYTE test = 0xC0; test < 0xCF; test +=2)
     {
         if (m_I2CBus->Write(&test, sizeof(test)))
         {
             m_Tuner->Attach(m_I2CBus, test>>1);
-            sprintf(m_TunerType + kk, " at I2C address 0x%02X", test);
+            sprintf(m_TunerType + kk, "@ I2C address 0x%02X", test);
             bFoundTuner = TRUE;
             LOG(1,"Tuner: Found at I2C address 0x%02x",test);
             break;
@@ -171,11 +186,11 @@ BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
 
     if (!bFoundTuner)
     {
-        LOG(1,"Tuner: No tuner found at I2C addresses 0xC0-0xCF");
-
-        delete m_Tuner;
+        LOG(1,"Tuner: No tuner found at I2C addresses 0xC0-0xCF"); 
+        
+        delete m_Tuner; 
         m_Tuner = new CNoTuner();
-        strcpy(m_TunerType, "None ");
+        strcpy(m_TunerType, "None ");           
     }
     return bFoundTuner;
 }

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.377 2005-03-23 14:20:37 adcockj Exp $
+// $Id: DScaler.cpp,v 1.378 2005-03-26 18:53:22 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.377  2005/03/23 14:20:37  adcockj
+// Test fix for threading issues
+//
 // Revision 1.376  2005/03/21 22:39:14  laurentg
 // EPG: changes regarding OSD
 //
@@ -4243,58 +4246,6 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             InvalidateRect(hWnd, NULL, FALSE);
             break;
         
-		case IDM_SCAN_EPG:
-			{
-				OPENFILENAME OpenFileInfo;
-				char FilePath[MAX_PATH];
-				char* FileFilters;
-				FileFilters = "XML Files\0*.xml\0";
-				FilePath[0] = 0;
-				ZeroMemory(&OpenFileInfo,sizeof(OpenFileInfo));
-				OpenFileInfo.lStructSize = sizeof(OpenFileInfo);
-				OpenFileInfo.hwndOwner = hWnd;
-				OpenFileInfo.lpstrFilter = FileFilters;
-				OpenFileInfo.nFilterIndex = 1;
-				OpenFileInfo.lpstrCustomFilter = NULL;
-				OpenFileInfo.lpstrFile = FilePath;
-				OpenFileInfo.nMaxFile = sizeof(FilePath);
-				OpenFileInfo.lpstrFileTitle = NULL;
-				OpenFileInfo.lpstrInitialDir = NULL;
-				OpenFileInfo.lpstrTitle = NULL;
-				OpenFileInfo.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
-				OpenFileInfo.lpstrDefExt = NULL;
-				if(GetOpenFileName(&OpenFileInfo))
-				{
-					// TODO This question should be suppressed later when using the XML API
-					// and the direct access to the XML file
-					int Resp = MessageBox(hWnd,
-							"If the selected file was generated using only coordinated universal times,\nyou can choose to restore local times.\nIf not, answer \"no\" to the following question.\n\nDo you want to restore the local times ?",
-							"Local times", MB_YESNO | MB_ICONQUESTION);
-					if(Resp == IDYES)
-						MyEPG.ScanXMLTVFile(FilePath, -(_timezone/60));
-					else
-						MyEPG.ScanXMLTVFile(FilePath);
-				}
-			}
-			break;
-
-		case IDM_LOAD_EPG:
-			if (!MyEPG.LoadEPGData())
-			{
-				OSD_ShowText("EPG loaded", 0);
-			}
-			else
-			{
-				OSD_ShowText("EPG not found", 0);
-			}
-			// Dump the loaded EPG data in the log file
-			// MyEPG.DumpEPGData();
-			break;
-
-		case IDM_DISPLAY_EPG:
-		    OSD_ShowInfosScreen(1, 0);
-			break;
-
 		default:
             bDone = FALSE;
 
@@ -4372,6 +4323,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             if(!bDone)
             {
                 bDone = Providers_HandleWindowsCommands(hWnd, wParam, lParam);
+            }
+	        if(!bDone)
+            {
+                bDone = MyEPG.HandleWindowsCommands(hWnd, wParam, lParam);
             }
             break;
         }
@@ -5227,9 +5182,6 @@ void MainWndOnInitBT(HWND hWnd)
 		{
 	        SetTimer(hWnd, TIMER_TOOLBAR, TIMER_TOOLBAR_MS, NULL);
 		}
-
-        AddSplashTextLine("Load EPG Data");
-		MyEPG.LoadEPGData();
 
         // do final setup routines for any files
         // basically where we need the hWnd to be set

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.h,v 1.22 2003-10-27 10:39:53 adcockj Exp $
+// $Id: ProgramList.h,v 1.23 2005-03-26 18:53:24 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -79,6 +79,7 @@ void Channel_SetCurrent();
 void Channel_Previous();
 void Channel_Reset();
 const char* Channel_GetName();
+const char* Channel_GetEPGName();
 
 extern int PreSwitchMuteDelay;
 extern int PostSwitchMuteDelay;

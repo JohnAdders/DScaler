@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.93 2005-03-23 14:20:57 adcockj Exp $
+// $Id: OSD.cpp,v 1.94 2005-03-26 18:53:23 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.93  2005/03/23 14:20:57  adcockj
+// Test fix for threading issues
+//
 // Revision 1.92  2005/03/21 22:39:15  laurentg
 // EPG: changes regarding OSD
 //
@@ -481,17 +484,18 @@ static void OSD_RefreshARScreen(double Size);
 static void OSD_RefreshCalibrationScreen(double Size);
 static void OSD_RefreshDeveloperScreen(double Size);
 static void OSD_RefreshCurrentProgramScreen(double Size);
-static void OSD_RefreshCurrentProgramsScreen(double Size);
+static void OSD_RefreshProgramsScreen(double Size);
+static void OSD_DisplayProgramInfos(double Size);
 
 
 // Screens definition
 static TActiveScreen ActiveScreens[] =
 {
     { "Card calibration screen", TRUE,  FALSE, 250,                     TRUE,  TRUE,  OSD_RefreshCalibrationScreen },
-    { "Current program screen",  TRUE,  TRUE,  0,                       TRUE,  FALSE, OSD_RefreshCurrentProgramScreen },
+    { "Program info screen",     TRUE,  TRUE,  0,                       TRUE,  FALSE, OSD_DisplayProgramInfos },
     { "General screen",          FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, TRUE,  FALSE, OSD_RefreshGeneralScreen },
-    { "Current program screen",  FALSE, TRUE,  10000,                   TRUE,  FALSE, OSD_RefreshCurrentProgramScreen },
-    { "Current programs screen", FALSE, TRUE,  10000,                   TRUE,  FALSE, OSD_RefreshCurrentProgramsScreen },
+    { "Current program screen",  FALSE, TRUE,  1000,                    TRUE,  FALSE, OSD_RefreshCurrentProgramScreen },
+    { "Programs screen",         FALSE, TRUE,  5000,                    TRUE,  FALSE, OSD_RefreshProgramsScreen },
     { "Statistics screen",       FALSE, TRUE,  1000,                    TRUE,  FALSE, OSD_RefreshStatisticsScreen },
     { "WSS decoding screen",     FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, TRUE,  FALSE, OSD_RefreshWSSScreen },
 //  { "AR screen",               FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, FALSE, FALSE, OSD_RefreshARScreen },
@@ -720,11 +724,11 @@ void OSD_ProcessDisplayUpdate(HDC hDC, LPRECT lpRect)
         break;
 
     case OSDC_SHOW_SCREEN:
-        OSD_ShowInfosScreen(hDC, lpRect, (INT)pOSDCommand->dwParam, 0);
+        OSD_ShowInfosScreen(hDC, lpRect, (INT)pOSDCommand->dwParam, pOSDCommand->dSize);
         break;
 
     case OSDC_SHOW_NEXT_SCREEN:
-        OSD_ShowNextInfosScreen(hDC, lpRect, 0);
+        OSD_ShowNextInfosScreen(hDC, lpRect, pOSDCommand->dSize);
         break;
 
     case OSDC_CLEAR:
@@ -889,11 +893,6 @@ void OSD_RefreshInfosScreen(HDC hDC, LPRECT lpRect, double Size)
         return;
     }
 
-    if (Size == 0)
-    {
-        Size = OSD_DefaultSmallSizePerc;
-    }
-
     OSD_InvalidateTextsArea();
     OSD_ClearAllTexts();
 
@@ -924,8 +923,11 @@ void OSD_RefreshInfosScreen(HDC hDC, LPRECT lpRect, double Size)
     }
 #endif
 
-    SetTimer(GetMainWnd(), OSD_TIMER_REFRESH_ID,
-        ActiveScreens[OSD_IdxCurrentScreen].refresh_delay, NULL);
+	if (ActiveScreens[OSD_IdxCurrentScreen].refresh_delay)
+	{
+		SetTimer(GetMainWnd(), OSD_TIMER_REFRESH_ID,
+			ActiveScreens[OSD_IdxCurrentScreen].refresh_delay, NULL);
+	}
 }
 
 
@@ -2285,14 +2287,67 @@ static void OSD_RefreshDeveloperScreen(double Size)
 }
 
 
-static void OSD_RefreshProgramsScreen(double Size, LPCSTR Title, LPCSTR Channel, BOOL SearchAll, time_t DateMin, time_t DateMax)
+static void OSD_DisplayProgramInfos(double Size)
 {
-    double      dfMargin = 0.02;    // 2% of screen height/width
-    char        szInfo[64];
-    int         nLine;
-	long		Color;
-    double      pos1, pos2;
-	DWORD		Total = 0;
+    double	dfMargin = 0.02;    // 2% of screen height/width
+
+	LPCSTR	Channel = NULL;
+	time_t	TimeMin;
+	time_t	TimeMax;
+	MyEPG.GetSearchContext(&Channel, &TimeMin, &TimeMax);
+
+	if (!Channel)
+	{
+		return;
+	}
+
+    double pos1 = OSD_GetLineYpos (1, dfMargin, OSD_DefaultSizePerc);
+
+	OSD_AddText(Channel, OSD_DefaultSizePerc, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos1);
+
+    if (Size == 0)
+    {
+        Size = OSD_DefaultSmallSizePerc;
+    }
+
+    double pos2 = OSD_GetLineYpos (2, dfMargin, OSD_DefaultSizePerc);
+
+	int nb = MyEPG.SearchForPrograms();
+	if (nb == 0)
+	{
+		OSD_AddText("No EPG information", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos2);
+		return;
+	}
+
+	char   szInfo[16];
+	time_t StartTime;
+	time_t EndTime;
+	string StartTimeStr;
+	string EndTimeStr;
+	string ChannelName;
+	string ProgramTitle;
+
+	MyEPG.GetProgramData(0, &StartTime, StartTimeStr, &EndTime, EndTimeStr, ChannelName, ProgramTitle);
+
+    double pos3 = pos2 + OSD_GetLineYpos (2, dfMargin, Size) - OSD_GetLineYpos (1, dfMargin, Size);
+	double pos4 = pos3 + pos3 - pos2;
+
+    OSD_AddText(ProgramTitle.c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos2);
+    sprintf(szInfo, "%s - %s", StartTimeStr.c_str(), EndTimeStr.c_str());
+    OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos3);
+    sprintf(szInfo, "%.1f %%", (double)(TimeMin - StartTime) * 100.0 / (double)(EndTime - StartTime));
+    OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos4);
+}
+
+
+static void OSD_RefreshCurrentProgramScreen(double Size)
+{
+    double	dfMargin = 0.02;    // 2% of screen height/width
+
+	LPCSTR	Channel = NULL;
+	time_t	TimeMin;
+	time_t	TimeMax;
+	MyEPG.GetSearchContext(&Channel, &TimeMin, &TimeMax);
 
     if (Size == 0)
     {
@@ -2300,79 +2355,133 @@ static void OSD_RefreshProgramsScreen(double Size, LPCSTR Title, LPCSTR Channel,
     }
 
     // Title
-    OSD_AddText(Title, Size*1.5, OSD_COLOR_TITLE, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
+    OSD_AddText("Current Program", Size*1.5, OSD_COLOR_TITLE, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
 
-	int nb;
-	if (!SearchAll && !Channel)
+    double pos1 = OSD_GetLineYpos (3, dfMargin, Size);
+    double pos2 = OSD_GetLineYpos (4, dfMargin, Size);
+
+	if (!Channel)
 	{
-        OSD_AddText("Not in tuner mode", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (3, dfMargin, Size));
+        OSD_AddText("Not in tuner mode", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, pos1);
 		return;
 	}
-	else
+
+	int nb = MyEPG.SearchForPrograms();
+	if (nb == 0)
 	{
-		nb = MyEPG.SearchForPrograms(SearchAll ? NULL : Channel, DateMin, DateMax);
-		if (!SearchAll && (nb == 0))
-		{
-			OSD_AddText(Channel, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (3, dfMargin, Size));
-			OSD_AddText("No EPG information", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (4, dfMargin, Size));
-			return;
-		}
-		else if (nb == 0)
-		{
-			OSD_AddText("No EPG information", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (3, dfMargin, Size));
-			return;
-		}
+		OSD_AddText(Channel, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos1);
+		OSD_AddText("No EPG information", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos2);
+		return;
 	}
 
-    nLine = 3;
+	char   szInfo[16];
+	time_t StartTime;
+	time_t EndTime;
+	string StartTimeStr;
+	string EndTimeStr;
+	string ChannelName;
+	string ProgramTitle;
+
+	MyEPG.GetProgramData(0, &StartTime, StartTimeStr, &EndTime, EndTimeStr, ChannelName, ProgramTitle);
+
+    sprintf(szInfo, "%s - %s", StartTimeStr.c_str(), EndTimeStr.c_str());
+    OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos1);
+    OSD_AddText(Channel, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos1);
+    OSD_AddText(ProgramTitle.c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos2);
+    sprintf(szInfo, "%.1f %%", (double)(TimeMin - StartTime) * 100.0 / (double)(EndTime - StartTime));
+    OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos2);
+}
+
+
+static void OSD_RefreshProgramsScreen(double Size)
+{
+    double	dfMargin = 0.02;    // 2% of screen height/width
+
+	LPCSTR	Channel = NULL;
+	time_t	TimeMin;
+	time_t	TimeMax;
+	MyEPG.GetSearchContext(&Channel, &TimeMin, &TimeMax);
+
+    if (Size == 0)
+    {
+        Size = OSD_DefaultSmallSizePerc;
+    }
+
+    // Title
+	double pos1 = OSD_GetLineYpos (1, dfMargin, Size*1.5);
+	double pos2 = OSD_GetLineYpos (2, dfMargin, Size*1.5);
+	char   szInfo[64];
+    OSD_AddText("Programs", Size*1.5, OSD_COLOR_TITLE, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, pos1);
+	struct tm *Time_tm = localtime(&TimeMin);
+    sprintf(szInfo, "%02u/%02u", Time_tm->tm_mday, Time_tm->tm_mon+1);
+    OSD_AddText(szInfo, Size*1.5, OSD_COLOR_TITLE, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos1);
+    sprintf(szInfo, "%02u:%02u/%02u:%02u", Time_tm->tm_hour, Time_tm->tm_min);
+	Time_tm = localtime(&TimeMax);
+    sprintf(&szInfo[5], "/%02u:%02u", Time_tm->tm_hour, Time_tm->tm_min);
+    OSD_AddText(szInfo, Size*1.5, OSD_COLOR_TITLE, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos2);
+
+	int nb = MyEPG.SearchForPrograms();
+	if (nb == 0)
+	{
+		return;
+	}
+
+	time_t TimeNow;
+	time(&TimeNow);
+
+	CSource *CurrentSource = Providers_GetCurrentSource();
+	LPCSTR CurChannel = NULL;
+	if (CurrentSource && Providers_GetCurrentSource()->IsInTunerMode())
+		CurChannel = Channel_GetEPGName();
+
+	int nLine = 4;
 
 	for (int i=0; i<nb; i++)
 	{
-		string StartTime;
-		string EndTime;
+		long   Color;
+		time_t StartTime;
+		time_t EndTime;
+		string StartTimeStr;
+		string EndTimeStr;
 		string ChannelName;
 		string ProgramTitle;
 
-		MyEPG.GetProgramData(i, StartTime, EndTime, ChannelName, ProgramTitle);
+		MyEPG.GetProgramData(i, &StartTime, StartTimeStr, &EndTime, EndTimeStr, ChannelName, ProgramTitle);
 
-		if (SearchAll && Channel && !_stricmp(ChannelName.c_str(), Channel))
-			Color = OSD_COLOR_CURRENT;
+		if (   CurChannel 
+			&& !_stricmp(ChannelName.c_str(), CurChannel)
+			&& (TimeNow >= StartTime)
+			&& (TimeNow < EndTime) )
+		{
+			Color = OSD_COLOR_SECTION;
+		}
 		else
+		{
 			Color = -1;
+		}
         pos1 = OSD_GetLineYpos (nLine++, dfMargin, Size);
         pos2 = OSD_GetLineYpos (nLine++, dfMargin, Size);
-		if (pos1 == 0.0 || pos2 == 0.0)
+		if ( (pos1 == 0.0) || (pos2 == 0.0))
 			break;
-        sprintf(szInfo, "%s-%s", StartTime.c_str(), EndTime.c_str());
-        OSD_AddText(StartTime.c_str(), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos1);
-        OSD_AddText(EndTime.c_str(), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos1);
-        OSD_AddText(ChannelName.c_str(), Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, pos1);
-        OSD_AddText(ProgramTitle.c_str(), Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, pos2);
+        OSD_AddText(ChannelName.c_str(), Size, OSD_COLOR_CURRENT, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos1);
+        sprintf(szInfo, "%s - %s", StartTimeStr.c_str(), EndTimeStr.c_str());
+        OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos1);
+        OSD_AddText(ProgramTitle.c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos2);
+		if (   (TimeNow >= StartTime)
+			&& (TimeNow < EndTime) )
+		{
+			sprintf(szInfo, "%.1f %%", (double)(TimeNow - StartTime) * 100.0 / (double)(EndTime - StartTime));
+		}
+		else if (TimeNow >= EndTime)
+		{
+			strcpy(szInfo, "Finished");
+		}
+		else
+		{
+			strcpy(szInfo, "Future");
+		}
+		OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos2);
 	}
-}
-
-
-static void OSD_RefreshCurrentProgramScreen(double Size)
-{
-	CSource *CurrentSource = Providers_GetCurrentSource();
-	const char *Channel = NULL;
-	if (CurrentSource && Providers_GetCurrentSource()->IsInTunerMode())
-		Channel = Channel_GetName();
-	time_t Now;
-	time(&Now);
-	OSD_RefreshProgramsScreen(Size, "Current Program", Channel, FALSE, Now, Now);
-}
-
-
-static void OSD_RefreshCurrentProgramsScreen(double Size)
-{
-	CSource *CurrentSource = Providers_GetCurrentSource();
-	const char *Channel = NULL;
-	if (CurrentSource && Providers_GetCurrentSource()->IsInTunerMode())
-		Channel = Channel_GetName();
-	time_t Now;
-	time(&Now);
-	OSD_RefreshProgramsScreen(Size, "Current Programs", Channel, TRUE, Now, Now);
 }
 
 

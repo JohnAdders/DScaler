@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.cpp,v 1.4 2005-03-21 22:39:15 laurentg Exp $
+// $Id: EPG.cpp,v 1.5 2005-03-26 18:53:22 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2005/03/21 22:39:15  laurentg
+// EPG: changes regarding OSD
+//
 // Revision 1.3  2005/03/20 22:56:22  laurentg
 // New OSD screens added for EPG
 //
@@ -45,8 +48,8 @@
 #include "DebugLog.h"
 #include "EPG.h"
 #include "ProgramList.h"
-#include "DScaler.h"
 #include "OSD.h"
+#include "Providers.h"
 
 
 #define	ONE_DAY			86400
@@ -59,10 +62,6 @@
 
 CEPG MyEPG;
 
-
-// TODO Enhancement: allow linking a DScaler channel name to one or several EPG channel names
-// That could be done with a new field added in the program.txt file + a new field in the
-// channel setup dialog box to enter this information
 
 // TODO Enhancement: use a XML API
 
@@ -120,6 +119,16 @@ void CProgram::GetProgramMainData(string &Start, string &End, string &Channel, s
 
 
 //
+// Get the program start and end times
+//
+void CProgram::GetProgramTimes(time_t *StartTime, time_t *EndTime)
+{
+	*StartTime = m_StartTime;
+	*EndTime = m_EndTime;
+}
+
+
+//
 // Dump the program main data : start and end time + channel + title
 //
 void CProgram::DumpProgramMainData()
@@ -166,6 +175,14 @@ CEPG::CEPG()
 
 	m_FilesDir = Path;
 	m_XMLTVExe = m_FilesDir + "\\xmltv.exe";
+
+	m_LoadedTimeMin = 0;
+	m_LoadedTimeMax = 0;
+
+	m_SearchName = NULL;
+	m_SearchEPGName = NULL;
+	m_SearchTimeMin = 0;
+	m_SearchTimeMax = 0;
 }
 
 
@@ -241,7 +258,7 @@ int CEPG::ScanXMLTVFile(LPCSTR file, int delta_time)
 	{
 		// Add an escape character "\" before each character of the channel name
 		// that are special characters in PERL REGEXP (like + for example)
-		LPCSTR name = MyChannels.GetChannelName(i);
+		LPCSTR name = MyChannels.GetChannelEPGName(i);
 		char name2[64];
 		for (int j=0, k=0; j<strlen(name); j++)
 		{
@@ -290,7 +307,7 @@ int CEPG::ScanXMLTVFile(LPCSTR file, int delta_time)
 	// TODO Suppress call to ConvertXMLtoTXT as soon as XML API will be used
 	resu = ConvertXMLtoTXT(delta_time);
 
-	LoadEPGData();
+	ReloadEPGData();
 
 	return resu;
 }
@@ -542,7 +559,7 @@ int CEPG::ConvertXMLtoTXT(int delta_time)
 //
 // Load the DScaler EPG data for the programs between two dates
 // If DateMin and DateMax are not set, load the EPG data for
-// the interval [current time - 2 hours, current time + one day]
+// the interval [current time - 2 hours, current time + 6 hours]
 //
 // TODO Rewrite LoadEPGData as soon as XML API will be used
 //
@@ -558,9 +575,17 @@ int CEPG::LoadEPGData(time_t DateMin, time_t DateMax)
 	{
 		time(&DateTime);
 		DateMin = DateTime - 2 * ONE_HOUR;
-		DateMax = DateTime + ONE_DAY;
+		DateMax = DateTime + 6 * ONE_HOUR;
 	}
 
+	if ( (m_LoadedTimeMin == 0) || (DateMin < m_LoadedTimeMin) )
+		m_LoadedTimeMin = DateMin;
+	if ( (m_LoadedTimeMax == 0) || (DateMax > m_LoadedTimeMax) )
+		m_LoadedTimeMax = DateMax;
+
+	LOG(1, "LoadEPGData");
+	LOG(1, "LoadEPGData min %s", ctime(&m_LoadedTimeMin));
+	LOG(1, "LoadEPGData max %s", ctime(&m_LoadedTimeMax));
 	//
 	// Read the file DScaler.txt
 	//
@@ -678,6 +703,12 @@ int CEPG::LoadEPGData(time_t DateMin, time_t DateMax)
 }
 
 
+int CEPG::ReloadEPGData()
+{
+	return LoadEPGData(m_LoadedTimeMin, m_LoadedTimeMax);
+}
+
+
 // Indicate if EPG programs are available
 BOOL CEPG::IsEPGAvailable()
 {
@@ -688,49 +719,68 @@ BOOL CEPG::IsEPGAvailable()
 //
 // Get the EPG data of the first program matching time and channel
 //
-int CEPG::GetEPGData(string &StartTime, string &EndTime, string &Title, LPCSTR Channel, time_t Date)
+int CEPG::GetEPGData(time_t *StartTime, time_t *EndTime, string &Title, LPCSTR Channel, time_t Date)
 {
 	// If channel not provided, use the current one
-	string Ch;
+	string Ch1;
+	string Ch2;
 	if (Channel == NULL)
-		Ch = Channel_GetName();
+	{
+		Ch1 = Channel_GetName();
+		Ch2 = Channel_GetEPGName();
+	}
 	else
-		Ch = Channel;
+	{
+		Ch1 = Channel;
+		Ch2 = Channel;
+	}
 
-	int nb = SearchForPrograms(Ch.c_str(), Date, Date);
+	// If Date not provided, use the current time
+	time_t Time;
+	if (Date == 0)
+		time(&Time);
+	else
+		Time = Date;
+
+	SetSearchContext(Ch1.c_str(), Ch2.c_str(), Time, Time);
+	int nb = SearchForPrograms();
 	if (nb == 0)
 		return -1;
 
-	GetProgramData(0, StartTime, EndTime, Ch, Title);
+	string StartTimeStr;
+	string EndTimeStr;
+	GetProgramData(0, StartTime, StartTimeStr, EndTime, EndTimeStr, Ch2, Title);
 
 	return 0;
 }
 
 
-int CEPG::SearchForPrograms(LPCSTR Channel, time_t DateMin, time_t DateMax)
+void CEPG::SetSearchContext(LPCSTR ChannelName, LPCSTR ChannelEPGName, time_t TimeMin, time_t TimeMax)
 {
-	// If DateMin not provided, use the current day
-	time_t DateTimeMin;
-	if (DateMin == 0)
-		time(&DateTimeMin);
-	else
-		DateTimeMin = DateMin;
+	m_SearchName = ChannelName;
+	m_SearchEPGName = ChannelEPGName;
+	m_SearchTimeMin = TimeMin;
+	m_SearchTimeMax = TimeMax;
+}
 
-	// If DateMax not provided, use the current day
-	time_t DateTimeMax;
-	if (DateMax == 0)
-		time(&DateTimeMax);
-	else
-		DateTimeMax = DateMax;
 
-	// Search the programs overlapping the date/time set in DateTime
-	// for the channel set in Ch
+void CEPG::GetSearchContext(LPCSTR *ChannelName, time_t *TimeMin, time_t *TimeMax)
+{
+	*ChannelName = m_SearchName;
+	*TimeMin = m_SearchTimeMin;
+	*TimeMax = m_SearchTimeMax;
+}
+
+
+int CEPG::SearchForPrograms()
+{
+	// Search the programs matching the search context
     m_ProgramsSelection.clear();
     for(CPrograms::iterator it = m_Programs.begin();
         it != m_Programs.end();
         ++it)
     {
-		if ((*it)->IsProgramMatching(DateTimeMax, DateTimeMax, Channel) == TRUE)
+		if ((*it)->IsProgramMatching(m_SearchTimeMin, m_SearchTimeMax, m_SearchEPGName) == TRUE)
 		{
 			m_ProgramsSelection.push_back(*it);
 		}
@@ -739,14 +789,214 @@ int CEPG::SearchForPrograms(LPCSTR Channel, time_t DateMin, time_t DateMax)
 }
 
 
-int CEPG::GetProgramData(int Index, string &StartTime, string &EndTime, string &Channel, string &Title)
+int CEPG::GetProgramData(int Index, time_t *StartTime, string &StartTimeStr, time_t *EndTime, string &EndTimeStr, string &Channel, string &Title)
 {
 	if ( (Index < 0) || (Index >= m_ProgramsSelection.size()) )
 		return -1;
 
-	m_ProgramsSelection[Index]->GetProgramMainData(StartTime, EndTime, Channel, Title);
+	m_ProgramsSelection[Index]->GetProgramMainData(StartTimeStr, EndTimeStr, Channel, Title);
+	m_ProgramsSelection[Index]->GetProgramTimes(StartTime, EndTime);
 
 	return 0;
+}
+
+
+BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
+{
+	OPENFILENAME OpenFileInfo;
+	char FilePath[MAX_PATH];
+	char* FileFilters;
+	time_t TimeNow;
+	time_t TimeMin;
+	time_t TimeMax;
+	struct tm *datetime_tm;
+	CSource *CurrentSource;
+	LPCSTR ChannelName = NULL;
+	LPCSTR ChannelEPGName = NULL;
+
+	switch(LOWORD(wParam))
+    {
+	case IDM_SCAN_EPG:
+		FileFilters = "XML Files\0*.xml\0";
+		FilePath[0] = 0;
+		ZeroMemory(&OpenFileInfo,sizeof(OpenFileInfo));
+		OpenFileInfo.lStructSize = sizeof(OpenFileInfo);
+		OpenFileInfo.hwndOwner = hWnd;
+		OpenFileInfo.lpstrFilter = FileFilters;
+		OpenFileInfo.nFilterIndex = 1;
+		OpenFileInfo.lpstrCustomFilter = NULL;
+		OpenFileInfo.lpstrFile = FilePath;
+		OpenFileInfo.nMaxFile = sizeof(FilePath);
+		OpenFileInfo.lpstrFileTitle = NULL;
+		OpenFileInfo.lpstrInitialDir = NULL;
+		OpenFileInfo.lpstrTitle = NULL;
+		OpenFileInfo.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+		OpenFileInfo.lpstrDefExt = NULL;
+		if(GetOpenFileName(&OpenFileInfo))
+		{
+			// TODO This question should be suppressed later when using the XML API
+			// and the direct access to the XML file
+			int Resp = MessageBox(hWnd,
+					"If the selected file was generated using only coordinated universal times,\nyou can choose to restore local times.\nIf not, answer \"no\" to the following question.\n\nDo you want to restore the local times ?",
+					"Local times", MB_YESNO | MB_ICONQUESTION);
+			if(Resp == IDYES)
+				ScanXMLTVFile(FilePath, -(_timezone/60));
+			else
+				ScanXMLTVFile(FilePath);
+		}
+        return TRUE;
+		break;
+
+	case IDM_LOAD_EPG:
+		if (!ReloadEPGData())
+		{
+			OSD_ShowText("EPG loaded", 0);
+		}
+		else
+		{
+			OSD_ShowText("EPG not found", 0);
+		}
+		// Dump the loaded EPG data in the log file
+		// DumpEPGData();
+        return TRUE;
+		break;
+
+	case IDM_DISPLAY_EPG:
+		time(&TimeNow);
+		// Check if new EPG data have to be loaded
+		if (TimeNow > m_LoadedTimeMax)
+		{
+			LoadEPGData(m_LoadedTimeMin, TimeNow + 6 * ONE_HOUR);
+		}
+		CurrentSource = Providers_GetCurrentSource();
+		if (CurrentSource && Providers_GetCurrentSource()->IsInTunerMode())
+		{
+			ChannelName = Channel_GetName();
+			ChannelEPGName = Channel_GetEPGName();
+		}
+		SetSearchContext(ChannelName, ChannelEPGName, TimeNow, TimeNow);
+		OSD_ShowInfosScreen(3, 0);
+        return TRUE;
+		break;
+
+	case IDM_DISPLAY_EPG_NOW:
+		time(&TimeNow);
+		datetime_tm = localtime(&TimeNow);
+		datetime_tm->tm_sec = 0;
+		datetime_tm->tm_min = 0;
+		TimeMin = mktime(datetime_tm);
+		datetime_tm->tm_sec = 59;
+		datetime_tm->tm_min = 59;
+		TimeMax = mktime(datetime_tm);
+		// Check if new EPG data have to be loaded
+		if (TimeMin < m_LoadedTimeMin)
+		{
+			LoadEPGData(TimeMin, m_LoadedTimeMax);
+		}
+		if (TimeMax > m_LoadedTimeMax)
+		{
+			LoadEPGData(m_LoadedTimeMin, TimeMax);
+		}
+		SetSearchContext(NULL, NULL, TimeMin, TimeMax);
+		OSD_ShowInfosScreen(4, 0);
+        return TRUE;
+        break;
+
+	case IDM_DISPLAY_EPG_EARLIER:
+		if (m_SearchTimeMin != 0)
+		{
+			// TODO Manage change of day
+			datetime_tm = localtime(&m_SearchTimeMin);
+			datetime_tm->tm_hour--;
+			TimeMin = mktime(datetime_tm);
+			datetime_tm = localtime(&m_SearchTimeMax);
+			datetime_tm->tm_hour--;
+			TimeMax = mktime(datetime_tm);
+			// Check if new EPG data have to be loaded
+			if (TimeMin < m_LoadedTimeMin)
+			{
+				LoadEPGData(TimeMin, m_LoadedTimeMax);
+			}
+			if (TimeMax > m_LoadedTimeMax)
+			{
+				LoadEPGData(m_LoadedTimeMin, TimeMax);
+			}
+			SetSearchContext(NULL, NULL, TimeMin, TimeMax);
+			OSD_ShowInfosScreen(4, 0);
+		}
+        return TRUE;
+        break;
+
+	case IDM_DISPLAY_EPG_LATER:
+		if (m_SearchTimeMin != 0)
+		{
+			// TODO Manage change of day
+			datetime_tm = localtime(&m_SearchTimeMin);
+			datetime_tm->tm_hour++;
+			TimeMin = mktime(datetime_tm);
+			datetime_tm = localtime(&m_SearchTimeMax);
+			datetime_tm->tm_hour++;
+			TimeMax = mktime(datetime_tm);
+			// Check if new EPG data have to be loaded
+			if (TimeMin < m_LoadedTimeMin)
+			{
+				LoadEPGData(TimeMin, m_LoadedTimeMax);
+			}
+			if (TimeMax > m_LoadedTimeMax)
+			{
+				LoadEPGData(m_LoadedTimeMin, TimeMax);
+			}
+			SetSearchContext(NULL, NULL, TimeMin, TimeMax);
+			OSD_ShowInfosScreen(4, 0);
+		}
+        return TRUE;
+        break;
+
+	case IDM_DISPLAY_EPG_NEXT:
+		if (m_SearchTimeMin != 0)
+		{
+			OSD_ShowInfosScreen(4, 0);
+		}
+        return TRUE;
+        break;
+
+	case IDM_DISPLAY_EPG_PREV:
+		if (m_SearchTimeMin != 0)
+		{
+			OSD_ShowInfosScreen(4, 0);
+		}
+        return TRUE;
+        break;
+
+    default:
+        break;
+    }
+    return FALSE;
+}
+
+
+void CEPG::ShowOSD()
+{
+	time_t TimeNow;
+	time(&TimeNow);
+
+	// Check if new EPG data have to be loaded
+	if (TimeNow > m_LoadedTimeMax)
+	{
+		LoadEPGData(m_LoadedTimeMin, TimeNow + 6 * ONE_HOUR);
+	}
+
+	if (IsEPGAvailable())
+	{
+		CSource *CurrentSource = Providers_GetCurrentSource();
+		if (CurrentSource && Providers_GetCurrentSource()->IsInTunerMode())
+		{
+			LPCSTR ChannelName = Channel_GetName();
+			LPCSTR ChannelEPGName = Channel_GetEPGName();
+			SetSearchContext(ChannelName, ChannelEPGName, TimeNow, TimeNow);
+			OSD_ShowInfosScreen(1, 0);
+		}
+	}
 }
 
 
@@ -792,7 +1042,7 @@ BOOL CEPG::IsValidChannelName(LPCSTR Name)
 {
 	for (int i=0; (i < MyChannels.GetSize()); i++)
 	{
-		if (!_stricmp(Name, MyChannels.GetChannelName(i)))
+		if (!_stricmp(Name, MyChannels.GetChannelEPGName(i)))
 			return TRUE;
 	}
 	return FALSE;

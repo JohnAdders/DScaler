@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Channels.cpp,v 1.10 2005-03-08 03:25:26 robmuller Exp $
+// $Id: Channels.cpp,v 1.11 2005-03-26 18:53:22 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2005/03/08 03:25:26  robmuller
+// Added CVS keywords.
+//
 /////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -42,18 +45,30 @@
 #include "Channels.h"
 
 
-CChannel::CChannel(LPCSTR Name, DWORD Freq, int ChannelNumber, eVideoFormat Format, BOOL Active)
+CChannel::CChannel(LPCSTR Name, LPCSTR EPGName, DWORD Freq, int ChannelNumber, eVideoFormat Format, BOOL Active)
 {        
     m_Name = Name;
+	m_EPGName = EPGName;
     m_Freq = Freq;
     m_Chan = ChannelNumber;
     m_Format = Format;
-    m_Active = Active;    
+    m_Active = Active;
+}
+
+CChannel::CChannel(LPCSTR Name, DWORD Freq, int ChannelNumber, eVideoFormat Format, BOOL Active)
+{        
+    m_Name = Name;
+	m_EPGName = m_Name;
+    m_Freq = Freq;
+    m_Chan = ChannelNumber;
+    m_Format = Format;
+    m_Active = Active;
 }
 
 CChannel::CChannel(const CChannel& CopyFrom)
 {
     m_Name = CopyFrom.m_Name;
+    m_EPGName = CopyFrom.m_EPGName;
     m_Freq = CopyFrom.m_Freq;
     m_Chan = CopyFrom.m_Chan;
     m_Format = CopyFrom.m_Format;
@@ -72,6 +87,13 @@ LPCSTR CChannel::GetName() const
     return sbuf;
 }
 
+LPCSTR CChannel::GetEPGName() const
+{
+    static char sbuf[256];
+    strncpy(sbuf, m_EPGName.c_str(), 255);
+    sbuf[255] = '\0';
+    return sbuf;
+}
  
 DWORD CChannel::GetFrequency() const
 {
@@ -253,9 +275,20 @@ BOOL CChannelList::AddChannel(LPCSTR szName, DWORD dwFreq, int iChannelNumber, e
     return AddChannel(newChannel);
 }
 
+BOOL CChannelList::AddChannel(LPCSTR szName, LPCSTR szEPGName, DWORD dwFreq, int iChannelNumber, eVideoFormat eFormat, BOOL bActive)
+{
+    CChannel* newChannel = new CChannel(szName, szEPGName, dwFreq, iChannelNumber, eFormat, bActive);
+    return AddChannel(newChannel);
+}
+
 BOOL CChannelList::AddChannel(LPCSTR szName, DWORD dwFreq, eVideoFormat eFormat, BOOL bActive)
 {    
     return AddChannel(szName, dwFreq, m_MaxChannelNumber + 1, eFormat, bActive);
+}
+
+BOOL CChannelList::AddChannel(LPCSTR szName, LPCSTR szEPGName, DWORD dwFreq, eVideoFormat eFormat, BOOL bActive)
+{    
+    return AddChannel(szName, szEPGName, dwFreq, m_MaxChannelNumber + 1, eFormat, bActive);
 }
 
 BOOL CChannelList::AddChannel(DWORD dwFrequency, int iChannelNumber, eVideoFormat eVideoFormat, BOOL bActive)
@@ -462,6 +495,7 @@ BOOL CUserChannels::ReadASCIIImpl(FILE* SettingFile)
     int Format = -1;
     BOOL Active = TRUE;
     string Name;
+    string EPGName;
     
     while(!feof(SettingFile))
     {
@@ -484,7 +518,7 @@ BOOL CUserChannels::ReadASCIIImpl(FILE* SettingFile)
         {
             if(Frequency != -1)
             {
-                AddChannel(new CChannel(Name.c_str(), Frequency, Channel, (eVideoFormat)Format, Active));
+                AddChannel(new CChannel(Name.c_str(), EPGName.c_str(), Frequency, Channel, (eVideoFormat)Format, Active));
             }
 
             // skip "Name:"
@@ -509,11 +543,34 @@ BOOL CUserChannels::ReadASCIIImpl(FILE* SettingFile)
             {
                 Name = "Empty";
             }
+			EPGName = Name;
             Frequency = -1;
             ++Channel;
             Format = -1;
             Active = TRUE;
         }
+        else if(strnicmp(sbuf, "EPGName:", 8) == 0)
+        {
+            // skip "Name:"
+            char* StartChar = sbuf + 8;
+
+            // skip any spaces
+            while(iswspace(*StartChar))
+            {
+                ++StartChar;
+            }
+            if(strlen(StartChar) > 0)
+            {
+                char* EndChar = StartChar + strlen(StartChar) - 1;
+                while(EndChar > StartChar && iswspace(*EndChar))
+                {
+                    *EndChar = '\0';
+                    --EndChar;
+                }
+                EPGName = StartChar;
+            }
+        }
+        // cope with old style frequencies
         // cope with old style frequencies
         else if(strnicmp(sbuf, "Freq:", 5) == 0)
         {
@@ -545,7 +602,7 @@ BOOL CUserChannels::ReadASCIIImpl(FILE* SettingFile)
 
     if(Frequency != -1)
     {
-        AddChannel(new CChannel(Name.c_str(), Frequency, Channel, (eVideoFormat)Format, Active));
+        AddChannel(new CChannel(Name.c_str(), EPGName.c_str(), Frequency, Channel, (eVideoFormat)Format, Active));
     }
     
     return TRUE;
@@ -573,6 +630,8 @@ BOOL CUserChannels::WriteASCIIImpl(FILE* SettingFile)  const
     for(int i = 0; i < GetSize(); i++)
     {
         fprintf(SettingFile, "Name: %s\n", GetChannelName(i));
+		if (strcmp(GetChannelName(i), GetChannelEPGName(i)))
+	        fprintf(SettingFile, "EPGName: %s\n", GetChannelEPGName(i));
         //fprintf(SettingFile, "Freq2: %ld\n", MulDiv((*it)->GetFrequency(),16,1000000));
         fprintf(SettingFile, "Freq: %ld\n", GetChannelFrequency(i)/1000);
         fprintf(SettingFile, "Chan: %d\n", GetChannelNumber(i));
@@ -609,6 +668,8 @@ BOOL CUserChannels::WriteXMLImpl(FILE* SettingFile)  const
     {
         fprintf(SettingFile, "\t<channel id=\"%d\">\n", i);
         fprintf(SettingFile, "\t\t<name>%s</name>\n", GetChannelName(i));            
+		if (strcmp(GetChannelName(i), GetChannelEPGName(i)))
+	        fprintf(SettingFile, "\t\t<EPGname>%s</EPGname>\n", GetChannelEPGName(i));            
         fprintf(SettingFile, "\t\t<frequency>%ld</frequency>\n", GetChannelFrequency(i));//watch out. ASCII has freq/1000
         fprintf(SettingFile, "\t\t<number>%d</number>\n", GetChannelNumber(i));
         fprintf(SettingFile, "\t\t<active>%d</active>\n", GetChannelActive(i));

@@ -623,6 +623,7 @@
 #define IDC_MOVE15                      1694
 #define IDC_NAME                        1695
 #define IDC_O_CAGC                      1696
+#define IDC_EPGNAME                     1696
 #define IDC_O_COMB                      1697
 #define IDC_O_LUMA_DEC                  1698
 #define IDC_O_LUMA_PEAK                 1699
@@ -1251,6 +1252,11 @@
 #define IDM_SCAN_EPG                    32979
 #define IDM_LOAD_EPG                    32980
 #define IDM_DISPLAY_EPG                 32981
+#define IDM_DISPLAY_EPG_NOW             32982
+#define IDM_DISPLAY_EPG_EARLIER         32983
+#define IDM_DISPLAY_EPG_LATER           32984
+#define IDM_DISPLAY_EPG_NEXT            32985
+#define IDM_DISPLAY_EPG_PREV            32986
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
 #define IDM_POPUP_MODE                  65535
@@ -1271,7 +1277,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        267
-#define _APS_NEXT_COMMAND_VALUE         32982
+#define _APS_NEXT_COMMAND_VALUE         32987
 #define _APS_NEXT_CONTROL_VALUE         1000
 #define _APS_NEXT_SYMED_VALUE           2526
 #endif

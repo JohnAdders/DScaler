@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.107 2005-03-23 14:20:59 adcockj Exp $
+// $Id: ProgramList.cpp,v 1.108 2005-03-26 18:53:24 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.107  2005/03/23 14:20:59  adcockj
+// Test fix for threading issues
+//
 // Revision 1.106  2005/03/21 22:39:15  laurentg
 // EPG: changes regarding OSD
 //
@@ -451,6 +454,19 @@ const char* Channel_GetName()
 }
 
 
+const char* Channel_GetEPGName()
+{
+    if(CurrentProgram < MyChannels.GetSize())
+    {
+        return MyChannels.GetChannel(CurrentProgram)->GetEPGName();
+    }
+    else
+    {
+        return "Unknown";
+    }
+}
+
+
 eVideoFormat SelectedVideoFormat(HWND hDlg)
 {
     int Format = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_FORMAT)) - 1;
@@ -502,6 +518,7 @@ void UpdateDetails(HWND hDlg, const CChannel* const pChannel)
     if (NULL == pChannel)
     {
         Edit_SetText(GetDlgItem(hDlg, IDC_NAME), "");
+        Edit_SetText(GetDlgItem(hDlg, IDC_EPGNAME), "");
         Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY), "");
         ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_FORMAT), 0);
         ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_CHANNEL), 0);
@@ -510,8 +527,10 @@ void UpdateDetails(HWND hDlg, const CChannel* const pChannel)
     else 
     {
         // set the name     
-        LPCSTR Name = pChannel->GetName();
         Edit_SetText(GetDlgItem(hDlg, IDC_NAME), pChannel->GetName());
+
+        // set the EPG name     
+        Edit_SetText(GetDlgItem(hDlg, IDC_EPGNAME), pChannel->GetEPGName());
 
         // set the frequency
         SetFrequencyEditBox(hDlg, pChannel->GetFrequency());
@@ -537,7 +556,8 @@ void UpdateDetails(HWND hDlg, const CChannel* const pChannel)
 
 void UpdateDetails(HWND hDlg, int iCurrentProgramIndex)
 {    
-    if (iCurrentProgramIndex < MyChannels.GetSize())
+    if (   (iCurrentProgramIndex >= 0)
+		&& (iCurrentProgramIndex < MyChannels.GetSize()) )
     {
         UpdateDetails(hDlg, MyChannels.GetChannel(iCurrentProgramIndex));
     }
@@ -591,8 +611,11 @@ void RefreshProgramList(HWND hDlg, int ProgToSelect)
         index = 0;
     }
 
-    ListBox_SetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST), index);           
-    ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_FORMAT), index);  
+	if (index != -1)
+	{
+		ListBox_SetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST), index);           
+		ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_FORMAT), index);  
+	}
     UpdateDetails(hDlg, index); 
     CurrentProgram = index;        
     MyInUpdate = FALSE;
@@ -629,6 +652,7 @@ void ClearProgramList(HWND hDlg)
     MyChannels.Clear();
     ListBox_ResetContent(GetDlgItem(hDlg, IDC_PROGRAMLIST));
     Edit_SetText(GetDlgItem(hDlg, IDC_NAME), "");
+    Edit_SetText(GetDlgItem(hDlg, IDC_EPGNAME), "");
 }
 
 //Old RefreshControls (more generic, handles all situations according to current state)
@@ -1068,7 +1092,8 @@ int GetCurrentChannelNumber(HWND hDlg)
 void ChangeChannelInfo(HWND hDlg, int iCurrentProgramIndex)
 {
     MyInUpdate = TRUE;
-    char sbuf[265];
+    char sbuf[256];
+    char sbuf2[256];
 
     if(iCurrentProgramIndex < MyChannels.GetSize())
     {
@@ -1078,9 +1103,10 @@ void ChangeChannelInfo(HWND hDlg, int iCurrentProgramIndex)
         long Freq = (long)(dFreq * 1000000.0);
         int Channel = GetCurrentChannelNumber(hDlg);
         int Format = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_FORMAT)) - 1;        
-        Edit_GetText(GetDlgItem(hDlg, IDC_NAME), sbuf , 255);
+        Edit_GetText(GetDlgItem(hDlg, IDC_NAME), sbuf, 255);
+        Edit_GetText(GetDlgItem(hDlg, IDC_EPGNAME), sbuf2, 255);
         BOOL Active = (Button_GetCheck(GetDlgItem(hDlg, IDC_ACTIVE)) == BST_CHECKED);
-        MyChannels.SetChannel(iCurrentProgramIndex, new CChannel(sbuf, Freq, Channel, (eVideoFormat)Format, Active));
+        MyChannels.SetChannel(iCurrentProgramIndex, new CChannel(sbuf, sbuf2, Freq, Channel, (eVideoFormat)Format, Active));
         ListBox_DeleteString(GetDlgItem(hDlg, IDC_PROGRAMLIST), iCurrentProgramIndex);
         ListBox_InsertString(GetDlgItem(hDlg, IDC_PROGRAMLIST), iCurrentProgramIndex, sbuf);
         ListBox_SetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST), iCurrentProgramIndex);
@@ -1104,6 +1130,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
     int i;
     char sbuf[256];
+    char sbuf2[256];
     static eScanMode OldScanMode;
     static int OldCountryCode;
     static BOOL OldIsUsingAFC;
@@ -1428,6 +1455,14 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             }
             break;
 
+        case IDC_EPGNAME:
+            //(DB) Same comment as for IDC_NAME
+            if(HIWORD(wParam) == EN_CHANGE && MyInUpdate == FALSE)
+            {
+                ChangeChannelInfo(hDlg, CurrentProgram);
+            }
+            break;
+
         case IDC_ACTIVE:
             //(DB) Same comment as for IDC_NAME
             if(HIWORD(wParam) == BN_CLICKED && MyInUpdate == FALSE)
@@ -1459,9 +1494,10 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 
                 int Channel = GetCurrentChannelNumber(hDlg);
                 int Format = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_FORMAT)) - 1;
-                Edit_GetText(GetDlgItem(hDlg, IDC_NAME), sbuf , 255);
+                Edit_GetText(GetDlgItem(hDlg, IDC_NAME), sbuf, 255);
+                Edit_GetText(GetDlgItem(hDlg, IDC_EPGNAME), sbuf2, 255);
                 BOOL Active = (Button_GetCheck(GetDlgItem(hDlg, IDC_ACTIVE)) == BST_CHECKED);
-                MyChannels.AddChannel(sbuf, Freq, Channel, (eVideoFormat)Format, Active);
+                MyChannels.AddChannel(sbuf, sbuf2, Freq, Channel, (eVideoFormat)Format, Active);
                 CurrentProgram = ListBox_AddString(GetDlgItem(hDlg, IDC_PROGRAMLIST), sbuf);
                 ListBox_SetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST), CurrentProgram);
                 MyInUpdate = FALSE;
@@ -1578,7 +1614,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                     dummy.Empty();
                 }
                 WriteSettingsToIni(TRUE);
-				MyEPG.LoadEPGData();	// Reload EPG data
+				MyEPG.ReloadEPGData();	// Reload EPG data
                 EndDialog(hDlg, TRUE);
             }
             break;
@@ -1775,8 +1811,7 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
 
                 StatusBar_ShowText(STATUS_TEXT, MyChannels.GetChannel(CurrentProgram)->GetName());
 				OSD_ShowText(MyChannels.GetChannel(CurrentProgram)->GetName(), 0);
-				if (MyEPG.IsEPGAvailable())
-		            OSD_ShowInfosScreen(1, 0);
+				MyEPG.ShowOSD();
 				SetTrayTip(MyChannels.GetChannel(CurrentProgram)->GetName());
             }
         }
@@ -1825,8 +1860,7 @@ void Channel_Increment()
 
         StatusBar_ShowText(STATUS_TEXT, MyChannels.GetChannelName(CurrentProgram));
         OSD_ShowText(MyChannels.GetChannelName(CurrentProgram), 0);
-		if (MyEPG.IsEPGAvailable())
-			OSD_ShowInfosScreen(1, 0);
+		MyEPG.ShowOSD();
     }
     else
     {
@@ -1872,8 +1906,7 @@ void Channel_Decrement()
 
         StatusBar_ShowText(STATUS_TEXT, MyChannels.GetChannel(CurrentProgram)->GetName());
 		OSD_ShowText(MyChannels.GetChannel(CurrentProgram)->GetName(), 0);
-		if (MyEPG.IsEPGAvailable())
-			OSD_ShowInfosScreen(1, 0);
+		MyEPG.ShowOSD();
     }
     else
     {
@@ -1891,8 +1924,7 @@ void Channel_Previous()
 
         StatusBar_ShowText(STATUS_TEXT, MyChannels.GetChannel(CurrentProgram)->GetName());
 		OSD_ShowText(MyChannels.GetChannel(CurrentProgram)->GetName(), 0);
-		if (MyEPG.IsEPGAvailable())
-			OSD_ShowInfosScreen(1, 0);
+		MyEPG.ShowOSD();
     }
     else
     {
@@ -1935,8 +1967,7 @@ void Channel_ChangeToNumber(int ChannelNumber, int DontStorePrevious)
     {
         StatusBar_ShowText(STATUS_TEXT, MyChannels.GetChannel(CurrentProgram)->GetName());
 		OSD_ShowText(MyChannels.GetChannel(CurrentProgram)->GetName(), 0);
-		if (MyEPG.IsEPGAvailable())
-			OSD_ShowInfosScreen(1, 0);
+		MyEPG.ShowOSD();
     }
     else
     {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.h,v 1.3 2005-03-21 22:39:15 laurentg Exp $
+// $Id: EPG.h,v 1.4 2005-03-26 18:53:23 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2005/03/21 22:39:15  laurentg
+// EPG: changes regarding OSD
+//
 // Revision 1.2  2005/03/20 22:56:22  laurentg
 // New OSD screens added for EPG
 //
@@ -55,6 +58,9 @@ public:
 	// Get the program main data : start and end time + title
 	void GetProgramMainData(string &Start, string &End, string &Channel, string &Title);
 
+	// Get the program start and end times
+	void CProgram::GetProgramTimes(time_t *StartTime, time_t *EndTime);
+
 	// Dump the program main data : start and end time + channel + title
 	void DumpProgramMainData();
 
@@ -83,18 +89,25 @@ public:
 
 	// Load the DScaler EPG data for the programs between two dates
 	// If DateMin and DateMax are not set, load the EPG data for
-	// the interval [current time - 2 hours, current time + one day]
+	// the interval [current time - 2 hours, current time + 6 hours]
 	// TODO Rewrite LoadEPGData as soon as XML API will be used
 	int LoadEPGData(time_t DateMin=0, time_t DateMax=0);
+	int ReloadEPGData();
 
 	// Indicate if EPG programs are available
 	BOOL IsEPGAvailable();
 
 	// Get the EPG data of the first program matching time and channel
-	int GetEPGData(string &StartTime, string &EndTime, string &Title, LPCSTR Channel=NULL, time_t Date=0);
+	int GetEPGData(time_t *StartTime, time_t *EndTime, string &Title, LPCSTR Channel, time_t Date);
 
-	int SearchForPrograms(LPCSTR Channel=NULL, time_t DateMin=0, time_t DateMax=0);
-	int GetProgramData(int Index, string &StartTime, string &EndTime, string &Channel, string &Title);
+	void SetSearchContext(LPCSTR ChannelName, LPCSTR ChannelEPGName, time_t TimeMin, time_t TimeMax);
+	void GetSearchContext(LPCSTR *ChannelName, time_t *TimeMin, time_t *TimeMax);
+	int SearchForPrograms();
+	int GetProgramData(int Index, time_t *StartTime, string &StartTimeStr, time_t *EndTime, string &EndTimeStr, string &Channel, string &Title);
+
+	BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
+
+	void CEPG::ShowOSD();
 
 	// Dump the EPG data
 	void DumpEPGData();
@@ -125,6 +138,12 @@ private:
 	string		m_CMDExe;
 	string		m_FilesDir;
 	string		m_XMLTVExe;
+	LPCSTR		m_SearchName;
+	LPCSTR		m_SearchEPGName;
+	time_t		m_LoadedTimeMin;
+	time_t		m_LoadedTimeMax;
+	time_t		m_SearchTimeMin;
+	time_t		m_SearchTimeMax;
 };
 
 

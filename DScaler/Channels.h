@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Channels.h,v 1.7 2005-03-08 03:23:27 robmuller Exp $
+// $Id: Channels.h,v 1.8 2005-03-26 18:53:22 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2005/03/08 03:23:27  robmuller
+// Added CVS keywords.
+//
 //                                     
 /////////////////////////////////////////////////////////////////////////////
 
@@ -50,11 +53,13 @@ class CChannel
 {
 public:
     
+    CChannel(LPCSTR Name, LPCSTR EPGName, DWORD Freq, int ChannelNumber, eVideoFormat Format, BOOL Active = TRUE);
     CChannel(LPCSTR Name, DWORD Freq, int ChannelNumber, eVideoFormat Format, BOOL Active = TRUE);
     
     CChannel(const CChannel& CopyFrom);
     ~CChannel();
     LPCSTR GetName() const;
+    LPCSTR GetEPGName() const;
     DWORD GetFrequency() const;
     void SetFrequency(DWORD newFrequency);
     int GetChannelNumber() const;
@@ -63,6 +68,7 @@ public:
     void SetActive(BOOL Active);
 private:
     string m_Name;
+    string m_EPGName;
     DWORD m_Freq;
     int m_Chan;
     eVideoFormat m_Format;
@@ -117,7 +123,11 @@ public :
 
     BOOL AddChannel(LPCSTR szName, DWORD dwFreq, int iChannelNumber, eVideoFormat eFormat, BOOL bActive = TRUE); 
 
+    BOOL AddChannel(LPCSTR szName, LPCSTR szEPGName, DWORD dwFreq, int iChannelNumber, eVideoFormat eFormat, BOOL bActive = TRUE); 
+
     BOOL AddChannel(LPCSTR szName, DWORD dwFreq, eVideoFormat eFormat, BOOL bActive = TRUE); 
+
+    BOOL AddChannel(LPCSTR szName, LPCSTR szEPGName, DWORD dwFreq, eVideoFormat eFormat, BOOL bActive = TRUE); 
 
     //Generates a name for you as the channels are not named
     //in the channels.txt file (channels/country)
@@ -153,6 +163,8 @@ public :
     
     //Shortcuts..
     inline LPCSTR GetChannelName(int index) const {return GetChannel(index)->GetName();};
+
+    inline LPCSTR GetChannelEPGName(int index) const {return GetChannel(index)->GetEPGName();};
 
     inline BOOL GetChannelActive(int index) const {return GetChannel(index)->IsActive();};
 

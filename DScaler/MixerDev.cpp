@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.33 2002-10-08 20:17:48 laurentg Exp $
+// $Id: MixerDev.cpp,v 1.34 2002-10-18 03:33:00 flibuste2 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2002/10/08 20:17:48  laurentg
+// Calls to PreShowDialogOrMenu / PostShowDialogOrMenu added
+//
 // Revision 1.32  2002/10/07 22:30:31  kooiman
 // Fixed some mixer channel mute issues.
 //
@@ -834,19 +837,25 @@ CMixerLineSource* Mixer_GetInputLine(long nInput)
     return NULL;
 }
 
-void Mixer_Mute()
+
+CMixerLineSource* GetInputLine()
 {
-    //CMixerLineSource* CurLine = Mixer_GetInputLine(0);
+    CMixerLineSource* CurLine = NULL;
     int InputNr = -1;
     if (Providers_GetCurrentSource()) 
     { 
         InputNr = Providers_GetCurrentSource()->GetInput(VIDEOINPUT); 
     }    
-    if ((InputNr<0) || (InputNr>=6))
+    if ((InputNr >= 0) && (InputNr < 6))
     { 
-        return; 
+        CurLine = Mixer_GetInputLine(InputNr); 
     }
-    CMixerLineSource* CurLine = Mixer_GetInputLine(InputNr);
+    return CurLine;
+}
+
+void Mixer_Mute()
+{    
+    CMixerLineSource* CurLine = GetInputLine();
     if(CurLine != NULL)
     {
        CurLine->SetMute(TRUE);
@@ -854,36 +863,29 @@ void Mixer_Mute()
 }
 
 void Mixer_UnMute()
-{
-    int InputNr = -1;
-    if (Providers_GetCurrentSource()) 
-    { 
-        InputNr = Providers_GetCurrentSource()->GetInput(VIDEOINPUT); 
-    }    
-    if ((InputNr<0) || (InputNr>=6))
-    { 
-        return; 
-    }
-    CMixerLineSource* CurLine = Mixer_GetInputLine(InputNr);
+{   
+    CMixerLineSource* CurLine = GetInputLine();
         
     if(CurLine != NULL)
     {
-       CurLine->SetMute(FALSE);
+       CurLine->SetMute(FALSE);       
     }
 }
 
-void Mixer_Volume_Up()
+BOOL Mixer_IsMuted()
 {
-    int InputNr = -1;
-    if (Providers_GetCurrentSource()) 
-    { 
-        InputNr = Providers_GetCurrentSource()->GetInput(VIDEOINPUT); 
-    }    
-    if ((InputNr<0) || (InputNr>=6))
-    { 
-        return; 
+    BOOL muted = FALSE;    
+    CMixerLineSource* CurLine = GetInputLine();
+    if(CurLine != NULL)
+    {
+       muted = CurLine->GetMute();       
     }
-    CMixerLineSource* CurLine = Mixer_GetInputLine(InputNr);
+    return muted;
+}
+
+void Mixer_Volume_Up()
+{   
+    CMixerLineSource* CurLine = GetInputLine();
     
     if(CurLine != NULL)
     {
@@ -904,16 +906,7 @@ void Mixer_Volume_Up()
 
 void Mixer_Volume_Down()
 {
-    int InputNr = -1;
-    if (Providers_GetCurrentSource()) 
-    { 
-        InputNr = Providers_GetCurrentSource()->GetInput(VIDEOINPUT); 
-    }    
-    if ((InputNr<0) || (InputNr>=6))
-    { 
-        return; 
-    }
-    CMixerLineSource* CurLine = Mixer_GetInputLine(InputNr);
+    CMixerLineSource* CurLine = GetInputLine();
     
     if(CurLine != NULL)
     {        
@@ -933,17 +926,8 @@ void Mixer_Volume_Down()
 }
 
 long Mixer_GetVolume()
-{
-    int InputNr = -1;
-    if (Providers_GetCurrentSource()) 
-    { 
-        InputNr = Providers_GetCurrentSource()->GetInput(VIDEOINPUT); 
-    }
-    if ((InputNr<0) || (InputNr>=6))
-    { 
-        return 0 ;
-    }
-    CMixerLineSource* CurLine = Mixer_GetInputLine(InputNr);
+{   
+    CMixerLineSource* CurLine = GetInputLine();
     
     if(CurLine != NULL)
     {
@@ -957,17 +941,8 @@ long Mixer_GetVolume()
 
 
 void Mixer_SetVolume(long Volume)
-{
-    int InputNr = -1;
-    if (Providers_GetCurrentSource()) 
-    { 
-        InputNr = Providers_GetCurrentSource()->GetInput(VIDEOINPUT); 
-    }
-    if ((InputNr<0) || (InputNr>=6))
-    { 
-        return;
-    }
-    CMixerLineSource* CurLine = Mixer_GetInputLine(InputNr);
+{  
+    CMixerLineSource* CurLine = GetInputLine();
     
     if(CurLine != NULL)
     {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.24 2001-08-16 21:17:34 laurentg Exp $
+// $Id: OSD.cpp,v 1.25 2001-08-23 16:03:26 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2001/08/16 21:17:34  laurentg
+// Automatic calibration improved with a fine adjustment
+//
 // Revision 1.23  2001/08/15 17:50:11  laurentg
 // UseRGB ini parameter suppressed
 // OSD screen concerning card calibration fully modified
@@ -210,9 +213,14 @@ void OSD_Show(HWND hWnd, int ShowType, int refresh_delay)
     RECT        winRect;
     HDC         hDC;
 
-    if (bOverride) return;
+    if (bOverride)
+    {
+        return;
+    }
     if (ShowType == OSD_PERSISTENT)
+    {
         KillTimer(hWnd, OSD_TIMER_ID);
+    }
     KillTimer(hWnd, OSD_TIMER_REFRESH_ID);
     hDC = GetDC(hWnd);
     GetClientRect(hWnd,&winRect);
@@ -220,9 +228,13 @@ void OSD_Show(HWND hWnd, int ShowType, int refresh_delay)
     OSD_Redraw(hWnd, hDC);
     ReleaseDC(hWnd, hDC);
     if (ShowType == OSD_AUTOHIDE)
+    {
         SetTimer(hWnd, OSD_TIMER_ID, OSD_TIMER_DELAY, NULL);
+    }
     if (refresh_delay > 0)
+    {
         SetTimer(hWnd, OSD_TIMER_REFRESH_ID, refresh_delay, NULL);
+    }
     StatusBar_Repaint();
 }
 
@@ -230,14 +242,20 @@ void OSD_Show(HWND hWnd, int ShowType, int refresh_delay)
 // Display specified OSD text with autohide
 void OSD_ShowText(HWND hWnd, LPCTSTR szText, double Size)
 {
-    if (bOverride) return;
+    if (bOverride)
+    {
+        return;
+    }
+
     if (strlen(szText))
     {
         OSD_ClearAllTexts();
         OSD_AddText(szText, Size, 0, OSD_XPOS_RIGHT, 0.9, 0.1);
         OSD_Show(hWnd, OSD_AUTOHIDE, 0);
         if (bAutoHide)
+        {
             IdxCurrentScreen = -1;
+        }
         bRestoreScreen = (IdxCurrentScreen != -1);
     }
     else
@@ -259,7 +277,9 @@ void OSD_ShowTextPersistent(HWND hWnd, LPCTSTR szText, double Size)
         OSD_AddText(szText, Size, 0, OSD_XPOS_RIGHT, 0.9, 0.1);
         OSD_Show(hWnd, OSD_PERSISTENT, 0);
         if (bAutoHide)
+        {
             IdxCurrentScreen = -1;
+        }
         bRestoreScreen = (IdxCurrentScreen != -1);
     }
     else
@@ -278,7 +298,10 @@ void OSD_ShowTextOverride(HWND hWnd, LPCTSTR szText, double Size)
 {
     bOverride = FALSE;
     OSD_ShowText(hWnd, szText, Size);
-    if (strlen(szText)) bOverride = TRUE;
+    if (strlen(szText))
+    {
+        bOverride = TRUE;
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -334,123 +357,128 @@ void OSD_Redraw(HWND hWnd, HDC hDC)
 
         for (i = 0 ; i < NbText ; i++)
         {
+            // LG 02/25/2001 This line is no more needed
+            // if (grOSD[i].Size == 0) grOSD[i].Size = DefaultSizePerc;
 
-        // LG 02/25/2001 This line is no more needed
-        // if (grOSD[i].Size == 0) grOSD[i].Size = DefaultSizePerc;
+            nFontsize = (int)((double)nYWinSize * (grOSD[i].Size / 100.00));
 
-        nFontsize = (int)((double)nYWinSize * (grOSD[i].Size / 100.00));
+            // Set specified font
+            if(bAntiAlias)
+            {
+                dwQuality = ANTIALIASED_QUALITY;
+            }
 
-        // Set specified font
-        if(bAntiAlias)
-        {
-            dwQuality = ANTIALIASED_QUALITY;
-        }
-
-        strcpy(szCurrentFont, szFontName);
-        hOSDfont = CreateFont(nFontsize, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, dwQuality, DEFAULT_PITCH | FF_DONTCARE, szFontName);
-        if (!hOSDfont)
-        {
-            // Fallback to Arial
-            strcpy(szCurrentFont, "Arial");
-            hOSDfont = CreateFont(nFontsize, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, dwQuality, VARIABLE_PITCH | FF_SWISS, szCurrentFont);
+            strcpy(szCurrentFont, szFontName);
+            hOSDfont = CreateFont(nFontsize, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, dwQuality, DEFAULT_PITCH | FF_DONTCARE, szFontName);
             if (!hOSDfont)
             {
-                // Otherwise, fallback to any available font
-                strcpy(szCurrentFont, "");
+                // Fallback to Arial
+                strcpy(szCurrentFont, "Arial");
                 hOSDfont = CreateFont(nFontsize, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, dwQuality, VARIABLE_PITCH | FF_SWISS, szCurrentFont);
-            }
-        }
-        if (!hOSDfont) ErrorBox("Failed To Create OSD Font");
-        hOSDfontOutline = CreateFont(nFontsize, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NONANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, szCurrentFont);
-
-        if (!hOSDfontOutline) hOSDfontOutline = hOSDfont;
-
-        hTmp = (HFONT)SelectObject(hDC, hOSDfontOutline);
-        if (hTmp)
-        {
-            GetTextMetrics(hDC, &tmOSDFont);
-            GetTextExtentPoint32(hDC, grOSD[i].szText, strlen(grOSD[i].szText), &sizeText);
-
-            switch (grOSD[i].TextXPos)
-            {
-            case OSD_XPOS_RIGHT:
-                nXpos = (int)((double)nXWinSize * grOSD[i].XPos) - sizeText.cx;
-                break;
-            case OSD_XPOS_CENTER:
-                nXpos = (int)((double)nXWinSize * grOSD[i].XPos - (double)sizeText.cx / 2.0);
-                break;
-            case OSD_XPOS_LEFT:
-            default:
-                nXpos = (int)((double)nXWinSize * grOSD[i].XPos);
-                break;
-            }
-
-            nYpos = (int)((double)nYWinSize * grOSD[i].YPos);
-
-            // Draw the requested background for the text
-            switch(Background)
-            {
-            case OSDB_TRANSPARENT:
-                SetBkMode(hDC, TRANSPARENT);
-                SetBkColor(hDC, OutlineColor);
-                break;
-            
-            case OSDB_BLOCK:
-                SetBkMode(hDC, OPAQUE);
-                SetBkColor(hDC, OutlineColor);
-                break;
-            
-            case OSDB_SHADED:
+                if (!hOSDfont)
                 {
-                    HBRUSH hBrush;
-                    HBRUSH hBrushOld;
-                    HBITMAP hBM;
-                    WORD bBrushBits[8] = {0xAAAA, 0x5555, 0xAAAA, 0x5555, 0xAAAA, 0x5555, 0xAAAA, 0x5555, };
-                    SetBkMode(hDC, TRANSPARENT);
-                    SetTextColor(hDC, OutlineColor);
-                    SetBkColor(hDC, Overlay_GetColor());
-                    hBM = CreateBitmap(8, 8, 1, 1, (LPBYTE)bBrushBits); 
-                    hBrush = CreatePatternBrush(hBM); 
-                    hBrushOld = (HBRUSH)SelectObject(hDC, hBrush);
-                    if(bOutline)
-                    {
-                        PatBlt(hDC, nXpos - 2, nYpos - 2, sizeText.cx + 4, sizeText.cy + 4, PATCOPY);
-                    }
-                    else
-                    {
-                        PatBlt(hDC, nXpos, nYpos, sizeText.cx, sizeText.cy, PATCOPY);
-                    }
-                    SelectObject(hDC, hBrushOld);
-                    DeleteObject(hBrush);
-                    DeleteObject(hBM);
+                    // Otherwise, fallback to any available font
+                    strcpy(szCurrentFont, "");
+                    hOSDfont = CreateFont(nFontsize, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, dwQuality, VARIABLE_PITCH | FF_SWISS, szCurrentFont);
                 }
-                break;
-            default:
-                break;
+            }
+            if (!hOSDfont)
+            {
+                ErrorBox("Failed To Create OSD Font");
+            }
+            hOSDfontOutline = CreateFont(nFontsize, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NONANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, szCurrentFont);
+
+            if (!hOSDfontOutline)
+            {
+                hOSDfontOutline = hOSDfont;
             }
 
-            if(bOutline)
+            hTmp = (HFONT)SelectObject(hDC, hOSDfontOutline);
+            if (hTmp)
             {
-                // Draw OSD outline if required
-                SetTextColor(hDC, OutlineColor);
-                TextOut(hDC, nXpos - 2, nYpos, grOSD[i].szText, strlen(grOSD[i].szText));
-                TextOut(hDC, nXpos + 2, nYpos, grOSD[i].szText, strlen(grOSD[i].szText));
-                TextOut(hDC, nXpos, nYpos - 2, grOSD[i].szText, strlen(grOSD[i].szText));
-                TextOut(hDC, nXpos, nYpos + 2, grOSD[i].szText, strlen(grOSD[i].szText));
-                TextOut(hDC, nXpos - 1, nYpos - 1, grOSD[i].szText, strlen(grOSD[i].szText));
-                TextOut(hDC, nXpos + 1, nYpos - 1, grOSD[i].szText, strlen(grOSD[i].szText));
-                TextOut(hDC, nXpos - 1, nYpos + 1, grOSD[i].szText, strlen(grOSD[i].szText));
-                TextOut(hDC, nXpos + 1, nYpos + 1, grOSD[i].szText, strlen(grOSD[i].szText));
-            }
+                GetTextMetrics(hDC, &tmOSDFont);
+                GetTextExtentPoint32(hDC, grOSD[i].szText, strlen(grOSD[i].szText), &sizeText);
 
-            // Draw OSD text
-            if (SelectObject(hDC, hOSDfont))
-            {
-                SetTextColor(hDC, grOSD[i].TextColor);
-                SetBkColor(hDC, OutlineColor);
-                TextOut(hDC, nXpos, nYpos, grOSD[i].szText, strlen(grOSD[i].szText));
+                switch (grOSD[i].TextXPos)
+                {
+                case OSD_XPOS_RIGHT:
+                    nXpos = (int)((double)nXWinSize * grOSD[i].XPos) - sizeText.cx;
+                    break;
+                case OSD_XPOS_CENTER:
+                    nXpos = (int)((double)nXWinSize * grOSD[i].XPos - (double)sizeText.cx / 2.0);
+                    break;
+                case OSD_XPOS_LEFT:
+                default:
+                    nXpos = (int)((double)nXWinSize * grOSD[i].XPos);
+                    break;
+                }
 
-                {   // MRS 2-23-01 Calculate rectnagle for the entire OSD 
+                nYpos = (int)((double)nYWinSize * grOSD[i].YPos);
+
+                // Draw the requested background for the text
+                switch(Background)
+                {
+                case OSDB_TRANSPARENT:
+                    SetBkMode(hDC, TRANSPARENT);
+                    SetBkColor(hDC, OutlineColor);
+                    break;
+            
+                case OSDB_BLOCK:
+                    SetBkMode(hDC, OPAQUE);
+                    SetBkColor(hDC, OutlineColor);
+                    break;
+            
+                case OSDB_SHADED:
+                    {
+                        HBRUSH hBrush;
+                        HBRUSH hBrushOld;
+                        HBITMAP hBM;
+                        WORD bBrushBits[8] = {0xAAAA, 0x5555, 0xAAAA, 0x5555, 0xAAAA, 0x5555, 0xAAAA, 0x5555, };
+                        SetBkMode(hDC, TRANSPARENT);
+                        SetTextColor(hDC, OutlineColor);
+                        SetBkColor(hDC, Overlay_GetColor());
+                        hBM = CreateBitmap(8, 8, 1, 1, (LPBYTE)bBrushBits); 
+                        hBrush = CreatePatternBrush(hBM); 
+                        hBrushOld = (HBRUSH)SelectObject(hDC, hBrush);
+                        if(bOutline)
+                        {
+                            PatBlt(hDC, nXpos - 2, nYpos - 2, sizeText.cx + 4, sizeText.cy + 4, PATCOPY);
+                        }
+                        else
+                        {
+                            PatBlt(hDC, nXpos, nYpos, sizeText.cx, sizeText.cy, PATCOPY);
+                        }
+                        SelectObject(hDC, hBrushOld);
+                        DeleteObject(hBrush);
+                        DeleteObject(hBM);
+                    }
+                    break;
+                default:
+                    break;
+                }
+
+                if(bOutline)
+                {
+                    // Draw OSD outline if required
+                    SetTextColor(hDC, OutlineColor);
+                    TextOut(hDC, nXpos - 2, nYpos, grOSD[i].szText, strlen(grOSD[i].szText));
+                    TextOut(hDC, nXpos + 2, nYpos, grOSD[i].szText, strlen(grOSD[i].szText));
+                    TextOut(hDC, nXpos, nYpos - 2, grOSD[i].szText, strlen(grOSD[i].szText));
+                    TextOut(hDC, nXpos, nYpos + 2, grOSD[i].szText, strlen(grOSD[i].szText));
+                    TextOut(hDC, nXpos - 1, nYpos - 1, grOSD[i].szText, strlen(grOSD[i].szText));
+                    TextOut(hDC, nXpos + 1, nYpos - 1, grOSD[i].szText, strlen(grOSD[i].szText));
+                    TextOut(hDC, nXpos - 1, nYpos + 1, grOSD[i].szText, strlen(grOSD[i].szText));
+                    TextOut(hDC, nXpos + 1, nYpos + 1, grOSD[i].szText, strlen(grOSD[i].szText));
+                }
+
+                // Draw OSD text
+                if (SelectObject(hDC, hOSDfont))
+                {
+                    SetTextColor(hDC, grOSD[i].TextColor);
+                    SetBkColor(hDC, OutlineColor);
+                    TextOut(hDC, nXpos, nYpos, grOSD[i].szText, strlen(grOSD[i].szText));
+
+                    // MRS 2-23-01 Calculate rectnagle for the entire OSD 
                     // so we do not invalidate the entire window to remove it.
                     SIZE sz;
                     GetTextExtentExPoint(hDC, grOSD[i].szText, strlen(grOSD[i].szText), 
@@ -460,12 +488,10 @@ void OSD_Redraw(HWND hWnd, HDC hDC)
                     grOSD[i].CurrentRect.top = nYpos-4; if (grOSD[i].CurrentRect.top < 0) grOSD[i].CurrentRect.top = 0;
                     grOSD[i].CurrentRect.bottom = nYpos + sz.cy + 4;
                 }
-            }
 
-            SelectObject(hDC, hTmp);
-            DeleteObject(hOSDfont);
-            DeleteObject(hOSDfontOutline);
-
+                SelectObject(hDC, hTmp);
+                DeleteObject(hOSDfont);
+                DeleteObject(hOSDfontOutline);
             }           
         }
     }
@@ -525,9 +551,14 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
 
     // Case : no OSD screen
     if (IdxCurrentScreen == -1)
+    {
         return;
+    }
 
-    if (Size == 0)    Size = DefaultSmallSizePerc;
+    if (Size == 0)
+    {
+        Size = DefaultSmallSizePerc;
+    }
 
     OSD_ClearAllTexts();
 
@@ -635,9 +666,13 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
 
         // Display ratio
         if (Setting_GetValue(Aspect_GetSetting(TARGET_ASPECT)) == 0)
+        {
             strcpy(szInfo, "Display ratio from current resolution");
+        }
         else
+        {
             sprintf(szInfo, "Display %.2f:1", (double)Setting_GetValue(Aspect_GetSetting(TARGET_ASPECT)) / 1000.0);
+        }
         OSD_AddText(szInfo, Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
         // Video settings
@@ -1108,10 +1143,16 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
         break;
     }
 
-    if (ActiveScreens[IdxCurrentScreen].lock) bOverride = FALSE;
+    if (ActiveScreens[IdxCurrentScreen].lock)
+    {
+        bOverride = FALSE;
+    }
     OSD_Show(hWnd, ShowType, ActiveScreens[IdxCurrentScreen].refresh_delay);
     bRestoreScreen = FALSE;
-    if (ActiveScreens[IdxCurrentScreen].lock) bOverride = TRUE;
+    if (ActiveScreens[IdxCurrentScreen].lock)
+    {
+        bOverride = TRUE;
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -1124,7 +1165,10 @@ void OSD_ShowNextInfosScreen(HWND hWnd, double Size)
     int     PrevIdxScreen;
     int     i;
 
-    if (bOverride) return;
+    if (bOverride)
+    {    
+        return;
+    }
 
     // determine which screen to display
     NbScreens = sizeof (ActiveScreens) / sizeof (ActiveScreens[0]);
@@ -1136,7 +1180,9 @@ void OSD_ShowNextInfosScreen(HWND hWnd, double Size)
         if (ActiveScreens[i].active && !ActiveScreens[i].managed_by_app)
         {
             if (IdxCurrentScreen == -1)
+            {
                 IdxCurrentScreen = i;
+            }
         }
     }
     // Case : no screen to display
@@ -1144,7 +1190,9 @@ void OSD_ShowNextInfosScreen(HWND hWnd, double Size)
     {
         // If there was a screen displayed
         if (PrevIdxScreen != -1)
+        {
             OSD_Clear(hWnd);
+        }
         return;
     }
 
@@ -1192,7 +1240,9 @@ void OSD_ActivateInfosScreen(HWND hWnd, int IdxScreen, double Size)
     {
         ActiveScreens[IdxScreen].active = ! ActiveScreens[IdxScreen].active;
         if (IdxScreen == IdxCurrentScreen)
+        {
             OSD_Clear(hWnd);
+        }
     }
 }
 
@@ -1201,27 +1251,30 @@ void OSD_UpdateMenu(HMENU hMenu)
     HMENU           hMenuOSD1;
     HMENU           hMenuOSD2;
     MENUITEMINFO    MenuItemInfo;
-    int             i, j;
+    int             i;
     int             NbScreens;
 
     hMenuOSD1 = GetOSDSubmenu1();
     hMenuOSD2 = GetOSDSubmenu2();
-    if ((hMenuOSD1 == NULL) || (hMenuOSD2 == NULL)) return;
+    if ((hMenuOSD1 == NULL) || (hMenuOSD2 == NULL))
+    {
+        return;
+    }
 
-    i = GetMenuItemCount(hMenuOSD1) - 1;
-    while (i>=2)
+    i = GetMenuItemCount(hMenuOSD1);
+    while (i)
     {
         RemoveMenu(hMenuOSD1, i, MF_BYPOSITION);
         i--;
     }
-    i = GetMenuItemCount(hMenuOSD2) - 1;
-    while (i>=2)
+    i = GetMenuItemCount(hMenuOSD2);
+    while (i)
     {
         RemoveMenu(hMenuOSD2, i, MF_BYPOSITION);
         i--;
     }
     NbScreens = sizeof (ActiveScreens) / sizeof (ActiveScreens[0]);
-    for (i=0,j=2 ; i<NbScreens ; i++)
+    for (i=0; i < NbScreens ; i++)
     {
         if ((strlen (ActiveScreens[i].name) > 0) && !ActiveScreens[i].managed_by_app)
         {
@@ -1232,14 +1285,12 @@ void OSD_UpdateMenu(HMENU hMenu)
 
             MenuItemInfo.fMask = MIIM_TYPE | MIIM_ID;
             MenuItemInfo.wID = IDM_OSDSCREEN_SHOW + i + 1;
-            InsertMenuItem(hMenuOSD1, j, TRUE, &MenuItemInfo);
+            InsertMenuItem(hMenuOSD1, i, TRUE, &MenuItemInfo);
 
             MenuItemInfo.fMask = MIIM_TYPE | MIIM_ID | MIIM_STATE;
             MenuItemInfo.wID = IDM_OSDSCREEN_ACTIVATE + i + 1;
             MenuItemInfo.fState = ActiveScreens[i].active ? MFS_CHECKED : MFS_ENABLED;
-            InsertMenuItem(hMenuOSD2, j, TRUE, &MenuItemInfo);
-
-            j++;
+            InsertMenuItem(hMenuOSD2, i, TRUE, &MenuItemInfo);
         }
     }
 }
@@ -1248,23 +1299,23 @@ void OSD_SetMenu(HMENU hMenu)
 {
     HMENU   hMenuOSD1;
     HMENU   hMenuOSD2;
-    int     i, j;
-    int     NbItems;
+    int     i;
     int     NbScreens;
 
     hMenuOSD1 = GetOSDSubmenu1();
     hMenuOSD2 = GetOSDSubmenu2();
-    if ((hMenuOSD1 == NULL) || (hMenuOSD2 == NULL)) return;
+    if ((hMenuOSD1 == NULL) || (hMenuOSD2 == NULL))
+    {
+        return;
+    }
 
-    NbItems = GetMenuItemCount(hMenuOSD2);
     NbScreens = sizeof (ActiveScreens) / sizeof (ActiveScreens[0]);
-    for (i=0,j=2 ; (j<NbItems) && (i<NbScreens) ; i++)
+    for (i=0 ; i<NbScreens ; i++)
     {
         if ((strlen (ActiveScreens[i].name) > 0) && !ActiveScreens[i].managed_by_app)
         {
-            EnableMenuItem(hMenuOSD1, i+2, ActiveScreens[i].active ? MF_BYPOSITION | MF_ENABLED : MF_BYPOSITION | MF_GRAYED);
-            CheckMenuItem(hMenuOSD2, i+2, ActiveScreens[i].active ? MF_BYPOSITION | MF_CHECKED : MF_BYPOSITION | MF_UNCHECKED);
-            j++;
+            EnableMenuItem(hMenuOSD1, i, ActiveScreens[i].active ? MF_BYPOSITION | MF_ENABLED : MF_BYPOSITION | MF_GRAYED);
+            CheckMenuItem(hMenuOSD2, i, ActiveScreens[i].active ? MF_BYPOSITION | MF_CHECKED : MF_BYPOSITION | MF_UNCHECKED);
         }
     }
 }

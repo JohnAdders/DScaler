@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.62 2001-08-21 09:39:46 adcockj Exp $
+// $Id: DScaler.cpp,v 1.63 2001-08-23 16:03:26 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.62  2001/08/21 09:39:46  adcockj
+// Added Greek teletext Codepage
+//
 // Revision 1.61  2001/08/16 21:17:34  laurentg
 // Automatic calibration improved with a fine adjustment
 //
@@ -1520,26 +1523,6 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             Other_ShowUI();
             break;
 
-        case IDM_GAMMA_SETTINGS:
-            Filter_ShowUI("Gamma");
-            break;
-
-        case IDM_NOISE_SETTINGS:
-            Filter_ShowUI("Noise");
-            break;
-
-        case IDM_LOGOKILL_SETTINGS:
-            Filter_ShowUI("Logo Killer");
-            break;
-
-        case IDM_LINCORR_SETTINGS:
-            Filter_ShowUI("Linear Correction");
-            break;
-
-        case IDM_SHARPNESS_SETTINGS:
-            Filter_ShowUI("Sharpness");
-            break;
-
         case IDM_ASPECT_SETTINGS:
             Aspect_ShowUI();
             break;
@@ -2333,15 +2316,93 @@ void SetMenuAnalog()
     }
 }
 
+HMENU GetOrCreateSubSubMenu(int SubId, int SubSubId, LPCSTR szMenuText)
+{
+    if(hMenu != NULL)
+    {
+        HMENU hSubMenu = GetSubMenu(hMenu, SubId);
+        if(hSubMenu != NULL)
+        {
+            HMENU hSubSubMenu = GetSubMenu(hSubMenu, SubSubId);
+            if(hSubSubMenu != NULL)
+            {
+                return hSubSubMenu;
+            }
+            else
+            {
+                if(ModifyMenu(hSubMenu, SubSubId, MF_STRING | MF_BYPOSITION | MF_POPUP, (UINT)CreatePopupMenu(), szMenuText))
+                {
+                    return GetSubMenu(hSubMenu, SubSubId);
+                }
+                else
+                {
+                    return NULL;
+                }
+            }
+        }
+        else
+        {
+            return NULL;
+        }
+    }
+    else
+    {
+        return NULL;
+    }
+}
+
+HMENU GetOrCreateSubSubSubMenu(int SubId, int SubSubId, int SubSubSubId, LPCSTR szMenuText)
+{
+    if(hMenu != NULL)
+    {
+        HMENU hSubMenu = GetSubMenu(hMenu, SubId);
+        if(hSubMenu != NULL)
+        {
+            HMENU hSubSubMenu = GetSubMenu(hSubMenu, SubSubId);
+            if(hSubSubMenu != NULL)
+            {
+                HMENU hSubSubSubMenu = GetSubMenu(hSubSubMenu, SubSubSubId);
+                if(hSubSubSubMenu != NULL)
+                {
+                    return hSubSubSubMenu;
+                }
+                else
+                {
+                    if(ModifyMenu(hSubSubMenu, SubSubSubId, MF_STRING | MF_BYPOSITION | MF_POPUP, (UINT)CreatePopupMenu(), szMenuText))
+                    {
+                        return GetSubMenu(hSubSubMenu, SubSubSubId);
+                    }
+                    else
+                    {
+                        return NULL;
+                    }
+                }
+            }
+            else
+            {
+                return NULL;
+            }
+        }
+        else
+        {
+            return NULL;
+        }
+    }
+    else
+    {
+        return NULL;
+    }
+}
+
+
 HMENU GetFiltersSubmenu()
 {
-    HMENU hSubMenu;
+    return GetOrCreateSubSubMenu(4, 6, "Select &Filters");
+}
 
-    if(hMenu == NULL) return NULL;
-    hSubMenu = GetSubMenu(hMenu, 4);
-    if(hSubMenu == NULL) return NULL;
-    hSubMenu = GetSubMenu(hSubMenu, 6);
-    return hSubMenu;
+HMENU GetFilterSettingsSubmenu()
+{
+    return GetOrCreateSubSubMenu(4, 6, "Filter &Settings");
 }
 
 HMENU GetVideoDeinterlaceSubmenu()
@@ -2357,50 +2418,22 @@ HMENU GetVideoDeinterlaceSubmenu()
 
 HMENU GetChannelsSubmenu()
 {
-    HMENU hSubMenu;
-
-    if(hMenu == NULL) return NULL;
-    hSubMenu = GetSubMenu(hMenu, 1);
-    if(hSubMenu == NULL) return NULL;
-    hSubMenu = GetSubMenu(hSubMenu, 1);
-    return hSubMenu;
+    return GetOrCreateSubSubMenu(1, 1, "&Channel Select");
 }
 
 HMENU GetOSDSubmenu1()
 {
-    HMENU hSubMenu;
-
-    if(hMenu == NULL) return NULL;
-    hSubMenu = GetSubMenu(hMenu, 2);
-    if(hSubMenu == NULL) return NULL;
-    hSubMenu = GetSubMenu(hSubMenu, 7);
-    if(hSubMenu == NULL) return NULL;
-    hSubMenu = GetSubMenu(hSubMenu, 2);
-    return hSubMenu;
+    return GetOrCreateSubSubSubMenu(2, 7, 2, "&Show Screen");
 }
 
 HMENU GetOSDSubmenu2()
 {
-    HMENU hSubMenu;
-
-    if(hMenu == NULL) return NULL;
-    hSubMenu = GetSubMenu(hMenu, 2);
-    if(hSubMenu == NULL) return NULL;
-    hSubMenu = GetSubMenu(hSubMenu, 7);
-    if(hSubMenu == NULL) return NULL;
-    hSubMenu = GetSubMenu(hSubMenu, 3);
-    return hSubMenu;
+    return GetOrCreateSubSubSubMenu(2, 7, 3, "A&ctivate Screen");
 }
 
 HMENU GetPatternsSubmenu()
 {
-    HMENU hSubMenu;
-
-    if(hMenu == NULL) return NULL;
-    hSubMenu = GetSubMenu(hMenu, 5);
-    if(hSubMenu == NULL) return NULL;
-    hSubMenu = GetSubMenu(hSubMenu, 6);
-    return hSubMenu;
+    return GetOrCreateSubSubMenu(4, 5, "Test &Pattern Select");
 }
 
 //---------------------------------------------------------------------------

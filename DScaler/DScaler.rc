@@ -319,7 +319,7 @@ END
 IDD_ABOUT DIALOGEX 22, 17, 374, 274
 STYLE DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
 CAPTION "About DScaler"
-FONT 8, "MS Sans Serif", 0, 0, 0x1
+FONT 8, "MS Sans Serif"
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,305,9,58,19,WS_GROUP,WS_EX_CLIENTEDGE
     CTEXT           "DScaler Version 3.x",IDC_VERSION,0,3,293,9
@@ -344,8 +344,8 @@ BEGIN
     GROUPBOX        "Support",IDC_STATIC,192,37,180,100
     LTEXT           "The best place to get support for DScaler is the Home Theater Computers foum at the AV Science Forums.",
                     IDC_STATIC,200,47,166,27
-    LTEXT           "Eric Schmidt\nMuljadi Budiman\n",IDC_STATIC,103,52,74,
-                    81
+    LTEXT           "Eric Schmidt\nMuljadi Budiman\nLindsey Dubb",IDC_STATIC,
+                    103,52,74,81
     LTEXT           "Please read the FAQ and the appropriate release thread for the version you are using before posting",
                     IDC_STATIC,200,104,166,26
     CTEXT           "http://www.avsforum.com/",IDC_LINK,201,78,162,12,
@@ -570,12 +570,7 @@ BEGIN
     POPUP "&Channels"
     BEGIN
         MENUITEM "Channel &Setup\tHome",        IDM_CHANNEL_LIST
-        POPUP "&Channel Select"
-        BEGIN
-            MENUITEM "___Channels___",              IDM_CHANNEL_SELECT
-            , GRAYED
-            MENUITEM SEPARATOR
-        END
+        MENUITEM "&Channel Select",             65535
         MENUITEM SEPARATOR
         MENUITEM "&Next Channel\tPgUp",         IDM_CHANNELPLUS
         MENUITEM "&Previous Channel\tPgDn",     IDM_CHANNELMINUS
@@ -594,18 +589,8 @@ BEGIN
         BEGIN
             MENUITEM "Show &Next\tEnter",           IDM_SHOW_OSD
             MENUITEM "&Hide\tBackspace",            IDM_HIDE_OSD
-            POPUP "&Show Screen"
-            BEGIN
-                MENUITEM "___Screens___",               IDM_OSDSCREEN_SHOW
-                , GRAYED
-                MENUITEM SEPARATOR
-            END
-            POPUP "A&ctivate Screens"
-            BEGIN
-                MENUITEM "___Screens___",               IDM_OSDSCREEN_ACTIVATE
-                , GRAYED
-                MENUITEM SEPARATOR
-            END
+            MENUITEM "&Show Screen",                65535
+            MENUITEM "A&ctivate Screens",           65535
             MENUITEM "&Autohide",                   IDM_AUTOHIDE_OSD
             , CHECKED
         END
@@ -776,11 +761,8 @@ BEGIN
             MENUITEM "Custom",                      ID_SETTINGS_PIXELWIDTH_CUSTOM
 
         END
-        POPUP "&Filters"
-        BEGIN
-            MENUITEM "___Filters___",               ID_SETTINGS_FILTERS_FILTERS
-            , GRAYED
-        END
+        MENUITEM "Select &Filters",             65535
+        MENUITEM "Filter Settings",             65535
     END
     POPUP "Hard&ware"
     BEGIN
@@ -826,12 +808,7 @@ BEGIN
         MENUITEM "Reset Capture Card",          IDM_RESET
         MENUITEM "Audio-Mi&xer Setup",          IDM_AUDIO_MIXER
         MENUITEM SEPARATOR
-        POPUP "Test &Pattern Select"
-        BEGIN
-            MENUITEM "___Test Patterns___",         IDM_PATTERN_SELECT
-            , GRAYED
-            MENUITEM SEPARATOR
-        END
+        MENUITEM "Test &Pattern Select",        65535
         POPUP "St&art Card Calibration"
         BEGIN
             MENUITEM "&Manual",                     IDM_START_MANUAL_CALIBRATION
@@ -906,11 +883,6 @@ BEGIN
             MENUITEM "3:2 Pulldown Detection",      IDM_32PULLDOWN_SETTINGS
             MENUITEM "Pulldown Shared",             IDM_PULLDOWNCOMMON_SETTINGS
 
-            MENUITEM "Gamma Filter",                IDM_GAMMA_SETTINGS
-            MENUITEM "Noise Filter",                IDM_NOISE_SETTINGS
-            MENUITEM "Logo Killer Filter",          IDM_LOGOKILL_SETTINGS
-            MENUITEM "Sharpness Filter",            IDM_SHARPNESS_SETTINGS
-            MENUITEM "Linear Correction Filter",    IDM_LINCORR_SETTINGS
             MENUITEM "Logging",                     IDM_DEBUG_SETTINGS
             MENUITEM "BT848 Chip",                  IDM_BT848_SETTINGS
             MENUITEM "Aspect Ratio",                IDM_ASPECT_SETTINGS

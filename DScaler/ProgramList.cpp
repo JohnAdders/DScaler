@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.31 2001-08-08 08:47:26 adcockj Exp $
+// $Id: ProgramList.cpp,v 1.32 2001-08-23 16:03:26 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2001/08/08 08:47:26  adcockj
+// Stopped resetting program list when not in US mode
+//
 // Revision 1.30  2001/08/06 03:00:17  ericschmidt
 // solidified auto-pixel-width detection
 // preliminary pausing-of-live-tv work
@@ -985,14 +988,14 @@ void Channels_UpdateMenu(HMENU hMenu)
     hMenuChannels = GetChannelsSubmenu();
     if(hMenuChannels == NULL) return;
 
-    j = GetMenuItemCount(hMenuChannels) - 1;
-    while (j>=2)
+    j = GetMenuItemCount(hMenuChannels);
+    while (j)
     {
-        RemoveMenu(hMenuChannels, j, MF_BYPOSITION);
         --j;
+        RemoveMenu(hMenuChannels, j, MF_BYPOSITION);
     }
     
-    j = 2;
+    j = 0;
     for (it = MyChannels.begin(); it != MyChannels.end(); ++it)
     {
         if ((*it)->GetFrequency() != 0)
@@ -1002,11 +1005,11 @@ void Channels_UpdateMenu(HMENU hMenu)
             MenuItemInfo.fType = MFT_STRING;
             MenuItemInfo.dwTypeData = (LPSTR) (*it)->GetName();
             MenuItemInfo.cch = strlen ((*it)->GetName());
-            MenuItemInfo.fState = (CurrentProgramm == j - 2) ? MFS_CHECKED : MFS_ENABLED;
-            MenuItemInfo.wID = IDM_CHANNEL_SELECT + j - 1;
+            MenuItemInfo.fState = (CurrentProgramm == j) ? MFS_CHECKED : MFS_ENABLED;
+            MenuItemInfo.wID = IDM_CHANNEL_SELECT + j;
             InsertMenuItem(hMenuChannels, j, TRUE, &MenuItemInfo);
-            j++;
         }
+        j++;
     }
 }
 
@@ -1240,23 +1243,19 @@ void Load_Country_Settings()
 
 void Channels_SetMenu(HMENU hMenu)
 {
-    HMENU   hMenuChannels;
-    int     i;
-    int     nb;
-
-    hMenuChannels = GetChannelsSubmenu();
+    HMENU hMenuChannels(GetChannelsSubmenu());
     if(hMenuChannels == NULL) return;
 
-    nb = GetMenuItemCount(hMenuChannels) - 2;
-    i = nb + 1;
-    while (i>=2)
+    for (int i(0); i < GetMenuItemCount(hMenuChannels); ++i)
     {
-        CheckMenuItem(hMenuChannels, i, MF_BYPOSITION | MF_UNCHECKED);
-        i--;
-    }
-    if (CurrentProgramm < nb)
-    {
-        CheckMenuItem(hMenuChannels, CurrentProgramm + 2, MF_BYPOSITION | MF_CHECKED);
+        if (CurrentProgramm == i)
+        {
+            CheckMenuItem(hMenuChannels, i, MF_BYPOSITION | MF_CHECKED);
+        }
+        else
+        {
+            CheckMenuItem(hMenuChannels, i, MF_BYPOSITION | MF_UNCHECKED);
+        }
     }
 }
 ////////////////////////////////////////////////////////////////////////////

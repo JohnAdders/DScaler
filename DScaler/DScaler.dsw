@@ -293,6 +293,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name FLT_Sharpness
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name FLT_TemporalComb
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -346,6 +349,18 @@ Package=<4>
 ###############################################################################
 
 Project: "FLT_TNoise"=..\Plugins\FLT_TNoise\FLT_TNoise.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "FLT_TemporalComb"=..\Plugins\FLT_TemporalComb\FLT_TemporalComb.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -433,6 +448,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name FLT_Sharpness
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name FLT_TemporalComb
     End Project Dependency
 }}}
 

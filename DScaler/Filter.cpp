@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Filter.cpp,v 1.9 2001-08-02 16:43:05 adcockj Exp $
+// $Id: Filter.cpp,v 1.10 2001-08-23 16:03:26 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2001/08/02 16:43:05  adcockj
+// Added Debug level to LOG function
+//
 // Revision 1.8  2001/07/16 18:07:50  adcockj
 // Added Optimisation parameter to ini file saving
 //
@@ -140,20 +143,21 @@ void UnloadFilterPlugins()
     NumFilters = 0;
 }
 
-void AddUIForFilterPlugin(HMENU hMenu, FILTER_METHOD* FilterMethod)
+void AddUIForFilterPlugin(HMENU hFilterMenu, HMENU hSettingMenu, FILTER_METHOD* FilterMethod, int MenuId)
 {
-    static MenuId = 7000;
     if(FilterMethod->MenuId == 0)
     {
-        FilterMethod->MenuId = MenuId++;
+        FilterMethod->MenuId = MenuId;
     }
     if(FilterMethod->szMenuName != NULL)
     {
-        AppendMenu(hMenu, MF_STRING | MF_ENABLED, FilterMethod->MenuId, FilterMethod->szMenuName);
+        AppendMenu(hFilterMenu, MF_STRING | MF_ENABLED, FilterMethod->MenuId, FilterMethod->szMenuName);
+        AppendMenu(hSettingMenu, MF_STRING | MF_ENABLED, MenuId + 100, FilterMethod->szMenuName);
     }
     else
     {
-        AppendMenu(hMenu, MF_STRING | MF_ENABLED, FilterMethod->MenuId, FilterMethod->szName);
+        AppendMenu(hFilterMenu, MF_STRING | MF_ENABLED, FilterMethod->MenuId, FilterMethod->szName);
+        AppendMenu(hSettingMenu, MF_STRING | MF_ENABLED, MenuId + 100, FilterMethod->szName);
     }
 }
 
@@ -162,7 +166,6 @@ BOOL LoadFilterPlugins()
     WIN32_FIND_DATA FindFileData;
     HANDLE hFindFile;
     int i;
-    HMENU hMenu;
 
     hFindFile = FindFirstFile("FLT_*.dll", &FindFileData);
 
@@ -185,12 +188,16 @@ BOOL LoadFilterPlugins()
 
     if(NumFilters > 0)
     {
-        hMenu = GetFiltersSubmenu();
-        if(hMenu == NULL) return FALSE;
+        HMENU hFilterMenu = GetFiltersSubmenu();
+        HMENU hSettingMenu = GetFilterSettingsSubmenu();
+        if(hFilterMenu == NULL || hSettingMenu == NULL)
+        {
+            return FALSE;
+        }
 
         for(i = 0; i < NumFilters; i++)
         {
-            AddUIForFilterPlugin(hMenu, Filters[i]);
+            AddUIForFilterPlugin(hFilterMenu, hSettingMenu, Filters[i], 7000 + i);
         }
         return TRUE;
     }
@@ -220,6 +227,11 @@ BOOL ProcessFilterSelection(HWND hWnd, WORD wMenuID)
             OSD_ShowText(hWnd, szText, 0);
             return TRUE;
         }
+    }
+    i = wMenuID - 7100;
+    if(i >= 0 && i < NumFilters)
+    {
+        CSettingsDlg::ShowSettingsDlg(Filters[i]->szName, Filters[i]->pSettings, Filters[i]->nSettings);
     }
     return FALSE;
 }
@@ -316,16 +328,5 @@ void Filter_SetMenu(HMENU hMenu)
     for(i = 0; i < NumFilters; i++)
     {
         CheckMenuItemBool(hMenu, Filters[i]->MenuId, Filters[i]->bActive);
-    }
-}
-
-void Filter_ShowUI(LPCSTR SearchText)
-{
-    for(int i(0); i < NumFilters; i++)
-    {
-        if(strstr(Filters[i]->szName, SearchText) != NULL)
-        {
-            CSettingsDlg::ShowSettingsDlg(Filters[i]->szName, Filters[i]->pSettings, Filters[i]->nSettings);
-        }
     }
 }

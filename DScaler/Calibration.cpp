@@ -584,20 +584,20 @@ void CCalibration::UpdateMenu(HMENU hMenu)
 {
     HMENU           hMenuPatterns;
     MENUITEMINFO    MenuItemInfo;
-    int             i, j;
+    int             i;
 	char			*name;
 
     hMenuPatterns = GetPatternsSubmenu();
     if (hMenuPatterns == NULL) return;
 
-    i = GetMenuItemCount(hMenuPatterns) - 1;
-    while (i>=2)
+    i = GetMenuItemCount(hMenuPatterns);
+    while (i)
     {
-        RemoveMenu(hMenuPatterns, i, MF_BYPOSITION);
         i--;
+        RemoveMenu(hMenuPatterns, i, MF_BYPOSITION);
     }
 
-	for (i=0,j=2 ; i < MAX_TEST_PATTERNS ; i++)
+	for (i=0; i < MAX_TEST_PATTERNS ; i++)
 	{
 		if (test_patterns[i] != NULL)
         {
@@ -611,9 +611,7 @@ void CCalibration::UpdateMenu(HMENU hMenu)
 
 	            MenuItemInfo.fMask = MIIM_TYPE | MIIM_ID;
 		        MenuItemInfo.wID = IDM_PATTERN_SELECT + i + 1;
-			    InsertMenuItem(hMenuPatterns, j, TRUE, &MenuItemInfo);
-
-				j++;
+			    InsertMenuItem(hMenuPatterns, i, TRUE, &MenuItemInfo);
 			}
         }
     }
@@ -622,8 +620,7 @@ void CCalibration::UpdateMenu(HMENU hMenu)
 void CCalibration::SetMenu(HMENU hMenu)
 {
     HMENU   hMenuPatterns;
-    int     i, j;
-    int     NbItems;
+    int     i;
 	char	*name;
 
     if ((current_test_pattern != NULL) && (current_test_pattern->GetVideoFormat() != Setting_GetValue(BT848_GetSetting(TVFORMAT))))
@@ -634,24 +631,21 @@ void CCalibration::SetMenu(HMENU hMenu)
     hMenuPatterns = GetPatternsSubmenu();
     if (hMenuPatterns == NULL) return;
 
-    NbItems = GetMenuItemCount(hMenuPatterns);
-    for (i=0,j=2 ; (j<NbItems) && (i<MAX_TEST_PATTERNS) ; i++)
+    for (i=0; i < MAX_TEST_PATTERNS ; i++)
     {
 		if (test_patterns[i] != NULL)
         {
 			name = test_patterns[i]->GetName();
 			if (strlen (name) > 0)
 			{
-				EnableMenuItem(hMenuPatterns, j, running ? MF_BYPOSITION | MF_GRAYED : MF_BYPOSITION | MF_ENABLED);
-				EnableMenuItem(hMenuPatterns, j, (running || (test_patterns[i]->GetVideoFormat() != Setting_GetValue(BT848_GetSetting(TVFORMAT)))) ? MF_BYPOSITION | MF_GRAYED : MF_BYPOSITION | MF_ENABLED);
-				CheckMenuItem(hMenuPatterns, j, (current_test_pattern == test_patterns[i]) ? MF_BYPOSITION | MF_CHECKED : MF_BYPOSITION | MF_UNCHECKED);
-				j++;
+				EnableMenuItem(hMenuPatterns, i, running ? MF_BYPOSITION | MF_GRAYED : MF_BYPOSITION | MF_ENABLED);
+				EnableMenuItem(hMenuPatterns, i, (running || (test_patterns[i]->GetVideoFormat() != Setting_GetValue(BT848_GetSetting(TVFORMAT)))) ? MF_BYPOSITION | MF_GRAYED : MF_BYPOSITION | MF_ENABLED);
+				CheckMenuItem(hMenuPatterns, i, (current_test_pattern == test_patterns[i]) ? MF_BYPOSITION | MF_CHECKED : MF_BYPOSITION | MF_UNCHECKED);
 			}
         }
     }
 	
 	EnableMenuItem(hMenu, IDM_START_MANUAL_CALIBRATION, (running || (current_test_pattern == NULL)) ? MF_GRAYED : MF_ENABLED);
-//	EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION, (running || (current_test_pattern == NULL) || ((current_test_pattern->GetType() != PAT_GRAY_AND_COLOR) && (current_test_pattern->GetType() != PAT_COLOR))) ? MF_GRAYED : MF_ENABLED);
 	EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION, MF_GRAYED);
 	EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION2, (running || (current_test_pattern == NULL) || ((current_test_pattern->GetType() != PAT_GRAY_AND_COLOR) && (current_test_pattern->GetType() != PAT_RANGE_OF_GRAY))) ? MF_GRAYED : MF_ENABLED);
 	EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION3, (running || (current_test_pattern == NULL) || ((current_test_pattern->GetType() != PAT_GRAY_AND_COLOR) && (current_test_pattern->GetType() != PAT_COLOR))) ? MF_GRAYED : MF_ENABLED);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.8 2001-07-27 16:11:32 adcockj Exp $
+// $Id: DScaler.h,v 1.9 2001-08-23 16:03:26 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -66,12 +66,13 @@ void Overlay_Start(HWND hWnd);
 void ShowText(HWND hWnd, LPCTSTR szText);
 BOOL IsStatusBarVisible();
 
-extern HMENU GetFiltersSubmenu();
-extern HMENU GetVideoDeinterlaceSubmenu();
-extern HMENU GetChannelsSubmenu();
-extern HMENU GetOSDSubmenu1();
-extern HMENU GetOSDSubmenu2();
-extern HMENU GetPatternsSubmenu();
+HMENU GetFiltersSubmenu();
+HMENU GetFilterSettingsSubmenu();
+HMENU GetVideoDeinterlaceSubmenu();
+HMENU GetChannelsSubmenu();
+HMENU GetOSDSubmenu1();
+HMENU GetOSDSubmenu2();
+HMENU GetPatternsSubmenu();
 
 #define TIMER_STATUS        1
 #define TIMER_STATUS_MS     2000

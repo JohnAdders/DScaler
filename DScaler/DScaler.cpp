@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.356 2003-10-27 16:22:56 adcockj Exp $
+// $Id: DScaler.cpp,v 1.357 2003-11-11 21:26:44 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.356  2003/10/27 16:22:56  adcockj
+// Added preliminary support for PMS PDI Deluxe card
+//
 // Revision 1.355  2003/10/27 10:39:51  adcockj
 // Updated files for better doxygen compatability
 //
@@ -1141,8 +1144,10 @@
 #include "PaintingHDC.h"
 #include "OutReso.h"
 #include "MultiFrames.h"
-#include "dshowsource/DSSourceBase.h"
 
+#ifdef WANT_DSHOW_SUPPORT
+#include "dshowsource/DSSourceBase.h"
+#endif
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -4456,11 +4461,13 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 		case TIMER_TOOLBAR:
             if (IsToolBarVisible() && (Providers_GetCurrentSource() != NULL))
             {
+#ifdef WANT_DSHOW_SUPPORT
 				if (Providers_GetCurrentSource()->HasMediaControl())
 				{
 					EventCollector->RaiseEvent(NULL, EVENT_DURATION, -1, ((CDSSourceBase*)Providers_GetCurrentSource())->GetDuration());
 					EventCollector->RaiseEvent(NULL, EVENT_CURRENT_POSITION, -1, ((CDSSourceBase*)Providers_GetCurrentSource())->GetCurrentPos());
 				}
+#endif
 				if (Mixer_IsEnabled())
 				{
 					long val = Mixer_GetVolume();

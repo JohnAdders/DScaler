@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: debug.cpp,v 1.4 2003-08-10 12:12:45 tobbej Exp $
+// $Id: debug.cpp,v 1.5 2003-11-11 21:26:43 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2003/08/10 12:12:45  tobbej
+// some smal changes to debug output
+//
 // Revision 1.3  2003/03/05 21:44:22  tobbej
 // new debuging functions
 //
@@ -42,10 +45,11 @@
  */
 
 #include "stdafx.h"
+#ifdef WANT_DSHOW_SUPPORT
+
 #include "debug.h"
 #include "pinenum.h"
 #include <dvdmedia.h>
-#ifdef WANT_DSHOW_SUPPORT
 
 #ifdef _DEBUG
 

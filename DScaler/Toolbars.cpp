@@ -1,5 +1,5 @@
 //
-// $Id: Toolbars.cpp,v 1.24 2003-10-27 10:39:54 adcockj Exp $
+// $Id: Toolbars.cpp,v 1.25 2003-11-11 21:26:44 robmuller Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2003/10/27 10:39:54  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.23  2003/09/07 11:05:14  laurentg
 // Elapsed time slider and skin
 //
@@ -122,8 +125,10 @@
 #include "AspectRatio.h"
 #include "DebugLog.h"
 #include "DScalerVersion.h"
-#include "dshowsource/DSSourceBase.h"
 
+#ifdef WANT_DSHOW_SUPPORT
+#include "dshowsource/DSSourceBase.h"
+#endif
 
 
 #ifdef _DEBUG
@@ -931,6 +936,7 @@ LRESULT CToolbarMediaPlayer::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wP
         ::EndPaint(hDlg, &ps);
         return TRUE;
         break;    
+#ifdef WANT_DSHOW_SUPPORT
     case WM_HSCROLL:
         if((HWND)lParam == GetDlgItem(hDlg, IDC_TOOLBAR_MEDIAPLAYER_TIMESLIDER))
         {
@@ -985,7 +991,8 @@ LRESULT CToolbarMediaPlayer::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wP
 			SetFocus(m_pToolbar->GethWndParent());
 			return TRUE;
         }
-        break;         
+        break;        
+#endif
      case WM_COMMAND:
         switch (LOWORD(wParam))
         {

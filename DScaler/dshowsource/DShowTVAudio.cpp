@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DShowTVAudio.cpp,v 1.1 2003-01-15 20:55:46 tobbej Exp $
+// $Id: DShowTVAudio.cpp,v 1.2 2003-11-11 21:26:43 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2003/01/15 20:55:46  tobbej
+// added audio channel selection menu
+//
 /////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -25,6 +28,9 @@
  */
 
 #include "stdafx.h"
+
+#ifdef WANT_DSHOW_SUPPORT
+
 #include "DShowTVAudio.h"
 #include "exception.h"
 
@@ -76,3 +82,5 @@ TVAudioMode CDShowTVAudio::GetMode()
 	}
 	return mode;
 }
+
+#endif

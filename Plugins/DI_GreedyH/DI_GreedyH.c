@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_GreedyH.c,v 1.10 2001-08-19 06:26:38 trbarry Exp $
+// $Id: DI_GreedyH.c,v 1.11 2001-08-21 09:39:12 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -36,6 +36,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2001/08/19 06:26:38  trbarry
+// Remove Greedy HM Low Motion Only option and files
+//
+// No longer needed
+//
 // Revision 1.9  2001/08/17 16:18:35  trbarry
 // Minor GreedyH performance Enh.
 // Only do pulldown calc when needed.
@@ -787,16 +792,3 @@ BOOL GetCheckDScalerInfo(DEINTERLACE_INFO *info)
     return TRUE;
 //>>>>    return (FieldHeight < FSMAXROWS);
 }
-
-#define IS_SSE 1
-#include "DI_GreedyL.asm"
-#undef IS_SSE
-
-#define IS_3DNOW 1
-#include "DI_GreedyL.asm"
-#undef IS_3DNOW
-
-#define IS_MMX 1
-#include "DI_GreedyL.asm"
-#undef IS_MMX
-

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.102 2003-10-27 10:39:52 adcockj Exp $
+// $Id: ProgramList.cpp,v 1.103 2004-01-05 13:12:24 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.102  2003/10/27 10:39:52  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.101  2003/03/21 22:48:07  laurentg
 // Preview mode (multiple frames) improved
 //
@@ -726,6 +729,8 @@ DWORD FindFrequency(DWORD Freq, int Format, DWORD dwAFCFrequencyDeviationThresho
         // so 120ms seems to be a safe value.
     case TUNER_MT2032:
     case TUNER_MT2032_PAL:
+	case TUNER_MT2050:
+	case TUNER_MT2050_PAL:
         MaxTuneDelay = 120;
         break;
     default:

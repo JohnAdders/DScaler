@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.h,v 1.19 2003-10-27 10:39:51 adcockj Exp $
+// $Id: CX2388xCard.h,v 1.20 2004-01-05 13:12:24 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -271,6 +271,7 @@ private:
 	void InitH3D();
 	void H3DInputSelect(int nInput);
     void MSIInputSelect(int nInput);
+    void MSIPalInputSelect(int nInput);
     void PlayHDInputSelect(int nInput);
     void PlayHDStopCapture();
     void AsusInputSelect(int nInput);

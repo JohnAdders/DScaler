@@ -1,10 +1,10 @@
 //
-// $Id: MT2050.cpp,v 1.1 2003-12-18 15:57:41 adcockj Exp $
+// $Id: MT2050.cpp,v 1.2 2004-01-05 13:12:24 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
-// copyright 2003 Ralph Metzler, Gerd Knorr, Gunther Mayer
-// Code adapted from video4linux tuner.c by John Adcock
+// copyright 2003 MIDIMaker midimaker@yandex.ru
+//  portions based on MT2032 by itt@myself.com
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -23,6 +23,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2003/12/18 15:57:41  adcockj
+// Added MT2050 tuner type support (untested)
+//
 /////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -36,14 +39,15 @@
 
 CMT2050::CMT2050(eVideoFormat DefaultVideoFormat) :
     m_Initialized(false),
-    m_Frequency (0)      
+    m_Frequency (0),
+    m_Locked(false)      
 {
     m_DefaultVideoFormat = DefaultVideoFormat;    
 }
 
 BYTE CMT2050::GetDefaultAddress() const
 {
-    return 0xC0>>1;
+    return 0xC2>>1;
 }
     
 eTunerId CMT2050::GetTunerId()
@@ -90,6 +94,8 @@ WORD CMT2050::GetVendor()
 
 void CMT2050::Initialize()
 {
+    int             SRO, xok = 0;
+
     if (m_ExternalIFDemodulator != NULL)
     {
         m_ExternalIFDemodulator->Init(TRUE, m_DefaultVideoFormat);
@@ -105,16 +111,23 @@ void CMT2050::Initialize()
                     rdbuf[0x11],rdbuf[0x12],rdbuf[0x13],rdbuf[0x14]);
     }
 
-    
-
     /* Initialize Registers per spec. */
-    //  power
+	SetRegister(1, 0x2F);
+    SetRegister(2, 0x25);
+    SetRegister(3, 0xC1);
+    SetRegister(4, 0x00);
+	SetRegister(5, 0x63);
     SetRegister(6, 0x10);
-    // m1lo
-    SetRegister(0x0f, 0x0f);
+    SetRegister(10, 0x85);
+    SetRegister(13, 0x28);
+    SetRegister(15, 0x0F);
+    SetRegister(16, 0x24);
 
-    BYTE Sro = GetRegister(0x0d);
-    LOG(2,"MT2050: SRO = %02x\n", Sro);
+	SRO = GetRegister(13);
+	if ((SRO & 0x40) != 0)
+	{
+		LOG(1, "MT2050: SRO Crystal problem - tuner will not function!");
+	}
 
     if (m_ExternalIFDemodulator != NULL)
     {
@@ -124,74 +137,167 @@ void CMT2050::Initialize()
     m_Initialized = true;
 }
 
-int CMT2050::ComputeFreq(
-                            int             rfin,
-                            int             if2,
-                            unsigned char   *buf
-                        )   /* all in Hz */
+int CMT2050::SpurCheck(int flos1, int flos2, int fifbw, int fout)
 {
-	unsigned int if1=1218*1000*1000;
-	unsigned int f_lo1,f_lo2,lo1,lo2,f_lo1_modulo,f_lo2_modulo,num1,num2,div1a,div1b,div2a,div2b;
-	
-	f_lo1=rfin+if1;
-	f_lo1=(f_lo1/1000000)*1000000;
-	
-	f_lo2=f_lo1-rfin-if2;
-	f_lo2=(f_lo2/50000)*50000;
-	
-	lo1=f_lo1/4000000;
-	lo2=f_lo2/4000000;
-	
-	f_lo1_modulo= f_lo1-(lo1*4000000);
-	f_lo2_modulo= f_lo2-(lo2*4000000);
-	
-	num1=4*f_lo1_modulo/4000000;
-	num2=4096*(f_lo2_modulo/1000)/4000;
-	
-	// todo spurchecks
-	
-    div1a=(lo1/12)-1;
-	div1b=lo1-(div1a+1)*12;
-	
-	div2a=(lo2/8)-1;
-	div2b=lo2-(div2a+1)*8;
-	
-	buf[0]= 4*div1b + num1;
-	if(rfin<275*1000*1000)
-    {
-        buf[0] = buf[0]|0x80;
-    }
-	
-	buf[1]=div1a;
-	buf[2]=32*div2b + num2/256;
-	buf[3]=num2-(num2/256)*256;
-	buf[4]=div2a;
-	if(num2!=0)
-    {
-        buf[4]=buf[4]|0x40;
-    }
-    return 0;	
+    int n1 = 1, n2, f, nmax = 11;
+	long Band;
 
+    flos1 = flos1 / 1000;     /* scale to kHz to avoid 32bit overflows */
+    flos2 = flos2 / 1000;
+    fifbw /= 1000;
+    fout /= 1000;
+
+	Band = fout + fifbw / 2;
+
+	do {
+		n2 = -n1;
+		f = n1 * (flos1 - flos2);
+		do {
+			n2--;
+			f = f - flos2;
+			if (abs((abs(f) - fout)) < (fifbw >> 1))
+			{
+				return 1;
+			}
+		} while ((f > (flos2 - fout - (fifbw >> 1))) && (n2 > -nmax));
+		n1++;
+	} while (n1 < nmax);
+
+    return 0;
 }
 
-void CMT2050::SetIFFreq(int rfin, int if2, eVideoFormat videoFormat)
+void CMT2050::SetIFFreq(int rfin, int if1, int if2, eVideoFormat videoFormat)
 {
     unsigned char   buf[5];
-    int             ret;
 
-    ret = ComputeFreq(rfin, if2, &buf[0]);
-    if (ret < 0)
+	long flo1, flo2;
+//3.1 Calculate LO frequencies
+	flo1 = rfin + if1;
+	flo1 = flo1 / 1000000;
+	flo1 = flo1 * 1000000;
+	flo2 = flo1 - rfin - if2;
+//3.2 Avoid spurs
+	int n = 0;
+	long flos1, flos2, fifbw, fif1_bw;
+	long ftest;
+	char SpurInBand;
+	flos1 = flo1;
+	flos2 = flo2;
+	fif1_bw = 16000000;
+    if (IsNTSCVideoFormat(videoFormat))
     {
-        return;
+		fifbw = 6750000;
     }
+    else
+    {   /* PAL */
+		fifbw = 8750000;
+    }
+
+	do {
+		if ((n & 1) == 0)
+		{
+			flos1 = flos1 - 1000000 * n;
+			flos2 = flos2 - 1000000 * n;
+		}
+		else
+		{
+			flos1 = flos1 + 1000000 * n;
+			flos2 = flos2 + 1000000 * n;
+		}
+//check we are still in bandwidth
+		ftest = abs(flos1 - rfin - if1 + (fifbw >> 1));
+		if (ftest > (fif1_bw >> 1))
+		{
+			flos1 = flo1;
+			flos2 = flo2;
+			LOG(1, "No spur");
+			break;
+		}
+		n++;
+		SpurInBand = SpurCheck(flos1, flos2, fifbw, if2);
+	} while(SpurInBand != 0);
+
+	flo1 = flos1;
+	flo2 = flos2;
+//3.3 Calculate LO registers
+	long LO1I, LO2I, flo1step, flo2step;
+	long flo1rem, flo2rem, flo1tune, flo2tune;
+	int num1, num2, Denom1, Denom2;
+	int div1a, div1b, div2a, div2b;
+
+	flo1step = 1000000;
+	flo2step = 50000;
+	LO1I = floor(flo1 / 4000000.0);
+	LO2I = floor(flo2 / 4000000.0);
+	flo1rem = flo1 % 4000000;
+	flo2rem = flo2 % 4000000;
+	flo1tune = flo1step * floor((flo1rem + flo1step / 2.0) / flo1step);
+	flo2tune = flo2step * floor((flo2rem + flo2step / 2.0) / flo2step);
+	Denom1 = 4;
+	Denom2 = 4095;
+	num1 = floor(flo1tune / (4000000.0 / Denom1) + 0.5);
+	num2 = floor(flo2tune / (4000000.0 / Denom2) + 0.5);
+	if (num1 >= Denom1)
+	{
+		num1 = 0;
+		LO1I++;
+	}
+	if (num2 >= Denom2)
+	{
+		num2 = 0;
+		LO2I++;
+	}
+	div1a = floor(LO1I / 12) - 1;
+	div1b = LO1I % 12;
+	div2a = floor(LO2I / 8) - 1;
+	div2b = LO2I % 8;
+//3.4 Writing registers
+	if (rfin < 277000000)
+	{
+		buf[0] = 128 + 4 * div1b + num1;
+	}
+	else
+	{
+		buf [0] = 4 * div1b + num1;
+	}
+	buf [1] = div1a;
+	buf [2] = 32 * div2b + floor(num2 / 256.0);
+	buf [3] = num2 % 256;
+	if (num2 == 0)
+	{
+		buf [4] = div2a;
+	}
+	else
+	{
+		buf [4] = 64 + div2a;
+	}
 
     if (m_ExternalIFDemodulator != NULL)
     {
         m_ExternalIFDemodulator->TunerSet(TRUE, videoFormat);
     }
 
-    /* send only the relevant registers per Rev. 1.2 */
-    WriteToSubAddress(1, buf, 5);
+    SetRegister(1, buf[0x00]);
+    SetRegister(2, buf[0x01]);
+    SetRegister(3, buf[0x02]);
+    SetRegister(4, buf[0x03]);
+    SetRegister(5, buf[0x04]);
+
+//3.5 Allow LO to lock
+	m_Locked = false;
+	Sleep(50);
+	int nlock = 0, Status;
+	do {
+		Status = GetRegister(7);
+		Status &= 0x88;
+		if (Status == 0x88)
+		{
+			m_Locked = true;
+			break;
+		}
+		Sleep(2);
+		nlock++;
+	} while(nlock < 100);
 
     if (m_ExternalIFDemodulator != NULL)
     {
@@ -214,18 +320,18 @@ bool CMT2050::SetTVFrequency(long frequency, eVideoFormat videoFormat)
     }
     else
     {   /* PAL */
-        if2 = 38900 * 1000;
+		if2 = 38900 * 1000;
     }
 
     m_Frequency = frequency;
 
-    SetIFFreq(frequency, if2, videoFormat);
+    SetIFFreq(frequency, 1220 * 1000 * 1000, if2, videoFormat);
     return true;
 }
 
 bool CMT2050::SetRadioFrequency(long nFrequency)
 {
-    return false;
+	return false;
 }
 
 long CMT2050::GetFrequency()
@@ -245,5 +351,6 @@ eTunerAFCStatus CMT2050::GetAFCStatus(long &nFreqDeviation)
     {
         AFCStatus = m_ExternalIFDemodulator->GetAFCStatus(nFreqDeviation);
     }
+
     return AFCStatus;
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.44 2003-12-18 15:57:41 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.45 2004-01-05 13:12:24 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.44  2003/12/18 15:57:41  adcockj
+// Added MT2050 tuner type support (untested)
+//
 // Revision 1.43  2003/10/27 10:39:51  adcockj
 // Updated files for better doxygen compatability
 //
@@ -1862,14 +1865,25 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
                 
     // Scan the I2C bus addresses 0xC0 - 0xCF for tuners
     BOOL bFoundTuner = FALSE;
-    
+
     int kk = strlen(m_TunerType);
-    for (BYTE test = 0xC0; test < 0xCF; test +=2)
+	BYTE StartAddress;
+    //there check what this is not TV@nywhere Master, which have TEA5767 at 0xC0
+	if (m_CardType != CX2388xCARD_MSI_TV_ANYWHERE_MASTER_PAL)
+	{
+		StartAddress = 0xC0;
+	}
+	else
+	{
+		StartAddress = 0xC2;
+	}
+
+    for (BYTE test = StartAddress; test < 0xCF; test +=2)
     {
         if (m_I2CBus->Write(&test, sizeof(test)))
         {
             m_Tuner->Attach(m_I2CBus, test>>1);
-            sprintf(m_TunerType + kk, "@ I2C address 0x%02X", test);
+            sprintf(m_TunerType + kk, " at I2C address 0x%02x", test);
             bFoundTuner = TRUE;
             LOG(1,"Tuner: Found at I2C address 0x%02x",test);
             break;

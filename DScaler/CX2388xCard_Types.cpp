@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Types.cpp,v 1.14 2003-12-17 08:28:57 adcockj Exp $
+// $Id: CX2388xCard_Types.cpp,v 1.15 2004-01-05 13:12:24 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2003/12/17 08:28:57  adcockj
+// Added Leadtek Winfast Expert (Thanks to Tom Zoerner)
+//
 // Revision 1.13  2003/10/27 10:39:51  adcockj
 // Updated files for better doxygen compatability
 //
@@ -373,7 +376,7 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
         },
         NULL,
         NULL,
-        MSIInputSelect,
+        MSIPalInputSelect,
         SetAnalogContrastBrightness,
         SetAnalogHue,
         SetAnalogSaturationU,
@@ -544,6 +547,42 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
         TUNER_PHILIPS_FM1216ME_MK3,
         IDC_CX2388X,
     },
+    {
+        "MSI TV@nywhere Master",
+        4,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                0,
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                1,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                2,
+            },
+            {
+                "Composite Over S-Video",
+                INPUTTYPE_COMPOSITE,
+                2,
+            },
+        },
+        NULL,
+        NULL,
+        MSIInputSelect,
+        SetAnalogContrastBrightness,
+        SetAnalogHue,
+        SetAnalogSaturationU,
+        SetAnalogSaturationV,
+        StandardSetFormat,
+        TUNER_MT2050_PAL,
+        IDC_CX2388X,
+    },
 };
 
 const CCX2388xCard::TAutoDectect CCX2388xCard::m_AutoDectect[] =
@@ -554,6 +593,7 @@ const CCX2388xCard::TAutoDectect CCX2388xCard::m_AutoDectect[] =
     { 0x48201043, CX2388xCARD_ASUS, "Asus 880" },
     { 0x34010070, CX2388xCARD_HAUPPAUGE_PCI_FM, "Hauppauge WinTV PCI-FM" },
     { 0x6611107D, CX2388xCARD_LEADTEK_WINFAST_EXPERT, "Leadtek WinFast TV2000 XP Expert" },
+    { 0x86061462, CX2388xCARD_MSI_TV_ANYWHERE_MASTER_PAL, "MSI TV@nywhere Master"},
     { 0, (eCX2388xCardId)-1, NULL }
 };
 
@@ -677,23 +717,43 @@ HMENU CCX2388xCard::GetCardSpecificMenu()
 void CCX2388xCard::MSIInputSelect(int nInput)
 {
     StandardInputSelect(nInput);
-    if(nInput == 0)
-    {
-        // GPIO pins set according to values supplied by
-        // Ryan Griffin - Stegink
-        WriteDword(MO_GP0_IO, 0x000000ff);
-        WriteDword(MO_GP1_IO, 0x00008040);
-        WriteDword(MO_GP2_IO, 0x0000fc1f); 
-        WriteDword(MO_GP3_IO, 0x00000000); 
-    }
-    else
-    {
-        // Turn off anything audio if we're not the tuner
-        WriteDword(MO_GP0_IO, 0x00000000);
-        WriteDword(MO_GP1_IO, 0x00008000);
-        WriteDword(MO_GP2_IO, 0x0000ff80); 
-        WriteDword(MO_GP3_IO, 0x00000000); 
-    }
+	if(nInput == 0)
+	{
+		// GPIO pins set according to values supplied by
+		// Ryan Griffin - Stegink
+		WriteDword(MO_GP0_IO, 0x000000ff);
+		WriteDword(MO_GP1_IO, 0x00008040);
+		WriteDword(MO_GP2_IO, 0x0000fc1f); 
+		WriteDword(MO_GP3_IO, 0x00000000); 
+	}
+	else
+	{
+		// Turn off anything audio if we're not the tuner
+		WriteDword(MO_GP0_IO, 0x00000000);
+		WriteDword(MO_GP1_IO, 0x00008000);
+		WriteDword(MO_GP2_IO, 0x0000ff80); 
+		WriteDword(MO_GP3_IO, 0x00000000); 
+	}
+}
+
+void CCX2388xCard::MSIPalInputSelect(int nInput)
+{
+    StandardInputSelect(nInput);
+	if(nInput == 0)
+	{
+		WriteDword(MO_GP0_IO, 0x000040bf);
+		WriteDword(MO_GP1_IO, 0x000080c0);
+		WriteDword(MO_GP2_IO, 0x0000ff40); 
+		WriteDword(MO_GP3_IO, 0x00000000); 
+	}
+	else
+	{
+		// Turn off anything audio if we're not the tuner
+		WriteDword(MO_GP0_IO, 0x000040bf);
+		WriteDword(MO_GP1_IO, 0x000080c0);
+		WriteDword(MO_GP2_IO, 0x0000ff20); 
+		WriteDword(MO_GP3_IO, 0x00000000); 
+	}
 }
 
 void CCX2388xCard::PlayHDInputSelect(int nInput)

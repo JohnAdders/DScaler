@@ -1,9 +1,6 @@
-//
-// $Id: MT2050.h,v 1.1 2003-12-18 15:57:41 adcockj Exp $
-//
 /////////////////////////////////////////////////////////////////////////////
 //
-// copyleft 2001 itt@myself.com
+// MIDIMaker midimaker@yandex.ru
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,13 +17,7 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA
 //
 /////////////////////////////////////////////////////////////////////////////
-//
-// $Log: not supported by cvs2svn $
 /////////////////////////////////////////////////////////////////////////////
-
-/**
- * @file MT2050.h MT2050 Header
- */
 
 #if !defined(__MT2050_H__)
 #define __MT2050_H__
@@ -66,8 +57,8 @@ private:
     void Initialize();
     BYTE GetRegister(BYTE reg);
     void SetRegister(BYTE reg, BYTE value);
-    int ComputeFreq(int rfin, int if2, unsigned char *buf);
-    void SetIFFreq(int rfin, int if2, eVideoFormat videoFormat);
+    int SpurCheck(int flos1, int flos2, int fifbw, int fout);
+    void SetIFFreq(int rfin, int if1, int if2, eVideoFormat videoFormat);
 
     void PrepareTDA9887(bool bPrepare, eVideoFormat videoFormat);
     void PrepareVoodooTV(bool bPrepare, eVideoFormat videoFormat);
@@ -76,6 +67,7 @@ private:
     bool m_Initialized;
     eVideoFormat m_DefaultVideoFormat;
     long m_Frequency;
+    bool m_Locked;
 };
 
 #endif // !defined(__MT2050_H__)

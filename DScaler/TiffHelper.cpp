@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TiffHelper.cpp,v 1.24 2002-05-27 22:24:27 laurentg Exp $
+// $Id: TiffHelper.cpp,v 1.25 2002-06-21 23:14:19 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2002/05/27 22:24:27  laurentg
+// When taking a still using a TIFF (RGB colorspace), overlay values are first normalized before the conversion in RGB
+//
 // Revision 1.23  2002/05/10 20:34:38  laurentg
 // Formula for conversion RGB <=> YCbCr updated
 //
@@ -173,6 +176,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
 {
     int y1, y2, cr, cb, r, g, b, i, j;
     BYTE* pFrameBuf;
+    BYTE* pStartFrame;
     BYTE* pDestBuf;
     TIFF* tif;
     uint32 w, h, w2;
@@ -239,7 +243,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
 
     // Allocate memory buffer to store the YUYV values
     LinePitch = (w2 * 2 * sizeof(BYTE) + 15) & 0xfffffff0;
-    pFrameBuf = (BYTE*)DumbAlignedMalloc(LinePitch * h);
+    pFrameBuf = MallocStillBuf(LinePitch * h, &pStartFrame);
     if (pFrameBuf == NULL)
     {
         TIFFClose(tif);
@@ -250,7 +254,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
     {
         if (!TIFFGetField(tif, TIFFTAG_STRIPBYTECOUNTS, &bc))
         {
-            DumbAlignedFree(pFrameBuf);
+            free(pFrameBuf);
             TIFFClose(tif);
             return FALSE;
         }
@@ -259,7 +263,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
         bufYCbCr = (uint8*) _TIFFmalloc(npixels * 2 * sizeof (uint8));
         if (bufYCbCr == NULL)
         {
-            DumbAlignedFree(pFrameBuf);
+            free(pFrameBuf);
             TIFFClose(tif);
             return FALSE;
         }
@@ -270,7 +274,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
             StripSize = bc[Strip];
             if (TIFFReadRawStrip(tif, Strip, pSrcBuf, StripSize) != StripSize)
             {
-                DumbAlignedFree(pFrameBuf);
+                free(pFrameBuf);
                 _TIFFfree(bufYCbCr);
                 TIFFClose(tif);
                 return FALSE;
@@ -281,7 +285,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
         // YYUV => YUYV
         for (i = 0 ; i < h ; i++)
         {
-            pDestBuf = pFrameBuf + i * LinePitch;
+            pDestBuf = pStartFrame + i * LinePitch;
             pSrcBuf = bufYCbCr + i * w * 2;
             for (j = 0 ; j < (w2/2) ; j++)
             {
@@ -304,7 +308,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
         bufPackedRGB = (uint32*) _TIFFmalloc(npixels * sizeof (uint32));
         if (bufPackedRGB == NULL)
         {
-            DumbAlignedFree(pFrameBuf);
+            free(pFrameBuf);
             TIFFClose(tif);
             return FALSE;
         }
@@ -312,7 +316,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
         // RGBA buffer filled in with data from file
         if (!TIFFReadRGBAImage(tif, w, h, bufPackedRGB, 0))
         {
-            DumbAlignedFree(pFrameBuf);
+            free(pFrameBuf);
             _TIFFfree(bufPackedRGB);
             TIFFClose(tif);
             return FALSE;
@@ -321,7 +325,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
         // RGBRGB => YUYV normalized
         for (i = (h - 1) ; i >= 0 ; i--)
         {
-            pDestBuf = pFrameBuf + (h - 1 - i) * LinePitch;
+            pDestBuf = pStartFrame + (h - 1 - i) * LinePitch;
             for (j = 0 ; j < (w2/2) ; j++)
             {
                 PackedABGRValue = bufPackedRGB[i * w + j * 2];
@@ -379,11 +383,12 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
     // Close the file
     TIFFClose(tif);
 
-    if (m_pParent->m_OriginalFrame.pData != NULL)
+    if (m_pParent->m_OriginalFrameBuffer != NULL)
     {
-        DumbAlignedFree(m_pParent->m_OriginalFrame.pData);
+        free(m_pParent->m_OriginalFrameBuffer);
     }
-    m_pParent->m_OriginalFrame.pData = pFrameBuf;
+    m_pParent->m_OriginalFrameBuffer = pFrameBuf;
+    m_pParent->m_OriginalFrame.pData = pStartFrame;
     m_pParent->m_LinePitch = LinePitch;
     m_pParent->m_Height = h;
     m_pParent->m_Width = w2;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: JpegHelper.cpp,v 1.7 2002-05-27 22:21:14 laurentg Exp $
+// $Id: JpegHelper.cpp,v 1.8 2002-06-21 23:14:19 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/05/27 22:21:14  laurentg
+// Take into account difference of range for Y between overlay and JPEG format
+//
 // Revision 1.6  2002/05/06 15:48:53  laurentg
 // Informations saved in a DScaler still updated
 // Use of the comments field to show informations about a DScaler still
@@ -428,6 +431,7 @@ BOOL CJpegHelper::OpenMediaFile(LPCSTR FileName)
 {
     int h, w, i, j;
     BYTE* pFrameBuf = NULL;
+    BYTE* pStartFrame;
     BYTE* pDestBuf;
     BYTE* pDestBuf2;
 	struct jpeg_decompress_struct cinfo;
@@ -463,7 +467,7 @@ BOOL CJpegHelper::OpenMediaFile(LPCSTR FileName)
         fclose(infile);
         if (pFrameBuf != NULL)
         {
-            DumbAlignedFree(pFrameBuf);
+            free(pFrameBuf);
         }
         return FALSE;
     }
@@ -540,7 +544,7 @@ BOOL CJpegHelper::OpenMediaFile(LPCSTR FileName)
 
     // Allocate memory buffer to store the final YUYV values
     LinePitch = (w * 2 * sizeof(BYTE) + 15) & 0xfffffff0;
-    pFrameBuf = (BYTE*)DumbAlignedMalloc(LinePitch * h);
+    pFrameBuf = MallocStillBuf(LinePitch * h, &pStartFrame);
     if (pFrameBuf == NULL)
     {
         jpeg_destroy_decompress(&cinfo);
@@ -551,7 +555,7 @@ BOOL CJpegHelper::OpenMediaFile(LPCSTR FileName)
     // Process data
     while (cinfo.output_scanline < h)
     {
-        pDestBuf2 = pFrameBuf + cinfo.output_scanline * LinePitch;
+        pDestBuf2 = pStartFrame + cinfo.output_scanline * LinePitch;
         num_scanlines = jpeg_read_scanlines(&cinfo, buffer, buffer_height);
 
         // In the input (file), Y range is [0,255]
@@ -588,11 +592,12 @@ BOOL CJpegHelper::OpenMediaFile(LPCSTR FileName)
     // Close the input stream (file)
     fclose(infile);
 
-    if (m_pParent->m_OriginalFrame.pData != NULL)
+    if (m_pParent->m_OriginalFrameBuffer != NULL)
     {
-        DumbAlignedFree(m_pParent->m_OriginalFrame.pData);
+        free(m_pParent->m_OriginalFrameBuffer);
     }
-    m_pParent->m_OriginalFrame.pData = pFrameBuf;
+    m_pParent->m_OriginalFrameBuffer = pFrameBuf;
+    m_pParent->m_OriginalFrame.pData = pStartFrame;
     m_pParent->m_LinePitch = LinePitch;
     m_pParent->m_Height = h;
     m_pParent->m_Width = w;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.59 2002-06-13 12:10:23 adcockj Exp $
+// $Id: StillSource.cpp,v 1.60 2002-06-21 23:14:19 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.59  2002/06/13 12:10:23  adcockj
+// Move to new Setings dialog for filers, video deint and advanced settings
+//
 // Revision 1.58  2002/06/07 14:57:36  robmuller
 // Added carriage returns in BuildDScalerContext().
 //
@@ -251,20 +254,16 @@ extern long NumFilters;
 extern FILTER_METHOD* Filters[];
 
 
-BYTE* DumbAlignedMalloc(int siz)
+BYTE* MallocStillBuf(int siz, BYTE** start)
 {
 	BYTE* x = (BYTE*)malloc(siz+16);
-	BYTE** y = (BYTE**) (x+16);
-	y = (BYTE**) (((unsigned int) y & 0xfffffff0) - 4);
-	*y = x;
-	return (BYTE*) y+4;
-}
-
-BYTE* DumbAlignedFree(BYTE* x)
-{
-	BYTE* y =  *(BYTE**)(x-4);
-	free(y);
-	return 0;
+    if (x != NULL)
+    {
+    	BYTE** y = (BYTE**) (x+16);
+    	y = (BYTE**) ((unsigned int) y & 0xfffffff0);
+	    *start = (BYTE*) y;
+    }
+	return x;
 }
 
 
@@ -334,9 +333,11 @@ CStillSource::CStillSource(LPCSTR IniSection) :
     CreateSettings(IniSection);
     m_Width = 0;
     m_Height = 0;
+    m_StillFrameBuffer = NULL;
     m_StillFrame.pData = NULL;
     m_StillFrame.Flags = PICTURE_PROGRESSIVE;
     m_StillFrame.IsFirstInSeries = FALSE;
+    m_OriginalFrameBuffer = NULL;
     m_OriginalFrame.pData = NULL;
     m_OriginalFrame.Flags = PICTURE_PROGRESSIVE;
     m_OriginalFrame.IsFirstInSeries = FALSE;
@@ -353,13 +354,13 @@ CStillSource::CStillSource(LPCSTR IniSection) :
 
 CStillSource::~CStillSource()
 {
-    if (m_StillFrame.pData != NULL)
+    if (m_StillFrameBuffer != NULL)
     {
-        DumbAlignedFree(m_StillFrame.pData);
+        free(m_StillFrameBuffer);
     }
-    if (m_OriginalFrame.pData != NULL)
+    if (m_OriginalFrameBuffer != NULL)
     {
-        DumbAlignedFree(m_OriginalFrame.pData);
+        free(m_OriginalFrameBuffer);
     }
     ClearPlayList();
     KillTimer(hWnd, TIMER_SLIDESHOW);
@@ -674,14 +675,16 @@ void CStillSource::Stop()
         m_SlideShowActive = FALSE;
         KillTimer(hWnd, TIMER_SLIDESHOW);
     }
-    if (m_StillFrame.pData != NULL)
+    if (m_StillFrameBuffer != NULL)
     {
-        DumbAlignedFree(m_StillFrame.pData);
+        free(m_StillFrameBuffer);
+        m_StillFrameBuffer = NULL;
         m_StillFrame.pData = NULL;
     }
-    if (m_OriginalFrame.pData != NULL)
+    if (m_OriginalFrameBuffer != NULL)
     {
-        DumbAlignedFree(m_OriginalFrame.pData);
+        free(m_OriginalFrameBuffer);
+        m_OriginalFrameBuffer = NULL;
         m_OriginalFrame.pData = NULL;
     }
     m_IsPictureRead = FALSE;
@@ -1032,14 +1035,15 @@ BOOL CStillSource::ReadNextFrameInFile()
 
     if (m_IsPictureRead)
     {
-        if (Realloc && m_StillFrame.pData != NULL)
+        if (Realloc && m_StillFrameBuffer != NULL)
         {
-            DumbAlignedFree(m_StillFrame.pData);
+            free(m_StillFrameBuffer);
+            m_StillFrameBuffer = NULL;
             m_StillFrame.pData = NULL;
         }
-        if (m_StillFrame.pData == NULL)
+        if (m_StillFrameBuffer == NULL)
         {
-            m_StillFrame.pData = (BYTE*)DumbAlignedMalloc(m_LinePitch * m_Height);
+            m_StillFrameBuffer = MallocStillBuf(m_LinePitch * m_Height, &(m_StillFrame.pData));
         }
         if (m_StillFrame.pData != NULL && m_OriginalFrame.pData != NULL)
         {
@@ -1442,11 +1446,9 @@ BOOL CStillSource::ResizeOriginalFrame(int NewWidth, int NewHeight)
 
     // Allocate memory for the new YUYV buffer
     NewPitch = (NewWidth * 2 * sizeof(BYTE) + 15) & 0xfffffff0;
-    BYTE* NewBuf = (BYTE*)DumbAlignedMalloc(NewPitch * NewHeight);
-	dstp = NewBuf;
-
-    // Size of m_OriginalFrame.pData is m_Width x m_Height (*2?)
-    // Size of NewBuf is NewWidth x NewHeight
+    BYTE* NewStart;
+    BYTE* NewBuf = MallocStillBuf(NewPitch * NewHeight, &NewStart);
+	dstp = NewStart;
 
 	// SimpleResize Init code
 	hControl = (unsigned int*) malloc(NewWidth*12+128);  
@@ -1586,8 +1588,9 @@ BOOL CStillSource::ResizeOriginalFrame(int NewWidth, int NewHeight)
 	free(vWorkUV);
 
     // Replace the old YUYV buffer by the new one
-    DumbAlignedFree(m_OriginalFrame.pData);
-    m_OriginalFrame.pData = NewBuf;
+    free(m_OriginalFrameBuffer);
+    m_OriginalFrameBuffer = NewBuf;
+    m_OriginalFrame.pData = NewStart;
     m_LinePitch = NewPitch;
     m_Width = NewWidth;
     m_Height = NewHeight;

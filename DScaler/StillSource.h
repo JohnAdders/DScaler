@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.34 2002-06-13 12:10:23 adcockj Exp $
+// $Id: StillSource.h,v 1.35 2002-06-21 23:14:19 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -140,7 +140,9 @@ private:
 protected:
     int         m_Width;
     int         m_Height;
+    BYTE*       m_StillFrameBuffer;
     TPicture    m_StillFrame;
+    BYTE*       m_OriginalFrameBuffer;
     TPicture    m_OriginalFrame;
     vector<CPlayListItem*> m_PlayList;
     int         m_Position;
@@ -163,8 +165,7 @@ private:
 };
 
 
-BYTE* DumbAlignedMalloc(int siz);
-BYTE* DumbAlignedFree(BYTE* x);
+BYTE* MallocStillBuf(int siz, BYTE** start);
 
 char* BuildDScalerContext();
 

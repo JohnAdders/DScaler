@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.66 2002-06-13 12:10:21 adcockj Exp $
+// $Id: Calibration.cpp,v 1.67 2002-06-21 23:14:19 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.66  2002/06/13 12:10:21  adcockj
+// Move to new Setings dialog for filers, video deint and advanced settings
+//
 // Revision 1.65  2002/06/02 09:43:23  laurentg
 // Settings restore at end of automatic calibration was broken
 //
@@ -2711,6 +2714,7 @@ BOOL CPatternHelper::OpenMediaFile(LPCSTR FileName)
 {
     CTestPattern pattern(FileName);
     BYTE* pFrameBuf;
+    BYTE* pStartFrame;
     int LinePitch;
 
     if ((pattern.GetWidth() * pattern.GetHeight()) == 0)
@@ -2720,7 +2724,7 @@ BOOL CPatternHelper::OpenMediaFile(LPCSTR FileName)
 
     // Allocate memory buffer to store the YUYV values
     LinePitch = (pattern.GetWidth() * 2 * sizeof(BYTE) + 15) & 0xfffffff0;
-    pFrameBuf = (BYTE*)DumbAlignedMalloc(LinePitch * pattern.GetHeight());
+    pFrameBuf = MallocStillBuf(LinePitch * pattern.GetHeight(), &pStartFrame);
     if (pFrameBuf == NULL)
     {
         return FALSE;
@@ -2731,18 +2735,19 @@ BOOL CPatternHelper::OpenMediaFile(LPCSTR FileName)
     {
         for (int j=0 ; j<pattern.GetWidth() ; j++)
         {
-            *(pFrameBuf + i * LinePitch + j * 2    ) = 16;
-            *(pFrameBuf + i * LinePitch + j * 2 + 1) = 128;
+            *(pStartFrame + i * LinePitch + j * 2    ) = 16;
+            *(pStartFrame + i * LinePitch + j * 2 + 1) = 128;
         }
     }
 
-    pattern.Draw(pFrameBuf, LinePitch);
+    pattern.Draw(pStartFrame, LinePitch);
 
-    if (m_pParent->m_OriginalFrame.pData != NULL)
+    if (m_pParent->m_OriginalFrameBuffer != NULL)
     {
-        DumbAlignedFree(m_pParent->m_OriginalFrame.pData);
+        free(m_pParent->m_OriginalFrameBuffer);
     }
-    m_pParent->m_OriginalFrame.pData = pFrameBuf;
+    m_pParent->m_OriginalFrameBuffer = pFrameBuf;
+    m_pParent->m_OriginalFrame.pData = pStartFrame;
     m_pParent->m_LinePitch = LinePitch;
     m_pParent->m_Height = pattern.GetHeight();
     m_pParent->m_Width = pattern.GetWidth();

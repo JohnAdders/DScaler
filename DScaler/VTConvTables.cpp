@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTConvTables.cpp,v 1.3 2002-02-07 13:04:54 temperton Exp $
+// $Id: VTConvTables.cpp,v 1.4 2002-10-12 00:39:04 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Mike Temperton.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/02/07 13:04:54  temperton
+// Added Spanish and Polish teletext code pages. Thanks to Jazz (stawiarz).
+//
 // Revision 1.2  2002/01/19 12:53:00  temperton
 // Teletext pages updates at correct time.
 // Teletext can use variable-width font.
@@ -44,7 +47,7 @@ WORD vtconv[VT_CODE_PAGE_LASTONE][96] = {
     0x2014/*-*/,0x0061/*a*/,0x0062/*b*/,0x0063/*c*/,0x0064/*d*/,0x0065/*e*/,0x0066/*f*/,0x0067/*g*/,
     0x0068/*h*/,0x0069/*i*/,0x006A/*j*/,0x006B/*k*/,0x006C/*l*/,0x006D/*m*/,0x006E/*n*/,0x006F/*o*/,
     0x0070/*p*/,0x0071/*q*/,0x0072/*r*/,0x0073/*s*/,0x0074/*t*/,0x0075/*u*/,0x0076/*v*/,0x0077/*w*/,
-    0x0078/*x*/,0x0079/*y*/,0x007A/*z*/,0x00BC/* */,0x007C/*|*/,0x00BE/* */,0x00F7/* */,0x002A/***/,
+    0x0078/*x*/,0x0079/*y*/,0x007A/*z*/,0x00BC/* */,0x05F0/*|*/,0x00BE/* */,0x00F7/* */,0x25A0/* */,
 
     //VT_FRENCH_CODE_PAGE
     0x0020/* */,0x0021/*!*/,0x0022/*"*/,0x00E9/* */,0x00EF/* */,0x0025/*%*/,0x0026/*&*/,0x0027/*'*/,

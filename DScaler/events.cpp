@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: events.cpp,v 1.9 2002-12-04 15:20:08 adcockj Exp $
+// $Id: events.cpp,v 1.10 2002-12-07 10:42:47 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/12/04 15:20:08  adcockj
+// Fixed accedental test code check in
+//
 // Revision 1.8  2002/12/04 15:15:25  adcockj
 // Checked in test code by accident
 //
@@ -386,7 +389,10 @@ void CEventCollector::ScheduleEvent(CEventObject *pEventObject, eEventType Event
 	m_ScheduledEventList.push_back(ei);	
 	LeaveCriticalSection(&m_EventCriticalSection);
 
-    SendMessage(hWnd, UWM_EVENTADDEDTOQUEUE, 0, 0);
+    // we want to signal the event and then run away
+    // so use Post rather than Send.  Using send also causes
+    // threading problems
+    PostMessage(hWnd, UWM_EVENTADDEDTOQUEUE, 0, 0);
 }
 
 

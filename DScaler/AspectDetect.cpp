@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectDetect.cpp,v 1.14 2001-08-05 17:14:26 laurentg Exp $
+// $Id: AspectDetect.cpp,v 1.15 2001-08-05 20:14:49 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -39,6 +39,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2001/08/05 17:14:26  laurentg
+// no message
+//
 // Revision 1.13  2001/08/05 09:54:54  laurentg
 // Bug fixed concerning WSS AR data in AR autodetection mode
 //
@@ -98,6 +101,10 @@ static int ratio_used[RATIO_HISTORY_CHANGES];
 // When we switched to each of the ratios in ratio_used[].
 static int ratio_time[RATIO_HISTORY_CHANGES];
 
+// Data structure for storing statistics
+RatioStatisticsStruct RatioStatistics[MAX_RATIO_STATISTICS];
+int nNbRatioSwitch = 0;
+
 
 
 //----------------------------------------------------------------------------
@@ -106,6 +113,17 @@ static int ratio_time[RATIO_HISTORY_CHANGES];
 void SwitchToRatio(int nMode, int nRatio)
 {
     int now = GetTickCount();
+    int i;
+
+    if (nNbRatioSwitch == 0)
+    {
+        for (i=0 ; i<MAX_RATIO_STATISTICS ; i++)
+        {
+            RatioStatistics[i].mode = -1;
+            RatioStatistics[i].ratio = -1;
+            RatioStatistics[i].switch_count = 0;
+        }
+    }
 
     // Update anamorphic/nonanamorphic status
     AspectSettings.AspectMode = nMode;
@@ -127,6 +145,24 @@ void SwitchToRatio(int nMode, int nRatio)
         ratio_time[0] = GetTickCount();
         AspectSettings.SourceAspect = nRatio;
     }
+
+    for (i=0 ; i<MAX_RATIO_STATISTICS ; i++)
+    {
+        if ((RatioStatistics[i].mode == AspectSettings.AspectMode) && (RatioStatistics[i].ratio == AspectSettings.SourceAspect))
+        {
+            RatioStatistics[i].switch_count++;
+            break;
+        }
+        else if (RatioStatistics[i].switch_count == 0)
+        {
+            RatioStatistics[i].mode = AspectSettings.AspectMode;
+            RatioStatistics[i].ratio = AspectSettings.SourceAspect;
+            RatioStatistics[i].switch_count = 1;
+            break;
+        }
+    }
+    nNbRatioSwitch++;
+
     WorkoutOverlaySize();
 }
 
@@ -230,14 +266,14 @@ BlackLoop:
     //
     // Log the offending pixels
     if (counts > 0) {
-        int x;
+// LG        int x;
         LOG(3, "Count %d min %d max %d lumthresh %d", counts, chromaMin, chromaMax, threshold);
-        for (x = 0; x < qwordCount * 4; x++) {
-            if ((Line[x] & 0xff) > threshold || ((((Line[x] & 0xff00) >> 8) - chromaMin) & 0xff) > chromaMax)
-            {
-                LOG(3, "pixel %d lum %d chrom %d", x, Line[x] & 0xff, (Line[x] & 0xff00) >> 8);
-            }
-        }
+// LG        for (x = 0; x < qwordCount * 4; x++) {
+// LG            if ((Line[x] & 0xff) > threshold || ((((Line[x] & 0xff00) >> 8) - chromaMin) & 0xff) > chromaMax)
+// LG            {
+// LG                LOG(3, "pixel %d lum %d chrom %d", x, Line[x] & 0xff, (Line[x] & 0xff00) >> 8);
+// LG            }
+// LG        }
     }
     
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.h,v 1.15 2001-07-16 18:07:50 adcockj Exp $
+// $Id: AspectRatio.h,v 1.16 2001-08-05 20:14:49 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -51,6 +51,8 @@ void Aspect_ReadSettingsFromIni();
 void Aspect_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void Aspect_FinalSetup();
 void Aspect_ShowUI();
+
+#define	MAX_RATIO_STATISTICS 20
 
 #define DEFAULT_OVERSCAN_NTSC 12
 #define DEFAULT_OVERSCAN_PAL 4
@@ -199,5 +201,15 @@ typedef struct
 } TAspectSettingsStruct;
 
 extern TAspectSettingsStruct AspectSettings;
+
+typedef struct _ratiostatistics 
+{
+    int  mode;
+    int  ratio;
+    int  switch_count;
+} RatioStatisticsStruct;
+
+extern RatioStatisticsStruct RatioStatistics[MAX_RATIO_STATISTICS];
+extern int nNbRatioSwitch;
 
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.18 2001-07-30 19:51:30 laurentg Exp $
+// $Id: OSD.cpp,v 1.19 2001-08-05 20:14:49 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2001/07/30 19:51:30  laurentg
+// no message
+//
 // Revision 1.17  2001/07/29 22:51:09  laurentg
 // OSD screen for card calibration improved
 // Test patterns description added or corrected
@@ -133,6 +136,7 @@ static struct
     { "General screen",          OSD_TIMER_REFRESH_DELAY, TRUE  },
     { "Statistics screen",       1000,                    FALSE },
     { "WSS decoding screen",     OSD_TIMER_REFRESH_DELAY, FALSE },
+    { "AR autodetection screen", OSD_TIMER_REFRESH_DELAY, FALSE	},
     { "Card calibration screen", 250,                     FALSE },
 };
 static int  IdxCurrentScreen = -1;  // index of the current displayed OSD screen
@@ -487,7 +491,7 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
 {
     double          dfMargin = 0.02;    // 2% of screen height/width
     char            szInfo[64];
-    int             nLine;
+    int             nLine, nCol;
     int             i, j;
     long            Color;
     double          pos;
@@ -847,8 +851,56 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
         }
         break;
 
-    // CARD CALIBRATION SCREEN
+
+    // ASPECT RATIO AUTODETECTION SCREEN
     case 3:
+        // Title
+        OSD_AddText("Aspect Ratio Autodetection", Size*1.5, OSD_COLOR_TITLE, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
+
+        nLine = 3;
+        sprintf (szInfo, "Number of switch : %d", nNbRatioSwitch);
+        OSD_AddText(szInfo, Size, 0, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine, dfMargin, Size));
+
+        if (nNbRatioSwitch > 0)
+        {
+            nLine = 4;
+            nCol = 1;
+
+            for (i = 0 ; i < MAX_RATIO_STATISTICS ; i++)
+            {
+                if (RatioStatistics[i].switch_count > 0)
+                {
+                    pos = OSD_GetLineYpos (nLine, dfMargin, Size);
+                    if (pos == 0)
+                    {
+                        nCol++;
+                        nLine = 4;
+                        if (nCol <= 2)
+                        {
+                            pos = OSD_GetLineYpos (nLine, dfMargin, Size);
+                        }
+                    }
+                    if (pos > 0)
+                    {
+                        if ((RatioStatistics[i].mode == AspectSettings.AspectMode) && (RatioStatistics[i].ratio == AspectSettings.SourceAspect))
+                        {
+                            Color = OSD_COLOR_CURRENT;
+                        }
+                        else
+                        {
+                            Color = 0;
+                        }
+                        sprintf (szInfo, "%04d - %.3f:1 %s", RatioStatistics[i].switch_count, RatioStatistics[i].ratio / 1000.0, RatioStatistics[i].mode == 2 ? "Anamorphic" : "Letterbox");
+                        OSD_AddText(szInfo, Size, Color, OSD_XPOS_LEFT, (nCol == 1) ? dfMargin : 0.5, pos);
+                        nLine++;
+                    }
+                }
+            }
+        }
+        break;
+
+    // CARD CALIBRATION SCREEN
+    case 4:
         // Title
         OSD_AddText("Card calibration", Size*1.5, OSD_COLOR_TITLE, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
 

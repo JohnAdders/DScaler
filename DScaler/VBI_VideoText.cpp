@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.41 2002-05-29 18:44:52 robmuller Exp $
+// $Id: VBI_VideoText.cpp,v 1.42 2002-05-30 10:13:43 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.41  2002/05/29 18:44:52  robmuller
+// Added option to disable font anti-aliasing in Teletext.
+//
 // Revision 1.40  2002/05/28 20:04:26  robmuller
 // Addition to patch #561180 by PietOO:
 // In auto code page mode the code page options are grayed and the current code page is checked.
@@ -1522,7 +1525,7 @@ BOOL VT_SearchPage(TVTPage* pPage)
     char sText[41];
     TVTPage CurrentPage;
     memcpy(&CurrentPage, pPage, sizeof(TVTPage));
-    for(int iRow = 0; iRow < 25; iRow++)
+    for(int iRow = 1; iRow < 25; iRow++)
     {
         int iChar = 0;
         BOOL bHasDouble;

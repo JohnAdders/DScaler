@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.20 2002-01-17 22:22:06 robmuller Exp $
+// $Id: BT848Source.cpp,v 1.21 2002-01-21 14:33:17 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2002/01/17 22:22:06  robmuller
+// Added member function GetTunerId().
+//
 // Revision 1.19  2002/01/13 12:47:58  adcockj
 // Fix for pixel width and format change
 //
@@ -852,14 +855,7 @@ void CBT848Source::VideoSourceOnChange(long NewValue, long OldValue)
     // set up sound
     if(m_pBT848Card->IsInputATuner(NewValue))
     {
-        if(m_pBT848Card->HasMSP())
-        {
-            m_AudioSource->SetValue(AUDIOINPUT_RADIO);
-        }
-        else
-        {
-            m_AudioSource->SetValue(AUDIOINPUT_TUNER);
-        }
+        m_AudioSource->SetValue(AUDIOINPUT_TUNER);
         Channel_SetCurrent();
     }
     else

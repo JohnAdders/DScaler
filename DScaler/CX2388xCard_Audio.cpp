@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Audio.cpp,v 1.8 2002-12-10 14:53:16 adcockj Exp $
+// $Id: CX2388xCard_Audio.cpp,v 1.9 2003-03-05 13:54:11 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/12/10 14:53:16  adcockj
+// Sound fixes for cx2388x
+//
 // Revision 1.7  2002/12/05 17:11:11  adcockj
 // Sound fixes
 //
@@ -199,17 +202,25 @@ void CCX2388xCard::AudioInitBTSC(eStereoType StereoType)
     //WriteDword(AUD_DBX_SE_GAIN,          0x7030);
     
     // ....but these values work a lot better
-    WriteDword(AUD_DBX_IN_GAIN,          0x92c0);
-    WriteDword(AUD_DBX_WBE_GAIN,         0x3e83);
-    WriteDword(AUD_DBX_SE_GAIN,          0x854a);
-    WriteDword(AUD_OUT1_SHIFT,           0x0007);
+    //WriteDword(AUD_DBX_IN_GAIN,          0x92c0);
+    //WriteDword(AUD_DBX_WBE_GAIN,         0x3e83);
+    //WriteDword(AUD_DBX_SE_GAIN,          0x854a);
+
+    //WriteDword(AUD_OUT1_SHIFT,           0x0007);
+    //WriteDword(AUD_PHASE_FIX_CTL,        0x0020);
+    //WriteDword(AUD_RATE_ADJ1,            0x0100);
+    //WriteDword(AUD_RATE_ADJ2,            0x0200);
+    //WriteDword(AUD_RATE_ADJ3,            0x0300);
+    //WriteDword(AUD_RATE_ADJ4,            0x0400);
+    //WriteDword(AUD_RATE_ADJ5,            0x0500);
+    //WriteDword(AUD_POLY0_DDS_CONSTANT,   0x121116);
+
+    // These are from the Asus TV
+    WriteDword(AUD_DBX_IN_GAIN,          0x4734);
+    WriteDword(AUD_DBX_WBE_GAIN,         0x4640);
+    WriteDword(AUD_DBX_SE_GAIN,          0x8d31);
     WriteDword(AUD_PHASE_FIX_CTL,        0x0020);
-    WriteDword(AUD_RATE_ADJ1,            0x0100);
-    WriteDword(AUD_RATE_ADJ2,            0x0200);
-    WriteDword(AUD_RATE_ADJ3,            0x0300);
-    WriteDword(AUD_RATE_ADJ4,            0x0400);
-    WriteDword(AUD_RATE_ADJ5,            0x0500);
-    WriteDword(AUD_POLY0_DDS_CONSTANT,   0x121116);
+
 
     // turn down gain to iir4's...
     WriteDword(AUD_IIR4_0_SHIFT,         0x0006);
@@ -221,13 +232,13 @@ void CCX2388xCard::AudioInitBTSC(eStereoType StereoType)
     WriteDword(AUD_IIR3_1_SHIFT,         0x0000);
 
     // Completely ditch AFC feedback
-    WriteDword(AUD_DCOC_0_SRC,           0x0021);
-    WriteDword(AUD_DCOC_1_SRC,           0x001a);
-    WriteDword(AUD_DCOC1_SHIFT,          0x0000);
-    WriteDword(AUD_DCOC_1_SHIFT_IN0,     0x000a);
-    WriteDword(AUD_DCOC_1_SHIFT_IN1,     0x0008);
-    WriteDword(AUD_DCOC_PASS_IN,         0x0000);
-    WriteDword(AUD_IIR1_4_SEL,           0x0023);
+    //WriteDword(AUD_DCOC_0_SRC,           0x0021);
+    //WriteDword(AUD_DCOC_1_SRC,           0x001a);
+    //WriteDword(AUD_DCOC1_SHIFT,          0x0000);
+    //WriteDword(AUD_DCOC_1_SHIFT_IN0,     0x000a);
+    //WriteDword(AUD_DCOC_1_SHIFT_IN1,     0x0008);
+    //WriteDword(AUD_DCOC_PASS_IN,         0x0000);
+    //WriteDword(AUD_IIR1_4_SEL,           0x0023);
 
     // setup Audio PLL
     //WriteDword(AUD_PLL_PRESCALE,         0x0002);

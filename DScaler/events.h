@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: events.h,v 1.9 2003-08-11 22:50:50 laurentg Exp $
+// $Id: events.h,v 1.10 2003-08-15 16:51:11 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Jeroen Kooiman.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2003/08/11 22:50:50  laurentg
+// Time slider in the media player toolbar
+//
 // Revision 1.8  2002/12/02 17:06:33  adcockj
 // Changed Events to use messages instead of timer
 //
@@ -55,7 +58,8 @@ enum eEventType
 	EVENT_AUDIOCHANNELSUPPORT_DETECTED,
 	EVENT_SOUNDCHANNEL,
 	EVENT_DURATION,
-	EVENT_CURRENT_POSITION
+	EVENT_CURRENT_POSITION,
+	EVENT_NO_VOLUME
 };
 #define EVENT_ENDOFLIST EVENT_NONE
 

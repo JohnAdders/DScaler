@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.cpp,v 1.17 2003-08-15 14:26:30 laurentg Exp $
+// $Id: Source.cpp,v 1.18 2003-08-15 16:51:11 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2003/08/15 14:26:30  laurentg
+// Management of volume
+//
 // Revision 1.16  2003/01/16 13:30:49  adcockj
 // Fixes for various settings problems reported by Laurent 15/Jan/2003
 //
@@ -188,7 +191,7 @@ void CSource::SetSourceAsCurrent()
 
 	if (GetVolume() == NULL)
 	{
-	    EventCollector->RaiseEvent(this, EVENT_VOLUME, 0, 999999);
+	    EventCollector->RaiseEvent(this, EVENT_NO_VOLUME, 0, 1);
 	}
 }
 

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.341 2003-08-15 10:23:27 laurentg Exp $
+// $Id: DScaler.cpp,v 1.342 2003-08-15 16:51:11 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.341  2003/08/15 10:23:27  laurentg
+// Minor change to take into account new return value for Mixer_GetVolume and Mixer_GetMute
+//
 // Revision 1.340  2003/08/15 10:06:40  laurentg
 // Automatic update of the volume toolbar when updating the volume outside DScaler
 //
@@ -3582,7 +3585,21 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_AUDIO_MIXER:
-            Mixer_SetupDlg(hWnd);
+			{
+				Mixer_SetupDlg(hWnd);
+				CSource* source = Providers_GetCurrentSource();
+				if (source != NULL)
+				{
+					if (source->GetVolume() != NULL)
+					{
+						EventCollector->RaiseEvent(source, EVENT_VOLUME, 0, source->GetVolume()->GetValue());
+					}
+					else
+					{
+						EventCollector->RaiseEvent(source, EVENT_NO_VOLUME, 0, 1);
+					}
+				}
+			}
             break;
 
         case IDM_STATUSBAR:

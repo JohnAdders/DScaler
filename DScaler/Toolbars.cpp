@@ -1,5 +1,5 @@
 //
-// $Id: Toolbars.cpp,v 1.21 2003-08-15 14:54:38 laurentg Exp $
+// $Id: Toolbars.cpp,v 1.22 2003-08-15 16:51:11 laurentg Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2003/08/15 14:54:38  laurentg
+// Due to skins, slider range must be positive
+//
 // Revision 1.20  2003/08/15 14:27:31  laurentg
 // Management of volume
 //
@@ -418,9 +421,11 @@ void CToolbarChannels::Reset()
 // Toolbar Volume ///////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
+#define NO_VOLUME 999999
+
 CToolbarVolume::CToolbarVolume(CToolbarWindow *pToolbar) : CToolbarChild(pToolbar),
 m_Mute(0),
-m_Volume(999999),
+m_Volume(NO_VOLUME),
 m_hIconMute(NULL),
 m_hIconUnMute(NULL),
 m_hIconMono(NULL),
@@ -428,7 +433,7 @@ m_hIconStereo(NULL),
 m_hIconLang1(NULL),
 m_hIconLang2(NULL)
 {
-	eEventType EventList[] = {EVENT_MUTE, EVENT_VOLUME, EVENT_MIXERVOLUME, EVENT_SOUNDCHANNEL, EVENT_SOURCE_CHANGE, EVENT_ENDOFLIST};
+	eEventType EventList[] = {EVENT_MUTE, EVENT_VOLUME, EVENT_NO_VOLUME, EVENT_MIXERVOLUME, EVENT_SOUNDCHANNEL, EVENT_SOURCE_CHANGE, EVENT_ENDOFLIST};
 	EventCollector->Register(this, EventList);
 	
 	long OldValue;
@@ -549,6 +554,14 @@ void CToolbarVolume::OnEvent(CEventObject *pObject, eEventType Event, long OldVa
 			bDoUpdate = TRUE;
 		}
     }
+    else if ((Event == EVENT_NO_VOLUME) && (!Mixer_IsEnabled()) && (pObject == (CEventObject*)Providers_GetCurrentSource()))
+    {
+		if (NewValue && (m_Volume != NO_VOLUME))
+		{
+	        m_Volume = NO_VOLUME;
+			bDoUpdate = TRUE;
+		}
+    }
 	else if ((Event == EVENT_MIXERVOLUME) && Mixer_IsEnabled())
 	{
 		if (NewValue != m_Volume)
@@ -584,7 +597,7 @@ void CToolbarVolume::UpdateControls(HWND hWnd, bool bInitDialog)
         SendMessage(GetDlgItem(hWnd, IDC_TOOLBAR_VOLUME_SLIDER), TBM_SETRANGE, TRUE,(LPARAM)MAKELONG(0,m_VolumeMax-m_VolumeMin));
     }
 
-	if (m_Volume == 999999)
+	if (m_Volume == NO_VOLUME)
 	{
         ShowWindow(GetDlgItem(hWnd, IDC_TOOLBAR_VOLUME_SLIDER), SW_HIDE);
 	}

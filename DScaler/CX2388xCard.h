@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.h,v 1.2 2002-10-31 14:47:20 adcockj Exp $
+// $Id: CX2388xCard.h,v 1.3 2002-10-31 15:55:47 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -161,6 +161,10 @@ public:
     void DumpChipStatus(const char* CardName);
     HMENU GetCardSpecificMenu();
 
+    void SetAudioMute();
+    void SetAudioUnMute();
+
+
 private:
     ULONG GetTickCount();
     DWORD m_I2CSleepCycle;
@@ -200,6 +204,13 @@ private:
     void SetH3DContrast(BYTE Contrast);
     void SetH3DSaturationU(BYTE SaturationU);
     void SetH3DSaturationV(BYTE SaturationV);
+
+    void AudioInit(eVideoFormat Format);
+    void AudioInitDMA();
+    void AudioInitBTSC();
+    void AudioInitEIAJ();
+    void AudioInitA2();
+    void AudioInitNICAM();
 
 private:
     eCX2388xCardId m_CardType;

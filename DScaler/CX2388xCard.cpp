@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.4 2002-10-31 14:09:54 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.5 2002-10-31 15:55:46 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/10/31 14:09:54  adcockj
+// Move back to 720 pixel width now that we have analogue blanking mode
+//
 // Revision 1.3  2002/10/31 13:55:15  adcockj
 // Made VBI similar to bt848
 //
@@ -499,6 +502,14 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
 			VideoInput |= 0x4000;
 		}
 
+		if(m_TVCards[m_CardType].Inputs[nInput].InputType == INPUTTYPE_TUNER)
+		{
+            AudioInit(TVFormat);
+        }
+        else
+        {
+            SetAudioMute();
+        }
 
         switch(TVFormat)
         {
@@ -950,6 +961,66 @@ void CCX2388xCard::ResetHardware()
     
     // Set the DMA Cluster Table Size in qwords
     WriteDword( MO_DMA24_CNT2, (SRAM_CLUSTER_TABLE_VBI_SIZE / 8));
+
+    /////////////////////////////////////////////////////////////////
+    // Setup for Audio Input
+    /////////////////////////////////////////////////////////////////
+        
+    // Cluster table base 
+    WriteDword(SRAM_CMDS_25 + 0x04, SRAM_CLUSTER_TABLE_AUDIO_IN); 
+
+    // Cluster table size is in QWORDS
+    WriteDword(SRAM_CMDS_25 + 0x08, (SRAM_CLUSTER_TABLE_AUDIO_IN_SIZE / 8));
+
+    // Fill in cluster buffer entries
+    for(i = 0; i < SRAM_AUDIO_BUFFERS; ++i)
+    {
+        WriteDword(
+                    SRAM_CLUSTER_TABLE_AUDIO_IN + (i * 0x10), 
+                    SRAM_FIFO_AUDIO_IN_BUFFERS + (i * SRAM_FIFO_AUDIO_BUFFER_SIZE)
+                  );
+    }
+    
+    // Copy the cluster buffer info to the DMAC 
+    
+    // Set the DMA Cluster Table Address
+    WriteDword( MO_DMA25_PTR2, SRAM_CLUSTER_TABLE_AUDIO_IN);
+    
+    // Set the DMA buffer limit size in qwords
+    WriteDword( MO_DMA25_CNT1, SRAM_FIFO_AUDIO_BUFFER_SIZE / 8);
+    
+    // Set the DMA Cluster Table Size in qwords
+    WriteDword( MO_DMA25_CNT2, (SRAM_CLUSTER_TABLE_AUDIO_IN_SIZE / 8));
+
+    /////////////////////////////////////////////////////////////////
+    // Setup for Audio Output
+    /////////////////////////////////////////////////////////////////
+        
+    // Cluster table base 
+    WriteDword(SRAM_CMDS_26 + 0x04, SRAM_CLUSTER_TABLE_AUDIO_OUT); 
+
+    // Cluster table size is in QWORDS
+    WriteDword(SRAM_CMDS_26 + 0x08, (SRAM_CLUSTER_TABLE_AUDIO_OUT_SIZE / 8));
+
+    // Fill in cluster buffer entries
+    for(i = 0; i < SRAM_AUDIO_BUFFERS; ++i)
+    {
+        WriteDword(
+                    SRAM_CLUSTER_TABLE_AUDIO_OUT + (i * 0x10), 
+                    SRAM_FIFO_AUDIO_OUT_BUFFERS + (i * SRAM_FIFO_AUDIO_BUFFER_SIZE)
+                  );
+    }
+    
+    // Copy the cluster buffer info to the DMAC 
+    
+    // Set the DMA Cluster Table Address
+    WriteDword( MO_DMA26_PTR2, SRAM_CLUSTER_TABLE_AUDIO_OUT);
+    
+    // Set the DMA buffer limit size in qwords
+    WriteDword( MO_DMA26_CNT1, SRAM_FIFO_AUDIO_BUFFER_SIZE / 8);
+    
+    // Set the DMA Cluster Table Size in qwords
+    WriteDword( MO_DMA26_CNT2, (SRAM_CLUSTER_TABLE_AUDIO_OUT_SIZE / 8));
 
     /////////////////////////////////////////////////////////////////
     // Other one off settings for the chip

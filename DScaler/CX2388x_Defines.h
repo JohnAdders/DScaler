@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388x_Defines.h,v 1.2 2002-10-29 16:20:30 adcockj Exp $
+// $Id: CX2388x_Defines.h,v 1.3 2002-10-31 15:55:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -748,8 +748,14 @@ enum eCX2388xCardId
     CX2388xCARD_MSI_TV_ANYWHERE_PAL,
     CX2388xCARD_LASTONE,
 };
-#define SRAM_CMDS_21                0x180040 // 48 DWORDS
-#define SRAM_CMDS_24                0x180100 // 48 DWORDS
+// planar video (Used for YUY2)
+#define SRAM_CMDS_21                0x180040
+// VBI
+#define SRAM_CMDS_24                0x180100
+// Audio from decoder
+#define SRAM_CMDS_25                0x180140
+// Audio to DAC
+#define SRAM_CMDS_26                0x180180
 
 ///////////////////////////////////////////////////////////////////////////////
 // SRAM defines
@@ -764,16 +770,18 @@ enum eCX2388xCardId
 // say how many buffers we want to have for each channel
 #define SRAM_VIDEO_BUFFERS               6
 #define SRAM_VBI_BUFFERS                 6
+#define SRAM_AUDIO_BUFFERS               3
 
 // say how big each buffer is
 // we need to hold a complete line in each buffer
 #define SRAM_FIFO_VIDEO_BUFFER_SIZE      0x5a0  // 720 WORDS (0x5A0)
 #define SRAM_FIFO_VBI_BUFFER_SIZE        0x800
+#define SRAM_FIFO_AUDIO_BUFFER_SIZE      0x1000
 
 
 // Instruction Queue for video
 #define SRAM_INSTRUCTION_QUEUE_VIDEO     0x180340
-#define SRAM_INSTRUCTION_QUEUE_SIZE 0xC0      
+#define SRAM_INSTRUCTION_QUEUE_SIZE      0xC0      
 
 // Cluster table for video
 #define SRAM_CLUSTER_TABLE_VIDEO         (SRAM_INSTRUCTION_QUEUE_VIDEO + SRAM_INSTRUCTION_QUEUE_SIZE)
@@ -794,13 +802,28 @@ enum eCX2388xCardId
 #define SRAM_FIFO_VBI_BUFFERS            (SRAM_CLUSTER_TABLE_VBI + SRAM_CLUSTER_TABLE_VBI_SIZE)
 #define SRAM_FIFO_VBI_BUFFERS_SIZE       (SRAM_FIFO_VBI_BUFFER_SIZE * SRAM_VIDEO_BUFFERS)
 
+// Cluster table for Audio In
+#define SRAM_CLUSTER_TABLE_AUDIO_IN      (SRAM_FIFO_VBI_BUFFERS + SRAM_FIFO_VBI_BUFFERS_SIZE)
+#define SRAM_CLUSTER_TABLE_AUDIO_IN_SIZE (SRAM_AUDIO_BUFFERS * 0x10)
+
+// FIFO buffers for Audio In
+#define SRAM_FIFO_AUDIO_IN_BUFFERS       (SRAM_CLUSTER_TABLE_AUDIO_IN + SRAM_CLUSTER_TABLE_AUDIO_IN_SIZE)
+#define SRAM_FIFO_AUDIO_IN_BUFFERS_SIZE  (SRAM_FIFO_AUDIO_BUFFER_SIZE * SRAM_AUDIO_BUFFERS)
+
+// Cluster table for Audio Out
+#define SRAM_CLUSTER_TABLE_AUDIO_OUT     (SRAM_FIFO_AUDIO_IN_BUFFERS + SRAM_FIFO_AUDIO_IN_BUFFERS_SIZE)
+#define SRAM_CLUSTER_TABLE_AUDIO_OUT_SIZE (SRAM_AUDIO_BUFFERS * 0x10)
+
+// FIFO buffers for Audio Out
+#define SRAM_FIFO_AUDIO_OUT_BUFFERS      (SRAM_CLUSTER_TABLE_AUDIO_OUT + SRAM_CLUSTER_TABLE_AUDIO_OUT_SIZE)
+#define SRAM_FIFO_AUDIO_OUT_BUFFERS_SIZE (SRAM_FIFO_AUDIO_BUFFER_SIZE * SRAM_AUDIO_BUFFERS)
+
 // if adding new buffers the next one to be defined must use this value
 // you should maintain SRAM_NEXT as it is used as a safety check that
-#define SRAM_NEXT                      (SRAM_FIFO_VBI_BUFFERS + SRAM_FIFO_VBI_BUFFERS_SIZE)
+#define SRAM_NEXT                      (SRAM_FIFO_AUDIO_OUT_BUFFERS + SRAM_FIFO_AUDIO_OUT_BUFFERS_SIZE)
 
 // largest possible value in SRAM
 #define SRAM_MAX                       0x187FFF
-
 
 
 #endif

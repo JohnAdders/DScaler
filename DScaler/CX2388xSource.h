@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.h,v 1.4 2002-10-31 14:47:20 adcockj Exp $
+// $Id: CX2388xSource.h,v 1.5 2002-10-31 15:55:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -49,8 +49,8 @@ public:
     LPCSTR GetStatus();
     ISetting* GetVolume() {return NULL;};;
     ISetting* GetBalance() {return NULL;};;
-    void Mute() {};
-    void UnMute() {};
+    void Mute();
+    void UnMute();
     ISetting* GetBrightness();
     ISetting* GetContrast();
     ISetting* GetHue();

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.28 2001-07-27 16:11:31 adcockj Exp $
+// $Id: DS_Control.h,v 1.29 2001-07-30 12:18:14 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2001/07/27 16:11:31  adcockj
+// Added support for new Crash dialog
+//
 // Revision 1.27  2001/07/27 12:30:09  adcockj
 // Added Overlay Color controls (Thanks to Muljadi Budiman)
 //
@@ -176,6 +179,7 @@ typedef enum
 #define INDEX_VIDEO_GREEDY                17
 #define INDEX_VIDEO_GREEDY2FRAME          18
 #define INDEX_VIDEO_GREEDYH               19
+#define INDEX_OLD_GAME                    20
 
 /////////////////////////////////////////////////////////////////////////////
 // Allow callers to convert a WM code to do other operations
@@ -846,5 +850,19 @@ typedef enum
 #define WM_DI_GREEDYH_GETVALUE		(WM_USER + 32)
 #define WM_DI_GREEDYH_SETVALUE		(WM_USER + 132)
 #define WM_DI_GREEDYH_CHANGEVALUE	(WM_USER + 232)
+
+/////////////////////////////////////////////////////////////////////////////
+// Control settings contained in DI_OldGame.c
+/////////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+    DI_OLDGAME_MAXCOMB = 0,
+    DI_OLDGAME_SETTING_LASTONE,
+} DI_OLDGAME_SETTING;
+
+#define WM_DI_OLDGAME_GETVALUE     (WM_USER + 33)
+#define WM_DI_OLDGAME_SETVALUE     (WM_USER + 133)
+#define WM_DI_OLDGAME_CHANGEVALUE  (WM_USER + 233)
 
 #endif

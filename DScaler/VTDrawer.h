@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDrawer.h,v 1.6 2002-10-12 00:38:07 atnak Exp $
+// $Id: VTDrawer.h,v 1.7 2002-10-12 18:43:32 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (c) 2002 Mike Temperton.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/10/12 00:38:07  atnak
+// Changed Draw() to be BBC specs compatible
+//
 // Revision 1.5  2002/06/20 20:00:31  robmuller
 // Implemented videotext search highlighting.
 //
@@ -78,7 +81,7 @@ public:
     int GetAvgHeight();
 
 private:
-    BOOL DrawCharacterRect(HDC hDC, BYTE nRow, BYTE nCol, BYTE DisplayColour, BYTE BackgroundColour, BYTE DisplayModes, BYTE DisplayChar,
+    void DrawCharacterRect(HDC hDC, BYTE nRow, BYTE nCol, BYTE DisplayColour, BYTE BackgroundColour, BYTE DisplayModes, BYTE DisplayChar,
                             BOOL bHighLightChar, BOOL bHasDouble, int nTopOffset, int nLeftOffset, eVTCodePage VTCodePage, HFONT& hCurrentFont,
                             unsigned long ulFlags);
 private:

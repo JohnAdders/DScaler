@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDrawer.cpp,v 1.10 2002-10-12 00:38:07 atnak Exp $
+// $Id: VTDrawer.cpp,v 1.11 2002-10-12 18:43:32 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (c) 2002 Mike Temperton.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/10/12 00:38:07  atnak
+// Changed Draw() to be BBC specs compatible
+//
 // Revision 1.9  2002/08/06 21:35:08  robmuller
 // Don't pause the image when VideoText contains transparency.
 //
@@ -129,18 +132,18 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC,
     BYTE DisplayModes;
     BYTE DisplayColour;
     BYTE Background;
+    BYTE UseBackground;
     BYTE SetAfterModes;
     BYTE SetAfterColour;
     BYTE HeldGraphChar;
-    BOOL HeldGraphSeparated;
+    BOOL bHeldGraphSeparated;
     BOOL bBoxedSecond;
     BOOL bUnboxedSecond;
     BOOL bHasDouble = FALSE;
     BOOL bHighLightChar = FALSE;
     BOOL bTransparencyPresent = FALSE;
-    BOOL bDrawn;
+    BOOL bBoxedTextOnly;
 
-    int DefaultBkg = 0;
     int n;
     char tmp[41];
     HFONT hCurrentFont;
@@ -151,13 +154,13 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC,
     int left = pOrigin ? pOrigin->x : m_Rect.left;
     int top = pOrigin ? pOrigin->y : m_Rect.top;
 
-    if(ulFlags & VTDF_THISROWONLY)
+    if (ulFlags & VTDF_THISROWONLY)
     {
-        if((iRow > 1) && pPage->bUpdated)
+        if ((iRow > 1) && pPage->bUpdated)
         {
-            for(int n = 0; n < 40; n++)
+            for (n = 0; n < 40; n++)
             {
-                if((pPage->Frame[iRow - 1][n] & 0x7F) == 0x0D)
+                if ((pPage->Frame[iRow - 1][n] & 0x7F) == 0x0D)
                 {
                     return true;
                 }
@@ -167,12 +170,16 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC,
         endrow = iRow + 1;
     }
 
-    int SaveBkMode = SetBkMode(hDC, TRANSPARENT);
-
+    int BkModeSave = SetBkMode(hDC, TRANSPARENT);
     HFONT hFontSave = (HFONT) SelectObject(hDC, hCurrentFont = m_hFont);
     HGDIOBJ hBrushSave = (HFONT) SelectObject(hDC, m_hBrushes[0]);
 
-    for(int row = startrow; row < endrow; row++)
+    if (bBoxedTextOnly = (pPage->wCtrl & (3 << 4)))
+    {
+        ulFlags |= VTDF_MIXMODE;
+    }
+
+    for (int row = startrow; row < endrow; row++)
     {
         if (bHasDouble)
         {
@@ -181,7 +188,6 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC,
         }
 
         bHasDouble = FALSE;
-        //SelectObject(hDC, m_hFont);
 
         if (row == 0)
         {
@@ -195,8 +201,12 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC,
                 {
                     tmp[n] = (*pHeader)[n] & 0x7f;
                 }              
-                //DefaultBkg = 0;
-                DefaultBkg = (ulFlags & VTDF_MIXMODE) ? 8 : 0;
+            }
+            else if (bBoxedTextOnly)
+            {
+                // if the page is newsflash or subtitle
+                // show nothing
+                memset(tmp, ' ', 40);
             }
             else
             {
@@ -216,41 +226,32 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC,
                     }
                     memset(&tmp[CLOCK_COL + CLOCK_COL_WIDTH], ' ', 40 - CLOCK_COL - CLOCK_COL_WIDTH);
                 }
-
-                DefaultBkg = (!(pPage->wCtrl & (3 << 4)) && !(ulFlags & VTDF_MIXMODE)) ? 0 : 8;
-
-                if (pPage->wCtrl & (3 << 4))
-                {
-                    memset(tmp, ' ', 40);
-                }
             }
         }
         else
         {
             for (n = 0; n < 40; n++)
             {
-                if((pPage->bUpdated) || (ulFlags & VTDF_FORCEDRAW))
+                if ((pPage->bUpdated) || (ulFlags & VTDF_FORCEDRAW))
                 {
                     tmp[n] = pPage->Frame[row][n] & 0x7f;
                 }
                 else
                 {
-                    tmp[n] = 0x20;
+                    tmp[n] = ' ';
                 }
 
-                if(tmp[n] == 0x0D)
+                if (tmp[n] == 0x0D)
                 {
                     bHasDouble = TRUE;
                 }
-
-                DefaultBkg = ((pPage->wCtrl & (3 << 4)) || (ulFlags & VTDF_MIXMODE)) ? 8 : 0;
             }
         }
 
         // Reset defaults for the line
         DisplayModes = 0;
         DisplayColour = 7;
-        Background = DefaultBkg;
+        Background = 0;
 
         bBoxedSecond = bUnboxedSecond = FALSE;
 
@@ -343,13 +344,10 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC,
                 case 0x1b:  // ESC (reserved)
                     break;
                 case 0x1c:  // Black Background (immediate)
-                    Background = DefaultBkg;
+                    Background = 0;
                     break;
                 case 0x1d:  // New Background (immediate)
-                    if(!(ulFlags & VTDF_MIXMODE))
-                    {
-                        Background = DisplayColour;
-                    }
+                    Background = DisplayColour;
                     break;
                 case 0x1e:  // Hold Graphics (immediate)
                     DisplayModes |= VTMODE_HOLD;
@@ -362,12 +360,17 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC,
                 if (DisplayModes & VTMODE_HOLD)
                 {
                     DisplayChar = HeldGraphChar;
-                    if (HeldGraphSeparated != (DisplayModes & VTMODE_SEPARATED))
+                    if (bHeldGraphSeparated != (DisplayModes & VTMODE_SEPARATED))
                     {
                         DisplayModes ^= VTMODE_SEPARATED;
                         SetAfterModes ^= VTMODE_SEPARATED;
                     }
                 }
+            }
+
+            if (bBoxedTextOnly && !(DisplayModes & VTMODE_BOXED))
+            {
+                DisplayChar = ' ';
             }
 
             if (Char != 0x0a)
@@ -389,20 +392,23 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC,
                 bHighLightChar = FALSE;
             }
 
-            bDrawn = DrawCharacterRect(hDC, row, col, DisplayColour, Background,
-                DisplayModes, DisplayChar, bHighLightChar, bHasDouble, top, left,
-                VTCodePage, hCurrentFont, ulFlags);
+            UseBackground = Background;
 
-            if (bDrawn && Background == 8)
+            if ((ulFlags & VTDF_MIXMODE) && !(DisplayModes & VTMODE_BOXED))
             {
+                UseBackground = 8;
                 bTransparencyPresent = TRUE;
             }
+
+            DrawCharacterRect(hDC, row, col, DisplayColour, UseBackground,
+                DisplayModes, DisplayChar, bHighLightChar, bHasDouble,
+                top, left, VTCodePage, hCurrentFont, ulFlags);
 
             // Get the lastest graphics character
             if ((DisplayModes & VTMODE_GRAPHICS) && (Char & 0x20))
             {
                 HeldGraphChar = Char;
-                HeldGraphSeparated = (DisplayModes & VTMODE_SEPARATED);
+                bHeldGraphSeparated = (DisplayModes & VTMODE_SEPARATED);
             }
 
             DisplayModes ^= SetAfterModes;
@@ -417,14 +423,15 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC,
 
     SelectObject(hDC, hBrushSave);
     SelectObject(hDC, hFontSave);
-    SetBkMode(hDC, SaveBkMode);
+    SetBkMode(hDC, BkModeSave);
 
     VTPageContainsTransparency = bTransparencyPresent;
 
     return true;
 }
 
-BOOL CVTDrawer::DrawCharacterRect(HDC hDC, BYTE nRow, BYTE nCol,
+// returns TRUE if transparency was used
+void CVTDrawer::DrawCharacterRect(HDC hDC, BYTE nRow, BYTE nCol,
                                   BYTE DisplayColour, BYTE BackgroundColour,
                                   BYTE DisplayModes, BYTE DisplayChar,
                                   BOOL bHighLightChar, BOOL bHasDouble,
@@ -434,17 +441,12 @@ BOOL CVTDrawer::DrawCharacterRect(HDC hDC, BYTE nRow, BYTE nCol,
 {
     RECT CharacterRect;
 
-    if(((nCol < CLOCK_COL) && (ulFlags & VTDF_CLOCKONLY)) ||
-       ((!(DisplayModes & VTMODE_FLASH)) && (ulFlags & VTDF_FLASHONLY)) ||
-       ((!(DisplayModes & VTMODE_CONCEAL)) && (ulFlags & VTDF_HIDDENONLY)) ||
-       ((!(DisplayModes & VTMODE_FLASH)) && (ulFlags & VTDF_CLEARFLASH)))
+    if (((ulFlags & VTDF_CLOCKONLY) && (nCol < CLOCK_COL)) ||
+       ((ulFlags & VTDF_FLASHONLY) && (!(DisplayModes & VTMODE_FLASH))) ||
+       ((ulFlags & VTDF_HIDDENONLY) && (!(DisplayModes & VTMODE_CONCEAL))) ||
+       ((ulFlags & VTDF_CLEARFLASH) && (!(DisplayModes & VTMODE_FLASH))))
     {
-        return FALSE;
-    }
-
-    if (DisplayModes & VTMODE_BOXED)
-    {
-        BackgroundColour = 0;
+        return;
     }
 
     CharacterRect.left = nLeftOffset + double(nCol) * m_dAvgWidth;
@@ -455,7 +457,6 @@ BOOL CVTDrawer::DrawCharacterRect(HDC hDC, BYTE nRow, BYTE nCol,
     FillRect(hDC, &CharacterRect,
         m_hBrushes[bHighLightChar ? DisplayColour : BackgroundColour]);
 
-
     if(!(DisplayModes & VTMODE_DOUBLE) && bHasDouble)
     {
         CharacterRect.bottom = nTopOffset + double(nRow +
@@ -465,7 +466,7 @@ BOOL CVTDrawer::DrawCharacterRect(HDC hDC, BYTE nRow, BYTE nCol,
     if(((DisplayModes & VTMODE_FLASH) && !(ulFlags & VTDF_FLASHMASK)) ||
        ((DisplayModes & VTMODE_CONCEAL) && !(ulFlags & VTDF_HIDDENMASK))) 
     {
-        return FALSE;
+        return;
     }
 
     if((DisplayModes & VTMODE_GRAPHICS) && (DisplayChar & 0x20))
@@ -541,8 +542,6 @@ BOOL CVTDrawer::DrawCharacterRect(HDC hDC, BYTE nRow, BYTE nCol,
             TextOutW(hDC, CharacterRect.left + offset, CharacterRect.top - 1, (wchar_t*) &UChar, 1);
         }
     }
-
-    return TRUE;
 }
 
 void CVTDrawer::SetBounds(HDC hDC, RECT* Rect)

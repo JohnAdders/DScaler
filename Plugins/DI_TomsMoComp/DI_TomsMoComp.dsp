@@ -176,6 +176,10 @@ SOURCE=.\SearchLoopVAH.inc
 # End Source File
 # Begin Source File
 
+SOURCE=.\StrangeBob.inc
+# End Source File
+# Begin Source File
+
 SOURCE=.\TomsMoComp.h
 # End Source File
 # Begin Source File

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.h,v 1.10 2005-03-29 21:08:34 laurentg Exp $
+// $Id: EPG.h,v 1.11 2005-04-01 22:16:33 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2005/03/29 21:08:34  laurentg
+// program renamed programme
+//
 // Revision 1.9  2005/03/28 17:48:10  laurentg
 // Navigation into EPG + change of channel
 //
@@ -126,6 +129,7 @@ public:
 	BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
 
 	void ShowOSD();
+	void HideOSD();
 
 	// Dump the EPG data
 	void DumpEPGData();
@@ -170,6 +174,8 @@ private:
 	int			m_IdxShowSelectMin;
 	int			m_IdxShowSelectMax;
 	int			m_IdxShowSelectCur;
+
+	int			m_Displayed;
 };
 
 

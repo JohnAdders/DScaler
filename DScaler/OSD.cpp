@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.100 2005-03-29 21:08:34 laurentg Exp $
+// $Id: OSD.cpp,v 1.101 2005-04-01 22:16:33 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.100  2005/03/29 21:08:34  laurentg
+// program renamed programme
+//
 // Revision 1.99  2005/03/28 17:48:10  laurentg
 // Navigation into EPG + change of channel
 //
@@ -907,6 +910,8 @@ void OSD_Clear(HDC hDC, LPRECT lpRect)
         OSD_ClearAllTexts();
         OSD_IdxCurrentScreen = -1;
     }
+
+	MyEPG.HideOSD();
 }
 
 

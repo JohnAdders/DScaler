@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.cpp,v 1.12 2005-03-29 21:08:33 laurentg Exp $
+// $Id: EPG.cpp,v 1.13 2005-04-01 22:16:32 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2005/03/29 21:08:33  laurentg
+// program renamed programme
+//
 // Revision 1.11  2005/03/28 17:47:57  laurentg
 // Navigation into EPG + change of channel
 //
@@ -208,6 +211,8 @@ CEPG::CEPG()
 	m_SearchTimeMax = 0;
 
 	SetDisplayIndexes(-1, -1, -1);
+
+	m_Displayed = 0;
 }
 
 
@@ -879,23 +884,25 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		LoadEPGDataIfNeeded(m_LoadedTimeMin, TimeNow, 0, 6 * ONE_HOUR);
 		// Display the OSD screen
 		OSD_ShowInfosScreen(2, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
+		m_Displayed = 1;
         return TRUE;
 		break;
 
 	case IDM_DISPLAY_EPG_NOW:
 		time(&TimeMin);
-		TimeMax = TimeMin + ONE_HOUR - 1;
+		TimeMax = TimeMin + ONE_HOUR * Setting_GetValue(EPG_GetSetting(EPG_TIMEFRAMEDURATION)) - 1;
 		// Check if new EPG data have to be loaded
 		LoadEPGDataIfNeeded(TimeMin, TimeMax, 0, 0);
 		// Select the corresponding programmes
 		SearchForProgrammes(NULL, TimeMin, TimeMax);
 		// Display the OSD screen
 		OSD_ShowInfosScreen(3, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
+		m_Displayed = 2;
         return TRUE;
         break;
 
 	case IDM_DISPLAY_EPG_EARLIER:
-		if (m_SearchTimeMin != 0)
+		if (m_Displayed == 2)
 		{
 			// If we were not at the exact beginning of an hour
 			// then we shift to the beginning of that hour
@@ -910,21 +917,19 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 			}
 			else
 			{
-				TimeMin = m_SearchTimeMin - ONE_HOUR;
+				TimeMin = m_SearchTimeMin - ONE_HOUR * Setting_GetValue(EPG_GetSetting(EPG_TIMEFRAMEDURATION));
 			}
-			TimeMax = TimeMin + ONE_HOUR - 1;
+			TimeMax = TimeMin + ONE_HOUR * Setting_GetValue(EPG_GetSetting(EPG_TIMEFRAMEDURATION)) - 1;
 			// Check if new EPG data have to be loaded
 			LoadEPGDataIfNeeded(TimeMin, TimeMax, 0, 0);
 			// Select the corresponding programmes
 			SearchForProgrammes(NULL, TimeMin, TimeMax);
-			// Display the OSD screen
-			OSD_ShowInfosScreen(3, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
 		}
         return TRUE;
         break;
 
 	case IDM_DISPLAY_EPG_LATER:
-		if (m_SearchTimeMin != 0)
+		if (m_Displayed == 2)
 		{
 			// If we were not at the exact beginning of an hour
 			// then we shift to the beginning of the next hour
@@ -936,25 +941,24 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 				datetime_tm->tm_sec = 0;
 				datetime_tm->tm_min = 0;
 				TimeMin = mktime(datetime_tm);
-				TimeMin += ONE_HOUR;
+				TimeMin += ONE_HOUR * Setting_GetValue(EPG_GetSetting(EPG_TIMEFRAMEDURATION));
 			}
 			else
 			{
-				TimeMin = m_SearchTimeMin + ONE_HOUR;
+				TimeMin = m_SearchTimeMin + ONE_HOUR * Setting_GetValue(EPG_GetSetting(EPG_TIMEFRAMEDURATION));
 			}
-			TimeMax = TimeMin + ONE_HOUR - 1;
+			TimeMax = TimeMin + ONE_HOUR * Setting_GetValue(EPG_GetSetting(EPG_TIMEFRAMEDURATION)) - 1;
 			// Check if new EPG data have to be loaded
 			LoadEPGDataIfNeeded(TimeMin, TimeMax, 0, 0);
 			// Select the corresponding programmes
 			SearchForProgrammes(NULL, TimeMin, TimeMax);
-			// Display the OSD screen
-			OSD_ShowInfosScreen(3, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
 		}
         return TRUE;
         break;
 
 	case IDM_DISPLAY_EPG_NEXT:
-		if (   (m_IdxShowSelectMax != -1)
+		if (   (m_Displayed == 2)
+		    && (m_IdxShowSelectMax != -1)
 			&& (m_IdxShowSelectMax < m_ProgrammesSelection.size()) )
 		{
 			SetDisplayIndexes(m_IdxShowSelectMax + 1, -1, m_IdxShowSelectMax + 1);
@@ -963,7 +967,8 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         break;
 
 	case IDM_DISPLAY_EPG_PREV:
-		if (   (m_IdxShowSelectMin != -1)
+		if (   (m_Displayed == 2)
+		    && (m_IdxShowSelectMin != -1)
 			&& (m_IdxShowSelectMin > 1) )
 		{
 			SetDisplayIndexes(-1, m_IdxShowSelectMin - 1, m_IdxShowSelectMin - 1);
@@ -972,33 +977,39 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         break;
 
 	case IDM_DISPLAY_EPG_NEXT_IN_PAGE:
-		if (   (m_IdxShowSelectMin != -1)
-			&& (m_IdxShowSelectMax != -1)
-			&& (m_IdxShowSelectCur < m_IdxShowSelectMax) )
+		if (m_Displayed == 2)
 		{
-			SetDisplayIndexes(m_IdxShowSelectMin, m_IdxShowSelectMax, m_IdxShowSelectCur + 1);
-		}
-		else if (   (m_IdxShowSelectMin != -1)
-			     && (m_IdxShowSelectMax != -1)
-			     && (m_IdxShowSelectCur == m_IdxShowSelectMax) )
-		{
-			PostMessageToMainWindow(WM_COMMAND, IDM_DISPLAY_EPG_NEXT, 0);
+			if (   (m_IdxShowSelectMin != -1)
+				&& (m_IdxShowSelectMax != -1)
+				&& (m_IdxShowSelectCur < m_IdxShowSelectMax) )
+			{
+				SetDisplayIndexes(m_IdxShowSelectMin, m_IdxShowSelectMax, m_IdxShowSelectCur + 1);
+			}
+			else if (   (m_IdxShowSelectMin != -1)
+					 && (m_IdxShowSelectMax != -1)
+					 && (m_IdxShowSelectCur == m_IdxShowSelectMax) )
+			{
+				PostMessageToMainWindow(WM_COMMAND, IDM_DISPLAY_EPG_NEXT, 0);
+			}
 		}
         return TRUE;
         break;
 
 	case IDM_DISPLAY_EPG_PREV_IN_PAGE:
-		if (   (m_IdxShowSelectMin != -1)
-			&& (m_IdxShowSelectMax != -1)
-			&& (m_IdxShowSelectCur > m_IdxShowSelectMin) )
+		if (m_Displayed == 2)
 		{
-			SetDisplayIndexes(m_IdxShowSelectMin, m_IdxShowSelectMax, m_IdxShowSelectCur - 1);
-		}
-		else if (   (m_IdxShowSelectMin != -1)
-			     && (m_IdxShowSelectMax != -1)
-			     && (m_IdxShowSelectCur == m_IdxShowSelectMin) )
-		{
-			PostMessageToMainWindow(WM_COMMAND, IDM_DISPLAY_EPG_PREV, 0);
+			if (   (m_IdxShowSelectMin != -1)
+				&& (m_IdxShowSelectMax != -1)
+				&& (m_IdxShowSelectCur > m_IdxShowSelectMin) )
+			{
+				SetDisplayIndexes(m_IdxShowSelectMin, m_IdxShowSelectMax, m_IdxShowSelectCur - 1);
+			}
+			else if (   (m_IdxShowSelectMin != -1)
+					 && (m_IdxShowSelectMax != -1)
+					 && (m_IdxShowSelectCur == m_IdxShowSelectMin) )
+			{
+				PostMessageToMainWindow(WM_COMMAND, IDM_DISPLAY_EPG_PREV, 0);
+			}
 		}
         return TRUE;
         break;
@@ -1012,6 +1023,11 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 				Channel_Change(n);
 			}
 		}
+        return TRUE;
+        break;
+
+	case IDM_HIDE_EPG:
+        OSD_Clear();
         return TRUE;
         break;
 
@@ -1034,6 +1050,12 @@ void CEPG::ShowOSD()
 		// Display the OSD screen
 		OSD_ShowInfosScreen(1, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
 	}
+}
+
+
+void CEPG::HideOSD()
+{
+	m_Displayed = 0;
 }
 
 
@@ -1129,6 +1151,7 @@ static char		ExePath[MAX_PATH] = {0};
 static char*	XMLTVExePath = NULL;
 static long		EPG_DefaultSizePerc = 5;
 static long		EPG_ShiftTimes = 0;
+static long		EPG_FrameDuration = 1;
 
 
 SETTING EPGSettings[EPG_SETTING_LASTONE] =
@@ -1146,10 +1169,16 @@ SETTING EPGSettings[EPG_SETTING_LASTONE] =
         "EPG", "DefaultSizePerc", NULL,
     },
     {
-        "Shift times during import (hors)", SLIDER, 0, (long*)&EPG_ShiftTimes,
+        "Shift times during import (hours)", SLIDER, 0, (long*)&EPG_ShiftTimes,
          0, -12, 12, 1, 1,
          NULL,
         "EPG", "ImportShiftTimes", NULL,
+    },
+    {
+        "Time frame duration (hours)", SLIDER, 0, (long*)&EPG_FrameDuration,
+         1, 1, 12, 1, 1,
+         NULL,
+        "EPG", "TimeFrameDuration", NULL,
     },
 };
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.h,v 1.15 2002-08-06 21:35:08 robmuller Exp $
+// $Id: OutThreads.h,v 1.16 2002-09-29 10:14:14 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,9 +50,8 @@ void OutThreads_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 CTreeSettingsGeneric* OutThreads_GetTreeSettingsPage();
 void OutThreads_SetMenu(HMENU hMenu);
 
-void Free_Picture_History(TDeinterlaceInfo* pInfo);
-void Shift_Picture_History(TDeinterlaceInfo* pInfo);
-void Replace_Picture_In_History(TDeinterlaceInfo* pInfo, int i, TPicture* picture);
+void ClearPictureHistory(TDeinterlaceInfo* pInfo);
+void ShiftPictureHistory(TDeinterlaceInfo* pInfo);
 
 void Start_Capture();
 void Stop_Capture();

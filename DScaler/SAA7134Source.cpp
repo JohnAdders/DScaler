@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.12 2002-09-28 13:33:04 kooiman Exp $
+// $Id: SAA7134Source.cpp,v 1.13 2002-09-29 10:14:15 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/09/28 13:33:04  kooiman
+// Added sender object to events and added setting flag to treesettingsgeneric.
+//
 // Revision 1.11  2002/09/26 11:33:42  kooiman
 // Use event collector
 //
@@ -470,8 +473,8 @@ void CSAA7134Source::GiveNextField(TDeinterlaceInfo* pInfo, TPicture* picture)
         pInfo->CurrentFrame = (pInfo->CurrentFrame + 1) % 5;
     }
 
-    Shift_Picture_History(pInfo);
-    Replace_Picture_In_History(pInfo, 0, picture);
+    ShiftPictureHistory(pInfo);
+    pInfo->PictureHistory[0] = picture;
 }
 
 void CSAA7134Source::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
@@ -542,7 +545,7 @@ void CSAA7134Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
     if(SkippedFields != 0)
     {
         // delete all history
-        Free_Picture_History(pInfo);
+        ClearPictureHistory(pInfo);
         pInfo->bMissedFrame = TRUE;
         Timing_AddDroppedFields(SkippedFields);
         LOG(2, " Dropped Frame");
@@ -614,7 +617,7 @@ void CSAA7134Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
     else
     {
         // delete all history
-        Free_Picture_History(pInfo);
+        ClearPictureHistory(pInfo);
         pInfo->bMissedFrame = TRUE;
         Timing_AddDroppedFields(SkippedFields);
         LOG(2, " Dropped Frame");

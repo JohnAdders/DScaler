@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.68 2002-08-23 19:16:24 laurentg Exp $
+// $Id: StillSource.cpp,v 1.69 2002-09-29 10:14:15 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.68  2002/08/23 19:16:24  laurentg
+// Writing of SavingPath setting in ini file updated
+//
 // Revision 1.67  2002/08/13 21:04:42  kooiman
 // Add IDString() to Sources for identification purposes.
 //
@@ -754,7 +757,7 @@ void CStillSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
         pInfo->bMissedFrame = TRUE;
         pInfo->FrameWidth = 720;
         pInfo->FrameHeight = 480;
-        Replace_Picture_In_History(pInfo, 0, NULL);
+        pInfo->PictureHistory[0] = NULL;
         return;
     }
 
@@ -775,7 +778,7 @@ void CStillSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     if(Diff > 1)
     {
         // delete all history
-        Free_Picture_History(pInfo);
+        ClearPictureHistory(pInfo);
         pInfo->bMissedFrame = TRUE;
         Timing_AddDroppedFields(Diff - 1);
         LOG(2, " Dropped Frame");
@@ -795,7 +798,7 @@ void CStillSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     pInfo->FrameHeight = m_Height;
     pInfo->FieldHeight = m_Height;
     pInfo->InputPitch = m_LinePitch;
-    Replace_Picture_In_History(pInfo, 0, &m_StillFrame);
+    pInfo->PictureHistory[0] =  &m_StillFrame;
 
     Timing_IncrementUsedFields();
 }

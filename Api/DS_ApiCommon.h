@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// $Id: DS_ApiCommon.h,v 1.15 2001-11-29 17:30:51 adcockj Exp $
+// $Id: DS_ApiCommon.h,v 1.16 2002-09-29 10:14:14 adcockj Exp $
 ///////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2001/11/29 17:30:51  adcockj
+// Reorgainised bt848 initilization
+// More Javadoc-ing
+//
 // Revision 1.14  2001/11/22 13:32:03  adcockj
 // Finished changes caused by changes to TDeinterlaceInfo - Compiles
 //
@@ -222,7 +226,7 @@ typedef struct
     /** distance between lines in image
         need not match the pixel width
     */
-    DWORD InputPitch;
+    long InputPitch;
 } TDeinterlaceInfo;
 
 #endif

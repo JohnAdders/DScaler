@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.85 2002-09-28 14:49:39 tobbej Exp $
+// $Id: OutThreads.cpp,v 1.86 2002-09-29 10:14:14 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.85  2002/09/28 14:49:39  tobbej
+// fixed thread init/deinit for crashloging
+//
 // Revision 1.84  2002/09/17 17:28:25  tobbej
 // updated crashloging to same version as in latest virtualdub
 //
@@ -371,86 +374,15 @@ BOOL                bNoScreenUpdateDuringTuning = FALSE; //Don't update if set. 
     #define DDFLIP_DONOTWAIT 0
 #endif
 
-struct TPictureHistory {
-    TPicture    picture;
-    BOOL        available;
-} PictureHistory[MAX_PICTURE_HISTORY];
-
-
-///////////////////////////////////////////////////////////////////////////////
-static void Init_Picture_History()
+void ClearPictureHistory(TDeinterlaceInfo* pInfo)
 {
-    for (int i=0 ; i<MAX_PICTURE_HISTORY ; i++)
-    {
-        PictureHistory[i].available = TRUE;
-    }
-}
-
-static void Delete_Picture_From_History(TPicture* picture)
-{
-    if (picture)
-    {
-        for (int i=0 ; i<MAX_PICTURE_HISTORY ; i++)
-        {
-            if (&(PictureHistory[i].picture) == picture)
-            {
-                PictureHistory[i].available = TRUE;
-                break;
-            }
-        }
-    }
-}
-
-void Free_Picture_History(TDeinterlaceInfo* pInfo)
-{
-    for (int i=0 ; i<MAX_PICTURE_HISTORY ; i++)
-    {
-        Delete_Picture_From_History(pInfo->PictureHistory[i]);
-    }
     memset(pInfo->PictureHistory, 0, MAX_PICTURE_HISTORY * sizeof(TPicture*));
 }
 
-void Shift_Picture_History(TDeinterlaceInfo* pInfo)
+void ShiftPictureHistory(TDeinterlaceInfo* pInfo)
 {
-    Delete_Picture_From_History(pInfo->PictureHistory[MAX_PICTURE_HISTORY-1]);
     memmove(&pInfo->PictureHistory[1], &pInfo->PictureHistory[0], sizeof(pInfo->PictureHistory) - sizeof(pInfo->PictureHistory[0]));
     pInfo->PictureHistory[0] = NULL;
-}
-
-void Replace_Picture_In_History(TDeinterlaceInfo* pInfo, int i, TPicture* picture)
-{
-    if (pInfo->PictureHistory[i] == NULL)
-    {
-        if (picture)
-        {
-            for (int j=0 ; j<MAX_PICTURE_HISTORY ; j++)
-            {
-                if (PictureHistory[j].available)
-                {
-                    PictureHistory[j].available = FALSE;
-                    memcpy(&(PictureHistory[j].picture), picture, sizeof(TPicture));
-                    pInfo->PictureHistory[i] = &(PictureHistory[j].picture);
-                    break;
-                }
-            }
-        }
-    }
-    else if (picture == NULL)
-    {
-        Delete_Picture_From_History(pInfo->PictureHistory[i]);
-        pInfo->PictureHistory[i] = NULL;
-    }
-    else
-    {
-        for (int j=0 ; j<MAX_PICTURE_HISTORY ; j++)
-        {
-            if (&(PictureHistory[j].picture) == pInfo->PictureHistory[i])
-            {
-                memcpy(&(PictureHistory[j].picture), picture, sizeof(TPicture));
-                break;
-            }
-        }
-    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -676,8 +608,6 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
     Timing_Setup();
 
-    Init_Picture_History();
-
     // set up Deinterlace Info struct
     memset(&Info, 0, sizeof(Info));
     Info.Version = DEINTERLACE_INFO_CURRENT_VERSION;
@@ -777,23 +707,26 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                 if (bDoVerticalFlip)
                 {
                     // Use of a negative pitch + a pointer to the last line of the field
-                    Info.PictureHistory[0]->pData += (Info.FieldHeight-1) * Info.InputPitch;
-                    Info.InputPitch *= -1;
-
-                    // make the odd fields even and the even fields odd.
-                    if(Info.PictureHistory[0] != NULL)
+                    for(int i(0); i < MAX_PICTURE_HISTORY; ++i)
                     {
-                        if(Info.PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD)
+                        if(Info.PictureHistory[i] != NULL)
                         {
-                            Info.PictureHistory[0]->Flags &= ~PICTURE_INTERLACED_ODD;
-                            Info.PictureHistory[0]->Flags |= PICTURE_INTERLACED_EVEN;
-                        }
-                        else if(Info.PictureHistory[0]->Flags & PICTURE_INTERLACED_EVEN)
-                        {
-                            Info.PictureHistory[0]->Flags &= ~PICTURE_INTERLACED_EVEN;
-                            Info.PictureHistory[0]->Flags |= PICTURE_INTERLACED_ODD;
+                            Info.PictureHistory[i]->pData += (Info.FieldHeight-1) * Info.InputPitch;
+
+                            // make the odd fields even and the even fields odd.
+                            if(Info.PictureHistory[i]->Flags & PICTURE_INTERLACED_ODD)
+                            {
+                                Info.PictureHistory[i]->Flags &= ~PICTURE_INTERLACED_ODD;
+                                Info.PictureHistory[i]->Flags |= PICTURE_INTERLACED_EVEN;
+                            }
+                            else if(Info.PictureHistory[i]->Flags & PICTURE_INTERLACED_EVEN)
+                            {
+                                Info.PictureHistory[i]->Flags &= ~PICTURE_INTERLACED_EVEN;
+                                Info.PictureHistory[i]->Flags |= PICTURE_INTERLACED_ODD;
+                            }
                         }
                     }
+                    Info.InputPitch *= -1;
                 }
 
                 // Card calibration
@@ -1051,6 +984,33 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                     }
                     LOG(1, "Crash in output code");
                 }
+            
+                // Vertical flipping
+                if (bDoVerticalFlip)
+                {
+                    // Use of a negative pitch + a pointer to the last line of the field
+                    Info.InputPitch *= -1;
+
+                    for(int i(0); i < MAX_PICTURE_HISTORY; ++i)
+                    {
+                        if(Info.PictureHistory[i] != NULL)
+                        {
+                            Info.PictureHistory[i]->pData -= (Info.FieldHeight-1) * Info.InputPitch;
+
+                            // make the odd fields even and the even fields odd.
+                            if(Info.PictureHistory[i]->Flags & PICTURE_INTERLACED_ODD)
+                            {
+                                Info.PictureHistory[i]->Flags &= ~PICTURE_INTERLACED_ODD;
+                                Info.PictureHistory[i]->Flags |= PICTURE_INTERLACED_EVEN;
+                            }
+                            else if(Info.PictureHistory[i]->Flags & PICTURE_INTERLACED_EVEN)
+                            {
+                                Info.PictureHistory[i]->Flags &= ~PICTURE_INTERLACED_EVEN;
+                                Info.PictureHistory[i]->Flags |= PICTURE_INTERLACED_ODD;
+                            }
+                        }
+                    }
+                }
             }
 
             // if asked save the current Info to a file
@@ -1072,13 +1032,15 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
             if (RequestToggleFlip)
             {
                 bDoVerticalFlip = !bDoVerticalFlip;
-                Free_Picture_History(&Info);
+                ClearPictureHistory(&Info);
                 RequestToggleFlip = FALSE;
             }
 
             // save the last pulldown Mode so that we know if its changed
             PrevDeintMethod = CurrentMethod;
         }
+
+
     }
     // if there is any exception thrown then exit the thread
     __except (CrashHandler((EXCEPTION_POINTERS*)_exception_info())) 

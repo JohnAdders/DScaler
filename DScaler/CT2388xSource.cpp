@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource.cpp,v 1.8 2002-09-28 13:33:04 kooiman Exp $
+// $Id: CT2388xSource.cpp,v 1.9 2002-09-29 10:14:14 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/09/28 13:33:04  kooiman
+// Added sender object to events and added setting flag to treesettingsgeneric.
+//
 // Revision 1.7  2002/09/26 11:33:42  kooiman
 // Use event collector
 //
@@ -408,11 +411,11 @@ void CCT2388xSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     {
     }
 
-    Shift_Picture_History(pInfo);
+    ShiftPictureHistory(pInfo);
 
     if(m_IsVideoProgressive->GetValue())
     {
-        Replace_Picture_In_History(pInfo, 0, &m_EvenFields[pInfo->CurrentFrame]);
+        pInfo->PictureHistory[0] = &m_EvenFields[pInfo->CurrentFrame];
 
         pInfo->LineLength = m_CurrentX * 2;
         pInfo->FrameWidth = m_CurrentX;
@@ -425,11 +428,11 @@ void CCT2388xSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     {
         if(m_IsFieldOdd)
         {
-            Replace_Picture_In_History(pInfo, 0, &m_OddFields[pInfo->CurrentFrame]);
+            pInfo->PictureHistory[0] = &m_OddFields[pInfo->CurrentFrame];
         }
         else
         {
-            Replace_Picture_In_History(pInfo, 0, &m_EvenFields[pInfo->CurrentFrame]);
+            pInfo->PictureHistory[0] = &m_EvenFields[pInfo->CurrentFrame];
         }
 
         pInfo->LineLength = m_CurrentX * 2;
@@ -573,7 +576,7 @@ void CCT2388xSource::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
     if(Diff > 1)
     {
         // delete all history
-        Free_Picture_History(pInfo);
+        ClearPictureHistory(pInfo);
         pInfo->bMissedFrame = TRUE;
         Timing_AddDroppedFields(Diff - 1);
         LOG(2, " Dropped Frame");
@@ -646,7 +649,7 @@ void CCT2388xSource::GetNextFieldNormalProg(TDeinterlaceInfo* pInfo)
     if(Diff > 1)
     {
         // delete all history
-        Free_Picture_History(pInfo);
+        ClearPictureHistory(pInfo);
         pInfo->bMissedFrame = TRUE;
         Timing_AddDroppedFields(Diff - 1);
         LOG(2, " Dropped Frame");
@@ -696,7 +699,7 @@ void CCT2388xSource::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
     else
     {
         // delete all history
-        Free_Picture_History(pInfo);
+        ClearPictureHistory(pInfo);
         pInfo->bMissedFrame = TRUE;
         Timing_AddDroppedFields(Diff - 1);
         LOG(2, " Dropped Frame");
@@ -763,7 +766,7 @@ void CCT2388xSource::GetNextFieldAccurateProg(TDeinterlaceInfo* pInfo)
     else
     {
         // delete all history
-        Free_Picture_History(pInfo);
+        ClearPictureHistory(pInfo);
         pInfo->bMissedFrame = TRUE;
         Timing_AddDroppedFields(Diff - 1);
         LOG(2, " Dropped Frame");

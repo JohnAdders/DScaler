@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.cpp,v 1.10 2002-09-29 09:14:36 tobbej Exp $
+// $Id: DSSourceBase.cpp,v 1.11 2002-09-29 10:14:15 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/09/29 09:14:36  tobbej
+// fixed mute/unmute
+// added some checks to volume and balance controls
+//
 // Revision 1.9  2002/09/28 13:36:15  kooiman
 // Added sender object to events and added setting flag to treesettingsgeneric.
 //
@@ -186,7 +190,7 @@ void CDSSourceBase::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 
 	//clear the picture history
 	memset(pInfo->PictureHistory, 0, MAX_PICTURE_HISTORY * sizeof(TPicture*));
-	//Free_Picture_History(pInfo);
+	//ClearPictureHistory(pInfo);
 	
 	//is the graph running? there is no point in continuing if it isnt
 	/*if(m_pDSGraph->getState()!=State_Running)
@@ -242,8 +246,7 @@ void CDSSourceBase::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 			FieldFlag=!FieldFlag;
 		}
 			
-		pInfo->PictureHistory[i]=&m_PictureHistory[i];
-		//Replace_Picture_In_History(pInfo, i, &m_PictureHistory[i]);
+		pInfo->PictureHistory[i] = &m_PictureHistory[i];
 	}
 	Timing_IncrementUsedFields();
 	m_dwRendStartTime=timeGetTime();

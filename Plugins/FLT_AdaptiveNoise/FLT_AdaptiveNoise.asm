@@ -16,6 +16,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/08/06 21:26:03  lindsey
+// Made prefetching a user option
+//
 // Revision 1.6  2002/03/11 01:47:32  lindsey
 // Corrected for use with progressive source
 // Changed to use Tom's aligned memory allocation
@@ -103,7 +106,7 @@ long FilterAdaptiveNoise( TDeinterlaceInfo* pInfo )
     __int64         qwMaxNoise = 0;                             // Maximum allowed movement measure
     const __int64   qwHighDWord = 0xFFFFFFFF00000000;
     const __int64   qwHistogramMax = HISTOGRAM_LENGTH - 1;      // Avoid histogram buffer overruns
-    static DWORD    sLastInputPitch = 0;
+    static long    sLastInputPitch = 0;
     static DWORD    sLastFieldHeight = 0;
 
     // Most of this could be done with fixed point, but that would make my head hurt

@@ -906,6 +906,32 @@
 #define IDM_USE_DSCALER_OVERLAY         2355
 #define IDM_SASPECT_SQUARE              2356
 #define IDM_STILL_SETTINGS              2357
+#define ID_DSHOW_AUDIOCHANNEL_MONO      2359
+#define ID_DSHOW_AUDIOCHANNEL_STEREO    2360
+#define ID_DSHOW_AUDIOCHANNEL_LANGUAGEA 2361
+#define ID_DSHOW_AUDIOCHANNEL_LANGUAGEB 2362
+#define ID_DSHOW_AUDIOCHANNEL_LANGUAGEC 2363
+#define IDM_DSHOW_RES_0                 2364
+#define IDM_DSHOW_RES_1                 2365
+#define IDM_DSHOW_RES_2                 2366
+#define IDM_DSHOW_RES_3                 2367
+#define IDM_DSHOW_RES_4                 2368
+#define IDM_DSHOW_RES_5                 2369
+#define IDM_DSHOW_RES_6                 2370
+#define IDM_DSHOW_RES_7                 2371
+#define IDM_DSHOW_RES_8                 2372
+#define IDM_DSHOW_RES_9                 2373
+#define IDM_DSHOW_RES_10                2374
+#define IDM_DSHOW_RES_11                2375
+#define IDM_DSHOW_RES_12                2376
+#define IDM_DSHOW_RES_13                2377
+#define IDM_DSHOW_RES_14                2378
+#define IDM_DSHOW_RES_15                2379
+#define IDM_DSHOW_RES_16                2380
+#define IDM_DSHOW_RES_17                2381
+#define IDM_DSHOW_RES_18                2382
+#define IDM_DSHOW_RES_19                2383
+#define IDM_DSHOW_RES_MAX               2383
 #define IDC_STATIC                      -1
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
@@ -922,12 +948,12 @@
 #define IDM_HOLDER                      65535
 
 // Next default values for new objects
-// 
+//
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        195
-#define _APS_NEXT_COMMAND_VALUE         2358
+#define _APS_NEXT_COMMAND_VALUE         2384
 #define _APS_NEXT_CONTROL_VALUE         1896
 #define _APS_NEXT_SYMED_VALUE           2358
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.h,v 1.6 2002-03-15 23:07:16 tobbej Exp $
+// $Id: DSGraph.h,v 1.7 2002-03-17 21:43:23 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/03/15 23:07:16  tobbej
+// changed dropped frames counter to include dropped frames in source filter.
+// added functions to enable/disable graph clock.
+// started to make changing resolution posibel.
+//
 // Revision 1.5  2002/02/13 17:01:42  tobbej
 // new filter properties menu
 //
@@ -106,6 +111,14 @@ public:
 	 * @throws CDShowException
 	 */
 	void changeRes(long x,long y);
+
+	/**
+	 * Checks if a resolution is valid and can be selected.
+	 * @param x width
+	 * @param y height
+	 * @return true if valid
+	 */
+	bool isValidRes(long x, long y);
 
 	/**
 	 * Disables the graph reference clock

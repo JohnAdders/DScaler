@@ -1159,8 +1159,21 @@ BEGIN
     BEGIN
         MENUITEM "Video &Input",                65535
         MENUITEM "Video &Format",               65535
-        MENUITEM "Pixel &Width",                65535, GRAYED
+        MENUITEM "Resolution",                  65535
         MENUITEM "&Audio Input",                65535
+        POPUP "Audio &Channel", GRAYED
+        BEGIN
+            MENUITEM "&Mono",                       ID_DSHOW_AUDIOCHANNEL_MONO
+            , GRAYED
+            MENUITEM "&Stereo",                     ID_DSHOW_AUDIOCHANNEL_STEREO
+            , GRAYED
+            MENUITEM "Language &A",                 ID_DSHOW_AUDIOCHANNEL_LANGUAGEA
+            , GRAYED
+            MENUITEM "Language &B",                 ID_DSHOW_AUDIOCHANNEL_LANGUAGEB
+            , GRAYED
+            MENUITEM "Language &C",                 ID_DSHOW_AUDIOCHANNEL_LANGUAGEC
+            , GRAYED
+        END
         MENUITEM SEPARATOR
         MENUITEM "&Play",                       IDM_DSHOW_PLAY
         MENUITEM "Pa&use",                      IDM_DSHOW_PAUSE

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.cpp,v 1.6 2002-03-15 23:07:16 tobbej Exp $
+// $Id: DSGraph.cpp,v 1.7 2002-03-17 21:43:23 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/03/15 23:07:16  tobbej
+// changed dropped frames counter to include dropped frames in source filter.
+// added functions to enable/disable graph clock.
+// started to make changing resolution posibel.
+//
 // Revision 1.5  2002/02/13 17:01:42  tobbej
 // new filter properties menu
 //
@@ -429,6 +434,7 @@ void CDShowGraph::changeRes(long x,long y)
 			newInfoHeader->dwBitErrorRate=videoInfo->dwBitErrorRate;
 			newInfoHeader->AvgTimePerFrame=videoInfo->AvgTimePerFrame;
 			newInfoHeader->bmiHeader=videoInfo->bmiHeader;
+			pbmiHeader=&newInfoHeader->bmiHeader;
 		}
 		else if(mt->formattype==FORMAT_VideoInfo2)
 		{
@@ -443,6 +449,7 @@ void CDShowGraph::changeRes(long x,long y)
 			newInfoHeader->dwBitErrorRate=videoInfo2->dwBitErrorRate;
 			newInfoHeader->AvgTimePerFrame=videoInfo2->AvgTimePerFrame;
 			newInfoHeader->bmiHeader=videoInfo2->bmiHeader;
+			pbmiHeader=&newInfoHeader->bmiHeader;
 		}
 	}
 	
@@ -473,6 +480,61 @@ void CDShowGraph::changeRes(long x,long y)
 	}
 }
 
+bool CDShowGraph::isValidRes(long x,long y)
+{
+	if(m_renderer==NULL)
+	{
+		return false;
+	}
+
+	if(m_pStreamCfg==NULL)
+	{
+		try
+		{
+			findStreamConfig();
+		}
+		catch(CDShowException e)
+		{
+			return false;
+		}
+	}
+	int iCount,iSize;
+	HRESULT hr=m_pStreamCfg->GetNumberOfCapabilities(&iCount,&iSize);
+	if(FAILED(hr))
+		return false;
+
+	for(int i=0;i<iCount;i++)
+	{
+		AM_MEDIA_TYPE *pMT=NULL;
+		VIDEO_STREAM_CONFIG_CAPS vCaps;
+		hr=m_pStreamCfg->GetStreamCaps(i,&pMT,(BYTE*)&vCaps);
+		if(SUCCEEDED(hr))
+		{
+			//free the mediatype
+			if(pMT->pUnk!=NULL)
+			{
+				pMT->pUnk->Release();
+				pMT->pUnk=NULL;
+			}
+			if(pMT->cbFormat>0 && pMT->pbFormat!=NULL)
+			{
+				CoTaskMemFree(pMT->pbFormat);
+				pMT->pbFormat=NULL;
+			}
+			
+			//maybe check VIDEO_STREAM_CONFIG_CAPS::VideoStandard too
+
+			//check x and y
+			if(x<=vCaps.MaxOutputSize.cx && y<=vCaps.MaxOutputSize.cy && 
+				x>=vCaps.MinOutputSize.cx && y>=vCaps.MinOutputSize.cy &&
+				x%vCaps.OutputGranularityX==0 && y%vCaps.OutputGranularityY==0)
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
 void CDShowGraph::findStreamConfig()
 {
 	CDShowPinEnum rendPins(m_renderer,PINDIR_INPUT);

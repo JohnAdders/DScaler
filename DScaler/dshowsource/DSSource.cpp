@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.14 2002-03-15 23:03:51 tobbej Exp $
+// $Id: DSSource.cpp,v 1.15 2002-03-17 21:43:23 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/03/15 23:03:51  tobbej
+// reset m_bProcessingFirstFiled when starting
+//
 // Revision 1.13  2002/02/22 09:07:14  tobbej
 // fixed small race condition when calling notifysizechange, workoutoverlaysize might have used the old size
 //
@@ -130,7 +133,23 @@ videoStandardsType videoStandards[] =
 		0,NULL
 	};
 
-/// @todo better error handling
+struct resolutionType
+{
+	long x;
+	long y;
+};
+//maybe this shoud be user configurable,
+//but that is a bit hard when the settings classes dont allow string settings
+resolutionType res[]=
+{
+	768,576,
+	720,480,
+	640,480,
+	320,240,
+	160,120,
+	0,0
+};
+
 CDSSource::CDSSource(string device,string deviceName) :
 	CSource(0,IDC_DSHOWSOURCEMENU),
 	m_pDSGraph(NULL),
@@ -542,6 +561,17 @@ BOOL CDSSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		}
 
 	}
+	else if(LOWORD(wParam)>=IDM_DSHOW_RES_0 && LOWORD(wParam<=IDM_DSHOW_RES_MAX))
+	{
+		try
+		{
+			m_pDSGraph->changeRes(res[LOWORD(wParam)-IDM_DSHOW_RES_0].x,res[LOWORD(wParam)-IDM_DSHOW_RES_0].y);
+		}
+		catch(CDShowException &e)
+		{
+			AfxMessageBox(CString("Failed to change resolution\n\n")+e.getErrorText(),MB_OK|MB_ICONERROR);
+		}
+	}
 	
 	switch(LOWORD(wParam))
 	{
@@ -785,12 +815,38 @@ void CDSSource::SetMenu(HMENU hMenu)
 	{
 		menu->EnableMenuItem(1,MF_BYPOSITION|MF_GRAYED);
 	}
+
+	//resolution submenu
+	int i=0;
+	bool resAdded=false;
+	CMenu resSubMenu;
+	resSubMenu.CreateMenu();
+	menu->GetMenuString(2,menuText,MF_BYPOSITION);
+	menu->ModifyMenu(2,MF_POPUP|MF_BYPOSITION,(UINT) resSubMenu.GetSafeHmenu(),menuText);
+	menu->EnableMenuItem(2,MF_BYPOSITION|MF_ENABLED);
+	while(res[i].x!=0 || res[i].y!=0)
+	{
+		if(m_pDSGraph->isValidRes(res[i].x,res[i].y))
+		{
+			CString str;
+			str.Format("%ldx%ld",res[i].x,res[i].y);
+			ASSERT(IDM_DSHOW_RES_0+i<=IDM_DSHOW_RES_MAX);
+			resSubMenu.AppendMenu(MF_STRING,IDM_DSHOW_RES_0+i,str);
+			resAdded=true;
+		}
+		i++;
+	}
+	if(!resAdded)
+	{
+		//no resolution was added, gray the menu item
+		menu->EnableMenuItem(2,MF_BYPOSITION|MF_DISABLED);
+	}
 	
 	//filter properties submenu
 	CMenu filtersMenu;
 	filtersMenu.CreateMenu();
-	menu->GetMenuString(10,menuText,MF_BYPOSITION);
-	menu->ModifyMenu(10,MF_POPUP|MF_BYPOSITION,(UINT) filtersMenu.GetSafeHmenu(),menuText);
+	menu->GetMenuString(11,menuText,MF_BYPOSITION);
+	menu->ModifyMenu(11,MF_POPUP|MF_BYPOSITION,(UINT) filtersMenu.GetSafeHmenu(),menuText);
 	string name;
 	int index=0;
 	bool hasPropertyPage;
@@ -800,11 +856,11 @@ void CDSSource::SetMenu(HMENU hMenu)
 		filtersMenu.AppendMenu(MF_STRING| (hasPropertyPage ? MF_ENABLED : MF_GRAYED),IDM_DSHOW_FILTER_0+index,name.c_str());
 		index++;
 	}
-	menu->EnableMenuItem(10,MF_BYPOSITION|(index==0 ? MF_GRAYED : MF_ENABLED));
+	menu->EnableMenuItem(11,MF_BYPOSITION|(index==0 ? MF_GRAYED : MF_ENABLED));
 
 	//set a radio checkmark infront of the current play/pause/stop menu entry
 	FILTER_STATE state=m_pDSGraph->getState();
-	UINT pos=7-state;
+	UINT pos=8-state;
 	menu->CheckMenuRadioItem(5,7,pos,MF_BYPOSITION);
 
 	topMenu.Detach();

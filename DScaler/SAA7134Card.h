@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.4 2002-09-14 19:40:48 atnak Exp $
+// $Id: SAA7134Card.h,v 1.5 2002-09-16 17:51:58 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/09/14 19:40:48  atnak
+// various changes
+//
 // Revision 1.3  2002/09/10 12:14:35  atnak
 // Some changes to eAudioStandard stuff
 //
@@ -255,6 +258,13 @@ public:
     void SetAudioBalance(WORD nBalance);
     void SetAudioBass(WORD nBass);
     void SetAudioTreble(WORD nTreble);
+
+    void SetAudioLeftVolume(BYTE nGain);
+    void SetAudioRightVolume(BYTE nGain);
+    void SetAudioNicamVolume(BYTE nGain);
+    int GetAudioLeftVolume();
+    int GetAudioRightVolume();
+    int GetAudioNicamVolume();
 
     void CheckStereo();
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Audio.cpp,v 1.4 2002-09-14 19:40:48 atnak Exp $
+// $Id: SAA7134Card_Audio.cpp,v 1.5 2002-09-16 17:51:58 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/09/14 19:40:48  atnak
+// various changes
+//
 // Revision 1.3  2002/09/10 12:14:35  atnak
 // Some changes to eAudioStandard stuff
 //
@@ -347,6 +350,54 @@ void CSAA7134Card::SetAudioVolume(BYTE nGain)
     WriteByte(SAA7134_CHANNEL_LEVEL_R, nGain & 0x1F);
     // NICAM Levle adjust
     WriteByte(SAA7134_NICAM_LEVEL_ADJUST, nGain & 0x1F);
+}
+
+void CSAA7134Card::SetAudioLeftVolume(BYTE nGain)
+{
+    WriteByte(SAA7134_CHANNEL_LEVEL_L, nGain & 0x1F);
+}
+
+void CSAA7134Card::SetAudioRightVolume(BYTE nGain)
+{
+    WriteByte(SAA7134_CHANNEL_LEVEL_R, nGain & 0x1F);
+}
+
+void CSAA7134Card::SetAudioNicamVolume(BYTE nGain)
+{
+    WriteByte(SAA7134_NICAM_LEVEL_ADJUST, nGain & 0x1F);
+}
+
+int CSAA7134Card::GetAudioLeftVolume()
+{
+    BYTE Gain = ReadByte(SAA7134_CHANNEL_LEVEL_L) & 0x1F;
+
+    if ((Gain & 0x10) > 0)
+    {
+        return Gain - 32;
+    }
+    return Gain;
+}
+
+int CSAA7134Card::GetAudioRightVolume()
+{
+    BYTE Gain = ReadByte(SAA7134_CHANNEL_LEVEL_R) & 0x1F;
+
+    if ((Gain & 0x10) > 0)
+    {
+        return Gain - 32;
+    }
+    return Gain;
+}
+
+int CSAA7134Card::GetAudioNicamVolume()
+{
+    BYTE Gain = ReadByte(SAA7134_NICAM_LEVEL_ADJUST) & 0x1F;
+
+    if ((Gain & 0x10) > 0)
+    {
+        return Gain - 32;
+    }
+    return Gain;
 }
 
 void CSAA7134Card::SetAudioBalance(WORD nBalance)

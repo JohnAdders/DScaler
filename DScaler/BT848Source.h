@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.22 2002-04-15 22:50:08 laurentg Exp $
+// $Id: BT848Source.h,v 1.23 2002-06-16 18:54:59 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -170,6 +170,8 @@ private:
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioSource5);
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioSource6);
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioChannel);
+protected:
+	int m_InitialACPIStatus;
 };
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.40 2002-06-05 20:53:49 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.41 2002-06-16 18:54:59 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.40  2002/06/05 20:53:49  adcockj
+// Default changes and settings fixes
+//
 // Revision 1.39  2002/04/15 22:50:08  laurentg
 // Change again the available formats for still saving
 // Automatic switch to "square pixels" AR mode when needed
@@ -206,6 +209,13 @@ CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CU
 {
     CreateSettings(IniSection);
 
+    m_InitialACPIStatus = m_pBT848Card->GetACPIStatus();
+    // if the BT878 is powered down we need to power it up
+    if(m_InitialACPIStatus != 0)
+    {
+        m_pBT848Card->SetACPIStatus(0);
+    }
+
     ReadFromIni();
     ChangeSectionNamesForInput();
     ChangeDefaultsForInput();
@@ -237,6 +247,12 @@ CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CU
 
 CBT848Source::~CBT848Source()
 {
+    // if the BT878 was not in D0 state we restore the original ACPI power state
+    if(m_InitialACPIStatus != 0)
+    {
+        m_pBT848Card->SetACPIStatus(m_InitialACPIStatus);
+    }
+
     KillTimer(hWnd, TIMER_MSP);
     delete m_pBT848Card;
 }

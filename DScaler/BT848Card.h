@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.19 2002-06-05 20:02:27 adcockj Exp $
+// $Id: BT848Card.h,v 1.20 2002-06-16 18:54:59 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2002/06/05 20:02:27  adcockj
+// Applied old RS BT card patch
+//
 // Revision 1.18  2002/05/19 01:18:42  dschmelzer
 // Added a seventh input
 //
@@ -148,6 +151,9 @@ private:
     } TAutoDectect878;
 
 public:
+	BOOL Is878Family();
+	void SetACPIStatus(int ACPIStatus);
+	int GetACPIStatus();
 	void HandleTimerMessages(int TimerId);
     CBT848Card(CHardwareDriver* pDriver);
 	~CBT848Card();

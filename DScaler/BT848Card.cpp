@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.21 2002-06-13 15:22:53 adcockj Exp $
+// $Id: BT848Card.cpp,v 1.22 2002-06-16 18:54:59 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2002/06/13 15:22:53  adcockj
+// Honour luma range and peaking on CCIR inputs
+//
 // Revision 1.20  2002/04/10 07:25:02  adcockj
 // Changes vdelay in CCIR mode to be format default by default
 //
@@ -195,6 +198,7 @@ CBT848Card::~CBT848Card()
 	delete m_AudioDecoder;
 	delete m_AudioControls;
 	delete m_Tuner;
+
     ClosePCICard();
 }
 
@@ -1189,3 +1193,64 @@ bool CBT848Card::GetSCL()
     LOG(3, state ? "BT848 GetSCL - c^" : "BT848 GetSCL - c_");
     return state;
 }
+
+BOOL CBT848Card::Is878Family()
+{
+    // returns TRUE if BT878 or BT878a is present
+    return (m_DeviceId == 0x036E || m_DeviceId == 0x036F);
+}
+
+// this functions returns 0 if the BT878 is in ACPI state D0 or on error/BT848
+// returns 3 if in D3 state (full off)
+int CBT848Card::GetACPIStatus()
+{
+    PCI_COMMON_CONFIG PCI_Config;
+
+    // only the BT878 and BT878a are able to power down
+    if(!Is878Family())
+    {
+        return 0;
+    }
+    
+    if(GetPCIConfig(&PCI_Config, m_BusNumber, m_SlotNumber))
+    {
+        DWORD ACPIStatus = PCI_Config.DeviceSpecific[0x10] & 3;
+
+        LOG(1, "BT878 ACPI status: D%d", ACPIStatus);
+        return ACPIStatus;
+    }
+
+    return 0;
+}
+
+// Set ACPIStatus to 0 for D0/full on state. 3 for D3/full off
+void CBT848Card::SetACPIStatus(int ACPIStatus)
+{
+    PCI_COMMON_CONFIG PCI_Config;
+
+    // only the BT878 and BT878a are able to power down
+    if(!Is878Family())
+    {
+        return;
+    }
+    if(!GetPCIConfig(&PCI_Config, m_BusNumber, m_SlotNumber))
+    {
+        return;
+    }
+    PCI_Config.DeviceSpecific[0x10] &= ~3;
+    PCI_Config.DeviceSpecific[0x10] |= ACPIStatus;
+
+    LOG(1, "Attempting to set BT878 ACPI status to D%d", ACPIStatus);
+
+    SetPCIConfig(&PCI_Config, m_BusNumber, m_SlotNumber);
+
+    if(ACPIStatus == 0)
+    {
+        // wait half a second to start the hardware
+        ::Sleep(500);
+        // reset the chip
+        WriteByte(BT848_SRESET, 0);
+    }
+    LOG(1, "Set BT878 ACPI status complete");
+}
+

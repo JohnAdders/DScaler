@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.83 2002-10-08 21:16:09 kooiman Exp $
+// $Id: BT848Source.cpp,v 1.84 2002-10-11 21:45:31 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.83  2002/10/08 21:16:09  kooiman
+// Fixed accidental remove of line of code.
+//
 // Revision 1.82  2002/10/08 20:43:16  kooiman
 // Added Automatic Frequency Control for tuners. Changed to Hz instead of multiple of 62500 Hz.
 //
@@ -396,7 +399,7 @@ CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CU
 
     NotifyInputChange(0, VIDEOINPUT, -1, m_VideoSource->GetValue());
     NotifyInputChange(0, VIDEOFORMAT, -1, m_VideoFormat->GetValue());
-	EventCollector->RaiseEvent(this, EVENT_VOLUME, 0, m_Volume->GetValue());
+    EventCollector->RaiseEvent(this, EVENT_VOLUME, 0, m_Volume->GetValue());
 }
 
 CBT848Source::~CBT848Source()
@@ -457,26 +460,26 @@ void CBT848Source::OnEvent(CEventObject *pEventObject, eEventType Event, long Ol
 void CBT848Source::CreateSettings(LPCSTR IniSection)
 {
     CSettingGroup *pBT8x8Group = SettingsMaster->Groups()->GetGroup(this,"BT8x8");
-	CSettingGroup *pVideoGroup = SettingsMaster->Groups()->GetSubGroup(pBT8x8Group,"Video","Video");
-	CSettingGroup *pAudioGroup = SettingsMaster->Groups()->GetSubGroup(pBT8x8Group,"Audio","Audio");
-	CSettingGroup *pAudioStandard = SettingsMaster->Groups()->GetSubGroup(pAudioGroup,"Standard","Standard");
-	CSettingGroup *pAudioSource = SettingsMaster->Groups()->GetSubGroup(pAudioGroup,"Source","Source");
-	CSettingGroup *pAudioChannel = SettingsMaster->Groups()->GetSubGroup(pAudioGroup,"Channel","Channel");
-	CSettingGroup *pAudioControl = SettingsMaster->Groups()->GetSubGroup(pAudioGroup,"Control","Control");
-	CSettingGroup *pAudioOther  = SettingsMaster->Groups()->GetSubGroup(pAudioGroup,"Other","Other");
-	CSettingGroup *pAudioEqualizerGroup = SettingsMaster->Groups()->GetSubGroup(pAudioControl,"Equalizer","Equalizer");
-	
-	CSettingGroup *pAdvancedGroup = SettingsMaster->Groups()->GetSubGroup(pBT8x8Group,"AdvFlags","Advanced Flags");
-	CSettingGroup *pAdvancedTimingGroup = SettingsMaster->Groups()->GetSubGroup(pBT8x8Group,"AdvTiming","Advanced Timing");
+    CSettingGroup *pVideoGroup = SettingsMaster->Groups()->GetSubGroup(pBT8x8Group,"Video","Video");
+    CSettingGroup *pAudioGroup = SettingsMaster->Groups()->GetSubGroup(pBT8x8Group,"Audio","Audio");
+    CSettingGroup *pAudioStandard = SettingsMaster->Groups()->GetSubGroup(pAudioGroup,"Standard","Standard");
+    CSettingGroup *pAudioSource = SettingsMaster->Groups()->GetSubGroup(pAudioGroup,"Source","Source");
+    CSettingGroup *pAudioChannel = SettingsMaster->Groups()->GetSubGroup(pAudioGroup,"Channel","Channel");
+    CSettingGroup *pAudioControl = SettingsMaster->Groups()->GetSubGroup(pAudioGroup,"Control","Control");
+    CSettingGroup *pAudioOther  = SettingsMaster->Groups()->GetSubGroup(pAudioGroup,"Other","Other");
+    CSettingGroup *pAudioEqualizerGroup = SettingsMaster->Groups()->GetSubGroup(pAudioControl,"Equalizer","Equalizer");
+    
+    CSettingGroup *pAdvancedGroup = SettingsMaster->Groups()->GetSubGroup(pBT8x8Group,"AdvFlags","Advanced Flags");
+    CSettingGroup *pAdvancedTimingGroup = SettingsMaster->Groups()->GetSubGroup(pBT8x8Group,"AdvTiming","Advanced Timing");
 
-	eSettingFlags FlagsSource = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ONCHANGE_ALL);
-	eSettingFlags FlagsInput = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ALLOW_PER_VIDEOINPUT|SETTINGFLAG_ONCHANGE_ALL);
-	eSettingFlags FlagsInputFormat = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ALLOW_PER_VIDEOINPUT|SETTINGFLAG_ONCHANGE_ALL);
-	eSettingFlags FlagsFormat = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ALLOW_PER_VIDEOFORMAT|SETTINGFLAG_ONCHANGE_ALL);
-	eSettingFlags FlagsAll = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ALLOW_PER_VIDEOINPUT|SETTINGFLAG_ALLOW_PER_VIDEOFORMAT|SETTINGFLAG_ALLOW_PER_CHANNEL|SETTINGFLAG_ONCHANGE_ALL);
-	
-	
-	m_Brightness = new CBrightnessSetting(this, "Brightness", DEFAULT_BRIGHTNESS_NTSC, -128, 127, IniSection, pVideoGroup, FlagsAll);
+    eSettingFlags FlagsSource = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ONCHANGE_ALL);
+    eSettingFlags FlagsInput = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ALLOW_PER_VIDEOINPUT|SETTINGFLAG_ONCHANGE_ALL);
+    eSettingFlags FlagsInputFormat = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ALLOW_PER_VIDEOINPUT|SETTINGFLAG_ONCHANGE_ALL);
+    eSettingFlags FlagsFormat = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ALLOW_PER_VIDEOFORMAT|SETTINGFLAG_ONCHANGE_ALL);
+    eSettingFlags FlagsAll = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ALLOW_PER_VIDEOINPUT|SETTINGFLAG_ALLOW_PER_VIDEOFORMAT|SETTINGFLAG_ALLOW_PER_CHANNEL|SETTINGFLAG_ONCHANGE_ALL);
+    
+    
+    m_Brightness = new CBrightnessSetting(this, "Brightness", DEFAULT_BRIGHTNESS_NTSC, -128, 127, IniSection, pVideoGroup, FlagsAll);
     m_Settings.push_back(m_Brightness);
 
     m_Contrast = new CContrastSetting(this, "Contrast", DEFAULT_CONTRAST_NTSC, 0, 511, IniSection, pVideoGroup, FlagsAll);
@@ -664,28 +667,28 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     m_AudioAutoVolumeCorrection = new CAudioAutoVolumeCorrectionSetting(this, "Automatic Volume Correction", 0, 0, 60*1000, IniSection, pAudioControl, FlagsAll);
     m_Settings.push_back(m_AudioAutoVolumeCorrection);
 
-	m_AudioStandardDetect = new CAudioStandardDetectSetting(this, "Audio Standard Detect", 0, 0, 4, IniSection, pAudioStandard, FlagsAll);
+    m_AudioStandardDetect = new CAudioStandardDetectSetting(this, "Audio Standard Detect", 0, 0, 4, IniSection, pAudioStandard, FlagsAll);
     m_Settings.push_back(m_AudioStandardDetect);
     
     m_AudioStandardDetectInterval = new CAudioStandardDetectIntervalSetting(this, "Audio Standard Detect Interval (ms)", 200, 0, 10000, IniSection, pAudioStandard, FlagsAll);
     m_Settings.push_back(m_AudioStandardDetectInterval);
 
-	m_AudioStandardManual = new CAudioStandardManualSetting(this, "Audio Standard Manual", 0, 0, 0x7ff-1, IniSection, pAudioStandard, FlagsAll);
+    m_AudioStandardManual = new CAudioStandardManualSetting(this, "Audio Standard Manual", 0, 0, 0x7ff-1, IniSection, pAudioStandard, FlagsAll);
     m_Settings.push_back(m_AudioStandardManual);
 
-	m_AudioStandardMajorCarrier = new CAudioStandardMajorCarrierSetting(this, "Audio Standard Major carrier", 0, 0, 0x7ffffffL, IniSection, pAudioStandard, FlagsAll);
+    m_AudioStandardMajorCarrier = new CAudioStandardMajorCarrierSetting(this, "Audio Standard Major carrier", 0, 0, 0x7ffffffL, IniSection, pAudioStandard, FlagsAll);
     m_Settings.push_back(m_AudioStandardMajorCarrier);
 
-	m_AudioStandardMinorCarrier = new CAudioStandardMinorCarrierSetting(this, "Audio Standard Minor carrier", 0, 0, 0x7ffffffL, IniSection, pAudioStandard, FlagsAll);
+    m_AudioStandardMinorCarrier = new CAudioStandardMinorCarrierSetting(this, "Audio Standard Minor carrier", 0, 0, 0x7ffffffL, IniSection, pAudioStandard, FlagsAll);
     m_Settings.push_back(m_AudioStandardMinorCarrier);
 
     m_AudioStandardInStatusBar = new CAudioStandardInStatusBarSetting(this, "Audio Standard in Statusbar", FALSE, IniSection, pAudioStandard, FlagsAll);
     m_Settings.push_back(m_AudioStandardInStatusBar);
-        
+
     m_MSP34xxFlags = new CMSP34xxFlagsSetting(this, "MSP34xx Flags", 0, 0, 0x7ffffffL, IniSection, pAudioOther, FlagsSource);
     m_Settings.push_back(m_MSP34xxFlags);    
 
-    SettingsMaster->Register(BT848_SETTINGID, this, TRUE);	
+    SettingsMaster->Register(BT848_SETTINGID, this, TRUE);  
 
     ReadFromIni();
 }
@@ -1618,10 +1621,12 @@ int  CBT848Source::NumInputs(eSourceInputType InputType)
   {
       return m_pBT848Card->GetNumInputs();      
   }
+  /*
   else if (InputType == AUDIOINPUT)
   {
       return m_pBT848Card->GetNumAudioInputs();      
   }
+  */
   return 0;
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Types.cpp,v 1.13 2003-10-27 10:39:51 adcockj Exp $
+// $Id: CX2388xCard_Types.cpp,v 1.14 2003-12-17 08:28:57 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2003/10/27 10:39:51  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.12  2003/07/18 09:41:23  adcockj
 // Added PDI input to holo3d (doesn't yet work)
 //
@@ -508,6 +511,39 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
         TUNER_ABSENT,
         IDC_CX2388X,
     },
+    // CX2388xCARD_LEADTEK_WINFAST_EXPERT
+    // video and audio input switching is not yet verified.
+    {
+        "Leadtek WinFast TV2000 XP Expert",
+        3,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                0,
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                1,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                2,
+            },
+        },
+        NULL,
+        NULL,
+        StandardInputSelect,
+        SetAnalogContrastBrightness,
+        SetAnalogHue,
+        SetAnalogSaturationU,
+        SetAnalogSaturationV,
+        StandardSetFormat,
+        TUNER_PHILIPS_FM1216ME_MK3,
+        IDC_CX2388X,
+    },
 };
 
 const CCX2388xCard::TAutoDectect CCX2388xCard::m_AutoDectect[] =
@@ -517,6 +553,7 @@ const CCX2388xCard::TAutoDectect CCX2388xCard::m_AutoDectect[] =
     { 0x016614F1, CX2388xCARD_CONEXANT_EVK_PAL, "Conexant CX23880 PAL TV/FM EVK" },
     { 0x48201043, CX2388xCARD_ASUS, "Asus 880" },
     { 0x34010070, CX2388xCARD_HAUPPAUGE_PCI_FM, "Hauppauge WinTV PCI-FM" },
+    { 0x6611107D, CX2388xCARD_LEADTEK_WINFAST_EXPERT, "Leadtek WinFast TV2000 XP Expert" },
     { 0, (eCX2388xCardId)-1, NULL }
 };
 

@@ -78,6 +78,8 @@ CX2388xAdvanced.htm
 SourceSpecific.HTM
 ProgramList.htm
 Teletext2.htm
+BlackWhite.htm
+LuminanceShift.htm
 
 [ALIAS]
 IDH_22_PULLDOWN=22Pulldown.htm
@@ -87,9 +89,12 @@ IDH_ADAPTIVE_NOISE=AdaptiveNoise.htm
 IDH_ADAPTIVE=Adaptive.htm
 IDH_ADVANCED=Advanced.htm
 IDH_ASPECT=Aspect.htm
+IDH_BLACK_WHITE=BlackWhite.htm
 IDH_BLENDEDCLIP=BlendedClip.htm
 IDH_BOB=Bob.htm
+IDH_BT848_ADV=BT848Advanced.htm
 IDH_CALIBRATION=Calibration.htm
+IDH_CX2388X_ADV=CX2388xAdvanced.htm
 IDH_DEINTERLACE=Deinterlace.htm
 IDH_EVEN=EvenOnly.htm
 IDH_FILTERS=Filters.htm
@@ -99,30 +104,29 @@ IDH_GREEDY=Greedy.htm
 IDH_GREEDY2=Greedy2Frame.htm
 IDH_GREEDYHM=GreedyH.htm
 IDH_HISTOGRAM=Histogram.htm
+IDH_INVERSION=ColourInversion.htm
 IDH_LINEAR_CORRECTION=LinearCorrection.htm
 IDH_LOGGING=Logging.htm
 IDH_LOGO_KILLER=LogoKiller.htm
+IDH_LUMINCHROMASHIFT=LuminanceShift.htm
+IDH_MIRROR=Mirror.htm
 IDH_ODD=OddOnly.htm
 IDH_OLD_GAME=OldGame.htm
 IDH_OVERLAY=Overlay.htm
+IDH_PROGRAM_LIST=ProgramList.htm
 IDH_PULLDOWN_SHARED=PulldownShared.htm
+IDH_SAA713X_ADV=SAA713xAdvanced.htm
 IDH_SCALER_BOB=ScalerBob.htm
 IDH_SHARPNESS=Sharpness.htm
+IDH_SOURCE_SPECIFIC=SourceSpecific.HTM
 IDH_STILL=Still.htm
+IDH_TELETEXT=Teletext2.htm
 IDH_TEMPORAL_COMB=TemporalComb.htm
 IDH_TEMPORAL_NOISE=Noise.htm
 IDH_TIMING=Timing.htm
 IDH_VIDEOBOB=VideoBob.htm
 IDH_VIDEOWEAVE=VideoWeave.htm
 IDH_WEAVE=Weave.htm
-IDH_MIRROR=Mirror.htm
-IDH_INVERSION=ColourInversion.htm
-IDH_SAA713X_ADV=SAA713xAdvanced.htm
-IDH_BT848_ADV=BT848Advanced.htm
-IDH_CX2388X_ADV=CX2388xAdvanced.htm
-IDH_PROGRAM_LIST=ProgramList.htm
-IDH_SOURCE_SPECIFIC=SourceSpecific.HTM
-IDH_TELETEXT=Teletext2.htm
 
 [MAP]
 #include helpids.h

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareDriver.cpp,v 1.13 2002-06-14 12:18:07 adcockj Exp $
+// $Id: HardwareDriver.cpp,v 1.14 2002-07-02 19:59:02 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/06/14 12:18:07  adcockj
+// Fix to allow multiple programs access to the driver
+//
 // Revision 1.12  2002/05/27 11:27:37  robmuller
 // Uninstall the driver if the driver location in the registry is incorrect.
 //
@@ -235,15 +238,24 @@ BOOL CHardwareDriver::LoadDriver()
                         &dwReturnedLength
                        );
 
-            if(dwVersion != DSDRV_VERSION)
+            // we should try and force the user to have the 
+            // latest possible driver installed
+            if(dwVersion < DSDRV_VERSION)
             {
-                ErrorBox("Please exit and restart DScaler");
+                ErrorBox("Detected old driver version, rerun setup program");
                 LOG(0, "We've loaded up the wrong version of the driver");
                 bError = TRUE;
 
                 // Maybe another driver from an old DScaler version is still installed. 
                 // Try to uninstall it.
                 UnInstallNTDriver();
+            }
+
+            // if we create any incomaptibilities
+            // in the driver may need to have more checks here
+            if(dwVersion > DSDRV_VERSION)
+            {
+                LOG(0, "Running with newer driver - hopefully this will be OK");
             }
         }
         else

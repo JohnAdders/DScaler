@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DebugLog.cpp,v 1.22 2003-01-10 17:38:04 adcockj Exp $
+// $Id: DebugLog.cpp,v 1.23 2003-03-02 16:21:29 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2003/01/10 17:38:04  adcockj
+// Interrim Check in of Settings rewrite
+//  - Removed SETTINGSEX structures and flags
+//  - Removed Seperate settings per channel code
+//  - Removed Settings flags
+//  - Cut away some unused features
+//
 // Revision 1.21  2002/06/22 22:11:50  robmuller
 // Fixed: DebugLogFilename was not written to ini file if bOptimizeFileAccess is true.
 //
@@ -140,9 +147,13 @@ void LOGD(LPCSTR Format, ...)
     va_list Args;
 
     va_start(Args, Format);
-    vsprintf(szMessage, Format, Args);
+    int result=_vsnprintf(szMessage,2048, Format, Args);
     va_end(Args);
-    OutputDebugString(szMessage);
+    if(result==-1)
+	{
+		OutputDebugString("DebugString too long, truncated!!\n");
+	}
+	OutputDebugString(szMessage);
 }
 #endif
 

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.174 2002-06-12 23:57:13 robmuller Exp $
+// $Id: DScaler.cpp,v 1.175 2002-06-13 09:23:02 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.174  2002/06/12 23:57:13  robmuller
+// Fixed OSD entry on context menu. Added code to prevent similar errors in the future.
+//
 // Revision 1.173  2002/06/12 20:16:33  robmuller
 // Mousewheel + shift changes volume.
 //
@@ -909,6 +912,13 @@ HMENU CreateDScalerPopupMenu()
     {
         MENUITEMINFO MenuItemInfo;
         HMENU hSubMenu;
+        char string[128];
+
+        // update the name of the source
+        if(GetMenuString(hMenu, 6, string, sizeof(string), MF_BYPOSITION) != 0)
+        {
+            ModifyMenu(hMenuPopup, 1, MF_BYPOSITION | MF_STRING, IDM_POPUP_SOURCES, string);
+        }
 
         MenuItemInfo.cbSize = sizeof (MenuItemInfo);
         MenuItemInfo.fMask = MIIM_SUBMENU;

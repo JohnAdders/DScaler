@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.45 2002-02-14 23:16:59 laurentg Exp $
+// $Id: Calibration.cpp,v 1.46 2002-02-16 11:37:29 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.45  2002/02/14 23:16:59  laurentg
+// Stop / start capture never needed when switching between files of the playlist
+// CurrentX / CurrentY not updated in StillSource but in the main decoding loop
+//
 // Revision 1.44  2002/02/10 09:25:03  laurentg
 // Don't paint the background in white
 //
@@ -121,12 +125,14 @@ static BOOL ShowYUVDelta = TRUE;
 /////////////////////////////////////////////////////////////////////////////
 // Class CColorBar
 
-CColorBar::CColorBar(unsigned short int left, unsigned short int right, unsigned short int top, unsigned short int bottom, BOOL YUV, unsigned char R_Y, unsigned char G_U, unsigned char B_V)
+CColorBar::CColorBar(unsigned short int left, unsigned short int right, unsigned short int top, unsigned short int bottom, eTypeDraw type_draw, int param_draw, BOOL YUV, unsigned char R_Y, unsigned char G_U, unsigned char B_V, unsigned char R_Y_2, unsigned char G_U_2, unsigned char B_V_2)
 { 
     m_LeftBorder = left; 
     m_RightBorder = right; 
     m_TopBorder = top; 
     m_BottomBorder = bottom;
+    m_TypeDraw = type_draw;
+    m_ParamDraw = param_draw;
     if (YUV)
     {
         ref_Y_val = R_Y;
@@ -134,6 +140,11 @@ CColorBar::CColorBar(unsigned short int left, unsigned short int right, unsigned
         ref_V_val = B_V;
         // Calculate RGB values from YUV values
         YUV2RGB(ref_Y_val, ref_U_val, ref_V_val, &ref_R_val, &ref_G_val, &ref_B_val);
+        ref_Y_val2 = R_Y_2;
+        ref_U_val2 = G_U_2;
+        ref_V_val2 = B_V_2;
+        // Calculate RGB values from YUV values
+        YUV2RGB(ref_Y_val2, ref_U_val2, ref_V_val2, &ref_R_val2, &ref_G_val2, &ref_B_val2);
     }
     else
     {
@@ -142,6 +153,11 @@ CColorBar::CColorBar(unsigned short int left, unsigned short int right, unsigned
         ref_B_val = B_V;
         // Calculate YUV values from RGB values
         RGB2YUV(ref_R_val, ref_G_val, ref_B_val, &ref_Y_val, &ref_U_val, &ref_V_val);
+        ref_R_val2 = R_Y_2;
+        ref_G_val2 = G_U_2;
+        ref_B_val2 = B_V_2;
+        // Calculate YUV values from RGB values
+        RGB2YUV(ref_R_val2, ref_G_val2, ref_B_val2, &ref_Y_val2, &ref_U_val2, &ref_V_val2);
     }
 
     cpt_Y = cpt_U = cpt_V = cpt_nb = 0;
@@ -158,6 +174,8 @@ CColorBar::CColorBar(CColorBar* pColorBar)
     m_TopBorder = top; 
     m_BottomBorder = bottom;
 
+    m_TypeDraw = pColorBar->GetTypeDraw(&m_ParamDraw);
+
     pColorBar->GetRefColor(FALSE, &val1, &val2, &val3);
     ref_R_val = val1;
     ref_G_val = val2;
@@ -167,6 +185,16 @@ CColorBar::CColorBar(CColorBar* pColorBar)
     ref_Y_val = val1;
     ref_U_val = val2;
     ref_V_val = val3;
+
+    pColorBar->GetRefColor2(FALSE, &val1, &val2, &val3);
+    ref_R_val2 = val1;
+    ref_G_val2 = val2;
+    ref_B_val2 = val3;
+
+    pColorBar->GetRefColor2(TRUE, &val1, &val2, &val3);
+    ref_Y_val2 = val1;
+    ref_U_val2 = val2;
+    ref_V_val2 = val3;
 
     cpt_Y = cpt_U = cpt_V = cpt_nb = 0;
 }
@@ -178,6 +206,13 @@ void CColorBar::GetPosition(unsigned short int* left, unsigned short int* right,
     *right = m_RightBorder;
     *top = m_TopBorder;
     *bottom = m_BottomBorder;
+}
+
+// This method returns the type of draw for the color bar
+eTypeDraw CColorBar::GetTypeDraw(int* pParamDraw)
+{
+    *pParamDraw = m_ParamDraw;
+    return m_TypeDraw;
 }
 
 // This methode returns the reference color
@@ -195,6 +230,24 @@ void CColorBar::GetRefColor(BOOL YUV, unsigned char* pR_Y, unsigned char* pG_U, 
         *pR_Y = ref_R_val;
         *pG_U = ref_G_val;
         *pB_V = ref_B_val;
+    }
+}
+
+// This methode returns the second reference color
+// If parameter YUV is TRUE, it returns YUV values else RGB values
+void CColorBar::GetRefColor2(BOOL YUV, unsigned char* pR_Y, unsigned char* pG_U, unsigned char* pB_V)
+{ 
+    if (YUV)
+    {
+        *pR_Y = ref_Y_val2;
+        *pG_U = ref_U_val2;
+        *pB_V = ref_V_val2;
+    }
+    else
+    {
+        *pR_Y = ref_R_val2;
+        *pG_U = ref_G_val2;
+        *pB_V = ref_B_val2;
     }
 }
 
@@ -261,10 +314,10 @@ BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, TDeinterl
     }
 
     // Calculate the exact coordinates of rectangular zone in the buffer
-    overscan = SourceOverscan*  width / (height*  2);
-    left_crop = ((LeftCropping*  width) + 500) / 1000;
-    total_crop = (((LeftCropping + RightCropping)*  width) + 500) / 1000;
-    left = (width + total_crop - 2*  overscan)*  m_LeftBorder / 10000 - left_crop + overscan;
+    overscan = SourceOverscan * width / (height * 2);
+    left_crop = ((LeftCropping * width) + 500) / 1000;
+    total_crop = (((LeftCropping + RightCropping) * width) + 500) / 1000;
+    left = (width + total_crop - 2 * overscan) * m_LeftBorder / 10000 - left_crop + overscan;
     if (left < 0)
     {
         left = 0;
@@ -273,7 +326,7 @@ BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, TDeinterl
     {
         left = width - 1;
     }
-    right = (width + total_crop - 2*  overscan)*  m_RightBorder / 10000 - left_crop + overscan;
+    right = (width + total_crop - 2 * overscan) * m_RightBorder / 10000 - left_crop + overscan;
     if (right < 0)
     {
         right = 0;
@@ -283,8 +336,8 @@ BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, TDeinterl
         right = width - 1;
     }
     overscan = SourceOverscan;
-    top = (height - overscan)*  m_TopBorder / 10000 + overscan / 2;
-    bottom = (height - overscan)*  m_BottomBorder / 10000 + overscan / 2;
+    top = (height - overscan) * m_TopBorder / 10000 + overscan / 2;
+    bottom = (height - overscan) * m_BottomBorder / 10000 + overscan / 2;
 
     // Sum separately Y, U and V in this rectangular zone
     // Each line is like this : YUYVYUYV...
@@ -321,7 +374,7 @@ BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, TDeinterl
     {
         if (nb_Y > 0)
         {
-            Y_val = (cpt_Y + (cpt_nb*  nb_Y / 2)) / (cpt_nb*  nb_Y);
+            Y_val = (cpt_Y + (cpt_nb * nb_Y / 2)) / (cpt_nb * nb_Y);
         }
         else
         {
@@ -329,7 +382,7 @@ BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, TDeinterl
         }
         if (nb_Y > 0)
         {
-            U_val = (cpt_U + (cpt_nb*  nb_U / 2)) / (cpt_nb*  nb_U);
+            U_val = (cpt_U + (cpt_nb * nb_U / 2)) / (cpt_nb * nb_U);
         }
         else
         {
@@ -337,13 +390,13 @@ BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, TDeinterl
         }
         if (nb_Y > 0)
         {
-            V_val = (cpt_V + (cpt_nb*  nb_V / 2)) / (cpt_nb*  nb_V);
+            V_val = (cpt_V + (cpt_nb * nb_V / 2)) / (cpt_nb * nb_V);
         }
         else
         {
             V_val = 0;
         }
-        V_val = (cpt_V + (cpt_nb*  nb_V / 2)) / (cpt_nb*  nb_V);
+        V_val = (cpt_V + (cpt_nb * nb_V / 2)) / (cpt_nb * nb_V);
 
         // Save corresponding RGB values too
         YUV2RGB(Y_val, U_val, V_val, &R_val, &G_val, &B_val);
@@ -364,125 +417,156 @@ BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, TDeinterl
     }
 }
 
-// This method draws in the video signal a rectangle around the color bar
-void CColorBar::DrawPosition(TDeinterlaceInfo* pInfo)
-{
-    int left, right, top, bottom, i;
-    BYTE* buf;
-    int overscan;
-    int left_crop, total_crop;
-    int width = pInfo->FrameWidth;
-    int height = pInfo->FieldHeight;
-
-    // Calculate the exact coordinates of rectangular zone in the buffer
-    overscan = SourceOverscan * width / (height * 2);
-    left_crop = ((LeftCropping * width) + 500) / 1000;
-    total_crop = (((LeftCropping + RightCropping) * width) + 500) / 1000;
-    left = (width + total_crop - 2 * overscan) * m_LeftBorder / 10000 - left_crop + overscan;
-    if (left < 0)
-    {
-        left = 0;
-    }
-    else if (left >= width)
-    {
-        left = width - 1;
-    }
-    right = (width + total_crop - 2 * overscan) * m_RightBorder / 10000 - left_crop + overscan;
-    if (right < 0)
-    {
-        right = 0;
-    }
-    else if (right >= width)
-    {
-        right = width - 1;
-    }
-    overscan = SourceOverscan;
-    top = (height - overscan) * m_TopBorder / 10000 + overscan / 2;
-    bottom = (height - overscan) * m_BottomBorder / 10000 + overscan / 2;
-
-    if ((left % 2) == 1)
-    {
-        left--;
-    }
-    if ((right % 2) == 1)
-    {
-        right--;
-    }
-
-    for (i = top ; i <= bottom ; i++)
-    {
-        buf = pInfo->PictureHistory[0]->pData + (i * pInfo->InputPitch);
-        buf[left*2  ] = (ref_Y_val < 128) ? 235 : 16;
-        buf[left*2+1] = 128;
-        buf[left*2+2] = (ref_Y_val < 128) ? 235 : 16;
-        buf[left*2+3] = 128;
-        buf[right*2  ] = (ref_Y_val < 128) ? 235 : 16;
-        buf[right*2+1] = 128;
-        buf[right*2+2] = (ref_Y_val < 128) ? 235 : 16;
-        buf[right*2+3] = 128;
-    }
-
-    right++;
-    for (i = left ; i <= right ; i++)
-    {
-        buf = pInfo->PictureHistory[0]->pData + (top * pInfo->InputPitch);
-        buf[i*2] = (ref_Y_val < 128) ? 235 : 16;
-        buf[i*2+1] = 128;
-        buf = pInfo->PictureHistory[0]->pData + (bottom * pInfo->InputPitch);
-        buf[i*2] = (ref_Y_val < 128) ? 235 : 16;
-        buf[i*2+1] = 128;
-    }
-}
-
-void CColorBar::Draw(BYTE* buffer, int height, int width)
+void CColorBar::Draw(BYTE* Buffer, int Pitch, int Height, int Width, int Overscan, int LCrop, int RCrop)
 {
     int left, right, top, bottom;
+    int overscan, left_crop, total_crop;
+    BYTE* buf;
+    int i, j, k, l;
+
+    overscan = Overscan * Width / (Height * 2);
+    left_crop = ((LCrop * Width) + 500) / 1000;
+    total_crop = (((LCrop + RCrop) * Width) + 500) / 1000;
 
     // Calculate the exact coordinates of rectangular zone in the buffer
-    left = width * m_LeftBorder / 10000;
+    left = (Width + total_crop - 2 * overscan) * m_LeftBorder / 10000 - left_crop + overscan;
     if (left < 0)
     {
         left = 0;
     }
-    else if (left >= width)
+    else if (left >= Width)
     {
-        left = width - 1;
+        left = Width - 1;
     }
-    right = width * m_RightBorder / 10000;
+    right = (Width + total_crop - 2 * overscan) * m_RightBorder / 10000 - left_crop + overscan;
     if (right < 0)
     {
         right = 0;
     }
-    else if (right >= width)
+    else if (right >= Width)
     {
-        right = width - 1;
+        right = Width - 1;
     }
-    top = height * m_TopBorder / 10000;
+    overscan = Overscan;
+    top = (Height - overscan) * m_TopBorder / 10000 + overscan / 2;
     if (top < 0)
     {
         top = 0;
     }
-    else if (top >= height)
+    else if (top >= Height)
     {
-        top = height - 1;
+        top = Height - 1;
     }
-    bottom = height * m_BottomBorder / 10000;
+    bottom = (Height - overscan) * m_BottomBorder / 10000 + overscan / 2;
     if (bottom < 0)
     {
         bottom = 0;
     }
-    else if (bottom >= height)
+    else if (bottom >= Height)
     {
-        bottom = height - 1;
+        bottom = Height - 1;
     }
 
-    for (int i = top ; i <= bottom ; i++)
+    switch (m_TypeDraw)
     {
-        for (int j = left ; j <= right ; j++)
+    case DRAW_BORDER:
+        for (i = top ; i <= bottom ; i++)
         {
-            buffer[i*width*2+j*2  ] = ref_Y_val;
-            buffer[i*width*2+j*2+1] = (j % 2) ? ref_V_val : ref_U_val;
+            buf = Buffer + (i * Pitch);
+            buf[left*2  ] = ref_Y_val2;
+            buf[left*2+1] = (left%2) ? ref_V_val2 : ref_U_val2;
+            buf[right*2  ] = ref_Y_val2;
+            buf[right*2+1] = (right%2) ? ref_V_val2 : ref_U_val2;
         }
+        for (i = left ; i <= right ; i++)
+        {
+            buf = Buffer + (top * Pitch);
+            buf[i*2  ] = ref_Y_val2;
+            buf[i*2+1] = (i%2) ? ref_V_val2 : ref_U_val2;
+            buf = Buffer + (bottom * Pitch);
+            buf[i*2  ] = ref_Y_val2;
+            buf[i*2+1] = (i%2) ? ref_V_val2 : ref_U_val2;
+        }
+        break;
+
+    case DRAW_LINEH:
+        for (i = top ; i <= bottom ; i++)
+        {
+            k = (i - top) / m_ParamDraw;
+            buf = Buffer + (i * Pitch);
+            for (j = left ; j <= right ; j++)
+            {
+                if (k%2)
+                {
+                    buf[j*2  ] = ref_Y_val2;
+                    buf[j*2+1] = (j%2) ? ref_V_val2 : ref_U_val2;
+                }
+                else
+                {
+                    buf[j*2  ] = ref_Y_val;
+                    buf[j*2+1] = (j%2) ? ref_V_val : ref_U_val;
+                }
+            }
+        }
+        break;
+
+    case DRAW_LINEV:
+        for (i = top ; i <= bottom ; i++)
+        {
+            buf = Buffer + (i * Pitch);
+            for (j = left ; j <= right ; j++)
+            {
+                k = (j - left) / m_ParamDraw;
+                if (k%2)
+                {
+                    buf[j*2  ] = ref_Y_val2;
+                    buf[j*2+1] = (j%2) ? ref_V_val2 : ref_U_val2;
+                }
+                else
+                {
+                    buf[j*2  ] = ref_Y_val;
+                    buf[j*2+1] = (j%2) ? ref_V_val : ref_U_val;
+                }
+            }
+        }
+        break;
+
+    case DRAW_LINEX:
+        for (i = top ; i <= bottom ; i++)
+        {
+            buf = Buffer + (i * Pitch);
+            for (j = left ; j <= right ; j++)
+            {
+                k = (i - top) / m_ParamDraw;
+                l = (j - left) / m_ParamDraw;
+                if (k%2 != l%2)
+                {
+                    buf[j*2  ] = ref_Y_val2;
+                    buf[j*2+1] = (j%2) ? ref_V_val2 : ref_U_val2;
+                }
+                else
+                {
+                    buf[j*2  ] = ref_Y_val;
+                    buf[j*2+1] = (j%2) ? ref_V_val : ref_U_val;
+                }
+            }
+        }
+        break;
+
+    case DRAW_FILLED:
+        for (i = top ; i <= bottom ; i++)
+        {
+            buf = Buffer + (i * Pitch);
+            for (j = left ; j <= right ; j++)
+            {
+                buf[j*2  ] = ref_Y_val;
+                buf[j*2+1] = (j % 2) ? ref_V_val : ref_U_val;
+            }
+        }
+        break;
+
+    default:
+        break;
     }
 }
 
@@ -588,14 +672,14 @@ void CSubPattern::GetSumDeltaColor(BOOL YUV, int* pR_Y, int* pG_U, int* pB_V, in
 }
 	
 // This method draws in the video signal rectangles around each color bar of the sub-pattern
-void CSubPattern::DrawPositions(TDeinterlaceInfo* pInfo)
+void CSubPattern::Draw(TDeinterlaceInfo* pInfo)
 {
     // Do the job for each defined color bar
     for(vector<CColorBar*>::iterator it = m_ColorBars.begin(); 
         it != m_ColorBars.end(); 
         ++it)
     {
-        (*it)->DrawPosition(pInfo);
+        (*it)->Draw(pInfo->PictureHistory[0]->pData, pInfo->InputPitch, pInfo->FieldHeight, pInfo->FrameWidth, SourceOverscan, LeftCropping, RightCropping);
     }
 }
 
@@ -617,9 +701,12 @@ CTestPattern::CTestPattern(LPCSTR FileName)
     char *Buffer;
     FILE* FilePat;
     int i_val[16];
-    char s_val[512];
+    char s_val[64];
+    char s_val2[64];
     int n;
     eTypeAdjust TypeAdjust;
+    BOOL YUV;
+    eTypeDraw TypeDraw;
 
     FilePat = fopen(FileName, "r");
     if (!FilePat)
@@ -659,20 +746,51 @@ CTestPattern::CTestPattern(LPCSTR FileName)
                 m_Height = i_val[1];
                 strcpy(m_PatternName, strstr(&Buffer[4], s_val));
             }
-            else if (sscanf(Buffer, "RECT %d %d %d %d %s %d %d %d", &i_val[0], &i_val[1], &i_val[2], &i_val[3], s_val, &i_val[4], &i_val[5], &i_val[6]) == 8)
+            else if ((n = sscanf(Buffer, "RECT %d %d %d %d %s %d %d %d %d %d %d %s %d", &i_val[0], &i_val[1], &i_val[2], &i_val[3], s_val, &i_val[4], &i_val[5], &i_val[6], &i_val[7], &i_val[8], &i_val[9], s_val2, &i_val[10])) >= 12)
             {
                 if (!strcmp(s_val, "RGB"))
                 {
-                    LOG(5,"RECT RGB %d %d %d %d %d %d %d", i_val[0], i_val[1], i_val[2], i_val[3], i_val[4], i_val[5], i_val[6]);
-                    color_bar = new CColorBar(i_val[0], i_val[1], i_val[2], i_val[3], FALSE, i_val[4], i_val[5], i_val[6]);
-                    m_ColorBars.push_back(color_bar);
+                    YUV = FALSE;
                 }
                 else if (!strcmp(s_val, "YUV"))
                 {
-                    LOG(5,"RECT YUV %d %d %d %d %d %d %d", i_val[0], i_val[1], i_val[2], i_val[3], i_val[4], i_val[5], i_val[6]);
-                    color_bar = new CColorBar(i_val[0], i_val[1], i_val[2], i_val[3], TRUE, i_val[4], i_val[5], i_val[6]);
-                    m_ColorBars.push_back(color_bar);
+                    YUV = TRUE;
                 }
+                else
+                {
+                    continue;
+                }
+                if (!strcmp(s_val2, "FILLED"))
+                {
+                    TypeDraw = DRAW_FILLED;
+                }
+                else if (!strcmp(s_val2, "BORDER"))
+                {
+                    TypeDraw = DRAW_BORDER;
+                }
+                else if (!strcmp(s_val2, "LINEH"))
+                {
+                    TypeDraw = DRAW_LINEH;
+                }
+                else if (!strcmp(s_val2, "LINEV"))
+                {
+                    TypeDraw = DRAW_LINEV;
+                }
+                else if (!strcmp(s_val2, "LINEX"))
+                {
+                    TypeDraw = DRAW_LINEX;
+                }
+                else
+                {
+                    continue;
+                }
+                if (n == 12)
+                {
+                    i_val[10] = 1;
+                }
+                LOG(5,"RECT %s (%d) %s %d %d %d %d %d %d %d %d %d %d", s_val2, i_val[10], YUV?"YUV":"RGB", i_val[0], i_val[1], i_val[2], i_val[3], i_val[4], i_val[5], i_val[6], i_val[7], i_val[8], i_val[9]);
+                color_bar = new CColorBar(i_val[0], i_val[1], i_val[2], i_val[3], TypeDraw, i_val[10], YUV, i_val[4], i_val[5], i_val[6], i_val[7], i_val[8], i_val[9]);
+                m_ColorBars.push_back(color_bar);
             }
             else if ((n = sscanf(Buffer, "GRP %s %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d", s_val, &i_val[0], &i_val[1], &i_val[2], &i_val[3], &i_val[4], &i_val[5], &i_val[6], &i_val[7], &i_val[8], &i_val[9], &i_val[10], &i_val[11], &i_val[12], &i_val[13], &i_val[14], &i_val[15])) >= 2)
             {
@@ -827,14 +945,14 @@ CSubPattern* CTestPattern::GetSubPattern(eTypeAdjust type_adjust)
     return NULL;
 }
 
-void CTestPattern::Draw(BYTE* buffer)
+void CTestPattern::Draw(BYTE* Buffer)
 {
     // Do the job for each defined color bar
     for(vector<CColorBar*>::iterator it = m_ColorBars.begin(); 
         it != m_ColorBars.end(); 
         ++it)
     {
-        (*it)->Draw(buffer, m_Height, m_Width);
+        (*it)->Draw(Buffer, m_Width*2, m_Height, m_Width, 0, 0, 0);
     }
 }
 
@@ -1589,7 +1707,7 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
     {
         if (m_CurSubPat != NULL)
         {
-            m_CurSubPat->DrawPositions(pInfo);
+            m_CurSubPat->Draw(pInfo);
         }
 		return;
     }
@@ -1939,7 +2057,7 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
 
     if (m_CurSubPat != NULL)
     {
-        m_CurSubPat->DrawPositions(pInfo);
+        m_CurSubPat->Draw(pInfo);
     }
 }
 

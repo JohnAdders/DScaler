@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.h,v 1.24 2002-02-09 18:06:27 laurentg Exp $
+// $Id: Calibration.h,v 1.25 2002-02-16 11:37:29 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,14 @@ enum eTypeContentPattern {
 };
 
 
+enum eTypeDraw {
+    DRAW_BORDER = 0,
+    DRAW_FILLED,
+    DRAW_LINEH,
+    DRAW_LINEV,
+    DRAW_LINEX,
+};
+
 /// Define all types of adjustments for a sub-pattern
 enum eTypeAdjust {
     ADJ_MANUAL = 0,
@@ -71,14 +79,20 @@ enum eTypeCalibration {
 class CColorBar
 {
 public:
-    CColorBar(unsigned short int left, unsigned short int right, unsigned short int top, unsigned short int bottom, BOOL YUV, unsigned char R_Y, unsigned char G_U, unsigned char B_V);
+    CColorBar(unsigned short int left, unsigned short int right, unsigned short int top, unsigned short int bottom, eTypeDraw type_draw, int param_draw, BOOL YUV, unsigned char R_Y, unsigned char G_U, unsigned char B_V, unsigned char R_Y_2, unsigned char G_U_2, unsigned char B_V_2);
     CColorBar(CColorBar* pColorBar);
 
     /// This method returns the position of the color bar
     void GetPosition(unsigned short int* left, unsigned short int* right, unsigned short int* top, unsigned short int* bottom);
 
+    /// This method returns the type of draw for the color bar
+    eTypeDraw GetTypeDraw(int* pParamDraw);
+
     /// This methode returns the reference color
     void GetRefColor(BOOL YUV, unsigned char* pR_Y, unsigned char* pG_U, unsigned char* pB_V);
+
+    /// This methode returns the second reference color
+    void GetRefColor2(BOOL YUV, unsigned char* pR_Y, unsigned char* pG_U, unsigned char* pB_V);
 
     /// This methode returns the calculated average color
     void GetCurrentAvgColor(BOOL YUV, unsigned char* pR_Y, unsigned char* pG_U, unsigned char* pB_V);
@@ -91,10 +105,7 @@ public:
     */
     BOOL CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, TDeinterlaceInfo* pInfo);
 
-    /// This method draws in the video signal a rectangle around the color bar
-    void DrawPosition(TDeinterlaceInfo* pInfo);
-
-    void Draw(BYTE* buffer, int height, int width);
+    void Draw(BYTE* Buffer, int Pitch, int Height, int Width, int Overscan, int LCrop, int RCrop);
 
 protected: 
     /** Left position of the rectangular zone in the full test pattern
@@ -153,6 +164,30 @@ protected:
     /// Calculated average B value in the corresponding zone of the overlay
     unsigned char B_val;
 
+    /// Second value for luminance
+    unsigned char ref_Y_val2;
+
+    /// Second value for saturation U
+    unsigned char ref_U_val2;
+
+    /// Second value for saturation V
+    unsigned char ref_V_val2;
+
+    /// Second value for red component
+    unsigned char ref_R_val2;
+
+    /// Second value for green component
+    unsigned char ref_G_val2;
+
+    /// Second value for blue component
+    unsigned char ref_B_val2;
+
+    /// Type of draw
+    eTypeDraw m_TypeDraw;
+
+    /// Parameter
+    int m_ParamDraw;
+
 private:
     /// Convert RGB to YUV
     void RGB2YUV(unsigned char R, unsigned char G, unsigned char B, unsigned char* pY, unsigned char* pU, unsigned char* pV);
@@ -190,7 +225,7 @@ public:
     void GetSumDeltaColor(BOOL YUV, int* pR_Y, int* pG_U, int* pB_V, int* pTotal);
 
     /// This method draws in the video signal rectangles around each color bar of the sub-pattern
-    void DrawPositions(TDeinterlaceInfo* pInfo);
+    void Draw(TDeinterlaceInfo* pInfo);
 
     /// Color bars of the sub-pattern
     vector<CColorBar*> m_ColorBars;

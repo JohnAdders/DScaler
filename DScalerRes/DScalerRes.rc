@@ -1380,7 +1380,7 @@ IDC_DSHOWSOURCEMENU MENU DISCARDABLE
 BEGIN
     POPUP "DShow"
     BEGIN
-        MENUITEM "Video &Input",                65535, GRAYED
+        MENUITEM "&Video Input",                65535, GRAYED
         MENUITEM "Video &Standard",             65535, GRAYED
         MENUITEM "&Resolution",                 65535, GRAYED
         MENUITEM "&Audio Input",                65535, GRAYED
@@ -1426,7 +1426,7 @@ IDC_CT2388X MENU DISCARDABLE
 BEGIN
     POPUP "&CT Card"
     BEGIN
-        POPUP "Video &Input"
+        POPUP "&Video Input"
         BEGIN
             MENUITEM "Input &1\tCtrl+Alt+F1",       IDM_SOURCE_INPUT1
             MENUITEM "Input &2\tCtrl+Alt+F2",       IDM_SOURCE_INPUT2
@@ -1480,7 +1480,7 @@ IDC_SAA7134 MENU DISCARDABLE
 BEGIN
     POPUP "SAA&7134 Card"
     BEGIN
-        POPUP "Video &Input"
+        POPUP "&Video Input"
         BEGIN
             MENUITEM "Input &1\tCtrl+Alt+F1",       IDM_SOURCE_INPUT1
             MENUITEM "Input &2\tCtrl+Alt+F2",       IDM_SOURCE_INPUT2

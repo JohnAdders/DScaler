@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.84 2002-09-17 17:28:25 tobbej Exp $
+// $Id: OutThreads.cpp,v 1.85 2002-09-28 14:49:39 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.84  2002/09/17 17:28:25  tobbej
+// updated crashloging to same version as in latest virtualdub
+//
 // Revision 1.83  2002/09/11 18:19:43  adcockj
 // Prelimainary support for CT2388x based cards
 //
@@ -501,6 +504,7 @@ void Stop_Thread()
 
         if (Thread_Stopped == FALSE)
         {
+            LOG(3,"Timeout waiting for YUVOutThread to exit, terminating it via TerminateThread()");
             TerminateThread(OutThread, 0);
             Sleep(100);
         }
@@ -983,6 +987,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                             LOG(1, "Falling out after Overlay_Unlock_Back_Buffer");
                             PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_STOP, 0);
                             PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_START, 0);
+                            DScalerDeinitializeThread();
                             ExitThread(1);
                             return 0;
                         }
@@ -1024,6 +1029,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                                 LOG(1, "Falling out after Overlay_Flip");
                                 PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_STOP, 0);
                                 PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_START, 0);
+                                DScalerDeinitializeThread();
                                 ExitThread(1);
                                 return 0;
                             }
@@ -1079,6 +1085,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     { 
         Providers_GetCurrentSource()->Stop();
         LOG(1, "Crash in OutThreads main loop");
+        DScalerDeinitializeThread();
         ExitThread(1);
         return 0;
     }
@@ -1092,6 +1099,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     __except (CrashHandler((EXCEPTION_POINTERS*)_exception_info())) 
     {
         LOG(1, "Crash in in OutThreads Providers_GetCurrentSource()->Stop()");
+        DScalerDeinitializeThread();
         ExitThread(1);
         return 0;
     }

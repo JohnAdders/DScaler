@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.65 2002-07-25 20:43:56 laurentg Exp $
+// $Id: StillSource.cpp,v 1.66 2002-07-31 22:42:25 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.65  2002/07/25 20:43:56  laurentg
+// Setting added to take still always in the same file
+//
 // Revision 1.64  2002/07/24 21:43:17  laurentg
 // Take cyclic stills
 //
@@ -323,9 +326,8 @@ CStillSourceHelper::CStillSourceHelper(CStillSource* pParent)
 }
 
 
-CPlayListItem::CPlayListItem(LPCSTR FileName, int SecondsToDisplay) :
+CPlayListItem::CPlayListItem(LPCSTR FileName) :
     m_FileName(FileName),
-    m_SecondsToDisplay(SecondsToDisplay),
     m_Supported(TRUE)
 {
 }
@@ -335,12 +337,7 @@ LPCSTR CPlayListItem::GetFileName()
     return m_FileName.c_str();
 }
 
-int CPlayListItem::GetSecondsToDisplay()
-{
-    return m_SecondsToDisplay;
-}
-
-int CPlayListItem::IsSupported()
+BOOL CPlayListItem::IsSupported()
 {
     return m_Supported;
 }
@@ -426,7 +423,7 @@ BOOL CStillSource::LoadPlayList(LPCSTR FileName)
                 {
                     if (!stat(Buffer, &st))
                     {
-                        CPlayListItem* Item = new CPlayListItem(Buffer, 10);
+                        CPlayListItem* Item = new CPlayListItem(Buffer);
                         m_PlayList.push_back(Item);
                         if (!FirstItemAdded)
                         {
@@ -451,7 +448,7 @@ BOOL CStillSource::LoadPlayList(LPCSTR FileName)
                     }
                     if (!stat(FilePath, &st))
                     {
-                        CPlayListItem* Item = new CPlayListItem(FilePath, 10);
+                        CPlayListItem* Item = new CPlayListItem(FilePath);
                         m_PlayList.push_back(Item);
                         if (!FirstItemAdded)
                         {
@@ -573,7 +570,7 @@ BOOL CStillSource::OpenMediaFile(LPCSTR FileName, BOOL NewPlayList)
     }
     else if(OpenPictureFile(FileName))
     {
-        CPlayListItem* Item = new CPlayListItem(FileName, 10);
+        CPlayListItem* Item = new CPlayListItem(FileName);
         m_PlayList.push_back(Item);
         m_Position = m_PlayList.size() - 1;
         return TRUE;
@@ -657,9 +654,9 @@ void CStillSource::SaveSnapshot(LPCSTR FilePath, int FrameHeight, int FrameWidth
         NewToAdd = FALSE;
         break;
     }
-    if (NewToAdd)
+    if (NewToAdd & !IsItemInList(FilePath))
     {
-        CPlayListItem* Item = new CPlayListItem(FilePath, 10);
+        CPlayListItem* Item = new CPlayListItem(FilePath);
         m_PlayList.push_back(Item);
         if (m_PlayList.size() == 1)
         {
@@ -1749,4 +1746,21 @@ int __stdcall SimpleResize_InitTables(unsigned int* hControl, unsigned int* vOff
 	}
 
 	return 0;
+}
+
+BOOL CStillSource::IsItemInList(LPCSTR FileName)
+{
+    BOOL found = FALSE;
+
+    for(vector<CPlayListItem*>::iterator it = m_PlayList.begin(); 
+        it != m_PlayList.end(); 
+        ++it)
+    {
+        if (! strcmp((*it)->GetFileName(), FileName))
+        {
+            found = TRUE;
+            break;
+        }
+    }
+    return found;
 }

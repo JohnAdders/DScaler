@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.35 2002-06-21 23:14:19 laurentg Exp $
+// $Id: StillSource.h,v 1.36 2002-07-31 22:42:25 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -65,14 +65,12 @@ protected:
 class CPlayListItem
 {
 public:
-    CPlayListItem(LPCSTR FileName, int SecondsToDisplay);
+    CPlayListItem(LPCSTR FileName);
     LPCSTR GetFileName();
     BOOL IsSupported();
-    int GetSecondsToDisplay();
     void SetSupported(BOOL Supported);
 private:
     std::string m_FileName;
-    int m_SecondsToDisplay;
     BOOL m_Supported;
 };
 
@@ -136,6 +134,7 @@ private:
     BOOL OpenPictureFile(LPCSTR FileName);
     BOOL SavePlayList(LPCSTR FileName);
     BOOL ResizeOriginalFrame(int NewWidth, int NewHeight);
+    BOOL IsItemInList(LPCSTR FileName);
 
 protected:
     int         m_Width;

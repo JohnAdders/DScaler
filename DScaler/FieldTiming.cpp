@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FieldTiming.cpp,v 1.15 2001-08-02 16:43:05 adcockj Exp $
+// $Id: FieldTiming.cpp,v 1.16 2001-08-11 12:02:13 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2001/08/02 16:43:05  adcockj
+// Added Debug level to LOG function
+//
 // Revision 1.14  2001/07/28 13:24:40  adcockj
 // Added UI for Overlay Controls and fixed issues with SettingsDlg
 //
@@ -71,7 +74,7 @@ long FiftyHzFormat = FORMAT_PAL_BDGHI;
 long SixtyHzFormat = FORMAT_NTSC;
 long FormatChangeThreshold = 2;
 BOOL bJudderTerminatorOnVideo = TRUE;
-long SleepInterval = 0;         // " , default=0, how long to wait for BT chip
+long SleepInterval = 1;         // " , default=0, how long to wait for BT chip
 long SleepSkipFields = 0;       // Number of fields to skip before doing sleep interval
 long SleepSkipFieldsLate = 0;   // Number of fields to skip before doing sleep interval, when we're running late
 
@@ -479,7 +482,7 @@ SETTING TimingSettings[TIMING_SETTING_LASTONE] =
     },
     {
         "Sleep Interval", SLIDER, 0, (long*)&SleepInterval,
-        0, 0, 100, 1, 1,
+        1, 0, 100, 1, 1,
         NULL,
         "Threads", "SleepInterval", NULL,
     },

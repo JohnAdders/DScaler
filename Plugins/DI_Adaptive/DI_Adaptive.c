@@ -95,12 +95,17 @@ void UpdateAdaptiveMode(long Index)
 ///////////////////////////////////////////////////////////////////////////////
 BOOL DeinterlaceAdaptive(DEINTERLACE_INFO *info)
 {
-	static long MATCH_COUNT = 0;
+	static long StaticMatchCount = 0;
+	static long LowMatchCount = 0;
 
 	// If this is our first time, update the current adaptive mode to whatever
 	// the ini file said our high-motion mode should be.
 	if (CurrentIndex == -1)
+    {
 		UpdateAdaptiveMode(HighMotionMode);
+        StaticMatchCount = 0;
+        LowMatchCount = 0;
+    }
 
 	// reset MATCH_COUNT when we are called and the info
 	// struct doesn't contain at least an odd and an even frame
@@ -109,45 +114,53 @@ BOOL DeinterlaceAdaptive(DEINTERLACE_INFO *info)
 		return FALSE;
 	}
 
-	// If the field difference is bigger than the threshold, then
-	// the current field is very different from the field two fields ago.
-	// so reset the match count and switch back
-	// to either low or high motion
-	//CompareFields(info);
-    if(info->FieldDiff > AdaptiveThres32Pulldown)
-	{
-		MATCH_COUNT = 0;
+    // if we have very liitle motion update
+    // to static after StaticImageFieldCount consecutive 
+    // static fields
+    // also check if its OK to go into low motion mode
+    if(info->FieldDiff < AdaptiveThres32Pulldown)
+    {
+        StaticMatchCount++;
+        LowMatchCount++;
+        if(CurrentIndex != StaticImageMode &&
+            StaticMatchCount >= StaticImageFieldCount)
+        {
+			UpdateAdaptiveMode(StaticImageMode);
+        }
+        else if(CurrentIndex == HighMotionMode &&
+            LowMatchCount >= LowMotionFieldCount)
+        {
+			UpdateAdaptiveMode(LowMotionMode);
+        }
+    }
+    // if there is some motion then
+    // switch back to low from high only after LowMotionFieldCount
+    // consecutive low or static fields
+    // if we are in static then switch straight away
+    else if(info->FieldDiff < AdaptiveThresPulldownMismatch)
+    {
+        LowMatchCount++;
+        StaticMatchCount = 0;
 
-		// If we're not in low-motion mode, it might be okay to drop to
-		// low-motion mode.
-		if (CurrentIndex != LowMotionMode &&
-			info->FieldDiff < AdaptiveThresPulldownMismatch)
+		if ((CurrentIndex == HighMotionMode &&
+            LowMatchCount >= LowMotionFieldCount) ||
+            CurrentIndex == StaticImageMode)
 		{
 			UpdateAdaptiveMode(LowMotionMode);
 		}
-		// If we're not in high-motion mode, wwe might have
-        // to go to high-motion mode
-		if(CurrentIndex != HighMotionMode &&
-            info->FieldDiff >= AdaptiveThresPulldownMismatch)
+    }
+    // high levels of motion just switch to high mode
+    else
+    {
+        LowMatchCount = 0;
+        StaticMatchCount = 0;
+
+		if(CurrentIndex != HighMotionMode)
 		{
 			UpdateAdaptiveMode(HighMotionMode);
 		}
-	}
-    else
-	{
-		MATCH_COUNT++;
+    }
 
-		if (MATCH_COUNT >= LowMotionFieldCount &&
-			CurrentIndex == HighMotionMode)
-		{
-			UpdateAdaptiveMode(LowMotionMode);
-		}
-		if (MATCH_COUNT >= StaticImageFieldCount &&
-			CurrentIndex == LowMotionMode)
-		{
-			UpdateAdaptiveMode(StaticImageMode);
-		}
-	}
 	if(CurrentMethod != NULL)
 	{
 		return CurrentMethod->pfnAlgorithm(info);

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.185 2002-06-23 20:51:13 laurentg Exp $
+// $Id: DScaler.cpp,v 1.186 2002-06-25 22:41:29 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.185  2002/06/23 20:51:13  laurentg
+// Attachment of test patterns menu restored
+//
 // Revision 1.184  2002/06/22 21:50:47  robmuller
 // Generate a valid dscaler.ini at startup.
 //
@@ -2927,6 +2930,16 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         if (((char) wParam >= '0') && ((char) wParam <= '9'))
         {
             sprintf(Text, "%c", (char)wParam);
+            // if something gets broken in the future
+            if(strlen(ChannelString) >= sizeof(ChannelString)/sizeof(char) - 1)
+            {
+#ifdef _DEBUG
+                // if this is a debug build show an error message
+                MessageBox(hWnd, "dscaler.cpp: ChannelString out of bounds.", "Error", MB_ICONERROR);
+#endif
+                ChannelString[0] = '\0';
+                return 0;
+            }
             strcat(ChannelString, Text);
 
             // if the user is only typing zero's we are going to switch inputs
@@ -2968,6 +2981,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                     SetTimer(hWnd, TIMER_KEYNUMBER, ChannelEnterTime, NULL);
                 }
             }
+            // if in tuner mode or videotext mode
             else if (Providers_GetCurrentSource()->IsInTunerMode() || VTState != VT_OFF)
             {
                 if(VTState == VT_OFF)
@@ -2990,6 +3004,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                         Channel_ChangeToNumber(i);
                     }
                 }
+            }
+            // we don't know what to do with this keypress so we reset ChannelString
+            else
+            {
+                ChannelString[0] = '\0';
             }
         }
         return 0;

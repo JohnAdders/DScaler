@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSVideoFormatPage.h,v 1.1 2002-09-04 17:08:31 tobbej Exp $
+// $Id: DSVideoFormatPage.h,v 1.2 2002-09-07 13:33:35 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/09/04 17:08:31  tobbej
+// new video format configuration dialog (resolution)
+//
 /////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -55,7 +58,7 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CDSVideoFormatPage)
 	enum { IDD = IDD_DSHOW_VIDEOFMTS };
-	CListBox m_ListBox;
+	CDragListBox m_ListBox;
 	CSpinButtonCtrl	m_SpinWidth;
 	CSpinButtonCtrl	m_SpinHeight;
 	CButton m_YUY2Check;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSVideoFormatPage.cpp,v 1.1 2002-09-04 17:08:31 tobbej Exp $
+// $Id: DSVideoFormatPage.cpp,v 1.2 2002-09-07 13:33:35 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/09/04 17:08:31  tobbej
+// new video format configuration dialog (resolution)
+//
 /////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -125,14 +128,32 @@ void CDSVideoFormatPage::OnOK()
 {
 	TRACE(_T("%s(%d) : CDSVideoFormatPage::OnOK\n"),__FILE__,__LINE__);
 	
+
 	//update the resoltion setting so it points to the right entry in the new vector
 	long OldResolution=m_pResolutionSetting->GetValue();
 	long NewResolution=-1;
+	CDShowGraph::CVideoFormat OldFormat;
 	if(OldResolution>=0 && OldResolution<m_RealVideoFmt.size())
 	{
-		for(int i=0;i<m_VideoFmt.size();i++)
+		OldFormat=m_RealVideoFmt[OldResolution];
+	}
+	else
+	{
+		OldResolution=-1;
+	}
+
+	m_RealVideoFmt.erase(m_RealVideoFmt.begin(),m_RealVideoFmt.end());
+	for(int i=0;i<m_ListBox.GetCount();i++)
+	{
+		int pos=m_ListBox.GetItemData(i);
+		m_RealVideoFmt.push_back(m_VideoFmt[pos]);
+	}
+
+	if(OldResolution!=-1)
+	{
+		for(int i=0;i<m_RealVideoFmt.size();i++)
 		{
-			if(m_VideoFmt[i]==m_RealVideoFmt[OldResolution])
+			if(m_RealVideoFmt[i]==OldFormat)
 			{
 				NewResolution=i;
 				break;
@@ -140,7 +161,6 @@ void CDSVideoFormatPage::OnOK()
 		}
 	}
 
-	m_RealVideoFmt=m_VideoFmt;
 	m_pResolutionSetting->SetValue(NewResolution);
 }
 
@@ -398,6 +418,24 @@ void CDSVideoFormatPage::OnContextMenu(CWnd* pWnd, CPoint point)
 void CDSVideoFormatPage::OnClickedDelete()
 {
 	TRACE(_T("%s(%d) : CDSVideoFormatPage::OnClickedDelete\n"),__FILE__,__LINE__);
+	
+	int CurSel=m_ListBox.GetCurSel();
+	if(CurSel!=LB_ERR)
+	{
+		DWORD pos=m_ListBox.GetItemData(CurSel);
+		
+		//delete item from listbox and select a new item
+		m_ListBox.DeleteString(CurSel);
+		if(CurSel>=m_ListBox.GetCount())
+		{
+			m_ListBox.SetCurSel(m_ListBox.GetCount()-1);
+		}
+		else
+		{
+			m_ListBox.SetCurSel(CurSel);
+		}
+		UpdateControlls();
+	}
 }
 
 void CDSVideoFormatPage::OnClickedNew()

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.371 2005-03-06 01:40:49 robmuller Exp $
+// $Id: DScaler.cpp,v 1.372 2005-03-10 17:40:37 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.371  2005/03/06 01:40:49  robmuller
+// Changed default CPU speed to 'Above 1GHz' in the General Hardware Setup dialog.
+//
 // Revision 1.370  2005/03/06 00:52:27  robmuller
 // Changed default value for 'Always on Top (Window)'.
 //
@@ -1336,6 +1339,8 @@ void Skin_SetMenu(HMENU hMenu, BOOL bUpdateOnly);
 LPCSTR GetSkinDirectory();
 LONG OnChar(HWND hWnd, UINT message, UINT wParam, LONG lParam);
 LONG OnSize(HWND hWnd, UINT wParam, LONG lParam);
+LONG OnAppCommand(HWND hWnd, UINT wParam, LONG lParam);
+LONG OnInput(HWND hWnd, UINT wParam, LONG lParam);
 void SetTray(BOOL Way);
 int On_IconHandler(WPARAM wParam, LPARAM lParam);
 
@@ -4807,6 +4812,14 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         }
         break;
 
+    case WM_APPCOMMAND:
+        return OnAppCommand(hWnd, wParam, lParam);
+        break;
+
+    case WM_INPUT:
+        return OnInput(hWnd, wParam, lParam);
+        break;
+
     case WM_PAINT:
         {
             PAINTSTRUCT sPaint;
@@ -5555,6 +5568,49 @@ LONG OnChar(HWND hWnd, UINT message, UINT wParam, LONG lParam)
     }
     return 0;
 }
+
+// Cope with new media commands 
+// MCE remote sends these for the basic keys
+LONG OnAppCommand(HWND hWnd, UINT wParam, LONG lParam)
+{
+    LONG RetVal = TRUE;
+
+    switch(GET_APPCOMMAND_LPARAM(lParam))
+    {
+    case APPCOMMAND_BROWSER_BACKWARD:
+        PostMessage(hWnd, WM_CLOSE, 0, 0);
+        break;
+    case APPCOMMAND_MEDIA_CHANNEL_DOWN:
+        PostMessage(hWnd, WM_COMMAND, IDM_CHANNELMINUS, 0);
+        break;
+    case APPCOMMAND_MEDIA_CHANNEL_UP:
+        PostMessage(hWnd, WM_COMMAND, IDM_CHANNELPLUS, 0);
+        break;
+    case APPCOMMAND_MEDIA_NEXTTRACK:
+        PostMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_NEXT, 0);
+        break;
+    case APPCOMMAND_MEDIA_PREVIOUSTRACK:
+        PostMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_PREVIOUS, 0);
+        break;
+    case APPCOMMAND_MEDIA_PLAY_PAUSE:
+        PostMessage(hWnd, WM_COMMAND, IDM_CAPTURE_PAUSE, 0);
+        break;
+    case APPCOMMAND_VOLUME_DOWN:
+        PostMessage(hWnd, WM_COMMAND, IDM_VOLUMEMINUS, 0);
+        break;
+    case APPCOMMAND_VOLUME_UP:
+        PostMessage(hWnd, WM_COMMAND, IDM_VOLUMEPLUS, 0);
+        break;
+    case APPCOMMAND_VOLUME_MUTE:
+        PostMessage(hWnd, WM_COMMAND, IDM_MUTE, 0);
+        break;
+    default:
+        RetVal = FALSE;
+        break;
+    }
+    return RetVal;
+}
+
 
 LONG OnSize(HWND hWnd, UINT wParam, LONG lParam)
 {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.69 2004-05-06 15:00:43 adcockj Exp $
+// $Id: Other.cpp,v 1.70 2005-03-10 17:40:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.69  2004/05/06 15:00:43  adcockj
+// Fix for errors on ctrl-alt-delete (Bug-947656)
+//
 // Revision 1.68  2004/05/02 14:09:32  atnak
 // Fixed possible problem of overlay colour getting dithered with < 32bit colour
 //
@@ -329,6 +332,8 @@ static HMONITOR hCurrentMon = NULL;
 // so that we continue to run on NT 4
 HMONITOR (WINAPI * lpMonitorFromWindow)( IN HWND hwnd, IN DWORD dwFlags) = NULL;
 BOOL (WINAPI* lpGetMonitorInfoA)( IN HMONITOR hMonitor, OUT LPMONITORINFO lpmi) = NULL;
+BOOL (WINAPI* lpRegisterRawInputDevices)(IN PCRAWINPUTDEVICE pRawInputDevices,IN UINT uiNumDevices,IN UINT cbSize) = NULL;
+UINT (WINAPI* lpGetRawInputData)(IN HRAWINPUT hRawInput,IN UINT uiCommand,OUT LPVOID pData,IN OUT PUINT pcbSize,IN UINT cbSizeHeader) = NULL;
 
 
 //-----------------------------------------------------------------------------
@@ -423,13 +428,77 @@ void LoadDynamicFunctions()
 	HINSTANCE h = LoadLibrary("user32.dll");
     lpMonitorFromWindow = (HMONITOR (WINAPI *)( IN HWND hwnd, IN DWORD dwFlags)) GetProcAddress(h,"MonitorFromWindow");
     lpGetMonitorInfoA = (BOOL (WINAPI *)( IN HMONITOR hMonitor, OUT LPMONITORINFO lpmi)) GetProcAddress(h,"GetMonitorInfoA");
+    lpRegisterRawInputDevices = (BOOL (WINAPI *)(IN PCRAWINPUTDEVICE pRawInputDevices,IN UINT uiNumDevices,IN UINT cbSize))GetProcAddress(h,"RegisterRawInputDevices");
+    lpGetRawInputData = (UINT (WINAPI*)(IN HRAWINPUT hRawInput,IN UINT uiCommand,OUT LPVOID pData,IN OUT PUINT pcbSize,IN UINT cbSizeHeader))GetProcAddress(h,"GetRawInputData");;
 
+    // register for messages from MCE remote
+    // this will mean we will get sent WM_INPUT messages
+    if(lpRegisterRawInputDevices && lpGetRawInputData)
+    {
+        RAWINPUTDEVICE Rid[1];
+
+        Rid[0].usUsagePage = 0xFFBC;
+        Rid[0].usUsage = 0x88; 
+        Rid[0].dwFlags = 0;
+
+        if(RegisterRawInputDevices(Rid, 1, sizeof(Rid[0])))
+        {
+        	LOG(1, "Registered for MCE remote messages");
+        }
+    }
+
+        
     // If the library was loaded by calling LoadLibrary(),
     // then you must use FreeLibrary() to let go of it.
     // Since we will already have an outstanding reference to user32.dll
     // it's OK to Free it here before we've even called the functions
     FreeLibrary(h);
 }
+
+LONG OnInput(HWND hWnd, UINT wParam, LONG lParam)
+{
+    if(GET_RAWINPUT_CODE_WPARAM(wParam) == RIM_INPUT)
+    {
+        UINT dwSize;
+        BOOL bHandled = FALSE;
+
+        lpGetRawInputData((HRAWINPUT)lParam, RID_INPUT, NULL, &dwSize, sizeof(RAWINPUTHEADER));
+        LPBYTE lpb = new BYTE[dwSize];
+
+        if (lpb != NULL) 
+        {
+            if (lpGetRawInputData((HRAWINPUT)lParam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER)) == dwSize )
+            {
+                RAWINPUT* raw = (RAWINPUT*)lpb;
+
+                if (raw->header.dwType == RIM_TYPEKEYBOARD) 
+                {
+                    LOG(1, "WM_INPUT Keyboard %d %d", raw->data.keyboard.MakeCode, raw->data.keyboard.Flags);
+                }
+                else if (raw->header.dwType == RIM_TYPEMOUSE) 
+                {
+                    LOG(1, "WM_INPUT Mouse %d %d", raw->data.mouse.lLastX, raw->data.mouse.lLastY);
+                } 
+                else if (raw->header.dwType == RIM_TYPEHID) 
+                {
+                    LOG(1, "WM_INPUT HID %d %d", raw->data.hid.dwSizeHid, raw->data.hid.dwCount);
+                } 
+            }
+            
+            delete[] lpb; 
+        }
+        
+        DefWindowProc(hWnd, WM_INPUT, wParam, lParam);
+        
+        return !bHandled;
+    }
+    else
+    {
+        DefWindowProc(hWnd, WM_INPUT, wParam, lParam);
+        return TRUE;
+    }
+}
+
 
 //-----------------------------------------------------------------------------
 static LPDIRECTDRAW GetCurrentDD(HWND hWnd)

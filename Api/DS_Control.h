@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.76 2002-08-03 00:16:01 laurentg Exp $
+// $Id: DS_Control.h,v 1.77 2002-08-06 22:18:08 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.76  2002/08/03 00:16:01  laurentg
+// Value for WM_DI_TOMSMOCOMP_SETVALUE and WM_DI_TOMSMOCOMP_CHANGEVALUE updated to avoid conflicts
+//
 // Revision 1.75  2002/07/25 20:41:46  laurentg
 // Setting added to take still always in the same file
 //
@@ -1040,6 +1043,7 @@ typedef enum
 typedef enum
 {
     SHARPNESS = 0,
+    SHARPNESS_PREFETCH,
     USESHARPNESS,
     FLT_SHARPNESS_SETTING_LASTONE,
 } FLT_SHARPNESS_SETTING;
@@ -1054,11 +1058,12 @@ typedef enum
 
 typedef enum
 {
-    MAXPHASECOLORDIFF = 0,
-    SHIMMERHISTPERCENT,
-    SHIMMERPERCENT,
-    USETCOMB,
-    TRADESPEEDFORACCURACY,
+    TCOMB_MAX_PHASE_COLOR_DIFF = 0,
+    TCOMB_PREFETCH,
+    TCOMB_SHIMMER_HIST_PERCENT,
+    TCOMB_SHIMMER_PERCENT,
+    TCOMB_ACTIVATE,
+    TCOMB_TRADE_SPEED_FOR_ACCURACY,
     FLT_TCOMB_SETTING_LASTONE,
 } FLT_TCOMB_SETTING;
 
@@ -1106,8 +1111,9 @@ typedef enum
 
 typedef enum
 {
-    NOISEREDUCTION = 0,
-    USEGRADUALNOISE,
+    NOISE_REDUCTION = 0,
+    GNOISE_PREFETCH,
+    GNOISE_ACTIVATE,
     FLT_GNOISE_SETTING_LASTONE,
 } FLT_GNOISE_SETTING;
 
@@ -1122,12 +1128,13 @@ typedef enum
 
 typedef enum
 {
-    ANOISESTABILITY = 0,
-    ANOISEREDUCTION,
-    ANOISELOCKDOT,
-    ANOISEACTIVATE,
-    ANOISEINDICATOR,
-    ANOISEMOTIONMEMORY,
+    ANOISE_STABILITY = 0,
+    ANOISE_PREFETCH,
+    ANOISE_REDUCTION,
+    ANOISE_LOCK_DOT,
+    ANOISE_ACTIVATE,
+    ANOISE_INDICATOR,
+    ANOISE_MOTION_MEMORY,
     FLT_ANOISE_SETTING_LASTONE,
 } FLT_ANOISE_SETTING;
 
@@ -1142,9 +1149,10 @@ typedef enum
 
 typedef enum
 {
-    HISTOGRAMDISPLAYMODE = 0,
-    USEHISTOGRAM,
-    USEHISTOGRAMCOMB,
+    HISTOGRAM_DISPLAY_MODE = 0,
+    HISTOGRAM_PREFETCH,
+    HISTOGRAM_ACTIVATE,
+    HISTOGRAM_USE_COMB,
     FLT_HISTOGRAM_SETTING_LASTONE,
 } FLT_HISTOGRAM_SETTING;
 

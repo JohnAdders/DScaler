@@ -1,5 +1,5 @@
 //
-// $Id: MSP34xx_revA.cpp,v 1.1 2002-09-26 11:29:52 kooiman Exp $
+// $Id: MSP34xx_revA.cpp,v 1.2 2002-10-11 21:53:56 ittarnavsky Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,12 +22,16 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/09/26 11:29:52  kooiman
+// Split MSP code in 3 parts.
+//
 //
 //
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include "MSP34x0.h"
+#include "MSP34x0AudioDecoder.h"
 #include "DebugLog.h"
 #include "Crash.h"
 
@@ -43,7 +47,7 @@ static char THIS_FILE[]=__FILE__;
 #define MSP_UNCARRIER_HZ(carrier) ((long)((double)(carrier)*18432000.0/double(1<<24)))
 
 
-CMSP34x0Decoder::eStandard CMSP34x0Decoder::DetectStandard3400()
+CMSP34x0AudioDecoder::eStandard CMSP34x0AudioDecoder::DetectStandardRevA()
 {
     static int m_IndexVal1;
     static int m_IndexVal2;
@@ -66,7 +70,7 @@ CMSP34x0Decoder::eStandard CMSP34x0Decoder::DetectStandard3400()
         m_MajorIndex = 0;
         m_MinorIndex = 0;
 
-        SetCarrier3400(CarrierDetectTable[m_MajorIndex].Major, CarrierDetectTable[m_MajorIndex].Major);
+        SetCarrierRevA(CarrierDetectTable[m_MajorIndex].Major, CarrierDetectTable[m_MajorIndex].Major);
 
         m_CarrierDetect_Phase = 1;
         return MSP34x0_STANDARD_AUTODETECTION_IN_PROGRESS;
@@ -88,7 +92,7 @@ CMSP34x0Decoder::eStandard CMSP34x0Decoder::DetectStandard3400()
         m_MajorIndex++;
         if (CarrierDetectTable[m_MajorIndex].Major != MSP34x0_NOCARRIER)
         {
-            SetCarrier3400(CarrierDetectTable[m_MajorIndex].Major, CarrierDetectTable[m_MajorIndex].Major);
+            SetCarrierRevA(CarrierDetectTable[m_MajorIndex].Major, CarrierDetectTable[m_MajorIndex].Major);
             return MSP34x0_STANDARD_AUTODETECTION_IN_PROGRESS;
         }
         else
@@ -113,7 +117,7 @@ CMSP34x0Decoder::eStandard CMSP34x0Decoder::DetectStandard3400()
             }
             else
             {
-                SetCarrier3400(CarrierDetectTable[m_MajorIndex].Minor[m_MinorIndex], CarrierDetectTable[m_MajorIndex].Minor[m_MinorIndex]);
+                SetCarrierRevA(CarrierDetectTable[m_MajorIndex].Minor[m_MinorIndex], CarrierDetectTable[m_MajorIndex].Minor[m_MinorIndex]);
                 m_CarrierDetect_Phase = 2;
                 
                 int n = 0;
@@ -157,7 +161,7 @@ CMSP34x0Decoder::eStandard CMSP34x0Decoder::DetectStandard3400()
 
         if (CarrierDetectTable[m_MajorIndex].Minor[m_MinorIndex] != MSP34x0_NOCARRIER)
         {
-            SetCarrier3400(CarrierDetectTable[m_MajorIndex].Minor[m_MinorIndex], CarrierDetectTable[m_MajorIndex].Minor[m_MinorIndex]);
+            SetCarrierRevA(CarrierDetectTable[m_MajorIndex].Minor[m_MinorIndex], CarrierDetectTable[m_MajorIndex].Minor[m_MinorIndex]);
             return MSP34x0_STANDARD_AUTODETECTION_IN_PROGRESS;
         }
         else
@@ -252,7 +256,7 @@ CMSP34x0Decoder::eStandard CMSP34x0Decoder::DetectStandard3400()
     return MSP34x0_STANDARD_NONE;    
 }
 
-eSupportedSoundChannels CMSP34x0Decoder::DetectSoundChannels3400()
+eSupportedSoundChannels CMSP34x0AudioDecoder::DetectSoundChannelsRevA()
 {
     int supported = SUPPORTEDSOUNDCHANNEL_MONO;
     switch (m_AudioStandard)
@@ -337,7 +341,7 @@ eSupportedSoundChannels CMSP34x0Decoder::DetectSoundChannels3400()
     return (eSupportedSoundChannels)supported;
 }
 
-void CMSP34x0Decoder::SetSoundChannel3400(eSoundChannel SoundChannel)
+void CMSP34x0AudioDecoder::SetSoundChannelRevA(eSoundChannel SoundChannel)
 {       
     WORD nicam = 0;  // channel source: FM/AM or nicam
 	WORD source = 0;
@@ -381,15 +385,15 @@ void CMSP34x0Decoder::SetSoundChannel3400(eSoundChannel SoundChannel)
         case MSP34x0_STANDARD_SAT:        
             if ( (SoundChannel == SOUNDCHANNEL_LANGUAGE1) || (SoundChannel == SOUNDCHANNEL_LANGUAGE2) )
             {
-                SetCarrier3400(MSP34x0_CARRIER_7_02, MSP34x0_CARRIER_7_38);
+                SetCarrierRevA(MSP34x0_CARRIER_7_02, MSP34x0_CARRIER_7_38);
             } 
             else if (SoundChannel == SOUNDCHANNEL_STEREO)
             {			
-                SetCarrier3400(MSP34x0_CARRIER_7_02, MSP34x0_CARRIER_7_20);
+                SetCarrierRevA(MSP34x0_CARRIER_7_02, MSP34x0_CARRIER_7_20);
             } 
             else 
             {
-                SetCarrier3400(MSP34x0_CARRIER_6_5, MSP34x0_CARRIER_6_5);              
+                SetCarrierRevA(MSP34x0_CARRIER_6_5, MSP34x0_CARRIER_6_5);              
             }
             break;
         case MSP34x0_STANDARD_SAT_ADR:
@@ -400,7 +404,7 @@ void CMSP34x0Decoder::SetSoundChannel3400(eSoundChannel SoundChannel)
         case MSP34x0_STANDARD_DK_NICAM_FM_HDEV2:
         case MSP34x0_STANDARD_DK_NICAM_FM_HDEV3:
         case MSP34x0_STANDARD_L_NICAM_AM:
-            //SetCarrier3400(m_MSPStandards[m_AudioStandard].MajorCarrier, m_MSPStandards[m_AudioStandard].MinorCarrier);
+            //SetCarrierRevA(m_MSPStandards[m_AudioStandard].MajorCarrier, m_MSPStandards[m_AudioStandard].MinorCarrier);
             //if (m_NicamOn)
             //{
             nicam=0x0100;
@@ -455,12 +459,12 @@ void CMSP34x0Decoder::SetSoundChannel3400(eSoundChannel SoundChannel)
 }
 
 
-void CMSP34x0Decoder::Initialize3400()
+void CMSP34x0AudioDecoder::InitializeRevA()
 {   
     //Everything is set up in SetStandard3400 and SetSoundChannel3400
 }
 
-void CMSP34x0Decoder::SetStandard3400(eStandard standard, eVideoFormat videoformat, BOOL bCurrentCarriers, eSoundChannel soundChannel)
+void CMSP34x0AudioDecoder::SetStandardRevA(eStandard standard, eVideoFormat videoformat, BOOL bCurrentCarriers, eSoundChannel soundChannel)
 {
     TStandardDefinition StandardDefinition;
 
@@ -624,11 +628,11 @@ void CMSP34x0Decoder::SetStandard3400(eStandard standard, eVideoFormat videoform
     // Set Carrier
     if (bCurrentCarriers && (m_AudioStandardMajorCarrier!=0) && (m_AudioStandardMinorCarrier!=0) )
     {
-        SetCarrier3400((eCarrier)MSP_CARRIER_HZ(m_AudioStandardMajorCarrier), (eCarrier)MSP_CARRIER_HZ(m_AudioStandardMinorCarrier));
+        SetCarrierRevA((eCarrier)MSP_CARRIER_HZ(m_AudioStandardMajorCarrier), (eCarrier)MSP_CARRIER_HZ(m_AudioStandardMinorCarrier));
     }
     else
     {
-        SetCarrier3400(StandardDefinition.MajorCarrier, StandardDefinition.MinorCarrier);
+        SetCarrierRevA(StandardDefinition.MajorCarrier, StandardDefinition.MinorCarrier);
     }
 
     /// Step 12 NICAM_START
@@ -659,7 +663,7 @@ void CMSP34x0Decoder::SetStandard3400(eStandard standard, eVideoFormat videoform
     SetDSPRegister(DSP_WR_NICAM_PRESCALE, 0x5A00);
 
     // Source
-    SetSoundChannel3400(soundChannel);
+    SetSoundChannelRevA(soundChannel);
     
     
     // reset the ident filter
@@ -682,7 +686,7 @@ void CMSP34x0Decoder::SetStandard3400(eStandard standard, eVideoFormat videoform
     */    
 }
 
-void CMSP34x0Decoder::SetCarrier3400(eCarrier MajorCarrier, eCarrier MinorCarrier)
+void CMSP34x0AudioDecoder::SetCarrierRevA(eCarrier MajorCarrier, eCarrier MinorCarrier)
 {
    /// Step 7, 8, 9 and 10: DCO1_LO, DCO1_HI, DCO2_LO and DCO2_HI    
     SetDEMRegister(DEM_WR_DCO1_LO, MinorCarrier & 0xfff);

@@ -1,5 +1,5 @@
 //
-// $Id: MSP34xx_revG.cpp,v 1.2 2002-09-27 14:14:22 kooiman Exp $
+// $Id: MSP34xx_revG.cpp,v 1.3 2002-10-11 21:53:56 ittarnavsky Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/09/27 14:14:22  kooiman
+// MSP34xx fixes.
+//
 // Revision 1.1  2002/09/26 11:29:52  kooiman
 // Split MSP code in 3 parts.
 //
@@ -31,6 +34,7 @@
 
 #include "stdafx.h"
 #include "MSP34x0.h"
+#include "MSP34x0AudioDecoder.h"
 #include "DebugLog.h"
 #include "Crash.h"
 
@@ -41,31 +45,33 @@ static char THIS_FILE[]=__FILE__;
 #endif
 
 
-#define MSP_UNCARRIER(carrier) ((double)(carrier)*18.432/(double)(1<<24))
-#define MSP_CARRIER_HZ(freq) ((int)((double)(freq/18432000.0)*(1<<24)))
 #define MSP_UNCARRIER_HZ(carrier) ((long)((double)(carrier)*18432000.0/double(1<<24)))
 
 
-eSupportedSoundChannels CMSP34x0Decoder::DetectSoundChannels34x1G()
+eSupportedSoundChannels CMSP34x0AudioDecoder::DetectSoundChannelsRevG()
 {
+    LOG(2,"MSPrevG: DetectSoundChannelsRevG() enter");
+
     int supported = SUPPORTEDSOUNDCHANNEL_MONO;
     int val = GetDEMRegister(DEM_RD_STATUS);
-    LOG(2,"MSP34x1G: Stereo detect: status = 0x%04x",val);
-    if (val&0x0040)
+    if (val & 0x0040)
     {
         supported |= SUPPORTEDSOUNDCHANNEL_STEREO;
     }
-    if (val&0x0180)
+    if (val & 0x0180)
     {
-        supported |= SUPPORTEDSOUNDCHANNEL_LANG1|SUPPORTEDSOUNDCHANNEL_LANG2;
+        supported |= SUPPORTEDSOUNDCHANNEL_LANG1 | SUPPORTEDSOUNDCHANNEL_LANG2;
     }
 
+    LOG(2,"MSPrevG: DetectSoundChannelsRevG()=%d exit", supported);
     return (eSupportedSoundChannels)supported;
 }
 
 
-CMSP34x0Decoder::eStandard CMSP34x0Decoder::DetectStandard34x1G()
+CMSP34x0AudioDecoder::eStandard CMSP34x0AudioDecoder::DetectStandardRevG()
 {
+    LOG(2,"MSPrevG: DetectStandardRevG() enter");
+
     if(m_MSPVersion != MSPVersionG) 
     {
         return MSP34x0_STANDARD_NONE;
@@ -74,49 +80,16 @@ CMSP34x0Decoder::eStandard CMSP34x0Decoder::DetectStandard34x1G()
     if (Result >= 0x07ff)
     {
         return MSP34x0_STANDARD_AUTODETECTION_IN_PROGRESS;
-    }    
+    }
+
+    LOG(2,"MSPrevG: DetectStandardRevG()=%d exit", Result);
     return (eStandard)Result;
 }
 
-void CMSP34x0Decoder::SetSoundChannel34x1G(eSoundChannel soundChannel, BOOL bStartOfDetection)
+void CMSP34x0AudioDecoder::SetSoundChannelRevG(eSoundChannel soundChannel)
 {
-    LOG(2,"MSP34xx: Set sound channel: %d",soundChannel);
-    
-    WORD source = 0;
-    //WORD nicam = 0;
+    LOG(2,"MSPrevG: SetSoundChannelRevG(%d) enter", soundChannel);
 
-/*    	    // the following is only valid for RevG since it uses Automatic Sound Select
-	    WORD modus = 0;
-
-	    // if mono output is forced, Automatic Sound Select must be disabled, otherwise enabled.
-	    if(m_SoundChannel == SOUNDCHANNEL_MONO)
-	    {
-		    modus = 0x2002;
-	    }
-	    else
-	    {
-		    modus = 0x2003;
-	    }
-
-	    // choose sound IF2 input pin if needed.
-	    // todo: Maybe some cards are using IF1?
-	    switch(m_AudioInput)
-	    {
-	    case AUDIOINPUT_RADIO:
-	    case AUDIOINPUT_TUNER:
-		    if(!m_bUseInputPin1)
-		    {
-			    modus |= 0x100;
-		    }
-		    break;
-	    default:
-		    break;
-	    }
-        
-	    SetDEMRegister(DEM_WR_MODUS, modus);
-*/
-
-    
     //SetDSPRegister(DSP_WR_FMAM_PRESCALE, 0x3000);
     SetDSPRegister(DSP_WR_NICAM_PRESCALE, 0x5A00);
     SetDSPRegister(DSP_WR_SCART_PRESCALE, 0x1900);
@@ -129,22 +102,15 @@ void CMSP34x0Decoder::SetSoundChannel34x1G(eSoundChannel soundChannel, BOOL bSta
     {
         if(soundChannel == SOUNDCHANNEL_MONO)
         {                            
-            if (!bStartOfDetection)
-            {
-                SetDEMRegister(DEM_WR_MODUS, 0x2002);  //turn of auto sound select
-            }
             SetDSPRegister(DSP_WR_FMAM_PRESCALE, 0x3003);
         }
         else
         {
-            if (!bStartOfDetection)
-            {
-                SetDEMRegister(DEM_WR_MODUS, 0x2003);  //turn on auto sound select    
-            }
             SetDSPRegister(DSP_WR_FMAM_PRESCALE, 0x2403); //  0x3000);
         }
     }
-    
+
+    WORD source = 0;
     switch (soundChannel)
     {
     case SOUNDCHANNEL_MONO:
@@ -170,135 +136,118 @@ void CMSP34x0Decoder::SetSoundChannel34x1G(eSoundChannel soundChannel, BOOL bSta
     SetDSPRegister(DSP_WR_SCART1_SOURCE, source);
     SetDSPRegister(DSP_WR_SCART2_SOURCE, source);
     SetDSPRegister(DSP_WR_I2S_SOURCE, source);
+
+    LOG(2,"MSPrevG: SetSoundChannelRevG(%d) exit", soundChannel);
 }
 
 
-void CMSP34x0Decoder::Initialize34x1G()
+void CMSP34x0AudioDecoder::InitializeRevG()
 {
-    
+    LOG(2,"MSPrevG: InitializeRevG() enter");
     SetDSPRegister(DSP_WR_I2S1_PRESCALE, 0x1000);
     SetDSPRegister(DSP_WR_I2S2_PRESCALE, 0x1000);
-
-    // set up so that we fall back to AM/FM if there is no NICAM
-    // required on D series chips
-    /*if(m_MSPVersion == MSPVersionD)
-    {
-        SetDEMRegister(DEM_WR_AUTO_FMAM, 0x0001);
-    }*/
-    
-    // 3. reset volume to 0dB
-    /*SetDSPRegister(DSP_WR_LDSPK_VOLUME, 0x7300);
-    SetDSPRegister(DSP_WR_HEADPH_VOLUME, 0x7300);    
-    SetDSPRegister(DSP_WR_SCART1_VOLUME, 0x4000);
-    SetDSPRegister(DSP_WR_SCART2_VOLUME, 0x4000);    
-    */
+    LOG(2,"MSPrevG: InitializeRevG() exit");
 }
 
-void CMSP34x0Decoder::SetStandard34x1G(eStandard standard, eVideoFormat videoformat, BOOL bWasDetected)
+void CMSP34x0AudioDecoder::SetStandardRevG(eStandard standard, eVideoFormat videoformat, BOOL bWasDetected)
 {
-    if(m_MSPVersion != MSPVersionG) return;
+    LOG(2,"MSPrevG: SetStandardRevG(%d, %d, %d)", standard, videoformat, bWasDetected);
 
-    LOG(2,"MSP34xx: Set standard: %d",standard);
-    
-/*
-    // the following is only valid for RevG since it uses Automatic Sound Select
     WORD modus = 0;
 
-    // if mono output is forced, Automatic Sound Select must be disabled, otherwise enabled.
-    if(m_SoundChannel == SOUNDCHANNEL_MONO)
-    {
-        modus = 0;
-    }
-    else
-    {
-        modus = 1;
-    }
-
-    // choose sound IF2 input pin if needed.
-    // todo: Maybe some cards are using IF1?
-    switch(m_AudioInput)
-    {
-    case AUDIOINPUT_RADIO:
-    case AUDIOINPUT_TUNER:
-        if(!m_bUseInputPin1)
-        {
-            modus |= 0x100;
-        }
-        break;
-    default:
-        break;
-    }
-
-    SetDEMRegister(DEM_WR_MODUS, modus);
-*/
-    
     if (standard == MSP34x0_STANDARD_AUTO)
     {    
-        // Set mode    
-        WORD mode = 0x3003;
-
+        // Set modus register
+        modus = 0x3003;
+        
         if (m_AudioInput == AUDIOINPUT_RADIO)
         {        
-            mode = 0x0003; //autodetect        
+            modus = 0x0003; //autodetect        
         }
         else
         {   
             switch(videoformat)
             {
-                case VIDEOFORMAT_SECAM_L:
-                case VIDEOFORMAT_SECAM_L1:
-                    mode = 0x6003;
-                    break;
-            
-                case VIDEOFORMAT_PAL_M:
-                case VIDEOFORMAT_PAL_60:
-                case VIDEOFORMAT_NTSC_50:
-                    mode = 0x3003;
-                    break;
-                case VIDEOFORMAT_PAL_B:
-                case VIDEOFORMAT_PAL_D:
-                case VIDEOFORMAT_PAL_G:
-                case VIDEOFORMAT_PAL_H:
-                case VIDEOFORMAT_PAL_I:
-                case VIDEOFORMAT_PAL_N:
-                case VIDEOFORMAT_PAL_N_COMBO:
-                    mode = 0x7003;
-                    break;
-                case VIDEOFORMAT_NTSC_M_Japan:
-                    mode = 0x5003;
-                    break;
-                case VIDEOFORMAT_NTSC_M:
-                    mode = 0x3003;
-                    break;
-                case VIDEOFORMAT_SECAM_B:        
-                case VIDEOFORMAT_SECAM_D:
-                case VIDEOFORMAT_SECAM_G:
-                case VIDEOFORMAT_SECAM_H:
-                case VIDEOFORMAT_SECAM_K:
-                case VIDEOFORMAT_SECAM_K1:
-                    mode = 0x7003;
-                    break;
+            case VIDEOFORMAT_SECAM_L:
+            case VIDEOFORMAT_SECAM_L1:
+                modus = 0x6003;
+                break;
+                
+            case VIDEOFORMAT_PAL_M:
+            case VIDEOFORMAT_PAL_60:
+            case VIDEOFORMAT_NTSC_50:
+                modus = 0x3003;
+                break;
+            case VIDEOFORMAT_PAL_B:
+            case VIDEOFORMAT_PAL_D:
+            case VIDEOFORMAT_PAL_G:
+            case VIDEOFORMAT_PAL_H:
+            case VIDEOFORMAT_PAL_I:
+            case VIDEOFORMAT_PAL_N:
+            case VIDEOFORMAT_PAL_N_COMBO:
+                modus = 0x7003;
+                break;
+            case VIDEOFORMAT_NTSC_M_Japan:
+                modus = 0x5003;
+                break;
+            case VIDEOFORMAT_NTSC_M:
+                modus = 0x3003;
+                break;
+            case VIDEOFORMAT_SECAM_B:        
+            case VIDEOFORMAT_SECAM_D:
+            case VIDEOFORMAT_SECAM_G:
+            case VIDEOFORMAT_SECAM_H:
+            case VIDEOFORMAT_SECAM_K:
+            case VIDEOFORMAT_SECAM_K1:
+                modus = 0x7003;
+                break;
             }
         }
-        SetDEMRegister(DEM_WR_MODUS, mode);
     }
     else
     {
+        /*
         if(m_SoundChannel == SOUNDCHANNEL_MONO)
         {                            
             SetDEMRegister(DEM_WR_MODUS, 0x2002);  //turn of auto sound select
         } else {
-	        SetDEMRegister(DEM_WR_MODUS, 0x2003);	
+            SetDEMRegister(DEM_WR_MODUS, 0x2003);
+        }
+        */
+        // if mono output is forced, Automatic Sound Select must be disabled, otherwise enabled.
+        if(m_SoundChannel == SOUNDCHANNEL_MONO)
+        {
+            modus = 0;
+        }
+        else
+        {
+            modus = 1;
+        }
+        
+        // choose sound IF2 input pin if needed.
+        // todo: Maybe some cards are using IF1?
+        switch(m_AudioInput)
+        {
+        case AUDIOINPUT_RADIO:
+        case AUDIOINPUT_TUNER:
+            if(!m_bUseInputPin1)
+            {
+                modus |= 0x100;
+            }
+            break;
+        default:
+            break;
         }
     }
-        
+    SetDEMRegister(DEM_WR_MODUS, modus);
+
     if (!bWasDetected)
     {
         // Set standard
-        SetDEMRegister(DEM_WR_STANDARD_SELECT, (int)standard);    
+        SetDEMRegister(DEM_WR_STANDARD_SELECT, (int)standard);
     }
-
-        
+    
+    
     m_AudioStandardMajorCarrier = 0;
     m_AudioStandardMinorCarrier = 0;
     if (standard != MSP34x0_STANDARD_AUTO)
@@ -314,9 +263,11 @@ void CMSP34x0Decoder::SetStandard34x1G(eStandard standard, eVideoFormat videofor
             nIndex++;
         }
     }
+
+    LOG(2,"MSPrevG: SetStandardRevG(%d, %d, %d) exit", standard, videoformat, bWasDetected);
 }
 
-void CMSP34x0Decoder::SetCarrier34x1G(eCarrier MajorCarrier, eCarrier MinorCarrier)
+void CMSP34x0AudioDecoder::SetCarrierRevG(eCarrier MajorCarrier, eCarrier MinorCarrier)
 {
-    // Not necessary because rev G detects the carrier?
+    // do nothing
 }

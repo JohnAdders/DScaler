@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.35 2003-01-19 10:39:56 laurentg Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.36 2003-01-23 01:52:21 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.35  2003/01/19 10:39:56  laurentg
+// Disable selection of the tuner input when no tuner has been selected in the card setup dialog box
+//
 // Revision 1.34  2003/01/18 12:10:49  laurentg
 // Avoid double display in OSD (ADJUSTDOWN_SILENT and ADJUSTUP_SILENT instead of (ADJUSTDOWN and ADJUSTUP)
 //
@@ -1640,6 +1643,7 @@ void CSAA7134Source::ChangeDefaultsForVideoInput(BOOL bDontSetValue)
     int nInput = m_VideoSource->GetValue();
 
     m_AudioSource->ChangeDefault(m_pSAA7134Card->GetInputAudioLine(nInput), bDontSetValue);
+    m_VideoFormat->ChangeDefault(m_pSAA7134Card->GetTuner()->GetDefaultVideoFormat());
 }
 
 

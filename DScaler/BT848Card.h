@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.12 2001-12-18 15:28:48 adcockj Exp $
+// $Id: BT848Card.h,v 1.13 2001-12-18 15:30:35 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,9 +16,6 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
-// Revision 1.11  2001/12/18 14:45:05  adcockj
-// Moved to Common Controls status bar
-//
 // Revision 1.10  2001/12/18 13:12:11  adcockj
 // Interim check-in for redesign of card specific settings
 //

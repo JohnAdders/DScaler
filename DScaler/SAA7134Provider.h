@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Provider.h,v 1.3 2002-09-14 19:40:48 atnak Exp $
+// $Id: SAA7134Provider.h,v 1.4 2002-09-15 09:52:23 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/09/14 19:40:48  atnak
+// various changes
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -46,6 +49,13 @@
 */
 class CSAA7134Provider : public ISourceProvider
 {
+protected:
+    enum
+    {
+        MAX_FRAMES  = 2,
+        MAX_PAGETABLES = 4
+    };
+
 public:
     CSAA7134Provider(CHardwareDriver* pHardwareDriver);
     virtual ~CSAA7134Provider();
@@ -66,11 +76,11 @@ private:
     void MemoryFree();
     vector<CSAA7134Source*> m_SAA7134Sources;
     /// Memory used for DMA page table
-    CContigMemory* m_PagelistDMAMem[4];
+    CContigMemory* m_PagelistDMAMem[MAX_PAGETABLES];
     /// Memory used for VBI
-    CUserMemory* m_VBIDMAMem[2];
+    CUserMemory* m_VBIDMAMem[MAX_FRAMES];
     /// Memory used for captured frames
-    CUserMemory* m_DisplayDMAMem[2];
+    CUserMemory* m_DisplayDMAMem[MAX_FRAMES];
 };
 
 #endif

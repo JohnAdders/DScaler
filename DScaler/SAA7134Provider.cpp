@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Provider.cpp,v 1.4 2002-09-14 19:40:48 atnak Exp $
+// $Id: SAA7134Provider.cpp,v 1.5 2002-09-15 09:52:23 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/09/14 19:40:48  atnak
+// various changes
+//
 // Revision 1.2  2002/09/09 14:11:28  atnak
 // Fixed up the SAA7134 chip name.  --Fixes Advanced Settings crash.
 //
@@ -42,6 +45,12 @@
 #include "SAA7134Provider.h"
 #include "SAA7134Source.h"
 
+#ifdef _DEBUG
+#undef THIS_FILE
+static char THIS_FILE[]=__FILE__;
+#define new DEBUG_NEW
+#endif
+
 typedef struct
 {
     DWORD VendorId;
@@ -49,7 +58,7 @@ typedef struct
     char* szName;
 } TSAA7134Chip;
 
-TSAA7134Chip SAA7134Chips[4] = 
+TSAA7134Chip SAA7134Chips[] = 
 {
     {
         0x1131,
@@ -66,7 +75,7 @@ CSAA7134Provider::CSAA7134Provider(CHardwareDriver* pHardwareDriver)
     BOOL IsMemoryInitialized = FALSE;
     int i;
 
-    for(i = 0; i < 2; ++i)
+    for(i = 0; i < MAX_FRAMES; ++i)
     {
         m_VBIDMAMem[i] = NULL;
         m_DisplayDMAMem[i] = NULL;
@@ -162,7 +171,7 @@ BOOL CSAA7134Provider::MemoryInit(CHardwareDriver* pHardwareDriver)
 {
     try
     {
-        for (int i(0); i < 4; i++)
+        for (int i(0); i < MAX_PAGETABLES; i++)
         {
             m_PagelistDMAMem[i] = new CContigMemory(pHardwareDriver, 4096);
         }
@@ -176,7 +185,7 @@ BOOL CSAA7134Provider::MemoryInit(CHardwareDriver* pHardwareDriver)
 
     try
     {
-        for (int i(0); i < 2; i++)
+        for (int i(0); i < MAX_FRAMES; i++)
         {
             m_DisplayDMAMem[i] = new CUserMemory(pHardwareDriver, 1024 * 576 * 2);
         }
@@ -190,7 +199,7 @@ BOOL CSAA7134Provider::MemoryInit(CHardwareDriver* pHardwareDriver)
 
     try
     {
-        for (int i(0); i < 2; i++)
+        for (int i(0); i < MAX_FRAMES; i++)
         {
             m_VBIDMAMem[i] = new CUserMemory(pHardwareDriver, 2048 * 19 * 2);
         }
@@ -207,14 +216,19 @@ BOOL CSAA7134Provider::MemoryInit(CHardwareDriver* pHardwareDriver)
 
 void CSAA7134Provider::MemoryFree()
 {
-    for(int i(0); i < 2; i++)
+    int i;
+
+    for (i = 0; i < MAX_PAGETABLES; i++)
     {
         if(m_PagelistDMAMem[i] != NULL)
         {
             delete m_PagelistDMAMem[i];
             m_PagelistDMAMem[i] = NULL;
         }
+    }
 
+    for (i = 0; i < MAX_FRAMES; i++)
+    {
         if(m_VBIDMAMem[i] != NULL)
         {
             delete m_VBIDMAMem[i];

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: RegSpy.cpp,v 1.16 2003-09-28 09:11:33 adcockj Exp $
+// $Id: RegSpy.cpp,v 1.17 2004-02-15 02:06:59 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2003/09/28 09:11:33  adcockj
+// Added extra values
+//
 // Revision 1.15  2003/08/12 16:57:54  laurentg
 // Update the prototype of GetDisplayAreaRect
 //
@@ -77,7 +80,7 @@
 enum
 {
     REG_FONT_HEIGHT     = 12,
-    MAX_LOG_STATES      = 6,
+    MAX_LOG_STATES      = 10,
 
     MIN_DIALOG_WIDTH    = 310,
 

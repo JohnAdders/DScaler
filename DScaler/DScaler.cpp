@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.158 2002-05-24 16:49:00 robmuller Exp $
+// $Id: DScaler.cpp,v 1.159 2002-05-24 18:22:46 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.158  2002/05/24 16:49:00  robmuller
+// VideoText searching improved.
+//
 // Revision 1.157  2002/05/24 15:12:12  tobbej
 // changed timer status updates to use strncpy insted of strcpy
 //
@@ -1675,6 +1678,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_VBI_VT:
+            while (VTState != VT_OFF)
+            {
+                SendMessage(hWnd, WM_COMMAND, IDM_CALL_VIDEOTEXT, 0);
+            }
             Setting_SetValue(VBI_GetSetting(DOTELETEXT), 
                 !Setting_GetValue(VBI_GetSetting(DOTELETEXT)));
             break;
@@ -1751,6 +1758,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_VBI:
+            while (VTState != VT_OFF)
+            {
+                SendMessage(hWnd, WM_COMMAND, IDM_CALL_VIDEOTEXT, 0);
+            }
             Stop_Capture();
             Setting_SetValue(VBI_GetSetting(CAPTURE_VBI), 
                 !Setting_GetValue(VBI_GetSetting(CAPTURE_VBI)));

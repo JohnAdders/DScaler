@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.4 2002-09-14 19:40:48 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.5 2002-09-15 14:20:38 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/09/14 19:40:48  atnak
+// various changes
+//
 // Revision 1.3  2002/09/10 12:24:03  atnak
 // changed some UI stuff
 //
@@ -564,7 +567,7 @@ void CSAA7134Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
     // input frequency
     if(m_IsFieldOdd)
     {
-        Timing_UpdateRunningAverage(pInfo);
+        Timing_UpdateRunningAverage(pInfo, 2);
     }
 
     Timing_SmartSleep(pInfo, pInfo->bRunningLate, bSlept);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard.cpp,v 1.3 2002-09-12 21:45:35 ittarnavsky Exp $
+// $Id: CT2388xCard.cpp,v 1.4 2002-09-15 14:20:38 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/09/12 21:45:35  ittarnavsky
+// changed the IAudioControls to CAudioControls
+//
 // Revision 1.2  2002/09/11 19:33:06  adcockj
 // a few tidy ups
 //
@@ -491,7 +494,7 @@ BOOL CCT2388xCard::IsVideoPresent()
 
 DWORD CCT2388xCard::GetRISCPos()
 {
-    return ReadDword(SRAM_CMDS_21 + 0x14);
+    return ReadDword(0x0031C020);
 }
 
 void CCT2388xCard::ResetHardware()

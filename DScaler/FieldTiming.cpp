@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FieldTiming.cpp,v 1.27 2002-08-26 18:25:10 adcockj Exp $
+// $Id: FieldTiming.cpp,v 1.28 2002-09-15 14:20:38 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2002/08/26 18:25:10  adcockj
+// Fixed problem with PAL/NTSC detection
+//
 // Revision 1.26  2002/06/13 12:10:22  adcockj
 // Move to new Setings dialog for filers, video deint and advanced settings
 //
@@ -128,7 +131,7 @@ void Timing_Setup()
     Timing_Reset();
 }
 
-void Timing_UpdateRunningAverage(TDeinterlaceInfo* pInfo)
+void Timing_UpdateRunningAverage(TDeinterlaceInfo* pInfo, int NumFields)
 {
     if(!(pInfo->bRunningLate))
     {
@@ -140,7 +143,7 @@ void Timing_UpdateRunningAverage(TDeinterlaceInfo* pInfo)
         if(LastFieldTime.QuadPart != 0)
         {
             // gets the last ticks odd - odd
-            double RecentTicks = (double)(CurrentFieldTime.QuadPart - LastFieldTime.QuadPart);
+            double RecentTicks = (double)((CurrentFieldTime.QuadPart - LastFieldTime.QuadPart) * 2.0 / (double)NumFields);
             // only allow values within 5% if current Value
             // should prevent spurious values getting through
             if(RecentTicks > RunningAverageCounterTicks * 0.95 &&

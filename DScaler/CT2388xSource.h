@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource.h,v 1.1 2002-09-11 18:19:37 adcockj Exp $
+// $Id: CT2388xSource.h,v 1.2 2002-09-15 14:20:38 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -53,8 +53,6 @@ public:
     ISetting* GetSaturationU();
     ISetting* GetSaturationV();
     ISetting* GetOverscan();
-    /// Gets the current field being processed by the card
-    int GetRISCPosAsInt();
 	eTunerId GetTunerId();
     eVideoFormat GetFormat();
     void SetFormat(eVideoFormat NewFormat);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FieldTiming.h,v 1.10 2002-06-13 12:10:22 adcockj Exp $
+// $Id: FieldTiming.h,v 1.11 2002-09-15 14:20:38 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,7 +41,7 @@ void Timing_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void Timing_SetMenu(HMENU hMenu);
 CTreeSettingsGeneric* Timing_GetTreeSettingsPage();
 
-void Timing_UpdateRunningAverage(TDeinterlaceInfo* pInfo);
+void Timing_UpdateRunningAverage(TDeinterlaceInfo* pInfo, int NumFields);
 void Timing_Setup();
 void Timing_WaitForNextField(TDeinterlaceInfo* pInfo);
 void Timing_Reset();

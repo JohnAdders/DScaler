@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.63 2002-09-12 21:55:23 ittarnavsky Exp $
+// $Id: BT848Source.cpp,v 1.64 2002-09-15 14:20:37 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.63  2002/09/12 21:55:23  ittarnavsky
+// Removed references to HasMSP and UseInputPin1
+//
 // Revision 1.62  2002/09/07 20:54:50  kooiman
 // Added equalizer, loudness, spatial effects for MSP34xx
 //
@@ -1060,7 +1063,7 @@ void CBT848Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
     // input frequency
     if(m_IsFieldOdd)
     {
-        Timing_UpdateRunningAverage(pInfo);
+        Timing_UpdateRunningAverage(pInfo, 2);
     }
 
     Timing_SmartSleep(pInfo, pInfo->bRunningLate, bSlept);

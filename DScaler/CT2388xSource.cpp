@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource.cpp,v 1.1 2002-09-11 18:19:37 adcockj Exp $
+// $Id: CT2388xSource.cpp,v 1.2 2002-09-15 14:20:38 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/09/11 18:19:37  adcockj
+// Prelimainary support for CT2388x based cards
+//
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
@@ -241,15 +244,37 @@ void CCT2388xSource::CreateRiscCode()
     }
     for (nField = 0; nField < m_NumFields; nField++)
     {
-        // First we sync onto either the odd or even field (odd only for 480p)
-        if ((nField & 1) && (!IsVideo480P))
+        DWORD Instruction(0);
+
+        if(IsVideo480P)
         {
-            *(pRiscCode++) = (DWORD) (RISC_RESYNC_EVEN);
+            Instruction = RISC_RESYNC;
         }
         else
         {
-            *(pRiscCode++) = (DWORD) (RISC_RESYNC_ODD | RISC_CNT_RESET);
+            // First we sync onto either the odd or even field (odd only for 480p)
+            if (nField & 1)
+            {
+                Instruction = RISC_RESYNC_EVEN;
+            }
+            else
+            {
+                Instruction = RISC_RESYNC_ODD | RISC_CNT_RESET;
+            }
         }
+
+        // maintain counter that we use to tell us where we are
+        // in the RISC code
+        if(nField == 0)
+        {
+            Instruction |= RISC_CNT_RESET;
+        }
+        else
+        {
+            Instruction |= RISC_CNT_INC;
+        }
+
+        *(pRiscCode++) = Instruction;
 
         // work out the position of the first line
         // first line is line zero an even line
@@ -260,7 +285,7 @@ void CCT2388xSource::CreateRiscCode()
         else
         {
             pUser = m_pDisplay[nField / 2];
-            if((nField & 1) && (!IsVideo480P))
+            if(nField & 1)
             {
                 pUser += 2048;
             }
@@ -404,17 +429,6 @@ LPCSTR CCT2388xSource::GetStatus()
     return pRetVal;
 }
 
-int CCT2388xSource::GetRISCPosAsInt()
-{
-    int CurrentPos = m_NumFields;
-    while(CurrentPos > (m_NumFields - 1))
-    {
-        DWORD CurrentRiscPos = m_pCard->GetRISCPos();
-        CurrentPos = (CurrentRiscPos - m_RiscBasePhysical) / m_BytesPerRISCField;
-    }
-    return CurrentPos;
-}
-
 eVideoFormat CCT2388xSource::GetFormat()
 {
     return (eVideoFormat)m_VideoFormat->GetValue();
@@ -491,7 +505,7 @@ void CCT2388xSource::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
     int Diff;
     int OldPos = (pInfo->CurrentFrame * 2 + m_IsFieldOdd + 1) % 10;
 
-    while(OldPos == (NewPos = GetRISCPosAsInt()))
+    while(OldPos == (NewPos = m_pCard->GetRISCPos()))
     {
         // need to sleep more often
         // so that we don't take total control of machine
@@ -564,7 +578,7 @@ void CCT2388xSource::GetNextFieldNormalProg(TDeinterlaceInfo* pInfo)
     int Diff;
     int OldPos = (pInfo->CurrentFrame + 1) % m_NumFields;
 
-    while(OldPos == (NewPos = GetRISCPosAsInt()))
+    while(OldPos == (NewPos = m_pCard->GetRISCPos()))
     {
         // need to sleep more often
         // so that we don't take total control of machine
@@ -601,8 +615,9 @@ void CCT2388xSource::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
     int NewPos;
     int Diff;
     int OldPos = (pInfo->CurrentFrame * 2 + m_IsFieldOdd + 1) % 10;
+    static int FieldCount(0);
     
-    while(OldPos == (NewPos = GetRISCPosAsInt()))
+    while(OldPos == (NewPos = m_pCard->GetRISCPos()))
     {
         pInfo->bRunningLate = FALSE;            // if we waited then we are not late
     }
@@ -631,6 +646,7 @@ void CCT2388xSource::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
         Timing_AddDroppedFields(Diff - 1);
         LOG(2, " Dropped Frame");
         Timing_Reset();
+        FieldCount = 0;
     }
 
     switch(NewPos)
@@ -647,12 +663,12 @@ void CCT2388xSource::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
     case 9: m_IsFieldOdd = FALSE; pInfo->CurrentFrame = 4; break;
     }
     
-    // we've just got a new field
-    // we are going to time the odd to odd
-    // input frequency
-    if(m_IsFieldOdd)
+    FieldCount += Diff;
+    // do input frequency on cleanish field changes only
+    if(Diff == 1 && FieldCount > 1)
     {
-        Timing_UpdateRunningAverage(pInfo);
+        Timing_UpdateRunningAverage(pInfo, FieldCount);
+        FieldCount = 0;
     }
 
     Timing_SmartSleep(pInfo, pInfo->bRunningLate, bSlept);
@@ -667,10 +683,11 @@ void CCT2388xSource::GetNextFieldAccurateProg(TDeinterlaceInfo* pInfo)
     int OldPos = (pInfo->CurrentFrame + 1) % m_NumFields;
 	static int FieldCount(0);
     
-    while(OldPos == (NewPos = GetRISCPosAsInt()))
+    while(OldPos == (NewPos = m_pCard->GetRISCPos()))
     {
         pInfo->bRunningLate = FALSE;            // if we waited then we are not late
     }
+
 
     Diff = (m_NumFields + NewPos - OldPos) % m_NumFields;
     if(Diff == 1)
@@ -696,15 +713,18 @@ void CCT2388xSource::GetNextFieldAccurateProg(TDeinterlaceInfo* pInfo)
         Timing_AddDroppedFields(Diff - 1);
         LOG(2, " Dropped Frame");
         Timing_Reset();
+        FieldCount = 0;
     }
 
 	pInfo->CurrentFrame = (NewPos + m_NumFields - 1) % m_NumFields;
     
-	++FieldCount;
-	if((FieldCount % 2) == 0)
-	{
-	    Timing_UpdateRunningAverage(pInfo);
-	}
+    FieldCount += Diff;
+    // do input frequency on cleanish field changes only
+    if(Diff == 1 && FieldCount > 1)
+    {
+        Timing_UpdateRunningAverage(pInfo, FieldCount);
+        FieldCount = 0;
+    }
 
     Timing_SmartSleep(pInfo, pInfo->bRunningLate, bSlept);
 }

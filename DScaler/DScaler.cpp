@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.46 2001-07-23 20:52:07 ericschmidt Exp $
+// $Id: DScaler.cpp,v 1.47 2001-07-24 12:19:00 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.46  2001/07/23 20:52:07  ericschmidt
+// Added TimeShift class.  Original Release.  Got record and playback code working.
+//
 // Revision 1.45  2001/07/16 18:07:50  adcockj
 // Added Optimisation parameter to ini file saving
 //
@@ -121,6 +124,7 @@
 #include "FieldTiming.h"
 #include "DebugLog.h"
 #include "TimeShift.h"
+#include "Crash.h"
 
 HWND hWnd = NULL;
 HINSTANCE hInst = NULL;
@@ -193,6 +197,8 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
 
     hInst = hInstance;
     
+    SetErrorMode(SEM_NOGPFAULTERRORBOX);
+
     CPU_SetupFeatureFlag();
     // if we are already runninmg then start up old version
     hPrevWindow = FindWindow((LPCTSTR) DSCALER_APPNAME, NULL);
@@ -1860,6 +1866,7 @@ void SaveWindowPos(HWND hWnd)
     }
 }
 
+
 //---------------------------------------------------------------------------
 void MainWndOnInitBT(HWND hWnd)
 {
@@ -1867,7 +1874,7 @@ void MainWndOnInitBT(HWND hWnd)
     BOOL bInitOK = FALSE;
 
     AddSplashTextLine("Hardware Init");
-
+    
     if (BT848_FindTVCard(hWnd) == TRUE)
     {
         AddSplashTextLine(BT848_ChipType());

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_50Hz.cpp,v 1.13 2001-07-16 18:07:50 adcockj Exp $
+// $Id: FD_50Hz.cpp,v 1.14 2001-07-24 12:19:00 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2001/07/16 18:07:50  adcockj
+// Added Optimisation parameter to ini file saving
+//
 // Revision 1.12  2001/07/13 16:14:56  adcockj
 // Changed lots of variables to match Coding standards
 //
@@ -217,7 +220,7 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO* pInfo)
                 else
                 {
                     // Reset the paramters of the Comb method
-                    FilmModeNTSCComb(NULL);
+                    FilmModePALComb(NULL);
                     SetFilmDeinterlaceMode(FILM_22_PULLDOWN_COMB);
                     LOG(" Gone to Comb Mode");
                     RepeatCount = PrivateRepeatCount;
@@ -272,7 +275,7 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO* pInfo)
                             else
                             {
                                 // Reset the paramters of the Comb method
-                                FilmModeNTSCComb(NULL);
+                                FilmModePALComb(NULL);
                                 SetFilmDeinterlaceMode(FILM_22_PULLDOWN_COMB);
                                 LOG(" Gone to Comb Mode because we're not sure");
                                 RepeatCount = PrivateRepeatCount;

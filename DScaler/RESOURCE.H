@@ -46,6 +46,7 @@
 #define IDD_SETTINGS                    182
 #define IDB_FRENCH_VTCHARS              183
 #define IDD_TSOPTIONS                   184
+#define IDD_DISASM_CRASH                185
 #define IDM_VBI                         231
 #define IDM_CAPTURE_PAUSE               232
 #define IDM_CHANNEL_LIST                242
@@ -836,8 +837,15 @@
 #define IDC_FINETUNE                    1892
 #define IDC_COUNTRY                     1893
 #define IDC_ACTIVE                      1894
+#define IDC_ASMBOX                      1895
+#define IDC_REGDUMP                     1896
+#define IDC_CALL_STACK                  1897
+#define IDC_STATIC_BOMBREASON           1898
 #define IDM_TAKESTREAMSNAP              1899
+#define IDC_HELP2                       1899
 #define IDM_FIRST_DEINTMETHOD           1900
+#define IDC_SAVE2                       1900
+#define IDC_SAVEPLUS                    1901
 #define IDM_LAST_DEINTMETHOD            1999
 #define IDM_ZOOM_15                     2000
 #define IDM_ZOOM_20                     2001
@@ -882,9 +890,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        185
+#define _APS_NEXT_RESOURCE_VALUE        186
 #define _APS_NEXT_COMMAND_VALUE         2040
-#define _APS_NEXT_CONTROL_VALUE         1895
+#define _APS_NEXT_CONTROL_VALUE         1902
 #define _APS_NEXT_SYMED_VALUE           114
 #endif
 #endif

@@ -1,5 +1,5 @@
 //
-// $Id: ITuner.cpp,v 1.9 2005-03-09 09:35:16 atnak Exp $
+// $Id: ITuner.cpp,v 1.10 2005-03-09 13:24:42 atnak Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,10 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2005/03/09 09:35:16  atnak
+// Renamed CI2CDevice:::Attach(...) to SetI2CBus(...) to better portray its
+// non-intrusive nature.
+//
 // Revision 1.8  2003/10/27 10:39:52  adcockj
 // Updated files for better doxygen compatability
 //
@@ -102,7 +106,7 @@ II2CTuner::~II2CTuner()
 
 bool IExternalIFDemodulator::SetDetectedI2CAddress(IN CI2CBus* i2cBus)
 {
-    BYTE addresses = CI2CDevice::GetDefaultAddress();
+    BYTE addresses = GetDefaultAddress();
     return SetDetectedI2CAddress(i2cBus, &addresses, 1);
 }
 

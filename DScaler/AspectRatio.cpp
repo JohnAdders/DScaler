@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.cpp,v 1.34 2002-06-24 21:49:28 laurentg Exp $
+// $Id: AspectRatio.cpp,v 1.35 2002-08-05 21:01:55 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -72,6 +72,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.34  2002/06/24 21:49:28  laurentg
+// New option to use or not WSS data when doing AR detection
+//
 // Revision 1.33  2002/05/30 13:06:41  robmuller
 // Removed variable bIgnoreMouse.
 //
@@ -403,3 +406,41 @@ void GetDestRect(RECT* rect)
     memcpy(rect, &AspectSettings.DestinationRect, sizeof(RECT));
 }
 
+int UpdateSquarePixelsMode(BOOL set)
+{
+    static int SavedSourceAspect = -1;
+    static int SavedAspectMode = -1;
+    int result = 0;
+
+    if (set)
+    {
+        if (!AspectSettings.SquarePixels)
+        {
+            SavedSourceAspect = AspectSettings.SourceAspect;
+            SavedAspectMode = AspectSettings.AspectMode;
+            result = 1;
+        }
+        if (Providers_GetCurrentSource() != NULL)
+        {
+            int width = Providers_GetCurrentSource()->GetWidth();
+            int height = Providers_GetCurrentSource()->GetHeight();
+            if (height != 0)
+            {
+                AspectSettings.SourceAspect = width * 1000 / height;
+                AspectSettings.AspectMode = AR_NONANAMORPHIC;
+                result = 1;
+            }
+        }
+    }
+    else
+    {
+        if (AspectSettings.SquarePixels)
+        {
+            AspectSettings.SourceAspect = SavedSourceAspect;
+            AspectSettings.AspectMode = SavedAspectMode;
+            result = 1;
+        }
+    }
+    AspectSettings.SquarePixels = set;
+    return result;
+}

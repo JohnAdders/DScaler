@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.74 2002-07-20 13:07:36 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.75 2002-08-05 21:01:56 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.74  2002/07/20 13:07:36  laurentg
+// New setting for vertical mirror
+//
 // Revision 1.73  2002/06/23 20:48:16  laurentg
 // bHurryWhenLate set to FALSE by default
 //
@@ -607,6 +610,7 @@ void Stop_Capture()
         Stop_Thread();
         Providers_GetCurrentSource()->Stop();
     }
+    UpdateSquarePixelsMode(FALSE);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

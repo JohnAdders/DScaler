@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.h,v 1.32 2002-06-24 21:49:28 laurentg Exp $
+// $Id: AspectRatio.h,v 1.33 2002-08-05 21:01:55 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -91,6 +91,7 @@ void    GetDestRect(RECT* rect);
 void    ResetARStats();
 void    SwitchToRatio(int nMode, int nRatio);
 double  GetActualSourceFrameAspect();
+int     UpdateSquarePixelsMode(BOOL set);
 
 /** Aspect Settings structure
     \todo Cleanup this struct, possibly split into 2 or 3 structures

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectFilters.cpp,v 1.22 2002-08-04 08:43:45 kooiman Exp $
+// $Id: AspectFilters.cpp,v 1.23 2002-08-05 21:01:55 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2002/08/04 08:43:45  kooiman
+// Moved the CResizeWindowAspectFilter before the ScreenSanity filter in the filter chain
+//
 // Revision 1.21  2002/03/20 11:30:20  robmuller
 // Corrected window behaviour with a wrapped menu bar.
 //
@@ -763,7 +766,7 @@ void CFilterChain::BuildFilterChain(int SrcWidth, int SrcHeight)
                                                AspectSettings.ZoomFactorY));
     }
     
-    if (!AspectSettings.SquarePixels && AspectSettings.AutoResizeWindow)
+    if (AspectSettings.AutoResizeWindow)
     {
         m_FilterChain.push_back(new CResizeWindowAspectFilter());
     }

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.206 2002-08-04 12:29:02 kooiman Exp $
+// $Id: DScaler.cpp,v 1.207 2002-08-05 21:01:56 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.206  2002/08/04 12:29:02  kooiman
+// Fixed previous channel feature.
+//
 // Revision 1.205  2002/08/02 21:59:03  laurentg
 // Hide the menu "Channels" from the menu bar when the source has no tuner or when the tuner is not the selected input
 //
@@ -3181,10 +3184,12 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         break;
     
     case UWM_SQUAREPIXELS_CHECK:
-        if (Providers_GetCurrentSource() && (Providers_GetCurrentSource()->HasSquarePixels() != AspectSettings.SquarePixels))
+        if (Providers_GetCurrentSource())
         {
-            AspectSettings.SquarePixels = !AspectSettings.SquarePixels;
-            WorkoutOverlaySize(TRUE);
+            if (UpdateSquarePixelsMode(Providers_GetCurrentSource()->HasSquarePixels()))
+            {
+                WorkoutOverlaySize(TRUE);
+            }
         }
         break;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.41 2002-07-28 08:09:41 laurentg Exp $
+// $Id: AspectGUI.cpp,v 1.42 2002-08-05 21:01:55 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.41  2002/07/28 08:09:41  laurentg
+// "Defer Setting Overlay" removed from the menus
+//
 // Revision 1.40  2002/06/24 21:49:28  laurentg
 // New option to use or not WSS data when doing AR detection
 //
@@ -409,7 +412,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         break;
     case IDM_SASPECT_SQUARE:
         AspectSettings.AutoDetectAspect = FALSE;
-        AspectSettings.SquarePixels = !AspectSettings.SquarePixels;
+        UpdateSquarePixelsMode(!AspectSettings.SquarePixels);
         if (AspectSettings.SquarePixels)
         {
             ShowText(hWnd, "Square Pixels ON");

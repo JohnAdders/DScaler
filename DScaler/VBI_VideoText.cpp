@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.21 2001-09-22 11:09:43 adcockj Exp $
+// $Id: VBI_VideoText.cpp,v 1.22 2001-10-06 17:04:26 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2001/09/22 11:09:43  adcockj
+// Fixed crashing problems with new code with noisy input
+//
 // Revision 1.20  2001/09/21 16:43:54  adcockj
 // Teletext improvements by Mike Temperton
 //
@@ -1159,10 +1162,14 @@ int VT_GetPageNumberAt(int Page, int x, int y)
 	int mul, n;
 
 	if ((Page < 0) || (Page > 899))
+	{
 		return 0;
+	}
 
 	if (!VTPages[Page].bUpdated)
+	{
 		return 0;
+	}
 	
 	RECT dest; 
 	GetDestRect(&dest);		
@@ -1174,32 +1181,53 @@ int VT_GetPageNumberAt(int Page, int x, int y)
 		height = (dest.bottom-dest.top);
 		dx = width / (float) 40;
 		dy = height / (float) 25;
+		
 		if(dx) 
+		{
 			x = float(x) / dx;
+		}
 		else
+		{
 			x = 0;
+		}
+	
 		if(dy)
+		{
 			y = float(y) / dy;
+		}
 		else
+		{
 			y = 0;
+		}
 	}
 	else
+	{
 		return 0;
+	}
 
 	//TODO: doubleheight line checking
 	xto = x;
-	while (IsNum(Page, xto++, y) != -1);
+	while (IsNum(Page, xto++, y) != -1)
+	{
+		;
+	}
 	xto-=2;
 	
 	xfrom=x;
-	while (IsNum(Page, xfrom--, y) != -1);
+	while (IsNum(Page, xfrom--, y) != -1)
+	{
+		;
+	}
 	xfrom+=2;
 
 	if (xto-xfrom < 0)
-		return -1;
+	{
+		return 0;
+	}
 
 	mul = 1; n = 0;
-	for (int a=xto; a>=xfrom; a--) {
+	for (int a=xto; a>=xfrom; a--) 
+	{
 		n += (VTPages[Page].Frame[y][a] & 0x7F - 0x30) * mul;
 		mul*=10;
 	}
@@ -1213,9 +1241,18 @@ int VT_GetFlofPageNumber(int Page, int flof)
 		return 0;
 
 	if (!VTPages[Page].bFlofUpdated)
+	{
 		return 0;
+	}
 
-	return VTPages[Page].FlofPage[flof];
+	if(VTPages[Page].FlofPage[flof] < 100 ||  VTPages[Page].FlofPage[flof] > 999)
+	{
+		return 0;
+	}
+	else
+	{
+		return VTPages[Page].FlofPage[flof];
+	}
 }
 
 void VT_SetMenu(HMENU hMenu)

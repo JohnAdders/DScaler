@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.78 2001-10-06 12:36:10 laurentg Exp $
+// $Id: DScaler.cpp,v 1.79 2001-10-06 17:04:26 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.78  2001/10/06 12:36:10  laurentg
+// New shortcut keys added to adjust left and right player cropping during calibration
+//
 // Revision 1.77  2001/10/04 12:39:16  adcockj
 // Added Teletext colour buttons to UI and switch to using accelerator rather than keyup message
 //
@@ -1696,8 +1699,8 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             {
                 if(VTPage >= 100)
                 {
-                    i = VT_GetFlofPageNumber(VTPage-100, LOWORD(wParam) - IDM_TELETEXT_KEY5);
-                    if (i) 
+                    i = VT_GetFlofPageNumber(VTPage-100, LOWORD(wParam) - IDM_TELETEXT_KEY1);
+                    if(i > 100 && i <= 999) 
                     {
                         VTPage = i;
                         VT_DoUpdate_Page(VTPage - 100);

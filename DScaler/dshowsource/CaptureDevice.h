@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CaptureDevice.h,v 1.1 2001-12-17 19:28:26 tobbej Exp $
+// $Id: CaptureDevice.h,v 1.2 2002-02-03 11:04:01 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/12/17 19:28:26  tobbej
+// class for capture devices
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -71,6 +74,18 @@ public:
 	 * @return pointer to the crossbar
 	 */
 	CDShowBaseCrossbar* getCrossbar();
+	
+	// IAMAnalogVideoDecoder
+	bool hasVideoDec() {return m_pAVideoDec!=NULL;}
+	long getSupportedTVFormats();
+	long getTVFormat();
+	void putTVFormat(long format);
+
+	// IAMVideoProcAmp
+	bool hasVideoProcAmp() {return m_pVideoProcAmp!=NULL;}
+	void set(long prop,long value,long flags);
+	void get(long prop,long *pValue,long *pFlags=NULL);
+	void getRange(long prop,long *pMin,long *pMax, long *pStepSize=NULL,long *pDefault=NULL,long *pFlags=NULL);
 
 private:
 	bool m_bIsConnected;
@@ -79,6 +94,9 @@ private:
 	///video capture device
 	CComPtr<IBaseFilter> m_vidDev;
 	CComPtr<ICaptureGraphBuilder2> m_pBuilder;
+
+	CComPtr<IAMAnalogVideoDecoder> m_pAVideoDec;
+	CComPtr<IAMVideoProcAmp> m_pVideoProcAmp;
 };
 
 #endif // !defined(AFX_DSHOWCAPTUREDEVICE_H__50B8522B_CD99_471C_A39D_9BE98CACC7EB__INCLUDED_)

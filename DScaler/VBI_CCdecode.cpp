@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_CCdecode.cpp,v 1.12 2002-11-28 21:29:52 adcockj Exp $
+// $Id: VBI_CCdecode.cpp,v 1.13 2002-12-06 10:30:02 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Mike Baker.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,15 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/11/28 21:29:52  adcockj
+// Patch from Kevin Radke
+//  Closed Caption position and color fixes
+//  - Fixed closed caption indentation problems due to missing parens in the code.
+//  - Fixed foreground color problems due to missing parens and weird RGB values in the code.
+//  - Fixed dropping of repeated 2 character chunks in text. (i.e. "mimi" only showed "mi" before)
+//  - Roll up captions now show the correct number of lines. (Previously it was 1 too many)
+//  - Pop on captions now handle multiple lines correctly.
+//
 // Revision 1.11  2001/11/23 10:49:17  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -579,10 +588,10 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                         case 0x20:
                             if(CaptionMode)
                             {
+								// Only reset on the first pop_on command
+                                if (ScreenToWrite == 0) memset(&Screens[1],0,sizeof(TCCScreen));
                                 ScreenToWrite = 1;
                                 Mode = POP_ON;
-								// Only reset on the first pop_on command
-                                if (!bCaptureText) memset(&Screens[1],0,sizeof(TCCScreen));
                                 memcpy(&CurrentState, &ResetState, sizeof(TCCChar));
                                 CursorPos = 0;
                                 CursorRow = 14;

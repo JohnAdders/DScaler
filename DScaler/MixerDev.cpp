@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.32 2002-10-07 22:30:31 kooiman Exp $
+// $Id: MixerDev.cpp,v 1.33 2002-10-08 20:17:48 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2002/10/07 22:30:31  kooiman
+// Fixed some mixer channel mute issues.
+//
 // Revision 1.31  2002/09/29 13:56:30  adcockj
 // Fixed some cursor hide problems
 //
@@ -795,7 +798,7 @@ void Mixer_SetupDlg(HWND hWndParent)
     {
         MessageBox(hWnd, "No Mixer hardware found", "DScaler Error", MB_OK);
     }
-    PreShowDialogOrMenu();
+    PostShowDialogOrMenu();
 }
 
 CMixerLineDest* Mixer_GetDestLine()

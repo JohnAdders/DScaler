@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.48 2002-10-07 22:30:57 kooiman Exp $
+// $Id: Providers.cpp,v 1.49 2002-10-08 20:17:48 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.48  2002/10/07 22:30:57  kooiman
+// Fixed NewValue=pSource.
+//
 // Revision 1.47  2002/09/28 13:31:41  kooiman
 // Added sender object to events and added setting flag to treesettingsgeneric.
 //
@@ -612,6 +615,7 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         OpenFileInfo.lpstrTitle = NULL;
         OpenFileInfo.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
         OpenFileInfo.lpstrDefExt = NULL;
+        PreShowDialogOrMenu();
         if (GetOpenFileName(&OpenFileInfo))
         {
             Stop_Capture();
@@ -626,13 +630,16 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
                     Providers_UpdateMenu(hMenu);
                     Start_Capture();
                     Providers_NotifySourceChange(0, Providers_GetCurrentSource());
+			        PostShowDialogOrMenu();
                     return TRUE;
                 }
             }
             Start_Capture();
             MessageBox(hWnd, "Unsupported File Type", "DScaler Warning", MB_OK);
+			PostShowDialogOrMenu();
             return TRUE;
         }
+        PostShowDialogOrMenu();
     }
     else if (LOWORD(wParam) == IDM_SWITCH_SOURCE)
     {

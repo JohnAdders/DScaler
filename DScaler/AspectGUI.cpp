@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.63 2004-05-02 14:09:32 atnak Exp $
+// $Id: AspectGUI.cpp,v 1.64 2005-01-12 21:42:04 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.63  2004/05/02 14:09:32  atnak
+// Fixed possible problem of overlay colour getting dithered with < 32bit colour
+//
 // Revision 1.62  2003/10/27 10:39:50  adcockj
 // Updated files for better doxygen compatability
 //
@@ -676,15 +679,15 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
     //------------------------------------------------------------------
     // Zoom
     case IDM_ZOOM_MINUS:
-        AspectSettings.ZoomFactorX -= 50;
-        if (AspectSettings.ZoomFactorX < 50)
+        AspectSettings.ZoomFactorX--;
+        if (AspectSettings.ZoomFactorX < 1)
         {
-            AspectSettings.ZoomFactorX = 25;
+            AspectSettings.ZoomFactorX = 1;
         }
-        AspectSettings.ZoomFactorY -= 50;
-        if (AspectSettings.ZoomFactorY < 50)
+        AspectSettings.ZoomFactorY--;
+        if (AspectSettings.ZoomFactorY < 1)
         {
-            AspectSettings.ZoomFactorY = 25;
+            AspectSettings.ZoomFactorY = 1;
         }
         if ((AspectSettings.ZoomFactorX == 100) && (AspectSettings.ZoomFactorY == 100))
         {
@@ -692,39 +695,32 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         }
         else
         {
-            if (AspectSettings.ZoomFactorX < 100)
-            {
-                sprintf(Text,"Zoom %.2fx", (double)AspectSettings.ZoomFactorX / 100.0);
-            }
-            else
-            {
-                sprintf(Text,"Zoom %.1fx", (double)AspectSettings.ZoomFactorX / 100.0);
-            }
+            sprintf(Text,"Zoom %.2fx", (double)AspectSettings.ZoomFactorX / 100.0);
             ShowText(hWnd, Text);
         }
         break;
 
     case IDM_ZOOM_PLUS:
-        if(AspectSettings.ZoomFactorX >= 50)
+        if(AspectSettings.ZoomFactorX >= 1)
         {
-            AspectSettings.ZoomFactorX += 50;
+            AspectSettings.ZoomFactorX++;
         }
         else
         {
-            AspectSettings.ZoomFactorX = 50;
+            AspectSettings.ZoomFactorX = 1;
         }
         if (AspectSettings.ZoomFactorX > 1000)
         {
             AspectSettings.ZoomFactorX = 1000;
         }
 
-        if(AspectSettings.ZoomFactorY >= 50)
+        if(AspectSettings.ZoomFactorY >= 1)
         {
-            AspectSettings.ZoomFactorY += 50;
+            AspectSettings.ZoomFactorY++;
         }
         else
         {
-            AspectSettings.ZoomFactorY = 50;
+            AspectSettings.ZoomFactorY = 1;
         }        
         if (AspectSettings.ZoomFactorY > 1000)
         {
@@ -736,14 +732,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         }
         else
 		{
-			if (AspectSettings.ZoomFactorX < 100)
-			{
-				sprintf(Text,"Zoom %.2fx", (double)AspectSettings.ZoomFactorX / 100.0);
-			}
-			else
-			{
-				sprintf(Text,"Zoom %.1fx", (double)AspectSettings.ZoomFactorX / 100.0);
-			}
+			sprintf(Text,"Zoom %.2fx", (double)AspectSettings.ZoomFactorX / 100.0);
 			ShowText(hWnd, Text);
 		}
         break;
@@ -1350,25 +1339,25 @@ SETTING AspectGUISettings[ASPECT_SETTING_LASTONE] =
     },
     {
         "X Zoom Factor", SLIDER, 0, &AspectSettings.ZoomFactorX,
-        100, 1, 1000, 10, 100,
+        100, 1, 1000, 1, 100,
         NULL,
         "Aspect", "XZoomFactor", XZoom_Factor_OnChange,
     },
     {
         "Y Zoom Factor", SLIDER, 0, &AspectSettings.ZoomFactorY,
-        100, 1, 1000, 10, 100,
+        100, 1, 1000, 1, 100,
         NULL,
         "Aspect", "YZoomFactor", YZoom_Factor_OnChange,
     },
     {
         "X Zoom Center", SLIDER, 0, &AspectSettings.ZoomCenterX,
-        50, -100, 200, 5, 100,
+        50, -100, 200, 1, 100,
         NULL,
         "Aspect", "XZoomCenter", XZoom_Center_OnChange,
     },
     {
         "Y Zoom Center", SLIDER, 0, &AspectSettings.ZoomCenterY,
-        50, -100, 200, 5, 100,
+        50, -100, 200, 1, 100,
         NULL,
         "Aspect", "YZoomCenter", YZoom_Center_OnChange,
     },

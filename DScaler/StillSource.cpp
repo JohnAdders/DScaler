@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.67 2002-08-13 21:04:42 kooiman Exp $
+// $Id: StillSource.cpp,v 1.68 2002-08-23 19:16:24 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.67  2002/08/13 21:04:42  kooiman
+// Add IDString() to Sources for identification purposes.
+//
 // Revision 1.66  2002/07/31 22:42:25  laurentg
 // Avoid having several times the same entry in the playlist for the snapshots
 //
@@ -1457,10 +1460,7 @@ void Still_WriteSettingsToIni(BOOL bOptimizeFileAccess)
     {
         Setting_WriteToIni(&(StillSettings[i]), bOptimizeFileAccess);
     }
-	if(bOptimizeFileAccess == FALSE)
-	{
-	    WritePrivateProfileString("Still", "SavingPath", SavingPath, GetIniFileForSettings());
-	}
+	WritePrivateProfileString("Still", "SavingPath", SavingPath, GetIniFileForSettings());
 }
 
 CTreeSettingsGeneric* Still_GetTreeSettingsPage()

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.207 2002-08-05 21:01:56 laurentg Exp $
+// $Id: DScaler.cpp,v 1.208 2002-08-07 12:43:40 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.207  2002/08/05 21:01:56  laurentg
+// Square pixels mode updated
+//
 // Revision 1.206  2002/08/04 12:29:02  kooiman
 // Fixed previous channel feature.
 //
@@ -730,6 +733,7 @@ BOOL bIsRightButtonDown = FALSE;
 BOOL bIgnoreNextRightButtonUpMsg = FALSE;
 
 UINT MsgWheel;
+UINT MsgOSDShow;
 
 // Current sleepmode timers (minutes)
 TSMState SMState;
@@ -802,7 +806,13 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     SetDirectoryToExe();
 
     CPU_SetupFeatureFlag();
-    // if we are already runninmg then start up old version
+
+    MsgOSDShow = RegisterWindowMessage("DScalerShowOSDMsgString");
+
+    char* ArgValues[20];
+    int ArgCount = ProcessCommandLine(lpCmdLine, ArgValues, sizeof(ArgValues) / sizeof(char*));
+
+    // if we are already running then start up old version
     hPrevWindow = FindWindow((LPCTSTR) DSCALER_APPNAME, NULL);
     if (hPrevWindow != NULL)
     {
@@ -813,6 +823,55 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
         SetFocus(hPrevWindow);
         SetActiveWindow(hPrevWindow);
         SetForegroundWindow(hPrevWindow);
+
+        if(ArgCount > 1)
+        {
+            // Command line parameter to send messages to the OSD of a running copy of DScaler.
+            //
+            // Usage:
+            // /m for a temporary message. /M for a persistent message.
+            // /m or /M must be the first parameter.
+            //
+            // use \n to start a new line.
+            // If DScaler is not running this copy exits silently.
+            //
+            // example:
+            // dscaler /m "This is a message.\nSecond line."
+            //
+            // Don't forget the quotes if you want to show more than one word.
+            //
+            if((ArgValues[0][0] == '/' || ArgValues[0][0] == '-') && tolower(ArgValues[0][1]) == 'm')
+            {
+                HANDLE hMapFile = NULL;
+                char* lpMsg = NULL;
+
+                hMapFile = CreateFileMapping(INVALID_HANDLE_VALUE,  // Use the system page file
+                    NULL, PAGE_READWRITE, 0, 1024, "DScalerSendMessageFileMappingObject");                        
+                
+                if(hMapFile == NULL) 
+                { 
+                    // send error message to running copy of DScaler
+                    SendMessage(hPrevWindow, MsgOSDShow, GetLastError(), 1);
+                } 
+                else
+                {
+                    lpMsg = (char*)MapViewOfFile(hMapFile, FILE_MAP_WRITE, 0, 0, 1024);              
+                    
+                    if (lpMsg == NULL) 
+                    { 
+                        // send error message to running copy of DScaler
+                        SendMessage(hPrevWindow, MsgOSDShow, GetLastError(), 2);
+                    }
+                    else
+                    {
+                        strncpy(lpMsg, ArgValues[1], 1024);
+                        SendMessage(hPrevWindow, MsgOSDShow, ArgValues[0][1] == 'm' ? 0 : 1, 0);
+                        UnmapViewOfFile(lpMsg);
+                    }
+                    CloseHandle(hMapFile);
+                }
+            }
+        }
         return FALSE;
     }
 
@@ -834,13 +893,17 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     //                  is no feedback.
     // For backwards compatibility an argument not starting with a - or / is
     // processed as -i<parameter> (ini file specification).
-    char* ArgValues[20];
-    int ArgCount = ProcessCommandLine(lpCmdLine, ArgValues, sizeof(ArgValues) / sizeof(char*));
     for (int i = 0; i < ArgCount; ++i)
     {
         if (ArgValues[i][0] != '-' && ArgValues[i][0] != '/')
         {
             SetIniFileForSettings(ArgValues[i]);
+        }
+        else if(tolower(ArgValues[i][1]) == 'm')
+        {
+            // DScaler was called to show a message in a running instance of DScaler.
+            // At this time DScaler is not running so we can exit now.
+            return 0;
         }
         else if(strlen(ArgValues[i]) > 2)
         {
@@ -1452,7 +1515,71 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
         }
     }
-
+    else if(message == MsgOSDShow)
+    {
+        HANDLE hMapFile = NULL;
+        char* lpMsg = NULL;
+        char msg[1024];
+        
+        // show error message if an error occurred with the other instance of DScaler
+        if(lParam != 0)
+        {
+            sprintf(msg, "Error processing incoming message. (#%i 0x%x)", lParam, wParam);
+            LOG(0, msg);
+            OSD_ShowTextPersistent(hWnd, msg, 5);
+        }
+        else
+        {
+            hMapFile = OpenFileMapping(FILE_MAP_READ, FALSE, "DScalerSendMessageFileMappingObject");
+            
+            if(hMapFile == NULL) 
+            { 
+                sprintf(msg, "Error processing incoming message. (#10 0x%x)", GetLastError());
+                LOG(0, msg); 
+            } 
+            else
+            {
+                lpMsg = (char*)MapViewOfFile(hMapFile, FILE_MAP_READ, 0, 0, 1024);              
+                
+                if (lpMsg == NULL) 
+                { 
+                    sprintf(msg, "Error processing incoming message. (#11 0x%x)", GetLastError());
+                    LOG(0, msg); 
+                }
+                else
+                {
+                    strncpy(msg, lpMsg, sizeof(msg));
+                }
+            }
+            // convert "\n" to newline characters
+            char* s;
+            while((s = strstr(msg,"\\n")) != NULL)
+            {
+                s[0] = '\n';
+                strncpy(&s[1], &s[2], strlen(&s[1]));
+            }
+            
+            if(wParam == 0 && hMapFile != NULL && lpMsg != NULL)
+            {
+                OSD_ShowText(hWnd, msg, 5);
+            }
+            else
+            {
+                OSD_ShowTextPersistent(hWnd, msg, 5);
+            }
+            
+            if(lpMsg != NULL)
+            {
+                UnmapViewOfFile(lpMsg);
+            }
+            if(hMapFile != NULL)
+            {
+                CloseHandle(hMapFile);
+            }
+        }
+        return 0;
+    }
+    
     switch (message)
     {
 
@@ -3191,7 +3318,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 WorkoutOverlaySize(TRUE);
             }
         }
-        break;
+        break;       
 
     //TJ 010506 make sure we dont erase the background
     //if we do, it will cause flickering when resizing the window

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.60 2004-02-15 21:18:16 to_see Exp $
+// $Id: CX2388xSource.cpp,v 1.61 2004-02-21 14:11:30 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.60  2004/02/15 21:18:16  to_see
+// New A2 code.
+//
 // Revision 1.59  2004/02/06 08:01:21  adcockj
 // Fixed a couple of minor issues with Torsten's changes
 //
@@ -320,6 +323,7 @@
 #include "SettingsMaster.h"
 #include "SettingsPerChannel.h"
 #include "Providers.h"
+#include "SoundChannel.h"
 
 extern long EnableCancelButton;
 
@@ -409,7 +413,8 @@ CCX2388xSource::CCX2388xSource(CCX2388xCard* pCard, CContigMemory* RiscDMAMem, C
 
 CCX2388xSource::~CCX2388xSource()
 {
-    EventCollector->Unregister(this);
+	KillTimer(hWnd, TIMER_CX2388X);
+	EventCollector->Unregister(this);
     delete m_pCard;
 }
 
@@ -664,7 +669,11 @@ void CCX2388xSource::Start()
     CreateRiscCode(bCaptureVBI && (m_CurrentVBILines > 0));
     // only capture VBI if we are expecting them
     m_pCard->StartCapture(bCaptureVBI && (m_CurrentVBILines > 0));
-    Timing_Reset();
+    
+	// This timer is used to update audiostatus & automute
+    SetTimer(hWnd, TIMER_CX2388X, TIMER_CX2388X_MS, NULL);
+    
+	Timing_Reset();
     NotifySizeChange();
     NotifySquarePixelsCheck();
 
@@ -963,6 +972,7 @@ void CCX2388xSource::Stop()
     DisableOnChange();
     // stop capture
     m_pCard->StopCapture();
+    KillTimer(hWnd, TIMER_CX2388X);
 }
 
 void CCX2388xSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
@@ -1796,10 +1806,7 @@ BOOL CCX2388xSource::SetTunerFrequency(long FrequencyId, eVideoFormat VideoForma
 	BOOL bReturn = m_pCard->GetTuner()->SetTVFrequency(FrequencyId, VideoFormat);
 	if(bReturn == TRUE)
 	{
-		// when switching from channel to channel the sound often hangs, 
-		// so let's make an reset
-		m_pCard->WriteDword(AUD_SOFT_RESET, 1);	
-		m_pCard->WriteDword(AUD_SOFT_RESET, 0);
+		m_pCard->NotifyOnChannelChanged();
 	}
 
 	return bReturn;
@@ -1849,6 +1856,33 @@ void CCX2388xSource::SetAspectRatioData()
 
 void CCX2388xSource::HandleTimerMessages(int TimerId)
 {
+	eSoundChannel SoundChannel = m_pCard->HandleTimerAndGetAudioChannel();
+
+    char szSoundChannel[256] = "";
+
+    switch(SoundChannel)
+    {
+    case SOUNDCHANNEL_MONO:
+		strcpy(szSoundChannel,"Mono");
+		break;
+
+    case SOUNDCHANNEL_STEREO:
+		strcpy(szSoundChannel,"Stereo");
+		break;
+
+    case SOUNDCHANNEL_LANGUAGE1:
+		strcpy(szSoundChannel,"Language 1");
+		break;
+
+    case SOUNDCHANNEL_LANGUAGE2:
+		strcpy(szSoundChannel,"Language 2");
+		break;
+    }
+
+    StatusBar_ShowText(STATUS_AUDIO, szSoundChannel);
+
+    // This is needed for the stereo indicator in the toolbar
+    EventCollector->RaiseEvent(this, EVENT_SOUNDCHANNEL, -1, SoundChannel);
 }
 
 void CCX2388xSource::IsVideoProgressiveOnChange(long NewValue, long OldValue)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.52 2004-02-11 20:34:00 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.53 2004-02-21 14:11:29 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.52  2004/02/11 20:34:00  adcockj
+// Support multiple locations of TDA9887 (thanks to Pityu)
+//
 // Revision 1.51  2004/02/08 13:08:50  adcockj
 // SECAM changes suggested by MidiMaker
 //
@@ -281,7 +284,8 @@ CCX2388xCard::CCX2388xCard(CHardwareDriver* pDriver) :
     m_RISCIsRunning(FALSE),
     m_CurrentInput(0),
 	m_EnableConexxantDriver2Stopp(TRUE),
-	m_ConexxantDriverStopped(FALSE)
+	m_ConexxantDriverStopped(FALSE),
+	m_AutoDetectCounter(0)
 {
     strcpy(m_TunerType,"n/a");
 
@@ -1263,6 +1267,11 @@ DWORD CCX2388xCard::GetRISCPos()
     return ReadDword(CX2388X_VIDY_GP_CNT);
 }
 
+// question to other developers:
+// the following code is not realy working.
+// when stop WDM-driver on DS's start
+// an restart on DS's exit bundled soft works correct.
+// we should delete them.
 void CCX2388xCard::ManageMyState()
 {
     // This function doesn't seem to work properly for some
@@ -2342,6 +2351,9 @@ void CCX2388xCard::SetEnableStartStopConexxantDriver(BOOL bEnable)
 // Need to add "setupapi.lib" to project setttings
 //
 // this code based on DDK, see scr/setup/enable & scr/setup/devcon
+//
+// anti-greetings to conexant WDM-developers:
+// why you make our life so hard?
 ///////////////////////////////////////////////////////////////////////
 
 BOOL CCX2388xCard::StartStopConexxantDriver(DWORD NewState)
@@ -2407,6 +2419,8 @@ BOOL CCX2388xCard::StartStopConexxantDriver(DWORD NewState)
 
 	if(bFound == TRUE)
 	{
+        LOG(1,"CX2388x WDM-Driver found.");
+		
 		// see DDK src/setup/devcon
 		SP_PROPCHANGE_PARAMS PropChangeParams = {sizeof(SP_CLASSINSTALL_HEADER)};
 		PropChangeParams.ClassInstallHeader.cbSize = sizeof(SP_CLASSINSTALL_HEADER);
@@ -2418,6 +2432,7 @@ BOOL CCX2388xCard::StartStopConexxantDriver(DWORD NewState)
 		if (!SetupDiSetClassInstallParams(hDevInfo,&DeviceInfoData,
 			(SP_CLASSINSTALL_HEADER *)&PropChangeParams,sizeof(PropChangeParams)))
 		{
+			LOG(0,"Unable to stop CX2388x WDM-Driver in DICS_FLAG_GLOBAL.");
 			return FALSE;
 		}
 
@@ -2431,8 +2446,14 @@ BOOL CCX2388xCard::StartStopConexxantDriver(DWORD NewState)
 			(SP_CLASSINSTALL_HEADER *)&PropChangeParams,sizeof(PropChangeParams))
 			|| !SetupDiCallClassInstaller(DIF_PROPERTYCHANGE,hDevInfo,&DeviceInfoData))
 		{
+			LOG(0,"Unable to stop CX2388x WDM-Driver in DICS_FLAG_CONFIGSPECIFIC.");
 			return FALSE;
 		}
+	}
+
+	else
+	{
+        LOG(1,"CX2388x WDM-Driver not found.");
 	}
 
 	SetupDiDestroyDeviceInfoList(hDevInfo);

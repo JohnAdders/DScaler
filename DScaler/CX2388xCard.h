@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.h,v 1.23 2004-02-05 21:47:52 to_see Exp $
+// $Id: CX2388xCard.h,v 1.24 2004-02-21 14:11:30 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -38,6 +38,7 @@
 #include "AudioDecoder.h"
 #include "AudioControls.h"
 #include "SAA7118.h"
+#include "SoundChannel.h"
 
 #define CT_INPUTS_PER_CARD 9
 
@@ -87,7 +88,7 @@ public:
         STEREOTYPE_ALT1, 
         STEREOTYPE_ALT2, 
     };
-
+	
 private:
     /// Different types of input currently supported
     enum eInputType
@@ -232,6 +233,8 @@ public:
     void SetAudioBalance(WORD nBalance);
     void ShowRegisterSettingsDialog(HINSTANCE hCX2388xResourceInst);
 	void SetEnableStartStopConexxantDriver(BOOL bEnable);
+	void NotifyOnChannelChanged();
+	eSoundChannel HandleTimerAndGetAudioChannel();
 
 protected:
     void ManageMyState();
@@ -293,6 +296,8 @@ private:
     void AudioInitNICAM(eStereoType StereoType);
     static BOOL APIENTRY RegisterEditProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 	BOOL StartStopConexxantDriver(DWORD NewState);
+	void SetAutoA2StereoToMono();
+	void SetAutoA2StereoToStereo();
 
 private:
     eCX2388xCardId m_CardType;
@@ -310,6 +315,7 @@ private:
     DWORD           m_2HCombDefault;
     BOOL			m_EnableConexxantDriver2Stopp;
     BOOL			m_ConexxantDriverStopped;
+	int				m_AutoDetectCounter;
 
 private:
     static const TCardType m_TVCards[CX2388xCARD_LASTONE];

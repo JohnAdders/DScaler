@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Audio.cpp,v 1.15 2004-02-15 21:47:48 to_see Exp $
+// $Id: CX2388xCard_Audio.cpp,v 1.16 2004-02-21 14:11:30 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2004/02/15 21:47:48  to_see
+// Oops, forget an 'else'...
+//
 // Revision 1.14  2004/02/15 21:18:14  to_see
 // New A2 code.
 //
@@ -185,35 +188,29 @@ void CCX2388xCard::SetAudioMute()
 	// Causes no pop every time
 	if(m_CardType == CX2388xCARD_HAUPPAUGE_PCI_FM)
 	{
-		// set U1 (4052) pin 6 (INH) to 1
+		// set U1 (4052) pin INH to 1
 		DWORD dwval = ReadDword(MO_GP0_IO) | 0x04;
 		WriteDword(MO_GP0_IO, dwval);
 	}
 
-	else
-	{
-		// Mute the audio
-		DWORD dwval = ReadDword(AUD_VOL_CTL) & 0x1FF;
-		dwval |= 0x100;
-		WriteDword(AUD_VOL_CTL,dwval);
-	}
+	// Mute the audio
+	DWORD dwval = ReadDword(AUD_VOL_CTL) & 0x1FF;
+	dwval |= EN_DAC_MUTE_EN;
+	WriteDword(AUD_VOL_CTL, dwval);
 }
 
 void CCX2388xCard::SetAudioUnMute(WORD nVolume)
 {
+	// Unmute the audio and set volume
+	DWORD dwval = 63 - MulDiv(nVolume, 63, 1000);
+	WriteDword(AUD_VOL_CTL,dwval);
+
 	// Causes no pop every time
 	if(m_CardType == CX2388xCARD_HAUPPAUGE_PCI_FM)
 	{
-		// set U1 (4052) pin 6 (INH) to 0
+		// set U1 (4052) pin INH to 0
 		DWORD dwval = ReadDword(MO_GP0_IO) & ~0x04;
 		WriteDword(MO_GP0_IO, dwval);
-	}
-	
-	else
-	{
-		// Unmute the audio and set volume
-		DWORD dwval = 63 - MulDiv(nVolume, 63, 1000);
-		WriteDword(AUD_VOL_CTL,dwval);
 	}
 }
 
@@ -627,24 +624,76 @@ void CCX2388xCard::AudioInitA2(eStereoType StereoType)
    
 	switch(StereoType)
 	{
-	case STEREOTYPE_MONO:
-		WriteDword(AUD_CTL, EN_DAC_ENABLE|EN_DMTRX_BYPASS|EN_DMTRX_MONO|EN_A2_AUTO_STEREO);
-		break;
-
 	case STEREOTYPE_AUTO:
 	case STEREOTYPE_STEREO:
+	case STEREOTYPE_ALT1:
+	case STEREOTYPE_ALT2:
+		// Table 1
 		WriteDword(AUD_DMD_RA_DDS,			0x002a73bd);
 		WriteDword(AUD_C1_UP_THR,			0x00007000);
 		WriteDword(AUD_C1_LO_THR,			0x00005400);
 		WriteDword(AUD_C2_UP_THR,			0x00005400);
 		WriteDword(AUD_C2_LO_THR,			0x00003000);
-		WriteDword(AUD_CTL, EN_DAC_ENABLE|EN_DMTRX_LR|EN_A2_AUTO_STEREO);
+
+		// found this in WDM-driver for A2, must country spec.
+		// test it...
+
+		// Table 2
+		/*
+		WriteDword(AUD_DMD_RA_DDS,			0x002a73bd);
+		WriteDword(AUD_C1_UP_THR,			0x00007000);
+		WriteDword(AUD_C1_LO_THR,			0x00005400);
+		WriteDword(AUD_C2_UP_THR,			0x00005400);
+		WriteDword(AUD_C2_LO_THR,			0x00003000);
+		WriteDword(AUD_DN0_FREQ,			0x00003a1c);
+		WriteDword(AUD_DN2_FREQ,			0x0000d2e0);
+		*/
+
+		// Table 3
+		/*
+		WriteDword(AUD_DMD_RA_DDS,			0x002a2873);
+		WriteDword(AUD_C1_UP_THR,			0x00003c00);
+		WriteDword(AUD_C1_LO_THR,			0x00003000);
+		WriteDword(AUD_C2_UP_THR,			0x00006000);
+		WriteDword(AUD_C2_LO_THR,			0x00003c00);
+		WriteDword(AUD_DN0_FREQ,			0x00002836);
+		WriteDword(AUD_DN1_FREQ,			0x00003418);
+		WriteDword(AUD_DN2_FREQ,			0x000029c7);
+		WriteDword(AUD_POLY0_DDS_CONSTANT,	0x000a7540);
+		*/
+
+		break;
+	}
+
+	switch(StereoType)
+	{
+	case STEREOTYPE_MONO:
+		WriteDword(AUD_CTL, EN_DAC_ENABLE|EN_DMTRX_MONO|EN_A2_FORCE_MONO1);
 		break;
 
-	// todo: STEREOTYPE_ALT1 / STEREOTYPE_ALT2
+	case STEREOTYPE_ALT1:
+		WriteDword(AUD_CTL, EN_DAC_ENABLE|EN_DMTRX_MONO|EN_A2_FORCE_MONO1);
+		break;
+
+	case STEREOTYPE_ALT2:
+		WriteDword(AUD_CTL, EN_DAC_ENABLE|EN_DMTRX_MONO|EN_A2_FORCE_MONO2);
+		break;
+
+	case STEREOTYPE_STEREO:
+		WriteDword(AUD_CTL, EN_DAC_ENABLE|EN_DMTRX_LR|EN_A2_FORCE_STEREO);
+		break;
+
+	case STEREOTYPE_AUTO:
+		WriteDword(AUD_CTL, EN_DAC_ENABLE|EN_DMTRX_LR|EN_A2_AUTO_STEREO);
+		// Start Autodetecting with mono
+		SetAutoA2StereoToMono();
+		break;
 	}
     
 	WriteDword(AUD_SOFT_RESET,				0x00000000);  // Causes a pop every time/**/
+
+// question to other developers:
+// the following code is not realy working, we should delete them.
 
 /*
     //\todo handle StereoType
@@ -816,4 +865,111 @@ void CCX2388xCard::AudioInitA2(eStereoType StereoType)
     WriteDword(AUD_SOFT_RESET,           0x0000);  // Causes a pop every time/**/
 }
 
+void CCX2388xCard::NotifyOnChannelChanged()
+{
+	// when switching from channel to channel the sound often hangs, 
+	// so let's make an reset
+	WriteDword(AUD_SOFT_RESET, 1);	
+	WriteDword(AUD_SOFT_RESET, 0);
+
+	m_AutoDetectCounter = 0;
+}
+
+void CCX2388xCard::SetAutoA2StereoToMono()
+{
+	// set timer to an lower value for faster detection
+	// of bit 0 + 1 in AUD_CTL
+	WriteDword (AUD_MODE_CHG_TIMER,		0x00000040);
+	AndOrDataDword(AUD_CTL,				0, ~0x00000800);
+	AndOrDataDword(AUD_DEEMPH1_SRC_SEL,	0, ~0x00000002);
+}
+
+void CCX2388xCard::SetAutoA2StereoToStereo()
+{
+	// set timer to this value makes
+	// bit 0 + 1 in AUD_CTL stable
+	WriteDword(AUD_MODE_CHG_TIMER,		0x00000120);
+	OrDataDword(AUD_CTL,				0x00000800);
+	OrDataDword(AUD_DEEMPH1_SRC_SEL,	0x00000002);
+}
+
+// called every 250ms
+eSoundChannel CCX2388xCard::HandleTimerAndGetAudioChannel()
+{
+	eSoundChannel SoundChannel = SOUNDCHANNEL_MONO;
+
+	if(IsInputATuner(m_CurrentInput))
+	{
+		DWORD dwVal = ReadDword(AUD_VOL_CTL);
+		
+		if(IsVideoPresent())
+		{
+			// is Audio muted?
+			if((dwVal & EN_DAC_MUTE_EN) == EN_DAC_MUTE_EN)
+			{
+				// Yes - > UnMute
+				WriteDword(AUD_VOL_CTL, (dwVal & ~EN_DAC_MUTE_EN));
+			}
+			
+			// only when in EN_A2_AUTO_STEREO mode
+			if((ReadDword(AUD_CTL) & 0x0000002f) == EN_A2_AUTO_STEREO)
+			{
+				DWORD dwVal = ReadDword(AUD_STATUS) & 0x03;
+				switch(dwVal)
+				{
+				case 0:
+					if(m_AutoDetectCounter < 10)
+					{
+						m_AutoDetectCounter++;
+					}
+					break;
+
+				case 2:
+					if(m_AutoDetectCounter > 0)
+					{
+						m_AutoDetectCounter--;
+					}
+					break;
+
+				// \todo bilingual support
+				}
+
+				if(m_AutoDetectCounter > 5)
+				{
+					SetAutoA2StereoToStereo();
+					SoundChannel = SOUNDCHANNEL_STEREO;
+				}
+
+				else
+				{
+					SetAutoA2StereoToMono();
+					SoundChannel = SOUNDCHANNEL_MONO;
+				}
+
+				TRACE("m_AutoDetectCounter:%d Stereo:%d\n", m_AutoDetectCounter, SoundChannel);
+
+			}
+			
+			// \todo BTSC/EIAJ/FM/Nicam support
+		}
+
+		else //IsVideoPresent
+		{
+			// is Audio muted?
+			if((dwVal & EN_DAC_MUTE_EN) == 0)
+			{
+				// No - > Mute
+				WriteDword(AUD_VOL_CTL, (dwVal|EN_DAC_MUTE_EN));
+			}
+		}
+	}
+
+	else // IsInputATuner
+	{
+		// external sources always stereo
+		SoundChannel = SOUNDCHANNEL_STEREO;
+	}
+
+	return SoundChannel;
+}
 

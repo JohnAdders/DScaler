@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.53 2003-10-27 10:39:51 adcockj Exp $
+// $Id: DScaler.h,v 1.54 2004-02-21 14:11:30 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -104,6 +104,9 @@ void SetTrayTip(const char* ChannelName);
 #define TIMER_MSP_MS        1000
 
 #define TIMER_MSP_INTERNAL  9
+
+#define TIMER_CX2388X       10
+#define TIMER_CX2388X_MS    250
 
 #define TIMER_KEYNUMBER     99
 #define TIMER_KEYNUMBER_MS  1000

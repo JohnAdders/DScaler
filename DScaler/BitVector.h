@@ -50,6 +50,11 @@ public:
 	// Gets the mask of the bit block.
 	virtual unsigned long mask() const;
 
+	// Returns a bit block that is a subset mask.
+	virtual CBitBlock subset(unsigned long mask) const;
+	// Returns a bit block that is an offset adjusted subset mask.
+	virtual CBitBlock subset(unsigned long offset, unsigned long mask) const;
+
 	// Returns the value shifted into a 32-bit space. 
 	virtual unsigned long pack(unsigned long value) const;
 	// Returns the value of just the content of the block from the vector.
@@ -140,6 +145,7 @@ public:
 
 	// Returns the vector where the value is bit inverted.
 	virtual CBitVector operator~ () const;
+
 	// Sets the left to a union vector with the values bitwise AND.
 	virtual CBitVector& operator&= (const CBitVector& b);
 	// Returns a unioned vector with the values bitwise AND.
@@ -148,6 +154,13 @@ public:
 	virtual CBitVector& operator|= (const CBitVector& b);
 	// Returns a unioned vector with the values bitwise OR.
 	virtual CBitVector operator| (const CBitVector& b) const;
+
+	// Sets the left to a combination of the two vectors but with the
+	// masked bits of the right wholly set by the value of the right.
+	virtual CBitVector& operator+= (const CBitVector& b);
+	// Returns the combination of the two vectors with the masked
+	// bits of the right wholly set by the value of the right.
+	virtual CBitVector operator+ (const CBitVector& b);
 
 	// Sets the vector to a vector masked by the given mask.
 	virtual CBitVector& operator&= (const CBitMask& m);

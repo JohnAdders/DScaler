@@ -48,6 +48,16 @@ unsigned long CBitBlock::mask() const
 	return m_mask;
 }
 
+CBitBlock CBitBlock::subset(unsigned long mask) const
+{
+	return CBitBlock(m_offset, m_mask & mask);
+}
+
+CBitBlock CBitBlock::subset(unsigned long offset, unsigned long mask) const
+{
+	return CBitBlock(m_offset + offset, (m_mask >> offset) & mask);
+}
+
 unsigned long CBitBlock::pack(unsigned long value) const
 {
 	return pack(m_offset, m_mask, value);
@@ -205,13 +215,25 @@ CBitVector CBitVector::operator& (const CBitVector& b) const
 CBitVector& CBitVector::operator|= (const CBitVector& b)
 {
 	m_mask |= b.m_mask;
-	m_value = (m_value | b.m_value) & m_mask;
+	m_value |= b.m_value;
 	return *this;
 }
 
 CBitVector CBitVector::operator| (const CBitVector& b) const
 {
 	return CBitVector(m_mask | b.m_mask, m_value | b.m_value);
+}
+
+CBitVector& CBitVector::operator+= (const CBitVector& b)
+{
+	m_mask |= b.m_mask;
+	m_value = m_value & ~b.m_mask | b.m_value;
+	return *this;
+}
+
+CBitVector CBitVector::operator+ (const CBitVector& b)
+{
+	return CBitVector(m_mask | b.m_mask, m_value & ~b.m_mask | b.m_value);
 }
 
 CBitVector& CBitVector::operator&= (const CBitMask& m)

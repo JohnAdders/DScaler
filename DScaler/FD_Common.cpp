@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_Common.cpp,v 1.24 2002-06-13 12:10:22 adcockj Exp $
+// $Id: FD_Common.cpp,v 1.25 2002-07-28 08:11:27 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2002/06/13 12:10:22  adcockj
+// Move to new Setings dialog for filers, video deint and advanced settings
+//
 // Revision 1.23  2001/11/23 19:33:14  adcockj
 // Fixes to bob to make is less jittery
 //
@@ -805,7 +808,6 @@ void FD_Common_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 
 void FD_Common_SetMenu(HMENU hMenu)
 {
-    CheckMenuItemBool(hMenu, IDM_USECHROMA, UseChromaInDetect);
 }
 
 CTreeSettingsGeneric* FD_Common_GetTreeSettingsPage()

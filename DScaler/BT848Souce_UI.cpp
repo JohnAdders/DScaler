@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.2 2001-11-02 16:30:07 adcockj Exp $
+// $Id: BT848Souce_UI.cpp,v 1.3 2001-11-02 17:03:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/11/02 16:30:07  adcockj
+// Check in merged code from multiple cards branch into main tree
+//
 // Revision 1.1.2.3  2001/08/22 18:38:31  adcockj
 // Fixed Recursive bug
 //
@@ -928,6 +931,7 @@ void CBT848Source::ChangeDefaultsForInput()
     case FORMAT_PAL60:
     case FORMAT_SECAM:
     case FORMAT_PAL_M:
+    case FORMAT_PAL_NC:
         m_Brightness->ChangeDefault(DEFAULT_BRIGHTNESS_PAL);
         m_Contrast->ChangeDefault(DEFAULT_CONTRAST_PAL);
         m_Hue->ChangeDefault(DEFAULT_HUE_PAL);

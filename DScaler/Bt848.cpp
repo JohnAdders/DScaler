@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Bt848.cpp,v 1.35 2001-09-05 15:08:43 adcockj Exp $
+// $Id: Bt848.cpp,v 1.36 2001-11-02 17:03:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,6 +44,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.35  2001/09/05 15:08:43  adcockj
+// Updated Loging
+//
 // Revision 1.34  2001/09/03 13:46:06  adcockj
 // Added PAL-NC thanks to Eduardo José Tagle
 //
@@ -577,7 +580,7 @@ int BT848_CCIRsource()
 }
 
 //-------------------------------
-int BT848_IsPAL()
+BOOL BT848_IsPAL()
 {
     switch (TVFormat)
     {

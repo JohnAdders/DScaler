@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Bt848_Defines.h,v 1.3 2001-11-02 16:30:07 adcockj Exp $
+// $Id: Bt848_Defines.h,v 1.4 2001-11-02 17:03:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -52,6 +52,7 @@
 #define BT848_IFORM_PAL_M      4
 #define BT848_IFORM_PAL_N      5
 #define BT848_IFORM_SECAM      6
+#define BT848_IFORM_PAL_NC     7
 #define BT848_IFORM_AUTO       0
 #define BT848_IFORM_NORM       7
 

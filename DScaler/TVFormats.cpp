@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TVFormats.cpp,v 1.2 2001-11-02 16:30:08 adcockj Exp $
+// $Id: TVFormats.cpp,v 1.3 2001-11-02 17:03:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/11/02 16:30:08  adcockj
+// Check in merged code from multiple cards branch into main tree
+//
 // Revision 1.1.2.1  2001/08/17 16:35:14  adcockj
 // Another interim check-in still doesn't compile. Getting closer ...
 //
@@ -86,6 +89,13 @@ static TTVFormat TVFormats[FORMAT_LASTONE] =
         3.579545,  FALSE, 71, 626, 15,      
         16, 
     },
+    // PAL-NC thanks to Eduardo José Tagle
+    { 
+        "PAL-NC", 576, 916, 0x68, 0x5c, (BT848_IFORM_PAL_NC|BT848_IFORM_XT0), 
+        149, 745, 0x20, 0, TRUE, 511, 19, 
+        3.579545, FALSE, 71, 626, 15, 
+        16, 
+    }, 
 };
 
 TTVFormat* GetTVFormat(eVideoFormat Format)

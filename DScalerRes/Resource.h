@@ -794,8 +794,8 @@
 #define IDM_SAVE_BY_INPUT               2188
 #define IDM_SAVE_BY_CHANNEL             2189
 #define IDM_VT_HUNGARIAN                2190
+#define IDM_CLOSE_FILE                  2191
 #define IDM_OPEN_FILE                   2192
-#define IDM_CLOSE_FILE                  2193
 #define IDM_PLAYLIST_PREVIOUS           2193
 #define IDM_PLAYLIST_NEXT               2194
 #define IDM_SOUNDCHANNEL_MONO           2207
@@ -828,7 +828,7 @@
 #define IDM_CROSSBAR_INPUT18            2239
 #define IDM_CROSSBAR_INPUT19            2240
 #define IDM_CROSSBAR_INPUT_MAX          2240
-
+#define IDM_RESET_STATS                 2241
 #define IDC_STATIC                      -1
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
@@ -845,12 +845,12 @@
 #define IDM_HOLDER                      65535
 
 // Next default values for new objects
-//
+// 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        188
-#define _APS_NEXT_COMMAND_VALUE         2241
+#define _APS_NEXT_COMMAND_VALUE         2242
 #define _APS_NEXT_CONTROL_VALUE         1893
 #define _APS_NEXT_SYMED_VALUE           2213
 #endif

@@ -111,6 +111,7 @@ BEGIN
     "Q",            IDM_HDELAY_PLUS,        VIRTKEY, SHIFT, NOINVERT
     "Q",            IDM_HDELAY_CURRENT,     VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
+    "R",            IDM_RESET_STATS,        VIRTKEY, NOINVERT
     "R",            IDM_TSRECORD,           VIRTKEY, SHIFT, NOINVERT
     "S",            IDM_STATUSBAR,          VIRTKEY, NOINVERT
     "S",            IDM_TSSTOP,             VIRTKEY, SHIFT, NOINVERT
@@ -740,6 +741,7 @@ BEGIN
     POPUP "&File"
     BEGIN
         MENUITEM "&Open...",                    IDM_OPEN_FILE
+        MENUITEM "&Close",                      IDM_CLOSE_FILE
         MENUITEM "E&xit\tAlt+F4",               IDM_END
     END
     POPUP "&Channels"
@@ -980,8 +982,6 @@ BEGIN
             MENUITEM "Field Timing",                IDM_TIMING_SETTNGS
             MENUITEM "Overlay Settings",            IDM_OVERLAY_SETTINGS
         END
-        MENUITEM "Stop Video Overlay",          IDM_OVERLAY_STOP
-        MENUITEM "Start Video Overlay",         IDM_OVERLAY_START
         POPUP "Video &Overlay"
         BEGIN
             MENUITEM "Settings &Adjustment ...",    IDM_OVERLAYSETTINGS

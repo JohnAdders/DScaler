@@ -285,7 +285,7 @@ public:
     void SetRange(int min_val, int max_val);
     void SetRange(int delta);
     void SetRange(int *mask);
-    void GetRange(int *mask, int *min_val, int *max_val);
+    int GetRange(int *mask, int *min_val, int *max_val);
     void AdjustMin();
     void AdjustMax();
     void AdjustDefault();
@@ -358,7 +358,7 @@ protected:
 
 private:
     BOOL step_init(eTypeAdjust type_adjust, CCalSetting *_setting1, CCalSetting *_setting2, CCalSetting *_setting3);
-    BOOL step_process(short **Lines, int height, int width, unsigned int sig_component, BOOL stop_when_found, BOOL only_one, BOOL *best_found);
+    BOOL step_process(short **Lines, int height, int width, unsigned int sig_component, unsigned int nb_calc, BOOL stop_when_found, BOOL only_one, BOOL *best_found);
     int last_tick_count;
     unsigned int initial_step;
     unsigned int nb_steps;

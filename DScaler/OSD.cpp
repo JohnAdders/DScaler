@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.31 2001-09-21 20:39:12 laurentg Exp $
+// $Id: OSD.cpp,v 1.32 2001-09-22 18:04:55 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2001/09/21 20:39:12  laurentg
+// Text "auto" added in front of the source ratio in the OSD general screen when ratio automatic detection is activated
+//
 // Revision 1.30  2001/09/15 21:02:45  laurentg
 // no message
 //
@@ -1004,8 +1007,11 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
             if ( pCalibration->IsRunning()
               && ( (pCalibration->GetCurrentStep() == 1)
                 || (pCalibration->GetCurrentStep() == 2)
-                || (pCalibration->GetCurrentStep() == 5)
-                || (pCalibration->GetCurrentStep() == 6) ) )
+                || (pCalibration->GetCurrentStep() == 3)
+                || (pCalibration->GetCurrentStep() == 4)
+                || (pCalibration->GetCurrentStep() == 9)
+                || (pCalibration->GetCurrentStep() == 10)
+                || (pCalibration->GetCurrentStep() == 11) ) )
             {
                 Color = OSD_COLOR_CURRENT;
             }
@@ -1016,10 +1022,13 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
             OSD_AddText(szInfo, Size, Color, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (8, dfMargin, Size));
             sprintf (szInfo, "Contrast : %03d", Setting_GetValue(BT848_GetSetting(CONTRAST)));
             if ( pCalibration->IsRunning()
-              && ( (pCalibration->GetCurrentStep() == 3)
-                || (pCalibration->GetCurrentStep() == 4)
-                || (pCalibration->GetCurrentStep() == 5)
-                || (pCalibration->GetCurrentStep() == 6) ) )
+              && ( (pCalibration->GetCurrentStep() == 5)
+                || (pCalibration->GetCurrentStep() == 6)
+                || (pCalibration->GetCurrentStep() == 7)
+                || (pCalibration->GetCurrentStep() == 8)
+                || (pCalibration->GetCurrentStep() == 9)
+                || (pCalibration->GetCurrentStep() == 10)
+                || (pCalibration->GetCurrentStep() == 11) ) )
             {
                 Color = OSD_COLOR_CURRENT;
             }
@@ -1030,10 +1039,12 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
             OSD_AddText(szInfo, Size, Color, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (9, dfMargin, Size));
             sprintf (szInfo, "Color U : %03u", Setting_GetValue(BT848_GetSetting(SATURATIONU)));
             if ( pCalibration->IsRunning()
-              && ( (pCalibration->GetCurrentStep() == 7)
-                || (pCalibration->GetCurrentStep() == 8)
+              && ( (pCalibration->GetCurrentStep() == 12)
                 || (pCalibration->GetCurrentStep() == 13)
-                || (pCalibration->GetCurrentStep() == 14) ) )
+                || (pCalibration->GetCurrentStep() == 14)
+                || (pCalibration->GetCurrentStep() == 15)
+                || (pCalibration->GetCurrentStep() == 22)
+                || (pCalibration->GetCurrentStep() == 23) ) )
             {
                 Color = OSD_COLOR_CURRENT;
             }
@@ -1044,10 +1055,12 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
             OSD_AddText(szInfo, Size, Color, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (10, dfMargin, Size));
             sprintf (szInfo, "Color V : %03u", Setting_GetValue(BT848_GetSetting(SATURATIONV)));
             if ( pCalibration->IsRunning()
-              && ( (pCalibration->GetCurrentStep() == 9)
-                || (pCalibration->GetCurrentStep() == 10)
-                || (pCalibration->GetCurrentStep() == 13)
-                || (pCalibration->GetCurrentStep() == 14) ) )
+              && ( (pCalibration->GetCurrentStep() == 16)
+                || (pCalibration->GetCurrentStep() == 17)
+                || (pCalibration->GetCurrentStep() == 18)
+                || (pCalibration->GetCurrentStep() == 19)
+                || (pCalibration->GetCurrentStep() == 22)
+                || (pCalibration->GetCurrentStep() == 23) ) )
             {
                 Color = OSD_COLOR_CURRENT;
             }
@@ -1058,8 +1071,10 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
             OSD_AddText(szInfo, Size, Color, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (11, dfMargin, Size));
             sprintf (szInfo, "Hue : %+04d", Setting_GetValue(BT848_GetSetting(HUE)));
             if ( pCalibration->IsRunning()
-              && ( (pCalibration->GetCurrentStep() == 11)
-                || (pCalibration->GetCurrentStep() == 12) ) )
+              && ( (pCalibration->GetCurrentStep() == 20)
+                || (pCalibration->GetCurrentStep() == 21)
+                || (pCalibration->GetCurrentStep() == 22)
+                || (pCalibration->GetCurrentStep() == 23) ) )
             {
                 Color = OSD_COLOR_CURRENT;
             }
@@ -1088,30 +1103,38 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
                     break;
                 case 1:
                 case 2:
-                    strcpy(szInfo, "Adjusting Brightness ...");
-                    break;
                 case 3:
                 case 4:
-                    strcpy(szInfo, "Adjusting Contrast ...");
+                    strcpy(szInfo, "Adjusting Brightness ...");
                     break;
                 case 5:
                 case 6:
-                    strcpy(szInfo, "Fine tuning of brightness and contrast ...");
-                    break;
                 case 7:
                 case 8:
-                    strcpy(szInfo, "Adjusting Saturation U ...");
+                    strcpy(szInfo, "Adjusting Contrast ...");
                     break;
-                case 9:
                 case 10:
-                    strcpy(szInfo, "Adjusting Saturation V ...");
-                    break;
                 case 11:
-                case 12:
-                    strcpy(szInfo, "Adjusting Hue ...");
+                    strcpy(szInfo, "Fine tuning of brightness and contrast ...");
                     break;
+                case 12:
                 case 13:
                 case 14:
+                case 15:
+                    strcpy(szInfo, "Adjusting Saturation U ...");
+                    break;
+                case 16:
+                case 17:
+                case 18:
+                case 19:
+                    strcpy(szInfo, "Adjusting Saturation V ...");
+                    break;
+                case 20:
+                case 21:
+                    strcpy(szInfo, "Adjusting Hue ...");
+                    break;
+                case 22:
+                case 23:
                     strcpy(szInfo, "Fine tuning of color ...");
                     break;
                 default:

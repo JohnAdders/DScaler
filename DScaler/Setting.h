@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.h,v 1.5 2002-02-09 18:06:27 laurentg Exp $
+// $Id: Setting.h,v 1.6 2002-08-06 18:30:14 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -52,7 +52,7 @@ public:
     virtual void SetDefault() = 0;
     virtual SETTING_TYPE GetType() = 0;
     virtual void ChangeValue(eCHANGEVALUE NewValue) = 0;
-    virtual void ReadFromIni() = 0;
+    virtual BOOL ReadFromIni(BOOL bDontSetDefault = FALSE) = 0;
     virtual void WriteToIni(BOOL bOptimizeFileAccess) = 0;
     virtual long GetValue() = 0;
     virtual long GetMin() = 0;
@@ -83,7 +83,10 @@ public:
     void Down();
     void ChangeValue(eCHANGEVALUE NewValue);
     void SetSection(LPCSTR NewValue);
-    void ReadFromIni();
+    LPCSTR GetSection() { return m_Section.c_str(); }
+    void SetEntry(LPCSTR NewValue) { m_Entry = NewValue; }
+    LPCSTR GetEntry() { return m_Entry.c_str(); }
+    BOOL ReadFromIni(BOOL bDontSetDefault = FALSE);
     void WriteToIni(BOOL bOptimizeFileAccess);
     void SetStepValue(long Step);
     void SetMin(long Min);

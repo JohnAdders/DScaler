@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.h,v 1.12 2002-06-13 12:10:23 adcockj Exp $
+// $Id: Settings.h,v 1.13 2002-08-06 18:31:19 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -53,7 +53,7 @@ void Setting_ChangeDefault(SETTING* pSetting, long Default);
 void Setting_SetupSlider(SETTING* pSetting, HWND hSlider);
 void Setting_SetControlValue(SETTING* pSetting, HWND hControl);
 BOOL Setting_SetFromControl(SETTING* pSetting, HWND hControl);
-void Setting_ReadFromIni(SETTING* pSetting);
+BOOL Setting_ReadFromIni(SETTING* pSetting, BOOL bDontSetDefault = FALSE);
 void Setting_WriteToIni(SETTING* pSetting, BOOL bOptimizeFileAccess);
 void Setting_OSDShow(SETTING* pSetting, HWND hWnd);
 void Setting_Up(SETTING* pSetting);

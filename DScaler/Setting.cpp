@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.cpp,v 1.8 2002-06-13 11:43:56 robmuller Exp $
+// $Id: Setting.cpp,v 1.9 2002-08-06 18:30:52 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/06/13 11:43:56  robmuller
+// Settings at default value that did not exist in the ini file were not written to the ini file.
+//
 // Revision 1.7  2002/02/08 19:27:18  adcockj
 // Fixed problems with video settings dialog
 //
@@ -202,7 +205,7 @@ void CSimpleSetting::SetSection(LPCSTR NewValue)
     m_Section = NewValue;
 }
 
-void CSimpleSetting::ReadFromIni()
+BOOL CSimpleSetting::ReadFromIni(BOOL bDontSetDefault)
 {
     long nValue;
     BOOL IsSettingInIniFile = TRUE;
@@ -225,7 +228,10 @@ void CSimpleSetting::ReadFromIni()
             LOG(1, "%s %s Was out of range - %d is too high", m_Section.c_str(), m_Entry.c_str(), nValue);
             nValue = m_Max;
         }
-        m_Value = nValue;
+        if (IsSettingInIniFile || !bDontSetDefault)
+        {
+            m_Value = nValue;
+        }
         if(IsSettingInIniFile)
         {
             m_LastSavedValue = nValue;
@@ -235,6 +241,11 @@ void CSimpleSetting::ReadFromIni()
             m_LastSavedValue = m_Min - 100;
         }
     }
+    else
+    {
+        return FALSE;
+    }
+    return IsSettingInIniFile;
 }
 
 void CSimpleSetting::WriteToIni(BOOL bOptimizeFileAccess)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.34 2002-06-13 11:43:55 robmuller Exp $
+// $Id: Settings.cpp,v 1.35 2002-08-06 18:31:10 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.34  2002/06/13 11:43:55  robmuller
+// Settings at default value that did not exist in the ini file were not written to the ini file.
+//
 // Revision 1.33  2002/06/13 10:40:37  robmuller
 // Made anti plop mute delay configurable.
 //
@@ -653,7 +656,7 @@ BOOL Setting_SetFromControl(SETTING* pSetting, HWND hControl)
     return Setting_SetValue(pSetting, nValue);
 }
 
-void Setting_ReadFromIni(SETTING* pSetting)
+BOOL Setting_ReadFromIni(SETTING* pSetting, BOOL bDontSetDefault)
 {
     long nValue;
     BOOL IsSettingInIniFile = TRUE;
@@ -663,7 +666,7 @@ void Setting_ReadFromIni(SETTING* pSetting)
         nValue = GetPrivateProfileInt(pSetting->szIniSection, pSetting->szIniEntry, pSetting->MinValue - 100, szIniFile);
         if(nValue == pSetting->MinValue - 100)
         {
-            nValue = pSetting->Default;
+            nValue = pSetting->Default;            
             IsSettingInIniFile = FALSE;
         }
         if(nValue < pSetting->MinValue)
@@ -676,7 +679,10 @@ void Setting_ReadFromIni(SETTING* pSetting)
             LOG(1, "%s %s Was out of range - %d is too high", pSetting->szIniSection, pSetting->szIniEntry, nValue);
             nValue = pSetting->MaxValue;
         }
-        *pSetting->pValue = nValue;
+        if (IsSettingInIniFile || !bDontSetDefault)
+        {
+            *pSetting->pValue = nValue;
+        }
         if(IsSettingInIniFile)
         {
             pSetting->LastSavedValue = *pSetting->pValue;
@@ -686,6 +692,11 @@ void Setting_ReadFromIni(SETTING* pSetting)
             pSetting->LastSavedValue = pSetting->MinValue - 100;
         }
     }
+    else
+    {
+        return FALSE;
+    }
+    return IsSettingInIniFile;
 }
 
 void Setting_WriteToIni(SETTING* pSetting, BOOL bOptimizeFileAccess)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_BlackWhite.c,v 1.1 2003-03-13 00:43:59 laurentg Exp $
+// $Id: FLT_BlackWhite.c,v 1.2 2003-03-22 13:16:26 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,12 +19,15 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2003/03/13 00:43:59  laurentg
+// New filter black & white
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
 #include "DS_Filter.h"
-//#include "..\help\helpids.h"
+#include "..\help\helpids.h"
 
 FILTER_METHOD BlackWhiteMethod;
 
@@ -90,7 +93,7 @@ FILTER_METHOD BlackWhiteMethod =
     WM_FLT_BLACKWHITE_GETVALUE - WM_APP,
     TRUE,
     1,
-    0,
+    IDH_BLACK_WHITE,
 };
 
 __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo(long CpuFeatureFlags)

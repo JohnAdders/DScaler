@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.85 2003-01-24 01:55:17 atnak Exp $
+// $Id: StillSource.cpp,v 1.86 2003-01-24 22:25:53 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.85  2003/01/24 01:55:17  atnak
+// OSD + Teletext conflict fix, offscreen buffering for OSD and Teletext,
+// got rid of the pink overlay colorkey for Teletext.
+//
 // Revision 1.84  2003/01/20 02:42:16  robmuller
 // Fixed crashing in resizing code.
 //
@@ -1049,9 +1053,6 @@ void CStillSource::SaveInFile(int pos)
 
 	OSD_ShowText(strrchr(FilePath, '\\') + 1, 0);
 
-	m_PlayList[pos]->SetFileName(FilePath);
-    UpdateMenu();
-
 	pNewFrameBuffer = pStartFrame;
 	NewLinePitch = LinePitch;
 	NewFrameHeight = FrameHeight;
@@ -1125,6 +1126,15 @@ void CStillSource::SaveInFile(int pos)
 	{
 		free(NewBuf);
 	}
+
+	// Free the image frame buffer except if it is the current displayed
+	if (pFrameBuffer != m_OriginalFrameBuffer)
+	{
+		m_PlayList[pos]->FreeBuffer();
+	}
+
+	// Call SetFileName after FreeBuffer because SetFileName reset memory pointers
+	m_PlayList[pos]->SetFileName(FilePath);
 }
 
 void CStillSource::CreateSettings(LPCSTR IniSection)
@@ -1268,7 +1278,8 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
       || LOWORD(wParam) == IDM_CLOSE_FILE
       || LOWORD(wParam) == IDM_CLOSE_ALL
       || LOWORD(wParam) == IDM_PLAYLIST_SAVE
-      || LOWORD(wParam) == IDM_SAVE_IN_FILE))
+      || LOWORD(wParam) == IDM_SAVE_IN_FILE
+      || LOWORD(wParam) == IDM_SAVE_ALL_IN_FILE))
         return FALSE;
 
     if ( (LOWORD(wParam) >= IDM_PLAYLIST_FILES) && (LOWORD(wParam) < (IDM_PLAYLIST_FILES+MAX_PLAYLIST_SIZE)) )
@@ -1425,6 +1436,7 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         break;
     case IDM_SAVE_IN_FILE:
 		SaveInFile(m_Position);
+		UpdateMenu();
         return TRUE;
         break;
     case IDM_SAVE_ALL_IN_FILE:
@@ -1432,6 +1444,7 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		{
 			SaveInFile(pos);
 		}
+		UpdateMenu();
         return TRUE;
         break;
     default:
@@ -1771,6 +1784,7 @@ void CStillSource::SetMenu(HMENU hMenu)
 {
     HMENU           hSubMenu;
     HMENU           hMenuFiles;
+	BOOL			OneInMemory = FALSE;
 
     CheckMenuItemBool(hMenu, IDM_PLAYLIST_SLIDESHOW, m_SlideShowActive);
     if(m_PlayList.size() > 1)
@@ -1827,6 +1841,21 @@ void CStillSource::SetMenu(HMENU hMenu)
 	{
 		EnableMenuItem(hMenu, IDM_SAVE_IN_FILE, MF_ENABLED);
 	}
+
+    if (!m_NavigOnly && (m_PlayList.size() > 0))
+	{
+		for(vector<CPlayListItem*>::iterator it = m_PlayList.begin(); 
+			it != m_PlayList.end(); 
+			++it)
+		{
+			if ((*it)->IsInMemory())
+			{
+				OneInMemory = TRUE;
+				break;
+			}
+		}
+	}
+	EnableMenuItem(hMenu, IDM_SAVE_ALL_IN_FILE, OneInMemory ? MF_ENABLED : MF_GRAYED);
 
     hSubMenu = GetSubMenu(m_hMenu, 0);
     if(hSubMenu == NULL) return;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.46 2002-04-14 00:46:49 laurentg Exp $
+// $Id: StillSource.cpp,v 1.47 2002-04-14 17:25:26 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.46  2002/04/14 00:46:49  laurentg
+// Table of compatibility TIFF updated
+// Log messages suppressed
+//
 // Revision 1.45  2002/04/13 21:52:40  laurentg
 // Management of no current source
 //
@@ -519,6 +523,27 @@ void CStillSource::SaveSnapshot(LPCSTR FilePath, int FrameHeight, int FrameWidth
     case STILL_TIFF_RGB:
         {
             CTiffHelper TiffHelper(this, TIFF_CLASS_R);
+            TiffHelper.SaveSnapshot(FilePath, FrameHeight, FrameWidth, pOverlay, OverlayPitch);
+            OpenMediaFile(FilePath, FALSE);
+            break;
+        }
+    case STILL_TIFF_RGB_LZW:
+        {
+            CTiffHelper TiffHelper(this, TIFF_CLASS_R_LZW);
+            TiffHelper.SaveSnapshot(FilePath, FrameHeight, FrameWidth, pOverlay, OverlayPitch);
+            OpenMediaFile(FilePath, FALSE);
+            break;
+        }
+    case STILL_TIFF_RGB_JPEG:
+        {
+            CTiffHelper TiffHelper(this, TIFF_CLASS_R_JPEG);
+            TiffHelper.SaveSnapshot(FilePath, FrameHeight, FrameWidth, pOverlay, OverlayPitch);
+            OpenMediaFile(FilePath, FALSE);
+            break;
+        }
+    case STILL_TIFF_RGB_PACKBITS:
+        {
+            CTiffHelper TiffHelper(this, TIFF_CLASS_R_PACKBITS);
             TiffHelper.SaveSnapshot(FilePath, FrameHeight, FrameWidth, pOverlay, OverlayPitch);
             OpenMediaFile(FilePath, FALSE);
             break;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TiffHelper.cpp,v 1.16 2002-04-14 10:16:23 laurentg Exp $
+// $Id: TiffHelper.cpp,v 1.17 2002-04-14 17:25:26 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/04/14 10:16:23  laurentg
+// Table of TIFF compatibility updated due to update to LibTiff 3.5.7 + LibJpeg
+//
 // Revision 1.15  2002/04/14 00:46:49  laurentg
 // Table of compatibility TIFF updated
 // Log messages suppressed
@@ -167,7 +170,6 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
         !TIFFGetField(tif, TIFFTAG_COMPRESSION, &Compression) ||
         !TIFFGetField(tif, TIFFTAG_PHOTOMETRIC, &Class) )
     {
-        LOG(1, "toto");
         TIFFClose(tif);
         return FALSE;
     }
@@ -357,6 +359,7 @@ void CTiffHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOv
     int w;
     float ycbcrCoeffs[3] = { 0.299f, 0.587f, 0.114f };
     float refBlackWhite[6] = { 15., 235., 128., 240., 128., 240. };
+    uint16 Compression;
 
     w = (Width % 2) ? Width-1 : Width;
     if (m_FormatSaving == TIFF_CLASS_Y)
@@ -437,7 +440,6 @@ void CTiffHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOv
     sprintf(description, "DScaler image, deinterlace Mode %s", GetDeinterlaceModeName());
     if (!TIFFSetField(tif, TIFFTAG_SUBFILETYPE, 0) ||
         !TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, 8) ||                 // 8 bits for each channel
-        !TIFFSetField(tif, TIFFTAG_COMPRESSION, COMPRESSION_NONE) ||    // No compression
         !TIFFSetField(tif, TIFFTAG_IMAGEDESCRIPTION, description) ||
         !TIFFSetField(tif, TIFFTAG_IMAGELENGTH, Height) ||
         !TIFFSetField(tif, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG) ||         // RGB bytes are interleaved
@@ -473,9 +475,32 @@ void CTiffHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOv
             return;
         }
     }
+    switch (m_FormatSaving)
+    {
+    case TIFF_CLASS_R_LZW:
+        Compression = COMPRESSION_LZW;
+        break;
+    case TIFF_CLASS_R_JPEG:
+        Compression = COMPRESSION_JPEG;
+        break;
+    case TIFF_CLASS_R_PACKBITS:
+        Compression = COMPRESSION_PACKBITS;
+        break;
+    case TIFF_CLASS_R:
+    case TIFF_CLASS_Y:
+    default:
+        Compression = COMPRESSION_NONE;
+        break;
+    }
+    if (!TIFFSetField(tif, TIFFTAG_COMPRESSION, Compression))
+    {
+        _TIFFfree(buffer);
+        TIFFClose(tif);
+        return;
+    }
 
     // Write the strip (data) in the file
-    TIFFWriteRawStrip(tif, 0, buffer, size);
+    TIFFWriteEncodedStrip(tif, 0, buffer, size);
 
     _TIFFfree(buffer);
 

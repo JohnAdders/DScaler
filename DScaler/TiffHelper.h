@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TiffHelper.h,v 1.3 2001-12-05 00:08:41 laurentg Exp $
+// $Id: TiffHelper.h,v 1.4 2002-04-14 17:25:26 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/12/05 00:08:41  laurentg
+// Use of LibTiff DLL
+//
 // Revision 1.2  2001/11/29 14:04:07  adcockj
 // Added Javadoc comments
 //
@@ -47,6 +50,9 @@
 
 enum eTIFFClass {
     TIFF_CLASS_R = 0,
+    TIFF_CLASS_R_LZW,
+    TIFF_CLASS_R_JPEG,
+    TIFF_CLASS_R_PACKBITS,
     TIFF_CLASS_Y,
 };
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.86 2003-08-15 14:26:30 laurentg Exp $
+// $Id: SAA7134Source.cpp,v 1.87 2003-08-15 18:22:57 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.86  2003/08/15 14:26:30  laurentg
+// Management of volume
+//
 // Revision 1.85  2003/08/15 12:18:39  laurentg
 // Volume update in the toolbar when changing source
 //
@@ -348,7 +351,8 @@ CSAA7134Source::CSAA7134Source(CSAA7134Card* pSAA7134Card, CContigMemory* PageTa
     m_ProcessingFieldID(-1),
     m_hSAA7134ResourceInst(NULL),
     m_DetectedAudioChannel((eAudioChannel)-1),
-    m_bSelectCardCancelButton(TRUE)
+    m_bSelectCardCancelButton(TRUE),
+	m_InitialSetup(FALSE)
 {
     CreateSettings(IniSection);
 
@@ -1273,6 +1277,8 @@ void CSAA7134Source::SetupCard()
 
     if (m_CardType->GetValue() == SAA7134CARDID_UNKNOWN)
     {
+		m_InitialSetup = TRUE;
+
         // try to detect the card
         m_CardType->SetValue(m_pSAA7134Card->AutoDetectCardType());
         m_TunerType->SetValue(m_pSAA7134Card->AutoDetectTuner((eSAA7134CardId)m_CardType->GetValue()));

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.126 2003-07-05 10:55:57 laurentg Exp $
+// $Id: BT848Source.cpp,v 1.127 2003-08-15 18:20:26 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.126  2003/07/05 10:55:57  laurentg
+// New method SetWidth
+//
 // Revision 1.125  2003/06/14 14:29:21  laurentg
 // Video format saved per video input for BT8x8 and CX2388x
 //
@@ -485,7 +488,8 @@ CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CU
     m_InSaturationUpdate(FALSE),
     m_ChipName(ChipName),
     m_DeviceIndex(DeviceIndex),
-    m_DetectingAudioStandard(0)
+    m_DetectingAudioStandard(0),
+	m_InitialSetup(FALSE)
 {
     CreateSettings(IniSection);
 
@@ -1760,6 +1764,8 @@ void CBT848Source::SetupCard()
 
     if(m_CardType->GetValue() == TVCARD_UNKNOWN)
     {
+		m_InitialSetup = TRUE;
+
         // try to detect the card
         m_CardType->SetValue(m_pBT848Card->AutoDetectCardType());
         m_TunerType->SetValue(m_pBT848Card->AutoDetectTuner((eTVCardId)m_CardType->GetValue()));

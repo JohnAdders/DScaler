@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.h,v 1.26 2003-08-11 20:45:55 laurentg Exp $
+// $Id: CX2388xSource.h,v 1.27 2003-08-15 18:21:27 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -106,6 +106,8 @@ public:
 
 	BOOL HasMediaControl() {return FALSE;};
 
+	BOOL IsInitialSetup() {return m_InitialSetup;};
+
 private:
     virtual void CreateSettings(LPCSTR IniSection);
 
@@ -158,6 +160,8 @@ private:
     CYesNoSetting* m_bSavePerFormat;
     CYesNoSetting* m_bSavePerChannel;
     CSliderSetting* m_CustomPixelWidth;
+
+	BOOL		 m_InitialSetup;
 
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, Brightness);
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, Contrast);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.53 2003-07-05 10:55:57 laurentg Exp $
+// $Id: CX2388xSource.cpp,v 1.54 2003-08-15 18:21:26 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.53  2003/07/05 10:55:57  laurentg
+// New method SetWidth
+//
 // Revision 1.52  2003/06/14 14:29:21  laurentg
 // Video format saved per video input for BT8x8 and CX2388x
 //
@@ -347,7 +350,8 @@ CCX2388xSource::CCX2388xSource(CCX2388xCard* pCard, CContigMemory* RiscDMAMem, C
     m_IsFieldOdd(FALSE),
     m_InSaturationUpdate(FALSE),
     m_NumFields(10),
-    m_hCX2388xResourceInst(NULL)
+    m_hCX2388xResourceInst(NULL),
+	m_InitialSetup(FALSE)
 {
     CreateSettings(IniSection);
 
@@ -1634,6 +1638,8 @@ void CCX2388xSource::SetupCard()
 
     if(m_CardType->GetValue() == CX2388xCARD_UNKNOWN)
     {
+		m_InitialSetup = TRUE;
+
         // try to detect the card
         m_CardType->SetValue(m_pCard->AutoDetectCardType());
         m_TunerType->SetValue(m_pCard->AutoDetectTuner((eCX2388xCardId)m_CardType->GetValue()));

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.h,v 1.41 2003-08-11 20:45:55 laurentg Exp $
+// $Id: SAA7134Source.h,v 1.42 2003-08-15 18:22:57 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.41  2003/08/11 20:45:55  laurentg
+// Method to know if the source can be controled through a media player
+//
 // Revision 1.40  2003/07/22 22:31:36  laurentg
 // Correct handling of pause (P key) for video file playing
 //
@@ -261,6 +264,8 @@ public:
 
 	BOOL HasMediaControl() {return FALSE;};
 
+	BOOL IsInitialSetup() {return m_InitialSetup;};
+
 private:
     virtual void CreateSettings(LPCSTR IniSection);
 
@@ -348,6 +353,8 @@ private:
     CYesNoSetting*  m_ReversePolarity;
     CYesNoSetting*  m_VBIDebugOverlay;
     CSliderSetting* m_CardType;
+
+	BOOL			m_InitialSetup;
 
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, Brightness);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, Contrast);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.59 2003-08-11 20:45:55 laurentg Exp $
+// $Id: BT848Source.h,v 1.60 2003-08-15 18:20:26 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.59  2003/08/11 20:45:55  laurentg
+// Method to know if the source can be controled through a media player
+//
 // Revision 1.58  2003/07/22 22:31:36  laurentg
 // Correct handling of pause (P key) for video file playing
 //
@@ -166,6 +169,8 @@ public:
 
 	BOOL HasMediaControl() {return FALSE;};
 
+	BOOL IsInitialSetup() {return m_InitialSetup;};
+
 private:
     virtual void CreateSettings(LPCSTR IniSection);
 
@@ -219,6 +224,8 @@ private:
     CSliderSetting* m_CustomPixelWidth;
     CYesNoSetting* m_ReversePolarity;
     CSliderSetting* m_CardType;
+
+	BOOL		 m_InitialSetup;
 
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, Brightness);
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, Contrast);

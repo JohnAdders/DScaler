@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.161 2004-12-25 22:40:18 to_see Exp $
+// $Id: DS_Control.h,v 1.162 2005-03-28 12:54:11 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.161  2004/12/25 22:40:18  to_see
+// Changed the card list to an ini file
+//
 // Revision 1.160  2004/11/20 14:23:55  atnak
 // Added SAA7134 card name setting for storing the card selection as text.
 //
@@ -1851,5 +1854,20 @@ typedef enum
 #define WM_TIMESHIFT_GETVALUE		(WM_APP + 57)
 #define WM_TIMESHIFT_SETVALUE		(WM_APP + 157)
 #define WM_TIMESHIFT_CHANGEVALUE	(WM_APP + 257)
+
+/////////////////////////////////////////////////////////////////////////////
+// Control settings contained in StillSource.cpp
+/////////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+    EPG_XMLTVPATH = 0,
+    EPG_PERCENTAGESIZE,
+    EPG_SETTING_LASTONE,
+} EPG_SETTING;
+
+#define WM_EPG_GETVALUE     (WM_APP + 58)
+#define WM_EPG_SETVALUE     (WM_APP + 158)
+#define WM_EPG_CHANGEVALUE  (WM_APP + 258)
 
 #endif

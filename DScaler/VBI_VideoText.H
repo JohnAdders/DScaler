@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.H,v 1.22 2002-03-12 23:29:44 robmuller Exp $
+// $Id: VBI_VideoText.H,v 1.23 2002-05-23 18:45:03 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -171,6 +171,7 @@ void VBI_VT_Init();
 void VBI_VT_Exit();
 
 BOOL APIENTRY VTInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
+BOOL APIENTRY VTSearchProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 
 BYTE DeHam(BYTE byte);
 BYTE ReverseDeHam(BYTE b);
@@ -217,5 +218,12 @@ extern int VTPage;
 extern int VTSubPage;
 extern bool VTSubPageLocked;
 extern bool VTShowHidden;
+
+extern int VTSearchPage;
+extern int VTSearchSubPage;
+extern char VTSearchString[41];
+
+BOOL VT_SearchAllPages();
+BOOL VT_SearchFrom(int Page, int SubPage);
 
 #endif

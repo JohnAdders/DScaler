@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.154 2002-05-20 16:41:16 robmuller Exp $
+// $Id: DScaler.cpp,v 1.155 2002-05-23 18:45:03 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.154  2002/05/20 16:41:16  robmuller
+// Prevent channel changing when in videotext mode.
+//
 // Revision 1.153  2002/05/20 16:32:12  robmuller
 // Instantaneous channel switching when entering digits.
 //
@@ -987,6 +990,40 @@ void SetKeyboardLock(BOOL Enabled)
     }
 }
 
+BOOL SearchGotoVTPage(BOOL bSearchAllPages)
+{
+    BOOL bFound = FALSE;
+
+    //Check searchstring
+    if( VTSearchString[0] == 0x00 ) 
+    {
+        ; //Complain bitterly
+        return bFound;
+    }
+    
+    //Search in all pages or in all following pages/subpages
+    if( bSearchAllPages )
+    {
+        bFound = VT_SearchAllPages();
+    }
+    else
+    {
+        bFound = VT_SearchFrom(VTPage, VTSubPage);
+    }
+
+    //Act on results
+    if( bFound )
+    {
+       SetVTPage(VTSearchPage, VTSearchSubPage, true, true);
+    }
+    else
+    {
+        ; //Nothing found
+    }
+
+    return bFound;
+}
+
 ///**************************************************************************
 //
 //    FUNCTION: MainWndProc(HWND, unsigned, WORD, LONG)
@@ -1097,6 +1134,26 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_AUTO_FORMAT:
             Setting_SetValue(Timing_GetSetting(AUTOFORMATDETECT), 
                 !Setting_GetValue(Timing_GetSetting(AUTOFORMATDETECT)));
+            break;
+
+        case IDM_VT_SEARCH:
+            if(VTState != VT_OFF)
+            {
+                //Get searchstring dialog
+                DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_VTSEARCH), hWnd, (DLGPROC)VTSearchProc);
+
+                //Search all pages and act
+                SearchGotoVTPage(true);
+
+            }
+            break;
+
+        case IDM_VT_SEARCHNEXT:
+            if(VTState != VT_OFF)
+            {
+                //Search remaining pages and act
+                SearchGotoVTPage(false);
+            }
             break;
 
         case IDM_VT_PAGE_MINUS:

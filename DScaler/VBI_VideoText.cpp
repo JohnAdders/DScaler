@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.36 2002-03-12 23:29:44 robmuller Exp $
+// $Id: VBI_VideoText.cpp,v 1.37 2002-05-23 18:45:03 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.36  2002/03/12 23:29:44  robmuller
+// Implemented functions VT_GetNextPage() and VT_GetPreviousPage().
+//
 // Revision 1.35  2002/02/24 08:18:03  temperton
 // TIMER_VTFLASHER set only when displayed page contains flashed elements and only in teletext modes.
 //
@@ -155,6 +158,10 @@ bool VTSubPageLocked = false;
 bool VTShowHidden = false;
 bool VTShowFlashed = false;
 bool VTFlashTimerSet = false;
+
+int VTSearchPage = -1;
+int VTSearchSubPage = -1;
+char VTSearchString[41] = "\0";
 
 CRITICAL_SECTION VTUpdateAccess;
 TVTRedrawCache VTRedrawCache;
@@ -1003,7 +1010,6 @@ BOOL APIENTRY VTInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
     return (FALSE);
 }
 
-
 void VT_SetCodePage(eVTCodePage Codepage)
 {
     VTCodePage = Codepage;
@@ -1310,6 +1316,153 @@ int VT_SubPageNext(int Page, int SubPage, int Direction, bool Cycle)
     return (pBest) ? pBest->SubPage : VT_MostRecentSubPage(Page);
 }
 
+BOOL VT_SearchPage(TVTPage* pPage)
+{
+    char sText[41];
+    TVTPage CurrentPage;
+    memcpy(&CurrentPage, pPage, sizeof(TVTPage));
+    for(int iRow = 0; iRow < 25; iRow++)
+    {
+        int iChar = 0;
+        BOOL bHasDouble;
+        BYTE cChar;
+        //Skip second line of double line
+        if (bHasDouble)
+        {
+            bHasDouble = FALSE;
+            continue;
+        }     
+        //Append all text characters to sText
+        for (int iColumn = 0; iColumn < 40; iColumn++)
+        {
+            cChar = CurrentPage.Frame[iRow][iColumn] & 0x7f;
+            //Skip formating
+            if( cChar < 0x20 )
+            {
+                //Remember double lines
+                if( cChar = 0x0D )
+                {
+                    bHasDouble = TRUE;
+                }
+                ; // no action
+            }
+            else
+            {
+                sText[iChar++] = islower(cChar) ? _toupper(cChar) : cChar;
+            }
+        }
+        if (iChar > 0)
+        {
+            sText[iChar] = 0x00;
+            if (strstr(sText, VTSearchString) != NULL)
+            {
+                return TRUE;
+            }
+        }
+    }
+    return FALSE;
+}
+
+BOOL VT_SearchFrom(int iCurrentPage, int iCurrentSubPage)
+{
+    BOOL bFound = FALSE;
+    TVTPage* pPage = NULL;
+
+    unsigned short iPage = iCurrentPage;
+    unsigned short iSubPage = iCurrentSubPage + 1;
+
+    if( (iCurrentSubPage < 0) || (iCurrentSubPage > 99) )
+    {
+        iCurrentSubPage = 0;
+    }
+
+    if( (iCurrentPage < 100) || (iCurrentPage > 899) )
+    {
+        iCurrentPage = 100;
+        iCurrentSubPage = 0;
+    }
+
+    do
+    {   
+        pPage = &VTPages[iPage - 100];
+        
+        //Check up-to-date pages only
+        if( pPage->bUpdated && (pPage->Page == (iPage - 100)) )  
+        {
+            //pBest will be the next page to be searched 
+            TVTPage* pBest = NULL;
+            int iBestSubPage = 0;
+            
+            //Single page
+            if( pPage->SubPage == 0 ) 
+            {
+                //And single page expected!!!
+                if( iSubPage == 0 )
+                {
+                    //Then mark it
+                    pBest = pPage;
+                }
+                else
+                {
+                    //Else indicate no further subpages
+                    iSubPage = 0;
+                }
+            }
+            //Multiple page
+            else
+            {
+                //Find next higher numbered subpage
+                iBestSubPage = 255;
+                while( pPage != NULL )
+                {
+                    //Up-to-date & higher number & lower then previously found lowest
+                    if( pPage->bUpdated && (pPage->SubPage > iSubPage) && (pPage->SubPage < iBestSubPage) )
+                    {
+                        //Mark the page
+                        iBestSubPage = pPage->SubPage;
+                        pBest = pPage;
+                    }
+                    pPage = pPage->Next;
+                    //++t;
+                }
+                //If no higher subpage found, set iSubPage to 0 (no further subpages)
+                iSubPage = ( iBestSubPage == 255 ) ? 0 : iBestSubPage;
+            }
+            //If marked page, search it
+            if( (pBest != NULL) && ((bFound = VT_SearchPage(pBest))) == TRUE )
+            {
+                VTSearchPage = iPage;
+                VTSearchSubPage = iSubPage;
+                return TRUE;
+            }       
+            //If on a subpage, look for further subpages on same page. Else next page.
+            if( iSubPage != 0 )
+            {
+                ; // do nothing    
+            }
+            else
+            {
+                ++iPage;
+            }
+        }
+        else
+        //Skip the rest
+        {
+            ++iPage;
+        }
+    } while( iPage < 900 );
+    
+    //Nothing found
+    VTSearchPage = -1;
+    VTSearchSubPage = -1;
+    return FALSE;
+}
+
+BOOL VT_SearchAllPages()
+{
+    return VT_SearchFrom(100, -1);
+}
+
 void VT_SetMenu(HMENU hMenu)
 {
     CheckMenuItemBool(hMenu, IDM_VT_UK, (VTCodePage == VT_UK_CODE_PAGE));
@@ -1326,3 +1479,33 @@ void VT_SetMenu(HMENU hMenu)
     CheckMenuItemBool(hMenu, IDM_VT_POLISH, (VTCodePage == VT_POLISH_CODE_PAGE));
 }
 
+BOOL APIENTRY VTSearchProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
+{
+    switch (message)
+    {
+    case WM_INITDIALOG:
+        SetDlgItemText(hDlg, IDC_COMBO1, VTSearchString);
+        
+        break;
+
+    case WM_COMMAND:
+        switch (LOWORD(wParam))
+        {
+        case IDOK: 
+            //Park it
+            GetDlgItemText(hDlg, IDC_COMBO1, VTSearchString, 40);
+        case IDCANCEL:
+            KillTimer(hDlg, 0);
+            EndDialog(hDlg, TRUE);
+            break;
+
+        default:
+            ; // do nothing
+            break;
+
+        }
+        break;
+    }
+
+    return (FALSE);
+}

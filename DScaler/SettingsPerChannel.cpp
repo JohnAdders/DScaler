@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsPerChannel.cpp,v 1.14 2002-09-06 15:12:31 kooiman Exp $
+// $Id: SettingsPerChannel.cpp,v 1.15 2002-09-15 15:00:05 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 DScaler team.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/09/06 15:12:31  kooiman
+// Get the correct video input in time.
+//
 // Revision 1.13  2002/09/02 19:07:21  kooiman
 // Added BT848 advanced settings to advanced settings dialog
 //
@@ -700,6 +703,11 @@ void SettingsPerChannel_NewDefaults(const char* szSubSection,BOOL bCurrentValue)
 
 BOOL SettingsPerChannel_SourceSpecific_Change(long NewValue)
 {    
+    if (Providers_GetCurrentSource() == NULL)
+    {
+        return FALSE;
+    }
+
     // Save settings    
     SettingsPerChannel_SourceChange(NULL, SOURCECHANGE_PROVIDER | SOURCECHANGE_PRECHANGE, Providers_GetCurrentSource());
 
@@ -712,6 +720,11 @@ BOOL SettingsPerChannel_SourceSpecific_Change(long NewValue)
 
 BOOL SettingsPerChannel_VideoInputSpecific_Change(long NewValue)
 {
+    if (Providers_GetCurrentSource() == NULL)
+    {
+        return FALSE;
+    }
+
     bSpcVideoInputSpecific = NewValue;
 
     if (!SettingsPerChannel())
@@ -1644,12 +1657,18 @@ void SettingsPerChannel_Setup(int Start)
     }
     if (Start&1)
     {
-        Providers_GetCurrentSource()->Register_InputChangeNotification(NULL,SettingsPerChannel_VideoInputChange);
+        if (Providers_GetCurrentSource() != NULL)
+        {
+            Providers_GetCurrentSource()->Register_InputChangeNotification(NULL,SettingsPerChannel_VideoInputChange);
+        }
     }
     
     if ((Start==2) || (Start==0))
     {
-        Providers_GetCurrentSource()->Unregister_InputChangeNotification(NULL,SettingsPerChannel_VideoInputChange);
+        if (Providers_GetCurrentSource() != NULL)
+        {
+            Providers_GetCurrentSource()->Unregister_InputChangeNotification(NULL,SettingsPerChannel_VideoInputChange);
+        }
     }
 
     if (Start==0)

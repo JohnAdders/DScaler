@@ -1,5 +1,5 @@
 ;////////////////////////////////////////////////////////////////////////////
-;// $Id: dscaler.iss,v 1.6 2002-06-22 20:53:04 robmuller Exp $
+;// $Id: dscaler.iss,v 1.7 2002-07-08 17:41:14 adcockj Exp $
 ;/////////////////////////////////////////////////////////////////////////////
 ;// Copyright (c) 2002 Rob Muller.  All rights reserved.
 ;/////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 ;// CVS Log
 ;//
 ;// $Log: not supported by cvs2svn $
+;// Revision 1.6  2002/06/22 20:53:04  robmuller
+;// Added uninstall icon to the DScaler start menu.
+;//
 ;// Revision 1.5  2002/06/19 18:51:05  adcockj
 ;// Changed text to include palha status
 ;//
@@ -80,6 +83,7 @@ Source: "..\Release\DI_GreedyH.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite
 Source: "..\Release\DI_OddOnly.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite;  Components: extra
 Source: "..\Release\DI_OldGame.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite
 Source: "..\Release\DI_ScalerBob.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite
+Source: "..\Release\DI_TomsMoComp.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite;  Components: beta
 Source: "..\Release\DI_TwoFrame.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite;  Components: extra
 Source: "..\Release\DI_VideoBob.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite;  Components: extra
 Source: "..\Release\DI_VideoWeave.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite;  Components: extra

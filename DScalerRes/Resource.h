@@ -717,6 +717,7 @@
 #define IDC_TSCOMPRESSIONBUTTON         1869
 #define IDC_FULLCPU                     1869
 #define IDC_TSCOMPRESSIONHELP           1870
+#define IDC_VIDEOCARD                   1870
 #define IDC_TSFULLHEIGHTRADIO           1871
 #define IDC_TSHALFAVERAGEDRADIO         1872
 #define IDC_TSHALFEVENRADIO             1873

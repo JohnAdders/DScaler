@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.82 2002-08-11 16:08:20 laurentg Exp $
+// $Id: DS_Control.h,v 1.83 2002-08-12 19:52:14 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.82  2002/08/11 16:08:20  laurentg
+// New setting to choose between keep CPU for other applications or use full CPU for best results
+//
 // Revision 1.81  2002/08/09 13:27:54  laurentg
 // Processor speed and trade off settings moved from BT source settings to DScaler settings
 //
@@ -541,6 +544,7 @@ typedef enum
     PROCESSORSPEED,
     TRADEOFF,
     FULLCPU,
+    VIDEOCARD,
     DSCALER_SETTING_LASTONE,
 } DSCALER_SETTING;
 

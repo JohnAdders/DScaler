@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.218 2002-08-11 19:39:30 robmuller Exp $
+// $Id: DScaler.cpp,v 1.219 2002-08-12 19:59:04 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.218  2002/08/11 19:39:30  robmuller
+// Corrected  menu item number in GetPatternsSubmenu().
+//
 // Revision 1.217  2002/08/11 16:14:36  laurentg
 // New setting to choose between keep CPU for other applications or use full CPU for best results
 //
@@ -818,6 +821,7 @@ static BOOL bTakingCyclicStills = FALSE;
 static int ProcessorSpeed = 1;
 static int TradeOff = 1;
 static int FullCpu = 1;
+static int VideoCard = 0;
 static int ShowHWSetupBox;
 
 ///**************************************************************************
@@ -1019,7 +1023,8 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
 
     ShowHWSetupBox =    !Setting_ReadFromIni(DScaler_GetSetting(PROCESSORSPEED))
                      || !Setting_ReadFromIni(DScaler_GetSetting(TRADEOFF))
-                     || !Setting_ReadFromIni(DScaler_GetSetting(FULLCPU));
+                     || !Setting_ReadFromIni(DScaler_GetSetting(FULLCPU))
+                     || !Setting_ReadFromIni(DScaler_GetSetting(VIDEOCARD));
 
     // load up ini file settings after parsing parms as 
     // the ini file location may have changed
@@ -2749,7 +2754,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_SETUPHARDWARE:
+            // Stop and start capture because of possible pixel width chaange
+            Stop_Capture();
             DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_HWSETUP), hWnd, (DLGPROC) HardwareSettingProc, (LPARAM)1);
+            Start_Capture();
             break;
 
         default:
@@ -4551,7 +4559,7 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
     },
     {
         "Processor Speed", SLIDER, 0, (long*)&ProcessorSpeed,
-        1, 0, 2, 1, 1,
+        1, 0, 3, 1, 1,
         NULL,
         "MainWindow", "ProcessorSpeed", NULL,
     },
@@ -4566,6 +4574,12 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
         1, 0, 1, 1, 1,
         NULL,
         "MainWindow", "FullCpu", NULL,
+    },
+    {
+        "Video Card", SLIDER, 0, (long*)&VideoCard,
+        0, 0, 0, 1, 1,
+        NULL,
+        "MainWindow", "VideoCard", NULL,
     },
 };
 

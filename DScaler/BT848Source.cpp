@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.52 2002-08-11 16:56:35 laurentg Exp $
+// $Id: BT848Source.cpp,v 1.53 2002-08-12 19:54:27 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.52  2002/08/11 16:56:35  laurentg
+// More information displayed in the title of the BT card setup dialog box
+//
 // Revision 1.51  2002/08/11 14:16:54  laurentg
 // Disable Cancel button when the select card is displayed at startup
 //
@@ -1213,25 +1216,20 @@ void CBT848Source::SetupCard()
 void CBT848Source::ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff)
 {
     // now do defaults based on the processor speed selected
-    if(ProcessorSpeed == 1 && TradeOff == 0)
+    if(ProcessorSpeed == 0)
     {
-        // User has selected 300-500 MHz and low judder
-        m_PixelWidth->ChangeDefault(720);
-    }
-    else if(ProcessorSpeed == 1 && TradeOff == 1)
-    {
-        // User has selected 300-500 MHz and best picture
-        m_PixelWidth->ChangeDefault(720);
-    }
-    else if(ProcessorSpeed == 2 && TradeOff == 0)
-    {
-        // User has selected below 300 MHz and low judder
+        // User has selected below 300 MHz
         m_PixelWidth->ChangeDefault(640);
     }
-    else if(ProcessorSpeed == 2 && TradeOff == 1)
+    else if(ProcessorSpeed == 1)
     {
-        // User has selected below 300 MHz and best picture
-        m_PixelWidth->ChangeDefault(640);
+        // User has selected 300 MHz - 500 MHz
+        m_PixelWidth->ChangeDefault(720);
+    }
+    else if(ProcessorSpeed == 2)
+    {
+        // User has selected 500 MHz - 1 GHz
+        m_PixelWidth->ChangeDefault(720);
     }
     else
     {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareSettings.cpp,v 1.4 2002-08-11 22:59:52 laurentg Exp $
+// $Id: HardwareSettings.cpp,v 1.5 2002-08-12 19:54:27 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/08/11 22:59:52  laurentg
+// Call to WriteSettingsToIni with bOptimizeFileAccess set to TRUE
+//
 // Revision 1.3  2002/08/11 16:14:36  laurentg
 // New setting to choose between keep CPU for other applications or use full CPU for best results
 //
@@ -41,28 +44,10 @@
 #include "Providers.h"
 #include "FieldTiming.h"
 
-static void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff, int FullCpu)
+static void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff, int FullCpu, int VideoCard)
 {
     // now do defaults based on the processor speed selected
-    if(ProcessorSpeed == 1 && TradeOff == 0)
-    {
-        // User has selected 300-500 MHz and low judder
-        Setting_ChangeDefault(OutThreads_GetSetting(WAITFORFLIP), TRUE);
-        Setting_ChangeDefault(OutThreads_GetSetting(DOACCURATEFLIPS), FALSE);
-        Setting_ChangeDefault(OutThreads_GetSetting(AUTODETECT), TRUE);
-        Setting_ChangeDefault(FD60_GetSetting(NTSCFILMFALLBACKMODE), INDEX_VIDEO_GREEDY);
-        Setting_ChangeDefault(FD50_GetSetting(PALFILMFALLBACKMODE), INDEX_VIDEO_GREEDY);
-    }
-    else if(ProcessorSpeed == 1 && TradeOff == 1)
-    {
-        // User has selected 300-500 MHz and best picture
-        Setting_ChangeDefault(OutThreads_GetSetting(WAITFORFLIP), FALSE);
-        Setting_ChangeDefault(OutThreads_GetSetting(DOACCURATEFLIPS), FALSE);
-        Setting_ChangeDefault(OutThreads_GetSetting(AUTODETECT), TRUE);
-        Setting_ChangeDefault(FD60_GetSetting(NTSCFILMFALLBACKMODE), INDEX_VIDEO_GREEDY);
-        Setting_ChangeDefault(FD50_GetSetting(PALFILMFALLBACKMODE), INDEX_VIDEO_GREEDY);
-    }
-    else if(ProcessorSpeed == 2 && TradeOff == 0)
+    if(ProcessorSpeed == 0 && TradeOff == 0)
     {
         // User has selected below 300 MHz and low judder
         Setting_ChangeDefault(OutThreads_GetSetting(WAITFORFLIP), TRUE);
@@ -71,7 +56,7 @@ static void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff, int FullCp
         Setting_ChangeDefault(FD60_GetSetting(NTSCFILMFALLBACKMODE), INDEX_VIDEO_GREEDY);
         Setting_ChangeDefault(FD50_GetSetting(PALFILMFALLBACKMODE), INDEX_VIDEO_GREEDY);
     }
-    else if(ProcessorSpeed == 2 && TradeOff == 1)
+    else if(ProcessorSpeed == 0 && TradeOff == 1)
     {
         // User has selected below 300 MHz and best picture
         Setting_ChangeDefault(OutThreads_GetSetting(WAITFORFLIP), FALSE);
@@ -80,14 +65,41 @@ static void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff, int FullCp
         Setting_ChangeDefault(FD60_GetSetting(NTSCFILMFALLBACKMODE), INDEX_VIDEO_GREEDY);
         Setting_ChangeDefault(FD50_GetSetting(PALFILMFALLBACKMODE), INDEX_VIDEO_GREEDY);
     }
+    else if(ProcessorSpeed == 1 && TradeOff == 0)
+    {
+        // User has selected 300 MHz - 500 MHz and low judder
+        Setting_ChangeDefault(OutThreads_GetSetting(WAITFORFLIP), TRUE);
+        Setting_ChangeDefault(OutThreads_GetSetting(DOACCURATEFLIPS), FALSE);
+        Setting_ChangeDefault(OutThreads_GetSetting(AUTODETECT), TRUE);
+        Setting_ChangeDefault(FD60_GetSetting(NTSCFILMFALLBACKMODE), INDEX_VIDEO_GREEDY);
+        Setting_ChangeDefault(FD50_GetSetting(PALFILMFALLBACKMODE), INDEX_VIDEO_GREEDY);
+    }
+    else if(ProcessorSpeed == 1 && TradeOff == 1)
+    {
+        // User has selected 300 MHz - 500 MHz and best picture
+        Setting_ChangeDefault(OutThreads_GetSetting(WAITFORFLIP), FALSE);
+        Setting_ChangeDefault(OutThreads_GetSetting(DOACCURATEFLIPS), FALSE);
+        Setting_ChangeDefault(OutThreads_GetSetting(AUTODETECT), TRUE);
+        Setting_ChangeDefault(FD60_GetSetting(NTSCFILMFALLBACKMODE), INDEX_VIDEO_GREEDY);
+        Setting_ChangeDefault(FD50_GetSetting(PALFILMFALLBACKMODE), INDEX_VIDEO_GREEDY);
+    }
+    else if(ProcessorSpeed == 2)
+    {
+        // User has selected 500 MHz - 1 GHz
+        Setting_ChangeDefault(OutThreads_GetSetting(WAITFORFLIP), TRUE);
+        Setting_ChangeDefault(OutThreads_GetSetting(DOACCURATEFLIPS), TRUE);
+        Setting_ChangeDefault(OutThreads_GetSetting(AUTODETECT), TRUE);
+        Setting_ChangeDefault(FD60_GetSetting(NTSCFILMFALLBACKMODE), INDEX_VIDEO_GREEDYH);
+        Setting_ChangeDefault(FD50_GetSetting(PALFILMFALLBACKMODE), INDEX_VIDEO_GREEDYH);
+    }
     else
     {
         // user has fast processor use best defaults
         Setting_ChangeDefault(OutThreads_GetSetting(WAITFORFLIP), TRUE);
         Setting_ChangeDefault(OutThreads_GetSetting(DOACCURATEFLIPS), TRUE);
         Setting_ChangeDefault(OutThreads_GetSetting(AUTODETECT), TRUE);
-        Setting_ChangeDefault(FD60_GetSetting(NTSCFILMFALLBACKMODE), INDEX_VIDEO_GREEDYH);
-        Setting_ChangeDefault(FD50_GetSetting(PALFILMFALLBACKMODE), INDEX_VIDEO_GREEDYH);
+        Setting_ChangeDefault(FD60_GetSetting(NTSCFILMFALLBACKMODE), INDEX_VIDEO_TOMSMOCOMP);
+        Setting_ChangeDefault(FD50_GetSetting(PALFILMFALLBACKMODE), INDEX_VIDEO_TOMSMOCOMP);
     }
 
     if (FullCpu)
@@ -103,6 +115,8 @@ static void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff, int FullCp
         Setting_ChangeDefault(Timing_GetSetting(SLEEPINTERVAL), 1);
     }
 
+    // TODO : Change settings regarding value of VideoCard
+
     Providers_ChangeSettingsBasedOnHW(Setting_GetValue(DScaler_GetSetting(PROCESSORSPEED)), Setting_GetValue(DScaler_GetSetting(TRADEOFF)));
 }
 
@@ -115,9 +129,10 @@ BOOL APIENTRY HardwareSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lPa
     case WM_INITDIALOG:
         EnableCancelButton = lParam;
         Button_Enable(GetDlgItem(hDlg, IDCANCEL), EnableCancelButton);
-        SendMessage(GetDlgItem(hDlg, IDC_PROCESSOR_SPEED), CB_ADDSTRING, 0, (LONG)"Above 500 MHz");
-        SendMessage(GetDlgItem(hDlg, IDC_PROCESSOR_SPEED), CB_ADDSTRING, 0, (LONG)"300 - 500 MHz");
         SendMessage(GetDlgItem(hDlg, IDC_PROCESSOR_SPEED), CB_ADDSTRING, 0, (LONG)"Below 300 MHz");
+        SendMessage(GetDlgItem(hDlg, IDC_PROCESSOR_SPEED), CB_ADDSTRING, 0, (LONG)"300 MHz - 500 MHz");
+        SendMessage(GetDlgItem(hDlg, IDC_PROCESSOR_SPEED), CB_ADDSTRING, 0, (LONG)"500 MHz - 1 GHz");
+        SendMessage(GetDlgItem(hDlg, IDC_PROCESSOR_SPEED), CB_ADDSTRING, 0, (LONG)"Above 1 GHz");
         SendMessage(GetDlgItem(hDlg, IDC_PROCESSOR_SPEED), CB_SETCURSEL, Setting_GetValue(DScaler_GetSetting(PROCESSORSPEED)), 0);
         SendMessage(GetDlgItem(hDlg, IDC_TRADEOFF), CB_ADDSTRING, 0, (LONG)"Show all frames - Lowest judder");
         SendMessage(GetDlgItem(hDlg, IDC_TRADEOFF), CB_ADDSTRING, 0, (LONG)"Best picture quality");
@@ -125,6 +140,10 @@ BOOL APIENTRY HardwareSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lPa
         SendMessage(GetDlgItem(hDlg, IDC_FULLCPU), CB_ADDSTRING, 0, (LONG)"Keep CPU for other applications");
         SendMessage(GetDlgItem(hDlg, IDC_FULLCPU), CB_ADDSTRING, 0, (LONG)"Use full CPU for best results");
         SendMessage(GetDlgItem(hDlg, IDC_FULLCPU), CB_SETCURSEL, Setting_GetValue(DScaler_GetSetting(FULLCPU)), 0);
+        SendMessage(GetDlgItem(hDlg, IDC_VIDEOCARD), CB_ADDSTRING, 0, (LONG)"Other card");
+        // TODO : Add different video cards and keep "Other card" at first place
+        SendMessage(GetDlgItem(hDlg, IDC_VIDEOCARD), CB_SETCURSEL, Setting_GetValue(DScaler_GetSetting(VIDEOCARD)), 0);
+        SendMessage(GetDlgItem(hDlg, IDC_VIDEOCARD), CB_SETCURSEL, 0, 0);
         SetFocus(hDlg);
         break;
     case WM_COMMAND:
@@ -134,7 +153,8 @@ BOOL APIENTRY HardwareSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lPa
             Setting_SetValue(DScaler_GetSetting(PROCESSORSPEED), ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_PROCESSOR_SPEED)));
             Setting_SetValue(DScaler_GetSetting(TRADEOFF), ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_TRADEOFF)));
             Setting_SetValue(DScaler_GetSetting(FULLCPU), ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_FULLCPU)));
-            ChangeSettingsBasedOnHW(Setting_GetValue(DScaler_GetSetting(PROCESSORSPEED)), Setting_GetValue(DScaler_GetSetting(TRADEOFF)), Setting_GetValue(DScaler_GetSetting(FULLCPU)));
+            Setting_SetValue(DScaler_GetSetting(VIDEOCARD), ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_VIDEOCARD)));
+            ChangeSettingsBasedOnHW(Setting_GetValue(DScaler_GetSetting(PROCESSORSPEED)), Setting_GetValue(DScaler_GetSetting(TRADEOFF)), Setting_GetValue(DScaler_GetSetting(FULLCPU)), Setting_GetValue(DScaler_GetSetting(VIDEOCARD)));
             WriteSettingsToIni(TRUE);
             EndDialog(hDlg, TRUE);
             break;

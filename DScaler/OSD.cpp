@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.71 2002-10-27 13:08:17 robmuller Exp $
+// $Id: OSD.cpp,v 1.72 2002-10-27 20:39:07 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.71  2002/10/27 13:08:17  robmuller
+// In addition to "\n" OSD now supports "\r\n" to start a new line.
+//
 // Revision 1.70  2002/09/18 11:38:05  kooiman
 // Preparations for skinned dscaler look.
 //
@@ -347,7 +350,9 @@ static struct
     { "Statistics screen",       FALSE, TRUE,  1000,                    FALSE, FALSE, OSD_RefreshStatisticsScreen },
     { "WSS decoding screen",     FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, FALSE, FALSE, OSD_RefreshWSSScreen },
 //  { "AR screen",               FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, FALSE, FALSE, OSD_RefreshARScreen },
+#ifdef _DEBUG
     { "Developer screen",        FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, FALSE, FALSE, OSD_RefreshDeveloperScreen },
+#endif
     { "Card calibration screen", TRUE,  FALSE, 250,                     TRUE,  TRUE,  OSD_RefreshCalibrationScreen },
 };
 static int  IdxCurrentScreen = -1;  // index of the current displayed OSD screen

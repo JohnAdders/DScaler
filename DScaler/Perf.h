@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Perf.h,v 1.3 2002-01-31 13:02:46 robmuller Exp $
+// $Id: Perf.h,v 1.4 2002-10-27 20:39:08 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/01/31 13:02:46  robmuller
+// Improved accuracy and reliability of the performance statistics.
+//
 // Revision 1.2  2001/12/16 16:31:43  adcockj
 // Bug fixes
 //
@@ -33,6 +36,7 @@
 enum ePerfType
 {
     PERF_WAIT_FIELD = 0,
+#ifdef _DEBUG
     PERF_INPUT_FILTERS,
     PERF_OUTPUT_FILTERS,
     PERF_PULLDOWN_DETECT,
@@ -44,6 +48,7 @@ enum ePerfType
     PERF_LOCK_OVERLAY,
     PERF_UNLOCK_OVERLAY,
     PERF_FLIP_OVERLAY,
+#endif
     PERF_TYPE_LASTONE,
 };
 

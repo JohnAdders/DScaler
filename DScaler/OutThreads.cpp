@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.93 2002-10-27 11:39:21 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.94 2002-10-27 20:39:08 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.93  2002/10/27 11:39:21  laurentg
+// Memory buffer for still must be allocated even when saving in a file
+//
 // Revision 1.92  2002/10/27 11:29:29  laurentg
 // New way to take stills - filling a memory buffer rather than the overlay
 //
@@ -704,7 +707,9 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
         VDCHECKPOINT;
         while(!bStopThread)
         {
+#ifdef _DEBUG
             pPerf->StartCount(PERF_WAIT_FIELD);
+#endif
 
             // update with any changes
             CurrentMethod = GetCurrentDeintMethod();
@@ -731,11 +736,14 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
             // consumption
             pSource->GetNextField(&Info, Info.bDoAccurateFlips && !bMinimized);
 
+#ifdef _DEBUG
             pPerf->StopCount(PERF_WAIT_FIELD);
+#endif
 
             if (Info.bMissedFrame || Info.bRunningLate)
             {
                 LOG(2, "    Info.bMissedFrame %d - Info.bRunningLate %d", Info.bMissedFrame, Info.bRunningLate);
+#ifdef _DEBUG
                 for (int i = 0 ; i < PERF_TYPE_LASTONE ; ++i)
                 {
                     if (pPerf->IsValid((ePerfType)i) && (pPerf->GetDurationLastCycle((ePerfType)i) != -1))
@@ -746,6 +754,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                             pPerf->GetAverageDuration((ePerfType)i));
                     }
                 }
+#endif
             }
 
             pPerf->InitCycle();
@@ -798,25 +807,35 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                 // Card calibration
 				if (pCalibration->IsRunning())
 				{
+#ifdef _DEBUG
                     pPerf->StartCount(PERF_CALIBRATION);
+#endif
 
     				pCalibration->Make(&Info, GetTickCount());
 
+#ifdef _DEBUG
                     pPerf->StopCount(PERF_CALIBRATION);
+#endif
 				}
 
                 // update the source area
                 GetSourceRect(&Info.SourceRect);
                 
+#ifdef _DEBUG
                 pPerf->StartCount(PERF_INPUT_FILTERS);
+#endif
 
                 // do any filters that operarate on the input
                 // only
                 SourceAspectAdjust = Filter_DoInput(&Info, nHistory, (Info.bRunningLate || Info.bMissedFrame));
 
+#ifdef _DEBUG
                 pPerf->StopCount(PERF_INPUT_FILTERS);
+#endif
 
+#ifdef _DEBUG
                 pPerf->StartCount(PERF_TIMESHIFT);
+#endif
 
                 // NOTE: I might go ahead and make the TimeShift module an input
                 // filter at some point (i.e. FLT_TimeShift), but I'm not sure
@@ -824,12 +843,16 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                 // parts of the app.
                 CTimeShift::OnNewFrame(&Info);
 
+#ifdef _DEBUG
                 pPerf->StopCount(PERF_TIMESHIFT);
+#endif
 
                 if(!Info.bMissedFrame && !bMinimized && !bNoScreenUpdateDuringTuning &&
                     ((VTState != VT_BLACK)  || VTPageContainsTransparency))
                 {
+#ifdef _DEBUG
                     pPerf->StartCount(PERF_PULLDOWN_DETECT);
+#endif
 
                     // do film detect
                     if(Info.PictureHistory[0]->Flags & PICTURE_INTERLACED_MASK)
@@ -894,16 +917,22 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         CurrentMethod = GetCurrentDeintMethod();
                     }
 
+#ifdef _DEBUG
                     pPerf->StopCount(PERF_PULLDOWN_DETECT);
+#endif
                 }
 
                 if (bCaptureVBI == TRUE)
                 {
+#ifdef _DEBUG
                     pPerf->StartCount(PERF_VBI);
+#endif
 
                     pSource->DecodeVBI(&Info);
 
+#ifdef _DEBUG
                     pPerf->StopCount(PERF_VBI);
+#endif
                 }
 
                 // do we need to unlock overlay if we crash
@@ -921,11 +950,15 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         // to avoid conflicts
                         if (Info.PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD)
                         {
+#ifdef _DEBUG
                             pPerf->StartCount(PERF_RATIO);
+#endif
 
                             AdjustAspectRatio(SourceAspectAdjust, &Info);
 
+#ifdef _DEBUG
                             pPerf->StopCount(PERF_RATIO);
+#endif
                         }
 
 						if(RequestStillType == STILL_TIFF)
@@ -950,7 +983,9 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
 						if(!TakeStill)
 						{
+#ifdef _DEBUG
 	                        pPerf->StartCount(PERF_LOCK_OVERLAY);
+#endif
 
 							// The overlay is used as output
 							// So we have to lock it
@@ -965,10 +1000,14 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 							}
 							bOverlayLocked = TRUE;
 
+#ifdef _DEBUG
 	                        pPerf->StopCount(PERF_LOCK_OVERLAY);
+#endif
 						}
 
+#ifdef _DEBUG
                         pPerf->StartCount(PERF_DEINTERLACE);
+#endif
 
                         if (IsProgressiveMode())
                         {
@@ -989,20 +1028,28 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         }
                         CHECK_FPU_STACK
                     
+#ifdef _DEBUG
                         pPerf->StopCount(PERF_DEINTERLACE);
+#endif
 
                         if (bFlipNow)
                         {
+#ifdef _DEBUG
                             pPerf->StartCount(PERF_OUTPUT_FILTERS);
+#endif
 
                             // Do any filters that run on the output
                             // need to do this while the surface is locked
                             Filter_DoOutput(&Info, nHistory, Info.bMissedFrame);
 
+#ifdef _DEBUG
                             pPerf->StopCount(PERF_OUTPUT_FILTERS);
+#endif
                         }
 
+#ifdef _DEBUG
                         pPerf->StartCount(PERF_UNLOCK_OVERLAY);
+#endif
 
 						if(bOverlayLocked)
 						{
@@ -1020,12 +1067,16 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 							bOverlayLocked = FALSE;
 						}
 
+#ifdef _DEBUG
                         pPerf->StopCount(PERF_UNLOCK_OVERLAY);
+#endif
 
                         // flip if required
                         if (bFlipNow)
                         {
+#ifdef _DEBUG
                             pPerf->StartCount(PERF_FLIP_OVERLAY);
+#endif
 
                             // setup flip flag
                             // the odd and even flags may help the scaled bob
@@ -1083,7 +1134,9 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                                 return 0;
                             }
 
+#ifdef _DEBUG
                             pPerf->StopCount(PERF_FLIP_OVERLAY);
+#endif
                         }
 
 						if(TakeStill && !RequestStillInMemory && pAllocBuf)
@@ -1097,11 +1150,15 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                 { 
                     if(bOverlayLocked == TRUE)
                     {
+#ifdef _DEBUG
                         pPerf->StartCount(PERF_UNLOCK_OVERLAY);
+#endif
 
                         Overlay_Unlock_Back_Buffer();
 
+#ifdef _DEBUG
                         pPerf->StopCount(PERF_UNLOCK_OVERLAY);
+#endif
                     }
                     LOG(1, "Crash in output code");
                 }

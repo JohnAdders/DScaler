@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.cpp,v 1.5 2002-02-13 17:01:42 tobbej Exp $
+// $Id: DSGraph.cpp,v 1.6 2002-03-15 23:07:16 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/02/13 17:01:42  tobbej
+// new filter properties menu
+//
 // Revision 1.4  2002/02/07 22:09:11  tobbej
 // changed for new file input
 //
@@ -164,6 +167,7 @@ bool CDShowGraph::getNextSample(CComPtr<IMediaSample> &pSample)
 		TRACE("GetNextSample failed\n");
 		return false;
 	}
+	
 	return true;
 }
 
@@ -174,8 +178,6 @@ void CDShowGraph::start()
 		if(!m_pSource->isConnected())
 		{
 			m_pSource->connect(m_renderer);
-			//testing
-			//setRes(768,576);
 		}
 
 		HRESULT hr=m_pControl->Run();
@@ -267,6 +269,8 @@ void CDShowGraph::showPropertyPage(HWND hParent,string caption,CComPtr<IBaseFilt
 		//the filter dont have any property pages
 		return;
 	}
+
+	//all filters must have a IUnknown so this shoud always work
 	hr=pFilter.QueryInterface(&pUnk);
 	ASSERT(SUCCEEDED(hr));
 
@@ -351,7 +355,7 @@ void CDShowGraph::showPropertyPage(HWND hParent,int index)
 	}
 }
 
-int CDShowGraph::getDroppedFrames()
+long CDShowGraph::getDroppedFrames()
 {
 	HRESULT hr;
 	if(m_pQualProp==NULL)
@@ -369,10 +373,10 @@ int CDShowGraph::getDroppedFrames()
 	{
 		throw CDShowException("Failed to get dropped frames count",hr);
 	}
-	return frames;
+	return frames+m_pSource->getNumDroppedFrames();
 }
 
-void CDShowGraph::setRes(long x,long y)
+void CDShowGraph::changeRes(long x,long y)
 {
 	if(m_renderer==NULL)
 	{
@@ -381,42 +385,91 @@ void CDShowGraph::setRes(long x,long y)
 
 	if(m_pStreamCfg==NULL)
 	{
+		//this will throw an exception if it cant find IAMStreamConfig interface
 		findStreamConfig();
 	}
 
-	int count=0;
-	int size=0;
-	HRESULT hr=m_pStreamCfg->GetNumberOfCapabilities(&count,&size);
-	if(FAILED(hr))
+	FILTER_STATE oldState=getState();
+	if(oldState!=State_Stopped)
 	{
-		throw CDShowException("",hr);
+		//the only time the format can be changed is when the graph is stopped
+		stop();
 	}
-	AM_MEDIA_TYPE *mt;
 
-	hr=m_pStreamCfg->GetFormat(&mt);
+	//get current mediatype
+	AM_MEDIA_TYPE *mt=NULL;
+	HRESULT hr=m_pStreamCfg->GetFormat(&mt);
 	if(FAILED(hr))
 	{
-		
+		throw CDShowException("Failed to get old mediatype",hr);
 	}
-	BITMAPINFOHEADER *bmi=NULL;
-	if(mt->formattype==FORMAT_VideoInfo)
-	{
-		VIDEOINFOHEADER *videoInfo=(VIDEOINFOHEADER*)mt->pbFormat;
-		bmi=&(videoInfo->bmiHeader);
-	}
-	else if(mt->formattype==FORMAT_VideoInfo2)
-	{
-		VIDEOINFOHEADER2 *videoInfo2=(VIDEOINFOHEADER2*)mt->pbFormat;
-		bmi=&(videoInfo2->bmiHeader);
-	}
-	bmi->biWidth=x;
-	bmi->biHeight=y;
-	bmi->biSizeImage=x*y*bmi->biBitCount/8;
 	
-	hr=m_pStreamCfg->SetFormat(mt);
+	//create the new media type
+	AM_MEDIA_TYPE newType;
+	memset(&newType,0,sizeof(AM_MEDIA_TYPE));
+	BITMAPINFOHEADER *pbmiHeader=NULL;
+
+	newType.majortype=MEDIATYPE_Video;
+	newType.subtype=MEDIASUBTYPE_YUY2;
+	newType.bFixedSizeSamples=TRUE;
+	
+	//copy some info from the old media type and initialize the new format block
+	if(mt->pbFormat!=NULL)
+	{
+		if(mt->formattype==FORMAT_VideoInfo)
+		{
+			VIDEOINFOHEADER *newInfoHeader=(VIDEOINFOHEADER*)CoTaskMemAlloc(sizeof(VIDEOINFOHEADER));
+			memset(newInfoHeader,0,sizeof(VIDEOINFOHEADER));
+			newType.formattype=FORMAT_VideoInfo;
+			newType.cbFormat=sizeof(VIDEOINFOHEADER);
+			newType.pbFormat=(BYTE*)newInfoHeader;
+
+			VIDEOINFOHEADER *videoInfo=(VIDEOINFOHEADER*)mt->pbFormat;
+			newInfoHeader->dwBitRate=videoInfo->dwBitRate;
+			newInfoHeader->dwBitErrorRate=videoInfo->dwBitErrorRate;
+			newInfoHeader->AvgTimePerFrame=videoInfo->AvgTimePerFrame;
+			newInfoHeader->bmiHeader=videoInfo->bmiHeader;
+		}
+		else if(mt->formattype==FORMAT_VideoInfo2)
+		{
+			VIDEOINFOHEADER2 *newInfoHeader=(VIDEOINFOHEADER2*)CoTaskMemAlloc(sizeof(VIDEOINFOHEADER2));
+			memset(newInfoHeader,0,sizeof(VIDEOINFOHEADER2));
+			newType.formattype=FORMAT_VideoInfo2;
+			newType.cbFormat=sizeof(VIDEOINFOHEADER2);
+			newType.pbFormat=(BYTE*)newInfoHeader;
+
+			VIDEOINFOHEADER2 *videoInfo2=(VIDEOINFOHEADER2*)mt->pbFormat;
+			newInfoHeader->dwBitRate=videoInfo2->dwBitRate;
+			newInfoHeader->dwBitErrorRate=videoInfo2->dwBitErrorRate;
+			newInfoHeader->AvgTimePerFrame=videoInfo2->AvgTimePerFrame;
+			newInfoHeader->bmiHeader=videoInfo2->bmiHeader;
+		}
+	}
+	
+	//if pbFormat is null then there is something strange going on with the renderer filter
+	//most likely a bug
+	ASSERT(newType.pbFormat!=NULL);
+
+	pbmiHeader->biSize=sizeof(BITMAPINFOHEADER);
+	pbmiHeader->biWidth=x;
+	pbmiHeader->biHeight=y;
+	pbmiHeader->biSizeImage=x*y*pbmiHeader->biBitCount/8;
+
+	//change the format
+	hr=m_pStreamCfg->SetFormat(&newType);
 	if(FAILED(hr))
 	{
 		throw CDShowException("Failed to change resolution",hr);
+	}
+	
+	//restore old graph state
+	if(oldState==State_Running)
+	{
+		start();
+	}
+	else if(oldState==State_Paused)
+	{
+		pause();
 	}
 }
 
@@ -426,10 +479,9 @@ void CDShowGraph::findStreamConfig()
 	CComPtr<IPin> inPin;
 
 	inPin=rendPins.next();
-	if(inPin==NULL)
-	{
-		//oops, no pin
-	}
+	
+	//if this assert is trigered there is most likely s bug in the renderer filter
+	ASSERT(inPin!=NULL);
 
 	//get the upstream pin
 	CComPtr<IPin> outPin;
@@ -448,4 +500,53 @@ void CDShowGraph::findStreamConfig()
 	}
 }
 
+void CDShowGraph::disableClock()
+{
+	//prevent multiple disableClock calls
+	if(m_pOldRefClk!=NULL)
+		return;
+
+	CComPtr<IMediaFilter> pMFilter;
+	HRESULT hr=m_pGraph.QueryInterface(&pMFilter);
+	if(FAILED(hr))
+	{
+		throw CDShowException("QueryInterface for IMediaFilter failed on filter graph",hr);
+	}
+	
+	//save old reference clock
+	hr=pMFilter->GetSyncSource(&m_pOldRefClk);
+	if(FAILED(hr))
+	{
+		throw CDShowException("Failed to get old reference clock",hr);
+	}
+	
+	//disable the current one
+	hr=pMFilter->SetSyncSource(NULL);
+	if(FAILED(hr))
+	{
+		throw CDShowException("Failed to set reference clock",hr);
+	}
+}
+
+void CDShowGraph::restoreClock()
+{
+	if(m_pOldRefClk==NULL)
+		return;
+	
+	CComPtr<IMediaFilter> pMFilter;
+	HRESULT hr=m_pGraph.QueryInterface(&pMFilter);
+	if(FAILED(hr))
+	{
+		throw CDShowException("QueryInterface for IMediaFilter failed on filter graph",hr);
+	}
+
+	//restor the reference clock
+	hr=pMFilter->SetSyncSource(m_pOldRefClk);
+	if(FAILED(hr))
+	{
+		throw CDShowException("Failed to set reference clock",hr);
+	}
+	m_pOldRefClk=NULL;
+
+}
 #endif

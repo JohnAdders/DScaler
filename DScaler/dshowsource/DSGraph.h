@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.h,v 1.5 2002-02-13 17:01:42 tobbej Exp $
+// $Id: DSGraph.h,v 1.6 2002-03-15 23:07:16 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/02/13 17:01:42  tobbej
+// new filter properties menu
+//
 // Revision 1.4  2002/02/07 22:09:11  tobbej
 // changed for new file input
 //
@@ -53,6 +56,9 @@
 #include "exception.h"
 #include "DShowBaseSource.h"
 
+//if you get an error here, that means you have not checked out the DSRend filter
+//or compiled it atleast once.
+//it has to be checked out in the same directory as dscaler is checked out in.
 #include "..\..\..\DSRend\DSRend.h"
 
 /**
@@ -62,17 +68,30 @@ class CDShowGraph
 {
 public:
 	/**
-	 * Constructor.
-	 * @throws 
+	 * Creates a filtergraph with a capture device as source.
+	 * @throws CDShowException
 	 */
 	CDShowGraph(string device,string deviceName);
+
+	/**
+	 * Creates a filtergraph with a file as source
+	 * @throws CDShowException
+	 */
 	CDShowGraph(string filename);
+	///Destructor
 	virtual ~CDShowGraph();
 
 	CDShowBaseSource* getSourceDevice();
 	bool getNextSample(CComPtr<IMediaSample> &pSample);
 	void getConnectionMediatype(AM_MEDIA_TYPE *pmt);
-	int getDroppedFrames();
+
+	/**
+	 * Get number of dropped frames.
+	 * This function return the total number of dropped frames from the
+	 * renderer filter and the source
+	 * @return number of dropped frames
+	 */
+	long getDroppedFrames();
 
 	void start();
 	void pause();
@@ -82,17 +101,35 @@ public:
 	bool getFilterName(int index,string &filterName,bool &hasPropertyPages);
 	void showPropertyPage(HWND hParent,int index);
 	
+	/**
+	 * Change the resolution
+	 * @throws CDShowException
+	 */
+	void changeRes(long x,long y);
+
+	/**
+	 * Disables the graph reference clock
+	 * @throws CDShowException
+	 */
+	void disableClock();
+
+	/**
+	 * Restored the old clock after a call to disableClock()
+	 * @throws CDShowException
+	 */
+	void restoreClock();
+
 private:
 	void showPropertyPage(HWND hParent,string caption,CComPtr<IBaseFilter> pFilter);
 	
 	void initGraph();
 	void createRenderer();
 
-	void setRes(long x,long y);
 	void findStreamConfig();
 
 	///Custom video renderer. Used for transfering the picture to dscaler
 	CComPtr<IBaseFilter> m_renderer;
+	///Interface used for geting media samples from the renderer filter
 	CComPtr<IDSRendFilter> m_DSRend;
 	CComPtr<IQualProp> m_pQualProp;
 	
@@ -106,6 +143,8 @@ private:
 	CDShowBaseSource *m_pSource;
 
 	FILTER_STATE m_pGraphState;
+
+	CComPtr<IReferenceClock> m_pOldRefClk;
 
 #ifdef _DEBUG
 	DWORD m_hROT;

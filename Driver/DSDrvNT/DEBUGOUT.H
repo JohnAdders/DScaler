@@ -34,8 +34,6 @@
 #if ! defined (__DEBUGOUT_H)
 #define __DEBUGOUT_H
 
-#include "basetype.h"
-
 
 #if defined (_DEBUG) && ! defined (DEBUG)
 #define DEBUG           1
@@ -46,9 +44,9 @@
 extern "C" {
 #endif
 
-typedef void (WINAPI * PDebugOutHandler)(PCHAR lpszMessage);
+typedef void (* PDebugOutHandler)(PCHAR lpszMessage);
 
-typedef void (WINAPI * PDebugSetOutputHandler)(PDebugOutHandler debugHandler);
+typedef void (* PDebugSetOutputHandler)(PDebugOutHandler debugHandler);
 
 void traceOut(DWORD debugLevel, PCHAR format, ... );
 
@@ -60,12 +58,12 @@ void traceOut(DWORD debugLevel, PCHAR format, ... );
 #define debugOut
 #endif
 
-void WINAPI debugInitialize(PCHAR devName, DWORD dwDebugLevel);
+void debugInitialize(PCHAR devName, DWORD dwDebugLevel);
 
-void WINAPI debugResetTimeBase(void);
-DWORD WINAPI debugGetSystemTime(void);
-void WINAPI dumpHex(PCHAR data, int size);
-void WINAPI debugSetOutputHandler(PDebugOutHandler outputHandler);
+void debugResetTimeBase(void);
+DWORD debugGetSystemTime(void);
+void dumpHex(PCHAR data, int size);
+void debugSetOutputHandler(PDebugOutHandler outputHandler);
 
 #define debugDump(a,b) dumpHex( (PCHAR)a, (int)b)
 

@@ -31,10 +31,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-#include "debugout.h"
+#include "precomp.h"
 #include <stdio.h>
 #include <stdarg.h>
-#include <string.h>
+//#include <string.h>
 
 void WINAPI debugOutputProc(PCHAR lpszMessage);
 

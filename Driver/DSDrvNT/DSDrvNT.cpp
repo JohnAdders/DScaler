@@ -31,23 +31,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-#include "ioclass.h"
-#include <stdarg.h>
-#include <stdio.h>
-#include "debugout.h"
-
-//----------------------------------------------------------------------
-//                         FORWARD DEFINES
-//----------------------------------------------------------------------
-NTSTATUS DSDrvDispatch(IN PDEVICE_OBJECT deviceObject, IN PIRP Irp);
-VOID DSDrvUnload  (IN PDRIVER_OBJECT driverObject);
-
-//----------------------------------------------------------------------
-//                         GLOBALS
-// our user-inteface device object
-//---------------------------------------------------------------------------
-WCHAR deviceLinkBuffer[] = L"\\DosDevices\\DSDrvNT";
-PDEVICE_OBJECT guiDevice = NULL;
+#include "precomp.h"
+#include "DSDrvNT.h"
 
 
 //----------------------------------------------------------------------
@@ -58,29 +43,46 @@ PDEVICE_OBJECT guiDevice = NULL;
 //----------------------------------------------------------------------
 NTSTATUS DSDrvDispatch( IN PDEVICE_OBJECT deviceObject, IN PIRP irp)
 {
-	CIOAccessDevice *       ioDevice;
-	PIO_STACK_LOCATION      irpStack;
-	NTSTATUS                ntStatus;
+	CIOAccessDevice *ioDevice;
+	PIO_STACK_LOCATION irpStack;
+	NTSTATUS ntStatus;
 
 	//
 	// Go ahead and set the request up as successful
 	//
-	ioDevice = (CIOAccessDevice *) deviceObject->DeviceExtension;
 	irp->IoStatus.Status = STATUS_SUCCESS;
 	irp->IoStatus.Information = 0;
 	irpStack = IoGetCurrentIrpStackLocation (irp);
+	
+	ioDevice = (CIOAccessDevice *) irpStack->FileObject->FsContext;
 
 	switch (irpStack->MajorFunction)
 	{
 	case IRP_MJ_CREATE:
 		debugOut(dbTrace,"IRP_MJ_CREATE");
+		
+		//create a CIOAccessDevice and assosiate it with this filehandle
+		irpStack->FileObject->FsContext=new CIOAccessDevice();
+
 		break;
 	case IRP_MJ_CLOSE:
 		debugOut(dbTrace,"IRP_MJ_CLOSE");
+		
+		//remove CIOAccessDevice
+		//if thers any memory currently alloocated CIOAccessDevice's destructor
+		//unlocks the memory and frees it
+		delete (CIOAccessDevice*)irpStack->FileObject->FsContext;
+		irpStack->FileObject->FsContext=NULL;
+
 		break;
 	case IRP_MJ_DEVICE_CONTROL:
+		debugOut(dbTrace,"IRP_MJ_DEVICE_CONTROL");
 		ntStatus = ioDevice->deviceIOControl( irp );
 		break;
+	default:
+		debugOut(dbWarning,"Unknown IRP!!!");
+		//oops dont know how to handle this IRP, we shoud never get here
+		ntStatus=STATUS_NOT_IMPLEMENTED;
 	}
 
 	//
@@ -94,14 +96,13 @@ NTSTATUS DSDrvDispatch( IN PDEVICE_OBJECT deviceObject, IN PIRP irp)
 // DriverEntry the Installable driver initialization. Here we just set
 // ourselves up.
 //----------------------------------------------------------------------
+extern "C"
 NTSTATUS DriverEntry(IN PDRIVER_OBJECT driverObject, IN PUNICODE_STRING registryPath)
 {
 	NTSTATUS                ntStatus;
-	WCHAR                   deviceNameBuffer[]  = L"\\Device\\DSDrvNT";
 	UNICODE_STRING          deviceNameUnicodeString;
 	UNICODE_STRING          deviceLinkUnicodeString;
 	PDEVICE_OBJECT          deviceObject;
-	CIOAccessDevice *       ioDeviceExtension;
 
 	debugInitialize( "DSDrvNT",0xFFFFFFFFL);
 
@@ -112,10 +113,9 @@ NTSTATUS DriverEntry(IN PDRIVER_OBJECT driverObject, IN PUNICODE_STRING registry
 	// can make requests to this device)
 	//
 
-	RtlInitUnicodeString (&deviceNameUnicodeString, deviceNameBuffer);
+	RtlInitUnicodeString (&deviceNameUnicodeString, DSDRVNT_DEVNAME);
 
 	deviceObject      = NULL;
-	ioDeviceExtension = NULL;
 	ntStatus          = IoCreateDevice (driverObject,
 										0,                         // No space for extension
 										&deviceNameUnicodeString,
@@ -126,39 +126,32 @@ NTSTATUS DriverEntry(IN PDRIVER_OBJECT driverObject, IN PUNICODE_STRING registry
 
 	if (NT_SUCCESS(ntStatus))
 	{
+
 		//
-		// Its time to create our device extension object itself
+		// Create dispatch points for device control, create, close.
 		//
 
-		ioDeviceExtension = new CIOAccessDevice();
-		if (ioDeviceExtension)
+		driverObject->MajorFunction[IRP_MJ_CREATE] = DSDrvDispatch;
+		driverObject->MajorFunction[IRP_MJ_CLOSE] = DSDrvDispatch;
+		driverObject->MajorFunction[IRP_MJ_DEVICE_CONTROL] = DSDrvDispatch;
+		driverObject->DriverUnload = DSDrvUnload;
+
+		//
+		// Create a symbolic link, e.g. a name that a Win32 app can specify
+		// to open the device
+		//
+
+		RtlInitUnicodeString(&deviceLinkUnicodeString, DSDRVNT_LNKNAME);
+
+		ntStatus = IoCreateSymbolicLink (&deviceLinkUnicodeString, &deviceNameUnicodeString);
+
+		if (!NT_SUCCESS(ntStatus))
 		{
 			//
-			// Create dispatch points for device control, create, close.
+			// Symbolic link creation failed- note this & then delete the
+			// device object (it's useless if a Win32 app can't get at it).
 			//
-
-			driverObject->MajorFunction[IRP_MJ_CREATE] = DSDrvDispatch;
-			driverObject->MajorFunction[IRP_MJ_CLOSE] = DSDrvDispatch;
-			driverObject->MajorFunction[IRP_MJ_DEVICE_CONTROL] = DSDrvDispatch;
-			driverObject->DriverUnload = DSDrvUnload;
-
-			//
-			// Create a symbolic link, e.g. a name that a Win32 app can specify
-			// to open the device
-			//
-
-			RtlInitUnicodeString(&deviceLinkUnicodeString, deviceLinkBuffer);
-
-			ntStatus = IoCreateSymbolicLink (&deviceLinkUnicodeString, &deviceNameUnicodeString);
-
-			if (!NT_SUCCESS(ntStatus))
-			{
-				//
-				// Symbolic link creation failed- note this & then delete the
-				// device object (it's useless if a Win32 app can't get at it).
-				//
-				debugOut(dbError,"!IoCreateSymbolicLink failed");
-			}
+			debugOut(dbError,"!IoCreateSymbolicLink failed");
 		}
 	}
 	else
@@ -174,15 +167,6 @@ NTSTATUS DriverEntry(IN PDRIVER_OBJECT driverObject, IN PUNICODE_STRING registry
 			IoDeleteDevice(deviceObject);
 		}
 
-		if (ioDeviceExtension)
-		{
-			delete ioDeviceExtension;
-		}
-	}
-	else
-	{
-		guiDevice = deviceObject;
-		deviceObject->DeviceExtension = ioDeviceExtension;          // create back link
 	}
 	return ntStatus;
 }
@@ -197,14 +181,8 @@ VOID DSDrvUnload(IN PDRIVER_OBJECT driverObject)
 
 	debugOut(dbTrace,"DSDrvNT Unload");
 
-	RtlInitUnicodeString(&deviceLinkUnicodeString, deviceLinkBuffer);
+	RtlInitUnicodeString(&deviceLinkUnicodeString, DSDRVNT_LNKNAME);
 	IoDeleteSymbolicLink(&deviceLinkUnicodeString);
-
-	CIOAccessDevice* ioDevice;
-
-	ioDevice = (CIOAccessDevice *)driverObject->DeviceObject->DeviceExtension;
-
-	delete ioDevice;
 
 	//
 	// Delete the device object

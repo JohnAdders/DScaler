@@ -34,9 +34,11 @@
 #if ! defined (__IOCLASS_H)
 #define __IOCLASS_H
 
+#include "precomp.h"
 
-#include "Basetype.h"
-#include "DSDrv.h"
+#if !defined(__cplusplus)
+#error C++ compiler required.
+#endif
 
 #define  osPortReadByte(port,data) data = READ_PORT_UCHAR ( (PUCHAR) &port )
 #define  osPortReadWord(port,data) data = READ_PORT_USHORT( (PUSHORT) &port)
@@ -54,13 +56,16 @@
 
 #define MAX_FREE_MEMORY_NODES   32
 
-typedef struct tagMemoryNode
+class MemoryNode
 {
+public:
 	DWORD dwSystemAddress;
 	DWORD dwUserAddress;
 	DWORD dwFlags;
 	PMDL pMdl;
-} TMemoryNode, * PMemoryNode;
+};
+typedef MemoryNode * PMemoryNode;
+
 
 
 //---------------------------------------------------------------------------
@@ -86,7 +91,7 @@ protected:
 	void unmapMemory(void);
 
 protected:
-	TMemoryNode memoryList[MAX_FREE_MEMORY_NODES];
+	MemoryNode memoryList[MAX_FREE_MEMORY_NODES];
 	DWORD GetPhysAddr(DWORD UserAddr);
 	DWORD dwBusNumber;
 	DWORD dwSlotNumber;

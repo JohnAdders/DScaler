@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// Drvalloc.cpp
+// $Id: DSDrvNT.h,v 1.1 2001-06-11 17:56:19 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,29 +24,22 @@
 //
 // Date          Developer             Changes
 //
-// 19 Nov 1998   Mathias Ellinger      initial version
-//
-// 24 Jul 2000   John Adcock           Original dTV Release
-//                                     Added Memory Alloc functions
+// 11 Jun 2001   Torbjörn Jansson      moved forward defines from DSDrvNT.cpp
 //
 /////////////////////////////////////////////////////////////////////////////
 
-#include "precomp.h"
+//#ifdef DBG
+// #define DEBUGSTR(S) {DbgPrint("%s(%d) : ", __FILE__, __LINE__);DbgPrint S;}
+//#else
+// #define DEBUGSTR(S)
+//#endif
 
-//---------------------------------------------------------------------------
-//
-//---------------------------------------------------------------------------
-
-void * _cdecl operator new(size_t size )
-{
-   PVOID buffer;
-   buffer = ExAllocatePoolWithTag(NonPagedPool, (ULONG) size, 0x696C6C65);
-   return(buffer);
-}
+//device name
+#define DSDRVNT_DEVNAME L"\\Device\\DSDrvNT"
+//name of symbolic link
+#define DSDRVNT_LNKNAME L"\\DosDevices\\DSDrvNT"
 
 
-void _cdecl operator delete(PVOID ptr)
-{
-   ExFreePool(ptr);
-}
-
+NTSTATUS DSDrvDispatch(IN PDEVICE_OBJECT deviceObject, IN PIRP Irp);
+VOID DSDrvUnload  (IN PDRIVER_OBJECT driverObject);
+extern "C" NTSTATUS DriverEntry(IN PDRIVER_OBJECT driverObject, IN PUNICODE_STRING registryPath);

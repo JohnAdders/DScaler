@@ -35,10 +35,7 @@
 //									   
 /////////////////////////////////////////////////////////////////////////////
 
-#include "ioclass.h"
-#include "debugout.h"
-#include <stdio.h>
-#include <string.h>
+#include "precomp.h"
 
 //---------------------------------------------------------------------------
 // Find the PCI devices for the VendorId and DeviceId specified by the

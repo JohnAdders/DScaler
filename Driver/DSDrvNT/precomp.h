@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// Drvalloc.cpp
+// $Id: precomp.h,v 1.1 2001-06-11 17:56:19 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,29 +24,23 @@
 //
 // Date          Developer             Changes
 //
-// 19 Nov 1998   Mathias Ellinger      initial version
-//
-// 24 Jul 2000   John Adcock           Original dTV Release
-//                                     Added Memory Alloc functions
+// 11 Jun 2001   Torbörn Jansson       moved includes to precomp.h
 //
 /////////////////////////////////////////////////////////////////////////////
 
-#include "precomp.h"
+//ddk build enviroment creates precompiled headers from this file
 
-//---------------------------------------------------------------------------
-//
-//---------------------------------------------------------------------------
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
-void * _cdecl operator new(size_t size )
-{
-   PVOID buffer;
-   buffer = ExAllocatePoolWithTag(NonPagedPool, (ULONG) size, 0x696C6C65);
-   return(buffer);
+#include <ntddk.h>
+#include <windef.h>
+
+#if defined (__cplusplus)
 }
+#endif
 
-
-void _cdecl operator delete(PVOID ptr)
-{
-   ExFreePool(ptr);
-}
-
+#include "DSDrv.h"
+#include "ioclass.h"
+#include "debugout.h"

@@ -31,8 +31,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-#include "ioclass.h"
-#include "debugout.h"
+#include "precomp.h"
 
 //---------------------------------------------------------------------------
 //
@@ -295,6 +294,7 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
 
 	default:
 		debugOut(dbError,"unknown command %lX",ioControlCode);
+		status=STATUS_INVALID_PARAMETER;
 		break;
 	}
 	return status;
@@ -484,7 +484,7 @@ void CIOAccessDevice::freeMemory(PMemoryNode node)
 	{
 		MmFreeContiguousMemory((PVOID)node->dwSystemAddress);
 	}
-	memset(node, 0, sizeof(TMemoryNode));
+	memset(node, 0, sizeof(MemoryNode));
 }
 
 //---------------------------------------------------------------------------

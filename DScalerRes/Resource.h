@@ -807,8 +807,6 @@
 #define IDM_PLAYLIST_FIRST              2212
 #define IDM_PLAYLIST_LAST               2213
 #define IDM_PLAYLIST_SLIDESHOW          2214
-#define IDM_DSHOW_VIDEOINPUT            2220
-#define IDM_DSHOW_AUDIOINPUT            2221
 #define IDM_CROSSBAR_INPUT0             2222
 #define IDM_CROSSBAR_INPUT1             2223
 #define IDM_CROSSBAR_INPUT2             2224

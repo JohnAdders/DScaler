@@ -1145,8 +1145,10 @@ IDC_DSHOWSOURCEMENU MENU DISCARDABLE
 BEGIN
     POPUP "DShow"
     BEGIN
-        MENUITEM "Video input",                 IDM_DSHOW_VIDEOINPUT
-        MENUITEM "Audio input",                 IDM_DSHOW_AUDIOINPUT
+        MENUITEM "Video &Input",                65535
+        MENUITEM "Video &Format",               65535
+        MENUITEM "Pixel Width",                 65535, GRAYED
+        MENUITEM "&Audio Input",                65535
         MENUITEM SEPARATOR
         MENUITEM "Reset card",                  IDM_RESET
         MENUITEM "Renderer properties...",      IDM_DSHOW_RENDERERPROPERTIES

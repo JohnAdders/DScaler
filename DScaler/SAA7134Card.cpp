@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.cpp,v 1.27 2002-11-07 20:33:17 adcockj Exp $
+// $Id: SAA7134Card.cpp,v 1.28 2002-11-08 06:15:34 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2002/11/07 20:33:17  adcockj
+// Promoted ACPI functions so that state management works properly
+//
 // Revision 1.26  2002/11/07 18:54:21  atnak
 // Redid getting next field -- fixes some issues
 //
@@ -146,12 +149,8 @@ CSAA7134Card::CSAA7134Card(CHardwareDriver* pDriver) :
 
 CSAA7134Card::~CSAA7134Card()
 {
-    // disable peripheral devices
-    WriteByte(SAA7134_SPECIAL_MODE,0);
-
     WriteDword(SAA7134_IRQ1, 0UL);
     WriteDword(SAA7134_IRQ2, 0UL);
-    // Completely zeroing this conflicts with Lifeview's software
     MaskDataDword(SAA7134_MAIN_CTRL, 0, 0x000000FF);
 
     delete m_I2CBus;
@@ -212,13 +211,153 @@ void CSAA7134Card::PrepareCard()
 }
 
 
-void CSAA7134Card::RestoreCard()
-{
-}
-
 void CSAA7134Card::ManageMyState()
 {
+    int i;
+
+    ManageByte(SAA7134_INCR_DELAY);
+    ManageByte(SAA7134_ANALOG_IN_CTRL1);
+    ManageByte(SAA7134_ANALOG_IN_CTRL2);
+    ManageByte(SAA7134_ANALOG_IN_CTRL3);
+    ManageByte(SAA7134_ANALOG_IN_CTRL4);
+
+    ManageByte(SAA7134_HSYNC_START);
+    ManageByte(SAA7134_HSYNC_STOP);
+    ManageByte(SAA7134_SYNC_CTRL);
+    ManageByte(SAA7134_LUMA_CTRL);
+    ManageByte(SAA7134_DEC_LUMA_BRIGHT);
+    ManageByte(SAA7134_DEC_LUMA_CONTRAST);
+    ManageByte(SAA7134_DEC_CHROMA_SATURATION);
+    ManageByte(SAA7134_DEC_CHROMA_HUE);
+    ManageByte(SAA7134_CHROMA_CTRL1);
+    ManageByte(SAA7134_CHROMA_GAIN_CTRL);
+    ManageByte(SAA7134_CHROMA_CTRL2);
+    ManageByte(SAA7134_MODE_DELAY_CTRL);
+    ManageByte(SAA7134_ANALOG_ADC);
+    ManageByte(SAA7134_VGATE_START);
+    ManageByte(SAA7134_VGATE_STOP);
+    ManageByte(SAA7134_MISC_VGATE_MSB);
+    ManageByte(SAA7134_RAW_DATA_GAIN);
+    ManageByte(SAA7134_RAW_DATA_OFFSET);
+    ManageByte(SAA7134_STATUS_VIDEO);
+    ManageByte(SAA7134_STATUS_VIDEO_HIBYTE);
+
+    for (i = 0; i < 16; i++)
+    {
+        ManageByte(SAA7134_GREEN_PATH(i));
+        ManageByte(SAA7134_BLUE_PATH(i));
+        ManageByte(SAA7134_RED_PATH(i));
+    }
+
+    ManageByte(SAA7134_START_GREEN);
+    ManageByte(SAA7134_START_BLUE);
+    ManageByte(SAA7134_START_RED);
+
+    for (i = SAA7134_TASK_A_MASK; i < 0x077; i++)
+    {
+        ManageByte(i);
+    }
+
+    for (i = SAA7134_TASK_B_MASK; i < 0x0B7; i++)
+    {
+        ManageByte(i);
+    }
+
+    ManageByte(SAA7134_OFMT_VIDEO_A);
+    ManageByte(SAA7134_OFMT_DATA_A);
+    ManageByte(SAA7134_OFMT_VIDEO_B);
+    ManageByte(SAA7134_OFMT_DATA_B);
+    ManageByte(SAA7134_ALPHA_NOCLIP);
+    ManageByte(SAA7134_ALPHA_CLIP);
+    ManageByte(SAA7134_UV_PIXEL);
+    ManageByte(SAA7134_CLIP_RED);
+    ManageByte(SAA7134_CLIP_GREEN);
+    ManageByte(SAA7134_CLIP_BLUE);
+
+    for (i = 0; i < 16; i++)
+    {
+        SAA7134_CLIP_H_ACTIVE(i);
+        SAA7134_CLIP_H_NOIDEA(i);
+        SAA7134_CLIP_H_POS(i);
+        SAA7134_CLIP_H_POS_HIBYTE(i);
+        SAA7134_CLIP_V_ACTIVE(i);
+        SAA7134_CLIP_V_NOIDEA(i);
+        SAA7134_CLIP_V_POS(i);
+        SAA7134_CLIP_V_POS_HIBYTE(i);
+    }
+
+    ManageByte(SAA7134_DCXO_IDENT_CTRL);
+    ManageByte(SAA7134_DEMODULATOR);
+    ManageByte(SAA7134_AGC_GAIN_SELECT);
+    ManageDword(SAA7134_CARRIER1_FREQ);
+    ManageDword(SAA7134_CARRIER2_FREQ);
+    ManageDword(SAA7134_NUM_SAMPLES);
+    ManageByte(SAA7134_AUDIO_FORMAT_CTRL);
+    ManageByte(SAA7134_MONITOR_SELECT);
+    ManageByte(SAA7134_FM_DEEMPHASIS);
+    ManageByte(SAA7134_FM_DEMATRIX);
+    ManageByte(SAA7134_CHANNEL1_LEVEL);
+    ManageByte(SAA7134_CHANNEL2_LEVEL);
+    ManageByte(SAA7134_NICAM_CONFIG);
+    ManageByte(SAA7134_NICAM_LEVEL_ADJUST);
+    ManageByte(SAA7134_STEREO_DAC_OUTPUT_SELECT);
+    ManageByte(SAA7134_I2S_OUTPUT_FORMAT);
+    ManageByte(SAA7134_I2S_OUTPUT_SELECT);
+    ManageByte(SAA7134_I2S_OUTPUT_LEVEL);
+    ManageByte(SAA7134_DSP_OUTPUT_SELECT);
+    ManageByte(SAA7134_AUDIO_MUTE_CTRL);
+    ManageByte(SAA7134_SIF_SAMPLE_FREQ);
+    ManageByte(SAA7134_ANALOG_IO_SELECT);
+    ManageDword(SAA7134_AUDIO_CLOCK);
+    ManageByte(SAA7134_AUDIO_PLL_CTRL);
+    ManageDword(SAA7134_AUDIO_CLOCKS_PER_FIELD);
+
+    ManageByte(SAA7134_VIDEO_PORT_CTRL0);
+    ManageByte(SAA7134_VIDEO_PORT_CTRL1);
+    ManageByte(SAA7134_VIDEO_PORT_CTRL2);
+    ManageByte(SAA7134_VIDEO_PORT_CTRL3);
+    ManageByte(SAA7134_VIDEO_PORT_CTRL4);
+    ManageByte(SAA7134_VIDEO_PORT_CTRL5);
+    ManageByte(SAA7134_VIDEO_PORT_CTRL6);
+    ManageByte(SAA7134_VIDEO_PORT_CTRL7);
+    ManageByte(SAA7134_VIDEO_PORT_CTRL8);
+
+    ManageByte(SAA7134_TS_PARALLEL);
+    ManageByte(SAA7134_TS_PARALLEL_SERIAL);
+    ManageByte(SAA7134_TS_SERIAL0);
+    ManageByte(SAA7134_TS_SERIAL1);
+    ManageByte(SAA7134_TS_DMA0);
+    ManageByte(SAA7134_TS_DMA1);
+    ManageByte(SAA7134_TS_DMA2);
+
+    ManageByte(SAA7134_I2S_AUDIO_OUTPUT);
+    ManageByte(SAA7134_SPECIAL_MODE);
+
+    // do these ones last
+    ManageWord(SAA7134_SOURCE_TIMING);
+    ManageByte(SAA7134_REGION_ENABLE);
+
+    for (i = 0; i < 7; i++)
+    {
+        ManageDword(SAA7134_RS_BA1(i));
+        ManageDword(SAA7134_RS_BA2(i));
+        ManageDword(SAA7134_RS_PITCH(i));
+
+        ManageByte(SAA7134_RS_CONTROL_0(i));
+        ManageByte(SAA7134_RS_CONTROL_1(i));
+        ManageByte(SAA7134_RS_CONTROL_2(i));
+        ManageByte(SAA7134_RS_CONTROL_3(i));
+    }
+
+    ManageDword(SAA7134_FIFO_SIZE);
+    ManageDword(SAA7134_THRESHOULD);
+
+    ManageDword(SAA7134_MAIN_CTRL);
+
+    ManageDword(SAA7134_IRQ1);
+    ManageDword(SAA7134_IRQ2);
 }
+
 
 void CSAA7134Card::ResetHardware()
 {

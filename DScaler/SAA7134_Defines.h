@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134_Defines.h,v 1.8 2002-10-09 13:20:45 atnak Exp $
+// $Id: SAA7134_Defines.h,v 1.9 2002-11-08 06:15:34 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/10/09 13:20:45  atnak
+// got rid of stray comments
+//
 // Revision 1.7  2002/10/04 23:40:46  atnak
 // proper support for audio channels mono,stereo,lang1,lang2 added
 //
@@ -85,8 +88,8 @@
 //   6      Audio
 
 /* DMA channels, n = 0 ... 6 */
-#define SAA7134_RS_BA1(n)                  (0x200|(n)<<4)
-#define SAA7134_RS_BA2(n)                  (0x204|(n)<<4)
+#define SAA7134_RS_BA1(n)                   (0x200|(n)<<4)
+#define SAA7134_RS_BA2(n)                   (0x204|(n)<<4)
 #define SAA7134_RS_PITCH(n)                 (0x208|(n)<<4)
 #define SAA7134_RS_CONTROL_0(n)             (0x20C|(n)<<4)
 #define SAA7134_RS_CONTROL_1(n)             (0x20D|(n)<<4)
@@ -102,13 +105,6 @@
 #define SAA7134_RS_CONTROL_3(n)             (0x20F|(n)<<4)
 #define   SAA7134_RS_CONTROL_3_WSWAP            (1<<1)
 #define   SAA7134_RS_CONTROL_3_BSWAP            (1<<0)
-
-#define SAA7134_RS_CONTROL(n)               (0x20C|(n)<<4)
-#define   SAA7134_RS_CONTROL_WSWAP              (1<<25)     // Swap words in DWORDS
-#define   SAA7134_RS_CONTROL_BSWAP              (1<<24)     // Swap bytes in WORDS
-#define   SAA7134_RS_CONTROL_BURST              (7<<21)     // 1~6=0^2BURST, 7=infinite
-#define   SAA7134_RS_CONTROL_ME                 (1<<20)     // 1=Enable MMU
-#define   SAA7134_RS_CONTROL_PTA                (0x7FFFF)   // Page table address
 
 #define SAA7134_FIFO_SIZE                   0x2A0
 #define SAA7134_THRESHOULD                  0x2A4
@@ -426,7 +422,7 @@
 #define SAA7134_CLIP_BLUE                       0x30b
 
 // added, unverified
-// Clips points, n = 0..16
+// Clips points, n = 0..15
 #define SAA7134_CLIP_H_ACTIVE(n)                (0x380|(n)<<8)
 #define SAA7134_CLIP_H_NOIDEA(n)                (0x381|(n)<<8)
 #define SAA7134_CLIP_H_POS(n)                   (0x382|(n)<<8)

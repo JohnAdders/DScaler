@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.23 2002-11-07 20:33:17 adcockj Exp $
+// $Id: SAA7134Card.h,v 1.24 2002-11-08 06:15:34 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2002/11/07 20:33:17  adcockj
+// Promoted ACPI functions so that state management works properly
+//
 // Revision 1.22  2002/11/07 18:54:21  atnak
 // Redid getting next field -- fixes some issues
 //
@@ -241,8 +244,6 @@ public:
     void StartCapture(BOOL bCaptureVBI);
 
     void PrepareCard();
-    void RestoreCard();
-
     void ResetHardware();
 
     void SetDMA(eRegionID RegionID, BOOL bState);

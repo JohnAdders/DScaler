@@ -612,6 +612,16 @@ const TVCARDSETUP TVCards[TVCARD_LASTONE] =
 		PLL_28,
 		TUNER_ABSENT
 	},
+	{
+		"Cybermail AV",
+		3, 1, -1, 2, 0xFFFEFF,
+		{ 2, 3, 1, 2, 0, 0, 0, 0},
+		{ 0x001000, 0x001000, 0x000000, 0x000000, 0x003000, 0x000000},
+		0,
+		1,0,0,0,0,0,0,0,
+		PLL_NONE,
+		TUNER_ABSENT
+	},
 };
 
 const AUTODETECT878 AutoDectect878[] =
@@ -1119,25 +1129,50 @@ void TVCard_WriteSettingsToIni()
 
 void TVCard_SetMenu(HMENU hMenu)
 {
+    int NumExtraInputs;
+
 	EnableMenuItem(hMenu, IDM_CHANNELPLUS, (TunerType != TUNER_ABSENT)?MF_ENABLED:MF_GRAYED);
 	EnableMenuItem(hMenu, IDM_CHANNELMINUS, (TunerType != TUNER_ABSENT)?MF_ENABLED:MF_GRAYED);
 	EnableMenuItem(hMenu, IDM_ANALOGSCAN, (TunerType != TUNER_ABSENT)?MF_ENABLED:MF_GRAYED);
 	EnableMenuItem(hMenu, IDM_SOURCE_TUNER, (TunerType != TUNER_ABSENT)?MF_ENABLED:MF_GRAYED);
 
-	if(TVCards[CardType].SVideoInput == -1)
+    // need to keep track of how many other inputs there are
+    // there is always one composite input
+    NumExtraInputs = TVCards[CardType].nVideoInputs  - 1;
+
+    if(TVCards[CardType].SVideoInput == -1)
 	{
 		EnableMenuItem(hMenu, IDM_SOURCE_SVIDEO, MF_GRAYED);
-		EnableMenuItem(hMenu, IDM_SOURCE_OTHER1, (TVCards[CardType].nVideoInputs > 2)?MF_ENABLED:MF_GRAYED);
-		EnableMenuItem(hMenu, IDM_SOURCE_OTHER2, (TVCards[CardType].nVideoInputs > 3)?MF_ENABLED:MF_GRAYED);
 		EnableMenuItem(hMenu, IDM_SOURCE_COMPVIASVIDEO, MF_GRAYED);
 	}
-	else
+    else
 	{
 		EnableMenuItem(hMenu, IDM_SOURCE_SVIDEO, MF_ENABLED);
-		EnableMenuItem(hMenu, IDM_SOURCE_OTHER1, (TVCards[CardType].nVideoInputs > 3)?MF_ENABLED:MF_GRAYED);
-		EnableMenuItem(hMenu, IDM_SOURCE_OTHER2, (TVCards[CardType].nVideoInputs > 4)?MF_ENABLED:MF_GRAYED);
 		EnableMenuItem(hMenu, IDM_SOURCE_COMPVIASVIDEO, MF_ENABLED);
+        // we've used up one more input
+        --NumExtraInputs;
 	}
+
+    if(TVCards[CardType].TunerInput == -1 || TunerType == TUNER_ABSENT)
+	{
+	    EnableMenuItem(hMenu, IDM_CHANNELPLUS, MF_GRAYED);
+	    EnableMenuItem(hMenu, IDM_CHANNELMINUS, MF_GRAYED);
+	    EnableMenuItem(hMenu, IDM_ANALOGSCAN, MF_GRAYED);
+	    EnableMenuItem(hMenu, IDM_SOURCE_TUNER, MF_GRAYED);
+	}
+    else
+	{
+	    EnableMenuItem(hMenu, IDM_CHANNELPLUS, MF_ENABLED);
+	    EnableMenuItem(hMenu, IDM_CHANNELMINUS, MF_ENABLED);
+	    EnableMenuItem(hMenu, IDM_ANALOGSCAN, MF_ENABLED);
+	    EnableMenuItem(hMenu, IDM_SOURCE_TUNER, MF_ENABLED);
+        // we've used up one more input
+        --NumExtraInputs;
+	}
+
+	EnableMenuItem(hMenu, IDM_SOURCE_OTHER1, (NumExtraInputs > 0)?MF_ENABLED:MF_GRAYED);
+	EnableMenuItem(hMenu, IDM_SOURCE_OTHER2, (NumExtraInputs > 1)?MF_ENABLED:MF_GRAYED);
+
 	EnableMenuItem(hMenu, IDM_SOURCE_CCIR656_1, (CardType == TVCARD_RS_BT)?MF_ENABLED:MF_GRAYED);
 	EnableMenuItem(hMenu, IDM_SOURCE_CCIR656_2, (CardType == TVCARD_RS_BT)?MF_ENABLED:MF_GRAYED);
 	EnableMenuItem(hMenu, IDM_SOURCE_CCIR656_3, (CardType == TVCARD_RS_BT)?MF_ENABLED:MF_GRAYED);

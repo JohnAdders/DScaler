@@ -226,7 +226,7 @@ typedef enum
 
 typedef enum
 {
-	OVERSCAN,
+	OVERSCAN = 0,
 	SOURCE_ASPECT,
 	CUSTOM_SOURCE_ASPECT,
 	TARGET_ASPECT,

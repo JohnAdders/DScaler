@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.h,v 1.19 2002-09-26 11:33:42 kooiman Exp $
+// $Id: ProgramList.h,v 1.20 2002-10-17 00:28:41 flibuste2 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -45,8 +45,6 @@
 #define __PROGRAMLIST_H___
 
 
-#include "settings.h"
-
 // Get Hold of the OutThreads.c file settings
 SETTING* Channels_GetSetting(CHANNELS_SETTING Setting);
 void Channels_ReadSettingsFromIni();
@@ -60,49 +58,12 @@ void AntiPlop_ReadSettingsFromIni();
 void AntiPlop_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 CTreeSettingsGeneric* AntiPlop_GetTreeSettingsPage();
 
-#define MAXPROGS 255
-
-class CChannel
-{
-public:
-    CChannel(LPCSTR Name, DWORD Freq, int ChannelNumber, int Format, BOOL Active);
-    CChannel(const CChannel& CopyFrom);
-    ~CChannel();
-    LPCSTR GetName() const;
-    DWORD GetFrequency() const;
-    int GetChannelNumber() const;
-    int GetFormat() const;
-    BOOL IsActive() const;
-    void SetActive(BOOL Active);
-private:
-    string m_Name;
-    DWORD m_Freq;
-    int m_Chan;
-    int m_Format;
-    BOOL m_Active;
-};
-
-typedef struct {
-    DWORD Freq;
-    int Format;
-} TCountryChannel;
-
-class CCountry
-{
-public:
-    CCountry();
-    ~CCountry();
-    string m_Name;
-    int m_MinChannel;
-    int m_MaxChannel;
-    vector<TCountryChannel> m_Frequencies;
-};
-
 void Channels_Exit();
-void Write_Program_List_ASCII();
-void Load_Program_List_ASCII();
-void Load_Country_Settings();
-void Unload_Country_Settings();
+
+//TODO->Program listing file handling now sits in Channels.h
+//This export should be removed and the corresponding impl changed
+BOOL Load_Program_List_ASCII();
+
 
 BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 

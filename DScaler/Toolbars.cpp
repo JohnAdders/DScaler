@@ -1,5 +1,5 @@
 //
-// $Id: Toolbars.cpp,v 1.6 2002-10-07 20:33:50 kooiman Exp $
+// $Id: Toolbars.cpp,v 1.7 2002-10-17 00:28:41 flibuste2 Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/10/07 20:33:50  kooiman
+// Fixed lots of toolbar bugs & added grip/separator bars.
+//
 // Revision 1.5  2002/10/02 10:52:35  kooiman
 // Fixed C++ type casting for events.
 //
@@ -44,7 +47,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-
+#include "Channels.h"
 #include "ToolbarWindow.h"
 #include "Toolbars.h"
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.77 2002-10-08 20:48:29 kooiman Exp $
+// $Id: ProgramList.cpp,v 1.78 2002-10-17 00:28:41 flibuste2 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.77  2002/10/08 20:48:29  kooiman
+// Changed to Hz instead of multiple of 62500 Hz.
+//
 // Revision 1.76  2002/09/30 16:25:18  adcockj
 // Corrected problem with API and channel change
 //
@@ -242,6 +245,9 @@
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
+#include "settings.h"
+#include "TVFormats.h"
+#include "Channels.h"
 #include "ProgramList.h"
 #include "DScaler.h"
 #include "VBI.h"
@@ -252,28 +258,43 @@
 #include "OSD.h"
 #include "Providers.h"
 
+#define MAX_CHANNELS 255
+
+const UINT WM_SCAN_MESSAGE          = WM_USER + 0x700; //completely arbitrary
+const UINT WM_SCAN_PRESET_FREQ      = WM_SCAN_MESSAGE + 1;
+const UINT WM_SCAN_AUTO             = WM_SCAN_MESSAGE + 2;
+const UINT WM_SCAN_CUSTOM_ORDER     = WM_SCAN_MESSAGE + 3;
+const UINT WM_SCAN_ABORT            = WM_SCAN_MESSAGE + 4;
+
+const DWORD SCAN_DEFAULT_STEPS      = 62500;
+
+enum SCAN_MODE 
+{    
+    SCAN_MODE_PRESETS = 1,
+    SCAN_MODE_CUSTOM_ORDER,
+    SCAN_MODE_AUTOSCAN
+};
+
+SCAN_MODE MyScanMode = SCAN_MODE_CUSTOM_ORDER;
+
+
+
 // From outthreads.cpp
 extern BOOL bNoScreenUpdateDuringTuning;
 
-int CurSel;
-unsigned short SelectButton;
-int EditProgram;
-char KeyValue;
-HWND ProgList;
-
-typedef vector<CChannel*> CHANNELLIST;
-typedef vector<CCountry*> COUNTRYLIST;
 
 CHANNELLIST MyChannels;
-COUNTRYLIST Countries;
+COUNTRYLIST MyCountries;
 
 int CountryCode = 1;
 
 long CurrentProgram = 0;
 long PreviousProgram = 0;
-BOOL bCustomChannelOrder = FALSE;
-BOOL InScan = FALSE;
-BOOL InUpdate = FALSE;
+
+
+BOOL MyInScan = FALSE;
+BOOL MyInUpdate = FALSE;
+BOOL MyIsAudioMuted = FALSE;
 
 int WM_DRAGLISTMESSAGE = 0;
 long DragItemIndex = 0;
@@ -288,74 +309,33 @@ static int TunerSwitchScreenUpdateDelayTimer = 0;
 
 static int InitialNbMenuItems = -1;
 
-
-CChannel::CChannel(LPCSTR Name, DWORD Freq, int ChannelNumber, int Format, BOOL Active)
-{
-    m_Name = Name;
-    m_Freq = Freq;
-    m_Chan = ChannelNumber;
-    m_Format = Format;
-    m_Active = Active;
+//TODO->Remove this (find a way to store user channels in DScaler APP)
+//The implementation is now in Channels
+BOOL Load_Program_List_ASCII() {
+    return Load_Program_List_ASCII(SZ_DEFAULT_PROGRAMS_FILENAME, &MyChannels);
 }
 
-CChannel::CChannel(const CChannel& CopyFrom)
-{
-    m_Name = CopyFrom.m_Name;
-    m_Freq = CopyFrom.m_Freq;
-    m_Chan = CopyFrom.m_Chan;
-    m_Format = CopyFrom.m_Format;
-    m_Active = CopyFrom.m_Active;
+//This is a helper method (copied from some code)
+//that is best for muting/restoring audio.
+void MuteAudio(BOOL muted)
+{        
+    if (MyIsAudioMuted == muted)
+    {
+        return;
+    }
+    if (TRUE == muted) 
+    {
+        Audio_Mute();
+    }
+    else 
+    {
+        Audio_Unmute();
+    }
+    
+    Sleep(PreSwitchMuteDelay); // This helps reduce the static click noise. 
+    MyIsAudioMuted = muted;
 }
-
-CChannel::~CChannel()
-{
-}
-
-LPCSTR CChannel::GetName() const
-{
-    static char sbuf[256];
-    strncpy(sbuf, m_Name.c_str(), 255);
-    sbuf[255] = '\0';
-    return sbuf;
-}
-
-DWORD CChannel::GetFrequency() const
-{
-    return m_Freq;
-}
-
-int CChannel::GetChannelNumber() const
-{
-    return m_Chan;
-}
-
-int CChannel::GetFormat() const
-{
-    return m_Format;
-}
-
-BOOL CChannel::IsActive() const
-{
-    return m_Active;
-}
-
-void CChannel::SetActive(BOOL Active)
-{
-    m_Active = Active;
-}
-
-CCountry::CCountry()
-{
-    m_Name = "";
-    m_MinChannel = 0;
-    m_MaxChannel = 0;
-    m_Frequencies.clear();
-}
-
-CCountry::~CCountry()
-{
-    m_Frequencies.clear();
-}
+                     
 
 void Channel_SetCurrent()
 {
@@ -378,7 +358,7 @@ void SelectChannel(HWND hDlg, long ChannelToSelect)
 {
     ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_CHANNEL), 0);
     // then loop through looking for the correct channel
-    for(int i(0); i < Countries[CountryCode]->m_Frequencies.size() + 1; ++i)
+    for(int i(0); i < MyCountries[CountryCode]->GetSize() + 1; ++i)
     {
         int Channel = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CHANNEL), i);
         if(Channel == ChannelToSelect)
@@ -391,7 +371,7 @@ void SelectChannel(HWND hDlg, long ChannelToSelect)
 
 void UpdateDetails(HWND hDlg)
 {
-    InUpdate = TRUE;
+    MyInUpdate = TRUE;
     if(CurrentProgram < MyChannels.size())
     {
         char sbuf[256];
@@ -425,49 +405,43 @@ void UpdateDetails(HWND hDlg)
     {
         Edit_SetText(GetDlgItem(hDlg, IDC_NAME), "");
         Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY), "");
-        ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_FORMAT), 0);
+        //ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_FORMAT), 0);
         ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_CHANNEL), 0);
         Button_SetCheck(GetDlgItem(hDlg, IDC_ACTIVE), BST_CHECKED);
     }
-    InUpdate = FALSE;
+    MyInUpdate = FALSE;
 }
 
-void ResetProgramList(HWND hDlg)
+
+void UpdateAutoScanDetails(HWND hDlg)
 {
-    InUpdate = TRUE;
-    CHANNELLIST::iterator it;
-    ListBox_ResetContent(GetDlgItem(hDlg, IDC_PROGRAMLIST));
-    CurrentProgram = 0;
-    for(it = MyChannels.begin(); it != MyChannels.end(); ++it)
+    static char sbuf[256];
+    CCountry * currentCountry = MyCountries[CountryCode];    
+    
+    sprintf(sbuf, "%10.4f", currentCountry->GetMinChannelFrequency() / 1000000.0);
+    Edit_SetText(GetDlgItem(hDlg, IDC_SCAN_MIN_FREQ), sbuf);
+    
+    sprintf(sbuf, "%10.4f", currentCountry->GetMaxChannelFrequency() / 1000000.0);
+    Edit_SetText(GetDlgItem(hDlg, IDC_SCAN_MAX_FREQ), sbuf);
+    
+    //Keep user steps settings (if any)
+    Edit_GetText(GetDlgItem(hDlg, IDC_SCAN_STEPS), sbuf, 254);
+    sbuf[255] = '\0';
+    DWORD steps = strtol(sbuf, '\0', 10);
+    if (steps <= 0) 
     {
-        delete *it;
+        steps = SCAN_DEFAULT_STEPS;
     }
-    MyChannels.clear();
-    if(bCustomChannelOrder)
-    {
-        for(int i(0); i < Countries[CountryCode]->m_Frequencies.size(); ++i)
-        {
-            if(Countries[CountryCode]->m_Frequencies[i].Freq != 0)
-            {
-                char sbuf[256];
-                sprintf(sbuf, "%d", Countries[CountryCode]->m_MinChannel + i);
-                MyChannels.push_back(new CChannel(sbuf, 
-                                        Countries[CountryCode]->m_Frequencies[i].Freq,
-                                        Countries[CountryCode]->m_MinChannel + i,
-                                        Countries[CountryCode]->m_Frequencies[i].Format,
-                                        TRUE));
-                ListBox_AddString(GetDlgItem(hDlg, IDC_PROGRAMLIST), sbuf);
-            }
-        }
-        ListBox_SetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST), CurrentProgram);
-        UpdateDetails(hDlg);
-    }
-    InUpdate = FALSE;
+
+    sprintf(sbuf, "%d", steps);
+    Edit_SetText(GetDlgItem(hDlg, IDC_SCAN_STEPS), sbuf);
 }
 
-void RefreshProgramList(HWND hDlg, long ProgToSelect)
+//Updates the Channel ListBox with the current Channels settings
+//and selects the given program index
+void RefreshProgramList(HWND hDlg, int ProgToSelect)
 {
-    InUpdate = TRUE;
+    MyInUpdate = TRUE;
     CHANNELLIST::iterator it;
 
     ListBox_ResetContent(GetDlgItem(hDlg, IDC_PROGRAMLIST));
@@ -476,32 +450,72 @@ void RefreshProgramList(HWND hDlg, long ProgToSelect)
     {
         ListBox_AddString(GetDlgItem(hDlg, IDC_PROGRAMLIST), (*it)->GetName());
     }
-
-    ListBox_SetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST), ProgToSelect);
-    InUpdate = FALSE;
+    
+    CurrentProgram = ProgToSelect;
+    ListBox_SetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST), ProgToSelect);    
+    UpdateDetails(hDlg);    
+    MyInUpdate = FALSE;
 }
+
+
+//Deletes existing channels (including customized settings)
+//and restores the current country settings for the given country code
+void ResetProgramList(HWND hDlg, int iCountryCode)
+{
+    MyInUpdate = TRUE;
+    CHANNELLIST::iterator it;       
+    for(it = MyChannels.begin(); it != MyChannels.end(); ++it)
+    {
+        delete *it;
+    }
+    MyChannels.clear();
+
+    if(SCAN_MODE_CUSTOM_ORDER == MyScanMode)
+    {
+        for(int i(0); i < MyCountries[iCountryCode]->GetSize(); ++i)
+        {
+            if(MyCountries[iCountryCode]->GetFrequency(i) != 0)
+            {
+                char sbuf[256];
+                int currentChannel = MyCountries[iCountryCode]->GetMinChannel() + i;
+                sprintf(sbuf, "%d", currentChannel);
+                MyChannels.push_back(new CChannel(sbuf, 
+                                        MyCountries[iCountryCode]->GetFrequency(i),
+                                        currentChannel,
+                                        MyCountries[iCountryCode]->GetFormat(i),
+                                        TRUE));        
+            }
+        }
+        
+    }
+    
+    MyInUpdate = FALSE;
+    RefreshProgramList(hDlg, 0);    
+}
+
 
 void RefreshChannelList(HWND hDlg)
 {
-    InUpdate = TRUE;
+    static char sbuf[256];
+    MyInUpdate = TRUE;
     ComboBox_ResetContent(GetDlgItem(hDlg, IDC_CHANNEL));
     int Index = ComboBox_AddString(GetDlgItem(hDlg, IDC_CHANNEL), "None");
     SendMessage(GetDlgItem(hDlg, IDC_CHANNEL), CB_SETITEMDATA, Index, 0);
-    for(int i(0); i < Countries[CountryCode]->m_Frequencies.size(); ++i)
+    for(int i(0); i < MyCountries[CountryCode]->GetSize(); ++i)
     {
-        if(Countries[CountryCode]->m_Frequencies[i].Freq != 0)
-        {
-            char sbuf[256];
-            sprintf(sbuf, "%d", Countries[CountryCode]->m_MinChannel + i);
+        if(MyCountries[CountryCode]->GetFrequency(i) != 0)
+        {    
+            sprintf(sbuf, "%d", MyCountries[CountryCode]->GetMinChannel() + i);
             Index = ComboBox_AddString(GetDlgItem(hDlg, IDC_CHANNEL), sbuf);
-            ComboBox_SetItemData(GetDlgItem(hDlg, IDC_CHANNEL), Index, Countries[CountryCode]->m_MinChannel + i);
+            ComboBox_SetItemData(GetDlgItem(hDlg, IDC_CHANNEL), Index, MyCountries[CountryCode]->GetMinChannel() + i);
         }
-    }
-    InUpdate = FALSE;
+    }    
+    MyInUpdate = FALSE;
 }
 
+
 //returns TRUE if a video signal is found
-BOOL FindFrequency(DWORD Freq, int Format)
+BOOL FindFrequency(DWORD Freq, int Format, BOOL bUseAfcIfAvailable)
 {
     char sbuf[256];
 
@@ -560,7 +574,7 @@ BOOL FindFrequency(DWORD Freq, int Format)
 void ScanCustomChannel(HWND hDlg, int ChannelNum)
 {
     BOOL result;
-    InUpdate = TRUE;
+    MyInUpdate = TRUE;
 
     if(ChannelNum < 0 || ChannelNum >= MyChannels.size())
     {
@@ -573,24 +587,24 @@ void ScanCustomChannel(HWND hDlg, int ChannelNum)
     UpdateDetails(hDlg);
     ListBox_SetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST), ChannelNum);
 
-    result = FindFrequency(MyChannels[ChannelNum]->GetFrequency(), MyChannels[ChannelNum]->GetFormat());
+    result = FindFrequency(MyChannels[ChannelNum]->GetFrequency(), MyChannels[ChannelNum]->GetFormat(), FALSE);
 
     MyChannels[ChannelNum]->SetActive(result);
-    InUpdate = FALSE;
+    MyInUpdate = FALSE;
 }
 
 void ScanFrequency(HWND hDlg, int FreqNum)
 {
-    InUpdate = TRUE;
+    MyInUpdate = TRUE;
 
-    if(FreqNum < 0 || FreqNum >= Countries[CountryCode]->m_Frequencies.size())
+    if(FreqNum < 0 || FreqNum >= MyCountries[CountryCode]->GetSize())
     {
         return;
     }
 
     char sbuf[256];
 
-    DWORD Freq = Countries[CountryCode]->m_Frequencies[FreqNum].Freq;
+    DWORD Freq = MyCountries[CountryCode]->GetFrequency(FreqNum);
     
     if(Freq == 0)
     {
@@ -605,15 +619,15 @@ void ScanFrequency(HWND hDlg, int FreqNum)
         }
     }    
 
-    int Format = Countries[CountryCode]->m_Frequencies[FreqNum].Format;
+    int Format = MyCountries[CountryCode]->GetFormat(FreqNum);
 
-    SelectChannel(hDlg, FreqNum + Countries[CountryCode]->m_MinChannel);
+    SelectChannel(hDlg, FreqNum + MyCountries[CountryCode]->GetMinChannel());
     ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_FORMAT), Format + 1);
 
     sprintf(sbuf, "%10.4lf", (double)Freq / 1000000.0);
     Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf);
 
-    if(FindFrequency(Freq, Format))
+    if(FindFrequency(Freq, Format, FALSE))
     {
         char sbuf[256];
         ++CurrentProgram;
@@ -621,30 +635,196 @@ void ScanFrequency(HWND hDlg, int FreqNum)
         MyChannels.push_back(new CChannel(
                                             sbuf, 
                                             Freq, 
-                                            Countries[CountryCode]->m_MinChannel + FreqNum, 
+                                            MyCountries[CountryCode]->GetMinChannel()+ FreqNum, 
                                             Format, 
                                             TRUE
                                          ));
         ListBox_AddString(GetDlgItem(hDlg, IDC_PROGRAMLIST), sbuf);
         ListBox_SetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST), CurrentProgram - 1);
     }
-    InUpdate = FALSE;
+    MyInUpdate = FALSE;
 }
 
-void RefreshControls(HWND hDlg)
-{
-    InUpdate = TRUE;
-    Button_Enable(GetDlgItem(hDlg, IDC_ADD), (bCustomChannelOrder == FALSE));
-    Button_Enable(GetDlgItem(hDlg, IDC_REMOVE), (bCustomChannelOrder == FALSE));
-    Button_Enable(GetDlgItem(hDlg, IDC_UP), (bCustomChannelOrder == FALSE));
-    Button_Enable(GetDlgItem(hDlg, IDC_DOWN), (bCustomChannelOrder == FALSE));
-    ComboBox_Enable(GetDlgItem(hDlg, IDC_CHANNEL), (bCustomChannelOrder == FALSE));
-    InUpdate = FALSE;
+
+DWORD AutoScanFrequency(HWND hDlg, DWORD dFrequency) 
+{    
+    static char sbuf[255];
+    sprintf(sbuf, "%10.4lf", (double)dFrequency / 1000000.0);
+    
+    MyInUpdate = TRUE;    
+    eVideoFormat videoFormat = (eVideoFormat)(ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_FORMAT)) - 1);
+    Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf);
+    
+    BOOL isAFCInUse =(Button_GetCheck(GetDlgItem(hDlg, IDC_SCAN_AFC)) == BST_CHECKED);
+    if (FindFrequency(dFrequency, videoFormat, isAFCInUse)) {        
+        
+        CChannel * newChannel = new CChannel(
+                sbuf, 
+                dFrequency, 
+                MyChannels.size(), 
+                videoFormat, 
+                TRUE
+            );
+        MyChannels.push_back(newChannel);
+        ListBox_AddString(GetDlgItem(hDlg, IDC_PROGRAMLIST), sbuf);        
+    }
+
+    MyInUpdate = FALSE;
+    return dFrequency;
 }
+
+
+//Old RefreshControls (more generic, handles all situations according to current state)
+void UpdateEnabledState(HWND hDlg, BOOL bEnabled) 
+{
+    MyInUpdate = TRUE;
+
+    //That's a shortcut
+    BOOL enabledButMyInScan = (bEnabled && !MyInScan);
+    
+
+    //List box is always enabled
+    ListBox_Enable(GetDlgItem(hDlg, IDC_PROGRAMLIST), TRUE);
+
+    //Up and Down btn available when not scanning
+    //Previous behaviour was to be disabled them when clicking on custom order checkbox    
+    Button_Enable(GetDlgItem(hDlg, IDC_UP), enabledButMyInScan);
+    Button_Enable(GetDlgItem(hDlg, IDC_DOWN), enabledButMyInScan);
+    
+    Button_Enable(GetDlgItem(hDlg, IDC_SCAN_RADIO1), enabledButMyInScan);
+    Button_Enable(GetDlgItem(hDlg, IDC_SCAN_RADIO2), enabledButMyInScan);
+    
+    Button_Enable(GetDlgItem(hDlg, IDC_SETFREQ), enabledButMyInScan);    
+    Button_Enable(GetDlgItem(hDlg, IDC_CHANNEL_MUTE), bEnabled);
+
+    switch (MyScanMode) {
+    
+        case SCAN_MODE_PRESETS :            
+            Button_Enable(GetDlgItem(hDlg, IDC_CLEAR), enabledButMyInScan);
+            ComboBox_Enable(GetDlgItem(hDlg, IDC_CHANNEL), bEnabled);
+            Button_Enable(GetDlgItem(hDlg, IDC_SCAN), bEnabled);
+            Button_Enable(GetDlgItem(hDlg, IDC_CUSTOMCHANNELORDER), bEnabled);
+            Edit_Enable(GetDlgItem(hDlg, IDC_COUNTRY), bEnabled);
+
+            //Disable the whole AutoScan Panel
+            Edit_Enable(GetDlgItem(hDlg, IDC_SCAN_MIN_FREQ), FALSE);
+            Edit_Enable(GetDlgItem(hDlg, IDC_SCAN_MAX_FREQ), FALSE);
+            Edit_Enable(GetDlgItem(hDlg, IDC_SCAN_STEPS), FALSE);             
+            Button_Enable(GetDlgItem(hDlg, IDC_SCAN_AFC), FALSE);
+
+            Button_Enable(GetDlgItem(hDlg, IDC_ADD), enabledButMyInScan);
+            Button_Enable(GetDlgItem(hDlg, IDC_REMOVE), enabledButMyInScan);
+            break;
+
+        case SCAN_MODE_CUSTOM_ORDER :
+            //Disallow clearing the custom order settings
+            Button_Enable(GetDlgItem(hDlg, IDC_CLEAR), FALSE);            
+            ComboBox_Enable(GetDlgItem(hDlg, IDC_CHANNEL), FALSE);
+
+            //I dont really see the point of allowing scanning
+            //if we disallow modifying the list
+            Button_Enable(GetDlgItem(hDlg, IDC_SCAN), bEnabled);
+
+            Button_Enable(GetDlgItem(hDlg, IDC_CUSTOMCHANNELORDER), bEnabled);
+            Edit_Enable(GetDlgItem(hDlg, IDC_COUNTRY), bEnabled);
+            
+            //Disable the whole AutoScan Panel
+            //(I know it's a copy/paste, but it's easier than a
+            //smart algorithm)
+            Edit_Enable(GetDlgItem(hDlg, IDC_SCAN_MIN_FREQ), FALSE);
+            Edit_Enable(GetDlgItem(hDlg, IDC_SCAN_MAX_FREQ), FALSE);
+            Edit_Enable(GetDlgItem(hDlg, IDC_SCAN_STEPS), FALSE);             
+            Button_Enable(GetDlgItem(hDlg, IDC_SCAN_AFC), FALSE);
+
+            Button_Enable(GetDlgItem(hDlg, IDC_ADD), FALSE);
+            Button_Enable(GetDlgItem(hDlg, IDC_REMOVE), FALSE);            
+            break;
+    
+        case  SCAN_MODE_AUTOSCAN :
+            Button_Enable(GetDlgItem(hDlg, IDC_CLEAR), enabledButMyInScan);
+            ComboBox_Enable(GetDlgItem(hDlg, IDC_CHANNEL), bEnabled);
+            Button_Enable(GetDlgItem(hDlg, IDC_CUSTOMCHANNELORDER), FALSE);
+            Edit_Enable(GetDlgItem(hDlg, IDC_COUNTRY), FALSE);  
+
+            Edit_Enable(GetDlgItem(hDlg, IDC_SCAN_MIN_FREQ), enabledButMyInScan);
+            Edit_Enable(GetDlgItem(hDlg, IDC_SCAN_MAX_FREQ), enabledButMyInScan);
+            Edit_Enable(GetDlgItem(hDlg, IDC_SCAN_STEPS), enabledButMyInScan);
+            Button_Enable(GetDlgItem(hDlg, IDC_SCAN_AFC), enabledButMyInScan);
+
+            Button_Enable(GetDlgItem(hDlg, IDC_ADD), enabledButMyInScan);
+            Button_Enable(GetDlgItem(hDlg, IDC_REMOVE), enabledButMyInScan);            
+            break;
+    }
+
+#pragma message ("DScaler/ProgramList.cpp : Remove the following line when AFC is implemented in autoscan")    
+    Button_Enable(GetDlgItem(hDlg, IDC_SCAN_AFC), FALSE);
+    
+    MyInUpdate = FALSE;
+}
+
+//Called when user activates Freq Scanning
+void BeginScan(HWND hDlg) 
+{    
+    static char sbuf[256];
+
+    ASSERT(FALSE == MyInScan);
+    MyInScan = TRUE;
+    UpdateEnabledState(hDlg, TRUE);
+
+    //Audio_Mute();
+    Button_SetText(GetDlgItem(hDlg, IDC_SCAN), "Abort");
+    CurrentProgram = MyChannels.size();
+    
+    switch (MyScanMode) 
+    {
+        case SCAN_MODE_CUSTOM_ORDER :
+            PostMessage(hDlg, WM_SCAN_CUSTOM_ORDER, 0, 0);
+            break;
+
+        case SCAN_MODE_PRESETS :
+            PostMessage(hDlg, WM_SCAN_PRESET_FREQ, 0, 0);
+            break;
+
+        case SCAN_MODE_AUTOSCAN :                    
+            sbuf[255] = '\0';
+            Edit_GetText(GetDlgItem(hDlg, IDC_SCAN_MIN_FREQ), sbuf, 254);                    
+            DWORD minFrequency = (DWORD)(strtod(sbuf, '\0') * 1000000.0);                    
+
+            Edit_GetText(GetDlgItem(hDlg, IDC_SCAN_MAX_FREQ), sbuf, 254);                    
+            DWORD maxFrequency = (DWORD)(strtod(sbuf, '\0') * 1000000.0);
+        
+            PostMessage(hDlg, WM_SCAN_AUTO, minFrequency, maxFrequency);
+            break;
+    }    
+    UpdateEnabledState(hDlg, TRUE);
+}
+
+//Called when user aborts scan or 
+//when a WM_SCAN_ABORT is received
+void EndScan(HWND hDlg) 
+{
+    ASSERT(TRUE == MyInScan);
+    MyInScan = FALSE;
+
+    Button_SetText(GetDlgItem(hDlg, IDC_SCAN), "Scan");
+    if(MyChannels.size() > 0)
+    {
+        CurrentProgram = CurrentProgram = MyChannels.size()-1;
+        ListBox_SetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST), CurrentProgram);
+        Channel_Change(CurrentProgram);
+    }    
+    if (SCAN_MODE_AUTOSCAN != MyScanMode)
+    {
+        UpdateDetails(hDlg);
+    }
+    //Audio_Unmute();
+    UpdateEnabledState(hDlg, TRUE);
+}
+
 
 void ChangeChannelInfo(HWND hDlg)
 {
-    InUpdate = TRUE;
+    MyInUpdate = TRUE;
     char sbuf[265];
 
     if(CurrentProgram < MyChannels.size())
@@ -664,8 +844,10 @@ void ChangeChannelInfo(HWND hDlg)
         ListBox_InsertString(GetDlgItem(hDlg, IDC_PROGRAMLIST), CurrentProgram, sbuf);
         ListBox_SetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST), CurrentProgram);
     }
-    InUpdate = FALSE;
+    MyInUpdate = FALSE;
 }
+
+
 
 eVideoFormat SelectedVideoFormat(HWND hDlg)
 {
@@ -678,36 +860,75 @@ eVideoFormat SelectedVideoFormat(HWND hDlg)
     return (eVideoFormat)Format;
 }
 
+
+void CloseDialog(HWND hDlg, BOOL bCancelled)
+{
+    if (MyInScan)
+    {
+        EndScan(hDlg);
+    }
+
+    if (TRUE == bCancelled)
+    {       
+        Load_Program_List_ASCII(SZ_DEFAULT_PROGRAMS_FILENAME, &MyChannels);
+    }
+    else 
+    {
+        BOOL channelsSaved = FALSE;
+
+        while(!channelsSaved) 
+        {
+            channelsSaved = Write_Program_List_ASCII(SZ_DEFAULT_PROGRAMS_FILENAME, &MyChannels);
+            if (!channelsSaved)
+            {
+                CString dummy("Unable to write to file \n\""); 
+                dummy += SZ_DEFAULT_PROGRAMS_FILENAME;
+                dummy += "\"";
+                channelsSaved = (MessageBox(
+                               hDlg, 
+                               (LPCSTR)dummy, 
+                               "Cannot Save Channels!", 
+                               MB_RETRYCANCEL | MB_APPLMODAL | MB_ICONEXCLAMATION) 
+                             == IDCANCEL);
+                dummy.Empty();
+            }
+        }//while 
+        WriteSettingsToIni(TRUE);
+    }
+
+    Unload_Country_Settings(&MyCountries);
+    EndDialog(hDlg, TRUE);
+}
+
+
+
 BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
     int i;
     char sbuf[256];
-    static BOOL OldCustom;
+    static SCAN_MODE OldScanMode;
     static int OldCountryCode;
+    static BOOL OldIsAudioMuted;
 
     switch (message)
     {
-    case WM_INITDIALOG:
-        InScan = FALSE;
-        InUpdate = FALSE;
+    case WM_INITDIALOG:  
+        MyInScan = FALSE;
+        MyInUpdate = FALSE;
+                
+        OldScanMode = MyScanMode;
+        OldCountryCode = CountryCode;
+        OldIsAudioMuted = MyIsAudioMuted;
+
         SetCapture(hDlg);
-        RefreshControls(hDlg);
         ListBox_ResetContent(GetDlgItem(hDlg, IDC_PROGRAMLIST));
-        RefreshProgramList(hDlg, CurrentProgram);
-
-
+       
         WM_DRAGLISTMESSAGE = RegisterWindowMessage(DRAGLISTMSGSTRING);
         MakeDragList(GetDlgItem(hDlg, IDC_PROGRAMLIST));
         
-        OldCustom = bCustomChannelOrder;
-        OldCountryCode = CountryCode;
-        Button_SetCheck(GetDlgItem(hDlg, IDC_CUSTOMCHANNELORDER), bCustomChannelOrder?BST_CHECKED:BST_UNCHECKED);
-
-        SetFocus(GetDlgItem(hDlg, IDC_PROGRAMLIST)); 
-
         ScrollBar_SetRange(GetDlgItem(hDlg, IDC_FINETUNE), 0, 100, FALSE);
         ScrollBar_SetPos(GetDlgItem(hDlg, IDC_FINETUNE), 50, FALSE);
-
+        
         // fill the formats box
         ComboBox_AddString(GetDlgItem(hDlg, IDC_FORMAT), "Same as Tuner");
         for(i = 0; i < VIDEOFORMAT_LASTONE; ++i)
@@ -717,36 +938,64 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 		ComboBox_AddString(GetDlgItem(hDlg, IDC_FORMAT), "Tuner default");
 		ComboBox_AddString(GetDlgItem(hDlg, IDC_FORMAT), "FM Radio");
 
-        // load up the country settings
-        Load_Country_Settings();
-        if(Countries.size() > 0)
+        // load up the country settings and update the dialog controls 
+        // with country setting info if relevant
+        if (Load_Country_Settings(SZ_DEFAULT_CHANNELS_FILENAME, &MyCountries) && (MyCountries.size() > 0)) 
         {
             ComboBox_ResetContent(GetDlgItem(hDlg, IDC_COUNTRY));
             i = 0;
-            for(COUNTRYLIST::iterator it = Countries.begin(); 
-                it != Countries.end(); 
+            for(COUNTRYLIST::iterator it = MyCountries.begin(); 
+                it != MyCountries.end(); 
                 ++it)
             {
-                ComboBox_AddString(GetDlgItem(hDlg, IDC_COUNTRY), ((*it)->m_Name.c_str()));
+                ComboBox_AddString(GetDlgItem(hDlg, IDC_COUNTRY), ((*it)->GetName()));
                 i++;
             }
-            ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_COUNTRY), CountryCode);
             
+            switch (MyScanMode) 
+            {
+                case SCAN_MODE_CUSTOM_ORDER :
+                    Button_SetCheck(GetDlgItem(hDlg, IDC_SCAN_RADIO1), BST_CHECKED);                    
+                    Button_SetCheck(GetDlgItem(hDlg, IDC_CUSTOMCHANNELORDER), BST_CHECKED);
+                    //Refresh the listbox before displaying
+                    
+                    break;
+
+                case SCAN_MODE_PRESETS :
+                    Button_SetCheck(GetDlgItem(hDlg, IDC_SCAN_RADIO1), BST_CHECKED);                                                    
+                    break;
+
+                case SCAN_MODE_AUTOSCAN :                
+                    Button_SetCheck(GetDlgItem(hDlg, IDC_SCAN_RADIO2), BST_CHECKED);                    
+                    break;
+            }   
+            Button_SetCheck(GetDlgItem(hDlg, IDC_CHANNEL_MUTE), MyIsAudioMuted);
+            ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_COUNTRY), CountryCode);            
             RefreshChannelList(hDlg);
 
+            RefreshProgramList(hDlg, CountryCode);            
             // if we have any channels then also fill the details box with the current program
             UpdateDetails(hDlg);
+            UpdateAutoScanDetails(hDlg);
 
+            //This will trigger an event on IDC_COUNTRY            
+            SetFocus(GetDlgItem(hDlg, IDC_COUNTRY));
+            UpdateEnabledState(hDlg, TRUE);
         }
         else
-        {
-            ErrorBox("No countries Loaded, Channels.txt must be missing");
-            EndDialog(hDlg, 0);
+        {            
+            CString errorMessage("No MyCountries Loaded, \"");
+            errorMessage = errorMessage + SZ_DEFAULT_CHANNELS_FILENAME;
+            errorMessage = errorMessage + "\" must be missing or corrupted";
+            
+            ErrorBox((LPCSTR)errorMessage);
+            
+            errorMessage.Empty();
+            EndDialog(hDlg, 0);            
         }
         break;
-
     case WM_HSCROLL:
-        if(InUpdate == FALSE)
+        if(MyInUpdate == FALSE)
         {
             char* cLast;
             if(LOWORD(wParam) == SB_LEFT ||
@@ -782,52 +1031,71 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             }
         }
         break;
-    case WM_APP:
-        if(lParam == 101)
-        {
-            if(InScan == TRUE)
+
+    case WM_SCAN_CUSTOM_ORDER :
+        if (MyInScan == TRUE) {
+            ScanCustomChannel(hDlg, wParam);
+            if(wParam < MyChannels.size())
             {
-                if(bCustomChannelOrder)
-                {
-                    ScanCustomChannel(hDlg, wParam);
-                    if(wParam < MyChannels.size())
-                    {
-                        PostMessage(hDlg, WM_APP, wParam + 1, 101);
-                    }
-                    else
-                    {
-                        InScan = FALSE;
-                        PostMessage(hDlg, WM_APP, -1, 101);
-                    }
-                }
-                else
-                {
-                    ScanFrequency(hDlg, wParam);
-                    if(wParam < Countries[CountryCode]->m_Frequencies.size())
-                    {
-                        PostMessage(hDlg, WM_APP, wParam + 1, 101);
-                    }
-                    else
-                    {
-                        InScan = FALSE;
-                        PostMessage(hDlg, WM_APP, -1, 101);
-                    }
-                }
+                PostMessage(hDlg, WM_SCAN_CUSTOM_ORDER, wParam + 1, 0);
             }
             else
-            {
-                Button_SetText(GetDlgItem(hDlg, IDC_SCAN), "Scan");
-                if(MyChannels.size() > 0)
-                {
-                    CurrentProgram = CurrentProgram = MyChannels.size()-1;
-                    ListBox_SetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST), CurrentProgram);
-                    Channel_Change(CurrentProgram);
-                }
-                UpdateDetails(hDlg);
-                Audio_Unmute();
+            {          
+                EndScan(hDlg);                
             }
         }
         break;
+    
+    case WM_SCAN_PRESET_FREQ :
+        if (MyInScan == TRUE) {
+            ScanFrequency(hDlg, wParam);
+            if(wParam < MyCountries[CountryCode]->GetSize())
+            {
+                PostMessage(hDlg, WM_SCAN_PRESET_FREQ, wParam + 1, 0);
+            }
+            else
+            {
+                EndScan(hDlg);
+            }
+        }
+        break;
+    
+    case WM_SCAN_AUTO :
+        if (MyInScan == TRUE) {
+            
+            Edit_GetText(GetDlgItem(hDlg, IDC_SCAN_STEPS), sbuf, 254);
+            sbuf[255] = '\0';
+            DWORD step = (DWORD)strtol(sbuf, '\0', 10);
+            
+            DWORD newFrequency = AutoScanFrequency(hDlg, wParam);
+            
+            if ((newFrequency > 0) && (newFrequency < lParam))
+            {            
+                if (MyChannels.size() >= MAX_CHANNELS) 
+                {
+                    MessageBox(
+                            hDlg, 
+                            "Number of channels limit reached.\nRemove some channels before proceeding further", 
+                            "Channel Limit Reached", 
+                            MB_OK | MB_ICONINFORMATION | MB_APPLMODAL
+                            );                    
+                    PostMessage(hDlg, WM_SCAN_ABORT, 0, 0);                
+                }
+                else {
+                    PostMessage(hDlg, WM_SCAN_AUTO, newFrequency + step, lParam);                
+                }
+            }
+            else 
+            {                
+                PostMessage(hDlg, WM_SCAN_ABORT, 0, 0);
+            }
+        }
+        break;
+    
+    case WM_SCAN_ABORT :
+        EndScan(hDlg);
+        break;
+   
     case WM_VKEYTOITEM:
         if(LOWORD(wParam) == VK_DELETE && (HWND)lParam == GetDlgItem(hDlg, IDC_PROGRAMLIST))
         {
@@ -839,7 +1107,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         switch(LOWORD(wParam))
         {
         case IDC_PROGRAMLIST:
-            if (InUpdate == FALSE && HIWORD(wParam) == LBN_SELCHANGE)
+            if (MyInUpdate == FALSE && HIWORD(wParam) == LBN_SELCHANGE)
             {
                 i = ListBox_GetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST));
 
@@ -851,28 +1119,45 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 else
                 {
                     CurrentProgram = 0;
-                }
+                }                
                 UpdateDetails(hDlg);
+                UpdateAutoScanDetails(hDlg);
             }
             break;
 
-        case IDC_COUNTRY:
-            if(bCustomChannelOrder)
-            {
-                ResetProgramList(hDlg);
+        case IDC_COUNTRY:          
+            //prevent this event from being processed too often
+            //(You get a combo box change event on select, expand and display...)
+            if (CountryCode != ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_COUNTRY))) {
+                CountryCode = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_COUNTRY));
+                if (MyScanMode == SCAN_MODE_CUSTOM_ORDER) 
+                {
+                    ResetProgramList(hDlg, CountryCode);
+                }
+                else             
+                {
+                    RefreshChannelList(hDlg);
+                }
+                UpdateAutoScanDetails(hDlg);
+                UpdateEnabledState(hDlg, TRUE);             
             }
-            CountryCode = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_COUNTRY));
-            RefreshChannelList(hDlg);
             break;
 
         case IDC_CUSTOMCHANNELORDER:
-            bCustomChannelOrder = (Button_GetCheck(GetDlgItem(hDlg, IDC_CUSTOMCHANNELORDER)) == BST_CHECKED);
-            RefreshControls(hDlg);
-            ResetProgramList(hDlg);
+            if (Button_GetCheck(GetDlgItem(hDlg, IDC_CUSTOMCHANNELORDER)) == BST_CHECKED)
+            {
+                MyScanMode = SCAN_MODE_CUSTOM_ORDER;
+            }
+            else 
+            {
+                MyScanMode = SCAN_MODE_PRESETS;
+            }
+            ResetProgramList(hDlg, CountryCode);
+            UpdateEnabledState(hDlg, TRUE);            
             break;
 
         case IDC_CHANNEL:
-            if(InUpdate == FALSE && HIWORD(wParam) == CBN_SELCHANGE)
+            if(MyInUpdate == FALSE && HIWORD(wParam) == CBN_SELCHANGE)
             {
                 char sbuf[256];
                 // set the frequency
@@ -882,8 +1167,8 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 Channel = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CHANNEL), Channel);
                 if(Channel != 0)
                 {
-                    Freq = Countries[CountryCode]->m_Frequencies[Channel - Countries[CountryCode]->m_MinChannel].Freq;
-                    Format = Countries[CountryCode]->m_Frequencies[Channel - Countries[CountryCode]->m_MinChannel].Format;
+                    Freq = MyCountries[CountryCode]->GetFrequency(Channel - MyCountries[CountryCode]->GetMinChannel());
+                    Format = MyCountries[CountryCode]->GetFormat(Channel - MyCountries[CountryCode]->GetMinChannel());
                 }
                 sprintf(sbuf, "%10.4lf", Freq / 1000000.0);
                 Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY),sbuf);
@@ -895,7 +1180,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDC_SETFREQ:
-            if(InUpdate == FALSE)
+            if(MyInUpdate == FALSE)
             {
                 char* cLast;
                 Edit_GetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf, 255);
@@ -909,21 +1194,21 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDC_NAME:
-            if(InUpdate == FALSE)
+            if(MyInUpdate == FALSE)
             {
                 ChangeChannelInfo(hDlg);
             }
             break;
 
         case IDC_ACTIVE:
-            if(InUpdate == FALSE)
+            if(MyInUpdate == FALSE)
             {
                 ChangeChannelInfo(hDlg);
             }
             break;
 
         case IDC_FORMAT:
-            if(InUpdate == FALSE && HIWORD(wParam) == CBN_SELCHANGE)
+            if(MyInUpdate == FALSE && HIWORD(wParam) == CBN_SELCHANGE)
             {
                 Edit_GetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf, 255);
                 char* cLast;
@@ -936,7 +1221,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 
         case IDC_ADD:
             {
-                InUpdate = TRUE;
+                MyInUpdate = TRUE;
                 char* cLast;
                 Edit_GetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf, 255);
                 double dFreq = strtod(sbuf, &cLast);
@@ -950,7 +1235,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 MyChannels.push_back(new CChannel(sbuf, Freq, Channel, Format, Active));
                 CurrentProgram = ListBox_AddString(GetDlgItem(hDlg, IDC_PROGRAMLIST), sbuf);
                 ListBox_SetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST), CurrentProgram);
-                InUpdate = FALSE;
+                MyInUpdate = FALSE;
             }
             break;
         case IDC_REMOVE:
@@ -996,43 +1281,73 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 ListBox_SetTopIndex(GetDlgItem(hDlg, IDC_PROGRAMLIST), TopIndex);
             }
             break;
+
         case IDC_CLEAR:
-            if(!bCustomChannelOrder)
+            //Be polite and ask user
+            if (MessageBox(
+                        hDlg, 
+                        "Are you sure ?", 
+                        "Clear All", 
+                        MB_YESNO | MB_ICONQUESTION | MB_APPLMODAL)
+                    == IDYES)
             {
-                ResetProgramList(hDlg);
+                //The enabled state of this button tells us if we can clear or not
+                //no need to check any state
+                ResetProgramList(hDlg, CountryCode);
                 Edit_SetText(GetDlgItem(hDlg, IDC_NAME), "");
-                ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_FORMAT), 0);
+                //This selects "Same as tuner" on "Clear"
+                //I'm not sure this is really wanted (you may want to keep current settings)
+                //ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_FORMAT), 0);
             }
             break;
+
         case IDC_SCAN:
-            if(InScan == TRUE)
+            if(MyInScan == TRUE)
             {
-                InScan = FALSE;
-                PostMessage(hDlg, WM_APP, -1, 101);
+                EndScan(hDlg);
             }
             else
             {
-                InScan = TRUE;
-                Audio_Mute();
-                Button_SetText(GetDlgItem(hDlg, IDC_SCAN), "Cancel");
-                CurrentProgram = MyChannels.size();
-                PostMessage(hDlg, WM_APP, 0, 101);
+                BeginScan(hDlg);
             }
             break;
-        case IDOK:
-            Write_Program_List_ASCII();
-            Unload_Country_Settings();
-			WriteSettingsToIni(TRUE);
-            EndDialog(hDlg, TRUE);
+
+        case IDC_CHANNEL_MUTE :    
+            {
+                BOOL muteAudio = (Button_GetCheck(GetDlgItem(hDlg, IDC_CHANNEL_MUTE)) == BST_CHECKED);
+                MuteAudio(muteAudio);            
+            }
             break;
+
+        case IDOK:   
+            CloseDialog(hDlg, FALSE);            
+            break;
+
         case IDCANCEL:
-            bCustomChannelOrder = OldCustom;
+             //bCustomChannelOrder = OldCustom;
+            MyScanMode = OldScanMode;
             CountryCode = OldCountryCode;
-            Load_Program_List_ASCII();
-            Unload_Country_Settings();
-            EndDialog(hDlg, TRUE);
+            MyIsAudioMuted = OldIsAudioMuted;
+            CloseDialog(hDlg, TRUE);
+            break;
+
+        case IDC_SCAN_RADIO1 :
+            if (Button_GetCheck(GetDlgItem(hDlg, IDC_CUSTOMCHANNELORDER)) == BST_CHECKED)
+            {
+                MyScanMode = SCAN_MODE_CUSTOM_ORDER;
+            }
+            else {
+                MyScanMode = SCAN_MODE_PRESETS;
+            }
+            UpdateEnabledState(hDlg, TRUE);
+            break;
+
+        case IDC_SCAN_RADIO2 :
+            MyScanMode = SCAN_MODE_AUTOSCAN;
+            UpdateEnabledState(hDlg, TRUE);           
             break;
         }
+        
         break;
     }
 
@@ -1096,40 +1411,6 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
     return (FALSE);
 }
 
-// 
-// Save ascii formatted program list
-//
-// 9 Novemeber 2000 - Michael Eskin, Conexant Systems
-//
-// List is a simple text file with the following format:
-// Name <display_name>
-// Freq <frequency_KHz>
-// Name <display_name>
-// Freq <frequency_KHz>
-// ...
-//
-void Write_Program_List_ASCII()
-{
-    FILE* SettingFile;
-    CHANNELLIST::iterator it;
-    
-    if ((SettingFile = fopen("program.txt", "w")) != NULL)
-    {
-        for(it = MyChannels.begin(); it != MyChannels.end(); ++it)
-        {
-            fprintf(SettingFile, "Name: %s\n", (*it)->GetName());
-            //fprintf(SettingFile, "Freq2: %ld\n", MulDiv((*it)->GetFrequency(),16,1000000));
-            fprintf(SettingFile, "Freq: %ld\n", ((*it)->GetFrequency()/1000));
-            fprintf(SettingFile, "Chan: %d\n", (*it)->GetChannelNumber());
-            fprintf(SettingFile, "Active: %d\n", (*it)->IsActive());
-            if((*it)->GetFormat() != -1)
-            {
-                fprintf(SettingFile, "Form: %d\n", (*it)->GetFormat());
-            }
-        }
-        fclose(SettingFile);
-    }
-}
 
 void Channels_Exit()
 {
@@ -1141,132 +1422,6 @@ void Channels_Exit()
         delete (*it);
     }
     MyChannels.clear();
-}
-
-
-// 
-// Load ascii formatted program list
-//
-// 9 Novemeber 2000 - Michael Eskin, Conexant Systems
-//
-// List is a simple text file with the following format:
-// Name <display_name>
-// Freq <frequency_KHz>
-// Name <display_name>
-// Freq <frequency_KHz>
-// ...
-//
-
-void Load_Program_List_ASCII()
-{
-    char sbuf[256];
-    FILE* SettingFile;
-    CHANNELLIST::iterator it;
-    DWORD Frequency = -1;
-    int Channel = 1;
-    int Format = -1;
-    BOOL Active = TRUE;
-    string Name;
-
-    // Zero out the program list
-    for(it = MyChannels.begin(); it != MyChannels.end(); ++it)
-    {
-        delete (*it);
-    }
-    MyChannels.clear();
-
-    SettingFile = fopen("program.txt", "r");
-    if (SettingFile == NULL)
-    {
-        return;
-    }
-    while(!feof(SettingFile))
-    {
-        sbuf[0] = '\0';
-
-        fgets(sbuf, 255, SettingFile);
-
-        char* eol_ptr = strstr(sbuf, ";");
-        if (eol_ptr == NULL)
-        {
-            eol_ptr = strstr(sbuf, "\n");
-        }
-        if (eol_ptr != NULL)
-        {
-            *eol_ptr = '\0';
-        }
-
-
-        if(strnicmp(sbuf, "Name:", 5) == 0)
-        {
-            if(Frequency != -1)
-            {
-                MyChannels.push_back(new CChannel(Name.c_str(), Frequency, Channel, Format, Active));
-            }
-
-            // skip "Name:"
-            char* StartChar = sbuf + 5;
-
-            // skip any spaces
-            while(iswspace(*StartChar))
-            {
-                ++StartChar;
-            }
-            if(strlen(StartChar) > 0)
-            {
-                char* EndChar = StartChar + strlen(StartChar) - 1;
-                while(EndChar > StartChar && iswspace(*EndChar))
-                {
-                    *EndChar = '\0';
-                    --EndChar;
-                }
-                Name = StartChar;
-            }
-            else
-            {
-                Name = "Empty";
-            }
-            Frequency = -1;
-            ++Channel;
-            Format = -1;
-            Active = TRUE;
-        }
-        // cope with old style frequencies
-        else if(strnicmp(sbuf, "Freq:", 5) == 0)
-        {
-            Frequency = atol(sbuf + 5);           
-            Frequency = Frequency * 1000;
-        }
-        else if(strnicmp(sbuf, "Freq2:", 6) == 0)
-        {
-            Frequency = atol(sbuf + 6);
-            Frequency = MulDiv(Frequency, 1000000, 16);
-        }
-        else if(strnicmp(sbuf, "Chan:", 5) == 0)
-        {
-            Channel = atoi(sbuf + 5);
-        }
-        else if(strnicmp(sbuf, "Form:", 5) == 0)
-        {
-            Format = atoi(sbuf + 5);
-        }
-        else if(strnicmp(sbuf, "Active:", 7) == 0)
-        {
-            Active = (atoi(sbuf + 7) != 0);
-        }
-        else
-        {
-            ; //some other rubbish
-        }
-    }
-
-    if(Frequency != -1)
-    {
-        MyChannels.push_back(new CChannel(Name.c_str(), Frequency, Channel, Format, Active));
-    }
-
-    fclose(SettingFile);
-    return;
 }
 
 
@@ -1297,6 +1452,7 @@ static VOID CALLBACK PostSwitchMuteDelayTimerProc(
 void Channel_Change(int NewChannel, int DontStorePrevious)
 {
     eVideoFormat VideoFormat;
+    BOOL audioWasMuted = MyIsAudioMuted;
 
     if (Providers_GetCurrentSource()->HasTuner() == TRUE)
     {
@@ -1304,9 +1460,8 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
         {
             if (MyChannels[NewChannel]->GetFrequency() != 0)
             {
-				int OldChannel = CurrentProgram;
-                Audio_Mute();
-                Sleep(PreSwitchMuteDelay); // This helps reduce the static click noise.                
+				int OldChannel = CurrentProgram;                
+                MuteAudio(TRUE);             
                 if (EventCollector != NULL)
                 {
                     EventCollector->RaiseEvent(Providers_GetCurrentSource(), EVENT_CHANNEL_PRECHANGE, OldChannel, NewChannel);
@@ -1357,7 +1512,7 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
                 }
                 else
                 {
-                    Audio_Unmute(); 
+                    MuteAudio(audioWasMuted);//not FALSE because it'll overwrite user settings
                 }
 
                 if (EventCollector != NULL)
@@ -1492,7 +1647,7 @@ void Channel_ChangeToNumber(int ChannelNumber, int DontStorePrevious)
 {
     BOOL found = FALSE;
 
-    if (bCustomChannelOrder)
+    if (SCAN_MODE_CUSTOM_ORDER == MyScanMode)
     {
         // Find the channel the user typed.
         for (int j = 0; j < MyChannels.size(); ++j)
@@ -1529,123 +1684,6 @@ void Channel_ChangeToNumber(int ChannelNumber, int DontStorePrevious)
     }
 }
 
-void Unload_Country_Settings()
-{
-    COUNTRYLIST::iterator it;
-
-    // Zero out the program list
-    for(it = Countries.begin(); it != Countries.end(); ++it)
-    {
-        delete (*it);
-    }
-    Countries.clear();
-}
-
-int StrToVideoFormat(char* pszFormat)
-{
-    for(int a = 0; a < VIDEOFORMAT_LASTONE; ++a)
-    {
-        if(!stricmp(pszFormat, VideoFormatNames[a]))
-        {
-            return a;
-        }  
-    }
-   
-    return -1;
-}
-
-void Load_Country_Settings()
-{
-    FILE*     CountryFile;
-    char      line[128];
-    char*     Pos;
-    char*     Pos1;
-    char*     eol_ptr;
-    string    Name;
-    CCountry* NewCountry = NULL;
-    int       Format = -1;
-
-    if ((CountryFile = fopen("Channel.txt", "r")) == NULL)
-    {
-        ErrorBox("File Channel.txt not Found");
-        return;
-    }
-
-    while (fgets(line, sizeof(line), CountryFile) != NULL)
-    {
-        eol_ptr = strstr(line, ";");
-        if (eol_ptr == NULL)
-        {
-            eol_ptr = strstr(line, "\n");
-        }
-        if(eol_ptr != NULL)
-        {
-            *eol_ptr = '\0';
-        }
-        if(eol_ptr == line)
-        {
-            continue;
-        }
-        if(((Pos = strstr(line, "[")) != 0) && ((Pos1 = strstr(line, "]")) != 0) && Pos1 > Pos)
-        {
-            if(NewCountry != NULL)
-            {
-                Countries.push_back(NewCountry);
-            }
-            Pos++;
-            NewCountry = new CCountry();
-            NewCountry->m_Name = Pos;
-            NewCountry->m_Name[Pos1-Pos] = '\0';
-            Format = -1;
-        }
-        else
-        {
-            if (NewCountry == NULL)
-            {
-                fclose(CountryFile);
-                ErrorBox("Invalid Channel.txt");
-                return;
-            }
-            
-            if ((Pos = strstr(line, "ChannelLow=")) != 0)
-            {
-                NewCountry->m_MinChannel = atoi(Pos + strlen("ChannelLow="));
-            }
-            else if ((Pos = strstr(line, "ChannelHigh=")) != 0)
-            {
-                NewCountry->m_MaxChannel = atoi(Pos + strlen("ChannelHigh="));
-            }
-            else if ((Pos = strstr(line, "Format=")) != 0)
-            {
-                Format = StrToVideoFormat(Pos + strlen("Format="));
-            }
-            else
-            {
-                Pos = line;
-                while (*Pos != '\0')
-                {
-                    if ((*Pos >= '0') && (*Pos <= '9'))
-                    {                        
-                        TCountryChannel Channel;
-                        Channel.Freq = atol(Pos);
-                        // convert frequency in KHz to Units that the tuner wants
-                        //Channel.Freq = MulDiv(Channel.Freq, 16, 1000000);
-                        Channel.Format = Format;
-                        NewCountry->m_Frequencies.push_back(Channel);
-                        break;
-                    }
-                    Pos++;
-                }
-            }
-        }
-    }
-    if(NewCountry != NULL)
-    {
-        Countries.push_back(NewCountry);
-    }
-
-    fclose(CountryFile);
-}
 
 void Channels_UpdateMenu(HMENU hMenu)
 {
@@ -1668,7 +1706,7 @@ void Channels_UpdateMenu(HMENU hMenu)
     }
     
     j = 0;
-    for (it = MyChannels.begin(); it != MyChannels.end() && (j < MAXPROGS); ++it)
+    for (it = MyChannels.begin(); it != MyChannels.end() && (j < MAX_CHANNELS); ++it)
     {
         if (((*it)->GetFrequency() != 0) && (*it)->IsActive() )
         {
@@ -1710,7 +1748,7 @@ void Channels_SetMenu(HMENU hMenu)
     EnableMenuItem(hMenuChannels, IDM_CHANNEL_LIST, bHasTuner?MF_ENABLED:MF_GRAYED);
 
     i = j = 0;
-    for (it = MyChannels.begin(); it != MyChannels.end() && (j < MAXPROGS); ++it)
+    for (it = MyChannels.begin(); it != MyChannels.end() && (j < MAX_CHANNELS); ++it)
     {
         if (((*it)->GetFrequency() != 0) && (*it)->IsActive() )
         {
@@ -1746,12 +1784,12 @@ BOOL ProcessProgramSelection(HWND hWnd, WORD wMenuID)
     int i, j;
     CHANNELLIST::iterator it;
 
-    if ( (wMenuID >= IDM_CHANNEL_SELECT) && (wMenuID < (IDM_CHANNEL_SELECT+MAXPROGS)) )
+    if ( (wMenuID >= IDM_CHANNEL_SELECT) && (wMenuID < (IDM_CHANNEL_SELECT+MAX_CHANNELS)) )
     {
         if (Providers_GetCurrentSource()->IsInTunerMode())
         {
             i = j = 0;
-            for (it = MyChannels.begin(); it != MyChannels.end() && (j < MAXPROGS); ++it)
+            for (it = MyChannels.begin(); it != MyChannels.end() && (j < MAX_CHANNELS); ++it)
             {
                 if (((*it)->GetFrequency() != 0) && (*it)->IsActive() )
                 {
@@ -1796,16 +1834,17 @@ SETTING ChannelsSettings[CHANNELS_SETTING_LASTONE] =
     },
     {
         "Current Program", SLIDER, 0, (long*)&CurrentProgram,
-        0, 0, MAXPROGS, 1, 1,
+        0, 0, MAX_CHANNELS, 1, 1,
         NULL,
         "Show", "LastProgram", CurrentProgram_OnChange,
     },
-    {
+#pragma message ("DScaler/ProgramList.cpp : (DB) I dont know what to do with this")
+   /* {
         "Custom Channel Order", ONOFF, 0, (long*)&bCustomChannelOrder,
         FALSE, 0, 1, 1, 1,
         NULL,
         "Show", "CustomChannelOrder", NULL,
-    },    
+    }, */   
 };
 
 SETTING* Channels_GetSetting(CHANNELS_SETTING Setting)

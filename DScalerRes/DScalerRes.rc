@@ -331,7 +331,7 @@ BEGIN
     PUSHBUTTON      "&Default",IDC_DEFAULT,113,161,45,15
 END
 
-IDD_AUDIOSETTINGS DIALOG DISCARDABLE  0, 0, 170, 233
+IDD_AUDIOSETTINGS DIALOG DISCARDABLE  0, 0, 170, 250
 STYLE DS_SYSMODAL | DS_SETFOREGROUND | DS_3DLOOK | WS_POPUP | WS_VISIBLE | 
     WS_CAPTION | WS_SYSMENU
 CAPTION "Audio-Settings (Analog)"
@@ -360,9 +360,11 @@ BEGIN
                     WS_DISABLED
     CONTROL         "Slider6",IDC_SLIDER6,"msctls_trackbar32",TBS_TOP | 
                     WS_TABSTOP,7,178,152,15
-    PUSHBUTTON      "Cancel",IDCANCEL,5,211,45,15
-    PUSHBUTTON      "Default",IDC_DEFAULT,62,211,45,15
-    DEFPUSHBUTTON   "OK",IDOK,118,211,45,15
+    CONTROL         "Activate Superbass",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,32,208,115,12
+    PUSHBUTTON      "Cancel",IDCANCEL,61,228,45,15
+    PUSHBUTTON      "Default",IDC_DEFAULT,118,228,45,15
+    DEFPUSHBUTTON   "OK",IDOK,7,228,45,15
     CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,61,7,45,150
     CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,118,7,45,150
 END
@@ -755,11 +757,11 @@ BEGIN
     POPUP "&Channels"
     BEGIN
         MENUITEM "Channel &Setup\tHome",        IDM_CHANNEL_LIST
-        MENUITEM "&Channel Select",             IDM_CHANNEL_SELECT
+        MENUITEM "Channel S&elect",             IDM_CHANNEL_SELECT
         MENUITEM SEPARATOR
         MENUITEM "&Next Channel\tPgUp",         IDM_CHANNELPLUS
         MENUITEM "&Previous Channel\tPgDn",     IDM_CHANNELMINUS
-        MENUITEM "L&ast Channel\tCtrl+Backspace", IDM_CHANNEL_PREVIOUS
+        MENUITEM "&Last Channel\tCtrl+Backspace", IDM_CHANNEL_PREVIOUS
     END
     POPUP "&View"
     BEGIN
@@ -866,7 +868,7 @@ BEGIN
             MENUITEM "4x",                          IDM_ZOOM_40
         END
     END
-    POPUP "&Settings"
+    POPUP "S&ettings"
     BEGIN
         MENUITEM "Audio-Mi&xer Setup",          IDM_AUDIO_MIXER
         POPUP "&Deinterlace Mode"
@@ -901,7 +903,6 @@ BEGIN
         BEGIN
             MENUITEM "Groups of Settings",          IDM_SHOW_SCREEN, GRAYED
             MENUITEM "&Adjustment ...",             IDM_OVERLAYSETTINGS
-            MENUITEM "Show &Patterns",              IDM_SHOW_PATTERNS
             MENUITEM "St&op",                       IDM_OVERLAY_STOP
             MENUITEM "St&art",                      IDM_OVERLAY_START
         END
@@ -922,7 +923,7 @@ BEGIN
         MENUITEM "Auto Format Detection",       IDM_AUTO_FORMAT
         MENUITEM "&Keyboard lock\tCtrl+Shift+L", IDM_KEYBOARDLOCK
     END
-    MENUITEM "Source",                      IDM_SHOW_SCREEN
+    MENUITEM "&Sources",                    IDM_SHOW_SCREEN
     MENUITEM "Holder",                      IDM_SHOW_SCREEN
     POPUP "&Datacasting"
     BEGIN
@@ -1027,14 +1028,13 @@ BEGIN
     BEGIN
         MENUITEM "&Sources",                    IDM_POPUP_SOURCES
         MENUITEM "So&urce",                     IDM_POPUP_SOURCES
+        MENUITEM "&Open...",                    IDM_OPEN_FILE
         MENUITEM "&Channels",                   IDM_CHANNEL_SELECT
-        MENUITEM "Deinterlace &Mode",           IDM_POPUP_SOURCES
-        MENUITEM "Aspect &Ratio",               IDM_POPUP_SOURCES
-        MENUITEM "Fi&lters",                    IDM_POPUP_FILTERS
-        MENUITEM "&Video Adjustments ...",      IDM_VIDEOSETTINGS
+        MENUITEM "&Aspect Ratio",               IDM_POPUP_SOURCES
+        MENUITEM "S&ettings",                   IDM_POPUP_SOURCES
         MENUITEM "&Datacasting",                IDM_POPUP_SOURCES
-        MENUITEM "&OSD",                        IDM_POPUP_SOURCES
-        MENUITEM "Full &Screen",                IDM_FULL_SCREEN
+        MENUITEM "OSD",                         IDM_POPUP_SOURCES
+        MENUITEM "&Full Screen",                IDM_FULL_SCREEN
         MENUITEM "E&xit",                       IDM_END
     END
 END
@@ -1204,7 +1204,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 163
         TOPMARGIN, 7
-        BOTTOMMARGIN, 226
+        BOTTOMMARGIN, 243
     END
 
     IDD_AUDIOEQUALIZER, DIALOG

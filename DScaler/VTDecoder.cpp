@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDecoder.cpp,v 1.5 2003-01-07 07:37:38 atnak Exp $
+// $Id: VTDecoder.cpp,v 1.6 2003-01-08 00:23:40 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,6 +44,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2003/01/07 07:37:38  atnak
+// Fixed page subcodes
+//
 // Revision 1.4  2003/01/05 16:09:44  atnak
 // Updated TopText for new teletext
 //
@@ -842,16 +845,16 @@ BOOL CVTDecoder::HighGranularityLineCache(TVTPage* pPage, BYTE nRow, BYTE* pSour
         }
     }
 
-    pPage->LineState[i] = CACHESTATE_HASDATA;
+    pPage->LineState[nRow] = CACHESTATE_HASDATA;
 
     if (bLineUpdated != FALSE)
     {
-        pPage->LineState[i] |= CACHESTATE_UPDATED;
+        pPage->LineState[nRow] |= CACHESTATE_UPDATED;
     }
 
     if (bHasError != FALSE)
     {
-        pPage->LineState[i] |= CACHESTATE_HASERROR;
+        pPage->LineState[nRow] |= CACHESTATE_HASERROR;
     }
 
     return bLineUpdated;

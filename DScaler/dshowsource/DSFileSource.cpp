@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSFileSource.cpp,v 1.11 2003-08-11 22:49:27 laurentg Exp $
+// $Id: DSFileSource.cpp,v 1.12 2003-08-12 08:56:56 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2003/08/11 22:49:27  laurentg
+// Time slider in the media player toolbar
+//
 // Revision 1.10  2003/07/22 22:30:20  laurentg
 // Correct handling of pause (P key) for video file playing
 //
@@ -71,6 +74,7 @@
 #include "AspectRatio.h"
 #include "TreeSettingsDlg.h"
 #include "DSAudioDevicePage.h"
+#include "OSD.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -282,6 +286,7 @@ void CDSFileSource::Pause()
 		{
 			ErrorBox(CString("Pause failed\n\n")+e.getErrorText());
 		}
+		OSD_ShowText("Pause", 0);
 	}
 }
 
@@ -298,6 +303,7 @@ void CDSFileSource::UnPause()
 		{
 			ErrorBox(CString("Play failed\n\n")+e.getErrorText());
 		}
+		OSD_ShowText("Play", 0);
 	}
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.cpp,v 1.19 2003-08-10 11:55:01 tobbej Exp $
+// $Id: DSSourceBase.cpp,v 1.20 2003-08-12 08:56:56 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2003/08/10 11:55:01  tobbej
+// implemented the base for seeking in files
+//
 // Revision 1.18  2003/07/22 22:30:20  laurentg
 // Correct handling of pause (P key) for video file playing
 //
@@ -101,6 +104,7 @@
 #include "DebugLog.h"
 #include "TreeSettingsDlg.h"
 #include "TreeSettingsOleProperties.h"
+#include "OSD.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -342,6 +346,7 @@ BOOL CDSSourceBase::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 			{
 				ErrorBox(CString("Play failed\n\n")+e.getErrorText());
 			}
+			OSD_ShowText("Play", 0);
 		}
 		return TRUE;
 		break;
@@ -399,6 +404,7 @@ BOOL CDSSourceBase::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		{
 			SendMessage(hWnd, WM_COMMAND, IDM_CAPTURE_PAUSE, 0);
 		}
+		OSD_ShowText("Stop", 0);
 		return TRUE;
 		break;
 	case IDM_DSHOW_FILTERS:

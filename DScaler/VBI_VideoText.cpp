@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.30 2002-01-15 11:16:03 temperton Exp $
+// $Id: VBI_VideoText.cpp,v 1.31 2002-01-15 20:25:45 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2002/01/15 11:16:03  temperton
+// New teletext drawing code.
+//
 // Revision 1.29  2002/01/12 16:56:21  adcockj
 // Series of fixes to bring 4.0.0 into line with 3.1.1
 //
@@ -205,9 +208,6 @@ TVTPage VisiblePage;
 
 #define GetBit(val,bit,mask) (BYTE)(((val)>>(bit))&(mask))
 
-BITMAPINFO* VTCharSet = NULL;
-BITMAPINFO* VTScreen = NULL;
-
 eVTState VTState = VT_OFF;
 
 typedef struct
@@ -294,36 +294,11 @@ void VBI_VT_Init()
 
     VTPage = 100;
     VT_ChannelChange();
-
-    VTScreen = (BITMAPINFO*) calloc(1, sizeof(BITMAPINFOHEADER) + sizeof(WORD) * 256 + VT_LARGE_BITMAP_WIDTH * 2 * VT_LARGE_BITMAP_HEIGHT);
-    VTScreen->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-    VTScreen->bmiHeader.biWidth = VT_LARGE_BITMAP_WIDTH;
-    VTScreen->bmiHeader.biHeight = VT_LARGE_BITMAP_HEIGHT;
-    VTScreen->bmiHeader.biPlanes = 1;
-    VTScreen->bmiHeader.biBitCount = 16;
-    VTScreen->bmiHeader.biCompression = BI_RGB;
-    VTScreen->bmiHeader.biSizeImage = VTScreen->bmiHeader.biWidth * VTScreen->bmiHeader.biHeight * VTScreen->bmiHeader.biBitCount / 8;
-    VTScreen->bmiHeader.biXPelsPerMeter = 0;
-    VTScreen->bmiHeader.biYPelsPerMeter = 0;
-    VTScreen->bmiHeader.biClrUsed = 0;
-    VTScreen->bmiHeader.biClrImportant = 0;
 }
 
 void VBI_VT_Exit()
 {
     int a;
-
-    if(VTScreen != NULL)
-    {
-        free(VTScreen);
-        VTScreen = NULL;
-    }
-    
-    if(VTCharSet != NULL)
-    {
-        DeleteObject(VTCharSet);
-        VTCharSet = NULL;
-    }
 
     for (a = 0; a < 800; a++)
     {
@@ -957,40 +932,7 @@ BOOL APIENTRY VTInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 
 void VT_SetCodePage(eVTCodePage Codepage)
 {
-    if(VTCharSet != NULL)
-    {
-        DeleteObject(VTCharSet);
-        VTCharSet = NULL;
-    }
     VTCodePage = Codepage;
-    switch(Codepage)
-    {
-    case VT_GREEK_CODE_PAGE:
-        VTCharSet = (BITMAPINFO *)LoadResource(hDScalerInst, FindResource(hDScalerInst, MAKEINTRESOURCE(IDB_GREEK_VTCHARS), RT_BITMAP));
-        break;
-    case VT_CZECH_CODE_PAGE:
-        VTCharSet = (BITMAPINFO *)LoadResource(hDScalerInst, FindResource(hDScalerInst, MAKEINTRESOURCE(IDB_CZECH_VTCHARS), RT_BITMAP));
-        break;
-    case VT_FRENCH_CODE_PAGE:
-        VTCharSet = (BITMAPINFO *)LoadResource(hDScalerInst, FindResource(hDScalerInst, MAKEINTRESOURCE(IDB_FRENCH_VTCHARS), RT_BITMAP));
-        break;
-    case VT_RUSSIAN_CODE_PAGE:
-        VTCharSet = (BITMAPINFO *)LoadResource(hDScalerInst, FindResource(hDScalerInst, MAKEINTRESOURCE(IDB_RUSSIAN_VTCHARS), RT_BITMAP));
-        break;
-    case VT_GERMAN_CODE_PAGE:
-        VTCharSet = (BITMAPINFO *)LoadResource(hDScalerInst, FindResource(hDScalerInst, MAKEINTRESOURCE(IDB_GERMAN_VTCHARS), RT_BITMAP));
-        break;
-    case VT_HUNGARIAN_CODE_PAGE:
-        VTCharSet = (BITMAPINFO *)LoadResource(hDScalerInst, FindResource(hDScalerInst, MAKEINTRESOURCE(IDB_HUNGARIAN_VTCHARS), RT_BITMAP));
-        break;
-    case VT_HEBREW_CODE_PAGE:
-        VTCharSet = (BITMAPINFO *)LoadResource(hDScalerInst, FindResource(hDScalerInst, MAKEINTRESOURCE(IDB_HEBREW_VTCHARS), RT_BITMAP));
-        break;
-    case VT_UK_CODE_PAGE:
-    default:
-        VTCharSet = (BITMAPINFO *)LoadResource(hDScalerInst, FindResource(hDScalerInst, MAKEINTRESOURCE(IDB_VTCHARS), RT_BITMAP));
-        break;
-    }
 }
 
 SETTING VTSettings[VT_SETTING_LASTONE] =

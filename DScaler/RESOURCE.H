@@ -14,8 +14,6 @@
 #define IDI_DSCALER                     109
 #define IDB_HEBREW_VTCHARS              111
 #define IDB_HUNGARIAN_VTCHARS           112
-#define IDB_SWEDISH_VTCHARS             113
-#define IDB_ITALIAN_VTCHARS             114
 
 // Next default values for new objects
 // 

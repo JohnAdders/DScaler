@@ -74,14 +74,6 @@ END
 //
 
 IDB_STARTUP             BITMAP  DISCARDABLE     "res\\STARTUP.bmp"
-IDB_VTCHARS             BITMAP  DISCARDABLE     "res\\Vtx15x18.bmp"
-IDB_FRENCH_VTCHARS      BITMAP  DISCARDABLE     "RES\\VTFRENCHX15X18.BMP"
-IDB_CZECH_VTCHARS       BITMAP  DISCARDABLE     "RES\\VTCZECHX15X18.bmp"
-IDB_RUSSIAN_VTCHARS     BITMAP  DISCARDABLE     "RES\\VTRUSSIANX15X18.bmp"
-IDB_GERMAN_VTCHARS      BITMAP  DISCARDABLE     "RES\\VTGERMANX15X18.BMP"
-IDB_GREEK_VTCHARS       BITMAP  DISCARDABLE     "RES\\VTGREEKX15X18.BMP"
-IDB_HEBREW_VTCHARS      BITMAP  DISCARDABLE     "RES\\VTHEBREWX15X18.bmp"
-IDB_HUNGARIAN_VTCHARS   BITMAP  DISCARDABLE     "RES\\VTHUNGARIANX15X18.bmp"
 
 #ifndef _MAC
 /////////////////////////////////////////////////////////////////////////////
@@ -129,26 +121,6 @@ END
 #endif    // !_MAC
 
 #endif    // English (U.S.) resources
-/////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////////////////////
-// English (U.K.) resources
-
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENG)
-#ifdef _WIN32
-LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
-#pragma code_page(1252)
-#endif //_WIN32
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Bitmap
-//
-
-IDB_SWEDISH_VTCHARS     BITMAP  DISCARDABLE     "RES\\VTSWEDISHX15X18.bmp"
-IDB_ITALIAN_VTCHARS     BITMAP  DISCARDABLE     "RES\\VTITALIANX15X18.bmp"
-#endif    // English (U.K.) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

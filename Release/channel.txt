@@ -1598,6 +1598,60 @@ Format=NTSC-M-Japan
    753250000
    759250000
    765250000
+   
+[Magyar UPC Frekvenciái(Eger)] 
+ChannelLow=1 
+ChannelHigh=50 
+49750000 ; Városi TV 
+59250000 ; m2 
+76250000 ; Duna TV 
+84250000 ; m1 
+93250000 ; Helyi képújság* 
+135250000 ; CNN 
+143250000 ; VIVA+ 
+151250000 ; TV5 
+159250000 ; Club 
+167250000 ; Képhír 
+175250000 ; PRO7 
+183250000 ; SATeLIT 
+199250000 ; Reality TV 
+207250000 ; SAT1 
+215250000 ; Eurosport 
+223250000 ; HBO 
+231250000 ; National Geographic 
+239250000 ; Filmmúzeum 
+247250000 ; RTL2 
+255250000 ; Képhír 
+263250000 ; RTL 
+271250000 ; MTV Europe 
+279250000 ; Cartoon Network 
+287250000 ; Animal Planet 
+295250000 ; Rai Uno 
+303250000 ; Fox Kids 
+311250000 ; Minimax 
+319250000 ; Mezzo 
+327250000 ; Extreme Sports 
+335250000 ; Discovery Travel & Adventure 
+343250000 ; BBC Prime 
+375250000 ; Discovery Sci-Trek 
+383250000 ; Fashion TV/ Private Blue 
+391250000 ; Private Gold 
+399250000 ; Avante 
+407250000 ; HBO 
+415250000 ; Hallmark 
+423250000 ; SPORT1 
+471250000 ; Spektrum 
+479250000 ; NTV 
+487250000 ; 3SAT 
+495250000 ; TV E 
+503250000 ; tv2 
+511250000 ; Travel Channel 
+519250000 ; RTL Klub 
+527250000 ; Romantica 
+535250000 ; Magyar ATV 
+543250000 ; Discovery Channel 
+551250000 ; VIASAT3 
+559250000 ; Mozaik
 
 [New Zealand Air Frequency] 
 ChannelLow=1 

@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.h,v 1.19 2002-09-17 17:58:29 kooiman Exp $
+// $Id: MSP34x0.h,v 1.20 2002-09-27 14:14:22 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2002/09/17 17:58:29  kooiman
+// Small additions/fixes.
+//
 // Revision 1.18  2002/09/16 14:37:36  kooiman
 // Added stereo autodetection.
 //
@@ -283,7 +286,11 @@ public:
     long GetAudioStandardMinorCarrier(long Standard);
     void SetAudioStandardCarriers(long MajorCarrier, long MinorCarrier);
     long GetAudioStandardFromVideoFormat(eVideoFormat videoFormat);
-    void DetectAudioStandard(long Interval, int SupportedSoundChannels, void *pThis, void (*pfnDetected)(void *pThis, int what, long Value));
+    void DetectAudioStandard(long Interval, int SupportedSoundChannels, eSoundChannel TargetChannel);
+
+    LPCSTR GetAudioDecoderID();
+    int SetAudioDecoderValue(int What, long Val);
+    long GetAudioDecoderValue(int What);
 
 	BOOL HasEqualizer() { return m_bHasEqualizer; }
 	BOOL HasDolby() { return m_bHasDolby; }
@@ -371,7 +378,7 @@ private:
 	    eStandard       Standard;
 	    eCarrier        MajorCarrier;
         eCarrier        MinorCarrier;
-        eMonoType       MonoType;
+		eMonoType       MonoType;
         eStereoType     StereoType;
         eFIRType        FIRType;
     } TStandardDefinition;
@@ -432,8 +439,8 @@ private:
     void Initialize34x1G();
     eStandard DetectStandard34x1G();
     eSupportedSoundChannels DetectSoundChannels34x1G();
-    void SetStandard34x1G(eStandard standard, eVideoFormat videoformat);
-    void SetSoundChannel34x1G(eSoundChannel soundChannel);
+    void SetStandard34x1G(eStandard standard, eVideoFormat videoformat, BOOL bWasDetected = FALSE);
+    void SetSoundChannel34x1G(eSoundChannel soundChannel, BOOL bStartOfDetection = FALSE);
     void SetCarrier34x1G(eCarrier MajorCarrier, eCarrier MinorCarrier);
 
     // Detect thread
@@ -441,6 +448,8 @@ private:
     bool m_bStopThread;
     void StartThread();
     void StopThread();
+    CRITICAL_SECTION MSP34xxCriticalSection;
+    BOOL m_ThreadWait;
 
     int  m_AutoDetecting;
     long m_DetectCounter;
@@ -456,14 +465,20 @@ private:
 	BOOL m_bHasDolby;    
     BOOL m_ForceAMSound;
     BOOL m_ForceVersionA;
+    BOOL m_ForceVersionD;
+    BOOL m_ForceVersionG;
+    BOOL m_ForceHasEqualizer;
     BOOL m_KeepWatchingStereo;
     BOOL m_DetectSupportedSoundChannels;
     eSupportedSoundChannels m_SupportedSoundChannels;
+    eSoundChannel m_TargetSoundChannel;
+    bool m_bUseInputPin1;        
+
     static TStandardDefinition m_MSPStandards[];
     static TFIRType            m_FIRTypes[];
     static WORD m_ScartMasks[MSP34x0_SCARTOUTPUT_LASTONE][MSP34x0_SCARTINPUT_LASTONE + 1];
     static TCarrierDetect CarrierDetectTable[];
-    bool m_bUseInputPin1;
+    
 };
 
 #endif // !defined(__MSP34X0_H__)

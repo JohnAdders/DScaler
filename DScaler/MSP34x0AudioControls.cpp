@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0AudioControls.cpp,v 1.2 2002-09-15 15:58:33 kooiman Exp $
+// $Id: MSP34x0AudioControls.cpp,v 1.3 2002-09-27 14:14:22 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/09/15 15:58:33  kooiman
+// Added Audio standard detection & some MSP fixes.
+//
 // Revision 1.1  2002/09/12 21:44:27  ittarnavsky
 // split the MSP34x0 in two files one for the AudioControls the other foe AudioDecoder
 //
@@ -154,7 +157,7 @@ WORD CMSP34x0AudioControls::GetEqualizerLevel(WORD nIndex)
 
 void CMSP34x0AudioControls::SetEqualizerLevel(WORD nIndex, WORD nLevel)
 {
-    if (nIndex < 0)
+    if ((nIndex < 0) || (nIndex>32767))
 	{
 		//Enable/disable equalizer	
 		//Disable means: bass & treble control is active

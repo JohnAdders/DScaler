@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingGroup.cpp,v 1.4 2004-08-14 13:45:23 adcockj Exp $
+// $Id: SettingGroup.cpp,v 1.5 2004-08-20 07:30:31 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2004/08/14 13:45:23  adcockj
+// Fixes to get new settings code working under VS6
+//
 // Revision 1.3  2004/08/13 08:52:30  atnak
 // Added a function for getting a setting's title.
 //
@@ -92,6 +95,25 @@ HSETTING CSettingGroup::AddSetting(IN PSETTINGOBJECT object, IN PSETTINGKEY key)
 }
 
 
+HSETTING CSettingGroup::AddSetting(IN std::string title, IN PSETTINGOBJECT object, IN PSETTINGKEY key)
+{
+	if (object == NULL)
+	{
+		return NULL;
+	}
+
+	PSETTINGINFO info = new CSettingInfo(key, object, title);
+	if (info == NULL)
+	{
+		OUT_OF_MEMORY_ERROR;
+	}
+	EnterLock();
+	AddSetting(info);
+	LeaveLock();
+	return (HSETTING)info;
+}
+
+
 void CSettingGroup::SetNotifyProc(IN PSETTINGGROUP_NOTIFYPROC proc, IN PVOID context)
 {
 	EnterLock();
@@ -147,6 +169,27 @@ void CSettingGroup::LoadSetting(IN HSETTING setting)
 }
 
 
+void CSettingGroup::Silence(IN BOOL silence)
+{
+	EnterLock();
+	m_silent = silence;
+	LeaveLock();
+}
+
+
+void CSettingGroup::ReviseSettings()
+{
+	BULKCHANGELIST bulklist;
+
+	EnterLock();
+	// Run through the settings and notify SETTING for each one
+	ReviseBulkSettings(&bulklist);
+	// Notify the SET on all that was SETTING notified.
+	CommonPostChangeRoutine(&bulklist);
+	LeaveLock();
+}
+
+
 PSETTINGKEY CSettingGroup::GetSettingKey(IN HSETTING setting)
 {
 	PSETTINGINFO info = (PSETTINGINFO)setting;
@@ -157,16 +200,45 @@ PSETTINGKEY CSettingGroup::GetSettingKey(IN HSETTING setting)
 std::string CSettingGroup::GetSettingTitle(IN HSETTING setting)
 {
 	PSETTINGINFO info = (PSETTINGINFO)setting;
+	std::string title;
 
-	if (info->key != NULL)
+	EnterLock();
+	if (info->title != "")
 	{
-		std::string title = info->key->GetTitle();
-		if (title != "")
-		{
-			return title;
-		}
+		title = info->title;
 	}
-	return info->object->GetTitle();
+	else
+	{
+		title = info->object->GetTitle();
+	}
+	LeaveLock();
+	return title;
+}
+
+
+BOOL CSettingGroup::IsChangedPending(IN HSETTING setting)
+{
+	PSETTINGINFO info = (PSETTINGINFO)setting;
+
+	EnterLock();
+	BOOL pending = GetInfoFlag(info, FLAG_CHANGING);
+	LeaveLock();
+	return pending;
+}
+
+
+BOOL CSettingGroup::SilenceChangedPending(IN HSETTING setting)
+{
+	PSETTINGINFO info = (PSETTINGINFO)setting;
+
+	EnterLock();
+	BOOL pending = GetInfoFlag(info, FLAG_CHANGING);
+	if (pending)
+	{
+		SetInfoFlag(info, FLAG_CHANGING, FALSE);
+	}
+	LeaveLock();
+	return pending;
 }
 
 
@@ -333,6 +405,51 @@ void CSettingGroup::LoadBulkSettings(PBULKCHANGELIST bulklist)
 }
 
 
+void CSettingGroup::ReviseBulkSettings(IN PBULKCHANGELIST bulklist)
+{
+	CCINFO ccinfo;
+	ccinfo.group = this;
+
+	// Run through the settings list and notify each one
+	SETTINGINFOLIST::iterator it = m_settingList.begin();
+	SETTINGINFOLIST::iterator ti = m_settingList.end();
+	for ( ; it != ti; it++)
+	{
+		PSETTINGINFO info = *it;
+		BOOL change;
+
+		if (!info->object->IsSet())
+		{
+			continue;
+		}
+
+		// Get the current value.
+		ccinfo.oldValue = info->object->GetValue();
+
+		if (GetInfoFlag(ccinfo.info, FLAG_CHANGING))
+		{
+			// If CHANGING notification was already sent, send RECHANGING.
+			change = NotifyRechanging(info, ccinfo.oldValue, ccinfo.oldValue);
+		}
+		else
+		{
+			// Set the initial flag so SETTING will be generated.
+			SetInfoFlag(info, FLAG_INITIAL, TRUE);
+
+			// Generate a SETTING notification.
+			change = NotifyChanging(info, ccinfo.oldValue, ccinfo.oldValue);
+			SetInfoFlag(info, FLAG_CHANGING, change);
+		}
+
+		if (change)
+		{
+			ccinfo.info = info;
+			bulklist->push_back(ccinfo);
+		}
+	}
+}
+
+
 void CSettingGroup::InitializeLocking()
 {
 #ifdef SETTINGGROUP_THREAD_SAFE
@@ -402,6 +519,8 @@ void CSettingGroup::CommonPostChangeRoutine(IN PCCINFO ccinfo)
 {
 	// Have changed notification called.
 	CompletePostChange(ccinfo);
+	// Notify that all notifications have been sent.
+	NotifyAfterBulk();
 }
 
 
@@ -415,6 +534,8 @@ void CSettingGroup::CommonPostChangeRoutine(IN PBULKCHANGELIST bulklist)
 		// Have changed notification called.
 		CompletePostChange(&*it);
 	}
+	// Notify that all notifications have been sent.
+	NotifyAfterBulk();
 }
 
 
@@ -559,9 +680,20 @@ BOOL CSettingGroup::NotifyChanged(IN PSETTINGINFO info,
 }
 
 
+BOOL CSettingGroup::NotifyAfterBulk()
+{
+	return Notify(NULL, NOTIFY_AFTER_BULK, CSettingValue(), CSettingValue());
+}
+
+
 BOOL CSettingGroup::Notify(IN PSETTINGINFO info, IN INT message,
 						   IN RCSETTINGVALUE newValue, IN RCSETTINGVALUE oldValue)
 {
+	if (m_silent)
+	{
+		return TRUE;
+	}
+
 	BOOL response = TRUE;
 
 	// First call the global notification callback if one exists
@@ -573,35 +705,44 @@ BOOL CSettingGroup::Notify(IN PSETTINGINFO info, IN INT message,
 		// is used for changes that occur during this time.  Hopefully,
 		// m_notifyProc, info and newValue will not change during this
 		// time.
-		LeaveLock();
+		// ## This shouldn't be necessary as long as a blocking call isn't
+		// made to another thread with the request to change this group's
+		// setting.  (In which case it'll deadlock.)  This LeaveLock() and
+		// EnterLock() combination can't always work as it is because there's
+		// no consideration made to EnterLock() having been called multiple
+		// times before this point. ##
+		// LeaveLock();
 		response = (m_notifyProc)(message, newValue, oldValue,
 			(HSETTING)info, m_callbackContext);
 
 		if (response == NOTIFY_REPLY_DONT_NOTIFY)
 		{
-			EnterLock();
+			// EnterLock();
 			return TRUE;
 		}
 		if (response == NOTIFY_REPLY_DONT_CHANGE)
 		{
-			EnterLock();
+			// EnterLock();
 			return FALSE;
 		}
 	}
 
-	// Call the notification callback of this setting object
-	if (!info->object->Notify(message, newValue, oldValue))
+	if (info != NULL)
 	{
-		EnterLock();
-		return FALSE;
-	}
+		// Call the notification callback of this setting object
+		if (!info->object->Notify(message, newValue, oldValue))
+		{
+			// EnterLock();
+			return FALSE;
+		}
 
-	// Call the notification callback of this setting key
-	if (info->key != NULL)
-	{
-		response = info->key->Notify(message, newValue, oldValue);
+		// Call the notification callback of this setting key
+		if (info->key != NULL)
+		{
+			response = info->key->Notify(message, newValue, oldValue);
+		}
 	}
-	EnterLock();
+	// EnterLock();
 	return response;
 }
 
@@ -610,9 +751,11 @@ BOOL CSettingGroup::Notify(IN PSETTINGINFO info, IN INT message,
 // CSettingGroup::CSettingInfo
 //////////////////////////////////////////////////////////////////////////
 
-CSettingGroup::CSettingInfo::CSettingInfo(IN PSETTINGKEY key, IN PSETTINGOBJECT object) :
+CSettingGroup::CSettingInfo::CSettingInfo(IN PSETTINGKEY key,
+										  IN PSETTINGOBJECT object, IN std::string title) :
 	key(key),
 	object(object),
+	title(title),
 	flags(0)
 {
 }
@@ -706,6 +849,22 @@ HSETTING CSettingGroupEx::AddSetting(IN PSETTINGOBJECT object, IN PSETTINGKEY ke
 }
 
 
+HSETTING CSettingGroupEx::AddSetting(IN std::string title, IN PSETTINGOBJECT object, IN PSETTINGKEY key,
+									 IN BYTE dependantOptionalBits, IN BYTE dependantAbsoluteBits)
+{
+	EnterLock();
+	PSETTINGINFOEX info = (PSETTINGINFOEX)AddSetting(object, key,
+		dependantOptionalBits, dependantAbsoluteBits);
+
+	if (info != NULL)
+	{
+		info->title = title;
+	}
+	LeaveLock();
+	return (HSETTING)info;
+}
+
+
 HSETTING CSettingGroupEx::AddMaster(IN PSETTINGOBJECT object, IN PSETTINGKEY key, IN BYTE dependeeBits,
 									IN BYTE dependantOptionalBits, IN BYTE dependantAbsoluteBits)
 {
@@ -736,6 +895,24 @@ HSETTING CSettingGroupEx::AddMaster(IN PSETTINGOBJECT object, IN PSETTINGKEY key
 	LeaveLock();
 	return (HSETTING)info;
 }
+
+
+HSETTING CSettingGroupEx::AddMaster(IN std::string title, IN PSETTINGOBJECT object, IN PSETTINGKEY key,
+									IN BYTE dependeeBits, IN BYTE dependantOptionalBits,
+									IN BYTE dependantAbsoluteBits)
+{
+	EnterLock();
+	PSETTINGINFOEX info = (PSETTINGINFOEX)AddMaster(object, key, 
+		dependeeBits, dependantOptionalBits, dependantAbsoluteBits);
+
+	if (info != NULL)
+	{
+		info->title = title;
+	}
+	LeaveLock();
+	return (HSETTING)info;
+}
+
 
 
 void CSettingGroupEx::SaveSettings()
@@ -776,6 +953,19 @@ void CSettingGroupEx::SaveSetting(IN HSETTING setting)
 	EnterLock();
 	info->object->Save(m_repository, GetSection(info->loadedDependantBits,
 		TRUE, &cacheString, &cacheBits));
+	LeaveLock();
+}
+
+
+void CSettingGroupEx::ReviseSettings(IN BOOL includeSubgroups)
+{
+	BULKCHANGELIST bulklist;
+
+	EnterLock();
+	// Run through the settings and notify SETTING on each one
+	ReviseBulkSettings(includeSubgroups, &bulklist);
+	// Notify the SET on all that was SETTING notified.
+	CSettingGroup::CommonPostChangeRoutine(&bulklist);
 	LeaveLock();
 }
 
@@ -976,10 +1166,10 @@ DBIT CSettingGroupEx::GetEnabledOptionalDependencies()
 }
 
 
-void CSettingGroupEx::Suspend()
+void CSettingGroupEx::Suspend(IN BOOL suspend)
 {
 	EnterLock();
-	m_suspended = TRUE;
+	m_suspended = suspend;
 	LeaveLock();
 }
 
@@ -1011,7 +1201,7 @@ void CSettingGroupEx::Activate(IN BOOL unsuspend)
 
 
 void CSettingGroupEx::JostleBit(IN DBIT dependeeBit, IN RCSETTINGVALUE dependeeValue,
-								IN BOOL suspended, IN DBIT checkedBits)
+								IN BOOL suspended)
 {
 	EnterLock();
 	if (!m_dependencyGestalt->RegisterDependeeChange(&m_dependedValues,
@@ -1035,7 +1225,7 @@ void CSettingGroupEx::JostleBit(IN DBIT dependeeBit, IN RCSETTINGVALUE dependeeV
 	// Check and process all settings for changes.  Efficiency can be
 	// gained by setting the mode to MODE_DEPENDEE_CHECK when it's
 	// certain only values have changed.
-	JostleEverySetting(&bulklist, MODE_DEPENDEE_CHECK, dependeeBit, checkedBits);
+	JostleEverySetting(&bulklist, MODE_DEPENDEE_CHECK, dependeeBit);
 
 	// Call changed notification on all that changed
 	CSettingGroup::CommonPostChangeRoutine(&bulklist);
@@ -1130,7 +1320,7 @@ void CSettingGroupEx::_CreateAssociationConfig(PSETTINGCONFIG association)
 		std::string title = GetSettingTitle((HSETTING)(*it));
 		if (title != "")
 		{
-			config->AddConfig(new CSettingConfigDependant(title, this, (HSETTING)(*it)));
+			config->AddConfig(new CSettingConfigDependant(this, (HSETTING)(*it)));
 		}
 	}
 
@@ -1170,7 +1360,27 @@ void CSettingGroupEx::CommonPostChangeRoutine(IN PCCINFO ccinfo)
 	// done before the final CHANGED notification can be sent.
 	if (info->dependeeBit != 0)
 	{
-		JostleDependeeBit(info);
+		// Set the master's dependee bit as changed.
+		if (m_dependencyGestalt->RegisterDependeeChange(&m_dependedValues,
+			info->dependeeBit, info->object->GetValue()) && !m_suspended)
+		{
+			BULKCHANGELIST bulklist;
+
+			// Push the setting on as the first setting to be notified.
+			bulklist.push_back(*ccinfo);
+
+			// Check and process all settings for changes. 
+			JostleEverySetting(&bulklist,
+				MODE_DEPENDEE_CHECK, info->dependeeBit, GetDependantBits(info));
+
+			// Call changed notification on all that changed.  All settings this
+			// master depends is set checked because those should not change in
+			// the course of processing every setting since there should be no
+			//cyclic dependencies.
+			CSettingGroup::CommonPostChangeRoutine(&bulklist);
+			// Return here so the single post change routine isn't done.
+			return;
+		}
 	}
 
 	// Let the old method send the CHANGED notification.
@@ -1186,13 +1396,20 @@ void CSettingGroupEx::LoadBulkSettings(IN OUT PBULKCHANGELIST bulklist)
 }
 
 
-void CSettingGroupEx::JostleDependeeBit(IN PSETTINGINFOEX info)
+void CSettingGroupEx::ReviseBulkSettings(IN BOOL includeSubgroups, IN PBULKCHANGELIST bulklist)
 {
-	// Set the master's dependee bit as changed.  All settings this
-	// master depends is set checked because those should not change
-	// in the course of processing every setting since there should
-	// be no cyclic dependencies.
-	JostleBit(info->dependeeBit, info->object->GetValue(), FALSE, GetDependantBits(info));
+	CSettingGroup::ReviseBulkSettings(bulklist);
+
+	if (includeSubgroups)
+	{
+		// Run through all subgroups and have them save dependant bits too.
+		SUBGROUPEXLIST::iterator sgit = m_subgroupList.begin();
+		SUBGROUPEXLIST::iterator sgti = m_subgroupList.end();
+		for ( ; sgit != sgti; sgit++)
+		{
+			(*sgit)->ReviseBulkSettings(includeSubgroups, bulklist);
+		}
+	}
 }
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StdAfx.h,v 1.2 2002-11-27 17:39:31 adcockj Exp $
+// $Id: StdAfx.h,v 1.3 2002-11-28 14:35:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -52,6 +52,7 @@
 #include <mmsystem.h>
 #include <vfw.h>
 #include <winioctl.h>
+#include "../DScaler/ErrorBox.h"
 #include "DSDrv.h"
 #include "HtmlHelp.H"
 #include <vector>

@@ -602,6 +602,12 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name DSDrv95
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name DSDrvNT
+    End Project Dependency
 }}}
 
 ###############################################################################

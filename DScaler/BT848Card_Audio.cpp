@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Audio.cpp,v 1.17 2002-08-27 22:02:32 kooiman Exp $
+// $Id: BT848Card_Audio.cpp,v 1.18 2002-09-07 20:54:49 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2002/08/27 22:02:32  kooiman
+// Added Get/Set input for video and audio for all sources. Added source input change notification.
+//
 // Revision 1.16  2002/07/02 20:00:07  adcockj
 // New setting for MSP input pin selection
 //
@@ -310,4 +313,77 @@ int CBT848Card::GetNumAudioInputs()
     return m_AudioDecoder->GetNumAudioInputs();
 }
 
+
+void CBT848Card::SetAudioLoudnessAndSuperBass(long nLoudness, bool bSuperBass)
+{
+	if ((m_bHasMSP == FALSE) || (m_AudioControls == NULL))
+	{
+		return;
+	}
+	CMSP34x0Controls* MSPControls = (CMSP34x0Controls*)m_AudioControls;	
+	MSPControls->SetLoudnessAndSuperBass(nLoudness, bSuperBass);
+}
+
+void CBT848Card::SetAudioEqualizer(long EqIndex, long nLevel)
+{
+	if (!AudioSupportsEqualizer())
+	{
+		return;
+	}
+	CMSP34x0Controls* MSPControls = (CMSP34x0Controls*)m_AudioControls;	
+	MSPControls->SetEqualizer(EqIndex,nLevel);
+}
+
+void CBT848Card::SetAudioSpatialEffect(long nEffect)
+{
+	if ((m_bHasMSP == FALSE) || (m_AudioControls == NULL))
+	{
+		return;
+	}
+	CMSP34x0Controls* MSPControls = (CMSP34x0Controls*)m_AudioControls;	
+	MSPControls->SetSpatialEffects(nEffect);
+}
+
+
+void CBT848Card::SetAudioDolbyMode(long DolbyMode, long nNoise, long nSpatial, long nPan, long Panorama)
+{
+	if (!AudioSupportsDolby())
+	{
+		return;
+	}
+	CMSP34x0Controls* MSPControls = (CMSP34x0Controls*)m_AudioControls;	
+	MSPControls->SetDolby(DolbyMode, nNoise, nSpatial, nPan, Panorama);
+}
+
+
+BOOL CBT848Card::AudioSupportsEqualizer()
+{
+	if ((m_bHasMSP == FALSE) || (m_AudioDecoder == NULL))
+	{
+		return FALSE;
+	}
+	CMSP34x0Decoder* MSPDecoder = (CMSP34x0Decoder*)m_AudioDecoder;
+	return MSPDecoder->HasEqualizer();	
+}
+
+
+BOOL CBT848Card::AudioSupportsSpatialEffect()
+{
+	if ((m_bHasMSP == FALSE) || (m_AudioControls == NULL))
+	{
+		return FALSE;
+	}
+	return TRUE;
+}
+
+
+BOOL CBT848Card::AudioSupportsDolby()
+{
+	if ((m_bHasMSP == FALSE) || (m_AudioDecoder == NULL))
+	{
+		return FALSE;
+	}
+	CMSP34x0Decoder* MSPDecoder = (CMSP34x0Decoder*)m_AudioDecoder;
+	return MSPDecoder->HasDolby();	
+}
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.42 2002-09-04 21:13:55 robmuller Exp $
+// $Id: BT848Souce_UI.cpp,v 1.43 2002-09-07 20:54:50 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.42  2002/09/04 21:13:55  robmuller
+// Added Auto-Detect buttton to the Setup Card/Tuner dialog.
+//
 // Revision 1.41  2002/08/13 21:21:24  kooiman
 // Improved settings per channel to account for source and input changes.
 //
@@ -160,16 +163,11 @@
 #include "AspectRatio.h"
 #include "DebugLog.h"
 #include "SettingsPerChannel.h"
+#include "Slider.h"
 
 extern const char *TunerNames[TUNER_LASTONE];
 long EnableCancelButton = 1;
 
-BOOL APIENTRY CBT848Source::AudioSettingProc1(HWND hDlg, UINT message, UINT wParam, LONG lParam)
-{
-    /// \todo FIXME pass control to AudioDecoder's settings dialog
-    EndDialog(hDlg, TRUE);
-    return FALSE;
-}
 
 BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
@@ -177,6 +175,11 @@ BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wPara
     static char TBalance;
     static char TBass;
     static char TTreble;
+	static BOOL TSuperBass;
+	static int  TLoudness;
+	static int  TSpatialEffect;
+	static BOOL TUseEqualizer;
+	static int TEqualizerVal[6];
     static CBT848Source* pThis;
 
     switch (message)
@@ -188,44 +191,182 @@ BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wPara
         TBass = pThis->m_Bass->GetValue();
         TTreble = pThis->m_Treble->GetValue();
         TBalance = pThis->m_Balance->GetValue();
+		TSuperBass = pThis->m_AudioSuperbass->GetValue();;
+		TLoudness = pThis->m_AudioLoudness->GetValue();
+		TSpatialEffect = pThis->m_AudioSpatialEffect->GetValue();;
 
-        SetDlgItemInt(hDlg, IDC_D1, TVolume, FALSE);
-        SetDlgItemInt(hDlg, IDC_D4, TBass, TRUE);
-        SetDlgItemInt(hDlg, IDC_D5, TTreble, TRUE);
-        SetDlgItemInt(hDlg, IDC_D6, TBalance, TRUE);
+		TUseEqualizer = pThis->m_UseEqualizer->GetValue();
 
-        pThis->m_Volume->SetupControl(GetDlgItem(hDlg, IDC_SLIDER1));
-        pThis->m_Bass->SetupControl(GetDlgItem(hDlg, IDC_SLIDER4));
-        pThis->m_Treble->SetupControl(GetDlgItem(hDlg, IDC_SLIDER5));
-        pThis->m_Balance->SetupControl(GetDlgItem(hDlg, IDC_SLIDER6));
+		TEqualizerVal[1] = pThis->m_EqualizerBand1->GetValue();
+		TEqualizerVal[2] = pThis->m_EqualizerBand2->GetValue();
+		TEqualizerVal[3] = pThis->m_EqualizerBand3->GetValue();
+		TEqualizerVal[4] = pThis->m_EqualizerBand4->GetValue();
+		TEqualizerVal[5] = pThis->m_EqualizerBand5->GetValue();
+
+        SetDlgItemInt(hDlg, IDC_VOLUME_VAL, TVolume, FALSE);        
+        SetDlgItemInt(hDlg, IDC_BALANCE_VAL, TBalance, TRUE);
+
+		//SetDlgItemInt(hDlg, IDC_D4, TBass, TRUE);
+        //SetDlgItemInt(hDlg, IDC_D5, TTreble, TRUE);
+
+        pThis->m_Volume->SetupControl(GetDlgItem(hDlg, IDC_VOLUME_SLIDER));       
+        pThis->m_Balance->SetupControl(GetDlgItem(hDlg, IDC_BALANCE_SLIDER));
+		//pThis->m_Bass->SetupControl(GetDlgItem(hDlg, IDC_SLIDER4));
+        //pThis->m_Treble->SetupControl(GetDlgItem(hDlg, IDC_SLIDER5));
+
+		CheckDlgButton(hDlg, IDC_SUPERBASS, TSuperBass);
+
+		pThis->m_AudioLoudness->SetControlValue(GetDlgItem(hDlg, IDC_LOUDNESS_SLIDER));
+		pThis->m_AudioSpatialEffect->SetupControl(GetDlgItem(hDlg, IDC_SPATIALEFFECT_SLIDER));
+
+		if (!pThis->m_pBT848Card->AudioSupportsEqualizer())
+		{
+			SendMessage(GetDlgItem(hDlg,IDC_USEEQUALIZER),WM_ENABLE,FALSE,0);				
+			TUseEqualizer = FALSE;
+		}
+		else
+		{
+			CheckDlgButton(hDlg, IDC_USEEQUALIZER, TUseEqualizer);
+		}
+		SendMessage(hDlg, WM_COMMAND, IDC_USEEQUALIZER, 0);
         break;
 
     case WM_VSCROLL:
     case WM_HSCROLL:
-        if((HWND)lParam == GetDlgItem(hDlg, IDC_SLIDER1))
+        if((HWND)lParam == GetDlgItem(hDlg, IDC_VOLUME_SLIDER))
         {
             pThis->m_Volume->SetFromControl((HWND)lParam);
-            SetDlgItemInt(hDlg, IDC_D1, pThis->m_Volume->GetValue(), TRUE);
+            SetDlgItemInt(hDlg, IDC_VOLUME_VAL, pThis->m_Volume->GetValue(), TRUE);
         }
-        else if((HWND)lParam == GetDlgItem(hDlg, IDC_SLIDER4))
-        {
-            pThis->m_Bass->SetFromControl((HWND)lParam);
-            SetDlgItemInt(hDlg, IDC_D4, pThis->m_Bass->GetValue(), TRUE);
-        }
-        else if((HWND)lParam == GetDlgItem(hDlg, IDC_SLIDER5))
-        {
-            pThis->m_Treble->SetFromControl((HWND)lParam);
-            SetDlgItemInt(hDlg, IDC_D5, pThis->m_Treble->GetValue(), TRUE);
-        }
-        else if((HWND)lParam == GetDlgItem(hDlg, IDC_SLIDER6))
+		else if((HWND)lParam == GetDlgItem(hDlg, IDC_BALANCE_SLIDER))
         {
             pThis->m_Balance->SetFromControl((HWND)lParam);
-            SetDlgItemInt(hDlg, IDC_D6, pThis->m_Balance->GetValue(), TRUE);
+            SetDlgItemInt(hDlg, IDC_BALANCE_VAL, pThis->m_Balance->GetValue(), TRUE);
+        }
+        else if((HWND)lParam == GetDlgItem(hDlg, IDC_BAND1_SLIDER))
+        {
+            if (pThis->m_UseEqualizer->GetValue())
+			{
+				pThis->m_EqualizerBand1->SetFromControl((HWND)lParam);
+				SetDlgItemInt(hDlg, IDC_BAND1_VAL, pThis->m_EqualizerBand1->GetValue(), TRUE);
+			}
+		}
+		else if((HWND)lParam == GetDlgItem(hDlg, IDC_BAND2_SLIDER))
+        {
+            if (pThis->m_UseEqualizer->GetValue())
+			{
+				pThis->m_EqualizerBand2->SetFromControl((HWND)lParam);
+				SetDlgItemInt(hDlg, IDC_BAND2_VAL, pThis->m_EqualizerBand2->GetValue(), TRUE);
+			}		
+			else
+			{
+				pThis->m_Bass->SetFromControl((HWND)lParam);
+				SetDlgItemInt(hDlg, IDC_BAND2_VAL, pThis->m_Bass->GetValue(), TRUE);
+			}
+        }
+		else if((HWND)lParam == GetDlgItem(hDlg, IDC_BAND3_SLIDER))
+        {
+            if (pThis->m_UseEqualizer->GetValue())
+			{
+				pThis->m_EqualizerBand3->SetFromControl((HWND)lParam);
+				SetDlgItemInt(hDlg, IDC_BAND3_VAL, pThis->m_EqualizerBand3->GetValue(), TRUE);
+			}
+		}
+		else if((HWND)lParam == GetDlgItem(hDlg, IDC_BAND4_SLIDER))
+        {
+            if (pThis->m_UseEqualizer->GetValue())
+			{
+				pThis->m_EqualizerBand4->SetFromControl((HWND)lParam);
+				SetDlgItemInt(hDlg, IDC_BAND4_VAL, pThis->m_EqualizerBand4->GetValue(), TRUE);
+			}		
+			else
+			{
+				pThis->m_Treble->SetFromControl((HWND)lParam);
+				SetDlgItemInt(hDlg, IDC_BAND4_VAL, pThis->m_Treble->GetValue(), TRUE);
+			}
+        }
+		else if((HWND)lParam == GetDlgItem(hDlg, IDC_BAND5_SLIDER))
+        {
+            if (pThis->m_UseEqualizer->GetValue())
+			{
+				pThis->m_EqualizerBand5->SetFromControl((HWND)lParam);
+				SetDlgItemInt(hDlg, IDC_BAND5_VAL, pThis->m_EqualizerBand5->GetValue(), TRUE);
+			}
+		}
+        else if((HWND)lParam == GetDlgItem(hDlg, IDC_LOUDNESS_SLIDER))
+        {
+            pThis->m_AudioLoudness->SetFromControl((HWND)lParam);            
+        }
+		else if((HWND)lParam == GetDlgItem(hDlg, IDC_SPATIALEFFECT_SLIDER))
+        {
+            pThis->m_AudioSpatialEffect->SetFromControl((HWND)lParam);            
         }
         break;
     case WM_COMMAND:
         switch(LOWORD(wParam))
         {
+		case IDC_USEEQUALIZER:
+			{
+				BOOL bEnabled = (IsDlgButtonChecked(hDlg, IDC_USEEQUALIZER) == BST_CHECKED);
+				pThis->m_UseEqualizer->SetValue(  bEnabled );			
+				if (bEnabled)
+				{
+					ShowWindow(GetDlgItem(hDlg, IDC_BAND1_SLIDER),SW_SHOW);
+					ShowWindow(GetDlgItem(hDlg, IDC_BAND3_SLIDER),SW_SHOW);
+					ShowWindow(GetDlgItem(hDlg, IDC_BAND5_SLIDER),SW_SHOW);
+					
+					ShowWindow(GetDlgItem(hDlg, IDC_BAND1_TEXT),SW_SHOW);
+					ShowWindow(GetDlgItem(hDlg, IDC_BAND3_TEXT),SW_SHOW);
+					ShowWindow(GetDlgItem(hDlg, IDC_BAND5_TEXT),SW_SHOW);
+
+					ShowWindow(GetDlgItem(hDlg, IDC_BAND1_VAL),SW_SHOW);
+					ShowWindow(GetDlgItem(hDlg, IDC_BAND3_VAL),SW_SHOW);
+					ShowWindow(GetDlgItem(hDlg, IDC_BAND5_VAL),SW_SHOW);
+
+					SetDlgItemText(hDlg, IDC_BAND2_TEXT,"500 Hz");
+					SetDlgItemText(hDlg, IDC_BAND4_TEXT,"5000 Hz");					
+
+					pThis->m_EqualizerBand1->SetupControl(GetDlgItem(hDlg, IDC_BAND1_SLIDER));
+					pThis->m_EqualizerBand2->SetupControl(GetDlgItem(hDlg, IDC_BAND2_SLIDER));
+					pThis->m_EqualizerBand3->SetupControl(GetDlgItem(hDlg, IDC_BAND3_SLIDER));
+					pThis->m_EqualizerBand4->SetupControl(GetDlgItem(hDlg, IDC_BAND4_SLIDER));
+					pThis->m_EqualizerBand5->SetupControl(GetDlgItem(hDlg, IDC_BAND5_SLIDER));
+					
+					SetDlgItemInt(hDlg, IDC_BAND1_VAL, pThis->m_EqualizerBand1->GetValue(), TRUE);
+					SetDlgItemInt(hDlg, IDC_BAND2_VAL, pThis->m_EqualizerBand2->GetValue(), TRUE);
+					SetDlgItemInt(hDlg, IDC_BAND3_VAL, pThis->m_EqualizerBand3->GetValue(), TRUE);
+					SetDlgItemInt(hDlg, IDC_BAND4_VAL, pThis->m_EqualizerBand4->GetValue(), TRUE);
+					SetDlgItemInt(hDlg, IDC_BAND5_VAL, pThis->m_EqualizerBand5->GetValue(), TRUE);
+				}
+				else
+				{
+					ShowWindow(GetDlgItem(hDlg, IDC_BAND1_SLIDER),SW_HIDE);
+					ShowWindow(GetDlgItem(hDlg, IDC_BAND3_SLIDER),SW_HIDE);
+					ShowWindow(GetDlgItem(hDlg, IDC_BAND5_SLIDER),SW_HIDE);
+					ShowWindow(GetDlgItem(hDlg, IDC_BAND1_TEXT),SW_HIDE);
+					ShowWindow(GetDlgItem(hDlg, IDC_BAND3_TEXT),SW_HIDE);
+					ShowWindow(GetDlgItem(hDlg, IDC_BAND5_TEXT),SW_HIDE);
+					ShowWindow(GetDlgItem(hDlg, IDC_BAND1_VAL),SW_HIDE);
+					ShowWindow(GetDlgItem(hDlg, IDC_BAND3_VAL),SW_HIDE);
+					ShowWindow(GetDlgItem(hDlg, IDC_BAND5_VAL),SW_HIDE);
+
+					SetDlgItemText(hDlg, IDC_BAND2_TEXT,"Bass");
+					SetDlgItemText(hDlg, IDC_BAND4_TEXT,"Treble");
+					
+					pThis->m_Bass->SetupControl(GetDlgItem(hDlg, IDC_BAND2_SLIDER));
+					pThis->m_Treble->SetupControl(GetDlgItem(hDlg, IDC_BAND4_SLIDER));
+					
+					SetDlgItemInt(hDlg, IDC_BAND2_VAL, pThis->m_Bass->GetValue(), TRUE);
+					SetDlgItemInt(hDlg, IDC_BAND4_VAL, pThis->m_Treble->GetValue(), TRUE);
+				}
+			}
+			break;
+		case IDC_SUPERBASS:
+			{
+				BOOL bEnabled = (IsDlgButtonChecked(hDlg, IDC_SUPERBASS) == BST_CHECKED);
+				pThis->m_AudioSuperbass->SetValue(  bEnabled );			
+			}
+			break;
         case IDOK:
 			WriteSettingsToIni(TRUE);
             EndDialog(hDlg, TRUE);
@@ -233,10 +374,21 @@ BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wPara
         
         case IDCANCEL:
             pThis->Mute();
-            pThis->m_Volume->SetValue(TVolume);
-            pThis->m_Bass->SetValue(TBass);
-            pThis->m_Treble->SetValue(TTreble);
+            pThis->m_Volume->SetValue(TVolume);            
             pThis->m_Balance->SetValue(TBalance);
+			pThis->m_AudioSuperbass->SetValue(TSuperBass);
+			pThis->m_AudioLoudness->SetValue(TLoudness);
+			pThis->m_AudioSpatialEffect->SetValue(TSpatialEffect);			
+			
+			pThis->m_EqualizerBand1->SetValue(TEqualizerVal[1]);
+			pThis->m_EqualizerBand2->SetValue(TEqualizerVal[2]);
+			pThis->m_EqualizerBand3->SetValue(TEqualizerVal[3]);
+			pThis->m_EqualizerBand4->SetValue(TEqualizerVal[4]);
+			pThis->m_EqualizerBand5->SetValue(TEqualizerVal[5]);
+					
+			pThis->m_Bass->SetValue(TBass);
+			pThis->m_Treble->SetValue(TTreble);
+			
             pThis->UnMute();
             EndDialog(hDlg, TRUE);
             break;
@@ -244,19 +396,38 @@ BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wPara
         case IDC_DEFAULT:
             pThis->Mute();
             pThis->m_Volume->SetDefault();
-            pThis->m_Bass->SetDefault();
-            pThis->m_Treble->SetDefault();
             pThis->m_Balance->SetDefault();
-            SetDlgItemInt(hDlg, IDC_D1, pThis->m_Volume->GetValue(), FALSE);
-            SetDlgItemInt(hDlg, IDC_D4, pThis->m_Bass->GetValue(), TRUE);
-            SetDlgItemInt(hDlg, IDC_D5, pThis->m_Treble->GetValue(), TRUE);
-            SetDlgItemInt(hDlg, IDC_D6, pThis->m_Balance->GetValue(), TRUE);
+			pThis->m_AudioSuperbass->SetDefault();
+			pThis->m_AudioLoudness->SetDefault();
+			pThis->m_AudioSpatialEffect->SetDefault();
 
-            pThis->m_Volume->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER1));
-            pThis->m_Bass->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER4));
-            pThis->m_Treble->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER5));
-            pThis->m_Balance->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER6));
-            pThis->UnMute();
+			if (pThis->m_UseEqualizer->GetValue())
+			{
+				pThis->m_EqualizerBand1->SetDefault();
+				pThis->m_EqualizerBand2->SetDefault();
+				pThis->m_EqualizerBand3->SetDefault();
+				pThis->m_EqualizerBand4->SetDefault();
+				pThis->m_EqualizerBand5->SetDefault();
+			} 
+			else
+			{		
+				pThis->m_Bass->SetDefault();
+				pThis->m_Treble->SetDefault();            
+			}
+            SetDlgItemInt(hDlg, IDC_VOLUME_VAL, pThis->m_Volume->GetValue(), FALSE);
+            SetDlgItemInt(hDlg, IDC_BALANCE_VAL, pThis->m_Balance->GetValue(), TRUE);
+
+            pThis->m_Volume->SetControlValue(GetDlgItem(hDlg, IDC_VOLUME_SLIDER));
+            pThis->m_Balance->SetControlValue(GetDlgItem(hDlg, IDC_BALANCE_SLIDER));
+
+			CheckDlgButton(hDlg, IDC_SUPERBASS, pThis->m_AudioSuperbass->GetValue());
+
+			pThis->m_AudioLoudness->SetControlValue(GetDlgItem(hDlg, IDC_LOUDNESS_SLIDER));
+			pThis->m_AudioSpatialEffect->SetupControl(GetDlgItem(hDlg, IDC_SPATIALEFFECT_SLIDER));
+
+			pThis->UnMute();
+			
+			SendMessage(hDlg, WM_COMMAND, IDC_USEEQUALIZER, 0);
             break;
         default:
             break;
@@ -432,8 +603,8 @@ void CBT848Source::SetMenu(HMENU hMenu)
 
     EnableMenuItemBool(m_hMenu, IDM_AUDIOSETTINGS, m_pBT848Card->HasMSP());
     // Grayed "Equalize" because not yet implemented
-//    EnableMenuItemBool(m_hMenu, IDM_AUDIOSETTINGS1, m_pBT848Card->HasMSP());
-    EnableMenuItemBool(m_hMenu, IDM_AUDIOSETTINGS1, FALSE);
+//    EnableMenuItemBool(m_hMenu, IDM_AUDIOSETTINGS1, m_pBT848Card->AudioSupportsEqualizer());
+    //EnableMenuItemBool(m_hMenu, IDM_AUDIOSETTINGS1, FALSE);
 
     EnableMenuItemBool(m_hMenu, IDM_SETTINGS_PIXELWIDTH_768, GetTVFormat((eVideoFormat)m_VideoFormat->GetValue())->wHActivex1 >= 768);
 
@@ -808,15 +979,7 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
                DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_AUDIOSETTINGS), hWnd, AudioSettingProc, (LPARAM)this);
             }
             break;
-
-        case IDM_AUDIOSETTINGS1:
-            if (m_pBT848Card->HasMSP() == TRUE)
-            {
-                // do'nt do anything until we get this working
-                //DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_AUDIOEQUALIZER), hWnd, AudioSettingProc1, (LPARAM)this);
-            }
-            break;
-
+        
         case IDM_ADV_VIDEOSETTINGS:
             DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_ADV_VIDEOSETTINGS), hWnd, AdvVideoSettingProc, (LPARAM)this);
             break;
@@ -1086,9 +1249,23 @@ void CBT848Source::ChangeChannelSectionNames()
         
         SettingsPerChannel_RegisterSetting("Volume","BT8x8 - Volume",TRUE, m_Volume);            
         SettingsPerChannel_RegisterSetting("Balance","BT8x8 - Balance",TRUE, m_Balance);
-        SettingsPerChannel_RegisterSetting("BassTreble","BT8x8 - Bass & Treble",TRUE);            
-        SettingsPerChannel_RegisterSetting("BassTreble","BT8x8 - Bass & Treble",TRUE, m_Bass);            
-        SettingsPerChannel_RegisterSetting("BassTreble","BT8x8 - Bass & Treble",TRUE, m_Treble);        
+        SettingsPerChannel_RegisterSetting("BassTreble","BT8x8 - Bass & Treble",FALSE);            
+        SettingsPerChannel_RegisterSetting("BassTreble","BT8x8 - Bass & Treble",FALSE, m_Bass);            
+        SettingsPerChannel_RegisterSetting("BassTreble","BT8x8 - Bass & Treble",FALSE, m_Treble);        
+
+        SettingsPerChannel_RegisterSetting("Equalizer","BT8x8 - Equalizer",FALSE);            
+        SettingsPerChannel_RegisterSetting("Equalizer","BT8x8 - Equalizer",FALSE, m_UseEqualizer);            
+        SettingsPerChannel_RegisterSetting("Equalizer","BT8x8 - Equalizer",FALSE, m_EqualizerBand1);
+        SettingsPerChannel_RegisterSetting("Equalizer","BT8x8 - Equalizer",FALSE, m_EqualizerBand2);
+        SettingsPerChannel_RegisterSetting("Equalizer","BT8x8 - Equalizer",FALSE, m_EqualizerBand3);
+        SettingsPerChannel_RegisterSetting("Equalizer","BT8x8 - Equalizer",FALSE, m_EqualizerBand4);
+        SettingsPerChannel_RegisterSetting("Equalizer","BT8x8 - Equalizer",FALSE, m_EqualizerBand5);
+
+        SettingsPerChannel_RegisterSetting("LoudnessEtc","BT8x8 - Loudness, Spatial effect",FALSE); 
+        SettingsPerChannel_RegisterSetting("LoudnessEtc","BT8x8 - Loudness, Spatial effect",FALSE, m_AudioLoudness); 
+        SettingsPerChannel_RegisterSetting("LoudnessEtc","BT8x8 - Loudness, Spatial effect",FALSE, m_AudioSuperbass); 
+        SettingsPerChannel_RegisterSetting("LoudnessEtc","BT8x8 - Loudness, Spatial effect",FALSE, m_AudioSpatialEffect);         
+
 
         SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE);
         SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtAgcDisable);

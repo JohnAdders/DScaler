@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.cpp,v 1.18 2002-07-02 20:00:09 adcockj Exp $
+// $Id: MSP34x0.cpp,v 1.19 2002-09-07 20:54:49 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2002/07/02 20:00:09  adcockj
+// New setting for MSP input pin selection
+//
 // Revision 1.17  2002/03/04 20:48:52  adcockj
 // Reversed incorrect change
 //
@@ -183,16 +186,79 @@ void CMSP34x0Controls::SetLoudnessAndSuperBass(long nLoudness, bool bSuperBass)
     SetDSPRegister(DSP_WR_LDSPK_LOUDNESS, ((nLoudness & 0xFF) << 8) | (bSuperBass ? 0x4 : 0));
     SetDSPRegister(DSP_WR_HEADPH_LOUDNESS, ((nLoudness & 0xFF) << 8) | (bSuperBass ? 0x4 : 0));
 }
+ 
+void CMSP34x0Controls::SetAutomaticVolumeCorrection(long nDecayTimeIndex)
+{
+	if (nDecayTimeIndex == 0)
+	{
+		SetDSPRegister(DSP_WR_AVC, 0x0000);
+	}
+	else
+	{
+		SetDSPRegister(DSP_WR_AVC, 0x8000 | ((nDecayTimeIndex&0x0F) << 8));
+	}
+}
+
+void CMSP34x0Controls::SetDolby(long Mode, long nNoise, long nSpatial, long nPan, long Panorama)
+{
+    //if (!m_HasDolby)
+    //{
+    //    return;
+    //}
+
+   // Disable spatial effects
+   SetDSPRegister(DSP_WR_LDSPK_SPATIALEFF, 0);
+
+    switch (Mode)
+    {
+      case 1: //through
+         SetDSPRegister(DSP_WR_SURROUND_PROCESSING, 0); 
+         SetDSPRegister(DSP_WR_SURROUND_NOISE, 0);
+         break;
+      case 2: //prologic
+         SetDSPRegister(DSP_WR_SURROUND_PROCESSING, 0x0100); 
+         SetDSPRegister(DSP_WR_SURROUND_NOISE, 0);
+         break;
+      case 3: //noise mode
+         SetDSPRegister(DSP_WR_SURROUND_PROCESSING, 0); 
+         SetDSPRegister(DSP_WR_SURROUND_NOISE, WORD(0x8000 | (nNoise&0xF0)));
+         break;
+    }
+
+    // Set Virtual surround Spatial effects		
+    SetDSPRegister(DSP_WR_SURROUND_SPATIAL, WORD(int(nSpatial) << 8) );
+
+	// Set Panorama effect...		
+    SetDSPRegister(DSP_WR_SURROUND_PANORAMA, WORD(int(nPan)     << 8) );
+
+	// Based on requested mode, set it.
+	SetDSPRegister(DSP_WR_SURROUND_PANORAMA_MODE, ((Panorama==1) ? 0x50 :
+			((Panorama==2) ? 0x60 : 0)));
+		
+}
+
 
 void CMSP34x0Controls::SetSpatialEffects(long nSpatial)
 {
-    // Mode A, Automatic high pass gain
+    if (nSpatial < 0)
+	{
+		nSpatial+=256;
+	}
+	// Mode A, Automatic high pass gain
     SetDSPRegister(DSP_WR_LDSPK_SPATIALEFF, ((nSpatial & 0xFF) << 8) | 0x8);
 }
 
 void CMSP34x0Controls::SetEqualizer(long EqIndex, long nLevel)
 {
-    if (EqIndex < 0 || EqIndex > 4)
+    if (EqIndex == -1)
+	{
+		//Enable/disable equalizer	
+		//Disable means: bass & treble control is active
+		SetDSPRegister(DSP_WR_MODE_TONE_CTL, nLevel ? 0xFF00 : 0x0000);
+		return;
+	}
+	
+	if (EqIndex < 0 || EqIndex > 4)
     {
         return;
     }
@@ -200,6 +266,7 @@ void CMSP34x0Controls::SetEqualizer(long EqIndex, long nLevel)
     {
         return;
     }
+	
     SetDSPRegister((eDSPWriteRegister)(DSP_WR_LDSPK_EQ1 + EqIndex), (nLevel & 0xFF) << 8);
 }
 
@@ -512,7 +579,9 @@ void CMSP34x0Decoder::SetSCARTxbar(eScartOutput output, eScartInput input)
 	SetDSPRegister(DSP_WR_ACB, acb);
 }
 
-CMSP34x0Decoder::CMSP34x0Decoder() : CAudioDecoder(), CMSP34x0()
+CMSP34x0Decoder::CMSP34x0Decoder() : CAudioDecoder(), CMSP34x0(),
+m_bHasEqualizer(false),
+m_bHasDolby(false)
 {
     m_IsInitialized = false;
 }
@@ -525,18 +594,28 @@ void CMSP34x0Decoder::Initialize()
 {
     Reset();
 
+	m_bHasEqualizer = false;
+	m_bHasDolby = false;
+
     if(GetVersion() & 0xFF >= 0x07)
     {
         m_MSPVersion = MSPVersionG;
+		m_bHasDolby = true;
     }
     else if(GetVersion() & 0xFF >= 0x04)
     {
-        m_MSPVersion = MSPVersionD;
+        m_MSPVersion = MSPVersionD;		
     }
     else
     {
         m_MSPVersion = MSPVersionA;
     }
+
+	if ((GetVersion() & 0xFF) >= 0x03)
+	{
+		// Equalizer supported by revisions C and higher
+		m_bHasEqualizer = true;
+	}
 
     if(m_MSPVersion != MSPVersionG)
     {

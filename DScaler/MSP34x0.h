@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.h,v 1.14 2002-07-02 20:00:10 adcockj Exp $
+// $Id: MSP34x0.h,v 1.15 2002-09-07 20:54:49 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/07/02 20:00:10  adcockj
+// New setting for MSP input pin selection
+//
 // Revision 1.13  2002/03/04 20:03:50  adcockj
 // About box changes
 //
@@ -233,6 +236,12 @@ protected:
         DSP_WR_FM_DEEMPH = 0x000F,
         DSP_WR_IDENT_MODE = 0x0015,
         DSP_WR_FM_FC_NOTCH = 0x0017,
+		DSP_WR_AVC = 0x0029,
+		DSP_WR_SURROUND_PROCESSING = 0x0048,
+		DSP_WR_SURROUND_NOISE = 0x004D,
+		DSP_WR_SURROUND_SPATIAL = 0x0049,
+		DSP_WR_SURROUND_PANORAMA = 0x004A,
+		DSP_WR_SURROUND_PANORAMA_MODE = 0x004B
     };
     void SetDSPRegister(eDSPWriteRegister reg, WORD value);
 
@@ -249,6 +258,8 @@ public:
     void SetLoudnessAndSuperBass(long nLoudness, bool bSuperBass);
     void SetSpatialEffects(long nSpatial);
     void SetEqualizer(long EqIndex, long nLevel);
+	void SetDolby(long Mode, long nNoise, long nSpatial, long nPan, long Panorama);
+	void SetAutomaticVolumeCorrection(long nDecayTimeIndex);
 
     // from IAudioControls
     void SetMute(bool mute=true);
@@ -279,8 +290,10 @@ public:
     void SetVideoFormat(eVideoFormat videoFormat);
     void SetSoundChannel(eSoundChannel soundChannel, bool UseInputPin1);
     void SetAudioInput(eAudioInput audioInput);
-    eSoundChannel IsAudioChannelDetected(eSoundChannel desiredAudioChannel);
+    eSoundChannel IsAudioChannelDetected(eSoundChannel desiredAudioChannel);	
 
+	BOOL HasEqualizer() { return m_bHasEqualizer; }
+	BOOL HasDolby() { return m_bHasDolby; }
 private:
     enum eStandard
     {
@@ -408,6 +421,8 @@ private:
 	void SetModus();
 	BOOL m_IsInitialized;
     eMSPVersion m_MSPVersion;
+	BOOL m_bHasEqualizer;
+	BOOL m_bHasDolby;
     static TStandardDefinition m_MSPStandards[];
     static TFIRType            m_FIRTypes[];
     static WORD m_ScartMasks[MSP34x0_SCARTOUTPUT_LASTONE][MSP34x0_SCARTINPUT_LASTONE + 1];

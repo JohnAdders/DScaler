@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.25 2002-08-27 22:02:32 kooiman Exp $
+// $Id: BT848Card.h,v 1.26 2002-09-07 20:54:49 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2002/08/27 22:02:32  kooiman
+// Added Get/Set input for video and audio for all sources. Added source input change notification.
+//
 // Revision 1.24  2002/08/03 17:57:52  kooiman
 // Added new cards & tuners. Changed the tuner combobox into a sorted list.
 //
@@ -164,7 +167,7 @@ private:
         eTVCardId CardId;
         char* szName;
     } TAutoDectect878;
-
+	
 public:
 	BOOL Is878Family();
 	void SetACPIStatus(int ACPIStatus);
@@ -258,6 +261,14 @@ public:
     void SetAudioBalance(WORD nBalance);
     void SetAudioBass(WORD nBass);
     void SetAudioTreble(WORD nTreble);
+
+	void SetAudioLoudnessAndSuperBass(long nLoudness, bool bSuperBass);
+	void SetAudioEqualizer(long EqIndex, long nLevel);
+	void SetAudioSpatialEffect(long nEffect);
+	void SetAudioDolbyMode(long Mode, long nNoise, long nSpatial, long nPan, long Panorama);
+	BOOL AudioSupportsEqualizer();
+	BOOL AudioSupportsSpatialEffect();
+	BOOL AudioSupportsDolby();
 
     void SetAudioStandard(eVideoFormat videoFormat);
     void SetAudioSource(eAudioInput nChannel);

@@ -38,5 +38,7 @@ void FD50_WriteSettingsToIni();
 void UpdatePALPulldownMode(DEINTERLACE_INFO *pInfo);
 BOOL FilmModePALEven(DEINTERLACE_INFO *pInfo);
 BOOL FilmModePALOdd(DEINTERLACE_INFO *pInfo);
+BOOL FilmModePALComb(DEINTERLACE_INFO *pInfo);
+
 
 #endif

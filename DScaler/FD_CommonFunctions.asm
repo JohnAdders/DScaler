@@ -604,48 +604,10 @@ _memcpySSE:
 	push	esi
 	push	ebx
 
-	mov		esi, dword ptr[Src]
 	mov		edi, dword ptr[Dest]
+	mov		esi, dword ptr[Src]
 	mov		ecx, nBytes
-	shr     ecx, 7                      ; nBytes / 128
-align 8
-MemcpySSE_Loop:
-	; movaps should be slightly more efficient
-	; as the data is 16 bit aligned
-	movaps	xmm0, [esi]
-	movaps	xmm1, [esi+16*1]
-	movaps	xmm2, [esi+16*2]
-	movaps	xmm3, [esi+16*3]
-	movaps	xmm4, [esi+16*4]
-	movaps	xmm5, [esi+16*5]
-	movaps	xmm6, [esi+16*6]
-	movaps	xmm7, [esi+16*7]
-	movntps	[edi], xmm0
-	movntps	[edi+16*1], xmm1
-	movntps	[edi+16*2], xmm2
-	movntps	[edi+16*3], xmm3
-	movntps	[edi+16*4], xmm4
-	movntps	[edi+16*5], xmm5
-	movntps	[edi+16*6], xmm6
-	movntps	[edi+16*7], xmm7
-	add		esi, 128
-	add		edi, 128
-	loop MemcpySSE_Loop
-
-	mov		ecx, nBytes
-	and     ecx, 127
-	shr     ecx, 2
-	cmp     ecx, 0
-	je MemcpySSE_End
-
-align 8
-MemcpySSE_Loop2:
-	mov edx, [esi] 
-	mov [edi], edx
-	add esi, 4
-	add edi, 4
-	loop MemcpySSE_Loop2
-MemcpySSE_End:
+	rep movsb 
 	pop	ebx
 	pop	esi
 	pop	edi

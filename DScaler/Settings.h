@@ -68,7 +68,6 @@ LONG Settings_HandleSettingMsgs(HWND hWnd, UINT message, UINT wParam, LONG lPara
 void SetIniFileForSettings(LPSTR Name);
 LPCSTR GetIniFileForSettings();
 void LoadSettingsFromIni();
-void LoadPluginsSettingsFromIni();
 void WriteSettingsToIni();
 void WritePrivateProfileInt(LPCTSTR lpAppName,  LPCTSTR lpKeyName,  int nValue, LPCTSTR lpFileName);
 

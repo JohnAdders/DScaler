@@ -93,6 +93,13 @@ void LoadFilterPlugin(LPCSTR szFileName)
 		{
 			Filters[NumFilters] = pMethod;
 			pMethod->hModule = hPlugInMod;
+
+			// read in settings
+			for(int i = 0; i < pMethod->nSettings; i++)
+			{
+				Setting_ReadFromIni(&(pMethod->pSettings[i]));
+			}
+
 			if(pMethod->pfnPluginStart != NULL)
 			{
 				pMethod->pfnPluginStart();

@@ -45,6 +45,7 @@ long PulldownThresholdLow = 30;
 long PulldownThresholdHigh = 10;
 long PALPulldownRepeatCount = 3;
 long PALPulldownRepeatCount2 = 1;
+long MaxCallsToPALComb = 20;
 
 long MovementThreshold = 100;
 long CombThreshold = 150;
@@ -105,7 +106,7 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO *pInfo)
 			RepeatCount = 0;
 			NeedToCheckComb = FALSE;
 		}
-		else if(GetFilmMode() != FILM_32_PULLDOWN_COMB)
+		else if(GetFilmMode() != FILM_22_PULLDOWN_COMB)
 		{
 			NeedToCheckComb = FALSE;
 		}
@@ -114,7 +115,7 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO *pInfo)
     PercentDecrease = ((double)pInfo->CombFactor * 100.0) / ((double)LastCombFactor + 100.0);
 	PercentIncrease = ((double)(pInfo->CombFactor - LastCombFactor) * 100.0) / ((double)LastCombFactor + 100.0);
 
-	if(!IsFilmMode() || GetFilmMode() == FILM_32_PULLDOWN_COMB)
+	if(!IsFilmMode() || GetFilmMode() == FILM_22_PULLDOWN_COMB)
 	{
 		if(PercentDecrease < PulldownThresholdLow && 
             LastDiff > PulldownThresholdLow &&
@@ -145,7 +146,7 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO *pInfo)
 				}
 				else
 				{
-					if(FieldsSinceLastChange > 100 || (GetFilmMode() == FILM_32_PULLDOWN_COMB))
+					if(FieldsSinceLastChange > 100 || (GetFilmMode() == FILM_22_PULLDOWN_COMB))
 					{
 						if(pInfo->IsOdd == TRUE)
 						{
@@ -205,7 +206,7 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO *pInfo)
 				{
 					// Reset the paramters of the Comb method
 					FilmModeNTSCComb(NULL);
-					SetFilmDeinterlaceMode(FILM_32_PULLDOWN_COMB);
+					SetFilmDeinterlaceMode(FILM_22_PULLDOWN_COMB);
 					LOG(" Gone to Comb Mode");
 					RepeatCount = PrivateRepeatCount;
 					NeedToCheckComb = TRUE;
@@ -260,7 +261,7 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO *pInfo)
 							{
 								// Reset the paramters of the Comb method
 								FilmModeNTSCComb(NULL);
-								SetFilmDeinterlaceMode(FILM_32_PULLDOWN_COMB);
+								SetFilmDeinterlaceMode(FILM_22_PULLDOWN_COMB);
 								LOG(" Gone to Comb Mode because we're not sure");
 								RepeatCount = PrivateRepeatCount;
 								NeedToCheckComb = TRUE;
@@ -306,6 +307,65 @@ BOOL FilmModePALOdd(DEINTERLACE_INFO *pInfo)
 	}
 }
 
+BOOL FilmModePALComb(DEINTERLACE_INFO *pInfo)
+{
+    static long LastComb = 0;
+    static long NumSkipped = 0;
+    static long NumVideo = 0;
+    static long NumCalls = 0;
+    
+	if(pInfo == NULL)
+    {
+        LastComb = 0;
+        NumSkipped = 0;
+		NumVideo = 0;
+		NumCalls = 0;
+		return FALSE;
+    }
+
+	++NumCalls;
+	if(NumCalls > MaxCallsToPALComb)
+	{
+        SetVideoDeinterlaceIndex(gPALFilmFallbackIndex);
+        LOG(" Gone back to video from Comb");
+	}
+    // if we can weave these frames together without too
+    // much weaving or because there is no motion then go ahead
+    if(pInfo->CombFactor  < ThresholdPulldownComb ||
+	    pInfo->FieldDiff  < MovementThreshold)
+    {
+        NumSkipped = 0;
+		LastComb = pInfo->CombFactor;
+        LOG(" Weaved in Comb mode");
+		return Weave(pInfo);
+    }
+    else
+    {
+        // otherwise we must keep track of how long it's been
+        // since we flipped and every so often throw in a video
+        // deinterlaced frame so that we don't freeze up
+        ++NumSkipped;
+        if(NumSkipped > 1)
+        {
+            LOG(" Had too many skipped frames, had to use video method");
+            ++NumVideo;
+            if(NumVideo > 2)
+            {
+                SetVideoDeinterlaceIndex(gPALFilmFallbackIndex);
+                LOG(" Gone back to video from Comb");
+            }
+			LastComb = 0;
+			return GetVideoDeintIndex(gPALFilmFallbackIndex)->pfnAlgorithm(pInfo);
+        }
+        else
+        {
+			LastComb = pInfo->CombFactor;
+            return FALSE;
+        }
+    }
+}
+
+
 ////////////////////////////////////////////////////////////////////////////
 // Start of Settings related code
 /////////////////////////////////////////////////////////////////////////////
@@ -340,6 +400,13 @@ SETTING FD50Settings[FD50_SETTING_LASTONE] =
 		1, 1, 10, 1, 1,
 		NULL,
 		"Pulldown", "PALPulldownRepeatCount2", NULL,
+	},
+	{
+		"Max Calls to PAL Comb Method", SLIDER, 0, (long*)&MaxCallsToPALComb,
+		20, 0, 1000, 10, 1,
+		NULL,
+		"Pulldown", "MaxCallsToPALComb", NULL,
+
 	},
 };
 

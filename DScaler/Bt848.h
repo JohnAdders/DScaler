@@ -118,6 +118,7 @@ void BT848_SetPLL(PLLFREQ PLL);
 void BT848_CreateRiscCode(int nFlags);
 int BT848_GetRISCPosAsInt();
 BOOL BT848_SetGeoSize();
+BOOL BT848_IsPAL();
 
 BOOL BT848_SetVideoSource(VIDEOSOURCETYPE nInput);
 void BT848_SetDMA(BOOL bState);

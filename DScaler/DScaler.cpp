@@ -1835,7 +1835,6 @@ void MainWndOnInitBT(HWND hWnd)
 		else
 		{
 			LoadFilterPlugins();
-			LoadPluginsSettingsFromIni();
 		}
 	}
 	

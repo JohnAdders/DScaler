@@ -103,6 +103,12 @@ DEINTERLACE_METHOD FilmDeintMethods[FILMPULLDOWNMODES_LAST_ONE] =
 		"3:2 Pulldown Use Comb Info", "3:2 Comb", FALSE, TRUE, FilmModeNTSCComb, 1000, 60, 
 		50, NULL, 0, NULL, NULL, NULL, 2, 0, 0, -1, NULL, 0, FALSE, FALSE,
 	},
+	// FILM_22_PULLDOWN_COMB
+	{
+		sizeof(DEINTERLACE_METHOD), DEINTERLACE_CURRENT_VERSION,
+		"2:2 Pulldown Use Comb Info", "2:2 Comb", FALSE, TRUE, FilmModePALComb, 1000, 60, 
+		50, NULL, 0, NULL, NULL, NULL, 2, 0, 0, -1, NULL, 0, FALSE, FALSE,
+	},
 };
 
 long NumVideoModes = 0;
@@ -449,6 +455,13 @@ void LoadDeintPlugin(LPCSTR szFileName)
 		{
 			VideoDeintMethods[NumVideoModes] = pMethod;
 			pMethod->hModule = hPlugInMod;
+			
+			// read in settings
+			for(int i = 0; i < pMethod->nSettings; i++)
+			{
+				Setting_ReadFromIni(&(pMethod->pSettings[i]));
+			}
+
 			NumVideoModes++;
 		}
 	}

@@ -155,12 +155,6 @@ void LoadSettingsFromIni()
 	}
 }
 
-void LoadPluginsSettingsFromIni()
-{
-	Deinterlace_ReadSettingsFromIni();
-	Filter_ReadSettingsFromIni();
-}
-
 LONG Settings_HandleSettingMsgs(HWND hWnd, UINT message, UINT wParam, LONG lParam, BOOL* bDone)
 {
 	LONG RetVal = 0;

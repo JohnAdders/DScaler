@@ -24,7 +24,7 @@ unsigned char GammaTable[256];
 
 FILTER_METHOD GammaMethod;
 
-long Gamma = 1000;
+long Gamma = 1300;
 BOOL bUseStoredTable = FALSE;
 
 BOOL FilterGamma(DEINTERLACE_INFO *info)

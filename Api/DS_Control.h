@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.113 2002-11-09 01:11:09 laurentg Exp $
+// $Id: DS_Control.h,v 1.114 2002-11-09 20:56:46 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.113  2002/11/09 01:11:09  laurentg
+// New settings for the CX2388x chip
+//
 // Revision 1.112  2002/11/06 11:11:22  adcockj
 // Added new Settings and applied Laurent's filter setup suggestions
 //
@@ -1481,6 +1484,9 @@ typedef enum
     CX2388XCHROMA2HCOMB,
     CX2388XFORCEREMODEXCESSCHROMA,
     CX2388XIFXINTERPOLATION,
+    CX2388XCOMBRANGE,
+    CX2388XSECONDCHROMADEMOD,
+    CX2388XTHIRDCHROMADEMOD,
     CX2388X_SETTING_LASTONE,
 } CX2388X_SETTING;
 

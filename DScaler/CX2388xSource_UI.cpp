@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_UI.cpp,v 1.8 2002-11-09 00:22:23 laurentg Exp $
+// $Id: CX2388xSource_UI.cpp,v 1.9 2002-11-09 20:53:46 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/11/09 00:22:23  laurentg
+// New settings for CX2388x chip
+//
 // Revision 1.7  2002/11/08 10:37:46  adcockj
 // Added UI for Holo3d Settings
 //
@@ -592,6 +595,9 @@ CTreeSettingsPage* CCX2388xSource::GetTreeSettingsPage()
         vSettingsList.push_back(m_Chroma2HComb);
         vSettingsList.push_back(m_ForceRemodExcessChroma);
         vSettingsList.push_back(m_IFXInterpolation);
+        vSettingsList.push_back(m_CombRange);
+        vSettingsList.push_back(m_SecondChromaDemod);
+        vSettingsList.push_back(m_ThirdChromaDemod);
     }
 
     return new CTreeSettingsGeneric("CX2388x Advanced",vSettingsList);

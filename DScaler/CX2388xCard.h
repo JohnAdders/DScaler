@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.h,v 1.8 2002-11-09 00:22:23 laurentg Exp $
+// $Id: CX2388xCard.h,v 1.9 2002-11-09 20:53:46 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -161,6 +161,9 @@ public:
 	void SetChroma2HComb(BOOL Chroma2HComb);
 	void SetForceRemodExcessChroma(BOOL ForceRemodExcessChroma);
 	void SetIFXInterpolation(BOOL IFXInterpolation);
+	void SetCombRange(int CombRange);
+	void SetSecondChromaDemod(BOOL SecondChromaDemod);
+	void SetThirdChromaDemod(BOOL ThirdChromaDemod);
 
     static BOOL APIENTRY ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 

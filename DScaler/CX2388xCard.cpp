@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.15 2002-11-09 00:22:23 laurentg Exp $
+// $Id: CX2388xCard.cpp,v 1.16 2002-11-09 20:53:46 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2002/11/09 00:22:23  laurentg
+// New settings for CX2388x chip
+//
 // Revision 1.14  2002/11/08 11:54:51  adcockj
 // try looking for TDA9887 with MT2032 tuners
 //
@@ -493,6 +496,42 @@ void CCX2388xCard::SetIFXInterpolation(BOOL IFXInterpolation)
     else
     {
         OrDataDword(CX2388X_FORMAT_2HCOMB, (1 << 15));
+    }
+}
+
+void CCX2388xCard::SetCombRange(int CombRange)
+{
+    DWORD dwval = ReadDword(CX2388X_FORMAT_2HCOMB);
+    dwval &= 0xfc00ffff;
+    dwval |= ((CombRange & 0x3FF) << 16 );
+    WriteDword(CX2388X_FORMAT_2HCOMB, dwval);
+}
+
+void CCX2388xCard::SetSecondChromaDemod(BOOL SecondChromaDemod)
+{
+    if(SecondChromaDemod)
+    {
+        OrDataDword(CX2388X_FILTER_EVEN, (1 << 16));
+        OrDataDword(CX2388X_FILTER_ODD, (1 << 16));
+    }
+    else
+    {
+        AndDataDword(CX2388X_FILTER_EVEN, ~(1 << 16));
+        AndDataDword(CX2388X_FILTER_ODD, ~(1 << 16));
+    }
+}
+
+void CCX2388xCard::SetThirdChromaDemod(BOOL ThirdChromaDemod)
+{
+    if(ThirdChromaDemod)
+    {
+        OrDataDword(CX2388X_FILTER_EVEN, (1 << 17));
+        OrDataDword(CX2388X_FILTER_ODD, (1 << 17));
+    }
+    else
+    {
+        AndDataDword(CX2388X_FILTER_EVEN, ~(1 << 17));
+        AndDataDword(CX2388X_FILTER_ODD, ~(1 << 17));
     }
 }
 

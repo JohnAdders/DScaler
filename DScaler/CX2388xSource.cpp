@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.9 2002-11-09 00:22:23 laurentg Exp $
+// $Id: CX2388xSource.cpp,v 1.10 2002-11-09 20:53:46 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/11/09 00:22:23  laurentg
+// New settings for CX2388x chip
+//
 // Revision 1.8  2002/11/07 20:33:17  adcockj
 // Promoted ACPI functions so that state management works properly
 //
@@ -353,6 +356,15 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
     m_IFXInterpolation = new CIFXInterpolationSetting(this, "IFX Interpolation", TRUE, IniSection, pCX2388xGroup, FlagsAll);
     m_Settings.push_back(m_IFXInterpolation);
 
+    m_CombRange = new CCombRangeSetting(this, "Adaptative Comb Filter Threshold", 0x01f, 0, 0x3ff, IniSection, pVideoGroup, FlagsAll);
+    m_Settings.push_back(m_CombRange);
+
+    m_SecondChromaDemod = new CSecondChromaDemodSetting(this, "Second Chroma Demodulation", FALSE, IniSection, pCX2388xGroup, FlagsAll);
+    m_Settings.push_back(m_SecondChromaDemod);
+
+    m_ThirdChromaDemod = new CThirdChromaDemodSetting(this, "Third Chroma Demodulation", FALSE, IniSection, pCX2388xGroup, FlagsAll);
+    m_Settings.push_back(m_ThirdChromaDemod);
+
 #ifdef _DEBUG    
     if (CX2388X_SETTING_LASTONE != m_Settings.size())
     {
@@ -418,7 +430,10 @@ void CCX2388xSource::Reset()
         m_pCard->SetChroma2HComb(m_Chroma2HComb->GetValue());
         m_pCard->SetForceRemodExcessChroma(m_ForceRemodExcessChroma->GetValue());
         m_pCard->SetIFXInterpolation(m_IFXInterpolation->GetValue());
-    }
+        m_pCard->SetCombRange(m_CombRange->GetValue());
+        m_pCard->SetSecondChromaDemod(m_SecondChromaDemod->GetValue());
+        m_pCard->SetThirdChromaDemod(m_ThirdChromaDemod->GetValue());
+   }
     NotifySizeChange();
 }
 
@@ -1296,6 +1311,21 @@ void CCX2388xSource::ForceRemodExcessChromaOnChange(long NewValue, long OldValue
 void CCX2388xSource::IFXInterpolationOnChange(long NewValue, long OldValue)
 {
     m_pCard->SetIFXInterpolation(NewValue);
+}
+
+void CCX2388xSource::CombRangeOnChange(long NewValue, long OldValue)
+{
+    m_pCard->SetCombRange(NewValue);
+}
+
+void CCX2388xSource::SecondChromaDemodOnChange(long NewValue, long OldValue)
+{
+    m_pCard->SetSecondChromaDemod(NewValue);
+}
+
+void CCX2388xSource::ThirdChromaDemodOnChange(long NewValue, long OldValue)
+{
+    m_pCard->SetThirdChromaDemod(NewValue);
 }
 
 void CCX2388xSource::FLIFilmDetectOnChange(long NewValue, long OldValue)

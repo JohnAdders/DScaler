@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.286 2003-01-16 16:55:44 adcockj Exp $
+// $Id: DScaler.cpp,v 1.287 2003-01-16 22:34:21 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.286  2003/01/16 16:55:44  adcockj
+// Added new credits dialog
+//
 // Revision 1.285  2003/01/15 15:54:22  adcockj
 // Fixed some keyboard focus issues
 //
@@ -917,6 +920,7 @@
 #include "ToolbarControl.h"
 #include "SettingsMaster.h"
 #include "Credits.h"
+#include "SizeSettings.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -3094,6 +3098,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
         case IDM_VIDEOSETTINGS:
             DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_VIDEOSETTINGS), hWnd, VideoSettingProc);
+            break;
+
+        case IDM_SIZESETTINGS:
+            DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_SIZESETTINGS), hWnd, SizeSettingProc);
             break;
 
         case IDM_VPS_OUT:

@@ -74,6 +74,7 @@
 #define IDD_AUDIOSTANDARD_CUSTOM        253
 #define IDD_VTGOTO                      254
 #define IDD_CREDITS                     255
+#define IDD_SIZESETTINGS                256
 #define IDM_VT_RESET                    261
 #define IDM_AUDIOSETTINGS               264
 #define IDM_VIDEOSETTINGS               265
@@ -1156,7 +1157,7 @@
 #define ID_SETTINGS_SAVESETTINGSPERINPUT 32848
 #define IDM_VT_GOTO                     32849
 #define IDM_CREDITS                     32850
-#define IDC_STATIC                      -1
+#define IDM_SIZESETTINGS                32851
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
 #define IDM_POPUP_MODE                  65535
@@ -1176,8 +1177,8 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        256
-#define _APS_NEXT_COMMAND_VALUE         32851
+#define _APS_NEXT_RESOURCE_VALUE        258
+#define _APS_NEXT_COMMAND_VALUE         32852
 #define _APS_NEXT_CONTROL_VALUE         8071
 #define _APS_NEXT_SYMED_VALUE           2526
 #endif

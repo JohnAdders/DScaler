@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.40 2003-01-18 13:55:43 laurentg Exp $
+// $Id: CX2388xSource.cpp,v 1.41 2003-01-21 14:42:14 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.40  2003/01/18 13:55:43  laurentg
+// New methods GetHDelay and GetVDelay
+//
 // Revision 1.39  2003/01/18 10:52:11  laurentg
 // SetOverscan renamed SetAspectRatioData
 // Unnecessary call to SetOverscan deleted
@@ -488,7 +491,7 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
     m_CombFilter = new CCombFilterSetting(this, "Comb Filter", CCX2388xCard::COMBFILTER_DEFAULT, CCX2388xCard::COMBFILTER_FULL, IniSection, CombFilterSzList, pVideoGroup);
     m_Settings.push_back(m_CombFilter);
 
-    m_FullLumaRange = new CFullLumaRangeSetting(this, "Full Luma Range", TRUE, IniSection, pVideoGroup);
+    m_FullLumaRange = new CFullLumaRangeSetting(this, "Full Luma Range", FALSE, IniSection, pVideoGroup);
     m_Settings.push_back(m_FullLumaRange);
 
     m_Remodulation = new CRemodulationSetting(this, "Remodulation", CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pVideoGroup);

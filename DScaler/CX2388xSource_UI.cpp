@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_UI.cpp,v 1.31 2003-01-19 10:39:56 laurentg Exp $
+// $Id: CX2388xSource_UI.cpp,v 1.32 2003-01-21 14:42:14 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2003/01/19 10:39:56  laurentg
+// Disable selection of the tuner input when no tuner has been selected in the card setup dialog box
+//
 // Revision 1.30  2003/01/18 12:10:47  laurentg
 // Avoid double display in OSD (ADJUSTDOWN_SILENT and ADJUSTUP_SILENT instead of (ADJUSTDOWN and ADJUSTUP)
 //
@@ -563,8 +566,22 @@ void CCX2388xSource::ChangeDefaultsForVideoFormat(BOOL bDontSetValue)
         m_LeftOverscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC, bDontSetValue);
         m_RightOverscan->ChangeDefault(DEFAULT_OVERSCAN_NTSC, bDontSetValue);
     }
+    else if(IsSECAMVideoFormat(format))
+    {
+        // \todo add in correct default video values for SECAM
+        m_TopOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, bDontSetValue);
+        m_BottomOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, bDontSetValue);
+        m_LeftOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, bDontSetValue);
+        m_RightOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, bDontSetValue);
+    }
     else
     {
+        // Laurent's suggested colour values
+        m_Saturation->ChangeDefault(133, bDontSetValue);
+        m_SaturationU->ChangeDefault(154, bDontSetValue);
+        m_SaturationV->ChangeDefault(112, bDontSetValue);
+        // \todo add in correct default video values for PAL
+
         m_TopOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, bDontSetValue);
         m_BottomOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, bDontSetValue);
         m_LeftOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, bDontSetValue);

@@ -5,6 +5,7 @@
 #define IDM_POPUP_FILTERS               1
 #define IDC_CLEAR                       3
 #define IDC_AUTODETECT                  3
+#define IDC_AUDIOSTANDARD_MANUAL_DETECTNOW 3
 #define IDA_DSCALER                     150
 #define IDM_SAVE_SETTINGS_NOW           151
 #define IDM_STATUSBAR                   152
@@ -282,6 +283,7 @@
 #define IDC_TOOLBAR_CHANNELS_SPINUP     1415
 #define IDC_BUTTON2                     1416
 #define IDC_TOOLBAR_CHANNELS_SPINDOWN   1416
+#define IDC_AUDIOSTANDARD_MANUAL_DETECTSTEREO 1416
 #define IDC_BUTTON3                     1417
 #define IDC_TOOLBAR_CHANNELS_PREVIOUS   1417
 #define IDC_BUTTON4                     1418
@@ -301,6 +303,7 @@
 #define IDC_CHANNEL                     1432
 #define IDC_CHECK1                      1433
 #define IDC_TOOLBAR_VOLUME_MUTE         1433
+#define IDC_AUDIOSTANDARD_MANUAL_FORCEAM 1433
 #define IDC_CHECK2                      1434
 #define IDC_CHECK3                      1435
 #define IDC_CHECK4                      1436
@@ -598,9 +601,13 @@
 #define IDC_R                           1733
 #define IDC_RADIO1                      1734
 #define IDC_RADIO2                      1735
+#define IDC_AUDIOSTANDARD_MANUAL_MONO   1735
 #define IDC_RADIO3                      1736
+#define IDC_AUDIOSTANDARD_MANUAL_STEREO 1736
 #define IDC_RADIO4                      1737
+#define IDC_AUDIOSTANDARD_MANUAL_LANG1  1737
 #define IDC_RADIO5                      1738
+#define IDC_AUDIOSTANDARD_MANUAL_LANG2  1738
 #define IDC_RADIO6                      1739
 #define IDC_RADIO7                      1740
 #define IDC_RADIO8                      1741
@@ -1071,6 +1078,7 @@
 #define IDM_VIEW_MAINTOOLBAR_TOP        32825
 #define IDM_VIEW_MAINTOOLBAR_CHANNELS   32826
 #define IDM_VIEW_MAINTOOLBAR_VOLUME     32827
+#define ID_BTCARD_AUDIOSTANDARD         32828
 #define IDC_STATIC                      -1
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
@@ -1092,7 +1100,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        222
-#define _APS_NEXT_COMMAND_VALUE         32828
+#define _APS_NEXT_COMMAND_VALUE         32829
 #define _APS_NEXT_CONTROL_VALUE         8059
 #define _APS_NEXT_SYMED_VALUE           2491
 #endif

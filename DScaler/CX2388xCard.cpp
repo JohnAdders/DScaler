@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.25 2002-12-02 13:47:01 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.26 2002-12-04 17:43:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2002/12/02 13:47:01  adcockj
+// Allow fine control over white crush settings
+//
 // Revision 1.24  2002/11/28 18:07:37  adcockj
 // Fixed overflowing registers
 //
@@ -286,19 +289,14 @@ LPCSTR CCX2388xCard::GetCardName(eCX2388xCardId CardId)
     return m_TVCards[CardId].szName;
 }
 
-void CCX2388xCard::SetBrightness(BYTE Brightness)
+void CCX2388xCard::SetContrastBrightness(BYTE Contrast, BYTE Brightness)
 {
-    (*this.*m_TVCards[m_CardType].pSetBrightness)(Brightness);
+    (*this.*m_TVCards[m_CardType].pSetContrastBrightness)(Contrast, Brightness);
 }
 
 void CCX2388xCard::SetHue(BYTE Hue)
 {
     (*this.*m_TVCards[m_CardType].pSetHue)(Hue);
-}
-
-void CCX2388xCard::SetContrast(BYTE Contrast)
-{
-    (*this.*m_TVCards[m_CardType].pSetContrast)(Contrast);
 }
 
 void CCX2388xCard::SetSaturationU(BYTE SaturationU)
@@ -316,12 +314,13 @@ void CCX2388xCard::StandardSetFormat(int nInput, eVideoFormat Format, BOOL IsPro
     // do nothing
 }
 
-void CCX2388xCard::SetAnalogBrightness(BYTE Brightness)
+void CCX2388xCard::SetAnalogContrastBrightness(BYTE Contrast, BYTE Brightness)
 {
     DWORD dwval = ReadDword(CX2388X_BRIGHT_CONTRAST);
-    dwval &= 0xffffff00;
+    dwval &= 0xffff0000;
     Brightness = (BYTE)(unsigned char)(Brightness - 0x80);
     dwval |= (Brightness & 0xff);
+    dwval |= ((Contrast & 0xFF) << 8 );
     WriteDword(CX2388X_BRIGHT_CONTRAST,dwval);
 }
 
@@ -332,14 +331,6 @@ void CCX2388xCard::SetAnalogHue(BYTE Hue)
     Hue = (BYTE)(unsigned char)(Hue - 0x80);
     dwval |= (Hue & 0xff);
     WriteDword(CX2388X_HUE, dwval);
-}
-
-void CCX2388xCard::SetAnalogContrast(BYTE Contrast)
-{
-    DWORD dwval = ReadDword(CX2388X_BRIGHT_CONTRAST); // Brightness/contrast register
-    dwval &= 0xffff00ff;
-    dwval |= ((Contrast & 0xFF) << 8 );
-    WriteDword(CX2388X_BRIGHT_CONTRAST,dwval);
 }
 
 void CCX2388xCard::SetAnalogSaturationU(BYTE SaturationU)

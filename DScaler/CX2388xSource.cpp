@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.16 2002-12-03 07:56:31 adcockj Exp $
+// $Id: CX2388xSource.cpp,v 1.17 2002-12-04 17:43:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/12/03 07:56:31  adcockj
+// Fixed some problems with settings not saving
+//
 // Revision 1.15  2002/12/02 13:47:01  adcockj
 // Allow fine control over white crush settings
 //
@@ -448,8 +451,7 @@ void CCX2388xSource::Reset()
     m_pCard->ResetHardware();
     m_pCard->SetVideoSource(m_VideoSource->GetValue());
 
-    m_pCard->SetBrightness(m_Brightness->GetValue());
-    m_pCard->SetContrast(m_Contrast->GetValue());
+    m_pCard->SetContrastBrightness(m_Contrast->GetValue(), m_Brightness->GetValue());
     m_pCard->SetHue(m_Hue->GetValue());
     m_pCard->SetSaturationU(m_SaturationU->GetValue());
     m_pCard->SetSaturationV(m_SaturationV->GetValue());
@@ -1125,7 +1127,7 @@ void CCX2388xSource::VideoFormatOnChange(long NewValue, long OldValue)
 
 void CCX2388xSource::BrightnessOnChange(long Brightness, long OldValue)
 {
-    m_pCard->SetBrightness(Brightness);
+    m_pCard->SetContrastBrightness(m_Contrast->GetValue(), Brightness);
 }
 
 void CCX2388xSource::HueOnChange(long Hue, long OldValue)
@@ -1135,7 +1137,7 @@ void CCX2388xSource::HueOnChange(long Hue, long OldValue)
 
 void CCX2388xSource::ContrastOnChange(long Contrast, long OldValue)
 {
-    m_pCard->SetContrast(Contrast);
+    m_pCard->SetContrastBrightness(Contrast, m_Brightness->GetValue());
 }
 
 void CCX2388xSource::SaturationUOnChange(long SatU, long OldValue)

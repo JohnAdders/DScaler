@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Types.cpp,v 1.5 2002-11-15 17:10:51 adcockj Exp $
+// $Id: CX2388xCard_Types.cpp,v 1.6 2002-12-04 17:43:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/11/15 17:10:51  adcockj
+// Setting of GPIO pins for MSI TV@nywhere
+//
 // Revision 1.4  2002/11/03 18:38:32  adcockj
 // Fixes for cx2388x and PAL & NTSC
 //
@@ -111,8 +114,7 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
         },
         NULL,
         StandardInputSelect,
-        SetAnalogBrightness,
-        SetAnalogContrast,
+        SetAnalogContrastBrightness,
         SetAnalogHue,
         SetAnalogSaturationU,
         SetAnalogSaturationV,
@@ -147,8 +149,7 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
         },
         NULL,
         StandardInputSelect,
-        SetAnalogBrightness,
-        SetAnalogContrast,
+        SetAnalogContrastBrightness,
         SetAnalogHue,
         SetAnalogSaturationU,
         SetAnalogSaturationV,
@@ -183,8 +184,7 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
         },
         NULL,
         StandardInputSelect,
-        SetAnalogBrightness,
-        SetAnalogContrast,
+        SetAnalogContrastBrightness,
         SetAnalogHue,
         SetAnalogSaturationU,
         SetAnalogSaturationV,
@@ -239,8 +239,7 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
         },
         InitH3D,
         H3DInputSelect,
-        SetH3DBrightness,
-        SetH3DContrast,
+        SetH3DContrastBrightness,
         SetH3DHue,
         SetH3DSaturationU,
         SetH3DSaturationV,
@@ -265,8 +264,7 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
         },
         NULL,
         StandardInputSelect,
-        SetAnalogBrightness,
-        SetAnalogContrast,
+        SetAnalogContrastBrightness,
         SetAnalogHue,
         SetAnalogSaturationU,
         SetAnalogSaturationV,
@@ -301,8 +299,7 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
         },
         NULL,
         MSINTSCInputSelect,
-        SetAnalogBrightness,
-        SetAnalogContrast,
+        SetAnalogContrastBrightness,
         SetAnalogHue,
         SetAnalogSaturationU,
         SetAnalogSaturationV,
@@ -337,8 +334,7 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
         },
         NULL,
         MSIPALInputSelect,
-        SetAnalogBrightness,
-        SetAnalogContrast,
+        SetAnalogContrastBrightness,
         SetAnalogHue,
         SetAnalogSaturationU,
         SetAnalogSaturationV,

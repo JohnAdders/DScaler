@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_H3D.cpp,v 1.3 2002-11-28 18:06:08 adcockj Exp $
+// $Id: CX2388xCard_H3D.cpp,v 1.4 2002-12-04 17:43:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/11/28 18:06:08  adcockj
+// very small Reformat
+//
 // Revision 1.2  2002/10/31 14:47:20  adcockj
 // Added Sharpness
 //
@@ -305,26 +308,63 @@ void CCX2388xCard::H3DSetFormat(int nInput, eVideoFormat TVFormat, BOOL IsProgre
 }
 
 
-void CCX2388xCard::SetH3DBrightness(BYTE Brightness)
+void CCX2388xCard::SetH3DContrastBrightness(BYTE Contrast, BYTE Brightness)
 {
     switch(m_CurrentInput)
     {
     case H3D_COMPONENT:
     case H3D_RGsB:
-        m_SAA7118->SetComponentBrightness(Brightness);
-        SetVIPBrightness(0x80);
-        break;
+        {
+            // The SAA7118 has really wierd brighness and contrast
+            // this messing about below makes the settings similar in
+            // operation to the bt848 which means that the calibration code
+            // may work properly
+
+            int NewBrightness = (Brightness - 128) + Contrast;
+            if(NewBrightness < 0)
+            {
+                NewBrightness = 0;
+            }
+            if(NewBrightness > 255)
+            {
+                NewBrightness = 255;
+            }
+            m_SAA7118->SetComponentBrightness((BYTE)NewBrightness);
+            SetVIPBrightness(0x80);
+            m_SAA7118->SetComponentContrast(Contrast);
+            SetVIPContrast(0x80);
+        }
+       break;
     case H3D_SVIDEO:
     case H3D_COMPOSITE1:
     case H3D_COMPOSITE2:
     case H3D_COMPOSITE3:
     case H3D_COMPOSITE4:
-        m_SAA7118->SetBrightness(Brightness);
-        SetVIPBrightness(0x80);
+        {
+            // The SAA7118 has really wierd brighness and contrast
+            // this messing about below makes the settings similar in
+            // operation to the bt848 which means that the calibration code
+            // may work properly
+
+            int NewBrightness = (Brightness - 128) + Contrast;
+            if(NewBrightness < 0)
+            {
+                NewBrightness = 0;
+            }
+            if(NewBrightness > 255)
+            {
+                NewBrightness = 255;
+            }
+            m_SAA7118->SetBrightness((BYTE)NewBrightness);
+            SetVIPBrightness(0x80);
+            m_SAA7118->SetContrast(Contrast);
+            SetVIPContrast(0x80);
+        }
         break;
     case H3D_SDI:
     default:
         SetVIPBrightness(Brightness);
+        SetVIPContrast(Contrast);
         break;
     }
 }
@@ -345,30 +385,6 @@ void CCX2388xCard::SetH3DHue(BYTE Hue)
         break;
     case H3D_SDI:
     default:
-        break;
-    }
-}
-
-void CCX2388xCard::SetH3DContrast(BYTE Contrast)
-{
-    switch(m_CurrentInput)
-    {
-    case H3D_COMPONENT:
-    case H3D_RGsB:
-        m_SAA7118->SetComponentContrast(Contrast);
-        SetVIPContrast(0x80);
-        break;
-    case H3D_SVIDEO:
-    case H3D_COMPOSITE1:
-    case H3D_COMPOSITE2:
-    case H3D_COMPOSITE3:
-    case H3D_COMPOSITE4:
-        m_SAA7118->SetContrast(Contrast);
-        SetVIPContrast(0x80);
-        break;
-    case H3D_SDI:
-    default:
-        SetVIPContrast(Contrast);
         break;
     }
 }

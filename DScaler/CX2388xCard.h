@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.h,v 1.12 2002-12-02 13:47:01 adcockj Exp $
+// $Id: CX2388xCard.h,v 1.13 2002-12-04 17:43:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -105,10 +105,8 @@ private:
             Default is StandardBT848InputSelect
         */
         void (CCX2388xCard::*pInputSwitchFunction)(int);
-        /// Function to set Brighness Default SetAnalogBrightness
-        void (CCX2388xCard::*pSetBrightness)(BYTE);
-        /// Function to set Contrast Default SetAnalogContrast
-        void (CCX2388xCard::*pSetContrast)(BYTE);
+        /// Function to set Contrast and Brightness Default SetAnalogContrastBrightness
+        void (CCX2388xCard::*pSetContrastBrightness)(BYTE, BYTE);
         /// Function to set Hue Default SetAnalogHue
         void (CCX2388xCard::*pSetHue)(BYTE);
         /// Function to set SaturationU Default SetAnalogSaturationU
@@ -142,9 +140,8 @@ public:
     
     void SetVideoSource(int nInput);
 
-    void SetBrightness(BYTE Brightness);
+    void SetContrastBrightness(BYTE Contrast, BYTE Brightness);
     void SetHue(BYTE Hue);
-    void SetContrast(BYTE Contrast);
     void SetSaturationU(BYTE SaturationU);
     void SetSaturationV(BYTE SaturationV);
     void SetSharpness(char Sharpness);
@@ -231,9 +228,8 @@ private:
 
     void StandardSetFormat(int nInput, eVideoFormat TVFormat, BOOL IsProgressive);
 
-    void SetAnalogBrightness(BYTE Brightness);
+    void SetAnalogContrastBrightness(BYTE Contrast, BYTE Brightness);
     void SetAnalogHue(BYTE Hue);
-    void SetAnalogContrast(BYTE Contrast);
     void SetAnalogSaturationU(BYTE SaturationU);
     void SetAnalogSaturationV(BYTE SaturationV);
 
@@ -247,9 +243,8 @@ private:
     void MSINTSCInputSelect(int nInput);
 
 	void H3DSetFormat(int nInput, eVideoFormat TVFormat, BOOL IsProgressive);
-    void SetH3DBrightness(BYTE Brightness);
+    void SetH3DContrastBrightness(BYTE Contrast, BYTE Brightness);
     void SetH3DHue(BYTE Hue);
-    void SetH3DContrast(BYTE Contrast);
     void SetH3DSaturationU(BYTE SaturationU);
     void SetH3DSaturationV(BYTE SaturationV);
 

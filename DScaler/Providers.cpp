@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.61 2003-03-27 14:10:21 laurentg Exp $
+// $Id: Providers.cpp,v 1.62 2003-05-30 12:22:51 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.61  2003/03/27 14:10:21  laurentg
+// Restore still sources before DShow sources to avoid problems when opening stills
+//
 // Revision 1.60  2003/03/25 00:02:11  laurentg
 // DShow sources moved before the stills sources and "(DShow)" added at end of DirectShow sources
 //
@@ -737,8 +740,10 @@ void Providers_NotifySourcePreChange()
     {
         Providers_GetCurrentSource()->UnsetSourceAsCurrent();
     }
+	// Laurent 30/05/2003 Not necessary because it is done two lines below
+	// when calling UnsetSourceAsCurrent
     // good time to save the current settings
-    SettingsMaster->SaveSettings();
+    // SettingsMaster->SaveSettings();
 }
 
 void Providers_NotifySourceChange(int OldSource)

@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.cpp,v 1.10 2001-12-28 12:16:53 adcockj Exp $
+// $Id: MSP34x0.cpp,v 1.11 2002-01-16 19:24:28 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2001/12/28 12:16:53  adcockj
+// Sound fixes
+//
 // Revision 1.9  2001/12/21 11:07:31  adcockj
 // Even more RevA fixes
 //
@@ -541,6 +544,16 @@ void CMSP34x0Decoder::ReconfigureRevD()
         }
     }
 
+    switch(m_AudioInput)
+    {
+    case AUDIOINPUT_RADIO:
+    case AUDIOINPUT_TUNER:
+        modus |= 0x100;
+        break;
+    default:
+        break;
+    }
+
     // 1. MODUS register
     SetDEMRegister(DEM_WR_MODUS, modus);
 
@@ -633,8 +646,10 @@ void CMSP34x0Decoder::ReconfigureRevD()
     SetDSPRegister(DSP_WR_I2S_SOURCE, source);
     // 2. audio baseband
 
-    // 3. volume
-    /// \todo FIXME
+    // 3. reset volume to 0dB
+    SetDSPRegister(DSP_WR_LDSPK_VOLUME, 0x7300);
+    SetDSPRegister(DSP_WR_HEADPH_VOLUME, 0x7300);
+    SetDSPRegister(DSP_WR_SCART1_VOLUME, 0x7300);
 }
 
 void CMSP34x0Decoder::Reconfigure()
@@ -644,12 +659,12 @@ void CMSP34x0Decoder::Reconfigure()
     if (!m_bRevisionChecked)
     {
         m_bRevisionChecked = true;
-        m_bHasRevD = (GetVersion() & 0x0F00 >= 0x0400);
+        m_bHasRevD = (GetVersion() & 0xFF >= 0x04);
     }
 
     if (m_bHasRevD)
     {
-        ReconfigureRevA(); /// FIXME D();
+        ReconfigureRevD();
     }
     else
     {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.37 2001-11-21 12:32:11 adcockj Exp $
+// $Id: OSD.cpp,v 1.38 2001-11-22 13:19:37 temperton Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.37  2001/11/21 12:32:11  adcockj
+// Renamed CInterlacedSource to CSource in preparation for changes to DEINTERLACE_INFO
+//
 // Revision 1.36  2001/11/09 12:42:07  adcockj
 // Separated most resources out into separate dll ready for localization
 //
@@ -187,6 +190,7 @@
 #include "VBI_WSSdecode.h"
 #include "Calibration.h"
 #include "Providers.h"
+#include "PaintingHDC.h"
 
 extern long NumFilters;
 extern FILTER_METHOD* Filters[];
@@ -205,6 +209,7 @@ BOOL bOutline = TRUE;
 eOSDBackground Background;
 BOOL bAutoHide = TRUE;
 
+CPaintingHDC PaintingHDC; //Not a good way to instantiate it here, but it only temporary..
 //---------------------------------------------------------------------------
 // Global OSD Information structure
 TOsdInfo    grOSD[OSD_MAX_TEXT];
@@ -303,8 +308,34 @@ void OSD_Show(HWND hWnd, int ShowType, int refresh_delay)
     KillTimer(hWnd, OSD_TIMER_REFRESH_ID);
     hDC = GetDC(hWnd);
     GetClientRect(hWnd,&winRect);
-    PaintColorkey(hWnd, TRUE, hDC, &winRect);
-    OSD_Redraw(hWnd, hDC);
+
+    LARGE_INTEGER count, count1, pfreq;
+    BOOL bPerformanceCounter = QueryPerformanceCounter(&count);
+
+    if (IsStatusBarVisible())
+    {
+        winRect.bottom -= StatusBar_Height();
+    }
+
+    //
+    //  Uncomment line below to get double buffering temporary disabled
+    //
+    //PaintingHDC.SetEnabled(false);
+
+    HDC hDBDC = PaintingHDC.BeginPaint(hDC, &winRect);
+    PaintColorkey(hWnd, TRUE, hDBDC, &winRect);
+    OSD_Redraw(hWnd, hDBDC);
+    PaintingHDC.EndPaint();
+
+    if(bPerformanceCounter)
+    {
+        QueryPerformanceFrequency(&pfreq);
+        QueryPerformanceCounter(&count1);
+        char temp[200];
+        sprintf(temp, "OSD_Show in %d ms", (int) (count1.QuadPart-count.QuadPart)/(pfreq.QuadPart/1000));
+        OutputDebugString(temp);
+    }
+
     ReleaseDC(hWnd, hDC);
     if (ShowType == OSD_AUTOHIDE)
     {

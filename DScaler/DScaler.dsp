@@ -304,6 +304,10 @@ SOURCE=.\OverlaySettings.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\PaintingHDC.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\PCICard.cpp
 # End Source File
 # Begin Source File
@@ -557,6 +561,10 @@ SOURCE=.\OutThreads.h
 # Begin Source File
 
 SOURCE=.\OverlaySettings.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\PaintingHDC.h
 # End Source File
 # Begin Source File
 

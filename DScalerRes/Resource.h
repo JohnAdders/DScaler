@@ -3,6 +3,7 @@
 // Used by DScalerRes.rc
 //
 #define IDM_POPUP_FILTERS               1
+#define IDC_CLEAR                       3
 #define IDA_DSCALER                     150
 #define IDM_SAVE_SETTINGS_NOW           151
 #define IDM_STATUSBAR                   152
@@ -301,7 +302,7 @@
 #define IDC_COUNTRY                     1463
 #define IDC_CPU_TYPE                    1464
 #define IDC_CRUSH                       1465
-#define IDC_CUTOMCHANNELORDER           1466
+#define IDC_CUSTOMCHANNELORDER          1466
 #define IDC_D1                          1467
 #define IDC_D2                          1468
 #define IDC_D3                          1469
@@ -924,9 +925,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        188
+#define _APS_NEXT_RESOURCE_VALUE        193
 #define _APS_NEXT_COMMAND_VALUE         2358
-#define _APS_NEXT_CONTROL_VALUE         1895
+#define _APS_NEXT_CONTROL_VALUE         1896
 #define _APS_NEXT_SYMED_VALUE           2358
 #endif
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TVCards.h,v 1.19 2001-10-25 16:20:23 ittarnavsky Exp $
+// $Id: TVCards.h,v 1.20 2001-10-26 16:18:48 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // The structures where taken from bttv driver version 7.37
 // bttv - Bt848 frame grabber driver
@@ -127,6 +127,7 @@ enum eTVCardId
     TVCARD_VHXOLD,           
     TVCARD_VOODOOTV_200,
     TVCARD_VOODOOTV_FM,
+    TVCARD_STANDARD_BT878_NO_INIT_MSP,
     TVCARD_LASTONE,
 };
 

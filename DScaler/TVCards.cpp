@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TVCards.cpp,v 1.29 2001-10-25 16:20:23 ittarnavsky Exp $
+// $Id: TVCards.cpp,v 1.30 2001-10-26 16:18:47 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // The structures where taken from bttv driver version 7.37
 // bttv - Bt848 frame grabber driver
@@ -33,6 +33,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2001/10/25 16:20:23  ittarnavsky
+// added support for the VoodooTV FM (Europa)
+//
 // Revision 1.28  2001/10/20 18:34:12  ittarnavsky
 // fixed the hardware setup dialog to properly select the default tuner provided in the card definition of the curently selected card
 //
@@ -928,6 +931,18 @@ const TCardSetup TVCards[TVCARD_LASTONE] =
         0, // GPIOMuxMask
         PLL_28, // ePLLFreq
         TUNER_MT2032, // eTunerID
+        NULL,
+    },
+    // use this card so that the MSP chip is not reset on startup
+    // should let Dscaler work as it did in 2.3.0
+    {
+        "Standard BT878 (No Init MSP)",
+        4, 1, 0, 2, 7,
+        { 2, 0, 1, 1, 0, 0, 0, 0},
+        { 0, 1, 2, 3, 4, 0},
+        0,
+        PLL_28,
+        TUNER_USER_SETUP,
         NULL,
     },
 };

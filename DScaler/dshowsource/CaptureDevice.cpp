@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CaptureDevice.cpp,v 1.17 2003-01-15 20:56:19 tobbej Exp $
+// $Id: CaptureDevice.cpp,v 1.18 2003-01-17 17:37:49 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2003/01/15 20:56:19  tobbej
+// added audio channel selection menu
+//
 // Revision 1.16  2003/01/06 21:34:29  tobbej
 // implemented GetFormat (not working yet)
 // implemented fm radio support
@@ -480,7 +483,7 @@ void CDShowCaptureDevice::getRange(long prop,long *pMin,long *pMax, long *pStepS
 	HRESULT hr=m_pVideoProcAmp->GetRange(prop,&min,&max,&stepSize,&def,&flags);
 	if(FAILED(hr))
 	{
-		throw("IAMVideoProcAmp::GetRange failed",hr);
+		throw CDShowException("IAMVideoProcAmp::GetRange failed",hr);
 	}
 
 	if(pMin!=NULL)

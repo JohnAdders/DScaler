@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.h,v 1.13 2002-07-06 16:50:08 tobbej Exp $
+// $Id: DSGraph.h,v 1.14 2002-08-01 20:24:19 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/07/06 16:50:08  tobbej
+// new field buffering
+// some small changes to resolution changing
+//
 // Revision 1.12  2002/05/24 15:15:11  tobbej
 // changed filter properties dialog to include progpertypages from the pins
 //
@@ -113,7 +117,7 @@ public:
 	 */
 	CDShowBaseSource* getSourceDevice();
 	void getConnectionMediatype(AM_MEDIA_TYPE *pmt);
-	bool GetFields(long *pcFields, FieldBuffer *ppFields,BufferInfo &info);
+	bool GetFields(long *pcFields, FieldBuffer *ppFields,BufferInfo &info,DWORD dwLateness);
 
 	/**
 	 * Get number of dropped frames.

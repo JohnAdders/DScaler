@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.53 2002-08-12 19:54:27 laurentg Exp $
+// $Id: BT848Source.cpp,v 1.54 2002-08-12 22:42:28 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.53  2002/08/12 19:54:27  laurentg
+// Selection of video card to adjust DScaler settings
+//
 // Revision 1.52  2002/08/11 16:56:35  laurentg
 // More information displayed in the title of the BT card setup dialog box
 //
@@ -408,7 +411,7 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     m_VideoFormat = new CVideoFormatSetting(this, "Video Format", VIDEOFORMAT_NTSC_M, 0, VIDEOFORMAT_LASTONE - 1, IniSection);
     m_Settings.push_back(m_VideoFormat);
 
-    m_HDelay = new CHDelaySetting(this, "Horzontal Delay", 0, 0, 255, IniSection);
+    m_HDelay = new CHDelaySetting(this, "Horizontal Delay", 0, 0, 255, IniSection);
     m_Settings.push_back(m_HDelay);
 
     m_VDelay = new CVDelaySetting(this, "Vertical Delay", 0, 0, 255, IniSection);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PlugTest.cpp,v 1.12 2001-12-03 20:40:32 adcockj Exp $
+// $Id: PlugTest.cpp,v 1.13 2001-12-07 17:52:38 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2001/12/03 20:40:32  adcockj
+// Plugtest fixes
+//
 // Revision 1.11  2001/11/22 17:41:08  adcockj
 // Updated plugtest to be compatable with new structure
 //
@@ -524,19 +527,22 @@ int ProcessSnapShot(char* SnapshotFile, char* FilterPlugin, char* DeintPlugin, c
     {
         if(FilterMethod->bOnInput == TRUE)
         {
-            TPicture HistoryOrig[MAX_PICTURE_HISTORY];
-            memcpy(HistoryOrig, Info.PictureHistory, MAX_PICTURE_HISTORY * sizeof(TPicture));
+            TPicture* HistoryOrig[5];
+            memcpy(HistoryOrig, Info.PictureHistory, 5 * sizeof(TPicture*));
 
-            for(i = 0; i < MAX_PICTURE_HISTORY; ++i)
+            for(i = 0; i < 5; ++i)
             {
-                memcpy(Info.PictureHistory, &HistoryOrig[MAX_PICTURE_HISTORY - 1 - i] , (i + 1) * sizeof(TPicture));
-                QueryPerformanceCounter(&StartTime);
-                FilterMethod->pfnAlgorithm(&Info);
-                QueryPerformanceCounter(&EndTime);
-                double Ticks = (double)(EndTime.QuadPart - StartTime.QuadPart);
-                printf("Input Filter %f microsecs\n", Ticks * 1000000 / TimerFreq);
+                memcpy(Info.PictureHistory, &HistoryOrig[4 - i] , (i + 1) * sizeof(TPicture*));
+                if(i + 1 >= FilterMethod->HistoryRequired)
+                {
+                    QueryPerformanceCounter(&StartTime);
+                    FilterMethod->pfnAlgorithm(&Info);
+                    QueryPerformanceCounter(&EndTime);
+                    double Ticks = (double)(EndTime.QuadPart - StartTime.QuadPart);
+                    printf("Input Filter %f microsecs\n", Ticks * 1000000 / TimerFreq);
+                }
             }
-            memcpy(Info.PictureHistory, HistoryOrig, MAX_PICTURE_HISTORY * sizeof(TPicture));
+            memcpy(Info.PictureHistory, HistoryOrig, MAX_PICTURE_HISTORY * sizeof(TPicture*));
         }
     }
 

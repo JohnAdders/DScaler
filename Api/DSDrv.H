@@ -52,7 +52,7 @@ typedef struct _MemStruct
 } TMemStruct, * PMemStruct;
 
 
-#if defined (WIN32)
+#if defined (WIN32) && !defined (_NTKERNEL_)
 
 #include <winioctl.h>
 
@@ -177,7 +177,7 @@ typedef struct tagDSDrvParam
 //---------------------------------------------------------------------------
 // This structure is taken from NTDDK.H, we use this only in WIN32 user mode
 //---------------------------------------------------------------------------
-#if defined (WIN32) || defined (WIN95)
+#if (defined (WIN32) || defined (WIN95) ) && !defined (_NTKERNEL_)
 
 typedef struct _PCI_COMMON_CONFIG
 {

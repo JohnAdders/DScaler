@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillProvider.cpp,v 1.2 2001-11-02 16:30:08 adcockj Exp $
+// $Id: StillProvider.cpp,v 1.3 2001-11-21 12:32:11 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/11/02 16:30:08  adcockj
+// Check in merged code from multiple cards branch into main tree
+//
 // Revision 1.1.2.2  2001/08/20 16:14:19  adcockj
 // Massive tidy up of code to new structure
 //
@@ -46,7 +49,7 @@ int CStillProvider::GetNumberOfSources()
 }
 
 
-CInterlacedSource* CStillProvider::GetSource(int SourceIndex)
+CSource* CStillProvider::GetSource(int SourceIndex)
 {
     if(SourceIndex == 0)
     {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DVBTSource.h,v 1.1 2001-11-02 16:30:07 adcockj Exp $
+// $Id: DVBTSource.h,v 1.2 2001-11-21 12:32:11 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,12 +19,12 @@
 #ifndef __DVBTSOURCE_H___
 #define __DVBTSOURCE_H___
 
-#include "InterlacedSource.h"
+#include "Source.h"
 #include "DVBTCard.h"
 #include "HardwareMemory.h"
 #include "Setting.h"
 
-class CDVBTSource : public CInterlacedSource
+class CDVBTSource : public CSource
 {
 public:
     ~CDVBTSource();

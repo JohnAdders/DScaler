@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: InterlacedSource.h,v 1.2 2001-11-02 16:30:08 adcockj Exp $
+// $Id: Source.h,v 1.1 2001-11-21 12:32:11 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,14 +16,14 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef __INTERLACEDSOURCE_H___
-#define __INTERLACEDSOURCE_H___
+#ifndef __SOURCE_H___
+#define __SOURCE_H___
 
 #include "DS_ApiCommon.h"
 #include "Setting.h"
 #include "TVFormats.h"
 
-class CInterlacedSource : public CSettingsHolder
+class CSource : public CSettingsHolder
 {
 public:
     virtual void Start() = 0;
@@ -56,8 +56,8 @@ public:
 
     HMENU GetMenu();
 protected:
-    CInterlacedSource(long SetMessage, long MenuId);
-    ~CInterlacedSource();
+    CSource(long SetMessage, long MenuId);
+    ~CSource();
     double m_FieldFrequency;
     HMENU m_hMenu;
 };

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.3 2001-11-09 12:42:07 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.4 2001-11-21 12:32:11 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/11/09 12:42:07  adcockj
+// Separated most resources out into separate dll ready for localization
+//
 // Revision 1.2  2001/11/02 16:30:07  adcockj
 // Check in merged code from multiple cards branch into main tree
 //
@@ -79,7 +82,7 @@ extern const TCardSetup TVCards[TVCARD_LASTONE];
 extern const TTunerSetup Tuners[TUNER_LASTONE];
 
 CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CUserMemory* DisplayDMAMem[5], CUserMemory* VBIDMAMem[5], LPCSTR IniSection) :
-    CInterlacedSource(WM_BT848_GETVALUE, IDC_BT848),
+    CSource(WM_BT848_GETVALUE, IDC_BT848),
     m_pBT848Card(pBT848Card),
     m_CurrentX(720),
     m_CurrentY(480),

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.4 2001-11-14 11:28:03 adcockj Exp $
+// $Id: Providers.cpp,v 1.5 2001-11-21 12:32:11 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/11/14 11:28:03  adcockj
+// Bug fixes
+//
 // Revision 1.3  2001/11/09 12:42:07  adcockj
 // Separated most resources out into separate dll ready for localization
 //
@@ -51,7 +54,7 @@
 #include "HardwareDriver.h"
 #include "OutThreads.h"
 
-typedef vector<CInterlacedSource*> SOURCELIST;
+typedef vector<CSource*> SOURCELIST;
 
 static SOURCELIST Sources;
 static CHardwareDriver* HardwareDriver = NULL;
@@ -126,7 +129,7 @@ void Providers_Unload()
     Sources.clear();
 }
 
-CInterlacedSource* Providers_GetCurrentSource()
+CSource* Providers_GetCurrentSource()
 {
     if(CurrentSource >= 0 && CurrentSource < Sources.size())
     {
@@ -216,7 +219,7 @@ long Providers_GetNumber()
     return Sources.size();
 }
 
-CInterlacedSource*  Providers_GetByIndex(long Index)
+CSource*  Providers_GetByIndex(long Index)
 {
     return Sources[Index];
 }

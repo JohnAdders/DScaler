@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.2 2001-11-02 16:30:07 adcockj Exp $
+// $Id: BT848Source.h,v 1.3 2001-11-21 12:32:11 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,14 +19,14 @@
 #ifndef __BT848SOURCE_H___
 #define __BT848SOURCE_H___
 
-#include "InterlacedSource.h"
+#include "Source.h"
 #include "BT848Card.h"
 #include "HardwareMemory.h"
 #include "Setting.h"
 //TODO: get rid of dependencies below here
 #include "Other.h"
 
-class CBT848Source : public CInterlacedSource
+class CBT848Source : public CSource
 {
     DECLARE_CLASS_SETTINGS(CBT848Source);
 public:

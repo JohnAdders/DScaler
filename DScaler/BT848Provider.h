@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Provider.h,v 1.2 2001-11-02 16:30:07 adcockj Exp $
+// $Id: BT848Provider.h,v 1.3 2001-11-21 12:32:11 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,7 +30,7 @@ public:
     CBT848Provider(CHardwareDriver* pHardwareDriver);
     ~CBT848Provider();
     int GetNumberOfSources();
-    CInterlacedSource* GetSource(int SourceIndex);
+    CSource* GetSource(int SourceIndex);
 private:
     BOOL MemoryInit(CHardwareDriver* pHardwareDriver);
     void MemoryFree();

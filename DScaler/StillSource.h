@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.2 2001-11-02 16:30:08 adcockj Exp $
+// $Id: StillSource.h,v 1.3 2001-11-21 12:32:11 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,9 +19,9 @@
 #ifndef __STILLSOURCE_H___
 #define __STILLSOURCE_H___
 
-#include "InterlacedSource.h"
+#include "Source.h"
 
-class CStillSource : public CInterlacedSource
+class CStillSource : public CSource
 {
 public:
     CStillSource();

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.36 2001-11-09 12:42:07 adcockj Exp $
+// $Id: OSD.cpp,v 1.37 2001-11-21 12:32:11 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.36  2001/11/09 12:42:07  adcockj
+// Separated most resources out into separate dll ready for localization
+//
 // Revision 1.35  2001/11/02 16:30:08  adcockj
 // Check in merged code from multiple cards branch into main tree
 //
@@ -663,7 +666,7 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
     CTestPattern *pTestPattern;
     CSubPattern *pSubPattern;
     CColorBar* pColorBar;
-    CInterlacedSource* pSource = Providers_GetCurrentSource();
+    CSource* pSource = Providers_GetCurrentSource();
     CSetting* pSetting = NULL;
 
     // Case : no OSD screen

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.h,v 1.2 2001-11-02 16:30:08 adcockj Exp $
+// $Id: Providers.h,v 1.3 2001-11-21 12:32:11 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,17 +19,17 @@
 #ifndef __PROVIDERS_H___
 #define __PROVIDERS_H___
 
-#include "InterlacedSource.h"
+#include "Source.h"
 
 int Providers_Load(HMENU hMenu);
 void Providers_Unload();
 BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
 void Provider_HandleTimerMessages(int TimerId);
-CInterlacedSource* Providers_GetCurrentSource();
+CSource* Providers_GetCurrentSource();
 void Providers_SetMenu(HMENU hMenu);
 void Providers_UpdateMenu(HMENU hMenu);
 long Providers_GetNumber();
-CInterlacedSource*  Providers_GetByIndex(long Index);
+CSource*  Providers_GetByIndex(long Index);
 void Providers_ReadFromIni();
 void Providers_WriteToIni();
 

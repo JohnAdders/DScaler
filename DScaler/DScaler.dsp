@@ -284,10 +284,6 @@ SOURCE=.\I2C.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\InterlacedSource.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\MixerDev.cpp
 # End Source File
 # Begin Source File
@@ -329,6 +325,10 @@ SOURCE=.\Settings.cpp
 # Begin Source File
 
 SOURCE=.\SettingsDlg.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Source.cpp
 # End Source File
 # Begin Source File
 
@@ -540,10 +540,6 @@ SOURCE=.\i2c.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\InterlacedSource.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\MixerDev.h
 # End Source File
 # Begin Source File
@@ -593,6 +589,10 @@ SOURCE=.\SettingsDlg.h
 # Begin Source File
 
 SOURCE=.\slider.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Source.h
 # End Source File
 # Begin Source File
 

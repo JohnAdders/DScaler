@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Provider.cpp,v 1.2 2001-11-02 16:30:07 adcockj Exp $
+// $Id: BT848Provider.cpp,v 1.3 2001-11-21 12:32:11 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/11/02 16:30:07  adcockj
+// Check in merged code from multiple cards branch into main tree
+//
 // Revision 1.1.2.5  2001/08/19 14:43:47  adcockj
 // Fixed memory leaks
 //
@@ -110,7 +113,7 @@ int CBT848Provider::GetNumberOfSources()
     return m_BT848Sources.size();
 }
 
-CInterlacedSource* CBT848Provider::GetSource(int SourceIndex)
+CSource* CBT848Provider::GetSource(int SourceIndex)
 {
     if(SourceIndex >= 0 && SourceIndex < m_BT848Sources.size())
     {

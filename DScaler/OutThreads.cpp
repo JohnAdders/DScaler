@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.39 2001-11-17 18:15:57 adcockj Exp $
+// $Id: OutThreads.cpp,v 1.40 2001-11-21 12:32:11 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.39  2001/11/17 18:15:57  adcockj
+// Bugfixes (including very silly performance bug)
+//
 // Revision 1.38  2001/11/09 12:42:07  adcockj
 // Separated most resources out into separate dll ready for localization
 //
@@ -430,7 +433,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     DWORD CurrentTickCount;
     int nHistory = 0;
     long SourceAspectAdjust = 1000;
-    CInterlacedSource* pSource = Providers_GetCurrentSource();
+    CSource* pSource = Providers_GetCurrentSource();
     BOOL bIsPAL = GetTVFormat(pSource->GetFormat())->Is25fps;
 
     Timing_Setup();

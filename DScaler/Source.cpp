@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: InterlacedSource.cpp,v 1.3 2001-11-09 12:42:07 adcockj Exp $
+// $Id: Source.cpp,v 1.1 2001-11-21 12:32:11 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/11/09 12:42:07  adcockj
+// Separated most resources out into separate dll ready for localization
+//
 // Revision 1.2  2001/11/02 16:30:08  adcockj
 // Check in merged code from multiple cards branch into main tree
 //
@@ -33,27 +36,27 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "InterlacedSource.h"
+#include "Source.h"
 #include "DScaler.h"
 
-CInterlacedSource::CInterlacedSource(long SetMessage, long MenuId) :
+CSource::CSource(long SetMessage, long MenuId) :
     CSettingsHolder(SetMessage),
     m_FieldFrequency(0)
 {
     m_hMenu = LoadMenu(hResourceInst, MAKEINTRESOURCE(MenuId));
 }
 
-CInterlacedSource::~CInterlacedSource()
+CSource::~CSource()
 {
     DestroyMenu(m_hMenu);
 }
 
-double CInterlacedSource::GetFieldFrequency()
+double CSource::GetFieldFrequency()
 {
     return m_FieldFrequency;
 }
 
-HMENU CInterlacedSource::GetMenu()
+HMENU CSource::GetMenu()
 {
     return m_hMenu;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.31 2001-11-09 12:42:07 adcockj Exp $
+// $Id: Calibration.cpp,v 1.32 2001-11-21 12:32:11 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 //  This file is subject to the terms of the GNU General Public License as
@@ -16,6 +16,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2001/11/09 12:42:07  adcockj
+// Separated most resources out into separate dll ready for localization
+//
 // Revision 1.30  2001/11/02 16:30:07  adcockj
 // Check in merged code from multiple cards branch into main tree
 //
@@ -1775,7 +1778,7 @@ void CCalibration::Start(eTypeCalibration type)
     delete saturation_V;
     delete hue;
 
-    CInterlacedSource* pSource = Providers_GetCurrentSource();
+    CSource* pSource = Providers_GetCurrentSource();
     CSimpleSetting* pSetting = NULL;
 
     // TODO: this is bad coding

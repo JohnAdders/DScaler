@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.2 2002-10-29 22:00:30 adcockj Exp $
+// $Id: CX2388xSource.cpp,v 1.3 2002-10-29 22:36:41 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/10/29 22:00:30  adcockj
+// Added EatlLinesAtTop setting for SDI on holo3d
+//
 // Revision 1.1  2002/10/29 11:05:28  adcockj
 // Renamed CT2388x to CX2388x
 //
@@ -316,10 +319,9 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
 void CCX2388xSource::Start()
 {
     m_pCard->StopCapture();
-    // \todo fix VBI
-    CreateRiscCode(false && (bCaptureVBI && (m_CurrentVBILines > 0)));
+    CreateRiscCode(bCaptureVBI && (m_CurrentVBILines > 0));
     // only capture VBI if we are expecting them
-    m_pCard->StartCapture(false && (bCaptureVBI && (m_CurrentVBILines > 0)));
+    m_pCard->StartCapture(bCaptureVBI && (m_CurrentVBILines > 0));
     Timing_Reset();
     NotifySizeChange();
     NotifySquarePixelsCheck();
@@ -432,27 +434,6 @@ void CCX2388xSource::CreateRiscCode(BOOL bCaptureVBI)
         }
         else
         {
-            if(false && bCaptureVBI)
-            {
-                // do VBI here, as we'll never get VBI in progressive mode
-                pUser = m_pVBILines[nField / 2];
-                if((nField & 1) == 1)
-                {
-                    pUser += m_CurrentVBILines * 2048;
-                }
-                for (nLine = 0; nLine < m_CurrentVBILines; nLine++)
-                {
-                    pPhysical = m_VBIDMAMem[nField / 2]->TranslateToPhysical(pUser, VBI_SPL, &GotBytesPerLine);
-                    if(pPhysical == 0 || VBI_SPL > GotBytesPerLine)
-                    {
-                        return;
-                    }
-                    *(pRiscCode++) = RISC_WRITE | RISC_SOL | RISC_EOL | VBI_SPL;
-                    *(pRiscCode++) = pPhysical;
-                    pUser += 2048;
-                }
-            }
-
             pUser = m_pDisplay[nField / 2];
             if(nField & 1)
             {

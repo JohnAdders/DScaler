@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.19 2002-04-07 14:52:13 tobbej Exp $
+// $Id: DSSource.cpp,v 1.20 2002-04-15 22:57:26 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2002/04/07 14:52:13  tobbej
+// fixed race when changing resolution
+// improved error handling
+//
 // Revision 1.18  2002/04/03 19:52:30  tobbej
 // added some more logging to help track the filters submenu problem
 //
@@ -690,6 +694,7 @@ void CDSSource::Start()
 	{
 		ErrorBox(e.getErrorText());
 	}
+    NotifySquarePixelsCheck();
 }
 
 void CDSSource::Stop()

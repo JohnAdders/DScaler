@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.h,v 1.9 2002-04-07 14:52:13 tobbej Exp $
+// $Id: DSSource.h,v 1.10 2002-04-15 22:57:27 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/04/07 14:52:13  tobbej
+// fixed race when changing resolution
+// improved error handling
+//
 // Revision 1.8  2002/02/09 02:49:23  laurentg
 // Overscan now stored in a setting of the source
 //
@@ -131,6 +135,8 @@ public:
 	
 	BOOL OpenMediaFile(LPCSTR FileName, BOOL NewPlayList);
 	void DecodeVBI(TDeinterlaceInfo* pInfo){};
+
+    BOOL HasSquarePixels() {return FALSE;};
 
 private:
 	void updateDroppedFields();

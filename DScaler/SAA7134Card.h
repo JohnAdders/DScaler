@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.39 2004-02-18 06:39:47 atnak Exp $
+// $Id: SAA7134Card.h,v 1.40 2004-02-24 04:17:58 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.39  2004/02/18 06:39:47  atnak
+// Changed Setup Card / Tuner so that only cards of the same device are
+// shown in the card list.
+// Added new card Chronos Video Shuttle II (saa7134 version)
+//
 // Revision 1.38  2004/02/14 04:03:44  atnak
 // Put GPIO settings and AutoDetect IDs into the main card definition
 // to remove the need for extra tables and custom functions.
@@ -202,6 +207,11 @@ private:
     };
 
     /// SAA7134's video input pins
+    /// RegSpy: SAA7134_ANALOG_IN_CTRL1
+    /// RegSpy: 0x0000nnnn
+    /// RegSpy: nnnn: 5 = reserved
+    /// RegSpy: nnnn: 6 or 8 = 0 + s-video
+    /// RegSpy: nnnn: 7 or 9 = 1 + s-video
     enum eVideoInputSource
     {
         VIDEOINPUTSOURCE_NONE = -1,     // reserved for radio
@@ -210,7 +220,6 @@ private:
         VIDEOINPUTSOURCE_PIN2,
         VIDEOINPUTSOURCE_PIN3,
         VIDEOINPUTSOURCE_PIN4,
-        VIDEOINPUTSOURCE_PIN5,
     };
 
     /// Possible clock crystals a card could have

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.271 2003-01-02 19:34:09 robmuller Exp $
+// $Id: DScaler.cpp,v 1.272 2003-01-02 20:06:20 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.271  2003/01/02 19:34:09  robmuller
+// Fixed teletext menu.
+//
 // Revision 1.270  2003/01/02 18:58:15  adcockj
 // Removed comment no longer required
 //
@@ -4863,7 +4866,10 @@ HMENU GetVTCodepageSubmenu()
     HMENU hmenu = GetSubMenuWithName(hMenu, 8-reduc, "&Datacasting");
     ASSERT(hmenu != NULL);
 
-    hmenu = GetSubMenuWithName(hmenu, 8, "Teletext Code Page");
+    GetMenuString(hmenu, 8, string, sizeof(string), MF_BYPOSITION);
+    reduc = !strcmp(string, "Toggle &Mixed Mode\tShift-T") ? 0 : 1;
+
+    hmenu = GetSubMenuWithName(hmenu, 9-reduc, "Teletext Code Page");
     ASSERT(hmenu != NULL);
 
     return hmenu;

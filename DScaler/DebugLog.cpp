@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DebugLog.cpp,v 1.11 2001-08-02 16:43:05 adcockj Exp $
+// $Id: DebugLog.cpp,v 1.12 2001-08-02 18:18:32 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2001/08/02 16:43:05  adcockj
+// Added Debug level to LOG function
+//
 // Revision 1.10  2001/07/16 18:07:50  adcockj
 // Added Optimisation parameter to ini file saving
 //
@@ -85,7 +88,9 @@ void LOG(int DebugLevel, LPCSTR Format, ...)
     fputc('\n', debugLog);
     fflush(debugLog);
 }
+#endif
 
+#ifdef _DEBUG
 void LOGD(LPCSTR Format, ...)
 {
     char szMessage[2048];
@@ -96,8 +101,8 @@ void LOGD(LPCSTR Format, ...)
     va_end(Args);
     OutputDebugString(szMessage);
 }
-
 #endif
+
 
 ////////////////////////////////////////////////////////////////////////////
 // Start of Settings related code

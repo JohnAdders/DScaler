@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDecoder.h,v 1.3 2003-01-12 17:12:45 atnak Exp $
+// $Id: VTDecoder.h,v 1.4 2003-10-27 10:39:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2003/01/12 17:12:45  atnak
+// Added hex pages display and goto dialog
+//
 // Revision 1.2  2003/01/05 16:09:44  atnak
 // Updated TopText for new teletext
 //
@@ -34,6 +37,10 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
+/** 
+ * @file vtdecoder.h vtdecoder Header file
+ */
+ 
 #ifndef __VTDECODER_H___
 #define __VTDECODER_H___
 

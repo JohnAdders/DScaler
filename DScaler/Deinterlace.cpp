@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.cpp,v 1.48 2003-04-26 19:02:37 laurentg Exp $
+// $Id: Deinterlace.cpp,v 1.49 2003-10-27 10:39:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.48  2003/04/26 19:02:37  laurentg
+// Character string settings and memory management
+//
 // Revision 1.47  2003/02/08 14:43:49  laurentg
 // gFilmPulldownMode must used instead of gProgMode  => solved the display in statistics screen
 //
@@ -162,6 +165,10 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file Deinterlace.cpp Deinterlacing functions
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

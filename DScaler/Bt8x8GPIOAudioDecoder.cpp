@@ -1,5 +1,5 @@
 //
-// $Id: Bt8x8GPIOAudioDecoder.cpp,v 1.2 2003-02-06 19:50:41 ittarnavsky Exp $
+// $Id: Bt8x8GPIOAudioDecoder.cpp,v 1.3 2003-10-27 10:39:50 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,10 +22,17 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2003/02/06 19:50:41  ittarnavsky
+// removed dependency on BT848_Defines.h
+//
 // Revision 1.1  2002/09/12 21:47:34  ittarnavsky
 // Bt8x8 GPIO based AudioDecoders (actually sound channel selectors)
 //
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file Bt8x8GPIOAudioDecoder.cpp CBt8x8GPIOAudioDecoder Implementation
+ */
 
 #include "stdafx.h"
 #include "Bt8x8GPIOAudioDecoder.h"

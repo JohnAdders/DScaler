@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTCommon.h,v 1.3 2003-02-05 06:58:28 atnak Exp $
+// $Id: VTCommon.h,v 1.4 2003-10-27 10:39:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2003/02/05 06:58:28  atnak
+// Added Danish codepage submitted by Kristian Trenskow (trenskow)
+//
 // Revision 1.2  2003/01/03 13:47:06  atnak
 // Flof index key definition
 //
@@ -34,6 +37,10 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
+/** 
+ * @file vtcommon.h vtcommon Header file
+ */
+ 
 #ifndef __VTCOMMON_H___
 #define __VTCOMMON_H___
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTTopText.cpp,v 1.8 2003-01-27 11:45:58 atnak Exp $
+// $Id: VTTopText.cpp,v 1.9 2003-10-27 10:39:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2003/01/27 11:45:58  atnak
+// Fixed crash when accessing TOP-Text info on page 899
+//
 // Revision 1.7  2003/01/07 07:37:38  atnak
 // Fixed page subcodes
 //
@@ -42,6 +45,10 @@
 //
 //
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file VTTopText.cpp CVTTopText Implementation
+ */
 
 #include "stdafx.h"
 #include "VTCommon.h"

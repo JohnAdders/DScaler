@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Video.cpp,v 1.10 2003-01-07 23:00:00 atnak Exp $
+// $Id: SAA7134Card_Video.cpp,v 1.11 2003-10-27 10:39:53 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2003/01/07 23:00:00  atnak
+// Removed variable upscale devisor and locked in at 0x200 scaling
+// for 27Mhz VBI stepping
+//
 // Revision 1.9  2002/11/10 09:30:57  atnak
 // Added Chroma only comb filter mode for SECAM
 //
@@ -60,6 +64,10 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file SAA7134Card.cpp CSAA7134Card Implementation (Video)
+ */
 
 #include "stdafx.h"
 #include "SAA7134Card.h"

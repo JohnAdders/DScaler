@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.69 2003-10-10 11:16:37 laurentg Exp $
+// $Id: Providers.cpp,v 1.70 2003-10-27 10:39:53 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.69  2003/10/10 11:16:37  laurentg
+// Bug fixed : access to the audio mixer
+//
 // Revision 1.68  2003/09/14 09:20:59  adcockj
 // Put repeated code in function
 //
@@ -254,6 +257,10 @@
 // Starting to put some flesh onto the new structure
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file Providers.cpp Providers functions
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

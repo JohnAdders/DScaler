@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: I2CBus.h,v 1.4 2002-09-27 14:10:26 kooiman Exp $
+// $Id: I2CBus.h,v 1.5 2003-10-27 10:39:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // copyleft 2001 itt@myself.com
@@ -21,6 +21,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/09/27 14:10:26  kooiman
+// thread safe i2c bus access
+//
 // Revision 1.3  2001/11/29 14:04:07  adcockj
 // Added Javadoc comments
 //
@@ -31,6 +34,10 @@
 // initial checkin of the new I2C code
 //
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file i2cbus.h i2cbus Header
+ */
 
 #if !defined(__I2CBUS_H__)
 #define __I2CBUS_H__

@@ -1,5 +1,5 @@
 //
-// $Id: Bitmap.cpp,v 1.2 2002-09-26 16:34:19 kooiman Exp $
+// $Id: Bitmap.cpp,v 1.3 2003-10-27 10:39:50 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/09/26 16:34:19  kooiman
+// Lots of toolbar fixes &added EVENT_VOLUME support.
+//
 // Revision 1.1  2002/09/25 22:31:48  kooiman
 // Bitmap manipulation
 //
@@ -30,6 +33,10 @@
 //
 //
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file Bitmap.cpp Bitmap Classes
+ */
 
 #include "stdafx.h"
 

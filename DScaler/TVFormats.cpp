@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TVFormats.cpp,v 1.11 2003-05-30 10:06:25 adcockj Exp $
+// $Id: TVFormats.cpp,v 1.12 2003-10-27 10:39:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2003/05/30 10:06:25  adcockj
+// Fix for format names in ini file
+//
 // Revision 1.10  2003/02/02 15:24:54  adcockj
 // Fix for PAL60 issues with cx2388x
 //
@@ -49,6 +52,10 @@
 // Another interim check-in still doesn't compile. Getting closer ...
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file TVFormats.cpp TV Format definitions and functions
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

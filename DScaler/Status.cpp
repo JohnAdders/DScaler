@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Status.cpp,v 1.14 2003-01-26 10:34:57 tobbej Exp $
+// $Id: Status.cpp,v 1.15 2003-10-27 10:39:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2003/01/26 10:34:57  tobbej
+// changed statusbar updates from output thread to be thread safe (PostMessage instead of SendMessage)
+//
 // Revision 1.13  2002/03/17 10:00:25  robmuller
 // Status bar text is updated when the status bar is hidden.
 //
@@ -72,6 +75,10 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file Status.cpp Status bar functions
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

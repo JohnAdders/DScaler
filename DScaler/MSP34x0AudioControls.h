@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0AudioControls.h,v 1.3 2002-10-15 19:16:29 kooiman Exp $
+// $Id: MSP34x0AudioControls.h,v 1.4 2003-10-27 10:39:52 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/10/15 19:16:29  kooiman
+// Fixed Spatial effect for Audio decoder & MSP
+//
 // Revision 1.2  2002/09/15 15:58:33  kooiman
 // Added Audio standard detection & some MSP fixes.
 //
@@ -29,6 +32,10 @@
 // split the MSP34x0 in two files one for the AudioControls the other foe AudioDecoder
 //
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file msp34x0audiocontrols.h msp34x0audiocontrols Header
+ */
 
 #if !defined(__MSP34X0AUDIOCONTROLS_H__)
 #define __MSP34X0AUDIOCONTROLS_H__

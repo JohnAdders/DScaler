@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MultiFrames.cpp,v 1.11 2003-08-02 12:48:25 laurentg Exp $
+// $Id: MultiFrames.cpp,v 1.12 2003-10-27 10:39:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2003/08/02 12:48:25  laurentg
+// Ctrl+Up and Ctrl+Down to go to the previous and next pages when in preview mode
+//
 // Revision 1.10  2003/06/15 08:26:36  laurentg
 // Update all the frames having the same content
 //
@@ -55,6 +58,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
+
+/**
+ * @file MultiFrames.cpp MultiFrames Functions
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

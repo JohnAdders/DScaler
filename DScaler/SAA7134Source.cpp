@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.87 2003-08-15 18:22:57 laurentg Exp $
+// $Id: SAA7134Source.cpp,v 1.88 2003-10-27 10:39:53 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.87  2003/08/15 18:22:57  laurentg
+// Save in the source if it is the first setup
+//
 // Revision 1.86  2003/08/15 14:26:30  laurentg
 // Management of volume
 //
@@ -305,6 +308,10 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file SAA7134Source.cpp CSAA7134Source Implementation
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Credits.cpp,v 1.8 2003-06-26 12:00:35 adcockj Exp $
+// $Id: Credits.cpp,v 1.9 2003-10-27 10:39:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) 1998-2001 Mark Findlay.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2003/06/26 12:00:35  adcockj
+// Fixed bug in developers list
+//
 // Revision 1.7  2003/06/26 09:55:15  adcockj
 // Added Arjan to credits and reordered patches
 //
@@ -44,6 +47,11 @@
 // Added new credits dialog
 //
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file Credits.cpp Credits Dialog
+ */
+
 
 // NOTE: Be sure you have defined your bitmaps by assigning them a resource
 //       id of a quoted string (i.e. "BITMAP1" instead of ID_BITMAP1) since 

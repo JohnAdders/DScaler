@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Pattern.cpp,v 1.5 2003-03-05 22:08:45 laurentg Exp $
+// $Id: Pattern.cpp,v 1.6 2003-10-27 10:39:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2003/03/05 22:08:45  laurentg
+// Updated management of 16 bytes aligned buffer for stills
+//
 // Revision 1.4  2003/01/19 11:09:11  laurentg
 // New methods GetInitialWidth and GetInitialHeight to store the initial size before resizing in DScaler (for stills)
 //
@@ -36,6 +39,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
+
+/**
+ * @file Pattern.cpp Pattern classes
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

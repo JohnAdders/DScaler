@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Tuner.cpp,v 1.12 2002-10-16 21:42:36 kooiman Exp $
+// $Id: BT848Card_Tuner.cpp,v 1.13 2003-10-27 10:39:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/10/16 21:42:36  kooiman
+// Created seperate class for External IF Demodulator chips like TDA9887
+//
 // Revision 1.11  2002/10/11 13:38:14  kooiman
 // Added support for VoodooTV IF demodulator. Improved TDA9887. Added interface for GPOE/GPDATA access to make this happen.
 //
@@ -76,6 +79,10 @@
 // Added more code for new driver interface
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file BT848Card.cpp CBT848Card Implementation (Tuner)
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.100 2003-06-14 19:38:10 laurentg Exp $
+// $Id: StillSource.cpp,v 1.101 2003-10-27 10:39:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.100  2003/06/14 19:38:10  laurentg
+// Preview mode improved
+//
 // Revision 1.99  2003/06/02 13:15:34  adcockj
 // Fixes for CHARSTRING problems
 //
@@ -343,6 +346,10 @@
 // Starting to put some flesh onto the new structure
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file StillSource.cpp CStillSource Implementation
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

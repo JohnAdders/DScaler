@@ -1,5 +1,5 @@
 //
-// $Id: MT2032.cpp,v 1.11 2002-10-31 21:42:56 adcockj Exp $
+// $Id: MT2032.cpp,v 1.12 2003-10-27 10:39:52 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/10/31 21:42:56  adcockj
+// Patch for GetAFCStatus supplied by Denis Balazuc
+//
 // Revision 1.10  2002/10/16 21:42:36  kooiman
 // Created seperate class for External IF Demodulator chips like TDA9887
 //
@@ -55,6 +58,10 @@
 //
 //
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file MT2032.cpp CMT2032 Implementation
+ */
 
 #include "stdafx.h"
 #include "MT2032.h"

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSFileSource.h,v 1.15 2003-08-12 19:10:05 laurentg Exp $
+// $Id: DSFileSource.h,v 1.16 2003-10-27 10:39:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2003/08/12 19:10:05  laurentg
+// Move some methods from CDSFileSource to CDSSourceBase
+//
 // Revision 1.14  2003/08/11 22:49:27  laurentg
 // Time slider in the media player toolbar
 //
@@ -74,7 +77,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 /**
- * @fileDSFileSource.h interface for the CDSFileSource class.
+ * @file DSFileSource.h interface for the CDSFileSource class.
  */
 
 #if !defined(AFX_DSFILESOURCE_H__C14F892B_5440_4F47_9EEE_EA140CA9534A__INCLUDED_)

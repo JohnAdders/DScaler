@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Common.cpp,v 1.14 2003-06-20 03:57:22 atnak Exp $
+// $Id: SAA7134Common.cpp,v 1.15 2003-10-27 10:39:53 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2003/06/20 03:57:22  atnak
+// Changes to VDelays
+//
 // Revision 1.13  2003/06/01 19:41:41  atnak
 // Adjusted video vdelays to avoid VBI overlap
 //
@@ -68,6 +71,10 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
+
+/**
+ * @file SAA7134Common.cpp CSAA7134Common Implementation
+ */
 
 #include "stdafx.h"
 #include "SAA7134_Defines.h"

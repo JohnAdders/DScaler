@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ErrorBox.cpp,v 1.9 2003-01-25 12:44:38 atnak Exp $
+// $Id: ErrorBox.cpp,v 1.10 2003-10-27 10:39:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -27,6 +27,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2003/01/25 12:44:38  atnak
+// Updates for new OSD code
+//
 // Revision 1.8  2002/09/04 17:58:09  robmuller
 // Second attempt:
 // Changed the debug log level to zero to make sure that the error message is written to the log file.
@@ -49,6 +52,10 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file ErrorBox.cpp ErrorBox Functions
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

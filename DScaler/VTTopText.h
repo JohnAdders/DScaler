@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTTopText.h,v 1.4 2003-01-05 16:09:44 atnak Exp $
+// $Id: VTTopText.h,v 1.5 2003-10-27 10:39:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2003/01/05 16:09:44  atnak
+// Updated TopText for new teletext
+//
 // Revision 1.3  2003/01/01 20:30:12  atnak
 // Commented out everything so I can redo TopText for the new CVTCommon
 // functions later
@@ -31,6 +34,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
+/** 
+ * @file vttoptext.h vttoptext Header file
+ */
+ 
 #ifndef __VTTOPTEXT_H__
 #define __VTTOPTEXT_H__
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsMaster.cpp,v 1.11 2003-05-31 18:45:21 laurentg Exp $
+// $Id: SettingsMaster.cpp,v 1.12 2003-10-27 10:39:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2003/05/31 18:45:21  laurentg
+// Possibility to save video format per video input corrected
+//
 // Revision 1.10  2003/05/30 10:06:24  adcockj
 // Fix for format names in ini file
 //
@@ -28,6 +31,11 @@
 // Added header
 //
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file SettingsMaster.cpp CSettingsMaster Implementation
+ */
+
 #include "stdafx.h"
 
 #include "Source.h"

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xProvider.cpp,v 1.3 2002-11-02 09:47:36 adcockj Exp $
+// $Id: CX2388xProvider.cpp,v 1.4 2003-10-27 10:39:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/11/02 09:47:36  adcockj
+// Removed test code commited by accident
+//
 // Revision 1.2  2002/11/02 09:30:08  adcockj
 // Fixed SRAM overflow
 //
@@ -43,6 +46,10 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file CX2388xProvider.cpp CCX2388xProvider Implementation
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

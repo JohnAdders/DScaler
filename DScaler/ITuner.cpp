@@ -1,5 +1,5 @@
 //
-// $Id: ITuner.cpp,v 1.7 2003-02-06 21:27:41 ittarnavsky Exp $
+// $Id: ITuner.cpp,v 1.8 2003-10-27 10:39:52 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2003/02/06 21:27:41  ittarnavsky
+// removed the tuner names from here
+//
 // Revision 1.6  2002/10/26 15:37:57  adcockj
 // Made ITuner more abstract by removing inheritance from CI2CDevice
 // New class II2CTuner created for tuners that are controled by I2C
@@ -43,6 +46,10 @@
 //
 //
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file ITuner.cpp ITuner implementation
+ */
 
 #include "stdafx.h"
 #include "ITuner.h"

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.80 2003-05-26 22:04:11 laurentg Exp $
+// $Id: Calibration.cpp,v 1.81 2003-10-27 10:39:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.80  2003/05/26 22:04:11  laurentg
+// Update of the OSD displayed when doing calibration
+//
 // Revision 1.79  2003/01/30 22:32:39  laurentg
 // Restriction to maximum range for the settings deleted
 //
@@ -191,6 +194,9 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
+/**
+ * @file Calibration.cpp Calibration Classes
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

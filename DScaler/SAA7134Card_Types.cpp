@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.34 2003-08-23 10:00:33 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.35 2003-10-27 10:39:53 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.34  2003/08/23 10:00:33  atnak
+// Added a missing break in a switch statement
+//
 // Revision 1.33  2003/07/31 05:01:38  atnak
 // Added ASK Select AS-VCV300/PCI card
 //
@@ -131,6 +134,10 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
+
+/**
+ * @file SAA7134Card.cpp CSAA7134Card Implementation (Types)
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

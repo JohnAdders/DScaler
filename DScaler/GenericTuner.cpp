@@ -1,5 +1,5 @@
 //
-// $Id: GenericTuner.cpp,v 1.12 2003-02-06 21:28:33 ittarnavsky Exp $
+// $Id: GenericTuner.cpp,v 1.13 2003-10-27 10:39:51 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2003/02/06 21:28:33  ittarnavsky
+// added the Philips M-J tuner for primetv 7133
+//
 // Revision 1.11  2002/10/08 20:43:16  kooiman
 // Added Automatic Frequency Control for tuners. Changed to Hz instead of multiple of 62500 Hz.
 //
@@ -58,6 +61,10 @@
 //
 //
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file GenericTuner.cpp CGenericTuner Implementation
+ */
 
 #include "stdafx.h"
 #include "GenericTuner.h"

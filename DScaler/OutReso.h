@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutReso.h,v 1.7 2003-04-26 19:02:41 laurentg Exp $
+// $Id: OutReso.h,v 1.8 2003-10-27 10:39:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2003/04/26 19:02:41  laurentg
+// Character string settings and memory management
+//
 // Revision 1.6  2003/04/26 16:06:21  laurentg
 // Character string settings
 //
@@ -45,6 +48,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
+/** 
+ * @file outreso.h outreso Header file
+ */
+ 
 #ifndef __OUTRESO_H___
 #define __OUTRESO_H___
 

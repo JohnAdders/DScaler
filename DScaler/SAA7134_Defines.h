@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134_Defines.h,v 1.10 2003-02-06 21:30:43 ittarnavsky Exp $
+// $Id: SAA7134_Defines.h,v 1.11 2003-10-27 10:39:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2003/02/06 21:30:43  ittarnavsky
+// changes to support primetv 7133
+//
 // Revision 1.9  2002/11/08 06:15:34  atnak
 // Added state saving
 //
@@ -55,6 +58,10 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
+/** 
+ * @file saa7134_defines.h saa7134_defines Header file
+ */
+ 
 #ifndef __SAA7134_DEFINES_H___
 #define __SAA7134_DEFINES_H___
 

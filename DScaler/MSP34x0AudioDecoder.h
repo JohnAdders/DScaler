@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0AudioDecoder.h,v 1.1 2002-10-11 21:51:21 ittarnavsky Exp $
+// $Id: MSP34x0AudioDecoder.h,v 1.2 2003-10-27 10:39:52 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,7 +22,14 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/10/11 21:51:21  ittarnavsky
+// moved the CMSP34x0Decoder to separate files and renamed to CMSP34x0AudioDecoder
+//
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file msp34x0audiodecoder.h msp34x0audiodecoder Header
+ */
 
 #if !defined(__MSP34X0AUDIODECODER_H__)
 #define __MSP34X0AUDIODECODER_H__

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Audio.cpp,v 1.27 2002-10-27 12:33:33 adcockj Exp $
+// $Id: BT848Card_Audio.cpp,v 1.28 2003-10-27 10:39:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2002/10/27 12:33:33  adcockj
+// Fixed UseInputPin1 code
+//
 // Revision 1.26  2002/10/26 17:47:54  adcockj
 // Corrected UseInputPin1 code
 //
@@ -104,6 +107,10 @@
 // Massive tidy up of code to new structure
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file BT848Card.cpp CBT848Card Implementation (Audio)
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

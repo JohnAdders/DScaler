@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Common.h,v 1.24 2003-07-31 05:01:38 atnak Exp $
+// $Id: SAA7134Common.h,v 1.25 2003-10-27 10:39:53 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2003/07/31 05:01:38  atnak
+// Added ASK Select AS-VCV300/PCI card
+//
 // Revision 1.23  2003/06/27 08:05:41  atnak
 // Added AOPEN VA1000 Lite2
 //
@@ -94,6 +97,10 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
+/** 
+ * @file saa7134common.h saa7134common Header file
+ */
+ 
 #ifndef __SAA7134COMMON_H___
 #define __SAA7134COMMON_H___
 

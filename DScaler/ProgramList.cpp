@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.101 2003-03-21 22:48:07 laurentg Exp $
+// $Id: ProgramList.cpp,v 1.102 2003-10-27 10:39:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.101  2003/03/21 22:48:07  laurentg
+// Preview mode (multiple frames) improved
+//
 // Revision 1.100  2003/03/19 23:56:36  laurentg
 // Second step for the navigation through channels in preview mode
 //
@@ -322,6 +325,10 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file ProgramList.cpp Program List functions
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

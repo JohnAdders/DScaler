@@ -1,5 +1,5 @@
 //
-// $Id: AudioDecoder.cpp,v 1.12 2002-10-11 21:32:36 ittarnavsky Exp $
+// $Id: AudioDecoder.cpp,v 1.13 2003-10-27 10:39:50 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/10/11 21:32:36  ittarnavsky
+// added default GetAudioDecoderType()
+//
 // Revision 1.11  2002/09/27 14:13:27  kooiman
 // Improved stereo detection & manual audio standard dialog box.
 //
@@ -58,6 +61,10 @@
 // added changes for the AudioDecoder and AudioControls support
 //
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file AudioDecoder.cpp Audio Decoder Classes
+ */
 
 #include "stdafx.h"
 #include "AudioDecoder.h"

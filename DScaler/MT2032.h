@@ -1,5 +1,5 @@
 //
-// $Id: MT2032.h,v 1.9 2002-10-26 15:37:57 adcockj Exp $
+// $Id: MT2032.h,v 1.10 2003-10-27 10:39:52 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,10 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/10/26 15:37:57  adcockj
+// Made ITuner more abstract by removing inheritance from CI2CDevice
+// New class II2CTuner created for tuners that are controled by I2C
+//
 // Revision 1.8  2002/10/16 21:42:36  kooiman
 // Created seperate class for External IF Demodulator chips like TDA9887
 //
@@ -48,6 +52,10 @@
 //
 //
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file mt2032.h mt2032 Header
+ */
 
 #if !defined(__MT2032_H__)
 #define __MT2032_H__

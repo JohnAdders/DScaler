@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SizeSettings.h,v 1.1 2003-01-16 22:34:21 laurentg Exp $
+// $Id: SizeSettings.h,v 1.2 2003-10-27 10:39:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,9 +18,16 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2003/01/16 22:34:21  laurentg
+// First step to add a new dialog box to adjust image size
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
+/** 
+ * @file sizesettings.h sizesettings Header file
+ */
+ 
 #ifndef __SIZESETTINGS_H___
 #define __SIZESETTINGS_H___
 

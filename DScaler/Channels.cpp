@@ -26,6 +26,10 @@
 //                                     mostly cut/paste from ProgramList.cpp
 /////////////////////////////////////////////////////////////////////////////
 
+/**
+ * @file Channels.cpp Channels Classes
+ */
+
 #include "stdafx.h"
 #include "DebugLog.h"
 #include "TVFormats.h"

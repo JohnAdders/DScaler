@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_Audio.cpp,v 1.33 2003-02-06 19:51:31 ittarnavsky Exp $
+// $Id: BT848Source_Audio.cpp,v 1.34 2003-10-27 10:39:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2003/02/06 19:51:31  ittarnavsky
+// changes due to the move of TIMER_MSP definition
+//
 // Revision 1.32  2003/01/10 17:37:47  adcockj
 // Interrim Check in of Settings rewrite
 //  - Removed SETTINGSEX structures and flags
@@ -116,6 +119,10 @@
 // Massive tidy up of code to new structure
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file BT848Source.cpp CBT848Source Implementation (Audio)
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

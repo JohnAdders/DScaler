@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: list.cpp,v 1.1 2002-09-17 17:31:47 tobbej Exp $
+// $Id: list.cpp,v 1.2 2003-10-27 10:39:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (C) 1998-2001 Avery Lee.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -26,15 +26,18 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/09/17 17:31:47  tobbej
+// updated crashloging to same version as in latest virtualdub
+//
 /////////////////////////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////////////////////
-//
-//	For those of you who say this looks familiar... it should.  This is
-//	the same linked-list style that the Amiga Exec uses, with dummy head
-//	and tail nodes.  It's really a very convienent way to implement
-//	doubly-linked lists.
-//
+/**
+ * @file list.cpp List implementation
+ *	For those of you who say this looks familiar... it should.  This is
+ *	the same linked-list style that the Amiga Exec uses, with dummy head
+ *	and tail nodes.  It's really a very convienent way to implement
+ * 	doubly-linked lists.
+ */
 
 #include "stdafx.h"
 #include "list.h"

@@ -1,5 +1,5 @@
 //
-// $Id: NoTuner.h,v 1.6 2002-10-26 15:37:57 adcockj Exp $
+// $Id: NoTuner.h,v 1.7 2003-10-27 10:39:52 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,10 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/10/26 15:37:57  adcockj
+// Made ITuner more abstract by removing inheritance from CI2CDevice
+// New class II2CTuner created for tuners that are controled by I2C
+//
 // Revision 1.5  2002/10/08 20:43:16  kooiman
 // Added Automatic Frequency Control for tuners. Changed to Hz instead of multiple of 62500 Hz.
 //
@@ -39,6 +43,10 @@
 //
 //
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file notuner.h notuner Header
+ */
 
 #if !defined(__NOTUNER_H__)
 #define __NOTUNER_H__

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareMemory.cpp,v 1.8 2002-10-22 16:01:41 adcockj Exp $
+// $Id: HardwareMemory.cpp,v 1.9 2003-10-27 10:39:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/10/22 16:01:41  adcockj
+// Changed definition of IOCTLs
+//
 // Revision 1.7  2001/12/03 19:33:59  adcockj
 // Bug fixes for settings and memory
 //
@@ -41,6 +44,10 @@
 // Fixed comilation error in new files
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file HardwareMemory.cpp CHardwareMemory Implementation
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

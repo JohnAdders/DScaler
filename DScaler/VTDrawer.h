@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDrawer.h,v 1.12 2003-01-24 01:55:17 atnak Exp $
+// $Id: VTDrawer.h,v 1.13 2003-10-27 10:39:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (c) 2002 Mike Temperton.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -35,6 +35,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2003/01/24 01:55:17  atnak
+// OSD + Teletext conflict fix, offscreen buffering for OSD and Teletext,
+// got rid of the pink overlay colorkey for Teletext.
+//
 // Revision 1.11  2003/01/05 16:09:44  atnak
 // Updated TopText for new teletext
 //
@@ -73,6 +77,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
+/** 
+ * @file vtdrawer.h vtdrawer Header file
+ */
+ 
 #ifndef __VTDRAWER_H__
 #define __VTDRAWER_H__
 

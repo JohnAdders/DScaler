@@ -1,5 +1,5 @@
 //
-// $Id: SAA7118.h,v 1.2 2002-10-31 14:47:20 adcockj Exp $
+// $Id: SAA7118.h,v 1.3 2003-10-27 10:39:53 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
@@ -17,6 +17,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
+/** 
+ * @file saa7118.h saa7118 Header file
+ */
+ 
 #ifndef __SAA7118_H___
 #define __SAA7118_H___
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Filter.cpp,v 1.36 2003-02-17 11:39:00 adcockj Exp $
+// $Id: Filter.cpp,v 1.37 2003-10-27 10:39:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.36  2003/02/17 11:39:00  adcockj
+// Added group flags for setting per channel on more settings
+//
 // Revision 1.35  2003/01/24 01:55:18  atnak
 // OSD + Teletext conflict fix, offscreen buffering for OSD and Teletext,
 // got rid of the pink overlay colorkey for Teletext.
@@ -126,6 +129,10 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file Filter.cpp Filter functions
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

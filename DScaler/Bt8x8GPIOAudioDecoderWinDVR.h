@@ -1,5 +1,5 @@
 //
-// $Id: Bt8x8GPIOAudioDecoderWinDVR.h,v 1.1 2002-09-12 21:47:34 ittarnavsky Exp $
+// $Id: Bt8x8GPIOAudioDecoderWinDVR.h,v 1.2 2003-10-27 10:39:50 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,7 +22,14 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/09/12 21:47:34  ittarnavsky
+// Bt8x8 GPIO based AudioDecoders (actually sound channel selectors)
+//
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file bt8x8gpioaudiodecoderwindvr.h bt8x8gpioaudiodecoderwindvr Header
+ */
 
 #if !defined(__BT8X8GPIOAUDIODECODERWINDVR_H__)
 #define __BT8X8GPIOAUDIODECODERWINDVR_H__

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDecoder.cpp,v 1.9 2003-01-12 22:58:32 atnak Exp $
+// $Id: VTDecoder.cpp,v 1.10 2003-10-27 10:39:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,6 +44,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2003/01/12 22:58:32  atnak
+// Small bug fix
+//
 // Revision 1.8  2003/01/12 17:12:45  atnak
 // Added hex pages display and goto dialog
 //
@@ -68,6 +71,9 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
+/**
+ * @file VTDecoder.cpp CVTDecoder Implementation
+ */
 
 #include "stdafx.h"
 #include "VTCommon.h"

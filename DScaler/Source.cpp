@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.cpp,v 1.18 2003-08-15 16:51:11 laurentg Exp $
+// $Id: Source.cpp,v 1.19 2003-10-27 10:39:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2003/08/15 16:51:11  laurentg
+// New event type EVENT_NO_VOLUME
+// Update the volume toolbar when exiting from the audio mixer setup dialog box
+//
 // Revision 1.17  2003/08/15 14:26:30  laurentg
 // Management of volume
 //
@@ -94,6 +98,10 @@
 // Starting to put some flesh onto the new structure
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file Source.cpp CSource Implementation
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

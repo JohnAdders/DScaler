@@ -1,5 +1,5 @@
 //
-// $Id: I2CBusForLineInterface.cpp,v 1.4 2001-12-08 13:43:20 adcockj Exp $
+// $Id: I2CBusForLineInterface.cpp,v 1.5 2003-10-27 10:39:52 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/12/08 13:43:20  adcockj
+// Fixed logging and memory leak bugs
+//
 // Revision 1.3  2001/11/29 17:30:52  adcockj
 // Reorgainised bt848 initilization
 // More Javadoc-ing
@@ -34,6 +37,10 @@
 //
 //
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file I2CBusForLineInterface.cpp CI2CBusForLineInterface Implementation
+ */
 
 #include "stdafx.h"
 #include "I2CBusForLineInterface.h"

@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0AudioDecoder.cpp,v 1.3 2002-10-27 12:33:33 adcockj Exp $
+// $Id: MSP34x0AudioDecoder.cpp,v 1.4 2003-10-27 10:39:52 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/10/27 12:33:33  adcockj
+// Fixed UseInputPin1 code
+//
 // Revision 1.2  2002/10/16 21:59:47  kooiman
 // Suspend thread instead of creating/closing the thread for each stereo detection.
 //
@@ -29,6 +32,10 @@
 // moved the CMSP34x0Decoder to separate files and renamed to CMSP34x0AudioDecoder
 //
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file MSP34x0AudioDecoder.cpp CMSP34x0AudioDecoder Implementation
+ */
 
 #include "stdafx.h"
 #include "MSP34x0.h"

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SizeSettings.cpp,v 1.3 2003-01-18 15:05:43 laurentg Exp $
+// $Id: SizeSettings.cpp,v 1.4 2003-10-27 10:39:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2003/01/18 15:05:43  laurentg
+// New button in image size dialog box to check or uncheck the analogue blanking
+//
 // Revision 1.2  2003/01/18 13:56:56  laurentg
 // Sliders for chip horizontal and vertical delays enabled
 //
@@ -31,6 +34,10 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file SizeSettings.cpp Size Settings Functions
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: events.h,v 1.11 2003-10-03 11:40:11 laurentg Exp $
+// $Id: events.h,v 1.12 2003-10-27 10:39:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Jeroen Kooiman.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2003/10/03 11:40:11  laurentg
+// Update the combobox in the channel toolbar when exiting the channel setup dialog box
+//
 // Revision 1.10  2003/08/15 16:51:11  laurentg
 // New event type EVENT_NO_VOLUME
 // Update the volume toolbar when exiting from the audio mixer setup dialog box
@@ -32,6 +35,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
+/** 
+ * @file events.h events Header file
+ */
+ 
 #ifndef __EVENTS_H___
 #define __EVENTS_H___
 

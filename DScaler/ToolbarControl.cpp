@@ -1,5 +1,5 @@
 //
-// $Id: ToolbarControl.cpp,v 1.16 2003-10-03 11:40:11 laurentg Exp $
+// $Id: ToolbarControl.cpp,v 1.17 2003-10-27 10:39:54 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2003/10/03 11:40:11  laurentg
+// Update the combobox in the channel toolbar when exiting the channel setup dialog box
+//
 // Revision 1.15  2003/09/26 20:54:06  laurentg
 // Media player toolbar hidden when one skin is selected
 //
@@ -72,6 +75,10 @@
 //
 //
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file ToolbarControl.cpp CToolbarControl Implementation
+ */
 
 #include "stdafx.h"
 

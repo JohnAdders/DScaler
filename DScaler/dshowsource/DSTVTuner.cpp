@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSTVTuner.cpp,v 1.5 2002-10-27 12:16:46 tobbej Exp $
+// $Id: DSTVTuner.cpp,v 1.6 2003-10-27 10:39:57 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/10/27 12:16:46  tobbej
+// renamed some functions
+// fixed indentation and tabs->spaces
+// changed TRCCountryList
+//
 // Revision 1.4  2002/10/08 20:48:52  kooiman
 // Changed to Hz instead of multiple of 62500 Hz.
 //
@@ -41,6 +46,10 @@
 //
 //
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file DSTVTuner.cpp implementation file
+ */
 
 #include "stdafx.h"
 

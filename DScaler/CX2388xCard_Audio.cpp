@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Audio.cpp,v 1.9 2003-03-05 13:54:11 adcockj Exp $
+// $Id: CX2388xCard_Audio.cpp,v 1.10 2003-10-27 10:39:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2003/03/05 13:54:11  adcockj
+// Possible fixes for Asus sound
+//
 // Revision 1.8  2002/12/10 14:53:16  adcockj
 // Sound fixes for cx2388x
 //
@@ -48,6 +51,10 @@
 // Moved audio code from Connexant dTV version
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file CX2388xCard.cpp CCX2388xCard Implementation (Audio)
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

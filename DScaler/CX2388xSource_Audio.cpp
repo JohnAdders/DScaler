@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_Audio.cpp,v 1.2 2002-12-10 14:53:16 adcockj Exp $
+// $Id: CX2388xSource_Audio.cpp,v 1.3 2003-10-27 10:39:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,10 +23,17 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/12/10 14:53:16  adcockj
+// Sound fixes for cx2388x
+//
 // Revision 1.1  2002/10/31 15:55:50  adcockj
 // Moved audio code from Connexant dTV version
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file CX2388xSource.cpp CCX2388xSource Implementation (Audio)
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

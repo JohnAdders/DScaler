@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Types.cpp,v 1.36 2003-10-13 18:52:14 laurentg Exp $
+// $Id: BT848Card_Types.cpp,v 1.37 2003-10-27 10:39:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.36  2003/10/13 18:52:14  laurentg
+// Pinnacle PCTV Studio Pro renamed into Pinnacle PCTV Pro
+//
 // Revision 1.35  2003/07/14 19:17:35  adcockj
 // Mew PMSVideo cards
 //
@@ -126,6 +129,10 @@
 // Massive tidy up of code to new structure
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file BT848Card.cpp CBT848Card Implementation (Types)
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Crash.cpp,v 1.6 2003-01-20 15:19:36 adcockj Exp $
+// $Id: Crash.cpp,v 1.7 2003-10-27 10:39:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) 1998-2001 Avery Lee.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -28,6 +28,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2003/01/20 15:19:36  adcockj
+// Brought crash code into line iwth latest vdub code
+//
 // Revision 1.5  2002/09/17 17:28:23  tobbej
 // updated crashloging to same version as in latest virtualdub
 //
@@ -44,6 +47,11 @@
 // Added code and tools for crash logging from VirtualDub
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file Crash.cpp Crash code taken from VirtuaDub
+ */
+
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Types.cpp,v 1.12 2003-07-18 09:41:23 adcockj Exp $
+// $Id: CX2388xCard_Types.cpp,v 1.13 2003-10-27 10:39:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2003/07/18 09:41:23  adcockj
+// Added PDI input to holo3d (doesn't yet work)
+//
 // Revision 1.11  2003/06/17 12:45:19  adcockj
 // Added new card for use with PDI
 //
@@ -93,6 +96,10 @@
 // Prelimainary support for CX2388x based cards
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file CX2388xCard.cpp CCX2388xCard Implementation (Types)
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

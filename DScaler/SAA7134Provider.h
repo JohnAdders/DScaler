@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Provider.h,v 1.5 2002-10-03 23:36:22 atnak Exp $
+// $Id: SAA7134Provider.h,v 1.6 2003-10-27 10:39:53 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/10/03 23:36:22  atnak
+// Various changes (major): VideoStandard, AudioStandard, CSAA7134Common, cleanups, tweaks etc,
+//
 // Revision 1.4  2002/09/15 09:52:23  atnak
 // fixed memory leak (pagetable block)
 //
@@ -39,6 +42,10 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
+/** 
+ * @file saa7134provider.h saa7134provider Header file
+ */
+ 
 #ifndef __SAA7134PROVIDER_H___
 #define __SAA7134PROVIDER_H___
 

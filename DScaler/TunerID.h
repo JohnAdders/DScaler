@@ -1,5 +1,5 @@
 //
-// $Id: TunerID.h,v 1.2 2003-02-06 21:27:05 ittarnavsky Exp $
+// $Id: TunerID.h,v 1.3 2003-10-27 10:39:54 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,10 +22,17 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2003/02/06 21:27:05  ittarnavsky
+// moved the tuner names here
+//
 // Revision 1.1  2003/02/06 19:40:00  ittarnavsky
 // contains definition of eTunerId
 //
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file tunerid.h tunerid Header
+ */
 
 #if !defined(__TUNERID_H__)
 #define __TUNERID_H__

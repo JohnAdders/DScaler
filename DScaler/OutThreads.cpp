@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.128 2003-10-04 12:00:20 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.129 2003-10-27 10:39:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.128  2003/10/04 12:00:20  laurentg
+// Always use system memory when taking a still to improve performance
+//
 // Revision 1.127  2003/08/24 07:13:54  atnak
 // Added a state index to Start and Stop Capture
 //
@@ -441,6 +444,10 @@
 // Added CVS Id and Log
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file OutThreads.cpp Main video processing thread code
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

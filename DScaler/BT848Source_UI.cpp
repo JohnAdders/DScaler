@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_UI.cpp,v 1.18 2003-03-23 10:42:20 laurentg Exp $
+// $Id: BT848Source_UI.cpp,v 1.19 2003-10-27 10:39:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2003/03/23 10:42:20  laurentg
+// Avoid to switch to an unknown video input when using 000...
+//
 // Revision 1.17  2003/03/23 10:25:23  laurentg
 // Use video input name as icon tips when not in tuner mode
 //
@@ -258,6 +261,10 @@
 // Massive tidy up of code to new structure
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file BT848Source.cpp CBT848Source Implementation (UI)
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

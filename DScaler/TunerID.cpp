@@ -1,5 +1,5 @@
 //
-// $Id: TunerID.cpp,v 1.1 2003-02-06 21:26:37 ittarnavsky Exp $
+// $Id: TunerID.cpp,v 1.2 2003-10-27 10:39:54 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,7 +22,14 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2003/02/06 21:26:37  ittarnavsky
+// moved the tuner names here
+//
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file TunerID.cpp Tuner definitions
+ */
 
 #include "stdafx.h"
 #include "TunerID.h"

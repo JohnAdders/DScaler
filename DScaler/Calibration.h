@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.h,v 1.34 2003-01-30 22:32:40 laurentg Exp $
+// $Id: Calibration.h,v 1.35 2003-10-27 10:39:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.34  2003/01/30 22:32:40  laurentg
+// Restriction to maximum range for the settings deleted
+//
 // Revision 1.33  2002/10/29 21:02:55  laurentg
 // Change log added
 //
@@ -28,6 +31,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
+/** 
+ * @file calibration.h calibration Header file
+ */
+ 
 #ifndef __CALIBRATION_H___
 #define __CALIBRATION_H___
 

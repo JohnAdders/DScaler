@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.37 2003-02-06 19:52:21 ittarnavsky Exp $
+// $Id: BT848Card.cpp,v 1.38 2003-10-27 10:39:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.37  2003/02/06 19:52:21  ittarnavsky
+// changes due to the move of VBI_xxx definition
+//
 // Revision 1.36  2003/01/29 18:24:49  adcockj
 // Test fix for crashing in other apps after running DScaler
 //
@@ -154,6 +157,10 @@
 // Added more code for new driver interface
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file BT848Card.cpp CBT848Card Implementation
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SourceProvider.cpp,v 1.2 2001-11-02 16:30:08 adcockj Exp $
+// $Id: SourceProvider.cpp,v 1.3 2003-10-27 10:39:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,10 +18,17 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/11/02 16:30:08  adcockj
+// Check in merged code from multiple cards branch into main tree
+//
 // Revision 1.1.2.1  2001/08/15 14:44:05  adcockj
 // Starting to put some flesh onto the new structure
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file SourceProvider.cpp CSourceProvider Implementation
+ */
 
 #include "stdafx.h"
 #include "SourceProvider.h"

@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// $Id: Cpu.h,v 1.5 2001-07-13 16:14:55 adcockj Exp $
+// $Id: Cpu.h,v 1.6 2003-10-27 10:39:51 adcockj Exp $
 ///////////////////////////////////////////////////////////////////////////////
 //  This file is subject to the terms of the GNU General Public License as
 //  published by the Free Software Foundation.  A copy of this license is
@@ -37,6 +37,10 @@
 // each feature.
 ///////////////////////////////////////////////////////////////////////////////
 
+/** 
+ * @file cpu.h cpu Header file
+ */
+ 
 #ifndef __CPU_H__
 #define __CPU_H__ 1
 

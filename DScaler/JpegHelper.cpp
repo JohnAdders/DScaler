@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: JpegHelper.cpp,v 1.12 2003-03-05 22:08:43 laurentg Exp $
+// $Id: JpegHelper.cpp,v 1.13 2003-10-27 10:39:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2003/03/05 22:08:43  laurentg
+// Updated management of 16 bytes aligned buffer for stills
+//
 // Revision 1.11  2003/01/19 11:09:10  laurentg
 // New methods GetInitialWidth and GetInitialHeight to store the initial size before resizing in DScaler (for stills)
 //
@@ -55,6 +58,10 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file JpegHelper.cpp Jpeg Helper functions
+ */
 
 #include "stdafx.h"
 #include "JpegHelper.h"

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScalerApp.h,v 1.6 2002-05-24 15:13:40 tobbej Exp $
+// $Id: DScalerApp.h,v 1.7 2003-10-27 10:39:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,10 @@
 // 22 Jun 2001   Torbjörn Jansson      Initial release
 //
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file DScalerApp.h DScalerMFC Header
+ */
 
 #if !defined(AFX_DSCALER_H__8ACFC662_CD94_4C47_A4C9_E1C7B7A52446__INCLUDED_)
 #define AFX_DSCALER_H__8ACFC662_CD94_4C47_A4C9_E1C7B7A52446__INCLUDED_

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.55 2003-10-03 10:44:27 laurentg Exp $
+// $Id: CX2388xSource.cpp,v 1.56 2003-10-27 10:39:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.55  2003/10/03 10:44:27  laurentg
+// GetStatus enhanced to get the channel name from teletext when in tuner mode
+//
 // Revision 1.54  2003/08/15 18:21:26  laurentg
 // Save in the source if it is the first setup
 //
@@ -273,6 +276,10 @@
 // Prelimainary support for CX2388x based cards
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file CX2388xSource.cpp CCX2388xSource Implementation
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

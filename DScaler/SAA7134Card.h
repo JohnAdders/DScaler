@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.35 2003-08-14 08:25:17 atnak Exp $
+// $Id: SAA7134Card.h,v 1.36 2003-10-27 10:39:53 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.35  2003/08/14 08:25:17  atnak
+// Fix to mute lining and audio channel clush
+//
 // Revision 1.34  2003/08/12 06:46:01  atnak
 // Fix for initial muting of SAA7130 cards
 //
@@ -135,6 +138,10 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
+/** 
+ * @file saa7134card.h saa7134card Header file
+ */
+ 
 #ifndef __SAA7134CARD_H___
 #define __SAA7134CARD_H___
 

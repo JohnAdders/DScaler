@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Perf.cpp,v 1.13 2003-03-09 22:22:39 laurentg Exp $
+// $Id: Perf.cpp,v 1.14 2003-10-27 10:39:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2003/03/09 22:22:39  laurentg
+// double replaced by integer
+//
 // Revision 1.12  2003/03/09 19:46:26  laurentg
 // Updated field statistics
 //
@@ -57,6 +60,10 @@
 //
 //
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file Perf.cpp High performance time functions
+ */
 
 #include "stdafx.h"
 #include <float.h>

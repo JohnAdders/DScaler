@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI.cpp,v 1.30 2003-06-28 10:54:01 laurentg Exp $
+// $Id: VBI.cpp,v 1.31 2003-10-27 10:39:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2003/06/28 10:54:01  laurentg
+// Erase first CC display when changing CC selection
+//
 // Revision 1.29  2003/02/17 11:39:00  adcockj
 // Added group flags for setting per channel on more settings
 //
@@ -126,6 +129,10 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file VBI.cpp VBI functions
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////
 //
-// $Id: SAA7118.cpp,v 1.4 2002-10-31 14:47:20 adcockj Exp $
+// $Id: SAA7118.cpp,v 1.5 2003-10-27 10:39:53 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
@@ -19,6 +19,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/10/31 14:47:20  adcockj
+// Added Sharpness
+//
 // Revision 1.3  2002/09/26 16:32:34  adcockj
 // Holo3d fixes
 //
@@ -29,6 +32,10 @@
 // Preliminary support for H3D card
 //
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file SAA7118.cpp CSAA7118 Implementation
+ */
 
 #include "stdafx.h"
 #include "SAA7118.h"

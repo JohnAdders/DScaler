@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.h,v 1.18 2003-10-11 17:25:53 laurentg Exp $
+// $Id: TimeShift.h,v 1.19 2003-10-27 10:39:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2003/10/11 17:25:53  laurentg
+// Comments updated
+//
 // Revision 1.17  2003/10/11 15:45:50  laurentg
 // Saving of compression options fixed
 //
@@ -89,6 +92,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
+/** 
+ * @file timeshift.h timeshift Header file
+ */
+ 
 #ifndef __TIMESHIFT_H___
 #define __TIMESHIFT_H___
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FieldTiming.cpp,v 1.38 2003-09-27 13:39:14 adcockj Exp $
+// $Id: FieldTiming.cpp,v 1.39 2003-10-27 10:39:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.38  2003/09/27 13:39:14  adcockj
+// Changed default to off for auto format
+//
 // Revision 1.37  2003/07/18 09:39:05  adcockj
 // Added option to release processor during JT
 //
@@ -110,6 +113,10 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file FieldTiming.cpp Field Timing functions
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

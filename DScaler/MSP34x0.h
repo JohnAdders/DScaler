@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.h,v 1.22 2002-10-27 12:33:33 adcockj Exp $
+// $Id: MSP34x0.h,v 1.23 2003-10-27 10:39:52 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2002/10/27 12:33:33  adcockj
+// Fixed UseInputPin1 code
+//
 // Revision 1.21  2002/10/11 21:50:02  ittarnavsky
 // moved the CMSP34x0Decoder to a separate file and renamed to CMSP34x0AudioDecoder
 //
@@ -89,6 +92,10 @@
 //
 //
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file msp34x0.h msp34x0 Header
+ */
 
 #if !defined(__MSP34X0_H__)
 #define __MSP34X0_H__

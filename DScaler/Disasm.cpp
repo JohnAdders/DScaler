@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Disasm.cpp,v 1.8 2003-01-20 15:19:36 adcockj Exp $
+// $Id: Disasm.cpp,v 1.9 2003-10-27 10:39:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (C) 1998-2001 Avery Lee.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -26,6 +26,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2003/01/20 15:19:36  adcockj
+// Brought crash code into line iwth latest vdub code
+//
 // Revision 1.7  2002/11/20 19:50:00  tobbej
 // synced crashlogging code with virtualdub
 //
@@ -49,6 +52,9 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
+/**
+ * @file Diasm.cpp Crash code from VirstualDub
+ */
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"
 #include "resource.h"

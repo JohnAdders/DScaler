@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.38 2002-11-07 20:33:16 adcockj Exp $
+// $Id: BT848Card.h,v 1.39 2003-10-27 10:39:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.38  2002/11/07 20:33:16  adcockj
+// Promoted ACPI functions so that state management works properly
+//
 // Revision 1.37  2002/11/07 13:37:42  adcockj
 // Added State restoration code to PCICard
 // Functionality disabled prior to testing and not done for SAA7134
@@ -104,6 +107,10 @@
 // added changes for the AudioDecoder and AudioControls support
 //
 /////////////////////////////////////////////////////////////////////////////
+
+/** 
+ * @file bt848card.h  bt848card Header file
+ */
 
 #ifndef __BT848CARD_H___
 #define __BT848CARD_H___

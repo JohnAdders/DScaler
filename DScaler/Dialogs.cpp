@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Dialogs.cpp,v 1.23 2003-01-26 12:45:44 adcockj Exp $
+// $Id: Dialogs.cpp,v 1.24 2003-10-27 10:39:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2003/01/26 12:45:44  adcockj
+// Correct version string
+//
 // Revision 1.22  2003/01/16 16:55:45  adcockj
 // Added new credits dialog
 //
@@ -99,6 +102,10 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file Dialogs.cpp About Dialog code
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

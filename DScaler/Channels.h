@@ -27,6 +27,10 @@
 //                                     
 /////////////////////////////////////////////////////////////////////////////
 
+/** 
+ * @file channels.h channels Header file
+ */
+ 
 #ifndef __CHANNELS_H___
 #define __CHANNELS_H___
 

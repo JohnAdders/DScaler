@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.cpp,v 1.32 2002-10-11 21:50:34 ittarnavsky Exp $
+// $Id: MSP34x0.cpp,v 1.33 2003-10-27 10:39:52 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2002/10/11 21:50:34  ittarnavsky
+// moved the CMSP34x0Decoder to a separate file and renamed to CMSP34x0AudioDecoder
+//
 // Revision 1.31  2002/10/07 20:38:17  kooiman
 // Abort thread before new detect to avoid problems.
 //
@@ -117,28 +120,29 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-/*
-All models:
-    The demodulator only needs to be programmed if m_AudioInput is AUDIOINPUT_RADIO or
-    AUDIOINPUT_TUNER.
-Revision G:
-    Features:
-    - Automatic Standard Detection. TV sound standard is detected automatically.
-    - Automatic Sound Select. Automatic setup of FM matrix. If NICAM or FM/stereo is available it is
-        automatically enabled. No action needed when changing tuner channels.
+/**
+ * @file MSP34x0.cpp CMSP34x0 Implementation
+    All models:
+        The demodulator only needs to be programmed if m_AudioInput is AUDIOINPUT_RADIO or
+        AUDIOINPUT_TUNER.
+    Revision G:
+        Features:
+        - Automatic Standard Detection. TV sound standard is detected automatically.
+        - Automatic Sound Select. Automatic setup of FM matrix. If NICAM or FM/stereo is available it is
+            automatically enabled. No action needed when changing tuner channels.
 
-    This code uses Automatic Sound Select.
-    There is no action needed on channel changes. The Automatic Sound Select will take care
-    of switching to NICAM or analog stereo and back to mono.
+        This code uses Automatic Sound Select.
+        There is no action needed on channel changes. The Automatic Sound Select will take care
+        of switching to NICAM or analog stereo and back to mono.
 
-Revision D:
-    Automatic Standard Detection (TV sound standard is detected automatically)
-    FM matrix must be programmed manually.
+    Revision D:
+        Automatic Standard Detection (TV sound standard is detected automatically)
+        FM matrix must be programmed manually.
 
-    Uses currently Revision A code.
+        Uses currently Revision A code.
 
-Revision A:
-    Everything is set up manually.
+    Revision A:
+        Everything is set up manually.
 */
 
 #include "stdafx.h"

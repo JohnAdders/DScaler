@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_Audio.cpp,v 1.17 2003-06-01 19:42:32 atnak Exp $
+// $Id: SAA7134Source_Audio.cpp,v 1.18 2003-10-27 10:39:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2003/06/01 19:42:32  atnak
+// Adds "external" sound type for either stereo or mono
+//
 // Revision 1.16  2003/02/06 19:44:46  ittarnavsky
 // changes due to the new SoundChannel.h
 //
@@ -79,6 +82,10 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file SAA7134Source.cpp CSAA7134Source Implementation (Audio)
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

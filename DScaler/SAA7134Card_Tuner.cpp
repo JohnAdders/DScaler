@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Tuner.cpp,v 1.7 2003-01-28 07:22:28 atnak Exp $
+// $Id: SAA7134Card_Tuner.cpp,v 1.8 2003-10-27 10:39:53 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2003/01/28 07:22:28  atnak
+// Visual changes
+//
 // Revision 1.6  2002/10/26 05:24:23  atnak
 // Minor cleanups
 //
@@ -46,6 +49,10 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
+
+/**
+ * @file SAA7134Card.cpp CSAA7134Card Implementation (Tuner)
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

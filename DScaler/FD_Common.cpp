@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_Common.cpp,v 1.28 2003-04-15 13:05:35 adcockj Exp $
+// $Id: FD_Common.cpp,v 1.29 2003-10-27 10:39:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2003/04/15 13:05:35  adcockj
+// Unused test code for comb and diff
+//
 // Revision 1.27  2002/10/29 11:05:28  adcockj
 // Renamed CT2388x to CX2388x
 //
@@ -96,6 +99,10 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file FD_Common.cpp Shared film mode functions
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Pattern.h,v 1.4 2003-01-19 11:09:11 laurentg Exp $
+// $Id: Pattern.h,v 1.5 2003-10-27 10:39:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2003/01/19 11:09:11  laurentg
+// New methods GetInitialWidth and GetInitialHeight to store the initial size before resizing in DScaler (for stills)
+//
 // Revision 1.3  2003/01/18 10:52:11  laurentg
 // SetOverscan renamed SetAspectRatioData
 // Unnecessary call to SetOverscan deleted
@@ -33,6 +36,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
+/** 
+ * @file pattern.h pattern Header file
+ */
+ 
 #ifndef __PATTERN_H___
 #define __PATTERN_H___
 

@@ -1,5 +1,5 @@
 //
-// $Id: ToolbarWindow.cpp,v 1.7 2003-09-26 20:54:06 laurentg Exp $
+// $Id: ToolbarWindow.cpp,v 1.8 2003-10-27 10:39:54 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2003/09/26 20:54:06  laurentg
+// Media player toolbar hidden when one skin is selected
+//
 // Revision 1.6  2003/09/07 19:09:52  laurentg
 // Display of toolbars on several rows when not enough space
 //
@@ -45,6 +48,10 @@
 //
 //
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file ToolbarWindow.cpp CToolbarWindow Implementation
+ */
 
 #include "stdafx.h"
 

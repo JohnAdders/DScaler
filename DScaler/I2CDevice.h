@@ -1,5 +1,5 @@
 //
-// $Id: I2CDevice.h,v 1.4 2001-12-18 23:36:01 adcockj Exp $
+// $Id: I2CDevice.h,v 1.5 2003-10-27 10:39:52 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/12/18 23:36:01  adcockj
+// Split up the MSP chip support into two parts to avoid probelms when deleting objects
+//
 // Revision 1.3  2001/11/29 14:04:07  adcockj
 // Added Javadoc comments
 //
@@ -33,6 +36,10 @@
 //
 //
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file i2cdevice.h i2cdevice Header
+ */
 
 #if !defined(__I2CDEVICE_H__)
 #define __I2CDEVICE_H__

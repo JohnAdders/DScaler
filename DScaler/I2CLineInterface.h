@@ -1,5 +1,5 @@
 //
-// $Id: I2CLineInterface.h,v 1.2 2001-11-29 14:04:07 adcockj Exp $
+// $Id: I2CLineInterface.h,v 1.3 2003-10-27 10:39:52 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,11 +22,18 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/11/29 14:04:07  adcockj
+// Added Javadoc comments
+//
 // Revision 1.1  2001/11/25 02:03:21  ittarnavsky
 // initial checkin of the new I2C code
 //
 //
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file i2clineinterface.h i2clineinterface Header
+ */
 
 #if !defined(__I2CLINEINTERFACE_H__)
 #define __I2CLINEINTERFACE_H__

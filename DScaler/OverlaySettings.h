@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OverlaySettings.h,v 1.2 2002-08-11 12:02:51 laurentg Exp $
+// $Id: OverlaySettings.h,v 1.3 2003-10-27 10:39:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,9 +18,16 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/08/11 12:02:51  laurentg
+// Update header to have a version management
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
+/** 
+ * @file overlaysettings.h overlaysettings Header file
+ */
+ 
 #ifndef __OVERLAYSETTINGS_H___
 #define __OVERLAYSETTINGS_H___
 

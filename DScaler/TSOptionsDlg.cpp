@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TSOptionsDlg.cpp,v 1.12 2003-09-13 13:53:25 laurentg Exp $
+// $Id: TSOptionsDlg.cpp,v 1.13 2003-10-27 10:39:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -26,6 +26,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2003/09/13 13:53:25  laurentg
+// half height mode removed from the options dialog box
+//
 // Revision 1.11  2003/08/15 17:18:36  laurentg
 // Factorize treatments
 //
@@ -64,6 +67,10 @@
 //
 //
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file TSOptionsDlg.cpp CTSOptionsDlg Implementation
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.61 2003-09-14 08:43:59 adcockj Exp $
+// $Id: AspectGUI.cpp,v 1.62 2003-10-27 10:39:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.61  2003/09/14 08:43:59  adcockj
+// Fixed Settings inconsistency
+//
 // Revision 1.60  2003/08/09 15:53:39  laurentg
 // Bad refresh of the toolbar when in full screen mode corrected
 //
@@ -182,6 +185,9 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
+/**
+ * @file AspectGUI.cpp Aspect Ratio GUI Functions
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

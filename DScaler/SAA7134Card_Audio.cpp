@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Audio.cpp,v 1.24 2003-08-14 08:25:17 atnak Exp $
+// $Id: SAA7134Card_Audio.cpp,v 1.25 2003-10-27 10:39:53 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2003/08/14 08:25:17  atnak
+// Fix to mute lining and audio channel clush
+//
 // Revision 1.23  2003/08/12 15:34:38  atnak
 // Minor fixes
 //
@@ -100,6 +103,9 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
+/**
+ * @file SAA7134Card.cpp CSAA7134Card Implementation (Audio)
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

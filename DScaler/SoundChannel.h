@@ -1,5 +1,5 @@
 //
-// $Id: SoundChannel.h,v 1.1 2003-02-06 19:39:13 ittarnavsky Exp $
+// $Id: SoundChannel.h,v 1.2 2003-10-27 10:39:54 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,7 +22,14 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2003/02/06 19:39:13  ittarnavsky
+// contains definition of eSoundChannel
+//
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file soundchannel.h soundchannel Header
+ */
 
 #if !defined(__SOUNDCHANNEL_H__)
 #define __SOUNDCHANNEL_H__

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.50 2003-10-10 11:16:37 laurentg Exp $
+// $Id: MixerDev.cpp,v 1.51 2003-10-27 10:39:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.50  2003/10/10 11:16:37  laurentg
+// Bug fixed : access to the audio mixer
+//
 // Revision 1.49  2003/09/14 09:20:30  adcockj
 // Fix so that inputs display in mixer dialog on first run
 //
@@ -172,6 +175,10 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file MixerDev.cpp Mixer Classes
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

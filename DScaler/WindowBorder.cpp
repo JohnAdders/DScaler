@@ -1,5 +1,5 @@
 //
-// $Id: WindowBorder.cpp,v 1.5 2002-10-08 08:23:33 kooiman Exp $
+// $Id: WindowBorder.cpp,v 1.6 2003-10-27 10:39:54 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/10/08 08:23:33  kooiman
+// Fixed lost border buttons.
+//
 // Revision 1.4  2002/10/07 20:32:43  kooiman
 // Fixed small bugs. Added 3/4state button.
 //
@@ -39,6 +42,10 @@
 //
 //
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file WindowBorder.cpp CWindowBorder Implementation
+ */
 
 #include "stdafx.h"
 

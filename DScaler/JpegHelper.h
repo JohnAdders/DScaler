@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: JpegHelper.h,v 1.2 2002-11-01 13:09:19 laurentg Exp $
+// $Id: JpegHelper.h,v 1.3 2003-10-27 10:39:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,12 +18,19 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/11/01 13:09:19  laurentg
+// Management of the still capture context slightly updated - works now even with stills in memory
+//
 // Revision 1.1  2002/05/01 12:57:19  laurentg
 // Support of JPEG files added
 //
 //
 //////////////////////////////////////////////////////////////////////////////
 
+/** 
+ * @file jpeghelper.h jpeghelper Header file
+ */
+ 
 #ifndef __JPEGHELPER_H___
 #define __JPEGHELPER_H___
 

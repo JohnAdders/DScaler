@@ -1,5 +1,5 @@
 //
-// $Id: MSP34xx_revA.cpp,v 1.2 2002-10-11 21:53:56 ittarnavsky Exp $
+// $Id: MSP34xx_revA.cpp,v 1.3 2003-10-27 10:39:52 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,12 +22,20 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/10/11 21:53:56  ittarnavsky
+// moved the CMSP34x0Decoder to separate files and renamed to CMSP34x0AudioDecoder
+// renamed 3400 to RevA and 34x1G to RevG
+//
 // Revision 1.1  2002/09/26 11:29:52  kooiman
 // Split MSP code in 3 parts.
 //
 //
 //
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file MSP34x0AudioDecoder.cpp CMSP34x0AudioDecoder Implementation (Rev A)
+ */
 
 #include "stdafx.h"
 #include "MSP34x0.h"

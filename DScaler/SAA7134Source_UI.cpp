@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.41 2003-05-29 15:55:26 laurentg Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.42 2003-10-27 10:39:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.41  2003/05/29 15:55:26  laurentg
+// Settings management updated (saving of video format per video input deactivated)
+//
 // Revision 1.40  2003/03/23 10:42:21  laurentg
 // Avoid to switch to an unknown video input when using 000...
 //
@@ -153,6 +156,10 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file SAA7134Source.cpp CSAA7134Source Implementation (UI)
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillProvider.cpp,v 1.24 2002-10-29 20:51:57 laurentg Exp $
+// $Id: StillProvider.cpp,v 1.25 2003-10-27 10:39:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2002/10/29 20:51:57  laurentg
+// Overlay must be locked when taking a still from the overlay
+//
 // Revision 1.23  2002/10/27 11:29:29  laurentg
 // New way to take stills - filling a memory buffer rather than the overlay
 //
@@ -93,6 +96,10 @@
 // Starting to put some flesh onto the new structure
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file StillProvider.cpp CStillProvider Implementation
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

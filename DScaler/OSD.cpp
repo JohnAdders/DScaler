@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.85 2003-06-02 13:15:34 adcockj Exp $
+// $Id: OSD.cpp,v 1.86 2003-10-27 10:39:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.85  2003/06/02 13:15:34  adcockj
+// Fixes for CHARSTRING problems
+//
 // Revision 1.84  2003/05/26 22:04:17  laurentg
 // Update of the OSD displayed when doing calibration
 //
@@ -326,6 +329,10 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file OSD.cpp OSD Functions
+ */
 
 #include "stdafx.h"
 #include "OSD.h"

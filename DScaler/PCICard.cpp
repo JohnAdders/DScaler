@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCICard.cpp,v 1.14 2002-11-07 21:06:12 adcockj Exp $
+// $Id: PCICard.cpp,v 1.15 2003-10-27 10:39:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/11/07 21:06:12  adcockj
+// Fixes to prevent hanging with card that's not been initilaised
+//
 // Revision 1.13  2002/11/07 20:33:17  adcockj
 // Promoted ACPI functions so that state management works properly
 //
@@ -67,6 +70,10 @@
 // Added extra files (Unused) for better hardware handling
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file PCICard.cpp CPCICard Implementation
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

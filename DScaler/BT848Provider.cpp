@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Provider.cpp,v 1.8 2002-08-11 16:56:34 laurentg Exp $
+// $Id: BT848Provider.cpp,v 1.9 2003-10-27 10:39:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/08/11 16:56:34  laurentg
+// More information displayed in the title of the BT card setup dialog box
+//
 // Revision 1.7  2001/11/30 10:46:43  adcockj
 // Fixed crashes and leaks
 //
@@ -53,6 +56,10 @@
 // Starting to put some flesh onto the new structure
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file BT848Provider.cpp CBT848Provider Implementation
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

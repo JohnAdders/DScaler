@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.55 2003-09-14 08:45:30 adcockj Exp $
+// $Id: Settings.cpp,v 1.56 2003-10-27 10:39:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.55  2003/09/14 08:45:30  adcockj
+// Fixed crash with fresj install
+//
 // Revision 1.54  2003/07/29 12:04:23  atnak
 // Minor changes
 //
@@ -187,6 +190,10 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file Settings.cpp Settings Functions
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

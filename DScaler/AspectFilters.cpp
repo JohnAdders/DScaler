@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectFilters.cpp,v 1.33 2003-08-09 15:53:39 laurentg Exp $
+// $Id: AspectFilters.cpp,v 1.34 2003-10-27 10:39:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2003/08/09 15:53:39  laurentg
+// Bad refresh of the toolbar when in full screen mode corrected
+//
 // Revision 1.32  2003/07/02 20:35:11  laurentg
 // Allow virtual screen with origin different from (0,0)
 //
@@ -113,6 +116,10 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file AspectFilter.cpp Aspect Ratio Filter Classes
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

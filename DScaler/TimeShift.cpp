@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.cpp,v 1.29 2003-10-11 17:25:53 laurentg Exp $
+// $Id: TimeShift.cpp,v 1.30 2003-10-27 10:39:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2003/10/11 17:25:53  laurentg
+// Comments updated
+//
 // Revision 1.28  2003/10/11 15:45:50  laurentg
 // Saving of compression options fixed
 //
@@ -132,6 +135,10 @@
 //
 //
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file TimeShift.cpp Time Shift Functions
+ */
 
 #include "stdafx.h"       // manditory precompiled header first
 #include "..\DScalerRes\resource.h"

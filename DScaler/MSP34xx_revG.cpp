@@ -1,5 +1,5 @@
 //
-// $Id: MSP34xx_revG.cpp,v 1.4 2002-10-26 17:51:53 adcockj Exp $
+// $Id: MSP34xx_revG.cpp,v 1.5 2003-10-27 10:39:52 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/10/26 17:51:53  adcockj
+// Simplified hide cusror code and removed PreShowDialogOrMenu & PostShowDialogOrMenu
+//
 // Revision 1.3  2002/10/11 21:53:56  ittarnavsky
 // moved the CMSP34x0Decoder to separate files and renamed to CMSP34x0AudioDecoder
 // renamed 3400 to RevA and 34x1G to RevG
@@ -35,6 +38,10 @@
 //
 //
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file MSP34x0AudioDecoder.cpp CMSP34x0AudioDecoder Implementation (Rev D)
+ */
 
 #include "stdafx.h"
 #include "MSP34x0.h"

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134I2CBus.cpp,v 1.3 2002-10-30 04:36:43 atnak Exp $
+// $Id: SAA7134I2CBus.cpp,v 1.4 2003-10-27 10:39:53 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/10/30 04:36:43  atnak
+// Moved back I2C sleep init to reduce startup delay
+//
 // Revision 1.2  2002/10/26 05:24:23  atnak
 // Minor cleanups
 //
@@ -38,6 +41,10 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file SAA7134I2CBus.cpp CSAA7134I2CBus Implementation
+ */
 
 #include "stdafx.h"
 #include "I2CBus.h"

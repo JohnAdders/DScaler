@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.68 2003-03-31 16:13:23 atnak Exp $
+// $Id: VBI_VideoText.cpp,v 1.69 2003-10-27 10:39:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.68  2003/03/31 16:13:23  atnak
+// Changed default for page lines caching control
+//
 // Revision 1.67  2003/02/05 06:58:28  atnak
 // Added Danish codepage submitted by Kristian Trenskow (trenskow)
 //
@@ -239,6 +242,10 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file VBI_VideoText.cpp VBI teletext functions
+ */
 
 #include "stdafx.h"
 #include "VTCommon.h"

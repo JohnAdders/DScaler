@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectDetect.cpp,v 1.35 2003-01-07 23:27:00 laurentg Exp $
+// $Id: AspectDetect.cpp,v 1.36 2003-10-27 10:39:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -39,6 +39,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.35  2003/01/07 23:27:00  laurentg
+// New overscan settings
+//
 // Revision 1.34  2003/01/04 13:36:41  laurentg
 // Two modes for AR autodetection
 //
@@ -131,6 +134,10 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file AspectDetect.cpp Aspect Ratio Detection Functions
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

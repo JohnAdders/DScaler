@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134I2CInterface.h,v 1.3 2002-09-14 19:40:48 atnak Exp $
+// $Id: SAA7134I2CInterface.h,v 1.4 2003-10-27 10:39:53 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,10 +30,17 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/09/14 19:40:48  atnak
+// various changes
+//
 //
 //
 //////////////////////////////////////////////////////////////////////////////
 
+/** 
+ * @file saa7134i2cinterface.h saa7134i2cinterface Header file
+ */
+ 
 #ifndef __SAA7134I2CINTERFACE_H__
 #define __SAA7134I2CINTERFACE_H__
 

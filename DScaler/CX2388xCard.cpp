@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.42 2003-02-22 12:27:45 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.43 2003-10-27 10:39:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.42  2003/02/22 12:27:45  adcockj
+// Solution to crashin problem with some cards
+//
 // Revision 1.41  2003/02/15 13:04:47  laurentg
 // Setting Chroma 2H Comb : On is 0 and OFF is 1
 //
@@ -215,6 +218,10 @@
 // Prelimainary support for CX2388x based cards
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file CX2388xCard.cpp CCX2388xCard Implementation
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

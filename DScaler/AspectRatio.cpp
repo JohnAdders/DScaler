@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.cpp,v 1.46 2003-08-09 15:53:39 laurentg Exp $
+// $Id: AspectRatio.cpp,v 1.47 2003-10-27 10:39:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -72,6 +72,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.46  2003/08/09 15:53:39  laurentg
+// Bad refresh of the toolbar when in full screen mode corrected
+//
 // Revision 1.45  2003/04/30 17:30:51  laurentg
 // Init of custom aspect ratio fixed
 //
@@ -171,6 +174,10 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file AspectRatio.cpp Aspect Ratio Functions
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

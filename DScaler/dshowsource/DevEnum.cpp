@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DevEnum.cpp,v 1.3 2001-12-17 19:36:16 tobbej Exp $
+// $Id: DevEnum.cpp,v 1.4 2003-10-27 10:39:57 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/12/17 19:36:16  tobbej
+// renamed a few classes
+//
 // Revision 1.2  2001/12/14 14:11:13  adcockj
 // Added #ifdef to allow compilation without SDK
 //
@@ -37,6 +40,7 @@
 /**
  * @file DevEnum.cpp implementation of the CDShowDevEnum class.
  */
+
 #include "stdafx.h"
 
 #ifdef WANT_DSHOW_SUPPORT

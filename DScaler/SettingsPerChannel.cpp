@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsPerChannel.cpp,v 1.25 2003-01-10 17:38:32 adcockj Exp $
+// $Id: SettingsPerChannel.cpp,v 1.26 2003-10-27 10:39:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 DScaler team.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2003/01/10 17:38:32  adcockj
+// Interrim Check in of Settings rewrite
+//  - Removed SETTINGSEX structures and flags
+//  - Removed Seperate settings per channel code
+//  - Removed Settings flags
+//  - Cut away some unused features
+//
 // Revision 1.24  2002/12/04 15:15:25  adcockj
 // Removed  RegLog as it is now redundant
 //
@@ -82,6 +89,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////
  
+/**
+ * @file SettingsPerChannel.cpp Settings Per Channel Functions
+ */
+
 #include "stdafx.h"
 #include <stack>
 #include "..\DScalerRes\resource.h"

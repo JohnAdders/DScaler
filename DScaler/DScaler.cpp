@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.354 2003-10-13 19:10:14 laurentg Exp $
+// $Id: DScaler.cpp,v 1.355 2003-10-27 10:39:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.354  2003/10/13 19:10:14  laurentg
+// Videotext renamed Teletext
+//
 // Revision 1.353  2003/10/10 11:18:59  laurentg
 // Bug fixed : access to the audio mixer
 //
@@ -1082,6 +1085,10 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file DScaler.cpp WinMain and related UI code
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

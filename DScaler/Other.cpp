@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.66 2003-07-18 09:38:00 adcockj Exp $
+// $Id: Other.cpp,v 1.67 2003-10-27 10:39:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.66  2003/07/18 09:38:00  adcockj
+// Added some unused test code for flip timing
+//
 // Revision 1.65  2003/05/31 11:38:17  laurentg
 // Load dynamic functions earlier to have splash screen on correct screen and to be able to start in full screen mode on the second monitor
 //
@@ -246,6 +249,10 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file Other.cpp Mostly DirectX Functions
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

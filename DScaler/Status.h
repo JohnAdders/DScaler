@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Status.h,v 1.8 2003-01-26 10:34:57 tobbej Exp $
+// $Id: Status.h,v 1.9 2003-10-27 10:39:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -33,8 +33,15 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2003/01/26 10:34:57  tobbej
+// changed statusbar updates from output thread to be thread safe (PostMessage instead of SendMessage)
+//
 //////////////////////////////////////////////////////////////////////////////
 
+/** 
+ * @file status.h status Header file
+ */
+ 
 #ifndef __STATUS_H___
 #define __STATUS_H___
 

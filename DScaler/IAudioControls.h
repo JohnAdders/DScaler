@@ -1,5 +1,5 @@
 //
-// $Id: IAudioControls.h,v 1.2 2001-12-18 23:36:01 adcockj Exp $
+// $Id: IAudioControls.h,v 1.3 2003-10-27 10:39:52 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,10 +22,17 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/12/18 23:36:01  adcockj
+// Split up the MSP chip support into two parts to avoid probelms when deleting objects
+//
 // Revision 1.1  2001/12/05 21:45:11  ittarnavsky
 // added changes for the AudioDecoder and AudioControls support
 //
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file iaudiocontrols.h iaudiocontrols Header
+ */
 
 #if !defined(__IAUDIOCONTROLS_H__)
 #define __IAUDIOCONTROLS_H__

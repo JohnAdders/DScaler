@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// $Id: CPU.cpp,v 1.5 2001-07-27 16:11:32 adcockj Exp $
+// $Id: CPU.cpp,v 1.6 2003-10-27 10:39:51 adcockj Exp $
 ///////////////////////////////////////////////////////////////////////////////
 //  This file is subject to the terms of the GNU General Public License as
 //  published by the Free Software Foundation.  A copy of this license is
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/07/27 16:11:32  adcockj
+// Added support for new Crash dialog
+//
 // Revision 1.4  2001/07/13 16:14:55  adcockj
 // Changed lots of variables to match Coding standards
 //
@@ -32,20 +35,21 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////////////////////////
-// This file contains #define directives that control compilation of CPU-specific
-// code, mostly deinterlacing functions.  Turning these directives on requires
-// that you have Microsoft's "Processor Pack" patch installed on your build system.
-// The Processor Pack is available from Microsoft for free:
-//
-// http://msdn.microsoft.com/vstudio/downloads/ppack/
-//
-// Note that compiling the code to use a processor-specific feature is safe even
-// if your PC doesn't have the feature in question; dTV detects processor types
-// at startup and sets flags in the global "CpuFeatureFlags" (see cpu.h for
-// the list of flags) which the code uses to determine whether or not to use
-// each feature.
-///////////////////////////////////////////////////////////////////////////////
+/**
+ * @file CPU.cpp CPU Detection
+ *  This file contains #define directives that control compilation of CPU-specific
+ *  code, mostly deinterlacing functions.  Turning these directives on requires
+ *  that you have Microsoft's "Processor Pack" patch installed on your build system.
+ *  The Processor Pack is available from Microsoft for free:
+ * 
+ *  http://msdn.microsoft.com/vstudio/downloads/ppack/
+ * 
+ *  Note that compiling the code to use a processor-specific feature is safe even
+ *  if your PC doesn't have the feature in question; dTV detects processor types
+ *  at startup and sets flags in the global "CpuFeatureFlags" (see cpu.h for
+ *  the list of flags) which the code uses to determine whether or not to use
+ *  each feature.
+ */
 
 #include "stdafx.h"
 #include "cpu.h"

@@ -14,6 +14,10 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 
+/**
+ * @file OverlaySettings.cpp Overlay Settings functions
+ */
+
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"
 #include "resource.h"

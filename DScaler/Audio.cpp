@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Audio.cpp,v 1.39 2003-07-29 13:33:06 atnak Exp $
+// $Id: Audio.cpp,v 1.40 2003-10-27 10:39:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.39  2003/07/29 13:33:06  atnak
+// Overhauled mixer code
+//
 // Revision 1.38  2003/07/17 05:59:00  atnak
 // A quick fix for non-unmuting muted hardware problem
 //
@@ -140,6 +143,10 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file Audio.cpp Audio Functions
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

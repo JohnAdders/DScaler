@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareSettings.h,v 1.1 2002-08-11 12:14:02 laurentg Exp $
+// $Id: HardwareSettings.h,v 1.2 2003-10-27 10:39:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,9 +18,16 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/08/11 12:14:02  laurentg
+// Cut BT Card setup and general hardware setup in two different windows
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
+/** 
+ * @file hardwaresettings.h hardwaresettings Header file
+ */
+ 
 #ifndef __HARDWARESETTINGS_H___
 #define __HARDWARESETTINGS_H___
 

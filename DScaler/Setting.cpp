@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.cpp,v 1.30 2003-08-16 10:29:20 atnak Exp $
+// $Id: Setting.cpp,v 1.31 2003-10-27 10:39:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2003/08/16 10:29:20  atnak
+// Added the hook necessary for the new settings master
+//
 // Revision 1.29  2003/06/14 13:27:48  laurentg
 // Use default value when the current value in ini file is out of range, and correct the value in the ini file
 //
@@ -131,6 +134,10 @@
 // Another interim check-in still doesn't compile. Getting closer ...
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file Setting.cpp Settings functions
+ */
 
 #include "stdafx.h"
 #include "Setting.h"

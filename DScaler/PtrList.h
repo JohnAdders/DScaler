@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PtrList.h,v 1.2 2003-06-06 11:14:40 atnak Exp $
+// $Id: PtrList.h,v 1.3 2003-10-27 10:39:53 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,12 +25,19 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2003/06/06 11:14:40  atnak
+// Adding insert and missing next and prev functions.
+//
 // Revision 1.1  2003/06/05 08:38:09  atnak
 // Initial release of PtrList template class.
 //
 //
 //////////////////////////////////////////////////////////////////////////////
 
+/** 
+ * @file ptrlist.h ptrlist Header file
+ */
+ 
 #ifndef __PTRLIST_H___
 #define __PTRLIST_H___
 

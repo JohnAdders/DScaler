@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_WSSdecode.cpp,v 1.15 2003-01-05 18:59:50 laurentg Exp $
+// $Id: VBI_WSSdecode.cpp,v 1.16 2003-10-27 10:39:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000-2003 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2003/01/05 18:59:50  laurentg
+// WSS decoding working for each VBI frequency
+//
 // Revision 1.14  2003/01/05 18:35:45  laurentg
 // Init function for VBI added
 //
@@ -68,6 +71,10 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file VBI_WSSdecode.cpp VBI WSS functions
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

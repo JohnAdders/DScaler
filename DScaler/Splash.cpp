@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Splash.cpp,v 1.10 2003-03-29 13:40:24 laurentg Exp $
+// $Id: Splash.cpp,v 1.11 2003-10-27 10:39:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2003/03/29 13:40:24  laurentg
+// Allow the display of DScaler to monitors other than the primary
+//
 // Revision 1.9  2003/01/15 15:54:23  adcockj
 // Fixed some keyboard focus issues
 //
@@ -47,6 +50,10 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file Splash.cpp Splash window
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

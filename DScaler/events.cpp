@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: events.cpp,v 1.13 2003-01-12 16:19:35 adcockj Exp $
+// $Id: events.cpp,v 1.14 2003-10-27 10:39:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2003/01/12 16:19:35  adcockj
+// Added SettingsGroup activity setting
+// Corrected event sequence and channel change behaviour
+//
 // Revision 1.12  2003/01/11 12:53:58  adcockj
 // Interim Check in of settings changes
 //  - bug fixes for overlay settings changes
@@ -63,6 +67,10 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file Events.cpp CEventCollector implementation
+ */
 
 #include "stdafx.h"
 #include "Events.h"

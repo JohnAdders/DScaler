@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Provider.cpp,v 1.10 2002-12-24 08:22:14 atnak Exp $
+// $Id: SAA7134Provider.cpp,v 1.11 2003-10-27 10:39:53 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/12/24 08:22:14  atnak
+// Added Prime 7133 card
+//
 // Revision 1.9  2002/10/26 05:24:23  atnak
 // Minor cleanups
 //
@@ -53,6 +56,10 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file SAA7134Provider.cpp CSAA7134Provider Implementation
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

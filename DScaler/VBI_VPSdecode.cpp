@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VPSdecode.cpp,v 1.3 2003-01-07 16:49:11 adcockj Exp $
+// $Id: VBI_VPSdecode.cpp,v 1.4 2003-10-27 10:39:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -42,6 +42,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2003/01/07 16:49:11  adcockj
+// Changes to allow variable sampling rates for VBI
+//
 // Revision 1.2  2003/01/05 18:35:45  laurentg
 // Init function for VBI added
 //
@@ -50,6 +53,10 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file VBI_VPSdecode.cpp VBI VPS functions
+ */
 
 #include "stdafx.h"
 #include "DScaler.h"

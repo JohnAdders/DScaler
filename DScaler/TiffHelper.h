@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TiffHelper.h,v 1.6 2002-11-01 13:09:19 laurentg Exp $
+// $Id: TiffHelper.h,v 1.7 2003-10-27 10:39:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/11/01 13:09:19  laurentg
+// Management of the still capture context slightly updated - works now even with stills in memory
+//
 // Revision 1.5  2002/04/15 22:50:09  laurentg
 // Change again the available formats for still saving
 // Automatic switch to "square pixels" AR mode when needed
@@ -49,6 +52,10 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
+/** 
+ * @file tiffhelper.h tiffhelper Header file
+ */
+ 
 #ifndef __TIFFHELPER_H___
 #define __TIFFHELPER_H___
 

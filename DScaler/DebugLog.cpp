@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DebugLog.cpp,v 1.26 2003-08-10 12:14:42 tobbej Exp $
+// $Id: DebugLog.cpp,v 1.27 2003-10-27 10:39:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2003/08/10 12:14:42  tobbej
+// prevent crashing when trying to log when the debuglog filename is not loaded yet
+//
 // Revision 1.25  2003/06/02 13:15:31  adcockj
 // Fixes for CHARSTRING problems
 //
@@ -84,6 +87,10 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file DebugLog.cpp Debug Logging functions
+ */
 
 #include "StdAfx.h"
 #include "..\DScalerRes\resource.h"

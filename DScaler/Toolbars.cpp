@@ -1,5 +1,5 @@
 //
-// $Id: Toolbars.cpp,v 1.23 2003-09-07 11:05:14 laurentg Exp $
+// $Id: Toolbars.cpp,v 1.24 2003-10-27 10:39:54 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2003/09/07 11:05:14  laurentg
+// Elapsed time slider and skin
+//
 // Revision 1.22  2003/08/15 16:51:11  laurentg
 // New event type EVENT_NO_VOLUME
 // Update the volume toolbar when exiting from the audio mixer setup dialog box
@@ -98,6 +101,10 @@
 //
 //
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file Toolbars.cpp Toolbar classes
+ */
 
 #include "stdafx.h"
 #include "TVFormats.h"

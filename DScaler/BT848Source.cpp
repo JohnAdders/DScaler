@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.127 2003-08-15 18:20:26 laurentg Exp $
+// $Id: BT848Source.cpp,v 1.128 2003-10-27 10:39:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.127  2003/08/15 18:20:26  laurentg
+// Save in the source if it is the first setup
+//
 // Revision 1.126  2003/07/05 10:55:57  laurentg
 // New method SetWidth
 //
@@ -448,6 +451,10 @@
 // Starting to put some flesh onto the new structure
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file BT848Source.cpp CBT848Source Implementation
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

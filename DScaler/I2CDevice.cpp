@@ -1,5 +1,5 @@
 //
-// $Id: I2CDevice.cpp,v 1.2 2001-11-26 13:02:27 adcockj Exp $
+// $Id: I2CDevice.cpp,v 1.3 2003-10-27 10:39:52 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,11 +22,18 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/11/26 13:02:27  adcockj
+// Bug Fixes and standards changes
+//
 // Revision 1.1  2001/11/25 02:03:21  ittarnavsky
 // initial checkin of the new I2C code
 //
 //
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file I2CDevice.cpp CI2CDevice Implementation
+ */
 
 #include "stdafx.h"
 #include "I2CDevice.h"

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VideoSettings.cpp,v 1.19 2003-01-16 22:35:09 laurentg Exp $
+// $Id: VideoSettings.cpp,v 1.20 2003-10-27 10:39:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2003/01/16 22:35:09  laurentg
+// Suppression of the overscan setting from the video settings dialog box
+//
 // Revision 1.18  2003/01/15 15:54:23  adcockj
 // Fixed some keyboard focus issues
 //
@@ -88,6 +91,10 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file VideoSettings.cpp VideoSettings dialog
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

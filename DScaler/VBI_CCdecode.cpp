@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_CCdecode.cpp,v 1.17 2003-06-28 10:54:01 laurentg Exp $
+// $Id: VBI_CCdecode.cpp,v 1.18 2003-10-27 10:39:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Mike Baker.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2003/06/28 10:54:01  laurentg
+// Erase first CC display when changing CC selection
+//
 // Revision 1.16  2003/01/07 16:49:10  adcockj
 // Changes to allow variable sampling rates for VBI
 //
@@ -84,6 +87,10 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file VBI_CCdecode.cpp VBI Closed caption functions
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

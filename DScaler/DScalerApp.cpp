@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScalerApp.cpp,v 1.19 2003-03-05 21:43:32 tobbej Exp $
+// $Id: DScalerApp.cpp,v 1.20 2003-10-27 10:39:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2003/03/05 21:43:32  tobbej
+// changed com init, this fixes problems with open file dialog
+//
 // Revision 1.18  2002/10/16 16:16:52  tobbej
 // added some comments
 //
@@ -77,6 +80,10 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file DScalerApp.cpp MFC wrapper for normal WinMain
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

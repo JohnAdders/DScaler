@@ -1,5 +1,5 @@
 //
-// $Id: I2CBus.cpp,v 1.2 2002-09-27 14:10:25 kooiman Exp $
+// $Id: I2CBus.cpp,v 1.3 2003-10-27 10:39:51 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,11 +22,18 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/09/27 14:10:25  kooiman
+// thread safe i2c bus access
+//
 // Revision 1.1  2001/11/25 02:03:21  ittarnavsky
 // initial checkin of the new I2C code
 //
 //
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file I2CBus.cpp CI2CBus Implementation
+ */
 
 #include "stdafx.h"
 #include "I2CBus.h"

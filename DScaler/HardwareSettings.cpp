@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareSettings.cpp,v 1.10 2003-03-15 13:15:51 laurentg Exp $
+// $Id: HardwareSettings.cpp,v 1.11 2003-10-27 10:39:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2003/03/15 13:15:51  laurentg
+// DScaler usage choice
+//
 // Revision 1.9  2003/03/08 20:50:59  laurentg
 // Updated combobox to select the usage of DScaler
 //
@@ -49,6 +52,10 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file HardwareSettings.cpp Hardware settings functions
+ */
 
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Filter.cpp,v 1.24 2002-08-09 08:33:35 kooiman Exp $
+// $Id: Filter.cpp,v 1.25 2002-08-11 18:47:51 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2002/08/09 08:33:35  kooiman
+// Fixed potential ignoring of some filter's settings for per channel settings.
+//
 // Revision 1.23  2002/08/08 12:39:13  kooiman
 // Added filter settings to settings per channel.
 //
@@ -303,9 +306,22 @@ BOOL LoadFilterPlugins()
             return FALSE;
         }
 
+        AppendMenu(hFilterMenu, MF_STRING | MF_GRAYED, 0, "Input Filters");
         for(i = 0; i < NumFilters; i++)
         {
-            AddUIForFilterPlugin(hFilterMenu, Filters[i], 7000 + i);
+            if(Filters[i]->bOnInput)
+            {
+                AddUIForFilterPlugin(hFilterMenu, Filters[i], 7000 + i);
+            }
+        }
+        AppendMenu(hFilterMenu, MF_SEPARATOR, 0, "");
+        AppendMenu(hFilterMenu, MF_STRING | MF_GRAYED, 0, "Output Filters");
+        for(i = 0; i < NumFilters; i++)
+        {
+            if(!Filters[i]->bOnInput)
+            {
+                AddUIForFilterPlugin(hFilterMenu, Filters[i], 7000 + i);
+            }
         }
         return TRUE;
     }

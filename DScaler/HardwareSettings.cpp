@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareSettings.cpp,v 1.3 2002-08-11 16:14:36 laurentg Exp $
+// $Id: HardwareSettings.cpp,v 1.4 2002-08-11 22:59:52 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/08/11 16:14:36  laurentg
+// New setting to choose between keep CPU for other applications or use full CPU for best results
+//
 // Revision 1.2  2002/08/11 13:52:03  laurentg
 // Show automatically the general hardware setup dialog box the first time DScaler is started
 //
@@ -132,7 +135,7 @@ BOOL APIENTRY HardwareSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lPa
             Setting_SetValue(DScaler_GetSetting(TRADEOFF), ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_TRADEOFF)));
             Setting_SetValue(DScaler_GetSetting(FULLCPU), ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_FULLCPU)));
             ChangeSettingsBasedOnHW(Setting_GetValue(DScaler_GetSetting(PROCESSORSPEED)), Setting_GetValue(DScaler_GetSetting(TRADEOFF)), Setting_GetValue(DScaler_GetSetting(FULLCPU)));
-            WriteSettingsToIni(FALSE);
+            WriteSettingsToIni(TRUE);
             EndDialog(hDlg, TRUE);
             break;
         case IDCANCEL:

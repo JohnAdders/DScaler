@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.38 2002-08-11 17:46:59 laurentg Exp $
+// $Id: BT848Souce_UI.cpp,v 1.39 2002-08-11 22:59:51 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.38  2002/08/11 17:46:59  laurentg
+// Change a little the title of the setup card dialog box
+//
 // Revision 1.37  2002/08/11 16:56:34  laurentg
 // More information displayed in the title of the BT card setup dialog box
 //
@@ -315,7 +318,7 @@ BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam,
             {
                 pThis->ChangeTVSettingsBasedOnTuner();
             }
-			      WriteSettingsToIni(FALSE);
+			WriteSettingsToIni(TRUE);
             EndDialog(hDlg, TRUE);
             break;
         case IDCANCEL:

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TiffHelper.cpp,v 1.1 2001-11-28 16:04:50 adcockj Exp $
+// $Id: TiffHelper.cpp,v 1.2 2001-11-30 10:46:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/11/28 16:04:50  adcockj
+// Major reorganization of STill support
+//
 // Revision 1.3  2001/11/25 10:41:26  laurentg
 // TIFF code moved from Other.cpp to TiffSource.c + still capture updated
 //
@@ -381,7 +384,7 @@ void CTiffHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOv
 
     sprintf(description, "DScaler image, deinterlace Mode %s", GetDeinterlaceModeName());
     // How do we figure out our version number?!?!
-    FillTiffHeader(&head, description, "http://deinterlace.sourceforge.net/", "DScaler version 2.x", Width, Height);
+    FillTiffHeader(&head, description, "http://deinterlace.sourceforge.net/", "DScaler version 2.x", Height, Width);
     fwrite(&head, sizeof(head), 1, file);
 
     for (i = 0; i < Height; i++)

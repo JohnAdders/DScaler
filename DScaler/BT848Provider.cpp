@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Provider.cpp,v 1.6 2001-11-29 22:16:22 adcockj Exp $
+// $Id: BT848Provider.cpp,v 1.7 2001-11-30 10:46:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/11/29 22:16:22  adcockj
+// Fixed memory leak
+//
 // Revision 1.5  2001/11/29 17:30:51  adcockj
 // Reorgainised bt848 initilization
 // More Javadoc-ing
@@ -90,8 +93,19 @@ CBT848Provider::CBT848Provider(CHardwareDriver* pHardwareDriver)
     char szSection[12];
     DWORD SubSystemId;
     BOOL IsMemoryInitialized = FALSE;
+    int i;
 
-    for(int i(0); i < 4; ++i)
+    // initilize memory pointers to NULL
+    // so that if we fail we can check 
+    // for NULL before destroying
+    m_RiscDMAMem = NULL;
+    for(i = 0; i < 5; ++i)
+    {
+        m_VBIDMAMem[i] = NULL;
+        m_DisplayDMAMem[i] = NULL;
+    }
+
+    for(i = 0; i < sizeof(BT848Chips)/sizeof(TBT848Chip); ++i)
     {
         int CardsFound(0);
 
@@ -178,16 +192,6 @@ CSource* CBT848Provider::GetSource(int SourceIndex)
 
 BOOL CBT848Provider::MemoryInit(CHardwareDriver* pHardwareDriver)
 {
-    // initilize pointers to NULL
-    // so that if we fail we can check 
-    // for NULL before destroying
-    m_RiscDMAMem = NULL;
-    for(int i(0); i < 5; ++i)
-    {
-        m_VBIDMAMem[i] = NULL;
-        m_DisplayDMAMem[i] = NULL;
-    }
-
     try
     {
         m_RiscDMAMem = new CContigMemory(pHardwareDriver, 83968);
@@ -201,7 +205,7 @@ BOOL CBT848Provider::MemoryInit(CHardwareDriver* pHardwareDriver)
 
     try
     {
-        for (i = 0; i < 5; i++)
+        for (int i(0); i < 5; i++)
         {
             m_DisplayDMAMem[i] = new CUserMemory(pHardwareDriver, 1024 * 576 * 2);
         }
@@ -215,7 +219,7 @@ BOOL CBT848Provider::MemoryInit(CHardwareDriver* pHardwareDriver)
 
     try
     {
-        for (i = 0; i < 5; i++)
+        for (int i(0); i < 5; i++)
         {
             m_VBIDMAMem[i] = new CUserMemory(pHardwareDriver, 2048 * 19 * 2);
         }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.12 2001-11-28 16:04:50 adcockj Exp $
+// $Id: StillSource.cpp,v 1.13 2001-11-30 10:46:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2001/11/28 16:04:50  adcockj
+// Major reorganization of STill support
+//
 // Revision 1.11  2001/11/26 13:02:27  adcockj
 // Bug Fixes and standards changes
 //
@@ -202,6 +205,7 @@ BOOL CStillSource::ShowNextInPlayList()
         }
         ++m_Position;
     }
+    m_Position = m_PlayList.size() - 1;
     return FALSE;
 }
 
@@ -215,6 +219,7 @@ BOOL CStillSource::ShowPreviousInPlayList()
         }
         --m_Position;
     }
+    m_Position = 0;
     return FALSE;
 }
 

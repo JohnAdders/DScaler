@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectFilters.cpp,v 1.24 2002-09-18 11:38:05 kooiman Exp $
+// $Id: AspectFilters.cpp,v 1.25 2002-10-11 13:40:52 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2002/09/18 11:38:05  kooiman
+// Preparations for skinned dscaler look.
+//
 // Revision 1.23  2002/08/05 21:01:55  laurentg
 // Square pixels mode updated
 //
@@ -568,9 +571,17 @@ BOOL CScreenSanityAspectFilter::adjustAspect(CAspectRectangles &ar)
     // crop the Destination rect so that the overlay destination region is 
     // always on the screen we will also update the source area to reflect this
     // so that we see the appropriate portion on the screen
-    // (this should make us compatable with YXY)
-    RECT screenRect = {0,0,GetSystemMetrics(SM_CXSCREEN),GetSystemMetrics(SM_CYSCREEN) };
+    // (this should make us compatable with YXY)        
+    RECT screenRect = {0,0,GetSystemMetrics(SM_CXVIRTUALSCREEN),GetSystemMetrics(SM_CYVIRTUALSCREEN) };
     RECT sourceRect = {0, 0, m_SrcWidth, m_SrcHeight};
+
+    if ((screenRect.right == 0) || (screenRect.bottom == 0))
+    {
+        screenRect.right = GetSystemMetrics(SM_CXSCREEN);
+        screenRect.bottom = GetSystemMetrics(SM_CYSCREEN);
+    }
+    
+
     ar.m_CurrentOverlayDestRect.crop(screenRect,&ar.m_CurrentOverlaySrcRect);
 
     // then make sure we are still onscreen

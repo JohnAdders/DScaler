@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.71 2003-02-22 13:42:42 laurentg Exp $
+// $Id: SAA7134Source.cpp,v 1.72 2003-02-25 21:47:05 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.71  2003/02/22 13:42:42  laurentg
+// New counter to count fields runnign late
+// Update input frequency on cleanish field changes only which means when the field is no running late
+//
 // Revision 1.70  2003/02/06 19:45:47  ittarnavsky
 // removed dependency on BT848_Defines.h
 //
@@ -869,14 +873,14 @@ void CSAA7134Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
     int         FieldDistance;
     BOOL        bTryToCatchUp = TRUE;
     BOOL        bSlept = FALSE;
-	BOOL		bLate = TRUE;
+	BOOL        bWaited;
 
     // This function waits for the next field
-    if (PollForNextField(&NextFieldID, &FieldDistance, TRUE))
+	bWaited = PollForNextField(&NextFieldID, &FieldDistance, TRUE);
+    if (bWaited)
     {
         // if we waited then we are not late
         pInfo->bRunningLate = FALSE;
-        bLate = FALSE;							// if we waited then we are not late
     }
 
     // The distance from the new field the field card
@@ -886,7 +890,7 @@ void CSAA7134Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
         // No skipped fields
         pInfo->bMissedFrame = FALSE;
 
-		if (bLate)
+		if (!bWaited)
 		{
             LOG(2, " Running late but right field");
 			if (pInfo->bRunningLate)
@@ -931,14 +935,14 @@ void CSAA7134Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
     TFieldID    NextFieldID;
     int         FieldDistance;
     BOOL        bSlept = FALSE;
-	BOOL		bLate = TRUE;
+	BOOL        bWaited;
 
     // This function waits for the next field
-    if (PollForNextField(&NextFieldID, &FieldDistance, FALSE))
+	bWaited = PollForNextField(&NextFieldID, &FieldDistance, FALSE);
+    if (bWaited)
     {
         // if we waited then we are not late
         pInfo->bRunningLate = FALSE;
-        bLate = FALSE;							// if we waited then we are not late
     }
 
     // The distance from the new field the field card
@@ -946,7 +950,7 @@ void CSAA7134Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
     if (FieldDistance == 1)
     {
         // No skipped fields, do nothing
-		if (bLate)
+		if (!bWaited)
 		{
             LOG(2, " Running late but right field");
             Timing_AddLateFields(1);

@@ -149,6 +149,7 @@ int pgstartx = -1;
 int pgstarty = -1;
 
 BOOL bAlwaysOnTop = FALSE;
+BOOL bAlwaysOnTopFull = TRUE;
 BOOL bDisplayStatusBar = TRUE;
 BOOL bDisplaySplashScreen = TRUE;
 BOOL bIsFullScreen = FALSE;
@@ -1047,6 +1048,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
 		case IDM_ON_TOP:
 			bAlwaysOnTop = !bAlwaysOnTop;
+			WorkoutOverlaySize();
+			break;
+
+        case IDM_ALWAYONTOPFULLSCREEN:
+			bAlwaysOnTopFull = !bAlwaysOnTopFull;
 			WorkoutOverlaySize();
 			break;
 
@@ -2088,6 +2094,7 @@ void SetMenuAnalog()
 	CheckMenuItem(hMenu, IDM_AUTOHIDE_CURSOR,   bAutoHideCursor?MF_CHECKED:MF_UNCHECKED);
 	CheckMenuItem(hMenu, IDM_STATUSBAR,         bDisplayStatusBar?MF_CHECKED:MF_UNCHECKED);
 	CheckMenuItem(hMenu, IDM_ON_TOP,            bAlwaysOnTop?MF_CHECKED:MF_UNCHECKED);
+	CheckMenuItem(hMenu, IDM_ALWAYONTOPFULLSCREEN, bAlwaysOnTopFull?MF_CHECKED:MF_UNCHECKED);
 	CheckMenuItem(hMenu, IDM_SPLASH_ON_STARTUP, bDisplaySplashScreen?MF_CHECKED:MF_UNCHECKED);
 	CheckMenuItem(hMenu, IDM_AUTOHIDE_OSD,      Setting_GetValue(OSD_GetSetting(OSD_AUTOHIDE_SCREEN))?MF_CHECKED:MF_UNCHECKED);
 
@@ -2255,7 +2262,7 @@ void UpdateWindowState()
 		SetMenu(hWnd, NULL);
 		StatusBar_ShowWindow(FALSE);
 		SetWindowPos(hWnd,
-					HWND_TOPMOST,
+                    bAlwaysOnTopFull?HWND_TOPMOST:HWND_NOTOPMOST,
 					0,
 					0,
 					GetSystemMetrics(SM_CXSCREEN),
@@ -2380,6 +2387,13 @@ BOOL AlwaysOnTop_OnChange(long NewValue)
 	return FALSE;
 }
 
+BOOL AlwaysOnTopFull_OnChange(long NewValue)
+{
+	bAlwaysOnTopFull = (BOOL)NewValue;
+	WorkoutOverlaySize();
+	return FALSE;
+}
+
 BOOL DisplayStatusBar_OnChange(long NewValue)
 {
 	bDisplayStatusBar = (BOOL)NewValue;
@@ -2438,7 +2452,7 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
 		"MainWindow", "StartHeight", NULL,
 	},
 	{
-		"Always On Top", YESNO, 0, (long*)&bAlwaysOnTop,
+		"Always On Top (Window)", YESNO, 0, (long*)&bAlwaysOnTop,
 		FALSE, 0, 1, 1, 1,
 		NULL,
 		"MainWindow", "AlwaysOnTop", AlwaysOnTop_OnChange,
@@ -2508,6 +2522,12 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
 		FALSE, 0, 1, 1, 1,
 		NULL,
 		"MainWindow", "UseAutoSave", NULL,
+	},
+	{
+		"Always On Top (Full Screen)", YESNO, 0, (long*)&bAlwaysOnTopFull,
+		TRUE, 0, 1, 1, 1,
+		NULL,
+		"MainWindow", "AlwaysOnTopFull", AlwaysOnTopFull_OnChange,
 	},
 };
 

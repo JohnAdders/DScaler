@@ -1,8 +1,8 @@
 Updated Instructions For New & Existing Developers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Great news!  No batch files or makefile necessary for dTVdrv95 
-needed anymore, as I have converted the dTVdrv95 project into 
+Great news!  No batch files or makefile necessary for DSdrv95 
+needed anymore, as I have converted the DSdrv95 project into 
 a true Visual Studio Workspace now just like the other components.
 That means no more hardcoded paths.   All you need is your
 Visual Studio and a couple of easy-to-install DDK's below.
@@ -19,7 +19,7 @@ The HTML files have been moved to the "Release" directory too.
 
 Step by step instructions:
 
-1. Your dTV source code can now be in any subdirectory on any drive
+1. Your DScaler source code can now be in any subdirectory on any drive
 
 2. Preferred development platform is Windows 2000 with Visual Studio 6. 
 

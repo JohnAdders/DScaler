@@ -858,13 +858,14 @@
 #define IDM_BT848_SETTINGS              2022
 #define IDM_ASPECT_SETTINGS             2023
 #define IDM_TIMING_SETTNGS              2024
+#define IDM_ALWAYONTOPFULLSCREEN        2025
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        183
-#define _APS_NEXT_COMMAND_VALUE         2025
+#define _APS_NEXT_COMMAND_VALUE         2026
 #define _APS_NEXT_CONTROL_VALUE         1895
 #define _APS_NEXT_SYMED_VALUE           114
 #endif

@@ -1,7 +1,12 @@
 /////////////////////////////////////////////////////////////////////////////
-// Tuner.c
+// Tuner.cpp
 /////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2000 John Adcock.  All rights reserved.
+// Code sourced from bttv linux driver tuner.c file
+//
+// Copyright (C) 1996,97,98 Ralph  Metzler (rjkm@thp.uni-koeln.de)
+//                         & Marcus Metzler (mocm@thp.uni-koeln.de)
+// Copyright (c) 1999,2000 Gerd Knorr <kraxel@goldbach.in-berlin.de>
+// Copyright (C) 1997 Markus Schroeder (schroedm@uni-duesseldorf.de)
 /////////////////////////////////////////////////////////////////////////////
 //
 //	This file is subject to the terms of the GNU General Public License as
@@ -23,6 +28,8 @@
 //
 // 08 Jan 2001   John Adcock           Global Variable Tidy up
 //                                     Got rid of global.h structs.h defines.h
+//
+// 28 Jun 2001   John Adcock           Added support for Philips SECAM tuner
 //
 /////////////////////////////////////////////////////////////////////////////
 

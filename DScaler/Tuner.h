@@ -19,6 +19,13 @@
 // This software was based on Multidec 5.6 Those portions are
 // Copyright (C) 1999/2000 Espresso (echter_espresso@hotmail.com)
 //
+// which was in turn based on bttv linux driver tuner.c file
+//
+// Copyright (C) 1996,97,98 Ralph  Metzler (rjkm@thp.uni-koeln.de)
+//                         & Marcus Metzler (mocm@thp.uni-koeln.de)
+// Copyright (c) 1999,2000 Gerd Knorr <kraxel@goldbach.in-berlin.de>
+// Copyright (C) 1997 Markus Schroeder (schroedm@uni-duesseldorf.de)
+//
 /////////////////////////////////////////////////////////////////////////////
 // Change Log
 //

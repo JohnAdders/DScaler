@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSTVTuner.cpp,v 1.4 2002-10-08 20:48:52 kooiman Exp $
+// $Id: DSTVTuner.cpp,v 1.5 2002-10-27 12:16:46 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/10/08 20:48:52  kooiman
+// Changed to Hz instead of multiple of 62500 Hz.
+//
 // Revision 1.3  2002/08/16 09:38:06  kooiman
 // Improved DSTVTuner class.
 //
@@ -68,8 +71,8 @@ m_CustomFrequencyTable(-2),
 m_CountryOrInputChanged(FALSE),
 m_AutoTuneInfo(NULL),
 m_AutoTuneTag(NULL)
-{  
-    //       
+{
+    //
 }
 
 CDShowTVTuner::CDShowTVTuner(CComPtr<IAMTVTuner> &pTvTuner,IGraphBuilder *pGraph)
@@ -90,7 +93,7 @@ m_AutoTuneTag(NULL)
     {
         if (FAILED(m_TVTuner->put_Mode(AMTUNER_MODE_TV)))
         {
-            // No TV Tuner?            
+            // No TV Tuner?
         }
     }
 }
@@ -108,7 +111,7 @@ CDShowTVTuner::~CDShowTVTuner()
         delete[] m_AutoTuneTag;
         m_AutoTuneTag = NULL;
     }
-    
+
     if (m_TVTuner != NULL)
     {
         // Delete tuningspace
@@ -116,53 +119,53 @@ CDShowTVTuner::~CDShowTVTuner()
         {
             char szKeyName[200];
             sprintf(szKeyName,"Software\\Microsoft\\TV System Services\\TVAutoTune\\TS%d-1",m_CustomFrequencyTable);
-            RegDeleteKey(HKEY_LOCAL_MACHINE, szKeyName);                
+            RegDeleteKey(HKEY_LOCAL_MACHINE, szKeyName);
         }
     }
 }
 
 
-long CDShowTVTuner::getCountryCode()
+long CDShowTVTuner::GetCountryCode()
 {
     if (m_TVTuner == NULL)
     {
         return -1;
     }
     long lCurrentCountryCode = -1;
-    
+
     HRESULT hr = m_TVTuner->get_CountryCode(&lCurrentCountryCode);
-	  if(FAILED(hr))
-	  {
-		    throw CDShowTvTunerException("get_CountryCode failed",hr);
-	  }
+    if(FAILED(hr))
+    {
+        throw CDShowTvTunerException("get_CountryCode failed",hr);
+    }
 
     return lCurrentCountryCode;
 }
 
-void CDShowTVTuner::putCountryCode(long CountryCode)
+void CDShowTVTuner::PutCountryCode(long CountryCode)
 {
     if (m_TVTuner == NULL)
     {
         return;
-    }    
-    
+    }
+
     HRESULT hr = m_TVTuner->put_CountryCode(CountryCode);
-	  if(FAILED(hr))
-	  {
-		    throw CDShowTvTunerException("put_CountryCode failed",hr);
-	  }
+    if(FAILED(hr))
+    {
+        throw CDShowTvTunerException("put_CountryCode failed",hr);
+    }
     m_CountryCode = CountryCode;
 
-    m_CountryOrInputChanged = TRUE;        
+    m_CountryOrInputChanged = TRUE;
 
     hr = m_TVTuner->ChannelMinMax(&m_MinChannel, &m_MaxChannel);
-	  if(FAILED(hr))
-	  {
-		    throw CDShowTvTunerException("ChannelMinMax failed",hr);
-	  }    
+    if(FAILED(hr))
+    {
+        throw CDShowTvTunerException("ChannelMinMax failed",hr);
+    }
 }
 
-TunerInputType CDShowTVTuner::getInputType()
+TunerInputType CDShowTVTuner::GetInputType()
 {
     if (m_TVTuner == NULL)
     {
@@ -172,57 +175,57 @@ TunerInputType CDShowTVTuner::getInputType()
     TunerInputType InputType;
 
     HRESULT hr = m_TVTuner->get_InputType(m_InputPin, &InputType);
-	  if(FAILED(hr))
-	  {
-		    throw CDShowTvTunerException("get_InputType failed",hr);
-	  }
+    if(FAILED(hr))
+    {
+        throw CDShowTvTunerException("get_InputType failed",hr);
+    }
 
-    return InputType;      
+    return InputType;
 
 }
 
 
-BOOL CDShowTVTuner::setInputPin(long lInputPin)
-{    
+BOOL CDShowTVTuner::SetInputPin(long lInputPin)
+{
     if (m_TVTuner == NULL)
     {
         return FALSE;
     }
 
     HRESULT hr = m_TVTuner->put_ConnectInput(lInputPin);
-	  if(FAILED(hr))
-	  {
-		    throw CDShowTvTunerException("put_ConnectInput failed",hr);
-	  }
+    if(FAILED(hr))
+    {
+        throw CDShowTvTunerException("put_ConnectInput failed",hr);
+    }
     m_InputPin = lInputPin;
     return TRUE;
 }
 
-void CDShowTVTuner::setInputType(TunerInputType NewType)
+void CDShowTVTuner::SetInputType(TunerInputType NewType)
 {
     if (m_TVTuner == NULL)
     {
         return;
     }
-        
+
     HRESULT hr = m_TVTuner->put_InputType(m_InputPin, NewType);
-	  if(FAILED(hr))
-	  {
-		    throw CDShowTvTunerException("put_InputType failed",hr);
-	  }
-    
+    if(FAILED(hr))
+    {
+        throw CDShowTvTunerException("put_InputType failed",hr);
+    }
+
     hr = m_TVTuner->put_ConnectInput(m_InputPin);
-	  if(FAILED(hr))
-	  {
-		    throw CDShowTvTunerException("put_ConnectInput failed",hr);
-	  }
+    if(FAILED(hr))
+    {
+        throw CDShowTvTunerException("put_ConnectInput failed",hr);
+    }
 
     m_TunerInput=(int)NewType;
-    
+
     m_CountryOrInputChanged = TRUE;
 }
 
-long CDShowTVTuner::getChannel()
+long CDShowTVTuner::GetChannel()
 {
     if (m_TVTuner == NULL)
     {
@@ -231,35 +234,35 @@ long CDShowTVTuner::getChannel()
     long lCurrentChannel = -1;
     long lVideoSubChannel;
     long lAudioSubChannel;
-    
+
     HRESULT hr = m_TVTuner->get_Channel(&lCurrentChannel,&lVideoSubChannel, &lAudioSubChannel);
-	  if(FAILED(hr))
-	  {
-		    throw CDShowTvTunerException("get_Channel failed",hr);
-	  }
-    
+    if(FAILED(hr))
+    {
+        throw CDShowTvTunerException("get_Channel failed",hr);
+    }
+
     return lCurrentChannel;
 }
 
-BOOL CDShowTVTuner::setChannel(long lChannel)
+BOOL CDShowTVTuner::SetChannel(long lChannel)
 {
     if (m_TVTuner == NULL)
     {
         return FALSE;
     }
-    
+
     if ( (m_MinChannel < 0) || (m_MaxChannel < 0) )
     {
         HRESULT hr = m_TVTuner->ChannelMinMax(&m_MinChannel, &m_MaxChannel);
-	      if(FAILED(hr))
-	      {
-		        throw CDShowTvTunerException("ChannelMinMax failed",hr);
-	      }    
+        if(FAILED(hr))
+        {
+            throw CDShowTvTunerException("ChannelMinMax failed",hr);
+        }
     }
 
     if ( (lChannel < m_MinChannel) || (lChannel > m_MaxChannel) )
     {
-       return FALSE;
+        return FALSE;
     }
 
     // Set channel
@@ -272,26 +275,26 @@ BOOL CDShowTVTuner::setChannel(long lChannel)
     LOG(2,"DShowTVTuner: Set to channel %d",lChannel);
     if (m_TVTuner->put_Channel(lChannel, lVideoSubChannel, lAudioSubChannel) == NOERROR)
     {
-       return TRUE;
+        return TRUE;
     }
-    
+
     return FALSE;
 }
 
-BOOL CDShowTVTuner::setTunerFrequency(long dwFrequency)
+BOOL CDShowTVTuner::SetTunerFrequency(long dwFrequency)
 {
     if (m_TVTuner == NULL)
     {
-       return FALSE;
+        return FALSE;
     }
 
     if ( (m_MinChannel < 0) || (m_MaxChannel < 0) )
     {
         HRESULT hr = m_TVTuner->ChannelMinMax(&m_MinChannel, &m_MaxChannel);
-	      if(FAILED(hr))
-	      {
-		        throw CDShowTvTunerException("ChannelMinMax failed",hr);
-	      }    
+        if(FAILED(hr))
+        {
+            throw CDShowTvTunerException("ChannelMinMax failed",hr);
+        }
     }
 
     // Fixed frequency tables
@@ -300,10 +303,10 @@ BOOL CDShowTVTuner::setTunerFrequency(long dwFrequency)
         if ((m_CountryOrInputChanged) || (m_FrequencyTable.size()==0) )
         {
             m_CountryOrInputChanged = FALSE;
-            getCountryCode();
-            LoadFrequencyTable(getCountryCode(), TunerInputCable);
+            GetCountryCode();
+            LoadFrequencyTable(GetCountryCode(), TunerInputCable);
         }
-        
+
         //Find Closest channel (also called frequency index by MS) method
         int Channel = FrequencyToChannel(dwFrequency);
         LOG(2,"DShowTVTuner: setTunerFrequency (%d) -> channel %d",dwFrequency,Channel);
@@ -311,18 +314,18 @@ BOOL CDShowTVTuner::setTunerFrequency(long dwFrequency)
         {
             return FALSE;
         }
-        return setChannel(Channel);
+        return SetChannel(Channel);
     }
     else
     {
         // Registry method
-    
+
         //dwFrequency = MulDiv(dwFrequency, 1000000, 16);
 
         // Use registry custom channel table as a frequency cache
-    
+
         static long AutoTuneTagCounter = 0;
-    
+
         if ( (m_CountryOrInputChanged) || (m_AutoTuneInfo == NULL) )
         {
             m_CountryOrInputChanged = FALSE;
@@ -336,19 +339,15 @@ BOOL CDShowTVTuner::setTunerFrequency(long dwFrequency)
                 delete[] m_AutoTuneTag;
                 m_AutoTuneTag = NULL;
             }
-            
+
             long Length = m_MaxChannel - m_MinChannel + 1;
             m_AutoTuneInfo = new long[Length];
             m_AutoTuneTag  = new long[Length];
-            int i;
-            for (i = 0; i < Length; i++)
-            {
-                m_AutoTuneInfo[i] = 0;    
-                m_AutoTuneTag[i] = 0;
-            }
+            memset(m_AutoTuneInfo,0,sizeof(long)*Length);
+            memset(m_AutoTuneTag,0,sizeof(long)*Length);
             AutoTuneTagCounter = 0;
         }
-    
+
         // Find frequency index
         int  Index = 0;
         int  OldestIndex = 0;
@@ -357,14 +356,14 @@ BOOL CDShowTVTuner::setTunerFrequency(long dwFrequency)
         while ( (Index < NumChannels) && (m_AutoTuneInfo[Index] != 0) )
         {
             if (m_AutoTuneInfo[Index] == dwFrequency)
-            {           
+            {
                 m_AutoTuneTag[Index] = AutoTuneTagCounter++;
                 LOG(2,"DShowTVTuner: Set channel to index %d (cached)", Index+m_MinChannel);
-                if ( getChannel() == (Index+m_MinChannel) )
+                if ( GetChannel() == (Index+m_MinChannel) )
                 {
                     return TRUE;
                 }
-                return setChannel( Index + m_MinChannel ); 
+                return SetChannel( Index + m_MinChannel );
             }
             if (m_AutoTuneTag[Index] < OldestTag)
             {
@@ -378,12 +377,12 @@ BOOL CDShowTVTuner::setTunerFrequency(long dwFrequency)
             //Table is full, use the oldest frequency index
             Index = OldestIndex;
         }
-    
+
         // Store new frequency
         LOG(2,"DShowTVTuner: Try open registrykey for custom frequency");
 
         HKEY RegKey = NULL;
-    
+
         if (RegKey == NULL)
         {
             DWORD dwDisposition;
@@ -392,20 +391,20 @@ BOOL CDShowTVTuner::setTunerFrequency(long dwFrequency)
             char szKeyName[100];
             int TunerSpace = m_CustomFrequencyTable;
             int Errors = 0;
-            if (TunerSpace < 2) 
+            if (TunerSpace < 2)
             {
                 // Start looking at tunerspace 2 for an unused table.
                 TunerSpace = 2;
             }
 
-            do 
-            {                
+            do
+            {
                 sprintf(szKeyName,"Software\\Microsoft\\TV System Services\\TVAutoTune\\TS%d-1",TunerSpace);
                 if (RegCreateKeyEx(HKEY_LOCAL_MACHINE,szKeyName, 0,NULL,REG_OPTION_VOLATILE,regsam,&secatt,&RegKey,&dwDisposition) != ERROR_SUCCESS)
-                {                    
+                {
                     if (m_CustomFrequencyTable == -2)
                     {
-                        Errors++; 
+                        Errors++;
                         LOG(2,"DShowTVTuner: Error opening %s ()",szKeyName);
                     }
                     else
@@ -416,20 +415,20 @@ BOOL CDShowTVTuner::setTunerFrequency(long dwFrequency)
                     }
                 }
                 else
-                {                   
-                   if (dwDisposition == REG_CREATED_NEW_KEY)
-                   {
-                      // Found free tunerspace
-                      m_CustomFrequencyTable = TunerSpace;
-                      LOG(2,"DShowTVTuner: Found free tunerspace %d",TunerSpace);
-                   }
-                   else
-                   {
-                      if (m_CustomFrequencyTable == -2)
-                      {
-                          RegCloseKey(RegKey);
-                      }
-                   }
+                {
+                    if (dwDisposition == REG_CREATED_NEW_KEY)
+                    {
+                        // Found free tunerspace
+                        m_CustomFrequencyTable = TunerSpace;
+                        LOG(2,"DShowTVTuner: Found free tunerspace %d",TunerSpace);
+                    }
+                    else
+                    {
+                        if (m_CustomFrequencyTable == -2)
+                        {
+                            RegCloseKey(RegKey);
+                        }
+                    }
                 }
                 TunerSpace++;
             } while ( (m_CustomFrequencyTable == -2) && (Errors <= 2) );
@@ -439,9 +438,9 @@ BOOL CDShowTVTuner::setTunerFrequency(long dwFrequency)
                 LOG(2,"DShowTVTuner: Error finding tunerspace. Change to fixed freq tables");
                 // Use existing fixed frequency tables
                 m_CustomFrequencyTable = -1;
-                return setTunerFrequency(MulDiv(dwFrequency, 16, 1000000));
+                return SetTunerFrequency(MulDiv(dwFrequency, 16, 1000000));
             }
-        
+
             // Set new values
             LOG(2,"DShowTVTuner: Set registrykey custom frequency (%d Hz)",dwFrequency);
             char szChannel[20];
@@ -458,29 +457,29 @@ BOOL CDShowTVTuner::setTunerFrequency(long dwFrequency)
                 }
                 RegCloseKey(RegKey);
                 HRESULT hr = m_TVTuner->put_TuningSpace(m_CustomFrequencyTable);
-	              if(FAILED(hr))
-	              {
-		                throw CDShowTvTunerException("put_TuningSpace failed",hr);
-	              }
-                
+                if(FAILED(hr))
+                {
+                    throw CDShowTvTunerException("put_TuningSpace failed",hr);
+                }
+
                 LOG(2,"DShowTVTuner: Set channel to index %d", Index+m_MinChannel);
-                return setChannel(Index + m_MinChannel);
+                return SetChannel(Index + m_MinChannel);
             }
             else
-            {                   
+            {
                 RegCloseKey(RegKey);
                 throw CDShowTvTunerException("Can't write to registry");
             }
 
-           return FALSE;
+            return FALSE;
         }
     }
     return FALSE;
 }
 
-long CDShowTVTuner::getTunerFrequency()
-{    
-    int Channel = getChannel();
+long CDShowTVTuner::GetTunerFrequency()
+{
+    int Channel = GetChannel();
 
     if ( (m_MinChannel < 0) || (m_MaxChannel < 0) )
     {
@@ -512,101 +511,103 @@ long CDShowTVTuner::getTunerFrequency()
 
 static void *GetRcData(LPCTSTR lpFileName, LPCTSTR lpName, LPCTSTR lpType, HMODULE &hDSTunerModule)
 {
-   if (hDSTunerModule == NULL)
-   {
-      hDSTunerModule = LoadLibrary(lpFileName);
-   }
-   
-   HRSRC hDSTunerResource = FindResource(hDSTunerModule, lpName, lpType);
-   if (hDSTunerResource == NULL)
-   {
-      return NULL;
-   }
+    if (hDSTunerModule == NULL)
+    {
+        hDSTunerModule = LoadLibrary(lpFileName);
+    }
 
-   HGLOBAL hDSTunerTable = LoadResource(hDSTunerModule, hDSTunerResource);
-   if (hDSTunerTable == NULL)
-   {
-       return NULL;
-   }
-   
-   return LockResource(hDSTunerTable);      
+    HRSRC hDSTunerResource = FindResource(hDSTunerModule, lpName, lpType);
+    if (hDSTunerResource == NULL)
+    {
+        return NULL;
+    }
+
+    HGLOBAL hDSTunerTable = LoadResource(hDSTunerModule, hDSTunerResource);
+    if (hDSTunerTable == NULL)
+    {
+        return NULL;
+    }
+
+    return LockResource(hDSTunerTable);
 }
 
 BOOL CDShowTVTuner::LoadFrequencyTable(int CountryCode, TunerInputType InputType)
 {
-      typedef struct 
-      {
-          WORD CountryCode;
-          WORD CableFreqTable;
-          WORD BroadcastFreqTable;
-          WORD VideoStandard;    
-          WORD UnKnown;
-      } TRCCountryList;
+//prevent compiler from trying to align struct (compiler adds 2 hidden bytes to struct)
+#pragma pack(push,1)
+    typedef struct
+    {
+        WORD CountryCode;
+        WORD CableFreqTable;
+        WORD BroadcastFreqTable;
+        DWORD VideoStandard;
+    } TRCCountryList;
+#pragma pack(pop)
 
-      long *FreqTable = NULL;
-      HMODULE hDSTunerModule = NULL;
-      char szRCDATA[10];
-           
-      
-      sprintf(szRCDATA,"#%d",RT_RCDATA);
-      TRCCountryList *RcCountryList = (TRCCountryList*)GetRcData("kstvtune.ax","#9999",szRCDATA, hDSTunerModule);
+    long *FreqTable = NULL;
+    HMODULE hDSTunerModule = NULL;
+    char szRCDATA[10];
 
-      LOG(2,"DShowTVTuner: Load country table %d (%s) (%s)",CountryCode, ((InputType==TunerInputCable)?"Cable":"Broadcast"),((RcCountryList==NULL)?"Failed":"Ok"));
-      
-      int Index = 0;
-      while ((RcCountryList != NULL) && (RcCountryList[Index].CountryCode != 0))      
-      {                    
-          if (RcCountryList[Index].CountryCode == CountryCode)
-          {
-              char lName[20];
-              if (InputType == TunerInputCable)
-              {
-                  sprintf(lName,"#%d",RcCountryList[Index].CableFreqTable);
-              }
-              else
-              {
-                  sprintf(lName,"#%d",RcCountryList[Index].BroadcastFreqTable);
-              }
-              FreqTable = (long*)GetRcData("kstvtune.ax", lName, szRCDATA, hDSTunerModule);
-              LOG(2,"DShowTVTuner: Load freq table (%s)",(FreqTable==NULL)?"Failed":"Ok");
-              break;
-          }
-          Index++;
-      }
-      if (hDSTunerModule != NULL)
-      {
-          FreeLibrary(hDSTunerModule);
-      }
 
-      if (FreqTable == NULL)
-      {
-          // Failed. Use default table
-          m_FrequencyTable.clear();
-          int i = 0;
-          while (DSUniFreqTable[2 + i] != 0)
-          {
-              m_FrequencyTable.push_back(DSUniFreqTable[i+2]);
-              i++;
-          }                            
-          return FALSE;
-      }        
-              
-      m_FrequencyTable.clear();
-          
-      //m_MinChannel =  FreqTable[0];
-      //m_MaxChannel =  FreqTable[1];
+    sprintf(szRCDATA,"#%d",RT_RCDATA);
+    TRCCountryList *RcCountryList = (TRCCountryList*)GetRcData("kstvtune.ax","#9999",szRCDATA, hDSTunerModule);
 
-      LOG(2,"DShowTVTuner: Freq table [%i .. %i]",m_MinChannel,m_MaxChannel);
+    LOG(2,"DShowTVTuner: Load country table %d (%s) (%s)",CountryCode, ((InputType==TunerInputCable)?"Cable":"Broadcast"),((RcCountryList==NULL)?"Failed":"Ok"));
 
-      int tabIndex = 2;
-      int ch;
-      for (ch = m_MinChannel; ch <= m_MaxChannel; ch++)
-      {
-         m_FrequencyTable.push_back( FreqTable[tabIndex++] );
-      }
-      
-      return TRUE;
-}   
+    int Index = 0;
+    while ((RcCountryList != NULL) && (RcCountryList[Index].CountryCode != 0))
+    {
+        if (RcCountryList[Index].CountryCode == CountryCode)
+        {
+            char lName[20];
+            if (InputType == TunerInputCable)
+            {
+                sprintf(lName,"#%d",RcCountryList[Index].CableFreqTable);
+            }
+            else
+            {
+                sprintf(lName,"#%d",RcCountryList[Index].BroadcastFreqTable);
+            }
+            FreqTable = (long*)GetRcData("kstvtune.ax", lName, szRCDATA, hDSTunerModule);
+            LOG(2,"DShowTVTuner: Load freq table (%s)",(FreqTable==NULL)?"Failed":"Ok");
+            break;
+        }
+        Index++;
+    }
+    if (hDSTunerModule != NULL)
+    {
+        FreeLibrary(hDSTunerModule);
+    }
+
+    if (FreqTable == NULL)
+    {
+        // Failed. Use default table
+        m_FrequencyTable.clear();
+        int i = 0;
+        while (DSUniFreqTable[2 + i] != 0)
+        {
+            m_FrequencyTable.push_back(DSUniFreqTable[i+2]);
+            i++;
+        }
+        return FALSE;
+    }
+
+    m_FrequencyTable.clear();
+
+    //m_MinChannel =  FreqTable[0];
+    //m_MaxChannel =  FreqTable[1];
+
+    LOG(2,"DShowTVTuner: Freq table [%i .. %i]",m_MinChannel,m_MaxChannel);
+
+    int tabIndex = 2;
+    int ch;
+    for (ch = m_MinChannel; ch <= m_MaxChannel; ch++)
+    {
+        m_FrequencyTable.push_back( FreqTable[tabIndex++] );
+    }
+
+    return TRUE;
+}
 
 // Look for channel in frequency table
 int CDShowTVTuner::FrequencyToChannel(long dwFrequency)
@@ -621,13 +622,13 @@ int CDShowTVTuner::FrequencyToChannel(long dwFrequency)
         {
             //LOG(2,"Frequency to channel: %d -> %d. exact match",dwFrequency,i+m_MinChannel);
             return i+m_MinChannel;
-        }         
+        }
         if ((iClose < 0) || (abs(dwFreqFromTable - dwFrequency) < abs(iDistance)) )
         {
-           // Closest match       
-           iClose = i;
-           iDistance = dwFreqFromTable - dwFrequency;
-        }        
+            // Closest match
+            iClose = i;
+            iDistance = dwFreqFromTable - dwFrequency;
+        }
     }
     if ((iClose >= 0) && (abs(iDistance) <= 250000))
     {
@@ -638,7 +639,7 @@ int CDShowTVTuner::FrequencyToChannel(long dwFrequency)
 }
 
 
-const long CDShowTVTuner::DSUniFreqTable[] = 
+const long CDShowTVTuner::DSUniFreqTable[] =
 {
       1L,
     368L,

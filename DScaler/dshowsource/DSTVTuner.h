@@ -8,54 +8,53 @@
 class CDShowTvTunerException: public CDShowException
 {
 public:
-	CDShowTvTunerException(CString msg,HRESULT hr):CDShowException(msg,hr) {};
-	CDShowTvTunerException(CString msg):CDShowException(msg) {};
+    CDShowTvTunerException(CString msg,HRESULT hr):CDShowException(msg,hr) {};
+    CDShowTvTunerException(CString msg):CDShowException(msg) {};
 };
 
 
 class CDShowTVTuner : public CDShowObject
 {
 public:
-  CDShowTVTuner(IGraphBuilder *pGraph);
-	CDShowTVTuner(CComPtr<IAMTVTuner> &pTvTuner,IGraphBuilder *pGraph);
-	virtual ~CDShowTVTuner();
-  
-	eDSObjectType getObjectType() {return DSHOW_TYPE_TUNER;}
+    CDShowTVTuner(IGraphBuilder *pGraph);
+    CDShowTVTuner(CComPtr<IAMTVTuner> &pTvTuner,IGraphBuilder *pGraph);
+    virtual ~CDShowTVTuner();
 
-  long getCountryCode();
-  void putCountryCode(long CountryCode);
-  TunerInputType getInputType();
-  void setInputType(TunerInputType NewType);
-  long getChannel();
-  BOOL setChannel(long lChannel);
+    eDSObjectType getObjectType() {return DSHOW_TYPE_TUNER;}
 
-  BOOL setTunerFrequency(long dwFrequency);
-  long getTunerFrequency();
-  
-  BOOL setInputPin(long lInputPin);
+    long GetCountryCode();
+    void PutCountryCode(long CountryCode);
+    TunerInputType GetInputType();
+    void SetInputType(TunerInputType NewType);
+    long GetChannel();
+    BOOL SetChannel(long lChannel);
 
-  BOOL LoadFrequencyTable(int CountryCode, TunerInputType InputType);
+    BOOL SetTunerFrequency(long dwFrequency);
+    long GetTunerFrequency();
+
+    BOOL SetInputPin(long lInputPin);
+
+    BOOL LoadFrequencyTable(int CountryCode, TunerInputType InputType);
 private:
-	/// Tv Tuner
-	CComPtr<IAMTVTuner> m_TVTuner;
-	long  m_InputPin;
+    /// Tv Tuner
+    CComPtr<IAMTVTuner> m_TVTuner;
+    long m_InputPin;
 
-  int   m_TunerInput;
-  
-  int   m_CountryCode;
-  
-  long  m_MinChannel;
-  long  m_MaxChannel;
-  std::vector<long> m_FrequencyTable;
+    int m_TunerInput;
 
-  int   m_CustomFrequencyTable;
-  long *m_AutoTuneInfo;
-  long *m_AutoTuneTag;
-  BOOL  m_CountryOrInputChanged;      
+    int m_CountryCode;
 
-  static const long DSUniFreqTable[];
-    
-  int   FrequencyToChannel(long lFrequency);
+    long m_MinChannel;
+    long m_MaxChannel;
+    std::vector<long> m_FrequencyTable;
+
+    int m_CustomFrequencyTable;
+    long *m_AutoTuneInfo;
+    long *m_AutoTuneTag;
+    BOOL m_CountryOrInputChanged;
+
+    static const long DSUniFreqTable[];
+    int FrequencyToChannel(long lFrequency);
 };
 
 #endif

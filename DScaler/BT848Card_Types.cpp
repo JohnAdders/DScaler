@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Types.cpp,v 1.34 2003-06-01 15:04:16 adcockj Exp $
+// $Id: BT848Card_Types.cpp,v 1.35 2003-07-14 19:17:35 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.34  2003/06/01 15:04:16  adcockj
+// Added APAC Viewcomp card def from Nikola Maric
+//
 // Revision 1.33  2003/04/23 08:43:56  adcockj
 // Changed PLL on Aimslab VHX
 //
@@ -3591,6 +3594,44 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0x400f,
         {0x003ffff8, 0x003ffff0, 0x003ffff0, 0x003ffff0, 0x003ffff0, 0x003ffff0, }
+    },
+    {
+        "PMSVideo PDI",
+        1,
+        {
+            {
+                "PDI",
+                INPUTTYPE_CCIR,
+                0x00,
+            },
+        },
+        PLL_28,
+        TUNER_PHILIPS_NTSC,
+        SOUNDCHIP_NONE,
+        NULL,
+        StandardBT848InputSelect,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
+        0x1F800,
+        {0xD, 0xE, 0xB, 0x7, 0, 0, }
+    },
+    {
+        "PMSVideo SDI",
+        1,
+        {
+            {
+                "SDI",
+                INPUTTYPE_CCIR,
+                0x00,
+            },
+        },
+        PLL_28,
+        TUNER_PHILIPS_NTSC,
+        SOUNDCHIP_NONE,
+        NULL,
+        StandardBT848InputSelect,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
+        0x1F800,
+        {0xD, 0xE, 0xB, 0x7, 0, 0, }
     },
 };
 

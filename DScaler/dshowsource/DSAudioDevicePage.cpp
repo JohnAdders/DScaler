@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSAudioDevicePage.cpp,v 1.1 2002-09-15 12:20:07 tobbej Exp $
+// $Id: DSAudioDevicePage.cpp,v 1.2 2002-09-17 19:29:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/09/15 12:20:07  tobbej
+// implemented audio output device selection
+//
 /////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -31,6 +34,9 @@
  */
 
 #include "stdafx.h"
+
+#ifdef WANT_DSHOW_SUPPORT
+
 #include "..\dscaler.h"
 #include "DSAudioDevicePage.h"
 #include "DevEnum.h"
@@ -142,3 +148,5 @@ void CDSAudioDevicePage::OnClickedUseDefault()
 		::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_AUDIODEVICE_DEVICE),TRUE);
 	}
 }
+
+#endif

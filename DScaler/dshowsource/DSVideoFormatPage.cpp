@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSVideoFormatPage.cpp,v 1.3 2002-09-11 16:41:02 tobbej Exp $
+// $Id: DSVideoFormatPage.cpp,v 1.4 2002-09-17 19:29:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/09/11 16:41:02  tobbej
+// implemented clear button
+//
 // Revision 1.2  2002/09/07 13:33:35  tobbej
 // implemented delete and allow listbox to be reordered via drag and drop
 //
@@ -37,6 +40,9 @@
  */
 
 #include "stdafx.h"
+
+#ifdef WANT_DSHOW_SUPPORT
+
 #include "..\dscaler.h"
 #include "DSVideoFormatPage.h"
 #include "Other.h"
@@ -486,3 +492,5 @@ void CDSVideoFormatPage::OnClickedClear()
 	m_VideoFmt.erase(m_VideoFmt.begin(),m_VideoFmt.end());
 	UpdateControlls();
 }
+
+#endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDrawer.cpp,v 1.5 2002-05-23 22:16:32 robmuller Exp $
+// $Id: VTDrawer.cpp,v 1.6 2002-05-24 14:49:10 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (c) 2002 Mike Temperton.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/05/23 22:16:32  robmuller
+// Applied patch #559111 by PietOO.
+// Teletext: less sparse look for ttf fonts.
+//
 // Revision 1.4  2002/02/24 16:41:40  temperton
 // Bug fixes
 //
@@ -100,6 +104,7 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC,
     int n;
     BYTE c, ch, nLastGraph;
     char tmp[41];
+    HFONT hCurrentFont;
 
     int startrow = 0;
     int endrow = ((ulFlags & VTDF_HEADERONLY) || (ulFlags & VTDF_CLOCKONLY)) ? 1 : 25;
@@ -125,7 +130,7 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC,
 
     int SaveBkMode = SetBkMode(hDC, TRANSPARENT);
 
-    HFONT hFontSave = (HFONT) SelectObject(hDC, m_hFont);
+    HFONT hFontSave = (HFONT) SelectObject(hDC, hCurrentFont = m_hFont);
     HGDIOBJ hBrushSave = (HFONT) SelectObject(hDC, m_hBrushes[0]);
 
     for(int row = startrow; row < endrow; row++)
@@ -137,7 +142,7 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC,
         }
 
         bGraph = bHoldGraph = bSepGraph = bBox = bFlash = bDouble = bConceal = bHasDouble = FALSE;
-        SelectObject(hDC, m_hFont);
+        //SelectObject(hDC, m_hFont);
         CurrentFg = 7;
         CurrentBkg = DefaultBkg;
 
@@ -321,7 +326,8 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC,
                 ch = (ch & 0x1f) | ((ch & 0x40) >> 1);
 
                 //Draw mosaic graphics
-                DrawGraphChar(hDC, m_hBrushes[CurrentFg], ch, bSepGraph, thischar.left, thischar.top, thischar.right - thischar.left, thischar.bottom - thischar.top);
+                DrawGraphChar(hDC, m_hBrushes[CurrentFg], ch, bSepGraph, thischar.left, thischar.top,
+                    thischar.right - thischar.left, thischar.bottom - thischar.top);
 
             }
             else
@@ -336,11 +342,17 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC,
                     //Select correct wider font (same if fixed pitch)
                     if(bDouble)
                     {
-                        SelectObject(hDC, m_hDoubleFont);
+                        if( hCurrentFont != m_hDoubleFont ) 
+                        {
+                            SelectObject(hDC, hCurrentFont = m_hDoubleFont);
+                        }
                     }
                     else
                     {
-                        SelectObject(hDC, m_hFont);
+                        if( hCurrentFont != m_hFont ) 
+                        {
+                            SelectObject(hDC, hCurrentFont = m_hFont);
+                        }
                     }
                     if(m_bFixedPitch)
                     {
@@ -355,19 +367,25 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC,
                         {
                             if(bDouble)
                             {
-                                SelectObject(hDC, m_hDoubleFontSmall);
+                                SelectObject(hDC, hCurrentFont = m_hDoubleFontSmall);
                             }
                             else
                             {
-                                SelectObject(hDC, m_hFontSmall);
+                                SelectObject(hDC, hCurrentFont = m_hFontSmall);
                             }
                             GetTextExtentPoint32W(hDC, (wchar_t*)&UChar, 1, &Size);
                         }
                         offset = (m_AvgWidth - Size.cx) / 2;
                     }
             
+                    if(CurrentBkg == 8)
+                    {
+                        SetTextColor(hDC, 0x000000);
+                        TextOutW(hDC, thischar.left + offset + 1, thischar.top, (wchar_t*) &UChar, 1);
+                    }
+
                     SetTextColor(hDC, VTColourTable[CurrentFg]);
-                    TextOutW(hDC, thischar.left + offset, thischar.top, (wchar_t*) &UChar, 1);
+                    TextOutW(hDC, thischar.left + offset, thischar.top - 1, (wchar_t*) &UChar, 1);
                 }
             }
         }
@@ -389,11 +407,12 @@ void CVTDrawer::SetBounds(HDC hDC, RECT* Rect)
     int nHeight = AvgHeight;
     m_Rect = *Rect;
 
-    if((m_AvgWidth == AvgWidth) && (m_AvgHeight == AvgHeight))
-    {
-        return;
-    }
-
+    //Skip the shortcut: react to mix-mode-changes & (hopefully) less rounding
+    //if((m_AvgWidth == AvgWidth) && (m_AvgHeight == AvgHeight))
+    //{
+    //    return;
+    //}
+    
     DestroyFonts();
 
     m_AvgWidth = AvgWidth;
@@ -427,8 +446,16 @@ int CVTDrawer::GetAvgHeight()
 HFONT CVTDrawer::MakeFont(HDC hDC, double iSize, double iWidth, char* szFaceName, BOOL bWidenFont)
 {
     // WidenFont = make X as wide as the average width of W and X
-    BOOL bWiden = bWidenFont & (iSize > 13);
-    HFONT hFont = CreateFont(96, 96, 0, 0, FW_BOLD, false, false, false, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH, szFaceName);
+    BOOL bWiden = bWidenFont & (iWidth > 10);
+
+    // Antialiased looks better in non mixed mode
+    BYTE bQuality = VTState != VT_MIX ? ANTIALIASED_QUALITY : NONANTIALIASED_QUALITY;
+
+    // Small fonts blur when too heavy
+    LONG bWeight = (iWidth > 10) ? FW_SEMIBOLD : FW_NORMAL; //bWiden ? FW_BOLD : FW_SEMIBOLD;
+
+    HFONT hFont = CreateFont(-96, 96, 0, 0, bWeight, false, false, false, DEFAULT_CHARSET, 
+        OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, bQuality, DEFAULT_PITCH, szFaceName);
     HGDIOBJ hSave = SelectObject(hDC, hFont);
     
     SIZE Size;
@@ -447,7 +474,8 @@ HFONT CVTDrawer::MakeFont(HDC hDC, double iSize, double iWidth, char* szFaceName
     SelectObject(hDC, hSave);
     DeleteObject(hFont);
 
-    hFont = CreateFont(iSize, iWidth, 0, 0, FW_BOLD, false, false, false, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH, szFaceName);
+    hFont = CreateFont(-iSize, iWidth, 0, 0, bWeight, false, false, false, DEFAULT_CHARSET, 
+        OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, bQuality, DEFAULT_PITCH, szFaceName);
 
     return hFont;
 }

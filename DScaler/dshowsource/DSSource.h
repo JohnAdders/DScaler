@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.h,v 1.11 2002-04-16 15:33:53 tobbej Exp $
+// $Id: DSSource.h,v 1.12 2002-05-24 15:18:32 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/04/16 15:33:53  tobbej
+// added overscan for capture devices
+// added audio mute/unmute when starting and stopping source
+// added waitForNextField
+//
 // Revision 1.10  2002/04/15 22:57:27  laurentg
 // Automatic switch to "square pixels" AR mode when needed
 //
@@ -171,6 +176,9 @@ private:
 	int m_lastNumDroppedFrames;
 
 	CRITICAL_SECTION m_hOutThreadSync;
+
+	///used for measuring how long it takes for dscaler to render a field
+	DWORD m_dwRendStartTime;
 
 	DEFINE_SLIDER_CALLBACK_SETTING(CDSSource, Brightness);
 	DEFINE_SLIDER_CALLBACK_SETTING(CDSSource, Contrast);

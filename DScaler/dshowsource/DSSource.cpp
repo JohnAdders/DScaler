@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.22 2002-05-02 19:50:39 tobbej Exp $
+// $Id: DSSource.cpp,v 1.23 2002-05-24 15:18:32 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2002/05/02 19:50:39  tobbej
+// changed dshow source filter submenu to use new tree based dialog
+//
 // Revision 1.21  2002/04/16 15:33:53  tobbej
 // added overscan for capture devices
 // added audio mute/unmute when starting and stopping source
@@ -191,7 +194,8 @@ CDSSource::CDSSource(string device,string deviceName) :
 	m_bProcessingFirstField(true),
 	m_pictureHistoryPos(0),
 	m_lastNumDroppedFrames(-1),
-	m_bIsFileSource(false)
+	m_bIsFileSource(false),
+	m_dwRendStartTime(0)
 
 {
 	InitializeCriticalSection(&m_hOutThreadSync);
@@ -215,7 +219,8 @@ CDSSource::CDSSource() :
 	m_bProcessingFirstField(true),
 	m_pictureHistoryPos(0),
 	m_lastNumDroppedFrames(-1),
-	m_bIsFileSource(true)
+	m_bIsFileSource(true),
+	m_dwRendStartTime(0)
 
 {
 	InitializeCriticalSection(&m_hOutThreadSync);
@@ -667,17 +672,29 @@ BOOL CDSSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 			CTreeSettingsPage rootPage("Filters",IDD_TREESETTINGS_EMPTY);
 			int root=dlg.AddPage(&rootPage);
 
-			int index=0;
+			int filterIndex=0;
 			vector<CTreeSettingsPage*> pages;
 			CTreeSettingsPage *pPage=NULL;
-
-			while(m_pDSGraph->getFilterPropertyPage(index,&pPage))
+			
+			bool bHasSubPage=false;
+			while(m_pDSGraph->getFilterPropertyPage(filterIndex,&pPage,bHasSubPage))
 			{
 				pages.push_back(pPage);
-				dlg.AddPage(pPage,root);
-				index++;
+				int filterRoot=dlg.AddPage(pPage,root);
+				if(bHasSubPage)
+				{
+					int subIndex=0;
+					while(m_pDSGraph->getFilterSubPage(filterIndex,subIndex,&pPage))
+					{
+						pages.push_back(pPage);
+						dlg.AddPage(pPage,filterRoot);
+						subIndex++;
+					}
+				}
+				
+				filterIndex++;
 			}
-			if(index!=0)
+			if(filterIndex!=0)
 			{
 				//show the dialog
 				dlg.DoModal();
@@ -792,7 +809,7 @@ BOOL CDSSource::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
 
 BOOL CDSSource::IsVideoPresent()
 {
-	return FALSE;
+	return TRUE;
 }
 
 void CDSSource::SetMenu(HMENU hMenu)
@@ -943,7 +960,7 @@ void CDSSource::SetMenu(HMENU hMenu)
 	//set a radio checkmark infront of the current play/pause/stop menu entry
 	FILTER_STATE state=m_pDSGraph->getState();
 	UINT pos=8-state;
-	menu->CheckMenuRadioItem(5,7,pos,MF_BYPOSITION);
+	menu->CheckMenuRadioItem(6,8,pos,MF_BYPOSITION);
 
 	topMenu.Detach();
 }
@@ -968,32 +985,26 @@ LPCSTR CDSSource::GetMenuLabel()
 
 ISetting* CDSSource::GetOverscan()
 {
-	if(m_pDSGraph==NULL)
-		return NULL;
-
-	CDShowBaseSource *pSrc=m_pDSGraph->getSourceDevice();
-	if(pSrc==NULL)
-		return NULL;
-
-	if(pSrc->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
+	if(!m_bIsFileSource)
 	{
 		return m_Overscan;
 	}
-	return NULL;
+	else
+	{
+		return NULL;
+	}
 }
 
 void CDSSource::SetOverscan()
 {
-	if(m_pDSGraph!=NULL)
+	if(!m_bIsFileSource)
 	{
-		CDShowBaseSource *pSrc=m_pDSGraph->getSourceDevice();
-		if(pSrc!=NULL && pSrc->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
-		{
-			AspectSettings.InitialOverscan = m_Overscan->GetValue();
-			return;
-		}
+		AspectSettings.InitialOverscan = m_Overscan->GetValue();
 	}
-	AspectSettings.InitialOverscan = 0;
+	else
+	{
+		AspectSettings.InitialOverscan = 0;
+	}
 }
 
 void CDSSource::OverscanOnChange(long Overscan, long OldValue)
@@ -1029,6 +1040,11 @@ void CDSSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 	{
 		return;
 	}
+	if(m_dwRendStartTime!=0)
+	{
+		TRACE("time: %dL\n",timeGetTime()-m_dwRendStartTime);
+		m_dwRendStartTime=0;
+	}
 	
 	//which field in the history is the first one to be returned
 	int historyStart=0;
@@ -1046,8 +1062,23 @@ void CDSSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 		memset(pInfo->PictureHistory, 0, MAX_PICTURE_HISTORY * sizeof(TPicture*));
 		
 		//is the graph running? there is no point in continuing if it isnt
-		if(m_pDSGraph->getState()!=State_Running)
+		/*if(m_pDSGraph->getState()!=State_Running)
 		{
+			return;
+		}*/
+		
+		CComPtr<IMediaSample> pSample;
+		if(!m_pDSGraph->getNextSample(pSample))
+		{
+			return;
+		}
+
+		LONG size=pSample->GetActualDataLength();
+		BYTE *pData;
+		HRESULT hr=pSample->GetPointer(&pData);
+		if(FAILED(hr))
+		{
+			//oops, coudn't get any pointer
 			return;
 		}
 
@@ -1075,21 +1106,9 @@ void CDSSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 			VIDEOINFOHEADER2 *videoInfo2=(VIDEOINFOHEADER2*)mediaType.pbFormat;
 			bmi=&(videoInfo2->bmiHeader);
 		}
-		
-		CComPtr<IMediaSample> pSample;
-		if(!m_pDSGraph->getNextSample(pSample))
-		{
-			return;
-		}
-
-		LONG size=pSample->GetActualDataLength();
-		BYTE *pData;
-		HRESULT hr=pSample->GetPointer(&pData);
-		if(FAILED(hr))
-		{
-			//oops, coudn't get any pointer
-			return;
-		}
+		//width must be 16 byte aligned or optimized memcpy will not work
+		//this assert will never be triggered (checked in dsrend filter)
+		ASSERT((bmi->biWidth&0xf)==0);
 
 		//is the buffers large enough?
 		//this needs fixing, cant allocate all buffers at once, only the current buffer that is to be used
@@ -1159,7 +1178,7 @@ void CDSSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 		updateDroppedFields();
 
 		//free format block if any
-		if(mediaType.cbFormat!=0)
+		if(mediaType.pbFormat!=NULL && mediaType.cbFormat!=0)
 		{
 			CoTaskMemFree((PVOID)mediaType.pbFormat);
 			mediaType.pbFormat=NULL;
@@ -1202,6 +1221,7 @@ void CDSSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 		pInfo->PictureHistory[i]=&m_pictureHistory[pos];
 	}
 	Timing_IncrementUsedFields();
+	m_dwRendStartTime=timeGetTime();
 }
 
 void CDSSource::updateDroppedFields()

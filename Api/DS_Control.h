@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.31 2001-08-03 12:27:41 adcockj Exp $
+// $Id: DS_Control.h,v 1.32 2001-08-06 22:33:48 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2001/08/03 12:27:41  adcockj
+// Added sharpness filter
+//
 // Revision 1.30  2001/08/02 16:43:05  adcockj
 // Added Debug level to LOG function
 //
@@ -256,6 +259,8 @@ typedef enum
     YZOOMCENTER,
     CHROMARANGE,
     WAITFORVERTBLANKINDRAW,
+    ZOOMOUTFRAMECOUNT,
+    ALLOWGREATERTHANSCREEN,
     ASPECT_SETTING_LASTONE,
 } ASPECT_SETTING;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.cpp,v 1.17 2001-07-13 16:14:55 adcockj Exp $
+// $Id: AspectRatio.cpp,v 1.18 2001-08-06 22:32:13 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -72,6 +72,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2001/07/13 16:14:55  adcockj
+// Changed lots of variables to match Coding standards
+//
 // Revision 1.16  2001/07/12 16:16:39  adcockj
 // Added CVS Id and Log
 //
@@ -96,7 +99,7 @@
 
 TAspectSettingsStruct AspectSettings = 
 {
-    1333,0,1,0,0,40,16,1,17,FALSE,60,300,15,20,
+    1333,0,1,0,0,40,16,TRUE,3,17,FALSE,60,3,300,15,20,
     2000,VERT_POS_CENTRE,HORZ_POS_CENTRE,
     {0,0,0,0},
     {0,0,0,0},

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectDetect.cpp,v 1.15 2001-08-05 20:14:49 laurentg Exp $
+// $Id: AspectDetect.cpp,v 1.16 2001-08-06 22:32:13 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -39,6 +39,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2001/08/05 20:14:49  laurentg
+// New OSD screen added for AR autodetection
+//
 // Revision 1.14  2001/08/05 17:14:26  laurentg
 // no message
 //
@@ -115,6 +118,8 @@ void SwitchToRatio(int nMode, int nRatio)
     int now = GetTickCount();
     int i;
 
+    // Initialize the data structure for statistics
+    // if it is the first ratio switch
     if (nNbRatioSwitch == 0)
     {
         for (i=0 ; i<MAX_RATIO_STATISTICS ; i++)
@@ -146,6 +151,7 @@ void SwitchToRatio(int nMode, int nRatio)
         AspectSettings.SourceAspect = nRatio;
     }
 
+    // Update the statistics upon ratio switch
     for (i=0 ; i<MAX_RATIO_STATISTICS ; i++)
     {
         if ((RatioStatistics[i].mode == AspectSettings.AspectMode) && (RatioStatistics[i].ratio == AspectSettings.SourceAspect))
@@ -283,7 +289,7 @@ BlackLoop:
 // direction is -1 to scan up from bottom of image, 1 to scan down from top.
 int FindEdgeOfImage(short** EvenField, short** OddField, int direction)
 {
-    int y;
+    int y, ylimit;
     short* line;
     int skipCount = 0;
     int skipCountPercent = AspectSettings.SkipPercent;
@@ -296,13 +302,15 @@ int FindEdgeOfImage(short** EvenField, short** OddField, int direction)
     if (direction < 0)
     {
         y = CurrentY - 1 - AspectSettings.InitialOverscan;  // from bottom
+        ylimit = CurrentY / 2 - 1;
     }
     else
     {
         y = AspectSettings.InitialOverscan; // from top
+        ylimit = CurrentY / 2;
     }
 
-    for (; y != CurrentY / 2; y += direction)
+    for (; y != ylimit; y += direction)
     {
         if (y & 1)
             line = OddField[y / 2];
@@ -358,21 +366,20 @@ int FindAspectRatio(short** EvenField, short** OddField)
     // The border size is the smaller of the two.
     border = (topBorder < bottomBorder) ? topBorder : bottomBorder;
 
-    // Now the material aspect ratio is simply
-    //
-    //  effective width / (total image height - number of black lines at top and bottom)
-    //
-    // We compute effective width from height using the source-frame aspect ratio, since
-    // this will change depending on whether or not the image is anamorphic.
-// LG    ratio = (int)((imageHeight * 1000) * GetActualSourceFrameAspect() / (imageHeight - border * 2));
-    if ((imageHeight - border * 2) > 0)
+    // Test to check if all the frame is detected as a big black bar
+    if ((imageHeight - border * 2) <= (2 * AspectSettings.InitialOverscan))
 	{
-        ratio = (int)((imageHeight * 1000) * GetActualSourceFrameAspect() / (imageHeight - border * 2));
+        ratio = AspectSettings.SourceAspect;
 	}
 	else
 	{
-        // Screen is all black => don't change ratio
-        ratio = AspectSettings.SourceAspect;
+        // Now the material aspect ratio is simply
+        //
+        //  effective width / (total image height - number of black lines at top and bottom)
+        //
+        // We compute effective width from height using the source-frame aspect ratio, since
+        // this will change depending on whether or not the image is anamorphic.
+        ratio = (int)((imageHeight * 1000) * GetActualSourceFrameAspect() / (imageHeight - border * 2));
 	}
     LOG(2, " top %d bot %d bord %d rat %d", topBorder, bottomBorder, border, ratio);
 
@@ -386,6 +393,7 @@ void AdjustAspectRatio(long SourceAspectAdjust, short** EvenField, short** OddFi
 {
     static int lastNewRatio = 0;
     static int newRatioFrameCount = 0;
+    static int newRatioFrameCount2 = 0;
     static long LastSourceAspectAdjust = -1;
     int newRatio, newMode;
     int tick_count = GetTickCount();
@@ -433,7 +441,7 @@ void AdjustAspectRatio(long SourceAspectAdjust, short** EvenField, short** OddFi
             newRatio = WssSourceRatio;
         }
 
-        if (bIsFullScreen && AspectSettings.TargetAspect)
+        if (bIsFullScreen && AspectSettings.TargetAspect && !AspectSettings.bAllowGreaterThanScreen)
         {
             if (AspectSettings.TargetAspect > WssSourceRatio)
                 maxRatio = AspectSettings.TargetAspect;
@@ -452,6 +460,7 @@ void AdjustAspectRatio(long SourceAspectAdjust, short** EvenField, short** OddFi
 
         SwitchToRatio(newMode, newRatio);
         newRatioFrameCount = 0;
+        newRatioFrameCount2 = 0;
         AspectSettings.DetectAspectNow = FALSE;
         return;
     }
@@ -476,17 +485,29 @@ void AdjustAspectRatio(long SourceAspectAdjust, short** EvenField, short** OddFi
         {
             SwitchToRatio(newMode, newRatio);
             newRatioFrameCount = 0;
+            newRatioFrameCount2 = 0;
         }
-        // If the new ratio is less than the old one -- that is, if we've just
-        // become less letterboxed -- switch to the new ratio immediately to
-        // avoid cutting the image off.
+        // If the new ratio is less than the current one -- less letterboxed --
+        // switch to the new ratio only after ZoomOutFrameCount consecutive times
+        // the detected ratio is lower than the current one.
+        // This may avoid unneeded switch to lower ratio when the ratio is lower
+        // only during few fields.
+        // ZoomOutFrameCount must be low (only few frames) to avoid cutting the
+        // image off for a long time.
         else if (newRatio < AspectSettings.SourceAspect)
         {
-            SwitchToRatio(newMode, newRatio);
-            newRatioFrameCount = 0;
+            newRatioFrameCount2++;
+            if (newRatioFrameCount2 >= AspectSettings.ZoomOutFrameCount)
+            {
+                SwitchToRatio(newMode, newRatio);
+                newRatioFrameCount = 0;
+                newRatioFrameCount2 = 0;
+            }
         }
         else if (ABS(newRatio - AspectSettings.SourceAspect) > AspectSettings.AspectEqualFudgeFactor && newRatio == lastNewRatio)
         {
+            newRatioFrameCount2 = 0;
+
             // Require the same aspect ratio for some number of frames, or no
             // narrower aspect ratio found for the last AspectConsistencyTime seconds,
             // before zooming in.
@@ -529,6 +550,8 @@ void AdjustAspectRatio(long SourceAspectAdjust, short** EvenField, short** OddFi
         }
         else
         {
+            newRatioFrameCount2 = 0;
+
             // If this is a wider ratio than the previous one, require it to stick
             // around for the full frame Count.
             if (lastNewRatio < newRatio)

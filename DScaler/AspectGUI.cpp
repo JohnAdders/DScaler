@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.21 2001-08-03 09:52:42 adcockj Exp $
+// $Id: AspectGUI.cpp,v 1.22 2001-08-06 22:32:13 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2001/08/03 09:52:42  adcockj
+// Added range checking on settings and fixed setting with out of range errors
+//
 // Revision 1.20  2001/07/16 18:07:50  adcockj
 // Added Optimisation parameter to ini file saving
 //
@@ -857,37 +860,37 @@ SETTING AspectGUISettings[ASPECT_SETTING_LASTONE] =
         "Auto Detect Aspect Sensitivity", SLIDER, 0, (long*)&AspectSettings.LuminanceThreshold,
         40, 0, 255, 1, 1,
         NULL,
-        "ASPECT", "LuminanceThreshold", NULL,
+        "ASPECT_DETECT", "LuminanceThreshold", NULL,
     },
     {
         "Ignore Non-Black Pixels", SLIDER, 0, (long*)&AspectSettings.IgnoreNonBlackPixels,
         3, 0, 750, 1, 1,
         NULL,
-        "ASPECT", "IgnoreNonBlackPixels", NULL,
+        "ASPECT_DETECT", "IgnoreNonBlackPixels", NULL,
     },
     {
         "Auto Detect Aspect", ONOFF, 0, (long*)&AspectSettings.AutoDetectAspect,
         FALSE, 0, 1, 1, 1,
         NULL,
-        "ASPECT", "AutoDetectAspect", NULL,
+        "ASPECT_DETECT", "AutoDetectAspect", NULL,
     },
     {
         "Zoom In Frame Count", SLIDER, 0, (long*)&AspectSettings.ZoomInFrameCount,
         60, 0, 1000, 10, 1,
         NULL,
-        "ASPECT", "ZoomInFrameCount", NULL,
+        "ASPECT_DETECT", "ZoomInFrameCount", NULL,
     },
     {
         "Aspect History Time", SLIDER, 0, (long*)&AspectSettings.AspectHistoryTime,
         300, 0, 3000, 10, 1,
         NULL,
-        "ASPECT", "AspectHistoryTime", NULL,
+        "ASPECT_DETECT", "AspectHistoryTime", NULL,
     },
     {
         "AspectConsistencyTime", SLIDER, 0, (long*)&AspectSettings.AspectConsistencyTime,
         15, 0, 300, 5, 1,
         NULL,
-        "ASPECT", "AspectConsistencyTime", NULL,
+        "ASPECT_DETECT", "AspectConsistencyTime", NULL,
     },
     {
         "Vert Image Pos", ITEMFROMLIST, 0, (long*)&AspectSettings.VerticalPos,
@@ -977,7 +980,7 @@ SETTING AspectGUISettings[ASPECT_SETTING_LASTONE] =
         "Skip Percentage", SLIDER, 0, (long*)&AspectSettings.SkipPercent,
         17, 0, 49, 1, 1,
         NULL,
-        "ASPECT", "SkipPercent", NULL,
+        "ASPECT_DETECT", "SkipPercent", NULL,
     },
     {
         "X Zoom Factor", SLIDER, 0, &AspectSettings.ZoomFactorX,
@@ -1007,13 +1010,25 @@ SETTING AspectGUISettings[ASPECT_SETTING_LASTONE] =
         "Chroma Range", SLIDER, 0, &AspectSettings.ChromaRange,
         16, 0, 255, 1, 1,
         NULL,
-        "ASPECT", "ChromaRange", ChromaRange_OnChange,
+        "ASPECT_DETECT", "ChromaRange", ChromaRange_OnChange,
     },
     {
         "Wait for Vertical Blank While Drawing", ONOFF, 0, (long*)&AspectSettings.bWaitForVerticalBlank,
         FALSE, 0, 1, 1, 1,
         NULL,
         "ASPECT", "WaitForVerticalBlank", NULL,
+    },
+    {
+        "Zoom Out Frame Count", SLIDER, 0, (long*)&AspectSettings.ZoomOutFrameCount,
+        3, 1, 1000, 1, 1,
+        NULL,
+        "ASPECT_DETECT", "ZoomOutFrameCount", NULL,
+    },
+    {
+        "Allow greater ratio than screen ratio", ONOFF, 0, (long*)&AspectSettings.bAllowGreaterThanScreen,
+        TRUE, 0, 1, 1, 1,
+        NULL,
+        "ASPECT_DETECT", "AllowGreaterThanScreen", NULL,
     },
 };
 

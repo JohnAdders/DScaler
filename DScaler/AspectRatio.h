@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.h,v 1.16 2001-08-05 20:14:49 laurentg Exp $
+// $Id: AspectRatio.h,v 1.17 2001-08-06 22:32:13 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -110,6 +110,10 @@ typedef struct
     // letterbox detection.  0-255.
     long ChromaRange;
 
+    // Nonzero to allow automatic switch to ratio greater than the screen
+    // ratio when in fullscreen mode and ratio autodetection mode
+    BOOL bAllowGreaterThanScreen;
+
     // Ignore this many non-black pixels when detecting letterbox.  Setting
     // this too high may cause problems with dark scenes.
     long IgnoreNonBlackPixels;
@@ -124,6 +128,12 @@ typedef struct
     // For aspect autodetect, require the same aspect ratio for this number of
     // frames before zooming in.
     long ZoomInFrameCount;
+
+    // For aspect autodetect, require a lower aspect ratio for this number of
+    // frames before zooming out.
+    // This value must be low, only few frames to avoid cutting the image off
+    // for a long time
+    long ZoomOutFrameCount;
 
     // For aspect autodetect, zoom in quickly if we've used this ratio in the
     // last N seconds.
@@ -202,6 +212,7 @@ typedef struct
 
 extern TAspectSettingsStruct AspectSettings;
 
+// Data structure to store the different switch of ratio
 typedef struct _ratiostatistics 
 {
     int  mode;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.117 2003-03-25 13:41:33 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.118 2003-04-07 09:17:13 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.117  2003/03/25 13:41:33  laurentg
+// Replace a LOG(1) by a LOG(2)
+//
 // Revision 1.116  2003/03/25 13:10:19  laurentg
 // New settings for stills : one to disable OSD when taking stills, one to limit the memory usage when storing stills in memory and two to define the number of frames in preview mode
 //
@@ -774,6 +777,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 	int nMissing = 0;
 	BYTE* lpMultiBuffer = NULL;
 	int MultiPitch = 0;
+    BOOL IsFirstInSeriesFlag = TRUE;
 
     DScalerInitializeThread("YUV Out Thread");
 
@@ -1034,6 +1038,11 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                     }
                     Info.InputPitch *= -1;
                 }
+
+                // will be set to TRUE on first pass though
+                // FALSE at all other times eben with dropped frames
+                Info.PictureHistory[0]->IsFirstInSeries = IsFirstInSeriesFlag;
+                IsFirstInSeriesFlag = FALSE;
 
                 // Card calibration
 				if (pCalibration->IsRunning())

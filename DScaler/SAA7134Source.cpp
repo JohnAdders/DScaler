@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.75 2003-03-09 19:48:28 laurentg Exp $
+// $Id: SAA7134Source.cpp,v 1.76 2003-04-07 09:17:14 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.75  2003/03/09 19:48:28  laurentg
+// Updated field statistics
+//
 // Revision 1.74  2003/03/08 20:01:26  laurentg
 // New setting "always sleep"
 //
@@ -848,11 +851,6 @@ void CSAA7134Source::GiveNextField(TDeinterlaceInfo* pInfo, TPicture* pPicture)
     if (pInfo->bMissedFrame)
     {
         ClearPictureHistory(pInfo);
-        pPicture->IsFirstInSeries = TRUE;
-    }
-    else
-    {
-        pPicture->IsFirstInSeries = FALSE;
     }
 
     // Re-enumerate our 4 field cycle to a 10 field cycle

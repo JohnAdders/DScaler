@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.cpp,v 1.15 2003-02-22 16:49:02 tobbej Exp $
+// $Id: DSSourceBase.cpp,v 1.16 2003-04-07 09:17:16 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2003/02/22 16:49:02  tobbej
+// added some comments about requierments for OpenFile (to avoid crashing)
+//
 // Revision 1.14  2003/01/10 17:38:47  adcockj
 // Interrim Check in of Settings rewrite
 //  - Removed SETTINGSEX structures and flags
@@ -254,7 +257,7 @@ void CDSSourceBase::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 	for(int i=0;i<size;i++)
 	{
 		m_PictureHistory[i].pData=fields[i].pBuffer;
-		m_PictureHistory[i].IsFirstInSeries=false;
+		m_PictureHistory[i].IsFirstInSeries=FALSE;
 		if(fields[i].flags!=BUFFER_FLAGS_FIELD_UNKNOWN)
 		{
 			m_PictureHistory[i].Flags=fields[i].flags;

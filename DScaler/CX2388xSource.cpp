@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.54 2003-08-15 18:21:26 laurentg Exp $
+// $Id: CX2388xSource.cpp,v 1.55 2003-10-03 10:44:27 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.54  2003/08/15 18:21:26  laurentg
+// Save in the source if it is the first setup
+//
 // Revision 1.53  2003/07/05 10:55:57  laurentg
 // New method SetWidth
 //
@@ -278,6 +281,7 @@
 #include "DScaler.h"
 #include "VBI.h"
 #include "VBI_VideoText.h"
+#include "VBI_VPSdecode.h"
 #include "Audio.h"
 #include "VideoSettings.h"
 #include "OutThreads.h"
@@ -1020,8 +1024,31 @@ CCX2388xCard* CCX2388xSource::GetCard()
 
 LPCSTR CCX2388xSource::GetStatus()
 {
+    static char szStatus[24];
     static LPCSTR pRetVal = "";
-    pRetVal = m_pCard->GetInputName(m_VideoSource->GetValue());
+
+    if (IsInTunerMode())
+    {
+        VT_GetStation(szStatus, sizeof(szStatus));
+
+        if (*szStatus == '\0')
+        {
+            VPS_GetChannelName(szStatus, sizeof(szStatus));
+        }
+        if (*szStatus == '\0')
+        {
+            pRetVal = Channel_GetName();
+        }
+        else
+        {
+            pRetVal = szStatus;
+        }
+    }
+    else
+    {
+		pRetVal = m_pCard->GetInputName(m_VideoSource->GetValue());
+    }
+
     return pRetVal;
 }
 

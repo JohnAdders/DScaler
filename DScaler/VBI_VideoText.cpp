@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.50 2002-10-15 11:53:38 atnak Exp $
+// $Id: VBI_VideoText.cpp,v 1.51 2002-10-23 16:57:13 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.50  2002/10/15 11:53:38  atnak
+// Added UI feedback for some videotext stuff
+//
 // Revision 1.49  2002/10/15 03:36:29  atnak
 // removed rounding from last commit - it wasn't necessary
 //
@@ -189,10 +192,12 @@
 #include "DebugLog.h"
 #include "Crash.h"
 #include "VTDrawer.h"
+#include "VTTopText.h"
 
 TPacket30 Packet30;
 
 TVTPage VTPages[800];
+TVTPage* VTSpecialPages = NULL;
 CRITICAL_SECTION VTAccess;
 int VTPage = 100;
 int VTSubPage = 0;
@@ -423,6 +428,7 @@ unsigned char UnhamTab[256] =
 
 TVTHeaderLine VTHeaderLine;
 CVTDrawer VTDrawer;
+CVTTopText VTTopText;
 TVTPage VisiblePage;
 
 #define GetBit(val,bit,mask) (BYTE)(((val)>>(bit))&(mask))
@@ -435,6 +441,7 @@ typedef struct
     int SubPage;
     BOOL PageErase;
     BOOL bStarted;
+    BOOL bSpecial;
 } TMagState;
 
 #define NUM_MAGAZINES 8
@@ -504,6 +511,73 @@ TVTPage* VT_PageNext(TVTPage* pPage)
     return pTemp;
 }
 
+TVTPage* VT_SpecialPageGet(int Page, int SubPage, BOOL bReusable)
+{
+    TVTPage** hPage;
+    TVTPage* pTemp = NULL;
+    TVTPage* pReusable = NULL;
+
+    EnterCriticalSection(&VTAccess);
+
+    hPage = &VTSpecialPages;
+    for(;;)
+    {
+        if (*hPage == NULL)
+        {
+            if (pReusable != NULL)
+            {
+                pTemp = pReusable;
+            }
+            else
+            {
+                pTemp = *hPage = new TVTPage;
+            }
+
+            memset(pTemp, NULL, sizeof(TVTPage));
+            pTemp->SubPage = SubPage;
+            pTemp->Page = Page;
+            pTemp->bUpdated = bReusable;
+            break;
+        }
+        if (((*hPage)->Page == Page) && ((*hPage)->SubPage == SubPage))
+        {
+            pTemp = *hPage;
+            break;
+        }
+
+        // Check if the buffer is reusable: Only buffers
+        // of the same magazine should be reused.
+        // bUpdated is used to indicate wether the buffer
+        // is reusable.  Special pages never use bUpdated
+        // anywhere else.
+        if (((*hPage)->bUpdated) && (pReusable == NULL) &&
+            (((*hPage)->Page & 0xF00) == (Page & 0xF00)))
+        {
+            pReusable = *hPage;
+        }
+        hPage = &(*hPage)->Next;
+    }
+
+    LeaveCriticalSection(&VTAccess);
+    return pTemp;
+}
+
+void VT_SpecialPagesFree()
+{
+    TVTPage* pPage;
+
+    EnterCriticalSection(&VTAccess);    
+
+    while (pPage = VTSpecialPages)
+    {
+        VTSpecialPages = pPage->Next;
+
+        delete pPage;
+    }
+
+    LeaveCriticalSection(&VTAccess);
+}
+
 void VBI_VT_Init()
 {
     VT_SetCodePage(VTCodePage);
@@ -524,6 +598,8 @@ void VBI_VT_Exit()
     {
         VT_PageFree(a);
     }
+
+    VT_SpecialPagesFree();
 
     DeleteCriticalSection(&VTAccess);
     DeleteCriticalSection(&VTUpdateAccess);
@@ -582,7 +658,7 @@ unsigned char unham2(unsigned char* d)
     return (c1 << 4) | (c2);
 }
 
-int MakePage(int mag, int page)
+int VT_MakePage(int mag, int page)
 {
     int Low =  page & 0x0f;
     int High = page >> 4;
@@ -600,6 +676,15 @@ int MakePage(int mag, int page)
     }
 }
 
+int VT_MakeHexPage(int mag, int page)
+{
+    if (mag == 0)
+    {
+        return 0x800 | page;
+    }
+    return 0x100 * mag | page;
+}
+
 void VBI_decode_vt(unsigned char* dat)
 {
     int i;
@@ -609,7 +694,7 @@ void VBI_decode_vt(unsigned char* dat)
     unsigned short sub;
     WORD ctrl;
     BOOL bRedrawAll = FALSE;
-    BOOL bSubtitleChanged = FALSE;
+    BOOL bNewPage = FALSE;
 
     TVTPage* pPage;
 
@@ -626,35 +711,67 @@ void VBI_decode_vt(unsigned char* dat)
         // dat: 55 55 27 %MPAG% %PAGE% %SUB%
         // 00 01 02  03 04  05 06 07-0a
 
+        // Work out the page number
         page = unham(dat + 5);
-        pnum = MakePage(mag, page);
-        if(pnum < 100 || pnum > 899)
+        pnum = VT_MakePage(mag, page);
+
+        // Work out the subpage number
+        sub = ((unham(dat + 9) & 0x3F) << 7) | (unham(dat + 7) & 0x7F);
+        sub = (sub >> 4) * 10 + (sub & 0x0F);
+
+        if (pnum < 100 || pnum > 899)
         {
+            // Non-visible pages
             MagazineStates[mag].bStarted = FALSE;
-            return;
+            MagazineStates[mag].bSpecial = FALSE;
+
+            pnum = VT_MakeHexPage(mag, page);
+
+            if (!VTTopText.IsTopTextPage(pnum, sub))
+            {
+                return;
+            }
+
+            MagazineStates[mag].Page = pnum;
+            MagazineStates[mag].SubPage = sub;
+
+            MagazineStates[mag].bSpecial = TRUE;
+        }
+        else
+        {
+            // Visible pages
+            MagazineStates[mag].bStarted = TRUE;
+            MagazineStates[mag].bSpecial = FALSE;
+
+            pnum -= 100;
+            MagazineStates[mag].Page = pnum;
+            MagazineStates[mag].SubPage = sub;
         }
 
+        // Auto detect the codepage
         C12C13C14 = unham(dat + 11) >> 5;
         VTAutoCodePage = C12C13C14Pages[C12C13C14];
 
         MagazineStates[mag].PageErase = ((unham(dat + 7) & 0x80) != 0);
-        sub = ((unham(dat + 9) & 0x3F) << 7) | (unham(dat + 7) & 0x7F);
-        sub = (sub >> 4) * 10 + (sub & 0x0F);
 
-        VTCurrentPage = pnum;
+        // Set the VT info dialog display
+        VTCurrentPage = VT_MakeHexPage(mag, page);
         VTCurrentSubCode = sub;
 
-        pnum -= 100;
+        // Get the page control details
+        ctrl = (UnhamTab[dat[3]] & 0x7) + ((UnhamTab[dat[8]] >> 3) << 3) + ((UnhamTab[dat[10]] >> 2) << 4) + (UnhamTab[dat[11]] << 6) + (UnhamTab[dat[12]] << 10);
 
-        if ((pnum >= 0) && (pnum < 800))
+        // Get the page buffer
+        if (MagazineStates[mag].bSpecial)
         {
-            ctrl = (UnhamTab[dat[3]] & 0x7) + ((UnhamTab[dat[8]] >> 3) << 3) + ((UnhamTab[dat[10]] >> 2) << 4) + (UnhamTab[dat[11]] << 6) + (UnhamTab[dat[12]] << 10);
-
-            MagazineStates[mag].Page = pnum;
-            MagazineStates[mag].SubPage = sub;
-            MagazineStates[mag].bStarted = TRUE;
-            LOG(2, "Mag %d Page %d SubCode %d", mag, pnum, sub);
-
+            // Set bReusable arg to TRUE.  We don't need
+            // permenant buffers. (For TOP-Text at least)
+            // This way, we also don't need to worry about
+            // freeing past finished buffers.
+            pPage = VT_SpecialPageGet(pnum, sub, TRUE);
+        }
+        else
+        {
             pPage = VT_PageGet(pnum, sub);
             VTPages[pnum].MostRecentSubPage = sub;
             if(pPage->bUpdated == FALSE)
@@ -662,37 +779,45 @@ void VBI_decode_vt(unsigned char* dat)
                 ++VTCachedPages;
             }
 
-            memcpy(&pPage->Frame[0], dat + 5, 40);
-            memcpy(&VTHeaderLine[0], dat + 5, 40);
-
-            if ((ctrl & (3 << 4)) != (pPage->wCtrl & (3 << 4)))
+            if ((ctrl & VTCONTROL_SUPRESSHEADER) == 0)
             {
-                // the subtitle or newflash control of the page
-                // changed.  need to redraw all incase some of
-                // the page was already drawn
-                bSubtitleChanged = TRUE;
-            }
-
-            pPage->wCtrl = ctrl;
-            pPage->bUpdated = 1;
-            pPage->Fill = TRUE;
-
-            if (MagazineStates[mag].PageErase == TRUE)
-            {
-                memset(&pPage->Frame[1], 0x00, 24 * 40);
-                memset(&pPage->LineUpdate[1], 0x00, 24);
-            }
-
-            if((VTState != VT_OFF) && (MagazineStates[mag].Page == VTPage - 100) &&
-               (MagazineStates[mag].SubPage == VTSubPage))
-            {
-                bRedrawAll = MagazineStates[mag].PageErase || bSubtitleChanged;
-            }
-            else
-            {
-                PostMessage(hWnd, WM_VIDEOTEXT, VTM_REDRAWHEADER, NULL);
+                memcpy(&VTHeaderLine[0], dat + 5, 40);
             }
         }
+
+        LOG(2, "Mag %d Page %03x SubCode %d", mag, VTCurrentPage, sub);
+
+        if ((ctrl & (3 << 4)) != (pPage->wCtrl & (3 << 4)))
+        {
+            // The subtitle or newflash control of the page
+            // changed.  Need to redraw all incase some of
+            // the page was already drawn
+            bRedrawAll = TRUE;
+        }
+
+        pPage->wCtrl = ctrl;
+        pPage->Fill = TRUE;
+        
+        if (MagazineStates[mag].PageErase == TRUE)
+        {
+            memset(&pPage->Frame[1], 0x00, 24 * 40);
+            memset(&pPage->LineUpdate[1], 0x00, 24);
+        }
+
+        if ((VTState != VT_OFF) && (!MagazineStates[mag].bSpecial) &&
+            (MagazineStates[mag].Page == VTPage - 100) &&
+            (MagazineStates[mag].SubPage == VTSubPage))
+        {
+            if (MagazineStates[mag].PageErase)
+            {
+                bRedrawAll = TRUE;
+            }
+        }
+        else
+        {
+            PostMessage(hWnd, WM_VIDEOTEXT, VTM_REDRAWHEADER, NULL);
+        }
+        // No break
     case 1:
     case 2:
     case 3:
@@ -718,18 +843,56 @@ void VBI_decode_vt(unsigned char* dat)
     case 23:
     case 24:
     case 25:
-        if(MagazineStates[mag].bStarted)
+        if (MagazineStates[mag].bSpecial)
+        {
+            int row = (pack == 25) ? 0 : pack;
+
+            pnum = MagazineStates[mag].Page;
+            sub  = MagazineStates[mag].SubPage;
+
+            pPage = VT_SpecialPageGet(pnum, sub, TRUE);
+
+            memcpy(&pPage->Frame[row], dat + 5, 40);
+
+            pPage->Fill = TRUE;
+            pPage->LineUpdate[row] = 1;
+
+            if (VTTopText.IsTopTextPage(pnum, sub))
+            {
+                BOOL bRedraw = VTTopText.DecodePageRow(pPage, pPage->Frame[row], row);
+
+                if (bRedraw && (VTState != VT_OFF))
+                {
+                    pPage = VT_PageGet(VisiblePage.Page, VisiblePage.SubPage);
+
+                    VTTopText.GetTopTextDetails(pPage);
+                    memcpy(&VisiblePage, pPage, sizeof(TVTPage));
+
+                    EnterCriticalSection(&VTUpdateAccess);
+                    KillTimer(hWnd, TIMER_VTUPDATE);
+                    VTRedrawCache.Line[VisiblePage.CommentaryRow] = true;
+                    SetTimer(hWnd, TIMER_VTUPDATE, TIMER_VTUPDATE_MS, NULL);
+                    LeaveCriticalSection(&VTUpdateAccess);
+                }
+            }
+        }
+        else if (MagazineStates[mag].bStarted)
         {
             int row = (pack == 25) ? 0 : pack;
 
             pPage = VT_PageGet(MagazineStates[mag].Page, MagazineStates[mag].SubPage);
+
+            if (pPage->bUpdated == FALSE)
+            {
+                bNewPage = TRUE;
+            }
 
             memcpy(&pPage->Frame[row], dat + 5, 40);
             pPage->bUpdated = 1;
             pPage->Fill = TRUE;
             pPage->LineUpdate[row] = 1;
 
-            if((MagazineStates[mag].Page == VTPage - 100) && (!VTSubPageLocked))
+            if ((MagazineStates[mag].Page == VTPage - 100) && (!VTSubPageLocked))
             {
                 if (VTSubPage != MagazineStates[mag].SubPage)
                 {
@@ -740,13 +903,21 @@ void VBI_decode_vt(unsigned char* dat)
                 VTSubPage = MagazineStates[mag].SubPage;
             }
 
-            if((VTState != VT_OFF) && (MagazineStates[mag].Page == VTPage - 100) &&
-               (MagazineStates[mag].SubPage == VTSubPage))
+            if ((VTState != VT_OFF) && (MagazineStates[mag].Page == VTPage - 100) &&
+                (MagazineStates[mag].SubPage == VTSubPage))
             {
+                VTTopText.GetTopTextDetails(pPage);
                 memcpy(&VisiblePage, pPage, sizeof(TVTPage));
 
                 EnterCriticalSection(&VTUpdateAccess);
                 KillTimer(hWnd, TIMER_VTUPDATE);
+
+                if (bNewPage && VisiblePage.CommentaryRow != 0)
+                {
+                    // Redraw the commentary row
+                    VTRedrawCache.Line[VisiblePage.CommentaryRow] = true;
+                }
+
                 VTRedrawCache.PageErase |= bRedrawAll;
                 VTRedrawCache.Line[row] = true;
                 SetTimer(hWnd, TIMER_VTUPDATE, TIMER_VTUPDATE_MS, NULL);
@@ -766,7 +937,7 @@ void VBI_decode_vt(unsigned char* dat)
                 for(i = 1 ; i <= 6; i++)
                 {
                     int linkmag = mag ^ ((UnhamTab[dat[ 6 * i + 3]] & 0x08) >> 3) ^ ((UnhamTab[dat[6 * i + 5]] & 0x0c) >> 1);
-                    int linkpage = MakePage(linkmag, unham(dat + 6 * i));
+                    int linkpage = VT_MakePage(linkmag, unham(dat + 6 * i));
 
                     if(linkpage >=100 && linkpage <= 899)
                     {
@@ -927,6 +1098,7 @@ void VT_DoUpdate_Page(int Page, int SubPage)
 {
     TVTPage *pPage = VT_PageGet(Page, SubPage);
 
+    VTTopText.GetTopTextDetails(pPage);
     memcpy(&VisiblePage, pPage, sizeof(TVTPage));
 }
 
@@ -982,6 +1154,8 @@ void VT_ChannelChange()
         MagazineStates[i].Page = -1;
     }
     VTCachedPages = 0;
+
+    VTTopText.Reset();
 
     VTPage = 100;
     VTSubPage = 0;
@@ -1105,7 +1279,7 @@ void VT_PurgeRedrawCache()
 
 bool VT_ContainsUpdatedPage()
 {
-    return (VisiblePage.bUpdated==TRUE);
+    return (VisiblePage.bUpdated == TRUE);
 }
 
 void VT_CreateTestPage()
@@ -1260,6 +1434,7 @@ LPCSTR VT_GetStation()
 
 BOOL APIENTRY VTInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
+    char HexPageString[8];
 
     switch (message)
     {
@@ -1267,8 +1442,10 @@ BOOL APIENTRY VTInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         SetTimer(hDlg, 0, 2000, NULL);
     case WM_TIMER:
         SetDlgItemInt(hDlg, IDC_TEXT1, VTCachedPages, FALSE);
-        SetDlgItemInt(hDlg, IDC_TEXT2, VTCurrentPage, FALSE);
         SetDlgItemInt(hDlg, IDC_TEXT3, VTCurrentSubCode, FALSE);
+
+        sprintf(HexPageString, "%03x", VTCurrentPage);
+        SetDlgItemText(hDlg, IDC_TEXT2, HexPageString);
         break;
 
     case WM_COMMAND:
@@ -1450,6 +1627,10 @@ int VT_GetFlofPageNumber(int Page, int SubPage, int flof)
     }
     else
     {
+        if (flof == FLOF_RED)
+        {
+            VTTopText.WindBackLast();
+        }
         return pPage->FlofPage[flof];
     }
 }

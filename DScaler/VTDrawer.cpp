@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDrawer.cpp,v 1.14 2002-10-23 02:52:33 atnak Exp $
+// $Id: VTDrawer.cpp,v 1.15 2002-10-23 16:57:12 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (c) 2002 Mike Temperton.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/10/23 02:52:33  atnak
+// Added Alpha Black and Mosaic Black for level 2.5
+//
 // Revision 1.13  2002/10/20 09:29:59  atnak
 // minor fixes
 //
@@ -250,7 +253,8 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC,
         {
             for (n = 0; n < 40; n++)
             {
-                if ((pPage->bUpdated) || (ulFlags & VTDF_FORCEDRAW))
+                if ((pPage->bUpdated) || (ulFlags & VTDF_FORCEDRAW) ||
+                    (row == pPage->CommentaryRow))
                 {
                     tmp[n] = pPage->Frame[row][n] & 0x7f;
                 }

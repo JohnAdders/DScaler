@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.H,v 1.26 2002-10-15 11:53:38 atnak Exp $
+// $Id: VBI_VideoText.H,v 1.27 2002-10-23 16:57:13 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -53,6 +53,22 @@ enum eVTState
     VT_BLACK,
     VT_MIX,
     VT_LASTSTATE,
+};
+
+// control bits in a VT header
+enum
+{
+    VTCONTROL_ERASEPAGE     = 1 << 4,
+    VTCONTROL_NEWSFLASH     = 1 << 5,
+    VTCONTROL_SUBTITLE      = 1 << 6,
+    VTCONTROL_SUPRESSHEADER = 1 << 7,
+    VTCONTROL_UPDATE        = 1 << 8,
+    VTCONTROL_INTERRUPTED   = 1 << 9,
+    VTCONTROL_INHIBITDISP   = 1 << 10,
+    VTCONTROL_MAGSERIAL     = 1 << 11,
+    VTCONTROL_RESERVED0     = 1 << 12,
+    VTCONTROL_RESERVED1     = 1 << 13,
+    VTCONTROL_RESERVED2     = 1 << 14,
 };
 
 enum eVTCodePage
@@ -126,6 +142,7 @@ typedef struct tagVTPage
     BYTE LineUpdate[25];
     BYTE bUpdated;
     BYTE bFlofUpdated;
+    BYTE CommentaryRow;
     int FlofPage[NUM_FLOF];
     int FlofSubPage[NUM_FLOF];
     unsigned short SubPage;
@@ -197,6 +214,9 @@ int VT_GetPreviousPage(int Page);
 int VT_SubPageNext(int Page, int SubPage, int Direction, bool Cycle);
 int VT_CompleteSubPages(int Page);
 TVTPage* VT_PageGet(int Page, int SubPage);
+
+int VT_MakePage(int mag, int page);
+int VT_MakeHexPage(int mag, int page);
 
 bool VT_ContainsUpdatedPage();
 void VT_CreateTestPage();

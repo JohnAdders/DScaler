@@ -1,5 +1,5 @@
 //
-// $Id: Toolbars.cpp,v 1.7 2002-10-17 00:28:41 flibuste2 Exp $
+// $Id: Toolbars.cpp,v 1.8 2002-10-17 06:48:22 flibuste2 Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,11 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/10/17 00:28:41  flibuste2
+// Channels.h / Channels.cpp define the current CHANNELLIST and COUNTRYLIST
+// This first check-in is prior to other enhancements and mostly reproduces
+// the existing data structures for channel settings and user program list
+//
 // Revision 1.6  2002/10/07 20:33:50  kooiman
 // Fixed lots of toolbar bugs & added grip/separator bars.
 //
@@ -47,6 +52,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include "TVFormats.h"
 #include "Channels.h"
 #include "ToolbarWindow.h"
 #include "Toolbars.h"
@@ -72,7 +78,7 @@ static char THIS_FILE[]=__FILE__;
 
 typedef vector<CChannel*> CHANNELLIST;
 
-extern CHANNELLIST MyChannels;
+extern CChannelList MyChannels;
 extern long CurrentProgram;
 
 
@@ -198,7 +204,7 @@ void CToolbarChannels::UpdateControls(HWND hWnd, bool bInitDialog)
    
    if (bInitDialog)
    {
-      int ChannelListSize = MyChannels.size();
+      int ChannelListSize = MyChannels.GetSize();
       int Channel;
       int nIndex;
       int CurrentIndex = 0;
@@ -207,7 +213,7 @@ void CToolbarChannels::UpdateControls(HWND hWnd, bool bInitDialog)
 
       for(Channel = 0; Channel < ChannelListSize; Channel++)
       {
-          nIndex = SendMessage(GetDlgItem(hWnd, IDC_TOOLBAR_CHANNELS_LIST), CB_ADDSTRING, 0, (long)MyChannels[Channel]->GetName());
+          nIndex = SendMessage(GetDlgItem(hWnd, IDC_TOOLBAR_CHANNELS_LIST), CB_ADDSTRING, 0, (long)MyChannels.GetChannelName(Channel));
           SendMessage(GetDlgItem(hWnd, IDC_TOOLBAR_CHANNELS_LIST), CB_SETITEMDATA, nIndex, Channel);
 
           if (CurrentProgram == Channel)
@@ -220,7 +226,7 @@ void CToolbarChannels::UpdateControls(HWND hWnd, bool bInitDialog)
 	else
 	{
 		int nIndex;
-        for(nIndex = 0; nIndex < MyChannels.size(); nIndex++)
+        for(nIndex = 0; nIndex < MyChannels.GetSize(); nIndex++)
         {
             if (ComboBox_GetItemData(GetDlgItem(hWnd, IDC_TOOLBAR_CHANNELS_LIST), nIndex) == LastChannel)
             {                       

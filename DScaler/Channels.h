@@ -38,23 +38,121 @@ const LPCSTR SZ_DEFAULT_PROGRAMS_FILENAME  = "program.txt"; //default user chann
 class CChannel
 {
 public:
-    CChannel(LPCSTR Name, DWORD Freq, int ChannelNumber, int Format, BOOL Active);
+    
+    CChannel(LPCSTR Name, DWORD Freq, int ChannelNumber, eVideoFormat Format, BOOL Active = TRUE);
+    
     CChannel(const CChannel& CopyFrom);
     ~CChannel();
     LPCSTR GetName() const;
     DWORD GetFrequency() const;
     int GetChannelNumber() const;
-    int GetFormat() const;
+    eVideoFormat GetFormat() const;
     BOOL IsActive() const;
     void SetActive(BOOL Active);
 private:
     string m_Name;
     DWORD m_Freq;
     int m_Chan;
-    int m_Format;
+    eVideoFormat m_Format;
     BOOL m_Active;
 };
 
+
+class CChannelList 
+{
+
+
+public :
+    enum FileFormat {
+        FILE_FORMAT_ASCII = 0,
+        FILE_FORMAT_LASTONE
+    };
+
+private:
+    //Just in case I change my mind later on the type of this
+    typedef vector<CChannel*> Channels;
+
+public :
+    CChannelList();
+    ~CChannelList();
+
+    void Clear();
+
+    int GetSize() const;
+    
+    int GetMinChannelNumber() const;
+
+    int GetMaxChannelNumber() const;
+
+    DWORD GetLowerFrequency() const;
+
+    DWORD GetHigherFrequency() const;
+
+    CChannel* GetChannel(int iChannelIndex) const;
+
+    CChannel* GetChannelByNumber(int iChannelNumber); //May return NULL
+
+    BOOL AddChannel(CChannel*); //The given channel will be destroyed when list is cleared
+
+    inline BOOL AddChannel(LPCSTR szName, DWORD dwFreq, int iChannelNumber, int eFormat, BOOL bActive = TRUE) 
+    {
+        return AddChannel(szName, dwFreq, iChannelNumber, (eVideoFormat)eFormat, bActive);
+    }
+
+
+    BOOL AddChannel(LPCSTR szName, DWORD dwFreq, int iChannelNumber, eVideoFormat eFormat, BOOL bActive = TRUE); 
+
+    BOOL RemoveChannel(int index);
+
+    BOOL SetChannel(int index, CChannel* pChannel);
+
+    BOOL SwapChannels(int, int );
+
+    
+    BOOL WriteFile(LPCSTR, CChannelList::FileFormat);
+
+    BOOL ReadFile(LPCSTR, CChannelList::FileFormat);
+
+    
+    //Read/Write using the legacy "program.txt" file format
+    inline BOOL WriteASCII(LPCSTR szFilename) {return WriteFile(szFilename, CChannelList::FILE_FORMAT_ASCII);};
+    
+    inline BOOL ReadASCII(LPCSTR szFilename) {return ReadFile(szFilename, CChannelList::FILE_FORMAT_ASCII);};
+    
+    //CChannel* operator[](int index) {return m_Channels[index];};
+    
+    //Shortcuts..
+    inline LPCSTR GetChannelName(int index) const {return GetChannel(index)->GetName();};
+
+    inline BOOL GetChannelActive(int index) const {return GetChannel(index)->IsActive();};
+
+    inline void SetChannelActive(int index, BOOL bActive)
+    {
+        GetChannel(index)->SetActive(bActive);
+    }
+
+    inline int GetChannelNumber(int index) const {return GetChannel(index)->GetChannelNumber();};
+
+    inline DWORD GetChannelFrequency(int index) const {return GetChannel(index)->GetFrequency();};
+
+    inline eVideoFormat GetChannelFormat(int index) const {return GetChannel(index)->GetFormat();};
+
+
+private:
+
+    BOOL WriteASCIIImpl(LPCSTR szFilename);
+    BOOL ReadASCIIImpl(LPCSTR szFilename);
+
+private:
+
+    DWORD m_MinFrequency;
+    DWORD m_MaxFrequency;
+
+    int m_MinChannelNumber;
+    int m_MaxChannelNumber;
+
+    Channels m_Channels;
+};
 
 class CCountry
 {
@@ -124,19 +222,13 @@ private :
 
 
 //TODO->Transform into class
-typedef vector<CChannel*> CHANNELLIST;
-
-//TODO->Should be methods
-void Unload_Program_List_ASCII(CHANNELLIST * pChannels);
-BOOL Load_Program_List_ASCII(LPCSTR szFilename, CHANNELLIST * pChannels);
-BOOL Write_Program_List_ASCII(LPCSTR szFilename, CHANNELLIST * pChannels);
-
-
-//TODO->Transform into class
 typedef vector<CCountry*> COUNTRYLIST;
 
 //TODO->Should be methods
 void Unload_Country_Settings(COUNTRYLIST *);
 BOOL Load_Country_Settings(LPCSTR szFilename, COUNTRYLIST * pCountries);
+
+
+//Some more helpers...
 
 #endif

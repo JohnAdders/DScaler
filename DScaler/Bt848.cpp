@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Bt848.cpp,v 1.34 2001-09-03 13:46:06 adcockj Exp $
+// $Id: Bt848.cpp,v 1.35 2001-09-05 15:08:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,6 +44,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.34  2001/09/03 13:46:06  adcockj
+// Added PAL-NC thanks to Eduardo José Tagle
+//
 // Revision 1.33  2001/08/15 09:04:28  adcockj
 // Fix for whitecrush settings with no PLL
 //
@@ -613,7 +616,7 @@ void BT848_ResetHardware()
     BT848_WriteByte(BT848_CAP_CTL, 0x00);
     BT848_WriteByte(BT848_VBI_PACK_SIZE, (VBI_SPL / 4) & 0xff);
     BT848_WriteByte(BT848_VBI_PACK_DEL, (VBI_SPL / 4) >> 8);
-    BT848_WriteWord(BT848_GPIO_DMA_CTL, 0xfc);
+    BT848_WriteWord(BT848_GPIO_DMA_CTL, BT848_GPIO_DMA_CTL_PKTP_32);
     BT848_WriteByte(BT848_IFORM, BT848_IFORM_MUX1 | BT848_IFORM_XTAUTO | BT848_IFORM_PAL_BDGHI);
 
     BT848_SetVideoSource(VideoSource);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FieldTiming.cpp,v 1.17 2001-08-21 09:39:46 adcockj Exp $
+// $Id: FieldTiming.cpp,v 1.18 2001-09-05 15:08:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2001/08/21 09:39:46  adcockj
+// Added Greek teletext Codepage
+//
 // Revision 1.16  2001/08/11 12:02:13  adcockj
 // Updated SleepInterval default
 //
@@ -121,13 +124,13 @@ void UpdateRunningAverage(LARGE_INTEGER* pNewFieldTime)
             // especially that we don't need to keep a 
             // data history
             RunningAverageCounterTicks = Weight * RecentTicks + (1.0 - Weight) * RunningAverageCounterTicks;
-            LOG(2, " Last %f", RecentTicks);
-            LOG(2, " Running Average %f", RunningAverageCounterTicks);
+            LOG(2, "Last %f", RecentTicks);
+            LOG(2, "Running Average %f", RunningAverageCounterTicks);
         }
         else
         {
-            LOG(2, " Last %f (IGNORED)", RecentTicks);
-            LOG(2, " Old Running Average %f", RunningAverageCounterTicks);
+            LOG(2, "Last %f (IGNORED)", RecentTicks);
+            LOG(2, "Old Running Average %f", RunningAverageCounterTicks);
         }
     }
     // save current Value for next time
@@ -205,7 +208,7 @@ void Timing_WaitForNextFieldNormal(DEINTERLACE_INFO* pInfo)
         memset(pInfo->OddLines, 0, MAX_FIELD_HISTORY * sizeof(short**));
         pInfo->bMissedFrame = TRUE;
         nDroppedFields += Diff - 1;
-        LOG(2, " Dropped Frame");
+        LOG(2, "Dropped Frame");
     }
     else
     {
@@ -251,13 +254,13 @@ void Timing_WaitForNextFieldAccurate(DEINTERLACE_INFO* pInfo)
     {
         NewPos = (OldPos + 1) % 10;
         FlipAdjust = TRUE;
-        LOG(2, " Slightly late");
+        LOG(2, "Slightly late");
     }
     else if(Diff == 3) 
     {
         NewPos = (OldPos + 1) % 10;
         FlipAdjust = TRUE;
-        LOG(2, " Very late");
+        LOG(2, "Very late");
     }
     else
     {
@@ -266,7 +269,7 @@ void Timing_WaitForNextFieldAccurate(DEINTERLACE_INFO* pInfo)
         memset(pInfo->OddLines, 0, MAX_FIELD_HISTORY * sizeof(short**));
         pInfo->bMissedFrame = TRUE;
         nDroppedFields += Diff - 1;
-        LOG(1, " Dropped Frame");
+        LOG(1, "Dropped Frame");
         Timing_Reset();
     }
 

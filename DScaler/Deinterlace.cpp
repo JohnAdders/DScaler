@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.cpp,v 1.21 2001-08-18 17:23:51 adcockj Exp $
+// $Id: Deinterlace.cpp,v 1.22 2001-09-05 15:08:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2001/08/18 17:23:51  adcockj
+// Fix for manual method selection
+//
 // Revision 1.20  2001/08/14 11:36:03  adcockj
 // Mixer change to allow restore of initial mixer settings
 //
@@ -581,7 +584,7 @@ BOOL LoadDeinterlacePlugins()
             }
             __except (EXCEPTION_EXECUTE_HANDLER) 
             { 
-                LOG(1, " Crash Loading %s", FindFileData.cFileName);
+                LOG(1, "Crash Loading %s", FindFileData.cFileName);
             }
             RetVal = FindNextFile(hFindFile, &FindFileData);
         }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectDetect.cpp,v 1.17 2001-08-09 12:21:40 adcockj Exp $
+// $Id: AspectDetect.cpp,v 1.18 2001-09-05 15:08:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -39,6 +39,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2001/08/09 12:21:40  adcockj
+// Structure name changes
+//
 // Revision 1.16  2001/08/06 22:32:13  laurentg
 // Little improvments for AR autodetection
 //
@@ -139,7 +142,7 @@ void SwitchToRatio(int nMode, int nRatio)
     // Update aspect ratio only if a positive one is specified
     if (nRatio > 0)
     {
-        LOG(1, " Switching to ratio %d", nRatio);
+        LOG(1, "Switching to ratio %d", nRatio);
 
         // If the most recent ratio switch just happened, don't remember it since it
         // was probably a transient ratio due to improperly locking onto a dark scene.
@@ -384,7 +387,7 @@ int FindAspectRatio(short** EvenField, short** OddField)
         // this will change depending on whether or not the image is anamorphic.
         ratio = (int)((imageHeight * 1000) * GetActualSourceFrameAspect() / (imageHeight - border * 2));
 	}
-    LOG(2, " top %d bot %d bord %d rat %d", topBorder, bottomBorder, border, ratio);
+    LOG(2, "top %d bot %d bord %d rat %d", topBorder, bottomBorder, border, ratio);
 
     return ratio;
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.16 2001-09-05 06:59:13 adcockj Exp $
+// $Id: VBI_VideoText.cpp,v 1.17 2001-09-05 15:08:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2001/09/05 06:59:13  adcockj
+// Teletext fixes
+//
 // Revision 1.15  2001/09/02 14:17:51  adcockj
 // Improved teletext code
 //
@@ -71,6 +74,7 @@
 #include "AspectRatio.h"
 #include "Other.h"
 #include "DebugLog.h"
+#include "Crash.h"
 
 TPacket30 Packet30;
 
@@ -317,11 +321,20 @@ void VBI_decode_vt(unsigned char* dat)
         {
             if(VTState != VT_OFF && MagazineStates[mag].Page == VTPage - 100)
             {
-                HDC hDC;
                 VT_DoUpdate_Page(VTPage - 100);
-                lpDDSurface->GetDC(&hDC);
-                VT_Redraw(hWnd, hDC, TRUE);
-                lpDDSurface->ReleaseDC(hDC);
+                HDC hDC = Overlay_GetDC();
+                if(hDC != NULL)
+                {
+                    __try
+                    {
+                        VT_Redraw(hWnd, hDC, TRUE);
+                    }
+                    __except(CrashHandler((EXCEPTION_POINTERS*)_exception_info())) 
+                    {
+                        LOG(1, "Crash in VT_Redraw");
+                    }
+                    Overlay_ReleaseDC(hDC);
+                }
             }
         }
 

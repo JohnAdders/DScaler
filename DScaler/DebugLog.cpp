@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DebugLog.cpp,v 1.12 2001-08-02 18:18:32 adcockj Exp $
+// $Id: DebugLog.cpp,v 1.13 2001-09-05 15:08:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2001/08/02 18:18:32  adcockj
+// Fixed release build problem
+//
 // Revision 1.11  2001/08/02 16:43:05  adcockj
 // Added Debug level to LOG function
 //
@@ -80,6 +83,11 @@ void LOG(int DebugLevel, LPCSTR Format, ...)
     Time = localtime(&TimeB.time);
     strftime(Stamp, sizeof(Stamp), "%y%m%d %H%M%S", Time);
     fprintf(debugLog, "%s.%03d(%03d)", Stamp, TimeB.millitm, SysTime % 1000);
+
+    for(int i(0); i < DebugLevel; ++i)
+    {
+        fputc(' ', debugLog);
+    }
 
     va_start(Args, Format);
     vfprintf(debugLog, Format, Args);

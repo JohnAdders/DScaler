@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.h,v 1.5 2001-07-16 18:07:50 adcockj Exp $
+// $Id: OutThreads.h,v 1.6 2001-09-05 15:08:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -65,7 +65,7 @@ void SetupCaptureFlags();
 DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter);
 
 BOOL WaitForNextField(BOOL LastField, BOOL* RunningLate);
-BYTE* LockOverlay();       // Lock overlay, returns ptr to buffer
+BOOL LockOverlay(DEINTERLACE_INFO* pInfo);
 
 // Statistics
 extern long nTotalDropFields;

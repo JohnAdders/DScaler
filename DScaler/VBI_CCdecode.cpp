@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_CCdecode.cpp,v 1.7 2001-08-02 18:08:17 adcockj Exp $
+// $Id: VBI_CCdecode.cpp,v 1.8 2001-09-05 15:08:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Mike Baker.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2001/08/02 18:08:17  adcockj
+// Made all logging code use new levels
+//
 // Revision 1.6  2001/07/13 16:14:56  adcockj
 // Changed lots of variables to match Coding standards
 //
@@ -243,40 +246,40 @@ int XDSdecode(int data)
             switch ((Mode<<8) + Type)
             {
                 case 0x0101:
-                    LOG(5, " TIMECODE: %d/%02d %d:%02d",
+                    LOG(5, "TIMECODE: %d/%02d %d:%02d",
                     pInfo[3]&0x0f,pInfo[2]&0x1f,pInfo[1]&0x1f,pInfo[0]&0x3f);
                 case 0x0102:
                     if ((pInfo[1]&0x3f)>5)
                         break;
-                    LOG(5, "   LENGTH: %d:%02d:%02d of %d:%02d:00",
+                    LOG(5, "LENGTH: %d:%02d:%02d of %d:%02d:00",
                     pInfo[3]&0x3f,pInfo[2]&0x3f,pInfo[4]&0x3f,pInfo[1]&0x3f,pInfo[0]&0x3f);
                     break;
                 case 0x0103:
                     pInfo[length] = 0;
-                    LOG(5, "    TITLE: %s",pInfo);
+                    LOG(5, "TITLE: %s",pInfo);
                     break;
                 case 0x0105:
-                    LOG(5, "   RATING: %s (%d)",Ratings[pInfo[0]&0x07],pInfo[0]);
+                    LOG(5, "RATING: %s (%d)",Ratings[pInfo[0]&0x07],pInfo[0]);
                     if ((pInfo[0]&0x07)>0)
                     {
-                        if (pInfo[0]&0x20) LOG(5, " VIOLENCE");
-                        if (pInfo[0]&0x10) LOG(5, " SEXUAL");
-                        if (pInfo[0]&0x08) LOG(5, " LANGUAGE");
+                        if (pInfo[0]&0x20) LOG(5, "VIOLENCE");
+                        if (pInfo[0]&0x10) LOG(5, "SEXUAL");
+                        if (pInfo[0]&0x08) LOG(5, "LANGUAGE");
                     }
                     break;
                 case 0x0501:
                     pInfo[length] = 0;
-                    LOG(5, "  NETWORK: %s",pInfo);
+                    LOG(5, "NETWORK: %s",pInfo);
                     break;
                 case 0x0502:
                     pInfo[length] = 0;
-                    LOG(5, "     CALL: %s",pInfo);
+                    LOG(5, "CALL: %s",pInfo);
                     break;
                 case 0x0701:
-                    LOG(5, " CUR.TIME: %d:%02d %d/%02d/%04d UTC",pInfo[1]&0x1F,pInfo[0]&0x3f,pInfo[3]&0x0f,pInfo[2]&0x1f,(pInfo[5]&0x3f)+1990);
+                    LOG(5, "CUR.TIME: %d:%02d %d/%02d/%04d UTC",pInfo[1]&0x1F,pInfo[0]&0x3f,pInfo[3]&0x0f,pInfo[2]&0x1f,(pInfo[5]&0x3f)+1990);
                     break;
                 case 0x0704: //timezone
-                    LOG(5, " TIMEZONE: UTC-%d",pInfo[0]&0x1f);
+                    LOG(5, "TIMEZONE: UTC-%d",pInfo[0]&0x1f);
                     break;
                 case 0x0104: //program genere
                     break;
@@ -289,7 +292,7 @@ int XDSdecode(int data)
                 case 0x0116:
                 case 0x0117:
                     pInfo[length+1] = 0;
-                    LOG(5, "     DESC: %s",pInfo);
+                    LOG(5, "DESC: %s",pInfo);
                     break;
             }
             LOG(5, "\33[0m\n");

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Filter.cpp,v 1.11 2001-08-25 10:48:02 laurentg Exp $
+// $Id: Filter.cpp,v 1.12 2001-09-05 15:08:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2001/08/25 10:48:02  laurentg
+// Log messages added
+//
 // Revision 1.10  2001/08/23 16:03:26  adcockj
 // Improvements to dynamic menus to remove requirement that they are not empty
 //
@@ -131,12 +134,12 @@ void LoadFilterPlugin(LPCSTR szFileName)
         }
         else
         {
-            LOG(1, " Plugin %s obsolete", szFileName);
+            LOG(1, "Plugin %s obsolete", szFileName);
         }
     }
     else
     {
-        LOG(1, " Plugin %s not compatible with your CPU", szFileName);
+        LOG(1, "Plugin %s not compatible with your CPU", szFileName);
     }
 }
 
@@ -188,12 +191,12 @@ BOOL LoadFilterPlugins()
         {
             __try
             {
-                LOG(1, " Loading %s ...", FindFileData.cFileName);
+                LOG(1, "Loading %s ...", FindFileData.cFileName);
                 LoadFilterPlugin(FindFileData.cFileName);
             }
             __except (EXCEPTION_EXECUTE_HANDLER) 
             { 
-                LOG(1, " Crash Loading %s", FindFileData.cFileName);
+                LOG(1, "Crash Loading %s", FindFileData.cFileName);
             }
             RetVal = FindNextFile(hFindFile, &FindFileData);
         }

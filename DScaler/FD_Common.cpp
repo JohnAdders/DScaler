@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_Common.cpp,v 1.17 2001-08-09 21:42:34 adcockj Exp $
+// $Id: FD_Common.cpp,v 1.18 2001-09-05 15:08:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2001/08/09 21:42:34  adcockj
+// Removed LOGD
+//
 // Revision 1.16  2001/08/08 18:24:13  adcockj
 // Fixed film delay bug
 //
@@ -206,7 +209,7 @@ void CalcCombFactor(DEINTERLACE_INFO* pInfo)
     }
 
     pInfo->CombFactor = CalculateTotalCombFactor(Combs, pInfo);
-    LOG(2, " Frame %d %c CF = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->CombFactor);
+    LOG(2, "Frame %d %c CF = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->CombFactor);
     return;
 }
 
@@ -240,7 +243,7 @@ void CalcCombFactorChroma(DEINTERLACE_INFO* pInfo)
     }
 
     pInfo->CombFactor = CalculateTotalCombFactor(Combs, pInfo);
-    LOG(2, " Frame %d %c CF = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->CombFactor);
+    LOG(2, "Frame %d %c CF = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->CombFactor);
     return;
 }
 
@@ -297,7 +300,7 @@ void CalcDiffFactor(DEINTERLACE_INFO* pInfo)
     }
 
     pInfo->FieldDiff = DiffFactor;
-    LOG(2, " Frame %d %c FD = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->FieldDiff);
+    LOG(2, "Frame %d %c FD = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->FieldDiff);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -353,7 +356,7 @@ void CalcDiffFactorChroma(DEINTERLACE_INFO* pInfo)
     }
 
     pInfo->FieldDiff = DiffFactor;
-    LOG(2, " Frame %d %c FD = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->FieldDiff);
+    LOG(2, "Frame %d %c FD = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->FieldDiff);
 }
 
 void DoBothCombAndDiff(DEINTERLACE_INFO* pInfo)
@@ -413,7 +416,7 @@ void DoBothCombAndDiff(DEINTERLACE_INFO* pInfo)
 
     pInfo->CombFactor = CalculateTotalCombFactor(Combs, pInfo);
     pInfo->FieldDiff = DiffFactor;
-    LOG(2, " Frame %d %c FD = %d \t CF = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->FieldDiff, pInfo->CombFactor);
+    LOG(2, "Frame %d %c FD = %d \t CF = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->FieldDiff, pInfo->CombFactor);
 }
 
 void DoBothCombAndDiffChroma(DEINTERLACE_INFO* pInfo)
@@ -473,7 +476,7 @@ void DoBothCombAndDiffChroma(DEINTERLACE_INFO* pInfo)
 
     pInfo->CombFactor = CalculateTotalCombFactor(Combs, pInfo);
     pInfo->FieldDiff = DiffFactor;
-    LOG(2, " Frame %d %c FD = %d \t CF = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->FieldDiff, pInfo->CombFactor);
+    LOG(2, "Frame %d %c FD = %d \t CF = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->FieldDiff, pInfo->CombFactor);
 }
 
 void DoBothCombAndDiffExperimental(DEINTERLACE_INFO* pInfo)
@@ -644,7 +647,7 @@ void DoBothCombAndDiffExperimental(DEINTERLACE_INFO* pInfo)
     pInfo->CombFactor = WeaveFactor;
     pInfo->FieldDiff = DiffFactor;
 
-    LOG(2, " Frame %d %c FD = %d CF = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->FieldDiff, pInfo->CombFactor);
+    LOG(2, "Frame %d %c FD = %d CF = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->FieldDiff, pInfo->CombFactor);
 
     // clear out the MMX registers ready for doing floating point
     // again

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.38 2002-06-13 12:10:22 adcockj Exp $
+// $Id: Other.cpp,v 1.39 2002-06-16 10:05:09 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.38  2002/06/13 12:10:22  adcockj
+// Move to new Setings dialog for filers, video deint and advanced settings
+//
 // Revision 1.37  2002/04/27 11:46:28  laurentg
 // Error messge in UpdateOverlay restored
 //
@@ -561,6 +564,10 @@ BOOL Overlay_Create()
         return (FALSE);
     }
 
+    // \todo remove if not required
+    // this code seems superfluous and can cause errors with 
+    // some drivers, try without it
+    /*
     ddrval = lpDDSurface->Lock(NULL, &SurfaceDesc, DDLOCK_WAIT, NULL);
     if (FAILED(ddrval))
     {
@@ -577,6 +584,7 @@ BOOL Overlay_Create()
         LeaveCriticalSection(&hDDCritSect);
         return (FALSE);
     }
+    */
 
     memset(&PixelFormat, 0x00, sizeof(PixelFormat));
     PixelFormat.dwSize = sizeof(DDPIXELFORMAT);

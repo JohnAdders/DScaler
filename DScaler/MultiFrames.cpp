@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MultiFrames.cpp,v 1.9 2003-06-14 19:35:56 laurentg Exp $
+// $Id: MultiFrames.cpp,v 1.10 2003-06-15 08:26:36 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2003/06/14 19:35:56  laurentg
+// Preview mode improved
+//
 // Revision 1.8  2003/03/23 09:24:27  laurentg
 // Automatic leave preview mode when necessary
 //
@@ -429,6 +432,19 @@ void CMultiFrames::UpdateFrame(TDeinterlaceInfo* pInfo, BOOL* bUseExtraBuffer, B
 		}
 	}
 
+	if (m_FrameFilled[m_CurrentFrame] != -1)
+	{
+		// Update the other frames having the same content
+		for (int i=0 ; i < m_NbFrames ; i++)
+		{
+			if ( (i != m_CurrentFrame)
+			  && (m_FrameFilled[i] == m_FrameFilled[m_CurrentFrame]) )
+			{
+				CopyFrame(m_CurrentFrame, i);
+			}
+		}
+	}
+
 	// The input picture is replaced by the full multiple frames picture
 	*bUseExtraBuffer = TRUE;
 	*lpBuffer = m_MemoryBuffer;
@@ -605,7 +621,7 @@ void CMultiFrames::ShiftFrames(int iDeltaFrames)
 	{
 		for (i=0 ; i<(m_NbFrames-iDeltaFrames) ; i++)
 		{
-			MoveFrame(i+iDeltaFrames, i);
+			CopyFrame(i+iDeltaFrames, i);
 			m_FrameFilled[i] = m_FrameFilled[i+iDeltaFrames];
 		}
 		for (i=(m_NbFrames-iDeltaFrames) ; i<m_NbFrames ; i++)
@@ -620,7 +636,7 @@ void CMultiFrames::ShiftFrames(int iDeltaFrames)
 		iDeltaFrames *= -1;
 		for (i=(m_NbFrames-1) ; i>=iDeltaFrames ; i--)
 		{
-			MoveFrame(i-iDeltaFrames, i);
+			CopyFrame(i-iDeltaFrames, i);
 			m_FrameFilled[i] = m_FrameFilled[i-iDeltaFrames];
 		}
 		for (i=(iDeltaFrames-1) ; i>=0 ; i--)
@@ -632,8 +648,8 @@ void CMultiFrames::ShiftFrames(int iDeltaFrames)
 	}
 }
 
-// Move the content of one frame from one position to another one
-void CMultiFrames::MoveFrame(int iFrameSrc, int iFrameDest)
+// Copy the content of one frame to another one
+void CMultiFrames::CopyFrame(int iFrameSrc, int iFrameDest)
 {
 	BYTE* lpFrameSrcBuffer;
 	int iFrameSrcWidth;
@@ -652,11 +668,7 @@ void CMultiFrames::MoveFrame(int iFrameSrc, int iFrameDest)
 	{
 		for (int iLine=0 ; iLine < iFrameSrcHeight ; iLine++)
 		{
-			for (int iPixel=0 ; iPixel < iFrameSrcWidth ; iPixel++)
-			{
-				lpFrameDestBuffer[iPixel*2] = lpFrameSrcBuffer[iPixel*2];
-				lpFrameDestBuffer[iPixel*2+1] = lpFrameSrcBuffer[iPixel*2+1];
-			}
+			memcpy(lpFrameDestBuffer, lpFrameSrcBuffer, iFrameSrcWidth*2);
 			lpFrameSrcBuffer += iFrameSrcLinePitch;
 			lpFrameDestBuffer += iFrameDestLinePitch;
 		}

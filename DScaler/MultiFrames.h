@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MultiFrames.h,v 1.8 2003-06-14 19:35:57 laurentg Exp $
+// $Id: MultiFrames.h,v 1.9 2003-06-15 08:26:36 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2003/06/14 19:35:57  laurentg
+// Preview mode improved
+//
 // Revision 1.7  2003/03/23 09:24:27  laurentg
 // Automatic leave preview mode when necessary
 //
@@ -127,8 +130,8 @@ private:
 	// disappear at bottom right and new ones will appeared at top left
 	void ShiftFrames(int iDeltaFrames);
 
-	// Move the content of one frame from one position to another one
-	void MoveFrame(int iFrameSrc, int iFrameDest);
+	// Copy the content of one frame to another one
+	void CopyFrame(int iFrameSrc, int iFrameDest);
 
 	// Paint in black the content of a frame
 	void ResetFrameToBlack(int iFrame);

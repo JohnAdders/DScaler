@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MultiFrames.cpp,v 1.5 2003-03-21 22:48:06 laurentg Exp $
+// $Id: MultiFrames.cpp,v 1.6 2003-03-22 15:41:58 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2003/03/21 22:48:06  laurentg
+// Preview mode (multiple frames) improved
+//
 // Revision 1.4  2003/03/20 23:27:28  laurentg
 // Navigation through frames updated - bugs fixed - few comments added
 //
@@ -47,6 +50,17 @@
 #include "AspectRatio.h"
 #include "ProgramList.h"
 #include "DScaler.h"
+#include "Deinterlace.h"
+
+
+#define TOP_BORDER		2
+#define BOTTOM_BORDER	2
+#define LEFT_BORDER		2
+#define RIGHT_BORDER	2
+
+#define	LUMIN_CURRENT		235
+#define	LUMIN_NOT_CURRENT	128
+#define	LUMIN_BLACK			16
 
 
 CMultiFrames* pMultiFrames = NULL;
@@ -58,8 +72,12 @@ CMultiFrames::CMultiFrames(eMultiFramesMode eMode, int iNbCols, int iNbRows, int
 	m_NbRows = iNbRows;
 	m_NbCols = iNbCols;
 	m_NbFrames = m_NbRows * m_NbCols;
-	m_Width = DSCALER_MAX_WIDTH;
-	m_Height = DSCALER_MAX_HEIGHT;
+	// Each frame must have a width multiple of 2
+	int iWidth = DSCALER_MAX_WIDTH / iNbCols;
+	iWidth &= 0xfffffffe;
+	m_Width = iWidth * iNbCols;
+	int iHeight = DSCALER_MAX_HEIGHT / iNbRows;
+	m_Height = iHeight * iNbRows;
 	m_Active = FALSE;
 	bSwitchRequested = FALSE;
 	m_MemoryBuffer = NULL;
@@ -165,13 +183,14 @@ void CMultiFrames::Reset()
 		return;
 	}
 
-	m_CurrentFrame = 0;
 	LastTickCount = 0;
 	for (int i=0 ; i < m_NbFrames ; i++)
 	{
 		ResetFrameToBlack(i);
 		bFrameFilled[i] = -1;
 	}
+	m_CurrentFrame = 0;
+	DrawBorder(m_CurrentFrame, TRUE, LUMIN_CURRENT, LEFT_BORDER, RIGHT_BORDER, TOP_BORDER, BOTTOM_BORDER);
 	bNavigAllowed = FALSE;
 }
 
@@ -237,7 +256,9 @@ void CMultiFrames::SelectFrame()
 			if ( ((m_CurrentFrame + iDeltaNewFrame) >= 0)
 			  && ((m_CurrentFrame + iDeltaNewFrame) < m_NbFrames) )
 			{
+				DrawBorder(m_CurrentFrame, TRUE, LUMIN_NOT_CURRENT, LEFT_BORDER, RIGHT_BORDER, TOP_BORDER, BOTTOM_BORDER);
 				m_CurrentFrame += iDeltaNewFrame;
+				DrawBorder(m_CurrentFrame, TRUE, LUMIN_CURRENT, LEFT_BORDER, RIGHT_BORDER, TOP_BORDER, BOTTOM_BORDER);
 				if (m_Mode == PREVIEW_CHANNELS)
 				{
 					SendMessage(hWnd, WM_COMMAND, IDM_CHANNEL_INDEX, bFrameFilled[m_CurrentFrame]);
@@ -251,6 +272,7 @@ void CMultiFrames::SelectFrame()
 			}
 			else
 			{
+				DrawBorder(m_CurrentFrame, TRUE, LUMIN_NOT_CURRENT, LEFT_BORDER, RIGHT_BORDER, TOP_BORDER, BOTTOM_BORDER);
 				ShiftFrames(iDeltaNewFrame);
 				if (m_Mode == PREVIEW_CHANNELS)
 				{
@@ -269,7 +291,9 @@ void CMultiFrames::SelectFrame()
 		if ((CurrentTickCount - LastTickCount) >= iDeltaTicksChange)
 		{
 			LastTickCount = CurrentTickCount;
+			DrawBorder(m_CurrentFrame, TRUE, LUMIN_NOT_CURRENT, LEFT_BORDER, RIGHT_BORDER, TOP_BORDER, BOTTOM_BORDER);
 			m_CurrentFrame = iUnused;
+			DrawBorder(m_CurrentFrame, TRUE, LUMIN_CURRENT, LEFT_BORDER, RIGHT_BORDER, TOP_BORDER, BOTTOM_BORDER);
 			if (bBeforeCurrent)
 			{
 				if (m_Mode == PREVIEW_CHANNELS)
@@ -311,14 +335,8 @@ void CMultiFrames::UpdateFrame(TDeinterlaceInfo* pInfo, BOOL* bUseExtraBuffer, B
 		return;
 	}
 
-	// Retrieve the buffer corresponding to the frame in the global multiple frames buffer
-	SelectFrameBuffer(m_CurrentFrame, &lpFrameBuffer, &iFramePitch, &iFrameWidth, &iFrameHeight);
-
-	// Shift to bottom for two lines and to right for two pixels
-	// to leave place for the borders
-	iFrameWidth -= 4;
-	iFrameHeight -= 4;
-	lpFrameBuffer += 2 * iFramePitch + 4;
+	// Retrieve the buffer corresponding to the frame in the global multiple frames buffer (without the borders)
+	SelectFrameBuffer(m_CurrentFrame, FALSE, &lpFrameBuffer, &iFramePitch, &iFrameWidth, &iFrameHeight);
 
 	// Copy (with resize) the input picture into its frame
     Overlay_Lock_Back_Buffer(pInfo, *bUseExtraBuffer);
@@ -327,6 +345,7 @@ void CMultiFrames::UpdateFrame(TDeinterlaceInfo* pInfo, BOOL* bUseExtraBuffer, B
 		// Keep the original ratio
 		int iUpdWidth;
 		int iUpdHeight;
+		int iDelta;
 		if ((pInfo->FrameWidth - iFrameWidth) > (pInfo->FrameHeight - iFrameHeight))
 		{
 			iUpdHeight = iFrameWidth * pInfo->FrameHeight / pInfo->FrameWidth;
@@ -334,7 +353,14 @@ void CMultiFrames::UpdateFrame(TDeinterlaceInfo* pInfo, BOOL* bUseExtraBuffer, B
 			{
 				iUpdHeight = iFrameHeight;
 			}
-			lpFrameBuffer += ( (iFrameHeight - iUpdHeight) / 2 ) * iFramePitch;
+			iDelta = iFrameHeight - iUpdHeight;
+
+			// Add a black border at top and bottom if necessary
+			DrawBorder(m_CurrentFrame, FALSE, LUMIN_BLACK, 0, 0, iDelta / 2, iFrameHeight - iUpdHeight - (iDelta / 2));
+
+			// Center the picture in the frame
+			lpFrameBuffer += (iDelta / 2) * iFramePitch;
+
 			iFrameHeight = iUpdHeight;
 		}
 		else
@@ -345,11 +371,18 @@ void CMultiFrames::UpdateFrame(TDeinterlaceInfo* pInfo, BOOL* bUseExtraBuffer, B
 			{
 				iUpdWidth = iFrameWidth;
 			}
-			lpFrameBuffer += ( (iFrameWidth - iUpdWidth) / 4 ) * 4;
+			iDelta = iFrameWidth - iUpdWidth;
+
+			// Add a black border at left and right if necessary
+			DrawBorder(m_CurrentFrame, FALSE, LUMIN_BLACK, (iDelta / 4) * 2, iFrameWidth - iUpdWidth - ((iDelta / 4) * 2), 0, 0);
+
+			// Center the picture in the frame
+			lpFrameBuffer += (iDelta / 4) * 4;
+
 			iFrameWidth = iUpdWidth;
 		}
 	}
-	ResizeFrame(pInfo->Overlay, pInfo->OverlayPitch, pInfo->FrameWidth, pInfo->FrameHeight, lpFrameBuffer, iFramePitch, iFrameWidth, iFrameHeight);
+	ResizeFrame(pInfo->Overlay, pInfo->OverlayPitch, pInfo->FrameWidth, InHalfHeightMode() ? pInfo->FieldHeight : pInfo->FrameHeight, lpFrameBuffer, iFramePitch, iFrameWidth, iFrameHeight);
     Overlay_Unlock_Back_Buffer(*bUseExtraBuffer);
 
 	if (m_Mode == PREVIEW_CHANNELS)
@@ -360,8 +393,6 @@ void CMultiFrames::UpdateFrame(TDeinterlaceInfo* pInfo, BOOL* bUseExtraBuffer, B
 	{
 		bFrameFilled[m_CurrentFrame] = ((CStillSource*)pSource)->GetPlaylistPosition();
 	}
-
-	DrawBorders();
 
 	// The input picture is replaced by the full multiple frames picture
 	*bUseExtraBuffer = TRUE;
@@ -443,64 +474,79 @@ void CMultiFrames::FreeMemoryBuffer()
 	}
 }
 
-void CMultiFrames::SelectFrameBuffer(int iFrame, BYTE** lpFrameBuffer, int *iFramePitch, int *iFrameWidth, int *iFrameHeight)
+void CMultiFrames::SelectFrameBuffer(int iFrame, BOOL bIncludingBorder, BYTE** lpFrameBuffer, int *iFramePitch, int *iFrameWidth, int *iFrameHeight)
 {
 	int iRow = iFrame / m_NbCols;
 	int iCol = iFrame % m_NbCols;
 
 	*iFramePitch = m_Width * 2;
-	*iFrameWidth = m_Width / m_NbCols;
 	*iFrameHeight = m_Height / m_NbRows;
+	*iFrameWidth = m_Width / m_NbCols;
 	*lpFrameBuffer = START_ALIGNED16(m_MemoryBuffer) + iRow * *iFrameHeight * *iFramePitch + iCol * *iFrameWidth * 2;
+
+	if (!bIncludingBorder)
+	{
+		*iFrameWidth -= LEFT_BORDER+RIGHT_BORDER;
+		*iFrameHeight -= TOP_BORDER+BOTTOM_BORDER;
+		*lpFrameBuffer += TOP_BORDER * *iFramePitch + LEFT_BORDER * 2;
+	}
+}
+
+void CMultiFrames::DrawBorder(int iFrame, BOOL bIncludingExternalBorder, int iLuminLevel, unsigned int iLeftThick, unsigned int iRightThick, unsigned int iTopThick, unsigned int iBottomThick)
+{
+	BYTE* lpStartLineBuffer;
+	BYTE* lpFrameBuffer;
+	int iFrameWidth;
+	int iFrameHeight;
+	int iFramePitch;
+	int iLine;
+	int iPixel;
+
+	SelectFrameBuffer(iFrame, bIncludingExternalBorder, &lpFrameBuffer, &iFramePitch, &iFrameWidth, &iFrameHeight);
+	lpStartLineBuffer = lpFrameBuffer;
+
+	for (iLine=0 ; iLine < iFrameHeight ; iLine++)
+	{
+		lpStartLineBuffer = lpFrameBuffer + iLine * iFramePitch;
+		// Left border
+		for (iPixel=0 ; iPixel < iLeftThick ; iPixel++)
+		{
+			lpStartLineBuffer[iPixel*2] = iLuminLevel;
+			lpStartLineBuffer[iPixel*2+1] = 128;
+		}
+		// Right border
+		for (iPixel=(iFrameWidth-1) ; iPixel>=(iFrameWidth-iRightThick) ; iPixel--)
+		{
+			lpStartLineBuffer[iPixel*2] = iLuminLevel;
+			lpStartLineBuffer[iPixel*2+1] = 128;
+		}
+	}
+	for (iPixel=0 ; iPixel < iFrameWidth ; iPixel++)
+	{
+		// Top border
+		for (iLine=0 ; iLine < iTopThick ; iLine++)
+		{
+			lpStartLineBuffer = lpFrameBuffer + iLine * iFramePitch;
+			lpStartLineBuffer[iPixel*2] = iLuminLevel;
+			lpStartLineBuffer[iPixel*2+1] = 128;
+		}
+		// Bottom border
+		for (iLine=(iFrameHeight-1) ; iLine>=(iFrameHeight-iBottomThick) ; iLine--)
+		{
+			lpStartLineBuffer = lpFrameBuffer + iLine * iFramePitch;
+			lpStartLineBuffer[iPixel*2] = iLuminLevel;
+			lpStartLineBuffer[iPixel*2+1] = 128;
+		}
+	}
 }
 
 // Add a border around each frame - boder size is 2 pixels
 // Color is different for the current active frame and other frames
 void CMultiFrames::DrawBorders()
 {
-	BYTE* lpStartBuffer;
-	BYTE* lpFrameBuffer;
-	int iFrameWidth;
-	int iFrameHeight;
-	int iFramePitch;
-
 	for (int i=0 ; i < m_NbFrames ; i++)
 	{
-		SelectFrameBuffer(i, &lpFrameBuffer, &iFramePitch, &iFrameWidth, &iFrameHeight);
-
-		for (int iPixel=0 ; iPixel < iFrameWidth ; iPixel++)
-		{
-			// Top border
-			lpStartBuffer = lpFrameBuffer;
-			lpStartBuffer[iPixel*2] = (i == m_CurrentFrame) ? 235 : 128;
-			lpStartBuffer[iPixel*2+1] = 128;
-			lpStartBuffer[iFramePitch+iPixel*2] = (i == m_CurrentFrame) ? 235 : 128;
-			lpStartBuffer[iFramePitch+iPixel*2+1] = 128;
-
-			// Bottom border
-			lpStartBuffer = lpFrameBuffer + (iFrameHeight - 2) * iFramePitch;
-			lpStartBuffer[iPixel*2] = (i == m_CurrentFrame) ? 235 : 128;
-			lpStartBuffer[iPixel*2+1] = 128;
-			lpStartBuffer[iFramePitch+iPixel*2] = (i == m_CurrentFrame) ? 235 : 128;
-			lpStartBuffer[iFramePitch+iPixel*2+1] = 128;
-		}
-
-		for (int iLine=0 ; iLine < iFrameHeight ; iLine++)
-		{
-			// Left border
-			lpStartBuffer = lpFrameBuffer + iLine * iFramePitch;
-			lpStartBuffer[0] = (i == m_CurrentFrame) ? 235 : 128;
-			lpStartBuffer[1] = 128;
-			lpStartBuffer[2] = (i == m_CurrentFrame) ? 235 : 128;
-			lpStartBuffer[3] = 128;
-
-			// Right borders
-			lpStartBuffer = lpFrameBuffer + iLine * iFramePitch + (iFrameWidth - 2) * 2;
-			lpStartBuffer[0] = (i == m_CurrentFrame) ? 235 : 128;
-			lpStartBuffer[1] = 128;
-			lpStartBuffer[2] = (i == m_CurrentFrame) ? 235 : 128;
-			lpStartBuffer[3] = 128;
-		}
+		DrawBorder(i, TRUE, (i == m_CurrentFrame) ? LUMIN_CURRENT : LUMIN_NOT_CURRENT, LEFT_BORDER, RIGHT_BORDER, TOP_BORDER, BOTTOM_BORDER);
 	}
 }
 
@@ -557,8 +603,8 @@ void CMultiFrames::MoveFrame(int iFrameSrc, int iFrameDest)
 	int iFrameDestHeight;
 	int iFrameDestPitch;
 
-	SelectFrameBuffer(iFrameSrc, &lpFrameSrcBuffer, &iFrameSrcPitch, &iFrameSrcWidth, &iFrameSrcHeight);
-	SelectFrameBuffer(iFrameDest, &lpFrameDestBuffer, &iFrameDestPitch, &iFrameDestWidth, &iFrameDestHeight);
+	SelectFrameBuffer(iFrameSrc, FALSE, &lpFrameSrcBuffer, &iFrameSrcPitch, &iFrameSrcWidth, &iFrameSrcHeight);
+	SelectFrameBuffer(iFrameDest, FALSE, &lpFrameDestBuffer, &iFrameDestPitch, &iFrameDestWidth, &iFrameDestHeight);
 
 	// The source and destination frames must have the same size
 	if (iFrameSrcWidth == iFrameDestWidth && iFrameSrcHeight == iFrameDestHeight)
@@ -579,20 +625,5 @@ void CMultiFrames::MoveFrame(int iFrameSrc, int iFrameDest)
 // Paint in black the content of a frame
 void CMultiFrames::ResetFrameToBlack(int iFrame)
 {
-	BYTE* lpFrameBuffer;
-	int iFrameWidth;
-	int iFrameHeight;
-	int iFramePitch;
-
-	SelectFrameBuffer(iFrame, &lpFrameBuffer, &iFramePitch, &iFrameWidth, &iFrameHeight);
-
-	for (int iLine=0 ; iLine < iFrameHeight ; iLine++)
-	{
-		for (int iPixel=0 ; iPixel < iFrameWidth ; iPixel++)
-		{
-			lpFrameBuffer[iPixel*2] = 16;
-			lpFrameBuffer[iPixel*2+1] = 128;
-		}
-		lpFrameBuffer += iFramePitch;
-	}
+	DrawBorder(iFrame, TRUE, LUMIN_BLACK, m_Width / m_NbCols, 0, 0, 0);
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.cpp,v 1.42 2003-03-16 18:31:24 laurentg Exp $
+// $Id: AspectRatio.cpp,v 1.43 2003-03-22 15:41:58 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -72,6 +72,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.42  2003/03/16 18:31:24  laurentg
+// New multiple frames feature
+//
 // Revision 1.41  2003/01/07 23:27:01  laurentg
 // New overscan settings
 //
@@ -311,7 +314,8 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
 
     // If we're in half-height Mode, squish the source rectangle accordingly.  This
     // allows the overlay hardware to do our bobbing for us.
-    if (InHalfHeightMode() == TRUE)
+	if ( (!pMultiFrames || !pMultiFrames->IsActive())
+      && (InHalfHeightMode() == TRUE) )
     {
         ar.m_CurrentOverlaySrcRect.top /= 2;
         ar.m_CurrentOverlaySrcRect.bottom /= 2;

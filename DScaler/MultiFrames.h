@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MultiFrames.h,v 1.4 2003-03-21 22:48:07 laurentg Exp $
+// $Id: MultiFrames.h,v 1.5 2003-03-22 15:41:58 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2003/03/21 22:48:07  laurentg
+// Preview mode (multiple frames) improved
+//
 // Revision 1.3  2003/03/20 23:27:28  laurentg
 // Navigation through frames updated - bugs fixed - few comments added
 //
@@ -74,7 +77,9 @@ private:
 	// Free previously allocated memory buffer to store the picture containing all the frames
 	void FreeMemoryBuffer();
 
-	void SelectFrameBuffer(int iFrame, BYTE** lpFrameBuffer, int *iFramePitch, int *iFrameWidth, int *iFrameHeight);
+	void SelectFrameBuffer(int iFrame, BOOL bIncludingBorder, BYTE** lpFrameBuffer, int *iFramePitch, int *iFrameWidth, int *iFrameHeight);
+
+	void DrawBorder(int iFrame, BOOL bIncludingExternalBorder, int iLuminLevel, unsigned int iLeftThick, unsigned int iRightThick, unsigned int iTopThick, unsigned int iBottomThick);
 
 	// Add a border around each frame - boder size is 2 pixels
 	// Color is different for the current active frame and other frames

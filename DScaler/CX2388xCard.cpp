@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.67 2004-11-13 21:45:56 to_see Exp $
+// $Id: CX2388xCard.cpp,v 1.68 2004-11-29 18:02:57 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.67  2004/11/13 21:45:56  to_see
+// - Some minor fixes
+// - Added "Vertical Sync Detection" in CX2388x Advanced Settings, enabled by default.
+//   It reduces dead lock problems dramaticaly if no video signal is present. Faster videosignal detection.
+//
 // Revision 1.66  2004/09/29 20:36:02  to_see
 // Added Card AverTV303, Thanks to Zbigniew Pluta
 //
@@ -1964,81 +1969,59 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
         return TRUE;
     }
 
-
     // Look for possible external IF demodulator
-
     IExternalIFDemodulator *pExternalIFDemodulator = NULL;
-    BYTE IFDemDeviceAddress[2] = {0,0};
     eVideoFormat videoFormat = m_Tuner->GetDefaultVideoFormat();
-    int NumAddressesToSearch = 2;
 
     if(LookForIFDemod)
     {        
-        switch (m_CardType)
+        CTDA9887* pTDA9887 = NULL;
+
+		switch (m_CardType)
         {        
         case CX2388xCARD_MSI_TV_ANYWHERE_MASTER_PAL:
-            pExternalIFDemodulator = new CTDA9887(TDA9887_MSI_TV_ANYWHERE_MASTER);
-            IFDemDeviceAddress[0] = I2C_TDA9887_0;
-            IFDemDeviceAddress[1] = I2C_TDA9887_1;
+            pTDA9887 = new CTDA9887(TDA9887_MSI_TV_ANYWHERE_MASTER);
             break;
 
         case CX2388xCARD_LEADTEK_WINFAST_EXPERT:
-            pExternalIFDemodulator = new CTDA9887(TDA9887_LEADTEK_WINFAST_EXPERT);
-            IFDemDeviceAddress[0] = I2C_TDA9887_0;
-            IFDemDeviceAddress[1] = I2C_TDA9887_1;
+            pTDA9887 = new CTDA9887(TDA9887_LEADTEK_WINFAST_EXPERT);
             break;
 
 		case CX2388xCARD_ATI_WONDER_PRO:
-            pExternalIFDemodulator = new CTDA9887(TDA9887_ATI_TV_WONDER_PRO);
-            IFDemDeviceAddress[0] = I2C_TDA9887_0;
-            IFDemDeviceAddress[1] = I2C_TDA9887_1;
+            pTDA9887 = new CTDA9887(TDA9887_ATI_TV_WONDER_PRO);
             break;
 
 		case CX2388xCARD_AVERTV_303:
-            pExternalIFDemodulator = new CTDA9887(TDA9887_AVERTV_303);
-            IFDemDeviceAddress[0] = I2C_TDA9887_0;
-            IFDemDeviceAddress[1] = I2C_TDA9887_1;
+            pTDA9887 = new CTDA9887(TDA9887_AVERTV_303);
             break;
-		/*
-		// here is an good place for other Card Types to detect IF Demodulators
-		*/
 
         default:
-            //default: detect TDA 9887
-            pExternalIFDemodulator = new CTDA9887();
-            IFDemDeviceAddress[0] = I2C_TDA9887_0;
-            IFDemDeviceAddress[1] = I2C_TDA9887_1;
+            // detect TDA9887 with standard settings
+            pTDA9887 = new CTDA9887();
             break;
         }
+
+		// Detect to make sure an IF demodulator exists.
+		if(pTDA9887->DetectAttach(m_I2CBus))
+		{
+			// Found a valid external IF demodulator.
+			pExternalIFDemodulator = pTDA9887;
+		}
+
+		else
+		{
+			// A TDA9887 device wasn't detected.
+			delete pTDA9887;
+		}
     }
         
-    // Detect and attach IF demodulator to the tuner
-    //  or delete the demodulator if the chip doesn't exist.
     if (pExternalIFDemodulator != NULL)
     {
-        for(int i(0); i < NumAddressesToSearch; ++i)
-        {
-            if (IFDemDeviceAddress[i] != 0)
-            {
-                // Attach I2C bus if the demodulator chip uses it
-                pExternalIFDemodulator->Attach(m_I2CBus, IFDemDeviceAddress[i]);
-            }
-            if (pExternalIFDemodulator->Detect())
-            {
-                m_Tuner->AttachIFDem(pExternalIFDemodulator, TRUE);
-                pExternalIFDemodulator->Init(TRUE, videoFormat);
-                break;
-            }
-        }
-        // if didn't find anything then
-        // need to delete the instance
-        if(i == NumAddressesToSearch)
-        {            
-            delete pExternalIFDemodulator;
-            pExternalIFDemodulator = NULL;
-        }
+		// Attach the IF demodulator to the tuner.
+		m_Tuner->AttachIFDem(pExternalIFDemodulator, TRUE);
+		// Let the IF demodulator know of pre-initialization.
+		pExternalIFDemodulator->Init(TRUE, videoFormat);
     }
- 
                 
     // Scan the I2C bus addresses 0xC0 - 0xCF for tuners
     BOOL bFoundTuner = FALSE;

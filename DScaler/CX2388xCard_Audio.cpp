@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Audio.cpp,v 1.2 2002-11-25 12:20:33 adcockj Exp $
+// $Id: CX2388xCard_Audio.cpp,v 1.3 2002-11-27 17:41:57 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/11/25 12:20:33  adcockj
+// Changed audio init
+//
 // Revision 1.1  2002/10/31 15:55:48  adcockj
 // Moved audio code from Connexant dTV version
 //
@@ -316,7 +319,6 @@ void CCX2388xCard::AudioInitNICAM()
     WriteDword(0x02320d04,                  0x05);  //; 02 prefix means byte access
     WriteDword(0x02320d2a,                  0x34);  //; 02 prefix means byte access
     WriteDword(0x02320d2b,                  0x4c);  //; 02 prefix means byte access
-
 
     // setup Audio PLL
     WriteDword(AUD_PLL_PRESCALE,         0x0002);

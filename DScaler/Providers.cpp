@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.24 2002-02-12 16:33:40 tobbej Exp $
+// $Id: Providers.cpp,v 1.25 2002-02-17 00:35:35 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2002/02/12 16:33:40  tobbej
+// updated file-open menu with filetype for media files (avi for example)
+//
 // Revision 1.23  2002/02/11 21:33:13  laurentg
 // Patterns as a new source from the Still provider
 //
@@ -126,6 +129,8 @@ static CDSProvider* DSProvider = NULL;
 #endif
 
 typedef vector<CSource*> SOURCELIST;
+
+extern HMENU hMenu;
 
 static SOURCELIST Sources;
 static CHardwareDriver* HardwareDriver = NULL;
@@ -300,7 +305,6 @@ void Providers_UpdateMenu(HMENU hMenu)
 BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 {
     CSource*    pCurrentSource = Providers_GetCurrentSource();
-    HMENU       hMenu = GetMenu(hWnd);
 
     if(LOWORD(wParam) >= IDM_SOURCE_FIRST && LOWORD(wParam) <= IDM_SOURCE_LAST)
     {

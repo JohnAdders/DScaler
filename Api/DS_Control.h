@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.61 2002-06-05 20:53:49 adcockj Exp $
+// $Id: DS_Control.h,v 1.62 2002-06-06 12:48:18 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.61  2002/06/05 20:53:49  adcockj
+// Default changes and settings fixes
+//
 // Revision 1.60  2002/05/29 18:44:56  robmuller
 // Added option to disable font anti-aliasing in Teletext.
 //
@@ -1116,5 +1119,18 @@ typedef enum
 #define WM_STILL_SETVALUE     (WM_USER + 141)
 #define WM_STILL_CHANGEVALUE  (WM_USER + 241)
 
+/////////////////////////////////////////////////////////////////////////////
+// Control settings contained in FLT_Mirror.c
+/////////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+    USEMIRROR,
+    FLT_MIRROR_SETTING_LASTONE,
+} FLT_MIRROR_SETTING;
+
+#define WM_FLT_MIRROR_GETVALUE     (WM_USER + 42)
+#define WM_FLT_MIRROR_SETVALUE     (WM_USER + 142)
+#define WM_FLT_MIRROR_CHANGEVALUE  (WM_USER + 242)
 
 #endif

@@ -214,32 +214,57 @@ void WorkoutOverlaySize(BOOL allowResize)
 		aspectSettings.sourceRectangle.bottom = t;
 	}
 	*/
+
 	
+
 	// Set the overlay
 	if (!aspectSettings.deferedSetOverlay) // MRS 2-22-01 - Defered overlay set
 	{
+		// if we have changed source recatangle then we seem to need
+		// to do a hide first
+		// at least on nVidia cards
+		if (memcmp(&ar.rPrevSrc,&aspectSettings.sourceRectangle,sizeof(ar.rPrevSrc)))
+		{
+			Overlay_Update(NULL, NULL, DDOVER_HIDE);
+		}
+
 		Overlay_Update(&aspectSettings.sourceRectangle, &aspectSettings.destinationRectangleWindow, DDOVER_SHOW);
+
+		// repaint if needed
+		if (memcmp(&ar.rPrevDest,&aspectSettings.destinationRectangle,sizeof(ar.rPrevDest)))
+		{ 
+			// MRS 2-22-01 Invalidate just the union of the old region and the new region - no need to invalidate all of the window.
+			RECT invalidate;
+			UnionRect(&invalidate,&ar.rPrevDest,&aspectSettings.destinationRectangle);
+			InvalidateRect(hWnd,&invalidate,FALSE);
+		}
 	}
 	else
 	{
-		aspectSettings.overlayNeedsSetting = TRUE;
+		// repaint now and set off overlay setting for later
+		if (memcmp(&ar.rPrevDest,&aspectSettings.destinationRectangle,sizeof(ar.rPrevDest)))
+		{ 
+			// MRS 2-22-01 Invalidate just the union of the old region and the new region - no need to invalidate all of the window.
+			RECT invalidate;
+			UnionRect(&invalidate,&ar.rPrevDest,&aspectSettings.destinationRectangle);
+			InvalidateRect(hWnd,&invalidate,FALSE);
+			aspectSettings.overlayNeedsSetting = TRUE;
+		}
+		else
+		{
+			// if we have changed source recatangle then we seem to need
+			// to do a hide first
+			// at least on nVidia cards
+			if (memcmp(&ar.rPrevSrc,&aspectSettings.sourceRectangle,sizeof(ar.rPrevSrc)))
+			{
+				Overlay_Update(NULL, NULL, DDOVER_HIDE);
+			}
+			// If not invalidating, we need to update the overlay now...
+			Overlay_Update(&aspectSettings.sourceRectangle, &aspectSettings.destinationRectangleWindow, DDOVER_SHOW);
+			aspectSettings.overlayNeedsSetting = FALSE;
+		}
 	}
 
-	// Save the Overlay Destination and force a repaint 
-	// MRS 2-23-01 Only invalidate if we changed something
-	if (memcmp(&ar.rPrevDest,&aspectSettings.destinationRectangle,sizeof(ar.rPrevDest)))
-	{ 
-		// MRS 2-22-01 Invalidate just the union of the old region and the new region - no need to invalidate all of the window.
-		RECT invalidate;
-		UnionRect(&invalidate,&ar.rPrevDest,&aspectSettings.destinationRectangle);
-		InvalidateRect(hWnd,&invalidate,FALSE);
-	}
-	else if (aspectSettings.overlayNeedsSetting)
-	{
-		// If not invalidating, we need to update the overlay now...
-		Overlay_Update(&aspectSettings.sourceRectangle, &aspectSettings.destinationRectangleWindow, DDOVER_SHOW);
-		aspectSettings.overlayNeedsSetting = FALSE;
-	}
 	InFunction = FALSE;
 }
 

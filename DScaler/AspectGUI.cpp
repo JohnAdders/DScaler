@@ -190,7 +190,8 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
 {
 	char Text[32];
 
-	switch (wMenuID) {
+	switch (wMenuID)
+	{
 	//------------------------------------------------------------------
 	// Easily Accessible Aspect Ratios
 	case IDM_ASPECT_FULLSCREEN:
@@ -346,11 +347,15 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
 	// Zoom
 	case IDM_ZOOM_MINUS:
 		aspectSettings.xZoomFactor -= 50;
-		if (aspectSettings.xZoomFactor < 10)
-			aspectSettings.xZoomFactor = 10;
+		if (aspectSettings.xZoomFactor < 50)
+		{
+			aspectSettings.xZoomFactor = 25;
+		}
 		aspectSettings.yZoomFactor -= 50;
-		if (aspectSettings.yZoomFactor < 10)
-			aspectSettings.yZoomFactor = 10;
+		if (aspectSettings.yZoomFactor < 50)
+		{
+			aspectSettings.yZoomFactor = 50;
+		}
 		if ((aspectSettings.xZoomFactor == 100) && (aspectSettings.yZoomFactor == 100))
 		{
 			ShowText(hWnd,"Zoom Off");
@@ -363,12 +368,23 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
 		break;
 
 	case IDM_ZOOM_PLUS:
-		aspectSettings.xZoomFactor += 50;
+		if(aspectSettings.xZoomFactor >= 50)
+		{
+			aspectSettings.xZoomFactor += 50;
+		}
+		else
+		{
+			aspectSettings.xZoomFactor = 50;
+		}
 		if (aspectSettings.xZoomFactor > 1000)
+		{
 			aspectSettings.xZoomFactor = 1000;
+		}
 		aspectSettings.yZoomFactor += 50;
 		if (aspectSettings.yZoomFactor > 1000)
+		{
 			aspectSettings.yZoomFactor = 1000;
+		}
 		sprintf(Text,"Zoom %.1fx", (double)aspectSettings.xZoomFactor / 100.0);
 		ShowText(hWnd, Text);
 		break;
@@ -442,7 +458,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
 		aspectSettings.yZoomCenter -= 5;
 		if (aspectSettings.yZoomCenter < -100)
         {
-            aspectSettings.yZoomCenter = 0100;
+            aspectSettings.yZoomCenter = 100;
         }
 		sprintf(Text,"Y Center %.2fx", (double)aspectSettings.yZoomCenter / 100.0);
 		ShowText(hWnd, Text);
@@ -459,7 +475,8 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
 
 		//--------------------------------------------------------------
 		// Advanced Source Aspect Ratios
-		switch (wMenuID) {
+		switch (wMenuID) 
+		{
 		case IDM_SASPECT_0:
 			SwitchToRatio(AR_STRETCH, 0);
 			ShowText(hWnd, "Stretch Video");

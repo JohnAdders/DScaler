@@ -330,7 +330,7 @@ BOOL CPanAndZoomAspectFilter::adjustAspect(CAspectRectangles &ar)
     int dy;
 	CAspectRect rOriginalSrc(ar.rCurrentOverlaySrc);
 
-    if(xZoom > 1.0)
+    if(xZoom >= 1.0)
     {
     	dx = (int)floor(ar.rCurrentOverlaySrc.width() * (1.0 - 1.0/xZoom));
     	ar.rCurrentOverlaySrc.shrink(0,dx,0,0);
@@ -386,7 +386,7 @@ BOOL CPanAndZoomAspectFilter::adjustAspect(CAspectRectangles &ar)
     }
 
 
-    if(yZoom > 1.0)
+    if(yZoom >= 1.0)
     {
     	dy = (int)floor(ar.rCurrentOverlaySrc.height() * (1.0 - 1.0/yZoom));
     	ar.rCurrentOverlaySrc.shrink(0,0,0,dy);

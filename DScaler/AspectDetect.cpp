@@ -240,7 +240,7 @@ int FindEdgeOfImage(short** EvenField, short **OddField, int direction)
 	// Decide whether we're scanning from the top or bottom
 	if (direction < 0)
 	{
-		y = CurrentY - aspectSettings.InitialOverscan * 2;	// from bottom
+		y = CurrentY - 1 - aspectSettings.InitialOverscan;	// from bottom
 	}
 	else
 	{

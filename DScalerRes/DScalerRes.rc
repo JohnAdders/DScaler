@@ -730,13 +730,13 @@ BEGIN
                     10
 END
 
-IDD_HWSETUP DIALOG DISCARDABLE  0, 0, 313, 178
+IDD_HWSETUP DIALOG DISCARDABLE  0, 0, 313, 185
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "General Hardware Setup"
 FONT 8, "MS Sans Serif"
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,7,157,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,65,157,50,14
+    DEFPUSHBUTTON   "OK",IDOK,7,163,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,65,163,50,14
     COMBOBOX        IDC_PROCESSOR_SPEED,72,35,178,190,CBS_DROPDOWNLIST | 
                     WS_VSCROLL | WS_TABSTOP
     COMBOBOX        IDC_TRADEOFF,73,81,178,190,CBS_DROPDOWNLIST | WS_VSCROLL | 
@@ -747,11 +747,11 @@ BEGIN
     LTEXT           "For lower spec machines there is a tradeoff between picture quality and frame rate.  Choose the option below that best matches your preferences.",
                     -1,7,57,286,17
     LTEXT           "Defaults",-1,15,82,41,10
-    COMBOBOX        IDC_FULLCPU,73,130,221,190,CBS_DROPDOWNLIST | WS_VSCROLL | 
+    COMBOBOX        IDC_FULLCPU,73,137,221,190,CBS_DROPDOWNLIST | WS_VSCROLL | 
                     WS_TABSTOP
-    LTEXT           "Define what is your usage of DScaler in general. This will impact the CPU used by DScaler and the result in term of judder",
-                    -1,7,106,286,17
-    LTEXT           "Usage",-1,15,130,41,10
+    LTEXT           "Define what is your usage of DScaler in general. This choice will impact how much the PC processor is used by DScaler and how smoothly will be the video playblack.\nCertain options can generate 100% CPU usage; others can introduce a jerky playback.",
+                    -1,7,106,286,25
+    LTEXT           "Usage",-1,15,137,41,10
     LTEXT           "",IDC_CPU_TYPE,259,37,42,10
 END
 
@@ -1828,7 +1828,7 @@ BEGIN
     IDD_HWSETUP, DIALOG
     BEGIN
         RIGHTMARGIN, 300
-        BOTTOMMARGIN, 177
+        BOTTOMMARGIN, 184
     END
 
     IDD_AUDIOSTANDARD_MANUAL, DIALOG

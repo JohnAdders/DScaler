@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.269 2003-01-02 11:05:24 atnak Exp $
+// $Id: DScaler.cpp,v 1.270 2003-01-02 18:58:15 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.269  2003/01/02 11:05:24  atnak
+// Added missing InitialTextPage implementation
+//
 // Revision 1.268  2003/01/01 22:01:44  atnak
 // Added OSD message for VideoText off
 //
@@ -4182,9 +4185,6 @@ void MainWndOnInitBT(HWND hWnd)
             SendMessage(hWnd, WM_COMMAND, IDM_TOGGLE_MENU, 0);
         }
 
-// JA 4/10/2002 Commented out new toolbar create function
-// as it screws up the windows messaging 
-        
 		AddSplashTextLine("Load Toolbars");
         if (ToolbarControl == NULL)
         {

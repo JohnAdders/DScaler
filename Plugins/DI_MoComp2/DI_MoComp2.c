@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_MoComp2.c,v 1.1 2003-01-02 13:15:00 adcockj Exp $
+// $Id: DI_MoComp2.c,v 1.2 2003-03-05 13:55:20 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Tom Barry & John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2003/01/02 13:15:00  adcockj
+// Added new plug-ins ready for developement by copying TomsMoComp and Gamma
+//
 //
 // Log: DI_TomsMoComp.c,v
 // Revision 1.5  2002/12/10 16:32:19  adcockj
@@ -114,7 +117,6 @@ __declspec(dllexport) DEINTERLACE_METHOD* GetDeinterlacePluginInfo(long CpuFeatu
     {
         MoComp2Method.pfnAlgorithm = DeinterlaceMoComp2_MMX;
     }
-    MoComp2Method.pfnAlgorithm = DeinterlaceMoComp2_MMX;
 
     return &MoComp2Method;
 }

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.cpp,v 1.27 2003-09-13 13:59:09 laurentg Exp $
+// $Id: TimeShift.cpp,v 1.28 2003-10-11 15:45:50 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2003/09/13 13:59:09  laurentg
+// half height mode removed - Some menu actions like play or pause disabled
+//
 // Revision 1.26  2003/08/04 23:48:24  laurentg
 // Use extra buffer when recording DScaler output frames
 //
@@ -1036,7 +1039,8 @@ CTimeShift::CTimeShift()
     m_psCompressedVideoP(NULL),
     m_psCompressedAudioP(NULL),
     m_pGetFrame(NULL),
-    m_setOpts(false),
+    m_setOptsVideo(false),
+    m_setOptsAudio(false),
     m_startTimeRecord(0),
     m_startTimePlay(0),
     m_thisTimeRecord(0),
@@ -1121,7 +1125,7 @@ CTimeShift::CTimeShift()
     m_infoAudio.dwLength = 0;
     m_infoAudio.dwInitialFrames = 0;
     m_infoAudio.dwSuggestedBufferSize = m_infoAudio.dwRate / m_fps;
-    m_infoAudio.dwQuality = 0;
+    m_infoAudio.dwQuality = 0; // Laurent's comment : why 0 and not -1
     m_infoAudio.dwSampleSize = m_waveFormat.nBlockAlign;
     SetRect(&m_infoAudio.rcFrame, 0, 0, 0, 0);
     m_infoAudio.dwEditCount = 0;
@@ -1129,6 +1133,9 @@ CTimeShift::CTimeShift()
     strcpy(m_infoAudio.szName, "Audio");
 
     memset(&m_optsVideo, 0, sizeof(m_optsVideo));
+    memset(&m_optsAudio, 0, sizeof(m_optsAudio));
+	m_optsAudio.cbFormat = sizeof(m_waveFormat);
+	m_optsAudio.lpFormat = &m_waveFormat;
 
     // Overwrite any of the above defaults with whatever's in the ini file.
     ReadFromIni();
@@ -1144,8 +1151,10 @@ CTimeShift::~CTimeShift()
 
     Stop();
 
-    if (m_setOpts && m_optsVideo.lpParms && m_optsVideo.cbParms)
+    if (m_setOptsVideo && m_optsVideo.lpParms && m_optsVideo.cbParms)
         delete m_optsVideo.lpParms;
+    if (m_setOptsAudio && m_optsAudio.lpFormat && m_optsAudio.cbFormat)
+        delete m_optsAudio.lpFormat;
 
     AVIFileExit();
 
@@ -1400,7 +1409,7 @@ bool CTimeShift::Record(bool pause)
 
     // Create the video stream.
     AVIFileCreateStream(m_pfile, &m_psVideo, &m_infoVideo);
-    if (m_setOpts)
+    if (m_setOptsVideo)
     {
         if (AVIMakeCompressedStream(&m_psCompressedVideo,
                                     m_psVideo,
@@ -1425,12 +1434,36 @@ bool CTimeShift::Record(bool pause)
 
     // Create the audio stream.
     if (AVIFileCreateStream(m_pfile, &m_psCompressedAudio, &m_infoAudio) != 0 ||
-        AVIStreamSetFormat(m_psCompressedAudio, 0, &m_waveFormat,
-                           sizeof(WAVEFORMATEX)) != 0)
+        AVIStreamSetFormat(m_psCompressedAudio, 0, m_optsAudio.lpFormat,
+                           m_optsAudio.cbFormat) != 0)
     {
         Stop();
         return false;
     }
+//    AVIFileCreateStream(m_pfile, &m_psAudio, &m_infoAudio);
+//    if (m_setOptsAudio)
+//    {
+//        if (AVIMakeCompressedStream(&m_psCompressedAudio,
+//                                    m_psAudio,
+//                                    &m_optsAudio,
+//                                    NULL) != AVIERR_OK)
+//        {
+//			LOG(1, "Error AVIMakeCompressedStream");
+//            Stop();
+//            return false;
+//        }
+//    }
+//    else
+//    {
+//        m_psCompressedAudio = m_psAudio;
+//        m_psAudio = NULL;
+//    }
+//    if (AVIStreamSetFormat(m_psCompressedAudio, 0, m_optsAudio.lpFormat, m_optsAudio.cbFormat) != 0)
+//    {
+//		LOG(1, "Error AVIStreamSetFormat");
+//        Stop();
+//        return false;
+//    }
 
     // Mute the current live feed if we're pausing, waveIn can still hear it.
     if (pause)
@@ -1449,6 +1482,7 @@ bool CTimeShift::Record(bool pause)
         MMRESULT rslt;
 
         // If this fails, we just won't have any audio recorded, still continue.
+		// Laurent's comment : it seems that m_waveFormat must be a WAVE PCM format; if not, we get a bad format error
         rslt = waveInOpen(&m_hWaveIn,
                         DeviceId,
                         &m_waveFormat,
@@ -1471,6 +1505,7 @@ bool CTimeShift::Record(bool pause)
         {
             char szErrorMsg[200];
             sprintf(szErrorMsg, "Error %x in waveInOpen()", rslt);
+			LOG(1, "%s", szErrorMsg);
             /// \todo tell the user, that something wrong
         }
     }
@@ -1622,6 +1657,7 @@ bool CTimeShift::Play(void)
         {
             char szErrorMsg[200];
             sprintf(szErrorMsg, "Error %x in waveOutOpen()", rslt);
+			LOG(1, "%s", szErrorMsg);
             /// \todo tell the user, that something wrong
         }
     }
@@ -2090,15 +2126,7 @@ bool CTimeShift::WriteVideo2(TDeinterlaceInfo* pInfo)
 		LPBYTE dest = m_recordBits;
 		DWORD frameWidth = (pInfo->FrameWidth >> 2) << 2;
 		DWORD w = min(m_bih.biWidth, frameWidth);
-		DWORD h;
-		if (m_recHeight == TS_FULLHEIGHT)
-		{
-			h = min(m_bih.biHeight, pInfo->FrameHeight);
-		}
-		else
-		{
-			h = min(m_bih.biHeight, pInfo->FrameHeight >> 1);
-		}
+		DWORD h = min(m_bih.biHeight, pInfo->FrameHeight);
 		DWORD more = (m_bih.biBitCount >> 3) * (m_bih.biWidth - w);
 		int y = h - 1;
 
@@ -2144,15 +2172,7 @@ bool CTimeShift::WriteVideo2(TDeinterlaceInfo* pInfo)
             LPBYTE src = m_playBits;
             DWORD frameWidth = (pInfo->FrameWidth >> 2) << 2;
             DWORD w = min(m_bih.biWidth, frameWidth);
-			DWORD h;
-			if (m_recHeight == TS_FULLHEIGHT)
-			{
-				h = min(m_bih.biHeight, pInfo->FrameHeight);
-			}
-			else
-			{
-				h = min(m_bih.biHeight, pInfo->FrameHeight >> 1);
-			}
+			DWORD h = min(m_bih.biHeight, pInfo->FrameHeight);
             DWORD more = (m_bih.biBitCount >> 3) * (m_bih.biWidth - w);
 
             for (int y = h - 1; y >= 0; --y)
@@ -2237,15 +2257,7 @@ bool CTimeShift::ReadVideo2(TDeinterlaceInfo *pInfo)
         LPBYTE src = LPBYTE(m_lpbi) + m_lpbi->biSize;
         DWORD frameWidth = (pInfo->FrameWidth >> 2) << 2;
         DWORD w = min(m_lpbi->biWidth, frameWidth);
-		DWORD h;
-		if (m_recHeight == TS_FULLHEIGHT)
-		{
-			h = min(m_lpbi->biHeight, pInfo->FrameHeight);
-		}
-		else
-		{
-			h = min(m_lpbi->biHeight, pInfo->FrameHeight >> 1);
-		}
+		DWORD h = min(m_lpbi->biHeight, pInfo->FrameHeight);
 		DWORD more = (m_lpbi->biBitCount >> 3) * (m_lpbi->biWidth - w);
 
         for (int y = h - 1; y >= 0; --y)
@@ -2494,12 +2506,21 @@ bool CTimeShift::CompressionOptions(void)
     // Create the audio stream and set its format.
     PAVISTREAM psAudio = NULL;
     AVIFileCreateStream(pfile, &psAudio, &m_infoAudio);
-    AVIStreamSetFormat(psAudio, 0, &m_waveFormat, sizeof(WAVEFORMATEX));
+    AVIStreamSetFormat(psAudio, 0, m_optsAudio.lpFormat, m_optsAudio.cbFormat);
 
     // Prompt for compression options.
     AVICOMPRESSOPTIONS optsVideo = m_optsVideo;
-    AVICOMPRESSOPTIONS optsAudio;
-    memset(&optsAudio, 0, sizeof(optsAudio));
+	if (optsVideo.cbParms > 0)
+	{
+        optsVideo.lpParms = new BYTE[optsVideo.cbParms];
+        memcpy(optsVideo.lpParms, m_optsVideo.lpParms, optsVideo.cbParms);
+	}
+    AVICOMPRESSOPTIONS optsAudio = m_optsAudio;
+	if (optsAudio.cbFormat > 0)
+	{
+        optsAudio.lpFormat = new BYTE[optsAudio.cbFormat];
+        memcpy(optsAudio.lpFormat, m_optsAudio.lpFormat, optsAudio.cbFormat);
+	}
     const int numStreams = 2;
     PAVISTREAM streams[numStreams] = {psVideo, psAudio};
     LPAVICOMPRESSOPTIONS opts[numStreams] = {&optsVideo, &optsAudio};
@@ -2512,18 +2533,11 @@ bool CTimeShift::CompressionOptions(void)
         // AVICOMPRESSF_VALID (This is undocumented but seems to work --AtNak)
         if (optsAudio.dwFlags & AVICOMPRESSF_VALID)
         {
-            // If the format given isn't even as big as a WAVEFORMATEX, we'll
-            // take what we can get and leave any old parameters at the end of
-            // our structure untouched.  Otherwise, we only care about the first
-            // sizeof(WAVEFORMATEX) bytes.
-            memcpy(&m_waveFormat,
-                   optsAudio.lpFormat,
-                   min(optsAudio.cbFormat, sizeof(m_waveFormat)));
-
+			SetAudioOptions(&optsAudio);
             UpdateAudioInfo();
         }
 
-        SetVideoOptions(&optsVideo);
+		SetVideoOptions(&optsVideo);
 
         AVISaveOptionsFree(numStreams, opts);
 
@@ -2553,7 +2567,7 @@ bool CTimeShift::SetVideoOptions(AVICOMPRESSOPTIONS *opts)
     opts->fccHandler = m_infoVideo.fccHandler; // In case it was zero.
     opts->dwFlags &= ~AVICOMPRESSF_INTERLEAVE; // No interleaving.
 
-    if (m_setOpts && m_optsVideo.lpParms && m_optsVideo.cbParms)
+    if (m_setOptsVideo && m_optsVideo.lpParms && m_optsVideo.cbParms)
         delete m_optsVideo.lpParms;
     m_optsVideo = *opts;
     if (opts->lpParms && opts->cbParms)
@@ -2562,7 +2576,39 @@ bool CTimeShift::SetVideoOptions(AVICOMPRESSOPTIONS *opts)
         memcpy(m_optsVideo.lpParms, opts->lpParms, opts->cbParms);
     }
 
-    m_setOpts = true;
+    m_setOptsVideo = true;
+
+    return true;
+}
+
+bool CTimeShift::SetAudioOptions(AVICOMPRESSOPTIONS *opts)
+{
+	opts->fccHandler = 0;
+
+    if (m_setOptsAudio && m_optsAudio.lpFormat && m_optsAudio.cbFormat)
+        delete m_optsAudio.lpFormat;
+    m_optsAudio = *opts;
+    if (opts->lpFormat && opts->cbFormat)
+    {
+        m_optsAudio.lpFormat = new BYTE[opts->cbFormat];
+        memcpy(m_optsAudio.lpFormat, opts->lpFormat, opts->cbFormat);
+
+        // If the format given isn't even as big as a WAVEFORMATEX, we'll
+        // take what we can get and leave any old parameters at the end of
+        // our structure untouched.  Otherwise, we only care about the first
+        // sizeof(WAVEFORMATEX) bytes.
+		memcpy(&m_waveFormat,
+			   m_optsAudio.lpFormat,
+			   min(m_optsAudio.cbFormat, sizeof(m_waveFormat)));
+//		m_waveFormat.nSamplesPerSec = ((WAVEFORMATEX*)(m_optsAudio.lpFormat))->nSamplesPerSec;
+//		m_waveFormat.nAvgBytesPerSec = m_waveFormat.nSamplesPerSec * m_waveFormat.nBlockAlign;
+//		m_waveFormat.wBitsPerSample = 16;
+		// Laurent's comment : we keep a WAVE PCM format to avoid an error when running waveInOpen
+		m_waveFormat.wFormatTag = WAVE_FORMAT_PCM;
+//		LOG(1, "Audio format %d %d %d %d", m_waveFormat.wFormatTag, m_waveFormat.nChannels, m_waveFormat.nSamplesPerSec, m_waveFormat.wBitsPerSample);
+    }
+
+    m_setOptsAudio = true;
 
     return true;
 }
@@ -2592,15 +2638,26 @@ bool CTimeShift::ReadFromIni(void)
 
         // If this one fails, that's ok, there may not be compression params.
         GetPrivateProfileStruct(
-            "TimeShift", "Codec", opts.lpParms, opts.cbParms, szIniFile);
+            "TimeShift", "CodecVideo", opts.lpParms, opts.cbParms, szIniFile);
 
         SetVideoOptions(&opts);
 
         delete opts.lpParms;
     }
 
-    GetPrivateProfileStruct(
-        "TimeShift", "Audio", &m_waveFormat, sizeof(m_waveFormat), szIniFile);
+    if (GetPrivateProfileStruct(
+        "TimeShift", "Audio", &opts, sizeof(opts), szIniFile))
+    {
+        opts.lpFormat = new BYTE[opts.cbFormat];
+
+        // If this one fails, that's ok, there may not be compression params.
+        GetPrivateProfileStruct(
+            "TimeShift", "FormatAudio", opts.lpFormat, opts.cbFormat, szIniFile);
+
+        SetAudioOptions(&opts);
+
+        delete opts.lpFormat;
+    }
 
     UpdateAudioInfo();
 
@@ -2621,7 +2678,7 @@ bool CTimeShift::WriteToIni(void)
     extern char szIniFile[MAX_PATH];
     char temp[1000];
 
-    if (m_setOpts)
+    if (m_setOptsVideo)
     {
         WritePrivateProfileStruct(
             "TimeShift", "Video", &m_optsVideo, sizeof(m_optsVideo),
@@ -2629,13 +2686,23 @@ bool CTimeShift::WriteToIni(void)
 
         if (m_optsVideo.lpParms && m_optsVideo.cbParms)
             WritePrivateProfileStruct(
-                "TimeShift", "Codec",
+                "TimeShift", "CodecVideo",
                 m_optsVideo.lpParms, m_optsVideo.cbParms,
                 szIniFile);
     }
 
-    WritePrivateProfileStruct(
-        "TimeShift", "Audio", &m_waveFormat, sizeof(m_waveFormat), szIniFile);
+    if (m_setOptsAudio)
+    {
+        WritePrivateProfileStruct(
+            "TimeShift", "Audio", &m_optsAudio, sizeof(m_optsAudio),
+            szIniFile);
+
+        if (m_optsAudio.lpFormat && m_optsAudio.cbFormat)
+            WritePrivateProfileStruct(
+                "TimeShift", "FormatAudio",
+                m_optsAudio.lpFormat, m_optsAudio.cbFormat,
+                szIniFile);
+    }
 
     WritePrivateProfileString("TimeShift", "WaveInDevice", m_waveInDevice, szIniFile);
 

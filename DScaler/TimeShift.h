@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.h,v 1.16 2003-09-13 13:59:09 laurentg Exp $
+// $Id: TimeShift.h,v 1.17 2003-10-11 15:45:50 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2003/09/13 13:59:09  laurentg
+// half height mode removed - Some menu actions like play or pause disabled
+//
 // Revision 1.15  2003/08/04 23:48:24  laurentg
 // Use extra buffer when recording DScaler output frames
 //
@@ -256,6 +259,7 @@ private:
     bool CompressionOptions(void);
 
     bool SetVideoOptions(AVICOMPRESSOPTIONS *opts);
+    bool SetAudioOptions(AVICOMPRESSOPTIONS *opts);
     bool UpdateAudioInfo(void);
     bool ReadFromIni(void);
     bool WriteToIni(void);
@@ -307,7 +311,9 @@ private:
     AVISTREAMINFO m_infoAudio;
     PGETFRAME m_pGetFrame;
 	AVICOMPRESSOPTIONS m_optsVideo;
-    bool m_setOpts;
+	AVICOMPRESSOPTIONS m_optsAudio;
+    bool m_setOptsVideo;
+    bool m_setOptsAudio;
 
     DWORD m_startTimeRecord;
     DWORD m_startTimePlay;

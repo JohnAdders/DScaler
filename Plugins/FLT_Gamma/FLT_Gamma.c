@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_Gamma.c,v 1.15 2003-06-26 11:42:54 adcockj Exp $
+// $Id: FLT_Gamma.c,v 1.16 2003-09-13 08:36:16 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2003/06/26 11:42:54  adcockj
+// Reduced teh size of some of the dlls
+//
 // Revision 1.14  2002/06/18 19:46:08  adcockj
 // Changed appliaction Messages to use WM_APP instead of WM_USER
 //
@@ -137,12 +140,22 @@ BOOL Gamma_OnChange(long NewValue)
 
 BOOL BlackLevel_OnChange(long NewValue)
 {
+    // Don't let the black level get lighter than white
+    if (NewValue >= WhiteLevel)
+    {
+        NewValue = WhiteLevel - 1;
+    }
     BlackLevel = NewValue;
     return Gamma_OnChange(Gamma);
 }
 
 BOOL WhiteLevel_OnChange(long NewValue)
 {
+    // Don't let the white level get darker than black
+    if (NewValue <= BlackLevel)
+    {
+        NewValue = BlackLevel + 1;
+    }
     WhiteLevel = NewValue;
     return Gamma_OnChange(Gamma);
 }

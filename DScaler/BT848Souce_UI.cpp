@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.20 2002-02-17 17:48:03 laurentg Exp $
+// $Id: BT848Souce_UI.cpp,v 1.21 2002-02-26 15:48:49 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2002/02/17 17:48:03  laurentg
+// Bug with tuner combobox corrected
+//
 // Revision 1.19  2002/02/11 08:23:09  adcockj
 // Fixed pixel width menu problem
 //
@@ -151,7 +154,7 @@ BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wPara
         else if((HWND)lParam == GetDlgItem(hDlg, IDC_SLIDER6))
         {
             pThis->m_Balance->SetFromControl((HWND)lParam);
-            SetDlgItemInt(hDlg, IDC_D5, pThis->m_Balance->GetValue(), TRUE);
+            SetDlgItemInt(hDlg, IDC_D6, pThis->m_Balance->GetValue(), TRUE);
         }
         break;
     case WM_COMMAND:

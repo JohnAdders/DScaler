@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDecoder.cpp,v 1.11 2004-05-16 19:54:54 atnak Exp $
+// $Id: VTDecoder.cpp,v 1.12 2004-10-11 21:57:12 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,6 +44,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2004/05/16 19:54:54  atnak
+// changed to not accept duplicate lines for same page in one reception
+//
 // Revision 1.10  2003/10/27 10:39:54  adcockj
 // Updated files for better doxygen compatability
 //
@@ -479,7 +482,7 @@ void CVTDecoder::DecodeLine(BYTE* data)
             s3 = Unham84(data + 10, &bError);
             s4 = Unham84(data + 11, &bError);
 
-            wPageHex = UnhamTwo84_LSBF(data + 7, &bError);
+            wPageHex = UnhamTwo84_LSBF(data + 6, &bError);
 
             if (bError == FALSE)
             {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutReso.cpp,v 1.7 2003-02-08 13:16:47 laurentg Exp $
+// $Id: OutReso.cpp,v 1.8 2003-02-10 21:35:37 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2003/02/08 13:16:47  laurentg
+// Change resolution in full screen mode slightly updated
+//
 // Revision 1.6  2003/02/07 12:46:17  laurentg
 // Change resolution correctly handled when DScaler is minimized and restored
 //
@@ -57,67 +60,80 @@
 typedef struct
 {
 	BOOL	bSwitchScreen;
-	char	szMenuLabel[32];
 	int		intResWidth;
 	int		intResHeight;
 	int		intResDepth;
 	int		intResFreq;
 	BOOL	bSupported;
+	// Menu related items
+	int		intMenuPixelPos;
+	int		intMenuDepthPos;
 } sResolution;
 
 
 static sResolution resSettings[] = {
-	{	FALSE,	"None",						0,		0,		0,	0,		TRUE	},
-	{	TRUE,	"640x480 16bit 60 Hz",		640,	480,	16,	60,		FALSE	},
-	{	TRUE,	"640x480 16bit 72 Hz",		640,	480,	16,	72,		FALSE	},
-	{	TRUE,	"640x480 16bit 75 Hz",		640,	480,	16,	75,		FALSE	},
-	{	TRUE,	"640x480 16bit 100 Hz",		640,	480,	16,	100,	FALSE	},
-	{	TRUE,	"640x480 16bit 120 Hz",		640,	480,	16,	120,	FALSE	},
-	{	TRUE,	"640x480 32bit 60 Hz",		640,	480,	32,	60,		FALSE	},
-	{	TRUE,	"640x480 32bit 72 Hz",		640,	480,	32,	72,		FALSE	},
-	{	TRUE,	"640x480 32bit 75 Hz",		640,	480,	32,	75,		FALSE	},
-	{	TRUE,	"640x480 32bit 100 Hz",		640,	480,	32,	100,	FALSE	},
-	{	TRUE,	"640x480 32bit 120 Hz",		640,	480,	32,	120,	FALSE	},
-	{	TRUE,	"720x480 16bit 60 Hz",		720,	480,	16,	60,		FALSE	},
-	{	TRUE,	"720x480 16bit 72 Hz",		720,	480,	16,	72,		FALSE	},
-	{	TRUE,	"720x480 16bit 75 Hz",		720,	480,	16,	75,		FALSE	},
-	{	TRUE,	"720x480 16bit 100 Hz",		720,	480,	16,	100,	FALSE	},
-	{	TRUE,	"720x480 16bit 120 Hz",		720,	480,	16,	120,	FALSE	},
-	{	TRUE,	"720x480 32bit 60 Hz",		720,	480,	32,	60,		FALSE	},
-	{	TRUE,	"720x480 32bit 72 Hz",		720,	480,	32,	72,		FALSE	},
-	{	TRUE,	"720x480 32bit 75 Hz",		720,	480,	32,	75,		FALSE	},
-	{	TRUE,	"720x480 32bit 100 Hz",		720,	480,	32,	100,	FALSE	},
-	{	TRUE,	"720x480 32bit 120 Hz",		720,	480,	32,	120,	FALSE	},
-	{	TRUE,	"720x576 16bit 60 Hz",		720,	576,	16,	60,		FALSE	},
-	{	TRUE,	"720x576 16bit 72 Hz",		720,	576,	16,	72,		FALSE	},
-	{	TRUE,	"720x576 16bit 75 Hz",		720,	576,	16,	75,		FALSE	},
-	{	TRUE,	"720x576 16bit 100 Hz",		720,	576,	16,	100,	FALSE	},
-	{	TRUE,	"720x576 16bit 120 Hz",		720,	576,	16,	120,	FALSE	},
-	{	TRUE,	"720x576 32bit 60 Hz",		720,	576,	32,	60,		FALSE	},
-	{	TRUE,	"720x576 32bit 72 Hz",		720,	576,	32,	72,		FALSE	},
-	{	TRUE,	"720x576 32bit 75 Hz",		720,	576,	32,	75,		FALSE	},
-	{	TRUE,	"720x576 32bit 100 Hz",		720,	576,	32,	100,	FALSE	},
-	{	TRUE,	"720x576 32bit 120 Hz",		720,	576,	32,	120,	FALSE	},
-	{	TRUE,	"800x600 16bit 60 Hz",		800,	600,	16,	60,		FALSE	},
-	{	TRUE,	"800x600 16bit 72 Hz",		800,	600,	16,	72,		FALSE	},
-	{	TRUE,	"800x600 16bit 75 Hz",		800,	600,	16,	75,		FALSE	},
-	{	TRUE,	"800x600 16bit 100 Hz",		800,	600,	16,	100,	FALSE	},
-	{	TRUE,	"800x600 16bit 120 Hz",		800,	600,	16,	120,	FALSE	},
-	{	TRUE,	"800x600 32bit 60 Hz",		800,	600,	32,	60,		FALSE	},
-	{	TRUE,	"800x600 32bit 72 Hz",		800,	600,	32,	72,		FALSE	},
-	{	TRUE,	"800x600 32bit 75 Hz",		800,	600,	32,	75,		FALSE	},
-	{	TRUE,	"800x600 32bit 100 Hz",		800,	600,	32,	100,	FALSE	},
-	{	TRUE,	"800x600 32bit 120 Hz",		800,	600,	32,	120,	FALSE	},
-	{	TRUE,	"1024x768 16bit 60 Hz",		1024,	768,	16,	60,		FALSE	},
-	{	TRUE,	"1024x768 16bit 72 Hz",		1024,	768,	16,	72,		FALSE	},
-	{	TRUE,	"1024x768 16bit 75 Hz",		1024,	768,	16,	75,		FALSE	},
-	{	TRUE,	"1024x768 16bit 100 Hz",	1024,	768,	16,	100,	FALSE	},
-	{	TRUE,	"1024x768 16bit 120 Hz",	1024,	768,	16,	120,	FALSE	},
-	{	TRUE,	"1024x768 32bit 60 Hz",		1024,	768,	32,	60,		FALSE	},
-	{	TRUE,	"1024x768 32bit 72 Hz",		1024,	768,	32,	72,		FALSE	},
-	{	TRUE,	"1024x768 32bit 75 Hz",		1024,	768,	32,	75,		FALSE	},
-	{	TRUE,	"1024x768 32bit 100 Hz",	1024,	768,	32,	100,	FALSE	},
-	{	TRUE,	"1024x768 32bit 120 Hz",	1024,	768,	32,	120,	FALSE	},
+	//  Do Switch	Width	Height	Depth	Frequency	Supported
+	{	FALSE,		0,		0,		0,		0,			TRUE,		0,	0	},
+	{	TRUE,		640,	480,	16,		60,			FALSE,		0,	0	},
+	{	TRUE,		640,	480,	16,		72,			FALSE,		0,	0	},
+	{	TRUE,		640,	480,	16,		75,			FALSE,		0,	0	},
+	{	TRUE,		640,	480,	16,		100,		FALSE,		0,	0	},
+	{	TRUE,		640,	480,	16,		120,		FALSE,		0,	0	},
+	{	TRUE,		640,	480,	32,		60,			FALSE,		0,	0	},
+	{	TRUE,		640,	480,	32,		72,			FALSE,		0,	0	},
+	{	TRUE,		640,	480,	32,		75,			FALSE,		0,	0	},
+	{	TRUE,		640,	480,	32,		100,		FALSE,		0,	0	},
+	{	TRUE,		640,	480,	32,		120,		FALSE,		0,	0	},
+	{	TRUE,		720,	480,	16,		60,			FALSE,		0,	0	},
+	{	TRUE,		720,	480,	16,		72,			FALSE,		0,	0	},
+	{	TRUE,		720,	480,	16,		75,			FALSE,		0,	0	},
+	{	TRUE,		720,	480,	16,		100,		FALSE,		0,	0	},
+	{	TRUE,		720,	480,	16,		120,		FALSE,		0,	0	},
+	{	TRUE,		720,	480,	32,		60,			FALSE,		0,	0	},
+	{	TRUE,		720,	480,	32,		72,			FALSE,		0,	0	},
+	{	TRUE,		720,	480,	32,		75,			FALSE,		0,	0	},
+	{	TRUE,		720,	480,	32,		100,		FALSE,		0,	0	},
+	{	TRUE,		720,	480,	32,		120,		FALSE,		0,	0	},
+	{	TRUE,		720,	576,	16,		60,			FALSE,		0,	0	},
+	{	TRUE,		720,	576,	16,		72,			FALSE,		0,	0	},
+	{	TRUE,		720,	576,	16,		75,			FALSE,		0,	0	},
+	{	TRUE,		720,	576,	16,		100,		FALSE,		0,	0	},
+	{	TRUE,		720,	576,	16,		120,		FALSE,		0,	0	},
+	{	TRUE,		720,	576,	32,		60,			FALSE,		0,	0	},
+	{	TRUE,		720,	576,	32,		72,			FALSE,		0,	0	},
+	{	TRUE,		720,	576,	32,		75,			FALSE,		0,	0	},
+	{	TRUE,		720,	576,	32,		100,		FALSE,		0,	0	},
+	{	TRUE,		720,	576,	32,		120,		FALSE,		0,	0	},
+	{	TRUE,		768,	576,	16,		60,			FALSE,		0,	0	},
+	{	TRUE,		768,	576,	16,		72,			FALSE,		0,	0	},
+	{	TRUE,		768,	576,	16,		75,			FALSE,		0,	0	},
+	{	TRUE,		768,	576,	16,		100,		FALSE,		0,	0	},
+	{	TRUE,		768,	576,	16,		120,		FALSE,		0,	0	},
+	{	TRUE,		768,	576,	32,		60,			FALSE,		0,	0	},
+	{	TRUE,		768,	576,	32,		72,			FALSE,		0,	0	},
+	{	TRUE,		768,	576,	32,		75,			FALSE,		0,	0	},
+	{	TRUE,		768,	576,	32,		100,		FALSE,		0,	0	},
+	{	TRUE,		768,	576,	32,		120,		FALSE,		0,	0	},
+	{	TRUE,		800,	600,	16,		60,			FALSE,		0,	0	},
+	{	TRUE,		800,	600,	16,		72,			FALSE,		0,	0	},
+	{	TRUE,		800,	600,	16,		75,			FALSE,		0,	0	},
+	{	TRUE,		800,	600,	16,		100,		FALSE,		0,	0	},
+	{	TRUE,		800,	600,	16,		120,		FALSE,		0,	0	},
+	{	TRUE,		800,	600,	32,		60,			FALSE,		0,	0	},
+	{	TRUE,		800,	600,	32,		72,			FALSE,		0,	0	},
+	{	TRUE,		800,	600,	32,		75,			FALSE,		0,	0	},
+	{	TRUE,		800,	600,	32,		100,		FALSE,		0,	0	},
+	{	TRUE,		800,	600,	32,		120,		FALSE,		0,	0	},
+	{	TRUE,		1024,	768,	16,		60,			FALSE,		0,	0	},
+	{	TRUE,		1024,	768,	16,		72,			FALSE,		0,	0	},
+	{	TRUE,		1024,	768,	16,		75,			FALSE,		0,	0	},
+	{	TRUE,		1024,	768,	16,		100,		FALSE,		0,	0	},
+	{	TRUE,		1024,	768,	16,		120,		FALSE,		0,	0	},
+	{	TRUE,		1024,	768,	32,		60,			FALSE,		0,	0	},
+	{	TRUE,		1024,	768,	32,		72,			FALSE,		0,	0	},
+	{	TRUE,		1024,	768,	32,		75,			FALSE,		0,	0	},
+	{	TRUE,		1024,	768,	32,		100,		FALSE,		0,	0	},
+	{	TRUE,		1024,	768,	32,		120,		FALSE,		0,	0	},
 };
 
 
@@ -131,7 +147,15 @@ int OutputReso = 0;
 void OutReso_UpdateMenu(HMENU hMenu)
 {
     HMENU	hMenuReso;
-    int		i, j, n;
+	HMENU   hMenuPixel;
+	HMENU   hMenuDepth;
+
+	int		lastWidth = 1;
+	int		lastHeight = 1;
+	int		lastDepth = 1;
+	char	szTmp[20] = "\0";
+
+    int		i, j, n, pixel = 2, depth = 0;
 
     hMenuReso = GetOutResoSubmenu();
     if (hMenuReso == NULL)
@@ -139,10 +163,15 @@ void OutReso_UpdateMenu(HMENU hMenu)
         return;
     }
 
+	// Add "Do nothing" and seperator
+
+	AppendMenu(hMenuReso, MF_STRING, IDM_OUTPUTRESO, "Don't change");
+	AppendMenu(hMenuReso, MF_SEPARATOR, 0, NULL);
+
 	// Add in menus only supported display settings
 
     n = sizeof (resSettings) / sizeof (resSettings[0]);
-    for (i=0,j=0; i < n ; i++)
+    for (i=1,j=1; i < n ; i++)
     {
 		if (resSettings[i].bSwitchScreen)
 		{
@@ -155,7 +184,6 @@ void OutReso_UpdateMenu(HMENU hMenu)
 			dm.dmDisplayFrequency = resSettings[i].intResFreq;
 			if (ChangeDisplaySettings(&dm, CDS_TEST) != DISP_CHANGE_SUCCESSFUL)
 			{
-				EnableMenuItemBool(hMenuReso, IDM_OUTPUTRESO + i, FALSE);
 				resSettings[i].bSupported = FALSE;
 			}
 			else
@@ -163,15 +191,39 @@ void OutReso_UpdateMenu(HMENU hMenu)
 				resSettings[i].bSupported = TRUE;
 			}
 		}
-		else
-		{
-			resSettings[i].bSupported = TRUE;
-		}
+
 		if (resSettings[i].bSupported)
 		{
 			UINT Flags(MF_STRING);
-			AppendMenu(hMenuReso, Flags, IDM_OUTPUTRESO + j, resSettings[i].szMenuLabel);
+
+			if (lastWidth != resSettings[i].intResWidth  ||  lastHeight != resSettings[i].intResHeight)
+			{
+				sprintf(szTmp, "%dx%d", resSettings[i].intResWidth, resSettings[i].intResHeight);
+				hMenuPixel = CreateMenu();
+				InsertMenu(hMenuReso, -1, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT) hMenuPixel, szTmp);
+				pixel++;
+				depth = 0;
+				lastDepth = 0;
+			}
+
+			if (lastDepth != resSettings[i].intResDepth)
+			{
+				sprintf(szTmp, "%d bit", resSettings[i].intResDepth);
+				hMenuDepth = CreateMenu();
+				InsertMenu(hMenuPixel, -1, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT) hMenuDepth, szTmp);
+				depth++;
+			}
+
+			sprintf(szTmp, "%d Hz", resSettings[i].intResFreq);
+			AppendMenu(hMenuDepth, Flags, IDM_OUTPUTRESO + j, szTmp);
 			j++;
+
+			lastWidth = resSettings[i].intResWidth;
+			lastHeight = resSettings[i].intResHeight;
+			lastDepth = resSettings[i].intResDepth;
+			
+			resSettings[i].intMenuPixelPos = pixel - 1;
+			resSettings[i].intMenuDepthPos = depth - 1;
 
 			// Stop as soon as MAX_NUMBER_RESO is reached
 			if (j >= MAX_NUMBER_RESO)
@@ -197,7 +249,7 @@ void OutReso_UpdateMenu(HMENU hMenu)
 void OutReso_SetMenu(HMENU hMenu)
 {
     HMENU   hMenuReso;
-    int     i, j, n;
+    int     i, j, n, selected;
 
     hMenuReso = GetOutResoSubmenu();
     if (hMenuReso == NULL)
@@ -210,7 +262,15 @@ void OutReso_SetMenu(HMENU hMenu)
     {
 		if (resSettings[i].bSupported)
 		{
-	        CheckMenuItemBool(hMenuReso, IDM_OUTPUTRESO + j, j == OutputReso);
+			CheckMenuItem(hMenuReso, resSettings[i].intMenuPixelPos, MF_UNCHECKED | MF_BYPOSITION);
+			HMENU hMenuPixel = GetSubMenu(hMenuReso, resSettings[i].intMenuPixelPos);
+			CheckMenuItem(hMenuPixel, resSettings[i].intMenuDepthPos, MF_UNCHECKED | MF_BYPOSITION);
+	        CheckMenuItem(hMenuReso, IDM_OUTPUTRESO + j, MF_UNCHECKED);
+			if (j==OutputReso)
+			{
+				selected = i;
+			}
+
 			j++;
 			// Stop as soon as MAX_NUMBER_RESO is reached
 			if (j >= MAX_NUMBER_RESO)
@@ -219,6 +279,14 @@ void OutReso_SetMenu(HMENU hMenu)
 			}
 		}
     }
+
+	CheckMenuItem(hMenuReso, IDM_OUTPUTRESO + OutputReso, MF_CHECKED);
+	if (OutputReso>0)
+	{
+		CheckMenuItem(hMenuReso, resSettings[selected].intMenuPixelPos, MF_CHECKED | MF_BYPOSITION);
+		HMENU hMenuPixel = GetSubMenu(hMenuReso, resSettings[selected].intMenuPixelPos);
+		CheckMenuItem(hMenuPixel, resSettings[selected].intMenuDepthPos, MF_CHECKED | MF_BYPOSITION);
+	}
 }
 
 

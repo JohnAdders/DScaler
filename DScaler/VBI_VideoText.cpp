@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.39 2002-05-27 20:17:05 robmuller Exp $
+// $Id: VBI_VideoText.cpp,v 1.40 2002-05-28 20:04:26 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.39  2002/05/27 20:17:05  robmuller
+// Patch #561180  by PietOO:
+// Autodetection of teletext code page.
+//
 // Revision 1.38  2002/05/24 16:49:00  robmuller
 // VideoText searching improved.
 //
@@ -196,6 +200,21 @@ eVTCodePage C12C13C14Pages[8] =
     VT_SPANISH_CODE_PAGE, // = VT_PORTUGESE_CODE_PAGE
     VT_ITALIAN_CODE_PAGE,
     VT_GREEK_CODE_PAGE,
+};
+UINT VTCodePageMenuItems[VT_CODE_PAGE_LASTONE] = 
+{
+    IDM_VT_UK,
+    IDM_VT_FRENCH,
+    IDM_VT_CZECH,
+    IDM_VT_GREEK,
+    IDM_VT_RUSSIAN,
+    IDM_VT_GERMAN,
+    IDM_VT_HUNGARIAN,
+    IDM_VT_HEBREW,
+    IDM_VT_SWEDISH,
+    IDM_VT_ITALIAN,
+    IDM_VT_SPANISH,
+    IDM_VT_POLISH,
 };
 /*
 eVTCodePage C8_C14Pages[11][8] =
@@ -1642,18 +1661,13 @@ BOOL VT_SearchAllPages()
 
 void VT_SetMenu(HMENU hMenu)
 {
-    CheckMenuItemBool(hMenu, IDM_VT_UK, (VTCodePage == VT_UK_CODE_PAGE));
-    CheckMenuItemBool(hMenu, IDM_VT_FRENCH, (VTCodePage == VT_FRENCH_CODE_PAGE));
-    CheckMenuItemBool(hMenu, IDM_VT_CZECH, (VTCodePage == VT_CZECH_CODE_PAGE));
-    CheckMenuItemBool(hMenu, IDM_VT_GREEK, (VTCodePage == VT_GREEK_CODE_PAGE));
-    CheckMenuItemBool(hMenu, IDM_VT_RUSSIAN, (VTCodePage == VT_RUSSIAN_CODE_PAGE));
-    CheckMenuItemBool(hMenu, IDM_VT_GERMAN, (VTCodePage == VT_GERMAN_CODE_PAGE));
-    CheckMenuItemBool(hMenu, IDM_VT_HUNGARIAN, (VTCodePage == VT_HUNGARIAN_CODE_PAGE));
-    CheckMenuItemBool(hMenu, IDM_VT_HEBREW, (VTCodePage == VT_HEBREW_CODE_PAGE));
-    CheckMenuItemBool(hMenu, IDM_VT_SWEDISH, (VTCodePage == VT_SWEDISH_CODE_PAGE));
-    CheckMenuItemBool(hMenu, IDM_VT_ITALIAN, (VTCodePage == VT_ITALIAN_CODE_PAGE));
-    CheckMenuItemBool(hMenu, IDM_VT_SPANISH, (VTCodePage == VT_SPANISH_CODE_PAGE));
-    CheckMenuItemBool(hMenu, IDM_VT_POLISH, (VTCodePage == VT_POLISH_CODE_PAGE));
+    for(int iMenuItem = 0; iMenuItem < VT_CODE_PAGE_LASTONE; iMenuItem++)
+    {
+        EnableMenuItem(hMenu, VTCodePageMenuItems[iMenuItem], 
+            bVTAutoCodePage ? MF_GRAYED : MF_ENABLED); 
+        CheckMenuItemBool(hMenu, VTCodePageMenuItems[iMenuItem], 
+            ( bVTAutoCodePage ? VTAutoCodePage : VTCodePage ) == iMenuItem);   
+    }
 }
 
 BOOL APIENTRY VTSearchProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)

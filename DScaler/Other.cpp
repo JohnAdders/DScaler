@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.57 2003-01-25 20:54:29 robmuller Exp $
+// $Id: Other.cpp,v 1.58 2003-01-26 18:03:04 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.57  2003/01/25 20:54:29  robmuller
+// Another bug fix from Kevin Radke.
+//
 // Revision 1.56  2003/01/25 17:50:37  robmuller
 // Bug fix from Kevin Radke.
 //
@@ -265,9 +268,9 @@ LPDIRECTDRAWCOLORCONTROL pDDColorControl = NULL;
 BOOL bUseOverlayControls = FALSE;
 
 long OverlayBrightness = 75;
-long OverlayContrast = 10000;
+long OverlayContrast = 100;
 long OverlayHue = 0;
-long OverlaySaturation = 10000;
+long OverlaySaturation = 100;
 long OverlayGamma = 1;
 long OverlaySharpness = 5;
 
@@ -1464,8 +1467,7 @@ SETTING OtherSettings[OTHER_SETTING_LASTONE] =
     },
     {
         "Overlay Sharpness", SLIDER, 0, (long*)&OverlaySharpness,
-        5, 
-        0, 10, 1, 1,
+        5, 0, 10, 1, 1,
         NULL,
         "Overlay", "OverlaySharpness", Overlay_Sharpness_OnChange,
     },

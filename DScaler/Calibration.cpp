@@ -44,6 +44,7 @@ CCalibration *pCalibration = NULL;
 
 CColorBar::CColorBar(unsigned short int left, unsigned short int right, unsigned short int top, unsigned short int bottom, BOOL YUV, unsigned char R_Y, unsigned char G_U, unsigned char B_V)
 { 
+//	unsigned char Y, U, V, R, G, B;
     left_border = left; 
     right_border = right; 
     top_border = top; 
@@ -62,6 +63,24 @@ CColorBar::CColorBar(unsigned short int left, unsigned short int right, unsigned
 		ref_B_val = B_V;
 		RGB2YUV(ref_R_val, ref_G_val, ref_B_val, &ref_Y_val, &ref_U_val, &ref_V_val);
 	}
+//	Y = 100; U = 50; V = 75;
+//	LOG("Y = %d U = %d V = %d", Y, U, V);
+//	YUV2RGB(Y, U, V, &R, &G, &B);
+//	LOG("=> YUV2RGB R = %d G = %d B = %d", R, G, B);
+//	RGB2YUV(R, G, B, &Y, &U, &V);
+//	LOG("=> YUV2RGB => RGB2YUV Y = %d U = %d V = %d", Y, U, V);
+//	Y = 50; U = 100; V = 125;
+//	LOG("Y = %d U = %d V = %d", Y, U, V);
+//	YUV2RGB(Y, U, V, &R, &G, &B);
+//	LOG("=> YUV2RGB R = %d G = %d B = %d", R, G, B);
+//	RGB2YUV(R, G, B, &Y, &U, &V);
+//	LOG("=> YUV2RGB => RGB2YUV Y = %d U = %d V = %d", Y, U, V);
+//	Y = 200; U = 225; V = 175;
+//	LOG("Y = %d U = %d V = %d", Y, U, V);
+//	YUV2RGB(Y, U, V, &R, &G, &B);
+//	LOG("=> YUV2RGB R = %d G = %d B = %d", R, G, B);
+//	RGB2YUV(R, G, B, &Y, &U, &V);
+//	LOG("=> YUV2RGB => RGB2YUV Y = %d U = %d V = %d", Y, U, V);
 }
 
 void CColorBar::GetRefPixel(BOOL YUV, unsigned char *pR_Y, unsigned char *pG_U, unsigned char *pB_V)
@@ -206,6 +225,20 @@ void CColorBar::CalcCurrentPixel(short **Lines, int height, int width)
 
 void CColorBar::RGB2YUV(unsigned char R, unsigned char G, unsigned char B, unsigned char *pY, unsigned char *pU, unsigned char *pV)
 {
+	unsigned int y, cr, cb;
+
+//	y  = ( 50396*R + 33058*G +  6405*B + 1048576)>>16;
+//	cr = ( 28781*R - 24110*G -  4671*B + 8388608)>>16;
+//	cb = ( -9713*R + 19068*G + 28781*B + 8388608)>>16;
+	y  = ( - 16840*R + 33058*G +  6405*B + 1048576)>>16;
+	cr = (  131808*R - 24110*G - 34516*B + 8388608)>>16;
+	cb = (    9713*R - 19068*G + 28781*B + 8388608)>>16;
+
+//	LOG("RGB2YUV %d %d %d", y, cb, cr);
+
+	*pY = LIMIT(y);
+	*pU = LIMIT(cb);
+	*pV = LIMIT(cr);
 }
 
 void CColorBar::YUV2RGB(unsigned char Y, unsigned char U, unsigned char V, unsigned char *pR, unsigned char *pG, unsigned char *pB)
@@ -569,11 +602,21 @@ eTypeCalibration CCalibration::GetType()
 
 void CCalibration::Make(short **Lines, int height, int width, int tick_count)
 {
-	if (running
-	 && (current_test_pattern != NULL)
-	 && ((last_tick_count == -1) || ((tick_count - last_tick_count) >= MIN_TIME_BETWEEN_CALC)))
-	{
-		current_test_pattern->CalcCurrentPattern(Lines, height, width, tick_count);
-		last_tick_count = tick_count;
-	}
+	if (!running
+	 || (current_test_pattern == NULL)
+	 || ((last_tick_count != -1) && ((tick_count - last_tick_count) < MIN_TIME_BETWEEN_CALC)))
+		return;
+
+	current_test_pattern->CalcCurrentPattern(Lines, height, width, tick_count);
+
+//Setting_Up(BT848_GetSetting(BRIGHTNESS));
+//Setting_Down(BT848_GetSetting(BRIGHTNESS));
+//Setting_Up(BT848_GetSetting(CONTRAST));
+//Setting_Down(BT848_GetSetting(CONTRAST));
+//Setting_Up(BT848_GetSetting(SATURATIONU));
+//Setting_Down(BT848_GetSetting(SATURATIONU));
+//Setting_Up(BT848_GetSetting(SATURATIONV));
+//Setting_Down(BT848_GetSetting(SATURATIONV));
+
+	last_tick_count = tick_count;
 }

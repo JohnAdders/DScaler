@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.54 2002-12-10 12:58:07 adcockj Exp $
+// $Id: DSSource.cpp,v 1.55 2002-12-13 20:21:42 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.54  2002/12/10 12:58:07  adcockj
+// Removed NotifyInputChange and NotifyVideoFormatChange functions and replaced with
+//  calls to EventCollector->RaiseEvent
+//
 // Revision 1.53  2002/12/05 21:02:53  tobbej
 // fixed initial channel change so it tunes properly to the last used channel.
 // renamed video format to resolution in settings dialog.
@@ -1252,24 +1256,12 @@ void CDSCaptureSource::VideoInputOnChange(long NewValue, long OldValue)
 
 				//set the related pin too since this is a video pin,maybe this shoud be user configurable?
 				pCrossbar->SetInputIndex(NewValue,true);
-
 				/**
 				 * @todo we also must figure out what the related pin is and then call
 				 * AudioInputOnChange if it is an audio pin.
 				 */
 
-				PhysicalConnectorType NewInputType = pCrossbar->GetInputType(NewValue);
-
                 EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_CHANGE, OldValue, NewValue);
-
-				if(NewInputType == PhysConn_Video_Tuner)
-				{
-					if(pCap->GetTuner()!=NULL)
-					{
-						Channel_SetCurrent();
-					}
-				}
-
 			}
 		}
 	}

@@ -100,6 +100,10 @@ SOURCE=.\FLT_Sharpness.c
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=.\FLT_Sharpness.asm
+# End Source File
 # End Group
 # Begin Group "Resource Files"
 

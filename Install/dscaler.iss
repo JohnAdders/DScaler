@@ -1,5 +1,5 @@
 ;////////////////////////////////////////////////////////////////////////////
-;// $Id: dscaler.iss,v 1.17 2002-12-02 21:37:16 robmuller Exp $
+;// $Id: dscaler.iss,v 1.18 2002-12-07 10:43:27 adcockj Exp $
 ;/////////////////////////////////////////////////////////////////////////////
 ;// Copyright (c) 2002 Rob Muller.  All rights reserved.
 ;/////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 ;// CVS Log
 ;//
 ;// $Log: not supported by cvs2svn $
+;// Revision 1.17  2002/12/02 21:37:16  robmuller
+;// Remove programs.xml on uninstall.
+;//
 ;// Revision 1.16  2002/11/25 09:52:13  adcockj
 ;// Updated version
 ;//
@@ -75,8 +78,8 @@
 ;  For more information about InnoSetup see http://www.innosetup.com
 
 [Setup]
-AppName=DScaler 4.1.0
-AppVerName=DScaler 4.1.0
+AppName=DScaler 4.1.2
+AppVerName=DScaler 4.1.2
 AppPublisherURL=http://www.dscaler.org
 AppSupportURL=http://www.dscaler.org/phpBB/
 AppUpdatesURL=http://www.dscaler.org
@@ -104,6 +107,7 @@ Name: "quicklaunchicon"; Description: "Create a &Quick Launch icon"; GroupDescri
 [Files]
 Source: "..\Release\DScaler.exe"; DestDir: "{app}"; CopyMode: alwaysoverwrite
 Source: "..\Release\SendMsg.exe"; DestDir: "{app}"; CopyMode: alwaysoverwrite;
+Source: "..\Release\RegSpy.exe"; DestDir: "{app}"; CopyMode: alwaysoverwrite;
 Source: "..\Release\DI_Adaptive.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite
 Source: "..\Release\DI_BlendedClip.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite;  Components: extra
 Source: "..\Release\DI_Bob.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite;  Components: extra

@@ -1022,6 +1022,9 @@ BEGIN
     DEFPUSHBUTTON   "&OK",IDOK,13,219,45,15
     PUSHBUTTON      "Cancel",IDCANCEL,65,219,45,15,WS_GROUP
     PUSHBUTTON      "&Default",IDC_DEFAULT,121,219,45,15
+    CONTROL         "Analogue Blanking - Recommended when available for digital sources like DVD or DVB when the connection with the capture card is analogue",
+                    IDC_CHECK1,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | 
+                    WS_TABSTOP,42,97,287,19
 END
 
 

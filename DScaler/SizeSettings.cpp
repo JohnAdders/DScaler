@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SizeSettings.cpp,v 1.2 2003-01-18 13:56:56 laurentg Exp $
+// $Id: SizeSettings.cpp,v 1.3 2003-01-18 15:05:43 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2003/01/18 13:56:56  laurentg
+// Sliders for chip horizontal and vertical delays enabled
+//
 // Revision 1.1  2003/01/16 22:34:21  laurentg
 // First step to add a new dialog box to adjust image size
 //
@@ -39,12 +42,14 @@
 
 BOOL APIENTRY SizeSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
+    static BOOL TAnalogueBlanking;
     static long TTopOverscan;
     static long TBottomOverscan;
     static long TLeftOverscan;
     static long TRightOverscan;
     static long THDelay;
     static long TVDelay;
+    static ISetting* AnalogueBlanking = NULL;
     static ISetting* TopOverscan = NULL;
     static ISetting* BottomOverscan = NULL;
     static ISetting* LeftOverscan = NULL;
@@ -55,12 +60,24 @@ BOOL APIENTRY SizeSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
     switch (message)
     {
     case WM_INITDIALOG:
+        AnalogueBlanking = Providers_GetCurrentSource()->GetAnalogueBlanking();
         TopOverscan = Providers_GetCurrentSource()->GetTopOverscan();
         BottomOverscan = Providers_GetCurrentSource()->GetBottomOverscan();
         LeftOverscan = Providers_GetCurrentSource()->GetLeftOverscan();
         RightOverscan = Providers_GetCurrentSource()->GetRightOverscan();
         HDelay = Providers_GetCurrentSource()->GetHDelay();
         VDelay = Providers_GetCurrentSource()->GetVDelay();
+
+        if(AnalogueBlanking != NULL)
+        {
+            TAnalogueBlanking = AnalogueBlanking->GetValue();
+            AnalogueBlanking->SetControlValue(GetDlgItem(hDlg, IDC_CHECK1));
+        }
+        else
+        {
+			CheckDlgButton(hDlg, IDC_CHECK1, BST_UNCHECKED);
+			Edit_Enable(GetDlgItem(hDlg, IDC_CHECK1), FALSE);
+        }
 
         if(TopOverscan != NULL)
         {
@@ -145,6 +162,10 @@ BOOL APIENTRY SizeSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDCANCEL:
+            if(AnalogueBlanking != NULL)
+            {
+                AnalogueBlanking->SetValue(TAnalogueBlanking);
+            }
             if(TopOverscan != NULL)
             {
                 TopOverscan->SetValue(TTopOverscan);
@@ -173,6 +194,11 @@ BOOL APIENTRY SizeSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDC_DEFAULT:
+            if(AnalogueBlanking != NULL)
+            {
+                AnalogueBlanking->SetDefault();
+                AnalogueBlanking->SetControlValue(GetDlgItem(hDlg, IDC_CHECK1));
+            }
             if(TopOverscan != NULL)
             {
                 TopOverscan->SetDefault();
@@ -210,6 +236,14 @@ BOOL APIENTRY SizeSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 SetDlgItemInt(hDlg, IDC_D6, VDelay->GetValue(), TRUE);
             }
             break;
+
+		case IDC_CHECK1:
+            if(AnalogueBlanking != NULL)
+            {
+                AnalogueBlanking->SetFromControl(GetDlgItem(hDlg, IDC_CHECK1));
+            }
+			break;
+
         default:
             break;
         }

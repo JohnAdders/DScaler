@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.62 2003-05-30 12:22:51 laurentg Exp $
+// $Id: Providers.cpp,v 1.63 2003-08-15 18:26:56 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.62  2003/05/30 12:22:51  laurentg
+// Avoid a double saving of the settings
+//
 // Revision 1.61  2003/03/27 14:10:21  laurentg
 // Restore still sources before DShow sources to avoid problems when opening stills
 //
@@ -249,6 +252,7 @@
 #include "VBI_WSSdecode.h"
 #include "SettingsMaster.h"
 #include "OpenDlg.h"
+#include "MixerDev.h"
 
 #ifdef WANT_DSHOW_SUPPORT
 #include "dshowsource\DSProvider.h"
@@ -308,7 +312,18 @@ int Providers_Load(HMENU hMenu)
             Source->Object = BT848Provider->GetSource(i);
             Source->DisplayInMenu = TRUE;
             Sources.push_back(Source);
-            CurrentSource = i;
+
+			// Set CurrentSource for Providers_GetCurrentSource function
+			// used in mixer code
+            CurrentSource = Sources.size()-1;
+			// The first time, setup the audio mixer for the card
+			if (((CBT848Source*)(BT848Provider->GetSource(i)))->IsInitialSetup())
+			{
+				Mixer_Init();
+				Mixer_SetupDlg(hWnd);
+				Mixer_Exit();
+			}
+
             // Mute the audio of each source
             BT848Provider->GetSource(i)->Mute();
         }
@@ -328,7 +343,18 @@ int Providers_Load(HMENU hMenu)
             Source->Object = CX2388xProvider->GetSource(i);
             Source->DisplayInMenu = TRUE;
             Sources.push_back(Source);
-            CurrentSource = i;
+
+			// Set CurrentSource for Providers_GetCurrentSource function
+			// used in mixer code
+            CurrentSource = Sources.size()-1;
+			// The first time, setup the audio mixer for the card
+			if (((CCX2388xSource*)(CX2388xProvider->GetSource(i)))->IsInitialSetup())
+			{
+				Mixer_Init();
+				Mixer_SetupDlg(hWnd);
+				Mixer_Exit();
+			}
+
             // Mute the audio of each source
             CX2388xProvider->GetSource(i)->Mute();
         }
@@ -348,7 +374,18 @@ int Providers_Load(HMENU hMenu)
             Source->Object = SAA7134Provider->GetSource(i);
             Source->DisplayInMenu = TRUE;
             Sources.push_back(Source);
-            CurrentSource = i;
+
+			// Set CurrentSource for Providers_GetCurrentSource function
+			// used in mixer code
+            CurrentSource = Sources.size()-1;
+			// The first time, setup the audio mixer for the card
+			if (((CSAA7134Source*)(SAA7134Provider->GetSource(i)))->IsInitialSetup())
+			{
+				Mixer_Init();
+				Mixer_SetupDlg(hWnd);
+				Mixer_Exit();
+			}
+
             // Mute the audio of each source
             SAA7134Provider->GetSource(i)->Mute();
         }
@@ -394,6 +431,10 @@ int Providers_Load(HMENU hMenu)
         Source->Object = DSProvider->GetSource(i);
         Source->DisplayInMenu = TRUE;
         Sources.push_back(Source);
+
+		// todo : display the mixer setup dialog box
+		// at first setup of a card
+
         DSProvider->GetSource(i)->Mute();
     }
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CaptureDevice.h,v 1.14 2003-01-06 21:34:30 tobbej Exp $
+// $Id: CaptureDevice.h,v 1.15 2003-01-15 20:56:19 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2003/01/06 21:34:30  tobbej
+// implemented GetFormat (not working yet)
+// implemented fm radio support
+//
 // Revision 1.13  2002/10/29 19:32:22  tobbej
 // new tuner class for direct tuning to a frequency
 // implemented IsVideoPresent, channel scaning shoud work now
@@ -85,6 +89,7 @@
 #include "DShowBaseSource.h"
 #include "SingleCrossbar.h"
 #include "DShowDirectTuner.h"
+#include "DShowTVAudio.h"
 
 /**
  * Exception class for CDShowCaptureDevice
@@ -136,6 +141,10 @@ public:
 	void get(long prop,long *pValue,long *pFlags=NULL);
 	void getRange(long prop,long *pMin,long *pMax, long *pStepSize=NULL,long *pDefault=NULL,long *pFlags=NULL);
 	
+	/**
+	 * @return pointer to CDShowTVAudio class or NULL if there is no tvaudio
+	 */
+	CDShowTVAudio* GetTVAudio();
 
 	//experimental btwincap style ir support
 	/*bool driverSupportsIR();
@@ -148,6 +157,7 @@ private:
 	bool m_bIsConnected;
 	CDShowBaseCrossbar *m_pCrossbar;
 	CDShowDirectTuner *m_pTVTuner;
+	CDShowTVAudio *m_pTVAudio;
 
 	///video capture device
 	CComPtr<IBaseFilter> m_vidDev;

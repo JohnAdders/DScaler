@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CaptureDevice.cpp,v 1.16 2003-01-06 21:34:29 tobbej Exp $
+// $Id: CaptureDevice.cpp,v 1.17 2003-01-15 20:56:19 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2003/01/06 21:34:29  tobbej
+// implemented GetFormat (not working yet)
+// implemented fm radio support
+//
 // Revision 1.15  2002/10/29 19:32:21  tobbej
 // new tuner class for direct tuning to a frequency
 // implemented IsVideoPresent, channel scaning shoud work now
@@ -103,7 +107,7 @@ static char THIS_FILE[]=__FILE__;
 //////////////////////////////////////////////////////////////////////
 
 CDShowCaptureDevice::CDShowCaptureDevice(IGraphBuilder *pGraph,string device,string deviceName)
-:CDShowBaseSource(pGraph),m_bIsConnected(false),m_pCrossbar(NULL),m_pTVTuner(NULL)
+:CDShowBaseSource(pGraph),m_bIsConnected(false),m_pCrossbar(NULL),m_pTVTuner(NULL),m_pTVAudio(NULL)
 {
 	USES_CONVERSION;
 	
@@ -139,13 +143,18 @@ CDShowCaptureDevice::CDShowCaptureDevice(IGraphBuilder *pGraph,string device,str
 
 CDShowCaptureDevice::~CDShowCaptureDevice()
 {
+	if(m_pTVAudio!=NULL)
+	{
+		delete m_pTVAudio;
+		m_pTVAudio=NULL;
+	}
 	if(m_pCrossbar!=NULL)
 	{
 		delete m_pCrossbar;
 		m_pCrossbar=NULL;
 	}
 
-  if(m_pTVTuner!=NULL)
+	if(m_pTVTuner!=NULL)
 	{
 		delete m_pTVTuner;
 		m_pTVTuner=NULL;
@@ -486,4 +495,17 @@ void CDShowCaptureDevice::getRange(long prop,long *pMin,long *pMax, long *pStepS
 		*pFlags=flags;
 }
 
+CDShowTVAudio* CDShowCaptureDevice::GetTVAudio()
+{
+	if(m_pTVAudio==NULL)
+	{
+		CComPtr<IAMTVAudio> pTVAudio;
+		HRESULT hr=m_pBuilder->FindInterface(&LOOK_UPSTREAM_ONLY,NULL,m_vidDev,IID_IAMTVAudio,(void**)&pTVAudio);
+		if(SUCCEEDED(hr))
+		{
+			m_pTVAudio=new CDShowTVAudio(pTVAudio);
+		}
+	}
+	return m_pTVAudio;
+}
 #endif

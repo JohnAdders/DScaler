@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.89 2002-09-16 19:34:18 adcockj Exp $
+// $Id: DS_Control.h,v 1.90 2002-09-26 06:05:21 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.89  2002/09/16 19:34:18  adcockj
+// Fix for auto format change
+//
 // Revision 1.88  2002/09/11 18:19:35  adcockj
 // Prelimainary support for CT2388x based cards
 //
@@ -402,6 +405,60 @@ typedef enum
     RESET_SILENT,         // Same, but no OSD
     TOGGLEBOOL_SILENT,    // Same, but no OSD
 } eCHANGEVALUE;
+
+/////////////////////////////////////////////////////////////////////////////
+// Setting holder IDs
+/////////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+	ASPECT_SETTINGID = 1,
+	BT848_SETTINGID,
+	DSCALER_SETTINGID,
+	OUTTHREADS_SETTINGID,
+	OTHER_SETTINGID,
+	FD50_SETTINGID,
+	FD60_SETTINGID,
+	FD_COMMON_SETTINGID,
+	DI_ADAPTIVE_SETTINGID,
+	DI_VIDEOBOB_SETTINGID,	
+	DI_BLENDEDCLIP_SETTINGID,
+	DI_TWOFRAME_SETTINGID,
+	DI_GREEDY_SETTINGID,
+	FLT_TNOISE_SETTINGID,
+	OSD_SETTINGID,
+	FLT_GAMMA_SETTINGID,
+	VBI_SETTINGID,
+	DI_GREEDY2FRAME_SETTINGID,
+	DI_VIDEOWEAVE_SETTINGID,
+	FLT_LINEAR_CORR_SETTINGID,
+	MIXERDEV_SETTINGID,
+	TIMING_SETTINGID,
+	CHANNELS_SETTINGID,
+	AUDIO_SETTINGID,
+	DEBUG_SETTINGID,
+	FLT_LOGOKILL_SETTINGID,
+	VT_SETTINGID,
+	DI_GREEDYH_SETTINGID,
+	DI_OLDGAME_SETTINGID,
+	FLT_SHARPNESS_SETTINGID,
+	FLT_TCOMB_SETTINGID,
+	CALIBR_SETTINGID,
+	DVBT_SETTINGID,
+	FLT_GNOISE_SETTINGID,
+	FLT_ANOISE_SETTINGID,
+	FLT_HISTOGRAM_SETTINGID,
+	STILL_SETTINGID,
+	FLT_MIRROR_SETTINGID,
+	ANTIPLOP_SETTINGID,
+	DI_TOMSMOCOMP_SETTINGID,
+	SETTINGSPERCHANNEL_SETTINGID,
+	FLT_INVERSION_SETTINGID,
+	CT2388X_SETTINGID,
+	FDPROG_SETTINGID,
+	SAA7134_SETTINGID,
+	TOOLBARS_SETTINGID
+} SETTINGHOLDERID;	
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1381,5 +1438,23 @@ typedef enum
 #define WM_SAA7134_GETVALUE           (WM_APP + 49)
 #define WM_SAA7134_SETVALUE           (WM_APP + 149)
 #define WM_SAA7134_CHANGEVALUE        (WM_APP + 249)
+
+/////////////////////////////////////////////////////////////////////////////
+// Control settings contained in ToolbarControl.cpp
+/////////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+    TOOLBARS_SHOWTOOLBAR1 = 0,
+    TOOLBARS_TOOLBAR1POSITION = 1,
+    TOOLBARS_TOOLBARCHILD_POSITION = 2,
+    TOOLBARS_TOOLBARCHILD_LASTONE  = 42,    
+    TOOLBARS_SETTING_LASTONE,
+} TOOLBARS_SETTING;
+
+#define WM_TOOLBARS_GETVALUE            (WM_APP + 50)
+#define WM_TOOLBARS_SETVALUE            (WM_APP + 150)
+#define WM_TOOLBARS_CHANGEVALUE         (WM_APP + 250)
+
 
 #endif

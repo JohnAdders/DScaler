@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.h,v 1.36 2004-12-30 18:14:42 to_see Exp $
+// $Id: CX2388xCard.h,v 1.37 2005-02-05 20:07:06 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -319,6 +319,7 @@ private:
     static const TAudioRegList m_RegList_Nicam_Common[];
     static const TAudioRegList m_RegList_Nicam_Deemph1[];
     static const TAudioRegList m_RegList_Nicam_Deemph2[];
+    static const TAudioRegList m_RegList_AM_L[];
     static const TAudioRegList m_RegList_A1_I[];
     static const TAudioRegList m_RegList_A2_BGDKM_Common[];
     static const TAudioRegList m_RegList_A2_BG[];

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard_Types.cpp,v 1.9 2002-10-24 16:03:00 adcockj Exp $
+// $Id: CT2388xCard_Types.cpp,v 1.10 2002-10-25 14:44:26 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/10/24 16:03:00  adcockj
+// Minor tidy up
+//
 // Revision 1.8  2002/10/23 20:26:53  adcockj
 // Bug fixes for cx2388x
 //
@@ -364,6 +367,8 @@ void CCT2388xCard::StandardInputSelect(int nInput)
 
                 // test for Laurent
                 // Try out SECAM Notch Filter
+				// Comments from Laurent
+				// It seems that these SECAM Notch Filters are not necessary
                 if(false)
                 {
                     // May have to switch off normal luma notch
@@ -371,7 +376,7 @@ void CCT2388xCard::StandardInputSelect(int nInput)
                     //FilterSetup |= CT2388X_FILTER_LNOTCH;
                     
                     // SECAM Luma notch is 1 = on
-                    FilterSetup |= CT2388X_FILTER_SNOTCH;
+                    //FilterSetup |= CT2388X_FILTER_SNOTCH;
                 }
 
                 // Switch chroma DAC to audio
@@ -383,13 +388,23 @@ void CCT2388xCard::StandardInputSelect(int nInput)
 
         // test for Laurent
         // other stuff that may be required
-        if(false)
+		// Comments from Laurent
+		// Bits 12, 16, and 18 must be set to 1 for SECAM
+		// It seems to work even for PAL with these bits
+		// TODO : check that they must be set for all the video formats
+        if(true)
         {
             // QCIF HFilter
             FilterSetup |= (1<<11);
 
             // 29 Tap first chroma demod
             FilterSetup |= (1<<15);
+
+			// Laurent : very important for Secam
+            FilterSetup |= (1<<17);
+
+//            FilterSetup |= (1<<3);
+//            FilterSetup |= (1<<16);
         }
         
         WriteDword(CT2388X_FILTER_EVEN, FilterSetup);

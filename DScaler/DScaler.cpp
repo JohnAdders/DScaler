@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.294 2003-01-26 10:34:57 tobbej Exp $
+// $Id: DScaler.cpp,v 1.295 2003-01-27 16:40:13 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.294  2003/01/26 10:34:57  tobbej
+// changed statusbar updates from output thread to be thread safe (PostMessage instead of SendMessage)
+//
 // Revision 1.293  2003/01/26 03:46:30  atnak
 // Fixed no refresh after videotext setting change
 //
@@ -4928,8 +4931,7 @@ LONG OnSize(HWND hWnd, UINT wParam, LONG lParam)
             {
                 bMinimized = FALSE;
                 bIsFullScreen = TRUE;
-                Cursor_UpdateVisibility();
-                WorkoutOverlaySize(FALSE);
+                IsFullScreen_OnChange(TRUE);
             }
             break;
         case SIZE_MINIMIZED:

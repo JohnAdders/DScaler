@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Audio.cpp,v 1.29 2002-12-07 16:06:54 adcockj Exp $
+// $Id: Audio.cpp,v 1.30 2002-12-07 23:05:46 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2002/12/07 16:06:54  adcockj
+// Tidy up muting code
+//
 // Revision 1.28  2002/12/07 15:59:06  adcockj
 // Modified mute behaviour
 //
@@ -120,7 +123,103 @@
 #include "Providers.h"
 
 
+CRITICAL_SECTION AudioMuteCriticalSection;
+BYTE AudioMuteStatus = 0;
 BOOL bSystemInMute = FALSE;
+
+VOID CALLBACK AudioUnmuteDelayTimerProc(HWND hwnd, UINT, UINT idTimer, DWORD);
+
+
+void Initialize_Mute()
+{
+    // This critical section isn't needed but may
+    // be in future if Audio_Mute/Unmute are going
+    // to be used asynchronously.
+    InitializeCriticalSection(&AudioMuteCriticalSection);
+}
+
+
+void Audio_Mute(DWORD PostMuteDelay)
+{
+    EnterCriticalSection(&AudioMuteCriticalSection);
+
+    // Multi-state muting and the handling PostMuteDelay
+    // and PreMuteDelay within these two simple
+    // asynchronous safe functions alleviates the need
+    // for complex and messy checks elsewhere in the program.
+    if(++AudioMuteStatus == 1)
+    {
+        if(Providers_GetCurrentSource())
+        {
+            Providers_GetCurrentSource()->Mute();
+        }
+
+	    if(bUseMixer == TRUE)
+	    {
+		    Mixer_Mute();
+	    }
+
+	    EventCollector->RaiseEvent(NULL, EVENT_MUTE, 0, 1);
+
+        if(PostMuteDelay > 0)
+        {
+            Sleep(PostMuteDelay);
+        }
+    }
+
+    LeaveCriticalSection(&AudioMuteCriticalSection);
+}
+
+
+void Audio_Unmute(DWORD PreUnmuteDelay)
+{
+    EnterCriticalSection(&AudioMuteCriticalSection);
+
+    if(AudioMuteStatus > 0)
+    {
+        if(PreUnmuteDelay > 0)
+        {
+            // This timer, together with the multi-state audio
+            // mute structure, automatically finds the longest
+            // delay time for us if there are multiple unmutes
+            // around the same time.
+            SetTimer(NULL, NULL, PreUnmuteDelay, AudioUnmuteDelayTimerProc);
+        }
+        else
+        {
+            if(--AudioMuteStatus == 0)
+            {
+                if(Providers_GetCurrentSource())
+                {
+                    Providers_GetCurrentSource()->UnMute();
+                }
+
+		        if(bUseMixer == TRUE)
+		        {
+			        Mixer_UnMute();
+		        }	
+
+                EventCollector->RaiseEvent(NULL, EVENT_MUTE, 1, 0);
+            }
+        }
+    }
+
+    LeaveCriticalSection(&AudioMuteCriticalSection);
+}
+
+
+BOOL Audio_IsMute()
+{
+    return (AudioMuteStatus > 0);
+}
+
+
+VOID CALLBACK AudioUnmuteDelayTimerProc(HWND hwnd, UINT, UINT idTimer, DWORD)
+{
+    KillTimer(hwnd, idTimer);
+    Audio_Unmute(0UL);
+}
+
 
 void Audio_SetMute(BOOL IsMute)
 {
@@ -165,8 +264,17 @@ BOOL Audio_GetMute()
     return bSystemInMute;
 }
 
+
 BOOL SystemInMute_OnChange(long NewValue)
 {
+    /*if(NewValue)
+    {
+        Audio_Mute();
+    }
+    else
+    {
+        Audio_Unmute();
+    }*/
 	Audio_SetMute(NewValue);
 	return FALSE;
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Audio.h,v 1.12 2002-12-07 16:06:54 adcockj Exp $
+// $Id: Audio.h,v 1.13 2002-12-07 23:05:46 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@ SETTING* Audio_GetSetting(AUDIO_SETTING Setting);
 void Audio_ReadSettingsFromIni();
 void Audio_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void Audio_SetMenu(HMENU hMenu);
+
+void Audio_Mute(DWORD PostMuteDelay = 0UL);
+void Audio_Unmute(DWORD PreUnmuteDelay = 0UL);
 
 void Audio_SetMute(BOOL IsMute);
 BOOL Audio_GetMute();

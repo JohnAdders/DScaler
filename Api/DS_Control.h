@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.99 2002-10-27 12:08:50 laurentg Exp $
+// $Id: DS_Control.h,v 1.100 2002-10-28 12:04:56 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.99  2002/10/27 12:08:50  laurentg
+// New setting to define the number of consecutive stills
+//
 // Revision 1.98  2002/10/26 17:46:01  laurentg
 // New option to take stills in memory
 //
@@ -1474,12 +1477,7 @@ typedef enum
     SAA7134BALANCE,
     SAA7134SAVEPERINPUT,
     SAA7134SAVEPERFORMAT,
-    SAA7134AUDIOSOURCE1,
-    SAA7134AUDIOSOURCE2,
-    SAA7134AUDIOSOURCE3,
-    SAA7134AUDIOSOURCE4,
-    SAA7134AUDIOSOURCE5,
-    SAA7134AUDIOSOURCE6,
+    SAA7134AUDIOSOURCE,
     SAA7134CUSTOMAUDIOSTANDARD,
     SAA7134AUDIOSTANDARDCARRIER1,
     SAA7134AUDIOSTANDARDCARRIER2,

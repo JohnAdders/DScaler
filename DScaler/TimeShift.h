@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.h,v 1.15 2003-08-04 23:48:24 laurentg Exp $
+// $Id: TimeShift.h,v 1.16 2003-09-13 13:59:09 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2003/08/04 23:48:24  laurentg
+// Use extra buffer when recording DScaler output frames
+//
 // Revision 1.14  2003/07/08 21:04:59  laurentg
 // New timeshift mode (full height) - experimental
 //
@@ -99,7 +102,6 @@ class CTSOptionsDlg;
 #define TS_HALFHEIGHTEVEN 1
 #define TS_HALFHEIGHTODD  2
 #define TS_HALFHEIGHTAVG  3
-#define TS_HALFHEIGHT     4
 
 /**
   Here are some suggestions for TODO tasks...

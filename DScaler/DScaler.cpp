@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.347 2003-08-25 04:04:00 atnak Exp $
+// $Id: DScaler.cpp,v 1.348 2003-09-13 13:59:08 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.347  2003/08/25 04:04:00  atnak
+// Moved the initial Mixer_Init() call to the correct place
+//
 // Revision 1.346  2003/08/24 11:22:28  atnak
 // Patched Overlay Stop/Start for indexed Start/Stop Capture states
 //
@@ -3794,51 +3797,51 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_TSPLAY:
-            if (CTimeShift::OnPlay())
-            {
-                ShowText(hWnd, "Playing");
-                CTimeShift::OnSetMenu(hMenu);
-            }
+//            if (CTimeShift::OnPlay())
+//            {
+//                ShowText(hWnd, "Playing");
+//                CTimeShift::OnSetMenu(hMenu);
+//            }
             break;
 
         case IDM_TSPAUSE:
-            if (CTimeShift::OnPause())
-            {
-                ShowText(hWnd, "Paused");
-                CTimeShift::OnSetMenu(hMenu);
-            }
+//            if (CTimeShift::OnPause())
+//            {
+//                ShowText(hWnd, "Paused");
+//                CTimeShift::OnSetMenu(hMenu);
+//            }
             break;
 
         case IDM_TSFFWD:
-            if (CTimeShift::OnFastForward())
-            {
-                ShowText(hWnd, "Scanning >>>");
-                CTimeShift::OnSetMenu(hMenu);
-            }
+//            if (CTimeShift::OnFastForward())
+//            {
+//                ShowText(hWnd, "Scanning >>>");
+//                CTimeShift::OnSetMenu(hMenu);
+//            }
             break;
 
         case IDM_TSRWND:
-            if (CTimeShift::OnFastBackward())
-            {
-                ShowText(hWnd, "Scanning <<<");
-                CTimeShift::OnSetMenu(hMenu);
-            }
+//            if (CTimeShift::OnFastBackward())
+//            {
+//                ShowText(hWnd, "Scanning <<<");
+//                CTimeShift::OnSetMenu(hMenu);
+//            }
             break;
 
         case IDM_TSNEXT:
-            if (CTimeShift::OnGoNext())
-            {
-                ShowText(hWnd, "Next Clip");
-                CTimeShift::OnSetMenu(hMenu);
-            }
+//            if (CTimeShift::OnGoNext())
+//            {
+//                ShowText(hWnd, "Next Clip");
+//                CTimeShift::OnSetMenu(hMenu);
+//            }
             break;
 
         case IDM_TSPREV:
-            if (CTimeShift::OnGoPrev())
-            {
-                ShowText(hWnd, "Previous Clip");
-                CTimeShift::OnSetMenu(hMenu);
-            }
+//            if (CTimeShift::OnGoPrev())
+//            {
+//                ShowText(hWnd, "Previous Clip");
+//                CTimeShift::OnSetMenu(hMenu);
+//            }
             break;
 
         case IDM_SHOW_INFOS:

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.cpp,v 1.26 2003-08-04 23:48:24 laurentg Exp $
+// $Id: TimeShift.cpp,v 1.27 2003-09-13 13:59:09 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2003/08/04 23:48:24  laurentg
+// Use extra buffer when recording DScaler output frames
+//
 // Revision 1.25  2003/07/29 13:33:07  atnak
 // Overhauled mixer code
 //
@@ -136,7 +139,8 @@
 #include "Providers.h"    // Providers_GetCurrentSource
 #include "DebugLog.h"	  // LOG
 
-BOOL ShownWarning = FALSE;
+static BOOL ShownWarning = TRUE;
+static BOOL WarningShown = FALSE;
 
 static char ExePath[MAX_PATH] = {0};
 static char* SavingPath = NULL;
@@ -368,7 +372,7 @@ bool CTimeShift::WorkOnInputFrames()
 
     if (m_pTimeShift)
     {
-		if (m_pTimeShift->m_recHeight == TS_FULLHEIGHT || m_pTimeShift->m_recHeight == TS_HALFHEIGHT)
+		if (m_pTimeShift->m_recHeight == TS_FULLHEIGHT)
 		{
 			result = false;
 		}
@@ -1046,7 +1050,7 @@ CTimeShift::CTimeShift()
     m_nextWaveInHdr(0),
     m_hWaveOut(NULL),
     m_nextWaveOutHdr(0),
-    m_recHeight(TS_HALFHEIGHT),
+    m_recHeight(TS_HALFHEIGHTEVEN),
     m_origPixelWidth(720),
     m_origUseMixer(-1)
 {
@@ -1154,7 +1158,7 @@ bool CTimeShift::AssureCreated(void)
 {
     if (!m_pTimeShift)
     {
-        if(ShownWarning == FALSE)
+        if(ShownWarning == TRUE && WarningShown == FALSE)
         {
             int Result  = MessageBox(
                                         hWnd, 
@@ -1169,7 +1173,7 @@ bool CTimeShift::AssureCreated(void)
             {
                 return FALSE;
             }
-            ShownWarning = TRUE;
+			WarningShown = TRUE;
         }
         m_pTimeShift = new CTimeShift();
     }
@@ -1824,7 +1828,7 @@ bool CTimeShift::GoPrev(void)
 
 bool CTimeShift::WriteVideo(TDeinterlaceInfo* pInfo)
 {
-	if (m_recHeight == TS_FULLHEIGHT || m_recHeight == TS_HALFHEIGHT)
+	if (m_recHeight == TS_FULLHEIGHT)
 	{
         return false;
     }
@@ -1973,7 +1977,7 @@ bool CTimeShift::WriteVideo(TDeinterlaceInfo* pInfo)
 
 bool CTimeShift::ReadVideo(TDeinterlaceInfo *pInfo)
 {
-	if (m_recHeight == TS_FULLHEIGHT || m_recHeight == TS_HALFHEIGHT)
+	if (m_recHeight == TS_FULLHEIGHT)
 	{
         return false;
     }
@@ -2057,7 +2061,7 @@ bool CTimeShift::ReadVideo(TDeinterlaceInfo *pInfo)
 
 bool CTimeShift::WriteVideo2(TDeinterlaceInfo* pInfo)
 {
-	if (m_recHeight != TS_FULLHEIGHT && m_recHeight != TS_HALFHEIGHT)
+	if (m_recHeight != TS_FULLHEIGHT)
 	{
         return false;
     }
@@ -2101,10 +2105,6 @@ bool CTimeShift::WriteVideo2(TDeinterlaceInfo* pInfo)
 		for (; y >= 0; --y)
 		{
 			BYTE* CurrentLine = pInfo->Overlay + y * pInfo->OverlayPitch;
-			if (m_recHeight == TS_HALFHEIGHT)
-			{
-				CurrentLine += y * pInfo->OverlayPitch;
-			}
 			dest = m_YUVtoRGB(dest,
 							  (SHORT*)CurrentLine,
 							  w) + more;
@@ -2173,7 +2173,7 @@ bool CTimeShift::WriteVideo2(TDeinterlaceInfo* pInfo)
 
 bool CTimeShift::ReadVideo2(TDeinterlaceInfo *pInfo)
 {
-	if (m_recHeight != TS_FULLHEIGHT && m_recHeight != TS_HALFHEIGHT)
+	if (m_recHeight != TS_FULLHEIGHT)
 	{
         return false;
     }
@@ -2613,9 +2613,6 @@ bool CTimeShift::ReadFromIni(void)
     m_recHeight = GetPrivateProfileInt(
         "TimeShift", "RecHeight", m_recHeight, szIniFile);
 
-    ShownWarning = (GetPrivateProfileInt(
-        "TimeShift", "ShownWarning", FALSE, szIniFile) != 0);
-
     return true;
 }
 
@@ -2647,8 +2644,6 @@ bool CTimeShift::WriteToIni(void)
     sprintf(temp, "%u", m_recHeight);
     WritePrivateProfileString("TimeShift", "RecHeight", temp, szIniFile);
 
-    WritePrivateProfileString("TimeShift", "ShownWarning", ShownWarning?"1":"0", szIniFile);
-
     return true;
 }
 
@@ -2660,6 +2655,12 @@ SETTING TimeShiftSettings[TIMESHIFT_SETTING_LASTONE] =
          (long)ExePath, 0, 0, 0, 0,
          NULL,
         "TimeShift", "SavingPath", NULL,
+    },
+    {
+        "Show warning message", ONOFF, 0, (long*)&ShownWarning,
+        TRUE, 0, 1, 1, 1,
+        NULL,
+        "TimeShift", "ShownWarning", NULL,
     },
 };
 

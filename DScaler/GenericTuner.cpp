@@ -1,5 +1,5 @@
 //
-// $Id: GenericTuner.cpp,v 1.17 2004-12-29 20:17:19 to_see Exp $
+// $Id: GenericTuner.cpp,v 1.18 2005-03-06 12:50:50 to_see Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2004/12/29 20:17:19  to_see
+// Added TCL 2002N tuner (from v4l2)
+//
 // Revision 1.16  2004/08/27 13:11:27  to_see
 // Added Philips 4in1 tuner (from v4l2)
 //
@@ -402,7 +405,6 @@ CGenericTuner::CGenericTuner(eTunerId tunerId) :
       }
     case TUNER_PHILIPS_FI1286_NTSC_M_J:
       {
-        //  { "Philips FI1286", Philips, NTSC, 16*160.00, 16*454.00, 0x01, 0x02, 0x04, 0x8e, 940},
           TUNERDEF(TUNER_PHILIPS_FI1286_NTSC_M_J, VIDEOFORMAT_NTSC_M,
               16*(160.00),16*(454.00),0x01,0x02,0x04,0x8e,940);
           break;
@@ -417,6 +419,66 @@ CGenericTuner::CGenericTuner(eTunerId tunerId) :
       {
           TUNERDEF(TUNER_TCL_2002N, VIDEOFORMAT_NTSC_M,
               16*(172.00),16*(448.00),0x01,0x02,0x08,0x8e,732);
+          break;
+      }
+    case TUNER_HITACHI_NTSC:
+      {
+          TUNERDEF(TUNER_HITACHI_NTSC, VIDEOFORMAT_NTSC_M,
+              16*(170.00),16*(450.00),0x01,0x02,0x08,0x8e,940);
+          break;
+      }
+    case TUNER_PHILIPS_PAL_MK:
+      {
+          TUNERDEF(TUNER_PHILIPS_PAL_MK, VIDEOFORMAT_PAL_B,
+              16*(140.00),16*(463.25),0x01,0xc2,0xcf,0x8e,623);
+          break;
+      }
+    case TUNER_PHILIPS_FM1236_MK3:
+      {
+          TUNERDEF(TUNER_PHILIPS_FM1236_MK3, VIDEOFORMAT_NTSC_M,
+              16*(160.00),16*(442.00),0x01,0x02,0x04,0x8e,732);
+          break;
+      }
+    case TUNER_LG_NTSC_TAPE:
+      {
+          TUNERDEF(TUNER_LG_NTSC_TAPE, VIDEOFORMAT_NTSC_M,
+              16*(160.00),16*(442.00),0x01,0x02,0x04,0x8e,732);
+          break;
+      }
+    case TUNER_TNF_8831BGFF:
+      {
+          TUNERDEF(TUNER_TNF_8831BGFF, VIDEOFORMAT_PAL_B,
+              16*(161.25),16*(463.25),0xa0,0x90,0x30,0x8e,623);
+          break;
+      }
+    case TUNER_PHILIPS_FM1256_IH3:
+      {
+          TUNERDEF(TUNER_PHILIPS_FM1256_IH3, VIDEOFORMAT_PAL_B,
+              16*(160.00),16*(442.00),0x01,0x02,0x04,0x8e,623);
+          break;
+      }
+    case TUNER_PHILIPS_FQ1286:
+      {
+          TUNERDEF(TUNER_PHILIPS_FQ1286, VIDEOFORMAT_NTSC_M,
+              16*(160.00),16*(454.00),0x41,0x42,0x04,0x8e,940);// UHF band untested
+          break;
+      }
+    case TUNER_LG_PAL_TAPE:
+      {
+          TUNERDEF(TUNER_LG_PAL_TAPE, VIDEOFORMAT_PAL_B,
+              16*(170.00),16*(450.00),0x01,0x02,0x08,0xce,623);
+          break;
+      }
+    case TUNER_PHILIPS_FM1216ME:
+      {
+          TUNERDEF(TUNER_PHILIPS_FM1216ME, VIDEOFORMAT_PAL_B,
+              16*(160.00),16*(442.00),0x01,0x02,0x04,0xce,623);
+          break;
+      }
+    case TUNER_PHILIPS_FQ1236A_MK4:
+      {
+          TUNERDEF(TUNER_PHILIPS_FQ1236A_MK4, VIDEOFORMAT_PAL_B,
+              16*(160.00),16*(442.00),0x01,0x02,0x04,0x8e,732);
           break;
       }
     }

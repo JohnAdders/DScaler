@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.244 2002-10-15 11:53:38 atnak Exp $
+// $Id: DScaler.cpp,v 1.245 2002-10-15 15:26:09 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.244  2002/10/15 11:53:38  atnak
+// Added UI feedback for some videotext stuff
+//
 // Revision 1.243  2002/10/08 13:23:19  adcockj
 // Actually reverted to old minimize behaviour
 //
@@ -780,6 +783,7 @@
 #include "Events.h"
 #include "WindowBorder.h"
 #include "ToolbarControl.h"
+#include "SettingsMaster.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE

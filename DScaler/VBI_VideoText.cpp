@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.56 2003-01-02 14:48:50 atnak Exp $
+// $Id: VBI_VideoText.cpp,v 1.57 2003-01-02 21:26:33 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.56  2003/01/02 14:48:50  atnak
+// Added Teletext Settings page
+//
 // Revision 1.55  2003/01/02 11:05:24  atnak
 // Added missing InitialTextPage implementation
 //
@@ -999,8 +1002,16 @@ void VT_ProcessHeaderUpdate(HDC hDC, LPRECT lpRect)
     }
     else
     {
+        char szOldClock[8];
+
+        CopyMemory(szOldClock, &VTVisiblePage.Frame[0][32], 8);
         VTDecoder.GetDisplayHeader(&VTVisiblePage, TRUE);
-        VT_Redraw(hDC, lpRect, VTDF_CLOCKONLY);
+
+        // Only redraw the clock if it changed
+        if (memcmp(&VTVisiblePage.Frame[0][32], szOldClock, 8) != 0)
+        {
+            VT_Redraw(hDC, lpRect, VTDF_CLOCKONLY);
+        }
     }
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.20 2001-09-21 16:43:54 adcockj Exp $
+// $Id: VBI_VideoText.cpp,v 1.21 2001-09-22 11:09:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2001/09/21 16:43:54  adcockj
+// Teletext improvements by Mike Temperton
+//
 // Revision 1.19  2001/09/21 15:39:02  adcockj
 // Added Russian and German code pages
 // Corrected UK code page
@@ -374,7 +377,7 @@ void VBI_decode_vt(unsigned char* dat)
 
 
         pnum = MakePage(mag, page);
-        if(pnum < 100)
+        if(pnum < 100 || pnum > 899)
         {
             MagazineStates[mag].bStarted = FALSE;
             return;
@@ -472,33 +475,36 @@ void VBI_decode_vt(unsigned char* dat)
         break;
     case 26:                    // PDC
     case 27:
-		if ((des=UnhamTab[dat[5]]&0x0f)<=3)
-		{
-			for(i = 1 ; i <= 6; i++)
+        if(MagazineStates[mag].bStarted)
+        {
+			if ((des=UnhamTab[dat[5]]&0x0f)<=3)
 			{
-				p1 = UnhamTab[dat[6*i]] & 0x0f ;
-				p2 = UnhamTab[dat[6*i+1]] & 0x0f ;
-				p3 = mag ^ ((UnhamTab[dat[6*i+3]] & 0x08)>>3) ^ ((UnhamTab[dat[6*i+5]] & 0x0c)>>1);
-				p3 = (p3==0 ? 8 : p3) ;
-
-				s1 = UnhamTab[dat[6*i+2]] & 0x0f ; // subcode s1 (4 bits)
-				s2 = UnhamTab[dat[6*i+3]] & 0x07 ; // subcode s2 (3 bits)
-				s3 = UnhamTab[dat[6*i+4]] & 0x0f ; // subcode s3 (4 bits)
-				s4 = UnhamTab[dat[6*i+5]] & 0x03 ; // subcode s4 (2 bits)
-
-				if ((p1==0xF) && (p2==0xF))
+				for(i = 1 ; i <= 6; i++)
 				{
-					VTPages[MagazineStates[mag].Page].FlofPage[des*6+i-1] = -1;
-					VTPages[MagazineStates[mag].Page].FlofSubPage[des*6+i-1] = 8191;
-				}
-	    		else
-				{
-					VTPages[MagazineStates[mag].Page].FlofPage[des*6+i-1] = p3*100+p2*10+p1;
-					VTPages[MagazineStates[mag].Page].FlofSubPage[des*6+i-1] = s1 + (s2<<4) + (s3<<7) + (s4<<11);
+					p1 = UnhamTab[dat[6*i]] & 0x0f ;
+					p2 = UnhamTab[dat[6*i+1]] & 0x0f ;
+					p3 = mag ^ ((UnhamTab[dat[6*i+3]] & 0x08)>>3) ^ ((UnhamTab[dat[6*i+5]] & 0x0c)>>1);
+					p3 = (p3==0 ? 8 : p3) ;
+
+					s1 = UnhamTab[dat[6*i+2]] & 0x0f ; // subcode s1 (4 bits)
+					s2 = UnhamTab[dat[6*i+3]] & 0x07 ; // subcode s2 (3 bits)
+					s3 = UnhamTab[dat[6*i+4]] & 0x0f ; // subcode s3 (4 bits)
+					s4 = UnhamTab[dat[6*i+5]] & 0x03 ; // subcode s4 (2 bits)
+
+					if ((p1==0xF) && (p2==0xF))
+					{
+						VTPages[MagazineStates[mag].Page].FlofPage[des*6+i-1] = -1;
+						VTPages[MagazineStates[mag].Page].FlofSubPage[des*6+i-1] = 8191;
+					}
+	    			else
+					{
+						VTPages[MagazineStates[mag].Page].FlofPage[des*6+i-1] = p3*100+p2*10+p1;
+						VTPages[MagazineStates[mag].Page].FlofSubPage[des*6+i-1] = s1 + (s2<<4) + (s3<<7) + (s4<<11);
+					}
 				}
 			}
+			VTPages[MagazineStates[mag].Page].bFlofUpdated = TRUE;
 		}
-		VTPages[MagazineStates[mag].Page].bFlofUpdated = TRUE;
 		break;
     case 28:
     case 29:

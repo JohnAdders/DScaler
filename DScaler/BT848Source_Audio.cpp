@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_Audio.cpp,v 1.3 2001-11-23 10:49:16 adcockj Exp $
+// $Id: BT848Source_Audio.cpp,v 1.4 2001-11-25 01:58:34 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/11/23 10:49:16  adcockj
+// Move resource includes back to top of files to avoid need to rebuild all
+//
 // Revision 1.2  2001/11/02 16:30:07  adcockj
 // Check in merged code from multiple cards branch into main tree
 //
@@ -125,20 +128,13 @@ void CBT848Source::AudioSourceOnChange(long NewValue, long OldValue)
 
 void CBT848Source::MSPStereoOnChange(long NewValue, long OldValue)
 {
-    m_pBT848Card->SetMSPStereo(
-                                m_MSPMajorMode->GetValue(),
-                                m_MSPMinorMode->GetValue(),
-                                NewValue,
-                                m_MSPMode->GetValue()
-                              );
+    m_pBT848Card->SetMSPStereo((eSoundChannel)NewValue);
 }
 
 void CBT848Source::MSPMajorModeOnChange(long NewValue, long OldValue)
 {
-    m_pBT848Card->SetMSPMajorMinorMode(
-                                        NewValue,
-                                        m_MSPMinorMode->GetValue(),
-                                        m_MSPMode->GetValue()
+    m_pBT848Card->SetMSPMajorMinorMode(NewValue,
+                                        m_MSPMinorMode->GetValue()
                                       );
 }
 
@@ -146,8 +142,7 @@ void CBT848Source::MSPMinorModeOnChange(long NewValue, long OldValue)
 {
     m_pBT848Card->SetMSPMajorMinorMode(
                                         m_MSPMajorMode->GetValue(),
-                                        NewValue,
-                                        m_MSPMode->GetValue()
+                                        NewValue
                                       );
 }
 
@@ -159,20 +154,14 @@ void CBT848Source::HandleTimerMessages(int TimerId)
 {
     if(TimerId == TIMER_MSP && m_AutoStereoSelect->GetValue() == TRUE && m_pBT848Card->HasMSP())
     {
-        int NewMode = m_pBT848Card->GetMSPWatchMode(m_MSPMode->GetValue(), m_MSPStereo->GetValue());
-        if(NewMode != m_MSPMode->GetValue())
+        eSoundChannel newChannel = m_pBT848Card->GetMSPWatchMode((eSoundChannel)m_MSPStereo->GetValue());
+        if (newChannel != m_MSPStereo->GetValue())
         {
-            m_MSPMode->SetValue(NewMode);
+            m_MSPStereo->SetValue(newChannel);
             if (StatusBar_IsVisible() == TRUE)
             {
                 char szText[128];
-                m_pBT848Card->GetMSPPrintMode(
-                                                szText, 
-                                                m_MSPMajorMode->GetValue(), 
-                                                m_MSPMinorMode->GetValue(), 
-                                                m_MSPMode->GetValue(), 
-                                                m_MSPStereo->GetValue()
-                                             );
+                m_pBT848Card->GetMSPPrintMode(szText);
                 StatusBar_ShowText(STATUS_AUDIO, szText);
             }
         }

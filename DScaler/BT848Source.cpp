@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.8 2001-11-23 10:49:16 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.9 2001-11-25 01:58:34 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2001/11/23 10:49:16  adcockj
+// Move resource includes back to top of files to avoid need to rebuild all
+//
 // Revision 1.7  2001/11/22 22:27:00  adcockj
 // Bug Fixes
 //
@@ -94,7 +97,6 @@
 
 
 extern const TCardSetup TVCards[TVCARD_LASTONE];
-extern const TTunerSetup Tuners[TUNER_LASTONE];
 
 CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CUserMemory* DisplayDMAMem[5], CUserMemory* VBIDMAMem[5], LPCSTR IniSection) :
     CSource(WM_BT848_GETVALUE, IDC_BT848),
@@ -137,7 +139,6 @@ CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CU
     {
         SetTimer(hWnd, TIMER_MSP, TIMER_MSP_MS, NULL);
     }
-
     Reset();
 }
 
@@ -273,10 +274,10 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     m_MSPMajorMode = new CMSPMajorModeSetting(this, "MSP Major Mode", 0, 0, 3, IniSection);
     m_Settings.push_back(m_MSPMajorMode);
 
-    m_MSPMinorMode = new CMSPMinorModeSetting(this, "MSP Mino Mode", 0, 0, 7, IniSection);
+    m_MSPMinorMode = new CMSPMinorModeSetting(this, "MSP Minor Mode", 0, 0, 7, IniSection);
     m_Settings.push_back(m_MSPMinorMode);
 
-    m_MSPStereo = new CMSPStereoSetting(this, "MSP Stereo Mode", VIDEO_SOUND_STEREO, VIDEO_SOUND_MONO, VIDEO_SOUND_LANG2, IniSection);
+    m_MSPStereo = new CMSPStereoSetting(this, "MSP Stereo Mode", STEREO, MONO, LANGUAGE2, IniSection);
     m_Settings.push_back(m_MSPStereo);
 
     m_AutoStereoSelect = new CAutoStereoSelectSetting(this, "Auto Stereo Select", FALSE, IniSection);
@@ -388,6 +389,12 @@ void CBT848Source::Reset()
                                 m_VDelay->GetValue(), 
                                 m_HDelay->GetValue()
                             );
+
+    m_pBT848Card->SetMSPMode(m_MSPMode->GetValue());
+    Sleep(4);
+    m_pBT848Card->SetMSPMajorMinorMode(m_MSPMajorMode->GetValue(), m_MSPMinorMode->GetValue());
+    Sleep(4);
+    m_pBT848Card->SetMSPStereo((eSoundChannel)m_MSPStereo->GetValue());
 }
 
 
@@ -1033,11 +1040,12 @@ void CBT848Source::SetupCard()
         DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_SELECTCARD), hWnd, (DLGPROC) SelectCardProc, (LPARAM)this);
     }
     m_pBT848Card->CardSpecificInit((eTVCardId)m_CardType->GetValue());
+    m_pBT848Card->InitTuner((eTunerId)m_TunerType->GetValue());
+    m_pBT848Card->InitMSP();
 }
 
 void CBT848Source::ChangeDefaultsBasedOnHardware()
 {
-    ChangeTVSettingsBasedOnTuner();
     // now do defaults based on the processor speed selected
     if(m_ProcessorSpeed->GetValue() == 1 && m_TradeOff->GetValue() == 0)
     {
@@ -1103,20 +1111,8 @@ void CBT848Source::ChangeTVSettingsBasedOnTuner()
     // should be OK most of the time
     if(m_TunerType->GetValue() != TUNER_ABSENT)
     {
-        switch(Tuners[m_TunerType->GetValue()].Type)
-        {
-        case PAL:
-        case PAL_I:
-            m_VideoFormat->ChangeDefault(FORMAT_PAL_BDGHI);
-            break;
-        case SECAM:
-            m_VideoFormat->ChangeDefault(FORMAT_SECAM);
-            break;
-        case NTSC:
-        default:
-            m_VideoFormat->ChangeDefault(FORMAT_NTSC);
-            break;
-        }
+        eVideoFormat videoFormat = m_pBT848Card->GetTuner()->GetDefaultVideoFormat();
+        m_VideoFormat->ChangeDefault(videoFormat);
     }
 }
 
@@ -1143,7 +1139,7 @@ BOOL CBT848Source::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
     {
         m_VideoFormat->SetValue(VideoFormat);
     }
-    return m_pBT848Card->SetTunerFrequency(FrequencyId, VideoFormat, (eTunerId)m_TunerType->GetValue());
+    return m_pBT848Card->GetTuner()->SetTVFrequency(FrequencyId, VideoFormat);
 }
 
 BOOL CBT848Source::IsVideoPresent()

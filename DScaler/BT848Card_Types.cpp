@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Types.cpp,v 1.5 2001-11-23 10:49:16 adcockj Exp $
+// $Id: BT848Card_Types.cpp,v 1.6 2001-11-25 01:58:34 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/11/23 10:49:16  adcockj
+// Move resource includes back to top of files to avoid need to rebuild all
+//
 // Revision 1.4  2001/11/18 02:47:08  ittarnavsky
 // added all v3.1 suported cards
 //
@@ -991,7 +994,7 @@ const TCardSetup* CBT848Card::GetCardSetup(eCardType BtCardType)
 
 eTVCardId CBT848Card::AutoDetectCardType()
 {
-    if(I2C_AddDevice(I2C_HAUPEE))
+//    if(I2C_AddDevice(I2C_HAUPEE))
     {
         DWORD Id = m_SubSystemId;
         if (Id != 0 && Id != 0xffffffff)
@@ -1006,10 +1009,10 @@ eTVCardId CBT848Card::AutoDetectCardType()
             }
         }
     }
-    if(I2C_AddDevice(I2C_STBEE))
-    {
-        return TVCARD_STB;
-    }
+    //if(I2C_AddDevice(I2C_STBEE))
+    //{
+        //return TVCARD_STB;
+    //}
     return TVCARD_UNKNOWN;
 }
 
@@ -1048,7 +1051,7 @@ void CBT848Card::HauppaugeBootMSP34xx(int pin)
     int mask = 1 << pin;
     AndOrDataDword(BT848_GPIO_OUT_EN, mask, ~mask);
     AndOrDataDword(BT848_GPIO_DATA, 0, ~mask);
-    Sleep(10);
+    ::Sleep(10);
     AndOrDataDword(BT848_GPIO_DATA, mask, ~mask);
 }
 
@@ -1072,7 +1075,7 @@ void CBT848Card::InitPXC200()
     // Initialise GPIO-connevted stuff 
     WriteWord(BT848_GPIO_OUT_EN, 1<<13); // Reset pin only 
     WriteWord(BT848_GPIO_DATA, 0);
-    Sleep(30);
+    ::Sleep(30);
     WriteWord(BT848_GPIO_DATA, 1<<13);
     // GPIO inputs are pulled up, so no need to drive
     // reset pin any longer 
@@ -1088,8 +1091,8 @@ void CBT848Card::InitPXC200()
     WriteByte(BT848_ADC, BT848_ADC_RESERVED | BT848_ADC_AGC_EN);
 
     //  Initialise MAX517 DAC 
-    I2C_Lock();
-    I2C_Write(0x5E, 0, 0x80, 1);
+    //I2C_Lock();
+    //I2C_Write(0x5E, 0, 0x80, 1);
 
     //  Initialise 12C508 PIC 
     //  The I2CWrite and I2CRead commmands are actually to the
@@ -1097,10 +1100,10 @@ void CBT848Card::InitPXC200()
     //  argument so the numbers are different 
     for (i = 0; i < sizeof(vals)/sizeof(int); i++)
     {
-        I2C_Write(0x1E, vals[i], 0, 1);
-        I2C_Read(0x1F);
+        //I2C_Write(0x1E, vals[i], 0, 1);
+        //I2C_Read(0x1F);
     }
-    I2C_Unlock();
+    //I2C_Unlock();
 }
 
 // ----------------------------------------------------------------------- 
@@ -1144,6 +1147,7 @@ void CBT848Card::InitPXC200()
 
 void CBT848Card::CtrlTDA8540(int SLV, int SUB, int SW1, int GCO, int OEN)
 {
+    /*
     I2C_Lock();
     I2C_Start();
     I2C_SendByte(SLV, 5); 
@@ -1153,4 +1157,5 @@ void CBT848Card::CtrlTDA8540(int SLV, int SUB, int SW1, int GCO, int OEN)
     I2C_SendByte(OEN, 0); 
     I2C_Stop();
     I2C_Unlock();
+    */
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.4 2001-11-18 02:47:08 ittarnavsky Exp $
+// $Id: BT848Card.h,v 1.5 2001-11-25 01:58:34 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -20,12 +20,16 @@
 #define __BT848CARD_H___
 
 #include "PCICard.h"
-#include "I2C.h"
 #include "TVFormats.h"
 #include "BT848_Defines.h"
 
+#include "I2CLineInterface.h"
+#include "I2CBusForLineInterface.h"
+#include "MSP34x0.h"
+#include "ITuner.h"
+
 class CBT848Card : public CPCICard, 
-                   public CI2C
+                   public II2CLineInterface
 {
 public:
     enum eCardType
@@ -71,8 +75,6 @@ public:
     
     void SetCardType(eTVCardId CardType);
     eTVCardId GetCardType();
-    void SetTunerType(eTunerId TunerType);
-    eTunerId GetTunerType();
     
     void SetVideoSource(eCardType BtCardType, eVideoSourceType nInput);
 
@@ -143,9 +145,6 @@ public:
     void StartCapture(BOOL bCaptureVBI);
 
     BOOL HasMSP();
-    void WriteMSP(BYTE bSubAddr, int wAddr, int wData);
-    WORD ReadMSP(BYTE bSubAddr, WORD wAddr);
-    BOOL ResetMSP();
 
     void SetMSPVolume(long nVolume);
     void SetMSPBalance(long nBalance);
@@ -154,57 +153,67 @@ public:
     void SetMSPSuperBassLoudness(long nLoudness, BOOL bSuperBass);
     void SetMSPSpatial(long nSpatial);
     void SetMSPEqualizer(long EqIndex, long nLevel);
-    void SetMSPCarrier(int cdo1, int cdo2);
-    void SetMSPMode(long NewValue);
-    void SetMSPStereo(int MajorMode, int MinorMode, int StereoMode, int MSPMode);
-    void SetMSPMajorMinorMode(int MajorMode, int MinorMode, int MSPMode);
-    void GetMSPPrintMode(LPSTR Text, int MSPMajorMode, int MSPMinorMode, int MSPMode, int MSPStereo);
-    int GetMSPWatchMode(int MSPMode, int MSPStereo);
+    void SetMSPMode(long nMode);
+    void SetMSPStereo(eSoundChannel StereoMode);
+    void SetMSPMajorMinorMode(int MajorMode, int MinorMode);
+    void GetMSPPrintMode(LPSTR Text);
+    eSoundChannel GetMSPWatchMode(eSoundChannel desiredSoundChannel);
     
     eTunerId AutoDetectTuner(eTVCardId CardId);
     eTVCardId AutoDetectCardType();
     void CardSpecificInit(eTVCardId CardType);
 
-
-    BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat, eTunerId TunerId);
-    BOOL InitTuner();
-    const char* GetTunerStatus();
+    BOOL InitTuner(eTunerId tunerId);
     const char* GetSourceName(eVideoSourceType nVideoSource);
+
+    void InitMSP();
 
     static BOOL APIENTRY ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 
-protected:
-    void I2C_SetLine(BOOL bCtrl, BOOL bData);
-    BOOL I2C_GetLine();
-    BYTE I2C_Read(BYTE nAddr);
-    BOOL I2C_Write(BYTE nAddr, BYTE nData1, BYTE nData2, BOOL bSendBoth);
+    // I2C stuff
+    void SetSDA(bool value);
+    void SetSCL(bool value);
+    bool GetSDA();
+    bool GetSCL();
+    void Sleep();
+private:
+    ULONG GetTickCount();
+    DWORD m_I2CSleepCycle;
+    DWORD m_I2CRegister;
+    bool m_I2CInitialized;
+    void InitializeI2C();
 
 private:
     void SetGeometryEvenOdd(BOOL bOdd, int wHScale, int wVScale, int wHActive, int wVActive, int wHDelay, int wVDelay, BYTE bCrop);
     void SetPLL(ePLLFreq PLL);
     BOOL IsCCIRSource(eVideoSourceType nInput);
-    void InitMSP();
     
     void HauppaugeBootMSP34xx(int pin);
     void InitPXC200();
     void CtrlTDA8540(int SLV, int SUB, int SW1, int GCO, int OEN);
     const TCardSetup* GetCardSetup(eCardType BtCardType);
 
-    void SetAudioGVBCTV3PCI(int StereoMode);
-    void SetAudioLT9415(int StereoMode);
-    void SetAudioTERRATV(int StereoMode);
-    void SetAudioAVER_TVPHONE(int StereoMode);
-    void SetAudioWINFAST2000(int StereoMode);
+    void SetAudioGVBCTV3PCI(eSoundChannel soundChannel);
+    void SetAudioLT9415(eSoundChannel soundChannel);
+    void SetAudioTERRATV(eSoundChannel soundChannel);
+    void SetAudioAVER_TVPHONE(eSoundChannel soundChannel);
+    void SetAudioWINFAST2000(eSoundChannel soundChannel);
 
     char m_MSPVersion[16];
-    BOOL m_MSPNicam;
+    char m_TunerStatus[32];
 
     eTVCardId m_CardType;
-    eTunerId m_TunerType;
     eCardType m_BtCardType;
-    BOOL m_bHasMSP;
-    BYTE m_TunerDevice;
-    char m_TunerStatus[30];
+    bool m_bHasMSP;
+
+    CI2CBus *m_I2CBus;
+    CMSP34x0 *m_MSP34x0;
+    ITuner *m_Tuner;
+public:
+    ITuner *GetTuner()const
+    {
+        return m_Tuner;
+    }
 };
 
 

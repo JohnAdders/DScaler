@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.6 2001-11-23 10:49:16 adcockj Exp $
+// $Id: BT848Card.cpp,v 1.7 2001-11-25 01:58:34 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/11/23 10:49:16  adcockj
+// Move resource includes back to top of files to avoid need to rebuild all
+//
 // Revision 1.5  2001/11/18 17:20:19  adcockj
 // Fixed svideo bug
 //
@@ -128,14 +131,15 @@ static BYTE SRAMTable_PAL[ 60 ] =
 CBT848Card::CBT848Card(CHardwareDriver* pDriver) :
 	CPCICard(pDriver),
     m_CardType(TVCARD_UNKNOWN),
-    m_TunerType(TUNER_ABSENT),
     m_BtCardType(BT878),
-    m_bHasMSP(FALSE),
-    m_TunerDevice(0)
-
+    m_bHasMSP(false)
 {
-   strcpy(m_TunerStatus, "No Device on I2C-Bus");
-   strcpy(m_MSPVersion,"No MSP");
+    strcpy(m_TunerStatus,"No Tuner");
+    strcpy(m_MSPVersion,"No MSP");
+
+    m_I2CInitialized = false;
+    m_I2CBus = new CI2CBusForLineInterface(this);
+    m_MSP34x0 = new CMSP34x0();
 }
 
 CBT848Card::~CBT848Card()
@@ -172,10 +176,6 @@ BOOL CBT848Card::FindCard(eCardType BtCardType, int CardIndex)
     }
 
 	BOOL bRetVal = OpenPCICard(VendorId, DeviceId, CardIndex);
-    if(bRetVal == TRUE)
-    {
-        InitMSP();
-    }
 
     return bRetVal;
 }
@@ -197,12 +197,11 @@ void CBT848Card::SetDMA(BOOL bState)
     }
 }
 
-
 void CBT848Card::ResetHardware(DWORD RiscBasePhysical)
 {
     SetDMA(FALSE);
     WriteByte(BT848_SRESET, 0);
-    Sleep(100);
+    ::Sleep(100);
 
     WriteDword(BT848_RISC_STRT_ADD, RiscBasePhysical);
     WriteByte(BT848_CAP_CTL, 0x00);
@@ -953,7 +952,7 @@ void CBT848Card::SetPLL(ePLLFreq PLL)
     while(i-- > 0 && ReadByte(BT848_DSTATUS) & BT848_DSTATUS_PLOCK)
     {
         WriteByte(BT848_DSTATUS, 0x00);
-        Sleep(100);
+        ::Sleep(100);
     }
 
     // Set the TGCKI bits to use PLL rather than xtal
@@ -997,7 +996,7 @@ void CBT848Card::SetAudioSource(eCardType BtCardType, eAudioMuxType nChannel)
         while ((i < 20) && (!(ReadByte(BT848_DSTATUS) & BT848_DSTATUS_PRES)))
         {
             i++;
-            Sleep(50);
+            ::Sleep(50);
         }
         // if video not in H-lock, turn audio off 
         if (i == 20)
@@ -1032,67 +1031,6 @@ DWORD CBT848Card::GetRISCPos()
     return ReadDword(BT848_RISC_COUNT);
 }
 
-void CBT848Card::I2C_SetLine(BOOL bCtrl, BOOL bData)
-{
-    WriteDword(BT848_I2C, (bCtrl << 1) | bData);
-    I2C_Wait(BT848_I2C_DELAY);
-}
-
-BOOL CBT848Card::I2C_GetLine()
-{
-    return ReadDword(BT848_I2C) & 1;
-}
-
-BYTE CBT848Card::I2C_Read(BYTE nAddr)
-{
-    DWORD i;
-    volatile DWORD stat;
-
-    WriteDword(BT848_INT_STAT, BT848_INT_I2CDONE);
-    WriteDword(BT848_I2C, (nAddr << 24) | BT848_I2C_COMMAND);
-
-    for (i = 0x7fffffff; i; i--)
-    {
-        stat = ReadDword(BT848_INT_STAT);
-        if (stat & BT848_INT_I2CDONE)
-            break;
-    }
-
-    if (!i)
-        return (BYTE) - 1;
-    if (!(stat & BT848_INT_RACK))
-        return (BYTE) - 2;
-
-    return (BYTE) ((ReadDword(BT848_I2C) >> 8) & 0xFF);
-}
-
-BOOL CBT848Card::I2C_Write(BYTE nAddr, BYTE nData1, BYTE nData2, BOOL bSendBoth)
-{
-    DWORD i;
-    DWORD data;
-    DWORD stat;
-
-    WriteDword(BT848_INT_STAT, BT848_INT_I2CDONE);
-
-    data = (nAddr << 24) | (nData1 << 16) | BT848_I2C_COMMAND;
-    if (bSendBoth)
-        data |= (nData2 << 8) | BT848_I2C_W3B;
-    WriteDword(BT848_I2C, data);
-
-    for (i = 0x7fffffff; i; i--)
-    {
-        stat = ReadDword(BT848_INT_STAT);
-        if (stat & BT848_INT_I2CDONE)
-            break;
-    }
-
-    if (!i)
-        return FALSE;
-    if (!(stat & BT848_INT_RACK))
-        return FALSE;
-
-    return TRUE;
-}
 
 void CBT848Card::StopCapture()
 {
@@ -1193,3 +1131,100 @@ BOOL APIENTRY CBT848Card::ChipSettingProc(HWND hDlg, UINT message, UINT wParam, 
     return (FALSE);
 }
 
+ULONG CBT848Card::GetTickCount()
+{
+    ULONGLONG ticks;
+    ULONGLONG frequency;
+
+    QueryPerformanceFrequency((PLARGE_INTEGER)&frequency);
+    QueryPerformanceCounter((PLARGE_INTEGER)&ticks);
+    ticks = (ticks & 0xFFFFFFFF00000000) / frequency * 10000000 +
+            (ticks & 0xFFFFFFFF) * 10000000 / frequency;
+    return (ULONG)(ticks / 10000);
+}
+
+void CBT848Card::InitializeI2C()
+{
+    WriteDword(BT848_I2C, 1);
+    m_I2CRegister = ReadDword(BT848_I2C);
+
+    m_I2CSleepCycle = 10000L;
+    DWORD elapsed = 0L;
+    // get a stable reading
+    while (elapsed < 5)
+    {
+        m_I2CSleepCycle *= 10;
+        DWORD start = GetTickCount();
+        for (volatile DWORD i = m_I2CSleepCycle; i > 0; i--);
+        elapsed = GetTickCount() - start;
+    }
+    // calculate how many cycles a 50kHZ is (half I2C bus cycle)
+    m_I2CSleepCycle = m_I2CSleepCycle / elapsed * 1000L / 50000L;
+    
+    m_I2CInitialized = true;
+}
+
+void CBT848Card::Sleep()
+{
+    for (volatile DWORD i = m_I2CSleepCycle; i > 0; i--);
+}
+
+void CBT848Card::SetSDA(bool value)
+{
+    if (!m_I2CInitialized)
+    {
+        InitializeI2C();
+    }
+    if (value)
+    {
+        LOG(2, (m_I2CRegister & BT848_I2C_SDA) ? "d^" : "d/");
+        m_I2CRegister |= BT848_I2C_SDA;
+    }
+    else
+    {
+        LOG(2, (m_I2CRegister & BT848_I2C_SDA) ? "d\\" : "d_");
+        m_I2CRegister &= ~BT848_I2C_SDA;
+    }
+    WriteDword(BT848_I2C, m_I2CRegister);
+}
+
+void CBT848Card::SetSCL(bool value)
+{
+    if (!m_I2CInitialized)
+    {
+        InitializeI2C();
+    }
+    if (value)
+    {
+        LOG(2, (m_I2CRegister & BT848_I2C_SCL) ? "c^" : "c/");
+        m_I2CRegister |= BT848_I2C_SCL;
+    }
+    else
+    {
+        LOG(2, (m_I2CRegister & BT848_I2C_SCL) ? "c\\" : "c_");
+        m_I2CRegister &= ~BT848_I2C_SCL;
+    }
+    WriteDword(BT848_I2C, m_I2CRegister);
+}
+
+bool CBT848Card::GetSDA()
+{
+    if (!m_I2CInitialized)
+    {
+        InitializeI2C();
+    }
+    bool state = ReadDword(BT848_I2C) & BT848_I2C_SDA ? true : false;
+    LOG(2, state ? ".d^" : ".d_");
+    return state;
+}
+
+bool CBT848Card::GetSCL()
+{
+    if (!m_I2CInitialized)
+    {
+        InitializeI2C();
+    }
+    bool state = ReadDword(BT848_I2C) & BT848_I2C_SCL ? true : false;
+    LOG(2, state ? ".c^" : ".c_");
+    return state;
+}

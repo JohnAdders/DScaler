@@ -268,6 +268,10 @@ SOURCE=.\Filter.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\GenericTuner.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\HardwareDriver.cpp
 # End Source File
 # Begin Source File
@@ -280,11 +284,31 @@ SOURCE=.\HSListBox.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\I2C.cpp
+SOURCE=.\I2CBus.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\I2CBusForLineInterface.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\I2CDevice.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ITuner.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\MixerDev.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\MSP34x0.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\MT2032.cpp
 # End Source File
 # Begin Source File
 
@@ -532,6 +556,10 @@ SOURCE=.\Filter.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\GenericTuner.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\HardwareDriver.h
 # End Source File
 # Begin Source File
@@ -544,11 +572,39 @@ SOURCE=.\HSListBox.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\i2c.h
+SOURCE=.\I2CBus.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\I2CBusForLineInterface.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\I2CDevice.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\I2CLineInterface.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ITuner.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\MixerDev.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\MSP34x0.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\MT2032.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\NoTuner.h
 # End Source File
 # Begin Source File
 

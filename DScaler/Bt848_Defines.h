@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Bt848_Defines.h,v 1.5 2001-11-18 02:47:08 ittarnavsky Exp $
+// $Id: Bt848_Defines.h,v 1.6 2001-11-25 01:58:34 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -508,27 +508,6 @@ enum ePLLFreq
     PLL_35,
 };
 
-enum eTunerMaker
-{
-    NOMFTR = 0,
-    PHILIPS,
-    TEMIC,
-    SONY,
-    ALPS,
-    LGINNOTEK,
-    MICROTUNE,
-    SHARP,
-};
-
-enum eTunerType
-{
-    NOTTYPE = 0,
-    PAL,
-    PAL_I,
-    NTSC,
-    SECAM,
-};
-
 typedef struct
 {
     char* szName;
@@ -553,28 +532,6 @@ typedef struct
     char* szName;
 } TAutoDectect878;
 
-typedef struct
-{
-    char* szName;
-    eTunerMaker Vendor;
-    eTunerType Type;
-    WORD thresh1; // frequency Range for UHF,VHF-L, VHF_H    
-    WORD thresh2;  
-    BYTE VHF_L;
-    BYTE VHF_H;
-    BYTE UHF;
-    BYTE config; 
-    WORD IFPCoff;
-} TTunerSetup;
-
-
-#define MSP_CONTROL 0x00 // Software reset
-#define MSP_TEST    0x01 // Internal use
-#define MSP_WR_DEM  0x10 // Write demodulator
-#define MSP_RD_DEM  0x11 // Read demodulator
-#define MSP_WR_DSP  0x12 // Write DSP
-#define MSP_RD_DSP  0x13 // Read DSP
-
 #define MSP_MODE_AM_DETECT   0
 #define MSP_MODE_FM_RADIO    2
 #define MSP_MODE_FM_TERRA    3
@@ -582,21 +539,18 @@ typedef struct
 #define MSP_MODE_FM_NICAM1   5
 #define MSP_MODE_FM_NICAM2   6
 
-#define VIDEO_SOUND_MONO    1
-#define VIDEO_SOUND_STEREO  2
-#define VIDEO_SOUND_LANG1   3
-#define VIDEO_SOUND_LANG2   4
-
-// This macro is allowed for *constants* only, gcc must calculate it
-// at compile time.  Remember -- no floats in kernel Mode
-#define MSP_CARRIER(freq) ((int)((float)(freq/18.432)*(1<<24)))
+enum eSoundChannel
+{
+    MONO = 1,
+    STEREO,
+    LANGUAGE1,
+    LANGUAGE2,
+};
 
 #define TIMER_MSP           8
 #define TIMER_MSP_MS        10000
 
 extern const TCardSetup TVCards[TVCARD_LASTONE];
-extern const TTunerSetup Tuners[TUNER_LASTONE];
-
 
 // 10/19/2000 Mark Rejhon
 // Better NTSC defaults

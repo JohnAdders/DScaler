@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.5 2001-11-23 10:49:16 adcockj Exp $
+// $Id: BT848Souce_UI.cpp,v 1.6 2001-11-25 01:58:34 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/11/23 10:49:16  adcockj
+// Move resource includes back to top of files to avoid need to rebuild all
+//
 // Revision 1.4  2001/11/09 12:42:07  adcockj
 // Separated most resources out into separate dll ready for localization
 //
@@ -46,8 +49,8 @@
 #include "DScaler.h"
 #include "OutThreads.h"
 
+extern const char *TunerNames[TUNER_LASTONE];
 extern const TCardSetup TVCards[TVCARD_LASTONE];
-extern const TTunerSetup Tuners[TUNER_LASTONE];
 
 BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
@@ -329,7 +332,7 @@ BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam,
         SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_RESETCONTENT, 0, 0);
         for(i = 0; i < TUNER_LASTONE; i++)
         {
-            SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_ADDSTRING, 0, (LONG)Tuners[i].szName);
+            SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_ADDSTRING, 0, (LONG)TunerNames[i]);
         }
         SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETCURSEL, pThis->m_TunerType->GetValue(), 0);
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCICard.h,v 1.4 2001-11-02 16:30:08 adcockj Exp $
+// $Id: PCICard.h,v 1.5 2001-11-25 01:58:34 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -33,6 +33,7 @@ class CPCICard
 {
 public:
     DWORD GetSubSystemId();
+    DWORD ReadDword(DWORD Offset);
 protected:
     CPCICard(CHardwareDriver* pDriver);
     ~CPCICard();
@@ -46,7 +47,6 @@ protected:
 
     BYTE ReadByte(DWORD Offset);
     WORD ReadWord(DWORD Offset);
-    DWORD ReadDword(DWORD Offset);
 
 	void MaskDataByte(DWORD Offset, BYTE Data, BYTE Mask);
 	void MaskDataWord(DWORD Offset, WORD Data, WORD Mask);

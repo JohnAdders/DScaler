@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TVCards.h,v 1.22 2001-11-09 12:42:07 adcockj Exp $
+// $Id: TVCards.h,v 1.23 2001-11-25 01:58:34 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // The structures where taken from bttv driver version 7.37
 // bttv - Bt848 frame grabber driver
@@ -187,27 +187,6 @@ enum ePLLFreq
     PLL_35,
 };
 
-enum eTunerMaker
-{
-    NOMFTR = 0,
-    PHILIPS,
-    TEMIC,
-    SONY,
-    ALPS,
-    LGINNOTEK,
-    MICROTUNE,
-    SHARP,
-};
-
-enum eTunerType
-{
-    NOTTYPE = 0,
-    PAL,
-    PAL_I,
-    NTSC,
-    SECAM,
-};
-
 typedef struct
 {
     char* szName;
@@ -232,20 +211,6 @@ typedef struct
     eTVCardId CardId;
     char* szName;
 } TAutoDectect878;
-
-typedef struct
-{
-    char* szName;
-    eTunerMaker Vendor;
-    eTunerType Type;
-    WORD thresh1; // frequency Range for UHF,VHF-L, VHF_H    
-    WORD thresh2;  
-    BYTE VHF_L;
-    BYTE VHF_H;
-    BYTE UHF;
-    BYTE config; 
-    WORD IFPCoff;
-} TTunerSetup;
 
 eTVCardId Card_AutoDetect();
 eTunerId Card_AutoDetectTuner(eTVCardId CardId);

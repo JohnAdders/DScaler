@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Tuner.cpp,v 1.4 2001-11-23 10:49:16 adcockj Exp $
+// $Id: BT848Card_Tuner.cpp,v 1.5 2001-11-25 01:58:34 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/11/23 10:49:16  adcockj
+// Move resource includes back to top of files to avoid need to rebuild all
+//
 // Revision 1.3  2001/11/18 02:47:08  ittarnavsky
 // added all v3.1 suported cards
 //
@@ -58,295 +61,38 @@
 #include "resource.h"
 #include "BT848Card.h"
 #include "BT848_Defines.h"
+#include "NoTuner.h"
+#include "MT2032.h"
+#include "GenericTuner.h"
 
 
-const TTunerSetup Tuners[TUNER_LASTONE] =
+BOOL CBT848Card::InitTuner(eTunerId tunerId)
 {
-    // TUNER_ABSENT
-    { 
-        "NoTuner", NOMFTR, NOTTYPE,     
-        0, 0, 0x00, 0x00, 0x00, 0x00, 0x00 
-    },
-    // TUNER_PHILIPS_PAL_I
-    { 
-        "PHILIPS PAL_I", PHILIPS, PAL_I, 
-         16*140.25, 16*463.25, 0xa0, 0x90, 0x30, 0x8e, 623
-    },
-    // TUNER_PHILIPS_NTSC
-    { 
-        "PHILIPS NTSC", PHILIPS, NTSC, 
-        16*157.25, 16*451.25, 0xA0, 0x90, 0x30, 0x8e, 732
-    },
-    // TUNER_PHILIPS_SECAM
-    { 
-        "PHILIPS SECAM", PHILIPS, SECAM, 
-        16*168.25, 16*447.25, 0xA7, 0x97, 0x37, 0x8e, 623
-    },
-    // TUNER_PHILIPSFY5_PAL     
-    { 
-        "PHILIPS PAL", PHILIPS, PAL, 
-        16*168.25, 16*447.25, 0xA0, 0x90, 0x30, 0x8e, 623
-    },
-    // TUNER_TEMIC_4002FH5_PAL
-    { 
-        "Temic 4002 FH5 PAL", TEMIC, PAL, 
-        16*140.25, 16*463.25, 0x02, 0x04, 0x01, 0x8e, 623
-    },
-    // TUNER_TEMIC_4032FY5_NTSC
+    switch (tunerId)
     {
-        "Temic 4036 FY5 NTSC", TEMIC, NTSC, 
-        16*157.25, 16*463.25, 0x02, 0x04, 0x01, 0x8e, 732
-    },
-    // TUNER_TEMIC_4062FY5_PAL_I
-    {
-        "Temic PAL_I (4062 FY5)", TEMIC, PAL_I, 
-        16*170.00, 16*450.00, 0x02, 0x04, 0x01, 0x8e, 623
-    },
-    // TUNER_TEMIC_4036FY5_NTSC
-    {
-        "Temic 4036 FY5 NTSC", TEMIC, NTSC, 
-        16*157.25, 16*463.25, 0xa0, 0x90, 0x30, 0x8e, 732
-    },
-    // TUNER_ALPS_TSBH1_NTSC    
-    {
-        "ALPS HSBH1", TEMIC, NTSC, 
-        16*137.25, 16*385.25, 0x01, 0x02, 0x08, 0x8e, 732
-    },
-    // TUNER_ALPS_TSBE1_PAL     
-    {
-        "ALPS TSBE1", TEMIC, PAL, 
-        16*137.25, 16*385.25, 0x01, 0x02, 0x08, 0x8e, 732
-    },
-    // TUNER_ALPS_TSBB5_PAL_I
-    {
-        "ALPS TSBB5", ALPS, PAL_I, 
-        16*133.25, 16*351.25, 0x01, 0x02, 0x08, 0x8e, 632
-    },
-    // TUNER_ALPS_TSBE5_PAL 
-    {
-        "ALPS TSBE5", ALPS, PAL, 
-        16*133.25, 16*351.25, 0x01, 0x02, 0x08, 0x8e, 622
-    },
-    // TUNER_ALPS_TSBC5_PAL
-    {
-        "ALPS TSBC5", ALPS, PAL, 
-        16*133.25, 16*351.25, 0x01, 0x02, 0x08, 0x8e, 608
-    },
-    // TUNER_TEMIC_4006FH5_PAL
-    {
-        "Temic 4006FH5", TEMIC, PAL_I, 
-        16*170.00,16*450.00, 0xa0, 0x90, 0x30, 0x8e, 623
-    },
-    // TUNER_PHILIPS_1236D_NTSC_INPUT1
-    {
-        "PHILIPS 1236D ATSC/NTSC Input 1", PHILIPS, NTSC, 
-        2516, 7220, 0xA3, 0x93, 0x33, 0xCE, 732
-    },
-    // TUNER_PHILIPS_1236D_NTSC_INPUT2
-    {
-        "PHILIPS 1236D ATSC/NTSC Input 2", PHILIPS, NTSC, 
-        2516, 7220, 0xA2, 0x92, 0x32, 0xCE, 732
-    },
-    // TUNER_ALPS_TSCH6_NTSC
-    {
-        "ALPS TSCH6",ALPS,NTSC,
-        16*137.25, 16*385.25, 0x14, 0x12, 0x11, 0x8e, 732
-    },
-    // TUNER_TEMIC_4016FY5_PAL
-    {
-        "Temic PAL_DK (4016 FY5)",TEMIC,PAL,
-        16*136.25, 16*456.25, 0xa0, 0x90, 0x30, 0x8e, 623
-    },
-    // TUNER_PHILIPS_MK2_NTSC
-    {
-        "PHILIPS NTSC_M (MK2)",PHILIPS,NTSC,
-        16*160.00,16*454.00,0xa0,0x90,0x30,0x8e,732
-    },
-    // TUNER_TEMIC_4066FY5_PAL_I
-    {
-        "Temic PAL_I (4066 FY5)", TEMIC, PAL_I,
-        16*169.00, 16*454.00, 0xa0,0x90,0x30,0x8e,623
-    },
-    // TUNER_TEMIC_4006FN5_PAL
-    {
-        "Temic PAL* auto (4006 FN5)", TEMIC, PAL,
-        16*169.00, 16*454.00, 0xa0,0x90,0x30,0x8e,623
-    },
-    // TUNER_TEMIC_4009FR5_PAL
-    { 
-        "Temic PAL (4009 FR5)", TEMIC, PAL,
-        16*141.00, 16*464.00, 0xa0,0x90,0x30,0x8e,623
-    },
-    // TUNER_TEMIC_4039FR5_NTSC
-    {
-        "Temic NTSC (4039 FR5)", TEMIC, NTSC,
-        16*158.00, 16*453.00, 0xa0,0x90,0x30,0x8e,732
-    },
-    // TUNER_TEMIC_4046FM5_MULTI
-    { 
-        "Temic PAL/SECAM multi (4046 FM5)", TEMIC, PAL,
-        16*169.00, 16*454.00, 0xa0,0x90,0x30,0x8e,623
-    },
-    // TUNER_PHILIPS_PAL_DK
-    { 
-        "PHILIPS PAL_DK", PHILIPS, PAL,
-        16*170.00,16*450.00,0xa0,0x90,0x30,0x8e,623
-    },
-    // TUNER_PHILIPS_MULTI
-    { 
-        "PHILIPS PAL/SECAM multi (FQ1216ME)", PHILIPS, PAL,
-        16*170.00,16*450.00,0xa0,0x90,0x30,0x8e,623
-    },
-    // TUNER_LG_I001D_PAL_I
-    { 
-        "LG PAL_I+FM (TAPC-I001D)", LGINNOTEK, PAL_I,
-        16*170.00,16*450.00,0xa0,0x90,0x30,0x8e,623
-    },
-    // TUNER_LG_I701D_PAL_I
-    { 
-        "LG PAL_I (TAPC-I701D)", LGINNOTEK, PAL_I,
-        16*170.00,16*450.00,0xa0,0x90,0x30,0x8e,623
-    },
-    // TUNER_LG_R01F_NTSC
-    { 
-        "LG NTSC+FM (TPI8NSR01F)", LGINNOTEK, NTSC,
-        16*210.00,16*497.00,0xa0,0x90,0x30,0x8e,732
-    },
-    // TUNER_LG_B01D_PAL
-    { 
-        "LG PAL_BG+FM (TPI8PSB01D)", LGINNOTEK, PAL,
-        16*170.00,16*450.00,0xa0,0x90,0x30,0x8e,623
-    },
-    // TUNER_LG_B11D_PAL
-    { 
-        "LG PAL_BG (TPI8PSB11D)", LGINNOTEK, PAL,
-        16*170.00,16*450.00,0xa0,0x90,0x30,0x8e,623
-    },
-    // TUNER_TEMIC_4009FN5_PAL
-    { 
-        "Temic PAL* auto + FM (4009 FN5)", TEMIC, PAL,
-        16*141.00, 16*464.00, 0xa0,0x90,0x30,0x8e,623
-    },
-    // TUNER_MT2032
-    {
-        "MT2032 universal", MICROTUNE, NOTTYPE,
-        0, 0, 0, 0, 0, 0, 0
-    },
-    // TUNER_SHARP_2U5JF5540_NTSC
-    {
-        "SHARP NTSC_JP (2U5JF5540)", SHARP, NTSC,
-        16*137.25, 16*317.25, 0x01, 0x02, 0x08, 0x8e, 940 // 940=16*58.75 NTSC@Japan
-    },
-};
-
-void CBT848Card::SetTunerType(eTunerId TunerType)
-{
-    m_TunerType = TunerType;
-}
-
-eTunerId CBT848Card::GetTunerType()
-{
-    return m_TunerType;
-}
-
-const char* CBT848Card::GetTunerStatus()
-{
-    return m_TunerStatus;
-}
-
-BOOL CBT848Card::InitTuner()
-{
-    BYTE j;
-
-    j = 0xc0;
-    m_TunerDevice = j;
-
-    while ((j <= 0xce) && (I2C_AddDevice(j) == FALSE))
-    {
-        j++;
-        m_TunerDevice = j;
+    case TUNER_MT2032:
+            m_Tuner = new CMT2032();
+            break;
+    case TUNER_AUTODETECT:
+    case TUNER_USER_SETUP:
+    case TUNER_ABSENT:
+            m_Tuner = new CNoTuner();
+            break;
+    default:
+            m_Tuner = new CGenericTuner(tunerId);
+            break;
     }
-
-    if (j > 0xce)
+    if (tunerId != TUNER_ABSENT) 
     {
-        m_TunerDevice = 0;
-        return FALSE;
+        for (BYTE test = 0xC0; test < 0xCF; test++)
+        {
+            if (m_I2CBus->Write(&test, sizeof(test)))
+            {
+                m_Tuner->Attach(m_I2CBus, test>>1);
+                sprintf(m_TunerStatus, "Tuner@I2C@0x%02x", test);
+                break;
+            }
+        }
     }
-    sprintf(m_TunerStatus, "Tuner I2C-Bus I/O 0x%02x", j);
     return TRUE;
 }
-
-// Set TSA5522 synthesizer frequency
- 
-BOOL CBT848Card::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat, eTunerId TunerId)
-{
-    BYTE config;
-    WORD div;
-    BOOL bAck;
-
-    if (m_TunerDevice == 0 || m_TunerType <= 0 || m_TunerType >= TUNER_LASTONE)
-    {
-        return FALSE;
-    }
-
-    if (FrequencyId < Tuners[m_TunerType].thresh1)
-    {
-        config = Tuners[m_TunerType].VHF_L;
-    }
-    else if (FrequencyId < Tuners[m_TunerType].thresh2)
-    {
-        config = Tuners[m_TunerType].VHF_H;
-    }
-    else
-    {
-        config = Tuners[m_TunerType].UHF;
-    }
-
-    div = FrequencyId + Tuners[m_TunerType].IFPCoff;
-
-    // handle Mode on Philips SECAM tuners
-    // they can also recive PAL if the Mode is set properly
-    if(TunerId == TUNER_PHILIPS_SECAM)
-    {
-        if(VideoFormat == FORMAT_SECAM)
-        {
-            config |= 0x02;
-        }
-        else
-        {
-            config &= ~0x02;
-        }
-    }
-
-    div &= 0x7fff;
-    I2C_Lock();
-    if (!I2C_Write(m_TunerDevice, (BYTE) ((div >> 8) & 0x7f), (BYTE) (div & 0xff), TRUE))
-    {
-        Sleep(1);
-        if (!I2C_Write(m_TunerDevice, (BYTE) ((div >> 8) & 0x7f), (BYTE) (div & 0xff), TRUE))
-        {
-            Sleep(1);
-            if (!I2C_Write(m_TunerDevice, (BYTE) ((div >> 8) & 0x7f), (BYTE) (div & 0xff), TRUE))
-            {
-                ErrorBox("Tuner Device : Error Writing (1)");
-                I2C_Unlock();
-                return FALSE;
-            }
-        }
-    }
-    if (!(bAck = I2C_Write(m_TunerDevice, Tuners[m_TunerType].config, config, TRUE)))
-    {
-        Sleep(1);
-        if (!(bAck = I2C_Write(m_TunerDevice, Tuners[m_TunerType].config, config, TRUE)))
-        {
-            Sleep(1);
-            if (!(bAck = I2C_Write(m_TunerDevice, Tuners[m_TunerType].config, config, TRUE)))
-            {
-                ErrorBox("Tuner Device : Error Writing (2)");
-            }
-        }
-    }
-    I2C_Unlock();
-    return bAck;
-}
-

@@ -23,7 +23,7 @@
 #define IDD_TSOPTIONS                   184
 #define IDD_DISASM_CRASH                185
 #define IDD_OVERLAYSETTINGS             186
-#define IDC_WDMSOURCE                   187
+#define IDC_DSHOWSOURCEMENU             187
 #define IDM_VBI                         231
 #define IDM_CAPTURE_PAUSE               232
 #define IDM_CHANNEL_LIST                242
@@ -804,16 +804,40 @@
 #define IDM_PLAYLIST_FIRST              2212
 #define IDM_PLAYLIST_LAST               2213
 #define IDM_PLAYLIST_SLIDESHOW          2214
+#define ID_DSHOW_VIDEOINPUT             2220
+#define ID_DSHOW_AUDIOINPUT             2221
+#define IDM_CROSSBAR_INPUT0             2222
+#define IDM_CROSSBAR_INPUT1             2223
+#define IDM_CROSSBAR_INPUT2             2224
+#define IDM_CROSSBAR_INPUT3             2225
+#define IDM_CROSSBAR_INPUT4             2225
+#define IDM_CROSSBAR_INPUT5             2226
+#define IDM_CROSSBAR_INPUT6             2227
+#define IDM_CROSSBAR_INPUT7             2228
+#define IDM_CROSSBAR_INPUT8             2229
+#define IDM_CROSSBAR_INPUT9             2230
+#define IDM_CROSSBAR_INPUT10            2231
+#define IDM_CROSSBAR_INPUT11            2232
+#define IDM_CROSSBAR_INPUT12            2233
+#define IDM_CROSSBAR_INPUT13            2234
+#define IDM_CROSSBAR_INPUT14            2235
+#define IDM_CROSSBAR_INPUT15            2236
+#define IDM_CROSSBAR_INPUT16            2237
+#define IDM_CROSSBAR_INPUT17            2238
+#define IDM_CROSSBAR_INPUT18            2239
+#define IDM_CROSSBAR_INPUT19            2240
+#define IDM_CROSSBAR_INPUT_MAX          2240
+
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
-// 
+//
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        188
-#define _APS_NEXT_COMMAND_VALUE         2215
+#define _APS_NEXT_COMMAND_VALUE         2241
 #define _APS_NEXT_CONTROL_VALUE         1893
-#define _APS_NEXT_SYMED_VALUE           2192
+#define _APS_NEXT_SYMED_VALUE           2213
 #endif
 #endif

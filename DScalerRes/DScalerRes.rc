@@ -1123,9 +1123,13 @@ BEGIN
     END
 END
 
-IDC_WDMSOURCE MENU DISCARDABLE 
+IDC_DSHOWSOURCEMENU MENU DISCARDABLE 
 BEGIN
-    MENUITEM "Wdm",                         65535
+    POPUP "DShow"
+    BEGIN
+        MENUITEM "Video input",                 ID_DSHOW_VIDEOINPUT
+        MENUITEM "Audio input",                 ID_DSHOW_AUDIOINPUT
+    END
 END
 
 

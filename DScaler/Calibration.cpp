@@ -355,6 +355,46 @@ void CCalibration::LoadTestPatterns()
 	test_patterns[nb_test_patterns]->AddColorBar(8214, 1304, 174, 9826, FALSE, 212, 213, 208);
 	test_patterns[nb_test_patterns]->AddColorBar(9126, 9778, 174, 9826, FALSE, 234, 233, 230);
 	nb_test_patterns++;
+
+	test_patterns[nb_test_patterns] = new CTestPattern("THX Monitor Performance - NTSC", FORMAT_NTSC, TRUE);
+	test_patterns[nb_test_patterns]->AddColorBar(  97, 2229, 1167, 4313, FALSE, 251, 252, 251);
+	test_patterns[nb_test_patterns]->AddColorBar(1347, 2229, 2375, 4313, FALSE, 188, 190,   0);
+	test_patterns[nb_test_patterns]->AddColorBar(2611, 2229, 3556, 4313, FALSE,   0, 189, 185);
+	test_patterns[nb_test_patterns]->AddColorBar(3764, 2229, 4764, 4313, FALSE,   0, 188,   0);
+	test_patterns[nb_test_patterns]->AddColorBar(5028, 2229, 6000, 4313, FALSE, 187,   0, 187);
+	test_patterns[nb_test_patterns]->AddColorBar(6222, 2229, 7222, 4313, FALSE, 186,   0,   0);
+	test_patterns[nb_test_patterns]->AddColorBar(7458, 2229, 8472, 4313, FALSE,   0,   0, 187);
+	test_patterns[nb_test_patterns]->AddColorBar(8639, 2229, 9903, 4313, FALSE,   0,   0,   0);
+	test_patterns[nb_test_patterns]->AddColorBar( 111, 6708,  917, 7708, FALSE,   0,   0,   0);
+	test_patterns[nb_test_patterns]->AddColorBar(1083, 6708, 1750, 7708, FALSE,  23,  24,  23);
+	test_patterns[nb_test_patterns]->AddColorBar(1917, 6708, 2583, 7708, FALSE,  49,  50,  49);
+	test_patterns[nb_test_patterns]->AddColorBar(6944, 6708, 7611, 7708, FALSE, 201, 203, 202);
+	test_patterns[nb_test_patterns]->AddColorBar(7778, 6708, 8472, 7708, FALSE, 227, 228, 227);
+	test_patterns[nb_test_patterns]->AddColorBar(8611, 6708, 9861, 7708, FALSE, 252, 253, 252);
+	nb_test_patterns++;
+
+	test_patterns[nb_test_patterns] = new CTestPattern("VE Title 18 Chapter 10", FORMAT_NTSC, FALSE);
+	test_patterns[nb_test_patterns]->AddColorBar( 208, 104, 1319, 5938, FALSE, 190, 190, 190);
+	test_patterns[nb_test_patterns]->AddColorBar(1597, 104, 2708, 5938, FALSE, 197, 198,   0);
+	test_patterns[nb_test_patterns]->AddColorBar(3028, 104, 4139, 5938, FALSE,   0, 190, 188);
+	test_patterns[nb_test_patterns]->AddColorBar(4417, 104, 5528, 5938, FALSE,   0, 190,   0);
+	test_patterns[nb_test_patterns]->AddColorBar(5833, 104, 6944, 5938, FALSE, 189,   0, 188);
+	test_patterns[nb_test_patterns]->AddColorBar(7250, 104, 8361, 5938, FALSE, 188,   0,   0);
+	test_patterns[nb_test_patterns]->AddColorBar(8681, 104, 8403, 5938, FALSE,   0,   0, 186);
+	nb_test_patterns++;
+
+	test_patterns[nb_test_patterns] = new CTestPattern("VE Title 18 Chapter 2", FORMAT_NTSC, FALSE);
+	test_patterns[nb_test_patterns]->AddColorBar( 139, 208, 1042, 9583, FALSE,   0,   0,   0);
+	test_patterns[nb_test_patterns]->AddColorBar(1333, 208, 2028, 9583, FALSE,  29,  29,  29);
+	test_patterns[nb_test_patterns]->AddColorBar(2292, 208, 2986, 9583, FALSE,  60,  60,  60);
+	test_patterns[nb_test_patterns]->AddColorBar(3250, 208, 3944, 9583, FALSE,  90,  90,  90);
+	test_patterns[nb_test_patterns]->AddColorBar(4194, 208, 4889, 9583, FALSE, 116, 118, 118);
+	test_patterns[nb_test_patterns]->AddColorBar(5139, 208, 5833, 9583, FALSE, 150, 150, 150);
+	test_patterns[nb_test_patterns]->AddColorBar(6111, 208, 6806, 9583, FALSE, 177, 179, 179);
+	test_patterns[nb_test_patterns]->AddColorBar(7083, 208, 7778, 9583, FALSE, 206, 209, 205);
+	test_patterns[nb_test_patterns]->AddColorBar(8028, 208, 8722, 9583, FALSE, 236, 236, 236);
+	test_patterns[nb_test_patterns]->AddColorBar(8972, 208, 9806, 9583, FALSE, 254, 254, 254);
+	nb_test_patterns++;
 }
 
 void CCalibration::UnloadTestPatterns()

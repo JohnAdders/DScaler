@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.15 2001-07-26 22:02:12 laurentg Exp $
+// $Id: OSD.cpp,v 1.16 2001-07-28 16:15:15 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2001/07/26 22:02:12  laurentg
+// New entry in OSD section of ini file
+// New OSD screen for card calibration
+//
 // Revision 1.14  2001/07/16 18:07:50  adcockj
 // Added Optimisation parameter to ini file saving
 //
@@ -875,7 +879,14 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
             while (pColorBar != NULL)
 			{
                 pColorBar->GetRefPixel(FALSE, &val1, &val2, &val3);
-				Color = RGB(val1, val2, val3);
+                if ((val1 == 0) && (val2 == 0) && (val3 == 0))
+				{
+				    Color = RGB(1, 0, 0);
+				}
+                else
+				{
+				    Color = RGB(val1, val2, val3);
+				}
                 pColorBar->GetDiffPixel(!bUseRGB, &dif_val1, &dif_val2, &dif_val3);
                 sprintf (szInfo, "%s (%+d,%+d,%+d)", bUseRGB ? "RGB" : "YUV", dif_val1, dif_val2, dif_val3);
                 OSD_AddText(szInfo, Size, Color, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
@@ -907,6 +918,8 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
 					Color = 0;
 					break;
 				}
+				strcpy (szInfo, "???");
+				Color = 0;
                 OSD_AddText(szInfo, Size, Color, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
                 pColorBar = pTestPattern->GetNextColorBar();

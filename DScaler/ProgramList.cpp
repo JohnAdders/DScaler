@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.54 2002-04-13 18:56:23 laurentg Exp $
+// $Id: ProgramList.cpp,v 1.55 2002-05-28 11:51:12 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.54  2002/04/13 18:56:23  laurentg
+// Checks added to manage case where the current source is not yet defined
+//
 // Revision 1.53  2002/03/13 15:32:45  robmuller
 // Fixed problem when selecting None from the channel combo box.
 //
@@ -669,8 +672,12 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             {
                 Edit_GetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf, 255);
                 double dFreq = strtod(sbuf, &cLast);
-                long Freq = (long)(dFreq * 16.0);
+                int Freq = (int)(dFreq * 16.0);
                 --Freq;
+                if(Freq < 0)
+                {
+                    Freq = 0;
+                }
                 sprintf(sbuf, "%10.4f", (double)Freq / 16.0);
                 Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf);
                 Providers_GetCurrentSource()->SetTunerFrequency(Freq, SelectedVideoFormat(hDlg));

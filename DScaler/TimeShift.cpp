@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.cpp,v 1.16 2002-05-24 22:51:52 robmuller Exp $
+// $Id: TimeShift.cpp,v 1.17 2002-06-05 22:03:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/05/24 22:51:52  robmuller
+// Patch #560339 from PietOO.
+// Added missing emms statements.
+//
 // Revision 1.15  2002/02/19 16:04:01  tobbej
 // removed CurrentX and CurrentY
 // added new member in CSource, NotifySizeChange
@@ -175,7 +179,7 @@ bool CTimeShift::OnPlay(void)
         EnterCriticalSection(&m_pTimeShift->m_lock);
 
         // Save this off before we start playing.
-        //m_pTimeShift->m_origPixelWidth = CurrentX;
+        m_pTimeShift->m_origPixelWidth = SendMessage(hWnd, WM_BT848_GETVALUE, CURRENTX, 0);
 
         // Only start playing if we're stopped.
         result =
@@ -209,9 +213,10 @@ bool CTimeShift::OnStop(void)
 
         // Reset the user's pixel width outside the Stop function since we
         // call it between clips and pixelwidth-setting is slow.
-        /*if (result && CurrentX != m_pTimeShift->m_origPixelWidth)
+        if (result && SendMessage(hWnd, WM_BT848_GETVALUE, CURRENTX, 0) != m_pTimeShift->m_origPixelWidth)
+        {
             SetBT848PixelWidth(m_pTimeShift->m_origPixelWidth);
-		*/
+        }
 
         LeaveCriticalSection(&m_pTimeShift->m_lock);
     }
@@ -918,7 +923,7 @@ CTimeShift::CTimeShift()
     m_hWaveOut(NULL),
     m_nextWaveOutHdr(0),
     m_recHeight(TS_HALFHEIGHTEVEN),
-    //m_origPixelWidth(CurrentX),
+    m_origPixelWidth(720),
     m_origUseMixer(-1)
 {
     m_waveInDevice[0] = 0;
@@ -1101,8 +1106,6 @@ bool CTimeShift::OnCompressionOptions(void)
 
 bool CTimeShift::SetBT848PixelWidth(int pixelWidth)
 {
-    bool result = false;
-
     if (m_pTimeShift)
     {
         // Must be called from within one of the critical sections.
@@ -1110,11 +1113,14 @@ bool CTimeShift::SetBT848PixelWidth(int pixelWidth)
         // width.  Leave the critical section for this call.
         LeaveCriticalSection(&m_pTimeShift->m_lock);
         /// \todo Reinstate this line
-        //result = Setting_SetValue(BT848_GetSetting(CURRENTX), pixelWidth) == 0;
+        SendMessage(hWnd, WM_BT848_SETVALUE, CURRENTX, pixelWidth);
         EnterCriticalSection(&m_pTimeShift->m_lock);
+        return true;
     }
-
-    return result;
+    else
+    {
+        return false;
+    }
 }
 
 bool CTimeShift::DoMute(bool mute)
@@ -1260,7 +1266,9 @@ bool CTimeShift::Record(bool pause)
 
     // Mute the current live feed if we're pausing, waveIn can still hear it.
     if (pause)
+    {
         DoMute(true);
+    }
     
 
     int DeviceId;
@@ -1311,19 +1319,27 @@ bool CTimeShift::Record(bool pause)
 bool CTimeShift::Play(void)
 {
     if (m_mode != MODE_PAUSED)
+    {
         // Clear all variables.
         Stop();
+    }
 
     // Find the first AVI available.
     char fname[MAX_PATH];
     int curFile = m_curFile;
-    do {
+    do 
+    {
         sprintf(fname, "ds%.3u.avi", curFile);
         if (GetFileAttributes(fname) != 0xffffffff)
+        {
             break;
+        }
         if (++curFile == 1000)
+        {
             curFile = 0;
-    } while (curFile != m_curFile); // Bail if looped all the way around.
+        }
+    }
+    while (curFile != m_curFile); // Bail if looped all the way around.
     m_curFile = curFile;
 
     // Open the movie file for writing.
@@ -1361,9 +1377,10 @@ bool CTimeShift::Play(void)
         m_fps = m_infoVideo.dwRate;
 
         // Make sure the pixel width is ready for the incoming AVI's width.
-        /*if (CurrentX != m_infoVideo.rcFrame.right)
+        if (SendMessage(hWnd, WM_BT848_GETVALUE, CURRENTX, 0) != m_infoVideo.rcFrame.right)
+        {
             SetBT848PixelWidth(m_infoVideo.rcFrame.right);
-		*/
+        }
 
         // Update the size for current pixel width.
         SetDimensions();
@@ -1376,7 +1393,9 @@ bool CTimeShift::Play(void)
         == NULL)
     {
         if (m_mode != MODE_PAUSED)
+        {
             Stop();
+        }
         return false;
     }
 
@@ -1441,9 +1460,11 @@ bool CTimeShift::Stop(void)
 
         // The audio device is finished with the header, unprepare it.
         for (int i = 0; i < sizeof(m_waveInHdrs)/sizeof(*m_waveInHdrs); ++i)
+        {
             waveInUnprepareHeader(m_hWaveIn,
                                   m_waveInHdrs + i,
                                   sizeof(WAVEHDR));
+        }
     }
 
     if (m_hWaveOut)
@@ -1456,41 +1477,63 @@ bool CTimeShift::Stop(void)
 
         // The audio device is finished with the header, unprepare it.
         for (int i = 0; i < sizeof(m_waveOutHdrs)/sizeof(*m_waveOutHdrs); ++i)
+        {
             // Unpreparing a header that wasn't prepared does nothing.
             waveOutUnprepareHeader(m_hWaveOut,
                                    m_waveOutHdrs + i,
                                    sizeof(WAVEHDR));
+        }
     }
 
     if (m_psCompressedVideo)
+    {
         AVIStreamRelease(m_psCompressedVideo);
+    }
 
     if (m_psCompressedVideoP)
+    {
         AVIStreamRelease(m_psCompressedVideoP);
+    }
 
     if (m_psVideo)
+    {
         AVIStreamRelease(m_psVideo);
+    }
 
     if (m_psCompressedAudio)
+    {
         AVIStreamRelease(m_psCompressedAudio);
+    }
 
     if (m_psCompressedAudioP)
+    {
         AVIStreamRelease(m_psCompressedAudioP);
+    }
 
     if (m_psAudio)
+    {
         AVIStreamRelease(m_psAudio);
+    }
 
     if (m_pfile)
+    {
         AVIFileRelease(m_pfile);
+    }
 
     if (m_pGetFrame)
+    {
         AVIStreamGetFrameClose(m_pGetFrame);
+    }
 
     if (m_recordBits)
+    {
         delete m_recordBits;
+    }
 
     if (m_playBits)
+    {
         delete m_playBits;
+    }
 
     m_lpbi = NULL;
     m_recordBits = NULL;
@@ -1528,14 +1571,20 @@ bool CTimeShift::GoNext(void)
 {
     int curFile = m_curFile;
 
-    do {
+    do 
+    {
         if (++curFile == 1000)
+        {
             curFile = 0;
+        }
         char fname[MAX_PATH];
         sprintf(fname, "ds%.3u.avi", curFile);
         if (GetFileAttributes(fname) != 0xffffffff)
+        {
             break;
-    } while (curFile != m_curFile); // Bail if we've looped all the way around.
+        }
+    }
+    while (curFile != m_curFile); // Bail if we've looped all the way around.
 
     m_curFile = curFile;
 
@@ -1546,14 +1595,20 @@ bool CTimeShift::GoPrev(void)
 {
     int curFile = m_curFile;
 
-    do {
+    do 
+    {
         if (--curFile < 0)
+        {
             curFile = 999;
+        }
         char fname[MAX_PATH];
         sprintf(fname, "ds%.3u.avi", curFile);
         if (GetFileAttributes(fname) != 0xffffffff)
+        {
             break;
-    } while (curFile != m_curFile); // Bail if we've looped all the way around.
+        }
+    } 
+    while (curFile != m_curFile); // Bail if we've looped all the way around.
 
     m_curFile = curFile;
 
@@ -1623,7 +1678,6 @@ bool CTimeShift::WriteVideo(TDeinterlaceInfo* pInfo)
                                   w) + more;
             }
             break;
-#if 0 // EAS20010805: There is a crash bug here somewhere...
         case TS_HALFHEIGHTODD:
             for (; y >= 0; --y)
             {
@@ -1645,7 +1699,6 @@ bool CTimeShift::WriteVideo(TDeinterlaceInfo* pInfo)
                                      w) + more;
             }
             break;
-#endif // 0
         }
 
         long bytesWritten = 0;

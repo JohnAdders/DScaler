@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Crash.cpp,v 1.2 2001-07-27 16:11:32 adcockj Exp $
+// $Id: Crash.cpp,v 1.3 2001-11-09 12:42:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) 1998-2001 Avery Lee.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -27,6 +27,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/07/27 16:11:32  adcockj
+// Added support for new Crash dialog
+//
 // Revision 1.1  2001/07/24 12:19:00  adcockj
 // Added code and tools for crash logging from VirtualDub
 //
@@ -38,7 +41,6 @@
 
 #include <tlhelp32.h>
 
-#include "resource.h"
 #include "crash.h"
 #include "disasm.h"
 #include "list.h"
@@ -1262,7 +1264,7 @@ LONG WINAPI CrashHandler(EXCEPTION_POINTERS *pExc)
 
     if(bShowCrashDialog)
     {
-        DialogBoxParam(hInst, MAKEINTRESOURCE(IDD_DISASM_CRASH), NULL, CrashDlgProc, (LPARAM)pExc);
+        DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_DISASM_CRASH), NULL, CrashDlgProc, (LPARAM)pExc);
     }
     else
     {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.2 2001-11-02 16:30:07 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.3 2001-11-09 12:42:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/11/02 16:30:07  adcockj
+// Check in merged code from multiple cards branch into main tree
+//
 // Revision 1.1.2.11  2001/08/23 16:04:57  adcockj
 // Improvements to dynamic menus to remove requirement that they are not empty
 //
@@ -57,7 +60,6 @@
 #include "stdafx.h"
 #include "BT848Source.h"
 #include "DScaler.h"
-#include "resource.h"
 #include "VBI.h"
 #include "VBI_VideoText.h"
 #include "Audio.h"
@@ -1011,7 +1013,7 @@ void CBT848Source::SetupCard()
         m_TunerType->SetValue(m_pBT848Card->AutoDetectTuner((eTVCardId)m_CardType->GetValue()));
 
         // then display the hardware setup dialog
-        DialogBoxParam(hInst, MAKEINTRESOURCE(IDD_SELECTCARD), hWnd, (DLGPROC) SelectCardProc, (LPARAM)this);
+        DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_SELECTCARD), hWnd, (DLGPROC) SelectCardProc, (LPARAM)this);
     }
     m_pBT848Card->CardSpecificInit((eTVCardId)m_CardType->GetValue());
 }

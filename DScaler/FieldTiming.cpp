@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FieldTiming.cpp,v 1.20 2001-11-02 16:30:08 adcockj Exp $
+// $Id: FieldTiming.cpp,v 1.21 2001-11-09 12:42:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2001/11/02 16:30:08  adcockj
+// Check in merged code from multiple cards branch into main tree
+//
 // Revision 1.16.2.2  2001/08/20 16:14:19  adcockj
 // Massive tidy up of code to new structure
 //
@@ -61,7 +64,6 @@
 #include "DebugLog.h"
 #include "Deinterlace.h"
 #include "DScaler.h"
-#include "resource.h"
 #include "SettingsDlg.h"
 #include "Providers.h"
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Status.cpp,v 1.8 2001-11-02 16:30:08 adcockj Exp $
+// $Id: Status.cpp,v 1.9 2001-11-09 12:42:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2001/11/02 16:30:08  adcockj
+// Check in merged code from multiple cards branch into main tree
+//
 // Revision 1.7  2001/08/15 09:41:16  adcockj
 // Fix for statusbar font
 //
@@ -108,12 +111,12 @@ BOOL StatusBar_Init()
     wndclass.lpfnWndProc = (WNDPROC) StatusProc;
     wndclass.cbClsExtra = 0;
     wndclass.cbWndExtra = 0;
-    wndclass.hInstance = hInst;
+    wndclass.hInstance = hDScalerInst;
     wndclass.hIcon = NULL;
     wndclass.hCursor = LoadCursor(NULL, IDC_ARROW);
     wndclass.hbrBackground = hbrBtnFace;
     wndclass.lpszMenuName = NULL;
-    wndclass.lpszClassName = "SamplerStatus";
+    wndclass.lpszClassName = "DScalerStatus";
 
     if (!RegisterClass(&wndclass))
         return FALSE;
@@ -122,7 +125,7 @@ BOOL StatusBar_Init()
     wndclass.lpfnWndProc = (WNDPROC) StatusFieldProc;
     wndclass.cbClsExtra = 0;
     wndclass.cbWndExtra = 0;
-    wndclass.hInstance = hInst;
+    wndclass.hInstance = hDScalerInst;
     wndclass.hIcon = NULL;
     wndclass.hCursor = LoadCursor(NULL, IDC_ARROW);
     wndclass.hbrBackground = hbrBtnFace;
@@ -135,7 +138,7 @@ BOOL StatusBar_Init()
     StatusBorderX = GetSystemMetrics(SM_CXBORDER);
     StatusBorderY = GetSystemMetrics(SM_CYBORDER);
 
-    hwndStatusBar = CreateWindow("SamplerStatus", "SamplerStatus", WS_CHILD | WS_BORDER | WS_VISIBLE, 0, 0, 0, 0, hWnd, (HMENU)ID_STATUSBAR, hInst, NULL);
+    hwndStatusBar = CreateWindow("DScalerStatus", "DScalerStatus", WS_CHILD | WS_BORDER | WS_VISIBLE, 0, 0, 0, 0, hWnd, (HMENU)ID_STATUSBAR, hDScalerInst, NULL);
 
     if (!hwndStatusBar)
     {
@@ -231,7 +234,7 @@ HWND StatusBar_AddField(int iId, int iMin, int iMax, BOOL bNewGroup)
     if (NumStatusFields >= MAXSTATUS)
         return (HWND) 0;        // No room left in our fixed array
 
-    StatusFields[NumStatusFields].hWnd = CreateWindow("StatusField", "", WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, hwndStatusBar, (HMENU) iId, hInst, NULL);
+    StatusFields[NumStatusFields].hWnd = CreateWindow("DScalerField", "", WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, hwndStatusBar, (HMENU) iId, hDScalerInst, NULL);
 
     if (!StatusFields[NumStatusFields].hWnd)
         return (HWND) 0;        // CreateWindow failed for some reason

@@ -15,7 +15,6 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "resource.h"
 #include "Other.h"
 #include "OverlaySettings.h"
 
@@ -78,7 +77,7 @@ BOOL APIENTRY OverlaySettingProc(HWND hDlg, UINT message, UINT wParam, LONG lPar
             EndDialog(hDlg, TRUE);
             break;
 
-        case IDDEFAULT:
+        case IDC_DEFAULT:
             Setting_SetDefault(Other_GetSetting(OVERLAYBRIGHTNESS));
             Setting_SetDefault(Other_GetSetting(OVERLAYCONTRAST));
             Setting_SetDefault(Other_GetSetting(OVERLAYHUE));

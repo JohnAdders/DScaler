@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_CCdecode.cpp,v 1.9 2001-11-02 16:30:08 adcockj Exp $
+// $Id: VBI_CCdecode.cpp,v 1.10 2001-11-09 12:42:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Mike Baker.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2001/11/02 16:30:08  adcockj
+// Check in merged code from multiple cards branch into main tree
+//
 // Revision 1.8  2001/09/05 15:08:43  adcockj
 // Updated Loging
 //
@@ -56,7 +59,6 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "resource.h"
 #include "VBI_CCdecode.h"
 #include "DebugLog.h"
 #include "DScaler.h"

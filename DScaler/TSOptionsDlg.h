@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TSOptionsDlg.h,v 1.5 2001-08-06 03:00:17 ericschmidt Exp $
+// $Id: TSOptionsDlg.h,v 1.6 2001-11-09 12:42:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -26,6 +26,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/08/06 03:00:17  ericschmidt
+// solidified auto-pixel-width detection
+// preliminary pausing-of-live-tv work
+//
 // Revision 1.4  2001/07/26 15:28:14  ericschmidt
 // Added AVI height control, i.e. even/odd/averaged lines.
 // Used existing cpu/mmx detection in TimeShift code.
@@ -49,7 +53,6 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "resource.h"
 
 // Declare this for friend declaration below.
 class TimeShift;

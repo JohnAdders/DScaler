@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.3 2001-11-02 17:03:59 adcockj Exp $
+// $Id: BT848Souce_UI.cpp,v 1.4 2001-11-09 12:42:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/11/02 17:03:59  adcockj
+// Merge in PAL_NC change again
+//
 // Revision 1.2  2001/11/02 16:30:07  adcockj
 // Check in merged code from multiple cards branch into main tree
 //
@@ -37,7 +40,6 @@
 #include "BT848_Defines.h"
 #include "DScaler.h"
 #include "OutThreads.h"
-#include "Resource.h"
 
 extern const TCardSetup TVCards[TVCARD_LASTONE];
 extern const TTunerSetup Tuners[TUNER_LASTONE];
@@ -146,7 +148,7 @@ BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wPara
             EndDialog(hDlg, TRUE);
             break;
         
-        case IDDEFAULT:
+        case IDC_DEFAULT:
             pThis->Mute();
             pThis->m_SuperBass->SetDefault();
             pThis->m_Volume->SetDefault();
@@ -263,7 +265,7 @@ BOOL APIENTRY CBT848Source::AudioSettingProc1(HWND hDlg, UINT message, UINT wPar
             EndDialog(hDlg, TRUE);
             break;
 
-        case IDDEFAULT:
+        case IDC_DEFAULT:
             pThis->Mute();
             pThis->m_Equalizer1->SetDefault();
             pThis->m_Equalizer2->SetDefault();
@@ -442,25 +444,25 @@ void CBT848Source::SetMenu(HMENU hMenu)
 
     if(GetTVFormat((eVideoFormat)m_VideoFormat->GetValue())->wHActivex1 < 768)
     {
-        EnableMenuItem(m_hMenu, ID_SETTINGS_PIXELWIDTH_768, MF_GRAYED);
+        EnableMenuItem(m_hMenu, IDM_SETTINGS_PIXELWIDTH_768, MF_GRAYED);
     }
     else
     {
-        EnableMenuItem(m_hMenu, ID_SETTINGS_PIXELWIDTH_768, MF_ENABLED);
+        EnableMenuItem(m_hMenu, IDM_SETTINGS_PIXELWIDTH_768, MF_ENABLED);
     }
-    CheckMenuItemBool(m_hMenu, ID_SETTINGS_PIXELWIDTH_768, (m_PixelWidth->GetValue() == 768));
+    CheckMenuItemBool(m_hMenu, IDM_SETTINGS_PIXELWIDTH_768, (m_PixelWidth->GetValue() == 768));
     DoneWidth |= (m_PixelWidth->GetValue() == 768);
-    CheckMenuItemBool(m_hMenu, ID_SETTINGS_PIXELWIDTH_754, (m_PixelWidth->GetValue() == 754));
+    CheckMenuItemBool(m_hMenu, IDM_SETTINGS_PIXELWIDTH_754, (m_PixelWidth->GetValue() == 754));
     DoneWidth |= (m_PixelWidth->GetValue() == 754);
-    CheckMenuItemBool(m_hMenu, ID_SETTINGS_PIXELWIDTH_720, (m_PixelWidth->GetValue() == 720));
+    CheckMenuItemBool(m_hMenu, IDM_SETTINGS_PIXELWIDTH_720, (m_PixelWidth->GetValue() == 720));
     DoneWidth |= (m_PixelWidth->GetValue() == 720);
-    CheckMenuItemBool(m_hMenu, ID_SETTINGS_PIXELWIDTH_640, (m_PixelWidth->GetValue() == 640));
+    CheckMenuItemBool(m_hMenu, IDM_SETTINGS_PIXELWIDTH_640, (m_PixelWidth->GetValue() == 640));
     DoneWidth |= (m_PixelWidth->GetValue() == 640);
-    CheckMenuItemBool(m_hMenu, ID_SETTINGS_PIXELWIDTH_384, (m_PixelWidth->GetValue() == 384));
+    CheckMenuItemBool(m_hMenu, IDM_SETTINGS_PIXELWIDTH_384, (m_PixelWidth->GetValue() == 384));
     DoneWidth |= (m_PixelWidth->GetValue() == 384);
-    CheckMenuItemBool(m_hMenu, ID_SETTINGS_PIXELWIDTH_320, (m_PixelWidth->GetValue() == 320));
+    CheckMenuItemBool(m_hMenu, IDM_SETTINGS_PIXELWIDTH_320, (m_PixelWidth->GetValue() == 320));
     DoneWidth |= (m_PixelWidth->GetValue() == 320);
-    CheckMenuItemBool(m_hMenu, ID_SETTINGS_PIXELWIDTH_CUSTOM, !DoneWidth);
+    CheckMenuItemBool(m_hMenu, IDM_SETTINGS_PIXELWIDTH_CUSTOM, !DoneWidth);
 
     CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_0, (m_VideoFormat->GetValue() == 0));
     CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_1, (m_VideoFormat->GetValue() == 1));
@@ -638,7 +640,7 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
     {
         case IDM_SETUPCARD:
             Stop_Capture();
-            DialogBoxParam(hInst, MAKEINTRESOURCE(IDD_SELECTCARD), hWnd, (DLGPROC) SelectCardProc, (LPARAM)this);
+            DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_SELECTCARD), hWnd, (DLGPROC) SelectCardProc, (LPARAM)this);
             Start_Capture();
             break;
 
@@ -783,19 +785,19 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             break;
             
         case IDM_HWINFO:
-            DialogBoxParam(hInst, MAKEINTRESOURCE(IDD_HWINFO), hWnd, CBT848Card::ChipSettingProc, (LPARAM)m_pBT848Card);
+            DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_HWINFO), hWnd, CBT848Card::ChipSettingProc, (LPARAM)m_pBT848Card);
             break;
 
         case IDM_AUDIOSETTINGS:
-            DialogBox(hInst, MAKEINTRESOURCE(IDD_AUDIOSETTINGS), hWnd, AudioSettingProc);
+            DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_AUDIOSETTINGS), hWnd, AudioSettingProc);
             break;
 
         case IDM_AUDIOSETTINGS1:
-            DialogBox(hInst, MAKEINTRESOURCE(IDD_AUDIOEQUALIZER), hWnd, AudioSettingProc1);
+            DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_AUDIOEQUALIZER), hWnd, AudioSettingProc1);
             break;
 
         case IDM_ADV_VIDEOSETTINGS:
-            DialogBoxParam(hInst, MAKEINTRESOURCE(IDD_ADV_VIDEOSETTINGS), hWnd, AdvVideoSettingProc, (LPARAM)this);
+            DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_ADV_VIDEOSETTINGS), hWnd, AdvVideoSettingProc, (LPARAM)this);
             break;
 
         case IDM_TYPEFORMAT_0:
@@ -811,31 +813,31 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             ShowText(hWnd, GetStatus());
             break;
 
-        case ID_SETTINGS_PIXELWIDTH_768:
+        case IDM_SETTINGS_PIXELWIDTH_768:
             m_PixelWidth->SetValue(768);
             break;
 
-        case ID_SETTINGS_PIXELWIDTH_754:
+        case IDM_SETTINGS_PIXELWIDTH_754:
             m_PixelWidth->SetValue(754);
             break;
 
-        case ID_SETTINGS_PIXELWIDTH_720:
+        case IDM_SETTINGS_PIXELWIDTH_720:
             m_PixelWidth->SetValue(720);
             break;
     
-        case ID_SETTINGS_PIXELWIDTH_640:
+        case IDM_SETTINGS_PIXELWIDTH_640:
             m_PixelWidth->SetValue(640);
             break;
     
-        case ID_SETTINGS_PIXELWIDTH_384:
+        case IDM_SETTINGS_PIXELWIDTH_384:
             m_PixelWidth->SetValue(384);
             break;
     
-        case ID_SETTINGS_PIXELWIDTH_320:
+        case IDM_SETTINGS_PIXELWIDTH_320:
             m_PixelWidth->SetValue(320);
             break;
     
-        case ID_SETTINGS_PIXELWIDTH_CUSTOM:
+        case IDM_SETTINGS_PIXELWIDTH_CUSTOM:
             m_PixelWidth->SetValue(m_CustomPixelWidth->GetValue());
             break;
 

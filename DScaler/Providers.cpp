@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.2 2001-11-02 16:30:08 adcockj Exp $
+// $Id: Providers.cpp,v 1.3 2001-11-09 12:42:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/11/02 16:30:08  adcockj
+// Check in merged code from multiple cards branch into main tree
+//
 // Revision 1.1.2.6  2001/08/23 16:04:57  adcockj
 // Improvements to dynamic menus to remove requirement that they are not empty
 //
@@ -44,7 +47,6 @@
 #include "StillProvider.h"
 #include "HardwareDriver.h"
 #include "OutThreads.h"
-#include "Resource.h"
 
 typedef vector<CInterlacedSource*> SOURCELIST;
 

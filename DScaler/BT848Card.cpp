@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.3 2001-11-02 16:30:07 adcockj Exp $
+// $Id: BT848Card.cpp,v 1.4 2001-11-09 12:42:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/11/02 16:30:07  adcockj
+// Check in merged code from multiple cards branch into main tree
+//
 // Revision 1.1.2.7  2001/08/22 11:12:48  adcockj
 // Added VBI support
 //
@@ -51,7 +54,6 @@
 #include "BT848_Defines.h"
 #include "Audio.h"
 #include "DebugLog.h"
-#include "Resource.h"
 #include "CPU.h"
 #include "TVFormats.h"
 // TODO: remove dependencies below

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: stdafx.h,v 1.7 2001-07-23 20:52:07 ericschmidt Exp $
+// $Id: stdafx.h,v 1.8 2001-11-09 12:42:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2001/07/23 20:52:07  ericschmidt
+// Added TimeShift class.  Original Release.  Got record and playback code working.
+//
 // Revision 1.6  2001/07/13 16:14:56  adcockj
 // Changed lots of variables to match Coding standards
 //
@@ -60,5 +63,8 @@
 #include "HtmlHelp.H"
 #include <vector>
 #include <string>
+
+#include "..\DScalerRes\resource.h"
+#include "resource.h"
 
 using namespace std;

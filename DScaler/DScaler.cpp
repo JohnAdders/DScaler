@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.83 2001-11-02 16:30:07 adcockj Exp $
+// $Id: DScaler.cpp,v 1.84 2001-11-09 12:42:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.83  2001/11/02 16:30:07  adcockj
+// Check in merged code from multiple cards branch into main tree
+//
 // Revision 1.82  2001/11/02 10:15:20  temperton
 // Removed unnecessary painting of color key in middle part of screen in teletext mode.
 //
@@ -237,7 +240,6 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "resource.h"
 #include "Other.h"
 #include "CPU.h"
 #include "MixerDev.h"
@@ -270,7 +272,8 @@
 #include "OverlaySettings.h"
 
 HWND hWnd = NULL;
-HINSTANCE hInst = NULL;
+HINSTANCE hResourceInst = NULL;
+HINSTANCE hDScalerInst = NULL;
 
 // Used to call MainWndOnInitBT
 #define INIT_BT 1800
@@ -347,7 +350,7 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     MSG msg;
     HWND hPrevWindow;
 
-    hInst = hInstance;
+    hDScalerInst = hInstance;
 
     SetErrorMode(SEM_NOGPFAULTERRORBOX);
     SetUnhandledExceptionFilter(UnexpectedCrashHandler);
@@ -417,7 +420,7 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     {
         return FALSE;
     }
-    hMenu = LoadMenu(hInstance, MAKEINTRESOURCE(IDC_DSCALERMENU));
+    hMenu = LoadMenu(hResourceInst, MAKEINTRESOURCE(IDC_DSCALERMENU));
 
 
     // 2000-10-31 Added by Mark: Changed to WS_POPUP for more cosmetic direct-to-full-screen startup,
@@ -444,7 +447,7 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     UpdateWindowState();
 
     PostMessage(hWnd, WM_SIZE, SIZENORMAL, MAKELONG(MainWndWidth, MainWndHeight));
-    if (!(hAccel = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDA_DSCALER))))
+    if (!(hAccel = LoadAccelerators(hResourceInst, MAKEINTRESOURCE(IDA_DSCALER))))
     {
         ErrorBox("Accelerators not Loaded");
     }
@@ -470,7 +473,7 @@ LONG APIENTRY MainWndProcSafe(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 HMENU CreateDScalerPopupMenu()
 {
     HMENU hMenuPopup;
-    hMenuPopup = LoadMenu(hInst, MAKEINTRESOURCE(IDC_CONTEXTMENU));
+    hMenuPopup = LoadMenu(hResourceInst, MAKEINTRESOURCE(IDC_CONTEXTMENU));
     if (hMenuPopup != NULL)
     {
         hMenuPopup = GetSubMenu(hMenuPopup,0);
@@ -775,7 +778,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
         case IDM_CHANNEL_LIST:
             SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_TUNER, 0);
-            DialogBox(hInst, MAKEINTRESOURCE(IDD_CHANNELLIST), hWnd, (DLGPROC) ProgramListProc);
+            DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_CHANNELLIST), hWnd, (DLGPROC) ProgramListProc);
             Channels_UpdateMenu(::GetMenu(hWnd));
             break;
 
@@ -885,7 +888,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_ABOUT:
-            DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUT), hWnd, AboutProc);
+            DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_ABOUT), hWnd, AboutProc);
             break;
 
         case IDM_BRIGHTNESS_PLUS:
@@ -1147,11 +1150,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_VPS_OUT:
-            DialogBox(hInst, MAKEINTRESOURCE(IDD_VPSSTATUS), hWnd, VPSInfoProc);
+            DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_VPSSTATUS), hWnd, VPSInfoProc);
             break;
 
         case IDM_VT_OUT:
-            DialogBox(hInst, MAKEINTRESOURCE(IDD_VTSTATUS), hWnd, VTInfoProc);
+            DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_VTSTATUS), hWnd, VTInfoProc);
             break;
 
         case IDM_VBI:
@@ -1473,7 +1476,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_OVERLAYSETTINGS:
-            DialogBox(hInst, MAKEINTRESOURCE(IDD_OVERLAYSETTINGS), hWnd, OverlaySettingProc);
+            DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_OVERLAYSETTINGS), hWnd, OverlaySettingProc);
             break;
 
         case IDM_FAST_REPAINT:

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Bt848.cpp,v 1.36 2001-11-02 17:03:59 adcockj Exp $
+// $Id: Bt848.cpp,v 1.37 2001-11-09 12:42:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,6 +44,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.36  2001/11/02 17:03:59  adcockj
+// Merge in PAL_NC change again
+//
 // Revision 1.35  2001/09/05 15:08:43  adcockj
 // Updated Loging
 //
@@ -91,7 +94,6 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "resource.h"
 #include "bt848.h"
 #include "OutThreads.h"
 #include "Audio.h"
@@ -2090,25 +2092,25 @@ void BT848_SetMenu(HMENU hMenu)
 
     if(BT848_GetTVFormat()->wHActivex1 < 768)
     {
-        EnableMenuItem(hMenu, ID_SETTINGS_PIXELWIDTH_768, MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_SETTINGS_PIXELWIDTH_768, MF_GRAYED);
     }
     else
     {
-        EnableMenuItem(hMenu, ID_SETTINGS_PIXELWIDTH_768, MF_ENABLED);
+        EnableMenuItem(hMenu, IDM_SETTINGS_PIXELWIDTH_768, MF_ENABLED);
     }
-    CheckMenuItemBool(hMenu, ID_SETTINGS_PIXELWIDTH_768, (CurrentX == 768));
+    CheckMenuItemBool(hMenu, IDM_SETTINGS_PIXELWIDTH_768, (CurrentX == 768));
     DoneWidth |= (CurrentX == 768);
-    CheckMenuItemBool(hMenu, ID_SETTINGS_PIXELWIDTH_754, (CurrentX == 754));
+    CheckMenuItemBool(hMenu, IDM_SETTINGS_PIXELWIDTH_754, (CurrentX == 754));
     DoneWidth |= (CurrentX == 754);
-    CheckMenuItemBool(hMenu, ID_SETTINGS_PIXELWIDTH_720, (CurrentX == 720));
+    CheckMenuItemBool(hMenu, IDM_SETTINGS_PIXELWIDTH_720, (CurrentX == 720));
     DoneWidth |= (CurrentX == 720);
-    CheckMenuItemBool(hMenu, ID_SETTINGS_PIXELWIDTH_640, (CurrentX == 640));
+    CheckMenuItemBool(hMenu, IDM_SETTINGS_PIXELWIDTH_640, (CurrentX == 640));
     DoneWidth |= (CurrentX == 640);
-    CheckMenuItemBool(hMenu, ID_SETTINGS_PIXELWIDTH_384, (CurrentX == 384));
+    CheckMenuItemBool(hMenu, IDM_SETTINGS_PIXELWIDTH_384, (CurrentX == 384));
     DoneWidth |= (CurrentX == 384);
-    CheckMenuItemBool(hMenu, ID_SETTINGS_PIXELWIDTH_320, (CurrentX == 320));
+    CheckMenuItemBool(hMenu, IDM_SETTINGS_PIXELWIDTH_320, (CurrentX == 320));
     DoneWidth |= (CurrentX == 320);
-    CheckMenuItemBool(hMenu, ID_SETTINGS_PIXELWIDTH_CUSTOM, !DoneWidth);
+    CheckMenuItemBool(hMenu, IDM_SETTINGS_PIXELWIDTH_CUSTOM, !DoneWidth);
 
     CheckMenuItemBool(hMenu, IDM_TYPEFORMAT_0, (TVFormat == 0));
     CheckMenuItemBool(hMenu, IDM_TYPEFORMAT_1, (TVFormat == 1));

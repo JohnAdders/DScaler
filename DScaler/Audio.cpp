@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Audio.cpp,v 1.19 2001-11-02 16:33:07 adcockj Exp $
+// $Id: Audio.cpp,v 1.20 2001-11-09 12:42:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2001/11/02 16:33:07  adcockj
+// Removed conflict tags
+//
 // Revision 1.18  2001/11/02 16:30:06  adcockj
 // Check in merged code from multiple cards branch into main tree
 //
@@ -84,7 +87,6 @@
 #include "Status.h"
 #include "MixerDev.h"
 #include "Providers.h"
-#include "resource.h"
 
 
 BOOL bSystemInMute = FALSE;

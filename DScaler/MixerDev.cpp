@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.19 2001-11-02 16:32:54 adcockj Exp $
+// $Id: MixerDev.cpp,v 1.20 2001-11-09 12:42:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2001/11/02 16:32:54  adcockj
+// Removed conflict tags
+//
 // Revision 1.18  2001/11/02 16:30:08  adcockj
 // Check in merged code from multiple cards branch into main tree
 //
@@ -78,7 +81,6 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "resource.h"
 #include "MixerDev.h"
 #include "DScaler.h"
 #include "BT848Card.h"
@@ -635,7 +637,7 @@ void Mixer_SetupDlg(HWND hWndParent)
 {
     if(pSoundSystem == NULL || pSoundSystem->GetNumMixers() > 0)
     {
-        DialogBox(hInst, MAKEINTRESOURCE(IDD_MIXERSETUP), hWndParent, MixerSetupProc);
+        DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_MIXERSETUP), hWndParent, MixerSetupProc);
     }
     else
     {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_Common.cpp,v 1.18 2001-09-05 15:08:43 adcockj Exp $
+// $Id: FD_Common.cpp,v 1.19 2001-11-09 12:42:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2001/09/05 15:08:43  adcockj
+// Updated Loging
+//
 // Revision 1.17  2001/08/09 21:42:34  adcockj
 // Removed LOGD
 //
@@ -67,7 +70,6 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "resource.h"
 #include "OutThreads.h"
 #include "FD_Common.h"
 #include "FD_CommonFunctions.h"

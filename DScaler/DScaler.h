@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.11 2001-11-02 16:30:07 adcockj Exp $
+// $Id: DScaler.h,v 1.12 2001-11-09 12:42:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -89,7 +89,8 @@ HMENU GetPatternsSubmenu();
 #define TIMER_HIDECURSOR    45
 #define TIMER_HIDECURSOR_MS 5000
 
-extern HINSTANCE hInst;
+extern HINSTANCE hDScalerInst;
+extern HINSTANCE hResourceInst;
 extern HWND hWnd;
 
 extern BOOL bIgnoreMouse;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Disasm.cpp,v 1.3 2001-07-30 12:18:57 adcockj Exp $
+// $Id: Disasm.cpp,v 1.4 2001-11-09 12:42:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (C) 1998-2001 Avery Lee.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -26,6 +26,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/07/30 12:18:57  adcockj
+// Added some SSE instructions
+//
 // Revision 1.2  2001/07/27 16:11:32  adcockj
 // Added support for new Crash dialog
 //
@@ -35,7 +38,6 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "resource.h"
 #include "disasm.h"
 
 #define MAX_INSTRUCTIONS (1024)

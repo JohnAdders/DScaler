@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VideoSettings.cpp,v 1.9 2001-11-02 16:30:08 adcockj Exp $
+// $Id: VideoSettings.cpp,v 1.10 2001-11-09 12:42:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2001/11/02 16:30:08  adcockj
+// Check in merged code from multiple cards branch into main tree
+//
 // Revision 1.8  2001/09/03 13:46:06  adcockj
 // Added PAL-NC thanks to Eduardo José Tagle
 //
@@ -60,7 +63,6 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "resource.h"
 #include "AspectRatio.h"
 #include "Audio.h"
 #include "VideoSettings.h"
@@ -216,7 +218,7 @@ BOOL APIENTRY VideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam
             EndDialog(hDlg, TRUE);
             break;
 
-        case IDDEFAULT:
+        case IDC_DEFAULT:
             if(Brightness != NULL)
             {
                 Brightness->SetDefault();

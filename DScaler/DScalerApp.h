@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScalerApp.h,v 1.3 2001-11-04 14:44:58 adcockj Exp $
+// $Id: DScalerApp.h,v 1.4 2001-11-09 12:42:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -33,8 +33,6 @@
 #ifndef __AFXWIN_H__
     #error include 'stdafx.h' before including this file for PCH
 #endif
-
-#include "resource.h"       // main symbols
 
 class CDScalerApp : public CWinApp
 {

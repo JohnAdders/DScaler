@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DVBTSource.cpp,v 1.1 2001-11-02 16:30:07 adcockj Exp $
+// $Id: DVBTSource.cpp,v 1.2 2001-11-09 12:42:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,11 +18,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/11/02 16:30:07  adcockj
+// Check in merged code from multiple cards branch into main tree
+//
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include "DVBTSource.h"
-#include "resource.h"
 
 CDVBTSource::CDVBTSource(CDVBTCard* pDVBTCard, LPCSTR IniSection) :
     CInterlacedSource(WM_DVBT_GETVALUE, IDC_DVBT),

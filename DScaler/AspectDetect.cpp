@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectDetect.cpp,v 1.19 2001-11-02 16:30:06 adcockj Exp $
+// $Id: AspectDetect.cpp,v 1.20 2001-11-09 12:42:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -39,6 +39,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2001/11/02 16:30:06  adcockj
+// Check in merged code from multiple cards branch into main tree
+//
 // Revision 1.18  2001/09/05 15:08:43  adcockj
 // Updated Loging
 //
@@ -84,7 +87,6 @@
 #include "stdafx.h"
 #include "Other.h"
 #include "AspectRatio.h"
-#include "Resource.h"
 #include "DebugLog.h"
 #include "Status.h"
 #include "DScaler.h"

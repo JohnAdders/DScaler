@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.35 2001-11-02 16:30:08 adcockj Exp $
+// $Id: OSD.cpp,v 1.36 2001-11-09 12:42:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.35  2001/11/02 16:30:08  adcockj
+// Check in merged code from multiple cards branch into main tree
+//
 // Revision 1.34  2001/09/29 16:33:50  laurentg
 // Background color and background mode can now be deifned sepaately for each text in OSD
 // OSD for calibration updated
@@ -166,7 +169,6 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "resource.h"
 #include "OSD.h"
 #include "AspectRatio.h"
 #include "Other.h"

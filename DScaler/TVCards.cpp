@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TVCards.cpp,v 1.31 2001-10-28 16:40:01 ittarnavsky Exp $
+// $Id: TVCards.cpp,v 1.32 2001-11-09 12:42:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // The structures where taken from bttv driver version 7.37
 // bttv - Bt848 frame grabber driver
@@ -33,6 +33,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2001/10/28 16:40:01  ittarnavsky
+// added card and tuner definitions from bttv-0.7.83
+//
 // Revision 1.30  2001/10/26 16:18:47  adcockj
 // Added Start bt878 card with no MSP init as workaround for US cards
 //
@@ -79,7 +82,6 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "resource.h"
 #include "tvcards.h"
 #include "bt848.h"
 #include "i2c.h"
@@ -1608,14 +1610,14 @@ const TTunerSetup* GetTunerSetup()
     }
 }
 
-void TVCard_FirstTimeSetupHardware(HINSTANCE hInst, HWND hWnd)
+void TVCard_FirstTimeSetupHardware()
 {
     // try to detect the card
     CardType = Card_AutoDetect();
     TunerType = Card_AutoDetectTuner(CardType);
 
     // then display the hardware setup dialog
-    DialogBox(hInst, MAKEINTRESOURCE(IDD_SELECTCARD), hWnd, (DLGPROC) SelectCardProc);
+    DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_SELECTCARD), hWnd, (DLGPROC) SelectCardProc);
 }
 
 void TVCard_ChangeDefault(SETTING* pSetting, long Default)

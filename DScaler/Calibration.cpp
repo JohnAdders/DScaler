@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.30 2001-11-02 16:30:07 adcockj Exp $
+// $Id: Calibration.cpp,v 1.31 2001-11-09 12:42:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 //  This file is subject to the terms of the GNU General Public License as
@@ -16,6 +16,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2001/11/02 16:30:07  adcockj
+// Check in merged code from multiple cards branch into main tree
+//
 // Revision 1.29  2001/11/01 11:35:23  adcockj
 // Pre release changes to version, help, comment and headers
 //
@@ -31,7 +34,6 @@
 
 #include "stdafx.h"
 #include "Calibration.h"
-#include "resource.h"
 #include "DScaler.h"
 #include "Setting.h"
 #include "OSD.h"

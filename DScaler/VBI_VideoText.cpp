@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.25 2001-11-02 16:30:08 adcockj Exp $
+// $Id: VBI_VideoText.cpp,v 1.26 2001-11-09 12:42:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2001/11/02 16:30:08  adcockj
+// Check in merged code from multiple cards branch into main tree
+//
 // Revision 1.24  2001/10/22 17:28:40  temperton
 // Removed tabs to comply with coding standards
 //
@@ -96,7 +99,6 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "resource.h"
 #include "VBI_VideoText.h"
 #include "VBI_CCdecode.h"
 #include "VBI.h"
@@ -343,7 +345,7 @@ void VBI_decode_vps(unsigned char* data)
     if (VPSNameIndex >= 9)
         VPSNameIndex = 0;
     if (ShowVPSInfo != NULL)
-        SetDlgItemText(ShowVPSInfo, TEXT1, VPSLastName);
+        SetDlgItemText(ShowVPSInfo, IDC_TEXT1, VPSLastName);
 }
 
 unsigned char VBI_Scan(BYTE* VBI_Buffer, unsigned int step)
@@ -1147,9 +1149,9 @@ BOOL APIENTRY VTInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
     case WM_INITDIALOG:
         SetTimer(hDlg, 0, 2000, NULL);
     case WM_TIMER:
-        SetDlgItemInt(hDlg, TEXT1, VTCachedPages, FALSE);
-        SetDlgItemInt(hDlg, TEXT2, VTCurrentPage, FALSE);
-        SetDlgItemInt(hDlg, TEXT2, VTCurrentSubCode, FALSE);
+        SetDlgItemInt(hDlg, IDC_TEXT1, VTCachedPages, FALSE);
+        SetDlgItemInt(hDlg, IDC_TEXT2, VTCurrentPage, FALSE);
+        SetDlgItemInt(hDlg, IDC_TEXT3, VTCurrentSubCode, FALSE);
         break;
 
     case WM_COMMAND:
@@ -1176,23 +1178,23 @@ void VT_SetCodePage(eVTCodePage Codepage)
     switch(Codepage)
     {
     case VT_GREEK_CODE_PAGE:
-        VTCharSet = (BITMAPINFO *)LoadResource(hInst, FindResource(hInst, MAKEINTRESOURCE(IDB_GREEK_VTCHARS), RT_BITMAP));
+        VTCharSet = (BITMAPINFO *)LoadResource(hDScalerInst, FindResource(hDScalerInst, MAKEINTRESOURCE(IDB_GREEK_VTCHARS), RT_BITMAP));
         break;
     case VT_CZECH_CODE_PAGE:
-        VTCharSet = (BITMAPINFO *)LoadResource(hInst, FindResource(hInst, MAKEINTRESOURCE(IDB_CZECH_VTCHARS), RT_BITMAP));
+        VTCharSet = (BITMAPINFO *)LoadResource(hDScalerInst, FindResource(hDScalerInst, MAKEINTRESOURCE(IDB_CZECH_VTCHARS), RT_BITMAP));
         break;
     case VT_FRENCH_CODE_PAGE:
-        VTCharSet = (BITMAPINFO *)LoadResource(hInst, FindResource(hInst, MAKEINTRESOURCE(IDB_FRENCH_VTCHARS), RT_BITMAP));
+        VTCharSet = (BITMAPINFO *)LoadResource(hDScalerInst, FindResource(hDScalerInst, MAKEINTRESOURCE(IDB_FRENCH_VTCHARS), RT_BITMAP));
         break;
     case VT_RUSSIAN_CODE_PAGE:
-        VTCharSet = (BITMAPINFO *)LoadResource(hInst, FindResource(hInst, MAKEINTRESOURCE(IDB_RUSSIAN_VTCHARS), RT_BITMAP));
+        VTCharSet = (BITMAPINFO *)LoadResource(hDScalerInst, FindResource(hDScalerInst, MAKEINTRESOURCE(IDB_RUSSIAN_VTCHARS), RT_BITMAP));
         break;
     case VT_GERMAN_CODE_PAGE:
-        VTCharSet = (BITMAPINFO *)LoadResource(hInst, FindResource(hInst, MAKEINTRESOURCE(IDB_GERMAN_VTCHARS), RT_BITMAP));
+        VTCharSet = (BITMAPINFO *)LoadResource(hDScalerInst, FindResource(hDScalerInst, MAKEINTRESOURCE(IDB_GERMAN_VTCHARS), RT_BITMAP));
         break;
     case VT_UK_CODE_PAGE:
     default:
-        VTCharSet = (BITMAPINFO *)LoadResource(hInst, FindResource(hInst, MAKEINTRESOURCE(IDB_VTCHARS), RT_BITMAP));
+        VTCharSet = (BITMAPINFO *)LoadResource(hDScalerInst, FindResource(hDScalerInst, MAKEINTRESOURCE(IDB_VTCHARS), RT_BITMAP));
         break;
     }
 }

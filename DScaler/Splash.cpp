@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Splash.cpp,v 1.6 2001-08-02 16:43:05 adcockj Exp $
+// $Id: Splash.cpp,v 1.7 2001-11-09 12:42:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/08/02 16:43:05  adcockj
+// Added Debug level to LOG function
+//
 // Revision 1.5  2001/07/12 16:16:40  adcockj
 // Added CVS Id and Log
 //
@@ -37,7 +40,6 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "resource.h"
 #include "Splash.h"
 #include "DScaler.h"
 #include "DebugLog.h"
@@ -59,7 +61,7 @@ BOOL APIENTRY SplashProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         {
             int Width = GetSystemMetrics(SM_CXSCREEN);
             int Height = GetSystemMetrics(SM_CYSCREEN);
-            hSplashBm = (HBITMAP)LoadImage(hInst, MAKEINTRESOURCE(IDB_STARTUP), IMAGE_BITMAP, 0, 0, LR_VGACOLOR);
+            hSplashBm = (HBITMAP)LoadImage(hDScalerInst, MAKEINTRESOURCE(IDB_STARTUP), IMAGE_BITMAP, 0, 0, LR_VGACOLOR);
             GetObject(hSplashBm, sizeof(BITMAP), (LPSTR) &bm);
 
             SetWindowPos(hDlg, HWND_TOPMOST, 
@@ -101,7 +103,7 @@ BOOL APIENTRY SplashProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 
 void ShowSpashScreen()
 {
-    SplashWnd = CreateDialog(hInst, MAKEINTRESOURCE(IDD_SPLASHBOX), NULL, SplashProc);
+    SplashWnd = CreateDialog(hResourceInst, MAKEINTRESOURCE(IDD_SPLASHBOX), NULL, SplashProc);
 }
 
 void HideSplashScreen()

@@ -245,6 +245,16 @@
 			<param name="Local" value="ColourInversion.HTM">
 			<param name="ImageNumber" value="11">
 			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Black and White">
+			<param name="Local" value="BlackWhite.HTM">
+			<param name="ImageNumber" value="11">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Y/C Shift">
+			<param name="Local" value="LuminanceShift.HTM">
+			<param name="ImageNumber" value="11">
+			</OBJECT>
 	</UL>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Advanced">

@@ -1,10 +1,10 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ generated include file.
-// Used by REGSPY.RC
+// Microsoft Developer Studio generated include file.
+// Used by RegSpy.rc
 //
-#define IDS_APP_TITLE					102
-#define IDI_REGSPY						103
-#define IDC_REGSPY						104
+#define IDS_APP_TITLE                   102
+#define IDI_REGSPY                      103
+#define IDC_REGSPY                      104
 #define IDD_MAINDIALOG                  128
 #define IDC_SOURCESELECT                1000
 #define IDC_DUMPTOFILE                  1001
@@ -18,15 +18,18 @@
 #define IDC_MOVEUPCHANGES               1009
 #define IDC_LOGSTATE                    1010
 #define IDC_RELOAD                      1011
-#define IDC_STATIC	                    -1
+#define IDC_HARDWARE                    1012
+#define IDC_REGISTERS                   1013
+#define IDC_SEPARATOR                   1014
+#define IDC_STATIC                      -1
+
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-
 #define _APS_NEXT_RESOURCE_VALUE        129
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1012
+#define _APS_NEXT_CONTROL_VALUE         1015
 #define _APS_NEXT_SYMED_VALUE           105
 #endif
 #endif

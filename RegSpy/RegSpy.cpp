@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: RegSpy.cpp,v 1.3 2002-12-04 14:15:06 adcockj Exp $
+// $Id: RegSpy.cpp,v 1.4 2002-12-05 08:06:11 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,8 +18,12 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/12/04 14:15:06  adcockj
+// Fixed RegSpy Problems
+//
 // Revision 1.2  2002/12/04 00:20:32  atnak
-// Fixed: Registers not redrawing properly.  Some register disappearing off the list.   Untabified file
+// Fixed: Registers not redrawing properly.  Some register disappearing off the
+// list.  Untabified file
 //
 // Revision 1.1  2002/12/03 20:51:42  atnak
 // Added new app for monitoring register settings while other programs are running
@@ -38,9 +42,14 @@ enum
 {
     REG_FONT_HEIGHT     = 12,
     MAX_LOG_STATES      = 6,
+
+    MIN_DIALOG_WIDTH    = 310,
+
     REG_REFRESH_TICKS   = 200,
+    CHANGE_FADE_TICKS   = 4000 / REG_REFRESH_TICKS,
 };
 
+#define REG_FONT_NAME       "Lucida Console"
 
 typedef struct _Register    TRegister;
 typedef struct _Chip        TChip;
@@ -73,9 +82,10 @@ struct _Register
     DWORD       Offset;
     char*       Name;
     BYTE        Size;
+    BOOL        bAlloced;
     DWORD       LastValue;
     DWORD       LogStates[MAX_LOG_STATES];
-    BYTE        FadeTicks;
+    WORD        FadeTicks;
     BOOL        bDraw;
 };
 
@@ -88,6 +98,7 @@ struct _Register
             (*hRegisterListTail)->Name = #Reg; \
             (*hRegisterListTail)->Offset = Reg; \
             (*hRegisterListTail)->Size = 1; \
+            (*hRegisterListTail)->bAlloced = FALSE; \
             (*hRegisterListTail)->bDraw = FALSE; \
             *(hRegisterListTail = &(*hRegisterListTail)->Next) = NULL; \
         } \
@@ -100,6 +111,7 @@ struct _Register
             (*hRegisterListTail)->Name = #Reg; \
             (*hRegisterListTail)->Offset = Reg; \
             (*hRegisterListTail)->Size = 2; \
+            (*hRegisterListTail)->bAlloced = FALSE; \
             (*hRegisterListTail)->bDraw = FALSE; \
             *(hRegisterListTail = &(*hRegisterListTail)->Next) = NULL; \
         } \
@@ -112,6 +124,7 @@ struct _Register
             (*hRegisterListTail)->Name = #Reg; \
             (*hRegisterListTail)->Offset = Reg; \
             (*hRegisterListTail)->Size = 4; \
+            (*hRegisterListTail)->bAlloced = FALSE; \
             (*hRegisterListTail)->bDraw = FALSE; \
             *(hRegisterListTail = &(*hRegisterListTail)->Next) = NULL; \
         } \
@@ -344,46 +357,9 @@ void __cdecl CX2388xRegSpy(TRegister** hRegisterListTail)
 
 void __cdecl SAA7134RegSpy(TRegister** hRegisterListTail)
 {
-    AddBRegister(SAA7134_INCR_DELAY);
-    AddBRegister(SAA7134_ANALOG_IN_CTRL1);
-    AddBRegister(SAA7134_ANALOG_IN_CTRL2);
-    AddBRegister(SAA7134_ANALOG_IN_CTRL3);
-    AddBRegister(SAA7134_ANALOG_IN_CTRL4);
-
-    AddBRegister(SAA7134_HSYNC_START);
-    AddBRegister(SAA7134_HSYNC_STOP);
-    AddBRegister(SAA7134_SYNC_CTRL);
-    AddBRegister(SAA7134_LUMA_CTRL);
-    AddBRegister(SAA7134_DEC_LUMA_BRIGHT);
-    AddBRegister(SAA7134_DEC_LUMA_CONTRAST);
-    AddBRegister(SAA7134_DEC_CHROMA_SATURATION);
-    AddBRegister(SAA7134_DEC_CHROMA_HUE);
-    AddBRegister(SAA7134_CHROMA_CTRL1);
-    AddBRegister(SAA7134_CHROMA_GAIN_CTRL);
-    AddBRegister(SAA7134_CHROMA_CTRL2);
-    AddBRegister(SAA7134_MODE_DELAY_CTRL);
-    AddBRegister(SAA7134_ANALOG_ADC);
-    AddBRegister(SAA7134_VGATE_START);
-    AddBRegister(SAA7134_VGATE_STOP);
-    AddBRegister(SAA7134_MISC_VGATE_MSB);
-    AddBRegister(SAA7134_RAW_DATA_GAIN);
-    AddBRegister(SAA7134_RAW_DATA_OFFSET);
-    AddBRegister(SAA7134_STATUS_VIDEO);
-    AddBRegister(SAA7134_STATUS_VIDEO_HIBYTE);
-
     AddDWRegister(SAA7134_GPIO_GPMODE);
     AddDWRegister(SAA7134_GPIO_GPSTATUS);
-
-    AddBRegister(SAA7134_OFMT_VIDEO_A);
-    AddBRegister(SAA7134_OFMT_DATA_A);
-    AddBRegister(SAA7134_OFMT_VIDEO_B);
-    AddBRegister(SAA7134_OFMT_DATA_B);
-    AddBRegister(SAA7134_ALPHA_NOCLIP);
-    AddBRegister(SAA7134_ALPHA_CLIP);
-    AddBRegister(SAA7134_UV_PIXEL);
-    AddBRegister(SAA7134_CLIP_RED);
-    AddBRegister(SAA7134_CLIP_GREEN);
-    AddBRegister(SAA7134_CLIP_BLUE);}
+}
 
 
 //  struct TChip:
@@ -436,100 +412,22 @@ TChip Chips[] =
 
 
 
-BOOL CreateRegDisplay(HWND, HDC*, HBITMAP*, HFONT*);
-void DeleteRegDisplay(HDC*, HBITMAP*, HFONT*);
+typedef struct _REGDISPLAYINFO
+{
+    TRegister**         hRegisterList;
+    LPCRITICAL_SECTION  pRegisterListMutex;
+    BYTE*               pLogState;
+    LONG                nScrollPos;
+} TREGDISPLAYINFO;
 
 BOOL APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, UINT wParam, LONG lParam);
+LRESULT CALLBACK RegDisplayProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 LRESULT CALLBACK KeyboardHookProc(int nCode, WPARAM wParam, LPARAM lParam);
 
-HWND    ghMainDialog = NULL;
-HHOOK   ghKeyboardHook = NULL;
 
-
-//  Creates and initializes all the variables necessary
-//  for the register display in the main dialog
-BOOL CreateRegDisplay(HWND hWnd, HDC* phDC, HBITMAP* phBitmap, HFONT* phFont)
-{
-    HDC hDC = GetDC(hWnd);
-    RECT Rect;
-    VOID* pvBits;
-
-    *phFont = CreateFont(-REG_FONT_HEIGHT, 0, 0, 0, FW_NORMAL, 0, 0, 0,
-        DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
-        DEFAULT_QUALITY, DEFAULT_PITCH, "Lucida Console");
-
-    *phDC = CreateCompatibleDC(hDC);
-
-    if(*phDC == NULL || *phDC == NULL)
-    {
-        DeleteRegDisplay(phDC, phBitmap, phFont);
-        return FALSE;
-    }
-
-    GetClientRect(hWnd, &Rect);
-    OffsetRect(&Rect, -Rect.left, -Rect.top);
-    
-    // Add some more for scrolling adjust
-    Rect.bottom += 30;
-
-    BITMAPINFO BitmapInfo;
-    ZeroMemory(&BitmapInfo, sizeof(BITMAPINFO));
-    BitmapInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-    BitmapInfo.bmiHeader.biWidth = Rect.right;
-    BitmapInfo.bmiHeader.biHeight = -Rect.bottom;
-    BitmapInfo.bmiHeader.biPlanes = 1;
-    BitmapInfo.bmiHeader.biBitCount = 24;
-    BitmapInfo.bmiHeader.biCompression = BI_RGB;
-
-    *phBitmap = CreateDIBSection(
-                                    *phDC,
-                                    &BitmapInfo,
-                                    DIB_RGB_COLORS,
-                                    &pvBits,
-                                    NULL,
-                                    0
-                                );
-
-    if(*phBitmap == NULL)
-    {
-        DeleteRegDisplay(phDC, phBitmap, phFont);
-        return FALSE;
-    }
-
-    SelectObject(*phDC, *phBitmap);
-    SelectObject(*phDC, *phFont);
-
-    SetBkMode(*phDC, TRANSPARENT);
-
-    FillRect(*phDC, &Rect, GetSysColorBrush(COLOR_3DFACE));
-
-    ReleaseDC(hWnd, hDC);
-
-    return TRUE;
-}
-
-
-//  Deletes all variables created by 
-void DeleteRegDisplay(HDC* phDC, HBITMAP* phBitmap, HFONT* phFont)
-{
-    if(*phFont != NULL)
-    {
-        DeleteObject(*phFont);
-        *phFont = NULL;
-    }
-
-    if(*phBitmap != NULL)
-    {
-        DeleteObject(*phBitmap);
-        *phBitmap = NULL;
-    }
-
-    if(*phDC != NULL)
-    {
-        DeleteDC(*phDC);
-        *phDC = NULL;
-    }
-}
+HWND                ghMainDialog = NULL;
+HHOOK               ghKeyboardHook = NULL;
+TREGDISPLAYINFO     gRegDisplayInfo;
 
 
 //  Converts a number into a string represented binary
@@ -768,14 +666,448 @@ BOOL SaveToFile(HWND hOwner, TSource* pSource, TRegister* pRegisterList, BYTE nL
 }
 
 
+void GetCustomRegisterList(LPSTR lpSection, TRegister** hRegisterListTail)
+{
+    char    szBuffer[5120];
+    char    szFullPath[256];
+    char    szName[32];
+    DWORD   dwReg;
+    BYTE    nSize;
+
+    DWORD nLength = GetModuleFileName(NULL, szFullPath, sizeof(szFullPath));
+
+    if(nLength < 4)
+    {
+        return;
+    }
+
+    memcpy(&szFullPath[nLength-4], ".ini", 4);
+
+    DWORD nRead = GetPrivateProfileSection(lpSection, szBuffer,
+        sizeof(szBuffer), szFullPath);
+
+    BOOL bHex;
+    BYTE nDigit;
+
+    char* c = szBuffer;
+
+    while(c < &szBuffer[nRead])
+    {
+        // Get the register size
+        nSize = 0;
+        switch(*c)
+        {
+        case 'b':
+        case 'B':
+            nSize = 1;
+            break;
+        case 'w':
+        case 'W':
+            nSize = 2;
+            break;
+        case 'd':
+        case 'D':
+            nSize = 4;
+            break;
+        }
+
+        // Use BYTE if unspecified
+        if(nSize == 0)
+        {
+            nSize = 1;
+        }
+        else if(*++c == ',')
+        {
+            c++;
+        }
+
+        // Check for a "0x" prefix
+        if(*c == '0' && *++c == 'x' || *c == 'X')
+        {
+            *c++;
+            bHex = TRUE;
+        }
+        else
+        {
+            bHex = FALSE;
+        }
+
+        dwReg = 0UL;
+
+        // Parse the register
+        for( ; *c != '=' && *c != '\0'; c++)
+        {
+            if(*c < '0' || *c > '9')
+            {
+                if(!bHex || ((*c < 'a' || *c > 'f') && (*c < 'A' || *c > 'F')))
+                {
+                    break;
+                }
+                if(*c >= 'a')
+                {
+                    *c -= 'a' - 'A';
+                }
+            }
+
+            if(*c >= 'A' && *c <= 'F')
+            {
+                nDigit = *c - 'A' + 0xA;
+            }
+            else
+            {
+                nDigit = *c - '0';
+            }
+
+            if(bHex)
+            {
+                dwReg *= 0x10;
+            }
+            else
+            {
+                dwReg *= 10;
+            }
+
+            dwReg += nDigit;
+        }
+
+        if(*c != '=')
+        {
+            while(*c++ != '\0')
+            {
+                // do nothing
+            }
+            continue;
+        }
+
+        char *s = szName;
+
+        // Get the name
+        for(c++; *c != '\0' && s < &szName[sizeof(szName)-1]; )
+        {
+            *s++ = *c++;
+        }
+        *s++ = *c++;
+
+        *hRegisterListTail = (TRegister*)malloc(sizeof(TRegister));
+        if(*hRegisterListTail == NULL)
+        {
+            break;
+        }
+
+        (*hRegisterListTail)->Name = (char*)malloc(s - szName);
+        strcpy((*hRegisterListTail)->Name, szName);
+        (*hRegisterListTail)->bAlloced = TRUE;
+        (*hRegisterListTail)->Offset = dwReg;
+        (*hRegisterListTail)->Size = nSize;
+        (*hRegisterListTail)->bDraw = FALSE;
+        *(hRegisterListTail = &(*hRegisterListTail)->Next) = NULL;
+    }
+}
+
+
+//  Moves and resizes window using delta values
+BOOL DeltaWindow(HWND hWnd, int X, int Y, int nWidth, int nHeight, BOOL bRepaint)
+{
+    RECT Rect;
+
+    GetWindowRect(hWnd, &Rect);
+
+    Rect.right += nWidth - Rect.left;
+    Rect.bottom += nHeight - Rect.top;
+    Rect.left += X;
+    Rect.top += Y;
+
+    ScreenToClient(GetParent(hWnd), (LPPOINT)&Rect);
+
+    return MoveWindow(hWnd, Rect.left, Rect.top, Rect.right, Rect.bottom, bRepaint);
+}
+
+
+//  Creates the font for the register display
+//  Caller must delete hFont with DeleteObject() when done.
+HFONT CreateRegDisplayFont()
+{
+    HFONT hFont;
+
+    hFont = CreateFont(-REG_FONT_HEIGHT, 0, 0, 0, FW_NORMAL, 0, 0, 0,
+        DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
+        DEFAULT_QUALITY, DEFAULT_PITCH, REG_FONT_NAME);
+
+    return hFont;
+}
+
+
+//  Creates a hDC compatible 24bit DIB section of nWidth x nHeight
+//  Caller must delete hBitmap with DeleteObject() when done.
+HBITMAP CreateDIBBitmap(HDC hDC, LONG nWidth, LONG nHeight)
+{
+    BITMAPINFO  BitmapInfo;
+    LPVOID      pvBits;
+
+    ZeroMemory(&BitmapInfo, sizeof(BITMAPINFO));
+
+    BitmapInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    BitmapInfo.bmiHeader.biWidth = nWidth;
+    BitmapInfo.bmiHeader.biHeight = -nHeight;
+    BitmapInfo.bmiHeader.biPlanes = 1;
+    BitmapInfo.bmiHeader.biBitCount = 24;
+    BitmapInfo.bmiHeader.biCompression = BI_RGB;
+
+    return CreateDIBSection(hDC, &BitmapInfo, DIB_RGB_COLORS, &pvBits, NULL, 0);
+}
+
+
+//  This proc handles the drawing of the register
+//  display box
+LRESULT CALLBACK RegDisplayProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    static HDC      hOffscreenDC        = NULL;
+    static HBITMAP  hOffscreenBitmap    = NULL;
+    static HBRUSH   hLightStripeBrush   = NULL;
+    static HFONT    hDisplayFont        = NULL;
+    static LONG     nDisplayWidth       = 1;
+    static LONG     nDisplayHeight      = 1;
+    static LONG     nLastScrollPos      = 0;
+    BOOL            bRedrawAll          = FALSE;
+
+    switch(uMsg)
+    {
+    case WM_PAINT:
+
+        // Make sure there is an update region
+        if(GetUpdateRect(hWnd, NULL, FALSE))
+        {
+            PAINTSTRUCT PaintStruct;
+
+            HDC hDC = BeginPaint(hWnd, &PaintStruct);
+
+            // Create the font if we need to
+            if(hDisplayFont == NULL)
+            {
+                if((hDisplayFont = CreateRegDisplayFont()) == NULL)
+                {
+                    MessageBox(GetParent(hWnd), "Can't create font", "RegSpy", MB_OK);
+                    SendMessage(GetParent(hWnd), WM_COMMAND, MAKEWPARAM(IDCANCEL, 0), 0);
+                    break;
+                }
+            }
+
+            // Create the offscreen buffer if we need to
+            if(hOffscreenDC == NULL)
+            {
+                if((hOffscreenDC = CreateCompatibleDC(hDC)) == NULL)
+                {
+                    MessageBox(GetParent(hWnd), "Can't create display", "RegSpy", MB_OK);
+                    SendMessage(GetParent(hWnd), WM_COMMAND, MAKEWPARAM(IDCANCEL, 0), 0);
+                    break;
+                }
+
+                SelectObject(hOffscreenDC, hDisplayFont);
+            }
+
+            bRedrawAll = FALSE;
+
+            // Create the bitmap for the offscreen buffer
+            if(hOffscreenBitmap == NULL)
+            {
+                RECT Rect;
+
+                GetClientRect(hWnd, &Rect);
+
+                nDisplayWidth = Rect.right;
+                nDisplayHeight = Rect.bottom;
+
+                hOffscreenBitmap = CreateDIBBitmap(hOffscreenDC,
+                    nDisplayWidth, nDisplayHeight);
+
+                if(hOffscreenBitmap == NULL)
+                {
+                    MessageBox(GetParent(hWnd), "Can't create display", "RegSpy", MB_OK);
+                    SendMessage(GetParent(hWnd), WM_COMMAND, MAKEWPARAM(IDCANCEL, 0), 0);
+                    break;
+                }
+
+                SelectObject(hOffscreenDC, hOffscreenBitmap);
+                FillRect(hOffscreenDC, &Rect, GetSysColorBrush(COLOR_3DFACE));
+                SetBkMode(hOffscreenDC, TRANSPARENT);
+
+                bRedrawAll = TRUE;
+            }
+
+            // Create the lighter shade brush for striping
+            if(hLightStripeBrush == NULL)
+            {
+                COLORREF ColorRef = GetSysColor(COLOR_3DFACE);
+
+                // This won't always work
+                ColorRef += 0x000A0A0A;
+
+                hLightStripeBrush = CreateSolidBrush(ColorRef);
+            }
+
+            // Get mutex over the register list
+            EnterCriticalSection(gRegDisplayInfo.pRegisterListMutex);
+
+            TRegister* pRegisterList = *gRegDisplayInfo.hRegisterList;
+
+            if(pRegisterList != NULL)
+            {
+                RECT        TextRect    = { 0, 0, nDisplayWidth, REG_FONT_HEIGHT };
+                COLORREF    TextColor;
+                LONG        nScrollPos  = gRegDisplayInfo.nScrollPos;
+                BYTE        nLogState   = *gRegDisplayInfo.pLogState;
+                TRegister*  pRegister;
+                char        szFormat[8];
+                char        szBuffer[9];
+
+                OffsetRect(&TextRect, 0, -nScrollPos);
+
+                if(nScrollPos != nLastScrollPos)
+                {
+                    bRedrawAll = TRUE;
+                    nLastScrollPos = nScrollPos;
+                }
+
+                for(pRegister = pRegisterList;
+                    pRegister != NULL;
+                    pRegister = pRegister->Next)
+                {
+                    if(TextRect.bottom <= 0)
+                    {
+                        OffsetRect(&TextRect, 0, REG_FONT_HEIGHT);
+                        continue;
+                    }
+                    if(TextRect.top >= nDisplayHeight)
+                    {
+                        break;
+                    }
+
+                    if(bRedrawAll == TRUE || pRegister->bDraw == TRUE)
+                    {
+                        if(pRegister->FadeTicks > 0)
+                        {
+                            TextColor = 0x000000a0;
+                        }
+                        else
+                        {
+                            TextColor = GetSysColor(COLOR_BTNTEXT);
+
+                            if(nLogState > 0)
+                            {
+                                // Is it different from the last state?
+                                if(pRegister->LogStates[nLogState-1] != pRegister->LastValue)
+                                {
+                                    TextColor = 0x00d00000;
+                                }
+                                else
+                                {
+                                    // Is it different from any previous state?
+                                    for(int i(0); i < nLogState-1; i++)
+                                    {
+                                        if(pRegister->LogStates[i] != pRegister->LastValue)
+                                        {
+                                            TextColor = 0x00800000;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        sprintf(szFormat, "%%0%dx", pRegister->Size*2);
+                        sprintf(szBuffer, szFormat, pRegister->LastValue);
+
+                        HBRUSH hBackgroundBrush = GetSysColorBrush(COLOR_3DFACE);
+
+                        if((TextRect.top + nScrollPos) % (REG_FONT_HEIGHT * 2) != 0)
+                        {
+                            if(hLightStripeBrush != NULL)
+                            {
+                                hBackgroundBrush = hLightStripeBrush;
+                            }
+                        }
+
+                        FillRect(hOffscreenDC, &TextRect, hBackgroundBrush);
+
+                        SetTextColor(hOffscreenDC, TextColor);
+                        SetTextAlign(hOffscreenDC, TA_LEFT);
+                        TextOut(hOffscreenDC, TextRect.left, TextRect.top, pRegister->Name, strlen(pRegister->Name));
+                        SetTextAlign(hOffscreenDC, TA_RIGHT);
+                        TextOut(hOffscreenDC, TextRect.right, TextRect.top, szBuffer, strlen(szBuffer));
+
+                        pRegister->bDraw = FALSE;
+                    }
+
+                    OffsetRect(&TextRect, 0, REG_FONT_HEIGHT);
+                }
+            }
+            else
+            {
+                RECT Rect = { 0, 0, nDisplayWidth, nDisplayHeight };
+                FillRect(hOffscreenDC, &Rect, GetSysColorBrush(COLOR_3DFACE));
+            }
+
+            // Release the mutex
+            LeaveCriticalSection(gRegDisplayInfo.pRegisterListMutex);
+
+            // Blit the offscreen buffer onto the main display
+            BitBlt(hDC, 0, 0, nDisplayWidth, nDisplayHeight, hOffscreenDC, 0, 0, SRCCOPY);
+
+            EndPaint(hWnd, &PaintStruct);
+        }
+        break;
+
+    case WM_DESTROY:
+        if(hDisplayFont != NULL)
+        {
+            DeleteObject(hDisplayFont);
+        }
+        if(hOffscreenBitmap != NULL)
+        {
+            DeleteObject(hOffscreenBitmap);
+        }
+        if(hOffscreenDC != NULL)
+        {
+            DeleteDC(hOffscreenDC);
+        }
+        if(hLightStripeBrush != NULL)
+        {
+            DeleteObject(hLightStripeBrush);
+        }
+        break;
+
+    case WM_SIZE:
+        if(wParam != SIZE_MINIMIZED)
+        {
+            // Delete the bitmap and it will be recreated for the
+            // new size in WM_PAINT
+            if(hOffscreenBitmap != NULL)
+            {
+                DeleteObject(hOffscreenBitmap);
+                hOffscreenBitmap = NULL;
+            }
+        }
+        break;
+
+    case WM_MOUSEACTIVATE:
+        SetFocus(hWnd);
+        break;
+
+    default:
+        break;
+    }
+
+    return DefWindowProc(hWnd, uMsg, wParam, lParam);
+}
+
+
 //  This call back monitors keyboard events in the thread
 //  and passes them onto the main dialog
 LRESULT CALLBACK KeyboardHookProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
-    static LPARAM param = 0;
     if(nCode == HC_ACTION)
     {
-        PostMessage(ghMainDialog, ((HIWORD(lParam) & KF_UP) ? WM_KEYUP : WM_KEYDOWN),
+        SendMessage(ghMainDialog, ((HIWORD(lParam) & KF_UP) ? WM_KEYUP : WM_KEYDOWN),
             wParam, lParam);
     }
     return CallNextHookEx(ghKeyboardHook, nCode, wParam, lParam);
@@ -787,89 +1119,94 @@ LRESULT CALLBACK KeyboardHookProc(int nCode, WPARAM wParam, LPARAM lParam)
 BOOL APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, UINT wParam, LONG lParam)
 {
     static CHardwareDriver* pHardwareDriver;
-    static CGenericCard* pCard = NULL;
-    static TSource*     pSourceList;
-    static TRegister*   pRegisterList = NULL;
-    static TRegister**  hRegisterListTail = &pRegisterList;
-    static HDC          hRegDisplayDC = NULL;
-    static HBITMAP      hRegDisplayBitmap = NULL;
-    static HFONT        hRegDisplayFont = NULL;
-    static HBRUSH       hLightStripeBrush = NULL;
+    static CGenericCard*    pCard = NULL;
+    static TSource*         pSourceList;
+    static TRegister*       pRegisterList = NULL;
+    static TRegister**      hRegisterListTail = &pRegisterList;
     static CRITICAL_SECTION RegisterListMutex;
-    static LONG         ScrollPos = 0;
-    static LONG         ScrollMax = 0;
-    static RECT         RegDisplayRect;
-    static LONG         nRegDisplayHeight;
-    static LONG         nRegDisplayWidth;
-    static BYTE         nLogState;
-    static BOOL         bFirstRead = TRUE;
-    static BOOL         bRedrawAll = FALSE;
-    static BOOL         bMoveUpChanges = FALSE;
-    static BOOL         bResetLogState = FALSE;
-    TSource*            pSource;
-    TRegister*          pRegister;
-    RECT                Rect;
-    char                szFormat[8];
-    char                szBuffer[64];
-    int                 ItemIndex;
+    static HWND             hSourceSelect = NULL;
+    static HWND             hRegDisplay = NULL;
+    static HWND             hRegScroll = NULL;
+    static HWND             hMoveUpChanges = NULL;
+    static HWND             hLogState = NULL;
+    static HWND             hDumpToFile = NULL;
+    static LONG             ScrollPos = 0;
+    static LONG             ScrollMax = 0;
+    static LONG             ScrollRange = 0;
+    static LONG             ScrollPage = 0;
+    static BYTE             nLogState;
+    static BOOL             bFirstRead = TRUE;
+    static BOOL             bMoveUpChanges = FALSE;
+    static BOOL             bResetLogState = FALSE;
+    static LONG             nDialogWidth;
+    static LONG             nDialogHeight;
+    TSource*                pSource;
+    TRegister*              pRegister;
+    RECT                    Rect;
+    int                     ItemIndex;
+    char                    szBuffer[64];
 
     switch(uMsg)
     {
     case WM_INITDIALOG:
+        pSourceList     = (TSource*)        ((void**)lParam)[0];
+        pHardwareDriver = (CHardwareDriver*)((void**)lParam)[1];
+
+        ghMainDialog    = hDlg;
+
+        hSourceSelect   = GetDlgItem(hDlg, IDC_SOURCESELECT);
+        hRegDisplay     = GetDlgItem(hDlg, IDC_REGDISPLAY);
+        hRegScroll      = GetDlgItem(hDlg, IDC_REGSCROLL);
+        hMoveUpChanges  = GetDlgItem(hDlg, IDC_MOVEUPCHANGES);
+        hLogState       = GetDlgItem(hDlg, IDC_LOGSTATE);
+        hDumpToFile     = GetDlgItem(hDlg, IDC_DUMPTOFILE);
+
+
+        // Fill the source select combo box with cards
+        for(pSource = pSourceList; pSource != NULL; pSource = pSource->Next)
         {
-            pSourceList     = (TSource*)        ((void**)lParam)[0];
-            pHardwareDriver = (CHardwareDriver*)((void**)lParam)[1];
-
-            ghMainDialog = hDlg;
-
-            HWND hWnd = GetDlgItem(hDlg, IDC_SOURCESELECT);
-            for(pSource = pSourceList; pSource != NULL; pSource = pSource->Next)
+            sprintf(szBuffer, "%s Card [%d]", pSource->Chip->Name, pSource->DeviceIndex);
+            ItemIndex = SendMessage(hSourceSelect, CB_ADDSTRING, 0, (LPARAM)szBuffer);
+            SendMessage(hSourceSelect, CB_SETITEMDATA, ItemIndex, (LPARAM)pSource);
+            if(pSource == pSourceList)
             {
-                sprintf(szBuffer, "%s Card [%d]", pSource->Chip->Name, pSource->DeviceIndex);
-                ItemIndex = SendMessage(hWnd, CB_ADDSTRING, 0, (LPARAM)szBuffer);
-                SendMessage(hWnd, CB_SETITEMDATA, ItemIndex, (LPARAM)pSource);
-                if(pSource == pSourceList)
-                {
-                    SendMessage(hWnd, CB_SETCURSEL, ItemIndex, 0);
-                }
-            }
-
-            if(CreateRegDisplay(GetDlgItem(hDlg, IDC_REGDISPLAY),
-                                    &hRegDisplayDC,
-                                    &hRegDisplayBitmap,
-                                    &hRegDisplayFont) == FALSE)
-            {
-                MessageBox(NULL, "Can't create display", "RegSpy", MB_OK);
-                EndDialog(hDlg, FALSE);
-                break;
-            }
-
-            hLightStripeBrush = CreateSolidBrush(GetSysColor(COLOR_3DFACE) + 0x000A0A0A);
-
-            GetClientRect(GetDlgItem(hDlg, IDC_REGDISPLAY), &RegDisplayRect);
-
-            nRegDisplayWidth = (RegDisplayRect.right - RegDisplayRect.left);
-            nRegDisplayHeight = (RegDisplayRect.bottom - RegDisplayRect.top);
-
-            // Install a keyboard hook so we can easily monitor keypresses
-            ghKeyboardHook = SetWindowsHookEx(WH_KEYBOARD, KeyboardHookProc,
-                NULL, GetCurrentThreadId());
-            
-            InitializeCriticalSection(&RegisterListMutex);
-
-            if(pSourceList == NULL)
-            {
-                ItemIndex = SendMessage(hWnd, CB_ADDSTRING, 0, (LPARAM)"No Card Found");
-                SendMessage(hWnd, CB_SETITEMDATA, ItemIndex, NULL);
-                SendMessage(hWnd, CB_SETCURSEL, ItemIndex, 0);
-            }
-            else
-            {
-                EnableWindow(hWnd, TRUE);
-                SendMessage(hDlg, WM_COMMAND, MAKEWPARAM(IDC_SOURCESELECT, CBN_SELCHANGE), 0);
+                SendMessage(hSourceSelect, CB_SETCURSEL, ItemIndex, 0);
             }
         }
-        return FALSE;
+
+        // Remember the dialog size
+        GetClientRect(hDlg, &Rect);
+
+        nDialogWidth = Rect.right;
+        nDialogHeight = Rect.bottom;
+
+        // Install a keyboard hook so we can easily monitor keypresses
+        ghKeyboardHook = SetWindowsHookEx(WH_KEYBOARD, KeyboardHookProc,
+            NULL, GetCurrentThreadId());
+
+        // Initialize the register list mutex
+        InitializeCriticalSection(&RegisterListMutex);
+
+        // Create the register display control
+        gRegDisplayInfo.hRegisterList       = &pRegisterList;
+        gRegDisplayInfo.pRegisterListMutex  = &RegisterListMutex;
+        gRegDisplayInfo.pLogState           = &nLogState;
+        gRegDisplayInfo.nScrollPos          = 0;
+
+        SetWindowLong(hRegDisplay, GWL_WNDPROC, (LONG)RegDisplayProc);
+
+        if(pSourceList == NULL)
+        {
+            ItemIndex = SendMessage(hSourceSelect, CB_ADDSTRING, 0, (LPARAM)"No Card Found");
+            SendMessage(hSourceSelect, CB_SETITEMDATA, ItemIndex, NULL);
+            SendMessage(hSourceSelect, CB_SETCURSEL, ItemIndex, 0);
+        }
+        else
+        {
+            EnableWindow(hSourceSelect, TRUE);
+            SendMessage(hDlg, WM_COMMAND, MAKEWPARAM(IDC_SOURCESELECT, CBN_SELCHANGE), 0);
+        }
+        return 0;
 
     case WM_TIMER:
         if (wParam == IDC_REFRESH)
@@ -906,7 +1243,7 @@ BOOL APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, UINT wParam, LONG lParam)
                     }
                     else if(Value != pRegister->LastValue)
                     {
-                        pRegister->FadeTicks = 20;
+                        pRegister->FadeTicks = CHANGE_FADE_TICKS;
                         pRegister->LastValue = Value;
                         pRegister->bDraw = TRUE;
                         bChanged = TRUE;
@@ -937,7 +1274,6 @@ BOOL APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, UINT wParam, LONG lParam)
                             bChanged = TRUE;
                         }
                     }
-
                     hPreviousNext = &pRegister->Next;
                 }
 
@@ -947,21 +1283,17 @@ BOOL APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, UINT wParam, LONG lParam)
                 {
                     if(hUpInsert != &pRegisterList)
                     {
-                        // Tag all the ones that shifted as a result of others moving up
-                        for(pRegister = *hUpInsert; pRegister != pUptoRemoved; pRegister = pRegister->Next)
+                        // Mark all the ones that shifted as a
+                        // result of others moving up
+                        for(pRegister = *hUpInsert;
+                            pRegister != pUptoRemoved;
+                            pRegister = pRegister->Next)
                         {
                             pRegister->bDraw = TRUE;
                         }
                     }
 
-                    CopyRect(&Rect, &RegDisplayRect);
-
-                    ClientToScreen(GetDlgItem(hDlg, IDC_REGDISPLAY), ((LPPOINT)&Rect));
-                    ClientToScreen(GetDlgItem(hDlg, IDC_REGDISPLAY), ((LPPOINT)&Rect) + 1);
-                    ScreenToClient(hDlg, ((LPPOINT)&Rect));
-                    ScreenToClient(hDlg, ((LPPOINT)&Rect) + 1);
-
-                    InvalidateRect(hDlg, &Rect, FALSE);
+                    InvalidateRect(hRegDisplay, NULL, FALSE);
                 }
 
                 SetTimer(hDlg, IDC_REFRESH, REG_REFRESH_TICKS, NULL);
@@ -969,102 +1301,7 @@ BOOL APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, UINT wParam, LONG lParam)
 
             LeaveCriticalSection(&RegisterListMutex);
         }
-        return TRUE;
-
-    case WM_PAINT:
-        EnterCriticalSection(&RegisterListMutex);
-        if(pRegisterList != NULL && hRegDisplayDC != NULL)
-        {
-            COLORREF    TextColor;
-            RECT        TextRect;
-            BOOL        bChanged = FALSE;
-
-            SetRect(&TextRect, 0, -ScrollPos, nRegDisplayWidth, REG_FONT_HEIGHT - ScrollPos);
-
-            for(pRegister = pRegisterList; pRegister != NULL; pRegister = pRegister->Next)
-            {
-                if(TextRect.bottom <= 0)
-                {
-                    OffsetRect(&TextRect, 0, REG_FONT_HEIGHT);
-                    continue;
-                }
-                if(TextRect.top >= nRegDisplayHeight)
-                {
-                    break;
-                }
-
-                if(bRedrawAll == TRUE || pRegister->bDraw == TRUE)
-                {
-                    if(pRegister->FadeTicks > 0)
-                    {
-                        TextColor = 0x000000A0;
-                    }
-                    else
-                    {
-                        TextColor = 0x00000000;
-                        if(nLogState > 0)
-                        {
-                            if(pRegister->LogStates[nLogState-1] != pRegister->LastValue)
-                            {
-                                TextColor = 0x00D00000;
-                            }
-                            else
-                            {
-                                for(int i(0); i < nLogState-1; i++)
-                                {
-                                    if(pRegister->LogStates[i] != pRegister->LastValue)
-                                    {
-                                        TextColor = 0x00800000;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    sprintf(szFormat, "%%0%dx", pRegister->Size*2);
-                    sprintf(szBuffer, szFormat, pRegister->LastValue);
-
-                    HBRUSH hBackgroundBrush = GetSysColorBrush(COLOR_3DFACE);
-                    if((TextRect.top + ScrollPos) % (REG_FONT_HEIGHT * 2) != 0)
-                    {
-                        if(hLightStripeBrush != NULL)
-                        {
-                            hBackgroundBrush = hLightStripeBrush;
-                        }
-                    }
-
-                    FillRect(hRegDisplayDC, &TextRect, hBackgroundBrush);
-
-                    SetTextColor(hRegDisplayDC, TextColor);
-                    SetTextAlign(hRegDisplayDC, TA_LEFT);
-                    TextOut(hRegDisplayDC, TextRect.left, TextRect.top, pRegister->Name, strlen(pRegister->Name));
-                    SetTextAlign(hRegDisplayDC, TA_RIGHT);
-                    TextOut(hRegDisplayDC, TextRect.right, TextRect.top, szBuffer, strlen(szBuffer));
-
-                    pRegister->bDraw = FALSE;
-                    bChanged = TRUE;
-                }
-
-                OffsetRect(&TextRect, 0, REG_FONT_HEIGHT);
-            }
-
-            LeaveCriticalSection(&RegisterListMutex);
-
-            PAINTSTRUCT PaintStruct;
-            HWND hWnd = GetDlgItem(hDlg, IDC_REGDISPLAY);
-
-            HDC hDC = BeginPaint(hWnd, &PaintStruct);
-            BitBlt(hDC, RegDisplayRect.left, RegDisplayRect.top,
-                nRegDisplayWidth, nRegDisplayHeight,
-                hRegDisplayDC, 0, 0, SRCCOPY);
-            EndPaint(hWnd, &PaintStruct);
-        }
-        else
-        {
-            LeaveCriticalSection(&RegisterListMutex);
-        }
-        break;
+        return 0;
 
     case WM_COMMAND:
         switch(LOWORD(wParam))
@@ -1080,26 +1317,21 @@ BOOL APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, UINT wParam, LONG lParam)
                 pCard = NULL;
             }
 
-            while(pRegister = pRegisterList)
+            while((pRegister = pRegisterList) != NULL)
             {
                 pRegisterList = pRegister->Next;
+                if(pRegister->bAlloced)
+                {
+                    free(pRegister->Name);
+                }
                 free(pRegister);
             }
 
             LeaveCriticalSection(&RegisterListMutex);
             DeleteCriticalSection(&RegisterListMutex);
 
-            if(hLightStripeBrush != NULL)
-            {
-                DeleteObject(hLightStripeBrush);
-            }
-
-            DeleteRegDisplay(&hRegDisplayDC,
-                                &hRegDisplayBitmap,
-                                &hRegDisplayFont);
-
             EndDialog(hDlg, TRUE);
-            return TRUE;
+            break;
 
         case IDC_SOURCESELECT:
             if(HIWORD(wParam) == CBN_SELCHANGE)
@@ -1107,16 +1339,32 @@ BOOL APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, UINT wParam, LONG lParam)
                 KillTimer(hDlg, IDC_REFRESH);
                 EnterCriticalSection(&RegisterListMutex);
 
-                HWND hWnd = GetDlgItem(hDlg, IDC_SOURCESELECT);
+                hRegisterListTail = &pRegisterList;
+                while((pRegister = pRegisterList) != NULL)
+                {
+                    pRegisterList = pRegister->Next;
+                    if(pRegister->bAlloced)
+                    {
+                        free(pRegister->Name);
+                    }
+                    free(pRegister);
+                }
 
-                ItemIndex = SendMessage(hWnd, CB_GETCURSEL, 0, 0);
-                pSource = (TSource*)SendMessage(hWnd, CB_GETITEMDATA, ItemIndex, 0);
+                if(pCard != NULL)
+                {
+                    delete pCard;
+                    pCard = NULL;
+                }
 
-                nLogState   = 0;
-                bFirstRead  = TRUE;
+                nLogState = 0;
+
+                // Find out which one is selected
+                ItemIndex = SendMessage(hSourceSelect, CB_GETCURSEL, 0, 0);
+                pSource = (TSource*)SendMessage(hSourceSelect, CB_GETITEMDATA, ItemIndex, 0);
 
                 if(pSource != NULL)
                 {
+                    // Set the hardware info
                     SetDlgItemText(hDlg, IDC_CHIPTYPE, pSource->Chip->Name);
 
                     sprintf(szBuffer,"0x%04X", pSource->Chip->VendorId);
@@ -1128,18 +1376,7 @@ BOOL APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, UINT wParam, LONG lParam)
                     sprintf(szBuffer,"0x%08X", pSource->SubSystemId);
                     SetDlgItemText(hDlg, IDC_SUBSYSTEMID, szBuffer);
 
-                    hRegisterListTail = &pRegisterList;
-                    while(pRegister = pRegisterList)
-                    {
-                        pRegisterList = pRegister->Next;
-                        free(pRegister);
-                    }
-
-                    if(pCard != NULL)
-                    {
-                        delete pCard;
-                    }
-
+                    // Open the card
                     pCard = new CGenericCard(pHardwareDriver);
                     if(pCard->OpenPCICard(
                                             pSource->Chip->VendorId,
@@ -1147,51 +1384,63 @@ BOOL APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, UINT wParam, LONG lParam)
                                             pSource->DeviceIndex
                                          ) == TRUE)
                     {
-                        int Count = 0;
-
-                        (pSource->Chip->SetupFunction)(hRegisterListTail);
-
-                        for(pRegister = pRegisterList; pRegister != NULL; pRegister = pRegister->Next)
+                        GetCustomRegisterList(pSource->Chip->Name, hRegisterListTail);
+                        if(pRegisterList == NULL)
                         {
-                            Count++;
+                            // Get the default register list
+                            (pSource->Chip->SetupFunction)(hRegisterListTail);
                         }
                         
                         if(pRegisterList != NULL)
                         {
-                            ScrollPos = 0;
-                            ScrollMax = Count * REG_FONT_HEIGHT - 1;
+                            int Count = 0;
 
-                            if(nRegDisplayHeight < ScrollMax)
+                            // Count the registers
+                            for(pRegister = pRegisterList;
+                                pRegister != NULL;
+                                pRegister = pRegister->Next)
                             {
+                                Count++;
+                            }
+
+                            GetClientRect(hRegDisplay, &Rect);
+
+                            ScrollPos   = 0;
+                            ScrollRange = Count * REG_FONT_HEIGHT - 1;
+                            ScrollPage  = Rect.bottom;
+
+                            if(ScrollPage < ScrollRange)
+                            {
+                                ScrollMax = ScrollRange - ScrollPage;
+
                                 SCROLLINFO ScrollInfo;
                                 ScrollInfo.cbSize = sizeof(SCROLLINFO);
                                 ScrollInfo.fMask = SIF_PAGE | SIF_POS | SIF_RANGE;
                                 ScrollInfo.nMin = 0;
-                                ScrollInfo.nMax = ScrollMax;
-                                ScrollInfo.nPage = nRegDisplayHeight;
+                                ScrollInfo.nMax = ScrollRange - 1;
+                                ScrollInfo.nPage = ScrollPage;
                                 ScrollInfo.nPos = ScrollPos;
                                 ScrollInfo.nTrackPos = 0;
 
-                                hWnd = GetDlgItem(hDlg, IDC_REGSCROLL);
-
-                                EnableWindow(hWnd, TRUE);
-                                SendMessage(hWnd, SBM_SETSCROLLINFO, TRUE, (LPARAM)&ScrollInfo);
+                                EnableWindow(hRegScroll, TRUE);
+                                SendMessage(hRegScroll, SBM_SETSCROLLINFO, TRUE, (LPARAM)&ScrollInfo);
                             }
                             else
                             {
-                                EnableWindow(GetDlgItem(hDlg, IDC_REGSCROLL), FALSE);
+                                EnableWindow(hRegScroll, FALSE);
                             }
 
-                            EnableWindow(GetDlgItem(hDlg, IDC_MOVEUPCHANGES), Count > 1);
-                            EnableWindow(GetDlgItem(hDlg, IDC_LOGSTATE), TRUE);
-                            EnableWindow(GetDlgItem(hDlg, IDC_DUMPTOFILE), TRUE);
+                            EnableWindow(hMoveUpChanges, Count > 1);
+                            EnableWindow(hLogState, TRUE);
+                            EnableWindow(hDumpToFile, TRUE);
 
                             if(GetFocus() == GetDlgItem(hDlg, IDC_SOURCESELECT))
                             {
                                 SetFocus(hDlg);
                             }
 
-                            SendMessage(hDlg, WM_TIMER, IDC_REFRESH, 0);
+                            bFirstRead = TRUE;
+                            PostMessage(hDlg, WM_TIMER, IDC_REFRESH, 0);
                         }
                     }
                     else
@@ -1203,20 +1452,20 @@ BOOL APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, UINT wParam, LONG lParam)
                 }
                 else
                 {
-                    EnableWindow(GetDlgItem(hDlg, IDC_REGSCROLL), FALSE);
-                    EnableWindow(GetDlgItem(hDlg, IDC_MOVEUPCHANGES), FALSE);
-                    EnableWindow(GetDlgItem(hDlg, IDC_LOGSTATE), FALSE);
-                    EnableWindow(GetDlgItem(hDlg, IDC_DUMPTOFILE), FALSE);
+                    EnableWindow(hRegScroll, FALSE);
+                    EnableWindow(hMoveUpChanges, FALSE);
+                    EnableWindow(hLogState, FALSE);
+                    EnableWindow(hDumpToFile, FALSE);
                 }
                 LeaveCriticalSection(&RegisterListMutex);
             }
-            return TRUE;
+            break;
 
         case IDC_LOGSTATE:
             if(bResetLogState == TRUE)
             {
                 nLogState = 0;
-                EnableWindow(GetDlgItem(hDlg, IDC_LOGSTATE), FALSE);
+                EnableWindow(hLogState, FALSE);
                 SetDlgItemText(hDlg, IDC_DUMPTOFILE, "Dump To File ...");
             }
             else if(nLogState != MAX_LOG_STATES)
@@ -1225,66 +1474,150 @@ BOOL APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, UINT wParam, LONG lParam)
                 for(pRegister = pRegisterList; pRegister != NULL; pRegister = pRegister->Next)
                 {
                     pRegister->LogStates[nLogState] = pRegister->LastValue;
+                    pRegister->bDraw = TRUE;
                 }
+                nLogState++;
                 LeaveCriticalSection(&RegisterListMutex);
 
-                nLogState++;
                 sprintf(szBuffer, "Log State (%d)", nLogState);
                 SetDlgItemText(hDlg, IDC_LOGSTATE, szBuffer);
                 SetDlgItemText(hDlg, IDC_DUMPTOFILE, "Save To File ...");
 
                 if(nLogState == MAX_LOG_STATES)
                 {
-                    EnableWindow(GetDlgItem(hDlg, IDC_LOGSTATE), FALSE);
+                    EnableWindow(hLogState, FALSE);
                 }
-
-                CopyRect(&Rect, &RegDisplayRect);
-
-                ClientToScreen(GetDlgItem(hDlg, IDC_REGDISPLAY), ((LPPOINT)&Rect));
-                ClientToScreen(GetDlgItem(hDlg, IDC_REGDISPLAY), ((LPPOINT)&Rect) + 1);
-                ScreenToClient(hDlg, ((LPPOINT)&Rect));
-                ScreenToClient(hDlg, ((LPPOINT)&Rect) + 1);
-
-                bRedrawAll = TRUE;
-                InvalidateRect(hDlg, &Rect, FALSE);
+                InvalidateRect(hRegDisplay, NULL, FALSE);
             }
-            return TRUE;
+            break;
 
         case IDC_DUMPTOFILE:
+            KillTimer(hDlg, IDC_REFRESH);
+            EnterCriticalSection(&RegisterListMutex);
+
+            ItemIndex = SendMessage(hSourceSelect, CB_GETCURSEL, 0, 0);
+            pSource = (TSource*)SendMessage(hSourceSelect, CB_GETITEMDATA, ItemIndex, 0);
+
+            if(pSource != NULL)
             {
-                KillTimer(hDlg, IDC_REFRESH);
-                EnterCriticalSection(&RegisterListMutex);
-
-                HWND hWnd = GetDlgItem(hDlg, IDC_SOURCESELECT);
-
-                ItemIndex = SendMessage(hWnd, CB_GETCURSEL, 0, 0);
-                pSource = (TSource*)SendMessage(hWnd, CB_GETITEMDATA, ItemIndex, 0);
-                if(pSource != NULL)
+                if(SaveToFile(hDlg, pSource, pRegisterList, nLogState))
                 {
-                    if(SaveToFile(hDlg, pSource, pRegisterList, nLogState))
-                    {
-                        nLogState = 0;
-                        SetDlgItemText(hDlg, IDC_LOGSTATE, "Log State");
-                        SetDlgItemText(hDlg, IDC_DUMPTOFILE, "Dump To File ...");
-                    }
+                    nLogState = 0;
+                    SetDlgItemText(hDlg, IDC_LOGSTATE, "Log State");
+                    SetDlgItemText(hDlg, IDC_DUMPTOFILE, "Dump To File ...");
                 }
-
-                SendMessage(hDlg, WM_TIMER, IDC_REFRESH, 0);
-
-                LeaveCriticalSection(&RegisterListMutex);
             }
-            return TRUE;
+
+            PostMessage(hDlg, WM_TIMER, IDC_REFRESH, 0);
+            LeaveCriticalSection(&RegisterListMutex);
+            break;
 
         case IDC_MOVEUPCHANGES:
-            {
-                bMoveUpChanges = IsDlgButtonChecked(hDlg, IDC_MOVEUPCHANGES);
-            }
-            return TRUE;
+            bMoveUpChanges = IsDlgButtonChecked(hDlg, IDC_MOVEUPCHANGES);
+            break;
 
         default:
             break;
         }
         break;
+
+    case WM_SIZE:
+        if(wParam != SIZE_MINIMIZED)
+        {
+            LONG DeltaX = LOWORD(lParam) - nDialogWidth;
+            LONG DeltaY = HIWORD(lParam) - nDialogHeight;
+
+            if(DeltaX != 0 || DeltaY != 0)
+            {
+                DeltaWindow(hSourceSelect, DeltaX, 0, 0, 0, FALSE);
+                DeltaWindow(hRegDisplay, 0, 0, DeltaX, DeltaY, FALSE);
+                DeltaWindow(hRegScroll, DeltaX, 0, 0, DeltaY, FALSE);
+                DeltaWindow(hMoveUpChanges, 0, DeltaY, 0, 0, FALSE);
+                DeltaWindow(hLogState, DeltaX, DeltaY, 0, 0, FALSE);
+                DeltaWindow(hDumpToFile, 0, DeltaY, 0, 0, FALSE);
+                DeltaWindow(GetDlgItem(hDlg, IDC_HARDWARE), 0, 0, DeltaX, 0, FALSE);
+                DeltaWindow(GetDlgItem(hDlg, IDC_REGISTERS), 0, 0, DeltaX, DeltaY, FALSE);
+                DeltaWindow(GetDlgItem(hDlg, IDC_SEPARATOR), 0, DeltaY, DeltaX, 0, FALSE);
+                DeltaWindow(GetDlgItem(hDlg, IDOK), DeltaX, DeltaY, 0, 0, FALSE);
+
+                nDialogWidth += DeltaX;
+                nDialogHeight += DeltaY;
+
+                GetClientRect(hRegDisplay, &Rect);
+                ScrollPage = Rect.bottom;
+
+                if(ScrollPage < ScrollRange)
+                {
+                    ScrollMax = ScrollRange - ScrollPage;
+
+                    SCROLLINFO ScrollInfo;
+                    ZeroMemory(&ScrollInfo, sizeof(SCROLLINFO));
+                    ScrollInfo.cbSize = sizeof(SCROLLINFO);
+                    ScrollInfo.fMask = SIF_PAGE;
+                    ScrollInfo.nPage = ScrollPage;
+
+                    EnableWindow(hRegScroll, TRUE);
+                    SendMessage(hRegScroll, SBM_SETSCROLLINFO, FALSE, (LPARAM)&ScrollInfo);
+
+                    if(ScrollPos > ScrollMax)
+                    {
+                        ScrollPos = ScrollMax;
+                        gRegDisplayInfo.nScrollPos = ScrollPos;
+                    }
+                }
+                else
+                {
+                    EnableWindow(hRegScroll, FALSE);
+                }
+
+                InvalidateRect(hDlg, NULL, TRUE);
+            }
+        }
+        break;
+
+    case WM_SIZING:
+        {
+            LPRECT lpRect = (LPRECT)lParam;
+
+            CopyRect(&Rect, lpRect);
+            SendMessage(hDlg, WM_NCCALCSIZE, FALSE, (LPARAM)&Rect);
+
+            LONG DeltaY = Rect.bottom - Rect.top - nDialogHeight;
+
+            if(Rect.right - Rect.left < MIN_DIALOG_WIDTH)
+            {
+                LONG AdjustX = MIN_DIALOG_WIDTH - (Rect.right - Rect.left);
+
+                switch(wParam)
+                {
+                case WMSZ_TOPLEFT:
+                case WMSZ_LEFT:
+                case WMSZ_BOTTOMLEFT:
+                    lpRect->left -= AdjustX;
+                    break;
+
+                default:
+                    lpRect->right += AdjustX;
+                    break;
+                }
+            }
+            if(ScrollPage + DeltaY < REG_FONT_HEIGHT)
+            {
+                switch(wParam)
+                {
+                case WMSZ_TOP:
+                case WMSZ_TOPLEFT:
+                case WMSZ_TOPRIGHT:
+                    lpRect->top += (ScrollPage - REG_FONT_HEIGHT) + DeltaY;
+                    break;
+
+                default:
+                    lpRect->bottom -= (ScrollPage - REG_FONT_HEIGHT) + DeltaY;
+                    break;
+                }
+            }
+        }
+        return TRUE;
 
     case WM_VSCROLL:
         if((HWND)lParam == GetDlgItem(hDlg, IDC_REGSCROLL))
@@ -1297,7 +1630,7 @@ BOOL APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, UINT wParam, LONG lParam)
                 Pos = 0;
                 break;
             case SB_RIGHT:
-                Pos = ScrollMax - nRegDisplayHeight;
+                Pos = ScrollMax;
                 break;
             case SB_LINELEFT:
                 Pos = ScrollPos - REG_FONT_HEIGHT;
@@ -1306,10 +1639,10 @@ BOOL APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, UINT wParam, LONG lParam)
                 Pos = ScrollPos + REG_FONT_HEIGHT;
                 break;
             case SB_PAGELEFT:
-                Pos = ScrollPos - nRegDisplayHeight;
+                Pos = ScrollPos - ScrollPage;
                 break;
             case SB_PAGERIGHT:
-                Pos = ScrollPos + nRegDisplayHeight;
+                Pos = ScrollPos + ScrollPage;
                 break;
             case SB_THUMBPOSITION:
             case SB_THUMBTRACK:
@@ -1323,37 +1656,30 @@ BOOL APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, UINT wParam, LONG lParam)
             {
                 Pos = 0;
             }
-            if(Pos > ScrollMax - nRegDisplayHeight)
+            if(Pos > ScrollMax)
             {
-                Pos = ScrollMax - nRegDisplayHeight;
+                Pos = ScrollMax;
             }
 
             if(Pos != ScrollPos)
             {
                 ScrollPos = Pos;
-                SendMessage(GetDlgItem(hDlg, IDC_REGSCROLL), SBM_SETPOS, ScrollPos, TRUE);
+                SendMessage(hRegScroll, SBM_SETPOS, ScrollPos, TRUE);
 
-                CopyRect(&Rect, &RegDisplayRect);
-
-                ClientToScreen(GetDlgItem(hDlg, IDC_REGDISPLAY), ((LPPOINT)&Rect));
-                ClientToScreen(GetDlgItem(hDlg, IDC_REGDISPLAY), ((LPPOINT)&Rect) + 1);
-                ScreenToClient(hDlg, ((LPPOINT)&Rect));
-                ScreenToClient(hDlg, ((LPPOINT)&Rect) + 1);
-
-                bRedrawAll = TRUE;
-                InvalidateRect(hDlg, &Rect, FALSE);
+                gRegDisplayInfo.nScrollPos = ScrollPos;
+                InvalidateRect(hRegDisplay, NULL, FALSE);
             }
 
             if(GetFocus() == GetDlgItem(hDlg, IDC_SOURCESELECT))
             {
                 SetFocus(hDlg);
             }
-            return TRUE;
+            break;
         }
         break;
 
     case WM_MOUSEWHEEL:
-        if(nRegDisplayHeight < ScrollMax)
+        if(ScrollPage < ScrollRange)
         {
             int nScrollLines;
             SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &nScrollLines, 0);
@@ -1366,15 +1692,15 @@ BOOL APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, UINT wParam, LONG lParam)
             {
                 TrackPosition = 0;
             }
-            else if(TrackPosition > ScrollMax - nRegDisplayHeight)
+            else if(TrackPosition > ScrollMax)
             {
-                TrackPosition = ScrollMax - nRegDisplayHeight;
+                TrackPosition = ScrollMax;
             }
             
             SendMessage(hDlg, WM_VSCROLL, MAKEWPARAM(SB_THUMBPOSITION, TrackPosition),
                 (LPARAM)GetDlgItem(hDlg, IDC_REGSCROLL));
         }
-        return TRUE;
+        break;
 
     case WM_KEYDOWN:
         if(wParam == VK_CONTROL)
@@ -1385,7 +1711,7 @@ BOOL APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, UINT wParam, LONG lParam)
                 SetDlgItemText(hDlg, IDC_LOGSTATE, "Reset States");
                 if(nLogState == 0)
                 {
-                    EnableWindow(GetDlgItem(hDlg, IDC_LOGSTATE), FALSE);
+                    EnableWindow(hLogState, FALSE);
                 }
             }
         }
@@ -1402,13 +1728,13 @@ BOOL APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, UINT wParam, LONG lParam)
                     sprintf(szBuffer, "Log State (%d)", nLogState);
                     if(nLogState != MAX_LOG_STATES)
                     {
-                        EnableWindow(GetDlgItem(hDlg, IDC_LOGSTATE), TRUE);
+                        EnableWindow(hLogState, TRUE);
                     }
                 }
                 else
                 {
                     sprintf(szBuffer, "Log State");
-                    EnableWindow(GetDlgItem(hDlg, IDC_LOGSTATE), TRUE);
+                    EnableWindow(hLogState, TRUE);
                 }
                 SetDlgItemText(hDlg, IDC_LOGSTATE, szBuffer);
             }
@@ -1468,7 +1794,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 
     DialogBoxParam(hInstance, MAKEINTRESOURCE(IDD_MAINDIALOG), NULL, MainWindowProc, (LPARAM)ContextPtr);
 
-    while(Source = SourceList)
+    while((Source = SourceList) != NULL)
     {
         SourceList = Source->Next;
         free(Source);

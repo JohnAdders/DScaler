@@ -1,24 +1,24 @@
 # Microsoft Developer Studio Project File - Name="DScaler" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
-# ** DO NOT EDIT **
+# ** NICHT BEARBEITEN **
 
 # TARGTYPE "Win32 (x86) Application" 0x0101
 
 CFG=DScaler - Win32 Debug
-!MESSAGE This is not a valid makefile. To build this project using NMAKE,
-!MESSAGE use the Export Makefile command and run
+!MESSAGE Dies ist kein gültiges Makefile. Zum Erstellen dieses Projekts mit NMAKE
+!MESSAGE verwenden Sie den Befehl "Makefile exportieren" und führen Sie den Befehl
 !MESSAGE 
 !MESSAGE NMAKE /f "DScaler.mak".
 !MESSAGE 
-!MESSAGE You can specify a configuration when running NMAKE
-!MESSAGE by defining the macro CFG on the command line. For example:
+!MESSAGE Sie können beim Ausführen von NMAKE eine Konfiguration angeben
+!MESSAGE durch Definieren des Makros CFG in der Befehlszeile. Zum Beispiel:
 !MESSAGE 
 !MESSAGE NMAKE /f "DScaler.mak" CFG="DScaler - Win32 Debug"
 !MESSAGE 
-!MESSAGE Possible choices for configuration are:
+!MESSAGE Für die Konfiguration stehen zur Auswahl:
 !MESSAGE 
-!MESSAGE "DScaler - Win32 Debug" (based on "Win32 (x86) Application")
-!MESSAGE "DScaler - Win32 Release" (based on "Win32 (x86) Application")
+!MESSAGE "DScaler - Win32 Debug" (basierend auf  "Win32 (x86) Application")
+!MESSAGE "DScaler - Win32 Release" (basierend auf  "Win32 (x86) Application")
 !MESSAGE 
 
 # Begin Project
@@ -244,6 +244,10 @@ SOURCE=.\CX2388xCard_Audio.cpp
 # Begin Source File
 
 SOURCE=.\CX2388xCard_H3D.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\CX2388xCard_Tuner.cpp
 # End Source File
 # Begin Source File
 
@@ -1638,10 +1642,6 @@ SOURCE=..\ReadMe.VS6.txt
 # End Group
 # End Target
 # End Project
-# Section DScaler : {F08DF954-8592-11D1-B16A-00C0F0283628}
-# 	2:21:DefaultSinkHeaderFile:slider.h
-# 	2:16:DefaultSinkClass:CSlider
-# End Section
 # Section DScaler : {F08DF952-8592-11D1-B16A-00C0F0283628}
 # 	2:5:Class:CSlider
 # 	2:10:HeaderFile:slider.h
@@ -1651,4 +1651,8 @@ SOURCE=..\ReadMe.VS6.txt
 # 	2:5:Class:CPicture
 # 	2:10:HeaderFile:picture.h
 # 	2:8:ImplFile:picture.cpp
+# End Section
+# Section DScaler : {F08DF954-8592-11D1-B16A-00C0F0283628}
+# 	2:21:DefaultSinkHeaderFile:slider.h
+# 	2:16:DefaultSinkClass:CSlider
 # End Section

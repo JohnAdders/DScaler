@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.68 2004-11-29 18:02:57 to_see Exp $
+// $Id: CX2388xCard.cpp,v 1.69 2004-12-20 18:55:33 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.68  2004/11/29 18:02:57  to_see
+// Changed TDA9887 detecting to Atsushi's new tda code.
+//
 // Revision 1.67  2004/11/13 21:45:56  to_see
 // - Some minor fixes
 // - Added "Vertical Sync Detection" in CX2388x Advanced Settings, enabled by default.
@@ -326,11 +329,6 @@
 #include "DebugLog.h"
 #include "CPU.h"
 #include "TVFormats.h"
-#include "NoTuner.h"
-#include "MT2032.h"
-#include "MT2050.h"
-#include "GenericTuner.h"
-#include "TDA9887.h"
 #include "DScaler.h"
 
 CCX2388xCard::CCX2388xCard(CHardwareDriver* pDriver) :
@@ -881,11 +879,6 @@ void CCX2388xCard::SetVDelay(int nInput, eVideoFormat TVFormat, long CurrentX, i
     VertDelay += VDelayAdj;
     WriteDword(CX2388X_VERT_DELAY_EVEN, VertDelay);
     WriteDword(CX2388X_VERT_DELAY_ODD, VertDelay);
-}
-
-LPCSTR CCX2388xCard::GetTunerType()
-{
-    return m_TunerType;
 }
 
 // Sets up card to support size and format requested
@@ -1910,163 +1903,6 @@ void CCX2388xCard::SetSampleRateConverter(double PLLFreq)
     WriteDword( CX2388X_SAMPLERATECONV, RegValue & 0x7FFFF );
 }
 
-BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
-{
-    BOOL LookForIFDemod = FALSE;
-
-    // clean up if we get called twice
-    if(m_Tuner != NULL)
-    {
-        delete m_Tuner; 
-        m_Tuner = NULL;
-    }
-
-    switch (tunerId)
-    {
-    case TUNER_MT2032:
-        m_Tuner = new CMT2032(VIDEOFORMAT_NTSC_M);
-        LookForIFDemod = TRUE;
-        strcpy(m_TunerType, "MT2032 ");
-        break;
-    case TUNER_MT2032_PAL:
-        m_Tuner = new CMT2032(VIDEOFORMAT_PAL_B);
-        LookForIFDemod = TRUE;
-        strcpy(m_TunerType, "MT2032 ");
-        break;
-    case TUNER_MT2050:
-        m_Tuner = new CMT2050(VIDEOFORMAT_NTSC_M);
-        LookForIFDemod = TRUE;
-        strcpy(m_TunerType, "MT2050 ");
-        break;
-    case TUNER_MT2050_PAL:
-        m_Tuner = new CMT2050(VIDEOFORMAT_PAL_B);
-        LookForIFDemod = TRUE;
-        strcpy(m_TunerType, "MT2050 ");
-        break;
-    case TUNER_AUTODETECT:
-    case TUNER_USER_SETUP:
-    case TUNER_ABSENT:
-        m_Tuner = new CNoTuner();
-        strcpy(m_TunerType, "None ");
-        break;
-    case TUNER_PHILIPS_FM1216ME_MK3:
-	case TUNER_PHILIPS_4IN1:
-        LookForIFDemod = TRUE;
-        // deliberate drop down
-    default:
-        m_Tuner = new CGenericTuner(tunerId);
-        strcpy(m_TunerType, "Generic ");
-        break;
-    }
-      
-        
-    // Finished if tuner type is CNoTuner
-    switch (tunerId)
-    {
-    case TUNER_AUTODETECT:
-    case TUNER_USER_SETUP:
-    case TUNER_ABSENT:
-        return TRUE;
-    }
-
-    // Look for possible external IF demodulator
-    IExternalIFDemodulator *pExternalIFDemodulator = NULL;
-    eVideoFormat videoFormat = m_Tuner->GetDefaultVideoFormat();
-
-    if(LookForIFDemod)
-    {        
-        CTDA9887* pTDA9887 = NULL;
-
-		switch (m_CardType)
-        {        
-        case CX2388xCARD_MSI_TV_ANYWHERE_MASTER_PAL:
-            pTDA9887 = new CTDA9887(TDA9887_MSI_TV_ANYWHERE_MASTER);
-            break;
-
-        case CX2388xCARD_LEADTEK_WINFAST_EXPERT:
-            pTDA9887 = new CTDA9887(TDA9887_LEADTEK_WINFAST_EXPERT);
-            break;
-
-		case CX2388xCARD_ATI_WONDER_PRO:
-            pTDA9887 = new CTDA9887(TDA9887_ATI_TV_WONDER_PRO);
-            break;
-
-		case CX2388xCARD_AVERTV_303:
-            pTDA9887 = new CTDA9887(TDA9887_AVERTV_303);
-            break;
-
-        default:
-            // detect TDA9887 with standard settings
-            pTDA9887 = new CTDA9887();
-            break;
-        }
-
-		// Detect to make sure an IF demodulator exists.
-		if(pTDA9887->DetectAttach(m_I2CBus))
-		{
-			// Found a valid external IF demodulator.
-			pExternalIFDemodulator = pTDA9887;
-		}
-
-		else
-		{
-			// A TDA9887 device wasn't detected.
-			delete pTDA9887;
-		}
-    }
-        
-    if (pExternalIFDemodulator != NULL)
-    {
-		// Attach the IF demodulator to the tuner.
-		m_Tuner->AttachIFDem(pExternalIFDemodulator, TRUE);
-		// Let the IF demodulator know of pre-initialization.
-		pExternalIFDemodulator->Init(TRUE, videoFormat);
-    }
-                
-    // Scan the I2C bus addresses 0xC0 - 0xCF for tuners
-    BOOL bFoundTuner = FALSE;
-
-    int kk = strlen(m_TunerType);
-	BYTE StartAddress;
-    //there check what this is not TV@nywhere Master, which have TEA5767 at 0xC0
-	if (m_CardType != CX2388xCARD_MSI_TV_ANYWHERE_MASTER_PAL)
-	{
-		StartAddress = 0xC0;
-	}
-	else
-	{
-		StartAddress = 0xC2;
-	}
-
-    for (BYTE test = StartAddress; test < 0xCF; test +=2)
-    {
-        if (m_I2CBus->Write(&test, sizeof(test)))
-        {
-            m_Tuner->Attach(m_I2CBus, test>>1);
-            sprintf(m_TunerType + kk, " at I2C address 0x%02x", test);
-            bFoundTuner = TRUE;
-            LOG(1,"Tuner: Found at I2C address 0x%02x",test);
-            break;
-        }
-    }
-
-    if (pExternalIFDemodulator != NULL)
-    {
-        //End initialization
-        pExternalIFDemodulator->Init(FALSE, videoFormat);
-    }
-
-    if (!bFoundTuner)
-    {
-        LOG(1,"Tuner: No tuner found at I2C addresses 0xC0-0xCF"); 
-        
-        delete m_Tuner; 
-        m_Tuner = new CNoTuner();
-        strcpy(m_TunerType, "None ");           
-    }
-    return bFoundTuner;
-}
-
 void CCX2388xCard::SetRISCStartAddress(DWORD RiscBasePhysical)
 {
     WriteDword( SRAM_CMDS_21, RiscBasePhysical); // RISC STARTING ADDRESS
@@ -2081,11 +1917,6 @@ void CCX2388xCard::SetRISCStartAddressVBI(DWORD RiscBasePhysical)
 
     // Set as PCI address
     AndDataDword( SRAM_CMDS_24 + 0x10, 0x7fffffff); 
-}
-
-ITuner* CCX2388xCard::GetTuner() const
-{
-    return m_Tuner;
 }
 
 #define DumpRegister(Reg) fprintf(hFile, #Reg "\t%08x\n", ReadDword(Reg))

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.101 2005-04-01 22:16:33 laurentg Exp $
+// $Id: OSD.cpp,v 1.102 2005-04-02 14:04:12 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.101  2005/04/01 22:16:33  laurentg
+// EPG: new menu "Hide EPG" + new setting to define the time frame duration
+//
 // Revision 1.100  2005/03/29 21:08:34  laurentg
 // program renamed programme
 //
@@ -2334,61 +2337,41 @@ static void OSD_DisplayProgrammeInfos(double Size)
 {
     double	dfMargin = 0.02;    // 2% of screen height/width
 
-	// Get the current channel name
-	LPCSTR	ChannelName = NULL;
-	LPCSTR	ChannelEPGName = NULL;
-	CSource *CurrentSource = Providers_GetCurrentSource();
-	if (CurrentSource && Providers_GetCurrentSource()->IsInTunerMode())
-	{
-		ChannelName = Channel_GetName();
-		ChannelEPGName = Channel_GetEPGName();
-	}
-	else
+	time_t StartTime;
+	time_t EndTime;
+	string ChannelName;
+	string ProgrammeTitle;
+
+	if (MyEPG.GetProgrammeMainData(-1, &StartTime, &EndTime, ChannelName, ProgrammeTitle) == FALSE)
 	{
 		return;
 	}
 
-    double pos1 = OSD_GetLineYpos (1, dfMargin, OSD_DefaultSizePerc);
-
-	OSD_AddText(ChannelName, OSD_DefaultSizePerc, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos1);
+	OSD_AddText(ChannelName.c_str(), OSD_DefaultSizePerc, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (1, dfMargin, OSD_DefaultSizePerc));
 
     if (Size == 0)
     {
         Size = Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE));
     }
 
-    double pos2 = OSD_GetLineYpos (2, dfMargin, OSD_DefaultSizePerc);
-
-	time_t	TimeNow;
-	time(&TimeNow);
-	int nb = MyEPG.SearchForProgrammes(ChannelEPGName, TimeNow, TimeNow);
-	if (nb == 0)
-	{
-		OSD_AddText("No EPG information", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos2);
-		return;
-	}
-
-	char   szInfo[16];
-	time_t StartTime;
-	time_t EndTime;
-	char StartTimeStr[6];
-	char EndTimeStr[6];
-	string Channel;
-	string ProgrammeTitle;
-
-	MyEPG.GetProgrammeMainData(0, &StartTime, &EndTime, Channel, ProgrammeTitle);
 	struct tm *date_tm;
+	char   StartTimeStr[6];
+	char   EndTimeStr[6];
 	date_tm = localtime(&StartTime);
 	sprintf(StartTimeStr, "%02u:%02u", date_tm->tm_hour, date_tm->tm_min);
 	date_tm = localtime(&EndTime);
 	sprintf(EndTimeStr, "%02u:%02u", date_tm->tm_hour, date_tm->tm_min);
 
+    double pos2 = OSD_GetLineYpos (2, dfMargin, OSD_DefaultSizePerc);
     double pos3 = pos2 + OSD_GetLineYpos (2, dfMargin, Size) - OSD_GetLineYpos (1, dfMargin, Size);
 	double pos4 = pos3 + pos3 - pos2;
 
     OSD_AddText(ProgrammeTitle.c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos2);
+	char   szInfo[16];
     sprintf(szInfo, "%s - %s", StartTimeStr, EndTimeStr);
     OSD_AddText(szInfo, Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos3);
+	time_t TimeNow;
+	time(&TimeNow);
     sprintf(szInfo, "%.1f %%", (double)(TimeNow - StartTime) * 100.0 / (double)(EndTime - StartTime));
     OSD_AddText(szInfo, Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos4);
 }
@@ -2398,71 +2381,65 @@ static void OSD_RefreshCurrentProgrammeScreen(double Size)
 {
     double	dfMargin = 0.02;    // 2% of screen height/width
 
-	// Get the current channel name
-	LPCSTR	ChannelName = NULL;
-	LPCSTR	ChannelEPGName = NULL;
-	CSource *CurrentSource = Providers_GetCurrentSource();
-	if (CurrentSource && Providers_GetCurrentSource()->IsInTunerMode())
-	{
-		ChannelName = Channel_GetName();
-		ChannelEPGName = Channel_GetEPGName();
-	}
-
     if (Size == 0)
     {
         Size = Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE));
     }
 
-    // Title
-    OSD_AddText("Current Programme", Size*1.5, OSD_COLOR_TITLE, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
-
-	int nLine = 3;
+	int nLine = 1;
 
     double pos1 = OSD_GetLineYpos (nLine++, dfMargin, Size);
     double pos2 = OSD_GetLineYpos (nLine++, dfMargin, Size);
 
-	if (!ChannelName)
-	{
-        OSD_AddText("Not in tuner mode", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, pos1);
-		return;
-	}
-
-	time_t	TimeNow;
-	time(&TimeNow);
-	int nb = MyEPG.SearchForProgrammes(ChannelEPGName, TimeNow, TimeNow);
-	if (nb == 0)
-	{
-		OSD_AddText(ChannelName, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos1);
-		OSD_AddText("No EPG information", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos2);
-		return;
-	}
-
-	char   szInfo[16];
 	time_t StartTime;
 	time_t EndTime;
-	char StartTimeStr[6];
-	char EndTimeStr[6];
 	string Channel;
+	string ChannelName;
 	string ProgrammeTitle;
 	string SubTitle;
 	string Category;
 	string Description;
 
-	MyEPG.GetProgrammeData(0, &StartTime, &EndTime, Channel, ProgrammeTitle, SubTitle, Category, Description);
+	if (   (MyEPG.SearchForProgramme(Channel) == FALSE)
+		|| (Channel.length() == 0) )
+	{
+		if (Channel.length() == 0)
+		{
+			OSD_AddText("Not in tuner mode", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, pos1);
+		}
+		else
+		{
+			OSD_AddText(Channel.c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos1);
+			OSD_AddText("No EPG information", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos2);
+		}
+		return;
+	}
+	else if (MyEPG.GetProgrammeData(-1, &StartTime, &EndTime, ChannelName, ProgrammeTitle, SubTitle, Category, Description) == FALSE)
+	{
+		OSD_AddText(Channel.c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos1);
+		OSD_AddText("No EPG information", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos2);
+		return;
+	}
+
 	struct tm *date_tm;
+	char   StartTimeStr[6];
+	char   EndTimeStr[6];
 	date_tm = localtime(&StartTime);
 	sprintf(StartTimeStr, "%02u:%02u", date_tm->tm_hour, date_tm->tm_min);
 	date_tm = localtime(&EndTime);
 	sprintf(EndTimeStr, "%02u:%02u", date_tm->tm_hour, date_tm->tm_min);
 
+	char   szInfo[16];
     sprintf(szInfo, "%s - %s", StartTimeStr, EndTimeStr);
     OSD_AddText(szInfo, Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos1);
-    OSD_AddText(ChannelName, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos1);
+    OSD_AddText(ChannelName.c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos1);
 	if (Category.length() > 0)
 	{
 	    OSD_AddText(Category.c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, pos1);
 	}
     OSD_AddText(ProgrammeTitle.c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos2);
+	time_t TimeNow;
+	time(&TimeNow);
     sprintf(szInfo, "%.1f %%", (double)(TimeNow - StartTime) * 100.0 / (double)(EndTime - StartTime));
     OSD_AddText(szInfo, Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos2);
 	if (SubTitle.length() > 0)
@@ -2513,9 +2490,9 @@ static void OSD_RefreshProgrammesScreen(double Size)
 	time(&TimeNow);
 
 	CSource *CurrentSource = Providers_GetCurrentSource();
-	LPCSTR CurChannel = NULL;
+	LPCSTR Channel = NULL;
 	if (CurrentSource && Providers_GetCurrentSource()->IsInTunerMode())
-		CurChannel = Channel_GetEPGName();
+		Channel = Channel_GetName();
 
 	int IdxMin, IdxMax, IdxCur;
 	MyEPG.GetDisplayIndexes(&IdxMin, &IdxMax, &IdxCur);
@@ -2566,8 +2543,8 @@ static void OSD_RefreshProgrammesScreen(double Size)
 		date_tm = localtime(&EndTime);
 		sprintf(EndTimeStr, "%02u:%02u", date_tm->tm_hour, date_tm->tm_min);
 
-		if (   CurChannel 
-			&& !_stricmp(ChannelName.c_str(), CurChannel)
+		if (   Channel 
+			&& !_stricmp(ChannelName.c_str(), Channel)
 			&& (TimeNow >= StartTime)
 			&& (TimeNow < EndTime) )
 		{

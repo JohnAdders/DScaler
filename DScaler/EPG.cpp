@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.cpp,v 1.13 2005-04-01 22:16:32 laurentg Exp $
+// $Id: EPG.cpp,v 1.14 2005-04-02 14:04:11 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2005/04/01 22:16:32  laurentg
+// EPG: new menu "Hide EPG" + new setting to define the time frame duration
+//
 // Revision 1.12  2005/03/29 21:08:33  laurentg
 // program renamed programme
 //
@@ -95,12 +98,14 @@ CEPG MyEPG;
 // TODO Enhancement: use a XML API
 
 
-CProgramme::CProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR Channel)
+CProgramme::CProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR ChannelName, LPCSTR ChannelEPGName, int ChannelNumber)
 {
 	m_StartTime = StartTime;
 	m_EndTime = EndTime;
 	m_Title = Title;
-	m_Channel = Channel;
+	m_ChannelName = ChannelName;
+	m_ChannelEPGName = ChannelEPGName;
+	m_ChannelNumber = ChannelNumber;
 	m_SubTitle = "";
 	m_Category = "";
 	m_Description = "";
@@ -121,11 +126,22 @@ BOOL CProgramme::IsProgrammeMatching(time_t DateMin, time_t DateMax, LPCSTR Chan
 {
 	if (   (DateMax >= m_StartTime)
 		&& (DateMin < m_EndTime)
-		&& ( (Channel == NULL) || !_stricmp(Channel, m_Channel.c_str()) )
+		&& ( (Channel == NULL) || !_stricmp(Channel, m_ChannelName.c_str()) )
 	   )
 	   return TRUE;
 
 	return FALSE;
+}
+
+
+//
+// Get the channel data : DScaler name + EPG name + number
+//
+void CProgramme::GetProgrammeChannelData(string &ChannelName, string &ChannelEPGName, int *ChannelNumber)
+{
+	ChannelName = m_ChannelName;
+	ChannelEPGName = m_ChannelName;
+	*ChannelNumber = m_ChannelNumber;
 }
 
 
@@ -136,7 +152,7 @@ void CProgramme::GetProgrammeMainData(time_t *StartTime, time_t *EndTime, string
 {
 	*StartTime = m_StartTime;
 	*EndTime = m_EndTime;
-	Channel = m_Channel;
+	Channel = m_ChannelName;
 	Title = m_Title;
 }
 
@@ -148,7 +164,7 @@ void CProgramme::GetProgrammeData(time_t *StartTime, time_t *EndTime, string &Ch
 {
 	*StartTime = m_StartTime;
 	*EndTime = m_EndTime;
-	Channel = m_Channel;
+	Channel = m_ChannelName;
 	Title = m_Title;
 	SubTitle = m_SubTitle;
 	Category = m_Category;
@@ -173,7 +189,7 @@ void CProgramme::DumpProgrammeMainData()
 			"%04u/%02u/%02u %02u:%02u",
 			date_tm->tm_year+1900, date_tm->tm_mon+1, date_tm->tm_mday, date_tm->tm_hour, date_tm->tm_min);
 	LOG(1, "%s - %s : %s : %s",
-		Date1, Date2, m_Channel.c_str(), m_Title.c_str());
+		Date1, Date2, m_ChannelName.c_str(), m_Title.c_str());
 }
 
 
@@ -211,6 +227,10 @@ CEPG::CEPG()
 	m_SearchTimeMax = 0;
 
 	SetDisplayIndexes(-1, -1, -1);
+
+	m_ProgrammeSelected = NULL;
+
+	m_UseProgFronBrowser = FALSE;
 
 	m_Displayed = 0;
 }
@@ -631,6 +651,8 @@ int CEPG::LoadEPGData(time_t DateMin, time_t DateMax)
 	char *EndTime;
 	char *Title;
 	char *Channel;
+	LPCSTR ChannelName;
+	int  ChannelNumber;
 	while (GetFileLine(InFile, Line, 383) == TRUE)
 	{
 		StartDate = NULL;
@@ -672,7 +694,7 @@ int CEPG::LoadEPGData(time_t DateMin, time_t DateMax)
 		Channel = end+1;
 		if (!*StartDate || !*StartTime || !*EndDate || !*EndTime || !*Title || !*Channel)
 			continue;
-		if (!IsValidChannelName(Channel))
+		if (!IsValidChannelName(Channel, &ChannelName, &ChannelNumber))
 			continue;
 
 		int year;
@@ -722,7 +744,7 @@ int CEPG::LoadEPGData(time_t DateMin, time_t DateMax)
 		if ( (TimeEnd <= DateMin) || (TimeStart > DateMax) )
 			continue;
 
-		AddProgramme(TimeStart, TimeEnd, Title, Channel);
+		AddProgramme(TimeStart, TimeEnd, Title, ChannelName, Channel, ChannelNumber);
 	}
 
 	fclose(InFile);
@@ -766,12 +788,60 @@ int CEPG::GetSearchContext(LPCSTR *ChannelName, time_t *TimeMin, time_t *TimeMax
 }
 
 
+BOOL CEPG::SearchForProgramme(string &Channel)
+{
+	BOOL resu = FALSE;
+	Channel = "";
+	if (m_UseProgFronBrowser == FALSE)
+	{
+		CSource *CurrentSource = Providers_GetCurrentSource();
+		if (CurrentSource && Providers_GetCurrentSource()->IsInTunerMode())
+		{
+			time_t TimeNow;
+			time(&TimeNow);
+			Channel = Channel_GetName();
+			resu = SearchForProgramme(Channel.c_str(), TimeNow);
+		}
+	}
+	else
+	{
+		if (m_ProgrammeSelected)
+		{
+			string ChannelEPG;
+			int    Number;
+			m_ProgrammeSelected->GetProgrammeChannelData(Channel, ChannelEPG, &Number);
+			resu = TRUE;
+		}
+	}
+
+	return resu;
+}
+
+
+BOOL CEPG::SearchForProgramme(LPCSTR ChannelName, time_t ThatTime)
+{
+	m_ProgrammeSelected = NULL;
+    for(CProgrammes::iterator it = m_Programmes.begin();
+        it != m_Programmes.end();
+        ++it)
+    {
+		if ((*it)->IsProgrammeMatching(ThatTime, ThatTime, ChannelName) == TRUE)
+		{
+			m_ProgrammeSelected = *it;
+			return TRUE;
+		}
+    }
+	return FALSE;
+}
+
+
 int CEPG::SearchForProgrammes(LPCSTR ChannelName, time_t TimeMin, time_t TimeMax)
 {
 	m_SearchChannel = ChannelName;
 	m_SearchTimeMin = TimeMin;
 	m_SearchTimeMax = TimeMax;
     m_ProgrammesSelection.clear();
+	SetDisplayIndexes(-1, -1, -1);
     for(CProgrammes::iterator it = m_Programmes.begin();
         it != m_Programmes.end();
         ++it)
@@ -781,7 +851,10 @@ int CEPG::SearchForProgrammes(LPCSTR ChannelName, time_t TimeMin, time_t TimeMax
 			m_ProgrammesSelection.push_back(*it);
 		}
     }
-	SetDisplayIndexes(1, m_ProgrammesSelection.size(), 1);
+	if (m_ProgrammesSelection.size() > 0)
+	{
+		SetDisplayIndexes(1, m_ProgrammesSelection.size(), 1);
+	}
 	return m_ProgrammesSelection.size();
 }
 
@@ -803,25 +876,66 @@ int CEPG::GetDisplayIndexes(int *IdxMin, int *IdxMax, int *IdxCur)
 }
 
 
-int CEPG::GetProgrammeMainData(int Index, time_t *StartTime, time_t *EndTime, string &Channel, string &Title)
+BOOL CEPG::GetProgrammeChannelData(int Index, string &ChannelName, string &ChannelEPGName, int *ChannelNumber)
 {
-	if ( (Index < 0) || (Index >= m_ProgrammesSelection.size()) )
-		return -1;
+	if ( (Index < 0) && (m_ProgrammeSelected == NULL))
+		return FALSE;
 
-	m_ProgrammesSelection[Index]->GetProgrammeMainData(StartTime, EndTime, Channel, Title);
+	if ( (Index >= 0) && (Index >= m_ProgrammesSelection.size()) )
+		return FALSE;
 
-	return 0;
+	if (Index < 0)
+	{
+		m_ProgrammeSelected->GetProgrammeChannelData(ChannelName, ChannelEPGName, ChannelNumber);
+	}
+	else
+	{
+		m_ProgrammesSelection[Index]->GetProgrammeChannelData(ChannelName, ChannelEPGName, ChannelNumber);
+	}
+
+	return TRUE;
 }
 
 
-int CEPG::GetProgrammeData(int Index, time_t *StartTime, time_t *EndTime, string &Channel, string &Title, string &SubTitle, string &Category, string &Description)
+BOOL CEPG::GetProgrammeMainData(int Index, time_t *StartTime, time_t *EndTime, string &Channel, string &Title)
 {
-	if ( (Index < 0) || (Index >= m_ProgrammesSelection.size()) )
-		return -1;
+	if ( (Index < 0) && (m_ProgrammeSelected == NULL))
+		return FALSE;
 
-	m_ProgrammesSelection[Index]->GetProgrammeData(StartTime, EndTime, Channel, Title, SubTitle, Category, Description);
+	if ( (Index >= 0) && (Index >= m_ProgrammesSelection.size()) )
+		return FALSE;
 
-	return 0;
+	if (Index < 0)
+	{
+		m_ProgrammeSelected->GetProgrammeMainData(StartTime, EndTime, Channel, Title);
+	}
+	else
+	{
+		m_ProgrammesSelection[Index]->GetProgrammeMainData(StartTime, EndTime, Channel, Title);
+	}
+
+	return TRUE;
+}
+
+
+BOOL CEPG::GetProgrammeData(int Index, time_t *StartTime, time_t *EndTime, string &Channel, string &Title, string &SubTitle, string &Category, string &Description)
+{
+	if ( (Index < 0) && (m_ProgrammeSelected == NULL))
+		return FALSE;
+
+	if ( (Index >= 0) && (Index >= m_ProgrammesSelection.size()) )
+		return FALSE;
+
+	if (Index < 0)
+	{
+		m_ProgrammeSelected->GetProgrammeData(StartTime, EndTime, Channel, Title, SubTitle, Category, Description);
+	}
+	else
+	{
+		m_ProgrammesSelection[Index]->GetProgrammeData(StartTime, EndTime, Channel, Title, SubTitle, Category, Description);
+	}
+
+	return TRUE;
 }
 
 
@@ -834,14 +948,14 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 	time_t TimeMin;
 	time_t TimeMax;
 	struct tm *datetime_tm;
-	LPCSTR ChannelName = NULL;
-	LPCSTR ChannelEPGName = NULL;
-	string Channel;
 	string Title;
+	string ChannelName;
+	string ChannelEPGName;
+	int ChannelNumber;
 
 	switch(LOWORD(wParam))
     {
-	case IDM_SCAN_EPG:
+	case IDM_IMPORT_XMLTV:
 		FileFilters = "XML Files\0*.xml\0";
 		FilePath[0] = 0;
 		ZeroMemory(&OpenFileInfo,sizeof(OpenFileInfo));
@@ -864,6 +978,10 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         return TRUE;
 		break;
 
+	case IDM_IMPORT_NEXTVIEW:
+        return TRUE;
+		break;
+
 	case IDM_LOAD_EPG:
 		if (!ReloadEPGData())
 		{
@@ -879,22 +997,39 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		break;
 
 	case IDM_DISPLAY_EPG:
-		// Check if new EPG data have to be loaded
-		time(&TimeNow);
-		LoadEPGDataIfNeeded(m_LoadedTimeMin, TimeNow, 0, 6 * ONE_HOUR);
-		// Display the OSD screen
-		OSD_ShowInfosScreen(2, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
-		m_Displayed = 1;
+		if (m_UseProgFronBrowser == FALSE)
+		{
+			// Check if new EPG data have to be loaded
+			time(&TimeNow);
+			LoadEPGDataIfNeeded(m_LoadedTimeMin, TimeNow, 0, 6 * ONE_HOUR);
+			// Display the OSD screen
+			OSD_ShowInfosScreen(2, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
+			m_Displayed = 1;
+		}
+		else if (m_IdxShowSelectCur != -1)
+		{
+			m_ProgrammeSelected = m_ProgrammesSelection[m_IdxShowSelectCur-1];
+			// Display the OSD screen
+			OSD_ShowInfosScreen(2, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
+			m_Displayed = 1;
+		}
         return TRUE;
 		break;
 
 	case IDM_DISPLAY_EPG_NOW:
-		time(&TimeMin);
-		TimeMax = TimeMin + ONE_HOUR * Setting_GetValue(EPG_GetSetting(EPG_TIMEFRAMEDURATION)) - 1;
-		// Check if new EPG data have to be loaded
-		LoadEPGDataIfNeeded(TimeMin, TimeMax, 0, 0);
-		// Select the corresponding programmes
-		SearchForProgrammes(NULL, TimeMin, TimeMax);
+		if ( (m_Displayed == 1) && (m_UseProgFronBrowser == TRUE) )
+		{
+		}
+		else
+		{
+			time(&TimeMin);
+			TimeMax = TimeMin + ONE_HOUR * Setting_GetValue(EPG_GetSetting(EPG_TIMEFRAMEDURATION)) - 1;
+			// Check if new EPG data have to be loaded
+			LoadEPGDataIfNeeded(TimeMin, TimeMax, 0, 0);
+			// Select the corresponding programmes
+			SearchForProgrammes(NULL, TimeMin, TimeMax);
+		}
+		m_UseProgFronBrowser = TRUE;
 		// Display the OSD screen
 		OSD_ShowInfosScreen(3, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
 		m_Displayed = 2;
@@ -963,6 +1098,10 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		{
 			SetDisplayIndexes(m_IdxShowSelectMax + 1, -1, m_IdxShowSelectMax + 1);
 		}
+		else if (m_Displayed == 1)
+		{
+			// TODO Show the details of the next programme on the same channel
+		}
         return TRUE;
         break;
 
@@ -972,6 +1111,10 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 			&& (m_IdxShowSelectMin > 1) )
 		{
 			SetDisplayIndexes(-1, m_IdxShowSelectMin - 1, m_IdxShowSelectMin - 1);
+		}
+		else if (m_Displayed == 1)
+		{
+			// TODO Show the details of the previous programme on the same channel
 		}
         return TRUE;
         break;
@@ -1015,12 +1158,17 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         break;
 
 	case IDM_EPG_VIEW_PROG:
-		if (!MyEPG.GetProgrammeMainData(m_IdxShowSelectCur-1, &TimeMin, &TimeMax, Channel, Title))
+		if (   (m_Displayed == 2)
+			&& (m_IdxShowSelectCur != -1)
+		    && (MyEPG.GetProgrammeChannelData(m_IdxShowSelectCur-1, ChannelName, ChannelEPGName, &ChannelNumber) == TRUE) )
 		{
-			int n = GetChannelNumber(Channel.c_str());
-			if (n >= 0)
+			if (ChannelNumber >= 0)
 			{
-				Channel_Change(n);
+				if (!Providers_GetCurrentSource()->IsInTunerMode())
+				{            
+					SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT1, 0);
+				}
+				Channel_Change(ChannelNumber);
 			}
 		}
         return TRUE;
@@ -1047,14 +1195,33 @@ void CEPG::ShowOSD()
 
 	if (m_Programmes.size() > 0)
 	{
-		// Display the OSD screen
-		OSD_ShowInfosScreen(1, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
+		CSource *CurrentSource = Providers_GetCurrentSource();
+		if (CurrentSource && Providers_GetCurrentSource()->IsInTunerMode())
+		{
+			// Search EPG info for the currently viewed channel
+			if (MyEPG.SearchForProgramme(Channel_GetName(), TimeNow) == TRUE)
+			{
+				// Display the OSD screen
+				OSD_ShowInfosScreen(1, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
+			}
+		}
 	}
 }
 
 
 void CEPG::HideOSD()
 {
+	m_SearchChannel = NULL;
+	m_SearchTimeMin = 0;
+	m_SearchTimeMax = 0;
+
+	SetDisplayIndexes(-1, -1, -1);
+
+	m_ProgrammeSelected = NULL;
+    m_ProgrammesSelection.clear();
+
+	m_UseProgFronBrowser = FALSE;
+
 	m_Displayed = 0;
 }
 
@@ -1075,6 +1242,7 @@ void CEPG::DumpEPGData()
 
 void CEPG::ClearProgrammes()
 {
+	m_ProgrammeSelected = NULL;
     m_ProgrammesSelection.clear();
     for(CProgrammes::iterator it = m_Programmes.begin();
         it != m_Programmes.end();
@@ -1086,9 +1254,9 @@ void CEPG::ClearProgrammes()
 }
 
 
-void CEPG::AddProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR Channel)
+void CEPG::AddProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR ChannelName, LPCSTR ChannelEPGName, int ChannelNumber)
 {
-    CProgramme* newProgramme = new CProgramme(StartTime, EndTime, Title, Channel);
+    CProgramme* newProgramme = new CProgramme(StartTime, EndTime, Title, ChannelName, ChannelEPGName, ChannelNumber);
 	m_Programmes.push_back(newProgramme);
 }
 
@@ -1097,25 +1265,32 @@ void CEPG::AddProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR C
 // Check whether a channel name belongs to the list of channels
 // defined in DScaler
 //
-BOOL CEPG::IsValidChannelName(LPCSTR Name)
+BOOL CEPG::IsValidChannelName(LPCSTR EPGName, LPCSTR *Name, int *Number)
 {
+	if (Name)
+	{
+		*Name = NULL;
+	}
+	if (Number)
+	{
+		*Number = -1;
+	}
 	for (int i=0; (i < MyChannels.GetSize()); i++)
 	{
-		if (!_stricmp(Name, MyChannels.GetChannelEPGName(i)))
+		if (!_stricmp(EPGName, MyChannels.GetChannelEPGName(i)))
+		{
+			if (Name)
+			{
+				*Name = MyChannels.GetChannelName(i);
+			}
+			if (Number)
+			{
+				*Number = i;
+			}
 			return TRUE;
+		}
 	}
 	return FALSE;
-}
-
-
-int CEPG::GetChannelNumber(LPCSTR Name)
-{
-	for (int i=0; (i < MyChannels.GetSize()); i++)
-	{
-		if (!_stricmp(Name, MyChannels.GetChannelEPGName(i)))
-			return i;
-	}
-	return -1;
 }
 
 

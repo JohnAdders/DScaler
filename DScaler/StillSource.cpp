@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.63 2002-07-03 00:38:47 laurentg Exp $
+// $Id: StillSource.cpp,v 1.64 2002-07-24 21:43:17 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.63  2002/07/03 00:38:47  laurentg
+// Pick-list for the format of saving in the Change Settings dialog box
+//
 // Revision 1.62  2002/06/25 22:17:17  laurentg
 // Avoid to read the generated file just after a still capture
 //
@@ -255,6 +258,7 @@ static int SlideShowDelay = 5;
 static int JpegQuality = 95;
 static int PatternHeight = 576;
 static int PatternWidth = 720;
+static int DelayBetweenStills = 60;
 static char DScalerContext[1024];
 
 static const char *StillFormatNames[STILL_FORMAT_LASTONE] = 
@@ -1197,8 +1201,8 @@ void CStillSource::UpdateMenu()
     
     j = 0;
     for (vector<CPlayListItem*>::iterator it = m_PlayList.begin(); 
-        it != m_PlayList.end(); 
-        ++it, ++j)
+         (it != m_PlayList.end()) && (j < MAX_PLAYLIST_SIZE); 
+         ++it, ++j)
     {
         LPCSTR FileName = strrchr((*it)->GetFileName(), '\\');
         if (FileName == NULL)
@@ -1274,7 +1278,7 @@ void CStillSource::SetMenu(HMENU hMenu)
     hMenuFiles = GetSubMenu(hSubMenu, 4);
     if(hMenuFiles == NULL) return;
 
-    for (int i(0); i < GetMenuItemCount(hMenuFiles); ++i)
+    for (int i(0); (i < MAX_PLAYLIST_SIZE) && (i < GetMenuItemCount(hMenuFiles)); ++i)
     {
         if (m_Position == i)
         {
@@ -1392,6 +1396,12 @@ SETTING StillSettings[STILL_SETTING_LASTONE] =
          720, 240, DSCALER_MAX_WIDTH, 1, 1,
          NULL,
         "Pattern", "PatternWidth", Pattern_Width_OnChange,
+    },
+    {
+        "Delay between stills", SLIDER, 0, (long*)&DelayBetweenStills,
+         60, 5, 3600, 1, 1,
+         NULL,
+        "Still", "DelayBetweenStills", NULL,
     },
 };
 

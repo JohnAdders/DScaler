@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.73 2002-07-20 13:01:06 laurentg Exp $
+// $Id: DS_Control.h,v 1.74 2002-07-24 21:37:00 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.73  2002/07/20 13:01:06  laurentg
+// New setting for vertical mirror
+//
 // Revision 1.72  2002/07/20 10:26:34  laurentg
 // New settings to select the wished OSD screens
 //
@@ -1155,6 +1158,7 @@ typedef enum
     JPEGQUALITY,
     PATTERNHEIGTH,
     PATTERNWIDTH,
+    DELAYBETWEENSTILLS,
     STILL_SETTING_LASTONE,
 } STILL_SETTING;
 

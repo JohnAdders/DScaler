@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.195 2002-07-20 13:07:36 laurentg Exp $
+// $Id: DScaler.cpp,v 1.196 2002-07-24 21:43:15 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.195  2002/07/20 13:07:36  laurentg
+// New setting for vertical mirror
+//
 // Revision 1.194  2002/07/20 10:33:06  laurentg
 // New settings to select the wished OSD screens
 //
@@ -736,6 +739,8 @@ static const char *DecodingPriorityNames[5] =
     "High",
     "Very High",
 };
+
+static BOOL bTakingCyclicStills = FALSE;
 
 ///**************************************************************************
 //
@@ -2179,6 +2184,16 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             RequestStill();
             break;
 
+        case IDM_TAKECYCLICSTILL:
+            bTakingCyclicStills = !bTakingCyclicStills;
+            KillTimer(hWnd, TIMER_TAKESTILL);
+            if (bTakingCyclicStills)
+            {
+                RequestStill();
+                SetTimer(hWnd, TIMER_TAKESTILL, Setting_GetValue(Still_GetSetting(DELAYBETWEENSTILLS)) * 1000, NULL);
+            }
+            break;
+
         case IDM_RESET_STATS:
             ResetDeinterlaceStats();
             ResetARStats();
@@ -2837,6 +2852,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
             break;
         //---------------------------------
+        case TIMER_TAKESTILL:
+            RequestStill();
+            break;
+        //---------------------------------
         default:
             Provider_HandleTimerMessages(LOWORD(wParam));
             break;
@@ -3389,6 +3408,7 @@ void KillTimers()
     KillTimer(hWnd, TIMER_VTUPDATE);
     KillTimer(hWnd, TIMER_FINDPULL);
     KillTimer(hWnd, TIMER_SLEEPMODE);
+    KillTimer(hWnd, TIMER_TAKESTILL);
 }
 
 
@@ -3526,6 +3546,8 @@ void SetMenuAnalog()
 
     CheckMenuItemBool(hMenu, IDM_USE_DSCALER_OVERLAY, Setting_GetValue(Other_GetSetting(USEOVERLAYCONTROLS)));
     EnableMenuItem(hMenu,IDM_OVERLAYSETTINGS, Setting_GetValue(Other_GetSetting(USEOVERLAYCONTROLS))?MF_ENABLED:MF_GRAYED);
+
+    CheckMenuItemBool(hMenu, IDM_TAKECYCLICSTILL, bTakingCyclicStills);
 
     AspectRatio_SetMenu(hMenu);
     FD60_SetMenu(hMenu);

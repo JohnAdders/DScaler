@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.30 2002-07-20 10:33:06 laurentg Exp $
+// $Id: DScaler.h,v 1.31 2002-07-24 21:43:17 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -104,6 +104,9 @@ HMENU GetPatternsSubmenu();
 
 #define TIMER_SLEEPMODE     73
 #define TIMER_SLEEPMODE_MS  2000
+
+#define TIMER_TAKESTILL     51
+
 enum eSMState
 {
     SM_WaitMode,

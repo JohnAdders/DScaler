@@ -947,6 +947,7 @@
 #define IDM_VT_SEARCHHIGHLIGHT          32787
 #define IDM_VERTICAL_FLIP               32788
 #define IDM_USEINPUTPIN1                32789
+#define IDM_TAKECYCLICSTILL             32790
 #define IDC_STATIC                      -1
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
@@ -968,7 +969,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        203
-#define _APS_NEXT_COMMAND_VALUE         32790
+#define _APS_NEXT_COMMAND_VALUE         32791
 #define _APS_NEXT_CONTROL_VALUE         8000
 #define _APS_NEXT_SYMED_VALUE           2391
 #endif

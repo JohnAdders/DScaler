@@ -843,6 +843,7 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Pause\tP",                   IDM_CAPTURE_PAUSE
         MENUITEM "Take Sti&ll Picture\tL",      IDM_TAKESTILL
+        MENUITEM "Take C&yclic Still Pictures", IDM_TAKECYCLICSTILL
         MENUITEM "Take Stream Snapshot\tShift+L", IDM_TAKESTREAMSNAP
         POPUP "T&imeShift (under construction)"
         BEGIN

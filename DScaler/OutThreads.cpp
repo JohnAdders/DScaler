@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.70 2002-06-22 20:33:31 robmuller Exp $
+// $Id: OutThreads.cpp,v 1.71 2002-06-23 11:03:33 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.70  2002/06/22 20:33:31  robmuller
+// Offset odd fields with a line when in vertical flip mode to remove jitter.
+//
 // Revision 1.69  2002/06/22 14:57:45  laurentg
 // New vertical flip mode
 //
@@ -730,17 +733,27 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                 if (bDoVerticalFlip)
                 {
                     // Use of a negative pitch + a pointer to the last line of the field
-                    // offset with one when odd to remove jitter
-                    if(Info.PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD)
-                    {
-                        Info.PictureHistory[0]->pData += (Info.FieldHeight-2) * Info.InputPitch;
-                    }
-                    else
-                    {
-                        Info.PictureHistory[0]->pData += (Info.FieldHeight-1) * Info.InputPitch;
-                    }
+                    Info.PictureHistory[0]->pData += (Info.FieldHeight-1) * Info.InputPitch;
                     Info.InputPitch *= -1;
-                    Info.FieldHeight--;
+
+                    // make the odd fields even and the even fields odd.
+                    for(int i = 0; i < MAX_PICTURE_HISTORY; i++)
+                    {
+                        if(Info.PictureHistory[i] != NULL)
+                        {
+                            if(Info.PictureHistory[i]->Flags & PICTURE_INTERLACED_ODD)
+                            {
+                                Info.PictureHistory[i]->Flags &= ~PICTURE_INTERLACED_ODD;
+                                Info.PictureHistory[i]->Flags |= PICTURE_INTERLACED_EVEN;
+                            }
+                            else if(Info.PictureHistory[i]->Flags & PICTURE_INTERLACED_EVEN)
+                            {
+                                Info.PictureHistory[i]->Flags &= ~PICTURE_INTERLACED_EVEN;
+                                Info.PictureHistory[i]->Flags |= PICTURE_INTERLACED_ODD;
+                            }
+                        }
+                    }
+
                 }
 
                 // Card calibration

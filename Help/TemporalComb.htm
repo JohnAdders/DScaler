@@ -55,16 +55,11 @@ height="2"></td>
 <tr>
 <td colspan="3">
 <!-- #BeginEditable "Text" -->
-<p><b><font face="Arial" size="5">Temporal Comb
-Filter</font></b></p>
 
 <p>This filter removes dot crawl and some kinds of shimmering.
 The effect is most noticable on computer generated images like
 subtitles, weather maps, and station logos using a composite
-video signal. It also helps more subtly with edges of saturated
-colors in cartoons and normal video. But there's plenty of low
-contrast material for which the Temporal Comb does very little
-(except keep your processor busy).</p>
+video signal.</p> 
 
 <p>What the heck is a comb filter? In technical terms, it
 averages out chrominance/luminance crosstalk caused by imperfect
@@ -73,6 +68,36 @@ really obscure reason -- because the frequency response looks a
 (very little) bit like a comb. Apparently, signal processing
 engineers are obsessed with grooming.</p>
 
+<TABLE width="100%" border=0>
+<TBODY>
+<TR><TD>
+<img src="images/TComb_Off_CNN.JPG" width="50%" align=right><p>Here's an
+example of the problem, taken from a US Cable TV broadcast with an internal tuner. There's
+heavy dot crawl in the weather map and CNN logo, and more subtle color problems
+in and around the text.</p>
+<P>(Try to ignore the JPEG artifacts.)</p>
+<TR><TD><BR>
+<img src="images/TComb_On_CNN.JPG" width="50%" align=right><p>And here's the
+effect of the Temporal Comb Filter on the same (well, a really similar) picture. This was
+taken with the default settings.</p>
+<TR><TD><BR>
+<TR><TD>
+<img src="images/TComb_Off_Jack.JPG" width="134" height="202" align=left><p>The comb filter
+also helps more subtly with edges of saturated colors in cartoons and normal video. This
+first picture shows "Jack" without filtering. </p>
+<TR><TD>
+<img src="images/TComb_On_Jack.JPG" width="134" height="202" align = left><P>...and here he
+is with the comb filter enabled. Note the smoother boundary between his head/neck and the
+background.  (Ignore the stuff under his lip -- it comes from the image compression.) This
+picture was taken with <font color="#993300">Trade Speed for Accuracy</font> turned on.<BR>
+
+</TR></TBODY></TABLE>
+
+
+<p>But despite these examples, there's also plenty of low
+contrast material for which the Temporal Comb Filter does very little
+(except keep your processor busy).</p>
+
 <p>Note that this filter is not in any way related to "comb" in
 the sense used by many video folks! It's not supposed to reduce
 weave artifacts (lagging horizontal lines) at all.</p>
@@ -80,35 +105,37 @@ weave artifacts (lagging horizontal lines) at all.</p>
 <p>This comb filter only works temporally, not spatially. That
 means dot crawl on moving backgrounds won't be corrected.</p>
 
+<HR>
 
 <p><b><font face="Arial" size="4">Who Should Use
 It?</font></b></p>
 
-<p>This filter applies when using a composite connection or when using a composite
-source like LD or VCR.</p>
+<p>This filter is pretty slow, using roughly 350 MHz of processor time. So
+unless you've got a Pentium 3, Athlon, or better, it's probably not worth the cost.</p>
 
-<p>But if you want to get rid of shimmering and dots, this plugin
-can do the trick.</p>
+<p>If your computer is fast enough, you should run the comb filter
+whenever you're watching a composite signal.  That's
+what you have if you're using an internal TV tuner or an RCA connector.
+It also helps a little with shimmering from an S-Video signal -- but you can probably find
+something more productive to keep your processor busy.</p>
 
-<p>This is a computationally intensive filter, and it only helps with certain kinds of video.
-If you've never noticed dot crawl, don't bother with this plugin.
-If you use an S-video connection from a DVD player or an external
-TV tuner with a 3D comb filter, then you've already taken care of
-the problem, and the Temporal Comb filter probably won't help at
-all.</p>
+<p>The comb filter doesn't help at all with video from old consoles
+like the Super Nintendo or original PlayStation.  To get rid of
+color crosstalk from older consoles, turn off this filter and use
+the <A HREF="OldGame.htm">Old Game</A> deinterlacer, instead.</p>
+
+<HR>
 
 <p><b><font face="Arial" size="4">The Settings</font></b></p>
-
-<p><b><font face="Arial">General Approach</font></b></p>
 
 <p>I'm going to describe how to configure this plugin
 conservatively, so you can forget about it afterward. If you like
 to fiddle with sliders, you can instead use much more aggressive
-settings (lower Recall and Shimmering values) and turn them up
+settings (lower <font color = "#993300">Recall</font> and
+<font color = "#993300">Shimmering</font> values) and turn them up
 only when you have to.</p>
 
-
-<p><b><font face="Arial">Recall of past shimmering</font></b></p>
+<p><A NAME="Recall"><b><font face="Arial" font color = "#993300">Recall of past shimmering</font></b></A></p>
 
 <p>This is the really important setting. It decides just how far
 back into the past the filter will look in order to confirm that
@@ -117,7 +144,7 @@ to avoid artifacts in scenes with repetitive motion. But don't
 set it too high (above 95%), or it'll take a long time for the
 filter to kick in.</p>
 
-<p><b><font face="Arial">Shimmering to activate</font></b></p>
+<p><A NAME="Shimmering"><b><font face="Arial" font color = "#993300">Shimmering to activate</font></b></A></p>
 
 <p>This setting has a much subtler effect. If you set it high,
 the filter will only correct when there has been uninterrupted
@@ -133,51 +160,55 @@ avoid transient spots where dot crawl has just disappeared. If
 you don't care about shimmering and just want to take care of dot
 crawl, you can safely set this near 100%.</p>
 
-<p><b><font face="Arial">Maximum in phase luminance (and chroma)
-differences</font></b></p>
+<p><A NAME="ColorDifferences"><b><font face="Arial" font color = "#993300">Maximum in phase luminance (and chroma)
+differences</font></b></A></p>
 
 <p>These options let you decide just how different a color can be
 before the plugin decides that the difference must be due to
-motion. They can be set much higher than for the Temporal Noise
-filter, since this plugin uses a stricter motion detection
+motion. They can be set much higher than for the <A HREF="Noise.htm">Temporal Noise
+Filter</A>, since this plugin uses a stricter motion detection
 method. If you've enabled Even Luma Peaking and Odd Luma Peaking
 (in the Advanced Video Flags dialog), you'll need to set these
 very high -- to 45 or 50, each. With peaking disabled, you can
 keep them much lower -- around 35 with my setup. You can lower
-the settings by about 10 points apiece if you turn on Trade Speed
-for Accuracy. The higher the settings are, the more likely you
-are to see transient spots. So if you set these really high,
-you'll want to compensate by raising the other settings.</p>
+the settings by about 10 points apiece if you turn on <font color = "#993300">Trade Speed
+for Accuracy</font>.</p>
 
-<p>Here's how to choose these settings for yourself:</p>
+<p>The higher the settings are, the more likely you
+are to see transient spots. So if you put these really high,
+you'll want to increase <font color = "#993300">Recall</font>
+and/or <font color = "#993300">Shimmering</font>.</p>
+
+<p>Here's how to optimize them:</p>
 
 <p>- First, tune in the worst dot crawl you can find. In the US,
-CNN Headlines is a dependable source, as is the "T" in the
+CNN Headlines is a dependable source, as are the "T" in the
 Country Music Station's logo and the radar maps on the Weather
 Channel. If you've got a video reference DVD, connect it via
 composite and show a still with neighboring green and magenta
 color bars.</p>
 
-<p>- Turn the Recall and Shimmering settings all the way down.
-Turn the In Phase Difference settings up really high (about 80).
-The dot crawl should disappear. Well, bad dot crawl does still
-leave a residual shimmer unless you enable Trade Speed for
-Accuracy.</p>
+<p>- Turn <font color = "#993300">Recall</font> and <font color = "#993300">Shimmering</font> all the way down.
+Turn the <font color = "#993300">In Phase Difference</font> settings up really high (about 80).
+The dot crawl should disappear. (Well, bad dot crawl does still
+leave a residual shimmer unless you enable <font color = "#993300">Trade Speed for
+Accuracy</font>.)</p>
 
-<p>- Move the two in phase differences down until the dot crawl
+<p>- Move the two <font color = "#993300">in phase differences</font> down until the dot crawl
 returns. Then raise the settings until the dot crawl disappears,
 again. You've now got yourself the minimum values for those
 sliders.</p>
 
-<p>- Turn Recall and Shimmering back up to more reasonable
+<p>- Turn <font color = "#993300">Recall</font> and
+<font color = "#993300">Shimmering</font> back up to more reasonable
 values.</p>
 
-<p><b><font face="Arial">Trade speed for accuracy</font></b></p>
+<p><A NAME="SpeedForAccuracy"><b><font face="Arial" font color = "#993300">Trade speed for
+accuracy</font></b></A></p>
 
-<p>This checkbox does pretty much what you'd think. It causes the
-filter to use half again as much processor time and an additional
-2 MB of memory (on top of the ~400K it already uses) in order to
-improve its accuracy and colors.</p>
+<p>This checkbox does pretty much what it says. It improves the
+accuracy and colors -- but slows things down a little, and uses an
+additional 2 MB of memory (on top of the ~400K it always needs).</p>
 
 <p><b><font face="Arial">Looking for trouble</font></b></p>
 
@@ -186,8 +217,9 @@ are a couple types of material which are especially problematic.
 Strobe effects in music videos may cause fits. But the very worst
 case is the ticker tape on CNBC (on US Cable), which goes by at
 the right speed to fool the filter. Worse yet, it has bad (but
-moving) dot crawl. You'll need to set the Recall option pretty
-high (about 85) to avoid problems with it.</p>
+moving) dot crawl. You'll need to set the
+<font color = "#993300">Recall</font> option pretty
+high (about 85%) to avoid problems with it.</p>
 
 <!-- #EndEditable -->
 </td>

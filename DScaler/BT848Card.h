@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.3 2001-11-02 16:30:07 adcockj Exp $
+// $Id: BT848Card.h,v 1.4 2001-11-18 02:47:08 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -185,7 +185,7 @@ private:
     BOOL IsCCIRSource(eVideoSourceType nInput);
     void InitMSP();
     
-    void HauppaugeBootMSP34xx();
+    void HauppaugeBootMSP34xx(int pin);
     void InitPXC200();
     void CtrlTDA8540(int SLV, int SUB, int SW1, int GCO, int OEN);
     const TCardSetup* GetCardSetup(eCardType BtCardType);

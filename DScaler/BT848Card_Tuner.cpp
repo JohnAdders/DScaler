@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Tuner.cpp,v 1.2 2001-11-02 16:30:07 adcockj Exp $
+// $Id: BT848Card_Tuner.cpp,v 1.3 2001-11-18 02:47:08 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/11/02 16:30:07  adcockj
+// Check in merged code from multiple cards branch into main tree
+//
 // Revision 1.1.2.2  2001/08/22 10:40:58  adcockj
 // Added basic tuner support
 // Fixed recusive bug
@@ -218,7 +221,17 @@ const TTunerSetup Tuners[TUNER_LASTONE] =
     { 
         "Temic PAL* auto + FM (4009 FN5)", TEMIC, PAL,
         16*141.00, 16*464.00, 0xa0,0x90,0x30,0x8e,623
-    }
+    },
+    // TUNER_MT2032
+    {
+        "MT2032 universal", MICROTUNE, NOTTYPE,
+        0, 0, 0, 0, 0, 0, 0
+    },
+    // TUNER_SHARP_2U5JF5540_NTSC
+    {
+        "SHARP NTSC_JP (2U5JF5540)", SHARP, NTSC,
+        16*137.25, 16*317.25, 0x01, 0x02, 0x08, 0x8e, 940 // 940=16*58.75 NTSC@Japan
+    },
 };
 
 void CBT848Card::SetTunerType(eTunerId TunerType)

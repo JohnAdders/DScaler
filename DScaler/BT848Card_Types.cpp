@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Types.cpp,v 1.3 2001-11-13 17:06:10 adcockj Exp $
+// $Id: BT848Card_Types.cpp,v 1.4 2001-11-18 02:47:08 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/11/13 17:06:10  adcockj
+// Bug Fixes
+//
 // Revision 1.2  2001/11/02 16:30:07  adcockj
 // Check in merged code from multiple cards branch into main tree
 //
@@ -30,7 +33,7 @@
 #include "BT848Card.h"
 #include "BT848_Defines.h"
 
-const TCardSetup TVCards[TVCARD_LASTONE] =
+const TCardSetup TVCards[/*TVCARD_LASTONE*/] =
 {
     {
         "Unknown Card",
@@ -735,6 +738,162 @@ const TCardSetup TVCards[TVCARD_LASTONE] =
         PLL_NONE,
         TUNER_ABSENT,
     },
+    {
+        "Pinnacle PCTV Sat",
+        2, 1, -1, 2, 0x03000F,
+        { 0, 3, 1, 1, 0, 0, 0, 0},
+        { 0, 0, 0, 0, 1, 0},
+        0,
+        PLL_28,
+        TUNER_USER_SETUP,
+    },
+    // 17 Sep 2001 Dax Sieger
+    // AIMS Labs VideoHighway Extreme Card (older - original version)
+    // TODO:  ADD FM Radio Support
+	{
+        "Aimslab VideoHighway Extreme (not 98)",
+        3, 1, 0, 2, 7,
+        { 2, 3, 1, 1, 0, 0, 0, 0},
+        { 0, 2, 1, 3, 4, 0},
+        0,
+        PLL_28,
+        TUNER_USER_SETUP,
+    },
+    // 3dfx VoodooTV 200 (USA) / FM (Europa)
+	{
+        "3dfx VoodooTV 200 (USA)", // szName
+        4, // nVideoInputs
+        1, // nAudioInputs
+        0, // TunerInput
+        -1, // SVideoInput
+        0x4f8a00, // GPIOMask
+        { 2, 3, 0, 1,}, // MuxSelect
+        { 0x957fff, 0x997fff, 0x957fff, 0x957fff}, // AudioMuxSelect
+        0, // GPIOMuxMask
+        PLL_28, // ePLLFreq
+        TUNER_MT2032, // eTunerID
+    },
+    // 3dfx VoodooTV FM (Europa)
+	{
+        "3dfx VoodooTV FM (Europa)", // szName
+        4, // nVideoInputs
+        1, // nAudioInputs
+        0, // TunerInput
+        -1, // SVideoInput
+        0x4f8a00, // GPIOMask
+        { 2, 3, 0, 1,}, // MuxSelect
+        { 0x947fff, 0x987fff, 0x947fff, 0x947fff}, // AudioMuxSelect
+        0, // GPIOMuxMask
+        PLL_28, // ePLLFreq
+        TUNER_MT2032, // eTunerID
+    },
+    // use this card so that the MSP chip is not reset on startup
+    // should let Dscaler work as it did in 2.3.0
+    {
+        "Standard BT878 (No Init MSP)",
+        4, 1, 0, 2, 7,
+        { 2, 0, 1, 1, 0, 0, 0, 0},
+        { 0, 1, 2, 3, 4, 0},
+        0,
+        PLL_28,
+        TUNER_USER_SETUP,
+    },
+    {
+        "Terratec TValueRadio",                 // szName
+        3,                                      // nVideoInputs
+        1,                                      // nAudioInputs
+        0,                                      // TunerInput
+        2,                                      // SVideoInput
+        0xffff00,                               // GPIOMask
+        { 2, 3, 1, 1},                          // MuxSelect
+        { 0x500, 0x500, 0x300, 0x900, 0x900},   // AudioMuxSelect
+        0,                                      // GPIOMuxMask
+        PLL_28,                                 // ePPLFreq
+        TUNER_PHILIPS_PAL,                      // eTunerID
+    },
+    {
+        "Flyvideo 98EZ (capture only)", // szName
+        4,                              // nVideoInputs
+        0,                              // nAudioInputs
+        -1,                             // TunerInput
+        2,                              // SVideoInput
+        0,                              // GPIOMask
+        { 2, 3, 1, 1},                  // MuxSelect: AV1, AV2, SVHS, CVid adapter on SVHS
+        { 0 },                          // AudioMuxSelect
+        0,                              // GPIOMuxMask
+        PLL_28,                         // ePPLFreq
+        TUNER_ABSENT,                   // eTunerID
+    },
+    {
+        /* Philip Blundell <pb@nexus.co.uk> */
+        "Active Imaging AIMMS", // szName
+        1,                      // nVideoInputs
+        0,                      // nAudioInputs
+        -1,                     // TunerInput
+        0,                      // SVideoInput
+        0,                      // GPIOMask
+        { 2},                   // MuxSelect
+        { 0},                   // AudioMuxSelect
+        0,                      // GPIOMuxMask
+        PLL_28,                 // ePPLFreq
+        TUNER_ABSENT,           // eTunerID
+    },
+    {
+        /* DeeJay <deejay@westel900.net (2000S) */
+        "FlyVideo 2000S",                               // szName
+        3,                                              // nVideoInputs
+        3,                                              // nAudioInputs
+        0,                                              // TunerInput
+        2,                                              // SVideoInput
+        0x18e0,                                         // GPIOMask
+        { 2, 3, 0, 1},                                  // MuxSelect
+        { 0, 0x18e0, 0x1000, 0x1000, 0x1080, 0x1080},   // AudioMuxSelect
+        0,                                              // GPIOMuxMask
+        PLL_28,                                         // ePPLFreq
+        TUNER_PHILIPS_PAL,                              // eTunerID
+    },
+    {
+        /* TANAKA Kei <peg00625@nifty.com> */
+        "GV-BCTV4/PCI",                     // szName
+        3,                                  // nVideoInputs
+        1,                                  // nAudioInputs
+        0,                                  // TunerInput
+        2,                                  // SVideoInput
+        0x010f00,                           // GPIOMask
+        { 2, 3, 0, 0},                      // MuxSelect
+        { 0x10000, 0, 0x10000, 0, 0, 0},    // AudioMuxSelect
+        0,                                  // GPIOMuxMask
+        PLL_28,                             // ePPLFreq
+        TUNER_SHARP_2U5JF5540_NTSC,         // eTunerID
+    },
+    {
+        "Prolink PV-BT878P+4E / PixelView PlayTV PAK / Lenco MXTV-9578 CP", // szName
+        4,                                                                  // nVideoInputs
+        1,                                                                  // nAudioInputs
+        0,                                                                  // TunerInput
+        2,                                                                  // SVideoInput
+        0xAA0000,                                                           // GPIOMask
+        { 2, 3, 1, 1},                                                      // MuxSelect
+        { 0x20000, 0, 0x80000, 0x80000, 0xa8000, 0x46000},                  // AudioMuxSelect
+        0,                                                                  // GPIOMuxMask
+        PLL_28,                                                             // ePPLFreq
+        TUNER_PHILIPS_PAL_I,                                                // eTunerID
+    },
+    {
+        /* Claas Langbehn <claas@bigfoot.com>,
+           Sven Grothklags <sven@upb.de> */
+        "Typhoon TView RDS + FM Stereo / KNC1 TV Station RDS",  // szName
+        3,                                                      // nVideoInputs
+        3,                                                      // nAudioInputs
+        0,                                                      // TunerInput
+        2,                                                      // SVideoInput
+        0x1c,                                                   // GPIOMask
+        { 2, 3, 1, 1},                                          // MuxSelect
+        { 0, 0, 0x10, 8, 4},                                    // AudioMuxSelect
+        0,                                                      // GPIOMuxMask
+        PLL_28,                                                 // ePPLFreq
+        TUNER_PHILIPS_PAL_I,                                    // eTunerID
+    },
 };
 
 static const TAutoDectect878 AutoDectect878[] =
@@ -747,6 +906,7 @@ static const TAutoDectect878 AutoDectect878[] =
     { 0x00031461, TVCARD_AVPHONE98,     "AVerMedia TVPhone98" },
     { 0x00041461, TVCARD_AVERMEDIA98,   "AVerMedia TVCapture 98" },
     { 0x001211bd, TVCARD_PINNACLERAVE,  "Pinnacle PCTV" },
+    { 0x001c11bd, TVCARD_PINNACLESAT,   "Pinnacle PCTV Sat" },
     { 0x10b42636, TVCARD_HAUPPAUGE878,  "STB ???" },
     { 0x1118153b, TVCARD_TERRATVALUE,   "Terratec TV Value" },
     { 0x1123153b, TVCARD_TERRATVRADIO,  "Terratec TV/Radio+" },
@@ -765,9 +925,8 @@ static const TAutoDectect878 AutoDectect878[] =
     { 0x400d15b0, TVCARD_ZOLTRIX_GENIE, "Zoltrix Genie TV / Radio" },
     { 0x401015b0, TVCARD_ZOLTRIX_GENIE, "Zoltrix Genie TV / Radio" },
     { 0x402010fc, TVCARD_GVBCTV3PCI,    "I-O Data Co. GV-BCV3/PCI" },
-    { 0x405010fc, TVCARD_GVBCTV3PCI,    "I-O Data Co. GV-BCV4/PCI" },
+    { 0x405010fc, TVCARD_GVBCTV4PCI,    "I-O Data Co. GV-BCV4/PCI" },
     { 0x45000070, TVCARD_HAUPPAUGE878,  "Hauppauge WinTV/PVR" },
-    { 0x217d6606, TVCARD_WINFAST2000,   "Leadtek WinFast TV 2000" },
     { 0xff000070, TVCARD_VIEWCAST,      "Osprey-100" },
     { 0xff010070, TVCARD_VIEWCAST,      "Osprey-200" },
     { 0x010115cb, TVCARD_GMV1,          "AG GMV1" },
@@ -783,6 +942,20 @@ static const TAutoDectect878 AutoDectect878[] =
     { 0x023214F1, TVCARD_CONEXANTFOGHORNREVB,  "Conexant Foghorn NTSC/ATSC-B" },
     { 0x033214F1, TVCARD_CONEXANTFOGHORNREVC,  "Conexant Foghorn NTSC/ATSC-C" },
     // MAE 5 Dec 2000 End of change
+    { 0x3000121A, TVCARD_VOODOOTV_200, "3dfx VoodooTV 200 (USA) / FM (Europa)"},
+    { 0x3100121A, TVCARD_VOODOOTV_200, "3dfx VoodooTV 200 (USA) / FM (Europa) (OEM)"},
+    // { 0x3060121A, TVCARD_VOODOOTV_100, "3dfx VoodooTV 100"},
+    { 0x010114c7, TVCARD_MODTEC_205,    "Modular Technology PCTV" },
+    { 0x1117153b, TVCARD_TERRATVALUE,   "Terratec TValue" },
+    { 0x1119153b, TVCARD_TERRATVALUE,   "Terratec TValue" },
+    { 0x111a153b, TVCARD_TERRATVALUE,   "Terratec TValue" },
+    { 0x1127153b, TVCARD_TERRATV,       "Terratec TV+"    },
+    { 0x1134153b, TVCARD_TERRATVALUE,   "Terratec TValue" },
+    { 0x1135153b, TVCARD_TERRATVALUER,  "Terratec TValue Radio" },
+    { 0x18511851, TVCARD_FLYVIDEO98EZ,  "Flyvideo 98EZ (LR51)/ CyberMail AV" },
+    { 0x3005144f, TVCARD_MAGICTVIEW061, "(Askey Magic/others) TView99 CPH061/06L (T1/LC)" },
+    { 0x401615b0, TVCARD_ZOLTRIX_GENIE, "Zoltrix Genie TV / Radio" },
+    { 0x6606107d, TVCARD_WINFAST2000,   "Leadtek WinFast TV 2000" },
     { 0, (eTVCardId)-1, NULL }
 };
 
@@ -797,6 +970,10 @@ eTunerId CBT848Card::AutoDetectTuner(eTVCardId CardId)
         Tuner = (eTunerId)(((ReadWord(BT848_GPIO_DATA)>>10)-1)&7);
         break;
     default:
+        if (TVCards[CardId].TunerId > TUNER_ABSENT && TVCards[CardId].TunerId < TUNER_LASTONE)
+        {
+            Tuner = TVCards[CardId].TunerId;
+        }
         break;
     }
     return Tuner;
@@ -838,7 +1015,11 @@ void CBT848Card::CardSpecificInit(eTVCardId CardType)
     {
     case TVCARD_HAUPPAUGE:
     case TVCARD_HAUPPAUGE878:
-        HauppaugeBootMSP34xx();
+        HauppaugeBootMSP34xx(5);
+        break;
+    case TVCARD_VOODOOTV_200:
+    case TVCARD_VOODOOTV_FM:
+        HauppaugeBootMSP34xx(20);
         break;
     case TVCARD_PXC200:
         InitPXC200();
@@ -857,15 +1038,13 @@ void CBT848Card::CardSpecificInit(eTVCardId CardType)
 
 // reset/enable the MSP on some Hauppauge cards 
 // Thanks to Kyösti Mälkki (kmalkki@cc.hut.fi)! 
-void CBT848Card::HauppaugeBootMSP34xx()
+void CBT848Card::HauppaugeBootMSP34xx(int pin)
 {
-    // reset/enable the MSP on some Hauppauge cards 
-    // Thanks to Kyösti Mälkki (kmalkki@cc.hut.fi)! 
-
-    AndOrDataDword(BT848_GPIO_OUT_EN, 32, ~32);
-    AndOrDataDword(BT848_GPIO_DATA, 0, ~32);
+    int mask = 1 << pin;
+    AndOrDataDword(BT848_GPIO_OUT_EN, mask, ~mask);
+    AndOrDataDword(BT848_GPIO_DATA, 0, ~mask);
     Sleep(10);
-    AndOrDataDword(BT848_GPIO_DATA, 32, ~32);
+    AndOrDataDword(BT848_GPIO_DATA, mask, ~mask);
 }
 
 

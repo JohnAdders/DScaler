@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Bt848_Defines.h,v 1.4 2001-11-02 17:03:59 adcockj Exp $
+// $Id: Bt848_Defines.h,v 1.5 2001-11-18 02:47:08 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -444,6 +444,18 @@ enum eTVCardId
     // Sasem 4 channel card has 2 jumper configurations.  s-video (1) or composite.(4)
     // TODO:  Add composite jumpered card settings
     TVCARD_SASEM4CHNLSVID,
+    TVCARD_PINNACLESAT,
+    TVCARD_VHXOLD,           
+    TVCARD_VOODOOTV_200,
+    TVCARD_VOODOOTV_FM,
+    TVCARD_STANDARD_BT878_NO_INIT_MSP,
+    TVCARD_TERRATVALUER,
+    TVCARD_FLYVIDEO98EZ,
+    TVCARD_AIMSS,
+    TVCARD_FLYVIDEO2000,
+    TVCARD_GVBCTV4PCI,
+    TVCARD_PXELVWPLTVPAK,
+    TVCARD_TVIEW_RDS_FM,
     TVCARD_LASTONE,
 };
 
@@ -484,6 +496,8 @@ enum eTunerId
     TUNER_LG_B01D_PAL,
     TUNER_LG_B11D_PAL,
     TUNER_TEMIC_4009FN5_PAL,
+    TUNER_MT2032,
+    TUNER_SHARP_2U5JF5540_NTSC,
     TUNER_LASTONE,
 };
 
@@ -502,6 +516,8 @@ enum eTunerMaker
     SONY,
     ALPS,
     LGINNOTEK,
+    MICROTUNE,
+    SHARP,
 };
 
 enum eTunerType

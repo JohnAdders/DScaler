@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.79 2002-08-16 18:45:55 kooiman Exp $
+// $Id: OutThreads.cpp,v 1.80 2002-08-18 14:35:45 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.79  2002/08/16 18:45:55  kooiman
+// Added optional screen update delay during tuner frequency switch.
+//
 // Revision 1.78  2002/08/07 21:53:04  adcockj
 // Removed todo item
 //
@@ -1107,7 +1110,7 @@ SETTING OutThreadsSettings[OUTTHREADS_SETTING_LASTONE] =
     },
     {
         "Tuner Switch Update Delay", SLIDER, 0, (long*)&TunerSwitchScreenUpdateDelay,
-        0, 0, 1000, 1, 1,
+        120, 0, 1000, 1, 1,
         NULL,
         "Threads", "TunerSwitchScreenUpdateDelay", NULL,
     },

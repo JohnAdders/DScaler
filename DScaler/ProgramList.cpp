@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.70 2002-08-16 18:45:56 kooiman Exp $
+// $Id: ProgramList.cpp,v 1.71 2002-08-18 14:35:29 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.70  2002/08/16 18:45:56  kooiman
+// Added optional screen update delay during tuner frequency switch.
+//
 // Revision 1.69  2002/08/11 19:53:32  robmuller
 // Increased default value of PostSwitchMuteDelay from 20 to 100.
 //
@@ -1815,7 +1818,7 @@ SETTING AntiPlopSettings[ANTIPLOP_SETTING_LASTONE] =
     },
     {
         "Post switch mute delay", SLIDER, 0, (long*)&PostSwitchMuteDelay,
-        100, 0, 1000, 1, 1,
+        150, 0, 1000, 1, 1,
         NULL,
         "Audio", "PostSwitchMuteDelay", NULL,
     },    

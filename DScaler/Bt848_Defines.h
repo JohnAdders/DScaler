@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Bt848_Defines.h,v 1.27 2003-10-27 16:22:56 adcockj Exp $
+// $Id: Bt848_Defines.h,v 1.28 2003-12-17 10:36:29 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -470,6 +470,7 @@ enum eTVCardId
     TVCARD_PMSVIDEO_PDI,
     TVCARD_PMSVIDEO_SDI,
     TVCARD_PMSDELUXE,
+    TVCARD_NEBULA_DIGITV,
     TVCARD_LASTONE,
 };
 

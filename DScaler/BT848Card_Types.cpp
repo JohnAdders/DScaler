@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Types.cpp,v 1.38 2003-10-27 16:22:56 adcockj Exp $
+// $Id: BT848Card_Types.cpp,v 1.39 2003-12-17 10:36:29 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.38  2003/10/27 16:22:56  adcockj
+// Added preliminary support for PMS PDI Deluxe card
+//
 // Revision 1.37  2003/10/27 10:39:50  adcockj
 // Updated files for better doxygen compatability
 //
@@ -4220,6 +4223,30 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0,
         {0, 0, 0, 0, 0, 0, }
+    },
+    {
+        "Nebula DigiTV (Analogue In)",
+        1,
+        {
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                2,
+            },
+        }, 
+        PLL_28,
+        TUNER_ABSENT,
+        SOUNDCHIP_NONE,
+        NULL,
+        StandardBT848InputSelect,
+        SetAnalogContrastBrightness,
+        SetAnalogSaturationU,
+        SetAnalogSaturationV,
+        SetAnalogHue,
+        StandardSetFormat,
+        CAudioDecoder::AUDIODECODERTYPE_NONE,
+        0x7,
+        {0, 0x1, 0x2, 0x3, 0x4, 0, }
     },
 };
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.72 2004-04-24 11:34:51 atnak Exp $
+// $Id: VBI_VideoText.cpp,v 1.73 2004-11-08 16:12:27 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.72  2004/04/24 11:34:51  atnak
+// minor fix
+//
 // Revision 1.71  2004/04/24 08:54:18  atnak
 // reverted part of last change because there was no need for a new setting
 // variable for input timeout, used ChannelEnterTime instead
@@ -1752,6 +1755,18 @@ BOOL APIENTRY VTGotoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         {
             hItem = GetDlgItem(hDlg, IDC_VTPAGEGROUP);
 
+            // Disable the use of XP visual styles on the IDC_VTPAGEGROUP
+            // tab control because the vertical tabs aren't supported by
+            // XP visual styles (comctl32.dll version 6).
+            //
+            // The checking of IsAppThemed() here should make sure no
+            // errors arise on pre XP operating systems from the lack of
+            // UxTheme.dll.
+            if (IsAppThemed())
+            {
+                SetWindowTheme(hItem, L" ", L" ");
+            }
+
             TCITEM TCItem;
             TCItem.mask = TCIF_TEXT;
 
@@ -1862,7 +1877,7 @@ BOOL APIENTRY VTGotoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
     case UWM_VIDEOTEXT:
         if (wParam == VTM_VTPAGEUPDATE)
         {
-            WORD wPageHex = lParam & 0xFFF;
+            WORD wPageHex = (WORD)(lParam & 0xFFF);
 
             int iItem = TabCtrl_GetCurSel(GetDlgItem(hDlg, IDC_VTPAGEGROUP));
 
@@ -2143,7 +2158,7 @@ BOOL VT_ShowSubcodeInOSDOnChange(long NewValue)
 
 BOOL VT_CachingControlOnChange(long NewValue)
 {
-    VTCachingControl = NewValue;
+    VTCachingControl = (BYTE)NewValue;
     VTDecoder.SetCachingControl(VTCachingControl);
     return FALSE;
 }

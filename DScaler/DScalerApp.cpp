@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScalerApp.cpp,v 1.17 2002-09-28 14:54:42 tobbej Exp $
+// $Id: DScalerApp.cpp,v 1.18 2002-10-16 16:16:52 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2002/09/28 14:54:42  tobbej
+// added a call to CoUninitialize
+//
 // Revision 1.16  2002/09/17 17:28:25  tobbej
 // updated crashloging to same version as in latest virtualdub
 //
@@ -124,11 +127,16 @@ BOOL CDScalerApp::InitInstance()
 	// By default you get a single check at the end.
     // afxMemDF=allocMemDF|checkAlwaysMemDF|delayFreeMemDF;
 #endif
-	
+
 	DScalerInitializeThread("Main thread");
 
 #ifdef WANT_DSHOW_SUPPORT
-	//COM init
+    //COM init.
+    //Use a multi threaded apartment so we don't have to marshal every
+    //com interface pointer between this thread and the output thread.
+    //Marshaling can only be left out if both threads are in the same
+    //apartment and this can only happen if both is in a multithreaded
+    //apartment
 	CoInitializeEx(NULL,COINIT_MULTITHREADED);
 #endif
 
@@ -147,7 +155,7 @@ BOOL CDScalerApp::InitInstance()
         MessageBox(NULL, "DScaler can't find the resource library DScalerRes.dll", "Installation Error", MB_OK | MB_ICONSTOP);
         return FALSE;
     }
-    
+
     AfxSetResourceHandle(hResourceInst);
 
     // If we change WritePrivateProfileInt/WritePrivateProfileString to AfxGetApp()->WriteProfileInt/string
@@ -178,7 +186,7 @@ BOOL CDScalerApp::InitInstance()
     return FALSE;
 }
 
-void CDScalerApp::WinHelp(DWORD dwData, UINT nCmd) 
+void CDScalerApp::WinHelp(DWORD dwData, UINT nCmd)
 {
 	//compensate for differences between winhelp and htmlhelp
 	//(it will fail to open context help if nCmd is not changed)
@@ -193,7 +201,7 @@ void CDScalerApp::WinHelp(DWORD dwData, UINT nCmd)
             dwData -= HID_BASE_RESOURCE;
         }
 	}
-	
+
 	//try to open the help
     if(::HtmlHelp(hWnd, "DScaler.chm", nCmd, dwData)==NULL)
 	{

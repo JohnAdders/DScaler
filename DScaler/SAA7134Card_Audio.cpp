@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Audio.cpp,v 1.27 2004-11-20 14:20:09 atnak Exp $
+// $Id: SAA7134Card_Audio.cpp,v 1.28 2004-12-06 09:03:23 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2004/11/20 14:20:09  atnak
+// Changed the card list to an ini file.
+//
 // Revision 1.26  2004/03/26 14:19:21  atnak
 // I2S mode init change, probably won't make any difference
 //
@@ -178,6 +181,152 @@ void CSAA7134Card::InitAudio()
 
     // Setting this FALSE for NICAM doesn't work
     SetAudioLockToVideo(TRUE);
+}
+
+
+void CSAA7134Card::InitAudio7133()
+{
+	// Number of samples = 0x0fff + 1 = 4096. (p125)
+	WriteData(SAA7133_NUM_SAMPLES, 0x000fff);
+	// Audio-DSP (EPICS) is input source.
+	WriteData(SAA7133_AUDIO_SELECT, 0x00);
+	// Number for assigned DSP channels 0 to 5.
+	WriteData(SAA7133_AUDIO_CHANNEL, 0x543210);
+	// 2-channels, 2s comp 32bit, 32bit data for PCI-word. (p126)
+	WriteData(SAA7133_AUDIO_FORMAT, 0x23);
+	// Out = DAC L/R, In = line1, VSEL = 1.0Vrms for line 1/2. (p107)
+	WriteData(SAA7133_ANALOG_IO_SELECT, 0x02);
+
+
+	// Auto standard detect allowing B/G/D/K/M,
+	// default for bunch of other settings. (p112)
+	WriteDSPData7133(SAA7133_A_EASY_PROGRAMMING, 0x00004c);
+	// Main matrix = AB[stereo], source = DECODER, same for Dolby (p120)
+	WriteDSPData7133(SAA7133_A_DIGITAL_INPUT_XBAR1, 0x0000);
+	// Same for AUX1 and AUX2
+	WriteDSPData7133(SAA7133_A_DIGITAL_INPUT_XBAR2, 0x0000);
+	// DMA1 = MAIN L, DMA2 = MAIN R, silence for others. (p124)
+	WriteDSPData7133(SAA7133_A_DIGITAL_OUTPUT_SEL1, 0x00bbbb10);
+	// DAC L/R = MAIN L/R, I2S'1 L/R = MAIN L/R, I2S'2 = MAIN L/R
+	WriteDSPData7133(SAA7133_A_DIGITAL_OUTPUT_SEL2, 0x00101010);
+
+	// Set REST to high (for high edge after the previously set LOW) to
+	// (re)start DDEP (DemDec Easy Programming Mode - standards are
+	// automatically detected and programmed).
+	WriteDSPData7133(SAA7133_A_EASY_PROGRAMMING,
+		_B(SAA7133_A_EASY_PROGRAMMING_REST, 1));
+}
+
+
+BOOL CSAA7134Card::StartDSPAccess7133()
+{
+	// It shouldn't take more than one sleep for the wait but
+	// failure is costly so give extra chances.
+	for (int timeout = 2; timeout > 0; timeout--)
+	{
+		CBitVector ctrl = ReadData(SAA7133_EPICS_ACCESS_STATUS);
+
+		// Reset if the error state is flagged.
+		if (ctrl.value(SAA7133_EPICS_ACCESS_STATUS_ERR))
+		{
+			WriteData(SAA7133_STATUS_RESET, _B(SAA7133_STATUS_RESET_RERR, 1));
+		}
+		// Reset if the read ready state is flagged.
+		if (ctrl.value(SAA7133_EPICS_ACCESS_STATUS_RDR))
+		{
+			WriteData(SAA7133_STATUS_RESET, _B(SAA7133_STATUS_RESET_RRDR, 1));
+		}
+
+		// WRR flagged means there're no current DSP reads or writes.
+		if (ctrl.value(SAA7133_EPICS_ACCESS_STATUS_WRR))
+		{
+			return TRUE;
+		}
+
+		// The DSP performs read and write accesses at 32kHz so the
+		// period is 31.25 us.  This is the longest time any read or
+		// write should take to perform.  However, Windows only provides
+		// a 1 ms sleep function so sleep for one millisecond here.
+		Sleep(1);
+	}
+
+	LOG(0, "SAA7133: Unexpected Error: DSP access WRR flag wait timed out.");
+	return FALSE;
+}
+
+
+BOOL CSAA7134Card::WaitDSPAccessState7133(BOOL bRead)
+{
+	// It shouldn't take more than one sleep for the wait but
+	// failure is costly so give extra chances.
+	for (int timeout = 2; timeout > 0; timeout--)
+	{
+		CBitVector ctrl = ReadData(SAA7133_EPICS_ACCESS_STATUS);
+
+		if ((bRead && ctrl.value(SAA7133_EPICS_ACCESS_STATUS_RDR)) ||
+			(!bRead && ctrl.value(SAA7133_EPICS_ACCESS_STATUS_WRR)))
+		{
+			// Read is ready or write is complete.
+			return TRUE;
+		}
+
+		// The DSP performs read and write accesses at 32kHz so the
+		// period is 31.25 us.  This is the longest time any read or
+		// write should take to perform.  However, Windows only provides
+		// a 1 ms sleep function so sleep for one millisecond here.
+		Sleep(1);
+	}
+
+	LOG(0, "SAA7133: Unexpected Error: DSP %s flag wait timed out.",
+		(bRead ? "read RDR" : "write WRR"));
+	return FALSE;
+}
+
+
+BOOL CSAA7134Card::WriteDSPData7133(DWORD registerOffset, DWORD registerSize, CBitVector value)
+{
+	// Write DSP data according to the high latency write protocol.
+	if (!StartDSPAccess7133())
+	{
+		return FALSE;
+	}
+
+	// Write to the DSP.
+	WriteData(registerOffset, registerSize, value);
+
+	// Wait for the write to complete.
+	return WaitDSPAccessState7133(FALSE);
+}
+
+
+BOOL CSAA7134Card::ReadDSPData7133(DWORD registerOffset, DWORD registerSize, CBitVector& value)
+{
+	// Read DSP data according to the high latency read protocol.
+	if (!StartDSPAccess7133())
+	{
+		return FALSE;
+	}
+
+	// First, read to tell the DSP the address we want.
+	ReadDword(registerOffset);
+
+	// Wait for the data to be prepped.
+	if (!WaitDSPAccessState7133(TRUE))
+	{
+		return FALSE;
+	}
+
+	// Read the actual data.
+	value = ReadData(registerOffset, registerSize);
+
+	// Check the IDA flag to make sure the read data is valid.
+	CBitVector ctrl = ReadData(SAA7133_EPICS_ACCESS_STATUS);
+	if (!ctrl.value(SAA7133_EPICS_ACCESS_STATUS_IDA))
+	{
+		LOG(0, "SAA7133: Unexpected Error: IDA was not set after second DSP read.");
+		return FALSE;
+	}
+	return TRUE;
 }
 
 

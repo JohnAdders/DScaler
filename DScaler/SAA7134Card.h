@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.45 2004-12-01 22:01:18 atnak Exp $
+// $Id: SAA7134Card.h,v 1.46 2004-12-06 09:03:23 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.45  2004/12/01 22:01:18  atnak
+// Fix the VC++ 6 incompatibility introduced by last change.
+//
 // Revision 1.44  2004/12/01 17:57:08  atnak
 // Updates to HierarchicalConfigParser.
 //
@@ -463,6 +466,14 @@ public:
 
     void SetAudioLine1Voltage(eAudioLineVoltage LineVoltage);
     void SetAudioLine2Voltage(eAudioLineVoltage LineVoltage);
+
+	/** SAA7133 audio
+	 */
+	void InitAudio7133();
+	BOOL StartDSPAccess7133();
+	BOOL WaitDSPAccessState7133(BOOL bRead);
+	BOOL WriteDSPData7133(DWORD registerOffset, DWORD registerSize, CBitVector value);
+	BOOL ReadDSPData7133(DWORD registerOffset, DWORD registerSize, CBitVector& value);
 
     /** Miscellaneous audio
      */

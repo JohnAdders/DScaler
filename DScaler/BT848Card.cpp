@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.20 2002-04-10 07:25:02 adcockj Exp $
+// $Id: BT848Card.cpp,v 1.21 2002-06-13 15:22:53 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2002/04/10 07:25:02  adcockj
+// Changes vdelay in CCIR mode to be format default by default
+//
 // Revision 1.19  2002/04/07 10:37:53  adcockj
 // Made audio source work per input
 //
@@ -804,12 +807,15 @@ void CBT848Card::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX, l
             MaskDataByte(BT848_IFORM, (BT848_IFORM_NTSC | BT848_IFORM_XTBOTH), (BT848_IFORM_NORM | BT848_IFORM_XTBOTH));
         }
 
+        // \todo remove if this ends up being OK
+        // JA we should respect what the settings are stored as
+        // for the SDI cards
         // Disable full range luma
-        WriteByte(BT848_OFORM, 0);
+        //WriteByte(BT848_OFORM, 0);
 
         // Enable the SC loop luma peaking filters
-        WriteByte(BT848_E_SCLOOP, BT848_SCLOOP_LUMA_PEAK);
-        WriteByte(BT848_O_SCLOOP, BT848_SCLOOP_LUMA_PEAK);
+        //WriteByte(BT848_E_SCLOOP, BT848_SCLOOP_LUMA_PEAK);
+        //WriteByte(BT848_O_SCLOOP, BT848_SCLOOP_LUMA_PEAK);
 
         // Standard line Count
         WriteByte(BT848_VTOTAL_LO, 0x00);

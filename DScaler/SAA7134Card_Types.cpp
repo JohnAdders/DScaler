@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.17 2002-12-24 08:22:14 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.18 2002-12-26 05:06:17 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2002/12/24 08:22:14  atnak
+// Added Prime 7133 card
+//
 // Revision 1.16  2002/12/22 04:03:58  atnak
 // Added FlyVideo2000 autodetect tab
 //
@@ -537,6 +540,48 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         NULL,
         PrimeTV7133CardInputSelect,
     },
+    // SAA7134CARDID_CINERGY600 - Terratec Cinergy 600 TV
+    // Thanks "Michel de Glace" <mglace@my...>
+    {
+        "Terratec Cinergy 600 TV",
+        5,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                VIDEOINPUTSOURCE_PIN1,
+                AUDIOINPUTSOURCE_DAC,
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                VIDEOINPUTSOURCE_PIN4,
+                AUDIOINPUTSOURCE_LINE1,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                VIDEOINPUTSOURCE_PIN0,          // (Might req mode 6)
+                AUDIOINPUTSOURCE_LINE1,
+            },
+            {
+                "Composite over S-Video",
+                INPUTTYPE_COMPOSITE,
+                VIDEOINPUTSOURCE_PIN0,          
+                AUDIOINPUTSOURCE_LINE1,
+            },
+            {
+                "Radio",
+                INPUTTYPE_RADIO,
+                VIDEOINPUTSOURCE_NONE,
+                AUDIOINPUTSOURCE_LINE2,
+            },
+        },
+        TUNER_PHILIPS_PAL,
+        AUDIOCRYSTAL_24576Hz,
+        NULL,
+        StandardSAA7134InputSelect,
+    },
 };
 
 
@@ -551,6 +596,7 @@ const CSAA7134Card::TAutoDetectSAA7134 CSAA7134Card::m_AutoDetectSAA7134[] =
     { 0x7134, 0x153B, 0x1142, SAA7134CARDID_CINERGY400   },
     { 0x7130, 0x5168, 0x0138, SAA7134CARDID_FLYVIDEO2000 },
     { 0x7133, 0x5168, 0x0138, SAA7134CARDID_PRIMETV7133  },
+    { 0x7134, 0x153b, 0x1143, SAA7134CARDID_CINERGY600   },
 };
 
 

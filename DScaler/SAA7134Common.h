@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Common.h,v 1.13 2002-12-24 08:22:14 atnak Exp $
+// $Id: SAA7134Common.h,v 1.14 2002-12-26 05:06:17 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/12/24 08:22:14  atnak
+// Added Prime 7133 card
+//
 // Revision 1.12  2002/12/14 00:29:35  atnak
 // Added Manli M-TV001 card
 //
@@ -103,6 +106,7 @@ protected:
         SAA7134CARDID_KWTV713XRF,
         SAA7134CARDID_MANLIMTV001,
         SAA7134CARDID_PRIMETV7133,
+        SAA7134CARDID_CINERGY600,
         SAA7134CARDID_LASTONE,
     };
 

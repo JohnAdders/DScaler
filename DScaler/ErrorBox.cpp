@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ErrorBox.cpp,v 1.7 2002-09-04 17:56:57 robmuller Exp $
+// $Id: ErrorBox.cpp,v 1.8 2002-09-04 17:58:09 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -27,6 +27,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/09/04 17:56:57  robmuller
+// RealErrorBox() now writes the error message to the log file.
+// Changed the debug log level to zero to make sure that the error message is written to the log file.
+//
 // Revision 1.6  2001/12/30 16:50:32  adcockj
 // Prevent recusion in ErrorBox
 //
@@ -66,7 +70,7 @@ void _ErrorBox(HWND hwndParent, LPCSTR szFile, int Line, LPCSTR szMessage)
 	static BOOL AlreadyInErrorBox = FALSE;
 
     // put the message into the log for debugging
-    LOG(1, "ErrorBox File:%s line: %d Message: %s", szFile, Line, szMessage);
+    LOG(0, "ErrorBox File:%s line: %d Message: %s", szFile, Line, szMessage);
 
 #ifndef _DEBUG
     if (hWnd != NULL && AlreadyInErrorBox == FALSE)
@@ -111,7 +115,7 @@ void _ErrorBox(HWND hwndParent, LPCSTR szFile, int Line, LPCSTR szMessage)
 
 void _RealErrorBox(LPCSTR szFile, int Line, LPCSTR szMessage)
 {
-    LOG(1, "ErrorBox File:%s line: %d Message: %s", szFile, Line, szMessage);
+    LOG(0, "ErrorBox File:%s line: %d Message: %s", szFile, Line, szMessage);
     HideSplashScreen();
     MessageBox(hWnd, szMessage, "DScaler Error", MB_ICONSTOP | MB_OK);
 }

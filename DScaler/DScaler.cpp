@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.98 2001-11-29 17:30:51 adcockj Exp $
+// $Id: DScaler.cpp,v 1.99 2001-12-03 17:14:42 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.98  2001/11/29 17:30:51  adcockj
+// Reorgainised bt848 initilization
+// More Javadoc-ing
+//
 // Revision 1.97  2001/11/29 14:04:06  adcockj
 // Added Javadoc comments
 //
@@ -378,6 +382,7 @@ void Cursor_VTUpdate(bool PosValid, int x, int y);
 const char* GetSourceName(int nVideoSource);
 void MainWndOnDestroy();
 void SetDirectoryToExe();
+int ProcessCommandLine(char* commandLine, char* argv[], int sizeArgv);
 
 
 ///**************************************************************************
@@ -420,9 +425,44 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     // Required to use slider control
     InitCommonControls();
 
-    // JA 21/12/2000
-    // Added single place to setup ini file name
-    SetIniFileForSettings(lpCmdLine);
+    // Process the command line arguments.
+    // The following arguments are supported
+    // -i<inifile>     specification of the ini file.
+    // -c<channel>     the starting channel (0-x).
+    // -p<page>        the starting videotext page (100-y).
+    // For backwards compatibility an argument not starting with a - or / is
+    // processed as -i<parameter> (ini file specification).
+    char* ArgValues[20];
+    int ArgCount = ProcessCommandLine(lpCmdLine, ArgValues, sizeof(ArgValues) / sizeof(char*));
+    int InitialTextPage = -1;
+    int InitialChannel = -1;
+    for (int i = 0; i < ArgCount; ++i)
+    {
+       if (ArgValues[i][0] != '-' && ArgValues[i][0] != '/')
+       {
+          SetIniFileForSettings(ArgValues[i]);
+       }
+       else if(strlen(ArgValues[i]) > 2)
+       {
+          char* szParameter = &ArgValues[i][2];
+          switch (tolower(ArgValues[i][1]))
+          {
+          case 'i':
+            SetIniFileForSettings(szParameter);
+            break;
+          case 'c':
+             sscanf(szParameter, "%d", &InitialChannel);
+             break;
+          case 'p':
+             sscanf(szParameter, "%d", &InitialTextPage);
+             break;
+          default:
+             // Unknown
+             break;
+          }
+       }
+    }
+
     LoadSettingsFromIni();
 
     if(bDisplaySplashScreen)
@@ -483,6 +523,18 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     }
 
     MsgWheel = RegisterWindowMessage("MSWHEEL_ROLLMSG");
+
+    // Process parameters before the window is shown.
+    if(InitialChannel >= 0)
+    {
+       Channel_Change(InitialChannel);
+    }
+    if (InitialTextPage >= 100)
+    {
+       Setting_SetValue(VBI_GetSetting(CAPTURE_VBI), TRUE);
+       VTPage = InitialTextPage;
+       VTState = VT_BLACK;
+    }
 
     // 2000-10-31 Added by Mark Rejhon
     // Now show the window, directly to maximized or windowed right away.
@@ -2811,6 +2863,55 @@ void SetDirectoryToExe()
 
     SetCurrentDirectory(szDriverPath);
 }
+
+/** Process command line parameters and return them
+
+    Routine process the command line and returns them in argv/argc format.
+    Modifies the incoming string
+*/
+int ProcessCommandLine(char* CommandLine, char* ArgValues[], int SizeArgv)
+{
+   int ArgCount = 0;
+   char* pCurrentChar = CommandLine;
+
+   while (*pCurrentChar && ArgCount < SizeArgv)
+   {
+      // Skip any preceeding spaces.
+      while (*pCurrentChar && isspace(*pCurrentChar))
+      {
+         pCurrentChar++;
+      }
+      // If the parameter starts with a double quote, copy until
+      // the end quote.
+      if (*pCurrentChar == '"')
+      {
+         pCurrentChar++;  // Skip the quote
+         ArgValues[ArgCount++] = pCurrentChar;  // Save the start in the argument list.
+         while (*pCurrentChar && *pCurrentChar != '"')
+         {
+            pCurrentChar++;
+         }
+         if (*pCurrentChar)
+         {
+             *pCurrentChar++ = '\0';   // Replace the end quote
+         }
+      }
+      else if (*pCurrentChar) // Normal parameter, continue until white found (or end)
+      {
+         ArgValues[ArgCount++] = pCurrentChar++;
+         while (*pCurrentChar && !isspace(*pCurrentChar))
+         {
+             ++pCurrentChar;
+         }
+         if (*pCurrentChar)
+         {
+             *pCurrentChar++ = '\0';
+         }
+      }
+   }
+   return ArgCount;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////
 // On Change Functions for settings

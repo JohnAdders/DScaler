@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_Sharpness.c,v 1.5 2001-11-26 15:27:19 adcockj Exp $
+// $Id: FLT_Sharpness.c,v 1.6 2002-01-31 04:57:11 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/11/26 15:27:19  adcockj
+// Changed filter structure
+//
 // Revision 1.4  2001/11/21 15:21:41  adcockj
 // Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
 // Changed TDeinterlaceInfo structure to have history of pictures.
@@ -38,82 +41,20 @@
 
 long Sharpness = 128;
 
-long FilterSharpness(TDeinterlaceInfo* pInfo)
-{
-    BYTE* Pixels = pInfo->PictureHistory[0]->pData;
-    int y;
-    __int64 qwYMask = 0x00ff00ff00ff00ff;
-    __int64 qwSharpness;
-    int Cycles;
+// The main code is included from a separate file to allow different versions
+// for different processors.
 
-    // Need to have the current field to do the filtering.
-    // and if we have nothing to do just return
-    if (Pixels == NULL || 
-        Sharpness == 0)
-    {
-        return 1000;
-    }
+#define IS_SSE
+#include "FLT_Sharpness.asm"
+#undef  IS_SSE
 
-    qwSharpness = Sharpness;
-    qwSharpness |= qwSharpness << 48 | qwSharpness << 32 | qwSharpness << 16;
-    Cycles = pInfo->LineLength / 8 - 2;
+#define IS_3DNOW
+#include "FLT_Sharpness.asm"
+#undef  IS_3DNOW
 
-    for (y = 0; y < pInfo->FieldHeight; y++)
-    {
-        _asm
-        {
-            mov eax, Pixels
-            movq mm1, [eax]
-            add eax, 8
-            movq mm2, [eax]
-            mov ecx, Cycles
-            movq mm5, qwYMask
-            movq mm4, qwSharpness
-LOOP_LABEL:
-            movq mm0, mm1
-            movq mm1, mm2
-            movq mm2, [eax + 8]
-
-            // do edge enhancement. 
-		    movq	mm7, mm1				// work copy of curr pixel val
-		    psrlq   mm0, 48					// right justify 1 pixel from qword to left
-		    psllq   mm7, 16                 // left justify 3 pixels
-		    por     mm0, mm7				// and combine
-		    
-		    movq	mm6, mm2				// copy of right qword pixel val
-		    movq	mm7, mm1                // another copy of L2N current
-		    psllq	mm6, 48					// left just 1 pixel from qword to right
-		    psrlq   mm7, 16					// right just 3 pixels
-		    por		mm6, mm7				// combine
-		    pavgb	mm0, mm6				// avg of forward and prev by 1 pixel
-
-            // we handle the possible plus and minus sharpness adjustments separately
-		    movq    mm7, mm1				// another copy of L2N
-		    psubusb mm7, mm0				// curr - surround
-		    psubusb mm0, mm1                // surround - curr
-		    pand	mm7, mm5                // YMask
-		    pand	mm0, mm5                // YMask
-		    pmullw  mm7, mm4                // mult by sharpness factor
-		    pmullw  mm0, mm4                // mult by sharpness factor
-		    psrlw   mm7, 8					// now have diff*EdgeEnhAmt/256 ratio			
-		    psrlw   mm0, 8					// now have diff*EdgeEnhAmt/256 ratio			
-
-		    paddusb mm7, mm1				// edge enhancement up
-		    psubusb mm7, mm0                // edge enhancement down, mm7 now our sharpened value
-
-            movq [eax], mm7
-            add eax, 8
-            dec ecx
-            jne near LOOP_LABEL
-        }
-        Pixels += pInfo->InputPitch;
-    }
-    _asm 
-    {
-        emms
-    }
-    return 1000;
-}
+#define IS_MMXEXT
+#include "FLT_Sharpness.asm"
+#undef  IS_MMXEXT
 
 ////////////////////////////////////////////////////////////////////////////
 // Start of Settings related code
@@ -145,7 +86,7 @@ FILTER_METHOD SharpnessMethod =
     "&Sharpness",
     FALSE,
     TRUE,
-    FilterSharpness, 
+    FilterSharpness_MMX, 
     0,
     TRUE,
     NULL,
@@ -161,20 +102,23 @@ FILTER_METHOD SharpnessMethod =
 
 __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo(long CpuFeatureFlags)
 {
-    // this plugin need as decent processor
-    // as were going to need an acurate average
     if(CpuFeatureFlags & FEATURE_MMXEXT || CpuFeatureFlags & FEATURE_SSE)
     {
-        return &SharpnessMethod;
+        SharpnessMethod.pfnAlgorithm = FilterSharpness_SSE;
+    }
+    else if(CpuFeatureFlags & FEATURE_3DNOW)
+    {
+        SharpnessMethod.pfnAlgorithm = FilterSharpness_3DNOW;
     }
     else
     {
-        return NULL;
+        SharpnessMethod.pfnAlgorithm = FilterSharpness_MMX;
     }
+
+    return &SharpnessMethod;
 }
 
 BOOL WINAPI _DllMainCRTStartup(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
 {
     return TRUE;
 }
-

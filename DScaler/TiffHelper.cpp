@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TiffHelper.cpp,v 1.19 2002-04-27 14:08:07 laurentg Exp $
+// $Id: TiffHelper.cpp,v 1.20 2002-05-03 20:36:49 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2002/04/27 14:08:07  laurentg
+// Automatic square pixels mode handling updated
+//
 // Revision 1.18  2002/04/15 22:50:09  laurentg
 // Change again the available formats for still saving
 // Automatic switch to "square pixels" AR mode when needed
@@ -208,7 +211,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
 #endif
 
     // Allocate memory buffer to store the YUYV values
-    pFrameBuf = (BYTE*)malloc(w * 2 * h * sizeof(BYTE));
+    pFrameBuf = (BYTE*)DumbAlignedMalloc(w * 2 * h * sizeof(BYTE));
     if (pFrameBuf == NULL)
     {
         TIFFClose(tif);
@@ -219,7 +222,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
     {
         if (!TIFFGetField(tif, TIFFTAG_STRIPBYTECOUNTS, &bc))
         {
-            free(pFrameBuf);
+            DumbAlignedFree(pFrameBuf);
             TIFFClose(tif);
             return FALSE;
         }
@@ -228,7 +231,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
         bufYCbCr = (uint8*) _TIFFmalloc(npixels * 2 * sizeof (uint8));
         if (bufYCbCr == NULL)
         {
-            free(pFrameBuf);
+            DumbAlignedFree(pFrameBuf);
             TIFFClose(tif);
             return FALSE;
         }
@@ -239,7 +242,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
             StripSize = bc[Strip];
             if (TIFFReadRawStrip(tif, Strip, pSrcBuf, StripSize) != StripSize)
             {
-                free(pFrameBuf);
+                DumbAlignedFree(pFrameBuf);
                 _TIFFfree(bufYCbCr);
                 TIFFClose(tif);
                 return FALSE;
@@ -280,7 +283,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
         bufPackedRGB = (uint32*) _TIFFmalloc(npixels * sizeof (uint32));
         if (bufPackedRGB == NULL)
         {
-            free(pFrameBuf);
+            DumbAlignedFree(pFrameBuf);
             TIFFClose(tif);
             return FALSE;
         }
@@ -288,7 +291,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
         // RGBA buffer filled in with data from file
         if (!TIFFReadRGBAImage(tif, w, h, bufPackedRGB, 0))
         {
-            free(pFrameBuf);
+            DumbAlignedFree(pFrameBuf);
             _TIFFfree(bufPackedRGB);
             TIFFClose(tif);
             return FALSE;
@@ -368,7 +371,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
 
     if (m_pParent->m_OriginalFrame.pData != NULL)
     {
-        free(m_pParent->m_OriginalFrame.pData);
+        DumbAlignedFree(m_pParent->m_OriginalFrame.pData);
     }
     m_pParent->m_OriginalFrame.pData = pFrameBuf;
     m_pParent->m_Height = h;

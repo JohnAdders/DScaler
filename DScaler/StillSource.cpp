@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.53 2002-05-03 11:18:37 laurentg Exp $
+// $Id: StillSource.cpp,v 1.54 2002-05-03 20:36:49 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.53  2002/05/03 11:18:37  laurentg
+// New settings added to define the size of the pattern
+//
 // Revision 1.52  2002/05/02 20:16:27  laurentg
 // JPEG format added to take still
 //
@@ -307,7 +310,7 @@ CStillSource::~CStillSource()
     }
     if (m_OriginalFrame.pData != NULL)
     {
-        free(m_OriginalFrame.pData);
+        DumbAlignedFree(m_OriginalFrame.pData);
     }
     ClearPlayList();
     KillTimer(hWnd, TIMER_SLIDESHOW);
@@ -630,7 +633,7 @@ void CStillSource::Stop()
     }
     if (m_OriginalFrame.pData != NULL)
     {
-        free(m_OriginalFrame.pData);
+        DumbAlignedFree(m_OriginalFrame.pData);
         m_OriginalFrame.pData = NULL;
     }
     m_IsPictureRead = FALSE;
@@ -1373,10 +1376,9 @@ BOOL CStillSource::ResizeOriginalFrame(int NewWidth, int NewHeight)
     LOG(3, "m_Width %d, NewWidth %d, m_Height %d, NewHeight %d", m_Width, NewWidth, m_Height, NewHeight);
 
     // Allocate memory for the new YUYV buffer
-    BYTE* NewBuf = (BYTE*)malloc(NewWidth * 2 * NewHeight * sizeof(BYTE));
+    BYTE* NewBuf = (BYTE*)DumbAlignedMalloc(NewWidth * 2 * NewHeight * sizeof(BYTE));
 	dstp = NewBuf;
 
-    // TODO : resize m_OriginalFrame.pData into NewBuf
     // Size of m_OriginalFrame.pData is m_Width x m_Height (*2?)
     // Size of NewBuf is NewWidth x NewHeight
 
@@ -1518,7 +1520,7 @@ BOOL CStillSource::ResizeOriginalFrame(int NewWidth, int NewHeight)
 	free(vWorkUV);
 
     // Replace the old YUYV buffer by the new one
-    free(m_OriginalFrame.pData);
+    DumbAlignedFree(m_OriginalFrame.pData);
     m_OriginalFrame.pData = NewBuf;
     m_Width = NewWidth;
     m_Height = NewHeight;

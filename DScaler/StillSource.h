@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.30 2002-05-02 20:16:27 laurentg Exp $
+// $Id: StillSource.h,v 1.31 2002-05-03 20:36:49 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -161,6 +161,9 @@ private:
     std::string m_Section;
 };
 
+
+BYTE* DumbAlignedMalloc(int siz);
+BYTE* DumbAlignedFree(BYTE* x);
 
 SETTING* Still_GetSetting(STILL_SETTING Setting);
 void Still_ReadSettingsFromIni();

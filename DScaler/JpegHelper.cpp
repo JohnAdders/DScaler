@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: JpegHelper.cpp,v 1.2 2002-05-02 20:16:27 laurentg Exp $
+// $Id: JpegHelper.cpp,v 1.3 2002-05-03 20:36:49 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/05/02 20:16:27  laurentg
+// JPEG format added to take still
+//
 // Revision 1.1  2002/05/01 12:57:19  laurentg
 // Support of JPEG files added
 //
@@ -437,7 +440,7 @@ BOOL CJpegHelper::OpenMediaFile(LPCSTR FileName)
         fclose(infile);
         if (pFrameBuf != NULL)
         {
-            free(pFrameBuf);
+            DumbAlignedFree(pFrameBuf);
         }
         return FALSE;
     }
@@ -483,7 +486,7 @@ BOOL CJpegHelper::OpenMediaFile(LPCSTR FileName)
     buffer = (*cinfo.mem->alloc_sarray)((j_common_ptr) &cinfo, JPOOL_IMAGE, w * cinfo.output_components, buffer_height);
 
     // Allocate memory buffer to store the final YUYV values
-    pFrameBuf = (BYTE*)malloc(w * 2 * h * sizeof(BYTE));
+    pFrameBuf = (BYTE*)DumbAlignedMalloc(w * 2 * h * sizeof(BYTE));
     if (pFrameBuf == NULL)
     {
         jpeg_destroy_decompress(&cinfo);
@@ -531,7 +534,7 @@ BOOL CJpegHelper::OpenMediaFile(LPCSTR FileName)
 
     if (m_pParent->m_OriginalFrame.pData != NULL)
     {
-        free(m_pParent->m_OriginalFrame.pData);
+        DumbAlignedFree(m_pParent->m_OriginalFrame.pData);
     }
     m_pParent->m_OriginalFrame.pData = pFrameBuf;
     m_pParent->m_Height = h;

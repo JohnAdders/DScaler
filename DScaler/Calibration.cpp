@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.57 2002-05-03 11:18:37 laurentg Exp $
+// $Id: Calibration.cpp,v 1.58 2002-05-03 20:36:49 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.57  2002/05/03 11:18:37  laurentg
+// New settings added to define the size of the pattern
+//
 // Revision 1.56  2002/04/15 22:50:08  laurentg
 // Change again the available formats for still saving
 // Automatic switch to "square pixels" AR mode when needed
@@ -2358,7 +2361,7 @@ BOOL CPatternHelper::OpenMediaFile(LPCSTR FileName)
     }
 
     // Allocate memory buffer to store the YUYV values
-    pFrameBuf = (BYTE*)malloc(pattern.GetWidth() * 2 * pattern.GetHeight() * sizeof(BYTE));
+    pFrameBuf = (BYTE*)DumbAlignedMalloc(pattern.GetWidth() * 2 * pattern.GetHeight() * sizeof(BYTE));
     if (pFrameBuf == NULL)
     {
         return FALSE;
@@ -2368,7 +2371,7 @@ BOOL CPatternHelper::OpenMediaFile(LPCSTR FileName)
 
     if (m_pParent->m_OriginalFrame.pData != NULL)
     {
-        free(m_pParent->m_OriginalFrame.pData);
+        DumbAlignedFree(m_pParent->m_OriginalFrame.pData);
     }
     m_pParent->m_OriginalFrame.pData = pFrameBuf;
     m_pParent->m_Height = pattern.GetHeight();

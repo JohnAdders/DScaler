@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Dialogs.cpp,v 1.22 2003-01-16 16:55:45 adcockj Exp $
+// $Id: Dialogs.cpp,v 1.23 2003-01-26 12:45:44 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2003/01/16 16:55:45  adcockj
+// Added new credits dialog
+//
 // Revision 1.21  2003/01/15 17:13:19  adcockj
 // Simplified versioning
 //
@@ -160,59 +163,5 @@ BOOL APIENTRY AboutProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 
 LPCSTR GetProductNameAndVersion()
 {
-    DWORD   dwVerInfoSize;      // Size of version information block
-    LPSTR   lpVersion;          // String pointer to 'version' text
-    DWORD   dwVerHnd=0;         // An 'ignored' parameter, always '0'
-    UINT    uVersionLen;        // Current length of full version string
-    WORD    wRootLen;           // length of the 'root' portion of string
-    char    szFullPath[MAX_PATH];   // full path of module
-    static char szResult[256] = DSCALER_APPNAME;    // Temporary result string
-    char szGetName[256];
-
-    // Now lets dive in and pull out the version information:
-    GetModuleFileName (hDScalerInst, szFullPath, sizeof(szFullPath));
-    dwVerInfoSize = GetFileVersionInfoSize(szFullPath, &dwVerHnd);
-    if (dwVerInfoSize)
-    {
-        LPSTR lpstrVffInfo;
-        HGLOBAL hMem;
-        hMem = GlobalAlloc(GMEM_MOVEABLE, dwVerInfoSize);
-        lpstrVffInfo = (LPSTR)GlobalLock(hMem);
-        GetFileVersionInfo(szFullPath, dwVerHnd, dwVerInfoSize, lpstrVffInfo);
-        // The below 'hex' Value looks a little confusing, but
-        // essentially what it is, is the hexidecimal representation
-        // of a couple different values that represent the language
-        // and character set that we are wanting string values for.
-        // 040904E4 is a very common one, because it means:
-        //   US English, Windows MultiLingual characterset
-        // Or to pull it all apart:
-        // 04------        = SUBLANG_ENGLISH_USA
-        // --09----        = LANG_ENGLISH
-        // ----04BO        = Codepage
-        lstrcpy(szGetName, "\\StringFileInfo\\040904B0\\");	 
-        wRootLen = lstrlen(szGetName); // Save this position
-
-        // Set the title of the dialog:
-        lstrcat (szGetName, "ProductName");
-        if(VerQueryValue((LPVOID)lpstrVffInfo,
-            (LPSTR)szGetName,
-            (void**)&lpVersion,
-            (UINT*)&uVersionLen))
-        {
-            lstrcpy(szResult, lpVersion);
-
-            szGetName[wRootLen] = (char)0;
-            lstrcat (szGetName, "ProductVersion");
-
-            if(VerQueryValue((LPVOID)lpstrVffInfo,
-                (LPSTR)szGetName,
-                (void**)&lpVersion,
-                (UINT*)&uVersionLen))
-            {
-                lstrcat(szResult, " Version ");
-                lstrcat(szResult, lpVersion);
-            }
-        }
-    }
-    return szResult;
+    return "DScaler Version "  VERSTRING;
 }

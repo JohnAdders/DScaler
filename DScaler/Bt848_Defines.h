@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Bt848_Defines.h,v 1.21 2003-02-06 19:54:22 ittarnavsky Exp $
+// $Id: Bt848_Defines.h,v 1.22 2003-02-20 10:39:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -461,6 +461,7 @@ enum eTVCardId
     TVCARD_SENSORAY311,
     TVCARD_WINDVR,
     TVCARD_AVERTVOLD,
+    TVCARD_KWORLD_MPEGTV,
     TVCARD_LASTONE,
 };
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Types.cpp,v 1.30 2002-10-29 11:05:27 adcockj Exp $
+// $Id: BT848Card_Types.cpp,v 1.31 2003-02-20 10:39:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2002/10/29 11:05:27  adcockj
+// Renamed CT2388x to CX2388x
+//
 // Revision 1.29  2002/10/27 13:27:13  adcockj
 // Fix osprey svideo
 //
@@ -3510,6 +3513,41 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         /* TUNER   RADIO     EXTERNAL  INTERNAL  MUTE      STEREO */
         {0x00600e, 0x006006, 0x00600a, 0x00600a, 0x006002, 0, }
     },
+    // Patch thanks to Kevin Radke 
+    {
+        "KWorld MPEGTV RF Pro",
+        4,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                2,
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                3,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                1,
+            },
+       {
+                "Composite over S-Video",
+                INPUTTYPE_COMPOSITE,
+                1,
+            },
+        },
+        PLL_NONE,
+        TUNER_PHILIPS_NTSC,
+        SOUNDCHIP_NONE,
+        NULL,
+        StandardBT848InputSelect,
+        CAudioDecoder::AUDIODECODERTYPE_WINDVR,
+        0x140007,
+        { 0, 1, 2, 3, 4, 0 }
+    },
 };
 
 const CBT848Card::TAutoDectect878 CBT848Card::m_AutoDectect878[] =
@@ -3570,6 +3608,7 @@ const CBT848Card::TAutoDectect878 CBT848Card::m_AutoDectect878[] =
     { 0x00790e11, TVCARD_WINDVR,        "Canopus WinDVR PCI" },
     { 0xa0fca1a0, TVCARD_ZOLTRIX,       "Face to Face Tvmax" },    
     { 0x31323334, TVCARD_GRANDTEC,      "GrandTec XCapture" },
+    { 0x109e306e, TVCARD_KWORLD_MPEGTV, "KWorld MPEGTV RF Pro" },
     { 0, (eTVCardId)-1, NULL }
 };
 

@@ -176,11 +176,12 @@ void Timing_WaitForNextFieldNormal(DEINTERLACE_INFO* pInfo)
 void Timing_WaitForNextFieldAccurate(DEINTERLACE_INFO* pInfo)
 {
 	static int nSleepSkipFields = 0;
+	static int nSleepSkipFieldsLate = 0;
 	int NewPos;
 	int Diff;
 	int OldPos = (pInfo->CurrentFrame * 2 + pInfo->IsOdd + 1) % 10;
 	
-	// accuarate time is incomapatable with hurry when late
+	// accuarate time is incompatible with hurry when late
 	pInfo->bRunningLate = TRUE;
 
 	while(OldPos == (NewPos = BT848_GetRISCPosAsInt()))
@@ -247,18 +248,23 @@ void Timing_WaitForNextFieldAccurate(DEINTERLACE_INFO* pInfo)
 			LastFieldTime.QuadPart = 0;
 		}
 	}
-	pInfo->bRunningLate = FALSE;
 
 	// Increment sleep skipping counter, so we can sleep only every X fields specified by SleepSkipField
-	if (pInfo->SleepSkipFields)
-	{
+    if (pInfo->bRunningLate)
+    {
+        // Sleep skipping whenever we're running on time
+        nSleepSkipFieldsLate = 0;
 		nSleepSkipFields = (nSleepSkipFields + 1) % (pInfo->SleepSkipFields + 1);
-	}
-
-	// we have to sleep somewhere might as well be here
-	// since we don't sleep anywhere in the WaitForNextField
-	// anymore
-	Sleep(nSleepSkipFields ? 0 : pInfo->SleepInterval);
+    	Sleep(nSleepSkipFields ? 0 : pInfo->SleepInterval);
+    }
+    else
+    {
+        // Sleep skipping whenever we're running late
+        nSleepSkipFields = 0;
+        nSleepSkipFieldsLate = (nSleepSkipFieldsLate + 1) % (pInfo->SleepSkipFieldsLate + 1);
+    	Sleep(nSleepSkipFieldsLate ? 0 : pInfo->SleepInterval);
+    }
+	pInfo->bRunningLate = FALSE;
 }
 
 void Timing_WaitForNextField(DEINTERLACE_INFO* pInfo)

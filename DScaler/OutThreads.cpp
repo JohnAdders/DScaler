@@ -104,6 +104,7 @@ BOOL	            DoAccurateFlips = TRUE;     // User parm, default=TRUE
 BOOL	            Hurry_When_Late = FALSE;    // " , default=FALSE, skip processing if behind
 long				Sleep_Interval = 0;         // " , default=0, how long to wait for BT chip
 long				Sleep_SkipFields = 0;       // Number of fields to skip before doing sleep interval
+long                Sleep_SkipFieldsLate = 0;   // Number of fields to skip before doing sleep interval, when we're running late
 long				RefreshRate = 0;
 BOOL bIsOddField = FALSE;
 BOOL bWaitForVsync = FALSE;
@@ -430,7 +431,8 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 			// update with any changes
 			CurrentMethod = GetCurrentDeintMethod();
 			info.SleepInterval = Sleep_Interval;
-			info.SleepSkipFields = Sleep_SkipFields;
+			info.SleepSkipFields = abs(Sleep_SkipFields);
+			info.SleepSkipFieldsLate = abs(Sleep_SkipFieldsLate);
 			info.bDoAccurateFlips = DoAccurateFlips;
 			info.bRunningLate = Hurry_When_Late;
 			info.bMissedFrame = FALSE;
@@ -750,6 +752,12 @@ SETTING OutThreadsSettings[OUTTHREADS_SETTING_LASTONE] =
 		0, 0, 60, 1, 1,
 		NULL,
 		"Threads", "Sleep_SkipFields", NULL,
+	},
+	{
+		"Sleep Skip Fields Late", SLIDER, 0, (long*)&Sleep_SkipFieldsLate,
+		0, 0, 60, 1, 1,
+		NULL,
+		"Threads", "Sleep_SkipFieldsLate", NULL,
 	},
 	{
 		"Autodetect Pulldown", ONOFF, 0, (long*)&bAutoDetectMode,

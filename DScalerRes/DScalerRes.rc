@@ -990,7 +990,7 @@ BEGIN
                 MENUITEM "Very High",                   IDM_TREADPRIOR_4
             END
         END
-        POPUP "&Other Settings"
+        POPUP "Other &Settings"
         BEGIN
             MENUITEM "2:2 Pulldown Detection",      IDM_22PULLDOWN_SETTINGS
             MENUITEM "3:2 Pulldown Detection",      IDM_32PULLDOWN_SETTINGS
@@ -1008,6 +1008,7 @@ BEGIN
             MENUITEM "St&op",                       IDM_OVERLAY_STOP
             MENUITEM "St&art",                      IDM_OVERLAY_START
         END
+        MENUITEM "&Reset Statistics",           IDM_RESET_STATS
     END
     POPUP "&Help"
     BEGIN

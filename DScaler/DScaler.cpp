@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.331 2003-07-24 21:15:18 laurentg Exp $
+// $Id: DScaler.cpp,v 1.332 2003-07-29 13:33:06 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.331  2003/07/24 21:15:18  laurentg
+// Hide the toolbar when starting in full screen mode
+//
 // Revision 1.330  2003/07/18 09:48:48  adcockj
 // Added Timer clean up
 //
@@ -2734,7 +2737,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
             else
             {
-                if (bUseMixer == FALSE)
+                if (!Mixer_IsEnabled())
                 {
                     ISetting* pSetting = Providers_GetCurrentSource()->GetVolume();
                     if(pSetting != NULL)
@@ -2753,7 +2756,6 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                     sprintf(Text, "Mixer-Volume %d", Mixer_GetVolume());
                     ShowText(hWnd, Text);					
 				}
-				
             }
             break;
 
@@ -2765,7 +2767,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
             else
             {
-                if (bUseMixer == FALSE)
+                if (!Mixer_IsEnabled())
                 {
                     ISetting* pSetting = Providers_GetCurrentSource()->GetVolume();
                     if(pSetting != NULL)
@@ -2791,7 +2793,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             {
                 Audio_SetUserMute(FALSE);
             }
-            if (bUseMixer == FALSE)
+            if (!Mixer_IsEnabled())
             {
                 ISetting* pSetting = Providers_GetCurrentSource()->GetVolume();
                 if(pSetting != NULL)

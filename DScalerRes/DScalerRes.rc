@@ -440,42 +440,62 @@ BEGIN
                     ES_READONLY
 END
 
-IDD_MIXERSETUP DIALOG DISCARDABLE  22, 17, 251, 196
+IDD_MIXERSETUP DIALOG DISCARDABLE  22, 17, 265, 287
 STYLE DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
-CAPTION "DScaler Mixer Setup"
+CAPTION "Mixer & Source Setup"
 FONT 8, "MS Sans Serif"
 BEGIN
-    CONTROL         "Use Mixer",IDC_USE_MIXER,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,6,7,47,10
-    LTEXT           "Mixer",IDC_STATIC,6,25,18,11
-    COMBOBOX        IDC_MIXER,66,23,178,50,CBS_DROPDOWNLIST | CBS_SORT | 
+    CONTROL         "Use the System's Mixer",IDC_USE_MIXER,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,6,6,89,11
+    COMBOBOX        IDC_MIXER,72,25,178,163,CBS_DROPDOWNLIST | CBS_SORT | 
                     WS_DISABLED | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Destination",IDC_STATIC,6,43,36,11
-    COMBOBOX        IDC_DEST,66,41,178,47,CBS_DROPDOWNLIST | CBS_SORT | 
+    COMBOBOX        IDC_DEST,72,43,178,163,CBS_DROPDOWNLIST | CBS_SORT | 
                     WS_DISABLED | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "",IDC_MIXER_INPUT0NAME,6,61,59,19
-    COMBOBOX        IDC_INPUT1,66,59,178,49,CBS_DROPDOWNLIST | CBS_SORT | 
-                    WS_DISABLED | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "",IDC_MIXER_INPUT1NAME,6,79,59,16
-    COMBOBOX        IDC_INPUT2,66,77,178,49,CBS_DROPDOWNLIST | CBS_SORT | 
-                    WS_DISABLED | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "",IDC_MIXER_INPUT2NAME,6,97,59,18
-    COMBOBOX        IDC_INPUT3,66,95,178,49,CBS_DROPDOWNLIST | CBS_SORT | 
-                    WS_DISABLED | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "",IDC_MIXER_INPUT3NAME,6,115,59,15
-    COMBOBOX        IDC_INPUT4,66,113,178,45,CBS_DROPDOWNLIST | CBS_SORT | 
-                    WS_DISABLED | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "",IDC_MIXER_INPUT4NAME,6,133,59,17
-    COMBOBOX        IDC_INPUT5,66,131,178,51,CBS_DROPDOWNLIST | CBS_SORT | 
-                    WS_DISABLED | WS_VSCROLL | WS_TABSTOP
-    DEFPUSHBUTTON   "OK",IDOK,5,175,32,15
-    PUSHBUTTON      "Cancel",IDCANCEL,41,175,32,15
-    CONTROL         "Reset Mixer to Initial Settings on Exit",
-                    IDC_RESETONEXIT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,83,
-                    176,156,10
-    LTEXT           "",IDC_MIXER_INPUT5NAME,5,152,59,18
-    COMBOBOX        IDC_INPUT6,65,150,178,51,CBS_DROPDOWNLIST | CBS_SORT | 
-                    WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_MIXER_INPUT_ALL,72,78,178,177,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Use separate lines for different source inputs",
+                    IDC_SEPARATE_INPUT,"Button",BS_AUTOCHECKBOX | 
+                    WS_DISABLED | WS_TABSTOP,13,97,155,11
+    COMBOBOX        IDC_MIXER_INPUT0,72,114,178,158,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_MIXER_INPUT1,72,134,178,159,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_MIXER_INPUT2,72,154,178,160,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_MIXER_INPUT3,72,173,178,142,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_MIXER_INPUT4,72,192,178,173,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_MIXER_INPUT5,72,212,178,121,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Disable the use of the card's hardware mute (only affects those with mute)",
+                    IDC_DISABLE_HW_MUTE,"Button",BS_AUTOCHECKBOX | 
+                    WS_DISABLED | WS_TABSTOP,6,236,245,11
+    CONTROL         "Reset the above mixer line to original states on exit",
+                    IDC_RESETONEXIT,"Button",BS_AUTOCHECKBOX | WS_DISABLED | 
+                    WS_TABSTOP,6,249,179,11
+    DEFPUSHBUTTON   "OK",IDOK,160,267,47,15
+    PUSHBUTTON      "Cancel",IDCANCEL,213,267,45,15
+    LTEXT           "Mixer device:",IDC_STATIC,6,26,56,11
+    LTEXT           "Destination:",IDC_STATIC,6,44,46,11
+    LTEXT           "input0",IDC_MIXER_INPUT0NAME,13,113,57,17,
+                    SS_CENTERIMAGE
+    LTEXT           "input1",IDC_MIXER_INPUT1NAME,13,130,57,17,
+                    SS_CENTERIMAGE
+    LTEXT           "input2",IDC_MIXER_INPUT2NAME,13,150,57,17,
+                    SS_CENTERIMAGE
+    LTEXT           "input3",IDC_MIXER_INPUT3NAME,13,170,57,17,
+                    SS_CENTERIMAGE
+    LTEXT           "input4",IDC_MIXER_INPUT4NAME,13,190,57,17,
+                    SS_CENTERIMAGE
+    LTEXT           "input5",IDC_MIXER_INPUT5NAME,13,209,57,17,
+                    SS_CENTERIMAGE
+    GROUPBOX        "Mixer Lines for Source Inputs",IDC_STATIC,6,64,253,168
+    LTEXT           "Mixer Line:",IDC_MIXER_INPUTNAME_ALL,13,79,37,11
+    LTEXT           "Static destination",IDC_DEST_STATIC,72,44,182,13,NOT 
+                    WS_VISIBLE
+    LTEXT           "The current source has no inputs.",IDC_SOURCE_NO_INPUT,
+                    66,89,132,20,NOT WS_VISIBLE
 END
 
 IDD_ABOUT DIALOG DISCARDABLE  22, 17, 277, 140
@@ -1823,6 +1843,14 @@ IDC_CURSOR_HAND         CURSOR  DISCARDABLE     "hand_point.cur"
 #ifdef APSTUDIO_INVOKED
 GUIDELINES DESIGNINFO DISCARDABLE 
 BEGIN
+    IDD_MIXERSETUP, DIALOG
+    BEGIN
+        LEFTMARGIN, 6
+        RIGHTMARGIN, 259
+        TOPMARGIN, 6
+        BOTTOMMARGIN, 282
+    END
+
     IDD_SELECTCARD, DIALOG
     BEGIN
         BOTTOMMARGIN, 160

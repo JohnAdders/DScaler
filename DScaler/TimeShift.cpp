@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.cpp,v 1.24 2003-07-08 21:04:59 laurentg Exp $
+// $Id: TimeShift.cpp,v 1.25 2003-07-29 13:33:07 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2003/07/08 21:04:59  laurentg
+// New timeshift mode (full height) - experimental
+//
 // Revision 1.23  2003/07/05 12:59:51  laurentg
 // Timeshift enabled + some improvments
 //
@@ -1209,7 +1212,12 @@ bool CTimeShift::DoMute(bool mute)
 {
     if (m_pTimeShift)
     {
-        if (mute)
+        Mixer_SetMute(mute);
+
+        //  I don't know what this below is for but what it's doing
+        //  can cause a lot of problems --AtNak 2003-07-29
+
+/*        if (mute)
         {
             m_pTimeShift->m_origUseMixer = bUseMixer;
             bUseMixer = TRUE;
@@ -1242,7 +1250,7 @@ bool CTimeShift::DoMute(bool mute)
             // Revert to original settings.
             bUseMixer = m_pTimeShift->m_origUseMixer;
             m_pTimeShift->m_origUseMixer = -1;
-        }
+        }*/
 
         return true;
     }

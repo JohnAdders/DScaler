@@ -336,6 +336,7 @@
 #define IDC_SCAN_AFC                    1434
 #define IDC_CHECK2                      1434
 #define IDC_TREESETTINGS_GENERIC_SAVEPER_SOURCE 1434
+#define IDC_DISABLE_HW_MUTE             1434
 #define IDC_CHECK3                      1435
 #define IDC_CHECK4                      1436
 #define IDC_TREESETTINGS_GENERIC_SAVEPER_VIDEOINPUT 1436
@@ -367,11 +368,16 @@
 #define IDC_COMBO10                     1458
 #define IDC_COMBO11                     1459
 #define IDC_COMBO12                     1460
-#define IDC_INPUT1                      1461
+#define IDC_MIXER_INPUT0                1461
+#define IDC_MIXER_INPUT1                1462
 #define IDC_CONTEXTMENU                 1462
+#define IDC_MIXER_INPUT2                1463
 #define IDC_COUNTRY                     1463
+#define IDC_MIXER_INPUT3                1464
 #define IDC_CPU_TYPE                    1464
+#define IDC_MIXER_INPUT4                1465
 #define IDC_CRUSH                       1465
+#define IDC_MIXER_INPUT5                1466
 #define IDC_CUSTOMCHANNELORDER          1466
 #define IDC_D1                          1467
 #define IDC_D2                          1468
@@ -604,8 +610,7 @@
 #define IDC_O_COMB                      1697
 #define IDC_O_LUMA_DEC                  1698
 #define IDC_O_LUMA_PEAK                 1699
-#define IDC_INPUT4                      1700
-#define IDC_INPUT5                      1701
+#define IDC_MIXER_INPUT_ALL             1700
 #define IDC_P1                          1702
 #define IDC_P2                          1703
 #define IDC_P3                          1704
@@ -742,7 +747,6 @@
 #define IDC_STATIC8                     1828
 #define IDC_STATIC_BOMBREASON           1829
 #define IDC_STILL                       1830
-#define IDC_INPUT2                      1831
 #define IDC_SAA7134                     1831
 #define IDC_TEXT                        1832
 #define IDC_TEXT1                       1833
@@ -801,7 +805,6 @@
 #define IDC_TSWAVEHELP                  1878
 #define IDC_TSWAVEINCOMBO               1879
 #define IDC_TSWAVEOUTCOMBO              1880
-#define IDC_INPUT3                      1881
 #define IDC_TSHALFHEIGHTRADIO           1881
 #define IDC_TUNERSELECT                 1882
 #define IDC_UP                          1883
@@ -814,7 +817,6 @@
 #define IDC_VERT_FILTER                 1890
 #define IDC_Y                           1891
 #define IDC_VBI_FPS                     1892
-#define IDC_INPUT6                      1893
 #define IDC_STATUSBAR                   1894
 #define IDC_BT_CHIP_TYPE                1895
 #define IDC_TREESETTINGS_GENERIC_LIST   1896
@@ -1106,6 +1108,10 @@
 #define IDC_DSHOW_AUDIODEVICE_GRPBOX    8074
 #define IDC_DSHOW_AUDIODEVICE_TEXT2     8075
 #define IDC_DSHOW_AUDIODEVICE_DEVICE_LABEL 8076
+#define IDC_SEPARATE_INPUT              8079
+#define IDC_DEST_STATIC                 8082
+#define IDC_SOURCE_NO_INPUT             8083
+#define IDC_MIXER_INPUTNAME_ALL         8084
 #define IDM_SETTINGS_FILTERSETTINGS     32771
 #define IDM_SOURCE_INITIAL              32772
 #define IDM_DSHOW_FILTERS               32773
@@ -1204,7 +1210,7 @@
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        260
 #define _APS_NEXT_COMMAND_VALUE         32964
-#define _APS_NEXT_CONTROL_VALUE         8077
+#define _APS_NEXT_CONTROL_VALUE         8085
 #define _APS_NEXT_SYMED_VALUE           2526
 #endif
 #endif

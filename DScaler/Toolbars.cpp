@@ -1,5 +1,5 @@
 //
-// $Id: Toolbars.cpp,v 1.10 2003-01-27 13:57:51 adcockj Exp $
+// $Id: Toolbars.cpp,v 1.11 2003-07-29 13:33:07 atnak Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2003/01/27 13:57:51  adcockj
+// Put correct version in the toolbar
+//
 // Revision 1.9  2002/10/22 00:12:32  flibuste2
 // Updated to use CChannelList
 //
@@ -89,10 +92,6 @@ static char THIS_FILE[]=__FILE__;
 
 extern CUserChannels MyChannels;
 extern long CurrentProgram;
-
-
-extern BOOL bUseMixer;
-extern void Mixer_SetVolume(int Volume);
 
 extern void ShowText(HWND hWnd, LPCTSTR szText);
 
@@ -412,7 +411,7 @@ m_hIconLang2(NULL)
 	m_VolumeMax = 100;
 	m_UseMixer = TRUE;
 
-	if (bUseMixer)
+	if (Mixer_IsEnabled())
 	{
 		if (EventCollector->LastEventValues(EVENT_MIXERVOLUME, NULL, &OldValue, &NewValue)>0)
 		{
@@ -464,13 +463,13 @@ CToolbarVolume::~CToolbarVolume()
 void CToolbarVolume::OnEvent(CEventObject *pObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
 {
 	bool bVolumeLimitsChanged = FALSE;
-	if ((Event == EVENT_SOURCE_CHANGE) || (bUseMixer != m_UseMixer))
+	if ((Event == EVENT_SOURCE_CHANGE) || (Mixer_IsEnabled() != m_UseMixer))
 	{
 		m_VolumeMin = 0;
 		m_VolumeMax = 100;
-		m_UseMixer = bUseMixer;
+		m_UseMixer = Mixer_IsEnabled();
 	
-		if (!bUseMixer && (Providers_GetCurrentSource() != NULL))
+		if (!Mixer_IsEnabled() && (Providers_GetCurrentSource() != NULL))
 		{
 			ISetting* pSetting = Providers_GetCurrentSource()->GetVolume();
 			if (pSetting != NULL)
@@ -485,11 +484,11 @@ void CToolbarVolume::OnEvent(CEventObject *pObject, eEventType Event, long OldVa
     {
         m_Mute = (NewValue)? TRUE : FALSE;
     } 
-    else if ((Event == EVENT_VOLUME) && (!bUseMixer) && (pObject == (CEventObject*)Providers_GetCurrentSource()))		
+    else if ((Event == EVENT_VOLUME) && (!Mixer_IsEnabled()) && (pObject == (CEventObject*)Providers_GetCurrentSource()))		
     {
         m_Volume = NewValue;
     }
-	else if ((Event == EVENT_MIXERVOLUME) && bUseMixer)
+	else if ((Event == EVENT_MIXERVOLUME) && Mixer_IsEnabled())
 	{
 		m_Volume = NewValue;
 		LOG(2,"Toolbar Volume: Event: volume = %d",m_Volume);

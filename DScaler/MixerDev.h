@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.h,v 1.17 2003-06-02 13:15:33 adcockj Exp $
+// $Id: MixerDev.h,v 1.18 2003-07-29 13:33:07 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,103 +40,155 @@
 
 #include "settings.h"
 
-SETTING* MixerDev_GetSetting(MIXERDEV_SETTING Setting);
-void MixerDev_ReadSettingsFromIni();
-void MixerDev_WriteSettingsToIni(BOOL bOptimizeFileAccess);
-void MixerDev_SetMenu(HMENU hMenu);
-void MixerDev_FreeSettings();
+
+//  Mixer functions
+
+void    Mixer_Init();
+void    Mixer_Exit();
+
+BOOL    Mixer_IsEnabled();
+BOOL    Mixer_IsActive();
+BOOL    Mixer_IsNoHardwareMute();
+
+void    Mixer_SetMute(BOOL bEnabled);
+BOOL    Mixer_GetMute(void);
+
+void    Mixer_SetVolume(long newVolume);
+long    Mixer_GetVolume();
+void    Mixer_AdjustVolume(long delta);
+
+void    Mixer_Mute();
+void    Mixer_UnMute();
+
+void    Mixer_Volume_Up();
+void    Mixer_Volume_Down();
+
+void    Mixer_SetupDlg(HWND hWndParent);
 
 
-/** Control a mixer source line on the system
+//  Settings functions
+
+SETTING*    MixerDev_GetSetting(MIXERDEV_SETTING nSetting);
+void        MixerDev_ReadSettingsFromIni();
+void        MixerDev_WriteSettingsToIni(BOOL bOptimizeFileAccess);
+void        MixerDev_FreeSettings();
+void        MixerDev_SetMenu(HMENU hMenu);
+
+
+
+
+//  Internal classes
+
+/**  Individual lines of a destination (e.g. MIDI, Line-In, CD-Audio)
 */
-class CMixerLineSource
+class CMixerLineSrc
 {
 public:
-    CMixerLineSource(HMIXER hMixer, int DestId, int SourceId);
-    ~CMixerLineSource();
-    char* GetName();
-    void SetMute(BOOL Mute);
-    BOOL GetMute();
-    void SetVolume(int PercentageVolume);
-    int GetVolume();
-    void ResetToOriginal();
+    CMixerLineSrc(HMIXER hMixer, DWORD nDstIndex, DWORD nSrcIndex);
+    virtual ~CMixerLineSrc();
+
+    const char* GetName();
+
+    void        SetMute(BOOL bEnable);
+    BOOL        GetMute();
+
+    void        SetVolume(int volumePercentage);
+    int         GetVolume();
+
+    void        StoreState();
+    void        RestoreState();
+
 private:
-    int m_ControlsCount;
-    MIXERLINE m_MixerLine;
-    int m_VolumeControl;
-    DWORD m_VolumeMin;
-    DWORD m_VolumeMax;
-    int m_MuteControl;
-    int m_InitialVolume;
-    BOOL m_InitialMute;
-    HMIXER m_hMixer;
+    BOOL        MixerControlDetailsSet(DWORD dwControlID, DWORD dwValue);
+    BOOL        MixerControlDetailsGet(DWORD dwControlID, LPDWORD lpdwValue);
+
+private:
+    HMIXER      m_hMixer;
+    MIXERLINE   m_mxl;
+
+    DWORD       m_VolumeControlID;
+    DWORD       m_VolumeMinimum;
+    DWORD       m_VolumeMaximum;
+
+    DWORD       m_MuteControlID;
+
+    DWORD       m_StoredVolume;
+    DWORD        m_StoredMute;
 };
 
-/** Control a mixer destination line on the system
+
+/**  System mixer destination lines
 */
-class CMixerLineDest
+class CMixerLineDst
 {
 public:
-    CMixerLineDest(HMIXER hMixer, int DestId);
-    ~CMixerLineDest();
-    int GetNumSourceLines();
-    CMixerLineSource* GetSourceLine(int LineIndex);
-    char* GetName();
-    void ResetToOriginal();
+    CMixerLineDst(HMIXER hMixer, DWORD nDstIndex);
+    virtual ~CMixerLineDst();
+
+    const char*     GetName();
+
+    long            GetSourceCount();
+    CMixerLineSrc*  GetSourceLine(DWORD nIndex);
+
+    void            StoreState();
+    void            RestoreState();
+
+    BOOL            IsTypicalSpeakerLine();
+    BOOL            IsTypicalRecordingLine();
+
 private:
-    int m_SourceCount;
-    MIXERLINE m_MixerLine;
-    CMixerLineSource** m_SourceLines;
+    MIXERLINE       m_mxl;
+
+    DWORD           m_nSourceCount;
+    CMixerLineSrc** m_pSourceLines;
 };
 
-/** Control a mixer on the system
+
+/**  System mixer control
 */
 class CMixer
 {
 public:
-    CMixer(int MixerId);
-    ~CMixer();
-    int GetNumDestLines();
-    CMixerLineDest* GetDestLine(int LineIndex);
-    void ResetToOriginal();
+    CMixer(DWORD nMixerIndex);
+    virtual ~CMixer();
+
+    const char*     GetName();
+    DWORD           GetIndex();
+
+    long            GetDestinationCount();
+    CMixerLineDst*  GetDestinationLine(DWORD nIndex);
+
+    void            StoreState();
+    void            RestoreState();
+
 private:
-    int m_LineCount;
-    MIXERCAPS m_MixerDev;
-    CMixerLineDest** m_DestLines;
-    HMIXER m_hMixer;
+    HMIXER          m_hMixer;
+    MIXERCAPS       m_mxcaps;
+
+    DWORD           m_nMixerIndex;
+
+    DWORD           m_nDestinationCount;
+    CMixerLineDst** m_pDestinationLines;
 };
 
-/** Control the systems sound system
+
+/**  Provides functions for finding mixers
 */
-class CSoundSystem
+class CMixerFinder
 {
 public:
-    CSoundSystem();
-    ~CSoundSystem();
-    int GetNumMixers();
-    char* GetMixerName(int MixerIndex);
-    static char* GetMixerName2(int MixerIndex);
-    static int FindMixer(char* szPname);
-    void SetMixer(int MixerIndex);
-    CMixer* GetMixer();
+    CMixerFinder();
+    virtual ~CMixerFinder();
+
+    long        GetMixerCount();
+    BOOL        GetMixerName(long nMixerIndex, char szName[MAXPNAMELEN]);
+
+    long        FindMixer(const char* szName);
+
 private:
-    int m_DeviceCount;
-    CMixer* m_Mixer;
+    UINT        m_nMixerCount;
 };
 
-BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
-void Mixer_SetupDlg(HWND hWndParent);
-
-extern BOOL bUseMixer;
-
-void Mixer_Mute();
-void Mixer_UnMute();
-BOOL Mixer_IsMuted();
-void Mixer_Volume_Up();
-void Mixer_Volume_Down();
-long Mixer_GetVolume();
-void Mixer_Init();
-void Mixer_Exit();
-void Mixer_UpdateIndex();
 
 #endif
+

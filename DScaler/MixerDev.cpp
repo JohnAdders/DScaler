@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.40 2003-06-02 13:15:32 adcockj Exp $
+// $Id: MixerDev.cpp,v 1.41 2003-07-29 13:33:07 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.40  2003/06/02 13:15:32  adcockj
+// Fixes for CHARSTRING problems
+//
 // Revision 1.39  2003/04/26 19:39:10  laurentg
 // New character string settings
 //
@@ -150,1084 +153,1750 @@
 #include "Audio.h"
 #include "Providers.h"
 
-CSoundSystem* pSoundSystem = NULL;
+#define MAX_SUPPORTED_INPUTS  6                     // Not readily changable
 
-BOOL bUseMixer = FALSE;
-BOOL bResetOnExit = TRUE;
-long MixerIndex = 0;
-static char* MixerName = NULL;
-long DestIndex = 0;
-long InputIndexes[6] = {-1, -1, -1, -1, -1, -1,};
-std::string MixerDev_Section;
 
-void MixerDev_SettingSetSection(LPCSTR szSource);
-void Mixer_OnInputChange(int);
-extern SETTING MixerDevSettings[MIXERDEV_SETTING_LASTONE]; //defined below
+//  MixerDev prototypes and globals
 
-void Mixer_OnInputChangeNotification(void *pThis, int PreChange, eSourceInputType InputType, int OldInput, int NewInput);
+void    _MixerDev_ReadSettingsFromIni();
+void    MixerDev_SettingSetSection(CSource* pSource);
+void    MixerDev_SettingSetSection(LPCSTR szSource);
 
-CMixerLineSource::CMixerLineSource(HMIXER hMixer, int DestId, int SourceId)
+static std::string  g_MixerDev_Section;
+static BOOL         g_bMixerDevInvalidSection = TRUE;
+
+
+//  Mixer typedefs
+
+typedef CMixer* (tSyncChangesCallback)(void* pContext);
+
+
+//  Mixer prototypes
+
+static void     Mixer_SetCurrentMixerFromName();
+static void     Mixer_SetCurrentMixer(long nMixerIndex);
+
+static CMixerLineDst*   Mixer_GetCurrentDestination();
+static CMixerLineSrc*   Mixer_GetCurrentActiveSource();
+
+static void     Mixer_EventOnChangeNotification(void*, CEventObject*, eEventType, long, long, eEventType*);
+
+static void     Mixer_OnInputChange(long nVideoInput);
+static void     Mixer_OnSourceChange(CSource *pSource);
+
+static CMixer*  LoadSourceSettingsCallback(void* pContext);
+
+static void     Mixer_SetupActiveInputs(CSource* pCurrentSource);
+
+static void     Mixer_MuteInputs(long nDestinationIndex, long* pIndexes, long nCount, BOOL bMute);
+static void     Mixer_StoreRestoreInputs(long nDestinationIndex, long* pIndexes, long nCount, BOOL bRestore);
+
+static void     Mixer_DoSettingsTransition(tSyncChangesCallback* pSyncfunc, void* pContext);
+
+static long     Mixer_NameToIndex(char* szName);
+static CMixer*  Mixer_Allocate(long nMixerIndex);
+
+BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
+
+
+//  Utility prototypes
+
+static long     LongArrayUnique(const long*, long, long*);
+static void     LongArraySubstract(long*, long*, const long*, long);
+static void     LongArrayDivide(long*, long *, long*, long *);
+
+
+// Global variables
+
+static CMixer*  g_pCurrentMixer = NULL;
+static long     g_nActiveInputsCount = 0;
+static long     g_nActiveInput = -1;
+
+static BOOL     g_bUseMixer = FALSE;                        // Saved setting variable
+static BOOL     g_bResetOnExit = FALSE;                     // Saved setting variable
+static BOOL     g_bDisableHWMute = FALSE;                   // Saved setting variable
+
+static char*    g_pMixerName = NULL;                        // Saved setting variable
+                                                            // - mem-managed by Setting_Funcs
+
+static long     g_nDestinationIndex;                        // Saved setting variable
+static long     g_nSourceIndexes[MAX_SUPPORTED_INPUTS];     // Saved setting variable
+
+
+//----------------------------------------------------------------------
+//  Public functions
+//----------------------------------------------------------------------
+
+void Mixer_Init()
 {
-    MIXERLINECONTROLS Controls;
-    MIXERCONTROL* MixerControls;
+    eEventType EventList[] = { EVENT_SOURCE_CHANGE,
+                               EVENT_VIDEOINPUT_CHANGE,
+                               EVENT_NONE };
 
-    m_VolumeControl = -1;
-    m_MuteControl = -1;
-    m_hMixer = hMixer;
+    EventCollector->Register(Mixer_EventOnChangeNotification, NULL, EventList);
 
-    memset(&m_MixerLine, 0, sizeof(MIXERLINE));
-    m_MixerLine.cbStruct = sizeof(MIXERLINE);
-    m_MixerLine.dwDestination = DestId;
-    m_MixerLine.dwSource = SourceId;
-    MMRESULT mmresult = mixerGetLineInfo((HMIXEROBJ) hMixer, &m_MixerLine, MIXER_GETLINEINFOF_SOURCE);
-    if(mmresult != MMSYSERR_NOERROR || m_MixerLine.cControls == 0)
-    {
-        strcpy(m_MixerLine.szName, "Error");
-
-        return;
-    }
-    
-    m_ControlsCount = m_MixerLine.cControls;
-
-    MixerControls = (MIXERCONTROL*)calloc(sizeof(MIXERCONTROL), m_ControlsCount);
-    memset(&Controls, 0, sizeof(Controls));
-    Controls.cbStruct = sizeof(Controls);
-    Controls.dwLineID = m_MixerLine.dwLineID;
-    Controls.cControls = m_ControlsCount;
-    Controls.cbmxctrl = sizeof(MIXERCONTROL);
-    Controls.pamxctrl = MixerControls;
-    mmresult = mixerGetLineControls((HMIXEROBJ) hMixer, &Controls, MIXER_GETLINECONTROLSF_ALL);
-
-    for(int i = 0; i < m_ControlsCount; ++i)
-    {
-        if(MixerControls[i].dwControlType == MIXERCONTROL_CONTROLTYPE_VOLUME)
-        {
-            m_VolumeControl = MixerControls[i].dwControlID;
-            m_VolumeMin = MixerControls[i].Bounds.dwMinimum;
-            m_VolumeMax = MixerControls[i].Bounds.dwMaximum;
-        }
-        else if(MixerControls[i].dwControlType == MIXERCONTROL_CONTROLTYPE_MUTE)
-        {
-            m_MuteControl = MixerControls[i].dwControlID;
-        }
-    }
-    free(MixerControls);
-    m_InitialMute = GetMute();
-    m_InitialVolume = GetVolume();
-}
-
-CMixerLineSource::~CMixerLineSource()
-{
-}
-
-void CMixerLineSource::SetMute(BOOL Mute)
-{
-    if(m_MuteControl != -1)
-    {
-        MIXERCONTROLDETAILS_BOOLEAN Bool[1] = {Mute};
-        MIXERCONTROLDETAILS ControlDetails;
-        ControlDetails.cbStruct = sizeof(ControlDetails);
-        ControlDetails.cChannels = 1;
-        ControlDetails.dwControlID = m_MuteControl;
-        ControlDetails.cMultipleItems = 0;
-        ControlDetails.cbDetails = sizeof(MIXERCONTROLDETAILS_BOOLEAN);
-        ControlDetails.paDetails = &Bool;
-
-        MMRESULT mmr = mixerSetControlDetails((HMIXEROBJ) m_hMixer, &ControlDetails, MIXER_SETCONTROLDETAILSF_VALUE | MIXER_OBJECTF_HMIXER);
-        //MMSYSERR_INVALFLAG
-    }
-}
-
-BOOL CMixerLineSource::GetMute()
-{
-    if(m_MuteControl != -1)
-    {
-        MIXERCONTROLDETAILS_BOOLEAN Bool[1] = {FALSE};
-        MIXERCONTROLDETAILS ControlDetails;
-        ControlDetails.cbStruct = sizeof(ControlDetails);
-        ControlDetails.cChannels = 1;
-        ControlDetails.dwControlID = m_MuteControl;
-        ControlDetails.cMultipleItems = 0;
-        ControlDetails.cbDetails = sizeof(MIXERCONTROLDETAILS_BOOLEAN);
-        ControlDetails.paDetails = &Bool;
-
-        MMRESULT mmr = mixerGetControlDetails((HMIXEROBJ) m_hMixer, &ControlDetails, MIXER_SETCONTROLDETAILSF_VALUE | MIXER_OBJECTF_HMIXER);
-        return Bool[0].fValue;
-    }
-    else
-    {
-        return FALSE;
-    }
-}
-
-void CMixerLineSource::ResetToOriginal()
-{
-    SetMute(m_InitialMute);
-    SetVolume(m_InitialVolume);
-}
-
-
-// sets all channels to the same volume
-void CMixerLineSource::SetVolume(int PercentageVolume)
-{
-    if(m_VolumeControl != -1)
-    {
-        MIXERCONTROLDETAILS_UNSIGNED Vol[1] = {MulDiv(PercentageVolume, (m_VolumeMax - m_VolumeMin), 100)};
-        MIXERCONTROLDETAILS ControlDetails;
-        ControlDetails.cbStruct = sizeof(ControlDetails);
-        ControlDetails.cChannels = 1;
-        ControlDetails.dwControlID = m_VolumeControl;
-        ControlDetails.cMultipleItems = 0;
-        ControlDetails.cbDetails = sizeof(MIXERCONTROLDETAILS_UNSIGNED);
-        ControlDetails.paDetails = &Vol;
-
-        MMRESULT mmr = mixerSetControlDetails((HMIXEROBJ) m_hMixer, &ControlDetails, MIXER_SETCONTROLDETAILSF_VALUE | MIXER_OBJECTF_HMIXER);
-    }
-}
-
-// get average volume ignores balance
-int CMixerLineSource::GetVolume()
-{
-    if(m_VolumeControl != -1)
-    {
-        MIXERCONTROLDETAILS_UNSIGNED Vol[1] = {0,};
-        MIXERCONTROLDETAILS ControlDetails;
-        ControlDetails.cbStruct = sizeof(ControlDetails);
-        ControlDetails.cChannels = 1;
-        ControlDetails.dwControlID = m_VolumeControl;
-        ControlDetails.cMultipleItems = 0;
-        ControlDetails.cbDetails = sizeof(MIXERCONTROLDETAILS_UNSIGNED);
-        ControlDetails.paDetails = &Vol;
-
-        MMRESULT mmr = mixerGetControlDetails((HMIXEROBJ) m_hMixer, &ControlDetails, MIXER_SETCONTROLDETAILSF_VALUE | MIXER_OBJECTF_HMIXER);
-        if(mmr == MMSYSERR_NOERROR)
-        {
-            return MulDiv(Vol[0].dwValue, 100, m_VolumeMax - m_VolumeMin);
-        }
-        else
-        {
-            return 0;
-        }
-    }
-    else
-    {
-        return 0;
-    }
-}
-
-char* CMixerLineSource::GetName()
-{
-    return m_MixerLine.szName;
-}
-
-CMixerLineDest::CMixerLineDest(HMIXER hMixer, int DestId)
-{
-    memset(&m_MixerLine, 0, sizeof(MIXERLINE));
-    m_MixerLine.cbStruct = sizeof(MIXERLINE);
-    m_MixerLine.dwDestination = DestId;
-    m_SourceCount = 0;
-    m_SourceLines = NULL;
-
-    MMRESULT mmresult = mixerGetLineInfo((HMIXEROBJ)hMixer, &m_MixerLine, MIXER_GETLINEINFOF_DESTINATION);
-    if(mmresult != MMSYSERR_NOERROR || m_MixerLine.cConnections == 0)
-    {
-        strcpy(m_MixerLine.szName, "Error");
-
-        return;
-    }
-    m_SourceCount = m_MixerLine.cConnections;
-    m_SourceLines = (CMixerLineSource**)calloc(sizeof(CMixerLineSource*), m_SourceCount);
-    for(int i = 0; i < m_SourceCount; ++i)
-    {
-        m_SourceLines[i] = new CMixerLineSource(hMixer, DestId, i);
-    }
-}
-
-CMixerLineDest::~CMixerLineDest()
-{
-    if(m_SourceLines != NULL)
-    {
-        for(int i = 0; i < m_SourceCount; ++i)
-        {
-            delete m_SourceLines[i];
-        }
-        free(m_SourceLines);
-    }
-}
-
-int CMixerLineDest::GetNumSourceLines()
-{
-    return m_SourceCount;
-}
-
-CMixerLineSource* CMixerLineDest::GetSourceLine(int LineIndex)
-{
-    if(LineIndex >= 0 && LineIndex <= m_SourceCount)
-    {
-        return m_SourceLines[LineIndex];
-    }
-    else
-    {
-        return NULL;
-    }
-}
-
-char* CMixerLineDest::GetName()
-{
-    return m_MixerLine.szName;
-}
-
-void CMixerLineDest::ResetToOriginal()
-{
-    if(m_SourceLines != NULL)
-    {
-        for(int i = 0; i < m_SourceCount; ++i)
-        {
-            m_SourceLines[i]->ResetToOriginal();
-        }
-    }
-}
-
-CMixer::CMixer(int MixerId)
-{
-    MMRESULT mmresult = mixerGetDevCaps(MixerId, &m_MixerDev, sizeof(MIXERCAPS));
-    m_hMixer = NULL;
-    m_LineCount = 0;
-    m_DestLines = NULL;
-    if(mmresult != MMSYSERR_NOERROR || m_MixerDev.cDestinations == 0)
-    {
-        return;
-    }
-    mmresult = mixerOpen(&m_hMixer, MixerId, NULL, NULL, MIXER_OBJECTF_MIXER);
-    if(mmresult != MMSYSERR_NOERROR)
-    {
-        return;
-    }
-
-    m_LineCount = m_MixerDev.cDestinations;
-    m_DestLines = (CMixerLineDest**)calloc(sizeof(CMixerLineDest*), m_LineCount);
-    for(int i = 0; i < m_LineCount; ++i)
-    {
-        m_DestLines[i] = new CMixerLineDest(m_hMixer, i);
-    }
-}
-
-CMixer::~CMixer()
-{
-    if(m_hMixer != NULL)
-    {
-        mixerClose(m_hMixer);
-    }
-    if(m_DestLines != NULL)
-    {
-        for(int i = 0; i < m_LineCount; ++i)
-        {
-            delete m_DestLines[i];
-        }
-        free(m_DestLines);
-    }
-}
-
-int CMixer::GetNumDestLines()
-{
-    return m_LineCount;
-}
-
-CMixerLineDest* CMixer::GetDestLine(int LineIndex)
-{
-    if(LineIndex >= 0 && LineIndex < m_LineCount)
-    {
-        return m_DestLines[LineIndex];
-    }
-    else
-    {
-        return NULL;
-    }
-}
-
-void CMixer::ResetToOriginal()
-{
-    if(m_DestLines != NULL)
-    {
-        for(int i = 0; i < m_LineCount; ++i)
-        {
-            m_DestLines[i]->ResetToOriginal();
-        }
-    }
-}
-
-
-CSoundSystem::CSoundSystem()
-{
-    m_DeviceCount = mixerGetNumDevs();
-    m_Mixer = NULL;
-}
-
-CSoundSystem::~CSoundSystem()
-{
-    if(m_Mixer != NULL)
-    {
-        delete m_Mixer;
-        m_Mixer = NULL;
-    }
-}
-
-int CSoundSystem::GetNumMixers()
-{
-    return m_DeviceCount;
-}
-
-char* CSoundSystem::GetMixerName(int MixerIndex)
-{
-    if(MixerIndex >= 0 && MixerIndex < m_DeviceCount)
-    {
-        static MIXERCAPS MixerCaps;
-        MMRESULT mmresult = mixerGetDevCaps(MixerIndex, &MixerCaps, sizeof(MIXERCAPS));
-        if(mmresult == MMSYSERR_NOERROR)
-        {
-            return MixerCaps.szPname;
-        }
-        else
-        {
-            return "Error";
-        }
-    }
-    else
-    {
-        return "Not Found";
-    }
-}
-
-char* CSoundSystem::GetMixerName2(int MixerIndex)
-{
-    static MIXERCAPS MixerCaps;
-    MMRESULT mmresult = mixerGetDevCaps(MixerIndex, &MixerCaps, sizeof(MixerCaps));
-    if(mmresult == MMSYSERR_NOERROR)
-    {
-        return MixerCaps.szPname;
-    }
-    else
-    {
-        static char szMixerError = NULL;
-        return &szMixerError;
-    }
-}
-
-int CSoundSystem::FindMixer(char* szPname)
-{
-    int DeviceCount = mixerGetNumDevs();
-    for (int i = 0; i < DeviceCount; i++)
-    {
-        char* pDeviceName = GetMixerName2(i);
-        if(*pDeviceName)
-        {
-            if(!lstrcmp(szPname, pDeviceName))
-            {
-                return i;
-            }
-        }
-    }
-
-    return -1;
-}
-
-void CSoundSystem::SetMixer(int MixerIndex)
-{
-    if(m_Mixer != NULL)
-    {
-        delete m_Mixer;
-        m_Mixer = NULL;
-    }
-    if(MixerIndex >= 0 && MixerIndex < m_DeviceCount)
-    {
-        m_Mixer = new CMixer(MixerIndex);
-    }
-}
-
-CMixer* CSoundSystem::GetMixer()
-{
-    return m_Mixer;
-}
-
-void ComboBox_AddValueAndSel(HWND hControl, LPCSTR szValue, long ItemData, long SelIndex)
-{
-    int Index = ComboBox_AddString(hControl, szValue);
-    ComboBox_SetItemData(hControl, Index, ItemData);
-    if(ItemData == SelIndex)
-    {
-        ComboBox_SetCurSel(hControl, Index);
-    }
-}
-
-ComboBox_GetCurSelItemData(HWND hControl)
-{
-    return ComboBox_GetItemData(hControl, ComboBox_GetCurSel(hControl));
-}
-
-void EnableComboBoxes(HWND hDlg, BOOL Enabled)
-{
-    ComboBox_Enable(GetDlgItem(hDlg, IDC_MIXER), Enabled);
-    ComboBox_Enable(GetDlgItem(hDlg, IDC_DEST), Enabled);
-
-    int NumInputs = 0;
-    if (Providers_GetCurrentSource()) 
-    { 
-        NumInputs = Providers_GetCurrentSource()->NumInputs(VIDEOINPUT);
-    }
-
-    ComboBox_Enable(GetDlgItem(hDlg, IDC_INPUT1), (NumInputs>=1)?Enabled:FALSE);
-    ComboBox_Enable(GetDlgItem(hDlg, IDC_INPUT2), (NumInputs>=2)?Enabled:FALSE);
-    ComboBox_Enable(GetDlgItem(hDlg, IDC_INPUT3), (NumInputs>=3)?Enabled:FALSE);
-    ComboBox_Enable(GetDlgItem(hDlg, IDC_INPUT4), (NumInputs>=4)?Enabled:FALSE);
-    ComboBox_Enable(GetDlgItem(hDlg, IDC_INPUT5), (NumInputs>=5)?Enabled:FALSE);
-    ComboBox_Enable(GetDlgItem(hDlg, IDC_INPUT6), (NumInputs>=6)?Enabled:FALSE);
-}
-
-void FillLineBox(HWND hDlg, long ControlId, long SelIndex)
-{
-    HWND hControl = GetDlgItem(hDlg, ControlId);
-    int Line = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_DEST));
-    ComboBox_ResetContent(hControl);
-    ComboBox_AddValueAndSel(hControl, 
-                        "None",
-                        -1, 
-                        SelIndex);
-    for(int i(0); i < pSoundSystem->GetMixer()->GetDestLine(Line)->GetNumSourceLines(); ++i)
-    {
-        ComboBox_AddValueAndSel(hControl, 
-                            pSoundSystem->GetMixer()->GetDestLine(Line)->GetSourceLine(i)->GetName(),
-                            i, 
-                            SelIndex);
-    }
-}
-
-void FillLineBoxes(HWND hDlg)
-{
-    FillLineBox(hDlg, IDC_INPUT1, InputIndexes[0]);
-    FillLineBox(hDlg, IDC_INPUT2, InputIndexes[1]);
-    FillLineBox(hDlg, IDC_INPUT3, InputIndexes[2]);
-    FillLineBox(hDlg, IDC_INPUT4, InputIndexes[3]);
-    FillLineBox(hDlg, IDC_INPUT5, InputIndexes[4]);
-    FillLineBox(hDlg, IDC_INPUT6, InputIndexes[5]);
-}
-
-void FillDestBox(HWND hDlg)
-{
-    pSoundSystem->SetMixer(ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_MIXER)));
-    ComboBox_ResetContent(GetDlgItem(hDlg, IDC_DEST));
-    for(int i(0); i < pSoundSystem->GetMixer()->GetNumDestLines(); ++i)
-    {
-        ComboBox_AddValueAndSel(GetDlgItem(hDlg, IDC_DEST), 
-                            pSoundSystem->GetMixer()->GetDestLine(i)->GetName(),
-                            i, 
-                            DestIndex);
-    }
-    FillLineBoxes(hDlg);
-}
-
-void FillMixersBox(HWND hDlg)
-{
-    ComboBox_ResetContent(GetDlgItem(hDlg, IDC_MIXER));
-    pSoundSystem->SetMixer(MixerIndex);
-    for(int i(0); i < pSoundSystem->GetNumMixers(); ++i)
-    {
-        ComboBox_AddValueAndSel(GetDlgItem(hDlg, IDC_MIXER), 
-                            pSoundSystem->GetMixerName(i),
-                            i, 
-                            MixerIndex);
-    }
-    FillDestBox(hDlg);
-}
-
-BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
-{
-    static BOOL Old_bUseMixer;
-    static long Old_MixerIndex;
-    static long Old_DestIndex;
-    static long OldIndexes[6];
-    int i;
-
-    switch (message)
-    {
-    case WM_INITDIALOG:
-        {
-            int NumInputs = 0;
-            if (Providers_GetCurrentSource()) 
-            {     
-                NumInputs = Providers_GetCurrentSource()->NumInputs(VIDEOINPUT);
-            }
-            if ( NumInputs > 6 ) 
-            {
-                // 6 in dialog right now
-                NumInputs = 6;
-            }
-            
-            string sInputName;
-            for (i = 0; i < NumInputs; i++)
-            {
-                char *szName = (char*)Providers_GetCurrentSource()->GetInputName(VIDEOINPUT, i);
-                if (szName == NULL)
-                {
-                    sInputName = "Input ";
-                    sInputName+=i;
-                }
-                else
-                {
-                    sInputName = szName;
-                }
-                int RcNr = IDC_MIXER_INPUT0NAME;
-                
-                if (i==0) { RcNr = IDC_MIXER_INPUT0NAME; }
-                else if (i==1) { RcNr = IDC_MIXER_INPUT1NAME; }
-                else if (i==2) { RcNr = IDC_MIXER_INPUT2NAME; }
-                else if (i==3) { RcNr = IDC_MIXER_INPUT3NAME; }
-                else if (i==4) { RcNr = IDC_MIXER_INPUT4NAME; }
-                else if (i==5) { RcNr = IDC_MIXER_INPUT5NAME; }
-
-                SetDlgItemText(hDlg, RcNr, sInputName.c_str());
-            }            
-        }
-
-        Old_bUseMixer = bUseMixer;
-        Old_MixerIndex = MixerIndex;
-        Old_DestIndex = DestIndex;
-        for(i = 0; i < 6; ++i)
-        {
-            OldIndexes[i] = InputIndexes[i];
-        }
-        Button_SetCheck(GetDlgItem(hDlg, IDC_USE_MIXER), bUseMixer);
-        Button_SetCheck(GetDlgItem(hDlg, IDC_RESETONEXIT), bResetOnExit);
-        if(bUseMixer == TRUE)
-        {
-            EnableComboBoxes(hDlg, TRUE);
-            FillMixersBox(hDlg);
-        }
-        return TRUE;
-        break;
-    case WM_COMMAND:
-        switch (LOWORD(wParam))
-        {
-        case IDC_RESETONEXIT:
-            bResetOnExit = (Button_GetCheck(GetDlgItem(hDlg, IDC_RESETONEXIT)) == BST_CHECKED);
-            break;
-
-        case IDC_USE_MIXER:
-            bUseMixer = (Button_GetCheck(GetDlgItem(hDlg, IDC_USE_MIXER)) == BST_CHECKED);
-            if(bUseMixer == TRUE)
-            {
-                pSoundSystem->SetMixer(MixerIndex);
-                EnableComboBoxes(hDlg, TRUE);
-                FillMixersBox(hDlg);
-                if (Providers_GetCurrentSource() != NULL)
-                {
-                    Mixer_OnInputChange(Providers_GetCurrentSource()->GetInput(VIDEOINPUT));
-                }
-            }
-            else
-            {
-                // Turn off use of mixer
-                if (Providers_GetCurrentSource() != NULL)
-                {
-                    if(pSoundSystem->GetMixer() != NULL && bResetOnExit)
-                    {                          
-                          pSoundSystem->GetMixer()->ResetToOriginal();
-                    }
-                    else
-                    {
-                        ////Mute
-                        //bUseMixer = TRUE;                  
-                        //Mixer_OnInputChange(-1);
-                        //bUseMixer = FALSE;
-                    }
-                }
-                EnableComboBoxes(hDlg, FALSE);
-                pSoundSystem->SetMixer(-1);
-            }
-            break;
-        case IDC_MIXER:
-            if (HIWORD(wParam) == CBN_SELCHANGE)
-            {
-                FillDestBox(hDlg);
-            }
-            break;
-        case IDC_DEST:
-            if (HIWORD(wParam) == CBN_SELCHANGE)
-            {
-                FillLineBoxes(hDlg);
-            }
-            break;
-        case IDOK:
-            if (bUseMixer && (Providers_GetCurrentSource() != NULL))
-            {
-                Mixer_OnInputChangeNotification(NULL,0,VIDEOINPUT,-1,-1);
-            }
-
-            MixerIndex = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_MIXER));
-            Setting_SetValue(&MixerDevSettings[MIXERNAME], (long)pSoundSystem->GetMixerName2(MixerIndex), FALSE);
-            DestIndex = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_DEST));
-            InputIndexes[0] = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_INPUT1));
-            InputIndexes[1] = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_INPUT2));
-            InputIndexes[2] = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_INPUT3));
-            InputIndexes[3] = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_INPUT4));
-            InputIndexes[4] = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_INPUT5));
-            InputIndexes[5] = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_INPUT6));
-            if(bUseMixer == FALSE)
-            {
-                pSoundSystem->SetMixer(-1);
-            }
-            else
-            {
-                if (Providers_GetCurrentSource() != NULL)
-                {
-                    Mixer_OnInputChangeNotification(NULL,0,VIDEOINPUT,-1,Providers_GetCurrentSource()->GetInput(VIDEOINPUT));
-                }
-            }
-			WriteSettingsToIni(TRUE);
-            EndDialog(hDlg, 0);
-            break;
-
-        case IDCANCEL:
-            bUseMixer = Old_bUseMixer;
-            MixerIndex = Old_MixerIndex;
-            DestIndex = Old_DestIndex;
-            for(i = 0; i < 6; ++i)
-            {
-                InputIndexes[i] = OldIndexes[i];
-            }
-            if(bUseMixer == FALSE)
-            {
-                pSoundSystem->SetMixer(-1);
-            }
-            EndDialog(hDlg, 0);
-            break;
-        default:
-            break;
-        }
-        break;
-    default:
-        break;
-    }
-    return FALSE;
-}
-
-void Mixer_SetupDlg(HWND hWndParent)
-{
-    if(pSoundSystem == NULL || pSoundSystem->GetNumMixers() > 0)
-    {
-        DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_MIXERSETUP), hWndParent, MixerSetupProc);
-    }
-    else
-    {
-        MessageBox(hWnd, "No Mixer hardware found", "DScaler Error", MB_OK);
-    }
-}
-
-CMixerLineDest* Mixer_GetDestLine()
-{
-    // check that can go down pointers
-    if(pSoundSystem == NULL)
-    {
-        return NULL;
-    }
-    if(pSoundSystem->GetMixer() == NULL)
-    {
-        return NULL;
-    }
-
-    return pSoundSystem->GetMixer()->GetDestLine(DestIndex);
-}
-
-CMixerLineSource* Mixer_GetInputLine(long nInput)
-{
-    CMixerLineDest* DestLine = Mixer_GetDestLine();
-    if(DestLine == NULL)
-    {
-        return NULL;
-    }
-
-    if(bUseMixer)
-    {
-        if(InputIndexes[nInput] > -1)
-        {
-            return DestLine->GetSourceLine(InputIndexes[nInput]);
-        }
-    }
-    return NULL;
-}
-
-
-CMixerLineSource* GetInputLine()
-{
-    CMixerLineSource* CurLine = NULL;
-    int InputNr = -1;
-    if (Providers_GetCurrentSource()) 
-    { 
-        InputNr = Providers_GetCurrentSource()->GetInput(VIDEOINPUT); 
-    }    
-    if ((InputNr >= 0) && (InputNr < 6))
-    { 
-        CurLine = Mixer_GetInputLine(InputNr); 
-    }
-    return CurLine;
-}
-
-void Mixer_Mute()
-{    
-    CMixerLineSource* CurLine = GetInputLine();
-    if(CurLine != NULL)
-    {
-       CurLine->SetMute(TRUE);
-    }
-}
-
-void Mixer_UnMute()
-{   
-    CMixerLineSource* CurLine = GetInputLine();
-        
-    if(CurLine != NULL)
-    {
-       CurLine->SetMute(FALSE);       
-    }
-}
-
-BOOL Mixer_IsMuted()
-{
-    BOOL muted = FALSE;    
-    CMixerLineSource* CurLine = GetInputLine();
-    if(CurLine != NULL)
-    {
-       muted = CurLine->GetMute();       
-    }
-    return muted;
-}
-
-void Mixer_Volume_Up()
-{   
-    CMixerLineSource* CurLine = GetInputLine();
-    
-    if(CurLine != NULL)
-    {
-        long Vol = CurLine->GetVolume();
-		long NewVol;
-        if(Vol <= 95)
-        {
-           NewVol = Vol + 5;
-        }
-        else
-        {
-           NewVol = 100;
-        }
-		CurLine->SetVolume(NewVol);
-		EventCollector->RaiseEvent(NULL, EVENT_MIXERVOLUME,Vol,NewVol);
-    }
-}
-
-void Mixer_Volume_Down()
-{
-    CMixerLineSource* CurLine = GetInputLine();
-    
-    if(CurLine != NULL)
-    {        
-		long Vol = CurLine->GetVolume();
-		long NewVol;
-        if(Vol >= 5)
-        {
-           NewVol = Vol - 5;
-        }
-        else
-        {
-           NewVol = 0;
-        }
-		CurLine->SetVolume(NewVol);
-		EventCollector->RaiseEvent(NULL, EVENT_MIXERVOLUME,Vol,NewVol);
-    }
-}
-
-long Mixer_GetVolume()
-{   
-    CMixerLineSource* CurLine = GetInputLine();
-    
-    if(CurLine != NULL)
-    {
-        return CurLine->GetVolume();
-    }
-    else
-    {
-        return 0;
-    }
-}
-
-
-void Mixer_SetVolume(long Volume)
-{  
-    CMixerLineSource* CurLine = GetInputLine();
-    
-    if(CurLine != NULL)
-    {
-        long OldVol = CurLine->GetVolume();
-		CurLine->SetVolume(Volume);		
-		EventCollector->RaiseEvent(NULL, EVENT_MIXERVOLUME,OldVol,Volume);
-    }
-    else
-    {
-        return;
-    }
-}
-
-
-void Mixer_OnInputChange(int NewVideoInputNr)
-{
-    if (!bUseMixer)
-    {
-        return;
-    }
-    
-    CMixerLineDest* DestLine = Mixer_GetDestLine();
-    if(DestLine == NULL)
-    {
-        return;
-    }
-
-    if(Providers_GetCurrentSource() != NULL)
-    {
-        if( (NewVideoInputNr < 0) ||
-            (NewVideoInputNr >= Providers_GetCurrentSource()->NumInputs(VIDEOINPUT)) ||
-            (NewVideoInputNr >= 6) )
-        {
-            return;
-        }
-
-        int NewInputIndex = InputIndexes[NewVideoInputNr];
-        
-        // Mute mixer source lines for inactive video inputs
-        for(int i(0) ; i < Providers_GetCurrentSource()->NumInputs(VIDEOINPUT); ++i)
-        {
-            if(InputIndexes[i] != -1)
-            {
-                if( (NewInputIndex != InputIndexes[i]) && (DestLine->GetSourceLine(InputIndexes[i]) != NULL))
-                {
-                    DestLine->GetSourceLine(InputIndexes[i])->SetMute(TRUE);
-                }
-            }
-        }
-
-        // Enable mixer source line for the new video input
-        if( DestLine->GetSourceLine(NewInputIndex) != NULL )
-        {
-            DestLine->GetSourceLine(NewInputIndex)->SetMute(Audio_IsMute());
-
-            // \todo This needs to be set! --AtNak 2002-12-09+10
-            //long Volume = 
-            //DestLine->GetSourceLine(NewInputIndex)->SetVolume(Volume);
-
-		    EventCollector->RaiseEvent(NULL, EVENT_MIXERVOLUME,-1,DestLine->GetSourceLine(NewInputIndex)->GetVolume());
-        }
-    }
-}
-
-void Mixer_OnInputChangeNotification(void *pThis, int PreChange, eSourceInputType InputType, int OldInput, int NewInput)
-{
-    if ((!PreChange) && (InputType == VIDEOINPUT))
-    {
-        if (bUseMixer)
-        {            
-            Mixer_OnInputChange(NewInput);
-        }
-    }
-}
-
-void Mixer_OnSourceChange(void *pThis, int Flags, CSource *pSource)
-{
-    if (pSource == NULL) return;
-
-    if (Flags&1)
-    {
-        //pSource->Unregister_InputChangeNotification(NULL,Mixer_OnInputChangeNotification);
-        
-        // Save settings        
-        int Num = pSource->NumInputs(VIDEOINPUT);
-
-        MixerDev_SettingSetSection(pSource->IDString());
-        if (bUseMixer)
-        {
-            if (Num>=1) { Setting_WriteToIni(&(MixerDevSettings[INPUT1INDEX]), FALSE); }
-            if (Num>=2) { Setting_WriteToIni(&(MixerDevSettings[INPUT2INDEX]), FALSE); }
-            if (Num>=3) { Setting_WriteToIni(&(MixerDevSettings[INPUT3INDEX]), FALSE); }
-            if (Num>=4) { Setting_WriteToIni(&(MixerDevSettings[INPUT4INDEX]), FALSE); }
-            if (Num>=5) { Setting_WriteToIni(&(MixerDevSettings[INPUT5INDEX]), FALSE); }
-            if (Num>=6) { Setting_WriteToIni(&(MixerDevSettings[INPUT6INDEX]), FALSE); }
-        
-            // Mute
-            Mixer_OnInputChangeNotification(NULL,0,VIDEOINPUT,-1,-1);
-        }
-    } 
-    else 
-    {
-        // Read settings
-        MixerDev_SettingSetSection(pSource->IDString());
-        Setting_ReadFromIni(&(MixerDevSettings[INPUT1INDEX]));
-        Setting_ReadFromIni(&(MixerDevSettings[INPUT2INDEX]));
-        Setting_ReadFromIni(&(MixerDevSettings[INPUT3INDEX]));
-        Setting_ReadFromIni(&(MixerDevSettings[INPUT4INDEX]));
-        Setting_ReadFromIni(&(MixerDevSettings[INPUT5INDEX]));
-        Setting_ReadFromIni(&(MixerDevSettings[INPUT6INDEX]));
-        
-        //pSource->Register_InputChangeNotification(NULL,Mixer_OnInputChangeNotification);        
-        //EventCollector->Register(Mixer_EventOnChangeNotification,NULL, (EVENT_SOURCE_PRECHANGE,EVENT_SOURCE_CHANGE,EVENT_VIDEOINPUT_PRECHANGE,EVENT_VIDEOINPUT_CHANGE,0));
-        Mixer_OnInputChangeNotification(NULL,0,VIDEOINPUT,-1,pSource->GetInput(VIDEOINPUT));        
-    }
-}
-
-void Mixer_EventOnChangeNotification(void *pThis, CEventObject *pEventObject, eEventType EventType, long OldValue, long NewValue, eEventType *ComingUp)
-{
-    if (EventType == EVENT_SOURCE_PRECHANGE) 
-    { 
-        Mixer_OnSourceChange(pThis, 1, (CSource*)OldValue); 
-    }
-    else if (EventType == EVENT_SOURCE_CHANGE) 
-    { 
-        Mixer_OnSourceChange(pThis, 0, (CSource*)NewValue); 
-    }
-    else 
-	{
-		if (pEventObject == (CEventObject*)Providers_GetCurrentSource())
-		{
-			if (EventType == EVENT_VIDEOINPUT_PRECHANGE) 
-            { 
-                Mixer_OnInputChangeNotification(pThis, 1, VIDEOINPUT, OldValue, NewValue); 
-            }
-			else if (EventType == EVENT_VIDEOINPUT_CHANGE) 
-            { 
-                Mixer_OnInputChangeNotification(pThis, 0, VIDEOINPUT, OldValue, NewValue); 
-            }    
-		}
-	}
+    // This call takes care of all necessary initializations
+    Mixer_OnSourceChange(Providers_GetCurrentSource());
 }
 
 
 void Mixer_Exit()
 {
-    if(pSoundSystem != NULL)
-    {
-        // set the chip to mute
-        if (Providers_GetCurrentSource() != NULL)
-        {
-            Providers_GetCurrentSource()->Mute();
-            Mixer_OnSourceChange(NULL,1,Providers_GetCurrentSource());                        
-        }        
-        //Providers_Unregister_SourceChangeNotification(NULL,Mixer_OnSourceChange);
-        EventCollector->Unregister(Mixer_EventOnChangeNotification,NULL);
+    EventCollector->Unregister(Mixer_EventOnChangeNotification, NULL);
 
-		if(bUseMixer)
-		{
-            if(pSoundSystem->GetMixer() != NULL && bResetOnExit)
-            {
-                pSoundSystem->GetMixer()->ResetToOriginal();
-            }
-		}
-        delete pSoundSystem;
-        pSoundSystem = NULL;
+    // This call takes care of all necessary changes
+    Mixer_OnSourceChange(NULL);
+}
+
+
+BOOL Mixer_IsEnabled()
+{
+    return g_bUseMixer;
+}
+
+
+BOOL Mixer_IsNoHardwareMute()
+{
+    return g_bUseMixer && g_bDisableHWMute;
+}
+
+
+void Mixer_SetMute(BOOL bEnabled)
+{
+    CMixerLineSrc* pLineSrc = Mixer_GetCurrentActiveSource();
+
+    if (pLineSrc != NULL)
+    {
+        pLineSrc->SetMute(bEnabled);
     }
 }
 
 
-void Mixer_Init()
+BOOL Mixer_GetMute(void)
 {
-    pSoundSystem = new CSoundSystem();
+    CMixerLineSrc* pLineSrc = Mixer_GetCurrentActiveSource();
 
-    //Providers_Register_SourceChangeNotification(NULL,Mixer_OnSourceChange);                        
-    eEventType EventList[] = {EVENT_SOURCE_PRECHANGE,EVENT_SOURCE_CHANGE,EVENT_VIDEOINPUT_PRECHANGE,EVENT_VIDEOINPUT_CHANGE,EVENT_NONE};
-    EventCollector->Register(Mixer_EventOnChangeNotification,NULL, EventList);
-    if(bUseMixer)
+    if (pLineSrc != NULL)
     {
-        pSoundSystem->SetMixer(MixerIndex);
-        if(pSoundSystem->GetMixer() != NULL)
+        return pLineSrc->GetMute();
+    }
+
+    return FALSE;
+}
+
+
+void Mixer_Mute()
+{
+    Mixer_SetMute(TRUE);
+}
+
+
+void Mixer_UnMute()
+{
+    Mixer_SetMute(FALSE);
+}
+
+
+void Mixer_SetVolume(long newVolume)
+{
+    CMixerLineSrc* pLineSrc = Mixer_GetCurrentActiveSource();
+
+    if (pLineSrc != NULL)
+    {
+        long oldVolume = pLineSrc->GetVolume();
+
+        if (newVolume < 0)
         {
-            //
+            newVolume = 0;
         }
-        else
+        else if (newVolume > 100)
         {
-            bUseMixer = FALSE;
-        }        
+            newVolume = 100;
+        }
+
+        pLineSrc->SetVolume(newVolume);
+
+		EventCollector->RaiseEvent(NULL, EVENT_MIXERVOLUME, oldVolume, newVolume);
+    }
+}
+
+
+long Mixer_GetVolume()
+{
+    CMixerLineSrc* pLineSrc = Mixer_GetCurrentActiveSource();
+
+    if (pLineSrc != NULL)
+    {
+        return pLineSrc->GetVolume();
+    }
+
+    return 0;
+}
+
+
+void Mixer_AdjustVolume(long delta)
+{
+    CMixerLineSrc* pLineSrc = Mixer_GetCurrentActiveSource();
+
+    if (pLineSrc != NULL)
+    {
+        long oldVolume = pLineSrc->GetVolume();
+        long newVolume = oldVolume + delta;
+
+        if (newVolume < 0)
+        {
+            newVolume = 0;
+        }
+        else if (newVolume > 100)
+        {
+            newVolume = 100;
+        }
+
+        pLineSrc->SetVolume(newVolume);
+
+		EventCollector->RaiseEvent(NULL, EVENT_MIXERVOLUME, oldVolume, newVolume);
+    }
+}
+
+
+void Mixer_Volume_Up()
+{
+    Mixer_AdjustVolume(5);
+}
+
+
+void Mixer_Volume_Down()
+{
+    Mixer_AdjustVolume(-5);
+}
+
+
+void Mixer_SetupDlg(HWND hWndParent)
+{
+    CMixerFinder mixerFinder;
+
+    if (mixerFinder.GetMixerCount() > 0)
+    {
+        DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_MIXERSETUP), hWndParent, MixerSetupProc);
     }
     else
     {
-        pSoundSystem->SetMixer(-1);
+        MessageBox(hWnd, "No mixer hardware found", "DScaler Error", MB_OK);
     }
-
-    if (Providers_GetCurrentSource())
-    {
-        Mixer_OnSourceChange(NULL,2,Providers_GetCurrentSource());                                
-    }    
 }
 
-void Mixer_UpdateIndex()
+
+//----------------------------------------------------------------------
+//  Internal functions
+//----------------------------------------------------------------------
+
+static void Mixer_SetCurrentMixerFromName()
 {
-    MixerIndex = CSoundSystem::FindMixer((char*) &MixerName);
-    if(MixerIndex < 0)
+    Mixer_SetCurrentMixer(Mixer_NameToIndex(g_pMixerName));
+}
+
+
+static void Mixer_SetCurrentMixer(long nMixerIndex)
+{
+    if (g_pCurrentMixer != NULL)
     {
-        MixerIndex = NULL;
+        if (g_pCurrentMixer->GetIndex() == nMixerIndex)
+        {
+            return;
+        }
+
+        delete g_pCurrentMixer;
+        g_pCurrentMixer = NULL;
+    }
+
+    g_pCurrentMixer = Mixer_Allocate(nMixerIndex);
+}
+
+
+static CMixerLineDst* Mixer_GetCurrentDestination()
+{
+    if (g_bUseMixer && g_pCurrentMixer != NULL && g_nDestinationIndex != -1)
+    {
+        return g_pCurrentMixer->GetDestinationLine(g_nDestinationIndex);
+    }
+
+    return NULL;
+}
+
+
+static CMixerLineSrc* Mixer_GetCurrentActiveSource()
+{
+    if (g_nActiveInput == -1 || g_nSourceIndexes[g_nActiveInput] == -1)
+    {
+        return NULL;
+    }
+
+    CMixerLineDst* pLineDst = Mixer_GetCurrentDestination();
+
+    if (pLineDst != NULL)
+    {
+        return pLineDst->GetSourceLine(g_nSourceIndexes[g_nActiveInput]);
+    }
+
+    return NULL;
+}
+
+
+static void Mixer_EventOnChangeNotification(void*, CEventObject*, eEventType EventType,
+                                            long OldValue, long NewValue, eEventType*)
+{
+    switch (EventType)
+    {
+    case EVENT_SOURCE_CHANGE:
+        Mixer_OnSourceChange((CSource*)NewValue);
+        break;
+
+    case EVENT_VIDEOINPUT_CHANGE:
+        Mixer_OnInputChange(NewValue);
+        break;
+
+    default:
+        break;
     }
 }
+
+
+static void Mixer_OnInputChange(long nVideoInput)
+{
+    if (nVideoInput < 0 || nVideoInput >= g_nActiveInputsCount)
+    {
+        g_nActiveInput = -1;
+    }
+    else
+    {
+        g_nActiveInput = nVideoInput;
+    }
+
+    CMixerLineDst* pLineDst = Mixer_GetCurrentDestination();
+
+    if (pLineDst == NULL)
+    {
+        return;
+    }
+
+    long nActiveSourceIndex = -1;
+
+    if (g_nActiveInput != -1)
+    {
+        nActiveSourceIndex = g_nSourceIndexes[g_nActiveInput];
+    }
+
+    long nUniqueSources[MAX_SUPPORTED_INPUTS];
+    long nUniqueSourcesCount;
+
+    nUniqueSourcesCount = LongArrayUnique(g_nSourceIndexes, g_nActiveInputsCount, nUniqueSources);
+    LongArraySubstract(nUniqueSources, &nUniqueSourcesCount, &nActiveSourceIndex, 1);
+
+    // Mute mixer lines for inactive lines
+    Mixer_MuteInputs(g_nDestinationIndex, nUniqueSources, nUniqueSourcesCount, TRUE);
+
+    if (nActiveSourceIndex != -1)
+    {
+        CMixerLineSrc* pLineSrc = pLineDst->GetSourceLine(nActiveSourceIndex);
+
+        if (pLineSrc != NULL)
+        {
+            pLineSrc->SetMute(Audio_IsMute());
+
+            // We do not store volume values
+            // pLineSrc->SetVolume(Volume);
+
+            EventCollector->RaiseEvent(NULL, EVENT_MIXERVOLUME, -1, pLineSrc->GetVolume());
+        }
+    }
+}
+
+
+static void Mixer_OnSourceChange(CSource *pSource)
+{
+    Mixer_DoSettingsTransition(LoadSourceSettingsCallback, pSource);
+}
+
+
+static CMixer* LoadSourceSettingsCallback(void* pContext)
+{
+    CSource* pSource = (CSource*)pContext;
+
+    // DoSettingsTranstion wants everything changed to the new
+    // settings, except g_pCurrentMixer.  Instead of changing
+    // g_pCurrentMixer, the new mixer should be returned.
+
+    // Load the new source's settings
+    MixerDev_SettingSetSection(pSource);
+    _MixerDev_ReadSettingsFromIni();
+
+    Mixer_SetupActiveInputs(pSource);
+
+    if (g_bUseMixer)
+    {
+        long nMixerIndex = Mixer_NameToIndex(g_pMixerName);
+
+        if (g_pCurrentMixer != NULL &&
+            g_pCurrentMixer->GetIndex() == nMixerIndex)
+        {
+            return g_pCurrentMixer;
+        }
+
+        return Mixer_Allocate(nMixerIndex);
+    }
+
+    return NULL;
+}
+
+
+static void Mixer_SetupActiveInputs(CSource* pCurrentSource)
+{
+    if (pCurrentSource != NULL)
+    {
+        g_nActiveInputsCount = pCurrentSource->NumInputs(VIDEOINPUT);
+        g_nActiveInput = pCurrentSource->GetInput(VIDEOINPUT);
+
+        if (g_nActiveInputsCount > MAX_SUPPORTED_INPUTS)
+        {
+            g_nActiveInputsCount = MAX_SUPPORTED_INPUTS;
+        }
+
+        if (g_nActiveInput < -1 || g_nActiveInput >= g_nActiveInputsCount)
+        {
+            g_nActiveInput = -1;
+        }
+    }
+    else
+    {
+        g_nActiveInputsCount = 0;
+        g_nActiveInput = -1;
+    }
+}
+
+
+static void Mixer_MuteInputs(long nDestinationIndex, long* pIndexes, long nCount, BOOL bMute)
+{
+    CMixerLineDst* pLineDst;
+    CMixerLineSrc* pLineSrc;
+
+    if (g_pCurrentMixer == NULL || nDestinationIndex == -1 || nCount == 0)
+    {
+        return;
+    }
+
+    if ((pLineDst = g_pCurrentMixer->GetDestinationLine(nDestinationIndex)) == NULL)
+    {
+        return;
+    }
+
+    for (int i = 0; i < nCount; i++)
+    {
+        if (pIndexes[i] == -1)
+        {
+            continue;
+        }
+
+        if ((pLineSrc = pLineDst->GetSourceLine(pIndexes[i])) != NULL)
+        {
+            pLineSrc->SetMute(bMute);
+        }
+    }
+}
+
+
+static void Mixer_StoreRestoreInputs(long nDestinationIndex, long* pIndexes, long nCount, BOOL bRestore)
+{
+    CMixerLineDst* pLineDst;
+    CMixerLineSrc* pLineSrc;
+
+    if (g_pCurrentMixer == NULL || nDestinationIndex == -1 || nCount == 0)
+    {
+        return;
+    }
+
+    if ((pLineDst = g_pCurrentMixer->GetDestinationLine(nDestinationIndex)) == NULL)
+    {
+        return;
+    }
+
+    for (int i = 0; i < nCount; i++)
+    {
+        if (pIndexes[i] == -1)
+        {
+            continue;
+        }
+
+        if ((pLineSrc = pLineDst->GetSourceLine(pIndexes[i])) != NULL)
+        {
+            if (bRestore)
+            {
+                pLineSrc->RestoreState();
+            }
+            else
+            {
+                pLineSrc->StoreState();
+            }
+        }
+    }
+}
+
+
+static void Mixer_DoSettingsTransition(tSyncChangesCallback* pSyncfunc, void* pContext)
+{
+    long nOldDestination = -1;
+    long nOldSources[MAX_SUPPORTED_INPUTS];
+    long nOldSourcesCount = 0;
+    long nNewSources[MAX_SUPPORTED_INPUTS];
+    long nNewSourcesCount = 0;
+
+    // Hold onto the old mixer info
+    if (g_bUseMixer && g_pCurrentMixer != NULL && g_nDestinationIndex != -1)
+    {
+        nOldDestination = g_nDestinationIndex;
+        nOldSourcesCount = LongArrayUnique(g_nSourceIndexes, g_nActiveInputsCount, nOldSources);
+    }
+
+    // Synchronize all new settings except g_pCurrentMixer
+    CMixer* pNewMixer = (pSyncfunc)(pContext);
+
+    // Check the new mixer info
+    if (g_bUseMixer && pNewMixer != NULL && g_nDestinationIndex != -1)
+    {
+        nNewSourcesCount = LongArrayUnique(g_nSourceIndexes, g_nActiveInputsCount, nNewSources);
+
+        // Compare the old with the new mixer info
+        if (pNewMixer == g_pCurrentMixer && g_nDestinationIndex == nOldDestination)
+        {
+            LongArrayDivide(nOldSources, &nOldSourcesCount, nNewSources, &nNewSourcesCount);
+        }
+    }
+
+    // Reset the no longer used inputs
+    if (g_bResetOnExit)
+    {
+        Mixer_StoreRestoreInputs(nOldDestination, nOldSources, nOldSourcesCount, TRUE);
+    }
+    else
+    {
+        Mixer_MuteInputs(nOldDestination, nOldSources, nOldSourcesCount, TRUE);
+    }
+
+    // Synchronize g_pCurrentMixer
+    if (g_pCurrentMixer != pNewMixer)
+    {
+        if (g_pCurrentMixer != NULL)
+        {
+            delete g_pCurrentMixer;
+        }
+
+        g_pCurrentMixer = pNewMixer;
+    }
+
+    // Setup the new inputs
+    if (g_bUseMixer)
+    {
+        Mixer_StoreRestoreInputs(g_nDestinationIndex, nNewSources, nNewSourcesCount, FALSE);
+        Mixer_OnInputChange(g_nActiveInput);
+    }
+}
+
+
+static long Mixer_NameToIndex(char* szName)
+{
+    long nMixerIndex = -1;
+
+    if (szName != NULL)
+    {
+        CMixerFinder mixerFinder;
+        nMixerIndex = mixerFinder.FindMixer(szName);
+    }
+
+    return nMixerIndex;
+}
+
+
+static CMixer* Mixer_Allocate(long nMixerIndex)
+{
+    CMixer* pMixer = NULL;
+
+    if (nMixerIndex != -1)
+    {
+        try
+        {
+            pMixer = new CMixer(nMixerIndex);
+        }
+        catch (...)
+        {
+            // do nothing
+        }
+    }
+
+    return pMixer;
+}
+
+
+//----------------------------------------------------------------------
+//  APIENTRY MixerSetupProc
+//----------------------------------------------------------------------
+
+static void InitAndNameActiveInputs(HWND hDlg);
+
+static void AdjustSameForAllInputsBox(HWND hDlg);
+static void SwitchSameForAllInputsMode(HWND hDlg, int iOneSameZeroNot);
+static void EnableDisableMixerControls(HWND hDlg, BOOL bEnable);
+
+static void RefillMixerDeviceBox(HWND hDlg, long nSelectIndex);
+static void RefillDestinationBox(HWND hDlg, long nSelectIndex);
+static void RefillSourceBox(HWND hDlg, long nSourceControlId, long nSelectIndex);
+
+static CMixer* SynchronizeDlgChangesCallback(void* pContext);
+static int ComboBox_GetCurSelItemData(HWND hControl);
+
+static CMixer*  g_pDlgActiveMixer = NULL;
+
+
+BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
+{
+    int i;
+
+    switch (message)
+    {
+    case WM_INITDIALOG:
+        InitAndNameActiveInputs(hDlg);
+
+        // Adjust the check boxes
+        Button_SetCheck(GetDlgItem(hDlg, IDC_USE_MIXER), g_bUseMixer);
+        Button_SetCheck(GetDlgItem(hDlg, IDC_DISABLE_HW_MUTE), g_bDisableHWMute);
+        Button_SetCheck(GetDlgItem(hDlg, IDC_RESETONEXIT), g_bResetOnExit);
+
+        if (!g_bUseMixer)
+        {
+            // Create a temporally mixer as per user settings
+            Mixer_SetCurrentMixerFromName();
+        }
+
+        if (g_pCurrentMixer != NULL)
+        {
+            RefillMixerDeviceBox(hDlg, g_pCurrentMixer->GetIndex());
+        }
+        else
+        {
+            RefillMixerDeviceBox(hDlg, -1);
+        }
+
+        MixerSetupProc(hDlg, WM_COMMAND, MAKEWPARAM(IDC_MIXER, CBN_SELCHANGE), 0L);
+
+        AdjustSameForAllInputsBox(hDlg);
+
+        // Enable all the fields that should be enabled
+        EnableDisableMixerControls(hDlg, g_bUseMixer);
+
+        SetFocus(GetDlgItem(hDlg, IDC_USE_MIXER));
+
+        return FALSE;
+
+    case WM_COMMAND:
+        switch (LOWORD(wParam))
+        {
+        case IDC_USE_MIXER:
+            if (Button_GetCheck(GetDlgItem(hDlg, IDC_USE_MIXER)) == BST_CHECKED)
+            {
+                EnableDisableMixerControls(hDlg, TRUE);
+            }
+            else
+            {
+                EnableDisableMixerControls(hDlg, FALSE);
+            }
+            break;
+
+        case IDC_MIXER:
+            if (HIWORD(wParam) == CBN_SELCHANGE)
+            {
+                int nIndex = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_MIXER));
+
+                // Delete of the old mixer
+                if (g_pDlgActiveMixer != NULL)
+                {
+                    if (g_pDlgActiveMixer->GetIndex() == nIndex)
+                    {
+                        // Nothing to do
+                        break;
+                    }
+
+                    // Make sure it's our own
+                    if (g_pDlgActiveMixer != g_pCurrentMixer)
+                    {
+                        delete g_pDlgActiveMixer;
+                    }
+
+                    g_pDlgActiveMixer = NULL;
+                }
+
+                // Create the new mixer
+                if (nIndex != -1)
+                {
+                    if (g_pCurrentMixer != NULL && g_pCurrentMixer->GetIndex() == nIndex)
+                    {
+                        // Just reference the current mixer
+                        g_pDlgActiveMixer = g_pCurrentMixer;
+                    }
+                    else
+                    {
+                        try
+                        {
+                            g_pDlgActiveMixer = new CMixer(nIndex);
+                        }
+                        catch (...)
+                        {
+                            nIndex = -1;
+                        }
+                    }
+                }
+
+                // Update the destination box
+                if (nIndex != -1)
+                {
+                    if (g_pDlgActiveMixer == g_pCurrentMixer)
+                    {
+                        RefillDestinationBox(hDlg, g_nDestinationIndex);
+                    }
+                    else
+                    {
+                        RefillDestinationBox(hDlg, -1);
+                    }
+                }
+                else
+                {
+                    ComboBox_ResetContent(GetDlgItem(hDlg, IDC_DEST));
+                }
+
+                MixerSetupProc(hDlg, WM_COMMAND, MAKEWPARAM(IDC_DEST, CBN_SELCHANGE), 0);
+            }
+            break;
+
+        case IDC_DEST:
+            if (HIWORD(wParam) == CBN_SELCHANGE)
+            {
+                int nIndex = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_DEST));
+
+                // Update the source boxes
+                if (nIndex != -1 && g_pDlgActiveMixer != NULL)
+                {
+                    if (g_pDlgActiveMixer == g_pCurrentMixer && nIndex == g_nDestinationIndex)
+                    {
+                        for (i = 0; i < g_nActiveInputsCount; i++)
+                        {
+                            RefillSourceBox(hDlg, IDC_MIXER_INPUT0+i, g_nSourceIndexes[i]);
+                        }
+                    }
+                    else
+                    {
+                        for (i = 0; i < g_nActiveInputsCount; i++)
+                        {
+                            RefillSourceBox(hDlg, IDC_MIXER_INPUT0+i, -1);
+                        }
+                    }
+                }
+                else
+                {
+                    for (i = 0; i < g_nActiveInputsCount; i++)
+                    {
+                        ComboBox_ResetContent(GetDlgItem(hDlg, IDC_MIXER_INPUT0+i));
+                    }
+                }
+            }
+            break;
+
+        case IDC_MIXER_INPUT_ALL:
+            if (HIWORD(wParam) == CBN_SELCHANGE)
+            {
+                int index = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_MIXER_INPUT_ALL));
+
+                for (i = 0; i < g_nActiveInputsCount; i++)
+                {
+                    RefillSourceBox(hDlg, IDC_MIXER_INPUT0+i, index);
+                }
+            }
+            break;
+
+        case IDC_SEPARATE_INPUT:
+            SwitchSameForAllInputsMode(hDlg,
+                Button_GetCheck(GetDlgItem(hDlg, IDC_SEPARATE_INPUT)) != BST_CHECKED);
+            break;
+
+        case IDOK:
+            // Use the new g_bResetOnExit setting in Mixer_DoSettingsTransition()
+            g_bResetOnExit =
+                Button_GetCheck(GetDlgItem(hDlg, IDC_RESETONEXIT)) == BST_CHECKED;
+
+            Mixer_DoSettingsTransition(SynchronizeDlgChangesCallback, hDlg);
+            WriteSettingsToIni(TRUE);
+
+            // FALLTHROUGH
+
+        case IDCANCEL:
+            if (g_pDlgActiveMixer != NULL)
+            {
+                if (g_pDlgActiveMixer != g_pCurrentMixer)
+                {
+                    delete g_pDlgActiveMixer;
+                }
+                g_pDlgActiveMixer = NULL;
+            }
+
+            if (!g_bUseMixer)
+            {
+                Mixer_SetCurrentMixer(-1);
+            }
+
+            EndDialog(hDlg, 0);
+            break;
+
+        default:
+            break;
+        }
+        break;
+
+    default:
+        break;
+    }
+
+    return FALSE;
+}
+
+
+static void InitAndNameActiveInputs(HWND hDlg)
+{
+    int     nInputCount = 0;
+    string  sInputName;
+    CSource* pSource;
+    int     i;
+
+    pSource = Providers_GetCurrentSource();
+
+    if (pSource != NULL)
+    {
+        nInputCount = g_nActiveInputsCount;
+    }
+
+    // Set the source line names
+    for (i = 0; i < nInputCount; i++)
+    {
+        const char* pName = pSource->GetInputName(VIDEOINPUT, i);
+        if (pName == NULL)
+        {
+            sInputName = "Input ";
+            sInputName += i;
+        }
+        else
+        {
+            sInputName = pName;
+        }
+
+        SetDlgItemText(hDlg, IDC_MIXER_INPUT0NAME+i, sInputName.c_str());
+
+        ShowWindow(GetDlgItem(hDlg, IDC_MIXER_INPUT0NAME+i), SW_SHOW);
+        ShowWindow(GetDlgItem(hDlg, IDC_MIXER_INPUT0+i), SW_SHOW);
+
+        LONG lStyle = GetWindowLong(GetDlgItem(hDlg, IDC_MIXER_INPUT0NAME+i), GWL_STYLE);
+
+        // There are better ways of testing if the
+        // text wraps but this way is probably okay
+        if (sInputName.length() > 16)
+        {
+            // Unset center vertically so the text
+            // wraps properly
+            lStyle &= ~SS_CENTERIMAGE;
+        }
+        else
+        {
+            lStyle |= SS_CENTERIMAGE;
+        }
+
+        SetWindowLong(GetDlgItem(hDlg, IDC_MIXER_INPUT0NAME+i), GWL_STYLE, lStyle);
+    }
+
+    // Hide the unused source lines
+    for ( ; i < MAX_SUPPORTED_INPUTS; i++)
+    {
+        ShowWindow(GetDlgItem(hDlg, IDC_MIXER_INPUT0NAME+i), SW_HIDE);
+        ShowWindow(GetDlgItem(hDlg, IDC_MIXER_INPUT0+i), SW_HIDE);
+    }
+
+    if (nInputCount == 0)
+    {
+        ShowWindow(GetDlgItem(hDlg, IDC_MIXER_INPUT_ALL), SW_HIDE);
+        ShowWindow(GetDlgItem(hDlg, IDC_SEPARATE_INPUT), SW_HIDE);
+        ShowWindow(GetDlgItem(hDlg, IDC_SOURCE_NO_INPUT), SW_SHOW);
+    }
+    else
+    {
+        ShowWindow(GetDlgItem(hDlg, IDC_SOURCE_NO_INPUT), SW_HIDE);
+    }
+}
+
+
+static void AdjustSameForAllInputsBox(HWND hDlg)
+{
+    int nFirstIndex;
+    int nIndex;
+    int i;
+
+    if (g_nActiveInputsCount == 0)
+    {
+        return;
+    }
+
+    nFirstIndex = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_MIXER_INPUT0));
+
+    for (i = 1; i < g_nActiveInputsCount; i++)
+    {
+        nIndex = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_MIXER_INPUT0+i));
+
+        if (nIndex != nFirstIndex)
+        {
+            break;
+        }
+    }
+
+    if (i == g_nActiveInputsCount)
+    {
+        if (nFirstIndex == -1)
+        {
+            nFirstIndex = -1;
+        }
+
+        RefillSourceBox(hDlg, IDC_MIXER_INPUT_ALL, nFirstIndex);
+        Button_SetCheck(GetDlgItem(hDlg, IDC_SEPARATE_INPUT), FALSE);
+    }
+    else
+    {
+        RefillSourceBox(hDlg, IDC_MIXER_INPUT_ALL, -1);
+        Button_SetCheck(GetDlgItem(hDlg, IDC_SEPARATE_INPUT), TRUE);
+    }
+}
+
+
+static void SwitchSameForAllInputsMode(HWND hDlg, int iOneSameZeroNot)
+{
+    EnableWindow(GetDlgItem(hDlg, IDC_MIXER_INPUT_ALL), iOneSameZeroNot == 1);
+    EnableWindow(GetDlgItem(hDlg, IDC_MIXER_INPUTNAME_ALL), iOneSameZeroNot == 1);
+
+    for (int i = 0; i < g_nActiveInputsCount; i++)
+    {
+        EnableWindow(GetDlgItem(hDlg, IDC_MIXER_INPUT0+i), iOneSameZeroNot == 0);
+        EnableWindow(GetDlgItem(hDlg, IDC_MIXER_INPUT0NAME+i), iOneSameZeroNot == 0);
+    }
+}
+
+
+static void EnableDisableMixerControls(HWND hDlg, BOOL bEnable)
+{
+    EnableWindow(GetDlgItem(hDlg, IDC_MIXER), bEnable);
+    EnableWindow(GetDlgItem(hDlg, IDC_DEST), bEnable);
+    EnableWindow(GetDlgItem(hDlg, IDC_DEST_STATIC), bEnable);
+
+    EnableWindow(GetDlgItem(hDlg, IDC_SEPARATE_INPUT), bEnable);
+
+    SwitchSameForAllInputsMode(hDlg, bEnable == FALSE ? -1 :
+        Button_GetCheck(GetDlgItem(hDlg, IDC_SEPARATE_INPUT)) != BST_CHECKED);
+
+    EnableWindow(GetDlgItem(hDlg, IDC_DISABLE_HW_MUTE), bEnable);
+    EnableWindow(GetDlgItem(hDlg, IDC_RESETONEXIT), bEnable);
+}
+
+
+static void RefillMixerDeviceBox(HWND hDlg, long nSelectIndex)
+{
+    CMixerFinder mixerFinder;
+    char buffer[MAXPNAMELEN];
+
+    HWND hMixerControl = GetDlgItem(hDlg, IDC_MIXER);
+
+    ComboBox_ResetContent(hMixerControl);
+
+    int mixerCount = mixerFinder.GetMixerCount();
+    BOOL bSelected = FALSE;
+    int index;
+
+    for (int i = 0; i < mixerCount; i++)
+    {
+        mixerFinder.GetMixerName(i, buffer);
+
+        index = ComboBox_AddString(hMixerControl, buffer);
+        ComboBox_SetItemData(hMixerControl, index, i);
+
+        if (i == nSelectIndex)
+        {
+            ComboBox_SetCurSel(hMixerControl, index);
+            bSelected = TRUE;
+        }
+    }
+
+    if (!bSelected)
+    {
+        ComboBox_SetCurSel(hMixerControl, 0);
+    }
+}
+
+
+static void RefillDestinationBox(HWND hDlg, long nSelectIndex)
+{
+    HWND hDestinationControl = GetDlgItem(hDlg, IDC_DEST);
+
+    ComboBox_ResetContent(hDestinationControl);
+
+    if (g_pDlgActiveMixer == NULL)
+    {
+        return;
+    }
+
+    int destinationCount = g_pDlgActiveMixer->GetDestinationCount();
+    int recordingLines = 0;
+
+    const char* pValidName = "";
+    int bSelected = FALSE;
+    int index;
+
+    for (int i = 0; i < destinationCount; i++)
+    {
+        CMixerLineDst* pLineDst = g_pDlgActiveMixer->GetDestinationLine(i);
+
+        if (pLineDst->IsTypicalRecordingLine() &&
+            destinationCount - recordingLines > 1)
+        {
+            recordingLines++;
+        }
+        else
+        {
+            pValidName = pLineDst->GetName();
+
+            index = ComboBox_AddString(hDestinationControl, pValidName);
+            ComboBox_SetItemData(hDestinationControl, index, i);
+
+            if (i == nSelectIndex)
+            {
+                ComboBox_SetCurSel(hDestinationControl, index);
+                bSelected = TRUE;
+            }
+        }
+    }
+
+    if (!bSelected)
+    {
+        ComboBox_SetCurSel(hDestinationControl, 0);
+    }
+
+    // Hide the destination field if there is only one destination
+    if(destinationCount - recordingLines == 1)
+    {
+        SetDlgItemText(hDlg, IDC_DEST_STATIC, pValidName);
+        ShowWindow(hDestinationControl, SW_HIDE);
+        ShowWindow(GetDlgItem(hDlg, IDC_DEST_STATIC), SW_SHOW);
+    }
+    else
+    {
+        ShowWindow(GetDlgItem(hDlg, IDC_DEST_STATIC), SW_HIDE);
+        ShowWindow(hDestinationControl, SW_SHOW);
+    }
+}
+
+
+static void RefillSourceBox(HWND hDlg, long nSourceControlId, long nSelectIndex)
+{
+    HWND hSourceControl = GetDlgItem(hDlg, nSourceControlId);
+
+    ComboBox_ResetContent(hSourceControl);
+
+    if (g_pDlgActiveMixer == NULL)
+    {
+        return;
+    }
+
+    int nDestinationIndex = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_DEST));
+
+    if (nDestinationIndex != -1)
+    {
+        int sourceCount = 0;
+        int index;
+
+        index = ComboBox_AddString(hSourceControl, "<None>");
+        ComboBox_SetItemData(hSourceControl, index, -1);
+
+        ComboBox_SetCurSel(hSourceControl, index);
+
+        CMixerLineDst* pLineDst = g_pDlgActiveMixer->GetDestinationLine(nDestinationIndex);
+
+        if (pLineDst != NULL)
+        {
+            sourceCount = pLineDst->GetSourceCount();
+        }
+
+        for (int i = 0; i < sourceCount; i++)
+        {
+            const char* pName = pLineDst->GetSourceLine(i)->GetName();
+
+            if (pName == NULL || strcmp(pName, "Error") == 0)
+            {
+                continue;
+            }
+
+            index = ComboBox_AddString(hSourceControl, pName);
+            ComboBox_SetItemData(hSourceControl, index, i);
+
+            if (i == nSelectIndex)
+            {
+                ComboBox_SetCurSel(hSourceControl, index);
+            }
+        }
+    }
+}
+
+
+static CMixer* SynchronizeDlgChangesCallback(void* pContext)
+{
+    HWND hDlg = (HWND)pContext;
+
+    // DoSettingsTranstion wants everything changed to the new
+    // settings, except g_pCurrentMixer.  Instead of changing
+    // g_pCurrentMixer, the new mixer should be returned.
+
+    extern SETTING MixerDevSettings[MIXERDEV_SETTING_LASTONE];
+
+    if (g_pDlgActiveMixer != NULL)
+    {
+        Setting_SetValue(&MixerDevSettings[MIXERNAME], (long)g_pDlgActiveMixer->GetName(), FALSE);
+        g_nDestinationIndex = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_DEST));
+    }
+    else
+    {
+        Setting_SetValue(&MixerDevSettings[MIXERNAME], (long)(const char*)"", FALSE);
+        g_nDestinationIndex = -1;
+    }
+
+    int i = 0;
+
+    // Read the new settings
+    if (g_nDestinationIndex != -1)
+    {
+        if (Button_GetCheck(GetDlgItem(hDlg, IDC_SEPARATE_INPUT)) != BST_CHECKED)
+        {
+            int nIndex = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_MIXER_INPUT_ALL));
+
+            for ( ; i < g_nActiveInputsCount; i++)
+            {
+                g_nSourceIndexes[i] = nIndex;
+            }
+        }
+        else
+        {
+            for ( ; i < g_nActiveInputsCount; i++)
+            {
+                g_nSourceIndexes[i] = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_MIXER_INPUT0+i));
+            }
+        }
+    }
+
+    for ( ; i < MAX_SUPPORTED_INPUTS; i++)
+    {
+        g_nSourceIndexes[i] = -1;
+    }
+
+    g_bUseMixer = (Button_GetCheck(GetDlgItem(hDlg, IDC_USE_MIXER)) == BST_CHECKED);
+    g_bDisableHWMute = (Button_GetCheck(GetDlgItem(hDlg, IDC_DISABLE_HW_MUTE)) == BST_CHECKED);
+
+    return g_pDlgActiveMixer;
+}
+
+
+static int ComboBox_GetCurSelItemData(HWND hControl)
+{
+    int nIndex = ComboBox_GetCurSel(hControl);
+
+    if (nIndex != CB_ERR)
+    {
+        return ComboBox_GetItemData(hControl, nIndex);
+    }
+
+    return -1;
+}
+
+
+//----------------------------------------------------------------------
+//  Long array utilities
+//----------------------------------------------------------------------
+
+static long LongArrayUnique(const long* source, long size, long* dest)
+{
+    long resultCount = 0;
+    int i, j;
+
+    if (size > 0)
+    {
+        dest[resultCount++] = source[0];
+
+        for (i = 1; i < size; i++)
+        {
+            for (j = 0; j < resultCount; j++)
+            {
+                if (dest[j] == source[i])
+                {
+                    break;
+                }
+            }
+
+            if (j == resultCount)
+            {
+                dest[resultCount++] = source[i];
+            }
+        }
+    }
+
+    return resultCount;
+}
+
+
+static void LongArraySubstract(long* values, long* valuesSize,
+                               const long* subtract, long substractSize)
+{
+    int i, j;
+
+    for (i = 0; i < substractSize; i++)
+    {
+        for (j = 0; j < *valuesSize; j++)
+        {
+            if (values[j] == subtract[i])
+            {
+                break;
+            }
+        }
+
+        if (j != *valuesSize)
+        {
+            if (--(*valuesSize) != j)
+            {
+                values[j] = values[*valuesSize];
+            }
+        }
+    }
+}
+
+
+static void LongArrayDivide(long* dividend, long *dividendSize,
+                            long* divisor, long *divisorSize)
+{
+    long resultCount = 0;
+    int i, j;
+
+    for (i = 0; i < *dividendSize; i++)
+    {
+        for (j = 0; j < *divisorSize; j++)
+        {
+            if (divisor[j] == dividend[i])
+            {
+                break;
+            }
+        }
+
+        if (j == *divisorSize)
+        {
+            dividend[resultCount++] = dividend[i];
+        }
+        else
+        {
+            if (--(*divisorSize) != j)
+            {
+                divisor[j] = divisor[*divisorSize];
+            }
+        }
+    }
+
+    *dividendSize = resultCount;
+}
+
+
+//----------------------------------------------------------------------
+//  CMixerLineSrc
+//----------------------------------------------------------------------
+
+CMixerLineSrc::CMixerLineSrc(HMIXER hMixer, DWORD nDstIndex, DWORD nSrcIndex)
+{
+    MMRESULT mmresult;
+
+    m_hMixer = hMixer;
+    m_VolumeControlID = 0xFFFFFFFF;
+    m_MuteControlID = 0xFFFFFFFF;
+
+    ZeroMemory(&m_mxl, sizeof(MIXERLINE));
+
+    m_mxl.cbStruct      = sizeof(MIXERLINE);
+    m_mxl.dwDestination = nDstIndex;
+    m_mxl.dwSource      = nSrcIndex;
+
+    mmresult = mixerGetLineInfo((HMIXEROBJ)hMixer, &m_mxl, MIXER_GETLINEINFOF_SOURCE);
+    if (mmresult != MMSYSERR_NOERROR || m_mxl.cControls == 0)
+    {
+        strcpy(m_mxl.szName, "Error");
+        return;
+    }
+
+    MIXERLINECONTROLS mxlc;
+    LPMIXERCONTROL pmxctrl;
+
+    pmxctrl = (MIXERCONTROL*)malloc(sizeof(MIXERCONTROL) * m_mxl.cControls);
+
+    mxlc.cbStruct   = sizeof(MIXERLINECONTROLS);
+    mxlc.dwLineID   = m_mxl.dwLineID;
+    mxlc.cControls  = m_mxl.cControls;
+    mxlc.cbmxctrl   = sizeof(MIXERCONTROL);
+    mxlc.pamxctrl   = pmxctrl;
+
+    mmresult = mixerGetLineControls((HMIXEROBJ)hMixer, &mxlc, MIXER_GETLINECONTROLSF_ALL);
+
+    for (int i = 0; i < m_mxl.cControls; i++)
+    {
+        if (pmxctrl[i].dwControlType == MIXERCONTROL_CONTROLTYPE_VOLUME)
+        {
+            m_VolumeControlID = pmxctrl[i].dwControlID;
+            m_VolumeMinimum = pmxctrl[i].Bounds.dwMinimum;
+            m_VolumeMaximum = pmxctrl[i].Bounds.dwMaximum;
+
+        }
+        else if (pmxctrl[i].dwControlType == MIXERCONTROL_CONTROLTYPE_MUTE)
+        {
+            m_MuteControlID = pmxctrl[i].dwControlID;
+        }
+    }
+
+    free(pmxctrl);
+}
+
+
+CMixerLineSrc::~CMixerLineSrc()
+{
+}
+
+
+const char* CMixerLineSrc::GetName()
+{
+    return m_mxl.szName;
+}
+
+
+void CMixerLineSrc::SetMute(BOOL bEnable)
+{
+    if (m_MuteControlID != 0xFFFFFFFF)
+    {
+        MixerControlDetailsSet(m_MuteControlID, bEnable);
+    }
+}
+
+
+BOOL CMixerLineSrc::GetMute()
+{
+    DWORD dwEnabled = FALSE;
+
+    if (m_MuteControlID != 0xFFFFFFFF)
+    {
+        MixerControlDetailsGet(m_MuteControlID, &dwEnabled);
+    }
+
+    return dwEnabled;
+}
+
+
+void CMixerLineSrc::SetVolume(int volumePercentage)
+{
+    if (m_VolumeControlID != 0xFFFFFFFF)
+    {
+        // sets all channels to the same volume
+        MixerControlDetailsSet(m_VolumeControlID,
+            MulDiv(volumePercentage, (m_VolumeMaximum - m_VolumeMinimum), 100));
+    }
+}
+
+
+int CMixerLineSrc::GetVolume()
+{
+    DWORD nVolume = 0;
+
+    if (m_VolumeControlID != 0xFFFFFFFF)
+    {
+        // get average volume, ignores balance
+        if (MixerControlDetailsGet(m_VolumeControlID, &nVolume))
+        {
+            return MulDiv(nVolume, 100, m_VolumeMaximum - m_VolumeMinimum);
+        }
+    }
+
+    return nVolume;
+}
+
+
+void CMixerLineSrc::StoreState()
+{
+    MixerControlDetailsGet(m_MuteControlID, &m_StoredMute);
+    MixerControlDetailsGet(m_VolumeControlID, &m_StoredVolume);
+}
+
+
+void CMixerLineSrc::RestoreState()
+{
+    MixerControlDetailsSet(m_MuteControlID, m_StoredMute);
+    MixerControlDetailsSet(m_VolumeControlID, m_StoredVolume);
+}
+
+
+BOOL CMixerLineSrc::MixerControlDetailsSet(DWORD dwControlID, DWORD dwValue)
+{
+    MIXERCONTROLDETAILS mxcd;
+
+    mxcd.cbStruct       = sizeof(MIXERCONTROLDETAILS);
+    mxcd.cChannels      = 1;
+    mxcd.dwControlID    = dwControlID;
+    mxcd.cMultipleItems = 0;
+    mxcd.cbDetails      = sizeof(DWORD);
+    mxcd.paDetails      = &dwValue;
+
+    return mixerSetControlDetails((HMIXEROBJ)m_hMixer, &mxcd,
+        MIXER_SETCONTROLDETAILSF_VALUE | MIXER_OBJECTF_HMIXER) == MMSYSERR_NOERROR;
+}
+
+
+BOOL CMixerLineSrc::MixerControlDetailsGet(DWORD dwControlID, LPDWORD lpdwValue)
+{
+    MIXERCONTROLDETAILS mxcd;
+
+    mxcd.cbStruct       = sizeof(MIXERCONTROLDETAILS);
+    mxcd.cChannels      = 1;
+    mxcd.dwControlID    = dwControlID;
+    mxcd.cMultipleItems = 0;
+    mxcd.cbDetails      = sizeof(DWORD);
+    mxcd.paDetails      = lpdwValue;
+
+    return mixerGetControlDetails((HMIXEROBJ)m_hMixer, &mxcd,
+        MIXER_SETCONTROLDETAILSF_VALUE | MIXER_OBJECTF_HMIXER) == MMSYSERR_NOERROR;
+}
+
+
+//----------------------------------------------------------------------
+//  CMixerLineDst
+//----------------------------------------------------------------------
+
+CMixerLineDst::CMixerLineDst(HMIXER hMixer, DWORD nDstIndex)
+{
+    ZeroMemory(&m_mxl, sizeof(MIXERLINE));
+
+    m_mxl.cbStruct = sizeof(MIXERLINE);
+    m_mxl.dwDestination = nDstIndex;
+
+    m_nSourceCount = 0;
+    m_pSourceLines = NULL;
+
+    MMRESULT mmresult = mixerGetLineInfo((HMIXEROBJ)hMixer, &m_mxl,
+        MIXER_GETLINEINFOF_DESTINATION);
+
+    if (mmresult != MMSYSERR_NOERROR || m_mxl.cConnections == 0)
+    {
+        strcpy(m_mxl.szName, "Error");
+        return;
+    }
+
+    m_nSourceCount = m_mxl.cConnections;
+    m_pSourceLines = new CMixerLineSrc*[m_nSourceCount];
+
+    for (int i = 0; i < m_nSourceCount; i++)
+    {
+        m_pSourceLines[i] = new CMixerLineSrc(hMixer, nDstIndex, i);
+    }
+}
+
+
+CMixerLineDst::~CMixerLineDst()
+{
+    if (m_pSourceLines != NULL)
+    {
+        for (int i = 0; i < m_nSourceCount; i++)
+        {
+            delete m_pSourceLines[i];
+        }
+        delete [] m_pSourceLines;
+    }
+}
+
+
+const char* CMixerLineDst::GetName()
+{
+    return m_mxl.szName;
+}
+
+
+long CMixerLineDst::GetSourceCount()
+{
+    return m_nSourceCount;
+}
+
+
+CMixerLineSrc* CMixerLineDst::GetSourceLine(DWORD nIndex)
+{
+    if (nIndex >= m_nSourceCount)
+    {
+        return NULL;
+    }
+
+    return m_pSourceLines[nIndex];
+}
+
+
+void CMixerLineDst::StoreState()
+{
+    for (int i = 0; i < m_nSourceCount; i++)
+    {
+        m_pSourceLines[i]->StoreState();
+    }
+}
+
+
+void CMixerLineDst::RestoreState()
+{
+    for (int i = 0; i < m_nSourceCount; i++)
+    {
+        m_pSourceLines[i]->RestoreState();
+    }
+}
+
+
+BOOL CMixerLineDst::IsTypicalSpeakerLine()
+{
+    return (m_mxl.dwComponentType == MIXERLINE_COMPONENTTYPE_DST_SPEAKERS);
+}
+
+
+BOOL CMixerLineDst::IsTypicalRecordingLine()
+{
+    return (m_mxl.dwComponentType == MIXERLINE_COMPONENTTYPE_DST_WAVEIN);
+}
+
+
+//----------------------------------------------------------------------
+//  CMixer
+//----------------------------------------------------------------------
+
+CMixer::CMixer(DWORD nMixerIndex)
+{
+    MMRESULT mmresult;
+
+    m_hMixer = NULL;
+    m_nDestinationCount = 0;
+    m_pDestinationLines = NULL;
+
+    m_nMixerIndex = nMixerIndex;
+
+    mmresult = mixerGetDevCaps(m_nMixerIndex, &m_mxcaps, sizeof(MIXERCAPS));
+    if (mmresult != MMSYSERR_NOERROR || m_mxcaps.cDestinations == 0)
+    {
+        delete this;
+        throw NULL;
+    }
+
+    mmresult = mixerOpen(&m_hMixer, m_nMixerIndex, NULL, NULL, MIXER_OBJECTF_MIXER);
+    if (mmresult != MMSYSERR_NOERROR)
+    {
+        delete this;
+        throw NULL;
+    }
+
+    m_nDestinationCount = m_mxcaps.cDestinations;
+    m_pDestinationLines = new CMixerLineDst*[m_nDestinationCount];
+
+    for (int i = 0; i < m_nDestinationCount; i++)
+    {
+        m_pDestinationLines[i] = new CMixerLineDst(m_hMixer, i);
+    }
+}
+
+
+CMixer::~CMixer()
+{
+    if (m_pDestinationLines != NULL)
+    {
+        for (int i = 0; i < m_nDestinationCount; i++)
+        {
+            delete m_pDestinationLines[i];
+        }
+
+        delete [] m_pDestinationLines;
+    }
+
+    if (m_hMixer != NULL)
+    {
+        mixerClose(m_hMixer);
+    }
+}
+
+
+const char* CMixer::GetName()
+{
+    return m_mxcaps.szPname;
+}
+
+
+DWORD CMixer::GetIndex()
+{
+    return m_nMixerIndex;
+}
+
+
+long CMixer::GetDestinationCount()
+{
+    return m_nDestinationCount;
+}
+
+
+CMixerLineDst* CMixer::GetDestinationLine(DWORD nIndex)
+{
+    if (nIndex >= m_nDestinationCount)
+    {
+        return NULL;
+    }
+
+    return m_pDestinationLines[nIndex];
+}
+
+
+void CMixer::StoreState()
+{
+    for (int i = 0; i < m_nDestinationCount; i++)
+    {
+        m_pDestinationLines[i]->StoreState();
+    }
+}
+
+
+void CMixer::RestoreState()
+{
+    for (int i = 0; i < m_nDestinationCount; i++)
+    {
+        m_pDestinationLines[i]->RestoreState();
+    }
+}
+
+
+//----------------------------------------------------------------------
+//  CMixerFinder
+//----------------------------------------------------------------------
+
+CMixerFinder::CMixerFinder()
+{
+    m_nMixerCount = mixerGetNumDevs();
+}
+
+
+CMixerFinder::~CMixerFinder()
+{
+}
+
+
+long CMixerFinder::GetMixerCount()
+{
+    return m_nMixerCount;
+}
+
+
+BOOL CMixerFinder::GetMixerName(long nMixerIndex, char szName[MAXPNAMELEN])
+{
+    MIXERCAPS mxcaps;
+    MMRESULT mmresult;
+
+    ASSERT(nMixerIndex >= 0 && nMixerIndex < m_nMixerCount);
+
+    mmresult = mixerGetDevCaps(nMixerIndex, &mxcaps, sizeof(MIXERCAPS));
+    if (mmresult == MMSYSERR_NOERROR)
+    {
+        strcpy(szName, mxcaps.szPname);
+        return TRUE;
+    }
+    return FALSE;
+}
+
+
+long CMixerFinder::FindMixer(const char* szName)
+{
+    char buffer[MAXPNAMELEN];
+
+    for (int i = 0; i < m_nMixerCount; i++)
+    {
+        if (GetMixerName(i, buffer) && lstrcmp(buffer, szName) == 0)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+
+//----------------------------------------------------------------------
+//  MixerDev stuff
+//----------------------------------------------------------------------
 
 SETTING MixerDevSettings[MIXERDEV_SETTING_LASTONE] =
 {
     {
-        "Use Mixer", ONOFF, 0, (long*)&bUseMixer,
-        FALSE, 0, 1, 1, 1, 
+        "Use Mixer", ONOFF, 0, (long*)&g_bUseMixer,
+        FALSE, 0, 1, 1, 1,
         NULL,
         "Mixer", "UseMixer", NULL,
     },
     {
-        "DestIndex", SLIDER, 0, (long*)&DestIndex,
+        "DestIndex", SLIDER, 0, (long*)&g_nDestinationIndex,
         0, 0, 255, 1, 1,
         NULL,
         "Mixer", "DestIndex", NULL,
     },
     {
-        "Input 1 Index", SLIDER, 0, (long*)&InputIndexes[0],
+        "Input 1 Index", SLIDER, 0, (long*)&g_nSourceIndexes[0],
         -1, -1, 255, 1, 1,
         NULL,
         "Mixer", "Input1Index", NULL,
     },
     {
-        "Input 2 Index", SLIDER, 0, (long*)&InputIndexes[1],
+        "Input 2 Index", SLIDER, 0, (long*)&g_nSourceIndexes[1],
         -1, -1, 255, 1, 1,
         NULL,
         "Mixer", "Input2Index", NULL,
     },
     {
-        "Input 3 Index", SLIDER, 0, (long*)&InputIndexes[2],
+        "Input 3 Index", SLIDER, 0, (long*)&g_nSourceIndexes[2],
         -1, -1, 255, 1, 1,
         NULL,
         "Mixer", "Input3Index", NULL,
     },
     {
-        "Input 4 Index", SLIDER, 0, (long*)&InputIndexes[3],
+        "Input 4 Index", SLIDER, 0, (long*)&g_nSourceIndexes[3],
         -1, -1, 255, 1, 1,
         NULL,
         "Mixer", "Input4Index", NULL,
     },
     {
-        "Reset Mixer on Exit", ONOFF, 0, (long*)&bResetOnExit,
-        TRUE, 0, 1, 1, 1, 
+        "Reset Mixer on Exit", ONOFF, 0, (long*)&g_bResetOnExit,
+        FALSE, 0, 1, 1, 1,
         NULL,
         "Mixer", "ResetOnExit", NULL,
     },
     {
-        "Input 5 Index", SLIDER, 0, (long*)&InputIndexes[4],
+        "Input 5 Index", SLIDER, 0, (long*)&g_nSourceIndexes[4],
         -1, -1, 255, 1, 1,
         NULL,
         "Mixer", "Input5Index", NULL,
     },
     {
-        "Input 6 Index", SLIDER, 0, (long*)&InputIndexes[5],
+        "Input 6 Index", SLIDER, 0, (long*)&g_nSourceIndexes[5],
         -1, -1, 255, 1, 1,
         NULL,
         "Mixer", "Input6Index", NULL,
     },
     {
-        "Mixer Name", CHARSTRING, 0, (long*)&MixerName,
+        "Mixer Name", CHARSTRING, 0, (long*)&g_pMixerName,
         (long)"", 0, 0, 0, 0,
         NULL,
         "Mixer", "MixerName", NULL,
@@ -1235,11 +1904,11 @@ SETTING MixerDevSettings[MIXERDEV_SETTING_LASTONE] =
 };
 
 
-SETTING* MixerDev_GetSetting(MIXERDEV_SETTING Setting)
+SETTING* MixerDev_GetSetting(MIXERDEV_SETTING nSetting)
 {
-    if(Setting > -1 && Setting < MIXERDEV_SETTING_LASTONE)
+    if (nSetting >= 0 && nSetting < MIXERDEV_SETTING_LASTONE)
     {
-        return &(MixerDevSettings[Setting]);
+        return &(MixerDevSettings[nSetting]);
     }
     else
     {
@@ -1247,55 +1916,81 @@ SETTING* MixerDev_GetSetting(MIXERDEV_SETTING Setting)
     }
 }
 
+
 void MixerDev_ReadSettingsFromIni()
 {
-    int i;
-    if (Providers_GetCurrentSource() != NULL)
+    MixerDev_SettingSetSection(Providers_GetCurrentSource());
+    _MixerDev_ReadSettingsFromIni();
+}
+
+
+void _MixerDev_ReadSettingsFromIni()
+{
+    if (g_bMixerDevInvalidSection)
     {
-        MixerDev_SettingSetSection(Providers_GetCurrentSource()->IDString());
+        MixerDev_FreeSettings();
+        g_bUseMixer = FALSE;
+        return;
     }
-    for(i = 0; i < MIXERDEV_SETTING_LASTONE; i++)
+
+    for (int i = 0; i < MIXERDEV_SETTING_LASTONE; i++)
     {
         Setting_ReadFromIni(&(MixerDevSettings[i]));
     }
-    
-    MixerIndex = CSoundSystem::FindMixer((char*) MixerName);
-    if(MixerIndex < 0)
-    {
-        MixerIndex = NULL;
-    }
 }
+
 
 void MixerDev_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 {
-    int i;
-    for(i = 0; i < MIXERDEV_SETTING_LASTONE; i++)
+    if (g_bMixerDevInvalidSection)
+    {
+        return;
+    }
+
+    for (int i = 0; i < MIXERDEV_SETTING_LASTONE; i++)
     {
         Setting_WriteToIni(&(MixerDevSettings[i]), bOptimizeFileAccess);
     }
 }
 
 
-void MixerDev_SetMenu(HMENU hMenu)
+void MixerDev_FreeSettings()
 {
+    for (int i = 0; i < MIXERDEV_SETTING_LASTONE; i++)
+    {
+        Setting_Free(&(MixerDevSettings[i]));
+    }
 }
+
+
+void MixerDev_SettingSetSection(CSource* pSource)
+{
+    if (pSource == NULL)
+    {
+        g_bMixerDevInvalidSection = TRUE;
+    }
+    else
+    {
+        MixerDev_SettingSetSection(pSource->IDString());
+    }
+}
+
 
 void MixerDev_SettingSetSection(LPCSTR szSource)
 {
-    MixerDev_Section = string("MixerInput_") + szSource;
-    Setting_SetSection(&MixerDevSettings[INPUT1INDEX], (char*)MixerDev_Section.c_str());
-    Setting_SetSection(&MixerDevSettings[INPUT2INDEX], (char*)MixerDev_Section.c_str());
-    Setting_SetSection(&MixerDevSettings[INPUT3INDEX], (char*)MixerDev_Section.c_str());
-    Setting_SetSection(&MixerDevSettings[INPUT4INDEX], (char*)MixerDev_Section.c_str());
-    Setting_SetSection(&MixerDevSettings[INPUT5INDEX], (char*)MixerDev_Section.c_str());
-    Setting_SetSection(&MixerDevSettings[INPUT6INDEX], (char*)MixerDev_Section.c_str());    
-}
+    g_MixerDev_Section = string("MixerInput_") + szSource;
 
-void MixerDev_FreeSettings()
-{
-    int i;
-    for(i = 0; i < MIXERDEV_SETTING_LASTONE; i++)
+    g_bMixerDevInvalidSection = FALSE;
+
+    for (int i = 0; i < MIXERDEV_SETTING_LASTONE; i++)
     {
-        Setting_Free(&MixerDevSettings[i]);
+        Setting_SetSection(&(MixerDevSettings[i]), (char*)g_MixerDev_Section.c_str());
     }
 }
+
+
+void MixerDev_SetMenu(HMENU hMenu)
+{
+
+}
+

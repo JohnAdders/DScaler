@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Audio.cpp,v 1.38 2003-07-17 05:59:00 atnak Exp $
+// $Id: Audio.cpp,v 1.39 2003-07-29 13:33:06 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.38  2003/07/17 05:59:00  atnak
+// A quick fix for non-unmuting muted hardware problem
+//
 // Revision 1.37  2003/06/26 09:07:58  adcockj
 // Added patch for plopping from Arjan Zipp
 //
@@ -189,14 +192,12 @@ void Audio_Mute(DWORD PostMuteDelay)
     // for complex and messy checks elsewhere in the program.
     if(++AudioMuteStatus == 1)
     {
-        // use mixer only if possible as we think that works
-        // cleanly most of the time, whereas the hardware mute
-        // can be a bit ploppy
-	    if(bUseMixer == TRUE)
+	    if(Mixer_IsEnabled())
 	    {
 		    Mixer_Mute();
 	    }
-        else if(Providers_GetCurrentSource())
+
+        if(!Mixer_IsNoHardwareMute() && Providers_GetCurrentSource())
         {
             Providers_GetCurrentSource()->Mute();
         }
@@ -246,7 +247,7 @@ void Audio_Unmute(DWORD PreUnmuteDelay)
                     Providers_GetCurrentSource()->UnMute();
                 }
 
-				if(bUseMixer == TRUE)
+				if(Mixer_IsEnabled())
 		        {
 			        Mixer_UnMute();
 		        }	

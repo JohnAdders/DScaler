@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.26 2003-02-14 08:59:15 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.27 2003-02-14 09:10:40 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2003/02/14 08:59:15  atnak
+// Updated Manli M-TV002
+//
 // Revision 1.25  2003/02/12 22:09:46  atnak
 // Added M-TV002
 //
@@ -974,6 +977,7 @@ void CSAA7134Card::ManliMTV001CardInputSelect(int nInput)
 void CSAA7134Card::ManliMTV002CardInputSelect(int nInput)
 {
     StandardSAA7134InputSelect(nInput);
+    /*
     switch(nInput)
     {
     case 0: // Tuner
@@ -991,6 +995,7 @@ void CSAA7134Card::ManliMTV002CardInputSelect(int nInput)
     default:
         break;
     }
+    */
 }
 
 

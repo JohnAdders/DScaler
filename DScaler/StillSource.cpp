@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.42 2002-03-30 13:18:31 laurentg Exp $
+// $Id: StillSource.cpp,v 1.43 2002-04-11 20:46:07 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.42  2002/03/30 13:18:31  laurentg
+// New ini setting to choose the directory where to save snapshots
+//
 // Revision 1.41  2002/03/08 06:54:07  trbarry
 // Make DumbAlignedMalloc function, adjust sizes, misc bugs, add resize code
 //
@@ -831,14 +834,17 @@ BOOL CStillSource::ReadNextFrameInFile()
         }
         if (m_StillFrame.pData != NULL && m_OriginalFrame.pData != NULL)
         {
-            if (m_pMemcpy == NULL)
-            {
+            //
+            // WARNING: optimized memcpy seems to be the source of problem with certain hardware configurations
+            //
+//            if (m_pMemcpy == NULL)
+//            {
                 memcpy(m_StillFrame.pData, m_OriginalFrame.pData, m_Width * 2 * m_Height * sizeof(BYTE));;
-            }
-            else
-            {
-                m_pMemcpy(m_StillFrame.pData, m_OriginalFrame.pData, m_Width * 2 * m_Height * sizeof(BYTE));;
-            }
+//            }
+//            else
+//            {
+//                m_pMemcpy(m_StillFrame.pData, m_OriginalFrame.pData, m_Width * 2 * m_Height * sizeof(BYTE));;
+//            }
             return TRUE;
         }
         return FALSE;

@@ -138,6 +138,10 @@ SOURCE=.\Audio.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\AudioControls.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\AudioDecoder.cpp
 # End Source File
 # Begin Source File
@@ -179,6 +183,10 @@ SOURCE=.\BT848Source.cpp
 # Begin Source File
 
 SOURCE=.\BT848Source_Audio.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Bt8x8GPIOAudioDecoder.cpp
 # End Source File
 # Begin Source File
 
@@ -407,11 +415,11 @@ SOURCE=.\MSP34x0.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\MT2032.cpp
+SOURCE=.\MSP34x0AudioControls.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\NoAudioControls.cpp
+SOURCE=.\MT2032.cpp
 # End Source File
 # Begin Source File
 
@@ -619,6 +627,10 @@ SOURCE=.\Audio.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\AudioControls.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\AudioDecoder.h
 # End Source File
 # Begin Source File
@@ -644,6 +656,42 @@ SOURCE=.\BT848Provider.h
 # Begin Source File
 
 SOURCE=.\BT848Source.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Bt8x8GPIOAudioDecoder.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Bt8x8GPIOAudioDecoderAverTVPhoneNew.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Bt8x8GPIOAudioDecoderAverTVPhoneOld.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Bt8x8GPIOAudioDecoderGVBCTV3.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Bt8x8GPIOAudioDecoderLT9415.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Bt8x8GPIOAudioDecoderPVBt878P9B.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Bt8x8GPIOAudioDecoderTerraTV.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Bt8x8GPIOAudioDecoderWinDVR.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Bt8x8GPIOAudioDecoderWinFast2000.h
 # End Source File
 # Begin Source File
 
@@ -827,10 +875,6 @@ SOURCE=.\I2CLineInterface.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\IAudioControls.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\ITuner.h
 # End Source File
 # Begin Source File
@@ -847,11 +891,11 @@ SOURCE=.\MSP34x0.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\MT2032.h
+SOURCE=.\MSP34x0AudioControls.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\NoAudioControls.h
+SOURCE=.\MT2032.h
 # End Source File
 # Begin Source File
 
@@ -1044,6 +1088,10 @@ SOURCE=.\READ_ME_FIRST_NOW.txt
 # End Source File
 # End Target
 # End Project
+# Section DScaler : {F08DF954-8592-11D1-B16A-00C0F0283628}
+# 	2:21:DefaultSinkHeaderFile:slider.h
+# 	2:16:DefaultSinkClass:CSlider
+# End Section
 # Section DScaler : {F08DF952-8592-11D1-B16A-00C0F0283628}
 # 	2:5:Class:CSlider
 # 	2:10:HeaderFile:slider.h
@@ -1053,8 +1101,4 @@ SOURCE=.\READ_ME_FIRST_NOW.txt
 # 	2:5:Class:CPicture
 # 	2:10:HeaderFile:picture.h
 # 	2:8:ImplFile:picture.cpp
-# End Section
-# Section DScaler : {F08DF954-8592-11D1-B16A-00C0F0283628}
-# 	2:21:DefaultSinkHeaderFile:slider.h
-# 	2:16:DefaultSinkClass:CSlider
 # End Section

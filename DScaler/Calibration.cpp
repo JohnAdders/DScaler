@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.51 2002-02-23 00:30:47 laurentg Exp $
+// $Id: Calibration.cpp,v 1.52 2002-02-24 19:04:16 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.51  2002/02/23 00:30:47  laurentg
+// NotifySizeChange
+//
 // Revision 1.50  2002/02/22 09:07:13  tobbej
 // fixed small race condition when calling notifysizechange, workoutoverlaysize might have used the old size
 //
@@ -492,19 +495,31 @@ void CColorBar::Draw(BYTE* Buffer, int Pitch, int Height, int Width, int Oversca
         for (i = top ; i <= bottom ; i++)
         {
             buf = Buffer + (i * Pitch);
-            buf[left*2  ] = ref_Y_val2;
-            buf[left*2+1] = (left%2) ? ref_V_val2 : ref_U_val2;
-            buf[right*2  ] = ref_Y_val2;
-            buf[right*2+1] = (right%2) ? ref_V_val2 : ref_U_val2;
+            for (j = left; j <= right && j < (left + m_Param1Draw) ; j++)
+            {
+                buf[j*2  ] = ref_Y_val2;
+                buf[j*2+1] = (j%2) ? ref_V_val2 : ref_U_val2;
+            }
+            for (j = right; j >= left && j > (right - m_Param1Draw) ; j--)
+            {
+                buf[j*2  ] = ref_Y_val2;
+                buf[j*2+1] = (j%2) ? ref_V_val2 : ref_U_val2;
+            }
         }
         for (i = left ; i <= right ; i++)
         {
-            buf = Buffer + (top * Pitch);
-            buf[i*2  ] = ref_Y_val2;
-            buf[i*2+1] = (i%2) ? ref_V_val2 : ref_U_val2;
-            buf = Buffer + (bottom * Pitch);
-            buf[i*2  ] = ref_Y_val2;
-            buf[i*2+1] = (i%2) ? ref_V_val2 : ref_U_val2;
+            for (j = top; j <= bottom && j < (top + m_Param1Draw) ; j++)
+            {
+                buf = Buffer + (j * Pitch);
+                buf[i*2  ] = ref_Y_val2;
+                buf[i*2+1] = (i%2) ? ref_V_val2 : ref_U_val2;
+            }
+            for (j = bottom; j >= top && j > (bottom - m_Param1Draw) ; j--)
+            {
+                buf = Buffer + (j * Pitch);
+                buf[i*2  ] = ref_Y_val2;
+                buf[i*2+1] = (i%2) ? ref_V_val2 : ref_U_val2;
+            }
         }
         break;
 

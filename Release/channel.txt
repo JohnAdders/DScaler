@@ -1382,6 +1382,7 @@ ChannelHigh=69
 [French Cable Frequency (Overseas)]
 ChannelLow=1
 ChannelHigh=6
+Format=SECAM-L
    175250000
    183250000
    191250000
@@ -1392,6 +1393,7 @@ ChannelHigh=6
 [French Air Frequency (Overseas)]
 ChannelLow=1
 ChannelHigh=6
+Format=SECAM-L
    175250000
    183250000
    191250000
@@ -1402,6 +1404,7 @@ ChannelHigh=6
 [French Cable Frequency]
 ChannelLow=1
 ChannelHigh=69
+Format=SECAM-L
      47750000
      55750000
      60500000
@@ -1475,6 +1478,7 @@ ChannelHigh=69
 [French Cable Frequency 2]
 ChannelLow=1
 ChannelHigh=24
+Format=SECAM-L
   116750000 ; B
   128750000 ; C
   140750000 ; D
@@ -1510,6 +1514,7 @@ ChannelHigh=24
 [French Air Frequency]
 ChannelLow=1
 ChannelHigh=69
+Format=SECAM-L
      47750000
      55750000
      60500000

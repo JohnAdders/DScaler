@@ -52,6 +52,7 @@ protected:
     int  ChildOrderRightPos;
     BOOL bChildOrderChanged;
     int  FitHeight;
+    vector<int> vRowHeight;
 
     int TopMargin;
     int BottomMargin;
@@ -78,6 +79,7 @@ public:
     HWND GethWndParent() { return hWndParent; };  
 
     BOOL AttachBar(CToolbarChild *pChild, int Left, CToolbarChild *pBar);
+	BOOL DetachBar(CToolbarChild *pChild, int Left);
 	BOOL Add(CToolbarChild *pChild, eToolbarRowAlign Align, int Order, int Row);
     void Remove(CToolbarChild *pChild);
     CToolbarWindow(HWND hWndParent, HINSTANCE hInst, int Child);
@@ -93,6 +95,7 @@ public:
     void HideChild(CToolbarChild *pChild);
     
     void SetChildPosition(CToolbarChild *pChild, int Order, int Row);    
+	void SetChildRow(CToolbarChild *pChild, int Row);
     
     void SetPosition(int Pos);
     int GetPosition();

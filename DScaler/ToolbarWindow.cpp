@@ -1,5 +1,5 @@
 //
-// $Id: ToolbarWindow.cpp,v 1.5 2003-08-09 15:53:39 laurentg Exp $
+// $Id: ToolbarWindow.cpp,v 1.6 2003-09-07 19:09:52 laurentg Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2003/08/09 15:53:39  laurentg
+// Bad refresh of the toolbar when in full screen mode corrected
+//
 // Revision 1.4  2003/08/09 12:59:46  laurentg
 // Display of the toolbar in full screen mode
 //
@@ -228,6 +231,27 @@ BOOL CToolbarWindow::AttachBar(CToolbarChild *pChild, int Left, CToolbarChild *p
 	return FALSE;
 }
 
+BOOL CToolbarWindow::DetachBar(CToolbarChild *pChild, int Left)
+{
+	for (int i = 0 ; i < vChildList.size(); i++)
+    {
+        if (vChildList[i].pChild == pChild)
+        {
+            if (Left)
+			{
+				vChildList[i].pBarLeft = NULL;
+			}
+			else
+			{
+				vChildList[i].pBarRight = NULL;
+			}
+			bChildOrderChanged = TRUE;
+			return TRUE;
+        }        
+    }
+	return FALSE;
+}
+
 BOOL CToolbarWindow::Show() 
 { 
    UpdateWindowPosition(hWndParent);
@@ -281,7 +305,14 @@ BOOL CToolbarWindow::Hide()
 
 BOOL CToolbarWindow::SetPos(int x, int y, int w, int h)
 {    
-    ///\todo implement rows
+	int Width;
+	int XLPos;
+	int XRPos;
+	int BarLeftWidth;
+	int BarRightWidth;	
+	int i;
+	int n;
+	int row;
 
     if (bChildOrderChanged)
     {        
@@ -328,21 +359,62 @@ BOOL CToolbarWindow::SetPos(int x, int y, int w, int h)
             }
         }        
 
-        //Find optimal height
-
-        int MinHeight = TopMargin+BottomMargin;
-
-        int n;
+		// Cut on several rows if necessary
+        FitHeight = TopMargin+BottomMargin;
+		vRowHeight.clear();
+		XLPos = LeftMargin;
+		XRPos = w - RightMargin;
+		row = 0;
+		int Height = 0;
         for (n = 0; n < vChildOrder.size(); n++)
         {
-            i = vChildOrder[n];
-            if (vChildList[i].pChild->Height() > MinHeight)
-            {
-                MinHeight = vChildList[i].pChild->Height();
-            }
+           i = vChildOrder[n];
+
+		   Width = 0;
+		   if (vChildList[i].bShow && (vChildList[i].pChild != NULL))
+		   {
+			  Width = vChildList[i].pChild->Width();
+		   }
+           if (Width > 0)
+		   {
+		      BarLeftWidth = 0;
+		      BarRightWidth = 0;
+		      if (vChildList[i].pBarLeft != NULL)
+			  {
+		         BarLeftWidth = vChildList[i].pBarLeft->Width();
+			  }
+		      if (vChildList[i].pBarRight != NULL)
+			  {
+			     BarRightWidth = vChildList[i].pBarRight->Width();
+			  }
+		      if (n<ChildOrderRightPos)
+			  {                
+                 XLPos += BarLeftWidth + Width + BarRightWidth + ChildLeftRightMargin;
+			  } 
+		      else 
+			  {   
+				 XRPos -= BarLeftWidth + Width + BarRightWidth + ChildLeftRightMargin;
+			  }
+			  if (XRPos<XLPos)
+			  {                    
+//			     DetachBar(vChildList[i].pChild, 0);
+//			     DetachBar(vChildList[i].pChild, 1);
+			     vRowHeight.push_back(Height);
+			     FitHeight += Height;
+				 row++;
+				 Height = 0;
+			  }    
+              if (vChildList[i].pChild->Height() > Height)
+			  {
+                 Height = vChildList[i].pChild->Height();
+			  }
+		   }
+		   SetChildRow(vChildList[i].pChild, row);
         }
-        FitHeight = MinHeight + TopMargin + BottomMargin;    
-    }
+	    vRowHeight.push_back(Height);
+	    FitHeight += Height;
+        bChildOrderChanged = FALSE;
+   }
 
     if (h<0)
     {
@@ -369,18 +441,24 @@ BOOL CToolbarWindow::SetPos(int x, int y, int w, int h)
     
     //Set all child windows
     
-    int Width;
-    int XLPos = LeftMargin;
-    int XRPos = w - RightMargin;
-	int BarLeftWidth;
-	int BarRightWidth;	
+	int j;
     int dy = 0;
-    int n;
-    int i;
+	row = -1;
+	int top_row;
     for (n = 0; n < vChildOrder.size(); n++)
     {              
        i = vChildOrder[n];
        
+	   if (vChildList[i].Row != row)
+	   {
+		  row = vChildList[i].Row;
+		  top_row = 0;
+		  for (j=0 ; j<row ; j++)
+		     top_row += vRowHeight[j];
+	      XLPos = LeftMargin;
+          XRPos = w - RightMargin;
+	   }
+
        Width = 0;
        if (vChildList[i].bShow && (vChildList[i].pChild != NULL))
        {
@@ -399,13 +477,13 @@ BOOL CToolbarWindow::SetPos(int x, int y, int w, int h)
          
        if (Width > 0)
        {
-            dy = 0;        
+            dy = top_row;        
             if ((vChildList[i].Align==TOOLBARCHILD_ALIGN_LEFTCENTER) || (vChildList[i].Align==TOOLBARCHILD_ALIGN_RIGHTCENTER))
             {
-                dy = (h - TopMargin - BottomMargin - vChildList[i].pChild->Height()) / 2;
+                dy = top_row + (vRowHeight[row] - vChildList[i].pChild->Height()) / 2;
             } else if ((vChildList[i].Align==TOOLBARCHILD_ALIGN_LEFTBOTTOM) || (vChildList[i].Align==TOOLBARCHILD_ALIGN_RIGHTBOTTOM))
             {
-                dy = (h - BottomMargin - vChildList[i].pChild->Height());
+                dy = top_row + (vRowHeight[row] - vChildList[i].pChild->Height());
             }
             if (n<ChildOrderRightPos)
             {                
@@ -512,7 +590,8 @@ void CToolbarWindow::UpdateWindowPosition(HWND hParentWnd)
       
       if (MainToolbarPosition==0) //top
       {          
-          if ((rcBar.left != rc.left) || (rcBar.top != rc.top) || (rcBar.right!=Width) || (rcBar.bottom != Height))
+//          if ((rcBar.left != rc.left) || (rcBar.top != rc.top) || (rcBar.right!=Width) || (rcBar.bottom != Height))
+		  if (1)
           {
               Height = -1;
               SetPos(rc.left,rc.top,Width, Height);
@@ -522,7 +601,8 @@ void CToolbarWindow::UpdateWindowPosition(HWND hParentWnd)
       {                    
           int YPos = rc.bottom; // - Height;
           
-          if ((rcBar.left != rc.left) || (rcBar.top != YPos) || (rcBar.right!=Width) || (rcBar.bottom != (YPos+Height)))
+//          if ((rcBar.left != rc.left) || (rcBar.top != YPos) || (rcBar.right!=Width) || (rcBar.bottom != (YPos+Height)))
+		  if (1)
           {
               Height = -2;
               SetPos(rc.left,YPos,Width, Height);              
@@ -587,6 +667,22 @@ void CToolbarWindow::SetChildPosition(CToolbarChild *pChild, int Order, int Row)
             {
                 bChildOrderChanged = TRUE;
                 vChildList[i].Order = Order;
+                vChildList[i].Row = Row;
+            }
+            return;
+        }
+    }
+}
+
+void CToolbarWindow::SetChildRow(CToolbarChild *pChild, int Row)
+{
+    for (int i = 0; i < vChildList.size(); i++)
+    {
+        if (vChildList[i].pChild == pChild)
+        {
+            if (vChildList[i].Row != Row)
+            {
+                bChildOrderChanged = TRUE;
                 vChildList[i].Row = Row;
             }
             return;

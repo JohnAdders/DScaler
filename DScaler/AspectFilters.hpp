@@ -449,12 +449,12 @@ public:
 class PanAndZoomAspectFilter : public AspectFilter
 {
 public:
-	PanAndZoomAspectFilter(double _xPos, double _yPos, double _xZoom, double _yZoom)
+	PanAndZoomAspectFilter(long _xPos, long _yPos, long _xZoom, long _yZoom)
 	{
-		xPos = _xPos; 
-		yPos = _yPos;
-		xZoom = _xZoom; 
-		yZoom = _yZoom;
+		xPos = _xPos / 100; 
+		yPos = _yPos / 100;
+		xZoom = _xZoom / 100; 
+		yZoom = _yZoom / 100;
 	}
 	
 	virtual BOOL adjustAspect(AspectRectangles &ar)

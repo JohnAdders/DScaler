@@ -168,13 +168,13 @@ void AspectRatio_SetMenu(HMENU hMenu)
 	CheckMenuItem(hMenu, IDM_WINPOS_AUTOSIZE, (aspectSettings.autoResizeWindow)?MF_CHECKED:MF_UNCHECKED);
 
 	// Zoom
-	CheckMenuItem(hMenu, IDM_ZOOM_10, (aspectSettings.xZoomFactor == 1.0 && aspectSettings.yZoomFactor == 1.0)?MF_CHECKED:MF_UNCHECKED);
-	CheckMenuItem(hMenu, IDM_ZOOM_15, (aspectSettings.xZoomFactor == 1.5 && aspectSettings.yZoomFactor == 1.5)?MF_CHECKED:MF_UNCHECKED);
-	CheckMenuItem(hMenu, IDM_ZOOM_20, (aspectSettings.xZoomFactor == 2.0 && aspectSettings.yZoomFactor == 2.0)?MF_CHECKED:MF_UNCHECKED);
-	CheckMenuItem(hMenu, IDM_ZOOM_25, (aspectSettings.xZoomFactor == 2.5 && aspectSettings.yZoomFactor == 2.5)?MF_CHECKED:MF_UNCHECKED);
-	CheckMenuItem(hMenu, IDM_ZOOM_30, (aspectSettings.xZoomFactor == 3.0 && aspectSettings.yZoomFactor == 3.0)?MF_CHECKED:MF_UNCHECKED);
-	CheckMenuItem(hMenu, IDM_ZOOM_35, (aspectSettings.xZoomFactor == 3.5 && aspectSettings.yZoomFactor == 3.5)?MF_CHECKED:MF_UNCHECKED);
-	CheckMenuItem(hMenu, IDM_ZOOM_40, (aspectSettings.xZoomFactor == 4.0 && aspectSettings.yZoomFactor == 4.0)?MF_CHECKED:MF_UNCHECKED);
+	CheckMenuItem(hMenu, IDM_ZOOM_10, (aspectSettings.xZoomFactor == 100 && aspectSettings.yZoomFactor == 100)?MF_CHECKED:MF_UNCHECKED);
+	CheckMenuItem(hMenu, IDM_ZOOM_15, (aspectSettings.xZoomFactor == 150 && aspectSettings.yZoomFactor == 150)?MF_CHECKED:MF_UNCHECKED);
+	CheckMenuItem(hMenu, IDM_ZOOM_20, (aspectSettings.xZoomFactor == 200 && aspectSettings.yZoomFactor == 200)?MF_CHECKED:MF_UNCHECKED);
+	CheckMenuItem(hMenu, IDM_ZOOM_25, (aspectSettings.xZoomFactor == 250 && aspectSettings.yZoomFactor == 250)?MF_CHECKED:MF_UNCHECKED);
+	CheckMenuItem(hMenu, IDM_ZOOM_30, (aspectSettings.xZoomFactor == 300 && aspectSettings.yZoomFactor == 300)?MF_CHECKED:MF_UNCHECKED);
+	CheckMenuItem(hMenu, IDM_ZOOM_35, (aspectSettings.xZoomFactor == 350 && aspectSettings.yZoomFactor == 350)?MF_CHECKED:MF_UNCHECKED);
+	CheckMenuItem(hMenu, IDM_ZOOM_40, (aspectSettings.xZoomFactor == 400 && aspectSettings.yZoomFactor == 400)?MF_CHECKED:MF_UNCHECKED);
 
 }
 
@@ -341,98 +341,107 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
 	//------------------------------------------------------------------
 	// Zoom
 	case IDM_ZOOM_MINUS:
-		aspectSettings.xZoomFactor -= 0.5;
-		if (aspectSettings.xZoomFactor < 1.0)
-			aspectSettings.xZoomFactor = 1.0;
-		aspectSettings.yZoomFactor -= 0.5;
-		if (aspectSettings.yZoomFactor < 1.0)
-			aspectSettings.yZoomFactor = 1.0;
-		if ((aspectSettings.xZoomFactor == 1.0) && (aspectSettings.yZoomFactor == 1.0))
+		aspectSettings.xZoomFactor -= 50;
+		if (aspectSettings.xZoomFactor < 100)
+			aspectSettings.xZoomFactor = 100;
+		aspectSettings.yZoomFactor -= 50;
+		if (aspectSettings.yZoomFactor < 100)
+			aspectSettings.yZoomFactor = 100;
+		if ((aspectSettings.xZoomFactor == 100) && (aspectSettings.yZoomFactor == 100))
 		{
 			ShowText(hWnd,"Zoom Off");
 		}
 		else
 		{
-			sprintf(Text,"Zoom %.1fx", aspectSettings.xZoomFactor);
+			sprintf(Text,"Zoom %.1fx", aspectSettings.xZoomFactor / 100);
 			ShowText(hWnd, Text);
 		}
 		break;
 
 	case IDM_ZOOM_PLUS:
-		aspectSettings.xZoomFactor += 0.5;
-		if (aspectSettings.xZoomFactor > 4.0)
-			aspectSettings.xZoomFactor = 4.0;
-		aspectSettings.yZoomFactor += 0.5;
-		if (aspectSettings.yZoomFactor > 4.0)
-			aspectSettings.yZoomFactor = 4.0;
-		sprintf(Text,"Zoom %.1fx", aspectSettings.xZoomFactor);
+		aspectSettings.xZoomFactor += 50;
+		if (aspectSettings.xZoomFactor > 400)
+			aspectSettings.xZoomFactor = 400;
+		aspectSettings.yZoomFactor += 50;
+		if (aspectSettings.yZoomFactor > 400)
+			aspectSettings.yZoomFactor = 400;
+		sprintf(Text,"Zoom %.1fx", aspectSettings.xZoomFactor / 100);
 		ShowText(hWnd, Text);
 		break;
 
 	case IDM_ZOOM_10:
-		aspectSettings.xZoomFactor = aspectSettings.yZoomFactor = 1.0;
+		aspectSettings.xZoomFactor = aspectSettings.yZoomFactor = 100;
 		ShowText(hWnd,"Zoom Off");
 		break;
 
 	case IDM_ZOOM_15:
-		aspectSettings.xZoomFactor = aspectSettings.yZoomFactor = 1.5;
+		aspectSettings.xZoomFactor = aspectSettings.yZoomFactor = 150;
 		ShowText(hWnd,"Zoom 1.5x");
 		break;
 
 	case IDM_ZOOM_20:
-		aspectSettings.xZoomFactor = aspectSettings.yZoomFactor = 2.0;
+		aspectSettings.xZoomFactor = aspectSettings.yZoomFactor = 200;
 		ShowText(hWnd,"Zoom 2x");
 		break;
 
 	case IDM_ZOOM_25:
-		aspectSettings.xZoomFactor = aspectSettings.yZoomFactor = 2.5;
+		aspectSettings.xZoomFactor = aspectSettings.yZoomFactor = 250;
 		ShowText(hWnd,"Zoom 2.5x");
 		break;
 
 	case IDM_ZOOM_30:
-		aspectSettings.xZoomFactor = aspectSettings.yZoomFactor = 3.0;
+		aspectSettings.xZoomFactor = aspectSettings.yZoomFactor = 300;
 		ShowText(hWnd,"Zoom 3x");
 		break;
 
 	case IDM_ZOOM_35:
-		aspectSettings.xZoomFactor = aspectSettings.yZoomFactor = 3.5;
+		aspectSettings.xZoomFactor = aspectSettings.yZoomFactor = 350;
 		ShowText(hWnd,"Zoom 3.5x");
 		break;
 
 	case IDM_ZOOM_40:
-		aspectSettings.xZoomFactor = aspectSettings.yZoomFactor = 4.0;
+		aspectSettings.xZoomFactor = aspectSettings.yZoomFactor = 400;
 		ShowText(hWnd,"Zoom 4x");
 		break;
 
 	case IDM_VT_PAGE_MINUS:
-		if (aspectSettings.xZoomFactor > 1.0 || aspectSettings.yZoomFactor > 1.0)
+		if (aspectSettings.xZoomFactor > 100 || aspectSettings.yZoomFactor > 100)
 		{
-			aspectSettings.xZoomCenter -= 0.05;
-			if (aspectSettings.xZoomCenter < 0.0) aspectSettings.xZoomCenter = 0.0;
+			aspectSettings.xZoomCenter -= 5;
+			if (aspectSettings.xZoomCenter < 0)
+            {
+                aspectSettings.xZoomCenter = 0;
+            }
 		}
 		break;
 
 	case IDM_VT_PAGE_PLUS:
-		if (aspectSettings.xZoomFactor > 1.0 || aspectSettings.yZoomFactor > 1.0)
+		if (aspectSettings.xZoomFactor > 100 || aspectSettings.yZoomFactor > 100)
 		{
-			aspectSettings.xZoomCenter += 0.05;
-			if (aspectSettings.xZoomCenter > 1.0) aspectSettings.xZoomCenter = 1.0;
+			aspectSettings.xZoomCenter += 5;
+			if (aspectSettings.xZoomCenter > 100)
+            {
+                aspectSettings.xZoomCenter = 100;
+            }
 		}
 		break;
 
 	case IDM_VT_PAGE_DOWN:
-		if (aspectSettings.xZoomFactor > 1.0 || aspectSettings.yZoomFactor > 1.0)
+		if (aspectSettings.xZoomFactor > 100 || aspectSettings.yZoomFactor > 100)
 		{
-			aspectSettings.yZoomCenter += 0.05;
-			if (aspectSettings.yZoomCenter > 1.0) aspectSettings.yZoomCenter = 1.0;
+			aspectSettings.yZoomCenter += 5;
+			if (aspectSettings.yZoomCenter > 100) aspectSettings.yZoomCenter = 100;
 		}
 		break;
 
 	case IDM_VT_PAGE_UP:
-		if (aspectSettings.xZoomFactor > 1.0 || aspectSettings.yZoomFactor > 1.0)
+		if (aspectSettings.xZoomFactor > 100 || aspectSettings.yZoomFactor > 100)
 		{
-			aspectSettings.yZoomCenter -= 0.05;
-			if (aspectSettings.yZoomCenter < 0.0) aspectSettings.yZoomCenter = 0.0;
+			aspectSettings.yZoomCenter -= 5;
+			if (aspectSettings.yZoomCenter < 0)
+            {
+                aspectSettings.yZoomCenter = 0;
+            }
 		}
 		break;
 
@@ -687,23 +696,66 @@ BOOL VertPos_OnChange(long NewValue)
 	return FALSE;
 }
 
-BOOL Bounce_OnChange(long NewValue) {
+BOOL Bounce_OnChange(long NewValue)
+{
 	aspectSettings.bounceEnabled = NewValue != 0;
-	if (!aspectSettings.bounceEnabled) {
+	if (!aspectSettings.bounceEnabled)
+    {
 		KillTimer(hWnd, TIMER_BOUNCE);
-	} else {
+	}
+    else
+    {
 	    SetTimer(hWnd, TIMER_BOUNCE, aspectSettings.timerBounceMS, NULL);
 	}
 	return FALSE;
 }
 
-BOOL Orbit_OnChange(long NewValue) {
+BOOL Orbit_OnChange(long NewValue) 
+{
 	aspectSettings.orbitEnabled = NewValue != 0;
-	if (!aspectSettings.orbitEnabled) {
-		KillTimer(hWnd, TIMER_ORBIT);
-	} else {
+	if (!aspectSettings.orbitEnabled) 
+    {
+        KillTimer(hWnd, TIMER_ORBIT);
+	}
+    else
+    {
 	    SetTimer(hWnd, TIMER_ORBIT, aspectSettings.timerOrbitMS, NULL);
 	}
+	return FALSE;
+}
+
+BOOL Clipping_OnChange(long NewValue)
+{
+	aspectSettings.aspectImageClipped = (BOOL)NewValue;
+	WorkoutOverlaySize();
+	return FALSE;
+}
+
+BOOL XZoom_Factor_OnChange(long NewValue)
+{
+	aspectSettings.xZoomFactor = NewValue;	
+    WorkoutOverlaySize();
+	return FALSE;
+}
+
+BOOL YZoom_Factor_OnChange(long NewValue)
+{
+	aspectSettings.yZoomFactor = NewValue;	
+    WorkoutOverlaySize();
+	return FALSE;
+}
+
+BOOL XZoom_Center_OnChange(long NewValue)
+{
+	aspectSettings.xZoomCenter = NewValue;	
+    WorkoutOverlaySize();
+	return FALSE;
+}
+
+BOOL YZoom_Center_OnChange(long NewValue)
+{
+	aspectSettings.yZoomCenter = NewValue;	
+    WorkoutOverlaySize();
 	return FALSE;
 }
 
@@ -801,7 +853,7 @@ SETTING AspectSettings[ASPECT_SETTING_LASTONE] =
 		"Clipping", ONOFF, 0, (long*)&aspectSettings.aspectImageClipped,
 		TRUE, 0, 1, 1, 1,
 		NULL,
-		"ASPECT", "Clipping", NULL,
+		"ASPECT", "Clipping", Clipping_OnChange,
 	},
 	{
 		"Bounce", ONOFF, 0, (long*)&aspectSettings.bounceEnabled,
@@ -868,6 +920,30 @@ SETTING AspectSettings[ASPECT_SETTING_LASTONE] =
 		8, 1, 16, 1, 1,
 		NULL,
 		"ASPECT", "SkipPixels", NULL,
+	},
+	{
+		"X Zoom Factor", NUMBER, 0, &aspectSettings.xZoomFactor,
+		100, 1, 500, 10, 100,
+		NULL,
+		"ASPECT", "XZoomFactor", XZoom_Factor_OnChange,
+	},
+	{
+		"Y Zoom Factor", NUMBER, 0, &aspectSettings.yZoomFactor,
+		100, 1, 500, 10, 100,
+		NULL,
+		"ASPECT", "YZoomFactor", YZoom_Factor_OnChange,
+	},
+	{
+		"X Zoom Center", NUMBER, 0, &aspectSettings.xZoomCenter,
+		50, 0, 100, 5, 100,
+		NULL,
+		"ASPECT", "XZoomCenter", XZoom_Center_OnChange,
+	},
+	{
+		"Y Zoom Center", NUMBER, 0, &aspectSettings.yZoomCenter,
+		50, 0, 100, 5, 100,
+		NULL,
+		"ASPECT", "YZoomCenter", YZoom_Center_OnChange,
 	},
 };
 

@@ -177,10 +177,10 @@ typedef struct _aspectsettings
 	BOOL DetectAspectNow;
 
 	// Zoom
-	double xZoomFactor;
-	double yZoomFactor;
-	double xZoomCenter;
-	double yZoomCenter;
+	long xZoomFactor;
+	long yZoomFactor;
+	long xZoomCenter;
+	long yZoomCenter;
 } AspectSettingsStruct;
 extern AspectSettingsStruct aspectSettings;
 

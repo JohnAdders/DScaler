@@ -99,7 +99,7 @@ AspectSettingsStruct aspectSettings =
 	{0,0,0,0},
 	TRUE,FALSE,4,TRUE,FALSE,
 	0,60*30,1000,FALSE,8,60,60,1000,FALSE,FALSE,
-	1.0,1.0,0.5,0.5,
+	100,100,50,50,
 };
 
 BOOL Bounce_OnChange(long NewValue); // Forward declaration to reuse this code...

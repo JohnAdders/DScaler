@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_Audio.cpp,v 1.12 2004-08-31 17:54:50 to_see Exp $
+// $Id: CX2388xSource_Audio.cpp,v 1.13 2004-12-30 18:14:42 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2004/08/31 17:54:50  to_see
+// New entry for PixelView PlayTV Ultra + on chip audio
+// Minor fixes
+//
 // Revision 1.11  2004/07/12 20:17:20  to_see
 // Some minor fixes
 //
@@ -175,7 +179,20 @@ void CCX2388xSource::UpdateAudioStatus()
 				switch(m_pCard->GetCurrentStereoType())
 				{
 				case STEREOTYPE_AUTO:
-					SoundChannel = AutoDetectA2Stereo();
+                    switch((eVideoFormat)m_VideoFormat->GetValue())
+                    {
+                    case VIDEOFORMAT_PAL_I:
+                        SoundChannel = AutoDetect_I();
+                        break;
+
+                    case VIDEOFORMAT_PAL_B:
+	                case VIDEOFORMAT_PAL_G:
+	                case VIDEOFORMAT_PAL_D:
+	                case VIDEOFORMAT_SECAM_K:
+	                case VIDEOFORMAT_SECAM_D:
+                        SoundChannel = AutoDetect_BGDK();
+                        break;
+                    }
 					break;
 				
 				case STEREOTYPE_MONO:
@@ -201,14 +218,12 @@ void CCX2388xSource::UpdateAudioStatus()
 				switch(m_pCard->GetCurrentStereoType())
 				{
 				case STEREOTYPE_AUTO:
-					SoundChannel = AutoDetectNicamSound();
-					break;
-				case STEREOTYPE_MONO:
-					SoundChannel = SOUNDCHANNEL_MONO;
-					break;
-
 				case STEREOTYPE_STEREO:
 					SoundChannel = SOUNDCHANNEL_STEREO;
+					break;
+
+				case STEREOTYPE_MONO:
+					SoundChannel = SOUNDCHANNEL_MONO;
 					break;
 
 				case STEREOTYPE_ALT1:
@@ -296,7 +311,7 @@ void CCX2388xSource::UpdateAudioStatus()
     EventCollector->RaiseEvent(this, EVENT_SOUNDCHANNEL, -1, SoundChannel);
 }
 
-eSoundChannel CCX2388xSource::AutoDetectA2Stereo()
+eSoundChannel CCX2388xSource::AutoDetect_BGDK()
 {
 	static int iA2DetectCnt = 0;
 
@@ -348,10 +363,9 @@ eSoundChannel CCX2388xSource::AutoDetectA2Stereo()
 	return SoundChannel;
 }
 
-eSoundChannel CCX2388xSource::AutoDetectNicamSound()
+eSoundChannel CCX2388xSource::AutoDetect_I()
 {
-	// \ todo: not shure if this needed
-	eSoundChannel SoundChannelNicam = SOUNDCHANNEL_STEREO;
-		
-	return SoundChannelNicam;
+    // \Todo: add nicam detection
+	eSoundChannel SoundChannel = SOUNDCHANNEL_MONO;
+	return SoundChannel;
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.h,v 1.38 2004-12-25 22:40:18 to_see Exp $
+// $Id: CX2388xSource.h,v 1.39 2004-12-30 18:14:42 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -139,8 +139,8 @@ private:
 	void StartUpdateAudioStatus();
 	void StopUpdateAudioStatus();
 	void UpdateAudioStatus();
-	eSoundChannel AutoDetectA2Stereo();
-	eSoundChannel AutoDetectNicamSound();
+	eSoundChannel AutoDetect_BGDK();
+	eSoundChannel AutoDetect_I();
 	BOOL StartStopConexantDriver(DWORD NewState);
 
 private:

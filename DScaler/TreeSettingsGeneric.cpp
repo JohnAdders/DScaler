@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsGeneric.cpp,v 1.15 2004-10-22 20:01:26 to_see Exp $
+// $Id: TreeSettingsGeneric.cpp,v 1.16 2005-03-05 04:25:10 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2004/10/22 20:01:26  to_see
+// New position for IDC_TREESETTINGS_GENERIC_EDIT2.
+//
 // Revision 1.14  2004/10/22 19:33:23  to_see
 // BugFix: EditBox2 needs moving + resizing
 //
@@ -352,10 +355,13 @@ void CTreeSettingsGeneric::OnSelchangeList()
         m_SavePerInfoBox.ShowWindow(SW_HIDE);
 	}
 
-    UpdateControls();
+    UpdateControls(&m_ListBox);
 }
 
-void CTreeSettingsGeneric::UpdateControls()
+// atnak 2005/03/05:
+// The control specified by 'pChangedControl' is excluded from
+// the list of controls updated by this function.
+void CTreeSettingsGeneric::UpdateControls(CWnd* pChangedControl)
 {
     ASSERT(m_CurrentSetting>=0 && m_CurrentSetting<m_SettingsCount);
 
@@ -373,40 +379,42 @@ void CTreeSettingsGeneric::UpdateControls()
     bInUpdate = true;
 
 
-    if(m_Spin.GetStyle() & WS_VISIBLE)
+    if((m_Spin.GetStyle() & WS_VISIBLE) && (&m_Spin != pChangedControl))
     {
         m_Spin.SetRange32(m_Settings[m_CurrentSetting]->GetMin(),m_Settings[m_CurrentSetting]->GetMax());
         m_Spin.SetPos(m_Settings[m_CurrentSetting]->GetValue());
     }
 
-    if(m_Edit.GetStyle() & WS_VISIBLE)
+    if((m_Edit.GetStyle() & WS_VISIBLE) && (&m_Edit != pChangedControl))
     {
         CString newValue;
 	    newValue.Format("%d", m_Settings[m_CurrentSetting]->GetValue());
         m_Edit.SetWindowText(newValue);
     }
 
-    if(m_EditString.GetStyle() & WS_VISIBLE)
+    if((m_EditString.GetStyle() & WS_VISIBLE) && (&m_EditString != pChangedControl))
     {
         CString newValue;
 	    newValue.Format("%s", (char*)(m_Settings[m_CurrentSetting]->GetValue()));
         m_EditString.SetWindowText(newValue);
     }
 
-    if(m_CheckBox.GetStyle() & WS_VISIBLE)
+    if((m_CheckBox.GetStyle() & WS_VISIBLE) && (&m_CheckBox != pChangedControl))
     {
         m_CheckBox.SetCheck(m_Settings[m_CurrentSetting]->GetValue());
         m_CheckBox.SetWindowText(((CSimpleSetting*)m_Settings[m_CurrentSetting])->GetDisplayName());
     }
 
-    if((m_Slider.GetStyle() & WS_VISIBLE) && (m_Settings[m_CurrentSetting]->GetType() == SLIDER))
+    if((m_Slider.GetStyle() & WS_VISIBLE) &&
+		(m_Settings[m_CurrentSetting]->GetType() == SLIDER) && (&m_Slider != pChangedControl))
     {
         //Setting_SetupSlider(m_Settings[m_CurrentSetting], m_Slider.m_hWnd);
         CSliderSetting *pSetting = (CSliderSetting*)m_Settings[m_CurrentSetting];
         pSetting->SetupControl(m_Slider.m_hWnd);
     }
 
-    if((m_Combo.GetStyle() & WS_VISIBLE) && (m_Settings[m_CurrentSetting]->GetType() == ITEMFROMLIST))
+    if((m_Combo.GetStyle() & WS_VISIBLE) &&
+		(m_Settings[m_CurrentSetting]->GetType() == ITEMFROMLIST) && (&m_Combo != pChangedControl))
     {
         CListSetting *pSetting = (CListSetting*)m_Settings[m_CurrentSetting];
         char **pszList = (char**)pSetting->GetList();
@@ -499,7 +507,7 @@ void CTreeSettingsGeneric::OnChangeEdit()
 		m_Settings[m_CurrentSetting]->SetValue(atol(Value));
     }
 
-    UpdateControls();
+    UpdateControls(&m_Edit);
 }
 
 void CTreeSettingsGeneric::OnChangeEditString()
@@ -515,7 +523,7 @@ void CTreeSettingsGeneric::OnChangeEditString()
 	    m_Settings[m_CurrentSetting]->SetValue((long)Value.GetBuffer(255));
     }
 
-    UpdateControls();
+    UpdateControls(&m_EditString);
 }
 
 void CTreeSettingsGeneric::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
@@ -528,7 +536,7 @@ void CTreeSettingsGeneric::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrol
         pSetting->SetFromControl(m_Slider.m_hWnd);
     }
 
-    UpdateControls();
+    UpdateControls(&m_Slider);
 }
 
 void CTreeSettingsGeneric::OnSettingsDefault()
@@ -538,7 +546,7 @@ void CTreeSettingsGeneric::OnSettingsDefault()
         m_Settings[m_CurrentSetting]->SetDefault();
     }
 
-    UpdateControls();
+    UpdateControls(NULL);
 }
 
 void CTreeSettingsGeneric::OnCheckClick()
@@ -548,38 +556,38 @@ void CTreeSettingsGeneric::OnCheckClick()
         m_Settings[m_CurrentSetting]->SetValue(m_CheckBox.GetCheck());
     }
 
-    UpdateControls();
+    UpdateControls(NULL);
 }
 
 void CTreeSettingsGeneric::OnCheckGlobalClick()
 {
-	UpdateControls();
+	UpdateControls(NULL);
 }
 
 void CTreeSettingsGeneric::OnCheckSourceClick()
 {
-	UpdateControls();
+	UpdateControls(NULL);
 }
 
 void CTreeSettingsGeneric::OnCheckVideoInputClick()
 {
-	UpdateControls();
+	UpdateControls(NULL);
 }
 
 void CTreeSettingsGeneric::OnCheckAudioInputClick()
 {
-	UpdateControls();
+	UpdateControls(NULL);
 }
 
 
 void CTreeSettingsGeneric::OnCheckVideoFormatClick()
 {
-	UpdateControls();
+	UpdateControls(NULL);
 }
 
 void CTreeSettingsGeneric::OnCheckChannelClick()
 {
-	UpdateControls();
+	UpdateControls(NULL);
 }
 
 void CTreeSettingsGeneric::OnSelchangeChoosefromlist()
@@ -588,7 +596,7 @@ void CTreeSettingsGeneric::OnSelchangeChoosefromlist()
     {
         m_Settings[m_CurrentSetting]->SetValue(m_Combo.GetItemData(m_Combo.GetCurSel()));
     }
-    UpdateControls();
+    UpdateControls(&m_Combo);
 }
 
 void CTreeSettingsGeneric::OnDeltaposSettingsSpin(NMHDR* pNMHDR, LRESULT* pResult)
@@ -611,7 +619,7 @@ void CTreeSettingsGeneric::OnDeltaposSettingsSpin(NMHDR* pNMHDR, LRESULT* pResul
         *pResult = m_Settings[m_CurrentSetting]->GetValue();
     }
 
-    UpdateControls();
+    UpdateControls(NULL);
 }
 
 void CTreeSettingsGeneric::OnOK()

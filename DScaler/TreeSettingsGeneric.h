@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsGeneric.h,v 1.11 2003-04-28 13:21:47 laurentg Exp $
+// $Id: TreeSettingsGeneric.h,v 1.12 2005-03-05 04:25:11 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -128,8 +128,8 @@ protected:
     DECLARE_MESSAGE_MAP()
 	void OnOK();
 private:
-    void UpdateControls();
-    long m_SettingsCount;    
+    void UpdateControls(CWnd* pChangedControl);
+    long m_SettingsCount;
     CSettingsHolderStandAlone m_Settings;
     long m_CurrentSetting;
     BOOL m_DeleteSettingsOnExit;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TemporalComb.asm,v 1.12 2002-10-13 07:45:14 lindsey Exp $
+// $Id: FLT_TemporalComb.asm,v 1.13 2002-11-04 23:31:25 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001, 2002 Lindsey Dubb.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 // 
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/10/13 07:45:14  lindsey
+// Syntax fix
+//
 // Revision 1.11  2002/10/13 07:42:55  lindsey
 // Changed name of "trade speed for accuracy" to "high quality"
 // Corrected the reported HistoryRequired
@@ -336,25 +339,25 @@ void RESCALING_PROCEDURE_NAME( LONG* pDecayNumerator, LONG* pAveragingThreshold,
 
 #if defined( USE_PREFETCH )
     #if defined( IS_MMXEXT )
-    long FilterTemporalComb_MMXEXT_PREFETCH( TDeinterlaceInfo *pInfo )
+    long FilterTemporalComb_MMXEXT_PREFETCH( TDeinterlaceInfo* pInfo )
     #elif defined( IS_SSE )
-    long FilterTemporalComb_SSE_PREFETCH( TDeinterlaceInfo *pInfo )
+    long FilterTemporalComb_SSE_PREFETCH( TDeinterlaceInfo* pInfo )
     #else // IS_3DNOW
-    long FilterTemporalComb_3DNOW_PREFETCH( TDeinterlaceInfo *pInfo )
+    long FilterTemporalComb_3DNOW_PREFETCH( TDeinterlaceInfo* pInfo )
     #endif  // processor specific routine name
 #else // no prefetch
     #if defined( IS_MMXEXT )
-    long FilterTemporalComb_MMXEXT( TDeinterlaceInfo *pInfo )
+    long FilterTemporalComb_MMXEXT( TDeinterlaceInfo* pInfo )
     #elif defined( IS_SSE )
-    long FilterTemporalComb_SSE( TDeinterlaceInfo *pInfo )
+    long FilterTemporalComb_SSE( TDeinterlaceInfo* pInfo )
     #elif defined( IS_3DNOW )
-    long FilterTemporalComb_3DNOW( TDeinterlaceInfo *pInfo )
+    long FilterTemporalComb_3DNOW( TDeinterlaceInfo* pInfo )
     #else
-    long FilterTemporalComb_MMX( TDeinterlaceInfo *pInfo )
+    long FilterTemporalComb_MMX( TDeinterlaceInfo* pInfo )
     #endif  // processor specific routine name
 #endif // main routine name
 {
-    DWORD           ThisLine = pInfo->SourceRect.top/2;             // Needs change to work right in a half-height mode
+    DWORD           ThisLine = 0;
     TPicture**      pTPictures = pInfo->PictureHistory;
     BYTE*           pSource = NULL;
     BYTE*           pLastLast = NULL;
@@ -369,10 +372,10 @@ void RESCALING_PROCEDURE_NAME( LONG* pDecayNumerator, LONG* pAveragingThreshold,
     __int64         qwAveragingThreshold = 0;
 
     const __int64   qwShiftMask = 0xFEFEFEFEFEFEFEFE;
-    const DWORD     BottomLine = pInfo->SourceRect.bottom/2;        // Limit processing to displayed picture; wrong in half-height
-    static DWORD    sDecayNumerator = 0;
-    static DWORD    sLastOverlayPitch = 0;
-    static int      sLastFieldHeight = 0;
+    const DWORD     BottomLine = pInfo->FieldHeight;
+    static LONG     sDecayNumerator = 0;
+    static LONG     sLastInputPitch = 0;
+    static LONG     sLastFieldHeight = 0;
     static DWORD    sLastShimmerPercent = 0;
     static DWORD    sLastDecayPercent = 0;
 
@@ -380,9 +383,9 @@ void RESCALING_PROCEDURE_NAME( LONG* pDecayNumerator, LONG* pAveragingThreshold,
     DWORD           LastIndex = 0;                                  // Previous out of phase field/frame
     DWORD           LastLastIndex = 0;                              // Previous in phase field/frame
 
-    if( (pInfo->OverlayPitch != sLastOverlayPitch) || (pInfo->FieldHeight != sLastFieldHeight) )
+    if( (pInfo->InputPitch != sLastInputPitch) || (pInfo->FieldHeight != sLastFieldHeight) )
     {
-        sLastOverlayPitch = pInfo->OverlayPitch;
+        sLastInputPitch = pInfo->InputPitch;
         sLastFieldHeight = pInfo->FieldHeight;
         CleanupTemporalComb();
     }

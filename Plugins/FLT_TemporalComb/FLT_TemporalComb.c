@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TemporalComb.c,v 1.16 2002-10-14 01:37:14 lindsey Exp $
+// $Id: FLT_TemporalComb.c,v 1.17 2002-11-04 23:31:25 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001, 2002 Lindsey Dubb.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/10/14 01:37:14  lindsey
+// Changed FilterMethod.HistoryRequired to equal the actual number of required fields instead
+// of the maximum number which might be needed.
+//
 // Revision 1.15  2002/10/13 07:42:55  lindsey
 // Changed name of "trade speed for accuracy" to "high quality"
 // Corrected the reported HistoryRequired
@@ -190,6 +194,7 @@ typedef enum
 // Function prototypes
 /////////////////////////////////////////////////////////////////////////////
 
+void __cdecl    StartTemporalComb( void );
 void __cdecl    ExitTemporalComb( void );
 void            CleanupTemporalComb( void );
 
@@ -201,22 +206,22 @@ BOOL            ChangeFieldBuffering(long NewValue);
 BOOL            ChangeVideoMode(long NewValue);
 
 __declspec(dllexport) FILTER_METHOD*    GetFilterPluginInfo( long CpuFeatureFlags );
-long            DispatchTemporalComb( TDeinterlaceInfo *pInfo );
+long            DispatchTemporalComb( TDeinterlaceInfo* pInfo );
 
 void            RescaleParameters_MMXEXT( LONG* pDecayNumerator, LONG* pAveragingThreshold, DWORD Accumulation );
 void            RescaleParameters_SSE( LONG* pDecayNumerator, LONG* pAveragingThreshold, DWORD Accumulation );
 void            RescaleParameters_3DNOW( LONG* pDecayNumerator, LONG* pAveragingThreshold, DWORD Accumulation );
 void            RescaleParameters_MMX( LONG* pDecayNumerator, LONG* pAveragingThreshold, DWORD Accumulation );
 
-long            FilterTemporalComb_MMXEXT_PREFETCH( TDeinterlaceInfo *pInfo );
-long            FilterTemporalComb_SSE_PREFETCH( TDeinterlaceInfo *pInfo );
-long            FilterTemporalComb_3DNOW_PREFETCH( TDeinterlaceInfo *pInfo );
-long            FilterTemporalComb_MMXEXT( TDeinterlaceInfo *pInfo );
-long            FilterTemporalComb_SSE( TDeinterlaceInfo *pInfo );
-long            FilterTemporalComb_3DNOW( TDeinterlaceInfo *pInfo );
-long            FilterTemporalComb_MMX( TDeinterlaceInfo *pInfo );
+long            FilterTemporalComb_MMXEXT_PREFETCH( TDeinterlaceInfo* pInfo );
+long            FilterTemporalComb_SSE_PREFETCH( TDeinterlaceInfo* pInfo );
+long            FilterTemporalComb_3DNOW_PREFETCH( TDeinterlaceInfo* pInfo );
+long            FilterTemporalComb_MMXEXT( TDeinterlaceInfo* pInfo );
+long            FilterTemporalComb_SSE( TDeinterlaceInfo* pInfo );
+long            FilterTemporalComb_3DNOW( TDeinterlaceInfo* pInfo );
+long            FilterTemporalComb_MMX( TDeinterlaceInfo* pInfo );
 
-LONG            UpdateBuffers( TDeinterlaceInfo *pInfo );
+LONG            UpdateBuffers( TDeinterlaceInfo* pInfo );
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -230,10 +235,6 @@ combMODE				gMode = MODE_NTSC;
 
 
 static long             gUsePrefetching = TRUE;
-
-// Stored information about the machine, used when choosing which code version to run
-
-static long             gCpuFeatureFlags = 0;
 
 // Array of time decayed average of shimmering at each pixel (well, sort of at each pixel)
 
@@ -343,7 +344,7 @@ static FILTER_METHOD    TemporalCombMethod =
     DispatchTemporalComb,                   // Algorithm to use (really decided by GetFilterPluginInfo) 
     0,                                      // Menu: assign automatically
     FALSE,                                  // Does not run if we're out of time
-    NULL,                                   // No initialization procedure
+    StartTemporalComb,                      // No initialization procedure
     ExitTemporalComb,                       // Deallocation routine
     NULL,                                   // Module handle; Filled in by DScaler
     FLT_TCOMB_SETTING_LASTONE,              // Number of settings
@@ -398,21 +399,21 @@ void UpdateRequiredHistory(void)
 
 
 
-long DispatchTemporalComb( TDeinterlaceInfo *pInfo )
+long DispatchTemporalComb( TDeinterlaceInfo* pInfo )
 {
 
     if( gUsePrefetching == TRUE )
     {
        // MMXEXT with 3DNOW is the Athlon -- Coded separately since prefetchw is used
-        if( (gCpuFeatureFlags & FEATURE_MMXEXT) && (gCpuFeatureFlags & FEATURE_3DNOW) )
+        if( (pInfo->CpuFeatureFlags & FEATURE_MMXEXT) && (pInfo->CpuFeatureFlags & FEATURE_3DNOW) )
         {
             FilterTemporalComb_MMXEXT_PREFETCH( pInfo );
         }
-        else if( gCpuFeatureFlags & FEATURE_SSE )
+        else if( pInfo->CpuFeatureFlags & FEATURE_SSE )
         {
             FilterTemporalComb_SSE_PREFETCH( pInfo );
         }
-        else if( gCpuFeatureFlags & FEATURE_3DNOW )
+        else if( pInfo->CpuFeatureFlags & FEATURE_3DNOW )
         {
             FilterTemporalComb_3DNOW_PREFETCH( pInfo );
         }
@@ -423,15 +424,15 @@ long DispatchTemporalComb( TDeinterlaceInfo *pInfo )
     }
     else
     {
-        if( (gCpuFeatureFlags & FEATURE_MMXEXT) && (gCpuFeatureFlags & FEATURE_3DNOW) )
+        if( (pInfo->CpuFeatureFlags & FEATURE_MMXEXT) && (pInfo->CpuFeatureFlags & FEATURE_3DNOW) )
         {
             FilterTemporalComb_MMXEXT( pInfo );
         }
-        else if( gCpuFeatureFlags & FEATURE_SSE )
+        else if( pInfo->CpuFeatureFlags & FEATURE_SSE )
         {
             FilterTemporalComb_SSE( pInfo );
         }
-        else if( gCpuFeatureFlags & FEATURE_3DNOW )
+        else if( pInfo->CpuFeatureFlags & FEATURE_3DNOW )
         {
             FilterTemporalComb_3DNOW( pInfo );
         }
@@ -485,6 +486,14 @@ long DispatchTemporalComb( TDeinterlaceInfo *pInfo )
 // Start of utility code
 /////////////////////////////////////////////////////////////////////////////
 
+
+void __cdecl StartTemporalComb( void )
+{
+    UpdateRequiredHistory();
+    return;
+}
+
+
 void __cdecl ExitTemporalComb( void )
 {
     CleanupTemporalComb();
@@ -522,7 +531,6 @@ void CleanupTemporalComb( void )
 
 __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo( long CpuFeatureFlags )
 {
-    gCpuFeatureFlags = CpuFeatureFlags;
     return &TemporalCombMethod;
 }
 
@@ -564,21 +572,21 @@ BOOL WINAPI _DllMainCRTStartup(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lp
 // Initialization here could be improved, but I won't bother since this routine is
 // likely to become obsolete.
 
-LONG UpdateBuffers( TDeinterlaceInfo *pInfo )
+LONG UpdateBuffers( TDeinterlaceInfo* pInfo )
 {
 	// NTSC needs to save 4 past fields, PAL needs to save 8
 	const LONG		kUsedBuffers[2] = {5, 9};
     int             Index = 0;
-    static LONG     HistoryWait = 0;
+    static LONG     sHistoryWait = 0;
     BYTE*           pTempBuffer = NULL;
 
-    --HistoryWait;
+    --sHistoryWait;
 
     for ( ; Index < kUsedBuffers[gMode]; ++Index)
     {
         if( gppFieldBuffer[Index] == NULL )
         {
-            HistoryWait = Index;    // ~ number of fields until buffer is filled with data
+            sHistoryWait = Index;    // ~ number of fields until buffer is filled with data
             gppFieldBuffer[Index] = DumbAlignedMalloc( pInfo->InputPitch * pInfo->FieldHeight );
             if( gppFieldBuffer[Index] == NULL )
             {
@@ -619,13 +627,13 @@ LONG UpdateBuffers( TDeinterlaceInfo *pInfo )
         );
     }
 
-    if (HistoryWait > 0)
+    if (sHistoryWait > 100)
     {
         return 1000;            // Don't use buffers until they've been initialized with useful data
     }
     else
     {
-        HistoryWait = 0;
+        sHistoryWait = 0;
         return 0;
     }
 }

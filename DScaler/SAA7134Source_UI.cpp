@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.21 2002-11-10 09:30:56 atnak Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.22 2002-11-28 13:38:01 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2002/11/10 09:30:56  atnak
+// Added Chroma only comb filter mode for SECAM
+//
 // Revision 1.20  2002/11/10 05:11:23  atnak
 // Added adjustable audio input level
 //
@@ -1235,15 +1238,7 @@ BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
     }
     else if (LOWORD(wParam) == SAA7134MENU_AUDIOSTANDARD_START + AUDIOSTANDARD_LASTONE)
     {
-        // "Custom Settings ..." menu
-        if (m_hSAA7134ResourceInst != NULL)
-        {
-            DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_AUDIOSTANDARD_CUSTOM), hWnd, AudioStandardProc, (LPARAM)this);
-        }
-        else
-        {
-            ShowText(hWnd, "SAA7134Res.dll not loaded");
-        }
+        DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_AUDIOSTANDARD_CUSTOM), hWnd, AudioStandardProc, (LPARAM)this);
     }
 
     switch(LOWORD(wParam))

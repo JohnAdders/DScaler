@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Types.cpp,v 1.33 2003-04-23 08:43:56 adcockj Exp $
+// $Id: BT848Card_Types.cpp,v 1.34 2003-06-01 15:04:16 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2003/04/23 08:43:56  adcockj
+// Changed PLL on Aimslab VHX
+//
 // Revision 1.32  2003/04/23 08:41:22  adcockj
 // Chnaged STB PLL
 //
@@ -3553,6 +3556,41 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         CAudioDecoder::AUDIODECODERTYPE_WINDVR,
         0x140007,
         { 0, 1, 2, 3, 4, 0 }
+    },
+    // details provided by Nikola Maric
+    {
+        "APAC Viewcomp BT878",
+        4,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                2,
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                3,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                1,
+            },
+            {
+                "Composite over S-Video",
+                INPUTTYPE_COMPOSITE,
+                1,
+            },
+        },
+        PLL_28,
+        TUNER_PHILIPS_NTSC,
+        SOUNDCHIP_NONE,
+        NULL,
+        StandardBT848InputSelect,
+        CAudioDecoder::AUDIODECODERTYPE_DETECT,
+        0x400f,
+        {0x003ffff8, 0x003ffff0, 0x003ffff0, 0x003ffff0, 0x003ffff0, 0x003ffff0, }
     },
 };
 

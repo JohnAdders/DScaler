@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectFilters.cpp,v 1.7 2001-07-13 16:14:55 adcockj Exp $
+// $Id: AspectFilters.cpp,v 1.8 2001-07-18 18:38:12 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2001/07/13 16:14:55  adcockj
+// Changed lots of variables to match Coding standards
+//
 // Revision 1.6  2001/07/12 16:16:39  adcockj
 // Added CVS Id and Log
 //
@@ -37,6 +40,7 @@
 #include "Other.h"
 #include "DScaler.h"
 #include "Status.h"
+#include "BT848.h"
 
 // From dtv.c .... We really need to reduce reliance on globals by going C++!
 // Perhaps in the meantime, it could be passed as a parameter to WorkoutOverlay()
@@ -474,7 +478,14 @@ BOOL CScreenSanityAspectFilter::adjustAspect(CAspectRectangles &ar)
     // so that we see the appropriate portion on the screen
     // (this should make us compatable with YXY)
     RECT screenRect = {0,0,GetSystemMetrics(SM_CXSCREEN),GetSystemMetrics(SM_CYSCREEN) };
+    RECT sourceRect = {0, 0, CurrentX, CurrentY};
     ar.m_CurrentOverlayDestRect.crop(screenRect,&ar.m_CurrentOverlaySrcRect);
+
+    // then make sure we are still onscreen
+    ar.m_CurrentOverlayDestRect.cropToFitRect(screenRect);
+
+    // then make sure we are still onscreen
+    ar.m_CurrentOverlaySrcRect.cropToFitRect(sourceRect);
 
     // make sure that any alignment restrictions are taken care of
     if (SrcSizeAlign > 1)

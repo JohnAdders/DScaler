@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRect.h,v 1.8 2001-07-13 16:14:55 adcockj Exp $
+// $Id: AspectRect.h,v 1.9 2001-07-18 18:38:12 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -242,6 +242,26 @@ public:
     // Shift will attempt to shift the rectangle to fit.  Will crop Right/bottom if needed.
     void cropToFitRect(const RECT &r)
     {
+        if (left >= r.right)
+        {
+            left = r.right - 1;
+        }
+
+        if (top >= r.bottom)
+        {
+            top = r.bottom - 1;
+        }
+
+        if (right < r.left)
+        {
+            right = r.left + 1;
+        }
+
+        if (bottom < r.top)
+        {
+            bottom = r.top + 1;
+        }
+
         if (left < r.left)
         {
             left = r.left;

@@ -32,6 +32,16 @@
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Authors">
+			<param name="Local" value="Authors.htm">
+			<param name="ImageNumber" value="11">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Keyboard Shortcuts">
+			<param name="Local" value="keyboard.htm">
+			<param name="ImageNumber" value="11">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Thanks">
 			<param name="Local" value="Thanks.htm">
 			<param name="ImageNumber" value="11">

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsPerChannel.cpp,v 1.23 2002-10-07 20:33:05 kooiman Exp $
+// $Id: SettingsPerChannel.cpp,v 1.24 2002-12-04 15:15:25 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 DScaler team.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2002/10/07 20:33:05  kooiman
+// Fixed source==NULL bug.
+//
 // Revision 1.22  2002/10/02 10:52:35  kooiman
 // Fixed C++ type casting for events.
 //
@@ -947,6 +950,7 @@ int SettingsPerChannel_RegisterSetting(const char* szName,const char* szDescript
             //Should never happen
             return -1;
         }
+        
         //if (ChannelSetting->CompareToggleSetting (szName, szDescription))
         {
             LOG(3,"SPC: Register setting: already exists: %s (%s)",ChannelSetting->IniEntry(),ChannelSetting->sSubSection.c_str());

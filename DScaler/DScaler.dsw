@@ -606,7 +606,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "RegLog"=..\RegLog\RegLog.dsp - Package Owner=<4>
+Project: "RegSpy"=..\RegSpy\RegSpy.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -620,18 +620,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name DSDrvNT
     End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "RegSpy"=..\RegSpy\RegSpy.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
 }}}
 
 ###############################################################################

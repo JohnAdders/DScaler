@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_UI.cpp,v 1.16 2002-12-03 16:34:13 adcockj Exp $
+// $Id: CX2388xSource_UI.cpp,v 1.17 2002-12-04 15:15:24 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/12/03 16:34:13  adcockj
+// Corrected channel settings groupings
+//
 // Revision 1.15  2002/12/03 13:28:23  adcockj
 // Corrected per channel settings code
 //
@@ -602,6 +605,7 @@ void CCX2388xSource::SaveInputSettings(BOOL bOptimizeFileAccess)
 
 void CCX2388xSource::ChangeChannelSectionNames()
 {    
+    return;
     if (!m_SettingsByChannelStarted)
     {
         return;

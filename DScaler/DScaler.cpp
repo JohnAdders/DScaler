@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.313 2003-03-17 22:36:13 laurentg Exp $
+// $Id: DScaler.cpp,v 1.314 2003-03-19 23:56:35 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.313  2003/03/17 22:36:13  laurentg
+// First step for the navigation through channels in preview mode
+//
 // Revision 1.312  2003/03/16 18:31:25  laurentg
 // New multiple frames feature
 //
@@ -2860,20 +2863,20 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
 		case IDM_CHANNEL_PREVIEW:
-//            if (Providers_GetCurrentSource()->IsInTunerMode())
-//            {
+            if (Providers_GetCurrentSource()->IsInTunerMode())
+            {
                 if (pMultiFrames == NULL)
 				{
 					pMultiFrames = new CMultiFrames(9, 2000);
 				}
 				pMultiFrames->RequestSwitch();
-//            }
+            }
 			break;
 
 		case IDM_CHANNEL_INDEX:
 			if (pMultiFrames && pMultiFrames->IsActive())
 			{
-				Channel_Change(lParam-1, 1);
+				Channel_Change(lParam, 1);
 			}
 			break;
 

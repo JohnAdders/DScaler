@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.99 2003-02-05 15:11:44 laurentg Exp $
+// $Id: ProgramList.cpp,v 1.100 2003-03-19 23:56:36 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.99  2003/02/05 15:11:44  laurentg
+// Channel name as tip for the DScaler icon in the systray (patch from Kristian Trenskow)
+//
 // Revision 1.98  2003/01/24 01:55:17  atnak
 // OSD + Teletext conflict fix, offscreen buffering for OSD and Teletext,
 // got rid of the pink overlay colorkey for Teletext.
@@ -1956,6 +1959,7 @@ void Channels_SetMenu(HMENU hMenu)
     EnableMenuItem(hMenuChannels, IDM_CHANNELMINUS, bHasTuner && bInTunerMode?MF_ENABLED:MF_GRAYED);
     EnableMenuItem(hMenuChannels, IDM_CHANNEL_PREVIOUS, bHasTuner && bInTunerMode?MF_ENABLED:MF_GRAYED);
     EnableMenuItem(hMenuChannels, IDM_CHANNEL_LIST, bHasTuner?MF_ENABLED:MF_GRAYED);
+    EnableMenuItem(hMenuChannels, IDM_CHANNEL_PREVIEW, bHasTuner && bInTunerMode?MF_ENABLED:MF_GRAYED);
    
     for (int channelIndex = 0; channelIndex < MyChannels.GetSize() && (j < MAX_CHANNELS); channelIndex++)
     {

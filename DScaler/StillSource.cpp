@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.38 2002-02-27 20:47:21 laurentg Exp $
+// $Id: StillSource.cpp,v 1.39 2002-03-03 10:03:52 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.38  2002/02/27 20:47:21  laurentg
+// Still settings
+//
 // Revision 1.37  2002/02/26 21:24:25  laurentg
 // Move the test on the still file size in order to have a global treatment later
 //
@@ -272,6 +275,7 @@ BOOL CStillSource::LoadPlayList(LPCSTR FileName)
                     {
                         CPlayListItem* Item = new CPlayListItem(Buffer, 10);
                         m_PlayList.push_back(Item);
+                        LOG(2, "LoadPlayList: %s added to the playlist", Buffer);
                         if (!FirstItemAdded)
                         {
                             m_Position = m_PlayList.size() - 1;
@@ -297,6 +301,7 @@ BOOL CStillSource::LoadPlayList(LPCSTR FileName)
                     {
                         CPlayListItem* Item = new CPlayListItem(FilePath, 10);
                         m_PlayList.push_back(Item);
+                        LOG(2, "LoadPlayList: %s added to the playlist", FilePath);
                         if (!FirstItemAdded)
                         {
                             m_Position = m_PlayList.size() - 1;
@@ -317,6 +322,8 @@ BOOL CStillSource::OpenPictureFile(LPCSTR FileName)
     BOOL FileRead = FALSE;
     int h = m_Height;
     int w = m_Width;
+
+    LOG(2, "CStillSource::OpenPictureFile: File %s", FileName);
 
     if (m_OriginalFrame.pData != NULL)
     {
@@ -339,23 +346,45 @@ BOOL CStillSource::OpenPictureFile(LPCSTR FileName)
 
     if (FileRead && ((m_Width > DSCALER_MAX_WIDTH) || (m_Height > DSCALER_MAX_HEIGHT)) )
     {
+        int NewWidth;
+        int NewHeight;
+
         // The file can be read by DScaler but its size is too high for DScaler
-        // TODO : resize the file to a size compatible with DScaler
-        free(m_OriginalFrame.pData);
-        FileRead = FALSE;
+        if ( (m_Width - DSCALER_MAX_WIDTH) >= (m_Height - DSCALER_MAX_HEIGHT) )
+        {
+            NewWidth = DSCALER_MAX_WIDTH;
+            NewHeight = m_Height - m_Width + DSCALER_MAX_WIDTH;
+        }
+        else
+        {
+            NewHeight = DSCALER_MAX_HEIGHT;
+            NewWidth = m_Width - m_Height + DSCALER_MAX_HEIGHT;
+        }
+
+        LOG(2, "OpenPictureFile: Still must be resized : m_Width %d X m_Height %d => NewWidth %d X NewHeight %d", m_Width, m_Height, NewWidth, NewHeight);
+
+        if (!ResizeOriginalFrame(NewWidth, NewHeight))
+        {
+            free(m_OriginalFrame.pData);
+            FileRead = FALSE;
+        }
     }
 
     if (!FileRead)
     {
+        LOG(2, "OpenPictureFile: Still cannot be read");
         m_OriginalFrame.pData = NULL;
     }
     else
     {
+        LOG(2, "OpenPictureFile: Still ok m_Width %d X m_Height %d", m_Width, m_Height);
+
         m_IsPictureRead = TRUE;
 
         //check if size has changed
         if(m_Height != h || m_Width != w)
         {
+            LOG(2, "OpenPictureFile: Notify size change");
             NotifySizeChange();
         }
     }
@@ -380,6 +409,7 @@ BOOL CStillSource::OpenMediaFile(LPCSTR FileName, BOOL NewPlayList)
     // correct helper for the file type
     if(strlen(FileName) > 4 && stricmp(FileName + strlen(FileName) - 4, ".d3u") == 0)
     {
+        LOG(2, "CStillSource::OpenMediaFile: Playlist %s", FileName);
         if (LoadPlayList(FileName))
         {
             if (!ShowNextInPlayList())
@@ -404,17 +434,44 @@ BOOL CStillSource::OpenMediaFile(LPCSTR FileName, BOOL NewPlayList)
     return FALSE;
 }
 
+BOOL CStillSource::ResizeOriginalFrame(int NewWidth, int NewHeight)
+{
+    // Allocate memory for the new YUYV buffer
+    BYTE* NewBuf = (BYTE*)malloc(NewWidth * 2 * NewHeight * sizeof(BYTE));
+    if (NewBuf == NULL)
+    {
+        return FALSE;
+    }
+
+    // TODO : resize m_OriginalFrame.pData into NewBuf
+    // Size of m_OriginalFrame.pData is m_Width x m_Height
+    // Size of NewBuf is NewWidth x NewHeight
+    free(NewBuf);
+    return FALSE;
+
+    // Replace the old YUYV buffer by the new one
+    free(m_OriginalFrame.pData);
+    m_OriginalFrame.pData = NewBuf;
+    m_Width = NewWidth;
+    m_Height = NewHeight;
+
+    return TRUE;
+}
+
 BOOL CStillSource::ShowNextInPlayList()
 {
     while(m_Position < m_PlayList.size())
     {
+        LOG(2, "ShowNextInPlayList: pos %d", m_Position);
         if(OpenPictureFile(m_PlayList[m_Position]->GetFileName()))
         {
+            LOG(2, "ShowNextInPlayList: pos %d OK", m_Position);
             return TRUE;
         }
         ++m_Position;
     }
     m_Position = m_PlayList.size() - 1;
+    LOG(2, "ShowNextInPlayList: pos %d non OK", m_Position);
     return FALSE;
 }
 
@@ -422,13 +479,16 @@ BOOL CStillSource::ShowPreviousInPlayList()
 {
     while(m_Position >= 0)
     {
+        LOG(2, "ShowPreviousInPlayList: pos %d", m_Position);
         if(OpenPictureFile(m_PlayList[m_Position]->GetFileName()))
         {
+            LOG(2, "ShowPreviousInPlayList: pos %d OK", m_Position);
             return TRUE;
         }
         --m_Position;
     }
     m_Position = 0;
+    LOG(2, "ShowPreviousInPlayList: pos %d non OK", m_Position);
     return FALSE;
 }
 
@@ -463,6 +523,7 @@ void CStillSource::Start()
 {
     if (!m_IsPictureRead && IsAccessAllowed())
     {
+        LOG(2, "CStillSource::Start: Still must be read");
         ShowNextInPlayList();
         // The file is loaded and notification of size change is done
         // no need to call NotifySizeChange in this case
@@ -475,6 +536,7 @@ void CStillSource::Start()
     }
     m_LastTickCount = 0;
     m_NewFileRequested = STILL_REQ_NONE;
+    LOG(2, "CStillSource::Start");
 }
 
 void CStillSource::Stop()
@@ -500,6 +562,7 @@ void CStillSource::Stop()
     // size change will be generated
     m_Width = 0;
     m_Height = 0;
+    LOG(2, "CStillSource::Stop");
 }
 
 void CStillSource::Reset()
@@ -521,6 +584,7 @@ void CStillSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
         pInfo->FrameWidth = 720;
         pInfo->FrameHeight = 480;
         pInfo->PictureHistory[0] = NULL;
+        LOG(2, "CStillSource::GetNextField: Read field failed");
         return;
     }
 
@@ -730,16 +794,19 @@ BOOL CStillSource::ReadNextFrameInFile()
     switch (m_NewFileRequested)
     {
     case STILL_REQ_THIS_ONE:
+        LOG(2, "CStillSource::ReadNextFrameInFile: STILL_REQ_THIS_ONE %d", m_NewFileReqPos);
         m_Position = m_NewFileReqPos;
         OpenPictureFile(m_PlayList[m_Position]->GetFileName());
         Realloc = TRUE;
         break;
     case STILL_REQ_NEXT:
+        LOG(2, "CStillSource::ReadNextFrameInFile: STILL_REQ_NEXT %d", m_NewFileReqPos);
         m_Position = m_NewFileReqPos;
         ShowNextInPlayList();
         Realloc = TRUE;
         break;
     case STILL_REQ_NEXT_CIRC:
+        LOG(2, "CStillSource::ReadNextFrameInFile: STILL_REQ_NEXT_CIRC %d", m_NewFileReqPos);
         m_Position = m_NewFileReqPos;
         if (!ShowNextInPlayList())
         {
@@ -749,11 +816,13 @@ BOOL CStillSource::ReadNextFrameInFile()
         Realloc = TRUE;
         break;
     case STILL_REQ_PREVIOUS:
+        LOG(2, "CStillSource::ReadNextFrameInFile: STILL_REQ_PREVIOUS %d", m_NewFileReqPos);
         m_Position = m_NewFileReqPos;
         ShowPreviousInPlayList();
         Realloc = TRUE;
         break;
     case STILL_REQ_PREVIOUS_CIRC:
+        LOG(2, "CStillSource::ReadNextFrameInFile: STILL_REQ_PREVIOUS_CIRC %d", m_NewFileReqPos);
         m_Position = m_NewFileReqPos;
         if (!ShowPreviousInPlayList())
         {
@@ -778,6 +847,7 @@ BOOL CStillSource::ReadNextFrameInFile()
         if (m_StillFrame.pData == NULL)
         {
             m_StillFrame.pData = (BYTE*)malloc(m_Width * 2 * m_Height * sizeof(BYTE));
+            LOG(2, "CStillSource::ReadNextFrameInFile: Memory alloc for m_StillFrame.pData");
         }
         if (m_StillFrame.pData != NULL && m_OriginalFrame.pData != NULL)
         {
@@ -791,10 +861,12 @@ BOOL CStillSource::ReadNextFrameInFile()
             }
             return TRUE;
         }
+        LOG(2, "CStillSource::ReadNextFrameInFile: One of the two buffers is NULL");
         return FALSE;
     }
     else
     {
+        LOG(2, "CStillSource::ReadNextFrameInFile: Still was not correctly read");
         return FALSE;
     }
 }

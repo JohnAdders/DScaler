@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.22 2002-02-27 20:47:21 laurentg Exp $
+// $Id: StillSource.h,v 1.23 2002-03-03 10:03:50 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -126,6 +126,7 @@ private:
     BOOL ShowPreviousInPlayList();
     BOOL OpenPictureFile(LPCSTR FileName);
     BOOL SavePlayList(LPCSTR FileName);
+    BOOL ResizeOriginalFrame(int NewWidth, int NewHeight);
 
 protected:
     int         m_Width;

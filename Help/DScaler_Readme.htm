@@ -1,0 +1,122 @@
+<html><!-- #BeginTemplate "/Templates/dtvnormal.dwt" -->
+<head>
+<!-- #BeginEditable "doctitle" --> 
+<title>DScaler -- Readme Version 2.3</title>
+<!-- #EndEditable --> 
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<style type="text/css">
+<!--
+p {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+.bottommenu {  font-family: Arial, Helvetica, sans-serif; font-size: 8pt; font-style: normal; text-decoration: none}
+h3 {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt; font-style: normal; font-weight: bold}
+h1 {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 18pt; font-weight: bold}
+li {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+h2 {  font-family: Arial, Helvetica, sans-serif; font-size: 14pt; font-weight: bold}
+ol {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+blockquote {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+pre {  font-family: "Courier New", Courier, mono; font-size: 9pt}
+ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+-->
+</style>
+</head>
+
+<body bgcolor="#FFFFFF">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr> 
+    <td height="1" width="160"><img src="images/spacer.gif" width="1" height="1"></td>
+    <td height="1" width="342"><img src="images/spacer.gif" width="1" height="1"></td>
+    <td height="1" width="501"><img src="images/spacer.gif" width="1" height="1"></td>
+  </tr>
+  <tr> 
+    <td width="160"><img src="images/dscalerlogo.jpg" alt="DScaler Logo"></td>
+    <td colspan="2" align="right" valign="bottom">
+      <font face="Verdana, Arial, Helvetica, sans-serif" size="5"><b><!-- #BeginEditable "Page%20Title" -->READ ME&nbsp;<!-- #EndEditable --></b></font></td>
+  </tr>
+  <tr bgcolor="#FFCC00" align="right"> 
+    <td colspan="3"><img src="images/yellowspacer.gif" width="100%" height="2"></td>
+  </tr>
+  <tr> 
+    <td colspan="3">&nbsp;</td>
+  </tr>
+  <tr>
+    <td colspan="3"><!-- #BeginEditable "Text" --> 
+      <H1>DScaler - version 2.3.0</H1>
+      <P>What's new:<br>
+      &nbsp;&nbsp;&nbsp; Plug-in architecture<br>
+      &nbsp;&nbsp;&nbsp; Judder reduction<br>
+      &nbsp;&nbsp;&nbsp; New Greedy 2 Frame method (good for sports)<br>
+      &nbsp;&nbsp;&nbsp; Gamma filter<br>
+      &nbsp;&nbsp;&nbsp; Option to save settings per format/source<br>
+      &nbsp;&nbsp;&nbsp; WSS decoding for Pal and Secam sources<br>
+      &nbsp;&nbsp;&nbsp; Use of aspect ratio WSS data<br>
+      &nbsp;&nbsp;&nbsp; 3 screens of Information using OSD (general screen,
+      statistics screen and WSS data decoding screen)<br>
+      &nbsp;&nbsp;&nbsp; Autohide cursor feature<br>
+      &nbsp;&nbsp;&nbsp; Popup menu - right click in window<br>
+      &nbsp;&nbsp;&nbsp; New menu with direct access to all channels<br>
+      &nbsp;&nbsp;&nbsp; Command to go to the last viewed channel<br>
+      &nbsp;&nbsp;&nbsp; Single click replaced by double click to switch between
+      window mode and fullscreen mode<br>
+      &nbsp;&nbsp;&nbsp; >Option to save last used video
+      format per video input<br>
+      &nbsp;&nbsp;&nbsp; Zoom feature - still experimental<br>
+      &nbsp;&nbsp;&nbsp; Adjustable window position<br>
+      &nbsp;&nbsp;&nbsp; Orbiting &amp; Bounce<br>
+      &nbsp;&nbsp;&nbsp; CC support - experimental - lots of known problems<br>
+      &nbsp;&nbsp;&nbsp; Teletext support - experimental - lots of known
+      problems<br>
+      </font>
+      </P>
+      <H2>License:</H2>
+      <P>This file is subject to the terms of the <A HREF=http://www.gnu.org/copyleft/gpl.html>GNU 
+        General Public License</A> as published by the Free Software Foundation. 
+        A copy of this license is included with this software distribution in 
+        the file COPYING.html. If you do not have a copy, you may obtain a copy 
+        by writing to the Free Software Foundation, 675 Mass Ave, Cambridge, MA 
+        02139, USA.</P>
+      <P>This software is distributed in the hope that it will be useful, but 
+        WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+        or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License 
+        for more details</P>
+      <H2>Requirements:</H2>
+      <P>- I think it will run on Win 95/98 and NT. I have tested it on 98, Windows 
+        2000.<br>
+      - You will need a processor faster than about Pentium II 400MHz to use all
+      the features<br>
+      - You will definitely need a PCI TV card with a BT848 BT849 BT878 BT879 
+        in it.<br>
+      - This software will not work with ATI All-in-Wonder or Matrox TV cards.</P>
+      <h1><font color="#FF0000">Warning</font></h1>
+      <P><font color="#FF0000">This program installs a temporary driver while 
+        it runs.&nbsp; This means that some of the code runs inside Ring0 along 
+        with the kernel.&nbsp; What this means is that if anything goes wrong 
+        this program can crash your whole system causing a BSOD in NT or a hanging 
+        95/98.&nbsp; If using a debugger then it it is very important 
+        that the program is allowed to shut down normally.&nbsp; If you use Stop 
+        Debugging while running the program you system WILL crash.</font></P>
+      <P><font color="#FF0000">As a precaution sync the disks before running this 
+        program.&nbsp; Use the sync utility from <a href="http://www.sysinternals.com/">http://www.sysinternals.com/</a> 
+        for whichever operating system you are running.</font></P>
+      <p><a href="Authors.htm">Authors</a></p>
+      <p><a href="Thanks.htm">Thanks</a></p>
+      <p><a href="user_support.htm">Support</a></p>
+      <p><a href="32spec.htm">Mark Rejhon's 3:2 Spec</a></p>
+      <p><a href="IniFile.HTM">Ini File Settings</a></p>
+      <p><a href="keyboard.htm"> Keyboard Shortcuts</a></p>
+      <H2>Enjoy!</H2>
+<!-- #EndEditable -->
+	</td>
+  </tr>
+  <tr> 
+    <td colspan="3">&nbsp;</td>
+  </tr>
+  <tr bgcolor="#FFCC00"> 
+    <td colspan="3"> 
+      <div align="center"><img src="images/yellowspacer.gif" width="100%" height="2"></div>
+    </td>
+  </tr>
+</table>
+<p>&nbsp;</p>
+</body>
+<!-- #EndTemplate -->
+</html>

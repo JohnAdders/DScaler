@@ -1,0 +1,1371 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#define APSTUDIO_HIDDEN_SYMBOLS
+#include "windows.h"
+#undef APSTUDIO_HIDDEN_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+HWINFO DIALOG DISCARDABLE  22, 17, 201, 206
+STYLE DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
+CAPTION "DScaler Hardware Information"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,68,187,65,14,WS_GROUP
+    LTEXT           "",IDC_TEXT1,66,15,125,10
+    LTEXT           "BT-Typ",IDC_STATIC,5,15,40,10
+    LTEXT           "",IDC_TEXT6,66,25,125,10
+    LTEXT           "Vendor ID",IDC_STATIC,5,25,40,10
+    LTEXT           "",IDC_TEXT7,66,35,125,10
+    LTEXT           "Device ID",IDC_STATIC,5,35,40,10
+    LTEXT           "",IDC_TEXT13,66,51,125,10
+    LTEXT           "Tuner",IDC_STATIC,5,51,45,10
+    LTEXT           "",IDC_TEXT14,66,61,125,10
+    LTEXT           "MSP/Radio",IDC_STATIC,5,61,43,10
+    LTEXT           "",IDC_TEXT15,66,80,125,10
+    LTEXT           "Videotext",IDC_STATIC,5,80,40,10
+    LTEXT           "",IDC_TEXT16,66,70,125,10
+    LTEXT           "MSP-Version",IDC_STATIC,5,70,43,10
+    LTEXT           "",IDC_TEXT17,66,109,125,10
+    LTEXT           "Surface",IDC_STATIC,5,110,45,10
+    LTEXT           "",IDC_TEXT18,66,120,125,10
+    LTEXT           "Overlay",IDC_STATIC,5,120,45,10
+    LTEXT           "",IDC_TEXT19,66,129,125,10
+    LTEXT           "Overlay-Strech",IDC_STATIC,5,131,50,10
+    GROUPBOX        "BT-Hardware",IDC_STATIC,3,2,195,95
+    GROUPBOX        "Video-Subsystem",IDC_STATIC,3,100,195,50
+    GROUPBOX        "Processor",IDC_STATIC,3,152,195,33
+    LTEXT           "CPU Type",IDC_STATIC,5,166,45,10
+    LTEXT           "",IDC_CPU_TYPE,66,166,125,10
+END
+
+CHANNELLIST DIALOG DISCARDABLE  22, 17, 75, 156
+STYLE DS_MODALFRAME | DS_SETFOREGROUND | DS_3DLOOK | WS_VISIBLE | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "Channel List"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK2,50,20,40,14,WS_GROUP
+END
+
+VIDEOTEXT DIALOG DISCARDABLE  22, 17, 417, 330
+STYLE DS_MODALFRAME | DS_SETFOREGROUND | DS_3DLOOK | WS_VISIBLE | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "DScaler Videotext"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "",-1,4,25,406,285
+    CTEXT           "",IDC_TEXT21,355,5,55,8,SS_CENTERIMAGE
+    EDITTEXT        IDC_EDIT1,31,7,17,12,ES_NUMBER
+    LTEXT           "Page",-1,9,6,17,12,SS_CENTERIMAGE
+    ICON            "VTBACK",-1,56,3,20,20
+    ICON            "VTNEXT",-1,76,3,20,20
+    ICON            "VTHOME",-1,96,3,20,20
+    CTEXT           "",IDC_TEXT,190,5,65,8,SS_CENTERIMAGE
+    CTEXT           "",IDC_TEXT20,190,16,65,8,SS_CENTERIMAGE
+    ICON            "VTUPDOWN",-1,116,3,20,20
+    DEFPUSHBUTTON   "Cancel",IDCANCEL,345,315,65,15
+END
+
+SPLASHBOX DIALOGEX 0, 0, 145, 192
+STYLE DS_SYSMODAL | DS_NOIDLEMSG | DS_SETFOREGROUND | DS_3DLOOK | WS_POPUP | 
+    WS_BORDER
+EXSTYLE WS_EX_NOPARENTNOTIFY
+FONT 8, "System"
+BEGIN
+    CONTROL         "STARTUP",IDC_P1,"Static",SS_BITMAP,0,0,11,11
+    LISTBOX         IDC_LIST1,38,140,66,48,NOT LBS_NOTIFY | 
+                    LBS_NOINTEGRALHEIGHT | NOT WS_BORDER | WS_TABSTOP
+END
+
+VIDEOTEXTSMALL DIALOG DISCARDABLE  22, 17, 277, 236
+STYLE DS_MODALFRAME | DS_SETFOREGROUND | DS_3DLOOK | WS_VISIBLE | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "DScaler Videotext"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "",-1,4,25,271,192
+    CTEXT           "",IDC_TEXT,145,5,65,8,SS_CENTERIMAGE
+    CTEXT           "",IDC_TEXT20,145,16,65,8,SS_CENTERIMAGE
+    EDITTEXT        IDC_EDIT1,31,7,17,12,ES_NUMBER
+    LTEXT           "Page",-1,9,6,17,12,SS_CENTERIMAGE
+    ICON            "VTBACK",-1,56,3,20,20
+    ICON            "VTNEXT",-1,76,3,20,20
+    ICON            "VTHOME",-1,96,3,20,20
+    ICON            "VTUPDOWN",-1,116,3,20,20
+    CTEXT           "",IDC_TEXT21,220,5,55,8,SS_CENTERIMAGE
+    DEFPUSHBUTTON   "Cancel",IDCANCEL,210,220,65,15
+END
+
+VIDEOSETTINGS DIALOG DISCARDABLE  0, 0, 358, 183
+STYLE DS_SYSMODAL | DS_SETFOREGROUND | DS_3DLOOK | WS_POPUP | WS_VISIBLE | 
+    WS_CAPTION | WS_SYSMENU
+CAPTION "Video Settings"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "&Brightness",IDC_STATIC,6,13,33,10
+    CONTROL         "Slider1",IDC_SLIDER1,"msctls_trackbar32",TBS_TOP | 
+                    WS_TABSTOP,50,5,258,20
+    EDITTEXT        IDC_D1,315,10,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+                    WS_DISABLED | NOT WS_TABSTOP
+    LTEXT           "Con&trast",IDC_STATIC,6,33,33,10
+    CONTROL         "Slider1",IDC_SLIDER2,"msctls_trackbar32",TBS_TOP | 
+                    WS_TABSTOP,50,25,258,20
+    EDITTEXT        IDC_D2,315,30,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+                    WS_DISABLED | NOT WS_TABSTOP
+    LTEXT           "&Hue",IDC_STATIC,6,52,33,10
+    CONTROL         "Slider1",IDC_SLIDER3,"msctls_trackbar32",TBS_TOP | 
+                    WS_TABSTOP,50,45,258,20
+    EDITTEXT        IDC_D3,315,50,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+                    WS_DISABLED | NOT WS_TABSTOP
+    LTEXT           "&Color",IDC_STATIC,6,73,33,10
+    CONTROL         "Slider1",IDC_SLIDER4,"msctls_trackbar32",TBS_TOP | 
+                    WS_TABSTOP,50,65,258,20
+    EDITTEXT        IDC_D4,315,70,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+                    WS_DISABLED | NOT WS_TABSTOP
+    LTEXT           "Color &U",IDC_STATIC,6,93,33,10
+    CONTROL         "Slider1",IDC_SLIDER5,"msctls_trackbar32",TBS_TOP | 
+                    WS_TABSTOP,50,85,258,20
+    EDITTEXT        IDC_D5,315,90,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+                    WS_DISABLED | NOT WS_TABSTOP
+    LTEXT           "Color &V",IDC_STATIC,6,113,33,10
+    CONTROL         "Slider1",IDC_SLIDER6,"msctls_trackbar32",TBS_TOP | 
+                    WS_TABSTOP,50,105,258,20
+    EDITTEXT        IDC_D6,315,110,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+                    WS_DISABLED | NOT WS_TABSTOP
+    LTEXT           "&Overscan",IDC_STATIC,6,133,33,10
+    CONTROL         "Slider1",IDC_SLIDER7,"msctls_trackbar32",TBS_TOP | 
+                    WS_TABSTOP,50,125,258,20
+    EDITTEXT        IDC_D7,315,130,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+                    WS_DISABLED | NOT WS_TABSTOP
+    DEFPUSHBUTTON   "&OK",IDOK,6,161,45,15
+    PUSHBUTTON      "Cancel",IDCANCEL,57,161,45,15,WS_GROUP
+    PUSHBUTTON      "&Default",IDDEFAULT,113,161,45,15
+    CONTROL         "Save Settings by &Format",IDC_BYFORMAT,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,166,153,94,10
+    CONTROL         "Save Settings by &Input",IDC_BYINPUT,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,166,167,88,9
+    PUSHBUTTON      "Save Current to All Formats",IDC_ALLFORMATS,260,153,90,
+                    10,WS_DISABLED
+    PUSHBUTTON      "Save Current to All Inputs",IDC_ALLINPUTS,259,166,91,10,
+                    WS_DISABLED
+END
+
+AUDIOEINSTELLUNGEN DIALOG DISCARDABLE  0, 0, 257, 236
+STYLE DS_SYSMODAL | DS_SETFOREGROUND | DS_3DLOOK | WS_POPUP | WS_VISIBLE | 
+    WS_CAPTION | WS_SYSMENU
+CAPTION "Audio-Settings (Analog)"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CTEXT           "Volume",IDC_STATIC,10,10,33,10
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,5,5,45,150
+    DEFPUSHBUTTON   "OK",IDOK,205,215,45,15
+    PUSHBUTTON      "Default",IDDEFAULT,105,215,45,15
+    CONTROL         "SLIDER",IDC_STATIC,"Static",SS_BITMAP,20,40,15,13
+    PUSHBUTTON      "",IDC_S1,20,55,15,10,WS_DISABLED
+    EDITTEXT        IDC_D1,10,30,35,10,ES_CENTER | ES_AUTOHSCROLL | 
+                    WS_DISABLED
+    CTEXT           "Enhancer",IDC_STATIC,60,10,33,10
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,55,5,45,150
+    CONTROL         "SLIDER",IDC_STATIC,"Static",SS_BITMAP,70,40,15,13
+    PUSHBUTTON      "",IDC_S2,70,55,15,10,WS_DISABLED
+    EDITTEXT        IDC_D2,60,30,35,10,ES_CENTER | ES_AUTOHSCROLL | 
+                    WS_DISABLED
+    CTEXT           "Loudness",IDC_STATIC,110,10,33,10
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,105,5,45,150
+    CONTROL         "SLIDER",IDC_STATIC,"Static",SS_BITMAP,120,40,15,13
+    PUSHBUTTON      "",IDC_S3,120,55,15,10,WS_DISABLED
+    EDITTEXT        IDC_D3,110,30,35,10,ES_CENTER | ES_AUTOHSCROLL | 
+                    WS_DISABLED
+    CTEXT           "Bass",IDC_STATIC,160,10,33,8
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,155,5,45,150
+    CONTROL         "SLIDER",IDC_STATIC,"Static",SS_BITMAP,170,40,15,13
+    PUSHBUTTON      "",IDC_S4,170,55,15,10,WS_DISABLED
+    EDITTEXT        IDC_D4,160,30,35,10,ES_CENTER | ES_AUTOHSCROLL | 
+                    WS_DISABLED
+    CTEXT           "Treble",IDC_STATIC,210,10,33,10
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,205,5,45,150
+    CONTROL         "SLIDER",IDC_STATIC,"Static",SS_BITMAP,220,40,15,13
+    PUSHBUTTON      "",IDC_S5,220,55,15,10,WS_DISABLED
+    EDITTEXT        IDC_D5,210,30,35,10,ES_CENTER | ES_AUTOHSCROLL | 
+                    WS_DISABLED
+    PUSHBUTTON      "Cancel",IDCANCEL,5,215,45,15
+    GROUPBOX        "",IDC_STATIC,5,155,245,35
+    CTEXT           "Balance",IDC_STATIC,10,165,33,10
+    EDITTEXT        IDC_D6,45,165,35,10,ES_CENTER | ES_AUTOHSCROLL | 
+                    WS_DISABLED
+    CONTROL         "SLIDER1",IDC_STATIC,"Static",SS_BITMAP,130,165,15,13
+    PUSHBUTTON      "",IDC_S6,180,165,10,15,WS_DISABLED
+    CONTROL         "Activate Superbass",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,95,195,125,10
+    CTEXT           "(+/-)",IDC_STATIC,10,20,33,10
+END
+
+AUDIOEINSTELLUNGEN1 DIALOG DISCARDABLE  0, 0, 257, 175
+STYLE DS_SYSMODAL | DS_SETFOREGROUND | DS_3DLOOK | WS_POPUP | WS_VISIBLE | 
+    WS_CAPTION | WS_SYSMENU
+CAPTION "Audio-Settings Equalizer"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CTEXT           "Channel 1",-1,10,10,33,10
+    CONTROL         "",-1,"Static",SS_ETCHEDFRAME,5,5,45,150
+    DEFPUSHBUTTON   "OK",IDOK,205,160,45,15
+    PUSHBUTTON      "Default",IDDEFAULT,105,160,45,15
+    CONTROL         "SLIDER",-1,"Static",SS_BITMAP,20,40,15,13
+    PUSHBUTTON      "",IDC_S1,20,55,15,10,WS_DISABLED
+    EDITTEXT        IDC_D1,10,30,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+                    WS_DISABLED
+    CTEXT           "Channel 2",-1,60,10,33,10
+    CONTROL         "",-1,"Static",SS_ETCHEDFRAME,55,5,45,150
+    CONTROL         "SLIDER",-1,"Static",SS_BITMAP,70,40,15,13
+    PUSHBUTTON      "",IDC_S2,70,55,15,10,WS_DISABLED
+    EDITTEXT        IDC_D2,60,30,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+                    WS_DISABLED
+    CTEXT           "Channel 3",-1,110,10,33,10
+    CONTROL         "",-1,"Static",SS_ETCHEDFRAME,105,5,45,150
+    CONTROL         "SLIDER",-1,"Static",SS_BITMAP,120,40,15,13
+    PUSHBUTTON      "",IDC_S3,120,55,15,10,WS_DISABLED
+    EDITTEXT        IDC_D3,110,30,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+                    WS_DISABLED
+    CTEXT           "Channel 4",-1,160,10,33,8
+    CONTROL         "",-1,"Static",SS_ETCHEDFRAME,155,5,45,150
+    CONTROL         "SLIDER",-1,"Static",SS_BITMAP,170,40,15,13
+    PUSHBUTTON      "",IDC_S4,170,55,15,10,WS_DISABLED
+    EDITTEXT        IDC_D4,160,30,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+                    WS_DISABLED
+    CTEXT           "Channel 5",-1,210,10,33,10
+    CONTROL         "",-1,"Static",SS_ETCHEDFRAME,205,5,45,150
+    CONTROL         "SLIDER",-1,"Static",SS_BITMAP,220,40,15,13
+    PUSHBUTTON      "",IDC_S5,220,55,15,10,WS_DISABLED
+    EDITTEXT        IDC_D5,210,30,35,12,ES_CENTER | ES_AUTOHSCROLL | 
+                    WS_DISABLED
+    PUSHBUTTON      "Cancel",IDCANCEL,7,160,45,15
+END
+
+VIDEOTEXTUNTERTITEL DIALOG DISCARDABLE  22, 17, 236, 222
+STYLE DS_SYSMODAL | DS_SETFOREGROUND | DS_3DLOOK | WS_VISIBLE | WS_CAPTION | 
+    WS_SYSMENU | WS_THICKFRAME
+CAPTION "DScaler Sub-titles"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_EDIT1,31,7,17,12,ES_NUMBER
+    LTEXT           "Page",-1,9,6,16,12,SS_CENTERIMAGE
+    DEFPUSHBUTTON   "OK",IDOK,95,205,40,15
+END
+
+VTSTATUS DIALOG DISCARDABLE  22, 17, 237, 135
+STYLE DS_MODALFRAME | DS_SETFOREGROUND | DS_3DLOOK | WS_VISIBLE | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "DScaler Videotext Info"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,100,120,50,15
+    LTEXT           "Favourites",IDC_STATIC,10,70,40,10
+    EDITTEXT        TEXT3,105,70,45,12,ES_RIGHT | ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "SubCode",IDC_STATIC,10,85,30,10
+    EDITTEXT        TEXT5,105,85,45,12,ES_RIGHT | ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "Pages Cached",IDC_STATIC,10,25,55,10
+    EDITTEXT        TEXT1,105,25,45,12,ES_RIGHT | ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "Current Page",IDC_STATIC,10,40,55,10
+    EDITTEXT        TEXT2,105,40,45,12,ES_RIGHT | ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "Last incorrect page",IDC_STATIC,10,100,85,10
+    EDITTEXT        TEXT7,105,100,45,12,ES_RIGHT | ES_AUTOHSCROLL | 
+                    ES_READONLY
+    GROUPBOX        "Sub-title pages",IDC_STATIC,160,15,75,100
+    GROUPBOX        "Supervisor state",IDC_STATIC,5,15,150,100
+    CTEXT           "",TEXT8,165,25,30,8
+    CTEXT           "",TEXT9,200,25,30,8
+    CTEXT           "",TEXT10,165,40,30,8
+    CTEXT           "",TEXT11,200,40,30,8
+    CTEXT           "",TEXT12,165,55,30,8
+    CTEXT           "",TEXT13,200,55,30,8
+    CTEXT           "",TEXT14,165,70,30,8
+    CTEXT           "",TEXT15,200,70,30,8
+    LTEXT           "Current RollCode",IDC_STATIC,10,55,70,10
+    EDITTEXT        TEXT4,105,55,45,12,ES_RIGHT | ES_AUTOHSCROLL | 
+                    ES_READONLY
+    CTEXT           "",TEXT16,165,85,30,8
+    CTEXT           "",TEXT17,200,85,30,8
+    CTEXT           "",TEXT18,165,100,30,8
+    CTEXT           "",TEXT19,200,100,30,8
+    LTEXT           "VBI-FPS",IDC_STATIC,165,0,30,10
+    EDITTEXT        IDT_VBI_FPS,201,0,25,12,ES_RIGHT | ES_AUTOHSCROLL | 
+                    ES_READONLY
+END
+
+VPSSTATUS DIALOG DISCARDABLE  22, 17, 187, 66
+STYLE DS_MODALFRAME | DS_SETFOREGROUND | DS_3DLOOK | WS_VISIBLE | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "DScaler VPS Info"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,70,50,50,15
+    CTEXT           "",TEXT1,10,20,165,10
+    GROUPBOX        "VPS-Identifier",IDC_STATIC,5,10,180,35
+    LTEXT           "VBI-FPS",IDC_STATIC,120,0,30,10
+    EDITTEXT        IDT_VBI_FPS,155,0,25,12,ES_RIGHT | ES_AUTOHSCROLL | 
+                    ES_READONLY
+END
+
+MIXERSETTINGS DIALOG DISCARDABLE  22, 17, 402, 266
+STYLE DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
+CAPTION "DScaler Mixer Setup"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,340,250,55,15
+    PUSHBUTTON      "Cancel",IDCANCEL,5,250,55,15
+    COMBOBOX        IDC_COMBO1,81,5,170,110,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    LTEXT           "Device",IDC_STATIC,11,5,55,12,SS_CENTERIMAGE
+    COMBOBOX        IDC_COMBO2,95,20,155,110,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    LTEXT           "Output",IDC_STATIC,11,20,70,12,SS_CENTERIMAGE
+    COMBOBOX        IDC_COMBO3,111,36,140,110,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    LTEXT           "Input",IDC_STATIC,11,35,70,12,SS_CENTERIMAGE
+    GROUPBOX        "Control Item",IDC_STATIC,5,50,255,155
+    COMBOBOX        IDC_COMBO4,121,60,130,110,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    LTEXT           "Control ID",IDC_STATIC,15,80,50,10
+    LTEXT           "Control Type",IDC_STATIC,15,90,50,10
+    LTEXT           "Forward Control",IDC_STATIC,15,100,55,10
+    LTEXT           "Multiple Items",IDC_STATIC,15,110,50,10
+    LTEXT           "Short Name",IDC_STATIC,15,120,40,10
+    LTEXT           "Long Name",IDC_STATIC,15,130,40,10
+    RTEXT           "",TEXT1,75,80,55,10
+    RTEXT           "",TEXT2,75,90,55,10
+    RTEXT           "",TEXT3,75,100,55,10
+    RTEXT           "",TEXT4,75,110,55,10
+    RTEXT           "",TEXT5,55,120,75,10
+    RTEXT           "",TEXT6,55,130,195,10
+    LTEXT           "Minimum",IDC_STATIC,135,80,40,10
+    LTEXT           "Maximum",IDC_STATIC,135,90,35,10
+    LTEXT           "Steps",IDC_STATIC,135,101,30,10
+    RTEXT           "",TEXT7,180,80,70,10
+    RTEXT           "",TEXT8,180,90,70,10
+    RTEXT           "",TEXT9,180,101,70,10
+    LTEXT           "Channels",IDC_STATIC,135,110,30,10
+    RTEXT           "",TEXT10,180,110,70,10
+    LTEXT           "Typ",IDC_STATIC,135,120,25,10
+    RTEXT           "",TEXT11,180,121,70,10
+    LTEXT           "Switches",IDC_TEXT12,15,150,35,10,NOT WS_VISIBLE
+    RTEXT           "",TEXT12,55,150,60,10,NOT WS_VISIBLE
+    PUSHBUTTON      "Switch",IDC_BUTTON1,55,160,60,10,NOT WS_VISIBLE
+    PUSHBUTTON      "+",IDC_BUTTON2,55,160,25,10,NOT WS_VISIBLE
+    PUSHBUTTON      "-",IDC_BUTTON3,91,160,25,10,NOT WS_VISIBLE
+    LTEXT           "Switches",IDC_TEXT13,151,150,35,10,NOT WS_VISIBLE
+    RTEXT           "",TEXT13,191,150,60,10,NOT WS_VISIBLE
+    PUSHBUTTON      "Switches",IDC_BUTTON4,191,160,60,10,NOT WS_VISIBLE
+    PUSHBUTTON      "+",IDC_BUTTON5,191,160,25,10,NOT WS_VISIBLE
+    PUSHBUTTON      "-",IDC_BUTTON6,226,160,25,10,NOT WS_VISIBLE
+    LTEXT           "Switches",IDC_TEXT14,15,175,35,10,NOT WS_VISIBLE
+    RTEXT           "",TEXT14,55,175,60,10,NOT WS_VISIBLE
+    PUSHBUTTON      "Switches",IDC_BUTTON7,55,185,60,10,NOT WS_VISIBLE
+    PUSHBUTTON      "+",IDC_BUTTON8,55,185,25,10,NOT WS_VISIBLE
+    PUSHBUTTON      "-",IDC_BUTTON9,91,185,25,10,NOT WS_VISIBLE
+    LTEXT           "Switches",IDC_TEXT15,151,175,35,10,NOT WS_VISIBLE
+    RTEXT           "",TEXT15,191,175,60,10,NOT WS_VISIBLE
+    PUSHBUTTON      "Switches",IDC_BUTTON10,191,185,60,10,NOT WS_VISIBLE
+    PUSHBUTTON      "+",IDC_BUTTON11,191,185,25,10,NOT WS_VISIBLE
+    PUSHBUTTON      "-",IDC_BUTTON12,226,185,25,10,NOT WS_VISIBLE
+    LTEXT           "Internet ID",IDC_STATIC,15,215,35,10
+    LTEXT           "",TEXT20,61,215,74,10
+    LTEXT           "Control",IDC_STATIC,15,60,80,10
+    CONTROL         "Set at Program start",IDC_CHECK1,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,15,230,120,10
+    CONTROL         "As Mute",IDC_CHECK2,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,155,230,100,10
+    CONTROL         "As Volume/Balance",IDC_CHECK3,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,155,220,100,10
+    GROUPBOX        "Use As",IDC_STATIC,5,205,255,40
+    LISTBOX         IDC_LIST1,270,20,125,225,LBS_NOINTEGRALHEIGHT | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Active adjustments",IDC_STATIC,270,5,95,8
+    GROUPBOX        "Current status",IDC_STATIC,10,140,245,60
+END
+
+MIXERSETUP DIALOG DISCARDABLE  22, 17, 307, 181
+STYLE DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
+CAPTION "DScaler Mixer Setup"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Audio-Device",IDC_STATIC,5,30,45,10
+    LTEXT           "",TEXT1,55,30,95,20
+    LTEXT           "Volume-Control",IDC_STATIC,5,60,50,10
+    LTEXT           "",TEXT2,55,60,95,20
+    LTEXT           "Mute-Control",IDC_STATIC,5,90,50,10
+    LTEXT           "",TEXT3,55,90,95,20
+    DEFPUSHBUTTON   "OK",IDOK,5,165,55,15
+    PUSHBUTTON      "Cancel",IDCANCEL,245,165,55,15
+    PUSHBUTTON      "Assign",IDC_BUTTON1,125,165,55,15
+    CTEXT           "Volume",TEXT13,160,10,33,10
+    CONTROL         "",TEXT4,"Static",SS_ETCHEDFRAME,155,5,45,150
+    CONTROL         "SLIDER",TEXT7,"Static",SS_BITMAP,170,40,15,13
+    PUSHBUTTON      "",IDC_S1,170,55,15,10,WS_DISABLED
+    EDITTEXT        IDC_D1,160,30,35,10,ES_CENTER | ES_AUTOHSCROLL | 
+                    WS_DISABLED
+    CTEXT           "Left",TEXT10,160,20,33,10
+    CONTROL         "Always On",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,5,140,125,10
+    CONTROL         "Mixer-Device activate and control",IDC_CHECK2,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,5,10,140,10
+    CTEXT           "Volume",TEXT14,210,10,33,10
+    CONTROL         "",TEXT5,"Static",SS_ETCHEDFRAME,205,5,45,150
+    CONTROL         "SLIDER",TEXT8,"Static",SS_BITMAP,220,40,15,13
+    PUSHBUTTON      "",IDC_S3,220,55,15,10,WS_DISABLED
+    EDITTEXT        IDC_D3,210,30,35,10,ES_CENTER | ES_AUTOHSCROLL | 
+                    WS_DISABLED
+    CTEXT           "Both",TEXT11,210,20,33,10
+    CTEXT           "Volume",TEXT15,260,10,33,10
+    CONTROL         "",TEXT6,"Static",SS_ETCHEDFRAME,255,5,45,150
+    CONTROL         "SLIDER",TEXT9,"Static",SS_BITMAP,270,40,15,13
+    PUSHBUTTON      "",IDC_S2,270,55,15,10,WS_DISABLED
+    EDITTEXT        IDC_D2,260,30,35,10,ES_CENTER | ES_AUTOHSCROLL | 
+                    WS_DISABLED
+    CTEXT           "Right",TEXT12,260,20,33,10
+END
+
+ABOUT DIALOGEX 22, 17, 374, 274
+STYLE DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
+CAPTION "About DScaler"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,305,9,58,19,WS_GROUP,WS_EX_CLIENTEDGE
+    CTEXT           "DScaler Version 2.x",IDC_VERSION,0,3,293,9
+    CTEXT           "Copyright (C) 2000, 2001 John Adcock",IDC_STATIC,0,24,
+                    293,10
+    GROUPBOX        "Based On",IDC_STATIC,6,144,364,56
+    GROUPBOX        "GPL Information && Open Source Policy",IDC_STATIC,5,203,
+                    364,65
+    LTEXT           "This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.",
+                    IDC_STATIC,11,214,354,24
+    LTEXT           "This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.",
+                    IDC_STATIC,11,238,351,24
+    LTEXT           "MultiDec Source (c) Espresso (echter_espresso@hotmail.com)",
+                    IDC_STATIC,13,154,348,9
+    GROUPBOX        "Authors",IDC_STATIC,6,37,180,100
+    CTEXT           "()()  http://deinterlace.sourceforge.net  ()()",
+                    IDC_STATIC,0,13,293,10
+    LTEXT           "bttv - Bt848 frame grabber driver Copyright (c) Ralph Metzler && Marcus Metzler",
+                    IDC_STATIC,13,168,347,11
+    LTEXT           "I2C Interface Copyright (c) Gerd Knorr",IDC_STATIC,13,
+                    182,160,10
+    GROUPBOX        "Support",IDC_STATIC,192,37,180,100
+    LTEXT           "The best place to get support for DScaler is the Home Theater Computers foum at the AV Science Forums.",
+                    IDC_STATIC,200,47,166,27
+    LTEXT           "John Adcock\nMark Rejhon\nSteve Grimm\nTom Barry\nMichael Eskin\nMichael Samblanet\nLaurent Garnier\nHermes Conrad",
+                    IDC_STATIC,12,52,86,77
+    LTEXT           "Please read the FAQ and the appropriate release thread for the version you are using before posting",
+                    IDC_STATIC,200,104,166,26
+    CTEXT           "http://www.avsforum.com/",IDC_LINK,201,78,162,12,
+                    SS_CENTERIMAGE | SS_SUNKEN
+END
+
+ANALOGSCAN DIALOG DISCARDABLE  22, 17, 266, 117
+STYLE DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
+CAPTION "Analog Scan"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Frequency",-1,66,30,37,12,SS_CENTERIMAGE
+    EDITTEXT        IDC_EDIT2,112,30,40,12,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_TABSTOP
+    LTEXT           "Mhz",-1,156,30,16,12,SS_CENTERIMAGE
+    PUSHBUTTON      "Cancel",IDCANCEL,216,100,44,14,WS_GROUP
+    EDITTEXT        IDC_EDIT15,112,70,96,12,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_TABSTOP
+    PUSHBUTTON      "Start",IDSTART,114,100,44,14,WS_GROUP
+    CTEXT           "",IDC_TEXT20,6,84,258,10,SS_CENTERIMAGE
+    LTEXT           "Channel",-1,66,70,32,12,SS_CENTERIMAGE
+    COMBOBOX        IDC_COMBO1,132,4,126,56,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    LTEXT           "Status",-1,66,50,42,12,SS_CENTERIMAGE
+    DEFPUSHBUTTON   "OK",IDOK,6,100,44,14,WS_DISABLED | WS_GROUP
+END
+
+LISTFELDSETUP DIALOG DISCARDABLE  22, 17, 196, 63
+STYLE DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
+CAPTION "DScaler Listen-Parameter"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,4,44,48,15
+    PUSHBUTTON      "Cancel",IDCANCEL,144,44,48,15
+    COMBOBOX        IDC_COMBO1,68,8,124,82,CBS_DROPDOWN | WS_VSCROLL | 
+                    WS_TABSTOP
+    LTEXT           "Field name",IDC_STATIC,6,10,58,8
+    LTEXT           "Position",IDC_STATIC,8,28,58,12
+    EDITTEXT        IDC_EDIT1,152,26,38,12,ES_AUTOHSCROLL | ES_NUMBER
+    PUSHBUTTON      "Delete",IDDEL,76,46,48,15
+END
+
+SELECTCARD DIALOG DISCARDABLE  0, 0, 300, 230
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Setup Hardware"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,7,209,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,65,209,50,14
+    LTEXT           "Card",IDC_STATIC,14,58,34,9
+    LTEXT           "Tuner",IDC_STATIC,14,80,38,9
+    COMBOBOX        IDC_CARDSSELECT,73,57,178,190,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_TUNERSELECT,73,80,178,190,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Use this dialog to select the card closest to your card type.\nSome tuners are autodetected and will be selected here.  Otherwise you must try and find out what tuner you have.",
+                    IDC_STATIC,7,7,286,25
+    LTEXT           "The easiest way is by looking at the documenation that came with the card otherwise you will have to see if there is any marking oin the silver tuner box on the card.",
+                    IDC_STATIC,7,34,286,22
+    LTEXT           "In order for DScaler to give the best results it needs to know how powerful your machine is.  Please select the nearest speed range to your machine.  If in doubt use the lower setting.",
+                    IDC_STATIC,7,101,277,26
+    LTEXT           "For lower spec machines there is a tradeoff between picture quality and frame rate.  Choose the option below that best matches your preferences.",
+                    IDC_STATIC,7,151,286,17
+    LTEXT           "Processor",IDC_STATIC,14,131,41,10
+    COMBOBOX        IDC_TRADEOFF,73,175,178,190,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Defaults",IDC_STATIC,15,176,41,10
+    COMBOBOX        IDC_PROCESSOR_SPEED,72,129,178,190,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+END
+
+ADV_VIDEOSETTINGS DIALOG DISCARDABLE  0, 0, 208, 126
+STYLE WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Advanced Video Flags"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,151,105,50,14
+    CONTROL         "Automatic Gain Control",IDC_AGC,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,12,13,84,10
+    CONTROL         "Adaptive AGC (CRUSH)",IDC_CRUSH,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,12,26,88,10
+    CONTROL         "Even Chroma AGC",IDC_E_CAGC,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,12,38,72,10
+    CONTROL         "Odd Chroma AGC",IDC_O_CAGC,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,12,52,70,10
+    CONTROL         "Even Luma Peaking",IDC_E_LUMA_PEAK,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,12,65,76,10
+    CONTROL         "Odd Luma Peaking",IDC_O_LUMA_PEAK,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,12,78,74,10
+    CONTROL         "Full Luma Range",IDC_LUMA_RANGE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,12,91,67,10
+    CONTROL         "Even Luma Decimation ",IDC_E_LUMA_DEC,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,106,13,87,10
+    CONTROL         "Even Chroma Comb",IDC_E_COMB,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,106,39,76,10
+    CONTROL         "Color Bars",IDC_COLOR_BARS,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,106,65,48,10
+    CONTROL         "Gamma Corr Removal",IDC_GAMMA_CORR,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,106,78,83,10
+    CONTROL         "Odd Luma Decimation ",IDC_O_LUMA_DEC,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,106,26,84,10
+    CONTROL         "Odd Chroma Comb",IDC_O_COMB,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,106,52,74,10
+    CONTROL         "Horizontal Filter",IDC_HOR_FILTER,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,106,91,83,10
+    CONTROL         "Vertical Filter",IDC_VERT_FILTER,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,12,103,83,10
+END
+
+UI_SUB_MENU DIALOG DISCARDABLE  0, 0, 375, 193
+STYLE DS_MODALFRAME | DS_3DLOOK | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Static1",IDC_STATIC1,10,13,108,10
+    LTEXT           "Static2",IDC_STATIC2,10,33,108,10
+    LTEXT           "Static3",IDC_STATIC3,10,53,108,10
+    LTEXT           "Static4",IDC_STATIC4,10,73,108,10
+    LTEXT           "Static5",IDC_STATIC5,10,93,108,10
+    LTEXT           "Static6",IDC_STATIC6,10,113,108,10
+    LTEXT           "Static7",IDC_STATIC7,10,133,108,10
+    LTEXT           "Static8",IDC_STATIC8,10,153,108,10
+    DEFPUSHBUTTON   "OK",IDOK,7,172,43,14
+    PUSHBUTTON      "Cancel",IDCANCEL,58,172,43,14
+    PUSHBUTTON      "&Defaults",IDDEFAULTS,107,172,43,14
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+DTVICON                 ICON    DISCARDABLE     "res\\dTV.ico"
+VTBACK                  ICON    DISCARDABLE     "res\\VTBack.ico"
+VTNEXT                  ICON    DISCARDABLE     "res\\VTNext.ico"
+VTHOME                  ICON    DISCARDABLE     "res\\VTHome.ico"
+VTUPDOWN                ICON    DISCARDABLE     "res\\VTUpDown.ico"
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""windows.h""\r\n"
+    "#undef APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+ANALOGMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "E&xit\tAlt+F4",               IDM_END
+    END
+    POPUP "&Channels"
+    BEGIN
+        MENUITEM "Channel &Scan",               IDM_ANALOGSCAN
+        MENUITEM "Channel &List\tHome",         IDM_CHANNEL_LIST
+        POPUP "&Channel Select"
+        BEGIN
+            MENUITEM "___Channels___",              IDM_CHANNEL_SELECT
+            , GRAYED
+            MENUITEM SEPARATOR
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "&Next Channel\tPgUp",         IDM_CHANNELPLUS
+        MENUITEM "&Previous Channel\tPgDn",     IDM_CHANNELMINUS
+        MENUITEM "L&ast Channel\tCtrl+Backspace", IDM_CHANNEL_PREVIOUS
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "Toggle &Menu\tTab",           IDM_TOGGLE_MENU
+        MENUITEM "Toggle &Status Bar\tS",       IDM_STATUSBAR, CHECKED
+        MENUITEM "Toggle Show &Cursor   \tCtrl+Enter", IDM_TOGGLECURSOR
+        MENUITEM "Au&tohide Cursor",            IDM_AUTOHIDE_CURSOR
+        MENUITEM "&Full Screen\tAlt+Enter",     IDM_FULL_SCREEN
+        MENUITEM "&Always on Top",              IDM_ON_TOP
+        POPUP "&OSD"
+        BEGIN
+            MENUITEM "Show &Next\tEnter",           IDM_SHOW_OSD
+            MENUITEM "&Hide\tBackspace",            IDM_HIDE_OSD
+            POPUP "&Show Screen"
+            BEGIN
+                MENUITEM "___Screens___",               IDM_OSDSCREEN_SHOW
+                , GRAYED
+                MENUITEM SEPARATOR
+            END
+            POPUP "A&ctivate Screens"
+            BEGIN
+                MENUITEM "___Screens___",               IDM_OSDSCREEN_ACTIVATE
+                , GRAYED
+                MENUITEM SEPARATOR
+            END
+            MENUITEM "&Autohide",                   IDM_AUTOHIDE_OSD
+            , CHECKED
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "&Pause\tP",                   IDM_CAPTURE_PAUSE
+        MENUITEM "Take Sti&ll Picture\tL",      IDM_TAKESTILL
+        MENUITEM "Take Stream Snapshot\tShift+L", IDM_TAKESTREAMSNAP
+    END
+    POPUP "&AspectRatio"
+    BEGIN
+        MENUITEM "4:3 Fullscreen",              IDM_ASPECT_FULLSCREEN
+        MENUITEM "Letterboxed",                 IDM_ASPECT_LETTERBOX
+        MENUITEM "16:9 Anamorphic",             IDM_ASPECT_ANAMORPHIC
+        POPUP "Advanced Image Aspect Ratios"
+        BEGIN
+            MENUITEM "Autodetect (experimental)\tA", IDM_SASPECT_AUTO_TOGGLE
+            MENUITEM "Detect from Current Image\t`", IDM_SASPECT_COMPUTE
+            MENUITEM "Stretch to Window\tCtrl+0",   IDM_SASPECT_0
+            MENUITEM "1.33\tCtrl+1",                IDM_SASPECT_133
+            MENUITEM "1.44   Letterboxed\tCtrl+7",  IDM_SASPECT_144
+            MENUITEM "1.55   Letterboxed\tCtrl+8",  IDM_SASPECT_155
+            MENUITEM "1.66   Letterboxed\tCtrl+2",  IDM_SASPECT_166
+            MENUITEM "1.78   Letterboxed\tCtrl+3",  IDM_SASPECT_178
+            MENUITEM "1.85   Letterboxed\tCtrl+4",  IDM_SASPECT_185
+            MENUITEM "2.00   Letterboxed\tCtrl+5",  IDM_SASPECT_200
+            MENUITEM "2.35   Letterboxed\tCtrl+6",  IDM_SASPECT_235
+            MENUITEM "1.66   Anamorphic\tCtrl+Shift+2", IDM_SASPECT_166A
+            MENUITEM "1.78   Anamorphic\tCtrl+Shift+3", IDM_SASPECT_178A
+            MENUITEM "1.85   Anamorphic\tCtrl+Shift+4", IDM_SASPECT_185A
+            MENUITEM "2.00   Anamorphic\tCtrl+Shift+5", IDM_SASPECT_200A
+            MENUITEM "2.35   Anamorphic\tCtrl+Shift+6", IDM_SASPECT_235A
+            MENUITEM "Custom  (from .INI file)\tCtrl+9", IDM_SASPECT_CUSTOM
+            MENUITEM SEPARATOR
+            MENUITEM "Clipped (Add Black Bars if Necessary)\tCtrl+P", 
+                                                    IDM_SASPECT_CLIP
+        END
+        POPUP "Aspect Ratio of Display Screen"
+        BEGIN
+            MENUITEM "Same as Computer Resolution\tAlt+0", IDM_TASPECT_0
+            MENUITEM "1.33 - TVs, monitors\tAlt+1", IDM_TASPECT_133
+            MENUITEM "1.66\tAlt+2",                 IDM_TASPECT_166
+            MENUITEM "1.78 - HDTV displays\tAlt+3", IDM_TASPECT_178
+            MENUITEM "1.85\tAlt+4",                 IDM_TASPECT_185
+            MENUITEM "2.00\tAlt+5",                 IDM_TASPECT_200
+            MENUITEM "2.35\tAlt+6",                 IDM_TASPECT_235
+            MENUITEM "Custom  (from .INI file)\tAlt+9", IDM_TASPECT_CUSTOM
+        END
+        POPUP "Window Position"
+        BEGIN
+            MENUITEM "&Top\tCtrl+Numpad-Up",        IDM_WINPOS_VERT_TOP
+            MENUITEM "&Centre\tCtrl+Numpad 5",      IDM_WINPOS_VERT_CENTRE
+            MENUITEM "&Bottom\tCtrl+Numpad-Down",   IDM_WINPOS_VERT_BOTTOM
+            MENUITEM SEPARATOR
+            MENUITEM "&Left",                       IDM_WINPOS_HORZ_LEFT
+            MENUITEM "&Centre",                     IDM_WINPOS_HORZ_CENTRE
+            MENUITEM "&Right",                      IDM_WINPOS_HORZ_RIGHT
+            MENUITEM SEPARATOR
+            MENUITEM "Bounce Window Position\tCtrl+B", IDM_WINPOS_BOUNCE
+            MENUITEM "Defer Setting Overlay",       IDM_ASPECT_DEFER_OVERLAY
+            MENUITEM "Orbiting\tCtrl+O",            IDM_WINPOS_ORBIT
+            MENUITEM "Auto-Size Window",            IDM_WINPOS_AUTOSIZE
+        END
+        POPUP "&Zoom"
+        BEGIN
+            MENUITEM "Zoom -\tZ",                   IDM_ZOOM_MINUS
+            MENUITEM "Zoom +\tShift+Z",             IDM_ZOOM_PLUS
+            MENUITEM SEPARATOR
+            MENUITEM "1x",                          IDM_ZOOM_10
+            MENUITEM "1.5x",                        IDM_ZOOM_15
+            MENUITEM "2x",                          IDM_ZOOM_20
+            MENUITEM "2.5x",                        IDM_ZOOM_25
+            MENUITEM "3x",                          IDM_ZOOM_30
+            MENUITEM "3.5x",                        IDM_ZOOM_35
+            MENUITEM "4x",                          IDM_ZOOM_40
+        END
+    END
+    POPUP "&Settings"
+    BEGIN
+        MENUITEM "&Video Adjustments ...",      IDM_VIDEOSETTINGS
+        POPUP "&Deinterlace Mode"
+        BEGIN
+            MENUITEM "&Automatic Pulldown Detect",  IDM_AUTODETECT
+            MENUITEM "&Fall Back to Video on Bad Pulldown", IDM_FALLBACK
+            MENUITEM "&JudderTerminator (tm)",      IDM_JUDDERTERMINATOR
+            MENUITEM SEPARATOR
+            POPUP "&Manual Film Mode Select"
+            BEGIN
+                MENUITEM "3:2 Pulldown, Skip Field &1", IDM_32PULL1
+                MENUITEM "3:2 Pulldown, Skip Field &2", IDM_32PULL2
+                MENUITEM "3:2 Pulldown, Skip Field &3", IDM_32PULL3
+                MENUITEM "3:2 Pulldown, Skip Field &4", IDM_32PULL4
+                MENUITEM "3:2 Pulldown, Skip Field &5", IDM_32PULL5
+                MENUITEM "2:2 Pulldown, Flip on &Odd",  IDM_22PULLODD
+                MENUITEM "2:2 Pulldown, Flip on &Even", IDM_22PULLEVEN
+            END
+            MENUITEM SEPARATOR
+            MENUITEM "Show Video Method &UI",       IDM_SHOWPLUGINUI
+            MENUITEM SEPARATOR
+        END
+        POPUP "&Audio Input"
+        BEGIN
+            MENUITEM "&Mute\tM",                    IDM_MUTE
+            MENUITEM "&Tuner\tCtrl+Shift+F1",       IDM_AUDIO_0
+            MENUITEM "MSP/&Radio\tCtrl+Shift+F2",   IDM_AUDIO_1
+            MENUITEM "&External\tCtrl+Shift+F3",    IDM_AUDIO_2
+            MENUITEM "&Internal\tCtrl+Shift+F4",    IDM_AUDIO_3
+            MENUITEM "&Disabled\tCtrl+Shift+F5",    IDM_AUDIO_4
+            MENUITEM "&Stereo\tCtrl+Shift+F6",      IDM_AUDIO_5
+        END
+        POPUP "Video &Input"
+        BEGIN
+            MENUITEM "&Tuner\tCtrl+Alt+F1",         IDM_SOURCE_TUNER
+            MENUITEM "&Composite\tCtrl+Alt+F2",     IDM_SOURCE_COMPOSITE
+            MENUITEM "&S-Video\tCtrl+Alt+F3",       IDM_SOURCE_SVIDEO
+            MENUITEM "Co&mposite via S-Video  \tCtrl+Alt+F4", 
+                                                    IDM_SOURCE_COMPVIASVIDEO
+            MENUITEM "Other - &1\tCtrl+Alt+F5",     IDM_SOURCE_OTHER1
+            MENUITEM "Other - &2\tCtrl+Alt+F6",     IDM_SOURCE_OTHER2
+            POPUP "&CCIR"
+            BEGIN
+                MENUITEM "CCIR &1",                     IDM_SOURCE_CCIR656_1
+                MENUITEM "CCIR &2",                     IDM_SOURCE_CCIR656_2
+                MENUITEM "CCIR &3",                     IDM_SOURCE_CCIR656_3
+                MENUITEM "CCIR &4",                     IDM_SOURCE_CCIR656_4
+            END
+        END
+        POPUP "Video &Format"
+        BEGIN
+            MENUITEM "&PAL-BDGHI\tShift+Alt+F1",    IDM_TYPEFORMAT_0
+            MENUITEM "&NTSC\tShift+Alt+F2",         IDM_TYPEFORMAT_1
+            MENUITEM "&SECAM\tShift+Alt+F3",        IDM_TYPEFORMAT_2
+            MENUITEM "PAL-&M\tShift+Alt+F4",        IDM_TYPEFORMAT_3
+            MENUITEM "PA&L-N\tShift+Alt+F5",        IDM_TYPEFORMAT_4
+            MENUITEM "NTSC Japan   \tShift+Alt+F6", IDM_TYPEFORMAT_5
+            MENUITEM "PAL60   \tShift+Alt+F7",      IDM_TYPEFORMAT_6
+        END
+        POPUP "Pixel &Width"
+        BEGIN
+            MENUITEM "768",                         ID_SETTINGS_PIXELWIDTH_768
+
+            MENUITEM "754",                         ID_SETTINGS_PIXELWIDTH_754
+
+            MENUITEM "720",                         ID_SETTINGS_PIXELWIDTH_720
+            , CHECKED
+            MENUITEM "640",                         ID_SETTINGS_PIXELWIDTH_640
+
+            MENUITEM "384",                         ID_SETTINGS_PIXELWIDTH_384
+
+            MENUITEM "320",                         ID_SETTINGS_PIXELWIDTH_320
+
+            MENUITEM "Custom",                      ID_SETTINGS_PIXELWIDTH_CUSTOM
+
+        END
+        POPUP "&Filters"
+        BEGIN
+            MENUITEM "___Filters___",               ID_SETTINGS_FILTERS_FILTERS
+            , GRAYED
+        END
+    END
+    POPUP "&Hardware"
+    BEGIN
+        MENUITEM "&Setup Hardware ...",         IDM_SETUPCARD
+        MENUITEM "&Hardware Info ...",          IDM_HWINFO
+        POPUP "MSP/Radio"
+        BEGIN
+            MENUITEM "&Tone - Control",             IDM_AUDIOSETTINGS
+            MENUITEM "Tone - Control  &Equalizer",  IDM_AUDIOSETTINGS1
+            MENUITEM SEPARATOR
+            MENUITEM "FM Radio",                    IDM_MSPMODE_2
+            MENUITEM "TV Terrestial FM-mono + FM-stereo ", IDM_MSPMODE_3
+            MENUITEM "TV Sat FM-mono ",             IDM_MSPMODE_4
+            MENUITEM "NICAM PAL BDGH && SECAM",     IDM_MSPMODE_5
+            MENUITEM "NICAM PAL I",                 IDM_MSPMODE_6
+            MENUITEM SEPARATOR
+            POPUP "Major Carrier"
+            BEGIN
+                MENUITEM "NTSC",                        IDM_MAJOR_CARRIER_0
+                MENUITEM "PAl BGH",                     IDM_MAJOR_CARRIER_1
+                MENUITEM "PAL I",                       IDM_MAJOR_CARRIER_2
+                MENUITEM "PAL D + Sat + Secam",         IDM_MAJOR_CARRIER_3
+            END
+            POPUP "Minor Carrier"
+            BEGIN
+                MENUITEM "PAL B/G FM-Stereo",           IDM_MINOR_CARRIER_0
+                MENUITEM "PAL B/G NICAM",               IDM_MINOR_CARRIER_1
+                MENUITEM "PAL D/K NICAM",               IDM_MINOR_CARRIER_2
+                MENUITEM "PAL D/K1 FM-Stereo",          IDM_MINOR_CARRIER_3
+                MENUITEM "PAL D/K2 FM-Stereo",          IDM_MINOR_CARRIER_4
+                MENUITEM "PAL SAT FM-Stereo s/b",       IDM_MINOR_CARRIER_5
+                MENUITEM "PAL SAT FM-Stereo s",         IDM_MINOR_CARRIER_6
+                MENUITEM "PAL SAT FM-Stereo b",         IDM_MINOR_CARRIER_7
+            END
+            MENUITEM SEPARATOR
+            MENUITEM "Mono",                        IDM_MSPSTEREO_1
+            MENUITEM "Stereo",                      IDM_MSPSTEREO_2
+            MENUITEM "Speech-Channel 1 ",           IDM_MSPSTEREO_3
+            MENUITEM "Speech-Channel",              IDM_MSPSTEREO_4
+            MENUITEM SEPARATOR
+            MENUITEM "Automatic Stereo Adjustment", IDM_AUTOSTEREO
+        END
+        MENUITEM "Reset Capture Card",          IDM_RESET
+        MENUITEM "Audio-Mi&xer Setup",          IDM_AUDIO_MIXER
+    END
+    POPUP "&Datacasting"
+    BEGIN
+        MENUITEM "Capture VBI-&Data",           IDM_VBI
+        MENUITEM SEPARATOR
+        MENUITEM "Video&Text",                  IDM_VBI_VT, GRAYED
+        MENUITEM "V&PS-Data",                   IDM_VBI_VPS, GRAYED
+        MENUITEM "&WSS-Data",                   IDM_VBI_WSS, GRAYED
+        POPUP "&Closed Captions"
+        BEGIN
+            MENUITEM "CC &Off",                     IDM_CCOFF
+            MENUITEM "CC &1",                       IDM_CC1
+            MENUITEM "CC &2",                       IDM_CC2
+            MENUITEM "CC &3",                       IDM_CC3
+            MENUITEM "CC &4",                       IDM_CC4
+            MENUITEM "Text 1",                      IDM_TEXT1
+            MENUITEM "Text 2",                      IDM_TEXT2
+            MENUITEM "Text 3",                      IDM_TEXT3
+            MENUITEM "Text 4",                      IDM_TEXT4
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "Toggle Teletext &Mode\tT",    IDM_CALL_VIDEOTEXTSMALL
+        , GRAYED
+        MENUITEM "&Videotext Reset (After switch over Composite)  ", 
+                                                IDM_VT_RESET, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "Videotext-Infos",             IDM_VT_OUT, GRAYED
+        MENUITEM "VPS-Infos",                   IDM_VPS_OUT, GRAYED
+    END
+    POPUP "Adva&nced"
+    BEGIN
+        POPUP "Thread &Priorities"
+        BEGIN
+            POPUP "Program"
+            BEGIN
+                MENUITEM "NORMAL_PRIORITY_CLASS",       IDM_PRIORCLASS_0
+                MENUITEM "HIGH_PRIORITY_CLASS",         IDM_PRIORCLASS_1
+                MENUITEM "REALTIME_PRIORITY_CLASS",     IDM_PRIORCLASS_2
+            END
+            POPUP "Decoding and Output"
+            BEGIN
+                MENUITEM "THREAD_PRIORITY_BELOW_NORMAL", IDM_TREADPRIOR_0
+                MENUITEM "THREAD_PRIORITY_NORMAL",      IDM_TREADPRIOR_1
+                MENUITEM "THREAD_PRIORITY_ABOVE_NORMAL", IDM_TREADPRIOR_2
+                MENUITEM "THREAD_PRIORITY_HIGHEST",     IDM_TREADPRIOR_3
+                MENUITEM "THREAD_PRIORITY_TIME_CRITICAL", IDM_TREADPRIOR_4
+            END
+        END
+        MENUITEM "&Advanced Video Flags ...",   IDM_ADV_VIDEOSETTINGS
+        MENUITEM "&Splash Screen on Startup",   IDM_SPLASH_ON_STARTUP
+        MENUITEM "Stop Video Overlay",          IDM_OVERLAY_STOP
+        MENUITEM "Start Video Overlay",         IDM_OVERLAY_START
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&Read Me ...\tF1",            IDM_HELP_README
+        MENUITEM "DScaler &Home Page ...",      IDM_HELP_HOMEPAGE
+        MENUITEM "&FAQ ...",                    IDM_HELP_FAQ
+        MENUITEM "&Support ...",                IDM_HELP_SUPPORT
+        MENUITEM "&Keyboard ...",               IDM_HELP_KEYBOARD
+        MENUITEM "&Licence ...",                IDM_HELP_GPL
+        MENUITEM SEPARATOR
+        MENUITEM "&About DScaler...",           IDM_ABOUT
+    END
+END
+
+CONTEXTMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "Menu1"
+    BEGIN
+        MENUITEM "Video &Input",                65535
+        MENUITEM "&Audio Input",                65535
+        MENUITEM "Video &Format",               65535
+        MENUITEM "&Channels",                   65535
+        MENUITEM "Deinterlace &Mode",           65535
+        MENUITEM "Aspect &Ratio",               65535
+        MENUITEM "Fi&lters",                    65535
+        MENUITEM "&Datacasting",                65535
+        MENUITEM "&OSD",                        65535
+        MENUITEM "Full &Screen",                IDM_FULL_SCREEN
+        MENUITEM "E&xit",                       IDM_END
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+STARTUP                 BITMAP  DISCARDABLE     "res\\STARTUP.BMP"
+SLIDER                  BITMAP  DISCARDABLE     "res\\slider1.bmp"
+SLIDER1                 BITMAP  DISCARDABLE     "res\\slider.bmp"
+VTCHARLARGE             BITMAP  DISCARDABLE     "res\\Vtx15x18.bmp"
+VTCHARSMALL             BITMAP  DISCARDABLE     "res\\VTx10x12.bmp"
+REDBULB                 BITMAP  DISCARDABLE     "res\\redbulb.bmp"
+GREENBULB               BITMAP  DISCARDABLE     "res\\greenbulb.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    "HWINFO", DIALOG
+    BEGIN
+        RIGHTMARGIN, 198
+        BOTTOMMARGIN, 201
+    END
+
+    "CHANNELLIST", DIALOG
+    BEGIN
+        BOTTOMMARGIN, 155
+    END
+
+    "VIDEOTEXT", DIALOG
+    BEGIN
+        RIGHTMARGIN, 338
+        BOTTOMMARGIN, 327
+    END
+
+    "SPLASHBOX", DIALOG
+    BEGIN
+        RIGHTMARGIN, 144
+    END
+
+    "VIDEOTEXTSMALL", DIALOG
+    BEGIN
+        RIGHTMARGIN, 270
+        BOTTOMMARGIN, 233
+    END
+
+    "VIDEOSETTINGS", DIALOG
+    BEGIN
+        LEFTMARGIN, 6
+        RIGHTMARGIN, 350
+        TOPMARGIN, 5
+        BOTTOMMARGIN, 176
+    END
+
+    "AUDIOEINSTELLUNGEN", DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 250
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 229
+    END
+
+    "AUDIOEINSTELLUNGEN1", DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 250
+        TOPMARGIN, 7
+    END
+
+    "VIDEOTEXTUNTERTITEL", DIALOG
+    BEGIN
+        RIGHTMARGIN, 229
+        BOTTOMMARGIN, 219
+    END
+
+    "VTSTATUS", DIALOG
+    BEGIN
+        RIGHTMARGIN, 235
+        BOTTOMMARGIN, 132
+    END
+
+    "VPSSTATUS", DIALOG
+    BEGIN
+        RIGHTMARGIN, 185
+        BOTTOMMARGIN, 63
+    END
+
+    "MIXERSETTINGS", DIALOG
+    BEGIN
+        RIGHTMARGIN, 395
+        BOTTOMMARGIN, 223
+    END
+
+    "MIXERSETUP", DIALOG
+    BEGIN
+        RIGHTMARGIN, 300
+        BOTTOMMARGIN, 138
+    END
+
+    "ABOUT", DIALOG
+    BEGIN
+        RIGHTMARGIN, 372
+    END
+
+    "LISTFELDSETUP", DIALOG
+    BEGIN
+        RIGHTMARGIN, 189
+        BOTTOMMARGIN, 20
+    END
+
+    "SELECTCARD", DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 293
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 223
+    END
+
+    "ADV_VIDEOSETTINGS", DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 201
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 119
+    END
+
+    "UI_SUB_MENU", DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 368
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 186
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+ANALOGACCEL ACCELERATORS DISCARDABLE 
+BEGIN
+    "+",            IDM_VOLUMEPLUS,         ASCII,  NOINVERT
+    "-",            IDM_VOLUMEMINUS,        ASCII,  NOINVERT
+    "0",            IDM_SASPECT_0,          VIRTKEY, CONTROL, NOINVERT
+    "0",            IDM_TASPECT_0,          VIRTKEY, ALT, NOINVERT
+    "1",            IDM_SASPECT_133,        VIRTKEY, CONTROL, NOINVERT
+    "1",            IDM_TASPECT_133,        VIRTKEY, ALT, NOINVERT
+    "2",            IDM_SASPECT_166,        VIRTKEY, CONTROL, NOINVERT
+    "2",            IDM_TASPECT_166,        VIRTKEY, ALT, NOINVERT
+    "2",            IDM_SASPECT_166A,       VIRTKEY, SHIFT, CONTROL, 
+                                                    NOINVERT
+    "3",            IDM_SASPECT_178,        VIRTKEY, CONTROL, NOINVERT
+    "3",            IDM_TASPECT_178,        VIRTKEY, ALT, NOINVERT
+    "3",            IDM_SASPECT_178A,       VIRTKEY, SHIFT, CONTROL, 
+                                                    NOINVERT
+    "4",            IDM_SASPECT_185,        VIRTKEY, CONTROL, NOINVERT
+    "4",            IDM_TASPECT_185,        VIRTKEY, ALT, NOINVERT
+    "4",            IDM_SASPECT_185A,       VIRTKEY, SHIFT, CONTROL, 
+                                                    NOINVERT
+    "5",            IDM_SASPECT_200,        VIRTKEY, CONTROL, NOINVERT
+    "5",            IDM_TASPECT_200,        VIRTKEY, ALT, NOINVERT
+    "5",            IDM_SASPECT_200A,       VIRTKEY, SHIFT, CONTROL, 
+                                                    NOINVERT
+    "6",            IDM_SASPECT_235,        VIRTKEY, CONTROL, NOINVERT
+    "6",            IDM_TASPECT_235,        VIRTKEY, ALT, NOINVERT
+    "6",            IDM_SASPECT_235A,       VIRTKEY, SHIFT, CONTROL, 
+                                                    NOINVERT
+    "7",            IDM_SASPECT_144,        VIRTKEY, CONTROL, NOINVERT
+    "8",            IDM_SASPECT_155,        VIRTKEY, CONTROL, NOINVERT
+    "9",            IDM_SASPECT_CUSTOM,     VIRTKEY, CONTROL, NOINVERT
+    "9",            IDM_TASPECT_CUSTOM,     VIRTKEY, ALT, NOINVERT
+    "=",            IDM_VOLUMEPLUS,         ASCII,  NOINVERT
+    "A",            IDM_SASPECT_AUTO_ON,    VIRTKEY, NOINVERT
+    "A",            IDM_SASPECT_AUTO_OFF,   VIRTKEY, SHIFT, NOINVERT
+    "A",            IDM_SASPECT_AUTO_TOGGLE, VIRTKEY, SHIFT, CONTROL, 
+                                                    NOINVERT
+    "B",            IDM_BRIGHTNESS_MINUS,   VIRTKEY, NOINVERT
+    "B",            IDM_WINPOS_BOUNCE,      VIRTKEY, CONTROL, NOINVERT
+    "B",            IDM_BRIGHTNESS_PLUS,    VIRTKEY, SHIFT, NOINVERT
+    "B",            IDM_BRIGHTNESS_CURRENT, VIRTKEY, SHIFT, CONTROL, 
+                                                    NOINVERT
+    "C",            IDM_COLOR_MINUS,        VIRTKEY, NOINVERT
+    "C",            IDM_COLOR_PLUS,         VIRTKEY, SHIFT, NOINVERT
+    "C",            IDM_COLOR_CURRENT,      VIRTKEY, SHIFT, CONTROL, 
+                                                    NOINVERT
+    "D",            IDM_BDELAY_MINUS,       VIRTKEY, NOINVERT
+    "D",            IDM_BDELAY_PLUS,        VIRTKEY, SHIFT, NOINVERT
+    "D",            IDM_BDELAY_CURRENT,     VIRTKEY, SHIFT, CONTROL, 
+                                                    NOINVERT
+    "E",            IDM_VDELAY_MINUS,       VIRTKEY, NOINVERT
+    "E",            IDM_VDELAY_PLUS,        VIRTKEY, SHIFT, NOINVERT
+    "E",            IDM_VDELAY_CURRENT,     VIRTKEY, SHIFT, CONTROL, 
+                                                    NOINVERT
+    "H",            IDM_HUE_MINUS,          VIRTKEY, NOINVERT
+    "H",            IDM_HUE_PLUS,           VIRTKEY, SHIFT, NOINVERT
+    "H",            IDM_HUE_CURRENT,        VIRTKEY, SHIFT, CONTROL, 
+                                                    NOINVERT
+    "K",            IDM_KONTRAST_MINUS,     VIRTKEY, NOINVERT
+    "K",            IDM_KONTRAST_PLUS,      VIRTKEY, SHIFT, NOINVERT
+    "K",            IDM_KONTRAST_CURRENT,   VIRTKEY, SHIFT, CONTROL, 
+                                                    NOINVERT
+    "L",            IDM_TAKESTILL,          VIRTKEY, NOINVERT
+    "L",            IDM_TAKESTREAMSNAP,     VIRTKEY, SHIFT, NOINVERT
+    "M",            IDM_MUTE,               VIRTKEY, NOINVERT
+    "M",            IDM_MUTE,               VIRTKEY, SHIFT, NOINVERT
+    "N",            IDM_NOISE_FILTER,       VIRTKEY, NOINVERT
+    "N",            IDM_NOISE_FILTER,       VIRTKEY, SHIFT, NOINVERT
+    "O",            IDM_OVERSCAN_MINUS,     VIRTKEY, NOINVERT
+    "O",            IDM_WINPOS_ORBIT,       VIRTKEY, CONTROL, NOINVERT
+    "O",            IDM_OVERSCAN_PLUS,      VIRTKEY, SHIFT, NOINVERT
+    "O",            IDM_OVERSCAN_CURRENT,   VIRTKEY, SHIFT, CONTROL, 
+                                                    NOINVERT
+    "P",            IDM_CAPTURE_PAUSE,      VIRTKEY, NOINVERT
+    "P",            IDM_SASPECT_CLIP,       VIRTKEY, CONTROL, NOINVERT
+    "Q",            IDM_HDELAY_MINUS,       VIRTKEY, NOINVERT
+    "Q",            IDM_HDELAY_PLUS,        VIRTKEY, SHIFT, NOINVERT
+    "Q",            IDM_HDELAY_CURRENT,     VIRTKEY, SHIFT, CONTROL, 
+                                                    NOINVERT
+    "S",            IDM_STATUSBAR,          VIRTKEY, NOINVERT
+    "T",            IDM_CALL_VIDEOTEXTSMALL, VIRTKEY, NOINVERT
+    "T",            IDM_CALL_VIDEOTEXT,     VIRTKEY, SHIFT, NOINVERT
+    "U",            IDM_USATURATION_MINUS,  VIRTKEY, NOINVERT
+    "U",            IDM_USATURATION_PLUS,   VIRTKEY, SHIFT, NOINVERT
+    "U",            IDM_USATURATION_CURRENT, VIRTKEY, SHIFT, CONTROL, 
+                                                    NOINVERT
+    "V",            IDM_VSATURATION_MINUS,  VIRTKEY, NOINVERT
+    "V",            IDM_VSATURATION_PLUS,   VIRTKEY, SHIFT, NOINVERT
+    "V",            IDM_VSATURATION_CURRENT, VIRTKEY, SHIFT, CONTROL, 
+                                                    NOINVERT
+    VK_ADD,         IDM_VOLUMEPLUS,         VIRTKEY, NOINVERT
+    VK_BACK,        IDM_HIDE_OSD,           VIRTKEY, NOINVERT
+    VK_BACK,        IDM_CHANNEL_PREVIOUS,   VIRTKEY, CONTROL, NOINVERT
+    VK_DOWN,        IDM_VT_PAGE_DOWN,       VIRTKEY, NOINVERT
+    VK_ESCAPE,      IDM_RETURN_TO_WINDOW,   VIRTKEY, NOINVERT
+    VK_F1,          IDM_HELP_README,        VIRTKEY, NOINVERT
+    VK_F1,          IDM_SOURCE_TUNER,       VIRTKEY, CONTROL, ALT, NOINVERT
+    VK_F1,          IDM_AUDIO_0,            VIRTKEY, SHIFT, CONTROL, 
+                                                    NOINVERT
+    VK_F1,          IDM_TYPEFORMAT_0,       VIRTKEY, SHIFT, ALT, NOINVERT
+    VK_F2,          IDM_SOURCE_COMPOSITE,   VIRTKEY, CONTROL, ALT, NOINVERT
+    VK_F2,          IDM_AUDIO_1,            VIRTKEY, SHIFT, CONTROL, 
+                                                    NOINVERT
+    VK_F2,          IDM_TYPEFORMAT_1,       VIRTKEY, SHIFT, ALT, NOINVERT
+    VK_F3,          IDM_SOURCE_SVIDEO,      VIRTKEY, CONTROL, ALT, NOINVERT
+    VK_F3,          IDM_AUDIO_2,            VIRTKEY, SHIFT, CONTROL, 
+                                                    NOINVERT
+    VK_F3,          IDM_TYPEFORMAT_2,       VIRTKEY, SHIFT, ALT, NOINVERT
+    VK_F4,          IDM_END,                VIRTKEY, ALT, NOINVERT
+    VK_F4,          IDM_SOURCE_COMPVIASVIDEO, VIRTKEY, CONTROL, ALT, 
+                                                    NOINVERT
+    VK_F4,          IDM_AUDIO_3,            VIRTKEY, SHIFT, CONTROL, 
+                                                    NOINVERT
+    VK_F4,          IDM_TYPEFORMAT_3,       VIRTKEY, SHIFT, ALT, NOINVERT
+    VK_F5,          IDM_SOURCE_OTHER1,      VIRTKEY, CONTROL, ALT, NOINVERT
+    VK_F5,          IDM_AUDIO_4,            VIRTKEY, SHIFT, CONTROL, 
+                                                    NOINVERT
+    VK_F5,          IDM_TYPEFORMAT_4,       VIRTKEY, SHIFT, ALT, NOINVERT
+    VK_F6,          IDM_SOURCE_OTHER2,      VIRTKEY, CONTROL, ALT, NOINVERT
+    VK_F6,          IDM_AUDIO_5,            VIRTKEY, SHIFT, CONTROL, 
+                                                    NOINVERT
+    VK_F6,          IDM_TYPEFORMAT_5,       VIRTKEY, SHIFT, ALT, NOINVERT
+    VK_F7,          IDM_TYPEFORMAT_6,       VIRTKEY, SHIFT, ALT, NOINVERT
+    VK_HOME,        IDM_CHANNEL_LIST,       VIRTKEY, NOINVERT
+    VK_LEFT,        IDM_VT_PAGE_MINUS,      VIRTKEY, NOINVERT
+    VK_NEXT,        IDM_CHANNELMINUS,       VIRTKEY, NOINVERT
+    VK_NUMPAD2,     IDM_WINPOS_VERT_BOTTOM, VIRTKEY, CONTROL, NOINVERT
+    VK_NUMPAD5,     IDM_WINPOS_VERT_CENTRE, VIRTKEY, CONTROL, NOINVERT
+    VK_NUMPAD8,     IDM_WINPOS_VERT_TOP,    VIRTKEY, CONTROL, NOINVERT
+    VK_PRIOR,       IDM_CHANNELPLUS,        VIRTKEY, NOINVERT
+    VK_RETURN,      IDM_SHOW_OSD,           VIRTKEY, NOINVERT
+    VK_RETURN,      IDM_TOGGLECURSOR,       VIRTKEY, CONTROL, NOINVERT
+    VK_RETURN,      IDM_FULL_SCREEN,        VIRTKEY, ALT, NOINVERT
+    VK_RIGHT,       IDM_VT_PAGE_PLUS,       VIRTKEY, NOINVERT
+    VK_SPACE,       IDM_SPACEBAR,           VIRTKEY, NOINVERT
+    VK_SPACE,       IDM_SHIFT_SPACEBAR,     VIRTKEY, SHIFT, NOINVERT
+    VK_SUBTRACT,    IDM_VOLUMEMINUS,        VIRTKEY, NOINVERT
+    VK_TAB,         IDM_TOGGLE_MENU,        VIRTKEY, NOINVERT
+    VK_UP,          IDM_VT_PAGE_UP,         VIRTKEY, NOINVERT
+    "W",            IDM_PIXELWIDTH_MINUS,   VIRTKEY, NOINVERT
+    "W",            IDM_PIXELWIDTH_PLUS,    VIRTKEY, SHIFT, NOINVERT
+    "W",            IDM_PIXELWIDTH_CURRENT, VIRTKEY, SHIFT, CONTROL, 
+                                                    NOINVERT
+    "X",            IDM_R_BALANCE,          VIRTKEY, NOINVERT
+    "X",            IDM_R_BALANCE,          VIRTKEY, SHIFT, NOINVERT
+    "Y",            IDM_L_BALANCE,          VIRTKEY, NOINVERT
+    "Y",            IDM_L_BALANCE,          VIRTKEY, SHIFT, NOINVERT
+    "Z",            IDM_ZOOM_MINUS,         VIRTKEY, NOINVERT
+    "Z",            IDM_ZOOM_PLUS,          VIRTKEY, SHIFT, NOINVERT
+    "_",            IDM_VOLUMEMINUS,        ASCII,  NOINVERT
+    "`",            IDM_SASPECT_COMPUTE,    ASCII,  NOINVERT
+END
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 2,3,0,0
+ PRODUCTVERSION 2,3,0,0
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "Comments", "John Adcock\0"
+            VALUE "CompanyName", "\0"
+            VALUE "FileDescription", "DScaler\0"
+            VALUE "FileVersion", "2, 3, 0, 0\0"
+            VALUE "InternalName", "DScaler\0"
+            VALUE "LegalCopyright", "Copyright © 2000, 2001\0"
+            VALUE "LegalTrademarks", "This Program is covered by the term of the GNU GPL\0"
+            VALUE "OriginalFilename", "DScaler.exe\0"
+            VALUE "PrivateBuild", "\0"
+            VALUE "ProductName", "DScaler\0"
+            VALUE "ProductVersion", "2.3.0\0"
+            VALUE "SpecialBuild", "\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+SELECTCARD DLGINIT
+BEGIN
+    IDC_TRADEOFF, 0x403, 30, 0
+0x6853, 0x776f, 0x6520, 0x6576, 0x7972, 0x6620, 0x6172, 0x656d, 0x2d20, 
+0x6c20, 0x776f, 0x6a20, 0x6475, 0x6564, 0x0072, 
+    IDC_TRADEOFF, 0x403, 21, 0
+0x6542, 0x7473, 0x7020, 0x6369, 0x7574, 0x6572, 0x7120, 0x6175, 0x696c, 
+0x7974, "\000" 
+    IDC_PROCESSOR_SPEED, 0x403, 13, 0
+0x6241, 0x766f, 0x2065, 0x3035, 0x4d30, 0x7a48, "\000" 
+    IDC_PROCESSOR_SPEED, 0x403, 17, 0
+0x3033, 0x4d30, 0x7a68, 0x2d20, 0x3520, 0x3030, 0x4d20, 0x7a48, "\000" 
+    IDC_PROCESSOR_SPEED, 0x403, 13, 0
+0x6542, 0x6f6c, 0x2077, 0x3033, 0x4d30, 0x7a48, "\000" 
+    0
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

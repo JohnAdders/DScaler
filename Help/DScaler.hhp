@@ -1,0 +1,26 @@
+[OPTIONS]
+Binary Index=No
+Compatibility=1.1 or later
+Compiled file=..\Release\DScaler.chm
+Contents file=TOC.hhc
+Default topic=DScaler_Readme.htm
+Display compile progress=No
+Full text search stop list file=SearchList.stp
+Full-text search=Yes
+Language=0x409 English (United States)
+Title=DScaler Help
+
+
+[FILES]
+DScaler_Readme.htm
+user_support.htm
+Authors.htm
+COPYING.html
+FAQ.htm
+IniFile.HTM
+keyboard.htm
+Thanks.htm
+32spec.htm
+
+[INFOTYPES]
+

@@ -1,0 +1,169 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#define APSTUDIO_HIDDEN_SYMBOLS
+#include "windows.h"
+#undef APSTUDIO_HIDDEN_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+BLENDED_CLIP DIALOG DISCARDABLE  0, 0, 173, 292
+STYLE DS_3DLOOK | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Blended Clip DeInterlace Controls"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,131,50,38,14
+    PUSHBUTTON      "Cancel",IDCANCEL,131,30,38,14
+    PUSHBUTTON      "Default",IDC_DEFAULT,131,12,38,14
+    LTEXT           "Minimum Clip or Bob",IDC_STATIC,2,9,96,9
+    CONTROL         "SLIDER1",IDC_STATIC,"Static",SS_BITMAP | SS_SUNKEN | 
+                    WS_BORDER | WS_TABSTOP,2,18,17,15
+    PUSHBUTTON      "",IDC_MIN_CLIP,18,22,6,8,WS_DISABLED
+    RTEXT           "0",IDC_MIN_CLIP_V,102,9,21,10,SS_NOPREFIX | NOT 
+                    WS_GROUP
+    LTEXT           "Pixel Movement Sensitivity",IDC_STATIC,2,39,96,9
+    CONTROL         "SLIDER1",IDC_STATIC,"Static",SS_BITMAP | SS_SUNKEN | 
+                    WS_BORDER | WS_TABSTOP,2,49,17,15
+    PUSHBUTTON      "",IDC_PIXEL_MOV,18,52,6,8,WS_DISABLED
+    RTEXT           "0",IDC_PIXEL_MOV_V,102,39,21,9,SS_NOPREFIX | NOT 
+                    WS_GROUP
+    LTEXT           "Recent Avg. Motion Sense.",IDC_STATIC,2,70,96,9
+    CONTROL         "SLIDER1",IDC_STATIC,"Static",SS_BITMAP | SS_SUNKEN | 
+                    WS_BORDER | WS_TABSTOP,2,80,17,15
+    PUSHBUTTON      "",IDC_AVG_MOV,19,83,6,8,WS_DISABLED
+    RTEXT           "0",IDC_AVG_MOV_V,102,70,21,10,SS_NOPREFIX | NOT 
+                    WS_GROUP
+    LTEXT           "Motion Averaging Period",IDC_STATIC,2,100,96,9
+    CONTROL         "SLIDER1",IDC_STATIC,"Static",SS_BITMAP | SS_SUNKEN | 
+                    WS_BORDER | WS_TABSTOP,2,111,17,15
+    PUSHBUTTON      "",IDC_MOV_PERIOD,19,114,6,8,WS_DISABLED
+    RTEXT           "0",IDC_MOV_PERIOD_V,102,100,21,10,SS_NOPREFIX | NOT 
+                    WS_GROUP
+    LTEXT           "Pixel Comb Sensitivity",IDC_STATIC,2,132,96,9
+    CONTROL         "SLIDER1",IDC_STATIC,"Static",SS_BITMAP | SS_SUNKEN | 
+                    WS_BORDER | WS_TABSTOP,2,142,17,15
+    PUSHBUTTON      "",IDC_PIXEL_COMB,19,145,6,8,WS_DISABLED
+    RTEXT           "0",IDC_PIXEL_COMB_V,102,132,21,10,SS_NOPREFIX | NOT 
+                    WS_GROUP
+    LTEXT           "Recent Avg. Comb Sense.",IDC_STATIC,2,163,96,9
+    CONTROL         "SLIDER1",IDC_STATIC,"Static",SS_BITMAP | SS_SUNKEN | 
+                    WS_BORDER | WS_TABSTOP,2,173,17,15
+    PUSHBUTTON      "",IDC_AVG_COMB,18,177,6,8,WS_DISABLED
+    RTEXT           "0",IDC_AVG_COMB_V,102,163,21,9,SS_NOPREFIX | NOT 
+                    WS_GROUP
+    LTEXT           "Comb Averaging Period",IDC_STATIC,2,195,96,9
+    CONTROL         "SLIDER1",IDC_STATIC,"Static",SS_BITMAP | SS_SUNKEN | 
+                    WS_BORDER | WS_TABSTOP,2,204,17,15
+    PUSHBUTTON      "",IDC_COMB_PERIOD,19,207,6,8,WS_DISABLED
+    RTEXT           "0",IDC_COMB_PERIOD_V,102,195,21,9,SS_NOPREFIX | NOT 
+                    WS_GROUP
+    LTEXT           "Skip HIGH Comb Frames",IDC_STATIC,2,225,96,9
+    CONTROL         "SLIDER1",IDC_STATIC,"Static",SS_BITMAP | SS_SUNKEN | 
+                    WS_BORDER | WS_TABSTOP,2,235,17,15
+    PUSHBUTTON      "",IDC_COMB_SKIP,19,238,6,8,WS_DISABLED
+    RTEXT           "0",IDC_COMB_SKIP_V,102,225,21,9,SS_NOPREFIX | NOT 
+                    WS_GROUP
+    LTEXT           "Skip LOW Motion Frames",IDC_STATIC,2,256,96,9
+    CONTROL         "SLIDER1",IDC_STATIC,"Static",SS_BITMAP | SS_SUNKEN | 
+                    WS_BORDER | WS_TABSTOP,2,266,17,15
+    PUSHBUTTON      "",IDC_MOTION_SKIP,19,268,6,8,WS_DISABLED
+    RTEXT           "0",IDC_MOTION_SKIP_V,102,256,21,9,SS_NOPREFIX | NOT 
+                    WS_GROUP
+    CONTROL         "Use BOB instead of CLIP",IDC_USE_INTERP_BOB,"Button",
+                    BS_AUTOCHECKBOX | BS_LEFTTEXT | BS_TOP | BS_MULTILINE | 
+                    WS_TABSTOP,129,98,38,40
+    CONTROL         "Blend Chroma Values  ",IDC_BLEND_CHROMA,"Button",
+                    BS_AUTOCHECKBOX | BS_LEFTTEXT | BS_TOP | BS_MULTILINE | 
+                    WS_TABSTOP,129,163,38,40
+END
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""windows.h""\r\n"
+    "#undef APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    "BLENDED_CLIP", DIALOG
+    BEGIN
+        LEFTMARGIN, 2
+        RIGHTMARGIN, 171
+        BOTTOMMARGIN, 286
+        HORZGUIDE, 4
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+SLIDER1                 BITMAP  DISCARDABLE     "res\\slider.bmp"
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

@@ -1,0 +1,24 @@
+
+EXPORTS
+	readPort
+	readPortW
+	readPortL
+	writePort
+	writePortW
+	writePortL
+	pciGetHardwareResources
+	isDriverOpened
+	memoryAlloc
+	memoryFree
+	memoryMap
+	memoryUnmap
+	memoryReadDWORD
+	memoryWriteDWORD
+	memoryReadWORD
+	memoryWriteWORD
+	memoryReadBYTE
+	memoryWriteBYTE
+
+
+
+

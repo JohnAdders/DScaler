@@ -1,0 +1,359 @@
+Microsoft Developer Studio Workspace File, Format Version 6.00
+# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
+
+###############################################################################
+
+Project: "DI_Adaptive"=..\PLUGINS\DI_Adaptive\DI_Adaptive.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "DI_BlendedClip"=..\Plugins\DI_BlendedClip\DI_BlendedClip.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "DI_Bob"=..\Plugins\DI_Bob\DI_Bob.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "DI_EvenOnly"=..\Plugins\DI_EvenOnly\DI_EvenOnly.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "DI_Greedy"=..\Plugins\DI_Greedy\DI_Greedy.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "DI_Greedy2Frame"=..\Plugins\DI_Greedy2Frame\DI_Greedy2Frame.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "DI_OddOnly"=..\Plugins\DI_OddOnly\DI_OddOnly.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "DI_ScalerBob"=..\Plugins\DI_ScalerBob\DI_ScalerBob.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "DI_TwoFrame"=..\Plugins\DI_TwoFrame\DI_TwoFrame.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "DI_VideoBob"=..\Plugins\DI_VideoBob\DI_VideoBob.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "DI_VideoWeave"=..\Plugins\DI_VideoWeave\DI_VideoWeave.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "DI_Weave"=..\Plugins\DI_Weave\DI_Weave.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "FLT_Gamma"=..\Plugins\FLT_Gamma\FLT_Gamma.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "FLT_LinearCorrection"=..\Plugins\FLT_LinearCorrection\FLT_LinearCorrection.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "FLT_TNoise"=..\Plugins\FLT_TNoise\FLT_TNoise.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "PlugTest"=..\PlugTest\PlugTest.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name DI_Adaptive
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name DI_BlendedClip
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name DI_Bob
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name DI_EvenOnly
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name DI_Greedy
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name DI_Greedy2Frame
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name DI_OddOnly
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name DI_ScalerBob
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name DI_TwoFrame
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name DI_VideoBob
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name DI_VideoWeave
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name DI_Weave
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name FLT_Gamma
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name FLT_TNoise
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "DScaler"=.\DScaler.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name DSdrv
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name DSdrv95
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name DSdrvNT
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name DI_BlendedClip
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name DI_Bob
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name DI_EvenOnly
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name DI_Greedy
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name DI_Greedy2Frame
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name DI_OddOnly
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name DI_ScalerBob
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name DI_TwoFrame
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name DI_VideoBob
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name DI_VideoWeave
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name DI_Weave
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name FLT_Gamma
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name FLT_TNoise
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name DI_Adaptive
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name FLT_LinearCorrection
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "DSDrv"=..\Driver\DSDrv\DSdrv.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name DSDrv95
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name DSDrvNT
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "DSDrv95"=..\Driver\DSDrv95\DSDrv95.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "DSDrvNT"=..\Driver\DSDrvNT\DSDrvNT.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Global:
+
+Package=<5>
+{{{
+}}}
+
+Package=<3>
+{{{
+}}}
+
+###############################################################################
+

@@ -1,0 +1,1214 @@
+<html><!-- #BeginTemplate "/Templates/dtvnormal.dwt" -->
+<head>
+<!-- #BeginEditable "doctitle" --> 
+<title>DScaler -- Ini File Settings</title>
+<!-- #EndEditable --> 
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<style type="text/css">
+<!--
+p {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+.bottommenu {  font-family: Arial, Helvetica, sans-serif; font-size: 8pt; font-style: normal; text-decoration: none}
+h3 {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt; font-style: normal; font-weight: bold}
+h1 {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 18pt; font-weight: bold}
+li {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+h2 {  font-family: Arial, Helvetica, sans-serif; font-size: 14pt; font-weight: bold}
+ol {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+blockquote {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+pre {  font-family: "Courier New", Courier, mono; font-size: 9pt}
+ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+-->
+</style>
+</head>
+
+<body bgcolor="#FFFFFF">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr> 
+    <td height="1" width="160"><img src="images/spacer.gif" width="1" height="1"></td>
+    <td height="1" width="342"><img src="images/spacer.gif" width="1" height="1"></td>
+    <td height="1" width="501"><img src="images/spacer.gif" width="1" height="1"></td>
+  </tr>
+  <tr> 
+    <td width="160"><img src="images/dscalerlogo.jpg" alt="DScaler Logo"></td>
+    <td colspan="2" align="right" valign="bottom">
+      <font face="Verdana, Arial, Helvetica, sans-serif" size="5"><b><!-- #BeginEditable "Page%20Title" -->DScaler.ini 
+      Settings &nbsp;<!-- #EndEditable --></b></font></td>
+  </tr>
+  <tr bgcolor="#FFCC00" align="right"> 
+    <td colspan="3"><img src="images/yellowspacer.gif" width="100%" height="2"></td>
+  </tr>
+  <tr> 
+    <td colspan="3">&nbsp;</td>
+  </tr>
+  <tr>
+    <td colspan="3">
+<!-- #BeginEditable "Text" --> 
+      <p>Many features of the program are configurable through the menu system.&nbsp; 
+        Some advanced settings and functions in beta test will require changes 
+        to this ini file to work properly.&nbsp; All the settings used by the 
+        program are stored here and no changes are made to the registry.</p>
+      <p>While the default name of this file is DScaler.ini, other names and copies
+      may be used, to create multiple profiles.&nbsp; Just create a shortcut to
+      invoke DScaler with a single parameter such as &quot;DScaler.exe vcr.ini&quot;.&nbsp;
+      This would cause the vcr.ini (or whatever) file to be used and saved on
+      exit.&nbsp; Doing this is easiest if you copy a working DScaler.ini file first
+      and then change it using the DScaler menus.</p>
+       
+      <table border="1">
+        <tr> 
+          <th> 
+            Setting
+          </th>
+          <th> 
+            Default
+          </th>
+          <th> 
+            Description
+          </th>
+        </tr>
+        <tr> 
+          <td colspan=3> 
+            <h3>[Pulldown]</h3>
+          </td>
+        </tr>
+        <tr> 
+          <td> 
+            PulldownThresholdLow
+          </td>
+          <td> 
+            <p align="center">40
+          </td>
+          <td> 
+            A percentage which determines when PAL pulldown detection will detect a noticable 
+              improvement in combing.&nbsp; Lower values will 
+              make detection require more combing to change.&nbsp; Change this 
+              if PAL detection is not working for you.
+          </td>
+        </tr>
+        <tr> 
+          <td> 
+            PulldownThresholdHigh
+          </td>
+          <td> 
+            <p align="center">10
+          </td>
+          <td> 
+            A percentage which determines when PAL pulldown detection will go back from movie 
+              mode to video mode.&nbsp; This value copes with certain types of 
+              video noise, if it is set too low then it will flip back on static 
+              movie images, if set too high it will remain in movie mode for too 
+              long.
+          </td>
+        </tr>
+        <tr>
+          <td> 
+            PALPulldownRepeatCount
+          </td>
+          <td> 
+            <p align="center">3
+          </td>
+          <td> 
+            Number of times film mode is detected in a row before going into film mode
+          </td>
+        </tr>
+        <tr> 
+          <td> 
+            PALPulldownRepeatCount2
+          </td>
+          <td> 
+            <p align="center">1
+          </td>
+          <td> 
+            Number of times that film mode errors must bedetected in a row before going
+            back to video mode
+          </td>
+        </tr>
+        <tr> 
+          <td> 
+            PulldownRepeatCount
+          </td>
+          <td> 
+            <p align="center">4
+          </td>
+          <td> 
+            This is the number of times the pulldown pattern must be detected 
+              before switching.
+          </td>
+        </tr>
+        <tr> 
+          <td> 
+            Threshold32Pulldown
+          </td>
+          <td> 
+            <p align="center">15
+          </td>
+          <td> 
+            This is the number of pixels per field that need to be similar 
+              for NTSC movie detection to detect a triplet of fields from the 
+              same movie frame. Higher values will cope with more video 
+              noise but will not detect the movies as well.
+          </td>
+        </tr>
+        <tr> 
+          <td> 
+            BitShift
+          </td>
+          <td> 
+            <p align="center">13
+          </td>
+          <td> 
+            This is used by the NTSC detection code to limit what pixels are 
+              the same.&nbsp; This should allow for noise in source.&nbsp; The 
+              value is applied to the square of the pixel difference with the 
+              results bitshifted right by this amount.
+          </td>
+        </tr>
+        <tr> 
+          <td> 
+            DiffThreshold
+          </td>
+          <td> 
+            <p align="center">224
+          </td>
+          <td> 
+            No longer used
+          </td>
+        </tr>
+        <tr> 
+          <td> 
+            PulldownRepeatCount2
+          </td>
+          <td> 
+            <p align="center">2
+          </td>
+          <td> 
+            The number of times an unexpected pattern can occur before switching 
+              back to video video mode from a film mode.&nbsp;
+          </td>
+        </tr>
+        <tr>
+          <td> 
+            RefreshRate
+          </td>
+          <td> 
+            <p align="center">0
+          </td>
+          <td> 
+            If set then it is used with DoAccurateFlips to reduce judder
+          </td>
+        </tr>
+
+        <tr>
+          <td>StaticImageFieldCount</td>
+          <td>16</td>
+          <td>The Adaptive video deinterlace mode considers an image to be static if it
+            stays the same (or nearly the same, subject to Threshold32Pulldown) for this
+            many fields.  In Adaptive mode, DScaler will switch from LowMotionMode to
+            StaticImageMode for as long as the image remains the same.  This
+            helps reduce CPU consumption on still images such as DVD menu screens.</td>
+        </tr>
+
+        <tr>
+          <td>LowMotionFieldCount</td>
+          <td>4</td>
+          <td>The Adaptive video deinterlace mode considers an image to be
+            low-motion if its difference stays below Threshold32Pulldown for this many fields.
+            When that happens, DScaler will switch from high-motion to low-motion mode.</td>
+        </tr>
+
+        <tr>
+          <td>StaticImageMode</td>
+          <td>3</td>
+          <td>Specifies the
+            <a href="#modes">video deinterlace mode</a>
+            to use in Adaptive mode for static scenes (see StaticImageFieldCount).</td>
+        </tr>
+
+        <tr>
+          <td>LowMotionMode</td>
+          <td>2</td>
+          <td>Specifies the
+            <a href="#modes">video deinterlace mode</a>
+            to use in Adaptive mode for low-motion scenes (see LowMotionFieldCount).</td>
+        </tr>
+
+        <tr>
+          <td>HighMotionMode</td>
+          <td>2</td>
+          <td>CSpecifies the
+            <a href="#modes">video deinterlace mode</a>
+            to use in Adaptive mode for high-motion scenes (see LowMotionFieldCount).</td>
+        </tr>
+
+        <tr>
+          <td colspan=3> 
+            <h3>[Hardware]</h3>
+          </td>
+        </tr>
+        <tr>
+          <td> 
+            BtAgcDisable
+          </td>
+          <td> 
+            <p align="center">0
+          </td>
+          <td> 
+            Disable AGC(automatic gain control).  This doesn't work well for almost anyone, but it's there.
+            (Adv. Video Flags)
+          </td>
+        </tr>
+        <tr>
+          <td> 
+            BtCrush
+          </td>
+          <td> 
+            <p align="center">1
+          </td>
+          <td> 
+            Turn on Adaptive AGC , this is the Crush bit in the ADC Interface register.
+            (Adv. Video Flags)
+          </td>
+        </tr>
+        <tr>
+          <td> 
+            BtWhiteCrushUp
+          </td>
+          <td> 
+            <p align="center">207
+          </td>
+          <td> 
+            Fine tuning of the Adaptive AGC White Crush Up Register. This, and
+            below, are the full 8 bit contents of the 2 registers.  I'm not sure we
+            have the best defaults here. See the BT8x8 datasheets. (Adv. Video
+            Flags)
+          </td>
+        </tr>
+        <tr>
+          <td> 
+            BtWhiteCrushDown
+          </td>
+          <td> 
+            <p align="center">127
+          </td>
+          <td> 
+            Fine tuning of the Adaptive AGC White Crush Down Registers. See
+            above. (Adv. Video Flags)
+          </td>
+        </tr>
+        <tr>
+          <td> 
+            BtEvenChromaAGC
+          </td>
+          <td> 
+            <p align="center">1
+          </td>
+          <td> 
+            Even/odd chroma AGC. Must be 0 or 1. Turns on color AGC. (Adv. Video
+            Flags)
+          </td>
+        </tr>
+        <tr>
+          <td> 
+            BtOddChromaAGC
+          </td>
+          <td> 
+            <p align="center">1
+          </td>
+          <td> 
+            &nbsp;
+          </td>
+        </tr>
+        <tr>
+          <td> 
+            BtEvenLumaPeak
+          </td>
+          <td align="center"> 
+            0
+          </td>
+          <td> 
+            From the BT8X8datasheet: (PEAK) bit determines whether the normal luma low-pass filters are
+            implemented via the HFILT bits, or the peaking filters are implemented.
+            (HFILT is the horizontal filter mentioned below) (Adv. Video Flags)
+          </td>
+        </tr>
+        <tr>
+          <td> 
+            BtOddLumaPeak
+          </td>
+          <td align="center"> 
+            0
+          </td>
+          <td> 
+            &nbsp;
+          </td>
+        </tr>
+        <tr>
+          <td> 
+            BtFullLumaRange
+          </td>
+          <td align="center"> 
+            1
+          </td>
+          <td> 
+            Luma Output Range. DScaler defaults to 1 but maybe should be set to 0 for
+            NTSC systems. (Adv. Video Flags)
+          </td>
+        </tr>
+        <tr>
+          <td> 
+            BtEvenLumaDec
+          </td>
+          <td align="center"> 
+            0
+          </td>
+          <td> 
+            From the datasheet: The Luma Decimation filter is used to reduce the high-frequency component of the luma
+            signal. Useful when scaling to CIF resolutions or lower.&nbsp; If ON it enables luma decimation using the selectable H filter.
+            (Adv. Video Flags)
+          </td>
+        </tr>
+        <tr>
+          <td> 
+            BtOddLumaDec
+          </td>
+          <td> 
+            <p align="center">0
+          </td>
+          <td> 
+            &nbsp;
+          </td>
+        </tr>
+        <tr>
+          <td> 
+            BtEvenComb
+          </td>
+          <td align="center"> 
+            1
+          </td>
+          <td> 
+            Chroma Comb Enable. This bit determines if the chroma comb is included in<br>
+            the data path. If enabled, a full line store is used to average adjacent lines of<br>
+            color information, reducing cross-color artifacts. (Adv. Video
+            Flags)
+          </td>
+        </tr>
+        <tr>
+          <td> 
+            BtOddComb
+          </td>
+          <td align="center"> 
+            1
+          </td>
+          <td> 
+            &nbsp;
+          </td>
+        </tr>
+        <tr>
+          <td> 
+            BtColorBars
+          </td>
+          <td align="center"> 
+            0
+          </td>
+          <td> 
+            Show color bars on display (Adv. Video Flags)
+          </td>
+        </tr>
+        <tr>
+          <td> 
+            BtGammaCorrection
+          </td>
+          <td align="center"> 
+            0
+          </td>
+          <td> 
+            Gamma Correction.  This is another double negative.  If it equals 0 (OFF) it really says we do not want to do gamma correction removal.  If ON the we DO gamma correction removal.
+            (Adv. Video Flags)
+          </td>
+        </tr>
+        <tr>
+          <td> 
+            BtCoring
+          </td>
+          <td align="center"> 
+            0
+          </td>
+          <td> 
+            Luma Coring. This sets the minimum black level. This value might also be different
+            for PAL/NTSC. It must be 0, 1, 2, or 3. Unclear yet what is the best
+            value. (Adv. Video Flags)
+          </td>
+        </tr>
+        <tr>
+          <td> 
+            BtHorFilter
+          </td>
+          <td align="center"> 
+            0
+          </td>
+          <td> 
+            Turns on hardware Horizontal filter.  Because of DScalers large scale only values 0 and 1 are valid.
+            0=normal 2 tap filter (like before), 4 adds a little more filter but works (I think) only when the BtLumaPeak and
+            BtLumaDec are also both on.  It makes thing a little softer. (Adv.
+            Video Flags)<br>
+          </td>
+        </tr>
+        <tr>
+          <td> 
+            BtVertFilter
+          </td>
+          <td align="center"> 
+            0
+          </td>
+          <td> 
+            Vertical filter. Valid values would be 0-7 but at DScaler's resolution only 0 and 4 are allowed.  0 = 2-tap
+            interpolation only. 4 = 2-tap plus z filter. This make thing a lot softer.
+            (Adv. Video Flags)
+          </td>
+        </tr>
+        <tr>
+          <td> 
+            BtColorKill
+          </td>
+          <td align="center"> 
+            1
+          </td>
+          <td> 
+            Auto Low Color Killer is supposed to suppress the color signal if it looks like a black and white video.  It should probably default to on.&nbsp;
+            (Adv. Video Flags)
+          </td>
+        </tr>
+        <tr>
+          <td colspan=3> 
+            <h3>[Threads]</h3>
+          </td>
+        </tr>
+        <tr>
+          <td> 
+            Hurry_When_Late
+          </td>
+          <td> 
+            <p align="center">0
+          </td>
+          <td> 
+            Performance parameter.&nbsp; If set to 1 will cause DScaler to bypass
+            some processing to conserve CPU time if it seems to not be keeping
+            up with the input video stream. May be set to 1for slower machines.
+          </td>
+        </tr>
+        <tr>
+          <td> 
+            Wait_For_Flip
+          </td>
+          <td> 
+            <p align="center">1
+          </td>
+          <td> 
+            Performance parameter. Whether to wait for processing to complete
+            (or at least be properly set up) when flipping the video overlay
+            buffer.&nbsp; May be set to 0 for slower machines.
+          </td>
+        </tr>
+        <tr>
+          <td> 
+            Sleep_Interval
+          </td>
+          <td> 
+            <p align="center">1
+          </td>
+          <td> 
+            Performance parameter. The number of milliseconds DScaler will sleep,
+            waiting for the next video input buffer. May be set to 0 for slower
+            machines. If this is set to 0 it may appear on a CPU monitor that DScaler
+            is using 100% of available CPU processor time but it will still
+            be a good citizen and yield control if another task is ready to run.
+            May be set to 0 for slower machines.
+          </td>
+        </tr>
+        <tr>
+          <td> 
+            Back_Buffers
+          </td>
+          <td> 
+            <p align="center">2
+          </td>
+          <td> 
+            The number of video overlay back buffers to use (in addition to the
+            normal front video display buffer).&nbsp; This may be set to only 1
+            if there is too little video memory on your graphics card, at a
+            small performance penalty.
+          </td>
+        </tr>
+        <tr>
+          <td> 
+            DoAccurateFlips
+          </td>
+          <td> 
+            <p align="center">1
+          </td>
+          <td> 
+            Used to eliminate judder.&nbsp; Has no effect if RefreshRate is
+            not set in [Pulldown]
+          </td>
+        </tr>
+        <tr> 
+          <td colspan=3> 
+            <h3>[Deinterlace]</h3>
+          </td>
+        </tr>
+        <tr> 
+          <td> 
+            DeinterlaceMode
+          </td>
+          <td> 
+            <p align="center">&nbsp; 2
+          </td>
+          <td> 
+            The Deinterlace mode to be used. The best way to set this is run DScaler
+            and set it from the menu.&nbsp; The current mode will be saved on
+            exit.
+          </td>
+        </tr>
+        <tr> 
+          <td> 
+            EdgeDetect&nbsp;
+          </td>
+          <td> 
+            <p align="center">625
+          </td>
+          <td> 
+            This values governs the strength of edge detection, use higher 
+              values if you think that the video deinterlacing is occurring too 
+              often.
+          </td>
+        </tr>
+        <tr> 
+          <td> 
+            JaggieThreshold
+          </td>
+          <td> 
+            <p align="center">73
+          </td>
+          <td> 
+            This values governs the threshold for fine line dtection, use higher 
+              values if you get problems with small text
+          </td>
+        </tr>
+        <tr> 
+          <td> 
+            BlcMinimumClip
+          </td>
+          <td> 
+            <p align="center">-15
+          </td>
+          <td> 
+            The Blended Clip "Minimum Clip" slider value.&nbsp; This can be used to increase the amount of Clip vs Weave
+            in the event that none of the other more specific values seem to work and you
+            still see too many Weave artifacts ("venetion blinds").  It's best to try everything
+            else first.<br>
+          </td>
+        </tr>
+        <tr> 
+          <td> 
+            BlcPixelMotionSense
+          </td>
+          <td> 
+            <p align="center">17
+          </td>
+          <td> 
+            The Blended Clip deinterlace method "Pixel Motion Sensitivity" slider:  This determines how
+            sensitive we are to motion.&nbsp; Motion is calculated as the maximum absolute change in luma
+            from the previous field in either of the two vertically adjacent pixels.  I was going to use the change in&nbsp;
+            luma of the Weave pixel but that is not current enough to prevent the "flash
+            attacks" of venetiaon blinds that can occur with sudden scene changes.  This value is
+            calculated separately for each pixel.
+          </td>
+        </tr>
+        <tr> 
+          <td> 
+            BlcRecentMotionSense<br>
+            <br>
+          </td>
+          <td> 
+            <p align="center">0
+          </td>
+          <td> 
+            The Blended Clip "Recent Motion Sensitivity" slider:  This increases the tendency to use Clip based
+            upon an n-period Exponential Moving Average of the recent motion.  Recent motion
+            is in turn an arithmetic average of how much each pixel's luma has changed from the
+            previous field.&nbsp;&nbsp;
+          </td>
+        </tr>
+        <tr> 
+          <td> 
+            BlcMotionAvgPeriod<br>
+          </td>
+          <td> 
+            <p align="center">20
+          </td>
+          <td> 
+            The Blended Clip "Motion Average Period" slider:  This sets the period of the moving average for Recent
+            Motion Sensitivity.&nbsp;
+          </td>
+        </tr>
+        <tr> 
+          <td> 
+            BlcPixelCombSense<br>
+          </td>
+          <td> 
+            <p align="center">27
+          </td>
+          <td> 
+            The Blended Clip "Pixel Comb Sensitivity" slider:  This determines how sensitive we are to the current
+            comb factor of each pixel. This uses a simplified comb factor C = abs(2*W - H - L)/2,
+            which is just the distance of the Weave pixel's luma from its interpolated value.&nbsp;
+            This value is calculated separately for each pixel.  This value along with the Pixel
+            Motion Sense seem to be the two main things to play with to get good results.  Generally,
+            increase one of these if you get Weave artifacts and decrease one if you get BOB artifacts.&nbsp;&nbsp;
+          </td>
+        </tr>
+        <tr> 
+          <td> 
+            BlcRecentCombSense<br>
+          </td>
+          <td> 
+            0
+          </td>
+          <td> 
+            The Blended Clip "Recent Comb Senseitivity" slider:&nbsp; Operates like the Recent Motion slider but
+            acts on the average Comb Factor.
+          </td>
+        </tr>
+        <tr> 
+          <td> 
+            BlcCombAvgPeriod
+          </td>
+          <td> 
+            <p align="center">20
+          </td>
+          <td> 
+            The Blended Clip "Comb Average Period" slider: Sets the period of the Comb exponential moving
+            average. See the comments on "Motion Average Period".
+          </td>
+        </tr>
+        <tr> 
+          <td> 
+            BlcHighCombSkip<br>
+          </td>
+          <td> 
+            <p align="center">&nbsp;10
+          </td>
+          <td> 
+            The Blended Clip "Skip High Comb Frames" slider: This was added in the hopes that it could help to
+            skip a frame in the event of a sudden flash attack on a rapid scene change or maybe
+            help to handle some very poorly mastered anime using ?:? pulldown.&nbsp;
+            It will give very ugly results if you set it too high.<br>
+          </td>
+        </tr>
+        <tr> 
+          <td> 
+            BlcLowMotionSkip<br>
+          </td>
+          <td> 
+            <p align="center">0
+          </td>
+          <td> 
+            The Blended Clip "Skip Low Motion Frames" slider:  This also is just experimental an probably of low
+            value. The idea here is that any frame with sufficiently low change from the previous
+            one is maybe a still frame with some video noise, and could be skipped.  Not for
+            normal use.  NOTE - This may go away in a future release.
+          </td>
+        </tr>
+        <tr> 
+          <td> 
+            BlcUseInterpBob<br>
+          </td>
+          <td> 
+            <p align="center">0
+          </td>
+          <td> 
+            The Blended Clip "Use Interpolated BOB instead of Clip" check box.  For those who don't like the
+            Clipped Weave, this will change it to an Interpolated Bob.  All other blending and
+            processing will still function. (but it probably won't look as good).
+          </td>
+        </tr>
+        <tr> 
+          <td> 
+            BlcBlendChroma<br>
+          </td>
+          <td> 
+            <p align="center">1
+          </td>
+          <td> 
+            The Blended Clip "Blend Chroma Value" check box:  Usually the chroma value for the Clipped Weave is
+            just taken from the pixel above it.  Checking this box causes the chroma values to
+            also use the clipping algorithm.&nbsp;<br>
+            Checking this box seems to get richer color detail and a more theater like picture
+            but it sometimes seems to create some softness or shimmering on my stock ticker or
+            rapidly moving objects with lots of detail like a hockey game.
+            Generally though it seems better.
+          </td>
+        </tr>
+        <tr> 
+          <td> 
+            BlcShowControls<br>
+          </td>
+          <td> 
+            <p align="center">1
+          </td>
+          <td> 
+            The Blended Clip control panel displays by default every time that
+            deinterlace method is selected.&nbsp; Setting this to 0 suppresses
+            that display.
+          </td>
+        </tr>
+        <tr> 
+          <td colspan=3> 
+            <h3>[ASPECT]</h3>
+          </td>
+        </tr>
+        <tr> 
+          <td> 
+            <font size="1">SourceAspect</font>
+          </td>
+          <td> 
+            <p align="center"><font size="1">0</font>
+          </td>
+          <td> 
+            <font size="1">The most recent aspect ratio used. This is the ratio multiplied 
+              by 1000, e.g. a 4:3 ratio is (4 / 3 * 1000) or 1333. A value of 
+              0 means to use the aspect ratio of the source material, either 4:3 
+              or 16:9 depending on <tt>aspect_mode</tt>. This is settable via 
+              various menu items in the Aspect menu, and may also be modified 
+              by the aspect ratio autodetect option.</font>
+          </td>
+        </tr>
+        <tr> 
+          <td> 
+            CustomSourceAspect
+          </td>
+          <td> 
+            <p align="center">0
+          </td>
+          <td> 
+            Allows you to specify a custom aspect ratio which may be accessed 
+              from the Aspect menu. Normally unused.
+          </td>
+        </tr>
+        <tr> 
+          <td> 
+            ScreenAspect
+          </td>
+          <td> 
+            <p align="center">0
+          </td>
+          <td> 
+            The aspect ratio of the display screen. If 0, the screen is assumed 
+              to have square pixels and its resolution is used as the aspect ratio. 
+              This is settable via various menu items in the Aspect menu.
+          </td>
+        </tr>
+        <tr> 
+          <td> 
+            CustomScreenAspect
+          </td>
+          <td> 
+            <p align="center">0
+          </td>
+          <td> 
+            Allows you to specify a custom screen aspect ratio which may be 
+              accessed from the Aspect menu. Normally unused.
+          </td>
+        </tr>
+        <tr> 
+          <td> 
+            Mode
+          </td>
+          <td> 
+            <p align="center">0
+          </td>
+          <td> 
+            1 if the source is a 4:3 image (even a letterboxed one), 2 if it's 
+              an anamorphic 16:9 image, or 0 to stretch the source to the current 
+              window size. This is settable via various menu items in the Aspect 
+              menu.
+          </td>
+        </tr>
+        <tr> 
+          <td> 
+            AutoDetectAspect
+          </td>
+          <td> 
+            <p align="center">0
+          </td>
+          <td> 
+            Controls whether the code analyzes each frame to detect the current 
+              aspect ratio. This may be toggled using the "Autodetect" Aspect 
+              menu option. If deactivated, you can get DScaler to detect the aspect 
+              ratio of the current frame using the "Compute" Aspect menu option.
+          </td>
+        </tr>
+        <tr> 
+          <td> 
+            LuminanceThreshold
+          </td>
+          <td> 
+            <p align="center">15
+          </td>
+          <td> 
+            Controls how bright letterbox bars are allowed to get. Valid values 
+              are 0 through 127. Any pixel with lower luminance than this is considered 
+              black by the aspect ratio detection code. Lowering this value will 
+              allow DScaler to detect letterbox modes on darker scenes, at the cost 
+              of increasing the chance that video noise in the letterbox bars 
+              will be treated as part of the picture. <em>If all your letterboxed 
+              material is from a clean signal source, you'll probably want to 
+              lower this.</em>
+          </td>
+        </tr>
+        <tr> 
+          <td> 
+            IgnoreNonBlackPixels
+          </td>
+          <td> 
+            <p align="center">0
+          </td>
+          <td> 
+            When detecting aspect ratios, we often want to ignore TV station 
+              logos that extend into the letterbox area. This setting controls 
+              how many non-black pixels (see LuminanceThreshold) must be present 
+              on a line before it's no longer considered part of a letterbox bar. 
+              A value of 0 means 20% of the width of the screen, more than big 
+              enough to cover most logos. <em>If you never watch letterboxed material 
+              with station logos, e.g. if all your letterboxed material is on 
+              laserdisc or DVD, set this to 1.</em>
+          </td>
+        </tr>
+        <tr> 
+          <td> 
+            AspectConsistencyTime
+          </td>
+          <td> 
+            <p align="center">15
+          </td>
+          <td> 
+            This many seconds must pass without a narrower frame appearing 
+              before the autodetect code will switch to a wide ratio it hasn't 
+              seen before.
+          </td>
+        </tr>
+        <tr> 
+          <td> 
+            AspectHistoryTime
+          </td>
+          <td> 
+            <p align="center">300
+          </td>
+          <td> 
+            The autodetect module will remember previous aspect ratios it's 
+              switched to for this many seconds. Ratios that last for less than 
+              a second aren't remembered since they're assumed to have been erroneous.
+          </td>
+        </tr>
+        <tr> 
+          <td> 
+            ZoomInFrameCount
+          </td>
+          <td> 
+            <p align="center">60
+          </td>
+          <td> 
+            When autodetecting aspect ratios, if a ratio we've used before 
+              (within the past <tt>AspectHistoryTime</tt> seconds) reappears and 
+              is consistent for this many frames, switch back to it.
+          </td>
+        </tr>
+        <tr>
+          <td>Clipping</td>
+          <td align="center">1</td>
+          <td>If turned on (non-zero), the source image is clipped (masked)
+		    to hide any source material outside the expected region.  This
+			is the normal operation mode.  It can be turned off and combined
+			with the image positioning commands to make more space available
+			for captions.</td>
+        </tr>
+        <tr>
+          <td>deferedOverlay</td>
+          <td align="center">0</td>
+          <td>If turned on (non-zero) the overlay on the screen will not be
+		    updated until Windows has painted the black masking bars but
+			before painting the purple overlay color.  Additionally, it
+			imposes a delay for the vertical retrace before painting the 
+			overlay color.  Under normal CPU load, this should eleminate 
+			flashing of purple borders when resizing or bouncing the image.  
+			Flashing may still occur under heavy load.</td>
+        </tr>
+        <tr>
+          <td>Bounce</td>
+          <td align="center">0</td>
+          <td>If turned on (non-zero), the image will bounce within any 
+		    space remaining either beside or above/below the image.  Used to
+			maximize the region being used on a CRT projector to minimize 
+			the risk of burning in one piece of the CRT.</td>
+        </tr>
+        <tr>
+          <td>BouncePeriod</td>
+          <td align="center">1800</td>
+          <td>Time (in seconds) it takes for the image to bounce from the center
+		    to the right/bottom then back to the left/top and back to center.  Default
+			is half an hour.</td>
+        </tr>
+        <tr>
+          <td>BounceTimerPeriod</td>
+          <td align="center">1000</td>
+          <td>Number of miliseconds between overlay updates when bounce mode is
+		    enabled.</td>
+        </tr>
+        <tr>
+          <td>Orbit</td>
+          <td align="center">0</td>
+          <td>If enabled (non-zero) the region of the captured image is bounced
+		    around.  This prevents any individual item on the screen from being
+			constantly displayed in the same location and thus minimizes CRT
+			burn-in risk from small static objects.  The orbit causes the image
+			to move into the overlay region, so you may need a larger overlay setting
+			if you use the orbit option.</td>
+        </tr>
+        <tr>
+          <td>OrbitPeriodX</td>
+          <td align="center">2700</td>
+          <td>Number of seconds for the image to move back and forth across the
+		    entire orbit region in the horizontal.  It is recommended that OrbitPeriodX
+			and OrbitPeriodY use different values to provide wider variation in the
+			orbit positions.  If both values are the same, the image will only diagionally
+			orbit from top-left to bottom-right.</td>
+        </tr>
+        <tr>
+          <td>OrbitPeriodY</td>
+          <td align="center">3600</td>
+          <td>Number of seconds for the image to vertically across the
+		    entire orbit region.  It is recommended that OrbitPeriodX
+			and OrbitPeriodY use different values to provide wider variation in the
+			orbit positions.  If both values are the same, the image will only diagionally
+			orbit from top-left to bottom-right.</td>
+        </tr>
+        <tr>
+          <td>OrbitSize</td>
+          <td align="center">8</td>
+          <td>Number of pixels in the captured material to orbit.</td>
+        </tr>
+        <tr>
+          <td>OrbitTimerPeriod</td>
+          <td align="center">60000</td>
+          <td>Number of miliseconds between updates of the overlay for image orbiting.</td>
+        </tr>
+        <tr>
+          <td>VerticalPos</td>
+          <td align="center">CENTER</td>
+          <td>Vertical position of the image (TOP, CENTER, BOTTOM).</td>
+        </tr>
+        <tr>
+          <td>HorizontalPos</td>
+          <td align="center">CENTER</td>
+          <td>Horizontal position of the image (LEFT, CENTER, RIGHT).</td>
+        </tr>
+
+        <tr>
+          <td colspan=3><h3>[NoiseFilter]</h3></td>
+        </tr>
+
+        <tr>
+          <td>UseTemporalNoiseFilter</td>
+          <td align="center">0</td>
+          <td>Controls whether the temporal noise filter is activated when DScaler
+            starts up.  0 means it isn't; any other number means it is.</td>
+        </tr>
+
+        <tr>
+          <td>TemporalLuminanceThreshold</td>
+          <td align="center">6</td>
+          <td>Controls how different a pixel's luminance (brightness) has to be
+          from its predecessor in the previous frame before it's considered a
+          change in the actual image rather than just noise.  Valid values are
+          0-255.  Values over 15 tend to produce posterization artifacts that
+          are more distracting than the video noise was.</td>
+        </tr>
+
+        <tr>
+          <td>TemporalChromaThreshold</td>
+          <td align="center">7</td>
+          <td>Controls how different a pixel's chrominance (hue) has to be
+            from its predecessor in the previous frame before it's considered a
+            change in the actual image rather than just noise.  Valid values are
+            0-255.  Values over 20 tend to produce posterization artifacts that
+            are more distracting than the video noise was.</td>
+        </tr>
+        <tr>
+          <td colspan=3> 
+            <h3>[GammaFilter]</h3>
+          </td>
+        </tr>
+        <tr>
+          <td> 
+            UseGammaFilter
+          </td>
+          <td> 
+            <p align="center">0
+          </td>
+          <td> 
+            Do you want to use the gamma filter
+          </td>
+        </tr>
+        <tr>
+          <td> 
+           Gamma
+          </td>
+          <td> 
+            <p align="center">1000
+          </td>
+          <td> 
+            Gamma adjustment, note 1000 doesn't do anything, 1300 does a 1.3 power adjustment
+          </td>
+        </tr>
+      </table>
+
+<h2 id="modes">Deinterlace Modes</h2>
+
+<p>The following numeric codes correspond to the various deinterlace modes
+supported by DScaler.  They are used in the DeinterlaceMode, LowMotionMode,
+HighMotionMode, and StillImageMode settings.
+
+<p>
+<table border="1">
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Summary</th>
+</tr>
+
+<tr>
+<td>0</td>
+<td>Video Bob</td>
+<td>Adaptive video deinterlace with a tendency to bob rather than weave.
+Useful for high-motion scenes on slower PCs.</td>
+</tr>
+
+<tr>
+<td>1</td>
+<td>Video Weave</td>
+<td>Adaptive video deinterlace with a tendency to weave rather than bob.
+Useful for low-motion scenes on slower PCs.</td>
+</tr>
+
+<tr>
+<td>2</td>
+<td>Video 2-Frame</td>
+<td>Adaptive video deinterlace that examines more data than Video Bob or
+Video Weave.  Can handle high and low-motion scenes but requires more
+CPU horsepower.</td>
+</tr>
+
+<tr>
+<td>3</td>
+<td>Simple Weave</td>
+<td>Combines each incoming field with the previous one, with no attempt
+to eliminate visible artifacts.  Suitable for static (still) images.</td>
+</tr>
+
+<tr>
+<td>4</td>
+<td>Simple Bob</td>
+<td>Fills the whole screen with each incoming field, effectively cutting
+resolution in half.  Not generally useful, though some sports may look
+acceptable and it uses less CPU time than most of the other modes.</td>
+</tr>
+
+<tr>
+<td>5</td>
+<td>Scaler Bob</td>
+<td>Like Simple Bob, but uses the display hardware to expand the
+half-resolution image rather than doing it in software.  Uses less CPU
+time than Simple Bob and looks better on some video cards.  Switching
+to and from this mode may produce brief distortions in the picture.</td>
+</tr>
+
+<tr>
+<td>6-7</td>
+<td>2:2 Pulldown</td>
+<td>PAL film modes, each film frame corresponding to two video fields
+for a frame rate of 25FPS. Generally you will want to let DScaler automatically
+detect these modes rather than setting them by hand.</td>
+</tr>
+
+<tr>
+<td>8-12</td>
+<td>3:2 Pulldown</td>
+<td>NTSC film modes, each pair of film frames corresponding to five video
+fields for a frame rate of 24FPS. Generally you will want to let DScaler automatically detect these modes rather than setting them by hand.</td>
+</tr>
+
+<tr>
+<td>13-14</td>
+<td>Even/Odd Only</td>
+<td>Ignore the odd or even fields, respectively.  Essentially these are
+bob modes, but they may produce better results on some video cards than
+simple bobbing.  Mostly useful for older videogame systems (PlayStation,
+Nintendo64, etc.) that render games at half resolution.</td>
+</tr>
+
+<tr>
+<td>15</td>
+<td>Blended Clip</td>
+<td>Attempts to smoothly blend the results of weaving and bobbing rather
+than simply choosing one or the other outright.  This mode has a lot of
+settings that can be tweaked with a control panel.</td>
+</td>
+</tr>
+
+<tr>
+<td>16</td>
+<td>Adaptive</td>
+<td>Not exactly a mode in its own right, the adaptive algorithm switches
+between other deinterlace modes depending on the amount of motion in the
+scene.  Its exact behavior is controlled by LowMotionFieldCount,
+HighMotionMode, and related INI file settings; see the [Pulldown]
+section above.</td>
+</td>
+</tr>
+
+<tr>
+<td>17</td>
+<td>Greedy</td>
+<td>Examines several nearby pixels to determine which one will produce
+the best image.  Works well on poorly-mastered film material and on
+video with low amounts of motion.</td>
+</tr>
+
+<tr>
+<td>18</td>
+<td>Greedy 2 Frame</td>
+<td>Examines several nearby pixels to determine when to BOB a pixel.  Works well on sports and on video with large amounts of motion.</td>
+</tr>
+
+</table>
+
+<!-- #EndEditable -->
+	</td>
+  </tr>
+  <tr> 
+    <td colspan="3">&nbsp;</td>
+  </tr>
+  <tr>
+    <td colspan="3">
+    </td>
+  </tr>
+  <tr> 
+    <td colspan="3">&nbsp;</td>
+  </tr>
+  <tr bgcolor="#FFCC00"> 
+    <td colspan="3"> 
+      <div align="center"><img src="images/yellowspacer.gif" width="100%" height="2"></div>
+    </td>
+  </tr>
+</table>
+</body>
+<!-- #EndTemplate --></html>

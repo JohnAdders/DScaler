@@ -1543,13 +1543,14 @@ BEGIN
         END
         POPUP "Audio &Channel"
         BEGIN
-            MENUITEM "(Unimplemented)",             65535, INACTIVE
             MENUITEM "&Mono",                       IDM_SOUNDCHANNEL_MONO
             MENUITEM "&Stereo",                     IDM_SOUNDCHANNEL_STEREO
             MENUITEM "Speech Channel &1",           IDM_SOUNDCHANNEL_LANGUAGE1
 
             MENUITEM "Speech Channel &2",           IDM_SOUNDCHANNEL_LANGUAGE2
 
+            MENUITEM SEPARATOR
+            MENUITEM "&Automatic Stereo Adjustment", IDM_AUTOSTEREO
         END
         POPUP "Miscellaneous Settings"
         BEGIN

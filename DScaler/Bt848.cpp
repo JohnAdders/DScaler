@@ -1267,7 +1267,7 @@ void BT848_AndDataByte(int Offset, BYTE d)
 	BT848_WriteByte(Offset, a);
 }
 
-void BT848_AndDataWord(int Offset, short d)
+void BT848_AndDataWord(int Offset, WORD d)
 {
 	WORD a;
 
@@ -1275,6 +1275,16 @@ void BT848_AndDataWord(int Offset, short d)
 	a &= d;
 	BT848_WriteWord(Offset, a);
 }
+
+void BT848_AndDataWord(int Offset, DWORD d)
+{
+	DWORD a;
+
+	a = BT848_ReadDword(Offset);
+	a &= d;
+	BT848_WriteDword(Offset, a);
+}
+
 
 void BT848_OrDataByte(int Offset, BYTE d)
 {
@@ -1285,7 +1295,7 @@ void BT848_OrDataByte(int Offset, BYTE d)
 	BT848_WriteByte(Offset, a);
 }
 
-void BT848_OrDataWord(int Offset, unsigned short d)
+void BT848_OrDataWord(int Offset, WORD d)
 {
 	WORD a;
 
@@ -1293,6 +1303,16 @@ void BT848_OrDataWord(int Offset, unsigned short d)
 	a |= d;
 	BT848_WriteWord(Offset, a);
 }
+
+void BT848_OrDataDword(int Offset, DWORD d)
+{
+	DWORD a;
+
+	a = BT848_ReadDword(Offset);
+	a |= d;
+	BT848_WriteDword(Offset, a);
+}
+
 
 //===========================================================================
 // Enable CCIR656 Input mode

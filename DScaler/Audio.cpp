@@ -798,6 +798,12 @@ void Audio_MSP_SetStereo(int MajorMode, int MinorMode, int mode)
 
 	MSPStereo = mode;
 
+    if(GetCardSetup()->pfnSetAudioMode != NULL)
+    {
+        GetCardSetup()->pfnSetAudioMode(mode);
+        return;
+    }
+
 	// switch demodulator
 	switch (MSPMode)
 	{

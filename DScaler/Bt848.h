@@ -143,9 +143,11 @@ void BT848_MaskDataByte(int Offset, BYTE d, BYTE m);
 void BT848_MaskDataWord(int Offset, WORD d, WORD m);
 void BT848_AndOrDataDword(int Offset, DWORD d, DWORD m);
 void BT848_AndDataByte(int Offset, BYTE d);
-void BT848_AndDataWord(int Offset, short d);
+void BT848_AndDataWord(int Offset, WORD d);
+void BT848_AndDataDword(int Offset, WORD d);
 void BT848_OrDataByte(int Offset, BYTE d);
-void BT848_OrDataWord(int Offset, unsigned short d);
+void BT848_OrDataWord(int Offset, WORD d);
+void BT848_OrDataDword(int Offset, DWORD d);
 
 // Internal Functions
 PHYS RiscLogToPhys(DWORD * pLog);

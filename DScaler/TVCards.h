@@ -39,6 +39,9 @@ void TVCard_ReadSettingsFromIni();
 void TVCard_WriteSettingsToIni();
 void TVCard_SetMenu(HMENU hMenu);
 
+typedef void (AUDIOMODE_FUNC)(int StereoMode);
+
+
 typedef enum
 {
 	TVCARD_UNKNOWN = 0,
@@ -90,7 +93,6 @@ typedef enum
 	TVCARD_ZOLTRIX_GENIE, 
 	TVCARD_TERRATVRADIO, 
 	TVCARD_DYNALINK,
-
 	// MAE 20 Nov 2000 Start of change
 	TVCARD_CONEXANTNTSCXEVK,
 	TVCARD_ROCKWELLNTSCXEVK,
@@ -103,6 +105,22 @@ typedef enum
 	TVCARD_RS_BT,
 	TVCARD_CYBERMAIL,
 	TVCARD_VIEWCAST,
+    TVCARD_ATI_TVWONDER,
+    TVCARD_ATI_TVWONDERVE,
+    TVCARD_GVBCTV3PCI,
+    TVCARD_PROLINK,
+    TVCARD_EAGLE,
+    TVCARD_PINNACLEPRO,
+    TVCARD_THYPHOON,
+    TVCARD_LIFETEC,
+    TVCARD_BESTBUY_OLD,
+    TVCARD_FLYVIDEO_98FM,
+    TVCARD_GRANDTEC,
+    TVCARD_PHOEBE,
+    TVCARD_TVCAPTURER,
+    TVCARD_MM100PCTV,
+    TVCARD_GMV1,
+    TVCARD_BESTBUY_NEW,
 	TVCARD_LASTONE,
 } TVCARDID;
 
@@ -184,19 +202,10 @@ typedef struct
 	DWORD AudioMuxSelect[6]; /* Tuner, Radio, external, internal, mute, stereo */
 	DWORD GPIOMuxMask;   /* GPIO MUX mask */
 
-	/* look for these i2c audio chips */
-	int msp34xx:1;
-	int tda8425:1;
-	int tda9840:1;
-	int tda985x:1;
-	int tea63xx:1;
-	int tea64xx:1;
-	int tda7432:1;
-	int tda9875:1;
-
 	/* other settings */
 	PLLFREQ pll;
 	TVTUNERID TunerId;
+    AUDIOMODE_FUNC* pfnSetAudioMode;
 } TVCARDSETUP;
 
 typedef struct

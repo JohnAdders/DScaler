@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.33 2001-08-23 18:54:21 adcockj Exp $
+// $Id: ProgramList.cpp,v 1.34 2001-09-12 15:59:18 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2001/08/23 18:54:21  adcockj
+// Menu and Settings fixes
+//
 // Revision 1.32  2001/08/23 16:03:26  adcockj
 // Improvements to dynamic menus to remove requirement that they are not empty
 //
@@ -595,6 +598,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                     Channel_Change(0);
                 }
                 UpdateDetails(hDlg);
+                Audio_Unmute();
             }
         }
         break;
@@ -743,6 +747,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             else
             {
                 InScan = TRUE;
+                Audio_Mute();
                 Button_SetText(GetDlgItem(hDlg, IDC_SCAN), "Cancel");
                 if(!bCustomChannelOrder)
                 {
@@ -953,7 +958,6 @@ void Channel_Change(int NewChannel)
         {
             if (MyChannels[NewChannel]->GetFrequency() != 0)
             {
-                Audio_Mute();
                 Sleep(100); // This helps reduce the static click noise.
                 PreviousProgramm = CurrentProgramm;
                 CurrentProgramm = NewChannel;
@@ -974,7 +978,6 @@ void Channel_Change(int NewChannel)
                 Tuner_SetFrequency(MyChannels[CurrentProgramm]->GetFrequency());
                 Sleep(20);
                 VT_ChannelChange();
-                Audio_Unmute();
                 StatusBar_ShowText(STATUS_KEY, MyChannels[CurrentProgramm]->GetName());
                 OSD_ShowText(hWnd,MyChannels[CurrentProgramm]->GetName(), 0);
             }

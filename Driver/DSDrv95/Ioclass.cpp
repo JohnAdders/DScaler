@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Ioclass.cpp,v 1.3 2001-08-08 10:53:30 adcockj Exp $
+// $Id: Ioclass.cpp,v 1.4 2001-08-08 16:37:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -33,6 +33,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/08/08 10:53:30  adcockj
+// Preliminary changes to driver to support multiple cards
+//
 // Revision 1.2  2001/07/13 16:13:53  adcockj
 // Added CVS tags and removed tabs
 //
@@ -53,10 +56,6 @@ extern "C"
 //---------------------------------------------------------------------------
 CIOAccessDevice::CIOAccessDevice(void)
 {
-    dwBusNumber = 0;
-    dwSlotNumber = 0;
-    dwMemoryBase = 0;
-    dwMappedMemoryLength = 0;
     memset(&memoryList, 0, sizeof(memoryList));
 }
 
@@ -160,32 +159,31 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         break;
 
     case ioctlGetPCIInfo:
-        status = pciFindDevice(
-                                   ioParam->dwAddress,
-                                   ioParam->dwValue,
-                                   ioParam->dwFlags,
-                                   &dwBusNumber,
-                                   &dwSlotNumber
-                              );
-
-        if ( status == STATUS_SUCCESS)
+        if (isValidAddress(outputBuffer))
         {
-            if ( ! isValidAddress(outputBuffer ) )
+            TPCICARDINFO* pPCICardInfo = (TPCICARDINFO*)outputBuffer;
+            status = pciFindDevice(
+                                       ioParam->dwAddress,
+                                       ioParam->dwValue,
+                                       ioParam->dwFlags,
+                                       &(pPCICardInfo->dwBusNumber),
+                                       &(pPCICardInfo->dwSlotNumber)
+                                  );
+
+            if ( status == STATUS_SUCCESS)
             {
-                debugOut(dbError,"! invalid system address %X",outputBuffer);
+                status = pciGetDeviceConfig(pPCICardInfo);
             }
             else
             {
-                status = pciGetDeviceConfig(dwBusNumber,
-                                          dwSlotNumber,
-                                          (PPCI_COMMON_CONFIG) outputBuffer);
+                debugOut(dbTrace,"pci device for vendor %lX deviceID %lX not found",ioParam->dwAddress,ioParam->dwValue);
             }
+            *pBytesWritten = sizeof(TPCICARDINFO);
         }
         else
         {
-            debugOut(dbTrace,"pci device for vendor %lX deviceID %lX not found",ioParam->dwAddress,ioParam->dwValue);
+            debugOut(dbError,"! invalid system address %X",outputBuffer);
         }
-        *pBytesWritten = sizeof(PCI_COMMON_CONFIG);
         break;
 
     case ioctlAllocMemory:
@@ -204,7 +202,7 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         break;
 
     case ioctlMapMemory:
-        *outputBuffer = mapMemory( ioParam->dwAddress, ioParam->dwValue);
+        *outputBuffer = mapMemory(ioParam->dwValue, ioParam->dwFlags);
         *pBytesWritten = 4;
         break;
 
@@ -213,9 +211,9 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         break;
 
     case ioctlReadMemoryDWORD:
-        if (dwMemoryBase)
+        if (ioParam->dwAddress)
         {
-            DWORD Address = ioParam->dwAddress + dwMemoryBase;
+            DWORD Address = ioParam->dwAddress;
             osMemoryReadDWORD( Address, *outputBuffer);
             *pBytesWritten = 4;
             debugOut(dbTrace,"memory %X read %X",ioParam->dwAddress, *outputBuffer);
@@ -223,18 +221,18 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         break;
 
     case ioctlWriteMemoryDWORD:
-        if (dwMemoryBase)
+        if (ioParam->dwAddress)
         {
-            DWORD Address = ioParam->dwAddress + dwMemoryBase;
-            osMemoryWriteDWORD( Address, ioParam->dwValue );
+            DWORD Address = ioParam->dwAddress;
+            osMemoryWriteDWORD( Address, ioParam->dwValue);
             debugOut(dbTrace,"memory %X write %X",ioParam->dwAddress, ioParam->dwValue);
         }
         break;
 
     case ioctlReadMemoryWORD:
-        if (dwMemoryBase)
+        if (ioParam->dwAddress)
         {
-            DWORD Address = ioParam->dwAddress + dwMemoryBase;
+            DWORD Address = ioParam->dwAddress;
             osMemoryReadWORD( Address, *outputBuffer);
             *pBytesWritten = 2;
             debugOut(dbTrace,"memory %X read %X",ioParam->dwAddress, (DWORD)*outputBuffer);
@@ -242,18 +240,18 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         break;
 
     case ioctlWriteMemoryWORD:
-        if (dwMemoryBase)
+        if (ioParam->dwAddress)
         {
-            DWORD Address = ioParam->dwAddress + dwMemoryBase;
-            osMemoryWriteWORD( Address, ioParam->dwValue );
+            DWORD Address = ioParam->dwAddress;
+            osMemoryWriteWORD( Address, ioParam->dwValue);
             debugOut(dbTrace,"memory %X write %X",ioParam->dwAddress, ioParam->dwValue);
         }
         break;
 
     case ioctlReadMemoryBYTE:
-        if (dwMemoryBase)
+        if (ioParam->dwAddress)
         {
-            DWORD Address = ioParam->dwAddress + dwMemoryBase;
+            DWORD Address = ioParam->dwAddress;
             osMemoryReadBYTE( Address, *outputBuffer);
             *pBytesWritten = 1;
             debugOut(dbTrace,"memory %X read %X",ioParam->dwAddress, (DWORD)*outputBuffer);
@@ -261,12 +259,17 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         break;
 
     case ioctlWriteMemoryBYTE:
-        if (dwMemoryBase)
+        if (ioParam->dwAddress)
         {
-            DWORD Address = ioParam->dwAddress + dwMemoryBase;
-            osMemoryWriteBYTE( Address, ioParam->dwValue );
+            DWORD Address = ioParam->dwAddress;
+            osMemoryWriteBYTE( Address, ioParam->dwValue);
             debugOut(dbTrace,"memory %X write %X",ioParam->dwAddress, ioParam->dwValue);
         }
+        break;
+
+    case ioctlGetVersion:
+        *outputBuffer = DSDRV_VERSION;
+        *pBytesWritten = sizeof(DWORD);
         break;
 
     default:
@@ -488,21 +491,7 @@ DWORD CIOAccessDevice::GetPhysAddr(DWORD UserAddr)
 //---------------------------------------------------------------------------
 DWORD CIOAccessDevice::mapMemory(DWORD dwPhysicalAddress, DWORD dwLength)
 {
-    if (!dwMemoryBase)
-    {
-        dwMappedMemoryLength = dwLength;
-
-        debugOut(dbTrace,"mapMemory for %X", dwPhysicalAddress);
-
-        dwMemoryBase = (DWORD) _MapPhysToLinear( (void *)dwPhysicalAddress, dwLength, 0);
-    }
-    else
-    {
-        debugOut(dbError,"! mapMemory failed, already mapped to %lX",dwMemoryBase);
-        return dwMemoryBase;
-    }
-
-    return dwMemoryBase;
+    return (DWORD) _MapPhysToLinear( (void *)dwPhysicalAddress, dwLength, 0);
 }
 
 
@@ -512,8 +501,5 @@ DWORD CIOAccessDevice::mapMemory(DWORD dwPhysicalAddress, DWORD dwLength)
 void
 CIOAccessDevice::unmapMemory(void)
 {
-    if ( dwMemoryBase )
-    {
-        dwMemoryBase = 0;
-    }
+    ; // do nothing
 }

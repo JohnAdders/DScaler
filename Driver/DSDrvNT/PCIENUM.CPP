@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCIENUM.CPP,v 1.4 2001-08-08 10:53:30 adcockj Exp $
+// $Id: PCIENUM.CPP,v 1.5 2001-08-08 16:37:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/08/08 10:53:30  adcockj
+// Preliminary changes to driver to support multiple cards
+//
 // Revision 1.3  2001/07/13 16:13:53  adcockj
 // Added CVS tags and removed tabs
 //
@@ -153,19 +156,25 @@ NTSTATUS CIOAccessDevice::pciFindDevice(
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
-NTSTATUS CIOAccessDevice::pciGetDeviceConfig(DWORD dwBusNumber, DWORD dwSlotNumber, PPCI_COMMON_CONFIG pciConfiguration)
+NTSTATUS CIOAccessDevice::pciGetDeviceConfig(TPCICARDINFO* pPCICardInfo)
 {
+    PCI_COMMON_CONFIG PCIConfig;
     NTSTATUS status;
 
-    debugOut(dbTrace,"get pci configuration for bus %X slot %X",dwBusNumber,dwSlotNumber);
+    debugOut(dbTrace,"get pci configuration for bus %X slot %X",pPCICardInfo->dwBusNumber,pPCICardInfo->dwSlotNumber);
 
     status = HalGetBusData(PCIConfiguration,
-                            dwBusNumber,
-                            dwSlotNumber,
-                            pciConfiguration,
-                            sizeof(*pciConfiguration));
+                            pPCICardInfo->dwBusNumber,
+                            pPCICardInfo->dwSlotNumber,
+                            &PCIConfig,
+                            sizeof(PCIConfig));
 
-    debugOut(dbTrace,"found address %lX, irq %lX", pciConfiguration->u.type0.BaseAddresses[0],
-                                                    pciConfiguration->u.type0.InterruptLine);
+    debugOut(dbTrace,"found address %lX, irq %lX", PCIConfig.u.type0.BaseAddresses[0],
+                                                    PCIConfig.u.type0.InterruptLine);
+
+    pPCICardInfo->dwMemoryAddress = PCIConfig.u.type0.BaseAddresses[0] & 0xFFFFFFF0;
+    pPCICardInfo->dwMemoryLength = 0x1000;
+    pPCICardInfo->dwSubSystemId = (PCIConfig.u.type0.SubSystemID << 16) + PCIConfig.u.type0.SubVendorID;
+
     return STATUS_SUCCESS;
 }

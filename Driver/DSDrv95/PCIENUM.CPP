@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCIENUM.CPP,v 1.3 2001-08-08 10:53:30 adcockj Exp $
+// $Id: PCIENUM.CPP,v 1.4 2001-08-08 16:37:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/08/08 10:53:30  adcockj
+// Preliminary changes to driver to support multiple cards
+//
 // Revision 1.2  2001/07/13 16:13:53  adcockj
 // Added CVS tags and removed tabs
 //
@@ -177,18 +180,22 @@ NTSTATUS CIOAccessDevice::pciFindDevice(
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
-NTSTATUS CIOAccessDevice::pciGetDeviceConfig(DWORD dwBusNumber, DWORD dwSlotNumber, PPCI_COMMON_CONFIG pciConfiguration)
+NTSTATUS CIOAccessDevice::pciGetDeviceConfig(TPCICARDINFO* pPCICardInfo)
 {
+    PCI_COMMON_CONFIG PCIConfiguration;
     CONFIGRET cr;
 
-    cr = _CONFIGMG_Call_Enumerator_Function(dwSlotNumber,
+    cr = _CONFIGMG_Call_Enumerator_Function(pPCICardInfo->dwSlotNumber,
                                             PCI_ENUM_FUNC_GET_DEVICE_INFO,
                                             0,
-                                            pciConfiguration,
-                                            sizeof(*pciConfiguration),
+                                            &PCIConfiguration,
+                                            sizeof(PCIConfiguration),
                                             0);
 
-    debugOut(dbTrace,"get PCI device info for node %lX returns %X",dwSlotNumber,cr);
+    debugOut(dbTrace,"get PCI device info for node %lX returns %X",pPCICardInfo->dwSlotNumber, cr);
 
+    pPCICardInfo->dwMemoryAddress = PCIConfiguration.u.type0.BaseAddresses[0] & 0xFFFFFFF0;
+    pPCICardInfo->dwMemoryLength = 0x1000;
+    pPCICardInfo->dwSubSystemId = (PCIConfiguration.u.type0.SubSystemID << 16) + PCIConfiguration.u.type0.SubVendorID;
     return cr;
 }

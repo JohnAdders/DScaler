@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Ioclass.h,v 1.4 2001-08-08 10:53:30 adcockj Exp $
+// $Id: Ioclass.h,v 1.5 2001-08-08 16:37:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -83,20 +83,16 @@ protected:
     int isValidAddress(void * pvAddress);
     NTSTATUS deviceControl(DWORD ioControlCode, PDSDrvParam ioParam, DWORD* outputBuffer, DWORD* pulBytesWritten);
     NTSTATUS pciFindDevice(DWORD vendorID, DWORD deviceID, DWORD dwCardIndex, DWORD* pdwBusNumber, DWORD* pdwSlotNumber);
-    NTSTATUS pciGetDeviceConfig(DWORD dwBusNumber, DWORD dwSlotNumber, PPCI_COMMON_CONFIG pciConfiguration);
+    NTSTATUS pciGetDeviceConfig(TPCICARDINFO* pPCICardInfo);
     NTSTATUS allocMemory(DWORD ulLength,DWORD ulFlags,DWORD ulUserAddress, PMemStruct pMemStruct);
     NTSTATUS freeMemory(PMemStruct pMemStruct);
     void freeMemory(PMemoryNode node);
-    DWORD mapMemory(DWORD dwBaseAddress, DWORD ulLength);
-    void unmapMemory(void);
+    DWORD mapMemory(DWORD dwBusNumber, DWORD dwBaseAddress, DWORD ulLength);
+    void unmapMemory(DWORD dwMemoryBase, DWORD dwMappedMemoryLength);
 
 protected:
     MemoryNode memoryList[MAX_FREE_MEMORY_NODES];
     DWORD GetPhysAddr(DWORD UserAddr);
-    DWORD dwBusNumber;
-    DWORD dwSlotNumber;
-    DWORD dwMemoryBase;            // mapped memory base
-    DWORD dwMappedMemoryLength;
 };
 
 #endif

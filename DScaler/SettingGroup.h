@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingGroup.h,v 1.2 2004-08-12 14:03:42 atnak Exp $
+// $Id: SettingGroup.h,v 1.3 2004-08-13 08:52:30 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2004/08/12 14:03:42  atnak
+// Added dependency mask setting and getting functions.
+//
 // Revision 1.1  2004/08/06 17:12:10  atnak
 // Setting repository initial upload.
 //
@@ -162,6 +165,14 @@ public:
 
 	// Gets the PSETTINGKEY that is associated with the setting.
 	virtual PSETTINGKEY GetSettingKey(IN HSETTING setting);
+	// Gets the setting's title.  Since the CSettingGroup does not store
+	// the title itself, it needs to search other locations for the title.
+	// The search order is CSettingKey::GetTitle() followed by
+	// CSettingObject::GetTitle().  I've thought about moving the title
+	// variable to either in CSettingGroup or just to CSettingObject but
+	// I don't like the way doing either increases the length of the
+	// group->AddSetting(...) line in the callers code.
+	virtual std::string GetSettingTitle(IN HSETTING setting);
 
 	// Incoming link functions for CSettingKey.  Although these functions can
 	// be called directly with the value of HSETTING returned by AddSetting(),

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingGroup.cpp,v 1.2 2004-08-12 14:03:42 atnak Exp $
+// $Id: SettingGroup.cpp,v 1.3 2004-08-13 08:52:30 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2004/08/12 14:03:42  atnak
+// Added dependency mask setting and getting functions.
+//
 // Revision 1.1  2004/08/06 17:12:10  atnak
 // Setting repository initial upload.
 //
@@ -147,6 +150,22 @@ PSETTINGKEY CSettingGroup::GetSettingKey(IN HSETTING setting)
 {
 	PSETTINGINFO info = (PSETTINGINFO)setting;
 	return info->key;
+}
+
+
+std::string CSettingGroup::GetSettingTitle(IN HSETTING setting)
+{
+	PSETTINGINFO info = (PSETTINGINFO)setting;
+
+	if (info->key != NULL)
+	{
+		std::string title = info->key->GetTitle();
+		if (title != "")
+		{
+			return title;
+		}
+	}
+	return info->object->GetTitle();
 }
 
 
@@ -1107,9 +1126,10 @@ void CSettingGroupEx::_CreateAssociationConfig(PSETTINGCONFIG association)
 	SETTINGINFOLIST::iterator ti = m_settingList.end();
 	for ( ; it != ti; it++)
 	{
-		if ((*it)->key != NULL && (*it)->key->GetTitle() != "")
+		std::string title = GetSettingTitle((HSETTING)(*it));
+		if (title != "")
 		{
-			config->AddConfig(new CSettingConfigDependant((*it)->key));
+			config->AddConfig(new CSettingConfigDependant(title, this, (HSETTING)(*it)));
 		}
 	}
 

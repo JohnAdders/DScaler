@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.21 2001-08-09 22:18:23 laurentg Exp $
+// $Id: OSD.cpp,v 1.22 2001-08-11 15:17:06 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2001/08/09 22:18:23  laurentg
+// Improvments in relation with calibration
+//
 // Revision 1.20  2001/08/08 21:58:16  laurentg
 // Lot of comments added - not finished
 //
@@ -914,8 +917,10 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
         OSD_AddText("Card calibration", Size*1.5, OSD_COLOR_TITLE, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
 
         // Video settings
-        nLine = 3;
+        nLine = 4;
         OSD_AddText("Current Settings", Size, OSD_COLOR_SECTION, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+        sprintf (szInfo, "Full Luma Range %s", Setting_GetValue(BT848_GetSetting(BTFULLLUMARANGE)) ? "on" : "off");
+        OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
         sprintf (szInfo, "Brightness : %03d", Setting_GetValue(BT848_GetSetting(BRIGHTNESS)));
         OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
         sprintf (szInfo, "Contrast : %03u", Setting_GetValue(BT848_GetSetting(CONTRAST)));
@@ -933,15 +938,14 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
 		pTestPattern = pCalibration->GetCurrentTestPattern();
         if (pTestPattern != NULL)
 		{
-            OSD_AddText(pTestPattern->GetName(), Size, OSD_COLOR_SECTION, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (3, dfMargin, Size));
+            OSD_AddText(pTestPattern->GetName(), Size, OSD_COLOR_SECTION, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (4, dfMargin, Size));
 		}
 
         if (pCalibration->IsRunning() && (pTestPattern != NULL))
 		{
-            OSD_AddText("RUNNING", Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (1, dfMargin, Size));
-            OSD_AddText((pCalibration->GetType() == AUTO_CALIBR) ? "AUTOMATIC" : "MANUALLY", Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (1, dfMargin, Size));
+            OSD_AddText((pCalibration->GetType() == AUTO_CALIBR) ? "AUTOMATIC" : "MANUALLY", Size, 0, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (3, dfMargin, Size));
 
-            nLine = 4;
+            nLine = 5;
 
             i = 0;
 			j = 0;
@@ -1013,6 +1017,7 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
 				{
 					strcat (szInfo, "very bad");
 				}
+                OSD_AddText("Total", Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
 				OSD_AddText(szInfo, Size, 0, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine++, dfMargin, Size));
 			}
 		}
@@ -1022,6 +1027,7 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
         break;
     }
 
+    if (ActiveScreens[IdxCurrentScreen].lock) bOverride = FALSE;
     OSD_Show(hWnd, ShowType, ActiveScreens[IdxCurrentScreen].refresh_delay);
     bRestoreScreen = FALSE;
     if (ActiveScreens[IdxCurrentScreen].lock) bOverride = TRUE;
@@ -1256,7 +1262,7 @@ SETTING OSDSettings[OSD_SETTING_LASTONE] =
     },
     {
         "OSD use RGB for pixels", ONOFF, 0, (long*)&bUseRGB,
-         TRUE, 0, 1, 1, 1,
+         FALSE, 0, 1, 1, 1,
          NULL,
         "OSD", "UseRGB", NULL,
     },

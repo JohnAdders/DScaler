@@ -232,11 +232,12 @@ void CColorBar::CalcAvgColor(short **Lines, int height, int width)
 		V_val = 0;
     }
 
-//    LOG(5, "CalcAvgColor %d %d %d %d %d %d", height, width, left, right, top, bottom);
-//    LOG(5, "CalcAvgColor %d %d %d", Y_val, U_val, V_val);
+    LOG(5, "CalcAvgColor YUV %d %d %d %d %d %d %d %d %d", Y_val, U_val, V_val, left, right, top, bottom, height, width);
 
     // Save corresponding RGB values too
     YUV2RGB(Y_val, U_val, V_val, &R_val, &G_val, &B_val);
+
+    LOG(5, "CalcAvgColor RGB %d %d %d %d %d %d %d %d %d", R_val, G_val, B_val, left, right, top, bottom, height, width);
 }
 
 // Convert RGB to YUV
@@ -249,7 +250,7 @@ void CColorBar::RGB2YUV(unsigned char R, unsigned char G, unsigned char B, unsig
     cr = ( 28781*R - 24110*G -  4671*B + 8388608)>>16;
     cb = ( -9713*R - 19068*G + 28781*B + 8388608)>>16;
 
-    LOG(5, "RGB2YUV %d %d %d", y, cb, cr);
+//    LOG(5, "RGB2YUV %d %d %d", y, cb, cr);
 
     *pY = LIMIT(y);
     *pU = LIMIT(cb);
@@ -418,7 +419,8 @@ void CCalibration::LoadTestPatterns()
 {
     // Create all the test patterns
 
-    test_patterns[nb_test_patterns] = new CTestPattern("THX Optimode (NTSC) - Monitor Performance", FORMAT_NTSC, TRUE);
+//    test_patterns[nb_test_patterns] = new CTestPattern("THX Optimode (NTSC) - Monitor Performance", FORMAT_NTSC, TRUE);
+    test_patterns[nb_test_patterns] = new CTestPattern("THX Optimode (NTSC) - Monitor Performance", FORMAT_NTSC, FALSE);
     test_patterns[nb_test_patterns]->AddColorBar( 278, 1042, 2396, 4167, FALSE, 251, 252, 251);
     test_patterns[nb_test_patterns]->AddColorBar(1458, 2222, 2396, 4167, FALSE, 188, 190,   0);
     test_patterns[nb_test_patterns]->AddColorBar(2708, 3472, 2396, 4167, FALSE,   0, 188, 185);

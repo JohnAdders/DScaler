@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.cpp,v 1.17 2002-10-20 07:41:50 atnak Exp $
+// $Id: SAA7134Card.cpp,v 1.18 2002-10-23 17:05:56 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2002/10/20 07:41:50  atnak
+// minor syncs
+//
 // Revision 1.16  2002/10/16 11:37:59  atnak
 // added saa7130 support
 //
@@ -658,7 +661,9 @@ void CSAA7134Card::CheckScalerError(BOOL bErrorOccurred, WORD ScalerStatus)
         }
         else if (CurrentTick > m_LastTriggerError + 1000)
         {
-            LOG(2, "SAA7134: Trigger Error recovery trying");
+            LOG(2, "SAA7134: Trying Trigger Error recovery");
+            WriteByte(SAA7134_TASK_CONDITIONS(SAA7134_TASK_A_MASK), 0x00);
+            WriteByte(SAA7134_TASK_CONDITIONS(SAA7134_TASK_B_MASK), 0x00);
             WriteByte(SAA7134_TASK_CONDITIONS(SAA7134_TASK_A_MASK), 0x0D);
             WriteByte(SAA7134_TASK_CONDITIONS(SAA7134_TASK_B_MASK), 0x0D);
 

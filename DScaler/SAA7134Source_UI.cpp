@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.44 2004-02-18 06:39:46 atnak Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.45 2004-03-18 03:36:13 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.44  2004/02/18 06:39:46  atnak
+// Changed Setup Card / Tuner so that only cards of the same device are
+// shown in the card list.
+// Added new card Chronos Video Shuttle II (saa7134 version)
+//
 // Revision 1.43  2003/10/27 16:22:57  adcockj
 // Added preliminary support for PMS PDI Deluxe card
 //
@@ -336,6 +341,13 @@ BOOL APIENTRY CSAA7134Source::SelectCardProc(HWND hDlg, UINT message, UINT wPara
                 s_TunerType = pThis->m_pSAA7134Card->AutoDetectTuner((eSAA7134CardId)s_CardType);
 
                 SendMessage(hDlg, WM_UPDATE_TUNER_LIST, 0, 0);
+            }
+            break;
+        case IDC_TUNERSELECT:
+            if (HIWORD(wParam) == CBN_SELCHANGE)
+            {
+                int i = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_TUNERSELECT));
+                s_TunerType = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_TUNERSELECT), i);
             }
             break;
         case IDC_AUTODETECT:

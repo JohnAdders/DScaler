@@ -70,5 +70,11 @@ CVS_Instructions.htm
 32spec.htm
 SoundIssues.htm
 
+[ALIAS]
+IDH_FILTERS=Filters.htm
+
+[MAP]
+#include helpids.h
+
 [INFOTYPES]
 

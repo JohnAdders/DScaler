@@ -716,7 +716,8 @@ BEGIN
             MENUITEM "PAL-&M\tShift+Alt+F4",        IDM_TYPEFORMAT_3
             MENUITEM "PA&L-N\tShift+Alt+F5",        IDM_TYPEFORMAT_4
             MENUITEM "NTSC Japan   \tShift+Alt+F6", IDM_TYPEFORMAT_5
-            MENUITEM "PAL60   \tShift+Alt+F7",      IDM_TYPEFORMAT_6
+            MENUITEM "PAL&60   \tShift+Alt+F7",     IDM_TYPEFORMAT_6
+            MENUITEM "NTSC &50\tShift+Alt+F8",      IDM_TYPEFORMAT_7
             MENUITEM SEPARATOR
             MENUITEM "Auto Format Detection",       IDM_AUTO_FORMAT
         END
@@ -1128,6 +1129,7 @@ BEGIN
                                                     NOINVERT
     VK_F6,          IDM_TYPEFORMAT_5,       VIRTKEY, SHIFT, ALT, NOINVERT
     VK_F7,          IDM_TYPEFORMAT_6,       VIRTKEY, SHIFT, ALT, NOINVERT
+    VK_F8,          IDM_TYPEFORMAT_7,       VIRTKEY, SHIFT, ALT, NOINVERT
     VK_HOME,        IDM_CHANNEL_LIST,       VIRTKEY, NOINVERT
     VK_LEFT,        IDM_VT_PAGE_MINUS,      VIRTKEY, NOINVERT
     VK_NEXT,        IDM_CHANNELMINUS,       VIRTKEY, NOINVERT

@@ -112,6 +112,8 @@ DEINTERLACE_METHOD FilmDeintMethods[FILMPULLDOWNMODES_LAST_ONE] =
 	},
 };
 
+char* DeinterlaceNames[100];
+
 long NumVideoModes = 0;
 DEINTERLACE_METHOD* VideoDeintMethods[100] = {NULL,};
 BOOL bIsFilmMode = FALSE;
@@ -560,6 +562,12 @@ BOOL LoadDeinterlacePlugins()
 		hMenu = GetVideoDeinterlaceSubmenu();
 		if(hMenu == NULL) return FALSE;
 
+        // Blank out the names list
+        for(i = 0; i < 100; ++i)
+        {
+            DeinterlaceNames[i] = "";
+        }
+
 		for(i = 0; i < NumVideoModes; i++)
 		{
 			if(VideoDeintMethods[i]->pfnPluginStart != NULL)
@@ -567,6 +575,10 @@ BOOL LoadDeinterlacePlugins()
 		        VideoDeintMethods[i]->pfnPluginStart(NumVideoModes, VideoDeintMethods, StatusBar_GetHWnd(STATUS_PAL));
 			}
 			AddUIForDeintPlugin(hMenu, VideoDeintMethods[i]);
+            
+            // update the names list which will be used in the generic settings 
+            // dialog box
+            DeinterlaceNames[VideoDeintMethods[i]->nMethodIndex] = VideoDeintMethods[i]->szName;
 		}
 		return TRUE;
 	}

@@ -86,5 +86,6 @@ void IncrementDeinterlaceMode();
 void DecrementDeinterlaceMode();
 void PrepareDeinterlaceMode();
 
+extern char* DeinterlaceNames[100];
 
 #endif

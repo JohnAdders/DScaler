@@ -387,7 +387,7 @@ SETTING FD50Settings[FD50_SETTING_LASTONE] =
 	{
 		"PAL Film Fallback Mode", ITEMFROMLIST, 0, &gPALFilmFallbackIndex,
 		INDEX_VIDEO_2FRAME, 0, 99, 1, 1,
-		NULL,
+		DeinterlaceNames,
 		"Pulldown", "PALFilmFallbackMode", NULL,
 	},
 	{

@@ -212,6 +212,7 @@ void VideoSettings_SetupDefaults()
 	{
 	case FORMAT_NTSC:
 	case FORMAT_NTSC_J:
+	case FORMAT_NTSC50:
 		BT848_GetSetting(BRIGHTNESS)->Default = DEFAULT_BRIGHTNESS_NTSC;
 		BT848_GetSetting(CONTRAST)->Default = DEFAULT_CONTRAST_NTSC;
 		BT848_GetSetting(HUE)->Default = DEFAULT_HUE_NTSC;

@@ -190,7 +190,13 @@ TTVFORMAT TVFormats[FORMAT_LASTONE] =
 		4.43361875, TRUE, 70, 626, 14,
 		13,
 	},
-};
+    /* NTSC-50 */	
+    {		
+        "NTSC50", 576, 910, 0x68, 0x5c, (BT848_IFORM_NTSC|BT848_IFORM_XT0),
+        137, 754, 0x24, 0, TRUE, 511, 19,
+        3.579545,  FALSE, 71, 626, 15, 		
+        16,	},
+    };
 
 long TVFormat = -1;
 
@@ -522,6 +528,7 @@ int BT848_IsPAL()
     case FORMAT_PAL_M:
     case FORMAT_PAL_N:
     case FORMAT_SECAM:  // Okay, this one is not PAL but has same number of scanlines
+    case FORMAT_NTSC50: // Okay, this one is not PAL but has same number of scanlines
         return TRUE;
     }
     return FALSE;
@@ -724,6 +731,12 @@ BOOL BT848_SetGeoSize()
 		BT848_WriteByte(BT848_VTOTAL_LO, (BYTE)(525 & 0xff));
 		BT848_WriteByte(BT848_VTOTAL_HI, (BYTE)(525 >> 8));
 	}
+    else if(TVFormat == FORMAT_NTSC50)
+	{
+		BT848_WriteByte(BT848_VTOTAL_LO, (BYTE)(625 & 0xff));
+		BT848_WriteByte(BT848_VTOTAL_HI, (BYTE)(625 >> 8));
+	}
+
 
 	sr = (TVFormats[TVFormat].wCropHeight * 512) / CurrentY - 512;
 	vscale = (WORD) (0x10000UL - sr) & 0x1fff;

@@ -1100,6 +1100,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 		case IDM_TYPEFORMAT_4:
 		case IDM_TYPEFORMAT_5:
 		case IDM_TYPEFORMAT_6:
+		case IDM_TYPEFORMAT_7:
             // Video format (NTSC, PAL, etc)
 			Setting_SetValue(BT848_GetSetting(TVFORMAT), LOWORD(wParam) - IDM_TYPEFORMAT_0);
 			ShowText(hWnd, BT848_GetTVFormat()->szDesc);

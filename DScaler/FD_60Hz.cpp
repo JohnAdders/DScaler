@@ -668,7 +668,7 @@ SETTING FD60Settings[FD60_SETTING_LASTONE] =
 	{
 		"NTSC Film Fallback Mode", ITEMFROMLIST, 0, (long*)&gNTSCFilmFallbackIndex,
 		INDEX_ADAPTIVE, 0, 99, 1, 1,
-		NULL,
+		DeinterlaceNames,
 		"Pulldown", "NTSCFilmFallbackMode", NULL,
 	},
 	{

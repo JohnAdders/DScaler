@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.270 2003-01-02 18:58:15 adcockj Exp $
+// $Id: DScaler.cpp,v 1.271 2003-01-02 19:34:09 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.270  2003/01/02 18:58:15  adcockj
+// Removed comment no longer required
+//
 // Revision 1.269  2003/01/02 11:05:24  atnak
 // Added missing InitialTextPage implementation
 //
@@ -4860,7 +4863,7 @@ HMENU GetVTCodepageSubmenu()
     HMENU hmenu = GetSubMenuWithName(hMenu, 8-reduc, "&Datacasting");
     ASSERT(hmenu != NULL);
 
-    hmenu = GetSubMenuWithName(hmenu, 9, "Teletext Code Page");
+    hmenu = GetSubMenuWithName(hmenu, 8, "Teletext Code Page");
     ASSERT(hmenu != NULL);
 
     return hmenu;

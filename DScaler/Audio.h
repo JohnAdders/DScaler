@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Audio.h,v 1.10 2002-10-17 05:09:27 flibuste2 Exp $
+// $Id: Audio.h,v 1.11 2002-12-07 15:59:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -42,9 +42,11 @@ void Audio_ReadSettingsFromIni();
 void Audio_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void Audio_SetMenu(HMENU hMenu);
 
-void Audio_Mute();
-void Audio_Unmute();
+void Audio_SetMute(BOOL IsMute);
+BOOL Audio_GetMute();
+void Audio_SetVolume(int Volume);
+int Audio_GetVolume();
 
-BOOL Audio_IsMuted();
+
 
 #endif

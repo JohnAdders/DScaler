@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.54 2002-11-03 06:00:29 atnak Exp $
+// $Id: Providers.cpp,v 1.55 2002-12-07 15:59:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.54  2002/11/03 06:00:29  atnak
+// Added redrawing the menu bar when it changes
+//
 // Revision 1.53  2002/11/02 12:40:28  laurentg
 // Error message relative to DScaler.d3u updated
 //
@@ -274,9 +277,9 @@ int Providers_Load(HMENU hMenu)
             Source->Object = BT848Provider->GetSource(i);
             Source->DisplayInMenu = TRUE;
             Sources.push_back(Source);
-            // Mute the audio of this source
             CurrentSource = i;
-            Audio_Mute();
+            // Mute the audio of each source
+            BT848Provider->GetSource(i)->Mute();
         }
 
         CX2388xProvider = new CCX2388xProvider(HardwareDriver);
@@ -294,9 +297,9 @@ int Providers_Load(HMENU hMenu)
             Source->Object = CX2388xProvider->GetSource(i);
             Source->DisplayInMenu = TRUE;
             Sources.push_back(Source);
-            // Mute the audio of this source
             CurrentSource = i;
-            Audio_Mute();
+            // Mute the audio of each source
+            CX2388xProvider->GetSource(i)->Mute();
         }
 
         SAA7134Provider = new CSAA7134Provider(HardwareDriver);
@@ -314,9 +317,9 @@ int Providers_Load(HMENU hMenu)
             Source->Object = SAA7134Provider->GetSource(i);
             Source->DisplayInMenu = TRUE;
             Sources.push_back(Source);
-            // Mute the audio of this source
             CurrentSource = i;
-            Audio_Mute();
+            // Mute the audio of each source
+            SAA7134Provider->GetSource(i)->Mute();
         }
 
 		// Use by default the first BT8x8/CX2388x/SAA7134 source as initial source
@@ -358,6 +361,7 @@ int Providers_Load(HMENU hMenu)
         Source->Object = DSProvider->GetSource(i);
         Source->DisplayInMenu = TRUE;
         Sources.push_back(Source);
+        DSProvider->GetSource(i)->Mute();
     }
 #endif
 

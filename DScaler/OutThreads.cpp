@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.99 2002-11-10 16:53:33 tobbej Exp $
+// $Id: OutThreads.cpp,v 1.100 2002-12-07 15:59:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.99  2002/11/10 16:53:33  tobbej
+// added some missing calls to DScalerDeinitializeThread() and CoUninitialize
+//
 // Revision 1.98  2002/11/01 11:09:49  laurentg
 // Possibility to take still when pause is on restored
 // Problem of memory leak when taking consecutive stills probably solved
@@ -705,7 +708,6 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
         // Anti-plop and update screen delay timers may have been cancelled.
         // Reset to default values
         bNoScreenUpdateDuringTuning = FALSE;   
-        Audio_Unmute();
 
         // Sets processor Affinity and Thread priority according to menu selection
         SetThreadProcessorAndPriority();

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Audio.cpp,v 1.27 2002-10-18 03:35:01 flibuste2 Exp $
+// $Id: Audio.cpp,v 1.28 2002-12-07 15:59:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2002/10/18 03:35:01  flibuste2
+// Fixed Audio_IsMuted()
+// and fixed bSystemInMust variable state
+// (was only updated on a change notification)
+//
 // Revision 1.26  2002/10/17 05:09:27  flibuste2
 // Added Audio_IsMuted()
 // Returns the current system mute status
@@ -114,57 +119,62 @@
 
 BOOL bSystemInMute = FALSE;
 
-void Audio_Mute()
+void Audio_SetMute(BOOL IsMute)
 {
-    if (!bSystemInMute)
+    if(IsMute)
     {
-	    if (bUseMixer == FALSE && Providers_GetCurrentSource())
-	    {
-            Providers_GetCurrentSource()->Mute();
-	    }
+        if (!bSystemInMute)
+        {
+	        if (bUseMixer == FALSE && Providers_GetCurrentSource())
+	        {
+                Providers_GetCurrentSource()->Mute();
+	        }
 
-	    if(bUseMixer == TRUE)
-	    {
-		    Mixer_Mute();
-	    }
-        bSystemInMute = TRUE;
-	    EventCollector->RaiseEvent(NULL, EVENT_MUTE,0,1);    
+	        if(bUseMixer == TRUE)
+	        {
+		        Mixer_Mute();
+	        }
+            bSystemInMute = TRUE;
+	        EventCollector->RaiseEvent(NULL, EVENT_MUTE,0,1);    
+        }
     }
-}
-
-void Audio_Unmute()
-{
-	if(bSystemInMute)
-	{
-		if (bUseMixer == FALSE && Providers_GetCurrentSource())
-		{
-            Providers_GetCurrentSource()->UnMute();
-		}
+    else
+    {
+	    if(bSystemInMute)
+	    {
+		    if (bUseMixer == FALSE && Providers_GetCurrentSource())
+		    {
+                Providers_GetCurrentSource()->UnMute();
+		    }
     
-		if(bUseMixer == TRUE)
-		{
-			Mixer_UnMute();
-		}	
-        bSystemInMute = FALSE;
-	    EventCollector->RaiseEvent(NULL, EVENT_MUTE,1,0);
+		    if(bUseMixer == TRUE)
+		    {
+			    Mixer_UnMute();
+		    }	
+            bSystemInMute = FALSE;
+	        EventCollector->RaiseEvent(NULL, EVENT_MUTE,1,0);
+        }
     }
 }
 
-BOOL Audio_IsMuted()
+BOOL Audio_GetMute()
 {
-    return (TRUE == bUseMixer) ? Mixer_IsMuted() : bSystemInMute;
+    return bSystemInMute;
 }
+
+void Audio_SetVolume(int Volume)
+{
+}
+
+int Audio_GetVolume()
+{
+    return 10;
+}
+
 
 BOOL SystemInMute_OnChange(long NewValue)
 {
-	if(NewValue == TRUE)
-	{		
-		Audio_Mute();
-	}
-	else
-	{	
-		Audio_Unmute();
-	}
+	Audio_SetMute(NewValue);
 	return FALSE;
 }
 
@@ -178,7 +188,7 @@ SETTING AudioSettings[AUDIO_SETTING_LASTONE] =
         "System in Mute", ONOFF, 0, (long*)&bSystemInMute,
         FALSE, 0, 1, 1, 1, 
         NULL,
-        NULL, NULL, SystemInMute_OnChange,
+        "Audio", "Mute", SystemInMute_OnChange,
     },
 };
 

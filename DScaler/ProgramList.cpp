@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.91 2002-11-26 19:29:48 tobbej Exp $
+// $Id: ProgramList.cpp,v 1.92 2002-12-07 15:59:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.91  2002/11/26 19:29:48  tobbej
+// fixed crash with empty channel list (Channel_ChangeToNumber with invalid channel number)
+//
 // Revision 1.90  2002/11/03 06:00:29  atnak
 // Added redrawing the menu bar when it changes
 //
@@ -1130,10 +1133,10 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             if (!Providers_GetCurrentSource()->IsVideoPresent())
             {
                 //make sure it is muted when video is absent
-                Audio_Mute();
+                Providers_GetCurrentSource()->Mute();
             }
             Button_SetCheck(GetDlgItem(hDlg, IDC_SCAN_AFC), (MyIsUsingAFC) ? BST_CHECKED : BST_UNCHECKED);            
-            Button_SetCheck(GetDlgItem(hDlg, IDC_CHANNEL_MUTE), ((TRUE == Audio_IsMuted()) ? BST_CHECKED : BST_UNCHECKED));            
+            Button_SetCheck(GetDlgItem(hDlg, IDC_CHANNEL_MUTE), ((TRUE == Audio_GetMute()) ? BST_CHECKED : BST_UNCHECKED));            
 
             RefreshProgramList(hDlg, CurrentProgram);            
 
@@ -1504,14 +1507,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         case IDC_CHANNEL_MUTE :    
             {
                 BOOL muteAudio = (Button_GetCheck(GetDlgItem(hDlg, IDC_CHANNEL_MUTE)) == BST_CHECKED);
-                if (FALSE == muteAudio)
-                {
-                    Audio_Unmute();
-                }
-                else 
-                {
-                    Audio_Mute();
-                }
+                Audio_SetMute(muteAudio);
             }
             break;
 
@@ -1620,7 +1616,7 @@ static VOID CALLBACK PostSwitchMuteDelayTimerProc(
 {
     PostSwitchMuteTimer = 0;
     KillTimer(hwnd, idTimer);    
-    Audio_Unmute();
+    Audio_SetMute(FALSE);
 }
 
 
@@ -1628,7 +1624,7 @@ static VOID CALLBACK PostSwitchMuteDelayTimerProc(
 void Channel_Change(int NewChannel, int DontStorePrevious)
 {
     eVideoFormat VideoFormat;
-    BOOL audioWasMuted = Audio_IsMuted();
+    BOOL audioWasMuted = Audio_GetMute();
 
     if (Providers_GetCurrentSource()->HasTuner() == TRUE)
     {
@@ -1637,7 +1633,7 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
             if (MyChannels.GetChannelFrequency(NewChannel) != 0)
             {
 				int OldChannel = CurrentProgram;                
-                Audio_Mute();             
+                Audio_SetMute(TRUE);             
                 Sleep(PreSwitchMuteDelay); // This helps reduce the static click noise.                
                 if (EventCollector != NULL)
                 {
@@ -1690,7 +1686,7 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
                     }
                     else
                     {
-                        Audio_Unmute();                    
+                        Audio_SetMute(FALSE);
                     }
                 }
                 if (EventCollector != NULL)

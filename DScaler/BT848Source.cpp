@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.92 2002-12-03 13:28:23 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.93 2002-12-07 15:59:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.92  2002/12/03 13:28:23  adcockj
+// Corrected per channel settings code
+//
 // Revision 1.91  2002/11/07 20:33:16  adcockj
 // Promoted ACPI functions so that state management works properly
 //
@@ -722,8 +725,10 @@ void CBT848Source::Start()
     CreateRiscCode(bCaptureVBI);
     m_pBT848Card->StartCapture(bCaptureVBI);
     m_pBT848Card->SetDMA(TRUE);
-    UnMute();
-    Audio_Unmute();
+    if(!Audio_GetMute())
+    {
+        UnMute();
+    }
     Timing_Reset();
     NotifySizeChange();
     // \todo: FIXME check to see if we need this timer
@@ -887,7 +892,6 @@ void CBT848Source::Stop()
     // stop capture
     m_pBT848Card->StopCapture();
     Mute();
-    Audio_Mute();
     // \todo: FIXME check to see if we need this timer
     {
         KillTimer(hWnd, TIMER_MSP);
@@ -1261,8 +1265,8 @@ void CBT848Source::VideoSourceOnChange(long NewValue, long OldValue)
 {
     NotifyInputChange(1, VIDEOINPUT, OldValue, NewValue);
 
+    Mute();
     Stop_Capture();
-    Audio_Mute();
     SaveInputSettings(TRUE);
     LoadInputSettings();
     Reset();
@@ -1274,7 +1278,7 @@ void CBT848Source::VideoSourceOnChange(long NewValue, long OldValue)
     {
         Channel_SetCurrent();
     }
-    Audio_Unmute();
+    
     Start_Capture();
 }
 

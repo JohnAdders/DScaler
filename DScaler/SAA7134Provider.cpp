@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Provider.cpp,v 1.6 2002-10-03 23:36:22 atnak Exp $
+// $Id: SAA7134Provider.cpp,v 1.7 2002-10-10 12:11:31 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/10/03 23:36:22  atnak
+// Various changes (major): VideoStandard, AudioStandard, CSAA7134Common, cleanups, tweaks etc,
+//
 // Revision 1.5  2002/09/15 09:52:23  atnak
 // fixed memory leak (pagetable block)
 //
@@ -78,10 +81,16 @@ CSAA7134Provider::CSAA7134Provider(CHardwareDriver* pHardwareDriver)
     BOOL IsMemoryInitialized = FALSE;
     int i;
 
+    for (i = 0; i < kMAX_PAGETABLES; i++)
+    {
+        m_PageTableDMAMem[i] = NULL;
+    }
+
     for(i = 0; i < kMAX_FRAMEBUFFERS; ++i)
     {
         m_VBIDMAMem[i] = NULL;
         m_DisplayDMAMem[i] = NULL;
+
     }
 
     for(i = 0; i < sizeof(SAA7134Chips)/sizeof(TSAA7134Chip); ++i)

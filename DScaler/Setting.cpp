@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.cpp,v 1.10 2002-08-08 12:13:32 kooiman Exp $
+// $Id: Setting.cpp,v 1.11 2002-08-21 20:26:31 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/08/08 12:13:32  kooiman
+// Bit more flexibility.
+//
 // Revision 1.9  2002/08/06 18:30:52  kooiman
 // Bit more flexibility.
 //
@@ -269,10 +272,13 @@ void CSimpleSetting::WriteToIni(BOOL bOptimizeFileAccess)
     }
 }
  
-void CSimpleSetting::ChangeDefault(long NewDefault)
+void CSimpleSetting::ChangeDefault(long NewDefault, BOOL bDontTouchValue)
 {
     m_Default = NewDefault;
-    m_Value = NewDefault;
+    if (!bDontTouchValue)
+    {
+        m_Value = NewDefault;
+    }
 }
 
 CSimpleSetting::operator long()

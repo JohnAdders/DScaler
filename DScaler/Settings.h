@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.h,v 1.14 2002-08-08 12:13:11 kooiman Exp $
+// $Id: Settings.h,v 1.15 2002-08-21 20:26:31 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -49,7 +49,7 @@
 long Setting_GetValue(SETTING* pSetting);
 BOOL Setting_SetValue(SETTING* pSetting, long Value, int iForceOnChange=0);
 void Setting_SetDefault(SETTING* pSetting);
-void Setting_ChangeDefault(SETTING* pSetting, long Default);
+void Setting_ChangeDefault(SETTING* pSetting, long Default, BOOL bDontTouchValue = FALSE);
 void Setting_SetupSlider(SETTING* pSetting, HWND hSlider);
 void Setting_SetControlValue(SETTING* pSetting, HWND hControl);
 BOOL Setting_SetFromControl(SETTING* pSetting, HWND hControl);

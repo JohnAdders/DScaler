@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.h,v 1.8 2002-08-17 18:05:30 tobbej Exp $
+// $Id: Setting.h,v 1.9 2002-08-21 20:26:31 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -91,7 +91,7 @@ public:
     void SetStepValue(long Step);
     void SetMin(long Min);
     void SetMax(long Max);
-    void ChangeDefault(long NewDefault);
+    void ChangeDefault(long NewDefault, BOOL bDontTouchValue = FALSE);
     long GetMin();
     long GetMax();
     long GetDefault();

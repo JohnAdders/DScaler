@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.38 2002-08-13 21:21:24 kooiman Exp $
+// $Id: Settings.cpp,v 1.39 2002-08-21 20:26:31 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.38  2002/08/13 21:21:24  kooiman
+// Improved settings per channel to account for source and input changes.
+//
 // Revision 1.37  2002/08/08 12:13:23  kooiman
 // Bit more flexibility.
 //
@@ -872,10 +875,13 @@ void Setting_Down(SETTING* pSetting)
     }
 }
 
-void Setting_ChangeDefault(SETTING* pSetting, long Default)
+void Setting_ChangeDefault(SETTING* pSetting, long Default, BOOL bDontTouchValue)
 {
     pSetting->Default = Default;
-    *pSetting->pValue = Default;
+    if (!bDontTouchValue)
+    {
+        *pSetting->pValue = Default;
+    }
 }
 
 void Setting_ChangeValue(SETTING* pSetting, eCHANGEVALUE NewValue)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.42 2003-01-25 23:46:25 laurentg Exp $
+// $Id: CX2388xSource.cpp,v 1.43 2003-02-03 11:08:07 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.42  2003/01/25 23:46:25  laurentg
+// Reset after the loading of the new settings in VideoFormatOnChange
+//
 // Revision 1.41  2003/01/21 14:42:14  adcockj
 // Changed PAL defaults and added place for SECAM defaults
 //
@@ -837,7 +840,11 @@ void CCX2388xSource::CreateRiscCode(BOOL bCaptureVBI)
             // skip the first line
             // so that the line numbers tie up with those for
             // the bt848
-            *(pRiscCode++) = RISC_SKIP | RISC_SOL | RISC_EOL | VBI_SPL;
+			// It seems to be necessary only for 50 Hz video format
+			if (GetTVFormat((eVideoFormat)m_VideoFormat->GetValue())->Is25fps)
+			{
+	            *(pRiscCode++) = RISC_SKIP | RISC_SOL | RISC_EOL | VBI_SPL;
+			}
 
             pUser = m_pVBILines[nField / 2];
             if((nField & 1) == 1)

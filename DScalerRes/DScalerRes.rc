@@ -825,11 +825,11 @@ BEGIN
     POPUP "&Channels"
     BEGIN
         MENUITEM "Channel &Setup\tHome",        IDM_CHANNEL_LIST
-        MENUITEM "Channel S&elect",             IDM_CHANNEL_SELECT
         MENUITEM SEPARATOR
         MENUITEM "&Next Channel\tPgUp",         IDM_CHANNELPLUS
         MENUITEM "&Previous Channel\tPgDn",     IDM_CHANNELMINUS
         MENUITEM "&Last Channel\tCtrl+Backspace", IDM_CHANNEL_PREVIOUS
+        MENUITEM SEPARATOR
     END
     POPUP "&View"
     BEGIN
@@ -911,9 +911,6 @@ BEGIN
     END
     POPUP "Deinter&lace"
     BEGIN
-        MENUITEM "&Video Modes Settings...",    IDM_SETTINGS_DEINTERLACESETTINGS
-
-        MENUITEM SEPARATOR
         MENUITEM "&Automatic Film / Video Detection\tCtrl+Space", 
                                                 IDM_AUTODETECT
         MENUITEM "&Fall Back to Video on Bad Pulldown", IDM_FALLBACK
@@ -932,6 +929,8 @@ BEGIN
             MENUITEM "2:2 Pulldown, Flip on &Odd",  IDM_22PULLODD
             MENUITEM "2:2 Pulldown, Flip on &Even", IDM_22PULLEVEN
         END
+        MENUITEM "&Video Modes Settings...",    IDM_SETTINGS_DEINTERLACESETTINGS
+
         MENUITEM SEPARATOR
         MENUITEM "Progressive Scan",            IDM_PROGRESSIVE_SCAN
         MENUITEM "Film Mode",                   IDM_FILM_MODE, GRAYED

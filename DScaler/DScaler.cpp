@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.198 2002-07-27 13:52:06 laurentg Exp $
+// $Id: DScaler.cpp,v 1.199 2002-07-27 15:20:34 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.198  2002/07/27 13:52:06  laurentg
+// Distinguish menu entries for filter settings, video modes settings and advanced settings
+// Connect again the patterns menu
+//
 // Revision 1.197  2002/07/26 22:40:55  laurentg
 // Menus updates
 //
@@ -3779,7 +3783,7 @@ HMENU GetVideoDeinterlaceSubmenu()
 
 HMENU GetChannelsSubmenu()
 {
-    HMENU hmenu = GetOrCreateSubSubMenu(2, 1, "Channel S&elect");
+    HMENU hmenu = GetSubMenuWithName(hMenu, 2, "&Channels");
     ASSERT(hmenu != NULL);
 
     return hmenu;

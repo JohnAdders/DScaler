@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.60 2002-07-09 17:37:10 robmuller Exp $
+// $Id: ProgramList.cpp,v 1.61 2002-07-27 15:20:34 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.60  2002/07/09 17:37:10  robmuller
+// Retry on tuner write error.
+//
 // Revision 1.59  2002/06/18 19:46:06  adcockj
 // Changed appliaction Messages to use WM_APP instead of WM_USER
 //
@@ -1519,33 +1522,22 @@ void Load_Country_Settings()
 void Channels_UpdateMenu(HMENU hMenu)
 {
     HMENU           hMenuChannels;
-    MENUITEMINFO    MenuItemInfo;
     int             j;
     CHANNELLIST::iterator it;
     hMenuChannels = GetChannelsSubmenu();
     if(hMenuChannels == NULL) return;
 
     j = GetMenuItemCount(hMenuChannels);
-    while (j)
+    while (j > 6)
     {
         --j;
         RemoveMenu(hMenuChannels, j, MF_BYPOSITION);
     }
     
     j = 0;
-    for (it = MyChannels.begin(); it != MyChannels.end(); ++it)
+    for (it = MyChannels.begin(); it != MyChannels.end() && (j < MAXPROGS); ++it)
     {
-        if ((*it)->GetFrequency() != 0)
-        {
-            MenuItemInfo.cbSize = sizeof (MenuItemInfo);
-            MenuItemInfo.fMask = MIIM_TYPE | MIIM_STATE | MIIM_ID;
-            MenuItemInfo.fType = MFT_STRING;
-            MenuItemInfo.dwTypeData = (LPSTR) (*it)->GetName();
-            MenuItemInfo.cch = strlen ((*it)->GetName());
-            MenuItemInfo.fState = (CurrentProgram == j) ? MFS_CHECKED : MFS_ENABLED;
-            MenuItemInfo.wID = IDM_CHANNEL_SELECT + j;
-            InsertMenuItem(hMenuChannels, j, TRUE, &MenuItemInfo);
-        }
+        AppendMenu(hMenuChannels, MF_STRING | MF_ENABLED, IDM_CHANNEL_SELECT + j, (*it)->GetName());
         j++;
     }
 }
@@ -1558,23 +1550,16 @@ void Channels_SetMenu(HMENU hMenu)
     BOOL bHasTuner = Providers_GetCurrentSource() ? Providers_GetCurrentSource()->HasTuner() : FALSE;
     BOOL bInTunerMode = Providers_GetCurrentSource() ? Providers_GetCurrentSource()->IsInTunerMode() : FALSE;
 
-    for (int i(0); i < GetMenuItemCount(hMenuChannels); ++i)
-    {
-        EnableMenuItem(hMenuChannels, i, bHasTuner?MF_BYPOSITION | MF_ENABLED:MF_BYPOSITION | MF_GRAYED);
-        if (CurrentProgram == i)
-        {
-            CheckMenuItem(hMenuChannels, i, MF_BYPOSITION | MF_CHECKED);
-        }
-        else
-        {
-            CheckMenuItem(hMenuChannels, i, MF_BYPOSITION | MF_UNCHECKED);
-        }
-    }
-
     EnableMenuItem(hMenu, IDM_CHANNELPLUS, bHasTuner && bInTunerMode?MF_ENABLED:MF_GRAYED);
     EnableMenuItem(hMenu, IDM_CHANNELMINUS, bHasTuner && bInTunerMode?MF_ENABLED:MF_GRAYED);
     EnableMenuItem(hMenu, IDM_CHANNEL_PREVIOUS, bHasTuner && bInTunerMode?MF_ENABLED:MF_GRAYED);
     EnableMenuItem(hMenu, IDM_CHANNEL_LIST, bHasTuner?MF_ENABLED:MF_GRAYED);
+
+    for (int i(0); (i < MAXPROGS) && (i < (GetMenuItemCount(hMenuChannels)-6)); ++i)
+    {
+        EnableMenuItem(hMenuChannels, i+6, bHasTuner?MF_BYPOSITION | MF_ENABLED:MF_BYPOSITION | MF_GRAYED);
+        CheckMenuItem(hMenuChannels, i+6, (CurrentProgram == i) ? MF_BYPOSITION | MF_CHECKED : MF_BYPOSITION | MF_UNCHECKED);
+    }
 }
 
 BOOL ProcessProgramSelection(HWND hWnd, WORD wMenuID)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.cpp,v 1.2 2001-11-02 16:30:08 adcockj Exp $
+// $Id: Setting.cpp,v 1.3 2001-11-12 08:01:58 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/11/02 16:30:08  adcockj
+// Check in merged code from multiple cards branch into main tree
+//
 // Revision 1.1.2.7  2001/08/22 10:40:58  adcockj
 // Added basic tuner support
 // Fixed recusive bug
@@ -190,7 +193,7 @@ void CSimpleSetting::ReadFromIni()
         nValue = GetPrivateProfileInt(m_Section.c_str(), m_Entry.c_str(), m_Min - 100, GetIniFileForSettings());
         if(nValue == m_Min - 100)
         {
-            m_Value = m_Default;
+            nValue = m_Default;
         }
         if(nValue < m_Min)
         {

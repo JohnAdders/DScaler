@@ -55,7 +55,7 @@ BOOL MSPMode_OnChange(long NewValue);
 BYTE AudioDeviceWrite;
 BYTE AudioDeviceRead;
 
-BOOL Has_MSP = FALSE;
+BOOL bHasMSP = FALSE;
 char MSPStatus[40] = "";
 char MSPVersion[16] = "";
 
@@ -410,17 +410,19 @@ BOOL APIENTRY AudioSettingProc1(HWND hDlg, UINT message, UINT wParam, LONG lPara
 	return (FALSE);
 }
 
-// MAE Added 8 Dec 200 
-void Audio_Mute(void)
+void Audio_MSP_Mute(void)
 {
 	int nVolume;
-	nVolume = MulDiv(400, 0x7f0, 1400);
+    // use fast mute
+    // see MSP docs
+	nVolume = 0xFFE;
 	WriteDSP(0, nVolume << 4);
 	WriteDSP(6, nVolume << 4);
 }
 
-void Audio_Unmute(void)
+void Audio_MSP_Unmute(void)
 {
+    // go back from mute to same volums as before
 	Volume_OnChange(InitialVolume);
 }
 
@@ -467,7 +469,7 @@ BOOL Audio_SetSource(AUDIOMUXTYPE nChannel)
 
 BOOL Audio_MSP_IsPresent()
 {
-	return Has_MSP;
+	return bHasMSP;
 }
 
 const char* Audio_MSP_Status()
@@ -485,7 +487,7 @@ BOOL Audio_MSP_Init(BYTE DWrite, BYTE DRead)
 	AudioDeviceWrite = DWrite;
 	AudioDeviceRead = DRead;
 
-	Has_MSP = FALSE;
+	bHasMSP = FALSE;
 
 	if (!I2CBus_AddDevice(DRead))
 	{
@@ -497,7 +499,7 @@ BOOL Audio_MSP_Init(BYTE DWrite, BYTE DRead)
 		return (FALSE);
 	}
 
-	Has_MSP = TRUE;
+	bHasMSP = TRUE;
 
 	strncpy(MSPStatus, "MSP-Device I2C-Bus I/O 0x80/0x81",sizeof(MSPStatus));
 
@@ -593,12 +595,21 @@ BOOL Volume_OnChange(long nVolume)
 {
 	Audio_SetToneControl();
 	if (nVolume < 0 || nVolume > 1000)
+    {
 		return FALSE;
+    }
 	InitialVolume = nVolume;
-	if (nVolume > 0)
-		nVolume = MulDiv(nVolume + 400, 0x7f0, 1400);
-	WriteDSP(0, nVolume << 4);
-	WriteDSP(6, nVolume << 4);
+    if(bHasMSP == TRUE)
+    {
+	    nVolume = MulDiv(nVolume, 0x7f0, 1000);
+        // Use Mute if less than 0x10
+        if(nVolume < 0x10)
+        {
+            nVolume = 0;
+        }
+	    WriteDSP(0, nVolume << 4);
+	    WriteDSP(6, nVolume << 4);
+    }
 
 	return FALSE;
 }
@@ -607,8 +618,11 @@ BOOL Balance_OnChange(long nBalance)
 {
 	Audio_SetToneControl();
 	InitialBalance = nBalance;
-	WriteDSP(1, nBalance << 8);
-	WriteDSP(0x30, nBalance << 8);
+    if(bHasMSP == TRUE)
+    {
+	    WriteDSP(1, nBalance << 8);
+	    WriteDSP(0x30, nBalance << 8);
+    }
 	return FALSE;
 }
 
@@ -618,8 +632,11 @@ BOOL Bass_OnChange(long nBass)
 	if (nBass < -96)
 		return FALSE;
 	InitialBass = nBass;
-	WriteDSP(2, nBass << 8);
-	WriteDSP(0x31, nBass << 8);
+    if(bHasMSP == TRUE)
+    {
+	    WriteDSP(2, nBass << 8);
+	    WriteDSP(0x31, nBass << 8);
+    }
 	return FALSE;
 }
 
@@ -629,8 +646,11 @@ BOOL Treble_OnChange(long nTreble)
 	if (nTreble < -96)
 		return FALSE;
 	InitialTreble = nTreble;
-	WriteDSP(3, nTreble << 8);
-	WriteDSP(0x32, nTreble << 8);
+    if(bHasMSP == TRUE)
+    {
+	    WriteDSP(3, nTreble << 8);
+	    WriteDSP(0x32, nTreble << 8);
+    }
 	return FALSE;
 }
 
@@ -640,8 +660,11 @@ BOOL Loudness_OnChange(long nLoudness)
 	if (nLoudness > 68)
 		return FALSE;
 	InitialLoudness = nLoudness;
-	WriteDSP(4, (nLoudness << 8) + (InitialSuperBass ? 0x4 : 0));
-	WriteDSP(0x33, (nLoudness << 8) + (InitialSuperBass ? 0x4 : 0));
+    if(bHasMSP == TRUE)
+    {
+	    WriteDSP(4, (nLoudness << 8) + (InitialSuperBass ? 0x4 : 0));
+	    WriteDSP(0x33, (nLoudness << 8) + (InitialSuperBass ? 0x4 : 0));
+    }
 	return FALSE;
 }
 
@@ -649,8 +672,11 @@ BOOL SuperBass_OnChange(long bSuperBass)
 {
 	Audio_SetToneControl();
 	InitialSuperBass = bSuperBass;
-	WriteDSP(4, (InitialLoudness << 8) + (bSuperBass ? 0x4 : 0));
-	WriteDSP(0x33, (InitialLoudness << 8) + (bSuperBass ? 0x4 : 0));
+    if(bHasMSP == TRUE)
+    {
+	    WriteDSP(4, (InitialLoudness << 8) + (bSuperBass ? 0x4 : 0));
+	    WriteDSP(0x33, (InitialLoudness << 8) + (bSuperBass ? 0x4 : 0));
+    }
 	return FALSE;
 }
 
@@ -658,7 +684,10 @@ BOOL Spatial_OnChange(long nSpatial)
 {
 	Audio_SetToneControl();
 	InitialSpatial = nSpatial;
-	WriteDSP(0x5, (nSpatial << 8) + 0x8);	// Mode A, Automatic high pass gain
+    if(bHasMSP == TRUE)
+    {
+    	WriteDSP(0x5, (nSpatial << 8) + 0x8);	// Mode A, Automatic high pass gain
+    }
 	return FALSE;
 }
 
@@ -668,7 +697,10 @@ BOOL Equalizer1_OnChange(long nLevel)
 	if (nLevel < -96 || nLevel > 96)
 		return FALSE;
 	InitialEqualizer[0] = nLevel;
-	WriteDSP(0x21, nLevel << 8);
+    if(bHasMSP == TRUE)
+    {
+    	WriteDSP(0x21, nLevel << 8);
+    }
 	return FALSE;
 }
 
@@ -678,7 +710,10 @@ BOOL Equalizer2_OnChange(long nLevel)
 	if (nLevel < -96 || nLevel > 96)
 		return FALSE;
 	InitialEqualizer[1] = nLevel;
-	WriteDSP(0x22, nLevel << 8);
+    if(bHasMSP == TRUE)
+    {
+    	WriteDSP(0x22, nLevel << 8);
+    }
 	return FALSE;
 }
 
@@ -688,7 +723,10 @@ BOOL Equalizer3_OnChange(long nLevel)
 	if (nLevel < -96 || nLevel > 96)
 		return FALSE;
 	InitialEqualizer[2] = nLevel;
-	WriteDSP(0x23, nLevel << 8);
+    if(bHasMSP == TRUE)
+    {
+    	WriteDSP(0x23, nLevel << 8);
+    }
 	return FALSE;
 }
 
@@ -698,7 +736,10 @@ BOOL Equalizer4_OnChange(long nLevel)
 	if (nLevel < -96 || nLevel > 96)
 		return FALSE;
 	InitialEqualizer[3] = nLevel;
-	WriteDSP(0x24, nLevel << 8);
+    if(bHasMSP == TRUE)
+    {
+        WriteDSP(0x24, nLevel << 8);
+    }
 	return FALSE;
 }
 
@@ -708,23 +749,28 @@ BOOL Equalizer5_OnChange(long nLevel)
 	if (nLevel < -96 || nLevel > 96)
 		return FALSE;
 	InitialEqualizer[4] = nLevel;
-	WriteDSP(0x25, nLevel << 8);
+    if(bHasMSP == TRUE)
+    {
+    	WriteDSP(0x25, nLevel << 8);
+    }
 	return FALSE;
 }
 
 void Audio_SetToneControl()
 {
-	int i;
-
-	WriteDSP(2, InitialBass << 8);	// Bass
-	WriteDSP(0x31, InitialBass << 8);
-	WriteDSP(3, InitialTreble << 8);	// Treble
-	WriteDSP(0x32, InitialTreble << 8);
-	for(i = 0; i < 5; i++)
-	{
-		WriteDSP(0x21 + i, InitialEqualizer[i]);	// Eq
-	}
-	WriteDSP(0x20, 0);		// Mode control here (need eq=0)
+    if(bHasMSP == TRUE)
+    {
+    	int i;
+	    WriteDSP(2, InitialBass << 8);	// Bass
+	    WriteDSP(0x31, InitialBass << 8);
+	    WriteDSP(3, InitialTreble << 8);	// Treble
+	    WriteDSP(0x32, InitialTreble << 8);
+	    for(i = 0; i < 5; i++)
+	    {
+		    WriteDSP(0x21 + i, InitialEqualizer[i]);	// Eq
+	    }
+	    WriteDSP(0x20, 0);		// Mode control here (need eq=0)
+    }
 }
 
 BOOL Audio_MSP_Reset()
@@ -753,11 +799,14 @@ BOOL Audio_MSP_Reset()
 
 void Audio_MSP_SetCarrier(int cdo1, int cdo2)
 {
-	WriteDem(0x93, cdo1 & 0xfff);
-	WriteDem(0x9b, cdo1 >> 12);
-	WriteDem(0xa3, cdo2 & 0xfff);
-	WriteDem(0xab, cdo2 >> 12);
-	WriteDem(0x56, 0);
+   	if(bHasMSP == TRUE)
+    {
+	    WriteDem(0x93, cdo1 & 0xfff);
+	    WriteDem(0x9b, cdo1 >> 12);
+	    WriteDem(0xa3, cdo2 & 0xfff);
+	    WriteDem(0xab, cdo2 >> 12);
+	    WriteDem(0x56, 0);
+    }
 }
 
 BOOL MSPMode_OnChange(long NewValue)
@@ -765,6 +814,10 @@ BOOL MSPMode_OnChange(long NewValue)
 	int i;
 
 	MSPMode = NewValue;
+   	if(bHasMSP == FALSE)
+    {
+        return FALSE;
+    }
 
 	WriteDem(0xbb, MSP_init_data[MSPMode].ad_cv);
 
@@ -799,6 +852,11 @@ void Audio_MSP_SetStereo(int MajorMode, int MinorMode, int mode)
 	int src = 0;
 
 	MSPStereo = mode;
+
+   	if(bHasMSP == FALSE)
+    {
+        return;
+    }
 
     if(GetCardSetup()->pfnSetAudioMode != NULL)
     {
@@ -900,56 +958,51 @@ void Audio_MSP_Set_MajorMinor_Mode(int MajorMode, int MinorMode)
 	MSPMajorMode = MajorMode;
 	MSPMinorMode = MinorMode;
 
+   	if(bHasMSP == FALSE)
+    {
+        return;
+    }
+
 	switch (MajorMode)
 	{
 	case 1:					// 5.5
 		if (MinorMode == 0)
 		{
 			// B/G FM-stereo
-//              Audio_MSP_SetMode(Audio_MSP_MODE_FM_TERRA);
 			Audio_MSP_SetStereo(MajorMode, MinorMode, VIDEO_SOUND_MONO);
 		}
 		else if (MinorMode == 1 && MSPNicam)
 		{
 			// B/G NICAM
-//              Audio_MSP_SetMode(Audio_MSP_MODE_FM_NICAM1);
 			Audio_MSP_SetCarrier(carrier_detect[MinorMode], carrier_detect_main[MajorMode]);
 		}
 		else
 		{
-//          Audio_MSP_SetMode(Audio_MSP_MODE_FM_TERRA);
 			Audio_MSP_SetCarrier(carrier_detect[MinorMode], carrier_detect_main[MajorMode]);
 		}
 		break;
 	case 2:					// 6.0
 		// PAL I NICAM
-//          Audio_MSP_SetMode(Audio_MSP_MODE_FM_NICAM2);
-		//Audio_MSP_SetCarrier(MSP_CARRIER(6.552), carrier_detect_main[MajorMode]);
 		Audio_MSP_SetCarrier(MSP_CARRIER(6.55), carrier_detect_main[MajorMode]);
 		break;
 	case 3:					// 6.5
 		if (MinorMode == 1 || MinorMode == 2)
 		{
 			// D/K FM-stereo
-//              Audio_MSP_SetMode( Audio_MSP_MODE_FM_TERRA);
 			Audio_MSP_SetStereo(MajorMode, MinorMode, VIDEO_SOUND_MONO);
 		}
 		else if (MinorMode == 0 && MSPNicam)
 		{
 			// D/K NICAM
-//              Audio_MSP_SetMode(Audio_MSP_MODE_FM_NICAM1);
 			Audio_MSP_SetCarrier(carrier_detect[MinorMode], carrier_detect_main[MajorMode]);
 		}
 		else
 		{
-//          Audio_MSP_SetMode(Audio_MSP_MODE_FM_TERRA);
 			Audio_MSP_SetCarrier(carrier_detect[MinorMode], carrier_detect_main[MajorMode]);
 		}
 		break;
 	case 0:					// 4.5
 	default:
-//          Audio_MSP_SetMode(Audio_MSP_MODE_FM_TERRA);
-//			Audio_MSP_SetStereo(MajorMode, MinorMode, VIDEO_SOUND_STEREO); // MAETEST
 		Audio_MSP_SetCarrier(carrier_detect[MinorMode], carrier_detect_main[MajorMode]);
 		break;
 	}
@@ -960,7 +1013,7 @@ void Audio_MSP_Print_Mode()
 {
 	char Text[128];
 
-	if (Has_MSP == FALSE)
+	if (bHasMSP == FALSE)
 		strcpy(Text, "No MSP Audio Device");
 	else
 	{
@@ -1057,7 +1110,7 @@ void Audio_MSP_Watch_Mode()
 	int val;
 	int newstereo = MSPStereo;
 	
-	if(!Has_MSP || !AutoStereoSelect) return;
+	if(!bHasMSP || !AutoStereoSelect) return;
 
 	Sleep(2);
 	switch (MSPMode)
@@ -1311,7 +1364,7 @@ void Audio_SetMenu(HMENU hMenu)
 	CheckMenuItem(hMenu, IDM_AUTOSTEREO,        AutoStereoSelect?MF_CHECKED:MF_UNCHECKED);
 }
 
-void Mute()
+void Audio_Mute()
 {
 	if (bUseMixer == FALSE)
 	{
@@ -1325,11 +1378,11 @@ void Mute()
 	
 	if (Audio_MSP_IsPresent())
 	{
-		Audio_Mute();
+		Audio_MSP_Mute();
 	}
 }
 
-void Unmute()
+void Audio_Unmute()
 {
 	if (bUseMixer == FALSE)
 	{
@@ -1343,6 +1396,6 @@ void Unmute()
 	
 	if (Audio_MSP_IsPresent())
 	{
-		Audio_Unmute();
+		Audio_MSP_Unmute();
 	}
 }

@@ -110,6 +110,7 @@ private:
 };
 
 BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
+void Mixer_SetupDlg(HWND hWndParent);
 
 extern BOOL bSystemInMute;
 extern BOOL bUseMixer;

@@ -548,8 +548,41 @@ BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
     return FALSE;
 }
 
+void Mixer_SetupDlg(HWND hWndParent)
+{
+    if(pSoundSystem == NULL || pSoundSystem->GetNumMixers() > 0)
+    {
+        DialogBox(hInst, MAKEINTRESOURCE(IDD_MIXERSETUP), hWndParent, MixerSetupProc);
+    }
+    else
+    {
+        MessageBox(hWnd, "No Mixer hardware found", "DScaler Error", MB_OK);
+    }
+}
+
+CMixerLineDest* Mixer_GetDestLine()
+{
+    // check that can go down pointers
+    if(pSoundSystem == NULL)
+    {
+        return NULL;
+    }
+    if(pSoundSystem->GetMixer() == NULL)
+    {
+        return NULL;
+    }
+
+    return pSoundSystem->GetMixer()->GetDestLine(DestIndex);
+}
+
 CMixerLineSource* Mixer_GetInputLine(long NewType)
 {
+    CMixerLineDest* DestLine = Mixer_GetDestLine();
+    if(DestLine == NULL)
+    {
+        return NULL;
+    }
+
     if(bUseMixer)
     {
         switch(NewType)
@@ -557,32 +590,32 @@ CMixerLineSource* Mixer_GetInputLine(long NewType)
         case SOURCE_TUNER:
             if(TunerLineIndex > -1)
             {
-                return pSoundSystem->GetMixer()->GetDestLine(DestIndex)->GetSourceLine(TunerLineIndex);
+                return DestLine->GetSourceLine(TunerLineIndex);
             }
             break;
         case SOURCE_COMPOSITE:
             if(CompositeLineIndex > -1)
             {
-                return pSoundSystem->GetMixer()->GetDestLine(DestIndex)->GetSourceLine(CompositeLineIndex);
+                return DestLine->GetSourceLine(CompositeLineIndex);
             }
             break;
         case SOURCE_SVIDEO:
         case SOURCE_COMPVIASVIDEO:
             if(SVideoLineIndex > -1)
             {
-                return pSoundSystem->GetMixer()->GetDestLine(DestIndex)->GetSourceLine(SVideoLineIndex);
+                return DestLine->GetSourceLine(SVideoLineIndex);
             }
             break;
         case SOURCE_OTHER1:
             if(Other1LineIndex > -1)
             {
-                return pSoundSystem->GetMixer()->GetDestLine(DestIndex)->GetSourceLine(Other1LineIndex);
+                return DestLine->GetSourceLine(Other1LineIndex);
             }
             break;
         case SOURCE_OTHER2:
             if(Other2LineIndex > -1)
             {
-                return pSoundSystem->GetMixer()->GetDestLine(DestIndex)->GetSourceLine(Other2LineIndex);
+                return DestLine->GetSourceLine(Other2LineIndex);
             }
             break;
         default:
@@ -661,27 +694,48 @@ long Mixer_GetVolume()
 // here we go down and mute all input execpt the one we want
 void Mixer_OnInputChange(VIDEOSOURCETYPE NewType)
 {
+    CMixerLineDest* DestLine = Mixer_GetDestLine();
+    if(DestLine == NULL)
+    {
+        return;
+    }
+
     if(bUseMixer)
     {
         if(TunerLineIndex > -1)
         {
-            pSoundSystem->GetMixer()->GetDestLine(DestIndex)->GetSourceLine(TunerLineIndex)->SetMute(NewType != SOURCE_TUNER);
+            if(DestLine->GetSourceLine(TunerLineIndex) != NULL)
+            {
+                DestLine->GetSourceLine(TunerLineIndex)->SetMute(NewType != SOURCE_TUNER);
+            }
         }
         if(CompositeLineIndex > -1)
         {
-            pSoundSystem->GetMixer()->GetDestLine(DestIndex)->GetSourceLine(CompositeLineIndex)->SetMute(NewType != SOURCE_COMPOSITE);
+            if(DestLine->GetSourceLine(CompositeLineIndex) != NULL)
+            {
+                DestLine->GetSourceLine(CompositeLineIndex)->SetMute(NewType != SOURCE_COMPOSITE);
+            }
         }
         if(SVideoLineIndex > -1)
         {
-            pSoundSystem->GetMixer()->GetDestLine(DestIndex)->GetSourceLine(SVideoLineIndex)->SetMute((NewType != SOURCE_SVIDEO) && (NewType != SOURCE_COMPVIASVIDEO));
+            if(DestLine->GetSourceLine(SVideoLineIndex) != NULL)
+            {
+                DestLine->GetSourceLine(SVideoLineIndex)->SetMute((NewType != SOURCE_SVIDEO) && (NewType != SOURCE_COMPVIASVIDEO));
+            }
         }
         if(Other1LineIndex > -1)
         {
-            pSoundSystem->GetMixer()->GetDestLine(DestIndex)->GetSourceLine(Other1LineIndex)->SetMute(NewType != SOURCE_OTHER1);
+            if(DestLine->GetSourceLine(Other1LineIndex) != NULL)
+            {
+                DestLine->GetSourceLine(Other1LineIndex)->SetMute(NewType != SOURCE_OTHER1);
+            }
         }
         if(Other2LineIndex > -1)
         {
-            pSoundSystem->GetMixer()->GetDestLine(DestIndex)->GetSourceLine(Other2LineIndex)->SetMute(NewType != SOURCE_OTHER2);
+            if(DestLine->GetSourceLine(Other2LineIndex) != NULL)
+            {
+                DestLine->GetSourceLine(Other2LineIndex)->SetMute(NewType != SOURCE_OTHER2);
+            }
         }
     }
 }

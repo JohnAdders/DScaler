@@ -777,13 +777,13 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 			if (bSystemInMute == FALSE)
 			{
 				bSystemInMute = TRUE;
-				Mute();
+				Audio_Mute();
 				ShowText(hWnd,"MUTE");
 			}
 			else
 			{
 				bSystemInMute = FALSE;
-				Unmute();
+				Audio_Unmute();
 				ShowText(hWnd,"UNMUTE");
 			}
 			break;
@@ -809,8 +809,15 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 		case IDM_VOLUMEPLUS:
 			if (bUseMixer == FALSE)
 			{
-				Setting_Up(Audio_GetSetting(VOLUME));
-				sprintf(Text, "BT-Volume %d", Setting_GetValue(Audio_GetSetting(VOLUME))/ 10);
+                if(Audio_MSP_IsPresent())
+                {
+				    Setting_Up(Audio_GetSetting(VOLUME));
+				    sprintf(Text, "BT-Volume %d", Setting_GetValue(Audio_GetSetting(VOLUME))/ 10);
+                }
+                else
+                {
+				    strcpy(Text, "Volume not supported");
+                }
 			}
 			else
 			{
@@ -823,8 +830,15 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_VOLUMEMINUS:
 			if (bUseMixer == FALSE)
 			{
-				Setting_Down(Audio_GetSetting(VOLUME));
-				sprintf(Text, "BT-Volume %d", Setting_GetValue(Audio_GetSetting(VOLUME))/ 10);
+                if(Audio_MSP_IsPresent())
+                {
+				    Setting_Down(Audio_GetSetting(VOLUME));
+				    sprintf(Text, "BT-Volume %d", Setting_GetValue(Audio_GetSetting(VOLUME))/ 10);
+                }
+                else
+                {
+				    strcpy(Text, "Volume not supported");
+                }
 			}
 			else
 			{
@@ -1033,8 +1047,8 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 			break;
 
 		case IDM_AUDIO_MIXER:
-			DialogBox(hInst, MAKEINTRESOURCE(IDD_MIXERSETUP), hWnd, MixerSetupProc);
-			break;
+			Mixer_SetupDlg(hWnd);
+            break;
 
 		case IDM_STATUSBAR:
 			DisplayStatusBar_OnChange(!bDisplayStatusBar);
@@ -1862,7 +1876,7 @@ void MainWndOnInitBT(HWND hWnd)
 		if (Audio_MSP_Init(0x80, 0x81) == TRUE)
 		{
 			AddSplashTextLine("MSP Device OK");
-			Unmute();
+			Audio_Unmute();
 		}
 		else
 		{
@@ -1881,11 +1895,11 @@ void MainWndOnInitBT(HWND hWnd)
 		// resume mute status
 		if(bSystemInMute)
 		{
-			Mute();
+			Audio_Mute();
 		}
         else
         {
-			Unmute();
+			Audio_Unmute();
         }
 
 		if(Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)) == SOURCE_TUNER)
@@ -1909,11 +1923,7 @@ void MainWndOnInitBT(HWND hWnd)
 
 		SetMenuAnalog();
 
-		//TJ 010611: what is this timer used for?
-		//its never handled in MainWndProc
-		//SetTimer(hWnd, 10, 5000, NULL);
-
-		bDoResize = TRUE;
+    	bDoResize = TRUE;
 		Start_Capture();
 	}
 	else
@@ -1988,38 +1998,44 @@ void MainWndOnCreate(HWND hWnd)
 	PostMessage(hWnd, INIT_BT, 0, 0);
 }
 
+void KillTimers()
+{
+    KillTimer(hWnd, TIMER_BOUNCE);
+    KillTimer(hWnd, TIMER_ORBIT);
+    KillTimer(hWnd, TIMER_AUTOSAVE);
+    KillTimer(hWnd, TIMER_KEYNUMBER);
+    KillTimer(hWnd, TIMER_MSP);
+    KillTimer(hWnd, TIMER_STATUS);
+    KillTimer(hWnd, OSD_TIMER_ID);
+    KillTimer(hWnd, OSD_TIMER_REFRESH_ID);
+    KillTimer(hWnd, TIMER_HIDECURSOR);
+}
+
+
 // basically we want do make sure everything that needs to be done on exit gets 
 // done even if one of the functions crashes we should just carry on with the rest
 // of the functions
 void MainWndOnDestroy()
 {
+    __try
+    {
+        KillTimers();
+    }
+    __except(EXCEPTION_EXECUTE_HANDLER) {LOG("Kill Timers");}
+
+    __try
+	{
+		LOG("Try Mute");
+		Audio_Mute();
+	}
+	__except(EXCEPTION_EXECUTE_HANDLER) {LOG("Error Mute");}
+
 	__try
 	{
 		LOG("Try Stop_Capture");
 		Stop_Capture();
 	}
 	__except(EXCEPTION_EXECUTE_HANDLER) {LOG("Error Stop_Capture");}
-
-	__try
-	{
-		LOG("Try Mute 1");
-		Mute();
-	}
-	__except(EXCEPTION_EXECUTE_HANDLER) {LOG("Error Mute 1");}
-	
-	__try
-	{
-		// MAE 8 Dec 2000 Start of change
-		// JA 8 Jan 2001 Changed to use function
-		LOG("Try Mute 2");
-		if (Audio_MSP_IsPresent())
-		{
-			// Mute the MSP decoder
-			Audio_Mute();
-		}
-		// MAE 8 Dec 2000 End of change
-	}
-	__except(EXCEPTION_EXECUTE_HANDLER) {LOG("Error Mute 2");}
 
 	__try
 	{
@@ -2073,7 +2089,7 @@ void MainWndOnDestroy()
 		UnloadDeinterlacePlugins();
 		UnloadFilterPlugins();
 	}
-	__except(EXCEPTION_EXECUTE_HANDLER) {LOG("Error Unlaod plug-ins");}
+	__except(EXCEPTION_EXECUTE_HANDLER) {LOG("Error Unload plug-ins");}
 
 }
 

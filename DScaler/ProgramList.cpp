@@ -479,15 +479,6 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             }
             ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_COUNTRY), CountryCode);
             
-            if(bCustomChannelOrder)
-            {
-                if(MyChannels.size() != Countries[CountryCode]->m_Frequencies.size())
-                {
-                    ErrorBox("You have selected custom channels but there are the wrong number of channels.  Resetting list");
-                    ResetProgramList(hDlg);
-                }
-            }
-
             RefreshChannelList(hDlg);
 
             // if we have any channels then also fill the details box with the current program
@@ -930,7 +921,7 @@ void Channel_Change(int NewChannel)
             {
                 if(!bSystemInMute)
                 {
-					Mute();
+					Audio_Mute();
                 }
                 PreviousProgramm = CurrentProgramm;
                 CurrentProgramm = NewChannel;
@@ -953,7 +944,7 @@ void Channel_Change(int NewChannel)
                 VT_ChannelChange();
                 if(!bSystemInMute)
                 {
-                    Unmute();
+                    Audio_Unmute();
                 }
                 StatusBar_ShowText(STATUS_KEY, MyChannels[CurrentProgramm]->GetName());
                 OSD_ShowText(hWnd,MyChannels[CurrentProgramm]->GetName(), 0);

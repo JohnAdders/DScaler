@@ -61,11 +61,9 @@ void Audio_Autodetect();
 BOOL Audio_WriteMSP(BYTE bSubAddr, int wAddr, int wData);
 void Audio_SetToneControl();
 int Audio_GetStereoMode(BOOL bHardwareMode);
-void Audio_Mute(void); // MAE 8 Dec 2000
-void Audio_Unmute(void);
 
-void Mute();
-void Unmute();
+void Audio_Mute();
+void Audio_Unmute();
 
 BOOL Audio_MSP_Init(BYTE DRead, BYTE DWrite);
 BOOL Audio_MSP_IsPresent();
@@ -77,6 +75,8 @@ void Audio_MSP_Set_MajorMinor_Mode(int MajorMode, int MinorMode);
 void Audio_MSP_SetStereo(int MajorMode, int MinorMode, int mode);
 void Audio_MSP_Watch_Mode();
 void Audio_MSP_Print_Mode();
+void Audio_MSP_Mute(void); // MAE 8 Dec 2000
+void Audio_MSP_Unmute(void);
 
 BOOL APIENTRY AudioSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 

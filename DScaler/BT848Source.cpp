@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.55 2002-08-13 21:04:42 kooiman Exp $
+// $Id: BT848Source.cpp,v 1.56 2002-08-13 21:21:24 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.55  2002/08/13 21:04:42  kooiman
+// Add IDString() to Sources for identification purposes.
+//
 // Revision 1.54  2002/08/12 22:42:28  kooiman
 // Fixed small spelling error.
 //
@@ -303,10 +306,13 @@ CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CU
     }
     SetupCard();
     Reset();
+
+    SettingsPerChannel_VideoInputChange(this, 0, m_VideoSource->GetValue(), m_pBT848Card->IsInputATuner(m_VideoSource->GetValue()));
 }
 
 CBT848Source::~CBT848Source()
 {
+    BT848_OnSetup(this, 0);
     // if the BT878 was not in D0 state we restore the original ACPI power state
     if(m_InitialACPIStatus != 0)
     {
@@ -459,9 +465,6 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     m_bSavePerFormat = new CYesNoSetting("Save Per Format", TRUE, IniSection, "SavePerFormat");
     m_Settings.push_back(m_bSavePerFormat);
     
-    m_bSavePerChannel = new CYesNoSetting("Save Per Channel", FALSE, IniSection, "SavePerChannel");
-    m_Settings.push_back(m_bSavePerChannel);
-
     m_AudioSource2 = new CAudioSource2Setting(this, "Audio Source 2", AUDIOINPUT_MUTE, AUDIOINPUT_TUNER, AUDIOINPUT_STEREO, IniSection);
     m_Settings.push_back(m_AudioSource2);
 
@@ -1011,11 +1014,15 @@ void CBT848Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
 
 void CBT848Source::VideoSourceOnChange(long NewValue, long OldValue)
 {
+    SettingsPerChannel_VideoInputChange(this, 1, OldValue, m_pBT848Card->IsInputATuner(OldValue));
+
     Stop_Capture();
     Audio_Mute();
     SaveInputSettings(TRUE);
     LoadInputSettings();
     Reset();
+
+    SettingsPerChannel_VideoInputChange(this, 0, NewValue, m_pBT848Card->IsInputATuner(NewValue));
 
     // set up sound
     if(m_pBT848Card->IsInputATuner(NewValue))

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.37 2002-08-08 12:13:23 kooiman Exp $
+// $Id: Settings.cpp,v 1.38 2002-08-13 21:21:24 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.37  2002/08/08 12:13:23  kooiman
+// Bit more flexibility.
+//
 // Revision 1.36  2002/08/07 09:54:52  kooiman
 // Added 'save per channel' settings.
 //
@@ -499,7 +502,7 @@ void WriteSettingsToIni(BOOL bOptimizeFileAccess)
 
     // Restore all channel specific parameters temporarily to their default values
     SettingsPerChannel_ToDefaultState(FALSE);
-    SettingsPerChannel_WriteSettings(NULL, -1, bOptimizeFileAccess);
+    SettingsPerChannel_WriteSettings(bOptimizeFileAccess);
 
     // These two lines flushes current INI file to disk (in case of abrupt poweroff shortly afterwards)
     WritePrivateProfileString(NULL, NULL, NULL, szIniFile);

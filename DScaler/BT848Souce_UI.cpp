@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.40 2002-08-12 22:39:51 kooiman Exp $
+// $Id: BT848Souce_UI.cpp,v 1.41 2002-08-13 21:21:24 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.40  2002/08/12 22:39:51  kooiman
+// Registered more channel specific settings.
+//
 // Revision 1.39  2002/08/11 22:59:51  laurentg
 // Call to WriteSettingsToIni with bOptimizeFileAccess set to TRUE
 //
@@ -444,14 +447,6 @@ void CBT848Source::SetMenu(HMENU hMenu)
 
     CheckMenuItemBool(m_hMenu, IDM_SAVE_BY_FORMAT, m_bSavePerFormat->GetValue());
     CheckMenuItemBool(m_hMenu, IDM_SAVE_BY_INPUT, m_bSavePerInput->GetValue());
-    CheckMenuItemBool(m_hMenu, IDM_SAVE_BY_CHANNEL, m_bSavePerChannel->GetValue());
-    
-    if (m_bSavePerFormat->GetValue())
-    {
-        m_bSavePerChannel->SetValue(FALSE);
-        CheckMenuItemBool(m_hMenu, IDM_SAVE_BY_CHANNEL, m_bSavePerChannel->GetValue());
-    }
-    EnableMenuItemBool(m_hMenu, IDM_SAVE_BY_CHANNEL_CLEARSETTINGS, m_bSavePerChannel->GetValue());
 }
 
 BOOL APIENTRY CBT848Source::AdvVideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
@@ -892,13 +887,7 @@ void CBT848Source::ChangeSectionNamesForInput()
     {
         Format = m_VideoFormat->GetValue();
     }
-
-    if(IsInTunerMode() && m_bSavePerChannel->GetValue())
-    {
-        /// \todo save per channel settings as well
-        //Format = m_VideoFormat->GetValue()));
-    }
-
+    
     if(Input == -1 && Format == -1)
     {
         m_Brightness->SetSection(m_Section.c_str());
@@ -1036,7 +1025,7 @@ void CBT848Source::ChangeChannelSectionNames()
         {            
             if (m_CurrentChannel >=0)
             {            
-                SettingsPerChannel_WriteSettings(sOldSection.c_str(),m_CurrentChannel,TRUE);
+                SettingsPerChannel_SaveChannelSettings(sOldSection.c_str(), m_VideoSource->GetValue(), m_CurrentChannel);
             }        
             SettingsPerChannel_UnregisterSection(sOldSection.c_str());
         }
@@ -1054,11 +1043,12 @@ void CBT848Source::ChangeChannelSectionNames()
         
         SettingsPerChannel_RegisterSetting("AudioChannel","BT8x8 - Audio Channel",TRUE, m_AudioChannel);
         SettingsPerChannel_RegisterSetting("AutoStereoSelect","BT8x8 - Auto Stereo Select",TRUE, m_AutoStereoSelect);
-        if (GetVolume()!=NULL) 
-        {
-            SettingsPerChannel_RegisterSetting("Volume","BT8x8 - Volume",TRUE, m_Volume);            
-            SettingsPerChannel_RegisterSetting("Balance","BT8x8 - Balance",TRUE, m_Balance);
-        }
+        
+        SettingsPerChannel_RegisterSetting("Volume","BT8x8 - Volume",TRUE, m_Volume);            
+        SettingsPerChannel_RegisterSetting("Balance","BT8x8 - Balance",TRUE, m_Balance);
+        SettingsPerChannel_RegisterSetting("BassTreble","BT8x8 - Bass & Treble",TRUE);            
+        SettingsPerChannel_RegisterSetting("BassTreble","BT8x8 - Bass & Treble",TRUE, m_Bass);            
+        SettingsPerChannel_RegisterSetting("BassTreble","BT8x8 - Bass & Treble",TRUE, m_Treble);        
 
         SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE);
         SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtAgcDisable);
@@ -1076,7 +1066,6 @@ void CBT848Source::ChangeChannelSectionNames()
         SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtHorFilter);
         SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtVertFilter);
         SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtColorKill);
-        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_ReversePolarity);
         SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_ReversePolarity);
         SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtWhiteCrushUp);
         SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtWhiteCrushDown);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FieldTiming.cpp,v 1.18 2001-09-05 15:08:43 adcockj Exp $
+// $Id: FieldTiming.cpp,v 1.19 2001-09-28 02:23:13 koreth Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2001/09/05 15:08:43  adcockj
+// Updated Loging
+//
 // Revision 1.17  2001/08/21 09:39:46  adcockj
 // Added Greek teletext Codepage
 //
@@ -326,8 +329,9 @@ void Timing_WaitForNextField(DEINTERLACE_INFO* pInfo)
     {
         nUsedFields++;
     }
-    // auto input detect
-    if(bDoAutoFormatDetect == TRUE)
+    // auto input detect unless we're dropping fields (in which case we can't
+	// count on any of the timing data to be accurate)
+    if(bDoAutoFormatDetect == TRUE && nDroppedFields == 0)
     {
         if(pInfo->CurrentFrame == 0 && pInfo->IsOdd == TRUE)
         {

@@ -902,7 +902,6 @@ BEGIN
             MENUITEM "Groups of Settings",          IDM_SHOW_SCREEN, GRAYED
             MENUITEM "&Adjustment ...",             IDM_OVERLAYSETTINGS
             MENUITEM "Show &Patterns",              IDM_SHOW_PATTERNS
-            , GRAYED
             MENUITEM "St&op",                       IDM_OVERLAY_STOP
             MENUITEM "St&art",                      IDM_OVERLAY_START
         END

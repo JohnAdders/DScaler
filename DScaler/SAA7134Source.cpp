@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.82 2003-05-31 18:46:27 laurentg Exp $
+// $Id: SAA7134Source.cpp,v 1.83 2003-06-15 07:12:18 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.82  2003/05/31 18:46:27  laurentg
+// Possibility to save video format per video input corrected
+//
 // Revision 1.81  2003/05/30 12:21:20  laurentg
 // Don't forget to notify video format change if necessary when switching source and video input of destination source is tuner
 //
@@ -696,6 +699,7 @@ void CSAA7134Source::Start()
     // This timer is used to update STATUS_AUDIO
     SetTimer(hWnd, TIMER_MSP, TIMER_MSP_MS, NULL);
 
+    NotifySizeChange();
     NotifySquarePixelsCheck();
     m_ProcessingFieldID = -1;
 
@@ -1664,9 +1668,15 @@ void CSAA7134Source::PixelWidthOnChange(long NewValue, long OldValue)
 
 void CSAA7134Source::HDelayOnChange(long HDelay, long OldValue)
 {
-    Stop_Capture();
+	// Laurent 06/15/2003
+	// Call to Stop_Capture put in comments
+	// We must check if this call was really necessary
+    //Stop_Capture();
     m_pSAA7134Card->SetGeometry(m_CurrentX, m_CurrentY, HDelay, m_VDelay->GetValue());
-    Start_Capture();
+	// Laurent 06/15/2003
+	// Call to Start_Capture put in comments
+	// We must check if this call was really necessary
+    //Start_Capture();
 }
 
 
@@ -1694,9 +1704,15 @@ void CSAA7134Source::VDelayOnChange(long VDelay, long OldValue)
         }
     }
 
-    Stop_Capture();
+	// Laurent 06/15/2003
+	// Call to Stop_Capture put in comments
+	// We must check if this call was really necessary
+    //Stop_Capture();
     m_pSAA7134Card->SetGeometry(m_CurrentX, m_CurrentY, m_HDelay->GetValue(), VDelay);
-    Start_Capture();
+	// Laurent 06/15/2003
+	// Call to Start_Capture put in comments
+	// We must check if this call was really necessary
+    //Start_Capture();
 }
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Types.cpp,v 1.11 2002-01-16 19:07:04 adcockj Exp $
+// $Id: BT848Card_Types.cpp,v 1.12 2002-02-03 18:14:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/01/16 19:07:04  adcockj
+// Corrected voodoo cards
+//
 // Revision 1.10  2001/12/21 11:07:31  adcockj
 // Even more RevA fixes
 //
@@ -3069,7 +3072,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
 		PLL_28,
 		TUNER_PHILIPS_PAL_I,
 		SOUNDCHIP_NONE,
-		NULL,
+		InitSasem,
 		StandardBT848InputSelect,
 		NULL,
 		0x1C,
@@ -3101,10 +3104,10 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
 				0x03,
 			},
 		},
-		PLL_NONE,
+		PLL_28,
 		TUNER_ABSENT,
 		SOUNDCHIP_NONE,
-		NULL,
+		InitSasem,
 		Sasem4ChannelInputSelect,
 		NULL,
 		0x0,
@@ -3141,10 +3144,10 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
 				0x00,
 			},
 		},
-		PLL_NONE,
+		PLL_28,
 		TUNER_ABSENT,
 		SOUNDCHIP_NONE,
-		NULL,
+		InitSasem,
 		Sasem4ChannelInputSelect,
 		NULL,
 		0x0,
@@ -3181,10 +3184,10 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
 				0x00,
 			},
 		},
-		PLL_NONE,
+		PLL_28,
 		TUNER_ABSENT,
 		SOUNDCHIP_NONE,
-		NULL,
+		InitSasem,
 		Sasem4ChannelInputSelect,
 		NULL,
 		0x0,
@@ -3508,6 +3511,15 @@ void CBT848Card::InitVoodoo()
     BootMSP34xx(20);
 }
 
+void CBT848Card::InitSasem()
+{
+    // Initialize and set the Philips TDA8540 4x4 switch matrix
+    // 0xD2 SW1 choose OUT3=IN3; OUT2=IN1; OUT1=IN0; OUT0=IN2
+    // 0x07 GCO choose (0000) gain; (01) clamp; (11) aux    
+    // 0x03 OEN choose OUT0 and OUT1 high (i.e., s-video)
+    CtrlTDA8540(0x90, 0x00, 0xD2, 0x07, 0x03);
+}
+
 // reset/enable the MSP on some Hauppauge cards 
 // Thanks to Kyösti Mälkki (kmalkki@cc.hut.fi)! 
 void CBT848Card::BootMSP34xx(int pin)
@@ -3615,17 +3627,8 @@ void CBT848Card::InitPXC200()
 // Upon reset, the outputs are set to active and connected to IN0; the gains
 // are set at 2x and inputs IN0 and IN1 are clamped.
 
-void CBT848Card::CtrlTDA8540(int SLV, int SUB, int SW1, int GCO, int OEN)
+void CBT848Card::CtrlTDA8540(BYTE SLV, BYTE SUB, BYTE SW1, BYTE GCO, BYTE OEN)
 {
-    BYTE buffer[10] = 
-    {
-        SLV, 5,
-        SUB, 0,
-        SW1, 0,
-        GCO, 0,
-        OEN, 0,
-    };
-
-    m_I2CBus->Write(buffer, 10);
+	BYTE Buffer[] = {SLV, SUB, SW1, GCO, OEN};
+	m_I2CBus->Write(Buffer, 5);
 }
-

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.14 2002-01-23 12:20:32 robmuller Exp $
+// $Id: BT848Card.h,v 1.15 2002-02-03 18:14:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/01/23 12:20:32  robmuller
+// Added member function HandleTimerMessages(int TimerId).
+//
 // Revision 1.13  2001/12/18 15:30:35  adcockj
 // Comment changes
 //
@@ -42,7 +45,6 @@
 #include "NoAudioControls.h"
 
 #define INPUTS_PER_CARD 6
-
 
 /** A Generic bt848 based capture card
     The card can cope with the standard inputs,
@@ -267,6 +269,7 @@ private:
     void InitPXC200();
     void InitHauppauge();
     void InitVoodoo();
+    void InitSasem();
 
     void SetAudioGVBCTV3PCI(eSoundChannel soundChannel);
     void SetAudioLT9415(eSoundChannel soundChannel);
@@ -275,7 +278,7 @@ private:
     void SetAudioWINFAST2000(eSoundChannel soundChannel);
 
     void BootMSP34xx(int pin);
-    void CtrlTDA8540(int SLV, int SUB, int SW1, int GCO, int OEN);
+    void CtrlTDA8540(BYTE SLV, BYTE SUB, BYTE SW1, BYTE GCO, BYTE OEN);
 
     char m_MSPVersion[16];
     char m_TunerStatus[32];

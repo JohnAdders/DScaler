@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.45 2002-08-15 14:16:18 kooiman Exp $
+// $Id: Other.cpp,v 1.46 2002-09-26 16:26:26 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.45  2002/08/15 14:16:18  kooiman
+// Cleaner settings per channel implementation
+//
 // Revision 1.44  2002/08/09 08:31:15  kooiman
 // Changed default value for settings in the channel setting list.
 //
@@ -1088,6 +1091,15 @@ BOOL Overlay_Flip(DWORD FlipFlag)
     FlipResult = lpDDOverlay->Flip(NULL, FlipFlag); 
     if(FAILED(FlipResult))
     {
+        // cope with card's that donn't suppotr waiting for the flip
+        if(FlipFlag != DDFLIP_WAIT && FlipResult == DDERR_INVALIDPARAMS)
+        {
+            FlipResult = lpDDOverlay->Flip(NULL, DDFLIP_WAIT); 
+            if(SUCCEEDED(FlipResult))
+            {
+                PostMessage(hWnd, WM_OUTTHREADS_SETVALUE, WAITFORFLIP, 1);
+            }
+        }
         if(FlipResult != DDERR_WASSTILLDRAWING && 
             FlipResult != DDERR_SURFACELOST &&
             FlipResult != DDERR_NOTFLIPPABLE)

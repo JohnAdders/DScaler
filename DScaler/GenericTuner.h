@@ -1,5 +1,5 @@
 //
-// $Id: GenericTuner.h,v 1.4 2002-08-17 11:27:23 kooiman Exp $
+// $Id: GenericTuner.h,v 1.5 2002-10-08 20:43:15 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/08/17 11:27:23  kooiman
+// Fixed tuning for Temic 4046FM5 and Philips FQ1216ME.
+//
 // Revision 1.3  2001/11/29 14:04:07  adcockj
 // Added Javadoc comments
 //
@@ -57,6 +60,9 @@ public:
     bool SetRadioFrequency(long nFrequency);
     bool SetTVFrequency(long nFrequency, eVideoFormat videoFormat);
 
+    long GetFrequency();
+    eTunerLocked IsLocked();
+    eTunerAFCStatus GetAFCStatus(long &nFreqDeviation);
 protected:
     // from CI2CDevice
     virtual BYTE GetDefaultAddress() const;

@@ -1,5 +1,5 @@
 //
-// $Id: MT2032.cpp,v 1.7 2002-10-07 20:32:00 kooiman Exp $
+// $Id: MT2032.cpp,v 1.8 2002-10-08 20:43:16 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/10/07 20:32:00  kooiman
+// Added/fixed TDA9887 support for new Pinnacle cards
+//
 // Revision 1.6  2002/09/04 11:58:45  kooiman
 // Added new tuners & fix for new Pinnacle cards with MT2032 tuner.
 //
@@ -48,11 +51,14 @@
 #include "MT2032.h"
 
 #define OPTIMIZE_VCO 1   // perform VCO optimizations
+#define I2C_TDA9887_0				0x86 // Used by newer pinnacle cards
 
 
 CMT2032::CMT2032(eVideoFormat DefaultVideoFormat, eTVCardId TVCardId) :
     m_XOGC(0),
-    m_Initialized(false)
+    m_Initialized(false),
+    m_Frequency (0),
+    m_Locked(false)
 {
     m_DefaultVideoFormat = DefaultVideoFormat;
     m_TVCardId = TVCardId;
@@ -78,28 +84,6 @@ bool CMT2032::HasRadio() const
     return true;
 }
 
-bool CMT2032::SetRadioFrequency(long nFrequency)
-{
-    if (!m_Initialized)
-    {
-        Initialize();
-    }
-    int if2, from, to;
-
-    // from and to values are estimated. This should be no problem
-    // since these values are only used in the spur checking routine.
-    // According to the documentation spurs do not occur in the North
-    // American FM band. (87-108MHz)
-    // to - from = 0.2MHz, this is the bandwidth used for FM.
-    from = 10600 * 1000;
-    to = 10800 * 1000;
-    if2 = 10700 * 1000;
-
-    //SetIFFreq(nFrequency * 1000 / 16 * 1000, 1085 * 1000 * 1000, if2, from, to, (eVideoFormat)(VIDEOFORMAT_LASTONE+1));
-
-	SetIFFreq(nFrequency * 1000 / 16 * 1000, 1085 * 1000 * 1000, if2, if2, if2, (eVideoFormat)(VIDEOFORMAT_LASTONE+1));
-    return true;
-}
 
 BYTE CMT2032::GetRegister(BYTE reg)
 {
@@ -131,7 +115,7 @@ void CMT2032::Initialize()
 {
     int             xogc, xok = 0;
 
-    m_HasTDA9887 = FALSE;
+    m_HasTDA9887 = false;
 
 	switch (m_TVCardId)
     {
@@ -140,10 +124,10 @@ void CMT2032::Initialize()
       case TVCARD_PINNACLERAVE:
       case TVCARD_PINNACLEPRO:            
 		  {						
-			  BYTE tda9887set[] = {0x86, 0x00, 0x54, 0x70, 0x44};
+			  BYTE tda9887set[] = {I2C_TDA9887_0, 0x00, 0x54, 0x70, 0x44};
 			  if (m_I2CBus->Write(tda9887set,5))
 			  {
-				  m_HasTDA9887 = TRUE;
+				  m_HasTDA9887 = true;
 			  }
 		  }
           break;
@@ -153,7 +137,7 @@ void CMT2032::Initialize()
 
 	if (m_HasTDA9887)
 	{
-		PrepareTDA9887(TRUE, m_DefaultVideoFormat);
+		PrepareTDA9887(true, m_DefaultVideoFormat);
 	}
 
     /* Initialize Registers per spec. */
@@ -189,10 +173,9 @@ void CMT2032::Initialize()
 
     if (m_HasTDA9887)
 	{
-		PrepareTDA9887(FALSE, m_DefaultVideoFormat);
+		PrepareTDA9887(false, m_DefaultVideoFormat);
 	}
-
-
+    
     m_XOGC = xogc;
     m_Initialized = true;
 }
@@ -437,7 +420,7 @@ void CMT2032::SetIFFreq(int rfin, int if1, int if2, int from, int to, eVideoForm
 
     if (m_HasTDA9887)
 	{
-		PrepareTDA9887(TRUE, videoFormat);
+		PrepareTDA9887(true, videoFormat);
 	}
 
     /* send only the relevant registers per Rev. 1.2 */
@@ -475,10 +458,11 @@ void CMT2032::SetIFFreq(int rfin, int if1, int if2, int from, int to, eVideoForm
 
     SetRegister(2, 0x20);
 
+    m_Locked = (lock==6)?true:false;
 
     if (m_HasTDA9887)
 	{
-		PrepareTDA9887(FALSE, videoFormat);
+		PrepareTDA9887(false, videoFormat);
 	}
 }
 
@@ -504,13 +488,97 @@ bool CMT2032::SetTVFrequency(long frequency, eVideoFormat videoFormat)
         if2 = 38900 * 1000;
     }
 
-    SetIFFreq(frequency * 1000 / 16 * 1000, 1090 * 1000 * 1000, if2, from, to, videoFormat);
+    m_Frequency = frequency;
+
+    //SetIFFreq(frequency * 1000 / 16 * 1000, 1090 * 1000 * 1000, if2, from, to, videoFormat);
+    SetIFFreq(frequency, 1090 * 1000 * 1000, if2, from, to, videoFormat);
     return true;
 }
 
-void CMT2032::PrepareTDA9887(BOOL bPrepare, eVideoFormat VideoFormat)
+bool CMT2032::SetRadioFrequency(long nFrequency)
 {
-   BYTE tda9887set[] = {0x86, 0x00, 0x54, 0x70, 0x44};
+    if (!m_Initialized)
+    {
+        Initialize();
+    }
+    int if2, from, to;
+
+    // from and to values are estimated. This should be no problem
+    // since these values are only used in the spur checking routine.
+    // According to the documentation spurs do not occur in the North
+    // American FM band. (87-108MHz)
+    // to - from = 0.2MHz, this is the bandwidth used for FM.
+    from = 10600 * 1000;
+    to = 10800 * 1000;
+    if2 = 10700 * 1000;
+
+    m_Frequency = nFrequency;
+
+    //SetIFFreq(nFrequency * 1000 / 16 * 1000, 1085 * 1000 * 1000, if2, from, to, (eVideoFormat)(VIDEOFORMAT_LASTONE+1));
+
+	SetIFFreq(nFrequency, 1085 * 1000 * 1000, if2, if2, if2, (eVideoFormat)(VIDEOFORMAT_LASTONE+1));
+    return true;
+}
+
+long CMT2032::GetFrequency()
+{
+    return m_Frequency;
+}
+
+eTunerLocked CMT2032::IsLocked()
+{
+    return (m_Locked ? TUNER_LOCK_ON : TUNER_LOCK_OFF);
+}
+
+eTunerAFCStatus CMT2032::GetAFCStatus(long &nFreqDeviation)
+{
+    if (m_HasTDA9887)
+    {
+        /**
+        bit 0: power on reset
+        bit 1-4: AFC
+        bit 5: FM carrier detection
+        bit 6: VIF input level
+        bit 7: 1=VCO in +-1.6MHz AFC window
+        */
+        BYTE addr[] = { I2C_TDA9887_0 };
+        BYTE result;        
+        if (m_I2CBus->Read(addr, 1, &result, 1))
+        {
+            nFreqDeviation = ((result>>1) & 0xF);
+            if ((nFreqDeviation == 0x7) || (nFreqDeviation == 0x8))
+            {
+                // <= -187.5 kHz or >= 187.5 hKz
+                //return TUNER_AFC_NOCARRIER;
+            }
+            if (nFreqDeviation&8)
+            {
+                nFreqDeviation |= (-8);
+            }
+            
+            nFreqDeviation = -1 * ((nFreqDeviation *  25000) + 12500);
+            return TUNER_AFC_CARRIER;
+        }
+        return TUNER_AFC_NOTSUPPORTED;
+    }
+    else
+    {
+        //Use internal AFC
+        BYTE addr[] = { (BYTE)(m_DeviceAddress << 1), 0x0E };
+        BYTE result;        
+        if (m_I2CBus->Read(addr, 2, &result, 1))
+        {
+            result = (result>>4) & 7;
+            nFreqDeviation = 100000 * ((int)result - 2);
+            return TUNER_AFC_CARRIER;
+        }
+        return TUNER_AFC_NOTSUPPORTED;
+    }
+}
+
+void CMT2032::PrepareTDA9887(bool bPrepare, eVideoFormat VideoFormat)
+{
+   BYTE tda9887set[] = {I2C_TDA9887_0, 0x00, 0x54, 0x70, 0x44};
    
    switch (VideoFormat)
    {
@@ -567,3 +635,4 @@ void CMT2032::PrepareTDA9887(BOOL bPrepare, eVideoFormat VideoFormat)
    }
    m_I2CBus->Write(tda9887set, 5);   
 }
+

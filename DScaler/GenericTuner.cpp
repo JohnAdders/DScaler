@@ -1,5 +1,5 @@
 //
-// $Id: GenericTuner.cpp,v 1.10 2002-09-04 11:58:45 kooiman Exp $
+// $Id: GenericTuner.cpp,v 1.11 2002-10-08 20:43:16 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/09/04 11:58:45  kooiman
+// Added new tuners & fix for new Pinnacle cards with MT2032 tuner.
+//
 // Revision 1.9  2002/08/20 09:48:43  kooiman
 // Fixed wrong byte swapping for Philips SECAM tuner. Prevented crash when m_I2CBus is NULL.
 //
@@ -56,6 +59,15 @@
 #include "stdafx.h"
 #include "GenericTuner.h"
 #include "DebugLog.h"
+
+
+#define I2CTUNER_POR       0x80
+#define I2CTUNER_FL        0x40
+#define I2CTUNER_MODE      0x38
+#define I2CTUNER_AFC       0x07
+
+#define I2CTUNER_STEREO    0x10 // radio mode
+#define I2CTUNER_SIGNAL    0x07 // radio mode
 
 /* tv standard selection for Temic 4046 FM5
    this value takes the low bits of control byte 2
@@ -369,11 +381,13 @@ CGenericTuner::CGenericTuner(eTunerId tunerId) :
     }
 }
 
-bool CGenericTuner::SetTVFrequency(long nFrequency, eVideoFormat videoFormat)
+bool CGenericTuner::SetTVFrequency(long nFrequencyHz, eVideoFormat videoFormat)
 {
     BYTE config;
     WORD div;
     static long m_LastFrequency = 0;
+
+    long nFrequency = MulDiv(nFrequencyHz, 16, 1000000);
 
     if (nFrequency < m_Thresh1)
     {
@@ -453,7 +467,7 @@ bool CGenericTuner::SetTVFrequency(long nFrequency, eVideoFormat videoFormat)
 
     BYTE buffer[] = {(BYTE) m_DeviceAddress << 1, (BYTE) ((div >> 8) & 0x7f), (BYTE) (div & 0xff), m_Config, config};
 
-    if ((m_TunerId == TUNER_PHILIPS_SECAM) && (nFrequency < m_Frequency))
+    if ((m_TunerId == TUNER_PHILIPS_SECAM) && (nFrequencyHz < m_Frequency))
     {
         //specification says to send config data before frequency in case (wanted frequency < current frequency).
 
@@ -465,7 +479,7 @@ bool CGenericTuner::SetTVFrequency(long nFrequency, eVideoFormat videoFormat)
         buffer[3] = temp1;
         buffer[4] = temp2;
     }
-    m_Frequency = nFrequency;
+    m_Frequency = nFrequencyHz;
 
     if (m_I2CBus != NULL)
     {
@@ -503,3 +517,69 @@ BYTE CGenericTuner::GetDefaultAddress()const
 {
     return 0xC0>>1;
 }
+
+long CGenericTuner::GetFrequency()
+{
+    return m_Frequency;
+}
+
+eTunerLocked CGenericTuner::IsLocked()
+{
+    if (m_I2CBus != NULL)
+    {
+        BYTE addr;
+        BYTE result;
+        addr = (BYTE)(m_DeviceAddress << 1);
+        if (m_I2CBus->Read(&addr, 1, &result, 1))
+        {
+            if ((result & I2CTUNER_FL) != 0)
+            {
+                return TUNER_LOCK_ON;
+            }
+            else
+            {
+                return TUNER_LOCK_OFF;
+            }
+        }
+    }
+    return TUNER_LOCK_NOTSUPPORTED;
+}
+
+eTunerAFCStatus CGenericTuner::GetAFCStatus(long &nFreqDeviation)
+{
+    if (m_I2CBus != NULL)
+    {
+        BYTE addr;
+        BYTE result;
+        addr = (BYTE)(m_DeviceAddress << 1);
+        if (m_I2CBus->Read(&addr, 1, &result, 1))
+        {
+            int afc = (result&I2CTUNER_AFC);
+
+            afc -= 2;
+            switch (afc)
+            {
+            case -2:
+                nFreqDeviation = -125000;
+                break;
+            case -1:
+                nFreqDeviation = -62500;
+                break;
+            case 0:
+                nFreqDeviation = 0;
+                break;
+            case 1:
+                nFreqDeviation = 62500;
+                break;
+            //case 2:
+            //    nFreqDeviation = 125000;
+            //   break;
+            default:
+                return TUNER_AFC_NOCARRIER;
+            }
+            return TUNER_AFC_CARRIER;
+        }
+    }
+    return TUNER_AFC_NOTSUPPORTED;
+}
+

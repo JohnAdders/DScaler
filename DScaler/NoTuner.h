@@ -1,5 +1,5 @@
 //
-// $Id: NoTuner.h,v 1.4 2001-12-05 21:45:11 ittarnavsky Exp $
+// $Id: NoTuner.h,v 1.5 2002-10-08 20:43:16 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/12/05 21:45:11  ittarnavsky
+// added changes for the AudioDecoder and AudioControls support
+//
 // Revision 1.3  2001/11/29 14:04:07  adcockj
 // Added Javadoc comments
 //
@@ -70,6 +73,18 @@ public:
     bool SetTVFrequency(long nFrequency, eVideoFormat videoFormat)
     {
         return true;
+    }
+    long GetFrequency() 
+    {
+        return 0;
+    }
+    eTunerLocked IsLocked()
+    {
+        return TUNER_LOCK_NOTSUPPORTED;
+    }
+    eTunerAFCStatus GetAFCStatus(long &nFreqDeviation)
+    {
+        return TUNER_AFC_NOTSUPPORTED;
     }
 
 protected:

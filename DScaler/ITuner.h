@@ -1,5 +1,5 @@
 //
-// $Id: ITuner.h,v 1.2 2001-11-29 14:04:07 adcockj Exp $
+// $Id: ITuner.h,v 1.3 2002-10-08 20:43:16 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/11/29 14:04:07  adcockj
+// Added Javadoc comments
+//
 // Revision 1.1  2001/11/25 02:03:21  ittarnavsky
 // initial checkin of the new I2C code
 //
@@ -41,6 +44,22 @@
 
 extern const char *TunerNames[TUNER_LASTONE];
 
+#define TUNER_AFCSTATUS_NOCARRIER 1000000000L
+
+enum eTunerLocked
+{
+    TUNER_LOCK_NOTSUPPORTED = -1,
+    TUNER_LOCK_OFF = 0,
+    TUNER_LOCK_ON = 1
+};    
+    
+enum eTunerAFCStatus
+{
+    TUNER_AFC_NOTSUPPORTED = -1,
+    TUNER_AFC_NOCARRIER = 0,
+    TUNER_AFC_CARRIER = 1
+};
+
 /** Interface for control of analogue tuners
 */
 class ITuner: public CI2CDevice
@@ -51,6 +70,11 @@ public:
     virtual bool HasRadio() const = 0;
     virtual bool SetRadioFrequency(long nFrequency) = 0;
     virtual bool SetTVFrequency(long nFrequency, eVideoFormat videoFormat) = 0;
+    virtual long GetFrequency() = 0;
+    virtual eTunerLocked IsLocked() = 0;
+    //Automatic Frequency Control status  
+      //Sets frequency deviation if there is a carrier (e.g. -62500 or 125000 Hz)
+    virtual eTunerAFCStatus GetAFCStatus(long &nFreqDeviation) = 0;         
 };
 
 #endif // !defined(__ITUNER_H__)

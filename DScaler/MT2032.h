@@ -1,5 +1,5 @@
 //
-// $Id: MT2032.h,v 1.5 2002-10-07 20:32:00 kooiman Exp $
+// $Id: MT2032.h,v 1.6 2002-10-08 20:43:16 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/10/07 20:32:00  kooiman
+// Added/fixed TDA9887 support for new Pinnacle cards
+//
 // Revision 1.4  2002/09/04 11:58:45  kooiman
 // Added new tuners & fix for new Pinnacle cards with MT2032 tuner.
 //
@@ -62,6 +65,10 @@ public:
     bool SetRadioFrequency(long nFrequency);
     bool SetTVFrequency(long nFrequency, eVideoFormat videoFormat);
 
+    long GetFrequency();
+    eTunerLocked IsLocked();
+    eTunerAFCStatus GetAFCStatus(long &nFreqDeviation);
+
 protected:
     // from CI2CDevice
     virtual BYTE GetDefaultAddress() const;
@@ -77,13 +84,15 @@ private:
     int OptimizeVCO(int sel, int lock);
     void SetIFFreq(int rfin, int if1, int if2, int from, int to, eVideoFormat videoFormat);
 
-    void PrepareTDA9887(BOOL bPrepare, eVideoFormat videoFormat);
+    void PrepareTDA9887(bool bPrepare, eVideoFormat videoFormat);
 
 private:
-    int m_XOGC;    // holds the value of XOGC register after init
+    int  m_XOGC;    // holds the value of XOGC register after init
     bool m_Initialized;
     eTVCardId m_TVCardId;
     eVideoFormat m_DefaultVideoFormat;
+    long m_Frequency;
+    bool m_Locked;
 	bool m_HasTDA9887;
 };
 

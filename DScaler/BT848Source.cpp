@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.81 2002-10-07 22:31:27 kooiman Exp $
+// $Id: BT848Source.cpp,v 1.82 2002-10-08 20:43:16 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.81  2002/10/07 22:31:27  kooiman
+// Fixed audio initialization.
+//
 // Revision 1.80  2002/10/07 20:31:02  kooiman
 // Fixed autodetect bugs.
 //
@@ -1500,13 +1503,7 @@ BOOL CBT848Source::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
     //Doesn't work yet
     if(VideoFormat == (VIDEOFORMAT_LASTONE+1))
     {
-        /*if (m_AudioStandardDetect->GetValue()==0)
-		{
-			m_AudioStandardDetect->SetValue(4,ONCHANGE_NONE);
-			m_AudioStandardManual->SetValue(0x40);
-			m_AudioStandardDetect->SetValue(0,ONCHANGE_NONE);
-		}*/
-		return m_pBT848Card->GetTuner()->SetRadioFrequency(FrequencyId);
+    	return m_pBT848Card->GetTuner()->SetRadioFrequency(FrequencyId);
     }
     
     if(VideoFormat == VIDEOFORMAT_LASTONE)
@@ -1516,11 +1513,8 @@ BOOL CBT848Source::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
     if(VideoFormat != m_VideoFormat->GetValue())
     {
         m_VideoFormat->SetValue(VideoFormat);
-        
-        //m_AudioStandardDetect->SetValue(m_AudioStandardDetect->GetValue());
-        AudioStandardDetectOnChange(m_AudioStandardDetect->GetValue(),m_AudioStandardDetect->GetValue());
-    }
-    return m_pBT848Card->GetTuner()->SetTVFrequency(FrequencyId, VideoFormat);
+    }    
+    return result;
 }
 
 BOOL CBT848Source::IsVideoPresent()

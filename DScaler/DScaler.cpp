@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.110 2002-01-15 19:53:36 adcockj Exp $
+// $Id: DScaler.cpp,v 1.111 2002-01-16 19:02:17 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.110  2002/01/15 19:53:36  adcockj
+// Fix for window creep with toolbar at top or left
+//
 // Revision 1.109  2002/01/15 11:16:03  temperton
 // New teletext drawing code.
 //
@@ -671,6 +674,7 @@ HMENU CreateDScalerPopupMenu()
             MenuItemInfo.hSubMenu = hSubMenu;
             SetMenuItemInfo(hMenuPopup,6,TRUE,&MenuItemInfo);
         }
+        CheckMenuItemBool(hMenuPopup, IDM_FULL_SCREEN, bIsFullScreen);
     }
     return hMenuPopup;
 }
@@ -2814,7 +2818,7 @@ void UpdateWindowState()
         }
         else
         {
-            SetWindowLong(hWnd, GWL_STYLE, WS_THICKFRAME | WS_POPUP | WS_CHILD | WS_VISIBLE | WS_SYSMENU | WS_MINIMIZEBOX);
+            SetWindowLong(hWnd, GWL_STYLE, WS_THICKFRAME | WS_POPUP | WS_VISIBLE | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX);
             SetMenu(hWnd, NULL);
         }
         StatusBar_ShowWindow(bDisplayStatusBar);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.54 2003-01-01 21:34:11 atnak Exp $
+// $Id: VBI_VideoText.cpp,v 1.55 2003-01-02 11:05:24 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.54  2003/01/01 21:34:11  atnak
+// Added missing subtitles force double height filter
+//
 // Revision 1.53  2003/01/01 20:49:03  atnak
 // Updated VBI_VideoText.* files for new videotext structure
 //
@@ -472,6 +475,13 @@ void VT_SetOverlayColour(COLORREF ColorRef)
 
 BOOL VT_SetPage(HDC hDC, LPRECT lpRect, WORD wPageHex, WORD wPageSubCode)
 {
+    if (wPageHex < 0x100 ||
+        wPageHex > 0x899 ||
+        CVTCommon::IsNonVisiblePage(wPageHex))
+    {
+        return FALSE;
+    }
+
     EnterCriticalSection(&VTPageChangeMutex);
 
     VTPageHex = wPageHex;

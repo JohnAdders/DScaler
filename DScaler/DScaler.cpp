@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.268 2003-01-01 22:01:44 atnak Exp $
+// $Id: DScaler.cpp,v 1.269 2003-01-02 11:05:24 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.268  2003/01/01 22:01:44  atnak
+// Added OSD message for VideoText off
+//
 // Revision 1.267  2003/01/01 20:58:30  atnak
 // New code for new videotext + videotext reorganziations, + fixes
 // cursor not redrawing on Cursor_SetType()
@@ -1197,7 +1200,7 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
                 sscanf(szParameter, "%d", &InitialChannel);
                 break;
             case 'p':
-                sscanf(szParameter, "%d", &InitialTextPage);
+                sscanf(szParameter, "%x", &InitialTextPage);
                 break;
             default:
                 // Unknown
@@ -4251,13 +4254,15 @@ void MainWndOnInitBT(HWND hWnd)
                 }
             }
         }
-        /*
-        if (InitialTextPage >= 100) DBG
+        
+        if (InitialTextPage >= 0x100)
         {
             Setting_SetValue(VBI_GetSetting(CAPTURE_VBI), TRUE);
-            VTPage = InitialTextPage;
-            VTState = VT_BLACK;
-        }*/
+            Setting_SetValue(VBI_GetSetting(DOTELETEXT), TRUE);
+
+            VT_SetState(NULL, NULL, VT_BLACK);
+            VT_SetPage(NULL, NULL, InitialTextPage);
+        }
 
         AddSplashTextLine("Start Video");
         Start_Capture();

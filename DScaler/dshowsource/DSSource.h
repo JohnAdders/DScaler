@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.h,v 1.18 2002-08-13 21:04:42 kooiman Exp $
+// $Id: DSSource.h,v 1.19 2002-08-14 22:03:23 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2002/08/13 21:04:42  kooiman
+// Add IDString() to Sources for identification purposes.
+//
 // Revision 1.17  2002/08/11 12:06:19  laurentg
 // Cut BT Card setup and general hardware setup in two different windows
 //
@@ -171,6 +174,8 @@ public:
     void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff) {;};
 
     LPCSTR IDString() { return m_IDString.c_str(); }
+
+    void SettingsPerChannelSetup(int Start);
 
 private:
 	void updateDroppedFields();

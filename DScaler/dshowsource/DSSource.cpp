@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.28 2002-08-13 21:04:43 kooiman Exp $
+// $Id: DSSource.cpp,v 1.29 2002-08-14 22:03:23 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2002/08/13 21:04:43  kooiman
+// Add IDString() to Sources for identification purposes.
+//
 // Revision 1.27  2002/08/01 20:23:43  tobbej
 // improved error messages when opening files.
 // implemented AvgSyncOffset counter in dsrend
@@ -145,6 +148,7 @@
 #include "Audio.h"
 #include "TreeSettingsDlg.h"
 #include "TreeSettingsOleProperties.h"
+#include "SettingsPerChannel.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -203,6 +207,16 @@ resolutionType res[]=
 	0,0
 };
 
+
+static void DS_OnSetup(void *pThis, int Start)
+{
+   if (pThis != NULL)
+   {
+      ((CDSSource*)pThis)->SettingsPerChannelSetup(Start);
+   }
+}
+
+
 CDSSource::CDSSource(string device,string deviceName) :
 	CSource(0,IDC_DSHOWSOURCEMENU),
 	m_pDSGraph(NULL),
@@ -215,9 +229,11 @@ CDSSource::CDSSource(string device,string deviceName) :
 	m_dwRendStartTime(0)
 
 {
-	m_IDString = std::string("DS_") + device.c_str();
+	m_IDString = std::string("DS_") + deviceName;
   InitializeCriticalSection(&m_hOutThreadSync);
 	CreateSettings(device.c_str());  
+
+  SettingsPerChannel_RegisterOnSetup(this, DS_OnSetup);
 }
 
 CDSSource::CDSSource() :
@@ -575,7 +591,14 @@ BOOL CDSSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 				{
 					//if changing a video input, set the related pin too
 					bool isVideo=pCrossbar->GetInputType(LOWORD(wParam)-IDM_CROSSBAR_INPUT0)<4096;
-					pCrossbar->SetInputIndex(LOWORD(wParam)-IDM_CROSSBAR_INPUT0,isVideo);
+          
+          long CurrentInputIndex = pCrossbar->GetInputIndex();
+          long CurrentInputType = pCrossbar->GetInputType(CurrentInputIndex);
+          SettingsPerChannel_VideoInputChange(this, 1, CurrentInputIndex, CurrentInputType == PhysConn_Video_Tuner);          
+          
+					pCrossbar->SetInputIndex(LOWORD(wParam)-IDM_CROSSBAR_INPUT0,isVideo);          
+          
+          SettingsPerChannel_VideoInputChange(this, 0, LOWORD(wParam)-IDM_CROSSBAR_INPUT0, isVideo == PhysConn_Video_Tuner);
 				}
 			}
 		}
@@ -773,7 +796,33 @@ eVideoFormat CDSSource::GetFormat()
 
 BOOL CDSSource::IsInTunerMode()
 {
-	return FALSE;
+  LOG(2,"DSSource: IsInTunerMode start");
+  if(m_pDSGraph==NULL)
+	{
+		return FALSE;
+	}
+	CDShowCaptureDevice *pCap=NULL;
+	if(m_pDSGraph->getSourceDevice()->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
+	{
+		pCap=(CDShowCaptureDevice*)m_pDSGraph->getSourceDevice();
+	}
+
+	if(pCap!=NULL)
+  {
+		  CDShowBaseCrossbar *pCrossbar=pCap->getCrossbar();
+		  if(pCrossbar!=NULL)
+      {
+	        LOG(2,"DSSource: IsInTunerMode?");
+          long CurrentInput = pCrossbar->GetInputIndex();
+          if (pCrossbar->GetInputType(CurrentInput) == PhysConn_Video_Tuner)
+          {
+             LOG(2,"DSSource: IsInTunerMode: Yes");
+             return TRUE;              
+          }
+          LOG(2,"DSSource: IsInTunerMode: No");
+      }
+  }
+  return FALSE;
 }
 
 int CDSSource::GetWidth()
@@ -788,12 +837,88 @@ int CDSSource::GetHeight()
 
 BOOL CDSSource::HasTuner()
 {
-	return FALSE;
+	if(m_pDSGraph==NULL)
+		return FALSE;
+	
+	CDShowBaseSource *pSrc=m_pDSGraph->getSourceDevice();
+	if(pSrc==NULL)
+		return FALSE;
+
+	CDShowCaptureDevice *pCap=NULL;
+	if(pSrc->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
+	{
+		pCap=(CDShowCaptureDevice*)pSrc;
+		if(pCap->getTVTuner() != NULL)
+    {
+        return TRUE;
+    }
+  }
+
+  return FALSE;
 }
+
 
 BOOL CDSSource::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
 {
-	return FALSE;
+	if(m_pDSGraph==NULL)
+		return FALSE;
+	
+	CDShowBaseSource *pSrc=m_pDSGraph->getSourceDevice();
+	if(pSrc==NULL)
+		return FALSE;
+
+	CDShowCaptureDevice *pCap=NULL;
+	if(pSrc->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
+	{
+		pCap=(CDShowCaptureDevice*)pSrc;
+    CDShowTVTuner *pTvTuner = pCap->getTVTuner();
+		if(pTvTuner == NULL) 
+      return FALSE;
+    
+    LOG(2,"DSSource: SetTunerFrequency: Found TVTuner");
+
+      //Choose a country with a unicable frequency table
+      int CountryCode = 31; 
+        
+      long lCurrentCountryCode = pTvTuner->getCountryCode();
+      if (CountryCode != lCurrentCountryCode)
+      {
+          LOG(2,"DSSource: SetTunerFrequency: Set country code");
+          pTvTuner->putCountryCode(CountryCode);
+      }
+
+      
+      TunerInputType pInputType = pTvTuner->getInputType();
+      TunerInputType pNewInputType = TunerInputCable; //unicable frequency table
+      
+      if (pInputType != pNewInputType)
+      {
+          LOG(2,"DSSource: SetTunerFrequency: Set input type");
+          pTvTuner->setInputType(pNewInputType); 
+      }
+      
+      // set video format
+      long lAnalogVideoStandard;
+      long lNewAnalogVideoStandard;
+      lAnalogVideoStandard = pCap->getTVFormat();
+
+      switch (VideoFormat)
+      {
+          case VIDEOFORMAT_PAL_B:
+          default:
+              lNewAnalogVideoStandard = AnalogVideo_PAL_B;
+              break;          
+      }
+
+      if (lAnalogVideoStandard != lNewAnalogVideoStandard)
+      {
+          LOG(2,"DSSource: SetTunerFrequency: pCap: Set TV format");
+          pCap->putTVFormat(lNewAnalogVideoStandard);
+      }
+      LOG(2,"DSSource: SetTunerFrequency: Set Frequency %d",FrequencyId);
+      return pTvTuner->setTunerFrequency(FrequencyId);
+  }
+  return FALSE;
 }
 
 BOOL CDSSource::IsVideoPresent()
@@ -1132,5 +1257,26 @@ void CDSSource::updateDroppedFields()
 	}
 	m_lastNumDroppedFrames=dropped;
 }
+
+void CDSSource::SettingsPerChannelSetup(int Start)
+{
+    if (Start)
+    {
+        SettingsPerChannel_RegisterSetSection(m_IDString.c_str());
+        SettingsPerChannel_RegisterSetting("DSBrightness","DShow - Brightness",TRUE, m_Brightness);
+        SettingsPerChannel_RegisterSetting("DSHue","DShow - Hue",TRUE, m_Hue);            
+        SettingsPerChannel_RegisterSetting("DSContrast","DShow - Contrast",TRUE, m_Contrast);        
+        SettingsPerChannel_RegisterSetting("DSSaturation","DShow - Saturation",TRUE, m_Saturation);
+
+        SettingsPerChannel_RegisterSetting("DSOverscan","DShow - Overscan",TRUE, m_Overscan);
+    }    
+    else
+    {
+        SettingsPerChannel_UnregisterSection(m_IDString.c_str());        
+    }
+}
+
+    
+
 
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CaptureDevice.h,v 1.8 2002-07-17 19:18:09 tobbej Exp $
+// $Id: CaptureDevice.h,v 1.9 2002-08-14 22:03:23 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/07/17 19:18:09  tobbej
+// try to connect the videoport pin first if there is one.
+// commented out unused ir code
+//
 // Revision 1.7  2002/04/16 15:30:53  tobbej
 // fixed dropped frames counter, previously it didnt find the IAMDroppedFrames when it was on one of the output pins
 //
@@ -64,6 +68,7 @@
 
 #include "DShowBaseSource.h"
 #include "SingleCrossbar.h"
+#include "DSTVTuner.h"
 
 /**
  * Exception class for CDShowCaptureDevice
@@ -98,6 +103,9 @@ public:
 	 * @return pointer to the crossbar
 	 */
 	CDShowBaseCrossbar* getCrossbar();
+
+  // IAMTVTuner
+  CDShowTVTuner *getTVTuner();  
 	
 	// IAMAnalogVideoDecoder
 	bool hasVideoDec() {return m_pAVideoDec!=NULL;}
@@ -122,6 +130,7 @@ private:
 	void findIAMDroppedFrames(CComPtr<IBaseFilter> filter);
 	bool m_bIsConnected;
 	CDShowBaseCrossbar *m_pCrossbar;
+  CDShowTVTuner *m_pTVTuner;
 
 	///video capture device
 	CComPtr<IBaseFilter> m_vidDev;

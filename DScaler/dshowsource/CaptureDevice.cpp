@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CaptureDevice.cpp,v 1.10 2002-08-10 16:52:00 tobbej Exp $
+// $Id: CaptureDevice.cpp,v 1.11 2002-08-14 22:03:23 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/08/10 16:52:00  tobbej
+// more videoport changes, hopfully this code works on both xp and non winxp os
+//
 // Revision 1.9  2002/07/29 17:41:44  tobbej
 // commented nonworking videoport code
 //
@@ -83,7 +86,7 @@ static char THIS_FILE[]=__FILE__;
 //////////////////////////////////////////////////////////////////////
 
 CDShowCaptureDevice::CDShowCaptureDevice(IGraphBuilder *pGraph,string device,string deviceName)
-:CDShowBaseSource(pGraph),m_bIsConnected(false),m_pCrossbar(NULL)
+:CDShowBaseSource(pGraph),m_bIsConnected(false),m_pCrossbar(NULL),m_pTVTuner(NULL)
 {
 	USES_CONVERSION;
 	
@@ -123,6 +126,12 @@ CDShowCaptureDevice::~CDShowCaptureDevice()
 	{
 		delete m_pCrossbar;
 		m_pCrossbar=NULL;
+	}
+
+  if(m_pTVTuner!=NULL)
+	{
+		delete m_pTVTuner;
+		m_pTVTuner=NULL;
 	}
 }
 
@@ -313,6 +322,36 @@ CDShowBaseCrossbar* CDShowCaptureDevice::getCrossbar()
 		}
 	}
 	return m_pCrossbar;
+}
+
+CDShowTVTuner *CDShowCaptureDevice::getTVTuner()
+{
+	LOG(2,"DShowCaptureDevice: getTVTuner");
+  if(m_pTVTuner==NULL)
+	{
+		LOG(2,"DShowCaptureDevice: find TVTuner");
+
+    CComPtr<IAMTVTuner> pTVTuner;
+    //FindInterface adds any nessesary filters upstream of the videocapture device
+		//like tvtunners and crossbars
+		HRESULT hr=m_pBuilder->FindInterface(&PIN_CATEGORY_CAPTURE,&MEDIATYPE_Interleaved,m_vidDev,IID_IAMTVTuner,(void**)&pTVTuner);
+    if(hr != S_OK) 
+    {
+        hr = m_pBuilder->FindInterface(&PIN_CATEGORY_CAPTURE,&MEDIATYPE_Video,m_vidDev,IID_IAMTVTuner,(void**)&pTVTuner);
+    }
+      
+		if(SUCCEEDED(hr))
+		{
+			m_pTVTuner=new CDShowTVTuner(pTVTuner, m_pGraph);
+      LOG(2,"DShowCaptureDevice: getTVTuner found");
+		}    
+    else
+    {
+      LOG(2,"DShowCaptureDevice: getTVTuner not found");
+    }
+	}	
+  LOG(2,"DShowCaptureDevice: getTVTuner (%s)",(m_pTVTuner==NULL)?"Failed":"Ok");
+  return m_pTVTuner;
 }
 
 long CDShowCaptureDevice::getSupportedTVFormats()

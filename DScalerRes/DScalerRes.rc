@@ -1234,9 +1234,11 @@ BEGIN
         MENUITEM "St&op Video",                 IDM_OVERLAY_STOP
         MENUITEM "St&art video",                IDM_OVERLAY_START
         MENUITEM SEPARATOR
-        MENUITEM "Take Sti&ll Picture\tL",      IDM_TAKESTILL
-        MENUITEM "Take C&yclic Still Pictures", IDM_TAKECYCLICSTILL
-        MENUITEM "Take Stream Snapshot\tShift+L", IDM_TAKESTREAMSNAP
+        MENUITEM "Take One Sti&ll Picture\tL",  IDM_TAKESTILL
+        MENUITEM "Take P&eriodic Still Pictures", IDM_TAKECYCLICSTILL
+        MENUITEM "Take 24 &Consecutive Still Pictures", 
+                                                IDM_TAKECONSECUTIVESTILL
+        MENUITEM "Take &Stream Snapshot\tShift+L", IDM_TAKESTREAMSNAP
         POPUP "&TimeShift (under construction)"
         BEGIN
             MENUITEM "&Record\tShift+R",            IDM_TSRECORD
@@ -1447,7 +1449,7 @@ BEGIN
     BEGIN
         MENUITEM "&Close",                      IDM_CLOSE_FILE
         MENUITEM "Cl&ose All",                  IDM_CLOSE_ALL
-        MENUITEM "Sa&ve Item in File",          IDM_SAVE_IN_FILE
+        MENUITEM "Sa&ve Still in File",         IDM_SAVE_IN_FILE
         MENUITEM "S&ave Playlist As ...",       IDM_PLAYLIST_SAVE
         MENUITEM SEPARATOR
         MENUITEM "F&iles",                      IDM_PLAYLIST_FILES

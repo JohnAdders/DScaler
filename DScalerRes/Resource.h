@@ -1132,6 +1132,7 @@
 #define IDM_SAA7134_COMBFILTER          32837
 #define IDM_THREAD_DBG                  32838
 #define IDM_SAVE_IN_FILE                32839
+#define IDM_TAKECONSECUTIVESTILL        32840
 #define IDC_STATIC                      -1
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
@@ -1153,7 +1154,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        254
-#define _APS_NEXT_COMMAND_VALUE         32840
+#define _APS_NEXT_COMMAND_VALUE         32841
 #define _APS_NEXT_CONTROL_VALUE         8069
 #define _APS_NEXT_SYMED_VALUE           2491
 #endif

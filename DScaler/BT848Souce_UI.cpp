@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.14 2002-01-24 00:00:13 robmuller Exp $
+// $Id: BT848Souce_UI.cpp,v 1.15 2002-02-08 08:13:17 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/01/24 00:00:13  robmuller
+// Added bOptimizeFileAccess flag to WriteToIni from the settings classes.
+//
 // Revision 1.13  2002/01/12 16:56:21  adcockj
 // Series of fixes to bring 4.0.0 into line with 3.1.1
 //
@@ -269,9 +272,28 @@ BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam,
 void CBT848Source::SetMenu(HMENU hMenu)
 {
     int i;
-	
+    MENUITEMINFO MenuItemInfo;
+    char Buffer[265];
+
+    // set up the input menu
     for(i = 0;i < m_pBT848Card->GetNumInputs(); ++i)
     {
+        // reset the menu info structure
+        memset(&MenuItemInfo, 0, sizeof(MenuItemInfo));
+        MenuItemInfo.cbSize = sizeof(MenuItemInfo);
+        MenuItemInfo.fMask = MIIM_TYPE;
+
+        // get the size of the string
+        GetMenuItemInfo(m_hMenu, IDM_SOURCE_INPUT1 + i, FALSE, &MenuItemInfo);
+        // set the buffer and get the current string
+        MenuItemInfo.dwTypeData = Buffer;
+        GetMenuItemInfo(m_hMenu, IDM_SOURCE_INPUT1 + i, FALSE, &MenuItemInfo);
+        // create the new string and correct the menu
+        sprintf(Buffer, "%s\tCtrl+Alt+F%d",m_pBT848Card->GetInputName(i), i + 1);
+        MenuItemInfo.cch = strlen(Buffer);
+        SetMenuItemInfo(m_hMenu, IDM_SOURCE_INPUT1 + i, FALSE, &MenuItemInfo);
+        
+        // enable the menu and check it appropriately
         EnableMenuItem(m_hMenu, IDM_SOURCE_INPUT1 + i, MF_ENABLED);
         CheckMenuItemBool(m_hMenu, IDM_SOURCE_INPUT1 + i, (m_VideoSource->GetValue() == i));
 	}

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Audio.cpp,v 1.33 2002-12-13 20:35:12 tobbej Exp $
+// $Id: Audio.cpp,v 1.34 2002-12-14 01:46:15 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2002/12/13 20:35:12  tobbej
+// added new asssert to audio_unmute (SetTimer shoud not be called from output thread)
+//
 // Revision 1.32  2002/12/13 02:50:48  atnak
 // Added error protection to Anti-Plop unmute delay timer
 //
@@ -130,9 +133,9 @@
 #include "Status.h"
 #include "MixerDev.h"
 #include "Providers.h"
-#include "OutThreads.h"
 
 CRITICAL_SECTION AudioMuteCriticalSection;
+DWORD dwTimerProcThreadId = 0;
 BYTE AudioMuteStatus = 0;
 BOOL bUserMute = FALSE;
 
@@ -149,6 +152,9 @@ void Initialize_Mute()
     // be in future if Audio_Mute/Unmute are going
     // to be used asynchronously.
     InitializeCriticalSection(&AudioMuteCriticalSection);
+
+    // Set the timer proc to only be called on this thread
+    dwTimerProcThreadId = GetCurrentThreadId();
 
     Audio_Mute();
 
@@ -194,7 +200,6 @@ void Audio_Mute(DWORD PostMuteDelay)
 
 void Audio_Unmute(DWORD PreUnmuteDelay)
 {
-	ASSERTONOUTTHREAD;
     EnterCriticalSection(&AudioMuteCriticalSection);
 
     if(AudioMuteStatus > 0)
@@ -205,9 +210,10 @@ void Audio_Unmute(DWORD PreUnmuteDelay)
             // mute structure, automatically finds the longest
             // delay time for us if there are multiple unmutes
             // around the same time.
-            if(!SetTimer(NULL, NULL, PreUnmuteDelay, AudioUnmuteDelayTimerProc))
+            if(GetCurrentThreadId() != dwTimerProcThreadId ||
+                !SetTimer(NULL, NULL, PreUnmuteDelay, AudioUnmuteDelayTimerProc))
             {
-                // If we failed to start the timer, do the unmuting now.
+                // Timer creation failed so do the unmute now.
                 PreUnmuteDelay = 0;
             }
         }

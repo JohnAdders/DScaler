@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.50 2001-07-28 13:24:40 adcockj Exp $
+// $Id: DScaler.cpp,v 1.51 2001-07-30 22:44:04 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.50  2001/07/28 13:24:40  adcockj
+// Added UI for Overlay Controls and fixed issues with SettingsDlg
+//
 // Revision 1.49  2001/07/27 16:11:32  adcockj
 // Added support for new Crash dialog
 //
@@ -712,12 +715,12 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_VSATURATION_MINUS:
-            Setting_Down(BT848_GetSetting(SATURATIONU));
+            Setting_Down(BT848_GetSetting(SATURATIONV));
             SendMessage(hWnd, WM_COMMAND, IDM_VSATURATION_CURRENT, 0);
             break;
 
         case IDM_VSATURATION_CURRENT:
-            Setting_OSDShow(BT848_GetSetting(SATURATIONU), hWnd);
+            Setting_OSDShow(BT848_GetSetting(SATURATIONV), hWnd);
             break;
 
         case IDM_COLOR_PLUS:

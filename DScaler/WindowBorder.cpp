@@ -1,5 +1,5 @@
 //
-// $Id: WindowBorder.cpp,v 1.2 2002-09-26 16:34:19 kooiman Exp $
+// $Id: WindowBorder.cpp,v 1.3 2002-09-29 10:07:39 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/09/26 16:34:19  kooiman
+// Lots of toolbar fixes &added EVENT_VOLUME support.
+//
 // Revision 1.1  2002/09/25 22:32:35  kooiman
 // Skinned window border.
 //
@@ -554,7 +557,7 @@ void CWindowBorder::MergeBorderRegions(vector<LPRECT> *AllRegions, LPRECT lpRcEx
      POINT *pRowList = NULL;
      POINT *p;
      int *pRowListSize = NULL;
-     LPRECT lpRc;
+     //LPRECT lpRc;
 
      //Process top lines
      if (TopSize > 0)

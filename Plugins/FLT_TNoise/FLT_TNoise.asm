@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TNoise.asm,v 1.4 2001-11-21 15:21:41 adcockj Exp $
+// $Id: FLT_TNoise.asm,v 1.5 2001-11-22 22:27:00 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Steven Grimm.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/11/21 15:21:41  adcockj
+// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
+// Changed TDeinterlaceInfo structure to have history of pictures.
+//
 // Revision 1.3  2001/07/13 16:13:33  adcockj
 // Added CVS tags and removed tabs
 //
@@ -46,15 +50,23 @@ long FilterTemporalNoise_3DNOW(TDeinterlaceInfo* pInfo)
 long FilterTemporalNoise_MMX(TDeinterlaceInfo* pInfo)
 #endif
 {
-    BYTE* NewLine = pInfo->PictureHistory[0]->pData;
-    BYTE* OldLine = pInfo->PictureHistory[2]->pData;
-
+    BYTE* NewLine; 
+	BYTE* OldLine;
     int y;
     int Cycles;
     __int64 qwNoiseThreshold;
 #ifdef IS_MMX
     const __int64 qwAvgMask = 0xFEFEFEFEFEFEFEFE;
 #endif
+	
+	
+	if(pInfo->PictureHistory[0] == NULL || pInfo->PictureHistory[2] == NULL)
+	{
+		return 1000;
+	}
+
+	NewLine = pInfo->PictureHistory[0]->pData;
+	OldLine = pInfo->PictureHistory[2]->pData;
 
     // Need to have the current and next-to-previous fields to do the filtering.
     if (NewLine == NULL || OldLine == NULL)

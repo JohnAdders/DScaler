@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_50Hz.cpp,v 1.20 2001-11-22 13:32:03 adcockj Exp $
+// $Id: FD_50Hz.cpp,v 1.21 2001-11-22 22:27:00 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2001/11/22 13:32:03  adcockj
+// Finished changes caused by changes to TDeinterlaceInfo - Compiles
+//
 // Revision 1.19  2001/11/21 15:21:39  adcockj
 // Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
 // Changed TDeinterlaceInfo structure to have history of pictures.
@@ -107,7 +110,6 @@ void UpdatePALPulldownMode(TDeinterlaceInfo* pInfo)
     static long PrivateRepeatCount = PALPulldownRepeatCount;
     static long NotSureCount = 0;
     static BOOL NeedToCheckComb = FALSE;
-    BOOL IsOdd = ((pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD) > 0);
 
     // call with pInfo as NULL to reset static variables when we start the thread
     // each time
@@ -125,6 +127,13 @@ void UpdatePALPulldownMode(TDeinterlaceInfo* pInfo)
         NeedToCheckComb = FALSE;
         return;
     }
+
+	if(pInfo->PictureHistory[0] == NULL)
+	{
+		return;
+	}
+
+    BOOL IsOdd = ((pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD) > 0);
     
     if(pInfo->CombFactor < 0 || pInfo->FieldDiff < 0)
     {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_TwoFrame.asm,v 1.3 2001-11-21 15:21:41 adcockj Exp $
+// $Id: DI_TwoFrame.asm,v 1.4 2001-11-22 22:27:00 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Steven Grimm.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/11/21 15:21:41  adcockj
+// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
+// Changed TDeinterlaceInfo structure to have history of pictures.
+//
 // Revision 1.2  2001/07/13 16:13:33  adcockj
 // Added CVS tags and removed tabs
 //
@@ -141,8 +145,9 @@ BOOL DeinterlaceFieldTwoFrame_MMX(TDeinterlaceInfo* pInfo)
 
     for (Line = 0; Line < pInfo->FieldHeight - 1; ++Line)
     {
-       _asm
-       {
+		BYTE* Dest2 = Dest;
+		_asm
+		{
             // We'll be using a couple registers that have meaning in the C code, so
             // save them.
             mov OldSI, esi
@@ -267,7 +272,7 @@ MAINLOOP_LABEL:
             // to hold all our pointers at once.
             add edi, 8
             mov dword ptr[OVal2], edi
-            mov edi, dword ptr[Dest]
+            mov edi, dword ptr[Dest2]
 
            // Put the pixels in place.
 #ifdef IS_SSE
@@ -283,7 +288,7 @@ MAINLOOP_LABEL:
             add esi, 8
             add esp, 8
             add edi, 8
-            mov dword ptr[Dest], edi
+            mov dword ptr[Dest2], edi
             dec ecx
             jne near MAINLOOP_LABEL
 

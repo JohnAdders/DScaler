@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.6 2001-11-22 13:32:03 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.7 2001-11-22 22:27:00 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/11/22 13:32:03  adcockj
+// Finished changes caused by changes to TDeinterlaceInfo - Compiles
+//
 // Revision 1.5  2001/11/21 15:21:39  adcockj
 // Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
 // Changed TDeinterlaceInfo structure to have history of pictures.
@@ -493,9 +496,6 @@ void CBT848Source::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     {
     }
 
-    // auto input detect
-    Timimg_AutoFormatDetect(pInfo);
-
     memmove(&pInfo->PictureHistory[1], &pInfo->PictureHistory[0], sizeof(pInfo->PictureHistory) - sizeof(pInfo->PictureHistory[0]));
     if(m_IsFieldOdd)
     {
@@ -526,6 +526,8 @@ void CBT848Source::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     pInfo->FieldHeight = m_CurrentY / 2;
     pInfo->InputPitch = 4096;
 
+    // auto input detect
+    Timimg_AutoFormatDetect(pInfo);
 }
 
 int CBT848Source::GetWidth()
@@ -546,7 +548,7 @@ CBT848Card* CBT848Source::GetBT848Card()
 
 LPCSTR CBT848Source::GetStatus()
 {
-    LPCSTR pRetVal = "";
+    static LPCSTR pRetVal = "";
     if (!m_pBT848Card->IsVideoPresent())
     {
         pRetVal = "No Video Signal Found";
@@ -562,7 +564,7 @@ LPCSTR CBT848Source::GetStatus()
             pRetVal = VPSLastName;
         }
     }
-    return VPSLastName;
+    return pRetVal;
 }
 
 int CBT848Source::GetRISCPosAsInt()

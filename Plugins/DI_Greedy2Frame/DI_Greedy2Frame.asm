@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_Greedy2Frame.asm,v 1.6 2001-11-21 15:21:40 adcockj Exp $
+// $Id: DI_Greedy2Frame.asm,v 1.7 2001-11-22 22:27:00 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock, Tom Barry, Steve Grimm  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/11/21 15:21:40  adcockj
+// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
+// Changed TDeinterlaceInfo structure to have history of pictures.
+//
 // Revision 1.5  2001/07/31 06:48:33  adcockj
 // Fixed index bug spotted by Peter Gubanov
 //
@@ -67,6 +71,7 @@ BOOL DeinterlaceGreedy2Frame_MMX(TDeinterlaceInfo* pInfo)
     BYTE* T1;
     BYTE* B1;
     BYTE* B0;
+	BYTE* B0UseInAsm;
     DWORD OldSI;
     DWORD OldSP;
     BYTE* Dest = pInfo->Overlay;
@@ -119,6 +124,7 @@ BOOL DeinterlaceGreedy2Frame_MMX(TDeinterlaceInfo* pInfo)
         Dest += pInfo->OverlayPitch;
         Dest2 = Dest;
 
+		B0UseInAsm = B0;
         _asm
         {
             // We'll be using a couple registers that have meaning in the C code, so
@@ -141,7 +147,7 @@ BOOL DeinterlaceGreedy2Frame_MMX(TDeinterlaceInfo* pInfo)
 align 8
 MAINLOOP_LABEL:
 
-            mov edi, dword ptr [B0]
+            mov edi, dword ptr [B0UseInAsm]
             movq    mm1, qword ptr[eax]     // T1
             movq    mm0, qword ptr[ebx]     // M1
             movq    mm3, qword ptr[edx]     // B1
@@ -237,7 +243,7 @@ MAINLOOP_LABEL:
 
             // Get the dest pointer.
             add edi, 8
-            mov dword ptr[B0], edi
+            mov dword ptr[B0UseInAsm], edi
             mov edi, dword ptr[Dest2]
 
             pcmpgtd mm4, DwordTwo

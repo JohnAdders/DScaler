@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.38 2001-11-22 13:19:37 temperton Exp $
+// $Id: OSD.cpp,v 1.39 2001-11-22 22:27:00 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.38  2001/11/22 13:19:37  temperton
+// Added CPaintingHDC class for double buffering painting
+//
 // Revision 1.37  2001/11/21 12:32:11  adcockj
 // Renamed CInterlacedSource to CSource in preparation for changes to DEINTERLACE_INFO
 //
@@ -726,6 +729,8 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
         // Video input + video format
         OSD_AddText(pSource->GetStatus(), Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
+		// TODO fix this to get correct details
+        strcpy (szInfo, "Input ??? -");
         if (Setting_GetValue(Audio_GetSetting(SYSTEMINMUTE)) == TRUE)
         {
             strcat (szInfo, " - MUTE");

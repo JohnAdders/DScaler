@@ -251,7 +251,7 @@ END
 IDD_CHANNELLIST DIALOGEX 22, 17, 357, 241
 STYLE DS_MODALFRAME | DS_SETFOREGROUND | DS_3DLOOK | WS_VISIBLE | WS_CAPTION
 CAPTION "Channel List"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     LISTBOX         IDC_PROGRAMLIST,10,10,100,182,LBS_NOINTEGRALHEIGHT | 
                     LBS_WANTKEYBOARDINPUT | WS_VSCROLL | WS_TABSTOP
@@ -1447,7 +1447,8 @@ BEGIN
     BEGIN
         MENUITEM "&Close",                      IDM_CLOSE_FILE
         MENUITEM "Cl&ose All",                  IDM_CLOSE_ALL
-        MENUITEM "S&ave As ...",                IDM_PLAYLIST_SAVE
+        MENUITEM "Sa&ve Item in File",          IDM_SAVE_IN_FILE
+        MENUITEM "S&ave Playlist As ...",       IDM_PLAYLIST_SAVE
         MENUITEM SEPARATOR
         MENUITEM "F&iles",                      IDM_PLAYLIST_FILES
         MENUITEM SEPARATOR

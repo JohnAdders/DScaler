@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.31 2002-10-26 05:24:23 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.32 2002-10-26 16:18:34 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2002/10/26 05:24:23  atnak
+// Minor cleanups
+//
 // Revision 1.30  2002/10/26 04:42:50  atnak
 // Added AGC config and automatic volume leveling control
 //
@@ -392,6 +395,14 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
     m_VideoMirror = new CVideoMirrorSetting(this, "Mirroring", FALSE, IniSection);
     m_Settings.push_back(m_VideoMirror);
 
+#ifdef _DEBUG    
+    if (SAA7134_SETTING_LASTONE != m_Settings.size())
+    {
+        LOGD("Number of settings in SAA7134 source is not equal to the number of settings in DS_Control.h");
+        LOGD("DS_Control.h or SAA7134Source.cpp are probably not in sync with eachother.");
+    }
+#endif
+
     ReadFromIni();
 }
 
@@ -704,9 +715,13 @@ void CSAA7134Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
     m_LastFieldIndex = FieldIndex;
 
     if (RegionID2TaskID(RegionID) == TASKID_A)
+    {
         m_CurrentFrame = 0;
+    }
     else
+    {
         m_CurrentFrame = 1;
+    }
 
     m_IsFieldOdd = bIsFieldOdd;
 }
@@ -747,10 +762,10 @@ void CSAA7134Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
         SkippedFields = (4 + FieldIndex - m_LastFieldIndex - 1) % 4;
     }
 
-    if(SkippedFields == 0)
+    if (SkippedFields == 0)
     {
     }
-    else if(SkippedFields == 1)
+    else if (SkippedFields == 1)
     {
         m_ProcessingRegionID = RegionID;
         m_IsProcessingFieldOdd = bIsFieldOdd;
@@ -760,7 +775,7 @@ void CSAA7134Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
         LOG(2, " Slightly late");
     }
     // This might not be possible with only a 4 field cycle
-    else if(SkippedFields == 2)
+    else if (SkippedFields == 2)
     {
         m_ProcessingRegionID = RegionID;
         m_IsProcessingFieldOdd = bIsFieldOdd;
@@ -782,16 +797,20 @@ void CSAA7134Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
     m_LastFieldIndex = FieldIndex;
 
     if (RegionID2TaskID(RegionID) == TASKID_A)
+    {
         m_CurrentFrame = 0;
+    }
     else
+    {
         m_CurrentFrame = 1;
+    }
 
     m_IsFieldOdd = bIsFieldOdd;
 
     // we've just got a new field
     // we are going to time the odd to odd
     // input frequency
-    if(m_IsFieldOdd)
+    if (m_IsFieldOdd)
     {
         Timing_UpdateRunningAverage(pInfo, 2);
     }

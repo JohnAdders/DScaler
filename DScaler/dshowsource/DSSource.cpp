@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.33 2002-08-21 20:29:20 kooiman Exp $
+// $Id: DSSource.cpp,v 1.34 2002-08-27 22:09:39 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2002/08/21 20:29:20  kooiman
+// Fixed settings and added setting for resolution. Fixed videoformat==lastone in dstvtuner.
+//
 // Revision 1.32  2002/08/20 16:21:28  tobbej
 // split CDSSource into 3 different classes
 //
@@ -246,7 +249,8 @@ resolutionType res[]=
 CDSCaptureSource::CDSCaptureSource(string device,string deviceName) :
 	CDSSourceBase(0,IDC_DSHOWSOURCEMENU),
 	m_device(device),
-	m_deviceName(deviceName)
+	m_deviceName(deviceName),
+  m_HaveInputList(FALSE)
 {
 	m_IDString = std::string("DS_") + device;
 	CreateSettings(device.c_str());
@@ -1046,7 +1050,7 @@ void CDSCaptureSource::VideoInputOnChange(long NewValue, long OldValue)
 			if(pCrossbar!=NULL)
 			{							        
         PhysicalConnectorType OldInputType = pCrossbar->GetInputType(OldValue);
-        SettingsPerChannel_VideoInputChange(this,1,OldValue,(OldInputType == PhysConn_Video_Tuner));
+        NotifyInputChange(1, VIDEOINPUT, OldValue, NewValue);
         
         LOG(2,"DSCaptureSource: Set video input to %d", NewValue);
         
@@ -1060,7 +1064,7 @@ void CDSCaptureSource::VideoInputOnChange(long NewValue, long OldValue)
 				
 				PhysicalConnectorType NewInputType = pCrossbar->GetInputType(NewValue);
 
-        SettingsPerChannel_VideoInputChange(this,0,NewValue,(NewInputType == PhysConn_Video_Tuner));
+        NotifyInputChange(0, VIDEOINPUT, OldValue, NewValue);
 
         if(NewInputType == PhysConn_Video_Tuner)
 				{
@@ -1203,5 +1207,218 @@ void CDSCaptureSource::ResolutionOnChange(long NewValue, long OldValue)
 {
     //
 }
+
+int  CDSCaptureSource::NumInputs(eSourceInputType InputType)
+{
+  if(m_pDSGraph==NULL)
+	{
+		return 0;
+	}
+	//this shoud always succeed
+	CDShowCaptureDevice *pCap=NULL;
+	if(m_pDSGraph->getSourceDevice()->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
+	{
+		pCap=(CDShowCaptureDevice*)m_pDSGraph->getSourceDevice();
+	}
+	if (pCap == NULL) { return 0; }
+	
+  if (!m_HaveInputList)
+  {                    
+      m_VideoInputList.clear();
+      m_AudioInputList.clear();
+      try
+      {
+         CDShowBaseCrossbar *pCrossbar=pCap->getCrossbar();
+			   if(pCrossbar==NULL)
+           return 0;
+              
+         long cIn,cOut;
+		     pCrossbar->GetPinCounts(cIn,cOut);
+		     for(int i=0;i<cIn;i++)
+		     {			    
+       			//is it an audio or video input?
+      	  		if(pCrossbar->GetInputType(i)<4096)
+              {
+                  m_VideoInputList.push_back(i);                      
+              }
+              else
+              {
+                  m_AudioInputList.push_back(i);                      
+              }                            
+          } 
+          m_HaveInputList = TRUE;
+      }
+      catch(CDShowException &e)
+	    {
+		      LOG(1,"DSCaptureSource: NumInputs: Error: %s",e.getErrorText());
+          return 0;
+      }      
+  }
+
+  if (InputType == VIDEOINPUT)
+  {
+	   return m_VideoInputList.size();      
+  }
+  else
+  {
+     return m_AudioInputList.size();      
+  }  
+  return 0;
+}
+
+BOOL CDSCaptureSource::SetInput(eSourceInputType InputType, int Nr)
+{
+  if (!m_HaveInputList)
+  {          
+      NumInputs(InputType);   // Make input list
+  }      
+  if (InputType == VIDEOINPUT)
+  {
+      if ((Nr>=0) && (Nr < m_VideoInputList.size()))
+      {          
+          m_VideoInput->SetValue(m_VideoInputList[Nr]);
+          /// \todo Should check if this failed
+          return TRUE;
+      }
+      return FALSE;
+  }
+  else if (InputType == AUDIOINPUT)
+  {
+      if ((Nr>=0) && (Nr < m_AudioInputList.size()))
+      {          
+          m_AudioInput->SetValue(m_AudioInputList[Nr]);
+          /// \todo Should check if this failed
+          return TRUE;
+      }
+      return FALSE;
+  }
+  return FALSE;
+}
+
+int  CDSCaptureSource::GetInput(eSourceInputType InputType)
+{
+  if (!m_HaveInputList)
+  {          
+      NumInputs(InputType);   // Make input list
+  }      
+
+  if (InputType == VIDEOINPUT)
+  {
+      int i;
+      for (i = 0; i < m_VideoInputList.size(); i++)
+      {
+          if (m_VideoInputList[i] == m_VideoInput->GetValue())
+          {
+              return i;
+          }
+      }      
+  }
+  else if (InputType == AUDIOINPUT)
+  {
+      int i;
+      for (i = 0; i < m_AudioInputList.size(); i++)
+      {
+          if (m_AudioInputList[i] == m_AudioInput->GetValue())
+          {
+              return i;
+          }
+      }      
+  }
+  return -1;
+}
+
+const char* CDSCaptureSource::GetInputName(eSourceInputType InputType, int Nr)
+{
+  if(m_pDSGraph==NULL)
+	{
+		return NULL;
+	}
+	//this shoud always succeed
+	CDShowCaptureDevice *pCap=NULL;
+	if(m_pDSGraph->getSourceDevice()->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
+	{
+		pCap=(CDShowCaptureDevice*)m_pDSGraph->getSourceDevice();
+	}
+	if (pCap == NULL) { return NULL; }
+  
+  if (!m_HaveInputList)
+  {
+     // Make input list
+     NumInputs(InputType);   
+  }      
+  char *szName = NULL;
+  if ((InputType == VIDEOINPUT) || (InputType == AUDIOINPUT))
+  {
+      if ( (Nr>=0) &&  (   ((InputType == VIDEOINPUT) && (Nr < m_VideoInputList.size()))
+                        || ((InputType == AUDIOINPUT) && (Nr < m_AudioInputList.size())) ) 
+         )
+      {
+        	try {            
+			        CDShowBaseCrossbar *pCrossbar=pCap->getCrossbar();
+			        if(pCrossbar==NULL)
+                return NULL;
+              
+              int nInputNumber;
+              if (InputType == VIDEOINPUT)
+              {
+                  nInputNumber = m_VideoInputList[ Nr ];
+              }
+              else
+              {
+                  nInputNumber = m_AudioInputList[ Nr ];
+              }
+              szName = pCrossbar->GetInputName(nInputNumber);
+          } catch(CDShowException &e)
+	        {
+		          LOG(1,"DSCaptureSource: GetInputName: Error: %s",e.getErrorText());
+          }
+      }
+  }
+  return (const char*)szName;
+}
+
+BOOL CDSCaptureSource::InputHasTuner(eSourceInputType InputType, int Nr)
+{
+  if(m_pDSGraph==NULL)
+	{
+		return FALSE;
+	}
+	//this shoud always succeed
+	CDShowCaptureDevice *pCap=NULL;
+	if(m_pDSGraph->getSourceDevice()->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
+	{
+		pCap=(CDShowCaptureDevice*)m_pDSGraph->getSourceDevice();
+	}
+	if (pCap == NULL) { return FALSE; }
+
+  
+  if (InputType == VIDEOINPUT)
+  {
+      if (!m_HaveInputList)
+      {
+          NumInputs(InputType);   
+      }      
+
+      if ((Nr>=0) && (Nr < m_VideoInputList.size()))
+      {
+        	try {            
+              CDShowBaseCrossbar *pCrossbar=pCap->getCrossbar();
+			        if(pCrossbar==NULL)
+                return FALSE;
+              
+			        if (pCrossbar->GetInputType(m_VideoInputList[Nr]) == PhysConn_Video_Tuner)
+					    {
+                  return TRUE;
+              }
+          } catch(CDShowException &e)
+	        {
+		          LOG(1,"DSCaptureSource: InputHasTuner: Error: %s",e.getErrorText());
+          }
+      }
+   }
+
+  return FALSE;
+}
+
 
 #endif

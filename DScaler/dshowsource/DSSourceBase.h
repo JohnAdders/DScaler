@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.h,v 1.3 2002-08-26 18:25:10 adcockj Exp $
+// $Id: DSSourceBase.h,v 1.4 2002-08-27 22:09:39 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/08/26 18:25:10  adcockj
+// Fixed problem with PAL/NTSC detection
+//
 // Revision 1.2  2002/08/21 20:29:20  kooiman
 // Fixed settings and added setting for resolution. Fixed videoformat==lastone in dstvtuner.
 //
@@ -61,7 +64,7 @@ public:
 
 	BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
 
-    void SetFormat(eVideoFormat NewFormat) = {};
+    void SetFormat(eVideoFormat NewFormat) {};
 	
 	void Mute();
 	void UnMute();

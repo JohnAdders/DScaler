@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSFileSource.h,v 1.1 2002-08-20 16:21:28 tobbej Exp $
+// $Id: DSFileSource.h,v 1.2 2002-08-27 22:09:39 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/08/20 16:21:28  tobbej
+// split CDSSource into 3 different classes
+//
 /////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -75,6 +78,12 @@ public:
 	BOOL HasSquarePixels();
 	void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff) {;};
 	eVideoFormat GetFormat();
+
+  int  NumInputs(eSourceInputType InputType) { return 0; };
+  BOOL SetInput(eSourceInputType InputType, int Nr) { return FALSE; };
+  int GetInput(eSourceInputType InputType) { return -1; };
+  const char* GetInputName(eSourceInputType InputType, int Nr) { return NULL; };
+  BOOL InputHasTuner(eSourceInputType InputType, int Nr) { return FALSE; };
 	
 	void UpdateMenu();
 	void SetMenu(HMENU hMenu);

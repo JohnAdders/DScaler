@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.h,v 1.22 2002-08-21 20:29:20 kooiman Exp $
+// $Id: DSSource.h,v 1.23 2002-08-27 22:09:39 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2002/08/21 20:29:20  kooiman
+// Fixed settings and added setting for resolution. Fixed videoformat==lastone in dstvtuner.
+//
 // Revision 1.21  2002/08/20 16:21:28  tobbej
 // split CDSSource into 3 different classes
 //
@@ -154,6 +157,13 @@ public:
 	BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat);
 	BOOL IsVideoPresent();
 
+  int  NumInputs(eSourceInputType InputType);
+  BOOL SetInput(eSourceInputType InputType, int Nr);
+  int GetInput(eSourceInputType InputType);
+  const char* GetInputName(eSourceInputType InputType, int Nr);
+  BOOL InputHasTuner(eSourceInputType InputType, int Nr);
+
+
     void UpdateMenu() {return;};
 	void SetMenu(HMENU hMenu);
 	BOOL IsAccessAllowed();
@@ -181,6 +191,10 @@ public:
 private:
 	string m_device;
 	string m_deviceName;
+  BOOL   m_HaveInputList;
+  vector<int> m_VideoInputList;
+  vector<int> m_AudioInputList;
+
 
 	DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, Brightness);
 	DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, Contrast);

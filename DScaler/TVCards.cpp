@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TVCards.cpp,v 1.20 2001-07-25 02:24:03 dschmelzer Exp $
+// $Id: TVCards.cpp,v 1.21 2001-07-27 10:54:23 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // The structures where taken from bttv driver version 7.37
 // bttv - Bt848 frame grabber driver
@@ -33,6 +33,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2001/07/25 02:24:03  dschmelzer
+// Add support for Sasem 4 Channel developer card with s-video jumper chosen
+//
 // Revision 1.19  2001/07/16 18:07:50  adcockj
 // Added Optimisation parameter to ini file saving
 //
@@ -658,7 +661,8 @@ const TCardSetup TVCards[TVCARD_LASTONE] =
         // Lukas Gebauer <geby@volny.cz>
         "ATI TV-Wonder",
         3, 1, 0, 2, 0xf03f,
-        { 2, 3, 0, 1, 0, 0, 0, 0},
+        // TODO: check this 3.0.0 { 2, 3, 0, 1, 0, 0, 0, 0},
+        { 2, 3, 1, 0, 0, 0, 0, 0},
         { 0xbffe, 0, 0xbfff, 0, 0xbffe, 0},
         0,
         PLL_28,

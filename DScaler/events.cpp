@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: events.cpp,v 1.8 2002-12-04 15:15:25 adcockj Exp $
+// $Id: events.cpp,v 1.9 2002-12-04 15:20:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/12/04 15:15:25  adcockj
+// Checked in test code by accident
+//
 // Revision 1.7  2002/12/02 17:06:29  adcockj
 // Changed Events to use messages instead of timer
 //
@@ -383,7 +386,7 @@ void CEventCollector::ScheduleEvent(CEventObject *pEventObject, eEventType Event
 	m_ScheduledEventList.push_back(ei);	
 	LeaveCriticalSection(&m_EventCriticalSection);
 
-    PostMessage(hWnd, UWM_EVENTADDEDTOQUEUE, 0, 0);
+    SendMessage(hWnd, UWM_EVENTADDEDTOQUEUE, 0, 0);
 }
 
 

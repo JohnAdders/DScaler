@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.44 2001-12-16 16:31:43 adcockj Exp $
+// $Id: OSD.cpp,v 1.45 2002-01-19 19:09:37 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.44  2001/12/16 16:31:43  adcockj
+// Bug fixes
+//
 // Revision 1.43  2001/12/16 13:13:34  laurentg
 // New statistics
 //
@@ -265,8 +268,10 @@ void OSD_ClearAllTexts()
 }
 
 //---------------------------------------------------------------------------
-// Add a new text to the list of texts for OSD
-void OSD_AddText(LPCTSTR szText, double Size, long NewTextColor, long BackgroundColor, eOSDBackground BackgroundMode, eOSDTextXPos TextXPos, double XPos, double YPos)
+// Add a new single line of text to the list of texts for OSD
+void OSD_AddTextSingleLine(LPCTSTR szText, double Size, long NewTextColor, long BackgroundColor, 
+                           eOSDBackground BackgroundMode, eOSDTextXPos TextXPos, double XPos, 
+                           double YPos)
 {
     if ( (strlen(szText) == 0) || (NbText >= OSD_MAX_TEXT) )
     {
@@ -311,6 +316,46 @@ void OSD_AddText(LPCTSTR szText, double Size, long NewTextColor, long Background
     strncpy(grOSD[NbText].szText, szText, sizeof(grOSD[NbText].szText));
 
     NbText++;
+}
+
+//---------------------------------------------------------------------------
+// Add a new line of text to the list of texts for OSD. '\n' character is supported.
+void OSD_AddText(LPCTSTR szText, double Size, long NewTextColor, long BackgroundColor, 
+                 eOSDBackground BackgroundMode, eOSDTextXPos TextXPos, double XPos, double YPos)
+{
+    char      SingleLine[512];
+    int       SingleLineIndex = 0;
+
+    for(int i = 0; i < strlen(szText); i++)
+    {
+        if(SingleLineIndex == 512)
+        {
+            SingleLineIndex--;
+            break;
+        }
+        if( szText[i] != '\n')
+        {
+            SingleLine[SingleLineIndex++] = szText[i];
+        }
+        else
+        {
+            SingleLine[SingleLineIndex] = 0x00;
+            OSD_AddTextSingleLine(SingleLine, Size, NewTextColor, BackgroundColor, BackgroundMode,
+                                  TextXPos, XPos, YPos);
+            SingleLineIndex = 0;
+            if(Size == 0)
+            {
+                YPos += DefaultSizePerc/100;
+            }
+            else
+            {
+                YPos += Size/100;
+            }
+        }
+    }
+    SingleLine[SingleLineIndex] = 0x00;
+    OSD_AddTextSingleLine(SingleLine,Size,NewTextColor,BackgroundColor,BackgroundMode,TextXPos,
+                          XPos,YPos);
 }
 
 //---------------------------------------------------------------------------

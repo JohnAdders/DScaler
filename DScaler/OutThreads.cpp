@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.125 2003-08-15 09:22:28 atnak Exp $
+// $Id: OutThreads.cpp,v 1.126 2003-08-15 10:27:12 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.125  2003/08/15 09:22:28  atnak
+// Updated a comment
+//
 // Revision 1.124  2003/08/04 23:48:24  laurentg
 // Use extra buffer when recording DScaler output frames
 //
@@ -900,7 +903,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 			if (bCheckSignalMissing)
 			{
 				// Wait 30 consecutive fields before deciding that the signal is missing
-				// Then ask the main thread to restore the main window
+				// Then ask the main thread to minimize the main window
 				bIsPresent = Providers_GetCurrentSource()->IsVideoPresent();
 				if (!bIsPresent)
 				{

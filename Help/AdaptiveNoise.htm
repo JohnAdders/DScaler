@@ -81,7 +81,7 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
             motion, the filter makes use of correlations
             within and between fields as well as local color
             differences. As with the <A HREF=
-            "GradualNoise.htm">Gradual Noise Filter</A>, the degree
+            "GradualNoise.htm">Gradual Noise</A> filter, the degree
             of certainty about motion and noise is used to
             decide what mix of the previous and current colors to
             show.
@@ -127,6 +127,17 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
             really easy to see. (That&rsquo;s because we&rsquo;re
             especially good at seeing distortion in faces.)
           </P>
+          <P>
+            There are two kinds of video which deserve some special
+            consideration: cartoons and sports.  With cartoons, you
+            can use a much higher <FONT COLOR="#993300">Noise
+            Reduction</FONT>, since animation
+            tends to have less fine detail.  And with sports (or
+            any other show with constant motion), there isn't anything to
+            gain from a noise filter, so you can just turn it off.  On the other
+            hand, changing the settings all the time is a pain, so you might
+            just want to choose a
+            value and forget about it.
           <P>
             Before you fine tune this setting, make sure that the
             filter has adapted to the current signal. To do so,
@@ -182,13 +193,13 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
           <P>
             If all else fails, tune to the signal with the
             interference, then quit and restart DScaler. The
-            Adaptive Noise Filter is more tolerant of
+            Adaptive Noise filter is more tolerant of
             interference right after it starts up, before it
             has seen a clean signal from another source. But with
             certain kinds of heavy interference, the filter
             will <EM>never</EM> be able to figure out the noise
             level. In that case, the <A HREF="Noise.HTM">Temporal
-            Noise Filter</A> is probably your best bet.
+            Noise</A> filter is probably your best bet.
           </P>
           <HR>
           <P>
@@ -212,8 +223,8 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
             <A HREF="http://www.avsforum.com/">
               AV Science Forum
             </A>
-            &rsquo;s Home Theater Computers board, where
-            these topics are often discussed at length.
+            &rsquo;s Home Theater Computers FAQ and board, where
+            these topics are discussed at length.
           </P>
           <P>
             <B><FONT FACE="Arial">
@@ -224,7 +235,7 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
             It depends what you&rsquo;re watching. Sports and
             nature shows in general&nbsp;&mdash; really anything
             with lots of moving low contrast texture&nbsp;&mdash;
-            are not handled well by the current noise filters.
+            are not handled well by the noise filters.
             That&rsquo;s because those textures look a lot like
             noise.
           </P>
@@ -263,7 +274,7 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
           </P>
           <P>
             With that in mind, the Adaptive and Gradual Noise
-            Filters and the Greedy (High Motion) median filter all
+            filters and the Greedy (High Motion) median filter all
             try to preserve a small amount of color variation.
             As a result, they will never give you a completely
             stable picture.
@@ -274,23 +285,23 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
           </P>
           <P>
             If your computer is older than a Pentium 3, Athlon, or
-            some recent Celerons, the Adaptive and <A HREF=
-            "GradualNoise.htm">Gradual Noise</A> filters
+            some recent Celerons, the Adaptive noise filter
             won&rsquo;t show up in the menu&nbsp;&mdash; because
-            they can&rsquo;t run. In that case, you should use the
-            <A HREF="Noise.htm">Temporal Noise Filter</A>, which
-            works fine on older computers. If you can run any
+            it can&rsquo;t run. In that case, you should use either the 
+            <A HREF="GradualNoise.htm">Gradual Noise</A> or
+            <A HREF="Noise.htm">Temporal Noise</A> filters, which
+            work fine on older computers. If you can run any
             filter, Temporal Noise and Gradual Noise are roughly
             the same speed at about 150 MHz. The Adaptive Noise
-            Filter is much slower, using about 300 MHz.
+            filter is much slower, using about 300 MHz.
           </P>
           <P>
-            The Temporal Noise Filter can give you a very
-            solid picture. The Gradual Noise Filter doesn&rsquo;t
+            The Temporal Noise filter can give you a very
+            solid picture. The Gradual Noise filter doesn&rsquo;t
             look as solid and has trouble at high noise
             reduction values, but has less speckling and
             posterization and better color depth. The
-            Adaptive Noise Filter has a solid picture (if you
+            Adaptive Noise filter has a solid picture (if you
             want it), avoids speckling, color artifacts and
             posterization, and corrects for varying levels of
             noise. (Yes, it&rsquo;s my favorite. But I wrote it, so
@@ -316,20 +327,20 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
             In general, the more noise filters you run at once, the
             <EM>worse</EM> the picture will get. In
             particular, don&rsquo;t run the Temporal
-            Noise Filter at the same time as the Gradual Noise or
+            Noise filter at the same time as the Gradual Noise or
             Adaptive Noise filters. It looks awful.
           </P>
           <P>
             <B><FONT FACE="Arial">
-						  Can any of DScaler&rsquo;s other settings help reduce noise?
-						</FONT></B>
+              Can any of DScaler&rsquo;s other settings help reduce noise?
+            </FONT></B>
           </P>
           <P>
             In the Advanced Video Flags dialog, there are two (well, three)
-						options which can help.  &ldquo;Horizontal Filter&rdquo; will smoothe
-						the picture, cutting down on noise.  You can also reduce noise quite
-						a bit (at the cost of some sharpness) by turning off &ldquo;Even Luma
-						Peaking&rdquo; and &ldquo;Odd Luma Peaking&rdquo;.
+            options which can help.  &ldquo;Horizontal Filter&rdquo; will smooth
+            the picture, cutting down on noise.  You can also reduce noise quite
+            a bit (at the cost of some sharpness) by turning off &ldquo;Even Luma
+            Peaking&rdquo; and &ldquo;Odd Luma Peaking&rdquo;.
           </P>
           <!-- #EndEditable -->
         </TD>

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.31 2003-01-05 19:01:13 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.32 2003-01-05 19:42:24 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2003/01/05 19:01:13  adcockj
+// Made some changes to Laurent's last set of VBI fixes
+//
 // Revision 1.30  2003/01/04 21:40:15  laurentg
 // Update the default vertical delay when pixel width is different from 720 (32 replaced by 36)
 //
@@ -728,7 +731,7 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         CurrentVBILines = GetTVFormat(TVFormat)->VBILines;
 
         // set up VBI information
-        WriteDword(CX2388X_VBI_SIZE, (GetTVFormat(TVFormat)->VBIPacketSize & 0x1ff) | (2 << 11));
+        WriteDword(CX2388X_VBI_SIZE, (GetTVFormat(TVFormat)->VBIPacketSize & 0xff) | (1 << 11));
 
         double PLL = SetPLL(27.0);
         SetSampleRateConverter(PLL);

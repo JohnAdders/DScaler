@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HSListBox.cpp,v 1.4 2001-07-13 16:14:56 adcockj Exp $
+// $Id: HSListBox.cpp,v 1.5 2001-07-14 16:06:57 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2000 John Adcock.  All rights reserved.
+// Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 //
 //  This file is subject to the terms of the GNU General Public License as
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/07/13 16:14:56  adcockj
+// Changed lots of variables to match Coding standards
+//
 // Revision 1.3  2001/07/12 16:16:40  adcockj
 // Added CVS Id and Log
 //

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.288 2003-01-17 14:40:33 adcockj Exp $
+// $Id: DScaler.cpp,v 1.289 2003-01-17 17:26:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.288  2003/01/17 14:40:33  adcockj
+// Write all settings on exit
+//
 // Revision 1.287  2003/01/16 22:34:21  laurentg
 // First step to add a new dialog box to adjust image size
 //
@@ -4591,8 +4594,11 @@ void MainWndOnDestroy()
     
     __try
     {
+        // write out setting with optimize on 
+        // to avoid delay on flushing file
+        // all the setting should be filled out anyway
         LOG(1, "WriteSettingsToIni");
-        WriteSettingsToIni(FALSE);
+        WriteSettingsToIni(TRUE);
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error WriteSettingsToIni");}
 

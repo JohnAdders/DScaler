@@ -622,6 +622,16 @@ const TVCARDSETUP TVCards[TVCARD_LASTONE] =
 		PLL_NONE,
 		TUNER_ABSENT
 	},
+	{
+		"Viewcast Osprey",
+		3, 1, -1, 1, 0,
+		{ 2, 3, 1, 1, 0, 0, 0, 0},
+		{ 0, 0, 0, 0, 0, 0},
+		0,
+		1,1,1,1,0,0,0,1,
+		PLL_NONE,
+		TUNER_ABSENT
+	},
 };
 
 const TAutoDectect878 AutoDectect878[] =

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA9887.h,v 1.9 2004-11-23 18:19:29 to_see Exp $
+// $Id: TDA9887.h,v 1.10 2004-11-23 20:24:18 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2002 John Adcock.  All rights reserved.
@@ -21,6 +21,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2004/11/23 18:19:29  to_see
+// Created new class CTDA9887FromIni
+//
 // Revision 1.8  2004/09/29 20:36:02  to_see
 // Added Card AverTV303, Thanks to Zbigniew Pluta
 //
@@ -59,9 +62,6 @@
 //
 // TDA defines
 //
-
-#define I2C_TDA9887_0					0x86
-#define I2C_TDA9887_1					0x96
 
 #define I2C_TDA9887_0					0x86
 #define I2C_TDA9887_1					0x96

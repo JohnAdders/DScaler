@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.101 2001-12-08 13:43:20 adcockj Exp $
+// $Id: DScaler.cpp,v 1.102 2001-12-08 14:22:19 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.101  2001/12/08 13:43:20  adcockj
+// Fixed logging and memory leak bugs
+//
 // Revision 1.100  2001/12/03 19:33:59  adcockj
 // Bug fixes for settings and memory
 //
@@ -593,8 +596,6 @@ HMENU CreateDScalerPopupMenu()
         MenuItemInfo.fMask = MIIM_SUBMENU;
 
         hSubMenu = GetSubMenu(hMenu, 5);
-        if(hSubMenu != NULL)
-            hSubMenu = GetSubMenu(hSubMenu, 3);
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;

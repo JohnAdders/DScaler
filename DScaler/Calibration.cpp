@@ -1,5 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.34 2001-11-23 10:49:16 adcockj Exp $
+// $Id: Calibration.cpp,v 1.35 2001-11-24 22:57:02 laurentg Exp $
+/////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 //
 //  This file is subject to the terms of the GNU General Public License as
@@ -16,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.34  2001/11/23 10:49:16  adcockj
+// Move resource includes back to top of files to avoid need to rebuild all
+//
 // Revision 1.33  2001/11/22 13:32:03  adcockj
 // Finished changes caused by changes to TDeinterlaceInfo - Compiles
 //

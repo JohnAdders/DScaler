@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134_Defines.h,v 1.2 2002-09-09 14:27:58 atnak Exp $
+// $Id: SAA7134_Defines.h,v 1.3 2002-09-10 12:25:05 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/09/09 14:27:58  atnak
+// fixed cvs tags, id -> Id, log -> Log
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -77,7 +80,6 @@
 #define   SAA7134_RS_CONTROL_3_WSWAP            (1<<1)
 #define   SAA7134_RS_CONTROL_3_BSWAP            (1<<0)
 
-
 #define SAA7134_RS_CONTROL(n)               (0x20C|(n)<<4)
 #define   SAA7134_RS_CONTROL_WSWAP              (1<<25)
 #define   SAA7134_RS_CONTROL_BSWAP              (1<<24)
@@ -89,7 +91,6 @@
 #define   SAA7134_RS_CONTROL_BURST_64           (0x06<<21)
 #define   SAA7134_RS_CONTROL_BURST_MAX          (0x07<<21)
 #define   SAA7134_RS_CONTROL_ME                 (1<<20)
-
 
 #define SAA7134_FIFO_SIZE                   0x2A0
 #define SAA7134_THRESHOULD                  0x2A4
@@ -211,7 +212,23 @@
 #define SAA7134_HSYNC_START                     0x106
 #define SAA7134_HSYNC_STOP                      0x107
 #define SAA7134_SYNC_CTRL                       0x108
+// guessed these by trying them out
+#define		SAA7134_SYNC_CTRL_RESYNC				(1<<0)  // resyncs while set
+#define		SAA7134_SYNC_CTRL_V_LOCK				(1<<1)
+#define		SAA7134_SYNC_CTRL_H_CYCLE				(1<<2)
+#define		SAA7134_SYNC_CTRL_VCR_SIGNAL			(1<<3)
+#define		SAA7134_SYNC_CTRL_UNKNWN2				(1<<4)
+#define		SAA7134_SYNC_CTRL_UNKNWN3				(1<<5)
+#define		SAA7134_SYNC_CTRL_UNKNWN4				(1<<6)
+#define		SAA7134_SYNC_CTRL_UNKNWN5				(1<<7)
 #define SAA7134_LUMA_CTRL                       0x109
+// guessed these - unverified
+#define		SAA7134_LUMA_CTRL_BLUR					(0x0F)	// blurs 1..15
+#define		SAA7134_LUMA_CTRL_UNKNWN1				(1<<4)
+#define		SAA7134_LUMA_CTRL_V_FILTER				(1<<5)	// cleans up vert colour shift
+#define		SAA7134_LUMA_CTRL_V_FILTER2				(1<<6)  // cleans up vert colour shift
+#define		SAA7134_LUMA_CTRL_SVIDEO				(1<<7)
+
 #define SAA7134_DEC_LUMA_BRIGHT                 0x10a // Decoder Brightness
 #define SAA7134_DEC_LUMA_CONTRAST               0x10b // Decoder Contrast
 #define SAA7134_DEC_CHROMA_SATURATION           0x10c // Decoder Saturation
@@ -269,6 +286,7 @@
 #define SAA7134_START_GREEN                     0x00C
 #define SAA7134_START_BLUE                      0x00D
 #define SAA7134_START_RED                       0x00E
+// x = 0 .. 15
 #define SAA7134_GREEN_PATH(x)                   (0x010|x)
 #define SAA7134_BLUE_PATH(x)                    (0x020|x)
 #define SAA7134_RED_PATH(x)                     (0x030|x)
@@ -325,6 +343,8 @@
 #define SAA7134_V_SCALE_RATIO(t)                (0x30|t)
 #define SAA7134_V_SCALE_RATIO_HIBYTE(t)         (0x31|t)
 #define SAA7134_V_FILTER(t)                     (0x32|t)
+#define		SAA7134_V_FILTER_MIRROR					(1<<1)
+		//	something's here, don't know what	(0x33|t)
 #define SAA7134_V_PHASE_OFFSET0(t)              (0x34|t)
 #define SAA7134_V_PHASE_OFFSET1(t)              (0x35|t)
 #define SAA7134_V_PHASE_OFFSET2(t)              (0x36|t)
@@ -358,9 +378,15 @@
 #define SAA7134_NICAM_ADD_DATA1                 0x140
 #define SAA7134_NICAM_ADD_DATA2                 0x141
 #define SAA7134_NICAM_STATUS                    0x142
+#define		SAA7134_NICAM_STATUS_LANG2				(1<<0)
+#define		SAA7134_NICAM_STATUS_STEREO				(1<<1)
+#define		SAA7134_NICAM_STATUS_MONO				(1<<3)
 #define SAA7134_AUDIO_STATUS                    0x143
 #define SAA7134_NICAM_ERROR_COUNT               0x144
 #define SAA7134_IDENT_SIF                       0x145
+#define		SAA7134_IDENT_SIF_MONO					(1<<5)
+#define		SAA7134_IDENT_SIF_LANG2					(1<<6)
+#define		SAA7134_IDENT_SIF_STEREO				(1<<7)
 #define SAA7134_LEVEL_READOUT                   0x146
 #define SAA7134_LEVEL_READOUT_HIBYTE            0x147
 #define SAA7134_NICAM_ERROR_LOW                 0x148
@@ -489,6 +515,7 @@ protected:
 
     enum eAudioStandard
     {
+//		AUDIOSTANDARD_AUTODETECT = -1,  need to fix menu
         AUDIOSTANDARD_BG_DUAL_FM = 0,
         AUDIOSTANDARD_DK1_DUAL_FM,         
         AUDIOSTANDARD_DK2_DUAL_FM,         

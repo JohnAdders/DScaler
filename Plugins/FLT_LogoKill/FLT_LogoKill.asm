@@ -1,5 +1,5 @@
  /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_LogoKill.asm,v 1.5 2002-11-05 13:07:08 adcockj Exp $
+// $Id: FLT_LogoKill.asm,v 1.6 2002-11-06 20:54:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Rob Muller. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/11/05 13:07:08  adcockj
+// Logo Killer Smoothing patch from Jochen Trenner
+//
 // Revision 1.4  2002/10/16 12:21:50  adcockj
 // Fixed a few bugs in new weighted average mode
 // Removed old weighted average modes
@@ -251,7 +254,6 @@ long FilterLogoKiller_MMX(TDeinterlaceInfo* pInfo)
 
     case MODE_WEIGHTED:
 		{
-
             int i, j;
             BYTE* pByte;
             TwoPixel* pTwoPixel;
@@ -285,8 +287,18 @@ long FilterLogoKiller_MMX(TDeinterlaceInfo* pInfo)
                     pTwoPixel[i].Chroma2 = (Hor.Chroma2 + Vert.Chroma2)/2;
                 }
             }
-            break;
         }
+        break;
+    case MODE_BLACK:
+        {
+            int i;
+
+            for(i = 0; i < Height; i++)
+            {
+                memset(lpLogoRect + i*Pitch, 0x00, Width*2);
+            }
+        }
+		break;
     case MODE_GREY:
     default:
         {
@@ -296,9 +308,8 @@ long FilterLogoKiller_MMX(TDeinterlaceInfo* pInfo)
             {
                 memset(lpLogoRect + i*Pitch, 0x7f, Width*2);
             }
-
-            break;
         }
+        break;
     }
 	
     // Patch from Jochen Trener to add adjustable smoothing (Gaussian blur)

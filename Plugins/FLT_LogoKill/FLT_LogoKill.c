@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_LogoKill.c,v 1.20 2002-11-05 13:07:08 adcockj Exp $
+// $Id: FLT_LogoKill.c,v 1.21 2002-11-06 20:54:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2002/11/05 13:07:08  adcockj
+// Logo Killer Smoothing patch from Jochen Trenner
+//
 // Revision 1.19  2002/11/02 11:11:42  robmuller
 // Removed 'Experimental' from the name of the filter.
 //
@@ -103,6 +106,7 @@ typedef enum
     MODE_MAX,
     MODE_DYNAMIC_MAX,
     MODE_WEIGHTED,
+    MODE_BLACK,
     MODE_LASTONE,
 } eMODE;
 

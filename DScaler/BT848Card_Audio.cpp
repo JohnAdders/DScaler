@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Audio.cpp,v 1.10 2001-12-19 19:24:44 ittarnavsky Exp $
+// $Id: BT848Card_Audio.cpp,v 1.11 2002-01-21 08:40:27 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2001/12/19 19:24:44  ittarnavsky
+// prepended SOUNDCHANNEL_ to all members of the eSoundChannel enum
+//
 // Revision 1.9  2001/12/18 23:36:01  adcockj
 // Split up the MSP chip support into two parts to avoid probelms when deleting objects
 //
@@ -228,9 +231,11 @@ void CBT848Card::SetAudioStandard(eVideoFormat videoFormat)
     m_AudioDecoder->SetVideoFormat(videoFormat);
 }
 
+// Do not call this function before changing the video source, it is checking to see if a video
+// signal is present. Audio is muted if no video signal is detected. 
+// This might not be the best place to do this check.
 void CBT848Card::SetAudioSource(eAudioInput nChannel)
 {
-    int i;
     DWORD MuxSelect;
 
     AndOrDataDword(BT848_GPIO_OUT_EN, GetCardSetup()->GPIOMask, ~GetCardSetup()->GPIOMask);
@@ -244,14 +249,8 @@ void CBT848Card::SetAudioSource(eAudioInput nChannel)
         break;
     default:
         // see if there is a video signal present
-        i = 0;
-        while ((i < 20) && (!(ReadByte(BT848_DSTATUS) & BT848_DSTATUS_PRES)))
-        {
-            i++;
-            ::Sleep(50);
-        }
         // if video not in H-lock, turn audio off 
-        if (i == 20)
+        if (!(ReadByte(BT848_DSTATUS) & BT848_DSTATUS_PRES))
         {
             MuxSelect = GetCardSetup()->AudioMuxSelect[AUDIOINPUT_MUTE];
         }

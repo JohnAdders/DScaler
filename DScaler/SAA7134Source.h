@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.h,v 1.12 2002-10-08 20:35:39 atnak Exp $
+// $Id: SAA7134Source.h,v 1.13 2002-10-12 01:37:28 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/10/08 20:35:39  atnak
+// whitepeak, colorpeak, comb filter UI options
+//
 // Revision 1.11  2002/10/08 12:30:38  atnak
 // tweaks and fixes
 //
@@ -111,6 +114,7 @@ public:
     BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat);
     BOOL IsVideoPresent();
     void DecodeVBI(TDeinterlaceInfo* pInfo);
+    void DecodeVBILine(BYTE* VBILine, int Line);
     LPCSTR GetMenuLabel();
     BOOL OpenMediaFile(LPCSTR FileName, BOOL NewPlayList) {return FALSE;};
     BOOL IsAccessAllowed() {return TRUE;};

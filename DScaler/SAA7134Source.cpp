@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.22 2002-10-10 12:13:19 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.23 2002-10-12 01:37:28 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2002/10/10 12:13:19  atnak
+// fixed reverse polarity for odd before even
+//
 // Revision 1.21  2002/10/09 13:20:15  atnak
 // fixed up field start lines
 //
@@ -565,7 +568,7 @@ void CSAA7134Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
 
     if (bFirstTime)
     {
-        m_LastFieldIndex = EnumulateField(RegionID, bIsFieldOdd);
+        FieldIndex = EnumulateField(RegionID, bIsFieldOdd);
         SkippedFields = 0;
     }
     else
@@ -638,8 +641,11 @@ void CSAA7134Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
 
     if (m_ProcessingRegionID == REGIONID_INVALID)
     {
-        m_pSAA7134Card->GetProcessingRegion(m_ProcessingRegionID,
-                        m_IsProcessingFieldOdd);
+        while (!m_pSAA7134Card->GetProcessingRegion(m_ProcessingRegionID,
+                        m_IsProcessingFieldOdd))
+        {
+            // do nothing
+        }
         bFirstTime = TRUE;
     }
 
@@ -759,10 +765,13 @@ BOOL CSAA7134Source::WaitForFinishedField(eRegionID& RegionID, BOOL& bIsFieldOdd
 
         if (m_ProcessingRegionID == REGIONID_INVALID)
         {
-            m_pSAA7134Card->GetProcessingRegion(
+            while (!m_pSAA7134Card->GetProcessingRegion(
                                 m_ProcessingRegionID,
                                 m_IsProcessingFieldOdd
-                            );
+                            ))
+            {
+                // do nothing
+            }
 
             QueryPerformanceCounter((PLARGE_INTEGER)&m_LastPerformanceCount);
             m_MinimumFieldDelay = 0;
@@ -811,7 +820,7 @@ BOOL CSAA7134Source::WaitForFinishedField(eRegionID& RegionID, BOOL& bIsFieldOdd
     {
         BOOL bSlept = FALSE;
 
-        if (m_ProcessingRegionID == REGIONID_INVALID)
+        while (m_ProcessingRegionID == REGIONID_INVALID)
         {
             m_pSAA7134Card->GetProcessingRegion(
                             m_ProcessingRegionID,
@@ -1294,9 +1303,134 @@ void CSAA7134Source::DecodeVBI(TDeinterlaceInfo* pInfo)
             ConvertBuffer[i] = pVBI[nLineTarget * 2048 + (int) (j / 2)];
         }
         VBI_DecodeLine(ConvertBuffer, nLineTarget, m_IsFieldOdd);
-        // VBI_DecodeLine(pVBI + nLineTarget * 2048, nLineTarget, m_IsFieldOdd);
     }
 }
+
+
+/*  This doesn't work too well
+void CSAA7134Source::DecodeVBILine(BYTE* VBILine, int Line)
+{
+    int i;
+    BYTE luma;
+    BYTE min, max;
+    BYTE thr;
+    BOOL bWasHigh;
+    int HighLows = 0;
+    BYTE data[45];
+
+    // Sample the darkest and lightest values
+    min = max = ((VBILine[0] & 0xF0) + (VBILine[1] & 0xF0)) / 2;
+    for (i = 2; i < 40; i += 2)
+    {
+        luma = ((VBILine[i + 0] & 0xF0) + (VBILine[i + 1] & 0xF0)) / 2;
+
+        if (luma < min)
+        {
+            min = luma;
+        }
+        else if (luma > max)
+        {
+            max = luma;
+        }
+    }
+
+    // there's not enough separation
+    if (max - min < min)
+    {
+        return;
+    }
+
+    // Determine the high/low threshold
+    thr = ((min + max) / 2);
+
+    // Find the Teletext pattern (10101010 10101010 11100100)
+    bWasHigh = (((VBILine[0] & 0xF0) + (VBILine[1] & 0xF0)) / 2) > thr;
+    for (i = 2; i < 80; i += 2)
+    {
+        luma = ((VBILine[i + 0] & 0xF0) + (VBILine[i + 1] & 0xF0)) / 2;
+        if (luma > thr)
+        {
+            if (bWasHigh)
+            {
+                if (HighLows >= 8)
+                {
+                    break;
+                }
+                HighLows = 0;
+            }
+            bWasHigh = TRUE;
+        }
+        else
+        {
+            if (bWasHigh)
+            {
+                HighLows++;
+            }
+            else
+            {
+                HighLows = 0;
+            }
+            bWasHigh = FALSE;
+        }
+    }
+
+    // Stop if we didn't find the pattern
+    if (i == 80)
+    {
+        return;
+    }
+
+    // We found 8 high-lows followed by two highs, make
+    // sure it ends with 100100
+    char* t = "100100";
+
+    for (i += 2; *t != '\0'; i += 2, t++)
+    {
+        luma = ((VBILine[i + 0] & 0xF0) + (VBILine[i + 1] & 0xF0)) / 2;
+        if ((luma > thr) != (*t == '1'))
+        {
+            return;
+        }
+    }
+
+//    data[0] = 0xAA;
+//    data[1] = 0xAA;
+//    data[2] = 0xE4;
+    data[0] = 0x55;
+    data[1] = 0x55;
+    data[2] = 0x27;
+
+    // Checked.  Get the rest of the data
+    for (int n = 3; n < 45; n++)
+    {
+        data[n] = 0x00;
+        for (int j = 0; j < 8; j ++, i += 2)
+        {
+            luma = ((VBILine[i + 0] & 0xF0) + (VBILine[i + 1] & 0xF0)) / 2;
+            if (luma > thr)
+            {
+                //data[n] |= 1 << (7 - j);
+                data[n] |= 1 << j;
+            }
+        }
+    }
+
+    VBI_decode_vt(data);
+    LOG(0, "VBI %d: %x %x %x %x %x %x %x %x %x %x %x %x", Line,
+        data[0],
+        data[1],
+        data[2],
+        data[3],
+        data[4],
+        data[5],
+        data[6],
+        data[7],
+        data[8],
+        data[9],
+        data[10],
+        data[11]);
+}
+*/
 
 eTunerId CSAA7134Source::GetTunerId()
 {

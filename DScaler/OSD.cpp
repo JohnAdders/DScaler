@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.58 2002-05-06 15:34:59 laurentg Exp $
+// $Id: OSD.cpp,v 1.59 2002-05-20 18:08:29 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.58  2002/05/06 15:34:59  laurentg
+// Key <i> to show source informations through OSD
+//
 // Revision 1.57  2002/04/27 14:08:07  laurentg
 // Automatic square pixels mode handling updated
 //
@@ -573,15 +576,22 @@ void OSD_ShowComments(HWND hWnd)
 // Clear currently displayed OSD
 void OSD_Clear(HWND hWnd)
 {
-    int i;
-
     KillTimer(hWnd, OSD_TIMER_ID);
     KillTimer(hWnd, OSD_TIMER_REFRESH_ID);
     bOverride = FALSE;
-    for (i = 0 ; i < NbText ; i++)
-    {
-        InvalidateRect(hWnd, &(grOSD[i].CurrentRect), FALSE);
-    }
+
+//  Invalidating only the lines of text causes problems when in video text mode, the
+//  remaining part of the screen stays black. (since in OSD_Show() the entire window is erased)
+//  So we just invalidate the entire client area. A nicer solution would be to use the overlay
+//  color as the class background color and remove the erase of the window in OSD_Show().
+//
+//    for (int i = 0 ; i < NbText ; i++)
+//    {
+//        InvalidateRect(hWnd, &(grOSD[i].CurrentRect), FALSE);
+//    }
+
+    InvalidateRect(hWnd, NULL, FALSE);
+
     if (bRestoreScreen && (IdxCurrentScreen != -1) && ActiveScreens[IdxCurrentScreen].active)
     {
         OSD_RefreshInfosScreen(hWnd, 0, ActiveScreens[IdxCurrentScreen].auto_hide ? OSD_AUTOHIDE : OSD_PERSISTENT);

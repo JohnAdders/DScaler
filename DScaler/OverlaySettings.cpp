@@ -30,30 +30,44 @@ BOOL APIENTRY OverlaySettingProc(HWND hDlg, UINT message, UINT wParam, LONG lPar
     static long TSaturation;
     static long TGamma;
     static long TSharpness;
-
+    static BOOL TUseOverlayControls;
+    
     switch (message)
     {
     case WM_INITDIALOG:
-        TBrightness = Setting_GetValue(Other_GetSetting(OVERLAYBRIGHTNESS));
-        TContrast = Setting_GetValue(Other_GetSetting(OVERLAYCONTRAST));
-        THue = Setting_GetValue(Other_GetSetting(OVERLAYHUE));
-        TSaturation = Setting_GetValue(Other_GetSetting(OVERLAYSATURATION));
-        TGamma = Setting_GetValue(Other_GetSetting(OVERLAYGAMMA));
-        TSharpness = Setting_GetValue(Other_GetSetting(OVERLAYSHARPNESS));
+        {
+            TUseOverlayControls = Setting_GetValue(Other_GetSetting(USEOVERLAYCONTROLS));
+            TBrightness = Setting_GetValue(Other_GetSetting(OVERLAYBRIGHTNESS));
+            TContrast = Setting_GetValue(Other_GetSetting(OVERLAYCONTRAST));
+            THue = Setting_GetValue(Other_GetSetting(OVERLAYHUE));
+            TSaturation = Setting_GetValue(Other_GetSetting(OVERLAYSATURATION));
+            TGamma = Setting_GetValue(Other_GetSetting(OVERLAYGAMMA));
+            TSharpness = Setting_GetValue(Other_GetSetting(OVERLAYSHARPNESS));
 
-        SetDlgItemInt(hDlg, IDC_D1, TBrightness, TRUE);
-        SetDlgItemInt(hDlg, IDC_D2, TContrast, FALSE);
-        SetDlgItemInt(hDlg, IDC_D3, THue, TRUE);
-        SetDlgItemInt(hDlg, IDC_D4, TSaturation, FALSE);
-        SetDlgItemInt(hDlg, IDC_D5, TGamma, FALSE);
-        SetDlgItemInt(hDlg, IDC_D6, TSharpness, FALSE);
+            CheckDlgButton(hDlg, IDC_OVERLAYSETTINGS_ENABLE, TUseOverlayControls ? BST_CHECKED : BST_UNCHECKED);
+            SetDlgItemInt(hDlg, IDC_D1, TBrightness, TRUE);
+            SetDlgItemInt(hDlg, IDC_D2, TContrast, FALSE);
+            SetDlgItemInt(hDlg, IDC_D3, THue, TRUE);
+            SetDlgItemInt(hDlg, IDC_D4, TSaturation, FALSE);
+            SetDlgItemInt(hDlg, IDC_D5, TGamma, FALSE);
+            SetDlgItemInt(hDlg, IDC_D6, TSharpness, FALSE);
 
-        Setting_SetupSlider(Other_GetSetting(OVERLAYBRIGHTNESS), GetDlgItem(hDlg, IDC_SLIDER1));
-        Setting_SetupSlider(Other_GetSetting(OVERLAYCONTRAST), GetDlgItem(hDlg, IDC_SLIDER2));
-        Setting_SetupSlider(Other_GetSetting(OVERLAYHUE), GetDlgItem(hDlg, IDC_SLIDER3));
-        Setting_SetupSlider(Other_GetSetting(OVERLAYSATURATION), GetDlgItem(hDlg, IDC_SLIDER4));
-        Setting_SetupSlider(Other_GetSetting(OVERLAYGAMMA), GetDlgItem(hDlg, IDC_SLIDER5));
-        Setting_SetupSlider(Other_GetSetting(OVERLAYSHARPNESS), GetDlgItem(hDlg, IDC_SLIDER6));
+            Setting_SetupSlider(Other_GetSetting(OVERLAYBRIGHTNESS), GetDlgItem(hDlg, IDC_SLIDER1));
+            Setting_SetupSlider(Other_GetSetting(OVERLAYCONTRAST), GetDlgItem(hDlg, IDC_SLIDER2));
+            Setting_SetupSlider(Other_GetSetting(OVERLAYHUE), GetDlgItem(hDlg, IDC_SLIDER3));
+            Setting_SetupSlider(Other_GetSetting(OVERLAYSATURATION), GetDlgItem(hDlg, IDC_SLIDER4));
+            Setting_SetupSlider(Other_GetSetting(OVERLAYGAMMA), GetDlgItem(hDlg, IDC_SLIDER5));
+            Setting_SetupSlider(Other_GetSetting(OVERLAYSHARPNESS), GetDlgItem(hDlg, IDC_SLIDER6));
+
+            BOOL bEnable = TUseOverlayControls;
+            EnableWindow(GetDlgItem(hDlg, IDC_SLIDER1), bEnable);
+            EnableWindow(GetDlgItem(hDlg, IDC_SLIDER2), bEnable);
+            EnableWindow(GetDlgItem(hDlg, IDC_SLIDER3), bEnable);
+            EnableWindow(GetDlgItem(hDlg, IDC_SLIDER4), bEnable);
+            EnableWindow(GetDlgItem(hDlg, IDC_SLIDER5), bEnable);
+            EnableWindow(GetDlgItem(hDlg, IDC_SLIDER6), bEnable);
+            EnableWindow(GetDlgItem(hDlg, IDC_DEFAULT), bEnable);
+        }
         break;
 
     case WM_COMMAND:
@@ -65,6 +79,7 @@ BOOL APIENTRY OverlaySettingProc(HWND hDlg, UINT message, UINT wParam, LONG lPar
             break;
 
         case IDCANCEL:
+            Setting_SetValue(Other_GetSetting(USEOVERLAYCONTROLS), TUseOverlayControls);
             Setting_SetValue(Other_GetSetting(OVERLAYBRIGHTNESS), TBrightness);
             Setting_SetValue(Other_GetSetting(OVERLAYCONTRAST), TContrast);
             Setting_SetValue(Other_GetSetting(OVERLAYHUE),THue);
@@ -97,8 +112,19 @@ BOOL APIENTRY OverlaySettingProc(HWND hDlg, UINT message, UINT wParam, LONG lPar
             SetDlgItemInt(hDlg, IDC_D6, Setting_GetValue(Other_GetSetting(OVERLAYSHARPNESS)), FALSE);
             break;
 
-        case IDC_CHECK1:
-            Setting_SetValue(Other_GetSetting(USEOVERLAYCONTROLS), Button_GetCheck(GetDlgItem(hDlg, IDC_CHECK1)) == BST_CHECKED);
+        case IDC_OVERLAYSETTINGS_ENABLE:
+            {
+                Setting_SetValue(Other_GetSetting(USEOVERLAYCONTROLS), Button_GetCheck(GetDlgItem(hDlg, IDC_OVERLAYSETTINGS_ENABLE)) == BST_CHECKED);
+                
+                BOOL bEnable = Setting_GetValue(Other_GetSetting(USEOVERLAYCONTROLS));
+                EnableWindow(GetDlgItem(hDlg, IDC_SLIDER1), bEnable);
+                EnableWindow(GetDlgItem(hDlg, IDC_SLIDER2), bEnable);
+                EnableWindow(GetDlgItem(hDlg, IDC_SLIDER3), bEnable);
+                EnableWindow(GetDlgItem(hDlg, IDC_SLIDER4), bEnable);
+                EnableWindow(GetDlgItem(hDlg, IDC_SLIDER5), bEnable);
+                EnableWindow(GetDlgItem(hDlg, IDC_SLIDER6), bEnable);
+                EnableWindow(GetDlgItem(hDlg, IDC_DEFAULT), bEnable);
+                }
             break;
 
         default:
@@ -148,6 +174,7 @@ BOOL APIENTRY OverlaySettingProc(HWND hDlg, UINT message, UINT wParam, LONG lPar
 
 void OverlaySettings_Save()
 {
+    Setting_WriteToIni(Other_GetSetting(USEOVERLAYCONTROLS), FALSE);
     Setting_WriteToIni(Other_GetSetting(OVERLAYBRIGHTNESS), FALSE);
     Setting_WriteToIni(Other_GetSetting(OVERLAYCONTRAST), FALSE);
     Setting_WriteToIni(Other_GetSetting(OVERLAYHUE), FALSE);

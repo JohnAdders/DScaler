@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.245 2002-10-15 15:26:09 kooiman Exp $
+// $Id: DScaler.cpp,v 1.246 2002-10-15 18:14:36 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.245  2002/10/15 15:26:09  kooiman
+// Added include for settingsmaster.h
+//
 // Revision 1.244  2002/10/15 11:53:38  atnak
 // Added UI feedback for some videotext stuff
 //
@@ -4536,7 +4539,7 @@ void SetMenuAnalog()
     CheckMenuItemBool(hMenu, IDM_VT_ANTIALIAS, VTAntiAlias);
 
     CheckMenuItemBool(hMenu, IDM_USE_DSCALER_OVERLAY, Setting_GetValue(Other_GetSetting(USEOVERLAYCONTROLS)));
-    EnableMenuItem(hMenu,IDM_OVERLAYSETTINGS, Setting_GetValue(Other_GetSetting(USEOVERLAYCONTROLS))?MF_ENABLED:MF_GRAYED);
+    //EnableMenuItem(hMenu,IDM_OVERLAYSETTINGS, Setting_GetValue(Other_GetSetting(USEOVERLAYCONTROLS))?MF_ENABLED:MF_GRAYED);
 
     CheckMenuItemBool(hMenu, IDM_TAKECYCLICSTILL, bTakingCyclicStills);
 

@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_DScopeVIDEO.c,v 1.2 2003-04-01 20:58:38 laurentg Exp $
+// $Id: FLT_DScopeVIDEO.c,v 1.3 2003-04-20 10:54:58 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) 2003 Michael Joubert.  All rights reserved.
+//  Copyright (C) 2003 Michael Joubert   All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 //
 //  This program is free software; you can redistribute it and/or modify
@@ -22,8 +22,11 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2003/04/01 20:58:38  laurentg
+// Compile without warnings and few bugs fixed (from Michael Joubert)
+//
 // Revision 1.1  2003/03/22 13:13:02  laurentg
-// New filter from Michael Joubert
+// New filter from Michael Joubert (TheHealer@msn.com.au)
 //
 //
 /////////////////////////////////////////////////////////////////////////////
@@ -38,12 +41,23 @@
 - absolute line numbering
 - write line to file
 - file dialog
-- new (smaller) line number font
+- try new (smaller) line number font
 - add shaded plot background
-- move all calcs out of main loop
-- fix line number display in all modes
+- move all calcs out of main loop (Update Parameters)
 - verify operation for other screen resolutions
 - complete and test osd
+
+- test ->IsFirstInSeries, get working correctly.
+  current changes look ok, but is sometimes
+  missed when 'hurry when late' is active(expected), and other times...
+
+  also when one channel is say 320 pixels width and you change to a channel of
+  say 720 pixels width, the filter sometimes misses the update
+  (with 'hurry when late' OFF)
+
+-  DShow needs work
+
+- right justify line marker text
 
 */
 
@@ -55,7 +69,7 @@
 #include "..\..\DScalerRes\resource.h"
 #include "..\help\helpids.h"
 #include <math.h>
-#include "DSV_info.h" 
+#include "DSV_DrawString.h" 
 
 //----------------------------------------------------------------------------
 // Function prototypes  
@@ -79,43 +93,66 @@ static                BOOL           DScopeVideoEnabled_OnChange(long NewValue);
 static                void           DScopeVideoStart         (void);
 static                void           DScopeVideoStop          (void);
 static                void           DrawGrid                 (DWORD* pDestination, int pitch, int height, int width);
-static                void           DrawLineMarker           (BYTE* source, int source_pitch, BYTE* pDestination, int dest_pitch, int dest_frame_height, int length);
+static                void           DrawLineMarker           (BYTE* source, int source_pitch, BYTE* pDestination, int dest_pitch, int dest_frame_height, int width);
+static                void           DScopeUpdateParameters   (void);
 
 //----------------------------------------------------------------------------
 // Filter globals
 
-static                FILTER_METHOD  DScopeVideoMethod;       //see DS_Filter.h 
-static                BOOL           UseDScopeVideo; 
-static                double         X_Scale;
-static                double         Y_Scale;
-static                int            Y_ScalePercent;
-static                BOOL           bGrid;                   // make available to other functions
-static                int            GridColor;               //
-static                BOOL           bLineMarker;             //
-static                BOOL           bPictureFill;            // 
-static                BOOL           bSolidBackground;        // 
-static                BOOL           bPlotIntensityInvert;    //
-static                int            VideoLine;               //
-static                int            VideoLineDS;             //    
-static                int            GridIntensity;           //
-static                DWORD          dwGrid_Color;            //
-static                BYTE           LineBuffer [2048];       // use buffer, for future experiments
-static                BYTE           LineBuffer2[2048];       //
-static                BOOL           EVEN;                    // 
-static                BOOL           ODD;                     // for readability...            
+static                FILTER_METHOD DScopeVideoMethod;       //see DS_Filter.h 
+static                BOOL          UseDScopeVideo;          //  
+static                double        X_Scale;                 //
+static                double        Y_Scale;                 //
+static                int           Y_ScalePercent;          //
+static                BOOL          bGrid;                   // make available to other functions
+static                int           GridColor;               //
+static                BOOL          bLineMarker;             //
+static                BOOL          bPictureFill;            // 
+static                BOOL          bSolidBackground;        // 
+static                BOOL          bPlotIntensityInvert;    //
+static                int           VideoLine;               //
+static                int           VideoLineDS;             // 
+static                int           FieldLineDS;             //   precalc, saves some time
+static                int           InputLine_Offset;        //       "      "     "    "
+static                DWORD         InputPitch;              //       "      "     "    "
+static                int           GridIntensity;           //
+static                DWORD         dwGrid_Color;            //
+static                BYTE          LineBuffer [2048];       // use buffer, for future experiments
+static                BYTE          LineBuffer2[2048];       //
+static                BOOL          EVEN;                    // 
+static                BOOL          ODD;                     // for readability...  
+static                DWORD         LineMarkerStart;         //
+static                DWORD         LineMarkerEnd;           //
+static                DWORD         LineMarkerTextStart;     // text start position 
 
-static                int            tempGridColor;
-static                BYTE*          pGrid_Temp;              //
-static                DWORD          dwGrid_Color;
-static                char           strbuff[80];             // for debug text output
 
-static                int            Y1_BaseLine;             //
+static                int           tempGridColor;           //
+static                BYTE*         pGrid_Temp;              //
+static                DWORD         dwGrid_Color;            // 
+static                char          strbuff[80];             // for debug text output
 
-static                double         temp;
-static                int            a,b,c;
-static                int            OSD_SIZE;
-static                HWND           hPrevWindow;
-static                ATOM           FLT_DSCOPE_VIDEO; 
+static                int           Y1_BaseLine;             //
+
+static                double        temp;                    //
+static                int           a,b,c;                   //
+static                int           OSD_SIZE;                //
+static                HWND          hPrevWindow;             //
+static                ATOM          FLT_DSCOPE_VIDEO;        // 
+
+static                BYTE*         pOverlay;                //
+static                DWORD*        pFrameWidth;             // Number of pixels in each scanline.
+static                DWORD*        pLineLength;             //
+static                DWORD*        pInputPitch;             //  
+static                DWORD*        pOverlayPitch;           //  
+
+static                LONG          Source_left;              // RECT info
+static                LONG          Source_top;               //
+static                DWORD*        pSource_right;            //
+static                LONG          Source_bottom;            //
+
+static                BOOL          bHasRunOnce = FALSE;      // 
+
+static    BOOL test1;
 
 //----------------------------------------------------------------------------
 
@@ -123,11 +160,13 @@ FILTER_METHOD DScopeVideoMethod;
 
 long FilterDScopeVIDEO(TDeinterlaceInfo* pInfo)
 {
+    
     // make sure we have data
     if ( pInfo->PictureHistory[0] == NULL )  
     {
         return (1000);
     }
+
 	DisplayScope(pInfo);
     return 1000;
 }
@@ -316,7 +355,7 @@ FILTER_METHOD DScopeVideoMethod =
     FALSE, //TRUE,                      // Do we get called on Input. !*!*! when true causes crashes!!!
     FilterDScopeVIDEO,                  // Pointer to Algorithm function (cannot be NULL)
     0,                                  // id of menu to display status
-    TRUE,                               // Always run - do we run if there has been an overrun
+    FALSE,//TRUE,                          // Always run - do we run if there has been an overrun
     DScopeVideoStart,                   // call this if plugin needs to do anything before it is used                               
     DScopeVideoStop,                    // call this if plugin needs to deallocate anything
     NULL,                               // Used to save the module Handle
@@ -332,12 +371,14 @@ FILTER_METHOD DScopeVideoMethod =
 int LineNumber_OnChange(long NewValue)
 {
 	VideoLine = NewValue;
+    DScopeUpdateParameters();
     return FALSE;
 }
 //----------------------------------------------------------------------------
 int Y_Scale_OnChange(long NewValue)
 {
 	Y_ScalePercent = (int) NewValue;
+    DScopeUpdateParameters();
     return FALSE;
 }
 //----------------------------------------------------------------------------
@@ -418,8 +459,44 @@ int DisplayScope(TDeinterlaceInfo* pInfo)
 
     BYTE* CurrentOddLine;
     BYTE* CurrentEvenLine;
-    
-    if (pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD)
+
+
+    if(!bHasRunOnce)  // seems to be triggered when station is changed (and filter is enabled)
+    {
+        // get local copy of pointers for use globally, within filter
+        pOverlay      = pInfo->Overlay;
+        pInputPitch   = &pInfo->InputPitch;
+        pFrameWidth   = &pInfo->FrameWidth;
+        pLineLength   = &pInfo->LineLength;
+        pOverlayPitch = &pInfo->OverlayPitch;
+        pSource_right = &pInfo->SourceRect.right;
+
+        DScopeUpdateParameters();
+        bHasRunOnce = TRUE;
+    }
+
+
+    //if(Info.PictureHistory[HistoryRequired - 1]->IsFirstInSeries == TRUE)  (ref:J.A.)
+    // still some work needed here...
+    if(pInfo->PictureHistory[1]->IsFirstInSeries == TRUE)                 
+    {
+        pOverlay      = pInfo->Overlay;
+        pInputPitch   = &pInfo->InputPitch;
+        pFrameWidth   = &pInfo->FrameWidth;
+        pLineLength   = &pInfo->LineLength;
+        pOverlayPitch = &pInfo->OverlayPitch;
+        pSource_right = &pInfo->SourceRect.right;
+
+        DScopeUpdateParameters();
+
+#ifdef _DEBUG        
+        OutputDebugString   ( "IsFirstInSeries = TRUE (in DScope filter)" );
+#endif
+    }
+
+
+
+    if (pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD)  // ref:DI_Weave.c
     {
         CurrentOddLine  = pInfo->PictureHistory[0]->pData;
         CurrentEvenLine = pInfo->PictureHistory[1]->pData;
@@ -432,26 +509,17 @@ int DisplayScope(TDeinterlaceInfo* pInfo)
 
     // TV to DScaler format = subtract 1, then divide by 2 (discard remainder)... mj fix to match absolute... 
     
-    // translate start offset from TV to DScaler format
-    VideoLineDS = VideoLine - 1;
-
     if(VideoLine & 1)   // get correct source, from latest history...
     {
-        pLineSource = CurrentOddLine + ((int)(VideoLineDS / 2) * pInfo->InputPitch);
+        pLineSource = CurrentOddLine  + InputLine_Offset;
     }
     else                              
     {
-        pLineSource = CurrentEvenLine + ((int)(VideoLineDS / 2) * pInfo->InputPitch);
+        pLineSource = CurrentEvenLine + InputLine_Offset;
     }
 
     pInfo->pMemcpy(&LineBuffer[0], pLineSource, pInfo->LineLength);
 
-
-    // X scaling to fit screen width
-    X_Scale = (double) pInfo->FrameWidth / pInfo->LineLength;  // move to better location........
-
-    Y_Scale = (double) Y_ScalePercent / 100;   // convert from percentage to fraction
-	
     if(bPictureFill)
     {
         for (i = 0; i < (DWORD) pInfo->FrameHeight; i = i++)
@@ -466,6 +534,7 @@ int DisplayScope(TDeinterlaceInfo* pInfo)
     {
         DrawGrid((DWORD*) pInfo->Overlay, pInfo->OverlayPitch, pInfo->FrameHeight, pInfo->FrameWidth);
     }
+
 
     // draw plot data
     for (i = LineSegmentStart; i < pInfo->LineLength; i = i + 2) // do every second byte, 'Y' only
@@ -507,15 +576,22 @@ int DisplayScope(TDeinterlaceInfo* pInfo)
         // tidy here MJ @@
         if ((pInfo->Overlay + (Y1_PlotValue * pInfo->OverlayPitch) + X1_PlotValue) > pInfo->Overlay )  // check for writing before overlay area
         {  // the above check can be improved !! MJ **
-            *(BYTE*)( pInfo->Overlay + (Y1_PlotValue * pInfo->OverlayPitch) + X1_PlotValue) = Pixel_Y;  // set Y, finally!  
-        }   // set Y, finally!  
+            //*(BYTE*)( pInfo->PictureHistory[0]->pData + (Y1_PlotValue * pInfo->InputPitch) + X1_PlotValue) = Pixel_Y;  // set Y, finally!  
+            *(BYTE*)( pOverlay + (Y1_PlotValue * *pOverlayPitch) + X1_PlotValue) = Pixel_Y;  // set Y, finally!  
+        }     
 
     }
+
 
 	// draw line marker  
     if (bLineMarker) 
     {
-        DrawLineMarker( pInfo->PictureHistory[0]->pData, pInfo->InputPitch, pInfo->Overlay,  pInfo->OverlayPitch, pInfo->FrameHeight, pInfo->LineLength );
+        DrawLineMarker( pInfo->Overlay,             //
+                        pInfo->OverlayPitch,        //
+                        pInfo->Overlay,             //
+                        pInfo->OverlayPitch,        //
+                        pInfo->FrameHeight,         //
+                        pInfo->FrameWidth );        //
     }
 
     return 0;
@@ -570,8 +646,13 @@ BOOL DScopeVideoEnabled_OnChange( long NewValue ) // gets called when filter sta
                                              // channel to channel if filter state has no change.
     UseDScopeVideo = (BOOL) NewValue;
 
+    // MJ DEBUGGING
+    OutputDebugString   ( "DScopeVideoEnabled_OnChange called" );
+    
     if ( UseDScopeVideo )
     {
+        DScopeUpdateParameters ();          // quick fix only, until pInfo->IsFirstInSeries is working...
+        
         if (!bLineMarker)
         {
             //DScopeOSDText ( "DScope Video" );     // mj debug here, only allow this once !!
@@ -587,8 +668,7 @@ BOOL DScopeVideoEnabled_OnChange( long NewValue ) // gets called when filter sta
 
 */
 void DScopeVideoStart( void )
-{
-    
+{    
     OutputDebugString ( "DSCOPE_VIDEO - START" );
     
     hPrevWindow = FindWindow((LPCTSTR) "DScaler", NULL); 
@@ -596,7 +676,21 @@ void DScopeVideoStart( void )
     if (hPrevWindow == NULL)
 	{
 		OutputDebugString ( "Could not find DScaler !!" );
-	}
+    }
+
+    
+    // ## problem here ## DScaler does not provide valid data that would be
+    // useful at this point, such as pointers to source or overlay, pInfo data
+    // that could be useful for filter setup, and doing calcs that could be
+    // outside main filter loop..
+    
+    
+    // following line is of no use, see above...  
+    // DScopeUpdateParameters ();
+
+    // bHasRunOnce is used as a work-around..
+
+    return;
 }
 
 /*----------------------------------------------------------------------------
@@ -619,9 +713,9 @@ void DrawGrid( DWORD* pDestination, int pitch, int height, int width )
 {
     static DWORD* pGridLine_Lower;
     static DWORD* pGridLine_Upper;
-    static int     i;
-    static DWORD  ii; // mj experimenting here
-    static DWORD iii; //
+    static DWORD  i;
+    static DWORD  ii;  // mj experimenting here
+    static DWORD  iii; //
     const  _int32 white = 0x000000FF;
     int temp;
 
@@ -662,21 +756,16 @@ void DrawGrid( DWORD* pDestination, int pitch, int height, int width )
 	    mov	dword ptr[pGridLine_Upper], ecx
     }
 
-   // _ltoa ( pGridLine_Upper, strbuff, 16 );           // MJ DEBUGGING
-   // strcat( strbuff, " = pGridLine_Upper" );
-   // OutputDebugString   ( strbuff );
-
-
     if (pGridLine_Upper < pDestination )               // 
     {
         pGridLine_Upper = pDestination; 
     }
 
     if(bSolidBackground)
-    {
-        for (ii = (DWORD)pGridLine_Upper; ii < (DWORD)pGridLine_Lower; ii = ii + pitch) 
+    {                             // FIXES NEEDED HERE !! MJ
+        for (ii = (DWORD)pGridLine_Upper; ii < (DWORD)pGridLine_Lower  + pitch; ii = ii + pitch) 
         {
-            for (i = 0; i < width * 2; i = i + 4)   
+            for (i = 0; i < (DWORD) width * 2 ; i = i + 4 )     // something strange here!!, DWORD increment not working ?? MJ
             {    
                 *(DWORD*)(ii + i) = dwGrid_Color;               // draw line
             }   
@@ -684,7 +773,7 @@ void DrawGrid( DWORD* pDestination, int pitch, int height, int width )
     }
     else
     {
-        for (iii = 0; iii < (DWORD) width; iii = iii + 4)       // dashed line
+        for (iii = 0; iii < (DWORD) (width / 2) ; iii = iii + 2)// dashed line
         {
             *(DWORD*)(pGridLine_Upper + iii) = dwGrid_Color;    // top grid 
             *(DWORD*)(pGridLine_Lower + iii) = dwGrid_Color;    // bottom grid
@@ -697,35 +786,70 @@ void DrawGrid( DWORD* pDestination, int pitch, int height, int width )
     Draw Line Marker
 
 */                 
-void DrawLineMarker( BYTE* source, int source_pitch, BYTE* pDestination, int dest_pitch, int dest_frame_height, int length ) 
+void DrawLineMarker( BYTE* source, int source_pitch, BYTE* pDestination, int dest_pitch, int dest_frame_height, int width ) 
 {
-     static int i;
+     static DWORD i;
      static BYTE* pLineMarker;
      
      pLineMarker = pDestination + (VideoLineDS * dest_pitch);
 
-     if (pLineMarker < pDestination + (dest_frame_height * dest_pitch))// prevent over-run,, move this MJ
-     {
-        for (i = length - 40; i < length; i = i + 2) // do every second byte ('Y')
-        {
-            *(BYTE*) (pLineMarker + i) = 255;       // set 'Y' full-on 
-        }
+     // draw white indicator
+    if (pLineMarker < pDestination + (dest_frame_height * dest_pitch))// prevent over-run,, move this MJ
+    {
+           for (i = LineMarkerStart; i < LineMarkerEnd; i = i + 2) // do every second byte ('Y')
+            {
+                *(BYTE*) (pLineMarker + i) = 255;       // set 'Y' full-on 
+            }
 
-        _ltoa ( VideoLine, strbuff, 10 );                     
-        strcat( strbuff, "   " );
-
-     if (VideoLineDS < (dest_frame_height - 20) )   //  *********** tempory fix only mj
-     {   DrawString (source,                        // source
-                    pDestination,                   // pDestination
-                    source_pitch,                   // pitch [source]
-                    dest_frame_height,              // frame height[destination] 
-                    70,                             // x
-                    (int) (VideoLineDS / 40),       // y    ***** mj improve this !
-                    strbuff);                       // text
+            _ltoa ( VideoLine, strbuff, 10 );                     
+            strcat( strbuff, "   " );
+     
+        // draw text
+        if (VideoLineDS < (dest_frame_height - 20) )    //  *********** tempory fix only mj
+        {   
+            DrawString (source,                      // source
+                     pDestination,                   // pDestination
+                     source_pitch,                   // pitch [source]
+                     dest_frame_height,              // frame height[destination] 
+                     LineMarkerTextStart,            // x
+                     (int) (VideoLineDS / 20),       // y   
+                     strbuff);                       // text
         }
-     }      
+    }      
     return;
 }
 
+/*----------------------------------------------------------------------------
+
+    Update Parameters
+
+    - most calculations to be placed/relocated here, to reduce work-load within loops... 
+
+*/   
+void DScopeUpdateParameters ( void )
+{
+    #ifdef _DEBUG
+        OutputDebugString   ( "DScopeUpdateParameters called" );
+    #endif
+    
+    LineMarkerStart = (*pSource_right * 2) - 32;
+    LineMarkerEnd   = *pLineLength;
+
+    // chars are 10 pixels wide, start text 4 chars from right side
+    LineMarkerTextStart = (DWORD)(*pFrameWidth / 10) - 4;       
+
+    // X scaling to fit screen width
+    X_Scale = ((double) *pFrameWidth / (double) *pLineLength);
+
+    // convert from percentage to fraction
+    Y_Scale = ((double) Y_ScalePercent / (double) 100);   
+        
+    // translate start offset from TV to DScaler format
+    VideoLineDS = VideoLine - 1;
+    FieldLineDS = (int)(VideoLineDS / 2);
+    InputLine_Offset = FieldLineDS * *pInputPitch;
+
+    return;
+}
 
 //----------------------------------------------------------------------------

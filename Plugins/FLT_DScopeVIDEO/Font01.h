@@ -1,11 +1,12 @@
 // This is from theJam79's code from the IT 0.051AVISynth filter, with trivial changes
 // by Lindsey Dubb & MJ
 
-#include "..\..\Api\DS_ApiCommon.h"
+// font for 20 scan lines           see char '6' for binary layout
 
 
 static unsigned short font[][20] = {
-//STARTCHAR space
+
+    //STARTCHAR space
 	{
 		0x0000,0x0000,0x0000,0x0000,
 		0x0000,0x0000,0x0000,0x0000,
@@ -182,14 +183,40 @@ static unsigned short font[][20] = {
 		0x0000,0x0000,0x0000,0x0000,
 	},
 	//STARTCHAR 6
-	{
-		0x0000,0x0000,0x1e00,0x3300,
-		0x6100,0x6000,0x6000,0x6e00,
-		0x7300,0x6180,0x6180,0x6180,
-		0x6180,0x3300,0x1e00,0x0000,
-		0x0000,0x0000,0x0000,0x0000,
+        {           // looks like 10 pixels width by 20 lines height
+                    //  
+		0x0000,     // 0000,0000,00 00,0000
+        0x0000,     // 0000,0000,00 00,0000
+        0x1e00,     // 0001,1110,00 00,0000
+        0x3300,     // 0011,0011,00 00,0000
+        0x6100,     // 0110,0001,00 00,0000
+        0x6000,     // 0110,0000,00 00,0000
+        0x6000,     // 0110,0000,00 00,0000
+        0x6e00,     // 0110,1110,00 00,0000
+        0x7300,     // 0111,0011,00 00,0000
+        0x6180,     // 0110,0001,10 00,0000
+        0x6180,     // 0110,0001,10 00,0000
+        0x6180,     // 0110,0001,10 00,0000
+		0x6180,     // 0110,0001,10 00,0000
+        0x3300,     // 0011,0011,00 00,0000
+        0x1e00,     // 0001,1110,00 00,0000
+        0x0000,     // 0000,0000,00 00,0000
+		0x0000,     // 0000,0000,00 00,0000
+        0x0000,     // 0000,0000,00 00,0000
+        0x0000,     // 0000,0000,00 00,0000
+        0x0000,     // 0000,0000,00 00,0000
 	},
-	//STARTCHAR 7
+
+//    //STARTCHAR 6
+//	{
+//		0x0000,0x0000,0x1e00,0x3300,
+//		0x6100,0x6000,0x6000,0x6e00,
+//		0x7300,0x6180,0x6180,0x6180,
+//		0x6180,0x3300,0x1e00,0x0000,
+//		0x0000,0x0000,0x0000,0x0000,
+//	},
+
+    //STARTCHAR 7
 	{
 		0x0000,0x0000,0x7f80,0x0180,
 		0x0180,0x0300,0x0300,0x0600,
@@ -1542,90 +1569,3 @@ static unsigned short font[][20] = {
 		0x6180,0x3300,0x1e00,0x0000,
 	}
 };
-
-#ifndef Pixel32
-typedef unsigned long Pixel32;
-#endif
-
-void DrawDigit(unsigned char* P_source, unsigned char* P_dest, int pitch_source, int FrameHeight_dest, int x, int y, int num) 
-{
-	// mods to select in/out pictures mj
-
-        
-    const Pixel32   backColor = 0x000000;
-	const Pixel32   textColor = 0x00FF00;
-    int             tx = 0;
-    int             ty = 0;
-    unsigned char*  P_dest_Start;
-
-    static                char           strbuff[80];             // for debug text output
-
-	x = x * 10;        
-	y = y * 20;
-
-// mj fix, added pitch for source and destination !!!!!!!!!!!!!!!!************!!!!!!!!!!!!!!
-
-//      _ltoa ( P_dest, strbuff, 16 );         // MJ DEBUGGING
-//      strcat( strbuff, " = P_dest" );
-//      OutputDebugString   ( strbuff );
-    
-    
-    P_dest_Start = P_dest;//quick fix only mj **********************8
-    
-    for (tx = 0; tx < 10; tx++)     // 10 pixels across
-    {
-		
-        for (ty = 0; ty < 20; ty++) // 20 pixels down
-        {
-			P_dest = &(P_source[(x + tx) * 2 + (y + ty) * pitch_source]);
-
-           
-          //NOT COMPLETE to be fixed mj ******************************************************************************  
-           // if (P_dest < P_dest_Start + (FrameHeight_dest * pitch_source))// prevent over-run 
-           //     continue;
-
-			if (font[num][ty] & (1 << (15 - tx)))
-            {
-				if (tx & 1) 
-                {
-					P_dest[0]  = 250;
-					P_dest[-1] = 128;
-					P_dest[1]  = 128;
-				}
-                else 
-                {
-					P_dest[0]  = 250;
-					P_dest[1]  = 128;
-					P_dest[3]  = 128;
-				}
-			}
-            else
-            {
-				if (tx & 1) 
-                {
-					P_dest[0]  = (P_dest[0]  * 3)   >> 2;
-					P_dest[-1] = (P_dest[-1] + 128) >> 1;
-					P_dest[1]  = (P_dest[1]  + 128) >> 1;
-				}
-                else 
-                {
-					P_dest[0]  = (P_dest[0] * 3)    >> 2;
-					P_dest[1]  = (P_dest[1] + 128)  >> 1;
-					P_dest[3]  = (P_dest[3] + 128)  >> 1;
-				}
-			}
-		}
-	}
-}
-
-
-void DrawString(unsigned char* P_source, unsigned char* P_dest, int pitch_source, int FrameHeight_dest, int x, int y, const char *strBuffer) 
-{
-    int xx = 0;
-	
-    for (xx = 0; *strBuffer; ++strBuffer, ++xx) 
-    {
-		DrawDigit(P_source, P_dest, pitch_source, FrameHeight_dest, x + xx, y, *strBuffer - ' ');
-	}
-}
-

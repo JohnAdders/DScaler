@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.112 2002-01-19 12:53:00 temperton Exp $
+// $Id: DScaler.cpp,v 1.113 2002-01-20 09:59:32 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.112  2002/01/19 12:53:00  temperton
+// Teletext pages updates at correct time.
+// Teletext can use variable-width font.
+//
 // Revision 1.111  2002/01/16 19:02:17  adcockj
 // Fixed window style and context menu fullscreen check
 //
@@ -1980,6 +1984,13 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             if (IsStatusBarVisible())
             {
                 strcpy(Text, Providers_GetCurrentSource()->GetStatus());
+                if(Text[0] == 0x00)
+                {
+                    if(Providers_GetCurrentSource()->IsInTunerMode())
+                    {
+                        strcpy(Text, Channel_GetName());
+                    }
+                }
                 if (Setting_GetValue(Audio_GetSetting(SYSTEMINMUTE)) == TRUE)
 	    		{
                     sprintf(Text, "Volume Mute");

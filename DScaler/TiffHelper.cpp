@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TiffHelper.cpp,v 1.20 2002-05-03 20:36:49 laurentg Exp $
+// $Id: TiffHelper.cpp,v 1.21 2002-05-05 12:09:22 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2002/05/03 20:36:49  laurentg
+// 16 byte aligned data
+//
 // Revision 1.19  2002/04/27 14:08:07  laurentg
 // Automatic square pixels mode handling updated
 //
@@ -160,7 +163,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
     BYTE* pFrameBuf;
     BYTE* pDestBuf;
     TIFF* tif;
-    uint32 w, h;
+    uint32 w, h, w2;
     uint16 Class;
     size_t npixels;
     uint32* bufPackedRGB;
@@ -173,6 +176,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
     uint16 Compression;
     char* Software;
     char* Description;
+    int LinePitch;
 
     // Open the file
     tif = TIFFOpen(FileName, "r");
@@ -210,8 +214,19 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
     }
 #endif
 
+    // The width must be even
+    if (w%2)
+    {
+        w2 = w - 1;
+    }
+    else
+    {
+        w2 = w;
+    }
+
     // Allocate memory buffer to store the YUYV values
-    pFrameBuf = (BYTE*)DumbAlignedMalloc(w * 2 * h * sizeof(BYTE));
+    LinePitch = (w2 * 2 * sizeof(BYTE) + 16) & 0xfffffff0;
+    pFrameBuf = (BYTE*)DumbAlignedMalloc(LinePitch * h);
     if (pFrameBuf == NULL)
     {
         TIFFClose(tif);
@@ -251,11 +266,11 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
         }
 
         // YYUV => YUYV
-        pDestBuf = pFrameBuf;
         for (i = 0 ; i < h ; i++)
         {
+            pDestBuf = pFrameBuf + i * LinePitch;
             pSrcBuf = bufYCbCr + i * w * 2;
-            for (j = 0 ; j < (w/2) ; j++)
+            for (j = 0 ; j < (w2/2) ; j++)
             {
                 *pDestBuf = pSrcBuf[j * 4];
                 ++pDestBuf;
@@ -264,13 +279,6 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
                 *pDestBuf = pSrcBuf[j * 4 + 1];
                 ++pDestBuf;
                 *pDestBuf = pSrcBuf[j * 4 + 3];
-                ++pDestBuf;
-            }
-            if (w % 2)
-            {
-                *pDestBuf = pSrcBuf[j * 4];
-                ++pDestBuf;
-                *pDestBuf = pSrcBuf[j * 4 - 2];
                 ++pDestBuf;
             }
         }
@@ -298,10 +306,10 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
         }
 
         // RGBRGB => YUYV
-        pDestBuf = pFrameBuf;
         for (i = (h - 1) ; i >= 0 ; i--)
         {
-            for (j = 0 ; j < (w/2) ; j++)
+            pDestBuf = pFrameBuf + (h - 1 - i) * LinePitch;
+            for (j = 0 ; j < (w2/2) ; j++)
             {
                 PackedABGRValue = bufPackedRGB[i * w + j * 2];
                 r = TIFFGetR(PackedABGRValue);
@@ -326,21 +334,6 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
                 *pDestBuf = LIMIT(y2);
                 ++pDestBuf;
                 *pDestBuf = LIMIT(cr);
-                ++pDestBuf;
-            }
-            if (w % 2)
-            {
-                PackedABGRValue = bufPackedRGB[i * w + j * 2];
-                r = TIFFGetR(PackedABGRValue);
-                g = TIFFGetG(PackedABGRValue);
-                b = TIFFGetB(PackedABGRValue);
-
-                y1 = ( 16840*r + 33058*g +  6405*b + 1048576)>>16;
-                cb = ( -9713*r - 19068*g + 28781*b + 8388608)>>16;
-
-                *pDestBuf = LIMIT(y1);
-                ++pDestBuf;
-                *pDestBuf = LIMIT(cb);
                 ++pDestBuf;
             }
         }
@@ -374,8 +367,9 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
         DumbAlignedFree(m_pParent->m_OriginalFrame.pData);
     }
     m_pParent->m_OriginalFrame.pData = pFrameBuf;
+    m_pParent->m_LinePitch = LinePitch;
     m_pParent->m_Height = h;
-    m_pParent->m_Width = w;
+    m_pParent->m_Width = w2;
 
     return TRUE;
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.58 2002-05-03 20:36:49 laurentg Exp $
+// $Id: Calibration.cpp,v 1.59 2002-05-05 12:09:21 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.58  2002/05/03 20:36:49  laurentg
+// 16 byte aligned data
+//
 // Revision 1.57  2002/05/03 11:18:37  laurentg
 // New settings added to define the size of the pattern
 //
@@ -794,6 +797,11 @@ CTestPattern::CTestPattern(LPCSTR FileName)
     }
 
     m_Width = Setting_GetValue(Still_GetSetting(PATTERNWIDTH));
+    // The width must be even
+    if (m_Width%2)
+    {
+        m_Width--;
+    }
     m_Height = Setting_GetValue(Still_GetSetting(PATTERNHEIGTH));
 
     while(!feof(FilePat))
@@ -1065,14 +1073,14 @@ CSubPattern* CTestPattern::GetSubPattern(eTypeAdjust type_adjust)
     return NULL;
 }
 
-void CTestPattern::Draw(BYTE* Buffer)
+void CTestPattern::Draw(BYTE* Buffer, int Pitch)
 {
     // Do the job for each defined color bar
     for(vector<CColorBar*>::iterator it = m_ColorBars.begin(); 
         it != m_ColorBars.end(); 
         ++it)
     {
-        (*it)->Draw(Buffer, m_Width*2, m_Height, m_Width, 0, 0, 0);
+        (*it)->Draw(Buffer, Pitch, m_Height, m_Width, 0, 0, 0);
     }
 }
 
@@ -2354,6 +2362,7 @@ BOOL CPatternHelper::OpenMediaFile(LPCSTR FileName)
 {
     CTestPattern pattern(FileName);
     BYTE* pFrameBuf;
+    int LinePitch;
 
     if ((pattern.GetWidth() * pattern.GetHeight()) == 0)
     {
@@ -2361,19 +2370,21 @@ BOOL CPatternHelper::OpenMediaFile(LPCSTR FileName)
     }
 
     // Allocate memory buffer to store the YUYV values
-    pFrameBuf = (BYTE*)DumbAlignedMalloc(pattern.GetWidth() * 2 * pattern.GetHeight() * sizeof(BYTE));
+    LinePitch = (pattern.GetWidth() * 2 * sizeof(BYTE) + 16) & 0xfffffff0;
+    pFrameBuf = (BYTE*)DumbAlignedMalloc(LinePitch * pattern.GetHeight());
     if (pFrameBuf == NULL)
     {
         return FALSE;
     }
 
-    pattern.Draw(pFrameBuf);
+    pattern.Draw(pFrameBuf, LinePitch);
 
     if (m_pParent->m_OriginalFrame.pData != NULL)
     {
         DumbAlignedFree(m_pParent->m_OriginalFrame.pData);
     }
     m_pParent->m_OriginalFrame.pData = pFrameBuf;
+    m_pParent->m_LinePitch = LinePitch;
     m_pParent->m_Height = pattern.GetHeight();
     m_pParent->m_Width = pattern.GetWidth();
     m_pParent->m_SquarePixels = FALSE;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.31 2002-05-03 20:36:49 laurentg Exp $
+// $Id: StillSource.h,v 1.32 2002-05-05 12:09:22 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -147,6 +147,7 @@ protected:
     BOOL        m_IsPictureRead;
     BOOL        m_SquarePixels;
     BOOL        m_NavigOnly;
+    int         m_LinePitch;
 
 private:
     DWORD       m_LastTickCount;

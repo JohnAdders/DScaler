@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.h,v 1.27 2002-02-16 16:43:15 laurentg Exp $
+// $Id: Calibration.h,v 1.28 2002-05-05 12:09:22 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -271,7 +271,7 @@ public:
     /// This method returns the (first) sub-pattern allowing to adjust particular settings
     CSubPattern* GetSubPattern(eTypeAdjust type_adjust);
 
-    void Draw(BYTE* buffer);
+    void Draw(BYTE* buffer, int Pitch);
 
     /// Color bars of the test pattern
     vector<CColorBar*> m_ColorBars;

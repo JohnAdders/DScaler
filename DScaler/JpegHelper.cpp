@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: JpegHelper.cpp,v 1.4 2002-05-04 12:03:23 laurentg Exp $
+// $Id: JpegHelper.cpp,v 1.5 2002-05-05 12:09:22 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/05/04 12:03:23  laurentg
+// Use of marker APP1 and APP2 to save DScaler information
+//
 // Revision 1.3  2002/05/03 20:36:49  laurentg
 // 16 byte aligned data
 //
@@ -416,6 +419,7 @@ BOOL CJpegHelper::OpenMediaFile(LPCSTR FileName)
     int h, w, i, j;
     BYTE* pFrameBuf = NULL;
     BYTE* pDestBuf;
+    BYTE* pDestBuf2;
 	struct jpeg_decompress_struct cinfo;
 	struct jpeg_error_mgr jerr;
     jpeg_saved_marker_ptr pMarker;
@@ -424,6 +428,7 @@ BOOL CJpegHelper::OpenMediaFile(LPCSTR FileName)
     JSAMPARRAY buffer;
     JDIMENSION buffer_height;
     BOOL Square = TRUE;
+    int LinePitch;
     jmp_buf jmp_mark;
 
     // Open the input stream (file)
@@ -503,14 +508,20 @@ BOOL CJpegHelper::OpenMediaFile(LPCSTR FileName)
     LOG(2, "output_components %d", cinfo.output_components);
     LOG(2, "rec_outbuf_height %d", cinfo.rec_outbuf_height);
 
+    buffer_height = cinfo.rec_outbuf_height;
+    buffer = (*cinfo.mem->alloc_sarray)((j_common_ptr) &cinfo, JPOOL_IMAGE, cinfo.output_width * cinfo.output_components, buffer_height);
+
     h = cinfo.output_height;
     w = cinfo.output_width;
-
-    buffer_height = cinfo.rec_outbuf_height;
-    buffer = (*cinfo.mem->alloc_sarray)((j_common_ptr) &cinfo, JPOOL_IMAGE, w * cinfo.output_components, buffer_height);
+    // The width must be even
+    if (w%2)
+    {
+        w--;
+    }
 
     // Allocate memory buffer to store the final YUYV values
-    pFrameBuf = (BYTE*)DumbAlignedMalloc(w * 2 * h * sizeof(BYTE));
+    LinePitch = (w * 2 * sizeof(BYTE) + 16) & 0xfffffff0;
+    pFrameBuf = (BYTE*)DumbAlignedMalloc(LinePitch * h);
     if (pFrameBuf == NULL)
     {
         jpeg_destroy_decompress(&cinfo);
@@ -519,14 +530,15 @@ BOOL CJpegHelper::OpenMediaFile(LPCSTR FileName)
     }
 
     // Process data
-    pDestBuf = pFrameBuf;
     while (cinfo.output_scanline < h)
     {
+        pDestBuf2 = pFrameBuf + cinfo.output_scanline * LinePitch;
         num_scanlines = jpeg_read_scanlines(&cinfo, buffer, buffer_height);
 
         // YUVYUV => YUYV
         for (i = 0 ; i < num_scanlines ; i++)
         {
+            pDestBuf = pDestBuf2 + i * LinePitch;
             for (j = 0 ; j < w ; j++)
             {
                 if (j%2)
@@ -561,6 +573,7 @@ BOOL CJpegHelper::OpenMediaFile(LPCSTR FileName)
         DumbAlignedFree(m_pParent->m_OriginalFrame.pData);
     }
     m_pParent->m_OriginalFrame.pData = pFrameBuf;
+    m_pParent->m_LinePitch = LinePitch;
     m_pParent->m_Height = h;
     m_pParent->m_Width = w;
     m_pParent->m_SquarePixels = Square;

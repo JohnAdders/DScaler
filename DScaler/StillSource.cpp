@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.54 2002-05-03 20:36:49 laurentg Exp $
+// $Id: StillSource.cpp,v 1.55 2002-05-05 12:09:22 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.54  2002/05/03 20:36:49  laurentg
+// 16 byte aligned data
+//
 // Revision 1.53  2002/05/03 11:18:37  laurentg
 // New settings added to define the size of the pattern
 //
@@ -300,6 +303,7 @@ CStillSource::CStillSource(LPCSTR IniSection) :
     m_pMemcpy = NULL;
     m_SquarePixels = TRUE;
     m_NavigOnly = FALSE;
+    m_LinePitch = 0;
 }
 
 CStillSource::~CStillSource()
@@ -437,7 +441,6 @@ BOOL CStillSource::OpenPictureFile(LPCSTR FileName)
             NewWidth = NewWidth * DSCALER_MAX_HEIGHT / NewHeight;
             NewHeight = DSCALER_MAX_HEIGHT;
         }
-//		NewHeight = NewHeight & 0xfffffffe;		// even height
 		NewWidth = NewWidth & 0xfffffffe;       // even wid 
 
         if (!ResizeOriginalFrame(NewWidth, NewHeight))
@@ -702,7 +705,7 @@ void CStillSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     pInfo->FrameWidth = m_Width;
     pInfo->FrameHeight = m_Height;
     pInfo->FieldHeight = m_Height;
-    pInfo->InputPitch = pInfo->LineLength;
+    pInfo->InputPitch = m_LinePitch;
     pInfo->PictureHistory[0] = &m_StillFrame;
 
     Timing_IncrementUsedFields();
@@ -985,24 +988,21 @@ BOOL CStillSource::ReadNextFrameInFile()
         }
         if (m_StillFrame.pData == NULL)
         {
-			// we get an extra bytes all the time so we can run off the end in resize 
-			// if needed to handle odd widths 
-            m_StillFrame.pData = 
-				(BYTE*)DumbAlignedMalloc((m_Width * 2 * m_Height * sizeof(BYTE)+24) & 0xfffffff0);
+            m_StillFrame.pData = (BYTE*)DumbAlignedMalloc(m_LinePitch * m_Height);
         }
         if (m_StillFrame.pData != NULL && m_OriginalFrame.pData != NULL)
         {
             //
             // WARNING: optimized memcpy seems to be the source of problem with certain hardware configurations
             //
-//            if (m_pMemcpy == NULL)
-//            {
-                memcpy(m_StillFrame.pData, m_OriginalFrame.pData, m_Width * 2 * m_Height * sizeof(BYTE));;
-//            }
-//            else
-//            {
-//                m_pMemcpy(m_StillFrame.pData, m_OriginalFrame.pData, m_Width * 2 * m_Height * sizeof(BYTE));;
-//            }
+            if (m_pMemcpy == NULL)
+            {
+                memcpy(m_StillFrame.pData, m_OriginalFrame.pData, m_LinePitch * m_Height);
+            }
+            else
+            {
+                m_pMemcpy(m_StillFrame.pData, m_OriginalFrame.pData, m_LinePitch * m_Height);
+            }
             return TRUE;
         }
         return FALSE;
@@ -1352,8 +1352,8 @@ void Still_ShowUI()
 
 BOOL CStillSource::ResizeOriginalFrame(int NewWidth, int NewHeight)
 {
-	int OldPitch = m_Width * 2;
-	int NewPitch = NewWidth * 2;
+	int OldPitch = m_LinePitch;
+	int NewPitch;
 	unsigned int* hControl;		// weighting masks, alternating dwords for Y & UV
 								// 1 qword for mask, 1 dword for src offset, 1 unused dword
 	unsigned int* vOffsets;		// Vertical offsets of the source lines we will use
@@ -1376,7 +1376,8 @@ BOOL CStillSource::ResizeOriginalFrame(int NewWidth, int NewHeight)
     LOG(3, "m_Width %d, NewWidth %d, m_Height %d, NewHeight %d", m_Width, NewWidth, m_Height, NewHeight);
 
     // Allocate memory for the new YUYV buffer
-    BYTE* NewBuf = (BYTE*)DumbAlignedMalloc(NewWidth * 2 * NewHeight * sizeof(BYTE));
+    NewPitch = (NewWidth * 2 * sizeof(BYTE) + 16) & 0xfffffff0;
+    BYTE* NewBuf = (BYTE*)DumbAlignedMalloc(NewPitch * NewHeight);
 	dstp = NewBuf;
 
     // Size of m_OriginalFrame.pData is m_Width x m_Height (*2?)
@@ -1522,6 +1523,7 @@ BOOL CStillSource::ResizeOriginalFrame(int NewWidth, int NewHeight)
     // Replace the old YUYV buffer by the new one
     DumbAlignedFree(m_OriginalFrame.pData);
     m_OriginalFrame.pData = NewBuf;
+    m_LinePitch = NewPitch;
     m_Width = NewWidth;
     m_Height = NewHeight;
 

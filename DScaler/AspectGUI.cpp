@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.22 2001-08-06 22:32:13 laurentg Exp $
+// $Id: AspectGUI.cpp,v 1.23 2001-09-03 13:06:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2001/08/06 22:32:13  laurentg
+// Little improvments for AR autodetection
+//
 // Revision 1.21  2001/08/03 09:52:42  adcockj
 // Added range checking on settings and fixed setting with out of range errors
 //
@@ -887,7 +890,7 @@ SETTING AspectGUISettings[ASPECT_SETTING_LASTONE] =
         "ASPECT_DETECT", "AspectHistoryTime", NULL,
     },
     {
-        "AspectConsistencyTime", SLIDER, 0, (long*)&AspectSettings.AspectConsistencyTime,
+        "Aspect Consistency Time", SLIDER, 0, (long*)&AspectSettings.AspectConsistencyTime,
         15, 0, 300, 5, 1,
         NULL,
         "ASPECT_DETECT", "AspectConsistencyTime", NULL,

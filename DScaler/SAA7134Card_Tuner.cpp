@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Tuner.cpp,v 1.13 2004-11-20 14:20:09 atnak Exp $
+// $Id: SAA7134Card_Tuner.cpp,v 1.14 2004-11-23 19:25:13 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2004/11/20 14:20:09  atnak
+// Changed the card list to an ini file.
+//
 // Revision 1.12  2004/04/19 20:38:38  adcockj
 // Fix for previous fix (must learn to program...)
 //
@@ -92,6 +95,21 @@ BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
         m_Tuner = NULL;
     }
 
+	/* comment from Torsten:
+
+	@Atsushi
+	We could delete this long switch if we are parsing from card ini file.
+	That's pseudo code what I mean:
+
+	if(ParserFromIni.GetCard().UseTDA9887() == yes)
+	{
+		LookForIFDemod = TRUE;
+	}
+
+	Are there other IFDemodulator's than TDA9887 on SAA713x cards?
+
+	*/
+
     switch (tunerId)
     {
     case TUNER_MT2032:
@@ -145,6 +163,54 @@ BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
     BYTE IFDemDeviceAddress[2] = {0,0};
     eVideoFormat videoFormat = m_Tuner->GetDefaultVideoFormat();
     int NumAddressesToSearch = 2;
+
+	/* comment from Torsten:
+
+	@Atsushi
+	I need your help.
+	Below we could replace CTDA9887 to CTDA9887FromIni.
+	I see two ways how to do it:
+
+	1)You are parsing card ini file for tda9887 options.
+	  That's pseudo code:
+		
+		if(LookForIFDemod)
+		{        
+			CTDA9887FromIni *pTDA9887FromIni = new CTDA9887FromIni();
+			pExternalIFDemodulator = pTDA9887FromIni;
+			IFDemDeviceAddress[0] = I2C_TDA9887_0;
+			IFDemDeviceAddress[1] = I2C_TDA9887_1;
+
+			ParserFromIni.StartParseTDA9887Options();
+
+			while(TDA9887Options)
+			{
+				BYTE b = 0x00;
+				
+				if(ParserFromIni.GetOutputPort1() == Inactive) // default = Active
+				{
+					b |= TDA9887_OutputPort1Inactive;
+				}
+				
+				if(ParserFromIni.OutputPort2() == Inactive) // default = Active
+				{
+					b |= TDA9887_OutputPort2Inactive;
+				}
+
+				BYTE c = ParserFromIni.GetTakeOverPoint() // default = 0x10 = TDA9887_TakeOverPointDefault
+				eVideoFormat videoformat = ParserFromIni.GetThisVideoFormat();
+				pTDA9887FromIni->SetCardSpecific(videoformat, b, c);
+
+				ParserFromIni.GetNext();
+			}
+		}
+
+	2)I'm parsing card ini file in CTDA9887FromIni.
+
+	  I think I need file path for card ini file in CTDA9887FromIni constructor,
+	  actual selected card (ID or name) and a lot of help...
+
+	*/
 
     if(LookForIFDemod)
     {        

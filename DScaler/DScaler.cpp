@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.155 2002-05-23 18:45:03 robmuller Exp $
+// $Id: DScaler.cpp,v 1.156 2002-05-24 10:52:58 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.155  2002/05/23 18:45:03  robmuller
+// Patch #559554 by PietOO.
+// Teletext: + text search ctrl-F & next F3
+//
 // Revision 1.154  2002/05/20 16:41:16  robmuller
 // Prevent channel changing when in videotext mode.
 //
@@ -563,6 +567,20 @@ BOOL bShowCrashDialog = FALSE;
 
 UINT MsgWheel;
 
+// Current sleepmode timers (minutes)
+TSMState SMState;
+#define SMPeriodCount       7
+int SMPeriods[SMPeriodCount] =
+{
+    0,
+    1,
+    15,
+    30,
+    60,
+    90,
+    120
+};
+
 BOOL IsFullScreen_OnChange(long NewValue);
 BOOL DisplayStatusBar_OnChange(long NewValue);
 void Cursor_UpdateVisibility();
@@ -771,6 +789,12 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     {
         ErrorBox("Accelerators not Loaded");
     }
+
+    // Initialize sleepmode
+    SMState.State = SM_WaitMode;
+    SMState.iPeriod = 0;
+    SMState.Period = 0;
+    SMState.SleepAt = 0;
 
     // catch any serious errors during message handling
     while (GetMessage(&msg, NULL, 0, 0))
@@ -1024,6 +1048,97 @@ BOOL SearchGotoVTPage(BOOL bSearchAllPages)
     return bFound;
 }
 
+void UpdateSleepMode(TSMState *SMState, char *Text)
+{
+    time_t curr = 0;
+    struct tm *SMTime = NULL;
+    UINT uiPeriod;
+
+    switch( SMState->State )
+    {
+    case SM_WaitMode:
+        // Called by press on delete key. 
+        // Initial mode. (ie 1st press)
+        
+        // Show current sleep setting
+        if( SMState->SleepAt != 0 ) 
+        {
+            KillTimer(hWnd, TIMER_SLEEPMODE);
+            SMTime = localtime(&SMState->SleepAt);
+            sprintf(Text, "Sleep %d (%02d:%02d)", SMState->Period, SMTime->tm_hour, SMTime->tm_min);
+        }
+        else
+        {
+            strcpy(Text, "Sleep OFF");
+        }
+        // Set update window
+        SetTimer(hWnd, TIMER_SLEEPMODE, TIMER_SLEEPMODE_MS, NULL);
+
+        // Goto change-mode (interprete next push on key as change-request)
+        SMState->State = SM_ChangeMode;
+        break;
+
+    case SM_ChangeMode:
+        // Called by press on delete key.
+        // Subsequent presses within TIMER_SLEEPMODE_MS of previous press 
+        
+        // Next higher period (cycle)
+        SMState->iPeriod = ++SMState->iPeriod % SMPeriodCount;
+        SMState->Period = SMPeriods[SMState->iPeriod];
+
+        // Set & show activation time
+        if( SMState->Period != 0 ) 
+        {
+            curr = time(0);
+            SMState->SleepAt = curr + SMState->Period * 60;
+            SMTime = localtime(&SMState->SleepAt);
+            sprintf(Text, "New sleep %d (%02d:%02d)", SMState->Period, SMTime->tm_hour, SMTime->tm_min);
+        }
+        else
+        {   
+            SMState->SleepAt = 0;
+            strcpy(Text, "New sleep OFF");
+        }
+        
+        // Restart change-mode timing
+        KillTimer(hWnd, TIMER_SLEEPMODE);
+        SetTimer(hWnd, TIMER_SLEEPMODE, TIMER_SLEEPMODE_MS, NULL);
+        break;
+        
+    case SM_UpdateMode:
+        // Mode set by WM_TIMER upon passing of TIMER_SLEEPMODE_MS
+        curr = time(0);
+        
+        // Set timer to remainder of period if applicable
+        if( SMState->SleepAt > curr )
+        {
+            uiPeriod = ( SMState->SleepAt - curr ) * 1000;
+            SetTimer(hWnd, TIMER_SLEEPMODE, uiPeriod, NULL);
+        }
+        else
+        {
+            // Passed sleepat-time in SM_Show or ChangeMode, stop asap
+            if( SMState->SleepAt != 0 )
+            {
+                uiPeriod = 10;
+                SetTimer(hWnd, TIMER_SLEEPMODE, uiPeriod, NULL);
+            }
+            else
+            {
+                // Sleep OFF
+                ; 
+            }
+        }
+
+        // Return to wait-mode.
+        SMState->State = SM_WaitMode;
+        break;
+        
+    default:
+        ; //NEVER_GET_HERE
+    }
+}
+
 ///**************************************************************************
 //
 //    FUNCTION: MainWndProc(HWND, unsigned, WORD, LONG)
@@ -1265,6 +1380,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             WorkoutOverlaySize(TRUE);
             break;
 
+        case IDM_SLEEPMODE:
+            UpdateSleepMode(&SMState, Text);
+            ShowText(hWnd, Text);
+            break;
+        
         case IDM_AUTODETECT:
             KillTimer(hWnd, TIMER_FINDPULL);
             if(Setting_GetValue(OutThreads_GetSetting(AUTODETECT)))
@@ -2491,6 +2611,28 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 ShowText(hWnd, GetDeinterlaceModeName());
             }
             break;
+        //---------------------------------
+        case TIMER_SLEEPMODE:
+            {
+                KillTimer(hWnd, TIMER_SLEEPMODE);
+                switch( SMState.State )
+                {
+                case SM_WaitMode:
+                    // End of main timing
+                    ShowWindow(hWnd, SW_HIDE);
+                    PostMessage(hWnd, WM_DESTROY, wParam, lParam);
+                    break;
+                case SM_ChangeMode:
+                    // Update & Restart main timing
+                    SMState.State = SM_UpdateMode;
+                    UpdateSleepMode(&SMState, Text);
+                    break;
+                default:
+                    ; //NEVER_GET_HERE;
+                }
+            }
+            break;
+        //---------------------------------
         default:
             Provider_HandleTimerMessages(LOWORD(wParam));
             break;
@@ -2929,6 +3071,7 @@ void KillTimers()
     KillTimer(hWnd, TIMER_VTFLASHER);
     KillTimer(hWnd, TIMER_VTUPDATE);
     KillTimer(hWnd, TIMER_FINDPULL);
+    KillTimer(hWnd, TIMER_SLEEPMODE);
 }
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.19 2002-04-15 22:50:08 laurentg Exp $
+// $Id: DScaler.h,v 1.20 2002-05-24 10:52:58 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -99,6 +99,22 @@ HMENU GetPatternsSubmenu();
 
 #define TIMER_FINDPULL      46
 #define TIMER_FINDPULL_MS   4000
+
+#define TIMER_SLEEPMODE     73
+#define TIMER_SLEEPMODE_MS  2000
+enum eSMState
+{
+    SM_WaitMode,
+    SM_ChangeMode,
+    SM_UpdateMode
+};
+typedef struct
+{
+    eSMState State;
+    int iPeriod;
+    int Period;
+    time_t SleepAt;
+} TSMState;
 
 #define WM_VIDEOTEXT        0x3001
 #define UWM_INPUTSIZE_CHANGE WM_APP+1

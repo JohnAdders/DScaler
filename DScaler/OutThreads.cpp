@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.122 2003-07-22 22:33:12 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.123 2003-07-31 07:00:38 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.122  2003/07/22 22:33:12  laurentg
+// Correct handling of pause (P key) for video file playing
+//
 // Revision 1.121  2003/07/08 21:04:59  laurentg
 // New timeshift mode (full height) - experimental
 //
@@ -474,7 +477,7 @@ BOOL                RequestToggleFlip = FALSE;
 BOOL				bCheckSignalPresent = FALSE;
 BOOL				bCheckSignalMissing = FALSE;
 BOOL                bDoVerticalFlipSetting = FALSE;
-HANDLE              OutThread;
+HANDLE              g_hOutThread;
 DWORD OutThreadID=0;
 
 // Capture state variables
@@ -548,53 +551,49 @@ void Start_Thread()
 
     bStopThread = FALSE;
 
-    OutThread = CreateThread((LPSECURITY_ATTRIBUTES) NULL,  // No security.
-                             (DWORD) 0,                     // Same stack size.
-                             YUVOutThread,                  // Thread procedure.
-                             NULL,                          // Parameter.
-                             (DWORD) 0,                     // Start immediatly.
-                             (LPDWORD) &OutThreadID);       // Thread ID.
+    g_hOutThread = CreateThread((LPSECURITY_ATTRIBUTES) NULL,   // No security.
+                                (DWORD) 0,                      // Same stack size.
+                                YUVOutThread,                   // Thread procedure.
+                                NULL,                           // Parameter.
+                                (DWORD) 0,                      // Start immediatly.
+                                (LPDWORD) &OutThreadID);        // Thread ID.
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 void Stop_Thread()
 {
-    DWORD ExitCode;
-    int i;
-    BOOL Thread_Stopped = FALSE;
-
-    if (OutThread != NULL)
+    if (g_hOutThread != NULL)
     {
-        i = 10;
-        SetThreadPriority(OutThread, THREAD_PRIORITY_NORMAL);
-        bStopThread = TRUE;
-        while(i-- > 0 && !Thread_Stopped)
-        {
-            if (GetExitCodeThread(OutThread, &ExitCode) == TRUE)
-            {
-                if (ExitCode != STILL_ACTIVE)
-                {
-                    Thread_Stopped = TRUE;
-                }
-                else
-                {
-                    Sleep(100);
-                }
-            }
-            else
-            {
-                Thread_Stopped = TRUE;
-            }
-        }
+        SetThreadPriority(g_hOutThread, THREAD_PRIORITY_NORMAL);
 
-        if (Thread_Stopped == FALSE)
+        // Signal the stop
+        bStopThread = TRUE;
+
+        // Wait one second for the thread to exit gracefully
+        DWORD dwResult = WaitForSingleObject(g_hOutThread, 1000);
+
+        if (dwResult != WAIT_OBJECT_0)
         {
             LOG(3,"Timeout waiting for YUVOutThread to exit, terminating it via TerminateThread()");
-            TerminateThread(OutThread, 0);
-            Sleep(100);
+            TerminateThread(g_hOutThread, 0);
         }
-        CloseHandle(OutThread);
-        OutThread = NULL;
+
+        CloseHandle(g_hOutThread);
+        g_hOutThread = NULL;
+
+        if (dwResult != WAIT_OBJECT_0)
+        {
+            // THIS SHOULD NOT HAPPEN
+
+            // ...but it is and it's something we need to debug.
+            // WorkoutOverlaySize(TRUE) in the thread sometimes infinite loops!
+            // --AtNak 2003-07-31  [In progress comments, remove when fixed.]            
+
+            MessageBox(hWnd,
+                "The video thread failed to exit in a timely manner and was forcefully "
+                "terminated.  You may experience further problems.",
+                "Unexpected Error", MB_OK);
+        }
     }
 }
 
@@ -1568,7 +1567,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 // Start of Settings related code
 /////////////////////////////////////////////////////////////////////////////
 
-extern int TunerSwitchScreenUpdateDelay; //Used in programlist.cpp, but affects OutThread
+extern int TunerSwitchScreenUpdateDelay; //Used in programlist.cpp, but affects g_hOutThread
 
 SETTING OutThreadsSettings[OUTTHREADS_SETTING_LASTONE] =
 {

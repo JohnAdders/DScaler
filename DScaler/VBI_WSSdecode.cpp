@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_WSSdecode.cpp,v 1.14 2003-01-05 18:35:45 laurentg Exp $
+// $Id: VBI_WSSdecode.cpp,v 1.15 2003-01-05 18:59:50 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2000 Laurent Garnier.  All rights reserved.
+// Copyright (c) 2000-2003 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 //
 //  This file is subject to the terms of the GNU General Public License as
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2003/01/05 18:35:45  laurentg
+// Init function for VBI added
+//
 // Revision 1.13  2003/01/05 12:42:52  laurentg
 // WSS decoding updated to take into account a VBI frequency of 27.0 MHz
 //
@@ -111,65 +114,11 @@ TWSSDataStruct WSS_Data = { -1,-1,FALSE,FALSE,FALSE,FALSE,WSS625_SUBTITLE_NO,FAL
 // WSS control data
 TWSSCtrlDataStruct WSS_CtrlData = { FALSE,0,0,WSS_MAX_SUCCESSIVE_ERR,WSS625_START_POS_MAX,WSS625_START_POS_MIN,0,0,-1,-1};
 
-int	BitLength;
-int	*BitOffsets;
+// Number of pixels to represent one bit of data
+static int	BitLength;
 
-// Offsets of each clock pixels (7.09379) in VBI buffer line
-// VBI capture frequency : 8 * 4.43361875 = 35.46895 MHz
-// WSS frequency : 5.0 MHz
-// Number of pixels for one bit : 35.46895 / 5 = 7.09379
-static int offsets[] = {   0,   7,  14,  21,  28,  35,  43,  50,  57,  64,
-                          71,  78,  85,  92,  99, 106, 114, 121, 128, 135,
-                         142, 149, 156, 163, 170, 177, 184, 192, 199, 206,
-                         213, 220, 227, 234, 241, 248, 255, 262, 270, 277,
-                         284, 291, 298, 305, 312, 319, 326, 333, 341, 348,
-                         355, 362, 369, 376, 383, 390, 397, 404, 411, 419,
-                         426, 433, 440, 447, 454, 461, 468, 475, 482, 489,
-                         497, 504, 511, 518, 525, 532, 539, 546, 553, 560,
-                         568, 575, 582, 589, 596, 603, 610, 617, 624, 631,
-                         638, 646, 653, 660, 667, 674, 681, 688, 695, 702,
-                         709, 716, 724, 731, 738, 745, 752, 759, 766, 773,
-                         780, 787, 795, 802, 809, 816, 823, 830, 837, 844,
-                         851, 858, 865, 873, 880, 887, 894, 901, 908, 915,
-                         922, 929, 936, 943, 951, 958, 965, 972, 979, 986 };
-
-// Offsets of each clock pixels (6.8) in VBI buffer line
-// VBI capture frequency : 8 * 4.25 = 34.0 MHz
-// WSS frequency : 5.0 MHz
-// Number of pixels for one bit : 34 / 5 = 6.8
-static int offsets2[] = {  0,   7,  14,  21,  28,  35,  43,  50,  57,  64,
-                          71,  78,  85,  92,  99, 106, 114, 121, 128, 135,
-                         142, 149, 156, 163, 170, 177, 184, 192, 199, 206,
-                         213, 220, 227, 234, 241, 248, 255, 262, 270, 277,
-                         284, 291, 298, 305, 312, 319, 326, 333, 341, 348,
-                         355, 362, 369, 376, 383, 390, 397, 404, 411, 419,
-                         426, 433, 440, 447, 454, 461, 468, 475, 482, 489,
-                         497, 504, 511, 518, 525, 532, 539, 546, 553, 560,
-                         568, 575, 582, 589, 596, 603, 610, 617, 624, 631,
-                         638, 646, 653, 660, 667, 674, 681, 688, 695, 702,
-                         709, 716, 724, 731, 738, 745, 752, 759, 766, 773,
-                         780, 787, 795, 802, 809, 816, 823, 830, 837, 844,
-                         851, 858, 865, 873, 880, 887, 894, 901, 908, 915,
-                         922, 929, 936, 943, 951, 958, 965, 972, 979, 986 };
-
-// Offsets of each clock pixels (5.4) in VBI buffer line
-// VBI capture frequency : 27.0 MHz
-// WSS frequency : 5.0 MHz
-// Number of pixels for one bit : 27 / 5 = 5.4
-static int offsets3[] = {  0,   5,  11,  16,  22,  27,  32,  38,  43,  49,
-						  54,  59,  65,  70,  76,  86,  87,  92,  97, 103,
-                         108, 113, 119, 124, 130, 135, 140, 146, 151, 157,
-                         162, 167, 173, 178, 184, 189, 194, 200, 205, 211,
-                         216, 221, 227, 232, 238, 243, 248, 254, 259, 265,
-                         270, 275, 281, 286, 292, 297, 302, 308, 313, 319,
-                         324, 329, 335, 340, 346, 351, 356, 362, 367, 373,
-                         378, 383, 389, 394, 400, 405, 410, 416, 421, 427,
-                         432, 437, 443, 448, 454, 459, 464, 470, 475, 481,
-                         486, 491, 497, 502, 508, 513, 518, 524, 529, 535,
-                         540, 545, 551, 556, 562, 567, 572, 578, 583, 589,
-                         594, 599, 605, 610, 616, 621, 626, 632, 637, 643,
-                         648, 653, 659, 664, 670, 675, 680, 686, 691, 697,
-                         702, 707, 713, 718, 724, 729, 734, 740, 745, 751 };
+// Offsets of the starting for each bit of data
+static int	BitOffsets[140];
 
 // Sequence values for run-in code
 static int WSS625_runin[WSS625_RUNIN_CODE_LENGTH] = { 1,1,1,1,1,0,0,0,1,1,1,0,0,0,1,1,1,0,0,0,1,1,1,0,0,0,1,1,1 };
@@ -187,38 +136,12 @@ static int WSS625_1[WSS625_DATA_BIT_LENGTH] = { 1,1,1,0,0,0 };
 
 void WSS_Init_Data(double VBI_Frequency)
 {
-	double	diff1, diff2, diff3;
+	int i;
 
-	// 27.0 MHz
-	diff1 = VBI_Frequency - 27.0;
-	if (diff1 < 0)
-		diff1 = -diff1;
-	// 8 * 4.25 = 34.0 MHz
-	diff2 = VBI_Frequency - 34.0;
-	if (diff2 < 0)
-		diff2 = -diff2;
-	// 8 * 4.43361875 = 35.46895 MHz
-	diff3 = VBI_Frequency - 35.46895;
-	if (diff3 < 0)
-		diff3 = -diff3;
-
-	if (diff1 <= diff2 && diff1 <= diff3)
+	BitLength = (int)(VBI_Frequency / 5.0);
+	for (i = 0 ; i < 140 ; i++)
 	{
-		// The closest is 27.0 MHz
-		BitLength = 5;
-		BitOffsets = &offsets3[0];
-	}
-	else if (diff2 <= diff1 && diff2 <= diff3)
-	{
-		// The closest is 34.0 MHz
-		BitLength = 7;
-		BitOffsets = &offsets[0];
-	}
-	else
-	{
-		// The closest is 35.46895 MHz
-		BitLength = 7;
-		BitOffsets = &offsets[0];
+		BitOffsets[i] = (int)(VBI_Frequency / 5.0 * i + 0.5);
 	}
 }
 

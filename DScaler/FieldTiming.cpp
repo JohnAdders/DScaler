@@ -197,13 +197,13 @@ void Timing_WaitForNextFieldAccurate(DEINTERLACE_INFO* pInfo)
 	{
 		NewPos = (OldPos + 1) % 10;
 		FlipAdjust = TRUE;
-		LOG(" Slightly late");
+		//LOG(" Slightly late");
 	}
 	else if(Diff == 3) 
 	{
 		NewPos = (OldPos + 1) % 10;
 		FlipAdjust = TRUE;
-		LOG(" Very late");
+		//LOG(" Very late");
 	}
 	else
 	{

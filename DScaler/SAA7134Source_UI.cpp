@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.24 2002-12-05 08:08:08 atnak Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.25 2002-12-09 00:32:47 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2002/12/05 08:08:08  atnak
+// Minor correction
+//
 // Revision 1.23  2002/12/04 15:54:09  adcockj
 // Hacky fix for settings by channel code with mutiple cards
 //
@@ -1838,11 +1841,11 @@ void CSAA7134Source::ChangeChannelSectionNames()
 
         SettingsPerChannel_RegisterSetting("Overscan", "SAA713x - Overscan", FALSE, m_Overscan);
 
-        SettingsPerChannel_RegisterSetting("Volume", "SAA713x - Volume", TRUE, m_Volume);            
+        SettingsPerChannel_RegisterSetting("Volume", "SAA713x - Volume", TRUE, m_Volume);
         SettingsPerChannel_RegisterSetting("Balance", "SAA713x - Balance", TRUE, m_Balance);
-        SettingsPerChannel_RegisterSetting("BassTreble", "SAA713x - Bass & Treble", FALSE);            
-        SettingsPerChannel_RegisterSetting("BassTreble", "SAA713x - Bass & Treble", FALSE, m_Bass);            
-        SettingsPerChannel_RegisterSetting("BassTreble", "SAA713x - Bass & Treble", FALSE, m_Treble);        
+        SettingsPerChannel_RegisterSetting("BassTreble", "SAA713x - Bass & Treble", FALSE);
+        SettingsPerChannel_RegisterSetting("BassTreble", "SAA713x - Bass & Treble", FALSE, m_Bass);
+        SettingsPerChannel_RegisterSetting("BassTreble", "SAA713x - Bass & Treble", FALSE, m_Treble);
 
         SettingsPerChannel_RegisterSetting("HPLLMode", "SAA713x - HPLLMode", TRUE, m_HPLLMode);
         SettingsPerChannel_RegisterSetting("AudioChannel", "SAA713x - Audio Channel", FALSE, m_AudioChannel);
@@ -1890,7 +1893,7 @@ CTreeSettingsPage* CSAA7134Source::GetTreeSettingsPage()
     vSettingsList.push_back(m_AudioLine2Voltage);
 
     pPage = new CTreeSettingsGeneric("SAA713x Advanced", vSettingsList);
-    
+
     pPage->SetHelpID(IDH_SAA713X_ADV);
 
     return pPage;

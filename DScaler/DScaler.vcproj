@@ -3,6 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.10"
 	Name="DScaler"
+	RootNamespace="DScaler"
 	SccProjectName=""
 	SccLocalPath=""
 	Keyword="MFCProj">
@@ -120,7 +121,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libtiff.lib libjpeg.lib ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib strmiids.lib quartz.lib setupapi.lib"
+				AdditionalDependencies="libtiff.lib libjpeg.lib ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib strmiids.lib quartz.lib setupapi.lib UxTheme.lib"
 				OutputFile="..\Debug\DScaler.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"

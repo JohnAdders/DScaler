@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.18 2001-09-09 17:41:08 adcockj Exp $
+// $Id: Other.cpp,v 1.19 2001-09-19 10:05:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2001/09/09 17:41:08  adcockj
+// Fixed bug in sharpness code
+//
 // Revision 1.17  2001/09/05 21:05:29  adcockj
 // Bug Fixes for new overlay code
 //
@@ -694,6 +697,7 @@ BOOL Overlay_Create()
     {
        pDDColorControl = NULL;
     }
+
     LeaveCriticalSection(&hDDCritSect);
 
     // overlay clean is wrapped in a critcal section already

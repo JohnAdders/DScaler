@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DShowFileSource.cpp,v 1.6 2002-09-14 17:04:24 tobbej Exp $
+// $Id: DShowFileSource.cpp,v 1.7 2002-09-21 16:33:30 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/09/14 17:04:24  tobbej
+// implemented audio output device selection.
+// added a safety check for .grf files when copying settings from dsrend
+//
 // Revision 1.5  2002/08/11 14:03:16  tobbej
 // preserve dsrend filter settings when opening grf files
 //
@@ -151,11 +155,28 @@ void CDShowFileSource::Connect(CComPtr<IBaseFilter> VideoFilter,CComPtr<IBaseFil
 				throw CDShowUnsupportedFileException("Can't connect filesource to renderer",hr);
 			}
 		}
-		//try to render audio, if this fails then this file probably dont have any audio
-		hr=m_pBuilder->RenderStream(NULL,&MEDIATYPE_Audio,m_pFileSource,NULL,AudioFilter);
-		if(FAILED(hr))
+
+		//try to render audio, if this fails then this file probably don't have any audio
+		bool bAudioRendered=false;
+		int AudioStreamCount=0;
+		/*
+		Connect all audio streams, not sure if this is a good idea, but it 
+		looks like IGraphBuilder::RenderFile also tries to connect all audio
+		streams. This will not work if the user has selected a specific audio
+		renderer (AudioFilter!=NULL)
+		*/
+		while(hr=m_pBuilder->RenderStream(NULL,&MEDIATYPE_Audio,m_pFileSource,NULL,AudioFilter),SUCCEEDED(hr))
 		{
-			LOG(2,"Failed to connect audio, error code: 0x%x",hr);
+			bAudioRendered=true;
+			AudioStreamCount++;
+		}
+		if(bAudioRendered)
+		{
+			LOG(2,"%d Audio streams rendered",AudioStreamCount);
+		}
+		else
+		{
+			LOG(2,"Unsupported audio or no audio found, error code: 0x%x",hr);
 		}
 	}
 	else

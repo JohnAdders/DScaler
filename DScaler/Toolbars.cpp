@@ -1,5 +1,5 @@
 //
-// $Id: Toolbars.cpp,v 1.9 2002-10-22 00:12:32 flibuste2 Exp $
+// $Id: Toolbars.cpp,v 1.10 2003-01-27 13:57:51 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/10/22 00:12:32  flibuste2
+// Updated to use CChannelList
+//
 // Revision 1.8  2002/10/17 06:48:22  flibuste2
 // Modified the channel classes :
 // -- changed ASCII save file
@@ -71,6 +74,7 @@
 #include "Audio.h"
 #include "AspectRatio.h"
 #include "DebugLog.h"
+#include "DScalerVersion.h"
 
 
 
@@ -712,6 +716,7 @@ HWND CToolbarLogo::CreateFromDialog(LPCTSTR lpTemplate, HINSTANCE hResourceInst)
 			OriginalLogoWidth = rc.right-rc.left;
 			OriginalLogoHeight = rc.bottom-rc.top;
 		}
+        SetWindowText(GetDlgItem(hWnd, IDC_TOOLBAR_LOGO_LOGO), "DScaler Version " VERSTRING);
 	}
 	return hWnd;
 

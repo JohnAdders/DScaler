@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.16 2002-12-22 04:03:58 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.17 2002-12-24 08:22:14 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/12/22 04:03:58  atnak
+// Added FlyVideo2000 autodetect tab
+//
 // Revision 1.15  2002/12/22 03:52:11  atnak
 // Fixed FlyVideo2000 GPIO settings for input change
 //
@@ -504,6 +507,36 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         NULL,
         ManliMTV001CardInputSelect,
     },
+    // SAA7134CARDID_PRIMETV7133 - PrimeTV 7133 (saa7133)
+    // Thanks "Shin'ya Yamaguchi" <yamaguchi@no...>
+    {
+        "PrimeTV 7133",
+        3,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                VIDEOINPUTSOURCE_PIN1,
+                AUDIOINPUTSOURCE_LINE1,
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                VIDEOINPUTSOURCE_PIN3,
+                AUDIOINPUTSOURCE_LINE1,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                VIDEOINPUTSOURCE_PIN0,
+                AUDIOINPUTSOURCE_LINE1,
+            },
+        },
+        TUNER_PHILIPS_NTSC,  // Should be TCL2002NJ or Philips FI1286 (NTSC M-J)
+        AUDIOCRYSTAL_NONE,
+        NULL,
+        PrimeTV7133CardInputSelect,
+    },
 };
 
 
@@ -517,6 +550,7 @@ const CSAA7134Card::TAutoDetectSAA7134 CSAA7134Card::m_AutoDetectSAA7134[] =
     { 0x7134, 0x1131, 0x4E85, SAA7134CARDID_MONSTERTV    },
     { 0x7134, 0x153B, 0x1142, SAA7134CARDID_CINERGY400   },
     { 0x7130, 0x5168, 0x0138, SAA7134CARDID_FLYVIDEO2000 },
+    { 0x7133, 0x5168, 0x0138, SAA7134CARDID_PRIMETV7133  },
 };
 
 
@@ -612,6 +646,21 @@ const CSAA7134Card::TCardType* CSAA7134Card::GetCardSetup()
 }
 
 
+/*
+ *  LifeView's audio chip connected accross GPIO mask 0xE000.
+ *  Used by FlyVideo3000, FlyVideo2000 and PrimeTV 7133.
+ *  (Below information is an unverified guess --AtNak)
+ *
+ *  NNNx
+ *  ^^^
+ *  |||- 0 = Normal, 1 = BTSC processing on ?
+ *  ||-- 0 = Internal audio, 1 = External line pass through
+ *  |--- 0 = Audio processor ON, 1 = Audio processor OFF
+ *
+ *  Use Normal/Internal/Audio Processor ON for FM Radio
+ */
+
+
 void CSAA7134Card::FLYVIDEO3000CardInputSelect(int nInput)
 {
     StandardSAA7134InputSelect(nInput);
@@ -619,21 +668,21 @@ void CSAA7134Card::FLYVIDEO3000CardInputSelect(int nInput)
     {
     case 0: // Tuner
         MaskDataDword(SAA7134_GPIO_GPMODE, 0x0018e700, 0x0EFFFFFF);
-        MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x08000, 0xE000);
+        MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x8000, 0xE000);
         break;
     case 1: // Composite
     case 2: // S-Video
     case 3: // Composite over S-Video
         MaskDataDword(SAA7134_GPIO_GPMODE, 0x0018e700, 0x0EFFFFFF);
-        MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x04000, 0xE000);
+        MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x4000, 0xE000);
         break;
     case 4: // Radio
         MaskDataDword(SAA7134_GPIO_GPMODE, 0x0018e700, 0x0EFFFFFF);
-        MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x00000, 0xE000);
+        MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x0000, 0xE000);
         break;
     case -1: // Ending cleanup
         MaskDataDword(SAA7134_GPIO_GPMODE, 0x0018e700, 0x0EFFFFFF);
-        MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x08000, 0xE000);
+        MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x8000, 0xE000);
         break;
     default:
         break;
@@ -662,7 +711,7 @@ void CSAA7134Card::FLYVIDEO2000CardInputSelect(int nInput)
         break;
     case -1: // Ending cleanup
         MaskDataDword(SAA7134_GPIO_GPMODE, 0x0018e700, 0x0EFFFFFF);
-        MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x08000, 0xE000);
+        MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x8000, 0xE000);
         break;
     default:
         break;
@@ -698,6 +747,30 @@ void CSAA7134Card::KWTV713XRFCardInputSelect(int nInput)
 
     // this card probably needs GPIO changes but I don't
     // know what they are
+}
+
+
+void CSAA7134Card::PrimeTV7133CardInputSelect(int nInput)
+{
+    StandardSAA7134InputSelect(nInput);
+    switch(nInput)
+    {
+    case 0: // Tuner
+        MaskDataDword(SAA7134_GPIO_GPMODE, 0x0018e700, 0x0EFFFFFF);
+        MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x2000, 0xE000);
+        break;
+    case 1: // Composite
+    case 2: // S-Video
+        MaskDataDword(SAA7134_GPIO_GPMODE, 0x0018e700, 0x0EFFFFFF);
+        MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x4000, 0xE000);
+        break;
+    case -1: // Ending cleanup
+        MaskDataDword(SAA7134_GPIO_GPMODE, 0x0018e700, 0x0EFFFFFF);
+        MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x8000, 0xE000);
+        break;
+    default:
+        break;
+    }
 }
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA8290.h,v 1.1 2005-03-07 09:21:13 atnak Exp $
+// $Id: TDA8290.h,v 1.2 2005-03-08 18:12:17 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2005 Atsushi Nakagawa.  All rights reserved.
@@ -21,6 +21,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2005/03/07 09:21:13  atnak
+// Initial checkin of TDA8290 files.  This class is coupled with TDA8275.
+//
 /////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -34,7 +37,7 @@
 
 
 // The I2C address of the TDA8290 chip.
-#define I2C_ADDR_TDA8290	0x4B
+#define I2C_ADDR_TDA8290		0x4B
 
 
 // Subaddresses used by TDA8290.  Addresses marked R
@@ -79,6 +82,20 @@
 #define TDA8290_V_SYNC_DEL					0x30
 
 
+enum eTDA8290Standard
+{
+	TDA8290_STANDARD_MN = 0,
+	TDA8290_STANDARD_B,
+	TDA8290_STANDARD_GH,
+	TDA8290_STANDARD_I,
+	TDA8290_STANDARD_DK,
+	TDA8290_STANDARD_L,
+	TDA8290_STANDARD_L2,
+	TDA8290_STANDARD_LASTONE
+};
+
+
+// This class is closely coupled with the TDA8275 class.
 class CTDA8290 : IExternalIFDemodulator
 {
 public:
@@ -99,9 +116,13 @@ public:
 	// Returns whether or not the picture carrier is locked.
 	virtual eTunerAFCStatus GetAFCStatus(OUT long &nFreqDeviation);
 
+public:
+	// Convert eVideoFormat to eTDA8290Standard.
+	static eTDA8290Standard GetTDA8290Standard(eVideoFormat videoFormat);
+
 protected:
 	// Programs the TDA8290 for an audio standard to match the video format.
-	virtual void SetAudioStandard(eVideoFormat videoFormat);
+	virtual void SetVideoSystemStandard(eTDA8290Standard standard);
 };
 
 

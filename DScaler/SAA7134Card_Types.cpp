@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.33 2003-07-31 05:01:38 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.34 2003-08-23 10:00:33 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2003/07/31 05:01:38  atnak
+// Added ASK Select AS-VCV300/PCI card
+//
 // Revision 1.32  2003/06/27 08:05:41  atnak
 // Added AOPEN VA1000 Lite2
 //
@@ -1174,6 +1177,7 @@ void CSAA7134Card::AOpenVA1000L2CardInputSelect(int nInput)
     case 0: // Tuner
         MaskDataDword(SAA7134_GPIO_GPMODE, 0x40, 0x0EFFFFFF);
         MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x70, 0x40);
+        break;
     case 1: // Composite
     case 2: // S-Video
         MaskDataDword(SAA7134_GPIO_GPMODE, 0x20, 0x0EFFFFFF);

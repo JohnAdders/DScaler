@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.13 2002-01-15 11:16:03 temperton Exp $
+// $Id: DScaler.h,v 1.14 2002-01-19 12:53:00 temperton Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -92,7 +92,11 @@ HMENU GetPatternsSubmenu();
 #define TIMER_VTFLASHER     67
 #define TIMER_VTFLASHER_MS  500
 
-#define WM_REDRAWCLOCK      0x3001
+#define TIMER_VTUPDATE      68
+#define TIMER_VTUPDATE_MS   110
+
+#define WM_VIDEOTEXT        0x3001
+#define VTM_REDRAWHEADER    0x0001
 
 extern HINSTANCE hDScalerInst;
 extern HINSTANCE hResourceInst;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.31 2002-01-15 20:25:45 adcockj Exp $
+// $Id: VBI_VideoText.cpp,v 1.32 2002-01-19 12:53:00 temperton Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2002/01/15 20:25:45  adcockj
+// removed old bitmap code
+//
 // Revision 1.30  2002/01/15 11:16:03  temperton
 // New teletext drawing code.
 //
@@ -137,6 +140,10 @@ int VTPage = 100;
 int VTSubPage = 0;
 bool VTSubPageLocked = false;
 bool VTShowHidden = false;
+bool VTShowFlashed = false;
+
+CRITICAL_SECTION VTUpdateAccess;
+TVTRedrawCache VTRedrawCache;
 
 unsigned int VBIScanPos;
 
@@ -291,6 +298,7 @@ void VBI_VT_Init()
 
     memset(VTPages, 0, 800 * sizeof(TVTPage));
     InitializeCriticalSection(&VTAccess);
+    InitializeCriticalSection(&VTUpdateAccess);
 
     VTPage = 100;
     VT_ChannelChange();
@@ -306,6 +314,7 @@ void VBI_VT_Exit()
     }
 
     DeleteCriticalSection(&VTAccess);
+    DeleteCriticalSection(&VTUpdateAccess);
 }
 
 void VBI_decode_vps(unsigned char* data)
@@ -387,13 +396,13 @@ void VBI_decode_vt(unsigned char* dat)
     unsigned int pnum = 0;
     unsigned short sub;
     WORD ctrl;
+    BOOL bRedrawAll = FALSE;
 
     TVTPage* pPage;
 
     // dat: 55 55 27 %MPAG% 
     mpag = unham(dat + 3);
     mag = mpag & 7;
-
     pack = (mpag >> 3) & 0x1f;
 
     switch (pack)
@@ -404,58 +413,7 @@ void VBI_decode_vt(unsigned char* dat)
         // dat: 55 55 27 %MPAG% %PAGE% %SUB%
         // 00 01 02  03 04  05 06 07-0a
 
-        if(MagazineStates[mag].bStarted)
-        {
-            if ((MagazineStates[mag].Page == VTPage - 100) && (!VTSubPageLocked))
-            {
-                if (VTSubPage != MagazineStates[mag].SubPage)
-                {
-                    VTShowHidden = false;
-                }
-                VTSubPage = MagazineStates[mag].SubPage;
-            }
-
-            // Check if we need to repaint screen
-            if((VTState != VT_OFF) && (MagazineStates[mag].Page == VTPage - 100) &&
-               (MagazineStates[mag].SubPage == VTSubPage))
-            {
-                // update the display bitmap
-                VT_DoUpdate_Page(VTPage - 100, VTSubPage);
-                if(hWnd == GetForegroundWindow() && !bInMenuOrDialogBox)
-                {
-                    // if we are the foreground window then
-                    // do a fast paint here by getting
-                    // the DC from the DirectDraw surface
-                    HDC hDC = Overlay_GetDC();
-                    if(hDC != NULL)
-                    {
-                        // we have to be careful once we've got the
-                        // DC we are put in a critcal section and
-                        // we need to make sure that we get out of it
-                        __try
-                        {
-                            VT_Redraw(hWnd, hDC, TRUE, FALSE);
-                        }
-                        __except(CrashHandler((EXCEPTION_POINTERS*)_exception_info())) 
-                        {
-                            LOG(1, "Crash in VT_Redraw");
-                        }
-                        Overlay_ReleaseDC(hDC);
-                    }
-                }
-                else
-                {
-                    // otherwise just force a repaint
-                    // this will flash but we don't
-                    // want to just draw over other applications
-                    InvalidateRect(hWnd, NULL, FALSE);
-                }
-            }
-        }
-
         page = unham(dat + 5);
-
-
         pnum = MakePage(mag, page);
         if(pnum < 100 || pnum > 899)
         {
@@ -488,19 +446,29 @@ void VBI_decode_vt(unsigned char* dat)
             {
                 ++VTCachedPages;
             }
+
+            memcpy(&pPage->Frame[0], dat + 5, 40);
+            memcpy(&VTHeaderLine[0], dat + 5, 40);
             pPage->wCtrl = ctrl;
+            pPage->bUpdated = 1;
+            pPage->Fill = TRUE;
+
             if (MagazineStates[mag].PageErase == TRUE)
             {
                 memset(&pPage->Frame[1], 0x00, 24 * 40);
                 memset(&pPage->LineUpdate[1], 0x00, 24);
             }
-            memcpy(&pPage->Frame[0], dat + 5, 40);
-            memcpy(&VTHeaderLine[0], dat + 5, 40);
-            pPage->bUpdated = 1;
-            pPage->Fill = TRUE;
-            PostMessage(::hWnd, WM_REDRAWCLOCK, NULL, NULL);
+
+            if((VTState != VT_OFF) && (MagazineStates[mag].Page == VTPage - 100) &&
+               (MagazineStates[mag].SubPage == VTSubPage))
+            {
+                bRedrawAll = MagazineStates[mag].PageErase;
+            }
+            else
+            {
+                PostMessage(hWnd, WM_VIDEOTEXT, VTM_REDRAWHEADER, NULL);
+            }
         }
-        break;
     case 1:
     case 2:
     case 3:
@@ -525,28 +493,44 @@ void VBI_decode_vt(unsigned char* dat)
     case 22:
     case 23:
     case 24:
-        if(MagazineStates[mag].bStarted)
-        {
-            pPage = VT_PageGet(MagazineStates[mag].Page, MagazineStates[mag].SubPage);
-
-            memcpy(&pPage->Frame[pack], dat + 5, 40);
-            pPage->bUpdated = 1;
-            pPage->Fill = TRUE;
-            pPage->LineUpdate[pack] = 1;
-        }
-        break;
-    
     case 25:
         if(MagazineStates[mag].bStarted)
         {
+            int row = (pack == 25) ? 0 : pack;
+
             pPage = VT_PageGet(MagazineStates[mag].Page, MagazineStates[mag].SubPage);
 
-            memcpy(&pPage->Frame[0], dat + 5, 40);
+            memcpy(&pPage->Frame[row], dat + 5, 40);
             pPage->bUpdated = 1;
             pPage->Fill = TRUE;
-            pPage->LineUpdate[0] = 1;
+            pPage->LineUpdate[row] = 1;
+
+            if((MagazineStates[mag].Page == VTPage - 100) && (!VTSubPageLocked))
+            {
+                if (VTSubPage != MagazineStates[mag].SubPage)
+                {
+                    VTShowHidden = false;
+                    bRedrawAll = TRUE;                    
+                    VT_PurgeRedrawCache();
+                }
+                VTSubPage = MagazineStates[mag].SubPage;
+            }
+
+            if((VTState != VT_OFF) && (MagazineStates[mag].Page == VTPage - 100) &&
+               (MagazineStates[mag].SubPage == VTSubPage))
+            {
+                memcpy(&VisiblePage, pPage, sizeof(TVTPage));
+                
+                EnterCriticalSection(&VTUpdateAccess);
+                KillTimer(hWnd, TIMER_VTUPDATE);
+                VTRedrawCache.PageErase |= bRedrawAll;
+                VTRedrawCache.Line[row] = true;
+                SetTimer(hWnd, TIMER_VTUPDATE, TIMER_VTUPDATE_MS, NULL);
+                LeaveCriticalSection(&VTUpdateAccess);
+            }
         }
         break;
+    
     case 26:                    // PDC
     case 27:
         if(MagazineStates[mag].bStarted)
@@ -724,7 +708,7 @@ void VT_Redraw(HWND hWnd, HDC hDC, BOOL IsDDhDC, BOOL ShowFlashed)
     VTDrawer.SetBounds(hDC, &Rect);
     VTDrawer.Draw(&VisiblePage, &VTHeaderLine, hDC, NULL,
         (VTShowHidden ? VTDF_HIDDEN : 0) |
-        ((VTState == VT_MIX) ? VTDF_MIXMODE : 0), VTCodePage);
+        ((VTState == VT_MIX) ? VTDF_MIXMODE : 0), VTCodePage, NULL);
 }
 
 void VT_RedrawFlash(HWND hWnd, HDC hDC, BOOL ShowFlashed)
@@ -735,7 +719,7 @@ void VT_RedrawFlash(HWND hWnd, HDC hDC, BOOL ShowFlashed)
     VTDrawer.SetBounds(hDC, &Rect);
     VTDrawer.Draw(&VisiblePage, &VTHeaderLine, hDC, NULL, 
         (ShowFlashed ? VTDF_FLASHONLY : VTDF_CLEARFLASH) |
-        ((VTState == VT_MIX) ? VTDF_MIXMODE : 0), VTCodePage);
+        ((VTState == VT_MIX) ? VTDF_MIXMODE : 0), VTCodePage, 0);
 }
 
 void VT_RedrawClock(HWND hWnd, HDC hDC, bool RedrawHeader)
@@ -746,7 +730,44 @@ void VT_RedrawClock(HWND hWnd, HDC hDC, bool RedrawHeader)
     VTDrawer.SetBounds(hDC, &Rect);
     VTDrawer.Draw(&VisiblePage, &VTHeaderLine, hDC, NULL, 
         (RedrawHeader ? VTDF_HEADERONLY : VTDF_CLOCKONLY) |
-        ((VTState == VT_MIX) ? VTDF_MIXMODE : 0), VTCodePage);
+        ((VTState == VT_MIX) ? VTDF_MIXMODE : 0), VTCodePage, 0);
+}
+
+void VT_ProcessRedrawCache(HWND hWnd, HDC hDC)
+{
+    TVTRedrawCache Cache;
+
+    EnterCriticalSection(&VTUpdateAccess);
+    memcpy(&Cache, &VTRedrawCache, sizeof(TVTRedrawCache));
+    memset(&VTRedrawCache, 0, sizeof(TVTRedrawCache));
+    KillTimer(::hWnd, TIMER_VTUPDATE);
+    LeaveCriticalSection(&VTUpdateAccess);
+
+    if(Cache.PageErase)
+    {
+        VT_Redraw(hWnd, hDC, FALSE, FALSE);
+    }
+    else
+    {
+        for(int a = 0; a < 25; a++)
+        {
+            if(Cache.Line[a])
+            {
+                VTDrawer.Draw(&VisiblePage, &VTHeaderLine, hDC, NULL,
+                    (VTShowHidden ? VTDF_HIDDEN : 0) |
+                    ((VTState == VT_MIX) ? VTDF_MIXMODE : 0) |
+                    VTDF_THISROWONLY, VTCodePage, a);
+            }
+        }
+    }
+}
+
+void VT_PurgeRedrawCache()
+{
+    EnterCriticalSection(&VTUpdateAccess);
+    KillTimer(hWnd, TIMER_VTUPDATE);
+    memset(&VTRedrawCache, 0, sizeof(TVTRedrawCache));
+    LeaveCriticalSection(&VTUpdateAccess);
 }
 
 bool VT_ContainsUpdatedPage()

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDrawer.cpp,v 1.1 2002-01-15 11:16:03 temperton Exp $
+// $Id: VTDrawer.cpp,v 1.2 2002-01-19 12:53:00 temperton Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (c) 2002 Mike Temperton.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/01/15 11:16:03  temperton
+// New teletext drawing code.
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -48,6 +51,8 @@ unsigned long VTColourTable[9] =
     0xFFFFFF,       //White
     0xFF00FF        //Transparent
 };
+
+char VTDrawerFontName[32] = "Arial";
 
 
 CVTDrawer::CVTDrawer()
@@ -76,7 +81,8 @@ CVTDrawer::~CVTDrawer()
     }
 }
 
-bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC, LPPOINT pOrigin, unsigned long ulFlags, eVTCodePage VTCodePage)
+bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC, 
+    LPPOINT pOrigin, unsigned long ulFlags, eVTCodePage VTCodePage, int iRow)
 {
     BOOL bGraph, bHoldGraph, bSepGraph, bBox, bFlash, bDouble, bConceal;
     BOOL bHasDouble = false;
@@ -86,17 +92,34 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC, LPPOINT pO
     BYTE c, ch, nLastGraph;
     char tmp[41];
 
-    int SaveBkMode = SetBkMode(hDC, TRANSPARENT);
-
-    HFONT hFontSave = (HFONT) SelectObject(hDC, m_hFont);
-    HGDIOBJ hBrushSave = (HFONT) SelectObject(hDC, m_hBrushes[0]);
-
+    int startrow = 0;
     int endrow = ((ulFlags & VTDF_HEADERONLY) || (ulFlags & VTDF_CLOCKONLY)) ? 1 : 25;
 
     int left = pOrigin ? pOrigin->x : m_Rect.left;
     int top = pOrigin ? pOrigin->y : m_Rect.top;
 
-    for(int row = 0; row < endrow; row++)
+    if(ulFlags & VTDF_THISROWONLY)
+    {
+        if((iRow > 1) && pPage->bUpdated)
+        {
+            for(int n = 0; n < 40; n++)
+            {
+                if((pPage->Frame[iRow - 1][n] & 0x7F) == 0x0D)
+                {
+                    return true;
+                }
+            }
+        }
+        startrow = iRow;
+        endrow = iRow + 1;
+    }
+
+    int SaveBkMode = SetBkMode(hDC, TRANSPARENT);
+
+    HFONT hFontSave = (HFONT) SelectObject(hDC, m_hFont);
+    HGDIOBJ hBrushSave = (HFONT) SelectObject(hDC, m_hBrushes[0]);
+
+    for(int row = startrow; row < endrow; row++)
     {
         if (bHasDouble)
         {
@@ -302,9 +325,21 @@ bool CVTDrawer::Draw(TVTPage* pPage, TVTHeaderLine* pHeader, HDC hDC, LPPOINT pO
 
                 //Draw char
                 if(ch!=32)
-                {
+                {    
+                    int offset;
+                    if(m_bFixedPitch)
+                    {
+                        offset = 0;
+                    }
+                    else
+                    {
+                        SIZE Size;
+                        GetTextExtentPoint32W(hDC, (wchar_t*)&UChar, 1, &Size);
+                        offset = (m_AvgWidth - Size.cx) / 2;
+                    }
+            
                     SetTextColor(hDC, VTColourTable[CurrentFg]);
-                    TextOutW(hDC, thischar.left, thischar.top, (wchar_t*) &UChar, 1);
+                    TextOutW(hDC, thischar.left + offset, thischar.top, (wchar_t*) &UChar, 1);
                 }
             }
         }
@@ -323,7 +358,7 @@ void CVTDrawer::SetBounds(HDC hDC, RECT* Rect)
     m_dAvgHeight = double(Rect->bottom - Rect->top) / 25.0;
     int AvgWidth = (Rect->right - Rect->left) / 40;
     int AvgHeight = (Rect->bottom - Rect->top) / 25;
-    int nHeight = -MulDiv(AvgHeight, GetDeviceCaps(hDC, LOGPIXELSY), 96);
+    int nHeight = AvgHeight;
     m_Rect = *Rect;
 
     if((m_AvgWidth == AvgWidth) && (m_AvgHeight == AvgHeight))
@@ -333,8 +368,16 @@ void CVTDrawer::SetBounds(HDC hDC, RECT* Rect)
 
     m_AvgWidth = AvgWidth;
     m_AvgHeight = AvgHeight;
-    m_hFont = CreateFont(nHeight, m_AvgWidth, 0, 0, 700, false, false, false, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH, "Courier New");
-    m_hDoubleFont = CreateFont(nHeight * 2, m_AvgWidth, 0, 0, 700, false, false, false, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH, "Courier New");
+
+    m_hFont = MakeFont(hDC, nHeight, m_AvgWidth, (char*)&VTDrawerFontName);
+    m_hDoubleFont = MakeFont(hDC, nHeight * 2, m_AvgWidth, (char*)&VTDrawerFontName);
+
+    HGDIOBJ hSave = SelectObject(hDC, m_hFont);
+    TEXTMETRIC TextMetric;
+    GetTextMetrics(hDC, &TextMetric);
+    SelectObject(hDC, hSave);
+
+    m_bFixedPitch = !(TextMetric.tmPitchAndFamily & TMPF_FIXED_PITCH);
 }
 
 int CVTDrawer::GetAvgWidth()
@@ -345,5 +388,24 @@ int CVTDrawer::GetAvgWidth()
 int CVTDrawer::GetAvgHeight()
 {
     return m_AvgHeight;
+}
+
+HFONT CVTDrawer::MakeFont(HDC hDC, int iSize, int iWidth, char* szFaceName)
+{
+    HFONT hFont = CreateFont(iSize, iWidth, 0, 0, 700, false, false, false, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, DEFAULT_PITCH, szFaceName);
+    HGDIOBJ hSave = SelectObject(hDC, hFont);
+    
+    SIZE Size;
+    GetTextExtentPoint(hDC, "W", 1, &Size);
+    iWidth = iWidth * iWidth / Size.cx;
+
+    GetTextExtentPoint(hDC, "Wy", 1, &Size);
+    iSize = iSize * iSize / Size.cy;
+        
+    SelectObject(hDC, hSave);
+    DeleteObject(hFont);
+
+    hFont = CreateFont(iSize, iWidth, 0, 0, 700, false, false, false, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, DEFAULT_PITCH, szFaceName);
+    return hFont;
 }
 

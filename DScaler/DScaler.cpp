@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.111 2002-01-16 19:02:17 adcockj Exp $
+// $Id: DScaler.cpp,v 1.112 2002-01-19 12:53:00 temperton Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.111  2002/01/16 19:02:17  adcockj
+// Fixed window style and context menu fullscreen check
+//
 // Revision 1.110  2002/01/15 19:53:36  adcockj
 // Fix for window creep with toolbar at top or left
 //
@@ -736,6 +739,7 @@ void SetVTPage(int Page, int SubPage, bool SubPageValid, bool LockSubPage)
         VTSubPageLocked = false;
     }
 
+    VT_PurgeRedrawCache();
     VT_DoUpdate_Page(VTPage - 100, VTSubPage);
     Cursor_VTUpdate(false, 0, 0);
     InvalidateRect(hWnd, NULL, FALSE);
@@ -2045,6 +2049,14 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 }
             }
             break;
+        //---------------------------------
+        case TIMER_VTUPDATE:
+            {
+                HDC hDC = GetDC(hWnd);                    
+                VT_ProcessRedrawCache(hWnd, hDC);
+                ReleaseDC(hWnd, hDC);
+            }
+            break;
         default:
             Provider_HandleTimerMessages(LOWORD(wParam));
             break;
@@ -2158,13 +2170,22 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         }
         break;
 
-    case WM_REDRAWCLOCK:
+    case WM_VIDEOTEXT:
         {
             if(VTState != VT_OFF)
             {
-                HDC hDC = GetDC(hWnd);
-                VT_RedrawClock(hWnd, hDC, !VT_ContainsUpdatedPage());
-                ReleaseDC(hWnd, hDC);
+                switch(LOWORD(wParam))
+                {
+                case VTM_REDRAWHEADER:
+                    {
+                        HDC hDC = GetDC(hWnd);
+                        VT_RedrawClock(hWnd, hDC, !VT_ContainsUpdatedPage());
+                        ReleaseDC(hWnd, hDC);
+                    }
+                    break;
+                default:
+                    break;
+                }
             }
         }
         break;
@@ -2425,6 +2446,7 @@ void KillTimers()
     KillTimer(hWnd, OSD_TIMER_REFRESH_ID);
     KillTimer(hWnd, TIMER_HIDECURSOR);
     KillTimer(hWnd, TIMER_VTFLASHER);
+    KillTimer(hWnd, TIMER_VTUPDATE);
 }
 
 

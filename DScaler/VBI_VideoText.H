@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.H,v 1.18 2002-01-15 11:16:03 temperton Exp $
+// $Id: VBI_VideoText.H,v 1.19 2002-01-19 12:53:00 temperton Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -132,6 +132,12 @@ typedef struct tagVTPage
     tagVTPage *Next;
 } TVTPage;
 
+typedef struct 
+{
+    BOOL Line[25];
+    BOOL PageErase;
+} TVTRedrawCache;
+
 #define LARGE_WIDTH 15
 #define LARGE_HEIGHT 18
 
@@ -191,6 +197,8 @@ void VT_CreateTestPage();
 void VT_Redraw(HWND hWnd, HDC hDC, BOOL IsDDhDC, BOOL ShowFlashed);
 void VT_RedrawClock(HWND hWnd, HDC hDC, bool RedrawHeader);
 void VT_RedrawFlash(HWND hWnd, HDC hDC, BOOL ShowFlashed);
+void VT_ProcessRedrawCache(HWND hWnd, HDC hDC);
+void VT_PurgeRedrawCache();
 void VT_ResetStation();
 LPCSTR VT_GetStation();
 void VT_SetCodePage(eVTCodePage Codepage);

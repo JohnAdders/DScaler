@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.180 2002-06-18 19:46:06 adcockj Exp $
+// $Id: DScaler.cpp,v 1.181 2002-06-18 23:12:41 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.180  2002/06/18 19:46:06  adcockj
+// Changed appliaction Messages to use WM_APP instead of WM_USER
+//
 // Revision 1.179  2002/06/14 21:20:10  robmuller
 // Enter zero's to switch video input.
 // Fixed: direct switching to channel number > 99 is not possible.
@@ -2571,10 +2574,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         break;
 
     case WM_LBUTTONUP:
-    case WM_RBUTTONUP:
     case WM_RBUTTONDOWN:
         Cursor_UpdateVisibility();
         return 0;
+    case WM_RBUTTONUP:
+        Cursor_UpdateVisibility();
         break;
 
     case WM_MOUSEMOVE:

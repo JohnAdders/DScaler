@@ -981,6 +981,58 @@ ChannelHigh=9
        199250000
        207250000
        215250000
+       
+[Israel Cable AZTV Frequency]
+ChannelLow=1
+ChannelHigh=48
+       189250000 ; Composite
+       210250000 ; Hop
+        62250000 ; Family
+       407250000 ; Movie4
+       271250000 ; Sport5
+       247250000 ; 6
+       287250000 ; MTV
+       255250000 ; 8
+       175250000 ; Neto
+       182250000 ; Viva
+       203250000 ; Israel1
+       391250000 ; CNN
+       375250000 ; BCCworld
+       343250000 ; SkyNews
+       217250000 ; EuroSport
+       224250000 ; VH1
+       327250000 ; StarWORLD
+       335250000 ; N.G
+       351250000 ; FashionTV
+       359250000 ; Shopping
+       319250000 ; Arutz2
+       383250000 ; Education
+       399250000 ; METV
+        55250000 ; Turkey
+       279250000 ; ORT
+       263250000 ; NTV
+       196250000 ; Israel2
+       367250000 ; Hallmark
+       295250000 ; Jordan
+       303250000 ; Egypt
+       311250000 ; BCCprime
+       231250000 ; Israel3
+        69250000 ; Morocco
+        76250000 ; mbc
+       126250000 ; Ztv
+       415250000 ; viva
+       423250000 ; tve
+       431250000 ; France2
+       439250000 ; SAT1
+       471250000 ; TV5
+       503250000 ; Espn
+       519250000 ; AXN
+       527250000 ; Nashe Kino
+       511250000 ; RTR
+       495250000 ; 3Sat
+       487250000 ; Sat1
+       743250000 ; ?
+       600250000 ; test
 
 [Italian Cable Frequency]
 ChannelLow=2

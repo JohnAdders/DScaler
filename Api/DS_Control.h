@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.132 2003-01-16 13:30:48 adcockj Exp $
+// $Id: DS_Control.h,v 1.133 2003-01-18 10:53:57 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.132  2003/01/16 13:30:48  adcockj
+// Fixes for various settings problems reported by Laurent 15/Jan/2003
+//
 // Revision 1.131  2003/01/13 13:56:28  adcockj
 // First attemp at SAA7134 setting groups
 //
@@ -1282,8 +1285,7 @@ typedef enum
 
 typedef enum
 {
-    SOURCE_OVERSCAN = 0,
-    LEFT_SOURCE_CROPPING,
+    LEFT_SOURCE_CROPPING = 0,
     RIGHT_SOURCE_CROPPING,
     SHOW_RGB_DELTA,
     SHOW_YUV_DELTA,

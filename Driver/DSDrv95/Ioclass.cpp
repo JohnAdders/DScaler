@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Ioclass.cpp,v 1.2 2001-07-13 16:13:53 adcockj Exp $
+// $Id: Ioclass.cpp,v 1.3 2001-08-08 10:53:30 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -33,6 +33,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/07/13 16:13:53  adcockj
+// Added CVS tags and removed tabs
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #include "ioclass.h"
@@ -157,10 +160,13 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         break;
 
     case ioctlGetPCIInfo:
-        status = pciFindDevice((USHORT) ioParam->dwAddress,
-                             (USHORT) ioParam->dwValue,
-                             &dwBusNumber,
-                             &dwSlotNumber);
+        status = pciFindDevice(
+                                   ioParam->dwAddress,
+                                   ioParam->dwValue,
+                                   ioParam->dwFlags,
+                                   &dwBusNumber,
+                                   &dwSlotNumber
+                              );
 
         if ( status == STATUS_SUCCESS)
         {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSDrv.H,v 1.4 2001-07-13 16:15:43 adcockj Exp $
+// $Id: DSDrv.H,v 1.5 2001-08-08 10:53:30 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -235,8 +235,9 @@ DWORD WINAPI memoryAlloc(DWORD  dwLength,
 
 DWORD WINAPI memoryFree(PMemStruct pMemStruct);
 
-DWORD WINAPI pciGetHardwareResources(DWORD   dwVendorID,
+DWORD WINAPI pciGetHardwareResources(DWORD    dwVendorID,
                                       DWORD   dwDeviceID,
+                                      DWORD   dwCardIndex,
                                       PDWORD  pdwMemoryAddress,
                                       PDWORD  pdwMemoryLength,
                                       PDWORD  pdwSubSystemId);
@@ -257,6 +258,7 @@ typedef DWORD (WINAPI * PMemoryWrite)(DWORD dwAddress, DWORD dwValue);
 
 typedef DWORD (WINAPI * PPCIGetHardwareResources)(DWORD   dwVendorID,
                                                   DWORD   dwDeviceID,
+                                                  DWORD   dwCardIndex,
                                                   PDWORD  pdwMemoryAddress,
                                                   PDWORD  pdwMemoryLength,
                                                   PDWORD  pdwSubSystemId);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsAssociations.cpp,v 1.3 2004-08-14 13:45:23 adcockj Exp $
+// $Id: TreeSettingsAssociations.cpp,v 1.4 2004-08-14 14:18:30 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2004/08/14 13:45:23  adcockj
+// Fixes to get new settings code working under VS6
+//
 // Revision 1.2  2004/08/12 14:14:43  atnak
 // Added missing object deletion.
 //
@@ -404,12 +407,7 @@ void CTreeSettingsAssociations::OnSize(UINT nType, int cx, int cy)
 	rect.SetRect(0, 0, clientRect.Width(), buttonHeight);
 	m_dependeeHeading->MoveWindow(rect);
 	// Adjust for the next control.
-    // VS6 doesn't support MoveTo??
-	// rect.MoveToY(rect.bottom + 1);
-    int Height = rect.Height();
-    rect.top = rect.bottom + 1;
-    rect.bottom += rect.top + Height;
-
+	rect.OffsetRect(0, buttonHeight);
 
 	// Move all the buttons into correct position.
 	rect.right = buttonWidth;
@@ -418,14 +416,9 @@ void CTreeSettingsAssociations::OnSize(UINT nType, int cx, int cy)
 		m_dependeeButtons[i].MoveWindow(rect);
 		if (i % 3 == 2)
 		{
-            // VS 6 doesn't support MoveToXY
-            // rect.MoveToXY(0, rect.bottom);
-            int Height = rect.Height();
-            int Width = rect.Width();
-            rect.top = rect.bottom;
-            rect.left = 0;
-            rect.bottom = rect.top + Height;
-            rect.right = rect.left + Width;
+			rect.OffsetRect(0, buttonHeight);
+			rect.left = 0;
+			rect.right = buttonWidth;
 		}
 		else
 		{
@@ -436,12 +429,8 @@ void CTreeSettingsAssociations::OnSize(UINT nType, int cx, int cy)
 	// Adjust for the next control.
 	if (i % 3 != 0)
 	{
-        int Height = rect.Height();
-        int Width = rect.Width();
-        rect.top = rect.bottom;
-        rect.left = 0;
-        rect.bottom = rect.top + Height;
-        rect.right = rect.left + Width;
+		rect.OffsetRect(0, buttonHeight);
+		rect.left = 0;
 	}
 	rect.OffsetRect(0, 7);
 
@@ -449,11 +438,7 @@ void CTreeSettingsAssociations::OnSize(UINT nType, int cx, int cy)
 	rect.right = clientRect.Width();
 	m_dependantHeading->MoveWindow(rect);
 	// Adjust for the next control.
-    // VS6 doesn't support MoveTo??
-	// rect.MoveToY(rect.bottom + 1);
-    Height = rect.Height();
-    rect.top = rect.bottom + 1;
-    rect.bottom += rect.top + Height;
+	rect.OffsetRect(0, buttonHeight);
 
 	// Move the individual settings list into position.
 	if (m_informationText->GetStyle() & WS_VISIBLE)
@@ -473,11 +458,9 @@ void CTreeSettingsAssociations::OnSize(UINT nType, int cx, int cy)
 	lvcolumn.cx = clientRect.Width() - 20 * m_dependeeCount - GetSystemMetrics(SM_CXVSCROLL) - 5;
 	m_pListCtrl->SetColumn(0, &lvcolumn);
 
-    // VS6 doesn't support MoveTo??
-	//rect.MoveToY(clientRect.bottom - buttonHeight);
-	//rect.bottom = rect.top + buttonHeight;
+	// Move the information box into position.
     rect.top = clientRect.bottom - buttonHeight;
-    rect.bottom = rect.top + buttonHeight;
+    rect.bottom = clientRect.bottom;
 
 	m_informationText->MoveWindow(rect);
 	m_informationText->Invalidate(FALSE);

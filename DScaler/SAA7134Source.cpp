@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.77 2003-04-17 09:48:36 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.78 2003-05-26 20:49:04 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.77  2003/04/17 09:48:36  atnak
+// Changed the default for White Peak to be off.
+//
 // Revision 1.76  2003/04/07 09:17:14  adcockj
 // Fixes for correct operation of IsFirstInSeries
 //
@@ -318,7 +321,8 @@ CSAA7134Source::CSAA7134Source(CSAA7134Card* pSAA7134Card, CContigMemory* PageTa
     m_CurrentFieldID(0),
     m_ProcessingFieldID(-1),
     m_hSAA7134ResourceInst(NULL),
-    m_DetectedAudioChannel((eAudioChannel)-1)
+    m_DetectedAudioChannel((eAudioChannel)-1),
+    m_bSelectCardCancelButton(TRUE)
 {
     CreateSettings(IniSection);
 
@@ -1212,7 +1216,7 @@ void CSAA7134Source::DecodeVBI(TDeinterlaceInfo* pInfo)
 
     for (nLineTarget = 0; nLineTarget < m_CurrentVBILines; nLineTarget++)
     {
-        VBI_DecodeLine(pVBI + nLineTarget * 2048, nLineTarget, bIsFieldOdd);
+        VBI_DecodeLine(pVBI + nLineTarget * 2048, nLineTarget - 2, bIsFieldOdd);
     }
 }
 

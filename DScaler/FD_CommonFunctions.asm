@@ -349,8 +349,7 @@ DiffChroma_Loop:
 	add eax, 8
 	add ebx, 8
 	
-	dec ecx
-	jne DiffChroma_Loop
+	loop DiffChroma_Loop
 
     ; add the two running totals
     paddd mm6, mm7
@@ -416,23 +415,23 @@ memcpyBOB_Loop:
 	add		esi, 64
 	add		edi, 64
 	add		ebx, 64
-	dec ecx
-	jne memcpyBOB_Loop
+	loop memcpyBOB_Loop
 
 	mov		ecx, nBytes
 	and     ecx, 63
+	shr     ecx, 2
 	cmp     ecx, 0
 	je memcpyBOB_End
+
 align 8
 memcpyBOB_Loop2:
-	mov dl, byte ptr[esi] 
-	mov byte ptr[edi], dl
-	mov byte ptr[ebx], dl
-	inc esi
-	inc edi
-	inc ebx
-	dec ecx
-	jne memcpyBOB_Loop2
+	mov edx, [esi] 
+	mov [edi], edx
+	mov [ebx], edx
+	add esi, 4
+	add edi, 4
+	add ebx, 4
+	loop memcpyBOB_Loop2
 
 memcpyBOB_End:
 	pop	ebx
@@ -492,23 +491,23 @@ memcpyBOBSSE_Loop:
 	add		esi, 128
 	add		edi, 128
 	add		ebx, 128
-	dec ecx
-	jne memcpyBOBSSE_Loop
+	loop memcpyBOBSSE_Loop
 
 	mov		ecx, nBytes
 	and     ecx, 127
+	shr     ecx, 2
 	cmp     ecx, 0
 	je memcpyBOBSSE_End
 align 8
 memcpyBOBSSE_Loop2:
-	mov dl, byte ptr[esi] 
-	mov byte ptr[edi], dl
-	mov byte ptr[ebx], dl
-	inc esi
-	inc edi
-	inc ebx
-	dec ecx
-	jne memcpyBOBSSE_Loop2
+	mov edx, [esi] 
+	mov [edi], edx
+	mov [ebx], edx
+	add esi, 4
+	add edi, 4
+	add ebx, 4
+	loop memcpyBOBSSE_Loop2
+
 memcpyBOBSSE_End:
 	pop	ebx
 	pop	esi
@@ -564,18 +563,20 @@ Memcpy_Loop:
 	add		esi, 64
 	add		edi, 64
 	loop Memcpy_Loop
+
 	mov		ecx, nBytes
 	and     ecx, 63
+	shr     ecx, 2
 	cmp     ecx, 0
 	je Memcpy_End
 align 8
 Memcpy_Loop2:
-	mov dl, byte ptr[esi] 
-	mov byte ptr[edi], dl
-	inc esi
-	inc edi
-	dec ecx
-	jne Memcpy_Loop2
+	mov edx, [esi] 
+	mov [edi], edx
+	add esi, 4
+	add edi, 4
+	loop Memcpy_Loop2
+
 Memcpy_End:
 	pop	ebx
 	pop	esi
@@ -630,18 +631,20 @@ MemcpySSE_Loop:
 	add		esi, 128
 	add		edi, 128
 	loop MemcpySSE_Loop
+
 	mov		ecx, nBytes
 	and     ecx, 127
+	shr     ecx, 2
 	cmp     ecx, 0
-	jne MemcpySSE_End
+	je MemcpySSE_End
+
 align 8
 MemcpySSE_Loop2:
-	mov dl, byte ptr[esi] 
-	mov byte ptr[edi], dl
-	inc esi
-	inc edi
-	dec ecx
-	jne MemcpySSE_Loop2
+	mov edx, [esi] 
+	mov [edi], edx
+	add esi, 4
+	add edi, 4
+	loop MemcpySSE_Loop2
 MemcpySSE_End:
 	pop	ebx
 	pop	esi

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_LogoKill.c,v 1.16 2002-10-14 20:43:42 robmuller Exp $
+// $Id: FLT_LogoKill.c,v 1.17 2002-10-16 12:21:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/10/14 20:43:42  robmuller
+// Changed into input filter. New mode added. Miscellaneous improvements.
+//
 // Revision 1.15  2002/10/09 22:16:35  robmuller
 // Implemented 3dnow and MMX versions.
 //
@@ -76,9 +79,7 @@ typedef enum
     MODE_GREY,
     MODE_MAX,
     MODE_DYNAMIC_MAX,
-    MODE_WEIGHTED_C,
-    MODE_WEIGHTED_ASM,
-    MODE_WEIGHTED_HV,
+    MODE_WEIGHTED,
     MODE_LASTONE,
 } eMODE;
 
@@ -89,9 +90,7 @@ LPCSTR ModeList[] =
     "Grey",
     "Limit To Max Value",
     "Dynamic Max",
-    "Weighted Average (c)",
-    "Weighted Average (asm)",
-    "Weighted Average HV",
+    "Weighted Average",
 };
 
 #pragma pack(push, 1)   // save state and set packing alignment to 1 byte

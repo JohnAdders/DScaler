@@ -1,5 +1,5 @@
-/////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_LogoKill.asm,v 1.3 2002-10-14 21:55:36 robmuller Exp $
+ /////////////////////////////////////////////////////////////////////////////
+// $Id: FLT_LogoKill.asm,v 1.4 2002-10-16 12:21:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Rob Muller. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/10/14 21:55:36  robmuller
+// Dynamic Max also scans left and right boundaries for max luma value.
+//
 // Revision 1.2  2002/10/14 20:43:42  robmuller
 // Changed into input filter. New mode added. Miscellaneous improvements.
 //
@@ -242,7 +245,7 @@ long FilterLogoKiller_MMX(TDeinterlaceInfo* pInfo)
         LimitToMaximum(Max, lpLogoRect8, Pitch, Height, Width8);
         break;
 
-    case MODE_WEIGHTED_HV:
+    case MODE_WEIGHTED:
 		{
 
             int i, j;
@@ -255,18 +258,19 @@ long FilterLogoKiller_MMX(TDeinterlaceInfo* pInfo)
             pFirstLine = (TwoPixel*)lpLogoRect;
             pLastLine = (TwoPixel*)(lpLogoRect + Height*Pitch);
 
-            for(j = 1; j < Height - 1; j++)
+            for(j = 1; j < Height; j++)
             {
                 pByte = lpLogoRect + j*Pitch;
                 pTwoPixel = (TwoPixel*)(lpLogoRect + j*Pitch);
-                for(i = 1; i < Width/2 - 1; i++)
+                
+                for(i = 1; i < Width/2; i++)
                 {
-                    Hor.Lumi1    = (BYTE)((pTwoPixel[0].Lumi1*(Width-i*2) + pTwoPixel[Width/2].Lumi2*(i*2))/(Width));
-                    Hor.Lumi2    = (BYTE)((pTwoPixel[0].Lumi1*(Width-i*2-1) + pTwoPixel[Width/2].Lumi2*(i*2+1))/(Width));
+                    Hor.Lumi1    = (BYTE)((pTwoPixel[0].Lumi2*(Width-i*2) + pTwoPixel[Width/2].Lumi1*(i*2))/(Width));
+                    Hor.Lumi2    = (BYTE)((pTwoPixel[0].Lumi2*(Width-i*2-1) + pTwoPixel[Width/2].Lumi1*(i*2+1))/(Width));
                     Hor.Chroma1  = (BYTE)((pTwoPixel[0].Chroma1*(Width-i*2) + pTwoPixel[Width/2].Chroma1*(i*2))/(Width));
                     Hor.Chroma2  = (BYTE)((pTwoPixel[0].Chroma2*(Width-i*2) + pTwoPixel[Width/2].Chroma2*(i*2))/(Width));
 
-                    Vert.Lumi1   = (BYTE)((pFirstLine[i].Lumi1*(Height-j) + pLastLine[i].Lumi2*j)/(Height));
+                    Vert.Lumi1   = (BYTE)((pFirstLine[i].Lumi1*(Height-j) + pLastLine[i].Lumi1*j)/(Height));
                     Vert.Lumi2   = (BYTE)((pFirstLine[i].Lumi2*(Height-j) + pLastLine[i].Lumi2*j)/(Height));
                     Vert.Chroma1 = (BYTE)((pFirstLine[i].Chroma1*(Height-j) + pLastLine[i].Chroma1*j)/(Height));
                     Vert.Chroma2 = (BYTE)((pFirstLine[i].Chroma2*(Height-j) + pLastLine[i].Chroma2*j)/(Height));
@@ -279,302 +283,6 @@ long FilterLogoKiller_MMX(TDeinterlaceInfo* pInfo)
             }
             break;
         }
-    // weighted average mode supplied by
-    // Jochen Trenner
-    case MODE_WEIGHTED_C:
-		{
-			int i,j;
-			long Width2;
-			long Mul1, Mul2, Mul3, Mul4;
-			long Weight1, Weight2;
-			long up1, up2, up3, up4, 
-				down1, down2, down3, down4,
-				left1, left2, left3, left4,
-				right1, right2, right3, right4;
-			long	ipo1, ipo2, ipo3, ipo4;
-			BYTE* lpCurrent_Pointer;
-			int top_pitch;
-
-			Width2=Width/2;
-			top_pitch=Pitch*Top;
-
-			for (i=0;i<Height;i++)
-			{
-				left1=*(lpLogoRect+i*Pitch);
-				left2=*(lpLogoRect+i*Pitch+1);
-				left3=*(lpLogoRect+i*Pitch+2);
-				left4=*(lpLogoRect+i*Pitch+3);
-				right1=*(lpLogoRect+i*Pitch+Width2*4);
-				right2=*(lpLogoRect+i*Pitch+Width2*4+1);
-				right3=*(lpLogoRect+i*Pitch+Width2*4+2);
-				right4=*(lpLogoRect+i*Pitch+Width2*4+3);
-				Mul1=abs(Height-1-i);
-				Mul2=i;
-				Weight1=abs(((Height-1)/2)-i);
-				++Weight1;
-				for(j=0;j<Width2;j++)
-				{
-					Weight2=abs(Width/4-1-j);
-					++Weight2;
-					Mul3=abs(Width2-1-j);
-					Mul4=j;
-					up1=*(lpLogoRect+j*4);
-					up2=*(lpLogoRect+j*4+1);
-					up3=*(lpLogoRect+j*4+2);
-					up4=*(lpLogoRect+j*4+3);
-
-					down1=*(lpLogoRect+Pitch*Height+j*4);
-					down2=*(lpLogoRect+Pitch*Height+j*4+1);
-					down3=*(lpLogoRect+Pitch*Height+j*4+2);
-					down4=*(lpLogoRect+Pitch*Height+j*4+3);
-					lpCurrent_Pointer=lpLogoRect+i*Pitch+j*4;
-
-					ipo1=(((((Mul1*up1)+(Mul2*down1))*Weight1/(Mul1+Mul2))+(((Mul3*left1)+Mul4*right1)*Weight2/(Mul3+Mul4)))/(Weight1+Weight2));
-					ipo2=(((((Mul1*up2)+(Mul2*down2))*Weight1/(Mul1+Mul2))+(((Mul3*left2)+Mul4*right2)*Weight2/(Mul3+Mul4)))/(Weight1+Weight2));
-					ipo3=(((((Mul1*up3)+(Mul2*down3))*Weight1/(Mul1+Mul2))+(((Mul3*left3)+Mul4*right3)*Weight2/(Mul3+Mul4)))/(Weight1+Weight2));
-					ipo4=(((((Mul1*up4)+(Mul2*down4))*Weight1/(Mul1+Mul2))+(((Mul3*left4)+Mul4*right4)*Weight2/(Mul3+Mul4)))/(Weight1+Weight2));
-
-					if (i>Height/3 && i<2*Height/3)
-					{
-						ipo1=(2*ipo1+up1+down1)/4;
-						ipo2=(2*ipo2+up2+down2)/4;
-						ipo3=(2*ipo3+up3+down3)/4;
-						ipo4=(2*ipo4+up4+down4)/4;
-
-					}
-
-
-
-					*lpCurrent_Pointer=(BYTE)ipo1;
-					*(lpCurrent_Pointer+1)=(BYTE)ipo2;
-					*(lpCurrent_Pointer+2)=(BYTE)ipo3;
-					*(lpCurrent_Pointer+3)=(BYTE)ipo4;
-				}
-			}
-
-if(gUseSmoothing)
-{
-	_asm
-        {
-            // set edi to top left
-            mov edi, lpLogoRect8
-            mov ebx, Pitch
-            // loop over height
-            mov eax, Height
-            LOOP_SMOOTH_OUTER:
-            // loop over width
-            mov edx, edi
-            mov ecx, Width8
-            shr ecx, 2
-            LOOP_SMOOTH_INNER:
-			add edx, ebx //2 samples one line below
-			movq mm4, qword ptr[edx-8]
-			movq mm5, qword ptr[edx+8]
-			V_PAVGB(mm4, mm5, mm1, ShiftMask)
-			sub edx, ebx
-            sub edx, ebx //2 samples one line above
-			movq mm1, qword ptr[edx-8]
-			movq mm2, qword ptr[edx+8]
-			V_PAVGB(mm1, mm2, mm7, ShiftMask);
-			V_PAVGB(mm1, mm4, mm7, ShiftMask);
-			add edx, ebx
-            movq mm0, qword ptr[edx]
-			V_PAVGB(mm0,mm1, mm2, ShiftMask);
-            movq qword ptr[edx], mm0
-            add edx, 8
-            dec ecx
-            jnz LOOP_SMOOTH_INNER
-            add edi, ebx
-            dec eax
-            jnz LOOP_SMOOTH_OUTER
-        }
-}
-        }
-        break;
-    // weighted average mode supplied by
-    // Jochen Trenner
-    case MODE_WEIGHTED_ASM:
-		{
-			int Width_third=Width/3/4;
-			int Height_third=Height/3;
-			int Height_2third=Height/3*2;
-        _asm
-        {
-            mov edi, lpLogoRect8
-            mov ebx, Pitch
-            mov eax, Height
-            LOOP_JT1_OUTER:
-            mov edx, edi
-            movq mm0, qword ptr[edx]
-			add edx, Width
-			add edx, Width
-			add edx, Width
-			add edx, Width
-			add edx, Width
-			add edx, Width
-			add edx, Width
-			add edx, Width
-            movq mm1, qword ptr[edx]
-			sub edx, Width
-			sub edx, Width
-			sub edx, Width
-			sub edx, Width
-			sub edx, Width
-			sub edx, Width
-			sub edx, Width
-			sub edx, Width
-			movq mm2, mm0
-			V_PAVGB(mm2, mm1, mm3, ShiftMask)
-            mov ecx, Width_third
-
-            LOOP_JT1_LEFT:
-			push eax
-			push ecx
-			mov ecx, Height
-			sub ecx, eax
-			imul ecx, ebx
-			sub edx, ecx
-			movq mm3, qword ptr[edx]
-			add edx, ecx
-			imul eax, ebx
-			add edx, eax
-			movq mm4, qword ptr[edx]
-			sub edx, eax
-			pop ecx
-			pop eax
-			cmp eax, Height_2third
-			jge LA
-			cmp eax, Height_third
-			jge LM
-			movq mm5, mm4
-			jmp LEFT_AVG
-            LA:			
-            movq mm5, mm3
-			jmp LEFT_AVG
-            LM:
-            V_PAVGB(mm4, mm3, mm5, ShiftMask)
-			movq mm5, mm4
-            LEFT_AVG:	
-            V_PAVGB(mm5, mm0, mm3, ShiftMask)
-            movq qword ptr[edx], mm5
-            add edx, 8
-            dec ecx
-            jnz LOOP_JT1_LEFT
-
-            mov ecx, Width_third
-            LOOP_JT1_MIDDLE:
-			push eax
-			push ecx
-			mov ecx, Height
-			sub ecx, eax
-			imul ecx, ebx
-			sub edx, ecx
-			movq mm3, qword ptr[edx]
-			add edx, ecx
-			imul eax, ebx
-			add edx, eax
-			movq mm4, qword ptr[edx]
-			sub edx, eax
-			pop ecx
-			pop eax
-			cmp eax, Height_2third
-			jge MA
-			cmp eax, Height_third
-			jge MM
-			movq mm5, mm4
-			jmp MIDDLE_AVG
-            MA:
-            movq mm5, mm3
-			jmp MIDDLE_AVG
-            MM:
-            V_PAVGB(mm4, mm3, mm5, ShiftMask)
-			movq mm5, mm4
-            MIDDLE_AVG:	
-            V_PAVGB(mm5, mm2, mm3, ShiftMask)
-			movq qword ptr[edx], mm5
-            add edx, 8
-            dec ecx
-            jnz LOOP_JT1_MIDDLE
-
-            mov ecx, Width_third
-            
-            LOOP_JT1_RIGHT:
-			push eax
-			push ecx
-			mov ecx, Height
-			sub ecx, eax
-			imul ecx, ebx
-			sub edx, ecx
-			movq mm3, qword ptr[edx]
-			add edx, ecx
-			imul eax, ebx
-			add edx, eax
-			movq mm4, qword ptr[edx]
-			sub edx, eax
-			pop ecx
-			pop eax
-			cmp eax, Height_2third
-			jge RA
-			cmp eax, Height_third
-			jge RM
-			movq mm5, mm4
-			jmp RIGHT_AVG
-            RA:			
-            movq mm5, mm3
-			jmp RIGHT_AVG
-            RM:			
-            V_PAVGB(mm4, mm3, mm5, ShiftMask)
-			movq mm5, mm4
-            RIGHT_AVG:	
-            V_PAVGB(mm5, mm1, mm3, ShiftMask)
-            movq qword ptr[edx], mm5
-            add edx, 8
-            dec ecx
-            jnz LOOP_JT1_RIGHT
-
-            add edi, ebx
-            dec eax
-            jnz LOOP_JT1_OUTER
-        }
-if(gUseSmoothing)
-{
-	_asm
-        {
-            // set edi to top left
-            mov edi, lpLogoRect8
-            mov ebx, Pitch
-            // loop over height
-            mov eax, Height
-            LOOP_SMOOTH_OUTER_ASM:
-            // loop over width
-            mov edx, edi
-            mov ecx, Width8
-            shr ecx, 2
-            LOOP_SMOOTH_INNER_ASM:
-			add edx, ebx //2 samples one line below
-			movq mm4, qword ptr[edx-8]
-			movq mm5, qword ptr[edx+8]
-			V_PAVGB(mm4, mm5, mm1, ShiftMask)
-			sub edx, ebx
-            sub edx, ebx //2 samples one line above
-			movq mm1, qword ptr[edx-8]
-			movq mm2, qword ptr[edx+8]
-			V_PAVGB(mm1, mm2, mm0, ShiftMask)
-			V_PAVGB(mm1, mm4, mm0, ShiftMask)
-			add edx, ebx
-            movq mm0, qword ptr[edx]
-			V_PAVGB(mm0,mm1, mm4, ShiftMask)
-            movq qword ptr[edx], mm0
-            add edx, 8
-            dec ecx
-            jnz LOOP_SMOOTH_INNER_ASM
-            add edi, ebx
-            dec eax
-            jnz LOOP_SMOOTH_OUTER_ASM
-        }
-}
-        break;
-		}
     case MODE_GREY:
     default:
         {

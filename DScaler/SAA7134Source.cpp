@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.38 2002-10-31 03:10:55 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.39 2002-10-31 05:02:55 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.38  2002/10/31 03:10:55  atnak
+// Changed CSource::GetTreeSettingsPage to return CTreeSettingsPage*
+//
 // Revision 1.37  2002/10/30 04:35:47  atnak
 // Added attempt to reduce driver conflict instability
 //
@@ -159,7 +162,6 @@
 #include "DebugLog.h"
 #include "AspectRatio.h"
 #include "SettingsPerChannel.h"
-#include "..\help\helpids.h"
 
 
 #ifdef _DEBUG
@@ -494,164 +496,6 @@ void CSAA7134Source::SetupSettings()
 }
 
 
-void CSAA7134Source::SaveSettings(WORD ChangedSetup)
-{
-    WORD PerSetupMask;
-
-    PerSetupMask = (ChangedSetup & SETUP_CHANGE_ANY) >> 4;
-
-    for (int i(0); m_SettingsSetup[i].Setting != NULL; i++)
-    {
-        if (m_SettingsSetup[i].Setup & PerSetupMask)
-        {
-            // Save the setting
-            m_SettingsSetup[i].Setting->WriteToIni(TRUE);
-
-            // If this change affects another setup
-            if (m_SettingsSetup[i].Setup & SETUP_CHANGE_ANY)
-            {
-                PerSetupMask |= (m_SettingsSetup[i].Setup & SETUP_CHANGE_ANY) >> 4;
-            }
-        }
-    }
-}
-
-
-void CSAA7134Source::LoadSettings(WORD ChangedSetup)
-{
-    WORD PerSetupMask;
-    WORD EnabledSectionMask = SETUP_PER_AUDIOINPUT;
-    WORD IniSectionMask = 0xFF;
-    char szSection[128];
-
-    // Find out which sections are used
-    if (m_bSavePerInput->GetValue())
-    {
-        EnabledSectionMask |= SETUP_PER_VIDEOINPUT;
-    }
-    if (m_bSavePerFormat->GetValue())
-    {
-        EnabledSectionMask |= SETUP_PER_VIDEOFORMAT;
-    }
-
-    // Adjust to the new defaults
-    ChangeDefaultsForSetup(ChangedSetup);
-    PerSetupMask = (ChangedSetup & SETUP_CHANGE_ANY) >> 4;
-
-    for (int i(0); m_SettingsSetup[i].Setting != NULL; i++)
-    {
-        if (m_SettingsSetup[i].Setup & PerSetupMask)
-        {
-            // Generate the section name if we don't already have it
-            if ((m_SettingsSetup[i].Setup & EnabledSectionMask) != IniSectionMask)
-            {
-                IniSectionMask = (m_SettingsSetup[i].Setup & EnabledSectionMask);
-                GetIniSectionName(szSection, IniSectionMask);
-            }
-
-            // Change the section and read the value
-            m_SettingsSetup[i].Setting->SetSection(szSection);
-            m_SettingsSetup[i].Setting->ReadFromIni();
-
-            // If this change affects another setup
-            if (m_SettingsSetup[i].Setup & SETUP_CHANGE_ANY)
-            {
-                ChangeDefaultsForSetup(m_SettingsSetup[i].Setup);
-                PerSetupMask |= (m_SettingsSetup[i].Setup & SETUP_CHANGE_ANY) >> 4;
-            }
-        }
-    }
-
-    ChangeChannelSectionNames();
-}
-
-
-void CSAA7134Source::GetIniSectionName(char* pBuffer, WORD IniSectionMask)
-{
-    sprintf(pBuffer, "%s", m_Section.c_str());
-    pBuffer += strlen(pBuffer);
-
-    if (IniSectionMask & SETUP_PER_VIDEOINPUT)
-    {
-        sprintf(pBuffer, "_VI%d", m_VideoSource->GetValue());
-        pBuffer += strlen(pBuffer);
-    }
-    if (IniSectionMask & SETUP_PER_VIDEOFORMAT)
-    {
-        sprintf(pBuffer, "_VF%d", m_VideoFormat->GetValue());
-        pBuffer += strlen(pBuffer);
-    }
-    if (IniSectionMask & SETUP_PER_AUDIOINPUT)
-    {
-        sprintf(pBuffer, "_AI%d", m_AudioSource->GetValue());
-        pBuffer += strlen(pBuffer);
-    }
-    if (IniSectionMask & SETUP_PER_CHANNEL)
-    {
-        /*
-        sprintf(pBuffer, "_C%d", m_Channel->GetValue());
-        pBuffer += strlen(pBuffer);
-        */
-    }
-}
-
-
-void CSAA7134Source::ChangeDefaultsForSetup(WORD Setup)
-{
-    if (Setup & SETUP_CHANGE_VIDEOINPUT)
-    {
-        ChangeDefaultsForVideoInput();
-    }
-    if (Setup & SETUP_CHANGE_VIDEOFORMAT)
-    {
-        ChangeDefaultsForVideoFormat();
-    }
-    if (Setup & SETUP_CHANGE_AUDIOINPUT)
-    {
-        ChangeDefaultsForAudioInput();
-    }
-}
-
-
-void CSAA7134Source::ChangeDefaultsForVideoInput()
-{
-    int nInput = m_VideoSource->GetValue();
-
-    m_AudioSource->ChangeDefault(m_pSAA7134Card->GetInputAudioLine(nInput));
-}
-
-
-void CSAA7134Source::ChangeDefaultsForVideoFormat()
-{
-    eVideoFormat VideoFormat = (eVideoFormat)m_VideoFormat->GetValue();
-
-    if(IsPALVideoFormat(VideoFormat))
-    {
-        m_Saturation->ChangeDefault(SAA7134_DEFAULT_PAL_SATURATION);
-        m_Overscan->ChangeDefault(SAA7134_DEFAULT_PAL_OVERSCAN);
-    }
-    else if(IsNTSCVideoFormat(VideoFormat))
-    {
-        m_Saturation->ChangeDefault(SAA7134_DEFAULT_NTSC_SATURATION);
-        m_Overscan->ChangeDefault(SAA7134_DEFAULT_NTSC_OVERSCAN);
-    }
-    else
-    {
-        m_Saturation->ChangeDefault(SAA7134_DEFAULT_SATURATION);
-        m_Overscan->ChangeDefault(SAA7134_DEFAULT_OVERSCAN);
-    }
-
-    eAudioStandard AudioStandard = TVFormat2AudioStandard(VideoFormat);
-    m_AudioStandard->ChangeDefault(AudioStandard);
-}
-
-
-void CSAA7134Source::ChangeDefaultsForAudioInput()
-{
-
-}
-
-
 void CSAA7134Source::OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
 {
 
@@ -671,15 +515,19 @@ void CSAA7134Source::Reset()
     SetupDMAMemory();
 
     SetupVideoSource();
-    SetupAudioSource();
-    SetupVideoStandard();
-    SetupAudioStandard();
 
-    SetOverscan();
+    m_pSAA7134Card->SetVideoMirror(m_VideoMirror->GetValue());
+    m_pSAA7134Card->SetVBIGeometry(m_VBIUpscaleDivisor->GetValue());
+    m_pSAA7134Card->SetAutomaticVolume((eAutomaticVolume)m_AutomaticVolumeLevel->GetValue());
+}
+
+
+void CSAA7134Source::SetupVideoSource()
+{
+    m_pSAA7134Card->SetVideoSource(m_VideoSource->GetValue());
 
     m_pSAA7134Card->SetAutomaticGainControl(m_AutomaticGainControl->GetValue());
     m_pSAA7134Card->SetGainControl(m_GainControlLevel->GetValue());
-    m_pSAA7134Card->SetVideoMirror(m_VideoMirror->GetValue());
 
     m_pSAA7134Card->SetHPLLMode((eHPLLMode)m_HPLLMode->GetValue());
 
@@ -687,30 +535,8 @@ void CSAA7134Source::Reset()
     m_pSAA7134Card->SetColorPeak(m_ColorPeak->GetValue());
     m_pSAA7134Card->SetCombFilter(m_AdaptiveCombFilter->GetValue());
 
-    m_pSAA7134Card->SetVBIGeometry(m_VBIUpscaleDivisor->GetValue());
-
-    if (m_AutoStereoSelect->GetValue())
-    {
-        m_pSAA7134Card->SetAudioChannel(AUDIOCHANNEL_STEREO);
-    }
-    else
-    {
-        m_pSAA7134Card->SetAudioChannel((eAudioChannel)m_AudioChannel->GetValue());
-    }
-
-    m_AutomaticVolumeLevel->SetValue(m_AutomaticVolumeLevel->GetValue());
-    m_AudioSampleRate->SetValue(m_AudioSampleRate->GetValue());
-
-    m_Volume->SetValue(m_Volume->GetValue());
-    m_Bass->SetValue(m_Bass->GetValue());
-    m_Treble->SetValue(m_Treble->GetValue());
-    m_Balance->SetValue(m_Balance->GetValue());
-}
-
-
-void CSAA7134Source::SetupVideoSource()
-{
-    m_pSAA7134Card->SetVideoSource(m_VideoSource->GetValue());
+    SetupAudioSource();
+    SetupVideoStandard();
 }
 
 
@@ -729,46 +555,16 @@ void CSAA7134Source::SetupVideoStandard()
                                     m_HDelay->GetValue(),
                                     m_VDelay->GetValue(),
                                     m_VBIUpscaleDivisor->GetValue());
-    NotifySizeChange();
 
     m_pSAA7134Card->SetBrightness(m_Brightness->GetValue());
     m_pSAA7134Card->SetContrast(m_Contrast->GetValue());
     m_pSAA7134Card->SetSaturation(m_Saturation->GetValue());
     m_pSAA7134Card->SetHue(m_Hue->GetValue());
-}
 
+    SetOverscan();
+    NotifySizeChange();
 
-void CSAA7134Source::ChangeCardSettings(WORD ChangedSetup)
-{
-    if (ChangedSetup & SETUP_CHANGE_VIDEOINPUT)
-    {
-        m_pSAA7134Card->SetAudioSource((eAudioInputSource)m_AudioSource->GetValue());
-        m_AutomaticGainControl->SetValue(m_AutomaticGainControl->GetValue());
-        m_GainControlLevel->SetValue(m_GainControlLevel->GetValue());
-        m_HPLLMode->SetValue(m_HPLLMode->GetValue());
-        m_WhitePeak->SetValue(m_WhitePeak->GetValue());
-        m_ColorPeak->SetValue(m_ColorPeak->GetValue());
-        m_AdaptiveCombFilter->SetValue(m_AdaptiveCombFilter->GetValue());
-    }
-
-    if (ChangedSetup & (SETUP_CHANGE_VIDEOINPUT | SETUP_CHANGE_VIDEOFORMAT))
-    {
-        SetupVideoStandard();
-        SetupAudioStandard();
-
-        SetOverscan();
-    }
-
-    if (ChangedSetup & (SETUP_CHANGE_VIDEOINPUT | SETUP_CHANGE_AUDIOINPUT))
-    {
-        m_AudioSampleRate->SetValue(m_AudioSampleRate->GetValue());
-        m_AudioChannel->SetValue(m_AudioChannel->GetValue());
-        m_AutoStereoSelect->SetValue(m_AutoStereoSelect->GetValue());
-        m_Volume->SetValue(m_Volume->GetValue());
-        m_Bass->SetValue(m_Bass->GetValue());
-        m_Treble->SetValue(m_Treble->GetValue());
-        m_Balance->SetValue(m_Balance->GetValue());
-    }
+    SetupAudioStandard();
 }
 
 
@@ -777,10 +573,10 @@ void CSAA7134Source::Start()
     m_pSAA7134Card->StartCapture(bCaptureVBI);
     Audio_Unmute();
     Timing_Reset();
-    {
-        // This timer is used to update STATUS_AUDIO
-        SetTimer(hWnd, TIMER_MSP, 1000, NULL);
-    }
+
+    // This timer is used to update STATUS_AUDIO
+    SetTimer(hWnd, TIMER_MSP, 1000, NULL);
+
     NotifySquarePixelsCheck();
     m_ProcessingRegionID = REGIONID_INVALID;
 }
@@ -791,9 +587,8 @@ void CSAA7134Source::Stop()
     // stop capture
     m_pSAA7134Card->StopCapture();
     Audio_Mute();
-    {
-        KillTimer(hWnd, TIMER_MSP);
-    }
+
+    KillTimer(hWnd, TIMER_MSP);
 }
 
 
@@ -1309,374 +1104,6 @@ void CSAA7134Source::DenumulateField(int Index, eRegionID* RegionID, BOOL* bIsFi
 }
 
 
-// \todo this might be bad
-CSAA7134Card* CSAA7134Source::GetSAA7134Card()
-{
-    return m_pSAA7134Card;
-}
-
-
-LPCSTR CSAA7134Source::GetStatus()
-{
-    static LPCSTR pRetVal = "";
-    if (IsInTunerMode())
-    {
-        if (*VT_GetStation() != 0x00)
-        {
-            pRetVal = VT_GetStation();
-        }
-        else if (VPSLastName[0] != 0x00)
-        {
-            pRetVal = VPSLastName;
-        }
-        else
-        {
-            pRetVal = Channel_GetName();
-        }
-    }
-    else
-    {
-        pRetVal = m_pSAA7134Card->GetInputName(m_VideoSource->GetValue());
-    }
-    return pRetVal;
-}
-
-
-/*
- *  These are used by the "Video Adjustments ..." dialog.
- */
-
-ISetting* CSAA7134Source::GetBrightness()
-{
-    return m_Brightness;
-}
-
-ISetting* CSAA7134Source::GetContrast()
-{
-    return m_Contrast;
-}
-
-ISetting* CSAA7134Source::GetHue()
-{
-    return m_Hue;
-}
-
-ISetting* CSAA7134Source::GetSaturation()
-{
-    return m_Saturation;
-}
-
-ISetting* CSAA7134Source::GetSaturationU()
-{
-    return NULL;
-}
-
-ISetting* CSAA7134Source::GetSaturationV()
-{
-    return NULL;
-}
-
-ISetting* CSAA7134Source::GetOverscan()
-{
-    return m_Overscan;
-}
-
-
-void CSAA7134Source::SetFormat(eVideoFormat NewFormat)
-{
-    PostMessage(hWnd, WM_SAA7134_SETVALUE, SAA7134TVFORMAT, NewFormat);
-}
-
-
-eVideoFormat CSAA7134Source::GetFormat()
-{
-    return (eVideoFormat)m_VideoFormat->GetValue();
-}
-
-
-int CSAA7134Source::GetWidth()
-{
-    return m_CurrentX;
-}
-
-
-int CSAA7134Source::GetHeight()
-{
-    return m_CurrentY;
-}
-
-
-////////////////////////////////////////////////////////////////////////
-void CSAA7134Source::VideoSourceOnChange(long NewValue, long OldValue)
-{
-    NotifyInputChange(1, VIDEOINPUT, OldValue, NewValue);
-
-    Stop_Capture();
-    Audio_Mute();
-
-    SetupVideoSource();
-
-    SaveSettings(SETUP_CHANGE_VIDEOINPUT);
-    LoadSettings(SETUP_CHANGE_VIDEOINPUT);
-    ChangeCardSettings(SETUP_CHANGE_VIDEOINPUT);
-
-    NotifyInputChange(0, VIDEOINPUT, OldValue, NewValue);
-
-    // set up sound
-    if (m_pSAA7134Card->IsInputATuner(NewValue))
-    {
-        Channel_SetCurrent();
-    }
-    Audio_Unmute();
-    Start_Capture();
-}
-
-void CSAA7134Source::VideoFormatOnChange(long NewValue, long OldValue)
-{
-    NotifyInputChange(1, VIDEOFORMAT, OldValue, NewValue);
-    Stop_Capture();
-
-    SaveSettings(SETUP_CHANGE_VIDEOFORMAT);
-    LoadSettings(SETUP_CHANGE_VIDEOFORMAT);
-    ChangeCardSettings(SETUP_CHANGE_VIDEOFORMAT);
-
-    Start_Capture();
-}
-
-void CSAA7134Source::PixelWidthOnChange(long NewValue, long OldValue)
-{
-    if (NewValue != 768 &&
-        NewValue != 754 &&
-        NewValue != 720 &&
-        NewValue != 640 &&
-        NewValue != 384 &&
-        NewValue != 320)
-    {
-        m_CustomPixelWidth->SetValue(NewValue);
-    }
-    Stop_Capture();
-    m_CurrentX = NewValue;
-
-    m_pSAA7134Card->SetGeometry(m_CurrentX, m_CurrentY,
-                                m_HDelay->GetValue(), m_VDelay->GetValue());
-    NotifySizeChange();
-
-    Start_Capture();
-}
-
-void CSAA7134Source::HDelayOnChange(long HDelay, long OldValue)
-{
-    Stop_Capture();
-    m_pSAA7134Card->SetGeometry(m_CurrentX, m_CurrentY, HDelay, m_VDelay->GetValue());
-    Start_Capture();
-}
-
-void CSAA7134Source::VDelayOnChange(long VDelay, long OldValue)
-{
-    long Minimum;
-
-    // If VBI is enabled, video cannot overlap VBI
-    if (bCaptureVBI)
-    {
-        Minimum = m_pSAA7134Card->GetMinimumVDelayWithVBI();
-    }
-    else
-    {
-        Minimum = m_pSAA7134Card->GetMinimumVDelay();
-    }
-
-    if (VDelay < Minimum)
-    {
-        m_VDelay->SetValue(Minimum, ONCHANGE_NONE);
-
-        if (Minimum == OldValue)
-        {
-            return;
-        }
-    }
-
-    Stop_Capture();
-    m_pSAA7134Card->SetGeometry(m_CurrentX, m_CurrentY, m_HDelay->GetValue(), VDelay);
-    Start_Capture();
-}
-
-void CSAA7134Source::BrightnessOnChange(long Brightness, long OldValue)
-{
-    m_pSAA7134Card->SetBrightness(Brightness);
-}
-
-void CSAA7134Source::HueOnChange(long Hue, long OldValue)
-{
-    m_pSAA7134Card->SetHue(Hue);
-}
-
-void CSAA7134Source::ContrastOnChange(long Contrast, long OldValue)
-{
-    m_pSAA7134Card->SetContrast(Contrast);
-}
-
-void CSAA7134Source::SaturationOnChange(long Sat, long OldValue)
-{
-    m_pSAA7134Card->SetSaturation(Sat);
-}
-
-void CSAA7134Source::OverscanOnChange(long Overscan, long OldValue)
-{
-    AspectSettings.InitialOverscan = Overscan;
-    WorkoutOverlaySize(TRUE);
-}
-
-void CSAA7134Source::TunerTypeOnChange(long TunerId, long OldValue)
-{
-    m_pSAA7134Card->InitTuner((eTunerId)TunerId);
-}
-
-void CSAA7134Source::HPLLModeOnChange(long HPLLMode, long OldValue)
-{
-    m_pSAA7134Card->SetHPLLMode((eHPLLMode)HPLLMode);
-}
-
-void CSAA7134Source::WhitePeakOnChange(long NewValue, long OldValue)
-{
-    m_pSAA7134Card->SetWhitePeak(NewValue);
-}
-
-void CSAA7134Source::ColorPeakOnChange(long NewValue, long OldValue)
-{
-    m_pSAA7134Card->SetColorPeak(NewValue);
-}
-
-void CSAA7134Source::AdaptiveCombFilterOnChange(long NewValue, long OldValue)
-{
-    m_pSAA7134Card->SetCombFilter(NewValue);
-}
-
-void CSAA7134Source::VBIUpscaleDivisorOnChange(long NewValue, long OldValue)
-{
-    Stop_Capture();
-    m_pSAA7134Card->SetVBIGeometry(NewValue);
-    Start_Capture();
-}
-
-void CSAA7134Source::AutomaticGainControlOnChange(long NewValue, long OldValue)
-{
-    m_pSAA7134Card->SetAutomaticGainControl(NewValue);
-}
-
-void CSAA7134Source::GainControlLevelOnChange(long NewValue, long OldValue)
-{
-    m_pSAA7134Card->SetGainControl(NewValue);
-}
-
-void CSAA7134Source::VideoMirrorOnChange(long NewValue, long OldValue)
-{
-    m_pSAA7134Card->SetVideoMirror(NewValue);
-}
-
-
-/////////////////////////////////////////////////////////////////////////
-
-BOOL CSAA7134Source::IsInTunerMode()
-{
-    return m_pSAA7134Card->IsInputATuner(m_VideoSource->GetValue());
-}
-
-
-void CSAA7134Source::SetupCard()
-{
-    BOOL bCardChanged = FALSE;
-
-    if (m_CardType->GetValue() == TVCARD_UNKNOWN)
-    {
-        // try to detect the card
-        m_CardType->SetValue(m_pSAA7134Card->AutoDetectCardType());
-        m_TunerType->SetValue(m_pSAA7134Card->AutoDetectTuner((eSAA7134CardId)m_CardType->GetValue()));
-
-        // then display the hardware setup dialog
-        m_bSelectCardCancelButton = FALSE;
-        DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_SELECTCARD), hWnd, (DLGPROC) SelectCardProc, (LPARAM)this);
-        m_bSelectCardCancelButton = TRUE;
-
-        bCardChanged = TRUE;
-    }
-    m_pSAA7134Card->SetCardType(m_CardType->GetValue());
-    m_pSAA7134Card->InitTuner((eTunerId)m_TunerType->GetValue());
-}
-
-void CSAA7134Source::ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff)
-{
-    // now do defaults based on the processor speed selected
-    if (ProcessorSpeed == 0)
-    {
-        // User has selected below 300 MHz
-        m_PixelWidth->ChangeDefault(640);
-    }
-    else if (ProcessorSpeed == 1)
-    {
-        // User has selected 300 MHz - 500 MHz
-        m_PixelWidth->ChangeDefault(720);
-    }
-    else if (ProcessorSpeed == 2)
-    {
-        // User has selected 500 MHz - 1 GHz
-        m_PixelWidth->ChangeDefault(720);
-    }
-    else
-    {
-        // user has fast processor use best defaults
-        m_PixelWidth->ChangeDefault(720);
-    }
-}
-
-void CSAA7134Source::ChangeTVSettingsBasedOnTuner()
-{
-    // default the TVTYPE dependant on the Tuner selected
-    // should be OK most of the time
-    if (m_TunerType->GetValue() != TUNER_ABSENT)
-    {
-        eVideoFormat videoFormat = m_pSAA7134Card->GetTuner()->GetDefaultVideoFormat();
-        m_VideoFormat->ChangeDefault(videoFormat);
-
-        SaveSettings(SETUP_CHANGE_VIDEOFORMAT);
-        LoadSettings(SETUP_CHANGE_VIDEOFORMAT);
-        ChangeCardSettings(SETUP_CHANGE_VIDEOFORMAT);
-    }
-}
-
-BOOL CSAA7134Source::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
-{
-    if (VideoFormat == VIDEOFORMAT_LASTONE)
-    {
-        VideoFormat = m_pSAA7134Card->GetTuner()->GetDefaultVideoFormat();
-    }
-    if (VideoFormat != m_VideoFormat->GetValue())
-    {
-        m_VideoFormat->SetValue(VideoFormat);
-    }
-
-    // switching to fast tracking speeds up channel changing a bit
-    m_pSAA7134Card->SetVSyncRecovery(VSYNCRECOVERY_FAST_TRACKING);
-    BOOL Success = m_pSAA7134Card->GetTuner()->SetTVFrequency(FrequencyId, VideoFormat);
-    m_pSAA7134Card->SetVSyncRecovery(VSYNCRECOVERY_NORMAL);
-
-    if (Success)
-    {
-        StatusBar_ShowText(STATUS_AUDIO, "");
-        // This is used in DecodeVBI() so old VBI isn't
-        // used for the new channel
-        m_ChannelChangeTick = GetTickCount();
-        return TRUE;
-    }
-    return FALSE;
-}
-
-
-BOOL CSAA7134Source::IsVideoPresent()
-{
-    return m_pSAA7134Card->IsVideoPresent();
-}
-
-
 void CSAA7134Source::DecodeVBI(TDeinterlaceInfo* pInfo)
 {
     int nLineTarget;
@@ -1727,251 +1154,127 @@ void CSAA7134Source::DecodeVBI(TDeinterlaceInfo* pInfo)
 }
 
 
-/*
-// This tries to decode VideoText by first calculating the clock
-// sync.. but doesn't work very well.
-void CSAA7134Source::DecodeVBILine(BYTE* VBILine, int Line)
+void CSAA7134Source::SetupCard()
 {
-    static double StepLength = 0;
-    USHORT  FallingEdge[8], Trench[8];
-    USHORT  Peak, Threshold;
-    BOOL    bRaising;
-    USHORT  EdgeStop0, EdgeStop7;
-    double  m1, m2;
-    double  BitIndex;
-    BYTE    RawData[45];
-    int     n, i, j;
+    BOOL bCardChanged = FALSE;
 
-    // Find the 8 falling edges in the Clock Run-In (10101010
-    // 10101010) and work out high/low the threshold.
-    bRaising = TRUE;
-    Peak = 0;
-    Threshold = 0;
-
-    for (i = 1, n = 0; i < 120; i++)
+    if (m_CardType->GetValue() == TVCARD_UNKNOWN)
     {
-        if (bRaising)
-        {
-            if (VBILine[i] > VBILine[Peak])
-            {
-                Peak = i;
-            }
-            else if (VBILine[i] < VBILine[Peak] - 32)
-            {
-                Threshold += VBILine[Peak];
+        // try to detect the card
+        m_CardType->SetValue(m_pSAA7134Card->AutoDetectCardType());
+        m_TunerType->SetValue(m_pSAA7134Card->AutoDetectTuner((eSAA7134CardId)m_CardType->GetValue()));
 
-                bRaising = FALSE;
-                FallingEdge[n] = i;
-                Trench[n] = i;
-            }
+        // then display the hardware setup dialog
+        m_bSelectCardCancelButton = FALSE;
+        DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_SELECTCARD), hWnd, (DLGPROC) SelectCardProc, (LPARAM)this);
+        m_bSelectCardCancelButton = TRUE;
+
+        bCardChanged = TRUE;
+    }
+    m_pSAA7134Card->SetCardType(m_CardType->GetValue());
+    m_pSAA7134Card->InitTuner((eTunerId)m_TunerType->GetValue());
+}
+
+
+BOOL CSAA7134Source::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
+{
+    if (VideoFormat == VIDEOFORMAT_LASTONE)
+    {
+        VideoFormat = m_pSAA7134Card->GetTuner()->GetDefaultVideoFormat();
+    }
+    if (VideoFormat != m_VideoFormat->GetValue())
+    {
+        m_VideoFormat->SetValue(VideoFormat);
+    }
+
+    // switching to fast tracking speeds up channel changing a bit
+    m_pSAA7134Card->SetVSyncRecovery(VSYNCRECOVERY_FAST_TRACKING);
+    BOOL Success = m_pSAA7134Card->GetTuner()->SetTVFrequency(FrequencyId, VideoFormat);
+    m_pSAA7134Card->SetVSyncRecovery(VSYNCRECOVERY_NORMAL);
+
+    if (Success)
+    {
+        StatusBar_ShowText(STATUS_AUDIO, "");
+        // This is used in DecodeVBI() so old VBI isn't
+        // used for the new channel
+        m_ChannelChangeTick = GetTickCount();
+        return TRUE;
+    }
+    return FALSE;
+}
+
+
+BOOL CSAA7134Source::IsInTunerMode()
+{
+    return m_pSAA7134Card->IsInputATuner(m_VideoSource->GetValue());
+}
+
+
+BOOL CSAA7134Source::IsVideoPresent()
+{
+    return m_pSAA7134Card->IsVideoPresent();
+}
+
+
+LPCSTR CSAA7134Source::GetStatus()
+{
+    static LPCSTR pRetVal = "";
+    if (IsInTunerMode())
+    {
+        if (*VT_GetStation() != 0x00)
+        {
+            pRetVal = VT_GetStation();
+        }
+        else if (VPSLastName[0] != 0x00)
+        {
+            pRetVal = VPSLastName;
         }
         else
         {
-            if (VBILine[i] < VBILine[Trench[n]])
-            {
-                Trench[n] = i;
-            }
-            else if (VBILine[i] > VBILine[Trench[n]] + 32)
-            {
-                Threshold += VBILine[Trench[n]];
-
-                if (++n == 8)
-                {
-                    break;
-                }
-                bRaising = TRUE;
-                Peak = i;
-            }
+            pRetVal = Channel_GetName();
         }
     }
-
-    // Make sure we have 8 trenches
-    if (n != 8)
+    else
     {
-        return;
+        pRetVal = m_pSAA7134Card->GetInputName(m_VideoSource->GetValue());
     }
-
-    // Find the end of first falling edge
-    for (i = Trench[0] - 1; (VBILine[i] - VBILine[Trench[0]]) <= 32; i++) {}
-    EdgeStop0 = i;
-
-    // Find the end of the last falling edge
-    for (i = Trench[7] - 1; (VBILine[i] - VBILine[Trench[7]]) <= 32; i++) {}
-    EdgeStop7 = i;
-
-    // Work out the slopes of the two falling edges
-    m1 = (double) (VBILine[EdgeStop0] - VBILine[FallingEdge[0]]) / (EdgeStop0 - FallingEdge[0]);
-    m2 = (double) (VBILine[EdgeStop7] - VBILine[FallingEdge[7]]) / (EdgeStop7 - FallingEdge[7]);
-
-    //LOG(0, "%f, %f", m1, m2);
-
-    // We can only use the edges if the slopes are similar
-    if ((m1 < 0 == m2 < 0) && ((double) fabs(m1 - m2) < 2.0))
-    {
-        // Space between the mean of the two falling edges
-        // divided by the number of bits in between (14)
-        StepLength = (double) ((FallingEdge[7] + EdgeStop7) -
-                               (FallingEdge[0] + EdgeStop0)) / 2 / 14;
-    }
-
-    // We can't proceed until we have a valid StepLength
-    if ((USHORT) StepLength == 0)
-    {
-        return;
-    }
-
-    // Calculate the high/low threshold
-    Threshold = Threshold / 16;
-
-
-    // (VBI_decode_vt wants bits in reverse)
-    RawData[0] = 0x55;
-    RawData[1] = 0x55;
-    RawData[2] = 0x00;
-
-    // this should bring us to the start of 11100100
-    // Add 0.5 to for rounding
-    BitIndex = (double) Trench[7] + StepLength + 0.5;
-
-    for (j = 0; j < 8; j++, BitIndex += StepLength)
-    {
-        if (VBILine[(USHORT)BitIndex] > Threshold)
-        {
-            RawData[2] |= 1 << j;
-        }
-    }
-
-    // make sure there is a Framing Code
-    if (RawData[2] != 0x27)
-    {
-        return;
-    }
-
-    // get the rest of the data
-    for (i = 3; i < 45; i++)
-    {
-        RawData[i] = 0x00;
-        for (j = 0; j < 8; j++, BitIndex += StepLength)
-        {
-            if (VBILine[(USHORT)BitIndex] > Threshold)
-            {
-                RawData[i] |= 1 << j;
-            }
-        }
-    }
-
-    VBI_decode_vt(RawData);
+    return pRetVal;
 }
-*/
 
 
-LPCSTR CSAA7134Source::GetMenuLabel()
+void CSAA7134Source::SetFormat(eVideoFormat NewFormat)
 {
-    return m_pSAA7134Card->GetCardName(m_pSAA7134Card->GetCardType());
+    PostMessage(hWnd, WM_SAA7134_SETVALUE, SAA7134TVFORMAT, NewFormat);
 }
+
+
+eVideoFormat CSAA7134Source::GetFormat()
+{
+    return (eVideoFormat)m_VideoFormat->GetValue();
+}
+
+
+int CSAA7134Source::GetWidth()
+{
+    return m_CurrentX;
+}
+
+
+int CSAA7134Source::GetHeight()
+{
+    return m_CurrentY;
+}
+
 
 void CSAA7134Source::SetOverscan()
 {
     AspectSettings.InitialOverscan = m_Overscan->GetValue();
 }
 
-void CSAA7134Source::SavePerChannelSetup(int Start)
+
+const char* CSAA7134Source::GetChipName()
 {
-    if (Start&1)
-    {
-        m_SettingsByChannelStarted = TRUE;
-        ChangeChannelSectionNames();
-    }
-    else
-    {
-        m_SettingsByChannelStarted = FALSE;
-        if (m_ChannelSubSection.size() > 0)
-        {
-            SettingsPerChannel_UnregisterSection(m_ChannelSubSection.c_str());
-        }
-    }
-}
-
-
-void CSAA7134Source::ChangeChannelSectionNames()
-{
-    if (!m_SettingsByChannelStarted)
-    {
-        return;
-    }
-
-    std::string sOldSection = m_ChannelSubSection;
-
-    WORD IniSectionMask = 0;
-
-    if (m_bSavePerInput->GetValue())
-    {
-        IniSectionMask |= SETUP_PER_VIDEOINPUT;
-    }
-    if (m_bSavePerFormat->GetValue())
-    {
-        IniSectionMask |= SETUP_PER_VIDEOFORMAT;
-    }
-
-    if(IniSectionMask)
-    {
-        char szSection[128];
-
-        GetIniSectionName(szSection, IniSectionMask);
-        m_ChannelSubSection = szSection;
-    }
-    else
-    {
-        m_ChannelSubSection = m_Section;
-    }
-
-    if (sOldSection != m_ChannelSubSection)
-    {
-        if (sOldSection.size() > 0)
-        {
-            if (m_CurrentChannel >= 0)
-            {
-                SettingsPerChannel_SaveChannelSettings(sOldSection.c_str(), m_VideoSource->GetValue(), m_CurrentChannel, GetFormat());
-            }
-            SettingsPerChannel_UnregisterSection(sOldSection.c_str());
-        }
-
-        SettingsPerChannel_RegisterSetSection(m_ChannelSubSection.c_str());
-        SettingsPerChannel_RegisterSetting("Brightness", "SAA713x - Brightness",TRUE, m_Brightness);
-        SettingsPerChannel_RegisterSetting("Hue", "SAA713x - Hue", TRUE, m_Hue);
-        SettingsPerChannel_RegisterSetting("Contrast", "SAA713x - Contrast", TRUE, m_Contrast);
-        SettingsPerChannel_RegisterSetting("Saturation","SAA713x - Saturation",TRUE, m_Saturation);
-
-        SettingsPerChannel_RegisterSetting("Overscan", "SAA713x - Overscan", FALSE, m_Overscan);
-
-        SettingsPerChannel_RegisterSetting("Volume", "SAA713x - Volume", TRUE, m_Volume);            
-        SettingsPerChannel_RegisterSetting("Balance", "SAA713x - Balance", TRUE, m_Balance);
-        SettingsPerChannel_RegisterSetting("BassTreble", "SAA713x - Bass & Treble", FALSE);            
-        SettingsPerChannel_RegisterSetting("BassTreble", "SAA713x - Bass & Treble", FALSE, m_Bass);            
-        SettingsPerChannel_RegisterSetting("BassTreble", "SAA713x - Bass & Treble", FALSE, m_Treble);        
-
-        SettingsPerChannel_RegisterSetting("HPLLMode", "SAA713x - HPLLMode", TRUE, m_HPLLMode);
-        SettingsPerChannel_RegisterSetting("AudioChannel", "SAA713x - Audio Channel", FALSE, m_AudioChannel);
-
-        SettingsPerChannel_RegisterSetting("Delays", "SAA713x - H/V Delay", FALSE);
-        SettingsPerChannel_RegisterSetting("Delays", "SAA713x - H/V Delay", FALSE, m_HDelay);
-        SettingsPerChannel_RegisterSetting("Delays", "SAA713x - H/V Delay", FALSE, m_VDelay);
-
-        SettingsPerChannel_RegisterSetting("Miscellaneous", "SAA713x - Miscellaneous", FALSE);
-        SettingsPerChannel_RegisterSetting("Miscellaneous", "SAA713x - Miscellaneous", FALSE, m_WhitePeak);
-        SettingsPerChannel_RegisterSetting("Miscellaneous", "SAA713x - Miscellaneous", FALSE, m_ColorPeak);
-        SettingsPerChannel_RegisterSetting("Miscellaneous", "SAA713x - Miscellaneous", FALSE, m_AdaptiveCombFilter);
-
-        SettingsPerChannel_RegisterSetting("AudioStandard", "SAA713x - Audio Standard", TRUE);
-        SettingsPerChannel_RegisterSetting("AudioStandard", "SAA713x - Audio Standard", TRUE, m_AudioStandard);
-        SettingsPerChannel_RegisterSetting("AudioStandard", "SAA713x - Audio Standard", TRUE, m_CustomAudioStandard);
-        SettingsPerChannel_RegisterSetting("AudioStandard", "SAA713x - Audio Standard", TRUE, m_AudioMajorCarrier);
-        SettingsPerChannel_RegisterSetting("AudioStandard", "SAA713x - Audio Standard", TRUE, m_AudioMinorCarrier);
-        SettingsPerChannel_RegisterSetting("AudioStandard", "SAA713x - Audio Standard", TRUE, m_AudioMajorCarrierMode);
-        SettingsPerChannel_RegisterSetting("AudioStandard", "SAA713x - Audio Standard", TRUE, m_AudioMinorCarrierMode);
-        SettingsPerChannel_RegisterSetting("AudioStandard", "SAA713x - Audio Standard", TRUE, m_AudioCh1FMDeemph);
-        SettingsPerChannel_RegisterSetting("AudioStandard", "SAA713x - Audio Standard", TRUE, m_AudioCh2FMDeemph);
-    }
+    return m_ChipName.c_str();
 }
 
 
@@ -1980,10 +1283,6 @@ int CSAA7134Source::GetDeviceIndex()
     return m_DeviceIndex;
 }
 
-const char* CSAA7134Source::GetChipName()
-{
-    return m_ChipName.c_str();
-}
 
 int  CSAA7134Source::NumInputs(eSourceInputType InputType)
 {
@@ -1997,6 +1296,7 @@ int  CSAA7134Source::NumInputs(eSourceInputType InputType)
     }*/
     return 0;
 }
+
 
 BOOL CSAA7134Source::SetInput(eSourceInputType InputType, int Nr)
 {
@@ -2013,6 +1313,7 @@ BOOL CSAA7134Source::SetInput(eSourceInputType InputType, int Nr)
     return FALSE;
 }
 
+
 int CSAA7134Source::GetInput(eSourceInputType InputType)
 {
     if (InputType == VIDEOINPUT)
@@ -2025,6 +1326,7 @@ int CSAA7134Source::GetInput(eSourceInputType InputType)
     }*/
     return -1;
 }
+
 
 const char* CSAA7134Source::GetInputName(eSourceInputType InputType, int Nr)
 {
@@ -2041,6 +1343,7 @@ const char* CSAA7134Source::GetInputName(eSourceInputType InputType, int Nr)
     }*/
     return NULL;
 }
+
 
 BOOL CSAA7134Source::InputHasTuner(eSourceInputType InputType, int Nr)
 {
@@ -2065,26 +1368,229 @@ ITuner* CSAA7134Source::GetTuner()
 }
 
 
-CTreeSettingsPage* CSAA7134Source::GetTreeSettingsPage()
+////////////////////////////////////////////////////////////////////////
+
+ISetting* CSAA7134Source::GetBrightness()
 {
-    CTreeSettingsGeneric* pPage;
-
-    vector <CSimpleSetting*>vSettingsList;
-
-    vSettingsList.push_back(m_AutomaticVolumeLevel);
-    vSettingsList.push_back(m_VBIUpscaleDivisor);
-    vSettingsList.push_back(m_VBIDebugOverlay);
-    vSettingsList.push_back(m_AutomaticGainControl);
-    vSettingsList.push_back(m_GainControlLevel);
-    vSettingsList.push_back(m_VideoMirror);
-    vSettingsList.push_back(m_CustomPixelWidth);
-    vSettingsList.push_back(m_HDelay);
-    vSettingsList.push_back(m_VDelay);
-    vSettingsList.push_back(m_ReversePolarity);
-
-    pPage = new CTreeSettingsGeneric("SAA713x Advanced", vSettingsList);
-    
-    pPage->SetHelpID(IDH_SAA713X_ADV);
-
-    return pPage;
+    return m_Brightness;
 }
+
+ISetting* CSAA7134Source::GetContrast()
+{
+    return m_Contrast;
+}
+
+ISetting* CSAA7134Source::GetHue()
+{
+    return m_Hue;
+}
+
+ISetting* CSAA7134Source::GetSaturation()
+{
+    return m_Saturation;
+}
+
+ISetting* CSAA7134Source::GetSaturationU()
+{
+    return NULL;
+}
+
+ISetting* CSAA7134Source::GetSaturationV()
+{
+    return NULL;
+}
+
+ISetting* CSAA7134Source::GetOverscan()
+{
+    return m_Overscan;
+}
+
+
+////////////////////////////////////////////////////////////////////////
+
+void CSAA7134Source::VideoSourceOnChange(long NewValue, long OldValue)
+{
+    NotifyInputChange(1, VIDEOINPUT, OldValue, NewValue);
+
+    Stop_Capture();
+    Audio_Mute();
+
+    SaveSettings(SETUP_CHANGE_VIDEOINPUT);
+    LoadSettings(SETUP_CHANGE_VIDEOINPUT);
+    SetupVideoSource();
+
+    NotifyInputChange(0, VIDEOINPUT, OldValue, NewValue);
+
+    if (m_pSAA7134Card->IsInputATuner(NewValue))
+    {
+        Channel_SetCurrent();
+    }
+
+    Audio_Unmute();
+    Start_Capture();
+}
+
+
+void CSAA7134Source::VideoFormatOnChange(long NewValue, long OldValue)
+{
+    NotifyInputChange(1, VIDEOFORMAT, OldValue, NewValue);
+    Stop_Capture();
+
+    SaveSettings(SETUP_CHANGE_VIDEOFORMAT);
+    LoadSettings(SETUP_CHANGE_VIDEOFORMAT);
+    SetupVideoStandard();
+
+    NotifyInputChange(0, VIDEOFORMAT, OldValue, NewValue);
+
+    Start_Capture();
+}
+
+
+void CSAA7134Source::PixelWidthOnChange(long NewValue, long OldValue)
+{
+    if (NewValue != 768 &&
+        NewValue != 754 &&
+        NewValue != 720 &&
+        NewValue != 640 &&
+        NewValue != 384 &&
+        NewValue != 320)
+    {
+        m_CustomPixelWidth->SetValue(NewValue);
+    }
+    Stop_Capture();
+    m_CurrentX = NewValue;
+
+    m_pSAA7134Card->SetGeometry(m_CurrentX,
+                                m_CurrentY,
+                                m_HDelay->GetValue(),
+                                m_VDelay->GetValue());
+    NotifySizeChange();
+
+    Start_Capture();
+}
+
+
+void CSAA7134Source::HDelayOnChange(long HDelay, long OldValue)
+{
+    Stop_Capture();
+    m_pSAA7134Card->SetGeometry(m_CurrentX, m_CurrentY, HDelay, m_VDelay->GetValue());
+    Start_Capture();
+}
+
+
+void CSAA7134Source::VDelayOnChange(long VDelay, long OldValue)
+{
+    long Minimum;
+
+    // If VBI is enabled, video cannot overlap VBI
+    if (bCaptureVBI)
+    {
+        Minimum = m_pSAA7134Card->GetMinimumVDelayWithVBI();
+    }
+    else
+    {
+        Minimum = m_pSAA7134Card->GetMinimumVDelay();
+    }
+
+    if (VDelay < Minimum)
+    {
+        m_VDelay->SetValue(Minimum, ONCHANGE_NONE);
+
+        if (Minimum == OldValue)
+        {
+            return;
+        }
+    }
+
+    Stop_Capture();
+    m_pSAA7134Card->SetGeometry(m_CurrentX, m_CurrentY, m_HDelay->GetValue(), VDelay);
+    Start_Capture();
+}
+
+
+void CSAA7134Source::BrightnessOnChange(long Brightness, long OldValue)
+{
+    m_pSAA7134Card->SetBrightness(Brightness);
+}
+
+
+void CSAA7134Source::HueOnChange(long Hue, long OldValue)
+{
+    m_pSAA7134Card->SetHue(Hue);
+}
+
+
+void CSAA7134Source::ContrastOnChange(long Contrast, long OldValue)
+{
+    m_pSAA7134Card->SetContrast(Contrast);
+}
+
+
+void CSAA7134Source::SaturationOnChange(long Sat, long OldValue)
+{
+    m_pSAA7134Card->SetSaturation(Sat);
+}
+
+
+void CSAA7134Source::OverscanOnChange(long Overscan, long OldValue)
+{
+    AspectSettings.InitialOverscan = Overscan;
+    WorkoutOverlaySize(TRUE);
+}
+
+
+void CSAA7134Source::TunerTypeOnChange(long TunerId, long OldValue)
+{
+    m_pSAA7134Card->InitTuner((eTunerId)TunerId);
+}
+
+
+void CSAA7134Source::HPLLModeOnChange(long HPLLMode, long OldValue)
+{
+    m_pSAA7134Card->SetHPLLMode((eHPLLMode)HPLLMode);
+}
+
+
+void CSAA7134Source::WhitePeakOnChange(long NewValue, long OldValue)
+{
+    m_pSAA7134Card->SetWhitePeak(NewValue);
+}
+
+
+void CSAA7134Source::ColorPeakOnChange(long NewValue, long OldValue)
+{
+    m_pSAA7134Card->SetColorPeak(NewValue);
+}
+
+
+void CSAA7134Source::AdaptiveCombFilterOnChange(long NewValue, long OldValue)
+{
+    m_pSAA7134Card->SetCombFilter(NewValue);
+}
+
+
+void CSAA7134Source::VBIUpscaleDivisorOnChange(long NewValue, long OldValue)
+{
+    Stop_Capture();
+    m_pSAA7134Card->SetVBIGeometry(NewValue);
+    Start_Capture();
+}
+
+
+void CSAA7134Source::AutomaticGainControlOnChange(long NewValue, long OldValue)
+{
+    m_pSAA7134Card->SetAutomaticGainControl(NewValue);
+}
+
+
+void CSAA7134Source::GainControlLevelOnChange(long NewValue, long OldValue)
+{
+    m_pSAA7134Card->SetGainControl(NewValue);
+}
+
+
+void CSAA7134Source::VideoMirrorOnChange(long NewValue, long OldValue)
+{
+    m_pSAA7134Card->SetVideoMirror(NewValue);
+}
+

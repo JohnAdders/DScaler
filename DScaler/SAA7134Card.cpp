@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.cpp,v 1.23 2002-10-30 04:35:48 atnak Exp $
+// $Id: SAA7134Card.cpp,v 1.24 2002-10-31 05:02:55 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2002/10/30 04:35:48  atnak
+// Added attempt to reduce driver conflict instability
+//
 // Revision 1.22  2002/10/28 11:10:15  atnak
 // Various changes and revamp to settings
 //
@@ -574,13 +577,13 @@ void CSAA7134Card::StartCapture(BOOL bCaptureVBI)
     }
 
     MaskDataByte(SAA7134_REGION_ENABLE, Region, m_PreparedRegions);
-    MaskDataByte(SAA7134_AUDIO_MUTE_CTRL, 0x00, SAA7134_AUDIO_MUTE_CTRL_MUTSOUT);
+    SetAudioUnMute();
 }
 
 
 void CSAA7134Card::StopCapture()
 {
-    WriteByte(SAA7134_AUDIO_MUTE_CTRL, 0xFF);
+    SetAudioMute();
     WriteByte(SAA7134_REGION_ENABLE, 0x00);
 }
 

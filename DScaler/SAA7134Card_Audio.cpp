@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Audio.cpp,v 1.16 2002-10-29 13:38:21 atnak Exp $
+// $Id: SAA7134Card_Audio.cpp,v 1.17 2002-10-31 05:02:55 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/10/29 13:38:21  atnak
+// More saa7130 unsupported checks
+//
 // Revision 1.15  2002/10/28 11:10:13  atnak
 // Various changes and revamp to settings
 //
@@ -89,6 +92,8 @@
 
 void CSAA7134Card::InitAudio()
 {
+    SetAudioSource(AUDIOINPUTSOURCE_LINE1);
+
     if (m_DeviceId == 0x7130)
     {
         // saa7130 doesn't support most audio stuff
@@ -123,8 +128,6 @@ void CSAA7134Card::InitAudio()
     // no audio capture through DMA
     MaskDataDword(SAA7134_NUM_SAMPLES,          0x00, SAA7134_NUM_SAMPLES_MASK);
     WriteByte(SAA7134_AUDIO_FORMAT_CTRL,        0xDD);
-
-    SetAudioSource(AUDIOINPUTSOURCE_LINE1);
 
     // normal output gain
     MaskDataByte(SAA7134_CHANNEL1_LEVEL,        0x00, 0x1F);

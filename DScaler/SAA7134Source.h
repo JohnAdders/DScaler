@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.h,v 1.21 2002-10-31 03:10:55 atnak Exp $
+// $Id: SAA7134Source.h,v 1.22 2002-10-31 05:02:55 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2002/10/31 03:10:55  atnak
+// Changed CSource::GetTreeSettingsPage to return CTreeSettingsPage*
+//
 // Revision 1.20  2002/10/29 03:07:18  atnak
 // Added SAA713x TreeSettings Page
 //
@@ -108,17 +111,46 @@ class CSAA7134Source : public CSource,
 public:
     CSAA7134Source(CSAA7134Card* pSAA7134Card, CContigMemory* PagelistDMAMem[4], CUserMemory* DisplayDMAMem[2], CUserMemory* VBIDMAMem[2], LPCSTR IniSection, LPCSTR ChipName, int DeviceIndex);
     ~CSAA7134Source();
+
     void Start();
     void Stop();
     void Reset();
-    void GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming);
-    BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
-    CSAA7134Card* GetSAA7134Card();
-    LPCSTR GetStatus();
-    ISetting* GetVolume();
-    ISetting* GetBalance();
+
     void Mute();
     void UnMute();
+
+    void GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming);
+    void DecodeVBI(TDeinterlaceInfo* pInfo);
+
+    BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat);
+
+    LPCSTR GetStatus();
+    BOOL IsInTunerMode();
+    BOOL IsVideoPresent();
+
+    ITuner* GetTuner();
+
+    void SetFormat(eVideoFormat NewFormat);
+    eVideoFormat GetFormat();
+
+    void SetOverscan();
+
+    int GetWidth();
+    int GetHeight();
+
+    int GetDeviceIndex();
+    const char* GetChipName();
+    LPCSTR IDString() { return m_IDString.c_str(); }
+
+    int NumInputs(eSourceInputType InputType);
+    BOOL SetInput(eSourceInputType InputType, int Nr);
+    int GetInput(eSourceInputType InputType);
+    const char* GetInputName(eSourceInputType InputType, int Nr);
+    BOOL InputHasTuner(eSourceInputType InputType, int Nr);
+
+    ISetting* GetVolume();
+    ISetting* GetBalance();
+
     ISetting* GetBrightness();
     ISetting* GetContrast();
     ISetting* GetHue();
@@ -127,80 +159,42 @@ public:
     ISetting* GetSaturationV();
     ISetting* GetOverscan();
 
-    eVideoFormat GetFormat();
-    void SetFormat(eVideoFormat NewFormat);
-    BOOL IsInTunerMode();
-    int GetWidth();
-    int GetHeight();
-    void UpdateMenu() {return;};
-    void SetMenu(HMENU hMenu);
-  
-    void HandleTimerMessages(int TimerId);
-    BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat);
-    BOOL IsVideoPresent();
-    void DecodeVBI(TDeinterlaceInfo* pInfo);
-    void DecodeVBILine(BYTE* VBILine, int Line);
     LPCSTR GetMenuLabel();
-    BOOL OpenMediaFile(LPCSTR FileName, BOOL NewPlayList) {return FALSE;};
-    BOOL IsAccessAllowed() {return TRUE;};
-    void SetOverscan();
-    BOOL HasSquarePixels() {return FALSE;};
-    void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff);
-    void ChannelChange(int PreChange,int OldChannel,int NewChannel);
-    void SavePerChannelSetup(int Start);
-    int GetDeviceIndex();
-    const char* GetChipName();
-    LPCSTR IDString() { return m_IDString.c_str(); }
-    int  NumInputs(eSourceInputType InputType);
-    BOOL SetInput(eSourceInputType InputType, int Nr);
-    int GetInput(eSourceInputType InputType);
-    const char* GetInputName(eSourceInputType InputType, int Nr);
-    BOOL InputHasTuner(eSourceInputType InputType, int Nr);
+    void SetMenu(HMENU hMenu);
+    void UpdateMenu() {return;};
 
     virtual void OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
-    
-    ITuner* GetTuner();
+
+    BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
+    void HandleTimerMessages(int TimerId);
+
+    void SavePerChannelSetup(int Start);
+    void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff);
+
+    BOOL OpenMediaFile(LPCSTR FileName, BOOL NewPlayList) {return FALSE;};
+    BOOL IsAccessAllowed() {return TRUE;};
+    BOOL HasSquarePixels() {return FALSE;};
 
     CTreeSettingsPage* CSAA7134Source::GetTreeSettingsPage();
 
 private:
     virtual void CreateSettings(LPCSTR IniSection);
 
+    void SetupCard();
+
     void SetupVideoSource();
     void SetupAudioSource();
     void SetupVideoStandard();
     void SetupAudioStandard();
+
     void SetupDMAMemory();
-
-    void ChangeCardSettings(WORD ChangedSetup);
-
     DWORD CreatePageTable(CUserMemory* pDMAMemory, DWORD nPagesWanted, LPDWORD pPageTable);
     
-    static BOOL APIENTRY SelectCardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
-    static BOOL APIENTRY RegisterEditProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
-    static BOOL APIENTRY AudioStandardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
-    static BOOL APIENTRY OtherEditProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
-
+    void GiveNextField(TDeinterlaceInfo* pInfo, TPicture* picture);
     void GetNextFieldNormal(TDeinterlaceInfo* pInfo);
     void GetNextFieldAccurate(TDeinterlaceInfo* pInfo);
-    void SmartSleep(TDeinterlaceInfo* pInfo, BOOL bRunningLate);
 
     void UpdateAudioStatus();
-
-    void SetupCard();
-    void ChangeTVSettingsBasedOnTuner();
-    /*
-    void ChangeSectionNamesForInput();
-    void ChangeDefaultsForInput();
-    void LoadInputSettings();
-    void SaveInputSettings(BOOL bOptimizeFileAccess);
-*/
-    void ChangeChannelSectionNames();
-
-    //ISetting* GetCurrentAudioSetting();
-    //ISetting* GetAudioSetting(int nVideoSource);
-
-    void GiveNextField(TDeinterlaceInfo* pInfo, TPicture* picture);
 
     BOOL GetFinishedField(eRegionID& DoneRegionID, BOOL& bDoneIsFieldOdd);
     BOOL WaitForFinishedField(eRegionID& RegionID, BOOL& bIsFieldOdd, TDeinterlaceInfo* pInfo);
@@ -211,6 +205,11 @@ private:
     void InitializeUI();
     void CleanupUI();
 
+    static BOOL APIENTRY SelectCardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
+    static BOOL APIENTRY RegisterEditProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
+    static BOOL APIENTRY AudioStandardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
+    static BOOL APIENTRY OtherEditProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
+
     void SetupSettings();
     void SaveSettings(WORD ChangedSetup);
     void LoadSettings(WORD ChangedSetup);
@@ -218,7 +217,11 @@ private:
     void ChangeDefaultsForVideoInput();
     void ChangeDefaultsForVideoFormat();
     void ChangeDefaultsForAudioInput();
+    void ChangeTVSettingsBasedOnTuner();
+
     void GetIniSectionName(char* pBuffer, WORD IniSectionMask);
+    void ChangeChannelSectionNames();
+
 
 protected:
     enum eSettingsSetup
@@ -340,6 +343,5 @@ private:
 };
 
 
-
-
 #endif
+

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_Audio.cpp,v 1.11 2002-10-28 11:10:11 atnak Exp $
+// $Id: SAA7134Source_Audio.cpp,v 1.12 2002-10-31 05:02:54 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/10/28 11:10:11  atnak
+// Various changes and revamp to settings
+//
 // Revision 1.10  2002/10/26 05:24:23  atnak
 // Minor cleanups
 //
@@ -66,18 +69,6 @@
 #include "Status.h"
 
 
-ISetting* CSAA7134Source::GetVolume()
-{
-    return NULL;
-}
-
-
-ISetting* CSAA7134Source::GetBalance()
-{
-    return NULL;
-}
-
-
 void CSAA7134Source::Mute()
 {
     m_pSAA7134Card->SetAudioMute();
@@ -87,6 +78,27 @@ void CSAA7134Source::Mute()
 void CSAA7134Source::UnMute()
 {
     m_pSAA7134Card->SetAudioUnMute();
+}
+
+
+void CSAA7134Source::SetupAudioSource()
+{
+    m_pSAA7134Card->SetAudioSource((eAudioInputSource)m_AudioSource->GetValue());
+    m_pSAA7134Card->SetAudioSampleRate((eAudioSampleRate)m_AudioSampleRate->GetValue());
+
+    if (m_AutoStereoSelect->GetValue() == TRUE)
+    {
+        m_pSAA7134Card->SetAudioChannel(AUDIOCHANNEL_STEREO);
+    }
+    else
+    {
+        m_pSAA7134Card->SetAudioChannel((eAudioChannel)m_AudioChannel->GetValue());
+    }
+
+    m_pSAA7134Card->SetAudioVolume(m_Volume->GetValue());
+    m_pSAA7134Card->SetAudioBass(m_Bass->GetValue());
+    m_pSAA7134Card->SetAudioTreble(m_Treble->GetValue());
+    m_pSAA7134Card->SetAudioBalance(m_Balance->GetValue());
 }
 
 
@@ -159,9 +171,15 @@ void CSAA7134Source::UpdateAudioStatus()
 }
 
 
-void CSAA7134Source::SetupAudioSource()
+ISetting* CSAA7134Source::GetVolume()
 {
-    m_pSAA7134Card->SetAudioSource((eAudioInputSource)m_AudioSource->GetValue());
+    return NULL;
+}
+
+
+ISetting* CSAA7134Source::GetBalance()
+{
+    return NULL;
 }
 
 
@@ -205,7 +223,9 @@ void CSAA7134Source::AudioSampleRateOnChange(long NewValue, long OldValue)
 
 void CSAA7134Source::AudioSourceOnChange(long NewValue, long OldValue)
 {
-    m_pSAA7134Card->SetAudioSource((eAudioInputSource)NewValue);
+    SaveSettings(SETUP_CHANGE_AUDIOINPUT);
+    LoadSettings(SETUP_CHANGE_AUDIOINPUT);
+    SetupAudioSource();
 }
 
 void CSAA7134Source::AudioChannelOnChange(long AudioChannel, long OldValue)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.18 2002-10-29 03:07:18 atnak Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.19 2002-10-31 05:02:54 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2002/10/29 03:07:18  atnak
+// Added SAA713x TreeSettings Page
+//
 // Revision 1.17  2002/10/28 12:04:37  atnak
 // Code to remove debug menus from Release code
 //
@@ -90,6 +93,8 @@
 #include "DebugLog.h"
 #include "SettingsPerChannel.h"
 #include "Slider.h"
+#include "..\help\helpids.h"
+
 
 // This identifies the position of the audio standard
 // sub menu in the saa7134 menu
@@ -128,7 +133,7 @@ void CSAA7134Source::InitializeUI()
 
         // Set up two separators with the Custom Settings ...
         // menu in between before listing the standards.
-        MenuItemInfo.cbSize = sizeof (MenuItemInfo);
+        MenuItemInfo.cbSize = sizeof(MenuItemInfo);
         MenuItemInfo.fMask = MIIM_TYPE;
         MenuItemInfo.fType = MFT_SEPARATOR;
 
@@ -1496,14 +1501,14 @@ BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             SaveSettings(SETUP_CHANGE_VIDEOFORMAT);
             m_bSavePerFormat->SetValue(!m_bSavePerFormat->GetValue());
             LoadSettings(SETUP_CHANGE_VIDEOFORMAT);
-            ChangeCardSettings(SETUP_CHANGE_VIDEOFORMAT);
+            SetupVideoStandard();
             break;
 
         case IDM_SAVE_BY_INPUT:
             SaveSettings(SETUP_CHANGE_VIDEOINPUT);
             m_bSavePerInput->SetValue(!m_bSavePerInput->GetValue());
             LoadSettings(SETUP_CHANGE_VIDEOINPUT);
-            ChangeCardSettings(SETUP_CHANGE_VIDEOINPUT);
+            SetupVideoSource();
             break;
 
         case IDM_SAVE_BY_CHANNEL:
@@ -1515,3 +1520,334 @@ BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
     }
     return TRUE;
 }
+
+
+void CSAA7134Source::SaveSettings(WORD ChangedSetup)
+{
+    WORD PerSetupMask;
+
+    PerSetupMask = (ChangedSetup & SETUP_CHANGE_ANY) >> 4;
+
+    for (int i(0); m_SettingsSetup[i].Setting != NULL; i++)
+    {
+        if (m_SettingsSetup[i].Setup & PerSetupMask)
+        {
+            // Save the setting
+            m_SettingsSetup[i].Setting->WriteToIni(TRUE);
+
+            // If this change affects another setup
+            if (m_SettingsSetup[i].Setup & SETUP_CHANGE_ANY)
+            {
+                PerSetupMask |= (m_SettingsSetup[i].Setup & SETUP_CHANGE_ANY) >> 4;
+            }
+        }
+    }
+}
+
+
+LPCSTR CSAA7134Source::GetMenuLabel()
+{
+    return m_pSAA7134Card->GetCardName(m_pSAA7134Card->GetCardType());
+}
+
+
+void CSAA7134Source::LoadSettings(WORD ChangedSetup)
+{
+    WORD PerSetupMask;
+    WORD EnabledSectionMask = SETUP_PER_AUDIOINPUT;
+    WORD IniSectionMask = 0xFF;
+    char szSection[128];
+
+    // Find out which sections are used
+    if (m_bSavePerInput->GetValue())
+    {
+        EnabledSectionMask |= SETUP_PER_VIDEOINPUT;
+    }
+    if (m_bSavePerFormat->GetValue())
+    {
+        EnabledSectionMask |= SETUP_PER_VIDEOFORMAT;
+    }
+
+    // Adjust to the new defaults
+    ChangeDefaultsForSetup(ChangedSetup);
+    PerSetupMask = (ChangedSetup & SETUP_CHANGE_ANY) >> 4;
+
+    for (int i(0); m_SettingsSetup[i].Setting != NULL; i++)
+    {
+        if (m_SettingsSetup[i].Setup & PerSetupMask)
+        {
+            // Generate the section name if we don't already have it
+            if ((m_SettingsSetup[i].Setup & EnabledSectionMask) != IniSectionMask)
+            {
+                IniSectionMask = (m_SettingsSetup[i].Setup & EnabledSectionMask);
+                GetIniSectionName(szSection, IniSectionMask);
+            }
+
+            // Change the section and read the value
+            m_SettingsSetup[i].Setting->SetSection(szSection);
+            m_SettingsSetup[i].Setting->ReadFromIni();
+
+            // If this change affects another setup
+            if (m_SettingsSetup[i].Setup & SETUP_CHANGE_ANY)
+            {
+                ChangeDefaultsForSetup(m_SettingsSetup[i].Setup);
+                PerSetupMask |= (m_SettingsSetup[i].Setup & SETUP_CHANGE_ANY) >> 4;
+            }
+        }
+    }
+    ChangeChannelSectionNames();
+}
+
+
+void CSAA7134Source::GetIniSectionName(char* pBuffer, WORD IniSectionMask)
+{
+    sprintf(pBuffer, "%s", m_Section.c_str());
+    pBuffer += strlen(pBuffer);
+
+    if (IniSectionMask & SETUP_PER_VIDEOINPUT)
+    {
+        sprintf(pBuffer, "_VI%d", m_VideoSource->GetValue());
+        pBuffer += strlen(pBuffer);
+    }
+    if (IniSectionMask & SETUP_PER_VIDEOFORMAT)
+    {
+        sprintf(pBuffer, "_VF%d", m_VideoFormat->GetValue());
+        pBuffer += strlen(pBuffer);
+    }
+    if (IniSectionMask & SETUP_PER_AUDIOINPUT)
+    {
+        sprintf(pBuffer, "_AI%d", m_AudioSource->GetValue());
+        pBuffer += strlen(pBuffer);
+    }
+    if (IniSectionMask & SETUP_PER_CHANNEL)
+    {
+        /*
+        sprintf(pBuffer, "_C%d", m_Channel->GetValue());
+        pBuffer += strlen(pBuffer);
+        */
+    }
+}
+
+
+void CSAA7134Source::ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff)
+{
+    // now do defaults based on the processor speed selected
+    if (ProcessorSpeed == 0)
+    {
+        // User has selected below 300 MHz
+        m_PixelWidth->ChangeDefault(640);
+    }
+    else if (ProcessorSpeed == 1)
+    {
+        // User has selected 300 MHz - 500 MHz
+        m_PixelWidth->ChangeDefault(720);
+    }
+    else if (ProcessorSpeed == 2)
+    {
+        // User has selected 500 MHz - 1 GHz
+        m_PixelWidth->ChangeDefault(720);
+    }
+    else
+    {
+        // user has fast processor use best defaults
+        m_PixelWidth->ChangeDefault(720);
+    }
+}
+
+
+void CSAA7134Source::ChangeTVSettingsBasedOnTuner()
+{
+    // default the TVTYPE dependant on the Tuner selected
+    // should be OK most of the time
+    if (m_TunerType->GetValue() != TUNER_ABSENT)
+    {
+        eVideoFormat videoFormat = m_pSAA7134Card->GetTuner()->GetDefaultVideoFormat();
+        m_VideoFormat->ChangeDefault(videoFormat);
+
+        SaveSettings(SETUP_CHANGE_VIDEOFORMAT);
+        LoadSettings(SETUP_CHANGE_VIDEOFORMAT);
+        SetupVideoStandard();
+    }
+}
+
+
+void CSAA7134Source::ChangeDefaultsForSetup(WORD Setup)
+{
+    if (Setup & SETUP_CHANGE_VIDEOINPUT)
+    {
+        ChangeDefaultsForVideoInput();
+    }
+    if (Setup & SETUP_CHANGE_VIDEOFORMAT)
+    {
+        ChangeDefaultsForVideoFormat();
+    }
+    if (Setup & SETUP_CHANGE_AUDIOINPUT)
+    {
+        ChangeDefaultsForAudioInput();
+    }
+}
+
+
+void CSAA7134Source::ChangeDefaultsForVideoInput()
+{
+    int nInput = m_VideoSource->GetValue();
+
+    m_AudioSource->ChangeDefault(m_pSAA7134Card->GetInputAudioLine(nInput));
+}
+
+
+void CSAA7134Source::ChangeDefaultsForVideoFormat()
+{
+    eVideoFormat VideoFormat = (eVideoFormat)m_VideoFormat->GetValue();
+
+    if(IsPALVideoFormat(VideoFormat))
+    {
+        m_Saturation->ChangeDefault(SAA7134_DEFAULT_PAL_SATURATION);
+        m_Overscan->ChangeDefault(SAA7134_DEFAULT_PAL_OVERSCAN);
+    }
+    else if(IsNTSCVideoFormat(VideoFormat))
+    {
+        m_Saturation->ChangeDefault(SAA7134_DEFAULT_NTSC_SATURATION);
+        m_Overscan->ChangeDefault(SAA7134_DEFAULT_NTSC_OVERSCAN);
+    }
+    else
+    {
+        m_Saturation->ChangeDefault(SAA7134_DEFAULT_SATURATION);
+        m_Overscan->ChangeDefault(SAA7134_DEFAULT_OVERSCAN);
+    }
+
+    eAudioStandard AudioStandard = TVFormat2AudioStandard(VideoFormat);
+    m_AudioStandard->ChangeDefault(AudioStandard);
+}
+
+
+void CSAA7134Source::ChangeDefaultsForAudioInput()
+{
+
+}
+
+
+void CSAA7134Source::SavePerChannelSetup(int Start)
+{
+    if (Start&1)
+    {
+        m_SettingsByChannelStarted = TRUE;
+        ChangeChannelSectionNames();
+    }
+    else
+    {
+        m_SettingsByChannelStarted = FALSE;
+        if (m_ChannelSubSection.size() > 0)
+        {
+            SettingsPerChannel_UnregisterSection(m_ChannelSubSection.c_str());
+        }
+    }
+}
+
+
+void CSAA7134Source::ChangeChannelSectionNames()
+{
+    if (!m_SettingsByChannelStarted)
+    {
+        return;
+    }
+
+    std::string sOldSection = m_ChannelSubSection;
+
+    WORD IniSectionMask = 0;
+
+    if (m_bSavePerInput->GetValue())
+    {
+        IniSectionMask |= SETUP_PER_VIDEOINPUT;
+    }
+    if (m_bSavePerFormat->GetValue())
+    {
+        IniSectionMask |= SETUP_PER_VIDEOFORMAT;
+    }
+
+    if(IniSectionMask)
+    {
+        char szSection[128];
+
+        GetIniSectionName(szSection, IniSectionMask);
+        m_ChannelSubSection = szSection;
+    }
+    else
+    {
+        m_ChannelSubSection = m_Section;
+    }
+
+    if (sOldSection != m_ChannelSubSection)
+    {
+        if (sOldSection.size() > 0)
+        {
+            if (m_CurrentChannel >= 0)
+            {
+                SettingsPerChannel_SaveChannelSettings(sOldSection.c_str(), m_VideoSource->GetValue(), m_CurrentChannel, GetFormat());
+            }
+            SettingsPerChannel_UnregisterSection(sOldSection.c_str());
+        }
+
+        SettingsPerChannel_RegisterSetSection(m_ChannelSubSection.c_str());
+        SettingsPerChannel_RegisterSetting("Brightness", "SAA713x - Brightness",TRUE, m_Brightness);
+        SettingsPerChannel_RegisterSetting("Hue", "SAA713x - Hue", TRUE, m_Hue);
+        SettingsPerChannel_RegisterSetting("Contrast", "SAA713x - Contrast", TRUE, m_Contrast);
+        SettingsPerChannel_RegisterSetting("Saturation","SAA713x - Saturation",TRUE, m_Saturation);
+
+        SettingsPerChannel_RegisterSetting("Overscan", "SAA713x - Overscan", FALSE, m_Overscan);
+
+        SettingsPerChannel_RegisterSetting("Volume", "SAA713x - Volume", TRUE, m_Volume);            
+        SettingsPerChannel_RegisterSetting("Balance", "SAA713x - Balance", TRUE, m_Balance);
+        SettingsPerChannel_RegisterSetting("BassTreble", "SAA713x - Bass & Treble", FALSE);            
+        SettingsPerChannel_RegisterSetting("BassTreble", "SAA713x - Bass & Treble", FALSE, m_Bass);            
+        SettingsPerChannel_RegisterSetting("BassTreble", "SAA713x - Bass & Treble", FALSE, m_Treble);        
+
+        SettingsPerChannel_RegisterSetting("HPLLMode", "SAA713x - HPLLMode", TRUE, m_HPLLMode);
+        SettingsPerChannel_RegisterSetting("AudioChannel", "SAA713x - Audio Channel", FALSE, m_AudioChannel);
+
+        SettingsPerChannel_RegisterSetting("Delays", "SAA713x - H/V Delay", FALSE);
+        SettingsPerChannel_RegisterSetting("Delays", "SAA713x - H/V Delay", FALSE, m_HDelay);
+        SettingsPerChannel_RegisterSetting("Delays", "SAA713x - H/V Delay", FALSE, m_VDelay);
+
+        SettingsPerChannel_RegisterSetting("Miscellaneous", "SAA713x - Miscellaneous", FALSE);
+        SettingsPerChannel_RegisterSetting("Miscellaneous", "SAA713x - Miscellaneous", FALSE, m_WhitePeak);
+        SettingsPerChannel_RegisterSetting("Miscellaneous", "SAA713x - Miscellaneous", FALSE, m_ColorPeak);
+        SettingsPerChannel_RegisterSetting("Miscellaneous", "SAA713x - Miscellaneous", FALSE, m_AdaptiveCombFilter);
+
+        SettingsPerChannel_RegisterSetting("AudioStandard", "SAA713x - Audio Standard", TRUE);
+        SettingsPerChannel_RegisterSetting("AudioStandard", "SAA713x - Audio Standard", TRUE, m_AudioStandard);
+        SettingsPerChannel_RegisterSetting("AudioStandard", "SAA713x - Audio Standard", TRUE, m_CustomAudioStandard);
+        SettingsPerChannel_RegisterSetting("AudioStandard", "SAA713x - Audio Standard", TRUE, m_AudioMajorCarrier);
+        SettingsPerChannel_RegisterSetting("AudioStandard", "SAA713x - Audio Standard", TRUE, m_AudioMinorCarrier);
+        SettingsPerChannel_RegisterSetting("AudioStandard", "SAA713x - Audio Standard", TRUE, m_AudioMajorCarrierMode);
+        SettingsPerChannel_RegisterSetting("AudioStandard", "SAA713x - Audio Standard", TRUE, m_AudioMinorCarrierMode);
+        SettingsPerChannel_RegisterSetting("AudioStandard", "SAA713x - Audio Standard", TRUE, m_AudioCh1FMDeemph);
+        SettingsPerChannel_RegisterSetting("AudioStandard", "SAA713x - Audio Standard", TRUE, m_AudioCh2FMDeemph);
+    }
+}
+
+
+CTreeSettingsPage* CSAA7134Source::GetTreeSettingsPage()
+{
+    CTreeSettingsGeneric* pPage;
+
+    vector <CSimpleSetting*>vSettingsList;
+
+    vSettingsList.push_back(m_AutomaticVolumeLevel);
+    vSettingsList.push_back(m_VBIUpscaleDivisor);
+    vSettingsList.push_back(m_VBIDebugOverlay);
+    vSettingsList.push_back(m_AutomaticGainControl);
+    vSettingsList.push_back(m_GainControlLevel);
+    vSettingsList.push_back(m_VideoMirror);
+    vSettingsList.push_back(m_CustomPixelWidth);
+    vSettingsList.push_back(m_HDelay);
+    vSettingsList.push_back(m_VDelay);
+    vSettingsList.push_back(m_ReversePolarity);
+
+    pPage = new CTreeSettingsGeneric("SAA713x Advanced", vSettingsList);
+    
+    pPage->SetHelpID(IDH_SAA713X_ADV);
+
+    return pPage;
+}
+

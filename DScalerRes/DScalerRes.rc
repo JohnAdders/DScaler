@@ -1004,6 +1004,7 @@ BEGIN
 
             MENUITEM "Start Automatic (&color)",    IDM_START_AUTO_CALIBRATION3
 
+            MENUITEM "Start YCbCr &range",          IDM_START_YUV_RANGE
             MENUITEM "&Stop",                       IDM_STOP_CALIBRATION
         END
         MENUITEM "&Auto Format Detection",      IDM_AUTO_FORMAT

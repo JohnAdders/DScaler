@@ -97,6 +97,8 @@ BEGIN
     "K",            IDM_KONTRAST_CURRENT,   VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
     "L",            IDM_TAKESTILL,          VIRTKEY, NOINVERT
+    "L",            IDM_TAKECYCLICSTILL,    VIRTKEY, CONTROL, NOINVERT
+    "L",            IDM_TAKECONSECUTIVESTILL, VIRTKEY, ALT, NOINVERT
     "L",            IDM_TAKESTREAMSNAP,     VIRTKEY, SHIFT, NOINVERT
     "L",            IDM_KEYBOARDLOCK,       VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
@@ -1274,8 +1276,9 @@ BEGIN
         MENUITEM "St&art video",                IDM_OVERLAY_START
         MENUITEM SEPARATOR
         MENUITEM "Take One Sti&ll Picture\tL",  IDM_TAKESTILL
-        MENUITEM "Take P&eriodic Still Pictures", IDM_TAKECYCLICSTILL
-        MENUITEM "Take &Consecutive Still Pictures", 
+        MENUITEM "Take P&eriodic Still Pictures\tCtrl+L", 
+                                                IDM_TAKECYCLICSTILL
+        MENUITEM "Take &Consecutive Still Pictures\tAlt+L", 
                                                 IDM_TAKECONSECUTIVESTILL
         MENUITEM "Take &Stream Snapshot\tShift+L", IDM_TAKESTREAMSNAP
         POPUP "&TimeShift (under construction)"

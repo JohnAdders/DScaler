@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.279 2003-01-08 22:46:57 laurentg Exp $
+// $Id: DScaler.cpp,v 1.280 2003-01-09 21:43:14 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.279  2003/01/08 22:46:57  laurentg
+// OSD display when incrementing or decrementing overscan
+//
 // Revision 1.278  2003/01/08 22:01:33  robmuller
 // Fixed problem with multi-line OSD messages at default size.
 //
@@ -1459,32 +1462,39 @@ HMENU CreateDScalerPopupMenu()
             SetMenuItemInfo(hMenuPopup,5, TRUE, &MenuItemInfo);
         }
 
-        hSubMenu = GetSubMenuWithName(hMenu, 6-reduc1, "S&ettings");
+        hSubMenu = GetSubMenuWithName(hMenu, 6-reduc1, "&AspectRatio");
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
             SetMenuItemInfo(hMenuPopup,6, TRUE, &MenuItemInfo);
         }
 
-        hSubMenu = GetSubMenuWithName(hMenu, 7-reduc1, "Ac&tions");
+        hSubMenu = GetSubMenuWithName(hMenu, 7-reduc1, "S&ettings");
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
             SetMenuItemInfo(hMenuPopup,7, TRUE, &MenuItemInfo);
         }
 
-        hSubMenu = GetSubMenuWithName(hMenu, 8-reduc1, "&Datacasting");
+        hSubMenu = GetSubMenuWithName(hMenu, 8-reduc1, "Ac&tions");
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
-            SetMenuItemInfo(hMenuPopup,8,TRUE,&MenuItemInfo);
+            SetMenuItemInfo(hMenuPopup,8, TRUE, &MenuItemInfo);
         }
 
-        hSubMenu = GetSubMenuWithName(hMenu, 9-reduc1, "&Help");
+        hSubMenu = GetSubMenuWithName(hMenu, 9-reduc1, "&Datacasting");
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
             SetMenuItemInfo(hMenuPopup,9,TRUE,&MenuItemInfo);
+        }
+
+        hSubMenu = GetSubMenuWithName(hMenu, 10-reduc1, "&Help");
+        if(hSubMenu != NULL)
+        {
+            MenuItemInfo.hSubMenu = hSubMenu;
+            SetMenuItemInfo(hMenuPopup,10,TRUE,&MenuItemInfo);
         }
     }
     return hMenuPopup;
@@ -4934,7 +4944,7 @@ HMENU GetPatternsSubmenu()
     GetMenuString(hMenu, 2, string, sizeof(string), MF_BYPOSITION);
     reduc = !strcmp(string, "&Channels") ? 0 : 1;
 
-    HMENU hmenu = GetOrCreateSubSubSubMenu(6-reduc, 2, 0, "Test &Patterns");
+    HMENU hmenu = GetOrCreateSubSubSubMenu(7-reduc, 2, 0, "Test &Patterns");
     ASSERT(hmenu != NULL);
 
     return hmenu;
@@ -4948,7 +4958,7 @@ HMENU GetVTCodepageSubmenu()
     GetMenuString(hMenu, 2, string, sizeof(string), MF_BYPOSITION);
     reduc = !strcmp(string, "&Channels") ? 0 : 1;
 
-    HMENU hmenu = GetSubMenuWithName(hMenu, 8-reduc, "&Datacasting");
+    HMENU hmenu = GetSubMenuWithName(hMenu, 9-reduc, "&Datacasting");
     ASSERT(hmenu != NULL);
 
     GetMenuString(hmenu, 8, string, sizeof(string), MF_BYPOSITION);

@@ -1046,16 +1046,51 @@ BEGIN
             MENUITEM SEPARATOR
         END
         MENUITEM SEPARATOR
-        POPUP "Set Automatically Image Aspect Ratio"
-        BEGIN
-            MENUITEM "Autodetect Black Bars\tA",    IDM_SASPECT_AUTO_TOGGLE
-            MENUITEM "Use Aspect Data embedded in Signal", 
-                                                    IDM_SASPECT_AUTO2_TOGGLE
-        END
+        MENUITEM "Show &OSD\tEnter",            IDM_SHOW_OSD
+        MENUITEM "&Hide OSD\tBackspace",        IDM_HIDE_OSD
+    END
+    POPUP "Deinter&lace"
+    BEGIN
+        MENUITEM "&Search and Lock mode\tCtrl+Shift+Space", 
+                                                IDM_FINDLOCK_PULL
+        MENUITEM SEPARATOR
+        MENUITEM "&Automatic Film / Video Detection\tCtrl+Space", 
+                                                IDM_AUTODETECT
+        MENUITEM "&Fall Back to Video on Bad Pulldown", IDM_FALLBACK
+        MENUITEM "&JudderTerminator (tm)",      IDM_JUDDERTERMINATOR
+        MENUITEM SEPARATOR
+        MENUITEM "3:2 Pulldown, Skip Field &1", IDM_32PULL1
+        MENUITEM "3:2 Pulldown, Skip Field &3", IDM_32PULL3
+        MENUITEM "3:2 Pulldown, Skip Field &2", IDM_32PULL2
+        MENUITEM "3:2 Pulldown, Skip Field &4", IDM_32PULL4
+        MENUITEM "3:2 Pulldown, Skip Field &5", IDM_32PULL5
+        MENUITEM "2:2 Pulldown, Flip on &Odd",  IDM_22PULLODD
+        MENUITEM "2:2 Pulldown, Flip on &Even", IDM_22PULLEVEN
+        MENUITEM SEPARATOR
+        MENUITEM "Show Video Method &UI",       IDM_DEINTERLACE_SHOWVIDEOMETHODUI
+
+        MENUITEM "&Video Methods Settings...",  IDM_SETTINGS_DEINTERLACESETTINGS
+
+        MENUITEM SEPARATOR
+        MENUITEM "Progressive Scan",            IDM_PROGRESSIVE_SCAN
+    END
+    POPUP "&Filters"
+    BEGIN
+        MENUITEM "&Filters Settings...",        IDM_SETTINGS_FILTERSETTINGS
+        MENUITEM SEPARATOR
+    END
+    POPUP "&AspectRatio"
+    BEGIN
+        MENUITEM "Automatically detect Black Bars\tA", 
+                                                IDM_SASPECT_AUTO_TOGGLE
+        MENUITEM "Automatically use Aspect Data embedded in Signal", 
+                                                IDM_SASPECT_AUTO2_TOGGLE
+        MENUITEM SEPARATOR
         MENUITEM "&4:3 Fullscreen",             IDM_ASPECT_FULLSCREEN
         MENUITEM "&Letterboxed",                IDM_ASPECT_LETTERBOX
         MENUITEM "&16:9 Anamorphic",            IDM_ASPECT_ANAMORPHIC
         MENUITEM "S&quare Pixels\tCtrl+Shift+0", IDM_SASPECT_SQUARE
+        MENUITEM SEPARATOR
         POPUP "Advanced &Image Aspect Ratios"
         BEGIN
             MENUITEM "&Detect from Current Image\t`", IDM_SASPECT_COMPUTE
@@ -1091,6 +1126,7 @@ BEGIN
             MENUITEM "2.35\tAlt+6",                 IDM_TASPECT_235
             MENUITEM "Custom  (from .INI file)\tAlt+9", IDM_TASPECT_CUSTOM
         END
+        MENUITEM SEPARATOR
         POPUP "&Window Position"
         BEGIN
             MENUITEM "&Top\tCtrl+Numpad-Up",        IDM_WINPOS_VERT_TOP
@@ -1117,39 +1153,6 @@ BEGIN
             MENUITEM "3.5x",                        IDM_ZOOM_35
             MENUITEM "4x",                          IDM_ZOOM_40
         END
-        MENUITEM SEPARATOR
-        MENUITEM "Show &OSD\tEnter",            IDM_SHOW_OSD
-        MENUITEM "&Hide OSD\tBackspace",        IDM_HIDE_OSD
-    END
-    POPUP "Deinter&lace"
-    BEGIN
-        MENUITEM "&Search and Lock mode\tCtrl+Shift+Space", 
-                                                IDM_FINDLOCK_PULL
-        MENUITEM SEPARATOR
-        MENUITEM "&Automatic Film / Video Detection\tCtrl+Space", 
-                                                IDM_AUTODETECT
-        MENUITEM "&Fall Back to Video on Bad Pulldown", IDM_FALLBACK
-        MENUITEM "&JudderTerminator (tm)",      IDM_JUDDERTERMINATOR
-        MENUITEM SEPARATOR
-        MENUITEM "3:2 Pulldown, Skip Field &1", IDM_32PULL1
-        MENUITEM "3:2 Pulldown, Skip Field &3", IDM_32PULL3
-        MENUITEM "3:2 Pulldown, Skip Field &2", IDM_32PULL2
-        MENUITEM "3:2 Pulldown, Skip Field &4", IDM_32PULL4
-        MENUITEM "3:2 Pulldown, Skip Field &5", IDM_32PULL5
-        MENUITEM "2:2 Pulldown, Flip on &Odd",  IDM_22PULLODD
-        MENUITEM "2:2 Pulldown, Flip on &Even", IDM_22PULLEVEN
-        MENUITEM SEPARATOR
-        MENUITEM "Show Video Method &UI",       IDM_DEINTERLACE_SHOWVIDEOMETHODUI
-
-        MENUITEM "&Video Methods Settings...",  IDM_SETTINGS_DEINTERLACESETTINGS
-
-        MENUITEM SEPARATOR
-        MENUITEM "Progressive Scan",            IDM_PROGRESSIVE_SCAN
-    END
-    POPUP "&Filters"
-    BEGIN
-        MENUITEM "&Filters Settings...",        IDM_SETTINGS_FILTERSETTINGS
-        MENUITEM SEPARATOR
     END
     POPUP "S&ettings"
     BEGIN
@@ -1279,6 +1282,7 @@ BEGIN
         MENUITEM "&View",                       IDM_POPUP_SOURCES
         MENUITEM "Deinter&lace",                IDM_POPUP_SOURCES
         MENUITEM "&Filters",                    IDM_POPUP_SOURCES
+        MENUITEM "&AspectRatio",                IDM_POPUP_SOURCES
         MENUITEM "S&ettings",                   IDM_POPUP_SOURCES
         MENUITEM "Ac&tions",                    IDM_POPUP_SOURCES
         MENUITEM "&Datacasting",                IDM_POPUP_SOURCES

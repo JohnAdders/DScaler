@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.cpp,v 1.37 2003-06-01 19:47:34 atnak Exp $
+// $Id: SAA7134Card.cpp,v 1.38 2003-07-29 12:02:15 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.37  2003/06/01 19:47:34  atnak
+// PRESET tweak
+//
 // Revision 1.36  2003/03/23 00:20:52  atnak
 // Removed state management for DMA and IRQ registers
 //
@@ -336,7 +339,10 @@ void CSAA7134Card::ManageMyState()
     ManageByte(SAA7134_I2S_OUTPUT_SELECT);
     ManageByte(SAA7134_I2S_OUTPUT_LEVEL);
     ManageByte(SAA7134_DSP_OUTPUT_SELECT);
-    ManageByte(SAA7134_AUDIO_MUTE_CTRL);
+
+    // This stops unmuting on exit
+    // ManageByte(SAA7134_AUDIO_MUTE_CTRL);
+
     ManageByte(SAA7134_SIF_SAMPLE_FREQ);
     ManageByte(SAA7134_ANALOG_IO_SELECT);
     ManageDword(SAA7134_AUDIO_CLOCK);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.71 2004-04-24 08:54:18 atnak Exp $
+// $Id: VBI_VideoText.cpp,v 1.72 2004-04-24 11:34:51 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.71  2004/04/24 08:54:18  atnak
+// reverted part of last change because there was no need for a new setting
+// variable for input timeout, used ChannelEnterTime instead
+//
 // Revision 1.70  2004/04/24 08:36:28  atnak
 // new: user customizable teletext page number input timeout
 //
@@ -1001,6 +1005,7 @@ extern int ChannelEnterTime;
 BOOL VT_OnInput(HDC hDC, LPRECT lpRect, char cInput)
 {
     BYTE nLength = strlen(VTPageInput);
+    BOOL bPageChanged = FALSE;
 
     if (nLength == 3)
     {
@@ -1022,7 +1027,7 @@ BOOL VT_OnInput(HDC hDC, LPRECT lpRect, char cInput)
 
         if (wPageHex != 0)
         {
-            return VT_SetPage(hDC, lpRect, wPageHex);
+            bPageChanged = VT_SetPage(hDC, lpRect, wPageHex);
         }
         else
         {
@@ -1036,7 +1041,7 @@ BOOL VT_OnInput(HDC hDC, LPRECT lpRect, char cInput)
 
     g_VTOSDTimeout = VT_OSD_DISPLAY_TIMEOUT;
 
-    return FALSE;
+    return bPageChanged;
 }
 
 

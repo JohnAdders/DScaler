@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Perf.cpp,v 1.12 2003-03-09 19:46:26 laurentg Exp $
+// $Id: Perf.cpp,v 1.13 2003-03-09 22:22:39 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2003/03/09 19:46:26  laurentg
+// Updated field statistics
+//
 // Revision 1.11  2003/02/22 13:36:37  laurentg
 // New statistics to check fields runnign late and no flip at time
 //
@@ -216,11 +219,11 @@ CPerf::CPerf()
     m_TotalLateFields = 0;
     m_TotalUsedFields = 0;
     m_TotalNoFlipAtTime = 0;
-    m_DroppedFieldsLastSec = 0.0;
-    m_NotWaitedFieldsLastSec = 0.0;
-    m_LateFieldsLastSec = 0.0;
-    m_UsedFieldsLastSec = 0.0;
-    m_NoFlipAtTimeLastSec = 0.0;
+    m_DroppedFieldsLastSec = 0;
+    m_NotWaitedFieldsLastSec = 0;
+    m_LateFieldsLastSec = 0;
+    m_UsedFieldsLastSec = 0;
+    m_NoFlipAtTimeLastSec = 0;
     m_ResetRequested = TRUE;
 }
 
@@ -250,10 +253,11 @@ void CPerf::InitCycle()
         m_TotalLateFields = 0;
         m_TotalUsedFields = 0;
 		m_TotalNoFlipAtTime = 0;
-        m_DroppedFieldsLastSec = 0.0;
-        m_NotWaitedFieldsLastSec = 0.0;
-        m_LateFieldsLastSec = 0.0;
-        m_UsedFieldsLastSec = 0.0;
+        m_DroppedFieldsLastSec = 0;
+        m_NotWaitedFieldsLastSec = 0;
+        m_LateFieldsLastSec = 0;
+        m_UsedFieldsLastSec = 0;
+		m_NoFlipAtTimeLastSec = 0;
         Timing_ResetDroppedFields();
         Timing_ResetNotWaitedFields();
         Timing_ResetLateFields();
@@ -273,7 +277,7 @@ void CPerf::InitCycle()
         m_TotalUsedFields += Timing_GetUsedFields();
         m_TotalNoFlipAtTime += Timing_GetNoFlipAtTime();
 
-        double tickDiff=(double)(CurrentTickCount - m_TickStartLastSec);
+        DWORD tickDiff=(CurrentTickCount - m_TickStartLastSec);
 
         //prevent crashing if tickDiff is invalid.
         //this fix shoud not be nessesary any more, the problems was most
@@ -281,11 +285,11 @@ void CPerf::InitCycle()
         //is now fixed
         if(_finite(tickDiff) && !_isnan(tickDiff))
         {
-            m_DroppedFieldsLastSec = (double)Timing_GetDroppedFields() * 1000.0 / tickDiff;
-            m_NotWaitedFieldsLastSec = (double)Timing_GetNotWaitedFields() * 1000.0 / tickDiff;
-            m_LateFieldsLastSec = (double)Timing_GetLateFields() * 1000.0 / tickDiff;
-            m_UsedFieldsLastSec = (double)Timing_GetUsedFields() * 1000.0 / tickDiff;
-            m_NoFlipAtTimeLastSec = (double)Timing_GetNoFlipAtTime() * 1000.0 / tickDiff;
+            m_DroppedFieldsLastSec = Timing_GetDroppedFields() * 10000 / tickDiff;
+            m_NotWaitedFieldsLastSec = Timing_GetNotWaitedFields() * 10000 / tickDiff;
+            m_LateFieldsLastSec = Timing_GetLateFields() * 10000 / tickDiff;
+            m_UsedFieldsLastSec = Timing_GetUsedFields() * 10000 / tickDiff;
+            m_NoFlipAtTimeLastSec = Timing_GetNoFlipAtTime() * 10000 / tickDiff;
         }
         else
         {
@@ -479,26 +483,26 @@ double CPerf::GetAverageNoFlipAtTime()
 
 int CPerf::GetDroppedFieldsLastSecond()
 {
-    return (int)floor(m_DroppedFieldsLastSec + 0.5);
+    return (m_DroppedFieldsLastSec + 5) / 10;
 }
 
 int CPerf::GetNotWaitedFieldsLastSecond()
 {
-    return (int)floor(m_NotWaitedFieldsLastSec + 0.5);
+    return (m_NotWaitedFieldsLastSec + 5) / 10;
 }
 
 int CPerf::GetLateFieldsLastSecond()
 {
-    return (int)floor(m_LateFieldsLastSec + 0.5);
+    return (m_LateFieldsLastSec + 5) / 10;
 }
 
 int CPerf::GetUsedFieldsLastSecond()
 {
-    return (int)floor(m_UsedFieldsLastSec + 0.5);
+    return (m_UsedFieldsLastSec + 5) / 10;
 }
 
 int CPerf::GetNoFlipAtTimeLastSecond()
 {
-    return (int)floor(m_NoFlipAtTimeLastSec + 0.5);
+    return (m_NoFlipAtTimeLastSec + 5) / 10;
 }
 

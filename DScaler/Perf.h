@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Perf.h,v 1.6 2003-03-09 19:46:26 laurentg Exp $
+// $Id: Perf.h,v 1.7 2003-03-09 22:22:39 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2003/03/09 19:46:26  laurentg
+// Updated field statistics
+//
 // Revision 1.5  2003/02/22 13:36:37  laurentg
 // New statistics to check fields runnign late and no flip at time
 //
@@ -136,11 +139,11 @@ private:
     int         m_TotalLateFields;
     int         m_TotalUsedFields;
     int         m_TotalNoFlipAtTime;
-    double      m_DroppedFieldsLastSec;
-    double      m_NotWaitedFieldsLastSec;
-    double      m_LateFieldsLastSec;
-    double      m_UsedFieldsLastSec;
-    double      m_NoFlipAtTimeLastSec;
+    int			m_DroppedFieldsLastSec;
+    int		    m_NotWaitedFieldsLastSec;
+    int			m_LateFieldsLastSec;
+    int			m_UsedFieldsLastSec;
+    int			m_NoFlipAtTimeLastSec;
     BOOL        m_ResetRequested;
 };
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.44 2002-09-16 19:34:19 adcockj Exp $
+// $Id: Providers.cpp,v 1.45 2002-09-17 21:38:48 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.44  2002/09/16 19:34:19  adcockj
+// Fix for auto format change
+//
 // Revision 1.43  2002/09/14 20:18:16  atnak
 // Prelimainary support for SAA713x based cards
 //
@@ -292,6 +295,13 @@ int Providers_Load(HMENU hMenu)
             Audio_Mute();
         }
         */
+
+		// Use by default the first BT8x8/CX2388x/SAA7134 source as initial source
+		// Do that before loading other sources
+		if (InitSourceIdx == -1)
+		{
+            InitSourceIdx = Providers_FindSource();
+		}
     }
     else
     {

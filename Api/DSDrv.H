@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSDrv.H,v 1.6 2001-08-08 16:38:28 adcockj Exp $
+// $Id: DSDrv.H,v 1.7 2001-08-13 18:15:10 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -42,7 +42,7 @@
 // define version number to be compiled into both files
 // we use this to make sure that we are atlingh the same language in both the 
 // drivers and the dll
-#define DSDRV_VERSION 0x3030
+#define DSDRV_VERSION 0x3040
 
 #define ALLOC_MEMORY_CONTIG 1
 

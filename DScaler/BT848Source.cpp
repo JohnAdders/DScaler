@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.113 2003-01-25 23:46:25 laurentg Exp $
+// $Id: BT848Source.cpp,v 1.114 2003-02-03 19:09:16 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.113  2003/01/25 23:46:25  laurentg
+// Reset after the loading of the new settings in VideoFormatOnChange
+//
 // Revision 1.112  2003/01/18 13:55:43  laurentg
 // New methods GetHDelay and GetVDelay
 //
@@ -917,6 +920,17 @@ void CBT848Source::CreateRiscCode(BOOL bCaptureVBI)
         {
             *(pRiscCode++) = (DWORD) (BT848_RISC_SYNC | BT848_FIFO_STATUS_FM1);
             *(pRiscCode++) = 0;
+
+            // if we are doing PAL60 then
+            // we need to skip VBI 3 lines
+            // so that the lines are in the right place
+            // with CC on line 11 (corresponding to line 21 of video)
+            if(m_VideoFormat->GetValue() == VIDEOFORMAT_PAL_60)
+            {
+                *(pRiscCode++) = (DWORD) (BT848_RISC_SKIP | BT848_RISC_SOL | BT848_RISC_EOL | VBI_SPL);
+                *(pRiscCode++) = (DWORD) (BT848_RISC_SKIP | BT848_RISC_SOL | BT848_RISC_EOL | VBI_SPL);
+                *(pRiscCode++) = (DWORD) (BT848_RISC_SKIP | BT848_RISC_SOL | BT848_RISC_EOL | VBI_SPL);
+            }
 
             pUser = m_pVBILines[nField / 2];
             if((nField & 1) == 1)

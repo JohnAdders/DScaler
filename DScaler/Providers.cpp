@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.40 2002-08-11 12:12:10 laurentg Exp $
+// $Id: Providers.cpp,v 1.41 2002-08-13 21:16:06 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.40  2002/08/11 12:12:10  laurentg
+// Cut BT Card setup and general hardware setup in two different windows
+//
 // Revision 1.39  2002/07/29 17:43:29  tobbej
 // support for opening graphedit saved filter graphs
 //
@@ -185,8 +188,15 @@ typedef struct {
 
 typedef vector<TSource*> SOURCELIST;
 
+typedef struct {
+   void *pThis;
+   SOURCECHANGE_NOTIFICATION *pfnNotify;
+} TSourceChangeNotification;
+
+
 extern HMENU hMenu;
 
+static std::vector<TSourceChangeNotification> vSourceChangeNotificationList;
 static SOURCELIST Sources;
 static CHardwareDriver* HardwareDriver = NULL;
 static CBT848Provider* BT848Provider = NULL;
@@ -466,17 +476,23 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         int NewSource(LOWORD(wParam) - IDM_SOURCE_FIRST);
         if(NewSource >= 0 && NewSource < Sources.size())
         {
+            Providers_NotifySourceChange(SOURCECHANGE_PROVIDER | SOURCECHANGE_PRECHANGE, Providers_GetCurrentSource());
             Stop_Capture();
             WSS_init();
             CurrentSource = NewSource;
             Providers_UpdateMenu(hMenu);
             Start_Capture();
+            Providers_NotifySourceChange(SOURCECHANGE_PROVIDER, Providers_GetCurrentSource());
             return TRUE;
         }
     }
     else if (LOWORD(wParam) == IDM_SOURCE_INITIAL)
     {
+        Providers_NotifySourceChange(SOURCECHANGE_PROVIDER | SOURCECHANGE_PRECHANGE, Providers_GetCurrentSource());
+        //
         InitSourceIdx = CurrentSource;
+        //
+        Providers_NotifySourceChange(SOURCECHANGE_PROVIDER, Providers_GetCurrentSource());
         return TRUE;
     }
     else if (LOWORD(wParam) == IDM_OPEN_FILE)
@@ -520,11 +536,14 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             for(int i = 0; i < Sources.size(); ++i)
             {
                 if(Sources[i]->Object->OpenMediaFile(FilePath, FALSE))
-                {
+                {                    
+                    Providers_NotifySourceChange(SOURCECHANGE_PROVIDER | SOURCECHANGE_PRECHANGE, Providers_GetCurrentSource());
+                    
                     CurrentSource = i;
                     WSS_init();
                     Providers_UpdateMenu(hMenu);
                     Start_Capture();
+                    Providers_NotifySourceChange(SOURCECHANGE_PROVIDER, Providers_GetCurrentSource());
                     return TRUE;
                 }
             }
@@ -535,6 +554,8 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
     }
     else if (LOWORD(wParam) == IDM_SWITCH_SOURCE)
     {
+        Providers_NotifySourceChange(SOURCECHANGE_PROVIDER | SOURCECHANGE_PRECHANGE, Providers_GetCurrentSource());            
+        
         Stop_Capture();
         WSS_init();
         if (DefSourceIdx >= 0 && DefSourceIdx < Sources.size())
@@ -547,6 +568,8 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         }
         Providers_UpdateMenu(hMenu);
         Start_Capture();
+        
+        Providers_NotifySourceChange(SOURCECHANGE_PROVIDER, Providers_GetCurrentSource());
         return TRUE;
     }
     if(CurrentSource >= 0 && CurrentSource < Sources.size())
@@ -598,3 +621,52 @@ void Providers_ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff)
         Sources[i]->Object->ChangeSettingsBasedOnHW(ProcessorSpeed, TradeOff);
     }
 }
+
+
+void Providers_NotifySourceChange(int Flags, CSource *pSource)
+{
+    for(vector<TSourceChangeNotification>::iterator it = vSourceChangeNotificationList.begin();
+                it != vSourceChangeNotificationList.end(); ++it)
+     {
+        if ( (*it).pfnNotify != NULL )
+        {
+            (*it).pfnNotify((*it).pThis, Flags, pSource);
+        }     
+    }    
+}
+
+void Providers_Register_SourceChangeNotification(void *pThis,SOURCECHANGE_NOTIFICATION *pfnChange)
+{
+    for(vector<TSourceChangeNotification>::iterator it = vSourceChangeNotificationList.begin();
+                it != vSourceChangeNotificationList.end(); ++it)
+    {
+        if ( ((*it).pThis == pThis) && ((*it).pfnNotify == pfnChange) )
+        {
+            return;
+        }
+    }
+    // add new
+    TSourceChangeNotification ccn;
+    ccn.pThis = pThis;
+    ccn.pfnNotify = pfnChange;
+    vSourceChangeNotificationList.push_back(ccn);
+}
+
+void Providers_Unregister_SourceChangeNotification(void *pThis,SOURCECHANGE_NOTIFICATION *pfnChange)
+{
+    std::vector<TSourceChangeNotification> NewList;
+    for(vector<TSourceChangeNotification>::iterator it = vSourceChangeNotificationList.begin();
+                it != vSourceChangeNotificationList.end(); ++it)
+    {
+        if ( ((*it).pThis == pThis) && ((*it).pfnNotify == pfnChange) )
+        {
+            // don't copy
+        }
+        else
+        {
+            NewList.push_back((*it));
+        }
+    }
+    vSourceChangeNotificationList = NewList;
+}
+

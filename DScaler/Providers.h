@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.h,v 1.13 2002-08-11 12:12:10 laurentg Exp $
+// $Id: Providers.h,v 1.14 2002-08-13 21:16:06 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -20,6 +20,11 @@
 #define __PROVIDERS_H___
 
 #include "Source.h"
+
+#define SOURCECHANGE_PRECHANGE    0x0001
+#define SOURCECHANGE_PROVIDER     0x0002
+
+typedef void (__cdecl SOURCECHANGE_NOTIFICATION)(void *pThis, int Flags, CSource *pSource);
 
 extern long InitSourceIdx;
 
@@ -43,5 +48,9 @@ CSource*  Providers_GetByIndex(long Index);
 void Providers_ReadFromIni();
 void Providers_WriteToIni(BOOL bOptimizeFileAccess);
 void Providers_ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff);
+
+void Providers_NotifySourceChange(int Flags, CSource *pSource);
+void Providers_Register_SourceChangeNotification(void *pThis,SOURCECHANGE_NOTIFICATION *pfnChange);
+void Providers_Unregister_SourceChangeNotification(void *pThis,SOURCECHANGE_NOTIFICATION *pfnChange);
 
 #endif

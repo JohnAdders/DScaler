@@ -30,7 +30,6 @@ BOOL APIENTRY OverlaySettingProc(HWND hDlg, UINT message, UINT wParam, LONG lPar
     static long TSaturation;
     static long TGamma;
     static long TSharpness;
-    BOOL bUseDscalerSettings;
 
     switch (message)
     {

@@ -1,1 +1,35 @@
 #define IDH_FILTERS                     131073
+#define IDH_GAMMA                       131074
+#define IDH_TEMPORAL_NOISE              131075
+#define IDH_GRADUAL_NOISE               131076
+#define IDH_ADAPTIVE_NOISE              131077
+#define IDH_LOGO_KILLER                 131078
+#define IDH_SHARPNESS                   131079
+#define IDH_HISTOGRAM                   131080
+#define IDH_LINEAR_CORRECTION           131081
+#define IDH_TEMPORAL_COMB               131082
+
+#define IDH_DEINTERLACE                 131090
+#define IDH_ADAPTIVE                    131091
+#define IDH_BLENDEDCLIP                 131092
+#define IDH_BOB                         131093
+#define IDH_EVEN                        131094
+#define IDH_GREEDY                      131095
+#define IDH_GREEDY2                     131096
+#define IDH_GREEDYHM                    131097
+#define IDH_ODD                         131098
+#define IDH_OLD_GAME                    131099
+#define IDH_SCALER_BOB                  131100
+#define IDH_2FRAME                      131101
+#define IDH_VIDEOBOB                    131102
+#define IDH_VIDEOWEAVE                  131103
+#define IDH_WEAVE                       131104
+
+#define IDH_ADVANCED                    131120
+#define IDH_22_PULLDOWN                 131121
+#define IDH_32_PULLDOWN                 131122
+#define IDH_PULLLDOWN_SHARED            131123
+#define IDH_LOGGING                     131124
+#define IDH_ASPECT                      131125
+#define IDH_TIMING                      131126
+#define IDH_OVERLAY                     131127

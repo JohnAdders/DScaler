@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.120 2003-07-05 21:50:25 atnak Exp $
+// $Id: OutThreads.cpp,v 1.121 2003-07-08 21:04:59 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.120  2003/07/05 21:50:25  atnak
+// Changed the main YUV thread loop so it runs at least once.
+//
 // Revision 1.119  2003/06/14 19:38:10  laurentg
 // Preview mode improved
 //
@@ -1271,6 +1274,9 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 #ifdef _DEBUG
                             pPerf->StopCount(PERF_OUTPUT_FILTERS);
 #endif
+
+							CTimeShift::OnNewFrame(&Info);
+
                         }
 
 #ifdef _DEBUG

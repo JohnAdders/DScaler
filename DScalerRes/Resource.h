@@ -802,6 +802,7 @@
 #define IDC_TSWAVEINCOMBO               1879
 #define IDC_TSWAVEOUTCOMBO              1880
 #define IDC_INPUT3                      1881
+#define IDC_TSHALFHEIGHTRADIO           1881
 #define IDC_TUNERSELECT                 1882
 #define IDC_UP                          1883
 #define IDC_USE_INTERP_BOB              1884

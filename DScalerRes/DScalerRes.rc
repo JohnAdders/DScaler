@@ -550,7 +550,7 @@ BEGIN
                     IDC_STATIC,7,222,279,8
 END
 
-IDD_TSOPTIONS DIALOG DISCARDABLE  0, 0, 239, 175
+IDD_TSOPTIONS DIALOG DISCARDABLE  0, 0, 239, 182
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "TimeShift Options (under construction)"
 FONT 8, "MS Sans Serif"
@@ -567,20 +567,21 @@ BEGIN
     RTEXT           "Wave Out:",IDC_STATIC,8,69,36,8
     COMBOBOX        IDC_TSWAVEOUTCOMBO,47,66,146,70,CBS_DROPDOWNLIST | 
                     WS_VSCROLL | WS_TABSTOP
-    GROUPBOX        "Recording Height",IDC_STATIC,39,85,160,61
-    CONTROL         "Full-height (not yet implemented)",
-                    IDC_TSFULLHEIGHTRADIO,"Button",BS_AUTORADIOBUTTON | 
-                    WS_DISABLED,47,96,117,10
+    GROUPBOX        "Recording Height",IDC_STATIC,39,85,160,68
+    CONTROL         "Full-height",IDC_TSFULLHEIGHTRADIO,"Button",
+                    BS_AUTORADIOBUTTON,50,95,48,10
     CONTROL         "1/2-height Even lines",IDC_TSHALFEVENRADIO,"Button",
-                    BS_AUTORADIOBUTTON,47,107,83,10
+                    BS_AUTORADIOBUTTON,50,116,83,10
     CONTROL         "1/2-height Odd lines",IDC_TSHALFODDRADIO,"Button",
-                    BS_AUTORADIOBUTTON,47,118,80,10
+                    BS_AUTORADIOBUTTON,50,127,80,10
     CONTROL         "1/2-height Even and Odd Averaged",
-                    IDC_TSHALFAVERAGEDRADIO,"Button",BS_AUTORADIOBUTTON,47,
-                    129,129,10
+                    IDC_TSHALFAVERAGEDRADIO,"Button",BS_AUTORADIOBUTTON,50,
+                    138,129,10
     PUSHBUTTON      "Help",IDC_TSHEIGHTHELP,202,108,30,14
-    DEFPUSHBUTTON   "OK",IDOK,66,154,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,122,154,50,14
+    DEFPUSHBUTTON   "OK",IDOK,63,161,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,119,161,50,14
+    CONTROL         "1/2-height",IDC_TSHALFHEIGHTRADIO,"Button",
+                    BS_AUTORADIOBUTTON | WS_DISABLED,50,106,49,10
 END
 
 IDD_OVERLAYSETTINGS DIALOG DISCARDABLE  0, 0, 372, 202
@@ -1822,6 +1823,11 @@ BEGIN
     IDD_SELECTCARD, DIALOG
     BEGIN
         BOTTOMMARGIN, 160
+    END
+
+    IDD_TSOPTIONS, DIALOG
+    BEGIN
+        BOTTOMMARGIN, 175
     END
 
     IDD_OVERLAYSETTINGS, DIALOG

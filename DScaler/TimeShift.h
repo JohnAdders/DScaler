@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.h,v 1.13 2003-07-05 12:59:51 laurentg Exp $
+// $Id: TimeShift.h,v 1.14 2003-07-08 21:04:59 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2003/07/05 12:59:51  laurentg
+// Timeshift enabled + some improvments
+//
 // Revision 1.12  2003/07/02 21:44:19  laurentg
 // TimeShift settings
 //
@@ -93,6 +96,7 @@ class CTSOptionsDlg;
 #define TS_HALFHEIGHTEVEN 1
 #define TS_HALFHEIGHTODD  2
 #define TS_HALFHEIGHTAVG  3
+#define TS_HALFHEIGHT     4
 
 /**
   Here are some suggestions for TODO tasks...
@@ -227,6 +231,8 @@ private:
     /// The actaual videoframe/audiosample avi writing methods.
     bool WriteVideo(TDeinterlaceInfo *info);
     bool ReadVideo(TDeinterlaceInfo *info);
+    bool WriteVideo2(TDeinterlaceInfo *info);
+    bool ReadVideo2(TDeinterlaceInfo *info);
     bool WriteAudio(void);
     bool ReadAudio(void);
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TSOptionsDlg.cpp,v 1.8 2001-11-23 10:49:17 adcockj Exp $
+// $Id: TSOptionsDlg.cpp,v 1.9 2003-07-08 21:04:59 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -26,6 +26,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2001/11/23 10:49:17  adcockj
+// Move resource includes back to top of files to avoid need to rebuild all
+//
 // Revision 1.7  2001/11/22 13:32:03  adcockj
 // Finished changes caused by changes to TDeinterlaceInfo - Compiles
 //
@@ -91,6 +94,8 @@ void CTSOptionsDlg::DoDataExchange(CDataExchange* pDX)
     {
         if (IsChecked(IDC_TSFULLHEIGHTRADIO))
             m_RecHeight = TS_FULLHEIGHT;
+        else if (IsChecked(IDC_TSHALFHEIGHTRADIO))
+            m_RecHeight = TS_HALFHEIGHT;
         else if (IsChecked(IDC_TSHALFEVENRADIO))
             m_RecHeight = TS_HALFHEIGHTEVEN;
         else if (IsChecked(IDC_TSHALFODDRADIO))
@@ -104,15 +109,25 @@ void CTSOptionsDlg::DoDataExchange(CDataExchange* pDX)
         {
         case TS_FULLHEIGHT:
             SetChecked(IDC_TSFULLHEIGHTRADIO, TRUE);
+            SetChecked(IDC_TSHALFHEIGHTRADIO, FALSE);
             SetChecked(IDC_TSHALFEVENRADIO, FALSE);
             SetChecked(IDC_TSHALFODDRADIO, FALSE);
             SetChecked(IDC_TSHALFAVERAGEDRADIO, FALSE);
             break;
 
         default:
+        case TS_HALFHEIGHT:
+            SetChecked(IDC_TSHALFHEIGHTRADIO, TRUE);
+            SetChecked(IDC_TSFULLHEIGHTRADIO, FALSE);
+            SetChecked(IDC_TSHALFEVENRADIO, FALSE);
+            SetChecked(IDC_TSHALFODDRADIO, FALSE);
+            SetChecked(IDC_TSHALFAVERAGEDRADIO, FALSE);
+            break;
+
         case TS_HALFHEIGHTEVEN:
             SetChecked(IDC_TSHALFEVENRADIO, TRUE);
             SetChecked(IDC_TSFULLHEIGHTRADIO, FALSE);
+            SetChecked(IDC_TSHALFHEIGHTRADIO, FALSE);
             SetChecked(IDC_TSHALFODDRADIO, FALSE);
             SetChecked(IDC_TSHALFAVERAGEDRADIO, FALSE);
             break;
@@ -120,6 +135,7 @@ void CTSOptionsDlg::DoDataExchange(CDataExchange* pDX)
         case TS_HALFHEIGHTODD:
             SetChecked(IDC_TSHALFODDRADIO, TRUE);
             SetChecked(IDC_TSFULLHEIGHTRADIO, FALSE);
+            SetChecked(IDC_TSHALFHEIGHTRADIO, FALSE);
             SetChecked(IDC_TSHALFEVENRADIO, FALSE);
             SetChecked(IDC_TSHALFAVERAGEDRADIO, FALSE);
             break;
@@ -127,6 +143,7 @@ void CTSOptionsDlg::DoDataExchange(CDataExchange* pDX)
         case TS_HALFHEIGHTAVG:
             SetChecked(IDC_TSHALFAVERAGEDRADIO, TRUE);
             SetChecked(IDC_TSFULLHEIGHTRADIO, FALSE);
+            SetChecked(IDC_TSHALFHEIGHTRADIO, FALSE);
             SetChecked(IDC_TSHALFEVENRADIO, FALSE);
             SetChecked(IDC_TSHALFODDRADIO, FALSE);
             break;

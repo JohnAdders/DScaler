@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.cpp,v 1.28 2002-02-23 19:07:06 laurentg Exp $
+// $Id: AspectRatio.cpp,v 1.29 2002-02-25 23:03:51 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // Aspect ratio contrl was started by Michael Samblanet <mike@cardobe.com>
-// Moved into separate module by Mark D Rejhon.  
+// Moved into separate module by Mark D Rejhon.
 //
 // The purpose of this module is all the calculations and handling necessary
 // to map the source image onto the destination display, even if they are
@@ -31,7 +31,7 @@
 //
 // Date          Developer             Changes
 //
-// 09 Sep 2000   Michael Samblanet     Aspect ratio code contributed 
+// 09 Sep 2000   Michael Samblanet     Aspect ratio code contributed
 //                                     to dTV project
 //
 // 12 Sep 2000   Mark Rejhon           Centralized aspect ratio code
@@ -72,6 +72,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2002/02/23 19:07:06  laurentg
+// New AR mode for stills having square pixels
+//
 // Revision 1.27  2002/02/23 12:00:13  laurentg
 // Do nothing in WorkoutOverlaySize when source width or height is null
 //
@@ -133,7 +136,7 @@
 #define AR_ANAMORPHIC    2
 
 
-TAspectSettings AspectSettings = 
+TAspectSettings AspectSettings =
 {
     1333,0,1,0,0,40,16,TRUE,3,17,FALSE,60,3,300,15,20,
     2000,VERT_POS_CENTRE,HORZ_POS_CENTRE,
@@ -159,7 +162,7 @@ BOOL Orbit_OnChange(long NewValue); // Forward declaration to reuse this code...
 double GetActualSourceFrameAspect()
 {
     double SourceAdjust = (double)AspectSettings.SourceAspectAdjust / 1000.0;
-    switch (AspectSettings.AspectMode) 
+    switch (AspectSettings.AspectMode)
     {
     case 1:
         // Letterboxed or full-frame
@@ -186,13 +189,21 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
 
     CAspectRectangles ar;
     CSource* pSource = Providers_GetCurrentSource();
-    //what happends if we dont have a current source?
-    //maybe just return and not do anything more?
-    ASSERT(pSource!=NULL);
 
+    if(pSource==NULL)
+    {
+        //this shoud never happen, but if it does, just log it and return so it doesn't crash
+        LOG(2,"No input source in WorkoutOverlaySize()!");
+        LOGD("No input source in WorkoutOverlaySize()!");
+        return;
+    }
     // If source width or source height is null, we do nothing
     if (pSource->GetWidth() == 0 || pSource->GetHeight() == 0)
+    {
+        LOG(2,"Zero height or width in WorkoutOverlaySize!");
+        LOGD("Zero height or width in WorkoutOverlaySize!");
         return;
+    }
 
     InFunction = TRUE;
     UpdateWindowState();
@@ -207,7 +218,6 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
     ar.m_OriginalOverlaySrcRect.top = 0;
     ar.m_OriginalOverlaySrcRect.bottom = pSource->GetHeight();
     // Set the aspect adjustment factor...
-	///@todo maybe some error checking here?, like div. by zero
     if (AspectSettings.SquarePixels)
     {
         ar.m_OriginalOverlaySrcRect.setAspectAdjust((double)pSource->GetWidth()/(double)pSource->GetHeight(),
@@ -221,7 +231,7 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
 
     // Destination rectangle
     ar.m_OriginalOverlayDestRect.setToClient(hWnd,TRUE);
-    
+
     // Adjust for status bar...
     if (IsStatusBarVisible())
     {
@@ -234,7 +244,7 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
         ar.m_OriginalOverlayDestRect.setAspectAdjust((double) GetSystemMetrics(SM_CXSCREEN) / (double) GetSystemMetrics(SM_CYSCREEN),
                                                  AspectSettings.TargetAspect/1000.0);
     }
-    
+
     // Set current values to original for starters...
     ar.m_CurrentOverlaySrcRect = ar.m_OriginalOverlaySrcRect;
     ar.m_CurrentOverlayDestRect = ar.m_OriginalOverlayDestRect;
@@ -259,7 +269,7 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
 
     // Save the settings....
     AspectSettings.SourceRect = ar.m_CurrentOverlaySrcRect;
-    AspectSettings.DestinationRectWindow = ar.m_CurrentOverlayDestRect; 
+    AspectSettings.DestinationRectWindow = ar.m_CurrentOverlayDestRect;
     AspectSettings.DestinationRect = ar.m_CurrentOverlayDestRect;
     ScreenToClient(hWnd,((PPOINT)&AspectSettings.DestinationRect.left));
     ScreenToClient(hWnd,((PPOINT)&AspectSettings.DestinationRect.right));
@@ -269,7 +279,7 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
     // Removed for now - seems to cause application to crash - looks
     // like video drivers can't deal with this...
     /*
-    if (( AspectSettings.invertX && AspectSettings.SourceRect.right > AspectSettings.SourceRect.left) 
+    if (( AspectSettings.invertX && AspectSettings.SourceRect.right > AspectSettings.SourceRect.left)
         ||
         (!AspectSettings.invertX && AspectSettings.SourceRect.right < AspectSettings.SourceRect.left))
     {
@@ -277,7 +287,7 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
         AspectSettings.SourceRect.right = AspectSettings.SourceRect.left;
         AspectSettings.SourceRect.left = t;
     }
-    if (( AspectSettings.invertY && AspectSettings.SourceRect.bottom > AspectSettings.SourceRect.top) 
+    if (( AspectSettings.invertY && AspectSettings.SourceRect.bottom > AspectSettings.SourceRect.top)
         ||
         (!AspectSettings.invertY && AspectSettings.SourceRect.bottom < AspectSettings.SourceRect.top)) {
         int t = AspectSettings.SourceRect.top;
@@ -317,7 +327,7 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
 
             // repaint if needed
             if (memcmp(&ar.m_PrevDestRect,&AspectSettings.DestinationRect,sizeof(ar.m_PrevDestRect)))
-            { 
+            {
                 // MRS 2-22-01 Invalidate just the union of the old region and the new region - no need to invalidate all of the window.
                 RECT invalidate;
                 UnionRect(&invalidate,&ar.m_PrevDestRect,&AspectSettings.DestinationRect);
@@ -328,7 +338,7 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
         {
             // repaint now and set off overlay setting for later
             if (memcmp(&ar.m_PrevDestRect,&AspectSettings.DestinationRect,sizeof(ar.m_PrevDestRect)))
-            { 
+            {
                 // MRS 2-22-01 Invalidate just the union of the old region and the new region - no need to invalidate all of the window.
                 RECT invalidate;
                 UnionRect(&invalidate,&ar.m_PrevDestRect,&AspectSettings.DestinationRect);

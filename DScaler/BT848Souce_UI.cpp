@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.30 2002-08-03 17:57:52 kooiman Exp $
+// $Id: BT848Souce_UI.cpp,v 1.31 2002-08-05 12:05:44 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2002/08/03 17:57:52  kooiman
+// Added new cards & tuners. Changed the tuner combobox into a sorted list.
+//
 // Revision 1.29  2002/07/02 20:00:07  adcockj
 // New setting for MSP input pin selection
 //
@@ -122,6 +125,7 @@
 #include "DScaler.h"
 #include "OutThreads.h"
 #include "AspectRatio.h"
+#include "DebugLog.h"
 
 extern const char *TunerNames[TUNER_LASTONE];
 
@@ -426,8 +430,13 @@ void CBT848Source::SetMenu(HMENU hMenu)
     CheckMenuItemBool(m_hMenu, IDM_SAVE_BY_FORMAT, m_bSavePerFormat->GetValue());
     CheckMenuItemBool(m_hMenu, IDM_SAVE_BY_INPUT, m_bSavePerInput->GetValue());
     CheckMenuItemBool(m_hMenu, IDM_SAVE_BY_CHANNEL, m_bSavePerChannel->GetValue());
-    // Grayed "Save by channel" because not yet implemented
-    EnableMenuItemBool(m_hMenu, IDM_SAVE_BY_CHANNEL, FALSE);
+    
+    if (m_bSavePerFormat->GetValue())
+    {
+        m_bSavePerChannel->SetValue(FALSE);
+        CheckMenuItemBool(m_hMenu, IDM_SAVE_BY_CHANNEL, m_bSavePerChannel->GetValue());
+    }
+    EnableMenuItemBool(m_hMenu, IDM_SAVE_BY_CHANNEL_CLEARSETTINGS, m_bSavePerChannel->GetValue());
 }
 
 BOOL APIENTRY CBT848Source::AdvVideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
@@ -835,6 +844,15 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         case IDM_SAVE_BY_FORMAT:
             SaveInputSettings(TRUE);
             m_bSavePerFormat->SetValue(!m_bSavePerFormat->GetValue());
+
+            // No save by format and save by channel at the same time.
+            if (m_bSavePerFormat->GetValue()) 
+            {
+                m_bSavePerChannel->SetValue(FALSE);
+                CheckMenuItemBool(m_hMenu, IDM_SAVE_BY_CHANNEL, m_bSavePerChannel->GetValue());    
+            }
+            EnableMenuItemBool(m_hMenu, IDM_SAVE_BY_CHANNEL_CLEARSETTINGS, m_bSavePerChannel->GetValue());    
+
             LoadInputSettings();
             break;
 
@@ -845,11 +863,23 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             break;
 
         case IDM_SAVE_BY_CHANNEL:
-            SaveInputSettings(TRUE);
-            m_bSavePerChannel->SetValue(!m_bSavePerChannel->GetValue());
-            LoadInputSettings();
-            break;
+            SaveChannelSettings(m_CurrentChannel, TRUE);
 
+            m_bSavePerChannel->SetValue(!m_bSavePerChannel->GetValue());
+            EnableMenuItemBool(m_hMenu, IDM_SAVE_BY_CHANNEL_CLEARSETTINGS, m_bSavePerChannel->GetValue());    
+            if (m_bSavePerChannel->GetValue()) 
+            {
+                m_bSavePerFormat->SetValue(FALSE);
+                CheckMenuItemBool(m_hMenu, IDM_SAVE_BY_FORMAT, m_bSavePerFormat->GetValue());                
+            }                        
+            break;
+        case IDM_SAVE_BY_CHANNEL_CLEARSETTINGS:
+            // Load default settings only
+            LoadChannelSettings(m_CurrentChannel,-1);
+            // Save channel settings             
+            SaveChannelSettings(m_CurrentChannel, FALSE);
+            // Or something like ClearIniSection(...);
+            break;
         default:
             return FALSE;
             break;
@@ -966,4 +996,111 @@ void CBT848Source::SaveInputSettings(BOOL bOptimizeFileAccess)
     m_SaturationV->WriteToIni(bOptimizeFileAccess);
     m_Overscan->WriteToIni(bOptimizeFileAccess);
     m_BDelay->WriteToIni(bOptimizeFileAccess);
+}
+
+
+void CBT848Source::LoadChannelSettings(int Channel, int DefaultValuesFirst)
+{
+    if (m_bSavePerFormat->GetValue()) 
+    {
+        return;
+    }
+
+    LOG(2,"Load settings for channel %d.",Channel);
+
+    std::vector<std::string> sSections;
+    int Input = -1;
+    char szSection[100];
+
+    if(m_bSavePerInput->GetValue())
+    {
+        Input = m_VideoSource->GetValue();
+    }
+    
+    if(DefaultValuesFirst) 
+    {    
+        sprintf(szSection, "%s_%d_%d", m_Section.c_str(), Input, -1);
+        sSections.push_back(std::string(szSection));
+        sprintf(szSection, "%s_%d_%d", m_Section.c_str(), Input, m_VideoFormat->GetValue());
+        sSections.push_back(std::string(szSection));
+        sprintf(szSection, "%s", m_Section.c_str());
+        sSections.push_back(std::string(szSection));
+    }
+    sprintf(szSection, "%s_%d_channel_%d", m_Section.c_str(), Input, Channel);    
+
+    
+    for(vector<CBT848Source::TChannelSetting*>::iterator it = m_ChannelSettings.begin();
+        it != m_ChannelSettings.end();
+        ++it)
+    {        
+        CSimpleSetting *Setting = (*it)->Setting;
+        
+        int oldValue = Setting->GetValue();
+        
+        if (DefaultValuesFirst)
+        {                        
+            Setting->ChangeDefault(oldValue);
+            for (vector<std::string>::iterator is = sSections.begin(); 
+                  is != sSections.end(); ++is)
+            {
+                Setting->SetSection(is->c_str());                
+                Setting->ReadFromIni();
+                if (Setting->GetValue() != oldValue) {
+                    break;
+                }
+            }
+        }
+        if (DefaultValuesFirst>=0)
+        {
+            Setting->SetSection(szSection);
+            Setting->ChangeDefault(Setting->GetValue());                        
+            Setting->ReadFromIni();
+        }
+        if ( oldValue != Setting->GetValue() )
+        {
+            //changed           
+            Setting->SetValue(Setting->GetValue());
+            (*it)->Flag &= ~1;
+
+            if (DefaultValuesFirst<0)
+            {
+                (*it)->Flag |= 1;
+            }
+        }
+    }
+}
+
+void CBT848Source::SaveChannelSettings(int Channel,BOOL bOptimizeFileAccess)
+{
+    if (m_bSavePerFormat->GetValue()!=0) 
+    {
+        return;
+    }
+    
+    LOG(2,"Store settings for channel %d.",Channel);    
+
+
+    int Input = -1;
+    char szSection[100];
+
+    if(m_bSavePerInput->GetValue())
+    {
+        Input = m_VideoSource->GetValue();
+    }
+    sprintf(szSection, "%s_%d_channel_%d", m_Section.c_str(), Input, Channel);
+    
+
+    for(vector<CBT848Source::TChannelSetting*>::iterator it = m_ChannelSettings.begin();
+        it != m_ChannelSettings.end();
+        ++it)
+    {        
+        CSimpleSetting *Setting = (*it)->Setting;
+
+        if ((*it)->Flag&1)
+        {
+            Setting->SetSection(szSection);
+            Setting->WriteToIni(bOptimizeFileAccess);
+            (*it)->Flag&=~1;
+        }
+    }        
 }

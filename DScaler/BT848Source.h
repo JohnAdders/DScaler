@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.24 2002-07-02 20:00:07 adcockj Exp $
+// $Id: BT848Source.h,v 1.25 2002-08-05 12:05:11 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -72,6 +72,8 @@ public:
     BOOL IsAccessAllowed() {return TRUE;};
     void SetOverscan();
     BOOL HasSquarePixels() {return FALSE;};
+    void ChannelPreChange(int OldChannel,int NewChannel);
+    void ChannelChange(int NewChannel);
 
 private:
     virtual void CreateSettings(LPCSTR IniSection);
@@ -95,9 +97,19 @@ private:
     void LoadInputSettings();
     void SaveInputSettings(BOOL bOptimizeFileAccess);
 
+    void LoadChannelSettings(int Channel, int DefaultValuesFirst);
+    void SaveChannelSettings(int Channel,BOOL bOptimizeFileAccess);
+    void CloseChannelSettings();
+    void ChannelSettingChanged(CSimpleSetting *Setting, int NewSetting=0);
+
     ISetting* GetCurrentAudioSetting();
 
 private:
+    typedef struct {
+        CSimpleSetting *Setting;
+        int Flag;        
+    } TChannelSetting;
+
     CBT848Card*  m_pBT848Card;
     BYTE*        m_pDisplay[5];
     BYTE*        m_pVBILines[5];
@@ -113,6 +125,8 @@ private:
     long         m_CurrentVBILines;
     BOOL         m_IsFieldOdd;
     BOOL         m_InSaturationUpdate;
+    int          m_CurrentChannel;    
+    std::vector<TChannelSetting*> m_ChannelSettings;
 
     std::string  m_Section;
 

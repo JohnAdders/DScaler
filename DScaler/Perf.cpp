@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Perf.cpp,v 1.5 2002-05-02 16:43:32 laurentg Exp $
+// $Id: Perf.cpp,v 1.6 2002-05-06 13:13:59 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/05/02 16:43:32  laurentg
+// ceil replaced by floor
+//
 // Revision 1.4  2002/01/31 13:02:46  robmuller
 // Improved accuracy and reliability of the performance statistics.
 //
@@ -182,7 +185,14 @@ CPerf::CPerf()
     for (int i(0) ; i < PERF_TYPE_LASTONE ; ++i)
     {
         m_PerfItems[i] = new CPerfItem(PerfNames[i]);
+        m_PerfCalculated[i] = FALSE;
     }
+    m_TickStart = 0;
+    m_TickStartLastSec = m_TickStart;
+    m_TotalDroppedFields = 0;
+    m_TotalUsedFields = 0;
+    m_DroppedFieldsLastSec = 0.0;
+    m_UsedFieldsLastSec = 0.0;
     m_ResetRequested = TRUE;
 }
 
@@ -209,8 +219,8 @@ void CPerf::InitCycle()
         m_TickStartLastSec = m_TickStart;
         m_TotalDroppedFields = 0;
         m_TotalUsedFields = 0;
-        m_DroppedFieldsLastSec = 0;
-        m_UsedFieldsLastSec = 0;
+        m_DroppedFieldsLastSec = 0.0;
+        m_UsedFieldsLastSec = 0.0;
         Timing_ResetDroppedFields();
         Timing_ResetUsedFields();
         for (int i(0) ; i < PERF_TYPE_LASTONE ; ++i)
@@ -354,17 +364,11 @@ double CPerf::GetAverageUsedFields()
 
 int CPerf::GetDroppedFieldsLastSecond()
 {
-    // WARNING http://support.intel.com/support/processors/flag/tech.htm
-    // Use of floor instead of ceil
-//    return (int)ceil(m_DroppedFieldsLastSec - 0.5);
     return (int)floor(m_DroppedFieldsLastSec + 0.5);
 }
 
 int CPerf::GetUsedFieldsLastSecond()
 {
-    // WARNING http://support.intel.com/support/processors/flag/tech.htm
-    // Use of floor instead of ceil
-//    return (int)ceil(m_UsedFieldsLastSec - 0.5);
     return (int)floor(m_UsedFieldsLastSec + 0.5);
 }
 

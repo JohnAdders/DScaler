@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.cpp,v 1.30 2002-04-13 18:56:22 laurentg Exp $
+// $Id: AspectRatio.cpp,v 1.31 2002-04-24 19:09:14 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -72,6 +72,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2002/04/13 18:56:22  laurentg
+// Checks added to manage case where the current source is not yet defined
+//
 // Revision 1.29  2002/02/25 23:03:51  tobbej
 // added a check for pSource==NULL in WorkoutOverlaySize
 // added logging
@@ -201,7 +204,7 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
     {
         //this shoud never happen, but if it does, just log it and return so it doesn't crash
         LOG(2,"No input source in WorkoutOverlaySize()!");
-        LOGD("No input source in WorkoutOverlaySize()!");
+        LOGD("No input source in WorkoutOverlaySize()!\n");
         return;
     }
     */
@@ -213,7 +216,7 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
     if (SourceWidth == 0 || SourceHeight == 0)
     {
         LOG(2,"Zero height or width in WorkoutOverlaySize!");
-        LOGD("Zero height or width in WorkoutOverlaySize!");
+        LOGD("Zero height or width in WorkoutOverlaySize!\n");
         return;
     }
 

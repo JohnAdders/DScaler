@@ -1,5 +1,5 @@
 ;////////////////////////////////////////////////////////////////////////////
-;// $Id: dscaler.iss,v 1.10 2002-08-07 19:15:02 adcockj Exp $
+;// $Id: dscaler.iss,v 1.11 2002-08-08 12:24:18 robmuller Exp $
 ;/////////////////////////////////////////////////////////////////////////////
 ;// Copyright (c) 2002 Rob Muller.  All rights reserved.
 ;/////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 ;// CVS Log
 ;//
 ;// $Log: not supported by cvs2svn $
+;// Revision 1.10  2002/08/07 19:15:02  adcockj
+;// Added Colour Inversion Filter
+;//
 ;// Revision 1.9  2002/07/27 17:01:52  adcockj
 ;// Updated install for new alpha version
 ;//
@@ -82,6 +85,7 @@ Name: "quicklaunchicon"; Description: "Create a &Quick Launch icon"; GroupDescri
 
 [Files]
 Source: "..\Release\DScaler.exe"; DestDir: "{app}"; CopyMode: alwaysoverwrite
+Source: "..\Release\SendMsg.exe"; DestDir: "{app}"; CopyMode: alwaysoverwrite
 Source: "..\Release\DI_Adaptive.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite
 Source: "..\Release\DI_BlendedClip.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite;  Components: extra
 Source: "..\Release\DI_Bob.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite;  Components: extra

@@ -374,6 +374,10 @@ SOURCE=.\dshowsource\DSVideoFormatPage.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\EPG.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ErrorBox.cpp
 # End Source File
 # Begin Source File
@@ -1158,6 +1162,10 @@ SOURCE=.\dshowsource\DSTVTuner.h
 # Begin Source File
 
 SOURCE=.\dshowsource\DSVideoFormatPage.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\EPG.h
 # End Source File
 # Begin Source File
 

@@ -1417,6 +1417,13 @@ BEGIN
         END
         MENUITEM SEPARATOR
         MENUITEM "&Reset Statistics",           IDM_RESET_STATS
+        MENUITEM SEPARATOR
+        POPUP "EPG"
+        BEGIN
+            MENUITEM "Scan EPG File (XMLTV)",       IDM_SCAN_EPG
+            MENUITEM "Load EPG Data",               IDM_LOAD_EPG
+            MENUITEM "Display EPG Data",            IDM_DISPLAY_EPG
+        END
     END
     POPUP "&Datacasting"
     BEGIN

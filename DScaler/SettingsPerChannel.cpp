@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsPerChannel.cpp,v 1.11 2002-08-31 16:30:17 kooiman Exp $
+// $Id: SettingsPerChannel.cpp,v 1.12 2002-09-01 15:15:56 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 DScaler team.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/08/31 16:30:17  kooiman
+// Fix duplicate names when changing sources.
+//
 // Revision 1.10  2002/08/27 22:02:32  kooiman
 // Added Get/Set input for video and audio for all sources. Added source input change notification.
 //
@@ -144,7 +147,7 @@ public:
         void WriteToIni(std::string SourceID, int VideoInput, int Channel, BOOL bOptimizeFileAccess);
 
         // Monitoring enabled
-        BOOL Enabled() { return *ToggleSetting->pValue; };
+        BOOL Enabled() { if (ToggleSetting == NULL) return FALSE; return *ToggleSetting->pValue; };
         // Has valid setting
         BOOL Valid() { return ((Setting!=NULL) || (CSSetting!=NULL)); };
 
@@ -282,6 +285,10 @@ void TChannelSetting::Stop()
 
 void TChannelSetting::Enable()
 {
+    if (ToggleSetting == NULL)
+    {
+        return;
+    }
     *ToggleSetting->pValue = TRUE;
     Start();
     
@@ -289,6 +296,10 @@ void TChannelSetting::Enable()
 
 void TChannelSetting::Disable()
 {
+    if (ToggleSetting == NULL)
+    {
+        return;
+    }
     *ToggleSetting->pValue = FALSE;
     Stop();    
 }
@@ -1680,7 +1691,7 @@ int SettingsPerChannel_BuildSettingsArray(SETTING* &SettingsPerChannel_Settings)
     for(vector<TChannelSetting*>::iterator it = vSpcChannelSettings.begin();
                 it != vSpcChannelSettings.end(); ++it)
     {
-        if (!(*it)->ToggleSettingIsLink)
+        if (!(*it)->ToggleSettingIsLink && ((*it)->ToggleSetting != NULL))
         {
             SettingsPerChannel_Settings[i] = *((*it)->ToggleSetting);
             i++;    
@@ -1712,7 +1723,7 @@ void SettingsPerChannel_ReadSettingsFromIni()
         it != vSpcChannelSettings.end();
         ++it)
     {        
-        if (!(*it)->ToggleSettingIsLink)
+        if (!(*it)->ToggleSettingIsLink && ((*it)->ToggleSetting != NULL))
         {
             Setting_ReadFromIni((*it)->ToggleSetting);
         }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard.cpp,v 1.15 2002-10-23 16:10:50 adcockj Exp $
+// $Id: CT2388xCard.cpp,v 1.16 2002-10-23 20:26:52 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2002/10/23 16:10:50  adcockj
+// Fixed some filter setting bugs and added SECAM tests for Laurent
+//
 // Revision 1.14  2002/10/23 15:18:07  adcockj
 // Added preliminary code for VBI
 //
@@ -426,14 +429,30 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
     else if(true)
     {
         DWORD HTotal(0);
-        // set up with
-        // Previous line remodulation - on
-        // 3-d Comb filter - on
-        // Comb Range - 1f
-        // Full Luma Range - on
-        // PAL Invert Phase - off
-        // Coring - off
-        DWORD Format2HComb(0x181f0008);
+        DWORD Format2HComb;
+
+		if(m_TVCards[m_CardType].Inputs[nInput].InputType == INPUTTYPE_SVIDEO)
+		{
+			// set up with
+			// Previous line remodulation - off
+			// 3-d Comb filter - off
+			// Comb Range - 00
+			// Full Luma Range - on
+			// PAL Invert Phase - off
+			// Coring - off
+			Format2HComb = 0x08;
+		}
+		else
+		{
+			// set up with
+			// Previous line remodulation - on
+			// 3-d Comb filter - on
+			// Comb Range - 1f
+			// Full Luma Range - on
+			// PAL Invert Phase - off
+			// Coring - off
+			Format2HComb = 0x181f0008;
+		}
 
         CurrentVBILines = GetTVFormat(TVFormat)->VBILines;
 

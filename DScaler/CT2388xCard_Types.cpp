@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard_Types.cpp,v 1.7 2002-10-23 16:10:50 adcockj Exp $
+// $Id: CT2388xCard_Types.cpp,v 1.8 2002-10-23 20:26:53 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/10/23 16:10:50  adcockj
+// Fixed some filter setting bugs and added SECAM tests for Laurent
+//
 // Revision 1.6  2002/10/21 16:07:26  adcockj
 // Added H & V delay options for CX2388x cards
 //
@@ -320,10 +323,10 @@ void CCT2388xCard::StandardInputSelect(int nInput)
         // and force auto detect
 		// also turn off CCIR input
 		// also VERTEN & SPSPD
-        dwVal &= 0xFFFC3F00;
-
+        dwVal &= 0x0F;
+		
         // start with default values except turn of CFILT
-        DWORD FilterSetup(0);
+        DWORD FilterSetup(1 << 19);
 
 		// set the Mux up from the card setup
         dwVal |= (m_TVCards[m_CardType].Inputs[nInput].MuxSelect << CT2388X_VIDEO_INPUT_MUX_SHIFT);
@@ -341,7 +344,10 @@ void CCT2388xCard::StandardInputSelect(int nInput)
                 // switch off luma notch
                 // Luma notch is 1 = off
                 FilterSetup |= CT2388X_FILTER_LNOTCH;
-                // turn on 
+                // turn off Comb Filter
+                FilterSetup |= 3 << 5;
+                // Disbale luma dec
+                FilterSetup |= 1 << 12;
                 break;
             case INPUTTYPE_CCIR:
 				dwVal |= CT2388X_VIDEO_INPUT_PE_SRCSEL;

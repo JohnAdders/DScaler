@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource.cpp,v 1.19 2002-10-23 15:18:07 adcockj Exp $
+// $Id: CT2388xSource.cpp,v 1.20 2002-10-23 20:26:53 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2002/10/23 15:18:07  adcockj
+// Added preliminary code for VBI
+//
 // Revision 1.18  2002/10/22 18:52:18  adcockj
 // Added ASPI support
 //
@@ -287,9 +290,10 @@ void CCT2388xSource::CreateSettings(LPCSTR IniSection)
 void CCT2388xSource::Start()
 {
     m_pCard->StopCapture();
-    CreateRiscCode((bCaptureVBI && (m_CurrentVBILines > 0)));
+	// \todo fix VBI
+    CreateRiscCode(false && (bCaptureVBI && (m_CurrentVBILines > 0)));
     // only capture VBI if we are expecting them
-    m_pCard->StartCapture(m_RiscBasePhysical, (bCaptureVBI && (m_CurrentVBILines > 0)));
+    m_pCard->StartCapture(m_RiscBasePhysical, false && (bCaptureVBI && (m_CurrentVBILines > 0)));
     Timing_Reset();
     NotifySizeChange();
     NotifySquarePixelsCheck();
@@ -402,7 +406,7 @@ void CCT2388xSource::CreateRiscCode(BOOL bCaptureVBI)
         }
         else
         {
-            if(bCaptureVBI)
+            if(false && bCaptureVBI)
             {
                 // do VBI here, as we'll never get VBI in progressive mode
                 pUser = m_pVBILines[nField / 2];

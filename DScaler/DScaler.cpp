@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.365 2004-12-04 00:06:49 atnak Exp $
+// $Id: DScaler.cpp,v 1.366 2004-12-13 23:24:43 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.365  2004/12/04 00:06:49  atnak
+// Got rid of warnings in VC++ .Net 2003.
+//
 // Revision 1.364  2004/11/27 00:48:37  atnak
 // Moved InitializeSAA713xCardList() up earlier to avoid memory leaks or
 // need to clean up after 'new CEventCollector()' and 'new CSettingsMaster()'
@@ -2735,6 +2738,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
     ISetting* pSetting2 = NULL;
     ISetting* pSetting3 = NULL;
     ISetting* pSetting4 = NULL;
+	TGUIRequest req;
 
     if (message == MsgWheel)
     {
@@ -3831,16 +3835,21 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_TAKESTREAMSNAP:
-            RequestStreamSnap();
+			req.type = REQ_SNAPSHOT;
+			PutRequest(&req);
             break;
 
         case IDM_TAKESTILL:
-            RequestStill(1);
+			req.type = REQ_STILL;
+			req.param1 = 1;
+			PutRequest(&req);
             break;
 
         case IDM_TAKECONSECUTIVESTILL:
 			// Take cpnsecutive stills
-            RequestStill((eStillFormat)Setting_GetValue(Still_GetSetting(NBCONSECUTIVESTILLS)));
+			req.type = REQ_STILL;
+			req.param1 = Setting_GetValue(Still_GetSetting(NBCONSECUTIVESTILLS));
+			PutRequest(&req);
             break;
 
         case IDM_TAKECYCLICSTILL:
@@ -3848,7 +3857,9 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             KillTimer(hWnd, TIMER_TAKESTILL);
             if (bTakingCyclicStills)
             {
-                RequestStill(1);
+				req.type = REQ_STILL;
+				req.param1 = 1;
+				PutRequest(&req);
                 SetTimer(hWnd, TIMER_TAKESTILL, Setting_GetValue(Still_GetSetting(DELAYBETWEENSTILLS)) * 1000, NULL);
             }
             break;
@@ -4660,7 +4671,9 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
         //---------------------------------
         case TIMER_TAKESTILL:
-            RequestStill(1);
+			req.type = REQ_STILL;
+			req.param1 = 1;
+			PutRequest(&req);
             break;
         //---------------------------------
         default:

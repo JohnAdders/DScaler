@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.h,v 1.22 2003-10-27 10:39:52 adcockj Exp $
+// $Id: OutThreads.h,v 1.23 2004-12-13 23:24:44 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -47,6 +47,21 @@
 #include "settings.h"
 #include "deinterlace.h"
 
+typedef enum
+{
+    REQ_NONE,
+    REQ_STILL,
+    REQ_SNAPSHOT,
+	REQ_DSHOW_CHANGERES,
+	REQ_DSHOW_STOP,
+} eRequestType;
+
+typedef struct {
+	eRequestType	type;
+	int				param1;
+	int				param2;
+} TGUIRequest;
+
 // Get Hold of the OutThreads.c file settings
 SETTING* OutThreads_GetSetting(OUTTHREADS_SETTING Setting);
 void OutThreads_ReadSettingsFromIni();
@@ -63,9 +78,8 @@ void Reset_Capture();
 void Pause_Capture();
 void UnPause_Capture();
 void Pause_Toggle_Capture();
-void RequestStreamSnap();
-void RequestStill(int nb);
 void Toggle_Vertical_Flip();
+void PutRequest(TGUIRequest *req);
 
 void Start_Thread();
 void Stop_Thread();

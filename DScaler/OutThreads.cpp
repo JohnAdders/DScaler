@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.132 2004-05-06 13:49:13 atnak Exp $
+// $Id: OutThreads.cpp,v 1.133 2004-12-13 23:24:44 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.132  2004/05/06 13:49:13  atnak
+// updated a comment
+//
 // Revision 1.131  2003/11/21 14:56:36  robmuller
 // Use the correct height with snapshots when using a half-height deinterlace method.
 //
@@ -491,25 +494,16 @@
 #include "MultiFrames.h"
 
 
-typedef enum
-{
-    STILL_NONE,
-    STILL_TIFF,
-    STILL_SNAPSHOT,
-} eStreamStillType;
-
 // Thread related variables
 BOOL                bStopThread = FALSE;
 BOOL                bIsPaused = FALSE;
-eStreamStillType    RequestStillType = STILL_NONE;
-int					RequestStillNb = 0;
-BOOL				RequestStillInMemory = FALSE;
 BOOL                RequestToggleFlip = FALSE;
 BOOL				bCheckSignalPresent = FALSE;
 BOOL				bCheckSignalMissing = FALSE;
 BOOL                bDoVerticalFlipSetting = FALSE;
 HANDLE              g_hOutThread;
 DWORD OutThreadID=0;
+TGUIRequest			Request = { REQ_NONE, 0, 0 };
 
 // Capture state variables
 LONG                g_nCaptureStatus = 0;
@@ -639,27 +633,34 @@ void UnPause_Capture()
     bIsPaused = FALSE;
 }
 
-void RequestStreamSnap()
+void PutRequest(TGUIRequest *req)
 {
-	if (RequestStillType == STILL_NONE)
+	if (Request.type == REQ_NONE)
 	{
-		RequestStillType = STILL_SNAPSHOT;
-	}
-}
-
-void RequestStill(int nb)
-{
-	if ((RequestStillType == STILL_NONE) && (nb > 0) && (Providers_GetSnapshotsSource() != NULL))
-	{
-		RequestStillType = STILL_TIFF;
-		RequestStillNb = nb;
-		if (nb > 1)
+		switch (req->type)
 		{
-			RequestStillInMemory = TRUE;
-		}
-		else
-		{
-			RequestStillInMemory = Setting_GetValue(Still_GetSetting(STILLSINMEMORY));
+		case REQ_STILL:
+			if ((req->param1 > 0) && (Providers_GetSnapshotsSource() != NULL))
+			{
+				Request.type = req->type;
+				Request.param1 = req->param1;
+				if (req->param1 > 1)
+				{
+					Request.param2 = 1;
+				}
+				else
+				{
+					Request.param2 = (Setting_GetValue(Still_GetSetting(STILLSINMEMORY)) == TRUE) ? 1 : 0;
+				}
+			}
+			break;
+		case REQ_SNAPSHOT:
+			Request.type = req->type;
+			break;
+		case REQ_DSHOW_CHANGERES:
+		case REQ_DSHOW_STOP:
+		default:
+			break;
 		}
 	}
 }
@@ -1001,7 +1002,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
             pPerf->InitCycle();
 
-			if (RequestStillType == STILL_TIFF)
+			if (Request.type == REQ_STILL)
 			{
 				bTakeStill = TRUE;
 
@@ -1036,13 +1037,13 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 				LOG(2, "Alloc for still - start buf %d, start frame %d", pAllocBuf, Info.Overlay);
 				if (pAllocBuf == NULL)
 				{
-					RequestStillType = STILL_NONE;
+					Request.type = REQ_NONE;
 					bTakeStill = FALSE;
 					bUseOverlay = TRUE;
 				}
 
-				// After that line, we must use variable bTakeStill instead of RequestStillType
-				// because RequestStillType could be set by the GUI thread at the same time,
+				// After that line, we must use variable bTakeStill instead of Request
+				// because Request could be set by the GUI thread at the same time,
 				// and we must be certain that memory allocation has been done
 			}
 
@@ -1528,7 +1529,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
 			if (bTakeStill)
 			{
-				if (RequestStillInMemory)
+				if (Request.param2)
 				{
 					((CStillSource*) Providers_GetSnapshotsSource())->SaveSnapshotInMemory(CurrentMethod->bIsHalfHeight ? Info.FieldHeight : Info.FrameHeight, Info.FrameWidth, pAllocBuf, Info.OverlayPitch);
 				}
@@ -1540,22 +1541,22 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 						free(pAllocBuf);
 					}
 				}
-				RequestStillNb--;
-				if (RequestStillNb <= 0)
+				Request.param1--;
+				if (Request.param1 <= 0)
 				{
-					if (RequestStillInMemory && Setting_GetValue(Still_GetSetting(OSDFORSTILLS)))
+					if (Request.param2 && Setting_GetValue(Still_GetSetting(OSDFORSTILLS)))
 					{
 						OSD_ShowText("Still(s) in memory", 0);
 					}
-					RequestStillType = STILL_NONE;
+					Request.type = REQ_NONE;
 				}
 			}
 
             // if asked save the current Info to a file
-            if(RequestStillType == STILL_SNAPSHOT)
+            if(Request.type == REQ_SNAPSHOT)
             {
                 SaveStreamSnapshot(&Info);
-                RequestStillType = STILL_NONE;
+                Request.type = REQ_NONE;
             }
 
 			if (pMultiFrames && pMultiFrames->IsSwitchRequested())

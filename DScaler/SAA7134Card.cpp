@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.cpp,v 1.21 2002-10-26 06:58:33 atnak Exp $
+// $Id: SAA7134Card.cpp,v 1.22 2002-10-28 11:10:15 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2002/10/26 06:58:33  atnak
+// Fixed the odd field only problem when there is no signal
+//
 // Revision 1.20  2002/10/26 05:24:23  atnak
 // Minor cleanups
 //
@@ -751,7 +754,7 @@ int CSAA7134Card::GetACPIStatus()
     PCI_COMMON_CONFIG PCI_Config;
 
     // all new chips should be new enough to have power management
-    if(GetPCIConfig(&PCI_Config, m_BusNumber, m_SlotNumber))
+    if (GetPCIConfig(&PCI_Config, m_BusNumber, m_SlotNumber))
     {
         DWORD ACPIStatus = PCI_Config.DeviceSpecific[0x10] & 3;
 
@@ -768,7 +771,7 @@ void CSAA7134Card::SetACPIStatus(int ACPIStatus)
 {
     PCI_COMMON_CONFIG PCI_Config;
 
-    if(!GetPCIConfig(&PCI_Config, m_BusNumber, m_SlotNumber))
+    if (!GetPCIConfig(&PCI_Config, m_BusNumber, m_SlotNumber))
     {
         return;
     }
@@ -779,7 +782,7 @@ void CSAA7134Card::SetACPIStatus(int ACPIStatus)
 
     SetPCIConfig(&PCI_Config, m_BusNumber, m_SlotNumber);
 
-    if(ACPIStatus == 0)
+    if (ACPIStatus == 0)
     {
         // wait half a second to start the hardware
         ::Sleep(500);
@@ -823,7 +826,7 @@ BOOL APIENTRY CSAA7134Card::ChipSettingProc(HWND hDlg, UINT message, UINT wParam
         }
 
         dwCardId = pThis->GetSubSystemId();
-        if(dwCardId != 0 && dwCardId != 0xffffffff)
+        if (dwCardId != 0 && dwCardId != 0xffffffff)
         {
             sprintf(szCardId, "x%08X", dwCardId);
             SetDlgItemText(hDlg, IDC_AUTODECTECTID, szCardId);
@@ -886,12 +889,12 @@ LPCSTR CSAA7134Card::GetChipType()
 
 void CSAA7134Card::SetCardType(int CardType)
 {
-    if(m_CardType != CardType)
+    if (m_CardType != CardType)
     {
         m_CardType = (eSAA7134CardId)CardType;
 
         // perform card specific init
-        if(m_SAA7134Cards[m_CardType].pInitCardFunction != NULL)
+        if (m_SAA7134Cards[m_CardType].pInitCardFunction != NULL)
         {
             // call correct function
             // this funny syntax is the only one that works

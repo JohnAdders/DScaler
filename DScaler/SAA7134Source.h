@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.h,v 1.18 2002-10-26 04:42:50 atnak Exp $
+// $Id: SAA7134Source.h,v 1.19 2002-10-28 11:10:11 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2002/10/26 04:42:50  atnak
+// Added AGC config and automatic volume leveling control
+//
 // Revision 1.17  2002/10/23 17:05:18  atnak
 // Added variable VBI sample rate scaling
 //
@@ -155,9 +158,13 @@ public:
 private:
     virtual void CreateSettings(LPCSTR IniSection);
 
-    void SetupVideoAudioSource();
-    void SetupVideoAudioStandards();
+    void SetupVideoSource();
+    void SetupAudioSource();
+    void SetupVideoStandard();
+    void SetupAudioStandard();
     void SetupDMAMemory();
+
+    void ChangeCardSettings(WORD ChangedSetup);
 
     DWORD CreatePageTable(CUserMemory* pDMAMemory, DWORD nPagesWanted, LPDWORD pPageTable);
     
@@ -173,17 +180,17 @@ private:
     void UpdateAudioStatus();
 
     void SetupCard();
-    void ChangeTVSettingsBasedOnCard();
     void ChangeTVSettingsBasedOnTuner();
+    /*
     void ChangeSectionNamesForInput();
     void ChangeDefaultsForInput();
     void LoadInputSettings();
     void SaveInputSettings(BOOL bOptimizeFileAccess);
-
+*/
     void ChangeChannelSectionNames();
 
-    ISetting* GetCurrentAudioSetting();
-    ISetting* GetAudioSetting(int nVideoSource);
+    //ISetting* GetCurrentAudioSetting();
+    //ISetting* GetAudioSetting(int nVideoSource);
 
     void GiveNextField(TDeinterlaceInfo* pInfo, TPicture* picture);
 
@@ -195,6 +202,43 @@ private:
 
     void InitializeUI();
     void CleanupUI();
+
+    void SetupSettings();
+    void SaveSettings(WORD ChangedSetup);
+    void LoadSettings(WORD ChangedSetup);
+    void ChangeDefaultsForSetup(WORD ChangedSetup);
+    void ChangeDefaultsForVideoInput();
+    void ChangeDefaultsForVideoFormat();
+    void ChangeDefaultsForAudioInput();
+    void GetIniSectionName(char* pBuffer, WORD IniSectionMask);
+
+protected:
+    enum eSettingsSetup
+    {
+
+        SETUP_SINGLE                = 0UL,
+        SETUP_NONE                  = 0UL,
+        SETUP_PER_VIDEOINPUT        = 1 << 0,
+        SETUP_PER_VIDEOFORMAT       = 1 << 1,
+        SETUP_PER_AUDIOINPUT        = 1 << 2,
+        SETUP_PER_CHANNEL           = 1 << 3,
+        SETUP_CHANGE_VIDEOINPUT     = 1 << 4,
+        SETUP_CHANGE_VIDEOFORMAT    = 1 << 5,
+        SETUP_CHANGE_AUDIOINPUT     = 1 << 6,
+        SETUP_CHANGE_CHANNEL        = 1 << 7,
+        SETUP_CHANGE_ANY            = 0x00F0,
+    };
+
+    typedef struct
+    {
+        CSimpleSetting*    Setting;
+        DWORD               Setup;
+        
+    } TSettingsSetup;
+
+    TSettingsSetup* m_SettingsSetup;
+
+    HINSTANCE       m_hSAA7134ResourceInst;
 
 private:
     CSAA7134Card*   m_pSAA7134Card;
@@ -217,6 +261,7 @@ private:
     BOOL            m_SettingsByChannelStarted;
     std::string     m_ChipName;
     int             m_DeviceIndex;
+    int             m_InitialACPIStatus;
 
     std::string     m_Section;
     std::string     m_IDString;
@@ -261,13 +306,8 @@ private:
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, Bass);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, Treble);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, Balance);
+    DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioSource);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioStandard);
-    DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioSource1);
-    DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioSource2);
-    DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioSource3);
-    DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioSource4);
-    DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioSource5);
-    DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioSource6);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioChannel);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioSampleRate);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, VBIUpscaleDivisor);
@@ -282,16 +322,12 @@ private:
     DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source,  CustomAudioStandard);
 
     // These settings are only effective when CustomAudioStandard is set
-    CSliderSetting*     m_AudioStandardCarrier1;
-    CSliderSetting*     m_AudioStandardCarrier2;
-    CSliderSetting*     m_AudioStandardCarrier1Mode;
-    CSliderSetting*     m_AudioStandardCarrier2Mode;
-    CSliderSetting*     m_AudioStandardCh1FMDeemph;
-    CSliderSetting*     m_AudioStandardCh2FMDeemph;
-
-protected:
-    int         m_InitialACPIStatus;
-    HINSTANCE   m_hSAA7134ResourceInst;
+    DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioMajorCarrier);
+    DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioMinorCarrier);
+    DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioMajorCarrierMode);
+    DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioMinorCarrierMode);
+    DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioCh1FMDeemph);
+    DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioCh2FMDeemph);
 };
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Audio.cpp,v 1.14 2002-10-26 05:24:23 atnak Exp $
+// $Id: SAA7134Card_Audio.cpp,v 1.15 2002-10-28 11:10:13 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/10/26 05:24:23  atnak
+// Minor cleanups
+//
 // Revision 1.13  2002/10/26 04:42:50  atnak
 // Added AGC config and automatic volume leveling control
 //
@@ -848,7 +851,7 @@ void CSAA7134Card::SetAudioMute()
     }
 }
 
-void CSAA7134Card::SetAudioUnMute(long nVolume)
+void CSAA7134Card::SetAudioUnMute()
 {
     if (m_DeviceId == 0x7130)
     {

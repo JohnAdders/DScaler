@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.15 2002-10-26 17:51:53 adcockj Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.16 2002-10-28 11:10:09 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2002/10/26 17:51:53  adcockj
+// Simplified hide cusror code and removed PreShowDialogOrMenu & PostShowDialogOrMenu
+//
 // Revision 1.14  2002/10/26 05:24:23  atnak
 // Minor cleanups
 //
@@ -430,15 +433,15 @@ BOOL APIENTRY CSAA7134Source::AudioStandardProc(HWND hDlg, UINT message, UINT wP
     case WM_INITDIALOG:
         pThis = (CSAA7134Source*)lParam;
 
+        CustomCarrier1        = pThis->m_AudioMajorCarrier->GetValue();
+        CustomCarrier2        = pThis->m_AudioMinorCarrier->GetValue();
+        CustomCarrier1Mode    = (eAudioCarrierMode)pThis->m_AudioMajorCarrierMode->GetValue();
+        CustomCarrier2Mode    = (eAudioCarrierMode)pThis->m_AudioMinorCarrierMode->GetValue();
+        CustomCh1FMDeemph     = (eAudioFMDeemphasis)pThis->m_AudioCh1FMDeemph->GetValue();
+        CustomCh2FMDeemph     = (eAudioFMDeemphasis)pThis->m_AudioCh2FMDeemph->GetValue();
+
         // AUDIOSTANDARD_LASTONE is used as "Custom" only in
         // CSAA7134SourceUI.cpp.  Here and in menu callback procs.
-
-        CustomCarrier1        = pThis->m_AudioStandardCarrier1->GetValue();
-        CustomCarrier2        = pThis->m_AudioStandardCarrier2->GetValue();
-        CustomCarrier1Mode    = (eAudioCarrierMode)pThis->m_AudioStandardCarrier1Mode->GetValue();
-        CustomCarrier2Mode    = (eAudioCarrierMode)pThis->m_AudioStandardCarrier2Mode->GetValue();
-        CustomCh1FMDeemph     = (eAudioFMDeemphasis)pThis->m_AudioStandardCh1FMDeemph->GetValue();
-        CustomCh2FMDeemph     = (eAudioFMDeemphasis)pThis->m_AudioStandardCh2FMDeemph->GetValue();
 
         if (pThis->m_CustomAudioStandard->GetValue())
         {
@@ -563,16 +566,16 @@ BOOL APIENTRY CSAA7134Source::AudioStandardProc(HWND hDlg, UINT message, UINT wP
         Slider_ClearTicks(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJOR_ADJUST), TRUE);
         Slider_SetRangeMax(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJOR_ADJUST), AUDIO_CARRIER_10_7);
         Slider_SetRangeMin(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJOR_ADJUST), AUDIO_CARRIER_4_5);
-        Slider_SetPageSize(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJOR_ADJUST), 1);
-        Slider_SetLineSize(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJOR_ADJUST), 1);
+        Slider_SetPageSize(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJOR_ADJUST), 12288);
+        Slider_SetLineSize(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJOR_ADJUST), 122);
         Slider_SetTic(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJOR_ADJUST), 0);
         Slider_SetPos(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJOR_ADJUST), ScreenCarrier1);
 
         Slider_ClearTicks(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINOR_ADJUST), TRUE);
         Slider_SetRangeMax(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINOR_ADJUST), AUDIO_CARRIER_10_7);
         Slider_SetRangeMin(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINOR_ADJUST), AUDIO_CARRIER_4_5);
-        Slider_SetPageSize(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINOR_ADJUST), 1);
-        Slider_SetLineSize(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINOR_ADJUST), 1);
+        Slider_SetPageSize(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINOR_ADJUST), 12288);
+        Slider_SetLineSize(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINOR_ADJUST), 122);
         Slider_SetTic(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINOR_ADJUST), 0);
         Slider_SetPos(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINOR_ADJUST), ScreenCarrier2);
 
@@ -626,28 +629,45 @@ BOOL APIENTRY CSAA7134Source::AudioStandardProc(HWND hDlg, UINT message, UINT wP
                     ScreenCarrier2Mode = AUDIOCHANNELMODE_FM;
                 }
 
+                if (EditingCarrier1)
+                {
+                    SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_DELETESTRING, EditCarrierIndex, 0);
+                }
+                if (EditingCarrier2)
+                {
+                    SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_DELETESTRING, EditCarrierIndex, 0);
+                }
+
+                EditingCarrier1 = EditingCarrier2 = TRUE;
+
                 Number = pThis->GetMaxAudioCarrierNames();
                 for (i = 0; i < Number; i++)
                 {
                     if (m_AudioCarrierList[i] == ScreenCarrier1)
                     {
                         SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_SETCURSEL, i, 0);
+                        EditingCarrier1 = FALSE;
                     }
                     if (m_AudioCarrierList[i] == ScreenCarrier2)
                     {
                         SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_SETCURSEL, i, 0);
+                        EditingCarrier2 = FALSE;
                     }
                 }
 
                 if (EditingCarrier1)
                 {
-                    EditingCarrier1 = FALSE;
-                    SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_DELETESTRING, EditCarrierIndex, 0);
+                    sprintf(buf, "%g", ((float)ScreenCarrier1*12.288)/(1<<24));
+                    SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_ADDSTRING, 0, (LPARAM)buf);
+                    SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_SETITEMDATA, EditCarrierIndex, ScreenCarrier1);
+                    SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJORCARRIER), CB_SETCURSEL, EditCarrierIndex, 0);
                 }
                 if (EditingCarrier2)
                 {
-                    EditingCarrier2 = FALSE;
-                    SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_DELETESTRING, EditCarrierIndex, 0);
+                    sprintf(buf, "%g", ((float)ScreenCarrier2*12.288)/(1<<24));
+                    SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_ADDSTRING, 0, (LPARAM)buf);
+                    SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_SETITEMDATA, EditCarrierIndex, ScreenCarrier2);
+                    SendMessage(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MINORCARRIER), CB_SETCURSEL, EditCarrierIndex, 0);
                 }
 
                 Slider_SetPos(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_MAJOR_ADJUST), ScreenCarrier1);
@@ -804,14 +824,10 @@ BOOL APIENTRY CSAA7134Source::AudioStandardProc(HWND hDlg, UINT message, UINT wP
             break;
 
         case IDCANCEL:
-            if (pThis->m_CustomAudioStandard->GetValue())
+            if (pThis->m_CustomAudioStandard->GetValue() ||
+                AudioStandard != pThis->m_AudioStandard->GetValue())
             {
-                // OnChange will set everything back for us
-                pThis->m_CustomAudioStandard->SetValue(TRUE);
-            }
-            else if (AudioStandard != pThis->m_AudioStandard->GetValue())
-            {
-                pThis->m_AudioStandard->SetValue(pThis->m_AudioStandard->GetValue());
+                pThis->SetupAudioStandard();
             }
             KillTimer(hDlg, IDC_AUDIOSTANDARD_MANUAL_DETECTNOW);
             EndDialog(hDlg, TRUE);
@@ -820,18 +836,20 @@ BOOL APIENTRY CSAA7134Source::AudioStandardProc(HWND hDlg, UINT message, UINT wP
         case IDOK:
             if (AudioStandard != AUDIOSTANDARD_LASTONE)
             {
-                // No need to OnChange because this dialog sets all the
-                // card registers
+                // No need to call OnChange because this dialog will have
+                // set all the registers already
+
                 pThis->m_AudioStandard->SetValue(AudioStandard, ONCHANGE_NONE);
+                pThis->m_CustomAudioStandard->SetValue(FALSE, ONCHANGE_NONE);
             }
             else
             {
-                pThis->m_AudioStandardCarrier1->SetValue(ScreenCarrier1);
-                pThis->m_AudioStandardCarrier2->SetValue(ScreenCarrier2);
-                pThis->m_AudioStandardCarrier1Mode->SetValue(ScreenCarrier1Mode);
-                pThis->m_AudioStandardCarrier2Mode->SetValue(ScreenCarrier2Mode);
-                pThis->m_AudioStandardCh1FMDeemph->SetValue(ScreenCh1FMDeemph);
-                pThis->m_AudioStandardCh2FMDeemph->SetValue(ScreenCh2FMDeemph);
+                pThis->m_AudioMajorCarrier->SetValue(ScreenCarrier1, ONCHANGE_NONE);
+                pThis->m_AudioMinorCarrier->SetValue(ScreenCarrier2, ONCHANGE_NONE);
+                pThis->m_AudioMajorCarrierMode->SetValue(ScreenCarrier1Mode, ONCHANGE_NONE);
+                pThis->m_AudioMinorCarrierMode->SetValue(ScreenCarrier2Mode, ONCHANGE_NONE);
+                pThis->m_AudioCh1FMDeemph->SetValue(ScreenCh1FMDeemph, ONCHANGE_NONE);
+                pThis->m_AudioCh2FMDeemph->SetValue(ScreenCh2FMDeemph, ONCHANGE_NONE);
                 pThis->m_CustomAudioStandard->SetValue(TRUE);
             }
             KillTimer(hDlg, IDC_AUDIOSTANDARD_MANUAL_DETECTNOW);
@@ -936,7 +954,7 @@ BOOL APIENTRY CSAA7134Source::AudioStandardProc(HWND hDlg, UINT message, UINT wP
 
 BOOL APIENTRY CSAA7134Source::OtherEditProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
-/*    static CSAA7134Source* pThis;
+    static CSAA7134Source* pThis;
 
     static char LeftGain = 0;
     static char RightGain = 0;
@@ -947,7 +965,7 @@ BOOL APIENTRY CSAA7134Source::OtherEditProc(HWND hDlg, UINT message, UINT wParam
     {
     case WM_INITDIALOG:
         pThis = (CSAA7134Source*)lParam;
-
+/*
         LeftGain = pThis->m_pSAA7134Card->GetAudioLeftVolume();
         RightGain = pThis->m_pSAA7134Card->GetAudioRightVolume();
         NicamGain = pThis->m_pSAA7134Card->GetAudioNicamVolume();
@@ -980,7 +998,7 @@ BOOL APIENTRY CSAA7134Source::OtherEditProc(HWND hDlg, UINT message, UINT wParam
         SetDlgItemInt(hDlg, IDC_NICAM_EDIT, NicamGain, TRUE);
 
         CheckDlgButton(hDlg, IDC_LINKED_CHECK, bLinked);
-
+*/
         SetFocus(hDlg);
         break;
 
@@ -1000,7 +1018,7 @@ BOOL APIENTRY CSAA7134Source::OtherEditProc(HWND hDlg, UINT message, UINT wParam
             break;
         }
         break;
-
+/*
     case WM_VSCROLL:
     case WM_HSCROLL:
         if((HWND)lParam == GetDlgItem(hDlg, IDC_LEFT_SLIDER))
@@ -1041,10 +1059,10 @@ BOOL APIENTRY CSAA7134Source::OtherEditProc(HWND hDlg, UINT message, UINT wParam
         {
         }
         break;
-
+*/
     default:
         break;
-    }*/
+    }
     return (FALSE);
 }
 
@@ -1085,10 +1103,6 @@ void CSAA7134Source::SetMenu(HMENU hMenu)
 
     BOOL DoneWidth = FALSE;
 
-    EnableMenuItemBool(m_hMenu, IDM_AUDIOSETTINGS1, FALSE);
-
-    EnableMenuItemBool(m_hMenu, IDM_SETTINGS_PIXELWIDTH_768, GetTVFormat((eVideoFormat)m_VideoFormat->GetValue())->wHActivex1 >= 768);
-
     CheckMenuItemBool(m_hMenu, IDM_SETTINGS_PIXELWIDTH_768, (m_PixelWidth->GetValue() == 768));
     DoneWidth |= (m_PixelWidth->GetValue() == 768);
     CheckMenuItemBool(m_hMenu, IDM_SETTINGS_PIXELWIDTH_754, (m_PixelWidth->GetValue() == 754));
@@ -1123,11 +1137,11 @@ void CSAA7134Source::SetMenu(HMENU hMenu)
 
     EnableMenuItemBool(m_hMenu, IDM_AUDIO_0, m_pSAA7134Card->GetDeviceId() != 0x7130);
 
-    CheckMenuItemBool(m_hMenu, IDM_AUDIO_0, (GetCurrentAudioSetting()->GetValue() == 0));
-    CheckMenuItemBool(m_hMenu, IDM_AUDIO_1, (GetCurrentAudioSetting()->GetValue() == 1));
-    CheckMenuItemBool(m_hMenu, IDM_AUDIO_2, (GetCurrentAudioSetting()->GetValue() == 2));
+    CheckMenuItemBool(m_hMenu, IDM_AUDIO_0, (m_AudioSource->GetValue() == 0));
+    CheckMenuItemBool(m_hMenu, IDM_AUDIO_1, (m_AudioSource->GetValue() == 1));
+    CheckMenuItemBool(m_hMenu, IDM_AUDIO_2, (m_AudioSource->GetValue() == 2));
 
-    BOOL bDACActive = GetCurrentAudioSetting()->GetValue() == AUDIOINPUTSOURCE_DAC;
+    BOOL bDACActive = m_AudioSource->GetValue() == AUDIOINPUTSOURCE_DAC;
 
     // Plus 1 for the "Custom Settings ..." menu item
     for (i = 0; i < AUDIOSTANDARD_LASTONE+1; i++)
@@ -1192,6 +1206,7 @@ BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         // dynamic audio standards menu
         int nValue = LOWORD(wParam) - SAA7134MENU_AUDIOSTANDARD_START;
         ShowText(hWnd, m_pSAA7134Card->GetAudioStandardName((eAudioStandard)nValue));
+        m_CustomAudioStandard->SetValue(FALSE, ONCHANGE_NONE);
         m_AudioStandard->SetValue(nValue);
         return TRUE;
     }
@@ -1220,7 +1235,6 @@ BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
                 {
                     m_pSAA7134Card->SetCardType(m_CardType->GetValue());
                     m_pSAA7134Card->InitAudio();
-                    ChangeTVSettingsBasedOnCard();
                 }
                 if (m_TunerType->GetValue() != OrigTuner)
                 {
@@ -1331,8 +1345,8 @@ BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         case IDM_AUDIO_0:
         case IDM_AUDIO_1:
         case IDM_AUDIO_2:
-            GetCurrentAudioSetting()->SetValue((LOWORD(wParam) - IDM_AUDIO_0));
-            switch (GetCurrentAudioSetting()->GetValue())
+            m_AudioSource->SetValue((LOWORD(wParam) - IDM_AUDIO_0));
+            switch (m_AudioSource->GetValue())
             {
             case AUDIOINPUTSOURCE_DAC:
                 ShowText(hWnd, "Audio Input - Tuner");
@@ -1467,15 +1481,17 @@ BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             break;
 
         case IDM_SAVE_BY_FORMAT:
-            SaveInputSettings(TRUE);
+            SaveSettings(SETUP_CHANGE_VIDEOFORMAT);
             m_bSavePerFormat->SetValue(!m_bSavePerFormat->GetValue());
-            LoadInputSettings();
+            LoadSettings(SETUP_CHANGE_VIDEOFORMAT);
+            ChangeCardSettings(SETUP_CHANGE_VIDEOFORMAT);
             break;
 
         case IDM_SAVE_BY_INPUT:
-            SaveInputSettings(TRUE);
+            SaveSettings(SETUP_CHANGE_VIDEOINPUT);
             m_bSavePerInput->SetValue(!m_bSavePerInput->GetValue());
-            LoadInputSettings();
+            LoadSettings(SETUP_CHANGE_VIDEOINPUT);
+            ChangeCardSettings(SETUP_CHANGE_VIDEOINPUT);
             break;
 
         case IDM_SAVE_BY_CHANNEL:
@@ -1486,153 +1502,4 @@ BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             break;
     }
     return TRUE;
-}
-
-void CSAA7134Source::ChangeSectionNamesForInput()
-{
-    int Input = -1;
-    int Format = -1;
-
-    if(m_bSavePerInput->GetValue())
-    {
-        Input = m_VideoSource->GetValue();
-    }
-
-    if(m_bSavePerFormat->GetValue())
-    {
-        Format = m_VideoFormat->GetValue();
-    }
-
-    if(Input == -1 && Format == -1)
-    {
-        m_Brightness->SetSection(m_Section.c_str());
-        m_Contrast->SetSection(m_Section.c_str());
-        m_Hue->SetSection(m_Section.c_str());
-        m_Saturation->SetSection(m_Section.c_str());
-        m_Overscan->SetSection(m_Section.c_str());
-    }
-    else
-    {
-        char szSection[128];
-        sprintf(szSection, "%s_%d_%d", m_Section.c_str(), Input, Format);
-        m_Brightness->SetSection(szSection);
-        m_Contrast->SetSection(szSection);
-        m_Hue->SetSection(szSection);
-        m_Saturation->SetSection(szSection);
-        m_Overscan->SetSection(szSection);
-    }
-
-    ChangeDefaultsForInput();
-}
-
-void CSAA7134Source::ChangeDefaultsForInput()
-{
-    eVideoFormat format = GetFormat();
-    if(IsPALVideoFormat(format))
-    {
-        m_Saturation->ChangeDefault(SAA7134_DEFAULT_PAL_SATURATION);
-        m_Overscan->ChangeDefault(SAA7134_DEFAULT_PAL_OVERSCAN);
-    }
-    else if(IsNTSCVideoFormat(format))
-    {
-        m_Saturation->ChangeDefault(SAA7134_DEFAULT_NTSC_SATURATION);
-        m_Overscan->ChangeDefault(SAA7134_DEFAULT_NTSC_OVERSCAN);
-    }
-    else
-    {
-        m_Saturation->ChangeDefault(SAA7134_DEFAULT_SATURATION);
-        m_Overscan->ChangeDefault(SAA7134_DEFAULT_OVERSCAN);
-    }
-}
-
-
-void CSAA7134Source::LoadInputSettings()
-{
-    ChangeDefaultsForInput();
-
-    if (!SettingsPerChannel())
-    {
-        ChangeSectionNamesForInput();
-        m_Brightness->ReadFromIni();
-        m_Contrast->ReadFromIni();
-        m_Hue->ReadFromIni();
-        m_Saturation->ReadFromIni();
-        m_Overscan->ReadFromIni();
-    }
-
-    ChangeChannelSectionNames();
-}
-
-void CSAA7134Source::SaveInputSettings(BOOL bOptimizeFileAccess)
-{
-    if (!SettingsPerChannel())
-    {
-        m_Brightness->WriteToIni(bOptimizeFileAccess);
-        m_Contrast->WriteToIni(bOptimizeFileAccess);
-        m_Hue->WriteToIni(bOptimizeFileAccess);
-        m_Saturation->WriteToIni(bOptimizeFileAccess);
-        m_Overscan->WriteToIni(bOptimizeFileAccess);
-    }
-}
-
-
-void CSAA7134Source::ChangeChannelSectionNames()
-{
-    if (!m_SettingsByChannelStarted)
-    {
-        return;
-    }
-
-    std::string sOldSection = m_ChannelSubSection;
-
-    int Input = -1;
-    int Format = -1;
-
-    if(m_bSavePerInput->GetValue())
-    {
-        Input = m_VideoSource->GetValue();
-    }
-    if(m_bSavePerFormat->GetValue())
-    {
-        Format = m_VideoFormat->GetValue();
-    }
-
-    if(Input != -1 || Format != -1)
-    {
-        char szSection[100];
-        sprintf(szSection, "%s_%d_%d", m_Section.c_str(), Input, Format);
-        m_ChannelSubSection = szSection;
-    }
-    else
-    {
-        m_ChannelSubSection = m_Section;
-    }
-    if (sOldSection != m_ChannelSubSection)
-    {
-        if (sOldSection.size() > 0)
-        {
-            if (m_CurrentChannel >= 0)
-            {
-                SettingsPerChannel_SaveChannelSettings(sOldSection.c_str(), m_VideoSource->GetValue(), m_CurrentChannel, GetFormat());
-            }
-            SettingsPerChannel_UnregisterSection(sOldSection.c_str());
-        }
-
-        SettingsPerChannel_RegisterSetSection(m_ChannelSubSection.c_str());
-        SettingsPerChannel_RegisterSetting("Brightness", "SAA713x - Brightness",TRUE, m_Brightness);
-        SettingsPerChannel_RegisterSetting("Hue", "SAA713x - Hue", TRUE, m_Hue);
-        SettingsPerChannel_RegisterSetting("Contrast", "SAA713x - Contrast", TRUE, m_Contrast);
-        SettingsPerChannel_RegisterSetting("Saturation","SAA713x - Saturation",TRUE, m_Saturation);
-        SettingsPerChannel_RegisterSetting("Overscan", "SAA713x - Overscan", TRUE, m_Overscan);
-
-        SettingsPerChannel_RegisterSetting("AudioStandard", "SAA713x - Audio Standard", TRUE, m_AudioStandard);
-        SettingsPerChannel_RegisterSetting("AudioChannel", "SAA713x - Audio Channel", TRUE, m_AudioChannel);
-        SettingsPerChannel_RegisterSetting("HPLLMode", "SAA713x - Miscellaneous", TRUE, m_HPLLMode);
-
-        // SettingsPerChannel_RegisterSetting("Volume","SAA713x - Volume",TRUE, m_Volume);
-        // SettingsPerChannel_RegisterSetting("Balance","SAA713x - Balance",TRUE, m_Balance);
-
-        SettingsPerChannel_RegisterSetting("Delays", "SAA713x - H/V Delay", FALSE, m_HDelay);
-        SettingsPerChannel_RegisterSetting("Delays", "SAA713x - H/V Delay", FALSE, m_VDelay);
-    }
 }

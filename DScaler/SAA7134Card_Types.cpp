@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.10 2002-10-26 05:24:23 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.11 2002-10-28 11:10:13 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/10/26 05:24:23  atnak
+// Minor cleanups
+//
 // Revision 1.9  2002/10/26 04:41:44  atnak
 // Clean up + added auto card detection
 //
@@ -100,7 +103,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
                 AUDIOINPUTSOURCE_LINE1,
             },
         },
-        TUNER_USER_SETUP,
+        TUNER_ABSENT,
         AUDIOCRYSTAL_32110Hz,
         NULL,
         StandardSAA7134InputSelect,

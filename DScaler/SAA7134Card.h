@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.18 2002-10-26 15:37:57 adcockj Exp $
+// $Id: SAA7134Card.h,v 1.19 2002-10-28 11:10:15 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2002/10/26 15:37:57  adcockj
+// Made ITuner more abstract by removing inheritance from CI2CDevice
+// New class II2CTuner created for tuners that are controled by I2C
+//
 // Revision 1.17  2002/10/26 04:41:44  atnak
 // Clean up + added auto card detection
 //
@@ -298,7 +302,7 @@ public:
     eAudioChannel GetAudioChannel();
 
     void SetAudioMute();
-    void SetAudioUnMute(long nVolume);
+    void SetAudioUnMute();
     void SetAudioVolume(BYTE nVolume);
     void SetAudioBalance(WORD nBalance);
     void SetAudioBass(WORD nBass);

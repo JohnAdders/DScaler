@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_UI.cpp,v 1.2 2002-11-05 14:36:22 adcockj Exp $
+// $Id: BT848Source_UI.cpp,v 1.3 2002-11-28 21:37:26 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/11/05 14:36:22  adcockj
+// Remove bt848 advanced flags dialog, now replaced by generic one
+//
 // Revision 1.1  2002/10/29 11:05:27  adcockj
 // Renamed CT2388x to CX2388x
 //
@@ -918,7 +921,7 @@ BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam,
                     int nIndex;
                     nIndex = SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_ADDSTRING, 0, (LONG)pThis->m_pBT848Card->GetCardName((eTVCardId)i));
                     SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_SETITEMDATA, nIndex, i);
-                    if(i == pThis->m_CardType->GetValue())
+                    if(i == CardId)
                     {
                         SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_SETCURSEL, nIndex, 0);
                     }
@@ -936,7 +939,7 @@ BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam,
                 for (nIndex = 0; nIndex < TUNER_LASTONE; nIndex++)
                 {
                     i = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_TUNERSELECT), nIndex);
-                    if (i == pThis->m_TunerType->GetValue() )
+                    if (i == TunerId)
                     {          
                         SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETCURSEL, nIndex, 0);
                     }

@@ -1639,6 +1639,50 @@ ChannelHigh=80
      927250000
      935250000
      943250000
+     
+[Swedish UPC Cable Frequency]
+ChannelLow=1
+ChannelHigh=37
+Format=PAL-M
+; http://www.upc.se/upc/customer_service_TV_channelsetup_frequency.php
+; Frekvens       Nr  Kanal  Namn                    Plats
+  147000000; MHz 01) S7     Mezzo                   86/87 
+  154000000; MHz 02) S8     BBC Prime               87/88 
+  161000000; MHz 03) S9     TCM                     88/89 
+  161000000; MHz 04) S9     Cartoon Network         88/89 
+  168000000; MHz 05) S10    Viasat Action/Nature    89/90 
+  175000000; MHz 06) K5     SVT 1                   05 
+  182000000; MHz 07) K6     TV4                     06 
+  189000000; MHz 08) K7     SVT 2                   07 
+  196000000; MHz 09) K8     Öppna kanalen           08 
+  203000000; MHz 10) K9     UPCs infokanal          09 
+  210000000; MHz 11) K10    TV5                     10 
+  217000000; MHz 12) K11    Deutsche Welle          11 
+  231000000; MHz 13) S11    Hallmark                90/91 
+  238000000; MHz 14) S12    Eurosport               91/92 
+  245000000; MHz 15) S13    TV8                     92/93 
+  252000000; MHz 16) S14    ZTV                     93/94 
+  259000000; MHz 17) S15    Finlands TV             94/95 
+  266000000; MHz 18) S16    TV3                     95/96 
+  273000000; MHz 19) S17    CNN                     96/97 
+  280000000; MHz 20) S18    MTV                     97/98 
+  287000000; MHz 21) S19    Kanal 5                 98/99 
+  294000000; MHz 22) S20    Discovery               99/100 
+  303000000; MHz 23) S21    Horizont                101 
+  311000000; MHz 24) S22    TRT                     102 
+  319000000; MHz 25) S23    TVE                     103 
+  327000000; MHz 26) S24    ERT                     104 
+  335000000; MHz 27) S25    MBC                     105 
+  343000000; MHz 28) S26    TV Polonia              106 
+  351000000; MHz 29) S27    HRT1                    107 
+  359000000; MHz 30) S28    Canal+d                 108 
+  367000000; MHz 31) S29    Canal+ Gul              109 
+  375000000; MHz 32) S30    TV1000                  110 
+  383000000; MHz 33) S31    TV1000 Cinema           111 
+  391000000; MHz 34) S32    Extreme Sports Channel  112 
+  399000000; MHz 35) S33    BBC World               113 
+  407000000; MHz 36) S34    Viasat Sport            114  
+  415000000; MHz 37) S35    CNBC                    115
 
 [USA Cable Frequency]
 ChannelLow=1

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.47 2003-03-08 20:01:25 laurentg Exp $
+// $Id: CX2388xSource.cpp,v 1.48 2003-03-09 11:35:24 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.47  2003/03/08 20:01:25  laurentg
+// New setting "always sleep"
+//
 // Revision 1.46  2003/02/26 20:53:30  laurentg
 // New timing setting MaxFieldShift
 //
@@ -1259,7 +1262,7 @@ void CCX2388xSource::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
     int NewPos;
     int FieldDistance;
     int OldPos = (pInfo->CurrentFrame * 2 + m_IsFieldOdd + 1) % 10;
-    static int FieldCount(0);
+    static int FieldCount(-1);
     
     while(OldPos == (NewPos = m_pCard->GetRISCPos()))
     {
@@ -1292,7 +1295,7 @@ void CCX2388xSource::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
         Timing_AddDroppedFields(FieldDistance - 1);
         LOG(2, " Dropped %d Fields", FieldDistance - 1);
         Timing_Reset();
-        FieldCount = 0;
+        FieldCount = -1;
     }
 
     switch(NewPos)
@@ -1309,12 +1312,22 @@ void CCX2388xSource::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
     case 9: m_IsFieldOdd = FALSE; pInfo->CurrentFrame = 4; break;
     }
     
-    FieldCount += FieldDistance;
     // do input frequency on cleanish field changes only
-    if(FieldDistance == 1 && !bLate && FieldCount > 1)
+	if (FieldCount != -1)
+	{
+	    FieldCount += FieldDistance;
+	}
+    if(FieldDistance == 1 && !bLate)
     {
-        Timing_UpdateRunningAverage(pInfo, FieldCount);
-        FieldCount = 0;
+	    if(FieldCount > 1)
+		{
+	        Timing_UpdateRunningAverage(pInfo, FieldCount);
+	        FieldCount = 0;
+		}
+		else if (FieldCount == -1)
+		{
+	        FieldCount = 0;
+		}
     }
 
 	if (bAlwaysSleep || !bLate)
@@ -1331,7 +1344,7 @@ void CCX2388xSource::GetNextFieldAccurateProg(TDeinterlaceInfo* pInfo)
     int NewPos;
     int FieldDistance;
     int OldPos = (pInfo->CurrentFrame + 1) % m_NumFields;
-    static int FieldCount(0);
+    static int FieldCount(-1);
     
     while(OldPos == (NewPos = m_pCard->GetRISCPos()))
     {
@@ -1364,17 +1377,27 @@ void CCX2388xSource::GetNextFieldAccurateProg(TDeinterlaceInfo* pInfo)
         Timing_AddDroppedFields(FieldDistance - 1);
         LOG(2, " Dropped %d Fields", FieldDistance - 1);
         Timing_Reset();
-        FieldCount = 0;
+        FieldCount = -1;
     }
 
     pInfo->CurrentFrame = (NewPos + m_NumFields - 1) % m_NumFields;
     
-    FieldCount += FieldDistance;
     // do input frequency on cleanish field changes only
-    if(FieldDistance == 1 && !bLate && FieldCount > 1)
+	if (FieldCount != -1)
+	{
+	    FieldCount += FieldDistance;
+	}
+    if(FieldDistance == 1 && !bLate)
     {
-        Timing_UpdateRunningAverage(pInfo, FieldCount);
-        FieldCount = 0;
+	    if(FieldCount > 1)
+		{
+	        Timing_UpdateRunningAverage(pInfo, FieldCount);
+	        FieldCount = 0;
+		}
+		else if (FieldCount == -1)
+		{
+	        FieldCount = 0;
+		}
     }
 
 	if (bAlwaysSleep || !bLate)

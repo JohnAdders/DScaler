@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.118 2003-03-08 20:01:24 laurentg Exp $
+// $Id: BT848Source.cpp,v 1.119 2003-03-09 11:35:24 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.118  2003/03/08 20:01:24  laurentg
+// New setting "always sleep"
+//
 // Revision 1.117  2003/02/26 20:53:25  laurentg
 // New timing setting MaxFieldShift
 //
@@ -1361,7 +1364,7 @@ void CBT848Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
     int NewPos;
     int FieldDistance;
     int OldPos = (pInfo->CurrentFrame * 2 + m_IsFieldOdd + 1) % 10;
-    static int FieldCount(0);
+    static int FieldCount(-1);
     
     while(OldPos == (NewPos = GetRISCPosAsInt()))
     {
@@ -1394,7 +1397,7 @@ void CBT848Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
         Timing_AddDroppedFields(FieldDistance - 1);
         LOG(2, " Dropped %d Fields", FieldDistance - 1);
         Timing_Reset();
-        FieldCount = 0;
+        FieldCount = -1;
     }
 
     switch(NewPos)
@@ -1411,12 +1414,22 @@ void CBT848Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
     case 9: m_IsFieldOdd = FALSE; pInfo->CurrentFrame = 4; break;
     }
     
-    FieldCount += FieldDistance;
     // do input frequency on cleanish field changes only
-    if(FieldDistance == 1 && !bLate && FieldCount > 1)
+	if (FieldCount != -1)
+	{
+	    FieldCount += FieldDistance;
+	}
+    if(FieldDistance == 1 && !bLate)
     {
-        Timing_UpdateRunningAverage(pInfo, FieldCount);
-        FieldCount = 0;
+	    if(FieldCount > 1)
+		{
+	        Timing_UpdateRunningAverage(pInfo, FieldCount);
+	        FieldCount = 0;
+		}
+		else if (FieldCount == -1)
+		{
+	        FieldCount = 0;
+		}
     }
 
 	if (bAlwaysSleep || !bLate)

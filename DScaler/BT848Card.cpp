@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.23 2002-08-07 21:53:04 adcockj Exp $
+// $Id: BT848Card.cpp,v 1.24 2002-09-12 22:01:26 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2002/08/07 21:53:04  adcockj
+// Removed todo item
+//
 // Revision 1.22  2002/06/16 18:54:59  robmuller
 // ACPI powersafe support.
 //
@@ -181,9 +184,8 @@ static BYTE SRAMTable_PAL[ 60 ] =
 
 
 CBT848Card::CBT848Card(CHardwareDriver* pDriver) :
-	CPCICard(pDriver),
+    CPCICard(pDriver),
     m_CardType(TVCARD_UNKNOWN),
-    m_bHasMSP(false),
     m_Tuner(NULL)
 {
     strcpy(m_TunerType,"n/a");
@@ -191,16 +193,16 @@ CBT848Card::CBT848Card(CHardwareDriver* pDriver) :
 
     m_I2CInitialized = false;
     m_I2CBus = new CI2CBusForLineInterface(this);
-    m_AudioControls = new CNoAudioControls();
+    m_AudioControls = new CAudioControls();
     m_AudioDecoder = new CAudioDecoder();
 }
 
 CBT848Card::~CBT848Card()
 {
-	delete m_I2CBus;
-	delete m_AudioDecoder;
-	delete m_AudioControls;
-	delete m_Tuner;
+    delete m_I2CBus;
+    delete m_AudioDecoder;
+    delete m_AudioControls;
+    delete m_Tuner;
 
     ClosePCICard();
 }

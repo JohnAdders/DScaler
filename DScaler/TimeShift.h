@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.h,v 1.5 2001-07-27 15:52:26 ericschmidt Exp $
+// $Id: TimeShift.h,v 1.6 2001-08-06 03:00:17 ericschmidt Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/07/27 15:52:26  ericschmidt
+// P3-or-better handling.
+// Preliminary pixel-width auto-setting on playback.
+//
 // Revision 1.4  2001/07/26 15:28:14  ericschmidt
 // Added AVI height control, i.e. even/odd/averaged lines.
 // Used existing cpu/mmx detection in TimeShift code.
@@ -77,8 +81,8 @@ public:
 
     // Standard control method.
     static bool OnRecord(void);
+    static bool OnPause(void);
     static bool OnPlay(void);
-    static bool OnPause(void) { return false; } // Not yet implemented.
     static bool OnStop(void);
     static bool OnFastForward(void) { return false; } // Not yet implemented.
     static bool OnFastBackward(void) { return false; } // Not yet implemented.
@@ -95,6 +99,10 @@ public:
 
     // Call this to update the radio check in the timeshift submenu.
     static bool OnSetMenu(HMENU hMenu);
+
+    static LPBYTE(*m_YUVtoRGB)(LPBYTE dest,short *src,DWORD w);
+    static LPBYTE(*m_AvgYUVtoRGB)(LPBYTE dest,short *src1,short *src2,DWORD w);
+    static LPBYTE(*m_RGBtoYUV)(short *dest,LPBYTE src,DWORD w);
 
 // Implementation
 private:
@@ -117,8 +125,15 @@ private:
     // Called from within the options dialog to popup compression dialog.
     static bool OnCompressionOptions(void);
 
-    bool StartRecord(void);
-    bool StartPlay(void);
+    // A thread-safe wrapper for setting CurrentX.
+    static bool SetBT848PixelWidth(int pixelWidth);
+
+    // A wrapper for using the MixerDev for muting during pause/shifting.
+    static bool DoMute(bool mute);
+
+    // Start recording, with the option of pausing live TV.
+    bool Record(bool pause);
+    bool Play(void);
     bool Stop(void);
     bool GoNext(void);
     bool GoPrev(void);
@@ -141,8 +156,6 @@ private:
     bool ReadFromIni(void);
     bool WriteToIni(void);
 
-    static bool SetBT848PixelWidth(int pixelWidth);
-
     static TimeShift *m_pTimeShift;
 
     CRITICAL_SECTION m_lock; // Audio and video come from different threads.
@@ -163,11 +176,10 @@ private:
     int m_curFile;
 
     BITMAPINFOHEADER m_bih;
-    int m_w;
-    int m_h;
-    const int m_bpp;
-    int m_pitch;
-    LPBYTE m_bits;
+    LPBITMAPINFOHEADER m_lpbi;
+    LPBYTE m_recordBits;
+    LPBYTE m_playBits; // We'll decode the compressed bits into here.
+    bool m_gotPauseBits;
 
     WAVEFORMATEX m_waveFormat;
 
@@ -176,16 +188,20 @@ private:
 	PAVISTREAM m_psAudio;
 	PAVISTREAM m_psCompressedVideo;
 	PAVISTREAM m_psCompressedAudio;
+	PAVISTREAM m_psCompressedVideoP;
+	PAVISTREAM m_psCompressedAudioP;
     AVISTREAMINFO m_infoVideo;
     AVISTREAMINFO m_infoAudio;
     PGETFRAME m_pGetFrame;
 	AVICOMPRESSOPTIONS m_optsVideo;
-    bool m_bSetOpts;
+    bool m_setOpts;
 
-    DWORD m_startTime;
-    DWORD m_thisTime;
-    DWORD m_lastTime;
-    DWORD m_nextSample;
+    DWORD m_startTimeRecord;
+    DWORD m_startTimePlay;
+    DWORD m_thisTimeRecord;
+    DWORD m_thisTimePlay;
+    DWORD m_nextSampleRecord;
+    DWORD m_nextSamplePlay;
 
     // FIXME: Make the 4 and 1<<17 semi-configurable in an advanced dialog?
     // The lower the numbers, the more "skipping" in the avi audio.
@@ -205,6 +221,7 @@ private:
 
     int m_recHeight; // One of TS_*HEIGHT* #defines above.
     int m_origPixelWidth; // What it was before we changed it.
+    BOOL m_origUseMixer; // What it was before we changed it.
 };
 
 #endif // __TIMESHIFT_H___

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TSOptionsDlg.cpp,v 1.4 2001-07-26 15:28:14 ericschmidt Exp $
+// $Id: TSOptionsDlg.cpp,v 1.5 2001-08-06 03:00:17 ericschmidt Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -26,6 +26,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/07/26 15:28:14  ericschmidt
+// Added AVI height control, i.e. even/odd/averaged lines.
+// Used existing cpu/mmx detection in TimeShift code.
+//
 // Revision 1.3  2001/07/24 12:25:49  adcockj
 // Added copyright notice as per standards
 //
@@ -42,6 +46,7 @@
 #include "DScaler.h"
 #include "TSOptionsDlg.h"
 #include "TimeShift.h"
+#include "MixerDev.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -72,13 +77,13 @@ void CTSOptionsDlg::DoDataExchange(CDataExchange* pDX)
 	//}}AFX_DATA_MAP
     if (pDX->m_bSaveAndValidate)
     {
-        if (IsChecked(IDC_FULLHEIGHTRADIO))
+        if (IsChecked(IDC_TSFULLHEIGHTRADIO))
             m_RecHeight = TS_FULLHEIGHT;
-        else if (IsChecked(IDC_HALFEVENRADIO))
+        else if (IsChecked(IDC_TSHALFEVENRADIO))
             m_RecHeight = TS_HALFHEIGHTEVEN;
-        else if (IsChecked(IDC_HALFODDRADIO))
+        else if (IsChecked(IDC_TSHALFODDRADIO))
             m_RecHeight = TS_HALFHEIGHTODD;
-        else if (IsChecked(IDC_HALFAVERAGEDRADIO))
+        else if (IsChecked(IDC_TSHALFAVERAGEDRADIO))
             m_RecHeight = TS_HALFHEIGHTAVG;
     }
     else
@@ -86,32 +91,32 @@ void CTSOptionsDlg::DoDataExchange(CDataExchange* pDX)
         switch (m_RecHeight)
         {
         case TS_FULLHEIGHT:
-            SetChecked(IDC_FULLHEIGHTRADIO, TRUE);
-            SetChecked(IDC_HALFEVENRADIO, FALSE);
-            SetChecked(IDC_HALFODDRADIO, FALSE);
-            SetChecked(IDC_HALFAVERAGEDRADIO, FALSE);
+            SetChecked(IDC_TSFULLHEIGHTRADIO, TRUE);
+            SetChecked(IDC_TSHALFEVENRADIO, FALSE);
+            SetChecked(IDC_TSHALFODDRADIO, FALSE);
+            SetChecked(IDC_TSHALFAVERAGEDRADIO, FALSE);
             break;
 
         default:
         case TS_HALFHEIGHTEVEN:
-            SetChecked(IDC_HALFEVENRADIO, TRUE);
-            SetChecked(IDC_FULLHEIGHTRADIO, FALSE);
-            SetChecked(IDC_HALFODDRADIO, FALSE);
-            SetChecked(IDC_HALFAVERAGEDRADIO, FALSE);
+            SetChecked(IDC_TSHALFEVENRADIO, TRUE);
+            SetChecked(IDC_TSFULLHEIGHTRADIO, FALSE);
+            SetChecked(IDC_TSHALFODDRADIO, FALSE);
+            SetChecked(IDC_TSHALFAVERAGEDRADIO, FALSE);
             break;
 
         case TS_HALFHEIGHTODD:
-            SetChecked(IDC_HALFODDRADIO, TRUE);
-            SetChecked(IDC_FULLHEIGHTRADIO, FALSE);
-            SetChecked(IDC_HALFEVENRADIO, FALSE);
-            SetChecked(IDC_HALFAVERAGEDRADIO, FALSE);
+            SetChecked(IDC_TSHALFODDRADIO, TRUE);
+            SetChecked(IDC_TSFULLHEIGHTRADIO, FALSE);
+            SetChecked(IDC_TSHALFEVENRADIO, FALSE);
+            SetChecked(IDC_TSHALFAVERAGEDRADIO, FALSE);
             break;
 
         case TS_HALFHEIGHTAVG:
-            SetChecked(IDC_HALFAVERAGEDRADIO, TRUE);
-            SetChecked(IDC_FULLHEIGHTRADIO, FALSE);
-            SetChecked(IDC_HALFEVENRADIO, FALSE);
-            SetChecked(IDC_HALFODDRADIO, FALSE);
+            SetChecked(IDC_TSHALFAVERAGEDRADIO, TRUE);
+            SetChecked(IDC_TSFULLHEIGHTRADIO, FALSE);
+            SetChecked(IDC_TSHALFEVENRADIO, FALSE);
+            SetChecked(IDC_TSHALFODDRADIO, FALSE);
             break;
         }
     }
@@ -122,9 +127,11 @@ BEGIN_MESSAGE_MAP(CTSOptionsDlg, CDialog)
 	//{{AFX_MSG_MAP(CTSOptionsDlg)
 	ON_BN_CLICKED(IDC_TSCOMPRESSIONBUTTON, OnButtonCompression)
 	ON_BN_CLICKED(IDOK, OnButtonOK)
-	ON_BN_CLICKED(IDC_COMPRESSIONHELP, OnCompressionhelp)
-	ON_BN_CLICKED(IDC_WAVEOUTHELP, OnWaveouthelp)
-	ON_BN_CLICKED(IDC_HEIGHTHELP, OnHeighthelp)
+	ON_BN_CLICKED(IDC_TSCOMPRESSIONHELP, OnCompressionhelp)
+	ON_BN_CLICKED(IDC_TSWAVEHELP, OnWavehelp)
+	ON_BN_CLICKED(IDC_TSHEIGHTHELP, OnHeighthelp)
+	ON_BN_CLICKED(IDC_TSMIXERHELP, OnMixerhelp)
+	ON_BN_CLICKED(IDC_TSMIXERBUTTON, OnButtonMixer)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -172,6 +179,12 @@ void CTSOptionsDlg::OnButtonCompression()
         TimeShift::OnCompressionOptions();
         options = false;
     }
+}
+
+void CTSOptionsDlg::OnButtonMixer() 
+{
+    // Bring up the audio mixer setup dialog.
+    Mixer_SetupDlg(m_hWnd);
 }
 
 void CTSOptionsDlg::OnButtonOK() 
@@ -250,13 +263,13 @@ void CTSOptionsDlg::OnCompressionhelp()
                MB_OK);
 }
 
-void CTSOptionsDlg::OnWaveouthelp() 
+void CTSOptionsDlg::OnWavehelp() 
 {
     MessageBox("Choose the device to which your tuner card is directly "
                "attached.  (i.e. via an internal stereo patch cable.)  But "
                "feel free to try all your devices if you don't get audio "
                "recording/playback from the AVI.",
-               "WaveOut Device Help",
+               "Wave Device Help",
                MB_OK);
 }
 
@@ -267,7 +280,23 @@ void CTSOptionsDlg::OnHeighthelp()
                "the available image data, but these are the fastest.  "
                "Averaging will help to remove the pixelated look of 1/2 height "
                "recording, and it's only slightly slower than using only "
-               "the Even or Odd lines.",
+               "the Even or Odd lines.\n\n"
+               "NOTE: This only applys to straight recording.  During time "
+               "shifting operations (i.e. pausing of live TV), 1/2-height Even "
+               "will be used.",
                "Recording Height Help",
+               MB_OK);
+}
+
+void CTSOptionsDlg::OnMixerhelp() 
+{
+    MessageBox("The audio mixer is used during playback to mute the input from "
+               "your tuner card, yet still receive audio from it for recording "
+               "during time shifting operations (i.e. pausing of live TV).  "
+               "You do not need to have the 'Use Mixer' checkbox checked, but "
+               "you do need to have all of the combo boxes below it set to "
+               "the correct input in order for playback of audio to function "
+               "correctly.",
+               "Audio-Mixer Setup Help",
                MB_OK);
 }

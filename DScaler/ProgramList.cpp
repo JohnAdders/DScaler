@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.29 2001-08-05 16:31:34 adcockj Exp $
+// $Id: ProgramList.cpp,v 1.30 2001-08-06 03:00:17 ericschmidt Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2001/08/05 16:31:34  adcockj
+// Fixed crashing with PgUp
+//
 // Revision 1.28  2001/07/16 18:07:50  adcockj
 // Added Optimisation parameter to ini file saving
 //
@@ -938,6 +941,7 @@ void Channel_Change(int NewChannel)
             if (MyChannels[NewChannel]->GetFrequency() != 0)
             {
                 Audio_Mute();
+                Sleep(100); // This helps reduce the static click noise.
                 PreviousProgramm = CurrentProgramm;
                 CurrentProgramm = NewChannel;
                 if(MyChannels[CurrentProgramm]->GetFormat() != -1)

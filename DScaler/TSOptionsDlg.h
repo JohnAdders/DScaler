@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TSOptionsDlg.h,v 1.4 2001-07-26 15:28:14 ericschmidt Exp $
+// $Id: TSOptionsDlg.h,v 1.5 2001-08-06 03:00:17 ericschmidt Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -26,6 +26,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/07/26 15:28:14  ericschmidt
+// Added AVI height control, i.e. even/odd/averaged lines.
+// Used existing cpu/mmx detection in TimeShift code.
+//
 // Revision 1.3  2001/07/24 12:25:49  adcockj
 // Added copyright notice as per standards
 //
@@ -85,8 +89,10 @@ protected:
 	afx_msg void OnButtonOK();
 	virtual BOOL OnInitDialog();
 	afx_msg void OnCompressionhelp();
-	afx_msg void OnWaveouthelp();
+	afx_msg void OnWavehelp();
 	afx_msg void OnHeighthelp();
+	afx_msg void OnMixerhelp();
+	afx_msg void OnButtonMixer();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 

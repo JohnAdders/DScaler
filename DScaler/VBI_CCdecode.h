@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_CCdecode.h,v 1.5 2001-07-13 16:14:56 adcockj Exp $
+// $Id: VBI_CCdecode.h,v 1.6 2003-01-01 20:32:39 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 1998 Timecop.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -79,8 +79,8 @@ typedef struct
     TCCChar ScreenData[15][CC_CHARS_PER_LINE];
 } TCCScreen;
 
-int CC_DecodeLine(BYTE* vbiline, eCCMode CCMode, BOOL IsOdd);
 void CC_PaintScreen(HWND hWnd, TCCScreen* Screen, HDC hDC, RECT* PaintRect);
+int VBI_DecodeLine_CC(BYTE* vbiline, eCCMode CCMode, BOOL IsOdd);
 
 
 #endif

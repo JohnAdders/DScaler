@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_CCdecode.cpp,v 1.13 2002-12-06 10:30:02 adcockj Exp $
+// $Id: VBI_CCdecode.cpp,v 1.14 2003-01-01 20:32:39 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Mike Baker.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/12/06 10:30:02  adcockj
+// Pop On Captioning Fix from Kevin Radke
+//
 // Revision 1.12  2002/11/28 21:29:52  adcockj
 // Patch from Kevin Radke
 //  Closed Caption position and color fixes
@@ -784,7 +787,7 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
     return 0;
 }
 
-int CC_DecodeLine(BYTE* vbiline, eCCMode CCMode, BOOL IsOdd)
+int VBI_DecodeLine_CC(BYTE* vbiline, eCCMode CCMode, BOOL IsOdd)
 {
     if(!IsOdd)
     {

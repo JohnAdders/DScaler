@@ -453,6 +453,10 @@ SOURCE=.\HardwareSettings.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\HierarchicalConfigParser.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\HSListBox.cpp
 # End Source File
 # Begin Source File
@@ -1186,6 +1190,10 @@ SOURCE=.\HardwareMemory.h
 # Begin Source File
 
 SOURCE=.\HardwareSettings.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\HierarchicalConfigParser.h
 # End Source File
 # Begin Source File
 

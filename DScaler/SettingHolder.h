@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingHolder.h,v 1.8 2003-10-27 10:39:54 adcockj Exp $
+// $Id: SettingHolder.h,v 1.9 2004-08-06 16:23:02 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -75,7 +75,7 @@ public:
     ~CSettingsHolderStandAlone();
     void CreateSettings(LPCSTR IniSection){;};
 
-    ISetting* operator[](int i) { if ((i>=0) && (i<m_Settings.size())) { return m_Settings[i]; } return NULL; }
+    ISetting* operator[](int i) { if ((i>=0) && ((size_t)i<m_Settings.size())) { return m_Settings[i]; } return NULL; }
 };
 #endif
 

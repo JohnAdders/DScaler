@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_Audio.cpp,v 1.18 2003-10-27 10:39:54 adcockj Exp $
+// $Id: SAA7134Source_Audio.cpp,v 1.19 2004-08-06 16:23:02 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2003/10/27 10:39:54  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.17  2003/06/01 19:42:32  atnak
 // Adds "external" sound type for either stereo or mono
 //
@@ -225,17 +228,17 @@ void CSAA7134Source::VolumeOnChange(long NewValue, long OldValue)
 
 void CSAA7134Source::BalanceOnChange(long NewValue, long OldValue)
 {
-    m_pSAA7134Card->SetAudioBalance(NewValue);
+    m_pSAA7134Card->SetAudioBalance((WORD)NewValue);
 }
 
 void CSAA7134Source::BassOnChange(long NewValue, long OldValue)
 {
-    m_pSAA7134Card->SetAudioBass(NewValue);
+    m_pSAA7134Card->SetAudioBass((WORD)NewValue);
 }
 
 void CSAA7134Source::TrebleOnChange(long NewValue, long OldValue)
 {
-    m_pSAA7134Card->SetAudioTreble(NewValue);
+    m_pSAA7134Card->SetAudioTreble((WORD)NewValue);
 }
 
 void CSAA7134Source::AudioStandardOnChange(long NewValue, long OldValue)

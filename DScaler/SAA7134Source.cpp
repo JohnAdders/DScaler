@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.90 2004-04-24 11:13:25 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.91 2004-08-06 16:23:00 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.90  2004/04/24 11:13:25  atnak
+// fixed memory page table boundary checking code
+//
 // Revision 1.89  2004/04/06 12:20:48  adcockj
 // Added .NET 2003 project files and some fixes to support this
 //
@@ -665,8 +668,8 @@ void CSAA7134Source::Reset()
 
     SetupVideoSource();
 
-    m_pSAA7134Card->SetVideoMirror(m_VideoMirror->GetValue());
-    m_pSAA7134Card->SetVBIGeometry(m_VBIUpscaleDivisor->GetValue());
+    m_pSAA7134Card->SetVideoMirror((WORD)m_VideoMirror->GetValue());
+    m_pSAA7134Card->SetVBIGeometry((WORD)m_VBIUpscaleDivisor->GetValue());
     m_pSAA7134Card->SetAutomaticVolume((eAutomaticVolume)m_AutomaticVolumeLevel->GetValue());
     m_pSAA7134Card->SetAudioLine1Voltage((eAudioLineVoltage)m_AudioLine1Voltage->GetValue());
     m_pSAA7134Card->SetAudioLine2Voltage((eAudioLineVoltage)m_AudioLine2Voltage->GetValue());
@@ -678,7 +681,7 @@ void CSAA7134Source::SetupVideoSource()
     m_pSAA7134Card->SetVideoSource(m_VideoSource->GetValue());
 
     m_pSAA7134Card->SetAutomaticGainControl(m_AutomaticGainControl->GetValue());
-    m_pSAA7134Card->SetGainControl(m_GainControlLevel->GetValue());
+    m_pSAA7134Card->SetGainControl((WORD)m_GainControlLevel->GetValue());
 
     m_pSAA7134Card->SetHPLLMode((eHPLLMode)m_HPLLMode->GetValue());
 
@@ -706,10 +709,10 @@ void CSAA7134Source::SetupVideoStandard()
                                     m_VDelay->GetValue(),
                                     m_VBIUpscaleDivisor->GetValue());
 
-    m_pSAA7134Card->SetBrightness(m_Brightness->GetValue());
-    m_pSAA7134Card->SetContrast(m_Contrast->GetValue());
-    m_pSAA7134Card->SetSaturation(m_Saturation->GetValue());
-    m_pSAA7134Card->SetHue(m_Hue->GetValue());
+    m_pSAA7134Card->SetBrightness((BYTE)m_Brightness->GetValue());
+    m_pSAA7134Card->SetContrast((BYTE)m_Contrast->GetValue());
+    m_pSAA7134Card->SetSaturation((BYTE)m_Saturation->GetValue());
+    m_pSAA7134Card->SetHue((BYTE)m_Hue->GetValue());
     m_pSAA7134Card->SetCombFilter((eCombFilter)m_AdaptiveCombFilter->GetValue());
 
     NotifySizeChange();
@@ -1192,16 +1195,16 @@ void CSAA7134Source::PerformSmartSleep(ULONGLONG* pPerformanceTick, ULONGLONG* p
         if (WaitTimeSpent > m_MinimumFieldDelay)
         {
             // Wait blindly with 1ms delays
-            SleepTime = (m_PerformanceFrequency * 0.001);
+            SleepTime = (ULONG)(m_PerformanceFrequency * 0.001);
         }
         else
         {
             // Sleep for three quarters of the remaining time
-            SleepTime = (m_MinimumFieldDelay - WaitTimeSpent) * 3 / 4;
+            SleepTime = (ULONG)((m_MinimumFieldDelay - WaitTimeSpent) * 3 / 4);
         }
 
         // NOTE: Sleep is not very accurate with only 10ms accuracy
-        Sleep(SleepTime * 1000 / m_PerformanceFrequency);
+        Sleep((DWORD)(SleepTime * 1000 / m_PerformanceFrequency));
 
         *pPerformanceTick = PerformanceCount;
         *pTimePassed = WaitTimeSpent;
@@ -1229,7 +1232,7 @@ void CSAA7134Source::UpdateSmartSleep(BOOL bRecalculate, ULONGLONG LastTick, ULO
             if (TimePassed * 1000 / m_PerformanceFrequency > 30)
             {
                 // reset to 10ms
-                m_MinimumFieldDelay = (m_PerformanceFrequency * 0.010);
+                m_MinimumFieldDelay = (ULONG)(m_PerformanceFrequency * 0.010);
             }
             else
             {
@@ -1688,10 +1691,10 @@ void CSAA7134Source::PixelWidthOnChange(long NewValue, long OldValue)
     Stop_Capture();
     m_CurrentX = NewValue;
 
-    m_pSAA7134Card->SetGeometry(m_CurrentX,
-                                m_CurrentY,
-                                m_HDelay->GetValue(),
-                                m_VDelay->GetValue());
+    m_pSAA7134Card->SetGeometry((WORD)m_CurrentX,
+                                (WORD)m_CurrentY,
+                                (WORD)m_HDelay->GetValue(),
+                                (WORD)m_VDelay->GetValue());
     NotifySizeChange();
 
     Start_Capture();
@@ -1704,7 +1707,7 @@ void CSAA7134Source::HDelayOnChange(long HDelay, long OldValue)
 	// Call to Stop_Capture put in comments
 	// We must check if this call was really necessary
     //Stop_Capture();
-    m_pSAA7134Card->SetGeometry(m_CurrentX, m_CurrentY, HDelay, m_VDelay->GetValue());
+    m_pSAA7134Card->SetGeometry((WORD)m_CurrentX, (WORD)m_CurrentY, (WORD)HDelay, (WORD)m_VDelay->GetValue());
 	// Laurent 06/15/2003
 	// Call to Start_Capture put in comments
 	// We must check if this call was really necessary
@@ -1740,7 +1743,7 @@ void CSAA7134Source::VDelayOnChange(long VDelay, long OldValue)
 	// Call to Stop_Capture put in comments
 	// We must check if this call was really necessary
     //Stop_Capture();
-    m_pSAA7134Card->SetGeometry(m_CurrentX, m_CurrentY, m_HDelay->GetValue(), VDelay);
+    m_pSAA7134Card->SetGeometry((WORD)m_CurrentX, (WORD)m_CurrentY, (WORD)m_HDelay->GetValue(), (WORD)VDelay);
 	// Laurent 06/15/2003
 	// Call to Start_Capture put in comments
 	// We must check if this call was really necessary
@@ -1750,25 +1753,25 @@ void CSAA7134Source::VDelayOnChange(long VDelay, long OldValue)
 
 void CSAA7134Source::BrightnessOnChange(long Brightness, long OldValue)
 {
-    m_pSAA7134Card->SetBrightness(Brightness);
+    m_pSAA7134Card->SetBrightness((BYTE)Brightness);
 }
 
 
 void CSAA7134Source::HueOnChange(long Hue, long OldValue)
 {
-    m_pSAA7134Card->SetHue(Hue);
+    m_pSAA7134Card->SetHue((BYTE)Hue);
 }
 
 
 void CSAA7134Source::ContrastOnChange(long Contrast, long OldValue)
 {
-    m_pSAA7134Card->SetContrast(Contrast);
+    m_pSAA7134Card->SetContrast((BYTE)Contrast);
 }
 
 
 void CSAA7134Source::SaturationOnChange(long Sat, long OldValue)
 {
-    m_pSAA7134Card->SetSaturation(Sat);
+    m_pSAA7134Card->SetSaturation((BYTE)Sat);
 }
 
 
@@ -1830,7 +1833,7 @@ void CSAA7134Source::AdaptiveCombFilterOnChange(long NewValue, long OldValue)
 void CSAA7134Source::VBIUpscaleDivisorOnChange(long NewValue, long OldValue)
 {
     Stop_Capture();
-    m_pSAA7134Card->SetVBIGeometry(NewValue);
+    m_pSAA7134Card->SetVBIGeometry((WORD)NewValue);
     Start_Capture();
 }
 
@@ -1843,7 +1846,7 @@ void CSAA7134Source::AutomaticGainControlOnChange(long NewValue, long OldValue)
 
 void CSAA7134Source::GainControlLevelOnChange(long NewValue, long OldValue)
 {
-    m_pSAA7134Card->SetGainControl(NewValue);
+    m_pSAA7134Card->SetGainControl((WORD)NewValue);
 }
 
 

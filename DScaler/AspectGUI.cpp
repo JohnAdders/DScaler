@@ -608,7 +608,9 @@ void PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect)
 	IntersectRect(&r, &r2, PaintRect);
 	FillRect(hDC, &r, black);
 
-	if (aspectSettings.overlayNeedsSetting) { // MRS 2-22-01
+	if (aspectSettings.overlayNeedsSetting)
+    { 
+        // MRS 2-22-01
 		// Intended to prevent purple flashing by setting overlay
 		// after drawing black but before drawing purple.
 		Overlay_Update(&aspectSettings.sourceRectangle, &aspectSettings.destinationRectangleWindow, DDOVER_SHOW);
@@ -616,7 +618,15 @@ void PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect)
 		// Wait till current frame is done before drawing purple...
 		// Overlay changes do not seem to take place (at least on a GeForce)
 		// until the VBI...so need to wait to avoid purple flashing
-		if (lpDD != NULL) lpDD->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN, NULL);
+
+        // JA 29/6/2001 made wait for blank optional and swicthed off
+        // the flashing has been much reduced by using dark grey as
+        // overlay colour.  Also this may cause the pausing effect
+        // on Teletext and CC
+		if (lpDD != NULL && aspectSettings.bWaitForVerticalBlank == TRUE)
+        {
+            lpDD->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN, NULL);
+        }
 	}
 
 	// Draw overlay color in the middle.
@@ -967,6 +977,12 @@ SETTING AspectSettings[ASPECT_SETTING_LASTONE] =
 		16, 0, 255, 1, 1,
 		NULL,
 		"ASPECT", "ChromaRange", ChromaRange_OnChange,
+	},
+	{
+		"Wait for Vertical Blank While Drawing", ONOFF, 0, (long*)&aspectSettings.bWaitForVerticalBlank,
+		FALSE, 0, 1, 1, 1,
+		NULL,
+		"ASPECT", "WaitForVerticalBlank", NULL,
 	},
 };
 

@@ -188,6 +188,9 @@ typedef struct
 	long yZoomFactor;
 	long xZoomCenter;
 	long yZoomCenter;
+
+    // WaitForVerticalBlank
+    BOOL bWaitForVerticalBlank;
 } TAspectSettingsStruct;
 
 extern TAspectSettingsStruct aspectSettings;

@@ -26,6 +26,8 @@ FILTER_METHOD GammaMethod;
 
 long Gamma = 1300;
 BOOL bUseStoredTable = FALSE;
+long BlackLevel = 0;
+long WhiteLevel = 255;
 
 BOOL FilterGamma(DEINTERLACE_INFO *info)
 {
@@ -79,7 +81,18 @@ LOOP_LABEL:
 
 double GetGammaAdjustedValue(double Input, double Gamma)
 {
-	return pow(Input, Gamma);
+    if(Input <= 0.0)
+    {
+        return 0.0;
+    }
+    else if(Input >= 1.0)
+    {
+        return 1.0;
+    }
+    else
+    {
+    	return pow(Input, Gamma);
+    }
 }
 
 BOOL Gamma_OnChange(long NewValue)
@@ -92,12 +105,25 @@ BOOL Gamma_OnChange(long NewValue)
 	{
 		for (i = 0;  i < 256; i++)
 		{
-			AdjustedValue = 255.0 * GetGammaAdjustedValue((double)(i) / 255.0, (double)Gamma / 1000.0);
+			AdjustedValue = 255.0 * GetGammaAdjustedValue((double)(i - BlackLevel) / (double)(WhiteLevel - BlackLevel), (double)Gamma / 1000.0);
 			GammaTable[i] = (unsigned char)AdjustedValue;
 		}
 	}
 	return FALSE;
 }
+
+BOOL BlackLevel_OnChange(long NewValue)
+{
+    BlackLevel = NewValue;
+    return Gamma_OnChange(Gamma);
+}
+
+BOOL WhiteLevel_OnChange(long NewValue)
+{
+    WhiteLevel = NewValue;
+    return Gamma_OnChange(Gamma);
+}
+
 
 BOOL UseStoredTable_OnChange(long NewValue)
 {
@@ -145,6 +171,18 @@ SETTING FLT_GammaSettings[FLT_GAMMA_SETTING_LASTONE] =
 		FALSE, 0, 1, 1, 1,
 		NULL,
 		"GammaFilter", "UseGammaFilter", NULL,
+	},
+	{
+		"Black Level", SLIDER, 0, &BlackLevel,
+		0, 0, 255, 10, 1000,
+		NULL,
+		"GammaFilter", "BlackLevel", BlackLevel_OnChange,
+	},
+	{
+		"White Level", SLIDER, 0, &WhiteLevel,
+		255, 0, 255, 10, 1000,
+		NULL,
+		"GammaFilter", "WhiteLevel", WhiteLevel_OnChange,
 	},
 };
 

@@ -116,27 +116,27 @@
 //
 typedef enum
 {
-	SOURCE_TUNER = 0,
-	SOURCE_COMPOSITE,
-	SOURCE_SVIDEO,
-	SOURCE_OTHER1,
-	SOURCE_OTHER2,
-	SOURCE_COMPVIASVIDEO,
-	SOURCE_CCIR656_1,
-	SOURCE_CCIR656_2,
-	SOURCE_CCIR656_3,
-	SOURCE_CCIR656_4,
+    SOURCE_TUNER = 0,
+    SOURCE_COMPOSITE,
+    SOURCE_SVIDEO,
+    SOURCE_OTHER1,
+    SOURCE_OTHER2,
+    SOURCE_COMPVIASVIDEO,
+    SOURCE_CCIR656_1,
+    SOURCE_CCIR656_2,
+    SOURCE_CCIR656_3,
+    SOURCE_CCIR656_4,
 } VIDEOSOURCETYPE;
 
 typedef enum
 {
-	FORMAT_PAL_BDGHI = 0,
-	FORMAT_NTSC,
-	FORMAT_SECAM,
-	FORMAT_PAL_M,
-	FORMAT_PAL_N,
-	FORMAT_NTSC_J,
-	FORMAT_PAL60,
+    FORMAT_PAL_BDGHI = 0,
+    FORMAT_NTSC,
+    FORMAT_SECAM,
+    FORMAT_PAL_M,
+    FORMAT_PAL_N,
+    FORMAT_NTSC_J,
+    FORMAT_PAL60,
     FORMAT_LASTONE,
 } VIDEOFORMAT;
 
@@ -170,19 +170,19 @@ typedef enum
 /////////////////////////////////////////////////////////////////////////////
 typedef enum
 {
-	DISPLAY = 0,          // Display OSD value.
-	ADJUSTUP,             // Increase value, with acceleration [display OSD]
-	ADJUSTDOWN,           // Decrease value, with acceleration [display OSD]
-	INCREMENT,            // Increase value by 1 [display OSD]
-	DECREMENT,            // Decrease value by 1 [display OSD]
-	RESET,                // Reset value to default [display OSD]
-	TOGGLEBOOL,           // Toggle a boolean setting [display OSD]
-	ADJUSTUP_SILENT,      // Same, but no OSD
-	ADJUSTDOWN_SILENT,    // Same, but no OSD
-	INCREMENT_SILENT,     // Same, but no OSD
-	DECREMENT_SILENT,     // Same, but no OSD
-	RESET_SILENT,         // Same, but no OSD
-	TOGGLEBOOL_SILENT,    // Same, but no OSD
+    DISPLAY = 0,          // Display OSD value.
+    ADJUSTUP,             // Increase value, with acceleration [display OSD]
+    ADJUSTDOWN,           // Decrease value, with acceleration [display OSD]
+    INCREMENT,            // Increase value by 1 [display OSD]
+    DECREMENT,            // Decrease value by 1 [display OSD]
+    RESET,                // Reset value to default [display OSD]
+    TOGGLEBOOL,           // Toggle a boolean setting [display OSD]
+    ADJUSTUP_SILENT,      // Same, but no OSD
+    ADJUSTDOWN_SILENT,    // Same, but no OSD
+    INCREMENT_SILENT,     // Same, but no OSD
+    DECREMENT_SILENT,     // Same, but no OSD
+    RESET_SILENT,         // Same, but no OSD
+    TOGGLEBOOL_SILENT,    // Same, but no OSD
 } eCHANGEVALUE;
 
 
@@ -192,44 +192,45 @@ typedef enum
 
 typedef enum
 {
-	OVERSCAN = 0,
-	SOURCE_ASPECT,
-	CUSTOM_SOURCE_ASPECT,
-	TARGET_ASPECT,
-	CUSTOM_TARGET_ASPECT,
-	ASPECT_MODE,
-	LUMINANCETHRESHOLD,
-	IGNORENONBLACKPIXELS,
-	AUTODETECTASPECT,
-	ZOOMINFRAMECOUNT,
-	ASPECTHISTORYTIME,
-	ASPECTCONSISTENCYTIME,
-	VERTICALPOS,
-	HORIZONTALPOS,
-	CLIPPING,
-	BOUNCE,
-	BOUNCEPERIOD,
-	DEFERSETOVERLAY,
-	BOUNCETIMERPERIOD,
-	BOUNCEAMPLITUDE,
-	ORBIT,
-	ORBITPERIODX,
-	ORBITPERIODY,
-	ORBITSIZE,
-	ORBITTIMERPERIOD,
-	AUTOSIZEWINDOW,
-	SKIPPERCENT,
+    OVERSCAN = 0,
+    SOURCE_ASPECT,
+    CUSTOM_SOURCE_ASPECT,
+    TARGET_ASPECT,
+    CUSTOM_TARGET_ASPECT,
+    ASPECT_MODE,
+    LUMINANCETHRESHOLD,
+    IGNORENONBLACKPIXELS,
+    AUTODETECTASPECT,
+    ZOOMINFRAMECOUNT,
+    ASPECTHISTORYTIME,
+    ASPECTCONSISTENCYTIME,
+    VERTICALPOS,
+    HORIZONTALPOS,
+    CLIPPING,
+    BOUNCE,
+    BOUNCEPERIOD,
+    DEFERSETOVERLAY,
+    BOUNCETIMERPERIOD,
+    BOUNCEAMPLITUDE,
+    ORBIT,
+    ORBITPERIODX,
+    ORBITPERIODY,
+    ORBITSIZE,
+    ORBITTIMERPERIOD,
+    AUTOSIZEWINDOW,
+    SKIPPERCENT,
     XZOOMFACTOR,
     YZOOMFACTOR,
     XZOOMCENTER,
     YZOOMCENTER,
-	CHROMARANGE,
+    CHROMARANGE,
+    WAITFORVERTBLANKINDRAW,
     ASPECT_SETTING_LASTONE,
 } ASPECT_SETTING;
 
-#define WM_ASPECT_GETVALUE			(WM_USER + 1)
-#define WM_ASPECT_SETVALUE			(WM_USER + 101)
-#define WM_ASPECT_CHANGEVALUE		(WM_USER + 201)
+#define WM_ASPECT_GETVALUE          (WM_USER + 1)
+#define WM_ASPECT_SETVALUE          (WM_USER + 101)
+#define WM_ASPECT_CHANGEVALUE       (WM_USER + 201)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in Bt848.c
@@ -237,44 +238,44 @@ typedef enum
 
 typedef enum
 {
-	BRIGHTNESS = 0,
-	CONTRAST,
-	HUE,
-	SATURATION,
-	SATURATIONU,
-	SATURATIONV,
-	BDELAY,
-	BTAGCDISABLE,
-	BTCRUSH,
-	BTEVENCHROMAAGC,
-	BTODDCHROMAAGC,
-	BTEVENLUMAPEAK,
-	BTODDLUMAPEAK,
-	BTFULLLUMARANGE,
-	BTEVENLUMADEC,
-	BTODDLUMADEC,
-	BTEVENCOMB,
-	BTODDCOMB,
-	BTCOLORBARS,
-	BTGAMMACORRECTION,
-	BTCORING,
-	BTHORFILTER,
-	BTVERTFILTER,
-	BTCOLORKILL,
-	BTWHITECRUSHUP,
-	BTWHITECRUSHDOWN,
-	CURRENTX,
-	CUSTOMPIXELWIDTH,
-	VIDEOSOURCE,
-	TVFORMAT,
-	HDELAY,
-	VDELAY,
-	BT848_SETTING_LASTONE,
+    BRIGHTNESS = 0,
+    CONTRAST,
+    HUE,
+    SATURATION,
+    SATURATIONU,
+    SATURATIONV,
+    BDELAY,
+    BTAGCDISABLE,
+    BTCRUSH,
+    BTEVENCHROMAAGC,
+    BTODDCHROMAAGC,
+    BTEVENLUMAPEAK,
+    BTODDLUMAPEAK,
+    BTFULLLUMARANGE,
+    BTEVENLUMADEC,
+    BTODDLUMADEC,
+    BTEVENCOMB,
+    BTODDCOMB,
+    BTCOLORBARS,
+    BTGAMMACORRECTION,
+    BTCORING,
+    BTHORFILTER,
+    BTVERTFILTER,
+    BTCOLORKILL,
+    BTWHITECRUSHUP,
+    BTWHITECRUSHDOWN,
+    CURRENTX,
+    CUSTOMPIXELWIDTH,
+    VIDEOSOURCE,
+    TVFORMAT,
+    HDELAY,
+    VDELAY,
+    BT848_SETTING_LASTONE,
 } BT848_SETTING;
 
-#define WM_BT848_GETVALUE			(WM_USER + 2)
-#define WM_BT848_SETVALUE			(WM_USER + 102)
-#define WM_BT848_CHANGEVALUE		(WM_USER + 202)
+#define WM_BT848_GETVALUE           (WM_USER + 2)
+#define WM_BT848_SETVALUE           (WM_USER + 102)
+#define WM_BT848_CHANGEVALUE        (WM_USER + 202)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in DScaler.c
@@ -282,29 +283,29 @@ typedef enum
 
 typedef enum
 {
-	STARTLEFT = 0,
-	STARTTOP,
-	STARTWIDTH,
-	STARTHEIGHT,
-	ALWAYSONTOP,
-	DISPLAYSPLASHSCREEN,
-	ISFULLSCREEN,
-	FORCEFULLSCREEN,
-	SHOWSTATUSBAR,
-	SHOWMENU,
-	AUTOHIDECURSOR,
-	WINDOWPROCESSOR,
-	THREADPROCESSOR,
-	WINDOWPRIORITY,
-	THREADPRIORITY,
-	AUTOSAVESETTINGS,
-	ALWAYSONTOPFULL,
-	DSCALER_SETTING_LASTONE,
+    STARTLEFT = 0,
+    STARTTOP,
+    STARTWIDTH,
+    STARTHEIGHT,
+    ALWAYSONTOP,
+    DISPLAYSPLASHSCREEN,
+    ISFULLSCREEN,
+    FORCEFULLSCREEN,
+    SHOWSTATUSBAR,
+    SHOWMENU,
+    AUTOHIDECURSOR,
+    WINDOWPROCESSOR,
+    THREADPROCESSOR,
+    WINDOWPRIORITY,
+    THREADPRIORITY,
+    AUTOSAVESETTINGS,
+    ALWAYSONTOPFULL,
+    DSCALER_SETTING_LASTONE,
 } DSCALER_SETTING;
 
-#define WM_DSCALER_GETVALUE				(WM_USER + 3)
-#define WM_DSCALER_SETVALUE				(WM_USER + 103)
-#define WM_DSCALER_CHANGEVALUE			(WM_USER + 203)
+#define WM_DSCALER_GETVALUE             (WM_USER + 3)
+#define WM_DSCALER_SETVALUE             (WM_USER + 103)
+#define WM_DSCALER_CHANGEVALUE          (WM_USER + 203)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in OutThreads.c
@@ -312,19 +313,19 @@ typedef enum
 
 typedef enum
 {
-	HURRYWHENLATE = 0,
-	WAITFORFLIP,
-	DOACCURATEFLIPS,
-	AUTODETECT,
-	REFRESHRATE,
-	WAITFORVSYNC,
-	REVERSEPOLARITY,
-	OUTTHREADS_SETTING_LASTONE,
+    HURRYWHENLATE = 0,
+    WAITFORFLIP,
+    DOACCURATEFLIPS,
+    AUTODETECT,
+    REFRESHRATE,
+    WAITFORVSYNC,
+    REVERSEPOLARITY,
+    OUTTHREADS_SETTING_LASTONE,
 } OUTTHREADS_SETTING;
 
-#define WM_OUTTHREADS_GETVALUE		(WM_USER + 4)
-#define WM_OUTTHREADS_SETVALUE		(WM_USER + 104)
-#define WM_OUTTHREADS_CHANGEVALUE	(WM_USER + 204)
+#define WM_OUTTHREADS_GETVALUE      (WM_USER + 4)
+#define WM_OUTTHREADS_SETVALUE      (WM_USER + 104)
+#define WM_OUTTHREADS_CHANGEVALUE   (WM_USER + 204)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in Other.c
@@ -332,14 +333,14 @@ typedef enum
 
 typedef enum
 {
-	BACKBUFFERS = 0,
-	OVERLAYCOLOR,
-	OTHER_SETTING_LASTONE,
+    BACKBUFFERS = 0,
+    OVERLAYCOLOR,
+    OTHER_SETTING_LASTONE,
 } OTHER_SETTING;
 
-#define WM_OTHER_GETVALUE			(WM_USER + 5)
-#define WM_OTHER_SETVALUE			(WM_USER + 105)
-#define WM_OTHER_CHANGEVALUE		(WM_USER + 205)
+#define WM_OTHER_GETVALUE           (WM_USER + 5)
+#define WM_OTHER_SETVALUE           (WM_USER + 105)
+#define WM_OTHER_CHANGEVALUE        (WM_USER + 205)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in FD_50Hz.c
@@ -347,18 +348,18 @@ typedef enum
 
 typedef enum
 {
-	PULLDOWNTHRESHHOLDLOW = 0,
-	PULLDOWNTHRESHHOLDHIGH,
-	PALFILMFALLBACKMODE,
-	PALFILMREPEATCOUNT,
-	PALFILMREPEATCOUNT2,
-	MAXCALLSTOPALCOMB,
-	FD50_SETTING_LASTONE,
+    PULLDOWNTHRESHHOLDLOW = 0,
+    PULLDOWNTHRESHHOLDHIGH,
+    PALFILMFALLBACKMODE,
+    PALFILMREPEATCOUNT,
+    PALFILMREPEATCOUNT2,
+    MAXCALLSTOPALCOMB,
+    FD50_SETTING_LASTONE,
 } FD50_SETTING;
 
-#define WM_FD50_GETVALUE			(WM_USER + 6)
-#define WM_FD50_SETVALUE			(WM_USER + 106)
-#define WM_FD50_CHANGEVALUE			(WM_USER + 206)
+#define WM_FD50_GETVALUE            (WM_USER + 6)
+#define WM_FD50_SETVALUE            (WM_USER + 106)
+#define WM_FD50_CHANGEVALUE         (WM_USER + 206)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in FD_50Hz.c
@@ -366,22 +367,22 @@ typedef enum
 
 typedef enum
 {
-	NTSCFILMFALLBACKMODE = 0,
-	NTSCPULLDOWNREPEATCOUNT,
-	NTSCPULLDOWNREPEATCOUNT2,
-	THRESHOLD32PULLDOWN,
-	THRESHOLDPULLDOWNMISMATCH,
-	THRESHOLDPULLDOWNCOMB,
-	FALLBACKTOVIDEO,
-	PULLDOWNSWITCHINTERVAL,
-	PULLDOWNSWITCHMAX,
-	MAXCALLSTOCOMB,
-	FD60_SETTING_LASTONE,
+    NTSCFILMFALLBACKMODE = 0,
+    NTSCPULLDOWNREPEATCOUNT,
+    NTSCPULLDOWNREPEATCOUNT2,
+    THRESHOLD32PULLDOWN,
+    THRESHOLDPULLDOWNMISMATCH,
+    THRESHOLDPULLDOWNCOMB,
+    FALLBACKTOVIDEO,
+    PULLDOWNSWITCHINTERVAL,
+    PULLDOWNSWITCHMAX,
+    MAXCALLSTOCOMB,
+    FD60_SETTING_LASTONE,
 } FD60_SETTING;
 
-#define WM_FD60_GETVALUE			(WM_USER + 7)
-#define WM_FD60_SETVALUE			(WM_USER + 107)
-#define WM_FD60_CHANGEVALUE			(WM_USER + 207)
+#define WM_FD60_GETVALUE            (WM_USER + 7)
+#define WM_FD60_SETVALUE            (WM_USER + 107)
+#define WM_FD60_CHANGEVALUE         (WM_USER + 207)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in FD_Common.c
@@ -389,17 +390,17 @@ typedef enum
 
 typedef enum
 {
-	BITSHIFT = 0,
-	EDGEDETECT,
-	JAGGIETHRESHOLD,
-	DIFFTHRESHOLD,
+    BITSHIFT = 0,
+    EDGEDETECT,
+    JAGGIETHRESHOLD,
+    DIFFTHRESHOLD,
     USECHROMA,
-	FD_COMMON_SETTING_LASTONE,
+    FD_COMMON_SETTING_LASTONE,
 } FD_COMMON_SETTING;
 
-#define WM_FD_COMMON_GETVALUE		(WM_USER + 8)
-#define WM_FD_COMMON_SETVALUE		(WM_USER + 108)
-#define WM_FD_COMMON_CHANGEVALUE	(WM_USER + 208)
+#define WM_FD_COMMON_GETVALUE       (WM_USER + 8)
+#define WM_FD_COMMON_SETVALUE       (WM_USER + 108)
+#define WM_FD_COMMON_CHANGEVALUE    (WM_USER + 208)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in DI_Adaptive.c
@@ -407,19 +408,19 @@ typedef enum
 
 typedef enum
 {
-	LOWMOTIONFIELDCOUNT = 0,
-	STATICIMAGEFIELDCOUNT,
-	STATICIMAGEMODE,
-	LOWMOTIONMODE,
-	HIGHMOTIONMODE,
-	ADAPTIVETHRESH32PULLDOWN,
-	ADAPTIVETHRESHMISMATCH,
-	DI_ADAPTIVE_SETTING_LASTONE,
+    LOWMOTIONFIELDCOUNT = 0,
+    STATICIMAGEFIELDCOUNT,
+    STATICIMAGEMODE,
+    LOWMOTIONMODE,
+    HIGHMOTIONMODE,
+    ADAPTIVETHRESH32PULLDOWN,
+    ADAPTIVETHRESHMISMATCH,
+    DI_ADAPTIVE_SETTING_LASTONE,
 } DI_ADAPTIVE_SETTING;
 
-#define WM_DI_ADAPTIVE_GETVALUE		(WM_USER + 9)
-#define WM_DI_ADAPTIVE_SETVALUE		(WM_USER + 109)
-#define WM_DI_ADAPTIVE_CHANGEVALUE	(WM_USER + 209)
+#define WM_DI_ADAPTIVE_GETVALUE     (WM_USER + 9)
+#define WM_DI_ADAPTIVE_SETVALUE     (WM_USER + 109)
+#define WM_DI_ADAPTIVE_CHANGEVALUE  (WM_USER + 209)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in DI_VideoBob.c
@@ -427,14 +428,14 @@ typedef enum
 
 typedef enum
 {
-	WEAVEEDGEDETECT = 0,
-	WEAVEJAGGIETHRESHOLD,
-	DI_VIDEOBOB_SETTING_LASTONE,
+    WEAVEEDGEDETECT = 0,
+    WEAVEJAGGIETHRESHOLD,
+    DI_VIDEOBOB_SETTING_LASTONE,
 } DI_VIDEOBOB_SETTING;
 
-#define WM_DI_VIDEOBOB_GETVALUE		(WM_USER + 10)
-#define WM_DI_VIDEOBOB_SETVALUE		(WM_USER + 110)
-#define WM_DI_VIDEOBOB_CHANGEVALUE	(WM_USER + 210)
+#define WM_DI_VIDEOBOB_GETVALUE     (WM_USER + 10)
+#define WM_DI_VIDEOBOB_SETVALUE     (WM_USER + 110)
+#define WM_DI_VIDEOBOB_CHANGEVALUE  (WM_USER + 210)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in DI_BlendedClip.c
@@ -442,25 +443,25 @@ typedef enum
 
 typedef enum
 {
-	BLCMINIMUMCLIP = 0,
-	BLCPIXELMOTIONSENSE,
-	BLCRECENTMOTIONSENSE,
-	BLCMOTIONAVGPERIOD,
-	BLCPIXELCOMBSENSE,
-	BLCRECENTCOMBSENSE,
-	BLCCOMBAVGPERIOD,
-	BLCHIGHCOMBSKIP,
-	BLCLOWMOTIONSKIP,
-	BLCVERTICALSMOOTHING,
-	BLCUSEINTERPBOB,
-	BLCBLENDCHROMA,
-	BLCSHOWCONTROLS,
-	DI_BLENDEDCLIP_SETTING_LASTONE,
+    BLCMINIMUMCLIP = 0,
+    BLCPIXELMOTIONSENSE,
+    BLCRECENTMOTIONSENSE,
+    BLCMOTIONAVGPERIOD,
+    BLCPIXELCOMBSENSE,
+    BLCRECENTCOMBSENSE,
+    BLCCOMBAVGPERIOD,
+    BLCHIGHCOMBSKIP,
+    BLCLOWMOTIONSKIP,
+    BLCVERTICALSMOOTHING,
+    BLCUSEINTERPBOB,
+    BLCBLENDCHROMA,
+    BLCSHOWCONTROLS,
+    DI_BLENDEDCLIP_SETTING_LASTONE,
 } DI_BLENDEDCLIP_SETTING;
 
-#define WM_DI_BLENDEDCLIP_GETVALUE		(WM_USER + 11)
-#define WM_DI_BLENDEDCLIP_SETVALUE		(WM_USER + 111)
-#define WM_DI_BLENDEDCLIP_CHANGEVALUE	(WM_USER + 211)
+#define WM_DI_BLENDEDCLIP_GETVALUE      (WM_USER + 11)
+#define WM_DI_BLENDEDCLIP_SETVALUE      (WM_USER + 111)
+#define WM_DI_BLENDEDCLIP_CHANGEVALUE   (WM_USER + 211)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in DI_TwoFrame.c
@@ -468,14 +469,14 @@ typedef enum
 
 typedef enum
 {
-	TWOFRAMESPATIALTOLERANCE = 0,
-	TWOFRAMETEMPORALTOLERANCE,
-	DI_TWOFRAME_SETTING_LASTONE,
+    TWOFRAMESPATIALTOLERANCE = 0,
+    TWOFRAMETEMPORALTOLERANCE,
+    DI_TWOFRAME_SETTING_LASTONE,
 } DI_TWOFRAME_SETTING;
 
-#define WM_DI_TWOFRAME_GETVALUE		(WM_USER + 12)
-#define WM_DI_TWOFRAME_SETVALUE		(WM_USER + 112)
-#define WM_DI_TWOFRAME_CHANGEVALUE	(WM_USER + 212)
+#define WM_DI_TWOFRAME_GETVALUE     (WM_USER + 12)
+#define WM_DI_TWOFRAME_SETVALUE     (WM_USER + 112)
+#define WM_DI_TWOFRAME_CHANGEVALUE  (WM_USER + 212)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in DI_Greedy.c
@@ -483,12 +484,12 @@ typedef enum
 
 typedef enum
 {
-	GREEDYMAXCOMB = 0,
-	DI_GREEDY_SETTING_LASTONE,
+    GREEDYMAXCOMB = 0,
+    DI_GREEDY_SETTING_LASTONE,
 } DI_GREEDY_SETTING;
-#define WM_DI_GREEDY_GETVALUE		(WM_USER + 15)
-#define WM_DI_GREEDY_SETVALUE		(WM_USER + 115)
-#define WM_DI_GREEDY_CHANGEVALUE	(WM_USER + 215)
+#define WM_DI_GREEDY_GETVALUE       (WM_USER + 15)
+#define WM_DI_GREEDY_SETVALUE       (WM_USER + 115)
+#define WM_DI_GREEDY_CHANGEVALUE    (WM_USER + 215)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in FLT_TNoise.c
@@ -496,15 +497,15 @@ typedef enum
 
 typedef enum
 {
-	TEMPORALLUMINANCETHRESHOLD = 0,
-	TEMPORALCHROMATHRESHOLD,
-	USETEMPORALNOISEFILTER,
-	FLT_TNOISE_SETTING_LASTONE,
+    TEMPORALLUMINANCETHRESHOLD = 0,
+    TEMPORALCHROMATHRESHOLD,
+    USETEMPORALNOISEFILTER,
+    FLT_TNOISE_SETTING_LASTONE,
 } FLT_TNOISE_SETTING;
 
-#define WM_FLT_TNOISE_GETVALUE		(WM_USER + 14)
-#define WM_FLT_TNOISE_SETVALUE		(WM_USER + 114)
-#define WM_FLT_TNOISE_CHANGEVALUE	(WM_USER + 214)
+#define WM_FLT_TNOISE_GETVALUE      (WM_USER + 14)
+#define WM_FLT_TNOISE_SETVALUE      (WM_USER + 114)
+#define WM_FLT_TNOISE_CHANGEVALUE   (WM_USER + 214)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in TVCards.c
@@ -512,15 +513,15 @@ typedef enum
 
 typedef enum
 {
-	CURRENTCARDTYPE = 0,
-	CURRENTTUNERTYPE,
-	PROCESSORSPEED,
-	TRADEOFF,
-	TVCARD_SETTING_LASTONE,
+    CURRENTCARDTYPE = 0,
+    CURRENTTUNERTYPE,
+    PROCESSORSPEED,
+    TRADEOFF,
+    TVCARD_SETTING_LASTONE,
 } TVCARD_SETTING;
-#define WM_TVCARD_GETVALUE		(WM_USER + 16)
-#define WM_TVCARD_SETVALUE		(WM_USER + 116)
-#define WM_TVCARD_CHANGEVALUE	(WM_USER + 216)
+#define WM_TVCARD_GETVALUE      (WM_USER + 16)
+#define WM_TVCARD_SETVALUE      (WM_USER + 116)
+#define WM_TVCARD_CHANGEVALUE   (WM_USER + 216)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in VideoSettings.c
@@ -528,41 +529,41 @@ typedef enum
 
 typedef enum
 {
-	SAVEPERINPUT = 0,
-	SAVEPERFORMAT,
-	SAVETVFORMATPERINPUT,
-	VIDEOSETTINGS_SETTING_LASTONE,
+    SAVEPERINPUT = 0,
+    SAVEPERFORMAT,
+    SAVETVFORMATPERINPUT,
+    VIDEOSETTINGS_SETTING_LASTONE,
 } VIDEOSETTINGS_SETTING;
-#define WM_VIDEOSETTINGS_GETVALUE		(WM_USER + 17)
-#define WM_VIDEOSETTINGS_SETVALUE		(WM_USER + 117)
-#define WM_VIDEOSETTINGS_CHANGEVALUE	(WM_USER + 217)
+#define WM_VIDEOSETTINGS_GETVALUE       (WM_USER + 17)
+#define WM_VIDEOSETTINGS_SETVALUE       (WM_USER + 117)
+#define WM_VIDEOSETTINGS_CHANGEVALUE    (WM_USER + 217)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in OSD.c
 /////////////////////////////////////////////////////////////////////////////
 typedef enum
 {
-	OSDB_TRANSPARENT = 0,
-	OSDB_BLOCK,
-	OSDB_SHADED,
-	OSDBACK_LASTONE,
+    OSDB_TRANSPARENT = 0,
+    OSDB_BLOCK,
+    OSDB_SHADED,
+    OSDBACK_LASTONE,
 } eOSDBackground;
 
 typedef enum
 {
-	OSD_OUTLINECOLOR = 0,
-	OSD_TEXTCOLOR,
-	OSD_PERCENTAGESIZE,
-	OSD_PERCENTAGESMALLSIZE,
-	OSD_ANTIALIAS,
-	OSD_BACKGROUND,
-	OSD_OUTLINE,
-	OSD_AUTOHIDE_SCREEN,
-	OSD_SETTING_LASTONE,
+    OSD_OUTLINECOLOR = 0,
+    OSD_TEXTCOLOR,
+    OSD_PERCENTAGESIZE,
+    OSD_PERCENTAGESMALLSIZE,
+    OSD_ANTIALIAS,
+    OSD_BACKGROUND,
+    OSD_OUTLINE,
+    OSD_AUTOHIDE_SCREEN,
+    OSD_SETTING_LASTONE,
 } OSD_SETTING;
-#define WM_OSD_GETVALUE		(WM_USER + 18)
-#define WM_OSD_SETVALUE		(WM_USER + 118)
-#define WM_OSD_CHANGEVALUE	(WM_USER + 218)
+#define WM_OSD_GETVALUE     (WM_USER + 18)
+#define WM_OSD_SETVALUE     (WM_USER + 118)
+#define WM_OSD_CHANGEVALUE  (WM_USER + 218)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in FLT_Gamma.c
@@ -570,15 +571,17 @@ typedef enum
 
 typedef enum
 {
-	GAMMAVALUE = 0,
-	USESTOREDTABLE,
-	USEGAMMAFILTER,
-	FLT_GAMMA_SETTING_LASTONE,
+    GAMMAVALUE = 0,
+    USESTOREDTABLE,
+    USEGAMMAFILTER,
+    BLACKLEVEL,
+    WHITELEVEL,
+    FLT_GAMMA_SETTING_LASTONE,
 } FLT_GAMMA_SETTING;
 
-#define WM_FLT_GAMMA_GETVALUE		(WM_USER + 20)
-#define WM_FLT_GAMMA_SETVALUE		(WM_USER + 120)
-#define WM_FLT_GAMMA_CHANGEVALUE	(WM_USER + 220)
+#define WM_FLT_GAMMA_GETVALUE       (WM_USER + 20)
+#define WM_FLT_GAMMA_SETVALUE       (WM_USER + 120)
+#define WM_FLT_GAMMA_CHANGEVALUE    (WM_USER + 220)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in VBI.c
@@ -586,17 +589,17 @@ typedef enum
 
 typedef enum
 {
-	CAPTURE_VBI = 0,
-	CLOSEDCAPTIONMODE,
-	DOTELETEXT,
-	DOVPS,
-	DOWSS,
-	VBI_SETTING_LASTONE,
+    CAPTURE_VBI = 0,
+    CLOSEDCAPTIONMODE,
+    DOTELETEXT,
+    DOVPS,
+    DOWSS,
+    VBI_SETTING_LASTONE,
 } VBI_SETTING;
 
-#define WM_VBI_GETVALUE		(WM_USER + 21)
-#define WM_VBI_SETVALUE		(WM_USER + 121)
-#define WM_VBI_CHANGEVALUE	(WM_USER + 221)
+#define WM_VBI_GETVALUE     (WM_USER + 21)
+#define WM_VBI_SETVALUE     (WM_USER + 121)
+#define WM_VBI_CHANGEVALUE  (WM_USER + 221)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in DI_Greedy2Frame.c
@@ -604,14 +607,14 @@ typedef enum
 
 typedef enum
 {
-	GREEDYTWOFRAMETHRESHOLDLUMA = 0,
-	GREEDYTWOFRAMETHRESHOLDCHROMA,
-	DI_GREEDY2FRAME_SETTING_LASTONE,
+    GREEDYTWOFRAMETHRESHOLDLUMA = 0,
+    GREEDYTWOFRAMETHRESHOLDCHROMA,
+    DI_GREEDY2FRAME_SETTING_LASTONE,
 } DI_GREEDY2FRAME_SETTING;
 
-#define WM_DI_GREEDY2FRAME_GETVALUE		(WM_USER + 22)
-#define WM_DI_GREEDY2FRAME_SETVALUE		(WM_USER + 122)
-#define WM_DI_GREEDY2FRAME_CHANGEVALUE	(WM_USER + 222)
+#define WM_DI_GREEDY2FRAME_GETVALUE     (WM_USER + 22)
+#define WM_DI_GREEDY2FRAME_SETVALUE     (WM_USER + 122)
+#define WM_DI_GREEDY2FRAME_CHANGEVALUE  (WM_USER + 222)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in DI_VideoWeave.c
@@ -619,15 +622,15 @@ typedef enum
 
 typedef enum
 {
-	TEMPORALTOLERANCE = 0,
-	SPATIALTOLERANCE,
-	SIMILARITYTHRESHOLD,
-	DI_VIDEOWEAVE_SETTING_LASTONE,
+    TEMPORALTOLERANCE = 0,
+    SPATIALTOLERANCE,
+    SIMILARITYTHRESHOLD,
+    DI_VIDEOWEAVE_SETTING_LASTONE,
 } DI_VIDEOWEAVE_SETTING;
 
-#define WM_DI_VIDEOWEAVE_GETVALUE		(WM_USER + 23)
-#define WM_DI_VIDEOWEAVE_SETVALUE		(WM_USER + 123)
-#define WM_DI_VIDEOWEAVE_CHANGEVALUE	(WM_USER + 223)
+#define WM_DI_VIDEOWEAVE_GETVALUE       (WM_USER + 23)
+#define WM_DI_VIDEOWEAVE_SETVALUE       (WM_USER + 123)
+#define WM_DI_VIDEOWEAVE_CHANGEVALUE    (WM_USER + 223)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in FLT_LinearCorrection.c
@@ -635,19 +638,19 @@ typedef enum
 
 typedef enum
 {
-	USELINEARCORRFILTER = 0,
-	DOONLYMASKING,
-	MASKTYPE,
-	MASKPARAM1,
-	MASKPARAM2,
-	MASKPARAM3,
-	MASKPARAM4,
-	FLT_LINEAR_CORR_SETTING_LASTONE,
+    USELINEARCORRFILTER = 0,
+    DOONLYMASKING,
+    MASKTYPE,
+    MASKPARAM1,
+    MASKPARAM2,
+    MASKPARAM3,
+    MASKPARAM4,
+    FLT_LINEAR_CORR_SETTING_LASTONE,
 } FLT_LINEAR_CORR_SETTING;
 
-#define WM_FLT_LINEAR_CORR_GETVALUE		(WM_USER + 24)
-#define WM_FLT_LINEAR_CORR_SETVALUE		(WM_USER + 124)
-#define WM_FLT_LINEAR_CORR_CHANGEVALUE	(WM_USER + 224)
+#define WM_FLT_LINEAR_CORR_GETVALUE     (WM_USER + 24)
+#define WM_FLT_LINEAR_CORR_SETVALUE     (WM_USER + 124)
+#define WM_FLT_LINEAR_CORR_CHANGEVALUE  (WM_USER + 224)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in MixerDev.c
@@ -655,21 +658,21 @@ typedef enum
 
 typedef enum
 {
-	USEMIXER = 0,
-	SYSTEMINMUTE,
-	MIXERINDEX,
-	DESTINDEX,
-	TUNERINDEX,
-	COMPINDEX,
-	SVIDEOINDEX,
+    USEMIXER = 0,
+    SYSTEMINMUTE,
+    MIXERINDEX,
+    DESTINDEX,
+    TUNERINDEX,
+    COMPINDEX,
+    SVIDEOINDEX,
     OTHER1INDEX,
     OTHER2INDEX,
-	MIXERDEV_SETTING_LASTONE,
+    MIXERDEV_SETTING_LASTONE,
 } MIXERDEV_SETTING;
 
-#define WM_MIXERDEV_GETVALUE		(WM_USER + 25)
-#define WM_MIXERDEV_SETVALUE		(WM_USER + 125)
-#define WM_MIXERDEV_CHANGEVALUE	    (WM_USER + 225)
+#define WM_MIXERDEV_GETVALUE        (WM_USER + 25)
+#define WM_MIXERDEV_SETVALUE        (WM_USER + 125)
+#define WM_MIXERDEV_CHANGEVALUE     (WM_USER + 225)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in FieldTiming.c
@@ -677,20 +680,20 @@ typedef enum
 
 typedef enum
 {
-	AUTOFORMATDETECT = 0,
-	FIFTY_HZ_FORMAT,
-	SIXTY_HZ_FORMAT,
-	FORMATCHANGETHRESHOLD,
-	DOJUDDERTERMINATORONVIDEO,
-	SLEEPINTERVAL,
-	SLEEPSKIPFIELDS,
-	SLEEPSKIPFIELDSLATE,
-	TIMING_SETTING_LASTONE,
+    AUTOFORMATDETECT = 0,
+    FIFTY_HZ_FORMAT,
+    SIXTY_HZ_FORMAT,
+    FORMATCHANGETHRESHOLD,
+    DOJUDDERTERMINATORONVIDEO,
+    SLEEPINTERVAL,
+    SLEEPSKIPFIELDS,
+    SLEEPSKIPFIELDSLATE,
+    TIMING_SETTING_LASTONE,
 } TIMING_SETTING;
 
-#define WM_TIMING_GETVALUE			(WM_USER + 26)
-#define WM_TIMING_SETVALUE			(WM_USER + 126)
-#define WM_TIMING_CHANGEVALUE	    (WM_USER + 226)
+#define WM_TIMING_GETVALUE          (WM_USER + 26)
+#define WM_TIMING_SETVALUE          (WM_USER + 126)
+#define WM_TIMING_CHANGEVALUE       (WM_USER + 226)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in Program.c
@@ -698,15 +701,15 @@ typedef enum
 
 typedef enum
 {
-	COUNTRYCODE = 0,
-	CURRENTPROGRAM,
-	CUSTOMCHANNELORDER,
-	CHANNELS_SETTING_LASTONE,
+    COUNTRYCODE = 0,
+    CURRENTPROGRAM,
+    CUSTOMCHANNELORDER,
+    CHANNELS_SETTING_LASTONE,
 } CHANNELS_SETTING;
 
-#define WM_CHANNELS_GETVALUE			(WM_USER + 27)
-#define WM_CHANNELS_SETVALUE			(WM_USER + 127)
-#define WM_CHANNELS_CHANGEVALUE	        (WM_USER + 227)
+#define WM_CHANNELS_GETVALUE            (WM_USER + 27)
+#define WM_CHANNELS_SETVALUE            (WM_USER + 127)
+#define WM_CHANNELS_CHANGEVALUE         (WM_USER + 227)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in Audio.c
@@ -714,30 +717,30 @@ typedef enum
 
 typedef enum
 {
-	AUDIOSOURCE = 0,
-	MSPMODE,
-	MSPMAJORMODE,
-	MSPMINORMODE,
-	MSPSTEREO,
-	AUTOSTEREOSELECT,
-	VOLUME,
-	SPATIAL,
-	LOUDNESS,
-	BASS,
-	TREBLE,
-	BALANCE,
-	SUPERBASS,
-	MSPEQ1,
-	MSPEQ2,
-	MSPEQ3,
-	MSPEQ4,
-	MSPEQ5,
-	AUDIO_SETTING_LASTONE,
+    AUDIOSOURCE = 0,
+    MSPMODE,
+    MSPMAJORMODE,
+    MSPMINORMODE,
+    MSPSTEREO,
+    AUTOSTEREOSELECT,
+    VOLUME,
+    SPATIAL,
+    LOUDNESS,
+    BASS,
+    TREBLE,
+    BALANCE,
+    SUPERBASS,
+    MSPEQ1,
+    MSPEQ2,
+    MSPEQ3,
+    MSPEQ4,
+    MSPEQ5,
+    AUDIO_SETTING_LASTONE,
 } AUDIO_SETTING;
 
-#define WM_AUDIO_GETVALUE				(WM_USER + 28)
-#define WM_AUDIO_SETVALUE				(WM_USER + 128)
-#define WM_AUDIO_CHANGEVALUE	        (WM_USER + 228)
+#define WM_AUDIO_GETVALUE               (WM_USER + 28)
+#define WM_AUDIO_SETVALUE               (WM_USER + 128)
+#define WM_AUDIO_CHANGEVALUE            (WM_USER + 228)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in Debug.c
@@ -745,12 +748,29 @@ typedef enum
 
 typedef enum
 {
-	DEBUGLOG = 0,
-	DEBUG_SETTING_LASTONE,
+    DEBUGLOG = 0,
+    DEBUG_SETTING_LASTONE,
 } DEBUG_SETTING;
 
-#define WM_DEBUG_GETVALUE				(WM_USER + 29)
-#define WM_DEBUG_SETVALUE				(WM_USER + 129)
-#define WM_DEBUG_CHANGEVALUE	        (WM_USER + 229)
+#define WM_DEBUG_GETVALUE               (WM_USER + 29)
+#define WM_DEBUG_SETVALUE               (WM_USER + 129)
+#define WM_DEBUG_CHANGEVALUE            (WM_USER + 229)
+
+/////////////////////////////////////////////////////////////////////////////
+// Control settings contained in FLT_LogoKill.c
+/////////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+    TOP = 0,
+    LEFT,
+    WIDTH,
+    HEIGHT,
+    FLT_LOGOKILL_SETTING_LASTONE,
+} FLT_LOGOKILL_SETTING;
+
+#define WM_FLT_LOGOKILL_GETVALUE        (WM_USER + 30)
+#define WM_FLT_LOGOKILL_SETVALUE        (WM_USER + 130)
+#define WM_FLT_LOGOKILL_CHANGEVALUE     (WM_USER + 230)
 
 #endif

@@ -580,11 +580,11 @@ void OSD_RefreshInfosScreen(HWND hWnd, double dfSize, int ShowType)
 
 		// Video settings
 		nLine = 2;
-		sprintf (szInfo, "Brightness : %03u", Setting_GetValue(BT848_GetSetting(BRIGHTNESS)));
+		sprintf (szInfo, "Brightness : %03d", Setting_GetValue(BT848_GetSetting(BRIGHTNESS)));
 		OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
 		sprintf (szInfo, "Contrast : %03u", Setting_GetValue(BT848_GetSetting(CONTRAST)));
 		OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
-		sprintf (szInfo, "Hue : %03u", Setting_GetValue(BT848_GetSetting(HUE)));
+		sprintf (szInfo, "Hue : %03d", Setting_GetValue(BT848_GetSetting(HUE)));
 		OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
 		sprintf (szInfo, "Color : %03u", Setting_GetValue(BT848_GetSetting(SATURATION)));
 		OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
@@ -751,7 +751,7 @@ void OSD_RefreshInfosScreen(HWND hWnd, double dfSize, int ShowType)
 		sprintf (szInfo, "Last second : %d", (int)ceil(nUsedFieldsLastSec - 0.5));
 //		sprintf (szInfo, "Last second : %.1f", nUsedFieldsLastSec);
 		OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
-		sprintf (szInfo, "Average / s : %.1f", (double)nTotalUsedFields * 1000 / (double)nSecTicks);
+		sprintf (szInfo, "Average / s : %.1f", (double)nTotalUsedFields * 1000.0 / (double)nSecTicks);
 		OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
 
 		nLine = 3;

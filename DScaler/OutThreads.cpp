@@ -674,8 +674,8 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 			{
 				nTotalDropFields += Timing_GetDroppedFields();
 				nTotalUsedFields += Timing_GetUsedFields();
-				nDropFieldsLastSec = Timing_GetDroppedFields() * 1000 / (double)(CurrentTickCount - dwLastSecondTicks);
-				nUsedFieldsLastSec = Timing_GetUsedFields() * 1000 / (double)(CurrentTickCount - dwLastSecondTicks);
+				nDropFieldsLastSec = (double)Timing_GetDroppedFields() * 1000.0 / (double)(CurrentTickCount - dwLastSecondTicks);
+				nUsedFieldsLastSec = (double)Timing_GetUsedFields() * 1000.0 / (double)(CurrentTickCount - dwLastSecondTicks);
 				Timing_ResetDroppedFields();
 				Timing_ResetUsedFields();
 				nSecTicks += CurrentTickCount - dwLastSecondTicks;

@@ -102,6 +102,7 @@ TAspectSettingsStruct aspectSettings =
 	TRUE,FALSE,4,TRUE,FALSE,
 	0,60*30,1000,100,FALSE,8,60,60,1000,FALSE,FALSE,
 	100,100,50,50,
+    FALSE
 };
 
 BOOL Bounce_OnChange(long NewValue); // Forward declaration to reuse this code...

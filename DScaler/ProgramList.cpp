@@ -460,7 +460,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             ComboBox_AddString(GetDlgItem(hDlg, IDC_FORMAT), FormatList[i]);
         }
 
-        // load up the counrty settings
+        // load up the country settings
         Load_Country_Settings();
         if(Countries.size() > 0)
         {
@@ -474,6 +474,15 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 i++;
             }
             ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_COUNTRY), CountryCode);
+            
+            if(bCustomChannelOrder)
+            {
+                if(MyChannels.size() != Countries[CountryCode]->m_Frequencies.size())
+                {
+                    ErrorBox("You have selected custom channels but there are the wrong number of channels.  Resetting list");
+                    ResetProgramList(hDlg);
+                }
+            }
 
             RefreshChannelList(hDlg);
 

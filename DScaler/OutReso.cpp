@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutReso.cpp,v 1.14 2003-04-26 19:02:41 laurentg Exp $
+// $Id: OutReso.cpp,v 1.15 2003-04-28 16:44:41 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2003/04/26 19:02:41  laurentg
+// Character string settings and memory management
+//
 // Revision 1.13  2003/04/26 16:06:20  laurentg
 // Character string settings
 //
@@ -93,6 +96,7 @@ typedef struct
 static sResolution resSettings[] = {
 	//  Do Switch	Width	Height	Depth	Frequency	Supported
 	{	FALSE,		0,		0,		0,		0,			TRUE,		0,	0	},
+	{	FALSE,		0,		0,		0,		0,			FALSE,		1,	0	},
 	{	TRUE,		640,	480,	16,		60,			FALSE,		0,	0	},
 	{	TRUE,		640,	480,	16,		72,			FALSE,		0,	0	},
 	{	TRUE,		640,	480,	16,		75,			FALSE,		0,	0	},
@@ -218,11 +222,19 @@ void OutReso_UpdateMenu(HMENU hMenu)
 
 	AppendMenu(hMenuReso, MF_STRING, IDM_OUTPUTRESO, "Don't change");
 	AppendMenu(hMenuReso, MF_SEPARATOR, 0, NULL);
+	j = 1;
+
+	// Add "Use PowerStrip resolution"
+
+	AppendMenu(hMenuReso, MF_STRING, IDM_OUTPUTRESO + 1, "Use PowerStrip resolution");
+	resSettings[1].bSupported = TRUE;
+	pixel++;
+	j++;
 
 	// Add in menus only supported display settings
 
     n = sizeof (resSettings) / sizeof (resSettings[0]);
-    for (i=1,j=1; i < n ; i++)
+    for (i=2; i < n ; i++)
     {
 		if (resSettings[i].bSwitchScreen)
 		{
@@ -332,7 +344,7 @@ void OutReso_SetMenu(HMENU hMenu)
     }
 
 	CheckMenuItem(hMenuReso, IDM_OUTPUTRESO + OutputReso, MF_CHECKED);
-	if (OutputReso>0)
+	if (OutputReso>1)
 	{
 		CheckMenuItem(hMenuReso, resSettings[selected].intMenuPixelPos, MF_CHECKED | MF_BYPOSITION);
 		HMENU hMenuPixel = GetSubMenu(hMenuReso, resSettings[selected].intMenuPixelPos);
@@ -353,8 +365,16 @@ BOOL ProcessOutResoSelection(HWND hWnd, WORD wMenuID)
 
 void OutReso_Change(HWND hWnd, HWND hPSWnd, BOOL bUseRegistrySettings, BOOL bCaptureRunning, LPSTR lTimingString, BOOL bApplyPStripTimingString)
 {
+	if (OutputReso == 0)
+		return;
+
+	if(!hPSWnd && (OutputReso == 1))
+		return;
+
 	// If PowerStrip has been found, use it
-	if(hPSWnd)
+	if ( hPSWnd
+	  && ( (OutputReso == 1)
+	    || ( (OutputReso > 1) && bApplyPStripTimingString) ) )
 	{
 		BOOL changeRes = FALSE;
 

@@ -33,6 +33,8 @@
 // 13 Mar 2001   Michael Samblanet     File created from code in AspectRatio.c
 //									   Split out to improve redability
 //
+// 08 Jun 2001   Eric Schmidt          Added bounce amplitude to ini
+//
 //////////////////////////////////////////////////////////////////////////////
 
 
@@ -878,6 +880,12 @@ SETTING AspectSettings[ASPECT_SETTING_LASTONE] =
 		1000, 0, 2, 1, 1,
 		NULL,
 		"ASPECT", "BounceTimerPeriod", NULL,
+	},
+	{
+		"Bounce Amplitude (%)", NUMBER, 0, (long*)&aspectSettings.bounceAmplitude,
+		100, 0, 100, 1, 1,
+		NULL,
+		"ASPECT", "BounceAmplitude", NULL,
 	},
 	{
 		"Orbit", ONOFF, 0, (long*)&aspectSettings.orbitEnabled,

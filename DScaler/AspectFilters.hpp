@@ -26,6 +26,8 @@
 //
 // 23 Apr 2001   Michael Samblanet     File created
 //
+// 08 Jun 2001   Eric Schmidt          Added bounce amplitude to ini
+//
 /////////////////////////////////////////////////////////////////////////////
 
 /*
@@ -303,7 +305,12 @@ public:
 		{
 			time(&aspectSettings.bounceStartTime);
 		}
-		bouncer = new PeriodBouncer(aspectSettings.bounceStartTime,period,2,-1);
+		bouncer = new PeriodBouncer(
+            aspectSettings.bounceStartTime, period,
+            // bounceAmplitude ranges from 0 to 100, we want 0 to 2.
+            2.0 * (double)aspectSettings.bounceAmplitude / 100.0,
+            // bounceAmplitude ranges from 0 to 100, we want 0 to -1.
+            -1.0 * (double)aspectSettings.bounceAmplitude / 100.0);
 	}
 	~BounceDestinationAspectFilter()
 	{

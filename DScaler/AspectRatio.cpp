@@ -62,6 +62,7 @@
 // 03 May 2001   Michael Samblanet     Moved half-height logic to correct location in aspect code
 //                                     Expieremental inversion code (invert source rect if options are enabled)
 // 07 May 2001   John Adcock           Reformmated code
+// 08 Jun 2001   Eric Schmidt          Added bounce amplitude to ini
 /////////////////////////////////////////////////////////////////////////////
 
 
@@ -98,7 +99,7 @@ AspectSettingsStruct aspectSettings =
 	{0,0,0,0},
 	{0,0,0,0},
 	TRUE,FALSE,4,TRUE,FALSE,
-	0,60*30,1000,FALSE,8,60,60,1000,FALSE,FALSE,
+	0,60*30,1000,100,FALSE,8,60,60,1000,FALSE,FALSE,
 	100,100,50,50,
 };
 

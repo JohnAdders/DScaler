@@ -65,6 +65,8 @@
 // 20 Feb 2001   Michael Samblanet     Added new values for Aspect Control
 //                                     (bounce & clipping modes)
 //
+// 08 Jun 2001   Eric Schmidt          Added bounce amplitude to ini
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef __DS_CONTROL_H___
@@ -245,6 +247,7 @@ typedef enum
 	BOUNCEPERIOD,
 	DEFERSETOVERLAY,
 	BOUNCETIMERPERIOD,
+	BOUNCEAMPLITUDE,
 	ORBIT,
 	ORBITPERIODX,
 	ORBITPERIODY,

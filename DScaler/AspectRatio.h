@@ -34,6 +34,8 @@
 //
 // 13 Mar 2001   Michael Samblanet     Split AspectRatio.c into 3 files
 //									   Moved settings into a structure, declared some functions
+// 08 Jun 2001   Eric Schmidt          added bounce amplitude to ini
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _ASPECT_H_
@@ -162,6 +164,7 @@ typedef struct _aspectsettings
 	// Number of minutes for a complete cycle of bounce to occur (default is half hour)
 	time_t bouncePeriod;
 	long timerBounceMS; // # of miliseconds between aspect updates
+	long bounceAmplitude; // percentage of window over which the overlay bounces
 
 	// Orbit - shifts the source image around on a regular basis
 	// Shares the bounceStartTime for calculations

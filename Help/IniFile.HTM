@@ -964,6 +964,13 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
 		    enabled.</td>
         </tr>
         <tr>
+          <td>BounceAmplitude</td>
+          <td align="center">100</td>
+          <td>
+	    The percentage of the window that the overlay will travel over while bounce is enabled.  For example, 100 will allow the overlay to bounce across the entire window, 50 will allow the overlay to move half way to the window's edges before it starts moving back the opposite way, and the extreme 0 will not allow the overlay to move at all, essentially turning bounce off.
+	  </td>
+        </tr>
+        <tr>
           <td>Orbit</td>
           <td align="center">0</td>
           <td>If enabled (non-zero) the region of the captured image is bounced
@@ -1069,6 +1076,25 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
             Gamma adjustment, note 1000 doesn't do anything, 1300 does a 1.3 power adjustment
           </td>
         </tr>
+
+        <tr>
+          <td colspan=3> 
+            <h3>[Show]</h3>
+          </td>
+        </tr>
+
+        <tr>
+          <td> 
+            CustomChannelOrder
+          </td>
+          <td> 
+            <p align="center">0
+          </td>
+          <td> 
+            0 = off. 1 = on. This can be altered via the Channels menu.  If it is on, you can modify the "Chan:" lines in the program.txt file so that when you punch in a channel number, n, it will take you to "channel n" as oppossed to the default behavior which is "the nth channel in the list."  If you don't see any "Chan:" lines in your program.txt, you can add them by hand (after "Name:" and "Freq:") or by deleting the file and doing a fresh channel scan.
+          </td>
+        </tr>
+
       </table>
 
 <h2 id="modes">Deinterlace Modes</h2>

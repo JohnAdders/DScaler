@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.18 2002-02-09 02:44:56 laurentg Exp $
+// $Id: StillSource.h,v 1.19 2002-02-11 21:33:13 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -101,6 +101,7 @@ public:
     void DecodeVBI(TDeinterlaceInfo* pInfo) {;};
     LPCSTR GetMenuLabel();
     BOOL ReadNextFrameInFile();
+    BOOL LoadPlayList(LPCSTR FileName);
     void SaveSnapshot(LPCSTR FilePath, int FrameHeight, int FrameWidth, BYTE* pOverlay, LONG OverlayPitch);
     BOOL OpenMediaFile(LPCSTR FileName, BOOL NewPlayList);
     BOOL IsAccessAllowed();

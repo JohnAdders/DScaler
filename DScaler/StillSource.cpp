@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.30 2002-02-10 09:23:45 laurentg Exp $
+// $Id: StillSource.cpp,v 1.31 2002-02-11 21:33:13 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2002/02/10 09:23:45  laurentg
+// Only display the basename of the file path in the still menu
+//
 // Revision 1.29  2002/02/09 21:12:28  laurentg
 // Old test patterns restored
 // Loading of d3u files improved (absolute or relative path)
@@ -201,6 +204,84 @@ CStillSource::~CStillSource()
     KillTimer(hWnd, TIMER_SLIDESHOW);
 }
 
+BOOL CStillSource::LoadPlayList(LPCSTR FileName)
+{
+    char BufferLine[512];
+    char *Buffer;
+    struct stat st;
+    BOOL FirstItemAdded = FALSE;
+    FILE* Playlist = fopen(FileName, "r");
+    if(Playlist != NULL)
+    {
+        while(!feof(Playlist))
+        {
+            if(fgets(BufferLine, 512, Playlist))
+            {
+                BufferLine[511] = '\0';
+                Buffer = BufferLine;
+                while(strlen(Buffer) > 0 && *Buffer <= ' ')
+                {
+                    Buffer++;
+                }
+                if(strlen(Buffer) == 0 || *Buffer == '#' || *Buffer == ';')
+                {
+                    continue;
+                }
+                // take care of stuff that is at end of the line
+                while(strlen(Buffer) > 0 && Buffer[strlen(Buffer) - 1] <= ' ')
+                {
+                    Buffer[strlen(Buffer) - 1] = '\0';
+                }
+                if (strlen(Buffer) == 0)
+                {
+                    continue;
+                }
+                if (!strncmp(&Buffer[1], ":\\", 2) || (Buffer[0] == '\\'))
+                {
+                    if (!stat(Buffer, &st))
+                    {
+                        CPlayListItem* Item = new CPlayListItem(Buffer, 10);
+                        m_PlayList.push_back(Item);
+                        if (!FirstItemAdded)
+                        {
+                            m_Position = m_PlayList.size() - 1;
+                            FirstItemAdded = TRUE;
+                        }
+                    }
+                }
+                else
+                {
+                    char FilePath[MAX_PATH];
+                    char* pStr = strrchr(FileName, '\\');
+                    if (pStr == NULL)
+                    {
+                        strcpy(FilePath, FileName);
+                    }
+                    else
+                    {
+                        strncpy(FilePath, FileName, pStr - FileName + 1);
+                        FilePath[pStr - FileName + 1] = '\0';
+                        strcat(FilePath, Buffer);
+                    }
+                    if (!stat(FilePath, &st))
+                    {
+                        CPlayListItem* Item = new CPlayListItem(FilePath, 10);
+                        m_PlayList.push_back(Item);
+                        if (!FirstItemAdded)
+                        {
+                            m_Position = m_PlayList.size() - 1;
+                            FirstItemAdded = TRUE;
+                        }
+                    }
+                }
+            }
+        }
+        fclose(Playlist);
+    }
+
+    return FirstItemAdded;
+}
+
 BOOL CStillSource::OpenPictureFile(LPCSTR FileName)
 {
     if(strlen(FileName) > 4 && stricmp(FileName + strlen(FileName) - 4, ".tif") == 0 ||
@@ -233,80 +314,7 @@ BOOL CStillSource::OpenMediaFile(LPCSTR FileName, BOOL NewPlayList)
     // correct helper for the file type
     if(strlen(FileName) > 4 && stricmp(FileName + strlen(FileName) - 4, ".d3u") == 0)
     {
-        char BufferLine[512];
-        char *Buffer;
-        struct stat st;
-        BOOL FirstNewAdded = FALSE;
-        FILE* Playlist = fopen(FileName, "r");
-        if(Playlist != NULL)
-        {
-            while(!feof(Playlist))
-            {
-                if(fgets(BufferLine, 512, Playlist))
-                {
-                    BufferLine[511] = '\0';
-                    Buffer = BufferLine;
-                    while(strlen(Buffer) > 0 && *Buffer <= ' ')
-                    {
-                        Buffer++;
-                    }
-                    if(strlen(Buffer) == 0 || *Buffer == '#' || *Buffer == ';')
-                    {
-                        continue;
-                    }
-                    // take care of stuff that is at end of the line
-                    while(strlen(Buffer) > 0 && Buffer[strlen(Buffer) - 1] <= ' ')
-                    {
-                        Buffer[strlen(Buffer) - 1] = '\0';
-                    }
-                    if (strlen(Buffer) == 0)
-                    {
-                        continue;
-                    }
-                    if (!strncmp(&Buffer[1], ":\\", 2) || (Buffer[0] == '\\'))
-                    {
-                        if (!stat(Buffer, &st))
-                        {
-                            CPlayListItem* Item = new CPlayListItem(Buffer, 10);
-                            m_PlayList.push_back(Item);
-                            if (!FirstNewAdded)
-                            {
-                                m_Position = m_PlayList.size() - 1;
-                                FirstNewAdded = TRUE;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        char FilePath[MAX_PATH];
-                        char* pStr = strrchr(FileName, '\\');
-                        if (pStr == NULL)
-                        {
-                            strcpy(FilePath, FileName);
-                        }
-                        else
-                        {
-                            strncpy(FilePath, FileName, pStr - FileName + 1);
-                            FilePath[pStr - FileName + 1] = '\0';
-                            strcat(FilePath, Buffer);
-                        }
-                        if (!stat(FilePath, &st))
-                        {
-                            CPlayListItem* Item = new CPlayListItem(FilePath, 10);
-                            m_PlayList.push_back(Item);
-                            if (!FirstNewAdded)
-                            {
-                                m_Position = m_PlayList.size() - 1;
-                                FirstNewAdded = TRUE;
-                            }
-                        }
-                    }
-                }
-            }
-            fclose(Playlist);
-        }
-
-        if (FirstNewAdded)
+        if (LoadPlayList(FileName))
         {
             ShowNextInPlayList();
             return TRUE;
@@ -391,6 +399,11 @@ void CStillSource::CreateSettings(LPCSTR IniSection)
 
 void CStillSource::Start()
 {
+    if (!m_IsPictureRead && IsAccessAllowed())
+    {
+        ShowNextInPlayList();
+        WorkoutOverlaySize(TRUE);
+    }
     m_LastTickCount = 0;
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillProvider.cpp,v 1.10 2001-12-08 13:48:40 laurentg Exp $
+// $Id: StillProvider.cpp,v 1.11 2002-02-11 21:33:13 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2001/12/08 13:48:40  laurentg
+// New StillSource for snapshots done during the DScaler session
+//
 // Revision 1.9  2001/12/08 12:04:07  laurentg
 // New setting m_StillFormat
 //
@@ -55,17 +58,25 @@
 #include "resource.h"
 #include "StillProvider.h"
 #include "Other.h"
+#include "Providers.h"
 
-
-static CStillSource* pStillSource = NULL;
 
 CStillProvider::CStillProvider()
 {
+    char PlayList[MAX_PATH];
+    CStillSource* pStillSource;
+
     pStillSource = new CStillSource("Still");
     m_StillSources.push_back(pStillSource);
 
-    pStillSource = new CStillSource("Snapshot");
+    pStillSource = new CStillSource("Snapshots");
     m_StillSources.push_back(pStillSource);
+
+    pStillSource = new CStillSource("Patterns");
+    m_StillSources.push_back(pStillSource);
+    GetModuleFileName (NULL, PlayList, sizeof(PlayList));
+    strcpy(strrchr(PlayList, '\\'), "\\patterns\\pj_calibr.d3u");
+    pStillSource->LoadPlayList(PlayList);
 }
 
 CStillProvider::~CStillProvider()
@@ -76,8 +87,6 @@ CStillProvider::~CStillProvider()
     {
         delete *it;
     }
-    
-    pStillSource = NULL;
 }
 
 int CStillProvider::GetNumberOfSources()
@@ -100,6 +109,8 @@ CSource* CStillProvider::GetSource(int SourceIndex)
 
 void StillProvider_SaveSnapshot(TDeinterlaceInfo* pInfo)
 {
+    CStillSource* pStillSource = (CStillSource*) Providers_GetSnapshotsSource();
+
     if(pStillSource != NULL)
     {
         int n = 0;

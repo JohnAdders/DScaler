@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.22 2002-02-09 21:12:28 laurentg Exp $
+// $Id: Providers.cpp,v 1.23 2002-02-11 21:33:13 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2002/02/09 21:12:28  laurentg
+// Old test patterns restored
+// Loading of d3u files improved (absolute or relative path)
+//
 // Revision 1.21  2002/02/09 14:46:04  laurentg
 // OSD main screen updated to display the correct input name (or channel)
 // OSD main screen updated to display only activated filters
@@ -131,7 +135,7 @@ int Providers_Load(HMENU hMenu)
     int i(0);
     char Text[265];
 
-    ModifyMenu(hMenu, 5, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT)CreatePopupMenu(), "Sources");
+    ModifyMenu(hMenu, 5, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT)CreatePopupMenu(), "&Sources");
     HMENU hSubMenu = GetSubMenu(hMenu, 5);
 
     Providers_Unload();
@@ -237,23 +241,23 @@ CSource* Providers_GetCurrentSource()
     }
 }
 
+CSource* Providers_GetStillsSource()
+{
+    return StillProvider->GetSource(0);
+}
+
+CSource* Providers_GetSnapshotsSource()
+{
+    return StillProvider->GetSource(1);
+}
+
+CSource* Providers_GetPatternsSource()
+{
+    return StillProvider->GetSource(2);
+}
+
 void Providers_SetMenu(HMENU hMenu)
 {
-    if(Providers_GetCurrentSource()->HasTuner())
-    {
-        EnableMenuItem(hMenu, IDM_CHANNELPLUS, MF_ENABLED);
-        EnableMenuItem(hMenu, IDM_CHANNELMINUS, MF_ENABLED);
-        EnableMenuItem(hMenu, IDM_CHANNEL_PREVIOUS, MF_ENABLED);
-        EnableMenuItem(hMenu, IDM_CHANNEL_LIST, MF_ENABLED);
-    }
-    else
-    {
-        EnableMenuItem(hMenu, IDM_CHANNELPLUS, MF_GRAYED);
-        EnableMenuItem(hMenu, IDM_CHANNELMINUS, MF_GRAYED);
-        EnableMenuItem(hMenu, IDM_CHANNEL_PREVIOUS, MF_GRAYED);
-        EnableMenuItem(hMenu, IDM_CHANNEL_LIST, MF_GRAYED);
-    }
-    
     for(int i(0); i < Sources.size(); ++i)
     {
         CheckMenuItemBool(hMenu, IDM_SOURCE_FIRST + i, (CurrentSource == i));
@@ -348,25 +352,6 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             MessageBox(hWnd, "Unsupported File Type", "DScaler Warning", MB_OK);
             return TRUE;
         }
-    }
-    else if (LOWORD(wParam) == IDM_SHOW_PATTERNS)
-    {
-        char FullPath[MAX_PATH];
-        GetModuleFileName (NULL, FullPath, sizeof(FullPath));
-        strcpy(strrchr(FullPath, '\\'), "\\patterns\\pj_calibr.d3u");
-        Stop_Capture();
-        for(int i = 0; i < Sources.size(); ++i)
-        {
-            if(Sources[i]->OpenMediaFile(FullPath, TRUE))
-            {
-                CurrentSource = i;
-                Providers_UpdateMenu(hMenu);
-                Start_Capture();
-                return TRUE;
-            }
-        }
-        Start_Capture();
-        return TRUE;
     }
     if(CurrentSource >= 0 && CurrentSource < Sources.size())
     {

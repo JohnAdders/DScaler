@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_Chroma.c,v 1.1 2003-01-02 13:15:01 adcockj Exp $
+// $Id: FLT_Chroma.c,v 1.2 2003-01-02 16:22:57 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2003/01/02 13:15:01  adcockj
+// Added new plug-ins ready for developement by copying TomsMoComp and Gamma
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
@@ -74,7 +77,7 @@ SETTING FLT_ChromaSettings[FLT_CHROMA_SETTING_LASTONE] =
     },
 };
 
-FILTER_METHOD GammaMethod =
+FILTER_METHOD ChromaMethod =
 {
     sizeof(FILTER_METHOD),
     FILTER_CURRENT_VERSION,
@@ -82,7 +85,7 @@ FILTER_METHOD GammaMethod =
     "Chroma Filter",
     "&Chroma",
     FALSE,
-    TRUE,
+    FALSE,
     FilterChroma, 
     0,
     TRUE,
@@ -100,6 +103,6 @@ FILTER_METHOD GammaMethod =
 
 __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo(long CpuFeatureFlags)
 {
-    return &GammaMethod;
+    return &ChromaMethod;
 }
 

@@ -1,0 +1,205 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+  <!-- #BeginTemplate "/Templates/dtvnormal.dwt" -->
+  <HEAD>
+    <!-- #BeginEditable "doctitle" -->
+    <TITLE>
+      DScaler -- Histogram Filter
+    </TITLE>
+    <!-- #EndEditable -->
+    <META HTTP-EQUIV="Content-Type" CONTENT=
+    "text/html; charset=iso-8859-1">
+<STYLE TYPE="text/css">
+<!--
+p {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+.bottommenu {  font-family: Arial, Helvetica, sans-serif; font-size: 8pt; font-style: normal; text-decoration: none}
+h3 {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt; font-style: normal; font-weight: bold}
+h1 {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 18pt; font-weight: bold}
+li {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+h2 {  font-family: Arial, Helvetica, sans-serif; font-size: 14pt; font-weight: bold}
+ol {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+blockquote {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+pre {  font-family: "Courier New", Courier, mono; font-size: 9pt}
+ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+-->
+</STYLE>
+  </HEAD>
+  <BODY BGCOLOR="#FFFFFF">
+    <TABLE WIDTH="100%" BORDER="0" CELLSPACING="0" CELLPADDING="0">
+      <TR>
+        <TD HEIGHT="1" WIDTH="160">
+          <IMG SRC="images/spacer.gif" WIDTH="1" HEIGHT="1">
+        </TD>
+        <TD HEIGHT="1" WIDTH="342">
+          <IMG SRC="images/spacer.gif" WIDTH="1" HEIGHT="1">
+        </TD>
+        <TD HEIGHT="1" WIDTH="501">
+          <IMG SRC="images/spacer.gif" WIDTH="1" HEIGHT="1">
+        </TD>
+      </TR>
+      <TR>
+        <TD WIDTH="160">
+          <IMG SRC="images/dscalerlogo.jpg" ALT="DScaler Logo">
+        </TD>
+        <TD COLSPAN="2" ALIGN="right" VALIGN="bottom">
+          <FONT FACE="Verdana, Arial, Helvetica, sans-serif" SIZE=
+          "5"><B><!-- #BeginEditable "Page%20Title" -->
+          Histogram Filter <!-- #EndEditable --></B></FONT>
+        </TD>
+      </TR>
+      <TR BGCOLOR="#FFCC00" ALIGN="right">
+        <TD COLSPAN="3">
+          <IMG SRC="images/yellowspacer.gif" WIDTH="100%" HEIGHT=
+          "2"></TD>
+      </TR>
+      <TR>
+        <TD COLSPAN="3">
+          <P>
+            &nbsp;
+          </P>
+        </TD>
+      </TR>
+      <TR>
+        <TD COLSPAN="3">
+          <!-- #BeginEditable "Text" -->
+          <P>
+            This is a diagnostic filter which lets you see the colors used in the current image.  This can
+            help you choose your video settings.
+          </P>
+          <HR>
+          <P>
+            <B><FONT FACE="Arial" SIZE="4">
+              The Settings
+            </FONT></B>
+          </P>
+          <P>
+            <B><FONT FACE="Arial" COLOR="#993300">
+              Display Mode
+            </FONT></B>
+          </P>
+          <P>
+            This filter can display
+          </P>
+            <UL>
+              <LI>
+                The brightness (&ldquo;Y&rdquo;)
+              </LI>
+              <LI>
+                The  color (red &ldquo;U&rdquo;,  blue &ldquo;V&rdquo;, or both)
+              </LI>
+              <LI>
+                Or all three pixel componenents at once
+              </LI>
+            </UL>
+            <P>
+              The brightness is displayed in white, &ldquo;U&rdquo; color in pink, and &ldquo;V&rdquo; color
+              in light blue.  Regardless of the <FONT COLOR="#993300">Display Mode</FONT>, a dotted yellow
+              line will appear below the graph, showing the graph&rsquo;s full 256 value range.
+            </P>
+            <P>
+              The left end of the line represents a color component value of 0; the right end a value
+              of 255.  At each position in the graph, the height of the histogram shows the logarithm of the
+              frequency of that color component value.  Where there aren&rsquo;t any pixels with that color
+              component value, the histogram&rsquo;s dot will be just above the yellow line.
+            </P>
+            <P>
+              You may notice that the values toward the bottom of the graph are vertically separated by quite
+              a bit.  That&rsquo;s just the effect of the log scale &mdash; It doesn&rsquo;t say anything
+              interesting about the picture.
+            </P>
+          <P>
+            <B><FONT FACE="Arial" COLOR="#993300">
+              Vertical Averaging
+            </FONT></B>
+          </P>
+          <P>
+          This option causes the color components to be averaged vertically before inclusion in the
+          histogram.
+          </P>
+          <P>
+          In general, this is a good idea. It gets rid of color crosstalk, which would otherwise
+          artifactually extend the range of the graph. On the other hand, it does cause inaccuracy at
+          vertical edges in the picture.
+           </P>
+          <HR>
+          <P>
+            <B><FONT FACE="Arial" SIZE="4">
+              What&rsquo;s it For?
+            </FONT></B>
+          </P>
+          <P>
+            <B><FONT FACE="Arial">
+              Calibration
+            </FONT></B>
+          </P>
+          <P>
+            You can use this filter to manually calibrate signals for which you don&rsquo;t have a calibration
+            pattern. Just set the Histogram filter&rsquo;s <FONT COLOR="#993300">Display Mode</FONT> to
+            &ldquo;brightness,&rdquo; then open up the &ldquo;Video Settings...&rdquo; dialog.
+          </P>
+          <P>
+            Move the Brightness slider until the low
+            end of the brightness distribution &mdash; which corresponds with black &mdash; is at the very
+            left end of the graph.
+          </P>
+          <P>
+            Then wait until something really, really bright is on screen.  Move the Contrast slider until the
+            whole brightness distribution is shown in the histogram.  It&rsquo;s very important that something
+            very bright be on the screen when you do this &mdash; Otherwise, you&rsquo;ll be cutting off
+            important brightness information.
+          </P>
+          <P>
+            You may need to change your Overlay brightness and contrast settings after you do this.
+          </P>
+          <P>
+            Though this procedure is better than not calibrating at all, it isn&rsquo;t as nice as calibration
+            based on a known pattern.  Using the histogram maximizes the available &ldquo;information,&rdquo;
+            but it does not give you any way to verify the accuracy of the result.
+          </P>
+          <P>
+            <B><FONT FACE="Arial">
+              Diagnostics
+            </FONT></B>
+          </P>
+          <P>
+            This is a pretty general tool, so people will undoubtedly come up with other uses for
+            it.  It lets you see any changes to the signal which occur before DScaler processes the picture,
+            so you can use it as a diagnostic for any early video transmission steps.
+          </P>
+          <P>
+            Note that steps which occur after DScaler processes the picture &mdash; in particular, any overlay
+            or output device settings &mdash; will not show up in the histogram.
+          </P>
+          <!-- #EndEditable -->
+        </TD>
+      </TR>
+      <TR>
+        <TD COLSPAN="3">
+          <P>
+            &nbsp;
+          </P>
+        </TD>
+      </TR>
+      <TR>
+        <TD COLSPAN="3">
+        </TD>
+      </TR>
+      <TR>
+        <TD COLSPAN="3">
+          <P>
+            &nbsp;
+          </P>
+        </TD>
+      </TR>
+      <TR BGCOLOR="#FFCC00">
+        <TD COLSPAN="3">
+          <DIV ALIGN="center">
+            <IMG SRC="images/yellowspacer.gif" WIDTH="100%" HEIGHT=
+            "2"></DIV>
+        </TD>
+      </TR>
+    </TABLE>
+    <!-- #EndTemplate -->
+  </BODY>
+</HTML>
+

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutReso.cpp,v 1.11 2003-04-15 13:07:10 adcockj Exp $
+// $Id: OutReso.cpp,v 1.12 2003-04-26 11:24:11 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2003/04/15 13:07:10  adcockj
+// Fixed memory leak
+//
 // Revision 1.10  2003/04/12 15:23:23  laurentg
 // Interface with PowerStrip when changing resolution (code from Olivier Borca)
 //
@@ -369,17 +372,21 @@ void OutReso_Change(HWND hWnd, HWND hPSWnd, BOOL bUseRegistrySettings, BOOL bCap
 	// If PowerStrip has been found, use it
 	if(hPSWnd)
 	{
-		ATOM aPStripTimingATOM;
-		
+		BOOL changeRes = FALSE;
+
+		// Get the actual PStrip timing string
+		ATOM pActualPStripTimingString = SendMessage(hPSWnd, UM_GETPSTRIPTIMING, 0, 0);
+		LPSTR lActualPStripTimingString = new char[PSTRIP_TIMING_STRING_SIZE];	
+		GlobalGetAtomName(pActualPStripTimingString, lActualPStripTimingString, PSTRIP_TIMING_STRING_SIZE);
+		GlobalDeleteAtom(pActualPStripTimingString);
+
+		ATOM aPStripTimingATOM = NULL;		
 		if((lTimingString != NULL) && (bApplyPStripTimingString))
 		{
-			aPStripTimingATOM = GlobalAddAtom(lTimingString);		
-
-			// Apply the PowerStrip timing string
-			// If the PostMessage is successfull, the Atom is automatically deleted
-			if(!PostMessage(hPSWnd, UM_SETPSTRIPTIMING, 0, aPStripTimingATOM))
+			if(lTimingString != lActualPStripTimingString)
 			{
-				GlobalDeleteAtom(aPStripTimingATOM);
+				aPStripTimingATOM = GlobalAddAtom(lTimingString);
+				changeRes = TRUE;
 			}
 		}
 		else if (Providers_GetCurrentSource())
@@ -391,22 +398,65 @@ void OutReso_Change(HWND hWnd, HWND hPSWnd, BOOL bUseRegistrySettings, BOOL bCap
 			if((videoFormat == VIDEOFORMAT_PAL_B) || (videoFormat == VIDEOFORMAT_PAL_D) || (videoFormat == VIDEOFORMAT_PAL_G) || (videoFormat == VIDEOFORMAT_PAL_H)
 				|| (videoFormat == VIDEOFORMAT_PAL_I) || (videoFormat == VIDEOFORMAT_PAL_M) || (videoFormat == VIDEOFORMAT_PAL_N)
 				|| (videoFormat == VIDEOFORMAT_PAL_60) || (videoFormat == VIDEOFORMAT_PAL_N_COMBO))
-			{				
-				aPStripTimingATOM = GlobalAddAtom(PStrip576i);
+			{	
+				if(PStrip576i != lActualPStripTimingString)
+				{
+					aPStripTimingATOM = GlobalAddAtom(PStrip576i);
+					changeRes = TRUE;
+				}
 			}
 			// 480i_50Hz and 480i_60Hz
 			else if((videoFormat == VIDEOFORMAT_NTSC_M) || (videoFormat == VIDEOFORMAT_NTSC_M_Japan) || (videoFormat == VIDEOFORMAT_NTSC_50))
-			{				
-				aPStripTimingATOM = GlobalAddAtom(PStrip480i);
-			}	
-			
+			{	
+				if(PStrip480i != lActualPStripTimingString)
+				{
+					aPStripTimingATOM = GlobalAddAtom(PStrip480i);
+					changeRes = TRUE;
+				}				
+			}									
+		}
+		
+		if(changeRes == TRUE)
+		{
+			BOOL bOverlay = OverlayActive();
+
+			// Stop the overlay (and the capture)
+			if (bOverlay)
+			{
+				if (bCaptureRunning)
+				{
+					Overlay_Stop(hWnd);
+				}
+				else
+				{
+					Overlay_Destroy();
+				}
+			}
+
 			// Apply the PowerStrip timing string
 			// If the PostMessage is successfull, the Atom is automatically deleted
-			if(!PostMessage(hPSWnd, UM_SETPSTRIPTIMING, 0, aPStripTimingATOM))
+			if(aPStripTimingATOM != NULL)
 			{
-				GlobalDeleteAtom(aPStripTimingATOM);
+				if(!SendMessage(hPSWnd, UM_SETPSTRIPTIMING, 0, aPStripTimingATOM))
+				{
+					GlobalDeleteAtom(aPStripTimingATOM);
+				}
+			}
+
+			// Restart the overlay (and the capture)
+			if (bOverlay)
+			{
+				if (bCaptureRunning)
+				{
+					Overlay_Start(hWnd);
+				}
+				else
+				{
+					Overlay_Create();
+				}
 			}
 		}
+		delete lActualPStripTimingString;
 	}
 	else
 	{

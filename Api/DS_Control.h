@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.150 2003-08-02 12:01:43 laurentg Exp $
+// $Id: DS_Control.h,v 1.151 2003-09-13 13:47:44 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.150  2003/08/02 12:01:43  laurentg
+// Two new settings to define how many channels to display in preview mode
+//
 // Revision 1.149  2003/07/30 03:24:34  atnak
 // Added NOHARDWAREMUTE to list of saved settings
 //
@@ -1799,6 +1802,7 @@ typedef enum
 typedef enum
 {
 	TIMESHIFTSAVINGPATH,
+	TIMESHIFTSHOWWARNING,
     TIMESHIFT_SETTING_LASTONE,
 } TIMESHIFT_SETTING;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsDlg.cpp,v 1.2 2001-06-23 15:37:53 adcockj Exp $
+// $Id: SettingsDlg.cpp,v 1.3 2001-06-24 14:07:22 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -94,7 +94,7 @@ BOOL CSettingsDlg::OnInitDialog()
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
-void CSettingsDlg::ShowSettingsDlg(CString caption,SETTING *settings,long count)
+void CSettingsDlg::ShowSettingsDlg(CString caption,SETTING *settings,long count,CWnd *pParent)
 {
 	if(settings==NULL || count==0)
 	{
@@ -102,7 +102,7 @@ void CSettingsDlg::ShowSettingsDlg(CString caption,SETTING *settings,long count)
 		return;
 	}
 
-	CSettingsDlg dlg;
+	CSettingsDlg dlg(pParent);
 	dlg.m_settingsCount=count;
 	dlg.m_settings=settings;
 	dlg.m_caption=caption;
@@ -186,7 +186,7 @@ void CSettingsDlg::UpdateControls()
 	m_chk.SetWindowText(m_settings[m_currentSetting].szDisplayName);
 	
 	m_slider.SetRange(m_settings[m_currentSetting].MinValue,m_settings[m_currentSetting].MaxValue);
-	m_slider.ClearTics();
+	m_slider.ClearTics(TRUE);
 	m_slider.SetTic(m_settings[m_currentSetting].Default);
 	m_slider.SetPos(*m_settings[m_currentSetting].pValue);
 	m_slider.SetPageSize(m_settings[m_currentSetting].StepValue);
@@ -194,11 +194,30 @@ void CSettingsDlg::UpdateControls()
 	m_combo.ResetContent();
 	if(m_settings[m_currentSetting].pszList != NULL)
 	{
+		bool bFoundSetting=false;
 		for(int i(m_settings[m_currentSetting].MinValue); i <= m_settings[m_currentSetting].MaxValue; ++i)
 		{
-			m_combo.AddString(m_settings[m_currentSetting].pszList[i]);
+			//is there any text for this item?
+			if(strlen(m_settings[m_currentSetting].pszList[i])>0)
+			{
+				int pos=m_combo.AddString(m_settings[m_currentSetting].pszList[i]);
+				
+				//store value in itemdata
+				m_combo.SetItemData(pos,i);
+				
+				//is this item the current value?
+				if(*m_settings[m_currentSetting].pValue==i)
+				{
+					m_combo.SetCurSel(pos);
+					bFoundSetting=true;
+				}
+			}
 		}
-		m_combo.SetCurSel(*m_settings[m_currentSetting].pValue);
+		if(bFoundSetting==false)
+		{
+			//clear selection since we didnt find pValue
+			m_combo.SetCurSel(-1);
+		}
 	}
 }
 
@@ -234,8 +253,12 @@ void CSettingsDlg::OnCheckClick()
 	UpdateControls();	
 }
 
-void CSettingsDlg::OnSelchangeChoosefromlist() 
+void CSettingsDlg::OnSelchangeChoosefromlist()
 {
-	*m_settings[m_currentSetting].pValue = m_combo.GetCurSel();
-	UpdateControls();	
+	
+	if(m_combo.GetCurSel()!=CB_ERR)
+	{
+		*m_settings[m_currentSetting].pValue = m_combo.GetItemData(m_combo.GetCurSel());
+	}
+	UpdateControls();
 }

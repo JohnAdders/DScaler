@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsDlg.h,v 1.2 2001-06-23 15:37:53 adcockj Exp $
+// $Id: SettingsDlg.h,v 1.3 2001-06-24 14:07:22 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,7 @@
 
 #include "DS_ApiCommon.h"
 #include "resource.h"
+#include "HSListBox.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CSettingsDlg dialog
@@ -40,7 +41,7 @@ class CSettingsDlg : public CDialog
 {
 // Construction
 public:
-	static void ShowSettingsDlg(CString caption,SETTING *settings,long count);
+	static void ShowSettingsDlg(CString caption,SETTING *settings,long count,CWnd *pParent=NULL);
 	friend CSettingsDlg::ShowSettingsDlg(SETTING *,long );
 
 	CSettingsDlg(CWnd* pParent = NULL);	// standard constructor
@@ -54,7 +55,7 @@ public:
 	CSliderCtrl	m_slider;
 	CEdit	m_edit;
 	CButton	m_btnDefault;
-	CListBox	m_lstbox;
+	CHSListBox	m_lstbox;
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides

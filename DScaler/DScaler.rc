@@ -466,7 +466,8 @@ CAPTION "Settings"
 FONT 8, "MS Sans Serif"
 BEGIN
     LISTBOX         IDC_SETTINGS_LIST,7,1,100,171,LBS_SORT | 
-                    LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+                    LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_HSCROLL | 
+                    WS_TABSTOP
     EDITTEXT        IDC_SETTINGS_EDIT,114,1,40,14,ES_AUTOHSCROLL | ES_NUMBER | 
                     NOT WS_VISIBLE
     CONTROL         "Spin1",IDC_SETTINGS_SPIN,"msctls_updown32",
@@ -481,7 +482,7 @@ BEGIN
     PUSHBUTTON      "Default",IDC_SETTINGS_DEFAULT,115,30,45,14,NOT 
                     WS_VISIBLE
     COMBOBOX        IDC_CHOOSEFROMLIST,113,1,128,75,CBS_DROPDOWNLIST | 
-                    WS_VSCROLL | WS_TABSTOP
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
 END
 
 

@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// $Id: DS_ApiCommon.h,v 1.11 2001-07-16 18:07:50 adcockj Exp $
+// $Id: DS_ApiCommon.h,v 1.12 2001-11-10 10:36:27 pgubanov Exp $
 ///////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2001/07/16 18:07:50  adcockj
+// Added Optimisation parameter to ini file saving
+//
 // Revision 1.10  2001/07/13 16:15:43  adcockj
 // Changed lots of variables to match Coding standards
 //
@@ -110,7 +113,7 @@ typedef struct
 // Describes the inputs to a deinterlacing or filter algorithm.
 
 // Deinterlace functions return true if the overlay is ready to be displayed.
-typedef void (MEMCPY_FUNC)(void* pOutput, void* pInput, size_t nSize);
+typedef void (_cdecl MEMCPY_FUNC)(void* pOutput, void* pInput, size_t nSize);
 
 #define MAX_FIELD_HISTORY 5
 

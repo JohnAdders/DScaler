@@ -16,6 +16,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/01/17 07:50:32  lindsey
+// Increased effect of nearby motion on averaging
+// Moved some magic numbers into #defines
+// Reduced artifacts with the "lock dot"
+// Slightly changed parameterization
+// Improved documentation and formatting
+//
 // Revision 1.2  2002/01/04 01:29:54  lindsey
 // Changed parameterization
 //
@@ -25,7 +32,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-#define ADAPTIVE_NOISE_DEBUG
+// #define ADAPTIVE_NOISE_DEBUG
 
 #include <limits.h>
 #include <math.h>

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.h,v 1.23 2002-08-27 22:09:39 kooiman Exp $
+// $Id: DSSource.h,v 1.24 2002-09-04 17:10:24 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2002/08/27 22:09:39  kooiman
+// Add get/set input for DS capture source.
+//
 // Revision 1.22  2002/08/21 20:29:20  kooiman
 // Fixed settings and added setting for resolution. Fixed videoformat==lastone in dstvtuner.
 //
@@ -119,6 +122,7 @@
 #endif // _MSC_VER > 1000
 
 #include "DSSourceBase.h"
+#include <map>
 
 /**
  * This source controls a DirectShow capture graph.
@@ -157,44 +161,48 @@ public:
 	BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat);
 	BOOL IsVideoPresent();
 
-  int  NumInputs(eSourceInputType InputType);
-  BOOL SetInput(eSourceInputType InputType, int Nr);
-  int GetInput(eSourceInputType InputType);
-  const char* GetInputName(eSourceInputType InputType, int Nr);
-  BOOL InputHasTuner(eSourceInputType InputType, int Nr);
+	int  NumInputs(eSourceInputType InputType);
+	BOOL SetInput(eSourceInputType InputType, int Nr);
+	int GetInput(eSourceInputType InputType);
+	const char* GetInputName(eSourceInputType InputType, int Nr);
+	BOOL InputHasTuner(eSourceInputType InputType, int Nr);
 
 
-    void UpdateMenu() {return;};
+	void UpdateMenu() {return;};
 	void SetMenu(HMENU hMenu);
 	BOOL IsAccessAllowed();
 	LPCSTR GetMenuLabel();
 
-    void SetOverscan();
+	void SetOverscan();
 	
 	BOOL OpenMediaFile(LPCSTR FileName, BOOL NewPlayList);
 	void DecodeVBI(TDeinterlaceInfo* pInfo){};
 	
 	///@todo this probably have to be changed
-    BOOL HasSquarePixels() {return TRUE;};
+	BOOL HasSquarePixels() {return FALSE;};
 
-    void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff) {;};
+	void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff) {;};
 
-    void SettingsPerChannelSetup(int Start);
-    void TunerChannelChange(int PreChange, int OldChannel, int NewChannel);
+	void SettingsPerChannelSetup(int Start);
+	void TunerChannelChange(int PreChange, int OldChannel, int NewChannel);
 	
 	static void ChannelChange(void *pThis,int PreChange,int OldChannel,int NewChannel);
 	static void OnSetup(void *pThis, int Start);
 	
 	void Start();
 	void Stop();
-  
-private:
-	string m_device;
-	string m_deviceName;
-  BOOL   m_HaveInputList;
-  vector<int> m_VideoInputList;
-  vector<int> m_AudioInputList;
 
+private:
+	///resets m_VideoFmt to default
+	void CreateDefaultVideoFmt();
+
+	string m_Device;
+	string m_DeviceName;
+	vector<CDShowGraph::CVideoFormat> m_VideoFmt;
+
+	BOOL m_HaveInputList;
+	vector<int> m_VideoInputList;
+	vector<int> m_AudioInputList;
 
 	DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, Brightness);
 	DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, Contrast);
@@ -206,7 +214,7 @@ private:
 	DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, AudioInput);
 	DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, LastTunerChannel);
 
-  DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, Resolution);  
+	DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, Resolution);
 };
 
 #endif // !defined(AFX_DSSOURCE_H__C552BD3D_0240_4408_805B_0783992D937E__INCLUDED_)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.35 2002-09-02 19:32:21 kooiman Exp $
+// $Id: DSSource.cpp,v 1.36 2002-09-04 17:10:24 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.35  2002/09/02 19:32:21  kooiman
+// Fixed small bug. Thread doesn't crash anymore.
+//
 // Revision 1.34  2002/08/27 22:09:39  kooiman
 // Add get/set input for DS capture source.
 //
@@ -163,6 +166,8 @@
 #include "Audio.h"
 #include "SettingsPerChannel.h"
 #include "ProgramList.h"
+#include "TreeSettingsDlg.h"
+#include "DSVideoFormatPage.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -230,30 +235,11 @@ const AnalogVideoStandard eVideoFormatTable[] =
 	AnalogVideo_NTSC_433,	// == VIDEOFORMAT_NTSC_50 ?
 };
 
-struct resolutionType
-{
-	long x;
-	long y;
-};
-
-//maybe this shoud be user configurable,
-//but that is a bit hard when the settings classes dont allow string settings
-resolutionType res[]=
-{
-	768,576,
-	720,480,
-	640,480,
-	320,240,
-	160,120,
-	88,72,
-	0,0
-};
-
 CDSCaptureSource::CDSCaptureSource(string device,string deviceName) :
 	CDSSourceBase(0,IDC_DSHOWSOURCEMENU),
-	m_device(device),
-	m_deviceName(deviceName),
-  m_HaveInputList(FALSE)
+	m_Device(device),
+	m_DeviceName(deviceName),
+	m_HaveInputList(FALSE)
 {
 	m_IDString = std::string("DS_") + device;
 	CreateSettings(device.c_str());
@@ -263,7 +249,7 @@ CDSCaptureSource::CDSCaptureSource(string device,string deviceName) :
 
 CDSCaptureSource::~CDSCaptureSource()
 {
-  WriteToIni(TRUE);  
+
 }
 
 BOOL CDSCaptureSource::IsAccessAllowed()
@@ -279,11 +265,15 @@ BOOL CDSCaptureSource::OpenMediaFile(LPCSTR FileName, BOOL NewPlayList)
 ISetting* CDSCaptureSource::GetBrightness()
 {
 	if(m_pDSGraph==NULL)
+	{
 		return NULL;
-	
+	}
+
 	CDShowBaseSource *pSrc=m_pDSGraph->getSourceDevice();
 	if(pSrc==NULL)
+	{
 		return NULL;
+	}
 
 	CDShowCaptureDevice *pCap=NULL;
 	if(pSrc->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
@@ -294,7 +284,6 @@ ISetting* CDSCaptureSource::GetBrightness()
 			long min;
 			long max;
 			long def;
-			//long value;
 
 			try
 			{
@@ -302,16 +291,13 @@ ISetting* CDSCaptureSource::GetBrightness()
 				m_Brightness->SetMax(max);
 				m_Brightness->SetMin(min);
 
-				//why does ChangeDefault() change the value itself too?
-				//value=m_Brightness->GetValue();
 				m_Brightness->ChangeDefault(def,TRUE);
-				//m_Brightness->SetValue(value);
 				return m_Brightness;
 			}
 			catch(CDShowException e)
 			{
-                LOG(1, "Exception in CDSCaptureSource::GetBrightness - %s", (LPCSTR)e.getErrorText());
-            }
+				LOG(1, "Exception in CDSCaptureSource::GetBrightness - %s", (LPCSTR)e.getErrorText());
+			}
 		}
 	}
 	return NULL;
@@ -319,18 +305,18 @@ ISetting* CDSCaptureSource::GetBrightness()
 
 void CDSCaptureSource::BrightnessOnChange(long Brightness, long OldValue)
 {
-	//if(Brightness==OldValue)
-  //		return;
 	if(m_pDSGraph==NULL)
+	{
 		return;
-	
+	}
+
 	try
 	{
 		CDShowCaptureDevice *pCap=NULL;
 		if(m_pDSGraph->getSourceDevice()->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
 		{
 			pCap=(CDShowCaptureDevice*)m_pDSGraph->getSourceDevice();
-      LOG(3,"DSCaptureSource: Set brightness to %d",Brightness);
+			LOG(3,"DSCaptureSource: Set brightness to %d",Brightness);
 			pCap->set(VideoProcAmp_Brightness,Brightness,VideoProcAmp_Flags_Manual);
 		}
 	}
@@ -343,11 +329,15 @@ void CDSCaptureSource::BrightnessOnChange(long Brightness, long OldValue)
 ISetting* CDSCaptureSource::GetContrast()
 {
 	if(m_pDSGraph==NULL)
+	{
 		return NULL;
+	}
 
 	CDShowBaseSource *pSrc=m_pDSGraph->getSourceDevice();
 	if(pSrc==NULL)
+	{
 		return NULL;
+	}
 
 	CDShowCaptureDevice *pCap=NULL;
 	if(pSrc->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
@@ -358,22 +348,20 @@ ISetting* CDSCaptureSource::GetContrast()
 			long min;
 			long max;
 			long def;
-			//long value;
 
 			try
 			{
 				pCap->getRange(VideoProcAmp_Contrast,&min,&max,NULL,&def);
 				m_Contrast->SetMax(max);
 				m_Contrast->SetMin(min);
-				//value=m_Contrast->GetValue();
+
 				m_Contrast->ChangeDefault(def,TRUE);
-				//m_Contrast->SetValue(value);
 				return m_Contrast;
 			}
 			catch(CDShowException e)
 			{
-                LOG(1, "Exception in CDSCaptureSource::GetContrast - %s", (LPCSTR)e.getErrorText());
-            }
+				LOG(1, "Exception in CDSCaptureSource::GetContrast - %s", (LPCSTR)e.getErrorText());
+			}
 		}
 	}
 	return NULL;
@@ -381,10 +369,11 @@ ISetting* CDSCaptureSource::GetContrast()
 
 void CDSCaptureSource::ContrastOnChange(long Contrast, long OldValue)
 {
-	//if(Contrast==OldValue)
-	//	return;
 	if(m_pDSGraph==NULL)
+	{
 		return;
+	}
+
 	try
 	{
 		CDShowCaptureDevice *pCap=NULL;
@@ -403,11 +392,15 @@ void CDSCaptureSource::ContrastOnChange(long Contrast, long OldValue)
 ISetting* CDSCaptureSource::GetHue()
 {
 	if(m_pDSGraph==NULL)
+	{
 		return NULL;
+	}
 
 	CDShowBaseSource *pSrc=m_pDSGraph->getSourceDevice();
 	if(pSrc==NULL)
+	{
 		return NULL;
+	}
 
 	CDShowCaptureDevice *pCap=NULL;
 	if(pSrc->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
@@ -418,22 +411,20 @@ ISetting* CDSCaptureSource::GetHue()
 			long min;
 			long max;
 			long def;
-			//long value;
 
 			try
 			{
 				pCap->getRange(VideoProcAmp_Hue,&min,&max,NULL,&def);
 				m_Hue->SetMax(max);
 				m_Hue->SetMin(min);
-				//value=m_Hue->GetValue();
+
 				m_Hue->ChangeDefault(def, TRUE);
-				//m_Hue->SetValue(value);
 				return m_Hue;
 			}
 			catch(CDShowException e)
 			{
-                LOG(1, "Exception in CDSCaptureSource::GetHue - %s", (LPCSTR)e.getErrorText());
-            }
+				LOG(1, "Exception in CDSCaptureSource::GetHue - %s", (LPCSTR)e.getErrorText());
+			}
 		}
 	}
 	return NULL;
@@ -441,10 +432,11 @@ ISetting* CDSCaptureSource::GetHue()
 
 void CDSCaptureSource::HueOnChange(long Hue, long OldValue)
 {
-	//if(Hue==OldValue)
-	//	return;
 	if(m_pDSGraph==NULL)
+	{
 		return;
+	}
+
 	try
 	{
 		CDShowCaptureDevice *pCap=NULL;
@@ -463,11 +455,15 @@ void CDSCaptureSource::HueOnChange(long Hue, long OldValue)
 ISetting* CDSCaptureSource::GetSaturation()
 {
 	if(m_pDSGraph==NULL)
+	{
 		return NULL;
+	}
 
 	CDShowBaseSource *pSrc=m_pDSGraph->getSourceDevice();
 	if(pSrc==NULL)
+	{
 		return NULL;
+	}
 
 	CDShowCaptureDevice *pCap=NULL;
 	if(pSrc->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
@@ -478,22 +474,20 @@ ISetting* CDSCaptureSource::GetSaturation()
 			long min;
 			long max;
 			long def;
-			//long value;
 
 			try
 			{
 				pCap->getRange(VideoProcAmp_Saturation,&min,&max,NULL,&def);
 				m_Saturation->SetMax(max);
 				m_Saturation->SetMin(min);
-				//value=m_Saturation->GetValue();
+
 				m_Saturation->ChangeDefault(def,TRUE);
-				//m_Saturation->SetValue(value);
 				return m_Saturation;
 			}
 			catch(CDShowException e)
 			{
-                LOG(1, "Exception in CDSCaptureSource::GetSaturation - %s", (LPCSTR)e.getErrorText());
-            }
+				LOG(1, "Exception in CDSCaptureSource::GetSaturation - %s", (LPCSTR)e.getErrorText());
+			}
 		}
 	}
 	return NULL;
@@ -501,10 +495,11 @@ ISetting* CDSCaptureSource::GetSaturation()
 
 void CDSCaptureSource::SaturationOnChange(long Saturation, long OldValue)
 {
-	//if(Saturation==OldValue)
-	//	return;
 	if(m_pDSGraph==NULL)
+	{
 		return;
+	}
+
 	try
 	{
 		CDShowCaptureDevice *pCap=NULL;
@@ -547,12 +542,12 @@ void CDSCaptureSource::CreateSettings(LPCSTR IniSection)
 	m_LastTunerChannel = new CLastTunerChannelSetting(this, "LastTunerChannel", 0, 0, LONG_MAX, IniSection);
 	m_Settings.push_back(m_LastTunerChannel);
 
-  //m_Resolution = new CResolutionSetting(this, "Resolution", -1, -1, LONG_MAX, IniSection);
-  m_Resolution = new CResolutionSetting(this, "Resolution", -1, -1, (sizeof(res)/sizeof(resolutionType)) - 1, IniSection);
-  m_Settings.push_back(m_Resolution);
+	m_Resolution = new CResolutionSetting(this, "Resolution", -1, -1, LONG_MAX, IniSection);
+	//m_Resolution = new CResolutionSetting(this, "Resolution", -1, -1, (sizeof(res)/sizeof(resolutionType)) - 1, IniSection);
+	m_Settings.push_back(m_Resolution);
 
-	ReadFromIni();  
-  LOG(2,"DSCaptureSource: setting read from .ini");
+	ReadFromIni();
+	LOG(2,"DSCaptureSource: setting read from .ini");
 }
 
 BOOL CDSCaptureSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
@@ -621,33 +616,60 @@ BOOL CDSCaptureSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam
 		try
 		{
 			CAutoCriticalSection lock(m_hOutThreadSync);
-      long x = res[LOWORD(wParam)-IDM_DSHOW_RES_0].x;
-      long y = res[LOWORD(wParam)-IDM_DSHOW_RES_0].y;
-			m_pDSGraph->changeRes(x,y);
-            
-      m_Resolution->SetValue(-1);
-      int n = 0;
-      while (res[n].x != 0)
-      {
-          if ((res[n].x == x) && (res[n].y == y))
-          {
-              m_Resolution->SetValue(n);
-          }
-          n++;
-      }
+			long OldRes=m_Resolution->GetValue();
+			long NewRes=LOWORD(wParam)-IDM_DSHOW_RES_0;
 
+			ASSERT(NewRes>=0 && NewRes<m_VideoFmt.size());
+			CDShowGraph::eChangeRes_Error err=m_pDSGraph->ChangeRes(m_VideoFmt[NewRes]);
+			switch(err)
+			{
+			case CDShowGraph::eChangeRes_Error::ERROR_NO_GRAPH:
+				ErrorBox("Can't change resolution because there is no filter graph (bug)");
+				break;
+			case CDShowGraph::eChangeRes_Error::ERROR_CHANGED_BACK:
+				ErrorBox("The selected resolution is not valid or coud not be used");
+				break;
+			case CDShowGraph::eChangeRes_Error::ERROR_FAILED_TO_CHANGE_BACK:
+				ErrorBox("Failed to change resolution and faild to change back to previous resolution");
+				//shod probably call Stop() or Reset() here since the
+				//filter graph is most likely broken now
+				break;
+			case CDShowGraph::eChangeRes_Error::SUCCESS:
+				m_Resolution->SetValue(NewRes);
+				break;
+			}
+			NotifySquarePixelsCheck();
 		}
 		catch(CDShowException &e)
 		{
-			ErrorBox(CString("Failed to change resolution\n\n")+e.getErrorText());
+			ErrorBox(CString("Error when changeing resolution\n\n")+e.getErrorText());
+		}
+		catch(exception &e2)
+		{
+			ErrorBox(CString("Stl exception:\n\n")+e2.what());
 		}
 	}
-	
+	else if(LOWORD(wParam)==IDM_DSHOW_SETTINGS)
+	{
+		CTreeSettingsDlg dlg(CString("DirectShow Settings"));
+
+		CTreeSettingsPage AudioDevice("Audio device",IDD_DSHOW_AUDIODEVICE);
+		CDSVideoFormatPage VidemFmt(CString("Video format"),m_VideoFmt,m_Resolution);
+
+		dlg.AddPage(&AudioDevice);
+		dlg.AddPage(&VidemFmt);
+		dlg.DoModal();
+	}
+
 	return FALSE;
 }
 
 eVideoFormat CDSCaptureSource::GetFormat()
 {
+	/**
+	 * @todo this probably needs to be implemented, looks like dscaler uses
+	 * this to determine pal/ntsc signal.
+	 */
 	return VIDEOFORMAT_PAL_B;
 }
 
@@ -662,7 +684,7 @@ BOOL CDSCaptureSource::IsInTunerMode()
 	{
 		pCap=(CDShowCaptureDevice*)m_pDSGraph->getSourceDevice();
 	}
-	
+
 	if(pCap!=NULL)
 	{
 		CDShowBaseCrossbar *pCrossbar=pCap->getCrossbar();
@@ -672,16 +694,16 @@ BOOL CDSCaptureSource::IsInTunerMode()
 			{
 				long cIn,cOut;
 				pCrossbar->GetPinCounts(cIn,cOut);
-        for(long i=0;i<cIn;i++)
+				for(long i=0;i<cIn;i++)
 				{
 					if (pCrossbar->IsInputSelected(i))
-          {
-              if (pCrossbar->GetInputType(i) == PhysConn_Video_Tuner)
-					    {
-						    LOG(3,"DSSource: IsInTunerMode.");
-						    return TRUE;              
-					    }
-          }
+					{
+						if (pCrossbar->GetInputType(i) == PhysConn_Video_Tuner)
+						{
+							LOG(3,"DSSource: IsInTunerMode.");
+							return TRUE;
+						}
+					}
 				}
 			}
 			catch(CDShowException &e)
@@ -698,11 +720,11 @@ BOOL CDSCaptureSource::HasTuner()
 {
 	if(m_pDSGraph==NULL)
 		return FALSE;
-	
+
 	CDShowBaseSource *pSrc=m_pDSGraph->getSourceDevice();
 	if(pSrc==NULL)
 		return FALSE;
-	
+
 	CDShowCaptureDevice *pCap=NULL;
 	if(pSrc->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
 	{
@@ -712,16 +734,15 @@ BOOL CDSCaptureSource::HasTuner()
 			return TRUE;
 		}
 	}
-	
+
 	return FALSE;
 }
-
 
 BOOL CDSCaptureSource::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
 {
 	if(m_pDSGraph==NULL)
 		return FALSE;
-	
+
 	CDShowBaseSource *pSrc=m_pDSGraph->getSourceDevice();
 	if(pSrc==NULL)
 		return FALSE;
@@ -731,17 +752,17 @@ BOOL CDSCaptureSource::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFor
 	{
 		pCap=(CDShowCaptureDevice*)pSrc;
 		CDShowTVTuner *pTvTuner = pCap->getTVTuner();
-		if(pTvTuner == NULL) 
+		if(pTvTuner == NULL)
 			return FALSE;
-		
+
 		LOG(3,"DSSource: SetTunerFrequency: Found TVTuner");
 		try
     {
       static BOOL bFirstTime = TRUE;
-      
+
       //Choose a country with a unicable frequency table
-      int CountryCode = 31; 
-        
+      int CountryCode = 31;
+
       long lCurrentCountryCode = pTvTuner->getCountryCode();
       if (bFirstTime || (CountryCode != lCurrentCountryCode))
       {
@@ -749,27 +770,27 @@ BOOL CDSCaptureSource::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFor
           pTvTuner->putCountryCode(CountryCode);
       }
 
-      
+
       TunerInputType pInputType = pTvTuner->getInputType();
       TunerInputType pNewInputType = TunerInputCable; //unicable frequency table
-      
+
       if (bFirstTime || (pInputType != pNewInputType))
       {
           LOG(2,"DSSource: SetTunerFrequency: Set input type");
-          pTvTuner->setInputType(pNewInputType); 
+          pTvTuner->setInputType(pNewInputType);
       }
-      
+
       // set video format
       long lAnalogVideoStandard = pCap->getTVFormat();
       long lNewAnalogVideoStandard;
       if ( ((int)VideoFormat < 0) || (VideoFormat >= VIDEOFORMAT_LASTONE))
-      {                         
+      {
           lNewAnalogVideoStandard = lAnalogVideoStandard;
       }
       else
       {
           lNewAnalogVideoStandard = eVideoFormatTable[VideoFormat];
-      }      
+      }
 
       if (bFirstTime || (lAnalogVideoStandard != lNewAnalogVideoStandard))
       {
@@ -802,14 +823,14 @@ void CDSCaptureSource::SetMenu(HMENU hMenu)
 	{
 		return;
 	}
-  
+
 	CMenu topMenu;
 	topMenu.Attach(m_hMenu);
 	CMenu *menu=topMenu.GetSubMenu(0);
-	
+
 	CDShowCaptureDevice *pCap=NULL;
 	CDShowBaseCrossbar *pCrossbar=NULL;
-	
+
 	CDShowBaseSource *pSrc=m_pDSGraph->getSourceDevice();
 	if(pSrc!=NULL)
 	{
@@ -826,7 +847,7 @@ void CDSCaptureSource::SetMenu(HMENU hMenu)
 	{
 		CMenu vidSubMenu;
 		CMenu audSubMenu;
-		
+
 		//create video input submenu and insert it
 		vidSubMenu.CreateMenu();
 		menu->GetMenuString(0,menuText,MF_BYPOSITION);
@@ -838,7 +859,7 @@ void CDSCaptureSource::SetMenu(HMENU hMenu)
 		menu->GetMenuString(3,menuText,MF_BYPOSITION);
 		menu->ModifyMenu(3,MF_POPUP|MF_BYPOSITION,(UINT) audSubMenu.GetSafeHmenu(),menuText);
 		menu->EnableMenuItem(3,MF_BYPOSITION|MF_ENABLED);
-		
+
 		long cIn,cOut;
 		pCrossbar->GetPinCounts(cIn,cOut);
 		for(int i=0;i<cIn;i++)
@@ -865,11 +886,11 @@ void CDSCaptureSource::SetMenu(HMENU hMenu)
 		menu->EnableMenuItem(3,MF_BYPOSITION|MF_GRAYED);
 	}
 
-	//video format menu
+	//video standards menu
 	if(pCap!=NULL && pCap->hasVideoDec())
 	{
 		CMenu formatMenu;
-		
+
 		long formats=0;
 		long selectedFormat=0;
 		try
@@ -881,7 +902,7 @@ void CDSCaptureSource::SetMenu(HMENU hMenu)
 		{
             LOG(1, "Exception in CDSCaptureSource::SetMenu - %s", (LPCSTR)e.getErrorText());
         }
-		
+
 		//make sure there is at least one format to be selected
 		if(formats!=0)
 		{
@@ -889,7 +910,7 @@ void CDSCaptureSource::SetMenu(HMENU hMenu)
 			menu->GetMenuString(1,menuText,MF_BYPOSITION);
 			menu->ModifyMenu(1,MF_POPUP|MF_BYPOSITION,(UINT)formatMenu.GetSafeHmenu(),menuText);
 			menu->EnableMenuItem(1,MF_BYPOSITION|MF_ENABLED);
-			
+
 			int i=0;
 			while(videoStandards[i].format!=0)
 			{
@@ -915,38 +936,28 @@ void CDSCaptureSource::SetMenu(HMENU hMenu)
 	}
 
 	//resolution submenu
-	int i=0;
-	bool resAdded=false;
-	CMenu resSubMenu;
-	resSubMenu.CreateMenu();
-	while(res[i].x!=0 || res[i].y!=0)
-	{
-		if(m_pDSGraph->isValidRes(res[i].x,res[i].y))
-		{
-			CString str;
-			str.Format("%ldx%ld",res[i].x,res[i].y);
-			ASSERT(IDM_DSHOW_RES_0+i<=IDM_DSHOW_RES_MAX);
-			resSubMenu.AppendMenu(MF_STRING,IDM_DSHOW_RES_0+i,str);
-			resAdded=true;
+	bool ResAdded=false;
+	CMenu ResSubMenu;
+	ResSubMenu.CreateMenu();
 
-      if (m_Resolution->GetValue() == i)
-      {
-          menu->CheckMenuItem(IDM_DSHOW_RES_0+i, TRUE);
-      }
-		}
-		i++;
+	for(vector<CDShowGraph::CVideoFormat>::size_type index=0;index<m_VideoFmt.size();index++)
+	{
+		ASSERT(IDM_DSHOW_RES_0+index<=IDM_DSHOW_RES_MAX);
+		ResSubMenu.AppendMenu(MF_STRING|(m_Resolution->GetValue()==index?MF_CHECKED:MF_UNCHECKED),IDM_DSHOW_RES_0+index,m_VideoFmt[index].m_Name.c_str());
+		ResAdded=true;
 	}
-	if(resAdded)
+
+	if(ResAdded)
 	{
 		menu->GetMenuString(2,menuText,MF_BYPOSITION);
-		menu->ModifyMenu(2,MF_POPUP|MF_BYPOSITION,(UINT) resSubMenu.GetSafeHmenu(),menuText);
-		menu->EnableMenuItem(2,MF_BYPOSITION|MF_ENABLED);    
+		menu->ModifyMenu(2,MF_POPUP|MF_BYPOSITION,(UINT) ResSubMenu.GetSafeHmenu(),menuText);
+		menu->EnableMenuItem(2,MF_BYPOSITION|MF_ENABLED);
 	}
 	else
 	{
 		//no resolution was added, gray the menu item
 		menu->EnableMenuItem(2,MF_BYPOSITION|MF_GRAYED);
-		resSubMenu.DestroyMenu();
+		ResSubMenu.DestroyMenu();
 	}
 
 	//set a radio checkmark infront of the current play/pause/stop menu entry
@@ -985,7 +996,7 @@ void CDSCaptureSource::OverscanOnChange(long Overscan, long OldValue)
 
 LPCSTR CDSCaptureSource::GetStatus()
 {
-	return m_deviceName.c_str();
+	return m_DeviceName.c_str();
 }
 
 void CDSCaptureSource::OnSetup(void *pThis, int Start)
@@ -1000,7 +1011,7 @@ void CDSCaptureSource::ChannelChange(void *pThis,int PreChange,int OldChannel,in
 {
 	if (pThis != NULL)
 	{
-		((CDSCaptureSource*)pThis)->TunerChannelChange(PreChange,OldChannel,NewChannel);        
+		((CDSCaptureSource*)pThis)->TunerChannelChange(PreChange,OldChannel,NewChannel);
 	}
 }
 
@@ -1010,20 +1021,20 @@ void CDSCaptureSource::SettingsPerChannelSetup(int Start)
 	{
 		SettingsPerChannel_RegisterSetSection(m_IDString.c_str());
 		SettingsPerChannel_RegisterSetting("DSBrightness","DShow - Brightness",TRUE, m_Brightness);
-		SettingsPerChannel_RegisterSetting("DSHue","DShow - Hue",TRUE, m_Hue);            
-		SettingsPerChannel_RegisterSetting("DSContrast","DShow - Contrast",TRUE, m_Contrast);        
+		SettingsPerChannel_RegisterSetting("DSHue","DShow - Hue",TRUE, m_Hue);
+		SettingsPerChannel_RegisterSetting("DSContrast","DShow - Contrast",TRUE, m_Contrast);
 		SettingsPerChannel_RegisterSetting("DSSaturation","DShow - Saturation",TRUE, m_Saturation);
-		
+
 		SettingsPerChannel_RegisterSetting("DSOverscan","DShow - Overscan",TRUE, m_Overscan);
 
     SettingsPerChannel_NewDefaults(m_IDString.c_str(), FALSE);
-		
+
 		Channel_Register_Change_Notification(this, CDSCaptureSource::ChannelChange);
-		
-	}    
+
+	}
 	else
 	{
-		SettingsPerChannel_UnregisterSection(m_IDString.c_str());        
+		SettingsPerChannel_UnregisterSection(m_IDString.c_str());
 		Channel_UnRegister_Change_Notification(this, CDSCaptureSource::ChannelChange);
 	}
 }
@@ -1049,32 +1060,32 @@ void CDSCaptureSource::VideoInputOnChange(long NewValue, long OldValue)
 		{
 			CDShowBaseCrossbar *pCrossbar=pCap->getCrossbar();
 			if(pCrossbar!=NULL)
-			{							        
-        PhysicalConnectorType OldInputType = pCrossbar->GetInputType(OldValue);
-        NotifyInputChange(1, VIDEOINPUT, OldValue, NewValue);
-        
-        LOG(2,"DSCaptureSource: Set video input to %d", NewValue);
-        
-        //if changing a video input, set the related pin too
+			{
+				PhysicalConnectorType OldInputType = pCrossbar->GetInputType(OldValue);
+				NotifyInputChange(1, VIDEOINPUT, OldValue, NewValue);
+
+				LOG(2,"DSCaptureSource: Set video input to %d", NewValue);
+
+				//if changing a video input, set the related pin too
 				pCrossbar->SetInputIndex(NewValue,true);
 
-        /**
-				 * @todo we also must figure out what the related pin is and then call
-				 * AudioInputOnChange if it is an audio pin.
-				 */
-				
+				/**
+				* @todo we also must figure out what the related pin is and then call
+				* AudioInputOnChange if it is an audio pin.
+				*/
+
 				PhysicalConnectorType NewInputType = pCrossbar->GetInputType(NewValue);
 
-        NotifyInputChange(0, VIDEOINPUT, OldValue, NewValue);
+				NotifyInputChange(0, VIDEOINPUT, OldValue, NewValue);
 
-        if(NewInputType == PhysConn_Video_Tuner)
+				if(NewInputType == PhysConn_Video_Tuner)
 				{
 					if(pCap->getTVTuner()!=NULL)
 					{
-						  Channel_ChangeToNumber(m_LastTunerChannel->GetValue());
+						Channel_ChangeToNumber(m_LastTunerChannel->GetValue());
 					}
 				}
-        
+
 			}
 		}
 	}
@@ -1136,54 +1147,66 @@ void CDSCaptureSource::Start()
 	{
 		if(m_pDSGraph==NULL)
 		{
-			m_pDSGraph=new CDShowGraph(m_device,m_deviceName);
+			m_pDSGraph=new CDShowGraph(m_Device,m_DeviceName);
 		}
-    
-    CDSSourceBase::Start(0);
-    if (m_Resolution->GetValue()>=0)
-    {        
-        long x = res[m_Resolution->GetValue()].x;
-        long y = res[m_Resolution->GetValue()].y;
-        if ((x>0) && (y>0))
-        {
-            LOG(2,"Change DShow resolution to %dx%d",x,y);
-            m_pDSGraph->changeRes(x,y);
-       
-            m_Resolution->SetValue(-1);
-            int n = 0;
-            while (res[n].x != 0)
-            {
-                if ((res[n].x == x) && (res[n].y == y))
-                {
-                    m_Resolution->SetValue(n);
-                }
-                n++;
-            }            
-        }
-    }
-    CDSSourceBase::Start(2);
-    // Sets min/max/default values
-    GetHue();    
-    GetBrightness();    
-    GetContrast();    
-    GetSaturation();    
-    GetOverscan();    
-    // Notify settings per channel with correct default values
-    SettingsPerChannel_NewDefaults(m_IDString.c_str(),FALSE);
-		
-    VideoInputOnChange(m_VideoInput->GetValue(), m_VideoInput->GetValue());
+
+		m_pDSGraph->ConnectGraph();
+
+		/***
+		 * @todo restore saved video format list or call SetDefaultVideoFmt
+		 * to create a default one. it is probably best to restore m_VideoFmt
+		 * in CreateSettings and then call SetDefaultVideoFmt here only if
+		 * m_VideoFmt is empty
+		 */
+		CreateDefaultVideoFmt();
+
+		if(m_Resolution->GetValue()>=0 && m_Resolution->GetValue()<m_VideoFmt.size())
+		{
+			CDShowGraph::eChangeRes_Error err=m_pDSGraph->ChangeRes(m_VideoFmt[m_Resolution->GetValue()]);
+			switch(err)
+			{
+				case CDShowGraph::eChangeRes_Error::ERROR_NO_GRAPH:
+					LOG(2,"Error restoring resolution, no filter graph (bug)");
+					break;
+				case CDShowGraph::eChangeRes_Error::ERROR_CHANGED_BACK:
+					LOG(2,"Error restoring resolution, failed to change to new resolution or format not supported");
+					break;
+				case CDShowGraph::eChangeRes_Error::ERROR_FAILED_TO_CHANGE_BACK:
+					//oops we broke the filter graph, reset resolution 
+					//setting so we dont break it the next time too.
+					m_Resolution->SetValue(-1);
+					LOG(2,"Error restoring resolution, broke filter graph");
+					break;
+				case CDShowGraph::eChangeRes_Error::SUCCESS:
+					break;
+			}
+		}
+
+		// Sets min/max/default values
+		GetHue();
+		GetBrightness();
+		GetContrast();
+		GetSaturation();
+		GetOverscan();
+
+		// Notify settings per channel with correct default values
+		SettingsPerChannel_NewDefaults(m_IDString.c_str(),FALSE);
+
+		VideoInputOnChange(m_VideoInput->GetValue(), m_VideoInput->GetValue());
 		AudioInputOnChange(m_AudioInput->GetValue(), m_AudioInput->GetValue());
 
-    if (IsInTunerMode())
-    {
-        LOG(2,"DSCaptureSource: Channel reset");
-        int Channel = m_LastTunerChannel->GetValue();
-        if (Channel <= 0)
-        {
-            Channel = 1;
-        }
-        Channel_ChangeToNumber(Channel);        
-    }
+		if (IsInTunerMode())
+		{
+			LOG(2,"DSCaptureSource: Channel reset");
+			int Channel = m_LastTunerChannel->GetValue();
+			if (Channel <= 0)
+			{
+				Channel = 1;
+			}
+			Channel_ChangeToNumber(Channel);
+		}
+		
+		CDSSourceBase::Start();
 	}
 	catch(CDShowException &e)
 	{
@@ -1194,13 +1217,48 @@ void CDSCaptureSource::Start()
 void CDSCaptureSource::Stop()
 {
 	CDSSourceBase::Stop();
-	
+
 	//need to remove the graph since we dont want to risk having both
 	//dscalers own drivers and directshow drivers active at the same time
 	if(m_pDSGraph!=NULL)
 	{
 		delete m_pDSGraph;
 		m_pDSGraph=NULL;
+	}
+}
+
+void CDSCaptureSource::CreateDefaultVideoFmt()
+{
+	struct ResolutionType
+	{
+		long x;
+		long y;
+	}res[]=
+	{
+		768,576,
+		720,480,
+		640,480,
+		640,360,
+		480,360,
+		320,240,
+		160,120,
+		88,72
+	};
+
+	m_VideoFmt.erase(m_VideoFmt.begin(),m_VideoFmt.end());
+	for(int i=0;i<sizeof(res)/sizeof(ResolutionType);i++)
+	{
+		CDShowGraph::CVideoFormat fmt;
+		fmt.m_Width=res[i].x;
+		fmt.m_Height=res[i].y;
+		CString name;
+		name.Format("%ldx%ld",res[i].x,res[i].y);
+		fmt.m_Name=name;
+
+		if(m_pDSGraph->IsValidRes(fmt))
+		{
+			m_VideoFmt.push_back(fmt);
+		}
 	}
 }
 
@@ -1222,9 +1280,9 @@ int  CDSCaptureSource::NumInputs(eSourceInputType InputType)
 		pCap=(CDShowCaptureDevice*)m_pDSGraph->getSourceDevice();
 	}
 	if (pCap == NULL) { return 0; }
-	
+
   if (!m_HaveInputList)
-  {                    
+  {
       m_VideoInputList.clear();
       m_AudioInputList.clear();
       try
@@ -1232,51 +1290,51 @@ int  CDSCaptureSource::NumInputs(eSourceInputType InputType)
          CDShowBaseCrossbar *pCrossbar=pCap->getCrossbar();
 			   if(pCrossbar==NULL)
            return 0;
-              
+
          long cIn,cOut;
 		     pCrossbar->GetPinCounts(cIn,cOut);
 		     for(int i=0;i<cIn;i++)
-		     {			    
+		     {
        			//is it an audio or video input?
       	  		if(pCrossbar->GetInputType(i)<4096)
               {
-                  m_VideoInputList.push_back(i);                      
+                  m_VideoInputList.push_back(i);
               }
               else
               {
-                  m_AudioInputList.push_back(i);                      
-              }                            
-          } 
+                  m_AudioInputList.push_back(i);
+              }
+          }
           m_HaveInputList = TRUE;
       }
       catch(CDShowException &e)
 	    {
 		      LOG(1,"DSCaptureSource: NumInputs: Error: %s",e.getErrorText());
           return 0;
-      }      
+      }
   }
 
   if (InputType == VIDEOINPUT)
   {
-	   return m_VideoInputList.size();      
+	   return m_VideoInputList.size();
   }
   else
   {
-     return m_AudioInputList.size();      
-  }  
+     return m_AudioInputList.size();
+  }
   return 0;
 }
 
 BOOL CDSCaptureSource::SetInput(eSourceInputType InputType, int Nr)
 {
   if (!m_HaveInputList)
-  {          
+  {
       NumInputs(InputType);   // Make input list
-  }      
+  }
   if (InputType == VIDEOINPUT)
   {
       if ((Nr>=0) && (Nr < m_VideoInputList.size()))
-      {          
+      {
           m_VideoInput->SetValue(m_VideoInputList[Nr]);
           /// \todo Should check if this failed
           return TRUE;
@@ -1286,7 +1344,7 @@ BOOL CDSCaptureSource::SetInput(eSourceInputType InputType, int Nr)
   else if (InputType == AUDIOINPUT)
   {
       if ((Nr>=0) && (Nr < m_AudioInputList.size()))
-      {          
+      {
           m_AudioInput->SetValue(m_AudioInputList[Nr]);
           /// \todo Should check if this failed
           return TRUE;
@@ -1299,9 +1357,9 @@ BOOL CDSCaptureSource::SetInput(eSourceInputType InputType, int Nr)
 int  CDSCaptureSource::GetInput(eSourceInputType InputType)
 {
   if (!m_HaveInputList)
-  {          
+  {
       NumInputs(InputType);   // Make input list
-  }      
+  }
 
   if (InputType == VIDEOINPUT)
   {
@@ -1312,7 +1370,7 @@ int  CDSCaptureSource::GetInput(eSourceInputType InputType)
           {
               return i;
           }
-      }      
+      }
   }
   else if (InputType == AUDIOINPUT)
   {
@@ -1323,7 +1381,7 @@ int  CDSCaptureSource::GetInput(eSourceInputType InputType)
           {
               return i;
           }
-      }      
+      }
   }
   return -1;
 }
@@ -1341,24 +1399,24 @@ const char* CDSCaptureSource::GetInputName(eSourceInputType InputType, int Nr)
 		pCap=(CDShowCaptureDevice*)m_pDSGraph->getSourceDevice();
 	}
 	if (pCap == NULL) { return NULL; }
-  
+
   if (!m_HaveInputList)
   {
      // Make input list
-     NumInputs(InputType);   
-  }      
+     NumInputs(InputType);
+  }
   char *szName = NULL;
   if ((InputType == VIDEOINPUT) || (InputType == AUDIOINPUT))
   {
       if ( (Nr>=0) &&  (   ((InputType == VIDEOINPUT) && (Nr < m_VideoInputList.size()))
-                        || ((InputType == AUDIOINPUT) && (Nr < m_AudioInputList.size())) ) 
+                        || ((InputType == AUDIOINPUT) && (Nr < m_AudioInputList.size())) )
          )
       {
-        	try {            
+        	try {
 			        CDShowBaseCrossbar *pCrossbar=pCap->getCrossbar();
 			        if(pCrossbar==NULL)
                 return NULL;
-              
+
               int nInputNumber;
               if (InputType == VIDEOINPUT)
               {
@@ -1392,21 +1450,21 @@ BOOL CDSCaptureSource::InputHasTuner(eSourceInputType InputType, int Nr)
 	}
 	if (pCap == NULL) { return FALSE; }
 
-  
+
   if (InputType == VIDEOINPUT)
   {
       if (!m_HaveInputList)
       {
-          NumInputs(InputType);   
-      }      
+          NumInputs(InputType);
+      }
 
       if ((Nr>=0) && (Nr < m_VideoInputList.size()))
       {
-        	try {            
+        	try {
               CDShowBaseCrossbar *pCrossbar=pCap->getCrossbar();
 			        if(pCrossbar==NULL)
                 return FALSE;
-              
+
 			        if (pCrossbar->GetInputType(m_VideoInputList[Nr]) == PhysConn_Video_Tuner)
 					    {
                   return TRUE;

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.272 2003-01-02 20:06:20 atnak Exp $
+// $Id: DScaler.cpp,v 1.273 2003-01-05 10:30:08 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.272  2003/01/02 20:06:20  atnak
+// Fixed teletext menu.
+//
 // Revision 1.271  2003/01/02 19:34:09  robmuller
 // Fixed teletext menu.
 //
@@ -940,7 +943,6 @@ int InitialTextPage = -1;
 BOOL bInMenu = FALSE;
 BOOL bShowCrashDialog = FALSE;
 BOOL bIsRightButtonDown = FALSE;
-BOOL bMainWindowHasFocus = TRUE;
 BOOL bIgnoreNextRightButtonUpMsg = FALSE;
 
 UINT MsgWheel;
@@ -975,6 +977,7 @@ CToolbarControl* ToolbarControl = NULL;
 BOOL IsFullScreen_OnChange(long NewValue);
 BOOL DisplayStatusBar_OnChange(long NewValue);
 BOOL ScreensaverOff_OnChange(long NewValue);
+BOOL Cursor_IsOurs();
 void Cursor_UpdateVisibility();
 void Cursor_SetVisibility(BOOL bVisible);
 int Cursor_SetType(int type);
@@ -1626,7 +1629,10 @@ BOOL ProcessVTMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         {
             VT_ClearInput();
             bPageChanged = VT_ClickAtPosition(hDC, &Rect, LOWORD(lParam), HIWORD(lParam));
-            bHandled = TRUE;
+            if (bPageChanged != FALSE)
+            {
+                bHandled = TRUE;
+            }
         }
         break;
 
@@ -3615,7 +3621,14 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 //      break;
 
     case WM_LBUTTONDOWN:
-        ProcessVTMessage(hWnd, message, wParam, lParam);
+        if (ProcessVTMessage(hWnd, message, wParam, lParam))
+        {
+            // This is the only way I could figure out how
+            // to reset the double click record.  --AtNak
+            mouse_event(MOUSEEVENTF_MIDDLEDOWN, 0, 0, 0, 0);
+            mouse_event(MOUSEEVENTF_MIDDLEUP, 0, 0, 0, 0);
+        }
+
         if((bShowMenu == FALSE || (GetKeyState(VK_CONTROL) < 0)) && bIsFullScreen == FALSE)
         {
             // pretend we are hitting the caption bar
@@ -3693,13 +3706,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         break;
 
     case WM_KILLFOCUS:
-        bMainWindowHasFocus = FALSE;
 	    Cursor_UpdateVisibility();
         return 0;
         break;
 
     case WM_SETFOCUS:
-        bMainWindowHasFocus = TRUE;
 	    Cursor_UpdateVisibility();
         return 0;
         break;
@@ -3804,7 +3815,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
         //-------------------------------
         case TIMER_HIDECURSOR:
-            if (bMainWindowHasFocus && bInMenu == FALSE)
+            if (Cursor_IsOurs() != FALSE)
             {
                 KillTimer(hWnd, TIMER_HIDECURSOR);
 				if (ToolbarControl != NULL) 
@@ -5159,11 +5170,13 @@ void Cursor_UpdateVisibility()
 {
     KillTimer(hWnd, TIMER_HIDECURSOR);	
 
-    if (bInMenu || bMainWindowHasFocus == FALSE)
+    if (Cursor_IsOurs() == FALSE)
     {
         Cursor_SetVisibility(TRUE);
+        return;
     }
-    else if (!bAutoHideCursor)
+
+    if (!bAutoHideCursor)
     {
         if (bIsFullScreen)
         {
@@ -5203,16 +5216,135 @@ int Cursor_SetType(int type)
     return true;
 }
 
+BOOL Cursor_IsOurs()
+{
+    /*
+     *  The cursor is ours (ie. We can hide it, change it and
+     *  stuff like that) if all of these points are true:
+     *
+     *  1. Our menubar is not active.
+     *
+     *  2. Our window is enabled. (eg. no modal dialogs open)
+     *
+     *  3. No other window in the same thread has captured the
+     *     mouse.
+     *
+     *
+     *  And if any one of these points are true:
+     *
+     *  4. Our window is the foreground window and the cursor
+     *     is within the bounds of the our window (or if the
+     *     mouse button is down --but we don't want this.)
+     *
+     *  5. Our window is not in the foreground but the cursor
+     *     is in the visible portion of our window and the
+     *     mouse button is not down.
+     *
+     *  6. Our window has SetCapture() and the cursor is within
+     *     the bounds of any of the windows owned by the same
+     *     thread.
+     *
+     *
+     *  How to check:
+     *
+     *  1: Track WM_ENTERMENULOOP and WM_EXITMENULOOP messages.
+     *
+     *  2: IsWindowEnabled() on our window will return false.
+     *
+     *  3: Check GetCapture() returns NULL or equal to our window.
+     *
+     *  4/5: Use WindowFromPoint() too check if the cursor is in
+     *       the visible portion of the window.
+     *       Use GetForegroundWindow() to determine if we are the
+     *       foreground window. GetAsyncKeyState(VK_xBUTTON)
+     *
+     *  6: GetCapture(), WindowFromPoint(), GetWindowThreadProcessId()
+     *
+     */
+
+    if (bInMenu != FALSE)
+    {
+        return FALSE;
+    }
+
+    if (IsWindowEnabled(hWnd) == FALSE)
+    {
+        return FALSE;
+    }
+
+    POINT Point;
+    GetCursorPos(&Point);
+
+    // Get the mouse over window
+    HWND hPointWnd = WindowFromPoint(Point);
+
+    // Check if our window is in the foreground
+    if (GetForegroundWindow() == hWnd)
+    {
+        // Check if the cursor is over our bounds
+        if (hPointWnd == hWnd)
+        {
+            return TRUE;
+        }
+
+        if (GetCapture() == hWnd)
+        {
+            // Check if the cursor is over a captured area
+            if (GetWindowThreadProcessId(hPointWnd, NULL) ==
+                GetWindowThreadProcessId(hWnd, NULL))
+            {
+                return TRUE;
+            }
+        }
+
+        return FALSE;
+    }
+
+    // See if the cursor is not in our bounds
+    if (hPointWnd != hWnd)
+    {
+        return FALSE;
+    }
+
+    // Get the mouse button state
+    WORD wMouseButtonState = 0;
+    wMouseButtonState |= GetAsyncKeyState(VK_LBUTTON);
+    wMouseButtonState |= GetAsyncKeyState(VK_RBUTTON);
+    wMouseButtonState |= GetAsyncKeyState(VK_MBUTTON);
+
+    // See if the mouse button is down
+    if (wMouseButtonState & 0x8000)
+    {
+        return FALSE;
+    }
+
+    // Get the front window in the same thread
+    HWND hActiveWnd = GetActiveWindow();
+
+    // Check if the front window has capture
+    if (hActiveWnd != NULL && GetCapture() == hActiveWnd)
+    {
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
 void Cursor_VTUpdate(int x, int y)
 {
+    if (Cursor_IsOurs() == FALSE)
+    {
+        return;
+    }
+
     if (VT_GetState() == VT_OFF)
     {
         Cursor_SetType(CURSOR_DEFAULT);
     }
     else
     {
-        POINT Point;
         RECT Rect;
+        POINT Point;
 
         if (x == -1 || y == -1) 
         {

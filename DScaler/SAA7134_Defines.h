@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134_Defines.h,v 1.9 2002-11-08 06:15:34 atnak Exp $
+// $Id: SAA7134_Defines.h,v 1.10 2003-02-06 21:30:43 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/11/08 06:15:34  atnak
+// Added state saving
+//
 // Revision 1.8  2002/10/09 13:20:45  atnak
 // got rid of stray comments
 //
@@ -66,6 +69,9 @@
  */
 #ifndef PCI_DEVICE_ID_PHILIPS_SAA7130
 # define PCI_DEVICE_ID_PHILIPS_SAA7130 0x7130
+#endif
+#ifndef PCI_DEVICE_ID_PHILIPS_SAA7133
+# define PCI_DEVICE_ID_PHILIPS_SAA7133 0x7133
 #endif
 #ifndef PCI_DEVICE_ID_PHILIPS_SAA7134
 # define PCI_DEVICE_ID_PHILIPS_SAA7134 0x7134

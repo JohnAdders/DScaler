@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.cpp,v 1.33 2003-01-28 07:22:28 atnak Exp $
+// $Id: SAA7134Card.cpp,v 1.34 2003-02-06 21:30:43 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2003/01/28 07:22:28  atnak
+// Visual changes
+//
 // Revision 1.32  2003/01/27 22:16:05  laurentg
 // Always set a value for audio decoder type in the hardware info dialog box
 //
@@ -1010,13 +1013,13 @@ BOOL APIENTRY CSAA7134Card::ChipSettingProc(HWND hDlg, UINT message, UINT wParam
 
         SetDlgItemText(hDlg, IDC_TUNER_TYPE, pThis->GetTunerType());
 
-        if (pThis->m_DeviceId == 0x7134)
+        if ((pThis->m_DeviceId == 0x7134) || pThis->m_DeviceId == 0x7133)
         {
-            SetDlgItemText(hDlg, IDC_AUDIO_DECODER_TYPE, "SAA7134 Onchip");
+            SetDlgItemText(hDlg, IDC_AUDIO_DECODER_TYPE, "SAA713x OnChip");
         }
 		else
         {
-            SetDlgItemText(hDlg, IDC_AUDIO_DECODER_TYPE, "");
+            SetDlgItemText(hDlg, IDC_AUDIO_DECODER_TYPE, "n/a");
         }
 
         dwCardId = pThis->GetSubSystemId();
@@ -1046,7 +1049,8 @@ LPCSTR CSAA7134Card::GetChipType()
     {
     case 0x7130:
         return "SAA7130";
-
+    case 0x7133:
+        return "SAA7133";
     case 0x7134:
         return "SAA7134";
     }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.23 2003-02-03 07:00:52 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.24 2003-02-06 21:30:44 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2003/02/03 07:00:52  atnak
+// Added Typhoon TV-Radio 90031
+//
 // Revision 1.22  2003/01/30 07:19:47  ittarnavsky
 // fixed the autodetect
 //
@@ -550,8 +553,8 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
                 AUDIOINPUTSOURCE_LINE1,
             },
         },
-        TUNER_PHILIPS_NTSC,  // Should be TCL2002NJ or Philips FI1286 (NTSC M-J)
-        AUDIOCRYSTAL_NONE,
+        TUNER_PHILIPS_FI1286_NTSC_M_J,  // Should be TCL2002NJ or Philips FI1286 (NTSC M-J)
+        AUDIOCRYSTAL_24576Hz,
         NULL,
         PrimeTV7133CardInputSelect,
     },

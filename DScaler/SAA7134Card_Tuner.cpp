@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Tuner.cpp,v 1.19 2005-03-09 09:49:34 atnak Exp $
+// $Id: SAA7134Card_Tuner.cpp,v 1.20 2005-03-09 13:29:39 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2005/03/09 09:49:34  atnak
+// Added a new ITuner::InitializeTuner() function for performing tuner chip
+// initializations.
+//
 // Revision 1.18  2005/03/09 09:35:16  atnak
 // Renamed CI2CDevice:::Attach(...) to SetI2CBus(...) to better portray its
 // non-intrusive nature.
@@ -99,17 +103,29 @@
 #include "GenericTuner.h"
 #include "TDA9887.h"
 #include "TEA5767.h"
+#include "TDA8275.h"
+#include "TDA8290.h"
 #include "DebugLog.h"
 
 
 BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
 {
     // clean up if we get called twice
-    if(m_Tuner != NULL)
+    if (m_Tuner != NULL)
     {
         delete m_Tuner;
         m_Tuner = NULL;
     }
+
+	// Make sure there is a valid tuner.
+	if (tunerId == TUNER_AUTODETECT ||
+		tunerId == TUNER_USER_SETUP ||
+		tunerId == TUNER_ABSENT)
+	{
+		m_Tuner = new CNoTuner();
+		strcpy(m_TunerType, "None ");
+		return TRUE;
+	}
 
     switch (tunerId)
     {
@@ -129,53 +145,51 @@ BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
         m_Tuner = new CMT2050(VIDEOFORMAT_PAL_B);
         strcpy(m_TunerType, "MT2050 ");
         break;
-    case TUNER_AUTODETECT:
-    case TUNER_USER_SETUP:
-    case TUNER_ABSENT:
-        m_Tuner = new CNoTuner();
-        strcpy(m_TunerType, "None ");
-        break;
+	case TUNER_TDA8275:
+		m_Tuner = new CTDA8275();
+		strcpy(m_TunerType, "TDA8275 ");
+		break;
+	// The rest are handled by CGenericTuner.
     case TUNER_PHILIPS_FM1216ME_MK3:
-        // deliberate drop down
     default:
         m_Tuner = new CGenericTuner(tunerId);
         strcpy(m_TunerType, "Generic ");
         break;
     }
 
-    // Finished if tuner type is CNoTuner
-	if (m_Tuner->GetTunerId() == TUNER_ABSENT)
+	// Look for possible external IF demodulator
+	IExternalIFDemodulator* pExternalIFDemodulator = NULL;
+
+	// TDA8275s are paired with a TDA8290.
+	if (tunerId == TUNER_TDA8275)
 	{
-		return TRUE;
+		// Have a TDA8290 object detected and created.
+		pExternalIFDemodulator = CTDA8290::CreateDetectedTDA8290(m_I2CBus);
 	}
 
-    // Look for possible external IF demodulator
-    IExternalIFDemodulator *pExternalIFDemodulator = NULL;
-
-	// bUseTDA9887 is the setting in SAA713xCards.ini.
-    if (m_SAA713xCards[m_CardType].bUseTDA9887)
-    {
-        CTDA9887Ex *pTDA9887 = new CTDA9887Ex();
-
-		// Detect to make sure an IF demodulator exists.
-		if (pTDA9887->SetDetectedI2CAddress(m_I2CBus))
+	if (pExternalIFDemodulator == NULL)
+	{
+		// bUseTDA9887 is the setting in SAA713xCards.ini.
+		if (m_SAA713xCards[m_CardType].bUseTDA9887)
 		{
-			// Set card specific modes that were parsed from SAA713xCards.ini.
-			size_t count = m_SAA713xCards[m_CardType].tda9887Modes.size();
-			for (size_t i = 0; i < count; i++)
+			// Have a TDA9887 object detected and created.
+			CTDA9887Ex *pTDA9887Ex = CTDA9887Ex::CreateDetectedTDA9887Ex(m_I2CBus);
+
+			// If a TDA9887 was found.
+			if (pTDA9887Ex != NULL)
 			{
-				pTDA9887->SetModes(&m_SAA713xCards[m_CardType].tda9887Modes[i]);
-			}
+				// Set card specific modes that were parsed from SAA713xCards.ini.
+				size_t count = m_SAA713xCards[m_CardType].tda9887Modes.size();
+				for (size_t i = 0; i < count; i++)
+				{
+					pTDA9887Ex->SetModes(&m_SAA713xCards[m_CardType].tda9887Modes[i]);
+				}
 
-			// Found a valid external IF demodulator.
-			pExternalIFDemodulator = pTDA9887;
+				// Found a valid external IF demodulator.
+				pExternalIFDemodulator = pTDA9887Ex;
+			}
 		}
-		else
-		{
-			// A TDA9887 device wasn't detected.
-			delete pTDA9887;
-		}
-    }
+	}
 
 	eVideoFormat videoFormat = m_Tuner->GetDefaultVideoFormat();
 

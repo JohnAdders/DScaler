@@ -947,7 +947,7 @@ BEGIN
     CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDVERT,292,8,1,160
     GROUPBOX        "Major Carrier",IDC_STATIC,128,12,156,64
     CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDVERT,228,20,1,51
-    GROUPBOX        "Major Carrier",IDC_STATIC,128,81,156,64
+    GROUPBOX        "Minor Carrier",IDC_STATIC,128,81,156,64
     CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDVERT,228,89,1,52
     CTEXT           "Mode",IDC_STATIC,236,92,40,8
     CTEXT           "Mode",IDC_STATIC,236,25,40,8

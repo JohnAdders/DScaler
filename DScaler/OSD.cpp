@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.29 2001-09-09 17:46:30 laurentg Exp $
+// $Id: OSD.cpp,v 1.30 2001-09-15 21:02:45 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2001/09/09 17:46:30  laurentg
+// no message
+//
 // Revision 1.28  2001/09/04 21:03:09  laurentg
 // no message
 //
@@ -1022,8 +1025,8 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
             if ( pCalibration->IsRunning()
               && ( (pCalibration->GetCurrentStep() == 7)
                 || (pCalibration->GetCurrentStep() == 8)
-                || (pCalibration->GetCurrentStep() == 11)
-                || (pCalibration->GetCurrentStep() == 12) ) )
+                || (pCalibration->GetCurrentStep() == 13)
+                || (pCalibration->GetCurrentStep() == 14) ) )
             {
                 Color = OSD_COLOR_CURRENT;
             }
@@ -1036,8 +1039,8 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
             if ( pCalibration->IsRunning()
               && ( (pCalibration->GetCurrentStep() == 9)
                 || (pCalibration->GetCurrentStep() == 10)
-                || (pCalibration->GetCurrentStep() == 11)
-                || (pCalibration->GetCurrentStep() == 12) ) )
+                || (pCalibration->GetCurrentStep() == 13)
+                || (pCalibration->GetCurrentStep() == 14) ) )
             {
                 Color = OSD_COLOR_CURRENT;
             }
@@ -1098,6 +1101,10 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
                     break;
                 case 11:
                 case 12:
+                    strcpy(szInfo, "Adjusting Hue ...");
+                    break;
+                case 13:
+                case 14:
                     strcpy(szInfo, "Fine tuning of color ...");
                     break;
                 default:
@@ -1184,7 +1191,7 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
                 }
                 else
                 {
-                    sprintf (szInfo, "%s (%d)", szQual, dif_total);
+                    sprintf (szInfo, "%s (%s %d)", szQual, (dif_total == dif_total2) ? "YUV" : "RGB", dif_total);
 				    OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
                 }
 

@@ -32,10 +32,18 @@
 
 
 // Minimum time in milliseconds between two consecutive evaluations
-#define	MIN_TIME_BETWEEN_CALC	100
+#define	MIN_TIME_BETWEEN_CALC	75
+// Number of calculations to do on successive frames before to decide what to adjust
+#define NB_CALCULATIONS         8
+// Delta used to stop the search process when the current value for setting implies
+// a result that is superior to this delta when compared to the previous found best result
+#define DELTA_STOP              6
 
 // Macro to restrict range to [0,255]
 #define LIMIT(x) (((x)<0)?0:((x)>255)?255:(x))
+
+// Macro to return the absolute value
+#define ABSOLUTE_VALUE(x) ((x) < 0) ? -(x) : (x)
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -176,30 +184,9 @@ void CColorBar::GetDeltaColor(BOOL YUV, int *pR_Y, int *pG_U, int *pB_V, int *pT
     }
 
     *pTotal = 0;
-    if (*pR_Y < 0)
-    {
-        *pTotal -= *pR_Y;
-    }
-    else
-    {
-        *pTotal += *pR_Y;
-    }
-    if (*pG_U < 0)
-    {
-        *pTotal -= *pG_U;
-    }
-    else
-    {
-        *pTotal += *pG_U;
-    }
-    if (*pB_V < 0)
-    {
-        *pTotal -= *pB_V;
-    }
-    else
-    {
-        *pTotal += *pB_V;
-    }
+    *pTotal += ABSOLUTE_VALUE(*pR_Y);
+    *pTotal += ABSOLUTE_VALUE(*pG_U);
+    *pTotal += ABSOLUTE_VALUE(*pB_V);
 }
 
 // This method analyzed the overlay buffer to calculate average color
@@ -466,7 +453,7 @@ void CSubPattern::CalcCurrentSubPattern(short **Lines, int height, int width)
     }
 }
 
-// This methode returns the sum of delta between reference color
+// This methode returns the sum of absolute delta between reference color
 // and calculated average color through all the color bars
 void CSubPattern::GetSumDeltaColor(BOOL YUV, int *pR_Y, int *pG_U, int *pB_V, int *pTotal)
 {
@@ -487,7 +474,7 @@ void CSubPattern::GetSumDeltaColor(BOOL YUV, int *pR_Y, int *pG_U, int *pB_V, in
             color_bars[i]->GetDeltaColor(YUV, &delta[0], &delta[1], &delta[2], &delta[3]);
             for (j = 0 ; j <= 3 ; j++)
             {
-                sum_delta[j] += delta[j];
+                sum_delta[j] += ABSOLUTE_VALUE(delta[j]);
             }
         }
     }
@@ -616,7 +603,8 @@ eTypeContentPattern CTestPattern::DetermineTypeContent()
     if ( (GetSubPattern(ADJ_BRIGHTNESS) != NULL)
       && (GetSubPattern(ADJ_CONTRAST) != NULL)
       && (GetSubPattern(ADJ_SATURATION_U) != NULL)
-      && (GetSubPattern(ADJ_SATURATION_V) != NULL) )
+      && (GetSubPattern(ADJ_SATURATION_V) != NULL)
+      && (GetSubPattern(ADJ_HUE) != NULL) )
         return PAT_GRAY_AND_COLOR;
 
     if ( (GetSubPattern(ADJ_BRIGHTNESS) != NULL)
@@ -624,7 +612,8 @@ eTypeContentPattern CTestPattern::DetermineTypeContent()
         return PAT_RANGE_OF_GRAY;
 
     if ( (GetSubPattern(ADJ_SATURATION_U) != NULL)
-      && (GetSubPattern(ADJ_SATURATION_V) != NULL) )
+      && (GetSubPattern(ADJ_SATURATION_V) != NULL)
+      && (GetSubPattern(ADJ_HUE) != NULL) )
         return PAT_COLOR;
 
     return PAT_UNKNOWN;
@@ -681,6 +670,248 @@ CSubPattern *CTestPattern::GetNextSubPattern()
 }
 
 /////////////////////////////////////////////////////////////////////////////
+// Class CCalSetting
+
+CCalSetting::CCalSetting(BT848_SETTING setting)
+{
+    type_setting = setting;
+    min = BT848_GetSetting(type_setting)->MinValue;
+    max = BT848_GetSetting(type_setting)->MaxValue;
+    SetFullRange();
+    Save();
+    InitResult();
+}
+
+void CCalSetting::Save()
+{
+    current_value = Setting_GetValue(BT848_GetSetting(type_setting));
+    saved_value = current_value;
+    LOG(2, "Automatic Calibration - %s saved value = %d", BT848_GetSetting(type_setting)->szDisplayName, saved_value);
+}
+
+void CCalSetting::Restore()
+{
+    Setting_SetValue(BT848_GetSetting(type_setting), saved_value);
+    LOG(2, "Automatic Calibration - %s restored value = %d", BT848_GetSetting(type_setting)->szDisplayName, saved_value);
+}
+
+void CCalSetting::SetFullRange()
+{
+    SetRange(min, max);
+}
+
+void CCalSetting::SetRange(int min_val, int max_val)
+{
+    int i, j;
+
+    min_value = min_val;
+    max_value = max_val;
+    for (i=0 ; i<16 ; i++)
+    {
+        mask_input[i] = 0;
+    }
+    for (i=min_val ; i<=max_val ; i++)
+    {
+        j = i - min;
+        mask_input[j/32] |= (1 << (j%32));
+    }
+
+    LOG(3, "Automatic Calibration - %s range => min = %d max = %d", BT848_GetSetting(type_setting)->szDisplayName, min_value, max_value);
+}
+
+void CCalSetting::SetRange(int delta)
+{
+    int min_val, max_val;
+
+    min_val = Setting_GetValue(BT848_GetSetting(type_setting)) - delta;
+    if (min_val < min)
+    {
+        min_val = min;
+    }
+    max_val = Setting_GetValue(BT848_GetSetting(type_setting)) + delta;
+    if (max_val > max)
+    {
+        max_val = max;
+    }
+    SetRange(min_val, max_val);
+}
+
+void CCalSetting::SetRange(int *mask)
+{
+    int i, nb;
+
+    for (i=0 ; i<16 ; i++)
+    {
+        mask_input[i] = mask[i];
+    }
+    for (i=0,nb=0 ; i<=(max - min) ; i++)
+    {
+        if (mask[i/32] & (1 << (i%32)))
+        {
+            nb++;
+            if (nb == 1)
+            {
+                min_value = i + min;
+                max_value = i + min;
+            }
+            else
+            {
+                max_value = i + min;
+            }
+        }
+    }
+}
+
+void CCalSetting::GetRange(int *mask, int *min_val, int *max_val)
+{
+    for (int i=0 ; i<16; i++)
+    {
+        mask[i] = mask_input[i];
+    }
+    *min_val = min_value;
+    *max_val = max_value;
+}
+
+void CCalSetting::AdjustMin()
+{
+    Adjust(min_value);
+}
+
+void CCalSetting::AdjustMax()
+{
+    Adjust(max_value);
+}
+
+void CCalSetting::AdjustDefault()
+{
+    Adjust(BT848_GetSetting(type_setting)->Default);
+}
+
+BOOL CCalSetting::AdjustNext()
+{
+    int i, j;
+
+    if (end)
+    {
+        return FALSE;
+    }
+
+    for (i=(current_value+1) ; i<=max_value ; i++)
+    {
+        j = i - min;
+        if (mask_input[j/32] & (1 << (j%32)))
+        {
+            Adjust(i);
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+}
+
+void CCalSetting::AdjustBest()
+{
+    int nb_min;
+    int best_val_min;
+    int best_val_max;
+    int mask[16];
+
+    nb_min = GetResult(&mask[0], &best_val_min, &best_val_max);
+    if (nb_min > 0)
+    {
+        // Set the setting to one of the best found values
+        Adjust(best_val_max);
+    }
+    else
+    {
+        // Set the setting to its default value
+        AdjustDefault();
+    }
+
+    LOG(2, "Automatic Calibration - %s finished - %d values between %d and %d => %d", BT848_GetSetting(type_setting)->szDisplayName, nb_min, best_val_min, best_val_max, current_value);
+}
+
+void CCalSetting::InitResult()
+{
+    int i;
+
+    min_diff = 1000000;
+    for (i=0 ; i<16 ; i++)
+    {
+        mask_output[i] = 0;
+    }
+    end = FALSE;
+}
+
+void CCalSetting::UpdateResult(int diff, int stop_threshold, BOOL only_one)
+{
+    int i, j;
+
+    i = current_value - min;
+    if (diff < min_diff)
+    {
+        min_diff = diff;
+        for (j=0 ; j<16 ; j++)
+        {
+            mask_output[j] = 0;
+        }
+        mask_output[i/32] = (1 << (i%32));
+    }
+    else if ((diff == min_diff) && !only_one)
+    {
+        mask_output[i/32] |= (1 << (i%32));
+    }
+    else if ((stop_threshold >= 0) && ((diff - min_diff) > stop_threshold))
+    {
+        end = TRUE;
+    }
+    LOG(3, "Automatic Calibration - %s value %d => result = %d min = %d", BT848_GetSetting(type_setting)->szDisplayName, current_value, diff, min_diff);
+}
+
+int CCalSetting::GetResult(int *mask, int *min_val, int *max_val)
+{
+    int i;
+    int nb_min;
+    int best_val_min;
+    int best_val_max;
+
+    for (i=0,nb_min=0 ; i<=(max - min) ; i++)
+    {
+        if (mask_output[i/32] & (1 << (i%32)))
+        {
+            nb_min++;
+            if (nb_min == 1)
+            {
+                best_val_min = i + min;
+                best_val_max = i + min;
+            }
+            else
+            {
+                best_val_max = i + min;
+            }
+        }
+    }
+
+    if (nb_min > 0)
+    {
+        for (i=0 ; i<16; i++)
+        {
+            mask[i] = mask_output[i];
+        }
+        *min_val = best_val_min;
+        *max_val = best_val_max;
+    }
+
+    return nb_min;
+}
+
+void CCalSetting::Adjust(int value)
+{
+    current_value = value;
+    Setting_SetValue(BT848_GetSetting(type_setting), current_value);
+}
+
+/////////////////////////////////////////////////////////////////////////////
 // Class CCalibration
 
 CCalibration::CCalibration()
@@ -694,6 +925,11 @@ CCalibration::CCalibration()
     current_sub_pattern = NULL;
     type_calibration = CAL_MANUAL;
     running = FALSE;
+    brightness   = new CCalSetting(BRIGHTNESS);
+    contrast     = new CCalSetting(CONTRAST);
+    saturation_U = new CCalSetting(SATURATIONU);
+    saturation_V = new CCalSetting(SATURATIONV);
+    hue          = new CCalSetting(HUE);
     last_tick_count = -1;
     LoadTestPatterns();
 }
@@ -701,6 +937,12 @@ CCalibration::CCalibration()
 CCalibration::~CCalibration()
 {
     UnloadTestPatterns();
+
+    delete brightness;
+    delete contrast;
+    delete saturation_U;
+    delete saturation_V;
+    delete hue;
 }
 
 // This method loads all the predefined test patterns
@@ -728,7 +970,7 @@ void CCalibration::LoadTestPatterns()
 
     sub_pattern = new CSubPattern(ADJ_BRIGHTNESS);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar( 347,  764, 6875, 7500, FALSE,   0,   0,   0);
+    color_bar = new CColorBar(1181, 1597, 6875, 7500, FALSE,  22,  24,  23);
     sub_pattern->AddColorBar(color_bar);
 
     sub_pattern = new CSubPattern(ADJ_CONTRAST);
@@ -763,6 +1005,13 @@ void CCalibration::LoadTestPatterns()
     sub_pattern = new CSubPattern(ADJ_SATURATION_V);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
     color_bar = new CColorBar(6319, 7083, 2396, 4167, FALSE, 186,   0,   0);
+    sub_pattern->AddColorBar(color_bar);
+
+    sub_pattern = new CSubPattern(ADJ_HUE);
+    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
+    color_bar = new CColorBar(2708, 3472, 2396, 4167, FALSE,   0, 188, 185);
+    sub_pattern->AddColorBar(color_bar);
+    color_bar = new CColorBar(5139, 5903, 2396, 4167, FALSE, 187,   0, 187);
     sub_pattern->AddColorBar(color_bar);
 
     test_patterns[nb_test_patterns]->CreateGlobalSubPattern();
@@ -800,6 +1049,13 @@ void CCalibration::LoadTestPatterns()
     color_bar = new CColorBar(7431, 8125, 521, 5729, FALSE, 189,   0,   0);
     sub_pattern->AddColorBar(color_bar);
 
+    sub_pattern = new CSubPattern(ADJ_HUE);
+    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
+    color_bar = new CColorBar(3194, 3889, 521, 5729, FALSE,   0, 190, 188);
+    sub_pattern->AddColorBar(color_bar);
+    color_bar = new CColorBar(6042, 6736, 521, 5729, FALSE, 188,   0, 190);
+    sub_pattern->AddColorBar(color_bar);
+
     test_patterns[nb_test_patterns]->CreateGlobalSubPattern();
 
     nb_test_patterns++;
@@ -833,7 +1089,7 @@ void CCalibration::LoadTestPatterns()
     
     sub_pattern = new CSubPattern(ADJ_BRIGHTNESS);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar( 417,  972, 521, 9375, FALSE,   0,   0,   0);
+    color_bar = new CColorBar(1458, 2014, 521, 9375, FALSE,  30,  30,  30);
     sub_pattern->AddColorBar(color_bar);
 
     sub_pattern = new CSubPattern(ADJ_CONTRAST);
@@ -876,6 +1132,13 @@ void CCalibration::LoadTestPatterns()
     color_bar = new CColorBar(7431, 8125, 521, 5208, FALSE, 188,   0,   0);
     sub_pattern->AddColorBar(color_bar);
 
+    sub_pattern = new CSubPattern(ADJ_HUE);
+    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
+    color_bar = new CColorBar(3194, 3889, 521, 5208, FALSE,   0, 190, 189);
+    sub_pattern->AddColorBar(color_bar);
+    color_bar = new CColorBar(6042, 6736, 521, 5208, FALSE, 190,   0, 189);
+    sub_pattern->AddColorBar(color_bar);
+
     test_patterns[nb_test_patterns]->CreateGlobalSubPattern();
     
     nb_test_patterns++;
@@ -911,7 +1174,7 @@ void CCalibration::LoadTestPatterns()
     
     sub_pattern = new CSubPattern(ADJ_BRIGHTNESS);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar(9236, 9722, 521, 9375, FALSE,   1,   0,   2);
+    color_bar = new CColorBar(8333, 8819, 521, 9375, FALSE,   7,   4,   8);
     sub_pattern->AddColorBar(color_bar);
 
     sub_pattern = new CSubPattern(ADJ_CONTRAST);
@@ -954,6 +1217,13 @@ void CCalibration::LoadTestPatterns()
     color_bar = new CColorBar(7431, 8125, 521, 4167, FALSE, 190,   0,   0);
     sub_pattern->AddColorBar(color_bar);
 
+    sub_pattern = new CSubPattern(ADJ_HUE);
+    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
+    color_bar = new CColorBar(3194, 3889, 521, 4167, FALSE,   0, 189, 188);
+    sub_pattern->AddColorBar(color_bar);
+    color_bar = new CColorBar(6042, 6736, 521, 4167, FALSE, 190,   0, 191);
+    sub_pattern->AddColorBar(color_bar);
+
     test_patterns[nb_test_patterns]->CreateGlobalSubPattern();
     
     nb_test_patterns++;
@@ -979,7 +1249,7 @@ void CCalibration::LoadTestPatterns()
 
     sub_pattern = new CSubPattern(ADJ_BRIGHTNESS);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar( 347,  764, 3472, 4167, FALSE,  0,    0,   1);
+    color_bar = new CColorBar(1181, 1597, 3472, 4167, FALSE,  23,  24,  24);
     sub_pattern->AddColorBar(color_bar);
 
     sub_pattern = new CSubPattern(ADJ_CONTRAST);
@@ -1014,6 +1284,13 @@ void CCalibration::LoadTestPatterns()
     sub_pattern = new CSubPattern(ADJ_SATURATION_V);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
     color_bar = new CColorBar(6319, 7083, 2344, 3038, FALSE, 188,   0,   0);
+    sub_pattern->AddColorBar(color_bar);
+
+    sub_pattern = new CSubPattern(ADJ_HUE);
+    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
+    color_bar = new CColorBar(2708, 3472, 2344, 3038, FALSE,   0, 190, 187);
+    sub_pattern->AddColorBar(color_bar);
+    color_bar = new CColorBar(5139, 5903, 2344, 3038, FALSE, 189,   0, 190);
     sub_pattern->AddColorBar(color_bar);
 
     test_patterns[nb_test_patterns]->CreateGlobalSubPattern();
@@ -1051,7 +1328,7 @@ void CCalibration::LoadTestPatterns()
     
     sub_pattern = new CSubPattern(ADJ_BRIGHTNESS);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
-    color_bar = new CColorBar( 278,  833, 434, 9549, FALSE,   0,   0,   0);
+    color_bar = new CColorBar(1181, 1736, 434, 9549, FALSE,  20,  23,  20);
     sub_pattern->AddColorBar(color_bar);
 
     sub_pattern = new CSubPattern(ADJ_CONTRAST);
@@ -1094,6 +1371,13 @@ void CCalibration::LoadTestPatterns()
     sub_pattern = new CSubPattern(ADJ_SATURATION_V);
     test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
     color_bar = new CColorBar(6458, 7014, 434, 9549, FALSE, 189,   0,   0);
+    sub_pattern->AddColorBar(color_bar);
+
+    sub_pattern = new CSubPattern(ADJ_HUE);
+    test_patterns[nb_test_patterns]->AddSubPattern(sub_pattern);
+    color_bar = new CColorBar(2917, 3472, 434, 9549, FALSE,   0, 189, 188);
+    sub_pattern->AddColorBar(color_bar);
+    color_bar = new CColorBar(5278, 5833, 434, 9549, FALSE, 189,   0, 189);
     sub_pattern->AddColorBar(color_bar);
 
     test_patterns[nb_test_patterns]->CreateGlobalSubPattern();
@@ -1251,11 +1535,11 @@ void CCalibration::Start(eTypeCalibration type)
         break;
     case CAL_AUTO_COLOR:
         initial_step = 7;
-        nb_steps = 6;
+        nb_steps = 8;
         break;
     case CAL_AUTO_FULL:
         initial_step = 1;
-        nb_steps = 12;
+        nb_steps = 14;
         break;
     case CAL_MANUAL:
     default:
@@ -1264,6 +1548,12 @@ void CCalibration::Start(eTypeCalibration type)
         break;
     }
     current_step = initial_step;
+
+    brightness->Save();
+    contrast->Save();
+    saturation_U->Save();
+    saturation_V->Save();
+    hue->Save();
 
     // Display the specific OSD screen
     OSD_ShowInfosScreen(hWnd, 4, 0);
@@ -1294,6 +1584,11 @@ eTypeCalibration CCalibration::GetType()
 
 void CCalibration::Make(short **Lines, int height, int width, int tick_count)
 {
+    int nb, nb1, nb2;
+    int min1, max1, min2, max2;
+    int mask1[16];
+    int mask2[16];
+
 	if (!running
 	 || (current_test_pattern == NULL)
 	 || ((last_tick_count != -1) && ((tick_count - last_tick_count) < MIN_TIME_BETWEEN_CALC)))
@@ -1309,11 +1604,16 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         {
             // Calculations with current setitngs
             current_sub_pattern->CalcCurrentSubPattern(Lines, height, width);
+
+            if (initial_step != 0)
+            {
+                current_step = -1;
+            }
         }
         break;
 
     case 1:     // Step to initialize next step
-        if (step_init(ADJ_BRIGHTNESS, BRIGHTNESS, -128, 127))
+        if (step_init(ADJ_BRIGHTNESS, brightness, (int *)NULL, (CCalSetting *)NULL, (int *)NULL, (CCalSetting *)NULL, (int *)NULL))
         {
             // We jump to next step
             current_step++;
@@ -1326,7 +1626,7 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         break;
 
     case 2:     // Step to find a short range for brightness setting
-        if (step_process(Lines, height, width, BRIGHTNESS, 4))
+        if (step_process(Lines, height, width, 4, TRUE, FALSE))
         {
             // We jump to next step
             current_step++;
@@ -1334,7 +1634,7 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         break;
 
     case 3:     // Step to initialize next step
-        if (step_init(ADJ_CONTRAST, CONTRAST, 0, 511))
+        if (step_init(ADJ_CONTRAST, contrast, (int *)NULL, (CCalSetting *)NULL, (int *)NULL, (CCalSetting *)NULL, (int *)NULL))
         {
             // We jump to next step
             current_step++;
@@ -1347,7 +1647,7 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         break;
 
     case 4:     // Step to find a short range for contrast setting
-        if (step_process(Lines, height, width, CONTRAST, 4))
+        if (step_process(Lines, height, width, 4, TRUE, FALSE))
         {
             // We jump to next step
             current_step++;
@@ -1355,7 +1655,30 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         break;
 
     case 5:     // Step to initialize next step
-        if (step_init2(ADJ_BRIGHTNESS_CONTRAST, BRIGHTNESS, -128, 127, 5, CONTRAST, 0, 511, 5, HUE, -128, 127, 0))
+        nb1 = brightness->GetResult(mask1, &min1, &max1);
+        nb2 = contrast->GetResult(mask2, &min2, &max2);
+        if ((nb1 == 0) || (nb2 == 0))
+        {
+            current_step += 2;
+            break;
+        }
+        nb = max1 - min1;
+        if (nb <= 10)
+        {
+            min1 -= (10 - nb) / 2;
+            max1 += (10 - nb) / 2;
+            brightness->SetRange(min1, max1);
+            brightness->GetRange(mask1, &min1, &max1);
+        }
+        nb = max2 - min2;
+        if (nb <= 10)
+        {
+            min2 -= (10 - nb) / 2;
+            max2 += (10 - nb) / 2;
+            contrast->SetRange(min2, max2);
+            contrast->GetRange(mask2, &min2, &max2);
+        }
+        if (step_init(ADJ_BRIGHTNESS_CONTRAST, brightness, mask1, contrast, mask2, (CCalSetting *)NULL, (int *)NULL))
         {
             // We jump to next step
             current_step++;
@@ -1367,7 +1690,7 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         break;
 
     case 6:     // Step to adjust fine brightness + contradt
-        if (step_process2(Lines, height, width, BRIGHTNESS, CONTRAST, HUE, 4))
+        if (step_process(Lines, height, width, 4, FALSE, TRUE))
         {
             // We jump to next step
             current_step++;
@@ -1375,10 +1698,8 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         break;
 
     case 7:     // Step to initialize next step
-        Setting_SetValue(BT848_GetSetting(HUE), 0);
-
-        if ( step_init(ADJ_SATURATION_U, HUE, 0, 0)
-          && step_init(ADJ_SATURATION_U, SATURATIONU, 0, 511) )
+        hue->AdjustDefault();
+        if (step_init(ADJ_SATURATION_U, saturation_U, (int *)NULL, (CCalSetting *)NULL, (int *)NULL, (CCalSetting *)NULL, (int *)NULL))
         {
             // We jump to next step
             current_step++;
@@ -1391,16 +1712,17 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         break;
 
     case 8:     // Step to find a short range for saturation U setting
-        if (step_process(Lines, height, width, SATURATIONU, 7))
+//        if (step_process(Lines, height, width, 7, TRUE, FALSE))
+        if (step_process(Lines, height, width, 2, TRUE, FALSE))
         {
             // We jump to next step
             current_step++;
         }
         break;
 
-   case 9:     // Step to initialize next step
-        if ( step_init(ADJ_SATURATION_V, HUE, 0, 0)
-          && step_init(ADJ_SATURATION_V, SATURATIONV, 0, 511) )
+    case 9:     // Step to initialize next step
+        hue->AdjustDefault();
+        if (step_init(ADJ_SATURATION_V, saturation_V, (int *)NULL, (CCalSetting *)NULL, (int *)NULL, (CCalSetting *)NULL, (int *)NULL))
         {
             // We jump to next step
             current_step++;
@@ -1412,17 +1734,64 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         }
         break;
 
-   case 10:    // Step to find a short range for saturation V setting
-        if (step_process(Lines, height, width, SATURATIONV, 5))
+    case 10:    // Step to find a short range for saturation V setting
+//        if (step_process(Lines, height, width, 5, TRUE, FALSE))
+        if (step_process(Lines, height, width, 3, TRUE, FALSE))
         {
             // We jump to next step
             current_step++;
         }
         break;
 
-    case 11:    // Step to initialize next step
-//        if (step_init2(ADJ_COLOR, SATURATIONU, 0, 511, 7, SATURATIONV, 0, 511, 7, HUE, -128, 127, (current_test_pattern->GetVideoFormat() == FORMAT_NTSC) ? 2 : 0))
-        if (step_init2(ADJ_COLOR, SATURATIONU, 0, 511, 7, SATURATIONV, 0, 511, 7, HUE, -128, 127, 2))
+    case 11:     // Step to initialize next step
+        current_step += 2;
+        break;
+        if (step_init(ADJ_HUE, hue, (int *)NULL, (CCalSetting *)NULL, (int *)NULL, (CCalSetting *)NULL, (int *)NULL))
+        {
+            // We jump to next step
+            current_step++;
+        }
+        else
+        {
+            // We stop calibration
+            current_step = initial_step + nb_steps;
+        }
+        break;
+
+    case 12:    // Step to find a short range for hue setting
+//        if (step_process(Lines, height, width, 7, TRUE, FALSE))
+        if (step_process(Lines, height, width, 2, TRUE, FALSE))
+        {
+            // We jump to next step
+            current_step++;
+        }
+        break;
+
+    case 13:    // Step to initialize next step
+        nb1 = saturation_U->GetResult(mask1, &min1, &max1);
+        nb2 = saturation_V->GetResult(mask2, &min2, &max2);
+        if ((nb1 == 0) || (nb2 == 0))
+        {
+            current_step += 2;
+            break;
+        }
+        nb = max1 - min1;
+        if (nb <= 10)
+        {
+            min1 -= (10 - nb) / 2;
+            max1 += (10 - nb) / 2;
+            saturation_U->SetRange(min1, max1);
+            saturation_U->GetRange(mask1, &min1, &max1);
+        }
+        nb = max2 - min2;
+        if (nb <= 10)
+        {
+            min2 -= (10 - nb) / 2;
+            max2 += (10 - nb) / 2;
+            saturation_V->SetRange(min2, max2);
+            saturation_V->GetRange(mask2, &min2, &max2);
+        }
+        if (step_init(ADJ_COLOR, saturation_U, mask1, saturation_V, mask2, (CCalSetting *)NULL, (int *)NULL))
         {
             // We jump to next step
             current_step++;
@@ -1433,8 +1802,9 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         }
         break;
 
-    case 12:    // Step to adjust fine color saturation
-        if (step_process2(Lines, height, width, SATURATIONU, SATURATIONV, HUE, 8))
+    case 14:    // Step to adjust fine color saturation
+//        if (step_process(Lines, height, width, 8, FALSE, TRUE))
+        if (step_process(Lines, height, width, 4, FALSE, TRUE))
         {
             // We jump to next step
             current_step++;
@@ -1446,173 +1816,82 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
     }
 
     // Test to check if all steps are already done
-    if ((current_step - initial_step) >= nb_steps)
+    if ((current_step > 0) && ((current_step - initial_step) >= nb_steps))
     {
-        current_sub_pattern = GetSubPattern(ADJ_MANUAL);
-        if (current_sub_pattern != NULL)
-        {
-            // Calculations with current setitngs
-            current_sub_pattern->CalcCurrentSubPattern(Lines, height, width);
-        }
-        current_step = -1;
+        current_step = 0;
     }
 }
 
-BOOL CCalibration::step_init(eTypeAdjust type_adjust, BT848_SETTING setting, int min, int max)
+BOOL CCalibration::step_init(eTypeAdjust type_adjust, CCalSetting *_setting1, int *mask1, CCalSetting *_setting2, int *mask2, CCalSetting *_setting3, int *mask3)
 {
     // Get the bar to use for this step
     current_sub_pattern = GetSubPattern(type_adjust);
     if (current_sub_pattern == NULL)
     {
+        setting1 = (CCalSetting *)NULL;
+        setting2 = (CCalSetting *)NULL;
+        setting3 = (CCalSetting *)NULL;
         return FALSE;
     }
     else
     {
         // Initialize
-        min_val = min;
-        max_val = max;
-        current_val = min_val;
-        best_val = min_val;
-        best_val2 = max_val;
-        min_dif = 100000;
-
-        // Set the setting to its minimum
-        Setting_SetValue(BT848_GetSetting(setting), current_val);
-
-        return TRUE;
-    }
-}
-
-BOOL CCalibration::step_process(short **Lines, int height, int width, BT848_SETTING setting, unsigned int sig_component)
-{
-    int val[4];
-    BOOL YUV;
-    int idx;
-    int dif;
-
-    // Calculations with current settings
-    current_sub_pattern->CalcCurrentSubPattern(Lines, height, width);
-
-    // See how good is the red result
-    if ((sig_component >= 1) && (sig_component <= 4))
-    {
-        YUV = TRUE;
-        idx = sig_component - 1;
-    }
-    else if ((sig_component >= 5) && (sig_component <= 8))
-    {
-        YUV = FALSE;
-        idx = sig_component - 5;
-    }
-    current_sub_pattern->GetSumDeltaColor(YUV, &val[0], &val[1], &val[2], &val[3]);
-    dif = val[idx];
-    if (dif < 0)
-    {
-        dif = -dif;
-    }
-    if (dif < min_dif)
-    {
-        min_dif = dif;
-        best_val = current_val;
-        best_val2 = current_val;
-    }
-    else if (dif == min_dif)
-    {
-        best_val2 = current_val;
-    }
-    LOG(3, "Automatic Calibration - step %d - %d %d %d", current_step, current_val, dif, min_dif);
-
-    if ((current_val < max_val) && ((dif - min_dif) <= 6))
-    {
-        // Increase the setting
-        current_val++;
-        Setting_SetValue(BT848_GetSetting(setting), current_val);
-
-        return FALSE;
-    }
-    else
-    {
-        // Set the setitng to the best value found
-        // If several settings give same result, we choose the middle setting
-        if (best_val != best_val2)
+        setting1 = _setting1;
+        if (setting1 != (CCalSetting *)NULL)
         {
-            val[0] = best_val + (best_val2 - best_val) / 2;
+            // Set the range of values
+            if (mask1 == (int *)NULL)
+            {
+                setting1->SetFullRange();
+            }
+            else
+            {
+                setting1->SetRange(mask1);
+            }
+            // Set the settings to their minimum
+            setting1->AdjustMin();
+            setting1->InitResult();
         }
-        else
+        setting2 = _setting2;
+        if (setting2 != (CCalSetting *)NULL)
         {
-            val[0] = best_val;
+            // Set the range of values
+            if (mask2 == (int *)NULL)
+            {
+                setting2->SetFullRange();
+            }
+            else
+            {
+                setting2->SetRange(mask2);
+            }
+            // Set the settings to their minimum
+            setting2->AdjustMin();
+            setting2->InitResult();
         }
-        Setting_SetValue(BT848_GetSetting(setting), val[0]);
+        setting3 = _setting3;
+        if (setting3 != (CCalSetting *)NULL)
+        {
+            // Set the range of values
+            if (mask3 == (int *)NULL)
+            {
+                setting3->SetFullRange();
+            }
+            else
+            {
+                setting3->SetRange(mask3);
+            }
+            // Set the settings to their minimum
+            setting3->AdjustMin();
+            setting3->InitResult();
+        }
 
-        LOG(2, "Automatic Calibration - step %d finished - %d %d => %d", current_step, best_val, best_val2, val[0]);
-
-        return TRUE;
-    }
-}
-
-BOOL CCalibration::step_init2(eTypeAdjust type_adjust, BT848_SETTING setting1, int min1, int max1, int delta1, BT848_SETTING setting2, int min2, int max2, int delta2, BT848_SETTING setting3, int min3, int max3, int delta3)
-{
-    // Get the bar to use for this step
-    current_sub_pattern = GetSubPattern(type_adjust);
-    if (current_sub_pattern == NULL)
-    {
-        return FALSE;
-    }
-    else
-    {
-        // Initialize
-        min_val = Setting_GetValue(BT848_GetSetting(setting1)) - delta1;
-        if (min_val < min1)
-        {
-            min_val = min1;
-        }
-        max_val = Setting_GetValue(BT848_GetSetting(setting1)) + delta1;
-        if (max_val > max1)
-        {
-            max_val = max1;
-        }
-        current_val = min_val;
-        best_val = min_val;
-
-        min_val2 = Setting_GetValue(BT848_GetSetting(setting2)) - delta2;
-        if (min_val2 < min2)
-        {
-            min_val2 = min2;
-        }
-        max_val2 = Setting_GetValue(BT848_GetSetting(setting2)) + delta2;
-        if (max_val2 > max2)
-        {
-            max_val2 = max2;
-        }
-        current_val2 = min_val2;
-        best_val2 = min_val2;
-
-        min_val3 = Setting_GetValue(BT848_GetSetting(setting3)) - delta3;
-        if (min_val3 < min3)
-        {
-            min_val3 = min3;
-        }
-        max_val3 = Setting_GetValue(BT848_GetSetting(setting3)) + delta3;
-        if (max_val3 > max3)
-        {
-            max_val3 = max3;
-        }
-        current_val3 = min_val3;
-        best_val3 = min_val3;
-
-        min_dif = 1000000;
         nb_calcul = 0;
 
-        // Set the settings to their minimum
-        Setting_SetValue(BT848_GetSetting(setting1), current_val);
-        Setting_SetValue(BT848_GetSetting(setting2), current_val2);
-        Setting_SetValue(BT848_GetSetting(setting3), current_val3);
-
         return TRUE;
     }
 }
 
-BOOL CCalibration::step_process2(short **Lines, int height, int width, BT848_SETTING setting1, BT848_SETTING setting2, BT848_SETTING setting3, unsigned int sig_component)
+BOOL CCalibration::step_process(short **Lines, int height, int width, unsigned int sig_component, BOOL stop_before_end, BOOL only_one)
 {
     int val[4];
     BOOL YUV;
@@ -1635,10 +1914,6 @@ BOOL CCalibration::step_process2(short **Lines, int height, int width, BT848_SET
     }
     current_sub_pattern->GetSumDeltaColor(YUV, &val[0], &val[1], &val[2], &val[3]);
     dif = val[idx];
-    if (dif < 0)
-    {
-        dif = -dif;
-    }
 
     nb_calcul++;
     if (nb_calcul == 1)
@@ -1650,7 +1925,7 @@ BOOL CCalibration::step_process2(short **Lines, int height, int width, BT848_SET
         total_dif += dif;
     }
     // Waiting at least 5 calculations
-    if (nb_calcul < 5)
+    if (nb_calcul < NB_CALCULATIONS)
     {
 	    last_tick_count = -1;
         return FALSE;
@@ -1661,60 +1936,64 @@ BOOL CCalibration::step_process2(short **Lines, int height, int width, BT848_SET
         dif = total_dif;
     }
 
-    if (dif < min_dif)
+    if (setting1 != (CCalSetting *)NULL)
     {
-        min_dif = dif;
-        best_val = current_val;
-        best_val2 = current_val2;
-        best_val3 = current_val3;
+        setting1->UpdateResult(dif, stop_before_end ? DELTA_STOP*NB_CALCULATIONS : -1, only_one);
     }
-    LOG(3, "Automatic Calibration - step %d - %d %d %d => %d %d", current_step, current_val, current_val2, current_val3, dif, min_dif);
-
-    if (current_val3 < max_val3)
+    if (setting2 != (CCalSetting *)NULL)
     {
-        // Increase the third setting
-        current_val3++;
-        Setting_SetValue(BT848_GetSetting(setting3), current_val3);
+        setting2->UpdateResult(dif, stop_before_end ? DELTA_STOP*NB_CALCULATIONS : -1, only_one);
+    }
+    if (setting3 != (CCalSetting *)NULL)
+    {
+        setting3->UpdateResult(dif, stop_before_end ? DELTA_STOP*NB_CALCULATIONS : -1, only_one);
+    }
 
+    // Increase the third setting
+    if ((setting3 != (CCalSetting *)NULL) && setting3->AdjustNext())
+    {
         return FALSE;
     }
-    else if (current_val2 < max_val2)
+    // Increase the second setting
+    else if ((setting2 != (CCalSetting *)NULL) && setting2->AdjustNext())
     {
-        // Increase the second setting
-        current_val2++;
-        Setting_SetValue(BT848_GetSetting(setting2), current_val2);
-
-        // Set the third setting to its minimum
-        current_val3 = min_val3;
-        Setting_SetValue(BT848_GetSetting(setting3), current_val3);
-
+        if (setting3 != (CCalSetting *)NULL)
+        {
+            // Set the third setting to its minimum
+            setting3->AdjustMin();
+        }
         return FALSE;
     }
-    else if (current_val < max_val)
+    // Increase the first setting
+    else if ((setting1 != (CCalSetting *)NULL) && setting1->AdjustNext())
     {
-        // Increase the first setting
-        current_val++;
-        Setting_SetValue(BT848_GetSetting(setting1), current_val);
-
-        // Set the second setting to its minimum
-        current_val2 = min_val2;
-        Setting_SetValue(BT848_GetSetting(setting2), current_val2);
-
-        // Set the third setting to its minimum
-        current_val3 = min_val3;
-        Setting_SetValue(BT848_GetSetting(setting3), current_val3);
-
+        if (setting2 != (CCalSetting *)NULL)
+        {
+            // Set the second setting to its minimum
+            setting2->AdjustMin();
+        }
+        if (setting3 != (CCalSetting *)NULL)
+        {
+            // Set the third setting to its minimum
+            setting3->AdjustMin();
+        }
         return FALSE;
     }
     else
     {
         // Set the settings to the best values found
-        Setting_SetValue(BT848_GetSetting(setting1), best_val);
-        Setting_SetValue(BT848_GetSetting(setting2), best_val2);
-        Setting_SetValue(BT848_GetSetting(setting3), best_val3);
-
-        LOG(2, "Automatic Calibration - step %d finished - %d %d %d => %d", current_step, best_val, best_val2, best_val3, min_dif);
-
+        if (setting1 != (CCalSetting *)NULL)
+        {
+            setting1->AdjustBest();
+        }
+        if (setting2 != (CCalSetting *)NULL)
+        {
+            setting2->AdjustBest();
+        }
+        if (setting3 != (CCalSetting *)NULL)
+        {
+            setting3->AdjustBest();
+        }
         return TRUE;
     }
 }

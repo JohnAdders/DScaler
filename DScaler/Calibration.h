@@ -56,6 +56,7 @@ enum eTypeAdjust {
     ADJ_SATURATION_U,
     ADJ_SATURATION_V,
     ADJ_COLOR,
+    ADJ_HUE,
 };
 
 
@@ -195,7 +196,7 @@ public:
     // This method analyzes the current overlay buffer
     void CalcCurrentSubPattern(short **Lines, int height, int width);
 
-    // This methode returns the sum of delta between reference color
+    // This methode returns the sum of absolute delta between reference color
     // and calculated average color through all the color bars
     void GetSumDeltaColor(BOOL YUV, int *pR_Y, int *pG_U, int *pB_V, int *pTotal);
 
@@ -272,6 +273,47 @@ private:
 
 
 ////////////////////////////////////////////////////////////
+// Object representing one of the BT video settings
+////////////////////////////////////////////////////////////
+class CCalSetting
+{
+public:
+    CCalSetting(BT848_SETTING setting);
+    void Save();
+    void Restore();
+    void SetFullRange();
+    void SetRange(int min_val, int max_val);
+    void SetRange(int delta);
+    void SetRange(int *mask);
+    void GetRange(int *mask, int *min_val, int *max_val);
+    void AdjustMin();
+    void AdjustMax();
+    void AdjustDefault();
+    BOOL AdjustNext();
+    void AdjustBest();
+    void InitResult();
+    void UpdateResult(int diff, int stop_threshold, BOOL only_one);
+    int GetResult(int *mask, int *min_val, int *max_val);
+
+protected:
+    void Adjust(int value);
+    BT848_SETTING type_setting;
+    int min_value;
+    int max_value;
+    unsigned int mask_input[16];
+    unsigned int mask_output[16];
+
+private:
+    int min;
+    int max;
+    int current_value;
+    int saved_value;
+    unsigned int min_diff;
+    BOOL end;
+};
+
+
+////////////////////////////////////////////////////////////
 // Object managing the card calibration in DScaler
 ////////////////////////////////////////////////////////////
 class CCalibration
@@ -306,31 +348,24 @@ protected:
     CSubPattern *current_sub_pattern;
     eTypeCalibration type_calibration;
     BOOL running;
+    CCalSetting *brightness;
+    CCalSetting *contrast;
+    CCalSetting *saturation_U;
+    CCalSetting *saturation_V;
+    CCalSetting *hue;
 
 private:
-    BOOL step_init(eTypeAdjust type_adjust, BT848_SETTING setting, int min, int max);
-    BOOL step_process(short **Lines, int height, int width, BT848_SETTING setting, unsigned int sig_component);
-    BOOL step_init2(eTypeAdjust type_adjust, BT848_SETTING setting1, int min1, int max1, int delta1, BT848_SETTING setting2, int min2, int max2, int delta2, BT848_SETTING setting3, int min3, int max3, int delta3);
-    BOOL step_process2(short **Lines, int height, int width, BT848_SETTING setting1, BT848_SETTING setting2, BT848_SETTING setting3, unsigned int sig_component);
+    BOOL step_init(eTypeAdjust type_adjust, CCalSetting *_setting1, int *mask1, CCalSetting *_setting2, int *mask2, CCalSetting *_setting3, int *mask3);
+    BOOL step_process(short **Lines, int height, int width, unsigned int sig_component, BOOL stop_before_end, BOOL only_one);
     int last_tick_count;
     unsigned int initial_step;
     unsigned int nb_steps;
-    unsigned int current_step;
-    int min_val;
-    int max_val;
-    int current_val;
-    int best_val;
-    int min_val2;
-    int max_val2;
-    int current_val2;
-    int best_val2;
-    int min_val3;
-    int max_val3;
-    int current_val3;
-    int best_val3;
-    int min_dif;
+    int current_step;
     int total_dif;
     int nb_calcul;
+    CCalSetting *setting1;
+    CCalSetting *setting2;
+    CCalSetting *setting3;
 };
 
 

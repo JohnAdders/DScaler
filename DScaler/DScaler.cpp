@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.79 2001-10-06 17:04:26 adcockj Exp $
+// $Id: DScaler.cpp,v 1.80 2001-10-22 05:55:07 temperton Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.79  2001/10/06 17:04:26  adcockj
+// Fixed teletext crashing problems
+//
 // Revision 1.78  2001/10/06 12:36:10  laurentg
 // New shortcut keys added to adjust left and right player cropping during calibration
 //
@@ -541,6 +544,42 @@ BOOL WINAPI OnContextMenu(HWND hWnd, int x, int y)
     return FALSE; 
 } 
 
+void SetVTPage(int Page, int SubPage, bool SubPageValid, bool LockSubPage)
+{
+    if ((Page < 100) || (Page > 899))
+        return;
+
+    VTPage = Page;
+    VTShowHidden = false;
+    if (SubPageValid)
+    {
+        VTSubPage = SubPage;
+        VTSubPageLocked = VT_CompleteSubPages(VTPage - 100) && LockSubPage;
+        //TODO: It will be good idea to set timer for removing lock
+        //after 2-3 mins and switching back to the most recent 
+        //received subpage.
+    }
+    else
+    {
+        //Find first available SubPage with most lowest index
+        VTSubPage = VT_SubPageNext(VTPage - 100, -1, 1, false);
+        VTSubPageLocked = false;
+    }
+
+    VT_DoUpdate_Page(VTPage - 100, VTSubPage);
+    Cursor_VTUpdate(false, 0, 0);
+    InvalidateRect(hWnd, NULL, FALSE);
+}
+
+void SetVTShowHidden(bool Enabled)
+{
+    if ((Enabled && !VTShowHidden) || (!Enabled && VTShowHidden))
+    {
+        VTShowHidden = Enabled;
+        VT_DoUpdate_Page(VTPage - 100, VTSubPage);
+        InvalidateRect(hWnd, NULL, FALSE);
+    }
+}
 
 ///**************************************************************************
 //
@@ -628,10 +667,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             {
                 if(VTPage >= 100)
                 {
-                    VTPage--;
-                    VT_DoUpdate_Page(VTPage - 100);
-                    Cursor_VTUpdate(false, 0, 0);
-                    InvalidateRect(hWnd,NULL,FALSE);
+                    SetVTPage(VTPage - 1, 0, false, false);
                 }
             }
             else
@@ -645,10 +681,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             {
                 if(VTPage < 899)
                 {
-                    VTPage++;
-                    VT_DoUpdate_Page(VTPage - 100);
-                    Cursor_VTUpdate(false, 0, 0);
-                    InvalidateRect(hWnd,NULL,FALSE);
+                    SetVTPage(VTPage + 1, 0, false, false);
                 }
             }
             else
@@ -660,7 +693,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_VT_PAGE_UP:
             if(VTState != VT_OFF)
             {
-                // not yet implemented
+                SetVTPage(VTPage, VT_SubPageNext(VTPage - 100, VTSubPage, -1, true), true, true);
             }
             else
             {
@@ -671,7 +704,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_VT_PAGE_DOWN:
             if(VTState != VT_OFF)
             {
-                // not yet implemented
+                SetVTPage(VTPage, VT_SubPageNext(VTPage - 100, VTSubPage, +1, true), true, true);
             }
             else
             {
@@ -1195,8 +1228,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 Setting_SetValue(VBI_GetSetting(DOTELETEXT), TRUE);
             }
             
-            VT_DoUpdate_Page(VTPage - 100);
-            Cursor_VTUpdate(false, 0, 0);
+            SetVTPage(VTPage, VTSubPage, true, false);
 
             WorkoutOverlaySize();
 
@@ -1699,15 +1731,20 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             {
                 if(VTPage >= 100)
                 {
-                    i = VT_GetFlofPageNumber(VTPage-100, LOWORD(wParam) - IDM_TELETEXT_KEY1);
-                    if(i > 100 && i <= 999) 
+                    //TODO: VT_GetFlofPageNumber do not return SubPage...
+                    i = VT_GetFlofPageNumber(VTPage-100, VTSubPage, LOWORD(wParam) - IDM_TELETEXT_KEY1);
+                    if(i > 100 && i <= 899) 
                     {
-                        VTPage = i;
-                        VT_DoUpdate_Page(VTPage - 100);
-                        Cursor_VTUpdate(false, 0, 0);
-                        InvalidateRect(hWnd,NULL,FALSE);
+                        SetVTPage(i, 0, false, true);
                     }
                 }
+            }
+            break;
+
+        case IDM_TELETEXT_KEY6:
+            if (VTState != VT_OFF)
+            {
+                SetVTShowHidden(!VTShowHidden);
             }
             break;
 
@@ -1862,13 +1899,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
     case WM_LBUTTONDOWN:
         if (VTState != VT_OFF) 
         {
-            int a = VT_GetPageNumberAt(VTPage-100, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            int a = VT_GetPageNumberAt(VTPage-100, VTSubPage, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
             if ((a >= 100) && (a <= 899)) 
             {
-                VTPage = a;
-                VT_DoUpdate_Page(VTPage - 100);
-                Cursor_VTUpdate(false, 0, 0);
-                InvalidateRect(hWnd,NULL,FALSE);
+                SetVTPage(a, 0, false, false);
             }
         }
         break;
@@ -1962,12 +1996,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             KillTimer(hWnd, TIMER_KEYNUMBER);
             if(VTState != VT_OFF)
             {
-                VTPage = atoi(ChannelString);
-                if(VTPage >= 100 && VTPage < 900)
+				i = atoi(ChannelString);
+                if(i >= 100 && i < 900) //This checking not needed now...
                 {
-                    VT_DoUpdate_Page(VTPage - 100);
-                    Cursor_VTUpdate(false, 0, 0);
-                    InvalidateRect(hWnd, NULL, FALSE);
+                    SetVTPage(i, 0, false, false);
                 }
             }
             else
@@ -2899,7 +2931,7 @@ void Cursor_VTUpdate(bool PosValid, int x, int y)
             x = pt.x; y = pt.y;
         }
 
-        a = VT_GetPageNumberAt(VTPage-100, x, y);
+        a = VT_GetPageNumberAt(VTPage-100, VTSubPage, x, y);
         if ((a >= 100) && (a <= 899))
         {
             Cursor_SetType(CURSOR_HAND);

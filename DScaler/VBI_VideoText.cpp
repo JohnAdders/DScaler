@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.22 2001-10-06 17:04:26 adcockj Exp $
+// $Id: VBI_VideoText.cpp,v 1.23 2001-10-22 05:55:07 temperton Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2001/10/06 17:04:26  adcockj
+// Fixed teletext crashing problems
+//
 // Revision 1.21  2001/09/22 11:09:43  adcockj
 // Fixed crashing problems with new code with noisy input
 //
@@ -95,7 +98,11 @@
 TPacket30 Packet30;
 
 TVTPage VTPages[800];
+CRITICAL_SECTION VTAccess;
 int VTPage = 100;
+int VTSubPage = 0;
+bool VTSubPageLocked = false;
+bool VTShowHidden = false;
 
 unsigned int VBIScanPos;
 
@@ -190,17 +197,79 @@ unsigned short VTColourTable[9] =
     992,    //Green
     32736,  //Yellow
     31,     //Blue
-    32767,  //Invisible
-    15871,  //Cyan
+    31774,  //Magenta
+    1023,   //Cyan
     32767,  //White
     31775,  //Transparent
 };
 
+TVTPage * VT_PageGet(int Page, int SubPage)
+{
+    TVTPage* pPage;
+    TVTPage* pTemp = NULL;
+	
+    EnterCriticalSection(&VTAccess);
+
+    pPage = &VTPages[Page];
+    for(;;)
+    {
+        if ((!pPage->Fill) || (pPage->SubPage == SubPage))
+        {
+            pPage->SubPage = SubPage;
+            pTemp = pPage;
+            break;
+        }
+
+        if (!pPage->Next) 
+        {
+            pPage->Next = new TVTPage;
+            memset(pPage->Next, NULL, sizeof(TVTPage));
+            pPage->Next->SubPage = SubPage;
+            pTemp = pPage->Next;
+            break;
+        }
+        pPage = pPage->Next;
+    }
+
+    LeaveCriticalSection(&VTAccess);
+    return pTemp;
+}
+
+void VT_PageFree(int Page)
+{
+    TVTPage *pPage;
+    TVTPage *pTemp;
+
+    EnterCriticalSection(&VTAccess);    
+
+    pPage = &VTPages[Page];
+    pPage = pPage->Next;
+    VTPages[Page].Next = NULL;
+    while (pPage)
+    {
+        pTemp = pPage->Next;
+        delete pPage;
+        pPage = pTemp;
+    }
+
+    LeaveCriticalSection(&VTAccess);
+}
+
+TVTPage* VT_PageNext(TVTPage* pPage)
+{
+    TVTPage* pTemp;
+    EnterCriticalSection(&VTAccess);
+    pTemp = pPage->Next;
+    LeaveCriticalSection(&VTAccess);
+    return pTemp;
+}
+		
 void VBI_VT_Init()
 {
     VT_SetCodePage(VTCodePage);
 
     memset(VTPages, 0, 800 * sizeof(TVTPage));
+    InitializeCriticalSection(&VTAccess);
 
     VTPage = 100;
     VT_ChannelChange();
@@ -221,6 +290,8 @@ void VBI_VT_Init()
 
 void VBI_VT_Exit()
 {
+	int a;
+
     if(VTScreen != NULL)
     {
         free(VTScreen);
@@ -232,6 +303,13 @@ void VBI_VT_Exit()
         DeleteObject(VTCharSet);
         VTCharSet = NULL;
     }
+
+    for (a = 0; a < 800; a++)
+    {
+        VT_PageFree(a);
+    }
+
+    DeleteCriticalSection(&VTAccess);
 }
 
 void VBI_decode_vps(unsigned char* data)
@@ -305,7 +383,6 @@ int MakePage(int mag, int page)
     }
 }
 
-
 void VBI_decode_vt(unsigned char* dat)
 {
     int i;
@@ -313,15 +390,13 @@ void VBI_decode_vt(unsigned char* dat)
     unsigned int addr;
     unsigned int pnum = 0;
     unsigned short sub;
-    int j;
     WORD ctrl;
 
-    int nPage;
-    int nPage1;
+    TVTPage *pPage;
 
-	int p1, p2, p3;
-	int s1, s2, s3, s4;
-	int des;
+    int p1, p2, p3;
+    int s1, s2, s3, s4;
+    int des;
 
     // dat: 55 55 27 %MPAG% 
     mpag = unham(dat + 3);
@@ -339,12 +414,22 @@ void VBI_decode_vt(unsigned char* dat)
 
         if(MagazineStates[mag].bStarted)
         {
+            if ((MagazineStates[mag].Page == VTPage - 100) && (!VTSubPageLocked))
+            {
+                if (VTSubPage != MagazineStates[mag].SubPage)
+                {
+                    VTShowHidden = false;
+                }
+                VTSubPage = MagazineStates[mag].SubPage;
+            }
+
             // Check if we need to repaint screen
-            if(VTState != VT_OFF && MagazineStates[mag].Page == VTPage - 100)
+            if((VTState != VT_OFF) && (MagazineStates[mag].Page == VTPage - 100) &&
+			   (MagazineStates[mag].SubPage == VTSubPage))
             {
                 // update the display bitmap
-                VT_DoUpdate_Page(VTPage - 100);
-                if(hWnd == GetForegroundWindow())
+                VT_DoUpdate_Page(VTPage - 100, VTSubPage);
+                if(hWnd == GetForegroundWindow() && !bInMenuOrDialogBox)
                 {
                     // if we are the foreground window then
                     // do a fast paint here by getting
@@ -386,53 +471,43 @@ void VBI_decode_vt(unsigned char* dat)
             return;
         }
 
-        sub = (unham(dat + 9) << 8) | unham(dat + 7);
-
-        MagazineStates[mag].PageErase = ((sub & 0x80) != 0);
-
-        j = sub;
-        sub = sub & 0x3F;
-        nPage = (sub / 16);
-        nPage1 = sub - (nPage * 16);
-
-        sub = nPage * 10 + nPage1;
+        MagazineStates[mag].PageErase = ((unham(dat + 7) & 0x80) != 0);
+        sub = ((unham(dat + 9) & 0x3F) << 7) | (unham(dat + 7) & 0x7F);
+        sub = (sub >> 4) * 10 + (sub & 0x0F);
 
         VTCurrentPage = pnum;
         VTCurrentSubCode = sub;
 
-        pnum -= 100;
+		pnum -= 100;
 
         if ((pnum >= 0) && (pnum < 800))
         {
 
             ctrl = (UnhamTab[dat[3]] & 0x7) + ((UnhamTab[dat[8]] >> 3) << 3) + ((UnhamTab[dat[10]] >> 2) << 4) + (UnhamTab[dat[11]] << 6) + (UnhamTab[dat[12]] << 10);
 
-            if (sub > 0)
-                sub--;
-
             MagazineStates[mag].Page = pnum;
             MagazineStates[mag].SubPage = sub;
             MagazineStates[mag].bStarted = TRUE;
             LOG(2, "Mag %d Page %d SubCode %d", mag, pnum, sub);
 
-            if(VTPages[pnum].bUpdated == FALSE)
+			pPage = VT_PageGet(pnum, sub);
+			VTPages[pnum].MostRecentSubPage = sub;		
+            if(pPage->bUpdated == FALSE)
             {
                 ++VTCachedPages;
             }
-            VTPages[pnum].wCtrl = ctrl;
+            pPage->wCtrl = ctrl;
             if (MagazineStates[mag].PageErase == TRUE)
             {
-                memset(&VTPages[pnum].Frame[1], 0x00, 24 * 40);
-                memset(&VTPages[pnum].LineUpdate[1], 0x00, 24);
+                memset(&pPage->Frame[1], 0x00, 24 * 40);
+                memset(&pPage->LineUpdate[1], 0x00, 24);
             }
-            memcpy(&VTPages[pnum].Frame[0], dat + 5, 40);
+            memcpy(&pPage->Frame[0], dat + 5, 40);
             memcpy(&VTHeaderLine[0], dat + 5, 40);
-            VTPages[pnum].bUpdated = 1;
-            VTPages[pnum].Fill = TRUE;
-            VTPages[pnum].SubPage = sub + 1;
+            pPage->bUpdated = 1;
+            pPage->Fill = TRUE;
         }
         break;
-
     case 1:
     case 2:
     case 3:
@@ -459,27 +534,31 @@ void VBI_decode_vt(unsigned char* dat)
     case 24:
         if(MagazineStates[mag].bStarted)
         {
-            memcpy(&VTPages[MagazineStates[mag].Page].Frame[pack], dat + 5, 40);
+			pPage = VT_PageGet(MagazineStates[mag].Page, MagazineStates[mag].SubPage);
 
-            VTPages[MagazineStates[mag].Page].bUpdated = 1;
-            VTPages[MagazineStates[mag].Page].Fill = TRUE;
-            VTPages[MagazineStates[mag].Page].LineUpdate[pack] = 1;
+            memcpy(&pPage->Frame[pack], dat + 5, 40);
+            pPage->bUpdated = 1;
+            pPage->Fill = TRUE;
+            pPage->LineUpdate[pack] = 1;
         }
         break;
     
     case 25:
         if(MagazineStates[mag].bStarted)
         {
-            memcpy(&VTPages[MagazineStates[mag].Page].Frame[0], dat + 5, 40);
-            VTPages[MagazineStates[mag].Page].bUpdated = 1;
-            VTPages[MagazineStates[mag].Page].Fill = TRUE;
-            VTPages[MagazineStates[mag].Page].LineUpdate[0] = 1;
+			pPage = VT_PageGet(MagazineStates[mag].Page, MagazineStates[mag].SubPage);
+
+            memcpy(&pPage->Frame[0], dat + 5, 40);
+            pPage->bUpdated = 1;
+            pPage->Fill = TRUE;
+            pPage->LineUpdate[0] = 1;
         }
         break;
     case 26:                    // PDC
     case 27:
         if(MagazineStates[mag].bStarted)
         {
+			pPage = VT_PageGet(MagazineStates[mag].Page, MagazineStates[mag].SubPage);
 			if ((des=UnhamTab[dat[5]]&0x0f)<=3)
 			{
 				for(i = 1 ; i <= 6; i++)
@@ -496,17 +575,17 @@ void VBI_decode_vt(unsigned char* dat)
 
 					if ((p1==0xF) && (p2==0xF))
 					{
-						VTPages[MagazineStates[mag].Page].FlofPage[des*6+i-1] = -1;
-						VTPages[MagazineStates[mag].Page].FlofSubPage[des*6+i-1] = 8191;
+						pPage->FlofPage[des*6+i-1] = -1;
+						pPage->FlofSubPage[des*6+i-1] = 8191;
 					}
 	    			else
 					{
-						VTPages[MagazineStates[mag].Page].FlofPage[des*6+i-1] = p3*100+p2*10+p1;
-						VTPages[MagazineStates[mag].Page].FlofSubPage[des*6+i-1] = s1 + (s2<<4) + (s3<<7) + (s4<<11);
+						pPage->FlofPage[des*6+i-1] = p3*100+p2*10+p1;
+						pPage->FlofSubPage[des*6+i-1] = s1 + (s2<<4) + (s3<<7) + (s4<<11);
 					}
 				}
 			}
-			VTPages[MagazineStates[mag].Page].bFlofUpdated = TRUE;
+			pPage->bFlofUpdated = TRUE;
 		}
 		break;
     case 28:
@@ -624,7 +703,7 @@ int VT_GetPage(int nPage)
     return nPage - 100;
 }
 
-void VT_DoUpdate_Page(int Page)
+void VT_DoUpdate_Page(int Page, int SubPage)
 {
 
     BOOL bGraph, bHoldGraph, bSepGraph, bBox, bFlash, bDouble, bConceal, bHasDouble;
@@ -634,6 +713,7 @@ void VT_DoUpdate_Page(int Page)
     int endrow;
     int n, row, x, y;
     char tmp[41];
+	TVTPage *pPage;
 
     BYTE* src;
     BYTE* dest;
@@ -641,9 +721,10 @@ void VT_DoUpdate_Page(int Page)
 
 
     bHasDouble = FALSE;
+	pPage = VT_PageGet(Page, SubPage);
 
     // if we havent got the full page just show the header
-    if (VTPages[Page].bUpdated == FALSE)
+    if (pPage->bUpdated == FALSE)
     {
         endrow = 1;
     }
@@ -669,7 +750,7 @@ void VT_DoUpdate_Page(int Page)
         {
             sprintf(tmp, "  P%-3d \x7", Page + 100);
 
-            if (VTPages[Page].bUpdated == FALSE)
+            if (pPage->bUpdated == FALSE)
             {
                 // if the current page hasn't yet been filled
                 // show the last header
@@ -686,7 +767,7 @@ void VT_DoUpdate_Page(int Page)
                 // show the original header
                 for (n = 8; n < 30; n++)
                 {
-                    tmp[n] = VTPages[Page].Frame[row][n] & 0x7f;
+                    tmp[n] = pPage->Frame[row][n] & 0x7f;
                 }
                 // but the time from the most recent
                 for (n = 30; n < 40; n++)
@@ -694,7 +775,7 @@ void VT_DoUpdate_Page(int Page)
                     tmp[n] = VTHeaderLine[n] & 0x7f;
                 }
 
-                if(!(VTPages[Page].wCtrl & (3 << 4)) && VTState != VT_MIX)
+                if(!(pPage->wCtrl & (3 << 4)) && VTState != VT_MIX)
                 {
                     DefaultBkg = VTColourTable[0];
                 }
@@ -703,7 +784,7 @@ void VT_DoUpdate_Page(int Page)
                     DefaultBkg = VTColourTable[8];
                 }
 
-                if (VTPages[Page].wCtrl & (3 << 4))
+                if (pPage->wCtrl & (3 << 4))
                 {
                     memset(tmp, 32, 40);
                 }
@@ -714,7 +795,7 @@ void VT_DoUpdate_Page(int Page)
             for (n = 0; n < 40; n++)
             {
 				if (row < endrow) 
-                tmp[n] = VTPages[Page].Frame[row][n] & 0x7f;
+                tmp[n] = pPage->Frame[row][n] & 0x7f;
 				else
 					tmp[n] = 0x20;
                 if(tmp[n] == 0x0d)
@@ -723,7 +804,7 @@ void VT_DoUpdate_Page(int Page)
                 }
             }
 
-            if ((VTPages[Page].wCtrl & (3 << 4)) || VTState == VT_MIX)
+            if ((pPage->wCtrl & (3 << 4)) || VTState == VT_MIX)
             {
                 DefaultBkg = VTColourTable[8];
             }
@@ -755,6 +836,7 @@ void VT_DoUpdate_Page(int Page)
                 case 0x07:
                     CurrentFg = VTColourTable[c];
                     bGraph = FALSE;
+                    bConceal = false;
                     break;
                 case 0x08:
                     bFlash = TRUE;
@@ -832,10 +914,10 @@ void VT_DoUpdate_Page(int Page)
                 ch -= 32;
             }
 
-            src = _BitmapLargeChar(VTCharSet, ch);
+            src = _BitmapLargeChar(VTCharSet, (bConceal && !VTShowHidden)?0:ch);
             dest = _BitmapDataP(VTScreen);
             dest += VTScreen->bmiHeader.biSizeImage;
-            dest -= ((40 - n) * (LARGE_WIDTH * 2)) + ((LARGE_WIDTH / 2) * 2);
+            dest -= ((40 - n) * (LARGE_WIDTH * 2));// + ((LARGE_WIDTH / 2) * 2);
             dest -= (row * VT_LARGE_BITMAP_WIDTH * LARGE_HEIGHT * 2);
 
             for (y = 0; y < ((bDouble && (row < 24)) ? LARGE_HEIGHT * 2 : LARGE_HEIGHT); y++)
@@ -872,6 +954,11 @@ void VT_DoUpdate_Page(int Page)
 
 void VT_ChannelChange()
 {
+	int a;
+	for (a = 0; a < 800; a++)
+	{
+		VT_PageFree(a);
+	}
     memset(VTPages, 0, 800 * sizeof(TVTPage));
     memset(MagazineStates, 0, sizeof(TMagState) * NUM_MAGAZINES);
     for(int i(0); i < NUM_MAGAZINES; ++i)
@@ -879,6 +966,10 @@ void VT_ChannelChange()
         MagazineStates[i].Page = -1;
     }
     VTCachedPages = 0;
+
+	VTPage = 100;
+	VTSubPage = 0;
+	VTSubPageLocked = false;
 }
 
 
@@ -904,8 +995,7 @@ void VT_Redraw(HWND hWnd, HDC hDC, BOOL IsDDhDC)
                     _BitmapDataP(VTScreen),         // bitmap bits
                     VTScreen,                       // bitmap data
                     DIB_PAL_COLORS,                 // usage options
-                    SRCCOPY);                       // raster operation code
-                
+                    SRCCOPY);                       // raster operation code       
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -1137,24 +1227,19 @@ void VT_WriteSettingsToIni(BOOL bOptimizeFileAccess)
     }
 }
 
-int IsNum(int Page, int x, int y)
+int IsNum(int Page, int SubPage, int x, int y)
 {
 	if ((x>39) || (y>24))
 		return -1;
 
-	int n = int(VTPages[Page].Frame[y][x] & 0x7F) - 0x30;
+	int n = int(VT_PageGet(Page, SubPage)->Frame[y][x] & 0x7F) - 0x30;
 	if ((n < 0) || (n > 9))
 		return -1;
 
 	return n;
 }
 
-TVTPage* VT_PageDirect(int Page)
-{
-	return &VTPages[Page-100];
-}
-
-int VT_GetPageNumberAt(int Page, int x, int y)
+int VT_GetPageNumberAt(int Page, int SubPage, int x, int y)
 {
 	float dx, dy;
 	float width, height;
@@ -1166,7 +1251,7 @@ int VT_GetPageNumberAt(int Page, int x, int y)
 		return 0;
 	}
 
-	if (!VTPages[Page].bUpdated)
+	if (!VT_PageGet(Page, SubPage)->bUpdated)
 	{
 		return 0;
 	}
@@ -1207,14 +1292,14 @@ int VT_GetPageNumberAt(int Page, int x, int y)
 
 	//TODO: doubleheight line checking
 	xto = x;
-	while (IsNum(Page, xto++, y) != -1)
+	while (IsNum(Page, SubPage, xto++, y) != -1)
 	{
 		;
 	}
 	xto-=2;
 	
 	xfrom=x;
-	while (IsNum(Page, xfrom--, y) != -1)
+	while (IsNum(Page, SubPage, xfrom--, y) != -1)
 	{
 		;
 	}
@@ -1228,31 +1313,94 @@ int VT_GetPageNumberAt(int Page, int x, int y)
 	mul = 1; n = 0;
 	for (int a=xto; a>=xfrom; a--) 
 	{
-		n += (VTPages[Page].Frame[y][a] & 0x7F - 0x30) * mul;
+		n += (VT_PageGet(Page, SubPage)->Frame[y][a] & 0x7F - 0x30) * mul;
 		mul*=10;
 	}
 
 	return n;
 }
 
-int VT_GetFlofPageNumber(int Page, int flof)
+int VT_GetFlofPageNumber(int Page, int SubPage, int flof)
 {
 	if ((Page < 0) || (Page > 899))
-		return 0;
+    {
+    	return 0;
+    }
 
-	if (!VTPages[Page].bFlofUpdated)
+	TVTPage *pPage = VT_PageGet(Page, SubPage);
+	if (!pPage->bFlofUpdated)
 	{
 		return 0;
 	}
 
-	if(VTPages[Page].FlofPage[flof] < 100 ||  VTPages[Page].FlofPage[flof] > 999)
+	if (pPage->FlofPage[flof] < 100 ||  pPage->FlofPage[flof] > 999)
 	{
 		return 0;
 	}
 	else
 	{
-		return VTPages[Page].FlofPage[flof];
+		return pPage->FlofPage[flof];
 	}
+}
+
+int VT_MostRecentSubPage(int Page)
+{
+    if ((Page < 0) || (Page > 899))
+    {
+        return 0;
+    }
+
+	return VTPages[Page].MostRecentSubPage;
+}
+
+int VT_CompleteSubPages(int Page)
+{
+	int a = 0;
+	TVTPage *pPage = &VTPages[Page];
+
+	do 
+	{
+		if (pPage->bUpdated)
+		{
+			a++;
+		}
+		pPage = VT_PageNext(pPage);
+    } while (pPage);
+
+	return a;
+}
+
+int VT_SubPageNext(int Page, int SubPage, int Direction, bool Cycle)
+{
+	if ((!Direction) || (Page < 0) || (Page > 899))
+	{
+		return SubPage;
+	}
+
+	TVTPage *pPage = &VTPages[Page];
+	TVTPage *pBest = NULL;
+	int BestSubPage = (Direction > 0) ? 65535 : -1;
+	bool found = false;
+
+	do
+	{
+		if ((((pPage->SubPage > SubPage) && (Direction > 0) && (pPage->SubPage < BestSubPage)) ||
+		    ((pPage->SubPage < SubPage) && (Direction < 0) && (pPage->SubPage > BestSubPage)))
+			&&
+			(pPage->bUpdated))
+		{
+			BestSubPage = pPage->SubPage;
+			pBest = pPage;
+		}
+		pPage = VT_PageNext(pPage);
+    } while (pPage);
+
+	if ((Cycle) && (!pBest))
+	{
+		return VT_SubPageNext(Page, (Direction > 0) ? -1 : 65535, Direction, false);
+	}
+
+	return (pBest) ? pBest->SubPage : VT_MostRecentSubPage(Page);	
 }
 
 void VT_SetMenu(HMENU hMenu)

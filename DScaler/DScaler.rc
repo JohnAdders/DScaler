@@ -905,6 +905,7 @@ BEGIN
             MENUITEM "Yellow\tF7",                  IDM_TELETEXT_KEY3
             MENUITEM "Blue\tF8",                    IDM_TELETEXT_KEY4
             MENUITEM "Index\tF9",                   IDM_TELETEXT_KEY5
+            MENUITEM "Conceal\t?",                  IDM_TELETEXT_KEY6
         END
         MENUITEM "&Videotext Reset (After switch over Composite)  ", 
                                                 IDM_VT_RESET, GRAYED
@@ -1164,6 +1165,7 @@ BEGIN
     "<",            IDM_TSPREV,             ASCII,  NOINVERT
     "=",            IDM_VOLUMEPLUS,         ASCII,  NOINVERT
     ">",            IDM_TSNEXT,             ASCII,  NOINVERT
+    "?",            IDM_TELETEXT_KEY6,      ASCII,  NOINVERT
     "A",            IDM_SASPECT_AUTO_ON,    VIRTKEY, NOINVERT
     "A",            IDM_SASPECT_AUTO_OFF,   VIRTKEY, SHIFT, NOINVERT
     "A",            IDM_SASPECT_AUTO_TOGGLE, VIRTKEY, SHIFT, CONTROL, 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.H,v 1.13 2001-09-21 16:43:54 adcockj Exp $
+// $Id: VBI_VideoText.H,v 1.14 2001-10-22 05:55:07 temperton Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -112,18 +112,21 @@ typedef struct
 #define FLOF_GREEN  1
 #define FLOF_YELLOW 2
 #define FLOF_BLUE   3
-typedef struct
+typedef struct tagVTPage
 {
     WORD wCtrl;
     BOOL Fill;
     BYTE Frame[25][40];
     BYTE LineUpdate[25];
     BYTE bUpdated;
-	BYTE bFlofUpdated;
-	int FlofPage[NUM_FLOF];
-	int FlofSubPage[NUM_FLOF];
+    BYTE bFlofUpdated;
+    int FlofPage[NUM_FLOF];
+    int FlofSubPage[NUM_FLOF];
     unsigned short SubPage;
+    int MostRecentSubPage;
+    tagVTPage *Next;
 } TVTPage;
+
 
 #define LARGE_WIDTH 15
 #define LARGE_HEIGHT 18
@@ -152,7 +155,6 @@ typedef struct
 #define _BitmapSmallRowP(bmp,row) ((_BitmapDataP(bmp))+VT_SMALL_BITMAP_WIDTH*((row)*SMALL_HEIGHT))
 #define _BitmapSmallText(bmp,row,c) (_BitmapSmallRowP(bmp,row)+((c)*SMALL_WIDTH*2))
 
-
 void VBI_VT_Init();
 void VBI_VT_Exit();
 
@@ -174,19 +176,24 @@ void VT_ChannelChange();
 
 void VT_DecodeLine(BYTE* VBI_Buffer, int line, BOOL IsOdd);
 void VTS_DecodeLine(BYTE* VBI_Buffer);
-void VT_DoUpdate_Page(int Page);
+void VT_DoUpdate_Page(int Page, int SubPage);
+int VT_MostRecentSubPage(int Page);
+int VT_SubPageNext(int Page, int SubPage, int Direction, bool Cycle);
+int VT_CompleteSubPages(int Page);
 
 void VT_Redraw(HWND hWnd, HDC hDC, BOOL IsDDhDC);
 void VT_ResetStation();
 LPCSTR VT_GetStation();
 void VT_SetCodePage(eVTCodePage Codepage);
 
-TVTPage* VT_PageDirect(int Page);
-int VT_GetPageNumberAt(int Page, int x, int y);
-int VT_GetFlofPageNumber(int Page, int flof);
+int VT_GetPageNumberAt(int Page, int SubPage, int x, int y);
+int VT_GetFlofPageNumber(int Page, int SubPage, int flof);
 
 extern eVTState VTState;
 
 extern int VTPage;
+extern int VTSubPage;
+extern bool VTSubPageLocked;
+extern bool VTShowHidden;
 
 #endif

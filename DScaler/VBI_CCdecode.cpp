@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_CCdecode.cpp,v 1.19 2004-10-18 16:04:08 adcockj Exp $
+// $Id: VBI_CCdecode.cpp,v 1.20 2004-10-26 16:44:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Mike Baker.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2004/10/18 16:04:08  adcockj
+// Much delayed CC pop up fix from Rani Feldman
+//
 // Revision 1.18  2003/10/27 10:39:54  adcockj
 // Updated files for better doxygen compatability
 //
@@ -636,13 +639,19 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                         case 0x20:
                             if(CaptionMode)
                             {
-								// Only reset on the first pop_on command
-                                if (ScreenToWrite == 0) memset(&Screens[1],0,sizeof(TCCScreen));
-                                ScreenToWrite = 1;
-                                Mode = POP_ON;
-                                memcpy(&CurrentState, &ResetState, sizeof(TCCChar));
-                                CursorPos = 0;
-                                CursorRow = 14;
+                                if (Mode != POP_ON)
+                                {
+								    // Only reset on the first pop_on command
+                                    if (ScreenToWrite == 0)
+                                    {
+                                        memset(&Screens[1],0,sizeof(TCCScreen));
+                                    }
+                                    ScreenToWrite = 1;
+                                    Mode = POP_ON;
+                                    memcpy(&CurrentState, &ResetState, sizeof(TCCChar));
+                                    CursorPos = 0;
+                                    CursorRow = 14;
+                                }
                                 bPaintNow = FALSE;
                                 LastIndent = -1;
                                 bCaptureText = TRUE;
@@ -682,12 +691,15 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                         case 0x27: //4 row caption
                             if(CaptionMode)
                             {
-                                Mode = ROLL_UP;
-                                ModeRows = b2 - 0x23;
-                                ScreenToWrite = 0;
-                                memcpy(&CurrentState, &ResetState, sizeof(TCCChar));
-                                CursorPos = 0;
-                                CursorRow = 14;
+                                if (Mode != ROLL_UP)
+                                {
+                                    Mode = ROLL_UP;
+                                    ModeRows = b2 - 0x23;
+                                    ScreenToWrite = 0;
+                                    memcpy(&CurrentState, &ResetState, sizeof(TCCChar));
+                                    CursorPos = 0;
+                                    CursorRow = 14;
+                                }
                                 bPaintNow = TRUE;
                                 bCaptureText = TRUE;
                             }
@@ -711,12 +723,15 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                         case 0x29: //resume direct caption
                             if(CaptionMode)
                             {
-                                ScreenToWrite = 0;
-                                Mode = PAINT_ON;
-                                memset(&Screens[0],0,sizeof(TCCScreen));
-                                memcpy(&CurrentState, &ResetState, sizeof(TCCChar));
-                                CursorPos = 0;
-                                CursorRow = 14;
+                                if (Mode != PAINT_ON)
+                                {
+                                    ScreenToWrite = 0;
+                                    Mode = PAINT_ON;
+                                    memset(&Screens[0],0,sizeof(TCCScreen));
+                                    memcpy(&CurrentState, &ResetState, sizeof(TCCChar));
+                                    CursorPos = 0;
+                                    CursorRow = 14;
+                                }
                                 bPaintNow = TRUE;
                                 bCaptureText = TRUE;
                             }

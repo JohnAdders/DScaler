@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.28 2001-07-16 18:07:50 adcockj Exp $
+// $Id: ProgramList.cpp,v 1.29 2001-08-05 16:31:34 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2001/07/16 18:07:50  adcockj
+// Added Optimisation parameter to ini file saving
+//
 // Revision 1.27  2001/07/13 18:13:24  adcockj
 // Changed Mute to not be persisted and to work properly
 //
@@ -998,77 +1001,102 @@ void Channels_UpdateMenu(HMENU hMenu)
 
 void Channel_Increment()
 {
-    // look for next active channel
-    ++CurrentProgramm;
-    while(CurrentProgramm < MyChannels.size() && 
-        !MyChannels[CurrentProgramm]->IsActive())
+    if(MyChannels.size() > 0)
     {
+        // look for next active channel
         ++CurrentProgramm;
-    }
-
-    // see if we looped around
-    if(CurrentProgramm == MyChannels.size())
-    {
-        CurrentProgramm = 0;
         while(CurrentProgramm < MyChannels.size() && 
             !MyChannels[CurrentProgramm]->IsActive())
         {
             ++CurrentProgramm;
         }
 
-        // see if we looped around again
+        // see if we looped around
         if(CurrentProgramm == MyChannels.size())
         {
             CurrentProgramm = 0;
-        }
-    }
-    
-    Channel_Change(CurrentProgramm);
+            while(CurrentProgramm < MyChannels.size() && 
+                !MyChannels[CurrentProgramm]->IsActive())
+            {
+                ++CurrentProgramm;
+            }
 
-    StatusBar_ShowText(STATUS_KEY, MyChannels[CurrentProgramm]->GetName());
-    OSD_ShowText(hWnd,MyChannels[CurrentProgramm]->GetName(), 0);
+            // see if we looped around again
+            if(CurrentProgramm == MyChannels.size())
+            {
+                CurrentProgramm = 0;
+            }
+        }
+    
+        Channel_Change(CurrentProgramm);
+
+        StatusBar_ShowText(STATUS_KEY, MyChannels[CurrentProgramm]->GetName());
+        OSD_ShowText(hWnd,MyChannels[CurrentProgramm]->GetName(), 0);
+    }
+    else
+    {
+        StatusBar_ShowText(STATUS_KEY, "No Channels");
+        OSD_ShowText(hWnd, "No Channels", 0);
+    }
 }
 
 void Channel_Decrement()
 {
-    // look for next active channel
-    --CurrentProgramm;
-    while(CurrentProgramm > -1 && 
-        !MyChannels[CurrentProgramm]->IsActive())
+    if(MyChannels.size() > 0)
     {
+        // look for next active channel
         --CurrentProgramm;
-    }
-
-    // see if we looped around
-    if(CurrentProgramm == -1)
-    {
-        CurrentProgramm = MyChannels.size() - 1;
-        while(CurrentProgramm > -1  && 
+        while(CurrentProgramm > -1 && 
             !MyChannels[CurrentProgramm]->IsActive())
         {
             --CurrentProgramm;
         }
 
-        // see if we looped around again
+        // see if we looped around
         if(CurrentProgramm == -1)
         {
-            CurrentProgramm = 0;
-        }
-    }
-    
-    Channel_Change(CurrentProgramm);
+            CurrentProgramm = MyChannels.size() - 1;
+            while(CurrentProgramm > -1  && 
+                !MyChannels[CurrentProgramm]->IsActive())
+            {
+                --CurrentProgramm;
+            }
 
-    StatusBar_ShowText(STATUS_KEY, MyChannels[CurrentProgramm]->GetName());
-    OSD_ShowText(hWnd,MyChannels[CurrentProgramm]->GetName(), 0);
+            // see if we looped around again
+            if(CurrentProgramm == -1)
+            {
+                CurrentProgramm = 0;
+            }
+        }
+    
+        Channel_Change(CurrentProgramm);
+
+        StatusBar_ShowText(STATUS_KEY, MyChannels[CurrentProgramm]->GetName());
+        OSD_ShowText(hWnd,MyChannels[CurrentProgramm]->GetName(), 0);
+    }
+    else
+    {
+        StatusBar_ShowText(STATUS_KEY, "No Channels");
+        OSD_ShowText(hWnd, "No Channels", 0);
+    }
 }
 
 void Channel_Previous()
 {
-    if (MyChannels[PreviousProgramm]->GetFrequency() != 0)
-        Channel_Change(PreviousProgramm);
+    if(MyChannels.size() > 0)
+    {
+        if (MyChannels[PreviousProgramm]->GetFrequency() != 0)
+            Channel_Change(PreviousProgramm);
 
-    StatusBar_ShowText(STATUS_KEY, MyChannels[CurrentProgramm]->GetName());
-    OSD_ShowText(hWnd,MyChannels[CurrentProgramm]->GetName(), 0);
+        StatusBar_ShowText(STATUS_KEY, MyChannels[CurrentProgramm]->GetName());
+        OSD_ShowText(hWnd,MyChannels[CurrentProgramm]->GetName(), 0);
+    }
+    else
+    {
+        StatusBar_ShowText(STATUS_KEY, "No Channels");
+        OSD_ShowText(hWnd, "No Channels", 0);
+    }
+
 }
 
 void Channel_ChangeToNumber(int ChannelNumber)

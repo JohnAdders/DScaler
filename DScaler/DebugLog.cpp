@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DebugLog.cpp,v 1.17 2002-05-26 19:04:13 robmuller Exp $
+// $Id: DebugLog.cpp,v 1.18 2002-06-11 20:52:35 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2002/05/26 19:04:13  robmuller
+// Implemented debug log level 0 (for critical errors).
+//
 // Revision 1.16  2002/03/26 13:07:10  robmuller
 // Flush file when FlushAfterEachWrite is enabled with the dialog.
 //
@@ -61,7 +64,7 @@
 #include "SettingsDlg.h"
 
 static FILE* debugLog = NULL;
-char DebugLogFilename[MAX_PATH] = "DScaler.txt";
+char DebugLogFilename[MAX_PATH] = "DScaler.log";
 BOOL DebugLogEnabled = FALSE;
 long gDebugLogLevel = 1;
 BOOL FlushAfterEachWrite = FALSE;
@@ -146,7 +149,7 @@ SETTING DebugSettings[DEBUG_SETTING_LASTONE] =
 {
     {
         "Debug Log", ONOFF, 0, (long*)&DebugLogEnabled,
-        FALSE, 0, 1, 1, 1,
+        TRUE, 0, 1, 1, 1,
         NULL,
         "Files", "DebugLogEnabled", NULL,
     },

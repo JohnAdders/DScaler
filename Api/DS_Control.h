@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.46 2001-12-31 00:55:55 lindsey Exp $
+// $Id: DS_Control.h,v 1.47 2002-01-05 23:05:39 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.46  2001/12/31 00:55:55  lindsey
+// Added settings for FLT_AdaptiveNoise
+//
 // Revision 1.45  2001/12/23 00:51:55  lindsey
 // Added constants for Gradual Noise filter
 //
@@ -942,8 +945,7 @@ typedef enum
 
 typedef enum
 {
-    MAXPHASELUMADIFF = 0,
-    MAXPHASECHROMADIFF,
+    MAXPHASECOLORDIFF = 0,
     SHIMMERHISTPERCENT,
     SHIMMERPERCENT,
     USETCOMB,

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Audio.h,v 1.11 2002-12-07 15:59:06 adcockj Exp $
+// $Id: Audio.h,v 1.12 2002-12-07 16:06:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,9 +44,5 @@ void Audio_SetMenu(HMENU hMenu);
 
 void Audio_SetMute(BOOL IsMute);
 BOOL Audio_GetMute();
-void Audio_SetVolume(int Volume);
-int Audio_GetVolume();
-
-
 
 #endif

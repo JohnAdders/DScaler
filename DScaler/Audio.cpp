@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Audio.cpp,v 1.28 2002-12-07 15:59:06 adcockj Exp $
+// $Id: Audio.cpp,v 1.29 2002-12-07 16:06:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2002/12/07 15:59:06  adcockj
+// Modified mute behaviour
+//
 // Revision 1.27  2002/10/18 03:35:01  flibuste2
 // Fixed Audio_IsMuted()
 // and fixed bSystemInMust variable state
@@ -161,16 +164,6 @@ BOOL Audio_GetMute()
 {
     return bSystemInMute;
 }
-
-void Audio_SetVolume(int Volume)
-{
-}
-
-int Audio_GetVolume()
-{
-    return 10;
-}
-
 
 BOOL SystemInMute_OnChange(long NewValue)
 {

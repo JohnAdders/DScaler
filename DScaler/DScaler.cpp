@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.263 2002-12-07 15:59:06 adcockj Exp $
+// $Id: DScaler.cpp,v 1.264 2002-12-07 16:06:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.263  2002/12/07 15:59:06  adcockj
+// Modified mute behaviour
+//
 // Revision 1.262  2002/12/02 17:06:15  adcockj
 // Changed Events to use messages instead of timer
 //
@@ -2202,32 +2205,21 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         switch (LOWORD(wParam))
         {
         case IDM_MUTE:
-            if (Setting_GetValue(Audio_GetSetting(SYSTEMINMUTE)) == FALSE)
-            {
-                Setting_SetValue(Audio_GetSetting(SYSTEMINMUTE), TRUE);
-                ShowText(hWnd,"MUTE");
-            }
-            else
-            {
-                Setting_SetValue(Audio_GetSetting(SYSTEMINMUTE), FALSE);
-                ShowText(hWnd,"UNMUTE");
-            }			
+            Audio_SetMute(!Audio_GetMute());
+            ShowText(hWnd,"MUTE");
+            ShowText(hWnd, Audio_GetMute() ? "MUTE" : "UNMUTE");
 			break;
 
 	 case IDC_TOOLBAR_VOLUME_MUTE:
-            {
-                BOOL bMute = lParam;
-            
-                Setting_SetValue(Audio_GetSetting(SYSTEMINMUTE), bMute);
-                
-                ShowText(hWnd,bMute ? "MUTE" : "UNMUTE");
-            }
+            Audio_SetMute(lParam);
+            ShowText(hWnd, lParam ? "MUTE" : "UNMUTE");
             break;
             
         case IDM_VOLUMEPLUS:
-            if (Setting_GetValue(Audio_GetSetting(SYSTEMINMUTE)) == TRUE)
+            if (Audio_GetMute() == TRUE)
             {
-                SendMessage(hWnd, WM_COMMAND, IDM_MUTE, 0);
+                Audio_SetMute(FALSE);
+                ShowText(hWnd, "UNMUTE");
             }
             else
             {
@@ -2255,9 +2247,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_VOLUMEMINUS:
-            if (Setting_GetValue(Audio_GetSetting(SYSTEMINMUTE)) == TRUE)
+            if (Audio_GetMute() == TRUE)
             {
-                SendMessage(hWnd, WM_COMMAND, IDM_MUTE, 0);
+                Audio_SetMute(FALSE);
+                ShowText(hWnd, "UNMUTE");
             }
             else
             {
@@ -2283,9 +2276,9 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
             break;
 	case IDC_TOOLBAR_VOLUME_SLIDER:
-            if (Setting_GetValue(Audio_GetSetting(SYSTEMINMUTE)) == TRUE)
+            if (Audio_GetMute() == TRUE)
             {
-                SendMessage(hWnd, WM_COMMAND, IDM_MUTE, 0);
+                Audio_SetMute(FALSE);
             }
             if (bUseMixer == FALSE)
             {

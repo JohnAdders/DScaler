@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.43 2003-02-03 11:08:07 laurentg Exp $
+// $Id: CX2388xSource.cpp,v 1.44 2003-02-16 10:11:10 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.43  2003/02/03 11:08:07  laurentg
+// Don't do the VBI shift line for 60 Hz video formats
+//
 // Revision 1.42  2003/01/25 23:46:25  laurentg
 // Reset after the loading of the new settings in VideoFormatOnChange
 //
@@ -488,7 +491,7 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
     m_FastSubcarrierLock = new CFastSubcarrierLockSetting(this, "Fast Subcarrier Lock", FALSE, IniSection, pVideoGroup);
     m_Settings.push_back(m_FastSubcarrierLock);
 
-    m_WhiteCrush = new CWhiteCrushSetting(this, "White Crush", FALSE, IniSection, pVideoGroup);
+    m_WhiteCrush = new CWhiteCrushSetting(this, "White Crush", TRUE, IniSection, pVideoGroup);
     m_Settings.push_back(m_WhiteCrush);
 
     m_LowColorRemoval = new CLowColorRemovalSetting(this, "Low Color Removal", FALSE, IniSection, pVideoGroup);

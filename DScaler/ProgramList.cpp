@@ -511,7 +511,6 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         switch(LOWORD(wParam))
         {
         case IDC_PROGRAMLIST:
-            EditChan = -1;
 			if (HIWORD(wParam) == LBN_SELCHANGE)
 			{
 				i = ListBox_GetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST));
@@ -522,6 +521,10 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 					EditChan = i;
 					Channel_Change(CurrentProgramm);
                     UpdateDetails(hDlg);
+				}
+				else
+				{
+					EditChan = -1;
 				}
 			}
             break;
@@ -677,6 +680,7 @@ void Write_Program_List_ASCII()
 			fprintf(SettingFile, "Name: %s\n", (*it)->GetName());
 			fprintf(SettingFile, "Freq2: %ld\n", (*it)->GetFrequency());
 			fprintf(SettingFile, "Chan: %d\n", (*it)->GetChannelNumber());
+			fprintf(SettingFile, "Active: %d\n", (*it)->IsActive());
             if((*it)->GetFormat() != -1)
             {
 			    fprintf(SettingFile, "Form: %d\n", (*it)->GetFormat());
@@ -707,6 +711,7 @@ void Load_Program_List_ASCII()
     DWORD Frequency = -1;
     int Channel = 1;
     int Format = -1;
+	BOOL Active = TRUE;
     string Name;
 
 	// Zero out the program list
@@ -725,6 +730,10 @@ void Load_Program_List_ASCII()
     {
         if(fgets(sbuf, 255, SettingFile) == NULL)
         {
+			if(Frequency != -1)
+			{
+				MyChannels.push_back(new CChannel(Name.c_str(), Frequency, Channel, Format, Active));
+			}
     	    fclose(SettingFile);
             return;
         }
@@ -743,12 +752,13 @@ void Load_Program_List_ASCII()
         {
             if(Frequency != -1)
             {
-                MyChannels.push_back(new CChannel(Name.c_str(), Frequency, Channel, Format, TRUE));
+                MyChannels.push_back(new CChannel(Name.c_str(), Frequency, Channel, Format, Active));
             }
             Name = sbuf + 5;
             Frequency = -1;
             ++Channel;
             Format = -1;
+			Active = TRUE;
         }
         // cope with old style frequencies
         else if(strnicmp(sbuf, "Freq:", 5) == 0)
@@ -768,6 +778,10 @@ void Load_Program_List_ASCII()
         {
             Format = atoi(sbuf + 5);
         }
+        else if(strnicmp(sbuf, "Active:", 7) == 0)
+        {
+            Active = (atoi(sbuf + 7) != 0);
+        }
         else
         {
             ; //some other rubbish
@@ -776,7 +790,7 @@ void Load_Program_List_ASCII()
 
     if(Frequency != -1)
     {
-        MyChannels.push_back(new CChannel(Name.c_str(), Frequency, Channel, Format, TRUE));
+        MyChannels.push_back(new CChannel(Name.c_str(), Frequency, Channel, Format, Active));
     }
 
 	fclose(SettingFile);
@@ -804,6 +818,10 @@ void Channel_Change(int NewChannel)
                 {
         			Setting_SetValue(BT848_GetSetting(TVFORMAT), MyChannels[CurrentProgramm]->GetFormat());
                 }
+				else
+				{
+        			Setting_SetValue(BT848_GetSetting(TVFORMAT), GetTunersTVFormat());
+				}
 				Sleep(20);
 				VT_ChannelChange();
 				if(!bSystemInMute)

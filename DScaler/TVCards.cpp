@@ -888,6 +888,27 @@ void ChangeTVSettingsBasedOnTuner()
 	}
 }
 
+long GetTunersTVFormat()
+{
+	if(TunerType != TUNER_ABSENT)
+	{
+		switch(Tuners[TunerType].Type)
+		{
+		case PAL:
+		case PAL_I:
+			return FORMAT_PAL_BDGHI;
+			break;
+		case SECAM:
+			return FORMAT_SECAM;
+			break;
+		case NTSC:
+			return FORMAT_NTSC;
+			break;
+		}
+	}
+	return FORMAT_NTSC;
+}
+
 	
 void ChangeDefaultsBasedOnHardware()
 {

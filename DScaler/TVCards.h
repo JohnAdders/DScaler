@@ -216,6 +216,8 @@ const TVCARDSETUP* GetCardSetup();
 const TVTUNERSETUP* GetTunerSetup();
 void TVCard_FirstTimeSetupHardware(HINSTANCE hInst, HWND hWnd);
 LPCSTR TVCard_AutoDetectID();
+long GetTunersTVFormat();
+
 
 BOOL APIENTRY SelectCardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 

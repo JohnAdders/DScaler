@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.131 2003-11-21 14:56:36 robmuller Exp $
+// $Id: OutThreads.cpp,v 1.132 2004-05-06 13:49:13 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.131  2003/11/21 14:56:36  robmuller
+// Use the correct height with snapshots when using a half-height deinterlace method.
+//
 // Revision 1.130  2003/11/11 22:16:30  robmuller
 // Add ability to include the performance statistics in a release build.
 //
@@ -615,7 +618,8 @@ void Stop_Thread()
 
             // ...but it is and it's something we need to debug.
             // There are deadlocks with GUI access from the YUVOutThread.
-            // --AtNak 2003-07-31  [In progress comments, remove when fixed.]            
+            // --AtNak 2003-07-31  [In progress comments, remove when fixed.]
+            // http://sourceforge.net/mailarchive/message.php?msg_id=5703600
 
             MessageBox(hWnd,
                 "The video thread failed to exit in a timely manner and was forcefully "

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Filter.cpp,v 1.23 2002-08-08 12:39:13 kooiman Exp $
+// $Id: Filter.cpp,v 1.24 2002-08-09 08:33:35 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2002/08/08 12:39:13  kooiman
+// Added filter settings to settings per channel.
+//
 // Revision 1.22  2002/06/18 19:46:06  adcockj
 // Changed appliaction Messages to use WM_APP instead of WM_USER
 //
@@ -448,10 +451,9 @@ void Filter_SaveByChannelSetup(void *pThis, int Start)
         for(i = 0; i < NumFilters; i++)
         {            
             Filter_ChannelSubSection(Filters[i], szSubSection);
-            SettingsPerChannel_UnregisterSection(szSubSection);
             Filter_RegisterChannelSettings(Filters[i], szSubSection);            
         }     
-    }   
+    }
 }
 
 void Filter_RegisterChannelSettings(FILTER_METHOD *Filter, const char *szSubSection)

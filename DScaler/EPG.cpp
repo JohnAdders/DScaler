@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.cpp,v 1.8 2005-03-28 12:53:20 laurentg Exp $
+// $Id: EPG.cpp,v 1.9 2005-03-28 13:11:16 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2005/03/28 12:53:20  laurentg
+// EPG: previous and next page to show programs
+//
 // Revision 1.7  2005/03/27 20:22:07  laurentg
 // EPG: new improvements
 //
@@ -235,9 +238,7 @@ int CEPG::ExecuteCommand(string command)
 // Scan a XML file containing programs and generate the corresponding DScaler data file
 // The input file must be compatible with the XMLTV DTD
 //
-// TODO Suppress the parameter delta_time as soon as XML API will be used
-//
-int CEPG::ScanXMLTVFile(LPCSTR file, int delta_time)
+int CEPG::ScanXMLTVFile(LPCSTR file)
 {
 	string XMLTVExe = (char*)Setting_GetValue(EPG_GetSetting(EPG_XMLTVPATH));
 
@@ -304,7 +305,7 @@ int CEPG::ScanXMLTVFile(LPCSTR file, int delta_time)
 	LOG(2, "XMLTV tv_grep/tv_sort/tv_to_text %d", resu);
 
 	// TODO Suppress call to ConvertXMLtoTXT as soon as XML API will be used
-	resu = ConvertXMLtoTXT(delta_time);
+	resu = ConvertXMLtoTXT();
 
 	ReloadEPGData();
 
@@ -317,9 +318,10 @@ int CEPG::ScanXMLTVFile(LPCSTR file, int delta_time)
 //
 // TODO Suppress ConvertXMLtoTXT as soon as XML API will be used
 //
-int CEPG::ConvertXMLtoTXT(int delta_time)
+int CEPG::ConvertXMLtoTXT()
 {
 	int resu = -1;
+	int delta_time = Setting_GetValue(EPG_GetSetting(EPG_SHIFTTIMES)) * 60;
 
 	string InputFile = m_FilesDir + "\\" + DEFAULT_TMP_FILE;
 	string OutputFile = m_FilesDir + "\\" + DEFAULT_OUTPUT_TXT_FILE;
@@ -812,15 +814,7 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		OpenFileInfo.lpstrDefExt = NULL;
 		if(GetOpenFileName(&OpenFileInfo))
 		{
-			// TODO This question should be suppressed later when using the XML API
-			// and the direct access to the XML file
-			int Resp = MessageBox(hWnd,
-					"If the selected file was generated using only coordinated universal times,\nyou can choose to restore local times.\nIf not, answer \"no\" to the following question.\n\nDo you want to restore the local times ?",
-					"Local times", MB_YESNO | MB_ICONQUESTION);
-			if(Resp == IDYES)
-				ScanXMLTVFile(FilePath, -(_timezone/60));
-			else
-				ScanXMLTVFile(FilePath);
+			ScanXMLTVFile(FilePath);
 		}
         return TRUE;
 		break;
@@ -1039,6 +1033,7 @@ BOOL CEPG::GetFileLine(FILE *Stream, char *Buffer, int MaxLen)
 static char		ExePath[MAX_PATH] = {0};
 static char*	XMLTVExePath = NULL;
 static long		EPG_DefaultSizePerc = 5;
+static long		EPG_ShiftTimes = 0;
 
 
 SETTING EPGSettings[EPG_SETTING_LASTONE] =
@@ -1054,6 +1049,12 @@ SETTING EPGSettings[EPG_SETTING_LASTONE] =
          5, 2, 7, 1, 1,
          NULL,
         "EPG", "DefaultSizePerc", NULL,
+    },
+    {
+        "Shift times during import (hors)", SLIDER, 0, (long*)&EPG_ShiftTimes,
+         0, -12, 12, 1, 1,
+         NULL,
+        "EPG", "ImportShiftTimes", NULL,
     },
 };
 

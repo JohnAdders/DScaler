@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.162 2005-03-28 12:54:11 laurentg Exp $
+// $Id: DS_Control.h,v 1.163 2005-03-28 13:10:14 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.162  2005/03/28 12:54:11  laurentg
+// EPG settings
+//
 // Revision 1.161  2004/12/25 22:40:18  to_see
 // Changed the card list to an ini file
 //
@@ -1863,6 +1866,7 @@ typedef enum
 {
     EPG_XMLTVPATH = 0,
     EPG_PERCENTAGESIZE,
+    EPG_SHIFTTIMES,
     EPG_SETTING_LASTONE,
 } EPG_SETTING;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.h,v 1.6 2005-03-28 12:53:20 laurentg Exp $
+// $Id: EPG.h,v 1.7 2005-03-28 13:11:16 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2005/03/28 12:53:20  laurentg
+// EPG: previous and next page to show programs
+//
 // Revision 1.5  2005/03/27 20:22:20  laurentg
 // EPG: new improvements
 //
@@ -91,8 +94,7 @@ public:
 
 	// Scan a XML file containing programs and generate the corresponding DScaler data files
 	// The input file must be compatible with the XMLTV DTD
-	// TODO Suppress the parameter delta_time as soon as XML API will be used
-	int ScanXMLTVFile(LPCSTR file=NULL, int delta_time=0);
+	int ScanXMLTVFile(LPCSTR file=NULL);
 
 	// Load the DScaler EPG data for the programs between two dates
 	// If DateMin and DateMax are not set, load the EPG data for
@@ -121,7 +123,7 @@ public:
 private:
 	// Convert the DScaler_tmp.txt file to the DScaler.txt final file
 	// TODO Suppress ConvertXMLtoTXT as soon as XML API will be used
-	int ConvertXMLtoTXT(int delta_time=0);
+	int ConvertXMLtoTXT();
 	
 	// Execute a command using the Windows command interpreter
 	int ExecuteCommand(string command);

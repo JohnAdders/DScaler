@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.102 2003-01-08 19:59:34 laurentg Exp $
+// $Id: BT848Source.cpp,v 1.103 2003-01-10 17:37:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.102  2003/01/08 19:59:34  laurentg
+// Analogue Blanking setting by source
+//
 // Revision 1.101  2003/01/07 23:27:01  laurentg
 // New overscan settings
 //
@@ -386,15 +389,6 @@
 
 extern long EnableCancelButton;
 
-void BT848_OnSetup(void *pThis, int Start)
-{
-   if (pThis != NULL)
-   {
-      ((CBT848Source*)pThis)->SavePerChannelSetup(Start);
-   }
-}
-
-
 CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CUserMemory* DisplayDMAMem[5], CUserMemory* VBIDMAMem[5], LPCSTR IniSection, LPCSTR ChipName, int DeviceIndex) :
     CSource(WM_BT848_GETVALUE, IDC_BT848),
     m_pBT848Card(pBT848Card),
@@ -403,26 +397,18 @@ CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CU
     m_CurrentVBILines(19),
     m_Section(IniSection),
     m_IsFieldOdd(FALSE),
+    m_IDString(IniSection),
     m_InSaturationUpdate(FALSE),
-    m_CurrentChannel(-1),
-    m_SettingsByChannelStarted(FALSE),
     m_ChipName(ChipName),
     m_DeviceIndex(DeviceIndex),
     m_DetectingAudioStandard(0)
 {
-    m_IDString = IniSection;
     CreateSettings(IniSection);
 
-    SettingsPerChannel_RegisterOnSetup(this, BT848_OnSetup);
-    
+    DisableOnChange();
+
     eEventType EventList[] = {EVENT_CHANNEL_PRECHANGE,EVENT_CHANNEL_CHANGE,EVENT_AUDIOSTANDARD_DETECTED,EVENT_AUDIOCHANNELSUPPORT_DETECTED,EVENT_ENDOFLIST};
     EventCollector->Register(this, EventList);
-
-
-    ReadFromIni();
-    ChangeSectionNamesForInput();
-    ChangeDefaultsForInput();
-    LoadInputSettings();
 
     m_RiscBaseLinear = (DWORD*)RiscDMAMem->GetUserPointer();
     m_RiscBasePhysical = RiscDMAMem->TranslateToPhysical(m_RiscBaseLinear, 83968, NULL);
@@ -444,21 +430,42 @@ CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CU
         m_EvenFields[j].Flags = PICTURE_INTERLACED_EVEN;
         m_EvenFields[j].IsFirstInSeries = FALSE;
     }
-    SetupCard();
-    Reset();    
+    // loads up core settings like card and tuner type
+    ReadFromIni();
+    
+    ChangeDefaultsForSetup(SETUP_CHANGE_ANY);
 
-    EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_CHANGE, -1, m_VideoSource->GetValue());
-    EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, -1, m_VideoFormat->GetValue());
-    EventCollector->RaiseEvent(this, EVENT_VOLUME, 0, m_Volume->GetValue());
+    SetupCard();
+
+    Reset();
+
+    EnableOnChange();
 }
 
 CBT848Source::~CBT848Source()
 {
     EventCollector->Unregister(this);
-    BT848_OnSetup(this, 0);
 
     KillTimer(hWnd, TIMER_MSP);
     delete m_pBT848Card;
+}
+
+void CBT848Source::SetSourceAsCurrent()
+{
+    // need to call up to parent to run register settings functions
+    CSource::SetSourceAsCurrent();
+
+    DisableOnChange();
+
+    // tell the rest of DScaler what the setup is
+    // A side effect of the Raise events is to load up the settings by section
+    // loads up other settings which are prossible stored
+    // as settings per input/channel
+    EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_CHANGE, -1, m_VideoSource->GetValue());
+    EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, -1, m_VideoFormat->GetValue());
+    EventCollector->RaiseEvent(this, EVENT_VOLUME, 0, m_Volume->GetValue());
+
+    EnableOnChange();
 }
 
 void CBT848Source::OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
@@ -522,7 +529,6 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     eSettingFlags FlagsInputFormat = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ALLOW_PER_VIDEOINPUT|SETTINGFLAG_ONCHANGE_ALL);
     eSettingFlags FlagsFormat = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ALLOW_PER_VIDEOFORMAT|SETTINGFLAG_ONCHANGE_ALL);
     eSettingFlags FlagsAll = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ALLOW_PER_VIDEOINPUT|SETTINGFLAG_ALLOW_PER_VIDEOFORMAT|SETTINGFLAG_ALLOW_PER_CHANNEL|SETTINGFLAG_ONCHANGE_ALL);
-    
     
     m_Brightness = new CBrightnessSetting(this, "Brightness", DEFAULT_BRIGHTNESS_NTSC, -128, 127, IniSection, pVideoGroup, FlagsAll);
     m_Settings.push_back(m_Brightness);
@@ -752,10 +758,7 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
         LOGD("DS_Control.h or BT848Source.cpp are probably not in sync with eachother.");
     }
 #endif
-
-    ReadFromIni();
 }
-
 
 void CBT848Source::Start()
 {
@@ -826,7 +829,7 @@ void CBT848Source::Reset()
     
     NotifySizeChange();
 
-    m_MSP34xxFlags->SetValue(m_MSP34xxFlags->GetValue(), ONCHANGE_SET_FORCE);
+    m_MSP34xxFlags->SetValue(m_MSP34xxFlags->GetValue());
         
     InitAudio();    
 }
@@ -1313,16 +1316,17 @@ void CBT848Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
 
 void CBT848Source::VideoSourceOnChange(long NewValue, long OldValue)
 {
-    EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_PRECHANGE, OldValue, NewValue);
-    
-    Stop_Capture();
     Audio_Mute(PreSwitchMuteDelay);
 
-    SaveInputSettings(TRUE);
-    LoadInputSettings();
-    Reset();
+    Stop_Capture();
+
+    DisableOnChange();
+
+    EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_PRECHANGE, OldValue, NewValue);
 
     EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_CHANGE, OldValue, NewValue);
+
+    EnableOnChange();
 
     // set up sound
     if(m_pBT848Card->IsInputATuner(NewValue))
@@ -1336,12 +1340,15 @@ void CBT848Source::VideoSourceOnChange(long NewValue, long OldValue)
 
 void CBT848Source::VideoFormatOnChange(long NewValue, long OldValue)
 {
-    EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldValue, NewValue);
+    DisableOnChange();
     Stop_Capture();
-    SaveInputSettings(TRUE);
-    LoadInputSettings();
-    Reset();
+
+    EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldValue, NewValue);
+   
     EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldValue, NewValue);
+    
+    EnableOnChange();
+    Reset();
     Start_Capture();
 }
 
@@ -1648,7 +1655,7 @@ void CBT848Source::ChannelChange(int PreChange, int OldChannel, int NewChannel)
     
     if (!PreChange && (m_AudioStandardDetect->GetValue()==3))
     {
-        m_AudioStandardDetect->SetValue(m_AudioStandardDetect->GetValue(), ONCHANGE_SET_FORCE);
+        m_AudioStandardDetect->SetValue(m_AudioStandardDetect->GetValue());
     } 
     else if ((!PreChange) && m_AutoStereoSelect->GetValue())
     {      
@@ -1663,23 +1670,6 @@ void CBT848Source::ChannelChange(int PreChange, int OldChannel, int NewChannel)
        long nDecayTimeIndex = m_AudioAutoVolumeCorrection->GetValue();
        m_AudioAutoVolumeCorrection->SetValue(0);
        m_AudioAutoVolumeCorrection->SetValue(nDecayTimeIndex);
-    }
-}
-
-void CBT848Source::SavePerChannelSetup(int Start)
-{
-    if (Start&1)
-    {
-        m_SettingsByChannelStarted = TRUE;
-        ChangeChannelSectionNames();
-    }    
-    else
-    {
-        m_SettingsByChannelStarted = FALSE;
-        if (m_ChannelSubSection.size() > 0)
-        {
-            SettingsPerChannel_UnregisterSection(m_ChannelSubSection.c_str());
-        }
     }
 }
 

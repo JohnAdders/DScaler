@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: events.cpp,v 1.10 2002-12-07 10:42:47 adcockj Exp $
+// $Id: events.cpp,v 1.11 2003-01-10 17:38:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/12/07 10:42:47  adcockj
+// Fixed problem with events caused by using SendMessage
+//
 // Revision 1.9  2002/12/04 15:20:08  adcockj
 // Fixed accedental test code check in
 //
@@ -53,6 +56,8 @@
 #include "DebugLog.h"
 #include "Crash.h"
 #include "DScaler.h"
+#include "SettingsMaster.h"
+#include "Providers.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -387,6 +392,58 @@ void CEventCollector::ScheduleEvent(CEventObject *pEventObject, eEventType Event
 	ei.NewValue = NewValue;
 	ei.ComingUp = CopyEventList(ComingUp);
 	m_ScheduledEventList.push_back(ei);	
+
+    // this is where we keep track of what the current status
+    // so lets use here as a good place to maitain the settings holder
+    // with the current set up
+    // This is used instead of listening for the event in the settings master
+    // as we need to be able to load and save settings synchronously
+    switch (Event)
+    {
+    case EVENT_SOURCE_PRECHANGE:
+        SettingsMaster->SaveSettings();
+        Providers_GetCurrentSource()->UnsetSourceAsCurrent();
+        break;
+
+    case EVENT_SOURCE_CHANGE:    
+        SettingsMaster->SetSource((CSource*)NewValue);
+        SettingsMaster->LoadSettings();
+        Providers_GetCurrentSource()->SetSourceAsCurrent();
+        break;
+
+    case EVENT_CHANNEL_PRECHANGE:
+        SettingsMaster->SaveSettings();
+        break;
+
+    case EVENT_CHANNEL_CHANGE:
+        SettingsMaster->SetChannelName(NewValue);
+        break;
+     
+    case EVENT_VIDEOINPUT_PRECHANGE:
+        SettingsMaster->SaveSettings();
+        break;
+
+    case EVENT_VIDEOINPUT_CHANGE:
+        SettingsMaster->SetVideoInput(NewValue);
+        break;    
+        
+    case EVENT_AUDIOINPUT_PRECHANGE:
+        SettingsMaster->SaveSettings();
+        break;
+
+    case EVENT_AUDIOINPUT_CHANGE:
+        SettingsMaster->SetAudioInput(NewValue);
+        break;
+        
+    case EVENT_VIDEOFORMAT_PRECHANGE:
+        SettingsMaster->SaveSettings();
+        break;
+
+    case EVENT_VIDEOFORMAT_CHANGE:
+        SettingsMaster->SetVideoFormat(NewValue);
+        break;
+    }    
+
 	LeaveCriticalSection(&m_EventCriticalSection);
 
     // we want to signal the event and then run away

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSFileSource.h,v 1.8 2003-01-08 20:49:49 laurentg Exp $
+// $Id: DSFileSource.h,v 1.9 2003-01-10 17:38:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2003/01/08 20:49:49  laurentg
+// New settings for analogue blanking by source
+//
 // Revision 1.7  2003/01/07 23:31:23  laurentg
 // New overscan settings
 //
@@ -112,6 +115,11 @@ public:
 	LPCSTR GetMenuLabel();
 
 	void Start();
+
+protected:
+    void ChangeDefaultsForVideoFormat() {};
+    void ChangeDefaultsForVideoInput() {};
+    void ChangeDefaultsForAudioInput() {};
 
 private:
 	///the file this source uses

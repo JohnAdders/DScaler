@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_UI.cpp,v 1.8 2003-01-07 23:27:01 laurentg Exp $
+// $Id: BT848Source_UI.cpp,v 1.9 2003-01-10 17:37:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2003/01/07 23:27:01  laurentg
+// New overscan settings
+//
 // Revision 1.7  2003/01/04 16:54:38  adcockj
 // Disabled format menu when in tuner mode
 //
@@ -1202,10 +1205,6 @@ void CBT848Source::SetMenu(HMENU hMenu)
     MenuItemInfo.cch = strlen(Buffer);    
     SetMenuItemInfo(m_hMenu, IDM_AUDIOSTANDARD_STANDARD, FALSE, &MenuItemInfo);
     EnableMenuItem(m_hMenu, IDM_AUDIOSTANDARD_STANDARD, MF_GRAYED|MF_DISABLED);
-    
-
-    CheckMenuItemBool(m_hMenu, IDM_SAVE_BY_FORMAT, m_bSavePerFormat->GetValue());
-    CheckMenuItemBool(m_hMenu, IDM_SAVE_BY_INPUT, m_bSavePerInput->GetValue());
 }
 
 BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
@@ -1421,22 +1420,10 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             m_PixelWidth->SetValue(m_CustomPixelWidth->GetValue());
             break;
 
-        case IDM_SAVE_BY_FORMAT:
-            SaveInputSettings(TRUE);
-            m_bSavePerFormat->SetValue(!m_bSavePerFormat->GetValue());
-            LoadInputSettings();
-            break;
-
-        case IDM_SAVE_BY_INPUT:
-            SaveInputSettings(TRUE);
-            m_bSavePerInput->SetValue(!m_bSavePerInput->GetValue());
-            LoadInputSettings();
-            break;
-
-        
 		case IDM_AUDIOSTANDARD_VIDEOFORMATDEFAULT:
             m_AudioStandardDetect->SetValue(0);
             break;
+
 		case IDM_AUDIOSTANDARD_AUTODETECTPERVIDEOFORMAT:
             m_AudioStandardDetect->SetValue(2);
             break;
@@ -1444,7 +1431,7 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             m_AudioStandardDetect->SetValue(3);
             break;
 		case IDM_AUDIOSTANDARD_MANUAL:
-            m_AudioStandardDetect->SetValue(4, ONCHANGE_NONE);
+            m_AudioStandardDetect->SetValue(4, TRUE);
             DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_AUDIOSTANDARD_MANUAL), hWnd, AudioStandardManualProc, (LPARAM)this);
             break;
         case IDM_AUDIOSTANDARD_DETECTNOW:
@@ -1476,57 +1463,7 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
     return TRUE;
 }
 
-void CBT848Source::ChangeSectionNamesForInput()
-{
-    //return;
-	int Input = -1;
-    int Format = -1;
-    
-    if(m_bSavePerInput->GetValue())
-    {
-        Input = m_VideoSource->GetValue();
-    }
-
-    if(m_bSavePerFormat->GetValue())
-    {
-        Format = m_VideoFormat->GetValue();
-    }
-    
-    if(Input == -1 && Format == -1)
-    {
-        m_Brightness->SetSection(m_Section.c_str());
-        m_Contrast->SetSection(m_Section.c_str());
-        m_Hue->SetSection(m_Section.c_str());
-        m_Saturation->SetSection(m_Section.c_str());
-        m_SaturationU->SetSection(m_Section.c_str());
-        m_SaturationV->SetSection(m_Section.c_str());
-        m_TopOverscan->SetSection(m_Section.c_str());
-        m_BottomOverscan->SetSection(m_Section.c_str());
-        m_LeftOverscan->SetSection(m_Section.c_str());
-        m_RightOverscan->SetSection(m_Section.c_str());
-        m_BDelay->SetSection(m_Section.c_str());
-    }
-    else
-    {
-        char szSection[128];
-        sprintf(szSection, "%s_%d_%d", m_Section.c_str(), Input, Format);
-        m_Brightness->SetSection(szSection);
-        m_Contrast->SetSection(szSection);
-        m_Hue->SetSection(szSection);
-        m_Saturation->SetSection(szSection);
-        m_SaturationU->SetSection(szSection);
-        m_SaturationV->SetSection(szSection);
-        m_TopOverscan->SetSection(szSection);
-        m_BottomOverscan->SetSection(szSection);
-        m_LeftOverscan->SetSection(szSection);
-        m_RightOverscan->SetSection(szSection);
-        m_BDelay->SetSection(szSection);
-    }
-
-    ChangeDefaultsForInput();
-}
-
-void CBT848Source::ChangeDefaultsForInput()
+void CBT848Source::ChangeDefaultsForVideoFormat()
 {
     eVideoFormat format = GetFormat();
     if(IsNTSCVideoFormat(format))
@@ -1564,174 +1501,5 @@ void CBT848Source::ChangeDefaultsForInput()
     else
     {
         m_BDelay->ChangeDefault(0);
-    }
-}
-
-
-void CBT848Source::LoadInputSettings()
-{
-    //return;
-	ChangeDefaultsForInput();
-    
-    if (!SettingsPerChannel())
-    {
-        ChangeSectionNamesForInput();
-        m_Brightness->ReadFromIni();
-        m_Contrast->ReadFromIni();
-        m_Hue->ReadFromIni();
-        m_Saturation->ReadFromIni();
-        m_SaturationU->ReadFromIni();
-        m_SaturationV->ReadFromIni();
-        m_TopOverscan->ReadFromIni();
-        m_BottomOverscan->ReadFromIni();
-        m_LeftOverscan->ReadFromIni();
-        m_RightOverscan->ReadFromIni();
-        m_BDelay->ReadFromIni();
-    }
-
-    ChangeChannelSectionNames();
-}
-
-void CBT848Source::SaveInputSettings(BOOL bOptimizeFileAccess)
-{
-    //return;
-	if (!SettingsPerChannel())
-    {        
-        m_Brightness->WriteToIni(bOptimizeFileAccess);
-        m_Contrast->WriteToIni(bOptimizeFileAccess);
-        m_Hue->WriteToIni(bOptimizeFileAccess);
-        m_Saturation->WriteToIni(bOptimizeFileAccess);
-        m_SaturationU->WriteToIni(bOptimizeFileAccess);
-        m_SaturationV->WriteToIni(bOptimizeFileAccess);
-        m_TopOverscan->WriteToIni(bOptimizeFileAccess);
-        m_BottomOverscan->WriteToIni(bOptimizeFileAccess);
-        m_LeftOverscan->WriteToIni(bOptimizeFileAccess);
-        m_RightOverscan->WriteToIni(bOptimizeFileAccess);
-        m_BDelay->WriteToIni(bOptimizeFileAccess);
-    }
-}
-
-
-void CBT848Source::ChangeChannelSectionNames()
-{    
-    //return;
-	if (!m_SettingsByChannelStarted)
-    {
-        return;
-    }
-
-    std::string sOldSection = m_ChannelSubSection;
-    
-    int Input = -1;
-    int Format = -1;
-    
-    if(m_bSavePerInput->GetValue())
-    {
-        Input = m_VideoSource->GetValue();
-    }
-    if(m_bSavePerFormat->GetValue())
-    {
-        Format = m_VideoFormat->GetValue();
-    }
-
-    if(Input != -1 || Format != -1)
-    {
-        char szSection[100];
-        sprintf(szSection, "%s_%d_%d", m_Section.c_str(), Input, Format);
-        m_ChannelSubSection = szSection;     
-    } 
-    else
-    {
-        m_ChannelSubSection = m_Section;
-    }
-    if (sOldSection != m_ChannelSubSection)
-    {
-        if (sOldSection.size() > 0)
-        {            
-            if (m_CurrentChannel >=0)
-            {            
-                SettingsPerChannel_SaveChannelSettings(sOldSection.c_str(), m_VideoSource->GetValue(), m_CurrentChannel, GetFormat());
-            }        
-            SettingsPerChannel_UnregisterSection(sOldSection.c_str());
-        }
-
-        // if there are multiple sources then things go wrong
-        // so until the settings are sorted out this hacky fix will have
-        // to do
-        if(Providers_GetCurrentSource()  != (CSource*)this)
-        {
-            m_ChannelSubSection = sOldSection;
-            return;
-        }
-
-    
-        SettingsPerChannel_RegisterSetSection(m_ChannelSubSection.c_str());
-        SettingsPerChannel_RegisterSetting("Brightness","BT8x8 - Brightness",TRUE, m_Brightness);
-        SettingsPerChannel_RegisterSetting("Hue","BT8x8 - Hue",TRUE, m_Hue);            
-        SettingsPerChannel_RegisterSetting("Contrast","BT8x8 - Contrast",TRUE, m_Contrast);
-        
-        SettingsPerChannel_RegisterSetting("Saturation", "BT8x8 - Saturation", TRUE);
-        SettingsPerChannel_RegisterSetting("Saturation", "BT8x8 - Saturation", TRUE, m_Saturation);
-        SettingsPerChannel_RegisterSetting("Saturation", "BT8x8 - Saturation", TRUE, m_SaturationU);
-        SettingsPerChannel_RegisterSetting("Saturation", "BT8x8 - Saturation", TRUE, m_SaturationV);
-    
-        SettingsPerChannel_RegisterSetting("Overscan at Top", "BT8x8 - Overscan at Top", FALSE, m_TopOverscan);
-        SettingsPerChannel_RegisterSetting("Overscan at Bottom", "BT8x8 - OverscanBottom", FALSE, m_BottomOverscan);
-        SettingsPerChannel_RegisterSetting("Overscan at Left", "BT8x8 - Overscan at Left", FALSE, m_LeftOverscan);
-        SettingsPerChannel_RegisterSetting("Overscan at Right", "BT8x8 - Overscan at Right", FALSE, m_RightOverscan);
-        
-        SettingsPerChannel_RegisterSetting("AudioChannel", "BT8x8 - Audio Channel", TRUE, m_AudioChannel);
-        
-        SettingsPerChannel_RegisterSetting("AudioStandard", "BT8x8 - Audio Standard", TRUE);
-        SettingsPerChannel_RegisterSetting("AudioStandard", "BT8x8 - Audio Standard", TRUE, m_AudioStandardDetect);        
-        SettingsPerChannel_RegisterSetting("AudioStandard", "BT8x8 - Audio Standard", TRUE, m_AudioStandardDetectInterval);        
-        SettingsPerChannel_RegisterSetting("AudioStandard", "BT8x8 - Audio Standard", TRUE, m_AudioStandardManual);        
-        SettingsPerChannel_RegisterSetting("AudioStandard", "BT8x8 - Audio Standard", TRUE, m_AudioStandardMajorCarrier);
-        SettingsPerChannel_RegisterSetting("AudioStandard", "BT8x8 - Audio Standard", TRUE, m_AudioStandardMinorCarrier);
-        
-        SettingsPerChannel_RegisterSetting("Volume", "BT8x8 - Volume", TRUE, m_Volume);            
-        SettingsPerChannel_RegisterSetting("Balance", "BT8x8 - Balance", TRUE, m_Balance);
-        SettingsPerChannel_RegisterSetting("BassTreble", "BT8x8 - Bass & Treble", FALSE);            
-        SettingsPerChannel_RegisterSetting("BassTreble", "BT8x8 - Bass & Treble", FALSE, m_Bass);            
-        SettingsPerChannel_RegisterSetting("BassTreble", "BT8x8 - Bass & Treble", FALSE, m_Treble);        
-
-        SettingsPerChannel_RegisterSetting("Equalizer", "BT8x8 - Equalizer", FALSE);            
-        SettingsPerChannel_RegisterSetting("Equalizer", "BT8x8 - Equalizer", FALSE, m_UseEqualizer);            
-        SettingsPerChannel_RegisterSetting("Equalizer", "BT8x8 - Equalizer", FALSE, m_EqualizerBand1);
-        SettingsPerChannel_RegisterSetting("Equalizer", "BT8x8 - Equalizer", FALSE, m_EqualizerBand2);
-        SettingsPerChannel_RegisterSetting("Equalizer", "BT8x8 - Equalizer", FALSE, m_EqualizerBand3);
-        SettingsPerChannel_RegisterSetting("Equalizer", "BT8x8 - Equalizer", FALSE, m_EqualizerBand4);
-        SettingsPerChannel_RegisterSetting("Equalizer", "BT8x8 - Equalizer", FALSE, m_EqualizerBand5);
-
-        SettingsPerChannel_RegisterSetting("LoudnessEtc", "BT8x8 - Loudness, Spatial effect", FALSE); 
-        SettingsPerChannel_RegisterSetting("LoudnessEtc", "BT8x8 - Loudness, Spatial effect", FALSE, m_AudioLoudness); 
-        SettingsPerChannel_RegisterSetting("LoudnessEtc", "BT8x8 - Loudness, Spatial effect", FALSE, m_AudioSuperbass); 
-        SettingsPerChannel_RegisterSetting("LoudnessEtc", "BT8x8 - Loudness, Spatial effect", FALSE, m_AudioSpatialEffect);         
-
-
-        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings", "BT8x8 - Advanced Settings", FALSE);
-        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings", "BT8x8 - Advanced Settings", FALSE, m_BtAgcDisable);
-        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings", "BT8x8 - Advanced Settings", FALSE, m_BtCrush);
-        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings", "BT8x8 - Advanced Settings", FALSE, m_BtEvenChromaAGC);
-        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings", "BT8x8 - Advanced Settings", FALSE, m_BtOddChromaAGC);
-        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings", "BT8x8 - Advanced Settings", FALSE, m_BtEvenLumaPeak);
-        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings", "BT8x8 - Advanced Settings", FALSE, m_BtOddLumaPeak);
-        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings", "BT8x8 - Advanced Settings", FALSE, m_BtFullLumaRange);
-        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings", "BT8x8 - Advanced Settings", FALSE, m_BtEvenLumaDec);
-        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings", "BT8x8 - Advanced Settings", FALSE, m_BtOddLumaDec);
-        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings", "BT8x8 - Advanced Settings", FALSE, m_BtOddComb);        
-        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings", "BT8x8 - Advanced Settings", FALSE, m_BtCoring);
-        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings", "BT8x8 - Advanced Settings", FALSE, m_BtGammaCorrection);
-        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings", "BT8x8 - Advanced Settings", FALSE, m_BtHorFilter);
-        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings", "BT8x8 - Advanced Settings", FALSE, m_BtVertFilter);
-        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings", "BT8x8 - Advanced Settings", FALSE, m_BtColorKill);
-        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings", "BT8x8 - Advanced Settings", FALSE, m_ReversePolarity);
-        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings", "BT8x8 - Advanced Settings", FALSE, m_BtWhiteCrushUp);
-        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings", "BT8x8 - Advanced Settings", FALSE, m_BtWhiteCrushDown);
-        
-        SettingsPerChannel_RegisterSetting("BT848Delays", "BT8x8 - H/V/B Delay", FALSE);
-        SettingsPerChannel_RegisterSetting("BT848Delays", "BT8x8 - H/V/B Delay", FALSE, m_HDelay);
-        SettingsPerChannel_RegisterSetting("BT848Delays", "BT8x8 - H/V/B Delay", FALSE, m_VDelay);
-        SettingsPerChannel_RegisterSetting("BT848Delays", "BT8x8 - H/V/B Delay", FALSE, m_BDelay);
     }
 }

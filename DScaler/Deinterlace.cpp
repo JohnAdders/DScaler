@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.cpp,v 1.43 2002-10-30 12:56:44 robmuller Exp $
+// $Id: Deinterlace.cpp,v 1.44 2003-01-10 17:38:05 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.43  2002/10/30 12:56:44  robmuller
+// Do not load plugins with extensions other than .dll
+//
 // Revision 1.42  2002/10/29 11:05:28  adcockj
 // Renamed CT2388x to CX2388x
 //
@@ -396,7 +399,14 @@ BOOL InHalfHeightMode()
     }
     else
     {
-        return VideoDeintMethods[gVideoPulldownMode]->bIsHalfHeight;
+        if(VideoDeintMethods[gVideoPulldownMode] != NULL)
+        {
+            return VideoDeintMethods[gVideoPulldownMode]->bIsHalfHeight;
+        }
+        else
+        {
+            return FALSE;
+        }
     }
 }
 

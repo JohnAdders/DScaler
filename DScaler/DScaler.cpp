@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.280 2003-01-09 21:43:14 laurentg Exp $
+// $Id: DScaler.cpp,v 1.281 2003-01-10 17:37:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.280  2003/01/09 21:43:14  laurentg
+// Menu AspectRatio restored
+//
 // Revision 1.279  2003/01/08 22:46:57  laurentg
 // OSD display when incrementing or decrementing overscan
 //
@@ -3518,14 +3521,17 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
 
         case ID_SETTINGS_SAVESETTINGSPERCHANNEL:
-            Setting_SetValue(SettingsPerChannel_GetSetting(SETTINGSPERCHANNEL_ENABLED), !SettingsPerChannel());
-            CheckMenuItemBool(hMenu, ID_SETTINGS_SAVESETTINGSPERCHANNEL, SettingsPerChannel());
-            EnableMenuItemBool(hMenu, ID_SETTINGS_CLEARCHANNELSETTINGS, SettingsPerChannel());
+            Setting_SetValue(SettingsPerChannel_GetSetting(SETTINGSPERCHANNEL_BYCHANNEL), !Setting_GetValue(SettingsPerChannel_GetSetting(SETTINGSPERCHANNEL_BYCHANNEL)));
             break;
-        case ID_SETTINGS_CLEARCHANNELSETTINGS:
-            SettingsPerChannel_ClearSettings(NULL, -2, -2, (eVideoFormat)-2, 1);
+
+        case ID_SETTINGS_SAVESETTINGSPERINPUT:
+            Setting_SetValue(SettingsPerChannel_GetSetting(SETTINGSPERCHANNEL_BYINPUT), !Setting_GetValue(SettingsPerChannel_GetSetting(SETTINGSPERCHANNEL_BYINPUT)));
             break;
-        
+
+        case ID_SETTINGS_SAVESETTINGSPERFORMAT:
+            Setting_SetValue(SettingsPerChannel_GetSetting(SETTINGSPERCHANNEL_BYFORMAT), !Setting_GetValue(SettingsPerChannel_GetSetting(SETTINGSPERCHANNEL_BYFORMAT)));
+            break;
+
         case IDM_DEINTERLACE_SHOWVIDEOMETHODUI:
             ShowVideoModeUI();
             break;
@@ -4335,9 +4341,6 @@ void MainWndOnInitBT(HWND hWnd)
 
         bDoResize = TRUE;
 
-        // Setup settings per channel
-        SettingsPerChannel_Setup(1);
-        
         if (Providers_GetCurrentSource())
         {
             // if we are in tuner mode
@@ -4541,25 +4544,6 @@ void MainWndOnDestroy()
         WriteSettingsToIni(TRUE);        
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error WriteSettingsToIni");}
-
-    /*  Audio should already be muted from Stop_Capture() --AtNak 2002-12-08
-    __try
-    {
-        // mute the audio
-        // we will do this after saving the settings so that
-        // the correct setting is saved
-        LOG(1, "Try Mute");
-        Audio_Mute();
-    }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error Mute");}
-    */
-
-    __try
-    {
-        SettingsPerChannel_Setup(0);
-        LOG(1, "CloseSettingsPerChannel");
-    }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error SettingsPerChannel_Setup(0,...)");}    
 
     __try
     {
@@ -4785,8 +4769,9 @@ void SetMenuAnalog()
         pCalibration->SetMenu(hMenu);
     }
 
-    CheckMenuItemBool(hMenu, ID_SETTINGS_SAVESETTINGSPERCHANNEL, SettingsPerChannel());
-    EnableMenuItemBool(hMenu, ID_SETTINGS_CLEARCHANNELSETTINGS, SettingsPerChannel());
+    CheckMenuItemBool(hMenu, ID_SETTINGS_SAVESETTINGSPERCHANNEL, SettingsPerChannel_IsPerChannel());
+    CheckMenuItemBool(hMenu, ID_SETTINGS_SAVESETTINGSPERINPUT, SettingsPerChannel_IsPerInput());
+    CheckMenuItemBool(hMenu, ID_SETTINGS_SAVESETTINGSPERFORMAT, SettingsPerChannel_IsPerFormat());
 }
 
 // This function checks the name of the menu item. A message box is shown with a debug build

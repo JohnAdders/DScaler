@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.52 2003-01-08 19:59:33 laurentg Exp $
+// $Id: AspectGUI.cpp,v 1.53 2003-01-10 17:37:41 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.52  2003/01/08 19:59:33  laurentg
+// Analogue Blanking setting by source
+//
 // Revision 1.51  2003/01/04 13:36:42  laurentg
 // Two modes for AR autodetection
 //
@@ -162,18 +165,10 @@
 #include "Providers.h"
 
 
-// From DScaler.c .... We really need to reduce reliance on globals by going C++!
-// Perhaps in the meantime, it could be passed as a parameter to WorkoutOverlay()
-//extern HMENU hMenu;
-//extern BOOL  bIsFullScreen;
-//extern void ShowText(HWND hWnd, LPCTSTR szText);
+CSettingsHolderStandAlone AspectSettingsHolder;
 
 BOOL Bounce_OnChange(long NewValue); // Forward declaration to reuse this code...
 BOOL Orbit_OnChange(long NewValue); // Forward declaration to reuse this code...
-
-// Local function
-void Aspect_SavePerChannelSetup(void *pThis, int Start);
-
 
 
 //----------------------------------------------------------------------------
@@ -1152,229 +1147,229 @@ SETTING AspectGUISettings[ASPECT_SETTING_LASTONE] =
         "Source Aspect", SLIDER, 0, (long*)&AspectSettings.SourceAspect,
         1333, 1000, 3000, 1, 1000,
         NULL,
-        "ASPECT", "SourceAspect", SourceAspect_OnChange,
+        "Aspect", "SourceAspect", SourceAspect_OnChange,
     },
     {
         "Custom Source Aspect", SLIDER, 0, (long*)&AspectSettings.CustomSourceAspect,
         1335, 1000, 3000, 5, 1000,
         NULL,
-        "ASPECT", "CustomSourceAspect", CustomSourceAspect_OnChange,
+        "Aspect", "CustomSourceAspect", CustomSourceAspect_OnChange,
     },
     {
         "Screen Aspect", SLIDER, 0, (long*)&AspectSettings.TargetAspect,
         1333, 0, 3000, 1, 1000,
         NULL,
-        "ASPECT", "TargetAspect", TargetAspect_OnChange,
+        "Aspect", "TargetAspect", TargetAspect_OnChange,
     },
     {
         "Custom Screen Aspect", SLIDER, 0, (long*)&AspectSettings.custom_target_aspect,
         1335, 1000, 3000, 5, 1000,
         NULL,
-        "ASPECT", "CustomTargetAspect", CustomTargetAspect_OnChange,
+        "Aspect", "CustomTargetAspect", CustomTargetAspect_OnChange,
     },
     {
         "Aspect Mode", SLIDER, 0, (long*)&AspectSettings.AspectMode,
         1, 0, 2, 1, 1,
         NULL,
-        "ASPECT", "Mode", AspectMode_OnChange,
+        "Aspect", "Mode", AspectMode_OnChange,
     },
     {
         "Auto Detect Aspect Sensitivity", SLIDER, 0, (long*)&AspectSettings.LuminanceThreshold,
         40, 0, 255, 1, 1,
         NULL,
-        "ASPECT_DETECT", "LuminanceThreshold", NULL,
+        "Aspect_Detect", "LuminanceThreshold", NULL,
     },
     {
         "Ignore Non-Black Pixels", SLIDER, 0, (long*)&AspectSettings.IgnoreNonBlackPixels,
         3, 0, 750, 1, 1,
         NULL,
-        "ASPECT_DETECT", "IgnoreNonBlackPixels", NULL,
+        "Aspect_Detect", "IgnoreNonBlackPixels", NULL,
     },
     {
         "Auto Detect Aspect", SLIDER, 0, (long*)&AspectSettings.AutoDetectAspect,
         0, 0, 2, 1, 1,
         NULL,
-        "ASPECT_DETECT", "AutoDetectAspect", NULL,
+        "Aspect_Detect", "AutoDetectAspect", NULL,
     },
     {
         "Zoom In Frame Count", SLIDER, 0, (long*)&AspectSettings.ZoomInFrameCount,
         60, 0, 1000, 10, 1,
         NULL,
-        "ASPECT_DETECT", "ZoomInFrameCount", NULL,
+        "Aspect_Detect", "ZoomInFrameCount", NULL,
     },
     {
         "Aspect History Time", SLIDER, 0, (long*)&AspectSettings.AspectHistoryTime,
         300, 0, 3000, 10, 1,
         NULL,
-        "ASPECT_DETECT", "AspectHistoryTime", NULL,
+        "Aspect_Detect", "AspectHistoryTime", NULL,
     },
     {
         "Aspect Consistency Time", SLIDER, 0, (long*)&AspectSettings.AspectConsistencyTime,
         15, 0, 300, 5, 1,
         NULL,
-        "ASPECT_DETECT", "AspectConsistencyTime", NULL,
+        "Aspect_Detect", "AspectConsistencyTime", NULL,
     },
     {
         "Vert Image Pos", ITEMFROMLIST, 0, (long*)&AspectSettings.VerticalPos,
         VERT_POS_CENTRE, 0, 2, 1, 1,
         VertPosString,
-        "ASPECT", "VerticalPos", VertPos_OnChange,
+        "Aspect", "VerticalPos", VertPos_OnChange,
     },
     {
         "Horiz Image Pos", ITEMFROMLIST, 0, (long*)&AspectSettings.HorizontalPos,
         HORZ_POS_CENTRE, 0, 2, 1, 1,
         HorzPosString,
-        "ASPECT", "HorizontalPos", HorizPos_OnChange,
+        "Aspect", "HorizontalPos", HorizPos_OnChange,
     },
     {
         "Clipping", ONOFF, 0, (long*)&AspectSettings.AspectImageClipped,
         TRUE, 0, 1, 1, 1,
         NULL,
-        "ASPECT", "Clipping", Clipping_OnChange,
+        "Aspect", "Clipping", Clipping_OnChange,
     },
     {
         "Bounce", ONOFF, 0, (long*)&AspectSettings.BounceEnabled,
         FALSE, 0, 1, 1, 1,
         NULL,
-        "ASPECT", "Bounce", Bounce_OnChange,
+        "Aspect", "Bounce", Bounce_OnChange,
     },
     {
         "Bounce Period (Secs)", SLIDER, 0, (long*)&AspectSettings.BouncePeriod,
         60*30, 60, 60*600, 1, 1,
         NULL,
-        "ASPECT", "BouncePeriod", NULL,
+        "Aspect", "BouncePeriod", NULL,
     },
     {
         "Defer Setting Overlay", ONOFF, 0, (long*)&AspectSettings.DeferedSetOverlay,
         TRUE, 0, 1, 1, 1,
         NULL,
-        "ASPECT", "DeferedOverlay", NULL,
+        "Aspect", "DeferedOverlay", NULL,
     },
     {
         "Bounce Timer Period (ms)", SLIDER, 0, (long*)&AspectSettings.TimerBounceMS,
         1000, 100, 5000, 1, 1,
         NULL,
-        "ASPECT", "BounceTimerPeriod", NULL,
+        "Aspect", "BounceTimerPeriod", NULL,
     },
     {
         "Bounce Amplitude (%)", SLIDER, 0, (long*)&AspectSettings.BounceAmplitude,
         100, 0, 100, 1, 1,
         NULL,
-        "ASPECT", "BounceAmplitude", NULL,
+        "Aspect", "BounceAmplitude", NULL,
     },
     {
         "Orbit", ONOFF, 0, (long*)&AspectSettings.OrbitEnabled,
         FALSE, 0, 1, 1, 1,
         NULL,
-        "ASPECT", "Orbit", Orbit_OnChange,
+        "Aspect", "Orbit", Orbit_OnChange,
     },
     {
         "Orbit Period X", SLIDER, 0, (long*)&AspectSettings.OrbitPeriodX,
         60*45, 60, 60*600, 1, 1,
         NULL,
-        "ASPECT", "OrbitPeriodX", NULL,
+        "Aspect", "OrbitPeriodX", NULL,
     },
     {
         "Orbit Period Y", SLIDER, 0, (long*)&AspectSettings.OrbitPeriodY,
         60*60, 60, 60*600, 1, 1,
         NULL,
-        "ASPECT", "OrbitPeriodY", NULL,
+        "Aspect", "OrbitPeriodY", NULL,
     },
     {
         "Orbit Size", SLIDER, 0, (long*)&AspectSettings.OrbitSize,
         8, 0, 200, 1, 1,
         NULL,
-        "ASPECT", "OrbitSize", NULL,
+        "Aspect", "OrbitSize", NULL,
     },
     {
         "Orbit Timer Period (ms)", SLIDER, 0, (long*)&AspectSettings.TimerOrbitMS,
         60*1000, 1000, 600 * 1000, 1, 1,
         NULL,
-        "ASPECT", "OrbitTimerPeriod", NULL,
+        "Aspect", "OrbitTimerPeriod", NULL,
     },
     {
         "Auto-Size Window", ONOFF, 0, (long*)&AspectSettings.AutoResizeWindow,
         FALSE, 0, 1, 1, 1,
         NULL,
-        "ASPECT", "AutoSizeWindow", NULL,
+        "Aspect", "AutoSizeWindow", NULL,
     },
     {
         "Skip Percentage", SLIDER, 0, (long*)&AspectSettings.SkipPercent,
         17, 0, 49, 1, 1,
         NULL,
-        "ASPECT_DETECT", "SkipPercent", NULL,
+        "Aspect_Detect", "SkipPercent", NULL,
     },
     {
         "X Zoom Factor", SLIDER, 0, &AspectSettings.ZoomFactorX,
         100, 1, 1000, 10, 100,
         NULL,
-        "ASPECT", "XZoomFactor", XZoom_Factor_OnChange,
+        "Aspect", "XZoomFactor", XZoom_Factor_OnChange,
     },
     {
         "Y Zoom Factor", SLIDER, 0, &AspectSettings.ZoomFactorY,
         100, 1, 1000, 10, 100,
         NULL,
-        "ASPECT", "YZoomFactor", YZoom_Factor_OnChange,
+        "Aspect", "YZoomFactor", YZoom_Factor_OnChange,
     },
     {
         "X Zoom Center", SLIDER, 0, &AspectSettings.ZoomCenterX,
         50, -100, 200, 5, 100,
         NULL,
-        "ASPECT", "XZoomCenter", XZoom_Center_OnChange,
+        "Aspect", "XZoomCenter", XZoom_Center_OnChange,
     },
     {
         "Y Zoom Center", SLIDER, 0, &AspectSettings.ZoomCenterY,
         50, -100, 200, 5, 100,
         NULL,
-        "ASPECT", "YZoomCenter", YZoom_Center_OnChange,
+        "Aspect", "YZoomCenter", YZoom_Center_OnChange,
     },
     {
         "Chroma Range", SLIDER, 0, &AspectSettings.ChromaRange,
         16, 0, 255, 1, 1,
         NULL,
-        "ASPECT_DETECT", "ChromaRange", ChromaRange_OnChange,
+        "Aspect_Detect", "ChromaRange", ChromaRange_OnChange,
     },
     {
         "Wait for Vertical Blank While Drawing", ONOFF, 0, (long*)&AspectSettings.bWaitForVerticalBlank,
         FALSE, 0, 1, 1, 1,
         NULL,
-        "ASPECT", "WaitForVerticalBlank", NULL,
+        "Aspect", "WaitForVerticalBlank", NULL,
     },
     {
         "Zoom Out Frame Count", SLIDER, 0, (long*)&AspectSettings.ZoomOutFrameCount,
         3, 1, 1000, 1, 1,
         NULL,
-        "ASPECT_DETECT", "ZoomOutFrameCount", NULL,
+        "Aspect_Detect", "ZoomOutFrameCount", NULL,
     },
     {
         "Allow greater ratio than screen ratio", ONOFF, 0, (long*)&AspectSettings.bAllowGreaterThanScreen,
         TRUE, 0, 1, 1, 1,
         NULL,
-        "ASPECT_DETECT", "AllowGreaterThanScreen", NULL,
+        "Aspect_Detect", "AllowGreaterThanScreen", NULL,
     },
     {
         "Mask Grey Shade", SLIDER, 0, (long*)&AspectSettings.MaskGreyShade,
         0, 0, 255, 1, 1,
         NULL,
-        "ASPECT_DETECT", "MaskGreyShade", MaskGreyShade_OnChange,
+        "Aspect_Detect", "MaskGreyShade", MaskGreyShade_OnChange,
     },
     {
         "Use WSS data", ONOFF, 0, (long*)&AspectSettings.bUseWSS,
         FALSE, 0, 1, 1, 1,
         NULL,
-        "ASPECT_DETECT", "UseWSS", NULL,
+        "Aspect_Detect", "UseWSS", NULL,
     },
     {
         "Default Source Aspect", SLIDER, 0, (long*)&AspectSettings.DefaultSourceAspect,
         1333, 1333, 3000, 1, 1000,
         NULL,
-        "ASPECT_DETECT", "DefaultSourceAspect", NULL,
+        "Aspect_Detect", "DefaultSourceAspect", NULL,
     },
     {
         "Default Aspect Mode", SLIDER, 0, (long*)&AspectSettings.DefaultAspectMode,
         1, 1, 2, 1, 1,
         NULL,
-        "ASPECT_DETECT", "DefaultAspectMode", NULL,
+        "Aspect_Detect", "DefaultAspectMode", NULL,
     },
 };
 
@@ -1392,29 +1387,88 @@ SETTING* Aspect_GetSetting(ASPECT_SETTING Setting)
 
 void Aspect_ReadSettingsFromIni()
 {
-    int i;
-
-    SettingsPerChannel_RegisterOnSetup(NULL, Aspect_SavePerChannelSetup);
-
-    for(i = 0; i < ASPECT_SETTING_LASTONE; i++)
+    if(AspectSettingsHolder.GetNumSettings() == 0)
     {
-        Setting_ReadFromIni(&(AspectGUISettings[i]));
+        CSettingGroup *pAspectGroup = AspectSettingsHolder.GetSettingsGroup("Aspect", "Aspect", "Aspect Ratio");
+        CSettingGroup *pRatioGroup = pAspectGroup->GetGroup("AspectRatio","View - Aspect Ratio");
+        CSettingGroup *pBounceGroup = pAspectGroup->GetGroup("Bounce","View - Bounce");
+        CSettingGroup *pAutoSizeGroup = pAspectGroup->GetGroup("AutoSize","View - AutoSize");
+        CSettingGroup *pOrbitGroup = pAspectGroup->GetGroup("Orbit","View - Orbit");
+        CSettingGroup *pImagePositionGroup = pAspectGroup->GetGroup("ImagePosition","View - Image position");
+        CSettingGroup *pZoomGroup = pAspectGroup->GetGroup("Zoom","View - Zoom");
+        CSettingGroup *pMiscGroup = pAspectGroup->GetGroup("AspectRatio","View - Misc");
+
+        CSettingGroup *pAspectDetectGroup = AspectSettingsHolder.GetSettingsGroup("Aspect", "Aspect", "Aspect Ratio");
+        CSettingGroup *pAspectDetectSettingsGroup = pAspectDetectGroup->GetGroup("ARDetectSettings","View - AR Detect Settings");
+
+        AspectSettingsHolder.AddSetting(&AspectGUISettings[SOURCE_ASPECT], pRatioGroup);
+        AspectSettingsHolder.AddSetting(&AspectGUISettings[CUSTOM_SOURCE_ASPECT], pRatioGroup);
+        AspectSettingsHolder.AddSetting(&AspectGUISettings[TARGET_ASPECT], pRatioGroup);
+        AspectSettingsHolder.AddSetting(&AspectGUISettings[CUSTOM_TARGET_ASPECT], pRatioGroup);
+        AspectSettingsHolder.AddSetting(&AspectGUISettings[ASPECT_MODE], pRatioGroup);
+        AspectSettingsHolder.AddSetting(&AspectGUISettings[SOURCE_ASPECT], pRatioGroup);
+
+        AspectSettingsHolder.AddSetting(&AspectGUISettings[VERTICALPOS], pImagePositionGroup);
+        AspectSettingsHolder.AddSetting(&AspectGUISettings[HORIZONTALPOS], pImagePositionGroup);
+        
+        AspectSettingsHolder.AddSetting(&AspectGUISettings[BOUNCE], pBounceGroup);
+        AspectSettingsHolder.AddSetting(&AspectGUISettings[BOUNCEPERIOD], pBounceGroup);
+        AspectSettingsHolder.AddSetting(&AspectGUISettings[BOUNCETIMERPERIOD], pBounceGroup);
+        AspectSettingsHolder.AddSetting(&AspectGUISettings[BOUNCEAMPLITUDE], pBounceGroup);
+
+        AspectSettingsHolder.AddSetting(&AspectGUISettings[AUTOSIZEWINDOW], pAutoSizeGroup);
+
+        AspectSettingsHolder.AddSetting(&AspectGUISettings[ORBIT], pOrbitGroup);
+        AspectSettingsHolder.AddSetting(&AspectGUISettings[ORBITPERIODX], pOrbitGroup);
+        AspectSettingsHolder.AddSetting(&AspectGUISettings[ORBITPERIODY], pOrbitGroup);
+        AspectSettingsHolder.AddSetting(&AspectGUISettings[ORBITSIZE], pOrbitGroup);
+        AspectSettingsHolder.AddSetting(&AspectGUISettings[ORBITTIMERPERIOD], pOrbitGroup);
+
+        AspectSettingsHolder.AddSetting(&AspectGUISettings[XZOOMFACTOR], pZoomGroup);
+        AspectSettingsHolder.AddSetting(&AspectGUISettings[YZOOMFACTOR], pZoomGroup);
+        AspectSettingsHolder.AddSetting(&AspectGUISettings[XZOOMCENTER], pZoomGroup);
+        AspectSettingsHolder.AddSetting(&AspectGUISettings[YZOOMCENTER], pZoomGroup);
+
+        AspectSettingsHolder.AddSetting(&AspectGUISettings[CLIPPING], pMiscGroup);
+        AspectSettingsHolder.AddSetting(&AspectGUISettings[DEFERSETOVERLAY], pMiscGroup);
+        AspectSettingsHolder.AddSetting(&AspectGUISettings[WAITFORVERTBLANKINDRAW], pMiscGroup);
+
+        AspectSettingsHolder.AddSetting(&AspectGUISettings[AUTODETECTASPECT], pAspectDetectGroup);
+
+        AspectSettingsHolder.AddSetting(&AspectGUISettings[LUMINANCETHRESHOLD], pAspectDetectSettingsGroup);
+        AspectSettingsHolder.AddSetting(&AspectGUISettings[IGNORENONBLACKPIXELS], pAspectDetectSettingsGroup);
+        AspectSettingsHolder.AddSetting(&AspectGUISettings[ZOOMINFRAMECOUNT], pAspectDetectSettingsGroup);
+        AspectSettingsHolder.AddSetting(&AspectGUISettings[ASPECTHISTORYTIME], pAspectDetectSettingsGroup);
+        AspectSettingsHolder.AddSetting(&AspectGUISettings[ASPECTCONSISTENCYTIME], pAspectDetectSettingsGroup);
+        AspectSettingsHolder.AddSetting(&AspectGUISettings[SKIPPERCENT], pAspectDetectSettingsGroup);
+        AspectSettingsHolder.AddSetting(&AspectGUISettings[CHROMARANGE], pAspectDetectSettingsGroup);
+        AspectSettingsHolder.AddSetting(&AspectGUISettings[ZOOMOUTFRAMECOUNT], pAspectDetectSettingsGroup);
+        AspectSettingsHolder.AddSetting(&AspectGUISettings[ALLOWGREATERTHANSCREEN], pAspectDetectSettingsGroup);
+        AspectSettingsHolder.AddSetting(&AspectGUISettings[MASKGREYSHADE], pAspectDetectSettingsGroup);
+        AspectSettingsHolder.AddSetting(&AspectGUISettings[USEWSS], pAspectDetectSettingsGroup);
+
+#ifdef _DEBUG
+        if (ASPECT_SETTING_LASTONE != AspectSettingsHolder.GetNumSettings())
+        {
+            LOGD("Number of settings in Aspect source is not equal to the number of settings in DS_Control.h");
+            LOGD("DS_Control.h or AspectGui.cpp are probably not in sync with each other.");
+        }
+#endif
     }
+    AspectSettingsHolder.DisableOnChange();
+    AspectSettingsHolder.ReadFromIni();
 }
 
 void Aspect_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 {
-    int i;
-    for(i = 0; i < ASPECT_SETTING_LASTONE; i++)
-    {
-        Setting_WriteToIni(&(AspectGUISettings[i]), bOptimizeFileAccess);
-    }
+    AspectSettingsHolder.WriteToIni(bOptimizeFileAccess);
 }
 
 void Aspect_FinalSetup()
 {
     Bounce_OnChange(AspectSettings.BounceEnabled);
     Orbit_OnChange(AspectSettings.OrbitEnabled);
+    AspectSettingsHolder.EnableOnChange();
 }
 
 CTreeSettingsGeneric* Aspect_GetTreeSettingsPage()
@@ -1424,65 +1478,4 @@ CTreeSettingsGeneric* Aspect_GetTreeSettingsPage()
                                     AspectGUISettings,
                                     ASPECT_SETTING_LASTONE
                                    );
-}
-
-
-
-void Aspect_SavePerChannelSetup(void *pThis, int Start)
-{     
-  if (Start)
-  {
-     // Register for per channel settings
-    SettingsPerChannel_RegisterSetSection("Aspect");
-    SettingsPerChannel_RegisterSetting("AspectRatio","View - Aspect Ratio",FALSE);
-    SettingsPerChannel_RegisterSetting("AspectRatio","View - Aspect Ratio",FALSE, &AspectGUISettings[SOURCE_ASPECT]);
-    SettingsPerChannel_RegisterSetting("AspectRatio","View - Aspect Ratio",FALSE, &AspectGUISettings[CUSTOM_SOURCE_ASPECT]);
-    SettingsPerChannel_RegisterSetting("AspectRatio","View - Aspect Ratio",FALSE, &AspectGUISettings[TARGET_ASPECT]);
-    SettingsPerChannel_RegisterSetting("AspectRatio","View - Aspect Ratio",FALSE, &AspectGUISettings[CUSTOM_TARGET_ASPECT]);
-    SettingsPerChannel_RegisterSetting("AspectRatio","View - Aspect Ratio",FALSE, &AspectGUISettings[ASPECT_MODE]);
-    SettingsPerChannel_RegisterSetting("AspectRatio","View - Aspect Ratio",FALSE, &AspectGUISettings[SOURCE_ASPECT]);
-    
-    SettingsPerChannel_RegisterSetting("ImagePosition","View - Image position",FALSE);
-    SettingsPerChannel_RegisterSetting("ImagePosition","View - Image position",FALSE, &AspectGUISettings[VERTICALPOS]);
-    SettingsPerChannel_RegisterSetting("ImagePosition","View - Image position",FALSE, &AspectGUISettings[HORIZONTALPOS]);    
-
-    SettingsPerChannel_RegisterSetting("Bounce","View - Bounce",FALSE, &AspectGUISettings[BOUNCE]); 
-    SettingsPerChannel_RegisterSetting("Bounce","View - Bounce",FALSE, &AspectGUISettings[BOUNCEPERIOD]);    
-    SettingsPerChannel_RegisterSetting("Bounce","View - Bounce",FALSE, &AspectGUISettings[BOUNCETIMERPERIOD]);
-    SettingsPerChannel_RegisterSetting("Bounce","View - Bounce",FALSE, &AspectGUISettings[BOUNCEAMPLITUDE]);
-
-    SettingsPerChannel_RegisterSetting("AutoSize","View - AutoSize",FALSE, &AspectGUISettings[AUTOSIZEWINDOW]);
-    
-    SettingsPerChannel_RegisterSetting("Orbit","View - Orbit",FALSE, &AspectGUISettings[ORBIT]); 
-    SettingsPerChannel_RegisterSetting("Orbit","View - Orbit",FALSE, &AspectGUISettings[ORBITPERIODX]);
-    SettingsPerChannel_RegisterSetting("Orbit","View - Orbit",FALSE, &AspectGUISettings[ORBITPERIODY]);    
-    SettingsPerChannel_RegisterSetting("Orbit","View - Orbit",FALSE, &AspectGUISettings[ORBITSIZE]);
-    SettingsPerChannel_RegisterSetting("Orbit","View - Orbit",FALSE, &AspectGUISettings[ORBITTIMERPERIOD]);
-
-    SettingsPerChannel_RegisterSetting("Zoom","View - Zoom",FALSE);
-    SettingsPerChannel_RegisterSetting("Zoom","View - Zoom",FALSE, &AspectGUISettings[XZOOMFACTOR]);
-    SettingsPerChannel_RegisterSetting("Zoom","View - Zoom",FALSE, &AspectGUISettings[YZOOMFACTOR]);
-    SettingsPerChannel_RegisterSetting("Zoom","View - Zoom",FALSE, &AspectGUISettings[XZOOMCENTER]);
-    SettingsPerChannel_RegisterSetting("Zoom","View - Zoom",FALSE, &AspectGUISettings[YZOOMCENTER]);    
-
-    SettingsPerChannel_RegisterSetting("AspectRatio","View - Misc",FALSE);
-    SettingsPerChannel_RegisterSetting("AspectRatio","View - Misc",FALSE, &AspectGUISettings[CLIPPING]);
-    SettingsPerChannel_RegisterSetting("AspectRatio","View - Misc",FALSE, &AspectGUISettings[DEFERSETOVERLAY]);
-    SettingsPerChannel_RegisterSetting("AspectRatio","View - Misc",FALSE, &AspectGUISettings[WAITFORVERTBLANKINDRAW]);    
-
-    SettingsPerChannel_RegisterSetSection("AspectDetect");
-    SettingsPerChannel_RegisterSetting("AspectRatioDetect","View - Aspect Ratio Detect",FALSE, &AspectGUISettings[AUTODETECTASPECT]); 
-    SettingsPerChannel_RegisterSetting("ARDetectSettings","View - AR Detect Settings",FALSE);
-    SettingsPerChannel_RegisterSetting("ARDetectSettings","View - AR Detect Settings",FALSE, &AspectGUISettings[LUMINANCETHRESHOLD]);
-    SettingsPerChannel_RegisterSetting("ARDetectSettings","View - AR Detect Settings",FALSE, &AspectGUISettings[IGNORENONBLACKPIXELS]);    
-    SettingsPerChannel_RegisterSetting("ARDetectSettings","View - AR Detect Settings",FALSE, &AspectGUISettings[ZOOMINFRAMECOUNT]);
-    SettingsPerChannel_RegisterSetting("ARDetectSettings","View - AR Detect Settings",FALSE, &AspectGUISettings[ASPECTHISTORYTIME]);
-    SettingsPerChannel_RegisterSetting("ARDetectSettings","View - AR Detect Settings",FALSE, &AspectGUISettings[ASPECTCONSISTENCYTIME]);
-    SettingsPerChannel_RegisterSetting("ARDetectSettings","View - AR Detect Settings",FALSE, &AspectGUISettings[SKIPPERCENT]);
-    SettingsPerChannel_RegisterSetting("ARDetectSettings","View - AR Detect Settings",FALSE, &AspectGUISettings[CHROMARANGE]);
-    SettingsPerChannel_RegisterSetting("ARDetectSettings","View - AR Detect Settings",FALSE, &AspectGUISettings[ZOOMOUTFRAMECOUNT]);
-    SettingsPerChannel_RegisterSetting("ARDetectSettings","View - AR Detect Settings",FALSE, &AspectGUISettings[ALLOWGREATERTHANSCREEN]);
-    SettingsPerChannel_RegisterSetting("ARDetectSettings","View - AR Detect Settings",FALSE, &AspectGUISettings[MASKGREYSHADE]);
-    SettingsPerChannel_RegisterSetting("ARDetectSettings","View - AR Detect Settings",FALSE, &AspectGUISettings[USEWSS]);        
-  }   
 }

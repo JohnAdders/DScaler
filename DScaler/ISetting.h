@@ -8,23 +8,6 @@
 //See ISetting.cpp for a detailed description of the functions
 
 /**
-    Specify/get reason for an OnChange call
-*/
-enum eOnChangeType
-{
-    ONCHANGE_NONE = 0,      //Don't call onchange
-    ONCHANGE_INIT,          //first time    
-    ONCHANGE_SET,           //user/program action (used most of the time)
-    ONCHANGE_SET_FORCE,     //user/program action (used most of the time), ignore valuechanged flag
-    ONCHANGE_SOURCECHANGE,  //new value because of source change
-    ONCHANGE_VIDEOINPUTCHANGE,
-    ONCHANGE_AUDIOINPUTCHANGE,
-    ONCHANGE_VIDEOFORMATCHANGE,
-    ONCHANGE_CHANNELCHANGE
-};
-
-
-/**
     Flags for setting
 
     The SETTINGFLAG_GLOBAL and SETTINGFLAG_PER_xx flags indicate
@@ -54,10 +37,6 @@ enum eSettingFlags
     
     SETTINGFLAG_FLAGSTOINI_MASK= 0x003F,   //Which flags to read/write from/to the ini file
 
-    SETTINGFLAG_HEXVALUE =       0x0800,   //For settings GUI, mask in GUIinfo
-    SETTINGFLAG_BITMASK  =       0x1000,   //For settings GUI, mask in GUIinfo, bitnames in pszList     
-
-    
     SETTINGFLAG_ALLOW_GLOBAL    =       0x00010000,    
     SETTINGFLAG_ALLOW_PER_SOURCE =      0x00020000,   //Read/Save setting on source change and call OnChange function
     SETTINGFLAG_ALLOW_PER_VIDEOINPUT =  0x00040000,   //Read/Save setting on video input change and call OnChange function
@@ -84,87 +63,6 @@ enum eSettingFlags
 
 };
 
-
-/** Extended static OnChange callback function
-*/
-typedef BOOL (__cdecl SETTINGEX_ONCHANGE)(void* pThis, long NewValue, long OldValue, eOnChangeType OnChangeType, SETTING* pSetting);
-
-/** Extension to SETTING
-*/
-typedef struct
-{
-    /// Total block size (sizeof(SETTINGEX))
-    long  cbSize;        
-    /// Default setting flags
-    long  DefaultSettingFlags;
-    /// Group list terminated with NULL. Or NULL for no group list
-    char** pszGroupList;
-    /// Extra information for correct representation the GUI
-    long  GUIinfo;
-    /// Pointer send as the first parameter of the pfnExOnChange function.
-    void*  pExOnChangeThis;
-    /// OnChange function. If NULL, pfnOnChange is tried
-    SETTINGEX_ONCHANGE* pfnExOnChange;  
-    /// Actual SettingFlags used in the program.
-    long  SettingFlags;
-    /// Internal. Last saved settings as a cache to reduce .ini file access
-    long  LastSavedSettingFlags;
-    /// Internal. Last read/write section in the .ini file
-    char* szLastSavedValueIniSection;
-} SETTINGEXPLUS;
-
-
-/** Extended SETTING structure
-    Includes additional information as Flags and Groups.
-*/
-typedef struct
-{
-    /// Display name of settings
-    char* szDisplayName;
-    /// Setting type (ONOFF, SLIDER, etc)
-    SETTING_TYPE Type;
-    /// Last saved value in .ini file
-    long LastSavedValue;
-    /// Pointer to value
-    long* pValue;
-    /// Default value
-    long Default;
-    /// Minimum value
-    long MinValue;
-    /// Maximum value
-    long MaxValue;
-    /// Step size
-    long StepValue;
-    /// Divider for OSD display
-    long OSDDivider;
-    /// List of items
-    const char** pszList;
-    /// Default .ini section
-    char* szIniSection;
-    /// Default ini entry
-    char* szIniEntry;
-    /// OnChange function.
-    SETTING_ONCHANGE* pfnOnChange;
-    /// Total block size (sizeof(SETTINGEX))
-    long  cbSize;        
-    /// Default setting flags
-    long  DefaultSettingFlags;
-    /// Group list terminated with NULL. Or NULL for no group list
-    char** pszGroupList;
-    /// Extra information for correct representation the GUI
-    long  GUIinfo;
-    /// Pointer send as the first parameter of the pfnExOnChange function.
-    void*  pExOnChangeThis;
-    /// OnChange function. If NULL, pfnOnChange is tried
-    SETTINGEX_ONCHANGE* pfnExOnChange;  
-    /// Actual SettingFlags used in the program.
-    long  SettingFlags;
-    /// Internal. Last saved settings as a cache to reduce .ini file access
-    long  LastSavedSettingFlags;
-    /// Internal. Last read/write section in the .ini file
-    char* szLastSavedValueIniSection;
-} SETTINGEX;
-
 /** Setting group info
 */
 typedef struct
@@ -188,39 +86,29 @@ class ISetting
 {
 public:
     virtual ~ISetting() {;};
-    virtual void SetDefault(eOnChangeType OnChangeType = ONCHANGE_SET) = 0;
+    virtual void SetDefault() = 0;
     virtual SETTING_TYPE GetType() = 0;
-    virtual void ChangeValue(eCHANGEVALUE NewValue, eOnChangeType OnChangeType = ONCHANGE_SET ) = 0;
-    virtual BOOL ReadFromIni(BOOL bSetDefaultOnFailure = TRUE, eOnChangeType OnChangeType = ONCHANGE_NONE) = 0;
+    virtual void ChangeValue(eCHANGEVALUE NewValue) = 0;
+    virtual BOOL ReadFromIni(BOOL bSetDefaultOnFailure = TRUE) = 0;
     virtual void WriteToIni(BOOL bOptimizeFileAccess) = 0;
-    virtual BOOL ReadFromIniSubSection(LPCSTR szSubSection, long* Value = NULL, BOOL bSetDefaultOnFailure = TRUE, eOnChangeType OnChangeType = ONCHANGE_NONE, eSettingFlags* pSettingFlags = NULL) = 0;
-    virtual void WriteToIniSubSection(LPCSTR szSubSection, BOOL bOptimizeFileAccess, long* Value = NULL, eSettingFlags* pSettingFlags = NULL) = 0;  
-    virtual LPCSTR GetLastSavedValueIniSection() = 0;
+    virtual BOOL ReadFromIniSubSection(LPCSTR szSubSection, BOOL bSetDefaultOnFailure = TRUE) = 0;
+    virtual void WriteToIniSubSection(LPCSTR szSubSection) = 0;  
     virtual long GetValue() = 0;
     virtual long GetMin() = 0;
     virtual long GetMax() = 0;
     virtual long GetDefault() = 0;
-    virtual void ChangeDefault(long NewDefault, BOOL bDontSetValue = FALSE, eOnChangeType OnChangeType = ONCHANGE_NONE) = 0;
-    virtual void SetValue(long NewValue, eOnChangeType OnChangeType = ONCHANGE_SET) = 0;
-    virtual void OnChange(long NewValue, long OldValue, eOnChangeType OnChangeType) {;};
+    virtual void ChangeDefault(long NewDefault, BOOL bDontSetValue = FALSE) = 0;
+    virtual void SetValue(long NewValue, BOOL bSupressOnChange = FALSE) = 0;
+    virtual void OnChange(long NewValue, long OldValue) {;};
     virtual void DisableOnChange() = 0;
     virtual void EnableOnChange() = 0;
     virtual void OSDShow() = 0;
     virtual const char** GetList() {return NULL;};
     virtual void SetupControl(HWND hWnd) = 0;
     virtual void SetControlValue(HWND hWnd) = 0;
-    virtual void SetFromControl(HWND hWnd, eOnChangeType OnChangeType = ONCHANGE_SET) = 0;
+    virtual void SetFromControl(HWND hWnd) = 0;
     virtual void SetGroup(CSettingGroup* pGroup) = 0; 
     virtual CSettingGroup* GetGroup() = 0;
-    virtual void SetFlags(eSettingFlags SettingFlags) = 0;
-    virtual void SetDefaultFlags(eSettingFlags SettingFlags, BOOL bSetFlagsToDefault) = 0;
-    virtual void SetFlag(eSettingFlags SettingFlag, BOOL bEnable) = 0;
-    virtual eSettingFlags GetFlags() = 0;
-    virtual eSettingFlags GetDefaultFlags() = 0;
-    virtual BOOL ReadFlagsFromIniSection(LPCSTR szSection, BOOL bSetDefaultOnFailure = TRUE) = 0;
-    virtual void WriteFlagsToIniSection(LPCSTR szSection, BOOL bOptimizeFileAccess) = 0;
-    virtual eSettingFlags GetLastSavedFlagsValue() = 0; 
-    virtual void FlagsOnChange(eSettingFlags OldFlags, eSettingFlags Flags) = 0;
 };
 
 /**

@@ -12,25 +12,24 @@ class CSource;
 class CSettingsHolder : public CSettingObject
 {
 public:
-    CSettingsHolder(long SetMessage, SETTINGHOLDERID SettingHolderID = (SETTINGHOLDERID)0);
+    CSettingsHolder(long SetMessage);
     ~CSettingsHolder();
     long GetNumSettings();
     ISetting* GetSetting(long SettingIndex);
     virtual void CreateSettings(LPCSTR IniSection) = 0;
-    void ReadFromIni(int bInit = 1);    
+    void ReadFromIni();    
     void WriteToIni(BOOL bOptimizeFileAccess);
 
-    void ReadSettingFromIni(ISetting *pSetting, eOnChangeType OnChangeType = ONCHANGE_NONE);
-    void WriteSettingToIni(ISetting *pSetting, BOOL bOptimizeFileAccess, eOnChangeType OnChangeType = ONCHANGE_NONE);    
+    void ReadSettingFromIni(ISetting *pSetting);
+    void WriteSettingToIni(ISetting *pSetting, BOOL bOptimizeFileAccess);    
 
     void ReadFromIni(CSource *pSource, ISetting *pSettingVideoInput, ISetting *pSettingAudioInput, ISetting *pVideoFormat, ISetting *pChannel,
-                     int &VideoInput, int &AudioInput, eVideoFormat &VideoFormat, int &Channel, eOnChangeType OnChangeType = ONCHANGE_NONE);
+                     int &VideoInput, int &AudioInput, eVideoFormat &VideoFormat, int &Channel);
 
     void AddSetting(ISetting* pSetting);
     void RemoveSetting(ISetting* pSetting);
 
     void AddSetting(SETTING* pSetting, CSettingGroup* pGroup = NULL);
-    void AddSetting(SETTINGEX* pSetting, CSettingGroupList* pGroupList = NULL);
 
     void DisableOnChange();
     void EnableOnChange();
@@ -38,22 +37,18 @@ public:
     void ClearSettingList(BOOL bDeleteSettings = TRUE, BOOL bWriteSettings = FALSE);
 
     int LoadSettingStructures(SETTING* pSetting, int StartNum, int Num, CSettingGroup* pGroup = NULL);
-    int LoadSettingStructuresEx(SETTINGEX* pSetting, int StartNum, int Num, CSettingGroupList* pGroupList = NULL);    
 
     LONG HandleSettingsMessage(HWND hWnd, UINT message, UINT wParam, LONG lParam, BOOL* bHandled);
     
     CSettingGroup *GetSettingsGroup(CSettingObject *pObject, LPCSTR szGroupName, LPCSTR szDisplayName = NULL, LPCSTR szTooltip = NULL);
     CSettingGroup *GetSettingsGroup(LPCSTR szGroupName, LPCSTR szDisplayName = NULL, LPCSTR szTooltip = NULL);
     CSettingGroup *FindGroup(char **pszGroupList);
-    SETTINGHOLDERID GetID() { return m_SettingHolderID; }
     void SetLocation(vector<string>* pvSubLocations);
     string GetLocation(ISetting *pSetting);
-    
-    static ISetting* GetSetting(SETTINGHOLDERID HolderID, long SettingIndex);
+
 protected:
     vector<ISetting*>   m_Settings;    
     long                m_SetMessage;
-    SETTINGHOLDERID     m_SettingHolderID;
     BOOL                m_pRegistered;
     string              m_SettingFlagsSection;
     vector<string>      m_SubLocations;    
@@ -69,7 +64,7 @@ protected:
 class CSettingsHolderStandAlone : public CSettingsHolder
 {
 public:
-    CSettingsHolderStandAlone(SETTINGHOLDERID HolderID);
+    CSettingsHolderStandAlone();
     ~CSettingsHolderStandAlone();
     void CreateSettings(LPCSTR IniSection){;};
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.cpp,v 1.13 2002-12-05 21:03:46 tobbej Exp $
+// $Id: DSSourceBase.cpp,v 1.14 2003-01-10 17:38:47 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/12/05 21:03:46  tobbej
+// changed a comment (spelling)
+//
 // Revision 1.12  2002/10/07 20:35:17  kooiman
 // Fixed cursor hide problem
 //
@@ -524,7 +527,7 @@ void CDSSourceBase::VolumeOnChange(long NewValue, long OldValue)
 	catch(CDShowException e)
 	{
 		LOG(3,"Exception in VolumeOnChange, Error: %s",(LPCSTR)e.getErrorText());
-		m_Volume->SetValue(OldValue,ONCHANGE_NONE);
+		m_Volume->SetValue(OldValue);
 		EventCollector->RaiseEvent(this, EVENT_VOLUME, OldValue, OldValue);
 	}
 }
@@ -550,7 +553,7 @@ void CDSSourceBase::BalanceOnChange(long NewValue, long OldValue)
 	catch(CDShowException e)
 	{
 		LOG(3,"Exception in BalanceOnChange, Error: %s",(LPCSTR)e.getErrorText());
-		m_Balance->SetValue(OldValue,ONCHANGE_NONE);
+		m_Balance->SetValue(OldValue);
 	}
 }
 

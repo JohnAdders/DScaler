@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.55 2002-12-07 15:59:06 adcockj Exp $
+// $Id: Providers.cpp,v 1.56 2003-01-10 17:38:13 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.55  2002/12/07 15:59:06  adcockj
+// Modified mute behaviour
+//
 // Revision 1.54  2002/11/03 06:00:29  atnak
 // Added redrawing the menu bar when it changes
 //
@@ -404,6 +407,8 @@ int Providers_Load(HMENU hMenu)
         CurrentSource = Providers_FindSource();
     }
 
+    Providers_NotifySourceChange(0, Providers_GetCurrentSource());
+
     for(i = 0; i < Sources.size() && i < 100 ; ++i)
     {
         if (Sources[i]->DisplayInMenu)
@@ -584,19 +589,15 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             Stop_Capture();
             WSS_init();
             CurrentSource = NewSource;
+            Providers_NotifySourceChange(0, Providers_GetCurrentSource());
             Providers_UpdateMenu(hMenu);
             Start_Capture();
-            Providers_NotifySourceChange(0, Providers_GetCurrentSource());
             return TRUE;
         }
     }
     else if (LOWORD(wParam) == IDM_SOURCE_INITIAL)
     {
-        Providers_NotifySourceChange(1, Providers_GetCurrentSource());
-        //
         InitSourceIdx = CurrentSource;
-        //
-        Providers_NotifySourceChange(0, Providers_GetCurrentSource());
         return TRUE;
     }
     else if (LOWORD(wParam) == IDM_OPEN_FILE)

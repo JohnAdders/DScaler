@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.h,v 1.35 2003-01-08 21:47:14 laurentg Exp $
+// $Id: DSSource.h,v 1.36 2003-01-10 17:38:45 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.35  2003/01/08 21:47:14  laurentg
+// New setting for analogue blanking by source
+//
 // Revision 1.34  2003/01/07 23:31:24  laurentg
 // New overscan settings
 //
@@ -225,10 +228,7 @@ public:
 
 	void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff) {;};
 
-	void SettingsPerChannelSetup(int Start);
-	
 	static void ChannelChange(void *pThis,int PreChange,int OldChannel,int NewChannel);
-	static void OnSetup(void *pThis, int Start);
 	
 	void Start();
 	void Stop();
@@ -287,6 +287,10 @@ private:
 	DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, AudioInput);
 
 	DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, Resolution);
+protected:
+    void ChangeDefaultsForVideoFormat() {};
+    void ChangeDefaultsForVideoInput() {};
+    void ChangeDefaultsForAudioInput() {};
 };
 
 #endif // !defined(AFX_DSSOURCE_H__C552BD3D_0240_4408_805B_0783992D937E__INCLUDED_)

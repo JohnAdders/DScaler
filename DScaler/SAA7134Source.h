@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.h,v 1.31 2003-01-08 19:59:38 laurentg Exp $
+// $Id: SAA7134Source.h,v 1.32 2003-01-10 17:38:17 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2003/01/08 19:59:38  laurentg
+// Analogue Blanking setting by source
+//
 // Revision 1.30  2003/01/08 00:22:41  atnak
 // Put back VBI upscale divisor
 //
@@ -200,7 +203,6 @@ public:
     BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
     void HandleTimerMessages(int TimerId);
 
-    void SavePerChannelSetup(int Start);
     void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff);
 
     BOOL OpenMediaFile(LPCSTR FileName, BOOL NewPlayList) {return FALSE;};
@@ -208,7 +210,9 @@ public:
     BOOL HasSquarePixels() {return FALSE;};
 
     CTreeSettingsPage* CSAA7134Source::GetTreeSettingsPage();
-
+    
+    void SetSourceAsCurrent();
+   
 private:
     virtual void CreateSettings(LPCSTR IniSection);
 
@@ -244,45 +248,12 @@ private:
     static BOOL APIENTRY AudioStandardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
     static BOOL APIENTRY OtherEditProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 
-    void SetupSettings();
-    void SaveSettings(WORD ChangedSetup);
-    void LoadSettings(WORD ChangedSetup);
-    void ChangeDefaultsForSetup(WORD ChangedSetup);
     void ChangeDefaultsForVideoInput();
     void ChangeDefaultsForVideoFormat();
     void ChangeDefaultsForAudioInput();
     void ChangeTVSettingsBasedOnTuner();
 
-    void GetIniSectionName(char* pBuffer, WORD IniSectionMask);
-    void ChangeChannelSectionNames();
-
-
 protected:
-    enum eSettingsSetup
-    {
-
-        SETUP_SINGLE                = 0UL,
-        SETUP_NONE                  = 0UL,
-        SETUP_PER_VIDEOINPUT        = 1 << 0,
-        SETUP_PER_VIDEOFORMAT       = 1 << 1,
-        SETUP_PER_AUDIOINPUT        = 1 << 2,
-        SETUP_PER_CHANNEL           = 1 << 3,
-        SETUP_CHANGE_VIDEOINPUT     = 1 << 4,
-        SETUP_CHANGE_VIDEOFORMAT    = 1 << 5,
-        SETUP_CHANGE_AUDIOINPUT     = 1 << 6,
-        SETUP_CHANGE_CHANNEL        = 1 << 7,
-        SETUP_CHANGE_ANY            = 0x00F0,
-    };
-
-    typedef struct
-    {
-        CSimpleSetting*    Setting;
-        DWORD               Setup;
-        
-    } TSettingsSetup;
-
-    TSettingsSetup* m_SettingsSetup;
-
     HINSTANCE       m_hSAA7134ResourceInst;
 
 private:
@@ -301,9 +272,7 @@ private:
     long            m_CurrentY;
     long            m_CurrentVBILines;
     BOOL            m_InSaturationUpdate;
-    int             m_CurrentChannel;    
     std::string     m_ChannelSubSection;
-    BOOL            m_SettingsByChannelStarted;
     std::string     m_ChipName;
     int             m_DeviceIndex;
 

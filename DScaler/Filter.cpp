@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Filter.cpp,v 1.32 2003-01-02 16:22:07 adcockj Exp $
+// $Id: Filter.cpp,v 1.33 2003-01-10 17:38:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2003/01/02 16:22:07  adcockj
+// Preliminary code to support output plugins properly
+//
 // Revision 1.31  2002/10/30 12:56:44  robmuller
 // Do not load plugins with extensions other than .dll
 //
@@ -117,6 +120,7 @@
 #include "OSD.h"
 #include "DebugLog.h"
 #include "SettingsPerChannel.h"
+#include "SettingsMaster.h"
 #include "crash.h"
 
 long NumFilters = 0;
@@ -124,10 +128,10 @@ long NumFilters = 0;
 FILTER_METHOD* Filters[100] = {NULL,};
 
 // Internal functions for per channel settings
-void Filter_ChannelSubSection(FILTER_METHOD *Filter, char *szSubSection);
-void Filter_RegisterChannelSettings(FILTER_METHOD *Filter, const char *szSubSection);
-void Filter_SaveByChannelSetup(void *pThis, int Start);
+void RegisterSettings(FILTER_METHOD* Filter);
 
+CSettingsHolderStandAlone FilterSettingsHolder;
+CSettingGroup* pFiltersGroup = NULL;
 
 long Filter_DoInput(TDeinterlaceInfo* pInfo, int History, BOOL HurryUp)
 {
@@ -242,6 +246,9 @@ void LoadFilterPlugin(LPCSTR szFileName)
 
 void UnloadFilterPlugins()
 {
+    // get rid of the settings before we unload the filters
+    FilterSettingsHolder.ClearSettingList(TRUE, TRUE);
+
     int i;
     for(i = 0; i < NumFilters; i++)
     {
@@ -362,8 +369,6 @@ BOOL LoadFilterPlugins()
         SortFilterPlugins();
     }
 
-    SettingsPerChannel_RegisterOnSetup(NULL,Filter_SaveByChannelSetup);
-
     if(NumFilters > 0)
     {
         HMENU hFilterMenu = GetFiltersSubmenu();
@@ -375,6 +380,8 @@ BOOL LoadFilterPlugins()
         AppendMenu(hFilterMenu, MF_STRING | MF_GRAYED, 0, "             Input Filters");
         for(i = 0; i < NumFilters; i++)
         {
+            RegisterSettings(Filters[i]);
+
             if(Filters[i]->bOnInput)
             {
                 AddUIForFilterPlugin(hFilterMenu, Filters[i], 7000 + i);
@@ -490,27 +497,12 @@ LONG Filter_HandleSettingsMsg(HWND hWnd, UINT message, UINT wParam, LONG lParam,
 
 void Filter_ReadSettingsFromIni()
 {
-    int i,j;
-    for(i = 0; i < NumFilters; i++)
-    {
-        for(j = 0; j < Filters[i]->nSettings; j++)
-        {
-            Setting_ReadFromIni(&(Filters[i]->pSettings[j]));
-        }
-    }
+    FilterSettingsHolder.ReadFromIni();
 }
-
 
 void Filter_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 {
-    int i,j;
-    for(i = 0; i < NumFilters; i++)
-    {
-        for(j = 0; j < Filters[i]->nSettings; j++)
-        {
-            Setting_WriteToIni(&(Filters[i]->pSettings[j]), bOptimizeFileAccess);
-        }
-    }
+    FilterSettingsHolder.WriteToIni(bOptimizeFileAccess);
 }
 
 void Filter_SetMenu(HMENU hMenu)
@@ -522,82 +514,43 @@ void Filter_SetMenu(HMENU hMenu)
     }
 }
 
-
-void Filter_SaveByChannelSetup(void *pThis, int Start)
-
+void RegisterSettings(FILTER_METHOD* Filter)
 {
-    if (Start == 1)
+    if(pFiltersGroup == NULL)
     {
-        int i;
-        char szSubSection[100];                
-        for(i = 0; i < NumFilters; i++)
-        {            
-            Filter_ChannelSubSection(Filters[i], szSubSection);
-            Filter_RegisterChannelSettings(Filters[i], szSubSection);            
-        }     
+        pFiltersGroup = FilterSettingsHolder.GetSettingsGroup("Filters", "Filters", "Filter Settings");
     }
-    if (Start == 0)
-    {
-        int i;
-        char szSubSection[100];                
-        for(i = 0; i < NumFilters; i++)
-        {            
-            Filter_ChannelSubSection(Filters[i], szSubSection);
-            SettingsPerChannel_UnregisterSection(szSubSection);            
-        }     
-    }
-}
-
-void Filter_RegisterChannelSettings(FILTER_METHOD *Filter, const char *szSubSection)
-{
-    // register settings for this channel    
-
-    if (Filter == NULL)
-    {
-        return;
-    }
-
     char szDescription[100];
         
-    sprintf(szDescription,"Flt - %s",Filter->szName);
-    SettingsPerChannel_RegisterSetSection(szSubSection);
+    sprintf(szDescription,"Flt On Off - %s",Filter->szName);
 
     int iOnOffSetting = -1;
 
+    CSettingGroup* pOnOffGroup = pFiltersGroup->GetGroup(szDescription, szDescription);
+
+    sprintf(szDescription,"Flt Settings - %s",Filter->szName);
+
+    CSettingGroup* pSettingsGroup = pFiltersGroup->GetGroup(szDescription, szDescription);
+
     int i;
+
     for (i = 0; i < Filter->nSettings; i++ )
     {        
         if (Filter->pSettings[i].pValue == (long*)&Filter->bActive)
         {            
-            SettingsPerChannel_RegisterSetting(szSubSection,szDescription,FALSE, &Filter->pSettings[i]); 
+            FilterSettingsHolder.AddSetting(&Filter->pSettings[i], pOnOffGroup);
             iOnOffSetting = i;
             break;
         }        
     }
-    if (iOnOffSetting < 0) 
-    {
-        SettingsPerChannel_RegisterSetting(szSubSection,szDescription,FALSE, (long**)NULL);         
-    }
+
     for (i = 0; i < Filter->nSettings; i++ )
     {        
         if (i != iOnOffSetting)
         {
-            SettingsPerChannel_RegisterSetting(szSubSection,szDescription,FALSE, &Filter->pSettings[i]); 
+            FilterSettingsHolder.AddSetting(&Filter->pSettings[i], pSettingsGroup);
         }
     }
 }
 
 
-void Filter_ChannelSubSection(FILTER_METHOD *Filter, char *szSubSection)
-{
-    if ( (Filter->nSettings>0) 
-          && (Filter->pSettings[0].szIniSection!=NULL) 
-          && (Filter->pSettings[0].szIniSection[0]!=0) )
-    {
-        strcpy(szSubSection,Filter->pSettings[0].szIniSection);
-    }
-    else
-    {
-        strcpy(szSubSection,Filter->szName);
-    }
-}

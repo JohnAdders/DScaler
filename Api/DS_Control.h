@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.128 2003-01-08 19:57:40 laurentg Exp $
+// $Id: DS_Control.h,v 1.129 2003-01-10 17:37:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.128  2003/01/08 19:57:40  laurentg
+// Analogue Blanking setting by source
+//
 // Revision 1.127  2003/01/08 00:23:09  atnak
 // Put back VBI upscale divisor
 //
@@ -525,63 +528,6 @@ typedef enum
     RESET_SILENT,         // Same, but no OSD
     TOGGLEBOOL_SILENT,    // Same, but no OSD
 } eCHANGEVALUE;
-
-/////////////////////////////////////////////////////////////////////////////
-// Setting holder IDs
-/////////////////////////////////////////////////////////////////////////////
-
-typedef enum
-{
-	ASPECT_SETTINGID = 1,
-	BT848_SETTINGID,
-	DSCALER_SETTINGID,
-	OUTTHREADS_SETTINGID,
-	OTHER_SETTINGID,
-	FD50_SETTINGID,
-	FD60_SETTINGID,
-	FD_COMMON_SETTINGID,
-	DI_ADAPTIVE_SETTINGID,
-	DI_VIDEOBOB_SETTINGID,	
-	DI_BLENDEDCLIP_SETTINGID,
-	DI_TWOFRAME_SETTINGID,
-	DI_GREEDY_SETTINGID,
-	FLT_TNOISE_SETTINGID,
-	OSD_SETTINGID,
-	FLT_GAMMA_SETTINGID,
-	VBI_SETTINGID,
-	DI_GREEDY2FRAME_SETTINGID,
-	DI_VIDEOWEAVE_SETTINGID,
-	FLT_LINEAR_CORR_SETTINGID,
-	MIXERDEV_SETTINGID,
-	TIMING_SETTINGID,
-	CHANNELS_SETTINGID,
-	AUDIO_SETTINGID,
-	DEBUG_SETTINGID,
-	FLT_LOGOKILL_SETTINGID,
-	VT_SETTINGID,
-	DI_GREEDYH_SETTINGID,
-	DI_OLDGAME_SETTINGID,
-	FLT_SHARPNESS_SETTINGID,
-	FLT_TCOMB_SETTINGID,
-	CALIBR_SETTINGID,
-	DVBT_SETTINGID,
-	FLT_GNOISE_SETTINGID,
-	FLT_ANOISE_SETTINGID,
-	FLT_HISTOGRAM_SETTINGID,
-	STILL_SETTINGID,
-	FLT_MIRROR_SETTINGID,
-	ANTIPLOP_SETTINGID,
-	DI_TOMSMOCOMP_SETTINGID,
-	SETTINGSPERCHANNEL_SETTINGID,
-	FLT_INVERSION_SETTINGID,
-	CX2388X_SETTINGID,
-	FDPROG_SETTINGID,
-	SAA7134_SETTINGID,
-	TOOLBARS_SETTINGID,
-	DI_MOCOMP2_SETTINGID,
-	FLT_CHROMA_SETTINGID,
-} SETTINGHOLDERID;	
-
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in AspectRatio.c
@@ -1483,7 +1429,9 @@ typedef enum
 
 typedef enum
 {
-    SETTINGSPERCHANNEL_ENABLED = 0,
+    SETTINGSPERCHANNEL_BYCHANNEL = 0,
+    SETTINGSPERCHANNEL_BYINPUT,
+    SETTINGSPERCHANNEL_BYFORMAT,
     SETTINGSPERCHANNEL_SETTING_LASTONE,
 } SETTINGSPERCHANNEL_SETTING;
 

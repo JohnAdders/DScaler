@@ -65,7 +65,6 @@ void CSettingGroup::AddSetting(ISetting *pSetting)
 void CSettingGroup::AddSetting(ISetting *pSetting, eSettingFlags Flags)
 {
     pSetting->SetGroup(this);
-    pSetting->SetFlags(Flags);    
 }
 
 /** 

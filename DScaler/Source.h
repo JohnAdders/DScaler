@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.h,v 1.29 2003-01-08 19:59:38 laurentg Exp $
+// $Id: Source.h,v 1.30 2003-01-10 17:38:35 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -160,6 +160,9 @@ public:
     /// returns NULL if there is no tree settings page
     virtual CTreeSettingsPage* GetTreeSettingsPage() = 0;
 
+    virtual void SetSourceAsCurrent();
+    virtual void UnsetSourceAsCurrent();
+
 protected:
     CSource(long SetMessage, long MenuId);
     ~CSource();
@@ -175,6 +178,22 @@ protected:
     double m_FieldFrequency;
     HMENU m_hMenu;
     std::string m_Comments;
+
+protected:
+
+     enum eSettingsSetup
+     {
+         SETUP_CHANGE_VIDEOINPUT     = 1 << 4,
+         SETUP_CHANGE_VIDEOFORMAT    = 1 << 5,
+         SETUP_CHANGE_AUDIOINPUT     = 1 << 6,
+         SETUP_CHANGE_CHANNEL        = 1 << 7,
+         SETUP_CHANGE_ANY            = 0x00F0,
+     };
+
+    void ChangeDefaultsForSetup(WORD Setup);
+    virtual void ChangeDefaultsForVideoFormat() = 0;
+    virtual void ChangeDefaultsForVideoInput() = 0;
+    virtual void ChangeDefaultsForAudioInput() = 0;
 };
 
 

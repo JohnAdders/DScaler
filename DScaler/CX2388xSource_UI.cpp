@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_UI.cpp,v 1.25 2003-01-07 23:27:02 laurentg Exp $
+// $Id: CX2388xSource_UI.cpp,v 1.26 2003-01-10 17:37:55 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2003/01/07 23:27:02  laurentg
+// New overscan settings
+//
 // Revision 1.24  2003/01/04 16:54:39  adcockj
 // Disabled format menu when in tuner mode
 //
@@ -311,8 +314,6 @@ void CCX2388xSource::SetMenu(HMENU hMenu)
     CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_7, (videoFormat == VIDEOFORMAT_NTSC_50));
     CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_8, (videoFormat == VIDEOFORMAT_PAL_N_COMBO));
 
-    CheckMenuItemBool(m_hMenu, IDM_SAVE_BY_INPUT, m_bSavePerInput->GetValue());
-    CheckMenuItemBool(m_hMenu, IDM_SAVE_BY_FORMAT, m_bSavePerFormat->GetValue());
 	if(m_CardType->GetValue() == CX2388xCARD_HOLO3D)
 	{
 		CheckMenuItemBool(m_hMenu, IDM_PROGRESSIVE, m_IsVideoProgressive->GetValue());
@@ -393,18 +394,6 @@ BOOL CCX2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             ShowText(hWnd, GetStatus());
             break;
     
-        case IDM_SAVE_BY_FORMAT:
-            SaveSettings(SETUP_CHANGE_ANY);
-            m_bSavePerFormat->SetValue(!m_bSavePerFormat->GetValue());
-            LoadSettings(SETUP_CHANGE_ANY);
-            break;
-
-        case IDM_SAVE_BY_INPUT:
-            SaveSettings(SETUP_CHANGE_ANY);
-            m_bSavePerInput->SetValue(!m_bSavePerInput->GetValue());
-            LoadSettings(SETUP_CHANGE_ANY);
-            break;
-
         case IDM_PROGRESSIVE:
             m_IsVideoProgressive->SetValue(!m_IsVideoProgressive->GetValue());
             if(m_IsVideoProgressive->GetValue())
@@ -562,209 +551,6 @@ void CCX2388xSource::ChangeDefaultsForVideoFormat()
         m_BottomOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, TRUE);
         m_LeftOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, TRUE);
         m_RightOverscan->ChangeDefault(DEFAULT_OVERSCAN_PAL, TRUE);
-    }
-}
-
-void CCX2388xSource::SaveSettings(WORD ChangedSetup)
-{
-    WORD PerSetupMask;
-
-    PerSetupMask = (ChangedSetup & SETUP_CHANGE_ANY) >> 4;
-
-    for (int i(0); m_SettingsSetup[i].Setting != NULL; i++)
-    {
-        if (m_SettingsSetup[i].Setup & PerSetupMask)
-        {
-            // Save the setting
-            m_SettingsSetup[i].Setting->WriteToIni(TRUE);
-
-            // If this change affects another setup
-            if (m_SettingsSetup[i].Setup & SETUP_CHANGE_ANY)
-            {
-                PerSetupMask |= (m_SettingsSetup[i].Setup & SETUP_CHANGE_ANY) >> 4;
-            }
-        }
-    }
-}
-
-void CCX2388xSource::ChangeDefaultsForSetup(WORD Setup)
-{
-    if (Setup & SETUP_CHANGE_VIDEOINPUT)
-    {
-        ChangeDefaultsForVideoInput();
-    }
-    if (Setup & SETUP_CHANGE_VIDEOFORMAT)
-    {
-        ChangeDefaultsForVideoFormat();
-    }
-}
-
-void CCX2388xSource::LoadSettings(WORD ChangedSetup)
-{
-    WORD PerSetupMask;
-    WORD EnabledSectionMask = SETUP_PER_AUDIOINPUT;
-    WORD IniSectionMask = 0xFF;
-    char szSection[128];
-
-    // Find out which sections are used
-    if (m_bSavePerInput->GetValue())
-    {
-        EnabledSectionMask |= SETUP_PER_VIDEOINPUT;
-    }
-    if (m_bSavePerFormat->GetValue())
-    {
-        EnabledSectionMask |= SETUP_PER_VIDEOFORMAT;
-    }
-
-    // Adjust to the new defaults
-    ChangeDefaultsForSetup(ChangedSetup);
-    PerSetupMask = (ChangedSetup & SETUP_CHANGE_ANY) >> 4;
-
-    for (int i(0); m_SettingsSetup[i].Setting != NULL; i++)
-    {
-        if (m_SettingsSetup[i].Setup & PerSetupMask)
-        {
-            // Generate the section name if we don't already have it
-            if ((m_SettingsSetup[i].Setup & EnabledSectionMask) != IniSectionMask)
-            {
-                IniSectionMask = (m_SettingsSetup[i].Setup & EnabledSectionMask);
-                GetIniSectionName(szSection, IniSectionMask);
-            }
-
-            // Change the section and read the value
-            m_SettingsSetup[i].Setting->SetSection(szSection);
-            m_SettingsSetup[i].Setting->ReadFromIni();
-
-            // If this change affects another setup
-            if (m_SettingsSetup[i].Setup & SETUP_CHANGE_ANY)
-            {
-                ChangeDefaultsForSetup(m_SettingsSetup[i].Setup);
-                PerSetupMask |= (m_SettingsSetup[i].Setup & SETUP_CHANGE_ANY) >> 4;
-            }
-        }
-    }
-    ChangeChannelSectionNames();
-}
-
-
-void CCX2388xSource::GetIniSectionName(char* pBuffer, WORD IniSectionMask)
-{
-    sprintf(pBuffer, "%s", m_Section.c_str());
-    pBuffer += strlen(pBuffer);
-
-    if (IniSectionMask & SETUP_PER_VIDEOINPUT)
-    {
-        sprintf(pBuffer, "_VI%d", m_VideoSource->GetValue());
-        pBuffer += strlen(pBuffer);
-    }
-    if (IniSectionMask & SETUP_PER_VIDEOFORMAT)
-    {
-        sprintf(pBuffer, "_VF%d", m_VideoFormat->GetValue());
-        pBuffer += strlen(pBuffer);
-    }
-}
-
-void CCX2388xSource::ChangeChannelSectionNames()
-{    
-    if (!m_SettingsByChannelStarted)
-    {
-        return;
-    }
-
-    std::string sOldSection = m_ChannelSubSection;
-
-    WORD IniSectionMask = 0;
-
-    if (m_bSavePerInput->GetValue())
-    {
-        IniSectionMask |= SETUP_PER_VIDEOINPUT;
-    }
-    if (m_bSavePerFormat->GetValue())
-    {
-        IniSectionMask |= SETUP_PER_VIDEOFORMAT;
-    }
-
-    if(IniSectionMask)
-    {
-        char szSection[128];
-
-        GetIniSectionName(szSection, IniSectionMask);
-        m_ChannelSubSection = szSection;
-    }
-    else
-    {
-        m_ChannelSubSection = m_Section;
-    }
-
-    if (sOldSection != m_ChannelSubSection)
-    {
-        if (sOldSection.size() > 0)
-        {
-            if (m_CurrentChannel >= 0)
-            {
-                SettingsPerChannel_SaveChannelSettings(sOldSection.c_str(), m_VideoSource->GetValue(), m_CurrentChannel, GetFormat());
-            }
-            SettingsPerChannel_UnregisterSection(sOldSection.c_str());
-        }
-
-        // if there are multiple sources then things go wrong
-        // so until the settings are sorted out this hacky fix will have
-        // to do
-        if(Providers_GetCurrentSource()  != (CSource*)this)
-        {
-            m_ChannelSubSection = sOldSection;
-            return;
-        }
-
-        SettingsPerChannel_RegisterSetSection(m_ChannelSubSection.c_str());
-        SettingsPerChannel_RegisterSetting("Brightness","CX2388x - Brightness",TRUE, m_Brightness);
-        SettingsPerChannel_RegisterSetting("Hue","CX2388x - Hue",TRUE, m_Hue);            
-        SettingsPerChannel_RegisterSetting("Contrast","CX2388x - Contrast",TRUE, m_Contrast);
-        
-        SettingsPerChannel_RegisterSetting("Saturation","CX2388x - Saturation", TRUE);
-        SettingsPerChannel_RegisterSetting("Saturation","CX2388x - Saturation", TRUE, m_Saturation);
-        SettingsPerChannel_RegisterSetting("Saturation","CX2388x - Saturation", TRUE, m_SaturationU);
-        SettingsPerChannel_RegisterSetting("Saturation","CX2388x - Saturation", TRUE, m_SaturationV);
-    
-        SettingsPerChannel_RegisterSetting("Overscan at Top","CX2388x - Overscan at Top",TRUE, m_TopOverscan);
-        SettingsPerChannel_RegisterSetting("Overscan at Bottom","CX2388x - Overscan at Bottom",TRUE, m_BottomOverscan);
-        SettingsPerChannel_RegisterSetting("Overscan at Left","CX2388x - Overscan at Left",TRUE, m_LeftOverscan);
-        SettingsPerChannel_RegisterSetting("Overscan at Right","CX2388x - Overscan at Right",TRUE, m_RightOverscan);
-
-        if(m_CardType->GetValue() == CX2388xCARD_HOLO3D)
-        {
-            SettingsPerChannel_RegisterSetting("FLIFilmDetect", "CX2388x - FLIFilmDetect" , TRUE, m_FLIFilmDetect);
-            SettingsPerChannel_RegisterSetting("Sharpness", "CX2388x - Sharpness", TRUE, m_Sharpness);
-            SettingsPerChannel_RegisterSetting("UseFLIDeinterlacing", "CX2388x - UseFLIDeinterlacing", FALSE, m_IsVideoProgressive);
-        }
-        else
-        {
-            SettingsPerChannel_RegisterSetting("CX2388xAdvancedSettings", "CX2388x - Advanced Settings", FALSE);
-            SettingsPerChannel_RegisterSetting("CX2388xAdvancedSettings", "CX2388x - Advanced Settings", FALSE, m_LumaAGC);
-            SettingsPerChannel_RegisterSetting("CX2388xAdvancedSettings", "CX2388x - Advanced Settings", FALSE, m_ChromaAGC);
-            SettingsPerChannel_RegisterSetting("CX2388xAdvancedSettings", "CX2388x - Advanced Settings", FALSE, m_FastSubcarrierLock);
-            SettingsPerChannel_RegisterSetting("CX2388xAdvancedSettings", "CX2388x - Advanced Settings", FALSE, m_WhiteCrush);
-            SettingsPerChannel_RegisterSetting("CX2388xAdvancedSettings", "CX2388x - Advanced Settings", FALSE, m_LowColorRemoval);
-            SettingsPerChannel_RegisterSetting("CX2388xAdvancedSettings", "CX2388x - Advanced Settings", FALSE, m_CombFilter);
-            SettingsPerChannel_RegisterSetting("CX2388xAdvancedSettings", "CX2388x - Advanced Settings", FALSE, m_FullLumaRange);
-            SettingsPerChannel_RegisterSetting("CX2388xAdvancedSettings", "CX2388x - Advanced Settings", FALSE, m_Remodulation);
-            SettingsPerChannel_RegisterSetting("CX2388xAdvancedSettings", "CX2388x - Advanced Settings", FALSE, m_Chroma2HComb);
-            SettingsPerChannel_RegisterSetting("CX2388xAdvancedSettings", "CX2388x - Advanced Settings", FALSE, m_ForceRemodExcessChroma);
-            SettingsPerChannel_RegisterSetting("CX2388xAdvancedSettings", "CX2388x - Advanced Settings", FALSE, m_IFXInterpolation);
-            SettingsPerChannel_RegisterSetting("CX2388xAdvancedSettings", "CX2388x - Advanced Settings", FALSE, m_CombRange);
-            SettingsPerChannel_RegisterSetting("CX2388xAdvancedSettings", "CX2388x - Advanced Settings", FALSE, m_SecondChromaDemod);
-            SettingsPerChannel_RegisterSetting("CX2388xAdvancedSettings", "CX2388x - Advanced Settings", FALSE, m_ThirdChromaDemod);
-            SettingsPerChannel_RegisterSetting("CX2388xAdvancedSettings", "CX2388x - Advanced Settings", FALSE, m_WhiteCrushUp);
-            SettingsPerChannel_RegisterSetting("CX2388xAdvancedSettings", "CX2388x - Advanced Settings", FALSE, m_WhiteCrushDown);
-            SettingsPerChannel_RegisterSetting("CX2388xAdvancedSettings", "CX2388x - Advanced Settings", FALSE, m_WhiteCrushMajorityPoint);
-            SettingsPerChannel_RegisterSetting("CX2388xAdvancedSettings", "CX2388x - Advanced Settings", FALSE, m_WhiteCrushPerFrame);
-
-            SettingsPerChannel_RegisterSetting("CX2388xAdvancedSettings", "CX2388x - Audio Settings", FALSE);
-            SettingsPerChannel_RegisterSetting("CX2388xAdvancedSettings", "CX2388x - Audio Settings", FALSE, m_Volume);
-            SettingsPerChannel_RegisterSetting("CX2388xAdvancedSettings", "CX2388x - Audio Settings", FALSE, m_Balance);
-            SettingsPerChannel_RegisterSetting("CX2388xAdvancedSettings", "CX2388x - Audio Settings", FALSE, m_AudioStandard);
-            SettingsPerChannel_RegisterSetting("CX2388xAdvancedSettings", "CX2388x - Audio Settings", FALSE, m_StereoType);
-        }
     }
 }
 

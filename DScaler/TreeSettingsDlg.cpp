@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.cpp,v 1.28 2003-01-02 14:48:50 atnak Exp $
+// $Id: TreeSettingsDlg.cpp,v 1.29 2003-01-10 17:38:37 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2003/01/02 14:48:50  atnak
+// Added Teletext Settings page
+//
 // Revision 1.27  2003/01/01 20:59:39  atnak
 // Added Teletext (VideoText) settings advanced settings tree pane
 //
@@ -698,11 +701,6 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
 
         pPage = Other_GetTreeSettingsPage();
 	    pPage->SetHelpID(IDH_OVERLAY);
-	    pages.push_back(pPage);
-	    dlg.AddPage(pPage, Root);
-
-        pPage = SettingsPerChannel_GetTreeSettingsPage();
-	    pPage->SetHelpID(IDH_SETTINGSBYCHANNEL);
 	    pages.push_back(pPage);
 	    dlg.AddPage(pPage, Root);
 

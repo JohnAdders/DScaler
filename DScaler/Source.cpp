@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.cpp,v 1.13 2002-12-10 12:58:07 adcockj Exp $
+// $Id: Source.cpp,v 1.14 2003-01-10 17:38:33 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/12/10 12:58:07  adcockj
+// Removed NotifyInputChange and NotifyVideoFormatChange functions and replaced with
+//  calls to EventCollector->RaiseEvent
+//
 // Revision 1.12  2002/10/22 04:08:50  flibuste2
 // -- Modified CSource to include virtual ITuner* GetTuner();
 // -- Modified HasTuner() and GetTunerId() when relevant
@@ -81,6 +85,7 @@
 #include "Source.h"
 #include "DScaler.h"
 #include "Providers.h"
+#include "SettingsPerChannel.h"
 
 CSource::CSource(long SetMessage, long MenuId) :
     CSettingsHolder(SetMessage),
@@ -142,4 +147,33 @@ BOOL CSource::HasTuner()
         return FALSE;
     }
     return (GetTuner()->GetTunerId() != TUNER_ABSENT);
+}
+
+
+void CSource::ChangeDefaultsForSetup(WORD Setup)
+{
+    if (Setup & SETUP_CHANGE_VIDEOINPUT)
+    {
+        ChangeDefaultsForVideoInput();
+    }
+    if (Setup & SETUP_CHANGE_VIDEOFORMAT)
+    {
+        ChangeDefaultsForVideoFormat();
+    }
+    if (Setup & SETUP_CHANGE_AUDIOINPUT)
+    {
+        ChangeDefaultsForAudioInput();
+    }
+}
+
+void CSource::SetSourceAsCurrent()
+{
+    // may need to register settings in here
+    // not sure yet
+}
+
+void CSource::UnsetSourceAsCurrent()
+{
+    // may need to unregister settings in here
+    // not sure yet
 }

@@ -3,18 +3,8 @@
 #include "SettingHolder.h"
 #include "SettingsMaster.h"
 
-/** SettingHolder class
-
-    Maintains a list of settings.
-    
-    Read/writes the settings to the proper locations in the ini file,
-    depending on the setting flags.
-
-    ///\todo detailed description & parameters
-*/
-CSettingsHolder::CSettingsHolder(long SetMessage, SETTINGHOLDERID HolderID) :
-    m_SetMessage(SetMessage),
-    m_SettingHolderID(HolderID)
+CSettingsHolder::CSettingsHolder(long SetMessage) :
+    m_SetMessage(SetMessage)
 {    
     m_SettingFlagsSection = "SettingFlags";
         
@@ -66,7 +56,7 @@ BOOL CSettingsHolder::RegisterMe()
     if (!m_pRegistered && (SettingsMaster != NULL))
     {
         m_pRegistered = TRUE;
-        SettingsMaster->Register(m_SettingHolderID, this);        
+        SettingsMaster->Register(this);        
     }
     return m_pRegistered;
 }
@@ -106,30 +96,6 @@ void CSettingsHolder::AddSetting(SETTING* pSetting, CSettingGroup* pGroup)
         break;
     case SLIDER:
         pISetting = new CSliderSetting(pSetting, pGroup);
-        break;
-    }
-
-    if (pISetting != NULL)
-    {
-        AddSetting(pISetting);
-    }
-}
-
-void CSettingsHolder::AddSetting(SETTINGEX* pSetting, CSettingGroupList* pGroupList)
-{
-    ISetting* pISetting = NULL;
-
-    switch (pSetting->Type)
-    {
-    case ONOFF:
-    case YESNO:
-        pISetting = new CYesNoSetting(pSetting, pGroupList);
-        break;
-    case ITEMFROMLIST:
-        pISetting = new CListSetting(pSetting, pGroupList);
-        break;
-    case SLIDER:
-        pISetting = new CSliderSetting(pSetting, pGroupList);    
         break;
     }
 
@@ -189,7 +155,7 @@ string CSettingsHolder::GetLocation(ISetting *pSetting)
     {
         return "";
     }
-    if (m_NewSubLocations || (m_LastLocationFlag != (pSetting->GetFlags() & SETTINGFLAG_PER_MASK|SETTINGFLAG_ALLOW_MASK)))
+    if (m_NewSubLocations)
     {
         m_NewSubLocations = FALSE;
         m_Location = "";
@@ -199,22 +165,13 @@ string CSettingsHolder::GetLocation(ISetting *pSetting)
 
         for (int i = 0; i < m_SubLocations.size(); i++)
         {
-            if (
-                (m_SubLocations[i].length() > 0) &&
-                (pSetting->GetFlags() & CurrentFlag) && 
-                (pSetting->GetFlags() & (CurrentFlag<<16))
-               )
-            {
-                m_Location += m_SubLocations[i]+"_";
-            }
-            CurrentFlag <<= 1;
+            m_Location += m_SubLocations[i]+"_";
         }
         int Len = m_Location.length();        
         if ((Len>0) && (m_Location[Len-1] == '_')) 
         { 
             m_Location = m_Location.substr(0,Len-1); 
         }
-        m_LastLocationFlag = (pSetting->GetFlags() & SETTINGFLAG_PER_MASK|SETTINGFLAG_ALLOW_MASK);
     }
     return m_Location;
 }
@@ -223,31 +180,26 @@ string CSettingsHolder::GetLocation(ISetting *pSetting)
     Reads a setting value & flag from the .ini file.
     The location in the .ini file depends on the sublocation and enabled flags.
 */    
-void CSettingsHolder::ReadSettingFromIni(ISetting *pSetting, eOnChangeType OnChangeType)
+void CSettingsHolder::ReadSettingFromIni(ISetting *pSetting)
 {
     string sLocation = GetLocation(pSetting);
         
     // Read from ini file.
     if (sLocation.length() == 0)
     {
-        pSetting->ReadFromIni(TRUE, OnChangeType);
+        pSetting->ReadFromIni(TRUE);
     }
     else
     {
-        pSetting->ReadFromIniSubSection(sLocation.c_str(),NULL,TRUE,OnChangeType);
+        pSetting->ReadFromIniSubSection(sLocation.c_str(), TRUE);
     }
-    
-    if (pSetting->GetFlags() & SETTINGFLAG_ALLOW_MASK)
-    {
-		pSetting->ReadFlagsFromIniSection(m_SettingFlagsSection.c_str());
-	}
 }
 
 /**
     Writes a setting value & flag to the .ini file.
     The location in the .ini file depends on the sublocation and enabled flags.
 */    
-void CSettingsHolder::WriteSettingToIni(ISetting *pSetting, BOOL bOptimizeFileAccess, eOnChangeType OnChangeType)
+void CSettingsHolder::WriteSettingToIni(ISetting *pSetting, BOOL bOptimizeFileAccess)
 {
     string sLocation = GetLocation(pSetting);
         
@@ -257,26 +209,21 @@ void CSettingsHolder::WriteSettingToIni(ISetting *pSetting, BOOL bOptimizeFileAc
     }
     else
     {
-         pSetting->WriteToIniSubSection(sLocation.c_str(), bOptimizeFileAccess);
+         pSetting->WriteToIniSubSection(sLocation.c_str());
     }
-            
-    if (pSetting->GetFlags() & SETTINGFLAG_ALLOW_MASK)
-    {
-		pSetting->WriteFlagsToIniSection(m_SettingFlagsSection.c_str(), TRUE);
-	}
 }
 
 /**
     Reads alls settings of the list from the .ini file.
 */    
-void CSettingsHolder::ReadFromIni(int bInit)
+void CSettingsHolder::ReadFromIni()
 {    
     RegisterMe();
     for(vector<ISetting*>::iterator it = m_Settings.begin();
         it != m_Settings.end();
         ++it)
     {
-        ReadSettingFromIni((*it), bInit?ONCHANGE_INIT:ONCHANGE_NONE);
+        ReadSettingFromIni((*it));
     }
 }
 
@@ -290,7 +237,7 @@ void CSettingsHolder::WriteToIni(BOOL bOptimizeFileAccess)
         it != m_Settings.end();
         ++it)
     {
-        WriteSettingToIni((*it), bOptimizeFileAccess, ONCHANGE_NONE);
+        WriteSettingToIni((*it), bOptimizeFileAccess);
     }
 }
 
@@ -337,12 +284,12 @@ LONG CSettingsHolder::HandleSettingsMessage(HWND hWnd, UINT message, UINT wParam
         }
         else if(message == m_SetMessage + 100)
         {
-            m_Settings[wParam]->SetValue(lParam, ONCHANGE_SET);
+            m_Settings[wParam]->SetValue(lParam);
             *bHandled = TRUE;
         }
         else if(message == m_SetMessage + 200)
         {
-            m_Settings[wParam]->ChangeValue((eCHANGEVALUE)lParam, ONCHANGE_SET);
+            m_Settings[wParam]->ChangeValue((eCHANGEVALUE)lParam);
             *bHandled = TRUE;
         }
     }
@@ -364,32 +311,6 @@ int CSettingsHolder::LoadSettingStructures(SETTING* pSetting, int StartNum, int 
         if(pSetting[i].szDisplayName != NULL)
         {
             AddSetting(&pSetting[i], pGroup);
-            ++Count;
-        }
-    }    
-    RegisterMe();
-    return Count;
-}
-
-/**
-    Adds an array of SETTINGEX structures to the SettingHolder.    
-*/
-int CSettingsHolder::LoadSettingStructuresEx(SETTINGEX* pSetting, int StartNum, int Num, CSettingGroupList* pGroupList)
-{   
-    int Count(0);
-
-    m_Settings.clear();
-
-    if (pGroupList == NULL)
-    {
-        pGroupList = SettingsMaster->Groups();
-    }
-
-    for (int i(0) ; i < Num; i++)
-    {
-        if(pSetting[i].szDisplayName != NULL)
-        {
-            AddSetting(&pSetting[i], pGroupList);
             ++Count;
         }
     }    
@@ -443,20 +364,6 @@ CSettingGroup* CSettingsHolder::GetSettingsGroup(CSettingObject *pObject, LPCSTR
     return SettingsMaster->Groups()->GetRootGroup(pObject, szGroupName, szDisplayName, szTooltip);
 }
 
-/**
-    Get a setting from the settingsmaster.
-    Specify with HolderID and setting index in the Holder.    
-*/
-ISetting* CSettingsHolder::GetSetting(SETTINGHOLDERID HolderID, long SettingIndex)
-{
-    if (SettingsMaster != NULL)
-    { 
-        return SettingsMaster->GetSetting(HolderID, SettingIndex);        
-    }
-    return NULL;
-}
-
-
 /** Read settings from the right ini section.
     It takes care of dependencies.
     (Like videoformat dependent of video input)
@@ -464,14 +371,14 @@ ISetting* CSettingsHolder::GetSetting(SETTINGHOLDERID HolderID, long SettingInde
     ///\todo: finish
 */
 void CSettingsHolder::ReadFromIni(CSource *pSource, ISetting *pSettingVideoInput, ISetting *pSettingAudioInput, ISetting *pVideoFormat, ISetting *pChannel,
-                     int &VideoInput, int &AudioInput, eVideoFormat &VideoFormat, int &Channel, eOnChangeType OnChangeType)
+                     int &VideoInput, int &AudioInput, eVideoFormat &VideoFormat, int &Channel)
 {    
     RegisterMe();
     for(vector<ISetting*>::iterator it = m_Settings.begin();
         it != m_Settings.end();
         ++it)
     {
-        ReadSettingFromIni((*it), OnChangeType);    
+        ReadSettingFromIni((*it));    
     }
 }
 
@@ -481,7 +388,7 @@ void CSettingsHolder::ReadFromIni(CSource *pSource, ISetting *pSettingVideoInput
 
     
 */
-CSettingsHolderStandAlone::CSettingsHolderStandAlone(SETTINGHOLDERID HolderID) : CSettingsHolder(HolderID)
+CSettingsHolderStandAlone::CSettingsHolderStandAlone() : CSettingsHolder(0)
 {
 }
 

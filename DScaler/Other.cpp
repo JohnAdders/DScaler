@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.52 2003-01-02 20:41:46 adcockj Exp $
+// $Id: Other.cpp,v 1.53 2003-01-10 17:38:10 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.52  2003/01/02 20:41:46  adcockj
+// Fixed very silly problem with new code
+//
 // Revision 1.51  2003/01/02 19:03:07  adcockj
 // Removed extra Surface and replaced with memory buffer due to lack of blt support
 //  and alignment problems
@@ -249,7 +252,6 @@ long OverlayGamma = 1;
 long OverlaySharpness = 5;
 
 SETTING OtherSettings[];
-void Other_SavePerChannelSetup(void *pThis, int Start);
 
 //-----------------------------------------------------------------------------
 // Tells whether or not video overlay color control is possible
@@ -1477,49 +1479,44 @@ SETTING* Other_GetSetting(OTHER_SETTING Setting)
     }
 }
 
+CSettingsHolderStandAlone OverlaySettingsHolder;
+
 void Other_ReadSettingsFromIni()
 {
-    int i;
-
-    // Maybe find a better place for this
-    SettingsPerChannel_RegisterOnSetup(NULL, Other_SavePerChannelSetup);
-
-    for(i = 0; i < OTHER_SETTING_LASTONE; i++)
+    if(OverlaySettingsHolder.GetNumSettings() == 0)
     {
-        Setting_ReadFromIni(&(OtherSettings[i]));
+        CSettingGroup *pOverlayGroup = OverlaySettingsHolder.GetSettingsGroup("Overlay", "Overlay", "Overlay Controls");
+        CSettingGroup *pOtherGroup = OverlaySettingsHolder.GetSettingsGroup("Other", "Other", "Other Overlay Settings");
+
+        OverlaySettingsHolder.AddSetting(&OtherSettings[OVERLAYBRIGHTNESS], pOverlayGroup);
+        OverlaySettingsHolder.AddSetting(&OtherSettings[OVERLAYCONTRAST], pOverlayGroup);
+        OverlaySettingsHolder.AddSetting(&OtherSettings[OVERLAYHUE], pOverlayGroup);
+        OverlaySettingsHolder.AddSetting(&OtherSettings[OVERLAYSATURATION], pOverlayGroup);
+        OverlaySettingsHolder.AddSetting(&OtherSettings[OVERLAYGAMMA], pOverlayGroup);
+        OverlaySettingsHolder.AddSetting(&OtherSettings[OVERLAYSHARPNESS], pOverlayGroup);
+
+        OverlaySettingsHolder.AddSetting(&OtherSettings[BACKBUFFERS], pOtherGroup);
+        OverlaySettingsHolder.AddSetting(&OtherSettings[OVERLAYCOLOR], pOtherGroup);
+        OverlaySettingsHolder.AddSetting(&OtherSettings[USEOVERLAYCONTROLS], pOtherGroup);
+#ifdef _DEBUG
+        if (OTHER_SETTING_LASTONE != OverlaySettingsHolder.GetNumSettings())
+        {
+            LOGD("Number of settings in Overlay source is not equal to the number of settings in DS_Control.h");
+            LOGD("DS_Control.h or Other.cpp are probably not in sync with each other.");
+        }
+#endif
     }
+    OverlaySettingsHolder.DisableOnChange();
+    OverlaySettingsHolder.ReadFromIni();
+    OverlaySettingsHolder.EnableOnChange();
 }
 
 void Other_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 {
-    int i;
-    for(i = 0; i < OTHER_SETTING_LASTONE; i++)
-    {
-        Setting_WriteToIni(&(OtherSettings[i]), bOptimizeFileAccess);
-    }
+    OverlaySettingsHolder.WriteToIni(bOptimizeFileAccess);
 }
 
 CTreeSettingsGeneric* Other_GetTreeSettingsPage()
 {
     return new CTreeSettingsGeneric("Overlay Settings",OtherSettings, OVERLAYBRIGHTNESS);
-}
-
-
-void Other_SavePerChannelSetup(void *pThis, int Start)
-{     
-  if (Start==1)
-  {
-     // Register for per channel settings
-    SettingsPerChannel_RegisterSetSection("Overlay");
-    SettingsPerChannel_RegisterSetting("OverlayBrightness","Overlay - Brightness", FALSE, &OtherSettings[OVERLAYBRIGHTNESS]);
-    SettingsPerChannel_RegisterSetting("OverlayContrast","Overlay - Contrast", FALSE, &OtherSettings[OVERLAYCONTRAST]);
-    SettingsPerChannel_RegisterSetting("OverlayHue","Overlay - Hue", FALSE, &OtherSettings[OVERLAYHUE]);
-    SettingsPerChannel_RegisterSetting("OverlaySaturation","Overlay - Saturation", FALSE, &OtherSettings[OVERLAYSATURATION]);
-    SettingsPerChannel_RegisterSetting("OverlayGamma","Overlay - Gamma", FALSE, &OtherSettings[OVERLAYGAMMA]);
-    SettingsPerChannel_RegisterSetting("OverlaySharpness","Overlay - Sharpness", FALSE, &OtherSettings[OVERLAYSHARPNESS]);
-  }   
-  if (Start==0)
-  {
-    SettingsPerChannel_UnregisterSection("Overlay");
-  }
 }

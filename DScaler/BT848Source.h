@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.50 2003-01-08 19:59:35 laurentg Exp $
+// $Id: BT848Source.h,v 1.51 2003-01-10 17:37:45 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.50  2003/01/08 19:59:35  laurentg
+// Analogue Blanking setting by source
+//
 // Revision 1.49  2003/01/07 23:27:01  laurentg
 // New overscan settings
 //
@@ -108,7 +111,6 @@ public:
     BOOL HasSquarePixels() {return FALSE;};
     void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff);
     void ChannelChange(int PreChange,int OldChannel,int NewChannel);
-    void SavePerChannelSetup(int Start);
     int GetDeviceIndex();
     const char* GetChipName();
     LPCSTR IDString() { return m_IDString.c_str(); }
@@ -122,6 +124,7 @@ public:
 
     CTreeSettingsPage* GetTreeSettingsPage();
     
+    void SetSourceAsCurrent();
    
 private:
     virtual void CreateSettings(LPCSTR IniSection);
@@ -138,14 +141,8 @@ private:
 
     void SetupCard();
     void ChangeTVSettingsBasedOnTuner();
-    void ChangeSectionNamesForInput();
-    void ChangeDefaultsForInput();
-    void LoadInputSettings();
-    void SaveInputSettings(BOOL bOptimizeFileAccess);
     void InitAudio();
     void InitAudioControls();
-
-    void ChangeChannelSectionNames();
 
     ISetting* GetCurrentAudioSetting();
 
@@ -169,9 +166,7 @@ private:
     long         m_CurrentVBILines;
     BOOL         m_IsFieldOdd;
     BOOL         m_InSaturationUpdate;
-    int          m_CurrentChannel;    
     std::string  m_ChannelSubSection;
-    BOOL         m_SettingsByChannelStarted;
     std::string  m_ChipName;
     int          m_DeviceIndex;
 
@@ -257,6 +252,9 @@ private:
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AutoStereoDetectInterval);
 
 protected:
+    void ChangeDefaultsForVideoFormat();
+    void ChangeDefaultsForVideoInput() {};
+    void ChangeDefaultsForAudioInput() {};
 };
 
 

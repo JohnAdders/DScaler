@@ -632,6 +632,12 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name FLT_ColourInversion
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name DI_MoComp2
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name FLT_Chroma
+    End Project Dependency
 }}}
 
 ###############################################################################

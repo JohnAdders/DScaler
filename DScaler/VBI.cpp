@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI.cpp,v 1.23 2003-01-07 16:49:09 adcockj Exp $
+// $Id: VBI.cpp,v 1.24 2003-01-10 17:38:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2003/01/07 16:49:09  adcockj
+// Changes to allow variable sampling rates for VBI
+//
 // Revision 1.22  2003/01/05 18:35:45  laurentg
 // Init function for VBI added
 //
@@ -284,25 +287,46 @@ SETTING* VBI_GetSetting(VBI_SETTING Setting)
     }
 }
 
+CSettingsHolderStandAlone VBISettingsHolder;
+
 void VBI_ReadSettingsFromIni()
 {
-    SettingsPerChannel_RegisterOnSetup(NULL, VBI_SavePerChannelSetup);
-    
-    for(int i = 0; i < VBI_SETTING_LASTONE; i++)
+    if(VBISettingsHolder.GetNumSettings() == 0)
     {
-        Setting_ReadFromIni(&(VBISettings[i]));
+        CSettingGroup *pVBIGroup = VBISettingsHolder.GetSettingsGroup("VBI", "VBI", "VBI Decoder");
+        CSettingGroup *pCaptureGroup = pVBIGroup->GetGroup("VBICapture","VBI - Capture");
+        CSettingGroup *pVBISettingsGroup = pVBIGroup->GetGroup("VBISettings","VBI - Settings");
+
+        VBISettingsHolder.AddSetting(&VBISettings[CAPTURE_VBI], pCaptureGroup);
+
+        VBISettingsHolder.AddSetting(&VBISettings[CLOSEDCAPTIONMODE], pCaptureGroup);
+        VBISettingsHolder.AddSetting(&VBISettings[DOTELETEXT], pCaptureGroup);
+        VBISettingsHolder.AddSetting(&VBISettings[DOVPS], pCaptureGroup);
+        VBISettingsHolder.AddSetting(&VBISettings[DOWSS], pCaptureGroup);
+        VBISettingsHolder.AddSetting(&VBISettings[SEARCHHIGHLIGHT], pCaptureGroup);
+
+#ifdef _DEBUG
+        if (VBI_SETTING_LASTONE != VBISettingsHolder.GetNumSettings())
+        {
+            LOGD("Number of settings in VBI source is not equal to the number of settings in DS_Control.h");
+            LOGD("DS_Control.h or VBI.cpp are probably not in sync with each other.");
+        }
+#endif
+
     }
 
+    VBISettingsHolder.DisableOnChange();
+    VBISettingsHolder.ReadFromIni();
+    VBISettingsHolder.EnableOnChange();
+
+    // don't know why this is needed but it might be
+    // \todo remove
     VT_HilightSearchOnChange(bSearchHighlight);
 }
 
 void VBI_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 {
-    int i;
-    for(i = 0; i < VBI_SETTING_LASTONE; i++)
-    {
-        Setting_WriteToIni(&(VBISettings[i]), bOptimizeFileAccess);
-    }
+    VBISettingsHolder.WriteToIni(bOptimizeFileAccess);
 }
 
 void VBI_SetMenu(HMENU hMenu)
@@ -358,25 +382,4 @@ void VBI_SetMenu(HMENU hMenu)
             EnableMenuItem(hMenu, IDM_CCOFF + i, MF_GRAYED);
         }
     }
-}
-
-
-void VBI_SavePerChannelSetup(void *pThis, int Start)
-{     
-  if (Start == 1)
-  {
-     // Register for per channel settings
-    SettingsPerChannel_RegisterSetSection("VBI");
-    SettingsPerChannel_RegisterSetting("VBICapture","VBI - Capture", FALSE, &VBISettings[CAPTURE_VBI]);
-    SettingsPerChannel_RegisterSetting("VBISettings","VBI - Settings", FALSE);
-    SettingsPerChannel_RegisterSetting("VBISettings","VBI - Settings", FALSE, &VBISettings[CLOSEDCAPTIONMODE]);    
-    SettingsPerChannel_RegisterSetting("VBISettings","VBI - Settings", FALSE, &VBISettings[DOTELETEXT]);    
-    SettingsPerChannel_RegisterSetting("VBISettings","VBI - Settings", FALSE, &VBISettings[DOVPS]);    
-    SettingsPerChannel_RegisterSetting("VBISettings","VBI - Settings", FALSE, &VBISettings[DOWSS]);    
-    
-  }   
-  if (Start == 0)
-  {
-    SettingsPerChannel_UnregisterSection("VBI");
-  }
 }

@@ -21,12 +21,11 @@ class CTreeSettingsGeneric;
 
     There is one global instance of this class created in DScaler.cpp
 */
-class CSettingsMaster : public CEventObject
+class CSettingsMaster
 {
 protected:
     typedef struct 
     {
-        SETTINGHOLDERID HolderID;
         CSettingsHolder* pHolder;
         BOOL bIsSource;    
     } TSettingsHolderInfo;
@@ -46,18 +45,14 @@ protected:
     string m_VideoFormatName;
     string m_ChannelName;
 
-    virtual void OnEvent(CEventObject* pObject, eEventType Event, long OldValue, long NewValue, eEventType* ComingUp);
 protected:        
-    void SaveSettings(CEventObject* pObject, eOnChangeType OnChangeType);
-    void LoadSettings(CEventObject* pObject, eOnChangeType OnChangeType);
-    void ParseAllSettings(CEventObject* pObject, int What, eOnChangeType OnChangeType);    
+    void ParseAllSettings(bool IsLoad);
 public:
     CSettingsMaster();
     ~CSettingsMaster();
     
     void IniFile(LPCSTR szIniFile) { m_sIniFile = szIniFile; }
-    void Register(SETTINGHOLDERID szHolderID, CSettingsHolder* pHolder);
-    void Unregister(SETTINGHOLDERID szHolderID);
+    void Register(CSettingsHolder* pHolder);
     void Unregister(CSettingsHolder* pHolder);        
 
     void GetSubLocations(CSource *Source, int VideoInput, int AudioInput, eVideoFormat VideoFormat, int Channel, vector<string> *vSubLocations);
@@ -66,13 +61,17 @@ public:
 
     CTreeSettingsGeneric* GroupTreeSettings(CSettingGroup* pGroup);
     
-    int GetNumSettings(SETTINGHOLDERID szHolderID);
-    ISetting* GetSetting(SETTINGHOLDERID HolderID, int i);
+    void SetSource(CSource* pSource);
+    void SetChannelName(long NewValue);
+    void SetVideoInput(long NewValue);
+    void SetAudioInput(long NewValue);
+    void SetVideoFormat(long NewValue);
+
+    void SaveSettings();
+    void LoadSettings();
+
     
 public:    
-    void EventCallback(eEventType EventType, long OldValue, long NewValue);
-    //Static wrap
-    static void EventCallback(void* pThis, eEventType EventType, long OldValue, long NewValue);
 };
 
 extern CSettingsMaster* SettingsMaster;

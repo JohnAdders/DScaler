@@ -11,27 +11,10 @@
 CSettingsMaster::CSettingsMaster() :
 m_SettingGroupList(NULL)
 {
-    eEventType EventList[] = {
-        EVENT_INIT,
-        EVENT_DESTROY,
-        EVENT_SOURCE_PRECHANGE,
-        EVENT_SOURCE_CHANGE,
-        EVENT_VIDEOINPUT_PRECHANGE,
-        EVENT_VIDEOINPUT_CHANGE,
-        EVENT_AUDIOINPUT_PRECHANGE,
-        EVENT_AUDIOINPUT_CHANGE,
-        EVENT_VIDEOFORMAT_PRECHANGE,
-        EVENT_VIDEOFORMAT_CHANGE,
-        EVENT_CHANNEL_PRECHANGE,
-        EVENT_CHANNEL_CHANGE,
-        EVENT_ENDOFLIST
-    };
-    EventCollector->Register(this, EventList);
 }
 
 CSettingsMaster::~CSettingsMaster()
 {
-	EventCollector->Unregister(this);
 	if (m_SettingGroupList != NULL)
 	{
 		delete m_SettingGroupList;
@@ -53,7 +36,7 @@ CSettingGroupList* CSettingsMaster::Groups()
     Runs through all settings to see if they want to read/write their value
     on a change event
 */
-void CSettingsMaster::ParseAllSettings(CEventObject* pObject, int What, eOnChangeType OnChangeType)
+void CSettingsMaster::ParseAllSettings(bool IsLoad)
 {
     vector<string> vSubLocations;
 
@@ -77,7 +60,8 @@ void CSettingsMaster::ParseAllSettings(CEventObject* pObject, int What, eOnChang
             {
                 pSource = NULL;
             }
-			if ((pSource != NULL) && ((CEventObject*)pSource != pObject))
+            // Skip the holder if the source isn't the current one
+			if ((pSource != NULL) && (pSource != Providers_GetCurrentSource()))
 			{
 				continue;
 			}
@@ -88,7 +72,6 @@ void CSettingsMaster::ParseAllSettings(CEventObject* pObject, int What, eOnChang
 		int Num = m_Holders[i].pHolder->GetNumSettings();
         CSimpleSetting* pSetting;
         string sSection;
-        eSettingFlags SettingFlags;
         
 		BOOL bAction = FALSE;
 
@@ -97,56 +80,29 @@ void CSettingsMaster::ParseAllSettings(CEventObject* pObject, int What, eOnChang
             pSetting = (CSimpleSetting*)m_Holders[i].pHolder->GetSetting(n);
             if (pSetting != NULL)
             {
-                bAction = FALSE;
-				SettingFlags = pSetting->GetFlags();
-                      
-                if ((SettingFlags&SETTINGFLAG_PER_SOURCE) && (SettingFlags&SETTINGFLAG_ALLOW_PER_SOURCE) && (m_SourceName.length()>0))
+                if (IsLoad)
                 {
-                    bAction = TRUE;
+                    m_Holders[i].pHolder->ReadSettingFromIni(pSetting);
                 }
-                else if ((SettingFlags&SETTINGFLAG_PER_VIDEOINPUT) && (SettingFlags&SETTINGFLAG_ALLOW_PER_VIDEOINPUT) && (m_VideoInputName.length()>0))
+                else
                 {
-                    bAction = TRUE;
-                }
-                else if ((SettingFlags&SETTINGFLAG_PER_AUDIOINPUT) && (SettingFlags&SETTINGFLAG_ALLOW_PER_AUDIOINPUT) && (m_AudioInputName.length()>0))
-                {
-                    bAction = TRUE;
-                }
-                else if ((SettingFlags&SETTINGFLAG_PER_VIDEOFORMAT) && (SettingFlags&SETTINGFLAG_ALLOW_PER_VIDEOFORMAT) && (m_VideoFormatName.length()>0))
-                {
-                    bAction = TRUE;
-                }
-                else if ((SettingFlags&SETTINGFLAG_PER_CHANNEL) && (SettingFlags&SETTINGFLAG_ALLOW_PER_CHANNEL) && (m_ChannelName.length()>0))
-                {
-                    bAction = TRUE;
-                }
-
-                if (bAction)
-                {                    					
-                    if (What == 0)
-                    {
-                        m_Holders[i].pHolder->ReadSettingFromIni(pSetting, OnChangeType);
-                    }
-                    else if (What == 1)
-                    {
-                        m_Holders[i].pHolder->WriteSettingToIni(pSetting, TRUE, OnChangeType);
-                    }                    
-                }
+                    m_Holders[i].pHolder->WriteSettingToIni(pSetting, TRUE);
+                }                    
             }
         }
     }
 }
 
 
-void CSettingsMaster::LoadSettings(CEventObject* pObject, eOnChangeType OnChangeType)
+void CSettingsMaster::LoadSettings()
 {
-    ParseAllSettings(pObject, 0, OnChangeType);
+    ParseAllSettings(true);
 }
 
 
-void CSettingsMaster::SaveSettings(CEventObject* pObject, eOnChangeType OnChangeType)
+void CSettingsMaster::SaveSettings()
 {
-    ParseAllSettings(pObject, 1, OnChangeType);
+    ParseAllSettings(false);
 }
 
 /**
@@ -155,7 +111,7 @@ void CSettingsMaster::SaveSettings(CEventObject* pObject, eOnChangeType OnChange
     anywhere within the program so one can easily request any setting
     from anywhere. Setting values & Holder IDs are in DS_Control.h
 */
-void CSettingsMaster::Register(SETTINGHOLDERID HolderID, CSettingsHolder* pHolder)
+void CSettingsMaster::Register(CSettingsHolder* pHolder)
 {
     if (pHolder == NULL)
     {
@@ -167,7 +123,6 @@ void CSettingsMaster::Register(SETTINGHOLDERID HolderID, CSettingsHolder* pHolde
     TSettingsHolderInfo shi;
     BOOL bIsSource = FALSE;
 
-    shi.HolderID = HolderID;
     shi.pHolder = pHolder;
 
     //Find out if the settingsholder is part of a source
@@ -191,23 +146,6 @@ void CSettingsMaster::Register(SETTINGHOLDERID HolderID, CSettingsHolder* pHolde
     m_Holders.push_back(shi);  
 }
 
-void CSettingsMaster::Unregister(SETTINGHOLDERID HolderID)
-{
-    vector<TSettingsHolderInfo> NewList;
-    for (int i = 0; i < m_Holders.size(); i++)
-    {
-        if (m_Holders[i].HolderID == HolderID)
-        {
-            //
-        } 
-        else 
-        {
-            NewList.push_back(m_Holders[i]);
-        }
-    }
-    m_Holders = NewList;
-}
-
 void CSettingsMaster::Unregister(CSettingsHolder* pHolder)
 {
     vector<TSettingsHolderInfo> NewList;
@@ -225,112 +163,72 @@ void CSettingsMaster::Unregister(CSettingsHolder* pHolder)
     m_Holders = NewList;
 }
 
-/**
-    Event callback function.    
-*/
-void CSettingsMaster::OnEvent(CEventObject* pObject, eEventType Event, long OldValue, long NewValue, eEventType* ComingUp)
+void CSettingsMaster::SetSource(CSource* pSource)
 {
-    switch (Event)
+    if (pSource != NULL)
     {
-    case EVENT_SOURCE_PRECHANGE:    
-        if (m_SourceName.length()>0) 
-        { 
-            SaveSettings(pObject, ONCHANGE_SOURCECHANGE);
-        }
-        break;        
-    
-    case EVENT_SOURCE_CHANGE:    
-        if (NewValue!=0)
-        {
-            m_SourceName = ((CSource*)NewValue)->IDString();
-            LoadSettings(pObject, ONCHANGE_SOURCECHANGE);
-        }
-        else
-        {
-            m_SourceName = "";
-        }
-        break;
-     
-    case EVENT_CHANNEL_PRECHANGE:   
-        if (m_ChannelName.length()>0) 
-        { 
-            SaveSettings(pObject, ONCHANGE_CHANNELCHANGE); 
-        }
-        break;
-        
-    case EVENT_CHANNEL_CHANGE:
-        if (NewValue>=0)
-        {        
-            char szBuffer[33];
-            m_ChannelName = string("Channel") + itoa(NewValue, szBuffer, 10);
-            LoadSettings(pObject, ONCHANGE_CHANNELCHANGE);  
-        }
-        else
-        {
-            m_ChannelName = "";
-        }
-        break;
-    
-    case EVENT_VIDEOINPUT_PRECHANGE:
-        if (m_VideoInputName.length()>0) 
-        { 
-            SaveSettings(pObject, ONCHANGE_VIDEOINPUTCHANGE); 
-        }
-        break;        
+        m_SourceName = pSource->IDString();
+        LoadSettings();
+    }
+    else
+    {
+        m_SourceName = "";
+    }
+}
 
-    case EVENT_VIDEOINPUT_CHANGE:
-        if (NewValue>=0)
-        {
-            char szBuffer[33];
-            m_VideoInputName = string("VideoInput") +  itoa(NewValue, szBuffer, 10);
-            LoadSettings(pObject, ONCHANGE_VIDEOINPUTCHANGE);
-        }
-        else
-        {
-            m_VideoInputName = "";
-        }
-        break;    
+void CSettingsMaster::SetChannelName(long NewValue)
+{
+    if (NewValue>=0)
+    {        
+        char szBuffer[33];
+        m_ChannelName = string("Channel") + itoa(NewValue, szBuffer, 10);
+        LoadSettings();
+    }
+    else
+    {
+        m_ChannelName = "";
+    }
+}
 
-    case EVENT_AUDIOINPUT_PRECHANGE:
-        if (m_AudioInputName.length()>0) 
-        { 
-            SaveSettings(pObject, ONCHANGE_AUDIOINPUTCHANGE); 
-        }
-        break;
-        
-    case EVENT_AUDIOINPUT_CHANGE:
-        if (NewValue>=0)
-        {
-            char szBuffer[33];
-            m_AudioInputName = string("AudioInput") +  itoa(NewValue, szBuffer, 10);
-            LoadSettings(pObject, ONCHANGE_AUDIOINPUTCHANGE);
-        }
-        else
-        {
-            m_AudioInputName = "";
-        }
-        break;
-        
-    case EVENT_VIDEOFORMAT_PRECHANGE:
-        if (m_VideoFormatName.length()>0) 
-        { 
-            SaveSettings(pObject, ONCHANGE_VIDEOFORMATCHANGE);
-        }
-        break;
-        
-    case EVENT_VIDEOFORMAT_CHANGE:
-        if (NewValue>=0)
-        {
-            char szBuffer[33];
-            m_VideoFormatName = string("VideoFormat") +  itoa(NewValue, szBuffer, 10);            
-            LoadSettings(pObject, ONCHANGE_VIDEOFORMATCHANGE);
-        }
-        else
-        {
-            m_VideoFormatName = "";
-        }
-        break;
-    }    
+void CSettingsMaster::SetVideoInput(long NewValue)
+{
+    if (NewValue>=0)
+    {
+        char szBuffer[33];
+        m_VideoInputName = string("VideoInput") +  itoa(NewValue, szBuffer, 10);
+        LoadSettings();
+    }
+    else
+    {
+        m_VideoInputName = "";
+    }
+}
+
+void CSettingsMaster::SetAudioInput(long NewValue)
+{
+    if (NewValue>=0)
+    {
+        char szBuffer[33];
+        m_AudioInputName = string("AudioInput") +  itoa(NewValue, szBuffer, 10);
+    }
+    else
+    {
+        m_AudioInputName = "";
+    }
+}
+
+void CSettingsMaster::SetVideoFormat(long NewValue)
+{
+    if (NewValue>=0)
+    {
+        char szBuffer[33];
+        m_VideoFormatName = string("VideoFormat") +  itoa(NewValue, szBuffer, 10);            
+        LoadSettings();
+    }
+    else
+    {
+        m_VideoFormatName = "";
+    }
 }
 
 /**
@@ -384,20 +282,4 @@ CTreeSettingsGeneric* CSettingsMaster::GroupTreeSettings(CSettingGroup* pGroup)
 		}	
         return new CTreeSettingsGeneric(szName,SettingList);
 	}
-}
-
-
-/**
-    Get setting 'n' from setting holder 'HolderID'.
-*/
-ISetting* CSettingsMaster::GetSetting(SETTINGHOLDERID HolderID, int n)
-{
-    for (int i = 0; i < m_Holders.size(); i++)
-    {
-        if ( (m_Holders[i].pHolder != NULL) && (m_Holders[i].pHolder->GetID() == HolderID) )
-		{        
-            return m_Holders[i].pHolder->GetSetting(n);
-        }
-    }
-    return NULL;
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_Audio.cpp,v 1.14 2002-12-09 00:32:13 atnak Exp $
+// $Id: SAA7134Source_Audio.cpp,v 1.15 2003-01-10 17:38:18 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/12/09 00:32:13  atnak
+// Added new muting stuff
+//
 // Revision 1.13  2002/10/31 05:39:02  atnak
 // Added SoundChannel change event for toolbar
 //
@@ -226,8 +229,8 @@ void CSAA7134Source::AudioSampleRateOnChange(long NewValue, long OldValue)
 
 void CSAA7134Source::AudioSourceOnChange(long NewValue, long OldValue)
 {
-    SaveSettings(SETUP_CHANGE_AUDIOINPUT);
-    LoadSettings(SETUP_CHANGE_AUDIOINPUT);
+    EventCollector->RaiseEvent(this, EVENT_AUDIOINPUT_PRECHANGE, OldValue, NewValue);
+    EventCollector->RaiseEvent(this, EVENT_AUDIOINPUT_CHANGE, OldValue, NewValue);
     SetupAudioSource();
 }
 
@@ -238,7 +241,7 @@ void CSAA7134Source::AudioChannelOnChange(long AudioChannel, long OldValue)
     {
         if (m_AutoStereoSelect->GetValue())
         {
-            m_AutoStereoSelect->SetValue(FALSE, ONCHANGE_NONE);
+            m_AutoStereoSelect->SetValue(FALSE, TRUE);
         }
     }
     m_pSAA7134Card->SetAudioChannel((eAudioChannel)AudioChannel);

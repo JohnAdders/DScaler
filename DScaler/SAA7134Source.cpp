@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.57 2003-01-08 19:59:38 laurentg Exp $
+// $Id: SAA7134Source.cpp,v 1.58 2003-01-10 17:38:15 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.57  2003/01/08 19:59:38  laurentg
+// Analogue Blanking setting by source
+//
 // Revision 1.56  2003/01/08 00:22:41  atnak
 // Put back VBI upscale divisor
 //
@@ -227,15 +230,6 @@ static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
 
-void SAA7134_OnSetup(void *pThis, int Start)
-{
-   if (pThis != NULL)
-   {
-      ((CSAA7134Source*)pThis)->SavePerChannelSetup(Start);
-   }
-}
-
-
 CSAA7134Source::CSAA7134Source(CSAA7134Card* pSAA7134Card, CContigMemory* PageTableDMAMem[4], CUserMemory* DisplayDMAMem[2], CUserMemory* VBIDMAMem[2], LPCSTR IniSection, LPCSTR ChipName, int DeviceIndex) :
     CSource(WM_SAA7134_GETVALUE, IDC_SAA7134),
     m_pSAA7134Card(pSAA7134Card),
@@ -243,31 +237,21 @@ CSAA7134Source::CSAA7134Source(CSAA7134Card* pSAA7134Card, CContigMemory* PageTa
     m_CurrentY(576),
     m_CurrentVBILines(19),
     m_Section(IniSection),
+    m_IDString(IniSection),
     m_InSaturationUpdate(FALSE),
-    m_CurrentChannel(-1),
-    m_SettingsByChannelStarted(FALSE),
     m_ChipName(ChipName),
     m_DeviceIndex(DeviceIndex),
     m_CurrentFieldID(0),
     m_ProcessingFieldID(-1),
     m_hSAA7134ResourceInst(NULL),
-    m_SettingsSetup(NULL),
     m_DetectedAudioChannel((eAudioChannel)-1)
 {
-    m_IDString = IniSection;
     CreateSettings(IniSection);
+
+    DisableOnChange();
 
     // Take over the card (not literally)
     m_pSAA7134Card->PrepareCard();
-
-    SettingsPerChannel_RegisterOnSetup(this, SAA7134_OnSetup);
-
-    ReadFromIni();
-
-    SetupCard();
-    LoadSettings(SETUP_CHANGE_ANY);
-
-    InitializeUI();
 
 // Used for register guessing!
 //  m_pSAA7134Card->DumpRegisters();
@@ -300,21 +284,22 @@ CSAA7134Source::CSAA7134Source(CSAA7134Card* pSAA7134Card, CContigMemory* PageTa
         m_EvenFields[k].IsFirstInSeries = FALSE;
     }
 
+    ReadFromIni();
+
+    ChangeDefaultsForSetup(SETUP_CHANGE_ANY);
+
+    SetupCard();
+
+    InitializeUI();
+
     Reset();
 
-    EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_CHANGE, -1, m_VideoSource->GetValue());
-    EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, -1, m_VideoFormat->GetValue());
+    EnableOnChange();
 }
 
 
 CSAA7134Source::~CSAA7134Source()
 {
-    SAA7134_OnSetup(this, 0);
-
-    if (m_SettingsSetup != NULL)
-    {
-        delete [] m_SettingsSetup;
-    }
 
     CleanupUI();
     KillTimer(hWnd, TIMER_MSP);
@@ -324,6 +309,22 @@ CSAA7134Source::~CSAA7134Source()
     delete m_pSAA7134Card;
 }
 
+void CSAA7134Source::SetSourceAsCurrent()
+{
+    // need to call up to parent to run register settings functions
+    CSource::SetSourceAsCurrent();
+
+    DisableOnChange();
+
+    // tell the rest of DScaler what the setup is
+    // A side effect of the Raise events is to load up the settings by section
+    // loads up other settings which are prossible stored
+    // as settings per input/channel
+    EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_CHANGE, -1, m_VideoSource->GetValue());
+    EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, -1, m_VideoFormat->GetValue());
+
+    EnableOnChange();
+}
 
 void CSAA7134Source::CreateSettings(LPCSTR IniSection)
 {
@@ -485,86 +486,7 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
     }
 #endif
 
-    SetupSettings();
 }
-
-
-void CSAA7134Source::SetupSettings()
-{
-    #define PER_VIDEOINPUT      SETUP_PER_VIDEOINPUT
-    #define PER_VIDEOFORMAT     SETUP_PER_VIDEOFORMAT
-    #define PER_AUDIOINPUT      SETUP_PER_AUDIOINPUT
-    #define PER_CHANNEL         SETUP_PER_CHANNEL
-    
-    TSettingsSetup SettingsSetup[] =
-    {
-        /*
-        { m_CardType,               SETUP_NONE },
-        { m_TunerType,              SETUP_NONE },
-        { m_bSavePerInput,          SETUP_NONE },
-        { m_bSavePerFormat,         SETUP_NONE },
-
-        { m_CustomPixelWidth,       SETUP_SINGLE },
-        { m_ReversePolarity,        SETUP_SINGLE },
-        { m_AutomaticVolumeLevel,   SETUP_SINGLE },
-        { m_VBIUpscaleDivisor,      SETUP_SINGLE },
-        { m_VideoMirror,            SETUP_SINGLE },
-        { m_AudioLine1Voltage,      SETUP_SINGLE },
-        { m_AudioLine2Voltage,      SETUP_SINGLE },
-        */
-
-        { m_VideoSource,            SETUP_CHANGE_VIDEOINPUT },
-        { m_AutomaticGainControl,   PER_VIDEOINPUT },
-        { m_GainControlLevel,       PER_VIDEOINPUT },
-        { m_HPLLMode,               PER_VIDEOINPUT | PER_CHANNEL },
-        { m_WhitePeak,              PER_VIDEOINPUT | PER_CHANNEL },
-        { m_ColorPeak,              PER_VIDEOINPUT | PER_CHANNEL },
-        { m_HDelay,                 PER_VIDEOINPUT | PER_CHANNEL },
-        { m_VDelay,                 PER_VIDEOINPUT | PER_CHANNEL },
-
-        { m_VideoFormat,            SETUP_CHANGE_VIDEOFORMAT | PER_VIDEOINPUT | PER_CHANNEL },
-        { m_Brightness,             PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
-        { m_Contrast,               PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
-        { m_Saturation,             PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
-        { m_Hue,                    PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
-        { m_TopOverscan,            PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
-        { m_BottomOverscan,         PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
-        { m_LeftOverscan,           PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
-        { m_RightOverscan,          PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
-        { m_PixelWidth,             PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
-        { m_AdaptiveCombFilter,     PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
-        { m_AudioStandard,          PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
-
-        { m_AudioSource,            SETUP_CHANGE_AUDIOINPUT | PER_VIDEOINPUT },
-        { m_AudioSampleRate,        PER_VIDEOINPUT | PER_AUDIOINPUT },
-        { m_AudioChannel,           PER_VIDEOINPUT | PER_AUDIOINPUT },
-        { m_AutoStereoSelect,       PER_VIDEOINPUT | PER_AUDIOINPUT },
-        { m_Volume,                 PER_VIDEOINPUT | PER_AUDIOINPUT | PER_CHANNEL },
-        { m_Bass,                   PER_VIDEOINPUT | PER_AUDIOINPUT | PER_CHANNEL },
-        { m_Treble,                 PER_VIDEOINPUT | PER_AUDIOINPUT | PER_CHANNEL },
-        { m_Balance,                PER_VIDEOINPUT | PER_AUDIOINPUT | PER_CHANNEL },
-
-        { m_CustomAudioStandard,    PER_CHANNEL },
-        { m_AudioMajorCarrier,      PER_CHANNEL },
-        { m_AudioMinorCarrier,      PER_CHANNEL },
-        { m_AudioMajorCarrierMode,  PER_CHANNEL },
-        { m_AudioMinorCarrierMode,  PER_CHANNEL },
-        { m_AudioCh1FMDeemph,       PER_CHANNEL },
-        { m_AudioCh2FMDeemph,       PER_CHANNEL },
-        { NULL,                     0 }
-    };
-
-    #undef PER_VIDEOINPUT
-    #undef PER_VIDEOFORMAT
-    #undef PER_AUDIOINPUT
-    #undef PER_CHANNEL
-
-    WORD ListCount = sizeof(SettingsSetup)/sizeof(TSettingsSetup);
-
-    m_SettingsSetup = new TSettingsSetup[ListCount];
-    memcpy(m_SettingsSetup, SettingsSetup, sizeof(SettingsSetup));
-}
-
 
 void CSAA7134Source::OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
 {
@@ -1459,18 +1381,20 @@ ISetting* CSAA7134Source::GetRightOverscan()
 
 void CSAA7134Source::VideoSourceOnChange(long NewValue, long OldValue)
 {
-    EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_PRECHANGE, OldValue, NewValue);
-
-    Stop_Capture();
     Audio_Mute(PreSwitchMuteDelay);
 
-    SaveSettings(SETUP_CHANGE_VIDEOINPUT);
-    LoadSettings(SETUP_CHANGE_VIDEOINPUT);
-    SetupVideoSource();
+    Stop_Capture();
+
+    DisableOnChange();
+
+    EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_PRECHANGE, OldValue, NewValue);
 
     EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_CHANGE, OldValue, NewValue);
 
-    if (m_pSAA7134Card->IsInputATuner(NewValue))
+    EnableOnChange();
+
+    // set up sound
+    if(m_pSAA7134Card->IsInputATuner(NewValue))
     {
         Channel_SetCurrent();
     }
@@ -1482,15 +1406,15 @@ void CSAA7134Source::VideoSourceOnChange(long NewValue, long OldValue)
 
 void CSAA7134Source::VideoFormatOnChange(long NewValue, long OldValue)
 {
-    EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldValue, NewValue);
+    DisableOnChange();
     Stop_Capture();
 
-    SaveSettings(SETUP_CHANGE_VIDEOFORMAT);
-    LoadSettings(SETUP_CHANGE_VIDEOFORMAT);
-    SetupVideoStandard();
-
+    EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldValue, NewValue);
+   
     EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldValue, NewValue);
-
+    
+    EnableOnChange();
+    Reset();
     Start_Capture();
 }
 
@@ -1543,7 +1467,7 @@ void CSAA7134Source::VDelayOnChange(long VDelay, long OldValue)
 
     if (VDelay < Minimum)
     {
-        m_VDelay->SetValue(Minimum, ONCHANGE_NONE);
+        m_VDelay->SetValue(Minimum, TRUE);
 
         if (Minimum == OldValue)
         {

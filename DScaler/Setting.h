@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.h,v 1.14 2002-10-15 15:06:01 kooiman Exp $
+// $Id: Setting.h,v 1.15 2003-01-10 17:38:24 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -29,16 +29,13 @@ class CSimpleSetting : public ISetting
 {
 public:
     CSimpleSetting(LPCSTR DisplayName, long Default, long Min, long Max, LPCSTR Section, LPCSTR Entry, long StepValue, 
-                   CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_GLOBAL|SETTINGFLAG_ONCHANGE_ALL), long GUIinfo = 0,
-                   SETTINGEX_ONCHANGE* pfnExOnChange = NULL, void* pExOnChangeThis = NULL);
-    CSimpleSetting(SETTING* pSetting, CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_ONCHANGE_VALUECHANGED|SETTINGFLAG_GLOBAL|SETTINGFLAG_ONCHANGE_ALL), long GUIinfo = 0, SETTINGEX_ONCHANGE* pfnExOnChange = NULL, void* pExOnChangeThis = NULL);
-    CSimpleSetting(SETTINGEX* pSetting, CSettingGroup* pGroup);
-    CSimpleSetting(SETTINGEX* pSetting, CSettingGroupList* pList);
+                   CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_GLOBAL|SETTINGFLAG_ONCHANGE_ALL));
+    CSimpleSetting(SETTING* pSetting, CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_ONCHANGE_VALUECHANGED|SETTINGFLAG_GLOBAL|SETTINGFLAG_ONCHANGE_ALL));
     virtual ~CSimpleSetting();
         
     long GetDefault();
-    void SetDefault(eOnChangeType OnChangeType = ONCHANGE_SET);
-    void ChangeDefault(long NewDefault, BOOL bDontSetValue = FALSE, eOnChangeType OnChangeType = ONCHANGE_NONE);
+    void SetDefault();
+    void ChangeDefault(long NewDefault, BOOL bDontSetValue = FALSE);
 
     void SetStepValue(long Step);
     void SetMin(long Min);
@@ -49,42 +46,30 @@ public:
     long GetValue();
     operator long();
         
-    void SetValue(long NewValue, eOnChangeType OnChangeType = ONCHANGE_SET);
-    void Up(eOnChangeType OnChangeType = ONCHANGE_SET);
-    void Down(eOnChangeType OnChangeType = ONCHANGE_SET);
-    void ChangeValue(eCHANGEVALUE NewValue, eOnChangeType OnChangeType = ONCHANGE_SET);    
+    void SetValue(long NewValue, BOOL bSupressOnChange = FALSE);
+    void Up();
+    void Down();
+    void ChangeValue(eCHANGEVALUE NewValue);    
     
     void OSDShow();
     LPCSTR GetDisplayName();
-
-    void SetFlags(eSettingFlags SettingsFlag);
-    void SetFlag(eSettingFlags SettingFlag, BOOL bEnable);
-    void SetDefaultFlags(eSettingFlags SettingFlags, BOOL bSetFlagsToDefault);
-    eSettingFlags GetFlags();
-    eSettingFlags GetDefaultFlags();
-    eSettingFlags GetLastSavedFlagsValue();
-    BOOL ReadFlagsFromIniSection(LPCSTR szSection, BOOL bSetDefaultOnFailure = TRUE);
-    void WriteFlagsToIniSection(LPCSTR szSection, BOOL bOptimizeFileAccess);
-    virtual void FlagsOnChange(eSettingFlags OldFlags, eSettingFlags Flags);
 
     void SetSection(LPCSTR NewValue);
     LPCSTR GetSection();
     void SetEntry(LPCSTR NewValue);
     LPCSTR GetEntry();
-    LPCSTR GetLastSavedValueIniSection();
-    BOOL ReadFromIni(BOOL bSetDefaultOnFailure = TRUE, eOnChangeType OnChangeType = ONCHANGE_NONE);
+    BOOL ReadFromIni(BOOL bSetDefaultOnFailure = TRUE);
     void WriteToIni(BOOL bOptimizeFileAccess);
     
     void SetGroup(CSettingGroup* pGroup); 
     CSettingGroup* GetGroup();
         
-    BOOL ReadFromIniSubSection(LPCSTR szSubSection, long* Value = NULL, BOOL bSetDefaultOnFailure = TRUE, eOnChangeType OnChangeType = ONCHANGE_NONE, eSettingFlags* pSettingFlags = NULL);
-    void WriteToIniSubSection(LPCSTR szSubSection, BOOL bOptimizeFileAccess, long* Value = NULL, eSettingFlags* pSettingFlags = NULL);
+    BOOL ReadFromIniSubSection(LPCSTR szSubSection, BOOL bSetDefaultOnFailure = TRUE);
+    void WriteToIniSubSection(LPCSTR szSubSection);
 
     SETTING* GetSETTING() { return m_pSetting; }
-    SETTINGEXPLUS* GetSETTINGEXPLUS() { return m_pSettingExPlus; }
     
-    virtual void OnChange(long NewValue, long OldValue, eOnChangeType OnChangeType);   
+    virtual void OnChange(long NewValue, long OldValue);   
     void DisableOnChange();
     void EnableOnChange();
 
@@ -102,8 +87,6 @@ protected:
     std::string    m_sLastSavedValueIniSection;
     /// Internal storage for the actual value of the setting
     long           m_StoreValue;
-    /// Internal structure with extended setting options
-    SETTINGEXPLUS  m_StoreExPlus;
     
     /// Set to TRUE to free m_pSetting at destruction
     BOOL           m_bFreeSettingOnExit;
@@ -112,8 +95,6 @@ protected:
 
     /// Actual setting info.
     SETTING*       m_pSetting;
-    /// Pointer to extended setting info.
-    SETTINGEXPLUS* m_pSettingExPlus;
 
     /// Setting group
     CSettingGroup* m_pGroup;
@@ -121,13 +102,7 @@ protected:
     BOOL           m_EnableOnChange;
     
     ///Check flags and decide if onchange should be called
-    BOOL DoOnChange(long NewValue, long OldValue, eOnChangeType OnChangeType);
-
-    ///Support for C-style SETTING
-    //BOOL OnChangeWrapForSettingStructure(long NewValue, long OldValue, eOnChangeType OnChangeType);
-
-    ///Static wrap for OnChange callback function
-    //static BOOL StaticOnChangeWrapForSettingStructure(void* pThis, long NewValue, long OldValue, eOnChangeType OnChangeType, SETTING* pSetting);
+    BOOL DoOnChange(long NewValue, long OldValue);
 };
 
 /** Simple setting with a BOOL value
@@ -136,21 +111,17 @@ class CYesNoSetting : public CSimpleSetting
 {
 public:
     CYesNoSetting(LPCSTR DisplayName, BOOL Default, LPCSTR Section, LPCSTR Entry, 
-                   CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_GLOBAL|SETTINGFLAG_ONCHANGE_ALL), long GUIinfo = 0,
-                   SETTINGEX_ONCHANGE* pfnExOnChange = NULL, void* pExOnChangeThis = NULL);
-    CYesNoSetting(SETTING* pSetting, CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_ONCHANGE_VALUECHANGED|SETTINGFLAG_GLOBAL|SETTINGFLAG_ONCHANGE_ALL), long GUIinfo = 0, SETTINGEX_ONCHANGE* pfnExOnChange = NULL, void* pExOnChangeThis = NULL);
-    CYesNoSetting(SETTINGEX* pSetting, CSettingGroup* pGroup);
-    CYesNoSetting(SETTINGEX* pSetting, CSettingGroupList* pList);
+                   CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_GLOBAL|SETTINGFLAG_ONCHANGE_ALL));
+    CYesNoSetting(SETTING* pSetting, CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_ONCHANGE_VALUECHANGED|SETTINGFLAG_GLOBAL|SETTINGFLAG_ONCHANGE_ALL));
 
     ~CYesNoSetting();
     SETTING_TYPE GetType() {return YESNO;};
     void GetDisplayText(LPSTR szBuffer);
     void SetupControl(HWND hWnd);
     void SetControlValue(HWND hWnd);
-    void SetFromControl(HWND hWnd, eOnChangeType OnChangeType = ONCHANGE_SET);
+    void SetFromControl(HWND hWnd);
 
     void FillSettingStructure(SETTING* pSetting);
-    void FillSettingStructureEx(SETTINGEX* pSetting);    
 };
 
 /** Simple setting with a long value represenmted by a slider
@@ -159,11 +130,8 @@ class CSliderSetting : public CSimpleSetting
 {
 public:    
     CSliderSetting(LPCSTR DisplayName, long Default, long Min, long Max, LPCSTR Section, LPCSTR Entry, 
-                   CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_GLOBAL|SETTINGFLAG_ONCHANGE_ALL), long GUIinfo = 0,
-                   SETTINGEX_ONCHANGE* pfnExOnChange = NULL, void* pExOnChangeThis = NULL);
-    CSliderSetting(SETTING* pSetting, CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_ONCHANGE_VALUECHANGED|SETTINGFLAG_GLOBAL|SETTINGFLAG_ONCHANGE_ALL), long GUIinfo = 0, SETTINGEX_ONCHANGE* pfnExOnChange = NULL, void* pExOnChangeThis = NULL);
-    CSliderSetting(SETTINGEX* pSetting, CSettingGroup* pGroup);
-    CSliderSetting(SETTINGEX* pSetting, CSettingGroupList* pList);
+                   CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_GLOBAL|SETTINGFLAG_ONCHANGE_ALL));
+    CSliderSetting(SETTING* pSetting, CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_ONCHANGE_VALUECHANGED|SETTINGFLAG_GLOBAL|SETTINGFLAG_ONCHANGE_ALL));
     
     ~CSliderSetting();
     SETTING_TYPE GetType() {return SLIDER;};
@@ -171,10 +139,9 @@ public:
     void GetDisplayText(LPSTR szBuffer);
     void SetupControl(HWND hWnd);
     void SetControlValue(HWND hWnd);
-    void SetFromControl(HWND hWnd, eOnChangeType OnChangeType = ONCHANGE_SET);
+    void SetFromControl(HWND hWnd);
 
     void FillSettingStructure(SETTING* pSetting);
-    void FillSettingStructureEx(SETTINGEX* pSetting);    
 private:
     //long m_OSDDivider;
 };
@@ -185,11 +152,8 @@ class CListSetting : public CSimpleSetting
 {
 public:
     CListSetting(LPCSTR DisplayName, long Default, long Max, LPCSTR Section, LPCSTR Entry, const char** pszList, 
-                   CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_GLOBAL|SETTINGFLAG_ONCHANGE_ALL), long GUIinfo = 0,
-                   SETTINGEX_ONCHANGE* pfnExOnChange = NULL, void* pExOnChangeThis = NULL);
-    CListSetting(SETTING* pSetting, CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_ONCHANGE_VALUECHANGED|SETTINGFLAG_GLOBAL|SETTINGFLAG_ONCHANGE_ALL), long GUIinfo = 0, SETTINGEX_ONCHANGE* pfnExOnChange = NULL, void* pExOnChangeThis = NULL);
-    CListSetting(SETTINGEX* pSetting, CSettingGroup* pGroup);
-    CListSetting(SETTINGEX* pSetting, CSettingGroupList* pList);
+                   CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_GLOBAL|SETTINGFLAG_ONCHANGE_ALL));
+    CListSetting(SETTING* pSetting, CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_ONCHANGE_VALUECHANGED|SETTINGFLAG_GLOBAL|SETTINGFLAG_ONCHANGE_ALL));
 
     ~CListSetting();
     SETTING_TYPE GetType() {return ITEMFROMLIST;};
@@ -197,10 +161,9 @@ public:
     void GetDisplayText(LPSTR szBuffer);
     void SetupControl(HWND hWnd);
     void SetControlValue(HWND hWnd);
-    void SetFromControl(HWND hWnd, eOnChangeType OnChangeType = ONCHANGE_SET);
+    void SetFromControl(HWND hWnd);
 
     void FillSettingStructure(SETTING* pSetting);
-    void FillSettingStructureEx(SETTINGEX* pSetting);    
 private:
 //    const char** m_List;
 };
@@ -217,9 +180,9 @@ private:
     class C ## Name ## Setting : public CYesNoSetting \
     { \
     public: \
-        C ## Name ## Setting(const Class* Parent, LPCSTR DisplayName, BOOL Default, LPCSTR Section, CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_ONCHANGE_ALL), long GUIinfo = 0) : \
-             CYesNoSetting(DisplayName, Default, Section, #Name, pGroup, SettingFlags, GUIinfo), m_Parent((Class*)Parent) {;} \
-        void OnChange(long NewValue, long OldValue, eOnChangeType OnChangeType) {m_Parent->Name ## OnChange(NewValue, OldValue);} \
+        C ## Name ## Setting(const Class* Parent, LPCSTR DisplayName, BOOL Default, LPCSTR Section, CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_ONCHANGE_ALL)) : \
+             CYesNoSetting(DisplayName, Default, Section, #Name, pGroup, SettingFlags), m_Parent((Class*)Parent) {;} \
+        void OnChange(long NewValue, long OldValue) {m_Parent->Name ## OnChange(NewValue, OldValue);} \
     private: \
         Class* m_Parent; \
     }; \
@@ -232,9 +195,9 @@ private:
     class C ## Name ## Setting : public CSliderSetting \
     { \
     public: \
-        C ## Name ## Setting(const Class* Parent, LPCSTR DisplayName, long Default, long Min, long Max, LPCSTR Section, CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_ONCHANGE_ALL), long GUIinfo = 0) : \
-             CSliderSetting(DisplayName, Default, Min, Max, Section, #Name, pGroup, SettingFlags, GUIinfo), m_Parent((Class*)Parent) {;} \
-        void OnChange(long NewValue, long OldValue, eOnChangeType OnChangeType) {m_Parent->Name ## OnChange(NewValue, OldValue);} \
+        C ## Name ## Setting(const Class* Parent, LPCSTR DisplayName, long Default, long Min, long Max, LPCSTR Section, CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_ONCHANGE_ALL)) : \
+             CSliderSetting(DisplayName, Default, Min, Max, Section, #Name, pGroup, SettingFlags), m_Parent((Class*)Parent) {;} \
+        void OnChange(long NewValue, long OldValue) {m_Parent->Name ## OnChange(NewValue, OldValue);} \
     private: \
         Class* m_Parent; \
     }; \
@@ -247,9 +210,9 @@ private:
     class C ## Name ## Setting : public CListSetting \
     { \
     public: \
-        C ## Name ## Setting(const Class* Parent, LPCSTR DisplayName, long Default, long Max, LPCSTR Section, const char** pszList, CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_ONCHANGE_ALL), long GUIinfo = 0) : \
-             CListSetting(DisplayName, Default, Max, Section, #Name, pszList, pGroup, SettingFlags, GUIinfo), m_Parent((Class*)Parent) {;} \
-        void OnChange(long NewValue, long OldValue, eOnChangeType OnChangeType) {m_Parent->Name ## OnChange(NewValue, OldValue);} \
+        C ## Name ## Setting(const Class* Parent, LPCSTR DisplayName, long Default, long Max, LPCSTR Section, const char** pszList, CSettingGroup* pGroup = NULL, eSettingFlags SettingFlags = (eSettingFlags)(SETTINGFLAG_ONCHANGE_ALL)) : \
+             CListSetting(DisplayName, Default, Max, Section, #Name, pszList, pGroup, SettingFlags), m_Parent((Class*)Parent) {;} \
+        void OnChange(long NewValue, long OldValue) {m_Parent->Name ## OnChange(NewValue, OldValue);} \
     private: \
         Class* m_Parent; \
     }; \

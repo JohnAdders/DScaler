@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.60 2003-01-08 21:47:13 laurentg Exp $
+// $Id: DSSource.cpp,v 1.61 2003-01-10 17:38:44 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.60  2003/01/08 21:47:13  laurentg
+// New setting for analogue blanking by source
+//
 // Revision 1.59  2003/01/07 23:31:23  laurentg
 // New overscan settings
 //
@@ -299,7 +302,6 @@ CDSCaptureSource::CDSCaptureSource(string device,string deviceName) :
 
     eEventType EventList[] = {EVENT_CHANNEL_CHANGE,EVENT_ENDOFLIST};
     EventCollector->Register(this, EventList);
-	SettingsPerChannel_RegisterOnSetup(this, CDSCaptureSource::OnSetup);
 }
 
 CDSCaptureSource::~CDSCaptureSource()
@@ -593,29 +595,35 @@ void CDSCaptureSource::CreateSettings(LPCSTR IniSection)
 {
 	CDSSourceBase::CreateSettings(IniSection);
 
+    CSettingGroup *pDSGroup = GetSettingsGroup("DS Capture","DS Capture","DS Capture");
+    CSettingGroup *pVideoGroup = pDSGroup->GetGroup("Video","Video");
+    CSettingGroup *pOverscanGroup = pDSGroup->GetGroup("Overscan","Overscan");
+
+    eSettingFlags FlagsAll = (eSettingFlags)(SETTINGFLAG_PER_SOURCE|SETTINGFLAG_ALLOW_PER_VIDEOINPUT|SETTINGFLAG_ALLOW_PER_VIDEOFORMAT|SETTINGFLAG_ALLOW_PER_CHANNEL|SETTINGFLAG_ONCHANGE_ALL);
+
 	//at this time we dont know what the min and max will be
-	m_Brightness = new CBrightnessSetting(this, "Brightness", 0, LONG_MIN, LONG_MAX, IniSection);
+	m_Brightness = new CBrightnessSetting(this, "Brightness", 0, LONG_MIN, LONG_MAX, IniSection, pVideoGroup, FlagsAll);
 	m_Settings.push_back(m_Brightness);
 
-	m_Contrast = new CContrastSetting(this, "Contrast", 0, LONG_MIN, LONG_MAX, IniSection);
+	m_Contrast = new CContrastSetting(this, "Contrast", 0, LONG_MIN, LONG_MAX, IniSection, pVideoGroup, FlagsAll);
 	m_Settings.push_back(m_Contrast);
 
-	m_Hue = new CHueSetting(this, "Hue", 0, LONG_MIN, LONG_MAX, IniSection);
+	m_Hue = new CHueSetting(this, "Hue", 0, LONG_MIN, LONG_MAX, IniSection, pVideoGroup, FlagsAll);
 	m_Settings.push_back(m_Hue);
 
-	m_Saturation = new CSaturationSetting(this, "Saturation", 0, LONG_MIN, LONG_MAX, IniSection);
+	m_Saturation = new CSaturationSetting(this, "Saturation", 0, LONG_MIN, LONG_MAX, IniSection, pVideoGroup, FlagsAll);
 	m_Settings.push_back(m_Saturation);
 
-	m_TopOverscan = new CTopOverscanSetting(this, "Overscan at Top", 0, 0, 150, IniSection);
+	m_TopOverscan = new CTopOverscanSetting(this, "Overscan at Top", 0, 0, 150, IniSection, pOverscanGroup, FlagsAll);
 	m_Settings.push_back(m_TopOverscan);
 
-	m_BottomOverscan = new CBottomOverscanSetting(this, "Overscan at Bottom", 0, 0, 150, IniSection);
+	m_BottomOverscan = new CBottomOverscanSetting(this, "Overscan at Bottom", 0, 0, 150, IniSection, pOverscanGroup, FlagsAll);
 	m_Settings.push_back(m_BottomOverscan);
 
-	m_LeftOverscan = new CLeftOverscanSetting(this, "Overscan at Left", 0, 0, 150, IniSection);
+	m_LeftOverscan = new CLeftOverscanSetting(this, "Overscan at Left", 0, 0, 150, IniSection, pOverscanGroup, FlagsAll);
 	m_Settings.push_back(m_LeftOverscan);
 
-	m_RightOverscan = new CRightOverscanSetting(this, "Overscan at Right", 0, 0, 150, IniSection);
+	m_RightOverscan = new CRightOverscanSetting(this, "Overscan at Right", 0, 0, 150, IniSection, pOverscanGroup, FlagsAll);
 	m_Settings.push_back(m_RightOverscan);
 
 	m_VideoInput = new CVideoInputSetting(this, "VideoInput", 0, 0, LONG_MAX, IniSection);
@@ -1352,37 +1360,6 @@ LPCSTR CDSCaptureSource::GetStatus()
 	return m_DeviceName.c_str();
 }
 
-void CDSCaptureSource::OnSetup(void *pThis, int Start)
-{
-	if (pThis != NULL)
-	{
-		((CDSCaptureSource*)pThis)->SettingsPerChannelSetup(Start);
-	}
-}
-
-void CDSCaptureSource::SettingsPerChannelSetup(int Start)
-{
-	if (Start&1)
-	{
-		SettingsPerChannel_RegisterSetSection(m_IDString.c_str());
-		SettingsPerChannel_RegisterSetting("DSBrightness","DShow - Brightness",TRUE, m_Brightness);
-		SettingsPerChannel_RegisterSetting("DSHue","DShow - Hue",TRUE, m_Hue);
-		SettingsPerChannel_RegisterSetting("DSContrast","DShow - Contrast",TRUE, m_Contrast);
-		SettingsPerChannel_RegisterSetting("DSSaturation","DShow - Saturation",TRUE, m_Saturation);
-
-		SettingsPerChannel_RegisterSetting("DSOverscan at Top","DShow - Overscan at Top",TRUE, m_TopOverscan);
-		SettingsPerChannel_RegisterSetting("DSOverscan at Bottom","DShow - Overscan at Bottom",TRUE, m_BottomOverscan);
-		SettingsPerChannel_RegisterSetting("DSOverscan at Left","DShow - Overscan at Left",TRUE, m_LeftOverscan);
-		SettingsPerChannel_RegisterSetting("DSOverscan at Right","DShow - Overscan at Right",TRUE, m_RightOverscan);
-
-        SettingsPerChannel_NewDefaults(m_IDString.c_str(), FALSE);
-	}
-	else
-	{
-		SettingsPerChannel_UnregisterSection(m_IDString.c_str());
-	}
-}
-
 void CDSCaptureSource::VideoInputOnChange(long NewValue, long OldValue)
 {
 	if(m_pDSGraph==NULL)
@@ -1528,9 +1505,6 @@ void CDSCaptureSource::Start()
 		GetBottomOverscan();
 		GetLeftOverscan();
 		GetRightOverscan();
-
-		// Notify settings per channel with correct default values
-		SettingsPerChannel_NewDefaults(m_IDString.c_str(),FALSE);
 
 		VideoInputOnChange(m_VideoInput->GetValue(), m_VideoInput->GetValue());
 		AudioInputOnChange(m_AudioInput->GetValue(), m_AudioInput->GetValue());

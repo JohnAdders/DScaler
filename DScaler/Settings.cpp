@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.42 2003-01-03 12:38:13 adcockj Exp $
+// $Id: Settings.cpp,v 1.43 2003-01-10 17:38:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.42  2003/01/03 12:38:13  adcockj
+// Fixed API bugs
+//
 // Revision 1.41  2002/10/29 11:05:28  adcockj
 // Renamed CT2388x to CX2388x
 //
@@ -185,6 +188,12 @@ typedef struct
 TFileWithSettings Settings[] =
 {
     {
+        WM_DEBUG_GETVALUE,
+        (GENERICGETSETTING*)Debug_GetSetting,
+        Debug_ReadSettingsFromIni,
+        Debug_WriteSettingsToIni,
+    },
+    {
         WM_ASPECT_GETVALUE,
         (GENERICGETSETTING*)Aspect_GetSetting,
         Aspect_ReadSettingsFromIni,
@@ -261,12 +270,6 @@ TFileWithSettings Settings[] =
         (GENERICGETSETTING*)Audio_GetSetting,
         Audio_ReadSettingsFromIni,
         Audio_WriteSettingsToIni,
-    },
-    {
-        WM_DEBUG_GETVALUE,
-        (GENERICGETSETTING*)Debug_GetSetting,
-        Debug_ReadSettingsFromIni,
-        Debug_WriteSettingsToIni,
     },
     {
         WM_VT_GETVALUE,
@@ -507,9 +510,6 @@ void BeautifyIniFile(LPCTSTR lpIniFileName)
 
 void WriteSettingsToIni(BOOL bOptimizeFileAccess)
 {
-    // Restore all channel specific parameters temporarily to their default values
-    SettingsPerChannel_ToDefaultState(TRUE);
-
     for(int i(0); i < NUMSETTINGS; ++i)
     {
         Settings[i].pfnWriteSettings(bOptimizeFileAccess);
@@ -519,17 +519,8 @@ void WriteSettingsToIni(BOOL bOptimizeFileAccess)
     Filter_WriteSettingsToIni(bOptimizeFileAccess);
     Providers_WriteToIni(bOptimizeFileAccess);
 
-    // Restore all channel specific parameters temporarily to their default values
-    SettingsPerChannel_ToDefaultState(FALSE);
-    SettingsPerChannel_WriteSettings(bOptimizeFileAccess);
-
     // These two lines flushes current INI file to disk (in case of abrupt poweroff shortly afterwards)
     WritePrivateProfileString(NULL, NULL, NULL, szIniFile);
-
-    // Disk cache flushing:
-    // The below doesn't seem to be needed and only seem to 
-    // cause the video to freeze for a full second.
-    //_flushall(); 
 
     BeautifyIniFile(szIniFile);
 }
@@ -539,6 +530,7 @@ void WritePrivateProfileInt(LPCTSTR lpAppName,  LPCTSTR lpKeyName,  int nValue, 
     char szValue[128];
     sprintf(szValue, "%d", nValue);
     WritePrivateProfileString(lpAppName,  lpKeyName,  szValue, lpFileName);
+    LOG(2, " WritePrivateProfileInt %s %s Value %s", lpAppName, lpKeyName, szValue);
 }
 
 long Setting_GetValue(SETTING* pSetting)
@@ -707,6 +699,7 @@ BOOL Setting_ReadFromIni(SETTING* pSetting, BOOL bDontSetDefault)
     if(pSetting->szIniSection != NULL)
     {
         nValue = GetPrivateProfileInt(pSetting->szIniSection, pSetting->szIniEntry, pSetting->MinValue - 100, szIniFile);
+        LOG(2, " Setting_ReadFromIni %s %s Value %d", pSetting->szIniSection, pSetting->szIniEntry, nValue);
         if(nValue == pSetting->MinValue - 100)
         {
             nValue = pSetting->Default;            
@@ -750,6 +743,7 @@ void Setting_WriteToIni(SETTING* pSetting, BOOL bOptimizeFileAccess)
 		{
 	        WritePrivateProfileInt(pSetting->szIniSection, pSetting->szIniEntry, *pSetting->pValue, szIniFile);
 	        pSetting->LastSavedValue = *pSetting->pValue;
+            LOG(2, " Setting_WriteToIni %s %s Value %d", pSetting->szIniSection, pSetting->szIniEntry, *pSetting->pValue);
 		}
     }
 }

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.348 2003-09-13 13:59:08 laurentg Exp $
+// $Id: DScaler.cpp,v 1.349 2003-09-26 21:06:31 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.348  2003/09/13 13:59:08  laurentg
+// half height mode removed - Some menu actions like play or pause disabled
+//
 // Revision 1.347  2003/08/25 04:04:00  atnak
 // Moved the initial Mixer_Init() call to the correct place
 //
@@ -5422,7 +5425,7 @@ LONG OnSize(HWND hWnd, UINT wParam, LONG lParam)
     StatusBar_Adjust(hWnd);
     if (ToolbarControl!=NULL)
     {
-        ToolbarControl->Adjust(hWnd, FALSE);
+        ToolbarControl->Adjust(hWnd, FALSE, TRUE);
     }
     UpdateWindowRegion(hWnd, FALSE);
     if (bDoResize == TRUE)
@@ -5935,7 +5938,7 @@ void UpdateWindowState()
         StatusBar_ShowWindow(bDisplayStatusBar);
         if (ToolbarControl!=NULL)
         {
-            ToolbarControl->Adjust(hWnd, FALSE);
+            ToolbarControl->Adjust(hWnd, FALSE, FALSE);
         }
         if (UpdateWindowRegion(hWnd, FALSE) == NULL)
         {                
@@ -6477,7 +6480,7 @@ BOOL IsFullScreen_OnChange(long NewValue)
         }
         if (ToolbarControl!=NULL)
         {            
-			ToolbarControl->Set(hWnd, NULL);
+			ToolbarControl->Set(hWnd, NULL, 0, 1);
         }
         
         Cursor_UpdateVisibility();
@@ -6489,8 +6492,8 @@ BOOL IsFullScreen_OnChange(long NewValue)
 		// in order to have the correct toolbar rectangle initialized,
 		// and the second to hide the toolbar if in full scrren mode
         if (ToolbarControl!=NULL)
-        {            
-			ToolbarControl->Set(hWnd, NULL, bIsFullScreen?1:0);
+        {
+			ToolbarControl->Set(hWnd, NULL, bIsFullScreen?1:0, 1);
         }
 		if (IsToolBarVisible())
 		{
@@ -6541,7 +6544,7 @@ BOOL DisplayStatusBar_OnChange(long NewValue)
         }
         if (ToolbarControl!=NULL)
         {
-            ToolbarControl->Adjust(hWnd, TRUE);
+            ToolbarControl->Adjust(hWnd, TRUE, FALSE);
         }        
         UpdateWindowState();
 		WorkoutOverlaySize(TRUE);

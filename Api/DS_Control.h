@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.92 2002-10-15 18:32:01 kooiman Exp $
+// $Id: DS_Control.h,v 1.93 2002-10-21 07:29:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.92  2002/10/15 18:32:01  kooiman
+// Added stereo detect interval for continuous scanning for stereo mode.
+//
 // Revision 1.91  2002/10/15 15:46:49  kooiman
 // Updated BT848_SETTING
 //
@@ -633,6 +636,7 @@ typedef enum
     TRADEOFF,
     FULLCPU,
     VIDEOCARD,
+	REVERSECHANNELSCROLLING,
     DSCALER_SETTING_LASTONE,
 } DSCALER_SETTING;
 

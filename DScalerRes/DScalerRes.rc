@@ -1415,8 +1415,6 @@ BEGIN
         MENUITEM "Pa&use",                      IDM_DSHOW_PAUSE
         MENUITEM "&Stop",                       IDM_DSHOW_STOP
         MENUITEM SEPARATOR
-        MENUITEM "&Reset",                      IDM_RESET
-        MENUITEM SEPARATOR
         MENUITEM "Se&ttings...",                IDM_DSHOW_SETTINGS
         MENUITEM "Filter properties...",        IDM_DSHOW_FILTERS
     END

@@ -328,6 +328,7 @@ BOOL CPanAndZoomAspectFilter::adjustAspect(CAspectRectangles &ar)
 {
     int dx;
     int dy;
+	CAspectRect rOriginalSrc(ar.rCurrentOverlaySrc);
 
     if(xZoom > 1.0)
     {
@@ -375,25 +376,31 @@ BOOL CPanAndZoomAspectFilter::adjustAspect(CAspectRectangles &ar)
 
     // do we have to crop the input if we do we have to
     // change the output too
-    if(xPos > 1.0)
+    if(yPos > 1.0)
     {
     	ar.rCurrentOverlaySrc.shift(0, dy);
         dy = (int)floor(ar.rCurrentOverlaySrc.height() * (yPos - 1.0));
-        ar.rCurrentOverlaySrc.shrink(0,dy,0,0);
+        ar.rCurrentOverlaySrc.shrink(0,0,0,dy);
         dy = (int)floor(ar.rCurrentOverlayDest.height() * (yPos - 1.0));
-        ar.rCurrentOverlayDest.shrink(dy, 0, 0, 0);
+        ar.rCurrentOverlayDest.shrink(0, 0, dy, 0);
     }
-    else if(xPos < 0.0)
+    else if(yPos < 0.0)
     {
         dy = (int)floor(ar.rCurrentOverlaySrc.height() * -yPos);
-        ar.rCurrentOverlaySrc.shrink(dy,0,0,0);
+        ar.rCurrentOverlaySrc.shrink(0,0,dy,0);
         dy =(int)floor(ar.rCurrentOverlayDest.height() * -yPos);
-        ar.rCurrentOverlayDest.shrink(0, dy, 0, 0);
+        ar.rCurrentOverlayDest.shrink(0, 0, 0, dy);
     }
     else
     {
     	ar.rCurrentOverlaySrc.shift(0, (int)floor(dy*yPos));
     }
+
+	// Clip the source image to actually available image
+	if (ar.rCurrentOverlaySrc.left < rOriginalSrc.left) ar.rCurrentOverlaySrc.left = rOriginalSrc.left;
+	if (ar.rCurrentOverlaySrc.right > rOriginalSrc.right) ar.rCurrentOverlaySrc.right = rOriginalSrc.right;
+	if (ar.rCurrentOverlaySrc.top < rOriginalSrc.top) ar.rCurrentOverlaySrc.top = rOriginalSrc.top;
+	if (ar.rCurrentOverlaySrc.bottom > rOriginalSrc.bottom) ar.rCurrentOverlaySrc.bottom = rOriginalSrc.bottom;
 
 	return FALSE;
 }
@@ -585,7 +592,8 @@ void CFilterChain::BuildFilterChain()
 	// This like is where image zooming would be implemented...
 	// Sample code zooms in 2x on the center of the image
 	// See comments in AspectFilters.hpp for PanAndZoomAspectFilter details.
-	if (aspectSettings.xZoomFactor != 100 || aspectSettings.yZoomFactor != 100)
+	if (aspectSettings.xZoomFactor != 100 || aspectSettings.yZoomFactor != 100 ||
+		aspectSettings.xZoomCenter != 50 || aspectSettings.yZoomCenter != 50)
 	{
 		m_FilterChain.push_back(new CPanAndZoomAspectFilter(aspectSettings.xZoomCenter,
 											   aspectSettings.yZoomCenter,
@@ -604,7 +612,7 @@ CFilterChain::~CFilterChain()
 {
     for( vector<CAspectFilter*>::iterator it = m_FilterChain.begin();
         it != m_FilterChain.end();
-        ++it);
+        ++it)
     {
         delete (*it);
     }
@@ -626,7 +634,7 @@ BOOL CFilterChain::ApplyFilters(CAspectRectangles &ar, BOOL allowReadjust)
 
     for(vector<CAspectFilter*>::iterator it = m_FilterChain.begin();
         it != m_FilterChain.end();
-        ++it);
+        ++it)
     {
 		#ifdef __ASPECTFILTER_DEBUG__
 			fprintf(debugLog,"PRE FILTER VALUES: %s\n",(*it)->getFilterName());

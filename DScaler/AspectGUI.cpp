@@ -346,11 +346,11 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
 	// Zoom
 	case IDM_ZOOM_MINUS:
 		aspectSettings.xZoomFactor -= 50;
-		if (aspectSettings.xZoomFactor < 100)
-			aspectSettings.xZoomFactor = 100;
+		if (aspectSettings.xZoomFactor < 10)
+			aspectSettings.xZoomFactor = 10;
 		aspectSettings.yZoomFactor -= 50;
-		if (aspectSettings.yZoomFactor < 100)
-			aspectSettings.yZoomFactor = 100;
+		if (aspectSettings.yZoomFactor < 10)
+			aspectSettings.yZoomFactor = 10;
 		if ((aspectSettings.xZoomFactor == 100) && (aspectSettings.yZoomFactor == 100))
 		{
 			ShowText(hWnd,"Zoom Off");
@@ -364,11 +364,11 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
 
 	case IDM_ZOOM_PLUS:
 		aspectSettings.xZoomFactor += 50;
-		if (aspectSettings.xZoomFactor > 400)
-			aspectSettings.xZoomFactor = 400;
+		if (aspectSettings.xZoomFactor > 1000)
+			aspectSettings.xZoomFactor = 1000;
 		aspectSettings.yZoomFactor += 50;
-		if (aspectSettings.yZoomFactor > 400)
-			aspectSettings.yZoomFactor = 400;
+		if (aspectSettings.yZoomFactor > 1000)
+			aspectSettings.yZoomFactor = 1000;
 		sprintf(Text,"Zoom %.1fx", (double)aspectSettings.xZoomFactor / 100.0);
 		ShowText(hWnd, Text);
 		break;
@@ -409,44 +409,43 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
 		break;
 
 	case IDM_VT_PAGE_MINUS:
-		if (aspectSettings.xZoomFactor > 100 || aspectSettings.yZoomFactor > 100)
-		{
-			aspectSettings.xZoomCenter -= 5;
-			if (aspectSettings.xZoomCenter < 0)
-            {
-                aspectSettings.xZoomCenter = 0;
-            }
-		}
+		aspectSettings.xZoomCenter -= 5;
+		if (aspectSettings.xZoomCenter < -100)
+        {
+            aspectSettings.xZoomCenter = -100;
+        }
+		sprintf(Text,"X Center %.1fx", (double)aspectSettings.xZoomCenter / 100.0);
+		ShowText(hWnd, Text);
 		break;
 
 	case IDM_VT_PAGE_PLUS:
-		if (aspectSettings.xZoomFactor > 100 || aspectSettings.yZoomFactor > 100)
-		{
-			aspectSettings.xZoomCenter += 5;
-			if (aspectSettings.xZoomCenter > 100)
-            {
-                aspectSettings.xZoomCenter = 100;
-            }
-		}
+		aspectSettings.xZoomCenter += 5;
+		if (aspectSettings.xZoomCenter > 200)
+        {
+            aspectSettings.xZoomCenter = 200;
+        }
+		sprintf(Text,"X Center %.1fx", (double)aspectSettings.xZoomCenter / 100.0);
+		ShowText(hWnd, Text);
 		break;
 
 	case IDM_VT_PAGE_DOWN:
-		if (aspectSettings.xZoomFactor > 100 || aspectSettings.yZoomFactor > 100)
+		aspectSettings.yZoomCenter += 5;
+		if (aspectSettings.yZoomCenter > 200)
 		{
-			aspectSettings.yZoomCenter += 5;
-			if (aspectSettings.yZoomCenter > 100) aspectSettings.yZoomCenter = 100;
+			aspectSettings.yZoomCenter = 200;
 		}
+		sprintf(Text,"Y Center %.1fx", (double)aspectSettings.yZoomCenter / 100.0);
+		ShowText(hWnd, Text);
 		break;
 
 	case IDM_VT_PAGE_UP:
-		if (aspectSettings.xZoomFactor > 100 || aspectSettings.yZoomFactor > 100)
-		{
-			aspectSettings.yZoomCenter -= 5;
-			if (aspectSettings.yZoomCenter < 0)
-            {
-                aspectSettings.yZoomCenter = 0;
-            }
-		}
+		aspectSettings.yZoomCenter -= 5;
+		if (aspectSettings.yZoomCenter < -100)
+        {
+            aspectSettings.yZoomCenter = 0100;
+        }
+		sprintf(Text,"Y Center %.1fx", (double)aspectSettings.yZoomCenter / 100.0);
+		ShowText(hWnd, Text);
 		break;
 
 	//------------------------------------------------------------------

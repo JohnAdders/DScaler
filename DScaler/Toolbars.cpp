@@ -1,5 +1,5 @@
 //
-// $Id: Toolbars.cpp,v 1.18 2003-08-15 10:06:41 laurentg Exp $
+// $Id: Toolbars.cpp,v 1.19 2003-08-15 12:18:39 laurentg Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2003/08/15 10:06:41  laurentg
+// Automatic update of the volume toolbar when updating the volume outside DScaler
+//
 // Revision 1.17  2003/08/14 19:35:37  laurentg
 // Timer for toolbar only when the toolbar is visible
 //
@@ -505,7 +508,7 @@ CToolbarVolume::~CToolbarVolume()
 void CToolbarVolume::OnEvent(CEventObject *pObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
 {
 	bool bVolumeLimitsChanged = FALSE;
-	bool bDoUpdate = TRUE;
+	bool bDoUpdate = FALSE;
 	if ((Event == EVENT_SOURCE_CHANGE) || (Mixer_IsEnabled() != m_UseMixer))
 	{
 		m_VolumeMin = 0;
@@ -522,73 +525,69 @@ void CToolbarVolume::OnEvent(CEventObject *pObject, eEventType Event, long OldVa
 			}
 		}
 		bVolumeLimitsChanged = TRUE;
+		bDoUpdate = TRUE;
 	}
-	else if (Event == EVENT_MUTE)
+	if (Event == EVENT_MUTE)
     {
-		if ((NewValue && m_Mute) || (!NewValue && !m_Mute))
-		{
-			bDoUpdate = FALSE;
-		}
-		else
+		if ((NewValue && !m_Mute) || (!NewValue && m_Mute))
 		{
 	        m_Mute = (NewValue)? TRUE : FALSE;
+			bDoUpdate = TRUE;
 		}
     } 
-    else if ((Event == EVENT_VOLUME) && (!Mixer_IsEnabled()) && (pObject == (CEventObject*)Providers_GetCurrentSource()))		
+    else if ((Event == EVENT_VOLUME) && (!Mixer_IsEnabled()) && (pObject == (CEventObject*)Providers_GetCurrentSource()))
     {
-		if (NewValue == m_Volume)
-		{
-			bDoUpdate = FALSE;
-		}
-		else
+		if (NewValue != m_Volume)
 		{
 	        m_Volume = NewValue;
+			bDoUpdate = TRUE;
 		}
     }
 	else if ((Event == EVENT_MIXERVOLUME) && Mixer_IsEnabled())
 	{
-		if (NewValue == m_Volume)
-		{
-			bDoUpdate = FALSE;
-		}
-		else
+		if (NewValue != m_Volume)
 		{
 			m_Volume = NewValue;
-			LOG(2,"Toolbar Volume: Event: volume = %d",m_Volume);
+			bDoUpdate = TRUE;
 		}
 	}    
 	else if ((Event == EVENT_SOUNDCHANNEL) && (pObject == (CEventObject*)Providers_GetCurrentSource()))
 	{
-		if ((eSoundChannel)NewValue == m_SoundChannel)
-		{
-			bDoUpdate = FALSE;
-		}
-		else
+		if ((eSoundChannel)NewValue != m_SoundChannel)
 		{
 			m_SoundChannel = (eSoundChannel)NewValue;
+			bDoUpdate = TRUE;
 		}
 	}
 	if ((hWnd != NULL) && Visible() && bDoUpdate)
-	{		
+	{
 		UpdateControls(NULL, bVolumeLimitsChanged);
 	}
 }
 
 void CToolbarVolume::UpdateControls(HWND hWnd, bool bInitDialog)
 {
-   if (hWnd == NULL)
-   {
+    if (hWnd == NULL)
+    {
         hWnd = this->hWnd;
-   }
-   if (hWnd == NULL) return;
+    }
+    if (hWnd == NULL) return;
 
-   if (bInitDialog)
-   {
+    if (bInitDialog)
+    {
         SendMessage(GetDlgItem(hWnd, IDC_TOOLBAR_VOLUME_SLIDER), TBM_SETRANGE, TRUE,(LPARAM)MAKELONG(0,m_VolumeMax-m_VolumeMin+1));
-   }
-   
-    LOG(2,"Toolbar Volume: Update controls: volume = %d",m_Volume);
-    SendMessage(GetDlgItem(hWnd, IDC_TOOLBAR_VOLUME_SLIDER), TBM_SETPOS, TRUE, m_VolumeMin+m_Volume);
+    }
+
+	if (m_Volume == 999999)
+	{
+        ShowWindow(GetDlgItem(hWnd, IDC_TOOLBAR_VOLUME_SLIDER), SW_HIDE);
+	}
+	else
+	{
+        ShowWindow(GetDlgItem(hWnd, IDC_TOOLBAR_VOLUME_SLIDER), SW_SHOW);
+		LOG(2,"Toolbar Volume: Update controls: volume = %d",m_Volume);
+		SendMessage(GetDlgItem(hWnd, IDC_TOOLBAR_VOLUME_SLIDER), TBM_SETPOS, TRUE, m_VolumeMin+m_Volume);
+	}
   
     // Mute
     CheckDlgButton(hWnd, IDC_TOOLBAR_VOLUME_MUTE, m_Mute?BST_CHECKED:BST_UNCHECKED);  	
@@ -806,32 +805,26 @@ CToolbarMediaPlayer::~CToolbarMediaPlayer()
 void CToolbarMediaPlayer::OnEvent(CEventObject *pObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
 {
 	bool bDurationChanged = FALSE;
-	bool bDoUpdate = TRUE;
+	bool bDoUpdate = FALSE;
 	if (Event == EVENT_SOURCE_CHANGE)
 	{
 		m_Elapsed = 0;
 		m_Duration = 0;
 		bDurationChanged = TRUE;
+		bDoUpdate = TRUE;
 	}
 	else if (Event == EVENT_DURATION)
     {
-		if (NewValue == m_Duration)
-		{
-			bDoUpdate = FALSE;
-		}
-		else
+		if (NewValue != m_Duration)
 		{
 			m_Duration = NewValue;
 			bDurationChanged = TRUE;
+			bDoUpdate = TRUE;
 		}
     } 
     else if (Event == EVENT_CURRENT_POSITION)
     {
-		if (NewValue == m_Elapsed)
-		{
-			bDoUpdate = FALSE;
-		}
-		else
+		if (NewValue != m_Elapsed)
 		{
 	        m_Elapsed = NewValue;
 			if (m_Elapsed < 0)
@@ -842,6 +835,7 @@ void CToolbarMediaPlayer::OnEvent(CEventObject *pObject, eEventType Event, long 
 			{
 				m_Elapsed = m_Duration;
 			}
+			bDoUpdate = TRUE;
 		}
     }
 	if ((hWnd != NULL) && Visible() && !m_Scrolling && bDoUpdate)

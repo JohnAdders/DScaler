@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ParsingCommon.cpp,v 1.2 2004-11-27 19:07:43 atnak Exp $
+// $Id: ParsingCommon.cpp,v 1.3 2004-11-27 19:23:39 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2004/11/27 19:07:43  atnak
+// Changed constant to more correct name.
+//
 // Revision 1.1  2004/11/27 01:00:54  atnak
 // New file for storing common parsing procedures for ini file card lists.
 //
@@ -109,7 +112,7 @@ const ParseConstant k_parseTDAFormatConstants[] =
 	{ NULL }
 };
 
-const ParseConstant k_parseDemodulationConstants[] =
+const ParseConstant k_parseCarrierConstants[] =
 {
 	{ "intercarrier",				PC_VALUE(0) },
 	{ "qss",						PC_VALUE(1) },
@@ -142,7 +145,7 @@ const ParseTag k_parseUseTDA9887SetOverride[] =
 	{ "Format",			PARSE_CONSTANT,					1, 8, NULL, k_parseTDAFormatConstants, PASS_TO_PARENT },
 	{ "Intercarrier",	0,								0, 0, NULL, NULL, PASS_TO_PARENT },
 	{ "QSS",			0,								0, 0, NULL, NULL, PASS_TO_PARENT },
-	{ "Demodulation",	PARSE_CONSTANT,					0, 16, NULL, k_parseDemodulationConstants, PASS_TO_PARENT },
+	{ "Carrier",		PARSE_CONSTANT,					0, 16, NULL, k_parseCarrierConstants, PASS_TO_PARENT },
 	{ "OutputPort1",	PARSE_CONSTANT,					0, 8, NULL, k_parseYesNoConstants, PASS_TO_PARENT },
 	{ "OutputPort2",	PARSE_CONSTANT,					0, 8, NULL, k_parseYesNoConstants, PASS_TO_PARENT },
 	{ "TakeOverPoint",	PARSE_NUMERIC|PARSE_CONSTANT,	0, 8, NULL, k_parseTakeOverPointConstants, PASS_TO_PARENT },
@@ -258,7 +261,7 @@ BOOL ReadUseTDA9887Proc(IN int report, IN const ParseTag* tag, IN unsigned char 
 				TDA9887_SM_CARRIER_QSS, TRUE);
 		}
 	}
-	// Demodulation
+	// Carrier
 	else if (tag == k_parseUseTDA9887SetOverride + 3)
 	{
 		if (report == REPORT_VALUE)

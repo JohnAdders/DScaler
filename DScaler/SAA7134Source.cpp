@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.81 2003-05-30 12:21:20 laurentg Exp $
+// $Id: SAA7134Source.cpp,v 1.82 2003-05-31 18:46:27 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.81  2003/05/30 12:21:20  laurentg
+// Don't forget to notify video format change if necessary when switching source and video input of destination source is tuner
+//
 // Revision 1.80  2003/05/29 17:07:28  laurentg
 // no message
 //
@@ -393,8 +396,7 @@ CSAA7134Source::~CSAA7134Source()
 
 void CSAA7134Source::SetSourceAsCurrent()
 {
-//LOG(1, "CSAA7134Source::SetSourceAsCurrent m_VideoSource %d", m_VideoSource->GetValue());
-//LOG(1, "CSAA7134Source::SetSourceAsCurrent m_VideoFormat %d", m_VideoFormat->GetValue());
+//LOG(1, "CSAA7134Source::SetSourceAsCurrent m_VideoSource %d m_VideoFormat %d", m_VideoSource->GetValue(), m_VideoFormat->GetValue());
     // need to call up to parent to run register settings functions
     CSource::SetSourceAsCurrent();
 
@@ -414,12 +416,20 @@ void CSAA7134Source::SetSourceAsCurrent()
     {
         Channel_Reset();
     }
+	else
+	{
+		// We read what is the video format saved for this video input
+	    SettingsMaster->LoadOneSetting(m_VideoFormat);
+	}
     
     // tell the world if the format has changed
     if(OldFormat != m_VideoFormat->GetValue())
     {
         EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldFormat, m_VideoFormat->GetValue());
         EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldFormat, m_VideoFormat->GetValue());
+
+		// We save the video format attached to this video input
+	    SettingsMaster->WriteOneSetting(m_VideoFormat);
     }
 
     // make sure the defaults are correct
@@ -477,8 +487,7 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
     m_VideoSource = new CVideoSourceSetting(this, "Video Source", 0, 0, 6, IniSection);
     m_Settings.push_back(m_VideoSource);
 
-//    m_VideoFormat = new CVideoFormatSetting(this, "Video Format", VIDEOFORMAT_NTSC_M, 0, VIDEOFORMAT_LASTONE - 1, IniSection, pVideoFormatGroup);
-    m_VideoFormat = new CVideoFormatSetting(this, "Video Format", VIDEOFORMAT_NTSC_M, 0, VIDEOFORMAT_LASTONE - 1, IniSection);
+    m_VideoFormat = new CVideoFormatSetting(this, "Video Format", VIDEOFORMAT_NTSC_M, 0, VIDEOFORMAT_LASTONE - 1, IniSection, pVideoFormatGroup);
     m_Settings.push_back(m_VideoFormat);
 
     m_ReversePolarity = new CYesNoSetting("Reverse Polarity", FALSE, IniSection, "ReversePolarity");
@@ -1565,26 +1574,34 @@ void CSAA7134Source::VideoSourceOnChange(long NewValue, long OldValue)
     EventCollector->RaiseEvent(this, EVENT_VIDEOINPUT_CHANGE, OldValue, NewValue);
 
     int OldFormat = m_VideoFormat->GetValue();
-    
+
     // set up channel
     // this must happen after the VideoInput change is sent
     if(m_pSAA7134Card->IsInputATuner(NewValue))
     {
         Channel_SetCurrent();
     }
+	else
+	{
+		// We read what is the video format saved for this video input
+	    SettingsMaster->LoadOneSetting(m_VideoFormat);
+	}
 
-    // tell the world if the format has changed
-    if(OldFormat != m_VideoFormat->GetValue())
-    {
-        EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldFormat, m_VideoFormat->GetValue());
-        EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldFormat, m_VideoFormat->GetValue());
-    }
+	// tell the world if the format has changed
+	if(OldFormat != m_VideoFormat->GetValue())
+	{
+		EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldFormat, m_VideoFormat->GetValue());
+		EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldFormat, m_VideoFormat->GetValue());
 
-    // make sure the defaults are correct
+		// We save the video format attached to this video input
+	    SettingsMaster->WriteOneSetting(m_VideoFormat);
+	}
+
+	// make sure the defaults are correct
     // but don't change the values
     ChangeDefaultsForSetup(SETUP_CHANGE_ANY, TRUE);
 
-    SettingsMaster->LoadSettings();
+	SettingsMaster->LoadSettings();
 
     // reset here when we have all the settings
     Reset();

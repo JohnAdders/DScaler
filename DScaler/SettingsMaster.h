@@ -68,6 +68,9 @@ public:
 
     CTreeSettingsGeneric* GetTreeSettingsPage();
 
+	void LoadOneSetting(CSimpleSetting* pSetting);
+	void WriteOneSetting(CSimpleSetting* pSetting);
+
 private:    
     vector<CSettingGroup*> m_SettingsGroups;
 };

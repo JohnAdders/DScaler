@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsMaster.cpp,v 1.10 2003-05-30 10:06:24 adcockj Exp $
+// $Id: SettingsMaster.cpp,v 1.11 2003-05-31 18:45:21 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2003/05/30 10:06:24  adcockj
+// Fix for format names in ini file
+//
 // Revision 1.9  2003/04/23 08:30:57  adcockj
 // Prevent section names from having square brackets
 //
@@ -34,6 +37,7 @@
 #include "SettingsPerChannel.h"
 #include "TVFormats.h"
 #include "ProgramList.h"
+#include "DebugLog.h"
 
 CSettingsMaster::CSettingsMaster() 
 {
@@ -46,6 +50,48 @@ CSettingsMaster::~CSettingsMaster()
         delete m_SettingsGroups[i];
     }
     m_SettingsGroups.clear();
+}
+
+void CSettingsMaster::LoadOneSetting(CSimpleSetting* pSetting)
+{
+    if (pSetting != NULL)
+    {
+        string SubSection("");
+
+        CSettingGroup* pGroup = pSetting->GetGroup();
+        if(pGroup != NULL)
+        {
+            if(pGroup->IsGroupActive())
+            {
+                MakeSubSection(SubSection, pGroup);
+                if(SubSection.length() > 0)
+                {
+					pSetting->ReadFromIniSubSection(SubSection.c_str());
+                }
+            }
+        }
+    }
+}
+
+void CSettingsMaster::WriteOneSetting(CSimpleSetting* pSetting)
+{
+    if (pSetting != NULL)
+    {
+        string SubSection("");
+
+        CSettingGroup* pGroup = pSetting->GetGroup();
+        if(pGroup != NULL)
+        {
+            if(pGroup->IsGroupActive())
+            {
+                MakeSubSection(SubSection, pGroup);
+                if(SubSection.length() > 0)
+                {
+                    pSetting->WriteToIniSubSection(SubSection.c_str());
+                }
+            }
+        }
+    }
 }
 
 /**
@@ -75,37 +121,19 @@ void CSettingsMaster::ParseAllSettings(bool IsLoad)
 		}
         
 		int Num = m_Holders[i].pHolder->GetNumSettings();
-        CSimpleSetting* pSetting;
         
 		BOOL bAction = FALSE;
         
-        string SubSection("");
-
         for (int n = 0; n < Num; n++)
         {
-            pSetting = (CSimpleSetting*)m_Holders[i].pHolder->GetSetting(n);
-            if (pSetting != NULL)
-            {
-                CSettingGroup* pGroup = pSetting->GetGroup();
-                if(pGroup != NULL)
-                {
-                    if(pGroup->IsGroupActive())
-                    {
-                        MakeSubSection(SubSection, pGroup);
-                        if(SubSection.length() > 0)
-                        {
-                            if (IsLoad)
-                            {
-                                pSetting->ReadFromIniSubSection(SubSection.c_str());
-                            }
-                            else
-                            {
-                                pSetting->WriteToIniSubSection(SubSection.c_str());
-                            }
-                        }
-                    }
-                }
-            }
+			if (IsLoad)
+			{
+				LoadOneSetting((CSimpleSetting*)m_Holders[i].pHolder->GetSetting(n));
+			}
+			else
+			{
+				WriteOneSetting((CSimpleSetting*)m_Holders[i].pHolder->GetSetting(n));
+			}
         }
     }
 }
@@ -196,12 +224,22 @@ void CSettingsMaster::MakeSubSection(string& SubSection, CSettingGroup* pGroup)
 
 void CSettingsMaster::LoadSettings()
 {
+//LOG(1, "LoadSettings m_SourceName %s", m_SourceName.c_str());
+//LOG(1, "LoadSettings m_VideoInputName %s", m_VideoInputName.c_str());
+//LOG(1, "LoadSettings m_AudioInputName %s", m_AudioInputName.c_str());
+//LOG(1, "LoadSettings m_VideoFormatName %s", m_VideoFormatName.c_str());
+//LOG(1, "LoadSettings m_ChannelName %s", m_ChannelName.c_str());
     ParseAllSettings(true);
 }
 
 
 void CSettingsMaster::SaveSettings()
 {
+//LOG(1, "SaveSettings m_SourceName %s", m_SourceName.c_str());
+//LOG(1, "SaveSettings m_VideoInputName %s", m_VideoInputName.c_str());
+//LOG(1, "SaveSettings m_AudioInputName %s", m_AudioInputName.c_str());
+//LOG(1, "SaveSettings m_VideoFormatName %s", m_VideoFormatName.c_str());
+//LOG(1, "SaveSettings m_ChannelName %s", m_ChannelName.c_str());
     ParseAllSettings(false);
 }
 
@@ -267,6 +305,7 @@ void CSettingsMaster::SetSource(CSource* pSource)
     {
         m_SourceName = "";
     }
+//LOG(1, "m_SourceName %s", m_SourceName.c_str());
 }
 
 void CSettingsMaster::SetChannelName(long NewValue)
@@ -279,6 +318,7 @@ void CSettingsMaster::SetChannelName(long NewValue)
     {
         m_ChannelName = "";
     }
+//LOG(1, "m_ChannelName %s", m_ChannelName.c_str());
 }
 
 void CSettingsMaster::SetVideoInput(long NewValue)
@@ -292,6 +332,7 @@ void CSettingsMaster::SetVideoInput(long NewValue)
     {
         m_VideoInputName = "";
     }
+//LOG(1, "m_VideoInputName %s", m_VideoInputName.c_str());
 }
 
 void CSettingsMaster::SetAudioInput(long NewValue)
@@ -305,6 +346,7 @@ void CSettingsMaster::SetAudioInput(long NewValue)
     {
         m_AudioInputName = "";
     }
+//LOG(1, "m_AudioInputName %s", m_AudioInputName.c_str());
 }
 
 void CSettingsMaster::SetVideoFormat(long NewValue)
@@ -317,6 +359,7 @@ void CSettingsMaster::SetVideoFormat(long NewValue)
     {
         m_VideoFormatName = "";
     }
+//LOG(1, "m_VideoFormatName %d (%d) ===> %s", NewValue, VIDEOFORMAT_LASTONE, m_VideoFormatName.c_str());
 }
 
 CSettingGroup* CSettingsMaster::GetGroup(LPCSTR szName, DWORD Flags, BOOL IsActiveByDefault)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsOleProperties.cpp,v 1.2 2002-05-02 20:05:51 tobbej Exp $
+// $Id: TreeSettingsOleProperties.cpp,v 1.3 2002-05-09 17:20:15 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/05/02 20:05:51  tobbej
+// removed an assert
+//
 // Revision 1.1  2002/04/24 19:04:01  tobbej
 // new treebased settings dialog
 //
@@ -41,7 +44,7 @@ static char THIS_FILE[]=__FILE__;
 //////////////////////////////////////////////////////////////////////
 
 CTreeSettingsOleProperties::CTreeSettingsOleProperties(CString name,ULONG cObjects,LPUNKNOWN FAR* lplpUnk,ULONG cPages,LPCLSID lpPageClsID,LCID lcid)
-:CTreeSettingsPage(name,IDD_TREESETTINGS_OLEPAGE)
+:CTreeSettingsPage(name,IDD_TREESETTINGS_OLEPAGE),m_minSize(0,0)
 {
 	//{{AFX_DATA_INIT(CTreeSettingsOleProperties)
 		// NOTE: the ClassWizard will add member initialization here
@@ -108,32 +111,25 @@ BOOL CTreeSettingsOleProperties::OnInitDialog()
 	CTreeSettingsPage::OnInitDialog();
 	
 	//find maximum width and height of the pages
-	CSize maxSize(0,0);
 	for(int i=0;i<m_pages.size();i++)
 	{
 		PROPPAGEINFO pageInfo;
 		HRESULT hr=m_pages[i]->m_pPropertyPage->GetPageInfo(&pageInfo);
 		if(SUCCEEDED(hr))
 		{
-			if(pageInfo.size.cx>maxSize.cx)
+			if(pageInfo.size.cx>m_minSize.cx)
 			{
-				maxSize.cx=pageInfo.size.cx;
+				m_minSize.cx=pageInfo.size.cx;
 			}
-			if(pageInfo.size.cy>maxSize.cy)
+			if(pageInfo.size.cy>m_minSize.cy)
 			{
-				maxSize.cy=pageInfo.size.cy;
+				m_minSize.cy=pageInfo.size.cy;
 			}
 		}
 	}
 
 	CRect rect;
 	m_tabCtrl.GetClientRect(&rect);
-	
-	//check if there is enough space for the page
-	if(rect.Width()<maxSize.cx || rect.Height()<maxSize.cy)
-	{
-		NeedMoreSpace(maxSize.cx,maxSize.cy);
-	}
 
 	m_tabCtrl.ClientToScreen(&rect);
 	ScreenToClient(&rect);
@@ -147,8 +143,6 @@ BOOL CTreeSettingsOleProperties::OnInitDialog()
 		{
 			m_tabCtrl.InsertItem(i,OLE2T(pageInfo.pszTitle));	
 			hr=m_pages[i]->m_pPropertyPage->Activate(m_hWnd,rect,FALSE);
-			//hr=m_pages[i]->m_pPropertyPage->Show(SW_HIDE);
-
 		}
 	}
 
@@ -189,12 +183,11 @@ void CTreeSettingsOleProperties::OnSize(UINT nType, int cx, int cy)
 	if(m_tabCtrl.m_hWnd==NULL)
 		return;
 	
-	m_tabCtrl.MoveWindow(0,0,cx,cy);
-
 	CRect rect;
 	GetClientRect(&rect);
-	m_tabCtrl.AdjustRect(FALSE,&rect);
+	m_tabCtrl.MoveWindow(&rect);
 
+	m_tabCtrl.AdjustRect(FALSE,&rect);
 	int cursel=m_tabCtrl.GetCurSel();
 	HRESULT hr=m_pages[cursel]->m_pPropertyPage->Move(&rect);
 }
@@ -210,6 +203,12 @@ void CTreeSettingsOleProperties::OnOK()
 			//FIXME: log error if any
 		}
 	}
+}
+
+void CTreeSettingsOleProperties::GetMinSize(int &width,int &height)
+{
+	width=m_minSize.cx;
+	height=m_minSize.cy;
 }
 
 ULONG CTreeSettingsOleProperties::CPageSite::AddRef()

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.cpp,v 1.1 2002-04-24 19:04:00 tobbej Exp $
+// $Id: TreeSettingsDlg.cpp,v 1.2 2002-05-09 17:20:15 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/04/24 19:04:00  tobbej
+// new treebased settings dialog
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -207,7 +210,6 @@ bool CTreeSettingsDlg::ShowPage(int iPage)
 			//create failed
 			return false;
 		}
-		pNewPage->MoveWindow(pageSize);
 	}
 	//can the new page be activated?
 	if(!pNewPage->OnSetActive())
@@ -268,6 +270,25 @@ void CTreeSettingsDlg::OnSize(UINT nType, int cx, int cy)
 		rect.right=cx-10;
 		rect.bottom=cy-50;
 		pPageFrame->MoveWindow(rect,FALSE);
+		
+		//check if the current size is enough for the active page
+		int minWidth=0;
+		int minHeight=0;
+		m_pages[m_iCurrentPage].m_pPage->GetMinSize(minWidth,minHeight);
+		if(rect.Width()<minWidth || rect.Height()<minHeight)
+		{
+			CRect dlgRect;
+			GetWindowRect(&dlgRect);
+			
+			//calculate by how much the size must be increased
+			int newWidth=(minWidth-rect.Width())>0 ? minWidth-rect.Width() : 0;
+			int newHeight=(minHeight-rect.Height())>0 ?minHeight-rect.Height() : 0;
+			
+			dlgRect.right+=newWidth;
+			dlgRect.bottom+=newHeight;
+			MoveWindow(&dlgRect);
+			return;
+		}
 		m_pages[m_iCurrentPage].m_pPage->MoveWindow(rect,FALSE);
 
 		//line

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsPage.h,v 1.1 2002-04-24 19:04:01 tobbej Exp $
+// $Id: TreeSettingsPage.h,v 1.2 2002-05-09 17:20:15 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/04/24 19:04:01  tobbej
+// new treebased settings dialog
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -104,9 +107,11 @@ protected:
 	virtual bool OnQueryCancel();
 	
 	/**
-	 * this function will resize the tree settings dialog so the page will get atleas the specified size
+	 * This function is used by the dialog to get the minimum allowed size of the page.
+	 * @param width
+	 * @param height
 	 */
-	void NeedMoreSpace(int cx,int cy);
+	virtual void GetMinSize(int &width,int &height);
 	
 	CString m_name;
 	

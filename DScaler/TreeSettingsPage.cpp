@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsPage.cpp,v 1.1 2002-04-24 19:04:01 tobbej Exp $
+// $Id: TreeSettingsPage.cpp,v 1.2 2002-05-09 17:20:15 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/04/24 19:04:01  tobbej
+// new treebased settings dialog
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -76,22 +79,10 @@ BOOL CTreeSettingsPage::PreTranslateMessage(MSG* pMsg)
 	return CDialog::PreTranslateMessage(pMsg);
 }
 
-void CTreeSettingsPage::NeedMoreSpace(int cx,int cy)
+void CTreeSettingsPage::GetMinSize(int &width,int &height)
 {
-	CRect rect;
-	GetClientRect(&rect);
-	int width=(cx-rect.Width())>0 ? cx-rect.Width() : 0;
-	int height=(cy-rect.Height())>0 ?cy-rect.Height() : 0;
-	
-	if(width>0 || height>0)
-	{
-		CRect newPos;
-		CWnd *pParent=GetParent();
-		pParent->GetWindowRect(&newPos);
-		newPos.right+=width;
-		newPos.bottom+=height;
-		pParent->MoveWindow(&newPos);
-	}
+	width=0;
+	height=0;
 }
 
 void CTreeSettingsPage::OnOK()

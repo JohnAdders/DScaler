@@ -1236,7 +1236,7 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "Take One Sti&ll Picture\tL",  IDM_TAKESTILL
         MENUITEM "Take P&eriodic Still Pictures", IDM_TAKECYCLICSTILL
-        MENUITEM "Take 24 &Consecutive Still Pictures", 
+        MENUITEM "Take &Consecutive Still Pictures", 
                                                 IDM_TAKECONSECUTIVESTILL
         MENUITEM "Take &Stream Snapshot\tShift+L", IDM_TAKESTREAMSNAP
         POPUP "&TimeShift (under construction)"

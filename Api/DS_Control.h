@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.78 2002-08-07 00:47:30 lindsey Exp $
+// $Id: DS_Control.h,v 1.79 2002-08-07 09:42:12 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.78  2002/08/07 00:47:30  lindsey
+// Added a switch for the use of prefetching in the temporal noise filter.
+//
 // Revision 1.77  2002/08/06 22:18:08  lindsey
 // Added constants for a prefetch option with many of the filters
 //
@@ -1228,6 +1231,20 @@ typedef enum
 #define WM_DI_TOMSMOCOMP_SETVALUE     (WM_APP + 144)
 #define WM_DI_TOMSMOCOMP_CHANGEVALUE  (WM_APP + 244)
 
+
+/////////////////////////////////////////////////////////////////////////////
+// Control settings for save per channel option
+/////////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+    SETTINGSPERCHANNEL_ENABLED = 0,
+    SETTINGSPERCHANNEL_SETTING_LASTONE,
+} SETTINGSPERCHANNEL_SETTING;
+
+#define WM_SETTINGSPERCHANNEL_GETVALUE     (WM_APP + 45)
+#define WM_SETTINGSPERCHANNEL_SETVALUE     (WM_APP + 145)
+#define WM_SETTINGSPERCHANNEL_CHANGEVALUE  (WM_APP + 245)
 
 
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Disasm.cpp,v 1.6 2002-09-17 17:28:24 tobbej Exp $
+// $Id: Disasm.cpp,v 1.7 2002-11-20 19:50:00 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (C) 1998-2001 Avery Lee.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -26,6 +26,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/09/17 17:28:24  tobbej
+// updated crashloging to same version as in latest virtualdub
+//
 // Revision 1.5  2001/11/23 10:49:16  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -476,7 +479,7 @@ char *VDDisasmMatchRule(VDDisassemblyContext *pContext, const unsigned char *sou
 
                 while(*hp++);
 
-                bytes -= (src_end - source)-1;
+                bytes -= (src_end - source);
                 source = src_end;
             }
             else if (pattern[0] < 16)
@@ -491,7 +494,7 @@ char *VDDisasmMatchRule(VDDisassemblyContext *pContext, const unsigned char *sou
                     *sp++ = *source++;
                 }
 
-                bytes -= pattern[0]-1;
+                bytes -= pattern[0];
             }
             else
             {
@@ -538,6 +541,7 @@ char *VDDisasmMatchRule(VDDisassemblyContext *pContext, const unsigned char *sou
             }
 
             unsigned char b = *source++;
+            --bytes;
 
             if ((b & pattern[1]) != pattern[0])
             {
@@ -547,7 +551,6 @@ char *VDDisasmMatchRule(VDDisassemblyContext *pContext, const unsigned char *sou
             *sp++ = b;
         }
         pattern += 2;
-        --bytes;
         --pattern_len;
     }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: disasm.cpp,v 1.2 2002-09-17 17:36:46 tobbej Exp $
+// $Id: disasm.cpp,v 1.3 2002-11-20 19:50:17 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (C) 2002 Avery Lee, All Rights Reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -26,6 +26,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/09/17 17:36:46  tobbej
+// forgot to add standard comment at begining of file
+//
 /////////////////////////////////////////////////////////////////////////////
 
 
@@ -207,6 +210,8 @@ void parse_ia(FILE *f)
             static const char whitespace[]=" \t\n\v";
             const char *token = strtok(linebuf, whitespace);
 
+            std::vector<bool> argumentTypeStack;        // true if arg is a string
+
             if (token)
             {
                 do
@@ -222,6 +227,7 @@ void parse_ia(FILE *f)
                         r.match_stream.push_back(std::pair<byte, byte>(1,0));
                     }
 
+                    argumentTypeStack.push_back(false);
                     ++r.argcount;
                 }
                 else if (*token == '[')
@@ -277,6 +283,7 @@ void parse_ia(FILE *f)
                     }
 
                     r.match_stream.push_back(std::pair<byte, byte>(byteval, ~(byteval ^ byteend)));
+                    argumentTypeStack.push_back(false);
                     ++r.argcount;
 
                 }
@@ -307,6 +314,8 @@ void parse_ia(FILE *f)
 
                     r.match_stream.push_back(std::pair<byte, byte>(index, 0));
                     r.argcount += 2;
+                    argumentTypeStack.push_back(false);
+                    argumentTypeStack.push_back(true);
                 }
             } while(token = strtok(NULL, whitespace));
             }
@@ -553,6 +562,11 @@ void parse_ia(FILE *f)
                             oops("unknown macro expansion mode: '%s'\n", s);
                         }
 
+                        if (argumentTypeStack[id-1] != (control_byte == kTarget_s))
+                        {
+                            oops("bad argument type: $%d (not a %s)\n", id, argumentTypeStack[id-1] ? "byte" : "string");
+                        }
+
                         if (firstbit == 0 && lastbit == 2)
                         {
                             r.result += (char)(control_byte + 0x20);
@@ -712,7 +726,7 @@ void dump_ia(FILE *f)
         decomp_bytes += 2;
     }
 
-    static const char header[64]="[01|01] DScaler disasm module (IA32:P4/Athlon V1.00)\r\n\x1A";
+    static const char header[64]="[01|01] DScaler disasm module (IA32:P4/Athlon V1.02)\r\n\x1A";
 
     fwrite(header, 64, 1, f);
 
@@ -1298,6 +1312,17 @@ void VDDisassemble(VDDisassemblyContext *pvdc, const byte *source, int bytes)
         cvttsd2si   eax, [ecx]
         cvttpd2pi   mm2, xmm4
         cvttpd2pi   mm2, [ecx]
+        movq        xmm0, qword ptr [eax]
+
+__emit 0x66
+__emit 0x0f
+__emit 0x6f
+__emit 0x2d
+__emit 0xf0
+__emit 0x42
+__emit 0x0e
+__emit 0x10
+
 
         rep movsw
         lock rep movs es:word ptr [edi], cs:word ptr [esi]
@@ -1312,10 +1337,14 @@ void VDDisassemble(VDDisassemblyContext *pvdc, const byte *source, int bytes)
 
         call esi
 
+        shl ecx,1
+
         ret
 x1:
 y1:
         nop
+
+        fldcw word ptr [esp]
 
     }
 }*/

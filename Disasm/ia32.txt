@@ -1,4 +1,4 @@
-# IA-32 disassembly ruleset module for VirtualDub -- V1.00
+# IA-32 disassembly ruleset module for VirtualDub -- V1.02
 # By Avery Lee <phaeron@virtualdub.org>
 #
 # Based off of:
@@ -38,7 +38,7 @@
 # Masked byte compares (10-1E) need not compare on contiguous bitfields but
 # must match the full bitfield.  A 10-15 token doesn't match 10, 11, 12,
 # 13, and 14, but only 10, 11, 14, and 15.  To match all six bytes, two
-# rules should be used: one with 16-17, and another with 
+# rules should be used: either 10-13 + 14-15, or 16-17 + 10-17.
 #
 # If a ruleset call is prefixed by !, the submatch begins with the previous
 # source byte rather than the current one.  This is used when the register
@@ -565,10 +565,10 @@ B5 modrm48d:		"lgs " $2[3-5]r32 ", " $3s
 B6 modrm8d:		"movzx " $2[3-5]r32 ", " $3s
 B7 modrm16d:		"movzx " $2[3-5]r32 ", " $3s
 
-BA 20-E7 !modrm32d *:	"bt " $3s ", " $4x
-BA 28-EF !modrm32d *:	"bts " $3s ", " $4x
-BA 30-F7 !modrm32d *:	"btr " $3s ", " $4x
-BA 38-FF !modrm32d *:	"btc " $3s ", " $4x
+BA 20-E7 !modrm32d *:	"bt " $4s ", " $5x
+BA 28-EF !modrm32d *:	"bts " $4s ", " $5x
+BA 30-F7 !modrm32d *:	"btr " $4s ", " $5x
+BA 38-FF !modrm32d *:	"btc " $4s ", " $5x
 BB modrm32:				"btc " $3s ", " $2[3-5]r32
 BC modrm32:				"bsf " $2[3-5]r32 ", " $3s
 BD modrm32:				"bsr " $2[3-5]r32 ", " $3s
@@ -833,8 +833,8 @@ FE modrm64128:		"paddd " $2[3-5]rmx ", " $3s
 8E modrm16:			"mov " $2[3-5]rs ", " $3s
 8F modrm1632d:		"pop " $3s
 
-90:						"nop"
 [F3] 90:				"pause"
+90:						"nop"
 [66] 90-97:				"xchg ax, " $1[0-3]r16
 90-97:					"xchg eax, " $1[0-3]r32
 [66] 98:				"cwd"
@@ -932,48 +932,48 @@ CE:						"into"
 [66] CF:				"iret"
 CF:						"iretd"
 
-D0 00-07 !modrm8d:		"rol " $4s ", 1"
-D0 08-0F !modrm8d:		"ror " $4s ", 1"
-D0 10-17 !modrm8d:		"rcl " $4s ", 1"
-D0 18-1F !modrm8d:		"rcr " $4s ", 1"
-D0 20-27 !modrm8d:		"shl " $4s ", 1"
-D0 28-2F !modrm8d:		"shr " $4s ", 1"
-D0 38-3F !modrm8d:		"sar " $4s ", 1"
-D1 00-07 !modrm1632d:	"rol " $4s ", 1"
-D1 08-0F !modrm1632d:	"ror " $4s ", 1"
-D1 10-17 !modrm1632d:	"rcl " $4s ", 1"
-D1 18-1F !modrm1632d:	"rcr " $4s ", 1"
-D1 20-27 !modrm1632d:	"shl " $4s ", 1"
-D1 28-2F !modrm1632d:	"shr " $4s ", 1"
-D1 38-3F !modrm1632d:	"sar " $4s ", 1"
-D2 00-07 !modrm8d:		"rol " $4s ", cl"
-D2 08-0F !modrm8d:		"ror " $4s ", cl"
-D2 10-17 !modrm8d:		"rcl " $4s ", cl"
-D2 18-1F !modrm8d:		"rcr " $4s ", cl"
-D2 20-27 !modrm8d:		"shl " $4s ", cl"
-D2 28-2F !modrm8d:		"shr " $4s ", cl"
-D2 38-3F !modrm8d:		"sar " $4s ", cl"
-D3 00-07 !modrm1632d:	"rol " $4s ", cl"
-D3 08-0F !modrm1632d:	"ror " $4s ", cl"
-D3 10-17 !modrm1632d:	"rcl " $4s ", cl"
-D3 18-1F !modrm1632d:	"rcr " $4s ", cl"
-D3 20-27 !modrm1632d:	"shl " $4s ", cl"
-D3 28-2F !modrm1632d:	"shr " $4s ", cl"
-D3 38-3F !modrm1632d:	"sar " $4s ", cl"
+D0 00-C7 !modrm8d:		"rol " $4s ", 1"
+D0 08-CF !modrm8d:		"ror " $4s ", 1"
+D0 10-D7 !modrm8d:		"rcl " $4s ", 1"
+D0 18-DF !modrm8d:		"rcr " $4s ", 1"
+D0 20-E7 !modrm8d:		"shl " $4s ", 1"
+D0 28-EF !modrm8d:		"shr " $4s ", 1"
+D0 38-FF !modrm8d:		"sar " $4s ", 1"
+D1 00-C7 !modrm1632d:	"rol " $4s ", 1"
+D1 08-CF !modrm1632d:	"ror " $4s ", 1"
+D1 10-D7 !modrm1632d:	"rcl " $4s ", 1"
+D1 18-DF !modrm1632d:	"rcr " $4s ", 1"
+D1 20-E7 !modrm1632d:	"shl " $4s ", 1"
+D1 28-EF !modrm1632d:	"shr " $4s ", 1"
+D1 38-FF !modrm1632d:	"sar " $4s ", 1"
+D2 00-C7 !modrm8d:		"rol " $4s ", cl"
+D2 08-CF !modrm8d:		"ror " $4s ", cl"
+D2 10-D7 !modrm8d:		"rcl " $4s ", cl"
+D2 18-DF !modrm8d:		"rcr " $4s ", cl"
+D2 20-E7 !modrm8d:		"shl " $4s ", cl"
+D2 28-EF !modrm8d:		"shr " $4s ", cl"
+D2 38-FF !modrm8d:		"sar " $4s ", cl"
+D3 00-C7 !modrm1632d:	"rol " $4s ", cl"
+D3 08-CF !modrm1632d:	"ror " $4s ", cl"
+D3 10-D7 !modrm1632d:	"rcl " $4s ", cl"
+D3 18-DF !modrm1632d:	"rcr " $4s ", cl"
+D3 20-E7 !modrm1632d:	"shl " $4s ", cl"
+D3 28-EF !modrm1632d:	"shr " $4s ", cl"
+D3 38-FF !modrm1632d:	"sar " $4s ", cl"
 
 D4 *:					"aam " $2x
 D5 *:					"aad " $2x
 D6:						"salc"
 D7:						"xlatb"
 
-D8 00-87 !modrm32:		"fadd " $3s
-D8 08-8F !modrm32:		"fmul " $3s
-D8 10-97 !modrm32:		"fcom " $3s
-D8 18-9F !modrm32:		"fcomp " $3s
-D8 20-A7 !modrm32:		"fsub " $3s
-D8 28-AF !modrm32:		"fsubr " $3s
-D8 30-B7 !modrm32:		"fdiv " $3s
-D8 38-BF !modrm32:		"fdivr " $3s
+D8 00-87 !modrm32:		"fadd " $4s
+D8 08-8F !modrm32:		"fmul " $4s
+D8 10-97 !modrm32:		"fcom " $4s
+D8 18-9F !modrm32:		"fcomp " $4s
+D8 20-A7 !modrm32:		"fsub " $4s
+D8 28-AF !modrm32:		"fsubr " $4s
+D8 30-B7 !modrm32:		"fdiv " $4s
+D8 38-BF !modrm32:		"fdivr " $4s
 D8 C0-C7:				"fadd st, " $2[0-2]rf
 D8 C8-CF:				"fmul st, " $2[0-2]rf
 D8 D0-D7:				"fcom st, " $2[0-2]rf
@@ -983,13 +983,13 @@ D8 E8-EF:				"fsubr st, " $2[0-2]rf
 D8 F0-F7:				"fdiv st, " $2[0-2]rf
 D8 F8-FF:				"fdivr st, " $2[0-2]rf
 
-D9 00-87 !modrm32:		"fld " $3s
-D9 10-97 !modrm32:		"fst " $3s
-D9 18-9F !modrm32:		"fstp " $3s
-D9 20-A7 !modrm:		"fldenv " $3s
-D9 28-AF !modrm16:		"fldcw " $3s
-D9 30-B7 !modrm:		"fstenv " $3s
-D9 38-BF !modrm32:		"fstcw " $3s
+D9 00-87 !modrm32:		"fld " $4s
+D9 10-97 !modrm32:		"fst " $4s
+D9 18-9F !modrm32:		"fstp " $4s
+D9 20-A7 !modrm:		"fldenv " $4s
+D9 28-AF !modrm16:		"fldcw " $4s
+D9 30-B7 !modrm:		"fstenv " $4s
+D9 38-BF !modrm32:		"fstcw " $4s
 D9 C0-C7:				"fld " $2[0-2]rf
 D9 C8-CF:				"fxch " $2[0-2]rf
 D9 D0:					"fnop"
@@ -1024,25 +1024,25 @@ D9 FD:					"fscale"
 D9 FE:					"fsin"
 D9 FF:					"fcos"
 
-DA 00-87 !modrm32:		"fiadd " $3s
-DA 08-8F !modrm32:		"fimul " $3s
-DA 10-97 !modrm32:		"ficom " $3s
-DA 18-9F !modrm32:		"ficomp " $3s
-DA 20-A7 !modrm32:		"fisub " $3s
-DA 28-AF !modrm32:		"fisubr " $3s
-DA 30-B7 !modrm32:		"fidiv " $3s
-DA 38-BF !modrm32:		"fidivr " $3s
+DA 00-87 !modrm32:		"fiadd " $4s
+DA 08-8F !modrm32:		"fimul " $4s
+DA 10-97 !modrm32:		"ficom " $4s
+DA 18-9F !modrm32:		"ficomp " $4s
+DA 20-A7 !modrm32:		"fisub " $4s
+DA 28-AF !modrm32:		"fisubr " $4s
+DA 30-B7 !modrm32:		"fidiv " $4s
+DA 38-BF !modrm32:		"fidivr " $4s
 DA C0-C7:				"fcmovb st, " $2[0-2]rf
 DA C8-CF:				"fcmove st, " $2[0-2]rf
 DA D0-D7:				"fcmovbe st, " $2[0-2]rf
 DA D8-DF:				"fcmovu st, " $2[0-2]rf
 DA E1:					"fucompp"
 
-DB 00-87 !modrm32:		"fild " $3s
-DB 10-97 !modrm32:		"fist " $3s
-DB 18-9F !modrm32:		"fistp " $3s
-DB 28-AF !modrm80d:		"fld " $3s
-DB 38-BF !modrm80d:		"fstp " $3s
+DB 00-87 !modrm32:		"fild " $4s
+DB 10-97 !modrm32:		"fist " $4s
+DB 18-9F !modrm32:		"fistp " $4s
+DB 28-AF !modrm80d:		"fld " $4s
+DB 38-BF !modrm80d:		"fstp " $4s
 DB C0-C7:				"fcmovnb st, " $2[0-2]rf
 DB C8-CF:				"fcmovne st, " $2[0-2]rf
 DB D0-D7:				"fcmovnbe st, " $2[0-2]rf
@@ -1051,14 +1051,14 @@ DB E3:					"finit"
 DB E8-EF:				"fucomi st, " $2[0-2]rf
 DB F0-F7:				"fcomi st, " $2[0-2]rf
 
-DC 00-87 !modrm64d:		"fadd " $3s
-DC 08-8F !modrm64d:		"fmul " $3s
-DC 10-97 !modrm64d:		"fcom " $3s
-DC 18-9F !modrm64d:		"fcomp " $3s
-DC 20-A7 !modrm64d:		"fsub " $3s
-DC 28-AF !modrm64d:		"fsubr " $3s
-DC 30-B7 !modrm64d:		"fdiv " $3s
-DC 38-BF !modrm64d:		"fdivr " $3s
+DC 00-87 !modrm64d:		"fadd " $4s
+DC 08-8F !modrm64d:		"fmul " $4s
+DC 10-97 !modrm64d:		"fcom " $4s
+DC 18-9F !modrm64d:		"fcomp " $4s
+DC 20-A7 !modrm64d:		"fsub " $4s
+DC 28-AF !modrm64d:		"fsubr " $4s
+DC 30-B7 !modrm64d:		"fdiv " $4s
+DC 38-BF !modrm64d:		"fdivr " $4s
 
 DC C0-C7:				"fadd st, " $2[0-2]rf
 DC C8-CF:				"fmul st, " $2[0-2]rf
@@ -1067,12 +1067,12 @@ DC E8-EF:				"fsub st, " $2[0-2]rf
 DC F0-F7:				"fdivr st, " $2[0-2]rf
 DC F8-FF:				"fdiv st, " $2[0-2]rf
 
-DD 00-87 !modrm64d:		"fld " $3s
-DD 10-97 !modrm64d:		"fst " $3s
-DD 18-9F !modrm64d:		"fstp " $3s
-DD 20-A7 !modrm:		"frstor " $3s
-DD 30-B7 !modrm:		"fsave " $3s
-DD 38-BF !modrm16d:		"fstsw " $3s
+DD 00-87 !modrm64d:		"fld " $4s
+DD 10-97 !modrm64d:		"fst " $4s
+DD 18-9F !modrm64d:		"fstp " $4s
+DD 20-A7 !modrm:		"frstor " $4s
+DD 30-B7 !modrm:		"fsave " $4s
+DD 38-BF !modrm16d:		"fstsw " $4s
 
 DD C0-C7:				"ffree " $2[0-2]rf
 DD D0-D7:				"fst " $2[0-2]rf
@@ -1080,14 +1080,14 @@ DD D8-DF:				"fstp " $2[0-2]rf
 DD E0-E7:				"fucom " $2[0-2]rf ", st"
 DD E8-EF:				"fucomp " $2[0-2]rf
 
-DE 00-87 !modrm16d:		"fiadd " $3s
-DE 08-8F !modrm16d:		"fimul " $3s
-DE 10-97 !modrm16d:		"ficom " $3s
-DE 18-9F !modrm16d:		"ficomp " $3s
-DE 20-A7 !modrm16d:		"fisub " $3s
-DE 28-AF !modrm16d:		"fisubr " $3s
-DE 30-B7 !modrm16d:		"fidiv " $3s
-DE 38-BF !modrm16d:		"fidivr " $3s
+DE 00-87 !modrm16d:		"fiadd " $4s
+DE 08-8F !modrm16d:		"fimul " $4s
+DE 10-97 !modrm16d:		"ficom " $4s
+DE 18-9F !modrm16d:		"ficomp " $4s
+DE 20-A7 !modrm16d:		"fisub " $4s
+DE 28-AF !modrm16d:		"fisubr " $4s
+DE 30-B7 !modrm16d:		"fidiv " $4s
+DE 38-BF !modrm16d:		"fidivr " $4s
 
 DE C0-C7:				"faddp " $2[0-2]rf ", st"
 DE C8-CF:				"fmulp " $2[0-2]rf ", st"
@@ -1097,13 +1097,13 @@ DE E8-EF:				"fsubp " $2[0-2]rf ", st"
 DE F0-F7:				"fdivrp " $2[0-2]rf ", st"
 DE F8-FF:				"fdivp " $2[0-2]rf ", st"
 
-DF 00-87 !modrm16d:		"fild " $3s
-DF 10-97 !modrm16d:		"fist " $3s
-DF 18-9F !modrm16d:		"fistp " $3s
-DF 20-A7 !modrm:		"fbld " $3s
-DF 28-AF !modrm64d:		"fild " $3s
-DF 30-B7 !modrm:		"fbstp " $3s
-DF 38-BF !modrm64d:		"fistp " $3s
+DF 00-87 !modrm16d:		"fild " $4s
+DF 10-97 !modrm16d:		"fist " $4s
+DF 18-9F !modrm16d:		"fistp " $4s
+DF 20-A7 !modrm:		"fbld " $4s
+DF 28-AF !modrm64d:		"fild " $4s
+DF 30-B7 !modrm:		"fbstp " $4s
+DF 38-BF !modrm64d:		"fistp " $4s
 
 DF E0:					"fstsw ax"
 DF E8-EF:				"fucomip st, " $2[0-2]rf
@@ -1146,14 +1146,18 @@ F6 10-D7 !modrm8d:				"not " $4s
 F7 10-D7 !modrm32d:				"not " $4s
 F6 18-DF !modrm8d:				"neg " $4s
 F7 18-DF !modrm32d:				"neg " $4s
-F6 20-E7 !modrm8d *:			"mul " $4s ", " $5x
-F7 20-E7 !modrm32d * * * *:		"mul " $4s ", " $5lx
-F6 28-EF !modrm8d *:			"imul " $4s ", " $5x
-F7 28-EF !modrm32d * * * *:		"imul " $4s ", " $5lx
-F6 30-F7 !modrm8d *:			"div " $4s ", " $5x
-F7 30-F7 !modrm32d * * * *:		"div " $4s ", " $5lx
-F6 38-FF !modrm8d *:			"idiv " $4s ", " $5x
-F7 38-FF !modrm32d * * * *:		"idiv " $4s ", " $5lx
+F6 20-E7 !modrm8d:				"mul al, " $4s
+[66] F7 20-E7 !modrm16d:				"mul ax, " $4s
+F7 20-E7 !modrm32d:				"mul eax, " $4s
+F6 28-EF !modrm8d:				"imul al, " $4s
+[66] F7 28-EF !modrm16d:				"imul ax, " $4s
+F7 28-EF !modrm32d:				"imul eax, " $4s
+F6 30-F7 !modrm8d:				"div al, " $4s
+[66] F7 30-F7 !modrm16d:				"div ax, " $4s
+F7 30-F7 !modrm32d:				"div eax, " $4s
+F6 38-FF !modrm8d:				"idiv al, " $4s
+[66] F7 38-FF !modrm16d:				"idiv ax, " $4s
+F7 38-FF !modrm32d:				"idiv eax, " $4s
 
 F8:					"clc"
 F9:					"stc"

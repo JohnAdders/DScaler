@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillProvider.cpp,v 1.5 2001-11-24 17:58:06 laurentg Exp $
+// $Id: StillProvider.cpp,v 1.6 2001-11-25 21:21:56 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/11/24 17:58:06  laurentg
+// Still source
+//
 // Revision 1.4  2001/11/23 10:49:17  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -47,6 +50,12 @@ CStillProvider::CStillProvider()
 
 CStillProvider::~CStillProvider()
 {
+    for(vector<CStillSource*>::iterator it = m_StillSources.begin();
+        it != m_StillSources.end();
+        ++it)
+    {
+        delete *it;
+    }
 }
 
 int CStillProvider::GetNumberOfSources()

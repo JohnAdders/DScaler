@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.cpp,v 1.42 2003-10-27 10:39:53 adcockj Exp $
+// $Id: SAA7134Card.cpp,v 1.43 2004-04-24 11:12:01 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.42  2003/10/27 10:39:53  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.41  2003/08/14 08:25:16  atnak
 // Fix to mute lining and audio channel clush
 //
@@ -698,6 +701,11 @@ WORD CSAA7134Card::CalculateLinesAvailable(eRegionID RegionID, WORD wBytesPerLin
     DWORD MinimumBytesAvailable;
 
     MinimumBytesAvailable = m_DMAChannelMemorySize[Channel];
+
+	if (MinimumBytesAvailable < MaxBaseOffset)
+	{
+		return 0;
+	}
 
     MinimumBytesAvailable -= MaxBaseOffset;
     if (MinimumBytesAvailable < wBytesPerLine)

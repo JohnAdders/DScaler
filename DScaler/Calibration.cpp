@@ -168,9 +168,30 @@ int CColorBar::CalcCurrentPixel(short **Lines, int height, int width)
 		}
 	}
 
-	Y_val = Y / nb_Y;
-	U_val = U / nb_U;
-	V_val = V / nb_V;
+	if (nb_Y > 0)
+	{
+		Y_val = Y / nb_Y;
+	}
+	else
+	{
+		Y_val = 0;
+	}
+	if (nb_U > 0)
+	{
+		U_val = U / nb_U;
+	}
+	else
+	{
+		U_val = 0;
+	}
+	if (nb_V > 0)
+	{
+		V_val = V / nb_V;
+	}
+	else
+	{
+		V_val = 0;
+	}
 
 //	LOG("CalcCurrentPixel %d %d %d", Y_val, U_val, V_val);
 
@@ -380,7 +401,7 @@ void CCalibration::LoadTestPatterns()
 	test_patterns[nb_test_patterns]->AddColorBar(4417, 104, 5528, 5938, FALSE,   0, 190,   0);
 	test_patterns[nb_test_patterns]->AddColorBar(5833, 104, 6944, 5938, FALSE, 189,   0, 188);
 	test_patterns[nb_test_patterns]->AddColorBar(7250, 104, 8361, 5938, FALSE, 188,   0,   0);
-	test_patterns[nb_test_patterns]->AddColorBar(8681, 104, 8403, 5938, FALSE,   0,   0, 186);
+	test_patterns[nb_test_patterns]->AddColorBar(8681, 104, 9792, 5938, FALSE,   0,   0, 186);
 	nb_test_patterns++;
 
 	test_patterns[nb_test_patterns] = new CTestPattern("VE Title 18 Chapter 2", FORMAT_NTSC, FALSE);
@@ -394,6 +415,16 @@ void CCalibration::LoadTestPatterns()
 	test_patterns[nb_test_patterns]->AddColorBar(7083, 208, 7778, 9583, FALSE, 206, 209, 205);
 	test_patterns[nb_test_patterns]->AddColorBar(8028, 208, 8722, 9583, FALSE, 236, 236, 236);
 	test_patterns[nb_test_patterns]->AddColorBar(8972, 208, 9806, 9583, FALSE, 254, 254, 254);
+	nb_test_patterns++;
+
+	test_patterns[nb_test_patterns] = new CTestPattern("AVIA Title 4 Chapter 4", FORMAT_NTSC, FALSE);
+	test_patterns[nb_test_patterns]->AddColorBar(  69, 104, 1319, 4896, FALSE, 190, 189, 190);
+	test_patterns[nb_test_patterns]->AddColorBar(1528, 104, 2708, 4896, FALSE, 189, 189,   0);
+	test_patterns[nb_test_patterns]->AddColorBar(2986, 104, 4167, 4896, FALSE,   0, 189, 188);
+	test_patterns[nb_test_patterns]->AddColorBar(4375, 104, 5556, 4896, FALSE,   0, 189,   0);
+	test_patterns[nb_test_patterns]->AddColorBar(5833, 104, 7014, 4896, FALSE, 190,   0, 191);
+	test_patterns[nb_test_patterns]->AddColorBar(7292, 104, 8472, 4896, FALSE, 190,   0,   0);
+	test_patterns[nb_test_patterns]->AddColorBar(8681, 104, 9861, 4896, FALSE,   0,   0, 190);
 	nb_test_patterns++;
 }
 

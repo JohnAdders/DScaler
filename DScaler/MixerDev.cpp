@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.25 2002-08-18 13:30:38 tobbej Exp $
+// $Id: MixerDev.cpp,v 1.26 2002-08-27 22:05:21 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2002/08/18 13:30:38  tobbej
+// fixed problem with "other 2" line always geting the wrong value (0 in ini file)
+//
 // Revision 1.24  2002/04/13 18:56:23  laurentg
 // Checks added to manage case where the current source is not yet defined
 //
@@ -514,12 +517,19 @@ void EnableComboBoxes(HWND hDlg, BOOL Enabled)
 {
     ComboBox_Enable(GetDlgItem(hDlg, IDC_MIXER), Enabled);
     ComboBox_Enable(GetDlgItem(hDlg, IDC_DEST), Enabled);
-    ComboBox_Enable(GetDlgItem(hDlg, IDC_INPUT1), Enabled);
-    ComboBox_Enable(GetDlgItem(hDlg, IDC_INPUT2), Enabled);
-    ComboBox_Enable(GetDlgItem(hDlg, IDC_INPUT3), Enabled);
-    ComboBox_Enable(GetDlgItem(hDlg, IDC_INPUT4), Enabled);
-    ComboBox_Enable(GetDlgItem(hDlg, IDC_INPUT5), Enabled);
-    ComboBox_Enable(GetDlgItem(hDlg, IDC_INPUT6), Enabled);
+
+    int NumInputs = 0;
+    if (Providers_GetCurrentSource()) 
+    { 
+        NumInputs = Providers_GetCurrentSource()->NumInputs(VIDEOINPUT);
+    }
+
+    ComboBox_Enable(GetDlgItem(hDlg, IDC_INPUT1), (NumInputs>=1)?Enabled:FALSE);
+    ComboBox_Enable(GetDlgItem(hDlg, IDC_INPUT2), (NumInputs>=2)?Enabled:FALSE);
+    ComboBox_Enable(GetDlgItem(hDlg, IDC_INPUT3), (NumInputs>=3)?Enabled:FALSE);
+    ComboBox_Enable(GetDlgItem(hDlg, IDC_INPUT4), (NumInputs>=4)?Enabled:FALSE);
+    ComboBox_Enable(GetDlgItem(hDlg, IDC_INPUT5), (NumInputs>=5)?Enabled:FALSE);
+    ComboBox_Enable(GetDlgItem(hDlg, IDC_INPUT6), (NumInputs>=6)?Enabled:FALSE);
 }
 
 void FillLineBox(HWND hDlg, long ControlId, long SelIndex)
@@ -589,6 +599,44 @@ BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
     switch (message)
     {
     case WM_INITDIALOG:
+        {
+            int NumInputs = 0;
+            if (Providers_GetCurrentSource()) 
+            {     
+                NumInputs = Providers_GetCurrentSource()->NumInputs(VIDEOINPUT);
+            }
+            if ( NumInputs > 6 ) 
+            {
+                // 6 in dialog right now
+                NumInputs = 6;
+            }
+            
+            string sInputName;
+            for (i = 0; i < NumInputs; i++)
+            {
+                char *szName = (char*)Providers_GetCurrentSource()->GetInputName(VIDEOINPUT, i);
+                if (szName == NULL)
+                {
+                    sInputName = "Input ";
+                    sInputName+=i;
+                }
+                else
+                {
+                    sInputName = szName;
+                }
+                int RcNr = IDC_MIXER_INPUT0NAME;
+                
+                if (i==0) { RcNr = IDC_MIXER_INPUT0NAME; }
+                else if (i==1) { RcNr = IDC_MIXER_INPUT1NAME; }
+                else if (i==2) { RcNr = IDC_MIXER_INPUT2NAME; }
+                else if (i==3) { RcNr = IDC_MIXER_INPUT3NAME; }
+                else if (i==4) { RcNr = IDC_MIXER_INPUT4NAME; }
+                else if (i==5) { RcNr = IDC_MIXER_INPUT5NAME; }
+
+                SetDlgItemText(hDlg, RcNr, sInputName.c_str());
+            }            
+        }
+
         Old_bUseMixer = bUseMixer;
         Old_MixerIndex = MixerIndex;
         Old_DestIndex = DestIndex;
@@ -603,6 +651,7 @@ BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             EnableComboBoxes(hDlg, TRUE);
             FillMixersBox(hDlg);
         }
+        
         break;
     case WM_COMMAND:
         switch (LOWORD(wParam))
@@ -726,8 +775,17 @@ CMixerLineSource* Mixer_GetInputLine(long nInput)
 
 void Mixer_Mute()
 {
-    // \todo Fix this so that it uses the correct input
-    CMixerLineSource* CurLine = Mixer_GetInputLine(0);
+    //CMixerLineSource* CurLine = Mixer_GetInputLine(0);
+    int InputNr = -1;
+    if (Providers_GetCurrentSource()) 
+    { 
+        InputNr = Providers_GetCurrentSource()->GetInput(VIDEOINPUT); 
+    }    
+    if ((InputNr<0) || (InputNr>=6))
+    { 
+        return; 
+    }
+    CMixerLineSource* CurLine = Mixer_GetInputLine(InputNr);
     if(CurLine != NULL)
     {
        CurLine->SetMute(TRUE);
@@ -736,8 +794,17 @@ void Mixer_Mute()
 
 void Mixer_UnMute()
 {
-    // \todo Fix this so that it uses the correct input
-    CMixerLineSource* CurLine = Mixer_GetInputLine(0);
+    int InputNr = -1;
+    if (Providers_GetCurrentSource()) 
+    { 
+        InputNr = Providers_GetCurrentSource()->GetInput(VIDEOINPUT); 
+    }    
+    if ((InputNr<0) || (InputNr>=6))
+    { 
+        return; 
+    }
+    CMixerLineSource* CurLine = Mixer_GetInputLine(InputNr);
+        
     if(CurLine != NULL)
     {
        CurLine->SetMute(FALSE);
@@ -746,8 +813,17 @@ void Mixer_UnMute()
 
 void Mixer_Volume_Up()
 {
-    // \todo Fix this so that it uses the correct input
-    CMixerLineSource* CurLine = Mixer_GetInputLine(0);
+    int InputNr = -1;
+    if (Providers_GetCurrentSource()) 
+    { 
+        InputNr = Providers_GetCurrentSource()->GetInput(VIDEOINPUT); 
+    }    
+    if ((InputNr<0) || (InputNr>=6))
+    { 
+        return; 
+    }
+    CMixerLineSource* CurLine = Mixer_GetInputLine(InputNr);
+    
     if(CurLine != NULL)
     {
         long Vol = CurLine->GetVolume();
@@ -764,8 +840,17 @@ void Mixer_Volume_Up()
 
 void Mixer_Volume_Down()
 {
-    // \todo Fix this so that it uses the correct input
-    CMixerLineSource* CurLine = Mixer_GetInputLine(0);
+    int InputNr = -1;
+    if (Providers_GetCurrentSource()) 
+    { 
+        InputNr = Providers_GetCurrentSource()->GetInput(VIDEOINPUT); 
+    }    
+    if ((InputNr<0) || (InputNr>=6))
+    { 
+        return; 
+    }
+    CMixerLineSource* CurLine = Mixer_GetInputLine(InputNr);
+    
     if(CurLine != NULL)
     {
         long Vol = CurLine->GetVolume();
@@ -782,8 +867,17 @@ void Mixer_Volume_Down()
 
 long Mixer_GetVolume()
 {
-    // \todo Fix this so that it uses the correct input
-    CMixerLineSource* CurLine = Mixer_GetInputLine(0);
+    int InputNr = -1;
+    if (Providers_GetCurrentSource()) 
+    { 
+        InputNr = Providers_GetCurrentSource()->GetInput(VIDEOINPUT); 
+    }
+    if ((InputNr<0) || (InputNr>=6))
+    { 
+        return 0 ;
+    }
+    CMixerLineSource* CurLine = Mixer_GetInputLine(InputNr);
+    
     if(CurLine != NULL)
     {
         return CurLine->GetVolume();
@@ -817,6 +911,36 @@ void Mixer_OnInputChange(int NewType)
     }
 }
 
+void Mixer_OnInputChangeNotification(void *pThis, int PreChange, eSourceInputType InputType, int OldInput, int NewInput)
+{
+    if ((!PreChange) && (InputType == VIDEOINPUT))
+    {
+        if (bUseMixer)
+        {            
+            if ((NewInput>=0) && (NewInput<6))
+            {
+                Mixer_OnInputChange(InputIndexes[NewInput]);
+            }
+        }
+    }
+}
+
+void Mixer_OnSourceChange(void *pThis, int Flags, CSource *pSource)
+{
+    if (pSource == NULL) return;
+
+    if (Flags&SOURCECHANGE_PRECHANGE)
+    {
+        pSource->Unregister_InputChangeNotification(NULL,Mixer_OnInputChangeNotification);
+    } 
+    else 
+    {
+        pSource->Register_InputChangeNotification(NULL,Mixer_OnInputChangeNotification);
+        Mixer_OnInputChangeNotification(NULL,0,VIDEOINPUT,-1,pSource->GetInput(VIDEOINPUT));
+    }
+}
+
+
 void Mixer_Exit()
 {
     if(pSoundSystem != NULL)
@@ -825,7 +949,9 @@ void Mixer_Exit()
         if (Providers_GetCurrentSource())
         {
             Providers_GetCurrentSource()->Mute();
+            Providers_GetCurrentSource()->Unregister_InputChangeNotification(NULL,Mixer_OnInputChangeNotification);
         }
+        Providers_Unregister_SourceChangeNotification(NULL,Mixer_OnSourceChange);
 
 		if(bUseMixer)
 		{
@@ -839,6 +965,7 @@ void Mixer_Exit()
     }
 }
 
+
 void Mixer_Init()
 {
     pSoundSystem = new CSoundSystem();
@@ -848,11 +975,17 @@ void Mixer_Init()
         if(pSoundSystem->GetMixer() != NULL)
         {
             Mixer_OnInputChange(0);
+            Providers_Register_SourceChangeNotification(NULL,Mixer_OnSourceChange);
+                        
+            if (Providers_GetCurrentSource())
+            {
+                Mixer_OnSourceChange(NULL,SOURCECHANGE_PROVIDER,Providers_GetCurrentSource());                
+            }
         }
         else
         {
             bUseMixer = FALSE;
-        }
+        }        
     }
     else
     {

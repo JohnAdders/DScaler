@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.21 2002-04-16 15:33:53 tobbej Exp $
+// $Id: DSSource.cpp,v 1.22 2002-05-02 19:50:39 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2002/04/16 15:33:53  tobbej
+// added overscan for capture devices
+// added audio mute/unmute when starting and stopping source
+// added waitForNextField
+//
 // Revision 1.20  2002/04/15 22:57:26  laurentg
 // Automatic switch to "square pixels" AR mode when needed
 //
@@ -115,6 +120,8 @@
 #include "DebugLog.h"
 #include "AutoCriticalSection.h"
 #include "Audio.h"
+#include "TreeSettingsDlg.h"
+#include "TreeSettingsOleProperties.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -604,18 +611,6 @@ BOOL CDSSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		}
 		return TRUE;
 	}
-	else if(LOWORD(wParam)>=IDM_DSHOW_FILTER_0 && LOWORD(wParam<=IDM_DSHOW_FILTER_MAX))
-	{
-		try
-		{
-			m_pDSGraph->showPropertyPage(hWnd,LOWORD(wParam)-IDM_DSHOW_FILTER_0);
-		}
-		catch(CDShowException &e)
-		{
-			ErrorBox(CString("Failed to show property page\n\n")+e.getErrorText());
-		}
-
-	}
 	else if(LOWORD(wParam)>=IDM_DSHOW_RES_0 && LOWORD(wParam<=IDM_DSHOW_RES_MAX))
 	{
 		try
@@ -666,6 +661,40 @@ BOOL CDSSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		}
 		return TRUE;
 		break;
+	case IDM_DSHOW_FILTERS:
+		{
+			CTreeSettingsDlg dlg("Filter properties");
+			CTreeSettingsPage rootPage("Filters",IDD_TREESETTINGS_EMPTY);
+			int root=dlg.AddPage(&rootPage);
+
+			int index=0;
+			vector<CTreeSettingsPage*> pages;
+			CTreeSettingsPage *pPage=NULL;
+
+			while(m_pDSGraph->getFilterPropertyPage(index,&pPage))
+			{
+				pages.push_back(pPage);
+				dlg.AddPage(pPage,root);
+				index++;
+			}
+			if(index!=0)
+			{
+				//show the dialog
+				dlg.DoModal();
+			}
+			else
+			{
+				AfxMessageBox(_T("There is no filters to show properties for"),MB_OK|MB_ICONINFORMATION);
+			}
+			
+			for(vector<CTreeSettingsPage*>::iterator it=pages.begin();it!=pages.end();it++)
+			{
+				delete *it;
+			}
+			return TRUE;
+			break;
+		}
+
 	}
 	return FALSE;
 }
@@ -910,23 +939,6 @@ void CDSSource::SetMenu(HMENU hMenu)
 		menu->EnableMenuItem(2,MF_BYPOSITION|MF_GRAYED);
 		resSubMenu.DestroyMenu();
 	}
-	
-	//filter properties submenu
-	CMenu filtersMenu;
-	filtersMenu.CreateMenu();
-	menu->GetMenuString(11,menuText,MF_BYPOSITION);
-	menu->ModifyMenu(11,MF_POPUP|MF_BYPOSITION,(UINT) filtersMenu.GetSafeHmenu(),menuText);
-	string name;
-	int index=0;
-	bool hasPropertyPage;
-	while(m_pDSGraph->getFilterName(index,name,hasPropertyPage))
-	{
-		ASSERT(IDM_DSHOW_FILTER_0+index<=IDM_DSHOW_FILTER_MAX);
-		filtersMenu.AppendMenu(MF_STRING| (hasPropertyPage ? MF_ENABLED : MF_GRAYED),IDM_DSHOW_FILTER_0+index,name.c_str());
-		index++;
-	}
-	menu->EnableMenuItem(11,MF_BYPOSITION|(index==0 ? MF_GRAYED : MF_ENABLED));
-	LOG(1, "%d filters added to filters submenu",index);
 
 	//set a radio checkmark infront of the current play/pause/stop menu entry
 	FILTER_STATE state=m_pDSGraph->getState();
@@ -1033,8 +1045,8 @@ void CDSSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 		//clear the picture history
 		memset(pInfo->PictureHistory, 0, MAX_PICTURE_HISTORY * sizeof(TPicture*));
 		
-		//is the graph running? there is no point in continuing if it is stopped
-		if(m_pDSGraph->getState()==State_Stopped)
+		//is the graph running? there is no point in continuing if it isnt
+		if(m_pDSGraph->getState()!=State_Running)
 		{
 			return;
 		}
@@ -1080,6 +1092,7 @@ void CDSSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 		}
 
 		//is the buffers large enough?
+		//this needs fixing, cant allocate all buffers at once, only the current buffer that is to be used
 		LONG fieldSize=bmi->biSizeImage/2;
 		if(m_cbFieldSize<fieldSize)
 		{

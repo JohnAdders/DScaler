@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.h,v 1.9 2002-04-16 15:26:55 tobbej Exp $
+// $Id: DSGraph.h,v 1.10 2002-05-02 19:50:39 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/04/16 15:26:55  tobbej
+// fixed filter reference leak when geting filter names (filters submenu)
+// added waitForNextField
+//
 // Revision 1.8  2002/04/07 14:52:13  tobbej
 // fixed race when changing resolution
 // improved error handling
@@ -67,6 +71,7 @@
 
 #include "exception.h"
 #include "DShowBaseSource.h"
+#include "TreeSettingsOleProperties.h"
 
 //if you get an error here, that means you have not checked out the DSRend filter
 //or compiled it atleast once.
@@ -114,9 +119,22 @@ public:
 	void stop();
 	FILTER_STATE getState() {return m_pGraphState;}
 
-	bool getFilterName(int index,string &filterName,bool &hasPropertyPages);
-	void showPropertyPage(HWND hParent,int index);
-	
+	//bool getFilterName(int index,string &filterName,bool &hasPropertyPages);
+
+	/**
+	 * Creates a propertypage for a filter.
+	 * This function creates a propertypage for the filter indicated by index.
+	 * To get all pages call this function with index set to 0 and then
+	 * increase it until the function returns false.
+	 * The caller is responsibel of deleting the returnd propertypage with
+	 * delete.
+	 *
+	 * @param index filter index
+	 * @param ppPage pointer to created propertypage
+	 * @return true if the propertypage was successfully created
+	 */
+	bool getFilterPropertyPage(int index,CTreeSettingsPage **ppPage);
+
 	/**
 	 * Change the resolution
 	 * @throws CDShowException
@@ -144,8 +162,6 @@ public:
 	void restoreClock();
 
 private:
-	void showPropertyPage(HWND hParent,string caption,CComPtr<IBaseFilter> pFilter);
-	
 	void initGraph();
 	void createRenderer();
 

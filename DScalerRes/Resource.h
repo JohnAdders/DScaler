@@ -31,6 +31,7 @@
 #define IDD_TREESETTINGS_EMPTY          196
 #define IDD_TREESETTING                 197
 #define IDD_TREESETTINGS_GENERIC        198
+#define IDD_TREESETTINGS_NOPROPERTIES   199
 #define IDM_VBI                         231
 #define IDM_CAPTURE_PAUSE               232
 #define IDM_CHANNEL_LIST                242
@@ -892,27 +893,6 @@
 #define IDM_DSVIDEO_STANDARD_19         2332
 #define IDM_DSVIDEO_STANDARD_20         2333
 #define IDM_DSVIDEO_STANDARD_MAX        2333
-#define IDM_DSHOW_FILTER_0              2334
-#define IDM_DSHOW_FILTER_1              2335
-#define IDM_DSHOW_FILTER_2              2336
-#define IDM_DSHOW_FILTER_3              2337
-#define IDM_DSHOW_FILTER_4              2338
-#define IDM_DSHOW_FILTER_5              2339
-#define IDM_DSHOW_FILTER_6              2340
-#define IDM_DSHOW_FILTER_7              2341
-#define IDM_DSHOW_FILTER_8              2342
-#define IDM_DSHOW_FILTER_9              2343
-#define IDM_DSHOW_FILTER_10             2344
-#define IDM_DSHOW_FILTER_11             2345
-#define IDM_DSHOW_FILTER_12             2346
-#define IDM_DSHOW_FILTER_13             2347
-#define IDM_DSHOW_FILTER_14             2348
-#define IDM_DSHOW_FILTER_15             2349
-#define IDM_DSHOW_FILTER_16             2350
-#define IDM_DSHOW_FILTER_17             2351
-#define IDM_DSHOW_FILTER_18             2352
-#define IDM_DSHOW_FILTER_19             2353
-#define IDM_DSHOW_FILTER_MAX            2353
 #define IDM_FINDLOCK_PULL               2354
 #define IDM_USE_DSCALER_OVERLAY         2355
 #define IDM_SASPECT_SQUARE              2356
@@ -951,6 +931,7 @@
 #define IDC_HELPBTN                     2390
 #define IDM_SETTINGS_FILTERSETTINGS     32771
 #define IDM_SOURCE_INITIAL              32772
+#define IDM_DSHOW_FILTERS               32773
 #define IDC_STATIC                      -1
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
@@ -967,13 +948,13 @@
 #define IDM_HOLDER                      65535
 
 // Next default values for new objects
-// 
+//
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        199
-#define _APS_NEXT_COMMAND_VALUE         32773
-#define _APS_NEXT_CONTROL_VALUE         1903
+#define _APS_NEXT_RESOURCE_VALUE        200
+#define _APS_NEXT_COMMAND_VALUE         32774
+#define _APS_NEXT_CONTROL_VALUE         8000
 #define _APS_NEXT_SYMED_VALUE           2391
 #endif
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.cpp,v 1.12 2002-05-01 20:38:40 tobbej Exp $
+// $Id: DSGraph.cpp,v 1.13 2002-05-02 19:50:39 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/05/01 20:38:40  tobbej
+// fixed memory leak
+//
 // Revision 1.11  2002/04/16 15:26:54  tobbej
 // fixed filter reference leak when geting filter names (filters submenu)
 // added waitForNextField
@@ -286,46 +289,6 @@ void CDShowGraph::getConnectionMediatype(AM_MEDIA_TYPE *pmt)
 	}
 }
 
-void CDShowGraph::showPropertyPage(HWND hParent,string caption,CComPtr<IBaseFilter> pFilter)
-{
-	USES_CONVERSION;
-	CAUUID pages;
-	HRESULT hr;
-
-	if(pFilter==NULL)
-	{
-		return;
-	}
-
-	CComPtr<ISpecifyPropertyPages> pSProp;
-	CComPtr<IUnknown> pUnk;
-	
-	hr=pFilter.QueryInterface(&pSProp);
-	if(FAILED(hr))
-	{
-		//the filter dont have any property pages
-		return;
-	}
-
-	//all filters must have a IUnknown so this shoud always work
-	hr=pFilter.QueryInterface(&pUnk);
-	ASSERT(SUCCEEDED(hr));
-
-	hr=pSProp->GetPages(&pages);
-	if(FAILED(hr))
-	{
-		//FIXME
-	}
-	
-	hr=OleCreatePropertyFrame(hParent,0,0,A2OLE(caption.c_str()),1,&pUnk.p,pages.cElems,pages.pElems,MAKELCID(MAKELANGID(LANG_NEUTRAL,SUBLANG_NEUTRAL),SORT_DEFAULT),0,NULL);
-	if(FAILED(hr))
-	{
-		AfxMessageBox("Failed to show property page!",MB_OK|MB_ICONEXCLAMATION);
-	}
-	
-	CoTaskMemFree(pages.pElems);
-}
-
 void CDShowGraph::buildFilterList()
 {
 	m_filters.erase(m_filters.begin(),m_filters.end());
@@ -348,7 +311,7 @@ void CDShowGraph::buildFilterList()
 	}
 }
 
-bool CDShowGraph::getFilterName(int index,string &filterName,bool &hasPropertyPages)
+/*bool CDShowGraph::getFilterName(int index,string &filterName,bool &hasPropertyPages)
 {
 	USES_CONVERSION;
 	if(index>=m_filters.size())
@@ -374,31 +337,58 @@ bool CDShowGraph::getFilterName(int index,string &filterName,bool &hasPropertyPa
 		return true;
 	}
 	return false;
-}
+}*/
 
-void CDShowGraph::showPropertyPage(HWND hParent,int index)
+bool CDShowGraph::getFilterPropertyPage(int index,CTreeSettingsPage **ppPage)
 {
 	USES_CONVERSION;
-	if(index>=m_filters.size())
+	if(ppPage==NULL)
+		return false;
+	
+	if(index>=0 && index<m_filters.size())
 	{
-		return;
-	}
-
-	CComPtr<IBaseFilter> pFilter;
-	pFilter=m_filters[index];
-
-	FILTER_INFO info;
-	string filterName;
-	HRESULT hr=pFilter->QueryFilterInfo(&info);
-	if(SUCCEEDED(hr))
-	{
-		filterName=W2A(info.achName);
-		if(info.pGraph!=NULL)
+		CComPtr<IBaseFilter> pFilter=m_filters[index];
+		FILTER_INFO info;
+		HRESULT hr=pFilter->QueryFilterInfo(&info);
+		if(SUCCEEDED(hr))
 		{
-			info.pGraph->Release();
-			info.pGraph=NULL;
+			if(info.pGraph!=NULL)
+			{
+				info.pGraph->Release();
+				info.pGraph=NULL;
+			}
+			CComPtr<ISpecifyPropertyPages> pSpecifyPages;
+			hr=pFilter.QueryInterface(&pSpecifyPages);
+			if(SUCCEEDED(hr))
+			{
+				CAUUID pages;
+				hr=pSpecifyPages->GetPages(&pages);
+				if(SUCCEEDED(hr))
+				{
+					IUnknown *pUnk;
+					hr=pFilter->QueryInterface(IID_IUnknown,(void**)&pUnk);
+					//a com object cant exist without IUnknown
+					ASSERT(SUCCEEDED(hr));
+					
+					*ppPage=new CTreeSettingsOleProperties(W2A(info.achName),1,&pUnk,pages.cElems,pages.pElems,MAKELCID(MAKELANGID(LANG_NEUTRAL,SUBLANG_SYS_DEFAULT),SORT_DEFAULT));
+					CoTaskMemFree(pages.pElems);
+				}
+				else
+				{
+					*ppPage=new CTreeSettingsPage(W2A(info.achName),IDD_TREESETTINGS_NOPROPERTIES);
+				}
+			}
+			else
+			{
+				*ppPage=new CTreeSettingsPage(W2A(info.achName),IDD_TREESETTINGS_NOPROPERTIES);
+			}
+			
 		}
-		showPropertyPage(hParent,filterName,pFilter);
+		return true;
+	}
+	else
+	{
+		return false;
 	}
 }
 

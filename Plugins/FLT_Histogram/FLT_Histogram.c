@@ -16,6 +16,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/02/16 00:24:57  lindsey
+// Added CVS tags
+//
 // Revision 1.1.1.1  2002/02/15  lindsey
 // Added Histogram Filter
 //
@@ -42,6 +45,12 @@ graph.
 
 There isn't a whole lot to it.  It could definitely be more efficient,
 but I don't consider efficiency to be a very high priority, here.
+
+Probably the most confusing bit is the "comb filter" option.  By default,
+the average of two vertical values are used instead of the values from the
+original image.  This causes inaccuracy near vertical boundaries, but it
+also removes color crosstalk artifacts.  Color crosstalk will otherwise
+artifactually increase the range of the distribution. 
 
 */
 
@@ -120,7 +129,7 @@ DWORD   gpVHistogram[256];
 
 // Which of the histograms should be displayed?
 
-eMODE   gMode = MODE_YUV;
+eMODE   gMode = MODE_Y;
 
 // Should we average two scanlines to reduce color crosstalk artifacts?
 
@@ -150,7 +159,7 @@ SETTING FLT_HistogramSettings[FLT_HISTOGRAM_SETTING_LASTONE] =
 {
     {
         "Display Mode", ITEMFROMLIST, 0, (LONG*)&gMode,
-        MODE_YUV, MODE_Y, MODE_LASTONE -1, 1, 1,
+        MODE_Y, MODE_Y, MODE_LASTONE -1, 1, 1,
         ModeList,
         "HistogramFilter", "DisplayMode", NULL,
     },
@@ -161,7 +170,7 @@ SETTING FLT_HistogramSettings[FLT_HISTOGRAM_SETTING_LASTONE] =
         "HistogramFilter", "UseHistogramFilter", NULL,
     },
     {
-        "Use Comb Filter", ONOFF, 0, (LONG*)&gUseComb,
+        "Vertical Averaging", ONOFF, 0, (LONG*)&gUseComb,
         TRUE, 0, 1, 1, 1,
         NULL,
         "HistogramFilter", "UseCombFilter", NULL,

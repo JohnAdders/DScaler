@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDecoder.cpp,v 1.10 2003-10-27 10:39:54 adcockj Exp $
+// $Id: VTDecoder.cpp,v 1.11 2004-05-16 19:54:54 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,6 +44,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2003/10/27 10:39:54  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.9  2003/01/12 22:58:32  atnak
 // Small bug fix
 //
@@ -327,15 +330,25 @@ void CVTDecoder::DecodeLine(BYTE* data)
             {
                 BYTE line = packetNumber - 1;
 
-                CopyMemory(m_MagazineState[magazine].Line[line], data + 5, 40);
-                m_MagazineState[magazine].bLineReceived[line] = TRUE;
-
-                dwPageCode = m_MagazineState[magazine].dwPageCode;
-
-                if (m_pVTTopText->IsTopTextPage(dwPageCode))
+                // 2004/05/10 atnak: do not override an existing line
+                if (m_MagazineState[magazine].bLineReceived[line] != FALSE)
                 {
-                    dwTTUpdate = m_pVTTopText->DecodePageRow(dwPageCode,
-                        packetNumber, m_MagazineState[magazine].Line[line]);
+                    // Assume that a new header was missed and close the magazine
+                    m_MagazineState[magazine].bReceiving = FALSE;
+                    CompleteMagazine(&m_MagazineState[magazine]);
+                }
+                else
+                {
+                    CopyMemory(m_MagazineState[magazine].Line[line], data + 5, 40);
+                    m_MagazineState[magazine].bLineReceived[line] = TRUE;
+
+                    dwPageCode = m_MagazineState[magazine].dwPageCode;
+
+                    if (m_pVTTopText->IsTopTextPage(dwPageCode))
+                    {
+                        dwTTUpdate = m_pVTTopText->DecodePageRow(dwPageCode,
+                            packetNumber, m_MagazineState[magazine].Line[line]);
+                    }
                 }
             }
 
@@ -366,44 +379,54 @@ void CVTDecoder::DecodeLine(BYTE* data)
             // Packet X/27/0 for FLOF Editorial Linking
             if (designationCode == 0)
             {
-                for (int n(0); n < 6; n++)
+                // 2004/05/10 atnak: do not override existing information
+                if (m_MagazineState[magazine].LinkReceived != 0x00)
                 {
-                    bError = FALSE;
-                    s1 = Unham84(data + 6*n + 8, &bError);
-                    s2 = Unham84(data + 6*n + 9, &bError);
-                    s3 = Unham84(data + 6*n + 10, &bError);
-                    s4 = Unham84(data + 6*n + 11, &bError);
-
-                    wPageHex = UnhamTwo84_LSBF(data + 6*n + 6, &bError);
-
-                    if (bError != FALSE)
-                    {
-                        continue;
-                    }
-
-                    BYTE linkMagazine = magazine ^ (s2 >> 3 | (s4 & 0xC) >> 1);
-
-                    wPageHex |= (linkMagazine == 0 ? 0x800 : linkMagazine * 0x100);
-                    wPageSubCode = (s1 | ((s2 & 0x7) << 4));
-                    wPageSubCode |= ((s3 << 8) | ((s4 & 0x3) << 12));
-
-                    dwPageCode = MAKELONG(wPageHex, wPageSubCode);
-
-                    m_MagazineState[magazine].EditorialLink[n] = dwPageCode;
-                    m_MagazineState[magazine].LinkReceived |= (1 << n);
+                    // Assume that a new header was missed and close the magazine
+                    m_MagazineState[magazine].bReceiving = FALSE;
+                    CompleteMagazine(&m_MagazineState[magazine]);
                 }
-
-                BYTE linkControlByte = Unham84(data + 42, &bError);
-
-                if (bError == FALSE)
+                else
                 {
-                    if ((linkControlByte & 0x08) != 0)
+                    for (int n(0); n < 6; n++)
                     {
-                        m_MagazineState[magazine].LinkReceived |= LINKRECV_SHOW24;
+                        bError = FALSE;
+                        s1 = Unham84(data + 6*n + 8, &bError);
+                        s2 = Unham84(data + 6*n + 9, &bError);
+                        s3 = Unham84(data + 6*n + 10, &bError);
+                        s4 = Unham84(data + 6*n + 11, &bError);
+
+                        wPageHex = UnhamTwo84_LSBF(data + 6*n + 6, &bError);
+
+                        if (bError != FALSE)
+                        {
+                            continue;
+                        }
+
+                        BYTE linkMagazine = magazine ^ (s2 >> 3 | (s4 & 0xC) >> 1);
+
+                        wPageHex |= (linkMagazine == 0 ? 0x800 : linkMagazine * 0x100);
+                        wPageSubCode = (s1 | ((s2 & 0x7) << 4));
+                        wPageSubCode |= ((s3 << 8) | ((s4 & 0x3) << 12));
+
+                        dwPageCode = MAKELONG(wPageHex, wPageSubCode);
+
+                        m_MagazineState[magazine].EditorialLink[n] = dwPageCode;
+                        m_MagazineState[magazine].LinkReceived |= (1 << n);
                     }
-                    else
+
+                    BYTE linkControlByte = Unham84(data + 42, &bError);
+
+                    if (bError == FALSE)
                     {
-                        m_MagazineState[magazine].LinkReceived |= LINKRECV_HIDE24;
+                        if ((linkControlByte & 0x08) != 0)
+                        {
+                            m_MagazineState[magazine].LinkReceived |= LINKRECV_SHOW24;
+                        }
+                        else
+                        {
+                            m_MagazineState[magazine].LinkReceived |= LINKRECV_HIDE24;
+                        }
                     }
                 }
             }

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.152 2002-05-19 22:19:20 robmuller Exp $
+// $Id: DScaler.cpp,v 1.153 2002-05-20 16:32:12 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.152  2002/05/19 22:19:20  robmuller
+// Pause capture when minimized.
+//
 // Revision 1.151  2002/05/06 15:34:59  laurentg
 // Key <i> to show source informations through OSD
 //
@@ -2368,11 +2371,6 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                     SetVTPage(i, 0, false, false);
                 }
             }
-            else
-            {
-                i = atoi(ChannelString);
-                Channel_ChangeToNumber(i);
-            }
             ChannelString[0] = '\0';
             break;
         //-------------------------------
@@ -2528,6 +2526,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 else
                 {
                     SetTimer(hWnd, TIMER_KEYNUMBER, TIMER_KEYNUMBER_MS, NULL);
+                    if(VTState == VT_OFF)
+                    {
+                        i = atoi(ChannelString);
+                        Channel_ChangeToNumber(i);
+                    }
                 }
             }
         }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.2 2002-10-29 16:20:29 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.3 2002-10-31 13:55:15 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/10/29 16:20:29  adcockj
+// Added card setup for MSI TV@nywhere (no work done on sound)
+//
 // Revision 1.1  2002/10/29 11:05:28  adcockj
 // Renamed CT2388x to CX2388x
 //
@@ -450,7 +453,7 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         CurrentVBILines = GetTVFormat(TVFormat)->VBILines;
 
         // set up VBI information
-        WriteDword(CX2388X_VBI_SIZE, (GetTVFormat(TVFormat)->VBIPacketSize) | (2 << 11));
+        WriteDword(CX2388X_VBI_SIZE, GetTVFormat(TVFormat)->VBIPacketSize);
 
         if (CurrentY == 576)
         {

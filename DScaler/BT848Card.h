@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.44 2004-05-12 16:52:42 adcockj Exp $
+// $Id: BT848Card.h,v 1.45 2004-09-21 17:43:08 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.44  2004/05/12 16:52:42  adcockj
+// Added channel gains fgor PMS cards
+//
 // Revision 1.43  2004/01/05 13:25:25  adcockj
 // Added patch for Diamond DTV2000 from Robert Milharcic
 //
@@ -174,7 +177,8 @@ private:
     {
         SOUNDCHIP_NONE,
         SOUNDCHIP_MSP,
-		SOUNDCHIP_TDA9875
+		SOUNDCHIP_TDA9875,
+		SOUNDCHIP_TDA9874
     };
 
     /// Does the card have a PLL generator - used for PAL & SECAM

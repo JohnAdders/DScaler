@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Types.cpp,v 1.42 2004-03-25 17:59:44 adcockj Exp $
+// $Id: BT848Card_Types.cpp,v 1.43 2004-09-21 17:43:08 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.42  2004/03/25 17:59:44  adcockj
+// Added Sweetspot as new card type
+//
 // Revision 1.41  2004/01/29 15:14:41  adcockj
 // Added TDA9873 patch from Sven Grothklags
 //
@@ -4335,6 +4338,46 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
         CAudioDecoder::AUDIODECODERTYPE_DETECT,
         0,
         {0, 0, 0, 0, 0, 0, }
+    },
+    {
+        "Hercules Smart TV Stereo",
+        4,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                2,
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                3,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                1,
+            },
+            {
+                "Composite over S-Video",
+                INPUTTYPE_COMPOSITE,
+                1,
+            },
+        },
+		PLL_28,
+		TUNER_PHILIPS_PAL,
+		SOUNDCHIP_TDA9874,
+		NULL,
+		StandardBT848InputSelect,
+		SetAnalogContrastBrightness,
+		SetAnalogSaturationU,
+		SetAnalogSaturationV,
+		SetAnalogHue,
+		StandardSetFormat,
+		CAudioDecoder::AUDIODECODERTYPE_TDA9874,
+		0, 
+		/* not applicable for tda9874 because pic16c54 controls mute/unmute*/
+		{0, 0, 0, 0, 0, 0, }
     },
 };
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: I2C.h,v 1.6 2003-10-27 10:39:51 adcockj Exp $
+// $Id: I2C.h,v 1.7 2004-09-21 17:43:08 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -65,6 +65,7 @@ private:
 #define I2C_TDA8425        0x82
 #define I2C_TDA9840        0x84
 #define I2C_TDA9850        0xb6 // also used by 9855,9873 
+#define I2C_TDA9874        0xb0
 #define I2C_TDA9875        0xb0
 #define I2C_HAUPEE         0xa0
 #define I2C_STBEE          0xae

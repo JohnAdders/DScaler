@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Bt848_Defines.h,v 1.29 2004-03-25 17:59:44 adcockj Exp $
+// $Id: Bt848_Defines.h,v 1.30 2004-09-21 17:43:08 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -472,6 +472,7 @@ enum eTVCardId
     TVCARD_PMSDELUXE,
     TVCARD_NEBULA_DIGITV,
     TVCARD_SWEETSPOT,
+	TVCARD_HERCULES_SMART_TV_STEREO,
     TVCARD_LASTONE,
 };
 

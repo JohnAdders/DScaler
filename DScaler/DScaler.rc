@@ -894,6 +894,7 @@ BEGIN
             MENUITEM "Gamma Filter",                IDM_GAMMA_SETTINGS
             MENUITEM "Noise Filter",                IDM_NOISE_SETTINGS
             MENUITEM "Logo Killer Filter",          IDM_LOGOKILL_SETTINGS
+            MENUITEM "Sharpness Filter",            IDM_SHARPNESS_SETTINGS
             MENUITEM "Linear Correction Filter",    IDM_LINCORR_SETTINGS
             MENUITEM "Logging",                     IDM_DEBUG_SETTINGS
             MENUITEM "BT848 Chip",                  IDM_BT848_SETTINGS

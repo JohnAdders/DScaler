@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.53 2001-08-03 14:24:32 adcockj Exp $
+// $Id: DScaler.cpp,v 1.54 2001-08-03 14:36:05 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.53  2001/08/03 14:24:32  adcockj
+// added extra info to splash screen and log
+//
 // Revision 1.52  2001/08/02 16:43:05  adcockj
 // Added Debug level to LOG function
 //
@@ -1486,6 +1489,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
         case IDM_LINCORR_SETTINGS:
             Filter_ShowUI("Linear Correction");
+            break;
+
+        case IDM_SHARPNESS_SETTINGS:
+            Filter_ShowUI("Sharpness");
             break;
 
         case IDM_ASPECT_SETTINGS:

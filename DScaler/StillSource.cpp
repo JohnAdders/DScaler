@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.97 2003-04-26 19:39:11 laurentg Exp $
+// $Id: StillSource.cpp,v 1.98 2003-04-28 13:34:22 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.97  2003/04/26 19:39:11  laurentg
+// New character string settings
+//
 // Revision 1.96  2003/04/26 16:05:36  laurentg
 // Character string settings
 //
@@ -383,6 +386,7 @@ static const char *StillFormatNames[STILL_FORMAT_LASTONE] =
     "JPEG",
 };
 
+static char ExePath[MAX_PATH] = {0};
 static char* SavingPath = NULL;
 
 extern long NumFilters;
@@ -2200,7 +2204,7 @@ SETTING StillSettings[STILL_SETTING_LASTONE] =
     },
     {
         "Saving path for stills", CHARSTRING, 0, (long*)&SavingPath,
-         (long)"", 0, 0, 0, 0,
+         (long)ExePath, 0, 0, 0, 0,
          NULL,
         "Still", "SavingPath", NULL,
     },
@@ -2222,8 +2226,10 @@ SETTING* Still_GetSetting(STILL_SETTING Setting)
 void Still_ReadSettingsFromIni()
 {
     int i;
-    char ExePath[MAX_PATH];
     struct stat st;
+
+	GetModuleFileName (NULL, ExePath, sizeof(ExePath));
+	*(strrchr(ExePath, '\\')) = '\0';
 
     for(i = 0; i < STILL_SETTING_LASTONE; i++)
     {
@@ -2232,8 +2238,6 @@ void Still_ReadSettingsFromIni()
 
     if ((SavingPath == NULL) || stat(SavingPath, &st))
     {
-		GetModuleFileName (NULL, ExePath, sizeof(ExePath));
-		*(strrchr(ExePath, '\\')) = '\0';
         LOG(1, "Incorrect path for snapshots; using %s", ExePath);
 		Setting_SetValue(Still_GetSetting(SAVINGPATH), (long)ExePath);
     }

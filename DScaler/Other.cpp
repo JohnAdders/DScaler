@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.50 2003-01-02 17:27:05 adcockj Exp $
+// $Id: Other.cpp,v 1.51 2003-01-02 19:03:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.50  2003/01/02 17:27:05  adcockj
+// Improvements to extra surface code
+//
 // Revision 1.49  2003/01/02 16:22:09  adcockj
 // Preliminary code to support output plugins properly
 //
@@ -221,7 +224,7 @@ LPDIRECTDRAWSURFACE     lpDDSurface = NULL;
 // OverLay
 LPDIRECTDRAWSURFACE     lpDDOverlay = NULL;
 LPDIRECTDRAWSURFACE     lpDDOverlayBack = NULL;
-LPDIRECTDRAWSURFACE     lpDDExtra = NULL;
+BYTE*                   lpExtraMemoryForFilters = NULL;
 BOOL bCanColorKey=FALSE;
 DWORD DestSizeAlign;
 DWORD SrcSizeAlign;
@@ -229,7 +232,6 @@ COLORREF OverlayColor = RGB(32, 16, 16);
 DWORD PhysicalOverlayColor = RGB(32, 16, 16);
 long BackBuffers = -1;     // Make new user parm, TRB 10/28/00
 BOOL bCanDoBob = FALSE;
-BOOL bCanDoBlt = FALSE;
 BOOL bCanDoColorKey = FALSE;
 DDCOLORCONTROL OriginalColorControls;
 LPDIRECTDRAWCOLORCONTROL pDDColorControl = NULL;
@@ -807,44 +809,17 @@ BOOL Overlay_Create()
     }
 
 
-    // try to create a system memory surface
+    // try to create a memory buffer
     // that we can use if any output filters are switched
     // on.  This is required because reading and writing back to 
     // video memory is very slow
-    memset(&SurfaceDesc, 0x00, sizeof(SurfaceDesc));
-    SurfaceDesc.dwSize = sizeof(SurfaceDesc);
-    SurfaceDesc.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT;
-    SurfaceDesc.ddsCaps.dwCaps =  DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
-    SurfaceDesc.dwWidth = DSCALER_MAX_WIDTH;
-    SurfaceDesc.dwHeight = DSCALER_MAX_HEIGHT;
-    SurfaceDesc.ddpfPixelFormat = PixelFormat;
-
-    ddrval = lpDD->CreateSurface(&SurfaceDesc, &lpDDExtra, NULL);
-    if(ddrval == DDERR_INVALIDPIXELFORMAT)
-    {
-        // if we acn'y create a YUY2 system memory surface
-        // then try ato create an RGB16 one
-        // but make sure that we don't try and blt from it
-        memset(&PixelFormat, 0x00, sizeof(PixelFormat));
-        PixelFormat.dwSize = sizeof(DDPIXELFORMAT);
-        PixelFormat.dwFlags = DDPF_RGB;
-        PixelFormat.dwRGBBitCount = 16;
-        PixelFormat.dwRBitMask = 0xf800;
-        PixelFormat.dwGBitMask = 0x07e0;
-        PixelFormat.dwBBitMask = 0x001f;
-        SurfaceDesc.ddpfPixelFormat = PixelFormat;
-
-        bCanDoBlt = FALSE;
-
-        ddrval = lpDD->CreateSurface(&SurfaceDesc, &lpDDExtra, NULL);
-    }
-
-    if(FAILED(ddrval))
+    lpExtraMemoryForFilters = (BYTE*)malloc(DSCALER_MAX_WIDTH * DSCALER_MAX_HEIGHT * 2 + 16);
+    if(lpExtraMemoryForFilters == NULL)
     {
        // if we can't do a system memory buffer it's not the end of the
        // world it just means that any output filters will run very slow
-       LOG(1, "Couldn't create additional buffer for output filters retval %08x", ddrval);
-       lpDDExtra = NULL;
+       LOG(1, "Couldn't create additional buffer for output filters");
+       lpExtraMemoryForFilters = NULL;
     }
 
     LeaveCriticalSection(&hDDCritSect);
@@ -935,10 +910,9 @@ BOOL Overlay_Destroy()
     }
 
     // Now destroy the Extra Surface
-    if (lpDDExtra != NULL)
+    if (lpExtraMemoryForFilters != NULL)
     {
-        lpDDExtra->Release();
-        lpDDExtra = NULL;
+        free(lpExtraMemoryForFilters);
     }
    
     // Now destroy the Back Overlay
@@ -976,45 +950,15 @@ static HRESULT FlipResult = 0;             // Need to try again for flip?
 
 BOOL Overlay_Lock_Extra_Buffer(TDeinterlaceInfo* pInfo)
 {
-    if(lpDDExtra == NULL)
+    if(lpExtraMemoryForFilters == NULL)
     {
-        LOG(1, "Extra Surface has been deleted");
+        LOG(1, "Extra Buffer has been deleted");
         return FALSE;
     }
 
-    EnterCriticalSection(&hDDCritSect);
-
-    HRESULT         ddrval;
-    static DWORD    dwFlags = DDLOCK_WAIT | DDLOCK_NOSYSLOCK;
-    DDSURFACEDESC   SurfaceDesc;
-
-    memset(&SurfaceDesc, 0x00, sizeof(SurfaceDesc));
-    SurfaceDesc.dwSize = sizeof(SurfaceDesc);
-    ddrval = lpDDExtra->Lock(NULL, &SurfaceDesc, dwFlags, NULL);
-
-    // fix suggested by christoph for NT 4.0 sp6
-    if(ddrval == E_INVALIDARG && (dwFlags & DDLOCK_NOSYSLOCK))
-    {
-        //remove flag
-        ddrval = lpDDExtra->Lock(NULL, &SurfaceDesc, DDLOCK_WAIT, NULL);
-        if( SUCCEEDED(ddrval) )
-        {
-            //remember for next time
-            dwFlags = DDLOCK_WAIT;
-            LOG(1, "Switched to not using NOSYSLOCK");
-        }
-    }
-
-    if(FAILED(ddrval))
-    {
-        LOG(1, "Lock failed %8x", ddrval);
-        LeaveCriticalSection(&hDDCritSect);
-        return FALSE;
-    }
-
-    pInfo->OverlayPitch = SurfaceDesc.lPitch;         // Set new pitch, may change
-    pInfo->Overlay = (BYTE*)SurfaceDesc.lpSurface;
-    // stay in critical section
+    pInfo->OverlayPitch = DSCALER_MAX_WIDTH;
+    // get back some memory aligned on 16 byte boundary for SSE
+    pInfo->Overlay = lpExtraMemoryForFilters + (16 - ((DWORD)lpExtraMemoryForFilters % 16));
     return TRUE;
 }
 
@@ -1030,7 +974,7 @@ BOOL Overlay_Lock_Extra_Buffer(TDeinterlaceInfo* pInfo)
 //
 BOOL Overlay_Lock_Back_Buffer(TDeinterlaceInfo* pInfo, BOOL bUseExtraBuffer)
 {
-    if(bUseExtraBuffer && lpDDExtra != NULL)
+    if(bUseExtraBuffer && lpExtraMemoryForFilters != NULL)
     {
         return Overlay_Lock_Extra_Buffer(pInfo);
     }
@@ -1144,36 +1088,11 @@ BOOL Overlay_Lock(TDeinterlaceInfo* pInfo)
     return TRUE;
 }
 
-BOOL Overlay_Unlock_Extra_Buffer()
-{
-    if(lpDDExtra == NULL)
-    {
-        LOG(1, "Extra Surface has been deleted");
-        LeaveCriticalSection(&hDDCritSect);
-        return FALSE;
-    }
-
-    // we are already in critical section
-    HRESULT ddrval = lpDDExtra->Unlock(NULL);
-    BOOL RetVal = TRUE;
-    if(FAILED(ddrval))
-    {
-        if(ddrval != DDERR_SURFACELOST)
-        {
-            LOG(1, "Unexpected failure in Unlock %8x", ddrval);
-        }
-        RetVal = FALSE;
-    }
-    LeaveCriticalSection(&hDDCritSect);
-    return RetVal;
-}
-
-
 BOOL Overlay_Unlock_Back_Buffer(BOOL bUseExtraBuffer)
 {
-    if(bUseExtraBuffer && lpDDExtra != NULL)
+    if(bUseExtraBuffer && lpExtraMemoryForFilters != NULL)
     {
-        return Overlay_Unlock_Extra_Buffer();
+        return TRUE;
     }
     if(lpDDOverlayBack == NULL)
     {
@@ -1223,27 +1142,7 @@ BOOL Overlay_Unlock()
 
 void Overlay_Copy_Extra(TDeinterlaceInfo* pInfo)
 {
-    // try using the blt if it is supported
-    // as this should be the fastest
-    // otherwise we will fall back to using memcpy
-    if(bCanDoBlt)
-    {
-        RECT Rect = {0, 0, pInfo->FrameWidth, pInfo->FrameHeight};
-        HRESULT ddrval = lpDDOverlay->BltFast(0, 0, lpDDExtra, &Rect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
-        if(SUCCEEDED(ddrval))
-        {
-            // OK so exit
-            return;
-        }
-        LOG(1, "BltFast failed %08x", ddrval);
-
-        // this is a drop through so that we always get a nice image
-        // Since this is new and is an optimization
-        // just set it up so that the old way gets used
-        bCanDoBlt = FALSE;
-    }
-    
-    Overlay_Lock_Back_Buffer(pInfo, TRUE);
+    Overlay_Lock_Extra_Buffer(pInfo);
     BYTE* FromPtr = pInfo->Overlay;
     long FromPitch = pInfo->OverlayPitch;
     Overlay_Lock_Back_Buffer(pInfo, FALSE);
@@ -1261,7 +1160,6 @@ void Overlay_Copy_Extra(TDeinterlaceInfo* pInfo)
     }
 
     Overlay_Unlock_Back_Buffer(FALSE);
-    Overlay_Unlock_Back_Buffer(TRUE);
 }
 
 
@@ -1276,7 +1174,7 @@ BOOL Overlay_Flip(DWORD FlipFlag, BOOL bUseExtraBuffer, TDeinterlaceInfo* pInfo)
 
     // if we have been using the extra surface then we need to copy
     // the picture onto the overlay
-    if(bUseExtraBuffer && lpDDExtra != NULL)
+    if(bUseExtraBuffer && lpExtraMemoryForFilters != NULL)
     {
         Overlay_Copy_Extra(pInfo);
     }
@@ -1405,8 +1303,6 @@ BOOL InitDD(HWND hWnd)
             ErrorBox("Can't Use Overlay");
             return (FALSE);
         }
-
-        bCanDoBlt = ((DriverCaps.dwCaps & DDCAPS_CANBLTSYSMEM) != 0);
     }
 
     ddrval = lpDD->SetCooperativeLevel(hWnd, DDSCL_NORMAL);

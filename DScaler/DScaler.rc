@@ -858,6 +858,7 @@ END
 
 IDB_STARTUP             BITMAP  DISCARDABLE     "res\\STARTUP.bmp"
 IDB_VTCHARS             BITMAP  DISCARDABLE     "res\\Vtx15x18.bmp"
+IDB_FRENCH_VTCHARS      BITMAP  DISCARDABLE     "RES\\VTFRENCHX15X18.BMP"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -1188,25 +1189,6 @@ BEGIN
 END
 
 #endif    // English (U.S.) resources
-/////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////////////////////
-// English (U.K.) resources
-
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENG)
-#ifdef _WIN32
-LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
-#pragma code_page(1252)
-#endif //_WIN32
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Bitmap
-//
-
-IDB_FRENCH_VTCHARS      BITMAP  DISCARDABLE     "RES\\VTFRENCHX15X18.BMP"
-#endif    // English (U.K.) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.73 2002-10-27 11:29:29 laurentg Exp $
+// $Id: StillSource.cpp,v 1.74 2002-10-27 12:18:51 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.73  2002/10/27 11:29:29  laurentg
+// New way to take stills - filling a memory buffer rather than the overlay
+//
 // Revision 1.72  2002/10/26 21:37:13  laurentg
 // Take consecutive stills
 //
@@ -291,6 +294,7 @@ static int DelayBetweenStills = 60;
 static BOOL SaveInSameFile = FALSE;
 static BOOL StillsInMemory = FALSE;
 static char DScalerContext[1024];
+static int NbConsecutiveStills = 20;
 
 static const char *StillFormatNames[STILL_FORMAT_LASTONE] = 
 {
@@ -1757,7 +1761,7 @@ SETTING StillSettings[STILL_SETTING_LASTONE] =
     },
     {
         "Delay between stills", SLIDER, 0, (long*)&DelayBetweenStills,
-         60, 5, 3600, 1, 1,
+         60, 1, 3600, 1, 1,
          NULL,
         "Still", "DelayBetweenStills", NULL,
     },
@@ -1772,6 +1776,12 @@ SETTING StillSettings[STILL_SETTING_LASTONE] =
          FALSE, 0, 1, 1, 1,
          NULL,
         "Still", "StillsInMemory", NULL,
+    },
+    {
+        "Number of consecutive stills", SLIDER, 0, (long*)&NbConsecutiveStills,
+         20, 2, 60, 1, 1,
+         NULL,
+        "Still", "NbConsecutiveStills", NULL,
     },
 };
 

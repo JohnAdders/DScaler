@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.257 2002-10-27 04:28:42 atnak Exp $
+// $Id: DScaler.cpp,v 1.258 2002-10-27 12:18:51 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.257  2002/10/27 04:28:42  atnak
+// Fixed cursor toggled hidden not showing for menus and dialogs
+//
 // Revision 1.256  2002/10/26 21:42:04  laurentg
 // Take consecutive stills
 //
@@ -3042,8 +3045,8 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_TAKECONSECUTIVESTILL:
-			// Take 24 cpnsecutive stills
-            RequestStill(24);
+			// Take cpnsecutive stills
+            RequestStill((eStillFormat)Setting_GetValue(Still_GetSetting(NBCONSECUTIVESTILLS)));
             break;
 
         case IDM_TAKECYCLICSTILL:

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.95 2002-12-10 12:58:07 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.96 2003-01-01 20:56:46 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.95  2002/12/10 12:58:07  adcockj
+// Removed NotifyInputChange and NotifyVideoFormatChange functions and replaced with
+//  calls to EventCollector->RaiseEvent
+//
 // Revision 1.94  2002/12/09 00:32:14  atnak
 // Added new muting stuff
 //
@@ -345,6 +349,7 @@
 #include "DScaler.h"
 #include "VBI.h"
 #include "VBI_VideoText.h"
+#include "VBI_VPSdecode.h"
 #include "Audio.h"
 #include "VideoSettings.h"
 #include "OutThreads.h"
@@ -966,20 +971,24 @@ CBT848Card* CBT848Source::GetBT848Card()
 
 LPCSTR CBT848Source::GetStatus()
 {
-    static LPCSTR pRetVal = "";
+    static char szStatus[24];
+    LPCSTR pRetVal;
+
     if (IsInTunerMode())
     {
-        if (*VT_GetStation() != 0x00)
+        VT_GetStation(szStatus, sizeof(szStatus));
+
+        if (*szStatus == '\0')
         {
-            pRetVal = VT_GetStation();
+            VPS_GetChannelName(szStatus, sizeof(szStatus));
         }
-        else if (VPSLastName[0] != 0x00)
+        if (*szStatus == '\0')
         {
-            pRetVal = VPSLastName;
+            pRetVal = Channel_GetName();
         }
         else
         {
-            pRetVal = Channel_GetName();
+            pRetVal = szStatus;
         }
     }
     else

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.h,v 1.19 2002-12-13 20:31:18 tobbej Exp $
+// $Id: OutThreads.h,v 1.20 2003-01-01 20:56:45 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -72,8 +72,6 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter);
 
 BOOL WaitForNextField(BOOL LastField, BOOL* RunningLate);
 BOOL LockOverlay(TDeinterlaceInfo* pInfo);
-
-extern BOOL VTPageContainsTransparency;
 
 #ifdef _DEBUG
 	#define ASSERTONOUTTHREAD AssertOnOutThread()

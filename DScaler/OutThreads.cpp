@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.102 2002-12-13 20:31:16 tobbej Exp $
+// $Id: OutThreads.cpp,v 1.103 2003-01-01 20:56:45 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.102  2002/12/13 20:31:16  tobbej
+// added new assert macro for detecting if running on output thread
+//
 // Revision 1.101  2002/12/09 00:32:14  atnak
 // Added new muting stuff
 //
@@ -938,8 +941,8 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                 pPerf->StopCount(PERF_TIMESHIFT);
 #endif
 
-                if(!Info.bMissedFrame && !bMinimized && !bNoScreenUpdateDuringTuning &&
-                    ((VTState != VT_BLACK)  || VTPageContainsTransparency))
+                if (!Info.bMissedFrame && !bMinimized && !bNoScreenUpdateDuringTuning &&
+                    (VT_GetState() != VT_BLACK  || VT_IsTransparencyInPage()))
                 {
 #ifdef _DEBUG
                     pPerf->StartCount(PERF_PULLDOWN_DETECT);
@@ -1032,7 +1035,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                 __try
                 {
                     if(!Info.bRunningLate && !bMinimized && !bNoScreenUpdateDuringTuning &&
-                        ((VTState != VT_BLACK)  || VTPageContainsTransparency))
+                        (VT_GetState() != VT_BLACK  || VT_IsTransparencyInPage()))
                     {
                         BOOL bFlipNow = FALSE;
 

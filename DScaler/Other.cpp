@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.47 2002-10-16 16:08:54 tobbej Exp $
+// $Id: Other.cpp,v 1.48 2003-01-01 20:56:46 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.47  2002/10/16 16:08:54  tobbej
+// spelling error
+//
 // Revision 1.46  2002/09/26 16:26:26  adcockj
 // Fix for some old cards that do not support waitinf for flip
 //
@@ -363,7 +366,7 @@ BOOL Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags)
             // if we are doing teletext the override the
             // background to pink so that we can do transparent
             // with the PAL RGB colours
-            if(VTState == VT_OFF)
+            if (VT_GetState() == VT_OFF)
             {
                 PhysicalOverlayColor = Overlay_ColorMatch(lpDDSurface, OverlayColor);
                 if (PhysicalOverlayColor == 0 && OverlayColor != 0)      // sometimes we glitch and can't get the Value
@@ -383,6 +386,8 @@ BOOL Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags)
                 }
                 LOG(3, "Physical overlay color is %x", PhysicalOverlayColor);
             }
+
+            VT_SetOverlayColour(PhysicalOverlayColor);
 
             DDOverlayFX.dckDestColorkey.dwColorSpaceHighValue = PhysicalOverlayColor;
             DDOverlayFX.dckDestColorkey.dwColorSpaceLowValue = PhysicalOverlayColor;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TemporalComb.asm,v 1.1 2001-08-23 06:38:43 adcockj Exp $
+// $Id: FLT_TemporalComb.asm,v 1.2 2001-08-30 10:04:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Lindsey Dubb.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/08/23 06:38:43  adcockj
+// Added First version of Lindsey Dubb's filter
+//
 /////////////////////////////////////////////////////////////////////////////
 
 // This is the implementation of the comb filter described in TemporalComb.c.
@@ -43,9 +46,9 @@
 //   That's because -- based on an optimization guide -- prefetch doesn't
 //   help the K6.
 // - The MMX and 3DNOW code use pmulhw or pmulhrw instead of pmulhuw, which
-//   results  in the loss of one bit of precision in the decay of the shimmer
+//   results in the loss of one bit of precision in the decay of the shimmer
 //   map.  This matters some for very low decay percentages.
-// - The MMX code uses a slower averaging routine which rounds down.The other
+// - The MMX code uses a slower averaging routine which rounds down. The other
 //   code uses a faster averaging routine which rounds up. It would be possible
 //   to average better by rounding toward one of the operands, but it's not
 //   worth the slowdown.
@@ -130,7 +133,7 @@
 
 #define PREFETCH_STRIDE     128
 
-// This number is not arbirtary: It's 2^14, which is the highest power of 2 divisor
+// This number is not arbitrary: It's 2^14, which is the highest power of 2 divisor
 // possible without triggering a sign based error.
 
 #define FIXED_POINT_DIVISOR 16384
@@ -294,7 +297,7 @@ long FilterTemporalComb_MMX(DEINTERLACE_INFO *info)
 #endif  // processor specific routine name
 {
     DWORD           ThisLine = 0;
-    WORD***         pppTheseFrames = NULL;
+    WORD***         pppTheseFields = NULL;
     WORD*           pSource = NULL;
     WORD*           pLastLast = NULL;
     const __int64   qwAccumulate = 0x0147014701470147;  // = quadword of 327 (= ACCUMULATION) decimal
@@ -306,6 +309,7 @@ long FilterTemporalComb_MMX(DEINTERLACE_INFO *info)
     WORD*           pMap = NULL;
     __int64         qwMotionThreshold = 0;
     __int64         qwAveragingThreshold = 0;
+    const LONG      LineWords = info->OverlayPitch/sizeof(short);   // Assumes the lines are alligned
 
     __int64         qwShiftMask = 0xFEFFFEFFFEFFFEFF;
     DWORD           BottomLine = 0;
@@ -314,44 +318,54 @@ long FilterTemporalComb_MMX(DEINTERLACE_INFO *info)
     static int      sLastFieldHeight = 0;
     static DWORD    sLastShimmerPercent = 0;
     static DWORD    sLastDecayPercent = 0;
+    WORD***         pppThoseFields = NULL;
 
     if ((info->OverlayPitch != sLastOverlayPitch) || (info->FieldHeight != sLastFieldHeight))
     {
         sLastOverlayPitch = info->OverlayPitch;
         sLastFieldHeight = info->FieldHeight;
-        if (gpShimmerMap != NULL)
-        {
-            free(gpShimmerMap);
-            gpShimmerMap = NULL;
-        }
+        CleanupTemporalComb();
     }
     if (gpShimmerMap == NULL)
     {
-        DWORD   index = 0;
-        gpShimmerMap = malloc(info->OverlayPitch * info->FieldHeight * sizeof(short));
+        DWORD   Index = 0;
+        gpShimmerMap = malloc(info->OverlayPitch * sizeof(short) * info->FieldHeight);
         if (gpShimmerMap == NULL)
         {
             return 1000;    // !! Should notify user !!
         }
-        for ( ; index < (info->OverlayPitch * info->FieldHeight); ++index)
+        for ( ; Index < (info->OverlayPitch * info->FieldHeight); ++Index)
         {
-            gpShimmerMap[index] = 0;
+            gpShimmerMap[Index] = 0;
         }
     }
 
     if (info->IsOdd == TRUE)
     {
-        pppTheseFrames = info->OddLines;
+        pppTheseFields = info->OddLines;
+        pppThoseFields = info->EvenLines;
     }
     else
     {
-        pppTheseFrames = info->EvenLines;
+        pppTheseFields = info->EvenLines;
+        pppThoseFields = info->OddLines;
     }
 
-    if ((pppTheseFrames[0] == NULL) || (pppTheseFrames[1] == NULL) || (pppTheseFrames[2] == NULL))
+    if ((pppTheseFields[0] == NULL) || (pppTheseFields[1] == NULL) || (pppTheseFields[2] == NULL))
     {
         return 1000;
     }
+
+    if (gDoFieldBuffering)
+    {
+        LONG    ErrorCode;
+        ErrorCode = UpdateBuffers(info, pppTheseFields, pppThoseFields);
+        if (ErrorCode)
+        {
+            return ErrorCode;
+        }
+    }
+
 
     // Have either of the scaled parameters changed?
     // If so, we need to reparameterize again.  Reparameterization is a good idea with this filter
@@ -391,12 +405,26 @@ long FilterTemporalComb_MMX(DEINTERLACE_INFO *info)
 
     for (ThisLine = info->SourceRect.top; ThisLine < BottomLine; ++ThisLine)
     {
-        // OverlayPitch/2 is the number of shorts per line of gpShimmerMap
-
-        pMap = gpShimmerMap + (ThisLine * info->OverlayPitch/2);
-        pSource = pppTheseFrames[0][ThisLine];
-        pLast = pppTheseFrames[1][ThisLine];
-        pLastLast = pppTheseFrames[2][ThisLine];
+        pMap = gpShimmerMap + (ThisLine * LineWords);
+        pSource = pppTheseFields[0][ThisLine];
+        if (gDoFieldBuffering == TRUE)
+        {
+            if (info->IsOdd == TRUE)
+            {
+                pLast = gppFieldBuffer[1] + (ThisLine * LineWords);
+                pLastLast = gppFieldBuffer[3] + (ThisLine * LineWords);
+            }
+            else
+            {
+                pLast = gppFieldBuffer[2] + (ThisLine * LineWords);
+                pLastLast = gppFieldBuffer[4] + (ThisLine * LineWords);
+            }
+        }
+        else
+        {
+            pLast = pppTheseFields[1][ThisLine];
+            pLastLast = pppTheseFields[2][ThisLine];
+        }
 
         __asm
         {
@@ -654,6 +682,6 @@ MAINLOOP_LABEL:
         emms
 #endif
     }
-
+    
     return 1000;
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TemporalComb.c,v 1.2 2001-08-23 06:48:57 adcockj Exp $
+// $Id: FLT_TemporalComb.c,v 1.3 2001-08-30 10:04:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Lindsey Dubb.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/08/23 06:48:57  adcockj
+// Fixed control header for TemporalComb filter
+//
 // Revision 1.1  2001/08/23 06:38:44  adcockj
 // Added First version of Lindsey Dubb's filter
 //
@@ -72,14 +75,12 @@ Ways this filter could be improved:
   at the bottom of this file has a more elaborate version of this.
 - Use a one field delay to confirm shimmering.  This would definitely help, but I'm
   not sure the cost (delayed picture and early sound) would be worth it.
-- Give up on the ad hoc gpShimmerMap stuff, and run a hidden Markov field model,  (It
+- Give up on the ad hoc gpShimmerMap stuff, and run a hidden Markov model,  (It
   could probably be done in real time, but there are higher priorities for
   processing time.  So this would have to wait for faster processors.)
 - Make better use of phase information.  The program doesn't track the past phase
   of shimmering -- it just remembers how much shimmering there was in general.
-- Use internal storage for the past four frames to avoid feedback problems.  (This
-  plugin alters the source field, then later uses that altered field to infer
-  shimmering.  It would probably be better to use an unaltered copy.)
+- Average between fields instead of frames when it's beneficial.
 */
 /////////////////////////////////////////////////////////////////////////////
 
@@ -87,7 +88,8 @@ Ways this filter could be improved:
 // Function prototypes
 /////////////////////////////////////////////////////////////////////////////
 
-void __cdecl CleanupTemporalComb(void);
+void __cdecl ExitTemporalComb(void);
+void CleanupTemporalComb(void);
 __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo(long CpuFeatureFlags);
 void RescaleParameters_MMXEXT(LONG* pDecayNumerator, LONG* pAveragingThreshold);
 void RescaleParameters_SSE(LONG* pDecayNumerator, LONG* pAveragingThreshold);
@@ -97,6 +99,7 @@ long FilterTemporalComb_MMXEXT(DEINTERLACE_INFO *info);
 long FilterTemporalComb_SSE(DEINTERLACE_INFO *info);
 long FilterTemporalComb_3DNOW(DEINTERLACE_INFO *info);
 long FilterTemporalComb_MMX(DEINTERLACE_INFO *info);
+LONG UpdateBuffers(DEINTERLACE_INFO *info, WORD*** pppTheseFields, WORD*** pppThoseFields);
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -107,7 +110,7 @@ long FilterTemporalComb_MMX(DEINTERLACE_INFO *info);
 
 static WORD*   gpShimmerMap = NULL;
 
-// _Relative_ amount of shimmering (from gShimmerMap) to trigger the shimmer compensation
+// _Relative_ amount of shimmering (from gpShimmerMap) to trigger the shimmer compensation
 // (See the RescaleParameter...() comments for an explanation of "relative")
 // Set this too low, and noise will get misinterpreted as shimmering.  If you run a noise
 // filter first, this problem is greatly reduced.
@@ -126,18 +129,28 @@ static LONG    gDecayCoefficient = 85;
 // this filter uses a better motion detector, and also only looks at shimmering pixels.
 // Still, don't set them too high or you will see artifacts.  And don't set them too low
 // or you will miss some of the worst dot crawl.  Note that you'll have to increase their
-// values if you have Odd/Even Luma Peaking enabled.
-// You can afford to set these a bit higher if you run a noise filter, first.  That cuts
+// values if you have Odd/Even Luma Peaking enabled, and can decrease them if Trade Speed
+// for Accuracy in enabled.
+// You can afford to set these a bit lower if you run a noise filter, first.  That cuts
 // down on spurious identification of shimmering.
 
 static LONG    gInPhaseLuminanceThreshold = 35;
 static LONG    gInPhaseChromaThreshold = 35;
 
+
+// Store the most recent four fields (and the current field) to prevent feedback effects
+// gppFieldBuffer[0] = current field
+// gppFieldBuffer[1], gppFieldBuffer[3] are previous two odd fields
+// gppFieldBuffer[2], [4] are previous two even fields
+
+#define NUM_BUFFERS     5
+
+static LONG    gDoFieldBuffering;
+static WORD*   gppFieldBuffer[NUM_BUFFERS] = {NULL, NULL, NULL, NULL, NULL};
+
+
 static FILTER_METHOD TemporalCombMethod;
 
-
-// The "old shimmering weight" is limited to 5 on the low end because rounding errors
-// make settings lower than that useless.
 
 static SETTING FLT_TemporalCombSettings[FLT_TCOMB_SETTING_LASTONE] =
 {
@@ -145,31 +158,37 @@ static SETTING FLT_TemporalCombSettings[FLT_TCOMB_SETTING_LASTONE] =
         "Maximum in phase luminance difference", SLIDER, 0, &gInPhaseLuminanceThreshold,
         35, 0, 255, 1, 1,
         NULL,
-        "NoiseFilter", "InPhaseLuminanceThreshold", NULL,
+        "TCombFilter", "InPhaseLuminanceThreshold", NULL,
     },
     {
         "Maximum in phase chroma difference", SLIDER, 0, &gInPhaseChromaThreshold,
         35, 0, 255, 1, 1,
         NULL,
-        "NoiseFilter", "InPhaseChromaThreshold", NULL,
+        "TCombFilter", "InPhaseChromaThreshold", NULL,
     },
     {
         "Recall of past shimmering (percent)", SLIDER, 0, &gDecayCoefficient,
         85, 0, 99, 1, 1,
         NULL,
-        "NoiseFilter", "ShimmerRecall", NULL,
+        "TCombFilter", "ShimmerRecall", NULL,
     },
     {
         "Shimmering to activate (percent)", SLIDER, 0, &gShimmerThreshold,
         70, 0, 100, 1, 1,
         NULL,
-        "NoiseFilter", "ShimmerThreshold", NULL,
+        "TCombFilter", "ShimmerThreshold", NULL,
     },
     {
         "Use temporal comb filter", ONOFF, 0, &TemporalCombMethod.bActive,
         FALSE, 0, 1, 1, 1,
         NULL,
-        "NoiseFilter", "UseCombFilter", NULL,
+        "TCombFilter", "UseCombFilter", NULL,
+    },
+    {
+        "Trade speed for accuracy", ONOFF, 0, &gDoFieldBuffering,
+        FALSE, 0, 1, 1, 1,
+        NULL,
+        "TCombFilter", "SpeedForAccuracy", NULL,
     },
 };
 
@@ -180,12 +199,12 @@ static FILTER_METHOD TemporalCombMethod =
     "Temporal Comb Filter",                 // Displayed name                          
     NULL,                                   // Use same name in menu
     FALSE,                                  // Not initially active
-    TRUE,                                   // Do call on input
+    TRUE,                                   // Do call on input  ! need to find out what this does !
     FilterTemporalComb_MMX, 
     0,                                      
     FALSE,                                  // Does not run if we've run out of time
     NULL,                                   // No initialization procedure
-    CleanupTemporalComb,                    // Deallocation routine
+    ExitTemporalComb,                       // Deallocation routine
     NULL,                                   // Module handle; Filled in by DScaler
     FLT_TCOMB_SETTING_LASTONE,              // Number of settings
     FLT_TemporalCombSettings,
@@ -194,7 +213,7 @@ static FILTER_METHOD TemporalCombMethod =
 
 
 /////////////////////////////////////////////////////////////////////////////
-// Main code (included from FLT_TNoise.asm)
+// Main code (included from FLT_TemporalComb.asm)
 /////////////////////////////////////////////////////////////////////////////
 
 #define IS_MMXEXT
@@ -218,12 +237,27 @@ static FILTER_METHOD TemporalCombMethod =
 // Start of utility code
 /////////////////////////////////////////////////////////////////////////////
 
-void __cdecl CleanupTemporalComb(void)
+void __cdecl ExitTemporalComb(void)
 {
+    CleanupTemporalComb();
+}
+
+
+void CleanupTemporalComb(void)
+{
+    DWORD   Index = 0;
     if (gpShimmerMap != NULL)
     {
         free(gpShimmerMap);
         gpShimmerMap = NULL;
+    }
+    for ( ; Index < NUM_BUFFERS; ++Index)
+    {
+        if (gppFieldBuffer[Index] != NULL)
+        {
+            free(gppFieldBuffer[Index]);
+            gppFieldBuffer[Index] = NULL;
+        }
     }
 }
 
@@ -262,6 +296,74 @@ BOOL WINAPI _DllMainCRTStartup(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lp
 */
 
 
+
+
+// Update the (paired circular) field buffer array
+// Returns 1000 if the filter needs to abort (due either to memory allocation problems
+// or a partially full buffer), 0 otherwise
+
+LONG UpdateBuffers(DEINTERLACE_INFO *info, WORD*** pppTheseFields, WORD*** pppThoseFields)
+{
+        DWORD           Index = 0;
+        static LONG     HistoryWait = NUM_BUFFERS + 1;
+        WORD*           pTempBuffer = NULL;
+
+        --HistoryWait;
+
+        // We need the last four fields to be available. We've already checked the
+        // 2nd and 4th, so...
+
+        if ((pppThoseFields[0] == NULL) || (pppThoseFields[2] == NULL))
+        {
+            return 1000;
+        }
+        for ( ; Index < NUM_BUFFERS; ++Index)
+        {
+            if (gppFieldBuffer[Index] == NULL)
+            {
+                HistoryWait = Index;
+                gppFieldBuffer[Index] = malloc(info->OverlayPitch * sizeof(short) * info->FieldHeight);
+                if (gppFieldBuffer[Index] == NULL)
+                {
+                    return 1000;    // !! Should notify user !!
+                }
+            }
+
+        }
+
+        // Slide the field history along
+
+        if (info->IsOdd)
+        {
+            pTempBuffer = gppFieldBuffer[4];
+            gppFieldBuffer[4] = gppFieldBuffer[2];
+            gppFieldBuffer[2] = gppFieldBuffer[0];
+            gppFieldBuffer[0] = pTempBuffer;
+        }
+        else
+        {
+            pTempBuffer = gppFieldBuffer[3];
+            gppFieldBuffer[3] = gppFieldBuffer[1];
+            gppFieldBuffer[1] = gppFieldBuffer[0];
+            gppFieldBuffer[0] = pTempBuffer;
+        }
+
+        // Copy current field to gppFieldBuffer[0] so we can compare against it without feedback
+
+        for (Index = 0 ; Index < (DWORD)info->FieldHeight; ++Index)
+        {
+            info->pMemcpy(gppFieldBuffer[0] + Index*(info->OverlayPitch/sizeof(short)),
+                pppTheseFields[0][Index], info->LineLength);
+        }
+        if (HistoryWait > 0)
+        {
+            return 1000;            // Need to have filled the buffers with useful data
+        }
+        HistoryWait = 0;
+        return 0;
+}
+
+
 /*
 The C version
 
@@ -275,9 +377,9 @@ removed from the assembly version for speed reasons.  It's also a bit easier to 
 
     ++sIndicatorCounter;
 
-    if (gpShimmerMap == NULL) {
+    if (gShimmerMap == NULL) {
         unsigned long    index;
-        gpShimmerMap = malloc(info->OverlayPitch * info->FrameHeight * sizeof(short));
+        gShimmerMap = malloc(info->OverlayPitch * info->FrameHeight * sizeof(short));
         if (!gShimmerMap) {
             return 1000;
         }

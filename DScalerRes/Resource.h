@@ -934,6 +934,12 @@
 #define IDD_TREESETTINGS_TAB            2387
 #define IDC_TREESETTINGS_LINE           2389
 #define IDC_HELPBTN                     2390
+#define IDC_MIXER_INPUT0NAME            8000
+#define IDC_MIXER_INPUT1NAME            8001
+#define IDC_MIXER_INPUT2NAME            8002
+#define IDC_MIXER_INPUT3NAME            8003
+#define IDC_MIXER_INPUT4NAME            8004
+#define IDC_MIXER_INPUT5NAME            8005
 #define IDM_SETTINGS_FILTERSETTINGS     32771
 #define IDM_SOURCE_INITIAL              32772
 #define IDM_DSHOW_FILTERS               32773
@@ -981,7 +987,7 @@
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        204
 #define _APS_NEXT_COMMAND_VALUE         32798
-#define _APS_NEXT_CONTROL_VALUE         8000
+#define _APS_NEXT_CONTROL_VALUE         8005
 #define _APS_NEXT_SYMED_VALUE           2391
 #endif
 #endif

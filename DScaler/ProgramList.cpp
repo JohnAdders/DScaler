@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.69 2002-08-11 19:53:32 robmuller Exp $
+// $Id: ProgramList.cpp,v 1.70 2002-08-16 18:45:56 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.69  2002/08/11 19:53:32  robmuller
+// Increased default value of PostSwitchMuteDelay from 20 to 100.
+//
 // Revision 1.68  2002/08/06 18:35:43  kooiman
 // Expandable and more independent channel change notification.
 //
@@ -228,6 +231,9 @@
 #include "OSD.h"
 #include "Providers.h"
 
+// From outthreads.cpp
+extern BOOL bNoScreenUpdateDuringTuning;
+
 int CurSel;
 unsigned short SelectButton;
 int EditProgram;
@@ -253,6 +259,11 @@ long DragItemIndex = 0;
 
 int PreSwitchMuteDelay = 0;
 int PostSwitchMuteDelay = 0;
+
+int TunerSwitchScreenUpdateDelay = 0;
+
+static int PostSwitchMuteTimer = 0;
+static int TunerSwitchScreenUpdateDelayTimer = 0;
 
 static int InitialNbMenuItems = -1;
 
@@ -1238,6 +1249,30 @@ void Load_Program_List_ASCII()
     return;
 }
 
+
+static VOID CALLBACK TunerSwitchScreenUpdateDelayTimerProc( 
+    HWND hwnd,        // handle to window for timer messages 
+    UINT message,     // WM_TIMER message 
+    UINT idTimer,     // timer identifier 
+    DWORD dwTime)
+{
+    TunerSwitchScreenUpdateDelayTimer = 0;
+    KillTimer(hwnd, idTimer);    
+    bNoScreenUpdateDuringTuning = FALSE;
+}
+
+static VOID CALLBACK PostSwitchMuteDelayTimerProc( 
+    HWND hwnd,        // handle to window for timer messages 
+    UINT message,     // WM_TIMER message 
+    UINT idTimer,     // timer identifier 
+    DWORD dwTime)
+{
+    PostSwitchMuteTimer = 0;
+    KillTimer(hwnd, idTimer);    
+    Audio_Unmute();
+}
+
+
 //---------------------------------------------------------------------------
 void Channel_Change(int NewChannel, int DontStorePrevious)
 {
@@ -1266,6 +1301,17 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
                 {
                     VideoFormat = VIDEOFORMAT_LASTONE;
                 }
+                
+                if (TunerSwitchScreenUpdateDelay > 0)
+                {
+                    if (TunerSwitchScreenUpdateDelayTimer > 0)
+                    {
+                        bNoScreenUpdateDuringTuning = FALSE;
+                        KillTimer(NULL, TunerSwitchScreenUpdateDelayTimer);
+                    }                    
+                    TunerSwitchScreenUpdateDelayTimer = SetTimer(NULL, NULL, TunerSwitchScreenUpdateDelay, TunerSwitchScreenUpdateDelayTimerProc);
+                    bNoScreenUpdateDuringTuning = TRUE;                
+                }
                 // try up to three times if something goes wrong.
                 // \todo: fix tuner write errors
                 for(int i = 0; i < 3; i++)
@@ -1277,12 +1323,27 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
                         break;
                     }
                 }
+                
+                if (PostSwitchMuteDelay > 0)
+                {
+                    if (PostSwitchMuteTimer > 0)
+                    {
+                        KillTimer(NULL, PostSwitchMuteTimer);
+                    }
+                    PostSwitchMuteTimer = SetTimer(NULL, NULL, PostSwitchMuteDelay, PostSwitchMuteDelayTimerProc);
+                }
+                else
+                {
+                    Audio_Unmute(); 
+                }
+
                 Channel_Change_Notify(0, OldChannel, NewChannel);
-                Sleep(PostSwitchMuteDelay);
-                VT_ChannelChange();
+                //Sleep(PostSwitchMuteDelay); //now timer controlled
+                VT_ChannelChange();                                
+
                 StatusBar_ShowText(STATUS_TEXT, MyChannels[CurrentProgram]->GetName());
                 OSD_ShowText(hWnd,MyChannels[CurrentProgram]->GetName(), 0);
-				Audio_Unmute();
+				
             }
         }
     }
@@ -1711,7 +1772,7 @@ SETTING ChannelsSettings[CHANNELS_SETTING_LASTONE] =
         FALSE, 0, 1, 1, 1,
         NULL,
         "Show", "CustomChannelOrder", NULL,
-    },
+    },    
 };
 
 SETTING* Channels_GetSetting(CHANNELS_SETTING Setting)
@@ -1757,7 +1818,7 @@ SETTING AntiPlopSettings[ANTIPLOP_SETTING_LASTONE] =
         100, 0, 1000, 1, 1,
         NULL,
         "Audio", "PostSwitchMuteDelay", NULL,
-    },
+    },    
 };
 
 SETTING* AntiPlop_GetSetting(ANTIPLOP_SETTING Setting)

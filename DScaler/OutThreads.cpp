@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.78 2002-08-07 21:53:04 adcockj Exp $
+// $Id: OutThreads.cpp,v 1.79 2002-08-16 18:45:55 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.78  2002/08/07 21:53:04  adcockj
+// Removed todo item
+//
 // Revision 1.77  2002/08/06 21:35:08  robmuller
 // Don't pause the image when VideoText contains transparency.
 //
@@ -341,6 +344,8 @@ BOOL                bIsOddField = FALSE;
 BOOL                bWaitForVsync = FALSE;
 BOOL                bReversePolarity = FALSE;
 BOOL                bJudderTerminatorOnVideo = TRUE;
+
+BOOL                bNoScreenUpdateDuringTuning = FALSE; //Don't update if set. Code to enable/disable this in programlist.cpp
 
 // cope with older DX header files
 #if !defined(DDFLIP_DONOTWAIT)
@@ -801,7 +806,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
                 pPerf->StopCount(PERF_TIMESHIFT);
 
-                if(!Info.bMissedFrame && !bMinimized && 
+                if(!Info.bMissedFrame && !bMinimized && !bNoScreenUpdateDuringTuning &&
                     ((VTState != VT_BLACK)  || VTPageContainsTransparency))
                 {
                     pPerf->StartCount(PERF_PULLDOWN_DETECT);
@@ -871,7 +876,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
                 __try
                 {
-                    if(!Info.bRunningLate && !bMinimized && 
+                    if(!Info.bRunningLate && !bMinimized && !bNoScreenUpdateDuringTuning &&
                         ((VTState != VT_BLACK)  || VTPageContainsTransparency))
                     {
                         BOOL bFlipNow = FALSE;
@@ -1077,6 +1082,9 @@ BOOL OutThreads_DoVerticalFlip_OnChange(long NewValue)
 ////////////////////////////////////////////////////////////////////////////
 // Start of Settings related code
 /////////////////////////////////////////////////////////////////////////////
+
+extern int TunerSwitchScreenUpdateDelay; //Used in programlist.cpp, but affects OutThread
+
 SETTING OutThreadsSettings[OUTTHREADS_SETTING_LASTONE] =
 {
     {
@@ -1096,6 +1104,12 @@ SETTING OutThreadsSettings[OUTTHREADS_SETTING_LASTONE] =
         FALSE, 0, 1, 1, 1,
         NULL,
         "Threads", "DoVerticalFlip", OutThreads_DoVerticalFlip_OnChange,
+    },
+    {
+        "Tuner Switch Update Delay", SLIDER, 0, (long*)&TunerSwitchScreenUpdateDelay,
+        0, 0, 1000, 1, 1,
+        NULL,
+        "Threads", "TunerSwitchScreenUpdateDelay", NULL,
     },
     {
         "JudderTerminator", ONOFF, 0, (long*)&DoAccurateFlips,

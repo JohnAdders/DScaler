@@ -319,6 +319,10 @@ SOURCE=.\dshowsource\DShowBaseSource.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\dshowsource\DShowDirectTuner.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\dshowsource\DShowFileSource.cpp
 # End Source File
 # Begin Source File
@@ -948,6 +952,10 @@ SOURCE=.\dshowsource\DShowAudioControls.h
 # Begin Source File
 
 SOURCE=.\dshowsource\DShowBaseSource.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\dshowsource\DShowDirectTuner.h
 # End Source File
 # Begin Source File
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsGeneric.cpp,v 1.9 2002-11-08 17:39:41 atnak Exp $
+// $Id: TreeSettingsGeneric.cpp,v 1.10 2002-11-08 18:33:36 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/11/08 17:39:41  atnak
+// FIxed combo boxes not working properly with up/down arrows
+//
 // Revision 1.8  2002/10/24 12:03:18  atnak
 // Added a constructor that takes an array SETTING pointers
 //
@@ -389,9 +392,11 @@ void CTreeSettingsGeneric::UpdateControls()
 
         if(pszList != NULL)
         {
+            char szString[128];         //\memory bound assumption
             int count=0;
+            bool bListIsSame=false;
 
-            //count the number of items in the list
+            //count the number of items
             for(int i(pSetting->GetMin()); i <= pSetting->GetMax(); ++i)
             {
                 //is there any text for this item?
@@ -401,9 +406,35 @@ void CTreeSettingsGeneric::UpdateControls()
                 }
             }
 
-            //create the list if one doesn't exist
-            if(m_Combo.GetCount() != count)
+            //make sure the number of items is the same
+            if (m_Combo.GetCount() == count)
             {
+                bListIsSame=true;
+                //find the current value in the combo box
+                for(int pos(0); pos < m_Combo.GetCount(); pos++)
+                {
+                    int i=m_Combo.GetItemData(pos);
+
+                    //check item is the same
+                    m_Combo.GetLBText(pos, szString);
+                    if(strcmp(pszList[i], szString) != 0)
+                    {
+                        bListIsSame=false;
+                        break;
+                    }
+
+                    //is this item the current Value?
+                    if(i == pSetting->GetValue())
+                    {
+                        m_Combo.SetCurSel(pos);
+                    }
+                }
+            }
+
+            //is the list the same?
+            if (bListIsSame==false)
+            {
+                //recreate the list
                 m_Combo.ResetContent();
                 for(int i(pSetting->GetMin()); i <= pSetting->GetMax(); ++i)
                 {
@@ -420,18 +451,6 @@ void CTreeSettingsGeneric::UpdateControls()
                         {
                             m_Combo.SetCurSel(pos);
                         }
-                    }
-                }
-            }
-            else
-            {
-                //find the current value in the combo box
-                for(int i(0); i < m_Combo.GetCount(); ++i)
-                {
-                    //is this item the current Value?
-                    if(m_Combo.GetItemData(i) == pSetting->GetValue())
-                    {
-                        m_Combo.SetCurSel(i);
                     }
                 }
             }

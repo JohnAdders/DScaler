@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.168 2002-05-30 19:48:04 robmuller Exp $
+// $Id: DScaler.cpp,v 1.169 2002-05-30 21:47:21 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.168  2002/05/30 19:48:04  robmuller
+// Unhide cursor when moving outside client area.
+//
 // Revision 1.167  2002/05/30 19:09:46  robmuller
 // Redraw screen after Videotext Reset.
 //
@@ -1271,47 +1274,61 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_VOLUMEPLUS:
-            if (bUseMixer == FALSE)
+            if (Setting_GetValue(Audio_GetSetting(SYSTEMINMUTE)) == TRUE)
             {
-                ISetting* pSetting = Providers_GetCurrentSource()->GetVolume();
-                if(pSetting != NULL)
-                {
-                    pSetting->ChangeValue(ADJUSTUP);
-                    sprintf(Text, "BT-Volume %d", pSetting->GetValue() / 10);
-                }
-                else
-                {
-                    strcpy(Text, "Volume not supported");
-                }
+                SendMessage(hWnd, WM_COMMAND, IDM_MUTE, 0);
             }
             else
             {
-                Mixer_Volume_Up();
-                sprintf(Text, "Mixer-Volume %d", Mixer_GetVolume());
+                if (bUseMixer == FALSE)
+                {
+                    ISetting* pSetting = Providers_GetCurrentSource()->GetVolume();
+                    if(pSetting != NULL)
+                    {
+                        pSetting->ChangeValue(ADJUSTUP);
+                        sprintf(Text, "BT-Volume %d", pSetting->GetValue() / 10);
+                    }
+                    else
+                    {
+                        strcpy(Text, "Volume not supported");
+                    }
+                }
+                else
+                {
+                    Mixer_Volume_Up();
+                    sprintf(Text, "Mixer-Volume %d", Mixer_GetVolume());
+                }
+                ShowText(hWnd, Text);
             }
-            ShowText(hWnd, Text);
             break;
 
         case IDM_VOLUMEMINUS:
-            if (bUseMixer == FALSE)
+            if (Setting_GetValue(Audio_GetSetting(SYSTEMINMUTE)) == TRUE)
             {
-                ISetting* pSetting = Providers_GetCurrentSource()->GetVolume();
-                if(pSetting != NULL)
-                {
-                    pSetting->ChangeValue(ADJUSTDOWN);
-                    sprintf(Text, "BT-Volume %d", pSetting->GetValue() / 10);
-                }
-                else
-                {
-                    strcpy(Text, "Volume not supported");
-                }
+                SendMessage(hWnd, WM_COMMAND, IDM_MUTE, 0);
             }
             else
             {
-                Mixer_Volume_Down();
-                sprintf(Text, "Mixer-Volume %d", Mixer_GetVolume());
+                if (bUseMixer == FALSE)
+                {
+                    ISetting* pSetting = Providers_GetCurrentSource()->GetVolume();
+                    if(pSetting != NULL)
+                    {
+                        pSetting->ChangeValue(ADJUSTDOWN);
+                        sprintf(Text, "BT-Volume %d", pSetting->GetValue() / 10);
+                    }
+                    else
+                    {
+                        strcpy(Text, "Volume not supported");
+                    }
+                }
+                else
+                {
+                    Mixer_Volume_Down();
+                    sprintf(Text, "Mixer-Volume %d", Mixer_GetVolume());
+                }
+                ShowText(hWnd, Text);
             }
-            ShowText(hWnd, Text);
             break;
 
         case IDM_AUTO_FORMAT:

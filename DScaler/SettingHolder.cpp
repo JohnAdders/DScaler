@@ -91,6 +91,54 @@ void CSettingsHolder::AddSetting(ISetting* pSetting)
     RegisterMe();
 }
 
+void CSettingsHolder::AddSetting(SETTING* pSetting, CSettingGroup* pGroup)
+{
+    ISetting* pISetting = NULL;
+
+    switch (pSetting->Type)
+    {
+    case ONOFF:
+    case YESNO:
+        pISetting = new CYesNoSetting(pSetting, pGroup);
+        break;
+    case ITEMFROMLIST:
+        pISetting = new CListSetting(pSetting, pGroup);
+        break;
+    case SLIDER:
+        pISetting = new CSliderSetting(pSetting, pGroup);
+        break;
+    }
+
+    if (pISetting != NULL)
+    {
+        AddSetting(pISetting);
+    }
+}
+
+void CSettingsHolder::AddSetting(SETTINGEX* pSetting, CSettingGroupList* pGroupList)
+{
+    ISetting* pISetting = NULL;
+
+    switch (pSetting->Type)
+    {
+    case ONOFF:
+    case YESNO:
+        pISetting = new CYesNoSetting(pSetting, pGroupList);
+        break;
+    case ITEMFROMLIST:
+        pISetting = new CListSetting(pSetting, pGroupList);
+        break;
+    case SLIDER:
+        pISetting = new CSliderSetting(pSetting, pGroupList);    
+        break;
+    }
+
+    if (pISetting != NULL)
+    {
+        AddSetting(pISetting);
+    }
+}
+
 /** 
     Removes a setting from the list.
 */
@@ -315,19 +363,7 @@ int CSettingsHolder::LoadSettingStructures(SETTING* pSetting, int StartNum, int 
     {
         if(pSetting[i].szDisplayName != NULL)
         {
-            switch (pSetting[i].Type)
-            {
-            case ONOFF:
-            case YESNO:
-                AddSetting(new CYesNoSetting(&pSetting[i], pGroup));
-                break;
-            case ITEMFROMLIST:
-                AddSetting(new CListSetting(&pSetting[i], pGroup));
-                break;
-            case SLIDER:
-                AddSetting(new CSliderSetting(&pSetting[i], pGroup));    
-                break;
-            }
+            AddSetting(&pSetting[i], pGroup);
             ++Count;
         }
     }    
@@ -353,19 +389,7 @@ int CSettingsHolder::LoadSettingStructuresEx(SETTINGEX* pSetting, int StartNum, 
     {
         if(pSetting[i].szDisplayName != NULL)
         {
-            switch (pSetting[i].Type)
-            {
-            case ONOFF:
-            case YESNO:
-                AddSetting(new CYesNoSetting(&pSetting[i], pGroupList));
-                break;
-            case ITEMFROMLIST:
-                AddSetting(new CListSetting(&pSetting[i], pGroupList));
-                break;
-            case SLIDER:
-                AddSetting(new CSliderSetting(&pSetting[i], pGroupList));    
-                break;
-            }
+            AddSetting(&pSetting[i], pGroupList);
             ++Count;
         }
     }    

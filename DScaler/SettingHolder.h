@@ -29,6 +29,9 @@ public:
     void AddSetting(ISetting* pSetting);
     void RemoveSetting(ISetting* pSetting);
 
+    void AddSetting(SETTING* pSetting, CSettingGroup* pGroup = NULL);
+    void AddSetting(SETTINGEX* pSetting, CSettingGroupList* pGroupList = NULL);
+
     void DisableOnChange();
     void EnableOnChange();
 

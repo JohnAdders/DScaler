@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Bt848_Defines.h,v 1.18 2002-09-04 11:58:45 kooiman Exp $
+// $Id: Bt848_Defines.h,v 1.19 2002-09-12 21:56:26 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -462,6 +462,7 @@ enum eTVCardId
     TVCARD_SDISILK200_C,
     TVCARD_SENSORAY311,
     TVCARD_WINDVR,
+    TVCARD_AVERTVOLD,
     TVCARD_LASTONE,
 };
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.69 2003-07-22 22:31:36 laurentg Exp $
+// $Id: StillSource.h,v 1.70 2003-08-11 20:45:55 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -162,6 +162,8 @@ public:
 
     void Pause() {return;};
     void UnPause() {return;};
+
+	BOOL HasMediaControl() {return FALSE;};
 
 	int	 GetPlaylistPosition();
 	int CountMemoryUsage();

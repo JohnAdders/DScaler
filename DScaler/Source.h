@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.h,v 1.37 2003-07-22 22:31:36 laurentg Exp $
+// $Id: Source.h,v 1.38 2003-08-11 20:45:55 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -175,6 +175,8 @@ public:
 
     virtual void Pause() = 0;
     virtual void UnPause() = 0;
+
+	virtual BOOL HasMediaControl() = 0;
 
 protected:
     CSource(long SetMessage, long MenuId);

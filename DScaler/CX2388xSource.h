@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.h,v 1.25 2003-07-22 22:31:36 laurentg Exp $
+// $Id: CX2388xSource.h,v 1.26 2003-08-11 20:45:55 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -103,6 +103,8 @@ public:
 
     void Pause() {return;};
     void UnPause() {return;};
+
+	BOOL HasMediaControl() {return FALSE;};
 
 private:
     virtual void CreateSettings(LPCSTR IniSection);

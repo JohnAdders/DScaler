@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.58 2003-07-22 22:31:36 laurentg Exp $
+// $Id: BT848Source.h,v 1.59 2003-08-11 20:45:55 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.58  2003/07/22 22:31:36  laurentg
+// Correct handling of pause (P key) for video file playing
+//
 // Revision 1.57  2003/07/05 10:55:57  laurentg
 // New method SetWidth
 //
@@ -160,6 +163,8 @@ public:
 
     void Pause() {return;};
     void UnPause() {return;};
+
+	BOOL HasMediaControl() {return FALSE;};
 
 private:
     virtual void CreateSettings(LPCSTR IniSection);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.h,v 1.16 2003-07-22 22:30:20 laurentg Exp $
+// $Id: DSSourceBase.h,v 1.17 2003-08-11 20:46:52 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2003/07/22 22:30:20  laurentg
+// Correct handling of pause (P key) for video file playing
+//
 // Revision 1.15  2003/07/05 10:58:17  laurentg
 // New method SetWidth (not yet implemented)
 //
@@ -132,6 +135,8 @@ public:
 	
     void Pause() {return;};
     void UnPause() {return;};
+
+	BOOL HasMediaControl() {return FALSE;};
 
 protected:
 	CDShowGraph *m_pDSGraph;

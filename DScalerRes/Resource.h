@@ -883,9 +883,7 @@
 #define IDM_DSHOW_FILTER_1              2335
 #define IDM_DSHOW_FILTER_2              2336
 #define IDM_DSHOW_FILTER_3              2337
-#define IDM_SASPECT_SQUARE              2337
 #define IDM_DSHOW_FILTER_4              2338
-#define IDM_STILL_SETTINGS              2338
 #define IDM_DSHOW_FILTER_5              2339
 #define IDM_DSHOW_FILTER_6              2340
 #define IDM_DSHOW_FILTER_7              2341
@@ -904,6 +902,8 @@
 #define IDM_DSHOW_FILTER_MAX            2353
 #define IDM_FINDLOCK_PULL               2354
 #define IDM_USE_DSCALER_OVERLAY         2355
+#define IDM_SASPECT_SQUARE              2356
+#define IDM_STILL_SETTINGS              2357
 #define IDC_STATIC                      -1
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
@@ -925,8 +925,8 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        188
-#define _APS_NEXT_COMMAND_VALUE         2339
+#define _APS_NEXT_COMMAND_VALUE         2358
 #define _APS_NEXT_CONTROL_VALUE         1895
-#define _APS_NEXT_SYMED_VALUE           2356
+#define _APS_NEXT_SYMED_VALUE           2358
 #endif
 #endif

@@ -1317,6 +1317,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 		case IDM_BT848_SETTINGS:
 			BT848_ShowUI();
 			break;
+        
+        case IDM_TIMING_SETTNGS:
+            Timing_ShowUI();
+			break;
 
 		case IDM_GAMMA_SETTINGS:
 			Filter_ShowUI("Gamma");
@@ -1324,6 +1328,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
 		case IDM_NOISE_SETTINGS:
 			Filter_ShowUI("Noise");
+			break;
+
+        case IDM_ASPECT_SETTINGS:
+			Aspect_ShowUI();
 			break;
 
 		case IDM_HELP_HOMEPAGE:

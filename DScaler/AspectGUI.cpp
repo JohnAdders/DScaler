@@ -46,6 +46,7 @@
 #include "Status.h"
 #include "BT848.h"
 #include "DScaler.h"
+#include "SettingsDlg.h"
 
 #define AR_STRETCH       0
 #define AR_NONANAMORPHIC 1
@@ -1003,4 +1004,9 @@ void Aspect_FinalSetup()
 {
 	Bounce_OnChange(aspectSettings.bounceEnabled);
 	Orbit_OnChange(aspectSettings.orbitEnabled);
+}
+
+void Aspect_ShowUI()
+{
+	CSettingsDlg::ShowSettingsDlg("Aspect Ratio Settings",AspectSettings, ASPECT_SETTING_LASTONE);
 }

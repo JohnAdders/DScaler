@@ -39,6 +39,7 @@ SETTING* Timing_GetSetting(TIMING_SETTING Setting);
 void Timing_ReadSettingsFromIni();
 void Timing_WriteSettingsToIni();
 void Timing_SetMenu(HMENU hMenu);
+void Timing_ShowUI();
 
 void Timing_Setup();
 void Timing_WaitForNextField(DEINTERLACE_INFO* pInfo);

@@ -368,3 +368,4 @@ void GetDestRect(RECT *rect)
 {
 	memcpy(rect, &aspectSettings.destinationRectangle, sizeof(RECT));
 }
+

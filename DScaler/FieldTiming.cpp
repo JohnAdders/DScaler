@@ -34,6 +34,7 @@
 #include "Deinterlace.h"
 #include "DScaler.h"
 #include "resource.h"
+#include "SettingsDlg.h"
 
 LARGE_INTEGER TimerFrequency;
 double RunningAverageCounterTicks;
@@ -436,15 +437,15 @@ SETTING TimingSettings[TIMING_SETTING_LASTONE] =
 		"Timing", "DoAutoFormatDetect", NULL,
 	},
 	{
-		"50Hz Format", ONOFF, 0, (long*)&FiftyHzFormat,
-		FORMAT_PAL_BDGHI, FORMAT_PAL_BDGHI, FORMAT_PAL60, 1, 1,
-		NULL,
+		"50Hz Format", ITEMFROMLIST, 0, (long*)&FiftyHzFormat,
+		FORMAT_PAL_BDGHI, FORMAT_PAL_BDGHI, FORMAT_LASTONE - 1, 1, 1,
+		FormatList,
 		"Timing", "50Hz", NULL,
 	},
 	{
-		"60Hz Format", ONOFF, 0, (long*)&SixtyHzFormat,
-		FORMAT_NTSC, FORMAT_PAL_BDGHI, FORMAT_PAL60, 1, 1,
-		NULL,
+		"60Hz Format", ITEMFROMLIST, 0, (long*)&SixtyHzFormat,
+		FORMAT_NTSC, FORMAT_PAL_BDGHI, FORMAT_LASTONE - 1, 1, 1,
+		FormatList,
 		"Timing", "60Hz", NULL,
 	},
 	{
@@ -512,4 +513,9 @@ void Timing_WriteSettingsToIni()
 void Timing_SetMenu(HMENU hMenu)
 {
 	CheckMenuItem(hMenu, IDM_AUTO_FORMAT, bDoAutoFormatDetect?MF_CHECKED:MF_UNCHECKED);
+}
+
+void Timing_ShowUI()
+{
+	CSettingsDlg::ShowSettingsDlg("Field Timing Settings",TimingSettings, TIMING_SETTING_LASTONE);
 }

@@ -844,6 +844,8 @@ BEGIN
             MENUITEM "Noise Filter",                IDM_NOISE_SETTINGS
             MENUITEM "Logging",                     IDM_DEBUG_SETTINGS
             MENUITEM "BT848 Chip",                  IDM_BT848_SETTINGS
+            MENUITEM "Aspect Ratio",                IDM_ASPECT_SETTINGS
+            MENUITEM "Field Timing",                IDM_TIMING_SETTNGS
         END
         MENUITEM "&Advanced Video Flags ...",   IDM_ADV_VIDEOSETTINGS
         MENUITEM "&Splash Screen on Startup",   IDM_SPLASH_ON_STARTUP

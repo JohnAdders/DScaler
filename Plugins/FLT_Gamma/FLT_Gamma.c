@@ -105,11 +105,15 @@ BOOL UseStoredTable_OnChange(long NewValue)
 	int i;
 	bUseStoredTable = NewValue;
 	if(bUseStoredTable)
-	{
+    {
+        char szIniFile[MAX_PATH];
+    	GetCurrentDirectory(MAX_PATH, szIniFile);
+        strcat(szIniFile, "\\gamma.ini");
+
 		for(i = 0; i < 256; i++)
 		{
 			wsprintf(szEntry, "%d", i);
-			GammaTable[i] = (unsigned char)GetPrivateProfileInt("Gamma", szEntry, i, "Gamma.ini");
+			GammaTable[i] = (unsigned char)GetPrivateProfileInt("Gamma", szEntry, i, szIniFile);
 		}
 		return FALSE;
 	}

@@ -27,7 +27,7 @@
 // 15 Aug 2000   John Adcock             Added structures from bttv
 // 20 Nov 2000   Michael Eskin, Conexant Added support for Conexant and Rockwell Bt878XEVKs
 //  5 Dec 2000   Michael Eskin, Conexant Added support for Conexant Foghorn ATSC reference designs 
-//                                       and Philips 1236D tuner
+//                                       and PHILIPS 1236D tuner
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -675,29 +675,171 @@ const TAutoDectect878 AutoDectect878[] =
 
 const TVTUNERSETUP Tuners[TUNER_LASTONE] =
 {
-	{ "NoTuner", NoTuner, NOTUNER, 	0, 0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 000,},
-	{ "Philips PAL_I", Philips, PAL_I, 2244, 7412, 0xa0, 0x90, 0x30, 0x8e, 0xc0, 623, 0x00},
-	{ "Philips NTSC", Philips, NTSC, 2516, 7220, 0xA0, 0x90, 0x30, 0x8e, 0xc0, 732, 0x00},
-	{ "Philips SECAM", Philips, SECAM, 2592, 7156, 0xA7, 0x97, 0x37, 0x8e, 0xc0, 623, 0x02},
-	{ "Philips PAL", Philips, PAL, 2592, 7156, 0xA0, 0x90, 0x30, 0x8e,  0xc0, 623, 0x00},
-	{ "Temic PAL", TEMIC, PAL, 2244, 7412, 0x02, 0x04, 0x01, 0x8e, 0xc2, 623, 0x00},
-	{ "Temic NTSC", TEMIC, NTSC, 2516, 7412, 0x02, 0x04, 0x01, 0x8e, 0xc2, 732, 0x00},
-	{ "Temic PAL_I", TEMIC, PAL_I, 2720, 7200, 0x02, 0x04, 0x01, 0x8e, 0xc2, 623, 0x00},
-	{ "Temic 4036 FY5 NTSC", TEMIC, NTSC, 2516, 7412, 0xa0, 0x90, 0x30, 0x8e, 0xc2, 732, 0x00},
-	{ "Alps HSBH1", TEMIC, NTSC, 2196, 6164, 0x01, 0x02, 0x08, 0x8e, 0xc2, 732, 0x00},
-	{ "Alps TSBE1",TEMIC,PAL, 2196, 6164, 0x01, 0x02, 0x08, 0x8e, 0xc2, 732},
-	/* tested (UK UHF) with Modtec MM205 */
-	{ "Alps TSBB5", Alps, PAL_I, 2132, 5620, 0x01, 0x02, 0x08, 0x8e, 0xc2, 632, 0x00},
-	/* untested - data sheet guess. Only IF differs. */
-	{ "Alps TSBE5", Alps, PAL, 2132, 5620, 0x01, 0x02, 0x08, 0x8e, 0xc2, 622, 0x00},
-	/* untested - data sheet guess. Only IF differs. */
-	{ "Alps TSBC5", Alps, PAL, 2132, 5620, 0x01, 0x02, 0x08, 0x8e, 0xc2, 608, 0x00},
-	{ "Temic 4006FH5", TEMIC, PAL_I, 2720, 7200, 0xa0, 0x90, 0x30, 0x8e, 0xc2, 623, 0x00},
-	// MAE 5 Dec 2000 Start of change
-	{ "Philips 1236D ATSC/NTSC Input 1", Philips, NTSC, 2516, 7220, 0xA3, 0x93, 0x33, 0xCE, 0xc2, 732, 0x00},
-	{ "Philips 1236D ATSC/NTSC Input 2", Philips, NTSC, 2516, 7220, 0xA2, 0x92, 0x32, 0xCE, 0xc2, 732, 0x00},
-	// MAE 5 Dec 2000 End of change
-
+    // TUNER_ABSENT
+	{ 
+        "NoTuner", NOMFTR, NOTTYPE, 	
+        0, 0, 0x00, 0x00, 0x00, 0x00, 0x00, 000,
+    },
+    // TUNER_PHILIPS_PAL_I
+	{ 
+        "PHILIPS PAL_I", PHILIPS, PAL_I, 
+         16*140.25, 16*463.25, 0xa0, 0x90, 0x30, 0x8e, 623, 0x00
+    },
+    // TUNER_PHILIPS_NTSC
+	{ 
+        "PHILIPS NTSC", PHILIPS, NTSC, 
+        16*157.25, 16*451.25, 0xA0, 0x90, 0x30, 0x8e, 732, 0x00
+    },
+    // TUNER_PHILIPS_SECAM
+	{ 
+        "PHILIPS SECAM", PHILIPS, SECAM, 
+        16*168.25, 16*447.25, 0xA7, 0x97, 0x37, 0x8e, 623, 0x02
+    },
+    // TUNER_PHILIPSFY5_PAL		
+	{ 
+        "PHILIPS PAL", PHILIPS, PAL, 
+        16*168.25, 16*447.25, 0xA0, 0x90, 0x30, 0x8e, 623, 0x00
+    },
+    // TUNER_TEMIC_4002FH5_PAL
+	{ 
+        "Temic 4002 FH5 PAL", TEMIC, PAL, 
+        16*140.25, 16*463.25, 0x02, 0x04, 0x01, 0x8e, 623, 0x00
+    },
+    // TUNER_TEMIC_4032FY5_NTSC
+	{
+        "Temic 4036 FY5 NTSC", TEMIC, NTSC, 
+        16*157.25, 16*463.25, 0x02, 0x04, 0x01, 0x8e, 732, 0x00
+    },
+    // TUNER_TEMIC_4062FY5_PAL_I
+	{
+        "Temic PAL_I (4062 FY5)", TEMIC, PAL_I, 
+        16*170.00, 16*450.00, 0x02, 0x04, 0x01, 0x8e, 623, 0x00
+    },
+    // TUNER_TEMIC_4036FY5_NTSC
+	{
+        "Temic 4036 FY5 NTSC", TEMIC, NTSC, 
+        16*157.25, 16*463.25, 0xa0, 0x90, 0x30, 0x8e, 732, 0x00
+    },
+    // TUNER_ALPS_TSBH1_NTSC	
+	{
+        "ALPS HSBH1", TEMIC, NTSC, 
+        16*137.25, 16*385.25, 0x01, 0x02, 0x08, 0x8e, 732, 0x00
+    },
+    // TUNER_ALPS_TSBE1_PAL 	
+	{
+        "ALPS TSBE1", TEMIC, PAL, 
+        16*137.25, 16*385.25, 0x01, 0x02, 0x08, 0x8e, 732
+    },
+    // TUNER_ALPS_TSBB5_PAL_I
+    {
+        "ALPS TSBB5", ALPS, PAL_I, 
+        16*133.25, 16*351.25, 0x01, 0x02, 0x08, 0x8e, 632, 0x00
+    },
+    // TUNER_ALPS_TSBE5_PAL	
+	{
+        "ALPS TSBE5", ALPS, PAL, 
+        16*133.25, 16*351.25, 0x01, 0x02, 0x08, 0x8e, 622, 0x00
+    },
+    // TUNER_ALPS_TSBC5_PAL
+	{
+        "ALPS TSBC5", ALPS, PAL, 
+        16*133.25, 16*351.25, 0x01, 0x02, 0x08, 0x8e, 608, 0x00
+    },
+    // TUNER_TEMIC_4006FH5_PAL
+	{
+        "Temic 4006FH5", TEMIC, PAL_I, 
+        16*170.00,16*450.00, 0xa0, 0x90, 0x30, 0x8e, 623, 0x00
+    },
+    // TUNER_PHILIPS_1236D_NTSC_INPUT1
+	{
+        "PHILIPS 1236D ATSC/NTSC Input 1", PHILIPS, NTSC, 
+        2516, 7220, 0xA3, 0x93, 0x33, 0xCE, 732, 0x00
+    },
+    // TUNER_PHILIPS_1236D_NTSC_INPUT2
+	{
+        "PHILIPS 1236D ATSC/NTSC Input 2", PHILIPS, NTSC, 
+        2516, 7220, 0xA2, 0x92, 0x32, 0xCE, 732, 0x00
+    },
+    // TUNER_ALPS_TSCH6_NTSC
+    {
+        "ALPS TSCH6",ALPS,NTSC,
+        16*137.25, 16*385.25, 0x14, 0x12, 0x11, 0x8e, 732, 0x00
+    },
+    // TUNER_TEMIC_4016FY5_PAL
+    {
+        "Temic PAL_DK (4016 FY5)",TEMIC,PAL,
+        16*136.25, 16*456.25, 0xa0, 0x90, 0x30, 0x8e, 623, 0x00
+    },
+    // TUNER_PHILIPS_MK2_NTSC
+    {
+        "PHILIPS NTSC_M (MK2)",PHILIPS,NTSC,
+        16*160.00,16*454.00,0xa0,0x90,0x30,0x8e,732, 0x00
+    },
+    // TUNER_TEMIC_4066FY5_PAL_I
+    {
+        "Temic PAL_I (4066 FY5)", TEMIC, PAL_I,
+        16*169.00, 16*454.00, 0xa0,0x90,0x30,0x8e,623, 0x00
+    },
+    // TUNER_TEMIC_4006FN5_PAL
+    {
+        "Temic PAL* auto (4006 FN5)", TEMIC, PAL,
+        16*169.00, 16*454.00, 0xa0,0x90,0x30,0x8e,623, 0x00
+    },
+    // TUNER_TEMIC_4009FR5_PAL
+    { 
+        "Temic PAL (4009 FR5)", TEMIC, PAL,
+        16*141.00, 16*464.00, 0xa0,0x90,0x30,0x8e,623, 0x00
+    },
+    // TUNER_TEMIC_4039FR5_NTSC
+    {
+        "Temic NTSC (4039 FR5)", TEMIC, NTSC,
+        16*158.00, 16*453.00, 0xa0,0x90,0x30,0x8e,732, 0x00
+    },
+    // TUNER_TEMIC_4046FM5_MULTI
+    { 
+        "Temic PAL/SECAM multi (4046 FM5)", TEMIC, PAL,
+        16*169.00, 16*454.00, 0xa0,0x90,0x30,0x8e,623, 0x00
+    },
+    // TUNER_PHILIPS_PAL_DK
+    { 
+        "PHILIPS PAL_DK", PHILIPS, PAL,
+        16*170.00,16*450.00,0xa0,0x90,0x30,0x8e,623, 0x00
+    },
+    // TUNER_PHILIPS_MULTI
+    { 
+        "PHILIPS PAL/SECAM multi (FQ1216ME)", PHILIPS, PAL,
+        16*170.00,16*450.00,0xa0,0x90,0x30,0x8e,623, 0x00
+    },
+    // TUNER_LG_I001D_PAL_I
+    { 
+        "LG PAL_I+FM (TAPC-I001D)", LGINNOTEK, PAL_I,
+        16*170.00,16*450.00,0xa0,0x90,0x30,0x8e,623, 0x00
+    },
+    // TUNER_LG_I701D_PAL_I
+    { 
+        "LG PAL_I (TAPC-I701D)", LGINNOTEK, PAL_I,
+        16*170.00,16*450.00,0xa0,0x90,0x30,0x8e,623, 0x00
+    },
+    // TUNER_LG_R01F_NTSC
+    { 
+        "LG NTSC+FM (TPI8NSR01F)", LGINNOTEK, NTSC,
+        16*210.00,16*497.00,0xa0,0x90,0x30,0x8e,732, 0x00
+    },
+    // TUNER_LG_B01D_PAL
+    { 
+        "LG PAL_BG+FM (TPI8PSB01D)", LGINNOTEK, PAL,
+        16*170.00,16*450.00,0xa0,0x90,0x30,0x8e,623
+    },
+    // TUNER_LG_B11D_PAL
+    { 
+        "LG PAL_BG (TPI8PSB11D)", LGINNOTEK, PAL,
+        16*170.00,16*450.00,0xa0,0x90,0x30,0x8e,623
+    },
+    // TUNER_TEMIC_4009FN5_PAL
+    { 
+        "Temic PAL* auto + FM (4009 FN5)", TEMIC, PAL,
+        16*141.00, 16*464.00, 0xa0,0x90,0x30,0x8e,623
+    }
 };
 
 // do any specific card related initilaisation

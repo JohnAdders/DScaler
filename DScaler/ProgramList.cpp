@@ -448,14 +448,10 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 
         // fill the formats box
         ComboBox_AddString(GetDlgItem(hDlg, IDC_FORMAT), "Same as Tuner");
-		ComboBox_AddString(GetDlgItem(hDlg, IDC_FORMAT), "PAL");
-		ComboBox_AddString(GetDlgItem(hDlg, IDC_FORMAT), "NTSC");
-		ComboBox_AddString(GetDlgItem(hDlg, IDC_FORMAT), "PAL-M");
-		ComboBox_AddString(GetDlgItem(hDlg, IDC_FORMAT), "PAL-N");
-		ComboBox_AddString(GetDlgItem(hDlg, IDC_FORMAT), "NTSC-J");
-		ComboBox_AddString(GetDlgItem(hDlg, IDC_FORMAT), "PAL60");
-        ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_FORMAT), 0);
-
+        for(i = 0; i < FORMAT_LASTONE; ++i)
+        {
+        	ComboBox_AddString(GetDlgItem(hDlg, IDC_FORMAT), FormatList[i]);
+        }
 
         // load up the counrty settings
     	Load_Country_Settings();
@@ -625,6 +621,22 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 		case IDC_FORMAT:
 			if(InUpdate == FALSE)
 			{
+                int Format = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_FORMAT)) - 1;
+
+                if(Format != -1)
+                {
+        			Setting_SetValue(BT848_GetSetting(TVFORMAT), Format);
+                }
+				else
+				{
+        			Setting_SetValue(BT848_GetSetting(TVFORMAT), GetTunersTVFormat());
+				}
+
+                Edit_GetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf, 255);
+                char* cLast;
+                double dFreq = strtod(sbuf, &cLast);
+                long Freq = (long)(dFreq * 16.0);
+				Tuner_SetFrequency(Freq);
 				ChangeChannelInfo(hDlg);
 			}
             break;

@@ -139,6 +139,7 @@ long    BtWhiteCrushDown = 0x7f;	// Crush down - entire register value
 //    { 922, 576, 1135, 0x7f, 0x72, (BT848_IFORM_PAL_N|BT848_IFORM_XT1),
 //	      1135, 922, 186, 922, 0x1c, 0, TRUE, 400},
 //
+
 TTVFORMAT TVFormats[FORMAT_LASTONE] =
 {
 	/* PAL-BDGHI */
@@ -195,8 +196,11 @@ TTVFORMAT TVFormats[FORMAT_LASTONE] =
         "NTSC50", 576, 910, 0x68, 0x5c, (BT848_IFORM_NTSC|BT848_IFORM_XT0),
         137, 754, 0x24, 0, TRUE, 511, 19,
         3.579545,  FALSE, 71, 626, 15, 		
-        16,	},
-    };
+        16,	
+    },
+};
+
+char** FormatList = (char**)TVFormats;
 
 long TVFormat = -1;
 
@@ -1940,9 +1944,9 @@ SETTING BT848Settings[BT848_SETTING_LASTONE] =
 		"Hardware", "VideoSource", VideoSource_OnChange,
 	},
 	{
-		"Video Format", NUMBER, 0, (long*)&TVFormat,
+		"Video Format", ITEMFROMLIST, 0, (long*)&TVFormat,
 		FORMAT_NTSC, 0, FORMAT_LASTONE - 1, 1, 1,
-		NULL,
+		FormatList,
 		"Hardware", "TVType", TVFormat_OnChange,
 	},
 	{

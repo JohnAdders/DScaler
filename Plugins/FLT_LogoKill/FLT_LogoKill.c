@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_LogoKill.c,v 1.13 2002-08-17 11:42:06 kooiman Exp $
+// $Id: FLT_LogoKill.c,v 1.14 2002-09-08 10:56:02 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/08/17 11:42:06  kooiman
+// Applied LogoKiller Filter Smoothing option from Jochen Trenner.
+//
 // Revision 1.12  2002/06/18 19:46:09  adcockj
 // Changed appliaction Messages to use WM_APP instead of WM_USER
 //
@@ -335,7 +338,7 @@ if(gUseSmoothing)
             sub edx, ebx //2 samples one line above
 			movq mm1, qword ptr[edx-8]
 			movq mm2, qword ptr[edx+8]
-			pavgb mm1, mm1
+			pavgb mm1, mm2
 			pavgb mm1, mm4
 			add edx, ebx
             movq mm0, qword ptr[edx]
@@ -524,7 +527,7 @@ if(gUseSmoothing)
             sub edx, ebx //2 samples one line above
 			movq mm1, qword ptr[edx-8]
 			movq mm2, qword ptr[edx+8]
-			pavgb mm1, mm1
+			pavgb mm1, mm2
 			pavgb mm1, mm4
 			add edx, ebx
             movq mm0, qword ptr[edx]

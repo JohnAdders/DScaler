@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.43 2003-11-14 10:32:10 adcockj Exp $
+// $Id: BT848Card.cpp,v 1.44 2004-04-18 12:00:55 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.43  2003/11/14 10:32:10  adcockj
+// Dohm, coded new debug code properly..
+//
 // Revision 1.42  2003/11/14 09:37:47  adcockj
 // Added degub register settings for PMS card
 //
@@ -1176,6 +1179,24 @@ ULONG CBT848Card::GetGPDATA()
 
 void CBT848Card::ResetChip()
 {
+    BYTE Command = 0;
+
+    // try and switch on the card using the PCI Command value
+    // this is to try and solve problems when a driver hasn't been
+    // loaded for the card, which may be necessary when you have 
+    // multiple cards
+    if(GetPCIConfigOffset(&Command, 0x04, m_BusNumber, m_SlotNumber))
+    {
+        // switch on allow master and respond to memory requests
+        if((Command & 0x06) != 0x06)
+        {
+            LOG(1, " CX2388x PCI Command was %d", Command);
+            Command |= 0x06;
+            SetPCIConfigOffset(&Command, 0x04, m_BusNumber, m_SlotNumber);
+            ::Sleep(500);
+        }
+    }
+
     WriteByte(BT848_SRESET, 0);
 }
 

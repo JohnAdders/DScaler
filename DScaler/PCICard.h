@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCICard.h,v 1.16 2004-04-14 10:02:00 adcockj Exp $
+// $Id: PCICard.h,v 1.17 2004-04-18 12:01:04 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,8 +32,6 @@
 class CPCICard
 {
 public:
-    BOOL GetPCIConfig(PCI_COMMON_CONFIG* pPCI_COMMON_CONFIG, DWORD Bus, DWORD Slot);
-    BOOL SetPCIConfig(PCI_COMMON_CONFIG* pPCI_COMMON_CONFIG, DWORD Bus, DWORD Slot);
     BOOL GetPCIConfigOffset(BYTE* pbPCIConfig, DWORD Offset, DWORD Bus, DWORD Slot);
     BOOL SetPCIConfigOffset(BYTE* pbPCIConfig, DWORD Offset, DWORD Bus, DWORD Slot);
     DWORD GetSubSystemId();
@@ -129,6 +127,9 @@ private:
     HANDLE  m_hStateFile;
     boolean m_bStateIsReading;
     int     m_InitialACPIStatus;
+
+    BOOL GetPCIConfig(PCI_COMMON_CONFIG* pPCI_COMMON_CONFIG, DWORD Bus, DWORD Slot);
+    BOOL SetPCIConfig(PCI_COMMON_CONFIG* pPCI_COMMON_CONFIG, DWORD Bus, DWORD Slot);
 };
 
 

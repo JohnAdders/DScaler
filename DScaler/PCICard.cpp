@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCICard.cpp,v 1.16 2004-04-14 10:02:00 adcockj Exp $
+// $Id: PCICard.cpp,v 1.17 2004-04-18 12:01:04 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2004/04/14 10:02:00  adcockj
+// Added new offset functions for manipulating PCI config space
+//
 // Revision 1.15  2003/10/27 10:39:52  adcockj
 // Updated files for better doxygen compatability
 //
@@ -710,17 +713,16 @@ void CPCICard::ManageByte(DWORD Offset)
 // returns 3 if in D3 state (full off)
 int CPCICard::GetACPIStatus()
 {
-    PCI_COMMON_CONFIG PCI_Config;
-
     // only some cards are able to power down
     if(!SupportsACPI())
     {
         return 0;
     }
     
-    if(GetPCIConfig(&PCI_Config, m_BusNumber, m_SlotNumber))
+    BYTE ACPIStatus = 0;
+    if(GetPCIConfigOffset(&ACPIStatus, 0x50, m_BusNumber, m_SlotNumber))
     {
-        DWORD ACPIStatus = PCI_Config.DeviceSpecific[0x10] & 3;
+        ACPIStatus = ACPIStatus & 3;
 
         LOG(1, "Bus %d Card %d ACPI status: D%d", m_BusNumber, m_SlotNumber, ACPIStatus);
         return ACPIStatus;
@@ -732,29 +734,28 @@ int CPCICard::GetACPIStatus()
 // Set ACPIStatus to 0 for D0/full on state. 3 for D3/full off
 void CPCICard::SetACPIStatus(int ACPIStatus)
 {
-    PCI_COMMON_CONFIG PCI_Config;
-
     // only some cards are able to power down
     if(!SupportsACPI())
     {
         return;
     }
-    if(!GetPCIConfig(&PCI_Config, m_BusNumber, m_SlotNumber))
+
+    BYTE ACPIStatusNew = 0;
+    if(GetPCIConfigOffset(&ACPIStatusNew, 0x50, m_BusNumber, m_SlotNumber))
     {
-        return;
+        ACPIStatusNew &= ~3;
+        ACPIStatusNew |= ACPIStatus;
+
+        LOG(1, "Attempting to set Bus %d Card %d ACPI status to D%d", m_BusNumber, m_SlotNumber, ACPIStatusNew);
+
+        SetPCIConfigOffset(&ACPIStatusNew, 0x50, m_BusNumber, m_SlotNumber);
+
+        if(ACPIStatus == 0)
+        {
+            ::Sleep(500);
+            ResetChip();
+        }
+        LOG(1, "Set ACPI status complete");
     }
-    PCI_Config.DeviceSpecific[0x10] &= ~3;
-    PCI_Config.DeviceSpecific[0x10] |= ACPIStatus;
-
-    LOG(1, "Attempting to set Bus %d Card %d ACPI status to D%d", m_BusNumber, m_SlotNumber, ACPIStatus);
-
-    SetPCIConfig(&PCI_Config, m_BusNumber, m_SlotNumber);
-
-    if(ACPIStatus == 0)
-    {
-        ::Sleep(500);
-        ResetChip();
-    }
-    LOG(1, "Set ACPI status complete");
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.56 2004-03-07 17:34:48 to_see Exp $
+// $Id: CX2388xCard.cpp,v 1.57 2004-04-18 12:01:03 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.56  2004/03/07 17:34:48  to_see
+// moved CCX2388xCard::AutoDetectTuner from CX2388xCard.cpp to CX2388xCard_Types.cpp
+// to can use correct sizeof(m_Tuners_Hauppauge_CX2388x_Card)
+//
 // Revision 1.55  2004/02/27 20:50:59  to_see
 // -more logging in CCX2388xCard::StartStopConexxantDriver
 // -handling for IDC_AUTODETECT in CX2388xSource_UI.cpp
@@ -1396,20 +1400,21 @@ void CCX2388xCard::ManageMyState()
 
 void CCX2388xCard::ResetChip()
 {
-    PCI_COMMON_CONFIG PCI_Config;
+    BYTE Command = 0;
 
     // try and switch on the card using the PCI Command value
     // this is to try and solve problems when a driver hasn't been
     // loaded for the card, which may be necessary when you have 
-    // multiple cx2388x cards
-    if(GetPCIConfig(&PCI_Config, m_BusNumber, m_SlotNumber))
+    // multiple cards
+    if(GetPCIConfigOffset(&Command, 0x04, m_BusNumber, m_SlotNumber))
     {
         // switch on allow master and respond to memory requests
-        if((PCI_Config.Command & 0x06) != 0x06)
+        if((Command & 0x06) != 0x06)
         {
-            LOG(1, " CX2388x PCI Command was %d", PCI_Config.Command);
-            PCI_Config.Command |= 0x06;
-            SetPCIConfig(&PCI_Config, m_BusNumber, m_SlotNumber);
+            LOG(1, " CX2388x PCI Command was %d", Command);
+            Command |= 0x06;
+            SetPCIConfigOffset(&Command, 0x04, m_BusNumber, m_SlotNumber);
+            ::Sleep(500);
         }
     }
 

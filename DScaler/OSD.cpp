@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.17 2001-07-29 22:51:09 laurentg Exp $
+// $Id: OSD.cpp,v 1.18 2001-07-30 19:51:30 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2001/07/29 22:51:09  laurentg
+// OSD screen for card calibration improved
+// Test patterns description added or corrected
+//
 // Revision 1.16  2001/07/28 16:15:15  laurentg
 // New test patterns added
 //
@@ -484,12 +488,12 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
     double          dfMargin = 0.02;    // 2% of screen height/width
     char            szInfo[64];
     int             nLine;
-    int             i, j, k;
+    int             i, j;
     long            Color;
     double          pos;
     DEINTERLACE_METHOD* DeintMethod;
     unsigned char   val1, val2, val3;
-    int             dif_val1, dif_val2, dif_val3;
+    int             dif_val1, dif_val2, dif_val3, dif_total;
     CTestPattern *pTestPattern;
     CColorBar* pColorBar;
 
@@ -878,8 +882,8 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
 
             nLine = 4;
 
-            j = 0;
-			k = 0;
+            i = 0;
+			j = 0;
             pColorBar = pTestPattern->GetFirstColorBar();
             while (pColorBar != NULL)
 			{
@@ -892,34 +896,41 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
 				{
 				    Color = RGB(val1, val2, val3);
 				}
-                pColorBar->GetDiffPixel(!bUseRGB, &dif_val1, &dif_val2, &dif_val3);
+                pColorBar->GetDiffPixel(!bUseRGB, &dif_val1, &dif_val2, &dif_val3, &dif_total);
                 sprintf (szInfo, "%s (%+d,%+d,%+d)", bUseRGB ? "RGB" : "YUV", dif_val1, dif_val2, dif_val3);
                 OSD_AddText(szInfo, Size, Color, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
-                i = 0;
-                if (dif_val1 < 0)
+
+				sprintf (szInfo, "(%d) ", dif_total);
+				if (dif_total <= 6)
 				{
-                    i -= dif_val1;
+					strcat (szInfo, "very good");
 				}
-                else
+				else if (dif_total <= 15)
 				{
-                    i += dif_val1;
+					strcat (szInfo, "good");
 				}
-                if (dif_val2 < 0)
+				else if (dif_total <= 24)
 				{
-                    i -= dif_val2;
+					strcat (szInfo, "medium");
 				}
-                else
+				else if (dif_total <= 40)
 				{
-                    i += dif_val2;
+					strcat (szInfo, "bad");
 				}
-                if (dif_val3 < 0)
+				else
 				{
-                    i -= dif_val3;
+					strcat (szInfo, "very bad");
 				}
-                else
-				{
-                    i += dif_val3;
-				}
+				OSD_AddText(szInfo, Size, 0, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine++, dfMargin, Size));
+
+                i += dif_total;
+				j++;
+
+                pColorBar = pTestPattern->GetNextColorBar();
+			}
+			if (j > 0)
+			{
+				i = (i + (j / 2)) / j;
 				sprintf (szInfo, "(%d) ", i);
 				if (i <= 6)
 				{
@@ -934,37 +945,6 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
 					strcat (szInfo, "medium");
 				}
 				else if (i <= 40)
-				{
-					strcat (szInfo, "bad");
-				}
-				else
-				{
-					strcat (szInfo, "very bad");
-				}
-				OSD_AddText(szInfo, Size, 0, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine++, dfMargin, Size));
-
-                j += i;
-				k++;
-
-                pColorBar = pTestPattern->GetNextColorBar();
-			}
-			if (k > 0)
-			{
-				j /= k;
-				sprintf (szInfo, "(%d) ", j);
-				if (j <= 6)
-				{
-					strcat (szInfo, "very good");
-				}
-				else if (j <= 15)
-				{
-					strcat (szInfo, "good");
-				}
-				else if (j <= 24)
-				{
-					strcat (szInfo, "medium");
-				}
-				else if (j <= 40)
 				{
 					strcat (szInfo, "bad");
 				}

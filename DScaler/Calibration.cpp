@@ -31,6 +31,8 @@
 #include "DebugLog.h"
 
 
+#define	MIN_TIME_BETWEEN_CALC	200
+
 #define LIMIT(x) (((x)<0)?0:((x)>255)?255:(x))
 
 
@@ -94,7 +96,7 @@ void CColorBar::GetCurrentPixel(BOOL YUV, unsigned char *pR_Y, unsigned char *pG
 	}
 }
 
-void CColorBar::GetDiffPixel(BOOL YUV, int *pR_Y, int *pG_U, int *pB_V)
+void CColorBar::GetDiffPixel(BOOL YUV, int *pR_Y, int *pG_U, int *pB_V, int *pTotal)
 {
 	if (YUV)
 	{
@@ -108,9 +110,35 @@ void CColorBar::GetDiffPixel(BOOL YUV, int *pR_Y, int *pG_U, int *pB_V)
 		*pG_U = G_val - ref_G_val;
 		*pB_V = B_val - ref_B_val;
 	}
+
+	*pTotal = 0;
+	if (*pR_Y < 0)
+	{
+		*pTotal -= *pR_Y;
+	}
+	else
+	{
+		*pTotal += *pR_Y;
+	}
+	if (*pG_U < 0)
+	{
+		*pTotal -= *pG_U;
+	}
+	else
+	{
+		*pTotal += *pG_U;
+	}
+	if (*pB_V < 0)
+	{
+		*pTotal -= *pB_V;
+	}
+	else
+	{
+		*pTotal += *pB_V;
+	}
 }
 
-int CColorBar::CalcCurrentPixel(short **Lines, int height, int width)
+void CColorBar::CalcCurrentPixel(short **Lines, int height, int width)
 { 
 	int left, right, top, bottom, i, j;
 	unsigned int Y, U, V, nb_Y, nb_U, nb_V;
@@ -147,7 +175,7 @@ int CColorBar::CalcCurrentPixel(short **Lines, int height, int width)
 
 	if (nb_Y > 0)
 	{
-		Y_val = Y / nb_Y;
+		Y_val = (Y + (nb_Y / 2)) / nb_Y;
 	}
 	else
 	{
@@ -155,7 +183,7 @@ int CColorBar::CalcCurrentPixel(short **Lines, int height, int width)
 	}
 	if (nb_U > 0)
 	{
-		U_val = U / nb_U;
+		U_val = (U + (nb_U / 2)) / nb_U;
 	}
 	else
 	{
@@ -163,19 +191,17 @@ int CColorBar::CalcCurrentPixel(short **Lines, int height, int width)
 	}
 	if (nb_V > 0)
 	{
-		V_val = V / nb_V;
+		V_val = (V + (nb_V / 2)) / nb_V;
 	}
 	else
 	{
 		V_val = 0;
 	}
 
-	LOG("CalcCurrentPixel %d %d %d %d %d %d", height, width, left, right, top, bottom);
-	LOG("CalcCurrentPixel %d %d %d", Y_val, U_val, V_val);
+//	LOG("CalcCurrentPixel %d %d %d %d %d %d", height, width, left, right, top, bottom);
+//	LOG("CalcCurrentPixel %d %d %d", Y_val, U_val, V_val);
 
 	YUV2RGB(Y_val, U_val, V_val, &R_val, &G_val, &B_val);
-
-	return 0;
 }
 
 void CColorBar::RGB2YUV(unsigned char R, unsigned char G, unsigned char B, unsigned char *pY, unsigned char *pU, unsigned char *pV)
@@ -213,6 +239,7 @@ CTestPattern::CTestPattern(char* name, eVideoFormat format, BOOL auto_calibr)
 	{
 		color_bars[i] = NULL;
 	}
+	idx_color_bar = -1;
 }
 
 CTestPattern::~CTestPattern()
@@ -264,19 +291,15 @@ int CTestPattern::AddColorBar(unsigned short int left, unsigned short int right,
 	}
 }
 
-int CTestPattern::CalcCurrentPattern(short **Lines, int height, int width)
+void CTestPattern::CalcCurrentPattern(short **Lines, int height, int width, int tick_count)
 {
 	for (int i = 0 ; i < MAX_COLOR_BARS ; i++)
 	{
 		if (color_bars[i] != NULL)
 		{
-			if (color_bars[i]->CalcCurrentPixel(Lines, height, width))
-			{
-				return -1;
-			}
+			color_bars[i]->CalcCurrentPixel(Lines, height, width);
 		}
 	}
-	return 0;
 }
 
 
@@ -321,6 +344,7 @@ CCalibration::CCalibration()
 	current_test_pattern = NULL;
 	type_calibration = AUTO_CALIBR;
 	running = FALSE;
+	last_tick_count = -1;
 }
 
 CCalibration::~CCalibration()
@@ -541,4 +565,15 @@ BOOL CCalibration::IsRunning()
 eTypeCalibration CCalibration::GetType()
 {
 	return type_calibration;
+}
+
+void CCalibration::Make(short **Lines, int height, int width, int tick_count)
+{
+	if (running
+	 && (current_test_pattern != NULL)
+	 && ((last_tick_count == -1) || ((tick_count - last_tick_count) >= MIN_TIME_BETWEEN_CALC)))
+	{
+		current_test_pattern->CalcCurrentPattern(Lines, height, width, tick_count);
+		last_tick_count = tick_count;
+	}
 }

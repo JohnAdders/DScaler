@@ -44,8 +44,8 @@ public:
     CColorBar(unsigned short int left, unsigned short int right, unsigned short int top, unsigned short int bottom, BOOL YUV, unsigned char R_Y, unsigned char G_U, unsigned char B_V);
 	void GetRefPixel(BOOL YUV, unsigned char *pR_Y, unsigned char *pG_U, unsigned char *pB_V);
 	void GetCurrentPixel(BOOL YUV, unsigned char *pR_Y, unsigned char *pG_U, unsigned char *pB_V);
-	void GetDiffPixel(BOOL YUV, int *pR_Y, int *pG_U, int *pB_V);
-	int CalcCurrentPixel(short **Lines, int height, int width);
+	void GetDiffPixel(BOOL YUV, int *pR_Y, int *pG_U, int *pB_V, int *pTotal);
+	void CalcCurrentPixel(short **Lines, int height, int width);
 protected: 
     unsigned short int left_border;		// range between 0 and 10000
     unsigned short int right_border;	// range between 0 and 10000
@@ -78,7 +78,7 @@ public:
 	eVideoFormat GetVideoFormat();
 	BOOL IsAutoCalibrPossible();
 	int AddColorBar(unsigned short int left, unsigned short int right, unsigned short int top, unsigned short int bottom, BOOL YUV, unsigned char R_Y, unsigned char G_U, unsigned char B_V);
-	int CalcCurrentPattern(short **Lines, int height, int width);
+	void CalcCurrentPattern(short **Lines, int height, int width, int tick_count);
 	CColorBar *GetFirstColorBar();
 	CColorBar *GetNextColorBar();
 protected:
@@ -107,12 +107,15 @@ public:
 	void Stop();
 	BOOL IsRunning();
 	eTypeCalibration GetType();
+	void Make(short **Lines, int height, int width, int tick_count);
 protected:
 	int nb_test_patterns;
 	CTestPattern *test_patterns[MAX_TEST_PATTERNS];
 	CTestPattern *current_test_pattern;
 	eTypeCalibration type_calibration;
 	BOOL running;
+private:
+	int last_tick_count;
 };
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.60 2002-02-19 16:03:36 tobbej Exp $
+// $Id: OutThreads.cpp,v 1.61 2002-02-20 18:38:27 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.60  2002/02/19 16:03:36  tobbej
+// removed CurrentX and CurrentY
+// added new member in CSource, NotifySizeChange
+//
 // Revision 1.59  2002/02/19 10:24:08  tobbej
 // increased timeout a bit, since dshow takes longer to terminate
 //
@@ -455,7 +459,6 @@ void Start_Capture()
     // ame sure half height Modes are set correctly
     Overlay_Clean();
     PrepareDeinterlaceMode();
-    WorkoutOverlaySize(FALSE);
     Start_Thread();
 }
 

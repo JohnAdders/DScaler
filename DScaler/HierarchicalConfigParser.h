@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HierarchicalConfigParser.h,v 1.6 2004-11-22 20:38:18 atnak Exp $
+// $Id: HierarchicalConfigParser.h,v 1.7 2004-11-26 23:12:22 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2004/11/22 20:38:18  atnak
+// Bug fix and new features.
+//
 // Revision 1.5  2004/11/21 23:18:35  atnak
 // Added another reporting.
 //
@@ -427,6 +430,7 @@ private:
 	char*						m_readBuffer;
 	size_t						m_bufferPosition;
 	size_t						m_bufferLength;
+	char						m_newlineChar;
 
 	unsigned long				m_lineNumber;
 	char						m_lineBuffer[MAX_LINE_LENGTH];

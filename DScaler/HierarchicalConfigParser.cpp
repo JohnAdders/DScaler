@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HierarchicalConfigParser.cpp,v 1.6 2004-11-22 20:38:17 atnak Exp $
+// $Id: HierarchicalConfigParser.cpp,v 1.7 2004-11-26 23:12:20 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2004/11/22 20:38:17  atnak
+// Bug fix and new features.
+//
 // Revision 1.5  2004/11/21 23:18:34  atnak
 // Added another reporting.
 //
@@ -116,6 +119,7 @@ bool CHCParser::ParseFile(FILE* fp, void* reportContext)
 	m_reportContext	= reportContext;
 	m_lineNumber	= 0;
 	m_linePoint		= NULL;
+	m_newlineChar	= 0;
 
 	m_readBuffer = new char[MAX_READ_BUFFER];
 	m_bufferPosition = m_bufferLength = MAX_READ_BUFFER;
@@ -340,6 +344,15 @@ long CHCParser::ReadLineIntoBuffer(FILE* fp)
 		{
 			if (m_readBuffer[m_bufferPosition] == '\n' || m_readBuffer[m_bufferPosition] == '\r')
 			{
+				if (m_newlineChar == 0)
+				{
+					m_newlineChar = m_readBuffer[m_bufferPosition];
+				}
+				if (m_readBuffer[m_bufferPosition] == m_newlineChar)
+				{
+					m_lineNumber++;
+				}
+
 				// Stop if there is something in the buffer.
 				if (*m_lineBuffer != '\0')
 				{
@@ -400,7 +413,6 @@ bool CHCParser::ProcessStream(FILE* fp)
 		}
 
 		m_linePoint = m_lineBuffer;
-		m_lineNumber++;
 		TrimLeft();
 
 		if (*m_linePoint == ';' || *m_linePoint == '#')

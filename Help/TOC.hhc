@@ -191,6 +191,16 @@
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Gradual Noise">
+			<param name="Local" value="GradualNoise.HTM">
+			<param name="ImageNumber" value="11">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Adaptive Noise">
+			<param name="Local" value="AdaptiveNoise.HTM">
+			<param name="ImageNumber" value="11">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Logo Killer">
 			<param name="Local" value="LogoKiller.HTM">
 			<param name="ImageNumber" value="11">
@@ -201,7 +211,12 @@
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
-			<param name="Name" value="Linear Correction Filter">
+			<param name="Name" value="Histogram">
+			<param name="Local" value="Histogram.HTM">
+			<param name="ImageNumber" value="11">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Linear Correction">
 			<param name="Local" value="LinearCorrection.HTM">
 			<param name="ImageNumber" value="11">
 			</OBJECT>

@@ -50,8 +50,11 @@ Gamma.htm
 LinearCorrection.htm
 LogoKiller.htm
 Noise.htm
+AdaptiveNoise.htm
+GradualNoise.htm
 Sharpness.htm
 TemporalComb.htm
+Histogram.htm
 Advanced.htm
 22Pulldown.htm
 32Pulldown.htm

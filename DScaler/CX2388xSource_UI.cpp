@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_UI.cpp,v 1.12 2002-11-13 10:34:36 adcockj Exp $
+// $Id: CX2388xSource_UI.cpp,v 1.13 2002-11-28 18:06:32 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/11/13 10:34:36  adcockj
+// Improved pixel width support
+//
 // Revision 1.11  2002/11/12 15:22:50  adcockj
 // Made new flag settings have default setting
 // Added pixel width for CX2388x cards
@@ -357,11 +360,11 @@ BOOL CCX2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             m_IsVideoProgressive->SetValue(!m_IsVideoProgressive->GetValue());
             if(m_IsVideoProgressive->GetValue())
             {
-                ShowText(hWnd, "Progressive Mode - On");
+                ShowText(hWnd, "Using Faroudja Deinterlacing");
             }
             else
             {
-                ShowText(hWnd, "Progressive Mode - Off");
+                ShowText(hWnd, "Using DScaler Deinterlacing");
             }
             break;
 

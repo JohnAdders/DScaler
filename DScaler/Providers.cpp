@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.19 2002-02-08 00:36:06 laurentg Exp $
+// $Id: Providers.cpp,v 1.20 2002-02-09 02:51:38 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2002/02/08 00:36:06  laurentg
+// Support of a new type of file : DScaler patterns
+//
 // Revision 1.18  2002/02/02 12:41:44  laurentg
 // CurrentX and CurrentY set when changing source and when switching between still files
 //
@@ -226,7 +229,6 @@ void Providers_SetMenu(HMENU hMenu)
         EnableMenuItem(hMenu, IDM_CHANNELPLUS, MF_ENABLED);
         EnableMenuItem(hMenu, IDM_CHANNELMINUS, MF_ENABLED);
         EnableMenuItem(hMenu, IDM_CHANNEL_PREVIOUS, MF_ENABLED);
-        EnableMenuItem(hMenu, IDM_ANALOGSCAN, MF_ENABLED);
         EnableMenuItem(hMenu, IDM_CHANNEL_LIST, MF_ENABLED);
     }
     else
@@ -234,7 +236,6 @@ void Providers_SetMenu(HMENU hMenu)
         EnableMenuItem(hMenu, IDM_CHANNELPLUS, MF_GRAYED);
         EnableMenuItem(hMenu, IDM_CHANNELMINUS, MF_GRAYED);
         EnableMenuItem(hMenu, IDM_CHANNEL_PREVIOUS, MF_GRAYED);
-        EnableMenuItem(hMenu, IDM_ANALOGSCAN, MF_GRAYED);
         EnableMenuItem(hMenu, IDM_CHANNEL_LIST, MF_GRAYED);
     }
     

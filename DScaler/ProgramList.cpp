@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.46 2002-02-08 08:14:42 adcockj Exp $
+// $Id: ProgramList.cpp,v 1.47 2002-02-09 02:51:38 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.46  2002/02/08 08:14:42  adcockj
+// Select saved channel on startup if in tuner mode
+//
 // Revision 1.45  2002/01/26 17:55:13  robmuller
 // Added ability to enter frequency directly.
 // Fixed: When using the channel combo box the tuner was not set to the new frequency.
@@ -1357,8 +1360,11 @@ void Channels_SetMenu(HMENU hMenu)
     HMENU hMenuChannels(GetChannelsSubmenu());
     if(hMenuChannels == NULL) return;
 
+    BOOL bHasTuner = Providers_GetCurrentSource()->HasTuner();
+
     for (int i(0); i < GetMenuItemCount(hMenuChannels); ++i)
     {
+        EnableMenuItem(hMenuChannels, i, bHasTuner?MF_BYPOSITION | MF_ENABLED:MF_BYPOSITION | MF_GRAYED);
         if (CurrentProgramm == i)
         {
             CheckMenuItem(hMenuChannels, i, MF_BYPOSITION | MF_CHECKED);
@@ -1369,10 +1375,10 @@ void Channels_SetMenu(HMENU hMenu)
         }
     }
 
-    BOOL bHasTuner = Providers_GetCurrentSource()->HasTuner();
     EnableMenuItem(hMenu, IDM_CHANNELPLUS, bHasTuner?MF_ENABLED:MF_GRAYED);
     EnableMenuItem(hMenu, IDM_CHANNELMINUS, bHasTuner?MF_ENABLED:MF_GRAYED);
-    EnableMenuItem(hMenu, IDM_ANALOGSCAN, bHasTuner?MF_ENABLED:MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_CHANNEL_PREVIOUS, bHasTuner?MF_ENABLED:MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_CHANNEL_LIST, bHasTuner?MF_ENABLED:MF_GRAYED);
 }
 
 BOOL ProcessProgramSelection(HWND hWnd, WORD wMenuID)
@@ -1382,6 +1388,11 @@ BOOL ProcessProgramSelection(HWND hWnd, WORD wMenuID)
         if (Providers_GetCurrentSource()->IsInTunerMode())
         {
             Channel_Change(wMenuID - IDM_CHANNEL_SELECT);
+        }
+        else
+        {
+            SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT1, 0);
+            SendMessage(hWnd, WM_COMMAND, wMenuID, 0);
         }
         return TRUE;
     }

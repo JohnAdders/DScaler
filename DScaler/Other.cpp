@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.30 2001-12-16 17:04:37 adcockj Exp $
+// $Id: Other.cpp,v 1.31 2002-01-12 16:57:02 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2001/12/16 17:04:37  adcockj
+// Debug Log improvements
+//
 // Revision 1.29  2001/11/28 16:04:50  adcockj
 // Major reorganization of STill support
 //
@@ -580,7 +583,11 @@ BOOL Overlay_Create()
         }
         ddrval = lpDD->CreateSurface(&SurfaceDesc, &lpDDOverlay, NULL);
 
-        if (SUCCEEDED(ddrval) || ddrval != DDERR_OUTOFVIDEOMEMORY)
+		// stop trying if we succeeded
+		// or if we are told there is not enough memory
+		// maybe E_INVALIDARG means that the card doesn't support that many
+		// buffers so loop if we get that too
+        if (SUCCEEDED(ddrval) || ddrval != DDERR_OUTOFVIDEOMEMORY || ddrval != E_INVALIDARG)
             break;
     }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CaptureDevice.cpp,v 1.5 2002-03-15 23:08:59 tobbej Exp $
+// $Id: CaptureDevice.cpp,v 1.6 2002-04-03 19:53:19 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/03/15 23:08:59  tobbej
+// changed dropped frames counter to include dropped frames in source filter.
+// experimented a bit with btwincap:s ir support
+//
 // Revision 1.4  2002/02/07 22:05:43  tobbej
 // new classes for file input
 // rearanged class inheritance a bit
@@ -111,10 +115,16 @@ CDShowCaptureDevice::~CDShowCaptureDevice()
 void CDShowCaptureDevice::connect(CComPtr<IBaseFilter> filter)
 {
 	//this will connect the capture device and add all needed filters upstream like tuners and crossbars
-	HRESULT hr=m_pBuilder->RenderStream(&PIN_CATEGORY_CAPTURE,&MEDIATYPE_Video,m_vidDev,NULL,filter);
+	
+	//first try to render interleaved (dv source), if it fails try normal render
+	HRESULT hr=m_pBuilder->RenderStream(&PIN_CATEGORY_CAPTURE,&MEDIATYPE_Interleaved,m_vidDev,NULL,filter);
 	if(FAILED(hr))
 	{
-		throw CDShowException("Failed to connect video capture device to renderer",hr);
+		hr=m_pBuilder->RenderStream(&PIN_CATEGORY_CAPTURE,&MEDIATYPE_Video,m_vidDev,NULL,filter);
+		if(FAILED(hr))
+		{
+			throw CDShowException("Failed to connect video capture device to renderer",hr);
+		}
 	}
 	m_bIsConnected=true;
 }

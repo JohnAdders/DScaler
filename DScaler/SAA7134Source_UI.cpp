@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.34 2003-01-18 12:10:49 laurentg Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.35 2003-01-19 10:39:56 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.34  2003/01/18 12:10:49  laurentg
+// Avoid double display in OSD (ADJUSTDOWN_SILENT and ADJUSTUP_SILENT instead of (ADJUSTDOWN and ADJUSTUP)
+//
 // Revision 1.33  2003/01/16 13:30:49  adcockj
 // Fixes for various settings problems reported by Laurent 15/Jan/2003
 //
@@ -1153,7 +1156,8 @@ void CSAA7134Source::SetMenu(HMENU hMenu)
         SetMenuItemInfo(m_hMenu, IDM_SOURCE_INPUT1 + i, FALSE, &MenuItemInfo);
 
         // enable the menu and check it appropriately
-        EnableMenuItem(m_hMenu, IDM_SOURCE_INPUT1 + i, MF_ENABLED);
+        //EnableMenuItem(m_hMenu, IDM_SOURCE_INPUT1 + i, MF_ENABLED);
+		EnableMenuItem(m_hMenu, IDM_SOURCE_INPUT1 + i, (m_TunerType->GetValue() == TUNER_ABSENT && m_pSAA7134Card->IsInputATuner(i)) ? MF_GRAYED : MF_ENABLED);
         CheckMenuItemBool(m_hMenu, IDM_SOURCE_INPUT1 + i, (m_VideoSource->GetValue() == i));
     }
 
@@ -1449,9 +1453,12 @@ BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         case IDM_SOURCE_INPUT7:
             {
                 int nValue = LOWORD(wParam) - IDM_SOURCE_INPUT1;
-                ShowText(hWnd, m_pSAA7134Card->GetInputName(nValue));
-                m_VideoSource->SetValue(nValue);
-                SendMessage(hWnd, WM_COMMAND, IDM_VT_RESET, 0);
+				if (m_TunerType->GetValue() != TUNER_ABSENT || !m_pSAA7134Card->IsInputATuner(nValue))
+				{
+					ShowText(hWnd, m_pSAA7134Card->GetInputName(nValue));
+					m_VideoSource->SetValue(nValue);
+					SendMessage(hWnd, WM_COMMAND, IDM_VT_RESET, 0);
+				}
             }
             break;
 

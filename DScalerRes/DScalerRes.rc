@@ -504,14 +504,14 @@ BEGIN
     LTEXT           "I2C Interface Copyright (c) Gerd Knorr",IDC_STATIC,13,
                     177,160,10
     GROUPBOX        "Support",IDC_STATIC,194,37,180,100
-    LTEXT           "The best place to get support for DScaler are the support forums at DScaler's SourceForge pages. Click on link below.",
+    LTEXT           "The best place to get support for DScaler are the support forums at DScaler's support forum. Click on link below.",
                     IDC_STATIC,200,47,166,27
     LTEXT           "Eric Schmidt\nMuljadi Budiman\nLindsey Dubb\nMike Temperton\nIvan Tarnavsky\nRob Muller",
                     IDC_STATIC,103,52,74,81
     LTEXT           "Please read the Support section in the help and the FAQ before posting.",
                     IDC_STATIC,200,104,166,26
-    CTEXT           "http://sourceforge.net/forum/?group_id=7420",IDC_LINK,
-                    201,81,162,12,SS_NOTIFY | SS_CENTERIMAGE | SS_SUNKEN
+    CTEXT           "http://www.dscaler.org/phpBB/index.php",IDC_LINK,201,81,
+                    162,12,SS_NOTIFY | SS_CENTERIMAGE | SS_SUNKEN
     LTEXT           "VirtualDub - Copyright (c) Avery Lee",IDC_STATIC,13,189,
                     161,9
     LTEXT           "John Adcock\nMark Rejhon\nSteve Grimm\nTom Barry\nMichael Eskin\nMichael Samblanet\nLaurent Garnier\nJochen Trenner\nTorbjörn Jansson",

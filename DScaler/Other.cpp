@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.65 2003-05-31 11:38:17 laurentg Exp $
+// $Id: Other.cpp,v 1.66 2003-07-18 09:38:00 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.65  2003/05/31 11:38:17  laurentg
+// Load dynamic functions earlier to have splash screen on correct screen and to be able to start in full screen mode on the second monitor
+//
 // Revision 1.64  2003/04/15 13:06:27  adcockj
 // Corrections for NT 4 compatable Multi-Monitor code
 //
@@ -283,10 +286,12 @@ COLORREF OverlayColor = RGB(32, 16, 16);
 DWORD PhysicalOverlayColor = RGB(32, 16, 16);
 long BackBuffers = -1;     // Make new user parm, TRB 10/28/00
 BOOL bCanDoBob = FALSE;
+BOOL bCanDoFlipInterval = FALSE;
 BOOL bCanDoColorKey = FALSE;
 DDCOLORCONTROL OriginalColorControls;
 LPDIRECTDRAWCOLORCONTROL pDDColorControl = NULL;
 BOOL bUseOverlayControls = FALSE;
+ULONG OutputTicksPerFrame = 0;
 
 long OverlayBrightness = 75;
 long OverlayContrast = 100;
@@ -1073,7 +1078,45 @@ BOOL Overlay_Create()
 
     // overlay clean is wrapped in a critcal section already
     Overlay_Clean();
-    
+
+// some code to work out how long a flip is
+// could be used by new JT code
+#ifdef _NOT_YET_USED
+
+    int i = 0; 
+    OutputTicksPerFrame = 0;
+    while(i < 5)
+    {
+        HRESULT hr = lpDD->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN, NULL);
+        ULONGLONG ticks1;
+        ULONGLONG ticks2;
+
+        QueryPerformanceCounter((PLARGE_INTEGER)&ticks1);
+
+        for(int j = 0; j < 10; ++j)
+        {
+            hr = lpDD->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN, NULL);
+        }
+        QueryPerformanceCounter((PLARGE_INTEGER)&ticks2);
+        ULONG Ticks = (ticks2 - ticks1);
+        // if we get the same answer to within 1% twice in a row
+        // we're done, this should avoid problems with pre-emption
+        if(OutputTicksPerFrame * 99 < Ticks * 10 && 
+            OutputTicksPerFrame * 101 > Ticks * 10)
+        {
+            break;
+        }
+        OutputTicksPerFrame = Ticks / 10;
+        ++i;
+    }
+
+    if(i == 5)
+    {
+        LOG(1, "Trouble getting lock on Ticks per frame");
+    }
+
+#endif
+
     return (TRUE);
 }
 
@@ -1567,6 +1610,7 @@ BOOL InitDD(HWND hWnd)
                 DestSizeAlign = 1;
             }
             bCanDoBob = ((DriverCaps.dwCaps2 & DDCAPS2_CANFLIPODDEVEN) != 0);
+            bCanDoFlipInterval = ((DriverCaps.dwCaps2 & DDCAPS2_FLIPINTERVAL) != 0);
         }
         else
         {

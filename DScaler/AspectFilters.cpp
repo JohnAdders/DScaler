@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectFilters.cpp,v 1.30 2003-01-07 23:55:35 laurentg Exp $
+// $Id: AspectFilters.cpp,v 1.31 2003-06-14 12:02:59 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2003/01/07 23:55:35  laurentg
+// Take into account the new overscans in the AR module
+//
 // Revision 1.29  2003/01/07 23:27:00  laurentg
 // New overscan settings
 //
@@ -705,6 +708,12 @@ BOOL CResizeWindowAspectFilter::adjustAspect(CAspectRectangles &ar)
         {
             // Nope!  Scale the existing window using "smart" logic to grow or shrink the window as needed
             RECT screenRect = {0,0,GetSystemMetrics(SM_CXSCREEN),GetSystemMetrics(SM_CYSCREEN) };
+			//
+			// Laurent's comment
+			// Maybe the two following lines should replace the previous one.
+			//
+			//RECT screenRect;
+			//GetMonitorRect(hWnd, &screenRect);
 
             currentClientRect.adjustSourceAspectSmart(newRect.sourceAspect(),screenRect);
             

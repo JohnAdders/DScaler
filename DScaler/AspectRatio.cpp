@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.cpp,v 1.43 2003-03-22 15:41:58 laurentg Exp $
+// $Id: AspectRatio.cpp,v 1.44 2003-03-29 13:37:51 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -72,6 +72,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.43  2003/03/22 15:41:58  laurentg
+// Half height deinterlace modes correctly handled in previow mode
+// Center of the image in its frame with black borders
+//
 // Revision 1.42  2003/03/16 18:31:24  laurentg
 // New multiple frames feature
 //
@@ -235,6 +239,10 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
     static BOOL InFunction = FALSE;
     if(InFunction == TRUE) return;
 
+	CheckChangeMonitor(hWnd);
+	RECT ScreenRect;
+	GetMonitorRect(hWnd, &ScreenRect);
+
     CAspectRectangles ar;
     CSource* pSource = Providers_GetCurrentSource();
 
@@ -294,7 +302,7 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
     // Set the aspect adjustment factor if the screen aspect is specified...
     if (AspectSettings.TargetAspect)
     {
-        ar.m_OriginalOverlayDestRect.setAspectAdjust((double) GetSystemMetrics(SM_CXSCREEN) / (double) GetSystemMetrics(SM_CYSCREEN),
+        ar.m_OriginalOverlayDestRect.setAspectAdjust((double) (ScreenRect.right  - ScreenRect.left) / (double) (ScreenRect.bottom - ScreenRect.top),
                                                  AspectSettings.TargetAspect/1000.0);
     }
 
@@ -327,6 +335,31 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
     AspectSettings.DestinationRect = ar.m_CurrentOverlayDestRect;
     ScreenToClient(hWnd,((PPOINT)&AspectSettings.DestinationRect.left));
     ScreenToClient(hWnd,((PPOINT)&AspectSettings.DestinationRect.right));
+
+	// cut the on-screen overlay surface out of the monitor screen area
+	if (AspectSettings.DestinationRectWindow.right > ScreenRect.right)
+	{
+		AspectSettings.DestinationRectWindow.right = ScreenRect.right;
+	}
+
+	if (AspectSettings.DestinationRectWindow.left < ScreenRect.left)
+	{
+		AspectSettings.DestinationRectWindow.left = ScreenRect.left;
+	}
+
+	if (AspectSettings.DestinationRectWindow.top < ScreenRect.top)
+	{
+		AspectSettings.DestinationRectWindow.top = ScreenRect.top;
+	}
+
+	if (AspectSettings.DestinationRectWindow.bottom > ScreenRect.bottom)
+	{
+		AspectSettings.DestinationRectWindow.bottom = ScreenRect.bottom;
+	}
+	AspectSettings.DestinationRectWindow.left   -= ScreenRect.left;
+	AspectSettings.DestinationRectWindow.right  -= ScreenRect.left;
+	AspectSettings.DestinationRectWindow.top    -= ScreenRect.top;
+	AspectSettings.DestinationRectWindow.bottom -= ScreenRect.top;
 
     // Invert the rectangle if necessary...
     //

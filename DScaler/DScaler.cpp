@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.317 2003-03-23 09:24:27 laurentg Exp $
+// $Id: DScaler.cpp,v 1.318 2003-03-29 13:39:33 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.317  2003/03/23 09:24:27  laurentg
+// Automatic leave preview mode when necessary
+//
 // Revision 1.316  2003/03/22 18:58:38  laurentg
 // New key to switch to or from preview mode
 // Spped up initial display of channels in preview mode
@@ -1426,11 +1429,6 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
 
     Initialize_Mute();
 
-    if(bDisplaySplashScreen)
-    {
-        ShowSpashScreen();
-    }
-
 
     // load up the cursors we want to use
     // we load up arrow as the default and try and load up
@@ -1475,7 +1473,17 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
 
     hWnd = CreateWindow(DSCALER_APPNAME, DSCALER_APPNAME, WS_POPUP, 0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), NULL, NULL, hInstance, NULL);
     if (!hWnd) return FALSE;
-    if (!bIsFullScreen) SetWindowPos(hWnd, 0, MainWndLeft, MainWndTop, MainWndWidth, MainWndHeight, SWP_SHOWWINDOW);
+	// Always position the window to the last saved position even when starting in full screen mode
+	// to be sure to have the display on the correct screen
+	// Display in full screen mode is then done later when calling UpdateWindowState
+    SetWindowPos(hWnd, 0, MainWndLeft, MainWndTop, MainWndWidth, MainWndHeight, SWP_SHOWWINDOW);
+
+	// Show the splash screen after creating the main window
+	// to be sure to display it on the right monitor
+    if(bDisplaySplashScreen)
+    {
+        ShowSpashScreen();
+    }
 
     if (!StatusBar_Init()) return FALSE;
 
@@ -4666,6 +4674,7 @@ void MainWndOnInitBT(HWND hWnd)
         {
             Providers_ChangeSettingsBasedOnHW(Setting_GetValue(DScaler_GetSetting(PROCESSORSPEED)), Setting_GetValue(DScaler_GetSetting(TRADEOFF)));
         }
+		ListMonitors(hWnd);
         if(InitDD(hWnd) == TRUE)
         {
             if(Overlay_Create() == TRUE)
@@ -4807,6 +4816,7 @@ void MainWndOnInitBT(HWND hWnd)
 
         AddSplashTextLine("Start Video");
         Start_Capture();
+		SetCurrentMonitor(hWnd);
         
     }
     else
@@ -5624,16 +5634,18 @@ void UpdateWindowState()
 {
     if(bIsFullScreen == TRUE)
     {
+		RECT ScreenRect;
         UpdateWindowRegion(hWnd, FALSE);
 		SetWindowLong(hWnd, GWL_STYLE, WS_VISIBLE | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));
         SetMenu(hWnd, NULL);
         StatusBar_ShowWindow(FALSE);
+		GetMonitorRect(hWnd, &ScreenRect);
         SetWindowPos(hWnd,
                     bAlwaysOnTopFull?HWND_TOPMOST:HWND_NOTOPMOST,
-                    0,
-                    0,
-                    GetSystemMetrics(SM_CXSCREEN),
-                    GetSystemMetrics(SM_CYSCREEN),
+                    ScreenRect.left,
+                    ScreenRect.top,
+                    ScreenRect.right  - ScreenRect.left,
+                    ScreenRect.bottom - ScreenRect.top,
                     SWP_SHOWWINDOW | SWP_NOACTIVATE);
     }
     else

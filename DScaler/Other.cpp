@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.61 2003-03-16 18:29:20 laurentg Exp $
+// $Id: Other.cpp,v 1.62 2003-03-29 13:36:36 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.61  2003/03/16 18:29:20  laurentg
+// New multiple frames feature
+//
 // Revision 1.60  2003/03/05 13:54:55  adcockj
 // Use optimized memcpy in output filter copy
 //
@@ -284,6 +287,145 @@ long OverlayGamma = 1;
 long OverlaySharpness = 5;
 
 SETTING OtherSettings[];
+
+#define MAX_MONITORS	4
+
+typedef struct {
+	HMONITOR hMon;
+	LPDIRECTDRAW lpDD;
+} TMonitor;
+
+static TMonitor Monitors[MAX_MONITORS];
+static int NbMonitors = 0;
+static HMONITOR hCurrentMon = NULL;
+
+//-----------------------------------------------------------------------------
+// Callback function used by DirectDrawEnumerateEx to find all monitors
+static BOOL WINAPI DDEnumCallbackEx(GUID* pGuid, LPTSTR pszDesc, LPTSTR pszDriverName,
+							 VOID* pContext, HMONITOR hMonitor )
+{
+	MONITORINFO MonInfo;
+	LPDIRECTDRAW lpDD;
+	
+	if (NbMonitors == MAX_MONITORS)
+		return DDENUMRET_CANCEL;
+
+	// DirectDrawEnumerateEx returns hMonitor = NULL on single monitor configuration 
+	// and both NULL and non-NULL value for the primary monitor in multiple monitors context !
+	// However MonitorFromWindow/Rect functions always return non-NULL HMONITOR handles
+	// so we need to replace the NULL handle in single monitor context with the non-NULL value
+	if (hMonitor == NULL)
+	{
+		hMonitor = MonitorFromWindow(NULL, MONITOR_DEFAULTTOPRIMARY);
+	}	
+	LOG(2, "Monitor %d %s %s", hMonitor, pszDesc, pszDriverName);
+
+	// and therefore test if we found again the same monitor !
+	for (int i = 0; i < NbMonitors; i++)
+	{
+		if (Monitors[i].hMon == hMonitor)
+		{
+			LOG(2, "Monitor alrady listed");
+			return DDENUMRET_OK;
+		}
+	}
+
+	MonInfo.cbSize = sizeof(MONITORINFO);
+	if (GetMonitorInfo(hMonitor, &MonInfo))
+	{
+		if (SUCCEEDED(DirectDrawCreate(pGuid, &lpDD, NULL)))
+		{
+			Monitors[NbMonitors].hMon = hMonitor;
+			Monitors[NbMonitors].lpDD = lpDD;
+			NbMonitors++;
+			LOG(1, "Monitor %d (%d %d %d %d)", NbMonitors, MonInfo.rcMonitor.left, MonInfo.rcMonitor.right, MonInfo.rcMonitor.top, MonInfo.rcMonitor.bottom);
+		}
+	}
+	
+    return DDENUMRET_OK; // Keep enumerating
+}
+
+//-----------------------------------------------------------------------------
+void ListMonitors(HWND hWnd)
+{
+	HINSTANCE h = LoadLibrary("ddraw.dll");
+
+    // If ddraw.dll doesn't exist in the search path,
+    // then DirectX probably isn't installed, so fail.
+    if (!h) return;
+
+	// Retrieve the function from the DDL
+    LPDIRECTDRAWENUMERATEEX lpDDEnumEx;
+    lpDDEnumEx = (LPDIRECTDRAWENUMERATEEX) GetProcAddress(h,"DirectDrawEnumerateExA");
+    if (lpDDEnumEx)
+	{
+		// If the function is there, call it to enumerate all display 
+		// devices attached to the desktop
+		lpDDEnumEx(DDEnumCallbackEx, NULL, DDENUM_ATTACHEDSECONDARYDEVICES);
+	}
+
+    // If the library was loaded by calling LoadLibrary(),
+    // then you must use FreeLibrary() to let go of it.
+    FreeLibrary(h);
+}
+
+//-----------------------------------------------------------------------------
+static LPDIRECTDRAW GetCurrentDD(HWND hWnd)
+{
+	HMONITOR hMonitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
+
+	for (int i=0 ; i<NbMonitors ; i++)
+	{
+		if (Monitors[i].hMon == hMonitor)
+		{
+			return Monitors[i].lpDD;
+		}
+	}
+	return NULL;
+}
+
+//-----------------------------------------------------------------------------
+void GetMonitorRect(HWND hWnd, RECT* rect)
+{
+	HMONITOR hMonitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
+	MONITORINFO MonInfo;
+
+	MonInfo.cbSize = sizeof(MONITORINFO);
+	GetMonitorInfo(hMonitor, &MonInfo);
+	memcpy(rect, &MonInfo.rcMonitor, sizeof(RECT));
+	LOG(2, "GetMonitorRect %d %d %d %d", rect->left, rect->right, rect->top, rect->bottom);
+}
+
+//-----------------------------------------------------------------------------
+void SetCurrentMonitor(HWND hWnd)
+{
+	hCurrentMon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
+}
+
+//-----------------------------------------------------------------------------
+void CheckChangeMonitor(HWND hWnd)
+{
+	HMONITOR hMon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
+
+	if (hCurrentMon == NULL)
+		return;
+
+	if (hMon != hCurrentMon)
+	{
+		hCurrentMon = hMon;
+		Overlay_Stop(hWnd);
+		if (lpDD != NULL)
+		{
+			Overlay_Destroy();
+			lpDD = NULL;
+		}
+		DeleteCriticalSection(&hDDCritSect);
+		if (InitDD(hWnd))
+		{
+			Overlay_Start(hWnd);
+		}
+	}
+}
 
 //-----------------------------------------------------------------------------
 // Tells whether or not video overlay color control is possible
@@ -812,9 +954,16 @@ BOOL Overlay_Create()
     ddrval = lpDDOverlay->QueryInterface(IID_IDirectDrawColorControl, (void **) &pDDColorControl);
     if(SUCCEEDED(ddrval))
     {
+		OriginalColorControls.dwSize = sizeof(DDCOLORCONTROL);
         ddrval = pDDColorControl->GetColorControls(&OriginalColorControls);
         if(SUCCEEDED(ddrval))
         {
+            LOG(3, "OriginalColorControls %d Brightness %d", OriginalColorControls.dwFlags & DDCOLOR_BRIGHTNESS, OriginalColorControls.lBrightness);
+            LOG(3, "OriginalColorControls %d Contrast %d", OriginalColorControls.dwFlags & DDCOLOR_CONTRAST, OriginalColorControls.lContrast);
+            LOG(3, "OriginalColorControls %d Hue %d", OriginalColorControls.dwFlags & DDCOLOR_HUE, OriginalColorControls.lHue);
+            LOG(3, "OriginalColorControls %d Saturation %d", OriginalColorControls.dwFlags & DDCOLOR_SATURATION, OriginalColorControls.lSaturation);
+            LOG(3, "OriginalColorControls %d Gamma %d", OriginalColorControls.dwFlags & DDCOLOR_SHARPNESS, OriginalColorControls.lGamma);
+            LOG(3, "OriginalColorControls %d Sharpness %d", OriginalColorControls.dwFlags & DDCOLOR_GAMMA, OriginalColorControls.lSharpness);
             if(bUseOverlayControls)
             {
                Overlay_SetColorControls();
@@ -823,11 +972,12 @@ BOOL Overlay_Create()
         else
         {
             pDDColorControl->Release();
+			pDDColorControl = NULL;
         }
     }
     else
     {
-       pDDColorControl = NULL;
+		pDDColorControl = NULL;
     }
 
 
@@ -1305,11 +1455,14 @@ BOOL InitDD(HWND hWnd)
 
     InitializeCriticalSection(&hDDCritSect);
 
+	lpDD = GetCurrentDD(hWnd);
+	/*
     if (FAILED(DirectDrawCreate(NULL, &lpDD, NULL)))
     {
         ErrorBox("DirectDrawCreate failed");
         return (FALSE);
     }
+	*/
 
     // can we use Overlay ??
     memset(&DriverCaps, 0x00, sizeof(DriverCaps));
@@ -1372,9 +1525,13 @@ void ExitDD(void)
     if (lpDD != NULL)
     {
         Overlay_Destroy();
-        lpDD->Release();
+//        lpDD->Release();
         lpDD = NULL;
     }
+	for (int i=0 ; i<NbMonitors ; i++)
+	{
+		Monitors[i].lpDD->Release();
+	}
     DeleteCriticalSection(&hDDCritSect);
 }
 

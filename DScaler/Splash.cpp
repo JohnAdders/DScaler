@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Splash.cpp,v 1.9 2003-01-15 15:54:23 adcockj Exp $
+// $Id: Splash.cpp,v 1.10 2003-03-29 13:40:24 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2003/01/15 15:54:23  adcockj
+// Fixed some keyboard focus issues
+//
 // Revision 1.8  2001/11/23 10:49:17  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -51,6 +54,7 @@
 #include "Splash.h"
 #include "DScaler.h"
 #include "DebugLog.h"
+#include "Other.h"
 
 HWND SplashWnd = NULL;
 
@@ -67,14 +71,16 @@ BOOL APIENTRY SplashProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
     {
     case WM_INITDIALOG:
         {
-            int Width = GetSystemMetrics(SM_CXSCREEN);
-            int Height = GetSystemMetrics(SM_CYSCREEN);
+			RECT ScreenRect;
+			GetMonitorRect(hWnd, &ScreenRect);
+            int Width = ScreenRect.right  - ScreenRect.left;
+            int Height = ScreenRect.bottom - ScreenRect.top;
             hSplashBm = (HBITMAP)LoadImage(hDScalerInst, MAKEINTRESOURCE(IDB_STARTUP), IMAGE_BITMAP, 0, 0, LR_VGACOLOR);
             GetObject(hSplashBm, sizeof(BITMAP), (LPSTR) &bm);
 
             SetWindowPos(hDlg, HWND_TOPMOST, 
-                (Width - bm.bmWidth) / 2, 
-                (Height - bm.bmHeight) / 2, 
+                ScreenRect.left + (Width - bm.bmWidth) / 2, 
+                ScreenRect.top + (Height - bm.bmHeight) / 2, 
                 bm.bmWidth, 
                 bm.bmHeight, 
                 SWP_SHOWWINDOW);

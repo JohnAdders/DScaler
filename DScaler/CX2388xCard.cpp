@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.13 2002-11-07 21:06:12 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.14 2002-11-08 11:54:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/11/07 21:06:12  adcockj
+// Fixes to prevent hanging with card that's not been initilaised
+//
 // Revision 1.12  2002/11/07 20:33:16  adcockj
 // Promoted ACPI functions so that state management works properly
 //
@@ -138,6 +141,7 @@
 #include "NoTuner.h"
 #include "MT2032.h"
 #include "GenericTuner.h"
+#include "TDA9887.h"
 #include "DScaler.h"
 
 
@@ -1405,20 +1409,87 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
         strcpy(m_TunerType, "Generic ");
         break;
     }
-    if (tunerId != TUNER_ABSENT) 
+
+    // Finished if tuner type is CNoTuner
+    switch (tunerId)
     {
-        int kk = strlen(m_TunerType);
-        for (BYTE test = 0xC0; test < 0xCF; test +=2)
+    case TUNER_AUTODETECT:
+    case TUNER_USER_SETUP:
+    case TUNER_ABSENT:
+        return TRUE;
+    }
+
+    // Look for possible external IF demodulator
+    IExternalIFDemodulator *pExternalIFDemodulator = NULL;
+    BYTE IFDemDeviceAddress = 0;
+    eVideoFormat videoFormat = VIDEOFORMAT_NTSC_M;
+
+    if ((tunerId == TUNER_MT2032) || (tunerId == TUNER_MT2032_PAL))
+    {
+        // Only check for TDA9887 if there is a MT2032 chip. Is that correct?
+
+        videoFormat = (tunerId == TUNER_MT2032)?  VIDEOFORMAT_NTSC_M : VIDEOFORMAT_PAL_B;
+
+        //Try to detect a TDA9887 chip
+
+        CTDA9887 *pTDA9887 = new CTDA9887();
+        pExternalIFDemodulator = pTDA9887;
+        IFDemDeviceAddress = I2C_TDA9887_0;
+    }
+
+    // Detect and attach IF demodulator to the tuner
+    //  or delete the demodulator if the chip doesn't exist.
+    if (pExternalIFDemodulator != NULL)
+    {
+        if (IFDemDeviceAddress != 0)
         {
-            if (m_I2CBus->Write(&test, sizeof(test)))
-            {
-                m_Tuner->Attach(m_I2CBus, test>>1);
-                sprintf(m_TunerType + kk, " @I2C@0x%02x", test);
-                break;
-            }
+            // Attach I2C bus if the demodulator chip uses it
+            pExternalIFDemodulator->Attach(m_I2CBus, IFDemDeviceAddress);
+        }
+        if (pExternalIFDemodulator->Detect())
+        {
+            m_Tuner->AttachIFDem(pExternalIFDemodulator, TRUE);
+            pExternalIFDemodulator->Init(TRUE, videoFormat);
+        }
+        else
+        {
+            delete pExternalIFDemodulator;
+            pExternalIFDemodulator = NULL;
         }
     }
-    return TRUE;
+
+
+    // Scan the I2C bus addresses 0xC0 - 0xCF for tuners
+    BOOL bFoundTuner = FALSE;
+
+    int kk = strlen(m_TunerType);
+    for (BYTE test = 0xC0; test < 0xCF; test +=2)
+    {
+        if (m_I2CBus->Write(&test, sizeof(test)))
+        {
+            m_Tuner->Attach(m_I2CBus, test>>1);
+            sprintf(m_TunerType + kk, " at I2C address 0x%02x", test);
+            bFoundTuner = TRUE;
+            LOG(1,"Tuner: Found at I2C address 0x%02x",test);
+            break;
+        }
+    }
+
+    if (pExternalIFDemodulator != NULL)
+    {
+        //End initialization
+        pExternalIFDemodulator->Init(FALSE, videoFormat);
+    }
+
+    if (!bFoundTuner)
+    {
+        LOG(1,"Tuner: No tuner found at I2C addresses 0xC0-0xCF");
+
+        delete m_Tuner;
+        m_Tuner = new CNoTuner();
+        strcpy(m_TunerType, "None ");
+    }
+    return bFoundTuner;
 }
 
 void CCX2388xCard::SetRISCStartAddress(DWORD RiscBasePhysical)

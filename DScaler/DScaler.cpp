@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.172 2002-06-06 21:40:00 robmuller Exp $
+// $Id: DScaler.cpp,v 1.173 2002-06-12 20:16:33 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.172  2002/06/06 21:40:00  robmuller
+// Fixed: timeshifting and VBI data decoding was not done when minimized.
+//
 // Revision 1.171  2002/06/06 18:17:31  robmuller
 // Change to prevent (un)installation with InnoSetup when DScaler is running.
 //
@@ -1259,11 +1262,25 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         // -ve is backward (towards user)
         if((short)wParam > 0)
         {
-            PostMessage(hWnd, WM_COMMAND, IDM_CHANNELPLUS, 0);
+            if(GetKeyState(VK_SHIFT) < 0)
+            {
+                PostMessage(hWnd, WM_COMMAND, IDM_VOLUMEPLUS, 0);
+            }
+            else
+            {
+                PostMessage(hWnd, WM_COMMAND, IDM_CHANNELPLUS, 0);
+            }
         }
         else
         {
-            PostMessage(hWnd, WM_COMMAND, IDM_CHANNELMINUS, 0);
+            if(GetKeyState(VK_SHIFT) < 0)
+            {
+                PostMessage(hWnd, WM_COMMAND, IDM_VOLUMEMINUS, 0);
+            }
+            else
+            {
+                PostMessage(hWnd, WM_COMMAND, IDM_CHANNELMINUS, 0);
+            }
         }
     }
 
@@ -2787,7 +2804,23 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
     // support for mouse wheel
     // the WM_MOUSEWHEEL message is not defined but this is it's Value
     case WM_MOUSELAST + 1:
-        if ((wParam & (MK_SHIFT | MK_CONTROL)) == 0)
+        // if shift down change volume
+        if ((wParam & MK_SHIFT) != 0)
+        {
+            // crack the mouse wheel delta
+            // +ve is forward (away from user)
+            // -ve is backward (towards user)
+            if((short)HIWORD(wParam) > 0)
+            {
+                PostMessage(hWnd, WM_COMMAND, IDM_VOLUMEPLUS, 0);
+            }
+            else
+            {
+                PostMessage(hWnd, WM_COMMAND, IDM_VOLUMEMINUS, 0);
+            }
+        }
+        // else change the channel
+        else if ((wParam & MK_CONTROL) == 0)
         {
             // crack the mouse wheel delta
             // +ve is forward (away from user)

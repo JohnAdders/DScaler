@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsPerChannel.cpp,v 1.22 2002-10-02 10:52:35 kooiman Exp $
+// $Id: SettingsPerChannel.cpp,v 1.23 2002-10-07 20:33:05 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 DScaler team.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2002/10/02 10:52:35  kooiman
+// Fixed C++ type casting for events.
+//
 // Revision 1.21  2002/09/29 13:56:30  adcockj
 // Fixed some cursor hide problems
 //
@@ -1641,7 +1644,10 @@ void SettingsPerChannel_SourceChange(void* pThis, int Flags, CSource* pSource)
             iSpcCurrentChannel = NO_CHANNEL;            
             iSpcLastLoadedChannel = NO_CHANNEL;
 
-            iSpcCurrentVideoInput = pSource->GetInput(VIDEOINPUT);
+            if (pSource != NULL)
+			{
+				iSpcCurrentVideoInput = pSource->GetInput(VIDEOINPUT);
+			}
 
             bSpcLoadedNewDefaults = FALSE;
             SettingsPerChannel_Setup(3);            

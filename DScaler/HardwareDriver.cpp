@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareDriver.cpp,v 1.8 2002-02-13 16:37:16 tobbej Exp $
+// $Id: HardwareDriver.cpp,v 1.9 2002-05-25 11:56:56 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/02/13 16:37:16  tobbej
+// fixed so LoadDriver dont fail if the service is already running
+//
 // Revision 1.7  2002/02/03 22:47:31  robmuller
 // Added (un)installation of the NT/2000/XP driver, this includes code to change
 // the access rights. The driver is not automatically deleted on exit anymore.
@@ -293,6 +296,15 @@ BOOL CHardwareDriver::InstallNTDriver()
         bError = TRUE;
     }
     
+    if(!bError)
+    {
+        if(szDriverPath[0] == '\\' && szDriverPath[1] == '\\')
+        {
+            ErrorBox("The DScaler device driver can't be installed from a network drive.");
+            bError = TRUE;
+        }
+    }
+
     if(!bError)
     {
         pszName = szDriverPath + strlen(szDriverPath);

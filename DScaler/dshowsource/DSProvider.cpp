@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSProvider.cpp,v 1.6 2002-04-04 16:04:45 tobbej Exp $
+// $Id: DSProvider.cpp,v 1.7 2002-05-01 20:36:49 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/04/04 16:04:45  tobbej
+// fixed error message
+// fixed problem with file open not accepting dshow files (when no wdm driver is present)
+//
 // Revision 1.5  2002/03/26 19:48:59  adcockj
 // Improved error handling in DShow code
 //
@@ -87,7 +91,7 @@ CDSProvider::CDSProvider()
 		//add one file source
 		CDSSource *src=new CDSSource();
 		m_DSSources.push_back(src);
-		m_SourceNames[m_DSSources.size()-1]="Movie File";
+		m_SourceNames[m_DSSources.size()-1]="Media file";
     }
     catch(std::runtime_error e)
     {

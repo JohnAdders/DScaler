@@ -1,5 +1,5 @@
 //
-// $Id: TDA9875.cpp,v 1.2 2004-08-30 16:17:02 adcockj Exp $
+// $Id: TDA9875.cpp,v 1.3 2004-08-30 16:19:35 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2004/08/30 16:17:02  adcockj
+// Fixed issue with TDA9875 detection
+//
 // Revision 1.1  2004/01/05 13:25:25  adcockj
 // Added patch for Diamond DTV2000 from Robert Milharcic
 //
@@ -64,7 +67,8 @@ void CTDA9875::Reset()
 
 bool CTDA9875::IsDevicePresent(int& dic, int& rev)
 {
-    BYTE result[1];
+    // since 0 is a true valuie make sure we get a change
+    BYTE result[1] = {3};
 
 	if(ReadFromSubAddress(254, 0, 0, result, sizeof(result)) == false)
     {

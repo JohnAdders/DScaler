@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.49 2004-02-05 21:47:53 to_see Exp $
+// $Id: CX2388xCard.cpp,v 1.50 2004-02-06 08:01:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.49  2004/02/05 21:47:53  to_see
+// Starting/Stopping connexant-drivers while dscaler is running.
+// To Enable/Disable it, go to Settings->Advanced Settings->
+// CX2388X Advanced->Stopping Conexxant driver while Dscaler is running.
+//
+// This enables sound on my card without to go to windows control panel.
+//
 // Revision 1.48  2004/01/18 21:13:59  adcockj
 // Fix for chip setup with no driver
 //
@@ -288,7 +295,7 @@ CCX2388xCard::~CCX2388xCard()
 
     ClosePCICard();
 
-	if((m_EnableConexxantDriver2Stopp == TRUE) && (m_ConexxantDriverStopped == TRUE))
+	if(m_ConexxantDriverStopped == TRUE)
 	{
 		StartStopConexxantDriver(DICS_ENABLE);
 	}

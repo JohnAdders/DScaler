@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.58 2004-02-05 21:47:52 to_see Exp $
+// $Id: CX2388xSource.cpp,v 1.59 2004-02-06 08:01:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.58  2004/02/05 21:47:52  to_see
+// Starting/Stopping connexant-drivers while dscaler is running.
+// To Enable/Disable it, go to Settings->Advanced Settings->
+// CX2388X Advanced->Stopping Conexxant driver while Dscaler is running.
+//
+// This enables sound on my card without to go to windows control panel.
+//
 // Revision 1.57  2003/11/06 19:36:58  adcockj
 // Increase size of vertical delay
 //
@@ -636,7 +643,7 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
     m_AnalogueBlanking = new CAnalogueBlankingSetting(this, "Analogue Blanking", FALSE, IniSection, pVideoGroup);
     m_Settings.push_back(m_AnalogueBlanking);
 
-    m_ConexxantStartStopDriver = new CConexxantStartStopDriverSetting(this, "Stopping Conexxant driver while DScaler is running", TRUE, IniSection, pVideoGroup);
+    m_ConexxantStartStopDriver = new CConexxantStartStopDriverSetting(this, "Stop Conexxant driver while DScaler is running", TRUE, IniSection, pVideoGroup);
     m_Settings.push_back(m_ConexxantStartStopDriver);
 
 #ifdef _DEBUG    

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.154 2003-12-29 01:27:53 robmuller Exp $
+// $Id: DS_Control.h,v 1.155 2004-02-06 08:01:20 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.154  2003/12/29 01:27:53  robmuller
+// Added AVI file splitting.
+//
 // Revision 1.153  2003/11/18 16:36:33  robmuller
 // Added option to disable the keyboard lock for dialog boxes.
 //
@@ -1606,6 +1609,7 @@ typedef enum
     CX2388XLEFTOVERSCAN,
     CX2388XRIGHTOVERSCAN,
     CX2388XANALOGUEBLANKING,
+    CX2388XSTARTSTOPDRIVER,
     CX2388X_SETTING_LASTONE,
 } CX2388X_SETTING;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Pattern.h,v 1.1 2002-10-29 20:58:11 laurentg Exp $
+// $Id: Pattern.h,v 1.2 2002-11-01 13:09:19 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/10/29 20:58:11  laurentg
+// Calibration source cut in Calibration + Pattern
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -315,7 +318,7 @@ class CPatternHelper : public CStillSourceHelper
 public:
     CPatternHelper(CStillSource* pParent);
     BOOL OpenMediaFile(LPCSTR FileName);
-    void SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch);
+    void SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch, char* Context);
 };
 
 

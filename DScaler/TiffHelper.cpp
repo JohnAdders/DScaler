@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TiffHelper.cpp,v 1.26 2002-10-26 17:56:19 laurentg Exp $
+// $Id: TiffHelper.cpp,v 1.27 2002-11-01 13:09:19 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2002/10/26 17:56:19  laurentg
+// Possibility to take stills in memory added
+//
 // Revision 1.25  2002/06/21 23:14:19  laurentg
 // New way to store address of allocated memory buffer for still source
 //
@@ -120,8 +123,6 @@
 #include "OutThreads.h"
 #include "..\ThirdParty\LibTiff\tiffio.h"
 
-
-#define SQUARE_MARK "(square)"
 
 #define LIMIT_RGB(x)    (((x)<0)?0:((x)>255)?255:(x))
 #define LIMIT_Y(x)      (((x)<16)?16:((x)>235)?235:(x))
@@ -397,10 +398,9 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
 }
 
 
-void CTiffHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch)
+void CTiffHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch, char* Context)
 {
     int y, cr, cb, r, g, b;
-    char* description;
     TIFF* tif;
     BYTE *pBufOverlay;
     uint8* buffer;
@@ -491,17 +491,12 @@ void CTiffHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOv
     //
     // Fields of the directory
     //
-    description = BuildDScalerContext();
-    if (m_pParent->m_SquarePixels)
-    {
-        strcat(description, SQUARE_MARK);
-    }
     time(&long_time);
     tm_time = localtime(&long_time);
 
     if (!TIFFSetField(tif, TIFFTAG_SUBFILETYPE, 0) ||
         !TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, 8) ||                 // 8 bits for each channel
-        !TIFFSetField(tif, TIFFTAG_IMAGEDESCRIPTION, description) ||
+        !TIFFSetField(tif, TIFFTAG_IMAGEDESCRIPTION, Context) ||
         !TIFFSetField(tif, TIFFTAG_IMAGELENGTH, Height) ||
         !TIFFSetField(tif, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG) ||         // RGB bytes are interleaved
         !TIFFSetField(tif, TIFFTAG_ROWSPERSTRIP, Height) ||             // Whole image is one strip

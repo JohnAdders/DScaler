@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: JpegHelper.h,v 1.1 2002-05-01 12:57:19 laurentg Exp $
+// $Id: JpegHelper.h,v 1.2 2002-11-01 13:09:19 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/05/01 12:57:19  laurentg
+// Support of JPEG files added
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -34,7 +37,7 @@ class CJpegHelper : public CStillSourceHelper
 public:
     CJpegHelper(CStillSource* pParent);
     BOOL OpenMediaFile(LPCSTR FileName);
-    void SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch);
+    void SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch, char* Context);
 };
 
 #endif

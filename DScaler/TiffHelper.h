@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TiffHelper.h,v 1.5 2002-04-15 22:50:09 laurentg Exp $
+// $Id: TiffHelper.h,v 1.6 2002-11-01 13:09:19 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/04/15 22:50:09  laurentg
+// Change again the available formats for still saving
+// Automatic switch to "square pixels" AR mode when needed
+//
 // Revision 1.4  2002/04/14 17:25:26  laurentg
 // New formats of TIFF files supported to take stills : Class R (RGB) with compression LZW or Packbits or JPEG
 //
@@ -58,6 +62,9 @@ enum eTIFFClass {
 };
 
 
+#define SQUARE_MARK "(square)"
+
+
 /** A helper class that can read and write TIFF files
 */
 class CTiffHelper : public CStillSourceHelper
@@ -65,7 +72,7 @@ class CTiffHelper : public CStillSourceHelper
 public:
     CTiffHelper(CStillSource* pParent, eTIFFClass FormatSaving);
     BOOL OpenMediaFile(LPCSTR FileName);
-    void SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch);
+    void SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch, char* Context);
 
 private:
     eTIFFClass  m_FormatSaving;

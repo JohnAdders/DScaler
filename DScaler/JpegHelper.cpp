@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: JpegHelper.cpp,v 1.9 2002-10-26 17:56:19 laurentg Exp $
+// $Id: JpegHelper.cpp,v 1.10 2002-11-01 13:09:19 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/10/26 17:56:19  laurentg
+// Possibility to take stills in memory added
+//
 // Revision 1.8  2002/06/21 23:14:19  laurentg
 // New way to store address of allocated memory buffer for still source
 //
@@ -607,7 +610,7 @@ BOOL CJpegHelper::OpenMediaFile(LPCSTR FileName)
 }
 
 
-void CJpegHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch)
+void CJpegHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch, char* Context)
 {
     struct jpeg_compress_struct cinfo;
     struct jpeg_error_mgr jerr;
@@ -616,7 +619,6 @@ void CJpegHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOv
     JSAMPLE* pLineBuf;
     BYTE *pBufOverlay;
     int i, quality;
-    char* description;
     jmp_buf jmp_mark;
 
     // Allocate memory buffer to store one line of data
@@ -673,8 +675,7 @@ void CJpegHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOv
     jpeg_start_compress(&cinfo, TRUE);
 
     // Write DScaler marker APP1 with the DScaler current context
-    description = BuildDScalerContext();
-    jpeg_write_marker(&cinfo, JPEG_APP0 + 1, (JOCTET*)description, strlen(description));
+    jpeg_write_marker(&cinfo, JPEG_APP0 + 1, (JOCTET*)Context, strlen(Context));
 
     // Write DScaler marker APP2 to save if square pixels mode is on or off
     if (m_pParent->m_SquarePixels)

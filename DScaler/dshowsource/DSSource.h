@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.h,v 1.39 2003-01-18 13:54:31 laurentg Exp $
+// $Id: DSSource.h,v 1.40 2003-02-05 19:12:43 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.39  2003/01/18 13:54:31  laurentg
+// New methods GetHDelay and GetVDelay
+//
 // Revision 1.38  2003/01/18 10:49:10  laurentg
 // SetOverscan renamed SetAspectRatioData
 //
@@ -303,6 +306,8 @@ private:
 	DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, AudioInput);
 
 	DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, Resolution);
+	DEFINE_YESNO_CALLBACK_SETTING(CDSCaptureSource, ConnectAudio);
+
 protected:
     void ChangeDefaultsForVideoFormat(BOOL bDontSetValue) {};
     void ChangeDefaultsForVideoInput(BOOL bDontSetValue) {};

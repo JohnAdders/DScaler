@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CaptureDevice.h,v 1.15 2003-01-15 20:56:19 tobbej Exp $
+// $Id: CaptureDevice.h,v 1.16 2003-02-05 19:12:38 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2003/01/15 20:56:19  tobbej
+// added audio channel selection menu
+//
 // Revision 1.14  2003/01/06 21:34:30  tobbej
 // implemented GetFormat (not working yet)
 // implemented fm radio support
@@ -109,7 +112,7 @@ public:
 class CDShowCaptureDevice : public CDShowBaseSource  
 {
 public:
-	CDShowCaptureDevice(IGraphBuilder *pGraph,string device,string deviceName);
+	CDShowCaptureDevice(IGraphBuilder *pGraph,string device,string deviceName,bool bConnectAudio);
 	virtual ~CDShowCaptureDevice();
 	
 	eDSObjectType getObjectType() {return DSHOW_TYPE_SOURCE_CAPTURE;}
@@ -155,6 +158,7 @@ private:
 	
 	void findIAMDroppedFrames(CComPtr<IBaseFilter> filter);
 	bool m_bIsConnected;
+	bool m_bConnectAudio;
 	CDShowBaseCrossbar *m_pCrossbar;
 	CDShowDirectTuner *m_pTVTuner;
 	CDShowTVAudio *m_pTVAudio;

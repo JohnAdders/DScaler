@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSAudioDevicePage.cpp,v 1.2 2002-09-17 19:29:56 adcockj Exp $
+// $Id: DSAudioDevicePage.cpp,v 1.3 2003-02-05 19:12:38 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/09/17 19:29:56  adcockj
+// Fixed compile problems with dshow off
+//
 // Revision 1.1  2002/09/15 12:20:07  tobbej
 // implemented audio output device selection
 //
@@ -52,7 +55,15 @@ static char THIS_FILE[] = __FILE__;
 
 
 CDSAudioDevicePage::CDSAudioDevicePage(CString name,std::string &AudioDevice)
-	: CTreeSettingsPage(name,CDSAudioDevicePage::IDD),m_AudioDeviceSetting(AudioDevice)
+	: CTreeSettingsPage(name,CDSAudioDevicePage::IDD),m_AudioDeviceSetting(AudioDevice),m_bConnectAudio(NULL)
+{
+	//{{AFX_DATA_INIT(CDSAudioDevicePage)
+		// NOTE: the ClassWizard will add member initialization here
+	//}}AFX_DATA_INIT
+}
+
+CDSAudioDevicePage::CDSAudioDevicePage(CString name,std::string &AudioDevice,bool *bConnectAudio)
+	: CTreeSettingsPage(name,CDSAudioDevicePage::IDD),m_AudioDeviceSetting(AudioDevice),m_bConnectAudio(bConnectAudio)
 {
 	//{{AFX_DATA_INIT(CDSAudioDevicePage)
 		// NOTE: the ClassWizard will add member initialization here
@@ -66,6 +77,7 @@ void CDSAudioDevicePage::DoDataExchange(CDataExchange* pDX)
 	//{{AFX_DATA_MAP(CDSAudioDevicePage)
 	DDX_Control(pDX, IDC_DSHOW_AUDIODEVICE_DEVICE, m_AudioDevice);
 	DDX_Control(pDX, IDC_DSHOW_AUDIODEVICE_USEDEFAULT, m_UseDefault);
+	DDX_Control(pDX, IDC_DSHOW_AUDIODEVICE_RENDER, m_ConnectAudio);
 	//}}AFX_DATA_MAP
 }
 
@@ -74,6 +86,7 @@ BEGIN_MESSAGE_MAP(CDSAudioDevicePage, CTreeSettingsPage)
 	//{{AFX_MSG_MAP(CDSAudioDevicePage)
 	ON_CBN_SELENDOK(IDC_DSHOW_AUDIODEVICE_DEVICE,OnSelEndOkAudioDevice)
 	ON_BN_CLICKED(IDC_DSHOW_AUDIODEVICE_USEDEFAULT,OnClickedUseDefault)
+	ON_BN_CLICKED(IDC_DSHOW_AUDIODEVICE_RENDER,OnClickedConnectAudio)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -115,6 +128,17 @@ BOOL CDSAudioDevicePage::OnInitDialog()
 		m_AudioDevice.SetCurSel(0);
 	}
 	
+	if(m_bConnectAudio!=NULL)
+	{
+		m_ConnectAudio.SetCheck(*m_bConnectAudio?BST_UNCHECKED:BST_CHECKED);
+		OnClickedConnectAudio();
+	}
+	else
+	{
+		m_ConnectAudio.ShowWindow(SW_HIDE);
+		::ShowWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_AUDIODEVICE_TEXT2),SW_HIDE);
+	}
+	
 	return TRUE;
 }
 
@@ -129,6 +153,10 @@ void CDSAudioDevicePage::OnOK()
 	else
 	{
 		m_AudioDeviceSetting="";
+	}
+	if(m_bConnectAudio!=NULL)
+	{
+		*m_bConnectAudio=(m_ConnectAudio.GetCheck()==BST_UNCHECKED);
 	}
 }
 
@@ -146,6 +174,27 @@ void CDSAudioDevicePage::OnClickedUseDefault()
 	else
 	{
 		::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_AUDIODEVICE_DEVICE),TRUE);
+	}
+}
+
+void CDSAudioDevicePage::OnClickedConnectAudio()
+{
+	if(m_ConnectAudio.GetCheck()==BST_UNCHECKED)
+	{
+		::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_AUDIODEVICE_DEVICE),TRUE);
+		::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_AUDIODEVICE_DEVICE_TEXT),TRUE);
+		::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_AUDIODEVICE_GRPBOX),TRUE);
+		::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_AUDIODEVICE_USEDEFAULT),TRUE);
+		::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_AUDIODEVICE_DEVICE_LABEL),TRUE);
+		OnClickedUseDefault();
+	}
+	else
+	{
+		::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_AUDIODEVICE_DEVICE),FALSE);
+		::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_AUDIODEVICE_DEVICE_TEXT),FALSE);
+		::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_AUDIODEVICE_GRPBOX),FALSE);
+		::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_AUDIODEVICE_USEDEFAULT),FALSE);
+		::EnableWindow(::GetDlgItem(m_hWnd,IDC_DSHOW_AUDIODEVICE_DEVICE_LABEL),FALSE);
 	}
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.67 2003-01-18 10:49:10 laurentg Exp $
+// $Id: DSSource.cpp,v 1.68 2003-02-05 19:12:40 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.67  2003/01/18 10:49:10  laurentg
+// SetOverscan renamed SetAspectRatioData
+//
 // Revision 1.66  2003/01/15 20:55:33  tobbej
 // added audio channel selection menu
 // fixed so video format menu is greyed when in tuner mode
@@ -658,6 +661,9 @@ void CDSCaptureSource::CreateSettings(LPCSTR IniSection)
 
 	m_Resolution = new CResolutionSetting(this, "Resolution", -1, -1, LONG_MAX, IniSection, pVideoGroup);
 	m_Settings.push_back(m_Resolution);
+	
+	m_ConnectAudio = new CConnectAudioSetting(this,"ConnectAudio",TRUE,IniSection);
+	m_Settings.push_back(m_ConnectAudio);
 
 	//restore m_VideoFmt from ini file
 	int ResolutionDataIniSize=GetPrivateProfileInt(IniSection,"ResolutionSize",-1,GetIniFileForSettings());
@@ -708,12 +714,15 @@ BOOL CDSCaptureSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam
 	{
 		CTreeSettingsDlg dlg(CString("DirectShow Settings"));
 
-		CDSAudioDevicePage AudioDevice(CString("Audio output"),m_AudioDevice);
+		bool bConnectAudio=(m_ConnectAudio->GetValue()!=0);
+		CDSAudioDevicePage AudioDevice(CString("Audio output"),m_AudioDevice,&bConnectAudio);
 		CDSVideoFormatPage VidemFmt(CString("Resolution"),m_VideoFmt,m_Resolution);
 
 		dlg.AddPage(&AudioDevice);
 		dlg.AddPage(&VidemFmt);
 		dlg.DoModal();
+		
+		m_ConnectAudio->SetValue(bConnectAudio);
 
 		return TRUE;
 	}
@@ -1601,7 +1610,7 @@ void CDSCaptureSource::Start()
 	{
 		if(m_pDSGraph==NULL)
 		{
-			m_pDSGraph=new CDShowGraph(m_Device,m_DeviceName,m_AudioDevice);
+			m_pDSGraph=new CDShowGraph(m_Device,m_DeviceName,m_AudioDevice,m_ConnectAudio->GetValue()!=0);
 		}
 
 		m_pDSGraph->ConnectGraph();
@@ -1703,6 +1712,11 @@ void CDSCaptureSource::CreateDefaultVideoFmt()
 }
 
 void CDSCaptureSource::ResolutionOnChange(long NewValue, long OldValue)
+{
+    //
+}
+
+void CDSCaptureSource::ConnectAudioOnChange(long NewValue, long OldValue)
 {
     //
 }

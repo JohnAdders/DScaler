@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSAudioDevicePage.h,v 1.1 2002-09-15 12:20:07 tobbej Exp $
+// $Id: DSAudioDevicePage.h,v 1.2 2003-02-05 19:12:39 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/09/15 12:20:07  tobbej
+// implemented audio output device selection
+//
 /////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -49,12 +52,14 @@ class CDSAudioDevicePage : public CTreeSettingsPage
 // Construction
 public:
 	CDSAudioDevicePage(CString name,std::string &AudioDevice);   // standard constructor
+	CDSAudioDevicePage(CString name,std::string &AudioDevice,bool *bConnectAudio);
 
 // Dialog Data
 	//{{AFX_DATA(CDSAudioDevicePage)
 	enum { IDD = IDD_DSHOW_AUDIODEVICE };
 	CComboBox m_AudioDevice;
 	CButton m_UseDefault;
+	CButton m_ConnectAudio;
 	//}}AFX_DATA
 
 
@@ -73,6 +78,7 @@ protected:
 	virtual BOOL OnInitDialog();
 	afx_msg void OnSelEndOkAudioDevice();
 	afx_msg void OnClickedUseDefault();
+	afx_msg void OnClickedConnectAudio();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 
@@ -80,6 +86,7 @@ protected:
 private:
 	vector<std::string> m_DeviceList;
 	std::string &m_AudioDeviceSetting;
+	bool *m_bConnectAudio;
 };
 
 //{{AFX_INSERT_LOCATION}}

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CaptureDevice.cpp,v 1.18 2003-01-17 17:37:49 tobbej Exp $
+// $Id: CaptureDevice.cpp,v 1.19 2003-02-05 19:12:38 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2003/01/17 17:37:49  tobbej
+// fixed crasing bug (unhandled exception)
+//
 // Revision 1.17  2003/01/15 20:56:19  tobbej
 // added audio channel selection menu
 //
@@ -109,8 +112,8 @@ static char THIS_FILE[]=__FILE__;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CDShowCaptureDevice::CDShowCaptureDevice(IGraphBuilder *pGraph,string device,string deviceName)
-:CDShowBaseSource(pGraph),m_bIsConnected(false),m_pCrossbar(NULL),m_pTVTuner(NULL),m_pTVAudio(NULL)
+CDShowCaptureDevice::CDShowCaptureDevice(IGraphBuilder *pGraph,string device,string deviceName,bool bConnectAudio)
+:CDShowBaseSource(pGraph),m_bIsConnected(false),m_pCrossbar(NULL),m_pTVTuner(NULL),m_pTVAudio(NULL),m_bConnectAudio(bConnectAudio)
 {
 	USES_CONVERSION;
 	
@@ -226,6 +229,31 @@ void CDShowCaptureDevice::Connect(CComPtr<IBaseFilter> VideoFilter)
 	if(m_pDroppedFrames==NULL)
 	{
 		findIAMDroppedFrames(VideoFilter);
+	}
+
+	if(m_bConnectAudio)
+	{
+		//try to render audio, if this fails then this device probably don't have any audio
+		bool bAudioRendered=false;
+		int AudioStreamCount=0;
+		/*
+		This will always add one extra unconnected audio renderer when using
+		a user specified audio renderer
+		*/
+		while(hr=m_pBuilder->RenderStream(NULL,&MEDIATYPE_Audio,m_vidDev,NULL,GetNewAudioRenderer()),SUCCEEDED(hr))
+		{
+			bAudioRendered=true;
+			AudioStreamCount++;
+		}
+		if(bAudioRendered)
+		{
+			LOG(2,"DShowCaptureDevice: %d Audio streams rendered",AudioStreamCount);
+		}
+		else
+		{
+			LOG(2,"DShowCaptureDevice: Unsupported audio or no audio found, error code: 0x%x",hr);
+		}
+
 	}
 
 	/*if(driverSupportsIR())

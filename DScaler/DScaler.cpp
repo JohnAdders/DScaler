@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.357 2003-11-11 21:26:44 robmuller Exp $
+// $Id: DScaler.cpp,v 1.358 2003-11-18 16:36:33 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.357  2003/11/11 21:26:44  robmuller
+// Exclude some more when WANT_DSHOW_SUPPORT is not defined.
+//
 // Revision 1.356  2003/10/27 16:22:56  adcockj
 // Added preliminary support for PMS PDI Deluxe card
 //
@@ -1219,6 +1222,7 @@ int MinimizeHandling = 0;
 BOOL BypassChgResoInRestore = FALSE;
 
 BOOL bKeyboardLock = FALSE;
+BOOL bKeyboardLockMainWindowOnly = FALSE;
 HHOOK hKeyboardHook = NULL;
 
 HFONT hCurrentFont = NULL;
@@ -2158,12 +2162,15 @@ LRESULT CALLBACK KeyboardHookProc(int code, UINT wParam, UINT lParam)
 {
     if(code >= 0 && bKeyboardLock)
     {
-        // if it is not Ctrl+Shift+L do not pass the message to the rest of the hook chain 
-        // or the target window procedure
-        if(!((char)wParam == 'L' && GetKeyState(VK_SHIFT) < 0 && GetKeyState(VK_CONTROL) < 0))
-        {
-            return 1;
-        }
+		if(!(bKeyboardLockMainWindowOnly && hWnd != GetFocus()))
+		{
+			// if it is not Ctrl+Shift+L do not pass the message to the rest of the hook chain 
+			// or the target window procedure
+			if(!((char)wParam == 'L' && GetKeyState(VK_SHIFT) < 0 && GetKeyState(VK_CONTROL) < 0))
+			{
+				return 1;
+			}
+		}
     }
    	return CallNextHookEx(hKeyboardHook, code, wParam, lParam);
 }
@@ -6781,6 +6788,12 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
         "MainWindow", "KeyboardLock", KeyboardLock_OnChange,
     },
     {
+        "Keyboard lock affects main window only", ONOFF, 0, (long*)&bKeyboardLockMainWindowOnly,
+        FALSE, 0, 1, 1, 1,
+        NULL,
+        "MainWindow", "KeyboardLockMainWindowOnly", NULL,
+    },
+    {
         "Disable Screensaver", YESNO, 0, (long*)&bScreensaverOff,
         TRUE, 0, 1, 1, 1,
         NULL,
@@ -6956,11 +6969,12 @@ CTreeSettingsGeneric* DScaler_GetTreeSettingsPage()
 CTreeSettingsGeneric* DScaler_GetTreeSettingsPage2()
 {
     // Other Settings
-    SETTING* OtherSettings[6] =
+    SETTING* OtherSettings[7] =
     {
         &DScalerSettings[DISPLAYSPLASHSCREEN    ],
         &DScalerSettings[AUTOHIDECURSOR         ],
         &DScalerSettings[LOCKKEYBOARD           ],
+        &DScalerSettings[LOCKKEYBOARDMAINWINDOWONLY],
         &DScalerSettings[SCREENSAVEROFF         ],
         &DScalerSettings[SINGLEKEYTELETEXTTOGGLE],
         &DScalerSettings[MINIMIZEHANDLING       ],

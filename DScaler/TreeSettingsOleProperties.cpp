@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsOleProperties.cpp,v 1.6 2002-07-09 17:40:33 tobbej Exp $
+// $Id: TreeSettingsOleProperties.cpp,v 1.7 2002-07-11 17:56:38 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/07/09 17:40:33  tobbej
+// add a litle extra space at the botom so large propertypages is shown properly
+//
 // Revision 1.5  2002/07/06 16:46:13  tobbej
 // only deactivate page if it previously was activated
 //
@@ -54,7 +57,7 @@ static char THIS_FILE[]=__FILE__;
 //////////////////////////////////////////////////////////////////////
 
 CTreeSettingsOleProperties::CTreeSettingsOleProperties(CString name,ULONG cObjects,LPUNKNOWN FAR* lplpUnk,ULONG cPages,LPCLSID lpPageClsID,LCID lcid)
-:CTreeSettingsPage(name,IDD_TREESETTINGS_OLEPAGE),m_bIsPagesIsActivated(false)
+:CTreeSettingsPage(name,IDD_TREESETTINGS_OLEPAGE)
 {
 	//{{AFX_DATA_INIT(CTreeSettingsOleProperties)
 		// NOTE: the ClassWizard will add member initialization here
@@ -90,7 +93,7 @@ CTreeSettingsOleProperties::~CTreeSettingsOleProperties()
 		HRESULT hr;
 		
 		//only deactivate propetypages if it previously has been activated
-		if(m_bIsPagesIsActivated)
+		if(pPage->m_bActivated)
 		{
 			hr=pPage->m_pPropertyPage->Deactivate();
 		}
@@ -121,6 +124,7 @@ void CTreeSettingsOleProperties::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CTreeSettingsOleProperties, CTreeSettingsPage)
 	//{{AFX_MSG_MAP(CTreeSettingsOleProperties)
 	ON_NOTIFY(TCN_SELCHANGE, IDD_TREESETTINGS_TAB, OnSelchangeTreesettingsTab)
+	ON_NOTIFY(TCN_SELCHANGING, IDD_TREESETTINGS_TAB, OnSelchangingTreesettingsTab)
 	ON_WM_SIZE()
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
@@ -169,14 +173,53 @@ BOOL CTreeSettingsOleProperties::OnInitDialog()
 		{
 			m_tabCtrl.InsertItem(i,OLE2T(pageInfo.pszTitle));	
 			hr=m_pages[i]->m_pPropertyPage->Activate(m_hWnd,rect,FALSE);
+			if(SUCCEEDED(hr))
+			{
+				m_pages[i]->m_bActivated=true;
+			}
+			else
+			{
+				m_pages[i]->m_bActivated=false;
+			}
 		}
 	}
 	
-	m_bIsPagesIsActivated=true;
-	//simulate a click on one of the tabs
-	LRESULT tmp;
-	OnSelchangeTreesettingsTab(NULL,&tmp);
 	return TRUE;
+}
+
+bool CTreeSettingsOleProperties::OnSetActive()
+{
+	//try to activate a tab, if no tab can be activated, return false 
+	//so access to this whole page will be denied
+	bool bActivated=false;
+	for(int i=0;i<m_pages.size();i++)
+	{
+		m_tabCtrl.SetCurSel(i);
+		//simulate a click on one of the tabs
+		LRESULT result;
+		OnSelchangingTreesettingsTab(NULL,&result);
+		if(result==FALSE)
+		{
+			OnSelchangeTreesettingsTab(NULL,&result);
+			bActivated=true;
+			break;
+		}
+	}
+	return bActivated;
+}
+
+void CTreeSettingsOleProperties::OnSelchangingTreesettingsTab(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	int cursel=m_tabCtrl.GetCurSel();
+	if(!m_pages[cursel]->m_bActivated)
+	{
+		AfxMessageBox(_T("This page can not be activated"),MB_OK|MB_ICONINFORMATION);
+		*pResult=TRUE;
+	}
+	else
+	{
+		*pResult=FALSE;
+	}
 }
 
 void CTreeSettingsOleProperties::OnSelchangeTreesettingsTab(NMHDR* pNMHDR, LRESULT* pResult) 

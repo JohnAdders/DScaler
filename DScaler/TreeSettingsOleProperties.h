@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsOleProperties.h,v 1.4 2002-07-06 16:46:13 tobbej Exp $
+// $Id: TreeSettingsOleProperties.h,v 1.5 2002-07-11 17:56:38 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/07/06 16:46:13  tobbej
+// only deactivate page if it previously was activated
+//
 // Revision 1.3  2002/05/19 12:01:43  tobbej
 // fixed sizing of propertypage
 //
@@ -79,10 +82,12 @@ protected:
 	//{{AFX_MSG(CTreeSettingsOleProperties)
 	virtual BOOL OnInitDialog();
 	afx_msg void OnSelchangeTreesettingsTab(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnSelchangingTreesettingsTab(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 	void OnOK();
+	bool OnSetActive();
 
 private:
 	/**
@@ -121,11 +126,10 @@ private:
 	public:
 		CPageSite *m_pPageSite;
 		CComPtr<IPropertyPage> m_pPropertyPage;
+		bool m_bActivated;
 	};
 	///vector of all pages
 	std::vector<CPageInfo*> m_pages;
-
-	bool m_bIsPagesIsActivated;
 };
 
 #endif // !defined(AFX_TREESETTINGSOLEPROPERTIES_H__D135AD9A_6F42_4439_90A3_025DA1E71858__INCLUDED_)

@@ -16,6 +16,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1.1.1  2001/12/23 01:43:53  lindsey
+// Added Gradual Noise Filter
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -136,7 +139,8 @@ which will minimize Q.
 
 That's not what this plugin does.  But for a reasonable range of m_sigma and n_sigma,
 when applied to a single pixel, the function is a passable approximation. One caveat: I
-haven't looked at the effect of the four pixel blocking.
+haven't looked at the effect of the four pixel blocking.  Maybe it's some relative of
+a chi^2 df=8?
 
 You can try to estimate n_sigma^2, m_sigma^2, and use temporal and spatial correlation to
 come up with a much better estimator of motion.  But that's a job for a different -- and
@@ -188,7 +192,7 @@ SETTING FLT_GradualNoiseSettings[FLT_GNOISE_SETTING_LASTONE] =
 {
     {
         "Noise Reduction", SLIDER, 0, &gNoiseReduction,
-        40, 1, 100, 1, 1,
+        40, 5, 100, 1, 1,
         NULL,
         "GradualNoiseFilter", "NoiseReduction", NULL,
     },
@@ -215,7 +219,7 @@ FILTER_METHOD GradualNoiseMethod =
     NULL,                                   // No initialization procedure
     NULL,                                   // No deallocation
     NULL,                                   // Menu handle (for DScaler)
-    FLT_SNOISE_SETTING_LASTONE,             // Number of settings            
+    FLT_GNOISE_SETTING_LASTONE,             // Number of settings            
     FLT_GradualNoiseSettings,
     WM_FLT_GNOISE_GETVALUE - WM_USER,       // Settings offset
     TRUE,                                   // Can handle interlaced material

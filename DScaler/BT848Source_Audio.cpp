@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_Audio.cpp,v 1.18 2002-09-07 20:54:50 kooiman Exp $
+// $Id: BT848Source_Audio.cpp,v 1.19 2002-09-12 21:52:32 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2002/09/07 20:54:50  kooiman
+// Added equalizer, loudness, spatial effects for MSP34xx
+//
 // Revision 1.17  2002/08/07 09:57:24  kooiman
 // Modified for configurable per channel settings.
 //
@@ -80,26 +83,12 @@
 
 ISetting* CBT848Source::GetVolume()
 {
-	if(m_pBT848Card->HasMSP())
-	{
-		return m_Volume;
-	}
-	else
-	{
-		return NULL;
-	}
+	return m_Volume;
 }
 
 ISetting* CBT848Source::GetBalance()
 {
-	if(m_pBT848Card->HasMSP())
-	{
-		return m_Balance;
-	}
-	else
-	{
-		return NULL;
-	}
+	return m_Balance;
 }
 
 void CBT848Source::Mute()
@@ -183,7 +172,7 @@ void CBT848Source::AudioSource6OnChange(long NewValue, long OldValue)
 
 void CBT848Source::AudioChannelOnChange(long NewValue, long OldValue)
 {
-    m_pBT848Card->SetAudioChannel((eSoundChannel)NewValue, (m_UseInputPin1->GetValue() != 0));    
+    m_pBT848Card->SetAudioChannel((eSoundChannel)NewValue); // FIXME, (m_UseInputPin1->GetValue() != 0));    
 }
 
 void CBT848Source::AutoStereoSelectOnChange(long NewValue, long OldValue)
@@ -193,36 +182,36 @@ void CBT848Source::AutoStereoSelectOnChange(long NewValue, long OldValue)
 
 void CBT848Source::UseInputPin1OnChange(long NewValue, long OldValue)
 {
-    m_pBT848Card->SetAudioChannel((eSoundChannel)m_AudioChannel->GetValue(), (NewValue != 0));    
+    m_pBT848Card->SetAudioChannel((eSoundChannel)m_AudioChannel->GetValue()); // FIXME, (NewValue != 0));    
 }
 
 void CBT848Source::UseEqualizerOnChange(long NewValue, long OldValue)
 {
-	if(m_pBT848Card->AudioSupportsEqualizer())
+	if(m_pBT848Card->HasAudioEqualizers())
 	{
 		if (NewValue)
 		{			
 			m_pBT848Card->SetAudioBass(0);
 			m_pBT848Card->SetAudioTreble(0);
 
-			m_pBT848Card->SetAudioEqualizer(-1, TRUE); //Enable equalizer
+			m_pBT848Card->SetAudioEqualizerLevel(-1, TRUE); //Enable equalizer
 
-			m_pBT848Card->SetAudioEqualizer(0, m_EqualizerBand1->GetValue());
-			m_pBT848Card->SetAudioEqualizer(1, m_EqualizerBand2->GetValue());
-			m_pBT848Card->SetAudioEqualizer(2, m_EqualizerBand3->GetValue());
-			m_pBT848Card->SetAudioEqualizer(3, m_EqualizerBand4->GetValue());
-			m_pBT848Card->SetAudioEqualizer(4, m_EqualizerBand5->GetValue());
+			m_pBT848Card->SetAudioEqualizerLevel(0, m_EqualizerBand1->GetValue());
+			m_pBT848Card->SetAudioEqualizerLevel(1, m_EqualizerBand2->GetValue());
+			m_pBT848Card->SetAudioEqualizerLevel(2, m_EqualizerBand3->GetValue());
+			m_pBT848Card->SetAudioEqualizerLevel(3, m_EqualizerBand4->GetValue());
+			m_pBT848Card->SetAudioEqualizerLevel(4, m_EqualizerBand5->GetValue());
 		}
 		else
 		{
 			// Set equalizer bands to 0.
-			m_pBT848Card->SetAudioEqualizer(0, 0);
-			m_pBT848Card->SetAudioEqualizer(1, 0);
-			m_pBT848Card->SetAudioEqualizer(2, 0);
-			m_pBT848Card->SetAudioEqualizer(3, 0);
-			m_pBT848Card->SetAudioEqualizer(4, 0);
+			m_pBT848Card->SetAudioEqualizerLevel(0, 0);
+			m_pBT848Card->SetAudioEqualizerLevel(1, 0);
+			m_pBT848Card->SetAudioEqualizerLevel(2, 0);
+			m_pBT848Card->SetAudioEqualizerLevel(3, 0);
+			m_pBT848Card->SetAudioEqualizerLevel(4, 0);
 
-			m_pBT848Card->SetAudioEqualizer(-1, FALSE); //Disable equalizer
+			m_pBT848Card->SetAudioEqualizerLevel(-1, FALSE); //Disable equalizer
 
 			// Set bass & treble back
 			m_pBT848Card->SetAudioBass(m_Bass->GetValue());
@@ -233,49 +222,49 @@ void CBT848Source::UseEqualizerOnChange(long NewValue, long OldValue)
 
 void CBT848Source::EqualizerBand1OnChange(long NewValue, long OldValue)
 {
-	if(m_UseEqualizer->GetValue() && m_pBT848Card->AudioSupportsEqualizer())
+	if(m_UseEqualizer->GetValue() && m_pBT848Card->HasAudioEqualizers())
 	{
-		m_pBT848Card->SetAudioEqualizer(0, NewValue);
+		m_pBT848Card->SetAudioEqualizerLevel(0, NewValue);
 	}
 }
 
 void CBT848Source::EqualizerBand2OnChange(long NewValue, long OldValue)
 {
-	if(m_UseEqualizer->GetValue() && m_pBT848Card->AudioSupportsEqualizer())
+	if(m_UseEqualizer->GetValue() && m_pBT848Card->HasAudioEqualizers())
 	{
-		m_pBT848Card->SetAudioEqualizer(1, NewValue);
+		m_pBT848Card->SetAudioEqualizerLevel(1, NewValue);
 	}
 }
 void CBT848Source::EqualizerBand3OnChange(long NewValue, long OldValue)
 {
-	if(m_UseEqualizer->GetValue() && m_pBT848Card->AudioSupportsEqualizer())
+	if(m_UseEqualizer->GetValue() && m_pBT848Card->HasAudioEqualizers())
 	{
-		m_pBT848Card->SetAudioEqualizer(2, NewValue);
+		m_pBT848Card->SetAudioEqualizerLevel(2, NewValue);
 	}
 }
 void CBT848Source::EqualizerBand4OnChange(long NewValue, long OldValue)
 {
-	if(m_UseEqualizer->GetValue() && m_pBT848Card->AudioSupportsEqualizer())
+	if(m_UseEqualizer->GetValue() && m_pBT848Card->HasAudioEqualizers())
 	{
-		m_pBT848Card->SetAudioEqualizer(3, NewValue);
+		m_pBT848Card->SetAudioEqualizerLevel(3, NewValue);
 	}
 }
 void CBT848Source::EqualizerBand5OnChange(long NewValue, long OldValue)
 {
-	if(m_UseEqualizer->GetValue() && m_pBT848Card->AudioSupportsEqualizer())
+	if(m_UseEqualizer->GetValue() && m_pBT848Card->HasAudioEqualizers())
 	{
-		m_pBT848Card->SetAudioEqualizer(4, NewValue);
+		m_pBT848Card->SetAudioEqualizerLevel(4, NewValue);
 	}
 }
 
 void CBT848Source::AudioLoudnessOnChange(long NewValue, long OldValue)
 {
-	m_pBT848Card->SetAudioLoudnessAndSuperBass(m_AudioLoudness->GetValue(), m_AudioSuperbass->GetValue() ? true:false );
+	m_pBT848Card->SetAudioLoudness(m_AudioLoudness->GetValue());
 }
 
 void CBT848Source::AudioSuperbassOnChange(long NewValue, long OldValue)
 {
-	m_pBT848Card->SetAudioLoudnessAndSuperBass(m_AudioLoudness->GetValue(), m_AudioSuperbass->GetValue() ? true:false );
+	m_pBT848Card->SetAudioBassBoost(m_AudioSuperbass->GetValue() ? true : false );
 }
 
 void CBT848Source::AudioSpatialEffectOnChange(long NewValue, long OldValue)

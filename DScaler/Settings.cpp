@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.36 2002-08-07 09:54:52 kooiman Exp $
+// $Id: Settings.cpp,v 1.37 2002-08-08 12:13:23 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.36  2002/08/07 09:54:52  kooiman
+// Added 'save per channel' settings.
+//
 // Revision 1.35  2002/08/06 18:31:10  kooiman
 // Bit more flexibility.
 //
@@ -310,7 +313,7 @@ void LoadSettingsFromIni()
     {
         Settings[i].pfnReadSettings();
     }
-    Providers_ReadFromIni();
+    Providers_ReadFromIni();       
 }
 
 LONG Settings_HandleSettingMsgs(HWND hWnd, UINT message, UINT wParam, LONG lParam, BOOL* bDone)
@@ -482,6 +485,9 @@ void BeautifyIniFile(LPCTSTR lpIniFileName)
 
 void WriteSettingsToIni(BOOL bOptimizeFileAccess)
 {
+    // Restore all channel specific parameters temporarily to their default values
+    SettingsPerChannel_ToDefaultState(TRUE);
+
     for(int i(0); i < NUMSETTINGS; ++i)
     {
         Settings[i].pfnWriteSettings(bOptimizeFileAccess);
@@ -490,7 +496,11 @@ void WriteSettingsToIni(BOOL bOptimizeFileAccess)
     Deinterlace_WriteSettingsToIni(bOptimizeFileAccess);
     Filter_WriteSettingsToIni(bOptimizeFileAccess);
     Providers_WriteToIni(bOptimizeFileAccess);
-  
+
+    // Restore all channel specific parameters temporarily to their default values
+    SettingsPerChannel_ToDefaultState(FALSE);
+    SettingsPerChannel_WriteSettings(NULL, -1, bOptimizeFileAccess);
+
     // These two lines flushes current INI file to disk (in case of abrupt poweroff shortly afterwards)
     WritePrivateProfileString(NULL, NULL, NULL, szIniFile);
 
@@ -530,7 +540,7 @@ long Setting_GetValue(SETTING* pSetting)
     }
 }
 
-BOOL Setting_SetValue(SETTING* pSetting, long Value)
+BOOL Setting_SetValue(SETTING* pSetting, long Value, int iForceOnChange)
 {
     long NewValue;
     if(pSetting == NULL)
@@ -566,12 +576,12 @@ BOOL Setting_SetValue(SETTING* pSetting, long Value)
     
     // If no action is needed, bail out early. This prevents the long delays when
     // pSetting->pfnOnChange() takes a while.
-    if (*pSetting->pValue == NewValue)
+    if ((*pSetting->pValue == NewValue) && (iForceOnChange!=1))
     {
         return FALSE;
     }
 
-    if(pSetting->pfnOnChange != NULL)
+    if ((pSetting->pfnOnChange != NULL) && (iForceOnChange>=0))
     {
         return pSetting->pfnOnChange(NewValue); 
     }
@@ -581,6 +591,7 @@ BOOL Setting_SetValue(SETTING* pSetting, long Value)
         return FALSE;
     }
 }
+
 
 void Setting_SetDefault(SETTING* pSetting)
 {

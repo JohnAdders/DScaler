@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.h,v 1.6 2002-08-06 18:30:14 kooiman Exp $
+// $Id: Setting.h,v 1.7 2002-08-08 12:13:01 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -49,7 +49,7 @@ class ISetting
 {
 public:
     virtual ~ISetting() {;};
-    virtual void SetDefault() = 0;
+    virtual void SetDefault(BOOL bNoOnChange = FALSE) = 0;
     virtual SETTING_TYPE GetType() = 0;
     virtual void ChangeValue(eCHANGEVALUE NewValue) = 0;
     virtual BOOL ReadFromIni(BOOL bDontSetDefault = FALSE) = 0;
@@ -58,7 +58,7 @@ public:
     virtual long GetMin() = 0;
     virtual long GetMax() = 0;
     virtual long GetDefault() = 0;
-    virtual void SetValue(long NewValue) = 0;
+    virtual void SetValue(long NewValue, BOOL bNoOnChange = FALSE) = 0;
     virtual void OnChange(long NewValue, long OldValue) {;};
     virtual void OSDShow() = 0;
     virtual const char** GetList() {return NULL;};
@@ -75,8 +75,8 @@ public:
     CSimpleSetting(LPCSTR DisplayName, long Default, long Min, long Max, LPCSTR Section, LPCSTR Entry, long StepValue);
     virtual ~CSimpleSetting();
     long GetValue();
-    void SetValue(long NewValue);
-    void SetDefault();
+    void SetValue(long NewValue, BOOL bNoOnChange = FALSE);
+    void SetDefault(BOOL bNoOnChange = FALSE);
     operator long();
     void OSDShow();
     void Up();

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.cpp,v 1.9 2002-08-06 18:30:52 kooiman Exp $
+// $Id: Setting.cpp,v 1.10 2002-08-08 12:13:32 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/08/06 18:30:52  kooiman
+// Bit more flexibility.
+//
 // Revision 1.8  2002/06/13 11:43:56  robmuller
 // Settings at default value that did not exist in the ini file were not written to the ini file.
 //
@@ -172,7 +175,7 @@ long CSimpleSetting::GetValue()
     return m_Value;    
 }
 
-void CSimpleSetting::SetValue(long NewValue)
+void CSimpleSetting::SetValue(long NewValue, BOOL bNoOnChange)
 {
     long OldValue = m_Value;
     if(NewValue < m_Min)
@@ -184,14 +187,20 @@ void CSimpleSetting::SetValue(long NewValue)
         NewValue = m_Max;
     }
     m_Value = NewValue;
-    OnChange(NewValue, OldValue);
+    if (!bNoOnChange)
+    {
+        OnChange(NewValue, OldValue);
+    }
 }
 
-void CSimpleSetting::SetDefault()
+void CSimpleSetting::SetDefault(BOOL bNoOnChange)
 {
     long OldValue = m_Value;
     m_Value = m_Default;
-    OnChange(m_Default, OldValue);
+    if (!bNoOnChange)
+    {
+        OnChange(m_Default, OldValue);
+    }
 }
 
 long CSimpleSetting::GetDefault()

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.44 2002-09-28 14:32:47 kooiman Exp $
+// $Id: DSSource.cpp,v 1.45 2002-10-02 10:53:40 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.44  2002/09/28 14:32:47  kooiman
+// Base class this pointer apparently not equal to this of main class. fixed comparison.
+//
 // Revision 1.43  2002/09/28 13:36:15  kooiman
 // Added sender object to events and added setting flag to treesettingsgeneric.
 //
@@ -1127,7 +1130,7 @@ void CDSCaptureSource::SettingsPerChannelSetup(int Start)
 
 void CDSCaptureSource::OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
 {
-    if ((void*)pEventObject != (void*)this)
+    if (pEventObject != (CEventObject*)this)
 	{
 		return;
 	}

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.233 2002-09-29 17:40:04 adcockj Exp $
+// $Id: DScaler.cpp,v 1.234 2002-09-29 17:52:04 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.233  2002/09/29 17:40:04  adcockj
+// Fix for cursor not disappearing at startup
+//
 // Revision 1.232  2002/09/29 13:56:30  adcockj
 // Fixed some cursor hide problems
 //
@@ -3467,7 +3470,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         break;
 
     case WM_KILLFOCUS:
-		Cursor_SetVisibility(TRUE);
+	    Cursor_UpdateVisibility();
         return 0;
         break;
 

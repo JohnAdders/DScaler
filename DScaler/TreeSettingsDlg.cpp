@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.cpp,v 1.13 2002-07-27 13:48:53 laurentg Exp $
+// $Id: TreeSettingsDlg.cpp,v 1.14 2002-08-04 17:19:08 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/07/27 13:48:53  laurentg
+// Distinguish menu entries for filter settings, video modes settings and advanced settings
+//
 // Revision 1.12  2002/07/20 13:07:36  laurentg
 // New setting for vertical mirror
 //
@@ -389,9 +392,6 @@ void CTreeSettingsDlg::OnSize(UINT nType, int cx, int cy)
 
 void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
 {
-	//the following is just a quick test of the new treebased settings dialog
-	//it shoud probably be cleand up and moved somwere else
-
     int mask = iSettingsMask;
 
     if ( !(mask & (FILTER_SETTINGS_MASK | DEINTERLACE_SETTINGS_MASK | ADVANCED_SETTINGS_MASK)) )
@@ -402,7 +402,6 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
 	vector<CTreeSettingsGeneric*> pages;
 	CTreeSettingsDlg dlg(CString("DScaler settings"));
 
-    int Root;
     long Num;
     long i;
 
@@ -413,10 +412,10 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
 	//so set a new help id to use insted.
 	//since the IDH_FILTERS already contains HID_BASE_RESOURCE, subtract that
 	RootPage.SetHelpID(IDH_FILTERS);
-	Root = dlg.AddPage(&RootPage);
 
     if (mask & FILTER_SETTINGS_MASK)
-    {    
+    {
+        int Root = dlg.AddPage(&RootPage);
 	    FILTER_METHOD** FilterMethods;
 	    GetFilterSettings(FilterMethods, Num);
 	    for(i = 0; i < Num; i++)
@@ -434,12 +433,11 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
     }
 
     CTreeSettingsPage DeintRootPage(CString("Video Methods"), IDD_TREESETTINGS_EMPTY);
-	
 	DeintRootPage.SetHelpID(IDH_DEINTERLACE);
-	Root = dlg.AddPage(&DeintRootPage);
 
     if (mask & DEINTERLACE_SETTINGS_MASK)
     {
+        int Root = dlg.AddPage(&DeintRootPage);
         DEINTERLACE_METHOD** DeintMethods;
 	    GetDeinterlaceSettings(DeintMethods, Num);
 	    for(i = 0; i < Num; i++)
@@ -458,10 +456,11 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
 
     CTreeSettingsPage AdvRootPage(CString("Advanced Settings"), IDD_TREESETTINGS_EMPTY);
 	AdvRootPage.SetHelpID(IDH_ADVANCED);
-	Root = dlg.AddPage(&AdvRootPage);
 
     if (mask & ADVANCED_SETTINGS_MASK)
     {
+        int Root = dlg.AddPage(&AdvRootPage);
+
         CTreeSettingsGeneric* pPage = FD50_GetTreeSettingsPage();
 	    pPage->SetHelpID(IDH_22_PULLDOWN);
 	    pages.push_back(pPage);

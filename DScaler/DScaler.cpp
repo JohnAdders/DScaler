@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.147 2002-04-15 22:50:08 laurentg Exp $
+// $Id: DScaler.cpp,v 1.148 2002-04-24 19:10:38 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.147  2002/04/15 22:50:08  laurentg
+// Change again the available formats for still saving
+// Automatic switch to "square pixels" AR mode when needed
+//
 // Revision 1.146  2002/04/13 18:56:22  laurentg
 // Checks added to manage case where the current source is not yet defined
 //
@@ -474,6 +478,9 @@
 #include "Perf.h"
 #include "hardwaredriver.h"
 #include "StillSource.h"
+#include "TreeSettingsDlg.h"
+#include "TreeSettingsGeneric.h"
+#include "..\help\helpids.h"
 
 HWND hWnd = NULL;
 HINSTANCE hResourceInst = NULL;
@@ -2077,7 +2084,46 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 InvalidateRect(hWnd, NULL, TRUE);
             }
             break;
+		
+		case IDM_SETTINGS_FILTERSETTINGS:
+		{
+			//the following is just a quick test of the new treebased settings dialog
+			//it shoud probably be cleand up and moved somwere else
 
+			vector<CTreeSettingsGeneric*> pages;
+			CTreeSettingsDlg dlg(CString("Filter settings"));
+			
+			CTreeSettingsPage rootPage(CString("Filter settings"),IDD_TREESETTINGS_EMPTY);
+			
+			//the default help id is HID_BASE_RESOURCE+dialog template id
+			//but we cant use that for empty pages and the generic property page
+			//so set a new help id to use insted.
+			//since the IDH_FILTERS already contains HID_BASE_RESOURCE, subtract that
+			rootPage.SetHelpID(IDH_FILTERS-0x00020000UL);
+			int root=dlg.AddPage(&rootPage);
+			
+			FILTER_METHOD **pMethod;
+			long numFilters;
+			GetFilterSettings((FILTER_METHOD**)&pMethod,&numFilters);
+			for(long i=0;i<numFilters;i++)
+			{
+				CTreeSettingsGeneric *pPage=new CTreeSettingsGeneric(pMethod[i]->szName,pMethod[i]->pSettings,pMethod[i]->nSettings);
+				//pPage->SetHelpID(IDH_FILTERS);
+				
+				pages.push_back(pPage);
+				dlg.AddPage(pPage,root);
+			}
+			
+			dlg.DoModal();
+
+			for(vector<CTreeSettingsGeneric*>::iterator it=pages.begin();it!=pages.end();it++)
+			{
+				delete *it;
+			}
+			pages.erase(pages.begin(),pages.end());
+
+			break;
+		}
         default:
             // Check whether menu ID is an aspect ratio related item
             bDone = ProcessAspectRatioSelection(hWnd, LOWORD(wParam));

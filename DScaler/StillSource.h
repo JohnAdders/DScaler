@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.37 2002-08-05 12:03:39 kooiman Exp $
+// $Id: StillSource.h,v 1.38 2002-08-06 18:38:22 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -120,8 +120,6 @@ public:
     BOOL IsAccessAllowed();
     void SetOverscan();
     BOOL HasSquarePixels() {return m_SquarePixels;};
-    void ChannelPreChange(int OldChannel,int NewChannel) {; };
-    void ChannelChange(int NewChannel) {; };
     void SetNavigOnly(BOOL NavigOnly);
     BOOL IsNavigOnly();
 

@@ -311,6 +311,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name FLT_ColourInversion
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name SendMsg
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -557,6 +560,18 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name FLT_ColourInversion
     End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "SendMsg"=..\SendMsg\SendMsg.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
 }}}
 
 ###############################################################################

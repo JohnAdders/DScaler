@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.52 2002-10-29 11:05:28 adcockj Exp $
+// $Id: Providers.cpp,v 1.53 2002-11-02 12:40:28 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.52  2002/10/29 11:05:28  adcockj
+// Renamed CT2388x to CX2388x
+//
 // Revision 1.51  2002/10/26 17:51:53  adcockj
 // Simplified hide cusror code and removed PreShowDialogOrMenu & PostShowDialogOrMenu
 //
@@ -358,7 +361,7 @@ int Providers_Load(HMENU hMenu)
     DefaultSource = Providers_GetIntroSource();
     if (!DefaultSource || !DefaultSource->IsAccessAllowed())
     {
-        ErrorBox("Can't load file DScaler.d3u");
+        ErrorBox("Can't load file DScaler.d3u or file defined in it");
 
         // We destroy the source if it exists
         DefSourceIdx = Providers_GetSourceIndex(DefaultSource);

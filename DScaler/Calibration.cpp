@@ -476,6 +476,7 @@ void CCalibration::LoadTestPatterns()
     // Create all the test patterns
 
 //    test_patterns[nb_test_patterns] = new CTestPattern("THX Optimode - Monitor Performance", PAT_GRAY_AND_COLOR, FORMAT_NTSC);
+    test_patterns[nb_test_patterns] = new CTestPattern("THX Optimode - Monitor Performance", PAT_RANGE_OF_GRAY, FORMAT_NTSC);
 //    test_patterns[nb_test_patterns]->AddColorBar( 278, 1042, 2396, 4167, COLOR_OTHER, FALSE, 251, 252, 251);
 //    test_patterns[nb_test_patterns]->AddColorBar(1458, 2222, 2396, 4167, COLOR_OTHER, FALSE, 188, 190,   0);
 //    test_patterns[nb_test_patterns]->AddColorBar(2708, 3472, 2396, 4167, COLOR_OTHER, FALSE,   0, 188, 185);
@@ -484,13 +485,23 @@ void CCalibration::LoadTestPatterns()
 //    test_patterns[nb_test_patterns]->AddColorBar(6319, 7083, 2396, 4167, COLOR_RED,   FALSE, 186,   0,   0);
 //    test_patterns[nb_test_patterns]->AddColorBar(7569, 8333, 2396, 4167, COLOR_BLUE,  FALSE,  0,    0, 187);
 //    test_patterns[nb_test_patterns]->AddColorBar(8750, 9514, 2396, 4167, COLOR_OTHER, FALSE,  0,    0,   0);
-//    test_patterns[nb_test_patterns]->AddColorBar( 347,  764, 6875, 7500, COLOR_BLACK, FALSE,  0,    0,   0);
-//    test_patterns[nb_test_patterns]->AddColorBar(1181, 1597, 6875, 7500, COLOR_OTHER, FALSE,  23,  24,  23);
-//    test_patterns[nb_test_patterns]->AddColorBar(2014, 2431, 6875, 7500, COLOR_OTHER, FALSE,  49,  50,  49);
-//    test_patterns[nb_test_patterns]->AddColorBar(7083, 7500, 6875, 7500, COLOR_OTHER, FALSE, 201, 203, 202);
-//    test_patterns[nb_test_patterns]->AddColorBar(7917, 8333, 6875, 7500, COLOR_OTHER, FALSE, 227, 228, 227);
-//    test_patterns[nb_test_patterns]->AddColorBar(8750, 9167, 6875, 7500, COLOR_WHITE, FALSE, 252, 253, 252);
-//    nb_test_patterns++;
+    test_patterns[nb_test_patterns]->AddColorBar( 347,  764, 6875, 7500, COLOR_BLACK, FALSE,  0,    0,   0);
+    test_patterns[nb_test_patterns]->AddColorBar(1181, 1597, 6875, 7500, COLOR_OTHER, FALSE,  23,  24,  23);
+    test_patterns[nb_test_patterns]->AddColorBar(2014, 2431, 6875, 7500, COLOR_OTHER, FALSE,  49,  50,  49);
+    test_patterns[nb_test_patterns]->AddColorBar(7083, 7500, 6875, 7500, COLOR_OTHER, FALSE, 201, 203, 202);
+    test_patterns[nb_test_patterns]->AddColorBar(7917, 8333, 6875, 7500, COLOR_OTHER, FALSE, 227, 228, 227);
+    test_patterns[nb_test_patterns]->AddColorBar(8750, 9167, 6875, 7500, COLOR_WHITE, FALSE, 252, 253, 252);
+    nb_test_patterns++;
+
+    test_patterns[nb_test_patterns] = new CTestPattern("THX Optimode - Tint Color", PAT_COLOR, FORMAT_NTSC);
+    test_patterns[nb_test_patterns]->AddColorBar( 417, 1111, 521, 5729, COLOR_OTHER, FALSE, 188, 189, 188);
+    test_patterns[nb_test_patterns]->AddColorBar(1806, 2500, 521, 5729, COLOR_OTHER, FALSE, 189, 190,   0);
+    test_patterns[nb_test_patterns]->AddColorBar(3194, 3889, 521, 5729, COLOR_OTHER, FALSE,   0, 190, 188);
+    test_patterns[nb_test_patterns]->AddColorBar(4583, 5278, 521, 5729, COLOR_OTHER, FALSE,   0, 189,   0);
+    test_patterns[nb_test_patterns]->AddColorBar(6042, 6736, 521, 5729, COLOR_OTHER, FALSE, 188,   0, 190);
+    test_patterns[nb_test_patterns]->AddColorBar(7431, 8125, 521, 5729, COLOR_RED,   FALSE, 189,   0,   0);
+    test_patterns[nb_test_patterns]->AddColorBar(8889, 9583, 521, 5729, COLOR_BLUE,  FALSE,   0,   0, 189);
+    nb_test_patterns++;
 
     test_patterns[nb_test_patterns] = new CTestPattern("VE - T 18 C 2 - range of gray", PAT_RANGE_OF_GRAY, FORMAT_NTSC);
     test_patterns[nb_test_patterns]->AddColorBar( 417,  972, 521, 9375, COLOR_BLACK, FALSE,   0,   0,   0);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Audio.cpp,v 1.21 2004-04-19 17:33:30 to_see Exp $
+// $Id: CX2388xCard_Audio.cpp,v 1.22 2004-05-15 19:02:30 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2004/04/19 17:33:30  to_see
+// Added BTSCSAP and FM Audio
+//
 // Revision 1.20  2004/04/08 17:44:32  to_see
 // added D/K audio (thanks to Michal)
 //
@@ -126,7 +129,6 @@ void CCX2388xCard::AudioInit(int nInput, eVideoFormat TVFormat, eCX2388xAudioSta
     {
         switch (TVFormat)
         {
-
         case VIDEOFORMAT_PAL_D:
         case VIDEOFORMAT_PAL_G:
         case VIDEOFORMAT_PAL_I:
@@ -256,10 +258,10 @@ void CCX2388xCard::AudioInitDMA()
 
 void CCX2388xCard::AudioInitBTSC(eVideoFormat TVFormat, eCX2388xStereoType StereoType)
 {
-	WriteDword(AUD_AFE_12DB_EN,			0x00000001);
-	WriteDword(AUD_INIT,				0x00000001);
+	WriteDword(AUD_INIT,				SEL_BTSC);
     WriteDword(AUD_INIT_LD,				0x00000001);
     WriteDword(AUD_SOFT_RESET,			0x00000001);
+	WriteDword(AUD_AFE_12DB_EN,			0x00000001);
 	WriteDword(AUD_OUT1_SEL,			0x00000013);
 	WriteDword(AUD_OUT1_SHIFT,			0x00000000);
 	WriteDword(AUD_POLY0_DDS_CONSTANT,	0x0012010c);
@@ -319,10 +321,10 @@ void CCX2388xCard::AudioInitBTSC(eVideoFormat TVFormat, eCX2388xStereoType Stere
 
 void CCX2388xCard::AudioInitBTSCSAP(eVideoFormat TVFormat, eCX2388xStereoType StereoType)
 {
-	WriteDword(AUD_AFE_12DB_EN,			0x00000001);
-	WriteDword(AUD_INIT,				0x00000008);
+	WriteDword(AUD_INIT,				SEL_SAP);
     WriteDword(AUD_INIT_LD,				0x00000001);
     WriteDword(AUD_SOFT_RESET,			0x00000001);
+	WriteDword(AUD_AFE_12DB_EN,			0x00000001);
     WriteDword(AUD_DBX_IN_GAIN,			0x00007200);
     WriteDword(AUD_DBX_WBE_GAIN,		0x00006200);
     WriteDword(AUD_DBX_SE_GAIN,			0x00006200);
@@ -382,9 +384,8 @@ void CCX2388xCard::AudioInitFM(eVideoFormat TVFormat, eCX2388xStereoType StereoT
 {
 	// from v4l
 	WriteDword(AUD_AFE_12DB_EN,			0x00000001);
-	WriteDword(AUD_INIT,				0x00000020);
+	WriteDword(AUD_INIT,				SEL_FMRADIO);
     WriteDword(AUD_INIT_LD,				0x00000001);
-    WriteDword(AUD_SOFT_RESET,			0x00000001);
 
 	// don't know an better way
 	switch(TVFormat)
@@ -438,7 +439,7 @@ void CCX2388xCard::AudioInitEIAJ(eVideoFormat TVFormat, eCX2388xStereoType Stere
     // xtal = 28.636 MHz
 
     // initialize EIAJ
-    WriteDword(AUD_INIT,                 0x0002);
+    WriteDword(AUD_INIT,                 SEL_EIAJ);
     WriteDword(AUD_INIT_LD,              0x0001);
     WriteDword(AUD_SOFT_RESET,           0x0001);
 
@@ -547,7 +548,7 @@ void CCX2388xCard::AudioInitEIAJ(eVideoFormat TVFormat, eCX2388xStereoType Stere
 
 void CCX2388xCard::AudioInitNICAM(eVideoFormat TVFormat, eCX2388xStereoType StereoType)
 {
-	WriteDword(AUD_INIT,					0x00000010);
+	WriteDword(AUD_INIT,					SEL_NICAM);
     WriteDword(AUD_INIT_LD,					0x00000001);
     WriteDword(AUD_SOFT_RESET,				0x00000001);
 	WriteDword(AUD_AFE_12DB_EN,				0x00000001);
@@ -602,33 +603,36 @@ void CCX2388xCard::AudioInitNICAM(eVideoFormat TVFormat, eCX2388xStereoType Ster
 		break;
 	}
 
+	DWORD dwTemp = EN_DAC_ENABLE|EN_DMTRX_LR|EN_DMTRX_BYPASS;
+
 	switch(StereoType)
 	{
 	case STEREOTYPE_MONO:
 	case STEREOTYPE_ALT1:
-		WriteDword(AUD_CTL, EN_DAC_ENABLE|EN_DMTRX_LR|EN_DMTRX_BYPASS|EN_NICAM_FORCE_MONO1);
+		dwTemp |= EN_NICAM_FORCE_MONO1;
 		break;
 
 	case STEREOTYPE_ALT2:
-		WriteDword(AUD_CTL, EN_DAC_ENABLE|EN_DMTRX_LR|EN_DMTRX_BYPASS|EN_NICAM_FORCE_MONO2);
+		dwTemp |= EN_NICAM_FORCE_MONO2;
 		break;
 
 	case STEREOTYPE_STEREO:
-		WriteDword(AUD_CTL, EN_DAC_ENABLE|EN_DMTRX_LR|EN_DMTRX_BYPASS|EN_NICAM_FORCE_STEREO);
+		dwTemp |= EN_NICAM_FORCE_STEREO;
 		break;
 
 	case STEREOTYPE_AUTO:
-		WriteDword(AUD_CTL, EN_DAC_ENABLE|EN_DMTRX_LR|EN_DMTRX_BYPASS|EN_NICAM_AUTO_STEREO);
+		dwTemp |= EN_NICAM_AUTO_STEREO;
 		break;
 	}
     
-	WriteDword(AUD_SOFT_RESET,				0x00000000);  // Causes a pop every time/**/
+	WriteDword(AUD_CTL,			dwTemp);
+	WriteDword(AUD_SOFT_RESET,	0x00000000);  // Causes a pop every time/**/
 }   
 
 void CCX2388xCard::AudioInitA2(eVideoFormat TVFormat, eCX2388xStereoType StereoType)
 {
     // exactly taken from conexant-driver
-	WriteDword(AUD_INIT,					0x00000004);
+	WriteDword(AUD_INIT,					SEL_A2);
     WriteDword(AUD_INIT_LD,					0x00000001);
     WriteDword(AUD_SOFT_RESET,				0x00000001);
     WriteByte(AUD_PDF_DDS_CNST_BYTE2,		0x06);
@@ -678,7 +682,6 @@ void CCX2388xCard::AudioInitA2(eVideoFormat TVFormat, eCX2388xStereoType StereoT
 	WriteDword(AUD_RDSQ_SEL,				0x00000017);
 	WriteDword(AUD_RDSQ_SHIFT,				0x00000000);
 	WriteDword(AUD_POLYPH80SCALEFAC,		0x00000001);
-   
 
 	switch (TVFormat)
 	{
@@ -719,40 +722,40 @@ void CCX2388xCard::AudioInitA2(eVideoFormat TVFormat, eCX2388xStereoType StereoT
 		break;
 	}
 
+	DWORD dwTemp = EN_DAC_ENABLE|EN_DMTRX_SUMDIFF|EN_FMRADIO_EN_RDS;
+
 	switch(StereoType)
 	{
 	case STEREOTYPE_MONO:
-		WriteDword(AUD_CTL, EN_DAC_ENABLE|EN_DMTRX_MONO|EN_A2_FORCE_MONO1);
-		break;
-
 	case STEREOTYPE_ALT1:
-		WriteDword(AUD_CTL, EN_DAC_ENABLE|EN_DMTRX_MONO|EN_A2_FORCE_MONO1);
+		dwTemp |= EN_A2_FORCE_MONO1;
 		break;
 
 	case STEREOTYPE_ALT2:
-		WriteDword(AUD_CTL, EN_DAC_ENABLE|EN_DMTRX_MONO|EN_A2_FORCE_MONO2);
+		dwTemp |= EN_A2_FORCE_MONO2;
 		break;
 
 	case STEREOTYPE_STEREO:
-		WriteDword(AUD_CTL, EN_DAC_ENABLE|EN_DMTRX_LR|EN_A2_FORCE_STEREO);
+		dwTemp |= EN_A2_FORCE_STEREO;
 		break;
 
 	case STEREOTYPE_AUTO:
-		WriteDword(AUD_CTL, EN_DAC_ENABLE|EN_DMTRX_LR|EN_A2_AUTO_STEREO);
+		dwTemp |= EN_A2_AUTO_STEREO;
 		// Start Autodetecting with mono
 		SetAutoA2StereoToMono();
 		break;
 	}
-    
-	WriteDword(AUD_SOFT_RESET,				0x00000000);  // Causes a pop every time/**/
+	
+	WriteDword(AUD_CTL,			dwTemp);
+	WriteDword(AUD_SOFT_RESET,	0x00000000);  // Causes a pop every time/**/
 }
 
 void CCX2388xCard::SetAutoA2StereoToMono()
 {
 	// set timer to an lower value for faster detection
 	// of bit 0 + 1 in AUD_CTL
-	WriteDword (AUD_MODE_CHG_TIMER,		0x00000040);
-	AndOrDataDword(AUD_CTL,				0, ~0x00000800);
+	WriteDword(AUD_MODE_CHG_TIMER,		0x00000060);
+	WriteDword(AUD_PHASE_FIX_CTL,		0x00000000);
 	AndOrDataDword(AUD_DEEMPH1_SRC_SEL,	0, ~0x00000002);
 }
 
@@ -760,8 +763,8 @@ void CCX2388xCard::SetAutoA2StereoToStereo()
 {
 	// set timer to this value makes
 	// bit 0 + 1 in AUD_CTL stable
-	WriteDword(AUD_MODE_CHG_TIMER,		0x00000120);
-	OrDataDword(AUD_CTL,				0x00000800);
+	WriteDword(AUD_MODE_CHG_TIMER,		0x000000f0);
+	WriteDword(AUD_PHASE_FIX_CTL,		0x00000001);
 	OrDataDword(AUD_DEEMPH1_SRC_SEL,	0x00000002);
 }
 

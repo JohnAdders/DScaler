@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScalerApp.cpp,v 1.16 2002-09-17 17:28:25 tobbej Exp $
+// $Id: DScalerApp.cpp,v 1.17 2002-09-28 14:54:42 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/09/17 17:28:25  tobbej
+// updated crashloging to same version as in latest virtualdub
+//
 // Revision 1.15  2002/07/09 07:20:31  adcockj
 // Help fix
 //
@@ -166,6 +169,9 @@ BOOL CDScalerApp::InitInstance()
     AfxSetResourceHandle(m_hInstance);
     FreeLibrary(hResourceInst);
 
+#ifdef WANT_DSHOW_SUPPORT
+	CoUninitialize();
+#endif
 	DScalerDeinitializeThread();
 
     // return false so message loop doesn't start

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.32 2002-01-19 11:56:26 robmuller Exp $
+// $Id: Other.cpp,v 1.33 2002-01-26 18:04:29 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2002/01/19 11:56:26  robmuller
+// Fixed overlay error 80004001 on startup with 3dfx cards.
+//
 // Revision 1.31  2002/01/12 16:57:02  adcockj
 // POssible fix for 80070057 error on create
 //
@@ -885,7 +888,7 @@ static HRESULT FlipResult = 0;             // Need to try again for flip?
 // non-waiting last flip failed.  If so, try it one more time,
 // then give up.  Tom Barry 10/26/00
 //
-BOOL Overlay_Lock(TDeinterlaceInfo* pInfo)
+BOOL Overlay_Lock_Back_Buffer(TDeinterlaceInfo* pInfo)
 {
     if(lpDDOverlay == NULL || lpDDOverlayBack == NULL)
     {
@@ -941,7 +944,63 @@ BOOL Overlay_Lock(TDeinterlaceInfo* pInfo)
     return TRUE;
 }
 
-BOOL Overlay_Unlock()
+BOOL Overlay_Lock(TDeinterlaceInfo* pInfo)
+{
+    if(lpDDOverlay == NULL || lpDDOverlayBack == NULL)
+    {
+        LOG(1, "Overlay has been deleted");
+        return FALSE;
+    }
+
+    EnterCriticalSection(&hDDCritSect);
+
+    HRESULT         ddrval;
+    static DWORD    dwFlags = DDLOCK_WAIT | DDLOCK_NOSYSLOCK;
+    DDSURFACEDESC   SurfaceDesc;
+
+    if (FlipResult == DDERR_WASSTILLDRAWING)             // prev flip was busy?
+    {
+        ddrval = lpDDOverlay->Flip(NULL, DDFLIP_DONOTWAIT);  
+        if(ddrval == DDERR_SURFACELOST)
+        {
+            LOG(1, "Flip before lock failed");
+            LeaveCriticalSection(&hDDCritSect);
+            return FALSE;
+        }
+        FlipResult = 0;                 // but no time to try any more
+    }
+
+    memset(&SurfaceDesc, 0x00, sizeof(SurfaceDesc));
+    SurfaceDesc.dwSize = sizeof(SurfaceDesc);
+    ddrval = lpDDOverlay->Lock(NULL, &SurfaceDesc, dwFlags, NULL);
+
+    // fix suggested by christoph for NT 4.0 sp6
+    if(ddrval == E_INVALIDARG && (dwFlags & DDLOCK_NOSYSLOCK))
+    {
+        //remove flag
+        ddrval = lpDDOverlay->Lock(NULL, &SurfaceDesc, DDLOCK_WAIT, NULL);
+        if( SUCCEEDED(ddrval) )
+        {
+            //remember for next time
+            dwFlags = DDLOCK_WAIT;
+            LOG(1, "Switched to not using NOSYSLOCK");
+        }
+    }
+
+    if(FAILED(ddrval))
+    {
+        LOG(1, "Lock failed %8x", ddrval);
+        LeaveCriticalSection(&hDDCritSect);
+        return FALSE;
+    }
+
+    pInfo->OverlayPitch = SurfaceDesc.lPitch;         // Set new pitch, may change
+    pInfo->Overlay = (BYTE*)SurfaceDesc.lpSurface;
+    // stay in critical section
+    return TRUE;
+}
+
+BOOL Overlay_Unlock_Back_Buffer()
 {
     if(lpDDOverlayBack == NULL)
     {
@@ -952,6 +1011,30 @@ BOOL Overlay_Unlock()
 
     // we are already in critical section
     HRESULT ddrval = lpDDOverlayBack->Unlock(NULL);
+    BOOL RetVal = TRUE;
+    if(FAILED(ddrval))
+    {
+        if(ddrval != DDERR_SURFACELOST)
+        {
+            LOG(1, "Unexpected failure in Unlock %8x", ddrval);
+        }
+        RetVal = FALSE;
+    }
+    LeaveCriticalSection(&hDDCritSect);
+    return RetVal;
+}
+
+BOOL Overlay_Unlock()
+{
+    if(lpDDOverlay == NULL)
+    {
+        LOG(1, "Overlay has been deleted");
+        LeaveCriticalSection(&hDDCritSect);
+        return FALSE;
+    }
+
+    // we are already in critical section
+    HRESULT ddrval = lpDDOverlay->Unlock(NULL);
     BOOL RetVal = TRUE;
     if(FAILED(ddrval))
     {

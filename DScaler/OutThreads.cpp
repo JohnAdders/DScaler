@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.52 2001-12-17 19:31:17 tobbej Exp $
+// $Id: OutThreads.cpp,v 1.53 2002-01-26 18:04:28 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.52  2001/12/17 19:31:17  tobbej
+// added COM init to output thread
+//
 // Revision 1.51  2001/12/16 18:40:28  laurentg
 // Reset statistics
 //
@@ -533,13 +536,14 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
             if (Info.bMissedFrame || Info.bRunningLate)
             {
+                LOG(2, "    Info.bMissedFrame %d - Info.bRunningLate %d", Info.bMissedFrame, Info.bRunningLate);
                 for (int i = 0 ; i < PERF_TYPE_LASTONE ; ++i)
                 {
-                    if (pPerf->IsValid((ePerfType)i))
+                    if (pPerf->IsValid((ePerfType)i) && (pPerf->GetDurationLastCycle((ePerfType)i) != -1))
                     {
                         LOG(2, "    %s : %d (avg %d)",
                             pPerf->GetName((ePerfType)i), 
-                            pPerf->GetDurationLastCycle((ePerfType)i), 
+                            pPerf->GetDurationLastCycle((ePerfType)i) * 10, 
                             pPerf->GetAverageDuration((ePerfType)i));
                     }
                 }
@@ -683,10 +687,10 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
                         pPerf->StartCount(PERF_LOCK_OVERLAY);
 
-                        if(!Overlay_Lock(&Info))
+                        if(!Overlay_Lock_Back_Buffer(&Info))
                         {
                             Providers_GetCurrentSource()->Stop();
-                            LOG(1, "Falling out after Overlay_Lock");
+                            LOG(1, "Falling out after Overlay_Lock_Back_Buffer");
                             PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_STOP, 0);
                             PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_START, 0);
                             ExitThread(1);
@@ -750,10 +754,10 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         pPerf->StartCount(PERF_UNLOCK_OVERLAY);
 
                         // somewhere above we will have locked the buffer, unlock before flip
-                        if(!Overlay_Unlock())
+                        if(!Overlay_Unlock_Back_Buffer())
                         {
                             Providers_GetCurrentSource()->Stop();
-                            LOG(1, "Falling out after Overlay_Unlock");
+                            LOG(1, "Falling out after Overlay_Unlock_Back_Buffer");
                             PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_STOP, 0);
                             PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_START, 0);
                             ExitThread(1);
@@ -812,7 +816,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                     {
                         pPerf->StartCount(PERF_UNLOCK_OVERLAY);
 
-                        Overlay_Unlock();
+                        Overlay_Unlock_Back_Buffer();
 
                         pPerf->StopCount(PERF_UNLOCK_OVERLAY);
                     }

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.292 2003-01-25 12:03:45 atnak Exp $
+// $Id: DScaler.cpp,v 1.293 2003-01-26 03:46:30 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.292  2003/01/25 12:03:45  atnak
+// Changed OSD RECT from GetDestRect() to GetDisplayAreaRect(),
+// re-implemented IDM_FAST_REPAINT
+//
 // Revision 1.291  2003/01/24 01:55:18  atnak
 // OSD + Teletext conflict fix, offscreen buffering for OSD and Teletext,
 // got rid of the pink overlay colorkey for Teletext.
@@ -3098,8 +3102,12 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_VBI_VT:
-            VT_SetState(NULL, NULL, VT_OFF);
-            Cursor_VTUpdate();
+            if (VT_GetState() != VT_OFF)
+            {
+                VT_SetState(NULL, NULL, VT_OFF);
+                Cursor_VTUpdate();
+                InvalidateDisplayAreaRect(hWnd, NULL, FALSE);
+            }
             Setting_SetValue(VBI_GetSetting(DOTELETEXT),
                 !Setting_GetValue(VBI_GetSetting(DOTELETEXT)));
             break;
@@ -3234,9 +3242,12 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_VBI:
-            VT_SetState(NULL, NULL, VT_OFF);
-            Cursor_VTUpdate();
-
+            if (VT_GetState() != VT_OFF)
+            {
+                VT_SetState(NULL, NULL, VT_OFF);
+                Cursor_VTUpdate();
+                InvalidateDisplayAreaRect(hWnd, NULL, FALSE);
+            }
             Stop_Capture();
             Setting_SetValue(VBI_GetSetting(CAPTURE_VBI),
                 !Setting_GetValue(VBI_GetSetting(CAPTURE_VBI)));

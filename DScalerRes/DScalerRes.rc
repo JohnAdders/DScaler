@@ -1107,6 +1107,7 @@ BEGIN
             MENUITEM "Calibration",                 IDM_CALIBR_SETTINGS
             MENUITEM "OSD",                         IDM_OSD_SETTINGS
             MENUITEM "Still settings",              IDM_STILL_SETTINGS
+            MENUITEM "Anti Plop (mute delay)",      IDM_ANTIPLOP_SETTINGS
         END
         POPUP "Video &Overlay"
         BEGIN

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.62 2002-06-06 12:48:18 robmuller Exp $
+// $Id: DS_Control.h,v 1.63 2002-06-13 10:40:37 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.62  2002/06/06 12:48:18  robmuller
+// Added settings for the Mirror filter.
+//
 // Revision 1.61  2002/06/05 20:53:49  adcockj
 // Default changes and settings fixes
 //
@@ -1132,5 +1135,20 @@ typedef enum
 #define WM_FLT_MIRROR_GETVALUE     (WM_USER + 42)
 #define WM_FLT_MIRROR_SETVALUE     (WM_USER + 142)
 #define WM_FLT_MIRROR_CHANGEVALUE  (WM_USER + 242)
+
+/////////////////////////////////////////////////////////////////////////////
+// Control settings contained in ProgramList.cpp
+/////////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+    PRESWITCHMUTEDELAY,
+    POSTSWITCHMUTEDELAY,
+    ANTIPLOP_SETTING_LASTONE,
+} ANTIPLOP_SETTING;
+
+#define WM_ANTIPLOP_GETVALUE     (WM_USER + 43)
+#define WM_ANTIPLOP_SETVALUE     (WM_USER + 143)
+#define WM_ANTIPLOP_CHANGEVALUE  (WM_USER + 243)
 
 #endif

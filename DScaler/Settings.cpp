@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.32 2002-06-12 18:41:11 robmuller Exp $
+// $Id: Settings.cpp,v 1.33 2002-06-13 10:40:37 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2002/06/12 18:41:11  robmuller
+// Fixed duplicating lines in dscaler.ini.
+//
 // Revision 1.31  2002/06/10 23:56:28  robmuller
 // Add an empty line before each new section in the ini file.
 //
@@ -253,6 +256,12 @@ TFileWithSettings Settings[] =
         (GENERICGETSETTING*)Still_GetSetting,
         Still_ReadSettingsFromIni,
         Still_WriteSettingsToIni,
+    },
+    {
+        WM_ANTIPLOP_GETVALUE,
+        (GENERICGETSETTING*)AntiPlop_GetSetting,
+        AntiPlop_ReadSettingsFromIni,
+        AntiPlop_WriteSettingsToIni,
     },
 };
 

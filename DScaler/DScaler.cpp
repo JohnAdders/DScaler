@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.175 2002-06-13 09:23:02 robmuller Exp $
+// $Id: DScaler.cpp,v 1.176 2002-06-13 10:40:37 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.175  2002/06/13 09:23:02  robmuller
+// Update name of the source in the context menu.
+//
 // Revision 1.174  2002/06/12 23:57:13  robmuller
 // Fixed OSD entry on context menu. Added code to prevent similar errors in the future.
 //
@@ -2343,6 +2346,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
         case IDM_STILL_SETTINGS:
             Still_ShowUI();
+            break;
+
+        case IDM_ANTIPLOP_SETTINGS:
+            AntiPlop_ShowUI();
             break;
 
         case IDM_HELP_HOMEPAGE:

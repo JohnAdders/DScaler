@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.55 2002-05-28 11:51:12 robmuller Exp $
+// $Id: ProgramList.cpp,v 1.56 2002-06-13 10:40:37 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.55  2002/05/28 11:51:12  robmuller
+// Prevent fine tuning to a negative frequency.
+//
 // Revision 1.54  2002/04/13 18:56:23  laurentg
 // Checks added to manage case where the current source is not yet defined
 //
@@ -185,6 +188,7 @@
 #include "MixerDev.h"
 #include "OSD.h"
 #include "Providers.h"
+#include "SettingsDlg.h"
 
 int CurSel;
 unsigned short SelectButton;
@@ -208,6 +212,9 @@ BOOL InUpdate = FALSE;
 
 int WM_DRAGLISTMESSAGE = 0;
 long DragItemIndex = 0;
+
+int PreSwitchMuteDelay = 0;
+int PostSwitchMuteDelay = 0;
 
 CChannel::CChannel(LPCSTR Name, DWORD Freq, int ChannelNumber, int Format, BOOL Active)
 {
@@ -1192,7 +1199,7 @@ void Channel_Change(int NewChannel)
             if (MyChannels[NewChannel]->GetFrequency() != 0)
             {
 				Audio_Mute();
-                Sleep(100); // This helps reduce the static click noise.
+                Sleep(PreSwitchMuteDelay); // This helps reduce the static click noise.
                 PreviousProgram = CurrentProgram;
                 CurrentProgram = NewChannel;
                 if(MyChannels[CurrentProgram]->GetFormat() != -1)
@@ -1209,7 +1216,7 @@ void Channel_Change(int NewChannel)
                                                   VIDEOFORMAT_LASTONE
                                                                    );
                 }
-                Sleep(20);
+                Sleep(PostSwitchMuteDelay);
                 VT_ChannelChange();
                 StatusBar_ShowText(STATUS_TEXT, MyChannels[CurrentProgram]->GetName());
                 OSD_ShowText(hWnd,MyChannels[CurrentProgram]->GetName(), 0);
@@ -1624,4 +1631,55 @@ void Channels_WriteSettingsToIni(BOOL bOptimizeFileAccess)
     {
         Setting_WriteToIni(&(ChannelsSettings[i]), bOptimizeFileAccess);
     }
+}
+
+SETTING AntiPlopSettings[ANTIPLOP_SETTING_LASTONE] =
+{
+    {
+        "Pre switch mute delay", SLIDER, 0, (long*)&PreSwitchMuteDelay,
+        100, 0, 1000, 1, 1,
+        NULL,
+        "Audio", "PreSwitchMuteDelay", NULL,
+    },
+    {
+        "Post switch mute delay", SLIDER, 0, (long*)&PostSwitchMuteDelay,
+        20, 0, 1000, 1, 1,
+        NULL,
+        "Audio", "PostSwitchMuteDelay", NULL,
+    },
+};
+
+SETTING* AntiPlop_GetSetting(ANTIPLOP_SETTING Setting)
+{
+    if(Setting > -1 && Setting < ANTIPLOP_SETTING_LASTONE)
+    {
+        return &(AntiPlopSettings[Setting]);
+    }
+    else
+    {
+        return NULL;
+    }
+}
+
+void AntiPlop_ReadSettingsFromIni()
+{
+    int i;
+    for(i = 0; i < ANTIPLOP_SETTING_LASTONE; i++)
+    {
+        Setting_ReadFromIni(&(AntiPlopSettings[i]));
+    }
+}
+
+void AntiPlop_WriteSettingsToIni(BOOL bOptimizeFileAccess)
+{
+    int i;
+    for(i = 0; i < ANTIPLOP_SETTING_LASTONE; i++)
+    {
+        Setting_WriteToIni(&(AntiPlopSettings[i]), bOptimizeFileAccess);
+    }
+}
+
+void AntiPlop_ShowUI()
+{
+    CSettingsDlg::ShowSettingsDlg("Anti Plop Settings", AntiPlopSettings, ANTIPLOP_SETTING_LASTONE);
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.h,v 1.14 2002-02-26 19:21:32 adcockj Exp $
+// $Id: ProgramList.h,v 1.15 2002-06-13 10:40:37 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -54,6 +54,11 @@ void Channels_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void Channels_UpdateMenu(HMENU hMenu);
 void Channels_SetMenu(HMENU hMenu);
 BOOL ProcessProgramSelection(HWND hWnd, WORD wMenuID);
+
+SETTING* AntiPlop_GetSetting(ANTIPLOP_SETTING Setting);
+void AntiPlop_ReadSettingsFromIni();
+void AntiPlop_WriteSettingsToIni(BOOL bOptimizeFileAccess);
+void AntiPlop_ShowUI();
 
 #define MAXPROGS 255
 

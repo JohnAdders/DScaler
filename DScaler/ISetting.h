@@ -18,9 +18,9 @@ public:
     virtual void SetDefault() = 0;
     virtual SETTING_TYPE GetType() = 0;
     virtual void ChangeValue(eCHANGEVALUE NewValue) = 0;
-    virtual BOOL ReadFromIni(BOOL bSetDefaultOnFailure = TRUE) = 0;
+    virtual BOOL ReadFromIni() = 0;
     virtual void WriteToIni(BOOL bOptimizeFileAccess) = 0;
-    virtual BOOL ReadFromIniSubSection(LPCSTR szSubSection, BOOL bSetDefaultOnFailure = TRUE) = 0;
+    virtual BOOL ReadFromIniSubSection(LPCSTR szSubSection) = 0;
     virtual void WriteToIniSubSection(LPCSTR szSubSection, BOOL bOptimizeFileAccess = TRUE) = 0;  
     virtual long GetValue() = 0;
     virtual long GetMin() = 0;

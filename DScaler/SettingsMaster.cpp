@@ -69,7 +69,7 @@ void CSettingsMaster::ParseAllSettings(bool IsLoad)
                         {
                             if (IsLoad)
                             {
-                                pSetting->ReadFromIniSubSection(SubSection.c_str(), TRUE);
+                                pSetting->ReadFromIniSubSection(SubSection.c_str());
                             }
                             else
                             {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.h,v 1.17 2003-01-13 19:22:46 adcockj Exp $
+// $Id: Setting.h,v 1.18 2003-01-19 20:07:15 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,13 +58,13 @@ public:
     LPCSTR GetSection();
     void SetEntry(LPCSTR NewValue);
     LPCSTR GetEntry();
-    BOOL ReadFromIni(BOOL bSetDefaultOnFailure = TRUE);
+    BOOL ReadFromIni();
     void WriteToIni(BOOL bOptimizeFileAccess);
     
     void SetGroup(CSettingGroup* pGroup); 
     CSettingGroup* GetGroup();
         
-    BOOL ReadFromIniSubSection(LPCSTR szSubSection, BOOL bSetDefaultOnFailure = TRUE);
+    BOOL ReadFromIniSubSection(LPCSTR szSubSection);
     void WriteToIniSubSection(LPCSTR szSubSection, BOOL bOptimizeFileAccess = TRUE);
 
     SETTING* GetSETTING() { return m_pSetting; }
@@ -82,7 +82,9 @@ protected:
     /// Internal storage for ini entry
     std::string    m_Entry;
     /// Internal storage for ini section of the last read/written value
-    //std::string    m_SectionFromLastValue;
+    std::string    m_SectionLastSavedValueIniSection;
+    /// Internal storage for value of the last read/written value
+    long           m_SectionLastSavedValue;
     /// Internal storage for ini section of the last read/written value
     std::string    m_sLastSavedValueIniSection;
     /// Internal storage for the actual value of the setting

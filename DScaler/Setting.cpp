@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.cpp,v 1.23 2003-01-16 13:30:49 adcockj Exp $
+// $Id: Setting.cpp,v 1.24 2003-01-19 20:07:14 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2003/01/16 13:30:49  adcockj
+// Fixes for various settings problems reported by Laurent 15/Jan/2003
+//
 // Revision 1.22  2003/01/13 19:22:44  adcockj
 // Setttings bug fixes
 //
@@ -175,6 +178,8 @@ CSimpleSetting::CSimpleSetting(LPCSTR DisplayName, long Default, long Min, long 
     m_pGroup = pGroup;
     m_EnableOnChange = TRUE;
     m_ReadWriteFlags = 0;
+
+    m_SectionLastSavedValue = Default;
 }
 
 
@@ -198,6 +203,8 @@ CSimpleSetting::CSimpleSetting(SETTING* pSetting, CSettingGroup* pGroup)
     
     m_EnableOnChange = TRUE;
     m_ReadWriteFlags = 0;
+
+    m_SectionLastSavedValue = pSetting->Default;
 }
 
 CSimpleSetting::~CSimpleSetting()
@@ -303,11 +310,10 @@ LPCSTR CSimpleSetting::GetEntry()
 /** Read value from sub section in .ini file
     @param szSubSection Set to NULL to read from the default location
     @param bSetDefaultOnFailure If the setting was not in the .ini file, set the setting's value to the default value
-    @param  Call type for OnChange function. (ONCHANGE_NONE for no call)
     @param pSettingFlags Override setting flags of current setting if not NULL
     @return TRUE if value was in .ini file            
 */
-BOOL CSimpleSetting::ReadFromIniSubSection(LPCSTR szSubSection, BOOL bSetDefaultOnFailure)
+BOOL CSimpleSetting::ReadFromIniSubSection(LPCSTR szSubSection)
 {
     long nValue;
     BOOL IsSettingInIniFile = TRUE;
@@ -316,18 +322,11 @@ BOOL CSimpleSetting::ReadFromIniSubSection(LPCSTR szSubSection, BOOL bSetDefault
     {        
         string sEntry;
 		char* szIniEntry;
-		if (szSubSection == NULL)
-		{	
-			szSubSection = m_pSetting->szIniSection;
-			szIniEntry = m_pSetting->szIniEntry;
-		}
-		else
-		{
-			sEntry = m_pSetting->szIniSection;
-			sEntry += "_";
-			sEntry+= m_pSetting->szIniEntry;
-			szIniEntry = (char*)sEntry.c_str();
-		}
+
+        sEntry = m_pSetting->szIniSection;
+		sEntry += "_";
+		sEntry+= m_pSetting->szIniEntry;
+		szIniEntry = (char*)sEntry.c_str();
 		
 		char szDefaultString[] = {0};
 		char szBuffer[256];
@@ -349,16 +348,75 @@ BOOL CSimpleSetting::ReadFromIniSubSection(LPCSTR szSubSection, BOOL bSetDefault
 		       
 			if(nValue < m_pSetting->MinValue)
 			{
-				LOG(1, "%s %s Was out of range - %d is too low", m_Section.c_str(), m_Entry.c_str(), nValue);
+				LOG(1, "%s %s Was out of range - %d is too low", szSubSection, szIniEntry, nValue);
 				nValue = m_pSetting->MinValue;
 			}
 			if(nValue > m_pSetting->MaxValue)
 			{
-				LOG(1, "%s %s Was out of range - %d is too high", m_Section.c_str(), m_Entry.c_str(), nValue);
+				LOG(1, "%s %s Was out of range - %d is too high", szSubSection, szIniEntry, nValue);
 				nValue = m_pSetting->MaxValue;
 			}
 		}
-        if (IsSettingInIniFile || bSetDefaultOnFailure)
+
+		int OldValue = *m_pSetting->pValue;
+		*m_pSetting->pValue = nValue;
+	
+		if (DoOnChange(*m_pSetting->pValue, OldValue))
+	    {
+		    OnChange(*m_pSetting->pValue, OldValue);
+		}
+		
+        m_SectionLastSavedValue = nValue;
+		m_SectionLastSavedValueIniSection = szSubSection;
+
+    }
+    else
+    {
+        m_SectionLastSavedValueIniSection = "";
+        IsSettingInIniFile = FALSE;
+    }
+    return IsSettingInIniFile;
+}
+
+/** Read value from default location in .ini file
+*/
+BOOL CSimpleSetting::ReadFromIni()
+{
+    long nValue;
+    BOOL IsSettingInIniFile = TRUE;
+
+    if(m_pSetting->szIniSection != NULL)
+    {        
+		char szDefaultString[] = {0};
+		char szBuffer[256];
+		
+		int Len = GetPrivateProfileString(m_pSetting->szIniSection, m_pSetting->szIniEntry, szDefaultString, szBuffer, 255, GetIniFileForSettings());
+        LOG(2, " ReadFromIniSubSection %s %s Result %s", m_pSetting->szIniSection, m_pSetting->szIniEntry, szBuffer);
+
+		if (Len <= 0)
+		{
+			IsSettingInIniFile = FALSE;
+			nValue = m_pSetting->Default;
+		}
+		else
+		{
+			IsSettingInIniFile = TRUE;
+
+			char* szValue = szBuffer;
+			nValue = atoi(szValue);
+		       
+			if(nValue < m_pSetting->MinValue)
+			{
+				LOG(1, "%s %s Was out of range - %d is too low", m_pSetting->szIniSection, m_pSetting->szIniEntry, nValue);
+				nValue = m_pSetting->MinValue;
+			}
+			if(nValue > m_pSetting->MaxValue)
+			{
+				LOG(1, "%s %s Was out of range - %d is too high", m_pSetting->szIniSection, m_pSetting->szIniEntry, nValue);
+				nValue = m_pSetting->MaxValue;
+			}
+		}
+        if (IsSettingInIniFile)
         {            
 			int OldValue = *m_pSetting->pValue;
 			*m_pSetting->pValue = nValue;
@@ -367,22 +425,20 @@ BOOL CSimpleSetting::ReadFromIniSubSection(LPCSTR szSubSection, BOOL bSetDefault
 	        {
 		        OnChange(*m_pSetting->pValue, OldValue);
 			}
-			m_pSetting->LastSavedValue = nValue;
-			m_sLastSavedValueIniSection = szSubSection;
+            m_pSetting->LastSavedValue = nValue;
+			m_sLastSavedValueIniSection = m_pSetting->szIniSection;
         }        
+        else
+        {
+            m_sLastSavedValueIniSection = "";
+        }
     }
     else
     {
-        return FALSE;
+        m_sLastSavedValueIniSection = "";
+        IsSettingInIniFile =  FALSE;
     }
     return IsSettingInIniFile;
-}
-
-/** Read value from default location in .ini file
-*/
-BOOL CSimpleSetting::ReadFromIni(BOOL bSetDefaultOnFailure)
-{
-	return ReadFromIniSubSection(NULL, bSetDefaultOnFailure);
 }
 
 /** Write value to szSubsection in .ini file
@@ -394,42 +450,72 @@ void CSimpleSetting::WriteToIniSubSection(LPCSTR szSubSection, BOOL bOptimizeFil
     {
         string sEntry;
 		char* szIniEntry;
-		if (szSubSection == NULL)
-		{	
-			szSubSection = m_pSetting->szIniSection;
-			szIniEntry = m_pSetting->szIniEntry;
-		}
-		else
-		{
-			sEntry = m_pSetting->szIniSection;
-			sEntry += "_";
-			sEntry+= m_pSetting->szIniEntry;
-			szIniEntry = (char*)sEntry.c_str();
-		}
+
+        sEntry = m_pSetting->szIniSection;
+		sEntry += "_";
+		sEntry+= m_pSetting->szIniEntry;
+		szIniEntry = (char*)sEntry.c_str();
 
 		long Val = *m_pSetting->pValue; 
 
-        // hopefully stops noise in ini file
-        if(!bOptimizeFileAccess || Val != m_pSetting->Default || Val != m_pSetting->LastSavedValue)
+        BOOL bWriteValue = FALSE;
+
+        if(bOptimizeFileAccess)
+        {
+            if(m_SectionLastSavedValue != Val || m_SectionLastSavedValueIniSection != szSubSection)
+            {
+                bWriteValue = TRUE;
+            }
+            else
+            {
+                bWriteValue = FALSE;
+            }
+        }
+        else
+        {
+            bWriteValue = TRUE;
+        }
+
+        // hopefully stops noise 
+        if(bWriteValue)
         {
 		    WritePrivateProfileInt(szSubSection, szIniEntry, Val, GetIniFileForSettings());
             LOG(2, " WriteToIniSubSection %s %s Value %d", szSubSection, szIniEntry, Val);
         }
         else
         {
-            LOG(2, " WriteToIniSubSection Not Written %s %s Value %d Was ", szSubSection, szIniEntry, Val, m_pSetting->LastSavedValue);
+            LOG(2, " WriteToIniSubSection Not Written %s %s Value %d Was ", szSubSection, szIniEntry, Val, m_SectionLastSavedValue);
         }
 
 
-        m_pSetting->LastSavedValue = Val;
-		
-		m_sLastSavedValueIniSection = szSubSection;
+        m_SectionLastSavedValue = Val;
+		m_SectionLastSavedValueIniSection = szSubSection;
     }
 }
 
 void CSimpleSetting::WriteToIni(BOOL bOptimizeFileAccess)
 {
-    WriteToIniSubSection(NULL, bOptimizeFileAccess);	
+    if(m_pSetting->szIniSection != NULL)
+    {
+		long Val = *m_pSetting->pValue; 
+
+        // here we want all settings in the ini file
+        // so we only optimize if the value and section 
+        // were the same as what was loaded
+        if(!bOptimizeFileAccess || Val != m_pSetting->LastSavedValue || m_sLastSavedValueIniSection != m_pSetting->szIniSection)
+        {
+		    WritePrivateProfileInt(m_pSetting->szIniSection, m_pSetting->szIniEntry, Val, GetIniFileForSettings());
+            LOG(2, " WriteToIniSubSection %s %s Value %d", m_pSetting->szIniSection, m_pSetting->szIniEntry, Val);
+        }
+        else
+        {
+            LOG(2, " WriteToIniSubSection Not Written %s %s Value %d Was ", m_pSetting->szIniSection, m_pSetting->szIniEntry, Val, m_pSetting->LastSavedValue);
+        }
+
+        m_pSetting->LastSavedValue = Val;
+		
+		m_sLastSavedValueIniSection = m_pSetting->szIniSection;
+    }
 }
  
 

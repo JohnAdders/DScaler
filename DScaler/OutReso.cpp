@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutReso.cpp,v 1.1 2003-02-06 00:58:53 laurentg Exp $
+// $Id: OutReso.cpp,v 1.2 2003-02-06 09:59:40 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2003/02/06 00:58:53  laurentg
+// Change output resolution (first step)
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -133,9 +136,10 @@ void OutReso_Change(HWND hWnd, BOOL bUseRegistrySettings)
 			dm.dmPelsHeight = resSettings[OutputReso].intResHeight;
 			dm.dmBitsPerPel = resSettings[OutputReso].intResDepth;
 		}
-		LOG(1, "Output Reso %dx%d@%d", dm.dmPelsWidth, dm.dmPelsHeight, dm.dmBitsPerPel);
-        ShowWindow(hWnd, SW_HIDE);
+		Overlay_Stop(hWnd);
+//        ShowWindow(hWnd, SW_HIDE);
         ChangeDisplaySettings(&dm, 0);
-        ShowWindow(hWnd, SW_SHOW);
+//        ShowWindow(hWnd, SW_SHOW);
+		Overlay_Start(hWnd);
 	}
 }

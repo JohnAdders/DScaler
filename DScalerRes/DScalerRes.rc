@@ -1107,6 +1107,8 @@ BEGIN
         MENUITEM "A&uto-Size Window",           IDM_WINPOS_AUTOSIZE
         MENUITEM "Minimize to Tra&y",           IDM_MINTOTRAY
         MENUITEM SEPARATOR
+        MENUITEM "Switch Resolution in F&ull Screen", 1
+        MENUITEM SEPARATOR
         POPUP "Toolbars"
         BEGIN
             MENUITEM "&Main toolbar",               IDM_VIEW_TOOLBARS_MAINTOOLBAR
@@ -1231,8 +1233,6 @@ BEGIN
             MENUITEM "3.5x",                        IDM_ZOOM_35
             MENUITEM "4x",                          IDM_ZOOM_40
         END
-        MENUITEM SEPARATOR
-        MENUITEM "Switch Resolution in F&ull Screen", 65535
     END
     POPUP "S&ettings"
     BEGIN

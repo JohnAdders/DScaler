@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.304 2003-02-06 00:58:50 laurentg Exp $
+// $Id: DScaler.cpp,v 1.305 2003-02-06 09:59:40 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.304  2003/02/06 00:58:50  laurentg
+// Change output resolution (first step)
+//
 // Revision 1.303  2003/02/05 19:57:50  laurentg
 // New option to minimize DScaler when there is no signal and to restore it when a signal is detected
 //
@@ -5351,7 +5354,7 @@ HMENU GetOutResoSubmenu()
     GetMenuString(hMenu, 2, string, sizeof(string), MF_BYPOSITION);
     reduc = !strcmp(string, "&Channels") ? 0 : 1;
 
-    HMENU hmenu = GetOrCreateSubSubMenu(6-reduc, 13, "Switch Resolution in F&ull Screen");
+    HMENU hmenu = GetOrCreateSubSubMenu(3-reduc, 9, "Switch Resolution in F&ull Screen");
     ASSERT(hmenu != NULL);
 
     return hmenu;
@@ -6343,6 +6346,12 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
         0, 0, 2, 1, 1,
         MinimizeHandlingLabels,
         "MainWindow", "MinimizeHandling", MinimizeHandling_OnChange,
+    },
+    {
+        "Display Resolution in Full Screen", SLIDER, 0, (long*)&OutputReso,
+        0, 0, 6, 1, 1,
+        NULL,
+        "MainWindow", "ResoFullScreen", NULL,
     },
 };
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource.h,v 1.12 2002-10-24 16:04:48 adcockj Exp $
+// $Id: CT2388xSource.h,v 1.13 2002-10-29 03:05:48 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -61,6 +61,8 @@ public:
     void UpdateMenu() {return;};
     void SetMenu(HMENU hMenu);
   
+    CTreeSettingsGeneric* GetTreeSettingsPage() {return NULL;};
+
     void HandleTimerMessages(int TimerId);
     BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat);
     BOOL IsVideoPresent();

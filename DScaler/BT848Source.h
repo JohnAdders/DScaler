@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.44 2002-10-22 04:08:50 flibuste2 Exp $
+// $Id: BT848Source.h,v 1.45 2002-10-29 03:05:48 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.44  2002/10/22 04:08:50  flibuste2
+// -- Modified CSource to include virtual ITuner* GetTuner();
+// -- Modified HasTuner() and GetTunerId() when relevant
+//
 // Revision 1.43  2002/10/15 18:31:44  kooiman
 // Added stereo detect interval for continuous scanning for stereo mode.
 //
@@ -97,7 +101,7 @@ public:
 
     ITuner* GetTuner();
 
-    CTreeSettingsGeneric* BT848_GetTreeSettingsPage();
+    CTreeSettingsGeneric* GetTreeSettingsPage();
     
    
 private:

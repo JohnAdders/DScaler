@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.h,v 1.24 2002-10-22 04:08:50 flibuste2 Exp $
+// $Id: Source.h,v 1.25 2002-10-29 03:05:47 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,8 +24,7 @@
 #include "Setting.h"
 #include "TVFormats.h"
 #include "ITuner.h"
-#include "Bt848_Defines.h"
-
+#include "TreeSettingsGeneric.h"
 
 enum eSourceInputType
 {
@@ -150,6 +149,9 @@ public:
     virtual BOOL InputHasTuner(eSourceInputType InputType, int Nr) = 0;
 
     virtual ITuner* GetTuner() = 0;
+
+    /// returns NULL if there is no tree settings page
+    virtual CTreeSettingsGeneric* GetTreeSettingsPage() = 0;
 
 protected:
     CSource(long SetMessage, long MenuId);

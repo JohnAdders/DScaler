@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.cpp,v 1.23 2002-10-26 17:51:53 adcockj Exp $
+// $Id: TreeSettingsDlg.cpp,v 1.24 2002-10-29 03:05:47 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2002/10/26 17:51:53  adcockj
+// Simplified hide cusror code and removed PreShowDialogOrMenu & PostShowDialogOrMenu
+//
 // Revision 1.22  2002/10/19 15:15:42  tobbej
 // Implemented new gradient header above active page.
 // Changed resizing a bit to minimize flashing when repainting window
@@ -604,12 +607,14 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
         int Root = dlg.AddPage(&AdvRootPage);
         CTreeSettingsGeneric* pPage;
 
-        if (Providers_GetCurrentSource() && (strncmp(Providers_GetCurrentSource()->IDString(),"BT8",3)==0) )
+        if (Providers_GetCurrentSource())
         {
-            CBT848Source *pBT848Source = (CBT848Source*)Providers_GetCurrentSource();
-            pPage = pBT848Source->BT848_GetTreeSettingsPage();
-            pages.push_back(pPage);
-            dlg.AddPage(pPage, Root);
+            pPage = Providers_GetCurrentSource()->GetTreeSettingsPage();
+            if (pPage != NULL)
+            {
+                pages.push_back(pPage);
+                dlg.AddPage(pPage, Root);
+            }
         }
 
         pPage = FD50_GetTreeSettingsPage();

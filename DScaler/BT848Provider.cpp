@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Provider.cpp,v 1.5 2001-11-29 17:30:51 adcockj Exp $
+// $Id: BT848Provider.cpp,v 1.6 2001-11-29 22:16:22 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/11/29 17:30:51  adcockj
+// Reorgainised bt848 initilization
+// More Javadoc-ing
+//
 // Revision 1.4  2001/11/23 10:49:16  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -87,12 +91,6 @@ CBT848Provider::CBT848Provider(CHardwareDriver* pHardwareDriver)
     DWORD SubSystemId;
     BOOL IsMemoryInitialized = FALSE;
 
-    // need to allocate memory for display, VBI and RISC code
-    if(MemoryInit(pHardwareDriver) == FALSE)
-    {
-        return;
-    }
-
     for(int i(0); i < 4; ++i)
     {
         int CardsFound(0);
@@ -106,6 +104,7 @@ CBT848Provider::CBT848Provider(CHardwareDriver* pHardwareDriver)
         {
             if(!IsMemoryInitialized)
             {
+			    // need to allocate memory for display, VBI and RISC code once
                 if(MemoryInit(pHardwareDriver) == FALSE)
                 {
                     return;

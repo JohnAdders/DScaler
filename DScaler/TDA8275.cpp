@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA8275.cpp,v 1.7 2005-03-19 09:54:00 atnak Exp $
+// $Id: TDA8275.cpp,v 1.8 2005-03-20 05:13:51 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2005 Atsushi Nakagawa.  All rights reserved.
@@ -27,6 +27,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2005/03/19 09:54:00  atnak
+// Fixes tuning problem.
+//
 // Revision 1.6  2005/03/09 13:49:23  atnak
 // Bug fix.
 //
@@ -211,7 +214,7 @@ void CTDA8275::WriteTDA8275Initialization()
 		// AB4, GB, TB, SDB3, SDB4
 		0x04, 0xFF, 0x00, 0x00, 0x40 };
 
-	WriteToSubAddress(TDA8275_DB1, &initializationBytes, 13);
+	WriteToSubAddress(TDA8275_DB1, initializationBytes, 13);
 	*/
 }
 
@@ -260,12 +263,13 @@ bool CTDA8275::SetFrequency(long frequencyHz, eTDA8290Standard standard)
 
 	// 2.2 Re-initialize PLL and gain path
 	success &= WriteToSubAddress(TDA8275_AB2, 0xBF);
-	success &= WriteToSubAddress(TDA8275_CB1, 0xD2);
-	Sleep(1);
-	success &= WriteToSubAddress(TDA8275_CB1, 0x56);
-	Sleep(1); // Only 550us required.
-	success &= WriteToSubAddress(TDA8275_CB1, 0x52);
-	Sleep(550); // 550ms delay required.
+	// This puts a delay that may not be necessary.
+//	success &= WriteToSubAddress(TDA8275_CB1, 0xD2);
+//	Sleep(1);
+//	success &= WriteToSubAddress(TDA8275_CB1, 0x56);
+//	Sleep(1); // Only 550us required.
+//	success &= WriteToSubAddress(TDA8275_CB1, 0x52);
+//	Sleep(550); // 550ms delay required.
 	success &= WriteToSubAddress(TDA8275_CB1, 0x50|row->CP);
 
 	// 3 Enabling VSYNC mode for AGC2

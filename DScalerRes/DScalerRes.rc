@@ -131,6 +131,7 @@ BEGIN
     VK_BACK,        IDM_HIDE_OSD,           VIRTKEY, NOINVERT
     VK_BACK,        IDM_CHANNEL_PREVIOUS,   VIRTKEY, CONTROL, NOINVERT
     VK_DOWN,        IDM_VT_PAGE_DOWN,       VIRTKEY, NOINVERT
+    VK_END,         IDM_PLAYLIST_LAST,      VIRTKEY, CONTROL, NOINVERT
     VK_ESCAPE,      IDM_RETURN_TO_WINDOW,   VIRTKEY, NOINVERT
     VK_F1,          IDM_HELP_README,        VIRTKEY, NOINVERT
     VK_F1,          IDM_SOURCE_INPUT1,      VIRTKEY, CONTROL, ALT, NOINVERT
@@ -159,16 +160,19 @@ BEGIN
     VK_F8,          IDM_TELETEXT_KEY4,      VIRTKEY, NOINVERT
     VK_F9,          IDM_TELETEXT_KEY5,      VIRTKEY, NOINVERT
     VK_HOME,        IDM_CHANNEL_LIST,       VIRTKEY, NOINVERT
+    VK_HOME,        IDM_PLAYLIST_FIRST,     VIRTKEY, CONTROL, NOINVERT
     VK_LEFT,        IDM_VT_PAGE_MINUS,      VIRTKEY, NOINVERT
     VK_LEFT,        IDM_RIGHT_CROP_MINUS,   VIRTKEY, CONTROL, NOINVERT
     VK_LEFT,        IDM_LEFT_CROP_PLUS,     VIRTKEY, SHIFT, NOINVERT
     VK_LEFT,        IDM_LEFT_CROP_CURRENT,  VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
     VK_NEXT,        IDM_CHANNELMINUS,       VIRTKEY, NOINVERT
+    VK_NEXT,        IDM_PLAYLIST_NEXT,      VIRTKEY, CONTROL, NOINVERT
     VK_NUMPAD2,     IDM_WINPOS_VERT_BOTTOM, VIRTKEY, CONTROL, NOINVERT
     VK_NUMPAD5,     IDM_WINPOS_VERT_CENTRE, VIRTKEY, CONTROL, NOINVERT
     VK_NUMPAD8,     IDM_WINPOS_VERT_TOP,    VIRTKEY, CONTROL, NOINVERT
     VK_PRIOR,       IDM_CHANNELPLUS,        VIRTKEY, NOINVERT
+    VK_PRIOR,       IDM_PLAYLIST_PREVIOUS,  VIRTKEY, CONTROL, NOINVERT
     VK_RETURN,      IDM_SHOW_OSD,           VIRTKEY, NOINVERT
     VK_RETURN,      IDM_TOGGLECURSOR,       VIRTKEY, CONTROL, NOINVERT
     VK_RETURN,      IDM_FULL_SCREEN,        VIRTKEY, ALT, NOINVERT
@@ -747,7 +751,6 @@ BEGIN
     POPUP "&File"
     BEGIN
         MENUITEM "&Open...",                    IDM_OPEN_FILE
-        MENUITEM "&Close",                      IDM_CLOSE_FILE
         MENUITEM "E&xit\tAlt+F4",               IDM_END
     END
     POPUP "&Channels"
@@ -1118,11 +1121,19 @@ IDC_STILL MENU DISCARDABLE
 BEGIN
     POPUP "Pla&ylist"
     BEGIN
-        MENUITEM "&Previous",                   IDM_PLAYLIST_PREVIOUS
-        MENUITEM "&Next",                       IDM_PLAYLIST_NEXT
-        MENUITEM "&First",                      IDM_PLAYLIST_FIRST
-        MENUITEM "&Last",                       IDM_PLAYLIST_LAST
+        MENUITEM "&Previous\tCtrl+PgUp",        IDM_PLAYLIST_PREVIOUS
+        MENUITEM "&Next\tCtrl+PgDn",            IDM_PLAYLIST_NEXT
+        MENUITEM "&First\tCtrl+Home",           IDM_PLAYLIST_FIRST
+        MENUITEM "&Last\tCtrl+End",             IDM_PLAYLIST_LAST
+        MENUITEM SEPARATOR
+        MENUITEM "&Up",                         IDM_PLAYLIST_UP
+        MENUITEM "&Down",                       IDM_PLAYLIST_DOWN
+        MENUITEM SEPARATOR
         MENUITEM "&Slideshow",                  IDM_PLAYLIST_SLIDESHOW
+        MENUITEM SEPARATOR
+        MENUITEM "&Close",                      IDM_CLOSE_FILE
+        MENUITEM "Cl&ose All",                  IDM_CLOSE_ALL
+        MENUITEM "S&ave As ...",                IDM_PLAYLIST_SAVE, GRAYED
     END
 END
 

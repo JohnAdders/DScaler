@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.34 2002-08-27 22:09:39 kooiman Exp $
+// $Id: DSSource.cpp,v 1.35 2002-09-02 19:32:21 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.34  2002/08/27 22:09:39  kooiman
+// Add get/set input for DS capture source.
+//
 // Revision 1.33  2002/08/21 20:29:20  kooiman
 // Fixed settings and added setting for resolution. Fixed videoformat==lastone in dstvtuner.
 //
@@ -548,9 +551,7 @@ void CDSCaptureSource::CreateSettings(LPCSTR IniSection)
   m_Resolution = new CResolutionSetting(this, "Resolution", -1, -1, (sizeof(res)/sizeof(resolutionType)) - 1, IniSection);
   m_Settings.push_back(m_Resolution);
 
-	m_Settings.push_back(m_LastTunerChannel);
-
-  ReadFromIni();  
+	ReadFromIni();  
   LOG(2,"DSCaptureSource: setting read from .ini");
 }
 

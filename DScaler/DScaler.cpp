@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.315 2003-03-21 22:48:06 laurentg Exp $
+// $Id: DScaler.cpp,v 1.316 2003-03-22 18:58:38 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.315  2003/03/21 22:48:06  laurentg
+// Preview mode (multiple frames) improved
+//
 // Revision 1.314  2003/03/19 23:56:35  laurentg
 // Second step for the navigation through channels in preview mode
 //
@@ -2866,14 +2869,19 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
 		case IDM_CHANNEL_PREVIEW:
-            if (Providers_GetCurrentSource()->IsInTunerMode())
+            if (pMultiFrames)
+			{
+				pMultiFrames->RequestSwitch();
+			}
+			else if (Providers_GetCurrentSource()->IsInTunerMode())
             {
-                if (pMultiFrames == NULL)
-				{
-					pMultiFrames = new CMultiFrames(PREVIEW_CHANNELS, 4, 4, 2000);
-				}
+				pMultiFrames = new CMultiFrames(PREVIEW_CHANNELS, 4, 4);
 				pMultiFrames->RequestSwitch();
             }
+			else
+			{
+				SendMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_PREVIEW, 0);
+			}
 			break;
 
 		case IDM_CHANNEL_INDEX:
@@ -3953,7 +3961,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 bDone = TRUE;
             }
 
-			if (pMultiFrames)
+			if (pMultiFrames && !bDone)
 			{
 				bDone = pMultiFrames->HandleWindowsCommands(hWnd, wParam, lParam);
 			}

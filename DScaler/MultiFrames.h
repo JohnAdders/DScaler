@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MultiFrames.h,v 1.5 2003-03-22 15:41:58 laurentg Exp $
+// $Id: MultiFrames.h,v 1.6 2003-03-22 18:58:40 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,10 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2003/03/22 15:41:58  laurentg
+// Half height deinterlace modes correctly handled in previow mode
+// Center of the image in its frame with black borders
+//
 // Revision 1.4  2003/03/21 22:48:07  laurentg
 // Preview mode (multiple frames) improved
 //
@@ -51,7 +55,7 @@ enum eMultiFramesMode {
 class CMultiFrames
 {
 public:
-    CMultiFrames(eMultiFramesMode eMode, int iNbCols, int iNbRows, int iDuration);
+    CMultiFrames(eMultiFramesMode eMode, int iNbCols, int iNbRows);
     ~CMultiFrames();
 
 	eMultiFramesMode GetMode();
@@ -123,8 +127,6 @@ private:
 
 	BOOL bSwitchRequested;
 	int *bFrameFilled;
-	DWORD LastTickCount;
-	int iDeltaTicksChange;
 	BOOL bNavigAllowed;
 	int iDeltaNewFrame;
 };

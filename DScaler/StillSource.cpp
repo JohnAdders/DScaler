@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.92 2003-03-21 22:48:07 laurentg Exp $
+// $Id: StillSource.cpp,v 1.93 2003-03-22 18:58:40 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.92  2003/03/21 22:48:07  laurentg
+// Preview mode (multiple frames) improved
+//
 // Revision 1.91  2003/03/19 23:53:28  laurentg
 // First step to add stills preview mode
 //
@@ -1534,7 +1537,7 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
     case IDM_PLAYLIST_PREVIEW:
         if (pMultiFrames == NULL)
 		{
-			pMultiFrames = new CMultiFrames(PREVIEW_STILLS, 3, 3, 0);
+			pMultiFrames = new CMultiFrames(PREVIEW_STILLS, 4, 4);
 		}
 		pMultiFrames->RequestSwitch();
         return TRUE;

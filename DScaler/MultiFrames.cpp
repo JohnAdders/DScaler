@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MultiFrames.cpp,v 1.6 2003-03-22 15:41:58 laurentg Exp $
+// $Id: MultiFrames.cpp,v 1.7 2003-03-22 18:58:40 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,10 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2003/03/22 15:41:58  laurentg
+// Half height deinterlace modes correctly handled in previow mode
+// Center of the image in its frame with black borders
+//
 // Revision 1.5  2003/03/21 22:48:06  laurentg
 // Preview mode (multiple frames) improved
 //
@@ -66,7 +70,7 @@
 CMultiFrames* pMultiFrames = NULL;
 
 
-CMultiFrames::CMultiFrames(eMultiFramesMode eMode, int iNbCols, int iNbRows, int iDuration)
+CMultiFrames::CMultiFrames(eMultiFramesMode eMode, int iNbCols, int iNbRows)
 {
 	m_Mode = eMode;
 	m_NbRows = iNbRows;
@@ -82,7 +86,6 @@ CMultiFrames::CMultiFrames(eMultiFramesMode eMode, int iNbCols, int iNbRows, int
 	bSwitchRequested = FALSE;
 	m_MemoryBuffer = NULL;
 	bFrameFilled = NULL;
-	iDeltaTicksChange = iDuration;
 	bNavigAllowed = FALSE;
 }
 
@@ -183,7 +186,6 @@ void CMultiFrames::Reset()
 		return;
 	}
 
-	LastTickCount = 0;
 	for (int i=0 ; i < m_NbFrames ; i++)
 	{
 		ResetFrameToBlack(i);
@@ -200,18 +202,7 @@ void CMultiFrames::SelectFrame()
 	int iUnused;
 	BOOL bBeforeCurrent;
 
-	if (!m_Active)
-	{
-		return;
-	}
-
-	DWORD CurrentTickCount = GetTickCount();
-	if (LastTickCount == 0)
-	{
-		LastTickCount = CurrentTickCount;
-	}
-
-	if (bFrameFilled[m_CurrentFrame] == -1)
+	if (!m_Active || (bFrameFilled[m_CurrentFrame] == -1))
 	{
 		bNavigAllowed = FALSE;
 		return;
@@ -288,33 +279,29 @@ void CMultiFrames::SelectFrame()
 	}
 	else
 	{
-		if ((CurrentTickCount - LastTickCount) >= iDeltaTicksChange)
+		DrawBorder(m_CurrentFrame, TRUE, LUMIN_NOT_CURRENT, LEFT_BORDER, RIGHT_BORDER, TOP_BORDER, BOTTOM_BORDER);
+		m_CurrentFrame = iUnused;
+		DrawBorder(m_CurrentFrame, TRUE, LUMIN_CURRENT, LEFT_BORDER, RIGHT_BORDER, TOP_BORDER, BOTTOM_BORDER);
+		if (bBeforeCurrent)
 		{
-			LastTickCount = CurrentTickCount;
-			DrawBorder(m_CurrentFrame, TRUE, LUMIN_NOT_CURRENT, LEFT_BORDER, RIGHT_BORDER, TOP_BORDER, BOTTOM_BORDER);
-			m_CurrentFrame = iUnused;
-			DrawBorder(m_CurrentFrame, TRUE, LUMIN_CURRENT, LEFT_BORDER, RIGHT_BORDER, TOP_BORDER, BOTTOM_BORDER);
-			if (bBeforeCurrent)
+			if (m_Mode == PREVIEW_CHANNELS)
 			{
-				if (m_Mode == PREVIEW_CHANNELS)
-				{
-					SendMessage(hWnd, WM_COMMAND, IDM_CHANNELMINUS, 0);
-				}
-				else if (m_Mode == PREVIEW_STILLS)
-				{
-					SendMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_PREVIOUS_CIRC, 0);
-				}
+				SendMessage(hWnd, WM_COMMAND, IDM_CHANNELMINUS, 0);
 			}
-			else
+			else if (m_Mode == PREVIEW_STILLS)
 			{
-				if (m_Mode == PREVIEW_CHANNELS)
-				{
-					SendMessage(hWnd, WM_COMMAND, IDM_CHANNELPLUS, 0);
-				}
-				else if (m_Mode == PREVIEW_STILLS)
-				{
-					SendMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_NEXT_CIRC, 0);
-				}
+				SendMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_PREVIOUS_CIRC, 0);
+			}
+		}
+		else
+		{
+			if (m_Mode == PREVIEW_CHANNELS)
+			{
+				SendMessage(hWnd, WM_COMMAND, IDM_CHANNELPLUS, 0);
+			}
+			else if (m_Mode == PREVIEW_STILLS)
+			{
+				SendMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_NEXT_CIRC, 0);
 			}
 		}
 	}
@@ -439,11 +426,6 @@ BOOL CMultiFrames::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 			iDeltaNewFrame++;
 			return TRUE;
 		}
-		break;
-    case IDM_SHOW_OSD:
-		// Return key
-		RequestSwitch();
-		return TRUE;
 		break;
     default:
         break;

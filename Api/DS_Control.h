@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.116 2002-11-10 09:39:48 laurentg Exp $
+// $Id: DS_Control.h,v 1.117 2002-11-12 15:22:44 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.116  2002/11/10 09:39:48  laurentg
+// Settings "Use OSD screen..."
+//
 // Revision 1.115  2002/11/10 05:12:19  atnak
 // Updated SAA7134SETTINGS
 //
@@ -1495,6 +1498,8 @@ typedef enum
     CX2388XCOMBRANGE,
     CX2388XSECONDCHROMADEMOD,
     CX2388XTHIRDCHROMADEMOD,
+    CX2388XPIXELWIDTH,
+    CX2388XCUSTOMPIXELWIDTH,
     CX2388X_SETTING_LASTONE,
 } CX2388X_SETTING;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.h,v 1.10 2002-11-09 20:53:46 laurentg Exp $
+// $Id: CX2388xSource.h,v 1.11 2002-11-12 15:22:48 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -150,6 +150,7 @@ private:
     CYesNoSetting* m_bSavePerInput;
     CYesNoSetting* m_bSavePerFormat;
     CYesNoSetting* m_bSavePerChannel;
+    CSliderSetting* m_CustomPixelWidth;
 
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, Brightness);
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, Contrast);
@@ -174,13 +175,14 @@ private:
 	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, LowColorRemoval);
     DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, CombFilter);
 	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, FullLumaRange);
-	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, Remodulation);
-	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, Chroma2HComb);
-	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, ForceRemodExcessChroma);
-	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, IFXInterpolation);
+	DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, Remodulation);
+	DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, Chroma2HComb);
+	DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, ForceRemodExcessChroma);
+	DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, IFXInterpolation);
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, CombRange);
-	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, SecondChromaDemod);
-	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, ThirdChromaDemod);
+	DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, SecondChromaDemod);
+	DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, ThirdChromaDemod);
+    DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, PixelWidth);
 
 protected:
 };

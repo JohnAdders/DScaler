@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_UI.cpp,v 1.10 2002-11-12 11:33:07 adcockj Exp $
+// $Id: CX2388xSource_UI.cpp,v 1.11 2002-11-12 15:22:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/11/12 11:33:07  adcockj
+// Fixed OSD
+//
 // Revision 1.9  2002/11/09 20:53:46  laurentg
 // New CX2388x settings
 //
@@ -218,6 +221,23 @@ void CCX2388xSource::SetMenu(HMENU hMenu)
 
     BOOL DoneWidth = FALSE;
 
+    EnableMenuItemBool(m_hMenu, IDM_SETTINGS_PIXELWIDTH_768, GetTVFormat((eVideoFormat)m_VideoFormat->GetValue())->wHActivex1 >= 768);
+
+    CheckMenuItemBool(m_hMenu, IDM_SETTINGS_PIXELWIDTH_768, (m_PixelWidth->GetValue() == 768));
+    DoneWidth |= (m_PixelWidth->GetValue() == 768);
+    CheckMenuItemBool(m_hMenu, IDM_SETTINGS_PIXELWIDTH_754, (m_PixelWidth->GetValue() == 754));
+    DoneWidth |= (m_PixelWidth->GetValue() == 754);
+    CheckMenuItemBool(m_hMenu, IDM_SETTINGS_PIXELWIDTH_720, (m_PixelWidth->GetValue() == 720));
+    DoneWidth |= (m_PixelWidth->GetValue() == 720);
+    CheckMenuItemBool(m_hMenu, IDM_SETTINGS_PIXELWIDTH_640, (m_PixelWidth->GetValue() == 640));
+    DoneWidth |= (m_PixelWidth->GetValue() == 640);
+    CheckMenuItemBool(m_hMenu, IDM_SETTINGS_PIXELWIDTH_480, (m_PixelWidth->GetValue() == 480));
+    DoneWidth |= (m_PixelWidth->GetValue() == 480);
+    CheckMenuItemBool(m_hMenu, IDM_SETTINGS_PIXELWIDTH_384, (m_PixelWidth->GetValue() == 384));
+    DoneWidth |= (m_PixelWidth->GetValue() == 384);
+    CheckMenuItemBool(m_hMenu, IDM_SETTINGS_PIXELWIDTH_320, (m_PixelWidth->GetValue() == 320));
+    DoneWidth |= (m_PixelWidth->GetValue() == 320);
+    CheckMenuItemBool(m_hMenu, IDM_SETTINGS_PIXELWIDTH_CUSTOM, !DoneWidth);
 
     eVideoFormat videoFormat = (eVideoFormat)m_VideoFormat->GetValue();
     CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_0, (IsPALVideoFormat(videoFormat) 
@@ -380,6 +400,7 @@ BOOL CCX2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         case IDM_VDELAY_CURRENT:
             m_VDelay->OSDShow();
             break;
+
         case IDM_DSVIDEO_STANDARD_0:
             // "Custom Settings ..." menu
             if (m_hCX2388xResourceInst != NULL)
@@ -392,6 +413,37 @@ BOOL CCX2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             }
             break;
 
+        case IDM_SETTINGS_PIXELWIDTH_768:
+            m_PixelWidth->SetValue(768);
+            break;
+
+        case IDM_SETTINGS_PIXELWIDTH_754:
+            m_PixelWidth->SetValue(754);
+            break;
+
+        case IDM_SETTINGS_PIXELWIDTH_720:
+            m_PixelWidth->SetValue(720);
+            break;
+    
+        case IDM_SETTINGS_PIXELWIDTH_640:
+            m_PixelWidth->SetValue(640);
+            break;
+    
+        case IDM_SETTINGS_PIXELWIDTH_480:
+            m_PixelWidth->SetValue(480);
+            break;
+    
+        case IDM_SETTINGS_PIXELWIDTH_384:
+            m_PixelWidth->SetValue(384);
+            break;
+    
+        case IDM_SETTINGS_PIXELWIDTH_320:
+            m_PixelWidth->SetValue(320);
+            break;
+    
+        case IDM_SETTINGS_PIXELWIDTH_CUSTOM:
+            m_PixelWidth->SetValue(m_CustomPixelWidth->GetValue());
+            break;
 
         default:
             return FALSE;

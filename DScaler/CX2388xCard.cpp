@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.17 2002-11-11 17:10:37 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.18 2002-11-12 15:22:45 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2002/11/11 17:10:37  adcockj
+// Added GPIO to dump and save/restore
+//
 // Revision 1.16  2002/11/09 20:53:46  laurentg
 // New CX2388x settings
 //
@@ -437,6 +440,20 @@ void CCX2388xCard::SetCombFilter(eCombFilter CombFilter)
         AndDataDword(CX2388X_FILTER_EVEN, ~((1 << 5) | (1 << 6)));
         AndDataDword(CX2388X_FILTER_ODD, ~((1 << 5) | (1 << 6)));
 		break;
+    case COMBFILTER_DEFAULT:
+        if(m_TVCards[m_CardType].Inputs[m_CurrentInput].InputType == INPUTTYPE_SVIDEO)
+        {
+            OrDataDword(CX2388X_FILTER_EVEN, (1 << 5));
+            AndDataDword(CX2388X_FILTER_EVEN, ~(1 << 6));
+            OrDataDword(CX2388X_FILTER_ODD, (1 << 5));
+            AndDataDword(CX2388X_FILTER_ODD, ~(1 << 6));
+        }
+        else
+        {
+            AndDataDword(CX2388X_FILTER_EVEN, ~((1 << 5) | (1 << 6)));
+            AndDataDword(CX2388X_FILTER_ODD, ~((1 << 5) | (1 << 6)));
+        }
+		break;
 	default:
 		break;
 	}
@@ -454,51 +471,68 @@ void CCX2388xCard::SetFullLumaRange(BOOL FullLumaRange)
     }
 }
 
-void CCX2388xCard::SetRemodulation(BOOL Remodulation)
+void CCX2388xCard::SetRemodulation(eFlagWithDefault Remodulation)
 {
-    if(Remodulation)
+    switch(Remodulation)
     {
+    case FLAG_ON:
         AndDataDword(CX2388X_FORMAT_2HCOMB, ~(1 << 8));
-    }
-    else
-    {
+        break;
+    case FLAG_OFF:
         OrDataDword(CX2388X_FORMAT_2HCOMB, (1 << 8));
+        break;
+    default:
+        MaskDataDword(CX2388X_FORMAT_2HCOMB, m_2HCombDefault, (1 << 8));
+        break;
     }
+
 }
 
-void CCX2388xCard::SetChroma2HComb(BOOL Chroma2HComb)
+void CCX2388xCard::SetChroma2HComb(eFlagWithDefault Chroma2HComb)
 {
-    if(Chroma2HComb)
+    switch(Chroma2HComb)
     {
-        AndDataDword(CX2388X_FORMAT_2HCOMB, ~(1 << 9));
-    }
-    else
-    {
+    case FLAG_ON:
         OrDataDword(CX2388X_FORMAT_2HCOMB, (1 << 9));
+        break;
+    case FLAG_OFF:
+        AndDataDword(CX2388X_FORMAT_2HCOMB, ~(1 << 9));
+        break;
+    default:
+        MaskDataDword(CX2388X_FORMAT_2HCOMB, m_2HCombDefault, (1 << 9));
+        break;
     }
 }
 
-void CCX2388xCard::SetForceRemodExcessChroma(BOOL ForceRemodExcessChroma)
+void CCX2388xCard::SetForceRemodExcessChroma(eFlagWithDefault ForceRemodExcessChroma)
 {
-    if(ForceRemodExcessChroma)
+    switch(ForceRemodExcessChroma)
     {
+    case FLAG_ON:
         OrDataDword(CX2388X_FORMAT_2HCOMB, (1 << 10));
-    }
-    else
-    {
+        break;
+    case FLAG_OFF:
         AndDataDword(CX2388X_FORMAT_2HCOMB, ~(1 << 10));
+        break;
+    default:
+        MaskDataDword(CX2388X_FORMAT_2HCOMB, m_2HCombDefault, (1 << 10));
+        break;
     }
 }
 
-void CCX2388xCard::SetIFXInterpolation(BOOL IFXInterpolation)
+void CCX2388xCard::SetIFXInterpolation(eFlagWithDefault IFXInterpolation)
 {
-    if(IFXInterpolation)
+    switch(IFXInterpolation)
     {
+    case FLAG_ON:
         AndDataDword(CX2388X_FORMAT_2HCOMB, ~(1 << 15));
-    }
-    else
-    {
+        break;
+    case FLAG_OFF:
         OrDataDword(CX2388X_FORMAT_2HCOMB, (1 << 15));
+        break;
+    default:
+        MaskDataDword(CX2388X_FORMAT_2HCOMB, m_2HCombDefault, (1 << 15));
+        break;
     }
 }
 
@@ -510,31 +544,41 @@ void CCX2388xCard::SetCombRange(int CombRange)
     WriteDword(CX2388X_FORMAT_2HCOMB, dwval);
 }
 
-void CCX2388xCard::SetSecondChromaDemod(BOOL SecondChromaDemod)
+void CCX2388xCard::SetSecondChromaDemod(eFlagWithDefault SecondChromaDemod)
 {
-    if(SecondChromaDemod)
+    switch(SecondChromaDemod)
     {
+    case FLAG_ON:
         OrDataDword(CX2388X_FILTER_EVEN, (1 << 16));
         OrDataDword(CX2388X_FILTER_ODD, (1 << 16));
-    }
-    else
-    {
+        break;
+    case FLAG_OFF:
         AndDataDword(CX2388X_FILTER_EVEN, ~(1 << 16));
         AndDataDword(CX2388X_FILTER_ODD, ~(1 << 16));
+        break;
+    default:
+        MaskDataDword(CX2388X_FILTER_EVEN, m_FilterDefault, (1 << 16));
+        MaskDataDword(CX2388X_FILTER_ODD, m_FilterDefault, (1 << 16));
+        break;
     }
 }
 
-void CCX2388xCard::SetThirdChromaDemod(BOOL ThirdChromaDemod)
+void CCX2388xCard::SetThirdChromaDemod(eFlagWithDefault ThirdChromaDemod)
 {
-    if(ThirdChromaDemod)
+    switch(ThirdChromaDemod)
     {
+    case FLAG_ON:
         OrDataDword(CX2388X_FILTER_EVEN, (1 << 17));
         OrDataDword(CX2388X_FILTER_ODD, (1 << 17));
-    }
-    else
-    {
+        break;
+    case FLAG_OFF:
         AndDataDword(CX2388X_FILTER_EVEN, ~(1 << 17));
         AndDataDword(CX2388X_FILTER_ODD, ~(1 << 17));
+        break;
+    default:
+        MaskDataDword(CX2388X_FILTER_EVEN, m_FilterDefault, (1 << 17));
+        MaskDataDword(CX2388X_FILTER_ODD, m_FilterDefault, (1 << 17));
+        break;
     }
 }
 
@@ -552,6 +596,11 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
     int HorzScale;
 
     CurrentY = GetTVFormat(TVFormat)->wCropHeight;
+
+    // start with default values 
+    // the only bit switched on is CFILT
+    m_FilterDefault = (1 << 19);
+    m_2HCombDefault = 0x181f0008;
 
     if(IsCCIRSource(nInput))
     {
@@ -619,30 +668,23 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
             HorzScale = 0x00F8;
         }
     }
-    // Test to see how to get best analogue picture
-    // try using the sample rate convertor
-    else if(true)
+    // if the user requests 720 pixels
+    // use 27Mhz sampling rate
+    else if(CurrentX == 720)
     {
         DWORD HTotal(0);
-        DWORD Format2HComb;
 
         CurrentVBILines = GetTVFormat(TVFormat)->VBILines;
 
         // set up VBI information
         WriteDword(CX2388X_VBI_SIZE, GetTVFormat(TVFormat)->VBIPacketSize);
 
-        CurrentX = 720;
-
         double PLL = SetPLL(27.0);
         SetSampleRateConverter(PLL);
 
         // Setup correct format
         DWORD VideoInput = ReadDword(CX2388X_VIDEO_INPUT);
-        VideoInput &= 0xfffbfff0;
-
-        // start with default values 
-        // the only bit switched on is CFILT
-        DWORD FilterSetup(1 << 19);
+        VideoInput &= 0xfffffff0;
 
         if(m_TVCards[m_CardType].Inputs[nInput].InputType == INPUTTYPE_SVIDEO)
         {
@@ -653,15 +695,15 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
             // Full Luma Range - on
             // PAL Invert Phase - off
             // Coring - off
-            Format2HComb = 0x08;
+            m_2HCombDefault = 0x08;
 
             // switch off luma notch
             // Luma notch is 1 = off
-            FilterSetup |= CX2388X_FILTER_LNOTCH;
+            m_FilterDefault |= CX2388X_FILTER_LNOTCH;
             // turn on just the chroma Comb Filter
-            FilterSetup |= 1 << 5;
+            m_FilterDefault |= 1 << 5;
             // Disable luma dec
-            FilterSetup |= 1 << 12;
+            m_FilterDefault |= 1 << 12;
         }
         else
         {
@@ -672,8 +714,7 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
             // Full Luma Range - on
             // PAL Invert Phase - off
             // Coring - off
-            Format2HComb = 0x181f0008;
-            VideoInput |= 0x4000;
+            m_2HCombDefault = 0x181f0008;
         }
 
 
@@ -695,27 +736,27 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         case VIDEOFORMAT_PAL_I:
             VideoInput |= VideoFormatPALBDGHI;
             HTotal = HLNotchFilter135PAL | 864;
-            Format2HComb |= (1 << 26);
+            m_2HCombDefault |= (1 << 26);
             break;
         case VIDEOFORMAT_PAL_N:
             VideoInput |= VideoFormatPALN;
             HTotal = HLNotchFilter135PAL | 864;
-            Format2HComb |= (1 << 26);
+            m_2HCombDefault |= (1 << 26);
             break;
         case VIDEOFORMAT_PAL_M:
             VideoInput |= VideoFormatPALM;
             HTotal = HLNotchFilter135NTSC | 858;
-            Format2HComb |= (1 << 26);
+            m_2HCombDefault |= (1 << 26);
             break;
         case VIDEOFORMAT_PAL_60:
             VideoInput |= VideoFormatPAL60;
             HTotal = HLNotchFilter135NTSC | 858;
-            Format2HComb |= (1 << 26);
+            m_2HCombDefault |= (1 << 26);
             break;
         case VIDEOFORMAT_PAL_N_COMBO:
             VideoInput |= VideoFormatPALNC;
             HTotal = HLNotchFilter135PAL | 864;
-            Format2HComb |= (1 << 26);
+            m_2HCombDefault |= (1 << 26);
             break;
         case VIDEOFORMAT_SECAM_B:
         case VIDEOFORMAT_SECAM_D:
@@ -734,11 +775,11 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
             // It seems to work even for PAL with these bits
             // TODO : check that they must be set for all the video formats
             // QCIF HFilter
-            FilterSetup |= (1<<11);
+            m_FilterDefault |= (1<<11);
             // 29 Tap first chroma demod
-            FilterSetup |= (1<<15);
+            m_FilterDefault |= (1<<15);
             // Third Chroma Demod - on
-            FilterSetup |= (1<<17);
+            m_FilterDefault |= (1<<17);
             break;
         case VIDEOFORMAT_NTSC_M:
             VideoInput |= VideoFormatNTSC;
@@ -760,9 +801,9 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
 
         WriteDword(CX2388X_VIDEO_INPUT, VideoInput);
         WriteDword(CX2388X_PIXEL_CNT_NOTCH, HTotal);
-        WriteDword(CX2388X_FORMAT_2HCOMB, Format2HComb);
-        WriteDword(CX2388X_FILTER_EVEN, FilterSetup);
-        WriteDword(CX2388X_FILTER_ODD, FilterSetup);
+        WriteDword(CX2388X_FORMAT_2HCOMB, m_2HCombDefault);
+        WriteDword(CX2388X_FILTER_EVEN, m_FilterDefault);
+        WriteDword(CX2388X_FILTER_ODD, m_FilterDefault);
 
         // set up subcarrier frequency
         DWORD RegValue = (DWORD)(((8.0 * GetTVFormat(TVFormat)->Fsc) / PLL) * (double)(1<<22));
@@ -814,28 +855,22 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
 
         HorzScale = 0x00;
     }
-    // compare to method using old style 8*Fsc capture
+    // if not using 720 or a CCIR source then 
+    // use 8*Fsc capture
     else
     {
         DWORD HTotal(0);
-        DWORD Format2HComb(0x183f0008);
 
         CurrentVBILines = GetTVFormat(TVFormat)->VBILines;
 
         // set up VBI information
-        // need packet size and delay
-        // hopefully this is the same info that the bt8x8 chips needed
-        WriteDword(CX2388X_VBI_SIZE, (GetTVFormat(TVFormat)->VBIPacketSize & 0xff) | ((GetTVFormat(TVFormat)->VBIPacketSize >> 8) << 11));
-
-        CurrentX = 720;
+        WriteDword(CX2388X_VBI_SIZE, GetTVFormat(TVFormat)->VBIPacketSize);
 
         if (CurrentY == 576)
         {
             DWORD RegValue;
-            HorzScale = 0x0504;
-            double PALFsc8(GetTVFormat(VIDEOFORMAT_PAL_B)->Fsc * 8);
 
-            SetPLL(PALFsc8);
+            double PLL = SetPLL(GetTVFormat(VIDEOFORMAT_PAL_B)->Fsc * 8);
 
             // set up subcarrier frequency
             // Comments from Laurent
@@ -847,7 +882,7 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
             }
             else
             {
-                RegValue = (DWORD)(((8.0 * GetTVFormat(TVFormat)->Fsc) / PALFsc8) * (double)(1<<22));
+                RegValue = (DWORD)(((8.0 * GetTVFormat(TVFormat)->Fsc) / PLL) * (double)(1<<22));
             }
             WriteDword( CX2388X_SUBCARRIERSTEP, RegValue & 0x7FFFFF );
             // Subcarrier frequency Dr, for SECAM only but lets
@@ -855,7 +890,7 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
             if(TVFormat == VIDEOFORMAT_SECAM_L)
                 RegValue = 0x003f9aee;
             else
-                RegValue = (DWORD)((8.0 * 4.406250 / PALFsc8) * (double)(1<<22));
+                RegValue = (DWORD)((8.0 * 4.406250 / PLL) * (double)(1<<22));
             WriteDword( CX2388X_SUBCARRIERSTEPDR, RegValue);
 
             WriteDword( CX2388X_SAMPLERATECONV, 0x19D5F);
@@ -863,7 +898,6 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         else
         {
             SetPLL(28.636363);
-            HorzScale = 0x00F8;
 
             // set up subcarrier frequency
             DWORD RegValue = (DWORD)(((8.0 * GetTVFormat(TVFormat)->Fsc) / 28.636363) * (double)(1<<22));
@@ -876,9 +910,56 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
             WriteDword( CX2388X_SAMPLERATECONV, 0x20000);
         }
 
+        // set up HorzScaling factor
+        if(CurrentX <= GetTVFormat(TVFormat)->wHActivex1)
+        {
+            HorzScale = ((GetTVFormat(TVFormat)->wHActivex1 - CurrentX) * 4096UL) / CurrentX;
+        }
+        else
+        {
+            CurrentX = GetTVFormat(TVFormat)->wHActivex1;
+            HorzScale = 0;
+        }
+
         // Setup correct format
         DWORD VideoInput = ReadDword(CX2388X_VIDEO_INPUT);
         VideoInput &= 0xfffffff0;
+
+        if(m_TVCards[m_CardType].Inputs[nInput].InputType == INPUTTYPE_SVIDEO)
+        {
+            // set up with
+            // Previous line remodulation - off
+            // 3-d Comb filter - off
+            // Comb Range - 00
+            // Full Luma Range - on
+            // PAL Invert Phase - off
+            // Coring - off
+            m_2HCombDefault = 0x08;
+
+            // switch off luma notch
+            // Luma notch is 1 = off
+            m_FilterDefault |= CX2388X_FILTER_LNOTCH;
+            // turn on just the chroma Comb Filter
+            m_FilterDefault |= 1 << 5;
+            // Disable luma dec
+            m_FilterDefault |= 1 << 12;
+        }
+        else
+        {
+            // set up with
+            // Previous line remodulation - on
+            // 3-d Comb filter - on
+            // Comb Range - 1f
+            // Full Luma Range - on
+            // PAL Invert Phase - off
+            // Coring - off
+            m_2HCombDefault = 0x181f0008;
+        }
+
+        // set up total width
+        // this info is shared with the bt848 chip setup
+        HTotal = GetTVFormat(TVFormat)->wTotalWidth;
+        HTotal |= HLNotchFilter4xFsc;
 
         switch(TVFormat)
         {
@@ -888,33 +969,23 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         case VIDEOFORMAT_PAL_H:
         case VIDEOFORMAT_PAL_I:
             VideoInput |= VideoFormatPALBDGHI;
-            HTotal = HLNotchFilter4xFsc | 864;
-            // Comments from Laurent
-            // HTotal seems to be wrong for PAL
-            // => use the same value as for SECAM because it seems to work
-            // TODO: use the correct value for each video format
-            HTotal = 0x0000046f;
-            Format2HComb |= (1 << 26);
+            m_2HCombDefault |= (1 << 26);
             break;
         case VIDEOFORMAT_PAL_N:
             VideoInput |= VideoFormatPALN;
-            HTotal = HLNotchFilter4xFsc | 864;
-            Format2HComb |= (1 << 26);
+            m_2HCombDefault |= (1 << 26);
             break;
         case VIDEOFORMAT_PAL_M:
             VideoInput |= VideoFormatPALM;
-            HTotal = HLNotchFilter4xFsc | 858;
-            Format2HComb |= (1 << 26);
+            m_2HCombDefault |= (1 << 26);
             break;
         case VIDEOFORMAT_PAL_60:
             VideoInput |= VideoFormatPAL60;
-            HTotal = HLNotchFilter4xFsc | 858;
-            Format2HComb |= (1 << 26);
+            m_2HCombDefault |= (1 << 26);
             break;
         case VIDEOFORMAT_PAL_N_COMBO:
             VideoInput |= VideoFormatPALNC;
-            HTotal = HLNotchFilter4xFsc | 864;
-            Format2HComb |= (1 << 26);
+            m_2HCombDefault |= (1 << 26);
             break;
         case VIDEOFORMAT_SECAM_B:
         case VIDEOFORMAT_SECAM_D:
@@ -925,33 +996,38 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         case VIDEOFORMAT_SECAM_L:
         case VIDEOFORMAT_SECAM_L1:
             VideoInput |= VideoFormatSECAM;
-            HTotal = HLNotchFilter4xFsc | 864;
+            // test for Laurent
+            // other stuff that may be required
             // Comments from Laurent
-            // HTotal is wrong for SECAM
-            // => use the value given by AMCAP
-            HTotal = 0x0000046f;
+            // Bits 12, 16, and 18 must be set to 1 for SECAM
+            // It seems to work even for PAL with these bits
+            // TODO : check that they must be set for all the video formats
+            // QCIF HFilter
+            m_FilterDefault |= (1<<11);
+            // 29 Tap first chroma demod
+            m_FilterDefault |= (1<<15);
+            // Third Chroma Demod - on
+            m_FilterDefault |= (1<<17);
             break;
         case VIDEOFORMAT_NTSC_M:
             VideoInput |= VideoFormatNTSC;
-            HTotal = HLNotchFilter4xFsc | 858;
             break;
         case VIDEOFORMAT_NTSC_M_Japan:
             VideoInput |= VideoFormatNTSCJapan;
-            HTotal = HLNotchFilter4xFsc | 858;
             break;
         case VIDEOFORMAT_NTSC_50:
             VideoInput |= VideoFormatNTSC443;
-            HTotal = HLNotchFilter4xFsc | 864;
             break;
         default:
             VideoInput |= VideoFormatAuto;
-            HTotal = HLNotchFilter4xFsc | 858;
             break;
         }
 
         WriteDword(CX2388X_VIDEO_INPUT, VideoInput);
         WriteDword(CX2388X_PIXEL_CNT_NOTCH, HTotal);
-        WriteDword(CX2388X_FORMAT_2HCOMB, Format2HComb);
+        WriteDword(CX2388X_FORMAT_2HCOMB, m_2HCombDefault);
+        WriteDword(CX2388X_FILTER_EVEN, m_FilterDefault);
+        WriteDword(CX2388X_FILTER_ODD, m_FilterDefault);
 
         if(VDelayOverride != 0)
         {
@@ -974,18 +1050,11 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
 
         if(HDelayOverride != 0)
         {
-            HorzDelay = HDelayOverride;
+            HorzDelay = ((CurrentX * HDelayOverride) / GetTVFormat(TVFormat)->wHActivex1) & 0x3fe;
         }
         else
         {
-            if (CurrentY == 576)
-            {
-                HorzDelay = 0x82;
-            }
-            else
-            {
-                HorzDelay = 0x7E;
-            }
+            HorzDelay = ((CurrentX * GetTVFormat(TVFormat)->wHDelayx1) / GetTVFormat(TVFormat)->wHActivex1) & 0x3fe;
         }
     }
 

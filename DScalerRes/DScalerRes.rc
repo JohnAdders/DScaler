@@ -1607,6 +1607,25 @@ BEGIN
             MENUITEM "NTSC-&50",                    IDM_TYPEFORMAT_7
             MENUITEM "PAL-N&C",                     IDM_TYPEFORMAT_8
         END
+        POPUP "Pixel &Width"
+        BEGIN
+            MENUITEM "768",                         IDM_SETTINGS_PIXELWIDTH_768
+
+            MENUITEM "754",                         IDM_SETTINGS_PIXELWIDTH_754
+
+            MENUITEM "720",                         IDM_SETTINGS_PIXELWIDTH_720
+            , CHECKED
+            MENUITEM "640",                         IDM_SETTINGS_PIXELWIDTH_640
+
+            MENUITEM "480",                         IDM_SETTINGS_PIXELWIDTH_480
+
+            MENUITEM "384",                         IDM_SETTINGS_PIXELWIDTH_384
+
+            MENUITEM "320",                         IDM_SETTINGS_PIXELWIDTH_320
+
+            MENUITEM "Custom ...",                  IDM_SETTINGS_PIXELWIDTH_CUSTOM
+
+        END
         MENUITEM SEPARATOR
         MENUITEM "&Setup Hardware ...",         IDM_SETUPCARD
         MENUITEM SEPARATOR

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.12 2002-11-12 09:18:29 adcockj Exp $
+// $Id: CX2388xSource.cpp,v 1.13 2002-11-12 15:22:47 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/11/12 09:18:29  adcockj
+// Correct default for EatLinesAtTop
+//
 // Revision 1.11  2002/11/10 12:48:16  laurentg
 // Order in CombFilterSzList updated
 //
@@ -155,9 +158,17 @@ extern long EnableCancelButton;
 
 const char* CombFilterSzList[] =
 {
+    { "Default" 			},
     { "Off"					},
     { "Chroma comb only"    },
     { "Full Comb"			},
+};
+
+const char* DefaultOffOnSzList[] =
+{
+    { "Default"				},
+    { "Force Off"           },
+    { "Force On"			},
 };
 
 void CX2388x_OnSetup(void *pThis, int Start)
@@ -344,32 +355,40 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
     m_LowColorRemoval = new CLowColorRemovalSetting(this, "Low Color Removal", FALSE, IniSection, pCX2388xGroup, FlagsAll);
     m_Settings.push_back(m_LowColorRemoval);
 
-    m_CombFilter = new CCombFilterSetting(this, "Comb Filter", COMBFILTER_OFF, COMBFILTER_FULL, IniSection, CombFilterSzList, pCX2388xGroup, FlagsAll);
+    m_CombFilter = new CCombFilterSetting(this, "Comb Filter", CCX2388xCard::COMBFILTER_DEFAULT, CCX2388xCard::COMBFILTER_FULL, IniSection, CombFilterSzList, pCX2388xGroup, FlagsAll);
     m_Settings.push_back(m_CombFilter);
 
     m_FullLumaRange = new CFullLumaRangeSetting(this, "Full Luma Range", TRUE, IniSection, pCX2388xGroup, FlagsAll);
     m_Settings.push_back(m_FullLumaRange);
 
-    m_Remodulation = new CRemodulationSetting(this, "Remodulation", TRUE, IniSection, pCX2388xGroup, FlagsAll);
+    m_Remodulation = new CRemodulationSetting(this, "Remodulation", CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pCX2388xGroup, FlagsAll);
     m_Settings.push_back(m_Remodulation);
 
-    m_Chroma2HComb = new CChroma2HCombSetting(this, "Chroma 2H Comb", TRUE, IniSection, pCX2388xGroup, FlagsAll);
+    m_Chroma2HComb = new CChroma2HCombSetting(this, "Chroma 2H Comb", CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pCX2388xGroup, FlagsAll);
     m_Settings.push_back(m_Chroma2HComb);
 
-    m_ForceRemodExcessChroma = new CForceRemodExcessChromaSetting(this, "Force Remodulation of Excess Chroma", FALSE, IniSection, pCX2388xGroup, FlagsAll);
+    m_ForceRemodExcessChroma = new CForceRemodExcessChromaSetting(this, "Force Remodulation of Excess Chroma", CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pCX2388xGroup, FlagsAll);
     m_Settings.push_back(m_ForceRemodExcessChroma);
 
-    m_IFXInterpolation = new CIFXInterpolationSetting(this, "IFX Interpolation", TRUE, IniSection, pCX2388xGroup, FlagsAll);
+    m_IFXInterpolation = new CIFXInterpolationSetting(this, "IFX Interpolation", CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pCX2388xGroup, FlagsAll);
     m_Settings.push_back(m_IFXInterpolation);
 
     m_CombRange = new CCombRangeSetting(this, "Adaptative Comb Filter Threshold", 0x01f, 0, 0x3ff, IniSection, pVideoGroup, FlagsAll);
     m_Settings.push_back(m_CombRange);
 
-    m_SecondChromaDemod = new CSecondChromaDemodSetting(this, "Second Chroma Demodulation", FALSE, IniSection, pCX2388xGroup, FlagsAll);
+    m_SecondChromaDemod = new CSecondChromaDemodSetting(this, "Second Chroma Demodulation", CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pCX2388xGroup, FlagsAll);
     m_Settings.push_back(m_SecondChromaDemod);
 
-    m_ThirdChromaDemod = new CThirdChromaDemodSetting(this, "Third Chroma Demodulation", FALSE, IniSection, pCX2388xGroup, FlagsAll);
+    m_ThirdChromaDemod = new CThirdChromaDemodSetting(this, "Third Chroma Demodulation", CCX2388xCard::FLAG_DEFAULT, CCX2388xCard::FLAG_ON, IniSection, DefaultOffOnSzList, pCX2388xGroup, FlagsAll);
     m_Settings.push_back(m_ThirdChromaDemod);
+
+    m_PixelWidth = new CPixelWidthSetting(this, "Sharpness", 720, 120, DSCALER_MAX_WIDTH, IniSection, pCX2388xGroup, FlagsAll);
+    m_PixelWidth->SetStepValue(2);
+    m_Settings.push_back(m_PixelWidth);
+
+    m_CustomPixelWidth = new CSliderSetting("Custom Pixel Width", 750, 120, DSCALER_MAX_WIDTH, IniSection, "CustomPixelWidth", pCX2388xGroup, FlagsAll);
+    m_CustomPixelWidth->SetStepValue(2);
+    m_Settings.push_back(m_CustomPixelWidth);
 
 #ifdef _DEBUG    
     if (CX2388X_SETTING_LASTONE != m_Settings.size())
@@ -380,7 +399,6 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
 #endif
 
     ReadFromIni();
-
 }
 
 
@@ -406,7 +424,7 @@ void CCX2388xSource::Reset()
     m_pCard->SetSaturationU(m_SaturationU->GetValue());
     m_pCard->SetSaturationV(m_SaturationV->GetValue());
 
-    m_CurrentX = 720;
+    m_CurrentX = m_PixelWidth->GetValue();
     m_pCard->SetGeoSize(
                             m_VideoSource->GetValue(), 
                             (eVideoFormat)m_VideoFormat->GetValue(), 
@@ -430,15 +448,15 @@ void CCX2388xSource::Reset()
         m_pCard->SetFastSubcarrierLock(m_FastSubcarrierLock->GetValue());
         m_pCard->SetWhiteCrushEnable(m_WhiteCrush->GetValue());
         m_pCard->SetLowColorRemoval(m_LowColorRemoval->GetValue());
-        m_pCard->SetCombFilter((eCombFilter)(m_CombFilter->GetValue()));
+        m_pCard->SetCombFilter((CCX2388xCard::eCombFilter)(m_CombFilter->GetValue()));
         m_pCard->SetFullLumaRange(m_FullLumaRange->GetValue());
-        m_pCard->SetRemodulation(m_Remodulation->GetValue());
-        m_pCard->SetChroma2HComb(m_Chroma2HComb->GetValue());
-        m_pCard->SetForceRemodExcessChroma(m_ForceRemodExcessChroma->GetValue());
-        m_pCard->SetIFXInterpolation(m_IFXInterpolation->GetValue());
+        m_pCard->SetRemodulation((CCX2388xCard::eFlagWithDefault)m_Remodulation->GetValue());
+        m_pCard->SetChroma2HComb((CCX2388xCard::eFlagWithDefault)m_Chroma2HComb->GetValue());
+        m_pCard->SetForceRemodExcessChroma((CCX2388xCard::eFlagWithDefault)m_ForceRemodExcessChroma->GetValue());
+        m_pCard->SetIFXInterpolation((CCX2388xCard::eFlagWithDefault)m_IFXInterpolation->GetValue());
         m_pCard->SetCombRange(m_CombRange->GetValue());
-        m_pCard->SetSecondChromaDemod(m_SecondChromaDemod->GetValue());
-        m_pCard->SetThirdChromaDemod(m_ThirdChromaDemod->GetValue());
+        m_pCard->SetSecondChromaDemod((CCX2388xCard::eFlagWithDefault)m_SecondChromaDemod->GetValue());
+        m_pCard->SetThirdChromaDemod((CCX2388xCard::eFlagWithDefault)m_ThirdChromaDemod->GetValue());
    }
     NotifySizeChange();
 }
@@ -1291,7 +1309,7 @@ void CCX2388xSource::LowColorRemovalOnChange(long NewValue, long OldValue)
 
 void CCX2388xSource::CombFilterOnChange(long NewValue, long OldValue)
 {
-    m_pCard->SetCombFilter((eCombFilter)NewValue);
+    m_pCard->SetCombFilter((CCX2388xCard::eCombFilter)NewValue);
 }
 
 void CCX2388xSource::FullLumaRangeOnChange(long NewValue, long OldValue)
@@ -1301,37 +1319,37 @@ void CCX2388xSource::FullLumaRangeOnChange(long NewValue, long OldValue)
 
 void CCX2388xSource::RemodulationOnChange(long NewValue, long OldValue)
 {
-    m_pCard->SetRemodulation(NewValue);
+    m_pCard->SetRemodulation((CCX2388xCard::eFlagWithDefault)NewValue);
 }
 
 void CCX2388xSource::Chroma2HCombOnChange(long NewValue, long OldValue)
 {
-    m_pCard->SetChroma2HComb(NewValue);
+    m_pCard->SetChroma2HComb((CCX2388xCard::eFlagWithDefault)NewValue);
 }
 
 void CCX2388xSource::ForceRemodExcessChromaOnChange(long NewValue, long OldValue)
 {
-    m_pCard->SetForceRemodExcessChroma(NewValue);
+    m_pCard->SetForceRemodExcessChroma((CCX2388xCard::eFlagWithDefault)NewValue);
 }
 
 void CCX2388xSource::IFXInterpolationOnChange(long NewValue, long OldValue)
 {
-    m_pCard->SetIFXInterpolation(NewValue);
+    m_pCard->SetIFXInterpolation((CCX2388xCard::eFlagWithDefault)NewValue);
 }
 
 void CCX2388xSource::CombRangeOnChange(long NewValue, long OldValue)
 {
-    m_pCard->SetCombRange(NewValue);
+    m_pCard->SetCombRange((CCX2388xCard::eFlagWithDefault)NewValue);
 }
 
 void CCX2388xSource::SecondChromaDemodOnChange(long NewValue, long OldValue)
 {
-    m_pCard->SetSecondChromaDemod(NewValue);
+    m_pCard->SetSecondChromaDemod((CCX2388xCard::eFlagWithDefault)NewValue);
 }
 
 void CCX2388xSource::ThirdChromaDemodOnChange(long NewValue, long OldValue)
 {
-    m_pCard->SetThirdChromaDemod(NewValue);
+    m_pCard->SetThirdChromaDemod((CCX2388xCard::eFlagWithDefault)NewValue);
 }
 
 void CCX2388xSource::FLIFilmDetectOnChange(long NewValue, long OldValue)
@@ -1384,6 +1402,36 @@ void CCX2388xSource::EatLinesAtTopOnChange(long NewValue, long OldValue)
 void CCX2388xSource::SharpnessOnChange(long NewValue, long OldValue)
 {
     m_pCard->SetSharpness(NewValue);
+}
+
+
+void CCX2388xSource::PixelWidthOnChange(long NewValue, long OldValue)
+{
+    if(NewValue != 768 &&
+        NewValue != 754 &&
+        NewValue != 720 &&
+        NewValue != 640 &&
+        NewValue != 384 &&
+        NewValue != 320)
+    {
+        m_CustomPixelWidth->SetValue(NewValue);
+    }
+    Stop_Capture();
+    m_CurrentX = NewValue;
+    m_pCard->SetGeoSize(
+                            m_VideoSource->GetValue(), 
+                            (eVideoFormat)m_VideoFormat->GetValue(), 
+                            m_CurrentX, 
+                            m_CurrentY, 
+                            m_CurrentVBILines,
+                            m_VDelay->GetValue(), 
+                            m_HDelay->GetValue(),
+                            m_IsVideoProgressive->GetValue()
+                        );
+    
+    NotifySizeChange();
+
+    Start_Capture();
 }
 
 

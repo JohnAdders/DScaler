@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.h,v 1.9 2002-11-09 20:53:46 laurentg Exp $
+// $Id: CX2388xCard.h,v 1.10 2002-11-12 15:22:47 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -35,18 +35,27 @@
 #include "AudioControls.h"
 #include "SAA7118.h"
 
-enum eCombFilter
-{
-    COMBFILTER_OFF = 0,
-    COMBFILTER_CHROMA_ONLY,
-    COMBFILTER_FULL,
-};
-
 #define CT_INPUTS_PER_CARD 8
 
 class CCX2388xCard : public CPCICard, 
                      public II2CLineInterface
 {
+public:
+    enum eCombFilter
+    {
+        COMBFILTER_DEFAULT = 0,
+        COMBFILTER_OFF,
+        COMBFILTER_CHROMA_ONLY,
+        COMBFILTER_FULL,
+    };
+
+    enum eFlagWithDefault
+    {
+        FLAG_DEFAULT = 0,
+        FLAG_OFF,
+        FLAG_ON,
+    };
+
 private:
     /// Different types of input currently supported
     enum eInputType
@@ -157,13 +166,13 @@ public:
     void SetLowColorRemoval(BOOL LowColorRemoval);
     void SetCombFilter(eCombFilter CombFilter);
     void SetFullLumaRange(BOOL FullLumaRange);
-	void SetRemodulation(BOOL Remodulation);
-	void SetChroma2HComb(BOOL Chroma2HComb);
-	void SetForceRemodExcessChroma(BOOL ForceRemodExcessChroma);
-	void SetIFXInterpolation(BOOL IFXInterpolation);
+	void SetRemodulation(eFlagWithDefault Remodulation);
+	void SetChroma2HComb(eFlagWithDefault Chroma2HComb);
+	void SetForceRemodExcessChroma(eFlagWithDefault ForceRemodExcessChroma);
+	void SetIFXInterpolation(eFlagWithDefault IFXInterpolation);
 	void SetCombRange(int CombRange);
-	void SetSecondChromaDemod(BOOL SecondChromaDemod);
-	void SetThirdChromaDemod(BOOL ThirdChromaDemod);
+	void SetSecondChromaDemod(eFlagWithDefault SecondChromaDemod);
+	void SetThirdChromaDemod(eFlagWithDefault ThirdChromaDemod);
 
     static BOOL APIENTRY ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 
@@ -249,6 +258,8 @@ private:
     CAudioControls* m_AudioControls;
     char            m_TunerType[32];
     int             m_CurrentInput;
+    DWORD           m_FilterDefault;
+    DWORD           m_2HCombDefault;
 
 private:
     static const TCardType m_TVCards[CX2388xCARD_LASTONE];

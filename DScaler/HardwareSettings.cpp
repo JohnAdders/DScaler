@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareSettings.cpp,v 1.6 2003-01-15 15:54:22 adcockj Exp $
+// $Id: HardwareSettings.cpp,v 1.7 2003-01-18 10:24:45 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2003/01/15 15:54:22  adcockj
+// Fixed some keyboard focus issues
+//
 // Revision 1.5  2002/08/12 19:54:27  laurentg
 // Selection of video card to adjust DScaler settings
 //
@@ -118,8 +121,6 @@ static void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff, int FullCp
         Setting_ChangeDefault(Timing_GetSetting(SLEEPINTERVAL), 1);
     }
 
-    // TODO : Change settings regarding value of VideoCard
-
     Providers_ChangeSettingsBasedOnHW(Setting_GetValue(DScaler_GetSetting(PROCESSORSPEED)), Setting_GetValue(DScaler_GetSetting(TRADEOFF)));
 }
 
@@ -143,10 +144,6 @@ BOOL APIENTRY HardwareSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lPa
         SendMessage(GetDlgItem(hDlg, IDC_FULLCPU), CB_ADDSTRING, 0, (LONG)"Keep CPU for other applications");
         SendMessage(GetDlgItem(hDlg, IDC_FULLCPU), CB_ADDSTRING, 0, (LONG)"Use full CPU for best results");
         SendMessage(GetDlgItem(hDlg, IDC_FULLCPU), CB_SETCURSEL, Setting_GetValue(DScaler_GetSetting(FULLCPU)), 0);
-        SendMessage(GetDlgItem(hDlg, IDC_VIDEOCARD), CB_ADDSTRING, 0, (LONG)"Other card");
-        // TODO : Add different video cards and keep "Other card" at first place
-        SendMessage(GetDlgItem(hDlg, IDC_VIDEOCARD), CB_SETCURSEL, Setting_GetValue(DScaler_GetSetting(VIDEOCARD)), 0);
-        SendMessage(GetDlgItem(hDlg, IDC_VIDEOCARD), CB_SETCURSEL, 0, 0);
         return TRUE;
         break;
     case WM_COMMAND:
@@ -156,7 +153,6 @@ BOOL APIENTRY HardwareSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lPa
             Setting_SetValue(DScaler_GetSetting(PROCESSORSPEED), ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_PROCESSOR_SPEED)));
             Setting_SetValue(DScaler_GetSetting(TRADEOFF), ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_TRADEOFF)));
             Setting_SetValue(DScaler_GetSetting(FULLCPU), ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_FULLCPU)));
-            Setting_SetValue(DScaler_GetSetting(VIDEOCARD), ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_VIDEOCARD)));
             ChangeSettingsBasedOnHW(Setting_GetValue(DScaler_GetSetting(PROCESSORSPEED)), Setting_GetValue(DScaler_GetSetting(TRADEOFF)), Setting_GetValue(DScaler_GetSetting(FULLCPU)), Setting_GetValue(DScaler_GetSetting(VIDEOCARD)));
             WriteSettingsToIni(TRUE);
             EndDialog(hDlg, TRUE);

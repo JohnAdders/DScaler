@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectFilters.cpp,v 1.8 2001-07-18 18:38:12 adcockj Exp $
+// $Id: AspectFilters.cpp,v 1.9 2001-07-18 18:45:32 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2001/07/18 18:38:12  adcockj
+// Fixed crashing with off screen overlay
+//
 // Revision 1.7  2001/07/13 16:14:55  adcockj
 // Changed lots of variables to match Coding standards
 //

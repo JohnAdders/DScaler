@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.107 2003-01-18 10:52:11 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.108 2003-01-19 20:24:10 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.107  2003/01/18 10:52:11  laurentg
+// SetOverscan renamed SetAspectRatioData
+// Unnecessary call to SetOverscan deleted
+// Overscan setting specific to calibration deleted
+//
 // Revision 1.106  2003/01/02 19:03:09  adcockj
 // Removed extra Surface and replaced with memory buffer due to lack of blt support
 //  and alignment problems
@@ -673,6 +678,7 @@ void Start_Capture()
         Overlay_Clean();
         if (Providers_GetCurrentSource())
         {
+			Providers_GetCurrentSource()->Start();
             PrepareDeinterlaceMode();
             Start_Thread();
         }
@@ -696,6 +702,10 @@ void Stop_Capture()
         {
             //  Stop The Output Thread
             Stop_Thread();
+
+			//there is a Stop() call at the end of the output thread too
+			//maybe that call shoud be removed and add a __try/__except here?
+			//or just let the __try in MainWndProcSafe catch any problems?
             Providers_GetCurrentSource()->Stop();
         }
         UpdateSquarePixelsMode(FALSE);
@@ -763,7 +773,6 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     {
         VDCHECKPOINT;
         pSource->SetAspectRatioData();
-        pSource->Start();
 
         // Anti-plop and update screen delay timers may have been cancelled.
         // Reset to default values

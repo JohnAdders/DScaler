@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.159 2004-11-13 21:45:57 to_see Exp $
+// $Id: DS_Control.h,v 1.160 2004-11-20 14:23:55 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.159  2004/11/13 21:45:57  to_see
+// - Some minor fixes
+// - Added "Vertical Sync Detection" in CX2388x Advanced Settings, enabled by default.
+//   It reduces dead lock problems dramaticaly if no video signal is present. Faster videosignal detection.
+//
 // Revision 1.158  2004/07/12 20:17:21  to_see
 // Some minor fixes
 //
@@ -1703,6 +1708,7 @@ typedef enum
     SAA7134BOTTOMOVERSCAN,
     SAA7134LEFTOVERSCAN,
     SAA7134RIGHTOVERSCAN,
+	SAA7134CARDNAME,
     SAA7134_SETTING_LASTONE,
 } SAA7134_SETTING;
 

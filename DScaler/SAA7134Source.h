@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.h,v 1.45 2004-04-06 12:20:48 adcockj Exp $
+// $Id: SAA7134Source.h,v 1.46 2004-11-20 14:23:55 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.45  2004/04/06 12:20:48  adcockj
+// Added .NET 2003 project files and some fixes to support this
+//
 // Revision 1.44  2003/10/27 10:39:54  adcockj
 // Updated files for better doxygen compatability
 //
@@ -368,6 +371,7 @@ private:
     CYesNoSetting*  m_ReversePolarity;
     CYesNoSetting*  m_VBIDebugOverlay;
     CSliderSetting* m_CardType;
+    CStringSetting* m_CardName;
 
 	BOOL			m_InitialSetup;
 

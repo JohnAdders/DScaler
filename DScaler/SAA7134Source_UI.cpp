@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.45 2004-03-18 03:36:13 atnak Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.46 2004-11-20 14:23:56 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.45  2004/03/18 03:36:13  atnak
+// Fixed Bug: Tuner changes in card setup is not saved
+//
 // Revision 1.44  2004/02/18 06:39:46  atnak
 // Changed Setup Card / Tuner so that only cards of the same device are
 // shown in the card list.
@@ -326,7 +329,13 @@ BOOL APIENTRY CSAA7134Source::SelectCardProc(HWND hDlg, UINT message, UINT wPara
         {
         case IDOK:
             pThis->m_TunerType->SetValue(s_TunerType);
-            pThis->m_CardType->SetValue(s_CardType);
+            if (pThis->m_CardType->GetValue() != s_CardType)
+            {
+                pThis->m_CardType->SetValue(s_CardType);
+                // Update the string name value to reflect the newly selected card.
+                pThis->m_CardName->SetValue(reinterpret_cast<long>(
+                    pThis->GetCard()->GetCardName((eSAA7134CardId)s_CardType)));
+            }
             WriteSettingsToIni(TRUE);
             EndDialog(hDlg, TRUE);
             break;

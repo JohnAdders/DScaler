@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.92 2004-11-16 08:58:58 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.93 2004-11-20 14:23:55 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.92  2004/11/16 08:58:58  atnak
+// Renumbered eAudioInputSource constants for consistency to actual values
+//
 // Revision 1.91  2004/08/06 16:23:00  atnak
 // Added typecast to make some warnings go away.
 //
@@ -640,6 +643,9 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
 
     m_RightOverscan = new CRightOverscanSetting(this, "Overscan at Right", SAA7134_DEFAULT_NTSC_OVERSCAN, 0, 150, IniSection, pVideoGroup);
     m_Settings.push_back(m_RightOverscan);
+
+	m_CardName = new CStringSetting("Card Name", reinterpret_cast<long>(""), IniSection, "CardName");
+	m_Settings.push_back(m_CardName);
 
 #ifdef _DEBUG    
     if (SAA7134_SETTING_LASTONE != m_Settings.size())
@@ -1292,6 +1298,22 @@ void CSAA7134Source::DecodeVBI(TDeinterlaceInfo* pInfo)
 void CSAA7134Source::SetupCard()
 {
     long OrigTuner = m_TunerType->GetValue();
+
+	LPSTR cardName = reinterpret_cast<char*>(m_CardName->GetValue());
+
+	// If the string card name is set, recalculate the card type based on
+	// the given name.
+	if (*cardName != '\0')
+	{
+		m_CardType->SetValue(m_pSAA7134Card->GetCardByName(cardName));
+	}
+	else
+	{
+		// Otherwise set the card name setting based on the card type for
+		// future use.
+		m_CardName->SetValue(reinterpret_cast<long>(
+			m_pSAA7134Card->GetCardName((eSAA7134CardId)m_CardType->GetValue())));
+	}
 
     if (m_CardType->GetValue() == SAA7134CARDID_UNKNOWN)
     {

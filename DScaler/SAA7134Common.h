@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Common.h,v 1.25 2003-10-27 10:39:53 adcockj Exp $
+// $Id: SAA7134Common.h,v 1.26 2004-02-14 04:03:44 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2003/10/27 10:39:53  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.24  2003/07/31 05:01:38  atnak
 // Added ASK Select AS-VCV300/PCI card
 //
@@ -128,27 +131,7 @@ protected:
     enum eSAA7134CardId
     {
         SAA7134CARDID_UNKNOWN = 0,
-        SAA7134CARDID_PROTEUSPRO,
-        SAA7134CARDID_FLYVIDEO3000,
-        SAA7134CARDID_FLYVIDEO2000,
-        SAA7134CARDID_EMPRESS,
-        SAA7134CARDID_MONSTERTV,
-        SAA7134CARDID_TEVIONMD9717,
-        SAA7134CARDID_KNC1RDS,
-        SAA7134CARDID_CINERGY400,
-        SAA7134CARDID_MEDION5044,
-        SAA7134CARDID_KWTV713XRF,
-        SAA7134CARDID_MANLIMTV001,
-        SAA7134CARDID_PRIMETV7133,
-        SAA7134CARDID_CINERGY600,
-        SAA7134CARDID_MEDION7134,
-        SAA7134CARDID_TYPHOON90031,
-        SAA7134CARDID_MANLIMTV002,
-		SAA7134CARDID_VGEAR_MYTV_SAP,
-		SAA7134CARDID_ASUS_TVFM,
-		SAA7134CARDID_AOPEN_VA1000_L2,
-        SAA7134CARDID_ASK_ASVCV300_PCI,
-        SAA7134CARDID_LASTONE,
+		// The rest are no longer used
     };
 
     enum eTaskID
@@ -229,6 +212,8 @@ protected:
 
     enum eAudioInputSource
     {
+		/// reserved, used in INPUTTYPE_FINAL
+		AUDIOINPUTSOURCE_NONE = -1,
         /// standard tuner line - 0x02
         AUDIOINPUTSOURCE_DAC = 0,
         /// internal line 1 input - 0x00

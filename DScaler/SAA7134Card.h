@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.37 2003-10-27 16:22:57 adcockj Exp $
+// $Id: SAA7134Card.h,v 1.38 2004-02-14 04:03:44 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.37  2003/10/27 16:22:57  adcockj
+// Added preliminary support for PMS PDI Deluxe card
+//
 // Revision 1.36  2003/10/27 10:39:53  adcockj
 // Updated files for better doxygen compatability
 //
@@ -189,6 +192,8 @@ private:
         INPUTTYPE_RADIO,
         /// When the card doesn't have internal mute
         INPUTTYPE_MUTE,
+		/// Stores the state the cards should be put into at the end
+		INPUTTYPE_FINAL,
     };
 
     /// SAA7134's video input pins
@@ -222,17 +227,21 @@ private:
         eVideoInputSource VideoInputPin;
         /// Which line on the card is to be default
         eAudioInputSource AudioLineSelect;
+		DWORD dwGPIOStatusMask;
+		DWORD dwGPIOStatusBits;
     } TInputType;
 
     /// Defines the specific settings for a given card
     typedef struct
     {
         LPCSTR szName;
+		WORD DeviceId;
         int NumInputs;
         TInputType Inputs[SA_INPUTS_PER_CARD];
         eTunerId TunerId;
         /// The type of clock crystal the card has
         eAudioCrystal AudioCrystal;
+		DWORD dwGPIOMode;
         /// Any card specific initialization - may be NULL
         void (CSAA7134Card::*pInitCardFunction)(void);
         /** Function used to switch between sources
@@ -240,6 +249,7 @@ private:
             Default is StandardBT848InputSelect
         */
         void (CSAA7134Card::*pInputSwitchFunction)(int);
+		DWORD dwAutoDetectId;
     } TCardType;
 
     /// used to store the ID for autodetection
@@ -275,6 +285,8 @@ public:
     int     GetNumInputs();
     LPCSTR  GetInputName(int nVideoSource);
     BOOL    IsInputATuner(int nInput);
+
+	int		GetFinalInputNumber();
 
     /** Tuner
      */
@@ -454,22 +466,10 @@ private:
 
     void StandardSAA7134InputSelect(int nInput);
 
-    void FLYVIDEO3000CardInputSelect(int nInput);
-    void FLYVIDEO2000CardInputSelect(int nInput);
-    void MEDION5044CardInputSelect(int nInput);
-    void KWTV713XRFCardInputSelect(int nInput);
-    void ManliMTV001CardInputSelect(int nInput);
-    void ManliMTV002CardInputSelect(int nInput);
-    void PrimeTV7133CardInputSelect(int nInput);
-	void VGearMyTVSAPCardInputSelect(int nInput);
-	void AOpenVA1000L2CardInputSelect(int nInput);
-
 
 private:
     /// Holds the list of all cards
     static const TCardType m_SAA7134Cards[];
-    /// Holds auto detection identities
-    static const TAutoDetectSAA7134 m_AutoDetectSAA7134[];
 
     eSAA7134CardId      m_CardType;
     char                m_TunerType[32];

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.253 2002-10-24 12:10:39 atnak Exp $
+// $Id: DScaler.cpp,v 1.254 2002-10-26 16:36:41 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.253  2002/10/24 12:10:39  atnak
+// Fixed up Reverse Channel Scrolling in Other Settings
+//
 // Revision 1.252  2002/10/22 18:51:37  adcockj
 // Added logging of windows messages at level 3
 //
@@ -924,6 +927,8 @@ void SetDirectoryToExe();
 int ProcessCommandLine(char* commandLine, char* argv[], int sizeArgv);
 void SetKeyboardLock(BOOL Enabled);
 bool bScreensaverDisabled = false;
+bool bPoweroffDisabled = false;
+bool bLowpowerDisabled = false;
 HMENU CreateDScalerPopupMenu();
 BOOL IsStatusBarVisible();
 HRGN UpdateWindowRegion(HWND hWnd, BOOL bUpdateWindowState);
@@ -1570,6 +1575,9 @@ BOOL SearchGotoVTPage(BOOL bSearchAllPages)
 void SetScreensaverMode(BOOL bScreensaverOff)
 {
     BOOL bScreensaverMode = false;
+    BOOL bLowpowerMode = false;
+    BOOL bPoweroffMode = false;
+
     if( bScreensaverOff )
     {
         // Disable screensaver if enabled
@@ -1579,7 +1587,25 @@ void SetScreensaverMode(BOOL bScreensaverOff)
             // Disable
             SystemParametersInfo(SPI_SETSCREENSAVEACTIVE, 0 , NULL, 0);
             bScreensaverDisabled = true;
-        } 
+        }
+
+        // Disable monitor sleeping
+        SystemParametersInfo(SPI_GETLOWPOWERACTIVE, 0, &bLowpowerMode, 0);
+        if( bLowpowerMode )
+        {
+            // BOTH low-power and power-off needs to be disabled
+            // to stop monitor energy saver from kicking in.
+            SystemParametersInfo(SPI_SETLOWPOWERACTIVE, 0 , NULL, 0);
+            bLowpowerDisabled = true;
+        }
+
+        // Disable monitor sleeping
+        SystemParametersInfo(SPI_GETPOWEROFFACTIVE, 0, &bPoweroffMode, 0);
+        if( bPoweroffMode )
+        {
+            SystemParametersInfo(SPI_SETPOWEROFFACTIVE, 0 , NULL, 0);
+            bPoweroffDisabled = true;
+        }
     }
     else
     {
@@ -1588,6 +1614,18 @@ void SetScreensaverMode(BOOL bScreensaverOff)
         {
             SystemParametersInfo(SPI_SETSCREENSAVEACTIVE, 1, NULL, 0);
             bScreensaverDisabled = false;    
+        }
+
+        if( bLowpowerDisabled )
+        {
+            SystemParametersInfo(SPI_SETLOWPOWERACTIVE, 1, NULL, 0);
+            bLowpowerDisabled = false;
+        }
+
+        if( bPoweroffDisabled )
+        {
+            SystemParametersInfo(SPI_SETPOWEROFFACTIVE, 1, NULL, 0);
+            bPoweroffDisabled = false;
         }
     }
 }

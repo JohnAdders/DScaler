@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.40 2002-03-04 23:07:25 laurentg Exp $
+// $Id: StillSource.cpp,v 1.41 2002-03-08 06:54:07 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,10 +18,6 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
-// Revision 1.39  2002/03/03 10:03:52  laurentg
-// Prototype for method ResizeOriginalFrame added
-// Log traces added
-//
 // Revision 1.38  2002/02/27 20:47:21  laurentg
 // Still settings
 //
@@ -179,9 +175,27 @@
 
 #define TIMER_SLIDESHOW 50
 
+int __stdcall SimpleResize_InitTables(unsigned int* hControl, unsigned int* vOffsets, 
+		unsigned int* vWeights, int m_Width, int m_Height, int NewWidth, int NewHeight);
 
 static eStillFormat FormatSaving = STILL_TIFF_RGB;
 static int SlideShowDelay = 5;
+
+BYTE* DumbAlignedMalloc(int siz)
+{
+	BYTE* x = (BYTE*)malloc(siz+16);
+	BYTE** y = (BYTE**) (x+16);
+	y = (BYTE**) (((unsigned int) y & 0xfffffff0) - 4);
+	*y = x;
+	return (BYTE*) y+4;
+}
+
+BYTE* DumbAlignedFree(BYTE* x)
+{
+	BYTE* y =  *(BYTE**)(x-4);
+	free(y);
+	return 0;
+}
 
 
 CStillSourceHelper::CStillSourceHelper(CStillSource* pParent)
@@ -231,7 +245,7 @@ CStillSource::~CStillSource()
 {
     if (m_StillFrame.pData != NULL)
     {
-        free(m_StillFrame.pData);
+        DumbAlignedFree(m_StillFrame.pData);
     }
     if (m_OriginalFrame.pData != NULL)
     {
@@ -279,7 +293,6 @@ BOOL CStillSource::LoadPlayList(LPCSTR FileName)
                     {
                         CPlayListItem* Item = new CPlayListItem(Buffer, 10);
                         m_PlayList.push_back(Item);
-                        LOG(2, "LoadPlayList: %s added to the playlist", Buffer);
                         if (!FirstItemAdded)
                         {
                             m_Position = m_PlayList.size() - 1;
@@ -305,7 +318,6 @@ BOOL CStillSource::LoadPlayList(LPCSTR FileName)
                     {
                         CPlayListItem* Item = new CPlayListItem(FilePath, 10);
                         m_PlayList.push_back(Item);
-                        LOG(2, "LoadPlayList: %s added to the playlist", FilePath);
                         if (!FirstItemAdded)
                         {
                             m_Position = m_PlayList.size() - 1;
@@ -326,8 +338,6 @@ BOOL CStillSource::OpenPictureFile(LPCSTR FileName)
     BOOL FileRead = FALSE;
     int h = m_Height;
     int w = m_Width;
-
-    LOG(2, "CStillSource::OpenPictureFile: File %s", FileName);
 
     if (m_OriginalFrame.pData != NULL)
     {
@@ -352,7 +362,7 @@ BOOL CStillSource::OpenPictureFile(LPCSTR FileName)
     {
         int NewWidth;
         int NewHeight;
-
+/*
         // The file can be read by DScaler but its size is too high for DScaler
         if ( (m_Width - DSCALER_MAX_WIDTH) >= (m_Height - DSCALER_MAX_HEIGHT) )
         {
@@ -364,8 +374,24 @@ BOOL CStillSource::OpenPictureFile(LPCSTR FileName)
             NewHeight = DSCALER_MAX_HEIGHT;
             NewWidth = m_Width - m_Height + DSCALER_MAX_HEIGHT;
         }
+*/
+		// Laurent, not sure about the above. did you mean something like this? - TRB 3/8/2002
+		NewHeight = m_Height;
+		NewWidth = m_Width;
 
-        LOG(2, "OpenPictureFile: Still must be resized : m_Width %d X m_Height %d => NewWidth %d X NewHeight %d", m_Width, m_Height, NewWidth, NewHeight);
+        if (m_Width > DSCALER_MAX_WIDTH)
+        {
+            NewWidth = DSCALER_MAX_WIDTH;
+            NewHeight = m_Height * DSCALER_MAX_WIDTH / m_Width;
+        }
+
+        if (NewHeight > DSCALER_MAX_HEIGHT)
+        {
+            NewWidth = NewWidth * DSCALER_MAX_HEIGHT / NewHeight;
+            NewHeight = DSCALER_MAX_HEIGHT;
+        }
+		NewHeight = NewHeight & 0xfffffffe;		// even height
+		NewWidth = NewWidth & 0xfffffffc;       // wid mod 4
 
         if (!ResizeOriginalFrame(NewWidth, NewHeight))
         {
@@ -376,19 +402,15 @@ BOOL CStillSource::OpenPictureFile(LPCSTR FileName)
 
     if (!FileRead)
     {
-        LOG(2, "OpenPictureFile: Still cannot be read");
         m_OriginalFrame.pData = NULL;
     }
     else
     {
-        LOG(2, "OpenPictureFile: Still ok m_Width %d X m_Height %d m_OriginalFrame.pData %d", m_Width, m_Height, m_OriginalFrame.pData);
-
         m_IsPictureRead = TRUE;
 
         //check if size has changed
         if(m_Height != h || m_Width != w)
         {
-            LOG(2, "OpenPictureFile: Notify size change");
             NotifySizeChange();
         }
     }
@@ -413,7 +435,6 @@ BOOL CStillSource::OpenMediaFile(LPCSTR FileName, BOOL NewPlayList)
     // correct helper for the file type
     if(strlen(FileName) > 4 && stricmp(FileName + strlen(FileName) - 4, ".d3u") == 0)
     {
-        LOG(2, "CStillSource::OpenMediaFile: Playlist %s", FileName);
         if (LoadPlayList(FileName))
         {
             if (!ShowNextInPlayList())
@@ -438,44 +459,18 @@ BOOL CStillSource::OpenMediaFile(LPCSTR FileName, BOOL NewPlayList)
     return FALSE;
 }
 
-BOOL CStillSource::ResizeOriginalFrame(int NewWidth, int NewHeight)
-{
-    // Allocate memory for the new YUYV buffer
-    BYTE* NewBuf = (BYTE*)malloc(NewWidth * 2 * NewHeight * sizeof(BYTE));
-    if (NewBuf == NULL)
-    {
-        return FALSE;
-    }
-
-    // TODO : resize m_OriginalFrame.pData into NewBuf
-    // Size of m_OriginalFrame.pData is m_Width x m_Height
-    // Size of NewBuf is NewWidth x NewHeight
-    free(NewBuf);
-    return FALSE;
-
-    // Replace the old YUYV buffer by the new one
-    free(m_OriginalFrame.pData);
-    m_OriginalFrame.pData = NewBuf;
-    m_Width = NewWidth;
-    m_Height = NewHeight;
-
-    return TRUE;
-}
 
 BOOL CStillSource::ShowNextInPlayList()
 {
     while(m_Position < m_PlayList.size())
     {
-        LOG(2, "ShowNextInPlayList: pos %d", m_Position);
         if(OpenPictureFile(m_PlayList[m_Position]->GetFileName()))
         {
-            LOG(2, "ShowNextInPlayList: pos %d OK", m_Position);
             return TRUE;
         }
         ++m_Position;
     }
     m_Position = m_PlayList.size() - 1;
-    LOG(2, "ShowNextInPlayList: pos %d non OK", m_Position);
     return FALSE;
 }
 
@@ -483,16 +478,13 @@ BOOL CStillSource::ShowPreviousInPlayList()
 {
     while(m_Position >= 0)
     {
-        LOG(2, "ShowPreviousInPlayList: pos %d", m_Position);
         if(OpenPictureFile(m_PlayList[m_Position]->GetFileName()))
         {
-            LOG(2, "ShowPreviousInPlayList: pos %d OK", m_Position);
             return TRUE;
         }
         --m_Position;
     }
     m_Position = 0;
-    LOG(2, "ShowPreviousInPlayList: pos %d non OK", m_Position);
     return FALSE;
 }
 
@@ -527,7 +519,6 @@ void CStillSource::Start()
 {
     if (!m_IsPictureRead && IsAccessAllowed())
     {
-        LOG(2, "CStillSource::Start: Still must be read");
         ShowNextInPlayList();
         // The file is loaded and notification of size change is done
         // no need to call NotifySizeChange in this case
@@ -540,7 +531,6 @@ void CStillSource::Start()
     }
     m_LastTickCount = 0;
     m_NewFileRequested = STILL_REQ_NONE;
-    LOG(2, "CStillSource::Start");
 }
 
 void CStillSource::Stop()
@@ -552,7 +542,7 @@ void CStillSource::Stop()
     }
     if (m_StillFrame.pData != NULL)
     {
-        free(m_StillFrame.pData);
+        DumbAlignedFree(m_StillFrame.pData);
         m_StillFrame.pData = NULL;
     }
     if (m_OriginalFrame.pData != NULL)
@@ -566,7 +556,6 @@ void CStillSource::Stop()
     // size change will be generated
     m_Width = 0;
     m_Height = 0;
-    LOG(2, "CStillSource::Stop");
 }
 
 void CStillSource::Reset()
@@ -588,7 +577,6 @@ void CStillSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
         pInfo->FrameWidth = 720;
         pInfo->FrameHeight = 480;
         pInfo->PictureHistory[0] = NULL;
-        LOG(2, "CStillSource::GetNextField: Read field failed");
         return;
     }
 
@@ -798,19 +786,16 @@ BOOL CStillSource::ReadNextFrameInFile()
     switch (m_NewFileRequested)
     {
     case STILL_REQ_THIS_ONE:
-        LOG(2, "CStillSource::ReadNextFrameInFile: STILL_REQ_THIS_ONE %d", m_NewFileReqPos);
         m_Position = m_NewFileReqPos;
         OpenPictureFile(m_PlayList[m_Position]->GetFileName());
         Realloc = TRUE;
         break;
     case STILL_REQ_NEXT:
-        LOG(2, "CStillSource::ReadNextFrameInFile: STILL_REQ_NEXT %d", m_NewFileReqPos);
         m_Position = m_NewFileReqPos;
         ShowNextInPlayList();
         Realloc = TRUE;
         break;
     case STILL_REQ_NEXT_CIRC:
-        LOG(2, "CStillSource::ReadNextFrameInFile: STILL_REQ_NEXT_CIRC %d", m_NewFileReqPos);
         m_Position = m_NewFileReqPos;
         if (!ShowNextInPlayList())
         {
@@ -820,13 +805,11 @@ BOOL CStillSource::ReadNextFrameInFile()
         Realloc = TRUE;
         break;
     case STILL_REQ_PREVIOUS:
-        LOG(2, "CStillSource::ReadNextFrameInFile: STILL_REQ_PREVIOUS %d", m_NewFileReqPos);
         m_Position = m_NewFileReqPos;
         ShowPreviousInPlayList();
         Realloc = TRUE;
         break;
     case STILL_REQ_PREVIOUS_CIRC:
-        LOG(2, "CStillSource::ReadNextFrameInFile: STILL_REQ_PREVIOUS_CIRC %d", m_NewFileReqPos);
         m_Position = m_NewFileReqPos;
         if (!ShowPreviousInPlayList())
         {
@@ -845,34 +828,31 @@ BOOL CStillSource::ReadNextFrameInFile()
     {
         if (Realloc && m_StillFrame.pData != NULL)
         {
-            LOG(2, "CStillSource::ReadNextFrameInFile: Memory free for m_StillFrame.pData (%d)", m_StillFrame.pData);
-            free(m_StillFrame.pData);
+            DumbAlignedFree(m_StillFrame.pData);
             m_StillFrame.pData = NULL;
         }
         if (m_StillFrame.pData == NULL)
         {
-            m_StillFrame.pData = (BYTE*)malloc(m_Width * 2 * m_Height * sizeof(BYTE));
-            LOG(2, "CStillSource::ReadNextFrameInFile: Memory alloc for m_StillFrame.pData (%d) (width %d height %d)", m_StillFrame.pData, m_Width, m_Height);
+            m_StillFrame.pData = (BYTE*)DumbAlignedMalloc(m_Width * 2 * m_Height * sizeof(BYTE));
+//>>>            m_StillFrame.pData = (BYTE*)malloc(m_Width * 2 * m_Height * sizeof(BYTE));
         }
         if (m_StillFrame.pData != NULL && m_OriginalFrame.pData != NULL)
         {
-            LOG(2, "CStillSource::ReadNextFrameInFile: Copy m_OriginalFrame.pData (%d) into m_StillFrame.pData (%d) (width %d height %d)", m_OriginalFrame.pData, m_StillFrame.pData, m_Width, m_Height);
             if (m_pMemcpy == NULL)
             {
-                memcpy(m_StillFrame.pData, m_OriginalFrame.pData, m_Width * 2 * m_Height * sizeof(BYTE));
+                memcpy(m_StillFrame.pData, m_OriginalFrame.pData, m_Width * 2 * m_Height * sizeof(BYTE));;
             }
             else
             {
-                m_pMemcpy(m_StillFrame.pData, m_OriginalFrame.pData, m_Width * 2 * m_Height * sizeof(BYTE));
+                memcpy(m_StillFrame.pData, m_OriginalFrame.pData, m_Width * 2 * m_Height * sizeof(BYTE));;
+//                  m_pMemcpy(m_StillFrame.pData, m_OriginalFrame.pData, m_Width * 2 * m_Height * sizeof(BYTE));;
             }
             return TRUE;
         }
-        LOG(2, "CStillSource::ReadNextFrameInFile: One of the two buffers is NULL");
         return FALSE;
     }
     else
     {
-        LOG(2, "CStillSource::ReadNextFrameInFile: Still was not correctly read");
         return FALSE;
     }
 }
@@ -1151,4 +1131,286 @@ void Still_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 void Still_ShowUI()
 {
     CSettingsDlg::ShowSettingsDlg("Still Settings",StillSettings, STILL_SETTING_LASTONE);
+}
+
+
+BOOL CStillSource::ResizeOriginalFrame(int NewWidth, int NewHeight)
+{
+	int OldPitch = m_Width * 2;
+	int NewPitch = NewWidth * 2;
+	unsigned int* hControl;		// weighting masks, alternating dwords for Y & UV
+								// 1 qword for mask, 1 dword for src offset, 1 unused dword
+	unsigned int* vOffsets;		// Vertical offsets of the source lines we will use
+	unsigned int* vWeights;		// weighting masks, alternating dwords for Y & UV
+	unsigned int* vWorkY;		// weighting masks 0Y0Y 0Y0Y...
+	unsigned int* vWorkUV;		// weighting masks UVUV UVUV...
+
+	int vWeight1[4];
+	int vWeight2[4];
+
+	// how do I do a __m128 constant, init and aligned on 16 byte boundar?
+	const __int64 YMask[2]    = {0x00ff00ff00ff00ff,0x00ff00ff00ff00ff}; // keeps only luma
+	const __int64 FPround1[2] = {0x0080008000800080,0x0080008000800080}; // round words
+	const __int64 FPround2[2] = {0x0000008000000080,0x0000008000000080};// round dwords
+
+    unsigned char* dstp;
+    unsigned char* srcp1;
+    unsigned char* srcp2;
+
+    LOG(1, "m_Width %d, NewWidth %d, m_Height %d, NewHeight %d", m_Width, NewWidth, m_Height, NewHeight);
+
+    // Allocate memory for the new YUYV buffer
+    BYTE* NewBuf = (BYTE*)malloc(NewWidth * 2 * NewHeight * sizeof(BYTE));
+	dstp = NewBuf;
+
+    // TODO : resize m_OriginalFrame.pData into NewBuf
+    // Size of m_OriginalFrame.pData is m_Width x m_Height (*2?)
+    // Size of NewBuf is NewWidth x NewHeight
+
+	// SimpleResize Init code
+	hControl = (unsigned int*) malloc(NewWidth*12+128);  
+	vOffsets = (unsigned int*) malloc(NewHeight*4);  
+	vWeights = (unsigned int*) malloc(NewHeight*4);  
+	vWorkY =   (unsigned int*) malloc(2*m_Width+128);   
+	vWorkUV =  (unsigned int*) malloc(m_Width+128);   
+
+	SimpleResize_InitTables(hControl, vOffsets, vWeights,
+		m_Width, m_Height, NewWidth, NewHeight);
+
+
+	// SimpleResize resize code
+
+    if (NewBuf == NULL || hControl == NULL || vOffsets == NULL || vWeights == NULL
+		|| vWorkY == NULL || vWorkUV == NULL)
+    {
+        return FALSE;
+    }
+	
+	for (int y = 0; y < NewHeight; y++)
+	{
+
+		vWeight1[0] = vWeight1[1] = vWeight1[2] = vWeight1[3] = 
+			(256-vWeights[y]) << 16 | (256-vWeights[y]);
+		vWeight2[0] = vWeight2[1] = vWeight2[2] = vWeight2[3] = 
+			vWeights[y] << 16 | vWeights[y];
+
+		srcp1 = m_OriginalFrame.pData + vOffsets[y] * OldPitch;
+		
+		srcp2 = (y < NewHeight-1)
+			? srcp1 + OldPitch
+			: srcp1;
+
+		_asm		
+		{
+			push	ecx						// have to save this?
+			mov		ecx, OldPitch
+			shr		ecx, 3					// 8 bytes a time
+			mov		esi, srcp1				// top of 2 src lines to get
+			mov		edx, srcp2				// next "
+			mov		edi, vWorkY				// luma work destination line
+			mov		ebx, vWorkUV			// luma work destination line
+			xor		eax, eax
+
+			movq	mm7, YMask				// useful luma mask constant
+			movq	mm5, vWeight1
+			movq	mm6, vWeight2
+			movq	mm0, FPround1			// useful rounding constant
+		    align	16
+	vLoopMMX:	
+			movq	mm1, qword ptr[esi+eax*2] // top of 2 lines to interpolate
+			movq	mm2, qword ptr[edx+eax*2] // 2nd of 2 lines
+
+			movq	mm3, mm1				// copy top bytes
+			pand	mm1, mm7				// keep only luma	
+			pxor	mm3, mm1				// keep only chroma
+			psrlw	mm3, 8					// right just chroma
+			pmullw	mm1, mm5				// mult by weighting factor
+			pmullw	mm3, mm5				// mult by weighting factor
+
+			movq	mm4, mm2				// copy 2nd bytes
+			pand	mm2, mm7				// keep only luma	
+			pxor	mm4, mm2				// keep only chroma
+			psrlw	mm4, 8					// right just chroma
+			pmullw	mm2, mm6				// mult by weighting factor
+			pmullw	mm4, mm6				// mult by weighting factor
+
+			paddw	mm1, mm2				// combine lumas
+			paddusw	mm1, mm0				// round
+			psrlw	mm1, 8					// right adjust luma
+			movq	qword ptr[edi+eax*2], mm1	// save lumas in our work area
+
+			paddw	mm3, mm4				// combine chromas
+			paddusw	mm3, mm0				// round
+			psrlw	mm3, 8					// right adjust chroma
+			packuswb mm3,mm3				// pack UV's into low dword
+			movd	dword ptr[ebx+eax], mm3	// save in our work area
+
+			lea     eax, [eax+4]
+			loop	vloopMMX
+	
+
+// We've taken care of the vertical scaling, now do horizontal
+			movq	mm7, YMask			// useful 0U0U..  mask constant
+			movq	mm6, FPround2			// useful rounding constant, dwords
+			mov		esi, hControl		// @ horiz control bytes			
+			mov		ecx, NewPitch
+			shr		ecx, 2				// 4 bytes a time, 2 pixels
+			mov     edx, vWorkY			// our luma data, as 0Y0Y 0Y0Y..
+			mov		edi, dstp			// the destination line
+			mov		ebx, vWorkUV		// chroma data, as UVUV UVUV...
+			align 16
+	hLoopMMX:   
+			mov		eax, [esi+16]		// get data offset in pixels, 1st pixel pair
+			movd mm0, [edx+eax*2]		// copy luma pair
+			shr		eax, 1				// div offset by 2
+			movd	mm1, [ebx+eax*2]	// copy UV pair VUVU
+			psllw   mm1, 8				// shift out V, keep 0000U0U0	
+
+			mov		eax, [esi+20]		// get data offset in pixels, 2nd pixel pair
+			punpckldq mm0, [edx+eax*2]		// copy luma pair
+			shr		eax, 1				// div offset by 2
+			punpckldq mm1, [ebx+eax*2]	// copy UV pair VUVU
+			psrlw   mm1, 8				// shift out U0, keep 0V0V 0U0U	
+		
+			pmaddwd mm0, [esi]			// mult and sum lumas by ctl weights
+			paddusw	mm0, mm6			// round
+			psrlw	mm0, 8				// right just 2 luma pixel value 000Y,000Y
+
+			pmaddwd mm1, [esi+8]		// mult and sum chromas by ctl weights
+			paddusw	mm1, mm6			// round
+			pslld	mm1, 8				// shift into low bytes of different words
+			pand	mm1, mm7			// keep only 2 chroma values 0V00,0U00
+			por		mm0, mm1			// combine luma and chroma, 0V0Y,0U0Y
+			packuswb mm0,mm0			// pack all into low dword, xxxxVYUY
+			movd	dword ptr[edi], mm0	// done with 2 pixels
+
+			lea    esi, [esi+24]		// bump to next control bytest
+			lea    edi, [edi+4]			// bump to next output pixel addr
+            loop   hLoopMMX				// loop for more
+
+			pop		ecx
+            emms
+		}                               // done with one line
+        dstp += NewPitch;
+    }
+
+
+	// SimpleResize cleanup code
+	free(hControl);
+	free(vOffsets);
+	free(vWeights);
+	free(vWorkY);
+	free(vWorkUV);
+
+    // Replace the old YUYV buffer by the new one
+    free(m_OriginalFrame.pData);
+    m_OriginalFrame.pData = NewBuf;
+    m_Width = NewWidth;
+    m_Height = NewHeight;
+
+    return TRUE;
+}
+
+
+// This function accepts a position from 0 to 1 and warps it, to 0 through 1 based
+// upon the wFact var. The warp equations are designed to:
+// 
+// * Always be rising but yield results from 0 to 1
+//
+// * Have a first derivative that doesn't go to 0 or infinity, at least close
+//   to the center of the screen
+//
+// * Have a curvature (absolute val of 2nd derivative) that is small in the
+//   center and smoothly rises towards the edges. We would like the curvature
+//   to be everywhere = 0 when the warp factor = 1
+//
+
+// For each horizontal output pixel there are 2 4 byte masks, and a src offset. The first gives
+// the weights of the 4 surrounding luma values in the loaded qword, the second gives
+// the weights of the chroma pixels. At most 2 values will be non-zero in each mask.
+// The hControl offsets in the table are to where to load the qword of pixel data. Usually the
+// 2nd & 3rd pixel values in that qword are used, but boundary conditions may change
+// that and you can't average 2 adjacent chroma values in YUY2 format because they will
+// contain YU YV YU YV YU YV...
+// Horizontal weights are scaled 0-128, Vertical weights are scaled 0-256.
+
+int __stdcall SimpleResize_InitTables(unsigned int* hControl, unsigned int* vOffsets, 
+		unsigned int* vWeights, int m_Width, int m_Height, int NewWidth, int NewHeight)
+{
+	int i;
+	int j;
+	int k;
+	int wY1;
+	int wY2;
+	int wUV1;
+	int wUV2;
+
+	// First set up horizontal table
+	for(i=0; i < NewWidth; i+=2)
+	{
+		j = i * 256 * (m_Width-1) / (NewWidth-1);
+
+		k = j>>8;
+		wY2 = j - (k << 8);				// luma weight of right pixel
+		wY1 = 256 - wY2;				// luma weight of left pixel
+		wUV2 = (k%2)
+			? 128 + (wY2 >> 1)
+			: wY2 >> 1;
+		wUV1 = 256 - wUV2;
+
+// the right hand edge luma will be off by one pixel currently to handle edge conditions.
+// I should figure a better way aound this without a performance hit. But I can't see 
+// the difference so it is lower prority.
+		if (k > m_Width - 3)
+		{
+			hControl[i*3+4] = m_Width - 3;	 //	point to last byte
+			hControl[i*3] =   0x01000000;    // use 100% of rightmost Y
+			hControl[i*3+2] = 0x01000000;    // use 100% of rightmost U
+		}
+		else
+		{
+			hControl[i*3+4] = k;			// pixel offset
+			hControl[i*3] = wY2 << 16 | wY1; // luma weights
+			hControl[i*3+2] = wUV2 << 16 | wUV1; // chroma weights
+		}
+
+		j = (i+1) * 256 * (m_Width-1) / (NewWidth-1);
+
+		k = j>>8;
+		wY2 = j - (k << 8);				// luma weight of right pixel
+		wY1 = 256 - wY2;				// luma weight of left pixel
+		wUV2 = (k%2)
+			? 128 + (wY2 >> 1)
+			: wY2 >> 1;
+		wUV1 = 256 - wUV2;
+
+		if (k > m_Width - 3)
+		{
+			hControl[i*3+5] = m_Width - 3;	 //	point to last byte
+			hControl[i*3+1] = 0x01000000;    // use 100% of rightmost Y
+			hControl[i*3+3] = 0x01000000;    // use 100% of rightmost V
+		}
+		else
+		{
+			hControl[i*3+5] = k;			// pixel offset
+			hControl[i*3+1] = wY2 << 16 | wY1; // luma weights
+			hControl[i*3+3] = wUV2 << 16 | wUV1; // chroma weights
+		}
+	}
+
+	hControl[NewWidth*3+4] =  2 * (m_Width-1);		// give it something to prefetch at end
+	hControl[NewWidth*3+5] =  2 * (m_Width-1);		// "
+
+	// Next set up vertical table. The offsets are measured in lines and will be mult
+	// by the source pitch later 
+	for(i=0; i< NewHeight; ++i)
+	{
+		j = i * 256 * (m_Height-1) / (NewHeight-1);
+		k = j >> 8;
+		vOffsets[i] = k;
+		wY2 = j - (k << 8); 
+		vWeights[i] = wY2;				// weight to give to 2nd line
+	}
+
+	return 0;
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Perf.h,v 1.4 2002-10-27 20:39:08 laurentg Exp $
+// $Id: Perf.h,v 1.5 2003-02-22 13:36:37 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/10/27 20:39:08  laurentg
+// Performance statistics only computed in DEBUG buildd
+// Developer OSD screen only present in DEBUG build
+//
 // Revision 1.3  2002/01/31 13:02:46  robmuller
 // Improved accuracy and reliability of the performance statistics.
 //
@@ -104,11 +108,17 @@ public:
     DWORD GetMinDuration(ePerfType PerfType);
     DWORD GetMaxDuration(ePerfType PerfType);
     int GetNumberDroppedFields();
+    int GetNumberLateFields();
     int GetNumberUsedFields();
+    int GetNumberNoFlipAtTime();
     double GetAverageDroppedFields();
+    double GetAverageLateFields();
     double GetAverageUsedFields();
+    double GetAverageNoFlipAtTime();
     int GetDroppedFieldsLastSecond();
+    int GetLateFieldsLastSecond();
     int GetUsedFieldsLastSecond();
+    int GetNoFlipAtTimeLastSecond();
 
 private:
     CPerfItem*  m_PerfItems[PERF_TYPE_LASTONE];
@@ -116,9 +126,13 @@ private:
     DWORD       m_TickStart;
     DWORD       m_TickStartLastSec;
     int         m_TotalDroppedFields;
+    int         m_TotalLateFields;
     int         m_TotalUsedFields;
+    int         m_TotalNoFlipAtTime;
     double      m_DroppedFieldsLastSec;
+    double      m_LateFieldsLastSec;
     double      m_UsedFieldsLastSec;
+    double      m_NoFlipAtTimeLastSec;
     BOOL        m_ResetRequested;
 };
 

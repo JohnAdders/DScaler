@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.80 2003-01-24 02:20:37 atnak Exp $
+// $Id: OSD.cpp,v 1.81 2003-02-22 13:37:49 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.80  2003/01/24 02:20:37  atnak
+// Put back performance counter for OSD screen redraw.
+//
 // Revision 1.79  2003/01/24 01:55:18  atnak
 // OSD + Teletext conflict fix, offscreen buffering for OSD and Teletext,
 // got rid of the pink overlay colorkey for Teletext.
@@ -1471,12 +1474,33 @@ static void OSD_RefreshStatisticsScreen(double Size)
     sprintf (szInfo, "Average / s : %.1f", pPerf->GetAverageDroppedFields());
     OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
+    OSD_AddText("Late fields", Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+
+    sprintf (szInfo, "Number : %ld", pPerf->GetNumberLateFields());
+    OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    sprintf (szInfo, "Last second : %d", pPerf->GetLateFieldsLastSecond());
+    OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    sprintf (szInfo, "Average / s : %.1f", pPerf->GetAverageLateFields());
+    OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+
     OSD_AddText("Used fields", Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
     sprintf (szInfo, "Last second : %d", pPerf->GetUsedFieldsLastSecond());
     OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
     sprintf (szInfo, "Average / s : %.1f", pPerf->GetAverageUsedFields());
     OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+
+    if (Setting_GetValue(OutThreads_GetSetting(DOACCURATEFLIPS)))
+    {
+		OSD_AddText("No flip at time", Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+
+		sprintf (szInfo, "Number : %ld", pPerf->GetNumberNoFlipAtTime());
+		OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+		sprintf (szInfo, "Last second : %d", pPerf->GetNoFlipAtTimeLastSecond());
+		OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+		sprintf (szInfo, "Average / s : %.1f", pPerf->GetAverageNoFlipAtTime());
+		OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+	}
 
     nLine = 1;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Perf.cpp,v 1.10 2002-10-27 20:39:08 laurentg Exp $
+// $Id: Perf.cpp,v 1.11 2003-02-22 13:36:37 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/10/27 20:39:08  laurentg
+// Performance statistics only computed in DEBUG buildd
+// Developer OSD screen only present in DEBUG build
+//
 // Revision 1.9  2002/10/16 16:10:19  tobbej
 // added some comments
 //
@@ -205,9 +209,13 @@ CPerf::CPerf()
     m_TickStart = 0;
     m_TickStartLastSec = m_TickStart;
     m_TotalDroppedFields = 0;
+    m_TotalLateFields = 0;
     m_TotalUsedFields = 0;
+    m_TotalNoFlipAtTime = 0;
     m_DroppedFieldsLastSec = 0.0;
+    m_LateFieldsLastSec = 0.0;
     m_UsedFieldsLastSec = 0.0;
+    m_NoFlipAtTimeLastSec = 0.0;
     m_ResetRequested = TRUE;
 }
 
@@ -233,11 +241,16 @@ void CPerf::InitCycle()
         m_TickStart = CurrentTickCount;
         m_TickStartLastSec = m_TickStart;
         m_TotalDroppedFields = 0;
+        m_TotalLateFields = 0;
         m_TotalUsedFields = 0;
+		m_TotalNoFlipAtTime = 0;
         m_DroppedFieldsLastSec = 0.0;
+        m_LateFieldsLastSec = 0.0;
         m_UsedFieldsLastSec = 0.0;
         Timing_ResetDroppedFields();
+        Timing_ResetLateFields();
         Timing_ResetUsedFields();
+        Timing_ResetNoFlipAtTime();
         for (int i(0) ; i < PERF_TYPE_LASTONE ; ++i)
         {
             m_PerfItems[i]->Reset();
@@ -247,7 +260,9 @@ void CPerf::InitCycle()
     else if ((m_TickStartLastSec + 1000) <= CurrentTickCount)
     {
         m_TotalDroppedFields += Timing_GetDroppedFields();
+        m_TotalLateFields += Timing_GetLateFields();
         m_TotalUsedFields += Timing_GetUsedFields();
+        m_TotalNoFlipAtTime += Timing_GetNoFlipAtTime();
 
         double tickDiff=(double)(CurrentTickCount - m_TickStartLastSec);
 
@@ -258,16 +273,22 @@ void CPerf::InitCycle()
         if(_finite(tickDiff) && !_isnan(tickDiff))
         {
             m_DroppedFieldsLastSec = (double)Timing_GetDroppedFields() * 1000.0 / tickDiff;
+            m_LateFieldsLastSec = (double)Timing_GetLateFields() * 1000.0 / tickDiff;
             m_UsedFieldsLastSec = (double)Timing_GetUsedFields() * 1000.0 / tickDiff;
+            m_NoFlipAtTimeLastSec = (double)Timing_GetNoFlipAtTime() * 1000.0 / tickDiff;
         }
         else
         {
             m_DroppedFieldsLastSec=-1;
+            m_LateFieldsLastSec=-1;
             m_UsedFieldsLastSec=-1;
+            m_NoFlipAtTimeLastSec=-1;
         }
 
         Timing_ResetDroppedFields();
+        Timing_ResetLateFields();
         Timing_ResetUsedFields();
+        Timing_ResetNoFlipAtTime();
         m_TickStartLastSec = CurrentTickCount;
     }
 
@@ -364,9 +385,19 @@ int CPerf::GetNumberDroppedFields()
     return m_TotalDroppedFields;
 }
 
+int CPerf::GetNumberLateFields()
+{
+    return m_TotalLateFields;
+}
+
 int CPerf::GetNumberUsedFields()
 {
     return m_TotalUsedFields;
+}
+
+int CPerf::GetNumberNoFlipAtTime()
+{
+    return m_TotalNoFlipAtTime;
 }
 
 double CPerf::GetAverageDroppedFields()
@@ -378,6 +409,18 @@ double CPerf::GetAverageDroppedFields()
     else
     {
         return ((double)m_TotalDroppedFields * 1000.0 / (double)(m_TickStartLastSec - m_TickStart));
+    }
+}
+
+double CPerf::GetAverageLateFields()
+{
+    if (m_TickStartLastSec == m_TickStart)
+    {
+        return 0.0;
+    }
+    else
+    {
+        return ((double)m_TotalLateFields * 1000.0 / (double)(m_TickStartLastSec - m_TickStart));
     }
 }
 
@@ -393,13 +436,35 @@ double CPerf::GetAverageUsedFields()
     }
 }
 
+double CPerf::GetAverageNoFlipAtTime()
+{
+    if (m_TickStartLastSec == m_TickStart)
+    {
+        return 0.0;
+    }
+    else
+    {
+        return ((double)m_TotalNoFlipAtTime * 1000.0 / (double)(m_TickStartLastSec - m_TickStart));
+    }
+}
+
 int CPerf::GetDroppedFieldsLastSecond()
 {
     return (int)floor(m_DroppedFieldsLastSec + 0.5);
 }
 
+int CPerf::GetLateFieldsLastSecond()
+{
+    return (int)floor(m_LateFieldsLastSec + 0.5);
+}
+
 int CPerf::GetUsedFieldsLastSecond()
 {
     return (int)floor(m_UsedFieldsLastSec + 0.5);
+}
+
+int CPerf::GetNoFlipAtTimeLastSecond()
+{
+    return (int)floor(m_NoFlipAtTimeLastSec + 0.5);
 }
 

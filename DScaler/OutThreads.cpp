@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.111 2003-02-05 19:57:58 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.112 2003-02-22 13:37:49 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.111  2003/02/05 19:57:58  laurentg
+// New option to minimize DScaler when there is no signal and to restore it when a signal is detected
+//
 // Revision 1.110  2003/01/24 21:12:53  laurentg
 // Call to WorkoutOverlaySize necessary just after adjusting the overscan for the source
 //
@@ -1260,6 +1263,10 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 							if(Info.bDoAccurateFlips && (IsFilmMode() || bJudderTerminatorOnVideo) && PrevDeintMethod == CurrentMethod)
 							{
 								Timing_WaitForTimeToFlip(&Info, CurrentMethod, &bStopThread);
+							}
+							else if(Info.bDoAccurateFlips && (IsFilmMode() || bJudderTerminatorOnVideo))
+							{
+								Timing_IncrementNoFlipAtTime();
 							}
 
 							if(!Overlay_Flip(FlipFlag, bUseExtraBuffer, &Info))

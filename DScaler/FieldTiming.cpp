@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FieldTiming.cpp,v 1.31 2003-01-24 08:57:55 adcockj Exp $
+// $Id: FieldTiming.cpp,v 1.32 2003-02-22 13:36:36 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2003/01/24 08:57:55  adcockj
+// Fixed autodetect bug (fix by Laurent)
+//
 // Revision 1.30  2002/09/19 17:33:44  adcockj
 // Made looging for format detect less noisy
 //
@@ -109,6 +112,8 @@ LARGE_INTEGER CurrentFlipTime;
 BOOL bIsPAL;
 BOOL FlipAdjust;
 int nDroppedFields = 0;
+int nLateFields = 0;
+int nNoFlipAtTime = 0;
 int nUsedFields = 0;
 double Weight = 0.005;
 BOOL bDoAutoFormatDetect = TRUE;
@@ -290,6 +295,8 @@ void Timing_Reset()
 
 void Timing_WaitForTimeToFlip(TDeinterlaceInfo* pInfo, DEINTERLACE_METHOD* CurrentMethod, BOOL* bStopThread)
 {
+	BOOL bWait = FALSE;
+
     if(pInfo->bMissedFrame == FALSE && FlipAdjust == FALSE)
     {
         if(LastFlipTime.QuadPart == 0)
@@ -313,6 +320,7 @@ void Timing_WaitForTimeToFlip(TDeinterlaceInfo* pInfo, DEINTERLACE_METHOD* Curre
             while(!(*bStopThread) && (CurrentFlipTime.QuadPart - LastFlipTime.QuadPart) < TicksToWait)
             {
                 QueryPerformanceCounter(&CurrentFlipTime);
+				bWait = TRUE;
             }
             LastFlipTime.QuadPart = CurrentFlipTime.QuadPart;
         }
@@ -321,6 +329,10 @@ void Timing_WaitForTimeToFlip(TDeinterlaceInfo* pInfo, DEINTERLACE_METHOD* Curre
     {
         QueryPerformanceCounter(&LastFlipTime);
     }
+	if (!bWait)
+	{
+		Timing_IncrementNoFlipAtTime();
+	}
     FlipAdjust = FALSE;
 }
 
@@ -334,6 +346,16 @@ void Timing_ResetDroppedFields()
     nDroppedFields = 0;
 }
 
+int Timing_GetLateFields()
+{
+    return nLateFields;
+}
+
+void Timing_ResetLateFields()
+{
+    nLateFields = 0;
+}
+
 int Timing_GetUsedFields()
 {
     return nUsedFields;
@@ -344,6 +366,16 @@ void Timing_ResetUsedFields()
     nUsedFields = 0;
 }
 
+int Timing_GetNoFlipAtTime()
+{
+    return nNoFlipAtTime;
+}
+
+void Timing_ResetNoFlipAtTime()
+{
+    nNoFlipAtTime = 0;
+}
+
 void Timing_IncrementUsedFields()
 {
     ++nUsedFields;
@@ -352,6 +384,16 @@ void Timing_IncrementUsedFields()
 void Timing_AddDroppedFields(int nDropped)
 {
     nDroppedFields += nDropped;
+}
+
+void Timing_AddLateFields(int nLate)
+{
+    nLateFields += nLate;
+}
+
+void Timing_IncrementNoFlipAtTime()
+{
+    ++nNoFlipAtTime;
 }
 
 void Timing_SetFlipAdjustFlag(BOOL NewValue)

@@ -30,7 +30,7 @@ Step by step instructions:
 4. Get the Visual C++ Processor Pack from:
    http://msdn.microsoft.com/vstudio/downloads/ppack/download.asp
    Install.  It will automatically upgrade Visual Studio.
-   This software adds SSE and SSE2 support for dTV's assembly code.
+   This software adds SSE and SSE2 support for DScaler's assembly code.
 
 5. Get the Windows 2000 DDK from:
    http://www.microsoft.com/ddk/W2kDDK.htm
@@ -65,7 +65,7 @@ Step by step instructions:
 
 8. Do a "Build All"
 
-9. You have a ready-to-run ready-to-distribute dTV package in the 
+9. You have a ready-to-run ready-to-distribute DScaler package in the 
   ..\Release directory.  (Or the ..\Debug directory, if you
   selected the Debug Configuration)
 

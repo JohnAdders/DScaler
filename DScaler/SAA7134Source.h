@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.h,v 1.2 2002-09-09 14:20:32 atnak Exp $
+// $Id: SAA7134Source.h,v 1.3 2002-09-10 12:24:03 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/09/09 14:20:32  atnak
+// Fixed $log$ -> $Log: not supported by cvs2svn $, $id$ -> $Id: SAA7134Source.h,v 1.3 2002-09-10 12:24:03 atnak Exp $
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -101,7 +104,6 @@ public:
     const char* GetInputName(eSourceInputType InputType, int Nr);
     BOOL InputHasTuner(eSourceInputType InputType, int Nr);
 
-
 private:
     virtual void CreateSettings(LPCSTR IniSection);
 
@@ -167,8 +169,11 @@ private:
     BOOL            m_IsFieldOdd;
     int             m_LastFieldIndex;
 
+    // The field the card is currently processing
     eRegionID       m_ProcessingRegionID;
     BOOL            m_IsProcessingFieldOdd;
+
+    BOOL            m_bSelectCardCancelButton;
 
     CSliderSetting* m_CustomPixelWidth;
     CYesNoSetting*  m_ReversePolarity;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.2 2002-09-09 14:20:32 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.3 2002-09-10 12:24:03 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/09/09 14:20:32  atnak
+// Fixed $log$ -> $Log: not supported by cvs2svn $, $id$ -> $Id: SAA7134Source.cpp,v 1.3 2002-09-10 12:24:03 atnak Exp $
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -286,10 +289,10 @@ void CSAA7134Source::Reset()
                                 m_VDelay->GetValue(), 
                                 m_HDelay->GetValue()
                             );
-
     NotifySizeChange();
 
-    m_pSAA7134Card->SetAudioStandard((eVideoFormat)m_VideoFormat->GetValue());
+    // m_pSAA7134Card->SetAudioStandard((eVideoFormat)m_VideoFormat->GetValue());
+    m_pSAA7134Card->SetAudioStandard((eAudioStandard)m_AudioStandard->GetValue());
     m_pSAA7134Card->SetAudioSource((eAudioInputLine)GetCurrentAudioSetting()->GetValue());
     m_pSAA7134Card->SetAudioChannel((eSoundChannel)m_AudioChannel->GetValue());
 }
@@ -429,7 +432,7 @@ void CSAA7134Source::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
                 {
 
                     m_pDisplay[m_CurrentFrame][2048 + i * 4096 + j] = m_pVBILines[m_CurrentFrame][m_CurrentVBILines * 2048 + 2048 * i + (int) (j/2)];
-					// m_pDisplay[m_CurrentFrame][2048 + i * 4096 + j] = m_pVBILines[m_CurrentFrame][m_CurrentVBILines * 2048 + 2048 * i + j];
+                    // m_pDisplay[m_CurrentFrame][2048 + i * 4096 + j] = m_pVBILines[m_CurrentFrame][m_CurrentVBILines * 2048 + 2048 * i + j];
 
                 }
             }
@@ -452,7 +455,7 @@ void CSAA7134Source::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
                 for (int j = 0; j < m_CurrentX * 2; j++)
                 {
                     m_pDisplay[m_CurrentFrame][i * 4096 + j] = m_pVBILines[m_CurrentFrame][2048 * i + (int) (j/2)];
-					// m_pDisplay[m_CurrentFrame][i * 4096 + j] = m_pVBILines[m_CurrentFrame][2048 * i + j];
+                    // m_pDisplay[m_CurrentFrame][i * 4096 + j] = m_pVBILines[m_CurrentFrame][2048 * i + j];
                 }
             }
             //*/
@@ -900,6 +903,8 @@ BOOL CSAA7134Source::IsInTunerMode()
 
 void CSAA7134Source::SetupCard()
 {
+    BOOL bCardChanged = FALSE;
+
     if(m_CardType->GetValue() == TVCARD_UNKNOWN)
     {
         /* // try to detect the card - \todo check if feasible
@@ -909,14 +914,20 @@ void CSAA7134Source::SetupCard()
 
         // then display the hardware setup dialog
         // \todo FIXME
-        // EnableCancelButton = 0;
+        m_bSelectCardCancelButton = FALSE;
         DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_SELECTCARD), hWnd, (DLGPROC) SelectCardProc, (LPARAM)this);
-        // EnableCancelButton = 1;
+        m_bSelectCardCancelButton = TRUE;
+
+        bCardChanged = TRUE;
     }
     m_pSAA7134Card->SetCardType(m_CardType->GetValue());
     m_pSAA7134Card->InitTuner((eTunerId)m_TunerType->GetValue());
     m_pSAA7134Card->InitAudio();
-    ChangeTVSettingsBasedOnCard();
+
+    if (bCardChanged)
+    {
+        ChangeTVSettingsBasedOnCard();
+    }
 }
 
 void CSAA7134Source::ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff)
@@ -999,12 +1010,12 @@ BOOL CSAA7134Source::IsVideoPresent()
 
 int round(double i)
 {
-	if ((int) (i * 10) % 10 >= 5)
-	{
-		return (int) i + 1;
-	}
+    if ((int) (i * 10) % 10 >= 5)
+    {
+        return (int) i + 1;
+    }
 
-	return (int) i;
+    return (int) i;
 }
 
 void CSAA7134Source::DecodeVBI(TDeinterlaceInfo* pInfo)
@@ -1013,32 +1024,32 @@ void CSAA7134Source::DecodeVBI(TDeinterlaceInfo* pInfo)
     // VBI should have been DMA'd before the video
     BYTE* pVBI = (LPBYTE) m_pVBILines[m_CurrentFrame];
 
-	BYTE ConvertBuffer[2048];
+    BYTE ConvertBuffer[2048];
 
     if (m_IsFieldOdd)
     {
         pVBI += m_CurrentVBILines * 2048;
     }
 
-	// Convert SAA7134's VBI buffer to the way DScaler wants it
-	// 1. Shift the data 100 bytes to to the left
-	// 2. Horizontal scale 262.54%  Half of this is already done.
-	//    We get the card to do 131.28% scaling for us in SAA7134Card
-	//    so we only need to double the bytes. ala. SAA7134Card::SetupVBI()
-	//
-	for (int i(0); i < 100; i++)
-	{
-		ConvertBuffer[i] = 0x00;
-	}
+    // Convert SAA7134's VBI buffer to the way DScaler wants it
+    // 1. Shift the data 100 bytes to to the left
+    // 2. Horizontal scale 262.54%  Half of this is already done.
+    //    We get the card to do 131.28% scaling for us in SAA7134Card
+    //    so we only need to double the bytes. ala. SAA7134Card::SetupVBI()
+    //
+    for (int i(0); i < 100; i++)
+    {
+        ConvertBuffer[i] = 0x00;
+    }
 
     for (nLineTarget = 0; nLineTarget < m_CurrentVBILines ; nLineTarget++)
     {
-		for (int i(100), j(0); i < 2044; i++, j++)
-		{
-			ConvertBuffer[i] = pVBI[nLineTarget * 2048 + (int) (j / 2)];
-		}
+        for (int i(100), j(0); i < 2044; i++, j++)
+        {
+            ConvertBuffer[i] = pVBI[nLineTarget * 2048 + (int) (j / 2)];
+        }
         VBI_DecodeLine(ConvertBuffer, nLineTarget, m_IsFieldOdd);
-		// VBI_DecodeLine(pVBI + nLineTarget * 2048, nLineTarget, m_IsFieldOdd);
+        // VBI_DecodeLine(pVBI + nLineTarget * 2048, nLineTarget, m_IsFieldOdd);
     }
 }
 
@@ -1086,73 +1097,73 @@ const char* CSAA7134Source::GetChipName()
 
 int  CSAA7134Source::NumInputs(eSourceInputType InputType)
 {
-  if (InputType == VIDEOINPUT)
-  {
-      return m_pSAA7134Card->GetNumInputs();      
-  }
-/*  else if (InputType == AUDIOINPUT)
-  {
-      return m_pSAA7134Card->GetNumAudioInputs();      
-  }*/
-  return 0;
+    if (InputType == VIDEOINPUT)
+    {
+        return m_pSAA7134Card->GetNumInputs();    
+    }
+    /*  else if (InputType == AUDIOINPUT)
+    {
+        return m_pSAA7134Card->GetNumAudioInputs();    
+    }*/
+    return 0;
 }
 
 BOOL CSAA7134Source::SetInput(eSourceInputType InputType, int Nr)
 {
-  if (InputType == VIDEOINPUT)
-  {
-      m_VideoSource->SetValue(Nr);
-      return TRUE;
-  }
-/* else if (InputType == AUDIOINPUT)
-  {      
-      m_pSAA7134Card->SetAudioSource((eAudioInput)Nr);          
-      return TRUE;      
-  }*/
-  return FALSE;
+    if (InputType == VIDEOINPUT)
+    {
+        m_VideoSource->SetValue(Nr);
+        return TRUE;
+    }
+    /* else if (InputType == AUDIOINPUT)
+    {    
+        m_pSAA7134Card->SetAudioSource((eAudioInput)Nr);            
+        return TRUE;        
+    }*/
+    return FALSE;
 }
 
 int CSAA7134Source::GetInput(eSourceInputType InputType)
 {
-  if (InputType == VIDEOINPUT)
-  {
-      return m_VideoSource->GetValue();
-  }
-/*  else if (InputType == AUDIOINPUT)
-  {
-      return m_pSAA7134Card->GetAudioInput();    
-  }*/
-  return -1;
+    if (InputType == VIDEOINPUT)
+    {
+        return m_VideoSource->GetValue();
+    }
+    /*  else if (InputType == AUDIOINPUT)
+    {
+        return m_pSAA7134Card->GetAudioInput();  
+    }*/
+    return -1;
 }
 
 const char* CSAA7134Source::GetInputName(eSourceInputType InputType, int Nr)
 {
-  if (InputType == VIDEOINPUT)
-  {
-      if ((Nr>=0) && (Nr < m_pSAA7134Card->GetNumInputs()) )
-      {
-          return m_pSAA7134Card->GetInputName(Nr);
-      }
-  } 
-/*  else if (InputType == AUDIOINPUT)
-  {      
-      return m_pSAA7134Card->GetAudioInputName((eAudioInput)Nr);
-  }*/
-  return NULL;
+    if (InputType == VIDEOINPUT)
+    {
+        if ((Nr>=0) && (Nr < m_pSAA7134Card->GetNumInputs()) )
+        {
+            return m_pSAA7134Card->GetInputName(Nr);
+        }
+    } 
+    /*  else if (InputType == AUDIOINPUT)
+    {    
+        return m_pSAA7134Card->GetAudioInputName((eAudioInput)Nr);
+    }*/
+    return NULL;
 }
 
 BOOL CSAA7134Source::InputHasTuner(eSourceInputType InputType, int Nr)
 {
-  if (InputType == VIDEOINPUT)
-  {
-    if(m_TunerType->GetValue() != TUNER_ABSENT)
+    if (InputType == VIDEOINPUT)
     {
-        return m_pSAA7134Card->IsInputATuner(Nr);
+        if(m_TunerType->GetValue() != TUNER_ABSENT)
+        {
+            return m_pSAA7134Card->IsInputATuner(Nr);
+        }
+        else
+        {
+            return FALSE;
+        }
     }
-    else
-    {
-        return FALSE;
-    }
-  }
-  return FALSE;
+    return FALSE;
 }

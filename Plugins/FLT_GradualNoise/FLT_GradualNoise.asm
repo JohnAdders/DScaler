@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_GradualNoise.asm,v 1.6 2002-02-04 01:06:03 lindsey Exp $
+// $Id: FLT_GradualNoise.asm,v 1.7 2002-03-11 01:45:41 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001, 2002 Lindsey Dubb.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/02/04 01:06:03  lindsey
+// Added 3DNow optimized version
+//
 // Revision 1.5  2002/02/02 00:57:54  lindsey
 // Removed an SSE instruction from the MMX version (Thanks to Rob for catching it!)
 //
@@ -112,9 +115,21 @@ long FilterGradualNoise_MMX( TDeinterlaceInfo *pInfo )
     BYTE*           pLast = NULL;
     DWORD           ThisLine = 0;
     const DWORD     BottomLine = pInfo->FieldHeight;
+    DWORD           LastIndex = 0;                  // Index to previous frame
+
+
+    if( (pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_MASK) == 0 )
+    {
+        LastIndex = 1;
+    }
+    else    // Interlaced
+    {
+        LastIndex = 2;
+    }
+
 
     // Need to have the current and next-to-previous fields to do the filtering.
-    if( (pInfo->PictureHistory[0] == NULL) || (pInfo->PictureHistory[2] == NULL) )
+    if( (pInfo->PictureHistory[0] == NULL) || (pInfo->PictureHistory[LastIndex] == NULL) )
     {
         return 1000;
     }
@@ -122,7 +137,7 @@ long FilterGradualNoise_MMX( TDeinterlaceInfo *pInfo )
     // Warning: Dense code ahead
 
     pSource = pInfo->PictureHistory[0]->pData + (ThisLine * pInfo->InputPitch);
-    pLast = pInfo->PictureHistory[2]->pData + (ThisLine * pInfo->InputPitch);
+    pLast = pInfo->PictureHistory[LastIndex]->pData + (ThisLine * pInfo->InputPitch);
 
     for( ; ThisLine < BottomLine; ++ThisLine )
     {

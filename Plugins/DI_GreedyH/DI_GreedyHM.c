@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_GreedyHM.c,v 1.6 2001-08-01 00:37:41 trbarry Exp $
+// $Id: DI_GreedyHM.c,v 1.7 2001-08-17 16:18:35 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/08/01 00:37:41  trbarry
+// More chroma jitter fixes, tweak defaults
+//
 // Revision 1.5  2001/07/30 21:50:32  trbarry
 // Use weave chroma for reduced chroma jitter. Fix DJR bug again.
 // Turn off Greedy Pulldown default.
@@ -69,10 +72,14 @@ UINT GreedyFeatureFlags = 0;            // Save feature flags on setup
 
 BOOL GreedyWantsToFlip;
 BOOL UpdateFieldStore();
-BOOL DI_GrUpdtFS_NM_NE();				// Update Fieldstore, no Median Filter, No Edge Enh
-BOOL DI_GrUpdtFS_M_NE();				// Update Fieldstore, Median Filter, No Edge Enh
-BOOL DI_GrUpdtFS_NM_E();				// Update Fieldstore, no Median Filter, Edge Enh
-BOOL DI_GrUpdtFS_M_E();					// Update Fieldstore, Median Filter, Edge Enh
+BOOL DI_GrUpdtFS_NM_NE_P();				// Update Fieldstore, no Median Filter, No Edge Enh, Pulldown
+BOOL DI_GrUpdtFS_M_NE_P();				// Update Fieldstore, Median Filter, No Edge Enh, Pulldown
+BOOL DI_GrUpdtFS_NM_E_P();				// Update Fieldstore, no Median Filter, Edge Enh, Pulldown
+BOOL DI_GrUpdtFS_M_E_P();				// Update Fieldstore, Median Filter, Edge Enh, Pulldown
+BOOL DI_GrUpdtFS_NM_NE_NP();			// Update Fieldstore, no Median Filter, No Edge Enh, No Pulldown
+BOOL DI_GrUpdtFS_M_NE_NP();				// Update Fieldstore, Median Filter, No Edge Enh, No Pulldown
+BOOL DI_GrUpdtFS_NM_E_NP();				// Update Fieldstore, no Median Filter, Edge Enh, No Pulldown
+BOOL DI_GrUpdtFS_M_E_NP();				// Update Fieldstore, Median Filter, Edge Enh, No Pulldown
 
 //	Input video data is first copied to the FieldStore array, possibly doing
 //  edge enhancement and median filtering. Field store is layed out to improve 
@@ -148,59 +155,127 @@ BOOL DI_GreedyHM()
 
 BOOL UpdateFieldStore()
 {
-	if (GreedyUseMedianFilter && MedianFilterAmt > 0)
-	{
-		FsDelay = 2;
-		if (GreedyUseEdgeEnh && GreedyEdgeEnhAmt > 0)
-		{
-			return DI_GrUpdtFS_M_E();
-		}
-		else
-		{
-			return DI_GrUpdtFS_M_NE();
-		}
-	}
-	else 
-	{
-		FsDelay = 1;
-		if (GreedyUseEdgeEnh && GreedyEdgeEnhAmt > 0)
-		{
-			return DI_GrUpdtFS_NM_E();
-		}
-		else
-		{
-			return DI_GrUpdtFS_NM_NE();
-		}
-	}
+    if (GreedyUsePulldown)
+    {
+	    if (GreedyUseMedianFilter && MedianFilterAmt > 0)
+	    {
+		    FsDelay = 2;
+		    if (GreedyUseEdgeEnh && GreedyEdgeEnhAmt > 0)
+		    {
+			    return DI_GrUpdtFS_M_E_P();
+		    }
+		    else
+		    {
+			    return DI_GrUpdtFS_M_NE_P();
+		    }
+	    }
+	    else 
+	    {
+		    FsDelay = 1;
+		    if (GreedyUseEdgeEnh && GreedyEdgeEnhAmt > 0)
+		    {
+			    return DI_GrUpdtFS_NM_E_P();
+		    }
+		    else
+		    {
+			    return DI_GrUpdtFS_NM_NE_P();
+		    }
+        }
+    }
+    else
+    {
+	    if (GreedyUseMedianFilter && MedianFilterAmt > 0)
+	    {
+		    FsDelay = 2;
+		    if (GreedyUseEdgeEnh && GreedyEdgeEnhAmt > 0)
+		    {
+			    return DI_GrUpdtFS_M_E_NP();
+		    }
+		    else
+		    {
+			    return DI_GrUpdtFS_M_NE_NP();
+		    }
+	    }
+	    else 
+	    {
+		    FsDelay = 1;
+		    if (GreedyUseEdgeEnh && GreedyEdgeEnhAmt > 0)
+		    {
+			    return DI_GrUpdtFS_NM_E_NP();
+		    }
+		    else
+		    {
+			    return DI_GrUpdtFS_NM_NE_NP();
+		    }
+        }
+    }
 }
 
 
-// A version of UpdateFieldStore with Median Filter and Edge Enhancement
+// A version of UpdateFieldStore with Median Filter and Edge Enhancement and Pulldown
+#define USE_PULLDOWN
 #define USE_MEDIAN_FILTER
 #define USE_SHARPNESS		
 #undef FUNC_NAME		
-#define FUNC_NAME DI_GrUpdtFS_M_E
+#define FUNC_NAME DI_GrUpdtFS_M_E_P
 #include "DI_GrUpdtFS.asm"
 
-// A version of UpdateFieldStore with Median Filter but no Edge Enhancement
+// A version of UpdateFieldStore with Median Filter but no Edge Enhancement and Pulldown
+#define USE_PULLDOWN
 #define USE_MEDIAN_FILTER
 #undef USE_SHARPNESS		
 #undef FUNC_NAME		
-#define FUNC_NAME DI_GrUpdtFS_M_NE
+#define FUNC_NAME DI_GrUpdtFS_M_NE_P
 #include "DI_GrUpdtFS.asm"
 
-// A version of UpdateFieldStore with no Median Filter or Edge Enhancement
+// A version of UpdateFieldStore with no Median Filter or Edge Enhancement and Pulldown
+#define USE_PULLDOWN
 #undef USE_MEDIAN_FILTER
 #undef USE_SHARPNESS		
 #undef FUNC_NAME		
-#define FUNC_NAME DI_GrUpdtFS_NM_NE
+#define FUNC_NAME DI_GrUpdtFS_NM_NE_P
 #include "DI_GrUpdtFS.asm"
 
-// A version of UpdateFieldStore with no Median Filter but Edge Enhancement
+// A version of UpdateFieldStore with no Median Filter but Edge Enhancement and Pulldown
+#define USE_PULLDOWN
 #undef USE_MEDIAN_FILTER
 #define USE_SHARPNESS		
 #undef FUNC_NAME		
-#define FUNC_NAME DI_GrUpdtFS_NM_E
+#define FUNC_NAME DI_GrUpdtFS_NM_E_P
+#include "DI_GrUpdtFS.asm"
+
+
+
+// A version of UpdateFieldStore with Median Filter and Edge Enhancement and no Pulldown
+#undef USE_PULLDOWN
+#define USE_MEDIAN_FILTER
+#define USE_SHARPNESS		
+#undef FUNC_NAME		
+#define FUNC_NAME DI_GrUpdtFS_M_E_NP
+#include "DI_GrUpdtFS.asm"
+
+// A version of UpdateFieldStore with Median Filter but no Edge Enhancement and no Pulldown
+#undef USE_PULLDOWN
+#define USE_MEDIAN_FILTER
+#undef USE_SHARPNESS		
+#undef FUNC_NAME		
+#define FUNC_NAME DI_GrUpdtFS_M_NE_NP
+#include "DI_GrUpdtFS.asm"
+
+// A version of UpdateFieldStore with no Median Filter or Edge Enhancement and no Pulldown
+#undef USE_PULLDOWN
+#undef USE_MEDIAN_FILTER
+#undef USE_SHARPNESS		
+#undef FUNC_NAME		
+#define FUNC_NAME DI_GrUpdtFS_NM_NE_NP
+#include "DI_GrUpdtFS.asm"
+
+// A version of UpdateFieldStore with no Median Filter but Edge Enhancement and no Pulldown
+#undef USE_PULLDOWN
+#undef USE_MEDIAN_FILTER
+#define USE_SHARPNESS		
+#undef FUNC_NAME		
+#define FUNC_NAME DI_GrUpdtFS_NM_E_NP
 #include "DI_GrUpdtFS.asm"
 
 

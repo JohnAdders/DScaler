@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_GrUpdtFS.asm,v 1.3 2001-08-04 06:46:57 trbarry Exp $
+// $Id: DI_GrUpdtFS.asm,v 1.4 2001-08-17 16:18:35 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/08/04 06:46:57  trbarry
+// Make Gui work with Large fonts,
+// Improve Pulldown
+//
 // Revision 1.2  2001/07/25 12:04:31  adcockj
 // Moved Control stuff into DS_Control.h
 // Added $Id and $Log to comment blocks as per standards
@@ -30,7 +34,7 @@
 // FUNC_NAME must be defined.
 // #define USE_SHARPNESS		
 // #define USE_MEDIAN_FILTER
-// #define FUNC_NAME DI_GrUpdtFS_NM_NE
+// #define FUNC_NAME DI_GrUpdtFS_NM_NE_P
 BOOL FUNC_NAME()
 {
 #include "DI_GreedyHM2.h"
@@ -38,7 +42,7 @@ BOOL FUNC_NAME()
     __int64 lastmm3 = 0;        // >>> for debug only
 	short **pLinesW = pLines;	// current input lines, local storage is faster
 	int LineCtr = FieldHeight;	// number of lines to do
-    int SkipCt = FieldHeight / 6;   // skip this many at top and bottom
+    int SkipCt = FieldHeight / 4;   // skip this many at top and bottom
     int FirstLine = LineCtr - SkipCt+1;  // don't use top n lines in totals, re-clear totals here
     int LastLine = SkipCt+1;    // don't use last n lines in totals, save totals here
 	int	LoopCtr;				// number of qwords in line - 1
@@ -140,7 +144,8 @@ QwordLoop:
 
 		movq    mm2, qword ptr[edi+ecx]  // FsNewOld, fetch before store new pixel
 		movq    qword ptr[edi+ecx], mm7 // save our sharp new value for next time
-		
+	
+#ifdef USE_PULLDOWN	
 // Now is a good time to calc comb, contrast, and motion
 //>>> need to optimize this again >>>
         pand    mm4, YMask
@@ -163,6 +168,7 @@ QwordLoop:
 		movd	mm4, ebx				// our motion total
 		paddd   mm4, mm6				// accum 
 		movd	ebx, mm4				// update our motion total
+#endif
 
 #ifdef USE_MEDIAN_FILTER
 
@@ -211,14 +217,8 @@ QwordLoop:
 
 // Ok, done with one line
 
+#ifdef USE_PULLDOWN
         mov     eax, LineCtr
-/*
-//>>>> for debug only
-        movq    mm4, mm3
-        psubd   mm4, lastmm3
-        movq    qword ptr[lastmm3], mm3
-//>>>
-*/
         cmp     eax, FirstLine          // ignore some lines, clear totals here?
         jnz     NotFirst                // no
         pxor    mm3, mm3                // clear Comb, Kontras
@@ -233,6 +233,8 @@ NotFirst:
 		movd    ContrSum, mm3			// save that too
 
 NotLast:
+#endif
+
 		movq    qword ptr[edi], mm1     // jaggie reduction needs one to right later
 		mov		eax, LoopCtrW
 		mov     LoopCtr, eax            // reset ctr
@@ -251,7 +253,10 @@ NotLast:
 		emms
 	}
 
+#ifdef USE_PULLDOWN
 	UpdatePulldown(CombSum / CombScale, ContrSum / CombScale,
 		Motion / CombScale);  // go update our pulldown status for new field
+#endif
+
 	return TRUE;
 }	

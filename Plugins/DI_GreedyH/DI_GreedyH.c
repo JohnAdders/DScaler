@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_GreedyH.c,v 1.8 2001-08-04 06:46:56 trbarry Exp $
+// $Id: DI_GreedyH.c,v 1.9 2001-08-17 16:18:35 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -36,6 +36,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2001/08/04 06:46:56  trbarry
+// Make Gui work with Large fonts,
+// Improve Pulldown
+//
 // Revision 1.7  2001/08/01 00:37:41  trbarry
 // More chroma jitter fixes, tweak defaults
 //
@@ -614,12 +618,14 @@ int ShowPdHistFlags(HWND hDlg, int CombN, int Kontrast,  int MotionN, int RatN,
 	char OFlags[9] = "0       ";
 	SetDlgItemInt(hDlg, CombN, Hist.Comb , TRUE);
 	SetDlgItemInt(hDlg, Kontrast, Hist.Kontrast , TRUE);
-	if (Hist.Kontrast == 0)
+	if (Hist.Kontrast == 0 || Hist.Motion == 0)
 	{
 		SetDlgItemInt(hDlg, MotionN, 0 , TRUE);
 	}
 	else
 	{
+
+		SetDlgItemInt(hDlg, Kontrast,  (100*Hist.CombChoice - 70* Hist.Kontrast )/ Hist.Motion  , TRUE);
 		SetDlgItemInt(hDlg, MotionN, Hist.Motion / 10 , TRUE);
 		SetDlgItemInt(hDlg, CombK, 100 * Hist.CombChoice / Hist.Kontrast , TRUE);
 		SetDlgItemInt(hDlg, RatN,  1000 * Hist.Avg / (Hist.Kontrast * PDAVGLEN) , TRUE);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCICard.h,v 1.18 2004-12-06 09:01:40 atnak Exp $
+// $Id: PCICard.h,v 1.19 2005-02-03 03:39:21 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -93,6 +93,8 @@ public:
     void WriteData(DWORD Offset, DWORD Mask, CBitVector Data);
     /// Read masked data of size defined by Mask from shared memory
     CBitVector ReadData(DWORD Offset, DWORD Mask);
+    /// State management interface for Offset and Mask register definitions
+    void ManageData(DWORD Offset, DWORD Mask, CBitMask DataMask = CBitMask(0xFFFFFFFF));
 
     void MaskDataByte(DWORD Offset, BYTE Data, BYTE Mask);
     void MaskDataWord(DWORD Offset, WORD Data, WORD Mask);

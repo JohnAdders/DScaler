@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCICard.cpp,v 1.18 2004-12-06 09:01:40 atnak Exp $
+// $Id: PCICard.cpp,v 1.19 2005-02-03 03:39:21 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2004/12/06 09:01:40  atnak
+// Added arbitrary data size PCI read and write functions.
+//
 // Revision 1.17  2004/04/18 12:01:04  adcockj
 // Fixes for eeprom corruption
 //
@@ -360,7 +363,7 @@ DWORD CPCICard::ReadDword(DWORD Offset)
     return dwValue;
 }
 
-void CPCICard::WriteData(DWORD Offset, DWORD Mask, CBitVector Data)
+void CPCICard::WriteData(DWORD RegisterOffset, DWORD RegisterMask, CBitVector Data)
 {
     unsigned long mask = Data.mask() & Mask;
     unsigned long value = Data.value();
@@ -400,7 +403,7 @@ void CPCICard::WriteData(DWORD Offset, DWORD Mask, CBitVector Data)
     }
 }
 
-CBitVector CPCICard::ReadData(DWORD Offset, DWORD Mask)
+CBitVector CPCICard::ReadData(DWORD RegisterOffset, DWORD RegisterMask)
 {
     unsigned long value = 0;
 
@@ -419,6 +422,51 @@ CBitVector CPCICard::ReadData(DWORD Offset, DWORD Mask)
     return CBitVector(Mask, value);
 }
 
+void CPCICard::ManageData(DWORD RegisterOffset, DWORD RegisterMask, CBitMask DataMask)
+{
+    if (m_hStateFile != INVALID_HANDLE_VALUE)
+    {
+        DWORD minimalMask = Mask & DataMask.mask();
+        DWORD minimalSize;
+
+        if (minimalMask & 0xFFFF0000)
+        {
+            minimalSize = 4;
+        }
+        else if (minimalMask & 0xFF00)
+        {
+            minimalSize = 2;
+        }
+        else if (minimalMask & 0xFF)
+        {
+            minimalSize = 1;
+        }
+        else
+        {
+            return;
+        }
+
+        if (m_bStateIsReading)
+        {
+            DWORD readData = 0;
+            DWORD bytesRead = 0;
+            if (ReadFile(m_hStateFile, &readData, minimalSize, &bytesRead, NULL))
+            {
+                if (bytesRead == minimalSize)
+                {
+                    WriteData(Offset, Mask, CBitVector(DataMask.mask(), readData));
+                }
+            }
+        }
+        else
+        {
+            CBitVector data = ReadData(Offset, Mask);
+            DWORD writeData = data.value();
+            DWORD bytesWritten = 0;
+            WriteFile(m_hStateFile, &writeData, minimalSize, &bytesWritten, NULL);
+        }
+    }
+}
 
 void CPCICard::MaskDataByte(DWORD Offset, BYTE Data, BYTE Mask)
 {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Bt848.cpp,v 1.32 2001-08-14 10:30:39 adcockj Exp $
+// $Id: Bt848.cpp,v 1.33 2001-08-15 09:04:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,6 +44,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2001/08/14 10:30:39  adcockj
+// Reverted to old driver code in main branch
+//
 // Revision 1.31  2001/08/13 18:05:43  adcockj
 // Fixed saturation settings code
 //
@@ -671,9 +674,6 @@ void BT848_SetPLL(ePLLFreq PLL)
 
     // Set the TGCKI bits to use PLL rather than xtal
     BT848_MaskDataByte(BT848_TGCTRL, BT848_TGCTRL_TGCKI_PLL, 0x18);
-
-    BT848_WhiteCrushUp_OnChange(BtWhiteCrushUp);
-    BT848_WhiteCrushDown_OnChange(BtWhiteCrushDown);
     BT848_WriteByte(BT848_VTOTAL_LO, 0x00);
     BT848_WriteByte(BT848_VTOTAL_HI, 0x00);
     BT848_WriteByte(BT848_DVSIF, 0x00);
@@ -716,6 +716,9 @@ BOOL BT848_SetGeoSize()
     {
         BT848_SetPLL(PLL_NONE);
     }
+
+    BT848_WhiteCrushUp_OnChange(BtWhiteCrushUp);
+    BT848_WhiteCrushDown_OnChange(BtWhiteCrushDown);
 
     BT848_WriteByte(BT848_ADELAY, TVFormats[TVFormat].bDelayA);
     BT848_WriteByte(BT848_BDELAY, TVFormats[TVFormat].bDelayB);

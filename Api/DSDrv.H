@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSDrv.H,v 1.10 2001-11-02 16:36:54 adcockj Exp $
+// $Id: DSDrv.H,v 1.11 2002-06-16 18:53:36 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -42,7 +42,7 @@
 // define version number to be compiled into both files
 // we use this to make sure that we are atlingh the same language in both the 
 // drivers and the dll
-#define DSDRV_VERSION 0x4000
+#define DSDRV_VERSION 0x4001
 
 #define ALLOC_MEMORY_CONTIG 1
 
@@ -158,7 +158,8 @@ extern "C" {
 
 #define DSDRV_GETVERSION (DSDRV_BASE + 18)
 
-
+#define DSDRV_GET_PCI_CONFIG (DSDRV_BASE + 19)
+#define DSDRV_SET_PCI_CONFIG (DSDRV_BASE + 20)
 
 //
 // The wrapped control codes as required by the system
@@ -185,7 +186,8 @@ extern "C" {
 #define ioctlReadMemoryBYTE DSDRV_CTL_CODE( DSDRV_READ_MEMORY_BYTE, METHOD_OUT_DIRECT)
 #define ioctlWriteMemoryBYTE DSDRV_CTL_CODE( DSDRV_WRITE_MEMORY_BYTE, METHOD_IN_DIRECT)
 #define ioctlGetVersion DSDRV_CTL_CODE( DSDRV_GETVERSION, METHOD_OUT_DIRECT)
-
+#define ioctlGetPCIConfig DSDRV_CTL_CODE( DSDRV_GET_PCI_CONFIG, METHOD_OUT_DIRECT)
+#define ioctlSetPCIConfig DSDRV_CTL_CODE( DSDRV_SET_PCI_CONFIG, METHOD_OUT_DIRECT)
 
 typedef struct tagDSDrvParam
 {

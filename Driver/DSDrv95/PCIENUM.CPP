@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCIENUM.CPP,v 1.8 2002-03-24 21:25:14 robmuller Exp $
+// $Id: PCIENUM.CPP,v 1.9 2002-06-16 18:53:36 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/03/24 21:25:14  robmuller
+// Fixed include directive (debugout.h).
+//
 // Revision 1.7  2001/11/02 16:36:54  adcockj
 // Merge code from Multiple cards into main trunk
 //
@@ -188,17 +191,12 @@ NTSTATUS CIOAccessDevice::pciFindDevice(
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
-NTSTATUS CIOAccessDevice::pciGetDeviceConfig(TPCICARDINFO* pPCICardInfo)
+NTSTATUS CIOAccessDevice::pciGetDeviceInfo(TPCICARDINFO* pPCICardInfo)
 {
     PCI_COMMON_CONFIG PCIConfiguration;
     CONFIGRET cr;
 
-    cr = _CONFIGMG_Call_Enumerator_Function(pPCICardInfo->dwSlotNumber,
-                                            PCI_ENUM_FUNC_GET_DEVICE_INFO,
-                                            0,
-                                            &PCIConfiguration,
-                                            sizeof(PCIConfiguration),
-                                            0);
+    cr = pciGetDeviceConfig(&PCIConfiguration, pPCICardInfo->dwBusNumber, pPCICardInfo->dwSlotNumber);
 
     debugOut(dbTrace,"get PCI device info for node %lX returns %X",pPCICardInfo->dwSlotNumber, cr);
 
@@ -206,4 +204,28 @@ NTSTATUS CIOAccessDevice::pciGetDeviceConfig(TPCICARDINFO* pPCICardInfo)
     pPCICardInfo->dwMemoryLength = 0x1000;
     pPCICardInfo->dwSubSystemId = (PCIConfiguration.u.type0.SubSystemID << 16) + PCIConfiguration.u.type0.SubVendorID;
     return cr;
+}
+
+NTSTATUS CIOAccessDevice::pciGetDeviceConfig(PCI_COMMON_CONFIG *pPCIConfig, DWORD Bus, DWORD Slot)
+{
+    debugOut(dbTrace,"get pci configuration for bus %X slot %X",Bus, Slot);
+
+    return _CONFIGMG_Call_Enumerator_Function(Slot,
+                                              PCI_ENUM_FUNC_GET_DEVICE_INFO,
+                                              0,
+                                              pPCIConfig,
+                                              sizeof(PCI_COMMON_CONFIG),
+                                              0);
+}
+
+NTSTATUS CIOAccessDevice::pciSetDeviceConfig(PCI_COMMON_CONFIG *pPCIConfig, DWORD Bus, DWORD Slot)
+{
+    debugOut(dbTrace,"set pci configuration for bus %X slot %X",Bus, Slot);
+
+    return _CONFIGMG_Call_Enumerator_Function(Slot,
+                                              PCI_ENUM_FUNC_SET_DEVICE_INFO,
+                                              0,
+                                              pPCIConfig,
+                                              sizeof(PCI_COMMON_CONFIG),
+                                              0);
 }

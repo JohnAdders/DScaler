@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCIENUM.CPP,v 1.7 2001-11-02 16:36:54 adcockj Exp $
+// $Id: PCIENUM.CPP,v 1.8 2002-06-16 18:53:36 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2001/11/02 16:36:54  adcockj
+// Merge code from Multiple cards into main trunk
+//
 // Revision 1.5  2001/08/08 16:37:50  adcockj
 // Made drivers stateless to support multiple cards
 // Added version check
@@ -161,20 +164,14 @@ NTSTATUS CIOAccessDevice::pciFindDevice(
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
-NTSTATUS CIOAccessDevice::pciGetDeviceConfig(TPCICARDINFO* pPCICardInfo)
+NTSTATUS CIOAccessDevice::pciGetDeviceInfo(TPCICARDINFO* pPCICardInfo)
 {
     PCI_COMMON_CONFIG PCIConfig;
     NTSTATUS status;
 
-    debugOut(dbTrace,"get pci configuration for bus %X slot %X",pPCICardInfo->dwBusNumber,pPCICardInfo->dwSlotNumber);
+    status = pciGetDeviceConfig(&PCIConfig, pPCICardInfo->dwBusNumber, pPCICardInfo->dwSlotNumber);
 
-    status = HalGetBusData(PCIConfiguration,
-                            pPCICardInfo->dwBusNumber,
-                            pPCICardInfo->dwSlotNumber,
-                            &PCIConfig,
-                            sizeof(PCIConfig));
-
-    debugOut(dbTrace,"found address %lX, irq %lX", PCIConfig.u.type0.BaseAddresses[0],
+    debugOut(dbTrace,"found address %lX, irq %lX", PCIConfig.u.type0.BaseAddresses[0], 
                                                     PCIConfig.u.type0.InterruptLine);
 
     pPCICardInfo->dwMemoryAddress = PCIConfig.u.type0.BaseAddresses[0] & 0xFFFFFFF0;
@@ -182,4 +179,18 @@ NTSTATUS CIOAccessDevice::pciGetDeviceConfig(TPCICARDINFO* pPCICardInfo)
     pPCICardInfo->dwSubSystemId = (PCIConfig.u.type0.SubSystemID << 16) + PCIConfig.u.type0.SubVendorID;
 
     return STATUS_SUCCESS;
+}
+
+NTSTATUS CIOAccessDevice::pciGetDeviceConfig(PCI_COMMON_CONFIG *pPCIConfig, DWORD Bus, DWORD Slot)
+{
+    debugOut(dbTrace,"get pci configuration for bus %X slot %X",Bus, Slot);
+
+    return HalGetBusData(PCIConfiguration, Bus, Slot, pPCIConfig, sizeof(PCI_COMMON_CONFIG));
+}
+
+NTSTATUS CIOAccessDevice::pciSetDeviceConfig(PCI_COMMON_CONFIG *pPCIConfig, DWORD Bus, DWORD Slot)
+{
+    debugOut(dbTrace,"set pci configuration for bus %X slot %X",Bus, Slot);
+
+    return HalSetBusData(PCIConfiguration, Bus, Slot, pPCIConfig, sizeof(PCI_COMMON_CONFIG));
 }

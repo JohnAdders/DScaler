@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Ioclass.cpp,v 1.10 2001-11-02 16:36:54 adcockj Exp $
+// $Id: Ioclass.cpp,v 1.11 2002-06-16 18:53:36 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -33,6 +33,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2001/11/02 16:36:54  adcockj
+// Merge code from Multiple cards into main trunk
+//
 // Revision 1.7.2.1  2001/08/15 08:54:28  adcockj
 // Tidy up driver code
 //
@@ -227,17 +230,17 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
 
             if ( status == STATUS_SUCCESS)
             {
-                status = pciGetDeviceConfig(pPCICardInfo);
+                status = pciGetDeviceInfo(pPCICardInfo);
             }
             else
             {
-                debugOut(dbTrace,"pci device for vendor %lX deviceID %lX not found",ioParam->dwAddress,ioParam->dwValue);
+                debugOut(dbTrace,"ioctlGetPCIInfo: pci device for vendor %lX deviceID %lX not found",ioParam->dwAddress,ioParam->dwValue);
             }
             *pBytesWritten = sizeof(TPCICARDINFO);
         }
         else
         {
-            debugOut(dbTrace,"pci device for vendor %lX deviceID %lX not found",ioParam->dwAddress,ioParam->dwValue);
+            debugOut(dbError,"! invalid system address %X",outputBuffer);
         }
         break;
 
@@ -321,6 +324,36 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
     case ioctlGetVersion:
         *outputBuffer = DSDRV_VERSION;
         *pBytesWritten = sizeof(DWORD);
+        break;
+
+    case ioctlGetPCIConfig:
+        if (isValidAddress(outputBuffer))
+        {
+            PCI_COMMON_CONFIG *pPCIConfig = (PCI_COMMON_CONFIG*)outputBuffer;
+
+            status = pciGetDeviceConfig(pPCIConfig, ioParam->dwAddress, ioParam->dwValue);
+
+            *pBytesWritten = sizeof(PCI_COMMON_CONFIG);
+        }
+        else
+        {
+            debugOut(dbError,"! invalid system address %X",outputBuffer);
+        }
+        break;
+
+    case ioctlSetPCIConfig:
+        if (isValidAddress(outputBuffer))
+        {
+            PCI_COMMON_CONFIG *pPCIConfig = (PCI_COMMON_CONFIG*)outputBuffer;
+
+            status = pciSetDeviceConfig(pPCIConfig, ioParam->dwAddress, ioParam->dwValue);
+
+            *pBytesWritten = sizeof(PCI_COMMON_CONFIG);
+        }
+        else
+        {
+            debugOut(dbError,"! invalid system address %X",outputBuffer);
+        }
         break;
 
     default:

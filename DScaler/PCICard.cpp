@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCICard.cpp,v 1.6 2002-02-12 02:29:40 ittarnavsky Exp $
+// $Id: PCICard.cpp,v 1.7 2002-06-16 18:53:36 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/02/12 02:29:40  ittarnavsky
+// fixed the hardware info dialog
+//
 // Revision 1.5  2001/11/23 10:49:17  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -368,3 +371,63 @@ void CPCICard::OrDataDword(DWORD Offset, DWORD Data)
     WriteDword(Offset, Result);
 }
 
+
+BOOL CPCICard::GetPCIConfig(PCI_COMMON_CONFIG* pPCI_COMMON_CONFIG, DWORD Bus, DWORD Slot)
+{
+    if(pPCI_COMMON_CONFIG == NULL)
+    {
+        LOG(1, "GetPCIConfig failed. pPCI_COMMON_CONFIG == NULL");
+        return FALSE;
+    }
+
+    TDSDrvParam hwParam;
+    DWORD dwStatus;
+    DWORD dwLength;
+
+    hwParam.dwAddress = Bus;
+    hwParam.dwValue = Slot;
+
+    dwStatus = m_pDriver->SendCommand(ioctlGetPCIConfig,
+                                        &hwParam,
+                                        sizeof(hwParam),
+                                        pPCI_COMMON_CONFIG,
+                                        sizeof(PCI_COMMON_CONFIG),
+                                        &dwLength);
+
+    if(dwStatus != ERROR_SUCCESS)
+    {
+        LOG(1, "GetPCIConfig failed for %X %X failed 0x%x", Bus, Slot, dwStatus);
+        return FALSE;
+    }
+    return TRUE;
+}
+
+BOOL CPCICard::SetPCIConfig(PCI_COMMON_CONFIG* pPCI_COMMON_CONFIG, DWORD Bus, DWORD Slot)
+{
+    if(pPCI_COMMON_CONFIG == NULL)
+    {
+        LOG(1, "SetPCIConfig failed. pPCI_COMMON_CONFIG == NULL");
+        return FALSE;
+    }
+
+    TDSDrvParam hwParam;
+    DWORD dwStatus;
+    DWORD dwLength;
+
+    hwParam.dwAddress = Bus;
+    hwParam.dwValue = Slot;
+
+    dwStatus = m_pDriver->SendCommand(ioctlSetPCIConfig,
+                                        &hwParam,
+                                        sizeof(hwParam),
+                                        pPCI_COMMON_CONFIG,
+                                        sizeof(PCI_COMMON_CONFIG),
+                                        &dwLength);
+
+    if(dwStatus != ERROR_SUCCESS)
+    {
+        LOG(1, "SetPCIConfig failed for %X %X failed 0x%x", Bus, Slot, dwStatus);
+        return FALSE;
+    }
+    return TRUE;
+}

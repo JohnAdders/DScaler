@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Ioclass.h,v 1.7 2001-11-02 16:36:54 adcockj Exp $
+// $Id: Ioclass.h,v 1.8 2002-06-16 18:53:36 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,7 @@
 #include <vmmreg.h>
 
 #define PCI_ENUM_FUNC_GET_DEVICE_INFO  0
+#define PCI_ENUM_FUNC_SET_DEVICE_INFO  1
 #define PIRP PDIOCPARAMETERS
 
 typedef DWORD DEVNODE;
@@ -115,7 +116,9 @@ protected:
     int isValidAddress(void * pvAddress);
     NTSTATUS deviceControl(DWORD ioControlCode, PDSDrvParam ioParam, DWORD* outputBuffer, DWORD* pulBytesWritten);
     NTSTATUS pciFindDevice(DWORD vendorID, DWORD deviceID, DWORD dwCardIndex, DWORD* pdwBusNumber, DWORD* pdwSlotNumber);
-    NTSTATUS pciGetDeviceConfig(TPCICARDINFO* pPCICardInfo);
+    NTSTATUS pciGetDeviceInfo(TPCICARDINFO* pPCICardInfo);
+	NTSTATUS pciGetDeviceConfig(PCI_COMMON_CONFIG *pPCIConfig, DWORD Bus, DWORD Slot);
+    NTSTATUS pciSetDeviceConfig(PCI_COMMON_CONFIG *pPCIConfig, DWORD Bus, DWORD Slot);
     NTSTATUS allocMemory(DWORD ulLength,DWORD ulFlags,DWORD ulUserAddress, PMemStruct pMemStruct);
     NTSTATUS freeMemory(PMemStruct pMemStruct);
     void freeMemory(PMemoryNode node);

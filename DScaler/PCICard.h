@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCICard.h,v 1.8 2002-02-12 02:29:40 ittarnavsky Exp $
+// $Id: PCICard.h,v 1.9 2002-06-16 18:53:36 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -28,6 +28,8 @@
 class CPCICard
 {
 public:
+	BOOL GetPCIConfig(PCI_COMMON_CONFIG* pPCI_COMMON_CONFIG, DWORD Bus, DWORD Slot);
+	BOOL SetPCIConfig(PCI_COMMON_CONFIG* pPCI_COMMON_CONFIG, DWORD Bus, DWORD Slot);
     DWORD GetSubSystemId();
     WORD GetDeviceId();
     WORD GetVendorId();
@@ -72,12 +74,12 @@ protected:
     DWORD  m_SubSystemId;
     WORD   m_DeviceId;
     WORD   m_VendorId;
+    DWORD  m_BusNumber;
+    DWORD  m_SlotNumber;
     BOOL   m_bOpen;
 private:
     DWORD  m_MemoryAddress;
     DWORD  m_MemoryLength;
-    DWORD  m_BusNumber;
-    DWORD  m_SlotNumber;
     DWORD  m_MemoryBase;
     CHardwareDriver* m_pDriver;
 };

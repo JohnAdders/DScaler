@@ -78,14 +78,18 @@
 #define IDC_TRAYMENU                    258
 #define IDI_TRAYICON                    259
 #define IDM_VT_RESET                    261
+#define IDI_TOOLBAR_MEDIAPLAYER_PLAY    263
 #define IDM_AUDIOSETTINGS               264
+#define IDI_TOOLBAR_MEDIAPLAYER_STOP    264
 #define IDM_VIDEOSETTINGS               265
+#define IDI_TOOLBAR_MEDIAPLAYER_PAUSE   265
 #define IDM_CHANNELPLUS                 266
 #define IDM_CHANNELMINUS                267
 #define IDM_TOGGLE_MENU                 268
 #define IDM_HWINFO                      270
 #define IDM_RESET                       280
 #define IDD_OPEN                        300
+#define IDD_TOOLBAR_MEDIAPLAYER         301
 #define IDM_ON_TOP                      309
 #define IDM_AUTOSTEREO                  345
 #define IDM_AUDIOSETTINGS1              350
@@ -1112,6 +1116,10 @@
 #define IDC_DEST_STATIC                 8082
 #define IDC_SOURCE_NO_INPUT             8083
 #define IDC_MIXER_INPUTNAME_ALL         8084
+#define IDC_TOOLBAR_MEDIAPLAYER_PLAY    8085
+#define IDC_TOOLBAR_MEDIAPLAYER_PAUSE   8086
+#define IDC_TOOLBAR_MEDIAPLAYER_STOP    8087
+#define IDC_TOOLBAR_MEDIAPLAYER_TIMESLIDER 8088
 #define IDM_SETTINGS_FILTERSETTINGS     32771
 #define IDM_SOURCE_INITIAL              32772
 #define IDM_DSHOW_FILTERS               32773
@@ -1191,6 +1199,7 @@
 #define IDM_PLAYLIST_NEXT_CIRC          32963
 #define IDM_PREVIEW_PAGE_NEXT           32964
 #define IDM_PREVIEW_PAGE_PREV           32965
+#define IDM_VIEW_MAINTOOLBAR_MEDIAPLAYER 32966
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
 #define IDM_POPUP_MODE                  65535
@@ -1210,9 +1219,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        260
-#define _APS_NEXT_COMMAND_VALUE         32966
-#define _APS_NEXT_CONTROL_VALUE         8085
+#define _APS_NEXT_RESOURCE_VALUE        266
+#define _APS_NEXT_COMMAND_VALUE         32967
+#define _APS_NEXT_CONTROL_VALUE         8089
 #define _APS_NEXT_SYMED_VALUE           2526
 #endif
 #endif

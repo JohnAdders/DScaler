@@ -1,5 +1,5 @@
 //
-// $Id: ToolbarControl.cpp,v 1.9 2003-08-10 00:34:24 laurentg Exp $
+// $Id: ToolbarControl.cpp,v 1.10 2003-08-10 09:41:59 laurentg Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2003/08/10 00:34:24  laurentg
+// Restore volume toolbar whatever the source (to be enhanced later)
+//
 // Revision 1.8  2003/08/09 21:12:18  laurentg
 // Display volume toolbar only for sources having a volume control
 //
@@ -84,6 +87,7 @@ CToolbarControl::CToolbarControl(long SetMessage) : CSettingsHolder(SetMessage),
 Toolbar1(NULL),
 Toolbar1Channels(NULL),
 Toolbar1Volume(NULL),
+Toolbar1MediaPlayer(NULL),
 Toolbar1Logo(NULL)
 {
     CreateSettings("Toolbars");
@@ -141,6 +145,9 @@ void CToolbarControl::CreateSettings(LPCSTR IniSection)
     m_Toolbar1Channels = new CToolbar1ChannelsSetting(this, "ChannelBar", MAKELONG(1,1), 0x80000000L, 0x7F000000L, IniSection);
     m_Settings.push_back(m_Toolbar1Channels);
 
+    m_Toolbar1MediaPlayer = new CToolbar1MediaPlayerSetting(this, "MediaPlayerBar", MAKELONG(3,1), 0x80000000L, 0x7F000000L, IniSection);
+    m_Settings.push_back(m_Toolbar1MediaPlayer);
+
     ReadFromIni();
 }
 
@@ -157,6 +164,10 @@ void CToolbarControl::Toolbar1ChannelsOnChange(long OldValue, long NewValue)
 }
 
 void CToolbarControl::Toolbar1VolumeOnChange(long OldValue, long NewValue)
+{
+}
+
+void CToolbarControl::Toolbar1MediaPlayerOnChange(long OldValue, long NewValue)
 {
 }
 
@@ -222,6 +233,28 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR szSkinName, int ForceHide)
             Toolbar1Volume = NULL;
         }
         
+		if (Toolbar1Channels != NULL)
+		{
+			//Another bar
+			n = CreateToolbar1Bar();
+		}
+
+        //Create media player subbar from a dialog
+		Toolbar1MediaPlayer = new CToolbarMediaPlayer(Toolbar1);
+        if (Toolbar1MediaPlayer->CreateFromDialog(MAKEINTRESOURCE(IDD_TOOLBAR_MEDIAPLAYER), hResourceInst)!=NULL)
+        {            
+            Toolbar1->Add(Toolbar1MediaPlayer,TOOLBARCHILD_ALIGN_LEFTCENTER,LOWORD(m_Toolbar1MediaPlayer->GetValue()),0);
+			if (n >= 0)
+			{
+				Toolbar1->AttachBar(Toolbar1MediaPlayer, 0, Toolbar1Bars[n]);
+			}
+        }                
+        else
+        {
+            delete Toolbar1MediaPlayer;
+            Toolbar1MediaPlayer = NULL;
+        }
+        
         //Create logo subbar from a dialog
 		Toolbar1Logo = new CToolbarLogo(Toolbar1);
         if (Toolbar1Logo->CreateFromDialog(MAKEINTRESOURCE(IDD_TOOLBAR_LOGO), hResourceInst)!=NULL)
@@ -272,6 +305,16 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR szSkinName, int ForceHide)
             Toolbar1Volume->Reset();
 			InvalidateRect(Toolbar1Volume->GethWnd(), NULL, FALSE);
         }
+
+        if (Toolbar1MediaPlayer != NULL)
+        {
+            Toolbar1MediaPlayer->RemoveSkinDlgItem(IDC_TOOLBAR_MEDIAPLAYER_PLAY);
+            Toolbar1MediaPlayer->RemoveSkinDlgItem(IDC_TOOLBAR_MEDIAPLAYER_PAUSE);
+			Toolbar1MediaPlayer->RemoveSkinDlgItem(IDC_TOOLBAR_MEDIAPLAYER_STOP);
+            Toolbar1MediaPlayer->Reset();
+			InvalidateRect(Toolbar1MediaPlayer->GethWnd(), NULL, FALSE);
+        }
+
         if (Toolbar1Logo != NULL)
         {            
             Toolbar1Logo->RemoveSkinDlgItem(IDC_TOOLBAR_LOGO_LOGO);
@@ -363,7 +406,17 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR szSkinName, int ForceHide)
 			Toolbar1Volume->SkinDlgItem(IDC_TOOLBAR_VOLUME_CHANNEL, "SoundChannel", BITMAPASBUTTON_4STATE, "VolumeBar", szSkinIniFile, &BitmapCache);
             Toolbar1Volume->Reset();
 			InvalidateRect(Toolbar1Volume->GethWnd(), NULL, FALSE);
-        }        
+        }      
+		
+        if (Toolbar1MediaPlayer != NULL)
+        {
+            Toolbar1MediaPlayer->SkinDlgItem(IDC_TOOLBAR_MEDIAPLAYER_PLAY, "Play", BITMAPASBUTTON_PUSH, "MediaPlayerBar", szSkinIniFile, &BitmapCache);
+            Toolbar1MediaPlayer->SkinDlgItem(IDC_TOOLBAR_MEDIAPLAYER_PAUSE, "Pause", BITMAPASBUTTON_PUSH, "MediaPlayerBar", szSkinIniFile, &BitmapCache);
+			Toolbar1MediaPlayer->SkinDlgItem(IDC_TOOLBAR_MEDIAPLAYER_STOP, "Stop", BITMAPASBUTTON_PUSH, "MediaPlayerBar", szSkinIniFile, &BitmapCache);
+            Toolbar1MediaPlayer->Reset();
+			InvalidateRect(Toolbar1MediaPlayer->GethWnd(), NULL, FALSE);
+        }      
+		
         if (Toolbar1Logo != NULL)
         {
             Toolbar1Logo->SkinDlgItem(IDC_TOOLBAR_LOGO_LOGO, "Logo", BITMAPASBUTTON_PUSH, "LogoBar", szSkinIniFile, &BitmapCache);            
@@ -398,6 +451,18 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR szSkinName, int ForceHide)
             else
             {
                 Toolbar1->HideChild(Toolbar1Volume);
+            }
+        }
+        if (Toolbar1MediaPlayer!=NULL)
+        {
+            Toolbar1->SetChildPosition(Toolbar1MediaPlayer, LOWORD(m_Toolbar1MediaPlayer->GetValue()), 0);
+			if (HIWORD(m_Toolbar1MediaPlayer->GetValue()))
+            {
+                Toolbar1->ShowChild(Toolbar1MediaPlayer);
+            }
+            else
+            {
+                Toolbar1->HideChild(Toolbar1MediaPlayer);
             }
         }
         if (Toolbar1Logo!=NULL)
@@ -557,6 +622,7 @@ void CToolbarControl::Free()
     {                       
         Toolbar1->Remove(Toolbar1Channels);
         Toolbar1->Remove(Toolbar1Volume);
+        Toolbar1->Remove(Toolbar1MediaPlayer);
         Toolbar1->Remove(Toolbar1Logo);        
     }
     /*if (ToolbarSideBar != NULL)
@@ -573,6 +639,11 @@ void CToolbarControl::Free()
     {
         delete Toolbar1Volume;
         Toolbar1Volume = NULL;
+    }
+    if (Toolbar1MediaPlayer != NULL)
+    {
+        delete Toolbar1MediaPlayer;
+        Toolbar1MediaPlayer = NULL;
     }
     if (Toolbar1Logo != NULL)
     {
@@ -609,13 +680,13 @@ void CToolbarControl::UpdateMenu(HMENU hMenu)
     CheckMenuItemBool(hMenu, IDM_VIEW_TOOLBARS_MAINTOOLBAR, (m_ShowToolbar1->GetValue()!=0));
     CheckMenuItemBool(hMenu, IDM_VIEW_MAINTOOLBAR_TOP, (m_Toolbar1Position->GetValue()==0));
     CheckMenuItemBool(hMenu, IDM_VIEW_MAINTOOLBAR_CHANNELS, ((HIWORD(m_Toolbar1Channels->GetValue())&1)!=0));
-    CheckMenuItemBool(hMenu, IDM_VIEW_MAINTOOLBAR_VOLUME, (HIWORD(m_Toolbar1Volume->GetValue())!=0));
-//    CheckMenuItemBool(hMenu, IDM_VIEW_MAINTOOLBAR_MEDIAPLAYER, FALSE);
+    CheckMenuItemBool(hMenu, IDM_VIEW_MAINTOOLBAR_VOLUME, ((HIWORD(m_Toolbar1Volume->GetValue())&1)!=0));
+    CheckMenuItemBool(hMenu, IDM_VIEW_MAINTOOLBAR_MEDIAPLAYER, (HIWORD(m_Toolbar1MediaPlayer->GetValue())!=0));
     
     EnableMenuItemBool(hMenu, IDM_VIEW_MAINTOOLBAR_TOP, (m_ShowToolbar1->GetValue()!=0));
     EnableMenuItemBool(hMenu, IDM_VIEW_MAINTOOLBAR_CHANNELS, (m_ShowToolbar1->GetValue()!=0));
     EnableMenuItemBool(hMenu, IDM_VIEW_MAINTOOLBAR_VOLUME, (m_ShowToolbar1->GetValue()!=0));
-//    EnableMenuItemBool(hMenu, IDM_VIEW_MAINTOOLBAR_MEDIAPLAYER, (m_ShowToolbar1->GetValue()!=0));
+    EnableMenuItemBool(hMenu, IDM_VIEW_MAINTOOLBAR_MEDIAPLAYER, (m_ShowToolbar1->GetValue()!=0));
 }
 
 //Process menu commands
@@ -673,11 +744,17 @@ BOOL CToolbarControl::ProcessToolbar1Selection(HWND hWnd, UINT uItem)
 		{
 			int Visible = HIWORD(m_Toolbar1Volume->GetValue());
 			Visible = (Visible&2) | ((Visible&1)?0:1);
-			m_Toolbar1Volume->SetValue( MAKELONG(LOWORD(m_Toolbar1Volume->GetValue()), HIWORD(m_Toolbar1Volume->GetValue())?0:1) );
+			m_Toolbar1Volume->SetValue( MAKELONG(LOWORD(m_Toolbar1Volume->GetValue()), Visible) );
 			CToolbarControl::Set(hWnd, NULL);
 			WorkoutOverlaySize(TRUE);
 			CToolbarControl::Set(hWnd, NULL, bIsFullScreen?1:0);
 		}
+        break;
+    case IDM_VIEW_MAINTOOLBAR_MEDIAPLAYER:
+		m_Toolbar1MediaPlayer->SetValue( MAKELONG(LOWORD(m_Toolbar1MediaPlayer->GetValue()), HIWORD(m_Toolbar1MediaPlayer->GetValue())?0:1) );
+		CToolbarControl::Set(hWnd, NULL);
+		WorkoutOverlaySize(TRUE);
+		CToolbarControl::Set(hWnd, NULL, bIsFullScreen?1:0);
         break;
     default:
         return FALSE;

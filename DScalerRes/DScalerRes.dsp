@@ -136,6 +136,18 @@ SOURCE=.\toolbar_channels_up.ico
 # End Source File
 # Begin Source File
 
+SOURCE=.\toolbar_mediaplayer_pause.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\toolbar_mediaplayer_play.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\toolbar_mediaplayer_stop.ico
+# End Source File
+# Begin Source File
+
 SOURCE=.\toolbar_volume_lang1.ico
 # End Source File
 # Begin Source File

@@ -1,5 +1,5 @@
 //
-// $Id: Toolbars.cpp,v 1.11 2003-07-29 13:33:07 atnak Exp $
+// $Id: Toolbars.cpp,v 1.12 2003-08-10 09:41:59 laurentg Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2003/07/29 13:33:07  atnak
+// Overhauled mixer code
+//
 // Revision 1.10  2003/01/27 13:57:51  adcockj
 // Put correct version in the toolbar
 //
@@ -251,7 +254,7 @@ LRESULT CToolbarChannels::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wPara
 {      
     if ((hWnd == NULL) && (message == WM_INITDIALOG))
     {
-       m_hIconChannelUp = (HICON)LoadImage(hResourceInst, MAKEINTRESOURCE(IDI_TOOLBAR_CHANNELS_UP),IMAGE_ICON,0,0,0);
+		m_hIconChannelUp = (HICON)LoadImage(hResourceInst, MAKEINTRESOURCE(IDI_TOOLBAR_CHANNELS_UP),IMAGE_ICON,0,0,0);
         SendMessage(GetDlgItem(hDlg, IDC_TOOLBAR_CHANNELS_SPINUP),BM_SETIMAGE,IMAGE_ICON,LPARAM(m_hIconChannelUp));
 
         m_hIconChannelDown = (HICON)LoadImage(hResourceInst, MAKEINTRESOURCE(IDI_TOOLBAR_CHANNELS_DOWN),IMAGE_ICON,0,0,0);
@@ -370,7 +373,7 @@ LRESULT CToolbarChannels::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wPara
     case WM_DESTROY:					
 		if ((hDlg != NULL) && (m_oldComboProc!=NULL))
 		{
-		SetWindowLong(hDlg, GWL_WNDPROC, (LONG)m_oldComboProc);
+			SetWindowLong(hDlg, GWL_WNDPROC, (LONG)m_oldComboProc);
 		}
         break;
     }
@@ -456,6 +459,26 @@ CToolbarVolume::~CToolbarVolume()
 	{
 		::DestroyIcon(m_hIconUnMute);
 		m_hIconUnMute = NULL;
+	}
+	if (m_hIconMono != NULL)
+	{
+		::DestroyIcon(m_hIconMono);
+		m_hIconMono = NULL;
+	}
+	if (m_hIconStereo != NULL)
+	{
+		::DestroyIcon(m_hIconStereo);
+		m_hIconStereo = NULL;
+	}
+	if (m_hIconLang1 != NULL)
+	{
+		::DestroyIcon(m_hIconLang1);
+		m_hIconLang1 = NULL;
+	}
+	if (m_hIconLang2 != NULL)
+	{
+		::DestroyIcon(m_hIconLang2);
+		m_hIconLang2 = NULL;
 	}
 }
 
@@ -651,6 +674,7 @@ LRESULT CToolbarVolume::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam,
 				default:
 					hIcon = m_hIconMono;						
 					strcpy(szText,"Mono");
+					break;
 				}
 				Align = TOOLBARBUTTON_ICON_HALIGN_CENTER|TOOLBARBUTTON_ICON_VALIGN_TOP|
 						TOOLBARBUTTON_TEXT_HALIGN_CENTER|TOOLBARBUTTON_TEXT_VALIGN_BOTTOM;
@@ -674,6 +698,182 @@ LRESULT CToolbarVolume::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam,
 				GetClientRect(GetDlgItem(hDlg, pDrawItem->CtlID), &rc);
 
 				DrawItem(pDrawItem, hIcon, szText, rc.right-rc.left, rc.bottom-rc.top, Align);				
+			}
+		}
+		break;
+    case WM_NCHITTEST:
+        {
+            return HTCLIENT;
+        }
+        break;
+ 
+    case WM_CLOSE:
+    case WM_DESTROY:
+        break;
+    }
+    return FALSE;
+    
+}
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Toolbar Media Player ///////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+CToolbarMediaPlayer::CToolbarMediaPlayer(CToolbarWindow *pToolbar) : CToolbarChild(pToolbar),
+m_hIconPlay(NULL),
+m_hIconPause(NULL),
+m_hIconStop(NULL)
+{
+}
+
+CToolbarMediaPlayer::~CToolbarMediaPlayer()
+{
+	if (m_hIconPlay != NULL)
+	{
+		::DestroyIcon(m_hIconPlay);
+		m_hIconPlay = NULL;
+	}
+	if (m_hIconPause != NULL)
+	{
+		::DestroyIcon(m_hIconPause);
+		m_hIconPause = NULL;
+	}
+	if (m_hIconStop != NULL)
+	{
+		::DestroyIcon(m_hIconStop);
+		m_hIconStop = NULL;
+	}
+}
+
+
+void CToolbarMediaPlayer::OnEvent(CEventObject *pObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
+{
+	if ((hWnd != NULL) && Visible())
+	{		
+		UpdateControls(NULL, FALSE);
+	}
+}
+
+void CToolbarMediaPlayer::UpdateControls(HWND hWnd, bool bInitDialog)
+{
+   if (hWnd == NULL)
+   {
+        hWnd = this->hWnd;
+   }
+   if (hWnd == NULL) return;
+
+   if (bInitDialog)
+   {
+   }
+   
+	SetFocus(m_pToolbar->GethWndParent());
+}
+
+void CToolbarMediaPlayer::Reset()
+{
+    UpdateControls(hWnd, TRUE);        
+}
+
+LRESULT CToolbarMediaPlayer::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    if ((hWnd == NULL) && (message == WM_INITDIALOG))
+    {
+    	m_hIconPlay  = (HICON)LoadImage(hResourceInst, MAKEINTRESOURCE(IDI_TOOLBAR_MEDIAPLAYER_PLAY),IMAGE_ICON,0,0,0);
+		m_hIconPause = (HICON)LoadImage(hResourceInst, MAKEINTRESOURCE(IDI_TOOLBAR_MEDIAPLAYER_PAUSE),IMAGE_ICON,0,0,0);
+		m_hIconStop  = (HICON)LoadImage(hResourceInst, MAKEINTRESOURCE(IDI_TOOLBAR_MEDIAPLAYER_STOP),IMAGE_ICON,0,0,0);
+        
+		UpdateControls(hDlg, TRUE);        
+        return TRUE;
+    }
+    if (hWnd != hDlg) { return FALSE; }
+
+    switch (message)
+    {
+    case  WM_ERASEBKGND:
+        return TRUE;
+        break;
+    case WM_PAINT:
+        PAINTSTRUCT ps;            
+        ::BeginPaint(hDlg,&ps);                        
+        if (ps.fErase)
+        {                    
+            m_pToolbar->PaintChildBG(hDlg,ps.hdc,NULL);
+        }
+        else
+        {
+            m_pToolbar->PaintChildBG(hDlg,ps.hdc,&ps.rcPaint);
+        }
+        ::EndPaint(hDlg, &ps);
+        return TRUE;
+        break;    
+    case WM_COMMAND:
+        switch (LOWORD(wParam))
+        {
+            case IDC_TOOLBAR_MEDIAPLAYER_PLAY:
+                {
+					SendMessage(m_pToolbar->GethWndParent(), WM_COMMAND, IDM_DSHOW_PLAY, 0);
+					SetFocus(m_pToolbar->GethWndParent());
+                    return TRUE;
+                }                   
+                break;
+            case IDC_TOOLBAR_MEDIAPLAYER_PAUSE:
+                {
+					SendMessage(m_pToolbar->GethWndParent(), WM_COMMAND, IDM_DSHOW_PAUSE, 0);
+					SetFocus(m_pToolbar->GethWndParent());
+                    return TRUE;
+                }                   
+                break;
+            case IDC_TOOLBAR_MEDIAPLAYER_STOP:
+                {
+					SendMessage(m_pToolbar->GethWndParent(), WM_COMMAND, IDM_DSHOW_STOP, 0);
+					SetFocus(m_pToolbar->GethWndParent());
+                    return TRUE;
+                }                   
+                break;
+            default:
+				break;
+        }    
+        break;
+	case WM_DRAWITEM:
+		{
+			DRAWITEMSTRUCT *pDrawItem;
+			HICON hIcon = NULL;
+			int Align = TOOLBARBUTTON_ICON_HALIGN_CENTER|TOOLBARBUTTON_ICON_VALIGN_CENTER|
+						TOOLBARBUTTON_TEXT_HALIGN_CENTER|TOOLBARBUTTON_TEXT_VALIGN_CENTER;
+			char szText[100];
+			
+			szText[0] = 0;
+			pDrawItem = (DRAWITEMSTRUCT*)lParam;
+			
+			if (pDrawItem != NULL)
+			{
+				switch (pDrawItem->CtlID)
+				{
+				case IDC_TOOLBAR_MEDIAPLAYER_PLAY:
+					hIcon = m_hIconPlay;
+					strcpy(szText,"Play");
+					break;
+				case IDC_TOOLBAR_MEDIAPLAYER_PAUSE:
+					hIcon = m_hIconPause;
+					strcpy(szText,"Pause");
+					break;
+				case IDC_TOOLBAR_MEDIAPLAYER_STOP:
+					hIcon = m_hIconStop;
+					strcpy(szText,"Stop");
+					break;
+				default:
+					break;
+				}
+			}
+
+			if ((pDrawItem != NULL) && ((hIcon != NULL) || (szText[0]!=0)))
+			{
+				RECT rc;
+				GetClientRect(GetDlgItem(hDlg, pDrawItem->CtlID), &rc);
+
+				DrawItem(pDrawItem, hIcon, hIcon?"":szText, rc.right-rc.left, rc.bottom-rc.top, Align);				
 			}
 		}
 		break;

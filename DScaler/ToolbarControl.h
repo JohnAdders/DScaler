@@ -14,6 +14,7 @@ protected:
 
     CToolbarChannels *Toolbar1Channels;;      //Childs of the toolbar
     CToolbarVolume *Toolbar1Volume;
+    CToolbarMediaPlayer *Toolbar1MediaPlayer;
     CToolbarLogo *Toolbar1Logo;	
 
 	typedef struct
@@ -54,6 +55,7 @@ private:
 
     DEFINE_SLIDER_CALLBACK_SETTING(CToolbarControl, Toolbar1Channels);
     DEFINE_SLIDER_CALLBACK_SETTING(CToolbarControl, Toolbar1Volume);
+    DEFINE_SLIDER_CALLBACK_SETTING(CToolbarControl, Toolbar1MediaPlayer);
 };
 
 

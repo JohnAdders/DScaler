@@ -68,6 +68,27 @@ private:
 };
 
 
+class CToolbarMediaPlayer : public CToolbarChild, public CEventObject
+{
+public:
+    CToolbarMediaPlayer(CToolbarWindow *pToolbar);
+	~CToolbarMediaPlayer();
+
+    LRESULT ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+    
+    void Reset();
+
+	void OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
+	void UpdateWindow() { UpdateControls(NULL, FALSE); }
+private:
+	HICON m_hIconPlay;
+	HICON m_hIconPause;
+	HICON m_hIconStop;
+        
+    void UpdateControls(HWND hWnd, bool bInitDialog);	
+};
+
+
 class CToolbarLogo : public CToolbarChild, public CEventObject 
 {
 private:

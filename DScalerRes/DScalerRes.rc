@@ -1078,6 +1078,20 @@ BEGIN
                     IDC_STATIC,40,5,180,10
 END
 
+IDD_TOOLBAR_MEDIAPLAYER DIALOG DISCARDABLE  0, 0, 216, 16
+STYLE WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "Slider1",IDC_TOOLBAR_MEDIAPLAYER_TIMESLIDER,
+                    "msctls_trackbar32",WS_TABSTOP,52,1,156,13
+    CONTROL         "",IDC_TOOLBAR_MEDIAPLAYER_PLAY,"Button",BS_OWNERDRAW | 
+                    BS_ICON,0,0,16,16
+    CONTROL         "",IDC_TOOLBAR_MEDIAPLAYER_PAUSE,"Button",BS_OWNERDRAW | 
+                    BS_ICON,15,0,16,16
+    CONTROL         "",IDC_TOOLBAR_MEDIAPLAYER_STOP,"Button",BS_OWNERDRAW | 
+                    BS_ICON,31,0,16,16
+END
+
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -1161,9 +1175,12 @@ BEGIN
         POPUP "Toolbars"
         BEGIN
             MENUITEM "T&op",                        IDM_VIEW_MAINTOOLBAR_TOP
+            MENUITEM SEPARATOR
             MENUITEM "&Channel change",             IDM_VIEW_MAINTOOLBAR_CHANNELS
 
             MENUITEM "&Volume",                     IDM_VIEW_MAINTOOLBAR_VOLUME
+
+            MENUITEM "&Media Player",               IDM_VIEW_MAINTOOLBAR_MEDIAPLAYER
 
         END
         POPUP "Skin"
@@ -1946,6 +1963,14 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 59
     END
+
+    IDD_TOOLBAR_MEDIAPLAYER, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 208
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 5
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -1976,6 +2001,29 @@ IDI_TRAYICON            ICON    DISCARDABLE     "DScalerSysTray.ico"
 IDB_TOOLBAR_BAR_BAR     BITMAP  DISCARDABLE     "toolbar_bar_bar.bmp"
 SMALLLOGO               BITMAP  DISCARDABLE     "small_logo.bmp"
 #endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// French (France) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRA)
+#ifdef _WIN32
+LANGUAGE LANG_FRENCH, SUBLANG_FRENCH
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_TOOLBAR_MEDIAPLAYER_PLAY ICON    DISCARDABLE     "toolbar_mediaplayer_play.ico"
+IDI_TOOLBAR_MEDIAPLAYER_STOP ICON    DISCARDABLE     "toolbar_mediaplayer_stop.ico"
+IDI_TOOLBAR_MEDIAPLAYER_PAUSE ICON    DISCARDABLE     "toolbar_mediaplayer_pause.ico"
+#endif    // French (France) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.76 2003-04-07 09:17:14 adcockj Exp $
+// $Id: SAA7134Source.cpp,v 1.77 2003-04-17 09:48:36 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.76  2003/04/07 09:17:14  adcockj
+// Fixes for correct operation of IsFirstInSeries
+//
 // Revision 1.75  2003/03/09 19:48:28  laurentg
 // Updated field statistics
 //
@@ -464,7 +467,7 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
     m_HPLLMode = new CHPLLModeSetting(this, "HPLL Locking Mode", HPLLMODE_FAST_TRACKING, HPLLMODE_TV, HPLLMODE_LASTONE - 1, IniSection, pVideoMiscGroup);
     m_Settings.push_back(m_HPLLMode);
 
-    m_WhitePeak = new CWhitePeakSetting(this, "White Peak", TRUE, IniSection, pVideoMiscGroup);
+    m_WhitePeak = new CWhitePeakSetting(this, "White Peak", FALSE, IniSection, pVideoMiscGroup);
     m_Settings.push_back(m_WhitePeak);
 
     m_ColorPeak = new CColorPeakSetting(this, "Color Peak", TRUE, IniSection, pVideoMiscGroup);

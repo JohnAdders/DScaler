@@ -692,12 +692,12 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 				}
 			}
 
-         // if asked save the current info to a file
-         if(bRequestStreamSnap == TRUE)
-         {
-            SaveStreamSnapshot(&info);
-			bRequestStreamSnap = FALSE;
-         }
+            // if asked save the current info to a file
+            if(bRequestStreamSnap == TRUE)
+            {
+                SaveStreamSnapshot(&info);
+                bRequestStreamSnap = FALSE;
+            }
 
 			// save the last pulldown mode so that we know if its changed
 			PrevDeintMethod = CurrentMethod;

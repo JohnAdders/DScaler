@@ -28,6 +28,7 @@
 #include "FieldTiming.h"
 #include "BT848.h"
 #include "DebugLog.h"
+#include "Deinterlace.h"
 
 LARGE_INTEGER TimerFrequency;
 double RunningAverageCounterTicks;
@@ -95,6 +96,29 @@ void UpdateRunningAverage(LARGE_INTEGER* pNewFieldTime)
 	LastFieldTime.QuadPart = pNewFieldTime->QuadPart;
 }
 
+void Timing_SmartSleep(DEINTERLACE_INFO* pInfo)
+{
+	static int nSleepSkipFields = 0;
+	static int nSleepSkipFieldsLate = 0;
+    // Sleep less often if we're running late.
+
+    // Increment sleep skipping counter, so we can sleep only every X fields specified by SleepSkipField
+    if (pInfo->bRunningLate)
+    {
+        // Sleep skipping whenever we're running on time
+        nSleepSkipFieldsLate = 0;
+		nSleepSkipFields = (nSleepSkipFields + 1) % (pInfo->SleepSkipFields + 1);
+    	Sleep(nSleepSkipFields ? 0 : pInfo->SleepInterval);
+    }
+    else
+    {
+        // Sleep skipping whenever we're running late
+        nSleepSkipFields = 0;
+        nSleepSkipFieldsLate = (nSleepSkipFieldsLate + 1) % (pInfo->SleepSkipFieldsLate + 1);
+    	Sleep(nSleepSkipFieldsLate ? 0 : pInfo->SleepInterval);
+    }
+	pInfo->bRunningLate = FALSE;
+}
 
 ////////////////////////////////////////////////////////////////////////////////////
 // The following function will continually check the position in the RISC code
@@ -121,20 +145,18 @@ void UpdateRunningAverage(LARGE_INTEGER* pNewFieldTime)
 //
 void Timing_WaitForNextFieldNormal(DEINTERLACE_INFO* pInfo)
 {
-	static int nSleepSkipFields = 0;
+    BOOL bSlept = FALSE;
 	int NewPos;
 	int Diff;
 	int OldPos = (pInfo->CurrentFrame * 2 + pInfo->IsOdd + 1) % 10;
 
-	// Increment sleep skipping counter, so we can sleep only every X fields specified by SleepSkipField
-	if (pInfo->SleepSkipFields)
-	{
-		nSleepSkipFields = (nSleepSkipFields + 1) % (pInfo->SleepSkipFields + 1);
-	}
-
 	while(OldPos == (NewPos = BT848_GetRISCPosAsInt()))
 	{
-		Sleep(nSleepSkipFields ? 0 : pInfo->SleepInterval);
+        if (! bSlept)
+        {
+		    Timing_SmartSleep(pInfo);
+            bSlept = TRUE;
+        }
 		pInfo->bRunningLate = FALSE;			// if we waited then we are not late
 	}
 
@@ -175,8 +197,6 @@ void Timing_WaitForNextFieldNormal(DEINTERLACE_INFO* pInfo)
 
 void Timing_WaitForNextFieldAccurate(DEINTERLACE_INFO* pInfo)
 {
-	static int nSleepSkipFields = 0;
-	static int nSleepSkipFieldsLate = 0;
 	int NewPos;
 	int Diff;
 	int OldPos = (pInfo->CurrentFrame * 2 + pInfo->IsOdd + 1) % 10;
@@ -249,27 +269,12 @@ void Timing_WaitForNextFieldAccurate(DEINTERLACE_INFO* pInfo)
 		}
 	}
 
-	// Increment sleep skipping counter, so we can sleep only every X fields specified by SleepSkipField
-    if (pInfo->bRunningLate)
-    {
-        // Sleep skipping whenever we're running on time
-        nSleepSkipFieldsLate = 0;
-		nSleepSkipFields = (nSleepSkipFields + 1) % (pInfo->SleepSkipFields + 1);
-    	Sleep(nSleepSkipFields ? 0 : pInfo->SleepInterval);
-    }
-    else
-    {
-        // Sleep skipping whenever we're running late
-        nSleepSkipFields = 0;
-        nSleepSkipFieldsLate = (nSleepSkipFieldsLate + 1) % (pInfo->SleepSkipFieldsLate + 1);
-    	Sleep(nSleepSkipFieldsLate ? 0 : pInfo->SleepInterval);
-    }
-	pInfo->bRunningLate = FALSE;
+    Timing_SmartSleep(pInfo);
 }
 
 void Timing_WaitForNextField(DEINTERLACE_INFO* pInfo)
 {
-	if(pInfo->bDoAccurateFlips)
+	if(pInfo->bDoAccurateFlips && IsFilmMode())
 	{
 		Timing_WaitForNextFieldAccurate(pInfo);
 	}

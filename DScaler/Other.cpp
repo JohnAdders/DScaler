@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.51 2003-01-02 19:03:07 adcockj Exp $
+// $Id: Other.cpp,v 1.52 2003-01-02 20:41:46 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.51  2003/01/02 19:03:07  adcockj
+// Removed extra Surface and replaced with memory buffer due to lack of blt support
+//  and alignment problems
+//
 // Revision 1.50  2003/01/02 17:27:05  adcockj
 // Improvements to extra surface code
 //
@@ -956,7 +960,7 @@ BOOL Overlay_Lock_Extra_Buffer(TDeinterlaceInfo* pInfo)
         return FALSE;
     }
 
-    pInfo->OverlayPitch = DSCALER_MAX_WIDTH;
+    pInfo->OverlayPitch = DSCALER_MAX_WIDTH * 2;
     // get back some memory aligned on 16 byte boundary for SSE
     pInfo->Overlay = lpExtraMemoryForFilters + (16 - ((DWORD)lpExtraMemoryForFilters % 16));
     return TRUE;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.127 2003-08-24 07:13:54 atnak Exp $
+// $Id: OutThreads.cpp,v 1.128 2003-10-04 12:00:20 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.127  2003/08/24 07:13:54  atnak
+// Added a state index to Start and Stop Capture
+//
 // Revision 1.126  2003/08/15 10:27:12  laurentg
 // Wrong comment changed
 //
@@ -984,42 +987,43 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 			if (RequestStillType == STILL_TIFF)
 			{
 				bTakeStill = TRUE;
-				if (RequestStillInMemory)
+
+				// When taking a still, we always work with system memory for performance reasons
+
+				// Memory already allocated to store snapshots
+				int MemUsed = ((CStillSource*)Providers_GetSnapshotsSource())->CountMemoryUsage();
+
+				// If we are taking a still in memory, we need to allocate
+				// a memory buffer and use this buffer as output
+				// That means too that the overlay will not be updated
+				bUseOverlay = FALSE;
+				Info.OverlayPitch = (Info.FrameWidth * 2 * sizeof(BYTE) + 15) & 0xfffffff0;
+
+				// Add the memory needed for the new snapshot
+				MemUsed += Info.OverlayPitch * Info.FrameHeight;
+				LOG(2, "MemUsed %d Mo", MemUsed / 1048576);
+
+				// Check that the max is not reached
+				if ((MemUsed / 1048576) >= Setting_GetValue(Still_GetSetting(MAXMEMFORSTILLS)))
 				{
-					// Memory already allocated to store snapshots
-					int MemUsed = ((CStillSource*)Providers_GetSnapshotsSource())->CountMemoryUsage();
-
-					// If we are taking a still in memory, we need to allocate
-					// a memory buffer and use this buffer as output
-					// That means too that the overlay will not be updated
-					bUseOverlay = FALSE;
-					Info.OverlayPitch = (Info.FrameWidth * 2 * sizeof(BYTE) + 15) & 0xfffffff0;
-
-					// Add the memory needed for the new snapshot
-					MemUsed += Info.OverlayPitch * Info.FrameHeight;
-					LOG(2, "MemUsed %d Mo", MemUsed / 1048576);
-
-					// Check that the max is not reached
-					if ((MemUsed / 1048576) >= Setting_GetValue(Still_GetSetting(MAXMEMFORSTILLS)))
-					{
-						char text[128];
-						pAllocBuf = NULL;
-						sprintf(text, "Max memory (%d Mo) reached\nChange the maximum value or\nclose some open stills", Setting_GetValue(Still_GetSetting(MAXMEMFORSTILLS)));
-						OSD_ShowText(text, 0);
-					}
-					else
-					{
-						pAllocBuf = (BYTE*)malloc(Info.OverlayPitch * Info.FrameHeight + 16);
-						Info.Overlay = START_ALIGNED16(pAllocBuf);
-					}
-					LOG(2, "Alloc for still - start buf %d, start frame %d", pAllocBuf, Info.Overlay);
-					if (pAllocBuf == NULL)
-					{
-						RequestStillType = STILL_NONE;
-						bTakeStill = FALSE;
-						bUseOverlay = TRUE;
-					}
+					char text[128];
+					pAllocBuf = NULL;
+					sprintf(text, "Max memory (%d Mo) reached\nChange the maximum value or\nclose some open stills", Setting_GetValue(Still_GetSetting(MAXMEMFORSTILLS)));
+					OSD_ShowText(text, 0);
 				}
+				else
+				{
+					pAllocBuf = (BYTE*)malloc(Info.OverlayPitch * Info.FrameHeight + 16);
+					Info.Overlay = START_ALIGNED16(pAllocBuf);
+				}
+				LOG(2, "Alloc for still - start buf %d, start frame %d", pAllocBuf, Info.Overlay);
+				if (pAllocBuf == NULL)
+				{
+					RequestStillType = STILL_NONE;
+					bTakeStill = FALSE;
+					bUseOverlay = TRUE;
+				}
+
 				// After that line, we must use variable bTakeStill instead of RequestStillType
 				// because RequestStillType could be set by the GUI thread at the same time,
 				// and we must be certain that memory allocation has been done
@@ -1470,7 +1474,8 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
             }
 			else
 			{
-				if (bTakeStill && RequestStillInMemory)
+				// When taking a still, we always work with system memory for performance reasons
+				if (bTakeStill)
 				{
 					// We need to copy the content of the overlay in the memory buffer
 
@@ -1512,11 +1517,10 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 				}
 				else
 				{
-					// We must lock the overlay
-					if(Overlay_Lock(&Info))
+					((CStillSource*) Providers_GetSnapshotsSource())->SaveSnapshotInFile(Info.FrameHeight, Info.FrameWidth, Info.Overlay, Info.OverlayPitch);
+					if (pAllocBuf != NULL)
 					{
-						((CStillSource*) Providers_GetSnapshotsSource())->SaveSnapshotInFile(Info.FrameHeight, Info.FrameWidth, Info.Overlay, Info.OverlayPitch);
-                        Overlay_Unlock();
+						free(pAllocBuf);
 					}
 				}
 				RequestStillNb--;

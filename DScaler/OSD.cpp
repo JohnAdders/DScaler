@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.76 2003-01-08 22:01:24 robmuller Exp $
+// $Id: OSD.cpp,v 1.77 2003-01-18 12:26:27 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.76  2003/01/08 22:01:24  robmuller
+// Fixed problem with multi-line OSD messages at default size.
+//
 // Revision 1.75  2002/11/10 09:42:01  laurentg
 // Settings "Use OSD screen..."
 //
@@ -361,8 +364,8 @@ static struct
 } ActiveScreens[] = {
     { "Card calibration screen", TRUE,  FALSE, 250,                     TRUE,  TRUE,  OSD_RefreshCalibrationScreen },
     { "General screen",          FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, TRUE,  FALSE, OSD_RefreshGeneralScreen },
-    { "Statistics screen",       FALSE, TRUE,  1000,                    FALSE, FALSE, OSD_RefreshStatisticsScreen },
-    { "WSS decoding screen",     FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, FALSE, FALSE, OSD_RefreshWSSScreen },
+    { "Statistics screen",       FALSE, TRUE,  1000,                    TRUE,  FALSE, OSD_RefreshStatisticsScreen },
+    { "WSS decoding screen",     FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, TRUE,  FALSE, OSD_RefreshWSSScreen },
 //  { "AR screen",               FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, FALSE, FALSE, OSD_RefreshARScreen },
 #ifdef _DEBUG
     { "Developer screen",        FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, FALSE, FALSE, OSD_RefreshDeveloperScreen },
@@ -2041,19 +2044,20 @@ void OSD_SetMenu(HMENU hMenu)
     {
         if ((strlen (ActiveScreens[i].name) > 0) && !ActiveScreens[i].managed_by_app)
         {
-            CheckMenuItemBool(hMenuOSD, IDM_OSDSCREEN_SHOW + i, ActiveScreens[i].active);
+//            CheckMenuItemBool(hMenuOSD, IDM_OSDSCREEN_SHOW + i, ActiveScreens[i].active);
+            EnableMenuItem(hMenuOSD, IDM_OSDSCREEN_SHOW + i, ActiveScreens[i].active ? MF_ENABLED : MF_GRAYED);
         }
     }
 }
 
 BOOL ProcessOSDSelection(HWND hWnd, WORD wMenuID)
 {
-    if ( (wMenuID >= IDM_OSDSCREEN_SHOW) && (wMenuID < (IDM_OSDSCREEN_SHOW+10)) )
-    {
-        OSD_ActivateInfosScreen(hWnd, wMenuID - IDM_OSDSCREEN_SHOW, 0);
-        return TRUE;
-    }
-    else if ( !pCalibration->IsRunning() && (wMenuID >= IDM_OSDSCREEN_SHOW) && (wMenuID < (IDM_OSDSCREEN_SHOW+10)) )
+//    if ( (wMenuID >= IDM_OSDSCREEN_SHOW) && (wMenuID < (IDM_OSDSCREEN_SHOW+10)) )
+//    {
+//        OSD_ActivateInfosScreen(hWnd, wMenuID - IDM_OSDSCREEN_SHOW, 0);
+//        return TRUE;
+//    }
+    if ( !pCalibration->IsRunning() && (wMenuID >= IDM_OSDSCREEN_SHOW) && (wMenuID < (IDM_OSDSCREEN_SHOW+10)) )
     {
         OSD_ShowInfosScreen(hWnd, wMenuID - IDM_OSDSCREEN_SHOW, 0);
         return TRUE;
@@ -2159,13 +2163,13 @@ SETTING OSDSettings[OSD_SETTING_LASTONE] =
     },
     {
         "Use Statistics Screen", ONOFF, 0, (long*)&(ActiveScreens[2].active),
-         FALSE, 0, 1, 1, 1,
+         TRUE, 0, 1, 1, 1,
          NULL,
         "OSD", "UseStatisticsScreen", NULL,
     },
     {
         "Use WSS Decoding Screen", ONOFF, 0, (long*)&(ActiveScreens[3].active),
-         FALSE, 0, 1, 1, 1,
+         TRUE, 0, 1, 1, 1,
          NULL,
         "OSD", "UseWSSDecodingScreen", NULL,
     },

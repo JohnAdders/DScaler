@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HierarchicalConfigParser.h,v 1.10 2004-12-01 22:01:17 atnak Exp $
+// $Id: HierarchicalConfigParser.h,v 1.11 2004-12-02 18:16:00 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2004/12/01 22:01:17  atnak
+// Fix the VC++ 6 incompatibility introduced by last change.
+//
 // Revision 1.9  2004/12/01 17:57:08  atnak
 // Updates to HierarchicalConfigParser.
 //
@@ -284,7 +287,7 @@ public:
 
 	CParseTag(const char* tagName = NULL, unsigned char parseTypes = 0,
 		unsigned char minimumNumber = 0, unsigned long maxParseLength = 0,
-		CAttributes attributes = CAttributes(), ParseReadProc readProc = NULL);
+		CAttributes attributes = CAttributes(), ParseReadProc* readProc = NULL);
 
 	// Name of the tag to be parsed.
 	const char*				tagName;

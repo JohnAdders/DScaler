@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HierarchicalConfigParser.cpp,v 1.10 2004-12-01 22:01:17 atnak Exp $
+// $Id: HierarchicalConfigParser.cpp,v 1.11 2004-12-02 18:16:00 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2004/12/01 22:01:17  atnak
+// Fix the VC++ 6 incompatibility introduced by last change.
+//
 // Revision 1.9  2004/12/01 17:57:07  atnak
 // Updates to HierarchicalConfigParser.
 //
@@ -1527,7 +1530,7 @@ CParseConstant::CParseConstant(const char* constant, CParseValue value)
 
 CParseTag::CParseTag(const char* tagName, unsigned char parseTypes,
 					 unsigned char minimumNumber,unsigned long maxLength,
-					 CAttributes attributes, ParseReadProc readProc)
+					 CAttributes attributes, ParseReadProc* readProc)
 {
 	this->tagName			= tagName;
 	this->parseTypes		= parseTypes;

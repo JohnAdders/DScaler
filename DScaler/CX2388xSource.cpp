@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.66 2004-05-21 18:35:59 to_see Exp $
+// $Id: CX2388xSource.cpp,v 1.67 2004-06-01 20:04:51 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.66  2004/05/21 18:35:59  to_see
+// Bugfix: Moved StartStopConexantDriver code from CX2388xCard to CCX2388xSource that the driver is stoped before CCX2388xCard::InitTuner is called.
+//
+// More Loging when StartStopConexantDriver is not able to Stop the WDM-Driver when other SW uses the card Hardware.
+//
 // Revision 1.65  2004/04/21 20:20:19  to_see
 // Bugfix for Nicam
 //
@@ -1859,19 +1864,10 @@ BOOL CCX2388xSource::SetTunerFrequency(long FrequencyId, eVideoFormat VideoForma
 	{
 		// when switching from channel to channel the sound often hangs, 
 		// so let's make an reset when AudioStandard is A2 or Nicam
-		
-		if(m_pCard->GetCurrentAudioStandard() == AUDIO_STANDARD_A2)
-		{
-			m_pCard->AudioSoftReset();
-		}
-
-		if(m_pCard->GetCurrentAudioStandard() == AUDIO_STANDARD_NICAM)
-		{
-			m_pCard->AudioInit(	m_VideoSource->GetValue(), 
-								(eVideoFormat)m_VideoFormat->GetValue(), 
-								(eCX2388xAudioStandard)m_AudioStandard->GetValue(),
-								(eCX2388xStereoType)m_StereoType->GetValue() );
-		}
+		m_pCard->AudioInit(	m_VideoSource->GetValue(), 
+			(eVideoFormat)m_VideoFormat->GetValue(), 
+			(eCX2388xAudioStandard)m_AudioStandard->GetValue(),
+			(eCX2388xStereoType)m_StereoType->GetValue() );
 			
 		StartUpdateAudioStatus();
 	}

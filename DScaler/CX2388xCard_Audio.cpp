@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Audio.cpp,v 1.22 2004-05-15 19:02:30 to_see Exp $
+// $Id: CX2388xCard_Audio.cpp,v 1.23 2004-06-01 20:04:51 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2004/05/15 19:02:30  to_see
+// Some sound fixes.
+// New A2 dematrix settings, with the old we have only Mono...
+//
 // Revision 1.21  2004/04/19 17:33:30  to_see
 // Added BTSCSAP and FM Audio
 //
@@ -766,13 +770,6 @@ void CCX2388xCard::SetAutoA2StereoToStereo()
 	WriteDword(AUD_MODE_CHG_TIMER,		0x000000f0);
 	WriteDword(AUD_PHASE_FIX_CTL,		0x00000001);
 	OrDataDword(AUD_DEEMPH1_SRC_SEL,	0x00000002);
-}
-
-void CCX2388xCard::AudioSoftReset()
-{
-	// needed when switching from channel to channel
-	WriteDword(AUD_SOFT_RESET, 1);	
-	WriteDword(AUD_SOFT_RESET, 0);
 }
 
 DWORD CCX2388xCard::GetAudioStatusRegister()

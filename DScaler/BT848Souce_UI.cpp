@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.39 2002-08-11 22:59:51 laurentg Exp $
+// $Id: BT848Souce_UI.cpp,v 1.40 2002-08-12 22:39:51 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.39  2002/08/11 22:59:51  laurentg
+// Call to WriteSettingsToIni with bOptimizeFileAccess set to TRUE
+//
 // Revision 1.38  2002/08/11 17:46:59  laurentg
 // Change a little the title of the setup card dialog box
 //
@@ -1056,5 +1059,34 @@ void CBT848Source::ChangeChannelSectionNames()
             SettingsPerChannel_RegisterSetting("Volume","BT8x8 - Volume",TRUE, m_Volume);            
             SettingsPerChannel_RegisterSetting("Balance","BT8x8 - Balance",TRUE, m_Balance);
         }
+
+        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE);
+        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtAgcDisable);
+        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtCrush);
+        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtEvenChromaAGC);
+        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtOddChromaAGC);
+        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtEvenLumaPeak);
+        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtOddLumaPeak);
+        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtFullLumaRange);
+        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtEvenLumaDec);
+        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtOddLumaDec);
+        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtOddComb);        
+        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtCoring);
+        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtGammaCorrection);
+        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtHorFilter);
+        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtVertFilter);
+        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtColorKill);
+        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_ReversePolarity);
+        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_ReversePolarity);
+        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtWhiteCrushUp);
+        SettingsPerChannel_RegisterSetting("BT848AdvancedSettings","BT8x8 - Advanced Settings",FALSE, m_BtWhiteCrushDown);
+        
+        SettingsPerChannel_RegisterSetting("BT848Delays","BT8x8 - H/V/B Delay",FALSE, m_HDelay);
+        SettingsPerChannel_RegisterSetting("BT848Delays","BT8x8 - H/V/B Delay",FALSE, m_VDelay);
+        SettingsPerChannel_RegisterSetting("BT848Delays","BT8x8 - H/V/B Delay",FALSE, m_BDelay);
+
+        
+
+
     }
 }

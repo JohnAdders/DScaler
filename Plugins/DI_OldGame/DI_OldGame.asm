@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_OldGame.asm,v 1.4 2001-11-22 13:32:04 adcockj Exp $
+// $Id: DI_OldGame.asm,v 1.5 2001-12-20 03:44:07 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Lindsey Dubb.  All rights reserved.
 // based on OddOnly and Temporal Noise DScaler Plugins
@@ -20,6 +20,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/11/22 13:32:04  adcockj
+// Finished changes caused by changes to TDeinterlaceInfo - Compiles
+//
 // Revision 1.3  2001/11/21 15:21:40  adcockj
 // Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
 // Changed TDeinterlaceInfo structure to have history of pictures.
@@ -39,33 +42,43 @@
 
 // Processor specific averaging:
 // Set destMM to average of destMM and sourceMM
-// (Code from DI_GreedyHM.h by Tom Barry, with modification)
-// Note that the MMX version rounds down; the other versions round toward the
-// first operand.  And yes, shiftMask and noLowBitsMask could be the same, but
-// this is a little easier to follow.
-// sourceMM and tempMM are changed 
+// Note that this is a somewhat unconventional averaging function: It rounds toward
+// the first operand if it is (even and larger) or (odd and smaller).  This is faster
+// and just as effective here as "round toward even."
+// Explanation of the MMX version: 1 is added to the source pixel if it is odd (and != 255)
+// Then half the (adjusted) source pixel (rounding down -- which is effectively the same as
+// rounding the unadjusted pixel up unless source == 255) is added to half the destination
+// pixel (also rounding down). This gives the same result as the much faster and less 
+// complicated versions for other processors
+//.Yes, shiftMask and noLowBitsMask could be the same, but this is a little easier to
+// follow.
+
+// tempMM is changed 
 
 #undef AVERAGE
-#if defined(IS_SSE) || defined(IS_MMXEXT)
+#if defined(IS_SSE)
 #define AVERAGE(destMM, sourceMM, tempMM, shiftMask, noLowBitsMask) __asm \
     { \
-    __asm pand sourceMM, noLowBitsMask \
+    __asm pand destMM, noLowBitsMask \
     __asm pavgb destMM, sourceMM \
     }
 #elif defined(IS_3DNOW)
 #define AVERAGE(destMM, sourceMM, tempMM, shiftMask, noLowBitsMask) __asm \
     { \
-    __asm pand sourceMM, noLowBitsMask \
+    __asm pand destMM, noLowBitsMask \
     __asm pavgusb destMM, sourceMM \
     }
 #else
 #define AVERAGE(destMM, sourceMM, tempMM, shiftMask, noLowBitsMask) __asm \
     { \
-	__asm pand sourceMM, shiftMask \
-	__asm psrlw sourceMM, 1 \
-	__asm pand destMM, shiftMask \
-	__asm psrlw destMM, 1 \
-	__asm paddusb destMM, sourceMM \
+    __asm movq tempMM, noLowBitsMask \
+    __asm pandn tempMM, sourceMM \
+    __asm paddusb tempMM, sourceMM \
+    __asm pand tempMM, shiftMask \
+    __asm psrlw tempMM, 1 \
+    __asm pand destMM, shiftMask \
+    __asm psrlw destMM, 1 \
+    __asm paddusb destMM, tempMM \
     }
 #endif // processor specific averaging routine
 
@@ -87,7 +100,7 @@ long OldGameFilter_3DNOW(TDeinterlaceInfo* pInfo)
 long OldGameFilter_MMX(TDeinterlaceInfo* pInfo)
 #endif
 {
-#ifdef LD_DEBUG
+#ifdef OLDGAME_DEBUG
     {
         char    OutputString[64];
         wsprintf(OutputString, "Motion %u", pInfo->CombFactor);
@@ -96,18 +109,24 @@ long OldGameFilter_MMX(TDeinterlaceInfo* pInfo)
             gPfnSetStatus(OutputString);
         }
     }
-#endif
-    // If the field is significantly different than the previous one,
+#endif // Debug output
+    // If the field is significantly different from the previous one,
     // show the new frame unaltered.
     // This is just a tiny change on the evenOnly/oddOnly filters
 
-    if ( (pInfo->bMissedFrame) ||
-        ((gDisableMotionChecking == FALSE) && (pInfo->CombFactor > gMaxComb)) )
+    if (!pInfo->PictureHistory[0])
     {
-        BYTE* pThisField = pInfo->PictureHistory[0]->pData;
+        return FALSE;
+    }
+
+    if (
+        (!pInfo->PictureHistory[1])
+        || ((gDisableMotionChecking == FALSE) && (pInfo->CombFactor > gMaxComb))
+    ) {
+        BYTE* pThisLine = pInfo->PictureHistory[0]->pData;
         DWORD LineTarget = 0;
 
-        if (pThisField == NULL)
+        if (pThisLine == NULL)
         {
             return TRUE;
         }
@@ -115,24 +134,24 @@ long OldGameFilter_MMX(TDeinterlaceInfo* pInfo)
         {
             // copy latest field's rows to overlay, resulting in a half-height image.
             pInfo->pMemcpy(pInfo->Overlay + LineTarget * pInfo->OverlayPitch,
-                        pThisField,
+                        pThisLine,
                         pInfo->LineLength);
 
-            pThisField += pInfo->InputPitch;
+            pThisLine += pInfo->InputPitch;
         }
     }
     // If the field is very similar to the last one, average them.
     // This code is a cut down version of Steven Grimm's temporal noise filter.
-    // It does a really nice job on video via a composite connector 
+    // It does a really nice job on video via a composite connector.
     else
     {
         BYTE*           pNewLines = pInfo->PictureHistory[0]->pData;
-        BYTE*           pOldLines = pInfo->PictureHistory[1]->pData;
         const DWORD     Cycles = ((DWORD)pInfo->LineLength) / 8;
         const __int64   qwShiftMask = 0xFEFFFEFFFEFFFEFF;
         const __int64   qwNoLowBitsMask = 0xFEFEFEFEFEFEFEFE;
         BYTE*           pDestination = pInfo->Overlay;
         DWORD           LineTarget = 0;
+        BYTE*           pOldLines = pInfo->PictureHistory[1]->pData;
 
         if ((pNewLines == NULL) || (pOldLines == NULL))
         {
@@ -143,7 +162,7 @@ long OldGameFilter_MMX(TDeinterlaceInfo* pInfo)
         {
             _asm 
             {
-                mov esi, pDestination           // Destination is incremented at the bottom of the loop
+                mov esi, pDestination           // Pointers are incremented at the bottom of the loop
                 mov ecx, Cycles
                 mov eax, pNewLines
                 mov ebx, pOldLines

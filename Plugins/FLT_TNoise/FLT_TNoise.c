@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TNoise.c,v 1.6 2002-02-15 15:27:48 robmuller Exp $
+// $Id: FLT_TNoise.c,v 1.7 2002-03-08 04:16:01 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Steven Grimm.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/02/15 15:27:48  robmuller
+// pcmpgtw -> pcmpgtb. Solved signed compare problem with pcmpgt..
+// Replaced averaging code with the AVERAGE macro. Added prefetching.
+//
 // Revision 1.5  2002/02/01 19:51:30  robmuller
 // Changed the replacement value. The new value favors the new pixel value.
 // This reduces the speckles, posterization and noise reduction.
@@ -139,7 +143,7 @@ FILTER_METHOD TemporalNoiseMethod =
 
 __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo(long CpuFeatureFlags)
 {
-    if (CpuFeatureFlags & FEATURE_SSE)
+    if ((CpuFeatureFlags & FEATURE_SSE) || (CpuFeatureFlags & FEATURE_MMXEXT))
     {
         TemporalNoiseMethod.pfnAlgorithm = FilterTemporalNoise_SSE;
     }

@@ -123,6 +123,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "DI_TomsMoComp"=..\Plugins\DI_TomsMoComp\DI_TomsMoComp.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "DI_TwoFrame"=..\Plugins\DI_TwoFrame\DI_TwoFrame.dsp - Package Owner=<4>
 
 Package=<5>
@@ -292,6 +304,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name FLT_Mirror
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name DI_TomsMoComp
     End Project Dependency
 }}}
 
@@ -514,6 +529,15 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name FLT_AdaptiveNoise
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name DI_TomsMoComp
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name FLT_Histogram
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name FLT_Mirror
     End Project Dependency
 }}}
 

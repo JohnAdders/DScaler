@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.17 2002-10-06 09:49:19 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.18 2002-10-08 12:30:38 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2002/10/06 09:49:19  atnak
+// Smarter GetNextField sleeping
+//
 // Revision 1.16  2002/10/04 23:40:46  atnak
 // proper support for audio channels mono,stereo,lang1,lang2 added
 //
@@ -504,7 +507,7 @@ void CSAA7134Source::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
         }
         else
         {
-            GiveNextField(pInfo, &m_OddFields[m_CurrentFrame]);
+            GiveNextField(pInfo, &m_OddFields[(pInfo->CurrentFrame + 1) % 2]);
         }
     }
 
@@ -523,31 +526,66 @@ void CSAA7134Source::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 
 void CSAA7134Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
 {
-    eRegionID RegionID;
-    BOOL bIsFieldOdd;
-    int FieldIndex;
-    int SkippedFields;
+    eRegionID   RegionID;
+    BOOL        bIsFieldOdd;
+    int         FieldIndex;
+    int         SkippedFields;
+    BOOL        bTolerateDrops = FALSE;
+    BOOL        bFirstTime;
 
-    // This function blocks until field is ready
+    bFirstTime = (m_ProcessingRegionID == REGIONID_INVALID);
+
+    // This function waits until field is ready
     WaitForFinishedField(RegionID, bIsFieldOdd, pInfo);
 
-    FieldIndex = EnumulateField(RegionID, bIsFieldOdd);
-    SkippedFields = (4 + FieldIndex - m_LastFieldIndex - 1) % 4;
-
-    if(SkippedFields != 0)
+    if (bFirstTime)
     {
-        // delete all history
-        ClearPictureHistory(pInfo);
-        pInfo->bMissedFrame = TRUE;
-        Timing_AddDroppedFields(SkippedFields);
-        LOG(2, " Dropped Frame");
+        m_LastFieldIndex = EnumulateField(RegionID, bIsFieldOdd);
+        SkippedFields = 0;
+    }
+    else
+    {
+        FieldIndex = EnumulateField(RegionID, bIsFieldOdd);
+        SkippedFields = (4 + FieldIndex - m_LastFieldIndex - 1) % 4;
+    }
+
+    if (SkippedFields != 0)
+    {
+        if (bTolerateDrops && SkippedFields < 2)
+        {
+            // Try to catch up but we have to drop if too late
+            if (EnumulateField(m_ProcessingRegionID,
+                m_IsProcessingFieldOdd) == (m_LastFieldIndex + 1) % 4)
+            {
+                m_LastFieldIndex = (m_LastFieldIndex + 1) % 4;
+                Timing_AddDroppedFields(1);
+                LOG(2, " Dropped Frame");
+            }
+            else
+            {
+                LOG(2, "Running Late");
+            }
+
+            m_ProcessingRegionID = RegionID;
+            m_IsProcessingFieldOdd = bIsFieldOdd;
+
+            FieldIndex = (m_LastFieldIndex + 1) % 4;
+            DenumulateField(FieldIndex, &RegionID, &bIsFieldOdd);
+        }
+        else
+        {
+            // delete all history
+            ClearPictureHistory(pInfo);
+            pInfo->bMissedFrame = TRUE;
+            Timing_AddDroppedFields(SkippedFields);
+            LOG(2, " Dropped Frame");
+        }
     }
     else
     {
         pInfo->bMissedFrame = FALSE;
         if (pInfo->bRunningLate)
         {
-            Timing_AddDroppedFields(1);
             LOG(2, "Running Late");
         }
     }
@@ -570,11 +608,13 @@ void CSAA7134Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
     BOOL bSlept = FALSE;
     int FieldIndex;
     int SkippedFields;
+    BOOL bFirstTime = FALSE;
 
     if (m_ProcessingRegionID == REGIONID_INVALID)
     {
         m_pSAA7134Card->GetProcessingRegion(m_ProcessingRegionID,
                         m_IsProcessingFieldOdd);
+        bFirstTime = TRUE;
     }
 
     while (!GetFinishedField(RegionID, bIsFieldOdd))
@@ -582,8 +622,16 @@ void CSAA7134Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
         pInfo->bRunningLate = FALSE;            // if we waited then we are not late
     }
 
-    FieldIndex = EnumulateField(RegionID, bIsFieldOdd);
-    SkippedFields = (4 + FieldIndex - m_LastFieldIndex - 1) % 4;
+    if (bFirstTime)
+    {
+        m_LastFieldIndex = EnumulateField(RegionID, bIsFieldOdd);
+        SkippedFields = 0;
+    }
+    else
+    {
+        FieldIndex = EnumulateField(RegionID, bIsFieldOdd);
+        SkippedFields = (4 + FieldIndex - m_LastFieldIndex - 1) % 4;
+    }
 
     if(SkippedFields == 0)
     {
@@ -593,7 +641,7 @@ void CSAA7134Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
         m_ProcessingRegionID = RegionID;
         m_IsProcessingFieldOdd = bIsFieldOdd;
         FieldIndex = (m_LastFieldIndex + 1) % 4;
-        DenumulateField(FieldIndex, RegionID, bIsFieldOdd);
+        DenumulateField(FieldIndex, &RegionID, &bIsFieldOdd);
         Timing_SetFlipAdjustFlag(TRUE);
         LOG(2, " Slightly late");
     }
@@ -603,7 +651,7 @@ void CSAA7134Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
         m_ProcessingRegionID = RegionID;
         m_IsProcessingFieldOdd = bIsFieldOdd;
         FieldIndex = (m_LastFieldIndex + 1) % 4;
-        DenumulateField(FieldIndex, RegionID, bIsFieldOdd);
+        DenumulateField(FieldIndex, &RegionID, &bIsFieldOdd);
         Timing_SetFlipAdjustFlag(TRUE);
         LOG(2, " Very late");
     }
@@ -720,7 +768,12 @@ BOOL CSAA7134Source::WaitForFinishedField(eRegionID& RegionID, BOOL& bIsFieldOdd
         if (bWaited)
         {
             // If we waited longer than 30ms, something probably went wrong
-            if (WaitTimeSpent * 1000 / Frequency < 30)
+            if (WaitTimeSpent * 1000 / Frequency > 30)
+            {
+                // reset to 10ms
+                m_MinimumFieldDelay = (Frequency * 0.010);
+            }
+            else
             {
                 ULONGLONG Delta = m_LastPerformanceCount - PerformanceCount;
                 m_MinimumFieldDelay = WaitTimeSpent + Delta / 2;
@@ -803,14 +856,14 @@ int CSAA7134Source::EnumulateField(eRegionID RegionID, BOOL bIsFieldOdd)
 }
 
 
-void CSAA7134Source::DenumulateField(int Index, eRegionID& RegionID, BOOL& bIsFieldOdd)
+void CSAA7134Source::DenumulateField(int Index, eRegionID* RegionID, BOOL* bIsFieldOdd)
 {
     switch (Index)
     {
-    case 0: RegionID = REGIONID_VIDEO_A; bIsFieldOdd = FALSE; break;
-    case 1: RegionID = REGIONID_VIDEO_A; bIsFieldOdd = TRUE; break;
-    case 2: RegionID = REGIONID_VIDEO_B; bIsFieldOdd = FALSE; break;
-    case 3: RegionID = REGIONID_VIDEO_B; bIsFieldOdd = TRUE; break;
+    case 0: *RegionID = REGIONID_VIDEO_A; *bIsFieldOdd = FALSE; break;
+    case 1: *RegionID = REGIONID_VIDEO_A; *bIsFieldOdd = TRUE; break;
+    case 2: *RegionID = REGIONID_VIDEO_B; *bIsFieldOdd = FALSE; break;
+    case 3: *RegionID = REGIONID_VIDEO_B; *bIsFieldOdd = TRUE; break;
     }
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.h,v 1.10 2002-10-06 09:49:19 atnak Exp $
+// $Id: SAA7134Source.h,v 1.11 2002-10-08 12:30:38 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/10/06 09:49:19  atnak
+// Smarter GetNextField sleeping
+//
 // Revision 1.9  2002/10/04 23:40:46  atnak
 // proper support for audio channels mono,stereo,lang1,lang2 added
 //
@@ -162,7 +165,7 @@ private:
     BOOL WaitForFinishedField(eRegionID& RegionID, BOOL& bIsFieldOdd, TDeinterlaceInfo* pInfo);
 
     int EnumulateField(eRegionID RegionID, BOOL bIsFieldOdd);
-    void DenumulateField(int Index, eRegionID& RegionID, BOOL& bIsFieldOdd);
+    void DenumulateField(int Index, eRegionID* RegionID, BOOL* bIsFieldOdd);
 
     void InitializeUI();
     void CleanupUI();

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_Greedy2Frame.asm,v 1.4 2001-07-13 16:13:33 adcockj Exp $
+// $Id: DI_Greedy2Frame.asm,v 1.5 2001-07-31 06:48:33 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock, Tom Barry, Steve Grimm  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/07/13 16:13:33  adcockj
+// Added CVS tags and removed tabs
+//
 /////////////////////////////////////////////////////////////////////////////
 
 // This is the implementation of the Greedy 2-frame deinterlace algorithm described in
@@ -288,17 +291,17 @@ MAINLOOP_LABEL:
     if(info->IsOdd)
     {
         info->pMemcpy(Dest,
-                  info->EvenLines[info->FieldHeight - 1],
+                  info->EvenLines[0][info->FieldHeight - 1],
                   info->LineLength);
         Dest += info->OverlayPitch;
         info->pMemcpy(Dest,
-                  info->OddLines[info->FieldHeight - 1],
+                  info->OddLines[0][info->FieldHeight - 1],
                   info->LineLength);
     }
     else
     {
         info->pMemcpy(Dest,
-                  info->OddLines[info->FieldHeight - 1],
+                  info->OddLines[0][info->FieldHeight - 1],
                   info->LineLength);
     }
     

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.278 2003-01-08 22:01:33 robmuller Exp $
+// $Id: DScaler.cpp,v 1.279 2003-01-08 22:46:57 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.278  2003/01/08 22:01:33  robmuller
+// Fixed problem with multi-line OSD messages at default size.
+//
 // Revision 1.277  2003/01/08 20:22:17  laurentg
 // Display the 4 values for overscan in OSD
 //
@@ -2856,19 +2859,19 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_OVERSCAN_PLUS:
             if((pSetting = Providers_GetCurrentSource()->GetTopOverscan()) != NULL)
             {
-                pSetting->ChangeValue(ADJUSTUP);
+                pSetting->ChangeValue(ADJUSTUP_SILENT);
             }
             if((pSetting = Providers_GetCurrentSource()->GetBottomOverscan()) != NULL)
             {
-                pSetting->ChangeValue(ADJUSTUP);
+                pSetting->ChangeValue(ADJUSTUP_SILENT);
             }
             if((pSetting = Providers_GetCurrentSource()->GetLeftOverscan()) != NULL)
             {
-                pSetting->ChangeValue(ADJUSTUP);
+                pSetting->ChangeValue(ADJUSTUP_SILENT);
             }
             if((pSetting = Providers_GetCurrentSource()->GetRightOverscan()) != NULL)
             {
-                pSetting->ChangeValue(ADJUSTUP);
+                pSetting->ChangeValue(ADJUSTUP_SILENT);
             }
             SendMessage(hWnd, WM_COMMAND, IDM_OVERSCAN_CURRENT, 0);
             break;
@@ -2876,19 +2879,19 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_OVERSCAN_MINUS:
             if((pSetting = Providers_GetCurrentSource()->GetTopOverscan()) != NULL)
             {
-                pSetting->ChangeValue(ADJUSTDOWN);
+                pSetting->ChangeValue(ADJUSTDOWN_SILENT);
             }
             if((pSetting = Providers_GetCurrentSource()->GetBottomOverscan()) != NULL)
             {
-                pSetting->ChangeValue(ADJUSTDOWN);
+                pSetting->ChangeValue(ADJUSTDOWN_SILENT);
             }
             if((pSetting = Providers_GetCurrentSource()->GetLeftOverscan()) != NULL)
             {
-                pSetting->ChangeValue(ADJUSTDOWN);
+                pSetting->ChangeValue(ADJUSTDOWN_SILENT);
             }
             if((pSetting = Providers_GetCurrentSource()->GetRightOverscan()) != NULL)
             {
-                pSetting->ChangeValue(ADJUSTDOWN);
+                pSetting->ChangeValue(ADJUSTDOWN_SILENT);
             }
             SendMessage(hWnd, WM_COMMAND, IDM_OVERSCAN_CURRENT, 0);
             break;
@@ -2920,7 +2923,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 				{
 					sprintf(&Text[strlen(Text)], "\nRight %u", pSetting->GetValue());
 				}
-				ShowText(hWnd, Text);
+				OSD_ShowText(hWnd, Text, 0);
             }
             break;
 

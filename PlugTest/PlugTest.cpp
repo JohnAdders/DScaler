@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PlugTest.cpp,v 1.14 2002-02-03 18:15:32 adcockj Exp $
+// $Id: PlugTest.cpp,v 1.15 2002-06-03 17:50:07 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/02/03 18:15:32  adcockj
+// Fixed plugtest
+//
 // Revision 1.13  2001/12/07 17:52:38  adcockj
 // Plugtest fixes
 //
@@ -96,6 +99,7 @@ CopyLoop2:
         dec ecx
         jne near CopyLoop2
 EndCopyLoop:
+		emms
     }
 }
 

@@ -1,5 +1,5 @@
 ;////////////////////////////////////////////////////////////////////////////
-; $Id: FD_CommonFunctions.asm,v 1.14 2002-03-10 04:21:22 lindsey Exp $
+; $Id: FD_CommonFunctions.asm,v 1.15 2002-06-03 17:50:06 tobbej Exp $
 ;////////////////////////////////////////////////////////////////////////////
 ; Copyright (c) 2000 John Adcock. All rights reserved.
 ;////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,9 @@
 ; CVS Log
 ;
 ; $Log: not supported by cvs2svn $
+; Revision 1.14  2002/03/10 04:21:22  lindsey
+; Added acknowledgement for Gunnar Thalin's comb factor code
+;
 ; Revision 1.13  2001/11/22 13:32:03  adcockj
 ; Finished changes caused by changes to TDeinterlaceInfo - Compiles
 ;
@@ -588,6 +591,7 @@ Memcpy_Loop:
     rep movsb
 
 Memcpy_End:
+	emms
     pop esi
     pop edi
     ret 

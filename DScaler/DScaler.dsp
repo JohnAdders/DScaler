@@ -553,6 +553,10 @@ SOURCE=.\PaintingHDC.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\ParsingCommon.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Pattern.cpp
 # End Source File
 # Begin Source File
@@ -1290,6 +1294,10 @@ SOURCE=.\OverlaySettings.h
 # Begin Source File
 
 SOURCE=.\PaintingHDC.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ParsingCommon.h
 # End Source File
 # Begin Source File
 

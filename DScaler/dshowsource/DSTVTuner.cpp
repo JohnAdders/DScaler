@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSTVTuner.cpp,v 1.3 2002-08-16 09:38:06 kooiman Exp $
+// $Id: DSTVTuner.cpp,v 1.4 2002-10-08 20:48:52 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/08/16 09:38:06  kooiman
+// Improved DSTVTuner class.
+//
 // Revision 1.2  2002/08/15 14:19:02  kooiman
 // Added tuning to exact frequency through custom table in registry
 //
@@ -314,7 +317,7 @@ BOOL CDShowTVTuner::setTunerFrequency(long dwFrequency)
     {
         // Registry method
     
-        dwFrequency = MulDiv(dwFrequency, 1000000, 16);
+        //dwFrequency = MulDiv(dwFrequency, 1000000, 16);
 
         // Use registry custom channel table as a frequency cache
     
@@ -599,7 +602,7 @@ BOOL CDShowTVTuner::LoadFrequencyTable(int CountryCode, TunerInputType InputType
       int ch;
       for (ch = m_MinChannel; ch <= m_MaxChannel; ch++)
       {
-         m_FrequencyTable.push_back( MulDiv(FreqTable[tabIndex++], 16, 1000000) );
+         m_FrequencyTable.push_back( FreqTable[tabIndex++] );
       }
       
       return TRUE;
@@ -610,6 +613,7 @@ int CDShowTVTuner::FrequencyToChannel(long dwFrequency)
 {
     int i;
     int iClose = -1, iDistance;
+
     for (i = 0; i < m_FrequencyTable.size(); i++)
     {
         DWORD dwFreqFromTable = m_FrequencyTable[i];
@@ -625,7 +629,7 @@ int CDShowTVTuner::FrequencyToChannel(long dwFrequency)
            iDistance = dwFreqFromTable - dwFrequency;
         }        
     }
-    if ((iClose >= 0) && (abs(iDistance) <= 4*16))
+    if ((iClose >= 0) && (abs(iDistance) <= 250000))
     {
         //LOG(2,"Frequency to channel: %d -> %d. close match (%d off)",dwFrequency,i+m_MinChannel,iDistance);
         return iClose+m_MinChannel;

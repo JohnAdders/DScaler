@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.76 2002-09-30 16:25:18 adcockj Exp $
+// $Id: ProgramList.cpp,v 1.77 2002-10-08 20:48:29 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.76  2002/09/30 16:25:18  adcockj
+// Corrected problem with API and channel change
+//
 // Revision 1.75  2002/09/28 13:31:41  kooiman
 // Added sender object to events and added setting flag to treesettingsgeneric.
 //
@@ -398,7 +401,7 @@ void UpdateDetails(HWND hDlg)
         Edit_SetText(GetDlgItem(hDlg, IDC_NAME), Name);
 
         // set the frequency
-        sprintf(sbuf, "%10.4f", (double)(MyChannels[CurrentProgram]->GetFrequency()) / 16.0);
+        sprintf(sbuf, "%10.4f", (double)(MyChannels[CurrentProgram]->GetFrequency()) / 1000000.0);
         Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY),sbuf);
 
         // set the channel
@@ -509,7 +512,7 @@ BOOL FindFrequency(DWORD Freq, int Format)
 
     if (!Providers_GetCurrentSource()->SetTunerFrequency(Freq, (eVideoFormat)Format))
     {
-        sprintf(sbuf, "SetFrequency %10.2f Failed.", (float) Freq / 16.0);
+        sprintf(sbuf, "SetFrequency %10.2lf Failed.", (double) Freq / 1000000.0);
         ErrorBox(sbuf);
         return false;
     }
@@ -607,7 +610,7 @@ void ScanFrequency(HWND hDlg, int FreqNum)
     SelectChannel(hDlg, FreqNum + Countries[CountryCode]->m_MinChannel);
     ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_FORMAT), Format + 1);
 
-    sprintf(sbuf, "%10.4f", (double)Freq / 16.0);
+    sprintf(sbuf, "%10.4lf", (double)Freq / 1000000.0);
     Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf);
 
     if(FindFrequency(Freq, Format))
@@ -649,7 +652,7 @@ void ChangeChannelInfo(HWND hDlg)
         char* cLast;
         Edit_GetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf, 255);
         double dFreq = strtod(sbuf, &cLast);
-        long Freq = (long)(dFreq * 16.0);
+        long Freq = (long)(dFreq * 1000000.0);
         int Channel = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_CHANNEL));
         Channel = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CHANNEL), Channel);
         int Format = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_FORMAT)) - 1;
@@ -711,6 +714,8 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         {
             ComboBox_AddString(GetDlgItem(hDlg, IDC_FORMAT), VideoFormatNames[i]);
         }
+		ComboBox_AddString(GetDlgItem(hDlg, IDC_FORMAT), "Tuner default");
+		ComboBox_AddString(GetDlgItem(hDlg, IDC_FORMAT), "FM Radio");
 
         // load up the country settings
         Load_Country_Settings();
@@ -750,13 +755,13 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             {
                 Edit_GetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf, 255);
                 double dFreq = strtod(sbuf, &cLast);
-                int Freq = (int)(dFreq * 16.0);
-                --Freq;
+                int Freq = (int)(dFreq * 1000000.0);
+                Freq -= 62500;
                 if(Freq < 0)
                 {
                     Freq = 0;
                 }
-                sprintf(sbuf, "%10.4f", (double)Freq / 16.0);
+                sprintf(sbuf, "%10.4lf", (double)Freq / 1000000.0);
                 Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf);
                 Providers_GetCurrentSource()->SetTunerFrequency(Freq, SelectedVideoFormat(hDlg));
                 ChangeChannelInfo(hDlg);
@@ -767,9 +772,10 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             {
                 Edit_GetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf, 255);
                 double dFreq = strtod(sbuf, &cLast);
-                long Freq = (long)(dFreq * 16.0);
-                ++Freq;
-                sprintf(sbuf, "%10.4f", (double)Freq / 16.0);
+                long Freq = (long)(dFreq * 1000000.0);
+                //++Freq;
+                Freq += 62500;
+                sprintf(sbuf, "%10.4f", (double)Freq / 1000000.0);
                 Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf);
                 Providers_GetCurrentSource()->SetTunerFrequency(Freq, SelectedVideoFormat(hDlg));
                 ChangeChannelInfo(hDlg);
@@ -879,7 +885,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                     Freq = Countries[CountryCode]->m_Frequencies[Channel - Countries[CountryCode]->m_MinChannel].Freq;
                     Format = Countries[CountryCode]->m_Frequencies[Channel - Countries[CountryCode]->m_MinChannel].Format;
                 }
-                sprintf(sbuf, "%10.4f", Freq / 16.0);
+                sprintf(sbuf, "%10.4lf", Freq / 1000000.0);
                 Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY),sbuf);
                 ScrollBar_SetPos(GetDlgItem(hDlg, IDC_FINETUNE), 50, FALSE);
                 ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_FORMAT), Format + 1);
@@ -894,8 +900,8 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 char* cLast;
                 Edit_GetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf, 255);
                 double dFreq = strtod(sbuf, &cLast);
-                long Freq = (long)(dFreq * 16.0);
-                sprintf(sbuf, "%10.4f", (double)Freq / 16.0);
+                long Freq = (long)(dFreq * 1000000.0);
+                sprintf(sbuf, "%10.4lf", (double)Freq / 1000000.0);
                 Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf);
                 Providers_GetCurrentSource()->SetTunerFrequency(Freq, SelectedVideoFormat(hDlg));
                 ChangeChannelInfo(hDlg);
@@ -922,7 +928,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 Edit_GetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf, 255);
                 char* cLast;
                 double dFreq = strtod(sbuf, &cLast);
-                long Freq = (long)(dFreq * 16.0);
+                long Freq = (long)(dFreq * 1000000.0);
                 Providers_GetCurrentSource()->SetTunerFrequency(Freq, SelectedVideoFormat(hDlg));
                 ChangeChannelInfo(hDlg);
             }
@@ -934,7 +940,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 char* cLast;
                 Edit_GetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf, 255);
                 double dFreq = strtod(sbuf, &cLast);
-                long Freq = (long)(dFreq * 16.0);
+                long Freq = (long)(dFreq * 1000000.0);
 
                 int Channel = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_CHANNEL));
                 Channel = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CHANNEL), Channel);
@@ -1112,7 +1118,8 @@ void Write_Program_List_ASCII()
         for(it = MyChannels.begin(); it != MyChannels.end(); ++it)
         {
             fprintf(SettingFile, "Name: %s\n", (*it)->GetName());
-            fprintf(SettingFile, "Freq2: %ld\n", (*it)->GetFrequency());
+            //fprintf(SettingFile, "Freq2: %ld\n", MulDiv((*it)->GetFrequency(),16,1000000));
+            fprintf(SettingFile, "Freq: %ld\n", ((*it)->GetFrequency()/1000));
             fprintf(SettingFile, "Chan: %d\n", (*it)->GetChannelNumber());
             fprintf(SettingFile, "Active: %d\n", (*it)->IsActive());
             if((*it)->GetFormat() != -1)
@@ -1227,12 +1234,13 @@ void Load_Program_List_ASCII()
         // cope with old style frequencies
         else if(strnicmp(sbuf, "Freq:", 5) == 0)
         {
-            Frequency = atol(sbuf + 5);
-            Frequency = MulDiv(Frequency, 16, 1000);
+            Frequency = atol(sbuf + 5);           
+            Frequency = Frequency * 1000;
         }
         else if(strnicmp(sbuf, "Freq2:", 6) == 0)
         {
             Frequency = atol(sbuf + 6);
+            Frequency = MulDiv(Frequency, 1000000, 16);
         }
         else if(strnicmp(sbuf, "Chan:", 5) == 0)
         {
@@ -1617,11 +1625,11 @@ void Load_Country_Settings()
                 while (*Pos != '\0')
                 {
                     if ((*Pos >= '0') && (*Pos <= '9'))
-                    {
-                        // convert frequency in KHz to Units that the tuner wants
+                    {                        
                         TCountryChannel Channel;
                         Channel.Freq = atol(Pos);
-                        Channel.Freq = MulDiv(Channel.Freq, 16, 1000000);
+                        // convert frequency in KHz to Units that the tuner wants
+                        //Channel.Freq = MulDiv(Channel.Freq, 16, 1000000);
                         Channel.Format = Format;
                         NewCountry->m_Frequencies.push_back(Channel);
                         break;

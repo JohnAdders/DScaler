@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Types.cpp,v 1.17 2002-06-05 20:02:27 adcockj Exp $
+// $Id: BT848Card_Types.cpp,v 1.18 2002-07-23 18:11:48 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2002/06/05 20:02:27  adcockj
+// Applied old RS BT card patch
+//
 // Revision 1.16  2002/03/24 19:40:14  adcockj
 // Added Skywell magic card
 //
@@ -185,7 +188,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
 			},
 		},
 		PLL_NONE,
-		TUNER_USER_SETUP,
+		TUNER_AUTODETECT,
 		SOUNDCHIP_NONE,
 		InitHauppauge,
 		StandardBT848InputSelect,
@@ -320,7 +323,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
 			},
 		},
 		PLL_NONE,
-		TUNER_USER_SETUP,
+		TUNER_AUTODETECT,
 		SOUNDCHIP_NONE,
 		NULL,
 		StandardBT848InputSelect,
@@ -470,7 +473,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
 			},
 		},
 		PLL_28,
-		TUNER_USER_SETUP,
+		TUNER_AUTODETECT,
 		SOUNDCHIP_MSP,
 		InitHauppauge,
 		StandardBT848InputSelect,
@@ -575,7 +578,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
 			},
 		},
 		PLL_28,
-		TUNER_USER_SETUP,
+		TUNER_AUTODETECT,
 		SOUNDCHIP_NONE,
 		NULL,
 		StandardBT848InputSelect,
@@ -1345,7 +1348,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
 			},
 		},
 		PLL_28,
-		TUNER_USER_SETUP,
+		TUNER_AUTODETECT,
 		SOUNDCHIP_NONE,
 		NULL,
 		StandardBT848InputSelect,
@@ -1380,7 +1383,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
 			},
 		},
 		PLL_28,
-		TUNER_USER_SETUP,
+		TUNER_AUTODETECT,
 		SOUNDCHIP_NONE,
 		NULL,
 		StandardBT848InputSelect,
@@ -1485,7 +1488,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
 			},
 		},
 		PLL_28,
-		TUNER_USER_SETUP,
+		TUNER_AUTODETECT,
 		SOUNDCHIP_NONE,
 		NULL,
 		StandardBT848InputSelect,
@@ -2300,7 +2303,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
 			},
 		},
 		PLL_28,
-		TUNER_USER_SETUP,
+		TUNER_AUTODETECT,
 		SOUNDCHIP_NONE,
 		NULL,
 		StandardBT848InputSelect,
@@ -2450,7 +2453,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
 			},
 		},
 		PLL_28,
-		TUNER_PHILIPS_PAL,
+		TUNER_AUTODETECT,
 		SOUNDCHIP_NONE,
 		NULL,
 		StandardBT848InputSelect,
@@ -2990,7 +2993,7 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
 			},
 		},
 		PLL_28,
-		TUNER_PHILIPS_PAL,
+		TUNER_AUTODETECT,
 		SOUNDCHIP_NONE,
 		NULL,
 		StandardBT848InputSelect,
@@ -3323,8 +3326,177 @@ const CBT848Card::TAutoDectect878 CBT848Card::m_AutoDectect878[] =
     { 0, (eTVCardId)-1, NULL }
 };
 
+
+const eTunerId CBT848Card::m_Tuners_miro[] = 
+{
+  TUNER_TEMIC_4002FH5_PAL,    
+  TUNER_TEMIC_4032FY5_NTSC,
+  TUNER_PHILIPS_NTSC,         
+  TUNER_PHILIPS_SECAM,   
+	TUNER_ABSENT,               
+	TUNER_PHILIPS_PAL,
+	TUNER_TEMIC_4032FY5_NTSC,   
+	TUNER_TEMIC_4002FH5_PAL,  
+	TUNER_PHILIPS_SECAM,        
+	TUNER_TEMIC_4002FH5_PAL,
+	TUNER_ABSENT,     		      
+	TUNER_PHILIPS_PAL,  
+	TUNER_PHILIPS_PAL,		      
+	TUNER_PHILIPS_NTSC,
+	TUNER_TEMIC_4016FY5_PAL,    
+	TUNER_PHILIPS_PAL_I,
+				
+	TUNER_TEMIC_4006FH5_PAL,    
+	TUNER_PHILIPS_NTSC,
+	TUNER_PHILIPS_MK2_NTSC,     
+	TUNER_PHILIPS_PAL_I, 
+	TUNER_ABSENT,               
+	TUNER_PHILIPS_PAL_I,
+	TUNER_ABSENT,               
+	TUNER_PHILIPS_SECAM,  
+	TUNER_PHILIPS_PAL_I,        
+	TUNER_PHILIPS_NTSC,
+	TUNER_TEMIC_4016FY5_PAL,    
+	TUNER_PHILIPS_PAL_I, 
+	TUNER_ABSENT,               
+	TUNER_ABSENT,
+	TUNER_ABSENT,               
+	TUNER_ABSENT  
+};
+
+const bool CBT848Card::m_Tuners_miro_fm[] = 
+{ 
+	false	,false	,false	,false	,   
+	false	,false	,false	,false	,  
+	false	,false	,false	,false	,  
+	false	,false	,false	,true	,
+	true	,true	  ,true	  ,true	,   
+	true	,true	  ,true	  ,false	,  
+	false	,false	,false	,false	,  
+	false	,false	,false	,false 
+};
+
+const eTunerId CBT848Card::m_Tuners_hauppauge[]=
+{
+	TUNER_ABSENT,					     	/* ""						          */
+	TUNER_ABSENT,					    	/* "External"				      */
+	TUNER_ABSENT,					    	/* "Unspecified"		    	*/
+	TUNER_PHILIPS_PAL,					/* "Philips FI1216"			  */
+	/*4*/	
+	TUNER_PHILIPS_SECAM,				/* "Philips FI1216MF"	  	*/
+	TUNER_PHILIPS_NTSC,					/* "Philips FI1236"			  */
+	TUNER_PHILIPS_PAL_I,				/* "Philips FI1246"		  	*/
+	TUNER_PHILIPS_PAL_DK,				/* "Philips FI1256"			  */
+	/*8*/
+	TUNER_PHILIPS_PAL,					/* "Philips FI1216 MK2"		*/
+	TUNER_PHILIPS_SECAM,				/* "Philips FI1216MF MK2"	*/
+	TUNER_PHILIPS_NTSC,					/* "Philips FI1236 MK2"		*/
+	TUNER_PHILIPS_PAL_I,				/* "Philips FI1246 MK2"		*/
+	/*12*/
+	TUNER_PHILIPS_PAL_DK,				/* "Philips FI1256 MK2"		*/
+	TUNER_TEMIC_4032FY5_NTSC,		/* "Temic 4032FY5"			  */
+	TUNER_TEMIC_4002FH5_PAL,		/* "Temic 4002FH5"		  	*/
+	TUNER_TEMIC_4062FY5_PAL_I,	/* "Temic 4062FY5"		  	*/
+	/*16*/
+	TUNER_PHILIPS_PAL,					/* "Philips FR1216 MK2"		*/
+	TUNER_PHILIPS_SECAM,				/* "Philips FR1216MF MK2"	*/
+	TUNER_PHILIPS_NTSC,					/* "Philips FR1236 MK2"		*/
+	TUNER_PHILIPS_PAL_I,				/* "Philips FR1246 MK2"		*/
+	/*20*/
+	TUNER_PHILIPS_PAL_DK,				/* "Philips FR1256 MK2"		*/
+	TUNER_PHILIPS_PAL,					/* "Philips FM1216"		  	*/
+	TUNER_PHILIPS_SECAM,				/* "Philips FM1216MF"	  	*/
+	TUNER_PHILIPS_NTSC,					/* "Philips FM1236"		  	*/
+	/*24*/
+	TUNER_PHILIPS_PAL_I,				/* "Philips FM1246"		  	*/
+	TUNER_PHILIPS_PAL_DK,				/* "Philips FM1256"			  */
+	TUNER_TEMIC_4036FY5_NTSC,		/* "Temic 4036FY5"			  */
+	TUNER_ABSENT,						    /* "Samsung TCPN9082D"		*/
+	/*28*/
+	TUNER_ABSENT,						    /* "Samsung TCPM9092P"		*/
+	TUNER_TEMIC_4006FH5_PAL,		/* "Temic 4006FH5"		  	*/
+	TUNER_ABSENT,						    /* "Samsung TCPN9085D"		*/
+	TUNER_ABSENT,						    /* "Samsung TCPB9085P"		*/
+	/*32*/
+	TUNER_ABSENT,						    /* "Samsung TCPL9091P"		*/
+	TUNER_TEMIC_4039FR5_NTSC,		/* "Temic 4039FR5"			  */
+	TUNER_PHILIPS_MULTI,				/* "Philips FQ1216 ME"		*/
+	TUNER_TEMIC_4066FY5_PAL_I,	/* "Temic 4066FY5"		  	*/
+	/*36*/
+	TUNER_ABSENT,						    /* "Philips TD1536"			  */
+	TUNER_ABSENT,						    /* "Philips TD1536D"	  	*/
+	TUNER_PHILIPS_NTSC,					/* "Philips FMR1236"		  */
+	TUNER_ABSENT,						    /* "Philips FI1256MP"		  */
+	/*40*/
+	TUNER_ABSENT,						    /* "Samsung TCPQ9091P"		*/
+	TUNER_TEMIC_4006FN5_PAL,		/* "Temic 4006FN5"			  */
+	TUNER_TEMIC_4009FR5_PAL,		/* "Temic 4009FR5"			  */
+	TUNER_TEMIC_4046FM5_MULTI,	/* "Temic 4046FM5"			  */
+	/*44*/
+	TUNER_TEMIC_4009FN5_PAL,	  /* "Temic 4009FN5"			  */
+	TUNER_ABSENT,						    /* "Philips TD1536D_FH_44"*/
+	TUNER_LG_R01F_NTSC,					/* "LG TP18NSR01F"		  	*/
+	TUNER_LG_B01D_PAL,					/* "LG TP18PSB01D"			  */
+	TUNER_LG_B11D_PAL,					/* "LG TP18PSB11D"			  */	
+	TUNER_LG_I001D_PAL_I,				/* "LG TAPC-I001D"		  	*/
+	TUNER_LG_I701D_PAL_I				/* "LG TAPC-I701D"		  	*/
+};
+
+const eTunerId CBT848Card::m_Tuners_avermedia_0[] = 
+{
+	TUNER_PHILIPS_NTSC,  
+	TUNER_PHILIPS_PAL,
+	TUNER_PHILIPS_PAL,   
+	TUNER_PHILIPS_PAL,
+	TUNER_PHILIPS_PAL,   
+	TUNER_PHILIPS_PAL,
+	TUNER_PHILIPS_SECAM, 
+	TUNER_PHILIPS_SECAM,
+	TUNER_PHILIPS_SECAM, 
+	TUNER_PHILIPS_PAL
+};
+
+/*
+const eTunerId CBT848Card::m_Tuners_avermedia_0_fm[] = 
+{
+	PHILIPS_FR1236_NTSC,  
+	PHILIPS_FR1216_PAL,
+	PHILIPS_FR1216_PAL,   
+	PHILIPS_FR1216_PAL,
+	PHILIPS_FR1216_PAL,   
+	PHILIPS_FR1216_PAL,
+	PHILIPS_FR1236_SECAM, 
+	PHILIPS_FR1236_SECAM,
+	PHILIPS_FR1236_SECAM, 
+	PHILIPS_FR1216_PAL
+};
+*/
+
+const eTunerId CBT848Card::m_Tuners_avermedia_1[] = 
+{
+	TUNER_TEMIC_4032FY5_NTSC,  
+	TUNER_TEMIC_4002FH5_PAL,	
+	TUNER_TEMIC_4002FH5_PAL,   
+	TUNER_TEMIC_4002FH5_PAL,
+	TUNER_TEMIC_4002FH5_PAL,   
+	TUNER_TEMIC_4002FH5_PAL,
+	TUNER_ABSENT,        //TUNER_TEMIC_4012FY5, 
+	TUNER_ABSENT,        //TUNER_TEMIC_4012FY5, //TUNER_TEMIC_SECAM
+	TUNER_ABSENT,        //TUNER_TEMIC_4012FY5, 
+	TUNER_TEMIC_4002FH5_PAL
+};
+
+
 eTunerId CBT848Card::AutoDetectTuner(eTVCardId CardId)
 {
+   eTunerId TunerId=TUNER_ABSENT;
+  
+    // Maybe for future use
+    bool TVTunerDoesFM=false;
+    bool HasRemoteControl=false;
+    // Not implemented yet
+    bool HasTEA5757=false;
+
     if(m_TVCards[CardId].TunerId == TUNER_USER_SETUP)
     {
         return TUNER_ABSENT;
@@ -3332,15 +3504,231 @@ eTunerId CBT848Card::AutoDetectTuner(eTVCardId CardId)
     else if(m_TVCards[CardId].TunerId == TUNER_AUTODETECT)
     {
         eTunerId Tuner = TUNER_ABSENT;
+         /* The same way btwincap 5.3.2 uses to detect the tuners.
+
+           Tested:
+            - Livetec:        (only properties) no
+            - Miro/Pinnacle:  (full)            no
+            - Flyvideo cards: (full)            no
+            - Hauppauge:      (full)            Wintv-Go
+            - Avermedia:      (full)            no
+            - VHX:            (only properties) no
+            - Magic TView:    (only properties) no 
+
+            Properties (FM, Remote control) are useless as of now.            
+        */   
         switch(CardId)
         {
-        case TVCARD_MIRO:
-        case TVCARD_MIROPRO:
-            Tuner = (eTunerId)(((ReadWord(BT848_GPIO_DATA)>>10)-1)&7);
+          case TVCARD_LIFETEC:
+            {                
+		            DWORD id;		            
+		            WriteDword(BT848_GPIO_OUT_EN,( 0x18e0 )&0x00FFFFFFL);
+                id = ReadDword(BT848_GPIO_DATA);
+                LOG(2, "AutoDetectTuner: Lifetec card. ID: %08x",id);
+		            if (id & 0x4000) 
+		            {
+			            TVTunerDoesFM = true;                  
+		            } 
+            }
             break;
-        default:
+          case TVCARD_MIRO:
+          case TVCARD_MIROPRO:
+          case TVCARD_PINNACLERAVE:
+          case TVCARD_PINNACLEPRO:            
+            {
+                //Tuner = (eTunerId)(((ReadWord(BT848_GPIO_DATA)>>10)-1)&7);                            
+                DWORD Id;
+                DWORD Val;
+                
+                // Read ID                
+                WriteDword(BT848_GPIO_OUT_EN,( 0x0000 )&0x00FFFFFFL);
+                Id = ReadDword(BT848_GPIO_DATA);
+                Id = ((Id >> 10) & 31) - 1;            
+                
+                LOG(2, "AutoDetectTuner: Miro/Pinnacle card. ID: 0x%08X",Id);
+                
+                // Get tuner from list
+                Tuner = m_Tuners_miro[Id];
+
+                // Get additional data
+                Val = ReadDword(BT848_GPIO_DATA);
+                
+                LOG(2, "AutoDetectTuner: Miro/Pinnacle card. Val: 0x%08X",Val);
+                
+                if (Val & 0x20) {
+                  TVTunerDoesFM = true;
+                  if (m_Tuners_miro_fm[Id]) {
+                    HasTEA5757 = true;
+				            TVTunerDoesFM = false;
+                  }
+                }
+            }
+            break;          
+          case TVCARD_FLYVIDEO_98:
+		      case TVCARD_TYPHOON_TVIEW:
+		      case TVCARD_CHRONOS_VS2:
+	        case TVCARD_FLYVIDEO_98FM:
+		      case TVCARD_FLYVIDEO2000:		      
+	        case TVCARD_FLYVIDEO98EZ:		
+            {            
+                DWORD Out;
+                DWORD Gpio;
+                DWORD TType;
+
+                Out = ReadDword(BT848_GPIO_OUT_EN)&0x00FFFFFFL;            
+                // Set to inputs the appropiate lines 
+                WriteDword(BT848_GPIO_OUT_EN,( 0x0000 )&0x00FFFFFFL);                            		            
+                 // without this we would see the 0x1800 mask		        
+                ::Sleep(8);
+		            Gpio = ReadDword(BT848_GPIO_DATA);		        
+                WriteDword(BT848_GPIO_OUT_EN,( Out )&0x00FFFFFFL);            
+		            // all cards provide GPIO info, some have an additional eeprom
+
+                LOG(2, "AutoDetectTuner: Flyvideo type card. Id: 0x%08X",Gpio);
+
+                // lowest 3 bytes are remote control codes (no handshake needed)
+		            TType = (Gpio & 0x0f0000)>>16;
+                switch (TType) 
+                {
+                  case 0x0: 
+                    Tuner = TUNER_ABSENT; 
+                    break;
+                  case 0x4: 
+                    Tuner = TUNER_PHILIPS_PAL; 
+                    break;
+                  case 0x6: 
+                    Tuner = TUNER_LG_TAPCH701P_NTSC; 
+                    break;
+                  case 0xC: 
+                    Tuner = TUNER_PHILIPS_SECAM; 
+                    break;
+                  default:  
+                    // Unknown
+                    Tuner = TUNER_ABSENT; 
+                    break;
+                }
+                TVTunerDoesFM = (Gpio&0x400000) != 0;
+		            HasRemoteControl = (Gpio&0x800000) != 0;
+            }  
+            break;
+          case TVCARD_HAUPPAUGE:
+          case TVCARD_HAUPPAUGE878:
+            {
+                // Read EEPROM
+                BYTE Eeprom[256];
+                BYTE Out[] = { 0xA0 };
+                Eeprom[0] = 0;
+                m_I2CBus->Read(Out,1,Eeprom,256);
+
+                if (Eeprom[0] != 0x84 || Eeprom[2] != 0) 
+                {
+	          		    //Hauppage EEPROM invalid
+	          		    LOG(2, "AutoDetectTuner: Hauppage card. EEPROM error");
+                    break;
+                }
+                
+                LOG(2, "AutoDetectTuner: Hauppage card. Id: 0x%02X",Eeprom[9]);
+                
+                if (Eeprom[9] < sizeof(m_Tuners_hauppauge)/sizeof(m_Tuners_hauppauge[0])) 
+                {
+                  Tuner = m_Tuners_hauppauge[Eeprom[9]];
+                }
+                
+                LOG(2, "AutoDetectTuner: Hauppage card. Block 2: 0x%02X at %d+3",Eeprom[ Eeprom[1]+3 ],Eeprom[1]);
+                
+                /* Block 2 starts after len+3 bytes header */
+                int blk2 = Eeprom[1] + 3;
+                int radio = Eeprom[blk2-1] & 0x01;
+		            int infrared = Eeprom[blk2-1] & 0x04;
+		            TVTunerDoesFM = false;
+		            if (radio) 
+		            {
+			            TVTunerDoesFM = true;
+		            }
+		            HasRemoteControl = false;
+		            if (infrared) 
+		            {
+			            HasRemoteControl = true;
+		            }
+            }
+            break;                                  
+          case TVCARD_AVERMEDIA98:
+          case TVCARD_AVPHONE98:
+          case TVCARD_AVERMEDIA:
+            {
+                BYTE Eeprom[256];
+                BYTE Out[] = { 0xA0 };                
+                m_I2CBus->Read(Out,1,Eeprom,256);
+
+                BYTE tuner_make;
+                BYTE tuner_tv_fm;
+                BYTE tuner_format;
+                BYTE tuner=0;
+
+            		tuner_make   = (Eeprom[0x41] & 0x7);
+	              tuner_tv_fm  = (Eeprom[0x41] & 0x18) >> 3;
+		            tuner_format = (Eeprom[0x42] & 0xf0) >> 4;
+		            
+		            LOG(2, "AutoDetectTuner: Avermedia card. Id: 0x%02X 0x%02X",Eeprom[0x41],Eeprom[0x42]);
+
+                if (tuner_make == 0 || tuner_make == 2) 
+                {
+		            	if (tuner_format <=9) 
+		            	{
+		            	  Tuner = m_Tuners_avermedia_0[tuner_format];
+		            	}  
+                }
+                if (tuner_make == 1) 
+                {
+			            if (tuner_format <= 9) 
+			            {
+			              Tuner = m_Tuners_avermedia_1[tuner_format];
+			            }   
+                }
+                // We assume we have a remote control
+		            HasRemoteControl = true;
+            }
+            break;
+				  case TVCARD_VHX:            
+            {
+                TVTunerDoesFM = false;
+		            HasTEA5757 = true;
+            }
+            break;
+          case TVCARD_MAGICTVIEW061:
+            {
+                BYTE Eeprom[256];
+                BYTE Out[] = { 0xA0 };
+                m_I2CBus->Read(Out,1,Eeprom,256);
+
+                UINT Id = (UINT(Eeprom[252]) << 24) |
+			                    (UINT(Eeprom[253]) << 16) |
+                			    (UINT(Eeprom[254]) << 8)  |
+			                    (UINT(Eeprom[255]));                
+
+                LOG(2, "AutoDetectTuner: Magic TView card. Id: 0x%08X",Id);
+                
+                if (Id == 0x4002144f) 
+                {
+			             TVTunerDoesFM = true;
+                }
+            }
+            break;
+          case TVCARD_PXELVWPLTVPRO:
+          case TVCARD_WINFAST2000:
+            {
+                HasRemoteControl = true;
+            }
+            break;
+          default:
             break;
         }
+        
+        if (HasTEA5757) 
+        {
+           //not supported yet
+           return TUNER_ABSENT;
+        }   
         return Tuner;
     }
     else
@@ -3376,6 +3764,20 @@ const CBT848Card::TCardType* CBT848Card::GetCardSetup()
 
 eTVCardId CBT848Card::AutoDetectCardType()
 {
+    /*  This is the way btwincap gets the card ID.
+        Maybe for future use.
+  
+        BYTE Eeprom[256];
+        BYTE Out[] = { 0xA0 };
+        if (m_I2CBus->Read(Out,1,Eeprom,256)) 
+        {
+  	        DWORD Id = (DWORD(Eeprom[252]) << 24) |
+      			           (DWORD(Eeprom[253]) << 16) |
+				               (DWORD(Eeprom[254]) << 8)  |
+				               (DWORD(Eeprom[255]));
+        }
+    */
+
 //    if(I2C_AddDevice(I2C_HAUPEE))
     {
         DWORD Id = m_SubSystemId;
@@ -3391,10 +3793,20 @@ eTVCardId CBT848Card::AutoDetectCardType()
             }
         }
     }
+    
     //if(I2C_AddDevice(I2C_STBEE))
     //{
         //return TVCARD_STB;
     //}
+
+    // STB cards have a eeprom @ 0xae (old bt848) 
+    BYTE Out[] = { 0xAE };
+    BYTE Val = 0;
+		if (m_I2CBus->Read(Out,1,&Val,1)) 
+		{
+			return TVCARD_STB;
+		}
+    
     return TVCARD_UNKNOWN;
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.21 2002-07-02 20:00:06 adcockj Exp $
+// $Id: BT848Card.h,v 1.22 2002-07-23 18:11:48 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2002/07/02 20:00:06  adcockj
+// New setting for MSP input pin selection
+//
 // Revision 1.20  2002/06/16 18:54:59  robmuller
 // ACPI powersafe support.
 //
@@ -319,6 +322,13 @@ private:
 private:
     static const TCardType m_TVCards[TVCARD_LASTONE];
     static const TAutoDectect878 m_AutoDectect878[];
+    static const eTunerId m_Tuners_miro[];
+    static const bool     m_Tuners_miro_fm[];
+    static const eTunerId m_Tuners_hauppauge[];
+    static const eTunerId m_Tuners_avermedia_0[];
+    static const eTunerId m_Tuners_avermedia_0_fm[];
+    static const eTunerId m_Tuners_avermedia_1[];
+    
 };
 
 

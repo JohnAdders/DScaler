@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.3 2002-10-31 13:55:15 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.4 2002-10-31 14:09:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/10/31 13:55:15  adcockj
+// Made VBI similar to bt848
+//
 // Revision 1.2  2002/10/29 16:20:29  adcockj
 // Added card setup for MSI TV@nywhere (no work done on sound)
 //
@@ -455,14 +458,13 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         // set up VBI information
         WriteDword(CX2388X_VBI_SIZE, GetTVFormat(TVFormat)->VBIPacketSize);
 
+	    CurrentX = 720;
         if (CurrentY == 576)
         {
-	        CurrentX = 702;
 			WriteDword(CX2388X_AGC_BURST_DELAY, 0x6D6b);
         }
         else
         {
-	        CurrentX = 714;
 			WriteDword(CX2388X_AGC_BURST_DELAY, 0x6D63);
 		}
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_Audio.cpp,v 1.19 2004-08-06 16:23:02 atnak Exp $
+// $Id: SAA7134Source_Audio.cpp,v 1.20 2005-03-16 15:03:56 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2004/08/06 16:23:02  atnak
+// Added typecast to make some warnings go away.
+//
 // Revision 1.18  2003/10/27 10:39:54  adcockj
 // Updated files for better doxygen compatability
 //
@@ -116,7 +119,7 @@ void CSAA7134Source::SetupAudioSource()
     m_pSAA7134Card->SetAudioSource((eAudioInputSource)m_AudioSource->GetValue());
     m_pSAA7134Card->SetAudioSampleRate((eAudioSampleRate)m_AudioSampleRate->GetValue());
 
-    if (m_AutoStereoSelect->GetValue() == TRUE)
+    if (m_AutoStereoSelect->GetValue() && m_AudioSource->GetValue() == AUDIOINPUTSOURCE_DAC)
     {
         m_pSAA7134Card->SetAudioChannel(AUDIOCHANNEL_STEREO);
     }
@@ -267,7 +270,7 @@ void CSAA7134Source::AudioSourceOnChange(long NewValue, long OldValue)
 void CSAA7134Source::AudioChannelOnChange(long AudioChannel, long OldValue)
 {
     if (AudioChannel == AUDIOCHANNEL_MONO &&
-        m_AudioSource->GetValue() == AUDIOINPUTSOURCE_DAC)
+		m_AudioSource->GetValue() == AUDIOINPUTSOURCE_DAC)
     {
         if (m_AutoStereoSelect->GetValue())
         {
@@ -279,17 +282,20 @@ void CSAA7134Source::AudioChannelOnChange(long AudioChannel, long OldValue)
 
 void CSAA7134Source::AutoStereoSelectOnChange(long NewValue, long OldValue)
 {
-    if (NewValue)
-    {
-        m_pSAA7134Card->SetAudioChannel(AUDIOCHANNEL_STEREO);
-    }
-    else
-    {
-        if (m_AudioChannel->GetValue() == AUDIOCHANNEL_MONO)
-        {
-            m_pSAA7134Card->SetAudioChannel(AUDIOCHANNEL_MONO);
-        }
-    }
+	if (m_AudioSource->GetValue() == AUDIOINPUTSOURCE_DAC)
+	{
+		if (NewValue)
+		{
+			m_pSAA7134Card->SetAudioChannel(AUDIOCHANNEL_STEREO);
+		}
+		else
+		{
+			if (m_AudioChannel->GetValue() == AUDIOCHANNEL_MONO)
+			{
+				m_pSAA7134Card->SetAudioChannel(AUDIOCHANNEL_MONO);
+			}
+		}
+	}
 }
 
 void CSAA7134Source::CustomAudioStandardOnChange(long NewValue, long OldValue)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.94 2003-03-23 09:24:27 laurentg Exp $
+// $Id: StillSource.cpp,v 1.95 2003-03-25 13:10:29 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.94  2003/03/23 09:24:27  laurentg
+// Automatic leave preview mode when necessary
+//
 // Revision 1.93  2003/03/22 18:58:40  laurentg
 // New key to switch to or from preview mode
 // Spped up initial display of channels in preview mode
@@ -362,6 +365,10 @@ static BOOL SaveInSameFile = FALSE;
 static BOOL StillsInMemory = FALSE;
 static BOOL KeepOriginalRatio = FALSE;
 static int NbConsecutiveStills = 20;
+static BOOL OSDForStills = TRUE;
+static int PreviewNbCols = 4;
+static int PreviewNbRows = 4;
+static int MaxMemForStills = 64;
 
 static const char *StillFormatNames[STILL_FORMAT_LASTONE] = 
 {
@@ -931,7 +938,10 @@ void CStillSource::SaveSnapshotInFile(int FrameHeight, int FrameWidth, BYTE* pFr
 		}
 	}
 
-	OSD_ShowText(strrchr(FilePath, '\\') + 1, 0);
+	if (OSDForStills)
+	{
+		OSD_ShowText(strrchr(FilePath, '\\') + 1, 0);
+	}
 
     m_SquarePixels = AspectSettings.SquarePixels;
 
@@ -1068,7 +1078,10 @@ void CStillSource::SaveInFile(int pos)
 		return;
 	}
 
-	OSD_ShowText(strrchr(FilePath, '\\') + 1, 0);
+	if (OSDForStills)
+	{
+		OSD_ShowText(strrchr(FilePath, '\\') + 1, 0);
+	}
 
 	pNewFrameBuffer = pStartFrame;
 	NewLinePitch = LinePitch;
@@ -1536,7 +1549,7 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
     case IDM_PLAYLIST_PREVIEW:
         if (pMultiFrames == NULL)
 		{
-			pMultiFrames = new CMultiFrames(PREVIEW_STILLS, 4, 4, this);
+			pMultiFrames = new CMultiFrames(PREVIEW_STILLS, PreviewNbCols, PreviewNbRows, this);
 		}
 		pMultiFrames->RequestSwitch();
         return TRUE;
@@ -1824,6 +1837,29 @@ BOOL CStillSource::SavePlayList(LPCSTR FileName)
     return TRUE;
 }
 
+int CStillSource::CountMemoryUsage()
+{
+	BYTE* FrameBuffer;
+	int FrameHeight;
+	int FrameWidth;
+	int LinePitch;
+	BOOL SquarePixels;
+	const char* Context;
+	int Count = 0;
+
+    for(vector<CPlayListItem*>::iterator it = m_PlayList.begin(); 
+        it != m_PlayList.end(); 
+        ++it)
+    {
+        if((*it)->GetMemoryInfo(&FrameBuffer, &FrameHeight, &FrameWidth, &LinePitch, &SquarePixels, &Context))
+		{
+			Count += LinePitch * FrameHeight;
+		}
+    }
+
+	return Count;
+}
+
 void CStillSource::UpdateMenu()
 {
     HMENU           hSubMenu;
@@ -2050,6 +2086,26 @@ BOOL Pattern_Width_OnChange(long NewValue)
     return FALSE;
 }
 
+BOOL PreviewNbCols_OnChange(long NewValue)
+{
+    PreviewNbCols = (int)NewValue;
+	if (pMultiFrames && (pMultiFrames->GetMode() == PREVIEW_STILLS) && pMultiFrames->IsActive())
+	{
+		pMultiFrames->RequestSwitch();
+	}
+    return FALSE;
+}
+
+BOOL PreviewNbRows_OnChange(long NewValue)
+{
+    PreviewNbRows = (int)NewValue;
+	if (pMultiFrames && (pMultiFrames->GetMode() == PREVIEW_STILLS) && pMultiFrames->IsActive())
+	{
+		pMultiFrames->RequestSwitch();
+	}
+    return FALSE;
+}
+
 SETTING StillSettings[STILL_SETTING_LASTONE] =
 {
     {
@@ -2111,6 +2167,30 @@ SETTING StillSettings[STILL_SETTING_LASTONE] =
          FALSE, 0, 1, 1, 1,
          NULL,
         "Still", "KeepOriginalRatio", NULL,
+    },
+    {
+        "OSD when taking a still", ONOFF, 0, (long*)&OSDForStills,
+         TRUE, 0, 1, 1, 1,
+         NULL,
+        "Still", "OSDForStills", NULL,
+    },
+    {
+        "Number of columns in preview mode", SLIDER, 0, (long*)&PreviewNbCols,
+         4, 2, 10, 1, 1,
+         NULL,
+        "Still", "PreviewNbCols", PreviewNbCols_OnChange,
+    },
+    {
+        "Number of rows in preview mode", SLIDER, 0, (long*)&PreviewNbRows,
+         4, 2, 10, 1, 1,
+         NULL,
+        "Still", "PreviewNbRows", PreviewNbRows_OnChange,
+    },
+    {
+        "Maximum memory usage for stills (Mo)", SLIDER, 0, (long*)&MaxMemForStills,
+         64, 32, 256, 1, 1,
+         NULL,
+        "Still", "MaxMemForStills", NULL,
     },
 };
 

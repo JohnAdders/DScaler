@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.64 2003-03-19 23:53:28 laurentg Exp $
+// $Id: StillSource.h,v 1.65 2003-03-25 13:10:32 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -160,6 +160,7 @@ public:
     ITuner* GetTuner() {return NULL;}
 
 	int	 GetPlaylistPosition();
+	int CountMemoryUsage();
 
     friend class CTiffHelper;
     friend class CJpegHelper;

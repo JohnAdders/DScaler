@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.115 2003-03-23 09:24:27 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.116 2003-03-25 13:10:19 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.115  2003/03/23 09:24:27  laurentg
+// Automatic leave preview mode when necessary
+//
 // Revision 1.114  2003/03/16 18:29:20  laurentg
 // New multiple frames feature
 //
@@ -945,13 +948,32 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 				bTakeStill = TRUE;
 				if (RequestStillInMemory)
 				{
+					// Memory already allocated to store snapshots
+					int MemUsed = ((CStillSource*)Providers_GetSnapshotsSource())->CountMemoryUsage();
+
 					// If we are taking a still in memory, we need to allocate
 					// a memory buffer and use this buffer as output
 					// That means too that the overlay will not be updated
 					bUseOverlay = FALSE;
 					Info.OverlayPitch = (Info.FrameWidth * 2 * sizeof(BYTE) + 15) & 0xfffffff0;
-					pAllocBuf = (BYTE*)malloc(Info.OverlayPitch * Info.FrameHeight + 16);
-					Info.Overlay = START_ALIGNED16(pAllocBuf);
+
+					// Add the memory needed for the new snapshot
+					MemUsed += Info.OverlayPitch * Info.FrameHeight;
+					LOG(1, "MemUsed %d Mo", MemUsed / 1048576);
+
+					// Check that the max is not reached
+					if ((MemUsed / 1048576) >= Setting_GetValue(Still_GetSetting(MAXMEMFORSTILLS)))
+					{
+						char text[128];
+						pAllocBuf = NULL;
+						sprintf(text, "Max memory (%d Mo) reached\nChange the maximum value or\nclose some open stills", Setting_GetValue(Still_GetSetting(MAXMEMFORSTILLS)));
+						OSD_ShowText(text, 0);
+					}
+					else
+					{
+						pAllocBuf = (BYTE*)malloc(Info.OverlayPitch * Info.FrameHeight + 16);
+						Info.Overlay = START_ALIGNED16(pAllocBuf);
+					}
 					LOG(2, "Alloc for still - start buf %d, start frame %d", pAllocBuf, Info.Overlay);
 					if (pAllocBuf == NULL)
 					{
@@ -1438,7 +1460,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 				RequestStillNb--;
 				if (RequestStillNb <= 0)
 				{
-					if (RequestStillInMemory)
+					if (RequestStillInMemory && Setting_GetValue(Still_GetSetting(OSDFORSTILLS)))
 					{
 						OSD_ShowText("Still(s) in memory", 0);
 					}

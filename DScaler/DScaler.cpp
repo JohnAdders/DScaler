@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.250 2002-10-21 07:29:52 adcockj Exp $
+// $Id: DScaler.cpp,v 1.251 2002-10-22 01:54:04 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.250  2002/10/21 07:29:52  adcockj
+// Moved new scroll wheel option to end of list of settings
+//
 // Revision 1.249  2002/10/21 00:12:30  atnak
 // Added comments for lastest change
 //
@@ -1437,6 +1440,7 @@ void ShowVTHeader()
 {
     HDC hDC = GetDC(hWnd);
     VT_SetPageOSD(hWnd, hDC, -1, TRUE);
+    ReleaseDC(hWnd, hDC);
 
     *ChannelString = '\0';
     ChannelStringIsVT = TRUE;
@@ -3616,6 +3620,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             {
                 HDC hDC = GetDC(hWnd);
                 VT_SetPageOSD(hWnd, hDC, -1, FALSE);
+                ReleaseDC(hWnd, hDC);
 
                 if (VTState != VT_OFF)
                 {
@@ -4493,6 +4498,7 @@ LONG OnChar(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 {
                     HDC hDC = GetDC(hWnd);
                     VT_SetPageOSD(hWnd, hDC, atoi(ChannelString), TRUE);
+                    ReleaseDC(hWnd, hDC);
                 }
                 SetTimer(hWnd, TIMER_KEYNUMBER, ChannelEnterTime, NULL);
             }

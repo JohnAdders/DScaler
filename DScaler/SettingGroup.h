@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingGroup.h,v 1.8 2004-09-08 07:19:01 atnak Exp $
+// $Id: SettingGroup.h,v 1.9 2004-09-11 13:00:45 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2004/09/08 07:19:01  atnak
+// Major changes in the way operations are handled.  For better handling of
+// operations called from inside callbacks.  Plus other changes.
+//
 // Revision 1.7  2004/08/21 11:36:51  atnak
 // Removed unnecessary function define.
 //
@@ -341,7 +345,8 @@ protected:
 
 	// This class defines the buffer that is used to store information
 	// about a single setting in the class's persistent storage.
-	// it should really be protected by vs6 doesn't like that
+	// it should really be protected but vs6 doesn't like that
+public:
 	typedef class CSettingInfo
 	{
 	public:
@@ -354,6 +359,7 @@ protected:
 		BYTE				flags;
 	} *PSETTINGINFO;
 
+protected:
 	// Type used to store list of all setting information.
 	typedef std::list<PSETTINGINFO>	SETTINGINFOLIST;
 

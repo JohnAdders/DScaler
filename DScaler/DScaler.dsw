@@ -339,9 +339,6 @@ Package=<4>
     Project_Dep_Name Disasm
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name DSRend
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name DI_MoComp2
     End Project Dependency
     Begin Project Dependency

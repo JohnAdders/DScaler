@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.cpp,v 1.24 2003-08-15 14:28:16 laurentg Exp $
+// $Id: DSSourceBase.cpp,v 1.25 2003-08-16 18:36:58 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2003/08/15 14:28:16  laurentg
+// Management of volume
+//
 // Revision 1.23  2003/08/12 19:29:26  laurentg
 // OSD when jumping to a certain time
 //
@@ -130,7 +133,8 @@ CDSSourceBase::CDSSourceBase(long SetMessage, long MenuId) :
 	m_CurrentX(0),
 	m_CurrentY(0),
 	m_LastNumDroppedFrames(-1),
-	m_dwRendStartTime(0)
+	m_dwRendStartTime(0),
+	m_InitialSetup(FALSE)
 {
 	InitializeCriticalSection(&m_hOutThreadSync);
 }

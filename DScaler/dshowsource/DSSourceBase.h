@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.h,v 1.20 2003-08-15 14:28:16 laurentg Exp $
+// $Id: DSSourceBase.h,v 1.21 2003-08-16 18:36:59 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2003/08/15 14:28:16  laurentg
+// Management of volume
+//
 // Revision 1.19  2003/08/12 19:10:05  laurentg
 // Move some methods from CDSFileSource to CDSSourceBase
 //
@@ -154,6 +157,9 @@ public:
 	int GetDuration();
 	void ChangePos(int delta_sec);
 
+	BOOL IsInitialSetup() {return m_InitialSetup;};
+	BOOL IsCaptureSource() {return FALSE;};
+
 protected:
 	CDShowGraph *m_pDSGraph;
 	long m_CurrentX;
@@ -177,6 +183,8 @@ protected:
 private:
 	void UpdateDroppedFields();
 	CString m_IniSection;
+
+	BOOL m_InitialSetup;
 
 	DEFINE_SLIDER_CALLBACK_SETTING(CDSSourceBase, Volume);
 	DEFINE_SLIDER_CALLBACK_SETTING(CDSSourceBase, Balance);

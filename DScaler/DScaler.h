@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.39 2002-12-02 17:06:26 adcockj Exp $
+// $Id: DScaler.h,v 1.40 2003-01-01 20:58:30 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -80,6 +80,9 @@ HMENU GetVideoDeinterlaceSubmenu();
 HMENU GetChannelsSubmenu();
 HMENU GetOSDSubmenu();
 HMENU GetPatternsSubmenu();
+HMENU GetVTCodepageSubmenu();
+
+void SetMixedModeMenu(HMENU hMenu, BOOL bShow);
 
 void RedrawMenuBar(HMENU hChangedMenu);
 
@@ -103,8 +106,7 @@ void RedrawMenuBar(HMENU hChangedMenu);
 #define TIMER_VTFLASHER     67
 #define TIMER_VTFLASHER_MS  500
 
-#define TIMER_VTUPDATE      68
-#define TIMER_VTUPDATE_MS   110
+#define TIMER_VTINPUT       68
 
 #define TIMER_FINDPULL      46
 #define TIMER_FINDPULL_MS   4000
@@ -132,7 +134,9 @@ typedef struct
 #define UWM_INPUTSIZE_CHANGE   WM_APP + 0x1001
 #define UWM_SQUAREPIXELS_CHECK WM_APP + 0x1002
 #define UWM_EVENTADDEDTOQUEUE  WM_APP + 0x1003
-#define VTM_REDRAWHEADER       0x0001
+#define VTM_VTHEADERUPDATE     0x0001
+#define VTM_VTPAGEUPDATE       0x0002
+#define VTM_VTPAGEREFRESH      0x0003
 
 extern HINSTANCE hDScalerInst;
 extern HINSTANCE hResourceInst;

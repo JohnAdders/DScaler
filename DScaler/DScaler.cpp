@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.266 2002-12-15 15:19:21 adcockj Exp $
+// $Id: DScaler.cpp,v 1.267 2003-01-01 20:58:30 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.266  2002/12/15 15:19:21  adcockj
+// Fixed a crash on exit
+//
 // Revision 1.265  2002/12/09 00:32:14  atnak
 // Added new muting stuff
 //
@@ -874,7 +877,6 @@ HMENU   hSubMenuChannels = NULL;
 HACCEL  hAccel;
 
 char ChannelString[10] = "";
-BOOL ChannelStringIsVT;
 
 int MainProcessor=0;
 int DecodeProcessor=0;
@@ -905,6 +907,7 @@ BOOL bForceFullScreen = FALSE;
 BOOL bUseAutoSave = FALSE;
 BOOL bScreensaverOff = FALSE;
 BOOL bVTAutoCodePage = FALSE;
+BOOL bVTAntiAlias = FALSE;
 BOOL bMinimized = FALSE;
 BOOL bReverseChannelScroll = FALSE;
 
@@ -959,7 +962,7 @@ BOOL ScreensaverOff_OnChange(long NewValue);
 void Cursor_UpdateVisibility();
 void Cursor_SetVisibility(BOOL bVisible);
 int Cursor_SetType(int type);
-void Cursor_VTUpdate(bool PosValid, int x, int y);
+void Cursor_VTUpdate(int x = -1, int y = -1);
 void MainWndOnDestroy();
 void SetDirectoryToExe();
 int ProcessCommandLine(char* commandLine, char* argv[], int sizeArgv);
@@ -1299,7 +1302,7 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     UpdateWindowState();
 
     PostMessage(hWnd, WM_SIZE, SIZENORMAL, MAKELONG(MainWndWidth, MainWndHeight));
-    if (!(hAccel = LoadAccelerators(hResourceInst, MAKEINTRESOURCE(IDA_DSCALER))))
+    if ((hAccel = LoadAccelerators(hResourceInst, MAKEINTRESOURCE(IDA_DSCALER))) == NULL)
     {
         ErrorBox("Accelerators not Loaded");
     }
@@ -1484,61 +1487,195 @@ BOOL WINAPI OnContextMenu(HWND hWnd, int x, int y)
     return FALSE; 
 } 
 
-void ShowVTHeader()
+
+BOOL ProcessVTMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+    RECT Rect;
+    BOOL bHandled = FALSE;
+    BOOL bPageChanged = FALSE;
+
+    GetDestRect(&Rect);
     HDC hDC = GetDC(hWnd);
-    VT_SetPageOSD(hWnd, hDC, -1, TRUE);
+
+    switch (uMsg)
+    {
+    case WM_COMMAND:
+        if (VT_GetState() != VT_OFF)
+        {
+            switch (LOWORD(wParam))
+            {
+            case IDM_VT_PAGE_MINUS:
+                VT_ClearInput();
+                bPageChanged = VT_PageScroll(hDC, &Rect, FALSE);
+                bHandled = TRUE;
+                break;
+
+            case IDM_VT_PAGE_PLUS:
+                VT_ClearInput();
+                bPageChanged = VT_PageScroll(hDC, &Rect, TRUE);
+                bHandled = TRUE;
+                break;
+
+            case IDM_VT_PAGE_UP:
+                VT_ClearInput();
+                bPageChanged = VT_SubPageScroll(hDC, &Rect, FALSE);
+                bHandled = TRUE;
+                break;
+
+            case IDM_VT_PAGE_DOWN:
+                VT_ClearInput();
+                bPageChanged = VT_SubPageScroll(hDC, &Rect, TRUE);
+                bHandled = TRUE;
+                break;
+
+            case IDM_CHANNELPLUS:
+            case IDM_CHANNELMINUS:
+            case IDM_CHANNEL_PREVIOUS:
+                VT_ClearInput();
+                VT_ShowHeader(hDC, &Rect);
+                bHandled = TRUE;
+                break;
+
+            case IDC_TOOLBAR_CHANNELS_LIST:
+                bHandled = TRUE;
+                break;
+
+            case IDM_VT_SEARCH:
+            case IDM_VT_SEARCHNEXT:
+            case IDM_VT_SEARCHPREV:
+                {
+                    BOOL bInclusive = FALSE;
+                    BOOL bReverse = LOWORD(wParam) == IDM_VT_SEARCHPREV;
+                    bHandled = TRUE;
+
+                    VT_ClearInput();
+
+                    // Get search string with a dialog if it's not search-next
+                    // or search-previous or if the search string doesn't exist.
+                    if (LOWORD(wParam) == IDM_VT_SEARCH || !VT_IsSearchStringValid())
+                    {
+                        if (!DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_VTSEARCH),
+                            hWnd, (DLGPROC)VTSearchProc))
+                        {
+                            break;
+                        }
+
+                        bInclusive = TRUE;
+                    }
+
+                    bPageChanged = VT_PerformSearch(hDC, &Rect, bInclusive, bReverse);
+                }
+                break;
+
+            case IDM_VT_AUTOCODEPAGE:
+                VT_SetAutoCodepage(hDC, &Rect, !VT_GetAutoCodepage());
+                bHandled = TRUE;
+                break;
+
+            case IDM_VT_ANTIALIAS:
+                VT_SetAntialias(hDC, &Rect, !VT_GetAntialias());
+                bHandled = TRUE;
+                break;
+
+            case IDM_TELETEXT_KEY1:
+            case IDM_TELETEXT_KEY2:
+            case IDM_TELETEXT_KEY3:
+            case IDM_TELETEXT_KEY4:
+            case IDM_TELETEXT_KEY5:
+                {
+                    VT_ClearInput();
+                    BYTE nFlofKey = LOWORD(wParam) - IDM_TELETEXT_KEY1;
+                    bPageChanged = VT_PerformFlofKey(hDC, &Rect, nFlofKey);
+                    bHandled = TRUE;
+                }
+                break;
+
+            case IDM_TELETEXT_KEY6:
+                VT_ClearInput();
+                VT_SetShowHidden(hDC, &Rect, !VT_GetShowHidden());
+                bHandled = TRUE;
+                break;
+
+            case IDM_CHARSET_TEST:
+                VT_ClearInput();
+                bPageChanged = VT_ShowTestPage(hDC, &Rect);
+                bHandled = TRUE;
+                break;
+            }
+        }
+        break;
+
+    case WM_LBUTTONDOWN:
+        if (VT_GetState() != VT_OFF)
+        {
+            VT_ClearInput();
+            bPageChanged = VT_ClickAtPosition(hDC, &Rect, LOWORD(lParam), HIWORD(lParam));
+            bHandled = TRUE;
+        }
+        break;
+
+    case WM_TIMER:
+        {
+            switch (LOWORD(wParam))
+            {
+            case TIMER_VTFLASHER:
+                VT_RedrawFlash(hDC, &Rect);
+                bHandled = TRUE;
+                break;
+
+            case TIMER_VTINPUT:
+                VT_OnInputTimer(hDC, &Rect);
+                bHandled = TRUE;
+                break;
+            }
+        }
+        break;
+
+    case WM_CHAR:
+        if (VT_GetState() != VT_OFF)
+        {
+            if (wParam >= '0' && wParam <= '9')
+            {
+                bPageChanged = VT_OnInput(hDC, &Rect, (char)wParam);
+                bHandled = TRUE;
+            }
+        }
+        break;
+
+    case WM_VIDEOTEXT:
+        if (VT_GetState() != VT_OFF)
+        {
+            switch(LOWORD(wParam))
+            {
+            case VTM_VTHEADERUPDATE:
+                VT_ProcessHeaderUpdate(hDC, &Rect);
+                bHandled = TRUE;
+                break;
+
+            case VTM_VTPAGEUPDATE:
+                bPageChanged = VT_ProcessPageUpdate(hDC, &Rect, lParam);
+                bHandled = TRUE;
+                break;
+
+            case VTM_VTPAGEREFRESH:
+                bPageChanged = VT_ProcessPageRefresh(hDC, &Rect, lParam);
+                bHandled = TRUE;
+                break;
+            }
+        }
+        break;
+    }
+
     ReleaseDC(hWnd, hDC);
 
-    *ChannelString = '\0';
-    ChannelStringIsVT = TRUE;
-    // This takes care of hiding the header.
-    // Maybe there this should use a new timer
-    SetTimer(hWnd, TIMER_KEYNUMBER, 1000, NULL);
+    if (bPageChanged != FALSE)
+    {
+        Cursor_VTUpdate();
+    }
+
+    return bHandled;
 }
 
-void SetVTPage(int Page, int SubPage, bool SubPageValid, bool LockSubPage)
-{
-    if ((Page < 100) || (Page > 899))
-    {
-        return;
-    }
-
-    VTPage = Page;
-    VTShowHidden = false;
-    if (SubPageValid)
-    {
-        VTSubPage = SubPage;
-        VTSubPageLocked = VT_CompleteSubPages(VTPage - 100) && LockSubPage;
-        /** \todo It will be good idea to set timer for removing lock
-                  after 2-3 mins and switching back to the most recent 
-                  received subpage.
-        */
-    }
-    else
-    {
-        //Find first available SubPage with most lowest index
-        VTSubPage = VT_SubPageNext(VTPage - 100, -1, 1, false);
-        VTSubPageLocked = false;
-    }
-
-    ShowVTHeader();
-    VT_PurgeRedrawCache();
-    VT_DoUpdate_Page(VTPage - 100, VTSubPage);
-    VT_UpdateFlashTimerStatus();
-    Cursor_VTUpdate(false, 0, 0);
-    InvalidateDisplayAreaRect(hWnd, NULL, FALSE);
-}
-
-void SetVTShowHidden(bool Enabled)
-{
-    if ((Enabled && !VTShowHidden) || (!Enabled && VTShowHidden))
-    {
-        VTShowHidden = Enabled;
-        VT_DoUpdate_Page(VTPage - 100, VTSubPage);
-        InvalidateDisplayAreaRect(hWnd, NULL, FALSE);
-    }
-}
 
 LRESULT CALLBACK KeyboardHookProc(int code, UINT wParam, UINT lParam)
 {
@@ -1553,6 +1690,7 @@ LRESULT CALLBACK KeyboardHookProc(int code, UINT wParam, UINT lParam)
     }
    	return CallNextHookEx(hKeyboardHook, code, wParam, lParam);
 }
+
 
 void SetKeyboardLock(BOOL Enabled)
 {
@@ -1576,39 +1714,6 @@ void SetKeyboardLock(BOOL Enabled)
     }
 }
 
-BOOL SearchGotoVTPage(BOOL bSearchAllPages)
-{
-    BOOL bFound = FALSE;
-
-    //Check searchstring
-    if( VTSearchString[0] == 0x00 ) 
-    {
-        ; //Complain bitterly
-        return bFound;
-    }
-    
-    //Search in all pages or in all following pages/subpages
-    if( bSearchAllPages )
-    {
-        bFound = VT_SearchAllPages();
-    }
-    else
-    {
-        bFound = VT_SearchFrom(VTPage, VTSubPage);
-    }
-
-    //Act on results
-    if( bFound )
-    {
-       SetVTPage(VTSearchPage, VTSearchSubPage, true, true);
-    }
-    else
-    {
-        ; //Nothing found
-    }
-
-    return bFound;
-}
 
 void SetScreensaverMode(BOOL bScreensaverOff)
 {
@@ -2318,65 +2423,34 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_VT_SEARCH:
-            if(VTState != VT_OFF)
-            {
-                //Get searchstring dialog, search only if user pressed OK button/enter key
-                if(DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_VTSEARCH), hWnd, 
-                    (DLGPROC)VTSearchProc))
-                {
-                    //Search all pages and act
-                    SearchGotoVTPage(true);
-                }
-            }
-            break;
-
         case IDM_VT_SEARCHNEXT:
-            if(VTState != VT_OFF)
-            {
-                //Search remaining pages and act
-                SearchGotoVTPage(false);
-            }
+        case IDM_VT_SEARCHPREV:
+            ProcessVTMessage(hWnd, message, wParam, lParam);
             break;
 
         case IDM_VT_PAGE_MINUS:
-            if(VTState != VT_OFF)
-            {
-                SetVTPage(VT_GetPreviousPage(VTPage - 100) + 100, 0, false, false);
-            }
-            else
+            if (!ProcessVTMessage(hWnd, message, wParam, lParam))
             {
                 ProcessAspectRatioSelection(hWnd, LOWORD(wParam));
             }
             break;
 
         case IDM_VT_PAGE_PLUS:
-            if(VTState != VT_OFF)
-            {
-                SetVTPage(VT_GetNextPage(VTPage - 100) + 100, 0, false, false);
-            }
-            else
+            if (!ProcessVTMessage(hWnd, message, wParam, lParam))
             {
                 ProcessAspectRatioSelection(hWnd, LOWORD(wParam));
             }
             break;
 
         case IDM_VT_PAGE_UP:
-            if(VTState != VT_OFF)
-            {
-                SetVTPage(VTPage, VT_SubPageNext(VTPage - 100, VTSubPage, -1, true), true, true);
-            }
-            else
+            if(!ProcessVTMessage(hWnd, message, wParam, lParam))
             {
                 ProcessAspectRatioSelection(hWnd, LOWORD(wParam));
             }
             break;
 
         case IDM_VT_PAGE_DOWN:
-            if(VTState != VT_OFF)
-            {
-                SetVTPage(VTPage, VT_SubPageNext(VTPage - 100, VTSubPage, +1, true), true, true);
-            }
-            else
+            if(!ProcessVTMessage(hWnd, message, wParam, lParam))
             {
                 ProcessAspectRatioSelection(hWnd, LOWORD(wParam));
             }
@@ -2392,60 +2466,61 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_CHANNELPLUS:
-            if (VTState != VT_OFF)
+            if (!ProcessVTMessage(hWnd, message, wParam, lParam))
             {
-                ShowVTHeader();
-            }
-            else if (Providers_GetCurrentSource()->IsInTunerMode())
-            {
-                // IDM_CHANNELPLUS and IDM_CHANNELMINUS are used
-                // as the hub of all user interface channel up/down
-                // commands.  Put bReverseChannelScroll check here
-                // so mousewheel/page keys/toolbar arrows are taken
-                // care of.
-                if (!bReverseChannelScroll)
+                if (Providers_GetCurrentSource()->IsInTunerMode())
                 {
-                    Channel_Increment();
-                }
-                else
-                {
-                    Channel_Decrement();
+                    // IDM_CHANNELPLUS and IDM_CHANNELMINUS are used
+                    // as the hub of all user interface channel up/down
+                    // commands.  Put bReverseChannelScroll check here
+                    // so mousewheel/page keys/toolbar arrows are taken
+                    // care of.
+                    if (!bReverseChannelScroll)
+                    {
+                        Channel_Increment();
+                    }
+                    else
+                    {
+                        Channel_Decrement();
+                    }
                 }
             }
             break;
 
         case IDM_CHANNELMINUS:
-            if (VTState != VT_OFF)
+            if (!ProcessVTMessage(hWnd, message, wParam, lParam))
             {
-                ShowVTHeader();
-            }
-            else if (Providers_GetCurrentSource()->IsInTunerMode())
-            {
-                if (!bReverseChannelScroll)
+                if (Providers_GetCurrentSource()->IsInTunerMode())
                 {
-                    Channel_Decrement();
-                }
-                else
-                {
-                    Channel_Increment();
+                    if (!bReverseChannelScroll)
+                    {
+                        Channel_Decrement();
+                    }
+                    else
+                    {
+                        Channel_Increment();
+                    }
                 }
             }
             break;
 
         case IDM_CHANNEL_PREVIOUS:
-            if (VTState != VT_OFF)
+            if (!ProcessVTMessage(hWnd, message, wParam, lParam))
             {
-                ShowVTHeader();
-            }
-            else if (Providers_GetCurrentSource()->IsInTunerMode())
-            {
-                Channel_Previous();
+                if (Providers_GetCurrentSource()->IsInTunerMode())
+                {
+                    Channel_Previous();
+                }
             }
             break;
-	case IDC_TOOLBAR_CHANNELS_LIST:
-            if (Providers_GetCurrentSource()->IsInTunerMode() && VTState == VT_OFF)
+
+        case IDC_TOOLBAR_CHANNELS_LIST:
+            if (!ProcessVTMessage(hWnd, message, wParam, lParam))
             {
-                Channel_Change(lParam);
+                if (Providers_GetCurrentSource()->IsInTunerMode())
+                {
+                    Channel_Change(lParam);
+                }
             }
             break;
             
@@ -2770,11 +2845,9 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_VBI_VT:
-            while (VTState != VT_OFF)
-            {
-                SendMessage(hWnd, WM_COMMAND, IDM_CALL_VIDEOTEXT, 0);
-            }
-            Setting_SetValue(VBI_GetSetting(DOTELETEXT), 
+            VT_SetState(NULL, NULL, VT_OFF);
+            Cursor_VTUpdate();
+            Setting_SetValue(VBI_GetSetting(DOTELETEXT),
                 !Setting_GetValue(VBI_GetSetting(DOTELETEXT)));
             break;
 
@@ -2802,64 +2875,80 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_CALL_VIDEOTEXT:
-            switch (VTState)
             {
-            case VT_OFF:
-                VTState = VT_BLACK;
-                break;
-            case VT_BLACK:
-                VTState = (bVTSingleKeyToggle ? VT_MIX : VT_OFF);
-                break;
-            case VT_MIX:
-            default:
-                VTState = VT_OFF;
-                break;
-            }
-            
-            if (VTState == VT_OFF)
-            {
-                ;
-            }
-            else if (!Setting_GetValue(VBI_GetSetting(CAPTURE_VBI)) || !Setting_GetValue(VBI_GetSetting(DOTELETEXT)) )
-            {
-                Setting_SetValue(VBI_GetSetting(CAPTURE_VBI), TRUE);
-                Setting_SetValue(VBI_GetSetting(DOTELETEXT), TRUE);
-            }
-            
-            SetVTPage(VTPage, VTSubPage, true, false);
+                eVTState NewState;
 
-            WorkoutOverlaySize(TRUE);
+                switch (VT_GetState())
+                {
+                case VT_OFF:
+                    NewState = VT_BLACK;
+                    break;
+                case VT_BLACK:
+                    NewState = (bVTSingleKeyToggle ? VT_MIXED : VT_OFF);
+                    break;
+                case VT_MIXED:
+                default:
+                    NewState = VT_OFF;
+                    break;
+                }
+            
+                if (NewState != VT_OFF)
+                {
+                    if (!Setting_GetValue(VBI_GetSetting(CAPTURE_VBI)))
+                    {
+                        SendMessage(hWnd, WM_COMMAND, IDM_VBI, 0);
+                    }
+                    if (!Setting_GetValue(VBI_GetSetting(DOTELETEXT)))
+                    {
+                        SendMessage(hWnd, WM_COMMAND, IDM_VBI_VT, 0);
+                    }
+                }
 
-            InvalidateDisplayAreaRect(hWnd,NULL,FALSE);
+                VT_SetState(NULL, NULL, NewState);
+                Cursor_VTUpdate();
+                WorkoutOverlaySize(TRUE);
+                InvalidateDisplayAreaRect(hWnd, NULL, FALSE);
+            }
+            *ChannelString = '\0';
             break;
 
         case IDM_VT_MIXEDMODE:
-            if (VTState == VT_MIX)
             {
-                VTState = VT_BLACK;
+                eVTState NewState;
+
+                if (VT_GetState() == VT_MIXED)
+                {
+                    NewState = VT_BLACK;
+                }
+                else
+                {
+                    NewState = VT_MIXED;
+                }
+
+                if (!Setting_GetValue(VBI_GetSetting(CAPTURE_VBI)))
+                {
+                    SendMessage(hWnd, WM_COMMAND, IDM_VBI, 0);
+                }
+                if (!Setting_GetValue(VBI_GetSetting(DOTELETEXT)))
+                {
+                    SendMessage(hWnd, WM_COMMAND, IDM_VBI_VT, 0);
+                }
+
+                VT_SetState(NULL, NULL, NewState);
+                Cursor_VTUpdate();
+                WorkoutOverlaySize(TRUE);
+                InvalidateDisplayAreaRect(hWnd, NULL, FALSE);
             }
-            else
-            {
-                VTState = VT_MIX;
-            }
-            
-            if (Setting_GetValue(VBI_GetSetting(CAPTURE_VBI)) == FALSE)
-            {
-                Setting_SetValue(VBI_GetSetting(CAPTURE_VBI), TRUE);
-            }
-            if (Setting_GetValue(VBI_GetSetting(DOTELETEXT)) == FALSE)
-            {
-                Setting_SetValue(VBI_GetSetting(DOTELETEXT), TRUE);
-            }
-            
-            SetVTPage(VTPage, VTSubPage, true, false);
-            WorkoutOverlaySize(TRUE);
-            InvalidateDisplayAreaRect(hWnd, NULL, FALSE);
+            *ChannelString = '\0';
             break;
 
         case IDM_VT_RESET:
             VT_ChannelChange();
-            InvalidateDisplayAreaRect(hWnd, NULL, FALSE);
+
+            if (VT_GetState() != VT_OFF)
+            {
+                InvalidateDisplayAreaRect(hWnd, NULL, FALSE);
+            }
             break;
 
         case IDM_VIDEOSETTINGS:
@@ -2875,12 +2964,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_VBI:
-            while (VTState != VT_OFF)
-            {
-                SendMessage(hWnd, WM_COMMAND, IDM_CALL_VIDEOTEXT, 0);
-            }
+            VT_SetState(NULL, NULL, VT_OFF);
+            Cursor_VTUpdate();
+
             Stop_Capture();
-            Setting_SetValue(VBI_GetSetting(CAPTURE_VBI), 
+            Setting_SetValue(VBI_GetSetting(CAPTURE_VBI),
                 !Setting_GetValue(VBI_GetSetting(CAPTURE_VBI)));
             Start_Capture();
             break;
@@ -2914,12 +3002,23 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_VT_AUTOCODEPAGE:
-            bVTAutoCodePage = !bVTAutoCodePage;
+            if (!ProcessVTMessage(hWnd, message, wParam, lParam))
+            {
+                // IDM_VT_AUTOCODEPAGE won't be handled in
+                // ProcessVTMessage if VTState is off
+                VT_SetAutoCodepage(NULL, NULL, !VT_GetAutoCodepage());
+            }
+            bVTAutoCodePage = VT_GetAutoCodepage();
             break;
         
         case IDM_VT_ANTIALIAS:
-            VTAntiAlias = !VTAntiAlias;
-            InvalidateDisplayAreaRect(hWnd, NULL, FALSE);
+            if (!ProcessVTMessage(hWnd, message, wParam, lParam))
+            {
+                // IDM_VT_ANTIALIAS won't be handled in
+                // ProcessVTMessage if VTState is off
+                VT_SetAntialias(NULL, NULL, !VT_GetAntialias());
+            }
+            bVTAntiAlias = VT_GetAntialias();
             break;
 
         case IDM_KEYBOARDLOCK:
@@ -2974,66 +3073,6 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             Setting_SetValue(OutThreads_GetSetting(DOACCURATEFLIPS), 
                 !Setting_GetValue(OutThreads_GetSetting(DOACCURATEFLIPS)));
             Start_Capture();
-            break;
-
-        case IDM_VT_UK:
-            VT_SetCodePage(VT_UK_CODE_PAGE);
-            InvalidateDisplayAreaRect(hWnd, NULL, TRUE);
-            break;
-
-        case IDM_VT_FRENCH:
-            VT_SetCodePage(VT_FRENCH_CODE_PAGE);
-            InvalidateDisplayAreaRect(hWnd, NULL, TRUE);            
-            break;
-
-        case IDM_VT_CZECH:
-            VT_SetCodePage(VT_CZECH_CODE_PAGE);
-            InvalidateDisplayAreaRect(hWnd, NULL, TRUE);            
-            break;
-
-        case IDM_VT_GREEK:
-            VT_SetCodePage(VT_GREEK_CODE_PAGE);
-            InvalidateDisplayAreaRect(hWnd, NULL, TRUE);
-            break;
-
-        case IDM_VT_RUSSIAN:
-            VT_SetCodePage(VT_RUSSIAN_CODE_PAGE);
-            InvalidateDisplayAreaRect(hWnd, NULL, TRUE);
-            break;
-
-        case IDM_VT_GERMAN:
-            VT_SetCodePage(VT_GERMAN_CODE_PAGE);
-            InvalidateDisplayAreaRect(hWnd, NULL, TRUE);
-            break;
-        
-        case IDM_VT_HUNGARIAN:
-            VT_SetCodePage(VT_HUNGARIAN_CODE_PAGE);
-            InvalidateDisplayAreaRect(hWnd, NULL, TRUE);            
-            break;
-
-        case IDM_VT_HEBREW:
-            VT_SetCodePage(VT_HEBREW_CODE_PAGE);
-            InvalidateDisplayAreaRect(hWnd, NULL, TRUE);           
-            break;
-
-        case IDM_VT_SWEDISH:
-            VT_SetCodePage(VT_SWEDISH_CODE_PAGE);
-            InvalidateDisplayAreaRect(hWnd, NULL, TRUE);
-            break;
-
-        case IDM_VT_ITALIAN:
-            VT_SetCodePage(VT_ITALIAN_CODE_PAGE);
-            InvalidateDisplayAreaRect(hWnd, NULL, TRUE);
-            break;
-
-        case IDM_VT_SPANISH:
-            VT_SetCodePage(VT_SPANISH_CODE_PAGE);
-            InvalidateDisplayAreaRect(hWnd, NULL, TRUE);
-            break;
-
-        case IDM_VT_POLISH:
-            VT_SetCodePage(VT_POLISH_CODE_PAGE);
-            InvalidateDisplayAreaRect(hWnd, NULL, TRUE);
             break;
 
         case IDM_USECHROMA:
@@ -3237,7 +3276,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             Setting_SetValue(Other_GetSetting(USEOVERLAYCONTROLS), !Setting_GetValue(Other_GetSetting(USEOVERLAYCONTROLS)));
             break;
 
-        case IDM_FAST_REPAINT:
+/*        case IDM_FAST_REPAINT:
             {
                 RECT winRect;
                 PAINTSTRUCT sPaint;
@@ -3260,7 +3299,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 ValidateRect(hWnd, &sPaint.rcPaint);
             }
             break;
-
+*/
         case IDM_HELP_HOMEPAGE:
             ShellExecute(hWnd, "open", "http://www.dscaler.org/", NULL, NULL, SW_SHOWNORMAL);
             break;
@@ -3290,25 +3329,8 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_TELETEXT_KEY3:
         case IDM_TELETEXT_KEY4:
         case IDM_TELETEXT_KEY5:
-            if(VTState != VT_OFF)
-            {
-                if(VTPage >= 100)
-                {
-                    /// \todo VT_GetFlofPageNumber do not return SubPage...
-                    i = VT_GetFlofPageNumber(VTPage-100, VTSubPage, LOWORD(wParam) - IDM_TELETEXT_KEY1);
-                    if(i >= 100 && i <= 899) 
-                    {
-                        SetVTPage(i, 0, false, true);
-                    }
-                }
-            }
-            break;
-
         case IDM_TELETEXT_KEY6:
-            if (VTState != VT_OFF)
-            {
-                SetVTShowHidden(!VTShowHidden);
-            }
+            ProcessVTMessage(hWnd, message, wParam, lParam);
             break;
 
         case IDM_LEFT_CROP_PLUS:
@@ -3364,14 +3386,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_CHARSET_TEST:
-            if(VTState != VT_OFF)
-            {
-                VT_CreateTestPage();
-                InvalidateDisplayAreaRect(hWnd, NULL, TRUE);
-            }
+            ProcessVTMessage(hWnd, message, wParam, lParam);
             break;
 		
-	case IDM_SETTINGS_CHANGESETTINGS:
+        case IDM_SETTINGS_CHANGESETTINGS:
             CTreeSettingsDlg::ShowTreeSettingsDlg(ADVANCED_SETTINGS_MASK);
             break;
 
@@ -3467,6 +3485,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             if(!bDone)
             {
                 bDone = ProcessOSDSelection(hWnd, LOWORD(wParam));
+            }
+            if(!bDone)
+            {
+                bDone = ProcessVTCodepageSelection(hWnd, LOWORD(wParam));
             }
             if(!bDone && pCalibration != NULL)
             {
@@ -3572,15 +3594,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 //      break;
 
     case WM_LBUTTONDOWN:
-        if (VTState != VT_OFF) 
-        {
-            int a = VT_GetPageNumberAt(VTPage-100, VTSubPage, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-            if ((a >= 100) && (a <= 899)) 
-            {
-                SetVTPage(a, 0, false, false);
-                break;
-            }
-        }
+        ProcessVTMessage(hWnd, message, wParam, lParam);
         if((bShowMenu == FALSE || (GetKeyState(VK_CONTROL) < 0)) && bIsFullScreen == FALSE)
         {
             // pretend we are hitting the caption bar
@@ -3611,13 +3625,15 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             int newx = GET_X_LPARAM(lParam);
             int newy = GET_Y_LPARAM(lParam);
             
-            if(x != newx || y != newy)
+            if (x != newx || y != newy)
             {
                 x = newx;
                 y = newy;
                 Cursor_UpdateVisibility();
-                if (VTState != VT_OFF) 
-                    Cursor_VTUpdate(true, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+                if (VT_GetState() != VT_OFF)
+                {
+                    Cursor_VTUpdate(newx, newy);
+                }
             }
         }
         return 0;
@@ -3706,57 +3722,40 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case TIMER_KEYNUMBER:
             KillTimer(hWnd, TIMER_KEYNUMBER);
     		i = atoi(ChannelString);
-            if(ChannelStringIsVT || VTState != VT_OFF)
+            // if only zero's are entered video input is switched.
+            if(i == 0)
             {
-                HDC hDC = GetDC(hWnd);
-                VT_SetPageOSD(hWnd, hDC, -1, FALSE);
-                ReleaseDC(hWnd, hDC);
-
-                if (VTState != VT_OFF)
+                if(strcmp(ChannelString, "0") == 0)
                 {
-                    if(i >= 100 && i < 900) //This checking not needed now...
-                    {
-                        SetVTPage(i, 0, false, false);
-                    }
+                    SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT1, 0);
                 }
-            }
-            else
-            {
-                // if only zero's are entered video input is switched.
-                if(i == 0)
+                else if(strcmp(ChannelString, "00") == 0)
                 {
-                    if(strcmp(ChannelString, "0") == 0)
-                    {
-                        SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT1, 0);
-                    }
-                    else if(strcmp(ChannelString, "00") == 0)
-                    {
-                        SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT2, 0);
-                    }
-                    else if(strcmp(ChannelString, "000") == 0)
-                    {
-                        SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT3, 0);
-                    }
-                    else if(strcmp(ChannelString, "0000") == 0)
-                    {
-                        SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT4, 0);
-                    }
-                    else if(strcmp(ChannelString, "00000") == 0)
-                    {
-                        SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT5, 0);
-                    }
-                    else if(strcmp(ChannelString, "000000") == 0)
-                    {
-                        SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT6, 0);
-                    }
-                    else if(strcmp(ChannelString, "0000000") == 0)
-                    {
-                        SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT7, 0);
-                    }
-                    else if(strcmp(ChannelString, "00000000") == 0)
-                    {
-                        SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT8, 0);
-                    }
+                    SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT2, 0);
+                }
+                else if(strcmp(ChannelString, "000") == 0)
+                {
+                    SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT3, 0);
+                }
+                else if(strcmp(ChannelString, "0000") == 0)
+                {
+                    SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT4, 0);
+                }
+                else if(strcmp(ChannelString, "00000") == 0)
+                {
+                    SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT5, 0);
+                }
+                else if(strcmp(ChannelString, "000000") == 0)
+                {
+                    SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT6, 0);
+                }
+                else if(strcmp(ChannelString, "0000000") == 0)
+                {
+                    SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT7, 0);
+                }
+                else if(strcmp(ChannelString, "00000000") == 0)
+                {
+                    SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_INPUT8, 0);
                 }
             }
             ChannelString[0] = '\0';
@@ -3803,26 +3802,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
         //-------------------------------
         case TIMER_VTFLASHER:
-            {
-                static bool Show = true;
-                Show=!Show;
-                if(VTState!=VT_OFF)
-                {
-                    HDC hDC = GetDC(hWnd);
-                    //VT_Redraw(hWnd, hDC, FALSE, Show);
-                    VT_RedrawFlash(hWnd, hDC, Show);
-                    ReleaseDC(hWnd, hDC);
-                }
-            }
+            ProcessVTMessage(hWnd, message, wParam, lParam);
             break;
         //---------------------------------
-        case TIMER_VTUPDATE:
-            {
-                HDC hDC = GetDC(hWnd);                    
-                VT_ProcessRedrawCache(hWnd, hDC);
-                ReleaseDC(hWnd, hDC);
-                VT_UpdateFlashTimerStatus();
-            }
+        case TIMER_VTINPUT:
+            ProcessVTMessage(hWnd, message, wParam, lParam);
             break;
         //---------------------------------
         case TIMER_FINDPULL:
@@ -3951,17 +3935,26 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         break;
 
     case WM_CHAR:
-        return OnChar(hWnd, message, wParam, lParam);
+        if (ProcessVTMessage(hWnd, message, wParam, lParam))
+        {
+            return 0;
+        }
+        else
+        {
+            return OnChar(hWnd, message, wParam, lParam);
+        }
         break;
 
     case WM_PAINT:
         {
             PAINTSTRUCT sPaint;
             BeginPaint(hWnd, &sPaint);
-            if(VTState != VT_OFF)
+            if(VT_GetState() != VT_OFF)
             {
+                RECT Rect;
+                GetDestRect(&Rect);
                 PaintColorkey(hWnd, TRUE, sPaint.hdc, &sPaint.rcPaint, true);
-                VT_Redraw(hWnd, sPaint.hdc, FALSE, FALSE);
+                VT_Redraw(sPaint.hdc, &Rect);
             }
             else
             {
@@ -3971,30 +3964,14 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             if (!bIsFullScreen && (WindowBorder!=NULL) && WindowBorder->Visible())
             {
                 WindowBorder->Paint(hWnd, sPaint.hdc, &sPaint.rcPaint);
-            } 
+            }
             EndPaint(hWnd, &sPaint);
         }
         return 0;
         break;
 
     case WM_VIDEOTEXT:
-        {
-            if(VTState != VT_OFF)
-            {
-                switch(LOWORD(wParam))
-                {
-                case VTM_REDRAWHEADER:
-                    {
-                        HDC hDC = GetDC(hWnd);
-                        VT_RedrawClock(hWnd, hDC, !VT_ContainsUpdatedPage());
-                        ReleaseDC(hWnd, hDC);
-                    }
-                    break;
-                default:
-                    break;
-                }
-            }
-        }
+        ProcessVTMessage(hWnd, message, wParam, lParam);
         return FALSE;
         break;
 
@@ -4235,6 +4212,7 @@ void MainWndOnInitBT(HWND hWnd)
         OSD_UpdateMenu(hMenu);
         pCalibration->UpdateMenu(hMenu);
         Channels_UpdateMenu(hMenu);
+        VT_UpdateMenu(hMenu);
         SetMenuAnalog();
         if (ToolbarControl!=NULL)
         {
@@ -4264,13 +4242,13 @@ void MainWndOnInitBT(HWND hWnd)
                 }
             }
         }
-        
-        if (InitialTextPage >= 100)
+        /*
+        if (InitialTextPage >= 100) DBG
         {
             Setting_SetValue(VBI_GetSetting(CAPTURE_VBI), TRUE);
             VTPage = InitialTextPage;
             VTState = VT_BLACK;
-        }
+        }*/
 
         AddSplashTextLine("Start Video");
         Start_Capture();
@@ -4357,7 +4335,7 @@ void KillTimers()
     KillTimer(hWnd, OSD_TIMER_REFRESH_ID);
     KillTimer(hWnd, TIMER_HIDECURSOR);
     KillTimer(hWnd, TIMER_VTFLASHER);
-    KillTimer(hWnd, TIMER_VTUPDATE);
+    KillTimer(hWnd, TIMER_VTINPUT);
     KillTimer(hWnd, TIMER_FINDPULL);
     KillTimer(hWnd, TIMER_SLEEPMODE);
     KillTimer(hWnd, TIMER_TAKESTILL);
@@ -4461,7 +4439,6 @@ void MainWndOnDestroy()
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error Mute");}
     */
 
-
     __try
     {
         SettingsPerChannel_Setup(0);
@@ -4537,12 +4514,6 @@ LONG OnChar(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
     if (((char) wParam >= '0') && ((char) wParam <= '9'))
     {
-        if (ChannelStringIsVT != (VTState != VT_OFF))
-        {
-            ChannelString[0] = '\0';
-        }
-        ChannelStringIsVT = (VTState != VT_OFF);
-
         sprintf(Text, "%c", (char)wParam);
         // if something gets broken in the future
         if(strlen(ChannelString) >= sizeof(ChannelString)/sizeof(char) - 1)
@@ -4557,7 +4528,7 @@ LONG OnChar(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         strcat(ChannelString, Text);
 
         // if the user is only typing zero's we are going to switch inputs
-        if(VTState == VT_OFF && atoi(ChannelString) == 0 && (char) wParam == '0')
+        if(atoi(ChannelString) == 0 && (char) wParam == '0')
         {
             int VideoInput = strlen(ChannelString) -1;
 
@@ -4587,33 +4558,23 @@ LONG OnChar(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
         }
         // if in tuner mode or videotext mode
-        else if (Providers_GetCurrentSource()->IsInTunerMode() || VTState != VT_OFF)
+        else if (Providers_GetCurrentSource()->IsInTunerMode())
         {
-            if(VTState == VT_OFF)
-            {
-                OSD_ShowText(hWnd, ChannelString, 0);
-            }
+            OSD_ShowText(hWnd, ChannelString, 0);
+
             if(strlen(ChannelString) >= 3)
             {
                 SetTimer(hWnd, TIMER_KEYNUMBER, 1, NULL);
             }
             else
             {
-                if (VTState != VT_OFF)
-                {
-                    HDC hDC = GetDC(hWnd);
-                    VT_SetPageOSD(hWnd, hDC, atoi(ChannelString), TRUE);
-                    ReleaseDC(hWnd, hDC);
-                }
                 SetTimer(hWnd, TIMER_KEYNUMBER, ChannelEnterTime, NULL);
             }
-            if(VTState == VT_OFF)
+
+            i = atoi(ChannelString);
+            if(i != 0)
             {
-                i = atoi(ChannelString);
-                if(i != 0)
-                {
-                    Channel_ChangeToNumber(i,(strlen(ChannelString)>1)?1:0);
-                }
+                Channel_ChangeToNumber(i,(strlen(ChannelString)>1)?1:0);
             }
         }
         // we don't know what to do with this keypress so we reset ChannelString
@@ -4679,12 +4640,14 @@ void SetMenuAnalog()
     CheckMenuItemBool(hMenu, IDM_ALWAYONTOPFULLSCREEN, bAlwaysOnTopFull);
     CheckMenuItemBool(hMenu, IDM_FULL_SCREEN, bIsFullScreen);
     CheckMenuItemBool(hMenu, IDM_VT_AUTOCODEPAGE, bVTAutoCodePage);
-    CheckMenuItemBool(hMenu, IDM_VT_ANTIALIAS, VTAntiAlias);
+    CheckMenuItemBool(hMenu, IDM_VT_ANTIALIAS, bVTAntiAlias);
 
     CheckMenuItemBool(hMenu, IDM_USE_DSCALER_OVERLAY, Setting_GetValue(Other_GetSetting(USEOVERLAYCONTROLS)));
     //EnableMenuItem(hMenu,IDM_OVERLAYSETTINGS, Setting_GetValue(Other_GetSetting(USEOVERLAYCONTROLS))?MF_ENABLED:MF_GRAYED);
 
     CheckMenuItemBool(hMenu, IDM_TAKECYCLICSTILL, bTakingCyclicStills);
+
+    SetMixedModeMenu(hMenu, !bVTSingleKeyToggle);
 
     AspectRatio_SetMenu(hMenu);
     FD60_SetMenu(hMenu);
@@ -4870,6 +4833,86 @@ HMENU GetPatternsSubmenu()
     ASSERT(hmenu != NULL);
 
     return hmenu;
+}
+
+HMENU GetVTCodepageSubmenu()
+{
+    char string[128] = "\0";
+    int reduc;
+
+    GetMenuString(hMenu, 2, string, sizeof(string), MF_BYPOSITION);
+    reduc = !strcmp(string, "&Channels") ? 0 : 1;
+
+    HMENU hmenu = GetSubMenuWithName(hMenu, 8-reduc, "&Datacasting");
+    ASSERT(hmenu != NULL);
+
+    hmenu = GetSubMenuWithName(hmenu, 9, "Teletext Code Page");
+    ASSERT(hmenu != NULL);
+
+    return hmenu;
+}
+
+void SetMixedModeMenu(HMENU hMenu, BOOL bShow)
+{
+    static BOOL     bShown = TRUE;
+    static char     szMenuName[64] = "";
+    MENUITEMINFO    MenuItem;
+    char            Buffer[64];
+
+    if (bShow == bShown)
+    {
+        return;
+    }
+
+    MenuItem.cbSize     = sizeof(MENUITEMINFO);
+    MenuItem.fMask      = MIIM_TYPE;
+    MenuItem.dwTypeData = Buffer;
+    MenuItem.cch        = sizeof(Buffer);
+
+    // Get the Mixed Mode menu item name
+    if (GetMenuItemInfo(hMenu, IDM_VT_MIXEDMODE, FALSE, &MenuItem))
+    {
+        // The menu item exists, delete it if necessary
+        if (!bShow)
+        {
+            if (MenuItem.fType == MFT_STRING)
+            {
+                // Save the name so we can be put back
+                strcpy(szMenuName, Buffer);
+            }
+
+            DeleteMenu(hMenu, IDM_VT_MIXEDMODE, MF_BYCOMMAND);
+            bShown = FALSE;
+        }
+    }
+    else
+    {
+        // The menu does not exists, add it if necessary
+        if (bShow)
+        {
+            // To insert after, I insert before and delete the
+            // previous then insert the previous before again
+            GetMenuItemInfo(hMenu, IDM_CALL_VIDEOTEXT, FALSE, &MenuItem);
+
+            MenuItem.fMask      = MIIM_TYPE | MIIM_ID;
+            MenuItem.fType      = MFT_STRING;
+            MenuItem.wID        = IDM_VT_MIXEDMODE;
+            MenuItem.dwTypeData = szMenuName;
+            MenuItem.cch        = strlen(szMenuName);
+
+            // Put the mixed mode menu item back
+            InsertMenuItem(hMenu, IDM_CALL_VIDEOTEXT, FALSE, &MenuItem);
+
+            DeleteMenu(hMenu, IDM_CALL_VIDEOTEXT, MF_BYCOMMAND);
+
+            MenuItem.wID        = IDM_CALL_VIDEOTEXT;
+            MenuItem.dwTypeData = Buffer;
+            MenuItem.cch        = strlen(Buffer);
+
+            InsertMenuItem(hMenu, IDM_VT_MIXEDMODE, FALSE, &MenuItem);
+            bShown = TRUE;
+        }
+    }
 }
 
 void RedrawMenuBar(HMENU)
@@ -5128,31 +5171,40 @@ int Cursor_SetType(int type)
         break;
     }
 
-    SetClassLong(hWnd, GCL_HCURSOR, (long) hCur);
+    // SetCursor changes and redraws the cursor.
+    SetCursor(hCur);
+
+    // SetClassLong makes the change permanent.
+    SetClassLong(hWnd, GCL_HCURSOR, (LONG)hCur);
 
     return true;
 }
 
-void Cursor_VTUpdate(bool PosValid, int x, int y)
+void Cursor_VTUpdate(int x, int y)
 {
-    POINT pt;
-    int a;
-
-    if (VTState == VT_OFF)
+    if (VT_GetState() == VT_OFF)
     {
         Cursor_SetType(CURSOR_DEFAULT);
     }
-    else 
+    else
     {
-        if (!PosValid) 
+        POINT Point;
+        RECT Rect;
+
+        if (x == -1 || y == -1) 
         {
-            GetCursorPos(&pt);
-            ScreenToClient(hWnd, &pt);
-            x = pt.x; y = pt.y;
+            GetCursorPos(&Point);
+            ScreenToClient(hWnd, &Point);
+        }
+        else
+        {
+            Point.x = x;
+            Point.y = y;
         }
 
-        a = VT_GetPageNumberAt(VTPage-100, VTSubPage, x, y);
-        if ((a >= 100) && (a <= 899))
+        GetDestRect(&Rect);
+
+        if (VT_IsPageNumberAtPosition(&Rect, &Point))
         {
             Cursor_SetType(CURSOR_HAND);
         }
@@ -5476,7 +5528,7 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
         "MainWindow", "AutoCodePage", NULL,
     },
     {
-        "VT Anti-alias", YESNO, 0, (long*)&VTAntiAlias,
+        "VT Anti-alias", YESNO, 0, (long*)&bVTAntiAlias,
         TRUE, 0, 1, 1, 1,
         NULL,
         "MainWindow", "VTAntiAlias", NULL,
@@ -5562,6 +5614,9 @@ void DScaler_ReadSettingsFromIni()
         SetKeyboardLock(TRUE);
     }
     ScreensaverOff_OnChange(bScreensaverOff);
+
+    VT_SetAutoCodepage(NULL, NULL, bVTAutoCodePage);
+    VT_SetAntialias(NULL, NULL, bVTAntiAlias);
 }
 
 void DScaler_WriteSettingsToIni(BOOL bOptimizeFileAccess)

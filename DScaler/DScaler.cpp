@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.358 2003-11-18 16:36:33 robmuller Exp $
+// $Id: DScaler.cpp,v 1.359 2004-04-24 09:11:24 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.358  2003/11/18 16:36:33  robmuller
+// Added option to disable the keyboard lock for dialog boxes.
+//
 // Revision 1.357  2003/11/11 21:26:44  robmuller
 // Exclude some more when WANT_DSHOW_SUPPORT is not defined.
 //
@@ -6818,7 +6821,7 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
         "Show", "InitialSource", NULL,
     },
     {
-        "Channel enter time", SLIDER, 0, (long*)&ChannelEnterTime,
+        "Channel enter time (ms)", SLIDER, 0, (long*)&ChannelEnterTime,
         TIMER_KEYNUMBER_MS, 0, 5000, 1, 1,
         NULL,
         "MainWindow", "ChannelEnterTime", NULL,
@@ -6985,11 +6988,12 @@ CTreeSettingsGeneric* DScaler_GetTreeSettingsPage2()
 CTreeSettingsGeneric* DScaler_GetTreeSettingsPage3()
 {
     // Channel Settings
-    SETTING* OtherSettings[3] =
+    SETTING* OtherSettings[4] =
     {
         &DScalerSettings[REVERSECHANNELSCROLLING],
         &DScalerSettings[CHANNELPREVIEWWNBCOLS],
         &DScalerSettings[CHANNELPREVIEWNBROWS],
+        &DScalerSettings[CHANNELENTERTIME],
     };
     return new CTreeSettingsGeneric("Channel Settings", OtherSettings, sizeof(OtherSettings) / sizeof(OtherSettings[0]));
 }

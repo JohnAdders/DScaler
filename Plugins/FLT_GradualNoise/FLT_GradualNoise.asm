@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_GradualNoise.asm,v 1.1.1.1 2001-12-23 01:43:52 lindsey Exp $
+// $Id: FLT_GradualNoise.asm,v 1.2 2001-12-28 02:51:44 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2000 Steven Grimm.  All rights reserved.
+// Copyright (c) 2001 Lindsey Dubb.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 //
 //  This file is subject to the terms of the GNU General Public License as
@@ -18,8 +18,8 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
-// Revision 1.3  2001/07/13 16:13:33  adcockj
-// Added CVS tags and removed tabs
+// Revision 1.1.1.1  2001/12/23 01:43:52  lindsey
+// Added Gradual Noise Filter
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -42,7 +42,7 @@ long FilterGradualNoise_MMXEXT( TDeinterlaceInfo *pInfo )
     const LONG      Cycles = pInfo->LineLength;
     // Noise multiplier is (1/gNoiseReduction), in 0x10000 fixed point.
     // This times the measured noise gives the weight given to the new pixel color
-    const DWORD     NoiseMultiplier = 0x10000/(gNoiseReduction);
+    const DWORD     NoiseMultiplier = (0x10000+(gNoiseReduction/2))/(gNoiseReduction);
     const __int64   qwChromaMask = 0xFF00FF00FF00FF00;
     const __int64   qwOnes = 0x0101010101010101;
 
@@ -65,77 +65,72 @@ long FilterGradualNoise_MMXEXT( TDeinterlaceInfo *pInfo )
 
         _asm 
         {
-            mov ecx, Cycles
+            mov     ecx, Cycles
 
             // Load pointers into normal registers
-            mov edi, dword ptr[pSource]
-            mov ebx, dword ptr[pLast]
+            mov     edi, dword ptr[pSource]
+            mov     ebx, dword ptr[pLast]
 
 align 8
 MAINLOOP_LABEL:
 
-            movq mm0, qword ptr[edi]        // * mm0 = NewPixel
-            movq mm1, qword ptr[ebx]        // * mm1 = OldPixel
+            // Asterisks indicate register assignments which are used much later in the routine
+            movq    mm0, qword ptr[edi]     // * mm0 = NewPixel
+            movq    mm1, qword ptr[ebx]     // * mm1 = OldPixel
 
             // Get the noise adjustment multiplier
 
-            movq mm2, mm0                   // mm2 = NewPixel
-            psadbw mm2, mm1                 // mm2 = Sum(|byte differences Old,New|)
+            movq    mm2, mm0                // mm2 = NewPixel
+            psadbw  mm2, mm1                // mm2 = Sum(|byte differences Old,New|)
 
-            // The Athlon doesn't have an unsigned MMX 16 bit multiply which returns the low word, so...
-#if defined(IS_SSE)
-            pmuludq mm2, NoiseMultiplier    // mm2 (low DWord) = Multiplier to move toward new pixel value
-#else // IS_MMXEXT
-            movd eax, mm2                   // eax = Sum(|byte differences Old, New|)
-            mul NoiseMultiplier             // eax = Multiplier to move toward new pixel value *overwrites edx*
-            movd mm2, eax                   // mm2 (low Dword) = Multiplier to move toward new pixel value
-#endif
-            movq mm3, mm2                   // mm3 = same
-            pxor mm6, mm6                   // mm6 = 0
+            // The NoiseMultiplier is always less than 0x10000/2, so we can use a signed multiply:
+            pmaddwd mm2, NoiseMultiplier    // mm2 (low Dword) = Multiplier to move toward new pixel value
+            movq    mm3, mm2                // mm3 = same
+            pxor    mm6, mm6                // mm6 = 0
             pcmpgtw mm2, mm6                // mm2 = 0x.......FFFF.... if ignoring old pixel value
-            psrlq mm2, 16                   // mm2 (low word) = FFFF if ignoring old pixel value (else 0)
-            por mm3, mm2                    // mm3 = (low word) Adjusted amount to move toward new
-            pshufw mm2, mm3, 0x00           // * mm2 = (wordwise) adjusted multiplier to move toward new
+            psrlq   mm2, 16                 // mm2 (low word) = FFFF if ignoring old pixel value (else 0)
+            por     mm3, mm2                // mm3 = (low word) Adjusted multiplier to move toward new
+            pshufw  mm2, mm3, 0x00          // * mm2 = (wordwise) adjusted multiplier to move toward new
 
-            movq mm4, mm1                   // mm4 = OldPixel
+            movq    mm4, mm1                // mm4 = OldPixel
             psubusb mm4, mm0                // mm4 = bytewise max(old - new, 0)
             psubusb mm0, mm1                // mm0 = bytewise max (new - old, 0)
-            por mm4, mm0                    // * mm4 = bytewise |new - old|
+            por     mm4, mm0                // * mm4 = bytewise |new - old|
             pcmpeqb mm0, mm6                // * mm0 = bytewise on where old >= new
-            movq mm5, mm4                   // mm5 = bytewise |new - old|
+            movq    mm5, mm4                // mm5 = bytewise |new - old|
             pcmpeqb mm5, mm6                // mm5 bytewise on where |new - old| = 0
-            pandn mm5, qwOnes               // mm5 bytewise 1 where |new - old| != 0 (used for "round at least 1")
+            pandn   mm5, qwOnes             // mm5 bytewise 1 where |new - old| != 0 (used for "round at least 1")
 
             pcmpeqw mm6, mm6                // mm6 = all on
             pcmpeqw mm6, mm2                // mm6 = all on iff multiplier = 0xFFFF (~= 1)
-            pand mm6, mm4                   // mm6 = bytewise |new - old| iff multiplier = 0xFFFF
-            pmaxub mm6, mm5                 // mm6 = same, corrected to a minimum of 1 where there is change
+            pand    mm6, mm4                // mm6 = bytewise |new - old| iff multiplier = 0xFFFF
+            pmaxub  mm6, mm5                // mm6 = same, corrected to a minimum of 1 where there is change
 
             // Multiply the change by the determined compensation factor
-            movq mm7, mm4                   // mm7 = bytewise |new - old|
-            movq mm3, qwChromaMask
-            pand mm7, mm3                   // mm7 = bytewise |new - old| chroma
+            movq    mm7, mm4                // mm7 = bytewise |new - old|
+            movq    mm3, qwChromaMask
+            pand    mm7, mm3                // mm7 = bytewise |new - old| chroma
             pmulhuw mm7, mm2                // mm7 = amount of chroma to add/subtract from old, with remainders
-            pand mm7, mm3                   // mm7 = amount of chroma to add/subtract from old
-            pandn mm3, mm4                  // mm3 = bytewise |new - old| luma
+            pand    mm7, mm3                // mm7 = amount of chroma to add/subtract from old
+            pandn   mm3, mm4                // mm3 = bytewise |new - old| luma
             pmulhuw mm3, mm2                // mm3 = amount of luma to add/subtract from old
-            por mm7, mm3                    // mm7 = amount to add/subtract from old
-            pmaxub mm7, mm6                 // mm7 = corrected to to deal with the motion and round up to 1
+            por     mm7, mm3                // mm7 = amount to add/subtract from old
+            pmaxub  mm7, mm6                // mm7 = corrected to to deal with the motion and round up to 1
             
             // Apply the calculated change
-            movq mm3, mm7                   // mm3 = same
-            pand mm7, mm0                   // mm7 = amount to subtract
+            movq    mm3, mm7                // mm3 = same
+            pand    mm7, mm0                // mm7 = amount to subtract
             psubusb mm1, mm7                // mm1 = Partially adjusted oldpixel
-            pandn mm0, mm3                  // mm0 = amount to add
+            pandn   mm0, mm3                // mm0 = amount to add
             paddusb mm1, mm0                // mm1 = Adjusted pixel value
 
 
             movq qword ptr[edi], mm1
 
-            add edi, 8
-            add ebx, 8
-            sub ecx, 8
-            jnz MAINLOOP_LABEL
+            add     edi, 8
+            add     ebx, 8
+            sub     ecx, 8
+            jnz     MAINLOOP_LABEL
         }
 
         pSource += pInfo->InputPitch;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Common.h,v 1.5 2002-10-26 04:41:44 atnak Exp $
+// $Id: SAA7134Common.h,v 1.6 2002-10-26 06:59:30 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/10/26 04:41:44  atnak
+// Clean up + added auto card detection
+//
 // Revision 1.4  2002/10/20 07:41:04  atnak
 // custom audio standard setup + etc
 //
@@ -262,8 +265,8 @@ protected:
 
     typedef struct
     {
-        WORD                wFieldHeight;
         WORD                wFieldWidth;
+        WORD                wFieldHeight;
         WORD                wHDelay;
         WORD                wVDelay;
         BOOL                Is25fps;

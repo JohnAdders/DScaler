@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StrangeBob.inc,v 1.3 2003-05-26 15:54:36 adcockj Exp $
+// $Id: StrangeBob.inc,v 1.4 2003-05-30 10:05:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Tom Barry & John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2003/05/26 15:54:36  adcockj
+// Improved Performance of motion detection
+// Fixed bug with pBobP
+//
 // Revision 1.2  2003/02/11 15:41:05  adcockj
 // New implementation of StrangeBob based off paper
 // Tidy up sources
@@ -60,6 +64,13 @@ __asm
 	movq    mm4, qword ptr[ebx+ecx - 2]
 	movq    mm5, qword ptr[ebx+ecx]
 	movq    mm6, qword ptr[ebx+ecx + 2]
+
+    // mm1 = a
+    // mm2 = b
+    // mm3 = c
+    // mm4 = d
+    // mm5 = e
+    // mm6 = f
 
     movq mm7, mm1
     V_PAVGB(mm7, mm6, mm0, ShiftMask)
@@ -119,10 +130,14 @@ __asm
 
     // so now we should have mm4 as current best diff and mm6 as best average
     // of the diagonals
-    psubusb mm4, mm2            // nonzero  where (Best > |b - e|)
-	pcmpeqb mm4, mm0			// now ff where (Best <= |b - e|)
-    COMBINE(mm6, mm5, mm4)     
-    pand mm6, YMask
-    pand mm5, UVMask
-    por mm6, mm5
+    movq    mm1, mm2           // save |b - e|
+    psubusb mm2, mm4           // nonzero  where (|b - e| >= Best)
+	pcmpeqb mm2, mm0		   // now ff where (|b - e| < Best)
+    por mm2, UVMask            // we only want luma from diagonals
+    psubusb mm1, MOVE          // nonzero where |b - e| > MOVE is Bob is visible
+	pcmpeqb mm1, mm0		   // now ff where (|b - e| <= MOVE)
+    por mm2, mm1               // we'll let bob through always if the diff is small
+
+    COMBINE(mm5, mm6, mm2)     
+    movq mm6, mm5
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TVCards.cpp,v 1.27 2001-10-20 09:36:59 adcockj Exp $
+// $Id: TVCards.cpp,v 1.28 2001-10-20 18:34:12 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // The structures where taken from bttv driver version 7.37
 // bttv - Bt848 frame grabber driver
@@ -33,6 +33,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2001/10/20 09:36:59  adcockj
+// Fixed tuner in hardware dialog
+//
 // Revision 1.26  2001/10/19 18:44:25  ittarnavsky
 // added support for the VoodooTV 200/FM cards and the MT2032 tuner
 //
@@ -1369,7 +1372,7 @@ void WINFAST2000_SetAudio(int StereoMode)
     }
 }
 
-int Card_AutoDetectTuner(eTVCardId CardId)
+eTunerId Card_AutoDetectTuner(eTVCardId CardId)
 {
     eTunerId Tuner = TUNER_ABSENT;
     switch(CardId)
@@ -1379,6 +1382,10 @@ int Card_AutoDetectTuner(eTVCardId CardId)
         Tuner = (eTunerId)(((BT848_ReadWord(BT848_GPIO_DATA)>>10)-1)&7);
         break;
     default:
+        if (TVCards[CardId].TunerId > TUNER_ABSENT && TVCards[CardId].TunerId < TUNER_LASTONE)
+        {
+            Tuner = TVCards[CardId].TunerId;
+        }
         break;
     }
     return Tuner;
@@ -1450,7 +1457,7 @@ void TVCard_FirstTimeSetupHardware(HINSTANCE hInst, HWND hWnd)
 {
     // try to detect the card
     CardType = Card_AutoDetect();
-    Card_AutoDetectTuner(CardType);
+    TunerType = Card_AutoDetectTuner(CardType);
 
     // then display the hardware setup dialog
     DialogBox(hInst, MAKEINTRESOURCE(IDD_SELECTCARD), hWnd, (DLGPROC) SelectCardProc);
@@ -1592,7 +1599,6 @@ BOOL APIENTRY SelectCardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
     static long OrigProcessorSpeed;
     static long OrigTradeOff;
     static long OrigTuner;
-    int cardIndex = 0;
 
     switch (message)
     {
@@ -1605,7 +1611,6 @@ BOOL APIENTRY SelectCardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_SETITEMDATA, nIndex, i);
             if(i == CardType)
             {
-                cardIndex = i;
                 SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_SETCURSEL, nIndex, 0);
             }
         }

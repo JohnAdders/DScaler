@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_OldGame.c,v 1.4 2001-12-20 03:42:58 lindsey Exp $
+// $Id: DI_OldGame.c,v 1.5 2002-01-04 01:38:56 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Lindsey Dubb.  All rights reserved.
 // based on OddOnly and Temporal Noise DScaler Plugins
@@ -20,6 +20,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/12/20 03:42:58  lindsey
+// Corrected processor detection
+// Miscellaneous reorganization
+//
 // Revision 1.3  2001/11/21 15:21:40  adcockj
 // Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
 // Changed TDeinterlaceInfo structure to have history of pictures.
@@ -40,8 +44,8 @@
 #include "windows.h"
 #include "DS_Deinterlace.h"
 
-//uncomment to turn on logging
-#define OLDGAME_DEBUG
+//uncomment to turn on display of the comb factor
+//#define OLDGAME_DEBUG
 
 /////////////////////////////////////////////////////////////////////////////
 /*

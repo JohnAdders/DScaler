@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.38 2001-11-09 12:42:07 adcockj Exp $
+// $Id: OutThreads.cpp,v 1.39 2001-11-17 18:15:57 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.38  2001/11/09 12:42:07  adcockj
+// Separated most resources out into separate dll ready for localization
+//
 // Revision 1.37  2001/11/02 16:30:08  adcockj
 // Check in merged code from multiple cards branch into main tree
 //
@@ -678,29 +681,6 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         }
                     }
 
-                    if (Info.bRunningLate)
-                    {
-                        ;     // do nothing
-                    }
-                    // if we have dropped a field then do BOB 
-                    // or if we need to get more history
-                    // if we are doing a half height Mode then just do that
-                    // anyway as it will be just as fast
-                    else if(!CurrentMethod->bIsHalfHeight && (Info.bMissedFrame || nHistory < CurrentMethod->nFieldsRequired))
-                    {
-                        bFlipNow = Bob(&Info);
-                    }
-                    else
-                    {
-                        bFlipNow = CurrentMethod->pfnAlgorithm(&Info);
-                    }
-                    
-                    if (bFlipNow)
-                    {
-                        // Do any filters that run on the output
-                        // need to do this while the surface is locked
-                        Filter_DoOutput(&Info, (Info.bRunningLate || Info.bMissedFrame));
-                    }
                 }                   
                 // if there is any exception thrown in the above then just carry on
                 __except (CrashHandler((EXCEPTION_POINTERS*)_exception_info())) 

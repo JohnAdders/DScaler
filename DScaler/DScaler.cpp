@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.86 2001-11-14 11:28:03 adcockj Exp $
+// $Id: DScaler.cpp,v 1.87 2001-11-17 18:15:57 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.86  2001/11/14 11:28:03  adcockj
+// Bug fixes
+//
 // Revision 1.85  2001/11/09 14:19:34  adcockj
 // Bug fixes
 //
@@ -1810,7 +1813,6 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         break;
 
     case WM_TIMER:
-        
         switch (LOWORD(wParam))
         {
         //-------------------------------
@@ -1872,6 +1874,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             Provider_HandleTimerMessages(LOWORD(wParam));
             break;
         }
+        return FALSE;
         break;
     
     // support for mouse wheel

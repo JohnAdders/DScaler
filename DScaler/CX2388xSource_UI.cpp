@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_UI.cpp,v 1.9 2002-11-09 20:53:46 laurentg Exp $
+// $Id: CX2388xSource_UI.cpp,v 1.10 2002-11-12 11:33:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/11/09 20:53:46  laurentg
+// New CX2388x settings
+//
 // Revision 1.8  2002/11/09 00:22:23  laurentg
 // New settings for CX2388x chip
 //
@@ -340,7 +343,7 @@ BOOL CCX2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 
 		case IDM_FLI_FILMDETECT:
             m_FLIFilmDetect->SetValue(!m_FLIFilmDetect->GetValue());
-            if(m_IsVideoProgressive->GetValue())
+            if(m_FLIFilmDetect->GetValue())
             {
                 ShowText(hWnd, "FLI2200 Film Detection - On");
             }

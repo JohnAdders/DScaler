@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Audio.cpp,v 1.1 2002-10-31 15:55:48 adcockj Exp $
+// $Id: CX2388xCard_Audio.cpp,v 1.2 2002-11-25 12:20:33 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/10/31 15:55:48  adcockj
+// Moved audio code from Connexant dTV version
+//
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
@@ -41,10 +44,13 @@ void CCX2388xCard::AudioInit(eVideoFormat Format)
     switch (Format)
     {
     case VIDEOFORMAT_PAL_B:
-    case VIDEOFORMAT_PAL_D:
-    case VIDEOFORMAT_PAL_G:
     case VIDEOFORMAT_PAL_H:
     case VIDEOFORMAT_PAL_M:
+        AudioInitA2();
+        break;
+
+    case VIDEOFORMAT_PAL_D:
+    case VIDEOFORMAT_PAL_G:
     case VIDEOFORMAT_PAL_I:
         AudioInitNICAM();
         break;

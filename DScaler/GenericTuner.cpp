@@ -1,5 +1,5 @@
 //
-// $Id: GenericTuner.cpp,v 1.8 2002-08-17 11:27:23 kooiman Exp $
+// $Id: GenericTuner.cpp,v 1.9 2002-08-20 09:48:43 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/08/17 11:27:23  kooiman
+// Fixed tuning for Temic 4046FM5 and Philips FQ1216ME.
+//
 // Revision 1.7  2002/08/03 17:57:52  kooiman
 // Added new cards & tuners. Changed the tuner combobox into a sorted list.
 //
@@ -49,6 +52,7 @@
 
 #include "stdafx.h"
 #include "GenericTuner.h"
+#include "DebugLog.h"
 
 /* tv standard selection for Temic 4046 FM5
    this value takes the low bits of control byte 2
@@ -439,17 +443,25 @@ bool CGenericTuner::SetTVFrequency(long nFrequency, eVideoFormat videoFormat)
         //specification says to send config data before frequency in case (wanted frequency < current frequency).
 
         //swap order
-        BYTE temp1 = buffer[0];
-        BYTE temp2 = buffer[1];
-        buffer[0] = buffer[2];
+        BYTE temp1 = buffer[1];
+        BYTE temp2 = buffer[2];
         buffer[1] = buffer[3];
-        buffer[2] = temp1;
-        buffer[3] = temp2;
+        buffer[2] = buffer[4];
+        buffer[3] = temp1;
+        buffer[4] = temp2;
     }
     m_Frequency = nFrequency;
 
-    bool result = m_I2CBus->Write(buffer, sizeof(buffer));
-    return result;
+    if (m_I2CBus != NULL)
+    {
+        bool result = m_I2CBus->Write(buffer, sizeof(buffer));
+        return result;
+    }
+    else
+    {
+        LOG(1,"GenericTuner: Error setting frequency. No I2C bus.");
+        return false;
+    }
 }
 
 eTunerId CGenericTuner::GetTunerId()

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.55 2003-01-18 13:24:38 laurentg Exp $
+// $Id: AspectGUI.cpp,v 1.56 2003-02-02 20:24:24 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.55  2003/01/18 13:24:38  laurentg
+// Switching between square pixel mode and AR autodetect modes corrected
+//
 // Revision 1.54  2003/01/11 15:22:23  adcockj
 // Interim Checkin of setting code rewrite
 //  - Remove CSettingsGroupList class
@@ -1462,8 +1465,8 @@ void Aspect_ReadSettingsFromIni()
 #ifdef _DEBUG
         if (ASPECT_SETTING_LASTONE != AspectSettingsHolder.GetNumSettings())
         {
-            LOGD("Number of settings in Aspect source is not equal to the number of settings in DS_Control.h");
-            LOGD("DS_Control.h or AspectGui.cpp are probably not in sync with each other.");
+            LOGD("Number of settings in Aspect source is not equal to the number of settings in DS_Control.h\n");
+            LOGD("DS_Control.h or AspectGui.cpp are probably not in sync with each other.\n");
         }
 #endif
     }

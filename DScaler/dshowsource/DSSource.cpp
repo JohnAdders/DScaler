@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.37 2002-09-07 13:32:35 tobbej Exp $
+// $Id: DSSource.cpp,v 1.38 2002-09-11 16:42:33 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.37  2002/09/07 13:32:35  tobbej
+// save/restore video format settings to ini file
+//
 // Revision 1.36  2002/09/04 17:10:24  tobbej
 // renamed some variables
 // new video format configuration dialog (resolution)
@@ -244,7 +247,8 @@ CDSCaptureSource::CDSCaptureSource(string device,string deviceName) :
 	CDSSourceBase(0,IDC_DSHOWSOURCEMENU),
 	m_Device(device),
 	m_DeviceName(deviceName),
-	m_HaveInputList(FALSE)
+	m_HaveInputList(FALSE),
+	m_ResolutionDataIniSize(-1)
 {
 	m_IDString = std::string("DS_") + device;
 	CreateSettings(device.c_str());
@@ -268,6 +272,11 @@ CDSCaptureSource::~CDSCaptureSource()
 		}
 		WritePrivateProfileString(m_Device.c_str(),_T("ResolutionData"),data.c_str(),szIniFile);
 		WritePrivateProfileInt(m_Device.c_str(),_T("ResolutionSize"),data.size(),szIniFile);
+	}
+	else
+	{
+		WritePrivateProfileString(m_Device.c_str(),_T("ResolutionData"),"",szIniFile);
+		WritePrivateProfileInt(m_Device.c_str(),_T("ResolutionSize"),0,szIniFile);
 	}
 }
 
@@ -566,12 +575,12 @@ void CDSCaptureSource::CreateSettings(LPCSTR IniSection)
 	m_Settings.push_back(m_Resolution);
 
 	//restore m_VideoFmt from ini file
-	UINT size=GetPrivateProfileInt(IniSection,"ResolutionSize",0,szIniFile);
-	if(size)
+	m_ResolutionDataIniSize=GetPrivateProfileInt(IniSection,"ResolutionSize",-1,szIniFile);
+	if(m_ResolutionDataIniSize>0)
 	{
-		char *pcData=new char[size+1];
-		DWORD result=GetPrivateProfileString(IniSection,"ResolutionData","",pcData,size+1,szIniFile);
-		if(result<size)
+		char *pcData=new char[m_ResolutionDataIniSize+1];
+		DWORD result=GetPrivateProfileString(IniSection,"ResolutionData","",pcData,m_ResolutionDataIniSize+1,szIniFile);
+		if(result<m_ResolutionDataIniSize)
 		{
 			LOG(2,"DSCaptureSource: Reading too litle data, problem with ResolutionSize or ResolutionData in ini file");
 		}
@@ -1205,13 +1214,10 @@ void CDSCaptureSource::Start()
 
 		m_pDSGraph->ConnectGraph();
 
-		/***
-		 * @todo restore saved video format list or call SetDefaultVideoFmt
-		 * to create a default one. it is probably best to restore m_VideoFmt
-		 * in CreateSettings and then call SetDefaultVideoFmt here only if
-		 * m_VideoFmt is empty
+		/**
+		 * make sure we don't call CreateDefaultVideoFmt if the user has removed all videoformats
 		 */
-		if(m_VideoFmt.size()==0)
+		if(m_VideoFmt.size()==0 && m_ResolutionDataIniSize==-1)
 		{
 			CreateDefaultVideoFmt();
 		}

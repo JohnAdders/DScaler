@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.h,v 1.24 2002-09-04 17:10:24 tobbej Exp $
+// $Id: DSSource.h,v 1.25 2002-09-11 16:42:33 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2002/09/04 17:10:24  tobbej
+// renamed some variables
+// new video format configuration dialog (resolution)
+//
 // Revision 1.23  2002/08/27 22:09:39  kooiman
 // Add get/set input for DS capture source.
 //
@@ -198,7 +202,9 @@ private:
 
 	string m_Device;
 	string m_DeviceName;
+	
 	vector<CDShowGraph::CVideoFormat> m_VideoFmt;
+	int m_ResolutionDataIniSize;
 
 	BOOL m_HaveInputList;
 	vector<int> m_VideoInputList;

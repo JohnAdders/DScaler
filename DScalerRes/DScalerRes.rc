@@ -1104,19 +1104,20 @@ BEGIN
             MENUITEM "TV Sat FM-mono ",             IDM_MSPMODE_4
             MENUITEM "NICAM PAL BDGH && SECAM",     IDM_MSPMODE_5
             MENUITEM "NICAM PAL I",                 IDM_MSPMODE_6
+            MENUITEM "NICAM SECAM L",               IDM_MSPMODE_7
             MENUITEM SEPARATOR
             POPUP "Major Carrier"
             BEGIN
                 MENUITEM "NTSC",                        IDM_MAJOR_CARRIER_0
                 MENUITEM "PAl BGH",                     IDM_MAJOR_CARRIER_1
                 MENUITEM "PAL I",                       IDM_MAJOR_CARRIER_2
-                MENUITEM "PAL D + Sat + Secam",         IDM_MAJOR_CARRIER_3
+                MENUITEM "PAL D + Sat + SECAM",         IDM_MAJOR_CARRIER_3
             END
             POPUP "Minor Carrier"
             BEGIN
                 MENUITEM "PAL B/G FM-Stereo",           IDM_MINOR_CARRIER_0
                 MENUITEM "PAL B/G NICAM",               IDM_MINOR_CARRIER_1
-                MENUITEM "PAL D/K NICAM",               IDM_MINOR_CARRIER_2
+                MENUITEM "PAL D/K NICAM + SECAM L",     IDM_MINOR_CARRIER_2
                 MENUITEM "PAL D/K1 FM-Stereo",          IDM_MINOR_CARRIER_3
                 MENUITEM "PAL D/K2 FM-Stereo",          IDM_MINOR_CARRIER_4
                 MENUITEM "PAL SAT FM-Stereo s/b",       IDM_MINOR_CARRIER_5

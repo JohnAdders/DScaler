@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.cpp,v 1.2 2001-11-26 13:02:27 adcockj Exp $
+// $Id: MSP34x0.cpp,v 1.3 2001-12-03 17:27:56 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/11/26 13:02:27  adcockj
+// Bug Fixes and standards changes
+//
 // Revision 1.1  2001/11/25 02:03:21  ittarnavsky
 // initial checkin of the new I2C code
 //
@@ -112,7 +115,7 @@ static TMSPInitData m_MSPInitData[] =
         {  -2, -8, -10, 10, 50, 86 }, 
         {  -4, -12, -9, 23, 79, 126 },
         MSP_CARRIER(6.5), MSP_CARRIER(6.5),
-        0x00c6, 0x0140,   0x0120, 0x7c03
+        0x00c6, 0xA170,   0x0200, 0x7000, 0
     },
 };
 
@@ -336,31 +339,32 @@ void CMSP34x0::SetStereo(eSoundChannel soundChannel)
             break;
         }
         break;
-        case MSP_MODE_FM_SAT:
-            switch (m_eSoundChannel)
-            {
-            case MONO:
-                SetCarrier(MSP_CARRIER(6.5), MSP_CARRIER(6.5));
-                break;
-            case STEREO:
-                SetCarrier(MSP_CARRIER(7.2), MSP_CARRIER(7.02));
-                break;
-            case LANGUAGE1:
-                SetCarrier(MSP_CARRIER(7.38), MSP_CARRIER(7.02));
-                break;
-            case LANGUAGE2:
-                SetCarrier(MSP_CARRIER(7.38), MSP_CARRIER(7.02));
-                break;
-            }
+    case MSP_MODE_FM_SAT:
+        switch (m_eSoundChannel)
+        {
+        case MONO:
+            SetCarrier(MSP_CARRIER(6.5), MSP_CARRIER(6.5));
             break;
-            case MSP_MODE_FM_NICAM1:
-            case MSP_MODE_FM_NICAM2:
-                SetCarrier(m_CarrierDetectMinor[m_nMinorMode], m_CarrierDetectMajor[m_nMajorMode]);
-                nicam = 0x0100;
-                break;
-            default:
-                // can't do stereo - abort here
-                return;
+        case STEREO:
+            SetCarrier(MSP_CARRIER(7.2), MSP_CARRIER(7.02));
+            break;
+        case LANGUAGE1:
+            SetCarrier(MSP_CARRIER(7.38), MSP_CARRIER(7.02));
+            break;
+        case LANGUAGE2:
+            SetCarrier(MSP_CARRIER(7.38), MSP_CARRIER(7.02));
+            break;
+        }
+        break;
+    case MSP_MODE_FM_NICAM1:
+    case MSP_MODE_FM_NICAM2:
+    case MSP_MODE_AM_NICAM:
+        SetCarrier(m_CarrierDetectMinor[m_nMinorMode], m_CarrierDetectMajor[m_nMajorMode]);
+        nicam = 0x0100;
+        break;
+    default:
+        // can't do stereo - abort here
+        return;
     }
     
     // switch audio
@@ -370,6 +374,18 @@ void CMSP34x0::SetStereo(eSoundChannel soundChannel)
         src = 0x0020 | nicam;
         break;
     case MONO:
+        if (m_nMode == MSP_MODE_AM_NICAM) // AM Sound on Hauppauge french Nicam cards
+        {
+            // AM mono decoding is handled by tuner, not MSP chip
+            // so let's redirect sound from tuner via SCART
+            // volume prescale for SCART
+            SetRegister(MSP_WR_DSP, 0x0d, 0x1000);
+            // SCART switching control register
+            SetRegister(MSP_WR_DSP, 0x13, 0xe900);
+            src=0x0200;
+            break;
+        } 
+         // otherwise drop down 
     case LANGUAGE1:
         src = 0x0000 | nicam;
         break;
@@ -437,26 +453,29 @@ void CMSP34x0::GetPrintMode(LPSTR Text)
 {
     switch (m_nMode)
     {
-    case 0:
+    case MSP_MODE_AM_DETECT:
         strcpy(Text, "AM (msp3400)+");
         break;
-    case 1:
+    case MSP_MODE_AM_DETECT2:
         strcpy(Text, "AM (msp3410)+");
         break;
-    case 2:
+    case MSP_MODE_FM_RADIO:
         strcpy(Text, "FM Radio+");
         break;
-    case 3:
+    case MSP_MODE_FM_TERRA:
         strcpy(Text, "TV Terrestial+");
         break;
-    case 4:
+    case MSP_MODE_FM_SAT:
         strcpy(Text, "TV Sat+");
         break;
-    case 5:
+    case MSP_MODE_FM_NICAM1:
         strcpy(Text, "NICAM B/G+");
         break;
-    case 6:
+    case MSP_MODE_FM_NICAM2:
         strcpy(Text, "NICAM I+");
+        break;
+    case MSP_MODE_AM_NICAM:
+        strcpy(Text, "NICAM L+");
         break;
     }
     
@@ -555,6 +574,13 @@ eSoundChannel CMSP34x0::GetWatchMode(eSoundChannel desiredSoundChannel)
         default:
             result = MONO;
             break;
+        }
+        break;
+    case MSP_MODE_AM_NICAM:
+        result = MONO;
+        if(GetRegister(MSP_RD_DEM, 0x57) < 700)
+        {
+            result = STEREO;
         }
         break;
     }

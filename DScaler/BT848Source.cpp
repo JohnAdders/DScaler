@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.11 2001-11-29 17:30:51 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.12 2001-12-03 17:27:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2001/11/29 17:30:51  adcockj
+// Reorgainised bt848 initilization
+// More Javadoc-ing
+//
 // Revision 1.10  2001/11/29 14:04:06  adcockj
 // Added Javadoc comments
 //
@@ -274,7 +278,7 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     m_AudioSource = new CAudioSourceSetting(this, "Audio Source", CBT848Card::AUDIOMUX_MUTE, CBT848Card::AUDIOMUX_TUNER, CBT848Card::AUDIOMUX_STEREO, IniSection);
     m_Settings.push_back(m_AudioSource);
 
-    m_MSPMode = new CMSPModeSetting(this, "MSP Mode", MSP_MODE_FM_TERRA, MSP_MODE_AM_DETECT, MSP_MODE_FM_NICAM2, IniSection);
+    m_MSPMode = new CMSPModeSetting(this, "MSP Mode", MSP_MODE_FM_TERRA, MSP_MODE_AM_DETECT, MSP_MODE_AM_NICAM, IniSection);
     m_Settings.push_back(m_MSPMode);
 
     m_MSPMajorMode = new CMSPMajorModeSetting(this, "MSP Major Mode", 0, 0, 3, IniSection);

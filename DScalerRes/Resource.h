@@ -437,16 +437,11 @@
 #define IDM_MSPMODE_4                   1604
 #define IDM_MSPMODE_5                   1605
 #define IDM_MSPMODE_6                   1606
-#define IDC_EM7                         1607
-#define IDC_EM8                         1608
-#define IDC_EM9                         1609
+#define IDM_MSPMODE_7                   1607
 #define IDM_MAJOR_CARRIER_0             1610
 #define IDM_MAJOR_CARRIER_1             1611
 #define IDM_MAJOR_CARRIER_2             1612
 #define IDM_MAJOR_CARRIER_3             1613
-#define IDC_EM10                        1614
-#define IDC_EM11                        1615
-#define IDC_EM12                        1616
 #define IDC_EXPORT                      1617
 #define IDC_FINETUNE                    1618
 #define IDC_FORMAT                      1619
@@ -808,7 +803,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        187
-#define _APS_NEXT_COMMAND_VALUE         2195
+#define _APS_NEXT_COMMAND_VALUE         2196
 #define _APS_NEXT_CONTROL_VALUE         1893
 #define _APS_NEXT_SYMED_VALUE           2192
 #endif

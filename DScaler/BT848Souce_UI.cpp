@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.7 2001-11-29 17:30:51 adcockj Exp $
+// $Id: BT848Souce_UI.cpp,v 1.8 2001-12-03 17:27:55 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2001/11/29 17:30:51  adcockj
+// Reorgainised bt848 initilization
+// More Javadoc-ing
+//
 // Revision 1.6  2001/11/25 01:58:34  ittarnavsky
 // initial checkin of the new I2C code
 //
@@ -498,6 +502,7 @@ void CBT848Source::SetMenu(HMENU hMenu)
     CheckMenuItemBool(m_hMenu, IDM_MSPMODE_4, (m_MSPMode->GetValue() == 4));
     CheckMenuItemBool(m_hMenu, IDM_MSPMODE_5, (m_MSPMode->GetValue() == 5));
     CheckMenuItemBool(m_hMenu, IDM_MSPMODE_6, (m_MSPMode->GetValue() == 6));
+    CheckMenuItemBool(m_hMenu, IDM_MSPMODE_7, (m_MSPMode->GetValue() == 7));
 
     CheckMenuItemBool(m_hMenu, IDM_MSPSTEREO_1, (m_MSPStereo->GetValue() == 1));
     CheckMenuItemBool(m_hMenu, IDM_MSPSTEREO_2, (m_MSPStereo->GetValue() == 2));
@@ -711,11 +716,12 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             m_PixelWidth->OSDShow();
             break;
 
-        case IDM_MSPMODE_3:
         case IDM_MSPMODE_2:
+        case IDM_MSPMODE_3:
         case IDM_MSPMODE_4:
         case IDM_MSPMODE_5:
         case IDM_MSPMODE_6:
+        case IDM_MSPMODE_7:
             m_MSPMode->SetValue(LOWORD(wParam) - (IDM_MSPMODE_2 - 2));
             break;
 

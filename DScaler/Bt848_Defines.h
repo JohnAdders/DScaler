@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Bt848_Defines.h,v 1.7 2001-11-29 17:30:51 adcockj Exp $
+// $Id: Bt848_Defines.h,v 1.8 2001-12-03 17:27:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -533,11 +533,13 @@ typedef struct
 } TAutoDectect878;
 
 #define MSP_MODE_AM_DETECT   0
+#define MSP_MODE_AM_DETECT2  1
 #define MSP_MODE_FM_RADIO    2
 #define MSP_MODE_FM_TERRA    3
 #define MSP_MODE_FM_SAT      4
 #define MSP_MODE_FM_NICAM1   5
 #define MSP_MODE_FM_NICAM2   6
+#define MSP_MODE_AM_NICAM    7
 
 enum eSoundChannel
 {

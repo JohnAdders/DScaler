@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_OldGame.c,v 1.3 2001-11-21 15:21:40 adcockj Exp $
+// $Id: DI_OldGame.c,v 1.4 2001-12-20 03:42:58 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Lindsey Dubb.  All rights reserved.
 // based on OddOnly and Temporal Noise DScaler Plugins
@@ -20,6 +20,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/11/21 15:21:40  adcockj
+// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
+// Changed TDeinterlaceInfo structure to have history of pictures.
+//
 // Revision 1.2  2001/08/30 10:03:52  adcockj
 // Slightly improved the color averaging
 // Added a "composite mode" switch to force averaging when crosstalk is more important than blur.
@@ -37,11 +41,11 @@
 #include "DS_Deinterlace.h"
 
 //uncomment to turn on logging
-//#define LD_DEBUG
+#define OLDGAME_DEBUG
 
 /////////////////////////////////////////////////////////////////////////////
 /*
-"Up and down, up and down.  Pardon me, but my lunch wants to join the sea"
+Up and down, up and down.  Pardon me, but my lunch wants to join the sea.
                                             - from Shining Force
 
 This is the Old Game "deinterlacing" method.  More accurately, it's the Old
@@ -49,20 +53,20 @@ Game nondeinterlacing method, which circumvents the deinterlacing done in the
 other algorithms.
 
 Specifically:
-It assumes that the image is half height and progressive, and therefore
-shouldn't be deinterlaced.  In addition, it averages when there isn't
-any detected motion in order to clean up noise a bit. This works well
+It assumes that the image is half vertical resolution and progressive, and
+therefore shouldn't be deinterlaced.  In addition, it averages when there
+isn't any detected motion in order to clean up noise a bit. This works well
 for games which run at less than a full 50 or 60 FPS.  It's downright
 necessary if the game is connected via composite, since video games tend
 to have awful chroma/luma crosstalk.
 
 Ways this filter could be improved:
 - The Playstation, Super Nintendo, Saturn, and Nintendo 64 all can switch
-  between an interlaced and a progressive half-height mode.  It would be
-  nice to be able to automatically detect this and forward the deinterlacing
-  on to a real deinterlacing algorithm.  But this would require DScaler
-  to keep checking whether the vertical resolution has changed, which
-  it currently doesn't.
+  between an interlaced and a progressive half vertical resolution mode.
+  It would be nice to be able to automatically detect this and forward the
+  deinterlacing on to a real deinterlacing algorithm.  But this would
+  require DScaler to keep checking whether the vertical resolution has
+  changed, which it currently doesn't.
 - Potentially, you could also try to infer the horizontal resolution,
   deconvolve the image, and smooth it more optimally.  I really doubt
   it would be worth the effort.
@@ -78,11 +82,11 @@ Ways this filter could be improved:
 
 __declspec(dllexport) DEINTERLACE_METHOD* GetDeinterlacePluginInfo(long CpuFeatureFlags);
 BOOL WINAPI _DllMainCRTStartup(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved);
-long OldGameFilter_SSE(TDeinterlaceInfo *info);
-long OldGameFilter_3DNOW(TDeinterlaceInfo *info);
-long OldGameFilter_MMX(TDeinterlaceInfo *info);
+long OldGameFilter_SSE(TDeinterlaceInfo *pInfo);
+long OldGameFilter_3DNOW(TDeinterlaceInfo *pInfo);
+long OldGameFilter_MMX(TDeinterlaceInfo *pInfo);
 
-#ifdef LD_DEBUG
+#ifdef OLDGAME_DEBUG
 void __cdecl OldGameDebugStart(long NumPlugIns, DEINTERLACE_METHOD** OtherPlugins,
                                DEINTERLACEPLUGINSETSTATUS* SetStatus);
 #endif
@@ -105,7 +109,7 @@ static long                         gDisableMotionChecking = FALSE;
 
 // This is used to put up the comb factor for testing purposes.
 
-#ifdef LD_DEBUG
+#ifdef OLDGAME_DEBUG
 static DEINTERLACEPLUGINSETSTATUS*  gPfnSetStatus = NULL;
 #endif
 
@@ -144,7 +148,7 @@ static DEINTERLACE_METHOD OldGameMethod =
     DI_OldGameSettings,
     INDEX_OLD_GAME,
     NULL,
-#ifdef LD_DEBUG
+#ifdef OLDGAME_DEBUG
     OldGameDebugStart,
 #else
     NULL,
@@ -183,17 +187,17 @@ static DEINTERLACE_METHOD OldGameMethod =
 // Start of utility code
 /////////////////////////////////////////////////////////////////////////////
 
-#ifdef LD_DEBUG
+#ifdef OLDGAME_DEBUG
 void __cdecl OldGameDebugStart(long NumPlugIns, DEINTERLACE_METHOD** OtherPlugins, DEINTERLACEPLUGINSETSTATUS* SetStatus)
 {
     gPfnSetStatus = SetStatus;
 }
-#endif  // LD_DEBUG
+#endif  // OLDGAME_DEBUG
 
 
 __declspec(dllexport) DEINTERLACE_METHOD* GetDeinterlacePluginInfo(long CpuFeatureFlags)
 {
-    if (CpuFeatureFlags & FEATURE_SSE)
+    if ((CpuFeatureFlags & FEATURE_SSE) || (CpuFeatureFlags & FEATURE_MMXEXT))
     {
         OldGameMethod.pfnAlgorithm = OldGameFilter_SSE;
     }

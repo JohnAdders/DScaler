@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.86 2002-08-29 23:53:40 lindsey Exp $
+// $Id: DS_Control.h,v 1.87 2002-09-06 15:08:10 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.86  2002/08/29 23:53:40  lindsey
+// Added video mode setting to temporal comb filter
+//
 // Revision 1.85  2002/08/17 11:42:06  kooiman
 // Applied LogoKiller Filter Smoothing option from Jochen Trenner.
 //
@@ -908,14 +911,14 @@ typedef enum
 typedef enum
 {
     USEMIXER = 0,
-    MIXERINDEX,
     DESTINDEX,
-    TUNERINDEX,
-    COMPINDEX,
-    SVIDEOINDEX,
-    OTHER1INDEX,
-    OTHER2INDEX,
+    INPUT1INDEX,
+    INPUT2INDEX,
+    INPUT3INDEX,
+    INPUT4INDEX,
     MIXERRESETONEXIT,
+    INPUT5INDEX,
+    INPUT6INDEX,    
     MIXERDEV_SETTING_LASTONE,
 } MIXERDEV_SETTING;
 

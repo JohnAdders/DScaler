@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.26 2002-08-27 22:05:21 kooiman Exp $
+// $Id: MixerDev.cpp,v 1.27 2002-09-06 15:08:10 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2002/08/27 22:05:21  kooiman
+// Fixed wave mute. Finished mixer channel change per video input. Use video input names for mixer lines.
+//
 // Revision 1.25  2002/08/18 13:30:38  tobbej
 // fixed problem with "other 2" line always geting the wrong value (0 in ini file)
 //
@@ -114,6 +117,11 @@ long MixerIndex = 0;
 char MixerName[MAXPNAMELEN] = {0};
 long DestIndex = 0;
 long InputIndexes[6] = {-1, -1, -1, -1, -1, -1,};
+std::string MixerDev_Section;
+
+void MixerDev_SettingSetSection(LPCSTR szSource);
+void Mixer_OnInputChange(int);
+extern SETTING MixerDevSettings[MIXERDEV_SETTING_LASTONE]; //defined below
 
 CMixerLineSource::CMixerLineSource(HMIXER hMixer, int DestId, int SourceId)
 {
@@ -667,9 +675,28 @@ BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 pSoundSystem->SetMixer(MixerIndex);
                 EnableComboBoxes(hDlg, TRUE);
                 FillMixersBox(hDlg);
+                if (Providers_GetCurrentSource() != NULL)
+                {
+                    Mixer_OnInputChange(Providers_GetCurrentSource()->GetInput(VIDEOINPUT));
+                }
             }
             else
             {
+                // Turn off use of mixer
+                if (Providers_GetCurrentSource() != NULL)
+                {
+                    if(pSoundSystem->GetMixer() != NULL && bResetOnExit)
+                    {                          
+                          pSoundSystem->GetMixer()->ResetToOriginal();
+                    }
+                    else
+                    {
+                        ////Mute
+                        //bUseMixer = TRUE;                  
+                        //Mixer_OnInputChange(-1);
+                        //bUseMixer = FALSE;
+                    }
+                }
                 EnableComboBoxes(hDlg, FALSE);
                 pSoundSystem->SetMixer(-1);
             }
@@ -888,25 +915,72 @@ long Mixer_GetVolume()
     }
 }
 
-void Mixer_OnInputChange(int NewType)
+
+void Mixer_SetVolume(long Volume)
 {
+    int InputNr = -1;
+    if (Providers_GetCurrentSource()) 
+    { 
+        InputNr = Providers_GetCurrentSource()->GetInput(VIDEOINPUT); 
+    }
+    if ((InputNr<0) || (InputNr>=6))
+    { 
+        return;
+    }
+    CMixerLineSource* CurLine = Mixer_GetInputLine(InputNr);
+    
+    if(CurLine != NULL)
+    {
+        CurLine->SetVolume(Volume);
+    }
+    else
+    {
+        return;
+    }
+}
+
+
+void Mixer_OnInputChange(int NewVideoInputNr)
+{
+    if (!bUseMixer)
+    {
+        return;
+    }
+    
     CMixerLineDest* DestLine = Mixer_GetDestLine();
     if(DestLine == NULL)
     {
         return;
     }
 
-    if(bUseMixer)
+    if(Providers_GetCurrentSource()!=NULL )
     {
-        for(int i(0) ; i < 6; ++i)
+        int NewInputIndex = -1;
+        
+        if (   (NewVideoInputNr >=0 ) 
+            && (NewVideoInputNr < Providers_GetCurrentSource()->NumInputs(VIDEOINPUT)) 
+            && (NewVideoInputNr < 6) 
+           )
+        {
+            NewInputIndex = InputIndexes[NewVideoInputNr];
+        }
+        
+        // Mute mixer source lines for inactive video inputs
+        for(int i(0) ; i < Providers_GetCurrentSource()->NumInputs(VIDEOINPUT); ++i)
         {
             if(InputIndexes[i] != -1)
             {
-                if(DestLine->GetSourceLine(InputIndexes[i]) != NULL)
+                if( (NewInputIndex != InputIndexes[i]) && (DestLine->GetSourceLine(InputIndexes[i]) != NULL))
                 {
-                    DestLine->GetSourceLine(InputIndexes[i])->SetMute(NewType != i);
+                    DestLine->GetSourceLine(InputIndexes[i])->SetMute(TRUE);
                 }
             }
+        }
+
+        // Enable mixer source line for the new video input
+        if( (NewInputIndex != -1) && (DestLine->GetSourceLine(NewInputIndex) != NULL) )
+        {
+           DestLine->GetSourceLine(NewInputIndex)->SetMute(FALSE);
         }
     }
 }
@@ -917,10 +991,7 @@ void Mixer_OnInputChangeNotification(void *pThis, int PreChange, eSourceInputTyp
     {
         if (bUseMixer)
         {            
-            if ((NewInput>=0) && (NewInput<6))
-            {
-                Mixer_OnInputChange(InputIndexes[NewInput]);
-            }
+            Mixer_OnInputChange(NewInput);
         }
     }
 }
@@ -932,9 +1003,35 @@ void Mixer_OnSourceChange(void *pThis, int Flags, CSource *pSource)
     if (Flags&SOURCECHANGE_PRECHANGE)
     {
         pSource->Unregister_InputChangeNotification(NULL,Mixer_OnInputChangeNotification);
+        
+        // Save settings        
+        int Num = pSource->NumInputs(VIDEOINPUT);
+
+        MixerDev_SettingSetSection(pSource->IDString());
+        if (bUseMixer)
+        {
+            if (Num>=1) { Setting_WriteToIni(&(MixerDevSettings[INPUT1INDEX]), FALSE); }
+            if (Num>=2) { Setting_WriteToIni(&(MixerDevSettings[INPUT2INDEX]), FALSE); }
+            if (Num>=3) { Setting_WriteToIni(&(MixerDevSettings[INPUT3INDEX]), FALSE); }
+            if (Num>=4) { Setting_WriteToIni(&(MixerDevSettings[INPUT4INDEX]), FALSE); }
+            if (Num>=5) { Setting_WriteToIni(&(MixerDevSettings[INPUT5INDEX]), FALSE); }
+            if (Num>=6) { Setting_WriteToIni(&(MixerDevSettings[INPUT6INDEX]), FALSE); }
+        
+            // Mute
+            Mixer_OnInputChangeNotification(NULL,0,VIDEOINPUT,-1,-1);
+        }
     } 
     else 
     {
+        // Read settings
+        MixerDev_SettingSetSection(pSource->IDString());
+        Setting_ReadFromIni(&(MixerDevSettings[INPUT1INDEX]));
+        Setting_ReadFromIni(&(MixerDevSettings[INPUT2INDEX]));
+        Setting_ReadFromIni(&(MixerDevSettings[INPUT3INDEX]));
+        Setting_ReadFromIni(&(MixerDevSettings[INPUT4INDEX]));
+        Setting_ReadFromIni(&(MixerDevSettings[INPUT5INDEX]));
+        Setting_ReadFromIni(&(MixerDevSettings[INPUT6INDEX]));
+        
         pSource->Register_InputChangeNotification(NULL,Mixer_OnInputChangeNotification);
         Mixer_OnInputChangeNotification(NULL,0,VIDEOINPUT,-1,pSource->GetInput(VIDEOINPUT));
     }
@@ -946,20 +1043,20 @@ void Mixer_Exit()
     if(pSoundSystem != NULL)
     {
         // set the chip to mute
-        if (Providers_GetCurrentSource())
+        if (Providers_GetCurrentSource() != NULL)
         {
             Providers_GetCurrentSource()->Mute();
-            Providers_GetCurrentSource()->Unregister_InputChangeNotification(NULL,Mixer_OnInputChangeNotification);
-        }
+            Mixer_OnSourceChange(NULL,SOURCECHANGE_PROVIDER|SOURCECHANGE_PRECHANGE,Providers_GetCurrentSource());            
+        }        
         Providers_Unregister_SourceChangeNotification(NULL,Mixer_OnSourceChange);
 
-		if(bUseMixer)
-		{
+		    if(bUseMixer)
+		    {
             if(pSoundSystem->GetMixer() != NULL && bResetOnExit)
             {
                 pSoundSystem->GetMixer()->ResetToOriginal();
             }
-		}
+		    }
         delete pSoundSystem;
         pSoundSystem = NULL;
     }
@@ -969,18 +1066,14 @@ void Mixer_Exit()
 void Mixer_Init()
 {
     pSoundSystem = new CSoundSystem();
+
+    Providers_Register_SourceChangeNotification(NULL,Mixer_OnSourceChange);                        
     if(bUseMixer)
     {
         pSoundSystem->SetMixer(MixerIndex);
         if(pSoundSystem->GetMixer() != NULL)
         {
-            Mixer_OnInputChange(0);
-            Providers_Register_SourceChangeNotification(NULL,Mixer_OnSourceChange);
-                        
-            if (Providers_GetCurrentSource())
-            {
-                Mixer_OnSourceChange(NULL,SOURCECHANGE_PROVIDER,Providers_GetCurrentSource());                
-            }
+            //
         }
         else
         {
@@ -991,6 +1084,11 @@ void Mixer_Init()
     {
         pSoundSystem->SetMixer(-1);
     }
+
+    if (Providers_GetCurrentSource())
+    {
+        Mixer_OnSourceChange(NULL,SOURCECHANGE_PROVIDER,Providers_GetCurrentSource());                                
+    }    
 }
 
 void Mixer_UpdateIndex()
@@ -1076,6 +1174,10 @@ SETTING* MixerDev_GetSetting(MIXERDEV_SETTING Setting)
 void MixerDev_ReadSettingsFromIni()
 {
     int i;
+    if (Providers_GetCurrentSource() != NULL)
+    {
+        MixerDev_SettingSetSection(Providers_GetCurrentSource()->IDString());
+    }
     for(i = 0; i < MIXERDEV_SETTING_LASTONE; i++)
     {
         Setting_ReadFromIni(&(MixerDevSettings[i]));
@@ -1105,4 +1207,15 @@ void MixerDev_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 
 void MixerDev_SetMenu(HMENU hMenu)
 {
+}
+
+void MixerDev_SettingSetSection(LPCSTR szSource)
+{
+    MixerDev_Section = string("MixerInput_") + szSource;
+    Setting_SetSection(&MixerDevSettings[INPUT1INDEX], (char*)MixerDev_Section.c_str());
+    Setting_SetSection(&MixerDevSettings[INPUT2INDEX], (char*)MixerDev_Section.c_str());
+    Setting_SetSection(&MixerDevSettings[INPUT3INDEX], (char*)MixerDev_Section.c_str());
+    Setting_SetSection(&MixerDevSettings[INPUT4INDEX], (char*)MixerDev_Section.c_str());
+    Setting_SetSection(&MixerDevSettings[INPUT5INDEX], (char*)MixerDev_Section.c_str());
+    Setting_SetSection(&MixerDevSettings[INPUT6INDEX], (char*)MixerDev_Section.c_str());    
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.h,v 1.10 2001-11-02 16:30:08 adcockj Exp $
+// $Id: Settings.h,v 1.11 2002-02-10 13:06:27 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -85,5 +85,6 @@ int GetCurrentAdjustmentStepCount(void* pSetting);
 #define ADJ_BUTTON_REPRESS_MAX_STEP         30     // Maximum adjustment step at one time
 
 #define CheckMenuItemBool(hMenu, MenuId, Condition) CheckMenuItem(hMenu, MenuId, (Condition)?MF_CHECKED:MF_UNCHECKED)
+#define EnableMenuItemBool(hMenu, MenuId, Condition) EnableMenuItem(hMenu, MenuId, (Condition)?MF_ENABLED:MF_GRAYED)
 
 #endif

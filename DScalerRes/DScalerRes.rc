@@ -471,11 +471,9 @@ BEGIN
                     WS_DISABLED | WS_VSCROLL | WS_TABSTOP
     COMBOBOX        IDC_INPUT5,66,131,178,51,CBS_DROPDOWNLIST | CBS_SORT | 
                     WS_DISABLED | WS_VSCROLL | WS_TABSTOP
-    COMBOBOX        IDC_INPUT6,66,149,178,51,CBS_DROPDOWNLIST | CBS_SORT | 
-                    WS_DISABLED | WS_VSCROLL | WS_TABSTOP
     CONTROL         "Reset Mixer to Initial Settings on Exit",
-                    IDC_RESETONEXIT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,88,
-                    155,156,10
+                    IDC_RESETONEXIT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,84,
+                    158,156,10
 END
 
 IDD_ABOUT DIALOG DISCARDABLE  22, 17, 374, 274
@@ -1026,7 +1024,7 @@ BEGIN
     POPUP "Menu1"
     BEGIN
         MENUITEM "&Sources",                    IDM_POPUP_SOURCES
-        MENUITEM "&Holder",                     IDM_POPUP_SOURCES
+        MENUITEM "So&urce",                     IDM_POPUP_SOURCES
         MENUITEM "&Channels",                   IDM_CHANNEL_SELECT
         MENUITEM "Deinterlace &Mode",           IDM_POPUP_SOURCES
         MENUITEM "Aspect &Ratio",               IDM_POPUP_SOURCES
@@ -1104,11 +1102,10 @@ BEGIN
             MENUITEM SEPARATOR
             MENUITEM "&Automatic Stereo Adjustment", IDM_AUTOSTEREO
         END
-        POPUP "Audio Settings"
+        POPUP "MSP 34x0 Audio Settings"
         BEGIN
             MENUITEM "&Volume and Tone",            IDM_AUDIOSETTINGS
-            MENUITEM SEPARATOR
-            MENUITEM "MSP 34x0 &Equalizer",         IDM_MSP_EQUALIZER
+            MENUITEM "&Equalizer",                  IDM_MSP_EQUALIZER
         END
         MENUITEM SEPARATOR
         MENUITEM "&Setup Hardware ...",         IDM_SETUPCARD

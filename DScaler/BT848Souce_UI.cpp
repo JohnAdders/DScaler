@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.17 2002-02-09 18:39:01 adcockj Exp $
+// $Id: BT848Souce_UI.cpp,v 1.18 2002-02-10 13:06:27 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2002/02/09 18:39:01  adcockj
+// Fixed AGC bug in advanced video settings
+//
 // Revision 1.16  2002/02/09 02:44:56  laurentg
 // Overscan now stored in a setting of the source
 //
@@ -105,11 +108,6 @@ BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wPara
     {
     case WM_INITDIALOG:
         pThis = (CBT848Source*)lParam;
-        if (pThis->m_pBT848Card->HasMSP() == FALSE)
-        {
-            ErrorBox("No MSP Audio Device found");
-            EndDialog(hDlg, 0);
-        }
 
         TVolume = pThis->m_Volume->GetValue();
         TBass = pThis->m_Bass->GetValue();
@@ -313,14 +311,12 @@ void CBT848Source::SetMenu(HMENU hMenu)
 
     BOOL DoneWidth = FALSE;
 
-    if(GetTVFormat((eVideoFormat)m_VideoFormat->GetValue())->wHActivex1 < 768)
-    {
-        EnableMenuItem(m_hMenu, IDM_SETTINGS_PIXELWIDTH_768, MF_GRAYED);
-    }
-    else
-    {
-        EnableMenuItem(m_hMenu, IDM_SETTINGS_PIXELWIDTH_768, MF_ENABLED);
-    }
+
+    EnableMenuItemBool(m_hMenu, IDM_AUDIOSETTINGS, m_pBT848Card->HasMSP());
+    EnableMenuItemBool(m_hMenu, IDM_AUDIOSETTINGS1, m_pBT848Card->HasMSP());
+
+    EnableMenuItemBool(m_hMenu, IDM_SETTINGS_PIXELWIDTH_768, GetTVFormat((eVideoFormat)m_VideoFormat->GetValue())->wHActivex1 < 768);
+
     CheckMenuItemBool(m_hMenu, IDM_SETTINGS_PIXELWIDTH_768, (m_PixelWidth->GetValue() == 768));
     DoneWidth |= (m_PixelWidth->GetValue() == 768);
     CheckMenuItemBool(m_hMenu, IDM_SETTINGS_PIXELWIDTH_754, (m_PixelWidth->GetValue() == 754));
@@ -626,11 +622,17 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             break;
 
         case IDM_AUDIOSETTINGS:
-            DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_AUDIOSETTINGS), hWnd, AudioSettingProc, (LPARAM)this);
+            if (m_pBT848Card->HasMSP() == TRUE)
+            {
+               DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_AUDIOSETTINGS), hWnd, AudioSettingProc, (LPARAM)this);
+            }
             break;
 
         case IDM_AUDIOSETTINGS1:
-            DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_AUDIOEQUALIZER), hWnd, AudioSettingProc1, (LPARAM)this);
+            if (m_pBT848Card->HasMSP() == TRUE)
+            {
+                DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_AUDIOEQUALIZER), hWnd, AudioSettingProc1, (LPARAM)this);
+            }
             break;
 
         case IDM_ADV_VIDEOSETTINGS:

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DShowFileSource.h,v 1.3 2002-03-15 23:01:54 tobbej Exp $
+// $Id: DShowFileSource.h,v 1.4 2002-08-01 20:22:13 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/03/15 23:01:54  tobbej
+// changed dropped frames counter to include dropped frames in source filter
+//
 // Revision 1.2  2002/02/13 16:58:22  tobbej
 // changed some comments
 //
@@ -46,6 +49,19 @@
 #endif // _MSC_VER > 1000
 
 #include "DShowBaseSource.h"
+#include "exception.h"
+
+/**
+ * Exception class used in CDShowFileSource.
+ * @see CDShowException
+ * @see CDShowFileSource
+ */
+class CDShowUnsupportedFileException: public CDShowException
+{
+public:
+	CDShowUnsupportedFileException(CString msg,HRESULT hr):CDShowException(msg,hr) {};
+	CDShowUnsupportedFileException(CString msg):CDShowException(msg) {};
+};
 
 /**
  * Direct Show file input source.

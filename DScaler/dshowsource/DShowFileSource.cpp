@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DShowFileSource.cpp,v 1.3 2002-07-29 17:42:53 tobbej Exp $
+// $Id: DShowFileSource.cpp,v 1.4 2002-08-01 20:22:13 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/07/29 17:42:53  tobbej
+// support for opening graphedit saved filter graphs
+//
 // Revision 1.2  2002/04/03 19:54:28  tobbej
 // modified connect() to try a little more before giving up on the file
 //
@@ -137,7 +140,7 @@ void CDShowFileSource::connect(CComPtr<IBaseFilter> filter)
 			}
 			if(!bSucceeded)
 			{
-				throw CDShowException("Cant connect filesource to renderer",hr);
+				throw CDShowUnsupportedFileException("Cant connect filesource to renderer",hr);
 			}
 		}
 		//try to render audio, if this fails then this file probably dont have any audio
@@ -163,6 +166,12 @@ void CDShowFileSource::connect(CComPtr<IBaseFilter> filter)
 		CComPtr<IBaseFilter> pFilter;
 		while(hr=filterEnum.next(&pFilter),hr==S_OK && pFilter!=NULL)
 		{
+			if(pFilter==filter)
+			{
+				pFilter.Release();
+				continue;
+			}
+
 			hr=pFilter.QueryInterface(&pDSRend);
 			if(SUCCEEDED(hr))
 			{
@@ -220,6 +229,7 @@ void CDShowFileSource::connect(CComPtr<IBaseFilter> filter)
 				}
 				break;
 			}
+			pFilter.Release();
 		}
 		if(!bFound)
 		{

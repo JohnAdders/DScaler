@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.56 2003-02-02 20:24:24 tobbej Exp $
+// $Id: AspectGUI.cpp,v 1.57 2003-02-17 11:39:00 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.56  2003/02/02 20:24:24  tobbej
+// added \n to debug messages
+//
 // Revision 1.55  2003/01/18 13:24:38  laurentg
 // Switching between square pixel mode and AR autodetect modes corrected
 //
@@ -1405,16 +1408,16 @@ void Aspect_ReadSettingsFromIni()
 {
     if(AspectSettingsHolder.GetNumSettings() == 0)
     {
-        CSettingGroup *pRatioGroup = AspectSettingsHolder.GetSettingsGroup("Aspect - Aspect Ratio");
-        CSettingGroup *pBounceGroup = AspectSettingsHolder.GetSettingsGroup("View - Bounce");
-        CSettingGroup *pAutoSizeGroup = AspectSettingsHolder.GetSettingsGroup("View - AutoSize");
-        CSettingGroup *pOrbitGroup = AspectSettingsHolder.GetSettingsGroup("View - Orbit");
-        CSettingGroup *pImagePositionGroup = AspectSettingsHolder.GetSettingsGroup("View - Image position");
-        CSettingGroup *pZoomGroup = AspectSettingsHolder.GetSettingsGroup("View - Zoom");
-        CSettingGroup *pMiscGroup = AspectSettingsHolder.GetSettingsGroup("Aspect - Misc");
+        CSettingGroup *pRatioGroup = AspectSettingsHolder.GetSettingsGroup("Aspect - Aspect Ratio", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
+        CSettingGroup *pBounceGroup = AspectSettingsHolder.GetSettingsGroup("View - Bounce", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
+        CSettingGroup *pAutoSizeGroup = AspectSettingsHolder.GetSettingsGroup("View - AutoSize", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
+        CSettingGroup *pOrbitGroup = AspectSettingsHolder.GetSettingsGroup("View - Orbit", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
+        CSettingGroup *pImagePositionGroup = AspectSettingsHolder.GetSettingsGroup("View - Image position", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
+        CSettingGroup *pZoomGroup = AspectSettingsHolder.GetSettingsGroup("View - Zoom", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
+        CSettingGroup *pMiscGroup = AspectSettingsHolder.GetSettingsGroup("Aspect - Misc", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
 
-        CSettingGroup *pAspectDetectGroup = AspectSettingsHolder.GetSettingsGroup("Aspect Detect - AR Detect On Off");
-        CSettingGroup *pAspectDetectSettingsGroup = AspectSettingsHolder.GetSettingsGroup("Aspect Detect - AR Detect Settings");
+        CSettingGroup *pAspectDetectGroup = AspectSettingsHolder.GetSettingsGroup("Aspect Detect - AR Detect On Off", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
+        CSettingGroup *pAspectDetectSettingsGroup = AspectSettingsHolder.GetSettingsGroup("Aspect Detect - AR Detect Settings", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
 
         AspectSettingsHolder.AddSetting(&AspectGUISettings[SOURCE_ASPECT], pRatioGroup);
         AspectSettingsHolder.AddSetting(&AspectGUISettings[CUSTOM_SOURCE_ASPECT], pRatioGroup);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Filter.cpp,v 1.35 2003-01-24 01:55:18 atnak Exp $
+// $Id: Filter.cpp,v 1.36 2003-02-17 11:39:00 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.35  2003/01/24 01:55:18  atnak
+// OSD + Teletext conflict fix, offscreen buffering for OSD and Teletext,
+// got rid of the pink overlay colorkey for Teletext.
+//
 // Revision 1.34  2003/01/11 15:22:26  adcockj
 // Interim Checkin of setting code rewrite
 //  - Remove CSettingsGroupList class
@@ -534,11 +538,11 @@ void RegisterSettings(FILTER_METHOD* Filter)
 
     int iOnOffSetting = -1;
 
-    CSettingGroup* pOnOffGroup = FilterSettingsHolder.GetSettingsGroup(szDescription);
+    CSettingGroup* pOnOffGroup = FilterSettingsHolder.GetSettingsGroup(szDescription, SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
 
     sprintf(szDescription,"Flt Settings - %s",Filter->szName);
 
-    CSettingGroup* pSettingsGroup = FilterSettingsHolder.GetSettingsGroup(szDescription);
+    CSettingGroup* pSettingsGroup = FilterSettingsHolder.GetSettingsGroup(szDescription, SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
 
     int i;
 

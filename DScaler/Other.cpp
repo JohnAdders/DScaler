@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.58 2003-01-26 18:03:04 laurentg Exp $
+// $Id: Other.cpp,v 1.59 2003-02-17 11:39:00 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.58  2003/01/26 18:03:04  laurentg
+// Problem with initial values for overlay settings fixed
+//
 // Revision 1.57  2003/01/25 20:54:29  robmuller
 // Another bug fix from Kevin Radke.
 //
@@ -1492,7 +1495,7 @@ void Other_ReadSettingsFromIni()
 {
     if(OverlaySettingsHolder.GetNumSettings() == 0)
     {
-        CSettingGroup *pOverlayGroup = OverlaySettingsHolder.GetSettingsGroup("Overlay");
+        CSettingGroup *pOverlayGroup = OverlaySettingsHolder.GetSettingsGroup("Overlay", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
 
         OverlaySettingsHolder.AddSetting(&OtherSettings[OVERLAYBRIGHTNESS], pOverlayGroup);
         OverlaySettingsHolder.AddSetting(&OtherSettings[OVERLAYCONTRAST], pOverlayGroup);

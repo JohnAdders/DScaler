@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI.cpp,v 1.28 2003-01-28 06:37:02 atnak Exp $
+// $Id: VBI.cpp,v 1.29 2003-02-17 11:39:00 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2003/01/28 06:37:02  atnak
+// Enable Goto Teletext Page menu when videotext is on even when teletext
+// is not shown
+//
 // Revision 1.27  2003/01/26 14:30:11  adcockj
 // Fix problem with VBI_Init settings caching causing problems with format changes
 //
@@ -307,8 +311,8 @@ void VBI_ReadSettingsFromIni()
 {
     if(VBISettingsHolder.GetNumSettings() == 0)
     {
-        CSettingGroup *pCaptureGroup = VBISettingsHolder.GetSettingsGroup("VBI - Capture");
-        CSettingGroup *pVBISettingsGroup = VBISettingsHolder.GetSettingsGroup("VBI - Settings");
+        CSettingGroup *pCaptureGroup = VBISettingsHolder.GetSettingsGroup("VBI - Capture", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
+        CSettingGroup *pVBISettingsGroup = VBISettingsHolder.GetSettingsGroup("VBI - Settings", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
 
         VBISettingsHolder.AddSetting(&VBISettings[CAPTURE_VBI], pCaptureGroup);
 

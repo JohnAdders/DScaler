@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0AudioControls.cpp,v 1.3 2002-09-27 14:14:22 kooiman Exp $
+// $Id: MSP34x0AudioControls.cpp,v 1.4 2002-10-15 19:16:29 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/09/27 14:14:22  kooiman
+// MSP34xx fixes.
+//
 // Revision 1.2  2002/09/15 15:58:33  kooiman
 // Added Audio standard detection & some MSP fixes.
 //
@@ -300,15 +303,38 @@ void CMSP34x0AudioControls::SetDolby(long Mode, long nNoise, long nSpatial, long
 		
 }
 
-
-void CMSP34x0AudioControls::SetSpatialEffects(long nSpatial)
+void CMSP34x0AudioControls::SetSpatialEffect(int nLevel)
 {
-    if (nSpatial < 0)
+    if (nLevel > 127)
+    {
+        nLevel = 127;
+    }
+    if (nLevel < -128)
+    {
+        nLevel = -128;
+    }
+    if (nLevel < 0)
 	{
-		nSpatial+=256;
+		nLevel += 256;
 	}
 	// Mode A, Automatic high pass gain
-    SetDSPRegister(DSP_WR_LDSPK_SPATIALEFF, ((nSpatial & 0xFF) << 8) | 0x8);
+    SetDSPRegister(DSP_WR_LDSPK_SPATIALEFF, ((nLevel & 0xFF) << 8) | 0x8);
+}
+
+bool CMSP34x0AudioControls::HasSpatialEffect()
+{
+    return true;
+}
+
+int CMSP34x0AudioControls::GetSpatialEffect()
+{
+    WORD Result = GetDSPRegister(DSP_RD_LDSPK_SPATIALEFF);    
+    int nLevel = ((Result >> 8) & 0xFF);
+    if (nLevel>=128)
+    {
+        nLevel-=256;
+    }
+    return nLevel;
 }
 
 
@@ -343,3 +369,5 @@ long CMSP34x0AudioControls::GetAutoVolumeCorrection()
     }
     return 0;
 }
+
+ 

@@ -1,5 +1,5 @@
 //
-// $Id: AudioControls.cpp,v 1.2 2002-09-15 15:57:27 kooiman Exp $
+// $Id: AudioControls.cpp,v 1.3 2002-10-15 19:16:29 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/09/15 15:57:27  kooiman
+// Added Audio standard support.
+//
 // Revision 1.1  2002/09/12 21:50:59  ittarnavsky
 // Added for the change from IAudioControls to CAudioControls
 //
@@ -162,11 +165,11 @@ bool CAudioControls::HasSpatialEffect()
     return FALSE;
 }
 
-void CAudioControls::SetSpatialEffect(WORD nLevel)
+void CAudioControls::SetSpatialEffect(int nLevel)
 {
 }
 
-WORD CAudioControls::GetSpatialEffect()
+int CAudioControls::GetSpatialEffect()
 {
     return 0;
 }

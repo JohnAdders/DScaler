@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Audio.cpp,v 1.24 2002-10-11 21:40:32 ittarnavsky Exp $
+// $Id: BT848Card_Audio.cpp,v 1.25 2002-10-15 19:16:29 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,12 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2002/10/11 21:40:32  ittarnavsky
+// changes due to the new CMSP34x0AudioDecoder and  eAudioDecoderType move
+// removed GetNumAudioInputs()
+// replaced GetAudioDecoderID() with GetAudioDecoderType()
+// added UseInputPin1 support
+//
 // Revision 1.23  2002/10/02 10:52:36  kooiman
 // Fixed C++ type casting for events.
 //
@@ -360,7 +366,7 @@ void CBT848Card::SetAudioEqualizerLevel(WORD nIndex, WORD nLevel)
     m_AudioControls->SetEqualizerLevel(nIndex, nLevel);
 }
 
-void CBT848Card::SetAudioSpatialEffect(WORD nLevel)
+void CBT848Card::SetAudioSpatialEffect(int nLevel)
 {
     if (!m_AudioControls->HasSpatialEffect())
     {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.33 2002-10-11 21:35:11 ittarnavsky Exp $
+// $Id: BT848Card.h,v 1.34 2002-10-15 19:16:29 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,12 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2002/10/11 21:35:11  ittarnavsky
+// moved eAudioDecoderType to AudioDecoder.h
+// removed GetAudioDecoderType()
+// changed GetAudioDecoderID() with GetAudioDecoderType()
+// added UseInputPin1 support
+//
 // Revision 1.32  2002/10/11 13:38:13  kooiman
 // Added support for VoodooTV IF demodulator. Improved TDA9887. Added interface for GPOE/GPDATA access to make this happen.
 //
@@ -291,7 +297,7 @@ public:
     bool HasAudioLoudness();
     void SetAudioLoudness(WORD nLevel);
     bool HasAudioSpatialEffect();
-    void SetAudioSpatialEffect(WORD nLevel);
+    void SetAudioSpatialEffect(int nLevel);
     bool HasAudioDolby();
     void SetAudioDolby(WORD nMode, WORD nNoise, WORD nSpatial, WORD nPan, WORD nPanorama);
     bool HasAudioAutoVolumeCorrection();

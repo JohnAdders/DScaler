@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Types.cpp,v 1.8 2003-02-03 17:25:23 adcockj Exp $
+// $Id: CX2388xCard_Types.cpp,v 1.9 2003-02-24 11:19:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2003/02/03 17:25:23  adcockj
+// Fixes for PlayHD
+//
 // Revision 1.7  2002/12/05 17:11:11  adcockj
 // Sound fixes
 //
@@ -586,7 +589,8 @@ void CCX2388xCard::PlayHDInputSelect(int nInput)
 void CCX2388xCard::PlayHDStopCapture()
 {
     // Turn off audio
-    WriteDword(MO_GP0_IO, 0x00000ff1);
+    // JA 24/Feb/2003 Tuned off as it doesn't work
+    //WriteDword(MO_GP0_IO, 0x00000ff1);
 }
 
 

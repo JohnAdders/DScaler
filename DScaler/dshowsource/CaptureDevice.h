@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CaptureDevice.h,v 1.5 2002-02-13 16:58:22 tobbej Exp $
+// $Id: CaptureDevice.h,v 1.6 2002-03-15 23:08:59 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/02/13 16:58:22  tobbej
+// changed some comments
+//
 // Revision 1.4  2002/02/07 22:05:43  tobbej
 // new classes for file input
 // rearanged class inheritance a bit
@@ -80,6 +83,7 @@ public:
 
 	void connect(CComPtr<IBaseFilter> filter);
 	bool isConnected() {return m_bIsConnected;};
+	long getNumDroppedFrames();
 
 	/**
 	 * This method returns a pointer to the crossbar if any.
@@ -99,6 +103,12 @@ public:
 	void set(long prop,long value,long flags);
 	void get(long prop,long *pValue,long *pFlags=NULL);
 	void getRange(long prop,long *pMin,long *pMax, long *pStepSize=NULL,long *pDefault=NULL,long *pFlags=NULL);
+	
+
+	//experimental btwincap style ir support
+	bool driverSupportsIR();
+	bool isRemotePresent();
+	ULONG getRemoteCode();
 
 private:
 	bool m_bIsConnected;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CaptureDevice.cpp,v 1.4 2002-02-07 22:05:43 tobbej Exp $
+// $Id: CaptureDevice.cpp,v 1.5 2002-03-15 23:08:59 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/02/07 22:05:43  tobbej
+// new classes for file input
+// rearanged class inheritance a bit
+//
 // Revision 1.3  2002/02/05 17:24:12  tobbej
 // changed javadoc coments
 //
@@ -47,6 +51,8 @@
 
 #include "CaptureDevice.h"
 #include "DevEnum.h"
+
+#include "btwdmprop.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -111,6 +117,77 @@ void CDShowCaptureDevice::connect(CComPtr<IBaseFilter> filter)
 		throw CDShowException("Failed to connect video capture device to renderer",hr);
 	}
 	m_bIsConnected=true;
+}
+
+long CDShowCaptureDevice::getNumDroppedFrames()
+{
+	CComPtr<IAMDroppedFrames> pDroppedFrames;
+	HRESULT hr=m_vidDev.QueryInterface(&pDroppedFrames);
+	if(FAILED(hr))
+	{
+		return 0;
+	}
+	
+	long dropped=0;
+	hr=pDroppedFrames->GetNumDropped(&dropped);
+	if(FAILED(hr))
+	{
+		return 0;
+	}
+	return dropped;
+}
+
+bool CDShowCaptureDevice::driverSupportsIR()
+{
+	CComPtr<IKsPropertySet> pPropSet;
+	if(SUCCEEDED(m_vidDev.QueryInterface(&pPropSet)))
+	{
+		ULONG supported;
+		HRESULT hr=pPropSet->QuerySupported(PROPSETID_IR,KSPROPERTY_IR_CAPS,&supported);
+		if(SUCCEEDED(hr) && (supported & KSPROPERTY_SUPPORT_GET))
+		{
+			return true;
+		}
+
+	}
+	return false;
+}
+
+bool CDShowCaptureDevice::isRemotePresent()
+{
+	if(!driverSupportsIR())
+		return false;
+
+	CComPtr<IKsPropertySet> pPropSet;
+	if(SUCCEEDED(m_vidDev.QueryInterface(&pPropSet)))
+	{
+		KSPROPERTY_IR_CAPS_S caps;
+		ULONG bytes=sizeof(KSPROPERTY_IR_CAPS_S);
+		HRESULT hr=pPropSet->Get(PROPSETID_IR,KSPROPERTY_IR_CAPS,&caps,sizeof(KSPROPERTY_IR_CAPS_S),&caps,sizeof(KSPROPERTY_IR_CAPS_S),&bytes);
+		if(SUCCEEDED(hr) && (caps.Caps & KSPROPERTY_IR_CAPS_AVAILABLE))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+ULONG CDShowCaptureDevice::getRemoteCode()
+{
+	CComPtr<IKsPropertySet> pPropSet;
+	if(SUCCEEDED(m_vidDev.QueryInterface(&pPropSet)))
+	{
+		//get the ir code
+		KSPROPERTY_IR_GETCODE_S tmp;
+		ULONG bytes=sizeof(KSPROPERTY_IR_GETCODE_S);
+		HRESULT hr=pPropSet->Get(PROPSETID_IR,KSPROPERTY_IR_GETCODE,&tmp,sizeof(KSPROPERTY_IR_GETCODE_S),&tmp,sizeof(KSPROPERTY_IR_GETCODE_S),&bytes);
+		if(SUCCEEDED(hr))
+		{
+			//TRACE("Got ircode: %lu\n",(tmp.Code & ~0x10000));
+			return tmp.Code;
+		}
+	}
+	return 0;
 }
 
 CDShowBaseCrossbar* CDShowCaptureDevice::getCrossbar()

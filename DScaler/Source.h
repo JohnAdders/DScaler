@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.h,v 1.18 2002-08-13 21:04:42 kooiman Exp $
+// $Id: Source.h,v 1.19 2002-08-26 18:25:10 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -92,6 +92,8 @@ public:
     virtual void SetMenu(HMENU hMenu) = 0;
     /// Handle any timers that you control
     virtual void HandleTimerMessages(int TimerId) = 0;
+    /// Set the video format e.g. PAL, NTSC
+    virtual void SetFormat(eVideoFormat NewFormat) = 0;
     /// Tune into channel
     virtual BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat) = 0;
     /// Are we capturing a proper video signal

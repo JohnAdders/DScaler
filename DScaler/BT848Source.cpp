@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.58 2002-08-19 18:58:24 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.59 2002-08-26 18:25:09 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.58  2002/08/19 18:58:24  adcockj
+// Changed video defaults
+//
 // Revision 1.57  2002/08/15 14:16:18  kooiman
 // Cleaner settings per channel implementation
 //
@@ -771,6 +774,12 @@ eVideoFormat CBT848Source::GetFormat()
 {
     return (eVideoFormat)m_VideoFormat->GetValue();
 }
+
+void CBT848Source::SetFormat(eVideoFormat NewFormat)
+{
+	m_VideoFormat->SetValue(NewFormat);
+}
+
 
 ISetting* CBT848Source::GetBrightness()
 {

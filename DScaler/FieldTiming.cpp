@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FieldTiming.cpp,v 1.26 2002-06-13 12:10:22 adcockj Exp $
+// $Id: FieldTiming.cpp,v 1.27 2002-08-26 18:25:10 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2002/06/13 12:10:22  adcockj
+// Move to new Setings dialog for filers, video deint and advanced settings
+//
 // Revision 1.25  2001/12/05 21:45:11  ittarnavsky
 // added changes for the AudioDecoder and AudioControls support
 //
@@ -91,15 +94,14 @@ LARGE_INTEGER LastFieldTime;
 LARGE_INTEGER CurrentFieldTime;
 LARGE_INTEGER LastFlipTime;
 LARGE_INTEGER CurrentFlipTime;
-LARGE_INTEGER LastTenFieldTime;
 BOOL bIsPAL;
 BOOL FlipAdjust;
 int nDroppedFields = 0;
 int nUsedFields = 0;
 double Weight = 0.005;
 BOOL bDoAutoFormatDetect = TRUE;
-long FiftyHzFormat = VIDEOFORMAT_PAL_B;
-long SixtyHzFormat = VIDEOFORMAT_NTSC_M;
+eVideoFormat FiftyHzFormat = VIDEOFORMAT_PAL_B;
+eVideoFormat SixtyHzFormat = VIDEOFORMAT_NTSC_M;
 long FormatChangeThreshold = 2;
 long SleepInterval = 1;         // " , default=0, how long to wait for BT chip
 long SleepSkipFields = 0;       // Number of fields to skip before doing sleep interval
@@ -198,6 +200,7 @@ void Timing_SmartSleep(TDeinterlaceInfo* pInfo, BOOL bRunningLate, BOOL& bSleptA
 void Timimg_AutoFormatDetect(TDeinterlaceInfo* pInfo)
 {
     static long RepeatCount = 0;
+	static LARGE_INTEGER LastTenFieldTime = {LONGLONG(0)};
 
     if(bDoAutoFormatDetect == TRUE)
     {
@@ -218,7 +221,7 @@ void Timimg_AutoFormatDetect(TDeinterlaceInfo* pInfo)
                     ++RepeatCount;
                     if(RepeatCount > FormatChangeThreshold)
                     {
-                        PostMessage(hWnd, WM_COMMAND, IDM_TYPEFORMAT_0 + FiftyHzFormat, 0);
+						Providers_GetCurrentSource()->SetFormat(FiftyHzFormat);
                         LOG(1, "Went to 50Hz Mode - Last Ten Count %d", TenFieldTime);
                     }
                 }
@@ -231,7 +234,7 @@ void Timimg_AutoFormatDetect(TDeinterlaceInfo* pInfo)
                     ++RepeatCount;
                     if(RepeatCount > FormatChangeThreshold)
                     {
-                        PostMessage(hWnd, WM_COMMAND, IDM_TYPEFORMAT_0 + SixtyHzFormat, 0);
+						Providers_GetCurrentSource()->SetFormat(SixtyHzFormat);
                         LOG(1, "Went to 60Hz Mode - Last Ten Count %d", TenFieldTime);
                     }
                 }
@@ -244,6 +247,7 @@ void Timimg_AutoFormatDetect(TDeinterlaceInfo* pInfo)
                     ++RepeatCount;
                     if(RepeatCount > FormatChangeThreshold)
                     {
+						Providers_GetCurrentSource()->SetFormat(SixtyHzFormat);
                         PostMessage(hWnd, WM_COMMAND, IDM_TYPEFORMAT_0 + SixtyHzFormat, 0);
                         LOG(1, "Went to 60Hz Mode - Last Ten Count %d", TenFieldTime);
                     }

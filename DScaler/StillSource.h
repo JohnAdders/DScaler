@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.41 2002-08-13 21:04:42 kooiman Exp $
+// $Id: StillSource.h,v 1.42 2002-08-26 18:25:10 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -109,6 +109,7 @@ public:
     void UpdateMenu();
     void SetMenu(HMENU hMenu);
     void HandleTimerMessages(int TimerId);
+    void SetFormat(eVideoFormat NewFormat) {};
     BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat) {return FALSE;};
     BOOL IsVideoPresent();
     void DecodeVBI(TDeinterlaceInfo* pInfo) {;};

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.31 2002-08-13 21:04:42 kooiman Exp $
+// $Id: BT848Source.h,v 1.32 2002-08-26 18:25:10 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -57,6 +57,7 @@ public:
     int GetRISCPosAsInt();
 	eTunerId GetTunerId();
     eVideoFormat GetFormat();
+    void SetFormat(eVideoFormat NewFormat);
     BOOL IsInTunerMode();
     int GetWidth();
     int GetHeight();

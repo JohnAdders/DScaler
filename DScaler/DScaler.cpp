@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.109 2002-01-15 11:16:03 temperton Exp $
+// $Id: DScaler.cpp,v 1.110 2002-01-15 19:53:36 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.109  2002/01/15 11:16:03  temperton
+// New teletext drawing code.
+//
 // Revision 1.108  2002/01/12 16:56:21  adcockj
 // Series of fixes to bring 4.0.0 into line with 3.1.1
 //
@@ -2224,10 +2227,19 @@ void SaveWindowPos(HWND hWnd)
         WndPlace.length = sizeof(WndPlace);
         // End 2-20-01
         GetWindowPlacement(hWnd, &WndPlace);
+
         MainWndTop = WndPlace.rcNormalPosition.top;
         MainWndHeight = WndPlace.rcNormalPosition.bottom - WndPlace.rcNormalPosition.top;
         MainWndLeft = WndPlace.rcNormalPosition.left;
         MainWndWidth = WndPlace.rcNormalPosition.right - WndPlace.rcNormalPosition.left;
+
+        // We need to adust these numbers by the workspace
+        // offset so that we can later use them to set the
+        // windows position
+        RECT Workspace = {0,0,0,0};
+        SystemParametersInfo(SPI_GETWORKAREA, 0, &Workspace, 0);
+        MainWndTop += Workspace.top;
+        MainWndLeft += Workspace.left;
     }
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: mapconv.cpp,v 1.1 2001-07-24 12:19:00 adcockj Exp $
+// $Id: mapconv.cpp,v 1.2 2001-12-09 20:46:17 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 //	Copyright (C) 1998-2001 Avery Lee.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/07/24 12:19:00  adcockj
+// Added code and tools for crash logging from VirtualDub
+//
 //////////////////////////////////////////////////////////////////////////////
 
 #include <stdio.h>
@@ -252,7 +255,7 @@ int main(int argc, char **argv) {
 
 		while(readline()) {
 			long grp, start, rva;
-			char symname[256];
+			char symname[2048];
 
 			if (4!=sscanf(line, "%lx:%lx %s %lx", &grp, &start, symname, &rva))
 				break;
@@ -302,7 +305,7 @@ int main(int argc, char **argv) {
 
 		for(i=0; i<rvaptr-rvabuf; i++) {
 			long grp, start, rva;
-			char symname[256];
+			char symname[2048];
 
 			sscanf(rvabuf[i].line, "%lx:%lx %s %lx", &grp, &start, symname, &rva);
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.52 2005-03-04 09:58:44 atnak Exp $
+// $Id: MixerDev.cpp,v 1.53 2005-03-06 03:46:13 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.52  2005/03/04 09:58:44  atnak
+// - Added some much needed comments and changed some code to be less
+// cryptic.  Changed code to removed all warnings in the .Net compiler.
+// - Fix to the problem where first run mixer setup settings were not saved.
+//
 // Revision 1.51  2003/10/27 10:39:52  adcockj
 // Updated files for better doxygen compatability
 //
@@ -433,13 +438,8 @@ void Mixer_SetupDlg(HWND hWndParent)
 			// point for the user to configure the null-source.)
 			if (bWasInvalidSection)
 			{
-				// Change the mixer settings to the given source.  A single call to
-				// Mixer_OnSourceChange(source) could be used here instead of the
-				// two below, but Mixer_OnSourceChange(...) performs mixer resource
-				// management as well, when what we need here are only the setting
-				// values and the INI section to be pointing at the right section.
-				MixerDev_SettingSetSection(source);
-				_MixerDev_ReadSettingsFromIni();
+				// Change the mixer settings to the given source.
+				Mixer_OnSourceChange(source);
 			}
 
 			DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_MIXERSETUP), hWndParent, MixerSetupProc);
@@ -455,12 +455,8 @@ void Mixer_SetupDlg(HWND hWndParent)
 
 			if (bWasInvalidSection)
 			{
-				// Restore the mixer source to the null-source.  Likewise to above,
-				// if Mixer_OnSourceChange(source) was used above, it would be
-				// Mixer_OnSourceChange(NULL) here to free the resources allocated
-				// there.  The two below are much more light-weight.
-				MixerDev_SettingSetSection((CSource*)NULL);
-				_MixerDev_ReadSettingsFromIni();
+				// Restore the mixer source to the null-source.
+				Mixer_OnSourceChange(NULL);
 			}
 		}
 		else

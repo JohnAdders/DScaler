@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Provider.h,v 1.3 2001-11-21 12:32:11 adcockj Exp $
+// $Id: BT848Provider.h,v 1.4 2001-11-29 14:04:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,7 +24,10 @@
 #include "HardwareMemory.h"
 #include "BT848Source.h"
 
-class CBT848Provider : public CSourceProvider
+/** The provider detects all the cards with bt848 PCI bridges and creates the
+    appropriate sources for them.
+*/
+class CBT848Provider : public ISourceProvider
 {
 public:
     CBT848Provider(CHardwareDriver* pHardwareDriver);
@@ -32,11 +35,15 @@ public:
     int GetNumberOfSources();
     CSource* GetSource(int SourceIndex);
 private:
+    /// creates the system accesable memory to be used by all cards
     BOOL MemoryInit(CHardwareDriver* pHardwareDriver);
     void MemoryFree();
     vector<CBT848Source*> m_BT848Sources;
+    /// Memory used for the RISC code
     CContigMemory* m_RiscDMAMem;
+    /// Memory used for VBI
     CUserMemory* m_VBIDMAMem[5];
+    /// Memory used for captured frames
     CUserMemory* m_DisplayDMAMem[5];
 };
 

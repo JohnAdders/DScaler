@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.cpp,v 1.4 2001-11-23 10:49:17 adcockj Exp $
+// $Id: Setting.cpp,v 1.5 2001-11-29 14:04:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/11/23 10:49:17  adcockj
+// Move resource includes back to top of files to avoid need to rebuild all
+//
 // Revision 1.3  2001/11/12 08:01:58  adcockj
 // Fixed Settings Bug
 //
@@ -65,7 +68,7 @@ CSettingsHolder::CSettingsHolder(long SetMessage) :
 
 CSettingsHolder::~CSettingsHolder()
 {
-    for(vector<CSetting*>::iterator it = m_Settings.begin();
+    for(vector<ISetting*>::iterator it = m_Settings.begin();
         it != m_Settings.end();
         ++it)
     {
@@ -76,7 +79,7 @@ CSettingsHolder::~CSettingsHolder()
 
 void CSettingsHolder::ReadFromIni()
 {
-    for(vector<CSetting*>::iterator it = m_Settings.begin();
+    for(vector<ISetting*>::iterator it = m_Settings.begin();
         it != m_Settings.end();
         ++it)
     {
@@ -86,7 +89,7 @@ void CSettingsHolder::ReadFromIni()
 
 void CSettingsHolder::WriteToIni()
 {
-    for(vector<CSetting*>::iterator it = m_Settings.begin();
+    for(vector<ISetting*>::iterator it = m_Settings.begin();
         it != m_Settings.end();
         ++it)
     {
@@ -99,7 +102,7 @@ long CSettingsHolder::GetNumSettings()
     return m_Settings.size();
 }
 
-CSetting* CSettingsHolder::GetSetting(long SettingIndex)
+ISetting* CSettingsHolder::GetSetting(long SettingIndex)
 {
     if(SettingIndex > 0 && SettingIndex < m_Settings.size())
     {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.h,v 1.2 2001-11-02 16:30:08 adcockj Exp $
+// $Id: Setting.h,v 1.3 2001-11-29 14:04:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,30 +21,34 @@
 
 #include "Settings.h"
 
-class CSetting;
+class ISetting;
 
-
+/** Base class for any calss that needs acesss to a list of ISetting settings.
+    The function CreateSettings should be overriden and then called in the 
+    constructor of the derived class.
+*/
 class CSettingsHolder
 {
 public:
     CSettingsHolder(long SetMessage);
     ~CSettingsHolder();
     long GetNumSettings();
-    CSetting* GetSetting(long SettingIndex);
+    ISetting* GetSetting(long SettingIndex);
     LONG HandleSettingsMessage(HWND hWnd, UINT message, UINT wParam, LONG lParam, BOOL* bHandled);
     virtual void CreateSettings(LPCSTR IniSection) = 0;
     void ReadFromIni();
     void WriteToIni();
 protected:
-    vector<CSetting*> m_Settings;
+    vector<ISetting*> m_Settings;
     long m_SetMessage;
 };
 
-
-class CSetting
+/** Interface for control of a setting
+*/
+class ISetting
 {
 public:
-    virtual ~CSetting() {;};
+    virtual ~ISetting() {;};
     virtual void SetDefault() = 0;
     virtual SETTING_TYPE GetType() = 0;
     virtual void ChangeValue(eCHANGEVALUE NewValue) = 0;
@@ -62,8 +66,9 @@ public:
     virtual void SetFromControl(HWND hWnd) = 0;
 };
 
-
-class CSimpleSetting : public CSetting
+/** Base class for settings taht can be represented as a long
+*/
+class CSimpleSetting : public ISetting
 {
 public:
     CSimpleSetting(LPCSTR DisplayName, long Default, long Min, long Max, LPCSTR Section, LPCSTR Entry, long StepValue);
@@ -99,6 +104,8 @@ protected:
     long m_SettingID;
 };
 
+/** Simple setting with a BOOL value
+*/
 class CYesNoSetting : public CSimpleSetting
 {
 public:
@@ -111,6 +118,8 @@ public:
     void SetFromControl(HWND hWnd);
 };
 
+/** Simple setting with a long value represenmted by a slider
+*/
 class CSliderSetting : public CSimpleSetting
 {
 public:
@@ -126,6 +135,8 @@ private:
     long m_OSDDivider;
 };
 
+/** Simple setting with a selection from a list
+*/
 class CListSetting : public CSimpleSetting
 {
 public:

@@ -1,5 +1,5 @@
 //
-// $Id: NoTuner.h,v 1.2 2001-11-26 13:02:27 adcockj Exp $
+// $Id: NoTuner.h,v 1.3 2001-11-29 14:04:07 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/11/26 13:02:27  adcockj
+// Bug Fixes and standards changes
+//
 // Revision 1.1  2001/11/25 02:03:21  ittarnavsky
 // initial checkin of the new I2C code
 //
@@ -37,6 +40,8 @@
 
 #include "ITuner.h"
 
+/**  Used when tuner is not present to stub out functions and avoid crashes
+*/
 class CNoTuner : public ITuner  
 {
 public:

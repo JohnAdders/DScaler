@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_Audio.cpp,v 1.4 2001-11-25 01:58:34 ittarnavsky Exp $
+// $Id: BT848Source_Audio.cpp,v 1.5 2001-11-29 14:04:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/11/25 01:58:34  ittarnavsky
+// initial checkin of the new I2C code
+//
 // Revision 1.3  2001/11/23 10:49:16  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -36,12 +39,12 @@
 #include "BT848_Defines.h"
 #include "Status.h"
 
-CSetting* CBT848Source::GetVolume()
+ISetting* CBT848Source::GetVolume()
 {
     return NULL;
 }
 
-CSetting* CBT848Source::GetBalance()
+ISetting* CBT848Source::GetBalance()
 {
     return NULL;
 }

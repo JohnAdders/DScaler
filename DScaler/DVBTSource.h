@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DVBTSource.h,v 1.4 2001-11-25 21:19:40 laurentg Exp $
+// $Id: DVBTSource.h,v 1.5 2001-11-29 14:04:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -36,16 +36,16 @@ public:
     void GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming);
     BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
     LPCSTR GetStatus();
-    CSetting* GetVolume();
-    CSetting* GetBalance();
+    ISetting* GetVolume();
+    ISetting* GetBalance();
     void Mute();
     void UnMute();
-    CSetting* GetBrightness();
-    CSetting* GetContrast();
-    CSetting* GetHue();
-    CSetting* GetSaturation();
-    CSetting* GetSaturationU();
-    CSetting* GetSaturationV();
+    ISetting* GetBrightness();
+    ISetting* GetContrast();
+    ISetting* GetHue();
+    ISetting* GetSaturation();
+    ISetting* GetSaturationU();
+    ISetting* GetSaturationV();
     eVideoFormat GetFormat();
     BOOL IsInTunerMode() {return TRUE;}
     int GetWidth() {return 720;};

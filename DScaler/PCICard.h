@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCICard.h,v 1.5 2001-11-25 01:58:34 ittarnavsky Exp $
+// $Id: PCICard.h,v 1.6 2001-11-29 14:04:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,14 +21,10 @@
 
 #include "HardwareDriver.h"
 
-/////////////////////////////////////////////////////////////////////////////
-// CPCICard
-/////////////////////////////////////////////////////////////////////////////
-// This class is used to provide access to the low level function provided
-// by the drivers
-// To use these function derive your card specific class from this one.
-/////////////////////////////////////////////////////////////////////////////
-
+/** This class is used to provide access to the low level function provided
+    by the drivers.  To use these function derive your card specific class 
+    from this one.
+*/
 class CPCICard
 {
 public:
@@ -37,15 +33,23 @@ public:
 protected:
     CPCICard(CHardwareDriver* pDriver);
     ~CPCICard();
-
+    /**  Try to find card with given attributes on system
+         @return TRUE is device is found
+    */
     BOOL OpenPCICard(WORD dwVendorID, WORD dwDeviceID, int dwDeviceIndex);
+    /// Clos the card and unmap memory
     void ClosePCICard();
 
+    /// Write a BYTE to shared memory
     void WriteByte(DWORD Offset, BYTE Data);
+    /// Write a WORD to shared memory
     void WriteWord(DWORD Offset, WORD Data);
+    /// Write a DWORD to shared memory
     void WriteDword(DWORD Offset, DWORD Data);
 
+    /// Read a BYTE from shared memory
     BYTE ReadByte(DWORD Offset);
+    /// Read a WORD from shared memory
     WORD ReadWord(DWORD Offset);
 
 	void MaskDataByte(DWORD Offset, BYTE Data, BYTE Mask);

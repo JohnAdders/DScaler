@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.8 2001-11-28 16:04:50 adcockj Exp $
+// $Id: BT848Source.h,v 1.9 2001-11-29 14:04:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -26,6 +26,8 @@
 //TODO: get rid of dependencies below here
 #include "Other.h"
 
+/** The source controls a specific CBT848Card to provide interlaced video
+*/
 class CBT848Source : public CSource
 {
     DECLARE_CLASS_SETTINGS(CBT848Source);
@@ -39,16 +41,17 @@ public:
     BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
     CBT848Card* GetBT848Card();
     LPCSTR GetStatus();
-    CSetting* GetVolume();
-    CSetting* GetBalance();
+    ISetting* GetVolume();
+    ISetting* GetBalance();
     void Mute();
     void UnMute();
-    CSetting* GetBrightness();
-    CSetting* GetContrast();
-    CSetting* GetHue();
-    CSetting* GetSaturation();
-    CSetting* GetSaturationU();
-    CSetting* GetSaturationV();
+    ISetting* GetBrightness();
+    ISetting* GetContrast();
+    ISetting* GetHue();
+    ISetting* GetSaturation();
+    ISetting* GetSaturationU();
+    ISetting* GetSaturationV();
+    /// Gets the current field being processed by the card
     int GetRISCPosAsInt();
     eVideoFormat GetFormat();
     BOOL IsInTunerMode();
@@ -65,6 +68,7 @@ public:
 
 private:
     virtual void CreateSettings(LPCSTR IniSection);
+
     void CreateRiscCode(BOOL bCaptureVBI);
     
     static BOOL APIENTRY AdvVideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.6 2001-11-26 13:02:27 adcockj Exp $
+// $Id: BT848Card.h,v 1.7 2001-11-29 14:04:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -28,10 +28,17 @@
 #include "MSP34x0.h"
 #include "ITuner.h"
 
+/** A Generic bt848 based capture card
+    The card can cope with the standard inputs,
+    a tuner and one of the supported sound chips.
+    Control is given over most of the supported chip 
+    functions.
+*/
 class CBT848Card : public CPCICard, 
                    public II2CLineInterface
 {
 public:
+    /// Exact card type
     enum eCardType
     {
         BT878,
@@ -40,6 +47,7 @@ public:
         BT878A,
     };
 
+    /// The standard inputs on a bt848 card, the CCIR656 ones will be moved later
     enum eVideoSourceType
     {
         SOURCE_TUNER = 0,
@@ -54,6 +62,7 @@ public:
         SOURCE_CCIR656_4,
     };
 
+    /// The pins on the audio mixer on the bt848 chip
     enum eAudioMuxType
     {
         AUDIOMUX_TUNER = 0,

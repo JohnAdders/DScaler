@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DVBTSource.cpp,v 1.4 2001-11-21 15:21:39 adcockj Exp $
+// $Id: DVBTSource.cpp,v 1.5 2001-11-29 14:04:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2001/11/21 15:21:39  adcockj
+// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
+// Changed TDeinterlaceInfo structure to have history of pictures.
+//
 // Revision 1.3  2001/11/21 12:32:11  adcockj
 // Renamed CInterlacedSource to CSource in preparation for changes to DEINTERLACE_INFO
 //
@@ -79,32 +83,32 @@ eVideoFormat CDVBTSource::GetFormat()
     return FORMAT_PAL_BDGHI;
 }
 
-CSetting* CDVBTSource::GetBrightness()
+ISetting* CDVBTSource::GetBrightness()
 {
     return NULL;
 }
 
-CSetting* CDVBTSource::GetContrast()
+ISetting* CDVBTSource::GetContrast()
 {
     return NULL;
 }
 
-CSetting* CDVBTSource::GetHue()
+ISetting* CDVBTSource::GetHue()
 {
     return NULL;
 }
 
-CSetting* CDVBTSource::GetSaturation()
+ISetting* CDVBTSource::GetSaturation()
 {
     return NULL;
 }
 
-CSetting* CDVBTSource::GetSaturationU()
+ISetting* CDVBTSource::GetSaturationU()
 {
     return NULL;
 }
 
-CSetting* CDVBTSource::GetSaturationV()
+ISetting* CDVBTSource::GetSaturationV()
 {
     return NULL;
 }

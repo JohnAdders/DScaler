@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.96 2001-11-28 16:04:50 adcockj Exp $
+// $Id: DScaler.cpp,v 1.97 2001-11-29 14:04:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.96  2001/11/28 16:04:50  adcockj
+// Major reorganization of STill support
+//
 // Revision 1.95  2001/11/26 13:02:27  adcockj
 // Bug Fixes and standards changes
 //
@@ -678,7 +681,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
     char Text[128];
     int i;
     BOOL bDone;
-    CSetting* pSetting = NULL;
+    ISetting* pSetting = NULL;
 
     if (message == MsgWheel)
     {
@@ -717,7 +720,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_VOLUMEPLUS:
             if (bUseMixer == FALSE)
             {
-                CSetting* pSetting = Providers_GetCurrentSource()->GetVolume();
+                ISetting* pSetting = Providers_GetCurrentSource()->GetVolume();
                 if(pSetting != NULL)
                 {
                     pSetting->ChangeValue(ADJUSTUP);
@@ -739,7 +742,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_VOLUMEMINUS:
             if (bUseMixer == FALSE)
             {
-                CSetting* pSetting = Providers_GetCurrentSource()->GetVolume();
+                ISetting* pSetting = Providers_GetCurrentSource()->GetVolume();
                 if(pSetting != NULL)
                 {
                     pSetting->ChangeValue(ADJUSTDOWN);

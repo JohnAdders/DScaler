@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VideoSettings.cpp,v 1.12 2001-11-23 10:49:17 adcockj Exp $
+// $Id: VideoSettings.cpp,v 1.13 2001-11-29 14:04:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2001/11/23 10:49:17  adcockj
+// Move resource includes back to top of files to avoid need to rebuild all
+//
 // Revision 1.11  2001/11/14 11:28:03  adcockj
 // Bug fixes
 //
@@ -95,12 +98,12 @@ BOOL APIENTRY VideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam
     static long TSaturationV;
     static long TOverscan;
     static long LastSaturation;
-    static CSetting* Hue = NULL;
-    static CSetting* Brightness = NULL;
-    static CSetting* Contrast = NULL;
-    static CSetting* SaturationU = NULL;
-    static CSetting* SaturationV = NULL;
-    static CSetting* Saturation = NULL;
+    static ISetting* Hue = NULL;
+    static ISetting* Brightness = NULL;
+    static ISetting* Contrast = NULL;
+    static ISetting* SaturationU = NULL;
+    static ISetting* SaturationV = NULL;
+    static ISetting* Saturation = NULL;
 
     switch (message)
     {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SourceProvider.h,v 1.3 2001-11-21 12:32:11 adcockj Exp $
+// $Id: SourceProvider.h,v 1.4 2001-11-29 14:04:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,7 +21,10 @@
 
 #include "Source.h"
 
-class CSourceProvider
+/** Interface for a class that can find mutiple sources on the system.
+    It is intended that each PCI brige chip has it's own source provider
+*/
+class ISourceProvider
 {
 public:
     virtual int GetNumberOfSources() = 0;

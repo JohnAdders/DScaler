@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.h,v 1.4 2001-11-28 16:04:50 adcockj Exp $
+// $Id: Source.h,v 1.5 2001-11-29 14:04:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,39 +23,79 @@
 #include "Setting.h"
 #include "TVFormats.h"
 
+/** Abstract interface for Source.
+    This class abstracts a thing that produces images.
+    It allows the control over some standard properties and access
+    to other source specific ones.
+    The key function is GetNextField which fills the info structure with
+    the most recent data
+*/
 class CSource : public CSettingsHolder
 {
 public:
+    /// start capturing.  Perform any initilization here
     virtual void Start() = 0;
+    /// start capturing.  Perform any clean-up here
     virtual void Stop() = 0;
+    /// Reset to known state
     virtual void Reset() = 0;
+    /** Fill the TDeinteralceInfo structure with the most recent data
+        and update the history.  The Accuarate timiing flag is used by
+        JudderTermonator to tell the code to time the input
+        Frequency exactly.
+    */
     virtual void GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming) = 0;
+    /// Returns TRUE is we process the command
     virtual BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam) = 0;
+    /// Returns a string to be displayed in the UI
     virtual LPCSTR GetStatus() = 0;
+    /// Get the exact freqency of the input
     double GetFieldFrequency();
-    virtual CSetting* GetVolume() = 0;
-    virtual CSetting* GetBalance() = 0;
+    /// Turn off any sound
     virtual void Mute() = 0;
+    /// Turn back on the sound
     virtual void UnMute() = 0;
-    virtual CSetting* GetBrightness() = 0;
-    virtual CSetting* GetContrast() = 0;
-    virtual CSetting* GetHue() = 0;
-    virtual CSetting* GetSaturation() = 0;
-    virtual CSetting* GetSaturationU() = 0;
-    virtual CSetting* GetSaturationV() = 0;
+    /// returns NULL if there is no control over this value
+    virtual ISetting* GetVolume() = 0;
+    /// returns NULL if there is no control over this value
+    virtual ISetting* GetBalance() = 0;
+    /// returns NULL if there is no control over this value
+    virtual ISetting* GetBrightness() = 0;
+    /// returns NULL if there is no control over this value
+    virtual ISetting* GetContrast() = 0;
+    /// returns NULL if there is no control over this value
+    virtual ISetting* GetHue() = 0;
+    /// returns NULL if there is no control over this value
+    virtual ISetting* GetSaturation() = 0;
+    /// returns NULL if there is no control over this value
+    virtual ISetting* GetSaturationU() = 0;
+    /// returns NULL if there is no control over this value
+    virtual ISetting* GetSaturationV() = 0;
+    /// Get the original video format e.g. PAL, NTSC
     virtual eVideoFormat GetFormat() = 0;
+    /// Are we currently showing the output from the tuner
     virtual BOOL IsInTunerMode() = 0;
+    /// Gets the width of each picture in pixels
     virtual int GetWidth() = 0;
+    /// Gets the height of each frame in pixels, for interlaced this is x2 FieldHeight
     virtual int GetHeight() = 0;
+    /// Does this source have an anologue tuner
     virtual BOOL HasTuner() = 0;
+    /// Update the menu with any settings
     virtual void SetMenu(HMENU hMenu) = 0;
+    /// Handle any timers that you control
     virtual void HandleTimerMessages(int TimerId) = 0;
+    /// Tune into channel
     virtual BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat) = 0;
+    /// Are we capturing a proper video signal
     virtual BOOL IsVideoPresent() = 0;
+    /// If VBI data is being captured, decode it.
     virtual void DecodeVBI(TDeinterlaceInfo* pInfo) = 0;
+    /// Get string to display in source menu
     virtual LPCSTR GetMenuLabel() = 0;
+    /// Open the following file, return TRUE if you understand the file
     virtual BOOL OpenMediaFile(LPCSTR FileName) = 0;
-
+    /// Returns the Source specific menu to display when this source is selected
     HMENU GetSourceMenu();
 protected:
     CSource(long SetMessage, long MenuId);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.9 2001-11-25 01:58:34 ittarnavsky Exp $
+// $Id: BT848Source.cpp,v 1.10 2001-11-29 14:04:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2001/11/25 01:58:34  ittarnavsky
+// initial checkin of the new I2C code
+//
 // Revision 1.8  2001/11/23 10:49:16  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -596,32 +599,32 @@ eVideoFormat CBT848Source::GetFormat()
     return (eVideoFormat)m_VideoFormat->GetValue();
 }
 
-CSetting* CBT848Source::GetBrightness()
+ISetting* CBT848Source::GetBrightness()
 {
     return m_Brightness;
 }
 
-CSetting* CBT848Source::GetContrast()
+ISetting* CBT848Source::GetContrast()
 {
     return m_Contrast;
 }
 
-CSetting* CBT848Source::GetHue()
+ISetting* CBT848Source::GetHue()
 {
     return m_Hue;
 }
 
-CSetting* CBT848Source::GetSaturation()
+ISetting* CBT848Source::GetSaturation()
 {
     return m_Saturation;
 }
 
-CSetting* CBT848Source::GetSaturationU()
+ISetting* CBT848Source::GetSaturationU()
 {
     return m_SaturationU;
 }
 
-CSetting* CBT848Source::GetSaturationV()
+ISetting* CBT848Source::GetSaturationV()
 {
     return m_SaturationV;
 }

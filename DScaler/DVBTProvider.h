@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DVBTProvider.h,v 1.2 2001-11-21 12:32:11 adcockj Exp $
+// $Id: DVBTProvider.h,v 1.3 2001-11-29 14:04:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,7 +24,7 @@
 #include "HardwareMemory.h"
 #include "DVBTSource.h"
 
-class CDVBTProvider : public CSourceProvider
+class CDVBTProvider : public ISourceProvider
 {
 public:
     CDVBTProvider(CHardwareDriver* pHardwareDriver);

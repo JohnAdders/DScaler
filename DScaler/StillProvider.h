@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillProvider.h,v 1.5 2001-11-28 16:04:50 adcockj Exp $
+// $Id: StillProvider.h,v 1.6 2001-11-29 14:04:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,7 +23,11 @@
 #include "StillSource.h"
 #include "DS_ApiCommon.h"
 
-class CStillProvider : public CSourceProvider
+/** Derived Provider class for still sources.
+    There is only one StillSource per machine so this is a very simple
+    class.
+*/
+class CStillProvider : public ISourceProvider
 {
 public:
     CStillProvider();
@@ -36,6 +40,7 @@ private:
     vector<CStillSource*> m_StillSources;
 };
 
+/// Create a snapshot of the current overlay using one of the still helpers
 void StillProvider_SaveSnapshot(TDeinterlaceInfo* pInfo);
 
 #endif

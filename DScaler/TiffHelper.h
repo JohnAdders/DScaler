@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TiffHelper.h,v 1.1 2001-11-28 16:04:50 adcockj Exp $
+// $Id: TiffHelper.h,v 1.2 2001-11-29 14:04:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/11/28 16:04:50  adcockj
+// Major reorganization of STill support
+//
 // Revision 1.4  2001/11/25 21:25:02  laurentg
 // Method ReadNextFrameInFile moved to public section
 //
@@ -97,7 +100,8 @@ typedef struct
     WORD bitCounts[3];
 } TTiffHeader;
 
-
+/** A helper class that can read and write TIFF files
+*/
 class CTiffHelper : public CStillSourceHelper
 {
 public:

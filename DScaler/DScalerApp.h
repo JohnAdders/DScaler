@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScalerApp.h,v 1.4 2001-11-09 12:42:07 adcockj Exp $
+// $Id: DScalerApp.h,v 1.5 2001-11-29 14:04:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,30 @@
     #error include 'stdafx.h' before including this file for PCH
 #endif
 
+/*! \mainpage DScaler Developer Help
+ 
+    \section intro Introduction
+ 
+    This file has been produced from the comments in the source code.  
+    It is hoped that this will aid in the understanding of how DScaler has
+    been built and aid new developers to get up to speed quickly.
+
+    If you find any problems in this file please post bug reports to
+    johnadcock@hotmail.com
+
+    \section arch DScaler Archetecture
+
+    DScaler is curretly in a transition phase moving away from it's c background 
+    to a more object based approach.  For this reason you will see that this documentation 
+    tends to cover the newer functions.
+
+    New users should fitsly try and understand what is going on at the heart of DScaler by
+    examining the OutThreads.cpp code in particular the YUVOutThread function.
+
+*/
+
+/** MFC class for DScaler.  This is defines so that we can use MFC dialogs
+*/
 class CDScalerApp : public CWinApp
 {
 public:

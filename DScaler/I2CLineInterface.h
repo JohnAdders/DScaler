@@ -1,5 +1,5 @@
 //
-// $Id: I2CLineInterface.h,v 1.1 2001-11-25 02:03:21 ittarnavsky Exp $
+// $Id: I2CLineInterface.h,v 1.2 2001-11-29 14:04:07 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/11/25 02:03:21  ittarnavsky
+// initial checkin of the new I2C code
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -32,6 +35,9 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
+/** Interface for an I2C bus where the SDA and SCL lines are
+    controlled directly
+*/
 class II2CLineInterface  
 {
 public:

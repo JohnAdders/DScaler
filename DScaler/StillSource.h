@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.9 2001-11-28 16:04:50 adcockj Exp $
+// $Id: StillSource.h,v 1.10 2001-11-29 14:04:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 class CStillSource;
 class CTiffHelper;
 
+/** Base class for file type specific code that CStillSource uses to read
+    Still files
+*/
 class CStillSourceHelper
 {
 public:
@@ -34,6 +37,8 @@ protected:
     CStillSource* m_pParent;
 };
 
+/** An item in a CStillSource playlist
+*/
 class CPlayListItem
 {
 public:
@@ -45,6 +50,9 @@ private:
     int m_SecondsToDisplay;
 };
 
+/** Source class that can read files and playlists and display
+    then as faked video
+*/
 class CStillSource : public CSource
 {
 public:
@@ -57,16 +65,16 @@ public:
     void GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming);
     BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
     LPCSTR GetStatus();
-    CSetting* GetVolume() {return NULL;};
-    CSetting* GetBalance() {return NULL;};
+    ISetting* GetVolume() {return NULL;};
+    ISetting* GetBalance() {return NULL;};
     void Mute() {;};
     void UnMute() {;};
-    CSetting* GetBrightness() {return NULL;};
-    CSetting* GetContrast() {return NULL;};
-    CSetting* GetHue() {return NULL;};
-    CSetting* GetSaturation() {return NULL;};
-    CSetting* GetSaturationU() {return NULL;};
-    CSetting* GetSaturationV() {return NULL;};
+    ISetting* GetBrightness() {return NULL;};
+    ISetting* GetContrast() {return NULL;};
+    ISetting* GetHue() {return NULL;};
+    ISetting* GetSaturation() {return NULL;};
+    ISetting* GetSaturationU() {return NULL;};
+    ISetting* GetSaturationV() {return NULL;};
     eVideoFormat GetFormat();
     BOOL IsInTunerMode() {return FALSE;};
     int GetWidth();

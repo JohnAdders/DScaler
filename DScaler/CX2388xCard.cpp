@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.54 2004-02-21 21:47:06 to_see Exp $
+// $Id: CX2388xCard.cpp,v 1.55 2004-02-27 20:50:59 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.54  2004/02/21 21:47:06  to_see
+// Added AutodetectTuner for Hauppauge
+//
 // Revision 1.53  2004/02/21 14:11:29  to_see
 // more A2-code
 //
@@ -288,7 +291,8 @@ CCX2388xCard::CCX2388xCard(CHardwareDriver* pDriver) :
     m_CurrentInput(0),
 	m_EnableConexxantDriver2Stopp(TRUE),
 	m_ConexxantDriverStopped(FALSE),
-	m_AutoDetectCounter(0)
+	m_CurrentAudioStandard(AUDIO_STANDARD_AUTO),
+	m_CurrentStereoType(STEREOTYPE_AUTO)
 {
     strcpy(m_TunerType,"n/a");
 
@@ -1839,10 +1843,6 @@ eTunerId CCX2388xCard::AutoDetectTuner(eCX2388xCardId CardId)
 {
 	eTunerId TunerId = TUNER_ABSENT;
 
-	// Maybe for future use
-	bool TVTunerDoesFM = false;
-	bool HasRemoteControl=false;
-
 	if(m_TVCards[CardId].TunerId == TUNER_USER_SETUP)
 	{
 		return TUNER_ABSENT;
@@ -1851,55 +1851,63 @@ eTunerId CCX2388xCard::AutoDetectTuner(eCX2388xCardId CardId)
 	else if(m_TVCards[CardId].TunerId == TUNER_AUTODETECT)
 	{
 		eTunerId Tuner = TUNER_ABSENT;
+		
 		switch(CardId)
 		{
 		case CX2388xCARD_HAUPPAUGE_PCI_FM:
+		case CX2388xCARD_HAUPPAUGE_PCI_FM_TUNERSOUND:
 			{
-				// Read EEPROM
 				BYTE Eeprom[256];
-				BYTE Out[] = { 0xA0 , 0 };
-				Eeprom[0] = 0;
-				
-				m_I2CBus->Read(Out,2,Eeprom,256);
 
-				if (Eeprom[8+0] != 0x84 || Eeprom[8+2] != 0) 
+				// read direct from registers
+				for (int i=0; i<256; i += 4)
 				{
-					//Hauppage EEPROM invalid
-					LOG(2, "AutoDetectTuner: Hauppage Hauppage CX2388x Card. EEPROM error");
-					break;
+					// DWORD alignment needed
+					DWORD dwVal = ReadDword(MAP_EEPROM_DATA + i);
+					Eeprom[i+0] = LOBYTE(LOWORD(dwVal));
+					Eeprom[i+1] = HIBYTE(LOWORD(dwVal));
+					Eeprom[i+2] = LOBYTE(HIWORD(dwVal));
+					Eeprom[i+3] = HIBYTE(HIWORD(dwVal));
 				}
 
-				LOG(2, "AutoDetectTuner: Hauppage CX2388x Card. Id: 0x%02X",Eeprom[8+9]);
-
-				// an question to other developers:
-				// with the following line I get an compiler error C2070, why?
-				// if (Eeprom[8+9] < (sizeof(m_Tuners_Hauppauge_CX2388x_Card) / sizeof(m_Tuners_Hauppauge_CX2388x_Card[0]))) 
-				if (Eeprom[8+9] < 51) 
+				if (Eeprom[8+0] != 0x84 || Eeprom[8+2] != 0)
 				{
-					Tuner = m_Tuners_Hauppauge_CX2388x_Card[Eeprom[8+9]];
+					// 2.chance, read from I2C
+					LOG(1, "AutoDetectTuner: Hauppage CX2388x Card direct read from Registers fails - try to read from I2C");
+
+					BYTE Out[] = { 0xA0 , 0 };
+					Eeprom[0] = 0;
+					
+					m_I2CBus->Read(Out,2,Eeprom,256);
+
+					if (Eeprom[8+0] != 0x84 || Eeprom[8+2] != 0) 
+					{
+						LOG(1, "AutoDetectTuner: Hauppage CX2388x Card read from I2C - EEPROM error");
+						break;
+					}
+
+					LOG(1, "AutoDetectTuner: Hauppage CX2388x Card, read from I2C. TunerId: 0x%02X",Eeprom[8+9]);
+
+					// FIXME:
+					// if (Eeprom[8+9] < (sizeof(m_Tuners_Hauppauge_CX2388x_Card) / sizeof(m_Tuners_Hauppauge_CX2388x_Card[0]))) 
+					if (Eeprom[8+9] < 51) 
+					{
+						Tuner = m_Tuners_Hauppauge_CX2388x_Card[Eeprom[8+9]];
+					}
 				}
 
-				LOG(2, "AutoDetectTuner: Hauppage Hauppage CX2388x Card. Block 2: 0x%02X at %d+3",Eeprom[ Eeprom[8+1]+3 ],Eeprom[8+1]);
+				else
+				{
+					LOG(1, "AutoDetectTuner: Hauppage CX2388x Card - read from Registers. TunerId: 0x%02X",Eeprom[8+9]);
 
-				/* Block 2 starts after len+3 bytes header */
-				int blk2		= Eeprom[8+1] + 8 + 3;
-				int radio		= Eeprom[blk2-1] & 0x01;
-				int infrared	= Eeprom[blk2-1] & 0x04;
-				
-				TVTunerDoesFM = false;
-				
-				if (radio) 
-				{
-					TVTunerDoesFM = true;
+					// FIXME:
+					// if (Eeprom[8+9] < (sizeof(m_Tuners_Hauppauge_CX2388x_Card) / sizeof(m_Tuners_Hauppauge_CX2388x_Card[0]))) 
+					if (Eeprom[8+9] < 51) 
+					{
+						Tuner = m_Tuners_Hauppauge_CX2388x_Card[Eeprom[8+9]];
+					}
 				}
-				
-				HasRemoteControl = false;
-				
-				if (infrared) 
-				{
-					HasRemoteControl = true;
-				}
-				
+
 				break;
 			}
 		}
@@ -2508,7 +2516,7 @@ BOOL CCX2388xCard::StartStopConexxantDriver(DWORD NewState)
 		if (!SetupDiSetClassInstallParams(hDevInfo,&DeviceInfoData,
 			(SP_CLASSINSTALL_HEADER *)&PropChangeParams,sizeof(PropChangeParams)))
 		{
-			LOG(0,"Unable to stop CX2388x WDM-Driver in DICS_FLAG_GLOBAL.");
+			LOG(0,"Unable to %s CX2388x WDM-Driver in DICS_FLAG_GLOBAL.", NewState == DICS_DISABLE ? "Stop" : "Start");
 			return FALSE;
 		}
 
@@ -2522,9 +2530,11 @@ BOOL CCX2388xCard::StartStopConexxantDriver(DWORD NewState)
 			(SP_CLASSINSTALL_HEADER *)&PropChangeParams,sizeof(PropChangeParams))
 			|| !SetupDiCallClassInstaller(DIF_PROPERTYCHANGE,hDevInfo,&DeviceInfoData))
 		{
-			LOG(0,"Unable to stop CX2388x WDM-Driver in DICS_FLAG_CONFIGSPECIFIC.");
+			LOG(0,"Unable to %s CX2388x WDM-Driver in DICS_FLAG_CONFIGSPECIFIC.", NewState == DICS_DISABLE ? "Stop" : "Start");
 			return FALSE;
 		}
+		
+		LOG(1,"CX2388x WDM-Driver %s.", NewState == DICS_DISABLE ? "Stop" : "Start");
 	}
 
 	else

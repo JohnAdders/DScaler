@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Audio.cpp,v 1.16 2004-02-21 14:11:30 to_see Exp $
+// $Id: CX2388xCard_Audio.cpp,v 1.17 2004-02-27 20:50:59 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2004/02/21 14:11:30  to_see
+// more A2-code
+//
 // Revision 1.15  2004/02/15 21:47:48  to_see
 // Oops, forget an 'else'...
 //
@@ -83,7 +86,7 @@
 #include "CPU.h"
 #include "TVFormats.h"
 
-void CCX2388xCard::AudioInit(int nInput, eVideoFormat TVFormat, eAudioStandard Standard, eStereoType StereoType)
+void CCX2388xCard::AudioInit(int nInput, eVideoFormat TVFormat, eCX2388xAudioStandard Standard, eCX2388xStereoType StereoType)
 {
     // stop the audio and wait for buffers to clear
     WriteDword(MO_AUD_DMACNTRL, 0x00000000);
@@ -157,6 +160,9 @@ void CCX2388xCard::AudioInit(int nInput, eVideoFormat TVFormat, eAudioStandard S
 
     // start the audio running
     AudioInitDMA();
+
+	m_CurrentAudioStandard	= Standard;
+	m_CurrentStereoType		= StereoType;
 }
 
 void CCX2388xCard::SetAudioVolume(WORD nVolume)
@@ -222,7 +228,7 @@ void CCX2388xCard::AudioInitDMA()
     WriteDword(MO_AUD_DMACNTRL, 0x00000003);
 }
 
-void CCX2388xCard::AudioInitBTSC(eStereoType StereoType)
+void CCX2388xCard::AudioInitBTSC(eCX2388xStereoType StereoType)
 {
     //\todo handle StereoType
 
@@ -288,7 +294,7 @@ void CCX2388xCard::AudioInitBTSC(eStereoType StereoType)
     WriteDword(AUD_SOFT_RESET,           0x0000);  // Causes a pop every time
 }
 
-void CCX2388xCard::AudioInitBTSCSAP(eStereoType StereoType)
+void CCX2388xCard::AudioInitBTSCSAP(eCX2388xStereoType StereoType)
 {
     //\todo code not started this is a copy of BTSC
     //\todo handle StereoType
@@ -348,7 +354,7 @@ void CCX2388xCard::AudioInitBTSCSAP(eStereoType StereoType)
 
 }
 
-void CCX2388xCard::AudioInitFM(eStereoType StereoType)
+void CCX2388xCard::AudioInitFM(eCX2388xStereoType StereoType)
 {
     //\todo code not started this is a copy of BTSC
 
@@ -409,7 +415,7 @@ void CCX2388xCard::AudioInitFM(eStereoType StereoType)
 
 }
 
-void CCX2388xCard::AudioInitEIAJ(eStereoType StereoType)
+void CCX2388xCard::AudioInitEIAJ(eCX2388xStereoType StereoType)
 {
     //\todo handle StereoType
 
@@ -527,7 +533,7 @@ void CCX2388xCard::AudioInitEIAJ(eStereoType StereoType)
 }
 
 
-void CCX2388xCard::AudioInitNICAM(eStereoType StereoType)
+void CCX2388xCard::AudioInitNICAM(eCX2388xStereoType StereoType)
 {
     //\todo handle StereoType
 
@@ -567,7 +573,7 @@ void CCX2388xCard::AudioInitNICAM(eStereoType StereoType)
     WriteDword(AUD_SOFT_RESET,           0x0000);  // Causes a pop every time
 }   
 
-void CCX2388xCard::AudioInitA2(eStereoType StereoType)
+void CCX2388xCard::AudioInitA2(eCX2388xStereoType StereoType)
 {
     // exactly taken from conexant-driver
 	// tested with Hauppauge WinTV
@@ -865,16 +871,6 @@ void CCX2388xCard::AudioInitA2(eStereoType StereoType)
     WriteDword(AUD_SOFT_RESET,           0x0000);  // Causes a pop every time/**/
 }
 
-void CCX2388xCard::NotifyOnChannelChanged()
-{
-	// when switching from channel to channel the sound often hangs, 
-	// so let's make an reset
-	WriteDword(AUD_SOFT_RESET, 1);	
-	WriteDword(AUD_SOFT_RESET, 0);
-
-	m_AutoDetectCounter = 0;
-}
-
 void CCX2388xCard::SetAutoA2StereoToMono()
 {
 	// set timer to an lower value for faster detection
@@ -893,83 +889,25 @@ void CCX2388xCard::SetAutoA2StereoToStereo()
 	OrDataDword(AUD_DEEMPH1_SRC_SEL,	0x00000002);
 }
 
-// called every 250ms
-eSoundChannel CCX2388xCard::HandleTimerAndGetAudioChannel()
+void CCX2388xCard::AudioSoftReset()
 {
-	eSoundChannel SoundChannel = SOUNDCHANNEL_MONO;
-
-	if(IsInputATuner(m_CurrentInput))
-	{
-		DWORD dwVal = ReadDword(AUD_VOL_CTL);
-		
-		if(IsVideoPresent())
-		{
-			// is Audio muted?
-			if((dwVal & EN_DAC_MUTE_EN) == EN_DAC_MUTE_EN)
-			{
-				// Yes - > UnMute
-				WriteDword(AUD_VOL_CTL, (dwVal & ~EN_DAC_MUTE_EN));
-			}
-			
-			// only when in EN_A2_AUTO_STEREO mode
-			if((ReadDword(AUD_CTL) & 0x0000002f) == EN_A2_AUTO_STEREO)
-			{
-				DWORD dwVal = ReadDword(AUD_STATUS) & 0x03;
-				switch(dwVal)
-				{
-				case 0:
-					if(m_AutoDetectCounter < 10)
-					{
-						m_AutoDetectCounter++;
-					}
-					break;
-
-				case 2:
-					if(m_AutoDetectCounter > 0)
-					{
-						m_AutoDetectCounter--;
-					}
-					break;
-
-				// \todo bilingual support
-				}
-
-				if(m_AutoDetectCounter > 5)
-				{
-					SetAutoA2StereoToStereo();
-					SoundChannel = SOUNDCHANNEL_STEREO;
-				}
-
-				else
-				{
-					SetAutoA2StereoToMono();
-					SoundChannel = SOUNDCHANNEL_MONO;
-				}
-
-				TRACE("m_AutoDetectCounter:%d Stereo:%d\n", m_AutoDetectCounter, SoundChannel);
-
-			}
-			
-			// \todo BTSC/EIAJ/FM/Nicam support
-		}
-
-		else //IsVideoPresent
-		{
-			// is Audio muted?
-			if((dwVal & EN_DAC_MUTE_EN) == 0)
-			{
-				// No - > Mute
-				WriteDword(AUD_VOL_CTL, (dwVal|EN_DAC_MUTE_EN));
-			}
-		}
-	}
-
-	else // IsInputATuner
-	{
-		// external sources always stereo
-		SoundChannel = SOUNDCHANNEL_STEREO;
-	}
-
-	return SoundChannel;
+	// needed when switching from channel to channel
+	WriteDword(AUD_SOFT_RESET, 1);	
+	WriteDword(AUD_SOFT_RESET, 0);
 }
 
+DWORD CCX2388xCard::GetAudioStatusRegister()
+{
+	DWORD dwVal = ReadDword(AUD_STATUS) & 0x0000002f;
+	return dwVal;
+}
+
+eCX2388xAudioStandard CCX2388xCard::GetCurrentAudioStandard()
+{
+	return m_CurrentAudioStandard;
+}
+
+eCX2388xStereoType CCX2388xCard::GetCurrentStereoType()
+{
+	return m_CurrentStereoType;
+}

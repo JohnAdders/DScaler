@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.61 2004-02-21 14:11:30 to_see Exp $
+// $Id: CX2388xSource.cpp,v 1.62 2004-02-27 20:50:59 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.61  2004/02/21 14:11:30  to_see
+// more A2-code
+//
 // Revision 1.60  2004/02/15 21:18:16  to_see
 // New A2 code.
 //
@@ -382,7 +385,10 @@ CCX2388xSource::CCX2388xSource(CCX2388xCard* pCard, CContigMemory* RiscDMAMem, C
     m_InSaturationUpdate(FALSE),
     m_NumFields(10),
     m_hCX2388xResourceInst(NULL),
-	m_InitialSetup(FALSE)
+	m_InitialSetup(FALSE),
+	m_AutoDetectA2StereoCounter(0),
+	m_AutoDetectA2BilingualCounter(0),
+	m_bMuted(FALSE)
 {
     CreateSettings(IniSection);
 
@@ -413,7 +419,7 @@ CCX2388xSource::CCX2388xSource(CCX2388xCard* pCard, CContigMemory* RiscDMAMem, C
 
 CCX2388xSource::~CCX2388xSource()
 {
-	KillTimer(hWnd, TIMER_CX2388X);
+	StopUpdateAudioStatus();
 	EventCollector->Unregister(this);
     delete m_pCard;
 }
@@ -633,10 +639,10 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
     m_Balance = new CBalanceSetting(this, "Balance", 0, -127, 127, IniSection, pAudioGroup);
     m_Settings.push_back(m_Balance);
 
-    m_AudioStandard = new CAudioStandardSetting(this, "Audio Standard", CCX2388xCard::AUDIO_STANDARD_AUTO, CCX2388xCard::AUDIO_STANDARD_FM, IniSection, AudioStandardList, pAudioGroup);
+    m_AudioStandard = new CAudioStandardSetting(this, "Audio Standard", AUDIO_STANDARD_AUTO, AUDIO_STANDARD_FM, IniSection, AudioStandardList, pAudioGroup);
     m_Settings.push_back(m_AudioStandard);
 
-    m_StereoType = new CStereoTypeSetting(this, "Stereo Type", CCX2388xCard::STEREOTYPE_AUTO, CCX2388xCard::STEREOTYPE_ALT2, IniSection, StereoTypeList, pAudioGroup);
+    m_StereoType = new CStereoTypeSetting(this, "Stereo Type", STEREOTYPE_AUTO, STEREOTYPE_ALT2, IniSection, StereoTypeList, pAudioGroup);
     m_Settings.push_back(m_StereoType);
 
     m_BottomOverscan = new CBottomOverscanSetting(this, "Overscan at Bottom", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection, pVideoGroup);
@@ -671,7 +677,7 @@ void CCX2388xSource::Start()
     m_pCard->StartCapture(bCaptureVBI && (m_CurrentVBILines > 0));
     
 	// This timer is used to update audiostatus & automute
-    SetTimer(hWnd, TIMER_CX2388X, TIMER_CX2388X_MS, NULL);
+	StartUpdateAudioStatus();
     
 	Timing_Reset();
     NotifySizeChange();
@@ -729,8 +735,8 @@ void CCX2388xSource::Reset()
         m_pCard->AudioInit(
                             m_VideoSource->GetValue(), 
                             (eVideoFormat)m_VideoFormat->GetValue(), 
-                            (CCX2388xCard::eAudioStandard)m_AudioStandard->GetValue(),
-                            (CCX2388xCard::eStereoType)m_StereoType->GetValue()
+                            (eCX2388xAudioStandard)m_AudioStandard->GetValue(),
+                            (eCX2388xStereoType)m_StereoType->GetValue()
                           );
     }
     else
@@ -972,7 +978,7 @@ void CCX2388xSource::Stop()
     DisableOnChange();
     // stop capture
     m_pCard->StopCapture();
-    KillTimer(hWnd, TIMER_CX2388X);
+	StopUpdateAudioStatus();
 }
 
 void CCX2388xSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
@@ -1803,10 +1809,15 @@ BOOL CCX2388xSource::SetTunerFrequency(long FrequencyId, eVideoFormat VideoForma
         m_VideoFormat->SetValue(VideoFormat);
     }
 	
+	StopUpdateAudioStatus();
+	
 	BOOL bReturn = m_pCard->GetTuner()->SetTVFrequency(FrequencyId, VideoFormat);
 	if(bReturn == TRUE)
 	{
-		m_pCard->NotifyOnChannelChanged();
+		// when switching from channel to channel the sound often hangs, 
+		// so let's make an reset
+		m_pCard->AudioSoftReset();
+		StartUpdateAudioStatus();
 	}
 
 	return bReturn;
@@ -1856,33 +1867,7 @@ void CCX2388xSource::SetAspectRatioData()
 
 void CCX2388xSource::HandleTimerMessages(int TimerId)
 {
-	eSoundChannel SoundChannel = m_pCard->HandleTimerAndGetAudioChannel();
-
-    char szSoundChannel[256] = "";
-
-    switch(SoundChannel)
-    {
-    case SOUNDCHANNEL_MONO:
-		strcpy(szSoundChannel,"Mono");
-		break;
-
-    case SOUNDCHANNEL_STEREO:
-		strcpy(szSoundChannel,"Stereo");
-		break;
-
-    case SOUNDCHANNEL_LANGUAGE1:
-		strcpy(szSoundChannel,"Language 1");
-		break;
-
-    case SOUNDCHANNEL_LANGUAGE2:
-		strcpy(szSoundChannel,"Language 2");
-		break;
-    }
-
-    StatusBar_ShowText(STATUS_AUDIO, szSoundChannel);
-
-    // This is needed for the stereo indicator in the toolbar
-    EventCollector->RaiseEvent(this, EVENT_SOUNDCHANNEL, -1, SoundChannel);
+	UpdateAudioStatus();
 }
 
 void CCX2388xSource::IsVideoProgressiveOnChange(long NewValue, long OldValue)

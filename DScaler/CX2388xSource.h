@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.h,v 1.30 2004-02-05 21:47:52 to_see Exp $
+// $Id: CX2388xSource.h,v 1.31 2004-02-27 20:51:00 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -136,6 +136,11 @@ private:
 
     void InitializeUI();
 
+	void StartUpdateAudioStatus();
+	void StopUpdateAudioStatus();
+	void UpdateAudioStatus();
+	eSoundChannel AutoDetectA2Sound();
+
 private:
     CCX2388xCard*  m_pCard;
     BYTE*        m_pDisplay[5];
@@ -168,6 +173,10 @@ private:
     CSliderSetting* m_CustomPixelWidth;
 
 	BOOL		 m_InitialSetup;
+
+	long		 m_AutoDetectA2StereoCounter;
+	long		 m_AutoDetectA2BilingualCounter;
+	BOOL		 m_bMuted;
 
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, Brightness);
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, Contrast);

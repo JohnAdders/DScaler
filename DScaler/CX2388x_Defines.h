@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388x_Defines.h,v 1.21 2004-02-21 14:11:29 to_see Exp $
+// $Id: CX2388x_Defines.h,v 1.22 2004-02-27 20:50:49 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -444,6 +444,7 @@
 #define MO_GPHST_MUX16      0x380064 // Host muxed 16-bit transfer parameters
 #define MO_GPHST_MODE       0x380068 // Host mode select
 
+#define MAP_EEPROM_DATA		0x365000 // Begin of EEPROM-Data
 
 // AUD_INIT
 
@@ -783,6 +784,27 @@ enum eCX2388xCardId
     CX2388xCARD_HAUPPAUGE_PCI_FM_TUNERSOUND,
     CX2388xCARD_LASTONE,
 };
+
+enum eCX2388xAudioStandard
+{
+    AUDIO_STANDARD_AUTO = 0,
+    AUDIO_STANDARD_BTSC,
+    AUDIO_STANDARD_EIAJ,
+    AUDIO_STANDARD_A2,
+    AUDIO_STANDARD_BTSC_SAP,
+    AUDIO_STANDARD_NICAM,
+    AUDIO_STANDARD_FM,
+};
+
+enum eCX2388xStereoType
+{
+    STEREOTYPE_AUTO = 0,
+    STEREOTYPE_STEREO, 
+    STEREOTYPE_MONO, 
+    STEREOTYPE_ALT1, 
+    STEREOTYPE_ALT2, 
+};
+
 // planar video (Used for YUY2)
 #define SRAM_CMDS_21                0x180040
 // VBI

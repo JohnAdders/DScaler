@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.h,v 1.25 2004-02-21 21:47:06 to_see Exp $
+// $Id: CX2388xCard.h,v 1.26 2004-02-27 20:50:59 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,26 +67,6 @@ public:
         MAJSEL_1_OVER_2,
         MAJSEL_1_OVER_4,
         MAJSEL_AUTOMATIC
-    };
-
-    enum eAudioStandard
-    {
-        AUDIO_STANDARD_AUTO = 0,
-        AUDIO_STANDARD_BTSC,
-        AUDIO_STANDARD_EIAJ,
-        AUDIO_STANDARD_A2,
-        AUDIO_STANDARD_BTSC_SAP,
-        AUDIO_STANDARD_NICAM,
-        AUDIO_STANDARD_FM,
-    };
-
-    enum eStereoType
-    {
-        STEREOTYPE_AUTO = 0,
-        STEREOTYPE_STEREO, 
-        STEREOTYPE_MONO, 
-        STEREOTYPE_ALT1, 
-        STEREOTYPE_ALT2, 
     };
 	
 private:
@@ -226,15 +206,19 @@ public:
     void DumpChipStatus(const char* CardName);
     HMENU GetCardSpecificMenu();
 
-    void AudioInit(int nInput, eVideoFormat TVFormat, eAudioStandard Standard, eStereoType StereoType);
+    void AudioInit(int nInput, eVideoFormat TVFormat, eCX2388xAudioStandard Standard, eCX2388xStereoType StereoType);
     void SetAudioMute();
     void SetAudioUnMute(WORD nVolume);
     void SetAudioVolume(WORD nVolume);
     void SetAudioBalance(WORD nBalance);
     void ShowRegisterSettingsDialog(HINSTANCE hCX2388xResourceInst);
 	void SetEnableStartStopConexxantDriver(BOOL bEnable);
-	void NotifyOnChannelChanged();
-	eSoundChannel HandleTimerAndGetAudioChannel();
+	void AudioSoftReset();
+	DWORD GetAudioStatusRegister();
+	void SetAutoA2StereoToMono();
+	void SetAutoA2StereoToStereo();
+	eCX2388xAudioStandard GetCurrentAudioStandard();
+	eCX2388xStereoType GetCurrentStereoType();
 
 protected:
     void ManageMyState();
@@ -288,16 +272,14 @@ private:
     void SetH3DSaturationV(BYTE SaturationV);
 
     void AudioInitDMA();
-    void AudioInitBTSC(eStereoType StereoType);
-    void AudioInitBTSCSAP(eStereoType StereoType);
-    void AudioInitEIAJ(eStereoType StereoType);
-    void AudioInitA2(eStereoType StereoType);
-    void AudioInitFM(eStereoType StereoType);
-    void AudioInitNICAM(eStereoType StereoType);
+    void AudioInitBTSC(eCX2388xStereoType StereoType);
+    void AudioInitBTSCSAP(eCX2388xStereoType StereoType);
+    void AudioInitEIAJ(eCX2388xStereoType StereoType);
+    void AudioInitA2(eCX2388xStereoType StereoType);
+    void AudioInitFM(eCX2388xStereoType StereoType);
+    void AudioInitNICAM(eCX2388xStereoType StereoType);
     static BOOL APIENTRY RegisterEditProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 	BOOL StartStopConexxantDriver(DWORD NewState);
-	void SetAutoA2StereoToMono();
-	void SetAutoA2StereoToStereo();
 
 private:
     eCX2388xCardId m_CardType;
@@ -315,7 +297,8 @@ private:
     DWORD           m_2HCombDefault;
     BOOL			m_EnableConexxantDriver2Stopp;
     BOOL			m_ConexxantDriverStopped;
-	int				m_AutoDetectCounter;
+	eCX2388xAudioStandard	m_CurrentAudioStandard;
+	eCX2388xStereoType		m_CurrentStereoType;
 
 private:
     static const TCardType m_TVCards[CX2388xCARD_LASTONE];

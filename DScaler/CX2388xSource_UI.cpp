@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_UI.cpp,v 1.40 2004-02-05 21:47:52 to_see Exp $
+// $Id: CX2388xSource_UI.cpp,v 1.41 2004-02-27 20:51:00 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.40  2004/02/05 21:47:52  to_see
+// Starting/Stopping connexant-drivers while dscaler is running.
+// To Enable/Disable it, go to Settings->Advanced Settings->
+// CX2388X Advanced->Stopping Conexxant driver while Dscaler is running.
+//
+// This enables sound on my card without to go to windows control panel.
+//
 // Revision 1.39  2003/10/27 10:39:51  adcockj
 // Updated files for better doxygen compatability
 //
@@ -287,6 +294,41 @@ BOOL APIENTRY CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wPara
               }
             }
             break;
+        case IDC_AUTODETECT:
+            {
+                eCX2388xCardId CardId = pThis->m_pCard->AutoDetectCardType();
+                eTunerId TunerId = pThis->m_pCard->AutoDetectTuner(CardId);
+                
+                SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_RESETCONTENT, 0, 0);
+                for(i = 0; i < CX2388xCARD_LASTONE; i++)
+                {
+                    int nIndex;
+                    nIndex = SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_ADDSTRING, 0, (LONG)pThis->m_pCard->GetCardName((eCX2388xCardId)i));
+                    SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_SETITEMDATA, nIndex, i);
+                    if(i == CardId)
+                    {
+                        SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_SETCURSEL, nIndex, 0);
+                    }
+                }
+                
+                SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_RESETCONTENT, 0, 0);
+                for(i = 0; i < TUNER_LASTONE; i++)
+                {
+                    nIndex = SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_ADDSTRING, 0, (LONG)TunerNames[i]);
+                    SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETITEMDATA, nIndex, i);
+                }
+                SetFocus(hDlg);
+                // Update the tuner combobox after the SetFocus
+                // because SetFocus modifies this combobox
+                for (nIndex = 0; nIndex < TUNER_LASTONE; nIndex++)
+                {
+                    i = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_TUNERSELECT), nIndex);
+                    if (i == TunerId)
+                    {          
+                        SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETCURSEL, nIndex, 0);
+                    }
+                }
+			}
         default:
             break;
         }

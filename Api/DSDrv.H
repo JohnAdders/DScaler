@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSDrv.H,v 1.13 2002-10-29 10:03:17 adcockj Exp $
+// $Id: DSDrv.H,v 1.14 2004-04-14 10:01:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -42,7 +42,7 @@
 // define version number to be compiled into both files
 // we use this to make sure that we are speaking the same language in both the 
 // drivers and the dll
-#define DSDRV_VERSION 0x4002
+#define DSDRV_VERSION 0x4003
 
 #define ALLOC_MEMORY_CONTIG 1
 
@@ -195,6 +195,12 @@ extern "C" {
 
 #define IOCTL_DSDRV_SETPCICONFIG \
     CTL_CODE(FILE_DEVICE_DSCALER, (DSDRV_BASE + 20), METHOD_OUT_DIRECT, FILE_ANY_ACCESS)
+
+#define IOCTL_DSDRV_GETPCICONFIGOFFSET \
+    CTL_CODE(FILE_DEVICE_DSCALER, (DSDRV_BASE + 21), METHOD_OUT_DIRECT, FILE_ANY_ACCESS)
+
+#define IOCTL_DSDRV_SETPCICONFIGOFFSET \
+    CTL_CODE(FILE_DEVICE_DSCALER, (DSDRV_BASE + 22), METHOD_OUT_DIRECT, FILE_ANY_ACCESS)
 
 
 /** These are the old codes used by older version of the driver

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Ioclass.h,v 1.9 2002-10-22 16:01:44 adcockj Exp $
+// $Id: Ioclass.h,v 1.10 2004-04-14 10:02:01 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -119,6 +119,8 @@ protected:
     NTSTATUS pciGetDeviceInfo(TPCICARDINFO* pPCICardInfo);
 	NTSTATUS pciGetDeviceConfig(PCI_COMMON_CONFIG *pPCIConfig, DWORD Bus, DWORD Slot);
     NTSTATUS pciSetDeviceConfig(PCI_COMMON_CONFIG *pPCIConfig, DWORD Bus, DWORD Slot);
+    NTSTATUS pciGetDeviceConfigOffset(BYTE* pPCIConfig, DWORD Offset, DWORD Bus, DWORD Slot);
+    NTSTATUS pciSetDeviceConfigOffset(BYTE *pPCIConfig, DWORD Offset, DWORD Bus, DWORD Slot);
     NTSTATUS allocMemory(DWORD ulLength,DWORD ulFlags,DWORD ulUserAddress, PMemStruct pMemStruct);
     NTSTATUS freeMemory(PMemStruct pMemStruct);
     void freeMemory(PMemoryNode node);

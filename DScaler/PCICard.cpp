@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCICard.cpp,v 1.15 2003-10-27 10:39:52 adcockj Exp $
+// $Id: PCICard.cpp,v 1.16 2004-04-14 10:02:00 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2003/10/27 10:39:52  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.14  2002/11/07 21:06:12  adcockj
 // Fixes to prevent hanging with card that's not been initilaised
 //
@@ -496,6 +499,69 @@ BOOL CPCICard::SetPCIConfig(PCI_COMMON_CONFIG* pPCI_COMMON_CONFIG, DWORD Bus, DW
     }
     return TRUE;
 }
+
+BOOL CPCICard::GetPCIConfigOffset(BYTE* pbPCIConfig, DWORD Offset, DWORD Bus, DWORD Slot)
+{
+    if(pbPCIConfig == NULL)
+    {
+        LOG(1, "GetPCIConfigOffset failed. pbPCIConfig == NULL");
+        return FALSE;
+    }
+
+    TDSDrvParam hwParam;
+    DWORD dwStatus;
+    DWORD dwLength;
+
+    hwParam.dwAddress = Bus;
+    hwParam.dwValue = Slot;
+    hwParam.dwFlags = Offset;
+
+    dwStatus = m_pDriver->SendCommand(IOCTL_DSDRV_GETPCICONFIGOFFSET,
+                                        &hwParam,
+                                        sizeof(hwParam),
+                                        pbPCIConfig,
+                                        1,
+                                        &dwLength);
+
+    if(dwStatus != ERROR_SUCCESS)
+    {
+        LOG(1, "GetPCIConfigOffet failed for %X %X failed 0x%x", Bus, Slot, dwStatus);
+        return FALSE;
+    }
+    return TRUE;
+}
+
+BOOL CPCICard::SetPCIConfigOffset(BYTE* pbPCIConfig, DWORD Offset, DWORD Bus, DWORD Slot)
+{
+    if(pbPCIConfig == NULL)
+    {
+        LOG(1, "SetPCIConfigOffset failed. pbPCIConfig == NULL");
+        return FALSE;
+    }
+
+    TDSDrvParam hwParam;
+    DWORD dwStatus;
+    DWORD dwLength;
+
+    hwParam.dwAddress = Bus;
+    hwParam.dwValue = Slot;
+    hwParam.dwFlags = Offset;
+
+    dwStatus = m_pDriver->SendCommand(IOCTL_DSDRV_SETPCICONFIGOFFSET,
+                                        &hwParam,
+                                        sizeof(hwParam),
+                                        pbPCIConfig,
+                                        1,
+                                        &dwLength);
+
+    if(dwStatus != ERROR_SUCCESS)
+    {
+        LOG(1, "SetPCIConfigOffset failed for %X %X failed 0x%x", Bus, Slot, dwStatus);
+        return FALSE;
+    }
+    return TRUE;
+}
+
 
 void CPCICard::SaveState()
 {

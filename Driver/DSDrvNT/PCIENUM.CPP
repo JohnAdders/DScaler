@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCIENUM.CPP,v 1.8 2002-06-16 18:53:36 robmuller Exp $
+// $Id: PCIENUM.CPP,v 1.9 2004-04-14 10:02:02 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/06/16 18:53:36  robmuller
+// Renamed pciGetDeviceConfig() to pciGetDeviceInfo().
+// Implemented pciGetDeviceConfig() and pciSetDeviceConfig().
+//
 // Revision 1.7  2001/11/02 16:36:54  adcockj
 // Merge code from Multiple cards into main trunk
 //
@@ -193,4 +197,19 @@ NTSTATUS CIOAccessDevice::pciSetDeviceConfig(PCI_COMMON_CONFIG *pPCIConfig, DWOR
     debugOut(dbTrace,"set pci configuration for bus %X slot %X",Bus, Slot);
 
     return HalSetBusData(PCIConfiguration, Bus, Slot, pPCIConfig, sizeof(PCI_COMMON_CONFIG));
+}
+
+
+NTSTATUS CIOAccessDevice::pciGetDeviceConfigOffset(BYTE* pPCIConfig, DWORD Offset, DWORD Bus, DWORD Slot)
+{
+    debugOut(dbTrace,"get pci configuration offset for bus %X slot %X",Bus, Slot);
+
+    return HalGetBusDataByOffset(PCIConfiguration, Bus, Slot, pPCIConfig, Offset, 1);
+}
+
+NTSTATUS CIOAccessDevice::pciSetDeviceConfigOffset(BYTE *pPCIConfig, DWORD Offset, DWORD Bus, DWORD Slot)
+{
+    debugOut(dbTrace,"set pci configuration offset for bus %X slot %X",Bus, Slot);
+
+    return HalSetBusDataByOffset(PCIConfiguration, Bus, Slot, pPCIConfig, Offset, 1);
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCIENUM.CPP,v 1.9 2002-06-16 18:53:36 robmuller Exp $
+// $Id: PCIENUM.CPP,v 1.10 2004-04-14 10:02:02 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/06/16 18:53:36  robmuller
+// Renamed pciGetDeviceConfig() to pciGetDeviceInfo().
+// Implemented pciGetDeviceConfig() and pciSetDeviceConfig().
+//
 // Revision 1.8  2002/03/24 21:25:14  robmuller
 // Fixed include directive (debugout.h).
 //
@@ -227,5 +231,29 @@ NTSTATUS CIOAccessDevice::pciSetDeviceConfig(PCI_COMMON_CONFIG *pPCIConfig, DWOR
                                               0,
                                               pPCIConfig,
                                               sizeof(PCI_COMMON_CONFIG),
+                                              0);
+}
+
+NTSTATUS CIOAccessDevice::pciGetDeviceConfigOffset(BYTE* pPCIConfig, DWORD Offset, DWORD Bus, DWORD Slot)
+{
+    debugOut(dbTrace,"get pci configuration for bus %X slot %X",Bus, Slot);
+
+    return _CONFIGMG_Call_Enumerator_Function(Slot,
+                                              PCI_ENUM_FUNC_GET_DEVICE_INFO,
+                                              Offset,
+                                              pPCIConfig,
+                                              1,
+                                              0);
+}
+
+NTSTATUS CIOAccessDevice::pciSetDeviceConfigOffset(BYTE *pPCIConfig, DWORD Offset, DWORD Bus, DWORD Slot)
+{
+    debugOut(dbTrace,"set pci configuration for bus %X slot %X",Bus, Slot);
+
+    return _CONFIGMG_Call_Enumerator_Function(Slot,
+                                              PCI_ENUM_FUNC_SET_DEVICE_INFO,
+                                              Offset,
+                                              pPCIConfig,
+                                              1,
                                               0);
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Ioclass.cpp,v 1.12 2002-10-22 16:01:45 adcockj Exp $
+// $Id: Ioclass.cpp,v 1.13 2004-04-14 10:02:02 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -33,6 +33,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/10/22 16:01:45  adcockj
+// Changed definition of IOCTLs
+//
 // Revision 1.11  2002/06/16 18:53:36  robmuller
 // Renamed pciGetDeviceConfig() to pciGetDeviceInfo().
 // Implemented pciGetDeviceConfig() and pciSetDeviceConfig().
@@ -497,6 +500,36 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
             Status = pciSetDeviceConfig(pPCIConfig, ioParam->dwAddress, ioParam->dwValue);
 
             *pBytesWritten = sizeof(PCI_COMMON_CONFIG);
+        }
+        else
+        {
+            debugOut(dbError,"! invalid system address %X",outputBuffer);
+        }
+        break;
+
+    case IOCTL_DSDRV_GETPCICONFIGOFFSET:
+        if (isValidAddress(outputBuffer))
+        {
+            BYTE *pPCIConfig = (BYTE*)outputBuffer;
+
+            Status = pciGetDeviceConfigOffset(pPCIConfig, ioParam->dwFlags, ioParam->dwAddress, ioParam->dwValue);
+
+            *pBytesWritten = 1;
+        }
+        else
+        {
+            debugOut(dbError,"! invalid system address %X",outputBuffer);
+        }
+        break;
+
+    case IOCTL_DSDRV_SETPCICONFIGOFFSET:
+        if (isValidAddress(outputBuffer))
+        {
+            BYTE *pPCIConfig = (BYTE*)outputBuffer;
+
+            Status = pciSetDeviceConfigOffset(pPCIConfig, ioParam->dwFlags, ioParam->dwAddress, ioParam->dwValue);
+
+            *pBytesWritten = 1;
         }
         else
         {

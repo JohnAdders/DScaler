@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.41 2002-02-09 12:57:38 laurentg Exp $
+// $Id: Calibration.cpp,v 1.42 2002-02-09 18:06:27 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.41  2002/02/09 12:57:38  laurentg
+// Function Calibr_ShowUI added
+//
 // Revision 1.40  2002/02/09 02:44:56  laurentg
 // Overscan now stored in a setting of the source
 //
@@ -1128,7 +1131,7 @@ void CTestPattern::Log()
 /////////////////////////////////////////////////////////////////////////////
 // Class CCalSetting
 
-CCalSetting::CCalSetting(CSimpleSetting* pSetting)
+CCalSetting::CCalSetting(ISetting* pSetting)
 {
     m_pSetting = pSetting;
     min = pSetting->GetMin();
@@ -1154,18 +1157,14 @@ BOOL CCalSetting::Update()
 
 void CCalSetting::Save()
 {
-    char szText[256];
     saved_value = current_value;
-    m_pSetting->GetDisplayText(szText);
-    LOG(2, "Automatic Calibration - %s saved value = %d", szText, saved_value);
+    LOG(2, "Automatic Calibration - saved value = %d", saved_value);
 }
 
 void CCalSetting::Restore()
 {
-    char szText[256];
     saved_value = current_value;
-    m_pSetting->GetDisplayText(szText);
-    LOG(2, "Automatic Calibration - %s restored value = %d", szText, saved_value);
+    LOG(2, "Automatic Calibration - restored value = %d", saved_value);
 }
 
 void CCalSetting::SetFullRange()
@@ -1188,9 +1187,7 @@ void CCalSetting::SetRange(int min_val, int max_val)
         j = i - min;
         mask_input[j/32] |= (1 << (j%32));
     }
-    char szText[256];
-    m_pSetting->GetDisplayText(szText);
-    LOG(3, "Automatic Calibration - %s range => min = %d max = %d", szText, min_value, max_value);
+    LOG(3, "Automatic Calibration - range => min = %d max = %d", min_value, max_value);
 }
 
 void CCalSetting::SetRange(int delta)
@@ -1313,9 +1310,7 @@ void CCalSetting::AdjustBest()
         // Set the setting to its default value
         AdjustDefault();
     }
-    char szText[256];
-    m_pSetting->GetDisplayText(szText);
-    LOG(2, "Automatic Calibration - %s finished - %d values between %d and %d => %d", szText, nb_min, best_val_min, best_val_max, current_value);
+    LOG(2, "Automatic Calibration - finished - %d values between %d and %d => %d", nb_min, best_val_min, best_val_max, current_value);
 }
 
 void CCalSetting::InitResult()
@@ -1366,9 +1361,7 @@ BOOL CCalSetting::UpdateResult(int diff, int threshold, BOOL only_one)
         end = TRUE;
         min_found = desc;
     }
-    char szText[256];
-    m_pSetting->GetDisplayText(szText);
-    LOG(3, "Automatic Calibration - %s value %d => result = %d min = %d", szText, current_value, diff, min_diff);
+    LOG(3, "Automatic Calibration - value %d => result = %d min = %d", current_value, diff, min_diff);
     return min_found;
 }
 
@@ -1425,11 +1418,11 @@ CCalibration::CCalibration()
     m_TypeCalibration = CAL_MANUAL;
     m_IsRunning = FALSE;
 
-    brightness   = NULL;
-    contrast     = NULL;
-    saturation_U = NULL;
-    saturation_V = NULL;
-    hue          = NULL;
+    m_Brightness   = NULL;
+    m_Contrast     = NULL;
+    m_Saturation_U = NULL;
+    m_Saturation_V = NULL;
+    m_Hue          = NULL;
 
     last_tick_count = -1;
     LoadTestPatterns();
@@ -1439,16 +1432,16 @@ CCalibration::~CCalibration()
 {
     UnloadTestPatterns();
 
-    if (brightness != NULL)
-        delete brightness;
-    if (contrast != NULL)
-        delete contrast;
-    if (saturation_U != NULL)
-        delete saturation_U;
-    if (saturation_V != NULL)
-        delete saturation_V;
-    if (hue != NULL)
-        delete hue;
+    if (m_Brightness != NULL)
+        delete m_Brightness;
+    if (m_Contrast != NULL)
+        delete m_Contrast;
+    if (m_Saturation_U != NULL)
+        delete m_Saturation_U;
+    if (m_Saturation_V != NULL)
+        delete m_Saturation_V;
+    if (m_Hue != NULL)
+        delete m_Hue;
 }
 
 // This method loads all the predefined test patterns
@@ -1594,10 +1587,33 @@ void CCalibration::SetMenu(HMENU hMenu)
 		CheckMenuItem(hMenuPatterns, i, (m_CurTestPat == (*it)) ? MF_BYPOSITION | MF_CHECKED : MF_BYPOSITION | MF_UNCHECKED);
     }
 	
-	EnableMenuItem(hMenu, IDM_START_MANUAL_CALIBRATION, (m_IsRunning || (m_CurTestPat == NULL)) ? MF_GRAYED : MF_ENABLED);
-	EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION, (m_IsRunning || (m_CurTestPat == NULL) || (type_content != PAT_GRAY_AND_COLOR)) ? MF_GRAYED : MF_ENABLED);
-	EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION2, (m_IsRunning || (m_CurTestPat == NULL) || ((type_content != PAT_GRAY_AND_COLOR) && (type_content != PAT_RANGE_OF_GRAY))) ? MF_GRAYED : MF_ENABLED);
-	EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION3, (m_IsRunning || (m_CurTestPat == NULL) || ((type_content != PAT_GRAY_AND_COLOR) && (type_content != PAT_COLOR))) ? MF_GRAYED : MF_ENABLED);
+    CSource* pSource = Providers_GetCurrentSource();
+
+    EnableMenuItem(hMenu, IDM_START_MANUAL_CALIBRATION, (m_IsRunning || (m_CurTestPat == NULL)) ? MF_GRAYED : MF_ENABLED);
+    if (pSource->GetBrightness() != NULL && pSource->GetContrast() != NULL && pSource->GetSaturationU() != NULL && pSource->GetSaturationV() != NULL && pSource->GetHue() != NULL)
+    {
+    	EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION, (m_IsRunning || (m_CurTestPat == NULL) || (type_content != PAT_GRAY_AND_COLOR)) ? MF_GRAYED : MF_ENABLED);
+    }
+    else
+    {
+    	EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION, MF_GRAYED);
+    }
+    if (pSource->GetSaturationU() != NULL && pSource->GetSaturationV() != NULL && pSource->GetHue() != NULL)
+    {
+    	EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION3, (m_IsRunning || (m_CurTestPat == NULL) || ((type_content != PAT_GRAY_AND_COLOR) && (type_content != PAT_COLOR))) ? MF_GRAYED : MF_ENABLED);
+    }
+    else
+    {
+    	EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION3, MF_GRAYED);
+    }
+    if (pSource->GetBrightness() != NULL && pSource->GetContrast())
+    {
+	    EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION2, (m_IsRunning || (m_CurTestPat == NULL) || ((type_content != PAT_GRAY_AND_COLOR) && (type_content != PAT_RANGE_OF_GRAY))) ? MF_GRAYED : MF_ENABLED);
+    }
+    else
+    {
+	    EnableMenuItem(hMenu, IDM_START_AUTO_CALIBRATION2, MF_GRAYED);
+    }
 	EnableMenuItem(hMenu, IDM_STOP_CALIBRATION, (!m_IsRunning || (m_CurTestPat == NULL)) ? MF_GRAYED : MF_ENABLED);
 }
 
@@ -1637,84 +1653,118 @@ CSubPattern* CCalibration::GetCurrentSubPattern()
 
 void CCalibration::Start(eTypeCalibration type)
 {
+    BOOL OkToStart = FALSE;
+
     if (m_CurTestPat == NULL)
         return;
 
-    delete brightness;
-    delete contrast;
-    delete saturation_U;
-    delete saturation_V;
-    delete hue;
+    delete m_Brightness;
+    m_Brightness = NULL;
+    delete m_Contrast;
+    m_Contrast = NULL;
+    delete m_Saturation_U;
+    m_Saturation_U = NULL;
+    delete m_Saturation_V;
+    m_Saturation_V = NULL;
+    delete m_Hue;
+    m_Hue = NULL;
 
     CSource* pSource = Providers_GetCurrentSource();
-    CSimpleSetting* pSetting = NULL;
 
     /// \todo this is bad coding sort this out
-    brightness   = new CCalSetting(static_cast<CSimpleSetting*>(pSource->GetBrightness()));
-    contrast     = new CCalSetting(static_cast<CSimpleSetting*>(pSource->GetContrast()));
-    saturation_U = new CCalSetting(static_cast<CSimpleSetting*>(pSource->GetSaturationU()));
-    saturation_V = new CCalSetting(static_cast<CSimpleSetting*>(pSource->GetSaturationV()));
-    hue          = new CCalSetting(static_cast<CSimpleSetting*>(pSource->GetHue()));
+    if (pSource->GetBrightness() != NULL)
+    {
+        m_Brightness = new CCalSetting(pSource->GetBrightness());
+        m_Brightness->Update();
+        m_Brightness->Save();
+    }
+    if (pSource->GetContrast() != NULL)
+    {
+        m_Contrast = new CCalSetting(pSource->GetContrast());
+        m_Contrast->Update();
+        m_Contrast->Save();
+    }
+    if (pSource->GetSaturationU() != NULL)
+    {
+        m_Saturation_U = new CCalSetting(pSource->GetSaturationU());
+        m_Saturation_U->Update();
+        m_Saturation_U->Save();
+    }
+    if (pSource->GetSaturationV() != NULL)
+    {
+        m_Saturation_V = new CCalSetting(pSource->GetSaturationV());
+        m_Saturation_V->Update();
+        m_Saturation_V->Save();
+    }
+    if (pSource->GetHue() != NULL)
+    {
+        m_Hue = new CCalSetting(pSource->GetHue());
+        m_Hue->Update();
+        m_Hue->Save();
+    }
 
 	m_TypeCalibration = type;
-
-    // Update the objet with current video settings
-    brightness->Update();
-    contrast->Update();
-    saturation_U->Update();
-    saturation_V->Update();
-    hue->Update();
-
-    // Save the current video settings to restore them later if necessary
-    brightness->Save();
-    contrast->Save();
-    saturation_U->Save();
-    saturation_V->Save();
-    hue->Save();
-
-    // Set the overscan to a value specific to calibration
-    AspectSettings.InitialOverscan = SourceOverscan;
-    WorkoutOverlaySize(TRUE);
 
     switch (m_TypeCalibration)
     {
     case CAL_AUTO_BRIGHT_CONTRAST:
         initial_step = 1;
         nb_steps = 11;
-        brightness->AdjustDefault();
-        contrast->AdjustDefault();
+        if (m_Brightness != NULL && m_Contrast != NULL)
+        {
+            OkToStart = TRUE;
+            m_Brightness->AdjustDefault();
+            m_Contrast->AdjustDefault();
+        }
         break;
     case CAL_AUTO_COLOR:
         initial_step = 12;
         nb_steps = 12;
-        saturation_U->AdjustDefault();
-        saturation_V->AdjustDefault();
-        hue->AdjustDefault();
+        if (m_Saturation_U != NULL && m_Saturation_V != NULL && m_Hue != NULL)
+        {
+            OkToStart = TRUE;
+            m_Saturation_U->AdjustDefault();
+            m_Saturation_V->AdjustDefault();
+            m_Hue->AdjustDefault();
+        }
         break;
     case CAL_AUTO_FULL:
         initial_step = 1;
         nb_steps = 23;
-        brightness->AdjustDefault();
-        contrast->AdjustDefault();
-        saturation_U->AdjustDefault();
-        saturation_V->AdjustDefault();
-        hue->AdjustDefault();
+        if (m_Brightness != NULL && m_Contrast != NULL && m_Saturation_U != NULL && m_Saturation_V != NULL && m_Hue != NULL)
+        {
+            OkToStart = TRUE;
+            m_Brightness->AdjustDefault();
+            m_Contrast->AdjustDefault();
+            m_Saturation_U->AdjustDefault();
+            m_Saturation_V->AdjustDefault();
+            m_Hue->AdjustDefault();
+        }
         break;
     case CAL_MANUAL:
-    default:
         initial_step = 0;
         nb_steps = 1;
+        OkToStart = TRUE;
+        break;
+    default:
         break;
     }
-    current_step = initial_step;
-    full_range = FALSE;
-    nb_tries = 0;
-    first_calc = TRUE;
+    if (OkToStart)
+    {
+        current_step = initial_step;
+        full_range = FALSE;
+        nb_tries = 0;
+        first_calc = TRUE;
 
-    // Display the specific OSD screen
-    OSD_ShowInfosScreen(hWnd, 4, 0);
+        // Display the specific OSD screen
+        OSD_ShowInfosScreen(hWnd, 4, 0);
 
-    m_IsRunning = TRUE;
+        // Set the overscan to a value specific to calibration
+        AspectSettings.InitialOverscan = SourceOverscan;
+        WorkoutOverlaySize(TRUE);
+
+        m_IsRunning = TRUE;
+    }
 }
 
 void CCalibration::Stop()
@@ -1725,11 +1775,16 @@ void CCalibration::Stop()
         if ( (current_step != -1)
           || (MessageBox(hWnd, "Do you want to keep the current settings ?", "DScaler Question", MB_ICONQUESTION | MB_YESNO | MB_DEFBUTTON1) == IDNO) )
         {
-            brightness->Restore();
-            contrast->Restore();
-            saturation_U->Restore();
-            saturation_V->Restore();
-            hue->Restore();
+            if (m_Brightness != NULL)
+                m_Brightness->Restore();
+            if (m_Contrast != NULL)
+                m_Contrast->Restore();
+            if (m_Saturation_U != NULL)
+                m_Saturation_U->Restore();
+            if (m_Saturation_V != NULL)
+                m_Saturation_V->Restore();
+            if (m_Hue != NULL)
+                m_Hue->Restore();
         }
     }
 
@@ -1795,11 +1850,16 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
         }
 
         new_settings = FALSE;
-        new_settings |= brightness->Update();
-        new_settings |= contrast->Update();
-        new_settings |= saturation_U->Update();
-        new_settings |= saturation_V->Update();
-        new_settings |= hue->Update();
+        if (m_Brightness != NULL)
+            new_settings |= m_Brightness->Update();
+        if (m_Contrast != NULL)
+            new_settings |= m_Contrast->Update();
+        if (m_Saturation_U != NULL)
+            new_settings |= m_Saturation_U->Update();
+        if (m_Saturation_V != NULL)
+            new_settings |= m_Saturation_V->Update();
+        if (m_Hue != NULL)
+            new_settings |= m_Hue->Update();
 
         // Calculations with current setitngs
         if ( m_CurSubPat->CalcCurrentSubPattern(first_calc || new_settings, NB_CALCULATIONS_LOW, pInfo)
@@ -1812,8 +1872,8 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
         break;
 
     case 1:
-        brightness->SetRange((nb_tries == 0) ? 75 : 25);
-        if (step_init(ADJ_BRIGHTNESS, brightness, (CCalSetting* )NULL, (CCalSetting* )NULL))
+        m_Brightness->SetRange((nb_tries == 0) ? 75 : 25);
+        if (step_init(ADJ_BRIGHTNESS, m_Brightness, (CCalSetting* )NULL, (CCalSetting* )NULL))
         {
             LOG(2, "Automatic Calibration - brightness - reduced range - try %d", nb_tries+1);
             current_step++;
@@ -1833,8 +1893,8 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
         break;
 
     case 3:
-        brightness->SetFullRange();
-        if (step_init(ADJ_BRIGHTNESS, brightness, (CCalSetting* )NULL, (CCalSetting* )NULL))
+        m_Brightness->SetFullRange();
+        if (step_init(ADJ_BRIGHTNESS, m_Brightness, (CCalSetting* )NULL, (CCalSetting* )NULL))
         {
             LOG(2, "Automatic Calibration - brightness - full range - try %d", nb_tries+1);
             current_step++;
@@ -1854,8 +1914,8 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
         break;
 
     case 5:
-        contrast->SetRange((nb_tries == 0) ? 50 : 25);
-        if (step_init(ADJ_CONTRAST, contrast, (CCalSetting* )NULL, (CCalSetting* )NULL))
+        m_Contrast->SetRange((nb_tries == 0) ? 50 : 25);
+        if (step_init(ADJ_CONTRAST, m_Contrast, (CCalSetting* )NULL, (CCalSetting* )NULL))
         {
             LOG(2, "Automatic Calibration - contrast - reduced range - try %d", nb_tries+1);
             current_step++;
@@ -1875,8 +1935,8 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
         break;
 
     case 7:
-        contrast->SetFullRange();
-        if (step_init(ADJ_CONTRAST, contrast, (CCalSetting* )NULL, (CCalSetting* )NULL))
+        m_Contrast->SetFullRange();
+        if (step_init(ADJ_CONTRAST, m_Contrast, (CCalSetting* )NULL, (CCalSetting* )NULL))
         {
             LOG(2, "Automatic Calibration - contrast - full range - try %d", nb_tries+1);
             current_step++;
@@ -1909,30 +1969,30 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
         break;
 
     case 10:
-        if (brightness->GetResult(mask, &min, &max) > 0)
+        if (m_Brightness->GetResult(mask, &min, &max) > 0)
         {
-            brightness->SetRange(mask);
+            m_Brightness->SetRange(mask);
         }
         else
         {
-            brightness->SetRange(0);
+            m_Brightness->SetRange(0);
         }
-        nb1 = brightness->GetRange(mask, &min, &max);
-        if (contrast->GetResult(mask, &min, &max) > 0)
+        nb1 = m_Brightness->GetRange(mask, &min, &max);
+        if (m_Contrast->GetResult(mask, &min, &max) > 0)
         {
-            contrast->SetRange(mask);
+            m_Contrast->SetRange(mask);
         }
         else
         {
-            contrast->SetRange(0);
+            m_Contrast->SetRange(0);
         }
-        nb2 = contrast->GetRange(mask, &min, &max);
+        nb2 = m_Contrast->GetRange(mask, &min, &max);
         if ((nb1 == 1) && (nb2 == 1))
         {
             current_step += 2;
             break;
         }
-        if (step_init(ADJ_BRIGHTNESS_CONTRAST, brightness, contrast, (CCalSetting* )NULL))
+        if (step_init(ADJ_BRIGHTNESS_CONTRAST, m_Brightness, m_Contrast, (CCalSetting* )NULL))
         {
             LOG(2, "Automatic Calibration - brightness + contrast - %d %d", nb1, nb2);
             current_step++;
@@ -1951,8 +2011,8 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
         break;
 
     case 12:
-        saturation_U->SetRange(75);
-        if (step_init(ADJ_SATURATION_U, saturation_U, (CCalSetting* )NULL, (CCalSetting* )NULL))
+        m_Saturation_U->SetRange(75);
+        if (step_init(ADJ_SATURATION_U, m_Saturation_U, (CCalSetting* )NULL, (CCalSetting* )NULL))
         {
             LOG(2, "Automatic Calibration - saturation U - reduced range - try %d", nb_tries+1);
             current_step++;
@@ -1972,8 +2032,8 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
         break;
 
     case 14:
-        saturation_U->SetFullRange();
-        if (step_init(ADJ_SATURATION_U, saturation_U, (CCalSetting* )NULL, (CCalSetting* )NULL))
+        m_Saturation_U->SetFullRange();
+        if (step_init(ADJ_SATURATION_U, m_Saturation_U, (CCalSetting* )NULL, (CCalSetting* )NULL))
         {
             LOG(2, "Automatic Calibration - saturation U - full range - try %d", nb_tries+1);
             current_step++;
@@ -1993,8 +2053,8 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
         break;
 
     case 16:
-        saturation_V->SetRange(75);
-        if (step_init(ADJ_SATURATION_V, saturation_V, (CCalSetting* )NULL, (CCalSetting* )NULL))
+        m_Saturation_V->SetRange(75);
+        if (step_init(ADJ_SATURATION_V, m_Saturation_V, (CCalSetting* )NULL, (CCalSetting* )NULL))
         {
             LOG(2, "Automatic Calibration - saturation V - reduced range - try %d", nb_tries+1);
             current_step++;
@@ -2014,8 +2074,8 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
         break;
 
     case 18:
-        saturation_V->SetFullRange();
-        if (step_init(ADJ_SATURATION_V, saturation_V, (CCalSetting* )NULL, (CCalSetting* )NULL))
+        m_Saturation_V->SetFullRange();
+        if (step_init(ADJ_SATURATION_V, m_Saturation_V, (CCalSetting* )NULL, (CCalSetting* )NULL))
         {
             LOG(2, "Automatic Calibration - saturation V - full range - try %d", nb_tries+1);
             current_step++;
@@ -2035,8 +2095,8 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
         break;
 
     case 20:
-        hue->SetRange(30);
-        if (step_init(ADJ_HUE, hue, (CCalSetting* )NULL, (CCalSetting* )NULL))
+        m_Hue->SetRange(30);
+        if (step_init(ADJ_HUE, m_Hue, (CCalSetting* )NULL, (CCalSetting* )NULL))
         {
             LOG(2, "Automatic Calibration - hue - reduced range - try %d", nb_tries+1);
             current_step++;
@@ -2056,39 +2116,39 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
         break;
 
     case 22:
-        if (saturation_U->GetResult(mask, &min, &max) > 0)
+        if (m_Saturation_U->GetResult(mask, &min, &max) > 0)
         {
-            saturation_U->SetRange(mask);
+            m_Saturation_U->SetRange(mask);
         }
         else
         {
-            saturation_U->SetRange(0);
+            m_Saturation_U->SetRange(0);
         }
-        nb1 = saturation_U->GetRange(mask, &min, &max);
-        if (saturation_V->GetResult(mask, &min, &max) > 0)
+        nb1 = m_Saturation_U->GetRange(mask, &min, &max);
+        if (m_Saturation_V->GetResult(mask, &min, &max) > 0)
         {
-            saturation_V->SetRange(mask);
+            m_Saturation_V->SetRange(mask);
         }
         else
         {
-            saturation_V->SetRange(0);
+            m_Saturation_V->SetRange(0);
         }
-        nb2 = saturation_V->GetRange(mask, &min, &max);
-        if (hue->GetResult(mask, &min, &max) > 0)
+        nb2 = m_Saturation_V->GetRange(mask, &min, &max);
+        if (m_Hue->GetResult(mask, &min, &max) > 0)
         {
-            hue->SetRange(mask);
+            m_Hue->SetRange(mask);
         }
         else
         {
-            hue->SetRange(0);
+            m_Hue->SetRange(0);
         }
-        nb3 = hue->GetRange(mask, &min, &max);
+        nb3 = m_Hue->GetRange(mask, &min, &max);
         if ((nb1 == 1) && (nb2 == 1) && (nb3 == 1))
         {
             current_step += 2;
             break;
         }
-        if (step_init(ADJ_COLOR, saturation_U, saturation_V, hue))
+        if (step_init(ADJ_COLOR, m_Saturation_U, m_Saturation_V, m_Hue))
         {
             LOG(2, "Automatic Calibration - saturation U + saturation V + hue - %d %d %d", nb1, nb2, nb3);
             current_step++;

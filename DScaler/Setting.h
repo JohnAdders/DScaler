@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.h,v 1.4 2002-01-24 00:00:13 robmuller Exp $
+// $Id: Setting.h,v 1.5 2002-02-09 18:06:27 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -57,6 +57,7 @@ public:
     virtual long GetValue() = 0;
     virtual long GetMin() = 0;
     virtual long GetMax() = 0;
+    virtual long GetDefault() = 0;
     virtual void SetValue(long NewValue) = 0;
     virtual void OnChange(long NewValue, long OldValue) {;};
     virtual void OSDShow() = 0;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.h,v 1.23 2002-02-09 12:57:38 laurentg Exp $
+// $Id: Calibration.h,v 1.24 2002-02-09 18:06:27 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -261,7 +261,7 @@ private:
 class CCalSetting
 {
 public:
-    CCalSetting(CSimpleSetting* setting);
+    CCalSetting(ISetting* setting);
     BOOL Update();
     void Save();
     void Restore();
@@ -281,7 +281,7 @@ public:
 
 protected:
     void Adjust(int value);
-    CSimpleSetting* m_pSetting;
+    ISetting* m_pSetting;
     int min_value;
     int max_value;
     unsigned int mask_input[16];
@@ -333,11 +333,11 @@ protected:
     CSubPattern* m_CurSubPat;
     eTypeCalibration m_TypeCalibration;
     BOOL m_IsRunning;
-    CCalSetting* brightness;
-    CCalSetting* contrast;
-    CCalSetting* saturation_U;
-    CCalSetting* saturation_V;
-    CCalSetting* hue;
+    CCalSetting* m_Brightness;
+    CCalSetting* m_Contrast;
+    CCalSetting* m_Saturation_U;
+    CCalSetting* m_Saturation_V;
+    CCalSetting* m_Hue;
 
 private:
     BOOL step_init(eTypeAdjust type_adjust, CCalSetting*_setting1, CCalSetting*_setting2, CCalSetting*_setting3);

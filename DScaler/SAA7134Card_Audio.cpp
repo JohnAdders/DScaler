@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Audio.cpp,v 1.21 2003-08-12 06:46:01 atnak Exp $
+// $Id: SAA7134Card_Audio.cpp,v 1.22 2003-08-12 09:38:31 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2003/08/12 06:46:01  atnak
+// Fix for initial muting of SAA7130 cards
+//
 // Revision 1.20  2003/06/01 19:42:32  atnak
 // Adds "external" sound type for either stereo or mono
 //
@@ -927,8 +930,8 @@ void CSAA7134Card::SetAudioUnMute()
 {
     if (m_DeviceId == 0x7130)
     {
-        SetAudioSource(m_AudioInputSource);
         m_bAudioLineMuteReserved = FALSE;
+        SetAudioSource(m_AudioInputSource);
     }
     else
     {

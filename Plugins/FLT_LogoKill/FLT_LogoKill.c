@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_LogoKill.c,v 1.8 2001-11-26 15:27:19 adcockj Exp $
+// $Id: FLT_LogoKill.c,v 1.9 2001-12-15 17:50:47 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2001/11/26 15:27:19  adcockj
+// Changed filter structure
+//
 // Revision 1.7  2001/11/21 15:21:41  adcockj
 // Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
 // Changed TDeinterlaceInfo structure to have history of pictures.
@@ -301,7 +304,7 @@ SETTING FLT_LogoKillSettings[FLT_LOGOKILL_SETTING_LASTONE] =
     },
     {
         "Width", SLIDER, 0, &Width,
-        20, 0, 191, 1, 1,
+        20, 1, 191, 1, 1,
         NULL,
         "LogoKillFilter", "Width", Width_OnChange,
     },

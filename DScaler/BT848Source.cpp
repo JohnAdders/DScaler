@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.123 2003-05-30 12:21:19 laurentg Exp $
+// $Id: BT848Source.cpp,v 1.124 2003-06-02 15:30:11 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.123  2003/05/30 12:21:19  laurentg
+// Don't forget to notify video format change if necessary when switching source and video input of destination source is tuner
+//
 // Revision 1.122  2003/05/29 17:07:27  laurentg
 // no message
 //
@@ -886,6 +889,11 @@ void CBT848Source::Reset()
         // BDELAY override from .ini file
         m_pBT848Card->SetBDelay(m_BDelay->GetValue());
     }
+    else
+    {
+        m_pBT848Card->SetBDelay(GetTVFormat(GetFormat())->bDelayB);  
+    }
+
 
     m_pBT848Card->SetBrightness(m_Brightness->GetValue());
     m_pBT848Card->SetContrast(m_Contrast->GetValue());
@@ -1621,7 +1629,15 @@ void CBT848Source::BtColorKillOnChange(long NewValue, long OldValue)
 
 void CBT848Source::BDelayOnChange(long NewValue, long OldValue)
 {
-    m_pBT848Card->SetBDelay(NewValue);
+    // zero means use format's default value
+    if(NewValue != 0)
+    {
+        m_pBT848Card->SetBDelay(NewValue);  
+    }
+    else
+    {
+        m_pBT848Card->SetBDelay(GetTVFormat(GetFormat())->bDelayB);  
+    }
 }
 
 void CBT848Source::HueOnChange(long Hue, long OldValue)

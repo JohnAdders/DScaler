@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsOleProperties.cpp,v 1.7 2002-07-11 17:56:38 tobbej Exp $
+// $Id: TreeSettingsOleProperties.cpp,v 1.8 2002-08-17 18:04:53 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/07/11 17:56:38  tobbej
+// take care of case when IPropertyPage::Activate fails
+//
 // Revision 1.6  2002/07/09 17:40:33  tobbej
 // add a litle extra space at the botom so large propertypages is shown properly
 //
@@ -172,7 +175,7 @@ BOOL CTreeSettingsOleProperties::OnInitDialog()
 		if(SUCCEEDED(hr))
 		{
 			m_tabCtrl.InsertItem(i,OLE2T(pageInfo.pszTitle));	
-			hr=m_pages[i]->m_pPropertyPage->Activate(m_hWnd,rect,FALSE);
+			hr=m_pages[i]->m_pPropertyPage->Activate(m_tabCtrl.m_hWnd,rect,FALSE);
 			if(SUCCEEDED(hr))
 			{
 				m_pages[i]->m_bActivated=true;

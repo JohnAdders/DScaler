@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: stdafx.h,v 1.10 2001-11-23 10:49:17 adcockj Exp $
+// $Id: stdafx.h,v 1.11 2001-12-09 22:00:42 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2001/11/23 10:49:17  adcockj
+// Move resource includes back to top of files to avoid need to rebuild all
+//
 // Revision 1.9  2001/11/17 18:15:57  adcockj
 // Bugfixes (including very silly performance bug)
 //
@@ -43,6 +46,9 @@
 #include <afxwin.h>
 #include <afxext.h>
 #include <afxcmn.h>
+
+#include <atlbase.h>
+#include <dshow.h>
 
 //#include <windows.h>
 #include <windowsx.h>

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.13 2001-12-08 20:00:24 laurentg Exp $
+// $Id: Providers.cpp,v 1.14 2001-12-09 22:00:42 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2001/12/08 20:00:24  laurentg
+// Access control on sources
+//
 // Revision 1.12  2001/12/08 13:48:40  laurentg
 // New StillSource for snapshots done during the DScaler session
 //
@@ -81,6 +84,11 @@
 #include "OutThreads.h"
 #include "DScaler.h"
 
+#ifdef WANT_DSHOW_SUPPORT
+#include "dshowsource\DSProvider.h"
+static CDSProvider* DSProvider = NULL;
+#endif
+
 typedef vector<CSource*> SOURCELIST;
 
 static SOURCELIST Sources;
@@ -137,6 +145,17 @@ int Providers_Load(HMENU hMenu)
         Sources.push_back(StillProvider->GetSource(i));
     }
 
+#ifdef WANT_DSHOW_SUPPORT
+    DSProvider = new CDSProvider();
+    for(i = 0; i < DSProvider->GetNumberOfSources(); ++i)
+    {
+        if(Sources.size() < 100)
+        {
+            AppendMenu(hSubMenu, MF_STRING | MF_ENABLED, IDM_SOURCE_FIRST + Sources.size(),DSProvider->getSourceName(i).c_str());
+        }
+        Sources.push_back(DSProvider->GetSource(i));
+    }
+#endif
     Providers_UpdateMenu(hMenu);
 
     return Sources.size();
@@ -144,6 +163,13 @@ int Providers_Load(HMENU hMenu)
 
 void Providers_Unload()
 {
+#ifdef WANT_DSHOW_SUPPORT
+	if(DSProvider!=NULL)
+	{
+		delete DSProvider;
+		DSProvider=NULL;
+	}
+#endif
     if(StillProvider != NULL)
     {
         delete StillProvider;

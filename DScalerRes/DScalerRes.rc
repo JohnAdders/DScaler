@@ -1123,6 +1123,11 @@ BEGIN
     END
 END
 
+IDC_WDMSOURCE MENU DISCARDABLE 
+BEGIN
+    MENUITEM "Wdm",                         65535
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //

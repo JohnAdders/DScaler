@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScalerApp.cpp,v 1.10 2001-12-03 19:33:59 adcockj Exp $
+// $Id: DScalerApp.cpp,v 1.11 2001-12-09 22:00:42 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2001/12/03 19:33:59  adcockj
+// Bug fixes for settings and memory
+//
 // Revision 1.9  2001/11/23 10:49:16  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -100,6 +103,11 @@ BOOL CDScalerApp::InitInstance()
     // afxMemDF=allocMemDF|checkAlwaysMemDF|delayFreeMemDF;
 #endif
 
+#ifdef WANT_DSHOW_SUPPORT
+	//COM init
+	CoInitializeEx(NULL,COINIT_MULTITHREADED);
+#endif
+
 // changes to allow copmilation under VC 7.0 added by IDLSOFT
 #if _MFC_VER<0x0700
 #ifdef _AFXDLL
@@ -107,7 +115,7 @@ BOOL CDScalerApp::InitInstance()
 #else
     Enable3dControlsStatic();   // Call this when linking to MFC statically
 #endif
-#endif    
+#endif
 
     hResourceInst = LoadLibrary("DScalerRes.dll");
     if(hResourceInst == NULL)

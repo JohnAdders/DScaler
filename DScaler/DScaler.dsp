@@ -44,7 +44,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /G6 /W3 /Gm /GX /Zi /Od /I "..\driver\include\\" /D "_DEBUG" /D "_WINDOWS" /D "WIN32" /D "_MBCS" /FR /YX /FD /c
-# ADD CPP /nologo /G6 /MTd /W3 /GX /ZI /Od /Op /I "..\api" /D "_DEBUG" /D "_WINDOWS" /D "WIN32" /D "_MBCS" /FR /Yu"stdafx.h" /FD /c
+# ADD CPP /nologo /G6 /MTd /W3 /GX /ZI /Od /Op /I "..\api" /I ".\\" /D "_DEBUG" /D "_WINDOWS" /D "WIN32" /D "_MBCS" /D "_WIN32_DCOM" /FR /Yu"stdafx.h" /FD /c
 # ADD BASE MTL /D "_DEBUG" /mktyplib203 /win32
 # SUBTRACT BASE MTL /nologo
 # ADD MTL /D "_DEBUG" /mktyplib203 /win32
@@ -59,7 +59,7 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 ddraw.lib dxguid.lib kernel32.lib user32.lib gdi32.lib advapi32.lib winmm.lib comdlg32.lib ..\driver\bin\DScalerdrv.lib /nologo /subsystem:windows /profile /debug /machine:I386 /out:".\DScaler.exe"
 # SUBTRACT BASE LINK32 /map /nodefaultlib
-# ADD LINK32 libtiff_i.lib libtiff.lib ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib /nologo /subsystem:windows /pdb:none /map:"..\Debug/DScaler.map" /debug /machine:I386 /out:"..\Debug\DScaler.exe" /libpath:"..\ThirdParty\LibTiff\\"
+# ADD LINK32 libtiff_i.lib libtiff.lib ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib strmiids.lib quartz.lib /nologo /subsystem:windows /pdb:none /map:"..\Debug/DScaler.map" /debug /machine:I386 /out:"..\Debug\DScaler.exe" /libpath:"..\ThirdParty\LibTiff\\"
 # Begin Special Build Tool
 ProjDir=.
 SOURCE="$(InputPath)"
@@ -83,7 +83,7 @@ PostBuild_Cmds=$(ProjDir)\..\Debug\mapconv.exe $(ProjDir)\..\Debug\DScaler.map $
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /G6 /MT /W3 /Gi /Ot /I "..\driver\include\\" /D "NDEBUG" /D "_WINDOWS" /D "WIN32" /D "_MBCS" /YX /FD /c
 # SUBTRACT BASE CPP /Fr
-# ADD CPP /nologo /G6 /MT /W3 /Gi /GX /Ot /Ow /Oi /Op /Ob1 /Gf /Gy /I "..\api" /D "NDEBUG" /D "_WINDOWS" /D "WIN32" /D "_MBCS" /FAcs /Fr /Yu"stdafx.h" /FD /c
+# ADD CPP /nologo /G6 /MT /W3 /Gi /GX /Ot /Ow /Oi /Op /Ob1 /Gf /Gy /I "..\api" /I ".\\" /D "NDEBUG" /D "_WINDOWS" /D "WIN32" /D "_MBCS" /D "_WIN32_DCOM" /FAcs /Fr /Yu"stdafx.h" /FD /c
 # SUBTRACT CPP /Ox /Og
 # ADD BASE MTL /D "NDEBUG" /mktyplib203 /win32
 # SUBTRACT BASE MTL /nologo
@@ -99,7 +99,7 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 ddraw.lib dxguid.lib kernel32.lib user32.lib gdi32.lib advapi32.lib winmm.lib comdlg32.lib ..\driver\bin\hwiodrv.lib /nologo /subsystem:windows /incremental:yes /machine:I386
 # SUBTRACT BASE LINK32 /profile /map /debug /nodefaultlib
-# ADD LINK32 libtiff_i.lib libtiff.lib ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib COMMODE.OBJ /nologo /subsystem:windows /incremental:yes /map:"..\Release/DScaler.map" /machine:I386 /out:"..\Release\DScaler.exe" /libpath:"..\ThirdParty\LibTiff\\"
+# ADD LINK32 COMMODE.OBJ libtiff_i.lib libtiff.lib ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib strmiids.lib quartz.lib /nologo /subsystem:windows /incremental:yes /map:"..\Release/DScaler.map" /machine:I386 /out:"..\Release\DScaler.exe" /libpath:"..\ThirdParty\LibTiff\\"
 # SUBTRACT LINK32 /pdb:none
 # Begin Special Build Tool
 ProjDir=.
@@ -187,11 +187,19 @@ SOURCE=.\Crash.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\dshowsource\debug.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\DebugLog.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\Deinterlace.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\dshowsource\DevEnum.cpp
 # End Source File
 # Begin Source File
 
@@ -216,7 +224,19 @@ SOURCE=.\DScalerApp.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\dshowsource\DSProvider.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\dshowsource\DSSource.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ErrorBox.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\dshowsource\exception.cpp
 # End Source File
 # Begin Source File
 
@@ -340,6 +360,10 @@ SOURCE=.\PaintingHDC.cpp
 # Begin Source File
 
 SOURCE=.\PCICard.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\dshowsource\PinEnum.cpp
 # End Source File
 # Begin Source File
 
@@ -511,11 +535,19 @@ SOURCE=.\Crash.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\dshowsource\debug.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\DebugLog.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\Deinterlace.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\dshowsource\DevEnum.h
 # End Source File
 # Begin Source File
 
@@ -539,7 +571,19 @@ SOURCE=.\DScalerApp.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\dshowsource\DSProvider.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\dshowsource\DSSource.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\ErrorBox.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\dshowsource\exception.h
 # End Source File
 # Begin Source File
 
@@ -648,6 +692,10 @@ SOURCE=.\PaintingHDC.h
 # Begin Source File
 
 SOURCE=.\PCICard.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\dshowsource\PinEnum.h
 # End Source File
 # Begin Source File
 
@@ -800,6 +848,10 @@ SOURCE=.\READ_ME_FIRST_NOW.txt
 # End Source File
 # End Target
 # End Project
+# Section DScaler : {F08DF954-8592-11D1-B16A-00C0F0283628}
+# 	2:21:DefaultSinkHeaderFile:slider.h
+# 	2:16:DefaultSinkClass:CSlider
+# End Section
 # Section DScaler : {F08DF952-8592-11D1-B16A-00C0F0283628}
 # 	2:5:Class:CSlider
 # 	2:10:HeaderFile:slider.h
@@ -809,8 +861,4 @@ SOURCE=.\READ_ME_FIRST_NOW.txt
 # 	2:5:Class:CPicture
 # 	2:10:HeaderFile:picture.h
 # 	2:8:ImplFile:picture.cpp
-# End Section
-# Section DScaler : {F08DF954-8592-11D1-B16A-00C0F0283628}
-# 	2:21:DefaultSinkHeaderFile:slider.h
-# 	2:16:DefaultSinkClass:CSlider
 # End Section

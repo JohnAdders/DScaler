@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.38 2001-08-30 10:06:29 adcockj Exp $
+// $Id: DS_Control.h,v 1.39 2001-09-12 14:32:45 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.38  2001/08/30 10:06:29  adcockj
+// Added support for extra settings in DI_OldGamne and FLT_TemporalComb
+//
 // Revision 1.37  2001/08/23 06:48:57  adcockj
 // Fixed control header for TemporalComb filter
 //
@@ -878,7 +881,7 @@ typedef enum
 	GR_USE_MEDIAN_FILTER,
 	GR_USE_VERT_FILTER,
 	GR_USE_EDGE_ENH,
-	GR_USE_LOW_MOTION_ONLY, 
+//	GR_USE_LOW_MOTION_ONLY, 
 	DI_GREEDYH_SETTING_LASTONE,
 } DI_GREEDYH_SETTING;
 

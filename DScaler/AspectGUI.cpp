@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.37 2002-04-27 14:08:05 laurentg Exp $
+// $Id: AspectGUI.cpp,v 1.38 2002-04-28 16:43:37 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.37  2002/04/27 14:08:05  laurentg
+// Automatic square pixels mode handling updated
+//
 // Revision 1.36  2002/02/23 19:07:06  laurentg
 // New AR mode for stills having square pixels
 //
@@ -556,83 +559,96 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         // In this case, turn off automatic aspect ratio detect.
         // Then restart the 'switch' statement.
 
-        AspectSettings.AutoDetectAspect = FALSE;
-
         //--------------------------------------------------------------
         // Advanced Source Aspect Ratios
         switch (wMenuID) 
         {
         case IDM_SASPECT_0:
+            AspectSettings.AutoDetectAspect = FALSE;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_STRETCH, 0);
             ShowText(hWnd, "Stretch Video");
             break;
         case IDM_SASPECT_133:
+            AspectSettings.AutoDetectAspect = FALSE;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_NONANAMORPHIC, 1333);
             ShowText(hWnd, "4:3 Fullscreen Signal");
             break;
         case IDM_SASPECT_144:
+            AspectSettings.AutoDetectAspect = FALSE;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_NONANAMORPHIC, 1444);
             ShowText(hWnd, "1.44:1 Letterbox Signal");
             break;
         case IDM_SASPECT_155:
+            AspectSettings.AutoDetectAspect = FALSE;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_NONANAMORPHIC, 1555);
             ShowText(hWnd, "1.55:1 Letterbox Signal");
             break;
         case IDM_SASPECT_166:
+            AspectSettings.AutoDetectAspect = FALSE;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_NONANAMORPHIC, 1667);
             ShowText(hWnd, "1.66:1 Letterbox Signal");
             break;
         case IDM_SASPECT_178:
+            AspectSettings.AutoDetectAspect = FALSE;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_NONANAMORPHIC, 1778);
             ShowText(hWnd, "1.78:1 Letterbox Signal");
             break;
         case IDM_SASPECT_185:
+            AspectSettings.AutoDetectAspect = FALSE;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_NONANAMORPHIC, 1850);
             ShowText(hWnd, "1.85:1 Letterbox Signal");
             break;
         case IDM_SASPECT_200:
+            AspectSettings.AutoDetectAspect = FALSE;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_NONANAMORPHIC, 2000);
             ShowText(hWnd, "2.00:1 Letterbox Signal");
             break;
         case IDM_SASPECT_235:
+            AspectSettings.AutoDetectAspect = FALSE;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_NONANAMORPHIC, 2350);
             ShowText(hWnd, "2.35:1 Letterbox Signal");
             break;
         case IDM_SASPECT_166A:
+            AspectSettings.AutoDetectAspect = FALSE;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_ANAMORPHIC, 1667);
             ShowText(hWnd, "1.66:1 Anamorphic Signal");
             break;
         case IDM_SASPECT_178A:
+            AspectSettings.AutoDetectAspect = FALSE;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_ANAMORPHIC, 1778);
             ShowText(hWnd, "1.78:1 Anamorphic Signal");
             break;
         case IDM_SASPECT_185A:
+            AspectSettings.AutoDetectAspect = FALSE;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_ANAMORPHIC, 1850);
             ShowText(hWnd, "1.85:1 Anamorphic Signal");
             break;
         case IDM_SASPECT_200A:
+            AspectSettings.AutoDetectAspect = FALSE;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_ANAMORPHIC, 2000);
             ShowText(hWnd, "2.00:1 Anamorphic Signal");
             break;
         case IDM_SASPECT_235A:
+            AspectSettings.AutoDetectAspect = FALSE;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_ANAMORPHIC, 2350);
             ShowText(hWnd, "2.35:1 Anamorphic Signal");
             break;
         case IDM_SASPECT_CUSTOM:
+            AspectSettings.AutoDetectAspect = FALSE;
             AspectSettings.SquarePixels = FALSE;
             SwitchToRatio(AR_ANAMORPHIC, AspectSettings.CustomSourceAspect);
             ShowText(hWnd, "Custom Aspect Ratio Signal");
@@ -1117,6 +1133,12 @@ SETTING AspectGUISettings[ASPECT_SETTING_LASTONE] =
         0, 0, 255, 1, 1,
         NULL,
         "ASPECT_DETECT", "MaskGreyShade", MaskGreyShade_OnChange,
+    },
+    {
+        "Use only WSS data", ONOFF, 0, (long*)&AspectSettings.bUseOnlyWSS,
+        FALSE, 0, 1, 1, 1,
+        NULL,
+        "ASPECT_DETECT", "UseOnlyWSS", NULL,
     },
 };
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectDetect.cpp,v 1.29 2002-02-23 13:52:39 laurentg Exp $
+// $Id: AspectDetect.cpp,v 1.30 2002-04-28 16:43:37 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -39,6 +39,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2002/02/23 13:52:39  laurentg
+// Don't create new entry in statistics table when not necessary
+//
 // Revision 1.28  2002/02/23 12:02:40  laurentg
 // % of time used by each AR added in the AR statistics
 //
@@ -505,8 +508,15 @@ void AdjustAspectRatio(long SourceAspectAdjust, TDeinterlaceInfo* pInfo)
 		{
 			return;
 		}
-        
-		newRatio = FindAspectRatio(pInfo);
+
+        if (AspectSettings.bUseOnlyWSS)
+        {
+            newRatio = AspectSettings.SourceAspect;
+        }
+        else
+        {
+	    	newRatio = FindAspectRatio(pInfo);
+        }
 
         // Get aspect ratio from WSS data
         // (WssSourceRatio = -1 if ratio is not defined in WSS data)
@@ -515,9 +525,8 @@ void AdjustAspectRatio(long SourceAspectAdjust, TDeinterlaceInfo* pInfo)
             newMode = AspectSettings.AspectMode;
             WssSourceRatio = -1;
         }
-
         // The ratio must be at least the ratio defined in WSS data
-        if (newRatio < WssSourceRatio)
+        else if (AspectSettings.bUseOnlyWSS || newRatio < WssSourceRatio)
         {
             newRatio = WssSourceRatio;
         }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.cpp,v 1.31 2002-04-24 19:09:14 tobbej Exp $
+// $Id: AspectRatio.cpp,v 1.32 2002-04-28 16:43:37 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -72,6 +72,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2002/04/24 19:09:14  tobbej
+// added missing \n
+//
 // Revision 1.30  2002/04/13 18:56:22  laurentg
 // Checks added to manage case where the current source is not yet defined
 //
@@ -156,6 +159,7 @@ TAspectSettings AspectSettings =
     FALSE,
     1000,
     0,
+    FALSE,
     FALSE
 };
 

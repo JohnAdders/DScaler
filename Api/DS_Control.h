@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.54 2002-04-27 16:06:15 laurentg Exp $
+// $Id: DS_Control.h,v 1.55 2002-04-28 16:41:16 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.54  2002/04/27 16:06:15  laurentg
+// Initial source
+//
 // Revision 1.53  2002/04/07 10:37:53  adcockj
 // Made audio source work per input
 //
@@ -337,6 +340,7 @@ typedef enum
     ZOOMOUTFRAMECOUNT,
     ALLOWGREATERTHANSCREEN,
     MASKGREYSHADE,
+    USEONLYWSS,
     ASPECT_SETTING_LASTONE,
 } ASPECT_SETTING;
 

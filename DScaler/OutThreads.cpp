@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.67 2002-06-05 20:53:49 adcockj Exp $
+// $Id: OutThreads.cpp,v 1.68 2002-06-06 21:40:00 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.67  2002/06/05 20:53:49  adcockj
+// Default changes and settings fixes
+//
 // Revision 1.66  2002/05/26 06:32:25  robmuller
 // Stop pull down, deinterlacing and output when in full VideoText mode.
 //
@@ -656,7 +659,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
                 pPerf->StopCount(PERF_TIMESHIFT);
 
-                if(!Info.bMissedFrame && VTState != VT_BLACK)
+                if(!Info.bMissedFrame && VTState != VT_BLACK && !bMinimized)
                 {
                     pPerf->StartCount(PERF_PULLDOWN_DETECT);
 
@@ -725,7 +728,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
                 __try
                 {
-                    if (!Info.bRunningLate  && VTState != VT_BLACK)
+                    if (!Info.bRunningLate  && VTState != VT_BLACK && !bMinimized)
                     {
                         BOOL bFlipNow = FALSE;
 

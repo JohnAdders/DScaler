@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.171 2002-06-06 18:17:31 robmuller Exp $
+// $Id: DScaler.cpp,v 1.172 2002-06-06 21:40:00 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.171  2002/06/06 18:17:31  robmuller
+// Change to prevent (un)installation with InnoSetup when DScaler is running.
+//
 // Revision 1.170  2002/06/01 22:24:36  laurentg
 // New calibration mode to compute YUV range
 //
@@ -603,6 +606,7 @@ BOOL bForceFullScreen = FALSE;
 BOOL bUseAutoSave = FALSE;
 BOOL bScreensaverOff = FALSE;
 BOOL bVTAutoCodePage = FALSE;
+BOOL bMinimized = FALSE;
 
 BOOL bKeyboardLock = FALSE;
 HHOOK hKeyboardHook = NULL;
@@ -2821,18 +2825,18 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                     bIsFullScreen = TRUE;
                     Cursor_UpdateVisibility();
                     WorkoutOverlaySize(FALSE);
-                    UnPause_Capture();
                 }
+                bMinimized = FALSE;
                 break;
             case SIZE_MINIMIZED:
                 Overlay_Update(NULL, NULL, DDOVER_HIDE);
-                Pause_Capture();
+                bMinimized = TRUE;
                 break;
             case SIZE_RESTORED:
                 InvalidateRect(hWnd, NULL, FALSE);
                 WorkoutOverlaySize(FALSE);
                 SetMenuAnalog();
-                UnPause_Capture();
+                bMinimized = FALSE;
                 break;
             default:
                 break;

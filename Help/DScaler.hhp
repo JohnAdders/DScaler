@@ -73,6 +73,10 @@ Still.htm
 Mirror.htm
 ColourInversion.htm
 SAA713xAdvanced.htm
+BT848Advanced.htm
+CX2388xAdvanced.htm
+SourceSpecific.HTM
+ProgramList.htm
 
 [ALIAS]
 IDH_22_PULLDOWN=22Pulldown.htm
@@ -113,6 +117,10 @@ IDH_WEAVE=Weave.htm
 IDH_MIRROR=Mirror.htm
 IDH_INVERSION=ColourInversion.htm
 IDH_SAA713X_ADV=SAA713xAdvanced.htm
+IDH_BT848_ADV=BT848Advanced.htm
+IDH_CX2388X_ADV=CX2388xAdvanced.htm
+IDH_PROGRAM_LIST=ProgramList.htm
+IDH_SOURCE_SPECIFIC=SourceSpecific.HTM
 
 [MAP]
 #include helpids.h

@@ -69,6 +69,11 @@
 		</OBJECT>
 	<UL>
 		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Tuning & Channel Setup">
+			<param name="Local" value="ProgramList.htm">
+			<param name="ImageNumber" value="11">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Aspect Ratio Control">
 			<param name="Local" value="AspectRatio.htm">
 			<param name="ImageNumber" value="11">
@@ -286,9 +291,25 @@
 			<param name="Local" value="IniFile.HTM">
 			<param name="ImageNumber" value="11">
 			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Source Specific">
+		<param name="Local" value="SourceSpecific.HTM">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="BT848 Advanced">
+			<param name="Local" value="BT848Advanced.htm">
+			<param name="ImageNumber" value="11">
+			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="SAA713X Advanced">
 			<param name="Local" value="SAA713xAdvanced.htm">
+			<param name="ImageNumber" value="11">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="CX2388x Advanced">
+			<param name="Local" value="CX2388xAdvanced.htm">
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 	</UL>

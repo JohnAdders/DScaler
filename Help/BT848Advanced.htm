@@ -1,0 +1,276 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<!-- #BeginTemplate "/Templates/dtvnormal.dwt" -->
+<head>
+<!-- #BeginEditable "doctitle" -->
+<title>DScaler -- BT8x8 Advanced Settings</title>
+<!-- #EndEditable -->
+<meta http-equiv="Content-Type" content=
+"text/html; charset=iso-8859-1">
+<style type="text/css">
+<!--
+p {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+.bottommenu {  font-family: Arial, Helvetica, sans-serif; font-size: 8pt; font-style: normal; text-decoration: none}
+h3 {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt; font-style: normal; font-weight: bold}
+h1 {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 18pt; font-weight: bold}
+li {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+h2 {  font-family: Arial, Helvetica, sans-serif; font-size: 14pt; font-weight: bold}
+ol {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+blockquote {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+pre {  font-family: "Courier New", Courier, mono; font-size: 9pt}
+ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+-->
+</style>
+</head>
+<body bgcolor="#FFFFFF">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+<tr>
+<td height="1" width="160"><img src="images/spacer.gif" width="1"
+height="1"></td>
+<td height="1" width="342"><img src="images/spacer.gif" width="1"
+height="1"></td>
+<td height="1" width="501"><img src="images/spacer.gif" width="1"
+height="1"></td>
+</tr>
+
+<tr>
+<td width="160"><img src="images/dscalerlogo.jpg" alt=
+"DScaler Logo"></td>
+<td colspan="2" align="right" valign="bottom"><font face=
+"Verdana, Arial, Helvetica, sans-serif" size="5"><b>
+<!-- #BeginEditable "Page%20Title" -->
+BT8x8 Advanced Settings
+<!-- #EndEditable --></b></font></td>
+</tr>
+
+<tr bgcolor="#FFCC00" align="right">
+<td colspan="3"><img src="images/yellowspacer.gif" width="100%"
+height="2"></td>
+</tr>
+
+<tr>
+<td colspan="3"> </td>
+</tr>
+
+<tr>
+<td colspan="3">
+<!-- #BeginEditable "Text" -->
+<p>Advanced Settings for BT848/BT878 based cards.  The default values are chosen 
+to work well with most situations and usually do not need to be changed.</p>
+
+<table border="1">
+<tr>
+<th>Setting</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+
+<tr>
+<td>Agc Disable</td>
+<td>
+<p align="center">0</p>
+</td>
+<td>Disable AGC(automatic gain control). This doesn't work well
+for almost anyone, but it's there.</td>
+</tr>
+
+<tr>
+<td>Crush</td>
+<td>
+<p align="center">1</p>
+</td>
+<td>Turn on Adaptive AGC , this is the Crush bit in the ADC
+Interface register.</td>
+</tr>
+
+<tr>
+<td>White Crush Up</td>
+<td>
+<p align="center">207</p>
+</td>
+<td>Fine tuning of the Adaptive AGC White Crush Up Register.
+This, and below, are the full 8 bit contents of the 2 registers.
+I'm not sure we have the best defaults here. See the BT8x8
+datasheets.</td>
+</tr>
+
+<tr>
+<td>White Crush Down</td>
+<td>
+<p align="center">127</p>
+</td>
+<td>Fine tuning of the Adaptive AGC White Crush Down Registers.
+See above.</td>
+</tr>
+
+<tr>
+<td>Even Chroma AGC</td>
+<td>
+<p align="center">1</p>
+</td>
+<td>Even/odd chroma AGC. Must be 0 or 1. Turns on color AGC.</td>
+</tr>
+
+<tr>
+<td>Odd Chroma AGC</td>
+<td>
+<p align="center">1</p>
+</td>
+<td> </td>
+</tr>
+
+<tr>
+<td>Even Luma Peak</td>
+<td align="center">0</td>
+<td>From the BT8X8datasheet: (PEAK) bit determines whether the
+normal luma low-pass filters are implemented via the HFILT bits,
+or the peaking filters are implemented. (HFILT is the horizontal
+filter mentioned below)</td>
+</tr>
+
+<tr>
+<td>Odd Luma Peak</td>
+<td align="center">0</td>
+<td> </td>
+</tr>
+
+<tr>
+<td>Full Luma Range</td>
+<td align="center">1</td>
+<td>Luma Output Range. DScaler defaults to 1 but maybe should be
+set to 0 for NTSC systems.</td>
+</tr>
+
+<tr>
+<td>Even Luma Dec</td>
+<td align="center">0</td>
+<td>From the datasheet: The Luma Decimation filter is used to
+reduce the high-frequency component of the luma signal. Useful
+when scaling to CIF resolutions or lower.  If ON it enables luma
+decimation using the selectable H filter.</td>
+</tr>
+
+<tr>
+<td>Odd Luma Dec</td>
+<td>
+<p align="center">0</p>
+</td>
+<td> </td>
+</tr>
+
+<tr>
+<td>Even Comb</td>
+<td align="center">1</td>
+<td>Chroma Comb Enable. This bit determines if the chroma comb is
+included in<br>
+ the data path. If enabled, a full line store is used to average
+adjacent lines of<br>
+ color information, reducing cross-color artifacts.</td>
+</tr>
+
+<tr>
+<td>Odd Comb</td>
+<td align="center">1</td>
+<td> </td>
+</tr>
+
+<tr>
+<td>Color Bars</td>
+<td align="center">0</td>
+<td>Show color bars on display</td>
+</tr>
+
+<tr>
+<td>Gamma Correction</td>
+<td align="center">0</td>
+<td>Gamma Correction. This is another double negative. If it
+equals 0 (OFF) it really says we do not want to do gamma
+correction removal. If ON the we DO gamma correction removal.  This setting 
+doesn't appear to affect the YUY2 mode that we use and so has no effect.</td>
+</tr>
+
+<tr>
+<td>Coring</td>
+<td align="center">0</td>
+<td>Luma Coring. This sets the minimum black level. This value
+might also be different for PAL/NTSC. It must be 0, 1, 2, or 3.
+Unclear yet what is the best value.</td>
+</tr>
+
+<tr>
+<td>Horz Filter</td>
+<td align="center">0</td>
+<td>Turns on hardware Horizontal filter. Because of DScalers
+large scale only values 0 and 1 are valid. 0=normal 2 tap filter
+(like before), 4 adds a little more filter but works (I think)
+only when the BtLumaPeak and BtLumaDec are also both on. It makes
+thing a little softer.<br>
+ </td>
+</tr>
+
+<tr>
+<td>Vert Filter</td>
+<td align="center">0</td>
+<td>Vertical filter. Valid values would be 0-7 but at DScaler's
+resolution only 0 and 4 are allowed. 0 = 2-tap interpolation
+only. 4 = 2-tap plus z filter. This make thing a lot softer.</td>
+</tr>
+
+<tr>
+<td>Color Kill</td>
+<td align="center">1</td>
+<td>Auto Low Color Killer is supposed to suppress the color
+signal if it looks like a black and white video.</td>
+</tr>
+
+<tr>
+<td>Custom Pixel Width</td>
+<td align="center">750</td>
+<td>Pixel Width used when Custom Pixel Width is selected on the menu.</td>
+</tr>
+
+<tr>
+<td>Horizontal Delay</td>
+<td align="center">0</td>
+<td>Number of half lines to skip at the top before we start capturing. 0 means use default 
+for format.</td>
+</tr>
+<tr>
+
+<td>Vertical Delay</td>
+<td align="center">0</td>
+<td>Period to skip on the left before we start capturing. 0 means use default 
+for format.</td>
+</tr>
+
+</table>
+
+
+<!-- #EndEditable -->
+</td>
+</tr>
+
+<tr>
+<td colspan="3"> </td>
+</tr>
+
+<tr>
+<td colspan="3"></td>
+</tr>
+
+<tr>
+<td colspan="3"> </td>
+</tr>
+
+<tr bgcolor="#FFCC00">
+<td colspan="3">
+<div align="center"><img src="images/yellowspacer.gif" width=
+"100%" height="2"></div>
+</td>
+</tr>
+</table>
+
+</body><!-- #EndTemplate -->
+
+</html>
+

@@ -1,9 +1,9 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
 <html>
 <!-- #BeginTemplate "/Templates/dtvnormal.dwt" -->
 <head>
 <!-- #BeginEditable "doctitle" -->
-<title>DScaler -- Ini File Settings</title>
+<title>DScaler -- BT8x8 Advanced Settings</title>
 <!-- #EndEditable -->
 <meta http-equiv="Content-Type" content=
 "text/html; charset=iso-8859-1">
@@ -39,7 +39,7 @@ height="1"></td>
 <td colspan="2" align="right" valign="bottom"><font face=
 "Verdana, Arial, Helvetica, sans-serif" size="5"><b>
 <!-- #BeginEditable "Page%20Title" -->
-DScaler.ini Settings  
+BT8x8 Advanced Settings
 <!-- #EndEditable --></b></font></td>
 </tr>
 
@@ -55,22 +55,43 @@ height="2"></td>
 <tr>
 <td colspan="3">
 <!-- #BeginEditable "Text" -->
-<p>Almost all features of the program are configurable through the menu
-system.  All the
-settings used by the program are stored in the ini file and no changes are
-made to the registry.</p>
+<p>Advanced Settings for CX2388x based cards.  The default values are chosen 
+to work well with most situations and usually do not need to be changed.</p>
 
-<p>While the default name of this file is DScaler.ini, other
-names and copies may be used, to create multiple profiles.  Just
-create a shortcut to invoke DScaler with a single parameter such
-as "DScaler.exe vcr.ini".  This would cause the vcr.ini (or
-whatever) file to be used and saved on exit.  Doing this is
-easiest if you copy a working DScaler.ini file first and then
-change it using the DScaler menus.</p>
+<table border="1">
+<tr>
+<th>Setting</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+
+<tr>
+<td>Horizontal Delay</td>
+<td align="center">0</td>
+<td>Number of half lines to skip at the top before we start capturing. 0 means use default 
+for format.</td>
+</tr>
+<tr>
+
+<td>Vertical Delay</td>
+<td align="center">0</td>
+<td>Period to skip on the left before we start capturing. 0 means use default 
+for format.</td>
+</tr>
+
+<td>Eat Lines at Top</td>
+<td align="center">25</td>
+<td>(H3D Specific) Discards lines at the top of the SDI input when in 
+non-progressive mode.</td>
+</tr>
+
+</table>
+
 
 <!-- #EndEditable -->
 </td>
 </tr>
+
 <tr>
 <td colspan="3"> </td>
 </tr>
@@ -91,7 +112,7 @@ change it using the DScaler menus.</p>
 </tr>
 </table>
 
-<!-- #EndTemplate -->
-</body>
+</body><!-- #EndTemplate -->
+
 </html>
 

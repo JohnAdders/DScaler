@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HierarchicalConfigParser.cpp,v 1.1 2004-11-19 23:51:04 atnak Exp $
+// $Id: HierarchicalConfigParser.cpp,v 1.2 2004-11-20 16:36:40 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2004/11/19 23:51:04  atnak
+// Release of the configuration parser that is used for card list parsing.
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -29,8 +32,8 @@
 */
 
 #include "stdafx.h"
-#include <fstream>
 #include <iostream>
+#include <windows.h>
 #include <crtdbg.h>
 #include "HierarchicalConfigParser.h"
 
@@ -98,7 +101,11 @@ bool CHCParser::ParseFile(FILE* fp, void* reportContext)
 	m_lineNumber	= 0;
 	m_linePoint		= NULL;
 
-	bool success = ProcessStream(ifstream(fp));
+	m_readBuffer = new char[MAX_READ_BUFFER];
+	m_bufferPosition = m_bufferLength = MAX_READ_BUFFER;
+
+	bool success = ProcessStream(fp);
+	delete [] m_readBuffer;
 	if (!success)
 	{
 #ifdef _DEBUG
@@ -306,22 +313,73 @@ void CHCParser::SetParseError(ParseError& error)
 	m_parseError << ": " << error.wstr();
 }
 
-bool CHCParser::ProcessStream(ifstream& ifs)
+long CHCParser::ReadLineIntoBuffer(FILE* fp)
+{
+	*m_lineBuffer = '\0';
+	m_linePoint = m_lineBuffer;
+
+	while (m_bufferLength > 0)
+	{
+		for ( ; m_bufferPosition < m_bufferLength; m_bufferPosition++)
+		{
+			if (m_readBuffer[m_bufferPosition] == '\n' || m_readBuffer[m_bufferPosition] == '\r')
+			{
+				// Stop if there is something in the buffer.
+				if (*m_lineBuffer != '\0')
+				{
+					m_bufferPosition++;
+					*m_linePoint = '\0';
+					return (long)(m_linePoint - m_lineBuffer);
+				}
+				continue;
+			}
+			if (m_linePoint >= m_lineBuffer + MAX_LINE_LENGTH-1)
+			{
+				SetParseError(LineError() << "Line is too long");
+				return -1;
+			}
+
+			*m_linePoint++ = m_readBuffer[m_bufferPosition];
+		}
+
+		if (m_bufferLength != MAX_READ_BUFFER)
+		{
+			break;
+		}
+
+		m_bufferLength = fread(m_readBuffer, 1, MAX_READ_BUFFER, fp);
+		if (m_bufferLength != MAX_READ_BUFFER && !feof(fp))
+		{
+			SetParseError(FileError() << "File I/O error while reading");
+			return -1;
+		}
+
+		m_bufferPosition = 0;
+	}
+
+	if (*m_lineBuffer != '\0')
+	{
+		m_bufferLength = 0;
+		*m_linePoint = '\0';
+		return (long)(m_linePoint - m_lineBuffer);
+	}
+	return 0;
+}
+
+bool CHCParser::ProcessStream(FILE* fp)
 {
 	InitializeParseState();
 
 	while (1)
 	{
 		// Read one line into a buffer
-		ifs.getline(m_lineBuffer, MAX_LINE_LENGTH);
-		if (ifs.fail())
+		long length = ReadLineIntoBuffer(fp);
+		if (length == -1)
 		{
-			m_linePoint = NULL;
-			if (ifs.gcount() == MAX_LINE_LENGTH-1)
-			{
-				SetParseError(LineError() << "Line is too long");
-				return false;
-			}
+			return false;
+		}
+		if (length == 0)
+		{
 			break;
 		}
 
@@ -1323,5 +1381,38 @@ bool CHCParser::ReportValue(const ParseTag* parseTag, unsigned char type, const 
 		}
 	}
 	return true;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// CHCParser::ParseError
+//////////////////////////////////////////////////////////////////////////
+
+void CHCParser::ParseError::clear()
+{
+	m_oss.str(L"");
+}
+
+bool CHCParser::ParseError::empty()
+{
+	return m_oss.str().size() == 0;
+}
+
+string CHCParser::ParseError::str()
+{
+	char buffer[512];
+
+	// Convert the wchar_t to ANSI characters
+	if (!WideCharToMultiByte(CP_ACP, WC_NO_BEST_FIT_CHARS,
+		m_oss.str().c_str(), -1, buffer, sizeof(buffer), NULL, NULL))
+	{
+		return std::string("Unicode to multi-byte conversion error.");
+	}
+	return std::string(buffer);
+}
+
+wstring CHCParser::ParseError::wstr()
+{
+	return m_oss.str();
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HierarchicalConfigParser.h,v 1.2 2004-11-20 14:10:48 atnak Exp $
+// $Id: HierarchicalConfigParser.h,v 1.3 2004-11-20 16:36:40 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2004/11/20 14:10:48  atnak
+// Removed throw(...) because VS6 didn't like it and probably isn't necessary.
+//
 // Revision 1.1  2004/11/19 23:51:04  atnak
 // Release of the configuration parser that is used for card list parsing.
 //
@@ -34,7 +37,6 @@
 #ifndef __HIERARCHICALCONFIGPARSER_H___
 #define __HIERARCHICALCONFIGPARSER_H___
 
-#include <fstream>
 #include <sstream>
 #include <list>
 #include <vector>
@@ -255,6 +257,7 @@ private:
 	enum
 	{
 		MAX_LINE_LENGTH		= 512,
+		MAX_READ_BUFFER		= 4096,
 	};
 
 	enum
@@ -306,33 +309,11 @@ private:
 			return PARSE_ERROR_GENERIC;
 		}
 
-		virtual void clear()
-		{
-			m_oss.str(L"");
-		}
+		virtual void clear();
+		virtual bool empty();
 
-		virtual bool empty()
-		{
-			return m_oss.str().size() == 0;
-		}
-
-		virtual std::string str()
-		{
-			char buffer[512];
-
-			// Convert the wchar_t to ANSI characters
-			if (!WideCharToMultiByte(CP_ACP, WC_NO_BEST_FIT_CHARS,
-				m_oss.str().c_str(), -1, buffer, sizeof(buffer), NULL, NULL))
-			{
-				return std::string("Unicode to multi-byte conversion error.");
-			}
-			return std::string(buffer);
-		}
-
-		virtual std::wstring wstr()
-		{
-			return m_oss.str();
-		}
+		virtual std::string str();
+		virtual std::wstring wstr();
 
 		template <class T>
 		ParseError& operator<< (const T& t)
@@ -366,7 +347,9 @@ private:
 private:
 	void InitializeParseState();
 
-	bool ProcessStream(std::ifstream& ifs);
+	long ReadLineIntoBuffer(FILE* fp);
+
+	bool ProcessStream(FILE* fp);
 	bool ProcessLine();
 	bool ProcessSection();
 	bool ProcessTag();
@@ -418,6 +401,10 @@ private:
 	void DebugOut(int level, ParseError& error, bool appendExpect = false);
 
 private:
+	char*						m_readBuffer;
+	size_t						m_bufferPosition;
+	size_t						m_bufferLength;
+
 	unsigned long				m_lineNumber;
 	char						m_lineBuffer[MAX_LINE_LENGTH];
 	char*						m_linePoint;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.45 2001-12-23 00:51:55 lindsey Exp $
+// $Id: DS_Control.h,v 1.46 2001-12-31 00:55:55 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.45  2001/12/23 00:51:55  lindsey
+// Added constants for Gradual Noise filter
+//
 // Revision 1.44  2001/12/16 17:04:37  adcockj
 // Debug Log improvements
 //
@@ -1000,6 +1003,26 @@ typedef enum
 #define WM_FLT_GNOISE_GETVALUE      (WM_USER + 38)
 #define WM_FLT_GNOISE_SETVALUE      (WM_USER + 138)
 #define WM_FLT_GNOISE_CHANGEVALUE   (WM_USER + 238)
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Control settings contained in FLT_AdaptiveNoise.c
+/////////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+    ANOISESTABILITY = 0,
+    ANOISEREDUCTION,
+    ANOISELOCKDOT,
+    ANOISEACTIVATE,
+    ANOISEINDICATOR,
+    ANOISEMOTIONMEMORY,
+    FLT_ANOISE_SETTING_LASTONE,
+} FLT_ANOISE_SETTING;
+
+#define WM_FLT_ANOISE_GETVALUE      (WM_USER + 39)
+#define WM_FLT_ANOISE_SETVALUE      (WM_USER + 139)
+#define WM_FLT_ANOISE_CHANGEVALUE   (WM_USER + 239)
 
 
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.65 2003-01-12 21:27:45 adcockj Exp $
+// $Id: DSSource.cpp,v 1.66 2003-01-15 20:55:33 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.65  2003/01/12 21:27:45  adcockj
+// Added flags for per settings groups
+//
 // Revision 1.64  2003/01/12 16:19:36  adcockj
 // Added SettingsGroup activity setting
 // Corrected event sequence and channel change behaviour
@@ -717,9 +720,11 @@ BOOL CDSCaptureSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam
 	}
 
 	CDShowCaptureDevice *pCap=NULL;
+	CDShowTVAudio *pTVAudio=NULL;
 	if(m_pDSGraph->getSourceDevice()->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
 	{
 		pCap=(CDShowCaptureDevice*)m_pDSGraph->getSourceDevice();
+		pTVAudio=pCap->GetTVAudio();
 	}
 
 	if(LOWORD(wParam)>=IDM_CROSSBAR_INPUT0 && LOWORD(wParam)<=IDM_CROSSBAR_INPUT_MAX)
@@ -801,6 +806,76 @@ BOOL CDSCaptureSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam
 		catch(exception &e2)
 		{
 			ErrorBox(CString("Stl exception:\n\n")+e2.what());
+		}
+	}
+	else if(LOWORD(wParam)==ID_DSHOW_AUDIOCHANNEL_MONO)
+	{
+		if(pTVAudio!=NULL)
+		{
+			try
+			{
+				pTVAudio->SetMode(AMTVAUDIO_MODE_MONO);
+			}
+			catch(CDShowException &e)
+			{
+				ErrorBox(CString("Error changing audio channel\n\n")+e.getErrorText());
+			}
+		}
+	}
+	else if(LOWORD(wParam)==ID_DSHOW_AUDIOCHANNEL_STEREO)
+	{
+		if(pTVAudio!=NULL)
+		{
+			try
+			{
+				pTVAudio->SetMode(AMTVAUDIO_MODE_STEREO);
+			}
+			catch(CDShowException &e)
+			{
+				ErrorBox(CString("Error changing audio channel\n\n")+e.getErrorText());
+			}
+		}
+	}
+	else if(LOWORD(wParam)==ID_DSHOW_AUDIOCHANNEL_LANGUAGEA)
+	{
+		if(pTVAudio!=NULL)
+		{
+			try
+			{
+				pTVAudio->SetMode(AMTVAUDIO_MODE_LANG_A);
+			}
+			catch(CDShowException &e)
+			{
+				ErrorBox(CString("Error changing audio channel\n\n")+e.getErrorText());
+			}
+		}
+	}
+	else if(LOWORD(wParam)==ID_DSHOW_AUDIOCHANNEL_LANGUAGEB)
+	{
+		if(pTVAudio!=NULL)
+		{
+			try
+			{
+				pTVAudio->SetMode(AMTVAUDIO_MODE_LANG_B);
+			}
+			catch(CDShowException &e)
+			{
+				ErrorBox(CString("Error changing audio channel\n\n")+e.getErrorText());
+			}
+		}
+	}
+	else if(LOWORD(wParam)==ID_DSHOW_AUDIOCHANNEL_LANGUAGEB)
+	{
+		if(pTVAudio!=NULL)
+		{
+			try
+			{
+				pTVAudio->SetMode(AMTVAUDIO_MODE_LANG_C);
+			}
+			catch(CDShowException &e)
+			{
+				ErrorBox(CString("Error changing audio channel\n\n")+e.getErrorText());
+			}
 		}
 	}
 
@@ -1228,7 +1303,7 @@ void CDSCaptureSource::SetMenu(HMENU hMenu)
 	}
 
 	//video standards menu
-	if(pCap!=NULL && pCap->hasVideoDec())
+	if(IsInTunerMode()==FALSE && pCap!=NULL && pCap->hasVideoDec())
 	{
 		CMenu formatMenu;
 
@@ -1305,6 +1380,45 @@ void CDSCaptureSource::SetMenu(HMENU hMenu)
 	FILTER_STATE state=m_pDSGraph->getState();
 	UINT pos=8-state;
 	menu->CheckMenuRadioItem(6,8,pos,MF_BYPOSITION);
+	
+	//audio channel submenu
+	CDShowTVAudio *pTVAudio=pCap->GetTVAudio();
+	if(pTVAudio!=NULL && pTVAudio->GetAvailableModes()!=0)
+	{
+		menu->EnableMenuItem(4,MF_BYPOSITION);
+		long modes=pTVAudio->GetAvailableModes();
+		TVAudioMode mode=pTVAudio->GetMode();
+		if(modes&AMTVAUDIO_MODE_MONO)
+		{
+			menu->EnableMenuItem(ID_DSHOW_AUDIOCHANNEL_MONO,MF_BYCOMMAND);
+			menu->CheckMenuItem(ID_DSHOW_AUDIOCHANNEL_MONO,MF_BYCOMMAND| (mode&AMTVAUDIO_MODE_MONO ? MF_CHECKED : MF_UNCHECKED));
+			
+		}
+		if(modes&AMTVAUDIO_MODE_STEREO)
+		{
+			menu->EnableMenuItem(ID_DSHOW_AUDIOCHANNEL_STEREO,MF_BYCOMMAND);
+			menu->CheckMenuItem(ID_DSHOW_AUDIOCHANNEL_STEREO,MF_BYCOMMAND| (mode&AMTVAUDIO_MODE_STEREO ? MF_CHECKED : MF_UNCHECKED));
+		}
+		if(modes&AMTVAUDIO_MODE_LANG_A)
+		{
+			menu->EnableMenuItem(ID_DSHOW_AUDIOCHANNEL_LANGUAGEA,MF_BYCOMMAND);
+			menu->CheckMenuItem(ID_DSHOW_AUDIOCHANNEL_LANGUAGEA,MF_BYCOMMAND| (mode&AMTVAUDIO_MODE_LANG_A ? MF_CHECKED : MF_UNCHECKED));
+		}
+		if(modes&AMTVAUDIO_MODE_LANG_B)
+		{
+			menu->EnableMenuItem(ID_DSHOW_AUDIOCHANNEL_LANGUAGEB,MF_BYCOMMAND);
+			menu->CheckMenuItem(ID_DSHOW_AUDIOCHANNEL_LANGUAGEB,MF_BYCOMMAND| (mode&AMTVAUDIO_MODE_LANG_B ? MF_CHECKED : MF_UNCHECKED));
+		}
+		if(modes&AMTVAUDIO_MODE_LANG_C)
+		{
+			menu->EnableMenuItem(ID_DSHOW_AUDIOCHANNEL_LANGUAGEC,MF_BYCOMMAND);
+			menu->CheckMenuItem(ID_DSHOW_AUDIOCHANNEL_LANGUAGEC,MF_BYCOMMAND| (mode&AMTVAUDIO_MODE_LANG_C ? MF_CHECKED : MF_UNCHECKED));
+		}
+	}
+	else
+	{
+		menu->EnableMenuItem(4,MF_BYPOSITION|MF_GRAYED);
+	}
 
 	topMenu.Detach();
 }

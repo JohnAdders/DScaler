@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_PMS.cpp,v 1.2 2003-10-30 22:05:15 adcockj Exp $
+// $Id: BT848Card_PMS.cpp,v 1.3 2003-11-03 17:29:47 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2003/10/30 22:05:15  adcockj
+// Fix some bugs with new PMS card
+//
 // Revision 1.1  2003/10/27 16:22:56  adcockj
 // Added preliminary support for PMS PDI Deluxe card
 //
@@ -383,7 +386,7 @@ void CBT848Card::SetPMSDeluxeFormat(int nInput, eVideoFormat TVFormat)
 }
 
 
-void CBT848Card::SetPMSDeluxeContrastBrightness(WORD Contrast, BYTE Brightness)
+void CBT848Card::SetPMSDeluxeContrastBrightness(WORD Contrast, WORD Brightness)
 {
     BYTE ContrastLimited;
     if(Contrast > 255)
@@ -405,7 +408,7 @@ void CBT848Card::SetPMSDeluxeContrastBrightness(WORD Contrast, BYTE Brightness)
             // operation to the bt848 which means that the calibration code
             // may work properly
 
-            int NewBrightness = (Brightness - 128) + ContrastLimited;
+            int NewBrightness = Brightness + ContrastLimited;
             if(NewBrightness < 0)
             {
                 NewBrightness = 0;

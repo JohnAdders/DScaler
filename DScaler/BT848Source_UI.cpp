@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_UI.cpp,v 1.20 2003-10-27 16:22:56 adcockj Exp $
+// $Id: BT848Source_UI.cpp,v 1.21 2003-11-03 17:29:47 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2003/10/27 16:22:56  adcockj
+// Added preliminary support for PMS PDI Deluxe card
+//
 // Revision 1.19  2003/10/27 10:39:50  adcockj
 // Updated files for better doxygen compatability
 //
@@ -1552,9 +1555,9 @@ void CBT848Source::ChangeDefaultsForVideoFormat(BOOL bDontSetValue)
         }
         else
         {
-            m_Brightness->ChangeDefault(128, bDontSetValue);
+            m_Brightness->ChangeDefault(0, bDontSetValue);
             m_Contrast->ChangeDefault(128, bDontSetValue);
-            m_Hue->ChangeDefault(128, bDontSetValue);
+            m_Hue->ChangeDefault(0, bDontSetValue);
             m_Saturation->ChangeDefault(128, bDontSetValue);
             m_SaturationU->ChangeDefault(128, bDontSetValue);
             m_SaturationV->ChangeDefault(128, bDontSetValue);
@@ -1578,9 +1581,9 @@ void CBT848Source::ChangeDefaultsForVideoFormat(BOOL bDontSetValue)
         }
         else
         {
-            m_Brightness->ChangeDefault(128, bDontSetValue);
+            m_Brightness->ChangeDefault(0, bDontSetValue);
             m_Contrast->ChangeDefault(128, bDontSetValue);
-            m_Hue->ChangeDefault(128, bDontSetValue);
+            m_Hue->ChangeDefault(0, bDontSetValue);
             m_Saturation->ChangeDefault(128, bDontSetValue);
             m_SaturationU->ChangeDefault(128, bDontSetValue);
             m_SaturationV->ChangeDefault(128, bDontSetValue);
@@ -1603,9 +1606,9 @@ void CBT848Source::ChangeDefaultsForVideoFormat(BOOL bDontSetValue)
         }
         else
         {
-            m_Brightness->ChangeDefault(128, bDontSetValue);
+            m_Brightness->ChangeDefault(0, bDontSetValue);
             m_Contrast->ChangeDefault(128, bDontSetValue);
-            m_Hue->ChangeDefault(128, bDontSetValue);
+            m_Hue->ChangeDefault(0, bDontSetValue);
             m_Saturation->ChangeDefault(128, bDontSetValue);
             m_SaturationU->ChangeDefault(128, bDontSetValue);
             m_SaturationV->ChangeDefault(128, bDontSetValue);

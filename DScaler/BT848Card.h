@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.40 2003-10-27 16:22:56 adcockj Exp $
+// $Id: BT848Card.h,v 1.41 2003-11-03 17:29:47 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.40  2003/10/27 16:22:56  adcockj
+// Added preliminary support for PMS PDI Deluxe card
+//
 // Revision 1.39  2003/10/27 10:39:50  adcockj
 // Updated files for better doxygen compatability
 //
@@ -200,7 +203,7 @@ private:
         */
         void (CBT848Card::*pInputSwitchFunction)(int);
         /// Function to set Contrast and Brightness Default SetAnalogContrastBrightness
-        void (CBT848Card::*pSetContrastBrightness)(WORD, BYTE);
+        void (CBT848Card::*pSetContrastBrightness)(WORD, WORD);
         /// Function to set SaturationU Default SetAnalogSaturationU
         void (CBT848Card::*pSetSaturationU)(WORD);
         /// Function to set SaturationV Default SetAnalogSaturationV
@@ -244,7 +247,7 @@ public:
 
     void ResetHardware(DWORD RiscBasePhysical);
 
-    void SetContrastBrightness(WORD Contrast, BYTE Brightness);
+    void SetContrastBrightness(WORD Contrast, WORD Brightness);
     void SetWhiteCrushUp(BYTE WhiteCrushUp);
     void SetWhiteCrushDown(BYTE WhiteCrushDown);
     void SetHue(BYTE Hue);
@@ -413,12 +416,12 @@ private:
 	void InitPMSDeluxe();
 	void PMSDeluxeInputSelect(int nInput);
 	void SetPMSDeluxeFormat(int nInput, eVideoFormat TVFormat);
-	void SetPMSDeluxeContrastBrightness(WORD Contrast, BYTE Brightness);
+	void SetPMSDeluxeContrastBrightness(WORD Contrast, WORD Brightness);
 	void SetPMSDeluxeSaturationU(WORD SaturationU);
 	void SetPMSDeluxeSaturationV(WORD SaturationV);
 	void SetPMSDeluxeHue(BYTE Hue);
 
-    void SetAnalogContrastBrightness(WORD Contrast, BYTE Brightness);
+    void SetAnalogContrastBrightness(WORD Contrast, WORD Brightness);
     void SetAnalogSaturationU(WORD SaturationU);
     void SetAnalogSaturationV(WORD SaturationV);
     void SetAnalogHue(BYTE Hue);

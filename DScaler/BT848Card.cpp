@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.39 2003-10-27 16:22:55 adcockj Exp $
+// $Id: BT848Card.cpp,v 1.40 2003-11-03 17:29:47 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.39  2003/10/27 16:22:55  adcockj
+// Added preliminary support for PMS PDI Deluxe card
+//
 // Revision 1.38  2003/10/27 10:39:50  adcockj
 // Updated files for better doxygen compatability
 //
@@ -393,7 +396,7 @@ LPCSTR CBT848Card::GetCardName(eTVCardId CardId)
 }
 
 
-void CBT848Card::SetAnalogContrastBrightness(WORD Contrast, BYTE Brightness)
+void CBT848Card::SetAnalogContrastBrightness(WORD Contrast, WORD Brightness)
 {
     WriteByte(BT848_CONTRAST_LO, (BYTE) (Contrast & 0xff));
     if(Contrast > 0xff)
@@ -705,7 +708,7 @@ void CBT848Card::SetGammaCorrection(BOOL GammaCorrection)
     }
 }
 
-void CBT848Card::SetContrastBrightness(WORD Contrast, BYTE Brightness)
+void CBT848Card::SetContrastBrightness(WORD Contrast, WORD Brightness)
 {
     (*this.*m_TVCards[m_CardType].pSetContrastBrightness)(Contrast, Brightness);
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CaptureDevice.cpp,v 1.7 2002-04-16 15:30:53 tobbej Exp $
+// $Id: CaptureDevice.cpp,v 1.8 2002-07-17 19:18:08 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/04/16 15:30:53  tobbej
+// fixed dropped frames counter, previously it didnt find the IAMDroppedFrames when it was on one of the output pins
+//
 // Revision 1.6  2002/04/03 19:53:19  tobbej
 // try to render interleaved stream first, this might help dv sources (untested)
 //
@@ -58,8 +61,9 @@
 
 #include "CaptureDevice.h"
 #include "DevEnum.h"
-
-#include "btwdmprop.h"
+#include "PinEnum.h"
+#include "debuglog.h"
+//#include "btwdmprop.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -116,11 +120,42 @@ CDShowCaptureDevice::~CDShowCaptureDevice()
 }
 
 void CDShowCaptureDevice::connect(CComPtr<IBaseFilter> filter)
-{
+{	
 	//this will connect the capture device and add all needed filters upstream like tuners and crossbars
 	
+	// if there is videoport pin, try to connect it
+	CComPtr<IPin> pVPPin;
+	HRESULT hr=m_pBuilder->FindPin(m_vidDev,PINDIR_OUTPUT,&PIN_CATEGORY_VIDEOPORT,NULL,TRUE,0,&pVPPin);
+	if(SUCCEEDED(hr))
+	{
+		CComPtr<IBaseFilter> pVBISurfAlloc;
+		hr=pVBISurfAlloc.CoCreateInstance(CLSID_VBISurfaces);
+		if(FAILED(hr))
+		{
+			throw CDShowException("Failed to create VBI Surface Allocator",hr);
+		}
+		hr=m_pGraph->AddFilter(pVBISurfAlloc,L"VBI Surface Allocator");
+		if(FAILED(hr))
+		{
+			throw CDShowException("Failed to add VBI Surface Allocator to graph",hr);
+		}
+		CDShowPinEnum pins(pVBISurfAlloc,PINDIR_INPUT);
+		CComPtr<IPin> pVBIInPin;
+		pVBIInPin=pins.next();
+		
+		//there must be a input pin
+		ASSERT(pVBIInPin!=NULL);
+		hr=pVPPin->Connect(pVBIInPin,NULL);
+		if(FAILED(hr))
+		{
+			//shoud this be counted as fatal error or just continue and
+			//hope that RenderStream can fix this?
+			LOG(2, "Failed to connect VideoPort pin to VBI Surface Allocator");
+		}
+	}
+
 	//first try to render interleaved (dv source), if it fails try normal render
-	HRESULT hr=m_pBuilder->RenderStream(&PIN_CATEGORY_CAPTURE,&MEDIATYPE_Interleaved,m_vidDev,NULL,filter);
+	hr=m_pBuilder->RenderStream(&PIN_CATEGORY_CAPTURE,&MEDIATYPE_Interleaved,m_vidDev,NULL,filter);
 	if(FAILED(hr))
 	{
 		hr=m_pBuilder->RenderStream(&PIN_CATEGORY_CAPTURE,&MEDIATYPE_Video,m_vidDev,NULL,filter);
@@ -134,6 +169,24 @@ void CDShowCaptureDevice::connect(CComPtr<IBaseFilter> filter)
 	{
 		findIAMDroppedFrames(filter);
 	}
+	/*if(driverSupportsIR())
+	{
+		TRACE("Yes! driver supports ir\n");
+		if(isRemotePresent())
+		{
+			TRACE("Remote is present\n");
+			ULONG code=getRemoteCode();
+			if(code&0x10000)
+			{
+				code=code & ~0x10000;
+				TRACE("Remote code=0x%x\n",code);
+			}
+		}
+		else
+		{
+			TRACE("No remote\n");
+		}
+	}*/
 }
 
 void CDShowCaptureDevice::findIAMDroppedFrames(CComPtr<IBaseFilter> filter)
@@ -171,7 +224,7 @@ long CDShowCaptureDevice::getNumDroppedFrames()
 	}
 	return dropped;
 }
-
+/*
 bool CDShowCaptureDevice::driverSupportsIR()
 {
 	CComPtr<IKsPropertySet> pPropSet;
@@ -223,7 +276,7 @@ ULONG CDShowCaptureDevice::getRemoteCode()
 		}
 	}
 	return 0;
-}
+}*/
 
 CDShowBaseCrossbar* CDShowCaptureDevice::getCrossbar()
 {

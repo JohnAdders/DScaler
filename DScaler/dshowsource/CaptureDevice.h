@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CaptureDevice.h,v 1.7 2002-04-16 15:30:53 tobbej Exp $
+// $Id: CaptureDevice.h,v 1.8 2002-07-17 19:18:09 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/04/16 15:30:53  tobbej
+// fixed dropped frames counter, previously it didnt find the IAMDroppedFrames when it was on one of the output pins
+//
 // Revision 1.6  2002/03/15 23:08:59  tobbej
 // changed dropped frames counter to include dropped frames in source filter.
 // experimented a bit with btwincap:s ir support
@@ -110,9 +113,9 @@ public:
 	
 
 	//experimental btwincap style ir support
-	bool driverSupportsIR();
+	/*bool driverSupportsIR();
 	bool isRemotePresent();
-	ULONG getRemoteCode();
+	ULONG getRemoteCode();*/
 
 private:
 	

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.h,v 1.21 2002-08-20 16:21:28 tobbej Exp $
+// $Id: DSSource.h,v 1.22 2002-08-21 20:29:20 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2002/08/20 16:21:28  tobbej
+// split CDSSource into 3 different classes
+//
 // Revision 1.20  2002/08/15 14:20:11  kooiman
 // Improved tuner support. Added setting for video input.
 //
@@ -174,7 +177,7 @@ public:
 	
 	void Start();
 	void Stop();
-
+  
 private:
 	string m_device;
 	string m_deviceName;
@@ -188,6 +191,8 @@ private:
 	DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, VideoInput);
 	DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, AudioInput);
 	DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, LastTunerChannel);
+
+  DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, Resolution);  
 };
 
 #endif // !defined(AFX_DSSOURCE_H__C552BD3D_0240_4408_805B_0783992D937E__INCLUDED_)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.cpp,v 1.1 2002-08-20 16:21:28 tobbej Exp $
+// $Id: DSSourceBase.cpp,v 1.2 2002-08-21 20:29:20 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/08/20 16:21:28  tobbej
+// split CDSSource into 3 different classes
+//
 /////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -81,7 +84,7 @@ int CDSSourceBase::GetHeight()
 	return m_currentY;
 }
 
-void CDSSourceBase::Start()
+void CDSSourceBase::Start(int Run)
 {
 	m_lastNumDroppedFrames=-1;
 	m_currentX=0;
@@ -91,7 +94,7 @@ void CDSSourceBase::Start()
 		//derived class must create the graph first
 		ASSERT(m_pDSGraph!=NULL);
 
-		m_pDSGraph->start();
+		m_pDSGraph->start(Run);
 	}
 	catch(CDShowException &e)
 	{

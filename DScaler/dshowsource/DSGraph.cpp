@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.cpp,v 1.19 2002-08-20 16:19:57 tobbej Exp $
+// $Id: DSGraph.cpp,v 1.20 2002-08-21 20:29:20 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2002/08/20 16:19:57  tobbej
+// removed graph loging from debug build
+//
 // Revision 1.18  2002/08/04 17:25:49  tobbej
 // improved error messages when creating filter graph
 //
@@ -249,9 +252,12 @@ bool CDShowGraph::GetFields(long *pcFields, FieldBuffer *ppFields,BufferInfo &in
 	return true;
 }
 
-void CDShowGraph::start()
+// Run = 0: Connect to dsrend, but don't run
+// Run = 1: Connect to dsrend and run
+// Run = 2: Just run
+void CDShowGraph::start(int Run)
 {
-	if(m_pSource!=NULL)
+	if((m_pSource!=NULL) && (Run<=1))
 	{
 		//check if the dsrend is unconnected
 		bool IsUnConnected=false;
@@ -269,15 +275,21 @@ void CDShowGraph::start()
 		{
 			m_pSource->connect(m_renderer);
 		}
-
-		buildFilterList();
-
-		hr=m_pControl->Run();
-		if(FAILED(hr))
-		{
-			throw CDShowException("Failed to start filter graph",hr);
-		}
-		m_pGraphState=State_Running;
+    buildFilterList();    
+  }  
+		
+  if((m_pSource!=NULL) && (Run!=0))
+  {
+        HRESULT hr=m_pControl->Run();
+		    if(FAILED(hr))
+		    {
+			    throw CDShowException("Failed to start filter graph",hr);
+		    }
+		    m_pGraphState=State_Running;
+  }
+  else
+  {
+        m_pGraphState=State_Stopped;  
 	}
 }
 
@@ -515,7 +527,7 @@ long CDShowGraph::getDroppedFrames()
 	return frames+m_pSource->getNumDroppedFrames();
 }
 
-void CDShowGraph::changeRes(long x,long y)
+void CDShowGraph::changeRes(long &x,long &y)
 {
 	if(m_renderer==NULL)
 	{
@@ -614,7 +626,12 @@ void CDShowGraph::changeRes(long x,long y)
 	hr=m_pStreamCfg->SetFormat(&newType);
 	if(FAILED(hr))
 	{
-		//reconnect using the old mediatype
+		BOOL bBackToOldResolution = FALSE;
+    // Resolution failed
+    x = 0;
+    y = 0;
+    
+    //reconnect using the old mediatype
 		CComPtr<IPin> tmp;
 		hr=InPin->ConnectedTo(&tmp);
 		if(hr==VFW_E_NOT_CONNECTED)
@@ -623,8 +640,9 @@ void CDShowGraph::changeRes(long x,long y)
 			hr=OutPin->Connect(InPin,mt);
 			if(SUCCEEDED(hr))
 			{
-				//failed to change mediatype, but was able to reconnect using old mediatype
-			}
+				//failed to change mediatype, but was able to reconnect using old mediatype          
+        bBackToOldResolution = TRUE;
+      }
 		}
 		else
 		{
@@ -632,8 +650,25 @@ void CDShowGraph::changeRes(long x,long y)
 			if(SUCCEEDED(hr))
 			{
 				//was able to change back to old format
+        bBackToOldResolution = TRUE;
 			}
 		}
+
+    if(bBackToOldResolution && (mt->pbFormat!=NULL))
+    {
+		     if(mt->formattype==FORMAT_VideoInfo)
+		     {
+                  VIDEOINFOHEADER *videoInfo=(VIDEOINFOHEADER*)mt->pbFormat;
+                  x = videoInfo->bmiHeader.biWidth;
+                  y = videoInfo->bmiHeader.biHeight;
+         }
+         else if(mt->formattype==FORMAT_VideoInfo2)
+         {
+                  VIDEOINFOHEADER2 *videoInfo=(VIDEOINFOHEADER2*)mt->pbFormat;
+                  x = videoInfo->bmiHeader.biWidth;
+                  y = videoInfo->bmiHeader.biHeight;
+         }
+    }
 		//throw CDShowException("Failed to change resolution, and coud not change back to old resolution",hr);
 	}
 	

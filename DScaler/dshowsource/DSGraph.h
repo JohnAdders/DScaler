@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.h,v 1.14 2002-08-01 20:24:19 tobbej Exp $
+// $Id: DSGraph.h,v 1.15 2002-08-21 20:29:20 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/08/01 20:24:19  tobbej
+// implemented AvgSyncOffset counter in dsrend
+//
 // Revision 1.13  2002/07/06 16:50:08  tobbej
 // new field buffering
 // some small changes to resolution changing
@@ -127,7 +130,7 @@ public:
 	 */
 	long getDroppedFrames();
 
-	void start();
+	void start(int Run = 1);
 	void pause();
 	void stop();
 	FILTER_STATE getState() {return m_pGraphState;}
@@ -157,9 +160,9 @@ public:
 	 * Change the resolution
 	 * @throws CDShowException
 	 */
-	void changeRes(long x,long y);
+	void changeRes(long &x,long &y);
 
-	/**
+  /**
 	 * Checks if a resolution is valid and can be selected.
 	 * @param x width
 	 * @param y height

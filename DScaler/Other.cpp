@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.22 2001-10-30 20:54:28 koreth Exp $
+// $Id: Other.cpp,v 1.23 2001-11-02 16:30:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2001/10/30 20:54:28  koreth
+// Don't retry fetching physical overlay color if it's supposed to be zero.
+//
 // Revision 1.21  2001/10/17 11:46:11  adcockj
 // Bug fixes
 //
@@ -108,7 +111,6 @@
 #include "stdafx.h"
 #include "Other.h"
 #include "DScaler.h"
-#include "BT848.h"
 #include "OutThreads.h"
 #include "VBI_VideoText.h"
 #include "ErrorBox.h"

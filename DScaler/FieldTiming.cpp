@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FieldTiming.cpp,v 1.19 2001-09-28 02:23:13 koreth Exp $
+// $Id: FieldTiming.cpp,v 1.20 2001-11-02 16:30:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -29,11 +29,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
-// Revision 1.18  2001/09/05 15:08:43  adcockj
-// Updated Loging
+// Revision 1.16.2.2  2001/08/20 16:14:19  adcockj
+// Massive tidy up of code to new structure
 //
-// Revision 1.17  2001/08/21 09:39:46  adcockj
-// Added Greek teletext Codepage
+// Revision 1.16.2.1  2001/08/17 16:35:14  adcockj
+// Another interim check-in still doesn't compile. Getting closer ...
 //
 // Revision 1.16  2001/08/11 12:02:13  adcockj
 // Updated SleepInterval default
@@ -58,12 +58,12 @@
 
 #include "stdafx.h"
 #include "FieldTiming.h"
-#include "BT848.h"
 #include "DebugLog.h"
 #include "Deinterlace.h"
 #include "DScaler.h"
 #include "resource.h"
 #include "SettingsDlg.h"
+#include "Providers.h"
 
 LARGE_INTEGER TimerFrequency;
 double RunningAverageCounterTicks;
@@ -82,14 +82,13 @@ BOOL bDoAutoFormatDetect = TRUE;
 long FiftyHzFormat = FORMAT_PAL_BDGHI;
 long SixtyHzFormat = FORMAT_NTSC;
 long FormatChangeThreshold = 2;
-BOOL bJudderTerminatorOnVideo = TRUE;
 long SleepInterval = 1;         // " , default=0, how long to wait for BT chip
 long SleepSkipFields = 0;       // Number of fields to skip before doing sleep interval
 long SleepSkipFieldsLate = 0;   // Number of fields to skip before doing sleep interval, when we're running late
 
 void Timing_Setup()
 {
-    bIsPAL = BT848_GetTVFormat()->Is25fps;
+    bIsPAL = GetTVFormat(Providers_GetCurrentSource()->GetFormat())->Is25fps;
 
     // get the Frequency of the high resolution timer
     QueryPerformanceFrequency(&TimerFrequency);
@@ -108,233 +107,84 @@ void Timing_Setup()
     Timing_Reset();
 }
 
-void UpdateRunningAverage(LARGE_INTEGER* pNewFieldTime)
+void Timing_UpdateRunningAverage(DEINTERLACE_INFO* pInfo)
 {
-    // if we're not running late then
-    // and we got a good clean run last time
-    if(LastFieldTime.QuadPart != 0)
+    if(!(pInfo->bRunningLate))
     {
-        // gets the last ticks odd - odd
-        double RecentTicks = (double)(pNewFieldTime->QuadPart - LastFieldTime.QuadPart);
-        // only allow values within 5% if current Value
-        // should prevent spurious values getting through
-        if(RecentTicks > RunningAverageCounterTicks * 0.95 &&
-            RecentTicks < RunningAverageCounterTicks * 1.05)
-        {
-            // update the average
-            // we're doing this weighted average because
-            // it has lots of nice properties
-            // especially that we don't need to keep a 
-            // data history
-            RunningAverageCounterTicks = Weight * RecentTicks + (1.0 - Weight) * RunningAverageCounterTicks;
-            LOG(2, "Last %f", RecentTicks);
-            LOG(2, "Running Average %f", RunningAverageCounterTicks);
-        }
-        else
-        {
-            LOG(2, "Last %f (IGNORED)", RecentTicks);
-            LOG(2, "Old Running Average %f", RunningAverageCounterTicks);
-        }
-    }
-    // save current Value for next time
-    LastFieldTime.QuadPart = pNewFieldTime->QuadPart;
-}
-
-void Timing_SmartSleep(DEINTERLACE_INFO* pInfo, BOOL bRunningLate)
-{
-    static int nSleepSkipFields = 0;
-    // Sleep less often if we're running late.
-
-    // Increment sleep skipping counter, so we can sleep only every X fields specified by SleepSkipField
-    if (bRunningLate)
-    {
-        // Sleep skipping whenever we're running late
-        ++nSleepSkipFields;
-        Sleep((nSleepSkipFields % (SleepSkipFieldsLate + 1)) ? 0 : SleepInterval);
-    }
-    else
-    {
-        // Sleep skipping whenever we're running on time
-        ++nSleepSkipFields;
-        Sleep((nSleepSkipFields % (SleepSkipFields + 1)) ? 0 : SleepInterval);
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////////////
-// The following function will continually check the position in the RISC code
-// until it is  is different from what we already have.
-// We know were we are so we set the current field to be the last one
-// that has definitely finished.
-//
-// Added code here to use a user specified parameter for how long to sleep.  Note that
-// windows timer tick resolution is really MUCH worse than 1 millesecond.  Who knows 
-// what logic W98 really uses?
-//
-// Note also that sleep(0) just tells the operating system to dispatch some other
-// task now if one is ready, not to sleep for zero seconds.  Since I've taken most
-// of the unneeded waits out of other processing here Windows will eventually take 
-// control away from us anyway, We might as well choose the best time to do it, without
-// waiting more than needed. 
-//
-// Also added code to HurryWhenLate.  This checks if the new field is already here by
-// the time we arrive.  If so, assume we are not keeping up with the BT chip and skip
-// some later processing.  Skip displaying this field and use the CPU time gained to 
-// get back here faster for the next one.  This should help us degrade gracefully on
-// slower or heavily loaded systems but use all available time for processing a good
-// picture when nothing else is running.  TRB 10/28/00
-//
-void Timing_WaitForNextFieldNormal(DEINTERLACE_INFO* pInfo)
-{
-    BOOL bSlept = FALSE;
-    int NewPos;
-    int Diff;
-    int OldPos = (pInfo->CurrentFrame * 2 + pInfo->IsOdd + 1) % 10;
-
-    while(OldPos == (NewPos = BT848_GetRISCPosAsInt()))
-    {
-        // need to sleep more often
-        // so that we don't take total control of machine
-        // in normal operation
-        if (!bSlept || SleepSkipFields == 0)
-        {
-            Timing_SmartSleep(pInfo, FALSE);
-            bSlept = TRUE;
-        }
-        pInfo->bRunningLate = FALSE;            // if we waited then we are not late
-    }
-
-    Diff = (10 + NewPos - OldPos) % 10;
-    if(Diff > 1)
-    {
-        // delete all history
-        memset(pInfo->EvenLines, 0, MAX_FIELD_HISTORY * sizeof(short**));
-        memset(pInfo->OddLines, 0, MAX_FIELD_HISTORY * sizeof(short**));
-        pInfo->bMissedFrame = TRUE;
-        nDroppedFields += Diff - 1;
-        LOG(2, "Dropped Frame");
-    }
-    else
-    {
-        pInfo->bMissedFrame = FALSE;
-        if (pInfo->bRunningLate)
-        {
-            nDroppedFields++;
-            LOG(2, "Running Late");
-        }
-    }
-
-    switch(NewPos)
-    {
-    case 0: pInfo->IsOdd = TRUE;  pInfo->CurrentFrame = 4; break;
-    case 1: pInfo->IsOdd = FALSE; pInfo->CurrentFrame = 0; break;
-    case 2: pInfo->IsOdd = TRUE;  pInfo->CurrentFrame = 0; break;
-    case 3: pInfo->IsOdd = FALSE; pInfo->CurrentFrame = 1; break;
-    case 4: pInfo->IsOdd = TRUE;  pInfo->CurrentFrame = 1; break;
-    case 5: pInfo->IsOdd = FALSE; pInfo->CurrentFrame = 2; break;
-    case 6: pInfo->IsOdd = TRUE;  pInfo->CurrentFrame = 2; break;
-    case 7: pInfo->IsOdd = FALSE; pInfo->CurrentFrame = 3; break;
-    case 8: pInfo->IsOdd = TRUE;  pInfo->CurrentFrame = 3; break;
-    case 9: pInfo->IsOdd = FALSE; pInfo->CurrentFrame = 4; break;
-    }
-}
-
-void Timing_WaitForNextFieldAccurate(DEINTERLACE_INFO* pInfo)
-{
-    int NewPos;
-    int Diff;
-    int OldPos = (pInfo->CurrentFrame * 2 + pInfo->IsOdd + 1) % 10;
-    
-    while(OldPos == (NewPos = BT848_GetRISCPosAsInt()))
-    {
-        pInfo->bRunningLate = FALSE;            // if we waited then we are not late
-    }
-
-    Diff = (10 + NewPos - OldPos) % 10;
-    if(Diff == 1)
-    {
-    }
-    else if(Diff == 2) 
-    {
-        NewPos = (OldPos + 1) % 10;
-        FlipAdjust = TRUE;
-        LOG(2, "Slightly late");
-    }
-    else if(Diff == 3) 
-    {
-        NewPos = (OldPos + 1) % 10;
-        FlipAdjust = TRUE;
-        LOG(2, "Very late");
-    }
-    else
-    {
-        // delete all history
-        memset(pInfo->EvenLines, 0, MAX_FIELD_HISTORY * sizeof(short**));
-        memset(pInfo->OddLines, 0, MAX_FIELD_HISTORY * sizeof(short**));
-        pInfo->bMissedFrame = TRUE;
-        nDroppedFields += Diff - 1;
-        LOG(1, "Dropped Frame");
-        Timing_Reset();
-    }
-
-    switch(NewPos)
-    {
-    case 0: pInfo->IsOdd = TRUE;  pInfo->CurrentFrame = 4; break;
-    case 1: pInfo->IsOdd = FALSE; pInfo->CurrentFrame = 0; break;
-    case 2: pInfo->IsOdd = TRUE;  pInfo->CurrentFrame = 0; break;
-    case 3: pInfo->IsOdd = FALSE; pInfo->CurrentFrame = 1; break;
-    case 4: pInfo->IsOdd = TRUE;  pInfo->CurrentFrame = 1; break;
-    case 5: pInfo->IsOdd = FALSE; pInfo->CurrentFrame = 2; break;
-    case 6: pInfo->IsOdd = TRUE;  pInfo->CurrentFrame = 2; break;
-    case 7: pInfo->IsOdd = FALSE; pInfo->CurrentFrame = 3; break;
-    case 8: pInfo->IsOdd = TRUE;  pInfo->CurrentFrame = 3; break;
-    case 9: pInfo->IsOdd = FALSE; pInfo->CurrentFrame = 4; break;
-    }
-    
-    // we've just got a new field
-    // we are going to time the odd to odd
-    // input frequency
-    if(pInfo->IsOdd)
-    {
+        LARGE_INTEGER CurrentFieldTime;
         QueryPerformanceCounter(&CurrentFieldTime);
-        if(!(pInfo->bRunningLate))
+
+        // if we're not running late then
+        // and we got a good clean run last time
+        if(LastFieldTime.QuadPart != 0)
         {
-            UpdateRunningAverage(&CurrentFieldTime);
+            // gets the last ticks odd - odd
+            double RecentTicks = (double)(CurrentFieldTime.QuadPart - LastFieldTime.QuadPart);
+            // only allow values within 5% if current Value
+            // should prevent spurious values getting through
+            if(RecentTicks > RunningAverageCounterTicks * 0.95 &&
+                RecentTicks < RunningAverageCounterTicks * 1.05)
+            {
+                // update the average
+                // we're doing this weighted average because
+                // it has lots of nice properties
+                // especially that we don't need to keep a 
+                // data history
+                RunningAverageCounterTicks = Weight * RecentTicks + (1.0 - Weight) * RunningAverageCounterTicks;
+                LOG(2, " Last %f", RecentTicks);
+                LOG(2, " Running Average %f", RunningAverageCounterTicks);
+            }
+            else
+            {
+                LOG(2, " Last %f (IGNORED)", RecentTicks);
+                LOG(2, " Old Running Average %f", RunningAverageCounterTicks);
+            }
+        }
+        // save current Value for next time
+        LastFieldTime.QuadPart = CurrentFieldTime.QuadPart;
+    }
+    else
+    {
+        // if we're running late then
+        // time will be rubbish
+        // so make sure it won't be used
+        LastFieldTime.QuadPart = 0;
+    }
+}
+
+void Timing_SmartSleep(DEINTERLACE_INFO* pInfo, BOOL bRunningLate, BOOL& bSleptAlready)
+{
+    if(bSleptAlready == FALSE || SleepSkipFields == 0)
+    {
+        static int nSleepSkipFields = 0;
+        // Sleep less often if we're running late.
+
+        // Increment sleep skipping counter, so we can sleep only every X fields specified by SleepSkipField
+        if (bRunningLate)
+        {
+            // Sleep skipping whenever we're running late
+            ++nSleepSkipFields;
+            Sleep((nSleepSkipFields % (SleepSkipFieldsLate + 1)) ? 0 : SleepInterval);
         }
         else
         {
-            // if we're running late then
-            // time will be rubbish
-            // so make sure it won't be used
-            LastFieldTime.QuadPart = 0;
+            // Sleep skipping whenever we're running on time
+            ++nSleepSkipFields;
+            Sleep((nSleepSkipFields % (SleepSkipFields + 1)) ? 0 : SleepInterval);
         }
     }
-
-    Timing_SmartSleep(pInfo, pInfo->bRunningLate);
+    bSleptAlready = TRUE;
 }
 
-void Timing_WaitForNextField(DEINTERLACE_INFO* pInfo)
+void Timimg_AutoFormatDetect(DEINTERLACE_INFO* pInfo)
 {
-    LARGE_INTEGER CurrentTime;
     static long RepeatCount = 0;
 
-    if(pInfo->bDoAccurateFlips && (IsFilmMode() || bJudderTerminatorOnVideo))
-    {
-        Timing_WaitForNextFieldAccurate(pInfo);
-    }
-    else
-    {
-        Timing_WaitForNextFieldNormal(pInfo);
-    }
-    if (!pInfo->bRunningLate)
-    {
-        nUsedFields++;
-    }
-    // auto input detect unless we're dropping fields (in which case we can't
-	// count on any of the timing data to be accurate)
-    if(bDoAutoFormatDetect == TRUE && nDroppedFields == 0)
+    if(bDoAutoFormatDetect == TRUE)
     {
         if(pInfo->CurrentFrame == 0 && pInfo->IsOdd == TRUE)
         {
+            LARGE_INTEGER CurrentTime;
             QueryPerformanceCounter(&CurrentTime);
             if(LastTenFieldTime.QuadPart != 0)
             {
@@ -343,7 +193,7 @@ void Timing_WaitForNextField(DEINTERLACE_INFO* pInfo)
 
                 // If we are not on a 50Hz Mode and we get 50hz timings then flip
                 // to 50hz Mode
-                if(!(BT848_GetTVFormat()->Is25fps) &&
+                if(!(GetTVFormat(Providers_GetCurrentSource()->GetFormat())->Is25fps) &&
                     TenFieldTime >= 195 && TenFieldTime <= 205)
                 {
                     ++RepeatCount;
@@ -356,7 +206,7 @@ void Timing_WaitForNextField(DEINTERLACE_INFO* pInfo)
                 // If we are not on a 60Hz Mode and we get 60hz timings then flip
                 // to 60hz Mode, however this is not what we seem to get when playing
                 // back 60Hz stuff when in PAL
-                else if(BT848_GetTVFormat()->Is25fps && 
+                else if(GetTVFormat(Providers_GetCurrentSource()->GetFormat())->Is25fps && 
                     TenFieldTime >= 160 && TenFieldTime <= 172)
                 {
                     ++RepeatCount;
@@ -369,7 +219,7 @@ void Timing_WaitForNextField(DEINTERLACE_INFO* pInfo)
                 // If we are not on a 60Hz Mode and we get 60hz timings then flip
                 // to 60hz Mode, in my tests I get 334 come back as the timings
                 // when playing NTSC in PAL Mode so this check is also needed
-                else if(BT848_GetTVFormat()->Is25fps && 
+                else if(GetTVFormat(Providers_GetCurrentSource()->GetFormat())->Is25fps && 
                     TenFieldTime >= 330 && TenFieldTime <= 340)
                 {
                     ++RepeatCount;
@@ -395,7 +245,6 @@ void Timing_Reset()
     CurrentFieldTime.QuadPart = 0;
     LastFlipTime.QuadPart = 0;
     CurrentFlipTime.QuadPart = 0;
-    LastTenFieldTime.QuadPart = 0;
 }
 
 void Timing_WaitForTimeToFlip(DEINTERLACE_INFO* pInfo, DEINTERLACE_METHOD* CurrentMethod, BOOL* bStopThread)
@@ -454,6 +303,20 @@ void Timing_ResetUsedFields()
     nUsedFields = 0;
 }
 
+void Timing_IncrementUsedFields()
+{
+    ++nUsedFields;
+}
+
+void Timing_AddDroppedFields(int nDropped)
+{
+    nDroppedFields += nDropped;
+}
+
+void Timing_SetFlipAdjustFlag(BOOL NewValue)
+{
+    FlipAdjust = NewValue;
+}
 
 ////////////////////////////////////////////////////////////////////////////
 // Start of Settings related code
@@ -479,16 +342,10 @@ SETTING TimingSettings[TIMING_SETTING_LASTONE] =
         "Timing", "60Hz", NULL,
     },
     {
-        "Format Change Threshold", ONOFF, 0, (long*)&FormatChangeThreshold,
+        "Format Change Threshold", SLIDER, 0, (long*)&FormatChangeThreshold,
         2, 0, 50, 1, 1,
         NULL,
         "Timing", "FormatChangeThreshold", NULL,
-    },
-    {
-        "Do JudderTerminator On Video Modes", ONOFF, 0, (long*)&bJudderTerminatorOnVideo,
-        TRUE, 0, 1, 1, 1,
-        NULL,
-        "Timing", "DoJudderTerminatorOnVideo", NULL,
     },
     {
         "Sleep Interval", SLIDER, 0, (long*)&SleepInterval,
@@ -549,3 +406,4 @@ void Timing_ShowUI()
 {
     CSettingsDlg::ShowSettingsDlg("Field Timing Settings",TimingSettings, TIMING_SETTING_LASTONE);
 }
+

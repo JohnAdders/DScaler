@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.h,v 1.21 2001-11-02 10:15:20 temperton Exp $
+// $Id: AspectRatio.h,v 1.22 2001-11-02 16:30:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -85,7 +85,7 @@ void    AspectRatio_SetMenu(HMENU hMenu);
 void    WorkoutOverlaySize(BOOL allowResize = TRUE);
 void    PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect, BOOL bNoMiddlePainting = false);
 int     FindAspectRatio(short** EvenField, short** OddField);
-void    AdjustAspectRatio(long SourceAspectAdjust, short** EvenField, short** OddField);
+void AdjustAspectRatio(long SourceAspectAdjust, DEINTERLACE_INFO* pInfo);
 void    GetSourceRect(RECT* rect);
 void    GetDestRect(RECT* rect);
 void    SwitchToRatio(int nMode, int nRatio);

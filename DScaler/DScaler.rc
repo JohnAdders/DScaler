@@ -147,14 +147,6 @@ BEGIN
     DEFPUSHBUTTON   "&OK",IDOK,6,161,45,15
     PUSHBUTTON      "Cancel",IDCANCEL,57,161,45,15,WS_GROUP
     PUSHBUTTON      "&Default",IDDEFAULT,113,161,45,15
-    CONTROL         "Save Settings by &Format",IDC_BYFORMAT,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,166,153,94,10
-    CONTROL         "Save Settings by &Input",IDC_BYINPUT,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,166,167,88,9
-    PUSHBUTTON      "Save Current to All Formats",IDC_ALLFORMATS,260,153,90,
-                    10,WS_DISABLED
-    PUSHBUTTON      "Save Current to All Inputs",IDC_ALLINPUTS,259,166,91,10,
-                    WS_DISABLED
 END
 
 IDD_AUDIOSETTINGS DIALOG DISCARDABLE  0, 0, 257, 236
@@ -319,12 +311,12 @@ END
 IDD_ABOUT DIALOGEX 22, 17, 374, 274
 STYLE DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
 CAPTION "About DScaler"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,305,9,58,19,WS_GROUP,WS_EX_CLIENTEDGE
-    CTEXT           "DScaler Version 3.x",IDC_VERSION,6,3,288,9
-    CTEXT           "Copyright (C) 2000, 2001 John Adcock",IDC_STATIC,6,25,
-                    288,9
+    CTEXT           "DScaler Version 4.x",IDC_VERSION,0,3,293,9
+    CTEXT           "Copyright (C) 2000, 2001 John Adcock",IDC_STATIC,0,24,
+                    293,10
     GROUPBOX        "Based On",IDC_STATIC,6,144,364,56
     GROUPBOX        "GPL Information && Open Source Policy",IDC_STATIC,5,203,
                     364,65
@@ -625,9 +617,10 @@ BEGIN
         MENUITEM "Toggle Show &Cursor   \tCtrl+Enter", IDM_TOGGLECURSOR
         MENUITEM "Au&tohide Cursor",            IDM_AUTOHIDE_CURSOR
         MENUITEM "&Full Screen\tAlt+Enter",     IDM_FULL_SCREEN
+        MENUITEM "&Splash Screen on Startup",   IDM_SPLASH_ON_STARTUP
         MENUITEM "&Always on Top (Window)",     IDM_ON_TOP
-        MENUITEM "Always on Top (Full Screen)", IDM_ALWAYONTOPFULLSCREEN
-        POPUP "&On Screen Display"
+        MENUITEM "Alway On Top (Full Screen)",  IDM_ALWAYONTOPFULLSCREEN
+        POPUP "&OSD"
         BEGIN
             MENUITEM "Show &Next\tEnter",           IDM_SHOW_OSD
             MENUITEM "&Hide\tBackspace",            IDM_HIDE_OSD
@@ -724,11 +717,11 @@ BEGIN
     END
     POPUP "&Settings"
     BEGIN
-        MENUITEM "&Video Adjustments ...",      IDM_VIDEOSETTINGS
+        MENUITEM "Audio-Mi&xer Setup",          IDM_AUDIO_MIXER
         POPUP "&Deinterlace Mode"
         BEGIN
             MENUITEM "&Automatic Pulldown Detect",  IDM_AUTODETECT
-            MENUITEM "&Fallback to Video on Bad Pulldown", IDM_FALLBACK
+            MENUITEM "&Fall Back to Video on Bad Pulldown", IDM_FALLBACK
             MENUITEM "&JudderTerminator (tm)",      IDM_JUDDERTERMINATOR
             MENUITEM "Include &Chroma in Detection", IDM_USECHROMA
             MENUITEM SEPARATOR
@@ -746,6 +739,129 @@ BEGIN
             MENUITEM "Show Video Method &UI",       IDM_SHOWPLUGINUI
             MENUITEM SEPARATOR
         END
+        MENUITEM "Select &Filters",             65535
+        MENUITEM "Filter &Settings",            65535
+        MENUITEM SEPARATOR
+        MENUITEM "Test &Pattern Select",        65535
+        POPUP "St&art Card Calibration"
+        BEGIN
+            MENUITEM "&Manual",                     IDM_START_MANUAL_CALIBRATION
+
+            MENUITEM "&Automatic (full)",           IDM_START_AUTO_CALIBRATION
+
+            MENUITEM "Automatic (brightness / contrast) (experimental)", 
+                                                    IDM_START_AUTO_CALIBRATION2
+
+            MENUITEM "Automatic (color) (experimental)", 
+                                                    IDM_START_AUTO_CALIBRATION3
+
+        END
+        MENUITEM "St&op Card Calibration",      IDM_STOP_CALIBRATION
+        MENUITEM "&Video Adjustments ...",      IDM_VIDEOSETTINGS
+        MENUITEM "Auto Format Detection",       IDM_AUTO_FORMAT
+    END
+    MENUITEM "Source",                      65535
+    MENUITEM "Holder",                      65535
+    POPUP "&Datacasting"
+    BEGIN
+        MENUITEM "Capture VBI-&Data",           IDM_VBI
+        MENUITEM SEPARATOR
+        MENUITEM "Video&Text",                  IDM_VBI_VT, GRAYED
+        MENUITEM "V&PS-Data",                   IDM_VBI_VPS, GRAYED
+        MENUITEM "&WSS-Data",                   IDM_VBI_WSS, GRAYED
+        POPUP "&Closed Captions"
+        BEGIN
+            MENUITEM "CC &Off",                     IDM_CCOFF
+            MENUITEM "CC &1",                       IDM_CC1
+            MENUITEM "CC &2",                       IDM_CC2
+            MENUITEM "CC &3",                       IDM_CC3
+            MENUITEM "CC &4",                       IDM_CC4
+            MENUITEM "Text 1",                      IDM_TEXT1
+            MENUITEM "Text 2",                      IDM_TEXT2
+            MENUITEM "Text 3",                      IDM_TEXT3
+            MENUITEM "Text 4",                      IDM_TEXT4
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "Toggle Teletext &Mode\tT",    IDM_CALL_VIDEOTEXT, GRAYED
+        POPUP "Teletext Code Page"
+        BEGIN
+            MENUITEM "&English",                    IDM_VT_UK
+            MENUITEM "&French",                     IDM_VT_FRENCH
+            MENUITEM "&Czech",                      IDM_VT_CZECH
+            MENUITEM "&Greek",                      IDM_VT_GREEK
+        END
+        MENUITEM "&Videotext Reset (After switch over Composite)  ", 
+                                                IDM_VT_RESET, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "Videotext-Infos",             IDM_VT_OUT, GRAYED
+        MENUITEM "VPS-Infos",                   IDM_VPS_OUT, GRAYED
+    END
+    POPUP "Adva&nced"
+    BEGIN
+        POPUP "Thread &Priorities"
+        BEGIN
+            POPUP "Program"
+            BEGIN
+                MENUITEM "Normal",                      IDM_PRIORCLASS_0
+                MENUITEM "High",                        IDM_PRIORCLASS_1
+                MENUITEM "Very High",                   IDM_PRIORCLASS_2
+            END
+            POPUP "Decoding and Output"
+            BEGIN
+                MENUITEM "Low",                         IDM_TREADPRIOR_0
+                MENUITEM "Normal",                      IDM_TREADPRIOR_1
+                MENUITEM "Above Normal",                IDM_TREADPRIOR_2
+                MENUITEM "High",                        IDM_TREADPRIOR_3
+                MENUITEM "Very High",                   IDM_TREADPRIOR_4
+            END
+        END
+        POPUP "&Other Settings"
+        BEGIN
+            MENUITEM "2:2 Pulldown Detection",      IDM_22PULLDOWN_SETTINGS
+            MENUITEM "3:2 Pulldown Detection",      IDM_32PULLDOWN_SETTINGS
+            MENUITEM "Pulldown Shared",             IDM_PULLDOWNCOMMON_SETTINGS
+
+            MENUITEM "Logging",                     IDM_DEBUG_SETTINGS
+            MENUITEM "Aspect Ratio",                IDM_ASPECT_SETTINGS
+            MENUITEM "Field Timing",                IDM_TIMING_SETTNGS
+            MENUITEM "Overlay Settings",            IDM_OVERLAY_SETTINGS
+        END
+        MENUITEM "Stop Video Overlay",          IDM_OVERLAY_STOP
+        MENUITEM "Start Video Overlay",         IDM_OVERLAY_START
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&Read Me ...\tF1",            IDM_HELP_README
+        MENUITEM "DScaler &Home Page ...",      IDM_HELP_HOMEPAGE
+        MENUITEM "&FAQ ...",                    IDM_HELP_FAQ
+        MENUITEM "&Support ...",                IDM_HELP_SUPPORT
+        MENUITEM "&Keyboard ...",               IDM_HELP_KEYBOARD
+        MENUITEM "&Licence ...",                IDM_HELP_GPL
+        MENUITEM SEPARATOR
+        MENUITEM "&About DScaler...",           IDM_ABOUT
+    END
+END
+
+IDC_CONTEXTMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "Menu1"
+    BEGIN
+        MENUITEM "&Sources",                    65535
+        MENUITEM "&Holder",                     65535
+        MENUITEM "Deinterlace &Mode",           65535
+        MENUITEM "Aspect &Ratio",               65535
+        MENUITEM "Fi&lters",                    1
+        MENUITEM "&Datacasting",                65535
+        MENUITEM "&OSD",                        65535
+        MENUITEM "Full &Screen",                IDM_FULL_SCREEN
+        MENUITEM "E&xit",                       IDM_END
+    END
+END
+
+IDC_BT848 MENU DISCARDABLE 
+BEGIN
+    POPUP "&Bt848"
+    BEGIN
         POPUP "&Audio Input"
         BEGIN
             MENUITEM "&Mute\tM",                    IDM_MUTE
@@ -783,9 +899,7 @@ BEGIN
             MENUITEM "NTSC Japan   \tShift+Alt+F6", IDM_TYPEFORMAT_5
             MENUITEM "PAL&60   \tShift+Alt+F7",     IDM_TYPEFORMAT_6
             MENUITEM "NTSC &50\tShift+Alt+F8",      IDM_TYPEFORMAT_7
-            MENUITEM "PAL-N&C\tShift+Alt+F9",       IDM_TYPEFORMAT_8
             MENUITEM SEPARATOR
-            MENUITEM "Auto Format Detection",       IDM_AUTO_FORMAT
         END
         POPUP "Pixel &Width"
         BEGIN
@@ -804,20 +918,14 @@ BEGIN
             MENUITEM "Custom",                      ID_SETTINGS_PIXELWIDTH_CUSTOM
 
         END
-        MENUITEM "Select &Filters",             65535
-        MENUITEM "Filter Settings",             65535
-    END
-    POPUP "Hard&ware"
-    BEGIN
         MENUITEM "&Setup Hardware ...",         IDM_SETUPCARD
-        MENUITEM "&Hardware Info ...",          IDM_HWINFO
         POPUP "MSP/Radio"
         BEGIN
-            MENUITEM "&Audio Settings",             IDM_AUDIOSETTINGS
-            MENUITEM "&Equalizer",                  IDM_AUDIOSETTINGS1
+            MENUITEM "&Tone - Control",             IDM_AUDIOSETTINGS
+            MENUITEM "Tone - Control  &Equalizer",  IDM_AUDIOSETTINGS1
             MENUITEM SEPARATOR
             MENUITEM "FM Radio",                    IDM_MSPMODE_2
-            MENUITEM "TV Terrestrial FM-mono + FM-stereo ", IDM_MSPMODE_3
+            MENUITEM "TV Terrestial FM-mono + FM-stereo ", IDM_MSPMODE_3
             MENUITEM "TV Sat FM-mono ",             IDM_MSPMODE_4
             MENUITEM "NICAM PAL BDGH && SECAM",     IDM_MSPMODE_5
             MENUITEM "NICAM PAL I",                 IDM_MSPMODE_6
@@ -825,7 +933,7 @@ BEGIN
             POPUP "Major Carrier"
             BEGIN
                 MENUITEM "NTSC",                        IDM_MAJOR_CARRIER_0
-                MENUITEM "PAL BGH",                     IDM_MAJOR_CARRIER_1
+                MENUITEM "PAl BGH",                     IDM_MAJOR_CARRIER_1
                 MENUITEM "PAL I",                       IDM_MAJOR_CARRIER_2
                 MENUITEM "PAL D + Sat + Secam",         IDM_MAJOR_CARRIER_3
             END
@@ -843,147 +951,28 @@ BEGIN
             MENUITEM SEPARATOR
             MENUITEM "Mono",                        IDM_MSPSTEREO_1
             MENUITEM "Stereo",                      IDM_MSPSTEREO_2
-            MENUITEM "Speech Channel 1 ",           IDM_MSPSTEREO_3
-            MENUITEM "Speech Channel 2",            IDM_MSPSTEREO_4
+            MENUITEM "Speech-Channel 1 ",           IDM_MSPSTEREO_3
+            MENUITEM "Speech-Channel",              IDM_MSPSTEREO_4
             MENUITEM SEPARATOR
             MENUITEM "Automatic Stereo Adjustment", IDM_AUTOSTEREO
         END
-        MENUITEM "&Reset Capture Card",         IDM_RESET
-        MENUITEM "Audio-Mi&xer Setup",          IDM_AUDIO_MIXER
-        MENUITEM SEPARATOR
-        MENUITEM "Test &Pattern Select",        65535
-        POPUP "St&art Card Calibration"
+        POPUP "Advanced"
         BEGIN
-            MENUITEM "&Manual",                     IDM_START_MANUAL_CALIBRATION
-
-            POPUP "&Automatic (experimental)"
-            BEGIN
-                MENUITEM "&Full",                       IDM_START_AUTO_CALIBRATION
-
-                MENUITEM "&Brightness + Contrast",      IDM_START_AUTO_CALIBRATION2
-
-                MENUITEM "&Color",                      IDM_START_AUTO_CALIBRATION3
-
-            END
+            MENUITEM "&Advanced Video Flags ...",   IDM_ADV_VIDEOSETTINGS
+            MENUITEM "Reset Capture Card",          IDM_RESET
+            MENUITEM "&Hardware Info ...",          IDM_HWINFO
+            MENUITEM "Save Settings By Format",     IDM_SAVE_BY_FORMAT
+            MENUITEM "Save Settings By Input",      IDM_SAVE_BY_INPUT
+            MENUITEM "Save By Channel",             IDM_SAVE_BY_CHANNEL
         END
-        MENUITEM "St&op Card Calibration",      IDM_STOP_CALIBRATION
-    END
-    POPUP "&Datacasting"
-    BEGIN
-        MENUITEM "Capture VBI-&Data",           IDM_VBI
-        MENUITEM SEPARATOR
-        MENUITEM "Video&Text",                  IDM_VBI_VT, GRAYED
-        MENUITEM "V&PS-Data",                   IDM_VBI_VPS, GRAYED
-        MENUITEM "&WSS-Data",                   IDM_VBI_WSS, GRAYED
-        POPUP "&Closed Captions"
-        BEGIN
-            MENUITEM "CC &Off",                     IDM_CCOFF
-            MENUITEM "CC &1",                       IDM_CC1
-            MENUITEM "CC &2",                       IDM_CC2
-            MENUITEM "CC &3",                       IDM_CC3
-            MENUITEM "CC &4",                       IDM_CC4
-            MENUITEM "Text 1",                      IDM_TEXT1
-            MENUITEM "Text 2",                      IDM_TEXT2
-            MENUITEM "Text 3",                      IDM_TEXT3
-            MENUITEM "Text 4",                      IDM_TEXT4
-        END
-        MENUITEM SEPARATOR
-        MENUITEM "Toggle Teletext &Mode\tT",    IDM_CALL_VIDEOTEXT, GRAYED
-        POPUP "Teletext Code Page"
-        BEGIN
-            MENUITEM "&English",                    IDM_VT_UK
-            MENUITEM "&French",                     IDM_VT_FRENCH
-            MENUITEM "&Czech",                      IDM_VT_CZECH
-            MENUITEM "&Greek",                      IDM_VT_GREEK
-            MENUITEM "&Russian",                    IDM_VT_RUSSIAN
-            MENUITEM "G&erman",                     IDM_VT_GERMAN
-        END
-        POPUP "Teletext Remote Button"
-        BEGIN
-            MENUITEM "Red\tF5",                     IDM_TELETEXT_KEY1
-            MENUITEM "Green\tF6",                   IDM_TELETEXT_KEY2
-            MENUITEM "Yellow\tF7",                  IDM_TELETEXT_KEY3
-            MENUITEM "Blue\tF8",                    IDM_TELETEXT_KEY4
-            MENUITEM "Index\tF9",                   IDM_TELETEXT_KEY5
-            MENUITEM "Conceal\t?",                  IDM_TELETEXT_KEY6
-        END
-        MENUITEM "&Videotext Reset (After switch over Composite)  ", 
-                                                IDM_VT_RESET, GRAYED
-        MENUITEM SEPARATOR
-        MENUITEM "Videotext-Infos",             IDM_VT_OUT, GRAYED
-        MENUITEM "VPS-Infos",                   IDM_VPS_OUT, GRAYED
-    END
-    POPUP "Adva&nced"
-    BEGIN
-        POPUP "Thread &Priorities"
-        BEGIN
-            POPUP "Program"
-            BEGIN
-                MENUITEM "Normal",                      IDM_PRIORCLASS_0
-                MENUITEM "High",                        IDM_PRIORCLASS_1
-                MENUITEM "Very High",                   IDM_PRIORCLASS_2
-            END
-            POPUP "Decoding and Output"
-            BEGIN
-                MENUITEM "Low",                         IDM_TREADPRIOR_0
-                MENUITEM "Normal",                      IDM_TREADPRIOR_1
-                MENUITEM "Above Normal",                IDM_TREADPRIOR_2
-                MENUITEM "High",                        IDM_TREADPRIOR_3
-                MENUITEM "Very High",                   IDM_TREADPRIOR_4
-            END
-        END
-        POPUP "&Other Settings"
-        BEGIN
-            MENUITEM "2:2 Pulldown Detection",      IDM_22PULLDOWN_SETTINGS
-            MENUITEM "3:2 Pulldown Detection",      IDM_32PULLDOWN_SETTINGS
-            MENUITEM "Pulldown Shared",             IDM_PULLDOWNCOMMON_SETTINGS
-
-            MENUITEM "Logging",                     IDM_DEBUG_SETTINGS
-            MENUITEM "BT848 Chip",                  IDM_BT848_SETTINGS
-            MENUITEM "Aspect Ratio",                IDM_ASPECT_SETTINGS
-            MENUITEM "Field Timing",                IDM_TIMING_SETTNGS
-            MENUITEM "Overlay Settings",            IDM_OVERLAY_SETTINGS
-        END
-        MENUITEM "&Advanced Video Flags ...",   IDM_ADV_VIDEOSETTINGS
-        MENUITEM "&Splash Screen on Startup",   IDM_SPLASH_ON_STARTUP
-        POPUP "Video &Overlay"
-        BEGIN
-            MENUITEM "Settings &Adjustment ...",    IDM_OVERLAYSETTINGS
-            MENUITEM "Groups of Settings",          65535, GRAYED
-            MENUITEM "St&op",                       IDM_OVERLAY_STOP
-            MENUITEM "St&art",                      IDM_OVERLAY_START
-        END
-    END
-    POPUP "&Help"
-    BEGIN
-        MENUITEM "&Help ...\tF1",               IDM_HELP_README
-        MENUITEM "DScaler &Home Page ...",      IDM_HELP_HOMEPAGE
-        MENUITEM "&FAQ ...",                    IDM_HELP_FAQ
-        MENUITEM "User &Support ...",           IDM_HELP_SUPPORT
-        MENUITEM "&Keyboard Shortcuts...",      IDM_HELP_KEYBOARD
-        MENUITEM "GPL &Licence ...",            IDM_HELP_GPL
-        MENUITEM SEPARATOR
-        MENUITEM "&About DScaler...",           IDM_ABOUT
     END
 END
 
-IDC_CONTEXTMENU MENU DISCARDABLE 
+IDC_STILL MENU DISCARDABLE 
 BEGIN
-    POPUP "Menu1"
+    POPUP "S&till"
     BEGIN
-        MENUITEM "Video &Input",                65535
-        MENUITEM "&Audio Input",                65535
-        MENUITEM "Video &Format",               65535
-        MENUITEM "&Channels",                   65535
-        MENUITEM "Deinterlace &Mode",           65535
-        MENUITEM "Aspect &Ratio",               65535
-        MENUITEM "Fi&lters",                    1
-        MENUITEM "&Video Adjustments ...",      IDM_VIDEOSETTINGS
-        MENUITEM "Pixel  &Width",               0
-        MENUITEM "&Datacasting",                65535
-        MENUITEM "&OSD",                        65535
-        MENUITEM "Full &Screen",                IDM_FULL_SCREEN
-        MENUITEM "E&xit",                       IDM_END
+        MENUITEM "Select Picture ...",          IDM_SELECT_PICTURE
     END
 END
 
@@ -997,9 +986,9 @@ IDB_STARTUP             BITMAP  DISCARDABLE     "res\\STARTUP.bmp"
 IDB_VTCHARS             BITMAP  DISCARDABLE     "res\\Vtx15x18.bmp"
 IDB_FRENCH_VTCHARS      BITMAP  DISCARDABLE     "RES\\VTFRENCHX15X18.BMP"
 IDB_CZECH_VTCHARS       BITMAP  DISCARDABLE     "RES\\VTCZECHX15X18.bmp"
-IDB_GREEK_VTCHARS       BITMAP  DISCARDABLE     "RES\\VTGREEKX15X18.bmp"
 IDB_RUSSIAN_VTCHARS     BITMAP  DISCARDABLE     "RES\\VTRUSSIANX15X18.bmp"
 IDB_GERMAN_VTCHARS      BITMAP  DISCARDABLE     "RES\\VTGERMANX15X18.BMP"
+IDB_GREEK_VTCHARS       BITMAP  DISCARDABLE     "RES\\VTGREEKX15X18.BMP"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -1293,10 +1282,6 @@ BEGIN
     "W",            IDM_PIXELWIDTH_PLUS,    VIRTKEY, SHIFT, NOINVERT
     "W",            IDM_PIXELWIDTH_CURRENT, VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
-    "X",            IDM_R_BALANCE,          VIRTKEY, NOINVERT
-    "X",            IDM_R_BALANCE,          VIRTKEY, SHIFT, NOINVERT
-    "Y",            IDM_L_BALANCE,          VIRTKEY, NOINVERT
-    "Y",            IDM_L_BALANCE,          VIRTKEY, SHIFT, NOINVERT
     "Z",            IDM_ZOOM_MINUS,         VIRTKEY, NOINVERT
     "Z",            IDM_ZOOM_PLUS,          VIRTKEY, SHIFT, NOINVERT
     "_",            IDM_VOLUMEMINUS,        ASCII,  NOINVERT
@@ -1314,8 +1299,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 3,1,0,0
- PRODUCTVERSION 3,1,0,0
+ FILEVERSION 4,0,0,0
+ PRODUCTVERSION 4,0,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -1333,14 +1318,14 @@ BEGIN
             VALUE "Comments", "John Adcock\0"
             VALUE "CompanyName", "\0"
             VALUE "FileDescription", "DScaler\0"
-            VALUE "FileVersion", "3, 1, 0, 0\0"
+            VALUE "FileVersion", "4, 0, 0, 0\0"
             VALUE "InternalName", "DScaler\0"
             VALUE "LegalCopyright", "Copyright © 2000, 2001\0"
             VALUE "LegalTrademarks", "This Program is covered by the term of the GNU GPL\0"
             VALUE "OriginalFilename", "DScaler.exe\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "DScaler\0"
-            VALUE "ProductVersion", "3.1.0\0"
+            VALUE "ProductVersion", "4.0.0\0"
             VALUE "SpecialBuild", "\0"
         END
     END

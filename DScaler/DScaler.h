@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.10 2001-10-22 05:55:07 temperton Exp $
+// $Id: DScaler.h,v 1.11 2001-11-02 16:30:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -79,9 +79,6 @@ HMENU GetPatternsSubmenu();
 
 #define TIMER_KEYNUMBER     99
 #define TIMER_KEYNUMBER_MS  1000
-
-#define TIMER_MSP           8
-#define TIMER_MSP_MS        10000
 
 #define TIMER_AUTOSAVE      55
 #define TIMER_AUTOSAVE_MS   1500

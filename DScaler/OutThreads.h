@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.h,v 1.6 2001-09-05 15:08:43 adcockj Exp $
+// $Id: OutThreads.h,v 1.7 2001-11-02 16:30:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -76,5 +76,8 @@ extern long nSecTicks;
 extern long nInitialTicks;
 extern long nLastTicks;
 extern long nTotalDeintModeChanges;
+
+extern long CurrentX;
+extern long CurrentY;
 
 #endif

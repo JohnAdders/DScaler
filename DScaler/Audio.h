@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Audio.h,v 1.8 2001-07-16 18:07:50 adcockj Exp $
+// $Id: Audio.h,v 1.9 2001-11-02 16:30:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -42,68 +42,8 @@ void Audio_ReadSettingsFromIni();
 void Audio_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void Audio_SetMenu(HMENU hMenu);
 
-
-enum eAudioMuxType
-{
-    AUDIOMUX_TUNER = 0,
-    AUDIOMUX_MSP_RADIO,
-    AUDIOMUX_EXTERNAL,
-    AUDIOMUX_INTERNAL,
-    AUDIOMUX_MUTE,
-    AUDIOMUX_STEREO
-};
-
-BOOL APIENTRY AudioSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
-BOOL APIENTRY AudioSettingProc1(HWND hDlg, UINT message, UINT wParam, LONG lParam);
-
-BOOL Audio_SetSource(eAudioMuxType nChannel);
-void Audio_Autodetect();
-BOOL Audio_WriteMSP(BYTE bSubAddr, int wAddr, int wData);
-void Audio_SetToneControl();
-int Audio_GetStereoMode(BOOL bHardwareMode);
-
 void Audio_Mute();
 void Audio_Unmute();
 
-BOOL Audio_MSP_Init(BYTE DRead, BYTE DWrite);
-BOOL Audio_MSP_IsPresent();
-const char* Audio_MSP_Status();
-const char* Audio_MSP_VersionString();
-BOOL Audio_MSP_Reset();
-BOOL Audio_MSP_Version();
-void Audio_MSP_Set_MajorMinor_Mode(int MajorMode, int MinorMode);
-void Audio_MSP_SetStereo(int MajorMode, int MinorMode, int Mode);
-void Audio_MSP_Watch_Mode();
-void Audio_MSP_Print_Mode();
-void Audio_MSP_Mute(void); // MAE 8 Dec 2000
-void Audio_MSP_Unmute(void);
-
-BOOL APIENTRY AudioSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
-
-// MSP34x0 definitions
-#define MSP_CONTROL 0x00 // Software reset
-#define MSP_TEST    0x01 // Internal use
-#define MSP_WR_DEM  0x10 // Write demodulator
-#define MSP_RD_DEM  0x11 // Read demodulator
-#define MSP_WR_DSP  0x12 // Write DSP
-#define MSP_RD_DSP  0x13 // Read DSP
-
-#define MSP_MODE_AM_DETECT   0
-#define MSP_MODE_FM_RADIO    2
-#define MSP_MODE_FM_TERRA    3
-#define MSP_MODE_FM_SAT      4
-#define MSP_MODE_FM_NICAM1   5
-#define MSP_MODE_FM_NICAM2   6
-
-#define VIDEO_SOUND_MONO    1
-#define VIDEO_SOUND_STEREO  2
-#define VIDEO_SOUND_LANG1   3
-#define VIDEO_SOUND_LANG2   4
-
-// This macro is allowed for *constants* only, gcc must calculate it
-// at compile time.  Remember -- no floats in kernel Mode
-#define MSP_CARRIER(freq) ((int)((float)(freq/18.432)*(1<<24)))
-
-extern eAudioMuxType AudioSource;
 
 #endif

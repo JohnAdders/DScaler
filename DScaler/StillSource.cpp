@@ -1,0 +1,158 @@
+/////////////////////////////////////////////////////////////////////////////
+// $Id: StillSource.cpp,v 1.2 2001-11-02 16:30:08 adcockj Exp $
+/////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2001 John Adcock.  All rights reserved.
+/////////////////////////////////////////////////////////////////////////////
+//
+//  This file is subject to the terms of the GNU General Public License as
+//  published by the Free Software Foundation.  A copy of this license is
+//  included with this software distribution in the file COPYING.  If you
+//  do not have a copy, you may obtain a copy by writing to the Free
+//  Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+//
+//  This software is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details
+/////////////////////////////////////////////////////////////////////////////
+// CVS Log
+//
+// $Log: not supported by cvs2svn $
+// Revision 1.1.2.6  2001/08/23 16:04:57  adcockj
+// Improvements to dynamic menus to remove requirement that they are not empty
+//
+// Revision 1.1.2.5  2001/08/21 16:42:16  adcockj
+// Per format/input settings and ini file fixes
+//
+// Revision 1.1.2.4  2001/08/20 16:14:19  adcockj
+// Massive tidy up of code to new structure
+//
+// Revision 1.1.2.3  2001/08/18 17:09:30  adcockj
+// Got to compile, still lots to do...
+//
+// Revision 1.1.2.2  2001/08/17 16:35:14  adcockj
+// Another interim check-in still doesn't compile. Getting closer ...
+//
+// Revision 1.1.2.1  2001/08/15 14:44:05  adcockj
+// Starting to put some flesh onto the new structure
+//
+//////////////////////////////////////////////////////////////////////////////
+
+#include "stdafx.h"
+#include "StillSource.h"
+#include "DScaler.h"
+#include "resource.h"
+
+CStillSource::CStillSource() :
+    CInterlacedSource(0, IDC_STILL)
+{
+    CreateSettings("StillSource");
+}
+
+CStillSource::~CStillSource()
+{
+}
+
+void CStillSource::CreateSettings(LPCSTR IniSection)
+{
+}
+
+
+void CStillSource::Start()
+{
+}
+
+void CStillSource::Stop()
+{
+}
+
+void CStillSource::GetNextField(DEINTERLACE_INFO* pInfo, BOOL AccurateTiming)
+{
+    pInfo->LineLength = 720 * 2;
+    pInfo->FrameWidth = 720;
+    pInfo->FrameHeight = 480;
+    pInfo->FieldHeight = 480 / 2;
+}
+
+BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
+{
+    return FALSE;
+}
+
+LPCSTR CStillSource::GetStatus()
+{
+    return "Still Picture";
+}
+
+CSetting* CStillSource::GetVolume()
+{
+    return NULL;
+}
+
+CSetting* CStillSource::GetBalance()
+{
+    return NULL;
+}
+
+void CStillSource::Mute()
+{
+    return;
+}
+
+void CStillSource::UnMute()
+{
+    return;
+}
+
+CSetting* CStillSource::GetBrightness()
+{
+    return NULL;
+}
+
+CSetting* CStillSource::GetContrast()
+{
+    return NULL;
+}
+
+CSetting* CStillSource::GetHue()
+{
+    return NULL;
+}
+
+CSetting* CStillSource::GetSaturation()
+{
+    return NULL;
+}
+
+CSetting* CStillSource::GetSaturationU()
+{
+    return NULL;
+}
+
+CSetting* CStillSource::GetSaturationV()
+{
+    return NULL;
+}
+
+eVideoFormat CStillSource::GetFormat()
+{
+    return FORMAT_NTSC;
+}
+
+void CStillSource::Reset()
+{
+}
+
+BOOL CStillSource::HasTuner()
+{
+    return FALSE;
+}
+
+void CStillSource::SetMenu(HMENU hMenu)
+{
+}
+
+void CStillSource::HandleTimerMessages(int TimerId)
+{
+}
+

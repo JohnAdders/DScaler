@@ -59,7 +59,7 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 ddraw.lib dxguid.lib kernel32.lib user32.lib gdi32.lib advapi32.lib winmm.lib comdlg32.lib ..\driver\bin\DScalerdrv.lib /nologo /subsystem:windows /profile /debug /machine:I386 /out:".\DScaler.exe"
 # SUBTRACT BASE LINK32 /map /nodefaultlib
-# ADD LINK32 ..\Driver\DSDrv\Debug\DSDrv.lib ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib /nologo /subsystem:windows /pdb:none /map:"..\Debug/DScaler.map" /debug /machine:I386 /out:"..\Debug\DScaler.exe"
+# ADD LINK32 ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib /nologo /subsystem:windows /pdb:none /map:"..\Debug/DScaler.map" /debug /machine:I386 /out:"..\Debug\DScaler.exe"
 # SUBTRACT LINK32 /profile
 # Begin Special Build Tool
 ProjDir=.
@@ -100,7 +100,7 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 ddraw.lib dxguid.lib kernel32.lib user32.lib gdi32.lib advapi32.lib winmm.lib comdlg32.lib ..\driver\bin\hwiodrv.lib /nologo /subsystem:windows /incremental:yes /machine:I386
 # SUBTRACT BASE LINK32 /profile /map /debug /nodefaultlib
-# ADD LINK32 ..\Driver\DSDrv\Release\DSdrv.lib ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib COMMODE.OBJ /nologo /subsystem:windows /incremental:yes /map:"..\Release/DScaler.map" /machine:I386 /out:"..\Release\DScaler.exe"
+# ADD LINK32 ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib COMMODE.OBJ /nologo /subsystem:windows /incremental:yes /map:"..\Release/DScaler.map" /machine:I386 /out:"..\Release\DScaler.exe"
 # SUBTRACT LINK32 /profile /debug /nodefaultlib
 # Begin Special Build Tool
 ProjDir=.
@@ -139,7 +139,35 @@ SOURCE=.\Audio.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Bt848.cpp
+SOURCE=.\BT848Card.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\BT848Card_Audio.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\BT848Card_Tuner.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\BT848Card_Types.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\BT848Provider.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\BT848Souce_UI.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\BT848Source.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\BT848Source_Audio.cpp
 # End Source File
 # Begin Source File
 
@@ -240,11 +268,23 @@ SOURCE=.\Filter.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\HardwareDriver.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\HardwareMemory.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\HSListBox.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\I2C.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\InterlacedSource.cpp
 # End Source File
 # Begin Source File
 
@@ -268,7 +308,19 @@ SOURCE=.\OverlaySettings.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\PCICard.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ProgramList.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Providers.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Setting.cpp
 # End Source File
 # Begin Source File
 
@@ -277,6 +329,10 @@ SOURCE=.\Settings.cpp
 # Begin Source File
 
 SOURCE=.\SettingsDlg.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SourceProvider.cpp
 # End Source File
 # Begin Source File
 
@@ -293,6 +349,14 @@ SOURCE=.\StdAfx.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\StillProvider.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\StillSource.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\TimeShift.cpp
 # End Source File
 # Begin Source File
@@ -301,11 +365,7 @@ SOURCE=.\TSOptionsDlg.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Tuner.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\TVCards.cpp
+SOURCE=.\TVFormats.cpp
 # End Source File
 # Begin Source File
 
@@ -380,7 +440,19 @@ SOURCE=.\Audio.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\bt848.h
+SOURCE=.\Bt848_Defines.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\BT848Card.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\BT848Provider.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\BT848Source.h
 # End Source File
 # Begin Source File
 
@@ -409,6 +481,10 @@ SOURCE=.\Dialogs.h
 # Begin Source File
 
 SOURCE=.\disasm.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\Api\DS_Control.h
 # End Source File
 # Begin Source File
 
@@ -448,11 +524,23 @@ SOURCE=.\Filter.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\HardwareDriver.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\HardwareMemory.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\HSListBox.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\i2c.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\InterlacedSource.h
 # End Source File
 # Begin Source File
 
@@ -476,11 +564,23 @@ SOURCE=.\OverlaySettings.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\PCICard.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\ProgramList.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\Providers.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\resource.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Setting.h
 # End Source File
 # Begin Source File
 
@@ -496,6 +596,10 @@ SOURCE=.\slider.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\SourceProvider.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Splash.h
 # End Source File
 # Begin Source File
@@ -508,6 +612,14 @@ SOURCE=.\stdafx.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\StillProvider.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\StillSource.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\TimeShift.h
 # End Source File
 # Begin Source File
@@ -516,11 +628,7 @@ SOURCE=.\TSOptionsDlg.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Tuner.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\TVCards.h
+SOURCE=.\TVFormats.h
 # End Source File
 # Begin Source File
 
@@ -585,6 +693,10 @@ SOURCE=.\READ_ME_FIRST_NOW.txt
 # End Source File
 # End Target
 # End Project
+# Section DScaler : {F08DF954-8592-11D1-B16A-00C0F0283628}
+# 	2:21:DefaultSinkHeaderFile:slider.h
+# 	2:16:DefaultSinkClass:CSlider
+# End Section
 # Section DScaler : {F08DF952-8592-11D1-B16A-00C0F0283628}
 # 	2:5:Class:CSlider
 # 	2:10:HeaderFile:slider.h
@@ -594,8 +706,4 @@ SOURCE=.\READ_ME_FIRST_NOW.txt
 # 	2:5:Class:CPicture
 # 	2:10:HeaderFile:picture.h
 # 	2:8:ImplFile:picture.cpp
-# End Section
-# Section DScaler : {F08DF954-8592-11D1-B16A-00C0F0283628}
-# 	2:21:DefaultSinkHeaderFile:slider.h
-# 	2:16:DefaultSinkClass:CSlider
 # End Section

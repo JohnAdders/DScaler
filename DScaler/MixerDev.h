@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.h,v 1.12 2001-08-14 11:36:03 adcockj Exp $
+// $Id: MixerDev.h,v 1.13 2001-11-02 16:30:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -39,7 +39,6 @@
 #define __MIXERDEV_H___
 
 #include "settings.h"
-#include "bt848.h"
 
 SETTING* MixerDev_GetSetting(MIXERDEV_SETTING Setting);
 void MixerDev_ReadSettingsFromIni();
@@ -123,7 +122,6 @@ void Mixer_Mute();
 void Mixer_UnMute();
 void Mixer_Volume_Up();
 void Mixer_Volume_Down();
-void Mixer_OnInputChange(eVideoSourceType NewType);
 long Mixer_GetVolume();
 void Mixer_Init();
 void Mixer_Exit();

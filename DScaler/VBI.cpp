@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI.cpp,v 1.9 2001-07-16 18:07:50 adcockj Exp $
+// $Id: VBI.cpp,v 1.10 2001-11-02 16:30:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,15 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9.2.2  2001/08/21 09:43:01  adcockj
+// Brought branch up to date with latest code fixes
+//
+// Revision 1.9.2.1  2001/08/18 17:09:30  adcockj
+// Got to compile, still lots to do...
+//
+// Revision 1.9  2001/07/16 18:07:50  adcockj
+// Added Optimisation parameter to ini file saving
+//
 // Revision 1.8  2001/07/13 16:14:56  adcockj
 // Changed lots of variables to match Coding standards
 //
@@ -53,10 +62,10 @@
 #include "stdafx.h"
 #include "resource.h"
 #include "VBI.h"
-#include "bt848.h"
 #include "VBI_VideoText.h"
 #include "VBI_CCdecode.h"
 #include "VBI_WSSdecode.h"
+#include "Providers.h"
 #include "DebugLog.h"
 
 BOOL bStopVBI;
@@ -87,6 +96,7 @@ void VBI_Exit()
 
 void VBI_DecodeLine(unsigned char* VBI_Buffer, int line, BOOL IsOdd)
 {
+    TTVFormat* TVFormat = GetTVFormat(Providers_GetCurrentSource()->GetFormat());
     VTStep = (int) ((35.468950 / 6.9375) * FPFAC + 0.5);
     VPSStep = 2 * (int) ((35.468950 / 5.0) * FPFAC + 0.5);
 
@@ -103,7 +113,7 @@ void VBI_DecodeLine(unsigned char* VBI_Buffer, int line, BOOL IsOdd)
     // it also appears on PAL videos at line 22
     // see http://www.wgbh.org/wgbh/pages/captioncenter/cctechfacts4.html
     // for more infomation
-    if ((CCMode != CCMODE_OFF) && line == BT848_GetTVFormat()->CC_Line) 
+    if ((CCMode != CCMODE_OFF) && line == TVFormat->CC_Line) 
     {
         CC_DecodeLine(VBI_Buffer, CCMode, IsOdd);
     }
@@ -115,7 +125,7 @@ void VBI_DecodeLine(unsigned char* VBI_Buffer, int line, BOOL IsOdd)
     }
 
     // WSS information with source aspect ratio. 
-    if (DoWSS && !IsOdd && (line == BT848_GetTVFormat()->WSS_Line))
+    if (DoWSS && !IsOdd && (line == TVFormat->WSS_Line))
     {
         WSS_DecodeLine(VBI_Buffer);
     }

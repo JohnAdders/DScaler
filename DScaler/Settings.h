@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.h,v 1.9 2001-07-16 18:07:50 adcockj Exp $
+// $Id: Settings.h,v 1.10 2001-11-02 16:30:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -45,9 +45,11 @@
 /////////////////////////////////////////////////////////////////////////////
 // Functions to manipulate settings structure
 /////////////////////////////////////////////////////////////////////////////
+
 long Setting_GetValue(SETTING* pSetting);
 BOOL Setting_SetValue(SETTING* pSetting, long Value);
 void Setting_SetDefault(SETTING* pSetting);
+void Setting_ChangeDefault(SETTING* pSetting, long Default);
 void Setting_SetupSlider(SETTING* pSetting, HWND hSlider);
 void Setting_SetControlValue(SETTING* pSetting, HWND hControl);
 BOOL Setting_SetFromControl(SETTING* pSetting, HWND hControl);
@@ -66,6 +68,7 @@ LPCSTR GetIniFileForSettings();
 void LoadSettingsFromIni();
 void WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void WritePrivateProfileInt(LPCTSTR lpAppName,  LPCTSTR lpKeyName,  int nValue, LPCTSTR lpFileName);
+int GetCurrentAdjustmentStepCount(void* pSetting);
 
 //---------------------------------------------------------------------------
 // 2000-12-19 Added by Mark Rejhon

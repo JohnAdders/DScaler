@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.36 2001-11-01 12:05:21 laurentg Exp $
+// $Id: ProgramList.cpp,v 1.37 2001-11-02 16:30:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.36  2001/11/01 12:05:21  laurentg
+// Coorection of bug item #477091
+//
 // Revision 1.35  2001/10/17 11:46:11  adcockj
 // Bug fixes
 //
@@ -57,6 +60,29 @@
 //
 // Revision 1.32  2001/08/23 16:03:26  adcockj
 // Improvements to dynamic menus to remove requirement that they are not empty
+//
+// Revision 1.31.2.7  2001/08/24 12:35:09  adcockj
+// Menu handling changes
+//
+// Revision 1.31.2.6  2001/08/23 16:04:57  adcockj
+// Improvements to dynamic menus to remove requirement that they are not empty
+//
+// Revision 1.31.2.5  2001/08/22 10:40:58  adcockj
+// Added basic tuner support
+// Fixed recusive bug
+//
+// Revision 1.31.2.4  2001/08/21 09:43:01  adcockj
+// Brought branch up to date with latest code fixes
+//
+// Revision 1.31.2.3  2001/08/20 16:14:19  adcockj
+// Massive tidy up of code to new structure
+//
+// Revision 1.31.2.2  2001/08/18 17:09:30  adcockj
+// Got to compile, still lots to do...
+//
+// Revision 1.31.2.1  2001/08/14 16:41:37  adcockj
+// Renamed driver
+// Got to compile with new class based card
 //
 // Revision 1.31  2001/08/08 08:47:26  adcockj
 // Stopped resetting program list when not in US mode
@@ -86,16 +112,14 @@
 #include "stdafx.h"
 #include "resource.h"
 #include "ProgramList.h"
-#include "Tuner.h"
-#include "BT848.h"
 #include "DScaler.h"
 #include "VBI.h"
 #include "Status.h"
 #include "Audio.h"
 #include "VBI_VideoText.h"
-#include "TVCards.h"
 #include "MixerDev.h"
 #include "OSD.h"
+#include "Providers.h"
 
 int CurSel;
 unsigned short SelectButton;
@@ -347,7 +371,7 @@ void ScanCustomChannel(HWND hDlg, int ChannelNum)
 
     DWORD Freq = MyChannels[ChannelNum]->GetFrequency();
 
-    if (!Tuner_SetFrequency(Freq))
+    if (!Providers_GetCurrentSource()->SetTunerFrequency(Freq, FORMAT_LASTONE))
     {
         sprintf(sbuf, "SetFrequency %10.2f Failed.", (float) Freq / 16.0);
         ErrorBox(sbuf);
@@ -356,7 +380,7 @@ void ScanCustomChannel(HWND hDlg, int ChannelNum)
 
     Sleep(100);
 
-    while ((i < 75) && (BT848_IsVideoPresent() == FALSE))
+    while ((i < 75) && (Providers_GetCurrentSource()->IsVideoPresent() == FALSE))
     {
         MSG msg;
         if (PeekMessage(&msg, NULL, 0, 0xffffffff, PM_REMOVE) == TRUE)
@@ -368,13 +392,14 @@ void ScanCustomChannel(HWND hDlg, int ChannelNum)
         Sleep(3);
     }
 
-    MyChannels[ChannelNum]->SetActive(BT848_IsVideoPresent());
+    MyChannels[ChannelNum]->SetActive(Providers_GetCurrentSource()->IsVideoPresent());
     InUpdate = FALSE;
 }
 
 void ScanFrequency(HWND hDlg, int FreqNum)
 {
     InUpdate = TRUE;
+
     if(FreqNum < 0 || FreqNum >= Countries[CountryCode]->m_Frequencies.size())
     {
         return;
@@ -395,7 +420,7 @@ void ScanFrequency(HWND hDlg, int FreqNum)
     sprintf(sbuf, "%10.4f MHz", (double)Freq / 16.0);
     Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf);
 
-    if (!Tuner_SetFrequency(Freq))
+    if (!Providers_GetCurrentSource()->SetTunerFrequency(Freq, FORMAT_LASTONE))
     {
         sprintf(sbuf, "SetFrequency %10.2f Failed.", (float) Freq / 16.0);
         ErrorBox(sbuf);
@@ -404,7 +429,7 @@ void ScanFrequency(HWND hDlg, int FreqNum)
 
     Sleep(100);
 
-    while ((i < 75) && (BT848_IsVideoPresent() == FALSE))
+    while ((i < 75) && (Providers_GetCurrentSource()->IsVideoPresent() == FALSE))
     {
         MSG msg;
         if (PeekMessage(&msg, NULL, 0, 0xffffffff, PM_REMOVE) == TRUE)
@@ -415,7 +440,7 @@ void ScanFrequency(HWND hDlg, int FreqNum)
         Sleep(3);
     }
     
-    if(BT848_IsVideoPresent())
+    if(Providers_GetCurrentSource()->IsVideoPresent())
     {
         char sbuf[256];
         ++CurrentProgramm;
@@ -545,7 +570,8 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 --Freq;
                 sprintf(sbuf, "%10.4f MHz", (double)Freq / 16.0);
                 Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf);
-                Tuner_SetFrequency(Freq);
+                // TODO: Sort this out
+                //Tuner_SetFrequency(Freq);
                 ChangeChannelInfo(hDlg);
             }
             else if(LOWORD(wParam) == SB_RIGHT ||
@@ -558,7 +584,8 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 ++Freq;
                 sprintf(sbuf, "%10.4f MHz", (double)Freq / 16.0);
                 Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf);
-                Tuner_SetFrequency(Freq);
+                // TODO: Sort this out
+                //Tuner_SetFrequency(Freq);
                 ChangeChannelInfo(hDlg);
             }
         }
@@ -676,21 +703,16 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             if(InUpdate == FALSE && HIWORD(wParam) == CBN_SELCHANGE)
             {
                 int Format = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_FORMAT)) - 1;
-
                 if(Format != -1)
                 {
-                    Setting_SetValue(BT848_GetSetting(TVFORMAT), Format);
-                }
-                else
-                {
-                    Setting_SetValue(BT848_GetSetting(TVFORMAT), GetTunersTVFormat());
+                    Format = FORMAT_LASTONE;
                 }
 
                 Edit_GetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf, 255);
                 char* cLast;
                 double dFreq = strtod(sbuf, &cLast);
                 long Freq = (long)(dFreq * 16.0);
-                Tuner_SetFrequency(Freq);
+                Providers_GetCurrentSource()->SetTunerFrequency(Freq, (eVideoFormat)Format);
                 ChangeChannelInfo(hDlg);
             }
             break;
@@ -958,7 +980,7 @@ void Load_Program_List_ASCII()
 //---------------------------------------------------------------------------
 void Channel_Change(int NewChannel)
 {
-    if (GetTunerSetup() != NULL)
+    if (Providers_GetCurrentSource()->HasTuner() == TRUE)
     {
         if(NewChannel >= 0 && NewChannel < MyChannels.size())
         {
@@ -970,19 +992,18 @@ void Channel_Change(int NewChannel)
                 CurrentProgramm = NewChannel;
                 if(MyChannels[CurrentProgramm]->GetFormat() != -1)
                 {
-                    if(Setting_GetValue(BT848_GetSetting(TVFORMAT)) != MyChannels[CurrentProgramm]->GetFormat())
-                    {
-                        Setting_SetValue(BT848_GetSetting(TVFORMAT), MyChannels[CurrentProgramm]->GetFormat());
-                    }
+                    Providers_GetCurrentSource()->SetTunerFrequency(
+                                                  MyChannels[CurrentProgramm]->GetFrequency(), 
+                                                  (eVideoFormat)MyChannels[CurrentProgramm]->GetFormat()
+                                                                   );
                 }
                 else
                 {
-                    if(Setting_GetValue(BT848_GetSetting(TVFORMAT)) != GetTunersTVFormat())
-                    {
-                        Setting_SetValue(BT848_GetSetting(TVFORMAT), GetTunersTVFormat());
-                    }
+                    Providers_GetCurrentSource()->SetTunerFrequency(
+                                                  MyChannels[CurrentProgramm]->GetFrequency(), 
+                                                  FORMAT_LASTONE
+                                                                   );
                 }
-                Tuner_SetFrequency(MyChannels[CurrentProgramm]->GetFrequency());
                 Sleep(20);
                 VT_ChannelChange();
                 StatusBar_ShowText(STATUS_KEY, MyChannels[CurrentProgramm]->GetName());
@@ -990,40 +1011,6 @@ void Channel_Change(int NewChannel)
 				Audio_Unmute();
             }
         }
-    }
-}
-
-void Channels_UpdateMenu(HMENU hMenu)
-{
-    HMENU           hMenuChannels;
-    MENUITEMINFO    MenuItemInfo;
-    int             j;
-    CHANNELLIST::iterator it;
-    hMenuChannels = GetChannelsSubmenu();
-    if(hMenuChannels == NULL) return;
-
-    j = GetMenuItemCount(hMenuChannels);
-    while (j)
-    {
-        --j;
-        RemoveMenu(hMenuChannels, j, MF_BYPOSITION);
-    }
-    
-    j = 0;
-    for (it = MyChannels.begin(); it != MyChannels.end(); ++it)
-    {
-        if ((*it)->GetFrequency() != 0)
-        {
-            MenuItemInfo.cbSize = sizeof (MenuItemInfo);
-            MenuItemInfo.fMask = MIIM_TYPE | MIIM_STATE | MIIM_ID;
-            MenuItemInfo.fType = MFT_STRING;
-            MenuItemInfo.dwTypeData = (LPSTR) (*it)->GetName();
-            MenuItemInfo.cch = strlen ((*it)->GetName());
-            MenuItemInfo.fState = (CurrentProgramm == j) ? MFS_CHECKED : MFS_ENABLED;
-            MenuItemInfo.wID = IDM_CHANNEL_SELECT + j + 1;
-            InsertMenuItem(hMenuChannels, j, TRUE, &MenuItemInfo);
-        }
-        j++;
     }
 }
 
@@ -1263,6 +1250,40 @@ void Load_Country_Settings()
     fclose(CountryFile);
 }
 
+void Channels_UpdateMenu(HMENU hMenu)
+{
+    HMENU           hMenuChannels;
+    MENUITEMINFO    MenuItemInfo;
+    int             j;
+    CHANNELLIST::iterator it;
+    hMenuChannels = GetChannelsSubmenu();
+    if(hMenuChannels == NULL) return;
+
+    j = GetMenuItemCount(hMenuChannels);
+    while (j)
+    {
+        --j;
+        RemoveMenu(hMenuChannels, j, MF_BYPOSITION);
+    }
+    
+    j = 0;
+    for (it = MyChannels.begin(); it != MyChannels.end(); ++it)
+    {
+        if ((*it)->GetFrequency() != 0)
+        {
+            MenuItemInfo.cbSize = sizeof (MenuItemInfo);
+            MenuItemInfo.fMask = MIIM_TYPE | MIIM_STATE | MIIM_ID;
+            MenuItemInfo.fType = MFT_STRING;
+            MenuItemInfo.dwTypeData = (LPSTR) (*it)->GetName();
+            MenuItemInfo.cch = strlen ((*it)->GetName());
+            MenuItemInfo.fState = (CurrentProgramm == j) ? MFS_CHECKED : MFS_ENABLED;
+            MenuItemInfo.wID = IDM_CHANNEL_SELECT + j;
+            InsertMenuItem(hMenuChannels, j, TRUE, &MenuItemInfo);
+        }
+        j++;
+    }
+}
+
 void Channels_SetMenu(HMENU hMenu)
 {
     HMENU hMenuChannels(GetChannelsSubmenu());
@@ -1279,7 +1300,27 @@ void Channels_SetMenu(HMENU hMenu)
             CheckMenuItem(hMenuChannels, i, MF_BYPOSITION | MF_UNCHECKED);
         }
     }
+
+    BOOL bHasTuner = Providers_GetCurrentSource()->HasTuner();
+    EnableMenuItem(hMenu, IDM_CHANNELPLUS, bHasTuner?MF_ENABLED:MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_CHANNELMINUS, bHasTuner?MF_ENABLED:MF_GRAYED);
+    EnableMenuItem(hMenu, IDM_ANALOGSCAN, bHasTuner?MF_ENABLED:MF_GRAYED);
 }
+
+BOOL ProcessProgramSelection(HWND hWnd, WORD wMenuID)
+{
+    if ( (wMenuID >= IDM_CHANNEL_SELECT) && (wMenuID < (IDM_CHANNEL_SELECT+MAXPROGS)) )
+    {
+        if (Providers_GetCurrentSource()->IsInTunerMode())
+        {
+            Channel_Change(wMenuID - IDM_CHANNEL_SELECT);
+        }
+        return TRUE;
+    }
+    return FALSE;
+}
+
+
 ////////////////////////////////////////////////////////////////////////////
 // Start of Settings related code
 /////////////////////////////////////////////////////////////////////////////

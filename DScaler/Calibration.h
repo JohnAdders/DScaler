@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.h,v 1.17 2001-11-01 11:35:23 adcockj Exp $
+// $Id: Calibration.h,v 1.18 2001-11-02 16:30:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -27,7 +27,8 @@
 #define __CALIBRATION_H___
 
 
-#include "bt848.h"
+#include "TVFormats.h"
+#include "Setting.h"
 
 
 // Maximum number of color bars in a test pattern
@@ -68,6 +69,17 @@ enum eTypeCalibration {
     CAL_AUTO_BRIGHT_CONTRAST,
     CAL_AUTO_COLOR,
     CAL_AUTO_FULL,
+};
+
+
+// Define possible colors for a bar in a test pattern
+enum eColor {
+    COLOR_BLACK = 0,
+    COLOR_WHITE,
+    COLOR_RED,
+    COLOR_BLUE,
+    COLOR_GREEN,
+    COLOR_OTHER,
 };
 
 
@@ -118,6 +130,9 @@ protected:
     // Bottom position of the rectangular zone in the full test pattern
     // Range between 0 and 10000
     unsigned short int bottom_border;
+
+    // Abstract color of the bar
+    eColor abstract_color;
 
     // Reference value for luminance
     unsigned char ref_Y_val;
@@ -285,7 +300,7 @@ private:
 class CCalSetting
 {
 public:
-    CCalSetting(BT848_SETTING setting);
+    CCalSetting(CSimpleSetting* setting);
     BOOL Update();
     void Save();
     void Restore();
@@ -305,7 +320,7 @@ public:
 
 protected:
     void Adjust(int value);
-    BT848_SETTING type_setting;
+    CSimpleSetting* m_pSetting;
     int min_value;
     int max_value;
     unsigned int mask_input[16];
@@ -340,6 +355,7 @@ public:
 
     void UpdateMenu(HMENU hMenu);
     void SetMenu(HMENU hMenu);
+    BOOL ProcessSelection(HWND hWnd, WORD wMenuId);
     void SelectTestPattern(int num);
     CTestPattern *GetCurrentTestPattern();
     CSubPattern *GetSubPattern(eTypeAdjust type_adjust);

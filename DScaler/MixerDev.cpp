@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.17 2001-10-22 10:32:58 temperton Exp $
+// $Id: MixerDev.cpp,v 1.18 2001-11-02 16:30:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,12 +37,26 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2001/10/22 10:32:58  temperton
+// bugfix.
+//
 // Revision 1.16  2001/08/18 17:24:12  adcockj
 // Removed free causing crash on exit
 //
 // Revision 1.15  2001/08/14 11:36:03  adcockj
 // Mixer change to allow restore of initial mixer settings
 //
+// Revision 1.14.2.3  2001/08/21 09:43:01  adcockj
+// Brought branch up to date with latest code fixes
+//
+// Revision 1.14.2.2  2001/08/17 16:35:14  adcockj
+// Another interim check-in still doesn't compile. Getting closer ...
+//
+// Revision 1.14.2.1  2001/08/14 16:41:37  adcockj
+// Renamed driver
+// Got to compile with new class based card
+//
+>>>>>>> 1.14.2.3
 // Revision 1.14  2001/07/16 18:07:50  adcockj
 // Added Optimisation parameter to ini file saving
 //
@@ -65,7 +79,8 @@
 #include "resource.h"
 #include "MixerDev.h"
 #include "DScaler.h"
-#include "Audio.h"
+#include "BT848Card.h"
+#include "Providers.h"
 
 CSoundSystem* pSoundSystem = NULL;
 
@@ -653,32 +668,32 @@ CMixerLineSource* Mixer_GetInputLine(long NewType)
     {
         switch(NewType)
         {
-        case SOURCE_TUNER:
+        case CBT848Card::SOURCE_TUNER:
             if(TunerLineIndex > -1)
             {
                 return DestLine->GetSourceLine(TunerLineIndex);
             }
             break;
-        case SOURCE_COMPOSITE:
+        case CBT848Card::SOURCE_COMPOSITE:
             if(CompositeLineIndex > -1)
             {
                 return DestLine->GetSourceLine(CompositeLineIndex);
             }
             break;
-        case SOURCE_SVIDEO:
-        case SOURCE_COMPVIASVIDEO:
+        case CBT848Card::SOURCE_SVIDEO:
+        case CBT848Card::SOURCE_COMPVIASVIDEO:
             if(SVideoLineIndex > -1)
             {
                 return DestLine->GetSourceLine(SVideoLineIndex);
             }
             break;
-        case SOURCE_OTHER1:
+        case CBT848Card::SOURCE_OTHER1:
             if(Other1LineIndex > -1)
             {
                 return DestLine->GetSourceLine(Other1LineIndex);
             }
             break;
-        case SOURCE_OTHER2:
+        case CBT848Card::SOURCE_OTHER2:
             if(Other2LineIndex > -1)
             {
                 return DestLine->GetSourceLine(Other2LineIndex);
@@ -693,7 +708,7 @@ CMixerLineSource* Mixer_GetInputLine(long NewType)
 
 void Mixer_Mute()
 {
-   CMixerLineSource* CurLine = Mixer_GetInputLine(Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)));
+   CMixerLineSource* CurLine = Mixer_GetInputLine(0);
    if(CurLine != NULL)
    {
        CurLine->SetMute(TRUE);
@@ -702,7 +717,7 @@ void Mixer_Mute()
 
 void Mixer_UnMute()
 {
-   CMixerLineSource* CurLine = Mixer_GetInputLine(Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)));
+   CMixerLineSource* CurLine = Mixer_GetInputLine(0);
    if(CurLine != NULL)
    {
        CurLine->SetMute(FALSE);
@@ -711,7 +726,7 @@ void Mixer_UnMute()
 
 void Mixer_Volume_Up()
 {
-   CMixerLineSource* CurLine = Mixer_GetInputLine(Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)));
+   CMixerLineSource* CurLine = Mixer_GetInputLine(0);
    if(CurLine != NULL)
    {
        long Vol = CurLine->GetVolume();
@@ -728,7 +743,7 @@ void Mixer_Volume_Up()
 
 void Mixer_Volume_Down()
 {
-   CMixerLineSource* CurLine = Mixer_GetInputLine(Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)));
+   CMixerLineSource* CurLine = Mixer_GetInputLine(0);
    if(CurLine != NULL)
    {
        long Vol = CurLine->GetVolume();
@@ -745,7 +760,7 @@ void Mixer_Volume_Down()
 
 long Mixer_GetVolume()
 {
-   CMixerLineSource* CurLine = Mixer_GetInputLine(Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)));
+   CMixerLineSource* CurLine = Mixer_GetInputLine(0);
    if(CurLine != NULL)
    {
        return CurLine->GetVolume();
@@ -756,8 +771,7 @@ long Mixer_GetVolume()
    }
 }
 
-// here we go down and mute all input execpt the one we want
-void Mixer_OnInputChange(eVideoSourceType NewType)
+void Mixer_OnInputChange(CBT848Card::eVideoSourceType NewType)
 {
     CMixerLineDest* DestLine = Mixer_GetDestLine();
     if(DestLine == NULL)
@@ -771,35 +785,35 @@ void Mixer_OnInputChange(eVideoSourceType NewType)
         {
             if(DestLine->GetSourceLine(TunerLineIndex) != NULL)
             {
-                DestLine->GetSourceLine(TunerLineIndex)->SetMute(NewType != SOURCE_TUNER);
+                DestLine->GetSourceLine(TunerLineIndex)->SetMute(NewType != CBT848Card::SOURCE_TUNER);
             }
         }
         if(CompositeLineIndex > -1)
         {
             if(DestLine->GetSourceLine(CompositeLineIndex) != NULL)
             {
-                DestLine->GetSourceLine(CompositeLineIndex)->SetMute(NewType != SOURCE_COMPOSITE);
+                DestLine->GetSourceLine(CompositeLineIndex)->SetMute(NewType != CBT848Card::SOURCE_COMPOSITE);
             }
         }
         if(SVideoLineIndex > -1)
         {
             if(DestLine->GetSourceLine(SVideoLineIndex) != NULL)
             {
-                DestLine->GetSourceLine(SVideoLineIndex)->SetMute((NewType != SOURCE_SVIDEO) && (NewType != SOURCE_COMPVIASVIDEO));
+                DestLine->GetSourceLine(SVideoLineIndex)->SetMute((NewType != CBT848Card::SOURCE_SVIDEO) && (NewType != CBT848Card::SOURCE_COMPVIASVIDEO));
             }
         }
         if(Other1LineIndex > -1)
         {
             if(DestLine->GetSourceLine(Other1LineIndex) != NULL)
             {
-                DestLine->GetSourceLine(Other1LineIndex)->SetMute(NewType != SOURCE_OTHER1);
+                DestLine->GetSourceLine(Other1LineIndex)->SetMute(NewType != CBT848Card::SOURCE_OTHER1);
             }
         }
         if(Other2LineIndex > -1)
         {
             if(DestLine->GetSourceLine(Other2LineIndex) != NULL)
             {
-                DestLine->GetSourceLine(Other2LineIndex)->SetMute(NewType != SOURCE_OTHER2);
+                DestLine->GetSourceLine(Other2LineIndex)->SetMute(NewType != CBT848Card::SOURCE_OTHER2);
             }
         }
     }
@@ -810,7 +824,7 @@ void Mixer_Exit()
     if(pSoundSystem != NULL)
     {
         // set the chip to mute
-		Audio_SetSource(AUDIOMUX_MUTE);
+        Providers_GetCurrentSource()->Mute();
 
 		if(bUseMixer)
 		{
@@ -832,7 +846,7 @@ void Mixer_Init()
         pSoundSystem->SetMixer(MixerIndex);
         if(pSoundSystem->GetMixer() != NULL)
         {
-            Mixer_OnInputChange((eVideoSourceType)Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)));
+            Mixer_OnInputChange(CBT848Card::SOURCE_TUNER);
         }
         else
         {

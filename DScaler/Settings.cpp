@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.24 2001-09-25 22:31:53 laurentg Exp $
+// $Id: Settings.cpp,v 1.25 2001-11-02 16:30:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,25 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2001/09/25 22:31:53  laurentg
+// New control settings added for calibration
+//
+// Revision 1.23.2.5  2001/08/21 16:42:16  adcockj
+// Per format/input settings and ini file fixes
+//
+// Revision 1.23.2.4  2001/08/21 09:43:01  adcockj
+// Brought branch up to date with latest code fixes
+//
+// Revision 1.23.2.3  2001/08/20 16:14:19  adcockj
+// Massive tidy up of code to new structure
+//
+// Revision 1.23.2.2  2001/08/17 16:35:14  adcockj
+// Another interim check-in still doesn't compile. Getting closer ...
+//
+// Revision 1.23.2.1  2001/08/14 16:41:37  adcockj
+// Renamed driver
+// Got to compile with new class based card
+//
 // Revision 1.23  2001/08/03 09:52:42  adcockj
 // Added range checking on settings and fixed setting with out of range errors
 //
@@ -74,9 +93,7 @@
 #include "stdafx.h"
 #include "resource.h"
 #include "Settings.h"
-#include "Tuner.h"
 #include "Audio.h"
-#include "BT848.h"
 #include "VBI.h"
 #include "OutThreads.h"
 #include "deinterlace.h"
@@ -92,11 +109,10 @@
 #include "Slider.h"
 #include "Splash.h"
 #include "OSD.h"
-#include "TVCards.h"
-#include "VideoSettings.h"
 #include "Filter.h"
 #include "FieldTiming.h"
 #include "VBI_VideoText.h"
+#include "Providers.h"
 #include "Calibration.h"
 
 typedef SETTING* (__cdecl GENERICGETSETTING)(long SettingIndex);
@@ -113,24 +129,6 @@ typedef struct
 
 TFileWithSettings Settings[] =
 {
-    {
-        WM_TVCARD_GETVALUE,
-        (GENERICGETSETTING*)TVCard_GetSetting,
-        TVCard_ReadSettingsFromIni,
-        TVCard_WriteSettingsToIni,
-    },
-    {
-        WM_BT848_GETVALUE,
-        (GENERICGETSETTING*)BT848_GetSetting,
-        BT848_ReadSettingsFromIni,
-        BT848_WriteSettingsToIni,
-    },
-    {
-        WM_VIDEOSETTINGS_GETVALUE,
-        (GENERICGETSETTING*)VideoSettings_GetSetting,
-        VideoSettings_ReadSettingsFromIni,
-        VideoSettings_WriteSettingsToIni,
-    },
     {
         WM_ASPECT_GETVALUE,
         (GENERICGETSETTING*)Aspect_GetSetting,
@@ -258,6 +256,7 @@ void LoadSettingsFromIni()
     {
         Settings[i].pfnReadSettings();
     }
+    Providers_ReadFromIni();
 }
 
 LONG Settings_HandleSettingMsgs(HWND hWnd, UINT message, UINT wParam, LONG lParam, BOOL* bDone)
@@ -297,6 +296,7 @@ void WriteSettingsToIni(BOOL bOptimizeFileAccess)
 
     Deinterlace_WriteSettingsToIni(bOptimizeFileAccess);
     Filter_WriteSettingsToIni(bOptimizeFileAccess);
+    Providers_WriteToIni();
   
     // These two lines flushes current INI file to disk (in case of abrupt poweroff shortly afterwards)
     WritePrivateProfileString(NULL, NULL, NULL, szIniFile);
@@ -540,7 +540,7 @@ void Setting_OSDShow(SETTING* pSetting, HWND hWnd)
 // This function allows for accelerated slider adjustments
 // For example, adjusting Contrast or Brightness faster the longer 
 // you hold down the adjustment key.
-int GetCurrentAdjustmentStepCount(SETTING* pSetting)
+int GetCurrentAdjustmentStepCount(void* pSetting)
 {
     static DWORD        dwLastTick = 0;
     static DWORD        dwFirstTick = 0;
@@ -549,7 +549,7 @@ int GetCurrentAdjustmentStepCount(SETTING* pSetting)
     DWORD               dwElapsedSinceLastCall;
     DWORD               dwElapsedSinceFirstTick;
     int                 nStepCount;
-    static SETTING*     LastSetting = NULL;
+    static void*     LastSetting = NULL;
 
     if(LastSetting != pSetting)
     {
@@ -637,6 +637,12 @@ void Setting_Down(SETTING* pSetting)
         nStep = GetCurrentAdjustmentStepCount(pSetting) * pSetting->StepValue;
         Setting_SetValue(pSetting, *pSetting->pValue - nStep);
     }
+}
+
+void Setting_ChangeDefault(SETTING* pSetting, long Default)
+{
+    pSetting->Default = Default;
+    *pSetting->pValue = Default;
 }
 
 void Setting_ChangeValue(SETTING* pSetting, eCHANGEVALUE NewValue)

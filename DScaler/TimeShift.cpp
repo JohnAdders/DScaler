@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.cpp,v 1.6 2001-08-06 03:00:17 ericschmidt Exp $
+// $Id: TimeShift.cpp,v 1.7 2001-11-02 16:30:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,19 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6.2.3  2001/08/21 09:43:01  adcockj
+// Brought branch up to date with latest code fixes
+//
+// Revision 1.6.2.2  2001/08/20 16:14:19  adcockj
+// Massive tidy up of code to new structure
+//
+// Revision 1.6.2.1  2001/08/17 16:35:14  adcockj
+// Another interim check-in still doesn't compile. Getting closer ...
+//
+// Revision 1.6  2001/08/06 03:00:17  ericschmidt
+// solidified auto-pixel-width detection
+// preliminary pausing-of-live-tv work
+//
 // Revision 1.5  2001/07/27 15:52:26  ericschmidt
 // P3-or-better handling.
 // Preliminary pixel-width auto-setting on playback.
@@ -55,9 +68,10 @@
 #include "DScaler.h"      // hWnd global
 #include "TSOptionsDlg.h" // CTSOptionsDlg
 #include "MixerDev.h"     // Mute and UnMute
-#include "BT848.h"        // CurrentX/Y
 #include "Settings.h"     // Setting_Set/GetValue
 #include "Cpu.h"          // CpuFeatureFlags
+// TODO: remove 
+#include "OutThreads.h"
 
 /*
   Here are some suggestions for TODO tasks...
@@ -1111,7 +1125,8 @@ bool TimeShift::SetBT848PixelWidth(int pixelWidth)
         // We have to let the capture thread do its thing to change the pixel
         // width.  Leave the critical section for this call.
         LeaveCriticalSection(&m_pTimeShift->m_lock);
-        result = Setting_SetValue(BT848_GetSetting(CURRENTX), pixelWidth) == 0;
+        //TODO: Reinstate this line
+        //result = Setting_SetValue(BT848_GetSetting(CURRENTX), pixelWidth) == 0;
         EnterCriticalSection(&m_pTimeShift->m_lock);
     }
 
@@ -1135,8 +1150,9 @@ bool TimeShift::DoMute(bool mute)
             pSoundSystem->SetMixer(MixerIndex);
             if (pSoundSystem->GetMixer())
             {
-                Mixer_OnInputChange((eVideoSourceType)Setting_GetValue(
-                    BT848_GetSetting(VIDEOSOURCE)));
+                // TODO: ???
+                //Mixer_OnInputChange((eVideoSourceType)Setting_GetValue(
+                //   BT848_GetSetting(VIDEOSOURCE)));
 
                 Mixer_Mute();
             }

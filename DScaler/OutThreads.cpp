@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.36 2001-11-01 11:35:23 adcockj Exp $
+// $Id: OutThreads.cpp,v 1.37 2001-11-02 16:30:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.36  2001/11/01 11:35:23  adcockj
+// Pre release changes to version, help, comment and headers
+//
 // Revision 1.35  2001/09/24 23:14:05  laurentg
 // Draw rectangles around analysis zones
 // Correction regarding overscan
@@ -81,6 +84,37 @@
 //
 // Revision 1.32  2001/08/26 18:33:42  laurentg
 // Automatic calibration improved
+//
+// Revision 1.31.2.10  2001/08/22 11:12:48  adcockj
+// Added VBI support
+//
+// Revision 1.31.2.9  2001/08/21 16:42:16  adcockj
+// Per format/input settings and ini file fixes
+//
+// Revision 1.31.2.8  2001/08/21 09:43:01  adcockj
+// Brought branch up to date with latest code fixes
+//
+// Revision 1.31.2.7  2001/08/20 16:14:19  adcockj
+// Massive tidy up of code to new structure
+//
+// Revision 1.31.2.6  2001/08/19 14:43:47  adcockj
+// Fixed memory leaks
+//
+// Revision 1.31.2.5  2001/08/18 17:09:30  adcockj
+// Got to compile, still lots to do...
+//
+// Revision 1.31.2.4  2001/08/17 16:35:14  adcockj
+// Another interim check-in still doesn't compile. Getting closer ...
+//
+// Revision 1.31.2.3  2001/08/16 06:43:34  adcockj
+// moved more stuff into the new file (deonsn't compile)
+//
+// Revision 1.31.2.2  2001/08/15 14:44:05  adcockj
+// Starting to put some flesh onto the new structure
+//
+// Revision 1.31.2.1  2001/08/14 16:41:37  adcockj
+// Renamed driver
+// Got to compile with new class based card
 //
 // Revision 1.31  2001/08/03 14:24:32  adcockj
 // added extra info to splash screen and log
@@ -125,7 +159,6 @@
 #include "resource.h"
 #include "OutThreads.h"
 #include "Other.h"
-#include "BT848.h"
 #include "VBI_VideoText.h"
 #include "VBI.h"
 #include "Deinterlace.h"
@@ -147,6 +180,7 @@
 #include "TimeShift.h"
 #include "Calibration.h"
 #include "Crash.h"
+#include "Providers.h"
 
 // Thread related variables
 BOOL                bStopThread = FALSE;
@@ -166,6 +200,10 @@ long                RefreshRate = 0;
 BOOL                bIsOddField = FALSE;
 BOOL                bWaitForVsync = FALSE;
 BOOL                bReversePolarity = FALSE;
+BOOL                bJudderTerminatorOnVideo = TRUE;
+
+// FIXME: should be able to get of this variable
+long                OverlayPitch = 0;
 
 // Statistics
 long                nTotalDropFields = 0;
@@ -176,6 +214,11 @@ long                nSecTicks = 0;
 long                nInitialTicks = -1;
 long                nLastTicks = 0;
 long                nTotalDeintModeChanges = 0;
+
+
+long CurrentX = 720;
+long CurrentY = 480;
+
 
 // cope with older DX header files
 #if !defined(DDFLIP_DONOTWAIT)
@@ -198,7 +241,6 @@ void Start_Thread()
                              NULL,                          // Parameter.
                              (DWORD) 0,                     // Start immediatly.
                              (LPDWORD) & LinkThreadID);     // Thread ID.
-    Audio_Unmute();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -342,31 +384,23 @@ void Pause_Toggle_Capture()
 ///////////////////////////////////////////////////////////////////////////////
 void Start_Capture()
 {
-    int nFlags = BT848_CAP_CTL_CAPTURE_EVEN | BT848_CAP_CTL_CAPTURE_ODD;
-    if (bCaptureVBI == TRUE)
-    {
-        nFlags |= BT848_CAP_CTL_CAPTURE_VBI_EVEN | BT848_CAP_CTL_CAPTURE_VBI_ODD;
-    }
-
-    BT848_MaskDataByte(BT848_CAP_CTL, 0, 0x0f);
-
-    BT848_CreateRiscCode(nFlags);
-    BT848_MaskDataByte(BT848_CAP_CTL, (BYTE) nFlags, (BYTE) 0x0f);
-
-    // make sure half height Modes are set correctly
+    // ame sure half height Modes are set correctly
+    Overlay_Clean();
     PrepareDeinterlaceMode();
-
+    WorkoutOverlaySize();
     Start_Thread();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 void Stop_Capture()
 {
+    if (pCalibration->IsRunning())
+    {
+        pCalibration->Stop();
+    }
     //  Stop The Output Thread
     Stop_Thread();
-
-    // stop capture
-    BT848_MaskDataByte(BT848_CAP_CTL, 0, 0x0f);
+    Providers_GetCurrentSource()->Stop();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -374,8 +408,8 @@ void Reset_Capture()
 {
     Stop_Capture();
     Overlay_Clean();
-    BT848_ResetHardware();
-    BT848_SetGeoSize();
+    PrepareDeinterlaceMode();
+    Providers_GetCurrentSource()->Reset();
     WorkoutOverlaySize();
     Start_Capture();
 }
@@ -383,18 +417,16 @@ void Reset_Capture()
 DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 {
     char Text[128];
-    int i, j;
-    int nLineTarget;
     DWORD dwLastSecondTicks;
-    short* ppEvenLines[5][DSCALER_MAX_HEIGHT / 2];
-    short* ppOddLines[5][DSCALER_MAX_HEIGHT / 2];
+    BOOL bFlipNow = TRUE;
     DEINTERLACE_INFO Info;
     DEINTERLACE_METHOD* PrevDeintMethod = NULL;
     DEINTERLACE_METHOD* CurrentMethod = NULL;
     DWORD CurrentTickCount;
     int nHistory = 0;
-    BOOL bIsPAL = BT848_GetTVFormat()->Is25fps;
     long SourceAspectAdjust = 1000;
+    CInterlacedSource* pSource = Providers_GetCurrentSource();
+    BOOL bIsPAL = GetTVFormat(pSource->GetFormat())->Is25fps;
 
     Timing_Setup();
 
@@ -414,18 +446,11 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     // catch anything fatal in this loop so we don't crash the machine
     __try
     {
+        pSource->Start();
+
         // Sets processor Affinity and Thread priority according to menu selection
         SetThreadProcessorAndPriority();
 
-        // Set up 5 sets of pointers to the start of odd and even lines
-        for (j = 0; j < 5; j++)
-        {
-            for (i = 0; i < CurrentY; i += 2)
-            {
-                ppOddLines[j][i / 2] = (short*) pDisplay[j] + (i + 1) * 1024;
-                ppEvenLines[j][i / 2] = (short*) pDisplay[j] + i * 1024;
-            }
-        }
         PrevDeintMethod = GetCurrentDeintMethod();
 
         // reset the static variables in the detection code
@@ -433,10 +458,6 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
             UpdatePALPulldownMode(NULL);
         else
             UpdateNTSCPulldownMode(NULL);
-
-        // start the capture off
-        BT848_Restart_RISC_Code();
-        BT848_SetDMA(TRUE);
 
         dwLastSecondTicks = GetTickCount();
         while(!bStopThread)
@@ -446,44 +467,19 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
             Info.bDoAccurateFlips = DoAccurateFlips;
             Info.bRunningLate = bHurryWhenLate;
             Info.bMissedFrame = FALSE;
+            Info.OverlayPitch = OverlayPitch;
+            Info.CombFactor = -1;
+            Info.FieldDiff = -1;
+            bFlipNow = FALSE;
+            GetDestRect(&Info.DestRect);
             
-            Timing_WaitForNextField(&Info);
-            
+            pSource->GetNextField(&Info, Info.bDoAccurateFlips && (IsFilmMode() || bJudderTerminatorOnVideo));
+
+            CurrentX = Info.FrameWidth;
+            CurrentY = Info.FrameHeight;
+
             if(bIsPaused == FALSE)
             {
-                Info.LineLength = CurrentX * 2;
-                Info.FrameWidth = CurrentX;
-                Info.FrameHeight = CurrentY;
-                Info.FieldHeight = CurrentY / 2;
-                Info.CombFactor = -1;
-                Info.FieldDiff = -1;
-                GetDestRect(&Info.DestRect);
-
-                if(Info.IsOdd)
-                {
-                    memmove(&Info.OddLines[1], &Info.OddLines[0], sizeof(Info.OddLines) - sizeof(Info.OddLines[0]));
-                    if(bReversePolarity == FALSE)
-                    {
-                        Info.OddLines[0] = ppOddLines[Info.CurrentFrame];
-                    }
-                    else
-                    {
-                        Info.OddLines[0] = ppEvenLines[Info.CurrentFrame];
-                    }
-                }
-                else
-                {
-                    memmove(&Info.EvenLines[1], &Info.EvenLines[0], sizeof(Info.EvenLines) - sizeof(Info.EvenLines[0]));
-                    if(bReversePolarity == FALSE)
-                    {
-                        Info.EvenLines[0] = ppEvenLines[Info.CurrentFrame];
-                    }
-                    else
-                    {
-                        Info.EvenLines[0] = ppOddLines[(Info.CurrentFrame + 4) % 5];
-                    }
-                }
-
 				// Card calibration
 				if (pCalibration->IsRunning())
 				{
@@ -545,15 +541,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
                 if (bCaptureVBI == TRUE)
                 {
-                    BYTE* pVBI = (LPBYTE) pVBILines[(Info.CurrentFrame + 4) % 5];
-                    if (Info.IsOdd)
-                    {
-                        pVBI += CurrentVBILines * 2048;
-                    }
-                    for (nLineTarget = 0; nLineTarget < CurrentVBILines ; nLineTarget++)
-                    {
-                        VBI_DecodeLine(pVBI + nLineTarget * 2048, nLineTarget, Info.IsOdd);
-                    }
+                    pSource->DecodeVBI(&Info);
                 }
 
                 // do we need to unlock overlay if we crash
@@ -570,12 +558,12 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         // to avoid conflicts
                         if(Info.IsOdd)
                         {
-                            AdjustAspectRatio(SourceAspectAdjust, Info.EvenLines[0], Info.OddLines[0]);
+                            AdjustAspectRatio(SourceAspectAdjust, &Info);
                         }
 
                         if(!Overlay_Lock(&Info))
                         {
-                            BT848_SetDMA(FALSE);
+                            Providers_GetCurrentSource()->Stop();
                             LOG(1, "Falling out after Overlay_Lock");
                             PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_STOP, 0);
                             PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_START, 0);
@@ -648,7 +636,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         // somewhere above we will have locked the buffer, unlock before flip
                         if(!Overlay_Unlock())
                         {
-                            BT848_SetDMA(FALSE);
+                            Providers_GetCurrentSource()->Stop();
                             LOG(1, "Falling out after Overlay_Unlock");
                             PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_STOP, 0);
                             PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_START, 0);
@@ -678,7 +666,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
                             if(!Overlay_Flip(FlipFlag))
                             {
-                                BT848_SetDMA(FALSE);
+                                Providers_GetCurrentSource()->Stop();
                                 LOG(1, "Falling out after Overlay_Flip");
                                 PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_STOP, 0);
                                 PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_START, 0);
@@ -686,6 +674,30 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                                 return 0;
                             }
                         }
+                    }
+
+                    if (Info.bRunningLate)
+                    {
+                        ;     // do nothing
+                    }
+                    // if we have dropped a field then do BOB 
+                    // or if we need to get more history
+                    // if we are doing a half height Mode then just do that
+                    // anyway as it will be just as fast
+                    else if(!CurrentMethod->bIsHalfHeight && (Info.bMissedFrame || nHistory < CurrentMethod->nFieldsRequired))
+                    {
+                        bFlipNow = Bob(&Info);
+                    }
+                    else
+                    {
+                        bFlipNow = CurrentMethod->pfnAlgorithm(&Info);
+                    }
+                    
+                    if (bFlipNow)
+                    {
+                        // Do any filters that run on the output
+                        // need to do this while the surface is locked
+                        Filter_DoOutput(&Info, (Info.bRunningLate || Info.bMissedFrame));
                     }
                 }                   
                 // if there is any exception thrown in the above then just carry on
@@ -736,6 +748,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     // if there is any exception thrown then exit the thread
     __except (CrashHandler((EXCEPTION_POINTERS*)_exception_info())) 
     { 
+        Providers_GetCurrentSource()->Stop();
         LOG(1, "Crash in OutThreads main loop");
         ExitThread(1);
         return 0;
@@ -744,7 +757,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     // try and stop the capture
     __try
     {
-        BT848_SetDMA(FALSE);
+        Providers_GetCurrentSource()->Stop();
     }
     // if there is any exception thrown then exit the thread
     __except (CrashHandler((EXCEPTION_POINTERS*)_exception_info())) 
@@ -753,7 +766,6 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
         ExitThread(1);
         return 0;
     }
-    
     ExitThread(0);
     return 0;
 }
@@ -800,10 +812,10 @@ SETTING OutThreadsSettings[OUTTHREADS_SETTING_LASTONE] =
         "Threads", "bWaitForVsync", NULL,
     },
     {
-        "Reverse Polarity", ONOFF, 0, (long*)&bReversePolarity,
-        FALSE, 0, 1, 1, 1,
+        "Do JudderTerminator On Video Modes", ONOFF, 0, (long*)&bJudderTerminatorOnVideo,
+        TRUE, 0, 1, 1, 1,
         NULL,
-        "Threads", "bReversePolarity", NULL,
+        "Timing", "DoJudderTerminatorOnVideo", NULL,
     },
 };
 

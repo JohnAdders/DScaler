@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.h,v 1.8 2001-09-29 16:33:50 laurentg Exp $
+// $Id: OSD.h,v 1.9 2001-11-02 16:30:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -43,6 +43,7 @@ SETTING* OSD_GetSetting(OSD_SETTING Setting);
 void OSD_ReadSettingsFromIni();
 void OSD_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void OSD_SetMenu(HMENU hMenu);
+BOOL ProcessOSDSelection(HWND hWnd, WORD wMenuID);
 
 
 // Make sure that the timer ID does not conflict with those in DTV.H

@@ -52,6 +52,8 @@
 #define IDB_GREEK_VTCHARS               187
 #define IDB_RUSSIAN_VTCHARS             188
 #define IDB_GERMAN_VTCHARS              190
+#define IDC_BT848                       200
+#define IDC_STILL                       201
 #define IDM_VBI                         231
 #define IDM_CAPTURE_PAUSE               232
 #define IDM_CHANNEL_LIST                242
@@ -884,7 +886,6 @@
 #define IDM_NOISE_SETTINGS              2019
 #define IDM_PULLDOWNCOMMON_SETTINGS     2020
 #define IDM_DEBUG_SETTINGS              2021
-#define IDM_BT848_SETTINGS              2022
 #define IDM_ASPECT_SETTINGS             2023
 #define IDM_TIMING_SETTNGS              2024
 #define IDM_ALWAYONTOPFULLSCREEN        2025
@@ -919,21 +920,27 @@
 #define IDM_TELETEXT_KEY3               2075
 #define IDM_TELETEXT_KEY4               2076
 #define IDM_TELETEXT_KEY5               2077
-#define IDM_LEFT_CROP_PLUS              2078
-#define IDM_RIGHT_CROP_MINUS            2079
-#define IDM_LEFT_CROP_MINUS             2080
-#define IDM_RIGHT_CROP_PLUS             2081
-#define IDM_LEFT_CROP_CURRENT           2082
-#define IDM_RIGHT_CROP_CURRENT          2083
-#define IDM_TELETEXT_KEY6               2084
+#define IDM_TELETEXT_KEY6               2078
+#define IDM_LEFT_CROP_PLUS              2079
+#define IDM_RIGHT_CROP_MINUS            2080
+#define IDM_LEFT_CROP_MINUS             2081
+#define IDM_RIGHT_CROP_PLUS             2082
+#define IDM_LEFT_CROP_CURRENT           2083
+#define IDM_RIGHT_CROP_CURRENT          2084
+#define IDM_SELECT_PICTURE              2085
+#define IDM_SOURCE_FIRST                2086
+#define IDM_SOURCE_LAST                 2087
+#define IDM_SAVE_BY_FORMAT              2088
+#define IDM_SAVE_BY_INPUT               2089
+#define IDM_SAVE_BY_CHANNEL             2090
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        191
-#define _APS_NEXT_COMMAND_VALUE         2085
-#define _APS_NEXT_CONTROL_VALUE         1904
+#define _APS_NEXT_RESOURCE_VALUE        202
+#define _APS_NEXT_COMMAND_VALUE         2091
+#define _APS_NEXT_CONTROL_VALUE         1903
 #define _APS_NEXT_SYMED_VALUE           114
 #endif
 #endif

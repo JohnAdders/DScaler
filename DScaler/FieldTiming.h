@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FieldTiming.h,v 1.7 2001-07-16 18:07:50 adcockj Exp $
+// $Id: FieldTiming.h,v 1.8 2001-11-02 16:30:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,7 @@ void Timing_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void Timing_SetMenu(HMENU hMenu);
 void Timing_ShowUI();
 
+void Timing_UpdateRunningAverage(DEINTERLACE_INFO* pInfo);
 void Timing_Setup();
 void Timing_WaitForNextField(DEINTERLACE_INFO* pInfo);
 void Timing_Reset();
@@ -49,5 +50,11 @@ int Timing_GetDroppedFields();
 void Timing_ResetDroppedFields();
 int Timing_GetUsedFields();
 void Timing_ResetUsedFields();
+void Timing_IncrementUsedFields();
+void Timing_AddDroppedFields(int nDropped);
+void Timimg_AutoFormatDetect(DEINTERLACE_INFO* pInfo);
+void Timing_SmartSleep(DEINTERLACE_INFO* pInfo, BOOL bRunningLate, BOOL& bSleptAlready);
+void Timing_SetFlipAdjustFlag(BOOL NewValue);
+
 
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Status.cpp,v 1.7 2001-08-15 09:41:16 adcockj Exp $
+// $Id: Status.cpp,v 1.8 2001-11-02 16:30:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,15 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2001/08/15 09:41:16  adcockj
+// Fix for statusbar font
+//
+// Revision 1.6.2.2  2001/08/20 16:14:19  adcockj
+// Massive tidy up of code to new structure
+//
+// Revision 1.6.2.1  2001/08/15 09:41:44  adcockj
+// Fix for status bar font
+//
 // Revision 1.6  2001/07/13 16:14:56  adcockj
 // Changed lots of variables to match Coding standards
 //
@@ -143,6 +152,12 @@ BOOL StatusBar_Init()
 
     return (TRUE);
 }
+
+BOOL StatusBar_IsVisible()
+{
+    return IsWindowVisible(hwndStatusBar);
+}
+
 
 void StatusBar_ShowText(eStatusBarBox Box, LPCTSTR szText)
 {
@@ -267,6 +282,7 @@ LONG APIENTRY StatusProc(HWND hWnd, UINT msg, UINT wParam, LONG lParam)
         {
             ErrorBox("Failed To Create Statusbar Font");
         }
+
         hdc = GetDC(hWnd);
         SelectObject(hdc, hfontStatus);
         GetTextMetrics(hdc, &tmStatusFont);

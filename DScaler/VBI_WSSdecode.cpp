@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_WSSdecode.cpp,v 1.7 2001-08-02 16:43:05 adcockj Exp $
+// $Id: VBI_WSSdecode.cpp,v 1.8 2001-11-02 16:30:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,15 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7.2.2  2001/08/21 09:43:01  adcockj
+// Brought branch up to date with latest code fixes
+//
+// Revision 1.7.2.1  2001/08/18 17:09:30  adcockj
+// Got to compile, still lots to do...
+//
+// Revision 1.7  2001/08/02 16:43:05  adcockj
+// Added Debug level to LOG function
+//
 // Revision 1.6  2001/07/13 16:14:56  adcockj
 // Changed lots of variables to match Coding standards
 //
@@ -42,7 +51,7 @@
 #include "stdafx.h"
 #include "VBI_WSSdecode.h"
 #include "VBI.h"
-#include "BT848.h"
+#include "Providers.h"
 #include "DebugLog.h"
 
 #define WSS_MAX_SUCCESSIVE_ERR      6
@@ -356,8 +365,9 @@ int WSS_DecodeLine(BYTE* vbiline)
 //  int     NewAspectRatio;
 //  BOOL    bSwitch = FALSE;
 //  char    szInfo[32];
-
-    switch (BT848_GetTVFormat()->wCropHeight)
+    TTVFormat* TVFormat = GetTVFormat(Providers_GetCurrentSource()->GetFormat());
+    
+    switch (TVFormat->wCropHeight)
     {
     // 625-line systems
     case 576:

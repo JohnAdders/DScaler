@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Dialogs.cpp,v 1.11 2001-09-02 12:13:21 adcockj Exp $
+// $Id: Dialogs.cpp,v 1.12 2001-11-02 16:30:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,21 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2001/09/02 12:13:21  adcockj
+// Changed dscaler webiste
+// Tidied up resource spelling
+//
+// Revision 1.10.2.3  2001/08/20 16:14:19  adcockj
+// Massive tidy up of code to new structure
+//
+// Revision 1.10.2.2  2001/08/17 16:35:14  adcockj
+// Another interim check-in still doesn't compile. Getting closer ...
+//
+// Revision 1.10.2.1  2001/08/14 16:41:36  adcockj
+// Renamed driver
+// Got to compile with new class based card
+//
+>>>>>>> 1.10.2.3
 // Revision 1.10  2001/07/29 10:16:51  adcockj
 // Added build number to about box
 //
@@ -56,12 +71,10 @@
 #include "stdafx.h"
 #include "resource.h"
 #include "Dialogs.h"
-#include "BT848.h"
 #include "DScaler.h"
 #include "OutThreads.h"
 #include "VBI_VideoText.h"
 #include "Audio.h"
-#include "Tuner.h"
 #include "VBI.h"
 #include "CPU.h"
 #include "Slider.h"
@@ -190,64 +203,6 @@ BOOL APIENTRY VPSInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 
     return (FALSE);
 }
-
-BOOL APIENTRY ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
-{
-    switch (message)
-    {
-    case WM_INITDIALOG:
-        SetDlgItemText(hDlg, IDC_TEXT1, BT848_ChipType());
-        SetDlgItemText(hDlg, IDC_TEXT6, BT848_VendorID());
-        SetDlgItemText(hDlg, IDC_TEXT7, BT848_DeviceID());
-        SetDlgItemText(hDlg, IDC_TEXT13, Tuner_Status());
-        SetDlgItemText(hDlg, IDC_TEXT14, Audio_MSP_Status());
-        SetDlgItemText(hDlg, IDC_TEXT16, Audio_MSP_VersionString());
-        SetDlgItemText(hDlg, IDC_AUTODECTECTID, TVCard_AutoDetectID());
-
-        SetDlgItemText(hDlg, IDC_TEXT18, "YUV2");
-        
-        // TB 20010109 added Chip Type
-        if (CpuFeatureFlags & FEATURE_SSE2)
-        {
-            SetDlgItemText(hDlg, IDC_CPU_TYPE, "SSE2");
-        }
-        else if (CpuFeatureFlags & FEATURE_SSE)
-        {
-            SetDlgItemText(hDlg, IDC_CPU_TYPE, "SSE");
-        }
-        else if (CpuFeatureFlags & FEATURE_MMXEXT)
-        {
-            SetDlgItemText(hDlg, IDC_CPU_TYPE, "MMXEXT");
-        }
-        else if (CpuFeatureFlags & FEATURE_3DNOWEXT)
-        {
-            SetDlgItemText(hDlg, IDC_CPU_TYPE, "3DNOWEXT");
-        }
-        else if (CpuFeatureFlags & FEATURE_3DNOW)
-        {
-            SetDlgItemText(hDlg, IDC_CPU_TYPE, "3DNOW");
-        }
-        else
-        {
-            SetDlgItemText(hDlg, IDC_CPU_TYPE, "MMX");
-        }
-
-
-        break;
-
-    case WM_COMMAND:
-
-        if ((LOWORD(wParam) == IDOK) || (LOWORD(wParam) == IDCANCEL))
-        {
-            EndDialog(hDlg, TRUE);
-        }
-
-        break;
-    }
-
-    return (FALSE);
-}
-
 
 LPCSTR GetProductNameAndVersion()
 {

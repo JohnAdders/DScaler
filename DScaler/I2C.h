@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: I2C.h,v 1.4 2001-07-13 16:14:56 adcockj Exp $
+// $Id: I2C.h,v 1.5 2001-11-02 16:30:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -31,29 +31,30 @@
 #ifndef __I2C_H___
 #define __I2C_H___
 
-#include "bt848.h"
-
-BOOL I2CBus_AddDevice(BYTE I2C_Port);
-BOOL I2CBus_Lock();
-BOOL I2CBus_Unlock();
-void I2CBus_Start();
-void I2CBus_Stop();
-void I2CBus_One();
-void I2CBus_Zero();
-BOOL I2CBus_Ack();
-BOOL I2CBus_SendByte(BYTE nData, int nWaitForAck);
-BYTE I2CBus_ReadByte(BOOL bLast);
-BYTE I2CBus_Read(BYTE nAddr);
-BOOL I2CBus_Write(BYTE nAddr, BYTE nData1, BYTE nData2, BOOL bSendBoth);
-void I2CBus_wait(int us);
-void I2C_SetLine(BOOL bCtrl, BOOL bData);
-BOOL I2C_GetLine();
-BYTE I2C_Read(BYTE nAddr);
-BOOL I2C_Write(BYTE nAddr, BYTE nData1, BYTE nData2, BOOL bSendBoth);
-
-#define I2C_DELAY 0
-#define I2C_TIMING (0x7<<4)
-#define I2C_COMMAND (I2C_TIMING | BT848_I2C_SCL | BT848_I2C_SDA)
+class CI2C
+{
+public:
+    BOOL I2C_AddDevice(BYTE I2C_Port);
+    BOOL I2C_SendByte(BYTE nData, int nWaitForAck);
+    BYTE I2C_ReadByte(BOOL bLast);
+protected:
+    CI2C();
+    ~CI2C();
+    virtual void I2C_SetLine(BOOL bCtrl, BOOL bData) = 0;
+    virtual BOOL I2C_GetLine() = 0;
+    virtual BYTE I2C_Read(BYTE nAddr) = 0;
+    virtual BOOL I2C_Write(BYTE nAddr, BYTE nData1, BYTE nData2, BOOL bSendBoth) = 0;
+    void I2C_Wait(int MicroSecs);
+    void I2C_Lock();
+    void I2C_Unlock();
+    void I2C_Start();
+    void I2C_Stop();
+private:
+    void I2C_One();
+    void I2C_Zero();
+    BOOL I2C_Ack();
+    CRITICAL_SECTION m_hCritSect;
+};
 
 #define I2C_TSA5522        0xc2
 #define I2C_TDA7432        0x8a
@@ -66,7 +67,7 @@ BOOL I2C_Write(BYTE nAddr, BYTE nData1, BYTE nData2, BOOL bSendBoth);
 #define I2C_VHX            0xc0
 #define I2C_MSP3400        0x80
 #define I2C_TEA6300        0x80
-#define I2C_DPL3518    0x84
+#define I2C_DPL3518        0x84
 
 
 #endif

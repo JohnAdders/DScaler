@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectFilters.cpp,v 1.12 2001-09-08 15:17:58 adcockj Exp $
+// $Id: AspectFilters.cpp,v 1.13 2001-11-02 16:30:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,12 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2001/09/08 15:17:58  adcockj
+// Got Linear Correction working properly with squeeze
+//
+// Revision 1.11.2.1  2001/08/20 16:14:19  adcockj
+// Massive tidy up of code to new structure
+//
 // Revision 1.11  2001/08/02 18:08:17  adcockj
 // Made all logging code use new levels
 //
@@ -52,7 +58,8 @@
 #include "Other.h"
 #include "DScaler.h"
 #include "Status.h"
-#include "BT848.h"
+// TODO: remove 
+#include "OutThreads.h"
 
 // From DScaler.cpp .... We really need to reduce reliance on globals by going C++!
 // Perhaps in the meantime, it could be passed as a parameter to WorkoutOverlay()

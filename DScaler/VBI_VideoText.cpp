@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.24 2001-10-22 17:28:40 temperton Exp $
+// $Id: VBI_VideoText.cpp,v 1.25 2001-11-02 16:30:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2001/10/22 17:28:40  temperton
+// Removed tabs to comply with coding standards
+//
 // Revision 1.23  2001/10/22 05:55:07  temperton
 // Teletext improvements
 //
@@ -68,6 +71,12 @@
 // Revision 1.14  2001/08/21 09:39:46  adcockj
 // Added Greek teletext Codepage
 //
+// Revision 1.13.2.2  2001/08/23 16:04:57  adcockj
+// Improvements to dynamic menus to remove requirement that they are not empty
+//
+// Revision 1.13.2.1  2001/08/21 09:43:01  adcockj
+// Brought branch up to date with latest code fixes
+//
 // Revision 1.13  2001/08/13 18:07:24  adcockj
 // Added Czech code page for teletext
 //
@@ -88,7 +97,6 @@
 
 #include "stdafx.h"
 #include "resource.h"
-#include "bt848.h"
 #include "VBI_VideoText.h"
 #include "VBI_CCdecode.h"
 #include "VBI.h"

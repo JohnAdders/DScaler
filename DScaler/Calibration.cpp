@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.29 2001-11-01 11:35:23 adcockj Exp $
+// $Id: Calibration.cpp,v 1.30 2001-11-02 16:30:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 //  This file is subject to the terms of the GNU General Public License as
@@ -16,6 +16,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2001/11/01 11:35:23  adcockj
+// Pre release changes to version, help, comment and headers
+//
 /////////////////////////////////////////////////////////////////////////////
 // Change Log
 //
@@ -30,10 +33,11 @@
 #include "Calibration.h"
 #include "resource.h"
 #include "DScaler.h"
-#include "Settings.h"
+#include "Setting.h"
 #include "OSD.h"
-#include "AspectRatio.h"
+#include "Providers.h"
 #include "DebugLog.h"
+#include "AspectRatio.h"
 
 
 // Minimum time in milliseconds between two consecutive evaluations
@@ -780,19 +784,19 @@ CSubPattern *CTestPattern::GetNextSubPattern()
 /////////////////////////////////////////////////////////////////////////////
 // Class CCalSetting
 
-CCalSetting::CCalSetting(BT848_SETTING setting)
+CCalSetting::CCalSetting(CSimpleSetting* pSetting)
 {
-    type_setting = setting;
-    min = BT848_GetSetting(type_setting)->MinValue;
-    max = BT848_GetSetting(type_setting)->MaxValue;
-    current_value = Setting_GetValue(BT848_GetSetting(type_setting));
+    m_pSetting = pSetting;
+    min = pSetting->GetMin();
+    max = pSetting->GetMax();
+    current_value = pSetting->GetValue();
     SetFullRange();
     InitResult();
 }
 
 BOOL CCalSetting::Update()
 {
-    int new_value = Setting_GetValue(BT848_GetSetting(type_setting));
+    int new_value = m_pSetting->GetValue();
     if (new_value != current_value)
     {
         current_value = new_value;
@@ -806,14 +810,18 @@ BOOL CCalSetting::Update()
 
 void CCalSetting::Save()
 {
+    char szText[256];
     saved_value = current_value;
-    LOG(2, "Automatic Calibration - %s saved value = %d", BT848_GetSetting(type_setting)->szDisplayName, saved_value);
+    m_pSetting->GetDisplayText(szText);
+    LOG(2, "Automatic Calibration - %s saved value = %d", szText, saved_value);
 }
 
 void CCalSetting::Restore()
 {
-    Setting_SetValue(BT848_GetSetting(type_setting), saved_value);
-    LOG(2, "Automatic Calibration - %s restored value = %d", BT848_GetSetting(type_setting)->szDisplayName, saved_value);
+    char szText[256];
+    saved_value = current_value;
+    m_pSetting->GetDisplayText(szText);
+    LOG(2, "Automatic Calibration - %s restored value = %d", szText, saved_value);
 }
 
 void CCalSetting::SetFullRange()
@@ -836,20 +844,21 @@ void CCalSetting::SetRange(int min_val, int max_val)
         j = i - min;
         mask_input[j/32] |= (1 << (j%32));
     }
-
-    LOG(3, "Automatic Calibration - %s range => min = %d max = %d", BT848_GetSetting(type_setting)->szDisplayName, min_value, max_value);
+    char szText[256];
+    m_pSetting->GetDisplayText(szText);
+    LOG(3, "Automatic Calibration - %s range => min = %d max = %d", szText, min_value, max_value);
 }
 
 void CCalSetting::SetRange(int delta)
 {
     int min_val, max_val;
 
-    min_val = Setting_GetValue(BT848_GetSetting(type_setting)) - delta;
+    min_val = m_pSetting->GetValue() - delta;
     if (min_val < min)
     {
         min_val = min;
     }
-    max_val = Setting_GetValue(BT848_GetSetting(type_setting)) + delta;
+    max_val = m_pSetting->GetValue() + delta;
     if (max_val > max)
     {
         max_val = max;
@@ -917,7 +926,7 @@ void CCalSetting::AdjustMax()
 
 void CCalSetting::AdjustDefault()
 {
-    Adjust(BT848_GetSetting(type_setting)->Default);
+    Adjust(m_pSetting->GetDefault());
 }
 
 BOOL CCalSetting::AdjustNext()
@@ -960,8 +969,9 @@ void CCalSetting::AdjustBest()
         // Set the setting to its default value
         AdjustDefault();
     }
-
-    LOG(2, "Automatic Calibration - %s finished - %d values between %d and %d => %d", BT848_GetSetting(type_setting)->szDisplayName, nb_min, best_val_min, best_val_max, current_value);
+    char szText[256];
+    m_pSetting->GetDisplayText(szText);
+    LOG(2, "Automatic Calibration - %s finished - %d values between %d and %d => %d", szText, nb_min, best_val_min, best_val_max, current_value);
 }
 
 void CCalSetting::InitResult()
@@ -1012,7 +1022,9 @@ BOOL CCalSetting::UpdateResult(int diff, int threshold, BOOL only_one)
         end = TRUE;
         min_found = desc;
     }
-    LOG(3, "Automatic Calibration - %s value %d => result = %d min = %d", BT848_GetSetting(type_setting)->szDisplayName, current_value, diff, min_diff);
+    char szText[256];
+    m_pSetting->GetDisplayText(szText);
+    LOG(3, "Automatic Calibration - %s value %d => result = %d min = %d", szText, current_value, diff, min_diff);
     return min_found;
 }
 
@@ -1056,7 +1068,7 @@ int CCalSetting::GetResult(int *mask, int *min_val, int *max_val)
 void CCalSetting::Adjust(int value)
 {
     current_value = value;
-    Setting_SetValue(BT848_GetSetting(type_setting), current_value);
+    m_pSetting->SetValue(current_value);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1073,11 +1085,13 @@ CCalibration::CCalibration()
     current_sub_pattern = NULL;
     type_calibration = CAL_MANUAL;
     running = FALSE;
-    brightness   = new CCalSetting(BRIGHTNESS);
-    contrast     = new CCalSetting(CONTRAST);
-    saturation_U = new CCalSetting(SATURATIONU);
-    saturation_V = new CCalSetting(SATURATIONV);
-    hue          = new CCalSetting(HUE);
+
+    brightness   = NULL;
+    contrast     = NULL;
+    saturation_U = NULL;
+    saturation_V = NULL;
+    hue          = NULL;
+
     last_tick_count = -1;
     LoadTestPatterns();
 }
@@ -1658,7 +1672,7 @@ void CCalibration::SetMenu(HMENU hMenu)
 	char	*name;
     eTypeContentPattern type_content;
 
-    if ((current_test_pattern != NULL) && (current_test_pattern->GetVideoFormat() != Setting_GetValue(BT848_GetSetting(TVFORMAT))))
+    if ((current_test_pattern != NULL) && (current_test_pattern->GetVideoFormat() != Providers_GetCurrentSource()->GetFormat()))
     {
         current_test_pattern = NULL;
     }
@@ -1683,7 +1697,7 @@ void CCalibration::SetMenu(HMENU hMenu)
 			if (strlen (name) > 0)
 			{
 				EnableMenuItem(hMenuPatterns, i, running ? MF_BYPOSITION | MF_GRAYED : MF_BYPOSITION | MF_ENABLED);
-				EnableMenuItem(hMenuPatterns, i, (running || (test_patterns[i]->GetVideoFormat() != Setting_GetValue(BT848_GetSetting(TVFORMAT)))) ? MF_BYPOSITION | MF_GRAYED : MF_BYPOSITION | MF_ENABLED);
+				EnableMenuItem(hMenuPatterns, i, (running || (test_patterns[i]->GetVideoFormat() != Providers_GetCurrentSource()->GetFormat())) ? MF_BYPOSITION | MF_GRAYED : MF_BYPOSITION | MF_ENABLED);
 				CheckMenuItem(hMenuPatterns, i, (current_test_pattern == test_patterns[i]) ? MF_BYPOSITION | MF_CHECKED : MF_BYPOSITION | MF_UNCHECKED);
 			}
         }
@@ -1752,6 +1766,23 @@ void CCalibration::Start(eTypeCalibration type)
 {
     if (current_test_pattern == NULL)
         return;
+
+    delete brightness;
+    delete contrast;
+    delete saturation_U;
+    delete saturation_V;
+    delete hue;
+
+    CInterlacedSource* pSource = Providers_GetCurrentSource();
+    CSimpleSetting* pSetting = NULL;
+
+    // TODO: this is bad coding
+    // sort this out
+    brightness   = new CCalSetting(static_cast<CSimpleSetting*>(pSource->GetBrightness()));
+    contrast     = new CCalSetting(static_cast<CSimpleSetting*>(pSource->GetContrast()));
+    saturation_U = new CCalSetting(static_cast<CSimpleSetting*>(pSource->GetSaturationU()));
+    saturation_V = new CCalSetting(static_cast<CSimpleSetting*>(pSource->GetSaturationV()));
+    hue          = new CCalSetting(static_cast<CSimpleSetting*>(pSource->GetHue()));
 
 	type_calibration = type;
 

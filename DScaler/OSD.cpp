@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.34 2001-09-29 16:33:50 laurentg Exp $
+// $Id: OSD.cpp,v 1.35 2001-11-02 16:30:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.34  2001/09/29 16:33:50  laurentg
+// Background color and background mode can now be deifned sepaately for each text in OSD
+// OSD for calibration updated
+//
 // Revision 1.33  2001/09/29 10:40:58  laurentg
 // OSD for calibration updated
 //
@@ -98,6 +102,27 @@
 // UseRGB ini parameter suppressed
 // OSD screen concerning card calibration fully modified
 // Automatic calibration added (not finished)
+//
+// Revision 1.22.2.7  2001/08/24 12:35:09  adcockj
+// Menu handling changes
+//
+// Revision 1.22.2.6  2001/08/23 16:04:57  adcockj
+// Improvements to dynamic menus to remove requirement that they are not empty
+//
+// Revision 1.22.2.5  2001/08/21 09:43:01  adcockj
+// Brought branch up to date with latest code fixes
+//
+// Revision 1.22.2.4  2001/08/20 16:14:19  adcockj
+// Massive tidy up of code to new structure
+//
+// Revision 1.22.2.3  2001/08/17 16:35:14  adcockj
+// Another interim check-in still doesn't compile. Getting closer ...
+//
+// Revision 1.22.2.2  2001/08/16 06:43:34  adcockj
+// moved more stuff into the new file (deonsn't compile)
+//
+// Revision 1.22.2.1  2001/08/15 14:44:05  adcockj
+// Starting to put some flesh onto the new structure
 //
 // Revision 1.22  2001/08/11 15:17:06  laurentg
 // Bug fixed
@@ -146,7 +171,6 @@
 #include "AspectRatio.h"
 #include "Other.h"
 #include "Status.h"
-#include "BT848.h"
 #include "ProgramList.h"
 #include "Audio.h"
 #include "MixerDev.h"
@@ -157,6 +181,7 @@
 #include "DScaler.h"
 #include "VBI_WSSdecode.h"
 #include "Calibration.h"
+#include "Providers.h"
 
 extern long NumFilters;
 extern FILTER_METHOD* Filters[];
@@ -636,6 +661,8 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
     CTestPattern *pTestPattern;
     CSubPattern *pSubPattern;
     CColorBar* pColorBar;
+    CInterlacedSource* pSource = Providers_GetCurrentSource();
+    CSetting* pSetting = NULL;
 
     // Case : no OSD screen
     if (IdxCurrentScreen == -1)
@@ -659,76 +686,10 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
 
         // Channel
         nLine = 2;
-        if (Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)) == SOURCE_TUNER)
-        {
-            OSD_AddText(Channel_GetName(), Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
-            nLine++;
-        }
 
         // Video input + video format
-        switch (Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)))
-        {
-        case SOURCE_TUNER:
-            strcpy(szInfo, "Video : Tuner ");
-            break;
-        case SOURCE_COMPOSITE:
-            strcpy(szInfo, "Video : Composite ");
-            break;
-        case SOURCE_SVIDEO:
-            strcpy(szInfo, "Video : S-Video ");
-            break;
-        case SOURCE_OTHER1:
-            strcpy(szInfo, "Video : Other 1 ");
-            break;
-        case SOURCE_OTHER2:
-            strcpy(szInfo, "Video : Other 2 ");
-            break;
-        case SOURCE_COMPVIASVIDEO:
-            strcpy(szInfo, "Video : Composite via S-Video ");
-            break;
-        case SOURCE_CCIR656_1:
-            strcpy(szInfo, "Video : CCIR656 1 ");
-            break;
-        case SOURCE_CCIR656_2:
-            strcpy(szInfo, "Video : CCIR656 2 ");
-            break;
-        case SOURCE_CCIR656_3:
-            strcpy(szInfo, "Video : CCIR656 3 ");
-            break;
-        case SOURCE_CCIR656_4:
-            strcpy(szInfo, "Video : CCIR656 4 ");
-            break;
-        default:
-            strcpy(szInfo, "Video : Unknown ");
-            break;
-        }
-        strcat(szInfo, BT848_GetTVFormat()->szDesc);
-        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+        OSD_AddText(pSource->GetStatus(), Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
-        // Audio input + muting
-        switch (AudioSource) {
-        case 0:
-            strcpy(szInfo, "Audio : Tuner");
-            break;
-        case 1:
-            strcpy(szInfo, "Audio : MSP/Radio");
-            break;
-        case 2:
-            strcpy(szInfo, "Audio : External");
-            break;
-        case 3:
-            strcpy(szInfo, "Audio : Internal");
-            break;
-        case 4:
-            strcpy(szInfo, "Audio : Disabled");
-            break;
-        case 5:
-            strcpy(szInfo, "Audio : Stereo");
-            break;
-        default:
-            strcpy(szInfo, "Audio : Unknown");
-            break;
-        }
         if (Setting_GetValue(Audio_GetSetting(SYSTEMINMUTE)) == TRUE)
         {
             strcat (szInfo, " - MUTE");
@@ -736,7 +697,7 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
         OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
         // Pixel width
-        sprintf (szInfo, "Pixel width : %u", Setting_GetValue(BT848_GetSetting(CURRENTX)));
+        sprintf (szInfo, "Pixel width : %u", pSource->GetWidth());
         OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
         // Source ratio
@@ -769,18 +730,42 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
 
         // Video settings
         nLine = 2;
-        sprintf (szInfo, "Brightness : %+04d", Setting_GetValue(BT848_GetSetting(BRIGHTNESS)));
-        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-        sprintf (szInfo, "Contrast : %03d", Setting_GetValue(BT848_GetSetting(CONTRAST)));
-        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-        sprintf (szInfo, "Hue : %+04d", Setting_GetValue(BT848_GetSetting(HUE)));
-        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-        sprintf (szInfo, "Color : %03u", Setting_GetValue(BT848_GetSetting(SATURATION)));
-        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-        sprintf (szInfo, "Color U : %03u", Setting_GetValue(BT848_GetSetting(SATURATIONU)));
-        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
-        sprintf (szInfo, "Color V : %03u", Setting_GetValue(BT848_GetSetting(SATURATIONV)));
-        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+        pSetting = pSource->GetBrightness();
+        if(pSetting != NULL)
+        {
+            sprintf (szInfo, "Brightness : %03d", pSetting->GetValue());
+            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+        }
+        pSetting = pSource->GetContrast();
+        if(pSetting != NULL)
+        {
+            sprintf (szInfo, "Contrast : %03u", pSetting->GetValue());
+            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+        }
+        pSetting = pSource->GetHue();
+        if(pSetting != NULL)
+        {
+            sprintf (szInfo, "Hue : %03d", pSetting->GetValue());
+            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+        }
+        pSetting = pSource->GetSaturation();
+        if(pSetting != NULL)
+        {
+            sprintf (szInfo, "Color : %03u", pSetting->GetValue());
+            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+        }
+        pSetting = pSource->GetSaturationU();
+        if(pSetting != NULL)
+        {
+            sprintf (szInfo, "Color U : %03u", pSetting->GetValue());
+            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+        }
+        pSetting = pSource->GetSaturationV();
+        if(pSetting != NULL)
+        {
+            sprintf (szInfo, "Color V : %03u", pSetting->GetValue());
+            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+        }
 
         // Deinterlace Mode
         nLine = -1;
@@ -1056,97 +1041,170 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
         // Video settings
         if (pCalibration->GetType() == CAL_MANUAL)
         {
-            sprintf (szInfo, "Brightness : %+04d", Setting_GetValue(BT848_GetSetting(BRIGHTNESS)));
-            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (1, dfMargin, Size));
-            sprintf (szInfo, "Contrast : %03d", Setting_GetValue(BT848_GetSetting(CONTRAST)));
-            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (2, dfMargin, Size));
-            sprintf (szInfo, "Color U : %03u", Setting_GetValue(BT848_GetSetting(SATURATIONU)));
-            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (1, dfMargin, Size));
-            sprintf (szInfo, "Color V : %03u", Setting_GetValue(BT848_GetSetting(SATURATIONV)));
-            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (2, dfMargin, Size));
-            sprintf (szInfo, "Hue : %+04d", Setting_GetValue(BT848_GetSetting(HUE)));
-            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (3, dfMargin, Size));
+            pSetting = pSource->GetBrightness();
+            if(pSetting != NULL)
+            {
+                sprintf (szInfo, "Brightness : %03d", pSetting->GetValue());
+                OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (1, dfMargin, Size));
+            }
+            pSetting = pSource->GetContrast();
+            if(pSetting != NULL)
+            {
+                sprintf (szInfo, "Contrast : %03u", pSetting->GetValue());
+                OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (2, dfMargin, Size));
+            }
+            pSetting = pSource->GetSaturationU();
+            if(pSetting != NULL)
+            {
+                sprintf (szInfo, "Color U : %03u", pSetting->GetValue());
+                OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (1, dfMargin, Size));
+            }
+            pSetting = pSource->GetSaturationV();
+            if(pSetting != NULL)
+            {
+                sprintf (szInfo, "Color V : %03u", pSetting->GetValue());
+                OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (2, dfMargin, Size));
+            }
+            pSetting = pSource->GetHue();
+            if(pSetting != NULL)
+            {
+                sprintf (szInfo, "Hue : %03u", pSetting->GetValue());
+                OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (3, dfMargin, Size));
+            }
         }
         else
         {
-            sprintf (szInfo, "Brightness : %+04d", Setting_GetValue(BT848_GetSetting(BRIGHTNESS)));
-            if ( pCalibration->IsRunning()
-              && ( (pCalibration->GetCurrentStep() == 1)
-                || (pCalibration->GetCurrentStep() == 2)
-                || (pCalibration->GetCurrentStep() == 3)
-                || (pCalibration->GetCurrentStep() == 4)
-                || (pCalibration->GetCurrentStep() == 9)
-                || (pCalibration->GetCurrentStep() == 10)
-                || (pCalibration->GetCurrentStep() == 11) ) )
+            // do brightness
+            pSetting = pSource->GetBrightness();
+            if(pSetting != NULL)
             {
-                Color = OSD_COLOR_CURRENT;
+                sprintf (szInfo, "Brightness : %+04d", pSetting->GetValue());
+                if ( pCalibration->IsRunning()
+                  && ( (pCalibration->GetCurrentStep() == 1)
+                    || (pCalibration->GetCurrentStep() == 2)
+                    || (pCalibration->GetCurrentStep() == 3)
+                    || (pCalibration->GetCurrentStep() == 4)
+                    || (pCalibration->GetCurrentStep() == 9)
+                    || (pCalibration->GetCurrentStep() == 10)
+                    || (pCalibration->GetCurrentStep() == 11) ) )
+                {
+                    Color = OSD_COLOR_CURRENT;
+                }
+                else
+                {
+                    Color = -1;
+                }
             }
             else
             {
-                Color = -1;
+                strcpy(szInfo, "Not Supported on this Source");
             }
+
             OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (8, dfMargin, Size));
-            sprintf (szInfo, "Contrast : %03d", Setting_GetValue(BT848_GetSetting(CONTRAST)));
-            if ( pCalibration->IsRunning()
-              && ( (pCalibration->GetCurrentStep() == 5)
-                || (pCalibration->GetCurrentStep() == 6)
-                || (pCalibration->GetCurrentStep() == 7)
-                || (pCalibration->GetCurrentStep() == 8)
-                || (pCalibration->GetCurrentStep() == 9)
-                || (pCalibration->GetCurrentStep() == 10)
-                || (pCalibration->GetCurrentStep() == 11) ) )
+
+            // do Contrast
+            pSetting = pSource->GetContrast();
+            if(pSetting != NULL)
             {
-                Color = OSD_COLOR_CURRENT;
+                sprintf (szInfo, "Contrast : %03d", pSetting->GetValue());
+                if ( pCalibration->IsRunning()
+                  && ( (pCalibration->GetCurrentStep() == 5)
+                    || (pCalibration->GetCurrentStep() == 6)
+                    || (pCalibration->GetCurrentStep() == 7)
+                    || (pCalibration->GetCurrentStep() == 8)
+                    || (pCalibration->GetCurrentStep() == 9)
+                    || (pCalibration->GetCurrentStep() == 10)
+                    || (pCalibration->GetCurrentStep() == 11) ) )
+                {
+                    Color = OSD_COLOR_CURRENT;
+                }
+                else
+                {
+                    Color = -1;
+                }
             }
             else
             {
-                Color = -1;
+                strcpy(szInfo, "Not Supported on this Source");
             }
             OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (9, dfMargin, Size));
-            sprintf (szInfo, "Color U : %03u", Setting_GetValue(BT848_GetSetting(SATURATIONU)));
-            if ( pCalibration->IsRunning()
-              && ( (pCalibration->GetCurrentStep() == 12)
-                || (pCalibration->GetCurrentStep() == 13)
-                || (pCalibration->GetCurrentStep() == 14)
-                || (pCalibration->GetCurrentStep() == 15)
-                || (pCalibration->GetCurrentStep() == 22)
-                || (pCalibration->GetCurrentStep() == 23) ) )
+
+
+
+            // do Color U
+            pSetting = pSource->GetSaturationU();
+            if(pSetting != NULL)
             {
-                Color = OSD_COLOR_CURRENT;
+                sprintf (szInfo, "Color U : %03u", pSetting->GetValue());
+                if ( pCalibration->IsRunning()
+                  && ( (pCalibration->GetCurrentStep() == 12)
+                    || (pCalibration->GetCurrentStep() == 13)
+                    || (pCalibration->GetCurrentStep() == 14)
+                    || (pCalibration->GetCurrentStep() == 15)
+                    || (pCalibration->GetCurrentStep() == 22)
+                    || (pCalibration->GetCurrentStep() == 23) ) )
+                {
+                    Color = OSD_COLOR_CURRENT;
+                }
+                else
+                {
+                    Color = -1;
+                }
             }
             else
             {
-                Color = -1;
+                strcpy(szInfo, "Not Supported on this Source");
             }
             OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (10, dfMargin, Size));
-            sprintf (szInfo, "Color V : %03u", Setting_GetValue(BT848_GetSetting(SATURATIONV)));
-            if ( pCalibration->IsRunning()
-              && ( (pCalibration->GetCurrentStep() == 16)
-                || (pCalibration->GetCurrentStep() == 17)
-                || (pCalibration->GetCurrentStep() == 18)
-                || (pCalibration->GetCurrentStep() == 19)
-                || (pCalibration->GetCurrentStep() == 22)
-                || (pCalibration->GetCurrentStep() == 23) ) )
+
+
+            // do Color V
+            pSetting = pSource->GetSaturationV();
+            if(pSetting != NULL)
             {
-                Color = OSD_COLOR_CURRENT;
+                sprintf (szInfo, "Color V : %03u", pSetting->GetValue());
+                if ( pCalibration->IsRunning()
+                  && ( (pCalibration->GetCurrentStep() == 16)
+                    || (pCalibration->GetCurrentStep() == 17)
+                    || (pCalibration->GetCurrentStep() == 18)
+                    || (pCalibration->GetCurrentStep() == 19)
+                    || (pCalibration->GetCurrentStep() == 22)
+                    || (pCalibration->GetCurrentStep() == 23) ) )
+                {
+                    Color = OSD_COLOR_CURRENT;
+                }
+                else
+                {
+                    Color = -1;
+                }
             }
             else
             {
-                Color = -1;
+                strcpy(szInfo, "Not Supported on this Source");
             }
             OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (11, dfMargin, Size));
-            sprintf (szInfo, "Hue : %+04d", Setting_GetValue(BT848_GetSetting(HUE)));
-            if ( pCalibration->IsRunning()
-              && ( (pCalibration->GetCurrentStep() == 20)
-                || (pCalibration->GetCurrentStep() == 21)
-                || (pCalibration->GetCurrentStep() == 22)
-                || (pCalibration->GetCurrentStep() == 23) ) )
+
+            // do Hue
+            pSetting = pSource->GetHue();
+            if(pSetting != NULL)
             {
-                Color = OSD_COLOR_CURRENT;
+                sprintf (szInfo, "Hue : %+04d", pSetting->GetValue());
+                if ( pCalibration->IsRunning()
+                  && ( (pCalibration->GetCurrentStep() == 20)
+                    || (pCalibration->GetCurrentStep() == 21)
+                    || (pCalibration->GetCurrentStep() == 22)
+                    || (pCalibration->GetCurrentStep() == 23) ) )
+                {
+                    Color = OSD_COLOR_CURRENT;
+                }
+                else
+                {
+                    Color = -1;
+                }
             }
             else
             {
-                Color = -1;
+                strcpy(szInfo, "Not Supported on this Source");
             }
             OSD_AddText(szInfo, Size, Color, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (12, dfMargin, Size));
         }
@@ -1401,7 +1459,6 @@ void OSD_UpdateMenu(HMENU hMenu)
 {
     HMENU           hMenuOSD1;
     HMENU           hMenuOSD2;
-    MENUITEMINFO    MenuItemInfo;
     int             i;
     int             NbScreens;
 
@@ -1415,33 +1472,25 @@ void OSD_UpdateMenu(HMENU hMenu)
     i = GetMenuItemCount(hMenuOSD1);
     while (i)
     {
-        RemoveMenu(hMenuOSD1, i, MF_BYPOSITION);
         i--;
+        RemoveMenu(hMenuOSD1, i, MF_BYPOSITION);
     }
     i = GetMenuItemCount(hMenuOSD2);
     while (i)
     {
-        RemoveMenu(hMenuOSD2, i, MF_BYPOSITION);
         i--;
+        RemoveMenu(hMenuOSD2, i, MF_BYPOSITION);
     }
     NbScreens = sizeof (ActiveScreens) / sizeof (ActiveScreens[0]);
     for (i=0; i < NbScreens ; i++)
     {
         if ((strlen (ActiveScreens[i].name) > 0) && !ActiveScreens[i].managed_by_app)
         {
-            MenuItemInfo.cbSize = sizeof (MenuItemInfo);
-            MenuItemInfo.fType = MFT_STRING;
-            MenuItemInfo.dwTypeData = ActiveScreens[i].name;
-            MenuItemInfo.cch = strlen (ActiveScreens[i].name);
+            UINT Flags(MF_STRING);
+            AppendMenu(hMenuOSD1, Flags, IDM_OSDSCREEN_SHOW + i, ActiveScreens[i].name);
 
-            MenuItemInfo.fMask = MIIM_TYPE | MIIM_ID;
-            MenuItemInfo.wID = IDM_OSDSCREEN_SHOW + i + 1;
-            InsertMenuItem(hMenuOSD1, i, TRUE, &MenuItemInfo);
-
-            MenuItemInfo.fMask = MIIM_TYPE | MIIM_ID | MIIM_STATE;
-            MenuItemInfo.wID = IDM_OSDSCREEN_ACTIVATE + i + 1;
-            MenuItemInfo.fState = ActiveScreens[i].active ? MFS_CHECKED : MFS_ENABLED;
-            InsertMenuItem(hMenuOSD2, i, TRUE, &MenuItemInfo);
+            Flags | ActiveScreens[i].active ? MF_CHECKED : MF_ENABLED;
+            AppendMenu(hMenuOSD2, MF_STRING, IDM_OSDSCREEN_ACTIVATE + i, ActiveScreens[i].name);
         }
     }
 }
@@ -1461,7 +1510,7 @@ void OSD_SetMenu(HMENU hMenu)
     }
 
     NbScreens = sizeof (ActiveScreens) / sizeof (ActiveScreens[0]);
-    for (i=0 ; i<NbScreens ; i++)
+    for (i=0 ; i < NbScreens ; i++)
     {
         if ((strlen (ActiveScreens[i].name) > 0) && !ActiveScreens[i].managed_by_app)
         {
@@ -1470,6 +1519,17 @@ void OSD_SetMenu(HMENU hMenu)
         }
     }
 }
+
+BOOL ProcessOSDSelection(HWND hWnd, WORD wMenuID)
+{
+    if ( (wMenuID >= IDM_OSDSCREEN_ACTIVATE) && (wMenuID < (IDM_OSDSCREEN_ACTIVATE+10)) )
+    {
+        OSD_ActivateInfosScreen(hWnd, wMenuID - IDM_OSDSCREEN_ACTIVATE, 0);
+        return TRUE;
+    }
+    return FALSE;
+}
+
 
 /////////////////////////////////////////////////////////////////////////////
 // Start of Settings related code

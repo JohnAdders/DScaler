@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Slider.h,v 1.4 2001-07-12 19:24:35 adcockj Exp $
+// $Id: Slider.h,v 1.5 2001-11-02 16:30:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,5 +40,6 @@
 #define Slider_SetTicFreq(hwndCtl, tickfreq)     ((void)SNDMSG((hwndCtl), TBM_SETTICFREQ, (WPARAM)(tickfreq), (LPARAM)0L))
 #define Slider_SetTic(hwndCtl, tickpos)     ((void)SNDMSG((hwndCtl), TBM_SETTIC, 0L, (LPARAM)(LONG)(tickpos)))
 #define Slider_ClearTicks(hwndCtl, redraw)     ((void)SNDMSG((hwndCtl), TBM_CLEARTICS, (WPARAM)(BOOL)redraw, 0L))
+#define Slider_Enable(hwndCtl, fEnable)     EnableWindow((hwndCtl), (fEnable))
 
 #endif

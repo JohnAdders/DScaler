@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectDetect.cpp,v 1.18 2001-09-05 15:08:43 adcockj Exp $
+// $Id: AspectDetect.cpp,v 1.19 2001-11-02 16:30:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -39,6 +39,15 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2001/09/05 15:08:43  adcockj
+// Updated Loging
+//
+// Revision 1.17.2.2  2001/08/21 16:42:16  adcockj
+// Per format/input settings and ini file fixes
+//
+// Revision 1.17.2.1  2001/08/20 16:14:19  adcockj
+// Massive tidy up of code to new structure
+//
 // Revision 1.17  2001/08/09 12:21:40  adcockj
 // Structure name changes
 //
@@ -78,7 +87,6 @@
 #include "Resource.h"
 #include "DebugLog.h"
 #include "Status.h"
-#include "BT848.h"
 #include "DScaler.h"
 #include "VBI_WSSdecode.h"
 
@@ -211,7 +219,9 @@ static inline int GetNonBlackCount(short* Line, int StartX, int EndX)
     int chromaMin, chromaMax;
 
     if (qwordCount <= 0)
+    {
         return 0;
+    }
 
     // Black pixels are U=128 and V=128.  If U or V is significantly
     // different from 128, it's a different color, e.g. green if
@@ -224,7 +234,9 @@ static inline int GetNonBlackCount(short* Line, int StartX, int EndX)
 
     threshold = AspectSettings.LuminanceThreshold;
     if (threshold > 255)
+    {
         threshold = 255;
+    }
 
     luminances = threshold;
     luminances |= (luminances << 48) | (luminances << 32) | (luminances << 16);
@@ -277,15 +289,9 @@ BlackLoop:
 
     //
     // Log the offending pixels
-    if (counts > 0) {
-// LG        int x;
+    if (counts > 0) 
+    {
         LOG(3, "Count %d min %d max %d lumthresh %d", counts, chromaMin, chromaMax, threshold);
-// LG        for (x = 0; x < qwordCount * 4; x++) {
-// LG            if ((Line[x] & 0xff) > threshold || ((((Line[x] & 0xff00) >> 8) - chromaMin) & 0xff) > chromaMax)
-// LG            {
-// LG                LOG(3, "pixel %d lum %d chrom %d", x, Line[x] & 0xff, (Line[x] & 0xff00) >> 8);
-// LG            }
-// LG        }
     }
     
 
@@ -293,7 +299,7 @@ BlackLoop:
 }
 
 // direction is -1 to scan up from bottom of image, 1 to scan down from top.
-int FindEdgeOfImage(short** EvenField, short** OddField, int direction)
+int FindEdgeOfImage(DEINTERLACE_INFO* pInfo, int direction)
 {
     int y, ylimit;
     short* line;
@@ -301,29 +307,33 @@ int FindEdgeOfImage(short** EvenField, short** OddField, int direction)
     int skipCountPercent = AspectSettings.SkipPercent;
     int pixelCount;
 
-    skipCount = (CurrentX * AspectSettings.SkipPercent / 100) +
+    skipCount = (pInfo->FrameWidth * AspectSettings.SkipPercent / 100) +
                 AspectSettings.InitialOverscan;
 
     // Decide whether we're scanning from the top or bottom
     if (direction < 0)
     {
-        y = CurrentY - 1 - AspectSettings.InitialOverscan;  // from bottom
-        ylimit = CurrentY / 2 - 1;
+        y = pInfo->FrameHeight - 1 - AspectSettings.InitialOverscan;  // from bottom
+        ylimit = pInfo->FrameHeight / 2 - 1;
     }
     else
     {
         y = AspectSettings.InitialOverscan; // from top
-        ylimit = CurrentY / 2;
+        ylimit = pInfo->FrameHeight / 2;
     }
 
     for (; y != ylimit; y += direction)
     {
         if (y & 1)
-            line = OddField[y / 2];
+        {
+            line = pInfo->OddLines[0][y / 2];
+        }
         else
-            line = EvenField[y / 2];
+        {
+            line = pInfo->EvenLines[0][y / 2];
+        }
 
-        pixelCount = GetNonBlackCount(line, skipCount, CurrentX - skipCount * 2);
+        pixelCount = GetNonBlackCount(line, skipCount, pInfo->FrameWidth - skipCount * 2);
         if (pixelCount > 0)
         {
             LOG(3, "FindEdgeOfImage line %d Count %d", y, pixelCount);
@@ -332,12 +342,10 @@ int FindEdgeOfImage(short** EvenField, short** OddField, int direction)
         if (pixelCount > AspectSettings.IgnoreNonBlackPixels)
             break;
 
-// LG        if (y < 0 || y > CurrentY)
-        if (y < 0 || y >= CurrentY)
+        if (y < 0 || y >= pInfo->FrameHeight)
         {
             LOG(2, "Sanity check failed; scanned past edge of screen");
-// LG            y = (direction > 0) ? AspectSettings.InitialOverscan : CurrentY - AspectSettings.InitialOverscan;
-            y = (direction > 0) ? AspectSettings.InitialOverscan : CurrentY - 1 - AspectSettings.InitialOverscan;
+            y = (direction > 0) ? AspectSettings.InitialOverscan : pInfo->FrameHeight - 1 - AspectSettings.InitialOverscan;
             break;
         }
     }
@@ -348,11 +356,11 @@ int FindEdgeOfImage(short** EvenField, short** OddField, int direction)
 
 //----------------------------------------------------------------------------
 // Adjust the source aspect ratio to fit whatever is currently onscreen.
-int FindAspectRatio(short** EvenField, short** OddField)
+int FindAspectRatio(DEINTERLACE_INFO* pInfo)
 {
     int ratio;
     int topBorder, bottomBorder, border;
-    int imageHeight = CurrentY - AspectSettings.InitialOverscan * 2;
+    int imageHeight = pInfo->FrameHeight - AspectSettings.InitialOverscan * 2;
 
     // If the aspect Mode is set to "use source", revert to assuming that the
     // source frame is 4:3.  We have to assume *some* source-frame aspect ratio
@@ -363,11 +371,10 @@ int FindAspectRatio(short** EvenField, short** OddField)
     // Find the top of the image relative to the m_Overscan area.  Overscan has to
     // be discarded from the computations since it can't really be regarded as
     // part of the picture.
-    topBorder = FindEdgeOfImage(EvenField, OddField, 1) - AspectSettings.InitialOverscan;
+    topBorder = FindEdgeOfImage(pInfo, 1) - AspectSettings.InitialOverscan;
 
     // Now find the size of the border at the bottom of the image.
-// LG    bottomBorder = CurrentY - FindEdgeOfImage(EvenField, OddField, -1) - AspectSettings.InitialOverscan;
-    bottomBorder = CurrentY - 1 - FindEdgeOfImage(EvenField, OddField, -1) - AspectSettings.InitialOverscan;
+    bottomBorder = pInfo->FrameHeight - 1 - FindEdgeOfImage(pInfo, -1) - AspectSettings.InitialOverscan;
 
     // The border size is the smaller of the two.
     border = (topBorder < bottomBorder) ? topBorder : bottomBorder;
@@ -395,7 +402,7 @@ int FindAspectRatio(short** EvenField, short** OddField)
 //----------------------------------------------------------------------------
 // Automatic Aspect Ratio Detection
 // Continuously adjust the source aspect ratio.  This is called once per frame.
-void AdjustAspectRatio(long SourceAspectAdjust, short** EvenField, short** OddField)
+void AdjustAspectRatio(long SourceAspectAdjust, DEINTERLACE_INFO* pInfo)
 {
     static int lastNewRatio = 0;
     static int newRatioFrameCount = 0;
@@ -410,7 +417,7 @@ void AdjustAspectRatio(long SourceAspectAdjust, short** EvenField, short** OddFi
     int maxRatio;
 
 
-    if(EvenField == NULL || OddField == NULL)
+    if(pInfo->EvenLines[0] == NULL || pInfo->OddLines[0] == NULL)
     {
         return;
     }
@@ -431,7 +438,7 @@ void AdjustAspectRatio(long SourceAspectAdjust, short** EvenField, short** OddFi
     // so that I can also do this for windowed Mode too.
     if (AspectSettings.DetectAspectNow || AspectSettings.AutoDetectAspect)
     {
-        newRatio = FindAspectRatio(EvenField, OddField);
+        newRatio = FindAspectRatio(pInfo);
 
         // Get aspect ratio from WSS data
         // (WssSourceRatio = -1 if ratio is not defined in WSS data)
@@ -450,9 +457,13 @@ void AdjustAspectRatio(long SourceAspectAdjust, short** EvenField, short** OddFi
         if (bIsFullScreen && AspectSettings.TargetAspect && !AspectSettings.bAllowGreaterThanScreen)
         {
             if (AspectSettings.TargetAspect > WssSourceRatio)
+            {
                 maxRatio = AspectSettings.TargetAspect;
+            }
             else
+            {
                 maxRatio = WssSourceRatio;
+            }
             if (newRatio > maxRatio)
             {
                 newRatio = maxRatio;
@@ -561,7 +572,9 @@ void AdjustAspectRatio(long SourceAspectAdjust, short** EvenField, short** OddFi
             // If this is a wider ratio than the previous one, require it to stick
             // around for the full frame Count.
             if (lastNewRatio < newRatio)
+            {
                 newRatioFrameCount = 0;
+            }
 
             lastNewRatio = newRatio;
         }

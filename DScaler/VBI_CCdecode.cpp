@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_CCdecode.cpp,v 1.8 2001-09-05 15:08:43 adcockj Exp $
+// $Id: VBI_CCdecode.cpp,v 1.9 2001-11-02 16:30:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Mike Baker.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,15 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2001/09/05 15:08:43  adcockj
+// Updated Loging
+//
+// Revision 1.7.2.2  2001/08/21 09:43:01  adcockj
+// Brought branch up to date with latest code fixes
+//
+// Revision 1.7.2.1  2001/08/18 17:09:30  adcockj
+// Got to compile, still lots to do...
+//
 // Revision 1.7  2001/08/02 18:08:17  adcockj
 // Made all logging code use new levels
 //
@@ -51,7 +60,7 @@
 #include "VBI_CCdecode.h"
 #include "DebugLog.h"
 #include "DScaler.h"
-#include "BT848.h"
+#include "Providers.h"
 
 //XDSdecode
 char          Info[8][25][256]; 
@@ -151,12 +160,13 @@ int decode(unsigned char* vbiline)
     int ClockPos = -1;
     DWORD Threshold = 0;
     int ClockCur;
+    TTVFormat* TVFormat = GetTVFormat(Providers_GetCurrentSource()->GetFormat());
     
     i=0;
 
     while (i < 120)
     {
-        ClockCur = FindClock(vbiline + i, BT848_GetTVFormat()->CC_Clock);
+        ClockCur = FindClock(vbiline + i, TVFormat->CC_Clock);
         if(ClockCur > ClockMax)
         {
             ClockMax = ClockCur;
@@ -170,25 +180,25 @@ int decode(unsigned char* vbiline)
         return -1;
     }
 
-    tmp = ClockPos + BT848_GetTVFormat()->CC_Gap - 3 * BT848_GetTVFormat()->CC_Clock / 2;
+    tmp = ClockPos + TVFormat->CC_Gap - 3 * TVFormat->CC_Clock / 2;
 
-    for(i = 0; i < BT848_GetTVFormat()->CC_Clock; i++)
+    for(i = 0; i < TVFormat->CC_Clock; i++)
     {
         Threshold += vbiline[tmp + i];
     }
-    Threshold /= BT848_GetTVFormat()->CC_Clock;
+    Threshold /= TVFormat->CC_Clock;
     Threshold += ClockMax / 2; 
-    tmp = ClockPos + BT848_GetTVFormat()->CC_Gap;
+    tmp = ClockPos + TVFormat->CC_Gap;
 
-    if(!decodebit(&vbiline[tmp], Threshold, BT848_GetTVFormat()->CC_Clock / 2))
+    if(!decodebit(&vbiline[tmp], Threshold, TVFormat->CC_Clock / 2))
     {
         // no start bit
         return -1;
     }
     for (i = 0; i < 16; i++)
     {
-        tmp += BT848_GetTVFormat()->CC_Clock;
-        if(decodebit(&vbiline[tmp], Threshold, BT848_GetTVFormat()->CC_Clock / 2))
+        tmp += TVFormat->CC_Clock;
+        if(decodebit(&vbiline[tmp], Threshold, TVFormat->CC_Clock / 2))
         {
             packedbits |= 1<<i;
         }

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.82 2001-11-02 10:15:20 temperton Exp $
+// $Id: DScaler.cpp,v 1.83 2001-11-02 16:30:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.82  2001/11/02 10:15:20  temperton
+// Removed unnecessary painting of color key in middle part of screen in teletext mode.
+//
 // Revision 1.81  2001/10/25 12:59:48  temperton
 // Fixed problem, when DScaler hangs on exit if we forgot to stop record.
 //
@@ -139,6 +142,34 @@
 // OSD screen concerning card calibration fully modified
 // Automatic calibration added (not finished)
 //
+// Revision 1.59.2.9  2001/08/24 12:35:09  adcockj
+// Menu handling changes
+//
+// Revision 1.59.2.8  2001/08/23 16:04:57  adcockj
+// Improvements to dynamic menus to remove requirement that they are not empty
+//
+// Revision 1.59.2.7  2001/08/21 09:43:01  adcockj
+// Brought branch up to date with latest code fixes
+//
+// Revision 1.59.2.6  2001/08/20 16:14:19  adcockj
+// Massive tidy up of code to new structure
+//
+// Revision 1.59.2.5  2001/08/18 17:09:30  adcockj
+// Got to compile, still lots to do...
+//
+// Revision 1.59.2.4  2001/08/17 16:35:14  adcockj
+// Another interim check-in still doesn't compile. Getting closer ...
+//
+// Revision 1.59.2.3  2001/08/15 14:44:05  adcockj
+// Starting to put some flesh onto the new structure
+//
+// Revision 1.59.2.2  2001/08/14 16:41:36  adcockj
+// Renamed driver
+// Got to compile with new class based card
+//
+// Revision 1.59.2.1  2001/08/14 09:40:19  adcockj
+// Interim version of code for multiple card support
+//
 // Revision 1.59  2001/08/13 18:07:24  adcockj
 // Added Czech code page for teletext
 //
@@ -208,7 +239,6 @@
 #include "stdafx.h"
 #include "resource.h"
 #include "Other.h"
-#include "BT848.h"
 #include "CPU.h"
 #include "MixerDev.h"
 #include "VBI_VideoText.h"
@@ -220,7 +250,6 @@
 #include "OutThreads.h"
 #include "OSD.h"
 #include "Audio.h"
-#include "Tuner.h"
 #include "Status.h"
 #include "VBI.h"
 #include "FD_60Hz.H"
@@ -237,6 +266,7 @@
 #include "TimeShift.h"
 #include "Crash.h"
 #include "Calibration.h"
+#include "Providers.h"
 #include "OverlaySettings.h"
 
 HWND hWnd = NULL;
@@ -253,7 +283,6 @@ long WStyle;
 
 BOOL    bShowMenu=TRUE;
 HMENU   hMenu;
-HMENU   hMenuPopup;
 HACCEL  hAccel;
 
 char ChannelString[10];
@@ -301,6 +330,7 @@ int Cursor_SetType(int type);
 void Cursor_VTUpdate(bool PosValid, int x, int y);
 const char* GetSourceName(int nVideoSource);
 void MainWndOnDestroy();
+void SetDirectoryToExe();
 
 
 ///**************************************************************************
@@ -318,9 +348,11 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     HWND hPrevWindow;
 
     hInst = hInstance;
-    
+
     SetErrorMode(SEM_NOGPFAULTERRORBOX);
     SetUnhandledExceptionFilter(UnexpectedCrashHandler);
+
+    SetDirectoryToExe();
 
     CPU_SetupFeatureFlag();
     // if we are already runninmg then start up old version
@@ -387,97 +419,6 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     }
     hMenu = LoadMenu(hInstance, MAKEINTRESOURCE(IDC_DSCALERMENU));
 
-    hMenuPopup = LoadMenu(hInstance, MAKEINTRESOURCE(IDC_CONTEXTMENU));
-    if (hMenuPopup != NULL)
-        hMenuPopup = GetSubMenu(hMenuPopup,0);
-    if (hMenuPopup != NULL && hMenu != NULL)
-    {
-        MENUITEMINFO MenuItemInfo;
-        HMENU hSubMenu;
-
-        MenuItemInfo.cbSize = sizeof (MenuItemInfo);
-        MenuItemInfo.fMask = MIIM_SUBMENU;
-
-        hSubMenu = GetSubMenu(hMenu, 4);
-        if(hSubMenu != NULL)
-            hSubMenu = GetSubMenu(hSubMenu, 3);
-        if(hSubMenu != NULL)
-        {
-            MenuItemInfo.hSubMenu = hSubMenu;
-            SetMenuItemInfo(hMenuPopup,0,TRUE,&MenuItemInfo);
-        }
-
-        hSubMenu = GetSubMenu(hMenu, 4);
-        if(hSubMenu != NULL)
-            hSubMenu = GetSubMenu(hSubMenu, 2);
-        if(hSubMenu != NULL)
-        {
-            MenuItemInfo.hSubMenu = hSubMenu;
-            SetMenuItemInfo(hMenuPopup,1,TRUE,&MenuItemInfo);
-        }
-
-        hSubMenu = GetSubMenu(hMenu, 4);
-        if(hSubMenu != NULL)
-            hSubMenu = GetSubMenu(hSubMenu, 4);
-        if(hSubMenu != NULL)
-        {
-            MenuItemInfo.hSubMenu = hSubMenu;
-            SetMenuItemInfo(hMenuPopup,2,TRUE,&MenuItemInfo);
-        }
-
-        hSubMenu = GetChannelsSubmenu();
-        if(hSubMenu != NULL)
-        {
-            MenuItemInfo.hSubMenu = hSubMenu;
-            SetMenuItemInfo(hMenuPopup,3,TRUE,&MenuItemInfo);
-        }
-        
-        hSubMenu = GetVideoDeinterlaceSubmenu();
-        if(hSubMenu != NULL)
-        {
-            MenuItemInfo.hSubMenu = hSubMenu;
-            SetMenuItemInfo(hMenuPopup,4,TRUE,&MenuItemInfo);
-        }
-
-        hSubMenu = GetSubMenu(hMenu, 3);
-        if(hSubMenu != NULL)
-        {
-            MenuItemInfo.hSubMenu = hSubMenu;
-            SetMenuItemInfo(hMenuPopup,5,TRUE,&MenuItemInfo);
-        }
-
-        hSubMenu = GetFiltersSubmenu();
-        if(hSubMenu != NULL)
-        {
-            MenuItemInfo.hSubMenu = hSubMenu;
-            SetMenuItemInfo(hMenuPopup,6,TRUE,&MenuItemInfo);
-        }
-
-        hSubMenu = GetSubMenu(hMenu, 4);
-        if(hSubMenu != NULL)
-            hSubMenu = GetSubMenu(hSubMenu, 5);
-        if(hSubMenu != NULL)
-        {
-            MenuItemInfo.hSubMenu = hSubMenu;
-            SetMenuItemInfo(hMenuPopup,8,TRUE,&MenuItemInfo);
-        }
-
-        hSubMenu = GetSubMenu(hMenu, 6);
-        if(hSubMenu != NULL)
-        {
-            MenuItemInfo.hSubMenu = hSubMenu;
-            SetMenuItemInfo(hMenuPopup,9,TRUE,&MenuItemInfo);
-        }
-
-        hSubMenu = GetSubMenu(hMenu, 2);
-        if(hSubMenu != NULL)
-            hSubMenu = GetSubMenu(hSubMenu, 7);
-        if(hSubMenu != NULL)
-        {
-            MenuItemInfo.hSubMenu = hSubMenu;
-            SetMenuItemInfo(hMenuPopup,10,TRUE,&MenuItemInfo);
-        }
-    }
 
     // 2000-10-31 Added by Mark: Changed to WS_POPUP for more cosmetic direct-to-full-screen startup,
     // let UpdateWindowState() handle initialization of windowed dTV instead.
@@ -526,11 +467,84 @@ LONG APIENTRY MainWndProcSafe(HWND hWnd, UINT message, UINT wParam, LONG lParam)
     return MainWndProc(hWnd, message, wParam, lParam);
 }
 
+HMENU CreateDScalerPopupMenu()
+{
+    HMENU hMenuPopup;
+    hMenuPopup = LoadMenu(hInst, MAKEINTRESOURCE(IDC_CONTEXTMENU));
+    if (hMenuPopup != NULL)
+    {
+        hMenuPopup = GetSubMenu(hMenuPopup,0);
+    }
+    if (hMenuPopup != NULL && hMenu != NULL)
+    {
+        MENUITEMINFO MenuItemInfo;
+        HMENU hSubMenu;
+
+        MenuItemInfo.cbSize = sizeof (MenuItemInfo);
+        MenuItemInfo.fMask = MIIM_SUBMENU;
+
+        hSubMenu = GetSubMenu(hMenu, 5);
+        if(hSubMenu != NULL)
+            hSubMenu = GetSubMenu(hSubMenu, 3);
+        if(hSubMenu != NULL)
+        {
+            MenuItemInfo.hSubMenu = hSubMenu;
+            SetMenuItemInfo(hMenuPopup,0,TRUE,&MenuItemInfo);
+        }
+
+        hSubMenu = GetSubMenu(hMenu, 6);
+        if(hSubMenu != NULL)
+        {
+            MenuItemInfo.hSubMenu = hSubMenu;
+            SetMenuItemInfo(hMenuPopup,1,TRUE,&MenuItemInfo);
+        }
+
+        hSubMenu = GetVideoDeinterlaceSubmenu();
+        if(hSubMenu != NULL)
+        {
+            MenuItemInfo.hSubMenu = hSubMenu;
+            SetMenuItemInfo(hMenuPopup,2, TRUE, &MenuItemInfo);
+        }
+
+        hSubMenu = GetSubMenu(hMenu, 3);
+        if(hSubMenu != NULL)
+        {
+            MenuItemInfo.hSubMenu = hSubMenu;
+            SetMenuItemInfo(hMenuPopup,3,TRUE,&MenuItemInfo);
+        }
+
+        hSubMenu = GetFiltersSubmenu();
+        if(hSubMenu != NULL)
+        {
+            MenuItemInfo.hSubMenu = hSubMenu;
+            SetMenuItemInfo(hMenuPopup,4,TRUE,&MenuItemInfo);
+        }
+
+        hSubMenu = GetSubMenu(hMenu, 7);
+        if(hSubMenu != NULL)
+        {
+            MenuItemInfo.hSubMenu = hSubMenu;
+            SetMenuItemInfo(hMenuPopup,5,TRUE,&MenuItemInfo);
+        }
+
+        hSubMenu = GetSubMenu(hMenu, 2);
+        if(hSubMenu != NULL)
+            hSubMenu = GetSubMenu(hSubMenu, 8);
+        if(hSubMenu != NULL)
+        {
+            MenuItemInfo.hSubMenu = hSubMenu;
+            SetMenuItemInfo(hMenuPopup,6,TRUE,&MenuItemInfo);
+        }
+    }
+    return hMenuPopup;
+}
+
 
 BOOL WINAPI OnContextMenu(HWND hWnd, int x, int y)
 { 
     RECT rc;                    // client area of window
     POINT pt = { x, y };        // location of mouse click
+    HMENU hMenuPopup = CreateDScalerPopupMenu();
 
     // Get the bounding rectangle of the client area.
     GetClientRect(hWnd, &rc);
@@ -548,6 +562,11 @@ BOOL WINAPI OnContextMenu(HWND hWnd, int x, int y)
         return TrackPopupMenuEx(hMenuPopup, 
                                 TPM_LEFTALIGN | TPM_TOPALIGN | TPM_RIGHTBUTTON, 
                                 pt.x, pt.y, hWnd, NULL); 
+    }
+
+    if (hMenuPopup != NULL)
+    {
+        DestroyMenu(hMenuPopup);
     }
  
     // Return FALSE if no menu is displayed.
@@ -618,8 +637,8 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
     char Text[128];
     char Text1[128];
     int i;
-    long nValue;
     BOOL bDone;
+    CSetting* pSetting = NULL;
 
     if (message == MsgWheel)
     {
@@ -640,36 +659,68 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
     {
 
     case WM_COMMAND:
-
-        if ( (LOWORD(wParam) > IDM_CHANNEL_SELECT) && (LOWORD(wParam) <= (IDM_CHANNEL_SELECT+MAXPROGS)) )
-        {
-            PostMessage(hWnd, WM_COMMAND, IDM_CHANNEL_SELECT, LOWORD(wParam)-IDM_CHANNEL_SELECT-1);
-            break;
-        }
-        if ( (LOWORD(wParam) > IDM_OSDSCREEN_SHOW) && (LOWORD(wParam) <= (IDM_OSDSCREEN_SHOW+10)) )
-        {
-            PostMessage(hWnd, WM_COMMAND, IDM_OSDSCREEN_SHOW, LOWORD(wParam)-IDM_OSDSCREEN_SHOW-1);
-            break;
-        }
-        if ( (LOWORD(wParam) > IDM_OSDSCREEN_ACTIVATE) && (LOWORD(wParam) <= (IDM_OSDSCREEN_ACTIVATE+10)) )
-        {
-            PostMessage(hWnd, WM_COMMAND, IDM_OSDSCREEN_ACTIVATE, LOWORD(wParam)-IDM_OSDSCREEN_ACTIVATE-1);
-            break;
-        }
-        if ( (LOWORD(wParam) > IDM_PATTERN_SELECT) && (LOWORD(wParam) <= (IDM_PATTERN_SELECT+MAX_TEST_PATTERNS)) )
-        {
-            PostMessage(hWnd, WM_COMMAND, IDM_PATTERN_SELECT, LOWORD(wParam)-IDM_PATTERN_SELECT-1);
-            break;
-        }
-
         switch (LOWORD(wParam))
         {
-        case IDM_SETUPCARD:
-            Stop_Capture();
-            DialogBox(hInst, MAKEINTRESOURCE(IDD_SELECTCARD), hWnd, (DLGPROC) SelectCardProc);
-            Card_Init();
-            Tuner_Init();
-            Reset_Capture();
+        case IDM_MUTE:
+            if (Setting_GetValue(Audio_GetSetting(SYSTEMINMUTE)) == FALSE)
+            {
+                Setting_SetValue(Audio_GetSetting(SYSTEMINMUTE), TRUE);
+                ShowText(hWnd,"MUTE");
+            }
+            else
+            {
+                Setting_SetValue(Audio_GetSetting(SYSTEMINMUTE), FALSE);
+                ShowText(hWnd,"UNMUTE");
+            }
+            break;
+
+        case IDM_VOLUMEPLUS:
+            if (bUseMixer == FALSE)
+            {
+                CSetting* pSetting = Providers_GetCurrentSource()->GetVolume();
+                if(pSetting != NULL)
+                {
+                    pSetting->ChangeValue(ADJUSTUP);
+                    sprintf(Text, "BT-Volume %d", pSetting->GetValue() / 10);
+                }
+                else
+                {
+                    strcpy(Text, "Volume not supported");
+                }
+            }
+            else
+            {
+                Mixer_Volume_Up();
+                sprintf(Text, "Mixer-Volume %d", Mixer_GetVolume());
+            }
+            ShowText(hWnd, Text);
+            break;
+
+        case IDM_VOLUMEMINUS:
+            if (bUseMixer == FALSE)
+            {
+                CSetting* pSetting = Providers_GetCurrentSource()->GetVolume();
+                if(pSetting != NULL)
+                {
+                    pSetting->ChangeValue(ADJUSTDOWN);
+                    sprintf(Text, "BT-Volume %d", pSetting->GetValue() / 10);
+                }
+                else
+                {
+                    strcpy(Text, "Volume not supported");
+                }
+            }
+            else
+            {
+                Mixer_Volume_Down();
+                sprintf(Text, "Mixer-Volume %d", Mixer_GetVolume());
+            }
+            ShowText(hWnd, Text);
+            break;
+
+        case IDM_AUTO_FORMAT:
+            Setting_SetValue(Timing_GetSetting(AUTOFORMATDETECT), 
+                !Setting_GetValue(Timing_GetSetting(AUTOFORMATDETECT)));
             break;
 
         case IDM_VT_PAGE_MINUS:
@@ -722,8 +773,14 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
             break;
 
+        case IDM_CHANNEL_LIST:
+            SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_TUNER, 0);
+            DialogBox(hInst, MAKEINTRESOURCE(IDD_CHANNELLIST), hWnd, (DLGPROC) ProgramListProc);
+            Channels_UpdateMenu(::GetMenu(hWnd));
+            break;
+
         case IDM_CHANNELPLUS:
-            if (Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)) == SOURCE_TUNER)
+            if (Providers_GetCurrentSource()->IsInTunerMode())
             {
                 Channel_Increment();
             }
@@ -731,23 +788,16 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_CHANNELMINUS:
-            if (Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)) == SOURCE_TUNER)
+            if (Providers_GetCurrentSource()->IsInTunerMode())
             {
                 Channel_Decrement();
             }
             break;
 
         case IDM_CHANNEL_PREVIOUS:
-            if (Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)) == SOURCE_TUNER)
+            if (Providers_GetCurrentSource()->IsInTunerMode())
             {
                 Channel_Previous();
-            }
-            break;
-
-        case IDM_CHANNEL_SELECT:
-            if (Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)) == SOURCE_TUNER)
-            {
-                Channel_Change(lParam);
             }
             break;
 
@@ -778,7 +828,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_RESET:
             Reset_Capture();
             Sleep(100);
-            Audio_SetSource(AudioSource);
+            Providers_GetCurrentSource()->UnMute();
             break;
 
         case IDM_TOGGLE_MENU:
@@ -799,7 +849,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
             // Set Deinterlace Mode to film fallback in
             // either case
-            if(BT848_GetTVFormat()->Is25fps)
+            if(GetTVFormat(Providers_GetCurrentSource()->GetFormat())->Is25fps)
             {
                 SetVideoDeinterlaceIndex(Setting_GetValue(FD50_GetSetting(PALFILMFALLBACKMODE)));
             }
@@ -839,253 +889,179 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_BRIGHTNESS_PLUS:
-            Setting_Up(BT848_GetSetting(BRIGHTNESS));
+            if((pSetting = Providers_GetCurrentSource()->GetBrightness()) != NULL)
+            {
+                pSetting->ChangeValue(ADJUSTUP);
+            }
             SendMessage(hWnd, WM_COMMAND, IDM_BRIGHTNESS_CURRENT, 0);
             break;
 
         case IDM_BRIGHTNESS_MINUS:
-            Setting_Down(BT848_GetSetting(BRIGHTNESS));
+            if((pSetting = Providers_GetCurrentSource()->GetBrightness()) != NULL)
+            {
+                pSetting->ChangeValue(ADJUSTDOWN);
+            }
             SendMessage(hWnd, WM_COMMAND, IDM_BRIGHTNESS_CURRENT, 0);
             break;
 
         case IDM_BRIGHTNESS_CURRENT:
-            Setting_OSDShow(BT848_GetSetting(BRIGHTNESS), hWnd);
+            if((pSetting = Providers_GetCurrentSource()->GetBrightness()) != NULL)
+            {
+                pSetting->OSDShow();
+            }
+            else
+            {
+                ShowText(hWnd, "No Brightness Control");
+            }
             break;
 
         case IDM_KONTRAST_PLUS:
-            Setting_Up(BT848_GetSetting(CONTRAST));
+            if((pSetting = Providers_GetCurrentSource()->GetContrast()) != NULL)
+            {
+                pSetting->ChangeValue(ADJUSTUP);
+            }
             SendMessage(hWnd, WM_COMMAND, IDM_KONTRAST_CURRENT, 0);
             break;
 
         case IDM_KONTRAST_MINUS:
-            Setting_Down(BT848_GetSetting(CONTRAST));
+            if((pSetting = Providers_GetCurrentSource()->GetContrast()) != NULL)
+            {
+                pSetting->ChangeValue(ADJUSTDOWN);
+            }
             SendMessage(hWnd, WM_COMMAND, IDM_KONTRAST_CURRENT, 0);
             break;
 
         case IDM_KONTRAST_CURRENT:
-            Setting_OSDShow(BT848_GetSetting(CONTRAST), hWnd);
+            if((pSetting = Providers_GetCurrentSource()->GetContrast()) != NULL)
+            {
+                pSetting->OSDShow();
+            }
+            else
+            {
+                ShowText(hWnd, "No Contrast Control");
+            }
             break;
 
         case IDM_USATURATION_PLUS:
-            Setting_Up(BT848_GetSetting(SATURATIONU));
+            if((pSetting = Providers_GetCurrentSource()->GetSaturationU()) != NULL)
+            {
+                pSetting->ChangeValue(ADJUSTUP);
+            }
             SendMessage(hWnd, WM_COMMAND, IDM_USATURATION_CURRENT, 0);
             break;
         
         case IDM_USATURATION_MINUS:
-            Setting_Down(BT848_GetSetting(SATURATIONU));
+            if((pSetting = Providers_GetCurrentSource()->GetSaturationU()) != NULL)
+            {
+                pSetting->ChangeValue(ADJUSTDOWN);
+            }
             SendMessage(hWnd, WM_COMMAND, IDM_USATURATION_CURRENT, 0);
             break;
 
         case IDM_USATURATION_CURRENT:
-            Setting_OSDShow(BT848_GetSetting(SATURATIONU), hWnd);
+            if((pSetting = Providers_GetCurrentSource()->GetSaturationU()) != NULL)
+            {
+                pSetting->OSDShow();
+            }
+            else
+            {
+                ShowText(hWnd, "No Saturation U Control");
+            }
             break;
         
         case IDM_VSATURATION_PLUS:
-            Setting_Up(BT848_GetSetting(SATURATIONV));
+            if((pSetting = Providers_GetCurrentSource()->GetSaturationV()) != NULL)
+            {
+                pSetting->ChangeValue(ADJUSTUP);
+            }
             SendMessage(hWnd, WM_COMMAND, IDM_VSATURATION_CURRENT, 0);
             break;
 
         case IDM_VSATURATION_MINUS:
-            Setting_Down(BT848_GetSetting(SATURATIONV));
+            if((pSetting = Providers_GetCurrentSource()->GetSaturationV()) != NULL)
+            {
+                pSetting->ChangeValue(ADJUSTDOWN);
+            }
             SendMessage(hWnd, WM_COMMAND, IDM_VSATURATION_CURRENT, 0);
             break;
 
         case IDM_VSATURATION_CURRENT:
-            Setting_OSDShow(BT848_GetSetting(SATURATIONV), hWnd);
+            if((pSetting = Providers_GetCurrentSource()->GetSaturationV()) != NULL)
+            {
+                pSetting->OSDShow();
+            }
+            else
+            {
+                ShowText(hWnd, "No Saturation V Control");
+            }
             break;
 
         case IDM_COLOR_PLUS:
-            Setting_Up(BT848_GetSetting(SATURATION));
+            if((pSetting = Providers_GetCurrentSource()->GetSaturation()) != NULL)
+            {
+                pSetting->ChangeValue(ADJUSTUP);
+            }
             SendMessage(hWnd, WM_COMMAND, IDM_COLOR_CURRENT, 0);
             break;
 
         case IDM_COLOR_MINUS:
-            Setting_Down(BT848_GetSetting(SATURATION));
+            if((pSetting = Providers_GetCurrentSource()->GetSaturation()) != NULL)
+            {
+                pSetting->ChangeValue(ADJUSTDOWN);
+            }
             SendMessage(hWnd, WM_COMMAND, IDM_COLOR_CURRENT, 0);
             break;
 
         case IDM_COLOR_CURRENT:
-            Setting_OSDShow(BT848_GetSetting(SATURATION), hWnd);
+            if((pSetting = Providers_GetCurrentSource()->GetSaturation()) != NULL)
+            {
+                pSetting->OSDShow();
+            }
+            else
+            {
+                ShowText(hWnd, "No Saturation Control");
+            }
             break;
 
         case IDM_HUE_PLUS:
-            Setting_Up(BT848_GetSetting(HUE));
+            if((pSetting = Providers_GetCurrentSource()->GetHue()) != NULL)
+            {
+                pSetting->ChangeValue(ADJUSTUP);
+            }
             SendMessage(hWnd, WM_COMMAND, IDM_HUE_CURRENT, 0);
             break;
 
         case IDM_HUE_MINUS:
-            Setting_Down(BT848_GetSetting(HUE));
+            if((pSetting = Providers_GetCurrentSource()->GetHue()) != NULL)
+            {
+                pSetting->ChangeValue(ADJUSTDOWN);
+            }
             SendMessage(hWnd, WM_COMMAND, IDM_HUE_CURRENT, 0);
             break;
 
         case IDM_HUE_CURRENT:
-            Setting_OSDShow(BT848_GetSetting(HUE), hWnd);
+            if((pSetting = Providers_GetCurrentSource()->GetHue()) != NULL)
+            {
+                pSetting->OSDShow();
+            }
+            else
+            {
+                ShowText(hWnd, "No Hue Control");
+            }
             break;
 
         case IDM_OVERSCAN_PLUS:
-            if (! pCalibration->IsRunning())
-            {
-                Setting_Up(Aspect_GetSetting(OVERSCAN));
-                SendMessage(hWnd, WM_COMMAND, IDM_OVERSCAN_CURRENT, 0);
-            }
-            else if (pCalibration->GetType() == CAL_MANUAL)
-            {
-                Setting_Up(Calibr_GetSetting(SOURCE_OVERSCAN));
-                SendMessage(hWnd, WM_COMMAND, IDM_OVERSCAN_CURRENT, 0);
-            }
+            Setting_Up(Aspect_GetSetting(OVERSCAN));
+            SendMessage(hWnd, WM_COMMAND, IDM_OVERSCAN_CURRENT, 0);
             break;
 
         case IDM_OVERSCAN_MINUS:
-            if (! pCalibration->IsRunning())
-            {
-                Setting_Down(Aspect_GetSetting(OVERSCAN));
-                SendMessage(hWnd, WM_COMMAND, IDM_OVERSCAN_CURRENT, 0);
-            }
-            else if (pCalibration->GetType() == CAL_MANUAL)
-            {
-                Setting_Down(Calibr_GetSetting(SOURCE_OVERSCAN));
-                SendMessage(hWnd, WM_COMMAND, IDM_OVERSCAN_CURRENT, 0);
-            }
+            Setting_Down(Aspect_GetSetting(OVERSCAN));
+            SendMessage(hWnd, WM_COMMAND, IDM_OVERSCAN_CURRENT, 0);
             break;
 
         case IDM_OVERSCAN_CURRENT:
-            if (! pCalibration->IsRunning())
-            {
-                Setting_OSDShow(Aspect_GetSetting(OVERSCAN), hWnd);
-            }
-            else
-            {
-                Setting_OSDShow(Calibr_GetSetting(SOURCE_OVERSCAN), hWnd);
-            }
-            break;
-
-        case IDM_BDELAY_PLUS:
-            Setting_Up(BT848_GetSetting(BDELAY));
-            SendMessage(hWnd, WM_COMMAND, IDM_BDELAY_CURRENT, 0);
-            break;
-
-        case IDM_BDELAY_MINUS:
-            Setting_Down(BT848_GetSetting(BDELAY));
-            SendMessage(hWnd, WM_COMMAND, IDM_BDELAY_CURRENT, 0);
-            break;
-
-        case IDM_BDELAY_CURRENT:
-            Setting_OSDShow(BT848_GetSetting(BDELAY), hWnd);
-            break;
-
-        case IDM_HDELAY_PLUS:
-            Setting_Up(BT848_GetSetting(HDELAY));
-            SendMessage(hWnd, WM_COMMAND, IDM_HDELAY_CURRENT, 0);
-            break;
-
-        case IDM_HDELAY_MINUS:
-            Setting_Down(BT848_GetSetting(HDELAY));
-            SendMessage(hWnd, WM_COMMAND, IDM_HDELAY_CURRENT, 0);
-            break;
-
-        case IDM_HDELAY_CURRENT:
-            Setting_OSDShow(BT848_GetSetting(HDELAY), hWnd);
-            break;
-
-        case IDM_VDELAY_PLUS:
-            Setting_Up(BT848_GetSetting(VDELAY));
-            SendMessage(hWnd, WM_COMMAND, IDM_VDELAY_CURRENT, 0);
-            break;
-
-        case IDM_VDELAY_MINUS:
-            Setting_Down(BT848_GetSetting(VDELAY));
-            SendMessage(hWnd, WM_COMMAND, IDM_VDELAY_CURRENT, 0);
-            break;
-
-        case IDM_VDELAY_CURRENT:
-            Setting_OSDShow(BT848_GetSetting(VDELAY), hWnd);
-            break;
-
-        case IDM_PIXELWIDTH_PLUS:
-            Setting_Up(BT848_GetSetting(CURRENTX));
-            SendMessage(hWnd, WM_COMMAND, IDM_PIXELWIDTH_CURRENT, 0);
-            break;
-
-        case IDM_PIXELWIDTH_MINUS:
-            Setting_Down(BT848_GetSetting(CURRENTX));
-            SendMessage(hWnd, WM_COMMAND, IDM_PIXELWIDTH_CURRENT, 0);
-            break;
-
-        case IDM_PIXELWIDTH_CURRENT:
-            Setting_OSDShow(BT848_GetSetting(CURRENTX), hWnd);
-            break;
-
-        case IDM_MUTE:
-            if (Setting_GetValue(Audio_GetSetting(SYSTEMINMUTE)) == FALSE)
-            {
-                Setting_SetValue(Audio_GetSetting(SYSTEMINMUTE), TRUE);
-                ShowText(hWnd,"MUTE");
-            }
-            else
-            {
-                Setting_SetValue(Audio_GetSetting(SYSTEMINMUTE), FALSE);
-                ShowText(hWnd,"UNMUTE");
-            }
-            break;
-
-        case IDM_L_BALANCE:
-            if (bUseMixer == FALSE)
-            {
-                Setting_Down(Audio_GetSetting(BALANCE));
-                sprintf(Text, "BT-Balance %d", Setting_GetValue(Audio_GetSetting(BALANCE)));
-                ShowText(hWnd, Text);
-            }
-            break;
-
-        case IDM_R_BALANCE:
-            if (bUseMixer == FALSE)
-            {
-                Setting_Up(Audio_GetSetting(BALANCE));
-                sprintf(Text, "BT-Balance %d", Setting_GetValue(Audio_GetSetting(BALANCE)));
-                ShowText(hWnd, Text);
-            }
-            break;
-
-        case IDM_VOLUMEPLUS:
-            if (bUseMixer == FALSE)
-            {
-                if(Audio_MSP_IsPresent())
-                {
-                    Setting_Up(Audio_GetSetting(VOLUME));
-                    sprintf(Text, "BT-Volume %d", Setting_GetValue(Audio_GetSetting(VOLUME))/ 10);
-                }
-                else
-                {
-                    strcpy(Text, "Volume not supported");
-                }
-            }
-            else
-            {
-                Mixer_Volume_Up();
-                sprintf(Text, "Mixer-Volume %d", Mixer_GetVolume());
-            }
-            ShowText(hWnd, Text);
-            break;
-
-        case IDM_VOLUMEMINUS:
-            if (bUseMixer == FALSE)
-            {
-                if(Audio_MSP_IsPresent())
-                {
-                    Setting_Down(Audio_GetSetting(VOLUME));
-                    sprintf(Text, "BT-Volume %d", Setting_GetValue(Audio_GetSetting(VOLUME))/ 10);
-                }
-                else
-                {
-                    strcpy(Text, "Volume not supported");
-                }
-            }
-            else
-            {
-                Mixer_Volume_Down();
-                sprintf(Text, "Mixer-Volume %d", Mixer_GetVolume());
-            }
-            ShowText(hWnd, Text);
+            Setting_OSDShow(Aspect_GetSetting(OVERSCAN), hWnd);
             break;
 
         case IDM_AUTOHIDE_CURSOR:
@@ -1104,85 +1080,6 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_END:
             ShowWindow(hWnd, SW_HIDE);
             PostMessage(hWnd, WM_DESTROY, wParam, lParam);
-            break;
-
-        case IDM_MSPMODE_3:
-        case IDM_MSPMODE_2:
-        case IDM_MSPMODE_4:
-        case IDM_MSPMODE_5:
-        case IDM_MSPMODE_6:
-            Setting_SetValue(Audio_GetSetting(MSPMODE), LOWORD(wParam) - (IDM_MSPMODE_2 - 2));
-            break;
-
-        case IDM_MAJOR_CARRIER_0:
-        case IDM_MAJOR_CARRIER_1:
-        case IDM_MAJOR_CARRIER_2:
-        case IDM_MAJOR_CARRIER_3:
-            Setting_SetValue(Audio_GetSetting(MSPMAJORMODE), LOWORD(wParam) - IDM_MAJOR_CARRIER_0);
-            break;
-
-        case IDM_MINOR_CARRIER_0:
-        case IDM_MINOR_CARRIER_1:
-        case IDM_MINOR_CARRIER_2:
-        case IDM_MINOR_CARRIER_3:
-        case IDM_MINOR_CARRIER_4:
-        case IDM_MINOR_CARRIER_5:
-        case IDM_MINOR_CARRIER_6:
-        case IDM_MINOR_CARRIER_7:
-            Setting_SetValue(Audio_GetSetting(MSPMINORMODE), LOWORD(wParam) - IDM_MINOR_CARRIER_0);
-            break;
-
-        case IDM_MSPSTEREO_1:
-        case IDM_MSPSTEREO_2:
-        case IDM_MSPSTEREO_3:
-        case IDM_MSPSTEREO_4:
-            Setting_SetValue(Audio_GetSetting(MSPSTEREO), LOWORD(wParam) - (IDM_MSPSTEREO_1 - 1));
-            break;
-
-        case IDM_AUTOSTEREO:
-            Setting_SetValue(Audio_GetSetting(AUTOSTEREOSELECT), 
-                !Setting_GetValue(Audio_GetSetting(AUTOSTEREOSELECT)));
-            break;
-
-        case IDM_AUDIO_0:
-        case IDM_AUDIO_1:
-        case IDM_AUDIO_2:
-        case IDM_AUDIO_3:
-        case IDM_AUDIO_4:
-        case IDM_AUDIO_5:
-            AudioSource = (eAudioMuxType)(LOWORD(wParam) - IDM_AUDIO_0);
-            switch (AudioSource)
-            {
-            case AUDIOMUX_TUNER:     ShowText(hWnd, "Audio Input - Tuner");     break;
-            case AUDIOMUX_MSP_RADIO: ShowText(hWnd, "Audio Input - MSP/Radio"); break;
-            case AUDIOMUX_EXTERNAL:  ShowText(hWnd, "Audio Input - External");  break;
-            case AUDIOMUX_INTERNAL:  ShowText(hWnd, "Audio Input - Internal");  break;
-            case AUDIOMUX_MUTE:      ShowText(hWnd, "Audio Input - Disabled");  break;
-            case AUDIOMUX_STEREO:    ShowText(hWnd, "Audio Input - Stereo");    break;
-            }
-            Stop_Capture();
-            Audio_SetSource(AudioSource);
-            Start_Capture();
-            break;
-
-        case IDM_SOURCE_TUNER:
-        case IDM_SOURCE_COMPOSITE:
-        case IDM_SOURCE_SVIDEO:
-        case IDM_SOURCE_OTHER1:
-        case IDM_SOURCE_OTHER2:
-        case IDM_SOURCE_COMPVIASVIDEO:
-        case IDM_SOURCE_CCIR656_1:
-        case IDM_SOURCE_CCIR656_2:
-        case IDM_SOURCE_CCIR656_3:
-        case IDM_SOURCE_CCIR656_4:
-            nValue = LOWORD(wParam) - IDM_SOURCE_TUNER;
-            OSD_ShowText(hWnd, GetSourceName(nValue), 0);
-            StatusBar_ShowText(STATUS_KEY, GetSourceName(nValue));
-            Setting_SetValue(BT848_GetSetting(VIDEOSOURCE), nValue);
-            break;
-                
-        case IDM_HWINFO:
-            DialogBox(hInst, MAKEINTRESOURCE(IDD_HWINFO), hWnd, (DLGPROC) ChipSettingProc);
             break;
 
         case IDM_VBI_VT:
@@ -1249,22 +1146,6 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             VT_ChannelChange();
             break;
 
-        case IDM_AUDIOSETTINGS:
-            DialogBox(hInst, MAKEINTRESOURCE(IDD_AUDIOSETTINGS), hWnd, AudioSettingProc);
-            break;
-
-        case IDM_AUDIOSETTINGS1:
-            DialogBox(hInst, MAKEINTRESOURCE(IDD_AUDIOEQUALIZER), hWnd, AudioSettingProc1);
-            break;
-
-        case IDM_VIDEOSETTINGS:
-            DialogBox(hInst, MAKEINTRESOURCE(IDD_VIDEOSETTINGS), hWnd, VideoSettingProc);
-            break;
-
-        case IDM_ADV_VIDEOSETTINGS:
-            DialogBox(hInst, MAKEINTRESOURCE(IDD_ADV_VIDEOSETTINGS), hWnd, AdvVideoSettingProc);
-            break;
-
         case IDM_VPS_OUT:
             DialogBox(hInst, MAKEINTRESOURCE(IDD_VPSSTATUS), hWnd, VPSInfoProc);
             break;
@@ -1278,11 +1159,6 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             Setting_SetValue(VBI_GetSetting(CAPTURE_VBI), 
                 !Setting_GetValue(VBI_GetSetting(CAPTURE_VBI)));
             Start_Capture();
-            break;
-
-        case IDM_AUTO_FORMAT:
-            Setting_SetValue(Timing_GetSetting(AUTOFORMATDETECT), 
-                !Setting_GetValue(Timing_GetSetting(AUTOFORMATDETECT)));
             break;
 
         case IDM_CAPTURE_PAUSE:
@@ -1309,12 +1185,6 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
         case IDM_SPLASH_ON_STARTUP:
             bDisplaySplashScreen = !bDisplaySplashScreen;
-            break;
-
-        case IDM_CHANNEL_LIST:
-            SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_TUNER, 0);
-            DialogBox(hInst, MAKEINTRESOURCE(IDD_CHANNELLIST), hWnd, (DLGPROC) ProgramListProc);
-            Channels_UpdateMenu(hMenu);
             break;
 
         case IDM_TREADPRIOR_0:
@@ -1348,49 +1218,6 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                     strcpy(Text, "Real-Time Priority");
             }
             ShowText(hWnd, Text);
-            break;
-
-        case IDM_TYPEFORMAT_0:
-        case IDM_TYPEFORMAT_1:
-        case IDM_TYPEFORMAT_2:
-        case IDM_TYPEFORMAT_3:
-        case IDM_TYPEFORMAT_4:
-        case IDM_TYPEFORMAT_5:
-        case IDM_TYPEFORMAT_6:
-        case IDM_TYPEFORMAT_7:
-        case IDM_TYPEFORMAT_8:
-            // Video format (NTSC, PAL, etc)
-            Setting_SetValue(BT848_GetSetting(TVFORMAT), LOWORD(wParam) - IDM_TYPEFORMAT_0);
-            ShowText(hWnd, BT848_GetTVFormat()->szDesc);
-            break;
-
-        case ID_SETTINGS_PIXELWIDTH_768:
-            Setting_SetValue(BT848_GetSetting(CURRENTX), 768);
-            break;
-
-        case ID_SETTINGS_PIXELWIDTH_754:
-            Setting_SetValue(BT848_GetSetting(CURRENTX), 754);
-            break;
-
-        case ID_SETTINGS_PIXELWIDTH_720:
-            Setting_SetValue(BT848_GetSetting(CURRENTX), 720);
-            break;
-        
-        case ID_SETTINGS_PIXELWIDTH_640:
-            Setting_SetValue(BT848_GetSetting(CURRENTX), 640);
-            break;
-        
-        case ID_SETTINGS_PIXELWIDTH_384:
-            Setting_SetValue(BT848_GetSetting(CURRENTX), 384);
-            break;
-        
-        case ID_SETTINGS_PIXELWIDTH_320:
-            Setting_SetValue(BT848_GetSetting(CURRENTX), 320);
-            break;
-        
-        case ID_SETTINGS_PIXELWIDTH_CUSTOM:
-            Setting_SetValue(BT848_GetSetting(CURRENTX), 
-                Setting_GetValue(BT848_GetSetting(CUSTOMPIXELWIDTH)));
             break;
 
         case IDM_JUDDERTERMINATOR:
@@ -1672,6 +1499,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 ValidateRect(hWnd, &sPaint.rcPaint);
             }
             break;
+
         case IDM_SHOWPLUGINUI:
             ShowVideoModeUI();
             break;
@@ -1692,10 +1520,6 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             Debug_ShowUI();
             break;
 
-        case IDM_BT848_SETTINGS:
-            BT848_ShowUI();
-            break;
-        
         case IDM_TIMING_SETTNGS:
             Timing_ShowUI();
             break;
@@ -1821,6 +1645,18 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             {
                 bDone = ProcessFilterSelection(hWnd, LOWORD(wParam));
             }
+            if(!bDone)
+            {
+                bDone = ProcessProgramSelection(hWnd, LOWORD(wParam));
+            }
+            if(!bDone)
+            {
+                bDone = ProcessOSDSelection(hWnd, LOWORD(wParam));
+            }
+            if(!bDone)
+            {
+                bDone = Providers_HandleWindowsCommands(hWnd, wParam, lParam);
+            }
             break;
         }
 
@@ -1870,7 +1706,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 //      WorkoutOverlaySize();
 //      Start_Capture();
 //      Sleep(100);
-//      Audio_SetSource(AudioSource);
+//      BT848_SetAudioSource(AudioSource);
 //      break;
 
     case WM_POWERBROADCAST:
@@ -1965,41 +1801,14 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         switch (LOWORD(wParam))
         {
         //-------------------------------
-        case TIMER_MSP:
-            Audio_MSP_Watch_Mode();
-            if (bDisplayStatusBar == TRUE)
-            {
-                Audio_MSP_Print_Mode();
-            }
-            break;
-        //-------------------------------
         case TIMER_STATUS:
-            if (!BT848_IsVideoPresent())
-            {
-                StatusBar_ShowText(STATUS_TEXT, "No Video Signal Found");
-            }
-            else
-            {
-                Text[0] = 0x00;
-                if (*VT_GetStation() != 0x00)
-                {
-                    sprintf(Text, "%s ", VT_GetStation());
-                    VT_ResetStation();
-                }
-                else if (VPSLastName[0] != 0x00)
-                {
-                    sprintf(Text, "%s ", VPSLastName);
-                    VPSLastName[0] = 0x00;
-                }
+            strcpy(Text1, Providers_GetCurrentSource()->GetStatus());
 
-                strcpy(Text1, Text);
-
-                if (Setting_GetValue(Audio_GetSetting(SYSTEMINMUTE)) == TRUE)
-                {
-                    sprintf(Text1, "Volume Mute");
-                }
-                StatusBar_ShowText(STATUS_TEXT, Text1);
-            }
+            if (Setting_GetValue(Audio_GetSetting(SYSTEMINMUTE)) == TRUE)
+			{
+                sprintf(Text1, "Volume Mute");
+			}
+            StatusBar_ShowText(STATUS_TEXT, Text1);
             break;
         //-------------------------------
         case TIMER_KEYNUMBER:
@@ -2045,6 +1854,9 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             KillTimer(hWnd, TIMER_HIDECURSOR);
             if (!bInMenuOrDialogBox)
                 Cursor_SetVisibility(FALSE);
+            break;
+        default:
+            Provider_HandleTimerMessages(LOWORD(wParam));
             break;
         }
         break;
@@ -2114,7 +1926,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         break;
 
     case WM_CHAR:
-        if (Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)) == SOURCE_TUNER || VTState != VT_OFF)
+        if (Providers_GetCurrentSource()->IsInTunerMode() || VTState != VT_OFF)
         {
             if (((char) wParam >= '0') && ((char) wParam <= '9'))
             {
@@ -2232,17 +2044,13 @@ void MainWndOnInitBT(HWND hWnd)
 
     AddSplashTextLine("Hardware Init");
 
-    if (BT848_FindTVCard(hWnd) == TRUE)
+    if (Providers_Load(hMenu) > 0)
     {
-        AddSplashTextLine(BT848_ChipType());
         if(InitDD(hWnd) == TRUE)
         {
             if(Overlay_Create() == TRUE)
             {
-                if (BT848_MemoryInit() == TRUE)
-                {
-                    bInitOK = TRUE;
-                }
+                bInitOK = TRUE;
             }
         }
     }
@@ -2273,13 +2081,6 @@ void MainWndOnInitBT(HWND hWnd)
     
     if (bInitOK)
     {
-        AddSplashTextLine("Check TV card");
-        if(Setting_GetValue(TVCard_GetSetting(CURRENTCARDTYPE)) == TVCARD_UNKNOWN)
-        {
-            HideSplashScreen();
-            TVCard_FirstTimeSetupHardware(hInst, hWnd);
-        }
-
         AddSplashTextLine("Position Window");
         WStyle = GetWindowLong(hWnd, GWL_EXSTYLE);
         if (bAlwaysOnTop == FALSE)
@@ -2301,50 +2102,15 @@ void MainWndOnInitBT(HWND hWnd)
             SendMessage(hWnd, WM_COMMAND, IDM_TOGGLE_MENU, 0);
         }
 
-        if (Tuner_Init() == TRUE)
-        {
-            AddSplashTextLine("Tuner OK");
-        }
-        else
-        {
-            AddSplashTextLine("No Tuner");
-        }
-
-        // do any card related startup routines
-        Card_Init();
-
-        // MAE 8 Dec 2000 Start of change
-        // JA 8 Jan 2001 Tidied up
-
-        if (Audio_MSP_Init(0x80, 0x81) == TRUE)
-        {
-            AddSplashTextLine("MSP Device OK");
-        }
-        else
-        {
-            AddSplashTextLine("No MSP Device");
-        }
 
         AddSplashTextLine("Setup Mixer");
         Mixer_Init();
 
         AddSplashTextLine("Start Timers");
-        if (Audio_MSP_IsPresent() == TRUE)
-        {
-            SetTimer(hWnd, TIMER_MSP, TIMER_MSP_MS, NULL);
-        }
         if(bIsFullScreen == FALSE && bDisplayStatusBar == TRUE)
         {
             SetTimer(hWnd, TIMER_STATUS, TIMER_STATUS_MS, NULL);
         }
-
-        if(Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)) == SOURCE_TUNER)
-        {
-            AddSplashTextLine("Set Channel");
-            Channel_SetCurrent();
-        }
-
-        StatusBar_ShowText(STATUS_KEY, GetSourceName(Setting_GetValue(BT848_GetSetting(VIDEOSOURCE))));
 
         // do final setup routines for any files
         // basically where we need the hWnd to be set
@@ -2352,14 +2118,9 @@ void MainWndOnInitBT(HWND hWnd)
         Aspect_FinalSetup();
 
         // OK we're ready to go
-        AddSplashTextLine("Reset hardware");
-        BT848_ResetHardware();
-        BT848_SetGeoSize();
         WorkoutOverlaySize();
-        Audio_SetSource(AudioSource);
         
         AddSplashTextLine("Update Menu");
-        Channels_UpdateMenu(hMenu);
         OSD_UpdateMenu(hMenu);
         pCalibration->UpdateMenu(hMenu);
         SetMenuAnalog();
@@ -2371,8 +2132,6 @@ void MainWndOnInitBT(HWND hWnd)
     }
     else
     {
-        CleanUpMemory();
-        BT848_Close();
         Sleep(2000);
         PostQuitMessage(0);
     }
@@ -2445,7 +2204,6 @@ void KillTimers()
     KillTimer(hWnd, TIMER_ORBIT);
     KillTimer(hWnd, TIMER_AUTOSAVE);
     KillTimer(hWnd, TIMER_KEYNUMBER);
-    KillTimer(hWnd, TIMER_MSP);
     KillTimer(hWnd, TIMER_STATUS);
     KillTimer(hWnd, OSD_TIMER_ID);
     KillTimer(hWnd, OSD_TIMER_REFRESH_ID);
@@ -2524,10 +2282,10 @@ void MainWndOnDestroy()
     
     __try
     {
-        LOG(1, "Try BT848_Close");
-        BT848_Close();
+        LOG(1, "Try Providers_Unload");
+        Providers_Unload();
     }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error BT848_Close");}
+    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error Providers_Unload");}
 
     __try
     {
@@ -2591,8 +2349,6 @@ void SetMenuAnalog()
     OutThreads_SetMenu(hMenu);
     Deinterlace_SetMenu(hMenu);
     Filter_SetMenu(hMenu);
-    BT848_SetMenu(hMenu);
-    TVCard_SetMenu(hMenu);
     VBI_SetMenu(hMenu);
     Channels_SetMenu(hMenu);
     OSD_SetMenu(hMenu);
@@ -2601,6 +2357,8 @@ void SetMenuAnalog()
     MixerDev_SetMenu(hMenu);
     Audio_SetMenu(hMenu);
     VT_SetMenu(hMenu);
+    Providers_SetMenu(hMenu);
+
     TimeShift::OnSetMenu(hMenu);
     if(pCalibration)
     {
@@ -2689,12 +2447,32 @@ HMENU GetOrCreateSubSubSubMenu(int SubId, int SubSubId, int SubSubSubId, LPCSTR 
 
 HMENU GetFiltersSubmenu()
 {
-    return GetOrCreateSubSubMenu(4, 6, "Select &Filters");
+    return GetOrCreateSubSubMenu(4, 2, "Select &Filters");
+
+    HMENU hSubMenu;
+
+    if(hMenu == NULL) return NULL;
+    hSubMenu = GetSubMenu(hMenu, 4);
+    if(hSubMenu == NULL) return NULL;
+    hSubMenu = GetSubMenu(hSubMenu, 2);
+    if(hSubMenu == NULL)
+    {
+        hSubMenu = GetSubMenu(hMenu, 3);
+        if(ModifyMenu(hSubMenu, 2, MF_STRING | MF_BYPOSITION | MF_POPUP, (UINT)CreatePopupMenu(), "&Filters"))
+        {
+            hSubMenu = GetSubMenu(hSubMenu, 2);
+        }
+        else
+        {
+            hSubMenu = NULL;
+        }
+    }
+    return hSubMenu;
 }
 
 HMENU GetFilterSettingsSubmenu()
 {
-    return GetOrCreateSubSubMenu(4, 7, "Filter &Settings");
+    return GetOrCreateSubSubMenu(4, 3, "Filter &Settings");
 }
 
 HMENU GetVideoDeinterlaceSubmenu()
@@ -2703,7 +2481,7 @@ HMENU GetVideoDeinterlaceSubmenu()
 
     if(hMenu == NULL) return NULL;
     hSubMenu = GetSubMenu(hMenu, 4);
-    if(hMenu == NULL) return NULL;
+    if(hSubMenu == NULL) return NULL;
     hSubMenu = GetSubMenu(hSubMenu, 1);
     return hSubMenu;
 }
@@ -2715,17 +2493,17 @@ HMENU GetChannelsSubmenu()
 
 HMENU GetOSDSubmenu1()
 {
-    return GetOrCreateSubSubSubMenu(2, 7, 2, "&Show Screen");
+    return GetOrCreateSubSubSubMenu(2, 8, 2, "&Show Screen");
 }
 
 HMENU GetOSDSubmenu2()
 {
-    return GetOrCreateSubSubSubMenu(2, 7, 3, "A&ctivate Screen");
+    return GetOrCreateSubSubSubMenu(2, 8, 3, "A&ctivate Screen");
 }
 
 HMENU GetPatternsSubmenu()
 {
-    return GetOrCreateSubSubMenu(5, 6, "Test &Pattern Select");
+    return GetOrCreateSubSubMenu(4, 5, "Test &Pattern Select");
 }
 
 //---------------------------------------------------------------------------
@@ -2733,14 +2511,10 @@ void CleanUpMemory()
 {
     Mixer_Exit();
     VBI_Exit();
-    BT848_MemoryFree();
+    Providers_Unload();
     if ((hMenu != NULL) && (GetMenu(hWnd) == NULL))
     {
         DestroyMenu(hMenu);
-    }
-    if (hMenuPopup != NULL)
-    {
-        DestroyMenu(hMenuPopup);
     }
     Channels_Exit();
     delete pCalibration;
@@ -2779,24 +2553,6 @@ void Overlay_Start(HWND hWnd)
     Reset_Capture();
 }
 
-const char* GetSourceName(int nVideoSource)
-{
-    switch (nVideoSource)
-    {
-    case SOURCE_TUNER:         return Channel_GetName(); break;
-    case SOURCE_COMPOSITE:     return "Composite"; break;
-    case SOURCE_SVIDEO:        return "S-Video"; break;
-    case SOURCE_OTHER1:        return "Other 1"; break;
-    case SOURCE_OTHER2:        return "Other 2"; break;
-    case SOURCE_COMPVIASVIDEO: return "Composite via S-Video"; break;
-    case SOURCE_CCIR656_1:     return "CCIR656 1"; break;
-    case SOURCE_CCIR656_2:     return "CCIR656 2"; break;
-    case SOURCE_CCIR656_3:     return "CCIR656 3"; break;
-    case SOURCE_CCIR656_4:     return "CCIR656 4"; break;
-    }
-    return "Unknown";
-}
-
 //---------------------------------------------------------------------------
 // Show text on both OSD and statusbar
 void ShowText(HWND hWnd, LPCTSTR szText)
@@ -2832,8 +2588,16 @@ void UpdateWindowState()
     }
     else
     {
-        SetWindowLong(hWnd, GWL_STYLE, WS_OVERLAPPEDWINDOW | WS_VISIBLE);
-        SetMenu(hWnd, (bShowMenu == TRUE)?hMenu:NULL);
+        if(bShowMenu == TRUE)
+        {
+            SetWindowLong(hWnd, GWL_STYLE, WS_OVERLAPPEDWINDOW | WS_VISIBLE);
+            SetMenu(hWnd, hMenu);
+        }
+        else
+        {
+            SetWindowLong(hWnd, GWL_STYLE, WS_THICKFRAME | WS_POPUP | WS_CHILD | WS_VISIBLE);
+            SetMenu(hWnd, NULL);
+        }
         StatusBar_ShowWindow(bDisplayStatusBar);
         SetWindowPos(hWnd,bAlwaysOnTop?HWND_TOPMOST:HWND_NOTOPMOST,
                     0,0,0,0,
@@ -2959,6 +2723,26 @@ void Cursor_VTUpdate(bool PosValid, int x, int y)
             Cursor_SetType(CURSOR_DEFAULT);
         }
     }
+}
+
+void SetDirectoryToExe()
+{
+    char szDriverPath[MAX_PATH];
+    char* pszName;
+
+    if (!GetModuleFileName(NULL, szDriverPath, sizeof(szDriverPath)))
+    {
+        ErrorBox("Cannot get module file name");
+        return;
+    }
+
+    pszName = szDriverPath + strlen(szDriverPath);
+    while (pszName >= szDriverPath && *pszName != '\\')
+    {
+        *pszName-- = 0;
+    }
+
+    SetCurrentDirectory(szDriverPath);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -3183,4 +2967,5 @@ void DScaler_WriteSettingsToIni(BOOL bOptimizeFileAccess)
         Setting_WriteToIni(&(DScalerSettings[i]), bOptimizeFileAccess);
     }
 }
+
 

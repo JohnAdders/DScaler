@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.cpp,v 1.22 2001-09-05 15:08:43 adcockj Exp $
+// $Id: Deinterlace.cpp,v 1.23 2001-11-02 16:30:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,12 +41,29 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2001/09/05 15:08:43  adcockj
+// Updated Loging
+//
 // Revision 1.21  2001/08/18 17:23:51  adcockj
 // Fix for manual method selection
 //
 // Revision 1.20  2001/08/14 11:36:03  adcockj
 // Mixer change to allow restore of initial mixer settings
 //
+// Revision 1.19.2.4  2001/08/21 09:43:01  adcockj
+// Brought branch up to date with latest code fixes
+//
+// Revision 1.19.2.3  2001/08/20 16:14:19  adcockj
+// Massive tidy up of code to new structure
+//
+// Revision 1.19.2.2  2001/08/17 16:35:14  adcockj
+// Another interim check-in still doesn't compile. Getting closer ...
+//
+// Revision 1.19.2.1  2001/08/14 16:41:36  adcockj
+// Renamed driver
+// Got to compile with new class based card
+//
+>>>>>>> 1.19.2.4
 // Revision 1.19  2001/08/14 07:06:27  adcockj
 // Fixed problem with scroling through methods
 //
@@ -69,7 +86,6 @@
 #include "resource.h"
 #include "Deinterlace.h"
 #include "CPU.h"
-#include "BT848.h"
 #include "DScaler.h"
 #include "OutThreads.h"
 #include "FD_50Hz.h"
@@ -79,6 +95,7 @@
 #include "OSD.h"
 #include "DebugLog.h"
 #include "SettingsDlg.h"
+#include "Providers.h"
 
 DEINTERLACE_METHOD FilmDeintMethods[FILMPULLDOWNMODES_LAST_ONE] =
 {
@@ -345,7 +362,9 @@ char* GetDeinterlaceModeName()
 void PrepareDeinterlaceMode()
 {
     bIsFilmMode = FALSE;
-    if(BT848_GetTVFormat()->Is25fps)
+    eVideoFormat VideoFormat(Providers_GetCurrentSource()->GetFormat());
+
+    if(GetTVFormat(VideoFormat)->Is25fps)
     {
         SetVideoDeinterlaceIndex(Setting_GetValue(FD50_GetSetting(PALFILMFALLBACKMODE)));
     }
@@ -462,7 +481,8 @@ BOOL ProcessDeinterlaceSelection(HWND hWnd, WORD wMenuID)
     // Now save the current deinterlace setting
     if (bFound)
     {
-        if(BT848_GetTVFormat()->Is25fps)
+        eVideoFormat VideoFormat(Providers_GetCurrentSource()->GetFormat());
+        if(GetTVFormat(VideoFormat)->Is25fps)
         {
             Setting_SetValue(FD50_GetSetting(PALFILMFALLBACKMODE), nDeinterlaceIndex);
         }

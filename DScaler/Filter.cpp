@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Filter.cpp,v 1.13 2001-09-09 18:30:19 adcockj Exp $
+// $Id: Filter.cpp,v 1.14 2001-11-02 16:30:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2001/09/09 18:30:19  adcockj
+// Filter menu fix
+//
 // Revision 1.12  2001/09/05 15:08:43  adcockj
 // Updated Loging
 //
@@ -170,10 +173,12 @@ void AddUIForFilterPlugin(HMENU hFilterMenu, HMENU hSettingMenu, FILTER_METHOD* 
     if(FilterMethod->szMenuName != NULL)
     {
         AppendMenu(hFilterMenu, MF_STRING | MF_ENABLED, FilterMethod->MenuId, FilterMethod->szMenuName);
+        AppendMenu(hSettingMenu, MF_STRING | MF_ENABLED, MenuId + 100, FilterMethod->szMenuName);
     }
     else
     {
         AppendMenu(hFilterMenu, MF_STRING | MF_ENABLED, FilterMethod->MenuId, FilterMethod->szName);
+        AppendMenu(hSettingMenu, MF_STRING | MF_ENABLED, MenuId + 100, FilterMethod->szName);
     }
     AppendMenu(hSettingMenu, MF_STRING | MF_ENABLED, MenuId + 100, FilterMethod->szName);
 }
@@ -250,6 +255,7 @@ BOOL ProcessFilterSelection(HWND hWnd, WORD wMenuID)
     if(i >= 0 && i < NumFilters)
     {
         CSettingsDlg::ShowSettingsDlg(Filters[i]->szName, Filters[i]->pSettings, Filters[i]->nSettings);
+        return TRUE;
     }
     return FALSE;
 }

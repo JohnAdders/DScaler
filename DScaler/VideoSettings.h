@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VideoSettings.h,v 1.4 2001-07-16 18:07:50 adcockj Exp $
+// $Id: VideoSettings.h,v 1.5 2001-11-02 16:30:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -28,19 +28,6 @@
 #ifndef __VIDEOSETTINGS_H___
 #define __VIDEOSETTINGS_H___
 
-#include "Settings.h"
-
-SETTING* VideoSettings_GetSetting(VIDEOSETTINGS_SETTING Setting);
-void VideoSettings_ReadSettingsFromIni();
-void VideoSettings_WriteSettingsToIni(BOOL bOptimizeFileAccess);
-
 BOOL APIENTRY VideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
-void VideoSettings_Load();
-void VideoSettings_Save();
-void VideoSettings_LoadTVFormat();
-void VideoSettings_SaveTVFormat();
-void VideoSettings_SaveCurrentToAllInputs();
-void VideoSettings_SaveCurrentToAllFormats();
-void VideoSettings_SetupDefaults();
 
 #endif

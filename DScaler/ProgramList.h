@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.h,v 1.11 2001-07-16 18:07:50 adcockj Exp $
+// $Id: ProgramList.h,v 1.12 2001-11-02 16:30:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -53,6 +53,7 @@ void Channels_ReadSettingsFromIni();
 void Channels_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void Channels_UpdateMenu(HMENU hMenu);
 void Channels_SetMenu(HMENU hMenu);
+BOOL ProcessProgramSelection(HWND hWnd, WORD wMenuID);
 
 #define MAXPROGS 255
 

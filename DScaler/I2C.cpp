@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: I2C.cpp,v 1.4 2001-07-13 16:14:56 adcockj Exp $
+// $Id: I2C.cpp,v 1.5 2001-11-02 16:30:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4.2.1  2001/08/14 16:41:37  adcockj
+// Renamed driver
+// Got to compile with new class based card
+//
+// Revision 1.4  2001/07/13 16:14:56  adcockj
+// Changed lots of variables to match Coding standards
+//
 // Revision 1.3  2001/07/12 16:16:40  adcockj
 // Added CVS Id and Log
 //
@@ -34,103 +41,35 @@
 #include "stdafx.h"
 #include "i2c.h"
 
-CRITICAL_SECTION hCritSect;
 
-void I2C_SetLine(BOOL bCtrl, BOOL bData)
+CI2C::CI2C()
 {
-    BT848_WriteDword(BT848_I2C, (bCtrl << 1) | bData);
-    I2CBus_wait(I2C_DELAY);
+    InitializeCriticalSection(&m_hCritSect);
 }
 
-BOOL I2C_GetLine()
+CI2C::~CI2C()
 {
-    return BT848_ReadDword(BT848_I2C) & 1;
-}
-
-BYTE I2C_Read(BYTE nAddr)
-{
-    DWORD i;
-    volatile DWORD stat;
-
-    BT848_WriteDword(BT848_INT_STAT, BT848_INT_I2CDONE);
-    BT848_WriteDword(BT848_I2C, (nAddr << 24) | I2C_COMMAND);
-
-    for (i = 0x7fffffff; i; i--)
-    {
-        stat = BT848_ReadDword(BT848_INT_STAT);
-        if (stat & BT848_INT_I2CDONE)
-            break;
-    }
-
-    if (!i)
-        return (BYTE) - 1;
-    if (!(stat & BT848_INT_RACK))
-        return (BYTE) - 2;
-
-    return (BYTE) ((BT848_ReadDword(BT848_I2C) >> 8) & 0xFF);
-}
-
-BOOL I2C_Write(BYTE nAddr, BYTE nData1, BYTE nData2, BOOL bSendBoth)
-{
-    DWORD i;
-    DWORD data;
-    DWORD stat;
-
-    BT848_WriteDword(BT848_INT_STAT, BT848_INT_I2CDONE);
-
-    data = (nAddr << 24) | (nData1 << 16) | I2C_COMMAND;
-    if (bSendBoth)
-        data |= (nData2 << 8) | BT848_I2C_W3B;
-    BT848_WriteDword(BT848_I2C, data);
-
-    for (i = 0x7fffffff; i; i--)
-    {
-        stat = BT848_ReadDword(BT848_INT_STAT);
-        if (stat & BT848_INT_I2CDONE)
-            break;
-    }
-
-    if (!i)
-        return FALSE;
-    if (!(stat & BT848_INT_RACK))
-        return FALSE;
-
-    return TRUE;
+    DeleteCriticalSection(&m_hCritSect);
 }
 
 //----------------------------------------------------------------
-
-BOOL I2CBus_AddDevice(BYTE I2C_Port)
+BOOL CI2C::I2C_AddDevice(BYTE I2C_Port)
 {
     BOOL bAck;
 
     // Test whether device exists
-    I2CBus_Lock();
-    I2CBus_Start();
-    bAck = I2CBus_SendByte(I2C_Port, 0);
-    I2CBus_Stop();
-    I2CBus_Unlock();
+    EnterCriticalSection(&m_hCritSect);
+    I2C_Start();
+    bAck = I2C_SendByte(I2C_Port, 0);
+    I2C_Stop();
+    LeaveCriticalSection(&m_hCritSect);
     if (bAck)
         return TRUE;
     else
         return FALSE;
 }
 
-BOOL I2CBus_Lock()
-{
-    InitializeCriticalSection(&hCritSect);
-    EnterCriticalSection(&hCritSect);
-    return TRUE;
-}
-
-BOOL I2CBus_Unlock()
-{
-    LeaveCriticalSection(&hCritSect);
-    DeleteCriticalSection(&hCritSect);
-    return TRUE;
-}
-
-void I2CBus_Start()
+void CI2C::I2C_Start()
 {
     I2C_SetLine(0, 1);
     I2C_SetLine(1, 1);
@@ -138,28 +77,28 @@ void I2CBus_Start()
     I2C_SetLine(0, 0);
 }
 
-void I2CBus_Stop()
+void CI2C::I2C_Stop()
 {
     I2C_SetLine(0, 0);
     I2C_SetLine(1, 0);
     I2C_SetLine(1, 1);
 }
 
-void I2CBus_One()
+void CI2C::I2C_One()
 {
     I2C_SetLine(0, 1);
     I2C_SetLine(1, 1);
     I2C_SetLine(0, 1);
 }
 
-void I2CBus_Zero()
+void CI2C::I2C_Zero()
 {
     I2C_SetLine(0, 0);
     I2C_SetLine(1, 0);
     I2C_SetLine(0, 0);
 }
 
-BOOL I2CBus_Ack()
+BOOL CI2C::I2C_Ack()
 {
     BOOL bAck;
 
@@ -170,23 +109,23 @@ BOOL I2CBus_Ack()
     return bAck;
 }
 
-BOOL I2CBus_SendByte(BYTE nData, int nWaitForAck)
+BOOL CI2C::I2C_SendByte(BYTE nData, int nWaitForAck)
 {
     I2C_SetLine(0, 0);
-    nData & 0x80 ? I2CBus_One() : I2CBus_Zero();
-    nData & 0x40 ? I2CBus_One() : I2CBus_Zero();
-    nData & 0x20 ? I2CBus_One() : I2CBus_Zero();
-    nData & 0x10 ? I2CBus_One() : I2CBus_Zero();
-    nData & 0x08 ? I2CBus_One() : I2CBus_Zero();
-    nData & 0x04 ? I2CBus_One() : I2CBus_Zero();
-    nData & 0x02 ? I2CBus_One() : I2CBus_Zero();
-    nData & 0x01 ? I2CBus_One() : I2CBus_Zero();
+    nData & 0x80 ? I2C_One() : I2C_Zero();
+    nData & 0x40 ? I2C_One() : I2C_Zero();
+    nData & 0x20 ? I2C_One() : I2C_Zero();
+    nData & 0x10 ? I2C_One() : I2C_Zero();
+    nData & 0x08 ? I2C_One() : I2C_Zero();
+    nData & 0x04 ? I2C_One() : I2C_Zero();
+    nData & 0x02 ? I2C_One() : I2C_Zero();
+    nData & 0x01 ? I2C_One() : I2C_Zero();
     if (nWaitForAck)
-        I2CBus_wait(nWaitForAck);
-    return I2CBus_Ack();
+        I2C_Wait(nWaitForAck);
+    return I2C_Ack();
 }
 
-BYTE I2CBus_ReadByte(BOOL bLast)
+BYTE CI2C::I2C_ReadByte(BOOL bLast)
 {
     int i;
     BYTE bData = 0;
@@ -200,35 +139,35 @@ BYTE I2CBus_ReadByte(BOOL bLast)
         I2C_SetLine(0, 1);
     }
 
-    bLast ? I2CBus_One() : I2CBus_Zero();
+    bLast ? I2C_One() : I2C_Zero();
     return bData;
 }
 
-BYTE I2CBus_Read(BYTE nAddr)
+BYTE CI2C::I2C_Read(BYTE nAddr)
 {
     BYTE bData;
 
-    I2CBus_Start();
-    I2CBus_SendByte(nAddr, 0);
-    bData = I2CBus_ReadByte(TRUE);
-    I2CBus_Stop();
+    I2C_Start();
+    I2C_SendByte(nAddr, 0);
+    bData = I2C_ReadByte(TRUE);
+    I2C_Stop();
     return bData;
 }
 
-BOOL I2CBus_Write(BYTE nAddr, BYTE nData1, BYTE nData2, BOOL bSendBoth)
+BOOL CI2C::I2C_Write(BYTE nAddr, BYTE nData1, BYTE nData2, BOOL bSendBoth)
 {
     BOOL bAck;
 
-    I2CBus_Start();
-    I2CBus_SendByte(nAddr, 0);
-    bAck = I2CBus_SendByte(nData1, 0);
+    I2C_Start();
+    I2C_SendByte(nAddr, 0);
+    bAck = I2C_SendByte(nData1, 0);
     if (bSendBoth)
-        bAck = I2CBus_SendByte(nData2, 0);
-    I2CBus_Stop();
+        bAck = I2C_SendByte(nData2, 0);
+    I2C_Stop();
     return bAck;
 }
 
-void I2CBus_wait(int us)
+void CI2C::I2C_Wait(int us)
 {
     if (us > 0)
     {
@@ -240,4 +179,14 @@ void I2CBus_wait(int us)
     Sleep(0);
     Sleep(0);
     Sleep(0);
+}
+
+void CI2C::I2C_Lock()
+{
+    EnterCriticalSection(&m_hCritSect);
+}
+
+void CI2C::I2C_Unlock()
+{
+    LeaveCriticalSection(&m_hCritSect);
 }

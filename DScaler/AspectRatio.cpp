@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.cpp,v 1.20 2001-10-18 16:20:40 adcockj Exp $
+// $Id: AspectRatio.cpp,v 1.21 2001-11-02 16:30:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -72,6 +72,12 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2001/10/18 16:20:40  adcockj
+// Made Color of blanking adjustable
+//
+// Revision 1.19.2.1  2001/08/20 16:14:19  adcockj
+// Massive tidy up of code to new structure
+//
 // Revision 1.19  2001/08/09 12:21:40  adcockj
 // Structure name changes
 //
@@ -93,10 +99,11 @@
 #include "Resource.h"
 #include "DebugLog.h"
 #include "Status.h"
-#include "BT848.h"
 #include "DScaler.h"
 #include "AspectFilters.h"
 #include "Deinterlace.h"
+// TODO: remove 
+#include "OutThreads.h"
 
 #define AR_STRETCH       0
 #define AR_NONANAMORPHIC 1

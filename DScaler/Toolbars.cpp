@@ -1,5 +1,5 @@
 //
-// $Id: Toolbars.cpp,v 1.1 2002-09-25 22:32:50 kooiman Exp $
+// $Id: Toolbars.cpp,v 1.2 2002-09-26 16:34:19 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/09/25 22:32:50  kooiman
+// Toolbar support.
+//
 // Revision 1.0  2002/08/03 17:57:52  kooiman
 // initial version
 //
@@ -68,37 +71,84 @@ extern void ShowText(HWND hWnd, LPCTSTR szText);
 ///////////////////////////////////////////////////////////////////////////////
 
 CToolbarChannels::CToolbarChannels(CToolbarWindow *pToolbar) : CToolbarChild(pToolbar),
-LastChannel(-1)
+LastChannel(-1),
+m_oldComboProc(NULL)
 {
-  //
+    eEventType EventList[] = {EVENT_CHANNEL_CHANGE, EVENT_ENDOFLIST};
+	EventCollector->Register(this, EventList);   
+
+	long OldValue;
+	long NewValue;
+	if (EventCollector->LastEventValues(EVENT_CHANNEL_CHANGE, &OldValue, &NewValue)>0)
+	{
+		LastChannel = NewValue;
+	}	
 }
 
 CToolbarChannels::~CToolbarChannels()
 {
-    //
+    EventCollector->Unregister(this);
+
 }
 
-void CToolbarChannels::ChannelChange(void *pThis, eEventType EventType, long OldValue, long NewValue, eEventType *ComingUp)
 
+HWND CToolbarChannels::CreateFromDialog(LPCTSTR lpTemplate, HINSTANCE hResourceInst)
 {
-    HWND hToolbarChannels = (HWND)pThis;
-    if (hToolbarChannels == NULL)
-    {
-        return;
-    }
+	HWND hWnd = CToolbarChild::CreateFromDialog(lpTemplate, hResourceInst);
 
-    if (EventType == EVENT_CHANNEL_CHANGE)
+	if (hWnd != NULL)
+	{
+		//Steal messsage proc from combobox:
+		HWND hWndCombo = GetDlgItem(hWnd, IDC_TOOLBAR_CHANNELS_LIST);
+
+		if (hWndCombo != NULL)
+		{
+			::SetWindowLong(hWndCombo, GWL_USERDATA, (LONG)this);
+		
+			m_oldComboProc = (void*)SetWindowLong(hWndCombo, GWL_WNDPROC, (LONG)MyComboProcWrap);
+		}
+	}
+	
+	return hWnd;
+}	
+
+
+LRESULT CToolbarChannels::MyComboProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{	
+	
+	switch (message)
+	{
+	case WM_CHAR:
+	case WM_KEYDOWN:
+	case WM_KEYUP:
+		return FALSE;	
+	
+	}
+	return CallWindowProc((WNDPROC)m_oldComboProc, hDlg, message, wParam, lParam);	
+}
+
+LRESULT CToolbarChannels::MyComboProcWrap(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	
+	CToolbarChannels *pThis = (CToolbarChannels*)::GetWindowLong(hDlg, GWL_USERDATA);
+	if (pThis != NULL)
+	{
+		return pThis->MyComboProc(hDlg,message,wParam,lParam);
+	}
+	return FALSE;
+}
+
+
+void CToolbarChannels::OnEvent(eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
+{
+    if (Event == EVENT_CHANNEL_CHANGE)
     {
-        int nIndex;
-        for(nIndex = 0; nIndex < MyChannels.size(); nIndex++)
-        {
-            if (ComboBox_GetItemData(GetDlgItem(hToolbarChannels, IDC_TOOLBAR_CHANNELS_LIST), nIndex) == NewValue)
-            {                       
-                ComboBox_SetCurSel(GetDlgItem(hToolbarChannels, IDC_TOOLBAR_CHANNELS_LIST), nIndex);             
-                return;             
-            }
-        }
+        LastChannel = NewValue;		
     }
+	if ((hWnd != NULL) && Visible())
+	{
+		UpdateControls(NULL, FALSE);
+	}
 }
 
 
@@ -117,6 +167,8 @@ void CToolbarChannels::UpdateControls(HWND hWnd, bool bInitDialog)
       int nIndex;
       int CurrentIndex = 0;
 
+	  SendMessage(GetDlgItem(hWnd, IDC_TOOLBAR_CHANNELS_LIST), CB_RESETCONTENT, 0, 0);
+
       for(Channel = 0; Channel < ChannelListSize; Channel++)
       {
           nIndex = SendMessage(GetDlgItem(hWnd, IDC_TOOLBAR_CHANNELS_LIST), CB_ADDSTRING, 0, (long)MyChannels[Channel]->GetName());
@@ -129,18 +181,29 @@ void CToolbarChannels::UpdateControls(HWND hWnd, bool bInitDialog)
       }
       ComboBox_SetCurSel(GetDlgItem(hWnd, IDC_TOOLBAR_CHANNELS_LIST), CurrentIndex);                   
     }
-   
+	else
+	{
+		int nIndex;
+        for(nIndex = 0; nIndex < MyChannels.size(); nIndex++)
+        {
+            if (ComboBox_GetItemData(GetDlgItem(hWnd, IDC_TOOLBAR_CHANNELS_LIST), nIndex) == LastChannel)
+            {                       
+                ComboBox_SetCurSel(GetDlgItem(hWnd, IDC_TOOLBAR_CHANNELS_LIST), nIndex);             
+                return;             
+            }
+        }
+	}
 }
 
 
 LRESULT CToolbarChannels::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {      
-    if ((hWnd == NULL) && (message == WM_INITDIALOG))
+    if (message == WM_GETDLGCODE)
+	{
+        return DLGC_WANTCHARS;
+	}
+	if ((hWnd == NULL) && (message == WM_INITDIALOG))
     {
-        //Channel_Register_Change_Notification(hDlg,ChannelChange);
-        eEventType EventList[] = {EVENT_CHANNEL_CHANGE,EVENT_ENDOFLIST};
-        EventCollector->Register(ChannelChange,hDlg, EventList);
-
         HBITMAP hBmp;
         
         hBmp = LoadBitmap(hResourceInst, MAKEINTRESOURCE(IDB_TOOLBAR_CHANNELS_UP));
@@ -223,13 +286,13 @@ LRESULT CToolbarChannels::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wPara
             return HTCLIENT;
         }
         break;
-        
-    //case WM_GETDLGCODE:
-    //    return DLGC_WANTCHARS;
+            
     case WM_CLOSE:
-    case WM_DESTROY:
-        //Channel_UnRegister_Change_Notification(hDlg,ChannelChange);
-        EventCollector->Unregister(ChannelChange,hDlg);
+    case WM_DESTROY:					
+		if ((hDlg != NULL) && (m_oldComboProc!=NULL))
+		{
+		SetWindowLong(hDlg, GWL_WNDPROC, (LONG)m_oldComboProc);
+		}
         break;
     }
     return FALSE;    
@@ -249,23 +312,49 @@ CToolbarVolume::CToolbarVolume(CToolbarWindow *pToolbar) : CToolbarChild(pToolba
 m_Mute(0),
 m_Volume(0)
 {
-    
+	eEventType EventList[] = {EVENT_MUTE, EVENT_VOLUME, EVENT_MIXERVOLUME, EVENT_ENDOFLIST};
+	EventCollector->Register(this, EventList);
+	
+	long OldValue;
+	long NewValue;
+	if (EventCollector->LastEventValues(EVENT_MUTE, &OldValue, &NewValue)>0)
+	{
+		m_Mute = NewValue;
+	}
+	if (EventCollector->LastEventValues(EVENT_VOLUME, &OldValue, &NewValue)>0)
+	{
+		m_Volume = NewValue;
+	} 
+	else if (EventCollector->LastEventValues(EVENT_MIXERVOLUME, &OldValue, &NewValue)>0)
+	{
+		m_Volume = NewValue*10;
+	}
 }
 
-void CToolbarVolume::Update(int What, int Value)
+CToolbarVolume::~CToolbarVolume()
 {
-    if (What == 1)
+	EventCollector->Unregister(this);
+}
+
+
+void CToolbarVolume::OnEvent(eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
+{
+	if (Event == EVENT_MUTE)
     {
-        m_Mute = (Value)? TRUE : FALSE;
+        m_Mute = (NewValue)? TRUE : FALSE;
     } 
-    else if (What == 2)
+    else if (Event == EVENT_VOLUME)
     {
-        m_Volume = Value*10;
+        m_Volume = NewValue;
     }
-    if (hWnd != NULL)
-    {
-        UpdateControls(hWnd, FALSE);        
-    }
+	else  if (Event == EVENT_MIXERVOLUME)
+	{
+		m_Volume = NewValue*10;
+	}    
+	if ((hWnd != NULL) && Visible())
+	{
+		UpdateControls(NULL, FALSE);
+	}
 }
 
 void CToolbarVolume::UpdateControls(HWND hWnd, bool bInitDialog)
@@ -337,9 +426,11 @@ LRESULT CToolbarVolume::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam,
         {
             case IDC_TOOLBAR_VOLUME_MUTE:
                 {
-                    BOOL bMute = (BST_CHECKED == IsDlgButtonChecked(hDlg, IDC_TOOLBAR_VOLUME_MUTE));
-                    m_Mute = bMute; //!m_Mute;
-                    //CheckDlgButton(hDlg, IDC_TOOLBAR_VOLUME_MUTE, bMute);                    
+                    //BOOL bMute = (BST_CHECKED == IsDlgButtonChecked(hDlg, IDC_TOOLBAR_VOLUME_MUTE));
+                   
+					m_Mute=!m_Mute;
+					CheckDlgButton(hDlg, IDC_TOOLBAR_VOLUME_MUTE, m_Mute);
+
                     SendMessage(m_pToolbar->GethWndParent(),WM_COMMAND,IDC_TOOLBAR_VOLUME_MUTE, m_Mute);                    
                     return TRUE;
                 }                   
@@ -370,9 +461,28 @@ LRESULT CToolbarVolume::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam,
 ///////////////////////////////////////////////////////////////////////////////
 
 CToolbarLogo::CToolbarLogo(CToolbarWindow *pToolbar) : CToolbarChild(pToolbar)
-{
-    
+{    
+	OriginalLogoWidth = 0;
+	OriginalLogoHeight =0;
 }
+
+HWND CToolbarLogo::CreateFromDialog(LPCTSTR lpTemplate, HINSTANCE hResourceInst)
+{
+	HWND hWnd = CToolbarChild::CreateFromDialog(lpTemplate, hResourceInst);
+	
+	if (hWnd != NULL)
+	{
+		RECT rc;
+		if (GetClientRect(GetDlgItem(hWnd, IDC_TOOLBAR_LOGO_LOGO), &rc))
+		{
+			OriginalLogoWidth = rc.right-rc.left;
+			OriginalLogoHeight = rc.bottom-rc.top;
+		}
+	}
+	return hWnd;
+
+}
+
 void CToolbarLogo::Reset()
 {
     if ((Buttons.size()>0) && (Buttons[0] != NULL))
@@ -381,6 +491,13 @@ void CToolbarLogo::Reset()
         int Height = Buttons[0]->Height();
         SetWindowPos(hWnd, NULL, 0,0, Width, Height, SWP_NOMOVE|SWP_NOZORDER|SWP_NOACTIVATE);
     }
+	else
+	{
+		if (OriginalLogoWidth>0)
+		{
+			SetWindowPos(hWnd, NULL, 0,0, OriginalLogoWidth, OriginalLogoHeight, SWP_NOMOVE|SWP_NOZORDER|SWP_NOACTIVATE);
+		}
+	}
     RECT rc;
     if (GetClientRect(GetDlgItem(hWnd, IDC_TOOLBAR_LOGO_LOGO), &rc))
     {
@@ -392,8 +509,8 @@ void CToolbarLogo::Reset()
 LRESULT CToolbarLogo::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     if ((hWnd == NULL) && (message == WM_INITDIALOG))
-    {        
-        return TRUE;
+    {                
+		return TRUE;
     }
     if (hWnd != hDlg) { return FALSE; }
 
@@ -421,9 +538,13 @@ LRESULT CToolbarLogo::ToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam, L
             return HTCLIENT;
         }
         break; 
+	case WM_CHAR:
+	case WM_KEYDOWN:
+	case WM_KEYUP:
+		return FALSE;	
     case WM_CLOSE:
     case WM_DESTROY:
-        break;
+        return FALSE;
     }
     return FALSE;
     

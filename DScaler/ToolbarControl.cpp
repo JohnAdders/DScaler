@@ -1,5 +1,5 @@
 //
-// $Id: ToolbarControl.cpp,v 1.1 2002-09-25 22:32:50 kooiman Exp $
+// $Id: ToolbarControl.cpp,v 1.2 2002-09-26 16:34:19 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/09/25 22:32:50  kooiman
+// Toolbar support.
+//
 // Revision 1.0  2002/08/03 17:57:52  kooiman
 // initial version
 //
@@ -101,7 +104,7 @@ void CToolbarControl::Toolbar1VolumeOnChange(long OldValue, long NewValue)
 
 
 
-void CToolbarControl::Set(HWND hWnd, LPCSTR szSkinName)
+void CToolbarControl::Set(HWND hWnd, LPCSTR szSkinName, int ForceHide)
 {    
     //Initialize
     if (Toolbar1==NULL) 
@@ -155,6 +158,7 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR szSkinName)
             Toolbar1Channels->RemoveSkinDlgItem(IDC_TOOLBAR_CHANNELS_SPINDOWN);
             Toolbar1Channels->RemoveSkinDlgItem(IDC_TOOLBAR_CHANNELS_PREVIOUS);
             Toolbar1Channels->Reset();
+			InvalidateRect(Toolbar1Channels->GethWnd(), NULL, FALSE);
         }
 
         if (Toolbar1Volume != NULL)
@@ -162,12 +166,15 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR szSkinName)
             Toolbar1Volume->RemoveSkinDlgItem(IDC_TOOLBAR_VOLUME_MUTE);
             Toolbar1Volume->RemoveSkinDlgItem(IDC_TOOLBAR_VOLUME_SLIDER);
             Toolbar1Volume->Reset();
+			InvalidateRect(Toolbar1Volume->GethWnd(), NULL, FALSE);
         }
         if (Toolbar1Logo != NULL)
         {            
             Toolbar1Logo->RemoveSkinDlgItem(IDC_TOOLBAR_LOGO_LOGO);
             Toolbar1Logo->Reset();
+			InvalidateRect(Toolbar1Logo->GethWnd(), NULL, FALSE);
         }
+		InvalidateRect(Toolbar1->GethWnd(), NULL, FALSE);
     }
 
     //Load skin
@@ -178,31 +185,36 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR szSkinName)
         strcat(szSkinIniFile,szSkinName);
         strcat(szSkinIniFile,"\\skin.ini");
 
+		CBitmapCache BitmapCache;
+
         ///\todo check if the ini file exists
         
         vector<int>Results;
-        Toolbar1->LoadSkin(szSkinIniFile,"Toolbar1",&Results);
+        Toolbar1->LoadSkin(szSkinIniFile,"Toolbar1",&Results, &BitmapCache);
 
         ///\todo Process errors
 
         if (Toolbar1Channels != NULL)
         {
-            Toolbar1Channels->SkinDlgItem(IDC_TOOLBAR_CHANNELS_SPINUP, "SpinUp", BITMAPASBUTTON_PUSH, "ChannelBar", szSkinIniFile);
-            Toolbar1Channels->SkinDlgItem(IDC_TOOLBAR_CHANNELS_SPINDOWN, "SpinDown", BITMAPASBUTTON_PUSH, "ChannelBar", szSkinIniFile);
-            Toolbar1Channels->SkinDlgItem(IDC_TOOLBAR_CHANNELS_PREVIOUS, "Previous", BITMAPASBUTTON_PUSH, "ChannelBar", szSkinIniFile);
+            Toolbar1Channels->SkinDlgItem(IDC_TOOLBAR_CHANNELS_SPINUP, "SpinUp", BITMAPASBUTTON_PUSH, "ChannelBar", szSkinIniFile, &BitmapCache);
+            Toolbar1Channels->SkinDlgItem(IDC_TOOLBAR_CHANNELS_SPINDOWN, "SpinDown", BITMAPASBUTTON_PUSH, "ChannelBar", szSkinIniFile, &BitmapCache);
+            Toolbar1Channels->SkinDlgItem(IDC_TOOLBAR_CHANNELS_PREVIOUS, "Previous", BITMAPASBUTTON_PUSH, "ChannelBar", szSkinIniFile, &BitmapCache);
             Toolbar1Channels->Reset();
+			InvalidateRect(Toolbar1Channels->GethWnd(), NULL, FALSE);
         }
 
         if (Toolbar1Volume != NULL)
         {
-            Toolbar1Volume->SkinDlgItem(IDC_TOOLBAR_VOLUME_MUTE, "Mute", BITMAPASBUTTON_CHECKBOX, "VolumeBar", szSkinIniFile);
-            Toolbar1Volume->SkinDlgItem(IDC_TOOLBAR_VOLUME_SLIDER, "Volume", BITMAPASBUTTON_SLIDER, "VolumeBar", szSkinIniFile);            
+            Toolbar1Volume->SkinDlgItem(IDC_TOOLBAR_VOLUME_MUTE, "Mute", BITMAPASBUTTON_CHECKBOX, "VolumeBar", szSkinIniFile, &BitmapCache);
+            Toolbar1Volume->SkinDlgItem(IDC_TOOLBAR_VOLUME_SLIDER, "Volume", BITMAPASBUTTON_SLIDER, "VolumeBar", szSkinIniFile, &BitmapCache);            
             Toolbar1Volume->Reset();
+			InvalidateRect(Toolbar1Volume->GethWnd(), NULL, FALSE);
         }        
         if (Toolbar1Logo != NULL)
         {
-            Toolbar1Logo->SkinDlgItem(IDC_TOOLBAR_LOGO_LOGO, "Logo", BITMAPASBUTTON_PUSH, "LogoBar", szSkinIniFile);            
+            Toolbar1Logo->SkinDlgItem(IDC_TOOLBAR_LOGO_LOGO, "Logo", BITMAPASBUTTON_PUSH, "LogoBar", szSkinIniFile, &BitmapCache);            
             Toolbar1Logo->Reset();
+			InvalidateRect(Toolbar1Logo->GethWnd(), NULL, FALSE);
         }
         InvalidateRect(Toolbar1->GethWnd(), NULL, FALSE);
     }
@@ -212,7 +224,8 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR szSkinName)
     {                
         if (Toolbar1Channels!=NULL)
         {
-            if (HIWORD(m_Toolbar1Channels->GetValue()))
+            Toolbar1->SetChildPosition(Toolbar1Channels, LOWORD(m_Toolbar1Channels->GetValue()), 0);
+			if (HIWORD(m_Toolbar1Channels->GetValue()))
             {
                 Toolbar1->ShowChild(Toolbar1Channels);
             }
@@ -223,7 +236,8 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR szSkinName)
         }
         if (Toolbar1Volume!=NULL)
         {
-            if (HIWORD(m_Toolbar1Volume->GetValue()))
+            Toolbar1->SetChildPosition(Toolbar1Volume, LOWORD(m_Toolbar1Volume->GetValue()), 0);
+			if (HIWORD(m_Toolbar1Volume->GetValue()))
             {
                 Toolbar1->ShowChild(Toolbar1Volume);
             }
@@ -243,15 +257,15 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR szSkinName)
                 Toolbar1->HideChild(Toolbar1Logo);
             }
         }
-        if (m_ShowToolbar1->GetValue())
+        if ((m_ShowToolbar1->GetValue() && (ForceHide==0)) || (ForceHide==2))
         {
+            if ((m_Toolbar1Position->GetValue()==0) && (Toolbar1->GetPosition() != 0))
+            {
+                Toolbar1->SetPosition(0);
+            }
             if ((m_Toolbar1Position->GetValue()==1) && (Toolbar1->GetPosition() != 1))
             {
                 Toolbar1->SetPosition(1);
-            }
-            if ((m_Toolbar1Position->GetValue()==2) && (Toolbar1->GetPosition() != 0))
-            {
-                Toolbar1->SetPosition(0);
             }
             Toolbar1->Show();   
         }
@@ -325,7 +339,7 @@ void CToolbarControl::AdjustArea(LPRECT lpRect, int Crop)
 void CToolbarControl::UpdateMenu(HMENU hMenu)
 {
     CheckMenuItemBool(hMenu, IDM_VIEW_TOOLBARS_MAINTOOLBAR, (m_ShowToolbar1->GetValue()!=0));
-    CheckMenuItemBool(hMenu, IDM_VIEW_MAINTOOLBAR_TOP, (m_Toolbar1Position->GetValue()==2));
+    CheckMenuItemBool(hMenu, IDM_VIEW_MAINTOOLBAR_TOP, (m_Toolbar1Position->GetValue()==0));
     CheckMenuItemBool(hMenu, IDM_VIEW_MAINTOOLBAR_CHANNELS, (HIWORD(m_Toolbar1Channels->GetValue())!=0));
     CheckMenuItemBool(hMenu, IDM_VIEW_MAINTOOLBAR_VOLUME, (HIWORD(m_Toolbar1Volume->GetValue())!=0));
     
@@ -357,11 +371,11 @@ BOOL CToolbarControl::ProcessToolbar1Selection(HWND hWnd, UINT uItem)
         WorkoutOverlaySize(TRUE);
         break;
     case IDM_VIEW_MAINTOOLBAR_CHANNELS:
-        m_Toolbar1Channels->SetValue( MAKELONG(LOWORD(m_Toolbar1Channels->GetValue()), HIWORD(m_Toolbar1Channels->GetValue()) ? 0:1) );
+        m_Toolbar1Channels->SetValue( MAKELONG(LOWORD(m_Toolbar1Channels->GetValue()), HIWORD(m_Toolbar1Channels->GetValue())?0:1) );
         CToolbarControl::Set(hWnd, NULL);        
         break;
     case IDM_VIEW_MAINTOOLBAR_VOLUME:
-        m_Toolbar1Volume->SetValue( MAKELONG(LOWORD(m_Toolbar1Volume->GetValue()), HIWORD(m_Toolbar1Volume->GetValue())) ? 0:1 );
+        m_Toolbar1Volume->SetValue( MAKELONG(LOWORD(m_Toolbar1Volume->GetValue()), HIWORD(m_Toolbar1Volume->GetValue())?0:1) );
         CToolbarControl::Set(hWnd, NULL);        
         break;
     default:

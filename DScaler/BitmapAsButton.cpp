@@ -1,5 +1,5 @@
 //
-// $Id: BitmapAsButton.cpp,v 1.1 2002-09-25 22:32:09 kooiman Exp $
+// $Id: BitmapAsButton.cpp,v 1.2 2002-09-26 16:34:19 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/09/25 22:32:09  kooiman
+// Bitmap as a button.
+//
 // Revision 1.0  2001/11/25 02:03:21  kooiman
 // initial version
 //
@@ -548,7 +551,7 @@ LRESULT CBitmapAsButton::ButtonProc(HWND hDlg, UINT message, WPARAM wParam, LPAR
     case TBM_SETPOS:
         if (ButtonType == BITMAPASBUTTON_SLIDER)
         {
-            /*if (lParam< SliderRangeMin)
+            if (lParam< SliderRangeMin)
             {
                 SliderPos = SliderRangeMin;
             }
@@ -564,7 +567,7 @@ LRESULT CBitmapAsButton::ButtonProc(HWND hDlg, UINT message, WPARAM wParam, LPAR
             if (wParam)
             {
                 ::InvalidateRect( hDlg, NULL, false );   
-            }*/
+            }
         }
         break;
     case TBM_GETPOS:

@@ -1,5 +1,5 @@
 //
-// $Id: ToolbarWindow.cpp,v 1.1 2002-09-25 22:32:50 kooiman Exp $
+// $Id: ToolbarWindow.cpp,v 1.2 2002-09-26 16:34:19 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/09/25 22:32:50  kooiman
+// Toolbar support.
+//
 // Revision 1.0  2002/08/03 17:57:52  kooiman
 // initial version
 //
@@ -192,6 +195,14 @@ BOOL CToolbarWindow::Show()
        if (vChildList[i].pChild != NULL)
        {
            ShowWindow(vChildList[i].pChild->GethWnd(), (vChildList[i].bShow) ? SW_SHOW : SW_HIDE);
+			if (vChildList[i].bShow)
+			{
+				vChildList[i].pChild->Show();
+			}
+			else
+			{
+				vChildList[i].pChild->Hide();
+			}		   
        }
    }
    InvalidateRect(hWndToolbar, NULL, FALSE);   
@@ -223,6 +234,7 @@ BOOL CToolbarWindow::SetPos(int x, int y, int w, int h)
     if (bChildOrderChanged)
     {        
         bChildOrderChanged = FALSE;
+		vChildOrder.clear();
         
         vector<int> TempList; 
         int i;
@@ -323,7 +335,7 @@ BOOL CToolbarWindow::SetPos(int x, int y, int w, int h)
             {
                 dy = (h - BottomMargin - vChildList[i].pChild->Height());
             }
-            if (i<ChildOrderRightPos)
+            if (n<ChildOrderRightPos)
             {
                 vChildList[i].pChild->SetPos(XLPos,TopMargin+dy, Width, vChildList[i].pChild->Height(), TRUE);
                 XLPos += Width + ChildLeftRightMargin;
@@ -511,38 +523,18 @@ void CToolbarWindow::PaintToolbar(HWND hWnd, HDC hDC, LPRECT lpRect, POINT *pPSh
     rcToolbar.bottom = rcToolbar.bottom - rcToolbar.top;
     rcToolbar.left = 0;
     rcToolbar.top = 0;
-    ::SetRect(&rcMiddle,LeftSize,TopSize,rcToolbar.right-RightSize,rcToolbar.bottom-BottomSize);
     
-    if (hWnd == hWndParent)
-    {        
-        if (lpRect!=NULL)
-        {
-            RECT rcParent;            
-            RECT rcInt;
-            RECT rc2;
+	if (IsSkinned())
+	{			        
+		// Border
+		Paint(hWnd,hDC,lpRect, pPShift);
 
-            GetClientRect(hWnd, &rcParent);            
-            rc2.left= -rcParent.left + rcToolbar.left;
-            rc2.top=  -rcParent.top  + rcToolbar.top;
-            rc2.right=-rcParent.left + rcToolbar.right;
-            rc2.bottom=-rcParent.top + rcToolbar.bottom;
-            
-            if (IntersectRect(&rcInt, &rc2, lpRect))
-            {
-                InvalidateRect(hWndToolbar, &rcInt, FALSE);
-            }
-            return;
-        }        
-        InvalidateRect(hWndToolbar, NULL, FALSE);
-        return;
-    }
-    if (hWnd != hWndToolbar)
-    {
-        return;
-    }
-    
-    // Border
-    Paint(hWnd,hDC,lpRect, pPShift);
+		::SetRect(&rcMiddle,LeftSize,TopSize,rcToolbar.right-RightSize,rcToolbar.bottom-BottomSize);
+	}
+	else
+	{
+		rcMiddle = rcToolbar;
+	}
     
     if (lpRect == NULL)
     {
@@ -577,7 +569,6 @@ void CToolbarWindow::PaintChildBG(HWND hWndChild, HDC hDC, LPRECT lpRect)
         {
             RECT rcInParent;
             RECT rcTotalInParent;
-            RECT rcIntersection;
             POINT PShift;
 
             vChildList[i].pChild->GetPos(&rcTotalInParent);
@@ -606,6 +597,18 @@ void CToolbarWindow::PaintChildBG(HWND hWndChild, HDC hDC, LPRECT lpRect)
     }
 }
 
+BOOL CToolbarWindow::LoadSkin(const char *szSkinIniFile,  const char *szSection, vector<int> *Results, CBitmapCache *pBitmapCache)
+{
+	bChildOrderChanged = TRUE;
+	return CWindowBorder::LoadSkin(szSkinIniFile, szSection, Results, pBitmapCache);
+}
+
+void CToolbarWindow::ClearSkin()
+{
+	bChildOrderChanged = TRUE;
+	CWindowBorder::ClearSkin();
+}
+
 LRESULT CALLBACK CToolbarWindow::ToolbarProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	CToolbarWindow *pThis = NULL;
@@ -632,7 +635,7 @@ LRESULT CALLBACK CToolbarWindow::ToolbarProc(HWND hWnd, UINT message, WPARAM wPa
         }
     case WM_ERASEBKGND:
          //LOG(2,"Toolbar main: 0x%08x: erase bg",pThis->GethWnd());
-         return TRUE;
+	     return TRUE;		 
     case WM_PAINT:
         {
             if ((pThis!=NULL) && (pThis->GethWnd() != NULL))
@@ -664,7 +667,6 @@ LRESULT CALLBACK CToolbarWindow::ToolbarProc(HWND hWnd, UINT message, WPARAM wPa
 
 
 
-
 ///////////////////////////////////////////////////////////////////////////////
 // Toolbar child //////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -674,7 +676,8 @@ hWnd(NULL),
 m_PosX(0),
 m_PosY(0),
 m_PosW(10),
-m_PosH(10)
+m_PosH(10),
+m_Visible(0)
 {
    m_pToolbar = pToolbar;
 }
@@ -734,6 +737,42 @@ int CToolbarChild::Height()
 }
 
 
+int CToolbarChild::Visible()
+{
+	return m_Visible;
+}
+
+BOOL CToolbarChild::Show()
+{
+	if (hWnd != NULL)
+	{
+		UpdateWindow();
+		if (!m_Visible)
+		{			
+			ShowWindow(hWnd, SW_SHOW);
+			m_Visible = 1;
+		}
+		return TRUE;
+	}
+	return FALSE;
+}
+
+
+BOOL CToolbarChild::Hide()
+{
+	if (hWnd != NULL)
+	{
+		if (m_Visible)
+		{						
+			ShowWindow(hWnd, SW_HIDE);
+			m_Visible = 0;
+		}
+		return TRUE;
+	}
+	return FALSE;
+	
+}
+
 
 HWND CToolbarChild::Create(LPCTSTR szClassName, HINSTANCE hResourceInst)
 {
@@ -790,7 +829,7 @@ HWND CToolbarChild::CreateFromDialog(LPCTSTR lpTemplate, HINSTANCE hResourceInst
     return hWnd;
 }
 
-BOOL CToolbarChild::SkinDlgItem(UINT uItemID, string sIniEntry, eBitmapAsButtonType ButtonType, string sSection, string sIniFile)
+BOOL CToolbarChild::SkinDlgItem(UINT uItemID, string sIniEntry, eBitmapAsButtonType ButtonType, string sSection, string sIniFile, CBitmapCache *pBitmapCache)
 {
     vector<string>States;
     if (ButtonType == BITMAPASBUTTON_PUSH)
@@ -823,7 +862,7 @@ BOOL CToolbarChild::SkinDlgItem(UINT uItemID, string sIniEntry, eBitmapAsButtonT
     {
         BitmapsFromIniSection.Register(States[i]);   
     }
-    BitmapsFromIniSection.Read(sIniFile, sSection, "Bitmap", "Mask");
+    BitmapsFromIniSection.Read(sIniFile, sSection, "Bitmap", "Mask", pBitmapCache);
     
     HWND hWndItem = GetDlgItem(hWnd, uItemID);
 
@@ -902,6 +941,11 @@ LRESULT CToolbarChild::ButtonChildProc(string sID, HWND hWndParent, UINT MouseFl
 LRESULT CALLBACK CToolbarChild::StaticToolbarChildProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	CToolbarChild *pThis = NULL;
+
+	if (message == WM_GETDLGCODE)
+	{
+        return DLGC_WANTCHARS;
+	}
 
     if ( message == WM_NCCREATE )
 	{

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.227 2002-09-26 06:11:57 kooiman Exp $
+// $Id: DScaler.cpp,v 1.228 2002-09-26 16:34:19 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.227  2002/09/26 06:11:57  kooiman
+// Added toolbar, skin & event collector.
+//
 // Revision 1.226  2002/09/25 15:11:12  adcockj
 // Preliminary code for format specific support for settings per channel
 //
@@ -2038,8 +2041,9 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             {
                 Setting_SetValue(Audio_GetSetting(SYSTEMINMUTE), FALSE);
                 ShowText(hWnd,"UNMUTE");
-            }
-            break;
+            }			
+			break;
+
 	 case IDC_TOOLBAR_VOLUME_MUTE:
             {
                 BOOL bMute = lParam;
@@ -2062,7 +2066,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                     ISetting* pSetting = Providers_GetCurrentSource()->GetVolume();
                     if(pSetting != NULL)
                     {
-                        pSetting->ChangeValue(ADJUSTUP);
+                        pSetting->ChangeValue(ADJUSTUP);						
                     }
                     else
                     {
@@ -2074,8 +2078,9 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 {
                     Mixer_Volume_Up();
                     sprintf(Text, "Mixer-Volume %d", Mixer_GetVolume());
-                    ShowText(hWnd, Text);
-                }
+                    ShowText(hWnd, Text);					
+				}
+				
             }
             break;
 
@@ -2281,7 +2286,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_TOGGLE_MENU:
             bShowMenu = !bShowMenu;
             UpdateWindowState();
-            //WorkoutOverlaySize(TRUE);
+            WorkoutOverlaySize(TRUE);
             break;
 
         case IDM_SLEEPMODE:
@@ -3192,6 +3197,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 ToolbarControl->Set(hWnd, szSkinName);
             }
             UpdateWindowState();
+			WorkoutOverlaySize(FALSE);
             InvalidateRect(hWnd, NULL, FALSE);
             break;
         
@@ -3212,6 +3218,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                     ToolbarControl->Set(hWnd, szSkinName);
                 }
                 UpdateWindowState();            
+				WorkoutOverlaySize(FALSE);
                 InvalidateRect(hWnd, NULL, FALSE);
                 bDone = TRUE;
             }
@@ -4652,7 +4659,8 @@ void UpdateWindowState()
 {
     if(bIsFullScreen == TRUE)
     {
-        SetWindowLong(hWnd, GWL_STYLE, WS_VISIBLE | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));
+        UpdateWindowRegion(hWnd, FALSE);
+		SetWindowLong(hWnd, GWL_STYLE, WS_VISIBLE | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));
         SetMenu(hWnd, NULL);
         StatusBar_ShowWindow(FALSE);
         SetWindowPos(hWnd,
@@ -4696,8 +4704,8 @@ void UpdateWindowState()
         }
         SetWindowPos(hWnd,bAlwaysOnTop?HWND_TOPMOST:HWND_NOTOPMOST,
                     0,0,0,0,
-                    SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW | SWP_NOACTIVATE);        
-    }
+                    SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW | SWP_NOACTIVATE);            
+	}	
 }
 
 HRGN UpdateWindowRegion(HWND hWnd, BOOL bUpdateWindowState)
@@ -4963,14 +4971,14 @@ BOOL IsFullScreen_OnChange(long NewValue)
             }
         }
         if (ToolbarControl!=NULL)
-        {
-            ToolbarControl->Set(hWnd, NULL);
+        {            
+			ToolbarControl->Set(hWnd, NULL, bIsFullScreen?1:0);
         }
         
         Cursor_UpdateVisibility();
         //InvalidateRect(hWnd, NULL, FALSE);
-        //WorkoutOverlaySize(FALSE);
         UpdateWindowState();
+		WorkoutOverlaySize(FALSE);
     }
     bDoResize = TRUE;
     return FALSE;
@@ -5013,9 +5021,9 @@ BOOL DisplayStatusBar_OnChange(long NewValue)
         if (ToolbarControl!=NULL)
         {
             ToolbarControl->Adjust(hWnd, TRUE);
-        }
-        //WorkoutOverlaySize(TRUE);
+        }        
         UpdateWindowState();
+		WorkoutOverlaySize(TRUE);
     }
     return FALSE;
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: events.cpp,v 1.1 2002-09-25 22:33:06 kooiman Exp $
+// $Id: events.cpp,v 1.2 2002-09-26 16:34:19 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/09/25 22:33:06  kooiman
+// Event collector
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -35,7 +38,7 @@ static char THIS_FILE[]=__FILE__;
 
 
 CEventCollector::CEventCollector()
-{
+{	
 }
 
 CEventCollector::~CEventCollector()
@@ -121,8 +124,8 @@ void CEventCollector::Unregister(CEventObject *pObject)
 }
 
 void CEventCollector::RaiseEvent(eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)
-{
-    for (int i = 0; i < m_EventObjects.size(); i++)
+{    
+	for (int i = 0; i < m_EventObjects.size(); i++)
     {
         BOOL bCall = TRUE;
 
@@ -149,5 +152,35 @@ void CEventCollector::RaiseEvent(eEventType Event, long OldValue, long NewValue,
             }
         }        
     }
+	while (Event>=m_RaisedEvent.size())
+	{
+		m_RaisedEvent.push_back(0);
+	}
+	while (Event>=m_LastOldValues.size())
+	{
+		m_LastOldValues.push_back(0);
+	}
+	while (Event>=m_LastNewValues.size())
+	{
+		m_LastNewValues.push_back(0);
+	}
+	m_RaisedEvent[Event]++;
+	m_LastOldValues[Event] = OldValue;
+	m_LastNewValues[Event] = NewValue;
+}
+
+
+int CEventCollector::LastEventValues(eEventType Event, long *OldValue, long *NewValue)
+{
+	if (Event>= m_RaisedEvent.size())
+	{
+		return 0;
+	}
+	if (m_RaisedEvent[Event]>0)
+	{
+		*OldValue = m_LastOldValues[Event];
+		*NewValue = m_LastNewValues[Event];
+	}
+	return m_RaisedEvent[Event];
 }
 

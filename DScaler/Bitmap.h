@@ -63,16 +63,31 @@ public:
     //static void BitmapLoad_Free(HBITMAP hBm);
 };
 
+class CBitmapCache
+{
+protected:
+	typedef struct 
+	{
+		HBITMAP hBmp;
+		string sFileName;
+		BOOL bFreeOnDestroy;
+	} TBitmapChangeInfo;
+
+	vector<TBitmapChangeInfo> vCacheList;
+public:
+	CBitmapCache();
+	~CBitmapCache();
+	
+	HBITMAP Read(LPCSTR szFileName, BOOL bFreeOnDestroy = TRUE);
+	void Clear();
+};
 
 
 // Read bitmaps described in ini section
 class CBitmapsFromIniSection
 {
 protected:
-    string sLastIniFile;
-    string sLastSection;
-    HBITMAP hMainBmp;
-    HBITMAP hMainBmpMask;
+    CBitmapCache *m_pBitmapCache;
 
     typedef struct {
         string sName;
@@ -82,7 +97,7 @@ protected:
         int	Result;
     } TBitmapIniInfo;
     
-    vector<TBitmapIniInfo> BIList;
+    vector<TBitmapIniInfo> BIList;		
 public:
     CBitmapsFromIniSection();
     ~CBitmapsFromIniSection();
@@ -90,7 +105,7 @@ public:
     BOOL Register(string sName);
     void Clear(); //Free all, including loaded bitmaps
 
-    int  Read(string sIniFile, string sSection, string sBitmapName, string sBitmapMaskName);
+    int  Read(string sIniFile, string sSection, string sBitmapName, string sBitmapMaskName, CBitmapCache *pBitmapCache = NULL);
     void Finished(); //Free some memory
 
     HBITMAP Get(string sName);

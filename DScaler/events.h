@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: events.h,v 1.1 2002-09-25 22:33:06 kooiman Exp $
+// $Id: events.h,v 1.2 2002-09-26 16:34:19 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Jeroen Kooiman.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -35,7 +35,10 @@ enum eEventType
     EVENT_VIDEOFORMAT_PRECHANGE,
     EVENT_VIDEOFORMAT_CHANGE,
     EVENT_CHANNEL_PRECHANGE,
-    EVENT_CHANNEL_CHANGE
+    EVENT_CHANNEL_CHANGE,
+	EVENT_MUTE,
+	EVENT_VOLUME,
+	EVENT_MIXERVOLUME
 };
 #define EVENT_ENDOFLIST EVENT_NONE
 typedef void (__cdecl EVENTCALLBACK)(void *pThis, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
@@ -62,6 +65,10 @@ protected:
     
     vector<TEventCallbackInfo> m_EventObjects;
 
+	vector<int>  m_RaisedEvent;
+	vector<long> m_LastOldValues;
+	vector<long> m_LastNewValues;
+
 protected:
     eEventType *CEventCollector::CopyEventList(eEventType *EventList);
     
@@ -76,6 +83,8 @@ public:
     void Unregister(CEventObject *pObject);
 
     void RaiseEvent(eEventType Event, long OldValue, long NewValue, eEventType *ComingUp = NULL);    
+
+	int LastEventValues(eEventType Event, long *OldValue, long *NewValue);
 };
 
 //Defined, allocated & destroyed in Dscaler.cpp

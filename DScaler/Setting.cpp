@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.cpp,v 1.13 2002-09-26 06:09:48 kooiman Exp $
+// $Id: Setting.cpp,v 1.14 2002-09-26 16:34:19 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/09/26 06:09:48  kooiman
+// Extended settings, preliminary.
+//
 // Revision 1.12  2002/09/02 19:06:10  kooiman
 // It is now possible to modify CSimpleSetting style settings from the TreeSettingDialog
 //
@@ -376,7 +379,7 @@ void CSimpleSetting::SetValue(long NewValue, eOnChangeType OnChangeType)
     *m_pSetting->pValue = NewValue;
     if (DoOnChange(NewValue, OldValue, OnChangeType))
     {
-        OnChange(m_pSetting->Default, OldValue, OnChangeType);
+        OnChange(NewValue, OldValue, OnChangeType);
     }
 }
 

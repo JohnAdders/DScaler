@@ -1,5 +1,5 @@
 //
-// $Id: WindowBorder.cpp,v 1.1 2002-09-25 22:32:35 kooiman Exp $
+// $Id: WindowBorder.cpp,v 1.2 2002-09-26 16:34:19 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/09/25 22:32:35  kooiman
+// Skinned window border.
+//
 // Revision 1.0  2001/11/25 02:03:21  kooiman
 // initial version
 //
@@ -64,7 +67,8 @@ SolidTopSize(0),
 SolidRightSize(0),
 SolidBottomSize(0),
 SolidLeftSize(0),
-m_hBrush(NULL)
+m_hBrush(NULL),
+m_IsSkinned(0)
 {
     this->hWnd = hWnd; 
     this->hResourceInst = hInst;
@@ -883,7 +887,7 @@ void CWindowBorder::SolidBorder(int left,int top, int right, int bottom, COLORRE
 
 
 BOOL CWindowBorder::LoadSkin(const char *szSkinIniFile, const char *szSection,
-  vector<int> *Results)
+  vector<int> *Results, CBitmapCache *pBitmapCache)
 {
     int Pos;
     int ButtonPos;
@@ -912,10 +916,12 @@ BOOL CWindowBorder::LoadSkin(const char *szSkinIniFile, const char *szSection,
         BitmapsFromIniSection.Register(Buttons[ButtonPos].sIniEntryClick);
     }
 
-    if (BitmapsFromIniSection.Read(szSkinIniFile, szSection, "Bitmap", "Mask") < 0)
+    if (BitmapsFromIniSection.Read(szSkinIniFile, szSection, "Bitmap", "Mask", pBitmapCache) < 0)
     {
         return FALSE;
     }
+
+	m_IsSkinned = TRUE;
 
     // Load them
     for (Pos = 0; Pos < WINDOWBORDER_LASTONE; Pos++)
@@ -1067,6 +1073,8 @@ void CWindowBorder::ClearSkin()
        if (RegionList[i] != NULL) { delete RegionList[i]; }
     }
     RegionList.clear();
+
+	m_IsSkinned = FALSE;
 
     FindBorderSizes();
     FindLocations();

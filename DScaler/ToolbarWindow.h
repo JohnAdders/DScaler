@@ -32,7 +32,14 @@ protected:
     int m_PosY;
     int m_PosW;
     int m_PosH;
+
+	int m_Visible;
 public:
+	int Visible();
+
+	BOOL Show();
+    BOOL Hide();
+
     int  Width();  
     int  Height();
 
@@ -41,17 +48,18 @@ public:
 
     HWND GethWnd() { return hWnd; };  
 
+	virtual void UpdateWindow() {;};
+
     CToolbarChild(CToolbarWindow *pToolbar);    
     ~CToolbarChild();
     
-    HWND Create(LPCTSTR szClassName, HINSTANCE hResourceInst);
-    HWND CreateFromDialog(LPCTSTR lpTemplate, HINSTANCE hResourceInst);
+    virtual HWND Create(LPCTSTR szClassName, HINSTANCE hResourceInst);
+    virtual HWND CreateFromDialog(LPCTSTR lpTemplate, HINSTANCE hResourceInst);
 
-    BOOL SkinDlgItem(UINT uItemID, string sIniEntry, eBitmapAsButtonType ButtonType, string sSection, string sIniFile);
-    BOOL RemoveSkinDlgItem(UINT uItemID);
+    virtual BOOL SkinDlgItem(UINT uItemID, string sIniEntry, eBitmapAsButtonType ButtonType, string sSection, string sIniFile, CBitmapCache *pBitmapCache = NULL);
+    virtual BOOL RemoveSkinDlgItem(UINT uItemID);
 
-    
-    virtual LRESULT ButtonChildProc(string sID, HWND hWndParent, UINT MouseFlags, HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);    
+	virtual LRESULT ButtonChildProc(string sID, HWND hWndParent, UINT MouseFlags, HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);    
     
     static LRESULT CALLBACK StaticToolbarChildProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
     static LRESULT CALLBACK StaticToolbarChildDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);    
@@ -120,6 +128,9 @@ public:
     BOOL Show();
     BOOL Hide();
     void UpdateWindowPosition(HWND hParentWnd);
+
+	virtual BOOL LoadSkin(const char *szSkinIniFile,  const char *szSection, vector<int> *Results, CBitmapCache *pBitmapCache = NULL);
+	virtual void ClearSkin();
 
     static LRESULT CALLBACK ToolbarProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 };

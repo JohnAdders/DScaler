@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.50 2002-09-26 11:33:42 kooiman Exp $
+// $Id: BT848Souce_UI.cpp,v 1.51 2002-09-26 16:34:19 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.50  2002/09/26 11:33:42  kooiman
+// Use event collector
+//
 // Revision 1.48  2002/09/25 15:11:11  adcockj
 // Preliminary code for format specific support for settings per channel
 //
@@ -879,8 +882,6 @@ void CBT848Source::SetMenu(HMENU hMenu)
         MenuItemInfo.dwTypeData = Buffer;
         GetMenuItemInfo(m_hMenu, MenuID, FALSE, &MenuItemInfo);
 
-        LOG(2,"BT848Source::SetMenu: Menuitem name = '%s'",Buffer);
-        
         char Buffer2[256];
         if (Buffer[0]=='[') 
         {            
@@ -899,13 +900,11 @@ void CBT848Source::SetMenu(HMENU hMenu)
             sprintf(Buffer, "[%s]",Buffer2);
             MenuItemInfo.dwTypeData = Buffer;
             MenuItemInfo.cch = strlen(Buffer);
-            LOG(2,"BT848Source::SetMenu: Menuitem name = '%s' (new)",Buffer);
-        }
+        }    
         else
         {
             MenuItemInfo.dwTypeData = Buffer2;
-            MenuItemInfo.cch = strlen(Buffer2);
-            LOG(2,"BT848Source::SetMenu: Menuitem name = '%s' (new)",Buffer2);        
+            MenuItemInfo.cch = strlen(Buffer2);         
         }                
         SetMenuItemInfo(m_hMenu, MenuID, FALSE, &MenuItemInfo);
         

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.41 2003-07-29 13:33:07 atnak Exp $
+// $Id: MixerDev.cpp,v 1.42 2003-07-29 13:40:02 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.41  2003/07/29 13:33:07  atnak
+// Overhauled mixer code
+//
 // Revision 1.40  2003/06/02 13:15:32  adcockj
 // Fixes for CHARSTRING problems
 //
@@ -1025,12 +1028,16 @@ static void InitAndNameActiveInputs(HWND hDlg)
 
     if (nInputCount == 0)
     {
+        ShowWindow(GetDlgItem(hDlg, IDC_MIXER_INPUTNAME_ALL), SW_HIDE);
         ShowWindow(GetDlgItem(hDlg, IDC_MIXER_INPUT_ALL), SW_HIDE);
         ShowWindow(GetDlgItem(hDlg, IDC_SEPARATE_INPUT), SW_HIDE);
         ShowWindow(GetDlgItem(hDlg, IDC_SOURCE_NO_INPUT), SW_SHOW);
     }
     else
     {
+        ShowWindow(GetDlgItem(hDlg, IDC_MIXER_INPUTNAME_ALL), SW_SHOW);
+        ShowWindow(GetDlgItem(hDlg, IDC_MIXER_INPUT_ALL), SW_SHOW);
+        ShowWindow(GetDlgItem(hDlg, IDC_SEPARATE_INPUT), SW_SHOW);
         ShowWindow(GetDlgItem(hDlg, IDC_SOURCE_NO_INPUT), SW_HIDE);
     }
 }

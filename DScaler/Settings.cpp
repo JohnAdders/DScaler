@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.52 2003-06-14 13:27:48 laurentg Exp $
+// $Id: Settings.cpp,v 1.53 2003-07-02 21:44:19 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.52  2003/06/14 13:27:48  laurentg
+// Use default value when the current value in ini file is out of range, and correct the value in the ini file
+//
 // Revision 1.51  2003/06/02 13:15:34  adcockj
 // Fixes for CHARSTRING problems
 //
@@ -207,6 +210,7 @@
 #include "Calibration.h"
 #include "StillSource.h"
 #include "SettingsPerChannel.h"
+#include "TimeShift.h"
 
 typedef SETTING* (__cdecl GENERICGETSETTING)(long SettingIndex);
 typedef void (__cdecl GENERICREADSETTINGS)();
@@ -363,6 +367,13 @@ TFileWithSettings Settings[] =
         FDProg_ReadSettingsFromIni,
         FDProg_WriteSettingsToIni,
 		NULL,
+    },
+    {
+        WM_TIMESHIFT_GETVALUE,
+        (GENERICGETSETTING*)TimeShift_GetSetting,
+        TimeShift_ReadSettingsFromIni,
+        TimeShift_WriteSettingsToIni,
+		TimeShift_FreeSettings,
     },
 };
 

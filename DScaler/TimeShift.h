@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.h,v 1.11 2002-02-09 11:09:50 temperton Exp $
+// $Id: TimeShift.h,v 1.12 2003-07-02 21:44:19 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/02/09 11:09:50  temperton
+// Frame rate of created AVI now depends on TV format.
+//
 // Revision 1.10  2001/11/29 17:30:52  adcockj
 // Reorgainised bt848 initilization
 // More Javadoc-ing
@@ -72,6 +75,8 @@
 #define __TIMESHIFT_H___
 
 #include "DS_ApiCommon.h" // TDeinterlaceInfo struct.
+#include "DS_Control.h"
+#include "TreeSettingsGeneric.h"
 
 // We'll only have one instance of a TimeShift, so everything's static.
 // Plus, we keep a semi-C-style function call convention which matches much
@@ -318,5 +323,11 @@ private:
     /// What it was before we changed it.
     BOOL m_origUseMixer;
 };
+
+SETTING* TimeShift_GetSetting(TIMESHIFT_SETTING Setting);
+void TimeShift_ReadSettingsFromIni();
+void TimeShift_WriteSettingsToIni(BOOL bOptimizeFileAccess);
+CTreeSettingsGeneric* TimeShift_GetTreeSettingsPage();
+void TimeShift_FreeSettings();
 
 #endif // __TIMESHIFT_H___

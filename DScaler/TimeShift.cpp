@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.cpp,v 1.21 2003-04-23 08:20:19 adcockj Exp $
+// $Id: TimeShift.cpp,v 1.22 2003-07-02 21:44:19 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2003/04/23 08:20:19  adcockj
+// Save width on record
+//
 // Revision 1.20  2003/01/21 09:09:55  adcockj
 // Prevent warning from appearing on exit if timshift hasn't been used
 //
@@ -118,12 +121,16 @@
 #include "MixerDev.h"     // Mute and UnMute
 #include "Settings.h"     // Setting_Set/GetValue
 #include "Cpu.h"          // CpuFeatureFlags
+#include "DebugLog.h"
 /// \todo remove 
 #include "OutThreads.h"
 
 #include "Providers.h"
 
 BOOL ShownWarning = FALSE;
+
+static char ExePath[MAX_PATH] = {0};
+static char* SavingPath = NULL;
 
 bool CTimeShift::OnDestroy(void)
 {
@@ -1246,7 +1253,7 @@ bool CTimeShift::Record(bool pause)
                      "Delete some of your video files and try again.");
             return false;
         }
-        sprintf(fname, "ds%.3u.avi", curFile++);
+        sprintf(fname, "%s\\ds%.3u.avi", SavingPath, curFile++);
     } while (GetFileAttributes(fname) != 0xffffffff);
     m_curFile = curFile - 1;
 
@@ -1363,7 +1370,7 @@ bool CTimeShift::Play(void)
     int curFile = m_curFile;
     do 
     {
-        sprintf(fname, "ds%.3u.avi", curFile);
+        sprintf(fname, "%s\\ds%.3u.avi", SavingPath, curFile);
         if (GetFileAttributes(fname) != 0xffffffff)
         {
             break;
@@ -1612,7 +1619,7 @@ bool CTimeShift::GoNext(void)
             curFile = 0;
         }
         char fname[MAX_PATH];
-        sprintf(fname, "ds%.3u.avi", curFile);
+        sprintf(fname, "%s\\ds%.3u.avi", SavingPath, curFile);
         if (GetFileAttributes(fname) != 0xffffffff)
         {
             break;
@@ -1636,7 +1643,7 @@ bool CTimeShift::GoPrev(void)
             curFile = 999;
         }
         char fname[MAX_PATH];
-        sprintf(fname, "ds%.3u.avi", curFile);
+        sprintf(fname, "%s\\ds%.3u.avi", SavingPath, curFile);
         if (GetFileAttributes(fname) != 0xffffffff)
         {
             break;
@@ -2236,3 +2243,68 @@ bool CTimeShift::WriteToIni(void)
 }
 
 
+SETTING TimeShiftSettings[TIMESHIFT_SETTING_LASTONE] =
+{
+    {
+        "Saving path for timeshift files", CHARSTRING, 0, (long*)&SavingPath,
+         (long)ExePath, 0, 0, 0, 0,
+         NULL,
+        "TimeShift", "SavingPath", NULL,
+    },
+};
+
+
+SETTING* TimeShift_GetSetting(TIMESHIFT_SETTING Setting)
+{
+    if(Setting > -1 && Setting < TIMESHIFT_SETTING_LASTONE)
+    {
+        return &(TimeShiftSettings[Setting]);
+    }
+    else
+    {
+        return NULL;
+    }
+}
+
+void TimeShift_ReadSettingsFromIni()
+{
+    int i;
+    struct stat st;
+
+	GetModuleFileName (NULL, ExePath, sizeof(ExePath));
+	*(strrchr(ExePath, '\\')) = '\0';
+
+    for(i = 0; i < TIMESHIFT_SETTING_LASTONE; i++)
+    {
+        Setting_ReadFromIni(&(TimeShiftSettings[i]));
+    }
+
+    if ((SavingPath == NULL) || stat(SavingPath, &st))
+    {
+        LOG(1, "Incorrect path for timeshift files; using %s", ExePath);
+		Setting_SetValue(TimeShift_GetSetting(TIMESHIFTSAVINGPATH), (long)ExePath);
+    }
+}
+
+void TimeShift_WriteSettingsToIni(BOOL bOptimizeFileAccess)
+{
+    int i;
+    for(i = 0; i < TIMESHIFT_SETTING_LASTONE; i++)
+    {
+        Setting_WriteToIni(&(TimeShiftSettings[i]), bOptimizeFileAccess);
+    }
+}
+
+CTreeSettingsGeneric* TimeShift_GetTreeSettingsPage()
+{
+    return new CTreeSettingsGeneric("TimeShift Settings", TimeShiftSettings, TIMESHIFT_SETTING_LASTONE);
+}
+
+void TimeShift_FreeSettings()
+{
+    int i;
+    for(i = 0; i < TIMESHIFT_SETTING_LASTONE; i++)
+    {
+        Setting_Free(&TimeShiftSettings[i]);
+    }
+}

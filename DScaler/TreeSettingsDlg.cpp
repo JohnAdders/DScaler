@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.cpp,v 1.31 2003-01-12 16:19:35 adcockj Exp $
+// $Id: TreeSettingsDlg.cpp,v 1.32 2003-07-02 21:44:19 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2003/01/12 16:19:35  adcockj
+// Added SettingsGroup activity setting
+// Corrected event sequence and channel change behaviour
+//
 // Revision 1.30  2003/01/11 15:22:27  adcockj
 // Interim Checkin of setting code rewrite
 //  - Remove CSettingsGroupList class
@@ -148,6 +152,7 @@
 #include "VBI_VideoText.h"
 #include "..\help\helpids.h"
 #include "SettingsMaster.h"
+#include "TimeShift.h"
 
 #include <afxpriv.h>	//WM_COMMANDHELP
 
@@ -659,6 +664,11 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
 	    dlg.AddPage(pPage, Root);
 
         pPage = DScaler_GetTreeSettingsPage2();
+	    pPage->SetHelpID(IDH_ADVANCED);
+	    pages.push_back(pPage);
+	    dlg.AddPage(pPage, Root);
+
+        pPage = TimeShift_GetTreeSettingsPage();
 	    pPage->SetHelpID(IDH_ADVANCED);
 	    pages.push_back(pPage);
 	    dlg.AddPage(pPage, Root);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.146 2003-04-26 19:37:15 laurentg Exp $
+// $Id: DS_Control.h,v 1.147 2003-07-02 21:43:16 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.146  2003/04/26 19:37:15  laurentg
+// New character string settings
+//
 // Revision 1.145  2003/04/26 16:04:13  laurentg
 // Character string settings
 //
@@ -1775,5 +1778,19 @@ typedef enum
 #define WM_FLT_COLORIMETRY_GETVALUE       (WM_APP + 56)
 #define WM_FLT_COLORIMETRY_SETVALUE       (WM_APP + 156)
 #define WM_FLT_COLORIMETRY_CHANGEVALUE    (WM_APP + 256)
+
+/////////////////////////////////////////////////////////////////////////////
+// Control settings contained in TimeShift.cpp
+/////////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+	TIMESHIFTSAVINGPATH,
+    TIMESHIFT_SETTING_LASTONE,
+} TIMESHIFT_SETTING;
+
+#define WM_TIMESHIFT_GETVALUE		(WM_APP + 57)
+#define WM_TIMESHIFT_SETVALUE		(WM_APP + 157)
+#define WM_TIMESHIFT_CHANGEVALUE	(WM_APP + 257)
 
 #endif

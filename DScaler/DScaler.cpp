@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.285 2003-01-15 15:54:22 adcockj Exp $
+// $Id: DScaler.cpp,v 1.286 2003-01-16 16:55:44 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.285  2003/01/15 15:54:22  adcockj
+// Fixed some keyboard focus issues
+//
 // Revision 1.284  2003/01/12 17:12:45  atnak
 // Added hex pages display and goto dialog
 //
@@ -913,6 +916,7 @@
 #include "WindowBorder.h"
 #include "ToolbarControl.h"
 #include "SettingsMaster.h"
+#include "Credits.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -3463,6 +3467,13 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
         case IDM_HELP_README:
             HtmlHelp(hWnd, "DScaler.chm::/Help.htm", HH_DISPLAY_TOPIC, 0);
+            break;
+
+        case IDM_CREDITS:
+            {
+                CCredits CreditsDlg;
+                CreditsDlg.DoModal();
+            }
             break;
 
         case IDM_TELETEXT_KEY1:

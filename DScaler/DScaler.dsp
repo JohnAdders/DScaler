@@ -62,7 +62,7 @@ LINK32=link.exe
 # ADD LINK32 libtiff.lib libjpeg.lib ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib strmiids.lib quartz.lib /nologo /subsystem:windows /pdb:none /map:"..\Debug/DScaler.map" /debug /machine:I386 /out:"..\Debug\DScaler.exe" /libpath:"..\ThirdParty\LibTiff\\" /libpath:"..\ThirdParty\LibJpeg\\"
 # Begin Custom Build
 ProjDir=.
-InputPath=\Programering\prj\deinterlace\DScaler-clean\Debug\DScaler.exe
+InputPath=\Source\deinterlace\DScaler\Debug\DScaler.exe
 SOURCE="$(InputPath)"
 
 "$(ProjDir)\..\Debug\DScaler.vdi" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -112,7 +112,7 @@ LINK32=link.exe
 # ADD LINK32 COMMODE.OBJ libtiff.lib libjpeg.lib ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib strmiids.lib quartz.lib /nologo /subsystem:windows /pdb:none /map:"..\Release/DScaler.map" /machine:I386 /out:"..\Release\DScaler.exe" /libpath:"..\ThirdParty\LibTiff\\" /libpath:"..\ThirdParty\LibJpeg\\"
 # Begin Custom Build
 ProjDir=.
-InputPath=\Programering\prj\deinterlace\DScaler-clean\Release\DScaler.exe
+InputPath=\Source\deinterlace\DScaler\Release\DScaler.exe
 SOURCE="$(InputPath)"
 
 "$(ProjDir)\..\Release\DScaler.vdi" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -234,6 +234,10 @@ SOURCE=.\CPU.cpp
 
 SOURCE=.\Crash.cpp
 # ADD CPP /Yu
+# End Source File
+# Begin Source File
+
+SOURCE=.\Credits.cpp
 # End Source File
 # Begin Source File
 
@@ -912,6 +916,10 @@ SOURCE=.\cpu.h
 # Begin Source File
 
 SOURCE=.\Crash.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Credits.h
 # End Source File
 # Begin Source File
 

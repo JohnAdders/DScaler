@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Dialogs.cpp,v 1.21 2003-01-15 17:13:19 adcockj Exp $
+// $Id: Dialogs.cpp,v 1.22 2003-01-16 16:55:45 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2003/01/15 17:13:19  adcockj
+// Simplified versioning
+//
 // Revision 1.20  2003/01/15 15:54:22  adcockj
 // Fixed some keyboard focus issues
 //
@@ -133,7 +136,6 @@ BOOL APIENTRY AboutProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         SetWindowText (GetDlgItem(hDlg, IDC_VERSION), szResult);
 
         SetClassLong(GetDlgItem(hDlg, IDC_LINK), GCL_HCURSOR, (long) hCursorHand);
-        SetClassLong(GetDlgItem(hDlg, IDC_LINK2), GCL_HCURSOR, (long) hCursorHand);
         return TRUE;
         break;
     case WM_COMMAND:
@@ -144,9 +146,6 @@ BOOL APIENTRY AboutProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             EndDialog(hDlg, TRUE);
             break;
         case IDC_LINK:
-            ShellExecute(hDlg, "open", "http://www.dscaler.org/phpBB/index.php", NULL, NULL, SW_SHOWNORMAL);
-            break;
-        case IDC_LINK2:
             ShellExecute(hDlg, "open", "http://www.dscaler.org/", NULL, NULL, SW_SHOWNORMAL);
             break;
         default:

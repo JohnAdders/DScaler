@@ -116,6 +116,10 @@ SOURCE=.\small_logo.bmp
 # End Source File
 # Begin Source File
 
+SOURCE=.\toolbar_bar_bar.bmp
+# End Source File
+# Begin Source File
+
 SOURCE=.\toolbar_channels_down.ico
 # End Source File
 # Begin Source File

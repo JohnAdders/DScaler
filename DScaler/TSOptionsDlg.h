@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TSOptionsDlg.h,v 1.3 2001-07-24 12:25:49 adcockj Exp $
+// $Id: TSOptionsDlg.h,v 1.4 2001-07-26 15:28:14 ericschmidt Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -26,6 +26,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/07/24 12:25:49  adcockj
+// Added copyright notice as per standards
+//
 // Revision 1.2  2001/07/24 12:24:25  adcockj
 // Added Id to comment block
 //
@@ -64,6 +67,7 @@ public:
 	CComboBox	m_WaveOutComboBox;
 	CComboBox	m_WaveInComboBox;
 	//}}AFX_DATA
+    int m_RecHeight;
 
 // Overrides
 	// ClassWizard generated virtual function overrides
@@ -80,8 +84,15 @@ protected:
 	afx_msg void OnButtonCompression();
 	afx_msg void OnButtonOK();
 	virtual BOOL OnInitDialog();
+	afx_msg void OnCompressionhelp();
+	afx_msg void OnWaveouthelp();
+	afx_msg void OnHeighthelp();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
+
+    BOOL IsChecked(int id);
+    void SetChecked(int id, BOOL checked);
+    void EnableCtrl(int id, BOOL enable);
 };
 
 //{{AFX_INSERT_LOCATION}}

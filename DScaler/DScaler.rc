@@ -316,7 +316,7 @@ END
 IDD_ABOUT DIALOGEX 22, 17, 374, 274
 STYLE DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
 CAPTION "About DScaler"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,305,9,58,19,WS_GROUP,WS_EX_CLIENTEDGE
     CTEXT           "DScaler Version 3.x",IDC_VERSION,0,3,293,9
@@ -470,25 +470,33 @@ BEGIN
     PUSHBUTTON      "Save+",IDC_SAVEPLUS,239,180,50,14
 END
 
-IDD_TSOPTIONS DIALOG DISCARDABLE  0, 0, 239, 154
+IDD_TSOPTIONS DIALOG DISCARDABLE  0, 0, 239, 158
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "TimeShift Options (under construction)"
 FONT 8, "MS Sans Serif"
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,123,133,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,65,133,50,14
-    PUSHBUTTON      "Compression Options...",IDC_TSCOMPRESSIONBUTTON,55,7,
-                    130,14
-    COMBOBOX        IDC_TSWAVEINCOMBO,73,59,159,88,CBS_DROPDOWNLIST | 
+    DEFPUSHBUTTON   "OK",IDOK,123,137,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,65,137,50,14
+    PUSHBUTTON      "Compression Options...",IDC_TSCOMPRESSIONBUTTON,47,7,
+                    146,14
+    PUSHBUTTON      "Help",IDC_COMPRESSIONHELP,202,7,30,14
+    COMBOBOX        IDC_TSWAVEINCOMBO,47,30,146,88,CBS_DROPDOWNLIST | 
                     WS_VSCROLL | WS_TABSTOP
-    COMBOBOX        IDC_TSWAVEOUTCOMBO,73,77,159,70,CBS_DROPDOWNLIST | 
+    COMBOBOX        IDC_TSWAVEOUTCOMBO,47,48,146,70,CBS_DROPDOWNLIST | 
                     WS_VSCROLL | WS_TABSTOP
-    LTEXT           "HINT:  Choose a codec that's good at compressing 24-bit RGB images. The default is full frames and you'll quickly run out of room if you stick with that.  Leave the audio at the default for best results.",
-                    IDC_STATIC,7,26,225,26
-    RTEXT           "Wave In Device:",IDC_STATIC,14,62,55,8
-    RTEXT           "Wave Out Device:",IDC_STATIC,9,80,60,8
-    LTEXT           "HINT: Choose the device to which your tuner card is directly attached.  (i.e. via an internal stereo patch cable.)  But feel free to try all your devices if you don't get audio recording/playback from the AVI.",
-                    IDC_STATIC,7,96,225,27
+    PUSHBUTTON      "Help",IDC_WAVEOUTHELP,202,38,30,14
+    RTEXT           "Wave In:",IDC_STATIC,13,33,30,8
+    RTEXT           "Wave Out:",IDC_STATIC,8,51,36,8
+    GROUPBOX        "Recording Height",IDC_STATIC,39,69,160,61
+    CONTROL         "Full-height (not yet implemented)",IDC_FULLHEIGHTRADIO,
+                    "Button",BS_AUTORADIOBUTTON | WS_DISABLED,47,80,117,10
+    CONTROL         "1/2-height Even lines",IDC_HALFEVENRADIO,"Button",
+                    BS_AUTORADIOBUTTON,47,91,83,10
+    CONTROL         "1/2-height Odd lines",IDC_HALFODDRADIO,"Button",
+                    BS_AUTORADIOBUTTON,47,102,80,10
+    CONTROL         "1/2-height Even and Odd Averaged",IDC_HALFAVERAGEDRADIO,
+                    "Button",BS_AUTORADIOBUTTON,47,113,129,10
+    PUSHBUTTON      "Help",IDC_HEIGHTHELP,202,92,30,14
 END
 
 
@@ -1032,7 +1040,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 232
         TOPMARGIN, 7
-        BOTTOMMARGIN, 147
+        BOTTOMMARGIN, 151
     END
 END
 #endif    // APSTUDIO_INVOKED

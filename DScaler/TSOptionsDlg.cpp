@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TSOptionsDlg.cpp,v 1.3 2001-07-24 12:25:49 adcockj Exp $
+// $Id: TSOptionsDlg.cpp,v 1.4 2001-07-26 15:28:14 ericschmidt Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -26,6 +26,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/07/24 12:25:49  adcockj
+// Added copyright notice as per standards
+//
 // Revision 1.2  2001/07/24 12:24:25  adcockj
 // Added Id to comment block
 //
@@ -56,6 +59,7 @@ CTSOptionsDlg::CTSOptionsDlg(CWnd* pParent /*=NULL*/)
 	//{{AFX_DATA_INIT(CTSOptionsDlg)
 		// NOTE: the ClassWizard will add member initialization here
 	//}}AFX_DATA_INIT
+    m_RecHeight = TS_HALFHEIGHTEVEN;
 }
 
 
@@ -66,6 +70,51 @@ void CTSOptionsDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_TSWAVEOUTCOMBO, m_WaveOutComboBox);
 	DDX_Control(pDX, IDC_TSWAVEINCOMBO, m_WaveInComboBox);
 	//}}AFX_DATA_MAP
+    if (pDX->m_bSaveAndValidate)
+    {
+        if (IsChecked(IDC_FULLHEIGHTRADIO))
+            m_RecHeight = TS_FULLHEIGHT;
+        else if (IsChecked(IDC_HALFEVENRADIO))
+            m_RecHeight = TS_HALFHEIGHTEVEN;
+        else if (IsChecked(IDC_HALFODDRADIO))
+            m_RecHeight = TS_HALFHEIGHTODD;
+        else if (IsChecked(IDC_HALFAVERAGEDRADIO))
+            m_RecHeight = TS_HALFHEIGHTAVG;
+    }
+    else
+    {
+        switch (m_RecHeight)
+        {
+        case TS_FULLHEIGHT:
+            SetChecked(IDC_FULLHEIGHTRADIO, TRUE);
+            SetChecked(IDC_HALFEVENRADIO, FALSE);
+            SetChecked(IDC_HALFODDRADIO, FALSE);
+            SetChecked(IDC_HALFAVERAGEDRADIO, FALSE);
+            break;
+
+        default:
+        case TS_HALFHEIGHTEVEN:
+            SetChecked(IDC_HALFEVENRADIO, TRUE);
+            SetChecked(IDC_FULLHEIGHTRADIO, FALSE);
+            SetChecked(IDC_HALFODDRADIO, FALSE);
+            SetChecked(IDC_HALFAVERAGEDRADIO, FALSE);
+            break;
+
+        case TS_HALFHEIGHTODD:
+            SetChecked(IDC_HALFODDRADIO, TRUE);
+            SetChecked(IDC_FULLHEIGHTRADIO, FALSE);
+            SetChecked(IDC_HALFEVENRADIO, FALSE);
+            SetChecked(IDC_HALFAVERAGEDRADIO, FALSE);
+            break;
+
+        case TS_HALFHEIGHTAVG:
+            SetChecked(IDC_HALFAVERAGEDRADIO, TRUE);
+            SetChecked(IDC_FULLHEIGHTRADIO, FALSE);
+            SetChecked(IDC_HALFEVENRADIO, FALSE);
+            SetChecked(IDC_HALFODDRADIO, FALSE);
+            break;
+        }
+    }
 }
 
 
@@ -73,8 +122,41 @@ BEGIN_MESSAGE_MAP(CTSOptionsDlg, CDialog)
 	//{{AFX_MSG_MAP(CTSOptionsDlg)
 	ON_BN_CLICKED(IDC_TSCOMPRESSIONBUTTON, OnButtonCompression)
 	ON_BN_CLICKED(IDOK, OnButtonOK)
+	ON_BN_CLICKED(IDC_COMPRESSIONHELP, OnCompressionhelp)
+	ON_BN_CLICKED(IDC_WAVEOUTHELP, OnWaveouthelp)
+	ON_BN_CLICKED(IDC_HEIGHTHELP, OnHeighthelp)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
+
+
+BOOL CTSOptionsDlg::IsChecked(int id)
+{
+    HWND hwnd = NULL;
+    GetDlgItem(id, &hwnd);
+    if (hwnd)
+        return BST_CHECKED & (int)::SendMessage(hwnd, BM_GETCHECK, 0, 0);
+
+    return false;
+}
+
+void CTSOptionsDlg::SetChecked(int id, BOOL checked)
+{
+    HWND hwnd = NULL;
+    GetDlgItem(id, &hwnd);
+    if (hwnd)
+        ::SendMessage(hwnd,
+                      BM_SETCHECK,
+                      checked ? BST_CHECKED : BST_UNCHECKED,
+                      0);
+}
+
+void CTSOptionsDlg::EnableCtrl(int id, BOOL enable)
+{
+    HWND hwnd = NULL;
+    GetDlgItem(id, &hwnd);
+    if (hwnd)
+        ::EnableWindow(hwnd, enable);
+}
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -94,13 +176,18 @@ void CTSOptionsDlg::OnButtonCompression()
 
 void CTSOptionsDlg::OnButtonOK() 
 {
-    int index = m_WaveInComboBox.GetCurSel();
-    TimeShift::OnSetWaveInDevice(index != CB_ERR ? index : 0);
+    if (UpdateData(TRUE))
+    {
+        int index = m_WaveInComboBox.GetCurSel();
+        TimeShift::OnSetWaveInDevice(index != CB_ERR ? index : 0);
 
-    index = m_WaveOutComboBox.GetCurSel();
-    TimeShift::OnSetWaveOutDevice(index != CB_ERR ? index : 0);
+        index = m_WaveOutComboBox.GetCurSel();
+        TimeShift::OnSetWaveOutDevice(index != CB_ERR ? index : 0);
 
-	CDialog::OnOK();
+        TimeShift::OnSetRecHeight(m_RecHeight);
+
+        CDialog::OnOK();
+    }
 }
 
 BOOL CTSOptionsDlg::OnInitDialog() 
@@ -142,6 +229,45 @@ BOOL CTSOptionsDlg::OnInitDialog()
         index = 0;
     m_WaveOutComboBox.SetCurSel(index);
 
+    index;
+    if (TimeShift::OnGetRecHeight(&index)) // Leave as default if fails.
+        m_RecHeight = index;
+
+    // Refresh the controls on the dialog with the current data.
+    UpdateData(FALSE);
+
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
+}
+
+void CTSOptionsDlg::OnCompressionhelp() 
+{
+    MessageBox("Choose a codec that's good at compressing 24-bit RGB images.  "
+               "The default is full frames and you'll quickly run out of room "
+               "if you stick with that.  Leave the audio at the default for "
+               "best results.",
+               "Compression Help",
+               MB_OK);
+}
+
+void CTSOptionsDlg::OnWaveouthelp() 
+{
+    MessageBox("Choose the device to which your tuner card is directly "
+               "attached.  (i.e. via an internal stereo patch cable.)  But "
+               "feel free to try all your devices if you don't get audio "
+               "recording/playback from the AVI.",
+               "WaveOut Device Help",
+               MB_OK);
+}
+
+void CTSOptionsDlg::OnHeighthelp() 
+{
+    MessageBox("Using Full-height will record 100% of the image data but it's "
+               "the slowest.  Using 1/2-height Even or Odd will throw out 1/2 "
+               "the available image data, but these are the fastest.  "
+               "Averaging will help to remove the pixelated look of 1/2 height "
+               "recording, and it's only slightly slower than using only "
+               "the Even or Odd lines.",
+               "Recording Height Help",
+               MB_OK);
 }

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.cpp,v 1.3 2001-07-24 12:25:49 adcockj Exp $
+// $Id: TimeShift.cpp,v 1.4 2001-07-26 15:28:14 ericschmidt Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/07/24 12:25:49  adcockj
+// Added copyright notice as per standards
+//
 // Revision 1.2  2001/07/24 12:24:25  adcockj
 // Added Id to comment block
 //
@@ -62,9 +65,9 @@
   - Remove 4GB filesize limitation.  Maybe try stop then immeditate rerecord.
   - BUG: During playback in windowed mode, writing too wide of lines.
   - TWEAK: You can see the live feed peek in between clips during play mode.
-  - For 1/2 height AVIs, average lines?
-  - Make full-height AVIs an option for faster systems.
-  - Put OnNewFrame() earlier in the OutThreads loop?
+  - Add slowforward/backward feature.
+  - When fastforward/backward, play audio option during.
+  - Implement full height recording option.
 
   OPTIMIZE:
   - Is there a codec out there that takes YUY2, compress it, but don't convert
@@ -76,6 +79,11 @@
   - pixel width affects DF/S.  Choose a low enough pixel width for 0 DF/S.
   - Currently, things are touchy.  i.e. if you record with pixel width 640, or
     audio at 44.1kHz, etc, make sure you have these same settings on playback.
+
+  LATEST CHANGES:
+  - Made AVI use average of odd and even lines.  Better than throwing one away.
+  - Added recorded video clip height control to ini and options dialog.
+  - Added cpu flags code for detecting wether to use mmx or straight c code.
 */
 
 
@@ -377,7 +385,8 @@ TimeShift::TimeShift()
     m_nextWaveInHdr(0),
     m_hWaveOut(NULL),
     m_waveOutDevice(0),
-    m_nextWaveOutHdr(0)
+    m_nextWaveOutHdr(0),
+    m_recHeight(TS_HALFHEIGHTEVEN)
 {
     InitializeCriticalSection(&m_lock);
 
@@ -510,6 +519,22 @@ bool TimeShift::OnGetWaveOutDevice(int *index)
     if (m_pTimeShift && index)
     {
         *index = m_pTimeShift->m_waveOutDevice;
+        return true;
+    }
+
+    return false;
+}
+
+bool TimeShift::OnSetRecHeight(int index)
+{
+    return m_pTimeShift ? m_pTimeShift->SetRecHeight(index) : false;
+}
+
+bool TimeShift::OnGetRecHeight(int *index)
+{
+    if (m_pTimeShift && index)
+    {
+        *index = m_pTimeShift->m_recHeight;
         return true;
     }
 
@@ -881,6 +906,7 @@ static short RvRuGvGu[4] = { -5629, -11689, -15, 22966 };
 static short GvGuBvBu[4] = { 29025, -45, -5629, -11689 };
 static short RvRuBvBu[4] = { 29025, -45, -15,    22966 };
 
+// src will be calculated from the average of src1 and src2.
 inline LPBYTE mmxYUVtoRGB(LPBYTE dest, short *src, DWORD w)
 {
     _asm
@@ -893,7 +919,7 @@ inline LPBYTE mmxYUVtoRGB(LPBYTE dest, short *src, DWORD w)
     next4:
         // Process 4 pixels.  First YUYV is a, second is b.
         // Source must be 8-byte aligned.
-        movq mm1, [esi] ; mm1 = Vb+128 Y1b Ub+128 Y0b  Va+128 Y1a Ua+128 Y0a
+        movq mm1, [esi]     ; mm1 = Vb+128 Y1b Ub+128 Y0b  Va+128 Y1a Ua+128 Y0a
         add esi, 8
         pxor mm1, const8000    ; mm1 = Vb Y1b Ub Y0b  Va Y1a Ua Y0a
 
@@ -951,6 +977,154 @@ inline LPBYTE mmxYUVtoRGB(LPBYTE dest, short *src, DWORD w)
     return dest;
 }
 
+// The c-equivalent if mmx is not present in cpu flags.
+inline LPBYTE cYUVtoRGB(LPBYTE dest, short *src, DWORD w)
+{
+    LPBYTE s = (LPBYTE)src;
+    DWORD w2 = w >> 1;
+    while (w2--)
+    {
+        // Y0 U Y1 V for YUY2...
+        int Y0 = (int)DWORD(*s++);
+        int U =  (int)DWORD(*s++) - 128;
+        int Y1 = (int)DWORD(*s++);
+        int V =  (int)DWORD(*s++) - 128;
+
+        int preR = (U * -30 + V * 45931) >> 15;
+        int preG = (U * -11258 + V * -23378) >> 15;
+        int preB = (U * 58050 + V * -90) >> 15;
+
+    #define clip(x) (((x) & 0xffffff00) ? ((x) & 0x80000000) ? 0 : 255 : (x))
+
+        *dest++ = clip(Y0 + preB);
+        *dest++ = clip(Y0 + preG);
+        *dest++ = clip(Y0 + preR);
+
+        *dest++ = clip(Y1 + preB);
+        *dest++ = clip(Y1 + preG);
+        *dest++ = clip(Y1 + preR);
+    }
+
+    return dest;
+}
+
+// src will be calculated from the average of src1 and src2.
+inline LPBYTE mmxAvgYUVtoRGB(LPBYTE dest, short *src1, short *src2, DWORD w)
+{
+    _asm
+    {
+        mov esi, src1
+        mov esp, src2
+        mov edi, dest
+        mov eax, w
+        shr eax, 2
+
+    next4:
+        // Process 4 pixels.  First YUYV is a, second is b.
+        // Source must be 8-byte aligned.
+        movq mm1, [esi]     ; mm1 = Vb+128 Y1b Ub+128 Y0b  Va+128 Y1a Ua+128 Y0a
+        movq mm2, [esp]     ; mm2 = Vb+128 Y1b Ub+128 Y0b  Va+128 Y1a Ua+128 Y0a
+        add esi, 8
+        add esp, 8
+        pavgb mm1, mm2         ; mm1 = byte-wise average of mm1 and mm2
+        pxor mm1, const8000    ; mm1 = Vb Y1b Ub Y0b  Va Y1a Ua Y0a
+
+        movq mm0, mm1          ; mm0 = XX Y1b XX Y0b  XX Y1a XX Y0a
+        psraw mm1, 8           ; mm1 = Vb Ub Va Ua
+
+        pshufw mm2, mm1, 0x44  ; mm2 = Va Ua Va Ua
+        pmaddwd mm2, RvRuGvGu  ; mm2 = preRa preGa
+        psrad mm2, 14          ; mm2 >>= 14
+
+        pshufw mm3, mm1, 0xee  ; mm3 = Vb Ub Vb Ub
+        pmaddwd mm3, GvGuBvBu  ; mm3 = preGb preBb
+        psrad mm3, 14          ; mm3 >>= 14
+
+        pmaddwd mm1, RvRuBvBu  ; mm1 = preRb preBa
+        psrad mm1, 14          ; mm1 >>= 14
+
+        movq mm6, mm2          ; mm6 = preRa preGa
+        packssdw mm2, mm1      ; mm2 = XXX preBa preRa preGa
+        pshufw mm2, mm2, 0x92  ; mm2 = preBa preRa preGa preBa
+
+        pand mm0, const00ff    ; mm0 = Y1b Y0b Y1a Y0a
+
+        pshufw mm4, mm0, 0x40  ; mm4 = Y1a Y0a Y0a Y0a
+        paddsw mm4, mm2        ; mm4 = B1a R0a G0a B0a
+
+        packssdw mm6, mm3      ; mm6 = preGb preBb preRa preGa
+        pshufw mm5, mm0, 0xa5  ; mm5 = Y0b Y0b Y1a Y1a
+        paddsw mm5, mm6        ; mm5 = G0b B0b R1a G1a
+
+        packssdw mm1, mm3      ; mm1 = preGb preBb preRb XXX
+        pshufw mm1, mm1, 0x79  ; mm1 = preRb preGb preBb preRb
+
+        pshufw mm3, mm0, 0xfe  ; mm3 = Y1b Y1b Y1b Y0b
+        paddsw mm3, mm1        ; mm3 = R1b G1b B1b R0b
+
+        // Could speed this up slightly by unrolling this whole loop,
+        // so can guarantee alignment and can do a movq instead of two
+        // of these movds.
+        packuswb mm4, mm4      ; mm4 = X X X X B1a R0a G0a B0a
+        packuswb mm5, mm5      ; mm5 = X X X X G0b B0b R1a G1a
+        packuswb mm3, mm3      ; mm3 = X X X X R1b G1b B1b R0b
+
+        movd [edi+0], mm4
+        movd [edi+4], mm5
+        movd [edi+8], mm3
+        add edi, 12
+
+        dec eax
+        jnz next4
+
+        mov dest, edi
+    }
+
+    return dest;
+}
+
+// The c-equivalent if mmx is not present in cpu flags.
+inline LPBYTE cAvgYUVtoRGB(LPBYTE dest, short *src1, short *src2, DWORD w)
+{
+    LPBYTE s1 = (LPBYTE)src1;
+    LPBYTE s2 = (LPBYTE)src2;
+    DWORD w2 = w >> 1;
+    while (w2--)
+    {
+        // Y0 U Y1 V for YUY2...
+        int Y0a = (int)DWORD(*s1++);
+        int Ua =  (int)DWORD(*s1++) - 128;
+        int Y1a = (int)DWORD(*s1++);
+        int Va =  (int)DWORD(*s1++) - 128;
+
+        int Y0b = (int)DWORD(*s2++);
+        int Ub =  (int)DWORD(*s2++) - 128;
+        int Y1b = (int)DWORD(*s2++);
+        int Vb =  (int)DWORD(*s2++) - 128;
+
+        int Y0 = (Y0a + Y0b) >> 1;
+        int U =  (Ua + Ub) >> 1;
+        int Y1 = (Y1a + Y1b) >> 1;
+        int V =  (Va + Vb) >> 1;
+
+        int preR = (U * -30 + V * 45931) >> 15;
+        int preG = (U * -11258 + V * -23378) >> 15;
+        int preB = (U * 58050 + V * -90) >> 15;
+
+    #define clip(x) (((x) & 0xffffff00) ? ((x) & 0x80000000) ? 0 : 255 : (x))
+
+        *dest++ = clip(Y0 + preB);
+        *dest++ = clip(Y0 + preG);
+        *dest++ = clip(Y0 + preR);
+
+        *dest++ = clip(Y1 + preB);
+        *dest++ = clip(Y1 + preG);
+        *dest++ = clip(Y1 + preR);
+    }
+
+    return dest;
+}
+
 /*
 
   Y = R *  .299 + G *  .587 + B *  .114;
@@ -979,7 +1153,6 @@ static short Vr0Yr0[4] =   {    0,  9798,     0,   16384 };
 
 inline LPBYTE mmxRGBtoYUV(short *dest, LPBYTE src, DWORD w)
 {
-#if 1
     _asm
     {
         mov esi, src
@@ -1065,7 +1238,13 @@ inline LPBYTE mmxRGBtoYUV(short *dest, LPBYTE src, DWORD w)
 
         mov src, esi
     }
-#else
+
+    return src;
+}
+
+// The c-equivalent if mmx is not present in cpu flags.
+inline LPBYTE cRGBtoYUV(short *dest, LPBYTE src, DWORD w)
+{
     LPBYTE dst = (LPBYTE)dest;
     DWORD w2 = w >> 1;
     while (w2--)
@@ -1077,7 +1256,7 @@ inline LPBYTE mmxRGBtoYUV(short *dest, LPBYTE src, DWORD w)
         int Y = (R * 9798 + G * 19235 + B * 3736) >> 15;
         int U = ((R * -5505 + G * -10879 + B * 16384) >> 15) + 128;
 
-    #define clip(x) (((x) & 0xffffff00) ? ((x) & 0x80000000) ? 0 : 255 :(x))
+    #define clip(x) (((x) & 0xffffff00) ? ((x) & 0x80000000) ? 0 : 255 : (x))
 
         *dst++ = clip(Y);
         *dst++ = clip(U);
@@ -1092,7 +1271,7 @@ inline LPBYTE mmxRGBtoYUV(short *dest, LPBYTE src, DWORD w)
         *dst++ = clip(Y);
         *dst++ = clip(V);
     }
-#endif
+
     return src;
 }
 
@@ -1102,7 +1281,7 @@ bool TimeShift::WriteVideo(DEINTERLACE_INFO *info)
         return false;
 
     // Nothing to do if we don't have the last 2 source fields.
-    if (info->EvenLines[0] == NULL)
+    if (info->EvenLines[0] == NULL || info->OddLines[0] == NULL)
         return false;
 
     m_thisTime = GetTickCount();
@@ -1117,12 +1296,61 @@ bool TimeShift::WriteVideo(DEINTERLACE_INFO *info)
     LPBYTE dest = m_bits;
     DWORD w = min(m_w, info->FrameWidth);
     DWORD h = min(m_h, info->FieldHeight);
-    DWORD left = 0;//info->SourceRect.left;
-    DWORD top = 0;//info->SourceRect.top;
 
-    for (int y = h - 1; y >= 0; --y)
-        dest = mmxYUVtoRGB(dest, info->EvenLines[0][y + top] + left, w);
+    int y = h - 1;
+    switch (m_recHeight)
+    {
+    case TS_FULLHEIGHT:
+        // I think you'd have to have a monster machine to get a good frame rate
+        // out of this, so it's a low priority to implement.  I've got a Pentium
+        // III 733MHz and even with 1/2-height, I'm teetering on 0 DF/S.
+        ASSERT(!"Not yet implemented");
+        // No break here for now, just let if fall into the default case.
 
+    default:
+    case TS_HALFHEIGHTEVEN:
+        if (info->CpuFeatureFlags & FEATURE_MMX)
+            for (; y >= 0; --y)
+                dest = mmxYUVtoRGB(dest,
+                                   info->EvenLines[0][y],
+                                   w);
+        else
+            for (; y >= 0; --y)
+                dest = cYUVtoRGB(dest,
+                                 info->EvenLines[0][y],
+                                 w);
+        break;
+
+    case TS_HALFHEIGHTODD:
+        if (info->CpuFeatureFlags & FEATURE_MMX)
+            for (; y >= 0; --y)
+                dest = mmxYUVtoRGB(dest,
+                                   info->OddLines[0][y],
+                                   w);
+        else
+            for (; y >= 0; --y)
+                dest = cYUVtoRGB(dest,
+                                 info->OddLines[0][y],
+                                 w);
+        break;
+
+    case TS_HALFHEIGHTAVG:
+        if (info->CpuFeatureFlags & FEATURE_MMX)
+            for (; y >= 0; --y)
+                dest = mmxAvgYUVtoRGB(dest,
+                                      info->EvenLines[0][y],
+                                      info->OddLines[0][y],
+                                      w);
+        else
+            for (; y >= 0; --y)
+                dest = cAvgYUVtoRGB(dest,
+                                    info->EvenLines[0][y],
+                                    info->OddLines[0][y],
+                                    w);
+        break;
+    }
+
+    // Our AVI is 30fps, only write out every other frame from our 60fps feed.
     if (!info->IsOdd)
         AVIStreamWrite(m_psCompressedVideo,
                        thisFrame,
@@ -1180,15 +1408,21 @@ bool TimeShift::ReadVideo(DEINTERLACE_INFO *info)
         LPBYTE src = LPBYTE(lpbi) + sizeof(*lpbi);
         DWORD w = min(lpbi->biWidth, info->FrameWidth);
         DWORD h = min(lpbi->biHeight, info->FieldHeight);
-        DWORD left = 0;
-        DWORD top = 0;
 
         if (info->IsOdd)
-            for (int y = h - 1; y >= 0; --y)
-                src = mmxRGBtoYUV(info->OddLines[0][y + top] + left, src, w);
+            if (info->CpuFeatureFlags & FEATURE_MMX)
+                for (int y = h - 1; y >= 0; --y)
+                    src = mmxRGBtoYUV(info->OddLines[0][y], src, w);
+            else
+                for (int y = h - 1; y >= 0; --y)
+                    src = cRGBtoYUV(info->OddLines[0][y], src, w);
         else
-            for (int y = h - 1; y >= 0; --y)
-                src = mmxRGBtoYUV(info->EvenLines[0][y + top] + left, src, w);
+            if (info->CpuFeatureFlags & FEATURE_MMX)
+                for (int y = h - 1; y >= 0; --y)
+                    src = mmxRGBtoYUV(info->EvenLines[0][y], src, w);
+            else
+                for (int y = h - 1; y >= 0; --y)
+                    src = cRGBtoYUV(info->EvenLines[0][y], src, w);
     }
 
     m_lastTime = m_thisTime;
@@ -1276,7 +1510,7 @@ bool TimeShift::SetDimensions(void)
         int w = CurrentX;
         int h = CurrentY;
 
-        // 4-pixel (12-byte) align the width, truncating, for mmx operations.
+        // 4-pixel (12-byte) align the width, truncating, for YUV/RGB funcs.
         m_w = (w >> 2) << 2;
         m_h = h >> 1; // For speed (for now), we use 1/2 height AVIs.
 
@@ -1319,6 +1553,18 @@ bool TimeShift::SetWaveOutDevice(int index)
     if (m_mode == MODE_STOPPED)
     {
         m_waveOutDevice = index;
+
+        return true;
+    }
+
+    return false;
+}
+
+bool TimeShift::SetRecHeight(int index)
+{
+    if (m_mode == MODE_STOPPED)
+    {
+        m_recHeight = index;
 
         return true;
     }
@@ -1472,6 +1718,9 @@ bool TimeShift::ReadFromIni(void)
     m_waveOutDevice = GetPrivateProfileInt(
         "TimeShift", "WaveOut", m_waveOutDevice, szIniFile);
 
+    m_recHeight = GetPrivateProfileInt(
+        "TimeShift", "RecHeight", m_recHeight, szIniFile);
+
     return true;
 }
 
@@ -1501,6 +1750,9 @@ bool TimeShift::WriteToIni(void)
 
     sprintf(temp, "%u", m_waveOutDevice);
     WritePrivateProfileString("TimeShift", "WaveOut", temp, szIniFile);
+
+    sprintf(temp, "%u", m_recHeight);
+    WritePrivateProfileString("TimeShift", "RecHeight", temp, szIniFile);
 
     return true;
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.h,v 1.3 2001-07-24 12:25:49 adcockj Exp $
+// $Id: TimeShift.h,v 1.4 2001-07-26 15:28:14 ericschmidt Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/07/24 12:25:49  adcockj
+// Added copyright notice as per standards
+//
 // Revision 1.2  2001/07/24 12:24:25  adcockj
 // Added Id to comment block
 //
@@ -50,6 +53,12 @@
 
 // Declare this for friend declaration below.
 class CTSOptionsDlg;
+
+// These match the radio group in TSOptionsDlg.
+#define TS_FULLHEIGHT     0
+#define TS_HALFHEIGHTEVEN 1
+#define TS_HALFHEIGHTODD  2
+#define TS_HALFHEIGHTAVG  3
 
 class TimeShift
 {
@@ -98,6 +107,8 @@ private:
     static bool OnGetWaveInDevice(int *index);
     static bool OnSetWaveOutDevice(int index);
     static bool OnGetWaveOutDevice(int *index);
+    static bool OnSetRecHeight(int index);
+    static bool OnGetRecHeight(int *index);
 
     // Called from within the options dialog to popup compression dialog.
     static bool OnCompressionOptions(void);
@@ -118,6 +129,7 @@ private:
     bool SetDimensions(); // Uses current DScaler settings to set.
     bool SetWaveInDevice(int index);
     bool SetWaveOutDevice(int index);
+    bool SetRecHeight(int index);
     bool CompressionOptions(void);
 
     bool SetVideoOptions(AVICOMPRESSOPTIONS *opts);
@@ -184,6 +196,8 @@ private:
     WAVEHDR m_waveOutHdrs[4];
     BYTE m_waveOutBufs[4][1<<15]; // 128KB total buffer space.
     int m_nextWaveOutHdr;
+
+    int m_recHeight; // One of TS_*HEIGHT* #defines above.
 };
 
 #endif // __TIMESHIFT_H___

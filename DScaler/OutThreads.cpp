@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.63 2002-04-13 18:56:23 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.64 2002-04-28 16:47:44 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.63  2002/04/13 18:56:23  laurentg
+// Checks added to manage case where the current source is not yet defined
+//
 // Revision 1.62  2002/02/23 00:37:15  laurentg
 // AR statistics included in user's action to reset statistics
 // AR statistics reseted at the startup of the decoding thread
@@ -721,8 +724,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         // do the aspect ratio only every other frame
                         // also do this outside of the internal lock
                         // to avoid conflicts
-                        if ( (Info.PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD) ||
-                             (Info.PictureHistory[0]->Flags == PICTURE_PROGRESSIVE) )
+                        if (Info.PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD)
                         {
                             pPerf->StartCount(PERF_RATIO);
 

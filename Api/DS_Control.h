@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.96 2002-10-26 15:48:59 adcockj Exp $
+// $Id: DS_Control.h,v 1.97 2002-10-26 16:17:24 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.96  2002/10/26 15:48:59  adcockj
+// Updated format enum to be consistent with DScaler
+//
 // Revision 1.95  2002/10/21 19:47:43  adcockj
 // Corrected settings list for cx2388x
 //
@@ -1430,7 +1433,7 @@ typedef enum
 #define WM_FDPROG_CHANGEVALUE         (WM_APP + 248)
 
 /////////////////////////////////////////////////////////////////////////////
-// Control settings contained in SAA7146Source.c
+// Control settings contained in SAA7134Source.c
 /////////////////////////////////////////////////////////////////////////////
 
 typedef enum
@@ -1447,11 +1450,16 @@ typedef enum
     SAA7134REVERSEPOLARITY,
     SAA7134CARDTYPE,
     SAA7134TUNERTYPE,
-    SAA7134NONSTANDARDSIGNAL,
+    SAA7134HPLLMODE,
+    SAA7134WHITEPEAK,
+    SAA7134COLORPEAK,
+    SAA7134ADAPTIVECOMBFILTER,
     SAA7134HDELAY,
     SAA7134VDELAY,
     SAA7134AUDIOSTANDARD,
     SAA7134AUDIOCHANNEL,
+    SAA7134AUDIOSAMPLERATE,
+    SAA7134AUTOSTEREOSELECT,
     SAA7134VOLUME,
     SAA7134BASS,
     SAA7134TREBLE,
@@ -1464,6 +1472,18 @@ typedef enum
     SAA7134AUDIOSOURCE4,
     SAA7134AUDIOSOURCE5,
     SAA7134AUDIOSOURCE6,
+    SAA7134CUSTOMAUDIOSTANDARD,
+    SAA7134AUDIOSTANDARDCARRIER1,
+    SAA7134AUDIOSTANDARDCARRIER2,
+    SAA7134AUDIOSTANDARDCARRIER1MODE,
+    SAA7134AUDIOSTANDARDCARRIER2MODE,
+    SAA7134AUDIOSTANDARDCH1FMDEEMPH,
+    SAA7134AUDIOSTANDARDCH2FMDEEMPH,
+    SAA7134AUTOMATICVOLUMELEVEL,
+    SAA7134VBIUPSCALEDIVISOR,
+    SAA7134AUTOMATICGAINCONTROL,
+    SAA7134GAINCONTROLLEVEL,
+    SAA7134VIDEOMIRROR,
     SAA7134_SETTING_LASTONE,
 } SAA7134_SETTING;
 

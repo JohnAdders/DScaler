@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA9887.h,v 1.10 2004-11-23 20:24:18 to_see Exp $
+// $Id: TDA9887.h,v 1.11 2004-11-27 00:57:36 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2002 John Adcock.  All rights reserved.
@@ -21,6 +21,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2004/11/23 20:24:18  to_see
+// Deleted unused defines
+//
 // Revision 1.9  2004/11/23 18:19:29  to_see
 // Created new class CTDA9887FromIni
 //
@@ -143,20 +146,20 @@ class CTDA9887 : public IExternalIFDemodulator
 public:
     CTDA9887();
 	CTDA9887(eTDA9887Card TDA9887Card);
-    ~CTDA9887();
+    virtual ~CTDA9887();
 
-    bool Detect();
+    virtual bool Detect();
 
-    void Init(bool bPreInit, eVideoFormat videoFormat);
-    void TunerSet(bool bPreSet, eVideoFormat videoFormat);
-    
-    eTunerAFCStatus GetAFCStatus(long &nFreqDeviation);
+    virtual void Init(bool bPreInit, eVideoFormat videoFormat);
+    virtual void TunerSet(bool bPreSet, eVideoFormat videoFormat);
+
+    virtual eTunerAFCStatus GetAFCStatus(long &nFreqDeviation);
 protected:
     // from CI2CDevice
     virtual BYTE GetDefaultAddress() const { return I2C_TDA9887_0; }
 
 private:
-	
+
 	// \TODO: delete this
 	typedef struct
 	{
@@ -185,57 +188,101 @@ public:
     ~CTDA9887Pinnacle();
 
     void Init(bool bPreInit, eVideoFormat videoFormat);
-    void TunerSet(bool bPreSet, eVideoFormat videoFormat);    
+    void TunerSet(bool bPreSet, eVideoFormat videoFormat);
 private:
     int m_CardId;
     eVideoFormat m_LastVideoFormat;
 };
 
-///////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////
 
-class CTDA9887FromIni : public IExternalIFDemodulator
+//////////////////////////////////////////////////////////////////////////
+// CTDA9887Ex
+//////////////////////////////////////////////////////////////////////////
+
+// TV format groupings used by TDA9887
+enum eTDA9887Format
+{
+	TDA9887_FORMAT_NONE		= -1,
+	TDA9887_FORMAT_PAL_BG	= 0,
+	TDA9887_FORMAT_PAL_I,
+	TDA9887_FORMAT_PAL_DK,
+	TDA9887_FORMAT_PAL_MN,
+	TDA9887_FORMAT_SECAM_L,
+	TDA9887_FORMAT_SECAM_DK,
+	TDA9887_FORMAT_NTSC_M,
+	TDA9887_FORMAT_NTSC_JP,
+	TDA9887_FORMAT_RADIO,
+	TDA9887_FORMAT_LASTONE,
+};
+
+// Bits for SetCardSpecifics(...)'s TTDA9887CardSpecifics
+enum
+{
+	TDA9887_SM_DEMODULATION_QSS     = 0x04,   // != Intercarrier
+	TDA9887_SM_OUTPUTPORT1_INACTIVE = 0x40,   // != Active
+	TDA9887_SM_OUTPUTPORT2_INACTIVE = 0x80,   // != Active
+	TDA9887_SM_TAKEOVERPOINT_MASK   = 0x1F,
+	TDA9887_SM_TAKEOVERPOINT_OFFSET = 0,
+};
+
+// Only the modes specified in the enum above can be changed with
+// SetModes(...).  To change a mode, add the respective constant to the
+// 'mask' value then specify the new value in 'bits'.  For example, to
+// use the QSS demodulation mode and active OutputPort2 mode, the
+// following will be used:
+//
+// mask = TDA9887_SM_DEMODULATION_QSS|TDA9887_SM_OUTPUTPORT2_INACTIVE;
+// value = TDA9887_SM_DEMODULATION_QSS;
+//
+// If no changes are made, modes listed in k_TDAStandardtSettings are
+// used.
+
+// Input structure for SetModes(...).
+typedef struct
+{
+	BYTE	mask;
+	BYTE	bits;
+} TTDA9887Modes;
+
+// Input structure for SetModes(...).
+typedef struct
+{
+	eTDA9887Format	format;
+	BYTE			mask;
+	BYTE			bits;
+} TTDA9887FormatModes;
+
+class CTDA9887Ex : public CTDA9887
 {
 public:
-    CTDA9887FromIni();
-    ~CTDA9887FromIni();
+	CTDA9887Ex();
+    virtual ~CTDA9887Ex();
 
-    bool Detect();
+    virtual void TunerSet(IN bool bPreSet, IN eVideoFormat format);
+	virtual void TunerSet(IN bool bPreSet, IN eTDA9887Format format);
 
-    void Init(bool bPreInit, eVideoFormat videoFormat);
-    void TunerSet(bool bPreSet, eVideoFormat videoFormat);
-	void SetCardSpecific(eVideoFormat videoFormat, BYTE B, BYTE C = TDA9887_TakeOverPointDefault);   
-    eTunerAFCStatus GetAFCStatus(long &nFreqDeviation);
+	virtual void SetModes(IN eTDA9887Format format, IN BYTE mask, IN BYTE bits);
+	virtual void SetModes(IN eTDA9887Format format, IN TTDA9887Modes* modes);
+	virtual void SetModes(IN TTDA9887FormatModes* modes);
 
 protected:
-    // from CI2CDevice
-    virtual BYTE GetDefaultAddress() const { return I2C_TDA9887_0; }
-
-private:
 	typedef struct
     {
-		BYTE B;
-		BYTE C;
-		BYTE E;
-    } TDABytes;
+		BYTE b;
+		BYTE c;
+		BYTE e;
+    } TTDABytes;
 
-	typedef struct
-    {
-		TDABytes Pal_BG;
-		TDABytes Pal_I;
-		TDABytes Pal_DK;
-		TDABytes Pal_MN;
-		TDABytes Secam_L;
-		TDABytes Secam_DK;
-		TDABytes Ntsc_M;
-		TDABytes Ntsc_JP;
-		TDABytes Fm_Radio;
-    } TVStandards;
+	// Converter for converting eVideoFormat to eTDA9887Format
+	eTDA9887Format VideoFormat2TDA9887Format(IN eVideoFormat format);
+	// Helper function for setting and unsetting bits.
+	void SetBit(IN OUT BYTE& vector, IN BYTE bit, IN bool set);
 
-    static TVStandards m_TVStandards; // not constant
-
-private:
-	TDABytes* GetTDABytesFromVideoFormat(eVideoFormat VideoFormat);
+	// Standard settings for TDA9887.
+    static const TTDABytes k_TDAStandardtSettings[TDA9887_FORMAT_LASTONE];
+	// Settings specific to a single chip.
+	TTDABytes m_TDASettings[TDA9887_FORMAT_LASTONE];
 };
+
 
 #endif

@@ -1,5 +1,5 @@
 //
-// $Id: TDA9887.cpp,v 1.10 2004-11-23 18:19:28 to_see Exp $
+// $Id: TDA9887.cpp,v 1.11 2004-11-27 00:57:35 atnak Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2004/11/23 18:19:28  to_see
+// Created new class CTDA9887FromIni
+//
 // Revision 1.9  2004/09/29 20:36:02  to_see
 // Added Card AverTV303, Thanks to Zbigniew Pluta
 //
@@ -56,7 +59,7 @@
 #include "DebugLog.h"
 
 // \TODO: delete this
-const CTDA9887::TControlSettings CTDA9887::m_ControlSettings[TDA9887_LASTONE] = 
+const CTDA9887::TControlSettings CTDA9887::m_ControlSettings[TDA9887_LASTONE] =
 {
     {
         TDA9887_DEFAULT,
@@ -130,7 +133,7 @@ CTDA9887::CTDA9887(eTDA9887Card TDA9887Card)
 }
 
 CTDA9887::~CTDA9887()
-{    
+{
 }
 
 bool CTDA9887::Detect()
@@ -151,7 +154,7 @@ void CTDA9887::Init(bool bPreInit, eVideoFormat videoFormat)
 void CTDA9887::TunerSet(bool bPreSet, eVideoFormat VideoFormat)
 {
    static BYTE tda9887set[5] = {m_DeviceAddress};
-   
+
    if (!bPreSet)
    {
        // only setup before tuning
@@ -160,9 +163,9 @@ void CTDA9887::TunerSet(bool bPreSet, eVideoFormat VideoFormat)
 
    switch (VideoFormat)
    {
-	case VIDEOFORMAT_PAL_B:    
+	case VIDEOFORMAT_PAL_B:
     case VIDEOFORMAT_PAL_G:
-    case VIDEOFORMAT_PAL_H:        
+    case VIDEOFORMAT_PAL_H:
     case VIDEOFORMAT_PAL_N:
 	case VIDEOFORMAT_SECAM_B:
     case VIDEOFORMAT_SECAM_G:
@@ -175,24 +178,24 @@ void CTDA9887::TunerSet(bool bPreSet, eVideoFormat VideoFormat)
 		break;
 
 	case VIDEOFORMAT_PAL_D:
-	case VIDEOFORMAT_SECAM_D:	
+	case VIDEOFORMAT_SECAM_D:
     case VIDEOFORMAT_SECAM_K:
     case VIDEOFORMAT_SECAM_K1:
 		memcpy(&tda9887set[2], &m_ControlSettings[m_eCardID].Pal_DK, 3);
 		break;
-	
+
 	case VIDEOFORMAT_SECAM_L:
     case VIDEOFORMAT_SECAM_L1:
 		memcpy(&tda9887set[2], &m_ControlSettings[m_eCardID].Secam_L, 3);
 		break;
 
-    case VIDEOFORMAT_PAL_60:    
+    case VIDEOFORMAT_PAL_60:
 		///\todo Video bandwidth of PAL-60?
 		break;
 
 	case VIDEOFORMAT_PAL_M:
 	case VIDEOFORMAT_PAL_N_COMBO:
-	case VIDEOFORMAT_NTSC_M:        
+	case VIDEOFORMAT_NTSC_M:
 		memcpy(&tda9887set[2], &m_ControlSettings[m_eCardID].Ntsc, 3);
 		break;
 
@@ -206,11 +209,11 @@ void CTDA9887::TunerSet(bool bPreSet, eVideoFormat VideoFormat)
 		memcpy(&tda9887set[2], &m_ControlSettings[m_eCardID].Fm_Radio, 3);
 		break;
    }
-      
+
    if (tda9887set != NULL)
-   {   
+   {
       LOG(2,"TDA9885/6/7: 0x%02x 0x%02x 0x%02x", tda9887set[2],tda9887set[3],tda9887set[4]);
-      m_I2CBus->Write(tda9887set, 5);   
+      m_I2CBus->Write(tda9887set, 5);
    }
 }
 
@@ -224,7 +227,7 @@ eTunerAFCStatus CTDA9887::GetAFCStatus(long &nFreqDeviation)
     bit 7: 1=VCO in +-1.6MHz AFC window
     */
     BYTE addr[] = { m_DeviceAddress };
-    BYTE result;        
+    BYTE result;
     if (m_I2CBus->Read(addr, 1, &result, 1))
     {
         nFreqDeviation = ((result>>1) & 0xF);
@@ -237,7 +240,7 @@ eTunerAFCStatus CTDA9887::GetAFCStatus(long &nFreqDeviation)
         {
             nFreqDeviation |= (-8);
         }
-        
+
         nFreqDeviation = -1 * ((nFreqDeviation *  25000) + 12500);
         return TUNER_AFC_CARRIER;
     }
@@ -291,14 +294,14 @@ void CTDA9887Pinnacle::TunerSet(bool bPreSet, eVideoFormat videoFormat)
         if (IsPALVideoFormat(videoFormat))
         {
             bDeEmphasis  = TDA9887_DeemphasisON;
-	        bDeEmphVal   = TDA9887_Deemphasis50;        
-	        bModulation  = TDA9887_NegativeFmTV;		
-	        if (m_CardId == 1)         
+	        bDeEmphVal   = TDA9887_Deemphasis50;
+	        bModulation  = TDA9887_NegativeFmTV;
+	        if (m_CardId == 1)
             {
 		        bCarrierMode = TDA9887_Intercarrier;
-	        } 
+	        }
             else  // stereo boards
-            {			
+            {
 		        bCarrierMode = TDA9887_QSS;
 	        }
             bOutPort1    = TDA9887_OutputPort1Inactive;
@@ -309,15 +312,15 @@ void CTDA9887Pinnacle::TunerSet(bool bPreSet, eVideoFormat videoFormat)
                 if ((m_CardId == 5) || (m_CardId == 6))
                 {
 			        bCarrierMode = TDA9887_Intercarrier;
-		        } 
+		        }
                 else  // stereo boards
-                {			
+                {
 			        bCarrierMode = TDA9887_QSS;
 		        }
             }
-        } 
+        }
         else if (IsSECAMVideoFormat(videoFormat))
-        {     
+        {
 	        bDeEmphasis  = TDA9887_DeemphasisON;
 	        bDeEmphVal   = TDA9887_Deemphasis50;
 	        bModulation  = TDA9887_NegativeFmTV;
@@ -332,33 +335,33 @@ void CTDA9887Pinnacle::TunerSet(bool bPreSet, eVideoFormat videoFormat)
             }
         }
         else if (IsNTSCVideoFormat(videoFormat))
-        {     
+        {
 	        bDeEmphasis  = TDA9887_DeemphasisON;
             bDeEmphVal   = TDA9887_Deemphasis75;
-            bModulation  = TDA9887_NegativeFmTV;                                
+            bModulation  = TDA9887_NegativeFmTV;
             if ((m_CardId == 5) || (m_CardId == 6))
             {
 		        bCarrierMode = TDA9887_Intercarrier;
-	        } 
-            else 
+	        }
+            else
             {
 		        bCarrierMode = TDA9887_QSS;
             }
             bOutPort1    = TDA9887_OutputPort1Inactive;
         }
         else if (videoFormat == (VIDEOFORMAT_LASTONE+1)) //FM Radio
-        {     
-	        bDeEmphasis  = TDA9887_DeemphasisON;	
+        {
+	        bDeEmphasis  = TDA9887_DeemphasisON;
             if (m_CardId == 3)
             {
 		        bDeEmphVal = TDA9887_Deemphasis75;
-	        } 
-            else 
+	        }
+            else
             {
 		        bDeEmphVal = TDA9887_Deemphasis50;
             }
             bModulation  = TDA9887_FmRadio;
-            bCarrierMode = TDA9887_QSS;		
+            bCarrierMode = TDA9887_QSS;
 	        bOutPort1    = TDA9887_OutputPort1Inactive;
 
             bVideoTrap   = TDA9887_VideoTrapBypassOFF;
@@ -370,9 +373,9 @@ void CTDA9887Pinnacle::TunerSet(bool bPreSet, eVideoFormat videoFormat)
         bAudioIF     = TDA9887_AudioIF_5_5;
         switch (videoFormat)
         {
-        case VIDEOFORMAT_PAL_B:    
+        case VIDEOFORMAT_PAL_B:
         case VIDEOFORMAT_PAL_G:
-        case VIDEOFORMAT_PAL_H:        
+        case VIDEOFORMAT_PAL_H:
             bVideoIF     = TDA9887_VideoIF_38_90;
 	        bAudioIF     = TDA9887_AudioIF_5_5;
             break;
@@ -385,47 +388,47 @@ void CTDA9887Pinnacle::TunerSet(bool bPreSet, eVideoFormat videoFormat)
 	        bAudioIF     = TDA9887_AudioIF_6_0;
 	        break;
         case VIDEOFORMAT_PAL_M:
-        case VIDEOFORMAT_PAL_N:    
+        case VIDEOFORMAT_PAL_N:
         case VIDEOFORMAT_PAL_N_COMBO:   //Not sure about PAL-NC
             bVideoIF     = TDA9887_VideoIF_45_75;
 	        bAudioIF     = TDA9887_AudioIF_4_5;
 
-        case VIDEOFORMAT_SECAM_D:	        
+        case VIDEOFORMAT_SECAM_D:
             bVideoIF     = TDA9887_VideoIF_38_00;
             bAudioIF     = TDA9887_AudioIF_6_5;
             break;
-        case VIDEOFORMAT_SECAM_K:    
+        case VIDEOFORMAT_SECAM_K:
         case VIDEOFORMAT_SECAM_K1:
             bVideoIF     = TDA9887_VideoIF_38_90;
-            bAudioIF     = TDA9887_AudioIF_6_5;        
+            bAudioIF     = TDA9887_AudioIF_6_5;
             break;
         case VIDEOFORMAT_SECAM_L:
             bVideoIF     = TDA9887_VideoIF_38_90;
-            bAudioIF     = TDA9887_AudioIF_6_5;        
+            bAudioIF     = TDA9887_AudioIF_6_5;
             break;
         case VIDEOFORMAT_SECAM_L1:
             bVideoIF     = TDA9887_VideoIF_33_90;
-            bAudioIF     = TDA9887_AudioIF_6_5;        
+            bAudioIF     = TDA9887_AudioIF_6_5;
             break;
 
-        case VIDEOFORMAT_NTSC_M:        
-        case VIDEOFORMAT_NTSC_M_Japan:    
+        case VIDEOFORMAT_NTSC_M:
+        case VIDEOFORMAT_NTSC_M_Japan:
             bVideoIF     = TDA9887_VideoIF_45_75;
             bAudioIF     = TDA9887_AudioIF_4_5;
 	        break;
 
-        case (VIDEOFORMAT_LASTONE+1): // FM Radio		
-	        if (m_CardId == 3) 
+        case (VIDEOFORMAT_LASTONE+1): // FM Radio
+	        if (m_CardId == 3)
             {
 		        // NTSC
 		        bVideoIF     = TDA9887_RadioIF_45_75;
-                bAudioIF     = TDA9887_AudioIF_4_5;			
-	        } 
-            else 
+                bAudioIF     = TDA9887_AudioIF_4_5;
+	        }
+            else
             {
 		        // PAL
-		        bVideoIF     = TDA9887_RadioIF_38_90;			
-                bAudioIF     = TDA9887_AudioIF_5_5;			
+		        bVideoIF     = TDA9887_RadioIF_38_90;
+                bAudioIF     = TDA9887_AudioIF_5_5;
 	        }
 	        break;
 
@@ -434,7 +437,7 @@ void CTDA9887Pinnacle::TunerSet(bool bPreSet, eVideoFormat videoFormat)
             bVideoIF     = TDA9887_VideoIF_38_90;
 	        bAudioIF     = TDA9887_AudioIF_5_5;
 
-        case VIDEOFORMAT_PAL_60:    
+        case VIDEOFORMAT_PAL_60:
             ///\todo check
             bVideoIF     = TDA9887_VideoIF_45_75;
             bAudioIF     = TDA9887_AudioIF_5_5;
@@ -447,11 +450,11 @@ void CTDA9887Pinnacle::TunerSet(bool bPreSet, eVideoFormat videoFormat)
 
         bData[2] =  bVideoTrap                   |  // B0: video trap bypass
 		            TDA9887_AutoMuteFmInactive   |  // B1: auto mute
-	                bCarrierMode                 |  // B2: InterCarrier for PAL else QSS 
+	                bCarrierMode                 |  // B2: InterCarrier for PAL else QSS
 	    	        bModulation                  |  // B3 - B4: positive AM TV for SECAM only
 	    	        TDA9887_ForcedMuteAudioOFF   |  // B5: forced Audio Mute (off)
-		            bOutPort1                    |  // B6: Out Port 1 
-		            bOutPort2;                      // B7: Out Port 2 
+		            bOutPort1                    |  // B6: Out Port 1
+		            bOutPort2;                      // B7: Out Port 2
         bData[3] =  bTopAdjust                   |  // C0 - C4: Top Adjust 0 == -16dB  31 == 15dB
 	    	        bDeEmphasis                  |  // C5: De-emphasis on/off
 	    	        bDeEmphVal                   |  // C6: De-emphasis 50/75 microsec
@@ -469,68 +472,70 @@ void CTDA9887Pinnacle::TunerSet(bool bPreSet, eVideoFormat videoFormat)
     }
     else
     {
-        bData[2] &= ~TDA9887_OutputPort2Inactive;    
+        bData[2] &= ~TDA9887_OutputPort2Inactive;
     }
 
 	LOG(2,"TDA9885/6/7 Pinnacle: 0x%02x 0x%02x 0x%02x", bData[2],bData[3],bData[4]);
-    
-	m_I2CBus->Write(bData, 5);    	
+
+	m_I2CBus->Write(bData, 5);
 }
 
-///////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////
 
-CTDA9887FromIni::TVStandards CTDA9887FromIni::m_TVStandards =
+//////////////////////////////////////////////////////////////////////////
+// CTDA9887Ex
+//////////////////////////////////////////////////////////////////////////
+
+const CTDA9887Ex::TTDABytes CTDA9887Ex::k_TDAStandardtSettings[TDA9887_FORMAT_LASTONE] =
 {
-	{	
+	{
 		// Pal_BG
 		TDA9887_NegativeFmTV | TDA9887_QSS,
 		TDA9887_DeemphasisON | TDA9887_Deemphasis50 | TDA9887_TakeOverPointDefault,
 		TDA9887_AudioIF_5_5  | TDA9887_VideoIF_38_90,
 	},
-	{	
+	{
 		// Pal_I
 		TDA9887_NegativeFmTV | TDA9887_QSS,
 		TDA9887_DeemphasisON | TDA9887_Deemphasis50 | TDA9887_TakeOverPointDefault,
 		TDA9887_AudioIF_6_0  | TDA9887_VideoIF_38_90,
 	},
-	{	
+	{
 		// Pal_DK
 		TDA9887_NegativeFmTV | TDA9887_QSS,
 		TDA9887_DeemphasisON | TDA9887_Deemphasis50 | TDA9887_TakeOverPointDefault,
 		TDA9887_AudioIF_6_5  | TDA9887_VideoIF_38_00,
 	},
-	{	
+	{
 		// BYTE Pal_MN
 		TDA9887_NegativeFmTV | TDA9887_QSS,
 		TDA9887_DeemphasisON | TDA9887_Deemphasis75 | TDA9887_TakeOverPointDefault,
 		TDA9887_AudioIF_4_5  | TDA9887_VideoIF_45_75,
 	},
-	{	
+	{
 		// Secam_L
 		TDA9887_PositiveAmTV | TDA9887_QSS,
 		TDA9887_TakeOverPointDefault,
 		TDA9887_AudioIF_6_5  | TDA9887_VideoIF_38_90,
 	},
-	{	
+	{
 		// Secam_DK
 		TDA9887_NegativeFmTV | TDA9887_QSS,
 		TDA9887_DeemphasisON | TDA9887_Deemphasis50 | TDA9887_TakeOverPointDefault,
 		TDA9887_AudioIF_6_5  | TDA9887_VideoIF_38_00,
 	},
-	{	
+	{
 		// Ntsc_M
 		TDA9887_NegativeFmTV | TDA9887_QSS,
 		TDA9887_DeemphasisON | TDA9887_Deemphasis50  | TDA9887_TakeOverPointDefault,
 		TDA9887_AudioIF_4_5  | TDA9887_VideoIF_45_75 | TDA9887_Gating_36,
 	},
-	{	
+	{
 		// Ntsc_Jp
 		TDA9887_NegativeFmTV | TDA9887_QSS,
 		TDA9887_DeemphasisON | TDA9887_Deemphasis50  | TDA9887_TakeOverPointDefault,
 		TDA9887_AudioIF_4_5  | TDA9887_VideoIF_58_75 | TDA9887_Gating_36,
 	},
-	{	
+	{
 		// Fm_Radio
 		TDA9887_FmRadio      | TDA9887_QSS,
 		TDA9887_DeemphasisON | TDA9887_Deemphasis75 | TDA9887_TakeOverPointDefault,
@@ -538,155 +543,141 @@ CTDA9887FromIni::TVStandards CTDA9887FromIni::m_TVStandards =
 	},
 };
 
-CTDA9887FromIni::CTDA9887FromIni()
+CTDA9887Ex::CTDA9887Ex()
+{
+	memcpy(m_TDASettings, k_TDAStandardtSettings, sizeof(m_TDASettings));
+}
+
+CTDA9887Ex::~CTDA9887Ex()
 {
 }
 
-CTDA9887FromIni::~CTDA9887FromIni()
-{    
-}
-
-bool CTDA9887FromIni::Detect()
+void CTDA9887Ex::TunerSet(IN bool bPreSet, IN eVideoFormat format)
 {
-    return true;
-	
-	BYTE tda9887set[] = {m_DeviceAddress, 0x00, 0x54, 0x70, 0x44};
-	if (m_I2CBus->Write(tda9887set,5))
+	eTDA9887Format tdaFormat = VideoFormat2TDA9887Format(format);
+	if (tdaFormat == TDA9887_FORMAT_NONE)
 	{
-		return true;
+		LOG(2,"CTDA9887Ex: Unsupported video format: %u", format);
 	}
-    return false;
-}
-
-eTunerAFCStatus CTDA9887FromIni::GetAFCStatus(long &nFreqDeviation)
-{
-    /**
-    bit 0: power on reset
-    bit 1-4: AFC
-    bit 5: FM carrier detection
-    bit 6: VIF input level
-    bit 7: 1=VCO in +-1.6MHz AFC window
-    */
-    BYTE addr[] = { m_DeviceAddress };
-    BYTE result;        
-    if (m_I2CBus->Read(addr, 1, &result, 1))
-    {
-        nFreqDeviation = ((result>>1) & 0xF);
-        if ((nFreqDeviation == 0x7) || (nFreqDeviation == 0x8))
-        {
-            // <= -187.5 kHz or >= 187.5 hKz
-            //return TUNER_AFC_NOCARRIER;
-        }
-        if (nFreqDeviation&8)
-        {
-            nFreqDeviation |= (-8);
-        }
-        
-        nFreqDeviation = -1 * ((nFreqDeviation *  25000) + 12500);
-        return TUNER_AFC_CARRIER;
-    }
-    return TUNER_AFC_NOTSUPPORTED;
-}
-
-void CTDA9887FromIni::Init(bool bPreInit, eVideoFormat videoFormat)
-{
-    TunerSet(bPreInit, videoFormat);
-}
-
-CTDA9887FromIni::TDABytes* CTDA9887FromIni::GetTDABytesFromVideoFormat(eVideoFormat VideoFormat)
-{
-	TDABytes* pBytes = NULL;
-
-	switch (VideoFormat)
+	else
 	{
-		case VIDEOFORMAT_PAL_B:    
-		case VIDEOFORMAT_PAL_G:
-			pBytes = &m_TVStandards.Pal_BG;
-			break;
-
-		case VIDEOFORMAT_PAL_I:
-			pBytes = &m_TVStandards.Pal_I;
-			break;
-
-		case VIDEOFORMAT_PAL_D:
-			pBytes = &m_TVStandards.Pal_DK;
-			break;
-
-		case VIDEOFORMAT_PAL_M:
-		case VIDEOFORMAT_PAL_N:
-		case VIDEOFORMAT_PAL_N_COMBO:
-			pBytes = &m_TVStandards.Pal_MN;
-			break;
-
-		case VIDEOFORMAT_SECAM_L:
-		case VIDEOFORMAT_SECAM_L1:
-			pBytes = &m_TVStandards.Secam_L;
-			break;
-
-		case VIDEOFORMAT_SECAM_D:	
-		case VIDEOFORMAT_SECAM_K:
-		case VIDEOFORMAT_SECAM_K1:
-			pBytes = &m_TVStandards.Secam_DK;
-			break;
-
-		case VIDEOFORMAT_NTSC_M:        
-			pBytes = &m_TVStandards.Ntsc_M;
-			break;
-
-		case VIDEOFORMAT_NTSC_50:
-		case VIDEOFORMAT_NTSC_M_Japan:
-			pBytes = &m_TVStandards.Ntsc_JP;
-			break;
-
-		case (VIDEOFORMAT_LASTONE+1):
-			//radio
-			pBytes = &m_TVStandards.Fm_Radio;
-			break;
-	}
-
-	return pBytes;
-}
-
-void CTDA9887FromIni::SetCardSpecific(eVideoFormat videoFormat, BYTE B, BYTE C /* = TDA9887_TakeOverPointDefault(0x10) */)
-{
-	TDABytes* pBytes = GetTDABytesFromVideoFormat(videoFormat);
-
-	if(pBytes)
-	{
-		BYTE i = B & (TDA9887_OutputPort1Inactive | TDA9887_OutputPort2Inactive);
-		BYTE j = C & TDA9887_TakeOverPointMax;
-		BYTE k = pBytes->C & ~TDA9887_TakeOverPointMax;
-
-		pBytes->B |= i;
-		pBytes->C = j | k;
+		TunerSet(bPreSet, tdaFormat);
 	}
 }
 
-void CTDA9887FromIni::TunerSet(bool bPreSet, eVideoFormat VideoFormat)
+void CTDA9887Ex::TunerSet(IN bool bPreSet, IN eTDA9887Format format)
 {
-	BYTE tda9887set[5] = {m_DeviceAddress};
-
-	if (!bPreSet)
+	if (!bPreSet || format == TDA9887_FORMAT_NONE)
 	{
-		// only setup before tuning
+		// Only setup before tuning (bPreSet).
 		return;
 	}
 
-	TDABytes* pBytes = GetTDABytesFromVideoFormat(VideoFormat);
+	BYTE writeBytes[5] = { m_DeviceAddress, 0x00 };
 
-	if(pBytes)
+	writeBytes[2] = m_TDASettings[format].b;
+	writeBytes[3] = m_TDASettings[format].c;
+	writeBytes[4] = m_TDASettings[format].e;
+
+	LOG(2,"CTDA9887Ex: 0x%02x 0x%02x 0x%02x", writeBytes[2], writeBytes[3], writeBytes[4]);
+	m_I2CBus->Write(writeBytes, 5);
+}
+
+void CTDA9887Ex::SetModes(IN eTDA9887Format format, IN BYTE mask, IN BYTE bits)
+{
+	if (format == TDA9887_FORMAT_NONE)
 	{
-		tda9887set[2] = pBytes->B;
-		tda9887set[3] = pBytes->C;
-		tda9887set[4] = pBytes->E;
-
-		LOG(2,"TDA9887FromIni: 0x%02x 0x%02x 0x%02x", tda9887set[2],tda9887set[3],tda9887set[4]);
-		m_I2CBus->Write(tda9887set, 5);   
+		return;
 	}
 
+	// Override demodulation
+	if (mask & TDA9887_SM_DEMODULATION_QSS)
+	{
+		SetBit(m_TDASettings[format].b,
+			TDA9887_QSS, (bits & TDA9887_SM_DEMODULATION_QSS) != 0);
+	}
+	// Override OutputPort1
+	if (mask & TDA9887_SM_OUTPUTPORT1_INACTIVE)
+	{
+		SetBit(m_TDASettings[format].b,
+			TDA9887_OutputPort1Inactive, (bits & TDA9887_SM_OUTPUTPORT1_INACTIVE) != 0);
+	}
+	// Override OutputPort2
+	if (mask & TDA9887_SM_OUTPUTPORT2_INACTIVE)
+	{
+		SetBit(m_TDASettings[format].b,
+			TDA9887_OutputPort2Inactive, (bits & TDA9887_SM_OUTPUTPORT2_INACTIVE) != 0);
+	}
+	// Override TakeOverPoint
+	if (mask & TDA9887_SM_TAKEOVERPOINT_MASK)
+	{
+		m_TDASettings[format].c &= ~TDA9887_TakeOverPointMax;
+		m_TDASettings[format].c |=
+			(bits & TDA9887_SM_TAKEOVERPOINT_MASK) >> TDA9887_SM_TAKEOVERPOINT_OFFSET;
+	}
+}
+
+void CTDA9887Ex::SetModes(IN eTDA9887Format format, IN TTDA9887Modes* modes)
+{
+	SetModes(format, modes->mask, modes->bits);
+}
+
+void CTDA9887Ex::SetModes(IN TTDA9887FormatModes* modes)
+{
+	SetModes(modes->format, modes->mask, modes->bits);
+}
+
+eTDA9887Format CTDA9887Ex::VideoFormat2TDA9887Format(IN eVideoFormat format)
+{
+	switch (format)
+	{
+		case VIDEOFORMAT_PAL_B:
+		case VIDEOFORMAT_PAL_G:
+			return TDA9887_FORMAT_PAL_BG;
+		case VIDEOFORMAT_PAL_I:
+			return TDA9887_FORMAT_PAL_I;
+		case VIDEOFORMAT_PAL_D:
+			return TDA9887_FORMAT_PAL_DK;
+		case VIDEOFORMAT_PAL_M:
+		case VIDEOFORMAT_PAL_N:
+		case VIDEOFORMAT_PAL_N_COMBO:
+			return TDA9887_FORMAT_PAL_MN;
+		case VIDEOFORMAT_SECAM_L:
+		case VIDEOFORMAT_SECAM_L1:
+			return TDA9887_FORMAT_SECAM_L;
+		case VIDEOFORMAT_SECAM_D:
+		case VIDEOFORMAT_SECAM_K:
+		case VIDEOFORMAT_SECAM_K1:
+			return TDA9887_FORMAT_SECAM_DK;
+		case VIDEOFORMAT_NTSC_M:
+			return TDA9887_FORMAT_NTSC_M;
+		case VIDEOFORMAT_NTSC_50:
+		case VIDEOFORMAT_NTSC_M_Japan:
+			return TDA9887_FORMAT_NTSC_JP;
+		case (VIDEOFORMAT_LASTONE+1):
+			return TDA9887_FORMAT_RADIO;
+		// I'm not sure about the following.
+		case VIDEOFORMAT_PAL_H:
+		case VIDEOFORMAT_SECAM_B:
+		case VIDEOFORMAT_SECAM_G:
+		case VIDEOFORMAT_SECAM_H:
+			return TDA9887_FORMAT_PAL_BG;
+		case VIDEOFORMAT_PAL_60:
+			return TDA9887_FORMAT_NTSC_M;
+	}
+	// NEVER_GET_HERE;
+	return TDA9887_FORMAT_NONE;
+}
+
+void CTDA9887Ex::SetBit(IN OUT BYTE& vector, IN BYTE bit, IN bool set)
+{
+	if (set)
+	{
+		vector |= bit;
+	}
 	else
 	{
-		LOG(1,"TDA9887FromIni: unknown Videoformat");
+		vector &= ~bit;
 	}
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.31 2002-09-29 13:56:30 adcockj Exp $
+// $Id: MixerDev.cpp,v 1.32 2002-10-07 22:30:31 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2002/09/29 13:56:30  adcockj
+// Fixed some cursor hide problems
+//
 // Revision 1.30  2002/09/28 13:31:41  kooiman
 // Added sender object to events and added setting flag to treesettingsgeneric.
 //
@@ -134,6 +137,8 @@ std::string MixerDev_Section;
 void MixerDev_SettingSetSection(LPCSTR szSource);
 void Mixer_OnInputChange(int);
 extern SETTING MixerDevSettings[MIXERDEV_SETTING_LASTONE]; //defined below
+
+void Mixer_OnInputChangeNotification(void *pThis, int PreChange, eSourceInputType InputType, int OldInput, int NewInput);
 
 CMixerLineSource::CMixerLineSource(HMIXER hMixer, int DestId, int SourceId)
 {
@@ -726,6 +731,11 @@ BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             }
             break;
         case IDOK:
+            if (bUseMixer && (Providers_GetCurrentSource() != NULL))
+            {
+                Mixer_OnInputChangeNotification(NULL,0,VIDEOINPUT,-1,-1);
+            }
+
             MixerIndex = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_MIXER));
             lstrcpy((char*) &MixerName, pSoundSystem->GetMixerName2(MixerIndex));
             DestIndex = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_DEST));
@@ -738,6 +748,13 @@ BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             if(bUseMixer == FALSE)
             {
                 pSoundSystem->SetMixer(-1);
+            }
+            else
+            {
+                if (Providers_GetCurrentSource() != NULL)
+                {
+                    Mixer_OnInputChangeNotification(NULL,0,VIDEOINPUT,-1,Providers_GetCurrentSource()->GetInput(VIDEOINPUT));
+                }
             }
 			WriteSettingsToIni(TRUE);
             EndDialog(hDlg, 0);
@@ -1064,14 +1081,26 @@ void Mixer_OnSourceChange(void *pThis, int Flags, CSource *pSource)
 
 void Mixer_EventOnChangeNotification(void *pThis, CEventObject *pEventObject, eEventType EventType, long OldValue, long NewValue, eEventType *ComingUp)
 {
-    if (EventType == EVENT_SOURCE_PRECHANGE) { Mixer_OnSourceChange(pThis, 1, (CSource*)OldValue); }
-    else if (EventType == EVENT_SOURCE_CHANGE) { Mixer_OnSourceChange(pThis, 0, (CSource*)NewValue); }
+    if (EventType == EVENT_SOURCE_PRECHANGE) 
+    { 
+        Mixer_OnSourceChange(pThis, 1, (CSource*)OldValue); 
+    }
+    else if (EventType == EVENT_SOURCE_CHANGE) 
+    { 
+        Mixer_OnSourceChange(pThis, 0, (CSource*)NewValue); 
+    }
     else 
 	{
-		if (pEventObject == Providers_GetCurrentSource())
+		if (pEventObject == (CEventObject*)Providers_GetCurrentSource())
 		{
-			if (EventType == EVENT_VIDEOINPUT_PRECHANGE) { Mixer_OnInputChangeNotification(pThis, 1, VIDEOINPUT, OldValue, NewValue); }
-			else if (EventType == EVENT_VIDEOINPUT_CHANGE) { Mixer_OnInputChangeNotification(pThis, 0, VIDEOINPUT, OldValue, NewValue); }    
+			if (EventType == EVENT_VIDEOINPUT_PRECHANGE) 
+            { 
+                Mixer_OnInputChangeNotification(pThis, 1, VIDEOINPUT, OldValue, NewValue); 
+            }
+			else if (EventType == EVENT_VIDEOINPUT_CHANGE) 
+            { 
+                Mixer_OnInputChangeNotification(pThis, 0, VIDEOINPUT, OldValue, NewValue); 
+            }    
 		}
 	}
 }
@@ -1090,13 +1119,13 @@ void Mixer_Exit()
         //Providers_Unregister_SourceChangeNotification(NULL,Mixer_OnSourceChange);
         EventCollector->Unregister(Mixer_EventOnChangeNotification,NULL);
 
-		    if(bUseMixer)
-		    {
+		if(bUseMixer)
+		{
             if(pSoundSystem->GetMixer() != NULL && bResetOnExit)
             {
                 pSoundSystem->GetMixer()->ResetToOriginal();
             }
-		    }
+		}
         delete pSoundSystem;
         pSoundSystem = NULL;
     }

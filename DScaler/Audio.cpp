@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Audio.cpp,v 1.32 2002-12-13 02:50:48 atnak Exp $
+// $Id: Audio.cpp,v 1.33 2002-12-13 20:35:12 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2002/12/13 02:50:48  atnak
+// Added error protection to Anti-Plop unmute delay timer
+//
 // Revision 1.31  2002/12/09 00:32:15  atnak
 // Added new muting stuff
 //
@@ -127,7 +130,7 @@
 #include "Status.h"
 #include "MixerDev.h"
 #include "Providers.h"
-
+#include "OutThreads.h"
 
 CRITICAL_SECTION AudioMuteCriticalSection;
 BYTE AudioMuteStatus = 0;
@@ -191,6 +194,7 @@ void Audio_Mute(DWORD PostMuteDelay)
 
 void Audio_Unmute(DWORD PreUnmuteDelay)
 {
+	ASSERTONOUTTHREAD;
     EnterCriticalSection(&AudioMuteCriticalSection);
 
     if(AudioMuteStatus > 0)

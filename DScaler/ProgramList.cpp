@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.43 2002-01-17 22:25:23 robmuller Exp $
+// $Id: ProgramList.cpp,v 1.44 2002-01-19 17:23:43 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.43  2002/01/17 22:25:23  robmuller
+// Channel searching is no longer dependant on the duration of Sleep(3).
+// MT2032 channel searching speedup.
+//
 // Revision 1.42  2001/12/18 14:45:05  adcockj
 // Moved to Common Controls status bar
 //
@@ -1241,13 +1245,12 @@ void Unload_Country_Settings()
 
 void Load_Country_Settings()
 {
-    FILE* CountryFile;
-    char line[128];
-    char* Pos;
-    char* Pos1;
-    char* eol_ptr;
-    unsigned int i;
-    string Name;
+    FILE*     CountryFile;
+    char      line[128];
+    char*     Pos;
+    char*     Pos1;
+    char*     eol_ptr;
+    string    Name;
     CCountry* NewCountry = NULL;
 
     if ((CountryFile = fopen("Channel.txt", "r")) == NULL)
@@ -1255,7 +1258,6 @@ void Load_Country_Settings()
         ErrorBox("File Channel.txt not Found");
         return;
     }
-    i = 0;
 
     while (fgets(line, sizeof(line), CountryFile) != NULL)
     {
@@ -1280,28 +1282,38 @@ void Load_Country_Settings()
             NewCountry->m_Name = Pos;
             NewCountry->m_Name[Pos1-Pos] = '\0';
         }
-        else if ((Pos = strstr(line, "ChannelLow=")) != 0)
-        {
-            NewCountry->m_MinChannel = atoi(Pos + strlen("ChannelLow="));
-        }
-        else if ((Pos = strstr(line, "ChannelHigh=")) != 0)
-        {
-            NewCountry->m_MaxChannel = atoi(Pos + strlen("ChannelHigh="));
-        }
         else
         {
-            Pos = line;
-            while (*Pos != '\0')
+            if (NewCountry == NULL)
             {
-                if ((*Pos >= '0') && (*Pos <= '9'))
+                fclose(CountryFile);
+                ErrorBox("Invalid Channel.txt");
+                return;
+            }
+            
+            if ((Pos = strstr(line, "ChannelLow=")) != 0)
+            {
+                NewCountry->m_MinChannel = atoi(Pos + strlen("ChannelLow="));
+            }
+            else if ((Pos = strstr(line, "ChannelHigh=")) != 0)
+            {
+                NewCountry->m_MaxChannel = atoi(Pos + strlen("ChannelHigh="));
+            }
+            else
+            {
+                Pos = line;
+                while (*Pos != '\0')
                 {
-                    // convert frequency in KHz to Units that the tuner wants
-                    long Freq = atol(Pos);
-                    Freq = MulDiv(Freq, 16, 1000000);
-                    NewCountry->m_Frequencies.push_back(Freq);
-                    break;
+                    if ((*Pos >= '0') && (*Pos <= '9'))
+                    {
+                        // convert frequency in KHz to Units that the tuner wants
+                        long Freq = atol(Pos);
+                        Freq = MulDiv(Freq, 16, 1000000);
+                        NewCountry->m_Frequencies.push_back(Freq);
+                        break;
+                    }
+                    Pos++;
                 }
-                Pos++;
             }
         }
     }

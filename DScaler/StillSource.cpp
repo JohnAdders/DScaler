@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.28 2002-02-09 02:44:56 laurentg Exp $
+// $Id: StillSource.cpp,v 1.29 2002-02-09 21:12:28 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2002/02/09 02:44:56  laurentg
+// Overscan now stored in a setting of the source
+//
 // Revision 1.27  2002/02/08 19:11:43  laurentg
 // Don't add the file to the playlist if the file is not supported
 //
@@ -243,16 +246,49 @@ BOOL CStillSource::OpenMediaFile(LPCSTR FileName, BOOL NewPlayList)
                     {
                         Buffer++;
                     }
-                    if(strlen(Buffer) > 0 && *Buffer != '#' && *Buffer != ';')
+                    if(strlen(Buffer) == 0 || *Buffer == '#' || *Buffer == ';')
                     {
-                        // take care of stuff that is at end of the line
-                        while(strlen(Buffer) > 0 && Buffer[strlen(Buffer) - 1] <= ' ')
-                        {
-                            Buffer[strlen(Buffer) - 1] = '\0';
-                        }
-                        if (strlen(Buffer) > 0 && !stat(Buffer, &st))
+                        continue;
+                    }
+                    // take care of stuff that is at end of the line
+                    while(strlen(Buffer) > 0 && Buffer[strlen(Buffer) - 1] <= ' ')
+                    {
+                        Buffer[strlen(Buffer) - 1] = '\0';
+                    }
+                    if (strlen(Buffer) == 0)
+                    {
+                        continue;
+                    }
+                    if (!strncmp(&Buffer[1], ":\\", 2) || (Buffer[0] == '\\'))
+                    {
+                        if (!stat(Buffer, &st))
                         {
                             CPlayListItem* Item = new CPlayListItem(Buffer, 10);
+                            m_PlayList.push_back(Item);
+                            if (!FirstNewAdded)
+                            {
+                                m_Position = m_PlayList.size() - 1;
+                                FirstNewAdded = TRUE;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        char FilePath[MAX_PATH];
+                        char* pStr = strrchr(FileName, '\\');
+                        if (pStr == NULL)
+                        {
+                            strcpy(FilePath, FileName);
+                        }
+                        else
+                        {
+                            strncpy(FilePath, FileName, pStr - FileName + 1);
+                            FilePath[pStr - FileName + 1] = '\0';
+                            strcat(FilePath, Buffer);
+                        }
+                        if (!stat(FilePath, &st))
+                        {
+                            CPlayListItem* Item = new CPlayListItem(FilePath, 10);
                             m_PlayList.push_back(Item);
                             if (!FirstNewAdded)
                             {

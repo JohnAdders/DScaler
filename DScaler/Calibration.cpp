@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.42 2002-02-09 18:06:27 laurentg Exp $
+// $Id: Calibration.cpp,v 1.43 2002-02-09 21:12:28 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.42  2002/02/09 18:06:27  laurentg
+// Avoid to start calibration if there is no control on needed settings
+//
 // Revision 1.41  2002/02/09 12:57:38  laurentg
 // Function Calibr_ShowUI added
 //
@@ -602,17 +605,6 @@ CTestPattern::CTestPattern(char* name, int height)
 CTestPattern::CTestPattern(LPCSTR FileName)
 {
     CColorBar* color_bar;
-    CColorBar* color_bar1;
-    CColorBar* color_bar2;
-    CColorBar* color_bar3;
-    CColorBar* color_bar4;
-    CColorBar* color_bar5;
-    CColorBar* color_bar6;
-    CColorBar* color_bar7;
-    CColorBar* color_bar8;
-    CColorBar* color_bar9;
-    CColorBar* color_bar10;
-    CColorBar* color_bar11;
     CSubPattern* sub_pattern;
     char BufferLine[512];
     char *Buffer;
@@ -621,254 +613,6 @@ CTestPattern::CTestPattern(LPCSTR FileName)
     char s_val[512];
     int n;
     eTypeAdjust TypeAdjust;
-
-    if (!strcmp(FileName, "THX_NTSC_1.pat"))
-    {
-
-    strcpy(m_PatternName, "THX Optimode Ntsc - Monitor Performance");
-    m_Width = 720;
-    m_Height = 480;
-
-    color_bar1 = new CColorBar( 347,  764, 6875, 7500, FALSE,   0,   0,   0);
-    m_ColorBars.push_back(color_bar1);
-    color_bar2 = new CColorBar(1181, 1597, 6875, 7500, FALSE,  22,  24,  23);
-    m_ColorBars.push_back(color_bar2);
-    color_bar3 = new CColorBar(2014, 2431, 6875, 7500, FALSE,  48,  50,  49);
-    m_ColorBars.push_back(color_bar3);
-    color_bar4 = new CColorBar(7083, 7500, 6875, 7500, FALSE, 201, 203, 202);
-    m_ColorBars.push_back(color_bar4);
-    color_bar5 = new CColorBar(7917, 8333, 6875, 7500, FALSE, 227, 228, 227);
-    m_ColorBars.push_back(color_bar5);
-    color_bar6 = new CColorBar(8750, 9167, 6875, 7500, FALSE, 252, 253, 252);
-    m_ColorBars.push_back(color_bar6);
-
-    sub_pattern = new CSubPattern(ADJ_BRIGHTNESS_CONTRAST);
-    sub_pattern->m_ColorBars.push_back(color_bar1);
-    sub_pattern->m_ColorBars.push_back(color_bar2);
-    sub_pattern->m_ColorBars.push_back(color_bar3);
-    sub_pattern->m_ColorBars.push_back(color_bar4);
-    sub_pattern->m_ColorBars.push_back(color_bar5);
-    sub_pattern->m_ColorBars.push_back(color_bar6);
-    m_SubPatterns.push_back(sub_pattern);
-
-    sub_pattern = new CSubPattern(ADJ_BRIGHTNESS);
-    sub_pattern->m_ColorBars.push_back(color_bar1);
-    sub_pattern->m_ColorBars.push_back(color_bar2);
-    sub_pattern->m_ColorBars.push_back(color_bar3);
-    m_SubPatterns.push_back(sub_pattern);
-
-    sub_pattern = new CSubPattern(ADJ_CONTRAST);
-    sub_pattern->m_ColorBars.push_back(color_bar4);
-    sub_pattern->m_ColorBars.push_back(color_bar5);
-    sub_pattern->m_ColorBars.push_back(color_bar6);
-    m_SubPatterns.push_back(sub_pattern);
-
-    color_bar1 = new CColorBar( 278, 1042, 2396, 4167, FALSE, 251, 252, 251);
-    m_ColorBars.push_back(color_bar1);
-    color_bar2 = new CColorBar(1458, 2222, 2396, 4167, FALSE, 188, 190,   0);
-    m_ColorBars.push_back(color_bar2);
-    color_bar3 = new CColorBar(2708, 3472, 2396, 4167, FALSE,   0, 188, 185);
-    m_ColorBars.push_back(color_bar3);
-    color_bar4 = new CColorBar(3889, 4653, 2396, 4167, FALSE,   0, 188,   0);
-    m_ColorBars.push_back(color_bar4);
-    color_bar5 = new CColorBar(5139, 5903, 2396, 4167, FALSE, 187,   0, 187);
-    m_ColorBars.push_back(color_bar5);
-    color_bar6 = new CColorBar(6319, 7083, 2396, 4167, FALSE, 186,   0,   0);
-    m_ColorBars.push_back(color_bar6);
-    color_bar7 = new CColorBar(7569, 8333, 2396, 4167, FALSE,   0,   0, 187);
-    m_ColorBars.push_back(color_bar7);
-    color_bar8 = new CColorBar(8750, 9514, 2396, 4167, FALSE,   0,   0,   0);
-    m_ColorBars.push_back(color_bar8);
-    
-    sub_pattern = new CSubPattern(ADJ_COLOR);
-    sub_pattern->m_ColorBars.push_back(color_bar1);
-    sub_pattern->m_ColorBars.push_back(color_bar2);
-    sub_pattern->m_ColorBars.push_back(color_bar3);
-    sub_pattern->m_ColorBars.push_back(color_bar4);
-    sub_pattern->m_ColorBars.push_back(color_bar5);
-    sub_pattern->m_ColorBars.push_back(color_bar6);
-    sub_pattern->m_ColorBars.push_back(color_bar7);
-    sub_pattern->m_ColorBars.push_back(color_bar8);
-    m_SubPatterns.push_back(sub_pattern);
-
-    sub_pattern = new CSubPattern(ADJ_SATURATION_U);
-    sub_pattern->m_ColorBars.push_back(color_bar7);
-    m_SubPatterns.push_back(sub_pattern);
-
-    sub_pattern = new CSubPattern(ADJ_SATURATION_V);
-    sub_pattern->m_ColorBars.push_back(color_bar6);
-    m_SubPatterns.push_back(sub_pattern);
-
-    sub_pattern = new CSubPattern(ADJ_HUE);
-    sub_pattern->m_ColorBars.push_back(color_bar3);
-    sub_pattern->m_ColorBars.push_back(color_bar4);
-    sub_pattern->m_ColorBars.push_back(color_bar5);
-    m_SubPatterns.push_back(sub_pattern);
-
-    CreateGlobalSubPattern();
-
-    }
-    else if (!strcmp(FileName, "THX_NTSC_2.pat"))
-    {
-
-    strcpy(m_PatternName, "THX Optimode Ntsc - tint color");
-    m_Width = 720;
-    m_Height = 480;
-
-    color_bar1 = new CColorBar( 417, 1111, 2500, 5625, FALSE, 188, 189, 188);
-    m_ColorBars.push_back(color_bar1);
-    color_bar2 = new CColorBar(1806, 2500, 2500, 5625, FALSE, 189, 190,   0);
-    m_ColorBars.push_back(color_bar2);
-    color_bar3 = new CColorBar(3194, 3889, 2500, 5625, FALSE,   0, 190, 188);
-    m_ColorBars.push_back(color_bar3);
-    color_bar4 = new CColorBar(4583, 5278, 2500, 5625, FALSE,   0, 189,   0);
-    m_ColorBars.push_back(color_bar4);
-    color_bar5 = new CColorBar(6042, 6736, 2500, 5625, FALSE, 188,   0, 190);
-    m_ColorBars.push_back(color_bar5);
-    color_bar6 = new CColorBar(7431, 8125, 2500, 5625, FALSE, 189,   0,   0);
-    m_ColorBars.push_back(color_bar6);
-    color_bar7 = new CColorBar(8889, 9583, 2500, 5625, FALSE,   0,   0, 189);
-    m_ColorBars.push_back(color_bar7);
-    
-    sub_pattern = new CSubPattern(ADJ_COLOR);
-    sub_pattern->m_ColorBars.push_back(color_bar1);
-    sub_pattern->m_ColorBars.push_back(color_bar2);
-    sub_pattern->m_ColorBars.push_back(color_bar3);
-    sub_pattern->m_ColorBars.push_back(color_bar4);
-    sub_pattern->m_ColorBars.push_back(color_bar5);
-    sub_pattern->m_ColorBars.push_back(color_bar6);
-    sub_pattern->m_ColorBars.push_back(color_bar7);
-    m_SubPatterns.push_back(sub_pattern);
-
-    sub_pattern = new CSubPattern(ADJ_SATURATION_U);
-    sub_pattern->m_ColorBars.push_back(color_bar7);
-    m_SubPatterns.push_back(sub_pattern);
-
-    sub_pattern = new CSubPattern(ADJ_SATURATION_V);
-    sub_pattern->m_ColorBars.push_back(color_bar6);
-    m_SubPatterns.push_back(sub_pattern);
-
-    sub_pattern = new CSubPattern(ADJ_HUE);
-    sub_pattern->m_ColorBars.push_back(color_bar3);
-    sub_pattern->m_ColorBars.push_back(color_bar4);
-    sub_pattern->m_ColorBars.push_back(color_bar5);
-    m_SubPatterns.push_back(sub_pattern);
-
-    CreateGlobalSubPattern();
-
-    }
-    else if (!strcmp(FileName, "AVIA_NTSC_1.pat"))
-    {
-
-    strcpy(m_PatternName, "AVIA - T 1 C 7 - range of gray");
-    m_Width = 720;
-    m_Height = 480;
-    
-    color_bar1 = new CColorBar( 208,  764, 2500, 7500, FALSE, 254, 251, 255);
-    m_ColorBars.push_back(color_bar1);
-    color_bar2 = new CColorBar(1111, 1667, 2500, 7500, FALSE, 226, 223, 227);
-    m_ColorBars.push_back(color_bar2);
-    color_bar3 = new CColorBar(2014, 2569, 2500, 7500, FALSE, 200, 197, 201);
-    m_ColorBars.push_back(color_bar3);
-    color_bar4 = new CColorBar(2917, 3472, 2500, 7500, FALSE, 172, 169, 173);
-    m_ColorBars.push_back(color_bar4);
-    color_bar5 = new CColorBar(3819, 4375, 2500, 7500, FALSE, 145, 142, 146);
-    m_ColorBars.push_back(color_bar5);
-    color_bar6 = new CColorBar(4722, 5278, 2500, 7500, FALSE, 117, 114, 118);
-    m_ColorBars.push_back(color_bar6);
-    color_bar7 = new CColorBar(5625, 6181, 2500, 7500, FALSE,  90,  87,  91);
-    m_ColorBars.push_back(color_bar7);
-    color_bar8 = new CColorBar(6528, 7083, 2500, 7500, FALSE,  62,  59,  63);
-    m_ColorBars.push_back(color_bar8);
-    color_bar9 = new CColorBar(7431, 7986, 2500, 7500, FALSE,  34,  31,  35);
-    m_ColorBars.push_back(color_bar9);
-    color_bar10 = new CColorBar(8333, 8889, 2500, 7500, FALSE,   7,   4,   8);
-    m_ColorBars.push_back(color_bar10);
-    color_bar11 = new CColorBar(9236, 9792, 2500, 7500, FALSE,   1,   0,   2);
-    m_ColorBars.push_back(color_bar11);
-    
-    sub_pattern = new CSubPattern(ADJ_BRIGHTNESS_CONTRAST);
-    sub_pattern->m_ColorBars.push_back(color_bar1);
-    sub_pattern->m_ColorBars.push_back(color_bar2);
-    sub_pattern->m_ColorBars.push_back(color_bar3);
-    sub_pattern->m_ColorBars.push_back(color_bar4);
-    sub_pattern->m_ColorBars.push_back(color_bar5);
-    sub_pattern->m_ColorBars.push_back(color_bar6);
-    sub_pattern->m_ColorBars.push_back(color_bar7);
-    sub_pattern->m_ColorBars.push_back(color_bar8);
-    sub_pattern->m_ColorBars.push_back(color_bar9);
-    sub_pattern->m_ColorBars.push_back(color_bar10);
-    sub_pattern->m_ColorBars.push_back(color_bar11);
-    m_SubPatterns.push_back(sub_pattern);
-
-    sub_pattern = new CSubPattern(ADJ_BRIGHTNESS);
-    sub_pattern->m_ColorBars.push_back(color_bar8);
-    sub_pattern->m_ColorBars.push_back(color_bar9);
-    sub_pattern->m_ColorBars.push_back(color_bar10);
-    sub_pattern->m_ColorBars.push_back(color_bar11);
-    m_SubPatterns.push_back(sub_pattern);
-
-    sub_pattern = new CSubPattern(ADJ_CONTRAST);
-    sub_pattern->m_ColorBars.push_back(color_bar1);
-    sub_pattern->m_ColorBars.push_back(color_bar2);
-    sub_pattern->m_ColorBars.push_back(color_bar3);
-    sub_pattern->m_ColorBars.push_back(color_bar4);
-    m_SubPatterns.push_back(sub_pattern);
-
-    CreateGlobalSubPattern();
-
-    }
-    else if (!strcmp(FileName, "AVIA_NTSC_2.pat"))
-    {
-
-    strcpy(m_PatternName, "AVIA - T 4 C 4 - color bars");
-    m_Width = 720;
-    m_Height = 480;
-    
-    color_bar1 = new CColorBar( 417, 1111, 2083, 4167, FALSE, 190, 190, 190);
-    m_ColorBars.push_back(color_bar1);
-    color_bar2 = new CColorBar(1806, 2500, 2083, 4167, FALSE, 190, 189,   0);
-    m_ColorBars.push_back(color_bar2);
-    color_bar3 = new CColorBar(3194, 3889, 2083, 4167, FALSE,   0, 189, 188);
-    m_ColorBars.push_back(color_bar3);
-    color_bar4 = new CColorBar(4583, 5278, 2083, 4167, FALSE,   0, 189,   0);
-    m_ColorBars.push_back(color_bar4);
-    color_bar5 = new CColorBar(6042, 6736, 2083, 4167, FALSE, 190,   0, 191);
-    m_ColorBars.push_back(color_bar5);
-    color_bar6 = new CColorBar(7431, 8125, 2083, 4167, FALSE, 190,   0,   0);
-    m_ColorBars.push_back(color_bar6);
-    color_bar7 = new CColorBar(8889, 9583, 2083, 4167, FALSE,   0,   0, 190);
-    m_ColorBars.push_back(color_bar7);
-    
-    sub_pattern = new CSubPattern(ADJ_COLOR);
-    sub_pattern->m_ColorBars.push_back(color_bar1);
-    sub_pattern->m_ColorBars.push_back(color_bar2);
-    sub_pattern->m_ColorBars.push_back(color_bar3);
-    sub_pattern->m_ColorBars.push_back(color_bar4);
-    sub_pattern->m_ColorBars.push_back(color_bar5);
-    sub_pattern->m_ColorBars.push_back(color_bar6);
-    sub_pattern->m_ColorBars.push_back(color_bar7);
-    m_SubPatterns.push_back(sub_pattern);
-
-    sub_pattern = new CSubPattern(ADJ_SATURATION_U);
-    sub_pattern->m_ColorBars.push_back(color_bar7);
-    m_SubPatterns.push_back(sub_pattern);
-
-    sub_pattern = new CSubPattern(ADJ_SATURATION_V);
-    sub_pattern->m_ColorBars.push_back(color_bar6);
-    m_SubPatterns.push_back(sub_pattern);
-
-    sub_pattern = new CSubPattern(ADJ_HUE);
-    sub_pattern->m_ColorBars.push_back(color_bar3);
-    sub_pattern->m_ColorBars.push_back(color_bar4);
-    sub_pattern->m_ColorBars.push_back(color_bar5);
-    m_SubPatterns.push_back(sub_pattern);
-
-    CreateGlobalSubPattern();
-
-    }
-    else
-    {
 
     FilePat = fopen(FileName, "r");
     if (!FilePat)
@@ -980,7 +724,6 @@ CTestPattern::CTestPattern(LPCSTR FileName)
     CreateGlobalSubPattern();
 
     Log();
-    }
 }
 
 CTestPattern::~CTestPattern()
@@ -1452,8 +1195,11 @@ void CCalibration::LoadTestPatterns()
     char *Buffer;
     struct stat st;
     FILE* File;
+    char FullPath[MAX_PATH];
     
-    File = fopen("patterns/card_calibr.d3u", "r");
+    GetModuleFileName (NULL, FullPath, sizeof(FullPath));
+    strcpy(strrchr(FullPath, '\\'), "\\patterns\\card_calibr.d3u");
+    File = fopen(FullPath, "r");
     if(File != NULL)
     {
         while(!feof(File))
@@ -1466,16 +1212,33 @@ void CCalibration::LoadTestPatterns()
                 {
                     Buffer++;
                 }
-                if(strlen(Buffer) > 0 && *Buffer != '#' && *Buffer != ';')
+                if(strlen(Buffer) == 0 || *Buffer == '#' || *Buffer == ';')
                 {
-                    // take care of stuff that is at end of the line
-                    while(strlen(Buffer) > 0 && Buffer[strlen(Buffer) - 1] <= ' ')
-                    {
-                        Buffer[strlen(Buffer) - 1] = '\0';
-                    }
-                    if (strlen(Buffer) > 0 && !stat(Buffer, &st))
+                    continue;
+                }
+                // take care of stuff that is at end of the line
+                while(strlen(Buffer) > 0 && Buffer[strlen(Buffer) - 1] <= ' ')
+                {
+                    Buffer[strlen(Buffer) - 1] = '\0';
+                }
+                if (strlen(Buffer) == 0 || strlen(Buffer) > 118)
+                {
+                    continue;
+                }
+                if (!strncmp(&Buffer[1], ":\\", 2) || (Buffer[0] == '\\'))
+                {
+                    if (!stat(Buffer, &st))
                     {
                         pattern = new CTestPattern(Buffer);
+                        m_TestPatterns.push_back(pattern);
+                    }
+                }
+                else
+                {
+                    strcpy(strrchr(FullPath, '\\')+1, Buffer);
+                    if (!stat(FullPath, &st))
+                    {
+                        pattern = new CTestPattern(FullPath);
                         m_TestPatterns.push_back(pattern);
                     }
                 }

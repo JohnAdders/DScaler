@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.cpp,v 1.27 2003-03-09 12:14:39 tobbej Exp $
+// $Id: DSGraph.cpp,v 1.28 2003-08-10 12:08:36 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2003/03/09 12:14:39  tobbej
+// use the new graph debuging functions (only in loglevel 2 and 3)
+//
 // Revision 1.26  2003/02/05 19:13:14  tobbej
 // added support for capture devices where audio can be rendered from directshow
 // modified audio setings dialog so audio rendering can be turned off (usefull for devices with both internal and external audio)
@@ -133,6 +136,7 @@
 #include <dvdmedia.h>
 #include "DevEnum.h"
 #include "DShowGenericAudioControls.h"
+#include "DShowMediaType.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -145,7 +149,7 @@ static char THIS_FILE[]=__FILE__;
 //////////////////////////////////////////////////////////////////////
 
 CDShowGraph::CDShowGraph(string device,string deviceName,string AudioDevice,bool bConnectAudio)
-:m_pSource(NULL),m_GraphState(State_Stopped),m_pAudioControlls(NULL)
+:m_pSource(NULL),m_GraphState(State_Stopped),m_pAudioControlls(NULL),m_pSeeking(NULL)
 {
 	InitGraph();
 	CreateRenderer();
@@ -175,6 +179,11 @@ CDShowGraph::CDShowGraph(string filename,string AudioDevice)
 
 CDShowGraph::~CDShowGraph()
 {
+	if(m_pSeeking!=NULL)
+	{
+		delete m_pSeeking;
+		m_pSeeking=NULL;
+	}
 	if(m_pAudioControlls!=NULL)
 	{
 		delete m_pAudioControlls;
@@ -215,7 +224,7 @@ void CDShowGraph::InitGraph()
 	{
 		throw CDShowException("Failed to create Capture graph builder",hr);
 	}
-	
+
 	//connect capture graph builder with the graph
 	m_pBuilder->SetFiltergraph(m_pGraph);
 
@@ -245,7 +254,7 @@ void CDShowGraph::CreateRenderer()
 	{
 		throw CDShowException("Failed to create dscaler input renderer filter\nMake sure that the filter is properly registered",hr);
 	}
-	
+
 	hr=m_pGraph->AddFilter(m_renderer,L"DScaler video renderer");
 	if(FAILED(hr))
 	{
@@ -311,7 +320,7 @@ void CDShowGraph::ConnectGraph()
 		{
 			IsUnConnected=true;
 		}
-		
+
 		if(IsUnConnected || !m_pSource->IsConnected())
 		{
 			m_pSource->Connect(m_renderer);
@@ -335,6 +344,7 @@ void CDShowGraph::ConnectGraph()
 			{
 				LOG(3,"IBasicAudio interface not found, audio controlls might not work");
 			}
+			m_pSeeking=new CDShowSeeking(m_pGraph);
 		}
 		BuildFilterList();
 	}
@@ -398,19 +408,19 @@ CDShowBaseSource* CDShowGraph::getSourceDevice()
 void CDShowGraph::getConnectionMediatype(AM_MEDIA_TYPE *pmt)
 {
 	ASSERT(pmt!=NULL);
-	
+
 	if(m_renderer==NULL)
 	{
 		throw CDShowException("Null pointer!!");
 	}
-	
+
 	CDShowPinEnum pins(m_renderer,PINDIR_INPUT);
 	CComPtr<IPin> inPin=pins.next();
 	if(inPin==NULL)
 	{
 		throw CDShowException("Can't find input pin on video renderer (bug)");
 	}
-	
+
 	HRESULT hr=inPin->ConnectionMediaType(pmt);
 	if(FAILED(hr))
 	{
@@ -421,7 +431,7 @@ void CDShowGraph::getConnectionMediatype(AM_MEDIA_TYPE *pmt)
 void CDShowGraph::BuildFilterList()
 {
 	m_filters.erase(m_filters.begin(),m_filters.end());
-	
+
 	CDShowGenericEnum<IEnumFilters,IBaseFilter> filterEnum;
 	HRESULT hr=m_pGraph->EnumFilters(&filterEnum.m_pEnum);
 	if(FAILED(hr))
@@ -437,7 +447,7 @@ void CDShowGraph::BuildFilterList()
 	{
 		CFilterPages tmp;
 		tmp.m_pFilter=pFilter;
-		
+
 		//check for any propertypages on the pins
 		try
 		{
@@ -477,7 +487,7 @@ bool CDShowGraph::getFilterPropertyPage(int index,CTreeSettingsPage **ppPage,boo
 	USES_CONVERSION;
 	if(ppPage==NULL)
 		return false;
-	
+
 	if(index>=0 && index<m_filters.size())
 	{
 
@@ -504,7 +514,7 @@ bool CDShowGraph::getFilterPropertyPage(int index,CTreeSettingsPage **ppPage,boo
 					hr=pFilter->QueryInterface(IID_IUnknown,(void**)&pUnk);
 					//a com object cant exist without IUnknown
 					ASSERT(SUCCEEDED(hr));
-					
+
 					*ppPage=new CTreeSettingsOleProperties(W2A(info.achName),1,&pUnk,pages.cElems,pages.pElems,MAKELCID(MAKELANGID(LANG_NEUTRAL,SUBLANG_SYS_DEFAULT),SORT_DEFAULT));
 					pUnk->Release();
 					pUnk=NULL;
@@ -519,7 +529,7 @@ bool CDShowGraph::getFilterPropertyPage(int index,CTreeSettingsPage **ppPage,boo
 			{
 				*ppPage=new CTreeSettingsPage(W2A(info.achName),IDD_TREESETTINGS_NOPROPERTIES);
 			}
-			
+
 		}
 		return true;
 	}
@@ -557,7 +567,7 @@ bool CDShowGraph::getFilterSubPage(int filterIndex,int subIndex,CTreeSettingsPag
 						IUnknown *pUnk;
 						hr=pPin->QueryInterface(IID_IUnknown,(void**)&pUnk);
 						ASSERT(SUCCEEDED(hr));
-						
+
 						*ppPage=new CTreeSettingsOleProperties(W2A(pinInfo.achName),1,&pUnk,pages.cElems,pages.pElems,MAKELCID(MAKELANGID(LANG_NEUTRAL,SUBLANG_SYS_DEFAULT),SORT_DEFAULT));
 						pUnk->Release();
 						pUnk=NULL;
@@ -582,7 +592,7 @@ long CDShowGraph::getDroppedFrames()
 			throw CDShowException("Failed to get IQualProp interface on renderer filter (most likely a bug)",hr);
 		}
 	}
-	
+
 	int frames;
 	hr=m_pQualProp->get_FramesDroppedInRenderer(&frames);
 	if(FAILED(hr))
@@ -602,10 +612,10 @@ CDShowGraph::eChangeRes_Error CDShowGraph::ChangeRes(CDShowGraph::CVideoFormat f
 	CDShowPinEnum RendPins(m_renderer,PINDIR_INPUT);
 	CComPtr<IPin> InPin;
 	InPin=RendPins.next();
-	
+
 	//if this assert is trigered there is most likely s bug in the renderer filter
 	ASSERT(InPin!=NULL);
-	
+
 	//get the upstream pin
 	CComPtr<IPin> OutPin;
 	HRESULT hr=InPin->ConnectedTo(&OutPin);
@@ -613,7 +623,7 @@ CDShowGraph::eChangeRes_Error CDShowGraph::ChangeRes(CDShowGraph::CVideoFormat f
 	{
 		throw CDShowException("Failed to find pin",hr);
 	}
-	
+
 	//get IAMStreamConfig on the output pin
 	m_pStreamCfg=NULL;
 	hr=OutPin.QueryInterface(&m_pStreamCfg);
@@ -645,7 +655,7 @@ CDShowGraph::eChangeRes_Error CDShowGraph::ChangeRes(CDShowGraph::CVideoFormat f
 	///@todo error handling
 	hr=m_pDSRendSettings->get_ForceYUY2(&OldForceYUY2);
 	hr=m_pDSRendSettings->get_FieldFormat(&OldFieldFormat);*/
-	
+
 	//create the new media type
 	AM_MEDIA_TYPE NewType;
 	AM_MEDIA_TYPE NewType2;
@@ -658,13 +668,13 @@ CDShowGraph::eChangeRes_Error CDShowGraph::ChangeRes(CDShowGraph::CVideoFormat f
 	NewType.bFixedSizeSamples=TRUE;
 	NewType.formattype=FORMAT_VideoInfo;
 	NewType.cbFormat=sizeof(VIDEOINFOHEADER);
-	
+
 	NewType2.majortype=MEDIATYPE_Video;
 	NewType2.subtype=MEDIASUBTYPE_YUY2;
 	NewType2.bFixedSizeSamples=TRUE;
 	NewType2.formattype=FORMAT_VideoInfo2;
 	NewType2.cbFormat=sizeof(VIDEOINFOHEADER2);
-	
+
 	//copy some info from the old media type and initialize the new format block
 	if(OldMt->pbFormat!=NULL)
 	{
@@ -683,7 +693,7 @@ CDShowGraph::eChangeRes_Error CDShowGraph::ChangeRes(CDShowGraph::CVideoFormat f
 			NewInfoHeader->dwBitErrorRate=videoInfo->dwBitErrorRate;
 			NewInfoHeader->AvgTimePerFrame=videoInfo->AvgTimePerFrame;
 			NewInfoHeader->bmiHeader=videoInfo->bmiHeader;
-			
+
 			NewInfoHeader2->dwBitRate=videoInfo->dwBitRate;;
 			NewInfoHeader2->dwBitErrorRate=videoInfo->dwBitErrorRate;
 			NewInfoHeader2->AvgTimePerFrame=videoInfo->AvgTimePerFrame;
@@ -697,7 +707,7 @@ CDShowGraph::eChangeRes_Error CDShowGraph::ChangeRes(CDShowGraph::CVideoFormat f
 			NewInfoHeader->dwBitErrorRate=videoInfo2->dwBitErrorRate;
 			NewInfoHeader->AvgTimePerFrame=videoInfo2->AvgTimePerFrame;
 			NewInfoHeader->bmiHeader=videoInfo2->bmiHeader;
-			
+
 			NewInfoHeader2->dwBitRate=videoInfo2->dwBitRate;
 			NewInfoHeader2->dwBitErrorRate=videoInfo2->dwBitErrorRate;
 			NewInfoHeader2->AvgTimePerFrame=videoInfo2->AvgTimePerFrame;
@@ -727,7 +737,7 @@ CDShowGraph::eChangeRes_Error CDShowGraph::ChangeRes(CDShowGraph::CVideoFormat f
 	//@todo handle error
 	/*hr=m_pDSRendSettings->put_ForceYUY2(fmt.m_bForceYUY2 ? TRUE : FALSE);
 	hr=m_pDSRendSettings->put_FieldFormat(fmt.m_FieldFmt);*/
-	
+
 	eChangeRes_Error result=eChangeRes_Error::ERROR_FAILED_TO_CHANGE_BACK;
 	//change the format
 	//first try VIDEOINFOHEADER2,YUY2,field
@@ -736,7 +746,7 @@ CDShowGraph::eChangeRes_Error CDShowGraph::ChangeRes(CDShowGraph::CVideoFormat f
 	((VIDEOINFOHEADER2*)NewType2.pbFormat)->dwInterlaceFlags=AMINTERLACE_IsInterlaced|AMINTERLACE_1FieldPerSample|AMINTERLACE_DisplayModeBobOrWeave;
 	//to be on the safe side, force dsrend to only accept YUY2, field
 	//this is because btwincap v5.3.5 seems to be a bit broken (the connection is made using different format than specified by IAMStreamConfig::SetFormat)
-	
+
 	hr=m_pDSRendSettings->put_ForceYUY2(TRUE);
 	hr=m_pDSRendSettings->put_FieldFormat(DSREND_FIELD_FORMAT_FIELD);
 	hr=m_pStreamCfg->SetFormat(&NewType2);
@@ -786,7 +796,7 @@ CDShowGraph::eChangeRes_Error CDShowGraph::ChangeRes(CDShowGraph::CVideoFormat f
 							hr=OutPin->Connect(InPin,OldMt);
 							if(SUCCEEDED(hr))
 							{
-								//failed to change mediatype, but was able to reconnect using old mediatype          
+								//failed to change mediatype, but was able to reconnect using old mediatype
 								result=eChangeRes_Error::ERROR_CHANGED_BACK;
 							}
 						}
@@ -824,7 +834,7 @@ CDShowGraph::eChangeRes_Error CDShowGraph::ChangeRes(CDShowGraph::CVideoFormat f
 	{
 		result=eChangeRes_Error::SUCCESS;
 	}
-	
+
 	//free mediatypes
 	if(OldMt->pUnk!=NULL)
 	{
@@ -905,11 +915,11 @@ bool CDShowGraph::IsValidRes(CDShowGraph::CVideoFormat fmt)
 				CoTaskMemFree(pMT->pbFormat);
 				pMT->pbFormat=NULL;
 			}
-			
+
 			//maybe check VIDEO_STREAM_CONFIG_CAPS::VideoStandard too
 
 			//check width and height
-			if(fmt.m_Width<=vCaps.MaxOutputSize.cx && fmt.m_Height<=vCaps.MaxOutputSize.cy && 
+			if(fmt.m_Width<=vCaps.MaxOutputSize.cx && fmt.m_Height<=vCaps.MaxOutputSize.cy &&
 				fmt.m_Width>=vCaps.MinOutputSize.cx && fmt.m_Height>=vCaps.MinOutputSize.cy &&
 				fmt.m_Width%vCaps.OutputGranularityX==0 && fmt.m_Height%vCaps.OutputGranularityY==0)
 			{
@@ -925,7 +935,7 @@ void CDShowGraph::FindStreamConfig()
 	CComPtr<IPin> inPin;
 
 	inPin=rendPins.next();
-	
+
 	//if this assert is trigered there is most likely s bug in the renderer filter
 	ASSERT(inPin!=NULL);
 
@@ -960,14 +970,14 @@ void CDShowGraph::DisableClock()
 	{
 		throw CDShowException("QueryInterface for IMediaFilter failed on filter graph",hr);
 	}
-	
+
 	//save old reference clock
 	hr=pMFilter->GetSyncSource(&m_pOldRefClk);
 	if(FAILED(hr))
 	{
 		throw CDShowException("Failed to get old reference clock",hr);
 	}
-	
+
 	//disable the current one
 	hr=pMFilter->SetSyncSource(NULL);
 	if(FAILED(hr))
@@ -982,7 +992,7 @@ void CDShowGraph::RestoreClock()
 	{
 		return;
 	}
-	
+
 	CComPtr<IMediaFilter> pMFilter;
 	HRESULT hr=m_pGraph.QueryInterface(&pMFilter);
 	if(FAILED(hr))
@@ -1002,17 +1012,22 @@ void CDShowGraph::RestoreClock()
 CDShowAudioControls *CDShowGraph::GetAudioControls()
 {
 	/**
-	 * @todo check the source (CDShowBaseSource derived class) if it has 
-	 * CDShowAudioControlls, this will allow the source to override the 
+	 * @todo check the source (CDShowBaseSource derived class) if it has
+	 * CDShowAudioControlls, this will allow the source to override the
 	 * generic controlls (btwincap audio controls for example)
 	 */
 	return m_pAudioControlls;
 }
 
+CDShowSeeking *CDShowGraph::GetSeeking()
+{
+	return m_pSeeking;
+}
+
 bool CDShowGraph::CVideoFormat::operator==(CVideoFormat &fmt)
 {
-	if(m_Width==fmt.m_Width && 
-		m_Height==fmt.m_Height && 
+	if(m_Width==fmt.m_Width &&
+		m_Height==fmt.m_Height &&
 		m_bForceYUY2==fmt.m_bForceYUY2 &&
 		m_FieldFmt==fmt.m_FieldFmt)
 	{

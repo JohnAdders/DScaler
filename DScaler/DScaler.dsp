@@ -62,7 +62,7 @@ LINK32=link.exe
 # ADD LINK32 libtiff.lib libjpeg.lib ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib strmiids.lib quartz.lib /nologo /stack:0x4000,0x4000 /subsystem:windows /pdb:none /map:"..\Debug/DScaler.map" /debug /machine:I386 /out:"..\Debug\DScaler.exe" /libpath:"..\ThirdParty\LibTiff\\" /libpath:"..\ThirdParty\LibJpeg\\"
 # Begin Custom Build
 ProjDir=.
-InputPath=\Source\deinterlace\DScaler\Debug\DScaler.exe
+InputPath=\Programering\prj\deinterlace\DScaler-clean\Debug\DScaler.exe
 SOURCE="$(InputPath)"
 
 "$(ProjDir)\..\Debug\DScaler.vdi" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -112,7 +112,7 @@ LINK32=link.exe
 # ADD LINK32 COMMODE.OBJ libtiff.lib libjpeg.lib ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib strmiids.lib quartz.lib /nologo /subsystem:windows /pdb:none /map:"..\Release/DScaler.map" /machine:I386 /out:"..\Release\DScaler.exe" /libpath:"..\ThirdParty\LibTiff\\" /libpath:"..\ThirdParty\LibJpeg\\"
 # Begin Custom Build
 ProjDir=.
-InputPath=\Source\deinterlace\DScaler\Release\DScaler.exe
+InputPath=\Programering\prj\deinterlace\DScaler-clean\Release\DScaler.exe
 SOURCE="$(InputPath)"
 
 "$(ProjDir)\..\Release\DScaler.vdi" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -340,6 +340,10 @@ SOURCE=.\dshowsource\DShowFileSource.cpp
 # Begin Source File
 
 SOURCE=.\dshowsource\DShowGenericAudioControls.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\dshowsource\DShowSeeking.cpp
 # End Source File
 # Begin Source File
 
@@ -1027,6 +1031,10 @@ SOURCE=.\dshowsource\DShowGenericAudioControls.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\dshowsource\DShowSeeking.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\dshowsource\DShowTVAudio.h
 # End Source File
 # Begin Source File
@@ -1460,11 +1468,6 @@ SOURCE=.\READ_ME_FIRST_NOW.txt
 # End Source File
 # End Target
 # End Project
-# Section DScaler : {F08DF952-8592-11D1-B16A-00C0F0283628}
-# 	2:5:Class:CSlider
-# 	2:10:HeaderFile:slider.h
-# 	2:8:ImplFile:slider.cpp
-# End Section
 # Section DScaler : {7BF80981-BF32-101A-8BBB-00AA00300CAB}
 # 	2:5:Class:CPicture
 # 	2:10:HeaderFile:picture.h
@@ -1473,4 +1476,9 @@ SOURCE=.\READ_ME_FIRST_NOW.txt
 # Section DScaler : {F08DF954-8592-11D1-B16A-00C0F0283628}
 # 	2:21:DefaultSinkHeaderFile:slider.h
 # 	2:16:DefaultSinkClass:CSlider
+# End Section
+# Section DScaler : {F08DF952-8592-11D1-B16A-00C0F0283628}
+# 	2:5:Class:CSlider
+# 	2:10:HeaderFile:slider.h
+# 	2:8:ImplFile:slider.cpp
 # End Section

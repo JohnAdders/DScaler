@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.49 2003-01-02 16:22:09 adcockj Exp $
+// $Id: Other.cpp,v 1.50 2003-01-02 17:27:05 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.49  2003/01/02 16:22:09  adcockj
+// Preliminary code to support output plugins properly
+//
 // Revision 1.48  2003/01/01 20:56:46  atnak
 // Updates for various VideoText changes
 //
@@ -803,21 +806,43 @@ BOOL Overlay_Create()
        pDDColorControl = NULL;
     }
 
+
+    // try to create a system memory surface
+    // that we can use if any output filters are switched
+    // on.  This is required because reading and writing back to 
+    // video memory is very slow
     memset(&SurfaceDesc, 0x00, sizeof(SurfaceDesc));
     SurfaceDesc.dwSize = sizeof(SurfaceDesc);
     SurfaceDesc.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT;
     SurfaceDesc.ddsCaps.dwCaps =  DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
-
-    // create a surface big enough to hold the largest resolution supported
-    // this ensures that we can always have enough space to allow
-    // Mode changes without recreating the overlay
     SurfaceDesc.dwWidth = DSCALER_MAX_WIDTH;
     SurfaceDesc.dwHeight = DSCALER_MAX_HEIGHT;
     SurfaceDesc.ddpfPixelFormat = PixelFormat;
 
     ddrval = lpDD->CreateSurface(&SurfaceDesc, &lpDDExtra, NULL);
+    if(ddrval == DDERR_INVALIDPIXELFORMAT)
+    {
+        // if we acn'y create a YUY2 system memory surface
+        // then try ato create an RGB16 one
+        // but make sure that we don't try and blt from it
+        memset(&PixelFormat, 0x00, sizeof(PixelFormat));
+        PixelFormat.dwSize = sizeof(DDPIXELFORMAT);
+        PixelFormat.dwFlags = DDPF_RGB;
+        PixelFormat.dwRGBBitCount = 16;
+        PixelFormat.dwRBitMask = 0xf800;
+        PixelFormat.dwGBitMask = 0x07e0;
+        PixelFormat.dwBBitMask = 0x001f;
+        SurfaceDesc.ddpfPixelFormat = PixelFormat;
+
+        bCanDoBlt = FALSE;
+
+        ddrval = lpDD->CreateSurface(&SurfaceDesc, &lpDDExtra, NULL);
+    }
+
     if(FAILED(ddrval))
     {
+       // if we can't do a system memory buffer it's not the end of the
+       // world it just means that any output filters will run very slow
        LOG(1, "Couldn't create additional buffer for output filters retval %08x", ddrval);
        lpDDExtra = NULL;
     }
@@ -1198,16 +1223,21 @@ BOOL Overlay_Unlock()
 
 void Overlay_Copy_Extra(TDeinterlaceInfo* pInfo)
 {
+    // try using the blt if it is supported
+    // as this should be the fastest
+    // otherwise we will fall back to using memcpy
     if(bCanDoBlt)
     {
-        HRESULT ddrval = lpDDOverlay->BltFast(0, 0, lpDDExtra, NULL, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
+        RECT Rect = {0, 0, pInfo->FrameWidth, pInfo->FrameHeight};
+        HRESULT ddrval = lpDDOverlay->BltFast(0, 0, lpDDExtra, &Rect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
         if(SUCCEEDED(ddrval))
         {
-            // OK done so exit
+            // OK so exit
             return;
         }
+        LOG(1, "BltFast failed %08x", ddrval);
+
         // this is a drop through so that we always get a nice image
-        LOG(1, "Blt failed");
         // Since this is new and is an optimization
         // just set it up so that the old way gets used
         bCanDoBlt = FALSE;
@@ -1244,6 +1274,8 @@ BOOL Overlay_Flip(DWORD FlipFlag, BOOL bUseExtraBuffer, TDeinterlaceInfo* pInfo)
     }
 
 
+    // if we have been using the extra surface then we need to copy
+    // the picture onto the overlay
     if(bUseExtraBuffer && lpDDExtra != NULL)
     {
         Overlay_Copy_Extra(pInfo);

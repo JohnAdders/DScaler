@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.104 2003-01-02 16:22:09 adcockj Exp $
+// $Id: OutThreads.cpp,v 1.105 2003-01-02 17:27:05 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.104  2003/01/02 16:22:09  adcockj
+// Preliminary code to support output plugins properly
+//
 // Revision 1.103  2003/01/01 20:56:45  atnak
 // Updates for various VideoText changes
 //
@@ -736,14 +739,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     Info.Version = DEINTERLACE_INFO_CURRENT_VERSION;
     Info.CpuFeatureFlags = CpuFeatureFlags;
     Info.OverlayPitch = 0;
-    if(CpuFeatureFlags & FEATURE_SSE)
-    {
-        Info.pMemcpy = memcpySSE;
-    }
-    else
-    {
-        Info.pMemcpy = memcpyMMX;
-    }
+    Info.pMemcpy = memcpyMMX;
 
     ResetDeinterlaceStats();
     ResetARStats();
@@ -1077,6 +1073,18 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 								return 1;
 							}
 							bOverlayLocked = TRUE;
+
+                            if(CpuFeatureFlags & FEATURE_SSE)
+                            {
+                                if(((DWORD)Info.Overlay % 16) == 0)
+                                {
+                                    Info.pMemcpy = memcpySSE;
+                                }
+                                else
+                                {
+                                    Info.pMemcpy = memcpyMMX;
+                                }
+                            }
 
 #ifdef _DEBUG
 	                        pPerf->StopCount(PERF_LOCK_OVERLAY);

@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.cpp,v 1.9 2001-12-21 11:07:31 adcockj Exp $
+// $Id: MSP34x0.cpp,v 1.10 2001-12-28 12:16:53 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2001/12/21 11:07:31  adcockj
+// Even more RevA fixes
+//
 // Revision 1.8  2001/12/20 23:46:20  ittarnavsky
 // further RevA programming changes
 //
@@ -514,7 +517,7 @@ void CMSP34x0Decoder::ReconfigureRevD()
     {
         standard = MSP34x0_STANDARD_FM_RADIO;
     }
-    else if (IsPALVideoFormat(m_VideoFormat))
+    else
     {
         switch(m_VideoFormat)
         {
@@ -529,7 +532,11 @@ void CMSP34x0Decoder::ReconfigureRevD()
         case VIDEOFORMAT_NTSC_M_Japan:
             modus = 0x4003;
             break;
-        default:
+        case VIDEOFORMAT_PAL_I:
+            modus = 0x0003;
+            standard = MSP34x0_STANDARD_I_NICAM_FM;
+            break;        
+		default:
             break;
         }
     }

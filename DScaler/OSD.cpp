@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.94 2005-03-26 18:53:23 laurentg Exp $
+// $Id: OSD.cpp,v 1.95 2005-03-26 22:07:28 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.94  2005/03/26 18:53:23  laurentg
+// EPG code improved
+// => possibility to set the EPG channel name in the channel setup dialog box
+// => automatic loading of new data when needed
+// => OSD scrrens updated
+// => first step for programs "browser"
+//
 // Revision 1.93  2005/03/23 14:20:57  adcockj
 // Test fix for threading issues
 //
@@ -494,8 +501,8 @@ static TActiveScreen ActiveScreens[] =
     { "Card calibration screen", TRUE,  FALSE, 250,                     TRUE,  TRUE,  OSD_RefreshCalibrationScreen },
     { "Program info screen",     TRUE,  TRUE,  0,                       TRUE,  FALSE, OSD_DisplayProgramInfos },
     { "General screen",          FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, TRUE,  FALSE, OSD_RefreshGeneralScreen },
-    { "Current program screen",  FALSE, TRUE,  1000,                    TRUE,  FALSE, OSD_RefreshCurrentProgramScreen },
-    { "Programs screen",         FALSE, TRUE,  5000,                    TRUE,  FALSE, OSD_RefreshProgramsScreen },
+    { "Current program screen",  TRUE,  FALSE, 1000,                    TRUE,  FALSE, OSD_RefreshCurrentProgramScreen },
+    { "Programs screen",         TRUE,  FALSE, 5000,                    TRUE,  FALSE, OSD_RefreshProgramsScreen },
     { "Statistics screen",       FALSE, TRUE,  1000,                    TRUE,  FALSE, OSD_RefreshStatisticsScreen },
     { "WSS decoding screen",     FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, TRUE,  FALSE, OSD_RefreshWSSScreen },
 //  { "AR screen",               FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, FALSE, FALSE, OSD_RefreshARScreen },
@@ -2471,16 +2478,8 @@ static void OSD_RefreshProgramsScreen(double Size)
 			&& (TimeNow < EndTime) )
 		{
 			sprintf(szInfo, "%.1f %%", (double)(TimeNow - StartTime) * 100.0 / (double)(EndTime - StartTime));
+			OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos2);
 		}
-		else if (TimeNow >= EndTime)
-		{
-			strcpy(szInfo, "Finished");
-		}
-		else
-		{
-			strcpy(szInfo, "Future");
-		}
-		OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos2);
 	}
 }
 

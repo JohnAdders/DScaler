@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Audio.cpp,v 1.3 2002-09-10 12:14:35 atnak Exp $
+// $Id: SAA7134Card_Audio.cpp,v 1.4 2002-09-14 19:40:48 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,8 +34,8 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
-// Revision 1.2  2002/09/09 14:20:33  atnak
-// Fixed $log$ -> $Log: not supported by cvs2svn $, $id$ -> $Id: SAA7134Card_Audio.cpp,v 1.3 2002-09-10 12:14:35 atnak Exp $
+// Revision 1.3  2002/09/10 12:14:35  atnak
+// Some changes to eAudioStandard stuff
 //
 //
 //////////////////////////////////////////////////////////////////////////////
@@ -242,11 +242,10 @@ void CSAA7134Card::SetAudioStandard(eAudioStandard audioStandard)
     }
 
     m_AudioStandard = audioStandard;
-    CheckStereo();
+    // CheckStereo();
 }
 
-// DEBUG: debugging purposes
-//   Code can be used for graying out channel menu
+// DEBUG: debugging purpos
 void CSAA7134Card::CheckStereo()
 {
     BYTE Status;
@@ -343,8 +342,10 @@ void CSAA7134Card::SetAudioVolume(BYTE nGain)
 {
     // nGain = -15..0..15, 0 = normal
 
-    WriteByte(SAA7134_CHANNEL1_LEVEL, nGain & 0x1F);
-    WriteByte(SAA7134_CHANNEL2_LEVEL, nGain & 0x1F);
+    // Dual FM Level adjust
+    WriteByte(SAA7134_CHANNEL_LEVEL_L, nGain & 0x1F);
+    WriteByte(SAA7134_CHANNEL_LEVEL_R, nGain & 0x1F);
+    // NICAM Levle adjust
     WriteByte(SAA7134_NICAM_LEVEL_ADJUST, nGain & 0x1F);
 }
 

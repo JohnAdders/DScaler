@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134I2CInterface.h,v 1.2 2002-09-09 14:25:16 atnak Exp $
+// $Id: SAA7134I2CInterface.h,v 1.3 2002-09-14 19:40:48 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -15,62 +15,68 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
+//
+// This software was based on I2CBus.cpp.  Those portions are
+// copyleft 2001 itt@myself.com.
+//
+/////////////////////////////////////////////////////////////////////////////
 // Change Log
 //
 // Date          Developer             Changes
 //
-// 09 Sep 2002   Atsushi Nakagawa      Initial Release
+// 13 Sep 2002   Atsushi Nakagawa      Changed some I2C stuff
 //
 /////////////////////////////////////////////////////////////////////////////
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
 //
+//
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef __SAA7134I2CINTERFACE_H__
 #define __SAA7134I2CINTERFACE_H__
 
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
 
-/** Interface for a SAA7134 I2C bus
-*/
-class ISAA7134I2CInterface  
+class ISAA7134I2CInterface
 {
 public:
 
-	enum eSAA7134I2CStatus {
-		IDLE          = 0x0,  // no I2C command pending
-		DONE_STOP     = 0x1,  // I2C command done and STOP executed
-		BUSY          = 0x2,  // executing I2C command
-		TO_SCL        = 0x3,  // executing I2C command, time out on clock stretching
-		TO_ARB        = 0x4,  // time out on arbitration trial, still trying
-		DONE_WRITE    = 0x5,  // I2C command done and awaiting next write command
-		DONE_READ     = 0x6,  // I2C command done and awaiting next read command
-		DONE_WRITE_TO = 0x7,  // see 5, and time out on status echo
-		DONE_READ_TO  = 0x8,  // see 6, and time out on status echo
-		NO_DEVICE     = 0x9,  // no acknowledge on device slave address
-		NO_ACKN       = 0xA,  // no acknowledge after data byte transfer
-		BUS_ERR       = 0xB,  // bus error
-		ARB_LOST      = 0xC,  // arbitration lost during transfer
-		SEQ_ERR       = 0xD,  // erroneous programming sequence
-		ST_ERR        = 0xE,  // wrong status echoing
-		SW_ERR        = 0xF   // software error
-	};
+    enum eCommand
+    {
+        COMMAND_STOP            = 0x40, // Stop transfer
+        COMMAND_CONTINUE        = 0x80, // Continue transfer
+        COMMAND_START           = 0xC0  // Start transfer (address device)
+    };
 
-	virtual void SetI2CData(BYTE Data)=0;
-	virtual BYTE GetI2CData()=0;
+    enum eStatus
+    {
+        STATUS_IDLE             = 0x0,  // no I2C command pending
+        STATUS_DONE_STOP        = 0x1,  // I2C command done and STOP executed
+        STATUS_BUSY             = 0x2,  // executing I2C command
+        STATUS_TO_SCL           = 0x3,  // executing I2C command, time out on clock stretching
+        STATUS_TO_ARB           = 0x4,  // time out on arbitration trial, still trying
+        STATUS_DONE_WRITE       = 0x5,  // I2C command done and awaiting next write command
+        STATUS_DONE_READ        = 0x6,  // I2C command done and awaiting next read command
+        STATUS_DONE_WRITE_TO    = 0x7,  // see 5, and time out on status echo
+        STATUS_DONE_READ_TO     = 0x8,  // see 6, and time out on status echo
+        STATUS_NO_DEVICE        = 0x9,  // no acknowledge on device slave address
+        STATUS_NO_ACKN          = 0xA,  // no acknowledge after data byte transfer
+        STATUS_BUS_ERR          = 0xB,  // bus error
+        STATUS_ARB_LOST         = 0xC,  // arbitration lost during transfer
+        STATUS_SEQ_ERR          = 0xD,  // erroneous programming sequence
+        STATUS_ST_ERR           = 0xE,  // wrong status echoing
+        STATUS_SW_ERR           = 0xF   // software error
+    };
 
-	virtual void SetI2CStatus(BYTE Status)=0;
-	virtual BYTE GetI2CStatus()=0;
+    virtual void SetI2CData(BYTE Data)=0;
+    virtual BYTE GetI2CData()=0;
 
-	virtual void SetI2CStart()=0;
-	virtual void SetI2CStop()=0;
-	virtual void SetI2CContinue()=0;
+    virtual BYTE GetI2CStatus()=0;
+    virtual void SetI2CStatus(BYTE Status)=0;
 
-	virtual void I2CSleep()=0;
+    virtual void SetI2CCommand(BYTE Command)=0;
 };
+
 
 #endif

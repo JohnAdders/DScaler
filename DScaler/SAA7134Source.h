@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.h,v 1.3 2002-09-10 12:24:03 atnak Exp $
+// $Id: SAA7134Source.h,v 1.4 2002-09-14 19:40:48 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,8 +30,8 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
-// Revision 1.2  2002/09/09 14:20:32  atnak
-// Fixed $log$ -> $Log: not supported by cvs2svn $, $id$ -> $Id: SAA7134Source.h,v 1.3 2002-09-10 12:24:03 atnak Exp $
+// Revision 1.3  2002/09/10 12:24:03  atnak
+// changed some UI stuff
 //
 //
 //////////////////////////////////////////////////////////////////////////////
@@ -110,10 +110,8 @@ private:
     void CreateDMAMemorySetup(BOOL bCaptureVBI);
     DWORD CreatePageTable(CUserMemory* pDMAMemory, DWORD nPagesWanted, LPDWORD pPageTable);
     
-    static BOOL APIENTRY AdvVideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
     static BOOL APIENTRY SelectCardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
-    static BOOL APIENTRY AudioSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
-    static BOOL APIENTRY AudioSettingProc1(HWND hDlg, UINT message, UINT wParam, LONG lParam);
+    static BOOL APIENTRY RegisterEditProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 
     void GetNextFieldNormal(TDeinterlaceInfo* pInfo);
     void GetNextFieldAccurate(TDeinterlaceInfo* pInfo);
@@ -187,18 +185,17 @@ private:
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, Hue);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, Saturation);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, Overscan);
-    DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, HDelay);
-    DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, VDelay);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, PixelWidth);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, VideoSource);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, VideoFormat);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, TunerType);
-
+    DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, HDelay);
+    DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, VDelay);
+    DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source, NonstandardSignal);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, Volume);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, Bass);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, Treble);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, Balance);
-    DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source, AutoStereoSelect);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioStandard);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioSource1);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioSource2);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.3 2002-09-10 12:24:03 atnak Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.4 2002-09-14 19:40:48 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,8 +30,8 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
-// Revision 1.2  2002/09/09 14:20:31  atnak
-// Fixed $log$ -> $Log: not supported by cvs2svn $, $id$ -> $Id: SAA7134Source_UI.cpp,v 1.3 2002-09-10 12:24:03 atnak Exp $
+// Revision 1.3  2002/09/10 12:24:03  atnak
+// changed some UI stuff
 //
 //
 //////////////////////////////////////////////////////////////////////////////
@@ -52,102 +52,6 @@ extern const char *TunerNames[TUNER_LASTONE];
 
 // SAA7134: This file still needs loads of work
 
-
-BOOL APIENTRY CSAA7134Source::AudioSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
-{
-/*    static int  TVolume;
-    static char TBalance;
-    static char TBass;
-    static char TTreble;
-    static CSAA7134Source* pThis;
-
-    switch (message)
-    {
-    case WM_INITDIALOG:
-        pThis = (CSAA7134Source*)lParam;
-
-        TVolume = pThis->m_Volume->GetValue();
-        TBass = pThis->m_Bass->GetValue();
-        TTreble = pThis->m_Treble->GetValue();
-        TBalance = pThis->m_Balance->GetValue();
-
-        SetDlgItemInt(hDlg, IDC_D1, TVolume, FALSE);
-        SetDlgItemInt(hDlg, IDC_D4, TBass, TRUE);
-        SetDlgItemInt(hDlg, IDC_D5, TTreble, TRUE);
-        SetDlgItemInt(hDlg, IDC_D6, TBalance, TRUE);
-
-        pThis->m_Volume->SetupControl(GetDlgItem(hDlg, IDC_SLIDER1));
-        pThis->m_Bass->SetupControl(GetDlgItem(hDlg, IDC_SLIDER4));
-        pThis->m_Treble->SetupControl(GetDlgItem(hDlg, IDC_SLIDER5));
-        pThis->m_Balance->SetupControl(GetDlgItem(hDlg, IDC_SLIDER6));
-        break;
-
-    case WM_VSCROLL:
-    case WM_HSCROLL:
-        if((HWND)lParam == GetDlgItem(hDlg, IDC_SLIDER1))
-        {
-            pThis->m_Volume->SetFromControl((HWND)lParam);
-            SetDlgItemInt(hDlg, IDC_D1, pThis->m_Volume->GetValue(), TRUE);
-        }
-        else if((HWND)lParam == GetDlgItem(hDlg, IDC_SLIDER4))
-        {
-            pThis->m_Bass->SetFromControl((HWND)lParam);
-            SetDlgItemInt(hDlg, IDC_D4, pThis->m_Bass->GetValue(), TRUE);
-        }
-        else if((HWND)lParam == GetDlgItem(hDlg, IDC_SLIDER5))
-        {
-            pThis->m_Treble->SetFromControl((HWND)lParam);
-            SetDlgItemInt(hDlg, IDC_D5, pThis->m_Treble->GetValue(), TRUE);
-        }
-        else if((HWND)lParam == GetDlgItem(hDlg, IDC_SLIDER6))
-        {
-            pThis->m_Balance->SetFromControl((HWND)lParam);
-            SetDlgItemInt(hDlg, IDC_D6, pThis->m_Balance->GetValue(), TRUE);
-        }
-        break;
-    case WM_COMMAND:
-        switch(LOWORD(wParam))
-        {
-        case IDOK:
-            WriteSettingsToIni(TRUE);
-            EndDialog(hDlg, TRUE);
-            break;
-        
-        case IDCANCEL:
-            pThis->Mute();
-            pThis->m_Volume->SetValue(TVolume);
-            pThis->m_Bass->SetValue(TBass);
-            pThis->m_Treble->SetValue(TTreble);
-            pThis->m_Balance->SetValue(TBalance);
-            pThis->UnMute();
-            EndDialog(hDlg, TRUE);
-            break;
-        
-        case IDC_DEFAULT:
-            pThis->Mute();
-            pThis->m_Volume->SetDefault();
-            pThis->m_Bass->SetDefault();
-            pThis->m_Treble->SetDefault();
-            pThis->m_Balance->SetDefault();
-            SetDlgItemInt(hDlg, IDC_D1, pThis->m_Volume->GetValue(), FALSE);
-            SetDlgItemInt(hDlg, IDC_D4, pThis->m_Bass->GetValue(), TRUE);
-            SetDlgItemInt(hDlg, IDC_D5, pThis->m_Treble->GetValue(), TRUE);
-            SetDlgItemInt(hDlg, IDC_D6, pThis->m_Balance->GetValue(), TRUE);
-
-            pThis->m_Volume->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER1));
-            pThis->m_Bass->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER4));
-            pThis->m_Treble->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER5));
-            pThis->m_Balance->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER6));
-            pThis->UnMute();
-            break;
-        default:
-            break;
-
-        }
-        break;
-    }*/
-    return (FALSE);
-}
 
 
 BOOL APIENTRY CSAA7134Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
@@ -235,6 +139,121 @@ BOOL APIENTRY CSAA7134Source::SelectCardProc(HWND hDlg, UINT message, UINT wPara
     default:
         break;
     }
+    return (FALSE);
+}
+
+BOOL APIENTRY CSAA7134Source::RegisterEditProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
+{
+/*    int i;
+    char buf[128];
+    static CSAA7134Source* pThis;
+    static DWORD dwAddress;
+    static bDisableChanges = TRUE;
+    static bUnsafeRead = TRUE;
+    BYTE Data;
+    WORD LastChanged = 0;
+
+    switch (message)
+    {
+    case WM_INITDIALOG:
+        pThis = (CSAA7134Source*)lParam;
+        sprintf(buf, "Edit Register on %s chip", pThis->GetChipName());
+        SetWindowText(hDlg, buf);
+        SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_RESETCONTENT, 0, 0);
+        for(i = 0; i < 0x300; i++)
+        {
+            int nIndex;
+            sprintf(buf, "0x%03X", i);
+            nIndex = SendMessage(GetDlgItem(hDlg, IDC_REGISTERSELECT), CB_ADDSTRING, 0, (LONG)buf);
+            SendMessage(GetDlgItem(hDlg, IDC_REGISTERSELECT), CB_SETITEMDATA, nIndex, i);
+            if (i == 0)
+            {   
+                SendMessage(GetDlgItem(hDlg, IDC_REGISTERSELECT), CB_SETCURSEL, nIndex, i);
+            }
+        }
+        SetFocus(hDlg);
+        RegisterEditProc(hDlg, WM_COMMAND, MAKELONG(IDC_REGISTERSELECT, 0L), lParam);
+        break;
+
+    case WM_COMMAND:
+        switch(LOWORD(wParam))
+        {
+        case IDC_REFRESH:
+            if (!bUnsafeRead)
+            {
+                Data = pThis->m_pSAA7134Card->DirectGetByte(dwAddress);
+                sprintf(buf, "%d", Data);
+                SetDlgItemText(hDlg, IDC_VALUE_DEC, buf);
+                sprintf(buf, "0x%02X", Data);
+                SetDlgItemText(hDlg, IDC_VALUE_HEX, buf);
+                SetDlgItemText(hDlg, IDC_STATIC_BIT0, Data & (1<<0) ? "1" : "0");
+                SetDlgItemText(hDlg, IDC_STATIC_BIT1, Data & (1<<1) ? "1" : "0");
+                SetDlgItemText(hDlg, IDC_STATIC_BIT2, Data & (1<<2) ? "1" : "0");
+                SetDlgItemText(hDlg, IDC_STATIC_BIT3, Data & (1<<3) ? "1" : "0");
+                SetDlgItemText(hDlg, IDC_STATIC_BIT4, Data & (1<<4) ? "1" : "0");
+                SetDlgItemText(hDlg, IDC_STATIC_BIT5, Data & (1<<5) ? "1" : "0");
+                SetDlgItemText(hDlg, IDC_STATIC_BIT6, Data & (1<<6) ? "1" : "0");
+                SetDlgItemText(hDlg, IDC_STATIC_BIT7, Data & (1<<7) ? "1" : "0");
+                CheckDlgButton(hDlg, IDC_BIT0, Data & (1<<0));
+                CheckDlgButton(hDlg, IDC_BIT1, Data & (1<<1));
+                CheckDlgButton(hDlg, IDC_BIT2, Data & (1<<2));
+                CheckDlgButton(hDlg, IDC_BIT3, Data & (1<<3));
+                CheckDlgButton(hDlg, IDC_BIT4, Data & (1<<4));
+                CheckDlgButton(hDlg, IDC_BIT5, Data & (1<<5));
+                CheckDlgButton(hDlg, IDC_BIT6, Data & (1<<6));
+                CheckDlgButton(hDlg, IDC_BIT7, Data & (1<<7));
+            }
+            break;
+
+        case IDOK:
+        case IDCANCEL:
+            EndDialog(hDlg, TRUE);
+            break;
+
+        case IDC_REGISTERSELECT:
+            i = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_REGISTERSELECT));
+            dwAddress = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_REGISTERSELECT), i);
+            if (dwAddress >= 0x300)
+            {
+                bUnsafeRead = TRUE;
+                bDisableChanges = TRUE;
+            }
+            else
+            {
+                bUnsafeRead = FALSE;
+                bDisableChanges = FALSE;
+            }
+            RegisterEditProc(hDlg, WM_COMMAND, MAKELONG(IDC_REFRESH, 0L), lParam);
+            break;
+
+        case IDC_BIT7:
+        case IDC_BIT6:
+        case IDC_BIT5:
+        case IDC_BIT4:
+        case IDC_BIT3:
+        case IDC_BIT2:
+        case IDC_BIT1:
+        case IDC_BIT0:
+            if (!bDisableChanges)
+            {
+                i = LOWORD(wParam) - IDC_BIT0;
+                pThis->m_pSAA7134Card->DirectSetBit(dwAddress, i,
+                    (BST_CHECKED == IsDlgButtonChecked(hDlg, LOWORD(wParam))));
+                RegisterEditProc(hDlg, WM_COMMAND, MAKELONG(IDC_REFRESH, 0L), lParam);
+            }
+            else
+            {
+                LastChanged = LOWORD(wParam);
+            }
+        case IDC_CARDSSELECT:
+            break;
+        default:
+            break;
+        }
+        break;
+    default:
+        break;
+    }*/
     return (FALSE);
 }
 
@@ -334,167 +353,17 @@ void CSAA7134Source::SetMenu(HMENU hMenu)
     EnableMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE1, m_pSAA7134Card->IsAudioChannelAvailable(SOUNDCHANNEL_LANGUAGE1));
     EnableMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE2, m_pSAA7134Card->IsAudioChannelAvailable(SOUNDCHANNEL_LANGUAGE2));
 
-    CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_MONO, (m_AudioChannel->GetValue() == 1));
-    CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_STEREO, (m_AudioChannel->GetValue() == 2));
-    CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE1, (m_AudioChannel->GetValue() == 3));
-    CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE2, (m_AudioChannel->GetValue() == 4));
+//  Unimplemented
+//  CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_MONO, (m_AudioChannel->GetValue() == 1));
+//  CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_STEREO, (m_AudioChannel->GetValue() == 2));
+//  CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE1, (m_AudioChannel->GetValue() == 3));
+//  CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE2, (m_AudioChannel->GetValue() == 4));
 
-    CheckMenuItemBool(m_hMenu, IDM_AUTOSTEREO, m_AutoStereoSelect->GetValue());
+    CheckMenuItemBool(m_hMenu, IDM_SAA7134CARD_NONSTANDARDSIGNAL, m_NonstandardSignal->GetValue());
 
     CheckMenuItemBool(m_hMenu, IDM_SAVE_BY_FORMAT, m_bSavePerFormat->GetValue());
     CheckMenuItemBool(m_hMenu, IDM_SAVE_BY_INPUT, m_bSavePerInput->GetValue());
 }
-
-BOOL APIENTRY CSAA7134Source::AdvVideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
-{
-    static CSAA7134Source* pThis = NULL;
-
-
-    switch (message)
-    {
-    case WM_INITDIALOG:
-        pThis = (CSAA7134Source*) lParam;
-        break;
-
-    case WM_MOUSEMOVE:
-        return (FALSE);
-
-    case WM_COMMAND:
-
-        switch LOWORD(wParam)
-        {
-        case IDCANCEL:                      //  Restore settings
-            EndDialog(hDlg, TRUE);
-            break;
-
-        case IDOK:                          // Is Done
-            // WriteSettingsToIni(TRUE);
-            EndDialog(hDlg, TRUE);
-            break;
-
-        // Using these for debugging atm
-        case IDC_AGC:
-            if (BST_CHECKED == IsDlgButtonChecked(hDlg, IDC_AGC))
-            {
-                pThis->m_Hue->SetValue(pThis->m_Hue->GetValue() | 1<<0);
-            }
-            else
-            {
-                pThis->m_Hue->SetValue(pThis->m_Hue->GetValue() & ~(1<<0));
-            }
-            break;  
-
-        case IDC_CRUSH:
-            if (BST_CHECKED == IsDlgButtonChecked(hDlg, IDC_CRUSH))
-            {
-                pThis->m_Hue->SetValue(pThis->m_Hue->GetValue() | 1<<1);
-            }
-            else
-            {
-                pThis->m_Hue->SetValue(pThis->m_Hue->GetValue() & ~(1<<1));
-            }
-            break;  
-
-        case IDC_E_CAGC:
-            if (BST_CHECKED == IsDlgButtonChecked(hDlg, IDC_E_CAGC))
-            {
-                pThis->m_Hue->SetValue(pThis->m_Hue->GetValue() | 1<<2);
-            }
-            else
-            {
-                pThis->m_Hue->SetValue(pThis->m_Hue->GetValue() & ~(1<<2));
-            }
-            break;
-
-        case IDC_O_CAGC:
-            if (BST_CHECKED == IsDlgButtonChecked(hDlg, IDC_O_CAGC))
-            {
-                pThis->m_Hue->SetValue(pThis->m_Hue->GetValue() | 1<<3);
-            }
-            else
-            {
-                pThis->m_Hue->SetValue(pThis->m_Hue->GetValue() & ~(1<<3));
-            }
-            break;
-
-        case IDC_E_LUMA_PEAK:
-            if (BST_CHECKED == IsDlgButtonChecked(hDlg, IDC_E_LUMA_PEAK))
-            {
-                pThis->m_Hue->SetValue(pThis->m_Hue->GetValue() | 1<<4);
-            }
-            else
-            {
-                pThis->m_Hue->SetValue(pThis->m_Hue->GetValue() & ~(1<<4));
-            }
-            break;
-
-        case IDC_O_LUMA_PEAK:               // Changed Odd Peak
-            if (BST_CHECKED == IsDlgButtonChecked(hDlg, IDC_O_LUMA_PEAK))
-            {
-                pThis->m_Hue->SetValue(pThis->m_Hue->GetValue() | 1<<5);
-            }
-            else
-            {
-                pThis->m_Hue->SetValue(pThis->m_Hue->GetValue() & ~(1<<5));
-            }
-            break;
-
-        case IDC_LUMA_RANGE:                // Luma Output Range
-            if (BST_CHECKED == IsDlgButtonChecked(hDlg, IDC_LUMA_RANGE))
-            {
-                pThis->m_Hue->SetValue(pThis->m_Hue->GetValue() | 1<<6);
-            }
-            else
-            {
-                pThis->m_Hue->SetValue(pThis->m_Hue->GetValue() & ~(1<<6));
-            }
-            break;
-
-        case IDC_E_LUMA_DEC:                // Changed Even L.decimation
-            if (BST_CHECKED == IsDlgButtonChecked(hDlg, IDC_E_LUMA_DEC))
-            {
-                pThis->m_Hue->SetValue(pThis->m_Hue->GetValue() | 1<<7);
-            }
-            else
-            {
-                pThis->m_Hue->SetValue(pThis->m_Hue->GetValue() & ~(1<<7));
-            }
-            break;
-
-        case IDC_O_LUMA_DEC:                // Changed Odd L.decimation
-//            pThis->m_BtOddLumaDec->SetValue(BST_CHECKED == IsDlgButtonChecked(hDlg, IDC_O_LUMA_DEC));
-            break;
-
-        case IDC_E_COMB:                    // Changed Even COMB
-//            pThis->m_BtEvenComb->SetValue(BST_CHECKED == IsDlgButtonChecked(hDlg, IDC_E_COMB));
-            break;
-
-        case IDC_O_COMB:                    // Changed Odd COMB
-//            pThis->m_BtOddComb->SetValue(BST_CHECKED == IsDlgButtonChecked(hDlg, IDC_O_COMB));
-           break;
-
-        case IDC_COLOR_BARS:                // Color Bars
-//            pThis->m_BtColorBars->SetValue(BST_CHECKED == IsDlgButtonChecked(hDlg, IDC_COLOR_BARS));
-            break;
-
-        case IDC_GAMMA_CORR:                // Gamma correction removal
-//            pThis->m_BtGammaCorrection->SetValue(BST_CHECKED != IsDlgButtonChecked(hDlg, IDC_GAMMA_CORR));
-            break;
-
-        case IDC_VERT_FILTER:               // Use vertical z-filter
-//            pThis->m_BtVertFilter->SetValue(BST_CHECKED == IsDlgButtonChecked(hDlg, IDC_VERT_FILTER));
-            break;
-
-        case IDC_HOR_FILTER:                // Use Hor peaking filter
-//            pThis->m_BtHorFilter->SetValue(BST_CHECKED == IsDlgButtonChecked(hDlg, IDC_HOR_FILTER));
-            break;
-
-        }
-        break;
-    }
-    return (FALSE);
-}
-
 
 
 BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
@@ -522,12 +391,15 @@ BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             break;
 
         case IDM_BDELAY_PLUS:
+            ShowText(hWnd, "BDelay Plus - Unsupported");
             break;
 
         case IDM_BDELAY_MINUS:
+            ShowText(hWnd, "BDelay Minus - Unsupported");
             break;
 
         case IDM_BDELAY_CURRENT:
+            ShowText(hWnd, "BDelay Current - Unsupported");
             break;
 
         case IDM_HDELAY_PLUS:
@@ -573,23 +445,25 @@ BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             break;
 
         case IDM_SOUNDCHANNEL_MONO:
-            m_AudioChannel->SetValue(SOUNDCHANNEL_MONO);
+            ShowText(hWnd, "Mono - Unimplemented");
+            // m_AudioChannel->SetValue(SOUNDCHANNEL_MONO);
             break;
         case IDM_SOUNDCHANNEL_STEREO:
-            m_AudioChannel->SetValue(SOUNDCHANNEL_STEREO);
+            ShowText(hWnd, "Stereo - Unimplemented");
+            // m_AudioChannel->SetValue(SOUNDCHANNEL_STEREO);
             break;
         case IDM_SOUNDCHANNEL_LANGUAGE1:
-            m_AudioChannel->SetValue(SOUNDCHANNEL_LANGUAGE1);
+            ShowText(hWnd, "Language 1 - Unimplemented");
+            // m_AudioChannel->SetValue(SOUNDCHANNEL_LANGUAGE1);
             break;
         case IDM_SOUNDCHANNEL_LANGUAGE2:
-            m_AudioChannel->SetValue(SOUNDCHANNEL_LANGUAGE2);
+            ShowText(hWnd, "Language 2 - Unimplemented");
+            // m_AudioChannel->SetValue(SOUNDCHANNEL_LANGUAGE2);
             break;
 
-        case IDM_AUTOSTEREO:
-            m_AutoStereoSelect->SetValue(!m_AutoStereoSelect->GetValue());
-            break;
-
-        case IDM_USEINPUTPIN1:
+        case IDM_SAA7134CARD_NONSTANDARDSIGNAL:
+            m_NonstandardSignal->SetValue(!m_NonstandardSignal->GetValue());
+            m_NonstandardSignal->OSDShow();
             break;
 
         case IDM_AUDIO_0:
@@ -599,13 +473,13 @@ BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             switch (GetCurrentAudioSetting()->GetValue())
             {
             case AUDIOINPUTLINE_TUNER:     
-                ShowText(hWnd, "Audio Input - Tuner");     
+                ShowText(hWnd, "Audio Input - Tuner");
                 break;
             case AUDIOINPUTLINE_LINE1: 
-                ShowText(hWnd, "Audio Input - Line 1"); 
+                ShowText(hWnd, "Audio Input - Line 1");
                 break;
             case AUDIOINPUTLINE_LINE2:  
-                ShowText(hWnd, "Audio Input - Line 2");  
+                ShowText(hWnd, "Audio Input - Line 2");
                 break;
             }
             break;
@@ -644,16 +518,6 @@ BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             
         case IDM_HWINFO:
             DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_HWINFO), hWnd, CSAA7134Card::ChipSettingProc, (LPARAM)m_pSAA7134Card);
-            break;
-
-        case IDM_AUDIOSETTINGS:
-            break;
-
-        case IDM_AUDIOSETTINGS1:
-            break;
-
-        case IDM_ADV_VIDEOSETTINGS:
-            DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_ADV_VIDEOSETTINGS), hWnd, AdvVideoSettingProc, (LPARAM)this);
             break;
 
         // Video format (NTSC, PAL, etc)
@@ -769,10 +633,7 @@ void CSAA7134Source::ChangeSectionNamesForInput()
         m_Contrast->SetSection(m_Section.c_str());
         m_Hue->SetSection(m_Section.c_str());
         m_Saturation->SetSection(m_Section.c_str());
-//      m_SaturationU->SetSection(m_Section.c_str());
-//      m_SaturationV->SetSection(m_Section.c_str());
         m_Overscan->SetSection(m_Section.c_str());
-//      m_BDelay->SetSection(m_Section.c_str());
     }
     else
     {
@@ -782,10 +643,7 @@ void CSAA7134Source::ChangeSectionNamesForInput()
         m_Contrast->SetSection(szSection);
         m_Hue->SetSection(szSection);
         m_Saturation->SetSection(szSection);
-//      m_SaturationU->SetSection(szSection);
-//      m_SaturationV->SetSection(szSection);
         m_Overscan->SetSection(szSection);
-//      m_BDelay->SetSection(szSection);
     }
 
     ChangeDefaultsForInput();
@@ -802,16 +660,6 @@ void CSAA7134Source::ChangeDefaultsForInput()
     {
         m_Overscan->ChangeDefault(DEFAULT_OVERSCAN_PAL);
     }
-    
-/*    // set up defaults fro position parameters
-    if(m_bSavePerFormat->GetValue())
-    {
-        m_BDelay->ChangeDefault(GetTVFormat((eVideoFormat)m_VideoFormat->GetValue())->bDelayB);
-    }
-    else
-    {
-        m_BDelay->ChangeDefault(0);
-    }*/
 }
 
 
@@ -826,10 +674,7 @@ void CSAA7134Source::LoadInputSettings()
         m_Contrast->ReadFromIni();
         m_Hue->ReadFromIni();
         m_Saturation->ReadFromIni();
-//        m_SaturationU->ReadFromIni();
-//        m_SaturationV->ReadFromIni();
         m_Overscan->ReadFromIni();
-//        m_BDelay->ReadFromIni();
     }
 
     ChangeChannelSectionNames();
@@ -843,17 +688,14 @@ void CSAA7134Source::SaveInputSettings(BOOL bOptimizeFileAccess)
         m_Contrast->WriteToIni(bOptimizeFileAccess);
         m_Hue->WriteToIni(bOptimizeFileAccess);
         m_Saturation->WriteToIni(bOptimizeFileAccess);
-//        m_SaturationU->WriteToIni(bOptimizeFileAccess);
-//        m_SaturationV->WriteToIni(bOptimizeFileAccess);
         m_Overscan->WriteToIni(bOptimizeFileAccess);
-//        m_BDelay->WriteToIni(bOptimizeFileAccess);
     }
 }
 
 
 void CSAA7134Source::ChangeChannelSectionNames()
 {    
-/*    if (!m_SettingsByChannelStarted)
+      if (!m_SettingsByChannelStarted)
     {
         return;
     }
@@ -894,27 +736,19 @@ void CSAA7134Source::ChangeChannelSectionNames()
         }
     
         SettingsPerChannel_RegisterSetSection(m_ChannelSubSection.c_str());
-        SettingsPerChannel_RegisterSetting("Brightness","BT8x8 - Brightness",TRUE, m_Brightness);
-        SettingsPerChannel_RegisterSetting("Hue","BT8x8 - Hue",TRUE, m_Hue);            
-        SettingsPerChannel_RegisterSetting("Contrast","BT8x8 - Contrast",TRUE, m_Contrast);
+        SettingsPerChannel_RegisterSetting("Brightness", "SAA713x - Brightness",TRUE, m_Brightness);
+        SettingsPerChannel_RegisterSetting("Hue", "SAA713x - Hue", TRUE, m_Hue);            
+        SettingsPerChannel_RegisterSetting("Contrast", "SAA713x - Contrast", TRUE, m_Contrast);
+        SettingsPerChannel_RegisterSetting("Saturation","SAA713x - Saturation",TRUE, m_Saturation);
+        SettingsPerChannel_RegisterSetting("Overscan", "SAA713x - Overscan", TRUE, m_Overscan);
         
-        SettingsPerChannel_RegisterSetting("Saturation","BT8x8 - Saturation",TRUE, m_Saturation);
-        SettingsPerChannel_RegisterSetting("Saturation","BT8x8 - Saturation",TRUE, m_SaturationU);
-        SettingsPerChannel_RegisterSetting("Saturation","BT8x8 - Saturation",TRUE, m_SaturationV);
-    
-        SettingsPerChannel_RegisterSetting("Overscan","BT8x8 - Overscan",TRUE, m_Overscan);
+        SettingsPerChannel_RegisterSetting("AudioChannel", "SAA713x - Audio Channel", TRUE, m_AudioChannel);
+        SettingsPerChannel_RegisterSetting("NonstandardSignal", "SAA713x - Miscellaneous", TRUE, m_NonstandardSignal);
         
-        SettingsPerChannel_RegisterSetting("AudioChannel","BT8x8 - Audio Channel",TRUE, m_AudioChannel);
-        SettingsPerChannel_RegisterSetting("AutoStereoSelect","BT8x8 - Auto Stereo Select",TRUE, m_AutoStereoSelect);
-        
-        SettingsPerChannel_RegisterSetting("Volume","BT8x8 - Volume",TRUE, m_Volume);            
-        SettingsPerChannel_RegisterSetting("Balance","BT8x8 - Balance",TRUE, m_Balance);
-        SettingsPerChannel_RegisterSetting("BassTreble","BT8x8 - Bass & Treble",TRUE);            
-        SettingsPerChannel_RegisterSetting("BassTreble","BT8x8 - Bass & Treble",TRUE, m_Bass);            
-        SettingsPerChannel_RegisterSetting("BassTreble","BT8x8 - Bass & Treble",TRUE, m_Treble);        
+        // SettingsPerChannel_RegisterSetting("Volume","SAA713x - Volume",TRUE, m_Volume);           
+        // SettingsPerChannel_RegisterSetting("Balance","SAA713x - Balance",TRUE, m_Balance);
      
-        SettingsPerChannel_RegisterSetting("SAA7134Delays","BT8x8 - H/V/B Delay",FALSE, m_HDelay);
-        SettingsPerChannel_RegisterSetting("SAA7134Delays","BT8x8 - H/V/B Delay",FALSE, m_VDelay);
-        SettingsPerChannel_RegisterSetting("SAA7134Delays","BT8x8 - H/V/B Delay",FALSE, m_BDelay);
-    }*/
+        SettingsPerChannel_RegisterSetting("Delays", "SAA713x - H/V Delay", FALSE, m_HDelay);
+        SettingsPerChannel_RegisterSetting("Delays", "SAA713x - H/V Delay", FALSE, m_VDelay);
+    }
 }

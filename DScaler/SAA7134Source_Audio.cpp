@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_Audio.cpp,v 1.2 2002-09-09 14:20:31 atnak Exp $
+// $Id: SAA7134Source_Audio.cpp,v 1.3 2002-09-14 19:40:48 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,7 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -137,12 +138,6 @@ void CSAA7134Source::AudioChannelOnChange(long NewValue, long OldValue)
 {
     m_pSAA7134Card->SetAudioChannel((eSoundChannel)NewValue);    
 }
-
-void CSAA7134Source::AutoStereoSelectOnChange(long NewValue, long OldValue)
-{
-    /// \todo FIXME - check usability
-}
-
 
 void CSAA7134Source::HandleTimerMessages(int TimerId)
 {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.cpp,v 1.3 2002-09-10 12:14:35 atnak Exp $
+// $Id: SAA7134Card.cpp,v 1.4 2002-09-14 19:40:48 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,8 +34,8 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
-// Revision 1.2  2002/09/09 14:27:58  atnak
-// fixed cvs tags, id -> Id, log -> Log
+// Revision 1.3  2002/09/10 12:14:35  atnak
+// Some changes to eAudioStandard stuff
 //
 //
 //////////////////////////////////////////////////////////////////////////////
@@ -45,6 +45,7 @@
 #include "resource.h"
 #include "SAA7134Card.h"
 #include "SAA7134_Defines.h"
+#include "SAA7134I2CBus.h"
 #include "Audio.h"
 #include "DebugLog.h"
 #include "CPU.h"
@@ -63,7 +64,7 @@ CSAA7134Card::CSAA7134Card(CHardwareDriver* pDriver) :
     m_AudioStandard(AUDIOSTANDARD_BG_DUAL_FM)
 {
     m_I2CInitialized = false;
-    m_I2CBus = new CSAA7134I2CBusInterface(this);
+    m_I2CBus = new CSAA7134I2CBus(this);
 }
 
 CSAA7134Card::~CSAA7134Card()
@@ -71,10 +72,10 @@ CSAA7134Card::~CSAA7134Card()
     // disable peripheral devices
     WriteByte(SAA7134_SPECIAL_MODE,0);
 
-    // shutdown hardware
     WriteDword(SAA7134_IRQ1, 0);
     WriteDword(SAA7134_IRQ2, 0);
-    WriteDword(SAA7134_MAIN_CTRL,0);
+    // Completely zeroing this conflicts with other SAA7314 SW
+    MaskDataDword(SAA7134_MAIN_CTRL, 0, 0xFF);
 
     delete m_I2CBus;
     delete m_Tuner;
@@ -90,8 +91,6 @@ void CSAA7134Card::CloseCard()
 // RegionID = one of:
 // REGIONID_VIDEO_A, REGIONID_VIDEO_B
 // REGIONID_VBI_A, REGIONID_VBI_B
-//
-//
 
 BOOL CSAA7134Card::GetDMA(eRegionID RegionID)
 {
@@ -156,8 +155,8 @@ void CSAA7134Card::SetDMA(eRegionID RegionID, BOOL bState)
 
 void CSAA7134Card::ResetHardware()
 {
-//  LOG(0, "Initial registery dump");
-//  DumpRegisters();
+    // LOG(0, "Initial registery dump");
+    // DumpRegisters();
 
     WriteByte(SAA7134_REGION_ENABLE, 0x00);
 
@@ -185,9 +184,12 @@ void CSAA7134Card::ResetHardware()
 
 
     WriteByte(SAA7134_INCR_DELAY,               0x08);
-    WriteByte(SAA7134_ANALOG_IN_CTRL1,          0xC0);
+//    WriteByte(SAA7134_ANALOG_IN_CTRL1,          0xC0);
+//    WriteByte(SAA7134_ANALOG_IN_CTRL2,          0x10);
+//    WriteByte(SAA7134_ANALOG_IN_CTRL3,          0x90);
+//    WriteByte(SAA7134_ANALOG_IN_CTRL4,          0x90);
+    WriteByte(SAA7134_ANALOG_IN_CTRL1,          0xC1);
     WriteByte(SAA7134_ANALOG_IN_CTRL2,          0x10);
-
     WriteByte(SAA7134_ANALOG_IN_CTRL3,          0x90);
     WriteByte(SAA7134_ANALOG_IN_CTRL4,          0x90);
 //  WriteByte(SAA7134_HSYNC_START,              0xeb);
@@ -197,6 +199,7 @@ void CSAA7134Card::ResetHardware()
 
 
     WriteByte(SAA7134_MODE_DELAY_CTRL,       0x00);
+//    WriteByte(SAA7134_MODE_DELAY_CTRL,       0x06);
 
 //  WriteByte(SAA7134_ANALOG_ADC,            0x01);
 //  WriteByte(SAA7134_VGATE_START,           0x11);
@@ -233,6 +236,27 @@ void CSAA7134Card::ResetHardware()
 
     // Enable peripheral devices
     WriteByte(SAA7134_SPECIAL_MODE, 0x01);
+
+    // Set up video formats
+    // 0x00 = YUV2
+    WriteByte(SAA7134_OFMT_VIDEO_A, 0x00);
+    WriteByte(SAA7134_OFMT_VIDEO_B, 0x00);
+    // 0x06 = raw VBI
+    WriteByte(SAA7134_OFMT_DATA_A, 0x06);
+    WriteByte(SAA7134_OFMT_DATA_B, 0x06);
+
+    // Let Task A get Odd then Even field, follow by Task B
+    // getting Odd then Even field. (Odd is DScaler's Even)
+
+    // 0x03 mask, 1 = odd first, 2 = even first
+    // This just changes which field is grabbed first. It
+    // doesn't change fact that odd is the top line.
+    WriteByte(SAA7134_TASK_CONDITIONS(SAA7134_TASK_A_MASK), 0x0D);
+    WriteByte(SAA7134_TASK_CONDITIONS(SAA7134_TASK_B_MASK), 0x0D);
+
+    // 0x02: handle both fields ?
+    WriteByte(SAA7134_FIELD_HANDLING(SAA7134_TASK_A_MASK), 0x02);
+    WriteByte(SAA7134_FIELD_HANDLING(SAA7134_TASK_B_MASK), 0x02);
 }
 
 void CSAA7134Card::SetCardType(int CardType)
@@ -262,6 +286,8 @@ LPCSTR CSAA7134Card::GetCardName(eTVCardId CardId)
 {
     return m_TVCards[CardId].szName;
 }
+
+
 
 void CSAA7134Card::SetBrightness(BYTE Brightness)
 {
@@ -337,6 +363,19 @@ BYTE CSAA7134Card::GetBDelay()
     return 0x00;
 }
 
+// If this is on, TV signals sync quicker (and more reliably).
+// Turn this off for non-standard signals such as VCRs.
+void CSAA7134Card::SetStandardSignal(BOOL StandardSignal)
+{
+    if (StandardSignal)
+    {
+        OrDataByte(SAA7134_SYNC_CTRL, SAA7134_SYNC_CTRL_STANDARD_SIGNAL);
+    }
+    else
+    {
+        AndDataByte(SAA7134_SYNC_CTRL, ~SAA7134_SYNC_CTRL_STANDARD_SIGNAL);
+    }
+}
 
 LPCSTR CSAA7134Card::GetChipType()
 {
@@ -351,6 +390,32 @@ LPCSTR CSAA7134Card::GetChipType()
 LPCSTR CSAA7134Card::GetTunerType()
 {
     return m_TunerType;
+}
+
+
+BYTE CSAA7134Card::GetI2CStatus()
+{
+    return ReadByte(SAA7134_I2C_ATTR_STATUS) & 0x0F;
+}
+
+void CSAA7134Card::SetI2CStatus(BYTE Status)
+{
+    MaskDataByte(SAA7134_I2C_ATTR_STATUS, Status, 0x0F);
+}
+
+void CSAA7134Card::SetI2CCommand(BYTE Command)
+{
+    MaskDataByte(SAA7134_I2C_ATTR_STATUS, Command, 0xC0);
+}
+
+void CSAA7134Card::SetI2CData(BYTE Data)
+{
+    WriteByte(SAA7134_I2C_DATA, Data);
+}
+
+BYTE CSAA7134Card::GetI2CData()
+{
+    return ReadByte(SAA7134_I2C_DATA);
 }
 
 
@@ -402,90 +467,6 @@ LPCSTR CSAA7134Card::GetInputName(int nInput)
         return m_TVCards[m_CardType].Inputs[nInput].szName;
     }
     return "Error";
-}
-
-//
-//  SAA7134's I2C interface
-//
-BYTE CSAA7134Card::GetI2CStatus()
-{
-    return ReadByte(SAA7134_I2C_ATTR_STATUS) & 0x0F;
-}
-
-void CSAA7134Card::SetI2CStatus(BYTE Status)
-{
-    MaskDataByte(SAA7134_I2C_ATTR_STATUS, Status, 0x0F);
-}
-
-void CSAA7134Card::SetI2CStart()
-{
-    // 0xC0 = START
-    MaskDataByte(SAA7134_I2C_ATTR_STATUS, 0xC0, 0xC0);
-}
-
-void CSAA7134Card::SetI2CContinue()
-{
-    // 0x80 = CONTINUE
-    MaskDataByte(SAA7134_I2C_ATTR_STATUS, 0x80, 0xC0);
-}
-
-void CSAA7134Card::SetI2CStop()
-{
-    // 0xC0 = STOP
-    MaskDataByte(SAA7134_I2C_ATTR_STATUS, 0x40, 0xC0);
-}
-
-void CSAA7134Card::SetI2CData(BYTE Data)
-{
-    WriteByte(SAA7134_I2C_DATA, Data);
-}
-
-BYTE CSAA7134Card::GetI2CData()
-{
-    return ReadByte(SAA7134_I2C_DATA);
-}
-
-
-ULONG CSAA7134Card::GetTickCount()
-{
-    ULONGLONG ticks;
-    ULONGLONG frequency;
-
-    QueryPerformanceFrequency((PLARGE_INTEGER)&frequency);
-    QueryPerformanceCounter((PLARGE_INTEGER)&ticks);
-    ticks = (ticks & 0xFFFFFFFF00000000) / frequency * 10000000 +
-            (ticks & 0xFFFFFFFF) * 10000000 / frequency;
-    return (ULONG)(ticks / 10000);
-}
-
-void CSAA7134Card::InitializeI2C()
-{
-    WriteByte(SAA7134_I2C_CLOCK_SELECT, 0x00);
-    WriteByte(SAA7134_I2C_TIMER, 0xF0);
-
-    m_I2CSleepCycle = 10000L;
-    DWORD elapsed = 0L;
-    // get a stable reading
-    while (elapsed < 5)
-    {
-        m_I2CSleepCycle *= 10;
-        DWORD start = GetTickCount();
-        for (volatile DWORD i = m_I2CSleepCycle; i > 0; i--);
-        elapsed = GetTickCount() - start;
-    }
-    // calculate how many cycles a 50kHZ is (half I2C bus cycle)
-    m_I2CSleepCycle = m_I2CSleepCycle / elapsed * 1000L / 50000L;
-    
-    m_I2CInitialized = true;
-}
-
-void CSAA7134Card::I2CSleep()
-{
-    if (!m_I2CInitialized)
-    {
-        InitializeI2C();
-    }
-    for (volatile DWORD i = m_I2CSleepCycle; i > 0; i--);
 }
 
 
@@ -739,7 +720,7 @@ void CSAA7134Card::SetGeoSize(
 
     if (IsPALVideoFormat(TVFormat))
     {
-        SyncControl = 0x90;
+        SyncControl = 0x88;
         LumaControl = 0x40;
         ChromaCtrl1 = 0x81;
         ChromaCtrl2 = 0x06;
@@ -768,7 +749,7 @@ void CSAA7134Card::SetGeoSize(
         ChromaCtrl2 = 0x0E;
         ChromaGain  = 0x2A;
 
-        SourceFirstLine = 22;
+        SourceFirstLine = 24;
         SourceLines = 240;
 
         VBIStartLine = 4;
@@ -783,12 +764,25 @@ void CSAA7134Card::SetGeoSize(
     // 0x80 bit is used by svideo for something
     MaskDataByte(SAA7134_LUMA_CTRL, LumaControl, 0x7F);
     WriteByte(SAA7134_CHROMA_CTRL1, ChromaCtrl1);
-    WriteByte(SAA7134_CHROMA_CTRL2, ChromaCtrl2);
     WriteByte(SAA7134_CHROMA_GAIN, ChromaGain);
+    WriteByte(SAA7134_CHROMA_CTRL2, ChromaCtrl2);
+
+    CurrentVBILines = VBIStopLine - VBIStartLine + 1;
 
     // Set up VBI for both tasks
     SetupVBI(TASKID_A, 0, 719, VBIStartLine, VBIStopLine);
     SetupVBI(TASKID_B, 0, 719, VBIStartLine, VBIStopLine);
+
+    if (HDelayOverride != 0)
+    {
+        SourceFirstPixel = HDelayOverride;
+    }
+    if (VDelayOverride != 0)
+    {
+        // This really shouldn't overlap VBI while VBI is enabled
+        // but there isn't too much harm not checking
+        SourceFirstLine = VDelayOverride / 2;
+    }
 
     // Set up geometry for both tasks
     SetGeoSizeTask(TASKID_A, SourceWidth, SourceLines,
@@ -802,8 +796,8 @@ void CSAA7134Card::SetupVBI(eTaskID TaskID, WORD HStart, WORD HStop, WORD VStart
 {
     BYTE TaskMask = TaskID2TaskMask(TaskID);
 
+    // It should come out less than this amount
     WORD HorizontalBytes = 1024;
-    WORD Lines = 16;
 
     WriteWord(SAA7134_VBI_H_START(TaskMask), HStart);
     WriteWord(SAA7134_VBI_H_STOP(TaskMask), HStop);
@@ -813,6 +807,7 @@ void CSAA7134Card::SetupVBI(eTaskID TaskID, WORD HStart, WORD HStop, WORD VStart
     // SAA7134_VBI_H_SCALE_INC:
     //   0x400 for 100%, 0x200 for 200%
 
+    // (This may be specific to PAL-BG)
     // DScaler wants exactly 0x0186 horizontal scaling but SAA7134
     // can't handle this scaling.  Instead, we scale 0x30C (half of
     // 0x0186) and double the bytes in SAA7134Source.cpp
@@ -821,6 +816,18 @@ void CSAA7134Card::SetupVBI(eTaskID TaskID, WORD HStart, WORD HStop, WORD VStart
     WriteWord(SAA7134_VBI_H_SCALE_INC(TaskMask), 0x030C);
     WriteByte(SAA7134_VBI_PHASE_OFFSET_LUMA(TaskMask), 0x00);
     WriteByte(SAA7134_VBI_PHASE_OFFSET_CHROMA(TaskMask), 0x00);
+
+    WORD Lines = VStop - VStart;
+
+    eRegionID RegionID = TaskID2VBIRegion(TaskID);
+    if (GetDMA(RegionID))
+    {
+        // Make sure we aren't grabbing more lines than we have memory
+        WORD LinesAvailable = CalculateLinesAvailable(RegionID, HorizontalBytes);
+
+        if (LinesAvailable < Lines)
+            Lines = LinesAvailable;
+    }
 
     WriteWord(SAA7134_VBI_H_LEN(TaskMask), HorizontalBytes);
     WriteWord(SAA7134_VBI_V_LEN(TaskMask), Lines);
@@ -882,6 +889,9 @@ void CSAA7134Card::SetGeoSizeTask(
 
     WriteWord(SAA7134_H_PHASE_OFF_LUMA(TaskMask), 0x00);
     WriteWord(SAA7134_H_PHASE_OFF_CHROMA(TaskMask), 0x00);
+
+    // Don't know what this does
+    MaskDataByte(SAA7134_DATA_PATH(TaskMask), 0x03, 0x3F);
 
     // deinterlace y offsets ?? no idea what these are
     // Odds: 0x00 default
@@ -1089,37 +1099,6 @@ WORD CSAA7134Card::CalculateLinesAvailable(eRegionID RegionID, WORD wBytesPerLin
 #undef PAGE_SIZE
 
 
-// TODO2: might move this into ResetHardware()
-void CSAA7134Card::ResetTask(eTaskID TaskID)
-{
-    BYTE TaskMask = TaskID2TaskMask(TaskID);
-
-    // 0x0F mask = YUV  ??
-    MaskDataByte(SAA7134_DATA_PATH(TaskMask), 0x00, 0x3F);
-
-    // 0x00 for YUV
-    if (TaskID == TASKID_A)
-    {
-        // 0x00 = YUV2, 0x06 = raw VBI
-        WriteByte(SAA7134_OFMT_VIDEO_A, 0x00);
-        WriteByte(SAA7134_OFMT_DATA_A, 0x06);
-    }
-    else
-    {
-        WriteByte(SAA7134_OFMT_VIDEO_B, 0x00);
-        WriteByte(SAA7134_OFMT_DATA_B, 0x06);
-    }
-
-    // 0x03 mask, 1 = odd first, 2 = even first
-    // This just changes which field is grabbed first. It
-    // doesn't change fact that odd is the top line.
-    WriteByte(SAA7134_TASK_CONDITIONS(TaskMask), 0x0d);
-
-    // 0x02: handle 2 fields and repeat ?
-    WriteByte(SAA7134_FIELD_HANDLING(TaskMask), 0x02);
-}
-
-
 // DEBUG: eventually get rid of this
 void CSAA7134Card::CheckRegisters()
 {
@@ -1214,7 +1193,9 @@ BOOL CSAA7134Card::GetProcessingRegion(eRegionID& RegionID, BOOL& bIsFieldOdd)
         return FALSE;
     }
 
-    //  Guessed this by looking at reg dump
+    // Guessed this by looking at reg dump
+    // \todo FIXME this isn't entirely correct
+    //  need to find a register that does it better
     if (Status & SAA7134_SCALER_STATUS_FIDSCO)
     {
         bIsFieldOdd = TRUE;
@@ -1223,6 +1204,19 @@ BOOL CSAA7134Card::GetProcessingRegion(eRegionID& RegionID, BOOL& bIsFieldOdd)
     {
         bIsFieldOdd = FALSE;
     }
+
+    /* It wasn't
+    // Another guess - hopefully, this one is more accurate
+    DWORD DMAStatus = ReadDword(SAA7134_DMA_STATUS);
+    if (DMAStatus & (1<<20))
+    {
+        bIsFieldOdd = TRUE;
+    }
+    else
+    {
+        bIsFieldOdd = FALSE;
+    }
+    */
 
     // Everything above is SAA7134 style, here we convert evens
     // to odd and odds to even so SAA7137Source can take even
@@ -1236,7 +1230,7 @@ BOOL CSAA7134Card::GetProcessingRegion(eRegionID& RegionID, BOOL& bIsFieldOdd)
 
 /* might need this for future debugging
     static WORD OldStatus = 0;
-    Status = ReadWord(SAA7134_STATUS_VIDEO);
+    Status = ReadWord(SAA7134_SCALER_STATUS);
 
     if (Status != OldStatus)
     {
@@ -1261,3 +1255,52 @@ BOOL CSAA7134Card::GetProcessingRegion(eRegionID& RegionID, BOOL& bIsFieldOdd)
             );
     }
 */
+/*
+    static WORD OldStatus = 0;
+    Status = ReadWord(SAA7134_STATUS_VIDEO);
+
+    if (Status != OldStatus)
+    {
+        OldStatus = Status;
+        LOG(0, "Video Status: %s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+            (Status & SAA7134_SCALER_STATUS_VID_A) ? "VID_A " : "",
+            (Status & SAA7134_SCALER_STATUS_VBI_A) ? "VBI_A " : "",
+            (Status & SAA7134_SCALER_STATUS_VID_B) ? "VID_B " : "",
+            (Status & SAA7134_SCALER_STATUS_VBI_B) ? "VBI_B " : "",
+            (Status & SAA7134_SCALER_STATUS_TRERR) ? "TRERR " : "",
+            (Status & SAA7134_SCALER_STATUS_CFERR) ? "CFERR " : "",
+            (Status & SAA7134_SCALER_STATUS_LDERR) ? "LDERR " : "",
+            (Status & SAA7134_SCALER_STATUS_WASRST) ? "WASRST " : "",
+            (Status & SAA7134_SCALER_STATUS_FIDSCI) ? "FIDSCI " : "",
+            (Status & SAA7134_SCALER_STATUS_FIDSCO) ? "FIDSCO " : "",
+            (Status & SAA7134_SCALER_STATUS_D6_D5) ? "D6_D5 " : "",
+            (Status & SAA7134_SCALER_STATUS_TASK) ? "TASK " : "",
+            );
+    }
+*/
+
+BYTE CSAA7134Card::DirectGetByte(DWORD dwAddress)
+{
+    return ReadByte(dwAddress);
+}
+
+
+void CSAA7134Card::DirectSetBit(DWORD dwAddress, int nBit, BOOL bSet)
+{
+    if (bSet)
+    {
+        OrDataByte(dwAddress, (1<<nBit));
+        if (dwAddress >= 0x040 || dwAddress < 0x080)
+        {
+            OrDataByte(dwAddress + 0x040, (1<<nBit));
+        }
+    }
+    else
+    {
+        AndDataByte(dwAddress, ~(1<<nBit));
+        if (dwAddress >= 0x040 || dwAddress < 0x080)
+        {
+            AndDataByte(dwAddress + 0x040, ~(1<<nBit));
+        }
+    }
+}

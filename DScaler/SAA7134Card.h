@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.3 2002-09-10 12:14:35 atnak Exp $
+// $Id: SAA7134Card.h,v 1.4 2002-09-14 19:40:48 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,8 +34,8 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
-// Revision 1.2  2002/09/09 14:23:29  atnak
-// Fixed "log" -> "Log", "id" -> "Id"
+// Revision 1.3  2002/09/10 12:14:35  atnak
+// Some changes to eAudioStandard stuff
 //
 //
 //////////////////////////////////////////////////////////////////////////////
@@ -46,13 +46,11 @@
 #include "PCICard.h"
 #include "TVFormats.h"
 #include "SAA7134_Defines.h"
-
 #include "SAA7134I2CInterface.h"
-#include "SAA7134I2CBusInterface.h"
+
 #include "ITuner.h"
 //#include "AudioDecoder.h"
 #include "IAudioControls.h"
-#include "NoAudioControls.h"
 
 #define INPUTS_PER_CARD 7
 
@@ -76,6 +74,7 @@ enum eRegionID
 #define IsRegionIDVBI(r)        (((r) == REGIONID_VBI_A || (r) == REGIONID_VBI_B) ? TRUE : FALSE)
 #define RegionID2TaskID(r)      (((r) == REGIONID_VIDEO_A || (r) == REGIONID_VBI_A) ? TASKID_A : TASKID_B)
 #define TaskID2VideoRegion(t)   (((t) == TASKID_A) ? REGIONID_VIDEO_A : REGIONID_VIDEO_B)
+#define TaskID2VBIRegion(t)   (((t) == TASKID_A) ? REGIONID_VBI_A : REGIONID_VBI_B)
 
 
 /** A Generic saa7134 based capture card
@@ -85,7 +84,7 @@ enum eRegionID
     functions.
 */
 class CSAA7134Card : public CPCICard,
-                     public ISAA7134I2CInterface,
+					 public ISAA7134I2CInterface,
                      public ISAA7134_Defines
 {
 
@@ -230,6 +229,8 @@ public:
     void SetGammaCorrection(BOOL GammaCorrection);
     BOOL GetGammaCorrection();
 
+	void SetStandardSignal(BOOL StandardSignal);
+
     LPCSTR GetChipType();
     LPCSTR GetTunerType();
 
@@ -285,13 +286,10 @@ public:
     void EnableI2SAudioOutput(WORD wRate);
     void EnableCCIR656VideoOut();
     void ResetHPrescale(eTaskID TaskID);
-    void ResetTask(eTaskID TaskID);
 
     void SetPageTable(eRegionID RegionID, DWORD pPhysical, DWORD nPages);
     void SetBaseOffsets(eRegionID RegionID, DWORD dwEvenOffset, DWORD dwOddOffset, DWORD dwPitch);
     void SetBSwapAndWSwap(eRegionID RegionID, BOOL bBSwap, BOOL bWSwap);
-
-
 
     BOOL GetIRQEventRegion(eRegionID& RegionID, BOOL& bIsFieldOdd);
     BOOL GetProcessingRegion(eRegionID& RegionID, BOOL& bIsFieldOdd);
@@ -307,12 +305,13 @@ public:
     // I2C stuff
     BYTE GetI2CStatus();
     void SetI2CStatus(BYTE Status);
-    void SetI2CStart();
-    void SetI2CContinue();
-    void SetI2CStop();
+    void SetI2CCommand(BYTE Command);
     void SetI2CData(BYTE Data);
     BYTE GetI2CData();
-    void I2CSleep();
+
+	BYTE DirectGetByte(DWORD dwAddress);
+	void DirectSetBit(DWORD dwAddress, int nBit, BOOL bSet);
+
 
 protected:
     BOOL IsDualFMAudioStandard(eAudioStandard audioStandard);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134I2CBusInterface.h,v 1.2 2002-09-09 14:25:16 atnak Exp $
+// $Id: SAA7134I2CBus.h,v 1.1 2002-09-14 19:40:48 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,30 +24,38 @@
 //
 // Date          Developer             Changes
 //
-// 09 Sep 2002   Atsushi Nakagawa      Initial Release
+// 13 Sep 2002   Atsushi Nakagawa      Moved I2C stuff into new file
 //
 /////////////////////////////////////////////////////////////////////////////
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
 //
+//
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef __SAA7134I2CBUSINTERFACE_H__
-#define __SAA7134I2CBUSINTERFACE_H__
+#ifndef __SAA7134I2CBUS_H__
+#define __SAA7134I2CBUS_H__
 
 #if _MSC_VER > 1000
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "SAA7134I2CInterface.h"
+
 #include "I2CBus.h"
+#include "SAA7134I2CInterface.h"
 
 
-class CSAA7134I2CBusInterface : public CI2CBus
+class CSAA7134I2CBus : public CI2CBus
 {
+private:
+    enum
+    {
+        MAX_BUSYWAIT_RETRIES    = 16,
+    };
+
 public:
-    CSAA7134I2CBusInterface(ISAA7134I2CInterface *saa7134Interface);
+    CSAA7134I2CBus(ISAA7134I2CInterface* pSAA7134I2C);
 
 public:
     /**
@@ -66,25 +74,44 @@ public:
     virtual bool Write(const BYTE *writeBuffer, size_t writeBufferSize);
 
 protected:
-    virtual void Sleep();
-	virtual void SetData(BYTE Data);
-	virtual BYTE GetData();
-	virtual bool I2CStart();
-	virtual bool I2CContinue();
-	virtual bool I2CStop();
-	virtual bool BusyWait();
-	virtual bool IsReady();
+    /// Sets the data for the next command
+    virtual void SetData(BYTE Data);
+    /// Reads the data from the last command
+    virtual BYTE GetData();
+    /// Wait until the last command is finished.
+    virtual bool BusyWait();
+    /// Is the bus ready?
+    virtual bool IsBusReady();
 
-    virtual void Start() {};
-    virtual void Stop() {};
-    virtual bool Write(BYTE byte) { return FALSE; };
-    virtual BYTE Read(bool last=true) { return 0x00; };
-    virtual bool GetAcknowledge() { return FALSE; };
-    virtual void SendACK() {};
-    virtual void SendNAK() {};
+    /// Is the status an error?
+    virtual bool IsError(BYTE Status);
+
+    /// Addresses the device
+    virtual bool I2CStart();
+    /// Stops the transfer
+    virtual bool I2CStop();
+    /// Continue transfering the next byte
+    virtual bool I2CContinue();
+
+    /// Generic delay function
+    virtual void Sleep();
+
+    /// These are not supported
+    virtual void Start();
+    virtual void Stop();
+    virtual bool Write(BYTE byte);
+    virtual BYTE Read(bool last=true);
+    virtual bool GetAcknowledge();
+    virtual void SendACK();
+    virtual void SendNAK();
 
 private:
-    ISAA7134I2CInterface *m_SAA7134Interface;
+    void InitializeSleep();
+    ULONG GetTickCount();
+
+private:
+    ISAA7134I2CInterface*   m_pSAA7134I2C;
+    ULONG                   m_I2CSleepCycle;
 };
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.3 2002-09-10 12:24:03 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.4 2002-09-14 19:40:48 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,8 +30,8 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
-// Revision 1.2  2002/09/09 14:20:32  atnak
-// Fixed $log$ -> $Log: not supported by cvs2svn $, $id$ -> $Id: SAA7134Source.cpp,v 1.3 2002-09-10 12:24:03 atnak Exp $
+// Revision 1.3  2002/09/10 12:24:03  atnak
+// changed some UI stuff
 //
 //
 //////////////////////////////////////////////////////////////////////////////
@@ -57,7 +57,6 @@
 #include "AspectRatio.h"
 #include "SettingsPerChannel.h"
 
-
 void SAA7134_OnSetup(void *pThis, int Start)
 {
    if (pThis != NULL)
@@ -65,7 +64,6 @@ void SAA7134_OnSetup(void *pThis, int Start)
       ((CSAA7134Source*)pThis)->SavePerChannelSetup(Start);
    }
 }
-
 
 CSAA7134Source::CSAA7134Source(CSAA7134Card* pSAA7134Card, CContigMemory* PageTableDMAMem[4], CUserMemory* DisplayDMAMem[2], CUserMemory* VBIDMAMem[2], LPCSTR IniSection, LPCSTR ChipName, int DeviceIndex) :
     // \todo FIXME
@@ -105,7 +103,7 @@ CSAA7134Source::CSAA7134Source(CSAA7134Card* pSAA7134Card, CContigMemory* PageTa
 //  m_pSAA7134Card->DumpRegisters();
 //  exit(1);
 
-    for(int i(0); i < 2; ++i)
+    for (int i(0); i < 2; ++i)
     {
         m_DisplayPageTableLinear[i] = (DWORD*)PageTableDMAMem[i]->GetUserPointer();
         m_DisplayPageTablePhysical[i] = PageTableDMAMem[i]->TranslateToPhysical(m_DisplayPageTableLinear[i], 4096, NULL);
@@ -113,7 +111,7 @@ CSAA7134Source::CSAA7134Source(CSAA7134Card* pSAA7134Card, CContigMemory* PageTa
         m_VBIPageTablePhysical[i] = PageTableDMAMem[i+2]->TranslateToPhysical(m_VBIPageTableLinear[i], 4096, NULL);
     }
 
-    for(int j(0); j < 2; ++j)
+    for (int j(0); j < 2; ++j)
     {
         m_pDisplay[j] = (BYTE*)DisplayDMAMem[j]->GetUserPointer();
         m_DisplayDMAMem[j] = DisplayDMAMem[j];
@@ -187,13 +185,6 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
     m_VideoFormat = new CVideoFormatSetting(this, "Video Format", VIDEOFORMAT_NTSC_M, 0, VIDEOFORMAT_LASTONE - 1, IniSection);
     m_Settings.push_back(m_VideoFormat);
 
-    m_HDelay = new CHDelaySetting(this, "Horizontal Delay", 0, 0, 255, IniSection);
-    m_Settings.push_back(m_HDelay);
-
-    m_VDelay = new CVDelaySetting(this, "Vertical Delay", 0, 0, 255, IniSection);
-    m_VDelay->SetStepValue(2);
-    m_Settings.push_back(m_VDelay);
-
     m_ReversePolarity = new CYesNoSetting("Reverse Polarity", FALSE, IniSection, "ReversePolarity");
     m_Settings.push_back(m_ReversePolarity);
 
@@ -203,17 +194,22 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
     m_TunerType = new CTunerTypeSetting(this, "Tuner Type", TUNER_ABSENT, TUNER_ABSENT, TUNER_LASTONE - 1, IniSection);
     m_Settings.push_back(m_TunerType);
 
-    m_AudioSource1 = new CAudioSource1Setting(this, "Audio Source 1", AUDIOINPUTLINE_LINE1, AUDIOINPUTLINE_TUNER, AUDIOINPUTLINE_LINE2, IniSection);
-    m_Settings.push_back(m_AudioSource1);
+    m_NonstandardSignal = new CNonstandardSignalSetting(this, "Non-Standard Signal", FALSE, IniSection);
+    m_Settings.push_back(m_NonstandardSignal);
+
+    m_HDelay = new CHDelaySetting(this, "Horizontal Delay", 0, 0, 20, IniSection);
+    m_HDelay->SetStepValue(2);
+    m_Settings.push_back(m_HDelay);
+
+    m_VDelay = new CVDelaySetting(this, "Vertical Delay", 0, 0, 260, IniSection);
+    m_VDelay->SetStepValue(2);
+    m_Settings.push_back(m_VDelay);
 
     m_AudioStandard = new CAudioStandardSetting(this, "Audio Standard", AUDIOSTANDARD_BG_DUAL_FM, AUDIOSTANDARD_BG_DUAL_FM, AUDIOSTANDARD_LAST_ONE-1, IniSection);
-    m_Settings.push_back(m_AudioSource1);
+    m_Settings.push_back(m_AudioStandard);
 
     m_AudioChannel = new CAudioChannelSetting(this, "Audio Channel", SOUNDCHANNEL_STEREO, SOUNDCHANNEL_MONO, SOUNDCHANNEL_LANGUAGE2, IniSection);
     m_Settings.push_back(m_AudioChannel);
-
-    m_AutoStereoSelect = new CAutoStereoSelectSetting(this, "Auto Stereo Select", FALSE, IniSection);
-    m_Settings.push_back(m_AutoStereoSelect);
 
     m_Volume = new CVolumeSetting(this, "Volume", 0, 0, 1000, IniSection);
     m_Volume->SetStepValue(20);
@@ -233,7 +229,10 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
     
     m_bSavePerFormat = new CYesNoSetting("Save Per Format", TRUE, IniSection, "SavePerFormat");
     m_Settings.push_back(m_bSavePerFormat);
-    
+
+    m_AudioSource1 = new CAudioSource1Setting(this, "Audio Source 1", AUDIOINPUTLINE_LINE1, AUDIOINPUTLINE_TUNER, AUDIOINPUTLINE_LINE2, IniSection);
+    m_Settings.push_back(m_AudioSource1);
+
     m_AudioSource2 = new CAudioSource2Setting(this, "Audio Source 2", AUDIOINPUTLINE_LINE1, AUDIOINPUTLINE_TUNER, AUDIOINPUTLINE_LINE2, IniSection);
     m_Settings.push_back(m_AudioSource2);
 
@@ -269,15 +268,14 @@ void CSAA7134Source::Start()
 void CSAA7134Source::Reset()
 {
     m_pSAA7134Card->ResetHardware();
-    m_pSAA7134Card->ResetTask(TASKID_A);
-    m_pSAA7134Card->ResetTask(TASKID_B);
-
     m_pSAA7134Card->SetVideoSource(m_VideoSource->GetValue());
 
     m_pSAA7134Card->SetBrightness(m_Brightness->GetValue());
     m_pSAA7134Card->SetContrast(m_Contrast->GetValue());
     m_pSAA7134Card->SetHue(m_Hue->GetValue());
     m_pSAA7134Card->SetSaturation(m_Saturation->GetValue());
+
+    m_pSAA7134Card->SetStandardSignal(!m_NonstandardSignal->GetValue());
 
     m_CurrentX = m_PixelWidth->GetValue();
     m_pSAA7134Card->SetGeoSize(
@@ -425,19 +423,6 @@ void CSAA7134Source::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     {
         if(m_ReversePolarity->GetValue() == FALSE)
         {
-            /* // DEBUG VBI testing
-            for (int i = 0; i < m_CurrentVBILines; i++)
-            {
-                for (int j = 0; j < m_CurrentX * 2; j++)
-                {
-
-                    m_pDisplay[m_CurrentFrame][2048 + i * 4096 + j] = m_pVBILines[m_CurrentFrame][m_CurrentVBILines * 2048 + 2048 * i + (int) (j/2)];
-                    // m_pDisplay[m_CurrentFrame][2048 + i * 4096 + j] = m_pVBILines[m_CurrentFrame][m_CurrentVBILines * 2048 + 2048 * i + j];
-
-                }
-            }
-            //*/
-
             GiveNextField(pInfo, &m_OddFields[m_CurrentFrame]);
         }
         else
@@ -449,17 +434,6 @@ void CSAA7134Source::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     {
         if(m_ReversePolarity->GetValue() == FALSE)
         {
-            /* // DEBUG VBI testing
-            for (int i = 0; i < m_CurrentVBILines; i++)
-            {
-                for (int j = 0; j < m_CurrentX * 2; j++)
-                {
-                    m_pDisplay[m_CurrentFrame][i * 4096 + j] = m_pVBILines[m_CurrentFrame][2048 * i + (int) (j/2)];
-                    // m_pDisplay[m_CurrentFrame][i * 4096 + j] = m_pVBILines[m_CurrentFrame][2048 * i + j];
-                }
-            }
-            //*/
-            
             GiveNextField(pInfo, &m_EvenFields[m_CurrentFrame]);
         }
         else
@@ -705,7 +679,6 @@ BOOL CSAA7134Source::GetFinishedField(eRegionID& DoneRegionID, BOOL& bDoneIsFiel
     eRegionID RegionID;
     BOOL bIsFieldOdd;
 
-
     if (!m_pSAA7134Card->GetProcessingRegion(RegionID, bIsFieldOdd))
     {
         return FALSE;
@@ -892,6 +865,11 @@ void CSAA7134Source::OverscanOnChange(long Overscan, long OldValue)
 void CSAA7134Source::TunerTypeOnChange(long TunerId, long OldValue)
 {
     m_pSAA7134Card->InitTuner((eTunerId)TunerId);
+}
+
+void CSAA7134Source::NonstandardSignalOnChange(long NewValue, long OldValue)
+{
+    m_pSAA7134Card->SetStandardSignal(!m_NonstandardSignal->GetValue());
 }
 
 

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.cpp,v 1.20 2003-01-21 09:09:55 adcockj Exp $
+// $Id: TimeShift.cpp,v 1.21 2003-04-23 08:20:19 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2003/01/21 09:09:55  adcockj
+// Prevent warning from appearing on exit if timshift hasn't been used
+//
 // Revision 1.19  2003/01/20 15:18:33  adcockj
 // Added warning
 //
@@ -146,6 +149,9 @@ bool CTimeShift::OnRecord(void)
     if (m_pTimeShift)
     {
         EnterCriticalSection(&m_pTimeShift->m_lock);
+
+        // Save this off before we start playing.
+        m_pTimeShift->m_origPixelWidth = SendMessage(hWnd, WM_BT848_GETVALUE, CURRENTX, 0);
 
         // Only start recording if we're stopped.
         result =

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.349 2003-09-26 21:06:31 laurentg Exp $
+// $Id: DScaler.cpp,v 1.350 2003-09-27 12:08:58 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.349  2003/09/26 21:06:31  laurentg
+// Media player toolbar hidden when one skin is selected
+//
 // Revision 1.348  2003/09/13 13:59:08  laurentg
 // half height mode removed - Some menu actions like play or pause disabled
 //
@@ -1604,7 +1607,9 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
 
 	// Show the splash screen after creating the main window
 	// to be sure to display it on the right monitor
-    if(bDisplaySplashScreen)
+    // also don't show it on the first run as that will get in the way
+    // of the dialogs
+    if(bDisplaySplashScreen && ShowHWSetupBox == FALSE)
     {
         ShowSpashScreen();
     }

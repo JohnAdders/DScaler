@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScalerApp.cpp,v 1.12 2002-04-24 19:10:38 tobbej Exp $
+// $Id: DScalerApp.cpp,v 1.13 2002-05-24 23:04:55 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/04/24 19:10:38  tobbej
+// test of new tree based setting dialog
+//
 // Revision 1.11  2001/12/09 22:00:42  tobbej
 // experimental dshow support, doesnt work yet
 // define WANT_DSHOW_SUPPORT if you want to try it
@@ -163,10 +166,10 @@ void CDScalerApp::WinHelp(DWORD dwData, UINT nCmd)
 	}
 	
 	//try to open the help
-	if(HtmlHelp(hWnd, "DScaler.chm", nCmd, dwData)==NULL)
+    if(::HtmlHelp(hWnd, "DScaler.chm", nCmd, dwData)==NULL)
 	{
 		//didnt work, maybe wrong help id? try to open just the toc
-		if(HtmlHelp(hWnd, "DScaler.chm", HH_DISPLAY_TOC, NULL)==NULL)
+        if(::HtmlHelp(hWnd, "DScaler.chm", HH_DISPLAY_TOC, NULL)==NULL)
 		{
 			AfxMessageBox(_T("Failed to open help"),MB_OK|MB_ICONASTERISK);
 		}

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDrawer.cpp,v 1.17 2003-01-01 20:43:13 atnak Exp $
+// $Id: VTDrawer.cpp,v 1.18 2003-01-02 21:25:41 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (c) 2002 Mike Temperton.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -35,6 +35,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2003/01/01 20:43:13  atnak
+// New drawer for new videotext layout
+//
 // Revision 1.16  2002/10/30 03:31:47  atnak
 // Made mixed mode use nonantialias fonts iff there is a transparent background.
 //
@@ -630,7 +633,7 @@ BYTE CVTDrawer::FindRow24PageNumberProc(TVTPage*, WORD wPoint, LPWORD, WORD wCol
             *pPageHex = VTPAGE_FLOFYELLOW;
             break;
 
-        case VTCOLOR_BLUE:
+        case VTCOLOR_CYAN:
             *pPageHex = VTPAGE_FLOFBLUE;
             break;
 
@@ -657,12 +660,15 @@ BYTE CVTDrawer::FindRow24PageNumberProc(TVTPage*, WORD wPoint, LPWORD, WORD wCol
                         *pPageHex = VTPAGE_FLOFYELLOW;
                         break;
 
-                    case VTCOLOR_BLUE:
+                    case VTCOLOR_CYAN:
                         *pPageHex = VTPAGE_FLOFBLUE;
                         break;
                 }
             }
         }
+
+        // Nothing for character four
+        *pPageHex |= 0xF000;
 
         return PARSE_STOPPAGE;
     }

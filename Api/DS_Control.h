@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.48 2002-01-22 14:50:10 robmuller Exp $
+// $Id: DS_Control.h,v 1.49 2002-02-01 20:25:24 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.48  2002/01/22 14:50:10  robmuller
+// Added keyboard lock option.
+//
 // Revision 1.47  2002/01/05 23:05:39  lindsey
 // Consolidated two settings into one from FLT_TemporalComb
 //
@@ -640,6 +643,7 @@ typedef enum
 {
     TEMPORALLUMINANCETHRESHOLD = 0,
     TEMPORALCHROMATHRESHOLD,
+    LOCKTHRESHOLDSTOGETHER,
     USETEMPORALNOISEFILTER,
     FLT_TNOISE_SETTING_LASTONE,
 } FLT_TNOISE_SETTING;

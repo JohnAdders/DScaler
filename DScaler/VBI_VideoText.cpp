@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.62 2003-01-07 16:49:11 adcockj Exp $
+// $Id: VBI_VideoText.cpp,v 1.63 2003-01-07 18:40:18 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.62  2003/01/07 16:49:11  adcockj
+// Changes to allow variable sampling rates for VBI
+//
 // Revision 1.61  2003/01/07 07:37:38  atnak
 // Fixed page subcodes
 //
@@ -1960,7 +1963,7 @@ void VBI_DecodeLine_VT(BYTE* VBI_Buffer)
     }
     // If we exited look after looking too far
     // then we haven't found the clock run-in
-    if (i = (VTStep * 48 / FPFAC))
+    if (i >= (VTStep * 48 / FPFAC))
     {
         return; // not enough periods found
     }

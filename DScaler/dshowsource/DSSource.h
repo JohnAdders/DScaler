@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.h,v 1.10 2002-04-15 22:57:27 laurentg Exp $
+// $Id: DSSource.h,v 1.11 2002-04-16 15:33:53 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/04/15 22:57:27  laurentg
+// Automatic switch to "square pixels" AR mode when needed
+//
 // Revision 1.9  2002/04/07 14:52:13  tobbej
 // fixed race when changing resolution
 // improved error handling
@@ -114,7 +117,7 @@ public:
 	ISetting* GetSaturationU() {return NULL;};
 	ISetting* GetSaturationV() {return NULL;};
 
-	ISetting* GetOverscan() {return NULL;};
+	ISetting* GetOverscan();
 
 	eVideoFormat GetFormat();
 	BOOL IsInTunerMode();
@@ -173,6 +176,7 @@ private:
 	DEFINE_SLIDER_CALLBACK_SETTING(CDSSource, Contrast);
 	DEFINE_SLIDER_CALLBACK_SETTING(CDSSource, Hue);
 	DEFINE_SLIDER_CALLBACK_SETTING(CDSSource, Saturation);
+	DEFINE_SLIDER_CALLBACK_SETTING(CDSSource, Overscan);
 };
 
 #endif // !defined(AFX_DSSOURCE_H__C552BD3D_0240_4408_805B_0783992D937E__INCLUDED_)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.20 2002-04-15 22:57:26 laurentg Exp $
+// $Id: DSSource.cpp,v 1.21 2002-04-16 15:33:53 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2002/04/15 22:57:26  laurentg
+// Automatic switch to "square pixels" AR mode when needed
+//
 // Revision 1.19  2002/04/07 14:52:13  tobbej
 // fixed race when changing resolution
 // improved error handling
@@ -111,6 +114,7 @@
 #include "AspectRatio.h"
 #include "DebugLog.h"
 #include "AutoCriticalSection.h"
+#include "Audio.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -546,6 +550,9 @@ void CDSSource::CreateSettings(LPCSTR IniSection)
 	m_Saturation = new CSaturationSetting(this, "Saturation", 0, LONG_MIN, LONG_MAX, IniSection);
 	m_Settings.push_back(m_Saturation);
 
+	m_Overscan = new COverscanSetting(this, "Overscan", 0, 0, 150, IniSection);
+	m_Settings.push_back(m_Overscan);
+
 }
 
 BOOL CDSSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
@@ -686,6 +693,7 @@ void CDSSource::Start()
 		}
 
 		m_pDSGraph->start();
+		Audio_Unmute();
 		
 		//get the stored settings
 		ReadFromIni();
@@ -713,6 +721,7 @@ void CDSSource::Stop()
 			ErrorBox(e.getErrorText());
 		}
 	}
+	Audio_Mute();
 	//shoud probably free the memory allocated by the picture history array
 }
 
@@ -945,9 +954,40 @@ LPCSTR CDSSource::GetMenuLabel()
 	return NULL;
 }
 
+ISetting* CDSSource::GetOverscan()
+{
+	if(m_pDSGraph==NULL)
+		return NULL;
+
+	CDShowBaseSource *pSrc=m_pDSGraph->getSourceDevice();
+	if(pSrc==NULL)
+		return NULL;
+
+	if(pSrc->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
+	{
+		return m_Overscan;
+	}
+	return NULL;
+}
+
 void CDSSource::SetOverscan()
 {
-    AspectSettings.InitialOverscan = 0;
+	if(m_pDSGraph!=NULL)
+	{
+		CDShowBaseSource *pSrc=m_pDSGraph->getSourceDevice();
+		if(pSrc!=NULL && pSrc->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
+		{
+			AspectSettings.InitialOverscan = m_Overscan->GetValue();
+			return;
+		}
+	}
+	AspectSettings.InitialOverscan = 0;
+}
+
+void CDSSource::OverscanOnChange(long Overscan, long OldValue)
+{
+	AspectSettings.InitialOverscan = Overscan;
+    WorkoutOverlaySize(TRUE);
 }
 
 LPCSTR CDSSource::GetStatus()
@@ -1122,8 +1162,8 @@ void CDSSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 	}
 	else
 	{
-		//FIXME: need to wait one field here
-		//Sleep(20);
+		//this will wait until the corect time to show this field
+		m_pDSGraph->waitForNextField();
 
 		pInfo->FrameHeight=m_currentY;
 		pInfo->FrameWidth=m_currentX;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.17 2002-02-19 16:03:36 tobbej Exp $
+// $Id: DScaler.h,v 1.18 2002-03-11 22:25:56 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -107,6 +107,7 @@ HMENU GetPatternsSubmenu();
 extern HINSTANCE hDScalerInst;
 extern HINSTANCE hResourceInst;
 extern HWND hWnd;
+extern HCURSOR hCursorHand;
 
 extern BOOL bIgnoreMouse;
 

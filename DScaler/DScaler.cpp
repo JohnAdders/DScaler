@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.139 2002-02-28 11:27:03 temperton Exp $
+// $Id: DScaler.cpp,v 1.140 2002-03-11 22:25:56 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.139  2002/02/28 11:27:03  temperton
+// Preserve WS_DISABLED window style in UpdateWindowState
+//
 // Revision 1.138  2002/02/27 20:47:21  laurentg
 // Still settings
 //
@@ -657,7 +660,6 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     // load up the cursors we want to use
     // we load up arrow as the default and try and load up
     // the hand cursor if we are running NT 5
-    /// \todo add or find hand cursor for win 95 and up
     hCursorDefault = LoadCursor(NULL, IDC_ARROW);
 
     OSVERSIONINFO version;
@@ -665,11 +667,11 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     GetVersionEx(&version);
     if ((version.dwPlatformId == VER_PLATFORM_WIN32_NT) && (version.dwMajorVersion >= 5))
     {
-        hCursorHand = LoadCursor(NULL, MAKEINTRESOURCE(32649));
+        hCursorHand = LoadCursor(NULL, IDC_HAND);
     }
     else
-    {
-        hCursorHand = hCursorDefault;
+    {        
+        hCursorHand = LoadCursor(hResourceInst, MAKEINTRESOURCE(IDC_CURSOR_HAND));
     }
 
     wc.style = CS_DBLCLKS;      // Allow double click

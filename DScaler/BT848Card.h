@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.32 2002-10-11 13:38:13 kooiman Exp $
+// $Id: BT848Card.h,v 1.33 2002-10-11 21:35:11 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2002/10/11 13:38:13  kooiman
+// Added support for VoodooTV IF demodulator. Improved TDA9887. Added interface for GPOE/GPDATA access to make this happen.
+//
 // Revision 1.31  2002/10/02 10:52:36  kooiman
 // Fixed C++ type casting for events.
 //
@@ -148,21 +151,6 @@ private:
         BYTE MuxSelect;
     } TInputType;
 
-    enum eAudioDecoderType
-    {
-        AUDIODECODERTYPE_DETECT = -1,
-        AUDIODECODERTYPE_NONE,
-        AUDIODECODERTYPE_MSP34x0,
-        AUDIODECODERTYPE_TERRATV,
-        AUDIODECODERTYPE_WINFAST2000,
-        AUDIODECODERTYPE_GVBCTV3,
-        AUDIODECODERTYPE_LT9415,
-        AUDIODECODERTYPE_WINDVR,
-        AUDIODECODERTYPE_AVER_TVPHONE_NEW,
-        AUDIODECODERTYPE_AVER_TVPHONE_OLD,
-        AUDIODECODERTYPE_LASTONE
-    };
-
     /// Defines the specific settings for a given card
     typedef struct
     {
@@ -180,7 +168,7 @@ private:
         */
         void (CBT848Card::*pInputSwitchFunction)(int);
         /// Any card specific method used to select stereo - may be NULL
-        eAudioDecoderType AudioDecoderType;
+        CAudioDecoder::eAudioDecoderType AudioDecoderType;
         /// Bit Mask for audio GPIO operations
         DWORD GPIOMask;
         /** GPIO Flags for the various inputs
@@ -271,7 +259,6 @@ public:
     BOOL GetGammaCorrection();
 
     LPCSTR GetChipType();
-    LPCSTR GetAudioDecoderType();
     LPCSTR GetTunerType();
 
     void RestartRISCCode(DWORD RiscBasePhysical);
@@ -311,7 +298,7 @@ public:
     void SetAudioAutoVolumeCorrection(long milliSeconds);
 
     // AudioDecoder facade    
-    LPCSTR GetAudioDecoderID();
+    CAudioDecoder::eAudioDecoderType GetAudioDecoderType();
     int SetAudioDecoderValue(int What, long Val);
     long GetAudioDecoderValue(int What);   
     void SetAudioSource(eAudioInput audioInput);
@@ -327,8 +314,6 @@ public:
     void SetAudioStandardCarriers(long MajorCarrier, long MinorCarrier);
     long GetAudioStandardFromVideoFormat(eVideoFormat videoFormat);
     void DetectAudioStandard(long Interval, int SupportedSoundChannels, eSoundChannel TargetChannel);
-    
-
 
     eTunerId AutoDetectTuner(eTVCardId CardId);
     eTVCardId AutoDetectCardType();
@@ -342,6 +327,10 @@ public:
     eAudioInput GetAudioInput();
     LPCSTR GetAudioInputName(eAudioInput nInput);
     int GetNumAudioInputs();
+
+    bool GetHasUseInputPin1();
+    bool GetUseInputPin1();
+    void SetUseInputPin1(bool AValue);
     
     BOOL IsMyAudioDecoder(CAudioDecoder* pAudioDecoder);
 
@@ -367,7 +356,6 @@ private:
     bool m_I2CInitialized;
     void InitializeI2C();
 
-private:
     void SetGeometryEvenOdd(BOOL bOdd, int wHScale, int wVScale, int wHActive, int wVActive, int wHDelay, int wVDelay, BYTE bCrop);
     void SetPLL(ePLLFreq PLL);
     BOOL IsCCIRSource(int nInput);
@@ -391,7 +379,6 @@ private:
     char m_AudioDecoderType[32];
     char m_TunerType[32];
 
-private:
     eTVCardId m_CardType;
 
     CI2CBus*        m_I2CBus;
@@ -399,7 +386,6 @@ private:
     CAudioDecoder*  m_AudioDecoder;
     CAudioControls* m_AudioControls;
 
-private:
     static const TCardType m_TVCards[TVCARD_LASTONE];
     static const TAutoDectect878 m_AutoDectect878[];
     static const eTunerId m_Tuners_miro[];

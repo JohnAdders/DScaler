@@ -290,6 +290,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name FLT_Histogram
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name FLT_Mirror
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -367,6 +370,18 @@ Package=<4>
 ###############################################################################
 
 Project: "FLT_LogoKill"=..\Plugins\FLT_LogoKill\FLT_LogoKill.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "FLT_Mirror"=..\PLUGINS\FLT_Mirror\FLT_Mirror.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

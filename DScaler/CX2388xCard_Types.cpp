@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Types.cpp,v 1.27 2004-08-26 16:55:56 to_see Exp $
+// $Id: CX2388xCard_Types.cpp,v 1.28 2004-08-27 13:12:40 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2004/08/26 16:55:56  to_see
+// WinTV - cleaned tuner detection
+// ATI TV Wonder Pro - corrected GPIO's
+//
 // Revision 1.26  2004/08/19 20:17:46  to_see
 // Changed write order GPIO's for Leadtek Expert card. It's importand to write first to MO_GP3_IO.
 //
@@ -722,7 +726,7 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
         SetAnalogSaturationU,
         SetAnalogSaturationV,
         StandardSetFormat,
-        TUNER_USER_SETUP,
+        TUNER_PHILIPS_4IN1,
         IDC_CX2388X,
     },
     // Card info from Tom Zoerner

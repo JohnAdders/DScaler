@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.64 2004-07-10 11:57:17 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.65 2004-08-27 13:12:40 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.64  2004/07/10 11:57:17  adcockj
+// improved cx2388x driver coverage when disabling drivers
+//
 // Revision 1.63  2004/06/23 20:15:22  to_see
 // Created an new struct TControlSettings for better handling
 // more cards and deleted class CTDA9887MsiMaster. Thanks to atnak.
@@ -1911,6 +1914,7 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
         strcpy(m_TunerType, "None ");
         break;
     case TUNER_PHILIPS_FM1216ME_MK3:
+	case TUNER_PHILIPS_4IN1:
         LookForIFDemod = TRUE;
         // deliberate drop down
     default:
@@ -1942,23 +1946,21 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
         switch (m_CardType)
         {        
         case CX2388xCARD_MSI_TV_ANYWHERE_MASTER_PAL:
-            //Detect TDA 9887 for MSI Master
-			{
-                CTDA9887 *pTDA9887 = new CTDA9887(TDA9887_MSI_TV_ANYWHERE_MASTER);
-                pExternalIFDemodulator = pTDA9887;
-                IFDemDeviceAddress[0] = I2C_TDA9887_0;
-                IFDemDeviceAddress[1] = I2C_TDA9887_1;
-			}
+            pExternalIFDemodulator = new CTDA9887(TDA9887_MSI_TV_ANYWHERE_MASTER);
+            IFDemDeviceAddress[0] = I2C_TDA9887_0;
+            IFDemDeviceAddress[1] = I2C_TDA9887_1;
             break;
 
         case CX2388xCARD_LEADTEK_WINFAST_EXPERT:
-            //Detect TDA 9887 for Leadtek Winfast XP Expert
-			{
-                CTDA9887 *pTDA9887 = new CTDA9887(TDA9887_LEADTEK_WINFAST_EXPERT);
-                pExternalIFDemodulator = pTDA9887;
-                IFDemDeviceAddress[0] = I2C_TDA9887_0;
-                IFDemDeviceAddress[1] = I2C_TDA9887_1;
-			}
+            pExternalIFDemodulator = new CTDA9887(TDA9887_LEADTEK_WINFAST_EXPERT);
+            IFDemDeviceAddress[0] = I2C_TDA9887_0;
+            IFDemDeviceAddress[1] = I2C_TDA9887_1;
+            break;
+
+		case CX2388xCARD_ATI_WONDER_PRO:
+            pExternalIFDemodulator = new CTDA9887(TDA9887_ATI_TV_WONDER_PRO);
+            IFDemDeviceAddress[0] = I2C_TDA9887_0;
+            IFDemDeviceAddress[1] = I2C_TDA9887_1;
             break;
 		/*
 		// here is an good place for other Card Types to detect IF Demodulators
@@ -1966,12 +1968,9 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
 
         default:
             //default: detect TDA 9887
-            {
-                CTDA9887 *pTDA9887 = new CTDA9887();
-                pExternalIFDemodulator = pTDA9887;
-                IFDemDeviceAddress[0] = I2C_TDA9887_0;
-                IFDemDeviceAddress[1] = I2C_TDA9887_1;
-            }
+            pExternalIFDemodulator = new CTDA9887();
+            IFDemDeviceAddress[0] = I2C_TDA9887_0;
+            IFDemDeviceAddress[1] = I2C_TDA9887_1;
             break;
         }
     }

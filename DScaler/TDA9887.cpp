@@ -1,5 +1,5 @@
 //
-// $Id: TDA9887.cpp,v 1.6 2004-06-23 20:15:22 to_see Exp $
+// $Id: TDA9887.cpp,v 1.7 2004-08-27 13:12:41 to_see Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,10 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2004/06/23 20:15:22  to_see
+// Created an new struct TControlSettings for better handling
+// more cards and deleted class CTDA9887MsiMaster. Thanks to atnak.
+//
 // Revision 1.5  2004/06/02 18:41:34  to_see
 // Added settings in CTDA9887MsiMaster for Pal(I) from John
 //
@@ -72,6 +76,16 @@ const CTDA9887::TControlSettings CTDA9887::m_ControlSettings[TDA9887_LASTONE] =
         {0x16, 0x70, 0x4b}, // PAL_DK		Working
         {0x86, 0x50, 0x4b}, // PAL_L		?
         {0x92, 0x30, 0x04}, // NTSC			?
+        {0x92, 0x30, 0x40}, // NTSC_JP		?
+        {0x8e, 0x0d, 0x77}, // FM_RADIO		?
+    },
+	{
+        TDA9887_ATI_TV_WONDER_PRO,
+        {0x16, 0x70, 0x49}, // PAL_BG		?
+        {0x16, 0x6e, 0x4a}, // PAL_I		?
+        {0x16, 0x70, 0x4b}, // PAL_DK		?
+        {0x86, 0x50, 0x4b}, // SECAM_L		?
+        {0x92, 0x30, 0x04}, // NTSC			Working
         {0x92, 0x30, 0x40}, // NTSC_JP		?
         {0x8e, 0x0d, 0x77}, // FM_RADIO		?
     },

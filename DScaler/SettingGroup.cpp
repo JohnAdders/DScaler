@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingGroup.cpp,v 1.7 2004-09-08 07:19:01 atnak Exp $
+// $Id: SettingGroup.cpp,v 1.8 2005-03-05 12:15:20 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2004/09/08 07:19:01  atnak
+// Major changes in the way operations are handled.  For better handling of
+// operations called from inside callbacks.  Plus other changes.
+//
 // Revision 1.6  2004/08/20 09:16:19  atnak
 // Fixed the anti-deadlock no-lock sanctuary for the notication callbacks.
 //
@@ -54,10 +58,10 @@
 
 
 //////////////////////////////////////////////////////////////////////////
-// CSettingGroup
+// CSettingGroup_
 //////////////////////////////////////////////////////////////////////////
 
-CSettingGroup::CSettingGroup(IN std::string section, IN PSETTINGREPOSITORY repository) :
+CSettingGroup_::CSettingGroup_(IN std::string section, IN PSETTINGREPOSITORY repository) :
 	m_repository(repository),
 	m_notifyProc(NULL),
 	m_deferredOperationList(NULL),
@@ -68,7 +72,7 @@ CSettingGroup::CSettingGroup(IN std::string section, IN PSETTINGREPOSITORY repos
 }
 
 
-CSettingGroup::~CSettingGroup()
+CSettingGroup_::~CSettingGroup_()
 {
 	// If m_deferredOperationList is not NULL when the group is being
 	// deleted, this buffer is the least of the worries.  The group is
@@ -97,13 +101,13 @@ CSettingGroup::~CSettingGroup()
 // Add setting functions
 //////////////////////////////////////////////////////////////////////////
 
-HSETTING CSettingGroup::AddSetting(IN PSETTINGOBJECT object, IN PSETTINGKEY key)
+HSETTING CSettingGroup_::AddSetting(IN PSETTINGOBJECT object, IN PSETTINGKEY key)
 {
 	return AddSetting("", object, key);
 }
 
 
-HSETTING CSettingGroup::AddSetting(IN std::string title, IN PSETTINGOBJECT object, IN PSETTINGKEY key)
+HSETTING CSettingGroup_::AddSetting(IN std::string title, IN PSETTINGOBJECT object, IN PSETTINGKEY key)
 {
 	if (object == NULL)
 	{
@@ -121,7 +125,7 @@ HSETTING CSettingGroup::AddSetting(IN std::string title, IN PSETTINGOBJECT objec
 }
 
 
-void CSettingGroup::RegisterSetting(IN PSETTINGINFO info)
+void CSettingGroup_::RegisterSetting(IN PSETTINGINFO info)
 {
 	if (info->key != NULL)
 	{
@@ -136,14 +140,14 @@ void CSettingGroup::RegisterSetting(IN PSETTINGINFO info)
 // Group setting functions.
 //////////////////////////////////////////////////////////////////////////
 
-void CSettingGroup::SetNotifyProc(IN PSETTINGGROUP_NOTIFYPROC proc, IN PVOID context)
+void CSettingGroup_::SetNotifyProc(IN PSETTINGGROUP_NOTIFYPROC proc, IN PVOID context)
 {
 	m_notifyProc = proc;
 	m_callbackContext = context;
 }
 
 
-void CSettingGroup::SetEnableDeferring(IN BOOL enable)
+void CSettingGroup_::EnableDeferring(IN BOOL enable)
 {
 	PNOTIFICATIONSTATE notifyState = GetActiveNotification();
 
@@ -160,7 +164,7 @@ void CSettingGroup::SetEnableDeferring(IN BOOL enable)
 }
 
 
-BOOL CSettingGroup::IsSilent() const
+BOOL CSettingGroup_::IsSilent() const
 {
 	return m_silent > 0;
 }
@@ -170,7 +174,7 @@ BOOL CSettingGroup::IsSilent() const
 // Saving functions
 //////////////////////////////////////////////////////////////////////////
 
-void CSettingGroup::SaveSettings()
+void CSettingGroup_::SaveSettings()
 {
 	EnterObjectLock();
 
@@ -186,7 +190,7 @@ void CSettingGroup::SaveSettings()
 }
 
 
-void CSettingGroup::SaveSetting(IN HSETTING setting)
+void CSettingGroup_::SaveSetting(IN HSETTING setting)
 {
 	PSETTINGINFO info = reinterpret_cast<PSETTINGINFO>(setting);
 	EnterObjectLock();
@@ -199,7 +203,7 @@ void CSettingGroup::SaveSetting(IN HSETTING setting)
 // Deferrable state changing functions
 //////////////////////////////////////////////////////////////////////////
 
-void CSettingGroup::Silence(IN BOOL silence)
+void CSettingGroup_::Silence(IN BOOL silence)
 {
 	OPERATIONINFO opinfo;
 
@@ -215,7 +219,7 @@ void CSettingGroup::Silence(IN BOOL silence)
 // Value changing/notifying functions
 //////////////////////////////////////////////////////////////////////////
 
-void CSettingGroup::LoadSettings()
+void CSettingGroup_::LoadSettings()
 {
 	OPERATIONINFO opinfo;
 
@@ -226,7 +230,7 @@ void CSettingGroup::LoadSettings()
 }
 
 
-void CSettingGroup::ReviseSettings()
+void CSettingGroup_::ReviseSettings()
 {
 	OPERATIONINFO opinfo;
 
@@ -237,7 +241,7 @@ void CSettingGroup::ReviseSettings()
 }
 
 
-void CSettingGroup::InsertMarker(IN INT markerID)
+void CSettingGroup_::InsertMarker(IN INT markerID)
 {
 	OPERATIONINFO opinfo;
 
@@ -250,7 +254,7 @@ void CSettingGroup::InsertMarker(IN INT markerID)
 }
 
 
-void CSettingGroup::LoadSetting(IN HSETTING setting)
+void CSettingGroup_::LoadSetting(IN HSETTING setting)
 {
 	OPERATIONINFO opinfo;
 
@@ -262,7 +266,7 @@ void CSettingGroup::LoadSetting(IN HSETTING setting)
 }
 
 
-void CSettingGroup::SetValue(IN HSETTING setting, IN RCSETTINGVALUE value)
+void CSettingGroup_::SetValue(IN HSETTING setting, IN RCSETTINGVALUE value)
 {
 	OPERATIONINFO opinfo;
 
@@ -275,7 +279,7 @@ void CSettingGroup::SetValue(IN HSETTING setting, IN RCSETTINGVALUE value)
 }
 
 
-void CSettingGroup::UseDefault(IN HSETTING setting)
+void CSettingGroup_::UseDefault(IN HSETTING setting)
 {
 	OPERATIONINFO opinfo;
 
@@ -287,7 +291,7 @@ void CSettingGroup::UseDefault(IN HSETTING setting)
 }
 
 
-void CSettingGroup::SetDefault(IN HSETTING setting, IN RCSETTINGVALUE value)
+void CSettingGroup_::SetDefault(IN HSETTING setting, IN RCSETTINGVALUE value)
 {
 	OPERATIONINFO opinfo;
 
@@ -300,7 +304,7 @@ void CSettingGroup::SetDefault(IN HSETTING setting, IN RCSETTINGVALUE value)
 }
 
 
-void CSettingGroup::CheckLimiter(IN HSETTING setting)
+void CSettingGroup_::CheckLimiter(IN HSETTING setting)
 {
 	OPERATIONINFO opinfo;
 
@@ -312,7 +316,7 @@ void CSettingGroup::CheckLimiter(IN HSETTING setting)
 }
 
 
-void CSettingGroup::SetLimiter(IN HSETTING setting, IN PSETTINGLIMITER limiter)
+void CSettingGroup_::SetLimiter(IN HSETTING setting, IN PSETTINGLIMITER limiter)
 {
 	OPERATIONINFO opinfo;
 
@@ -329,14 +333,14 @@ void CSettingGroup::SetLimiter(IN HSETTING setting, IN PSETTINGLIMITER limiter)
 // Single value getting functions
 //////////////////////////////////////////////////////////////////////////
 
-PSETTINGKEY CSettingGroup::GetSettingKey(IN HSETTING setting)
+PSETTINGKEY CSettingGroup_::GetSettingKey(IN HSETTING setting)
 {
 	PSETTINGINFO info = reinterpret_cast<PSETTINGINFO>(setting);
 	return info->key;
 }
 
 
-std::string CSettingGroup::GetSettingTitle(IN HSETTING setting)
+std::string CSettingGroup_::GetSettingTitle(IN HSETTING setting)
 {
 	PSETTINGINFO info = reinterpret_cast<PSETTINGINFO>(setting);
 	EnterObjectLock();
@@ -346,7 +350,7 @@ std::string CSettingGroup::GetSettingTitle(IN HSETTING setting)
 }
 
 
-CSettingValue CSettingGroup::GetValue(IN HSETTING setting)
+CSettingValue CSettingGroup_::GetValue(IN HSETTING setting)
 {
 	PSETTINGINFO info = reinterpret_cast<PSETTINGINFO>(setting);
 	EnterObjectLock();
@@ -356,7 +360,7 @@ CSettingValue CSettingGroup::GetValue(IN HSETTING setting)
 }
 
 
-CSettingValue CSettingGroup::GetDefault(IN HSETTING setting)
+CSettingValue CSettingGroup_::GetDefault(IN HSETTING setting)
 {
 	PSETTINGINFO info = reinterpret_cast<PSETTINGINFO>(setting);
 	EnterObjectLock();
@@ -366,7 +370,7 @@ CSettingValue CSettingGroup::GetDefault(IN HSETTING setting)
 }
 
 
-PSETTINGLIMITER CSettingGroup::GetLimiter(IN HSETTING setting)
+PSETTINGLIMITER CSettingGroup_::GetLimiter(IN HSETTING setting)
 {
 	PSETTINGINFO info = reinterpret_cast<PSETTINGINFO>(setting);
 	EnterObjectLock();
@@ -380,13 +384,13 @@ PSETTINGLIMITER CSettingGroup::GetLimiter(IN HSETTING setting)
 // Single setting misc functions.
 //////////////////////////////////////////////////////////////////////////
 
-BOOL CSettingGroup::IsChangedPending(IN HSETTING setting)
+BOOL CSettingGroup_::IsPendingChanged(IN HSETTING setting)
 {
 	return GetInfoFlag(reinterpret_cast<PSETTINGINFO>(setting), FLAG_CHANGING);
 }
 
 
-BOOL CSettingGroup::SilenceChangedPending(IN HSETTING setting)
+BOOL CSettingGroup_::SilencePendingChanged(IN HSETTING setting)
 {
 	PSETTINGINFO info = reinterpret_cast<PSETTINGINFO>(setting);
 
@@ -404,7 +408,7 @@ BOOL CSettingGroup::SilenceChangedPending(IN HSETTING setting)
 // Locking functions
 //////////////////////////////////////////////////////////////////////////
 
-void CSettingGroup::InitializeLocking()
+void CSettingGroup_::InitializeLocking()
 {
 #ifdef SETTINGGROUP_THREAD_SAFE
 	InitializeCriticalSection(&m_objectLockCriticalSection);
@@ -412,7 +416,7 @@ void CSettingGroup::InitializeLocking()
 }
 
 
-void CSettingGroup::CleanupLocking()
+void CSettingGroup_::CleanupLocking()
 {
 #ifdef SETTINGGROUP_THREAD_SAFE
 	DeleteCriticalSection(&m_objectLockCriticalSection);
@@ -420,7 +424,7 @@ void CSettingGroup::CleanupLocking()
 }
 
 
-void CSettingGroup::EnterObjectLock()
+void CSettingGroup_::EnterObjectLock()
 {
 #ifdef SETTINGGROUP_THREAD_SAFE
 	EnterCriticalSection(&m_objectLockCriticalSection);
@@ -428,7 +432,7 @@ void CSettingGroup::EnterObjectLock()
 }
 
 
-void CSettingGroup::LeaveObjectLock()
+void CSettingGroup_::LeaveObjectLock()
 {
 #ifdef SETTINGGROUP_THREAD_SAFE
 	LeaveCriticalSection(&m_objectLockCriticalSection);
@@ -440,7 +444,7 @@ void CSettingGroup::LeaveObjectLock()
 // Info flag functions
 //////////////////////////////////////////////////////////////////////////
 
-void CSettingGroup::SetInfoFlag(IN PSETTINGINFO info, IN BYTE flags, IN BOOL set)
+void CSettingGroup_::SetInfoFlag(IN PSETTINGINFO info, IN BYTE flags, IN BOOL set)
 {
 	if (set)
 	{
@@ -453,7 +457,7 @@ void CSettingGroup::SetInfoFlag(IN PSETTINGINFO info, IN BYTE flags, IN BOOL set
 }
 
 
-BOOL CSettingGroup::GetInfoFlag(IN PSETTINGINFO info, IN BYTE flags, IN BOOL strict)
+BOOL CSettingGroup_::GetInfoFlag(IN PSETTINGINFO info, IN BYTE flags, IN BOOL strict)
 {
 	if (strict)
 	{
@@ -468,7 +472,7 @@ BOOL CSettingGroup::GetInfoFlag(IN PSETTINGINFO info, IN BYTE flags, IN BOOL str
 // Operation processing functions.
 //////////////////////////////////////////////////////////////////////////
 
-void CSettingGroup::ProcessOperation(IN POPERATIONINFO opinfo)
+void CSettingGroup_::ProcessOperation(IN POPERATIONINFO opinfo)
 {
 	// Get necessary information related to the current notification
 	// if this operation was called from inside one.
@@ -510,7 +514,7 @@ void CSettingGroup::ProcessOperation(IN POPERATIONINFO opinfo)
 }
 
 
-void CSettingGroup::PerformOperation(IN POPERATIONINFO opinfo)
+void CSettingGroup_::PerformOperation(IN POPERATIONINFO opinfo)
 {
 	switch (opinfo->op & OP_TYPE_MASK)
 	{
@@ -533,7 +537,7 @@ void CSettingGroup::PerformOperation(IN POPERATIONINFO opinfo)
 }
 
 
-void CSettingGroup::PerformStateOperation(IN POPERATIONINFO opinfo)
+void CSettingGroup_::PerformStateOperation(IN POPERATIONINFO opinfo)
 {
 	switch (opinfo->op & OP_MASK)
 	{
@@ -551,7 +555,7 @@ void CSettingGroup::PerformStateOperation(IN POPERATIONINFO opinfo)
 }
 
 
-void CSettingGroup::PerformContainedOperation(IN POPERATIONINFO opinfo)
+void CSettingGroup_::PerformContainedOperation(IN POPERATIONINFO opinfo)
 {
 	switch (opinfo->op & OP_MASK)
 	{
@@ -570,7 +574,7 @@ void CSettingGroup::PerformContainedOperation(IN POPERATIONINFO opinfo)
 }
 
 
-void CSettingGroup::PerformObjectOperation(IN POPERATIONINFO opinfo, IN PCHANGEVALUES values)
+void CSettingGroup_::PerformObjectOperation(IN POPERATIONINFO opinfo, IN PCHANGEVALUES values)
 {
 	switch (opinfo->op & OP_MASK)
 	{
@@ -598,7 +602,7 @@ void CSettingGroup::PerformObjectOperation(IN POPERATIONINFO opinfo, IN PCHANGEV
 }
 
 
-BOOL CSettingGroup::ProcessValueChange(IN PSETTINGINFO info, IN PCHANGEVALUES values)
+BOOL CSettingGroup_::ProcessValueChange(IN PSETTINGINFO info, IN PCHANGEVALUES values)
 {
 	if (!values->set)
 	{
@@ -608,7 +612,7 @@ BOOL CSettingGroup::ProcessValueChange(IN PSETTINGINFO info, IN PCHANGEVALUES va
 }
 
 
-BOOL CSettingGroup::ProcessValueChange(IN PSETTINGINFO info, IN RCSETTINGVALUE newValue,
+BOOL CSettingGroup_::ProcessValueChange(IN PSETTINGINFO info, IN RCSETTINGVALUE newValue,
 									   IN RCSETTINGVALUE oldValue, IN BOOL forRevise)
 {
 	BOOL isEqual = newValue.IsEqual(oldValue);
@@ -675,7 +679,7 @@ BOOL CSettingGroup::ProcessValueChange(IN PSETTINGINFO info, IN RCSETTINGVALUE n
 }
 
 
-void CSettingGroup::LoadAllSettings()
+void CSettingGroup_::LoadAllSettings()
 {
 	CHANGEVALUES values;
 
@@ -694,7 +698,7 @@ void CSettingGroup::LoadAllSettings()
 }
 
 
-void CSettingGroup::ReviseAllSettings()
+void CSettingGroup_::ReviseAllSettings()
 {
 	if (IsSilent())
 	{
@@ -728,7 +732,7 @@ void CSettingGroup::ReviseAllSettings()
 }
 
 
-void CSettingGroup::PerformInsertMarker(IN INT markerID)
+void CSettingGroup_::PerformInsertMarker(IN INT markerID)
 {
 	CSettingValue value;
 	value.SetInt(markerID);
@@ -755,34 +759,34 @@ void CSettingGroup::PerformInsertMarker(IN INT markerID)
 // Changed notify list functions
 //////////////////////////////////////////////////////////////////////////
 
-CSettingGroup::PCHANGEDNOTIFYSTACK CSettingGroup::GetChangedNotifyStack()
+CSettingGroup_::PCHANGEDNOTIFYSTACK CSettingGroup_::GetChangedNotifyStack()
 {
 	return &m_changedNotifyStack;
 }
 
 
-CSettingGroup::PCHANGEDNOTIFYLIST CSettingGroup::GetActiveChangedNotifyList()
+CSettingGroup_::PCHANGEDNOTIFYLIST CSettingGroup_::GetActiveChangedNotifyList()
 {
 	PCHANGEDNOTIFYSTACK stack = GetChangedNotifyStack();
 	return stack->empty() ? NULL : stack->back();
 }
 
 
-void CSettingGroup::SetActiveChangedNotifyList(IN PCHANGEDNOTIFYLIST changedList)
+void CSettingGroup_::SetActiveChangedNotifyList(IN PCHANGEDNOTIFYLIST changedList)
 {
 	// Push the changed list onto the stack.
 	GetChangedNotifyStack()->push_back(changedList);
 }
 
 
-void CSettingGroup::RevertActiveChangedNotifyList()
+void CSettingGroup_::RevertActiveChangedNotifyList()
 {
 	// Pop the top of the stack.
 	GetChangedNotifyStack()->pop_back();
 }
 
 
-void CSettingGroup::EnqueueChangedNotification(IN PCHANGEDNOTIFY notification)
+void CSettingGroup_::EnqueueChangedNotification(IN PCHANGEDNOTIFY notification)
 {
 	PCHANGEDNOTIFYLIST changedList = GetActiveChangedNotifyList();
 	// Enqueue the pending changed notification to the end of the list.
@@ -790,7 +794,7 @@ void CSettingGroup::EnqueueChangedNotification(IN PCHANGEDNOTIFY notification)
 }
 
 
-void CSettingGroup::SendChangedNotifications(IN PCHANGEDNOTIFYLIST changedList)
+void CSettingGroup_::SendChangedNotifications(IN PCHANGEDNOTIFYLIST changedList)
 {
 	CHANGEDNOTIFYLIST::iterator it = changedList->begin();
 	// Note: don't cache end() because it can change in the loop.
@@ -827,7 +831,7 @@ void CSettingGroup::SendChangedNotifications(IN PCHANGEDNOTIFYLIST changedList)
 }
 
 
-void CSettingGroup::UpdateChangedNotification(IN PSETTINGINFO info, IN BOOL removeOnly)
+void CSettingGroup_::UpdateChangedNotification(IN PSETTINGINFO info, IN BOOL removeOnly)
 {
 	PCHANGEDNOTIFYSTACK stack = GetChangedNotifyStack();
 
@@ -867,20 +871,20 @@ void CSettingGroup::UpdateChangedNotification(IN PSETTINGINFO info, IN BOOL remo
 // Active notification and deferring functions
 //////////////////////////////////////////////////////////////////////////
 
-CSettingGroup::PNOTIFICATIONSTACK CSettingGroup::GetNotificationStack()
+CSettingGroup_::PNOTIFICATIONSTACK CSettingGroup_::GetNotificationStack()
 {
 	return &m_notificationStack;
 }
 
 
-CSettingGroup::PNOTIFICATIONSTATE CSettingGroup::GetActiveNotification()
+CSettingGroup_::PNOTIFICATIONSTATE CSettingGroup_::GetActiveNotification()
 {
 	PNOTIFICATIONSTACK stack = GetNotificationStack();
 	return stack->empty() ? NULL : stack->back();
 }
 
 
-void CSettingGroup::EnqueueDeferredOperation(IN POPERATIONINFO opinfo)
+void CSettingGroup_::EnqueueDeferredOperation(IN POPERATIONINFO opinfo)
 {
 	PNOTIFICATIONSTATE notifyState = GetActiveNotification();
 
@@ -894,7 +898,7 @@ void CSettingGroup::EnqueueDeferredOperation(IN POPERATIONINFO opinfo)
 }
 
 
-void CSettingGroup::StackDeferredOperations(IN POPERATIONLIST oplist)
+void CSettingGroup_::StackDeferredOperations(IN POPERATIONLIST oplist)
 {
 	if (m_deferredOperationList == NULL)
 	{
@@ -909,7 +913,7 @@ void CSettingGroup::StackDeferredOperations(IN POPERATIONLIST oplist)
 }
 
 
-void CSettingGroup::ProcessDeferredOperations()
+void CSettingGroup_::ProcessDeferredOperations()
 {
 	if (m_deferredOperationList != NULL)
 	{
@@ -929,7 +933,7 @@ void CSettingGroup::ProcessDeferredOperations()
 }
 
 
-BOOL CSettingGroup::GetValueChangeProc(RCSETTINGVALUE newValue,
+BOOL CSettingGroup_::GetValueChangeProc(RCSETTINGVALUE newValue,
 									   RCSETTINGVALUE oldValue,
 									   PCSETTINGOBJECT object,
 									   PVOID context)
@@ -948,7 +952,7 @@ BOOL CSettingGroup::GetValueChangeProc(RCSETTINGVALUE newValue,
 // Notifying functions.
 //////////////////////////////////////////////////////////////////////////
 
-BOOL CSettingGroup::NotifyChanging(IN PSETTINGINFO info,
+BOOL CSettingGroup_::NotifyChanging(IN PSETTINGINFO info,
 								   IN RCSETTINGVALUE newValue, IN RCSETTINGVALUE oldValue)
 {
 	INT message = GetInfoFlag(info, FLAG_INITIAL) ? NOTIFY_VALUE_SETTING : NOTIFY_VALUE_CHANGING;
@@ -956,7 +960,7 @@ BOOL CSettingGroup::NotifyChanging(IN PSETTINGINFO info,
 }
 
 
-BOOL CSettingGroup::NotifyRechanging(IN PSETTINGINFO info,
+BOOL CSettingGroup_::NotifyRechanging(IN PSETTINGINFO info,
 								   IN RCSETTINGVALUE newValue, IN RCSETTINGVALUE oldValue)
 {
 	INT message = GetInfoFlag(info, FLAG_INITIAL) ? NOTIFY_VALUE_RESETTING : NOTIFY_VALUE_RECHANGING;
@@ -964,7 +968,7 @@ BOOL CSettingGroup::NotifyRechanging(IN PSETTINGINFO info,
 }
 
 
-BOOL CSettingGroup::NotifyChanged(IN PSETTINGINFO info,
+BOOL CSettingGroup_::NotifyChanged(IN PSETTINGINFO info,
 								  IN RCSETTINGVALUE newValue, IN RCSETTINGVALUE oldValue)
 {
 	INT message = GetInfoFlag(info, FLAG_INITIAL) ? NOTIFY_VALUE_SET : NOTIFY_VALUE_CHANGED;
@@ -972,25 +976,25 @@ BOOL CSettingGroup::NotifyChanged(IN PSETTINGINFO info,
 }
 
 
-BOOL CSettingGroup::NotifyMarkerQueue(IN RCSETTINGVALUE markerValue)
+BOOL CSettingGroup_::NotifyMarkerQueue(IN RCSETTINGVALUE markerValue)
 {
 	return Notify(NULL, NOTIFY_MARKER_QUEUE, markerValue, CSettingValue());
 }
 
 
-BOOL CSettingGroup::NotifyMarkerQueued(IN RCSETTINGVALUE markerValue)
+BOOL CSettingGroup_::NotifyMarkerQueued(IN RCSETTINGVALUE markerValue)
 {
 	return Notify(NULL, NOTIFY_MARKER_QUEUED, markerValue, CSettingValue());
 }
 
 
-BOOL CSettingGroup::NotifyAfterBulk()
+BOOL CSettingGroup_::NotifyAfterBulk()
 {
 	return Notify(NULL, NOTIFY_AFTER_BULK, CSettingValue(), CSettingValue());
 }
 
 
-BOOL CSettingGroup::Notify(IN PSETTINGINFO info, IN INT message,
+BOOL CSettingGroup_::Notify(IN PSETTINGINFO info, IN INT message,
 						   IN RCSETTINGVALUE newValue, IN RCSETTINGVALUE oldValue)
 {
 	if (IsSilent())
@@ -1053,10 +1057,10 @@ BOOL CSettingGroup::Notify(IN PSETTINGINFO info, IN INT message,
 
 
 //////////////////////////////////////////////////////////////////////////
-// CSettingGroup::CSettingInfo
+// CSettingGroup_::CSettingInfo
 //////////////////////////////////////////////////////////////////////////
 
-CSettingGroup::CSettingInfo::CSettingInfo(IN PSETTINGKEY key, IN PSETTINGOBJECT object,
+CSettingGroup_::CSettingInfo::CSettingInfo(IN PSETTINGKEY key, IN PSETTINGOBJECT object,
 										  IN std::string title) :
 	key(key),
 	object(object),
@@ -1066,7 +1070,7 @@ CSettingGroup::CSettingInfo::CSettingInfo(IN PSETTINGKEY key, IN PSETTINGOBJECT 
 }
 
 
-CSettingGroup::CSettingInfo::~CSettingInfo()
+CSettingGroup_::CSettingInfo::~CSettingInfo()
 {
 	delete object;
 }
@@ -1108,7 +1112,7 @@ CSettingGroupEx::CSettingInfoEx::~CSettingInfoEx()
 
 CSettingGroupEx::CSettingGroupEx(IN std::string section, IN PSETTINGREPOSITORY repository,
 								 IN PSETTINGGROUPEX parent) :
-	CSettingGroup(section, repository),
+	CSettingGroup_(section, repository),
 	m_suspended(0),
 	m_haveDependeeBits(0),
 	m_parentGroup(parent)
@@ -1609,7 +1613,7 @@ void CSettingGroupEx::_LoadOptionalDependencies(IN LPCSTR section, IN DBIT valid
 BOOL CSettingGroupEx::ProcessValueChange(IN PSETTINGINFO info, IN RCSETTINGVALUE newValue,
 										 IN RCSETTINGVALUE oldValue, IN BOOL forRevise)
 {
-	if (CSettingGroup::ProcessValueChange(info, newValue, oldValue, forRevise))
+	if (CSettingGroup_::ProcessValueChange(info, newValue, oldValue, forRevise))
 	{
 		PSETTINGINFOEX infoex = dynamic_cast<PSETTINGINFOEX>(info);
 
@@ -1645,7 +1649,7 @@ void CSettingGroupEx::PerformStateOperation(IN POPERATIONINFO opinfo)
 		}
 		break;
 	default:
-		CSettingGroup::PerformStateOperation(opinfo);
+		CSettingGroup_::PerformStateOperation(opinfo);
 		break;
 	}
 }
@@ -1667,7 +1671,7 @@ void CSettingGroupEx::PerformContainedOperation(IN POPERATIONINFO opinfo)
 		}
 		break;
 	default:
-		CSettingGroup::PerformContainedOperation(opinfo);
+		CSettingGroup_::PerformContainedOperation(opinfo);
 		break;
 	}
 }
@@ -1689,7 +1693,7 @@ void CSettingGroupEx::PerformObjectOperation(IN POPERATIONINFO opinfo, IN PCHANG
 		}
 		break;
 	default:
-		CSettingGroup::PerformObjectOperation(opinfo, values);
+		CSettingGroup_::PerformObjectOperation(opinfo, values);
 		break;
 	}
 }
@@ -1697,7 +1701,7 @@ void CSettingGroupEx::PerformObjectOperation(IN POPERATIONINFO opinfo, IN PCHANG
 
 void CSettingGroupEx::ReviseAllSettings()
 {
-	CSettingGroup::ReviseAllSettings();
+	CSettingGroup_::ReviseAllSettings();
 
 	// Run through all subgroups and have them save dependant bits too.
 	SUBGROUPEXLIST::iterator sgit = m_subgroupList.begin();
@@ -1863,7 +1867,7 @@ void CSettingGroupEx::JostleSetting(IN PSETTINGINFOEX info, IN PJOSTLESTRUCT jos
 		info->object->Load(m_repository, loadSection, GetValueChangeProc, &values);
 		LeaveObjectLock();
 
-		if (CSettingGroup::ProcessValueChange(info, &values))
+		if (CSettingGroup_::ProcessValueChange(info, &values))
 		{
 			// If this setting is a master
 			if (info->dependeeBit != 0)

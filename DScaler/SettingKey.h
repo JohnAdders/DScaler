@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingKey.h,v 1.3 2004-09-08 07:14:08 atnak Exp $
+// $Id: SettingKey.h,v 1.4 2005-03-05 12:15:20 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2004/09/08 07:14:08  atnak
+// Added type cast operators to simplify usage.
+//
 // Revision 1.2  2004/08/20 07:25:17  atnak
 // Removed the title value.
 //
@@ -37,6 +40,8 @@
 #include "SettingLimiter.h"
 #include "SettingValue.h"
 #include <string>
+
+#include "ISetting.h"
 
 typedef class CSettingKey *PSETTINGKEY;
 
@@ -90,19 +95,19 @@ public:
 	CSettingKeyLong();
 	virtual ~CSettingKeyLong();
 
-	static PSETTINGOBJECT NewSetting(LPCSTR entry, INT initial);
-	static PSETTINGOBJECT NewSetting(LPCSTR entry, INT initial, INT minimum, INT maximum);
+	static PSETTINGOBJECT NewSetting(LPCSTR entry, long initial);
+	static PSETTINGOBJECT NewSetting(LPCSTR entry, long initial, long minimum, long maximum);
 
-	virtual void SetValue(INT value);
-	virtual INT GetValue();
+	virtual void SetValue(long value);
+	virtual long GetValue();
 
-	virtual void SetDefault(INT value);
-	virtual INT GetDefault();
+	virtual void SetDefault(long value);
+	virtual long GetDefault();
 
-	virtual void SetRange(INT minimum, INT maximum);
+	virtual void SetRange(long minimum, long maximum);
 
 	virtual BOOL Notify(INT message, RCSETTINGVALUE newValue, RCSETTINGVALUE oldValue);
-	virtual BOOL Notify(INT message, INT newValue, INT oldValue);
+	virtual BOOL Notify(INT message, long newValue, long oldValue);
 };
 
 
@@ -115,7 +120,7 @@ public:
 	CSettingKeySlider();
 	virtual ~CSettingKeySlider();
 
-	virtual void Setup(INT initial, INT minimum, INT maximum, INT step = 1);
+	virtual void Setup(long initial, long minimum, long maximum, long step = 1);
 
 	virtual PSETTINGOBJECT CreateSetting(LPCSTR entry);
 	virtual PSETTINGCONFIG CreateConfig();
@@ -123,20 +128,64 @@ public:
 	virtual void StepUp();
 	virtual void StepDown();
 
-	virtual void SetRange(INT minimum, INT maximum);
+	virtual void SetRange(long minimum, long maximum);
 
-	virtual void SetMin(INT minimum);
-	virtual void SetMax(INT maximum);
-	virtual INT GetMin();
-	virtual INT GetMax();
+	virtual void SetMin(long minimum);
+	virtual void SetMax(long maximum);
+	virtual long GetMin();
+	virtual long GetMax();
 
-	virtual void SetStep(INT step);
+	virtual void SetStep(long step);
 
 protected:
-	INT	m_initial;
-	INT m_minimum;
-	INT m_maximum;
-	INT m_step;
+	long m_initial;
+	long m_minimum;
+	long m_maximum;
+	long m_step;
+};
+
+
+//////////////////////////////////////////////////////////////////////////
+// CSettingKeyDSSimple
+//////////////////////////////////////////////////////////////////////////
+class CSettingKeyDSSimple : public CSettingKeySlider, public ISetting
+{
+public:
+	CSettingKeyDSSimple();
+	virtual ~CSettingKeyDSSimple();
+
+	virtual void SetDefault() { CSettingKeySlider::UseDefault(); }
+	virtual SETTING_TYPE GetType() { return SLIDER; };
+
+	virtual long GetValue() { return CSettingKeySlider::GetValue(); }
+	virtual void ChangeValue(eCHANGEVALUE method);
+
+	virtual long GetMin() { return CSettingKeySlider::GetMin(); }
+	virtual long GetMax() { return CSettingKeySlider::GetMax(); }
+	virtual long GetDefault() { return CSettingKeySlider::GetDefault(); }
+
+	virtual void ChangeDefault(long newDefault, BOOL = FALSE);
+	virtual void SetDefault(long newValue, BOOL = FALSE);
+	virtual void SetValue(long newValue, BOOL = FALSE);
+
+	virtual void OSDShow();
+
+	virtual void SetupControl(HWND hWnd);
+	virtual void SetControlValue(HWND hWnd);
+	virtual void SetFromControl(HWND hWnd);
+
+	// Unsupported
+	virtual BOOL ReadFromIni() { return FALSE; }
+	virtual void WriteToIni(BOOL) { }
+
+	virtual BOOL ReadFromIniSubSection(LPCSTR) { return FALSE; }
+	virtual void WriteToIniSubSection(LPCSTR, BOOL = TRUE) { }
+
+	virtual void DisableOnChange() { }
+	virtual void EnableOnChange() { }
+
+	virtual void SetGroup(CSettingGroup*) { }; 
+	virtual CSettingGroup* GetGroup() { return NULL; }
 };
 
 
@@ -181,35 +230,50 @@ protected:
 //
 
 //////////////////////////////////////////////////////////////////////////
-// CSETTINGKEY_P_CALLBACK_NOTIFY_LONG(...) -- internal use
+// CSETTINGKEY_C_CALLBACK_NOTIFY_LONG(...) -- internal use
 //////////////////////////////////////////////////////////////////////////
-#define CSETTINGKEY_P_CALLBACK_NOTIFY_LONG(__KeyClass, __Name) \
-BOOL __Name ## OnNotify(INT message, INT newValue, INT oldValue); \
+#define CSETTINGKEY_C_CALLBACK_NOTIFY_LONG(__KeyClass, __TClass, __Name) \
+public: \
+	BOOL __Name ## OnNotify(INT message, long newValue, long oldValue); \
+protected: \
 class C ## __Name ## Setting : public __KeyClass \
 { \
 public: \
-	BOOL Notify(INT message, INT newValue, INT oldValue) \
+	C ## __Name ## Setting() : __KeyClass(), m_c(NULL) { } \
+	void SetParent(__TClass* ptr) \
+	{ m_c = ptr; } \
+	BOOL Notify(INT message, long newValue, long oldValue) \
+	{ return m_c == NULL || m_c->__Name ## OnNotify(message, newValue, oldValue); } \
+private: \
+	__TClass* m_c; \
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// CSETTINGKEY_P_CALLBACK_NOTIFY_LONG(...) -- internal use
+//////////////////////////////////////////////////////////////////////////
+#define CSETTINGKEY_P_CALLBACK_NOTIFY_LONG(__KeyClass, __Name) \
+BOOL __Name ## OnNotify(INT message, long newValue, long oldValue); \
+class C ## __Name ## Setting : public __KeyClass \
+{ \
+public: \
+	BOOL Notify(INT message, long newValue, long oldValue) \
 	{ return __Name ## OnNotify(message, newValue, oldValue); } \
 }
+
+
+//////////////////////////////////////////////////////////////////////////
+// CSETTINGKEY_C_CALLBACK_INIT(InstanceVariable)
+//////////////////////////////////////////////////////////////////////////
+#define CSETTINGKEY_C_CALLBACK_INIT(__Instance) \
+	(__Instance).SetParent(this)
 
 
 //////////////////////////////////////////////////////////////////////////
 // CSETTINGKEY_C_CALLBACK_LONG(ClassName, SettingName)
 //////////////////////////////////////////////////////////////////////////
 #define CSETTINGKEY_C_CALLBACK_LONG(__TClass, __Name) \
-public: \
-BOOL __Name ## OnNotify(INT message, INT newValue, INT oldValue); \
-protected: \
-class C ## __Name ## Setting : public CSettingKeyLong \
-{ \
-public: \
-	void Setup(__TClass* ptr) \
-	{ m_c = ptr; } \
-	BOOL Notify(INT message, INT newValue, INT oldValue) \
-	{ return m_c->__Name ## OnNotify(message, newValue, oldValue); } \
-private: \
-	__TClass* m_c; \
-}
+	CSETTINGKEY_C_CALLBACK_NOTIFY_LONG(CSettingKeyLong, __TClass, __Name)
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -223,19 +287,7 @@ private: \
 // CSETTINGKEY_C_CALLBACK_SLIDER(ClassName, SettingName)
 //////////////////////////////////////////////////////////////////////////
 #define CSETTINGKEY_C_CALLBACK_SLIDER(__TClass, __Name) \
-public: \
-BOOL __Name ## OnNotify(INT message, INT newValue, INT oldValue); \
-protected: \
-class C ## __Name ## Setting : public CSettingKeySlider \
-{ \
-public: \
-	void Setup(__TClass* ptr, INT initial, INT minimum, INT maximum, INT step = 1) \
-	{ m_c = ptr; CSettingKeySlider::Setup(initial, minimum, maximum, step); } \
-	BOOL Notify(INT message, INT newValue, INT oldValue) \
-	{ return m_c->__Name ## OnNotify(message, newValue, oldValue); } \
-private: \
-	__TClass* m_c; \
-}
+	CSETTINGKEY_C_CALLBACK_NOTIFY_LONG(CSettingKeySlider, __TClass, __Name)
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -243,6 +295,32 @@ private: \
 //////////////////////////////////////////////////////////////////////////
 #define CSETTINGKEY_P_CALLBACK_SLIDER(__Name) \
 	CSETTINGKEY_P_CALLBACK_NOTIFY_LONG(CSettingKeySlider, __Name)
+
+
+//////////////////////////////////////////////////////////////////////////
+// CSETTINGKEY_C_CALLBACK_DSSIMPLE(ClassName, SettingName)
+//////////////////////////////////////////////////////////////////////////
+#define CSETTINGKEY_C_CALLBACK_DSSIMPLE(__TClass, __Name) \
+	CSETTINGKEY_C_CALLBACK_NOTIFY_LONG(CSettingKeyDSSimple, __TClass, __Name)
+
+
+//////////////////////////////////////////////////////////////////////////
+// CSETTINGKEY_P_CALLBACK_DSSIMPLE(SettingName)
+//////////////////////////////////////////////////////////////////////////
+#define CSETTINGKEY_P_CALLBACK_DSSIMPLE(__Name) \
+	CSETTINGKEY_P_CALLBACK_NOTIFY_LONG(CSettingKeyDSSimple, __Name)
+
+
+//////////////////////////////////////////////////////////////////////////
+// SRUtil_Ex_Add_Long, SRUtil_Ex_Add_Long
+//////////////////////////////////////////////////////////////////////////
+void SRUtil_Set(PSETTINGGROUP group);
+void SRUtil_Ex_Set(PSETTINGGROUPEX groupEx, DBIT dependentBits = 0, DBIT absoluteBits = 0);
+HSETTING SRUtil_Add_Long(PSETTINGKEY key, LPCSTR displayName, LPCSTR entryName, LONG defaultValue);
+HSETTING SRUtil_Add_Long(PSETTINGKEY key, LPCSTR displayName, LPCSTR entryName, LONG defaultValue, LONG minValue, LONG maxValue);
+HSETTING SRUtil_Ex_Add_Long(PSETTINGKEY key, LPCSTR displayName, LPCSTR entryName, LONG defaultValue,  LONG minValue, LONG maxValue);
+HSETTING SRUtil_Ex_Add_Long(PSETTINGKEY key, LPCSTR displayName, LPCSTR entryName, LONG defaultValue);
+HSETTING SRUtil_Ex_AddMaster_Long(PSETTINGKEY key, DBIT masterBits, LPCSTR displayName, LPCSTR entryName, LONG defaultValue,  LONG minValue, LONG maxValue);
 
 
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingRepository.cpp,v 1.1 2004-08-06 17:12:10 atnak Exp $
+// $Id: SettingRepository.cpp,v 1.2 2005-03-05 12:15:20 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2004/08/06 17:12:10  atnak
+// Setting repository initial upload.
+//
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
@@ -62,7 +65,7 @@ CSettingRepository::~CSettingRepository()
 
 PSETTINGGROUP CSettingRepository::CreateGroup(LPCSTR section)
 {
-	PSETTINGGROUP group = new CSettingGroup(section, this);
+	PSETTINGGROUP group = new CSettingGroup_(section, this);
 	if (group == NULL)
 	{
 		OUT_OF_MEMORY_ERROR;

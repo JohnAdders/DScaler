@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingKey.cpp,v 1.4 2004-09-08 07:14:08 atnak Exp $
+// $Id: SettingKey.cpp,v 1.5 2005-03-05 12:15:20 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2004/09/08 07:14:08  atnak
+// Added type cast operators to simplify usage.
+//
 // Revision 1.3  2004/08/20 07:25:17  atnak
 // Removed the title value.
 //
@@ -176,7 +179,7 @@ CSettingKeyLong::~CSettingKeyLong()
 }
 
 
-PSETTINGOBJECT CSettingKeyLong::NewSetting(LPCSTR entry, INT initial)
+PSETTINGOBJECT CSettingKeyLong::NewSetting(LPCSTR entry, long initial)
 {
 	PSETTINGOBJECT object = CSettingKey::NewSetting(entry, SETTING_VALUE_INT);
 
@@ -187,7 +190,7 @@ PSETTINGOBJECT CSettingKeyLong::NewSetting(LPCSTR entry, INT initial)
 }
 
 
-PSETTINGOBJECT CSettingKeyLong::NewSetting(LPCSTR entry, INT initial, INT minimum, INT maximum)
+PSETTINGOBJECT CSettingKeyLong::NewSetting(LPCSTR entry, long initial, long minimum, long maximum)
 {
 	PSETTINGOBJECT object = CSettingKeyLong::NewSetting(entry, initial);
 
@@ -197,7 +200,7 @@ PSETTINGOBJECT CSettingKeyLong::NewSetting(LPCSTR entry, INT initial, INT minimu
 }
 
 
-void CSettingKeyLong::SetValue(INT value)
+void CSettingKeyLong::SetValue(long value)
 {
 	CSettingValue newValue;
 	newValue.SetInt(value);
@@ -205,7 +208,7 @@ void CSettingKeyLong::SetValue(INT value)
 }
 
 
-INT CSettingKeyLong::GetValue()
+long CSettingKeyLong::GetValue()
 {
 	CSettingValue value = GetValueSV();
 	ASSERT(value.GetType() == SETTING_VALUE_INT);
@@ -213,7 +216,7 @@ INT CSettingKeyLong::GetValue()
 }
 
 
-void CSettingKeyLong::SetDefault(INT value)
+void CSettingKeyLong::SetDefault(long value)
 {
 	CSettingValue defaultValue;
 	defaultValue.SetInt(value);
@@ -221,7 +224,7 @@ void CSettingKeyLong::SetDefault(INT value)
 }
 
 
-INT CSettingKeyLong::GetDefault()
+long CSettingKeyLong::GetDefault()
 {
 	CSettingValue value = GetDefaultSV();
 	ASSERT(value.GetType() == SETTING_VALUE_INT);
@@ -229,7 +232,7 @@ INT CSettingKeyLong::GetDefault()
 }
 
 
-void CSettingKeyLong::SetRange(INT minimum, INT maximum)
+void CSettingKeyLong::SetRange(long minimum, long maximum)
 {
 	PSETTINGLIMITER limiter = (PSETTINGLIMITER)new CSettingLimiterClampInt(minimum, maximum);
 	CSettingKey::SetLimiter(limiter);
@@ -241,14 +244,14 @@ BOOL CSettingKeyLong::Notify(INT message, RCSETTINGVALUE newValue, RCSETTINGVALU
 	// Assert new value but don't assert old because old can be not set.
 	ASSERT(newValue.GetType() == SETTING_VALUE_INT);
 
-	INT newInt = newValue.GetInt();
-	INT oldInt = oldValue.GetInt();
+	long newInt = newValue.GetInt();
+	long oldInt = oldValue.GetInt();
 
 	return Notify(message, newInt, oldInt);
 }
 
 
-BOOL CSettingKeyLong::Notify(INT message, INT newValue, INT oldValue)
+BOOL CSettingKeyLong::Notify(INT message, long newValue, long oldValue)
 {
 	return TRUE;
 }
@@ -272,7 +275,7 @@ CSettingKeySlider::~CSettingKeySlider()
 }
 
 
-void CSettingKeySlider::Setup(INT initial, INT minimum, INT maximum, INT step)
+void CSettingKeySlider::Setup(long initial, long minimum, long maximum, long step)
 {
 	m_initial = initial;
 	m_minimum = minimum;
@@ -306,7 +309,7 @@ void CSettingKeySlider::StepDown()
 }
 
 
-void CSettingKeySlider::SetRange(INT minimum, INT maximum)
+void CSettingKeySlider::SetRange(long minimum, long maximum)
 {
 	m_minimum = minimum;
 	m_maximum = maximum;
@@ -314,34 +317,154 @@ void CSettingKeySlider::SetRange(INT minimum, INT maximum)
 }
 
 
-void CSettingKeySlider::SetMin(INT minimum)
+void CSettingKeySlider::SetMin(long minimum)
 {
 	m_minimum = minimum;
 	CSettingKeyLong::SetRange(m_minimum, m_maximum);
 }
 
 
-void CSettingKeySlider::SetMax(INT maximum)
+void CSettingKeySlider::SetMax(long maximum)
 {
 	m_maximum = maximum;
 	CSettingKeyLong::SetRange(m_minimum, m_maximum);
 }
 
 
-INT CSettingKeySlider::GetMin()
+long CSettingKeySlider::GetMin()
 {
 	return m_minimum;
 }
 
 
-INT CSettingKeySlider::GetMax()
+long CSettingKeySlider::GetMax()
 {
 	return m_maximum;
 }
 
 
-void CSettingKeySlider::SetStep(INT step)
+void CSettingKeySlider::SetStep(long step)
 {
 	m_step = step;
 }
+
+
+//////////////////////////////////////////////////////////////////////////
+// CSettingKeyDSSimple
+//////////////////////////////////////////////////////////////////////////
+
+CSettingKeyDSSimple::CSettingKeyDSSimple()
+{
+}
+
+CSettingKeyDSSimple::~CSettingKeyDSSimple()
+{
+}
+
+void CSettingKeyDSSimple::ChangeValue(eCHANGEVALUE method)
+{
+}
+
+void CSettingKeyDSSimple::ChangeDefault(long newDefault, BOOL dontSetValue)
+{
+	SetDefault(newDefault);
+}
+
+void CSettingKeyDSSimple::SetDefault(long newDefault, BOOL dontSetValue)
+{
+	CSettingKeySlider::SetDefault(newDefault);
+}
+
+void CSettingKeyDSSimple::SetValue(long newValue, BOOL supressOnChange)
+{
+	CSettingKeySlider::SetValue(newValue);
+}
+
+void CSettingKeyDSSimple::OSDShow()
+{
+}
+
+void CSettingKeyDSSimple::SetupControl(HWND hWnd)
+{
+}
+
+void CSettingKeyDSSimple::SetControlValue(HWND hWnd)
+{
+}
+
+void CSettingKeyDSSimple::SetFromControl(HWND hWnd)
+{
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// Setting Repository Utilities
+//////////////////////////////////////////////////////////////////////////
+
+static PSETTINGGROUP g_implicitGroup;
+static PSETTINGGROUPEX g_ex_implicitGroup;
+static DBIT g_ex_implicitDependentBits;
+static DBIT g_ex_implicitAbsoluteBits;
+
+
+void SRUtil_Set(PSETTINGGROUP group)
+{
+	g_implicitGroup = group;
+}
+
+
+void SRUtil_Ex_Set(PSETTINGGROUPEX groupEx, DBIT dependentBits, DBIT absoluteBits)
+{
+	g_ex_implicitGroup = groupEx;
+	g_ex_implicitDependentBits = dependentBits;
+	g_ex_implicitAbsoluteBits = absoluteBits;
+}
+
+
+HSETTING SRUtil_Add_Long(PSETTINGKEY key, LPCSTR displayName, LPCSTR entryName,
+						 LONG defaultValue, LONG minValue, LONG maxValue)
+{
+	ASSERT(g_implicitGroup != NULL);
+	return g_implicitGroup->AddSetting(displayName,
+		CSettingKeyLong::NewSetting(entryName, defaultValue, minValue, maxValue), key);
+}
+
+HSETTING SRUtil_Add_Long(PSETTINGKEY key, LPCSTR displayName, LPCSTR entryName,
+						  LONG defaultValue)
+{
+	ASSERT(g_implicitGroup != NULL);
+	return g_implicitGroup->AddSetting(displayName,
+		CSettingKeyLong::NewSetting(entryName, defaultValue), key);
+}
+
+
+HSETTING SRUtil_Ex_Add_Long(PSETTINGKEY key, LPCSTR displayName, LPCSTR entryName,
+							LONG defaultValue)
+{
+	ASSERT(g_ex_implicitGroup != NULL);
+	return g_ex_implicitGroup->AddSetting(displayName,
+		CSettingKeyLong::NewSetting(entryName, defaultValue),
+		key, g_ex_implicitDependentBits, g_ex_implicitAbsoluteBits);
+}
+
+
+HSETTING SRUtil_Ex_Add_Long(PSETTINGKEY key, LPCSTR displayName, LPCSTR entryName,
+					 LONG defaultValue, LONG minValue, LONG maxValue)
+{
+	ASSERT(g_ex_implicitGroup != NULL);
+	return g_ex_implicitGroup->AddSetting(displayName,
+		CSettingKeyLong::NewSetting(entryName, defaultValue, minValue, maxValue),
+		key, g_ex_implicitDependentBits, g_ex_implicitAbsoluteBits);
+}
+
+
+HSETTING SRUtil_Ex_AddMaster_Long(PSETTINGKEY key, DBIT masterBits, LPCSTR displayName, LPCSTR entryName,
+						 LONG defaultValue, LONG minValue, LONG maxValue)
+{
+	ASSERT(g_ex_implicitGroup != NULL);
+	return g_ex_implicitGroup->AddMaster(displayName,
+		CSettingKeyLong::NewSetting(entryName, defaultValue, minValue, maxValue),
+		key, masterBits, g_ex_implicitDependentBits, g_ex_implicitAbsoluteBits);
+}
+
 

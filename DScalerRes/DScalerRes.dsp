@@ -110,6 +110,42 @@ SOURCE=.\RESOURCE.H
 
 SOURCE=.\hand_point.cur
 # End Source File
+# Begin Source File
+
+SOURCE=.\toolbar_channels_down.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\toolbar_channels_previous.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\toolbar_channels_up.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\toolbar_volume_lang1.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\toolbar_volume_lang2.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\toolbar_volume_mono.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\toolbar_volume_mute.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\toolbar_volume_mute1.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\toolbar_volume_stereo.ico
+# End Source File
 # End Group
 # End Target
 # End Project

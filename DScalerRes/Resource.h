@@ -69,6 +69,7 @@
 #define IDI_TOOLBAR_VOLUME_LANG2        242
 #define IDD_TOOLBAR_VIDEOINPUT          243
 #define IDM_CALL_VIDEOTEXT              245
+#define IDB_SMALL_LOGO                  253
 #define IDM_VT_RESET                    261
 #define IDM_AUDIOSETTINGS               264
 #define IDM_VIDEOSETTINGS               265
@@ -317,11 +318,13 @@
 #define IDC_CARDSSELECT                 1430
 #define IDC_CHANGE                      1431
 #define IDC_CHANNEL                     1432
+#define IDC_CHANNEL_MUTE                1433
 #define IDC_CHECK1                      1433
 #define IDC_TOOLBAR_VOLUME_MUTE         1433
 #define IDC_AUDIOSTANDARD_MANUAL_FORCEAM 1433
 #define IDC_TREESETTINGS_GENERIC_SAVEPER_GLOBAL 1433
 #define IDC_OVERLAYSETTINGS_ENABLE      1433
+#define IDC_SCAN_AFC                    1434
 #define IDC_CHECK2                      1434
 #define IDC_TREESETTINGS_GENERIC_SAVEPER_SOURCE 1434
 #define IDC_CHECK3                      1435
@@ -417,8 +420,11 @@
 #define IDC_E_LUMA_DEC                  1521
 #define IDC_E_LUMA_PEAK                 1522
 #define IDC_EDIT1                       1523
+#define IDC_SCAN_MAX_FREQ               1523
 #define IDC_EDIT2                       1524
+#define IDC_SCAN_MIN_FREQ               1524
 #define IDC_EDIT3                       1525
+#define IDC_SCAN_STEPS                  1525
 #define IDC_EDIT4                       1526
 #define IDC_EDIT5                       1527
 #define IDC_EDIT6                       1528
@@ -622,7 +628,9 @@
 #define IDC_PROGRAMLIST                 1732
 #define IDC_R                           1733
 #define IDC_RADIO1                      1734
+#define IDC_SCAN_RADIO1                 1734
 #define IDC_RADIO2                      1735
+#define IDC_SCAN_RADIO2                 1735
 #define IDC_AUDIOSTANDARD_MANUAL_MONO   1735
 #define IDC_RADIO3                      1736
 #define IDC_AUDIOSTANDARD_MANUAL_STEREO 1736
@@ -1126,7 +1134,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        250
+#define _APS_NEXT_RESOURCE_VALUE        253
 #define _APS_NEXT_COMMAND_VALUE         32838
 #define _APS_NEXT_CONTROL_VALUE         8065
 #define _APS_NEXT_SYMED_VALUE           2491

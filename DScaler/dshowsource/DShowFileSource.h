@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DShowFileSource.h,v 1.4 2002-08-01 20:22:13 tobbej Exp $
+// $Id: DShowFileSource.h,v 1.5 2002-09-14 17:04:24 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/08/01 20:22:13  tobbej
+// improved error messages when opening files.
+// corrected some smal problems when opening .grf files
+//
 // Revision 1.3  2002/03/15 23:01:54  tobbej
 // changed dropped frames counter to include dropped frames in source filter
 //
@@ -50,7 +54,7 @@
 
 #include "DShowBaseSource.h"
 #include "exception.h"
-
+#include <string>
 /**
  * Exception class used in CDShowFileSource.
  * @see CDShowException
@@ -73,7 +77,7 @@ public:
 	virtual ~CDShowFileSource();
 	
 	eDSObjectType getObjectType() {return DSHOW_TYPE_SOURCE_FILE;}
-	void connect(CComPtr<IBaseFilter> filter);
+	void Connect(CComPtr<IBaseFilter> VideoFilter,CComPtr<IBaseFilter> AudioFilter);
 	bool isConnected() {return m_bIsConnected;};
 	long getNumDroppedFrames(){return 0;};
 	

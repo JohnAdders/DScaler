@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DShowFileSource.cpp,v 1.5 2002-08-11 14:03:16 tobbej Exp $
+// $Id: DShowFileSource.cpp,v 1.6 2002-09-14 17:04:24 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/08/11 14:03:16  tobbej
+// preserve dsrend filter settings when opening grf files
+//
 // Revision 1.4  2002/08/01 20:22:13  tobbej
 // improved error messages when opening files.
 // corrected some smal problems when opening .grf files
@@ -54,6 +57,7 @@
 #include "exception.h"
 #include "PinEnum.h"
 #include "..\..\..\DSRend\DSRend.h"
+#include "debuglog.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -79,7 +83,7 @@ CDShowFileSource::CDShowFileSource(IGraphBuilder *pGraph,string filename)
 	
 	CString tmp;
 	tmp=m_file.substr((m_file.size()<4 ? 0 : m_file.size()-4)).c_str();
-	if(stricmp(tmp.GetBuffer(0),".grf")!=0)
+	if(_tcsicmp(tmp.GetBuffer(0),_T(".grf"))!=0)
 	{
 		hr=m_pGraph->AddSourceFilter(A2W(filename.c_str()),NULL,&m_pFileSource);
 		if(FAILED(hr))
@@ -94,7 +98,7 @@ CDShowFileSource::~CDShowFileSource()
 
 }
 
-void CDShowFileSource::connect(CComPtr<IBaseFilter> filter)
+void CDShowFileSource::Connect(CComPtr<IBaseFilter> VideoFilter,CComPtr<IBaseFilter> AudioFilter)
 {
 	USES_CONVERSION;
 	HRESULT hr;
@@ -102,10 +106,10 @@ void CDShowFileSource::connect(CComPtr<IBaseFilter> filter)
 	//is this a grf file? grf files needs special handling
 	CString tmp;
 	tmp=m_file.substr((m_file.size()<4 ? 0 : m_file.size()-4)).c_str();
-	if(stricmp(tmp.GetBuffer(0),".grf")!=0)
+	if(_tcsicmp(tmp.GetBuffer(0),_T(".grf"))!=0)
 	{
 		//the simple case, RenderStream is able to properly connect the filters
-		hr=m_pBuilder->RenderStream(NULL,NULL,m_pFileSource,NULL,filter);
+		hr=m_pBuilder->RenderStream(NULL,NULL,m_pFileSource,NULL,VideoFilter);
 		if(FAILED(hr))
 		{
 			//that didnt work, try to manualy connect the pins on the source filter
@@ -114,7 +118,7 @@ void CDShowFileSource::connect(CComPtr<IBaseFilter> filter)
 			bool bSucceeded=false;
 			while(outPin=outPins.next(),bSucceeded==false && outPin!=NULL)
 			{
-				CDShowPinEnum inPins(filter,PINDIR_INPUT);
+				CDShowPinEnum inPins(VideoFilter,PINDIR_INPUT);
 				CComPtr<IPin> inPin;
 				while(inPin=inPins.next(),inPin!=NULL)
 				{
@@ -144,11 +148,15 @@ void CDShowFileSource::connect(CComPtr<IBaseFilter> filter)
 			}
 			if(!bSucceeded)
 			{
-				throw CDShowUnsupportedFileException("Cant connect filesource to renderer",hr);
+				throw CDShowUnsupportedFileException("Can't connect filesource to renderer",hr);
 			}
 		}
 		//try to render audio, if this fails then this file probably dont have any audio
-		hr=m_pBuilder->RenderStream(NULL,&MEDIATYPE_Audio,m_pFileSource,NULL,NULL);
+		hr=m_pBuilder->RenderStream(NULL,&MEDIATYPE_Audio,m_pFileSource,NULL,AudioFilter);
+		if(FAILED(hr))
+		{
+			LOG(2,"Failed to connect audio, error code: 0x%x",hr);
+		}
 	}
 	else
 	{
@@ -170,7 +178,7 @@ void CDShowFileSource::connect(CComPtr<IBaseFilter> filter)
 		CComPtr<IBaseFilter> pFilter;
 		while(hr=filterEnum.next(&pFilter),hr==S_OK && pFilter!=NULL)
 		{
-			if(pFilter.IsEqualObject(filter))
+			if(pFilter.IsEqualObject(VideoFilter))
 			{
 				pFilter.Release();
 				continue;
@@ -219,7 +227,7 @@ void CDShowFileSource::connect(CComPtr<IBaseFilter> filter)
 					throw CDShowException("Coud not find IPersistStream on old dsrend (bug)",hr);
 				}
 				CComPtr<IPersistStream> pPStrmNew;
-				hr=filter.QueryInterface(&pPStrmNew);
+				hr=VideoFilter.QueryInterface(&pPStrmNew);
 				if(FAILED(hr))
 				{
 					throw CDShowException("Coud not find IPersistStream on new dsrend (bug)",hr);
@@ -231,21 +239,38 @@ void CDShowFileSource::connect(CComPtr<IBaseFilter> filter)
 				{
 					throw CDShowException("IPersistStream::GetSizeMax failed (bug)",hr);
 				}
-
-				CComPtr<IStream> pStream;
-				HGLOBAL hg=GlobalAlloc(GMEM_MOVEABLE,ulSize.QuadPart);
-				if(hg!=NULL)
+				
+				//make sure that the new and old renderer filters is of the same type
+				GUID OldGUID;
+				GUID NewGUID;
+				if(FAILED(pPStrmOld->GetClassID(&OldGUID)) || FAILED(pPStrmNew->GetClassID(&NewGUID)))
 				{
-					if(CreateStreamOnHGlobal(hg,TRUE,&pStream)==S_OK)
-					{
-						hr=pPStrmOld->Save(pStream,FALSE);
-						if(SUCCEEDED(hr))
+					LOG(2,"Failed to get ClassID of new or old renderer filter");
+				}
+				else
+				{
+					if(IsEqualGUID(OldGUID,NewGUID))
+					{	
+						CComPtr<IStream> pStream;
+						HGLOBAL hg=GlobalAlloc(GMEM_MOVEABLE,ulSize.QuadPart);
+						if(hg!=NULL)
 						{
-							LARGE_INTEGER pos;
-							pos.QuadPart=0;
-							hr=pStream->Seek(pos,STREAM_SEEK_SET,NULL);
-							hr=pPStrmNew->Load(pStream);
+							if(CreateStreamOnHGlobal(hg,TRUE,&pStream)==S_OK)
+							{
+								hr=pPStrmOld->Save(pStream,FALSE);
+								if(SUCCEEDED(hr))
+								{
+									LARGE_INTEGER pos;
+									pos.QuadPart=0;
+									hr=pStream->Seek(pos,STREAM_SEEK_SET,NULL);
+									hr=pPStrmNew->Load(pStream);
+								}
+							}
 						}
+					}
+					else
+					{
+						LOG(2,"Old and new renderer filter is not of the same type, will not copy setting");
 					}
 				}
 
@@ -253,7 +278,7 @@ void CDShowFileSource::connect(CComPtr<IBaseFilter> filter)
 				hr=m_pGraph->RemoveFilter(pFilter);
 				
 				//connect to the right dsrend filter
-				CDShowPinEnum InPins2(filter,PINDIR_INPUT);
+				CDShowPinEnum InPins2(VideoFilter,PINDIR_INPUT);
 				CComPtr<IPin> pInPin2=InPins2.next();
 				hr=pOutPin->Connect(pInPin2,&mt);
 				if(mt.cbFormat>0 && mt.pbFormat!=NULL)

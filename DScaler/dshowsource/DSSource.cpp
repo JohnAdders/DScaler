@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.26 2002-07-07 20:17:53 tobbej Exp $
+// $Id: DSSource.cpp,v 1.27 2002-08-01 20:23:43 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2002/07/07 20:17:53  tobbej
+// fixed deadlock when stoping input source
+//
 // Revision 1.25  2002/07/06 16:48:11  tobbej
 // new field buffering
 //
@@ -267,9 +270,15 @@ BOOL CDSSource::OpenMediaFile(LPCSTR FileName, BOOL NewPlayList)
 		m_pDSGraph->start();
 		return TRUE;
 	}
+	catch(CDShowUnsupportedFileException e)
+	{
+		LOG(1, "CDShowUnsupportedFileException - %s", (LPCSTR)e.getErrorText());
+		return FALSE;
+	}
 	catch(CDShowException e)
 	{
-        LOG(1, "DShow Exception - %s", (LPCSTR)e.getErrorText());
+		AfxMessageBox((LPCSTR)e.getErrorText(),MB_OK|MB_ICONERROR);
+        LOG(1, "Failed to open DShow file - %s", (LPCSTR)e.getErrorText());
 		return FALSE;
 	}
 }
@@ -1014,9 +1023,11 @@ void CDSSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 	{
 		return;
 	}
+	DWORD dwLastDelay=0;
 	if(m_dwRendStartTime!=0)
 	{
-		TRACE("time: %ld\n",timeGetTime()-m_dwRendStartTime);
+		dwLastDelay=timeGetTime()-m_dwRendStartTime;
+		//TRACE("Processing delay: %ld(ms)\n",dwLastDelay);
 		m_dwRendStartTime=0;
 	}
 	//info to return if we fail
@@ -1037,7 +1048,7 @@ void CDSSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 	long size=MAX_PICTURE_HISTORY;
 	FieldBuffer fields[MAX_PICTURE_HISTORY];
 	BufferInfo binfo;
-	if(!m_pDSGraph->GetFields(&size,fields,binfo))
+	if(!m_pDSGraph->GetFields(&size,fields,binfo,dwLastDelay))
 	{
 		m_dwRendStartTime=0;
 		updateDroppedFields();

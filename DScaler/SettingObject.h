@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingObject.h,v 1.1 2004-08-06 17:12:10 atnak Exp $
+// $Id: SettingObject.h,v 1.2 2004-08-13 08:52:02 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2004/08/06 17:12:10  atnak
+// Setting repository initial upload.
+//
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef __SETTINGOBJECT_H__
@@ -29,6 +32,7 @@
 #include "SettingRepository.h"
 #include "SettingLimiter.h"
 #include "SettingValue.h"
+#include <string>
 
 // Typedef class pointers to simple names
 typedef class CSettingObject *PSETTINGOBJECT;
@@ -54,6 +58,8 @@ public:
 
 	// Gets the key string that is used in the repository
 	virtual inline LPCSTR GetKey() const =0;
+	// Gets the title for the object if one is defined.
+	virtual inline std::string GetTitle() const;
 
 	// Load the setting's value from the section in the repository provided
 	virtual BOOL Load(IN PSETTINGREPOSITORY repository, IN LPCSTR section,

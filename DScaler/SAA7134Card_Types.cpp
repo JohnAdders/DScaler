@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.45 2004-03-11 03:48:32 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.46 2004-03-26 14:17:52 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.45  2004/03/11 03:48:32  atnak
+// Updated Tevion MD 9717
+//
 // Revision 1.44  2004/02/24 05:35:18  atnak
 // Renamed Much TV Plus
 //
@@ -950,7 +953,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
                 AUDIOINPUTSOURCE_LINE2,
             },
         },
-        TUNER_PHILIPS_PAL,
+        TUNER_PHILIPS_FM1216ME_MK3,
         AUDIOCRYSTAL_32110Hz,
         0,
         NULL,
@@ -1146,7 +1149,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
                 AUDIOINPUTSOURCE_LINE2,
             },
         },
-        TUNER_MT2032,
+        TUNER_MT2050_PAL,
         AUDIOCRYSTAL_32110Hz,
         0,
         NULL,

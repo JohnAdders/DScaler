@@ -333,10 +333,11 @@ void Reset_Capture()
 BYTE* LockOverlay()
 {
 	HRESULT ddrval;
+	static DWORD dwFlags = DDLOCK_WAIT | DDLOCK_NOSYSLOCK;
 
 	if (FAILED(FlipResult))				// prev flip was busy?
 	{
-		ddrval = IDirectDrawSurface_Flip(lpDDOverlay, NULL, DDFLIP_DONOTWAIT);  
+		ddrval = lpDDOverlay->Flip(NULL, DDFLIP_DONOTWAIT);  
 		if(ddrval == DDERR_SURFACELOST)
 		{
 			return NULL;
@@ -346,8 +347,21 @@ BYTE* LockOverlay()
 
 	memset(&ddsd, 0x00, sizeof(ddsd));
 	ddsd.dwSize = sizeof(ddsd);
-	ddrval = IDirectDrawSurface_Lock(lpDDOverlayBack, NULL, &ddsd, 
-		DDLOCK_WAIT | DDLOCK_NOSYSLOCK, NULL);
+	ddrval = lpDDOverlayBack->Lock(NULL, &ddsd, dwFlags, NULL);
+
+	// fix suggested by christoph for NT 4.0 sp6
+	if(ddrval == E_INVALIDARG && (dwFlags & DDLOCK_NOSYSLOCK))
+	{
+		//remove flag
+		ddrval = lpDDOverlayBack->Lock(NULL, &ddsd, DDLOCK_WAIT, NULL);
+		if( SUCCEEDED(ddrval) )
+		{
+			//remember for next time
+			dwFlags = DDLOCK_WAIT;
+		}
+	}
+	
+
 	if(FAILED(ddrval))
 	{
 		return NULL;
@@ -622,7 +636,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 				if (!info.bRunningLate)
 				{
 					// somewhere above we will have locked the buffer, unlock before flip
-					ddrval = IDirectDrawSurface_Unlock(lpDDOverlayBack, NULL);
+					ddrval = lpDDOverlayBack->Unlock(NULL);
 					if(ddrval == DDERR_SURFACELOST)
 					{
 						PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_STOP, 0);
@@ -650,7 +664,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 							Timing_WaitForTimeToFlip(&info, CurrentMethod, &bStopThread);
 						}
 
-						FlipResult = IDirectDrawSurface_Flip(lpDDOverlay, NULL, FlipFlag); 
+						FlipResult = lpDDOverlay->Flip(NULL, FlipFlag); 
 						if(FlipResult == DDERR_SURFACELOST)
 						{
 							PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_STOP, 0);

@@ -45,7 +45,7 @@ needs the original destination rectangle.
    on the aspect filter execution - if no path is specified, working directory is used. 
    This file can get big pretty quickly - only use for debugging
 */
-//#define __ASPECTFILTER_DEBUG__ "CAspectFilterDebug.log"
+#define __ASPECTFILTER_DEBUG__ "CAspectFilterDebug.log"
 #ifdef __ASPECTFILTER_DEBUG__
 	static FILE *debugLog = NULL;
 #endif

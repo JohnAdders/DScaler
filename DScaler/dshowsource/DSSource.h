@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.h,v 1.17 2002-08-11 12:06:19 laurentg Exp $
+// $Id: DSSource.h,v 1.18 2002-08-13 21:04:42 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2002/08/11 12:06:19  laurentg
+// Cut BT Card setup and general hardware setup in two different windows
+//
 // Revision 1.16  2002/08/10 16:54:25  tobbej
 // use square pixels by default
 //
@@ -167,8 +170,7 @@ public:
 
     void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff) {;};
 
-    void ChannelPreChange(int OldChannel,int NewChannel) {; };
-    void ChannelChange(int NewChannel) {; };
+    LPCSTR IDString() { return m_IDString.c_str(); }
 
 private:
 	void updateDroppedFields();
@@ -182,6 +184,8 @@ private:
 
 	long m_currentX;
 	long m_currentY;
+
+  std::string  m_IDString;
 
 	///Array for picture history, implemented as a circular queue
 	TPicture m_PictureHistory[MAX_PICTURE_HISTORY];

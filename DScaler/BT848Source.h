@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.30 2002-08-11 16:56:35 laurentg Exp $
+// $Id: BT848Source.h,v 1.31 2002-08-13 21:04:42 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -77,6 +77,7 @@ public:
     void SavePerChannelSetup(int Start);
     int GetDeviceIndex();
     const char* GetChipName();
+    LPCSTR IDString() { return m_IDString.c_str(); }
 
 private:
     virtual void CreateSettings(LPCSTR IniSection);
@@ -126,6 +127,7 @@ private:
     int          m_DeviceIndex;
 
     std::string  m_Section;
+    std::string  m_IDString;
 
     CSliderSetting* m_CustomPixelWidth;
     CYesNoSetting* m_ReversePolarity;

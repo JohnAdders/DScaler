@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.27 2002-08-01 20:23:43 tobbej Exp $
+// $Id: DSSource.cpp,v 1.28 2002-08-13 21:04:43 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2002/08/01 20:23:43  tobbej
+// improved error messages when opening files.
+// implemented AvgSyncOffset counter in dsrend
+//
 // Revision 1.26  2002/07/07 20:17:53  tobbej
 // fixed deadlock when stoping input source
 //
@@ -211,8 +215,9 @@ CDSSource::CDSSource(string device,string deviceName) :
 	m_dwRendStartTime(0)
 
 {
-	InitializeCriticalSection(&m_hOutThreadSync);
-	CreateSettings(device.c_str());
+	m_IDString = std::string("DS_") + device.c_str();
+  InitializeCriticalSection(&m_hOutThreadSync);
+	CreateSettings(device.c_str());  
 }
 
 CDSSource::CDSSource() :
@@ -225,7 +230,8 @@ CDSSource::CDSSource() :
 	m_dwRendStartTime(0)
 
 {
-	InitializeCriticalSection(&m_hOutThreadSync);
+	m_IDString = std::string("DS_DShowFileInput");
+  InitializeCriticalSection(&m_hOutThreadSync);
 	CreateSettings("DShowFileInput");
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.54 2002-08-12 22:42:28 kooiman Exp $
+// $Id: BT848Source.cpp,v 1.55 2002-08-13 21:04:42 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.54  2002/08/12 22:42:28  kooiman
+// Fixed small spelling error.
+//
 // Revision 1.53  2002/08/12 19:54:27  laurentg
 // Selection of video card to adjust DScaler settings
 //
@@ -261,6 +264,7 @@ CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CU
     m_DeviceIndex(DeviceIndex)
 
 {
+    m_IDString = IniSection;
     CreateSettings(IniSection);
 
     m_InitialACPIStatus = m_pBT848Card->GetACPIStatus();

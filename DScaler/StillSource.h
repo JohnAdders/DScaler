@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.40 2002-08-11 12:08:24 laurentg Exp $
+// $Id: StillSource.h,v 1.41 2002-08-13 21:04:42 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -121,6 +121,7 @@ public:
     void SetOverscan();
     BOOL HasSquarePixels() {return m_SquarePixels;};
     void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff) {;};
+    LPCSTR IDString() { return m_IDString.c_str(); }
     void SetNavigOnly(BOOL NavigOnly);
     BOOL IsNavigOnly();
 
@@ -150,6 +151,7 @@ protected:
     BOOL        m_SquarePixels;
     BOOL        m_NavigOnly;
     int         m_LinePitch;
+    std::string m_IDString;
 
 private:
     DWORD       m_LastTickCount;

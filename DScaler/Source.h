@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.h,v 1.17 2002-08-11 12:08:24 laurentg Exp $
+// $Id: Source.h,v 1.18 2002-08-13 21:04:42 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -109,6 +109,7 @@ public:
     virtual void SetOverscan() = 0;
     virtual BOOL HasSquarePixels() = 0;
     virtual void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff) = 0;
+    virtual LPCSTR IDString() = 0;
     char* GetComments();
 
 protected:

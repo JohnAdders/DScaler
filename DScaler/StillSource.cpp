@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.66 2002-07-31 22:42:25 laurentg Exp $
+// $Id: StillSource.cpp,v 1.67 2002-08-13 21:04:42 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.66  2002/07/31 22:42:25  laurentg
+// Avoid having several times the same entry in the playlist for the snapshots
+//
 // Revision 1.65  2002/07/25 20:43:56  laurentg
 // Setting added to take still always in the same file
 //
@@ -351,6 +354,7 @@ CStillSource::CStillSource(LPCSTR IniSection) :
     CSource(0, IDC_STILL),
     m_Section(IniSection)
 {
+    m_IDString = "Still_" + std::string(IniSection);
     CreateSettings(IniSection);
     m_Width = 0;
     m_Height = 0;
@@ -370,7 +374,7 @@ CStillSource::CStillSource(LPCSTR IniSection) :
     m_pMemcpy = NULL;
     m_SquarePixels = TRUE;
     m_NavigOnly = FALSE;
-    m_LinePitch = 0;
+    m_LinePitch = 0;    
 }
 
 CStillSource::~CStillSource()

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectFilters.cpp,v 1.16 2002-02-19 16:03:36 tobbej Exp $
+// $Id: AspectFilters.cpp,v 1.17 2002-02-23 12:00:13 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/02/19 16:03:36  tobbej
+// removed CurrentX and CurrentY
+// added new member in CSource, NotifySizeChange
+//
 // Revision 1.15  2001/11/29 17:30:51  adcockj
 // Reorgainised bt848 initilization
 // More Javadoc-ing
@@ -502,20 +506,22 @@ void CPanAndZoomAspectFilter::DebugDump()
     LOG(2,"m_XPos = %lf, m_YPos = %lf, m_XZoom = %lf, m_YZoom = %lf",m_XPos,m_YPos,m_XZoom,m_YZoom);
 }
 
+CScreenSanityAspectFilter::CScreenSanityAspectFilter(int SrcWidth, int SrcHeight)
+{
+    m_SrcWidth = SrcWidth;
+    m_SrcHeight = SrcHeight;
+}
+
 // Performs important sanity checks on the destination rectangle
 // Should occur at the end of the aspect processing chain (but before the ResizeWindow filter)
 BOOL CScreenSanityAspectFilter::adjustAspect(CAspectRectangles &ar)
 {
-    CSource *pSource=Providers_GetCurrentSource();
-    ///@todo better error handling, maybe return FALSE?
-    ASSERT(pSource!=NULL);
-
     // crop the Destination rect so that the overlay destination region is 
     // always on the screen we will also update the source area to reflect this
     // so that we see the appropriate portion on the screen
     // (this should make us compatable with YXY)
     RECT screenRect = {0,0,GetSystemMetrics(SM_CXSCREEN),GetSystemMetrics(SM_CYSCREEN) };
-    RECT sourceRect = {0, 0, pSource->GetWidth(), pSource->GetHeight()};
+    RECT sourceRect = {0, 0, m_SrcWidth, m_SrcHeight};
     ar.m_CurrentOverlayDestRect.crop(screenRect,&ar.m_CurrentOverlaySrcRect);
 
     // then make sure we are still onscreen
@@ -620,7 +626,7 @@ CFilterChain::CFilterChain()
 {
 }
 
-void CFilterChain::BuildFilterChain()
+void CFilterChain::BuildFilterChain(int SrcWidth, int SrcHeight)
 {
     if (AspectSettings.OrbitEnabled)
     { 
@@ -699,7 +705,7 @@ void CFilterChain::BuildFilterChain()
                                                AspectSettings.ZoomFactorY));
     }
 
-    m_FilterChain.push_back(new CScreenSanityAspectFilter());
+    m_FilterChain.push_back(new CScreenSanityAspectFilter(SrcWidth, SrcHeight));
     if (AspectSettings.AutoResizeWindow)
     {
         m_FilterChain.push_back(new CResizeWindowAspectFilter());

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectFilters.h,v 1.13 2001-11-29 17:30:51 adcockj Exp $
+// $Id: AspectFilters.h,v 1.14 2002-02-23 12:00:13 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -219,8 +219,12 @@ protected:
 class CScreenSanityAspectFilter : public CAspectFilter
 {
 public:
+    CScreenSanityAspectFilter(int SrcWidth, int SrcHeight);
     virtual BOOL adjustAspect(CAspectRectangles &ar);
     virtual LPCSTR getFilterName();
+protected:
+    int m_SrcWidth;
+    int m_SrcHeight;
 };
 
 /** Attemtps to resize the client window to match the aspect ratio
@@ -240,7 +244,7 @@ public:
     CFilterChain();
     ~CFilterChain();
     BOOL ApplyFilters(CAspectRectangles &ar, BOOL allowReadjust);
-    void BuildFilterChain();
+    void BuildFilterChain(int SrcWidth, int SrcHeight);
 protected:
     vector<CAspectFilter*> m_FilterChain;
 };

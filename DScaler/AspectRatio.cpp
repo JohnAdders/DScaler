@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.cpp,v 1.26 2002-02-19 16:03:36 tobbej Exp $
+// $Id: AspectRatio.cpp,v 1.27 2002-02-23 12:00:13 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -72,6 +72,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2002/02/19 16:03:36  tobbej
+// removed CurrentX and CurrentY
+// added new member in CSource, NotifySizeChange
+//
 // Revision 1.25  2001/11/29 17:30:51  adcockj
 // Reorgainised bt848 initilization
 // More Javadoc-ing
@@ -176,14 +180,18 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
     static BOOL InFunction = FALSE;
     if(InFunction == TRUE) return;
 
-    InFunction = TRUE;
-    UpdateWindowState();
-
     CAspectRectangles ar;
     CSource* pSource = Providers_GetCurrentSource();
     //what happends if we dont have a current source?
     //maybe just return and not do anything more?
     ASSERT(pSource!=NULL);
+
+    // If source width or source height is null, we do nothing
+    if (pSource->GetWidth() == 0 || pSource->GetHeight() == 0)
+        return;
+
+    InFunction = TRUE;
+    UpdateWindowState();
 
     // Setup the rectangles...
     // Previous ones...
@@ -198,6 +206,7 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
 	///@todo maybe some error checking here?, like div. by zero
     ar.m_OriginalOverlaySrcRect.setAspectAdjust((double)pSource->GetWidth()/(double)pSource->GetHeight(),
                                             GetActualSourceFrameAspect());
+//                                            (double)pSource->GetWidth()/(double)pSource->GetHeight());
 
     // Destination rectangle
     ar.m_OriginalOverlayDestRect.setToClient(hWnd,TRUE);
@@ -221,7 +230,7 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
 
     // Build filter chain and apply
     /// \todo Filter chain should be saved and only rebuilt if options are changed
-    FilterChain.BuildFilterChain();
+    FilterChain.BuildFilterChain(pSource->GetWidth(), pSource->GetHeight());
     if (FilterChain.ApplyFilters(ar, allowResize))
     {
         InFunction = FALSE;

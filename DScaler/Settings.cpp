@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.31 2002-06-10 23:56:28 robmuller Exp $
+// $Id: Settings.cpp,v 1.32 2002-06-12 18:41:11 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2002/06/10 23:56:28  robmuller
+// Add an empty line before each new section in the ini file.
+//
 // Revision 1.30  2002/02/27 20:47:21  laurentg
 // Still settings
 //
@@ -409,10 +412,17 @@ void BeautifyIniFile(LPCTSTR lpIniFileName)
         {
             while(!feof(IniFile))
             {
-                if(fgets(buf, 255, IniFile) == NULL && !feof(IniFile))
+                if(fgets(buf, 255, IniFile) == NULL)
                 {
-                    IOError = TRUE;
-                    LOG(1, "BeautifyIniFile: Error reading ini file.");
+                    if(feof(IniFile))
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        IOError = TRUE;
+                        LOG(1, "BeautifyIniFile: Error reading ini file.");
+                    }
                 }
                 if(IsSectionName(buf) && lastline[0] != '\0')
                 {

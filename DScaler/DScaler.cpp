@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.363 2004-11-21 12:26:29 atnak Exp $
+// $Id: DScaler.cpp,v 1.364 2004-11-27 00:48:37 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.363  2004/11/21 12:26:29  atnak
+// Added cautionary comment for exiting code.
+//
 // Revision 1.362  2004/11/20 14:22:46  atnak
 // Added call at startup for loading up SAA713x card database from file.
 //
@@ -1552,12 +1555,22 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
         }
     }
 
+	// Load up the list of SAA713x cards
+	if (!CSAA7134Card::InitializeSAA713xCardList())
+	{
+		// Caution, this code exits DScaler abruptly based on the user input.
+		// Although this is not done forcefully using a call like exit(), it
+		// should be noted that DScaler can exit here.  Any code requiring
+		// clean up should be careful about this.  Driver related and memory
+		// mapping operations should not be moved before this. --atnak 04-11-21
+		return 0;
+	}
+
     ShowHWSetupBox =    !Setting_ReadFromIni(DScaler_GetSetting(PROCESSORSPEED))
                      || !Setting_ReadFromIni(DScaler_GetSetting(TRADEOFF))
                      || !Setting_ReadFromIni(DScaler_GetSetting(FULLCPU))
                      || !Setting_ReadFromIni(DScaler_GetSetting(VIDEOCARD));
 
-    
     // Event collector
     if (EventCollector == NULL)
     {
@@ -1576,8 +1589,6 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     // load up ini file settings after parsing parms as 
     // the ini file location may have changed
     LoadSettingsFromIni();
-    //
-    
 
     // make sure dscaler.ini exists with many of the options in it.
     // even if dscaler crashes a new user is able to make changes to dscaler.ini.
@@ -1585,18 +1596,6 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
 
     // Initialize the audio muting module
     Initialize_Mute();
-
-	// Load up the list of SAA713x cards
-	if (!CSAA7134Card::InitializeSAA713xCardList())
-	{
-		// Caution, this code exits DScaler abruptly based on the user input.
-		// Although this is not done forcefully using a call like exit(), it
-		// should be noted that DScaler can exit here.  Any code requiring
-		// clean up should be careful about this.  Driver related and memory
-		// mapping operations should not be moved before this. --atnak 04-11-21
-		return 0;
-	}
-
 
     // load up the cursors we want to use
     // we load up arrow as the default and try and load up

@@ -16,6 +16,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/11/04 02:08:05  lindsey
+// Allowed stability values below 0.
+//
 // Revision 1.15  2002/11/02 02:05:13  lindsey
 // Corrected the default motion memory value
 //
@@ -81,7 +84,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-#define ADAPTIVE_NOISE_DEBUG
+// #define ADAPTIVE_NOISE_DEBUG
 
 #include <limits.h>
 #include <math.h>

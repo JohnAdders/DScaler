@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Dialogs.cpp,v 1.10 2001-07-29 10:16:51 adcockj Exp $
+// $Id: Dialogs.cpp,v 1.11 2001-09-02 12:13:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2001/07/29 10:16:51  adcockj
+// Added build number to about box
+//
 // Revision 1.9  2001/07/13 16:14:56  adcockj
 // Changed lots of variables to match Coding standards
 //
@@ -130,14 +133,15 @@ BOOL APIENTRY AboutProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                         lstrcat(szResult, " ");
                         lstrcat(szResult, __TIME__);
 
+                        lstrcat(szResult, " Build (");
+                        sprintf(szGetName,"%d", gBuildNum);
+                        lstrcat(szResult, szGetName);
+                        lstrcat(szResult, ")");
+
                         SetWindowText (GetDlgItem(hDlg, IDC_VERSION), szResult);
                     }
                 }
             } // if (dwVerInfoSize)
-            lstrcat(szResult, " Build (");
-            sprintf(szGetName,"%d", gBuildNum);
-            lstrcat(szResult, szGetName);
-            lstrcat(szResult, ")");
         break;
     case WM_COMMAND:
         switch(LOWORD(wParam))
@@ -148,6 +152,9 @@ BOOL APIENTRY AboutProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             break;
         case IDC_LINK:
             ShellExecute(hDlg, "open", "http://www.avsforum.com/", NULL, NULL, SW_SHOWNORMAL);
+            break;
+        case IDC_LINK2:
+            ShellExecute(hDlg, "open", "http://www.dscaler.org/", NULL, NULL, SW_SHOWNORMAL);
             break;
         default:
             break;

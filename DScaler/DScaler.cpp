@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.65 2001-08-24 21:36:46 adcockj Exp $
+// $Id: DScaler.cpp,v 1.66 2001-09-02 12:13:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.65  2001/08/24 21:36:46  adcockj
+// Menu bug fix
+//
 // Revision 1.64  2001/08/23 18:54:21  adcockj
 // Menu and Settings fixes
 //
@@ -1534,7 +1537,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_HELP_HOMEPAGE:
-            ShellExecute(hWnd, "open", "http://deinterlace.sourceforge.net/", NULL, NULL, SW_SHOWNORMAL);
+            ShellExecute(hWnd, "open", "http://www.dscaler.org/", NULL, NULL, SW_SHOWNORMAL);
             break;
 
         case IDM_HELP_FAQ:

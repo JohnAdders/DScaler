@@ -858,6 +858,7 @@
 #define IDC_SAVE2                       1900
 #define IDC_SAVEPLUS                    1901
 #define IDC_RESETONEXIT                 1902
+#define IDC_LINK2                       1903
 #define IDM_LAST_DEINTMETHOD            1999
 #define IDM_ZOOM_15                     2000
 #define IDM_ZOOM_20                     2001
@@ -914,8 +915,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        188
 #define _APS_NEXT_COMMAND_VALUE         2069
-#define _APS_NEXT_CONTROL_VALUE         1903
+#define _APS_NEXT_CONTROL_VALUE         1904
 #define _APS_NEXT_SYMED_VALUE           114
 #endif
 #endif
-

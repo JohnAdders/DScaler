@@ -335,8 +335,8 @@ BEGIN
     LTEXT           "MultiDec Source (c) Espresso (echter_espresso@hotmail.com)",
                     IDC_STATIC,13,154,348,9
     GROUPBOX        "Authors",IDC_STATIC,6,37,180,100
-    CTEXT           "()()  http://deinterlace.sourceforge.net  ()()",
-                    IDC_STATIC,0,13,293,10
+    CTEXT           "()()  http://www.dscaler.org  ()()",IDC_LINK2,0,13,293,
+                    10
     LTEXT           "bttv - Bt848 frame grabber driver Copyright (c) Ralph Metzler && Marcus Metzler",
                     IDC_STATIC,13,165,347,11
     LTEXT           "I2C Interface Copyright (c) Gerd Knorr",IDC_STATIC,13,
@@ -584,8 +584,8 @@ BEGIN
         MENUITEM "Au&tohide Cursor",            IDM_AUTOHIDE_CURSOR
         MENUITEM "&Full Screen\tAlt+Enter",     IDM_FULL_SCREEN
         MENUITEM "&Always on Top (Window)",     IDM_ON_TOP
-        MENUITEM "Alway On Top (Full Screen)",  IDM_ALWAYONTOPFULLSCREEN
-        POPUP "&OSD"
+        MENUITEM "Always on Top (Full Screen)", IDM_ALWAYONTOPFULLSCREEN
+        POPUP "&On Screen Display"
         BEGIN
             MENUITEM "Show &Next\tEnter",           IDM_SHOW_OSD
             MENUITEM "&Hide\tBackspace",            IDM_HIDE_OSD
@@ -686,7 +686,7 @@ BEGIN
         POPUP "&Deinterlace Mode"
         BEGIN
             MENUITEM "&Automatic Pulldown Detect",  IDM_AUTODETECT
-            MENUITEM "&Fall Back to Video on Bad Pulldown", IDM_FALLBACK
+            MENUITEM "&Fallback to Video on Bad Pulldown", IDM_FALLBACK
             MENUITEM "&JudderTerminator (tm)",      IDM_JUDDERTERMINATOR
             MENUITEM "Include &Chroma in Detection", IDM_USECHROMA
             MENUITEM SEPARATOR
@@ -770,11 +770,11 @@ BEGIN
         MENUITEM "&Hardware Info ...",          IDM_HWINFO
         POPUP "MSP/Radio"
         BEGIN
-            MENUITEM "&Tone - Control",             IDM_AUDIOSETTINGS
-            MENUITEM "Tone - Control  &Equalizer",  IDM_AUDIOSETTINGS1
+            MENUITEM "&Audio Settings",             IDM_AUDIOSETTINGS
+            MENUITEM "&Equalizer",                  IDM_AUDIOSETTINGS1
             MENUITEM SEPARATOR
             MENUITEM "FM Radio",                    IDM_MSPMODE_2
-            MENUITEM "TV Terrestial FM-mono + FM-stereo ", IDM_MSPMODE_3
+            MENUITEM "TV Terrestrial FM-mono + FM-stereo ", IDM_MSPMODE_3
             MENUITEM "TV Sat FM-mono ",             IDM_MSPMODE_4
             MENUITEM "NICAM PAL BDGH && SECAM",     IDM_MSPMODE_5
             MENUITEM "NICAM PAL I",                 IDM_MSPMODE_6
@@ -800,12 +800,12 @@ BEGIN
             MENUITEM SEPARATOR
             MENUITEM "Mono",                        IDM_MSPSTEREO_1
             MENUITEM "Stereo",                      IDM_MSPSTEREO_2
-            MENUITEM "Speech-Channel 1 ",           IDM_MSPSTEREO_3
-            MENUITEM "Speech-Channel",              IDM_MSPSTEREO_4
+            MENUITEM "Speech Channel 1 ",           IDM_MSPSTEREO_3
+            MENUITEM "Speech Channel 2",            IDM_MSPSTEREO_4
             MENUITEM SEPARATOR
             MENUITEM "Automatic Stereo Adjustment", IDM_AUTOSTEREO
         END
-        MENUITEM "Reset Capture Card",          IDM_RESET
+        MENUITEM "&Reset Capture Card",         IDM_RESET
         MENUITEM "Audio-Mi&xer Setup",          IDM_AUDIO_MIXER
         MENUITEM SEPARATOR
         MENUITEM "Test &Pattern Select",        65535
@@ -900,9 +900,9 @@ BEGIN
         MENUITEM "&Read Me ...\tF1",            IDM_HELP_README
         MENUITEM "DScaler &Home Page ...",      IDM_HELP_HOMEPAGE
         MENUITEM "&FAQ ...",                    IDM_HELP_FAQ
-        MENUITEM "&Support ...",                IDM_HELP_SUPPORT
-        MENUITEM "&Keyboard ...",               IDM_HELP_KEYBOARD
-        MENUITEM "&Licence ...",                IDM_HELP_GPL
+        MENUITEM "User &Support ...",           IDM_HELP_SUPPORT
+        MENUITEM "&Keyboard Shortcuts...",      IDM_HELP_KEYBOARD
+        MENUITEM "GPL &Licence ...",            IDM_HELP_GPL
         MENUITEM SEPARATOR
         MENUITEM "&About DScaler...",           IDM_ABOUT
     END

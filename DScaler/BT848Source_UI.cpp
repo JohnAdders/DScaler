@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_UI.cpp,v 1.11 2003-01-16 13:30:49 adcockj Exp $
+// $Id: BT848Source_UI.cpp,v 1.12 2003-01-18 12:10:47 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2003/01/16 13:30:49  adcockj
+// Fixes for various settings problems reported by Laurent 15/Jan/2003
+//
 // Revision 1.10  2003/01/15 15:54:22  adcockj
 // Fixed some keyboard focus issues
 //
@@ -1228,12 +1231,12 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             break;
 
         case IDM_BDELAY_PLUS:
-            m_BDelay->ChangeValue(ADJUSTUP);
+            m_BDelay->ChangeValue(ADJUSTUP_SILENT);
             SendMessage(hWnd, WM_COMMAND, IDM_BDELAY_CURRENT, 0);
             break;
 
         case IDM_BDELAY_MINUS:
-            m_BDelay->ChangeValue(ADJUSTDOWN);
+            m_BDelay->ChangeValue(ADJUSTDOWN_SILENT);
             SendMessage(hWnd, WM_COMMAND, IDM_BDELAY_CURRENT, 0);
             break;
 
@@ -1242,12 +1245,12 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             break;
 
         case IDM_HDELAY_PLUS:
-            m_HDelay->ChangeValue(ADJUSTUP);
+            m_HDelay->ChangeValue(ADJUSTUP_SILENT);
             SendMessage(hWnd, WM_COMMAND, IDM_HDELAY_CURRENT, 0);
             break;
 
         case IDM_HDELAY_MINUS:
-            m_HDelay->ChangeValue(ADJUSTDOWN);
+            m_HDelay->ChangeValue(ADJUSTDOWN_SILENT);
             SendMessage(hWnd, WM_COMMAND, IDM_HDELAY_CURRENT, 0);
             break;
 
@@ -1256,12 +1259,12 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             break;
 
         case IDM_VDELAY_PLUS:
-            m_VDelay->ChangeValue(ADJUSTUP);
+            m_VDelay->ChangeValue(ADJUSTUP_SILENT);
             SendMessage(hWnd, WM_COMMAND, IDM_VDELAY_CURRENT, 0);
             break;
 
         case IDM_VDELAY_MINUS:
-            m_VDelay->ChangeValue(ADJUSTDOWN);
+            m_VDelay->ChangeValue(ADJUSTDOWN_SILENT);
             SendMessage(hWnd, WM_COMMAND, IDM_VDELAY_CURRENT, 0);
             break;
 
@@ -1270,12 +1273,12 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             break;
 
         case IDM_PIXELWIDTH_PLUS:
-            m_PixelWidth->ChangeValue(ADJUSTUP);
+            m_PixelWidth->ChangeValue(ADJUSTUP_SILENT);
             SendMessage(hWnd, WM_COMMAND, IDM_PIXELWIDTH_CURRENT, 0);
             break;
 
         case IDM_PIXELWIDTH_MINUS:
-            m_PixelWidth->ChangeValue(ADJUSTDOWN);
+            m_PixelWidth->ChangeValue(ADJUSTDOWN_SILENT);
             SendMessage(hWnd, WM_COMMAND, IDM_PIXELWIDTH_CURRENT, 0);
             break;
 

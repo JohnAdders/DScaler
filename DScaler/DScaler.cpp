@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.289 2003-01-17 17:26:52 adcockj Exp $
+// $Id: DScaler.cpp,v 1.290 2003-01-18 12:10:48 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.289  2003/01/17 17:26:52  adcockj
+// reverted writesettings change
+//
 // Revision 1.288  2003/01/17 14:40:33  adcockj
 // Write all settings on exit
 //
@@ -2747,7 +2750,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_BRIGHTNESS_PLUS:
             if((pSetting = Providers_GetCurrentSource()->GetBrightness()) != NULL)
             {
-                pSetting->ChangeValue(ADJUSTUP);
+                pSetting->ChangeValue(ADJUSTUP_SILENT);
             }
             SendMessage(hWnd, WM_COMMAND, IDM_BRIGHTNESS_CURRENT, 0);
             break;
@@ -2755,7 +2758,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_BRIGHTNESS_MINUS:
             if((pSetting = Providers_GetCurrentSource()->GetBrightness()) != NULL)
             {
-                pSetting->ChangeValue(ADJUSTDOWN);
+                pSetting->ChangeValue(ADJUSTDOWN_SILENT);
             }
             SendMessage(hWnd, WM_COMMAND, IDM_BRIGHTNESS_CURRENT, 0);
             break;
@@ -2774,7 +2777,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_KONTRAST_PLUS:
             if((pSetting = Providers_GetCurrentSource()->GetContrast()) != NULL)
             {
-                pSetting->ChangeValue(ADJUSTUP);
+                pSetting->ChangeValue(ADJUSTUP_SILENT);
             }
             SendMessage(hWnd, WM_COMMAND, IDM_KONTRAST_CURRENT, 0);
             break;
@@ -2782,7 +2785,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_KONTRAST_MINUS:
             if((pSetting = Providers_GetCurrentSource()->GetContrast()) != NULL)
             {
-                pSetting->ChangeValue(ADJUSTDOWN);
+                pSetting->ChangeValue(ADJUSTDOWN_SILENT);
             }
             SendMessage(hWnd, WM_COMMAND, IDM_KONTRAST_CURRENT, 0);
             break;
@@ -2801,7 +2804,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_USATURATION_PLUS:
             if((pSetting = Providers_GetCurrentSource()->GetSaturationU()) != NULL)
             {
-                pSetting->ChangeValue(ADJUSTUP);
+                pSetting->ChangeValue(ADJUSTUP_SILENT);
             }
             SendMessage(hWnd, WM_COMMAND, IDM_USATURATION_CURRENT, 0);
             break;
@@ -2809,7 +2812,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_USATURATION_MINUS:
             if((pSetting = Providers_GetCurrentSource()->GetSaturationU()) != NULL)
             {
-                pSetting->ChangeValue(ADJUSTDOWN);
+                pSetting->ChangeValue(ADJUSTDOWN_SILENT);
             }
             SendMessage(hWnd, WM_COMMAND, IDM_USATURATION_CURRENT, 0);
             break;
@@ -2828,7 +2831,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_VSATURATION_PLUS:
             if((pSetting = Providers_GetCurrentSource()->GetSaturationV()) != NULL)
             {
-                pSetting->ChangeValue(ADJUSTUP);
+                pSetting->ChangeValue(ADJUSTUP_SILENT);
             }
             SendMessage(hWnd, WM_COMMAND, IDM_VSATURATION_CURRENT, 0);
             break;
@@ -2836,7 +2839,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_VSATURATION_MINUS:
             if((pSetting = Providers_GetCurrentSource()->GetSaturationV()) != NULL)
             {
-                pSetting->ChangeValue(ADJUSTDOWN);
+                pSetting->ChangeValue(ADJUSTDOWN_SILENT);
             }
             SendMessage(hWnd, WM_COMMAND, IDM_VSATURATION_CURRENT, 0);
             break;
@@ -2855,7 +2858,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_COLOR_PLUS:
             if((pSetting = Providers_GetCurrentSource()->GetSaturation()) != NULL)
             {
-                pSetting->ChangeValue(ADJUSTUP);
+                pSetting->ChangeValue(ADJUSTUP_SILENT);
             }
             SendMessage(hWnd, WM_COMMAND, IDM_COLOR_CURRENT, 0);
             break;
@@ -2863,7 +2866,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_COLOR_MINUS:
             if((pSetting = Providers_GetCurrentSource()->GetSaturation()) != NULL)
             {
-                pSetting->ChangeValue(ADJUSTDOWN);
+                pSetting->ChangeValue(ADJUSTDOWN_SILENT);
             }
             SendMessage(hWnd, WM_COMMAND, IDM_COLOR_CURRENT, 0);
             break;
@@ -2882,7 +2885,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_HUE_PLUS:
             if((pSetting = Providers_GetCurrentSource()->GetHue()) != NULL)
             {
-                pSetting->ChangeValue(ADJUSTUP);
+                pSetting->ChangeValue(ADJUSTUP_SILENT);
             }
             SendMessage(hWnd, WM_COMMAND, IDM_HUE_CURRENT, 0);
             break;
@@ -2890,7 +2893,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_HUE_MINUS:
             if((pSetting = Providers_GetCurrentSource()->GetHue()) != NULL)
             {
-                pSetting->ChangeValue(ADJUSTDOWN);
+                pSetting->ChangeValue(ADJUSTDOWN_SILENT);
             }
             SendMessage(hWnd, WM_COMMAND, IDM_HUE_CURRENT, 0);
             break;

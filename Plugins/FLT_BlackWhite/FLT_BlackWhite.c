@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_BlackWhite.c,v 1.3 2003-03-22 19:14:52 robmuller Exp $
+// $Id: FLT_BlackWhite.c,v 1.4 2003-03-29 22:35:05 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2003/03/22 19:14:52  robmuller
+// Implemented MMX code.
+//
 // Revision 1.2  2003/03/22 13:16:26  laurentg
 // Use of an help id
 //
@@ -88,7 +91,7 @@ LOOP_LABEL:
 SETTING FLT_BlackWhiteSettings[FLT_BLACKWHITE_SETTING_LASTONE] =
 {
     {
-        "Enable", ONOFF, 0, &(BlackWhiteMethod.bActive),
+        "Black and White Filter", ONOFF, 0, &(BlackWhiteMethod.bActive),
         FALSE, 0, 1, 1, 1,
         NULL,
         "BlackWhiteFilter", "UseBlackWhiteFilter", NULL,

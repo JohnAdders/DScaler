@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.61 2002-05-10 20:34:38 laurentg Exp $
+// $Id: Calibration.cpp,v 1.62 2002-05-27 20:14:54 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.61  2002/05/10 20:34:38  laurentg
+// Formula for conversion RGB <=> YCbCr updated
+//
 // Revision 1.60  2002/05/06 15:48:53  laurentg
 // Informations saved in a DScaler still updated
 // Use of the comments field to show informations about a DScaler still
@@ -781,10 +784,10 @@ void CSubPattern::Draw(TDeinterlaceInfo* pInfo)
 /////////////////////////////////////////////////////////////////////////////
 // Class CTestPattern
 
-CTestPattern::CTestPattern(char* name, int height)
+CTestPattern::CTestPattern(char* name, int width, int height)
 {
     strcpy(m_PatternName, name);
-    m_Width = 720;
+    m_Width = width;
     m_Height = height;
 }
 
@@ -812,6 +815,7 @@ CTestPattern::CTestPattern(LPCSTR FileName)
         return;
     }
 
+    m_PatternName[0] = '\0';
     m_Width = Setting_GetValue(Still_GetSetting(PATTERNWIDTH));
     // The width must be even
     if (m_Width%2)
@@ -844,8 +848,14 @@ CTestPattern::CTestPattern(LPCSTR FileName)
             }
             if (sscanf(Buffer, "PAT %s", s_val) == 1)
             {
-                LOG(5,"PAT %s", s_val);
                 strcpy(m_PatternName, strstr(&Buffer[4], s_val));
+                LOG(5,"PAT %s", m_PatternName);
+            }
+            else if (sscanf(Buffer, "SIZE %d %d", &i_val[0], &i_val[1]) == 2)
+            {
+                m_Width = i_val[0];
+                m_Height = i_val[1];
+                LOG(5,"SIZE %d %d", m_Width, m_Height);
             }
             else if ((n = sscanf(Buffer, "RECT %d %d %d %d %s %d %d %d %d %d %d %s %d %d", &i_val[0], &i_val[1], &i_val[2], &i_val[3], s_val, &i_val[4], &i_val[5], &i_val[6], &i_val[7], &i_val[8], &i_val[9], s_val2, &i_val[10])) >= 12)
             {
@@ -1429,10 +1439,11 @@ CCalibration::CCalibration()
     last_tick_count = -1;
     LoadTestPatterns();
 
-/* Tests of conversion RGB <=> YCbCr
+#ifdef TEST_CONV_COLORSPACE
+    // Tests of conversion RGB <=> YCbCr
     unsigned char r, g, b, y, cb, cr;
-    r = 0, g = 0; b = 0;
     CColorBar* bar = m_TestPatterns[0]->m_ColorBars[0];
+    r = 0, g = 0; b = 0;
     bar->RGB2YUV(r, g, b, &y, &cb, &cr);
     LOG(1, "RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
     r = 255, g = 255; b = 255;
@@ -1495,7 +1506,93 @@ CCalibration::CCalibration()
     y = 180, cb = 128; cr = 128;
     bar->YUV2RGB(y, cb, cr, &r, &g, &b);
     LOG(1, "YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
-*/
+
+    r = 0, g = 0; b = 0;
+    bar->RGB2YUV(r, g, b, &y, &cb, &cr);
+    bar->YUV2RGB(y, cb, cr, &r, &g, &b);
+    LOG(1, "RGB(0, 0, 0) => YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    r = 255, g = 255; b = 255;
+    bar->RGB2YUV(r, g, b, &y, &cb, &cr);
+    bar->YUV2RGB(y, cb, cr, &r, &g, &b);
+    LOG(1, "RGB(255, 255, 255) => YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    r = 255, g = 0; b = 0;
+    bar->RGB2YUV(r, g, b, &y, &cb, &cr);
+    bar->YUV2RGB(y, cb, cr, &r, &g, &b);
+    LOG(1, "RGB(255, 0, 0) => YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    r = 0, g = 255; b = 0;
+    bar->RGB2YUV(r, g, b, &y, &cb, &cr);
+    bar->YUV2RGB(y, cb, cr, &r, &g, &b);
+    LOG(1, "RGB(0, 255, 0) => YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    r = 0, g = 0; b = 255;
+    bar->RGB2YUV(r, g, b, &y, &cb, &cr);
+    bar->YUV2RGB(y, cb, cr, &r, &g, &b);
+    LOG(1, "RGB(0, 0, 255) => YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    r = 191, g = 0; b = 0;
+    bar->RGB2YUV(r, g, b, &y, &cb, &cr);
+    bar->YUV2RGB(y, cb, cr, &r, &g, &b);
+    LOG(1, "RGB(191, 0, 0) => YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    r = 0, g = 191; b = 0;
+    bar->RGB2YUV(r, g, b, &y, &cb, &cr);
+    bar->YUV2RGB(y, cb, cr, &r, &g, &b);
+    LOG(1, "RGB(0, 191, 0) => YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    r = 0, g = 0; b = 191;
+    bar->RGB2YUV(r, g, b, &y, &cb, &cr);
+    bar->YUV2RGB(y, cb, cr, &r, &g, &b);
+    LOG(1, "RGB(0, 0, 191) => YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    r = 191, g = 191; b = 0;
+    bar->RGB2YUV(r, g, b, &y, &cb, &cr);
+    bar->YUV2RGB(y, cb, cr, &r, &g, &b);
+    LOG(1, "RGB(191, 191, 0) => YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    r = 191, g = 0; b = 191;
+    bar->RGB2YUV(r, g, b, &y, &cb, &cr);
+    bar->YUV2RGB(y, cb, cr, &r, &g, &b);
+    LOG(1, "RGB(191, 0, 191) => YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    r = 0, g = 191; b = 191;
+    bar->RGB2YUV(r, g, b, &y, &cb, &cr);
+    bar->YUV2RGB(y, cb, cr, &r, &g, &b);
+    LOG(1, "RGB(0, 191, 191) => YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+    r = 191, g = 191; b = 191;
+    bar->RGB2YUV(r, g, b, &y, &cb, &cr);
+    bar->YUV2RGB(y, cb, cr, &r, &g, &b);
+    LOG(1, "RGB(191, 191, 191) => YCbCr(%u, %u, %u) => RGB(%u, %u, %u)", y, cb, cr, r, g, b);
+
+    y = 16, cb = 128; cr = 128;
+    bar->YUV2RGB(y, cb, cr, &r, &g, &b);
+    bar->RGB2YUV(r, g, b, &y, &cb, &cr);
+    LOG(1, "YCbCr(16, 128, 128) => RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    y = 235, cb = 128; cr = 128;
+    bar->YUV2RGB(y, cb, cr, &r, &g, &b);
+    bar->RGB2YUV(r, g, b, &y, &cb, &cr);
+    LOG(1, "YCbCr(235, 128, 128) => RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    y = 65, cb = 100; cr = 212;
+    bar->YUV2RGB(y, cb, cr, &r, &g, &b);
+    bar->RGB2YUV(r, g, b, &y, &cb, &cr);
+    LOG(1, "YCbCr(65, 100, 212) => RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    y = 112, cb = 72; cr = 58;
+    bar->YUV2RGB(y, cb, cr, &r, &g, &b);
+    bar->RGB2YUV(r, g, b, &y, &cb, &cr);
+    LOG(1, "YCbCr(112, 72, 58) => RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    y = 35, cb = 212; cr = 114;
+    bar->YUV2RGB(y, cb, cr, &r, &g, &b);
+    bar->RGB2YUV(r, g, b, &y, &cb, &cr);
+    LOG(1, "YCbCr(35, 212, 114) => RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    y = 162, cb = 44; cr = 142;
+    bar->YUV2RGB(y, cb, cr, &r, &g, &b);
+    bar->RGB2YUV(r, g, b, &y, &cb, &cr);
+    LOG(1, "YCbCr(162, 44, 142) => RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    y = 84, cb = 184; cr = 198;
+    bar->YUV2RGB(y, cb, cr, &r, &g, &b);
+    bar->RGB2YUV(r, g, b, &y, &cb, &cr);
+    LOG(1, "YCbCr(84, 184, 198) => RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    y = 131, cb = 156; cr = 44;
+    bar->YUV2RGB(y, cb, cr, &r, &g, &b);
+    bar->RGB2YUV(r, g, b, &y, &cb, &cr);
+    LOG(1, "YCbCr(131, 156, 44) => RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+    y = 180, cb = 128; cr = 128;
+    bar->YUV2RGB(y, cb, cr, &r, &g, &b);
+    bar->RGB2YUV(r, g, b, &y, &cb, &cr);
+    LOG(1, "YCbCr(180, 128, 128) => RGB(%u, %u, %u) => YCbCr(%u, %u, %u)", r, g, b, y, cb, cr);
+#endif
 }
 
 CCalibration::~CCalibration()
@@ -2459,6 +2556,16 @@ BOOL CPatternHelper::OpenMediaFile(LPCSTR FileName)
     if (pFrameBuf == NULL)
     {
         return FALSE;
+    }
+
+    // Set the background of the pattern to black
+    for (int i=0 ; i<pattern.GetHeight() ; i++)
+    {
+        for (int j=0 ; j<pattern.GetWidth() ; j++)
+        {
+            *(pFrameBuf + i * LinePitch + j * 2    ) = 16;
+            *(pFrameBuf + i * LinePitch + j * 2 + 1) = 128;
+        }
     }
 
     pattern.Draw(pFrameBuf, LinePitch);

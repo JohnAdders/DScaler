@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.h,v 1.28 2002-05-05 12:09:22 laurentg Exp $
+// $Id: Calibration.h,v 1.29 2002-05-27 20:14:54 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 #include "TVFormats.h"
 #include "Setting.h"
 #include "StillSource.h"
+
+
+//#define TEST_CONV_COLORSPACE
 
 
 /// Define all types of content for test pattern
@@ -108,6 +111,14 @@ public:
     BOOL CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, TDeinterlaceInfo* pInfo);
 
     void Draw(BYTE* Buffer, int Pitch, int Height, int Width, int Overscan, int LCrop, int RCrop);
+
+#ifdef TEST_CONV_COLORSPACE
+    /// Convert RGB to YUV
+    void RGB2YUV(unsigned char R, unsigned char G, unsigned char B, unsigned char* pY, unsigned char* pU, unsigned char* pV);
+
+    /// Convert YUV to RGB
+    void YUV2RGB(unsigned char Y, unsigned char U, unsigned char V, unsigned char* pR, unsigned char* pG, unsigned char* pB);
+#endif
 
 protected: 
     /** Left position of the rectangular zone in the full test pattern
@@ -192,11 +203,13 @@ protected:
     int m_Param2Draw;
 
 private:
+#ifndef TEST_CONV_COLORSPACE
     /// Convert RGB to YUV
     void RGB2YUV(unsigned char R, unsigned char G, unsigned char B, unsigned char* pY, unsigned char* pU, unsigned char* pV);
 
     /// Convert YUV to RGB
     void YUV2RGB(unsigned char Y, unsigned char U, unsigned char V, unsigned char* pR, unsigned char* pG, unsigned char* pB);
+#endif
 
     unsigned int cpt_Y;
     unsigned int cpt_U;
@@ -246,7 +259,7 @@ protected:
 class CTestPattern
 {
 public:
-    CTestPattern(char* name, int height);
+    CTestPattern(char* name, int width, int height);
     CTestPattern(LPCSTR FileName);
     ~CTestPattern();
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.h,v 1.26 2004-02-27 20:50:59 to_see Exp $
+// $Id: CX2388xCard.h,v 1.27 2004-03-28 19:34:11 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -264,6 +264,7 @@ private:
     void PlayHDInputSelect(int nInput);
     void PlayHDStopCapture();
     void AsusInputSelect(int nInput);
+	void LeadtekInputSelect(int nInput);
 
 	void H3DSetFormat(int nInput, eVideoFormat TVFormat, BOOL IsProgressive);
     void SetH3DContrastBrightness(BYTE Contrast, BYTE Brightness);
@@ -272,12 +273,12 @@ private:
     void SetH3DSaturationV(BYTE SaturationV);
 
     void AudioInitDMA();
-    void AudioInitBTSC(eCX2388xStereoType StereoType);
-    void AudioInitBTSCSAP(eCX2388xStereoType StereoType);
-    void AudioInitEIAJ(eCX2388xStereoType StereoType);
-    void AudioInitA2(eCX2388xStereoType StereoType);
-    void AudioInitFM(eCX2388xStereoType StereoType);
-    void AudioInitNICAM(eCX2388xStereoType StereoType);
+    void AudioInitBTSC(eVideoFormat TVFormat, eCX2388xStereoType StereoType);
+    void AudioInitBTSCSAP(eVideoFormat TVFormat, eCX2388xStereoType StereoType);
+    void AudioInitEIAJ(eVideoFormat TVFormat, eCX2388xStereoType StereoType);
+    void AudioInitA2(eVideoFormat TVFormat, eCX2388xStereoType StereoType);
+    void AudioInitFM(eVideoFormat TVFormat, eCX2388xStereoType StereoType);
+    void AudioInitNICAM(eVideoFormat TVFormat, eCX2388xStereoType StereoType);
     static BOOL APIENTRY RegisterEditProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 	BOOL StartStopConexxantDriver(DWORD NewState);
 

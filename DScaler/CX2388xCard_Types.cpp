@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Types.cpp,v 1.22 2004-03-10 17:44:03 to_see Exp $
+// $Id: CX2388xCard_Types.cpp,v 1.23 2004-03-28 19:34:11 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2004/03/10 17:44:03  to_see
+// corrected Card inf for "PixelView PlayTV Ultra"
+//
 // Revision 1.21  2004/03/07 17:34:49  to_see
 // moved CCX2388xCard::AutoDetectTuner from CX2388xCard.cpp to CX2388xCard_Types.cpp
 // to can use correct sizeof(m_Tuners_Hauppauge_CX2388x_Card)
@@ -618,7 +621,7 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
         },
         NULL,
         NULL,
-        StandardInputSelect,
+        LeadtekInputSelect,
         SetAnalogContrastBrightness,
         SetAnalogHue,
         SetAnalogSaturationU,
@@ -751,7 +754,7 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
     
 	// Card info from Denis Love
     {
-        "PixelView PlayTV Ultra",
+        "PixelView PlayTV Ultra (Mono Tuner Sound)",
         3,
         {
             {
@@ -783,11 +786,14 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
         SetAnalogSaturationU,
         SetAnalogSaturationV,
         StandardSetFormat,
+		// \todo support for onboard TDA9874
+		// this is only mono sound from tuner
         TUNER_PHILIPS_PAL,
         IDC_CX2388X,
     },
 	
 	// Card Info from trfillos@...
+	// this card has no eeprom.
     {
         "K-World DV/AV Expert TV Stereo",
         3,
@@ -835,7 +841,8 @@ const CCX2388xCard::TAutoDectect CCX2388xCard::m_AutoDectect[] =
     { 0x48201043, CX2388xCARD_ASUS, "Asus 880" },
     { 0x34010070, CX2388xCARD_HAUPPAUGE_PCI_FM, "Hauppauge" },
     { 0x34000070, CX2388xCARD_HAUPPAUGE_PCI_FM, "Hauppauge" },
-    { 0x6611107D, CX2388xCARD_LEADTEK_WINFAST_EXPERT, "Leadtek WinFast TV2000 XP Expert" },
+    { 0x6611107D, CX2388xCARD_LEADTEK_WINFAST_EXPERT, "Leadtek WinFast TV2000 XP Expert" }, // PAL
+    { 0x6613107D, CX2388xCARD_LEADTEK_WINFAST_EXPERT, "Leadtek WinFast TV2000 XP Expert" }, // NTSC
     { 0x86061462, CX2388xCARD_MSI_TV_ANYWHERE_MASTER_PAL, "MSI TV@nywhere Master"},
 	{ 0x48111554, CX2388xCARD_PIXELVIEW_PLAYTV_ULTRA, "PixelView PlayTV Ultra" },
 	{ 0x088317DE, CX2388xCARD_KWORLD_TV_STEREO, "K-World DV/AV Expert TV Stereo" }, // NTSC
@@ -1052,6 +1059,34 @@ void CCX2388xCard::AsusInputSelect(int nInput)
     }
 }
 
+void CCX2388xCard::LeadtekInputSelect(int nInput)
+{
+    StandardInputSelect(nInput);
+    if(nInput == 0)
+    {
+        WriteDword(MO_GP0_IO, 0x00F5e700);
+        WriteDword(MO_GP1_IO, 0x00003004);
+        WriteDword(MO_GP2_IO, 0x00F5e700); 
+        WriteDword(MO_GP3_IO, 0x02000000); 
+    }
+    
+	else
+    {
+        WriteDword(MO_GP0_IO, 0x00F5c700);
+        WriteDword(MO_GP1_IO, 0x00003004);
+        WriteDword(MO_GP2_IO, 0x00F5c700); 
+        WriteDword(MO_GP3_IO, 0x02000000); 
+    }
+
+	// FM-Radio:
+	/*
+        WriteDword(MO_GP0_IO, 0x00F5d700);
+        WriteDword(MO_GP1_IO, 0x00003004);
+        WriteDword(MO_GP2_IO, 0x00F5d700); 
+        WriteDword(MO_GP3_IO, 0x02000000); 
+	*/
+}
+
 const eTunerId CCX2388xCard::m_Tuners_Hauppauge_CX2388x_Card[]=
 {
 	TUNER_ABSENT,
@@ -1166,7 +1201,7 @@ eTunerId CCX2388xCard::AutoDetectTuner(eCX2388xCardId CardId)
 						break;
 					}
 
-					LOG(1, "AutoDetectTuner: Hauppauge CX2388x Card, read from I2C. TunerId: 0x%02X",Eeprom[8+9]);
+					LOG(2, "AutoDetectTuner: Hauppauge CX2388x Card, read from I2C. TunerId: 0x%02X",Eeprom[8+9]);
 					if (Eeprom[8+9] < (sizeof(m_Tuners_Hauppauge_CX2388x_Card) / sizeof(m_Tuners_Hauppauge_CX2388x_Card[0]))) 
 					{
 						Tuner = m_Tuners_Hauppauge_CX2388x_Card[Eeprom[8+9]];
@@ -1175,7 +1210,7 @@ eTunerId CCX2388xCard::AutoDetectTuner(eCX2388xCardId CardId)
 
 				else
 				{
-					LOG(1, "AutoDetectTuner: Hauppauge CX2388x Card - read from Registers. TunerId: 0x%02X",Eeprom[8+9]);
+					LOG(2, "AutoDetectTuner: Hauppauge CX2388x Card - read from Registers. TunerId: 0x%02X",Eeprom[8+9]);
 					if (Eeprom[8+9] < (sizeof(m_Tuners_Hauppauge_CX2388x_Card) / sizeof(m_Tuners_Hauppauge_CX2388x_Card[0]))) 
 					{
 						Tuner = m_Tuners_Hauppauge_CX2388x_Card[Eeprom[8+9]];

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.34 2003-01-27 22:04:04 laurentg Exp $
+// $Id: BT848Card.cpp,v 1.35 2003-01-28 09:14:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.34  2003/01/27 22:04:04  laurentg
+// First step to merge setup hardware and hardware info dialog boxes
+// CPU flag information moved in the general hardware dialog box
+// Hardware info dialog box available for CX2388x
+//
 // Revision 1.33  2003/01/15 15:54:22  adcockj
 // Fixed some keyboard focus issues
 //
@@ -968,7 +973,7 @@ void CBT848Card::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX, l
     }
 
     // YUV 4:2:2 linear pixel format
-    WriteByte(BT848_COLOR_FMT, (BYTE)((BT848_COLOR_FMT_YUY2 << 4) | BT848_COLOR_FMT_YUY2));
+    WriteByte(BT848_COLOR_FMT, BT848_COLOR_FMT_YUY2);
 
     Crop = ((HorzActive >> 8) & 0x03) | ((HorzDelay >> 6) & 0x0c) | ((VertActive >> 4) & 0x30) | ((VertDelay >> 2) & 0xc0);
     SetGeometryEvenOdd(FALSE, HorzScale, VertScale, HorzActive, VertActive, HorzDelay, VertDelay, Crop);

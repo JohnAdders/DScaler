@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.219 2002-08-12 19:59:04 laurentg Exp $
+// $Id: DScaler.cpp,v 1.220 2002-08-13 21:19:18 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.219  2002/08/12 19:59:04  laurentg
+// Selection of video card to adjust DScaler settings
+//
 // Revision 1.218  2002/08/11 19:39:30  robmuller
 // Corrected  menu item number in GetPatternsSubmenu().
 //
@@ -701,8 +704,6 @@
 #include "TreeSettingsDlg.h"
 #include "SettingsPerChannel.h"
 #include "HardwareSettings.h"
-
-extern long CurrentProgram;
 
 HWND hWnd = NULL;
 HINSTANCE hResourceInst = NULL;
@@ -2742,7 +2743,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             EnableMenuItemBool(hMenu, ID_SETTINGS_CLEARCHANNELSETTINGS, SettingsPerChannel());
             break;
         case ID_SETTINGS_CLEARCHANNELSETTINGS:
-            SettingsPerChannel_ClearSettings(NULL, CurrentProgram, 1);
+            SettingsPerChannel_ClearSettings(NULL, -2, -2, 1);
             break;
         
         case IDM_DEINTERLACE_SHOWVIDEOMETHODUI:
@@ -3587,6 +3588,9 @@ void MainWndOnInitBT(HWND hWnd)
         SetMenuAnalog();
 
         bDoResize = TRUE;
+
+        // Setup settings per channel
+        SettingsPerChannel_Setup(1);
         
         if (Providers_GetCurrentSource())
         {
@@ -3615,9 +3619,7 @@ void MainWndOnInitBT(HWND hWnd)
 
         AddSplashTextLine("Start Video");
         Start_Capture();
-
-        // Setup settings per channel
-        SettingsPerChannel_Setup(1, CurrentProgram);
+        
     }
     else
     {
@@ -3781,7 +3783,7 @@ void MainWndOnDestroy()
 
     __try
     {
-        SettingsPerChannel_Setup(0, CurrentProgram);
+        SettingsPerChannel_Setup(0);
         LOG(1, "CloseSettingsPerChannel");
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error SettingsPerChannel_Setup(0,...)");}    

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.h,v 1.14 2003-07-08 21:04:59 laurentg Exp $
+// $Id: TimeShift.h,v 1.15 2003-08-04 23:48:24 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2003/07/08 21:04:59  laurentg
+// New timeshift mode (full height) - experimental
+//
 // Revision 1.13  2003/07/05 12:59:51  laurentg
 // Timeshift enabled + some improvments
 //
@@ -175,8 +178,12 @@ public:
     /// Pops up options dialog.  Call when stopped.
     static bool OnOptions(void);
 
+	static bool WorkOnInputFrames();
+	static bool IsRunning();
+
     /// Call these when you have new frames or audio data to read/write.
-    static bool OnNewFrame(TDeinterlaceInfo *info);
+    static bool OnNewInputFrame(TDeinterlaceInfo *info);
+    static bool OnNewOutputFrame(TDeinterlaceInfo *info);
     static bool OnWaveInData(void);
     static bool OnWaveOutDone(void);
 

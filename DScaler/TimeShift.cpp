@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.cpp,v 1.25 2003-07-29 13:33:07 atnak Exp $
+// $Id: TimeShift.cpp,v 1.26 2003-08-04 23:48:24 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2003/07/29 13:33:07  atnak
+// Overhauled mixer code
+//
 // Revision 1.24  2003/07/08 21:04:59  laurentg
 // New timeshift mode (full height) - experimental
 //
@@ -359,8 +362,42 @@ bool CTimeShift::OnOptions(void)
     return result;
 }
 
+bool CTimeShift::WorkOnInputFrames()
+{
+    bool result = true;
+
+    if (m_pTimeShift)
+    {
+		if (m_pTimeShift->m_recHeight == TS_FULLHEIGHT || m_pTimeShift->m_recHeight == TS_HALFHEIGHT)
+		{
+			result = false;
+		}
+	}
+
+    return result;
+}
+
+bool CTimeShift::IsRunning()
+{
+    bool result = false;
+
+    if (m_pTimeShift)
+    {
+		EnterCriticalSection(&m_pTimeShift->m_lock);
+
+		if (m_pTimeShift->m_mode != MODE_STOPPED)
+		{
+			result = false;
+		}
+
+		LeaveCriticalSection(&m_pTimeShift->m_lock);
+	}
+
+    return result;
+}
+
 // Called from the capture thread.
-bool CTimeShift::OnNewFrame(TDeinterlaceInfo *pInfo)
+bool CTimeShift::OnNewInputFrame(TDeinterlaceInfo *pInfo)
 {
     bool result = false;
 
@@ -373,11 +410,35 @@ bool CTimeShift::OnNewFrame(TDeinterlaceInfo *pInfo)
             m_pTimeShift->m_mode == MODE_SHIFTING)
         {
 			result = m_pTimeShift->WriteVideo(pInfo);
-			result = m_pTimeShift->WriteVideo2(pInfo);
         }
         else if(m_pTimeShift->m_mode == MODE_PLAYING)
         {
 			result = m_pTimeShift->ReadVideo(pInfo);
+        }
+
+		LeaveCriticalSection(&m_pTimeShift->m_lock);
+    }
+
+    return result;
+}
+
+// Called from the capture thread.
+bool CTimeShift::OnNewOutputFrame(TDeinterlaceInfo *pInfo)
+{
+    bool result = false;
+
+    if (m_pTimeShift)
+    {
+		EnterCriticalSection(&m_pTimeShift->m_lock);
+
+        if(m_pTimeShift->m_mode == MODE_RECORDING ||
+            m_pTimeShift->m_mode == MODE_PAUSED ||
+            m_pTimeShift->m_mode == MODE_SHIFTING)
+        {
+			result = m_pTimeShift->WriteVideo2(pInfo);
+        }
+        else if(m_pTimeShift->m_mode == MODE_PLAYING)
+        {
 			result = m_pTimeShift->ReadVideo2(pInfo);
         }
 

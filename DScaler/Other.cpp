@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.40 2002-07-03 00:41:14 laurentg Exp $
+// $Id: Other.cpp,v 1.41 2002-07-19 10:04:26 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.40  2002/07/03 00:41:14  laurentg
+// Add the setting "Use Overlay Controls" in the Change Settings dialog box
+//
 // Revision 1.39  2002/06/16 10:05:09  adcockj
 // Commented out primary suface locks awaiting tests
 //
@@ -692,7 +695,6 @@ BOOL Overlay_Create()
 
     sprintf(msg, "%d Back Buffers", numBuffers);
     AddSplashTextLine(msg);
-    LOG(1, msg);
 
     ddrval = lpDDOverlay->Lock(NULL, &SurfaceDesc, DDLOCK_WAIT, NULL);
     // sometimes in win98 we get weird error messages here

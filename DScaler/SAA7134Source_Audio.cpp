@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_Audio.cpp,v 1.5 2002-09-28 13:33:04 kooiman Exp $
+// $Id: SAA7134Source_Audio.cpp,v 1.6 2002-10-03 23:36:22 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/09/28 13:33:04  kooiman
+// Added sender object to events and added setting flag to treesettingsgeneric.
+//
 // Revision 1.4  2002/09/26 16:34:19  kooiman
 // Lots of toolbar fixes &added EVENT_VOLUME support.
 //
@@ -64,7 +67,7 @@ void CSAA7134Source::Mute()
 
 void CSAA7134Source::UnMute()
 {
-    m_pSAA7134Card->SetAudioUnMute(m_Volume->GetValue(), (eAudioInputLine)GetCurrentAudioSetting()->GetValue());
+    m_pSAA7134Card->SetAudioUnMute(m_Volume->GetValue(), (eAudioInputSource)GetCurrentAudioSetting()->GetValue());
 }
 
 void CSAA7134Source::VolumeOnChange(long NewValue, long OldValue)
@@ -96,7 +99,7 @@ void CSAA7134Source::AudioSource1OnChange(long NewValue, long OldValue)
 {
     if(m_VideoSource->GetValue() == 0)
     {
-        m_pSAA7134Card->SetAudioSource((eAudioInputLine)NewValue);
+        m_pSAA7134Card->SetAudioSource((eAudioInputSource)NewValue);
     }
 }
 
@@ -104,7 +107,7 @@ void CSAA7134Source::AudioSource2OnChange(long NewValue, long OldValue)
 {
     if(m_VideoSource->GetValue() == 1)
     {
-        m_pSAA7134Card->SetAudioSource((eAudioInputLine)NewValue);
+        m_pSAA7134Card->SetAudioSource((eAudioInputSource)NewValue);
     }
 }
 
@@ -112,7 +115,7 @@ void CSAA7134Source::AudioSource3OnChange(long NewValue, long OldValue)
 {
     if(m_VideoSource->GetValue() == 2)
     {
-        m_pSAA7134Card->SetAudioSource((eAudioInputLine)NewValue);
+        m_pSAA7134Card->SetAudioSource((eAudioInputSource)NewValue);
     }
 }
 
@@ -120,7 +123,7 @@ void CSAA7134Source::AudioSource4OnChange(long NewValue, long OldValue)
 {
     if(m_VideoSource->GetValue() == 3)
     {
-        m_pSAA7134Card->SetAudioSource((eAudioInputLine)NewValue);
+        m_pSAA7134Card->SetAudioSource((eAudioInputSource)NewValue);
     }
 }
 
@@ -128,7 +131,7 @@ void CSAA7134Source::AudioSource5OnChange(long NewValue, long OldValue)
 {
     if(m_VideoSource->GetValue() == 4)
     {
-        m_pSAA7134Card->SetAudioSource((eAudioInputLine)NewValue);
+        m_pSAA7134Card->SetAudioSource((eAudioInputSource)NewValue);
     }
 }
 
@@ -136,7 +139,7 @@ void CSAA7134Source::AudioSource6OnChange(long NewValue, long OldValue)
 {
     if(m_VideoSource->GetValue() == 5)
     {
-        m_pSAA7134Card->SetAudioSource((eAudioInputLine)NewValue);
+        m_pSAA7134Card->SetAudioSource((eAudioInputSource)NewValue);
     }
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.h,v 1.7 2002-09-28 13:33:04 kooiman Exp $
+// $Id: SAA7134Source.h,v 1.8 2002-10-03 23:36:22 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/09/28 13:33:04  kooiman
+// Added sender object to events and added setting flag to treesettingsgeneric.
+//
 // Revision 1.6  2002/09/26 11:33:42  kooiman
 // Use event collector
 //
@@ -59,7 +62,7 @@
 /** The source controls a specific CSAA7134Card to provide interlaced video
 */
 class CSAA7134Source : public CSource,
-                       public ISAA7134_Defines                       
+                       public CSAA7134Common
 {
     DECLARE_CLASS_SETTINGS(CSAA7134Source);
 public:
@@ -117,7 +120,10 @@ public:
 private:
     virtual void CreateSettings(LPCSTR IniSection);
 
-    void CreateDMAMemorySetup(BOOL bCaptureVBI);
+    void SetupVideoAudioSource();
+    void SetupVideoAudioStandards();
+    void SetupDMAMemory();
+
     DWORD CreatePageTable(CUserMemory* pDMAMemory, DWORD nPagesWanted, LPDWORD pPageTable);
     
     static BOOL APIENTRY SelectCardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
@@ -205,7 +211,7 @@ private:
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, TunerType);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, HDelay);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, VDelay);
-    DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source, NonstandardSignal);
+    DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, HPLLMode);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, Volume);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, Bass);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, Treble);

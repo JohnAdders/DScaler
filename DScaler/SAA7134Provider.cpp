@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Provider.cpp,v 1.5 2002-09-15 09:52:23 atnak Exp $
+// $Id: SAA7134Provider.cpp,v 1.6 2002-10-03 23:36:22 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/09/15 09:52:23  atnak
+// fixed memory leak (pagetable block)
+//
 // Revision 1.4  2002/09/14 19:40:48  atnak
 // various changes
 //
@@ -75,7 +78,7 @@ CSAA7134Provider::CSAA7134Provider(CHardwareDriver* pHardwareDriver)
     BOOL IsMemoryInitialized = FALSE;
     int i;
 
-    for(i = 0; i < MAX_FRAMES; ++i)
+    for(i = 0; i < kMAX_FRAMEBUFFERS; ++i)
     {
         m_VBIDMAMem[i] = NULL;
         m_DisplayDMAMem[i] = NULL;
@@ -139,7 +142,7 @@ CSAA7134Source* CSAA7134Provider::CreateCorrectSource(CHardwareDriver* pHardware
     CSAA7134Card* pNewCard = new CSAA7134Card(pHardwareDriver);
     if(pNewCard->OpenPCICard(VendorID, DeviceID, DeviceIndex))
     {
-        CSAA7134Source* pNewSource = new CSAA7134Source(pNewCard, m_PagelistDMAMem, m_DisplayDMAMem, m_VBIDMAMem, szSection, ChipName, DeviceIndex);
+        CSAA7134Source* pNewSource = new CSAA7134Source(pNewCard, m_PageTableDMAMem, m_DisplayDMAMem, m_VBIDMAMem, szSection, ChipName, DeviceIndex);
         return pNewSource;
     }
     else
@@ -171,9 +174,9 @@ BOOL CSAA7134Provider::MemoryInit(CHardwareDriver* pHardwareDriver)
 {
     try
     {
-        for (int i(0); i < MAX_PAGETABLES; i++)
+        for (int i(0); i < kMAX_PAGETABLES; i++)
         {
-            m_PagelistDMAMem[i] = new CContigMemory(pHardwareDriver, 4096);
+            m_PageTableDMAMem[i] = new CContigMemory(pHardwareDriver, 4096);
         }
     }
     catch(...)
@@ -185,9 +188,11 @@ BOOL CSAA7134Provider::MemoryInit(CHardwareDriver* pHardwareDriver)
 
     try
     {
-        for (int i(0); i < MAX_FRAMES; i++)
+        for (int i(0); i < kMAX_FRAMEBUFFERS; i++)
         {
-            m_DisplayDMAMem[i] = new CUserMemory(pHardwareDriver, 1024 * 576 * 2);
+            // 1024 width * 2 bytes per pixel * field height(288) * 2
+            m_DisplayDMAMem[i] = new CUserMemory(pHardwareDriver,
+                1024 * 2 * kMAX_VIDLINES  * 2);
         }
     }
     catch(...)
@@ -199,9 +204,9 @@ BOOL CSAA7134Provider::MemoryInit(CHardwareDriver* pHardwareDriver)
 
     try
     {
-        for (int i(0); i < MAX_FRAMES; i++)
+        for (int i(0); i < kMAX_FRAMEBUFFERS; i++)
         {
-            m_VBIDMAMem[i] = new CUserMemory(pHardwareDriver, 2048 * 19 * 2);
+            m_VBIDMAMem[i] = new CUserMemory(pHardwareDriver, 2048 * kMAX_VBILINES * 2);
         }
     }
     catch(...)
@@ -218,16 +223,16 @@ void CSAA7134Provider::MemoryFree()
 {
     int i;
 
-    for (i = 0; i < MAX_PAGETABLES; i++)
+    for (i = 0; i < kMAX_PAGETABLES; i++)
     {
-        if(m_PagelistDMAMem[i] != NULL)
+        if(m_PageTableDMAMem[i] != NULL)
         {
-            delete m_PagelistDMAMem[i];
-            m_PagelistDMAMem[i] = NULL;
+            delete m_PageTableDMAMem[i];
+            m_PageTableDMAMem[i] = NULL;
         }
     }
 
-    for (i = 0; i < MAX_FRAMES; i++)
+    for (i = 0; i < kMAX_FRAMEBUFFERS; i++)
     {
         if(m_VBIDMAMem[i] != NULL)
         {

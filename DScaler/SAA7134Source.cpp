@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.14 2002-09-29 13:53:40 adcockj Exp $
+// $Id: SAA7134Source.cpp,v 1.15 2002-10-03 23:36:22 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/09/29 13:53:40  adcockj
+// Ensure Correct History stored
+//
 // Revision 1.13  2002/09/29 10:14:15  adcockj
 // Fixed problem with history in OutThreads
 //
@@ -190,26 +193,21 @@ CSAA7134Source::~CSAA7134Source()
 }
 
 
-#define DEFAULT_SAA7134_BRIGHTNESS  128
-#define DEFAULT_SAA7134_CONTRAST    68
-#define DEFAULT_SAA7134_HUE         0
-#define DEFAULT_SAA7134_SATURATION  64
-
 void CSAA7134Source::CreateSettings(LPCSTR IniSection)
 {
-    m_Brightness = new CBrightnessSetting(this, "Brightness", DEFAULT_SAA7134_BRIGHTNESS, 0, 255, IniSection);
+    m_Brightness = new CBrightnessSetting(this, "Brightness", SAA7134_DEFAULT_BRIGHTNESS, 0, 255, IniSection);
     m_Settings.push_back(m_Brightness);
 
-    m_Contrast = new CContrastSetting(this, "Contrast", DEFAULT_SAA7134_CONTRAST, 0, 255, IniSection);
+    m_Contrast = new CContrastSetting(this, "Contrast", SAA7134_DEFAULT_CONTRAST, 0, 255, IniSection);
     m_Settings.push_back(m_Contrast);
 
-    m_Hue = new CHueSetting(this, "Hue", DEFAULT_SAA7134_HUE, 0, 255, IniSection);
-    m_Settings.push_back(m_Hue);
-
-    m_Saturation = new CSaturationSetting(this, "Saturation", DEFAULT_SAA7134_SATURATION, 0, 255, IniSection);
+    m_Saturation = new CSaturationSetting(this, "Saturation", SAA7134_DEFAULT_SATURATION, 0, 255, IniSection);
     m_Settings.push_back(m_Saturation);
 
-    m_Overscan = new COverscanSetting(this, "Overscan", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection);
+    m_Hue = new CHueSetting(this, "Hue", SAA7134_DEFAULT_HUE, 0, 255, IniSection);
+    m_Settings.push_back(m_Hue);
+
+    m_Overscan = new COverscanSetting(this, "Overscan", SAA7134_DEFAULT_NTSC_OVERSCAN, 0, 150, IniSection);
     m_Settings.push_back(m_Overscan);
 
     m_PixelWidth = new CPixelWidthSetting(this, "Sharpness", 720, 120, DSCALER_MAX_WIDTH, IniSection);
@@ -235,18 +233,18 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
     m_TunerType = new CTunerTypeSetting(this, "Tuner Type", TUNER_ABSENT, TUNER_ABSENT, TUNER_LASTONE - 1, IniSection);
     m_Settings.push_back(m_TunerType);
 
-    m_NonstandardSignal = new CNonstandardSignalSetting(this, "Non-Standard Signal", FALSE, IniSection);
-    m_Settings.push_back(m_NonstandardSignal);
+    m_HPLLMode = new CHPLLModeSetting(this, "HPLL Locking Mode", HPLLMODE_FAST_TRACKING, HPLLMODE_TV, HPLLMODE_LASTONE - 1, IniSection);
+    m_Settings.push_back(m_HPLLMode);
 
     m_HDelay = new CHDelaySetting(this, "Horizontal Delay", 0, 0, 20, IniSection);
     m_HDelay->SetStepValue(2);
     m_Settings.push_back(m_HDelay);
 
-    m_VDelay = new CVDelaySetting(this, "Vertical Delay", 0, 0, 260, IniSection);
+    m_VDelay = new CVDelaySetting(this, "Vertical Delay", 0, -60, 260, IniSection);
     m_VDelay->SetStepValue(2);
     m_Settings.push_back(m_VDelay);
 
-    m_AudioStandard = new CAudioStandardSetting(this, "Audio Standard", AUDIOSTANDARD_BG_DUAL_FM, AUDIOSTANDARD_BG_DUAL_FM, AUDIOSTANDARD_LAST_ONE-1, IniSection);
+    m_AudioStandard = new CAudioStandardSetting(this, "Audio Standard", AUDIOSTANDARD_BG_DUAL_FM, AUDIOSTANDARD_BG_DUAL_FM, AUDIOSTANDARD_LASTONE-1, IniSection);
     m_Settings.push_back(m_AudioStandard);
 
     m_AudioChannel = new CAudioChannelSetting(this, "Audio Channel", SOUNDCHANNEL_STEREO, SOUNDCHANNEL_MONO, SOUNDCHANNEL_LANGUAGE2, IniSection);
@@ -271,22 +269,22 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
     m_bSavePerFormat = new CYesNoSetting("Save Per Format", TRUE, IniSection, "SavePerFormat");
     m_Settings.push_back(m_bSavePerFormat);
 
-    m_AudioSource1 = new CAudioSource1Setting(this, "Audio Source 1", AUDIOINPUTLINE_LINE1, AUDIOINPUTLINE_TUNER, AUDIOINPUTLINE_LINE2, IniSection);
+    m_AudioSource1 = new CAudioSource1Setting(this, "Audio Source 1", AUDIOINPUTSOURCE_LINE1, AUDIOINPUTSOURCE_DAC, AUDIOINPUTSOURCE_LINE2, IniSection);
     m_Settings.push_back(m_AudioSource1);
 
-    m_AudioSource2 = new CAudioSource2Setting(this, "Audio Source 2", AUDIOINPUTLINE_LINE1, AUDIOINPUTLINE_TUNER, AUDIOINPUTLINE_LINE2, IniSection);
+    m_AudioSource2 = new CAudioSource2Setting(this, "Audio Source 2", AUDIOINPUTSOURCE_LINE1, AUDIOINPUTSOURCE_DAC, AUDIOINPUTSOURCE_LINE2, IniSection);
     m_Settings.push_back(m_AudioSource2);
 
-    m_AudioSource3 = new CAudioSource3Setting(this, "Audio Source 3", AUDIOINPUTLINE_LINE1, AUDIOINPUTLINE_TUNER, AUDIOINPUTLINE_LINE2, IniSection);
+    m_AudioSource3 = new CAudioSource3Setting(this, "Audio Source 3", AUDIOINPUTSOURCE_LINE1, AUDIOINPUTSOURCE_DAC, AUDIOINPUTSOURCE_LINE2, IniSection);
     m_Settings.push_back(m_AudioSource3);
 
-    m_AudioSource4 = new CAudioSource4Setting(this, "Audio Source 4", AUDIOINPUTLINE_LINE1, AUDIOINPUTLINE_TUNER, AUDIOINPUTLINE_LINE2, IniSection);
+    m_AudioSource4 = new CAudioSource4Setting(this, "Audio Source 4", AUDIOINPUTSOURCE_LINE1, AUDIOINPUTSOURCE_DAC, AUDIOINPUTSOURCE_LINE2, IniSection);
     m_Settings.push_back(m_AudioSource4);
 
-    m_AudioSource5 = new CAudioSource5Setting(this, "Audio Source 5", AUDIOINPUTLINE_LINE1, AUDIOINPUTLINE_TUNER, AUDIOINPUTLINE_LINE2, IniSection);
+    m_AudioSource5 = new CAudioSource5Setting(this, "Audio Source 5", AUDIOINPUTSOURCE_LINE1, AUDIOINPUTSOURCE_DAC, AUDIOINPUTSOURCE_LINE2, IniSection);
     m_Settings.push_back(m_AudioSource5);
 
-    m_AudioSource6 = new CAudioSource6Setting(this, "Audio Source 6", AUDIOINPUTLINE_LINE1, AUDIOINPUTLINE_TUNER, AUDIOINPUTLINE_LINE2, IniSection);
+    m_AudioSource6 = new CAudioSource6Setting(this, "Audio Source 6", AUDIOINPUTSOURCE_LINE1, AUDIOINPUTSOURCE_DAC, AUDIOINPUTSOURCE_LINE2, IniSection);
     m_Settings.push_back(m_AudioSource6);
 
     ReadFromIni();
@@ -299,12 +297,9 @@ void CSAA7134Source::OnEvent(CEventObject *pEventObject, eEventType Event, long 
 
 void CSAA7134Source::Start()
 {
-    m_pSAA7134Card->StopCapture();
-    CreateDMAMemorySetup(bCaptureVBI);
     m_pSAA7134Card->StartCapture(bCaptureVBI);
     Audio_Unmute();
     Timing_Reset();
-    NotifySizeChange();
     NotifySquarePixelsCheck();
     m_ProcessingRegionID = REGIONID_INVALID;
 }
@@ -312,41 +307,49 @@ void CSAA7134Source::Start()
 void CSAA7134Source::Reset()
 {
     m_pSAA7134Card->ResetHardware();
-    m_pSAA7134Card->SetVideoSource(m_VideoSource->GetValue());
 
-    m_pSAA7134Card->SetBrightness(m_Brightness->GetValue());
-    m_pSAA7134Card->SetContrast(m_Contrast->GetValue());
-    m_pSAA7134Card->SetHue(m_Hue->GetValue());
-    m_pSAA7134Card->SetSaturation(m_Saturation->GetValue());
+    SetupDMAMemory();
 
-    // 8.. not much significance to this
-    m_pSAA7134Card->SetAudioLeftVolume(8);
-    m_pSAA7134Card->SetAudioRightVolume(8);
-    m_pSAA7134Card->SetAudioNicamVolume(8);
+    SetupVideoAudioSource();
+    SetupVideoAudioStandards();
 
-    m_pSAA7134Card->SetStandardSignal(!m_NonstandardSignal->GetValue());
-
-    m_CurrentX = m_PixelWidth->GetValue();
-    /* This gets done in Start()
-    m_pSAA7134Card->SetGeoSize(
-                                m_VideoSource->GetValue(), 
-                                (eVideoFormat)m_VideoFormat->GetValue(), 
-                                m_CurrentX, 
-                                m_CurrentY, 
-                                m_CurrentVBILines,
-                                m_VDelay->GetValue(), 
-                                m_HDelay->GetValue()
-                            );
-    NotifySizeChange();
-    */
-
-    // m_pSAA7134Card->SetAudioStandard((eVideoFormat)m_VideoFormat->GetValue());
-    m_pSAA7134Card->SetAudioStandard((eAudioStandard)m_AudioStandard->GetValue());
-    m_pSAA7134Card->SetAudioSource((eAudioInputLine)GetCurrentAudioSetting()->GetValue());
-    m_pSAA7134Card->SetAudioChannel((eSoundChannel)m_AudioChannel->GetValue());
+    m_pSAA7134Card->SetHPLLMode((eHPLLMode)m_HPLLMode->GetValue());
 }
 
 
+void CSAA7134Source::SetupVideoAudioSource()
+{
+    m_pSAA7134Card->SetVideoSource(m_VideoSource->GetValue());
+    m_pSAA7134Card->SetAudioSource((eAudioInputSource)GetCurrentAudioSetting()->GetValue());
+}
+
+
+void CSAA7134Source::SetupVideoAudioStandards()
+{
+    eVideoFormat VideoFormat = (eVideoFormat) m_VideoFormat->GetValue();
+    eVideoStandard VideoStandard = TVFormat2VideoStandard(VideoFormat);
+
+    m_CurrentX = m_PixelWidth->GetValue();
+
+    m_CurrentVBILines = kMAX_VBILINES;
+    m_pSAA7134Card->SetVideoStandard(VideoStandard,
+                                    m_CurrentVBILines,
+                                    m_CurrentX,
+                                    m_CurrentY,
+                                    m_HDelay->GetValue(),
+                                    m_VDelay->GetValue());
+    NotifySizeChange();
+
+    m_pSAA7134Card->SetBrightness(m_Brightness->GetValue());
+    m_pSAA7134Card->SetContrast(m_Contrast->GetValue());
+    m_pSAA7134Card->SetSaturation(m_Saturation->GetValue());
+    m_pSAA7134Card->SetHue(m_Hue->GetValue());
+
+    eAudioStandard AudioStandard = TVFormat2AudioStandard(VideoFormat);
+    m_AudioStandard->SetValue(AudioStandard);
+
+    // m_pSAA7134Card->SetAudioChannel((eSoundChannel)m_AudioChannel->GetValue());
+}
 
 
 DWORD CSAA7134Source::CreatePageTable(CUserMemory* pDMAMemory, DWORD nPagesWanted, LPDWORD pPageTable)
@@ -381,7 +384,8 @@ DWORD CSAA7134Source::CreatePageTable(CUserMemory* pDMAMemory, DWORD nPagesWante
     return nPages;
 }
 
-void CSAA7134Source::CreateDMAMemorySetup(BOOL bCaptureVBI)
+
+void CSAA7134Source::SetupDMAMemory()
 {
     WORD nFrame;
     DWORD nPages;
@@ -393,32 +397,10 @@ void CSAA7134Source::CreateDMAMemorySetup(BOOL bCaptureVBI)
     m_pSAA7134Card->SetDMA(REGIONID_VBI_A, FALSE);
     m_pSAA7134Card->SetDMA(REGIONID_VBI_B, FALSE);      
 
-    // set m_CurrentVBILines to the max allocatable lines
-    if (bCaptureVBI)
-    {
-        m_CurrentVBILines = 19;
-    }
-    else
-    {
-        m_CurrentVBILines = 0;
-    }
-
-    // This will set m_CurrentVBILines to the number of lines it needs
-    // \todo remove this from here - this is being called twice
-    m_pSAA7134Card->SetGeoSize(
-                                m_VideoSource->GetValue(), 
-                                (eVideoFormat)m_VideoFormat->GetValue(), 
-                                m_CurrentX, 
-                                m_CurrentY, 
-                                m_CurrentVBILines,
-                                m_VDelay->GetValue(), 
-                                m_HDelay->GetValue()
-                            );
-
     for (nFrame = 0; nFrame < 2; nFrame++)
     {
         nPages = CreatePageTable(m_DisplayDMAMem[nFrame],
-                                    m_CurrentY/2,
+                                    kMAX_VIDLINES,
                                     m_DisplayPageTableLinear[nFrame]
                                 );
 
@@ -431,22 +413,19 @@ void CSAA7134Source::CreateDMAMemorySetup(BOOL bCaptureVBI)
         // It should now be safe to enable the channel
         m_pSAA7134Card->SetDMA(RegionID, TRUE);
 
-        if (bCaptureVBI)
-        {
-            nPages = CreatePageTable(m_VBIDMAMem[nFrame],
-                                        m_CurrentVBILines,
-                                        m_VBIPageTableLinear[nFrame]
-                                    );
+        nPages = CreatePageTable(m_VBIDMAMem[nFrame],
+                                    kMAX_VBILINES,
+                                    m_VBIPageTableLinear[nFrame]
+                                );
 
-            RegionID = (nFrame == 0) ? REGIONID_VBI_A : REGIONID_VBI_B;
+        RegionID = (nFrame == 0) ? REGIONID_VBI_A : REGIONID_VBI_B;
 
-            m_pSAA7134Card->SetPageTable(RegionID, m_VBIPageTablePhysical[nFrame], nPages);
-            m_pSAA7134Card->SetBaseOffsets(RegionID, 0, 0 + m_CurrentVBILines * 2048, 2048);
-            m_pSAA7134Card->SetBSwapAndWSwap(RegionID, FALSE, FALSE);
+        m_pSAA7134Card->SetPageTable(RegionID, m_VBIPageTablePhysical[nFrame], nPages);
+        m_pSAA7134Card->SetBaseOffsets(RegionID, 0, 0 + kMAX_VBILINES * 2048, 2048);
+        m_pSAA7134Card->SetBSwapAndWSwap(RegionID, FALSE, FALSE);
 
-            // It should now be safe to enable the channel
-            m_pSAA7134Card->SetDMA(RegionID, TRUE);
-        }
+        // It should now be safe to enable the channel
+        m_pSAA7134Card->SetDMA(RegionID, TRUE);
     }
 }
 
@@ -529,7 +508,6 @@ void CSAA7134Source::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     Timing_IncrementUsedFields();
 
     // auto input detect
-    // \todo check this
     Timimg_AutoFormatDetect(pInfo, 10);
 }
 
@@ -758,6 +736,15 @@ BOOL CSAA7134Source::GetFinishedField(eRegionID& DoneRegionID, BOOL& bDoneIsFiel
     eRegionID RegionID;
     BOOL bIsFieldOdd;
 
+/*    // DEBUGGIN
+    while (1)
+    {
+        m_pSAA7134Card->CheckRegisters((DWORD*) &m_pDisplay[0][2048 + 4190],
+            (DWORD*) &m_pDisplay[0][4190], (DWORD*) &m_pDisplay[1][2048 + 4190],
+            (DWORD*) &m_pDisplay[1][4190]);
+     }
+    //*/
+
     if (!m_pSAA7134Card->GetProcessingRegion(RegionID, bIsFieldOdd))
     {
         return FALSE;
@@ -835,7 +822,9 @@ void CSAA7134Source::VideoSourceOnChange(long NewValue, long OldValue)
     Audio_Mute();
     SaveInputSettings(TRUE);
     LoadInputSettings();
-    Reset();
+
+    SetupVideoAudioSource();
+    SetupVideoAudioStandards();
 
     NotifyInputChange(0, VIDEOINPUT, OldValue, NewValue);
 
@@ -854,8 +843,7 @@ void CSAA7134Source::VideoFormatOnChange(long NewValue, long OldValue)
     Stop_Capture();
     SaveInputSettings(TRUE);
     LoadInputSettings();
-    Reset();
-    NotifyInputChange(0, VIDEOFORMAT, OldValue, NewValue);
+    SetupVideoAudioStandards();
     Start_Capture();
 }
 
@@ -872,52 +860,47 @@ void CSAA7134Source::PixelWidthOnChange(long NewValue, long OldValue)
     }
     Stop_Capture();
     m_CurrentX = NewValue;
-    /* This gets done in start
-    m_pSAA7134Card->SetGeoSize(
-                                m_VideoSource->GetValue(), 
-                                (eVideoFormat)m_VideoFormat->GetValue(), 
-                                m_CurrentX, 
-                                m_CurrentY, 
-                                m_CurrentVBILines,
-                                m_VDelay->GetValue(), 
-                                m_HDelay->GetValue()
-                            );
+
+    m_pSAA7134Card->SetGeometry(m_CurrentX, m_CurrentY,
+                                m_HDelay->GetValue(), m_VDelay->GetValue());
     NotifySizeChange();
-    */
+
     Start_Capture();
 }
 
-void CSAA7134Source::HDelayOnChange(long NewValue, long OldValue)
+void CSAA7134Source::HDelayOnChange(long HDelay, long OldValue)
 {
     Stop_Capture();
-    /* This gets done in Start()
-    m_pSAA7134Card->SetGeoSize(
-                                m_VideoSource->GetValue(), 
-                                (eVideoFormat)m_VideoFormat->GetValue(), 
-                                m_CurrentX, 
-                                m_CurrentY, 
-                                m_CurrentVBILines,
-                                m_VDelay->GetValue(), 
-                                m_HDelay->GetValue()
-                            );
-    */
+    m_pSAA7134Card->SetGeometry(m_CurrentX, m_CurrentY, HDelay, m_VDelay->GetValue());
     Start_Capture();
 }
 
-void CSAA7134Source::VDelayOnChange(long NewValue, long OldValue)
+void CSAA7134Source::VDelayOnChange(long VDelay, long OldValue)
 {
+    long Minimum;
+
+    // If VBI is enabled, video cannot overlap VBI
+    if (bCaptureVBI)
+    {
+        Minimum = m_pSAA7134Card->GetMinimumVDelayWithVBI();
+    }
+    else
+    {
+        Minimum = m_pSAA7134Card->GetMinimumVDelay();
+    }
+
+    if (VDelay < Minimum)
+    {
+        m_VDelay->SetValue(Minimum, ONCHANGE_NONE);
+
+        if (Minimum == OldValue)
+        {
+            return;
+        }
+    }
+
     Stop_Capture();
-    /* This gets done in Start()
-    m_pSAA7134Card->SetGeoSize(
-                                m_VideoSource->GetValue(), 
-                                (eVideoFormat)m_VideoFormat->GetValue(), 
-                                m_CurrentX, 
-                                m_CurrentY, 
-                                m_CurrentVBILines,
-                                m_VDelay->GetValue(), 
-                                m_HDelay->GetValue()
-                            );
-    */
+    m_pSAA7134Card->SetGeometry(m_CurrentX, m_CurrentY, m_HDelay->GetValue(), VDelay);
     Start_Capture();
 }
 
@@ -952,9 +935,9 @@ void CSAA7134Source::TunerTypeOnChange(long TunerId, long OldValue)
     m_pSAA7134Card->InitTuner((eTunerId)TunerId);
 }
 
-void CSAA7134Source::NonstandardSignalOnChange(long NewValue, long OldValue)
+void CSAA7134Source::HPLLModeOnChange(long HPLLMode, long OldValue)
 {
-    m_pSAA7134Card->SetStandardSignal(!m_NonstandardSignal->GetValue());
+    m_pSAA7134Card->SetHPLLMode((eHPLLMode)HPLLMode);
 }
 
 
@@ -976,7 +959,6 @@ void CSAA7134Source::SetupCard()
         */
 
         // then display the hardware setup dialog
-        // \todo FIXME
         m_bSelectCardCancelButton = FALSE;
         PreShowDialogOrMenu();
         DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_SELECTCARD), hWnd, (DLGPROC) SelectCardProc, (LPARAM)this);
@@ -987,7 +969,6 @@ void CSAA7134Source::SetupCard()
     }
     m_pSAA7134Card->SetCardType(m_CardType->GetValue());
     m_pSAA7134Card->InitTuner((eTunerId)m_TunerType->GetValue());
-    m_pSAA7134Card->InitAudio();
 
     if (bCardChanged)
     {
@@ -1063,7 +1044,6 @@ BOOL CSAA7134Source::SetTunerFrequency(long FrequencyId, eVideoFormat VideoForma
     if(VideoFormat != m_VideoFormat->GetValue())
     {
         m_VideoFormat->SetValue(VideoFormat);
-        m_pSAA7134Card->SetAudioStandard(VideoFormat);
     }
     return m_pSAA7134Card->GetTuner()->SetTVFrequency(FrequencyId, VideoFormat);
 }

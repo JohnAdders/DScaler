@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.5 2002-09-16 17:51:58 atnak Exp $
+// $Id: SAA7134Card.h,v 1.6 2002-10-03 23:36:23 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/09/16 17:51:58  atnak
+// Added controls for L/R/Nicam audio volume
+//
 // Revision 1.4  2002/09/14 19:40:48  atnak
 // various changes
 //
@@ -49,6 +52,7 @@
 #include "PCICard.h"
 #include "TVFormats.h"
 #include "SAA7134_Defines.h"
+#include "SAA7134Common.h"
 #include "SAA7134I2CInterface.h"
 
 #include "ITuner.h"
@@ -56,28 +60,6 @@
 #include "IAudioControls.h"
 
 #define INPUTS_PER_CARD 7
-
-enum eTaskID
-{
-    TASKID_A            = 0,
-    TASKID_B            = 1
-};
-
-enum eRegionID
-{
-    REGIONID_INVALID    = -1,
-    REGIONID_VIDEO_A    = 0,
-    REGIONID_VIDEO_B    = 1,
-    REGIONID_VBI_A      = 2,
-    REGIONID_VBI_B      = 3
-};
-
-
-#define IsRegionIDVideo(r)      (((r) == REGIONID_VIDEO_A || (r) == REGIONID_VIDEO_B) ? TRUE : FALSE)
-#define IsRegionIDVBI(r)        (((r) == REGIONID_VBI_A || (r) == REGIONID_VBI_B) ? TRUE : FALSE)
-#define RegionID2TaskID(r)      (((r) == REGIONID_VIDEO_A || (r) == REGIONID_VBI_A) ? TASKID_A : TASKID_B)
-#define TaskID2VideoRegion(t)   (((t) == TASKID_A) ? REGIONID_VIDEO_A : REGIONID_VIDEO_B)
-#define TaskID2VBIRegion(t)   (((t) == TASKID_A) ? REGIONID_VBI_A : REGIONID_VBI_B)
 
 
 /** A Generic saa7134 based capture card
@@ -88,7 +70,7 @@ enum eRegionID
 */
 class CSAA7134Card : public CPCICard,
 					 public ISAA7134I2CInterface,
-                     public ISAA7134_Defines
+                     public CSAA7134Common
 {
 
 private:
@@ -110,6 +92,12 @@ private:
         INPUTTYPE_MUTE,
     };
 
+    enum eAudioCrystal
+    {
+        AUDIOCRYSTAL_32110Hz = 0,
+        AUDIOCRYSTAL_24576Hz,
+    };
+
     /// Defines each input on a card
     typedef struct
     {
@@ -120,7 +108,7 @@ private:
         /// Which mux on the card is to be used
         BYTE MuxSelect;
         /// Which line on the card is to be default
-        eAudioInputLine AudioLineSelect;
+        eAudioInputSource AudioLineSelect;
     } TInputType;
 
     /// Defines the specific settings for a given card
@@ -130,8 +118,8 @@ private:
         int NumInputs;
         TInputType Inputs[INPUTS_PER_CARD];
         eTunerId TunerId;
-        /// Audio clock. Not sure what it does (@atnak)
-        DWORD AudioClock;
+        /// The type of clock crystal the card has
+        eAudioCrystal AudioCrystal;
         /// Any card specific initialization - may be NULL
         void (CSAA7134Card::*pInitCardFunction)(void);
         /** Function used to switch between sources
@@ -144,18 +132,6 @@ private:
         /// Bit Mask for audio GPIO operations
         DWORD GPIOMask;
     } TCardType;
-
-    /// Used to store audio standard settings
-    typedef struct
-    {
-        char*               Name;
-        eAudioCarrier       MajorCarrier;
-        eAudioCarrier       MinorCarrier;
-        eAudioMonoType      MonoType;
-        eAudioStereoType    StereoType;
-        eFIRType            FIRType;
-    } TAudioStandardDefinition;
-
 
     /// used to store the ID for autodection
     typedef struct
@@ -174,7 +150,6 @@ public:
     ~CSAA7134Card();
 
     //BOOL FindCard(WORD VendorID, WORD DeviceID, int CardIndex);
-    void CloseCard();
     
     void SetCardType(int CardType);
     eTVCardId GetCardType();
@@ -232,28 +207,40 @@ public:
     void SetGammaCorrection(BOOL GammaCorrection);
     BOOL GetGammaCorrection();
 
-	void SetStandardSignal(BOOL StandardSignal);
+    void SetWhitePeak(BOOL WhitePeak);
+    BOOL GetWhitePeak();
+    void SetColourPeak(BOOL ColourPeak);
+    BOOL GetColourPeak();
+
+    void SetHPLLMode(eHPLLMode HPLLMode);
 
     LPCSTR GetChipType();
     LPCSTR GetTunerType();
 
-    void RestartRISCCode(DWORD RiscBasePhysical);
-    void SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX, long& CurrentY, long& CurrentVBILines, int VDelayOverride, int HDelayOverride);
-    void SetGeoSizeTask(eTaskID TaskID, WORD SourceX, WORD SourceY, long CurrentX, long CurrentY, WORD HStart, WORD VStart);
-    void SetupVBI(eTaskID TaskID, WORD HStart, WORD HStop, WORD VStart, WORD VStop);
+    void SetVideoStandard(eVideoStandard VideoStandard, long& VBILines, long& VideoWidth, long& VideoHeight, long HDelayShift, long VDelayShift);
+    void SetGeometry(WORD ScaleWidth, WORD ScaleHeight, long HDelayShift, long VDelayShift);
+    
+    void SetTaskGeometry(eTaskID TaskID, WORD Width, WORD Height, WORD HDelay, WORD VDelay, WORD ScaleWidth, WORD ScaleHeight);
+    void SetVBIGeometry(eTaskID TaskID, WORD HStart, WORD HStop, WORD VStart, WORD VStop);
+
+    long GetMinimumVDelay();
+    long GetMinimumVDelayWithVBI();
 
     BOOL IsVideoPresent();
-    void SetRISCStartAddress(DWORD RiscBasePhysical);
-    DWORD GetRISCPos();
     void SetDMA(eRegionID RegionID, BOOL bState);
     BOOL GetDMA(eRegionID RegionID);
     void StopCapture();
     void StartCapture(BOOL bCaptureVBI);
 
+    BOOL Is25fpsSignalDetected();
+    BOOL IsInterlacedSignalDetected();
+
     void InitAudio();
 
+    void SetAudioLockToVideo(BOOL bLockAudio);
+
     void SetAudioMute();
-    void SetAudioUnMute(long nVolume, eAudioInputLine Input);
+    void SetAudioUnMute(long nVolume, eAudioInputSource InputSource);
     void SetAudioVolume(BYTE nVolume);
     void SetAudioBalance(WORD nBalance);
     void SetAudioBass(WORD nBass);
@@ -268,13 +255,15 @@ public:
 
     void CheckStereo();
 
-    void SetAudioStandard(eAudioStandard audioStandard);
-    void SetAudioStandard(eVideoFormat videoFormat);
-    void SetAudioSource(eAudioInputLine nLine);
+    void SetAudioStandard(eAudioStandard AudioStandard);
+    void SetAudioStandard(eVideoFormat VideoFormat);
+    void SetAudioSource(eAudioInputSource InputSource);
     void SetAudioChannel(eSoundChannel audioChannel);
     void GetMSPPrintMode(LPSTR Text);
     eSoundChannel IsAudioChannelDetected(eSoundChannel desiredAudioChannel);
     
+    void SetAudioSampleRate(eAudioSampleRate SampleRate);
+
     eTunerId AutoDetectTuner(eTVCardId CardId);
     eTVCardId AutoDetectCardType();
 
@@ -306,7 +295,7 @@ public:
 
     void SetHPrescale(eTaskID TaskID, WORD wSourceSize, WORD wScaleSize);
 
-    void CheckRegisters();
+    void CheckRegisters(DWORD* AOdd, DWORD* AEven, DWORD* BOdd, DWORD* BEven);
 
     void DumpRegisters();
 
@@ -324,14 +313,20 @@ public:
 
 
 protected:
-    BOOL IsDualFMAudioStandard(eAudioStandard audioStandard);
-    BOOL IsNICAMAudioStandard(eAudioStandard audioStandard);
+    void SetTypicalSettings();
+    void SetupTasks();
+
+    void CheckVBIAndVideoOverlap(eTaskID TaskID);
+    BOOL IsVBIActive();
 
     void VerifyMemorySize(eRegionID RegionID);
     WORD CalculateLinesAvailable(eRegionID RegionID, WORD wBytePerLine);
 
     int RegionID2Channel(eRegionID RegionID);
     BYTE TaskID2TaskMask(eTaskID TaskID);
+
+    void UpdateAudioClocksPerField(eVideoStandard VideoStandard);
+
 
 private:
     ULONG GetTickCount();
@@ -343,16 +338,20 @@ private:
 
 
 private:
-    void SetGeometryEvenOdd(BOOL bOdd, int wHScale, int wVScale, int wHActive, int wVActive, int wHDelay, int wVDelay, BYTE bCrop);
     BOOL IsCCIRSource(int nInput);
     const TCardType* GetCardSetup();
 
     void StandardSAA7134InputSelect(int nInput);
  
-    char m_TunerType[32];
+    void SetCh1FMDeemphasis(eAudioFMDeemphasis FMDeemphasis);
+    void SetCh2FMDeemphasis(eAudioFMDeemphasis FMDeemphasis);
+    void SetAudioFMDematrix(eAudioFMDematrix FMDematrix);
+    void SetFilterBandwidth(eAudioFilterBandwidth FilterBandwidth);
+
 
 private:
-    eTVCardId m_CardType;
+    eTVCardId       m_CardType;
+    char            m_TunerType[32];
 
     CI2CBus*        m_I2CBus;
     ITuner*         m_Tuner;
@@ -368,10 +367,12 @@ private:
 
     // Keep track of the regions for which DMA is prepared
     BYTE            m_PreparedRegions;
-    eAudioStandard  m_AudioStandard;
 
-    // Audio standards table
-    static TAudioStandardDefinition m_AudioStandards[];
+    eVideoStandard      m_VideoStandard;
+    eAudioStandard      m_AudioStandard;
+
+    eAudioInputSource   m_AudioInputSource;
+    eAudioSampleRate    m_AudioSampleRate;
 };
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Audio.cpp,v 1.5 2002-09-16 17:51:58 atnak Exp $
+// $Id: SAA7134Card_Audio.cpp,v 1.6 2002-10-03 23:36:23 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/09/16 17:51:58  atnak
+// Added controls for L/R/Nicam audio volume
+//
 // Revision 1.4  2002/09/14 19:40:48  atnak
 // various changes
 //
@@ -52,201 +55,402 @@
 
 #include "DebugLog.h"
 
-CSAA7134Card::TAudioStandardDefinition CSAA7134Card::m_AudioStandards[] =
-{
-    { 
-        "[PAL] B/G-Dual FM-Stereo",
-        AUDIO_CARRIER_5_5,  
-        AUDIO_CARRIER_5_7421875,
-        MONO_FM,
-        STEREO_FM,
-        FIR_BG_DK_DUAL_FM,
-    },
-    {
-        "[PAL] D/K1-Dual FM-Stereo",
-        AUDIO_CARRIER_6_5,  
-        AUDIO_CARRIER_6_2578125,
-        MONO_FM,
-        STEREO_FM,
-        FIR_BG_DK_DUAL_FM,
-    },
-    { 
-        "[PAL] D/K2-Dual FM-Stereo",
-        AUDIO_CARRIER_6_5,  
-        AUDIO_CARRIER_6_7421875,  
-        MONO_FM,
-        STEREO_FM,
-        FIR_BG_DK_DUAL_FM,
-    },
-    { 
-        "[PAL]D/K3-Dual FM-Stereo",
-        AUDIO_CARRIER_6_5,  
-        AUDIO_CARRIER_5_7421875,  
-        MONO_FM,
-        STEREO_FM,
-        FIR_BG_DK_DUAL_FM
-    },
-    { 
-        "[PAL] B/G-NICAM-FM",
-        AUDIO_CARRIER_5_5,  
-        AUDIO_CARRIER_5_85,       
-        MONO_FM,
-        STEREO_NICAM,
-        FIR_BG_DK_NICAM,
-    },
-    { 
-        "[PAL] I-NICAM-FM",
-        AUDIO_CARRIER_6_0,  
-        AUDIO_CARRIER_6_552,      
-        MONO_FM,
-        STEREO_NICAM,
-        FIR_I_NICAM,
-    },
-    { 
-        "[PAL] D/K-NICAM-FM",
-        AUDIO_CARRIER_6_5,  
-        AUDIO_CARRIER_5_85,       
-        MONO_FM,
-        STEREO_NICAM,
-        FIR_BG_DK_NICAM,
-    },
-    { 
-        "[SECAM] L-NICAM-AM",
-        AUDIO_CARRIER_6_5,  
-        AUDIO_CARRIER_5_85,       
-        MONO_AM,
-        STEREO_NICAM,
-        FIR_L_NICAM,
-    },
-    {
-        "[NTSC] ??? M (Mono)",
-        AUDIO_CARRIER_4_5,  
-        AUDIO_CARRIER_4_5,       
-        MONO_FM,
-        STEREO_NONE,
-        FIR_M_N_DUAL_FM,
-    },
-    {
-        "[NTSC] A2 FM-Stereo",
-        AUDIO_CARRIER_4_5,  
-        AUDIO_CARRIER_4_724212,       
-        MONO_FM,
-        STEREO_FM,
-        FIR_M_N_DUAL_FM,
-    }
-    // A lot of standards snipped
-};
 
 
 void CSAA7134Card::InitAudio()
 {
-    DWORD Clock = GetCardSetup()->AudioClock;
-
-    WriteByte(SAA7134_AUDIO_CLOCK_0, Clock & 0xff);
-    WriteByte(SAA7134_AUDIO_CLOCK_1, (Clock >> 8) & 0xff);
-    WriteByte(SAA7134_AUDIO_CLOCK_2, (Clock >> 16) & 0xff);
-    WriteByte(SAA7134_AUDIO_PLL_CTRL, 0x01);
-
-    WriteByte(SAA7134_NICAM_ERROR_LOW, 0x00);
-    WriteByte(SAA7134_NICAM_ERROR_HIGH, 0x00);
-    WriteByte(SAA7134_MONITOR_SELECT, 0x00);
-    WriteByte(SAA7134_FM_DEMATRIX, 0x80);
-
-    // mute
+    m_AudioSampleRate = AUDIOSAMPLERATE_48000Hz;
+    
+    // mute all
     WriteByte(SAA7134_AUDIO_MUTE_CTRL, 0xFF);
-    // Line 1 select
-    MaskDataByte(SAA7134_ANALOG_IO_SELECT, 0x00, 0x07);
+
+    WriteByte(SAA7134_MONITOR_SELECT,           0x00);
+    WriteByte(SAA7134_NICAM_ERROR_LOW,          0x00);
+    WriteByte(SAA7134_NICAM_ERROR_HIGH,         0x00);
+
+    // auto gain control enabled
+    WriteByte(SAA7134_AGC_GAIN_SELECT,          0x00);
+    
+    WriteByte(SAA7134_SIF_SAMPLE_FREQ,          0x00);
+
+	WriteByte(SAA7134_DEMODULATOR,              0x00);
+	WriteByte(SAA7134_DCXO_IDENT_CTRL,          0x00);
+	WriteByte(SAA7134_FM_DEEMPHASIS,            0x22);
+	WriteByte(SAA7134_STEREO_DAC_OUTPUT_SELECT, 0xA0);
+
+    SetAudioFMDematrix(AUDIOFMDEMATRIX_AUTOSWITCHING);
+
+    WriteByte(SAA7134_DSP_OUTPUT_SELECT,        0x80);
+
+    OrDataByte(SAA7134_ANALOG_IO_SELECT, SAA7134_ANALOG_IO_SELECT_VSEL1);
+    OrDataByte(SAA7134_ANALOG_IO_SELECT, SAA7134_ANALOG_IO_SELECT_VSEL2);
+
+    // no audio capture through DMA
+    MaskDataDword(SAA7134_NUM_SAMPLES, 0x00, SAA7134_NUM_SAMPLES_MASK);
+    WriteByte(SAA7134_AUDIO_FORMAT_CTRL, 0xDD);
+
+    SetAudioSource(AUDIOINPUTSOURCE_LINE1);
+
+    // normal output gain
+    MaskDataByte(SAA7134_CHANNEL1_LEVEL, 0x00, 0x1F);
+    MaskDataByte(SAA7134_CHANNEL2_LEVEL, 0x00, 0x1F);
+
+    // no I2S output
+    WriteByte(SAA7134_I2S_OUTPUT_FORMAT, 0x00);
+    WriteByte(SAA7134_I2S_OUTPUT_SELECT, 0x00);
+    WriteByte(SAA7134_I2S_OUTPUT_LEVEL, 0x00);
+
+    SetAudioLockToVideo(TRUE);
+}
 
 
-    // Line volume reduction
-    MaskDataByte(SAA7134_ANALOG_IO_SELECT, 0x10, 0x10); // Line 1
-    MaskDataByte(SAA7134_ANALOG_IO_SELECT, 0x20, 0x20); // Line 2
+void CSAA7134Card::SetAudioStandard(eAudioStandard AudioStandard)
+{
+    BYTE IdentCtrl      = 0;
+    BYTE Demodulator    = 0;
+    BYTE AudioPLLCtrl   = 0;
 
-    MaskDataByte(SAA7134_AUDIO_FORMAT_CTRL, 0xC0, 0xC0);
-    MaskDataByte(SAA7134_SIF_SAMPLE_FREQ, 0x00, 0x03);
+    DWORD Carrier1 = m_AudioStandards[AudioStandard].Carrier1;
+    DWORD Carrier2 = m_AudioStandards[AudioStandard].Carrier2;
+
+    switch (m_AudioStandards[AudioStandard].FIRType)
+    {
+    case FIR_BG_DK_DUAL_FM:
+        // nothing specifc to do
+        break;
+
+    case FIR_SAT_DUAL_FM:
+        // nothing specifc to do
+        break;
+
+    case FIR_BG_DK_NICAM:
+    case FIR_I_NICAM:
+    case FIR_L_NICAM:
+        AudioPLLCtrl = SAA7134_AUDIO_PLL_CTRL_SWLOOP;
+        break;
+
+    case FIR_M_DUAL_FM:
+        IdentCtrl = (0xFF & SAA7134_DCXO_IDENT_CTRL_IDAREA);
+        break;
+    }
+
+    if (m_AudioStandards[AudioStandard].Channel1Mode == AUDIOCHANNELMODE_AM)
+    {
+        Demodulator = (0xFF & SAA7134_DEMODULATOR_CH1MODE);
+    }
+
+    switch (m_AudioStandards[AudioStandard].Channel2Mode)
+    {
+    case AUDIOCHANNELMODE_FM:
+        Demodulator |= 0x00;
+        break;
+
+    case AUDIOCHANNELMODE_AM:
+        Demodulator |= 0x01;
+        break;
+
+    case AUDIOCHANNELMODE_NICAM:
+        Demodulator |= 0x10;
+        break;
+    }
+
+    WriteDword(SAA7134_CARRIER1_FREQ, Carrier1);
+    WriteDword(SAA7134_CARRIER2_FREQ, Carrier2);
+
+    SetCh1FMDeemphasis(m_AudioStandards[AudioStandard].Ch1FMDeemphasis);
+    SetCh2FMDeemphasis(m_AudioStandards[AudioStandard].Ch2FMDeemphasis);
+
+    MaskDataByte(SAA7134_DCXO_IDENT_CTRL, IdentCtrl,
+        SAA7134_DCXO_IDENT_CTRL_IDAREA);
+
+    MaskDataByte(SAA7134_DEMODULATOR, Demodulator,
+        SAA7134_DEMODULATOR_CH2MOD0 |
+        SAA7134_DEMODULATOR_CH1MODE |
+        SAA7134_DEMODULATOR_CH2MOD1);
+
+    MaskDataByte(SAA7134_AUDIO_PLL_CTRL, AudioPLLCtrl,
+        SAA7134_AUDIO_PLL_CTRL_SWLOOP);
+
+    m_AudioStandard = AudioStandard;
+}
+
+void CSAA7134Card::SetAudioLockToVideo(BOOL bLockAudio)
+{
+    if (bLockAudio)
+    {
+        AndDataByte(SAA7134_AUDIO_PLL_CTRL, ~SAA7134_AUDIO_PLL_CTRL_APLL);
+    }
+    else
+    {
+        OrDataByte(SAA7134_AUDIO_PLL_CTRL, SAA7134_AUDIO_PLL_CTRL_APLL);
+    }
+}
+
+void CSAA7134Card::UpdateAudioClocksPerField(eVideoStandard VideoStandard)
+{
+    DWORD AudioClock = 0x000000;
+    DWORD AudioClocksPerField = 0x00000;
+
+    if (m_AudioInputSource == AUDIOINPUTSOURCE_DAC ||
+        m_AudioSampleRate != AUDIOSAMPLERATE_44100Hz)
+    {
+        switch (GetCardSetup()->AudioCrystal)
+        {
+        case AUDIOCRYSTAL_32110Hz:
+            AudioClock = 0x187DE7;
+            break;
+
+        case AUDIOCRYSTAL_24576Hz:
+            AudioClock = 0x200000;
+            break;
+        }
+
+        if ((VideoStandard != VIDEOSTANDARD_AUTODETECT &&
+            m_VideoStandards[VideoStandard].Is25fps) ||
+            Is25fpsSignalDetected())
+        {
+            AudioClocksPerField = 0x1E000;
+        }
+        else
+        {
+            AudioClocksPerField = 0x19066;
+        }
+    }
+    else
+    {
+        switch (GetCardSetup()->AudioCrystal)
+        {
+        case AUDIOCRYSTAL_32110Hz:
+            AudioClock = 0x1C2097;
+            break;
+
+        case AUDIOCRYSTAL_24576Hz:
+            AudioClock = 0x24C000;
+            break;
+        }
+
+        if (m_VideoStandards[VideoStandard].Is25fps)
+        {
+            AudioClocksPerField = 0x22740;
+        }
+        else
+        {
+            AudioClocksPerField = 0x1CBD5;
+        }
+    }
+
+    MaskDataDword(SAA7134_AUDIO_CLOCK, AudioClock,
+        SAA7134_AUDIO_CLOCK_MASK);
+
+    MaskDataDword(SAA7134_AUDIO_CLOCKS_PER_FIELD, AudioClocksPerField,
+        SAA7134_AUDIO_CLOCKS_PER_FIELD_MASK);
+}
 
 
-/*
-    // Line 1 = bit off, Line 2 = bit on
-    MaskDataByte(SAA7134_ANALOG_IO_SELECT, 0x00, 0x08);
-    MaskDataByte(SAA7134_AUDIO_FORMAT_CTRL, 0x80, 0xC0);
+void CSAA7134Card::SetCh1FMDeemphasis(eAudioFMDeemphasis FMDeemphasis)
+{
+    BYTE Ch1FMDeemphasis = 0x00;
 
-    // 32000hz = 0x01, 48000hz = 0x03
-    MaskDataByte(SAA7134_SIF_SAMPLE_FREQ, 0x03, 0x03);
+    switch (FMDeemphasis)
+    {
+    case AUDIOFMDEEMPHASIS_OFF:
+        Ch1FMDeemphasis = 0x04;
+        break;
+
+    case AUDIOFMDEEMPHASIS_50_MICROS:
+        Ch1FMDeemphasis = 0x00;
+        break;
+
+    case AUDIOFMDEEMPHASIS_60_MICROS:
+        Ch1FMDeemphasis = 0x01;
+        break;
+
+    case AUDIOFMDEEMPHASIS_75_MICROS:
+        Ch1FMDeemphasis = 0x02;
+        break;
+
+    case AUDIOFMDEEMPHASIS_J17:
+        Ch1FMDeemphasis = 0x03;
+        break;
+
+    case AUDIOFMDEEMPHASIS_ADAPTIVE:
+        Ch1FMDeemphasis = 0x0C;
+        break;
+    }
+
+    MaskDataByte(SAA7134_FM_DEEMPHASIS, Ch1FMDeemphasis, 0x0F);
+}
+
+
+void CSAA7134Card::SetCh2FMDeemphasis(eAudioFMDeemphasis FMDeemphasis)
+{
+    BYTE Ch2FMDeemphasis = 0x00;
+
+    switch (FMDeemphasis)
+    {
+    case AUDIOFMDEEMPHASIS_OFF:
+        Ch2FMDeemphasis = 0x40;
+        break;
+
+    case AUDIOFMDEEMPHASIS_50_MICROS:
+        Ch2FMDeemphasis = 0x00;
+        break;
+
+    case AUDIOFMDEEMPHASIS_60_MICROS:
+        Ch2FMDeemphasis = 0x10;
+        break;
+
+    case AUDIOFMDEEMPHASIS_75_MICROS:
+        Ch2FMDeemphasis = 0x20;
+        break;
+
+    case AUDIOFMDEEMPHASIS_J17:
+        Ch2FMDeemphasis = 0x30;
+        break;
+
+    case AUDIOFMDEEMPHASIS_ADAPTIVE:
+        Ch2FMDeemphasis = 0xC0;
+        break;
+    }
+
+    MaskDataByte(SAA7134_FM_DEEMPHASIS, Ch2FMDeemphasis, 0xF0);
+}
+
+
+void CSAA7134Card::SetAudioFMDematrix(eAudioFMDematrix FMDematrix)
+{
+    BYTE FMDematrixSelect = 0x00;
+
+    switch (FMDematrix)
+    {
+    case AUDIOFMDEMATRIX_AUTOSWITCHING:
+        FMDematrixSelect = 0x80;
+        break;
+
+    case AUDIOFMDEMATRIX_MONO1:
+        FMDematrixSelect = 0x00;
+        break;
+
+    case AUDIOFMDEMATRIX_MONO2:
+        FMDematrixSelect = 0x01;
+        break;
+
+    case AUDIOFMDEMATRIX_DUAL:
+        FMDematrixSelect = 0x02;
+        break;
+
+    case AUDIOFMDEMATRIX_DUAL_SWAPPED:
+        FMDematrixSelect = 0x03;
+        break;
+
+    case AUDIOFMDEMATRIX_STEREO_EUROPE:
+        FMDematrixSelect = 0x04;
+        break;
+
+    case AUDIOFMDEMATRIX_STEREO_KOREA__6DB:
+        FMDematrixSelect = 0x05;
+        break;
+
+    case AUDIOFMDEMATRIX_STEREO_KOREA:
+        FMDematrixSelect = 0x06;
+        break;
+
+    }
+
+    WriteByte(SAA7134_FM_DEMATRIX, FMDematrixSelect);
+}
+
+
+void CSAA7134Card::SetFilterBandwidth(eAudioFilterBandwidth FilterBandwidth)
+{
+    switch (FilterBandwidth)
+    {
+    case AUDIOFILTERBANDWIDTH_NARROW_NARROW:
+        break;
+
+    case AUDIOFILTERBANDWIDTH_XWIDE_NARROW:
+        break;
+
+    case AUDIOFILTERBANDWIDTH_MEDIUM_MEDIUM:
+        break;
+
+    case AUDIOFILTERBANDWIDTH_WIDE_WIDE:
+        break;
+
+    default:
+        break;
+    }
+}
+
+void CSAA7134Card::SetAudioSampleRate(eAudioSampleRate SampleRate)
+{
+    BYTE SampleFrequency = 0;
+
+    if (m_AudioInputSource == AUDIOINPUTSOURCE_DAC)
+    {
+        SampleFrequency = 0x00;
+    }
+    else
+    {
+        switch (SampleRate)
+        {
+        case AUDIOSAMPLERATE_32000Hz: SampleFrequency = 0x01; break;
+        case AUDIOSAMPLERATE_44100Hz: SampleFrequency = 0x02; break;
+        case AUDIOSAMPLERATE_48000Hz: SampleFrequency = 0x03; break;
+        }
+    }
+
+    MaskDataByte(SAA7134_SIF_SAMPLE_FREQ, SampleFrequency,
+        SAA7134_SIF_SAMPLE_FREQ_SFS);
+
+    m_AudioSampleRate = SampleRate;
+
+    UpdateAudioClocksPerField(m_VideoStandard);
+}
+
+
+void CSAA7134Card::SetAudioSource(eAudioInputSource InputSource)
+{
+    BYTE LineSelect;
+
+    switch (InputSource)
+    {
+    case AUDIOINPUTSOURCE_DAC: LineSelect = 0x02; break;
+    case AUDIOINPUTSOURCE_LINE1: LineSelect = 0x00; break;
+    case AUDIOINPUTSOURCE_LINE2: LineSelect = 0x01; break;
+    }
+
+    MaskDataByte(SAA7134_ANALOG_IO_SELECT, LineSelect,
+        SAA7134_ANALOG_IO_SELECT_OCS);
+
+    m_AudioInputSource = InputSource;
+
+    if (InputSource == AUDIOINPUTSOURCE_LINE2)
+    {
+        OrDataByte(SAA7134_ANALOG_IO_SELECT, SAA7134_ANALOG_IO_SELECT_ICS);
+    }
+    else
+    {
+        AndDataByte(SAA7134_ANALOG_IO_SELECT, ~SAA7134_ANALOG_IO_SELECT_ICS);
+    }
+
+    SetAudioSampleRate(m_AudioSampleRate);
+
+    // TODO: some cards need GPIO for audio selecting
+    /*
+    BYTE GpioMask = 0x0;  // FlyVideo 3000 
+    BYTE InputGpio = 0x0; // FlyVideo 3000
+
+    if (!GpioMask)
+        return;
+
+    MaskDataDword(SAA7134_GPIO_GPMODE0,   GpioMask, GpioMask);
+    MaskDataDword(SAA7134_GPIO_GPSTATUS0, InputGpio, GpioMask);
+    StatGPIO();
     */
 }
 
 
-// FIX: this doesn't work too well.. need to figure out proper
-// registers.
-// TODO2: check&reconsider user interface for this
-void CSAA7134Card::SetAudioStandard(eAudioStandard audioStandard)
-{
-
-    switch (m_AudioStandards[audioStandard].FIRType)
-    {
-    case FIR_BG_DK_DUAL_FM:
-    case FIR_M_N_DUAL_FM:
-        WriteByte(SAA7134_MONITOR_SELECT,           0x00);
-        WriteByte(SAA7134_FM_DEMATRIX,              0x80);
-        WriteByte(SAA7134_AUDIO_CLOCKS_PER_FIELD0,  0x00);
-        WriteByte(SAA7134_AUDIO_CLOCKS_PER_FIELD1,  0xe0);
-        WriteByte(SAA7134_AUDIO_CLOCKS_PER_FIELD2,  0x01);
-        WriteByte(SAA7134_AUDIO_PLL_CTRL,           0x00);
-        break;
-    case FIR_I_NICAM:
-    case FIR_BG_DK_NICAM:
-    case FIR_L_NICAM:
-        WriteByte(SAA7134_MONITOR_SELECT,           0xa0);
-        WriteByte(SAA7134_FM_DEMATRIX,              0x00);
-        WriteByte(SAA7134_AUDIO_CLOCKS_PER_FIELD0,  0x00);
-        WriteByte(SAA7134_AUDIO_CLOCKS_PER_FIELD1,  0x00);
-        WriteByte(SAA7134_AUDIO_CLOCKS_PER_FIELD2,  0x00);
-        WriteByte(SAA7134_AUDIO_PLL_CTRL,           0x01);
-        break;
-    }
-
-    WriteDword(SAA7134_CARRIER1_FREQ, m_AudioStandards[audioStandard].MajorCarrier);
-    WriteDword(SAA7134_CARRIER2_FREQ, m_AudioStandards[audioStandard].MinorCarrier);
-/*
-    WriteByte(SAA7134_DEMODULATOR,              0x00);
-    WriteByte(SAA7134_DCXO_IDENT_CTRL,          0x00);
-    WriteByte(SAA7134_FM_DEEMPHASIS,            0x00);
-    WriteByte(SAA7134_STEREO_DAC_OUTPUT_SELECT, 0x80);
-*/
-    switch (m_AudioStandards[audioStandard].FIRType) {
-    case FIR_BG_DK_DUAL_FM:
-        WriteByte(SAA7134_DEMODULATOR,              0x00);
-        WriteByte(SAA7134_DCXO_IDENT_CTRL,          0x00);
-        WriteByte(SAA7134_FM_DEEMPHASIS,            0x22);
-        WriteByte(SAA7134_STEREO_DAC_OUTPUT_SELECT, 0xa0);
-        break;
-    case FIR_M_N_DUAL_FM:
-        WriteByte(SAA7134_DEMODULATOR,              0x00);
-        WriteByte(SAA7134_DCXO_IDENT_CTRL,          0x01);
-        WriteByte(SAA7134_FM_DEEMPHASIS,            0x22);
-        WriteByte(SAA7134_STEREO_DAC_OUTPUT_SELECT, 0xa0);
-        break;
-    case FIR_I_NICAM:
-    case FIR_BG_DK_NICAM:
-        WriteByte(SAA7134_DEMODULATOR,              0x10);
-        WriteByte(SAA7134_DCXO_IDENT_CTRL,          0x00);
-        WriteByte(SAA7134_FM_DEEMPHASIS,            0x44);
-        WriteByte(SAA7134_STEREO_DAC_OUTPUT_SELECT, 0xa1);
-        break;
-    case FIR_L_NICAM:
-        WriteByte(SAA7134_DEMODULATOR,              0x12);
-        WriteByte(SAA7134_DCXO_IDENT_CTRL,          0x00);
-        WriteByte(SAA7134_FM_DEEMPHASIS,            0x44);
-        WriteByte(SAA7134_STEREO_DAC_OUTPUT_SELECT, 0xa1);
-        break;
-    case FIR_SAT_DUAL_FM:
-        break;
-    }
-
-    m_AudioStandard = audioStandard;
-    // CheckStereo();
-}
 
 // DEBUG: debugging purpos
 void CSAA7134Card::CheckStereo()
@@ -327,15 +531,15 @@ BOOL CSAA7134Card::IsAudioChannelAvailable(eSoundChannel soundChannel)
 void CSAA7134Card::SetAudioMute()
 {
     // if SAA7134
-    WriteByte(SAA7134_AUDIO_MUTE_CTRL, 0xff);
+    WriteByte(SAA7134_AUDIO_MUTE_CTRL, 0xFF);
 
     // if SAA7130 select MUTE line
 }
 
-void CSAA7134Card::SetAudioUnMute(long nVolume, eAudioInputLine Input)
+void CSAA7134Card::SetAudioUnMute(long nVolume, eAudioInputSource InputSource)
 {
     // if SAA7134
-    WriteByte(SAA7134_AUDIO_MUTE_CTRL, 0xbb);
+    MaskDataByte(SAA7134_AUDIO_MUTE_CTRL, 0x00, SAA7134_AUDIO_MUTE_CTRL_MUTSOUT);
 
     // SetAudioSource(Input);
 }
@@ -346,20 +550,20 @@ void CSAA7134Card::SetAudioVolume(BYTE nGain)
     // nGain = -15..0..15, 0 = normal
 
     // Dual FM Level adjust
-    WriteByte(SAA7134_CHANNEL_LEVEL_L, nGain & 0x1F);
-    WriteByte(SAA7134_CHANNEL_LEVEL_R, nGain & 0x1F);
+    WriteByte(SAA7134_CHANNEL1_LEVEL, nGain & 0x1F);
+    WriteByte(SAA7134_CHANNEL2_LEVEL, nGain & 0x1F);
     // NICAM Levle adjust
     WriteByte(SAA7134_NICAM_LEVEL_ADJUST, nGain & 0x1F);
 }
 
 void CSAA7134Card::SetAudioLeftVolume(BYTE nGain)
 {
-    WriteByte(SAA7134_CHANNEL_LEVEL_L, nGain & 0x1F);
+    WriteByte(SAA7134_CHANNEL1_LEVEL, nGain & 0x1F);
 }
 
 void CSAA7134Card::SetAudioRightVolume(BYTE nGain)
 {
-    WriteByte(SAA7134_CHANNEL_LEVEL_R, nGain & 0x1F);
+    WriteByte(SAA7134_CHANNEL2_LEVEL, nGain & 0x1F);
 }
 
 void CSAA7134Card::SetAudioNicamVolume(BYTE nGain)
@@ -369,7 +573,7 @@ void CSAA7134Card::SetAudioNicamVolume(BYTE nGain)
 
 int CSAA7134Card::GetAudioLeftVolume()
 {
-    BYTE Gain = ReadByte(SAA7134_CHANNEL_LEVEL_L) & 0x1F;
+    BYTE Gain = ReadByte(SAA7134_CHANNEL1_LEVEL) & 0x1F;
 
     if ((Gain & 0x10) > 0)
     {
@@ -380,7 +584,7 @@ int CSAA7134Card::GetAudioLeftVolume()
 
 int CSAA7134Card::GetAudioRightVolume()
 {
-    BYTE Gain = ReadByte(SAA7134_CHANNEL_LEVEL_R) & 0x1F;
+    BYTE Gain = ReadByte(SAA7134_CHANNEL2_LEVEL) & 0x1F;
 
     if ((Gain & 0x10) > 0)
     {
@@ -430,114 +634,6 @@ void CSAA7134Card::SetAudioChannel(eSoundChannel soundChannel)
     }
 }
 
-void CSAA7134Card::SetAudioStandard(eVideoFormat videoFormat)
-{
-    /*
-    // Guess the correct format
-    eAudioStandard Standard;
-
-    switch(videoFormat)
-    {
-    case VIDEOFORMAT_PAL_B:
-        Standard = AUDIOSTANDARD_BG_DUAL_FM;
-        break;
-    case VIDEOFORMAT_PAL_D:
-        Standard = AUDIOSTANDARD_DK_NICAM_FM;
-        break;
-    case VIDEOFORMAT_PAL_G:
-        Standard = AUDIOSTANDARD_BG_NICAM_FM;
-        break;
-    case VIDEOFORMAT_PAL_H:
-        // \todo FIXME
-        Standard = AUDIOSTANDARD_BG_DUAL_FM;
-        break;
-    case VIDEOFORMAT_PAL_I:
-        Standard = AUDIOSTANDARD_I_NICAM_FM;
-        break;
-    case VIDEOFORMAT_PAL_M:
-        // \todo FIXME
-        Standard = AUDIOSTANDARD_M_DUAL_FM;
-        break;
-    case VIDEOFORMAT_PAL_N:
-        // \todo FIXME
-        Standard = AUDIOSTANDARD_M_DUAL_FM;
-        break;
-    case VIDEOFORMAT_PAL_N_COMBO:
-        // \todo FIXME
-        Standard = AUDIOSTANDARD_M_DUAL_FM;
-        break;
-    case VIDEOFORMAT_SECAM_B:
-        Standard = AUDIOSTANDARD_BG_DUAL_FM;
-        break;
-    case VIDEOFORMAT_SECAM_D:
-        Standard = AUDIOSTANDARD_DK_NICAM_FM;
-        break;
-    case VIDEOFORMAT_SECAM_G:
-        Standard = AUDIOSTANDARD_BG_NICAM_FM;
-        break;
-    case VIDEOFORMAT_SECAM_H:
-        Standard = AUDIOSTANDARD_DK_NICAM_FM;
-        break;
-    case VIDEOFORMAT_SECAM_K:
-        Standard = AUDIOSTANDARD_DK_NICAM_FM;
-        break;
-    case VIDEOFORMAT_SECAM_K1:
-        Standard = AUDIOSTANDARD_DK1_DUAL_FM;
-        break;
-    case VIDEOFORMAT_SECAM_L:
-        Standard = AUDIOSTANDARD_L_NICAM_AM;
-        break;
-    case VIDEOFORMAT_SECAM_L1:
-        Standard = AUDIOSTANDARD_L_NICAM_AM;
-        break;
-    case VIDEOFORMAT_NTSC_M:
-        Standard = AUDIOSTANDARD_M_DUAL_FM;
-        break;
-    case VIDEOFORMAT_NTSC_M_Japan:
-        Standard = AUDIOSTANDARD_M_DUAL_FM;
-        break;
-    default:
-    case VIDEOFORMAT_PAL_60:
-    case VIDEOFORMAT_NTSC_50:
-        Standard = AUDIOSTANDARD_BG_DUAL_FM;
-        break;
-    }
-
-    SetAudioStandard(Standard);
-    */
-}
-
-// TODO: make like the comments
-// Do not call this function before changing the video source, it is checking to see if a video
-// signal is present. Audio is muted if no video signal is detected. 
-// This might not be the best place to do this check.
-void CSAA7134Card::SetAudioSource(eAudioInputLine nLine)
-{
-    BYTE MuxSelect;
-
-    switch (nLine)
-    {
-    case AUDIOINPUTLINE_TUNER: MuxSelect = 0x02; break;
-    case AUDIOINPUTLINE_LINE1: MuxSelect = 0x00; break;
-    case AUDIOINPUTLINE_LINE2: MuxSelect = 0x01; break;
-    }
-
-    MaskDataByte(SAA7134_ANALOG_IO_SELECT, MuxSelect, 0x07);
-
-    // TODO: some cards need GPIO for audio selecting
-    /*
-    BYTE GpioMask = 0x0;  // FlyVideo 3000 
-    BYTE InputGpio = 0x0; // FlyVideo 3000
-
-    if (!GpioMask)
-        return;
-
-    MaskDataDword(SAA7134_GPIO_GPMODE0,   GpioMask, GpioMask);
-    MaskDataDword(SAA7134_GPIO_GPSTATUS0, InputGpio, GpioMask);
-    StatGPIO();
-    */
-}
-
 
 int CSAA7134Card::GetInputAudioLine(int nInput)
 {
@@ -553,38 +649,3 @@ LPCSTR CSAA7134Card::GetAudioStandardName(eAudioStandard audioStandard)
     return m_AudioStandards[audioStandard].Name;
 }
 
-
-BOOL CSAA7134Card::IsDualFMAudioStandard(eAudioStandard audioStandard)
-{
-    switch (m_AudioStandards[audioStandard].FIRType)
-    {
-    case FIR_BG_DK_DUAL_FM:
-    case FIR_M_N_DUAL_FM:
-        return TRUE;
-
-    default:
-        // do nothing
-        break;
-    }
-
-    return FALSE;
-}
-
-
-BOOL CSAA7134Card::IsNICAMAudioStandard(eAudioStandard audioStandard)
-{
-    switch (m_AudioStandards[audioStandard].FIRType)
-    {
-    case FIR_I_NICAM:
-    case FIR_BG_DK_NICAM:
-    case FIR_L_NICAM:
-        return TRUE;
-        break;
-
-    default:
-        // do nothing
-        break;
-    }
-
-    return FALSE;
-}

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.3 2002-09-14 19:40:48 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.4 2002-10-03 23:36:23 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/09/14 19:40:48  atnak
+// various changes
+//
 //
 //
 //////////////////////////////////////////////////////////////////////////////
@@ -58,29 +61,29 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
                 "Tuner",
                 INPUTTYPE_TUNER,
                 1,
-                AUDIOINPUTLINE_TUNER,
+                AUDIOINPUTSOURCE_DAC,
             },
             {
                 "Composite",
                 INPUTTYPE_COMPOSITE,
                 3,
-                AUDIOINPUTLINE_LINE1,
+                AUDIOINPUTSOURCE_LINE1,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
                 8,
-                AUDIOINPUTLINE_LINE1,
+                AUDIOINPUTSOURCE_LINE1,
             },
             {
                 "Composite over S-Video",
                 INPUTTYPE_COMPOSITE,
                 0,
-                AUDIOINPUTLINE_LINE1,
+                AUDIOINPUTSOURCE_LINE1,
             },
         },
         TUNER_USER_SETUP,
-        0x187DE7,
+        AUDIOCRYSTAL_32110Hz,
         NULL,
         StandardSAA7134InputSelect,
         NULL,
@@ -95,17 +98,17 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
                 "Tuner",
                 INPUTTYPE_TUNER,
                 1,
-                AUDIOINPUTLINE_TUNER,
+                AUDIOINPUTSOURCE_DAC,
             },
             {
                 "Composite",
                 INPUTTYPE_COMPOSITE,
                 0,
-                AUDIOINPUTLINE_LINE1,
+                AUDIOINPUTSOURCE_LINE1,
             },
         },
         TUNER_PHILIPS_PAL,
-        0x187DE7,
+        AUDIOCRYSTAL_32110Hz,
         NULL,
         StandardSAA7134InputSelect,
         NULL,
@@ -120,35 +123,35 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
                 "Tuner",
                 INPUTTYPE_TUNER,
                 1,
-                AUDIOINPUTLINE_TUNER,
+                AUDIOINPUTSOURCE_DAC,
             },
             {
                 "Composite",
                 INPUTTYPE_COMPOSITE,
                 0,
-                AUDIOINPUTLINE_LINE1,
+                AUDIOINPUTSOURCE_LINE1,
             },
             {
                 "Composite 2",
                 INPUTTYPE_COMPOSITE,
                 3,
-                AUDIOINPUTLINE_LINE1,
+                AUDIOINPUTSOURCE_LINE1,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
                 8,
-                AUDIOINPUTLINE_LINE1,
+                AUDIOINPUTSOURCE_LINE1,
             },
             {
                 "Radio",
                 INPUTTYPE_RADIO,
                 0,
-                AUDIOINPUTLINE_LINE2,
+                AUDIOINPUTSOURCE_LINE2,
             },
         },
         TUNER_PHILIPS_PAL,
-        0x200000,
+        AUDIOCRYSTAL_24576Hz,
         NULL,
         StandardSAA7134InputSelect,
         NULL,
@@ -163,35 +166,35 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
                 "Tuner",  // gpio: 0x0000
                 INPUTTYPE_TUNER,
                 1,
-                AUDIOINPUTLINE_LINE2,
+                AUDIOINPUTSOURCE_LINE2,
             },
             {
                 "Composite",  // gpio: 0x4000
                 INPUTTYPE_COMPOSITE,
                 0,
-                AUDIOINPUTLINE_LINE2,
+                AUDIOINPUTSOURCE_LINE2,
             },
             {
                 "Composite 2",  // gpio: 0x4000
                 INPUTTYPE_COMPOSITE,
                 3,
-                AUDIOINPUTLINE_LINE2,
+                AUDIOINPUTSOURCE_LINE2,
             },
             {
                 "S-Video",  // gpio: 0x4000
                 INPUTTYPE_SVIDEO,
                 8,
-                AUDIOINPUTLINE_LINE2,
+                AUDIOINPUTSOURCE_LINE2,
             },
 /*          {
                 "Mute",
                 INPUTTYPE_MUTE,
                 0,
-                AUDIOINPUTLINE_LINE1,
+                AUDIOINPUTSOURCE_LINE1,
             },*/
         },
         TUNER_LG_TAPCNEW_PAL,
-        0x200000,
+        AUDIOCRYSTAL_24576Hz,
         NULL,
         StandardSAA7134InputSelect,
         NULL,
@@ -206,29 +209,29 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
                 "Tuner",
                 INPUTTYPE_TUNER,
                 1,
-                AUDIOINPUTLINE_LINE2,
+                AUDIOINPUTSOURCE_LINE2,
             },
             {
                 "Composite",
                 INPUTTYPE_COMPOSITE,
                 0,
-                AUDIOINPUTLINE_LINE1,
+                AUDIOINPUTSOURCE_LINE1,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
                 8,
-                AUDIOINPUTLINE_LINE1,
+                AUDIOINPUTSOURCE_LINE1,
             },
             {
                 "Radio",
                 INPUTTYPE_RADIO,
                 0,
-                AUDIOINPUTLINE_LINE2,
+                AUDIOINPUTSOURCE_LINE2,
             },
         },
         TUNER_PHILIPS_PAL,
-        0x187DE7,
+        AUDIOCRYSTAL_32110Hz,
         NULL,
         StandardSAA7134InputSelect,
         NULL,
@@ -243,29 +246,29 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
                 "Tuner",
                 INPUTTYPE_TUNER,
                 1,
-                AUDIOINPUTLINE_TUNER,
+                AUDIOINPUTSOURCE_DAC,
             },
             {
                 "Composite",
                 INPUTTYPE_COMPOSITE,
                 0,
-                AUDIOINPUTLINE_LINE1,
+                AUDIOINPUTSOURCE_LINE1,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
                 8,
-                AUDIOINPUTLINE_LINE1,
+                AUDIOINPUTSOURCE_LINE1,
             },
             {
                 "Radio",
                 INPUTTYPE_RADIO,
                 0,
-                AUDIOINPUTLINE_LINE2,
+                AUDIOINPUTSOURCE_LINE2,
             },
         },
         TUNER_PHILIPS_MK2_NTSC,
-        0x187DE7,
+        AUDIOCRYSTAL_32110Hz,
         NULL,
         StandardSAA7134InputSelect,
         NULL,
@@ -280,29 +283,29 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
                 "Tuner",
                 INPUTTYPE_TUNER,
                 1,
-                AUDIOINPUTLINE_TUNER,
+                AUDIOINPUTSOURCE_DAC,
             },
             {
                 "Composite",
                 INPUTTYPE_COMPOSITE,
                 2,
-                AUDIOINPUTLINE_LINE1,
+                AUDIOINPUTSOURCE_LINE1,
             },
             {
                 "Composite over S-Video",
                 INPUTTYPE_COMPOSITE,
                 3,
-                AUDIOINPUTLINE_LINE1,
+                AUDIOINPUTSOURCE_LINE1,
             },
             {
                 "Radio",
                 INPUTTYPE_RADIO,
                 0,
-                AUDIOINPUTLINE_LINE2,
+                AUDIOINPUTSOURCE_LINE2,
             },
         },
         TUNER_PHILIPS_PAL,
-        0x200000,
+        AUDIOCRYSTAL_24576Hz,
         NULL,
         StandardSAA7134InputSelect,
         NULL,
@@ -317,29 +320,29 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
                 "Tuner",
                 INPUTTYPE_TUNER,
                 1,
-                AUDIOINPUTLINE_TUNER,
+                AUDIOINPUTSOURCE_DAC,
             },
             {
                 "Composite",
                 INPUTTYPE_COMPOSITE,
                 2,
-                AUDIOINPUTLINE_LINE1,
+                AUDIOINPUTSOURCE_LINE1,
             },
             {
                 "Composite 2",
                 INPUTTYPE_COMPOSITE,
                 3,
-                AUDIOINPUTLINE_LINE1,
+                AUDIOINPUTSOURCE_LINE1,
             },
             {
                 "Radio",
                 INPUTTYPE_RADIO,
                 0,
-                AUDIOINPUTLINE_LINE2,
+                AUDIOINPUTSOURCE_LINE2,
             },
         },
         TUNER_USER_SETUP, //TUNER_PHILIPS_FM1216ME_MK3,
-        0x200000,
+        AUDIOCRYSTAL_24576Hz,
         NULL,
         StandardSAA7134InputSelect,
         NULL,
@@ -354,29 +357,29 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
                 "Tuner",
                 INPUTTYPE_TUNER,
                 1,
-                AUDIOINPUTLINE_TUNER,
+                AUDIOINPUTSOURCE_DAC,
             },
             {
                 "Composite",
                 INPUTTYPE_COMPOSITE,
                 4,
-                AUDIOINPUTLINE_LINE1,
+                AUDIOINPUTSOURCE_LINE1,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
                 8,
-                AUDIOINPUTLINE_LINE1,
+                AUDIOINPUTSOURCE_LINE1,
             },
             {
                 "Composite over S-Video",
                 INPUTTYPE_COMPOSITE,
                 0,
-                AUDIOINPUTLINE_LINE1,
+                AUDIOINPUTSOURCE_LINE1,
             },
         },
         TUNER_PHILIPS_PAL,
-        0x200000,
+        AUDIOCRYSTAL_24576Hz,
         NULL,
         StandardSAA7134InputSelect,
         NULL,
@@ -391,35 +394,35 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
                 "Tuner", // gpio: 0x4000
                 INPUTTYPE_TUNER,
                 1,
-                AUDIOINPUTLINE_TUNER,
+                AUDIOINPUTSOURCE_DAC,
             },
             {
                 "Composite",
                 INPUTTYPE_COMPOSITE,
                 0,
-                AUDIOINPUTLINE_LINE2,
+                AUDIOINPUTSOURCE_LINE2,
             },
             {
                 "Composite over S-Video",
                 INPUTTYPE_COMPOSITE,
                 3,
-                AUDIOINPUTLINE_LINE2,
+                AUDIOINPUTSOURCE_LINE2,
             },
             {
                 "S-Video",
                 INPUTTYPE_SVIDEO,
                 8,
-                AUDIOINPUTLINE_LINE2,
+                AUDIOINPUTSOURCE_LINE2,
             },
             {
                 "Radio",
                 INPUTTYPE_RADIO,
                 8,
-                AUDIOINPUTLINE_LINE2,
+                AUDIOINPUTSOURCE_LINE2,
             },
         },
         TUNER_USER_SETUP, //TUNER_PHILIPS_FM1216ME_MK3,
-        0x200000,
+        AUDIOCRYSTAL_24576Hz,
         NULL,
         StandardSAA7134InputSelect,
         NULL,
@@ -453,9 +456,32 @@ int CSAA7134Card::GetNumInputs()
     return m_TVCards[m_CardType].NumInputs;
 }
 
+
+LPCSTR CSAA7134Card::GetInputName(int nInput)
+{
+	if(nInput < m_TVCards[m_CardType].NumInputs && nInput >= 0)
+	{
+		return m_TVCards[m_CardType].Inputs[nInput].szName;
+	}
+	return "Error";
+}
+
+
 BOOL CSAA7134Card::IsInputATuner(int nInput)
 {
     return (m_TVCards[m_CardType].Inputs[nInput].InputType == INPUTTYPE_TUNER);
+}
+
+
+BOOL CSAA7134Card::IsCCIRSource(int nInput)
+{
+	return (m_TVCards[m_CardType].Inputs[nInput].InputType == INPUTTYPE_CCIR);
+}
+
+
+LPCSTR CSAA7134Card::GetCardName(eTVCardId CardId)
+{
+	return m_TVCards[CardId].szName;
 }
 
 
@@ -467,6 +493,7 @@ void CSAA7134Card::SetVideoSource(int nInput)
     // I suggest you read http://www.newty.de/
     (*this.*m_TVCards[m_CardType].pInputSwitchFunction)(nInput);
 }
+
 
 const CSAA7134Card::TCardType* CSAA7134Card::GetCardSetup()
 {
@@ -518,23 +545,21 @@ void CSAA7134Card::StandardSAA7134InputSelect(int nInput)
         nInput = 0;
     }
 
-    // for some reason I, 0x80 bit has to be set for svideo (@atnak)
     switch (m_TVCards[m_CardType].Inputs[nInput].InputType)
     {
     case INPUTTYPE_SVIDEO:
-        OrDataByte(SAA7134_LUMA_CTRL, 0x80);
+        OrDataByte(SAA7134_LUMA_CTRL, SAA7134_LUMA_CTRL_BYPS);
         break;
     case INPUTTYPE_TUNER:
     case INPUTTYPE_COMPOSITE:
     case INPUTTYPE_CCIR:
     default:
-        AndDataByte(SAA7134_LUMA_CTRL, ~0x80);
+        AndDataByte(SAA7134_LUMA_CTRL, ~SAA7134_LUMA_CTRL_BYPS);
         break;
     }
 
-    // 0xC0 straight off v4l2 source, NIWIM (@atnak)
-    BYTE MuxSel = m_TVCards[m_CardType].Inputs[nInput].MuxSelect;
-    WriteByte(SAA7134_ANALOG_IN_CTRL1, 0xC0 | MuxSel);
+    BYTE MuxSelect = m_TVCards[m_CardType].Inputs[nInput].MuxSelect;
+    MaskDataByte(SAA7134_ANALOG_IN_CTRL1, MuxSelect, 0x0F);
 }
 
 
@@ -649,3 +674,5 @@ void CBT848Card::SetAudioWINDVR(eSoundChannel soundChannel)
     }
 }
 */
+
+

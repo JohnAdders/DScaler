@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.52 2002-05-02 20:16:27 laurentg Exp $
+// $Id: StillSource.cpp,v 1.53 2002-05-03 11:18:37 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.52  2002/05/02 20:16:27  laurentg
+// JPEG format added to take still
+//
 // Revision 1.51  2002/05/01 13:00:18  laurentg
 // Support of JPEG files added
 //
@@ -217,6 +220,8 @@ int __stdcall SimpleResize_InitTables(unsigned int* hControl, unsigned int* vOff
 static eStillFormat FormatSaving = STILL_TIFF_RGB;
 static int SlideShowDelay = 5;
 static int JpegQuality = 95;
+static int PatternHeight = 576;
+static int PatternWidth = 720;
 
 char SavingPath[MAX_PATH];
 
@@ -1274,6 +1279,18 @@ SETTING StillSettings[STILL_SETTING_LASTONE] =
          95, 0, 100, 1, 1,
          NULL,
         "Still", "JPEGQuality", NULL,
+    },
+    {
+        "Pattern height", SLIDER, 0, (long*)&PatternHeight,
+         576, 480, DSCALER_MAX_HEIGHT, 1, 1,
+         NULL,
+        "Pattern", "PatternHeight", NULL,
+    },
+    {
+        "Pattern width", SLIDER, 0, (long*)&PatternWidth,
+         720, 240, DSCALER_MAX_WIDTH, 1, 1,
+         NULL,
+        "Pattern", "PatternWidth", NULL,
     },
 };
 

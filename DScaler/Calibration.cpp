@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.56 2002-04-15 22:50:08 laurentg Exp $
+// $Id: Calibration.cpp,v 1.57 2002-05-03 11:18:37 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.56  2002/04/15 22:50:08  laurentg
+// Change again the available formats for still saving
+// Automatic switch to "square pixels" AR mode when needed
+//
 // Revision 1.55  2002/04/13 18:47:53  laurentg
 // Management of still files improved
 //
@@ -786,6 +790,9 @@ CTestPattern::CTestPattern(LPCSTR FileName)
         return;
     }
 
+    m_Width = Setting_GetValue(Still_GetSetting(PATTERNWIDTH));
+    m_Height = Setting_GetValue(Still_GetSetting(PATTERNHEIGTH));
+
     while(!feof(FilePat))
     {
         if(fgets(BufferLine, 512, FilePat))
@@ -808,11 +815,9 @@ CTestPattern::CTestPattern(LPCSTR FileName)
             {
                 continue;
             }
-            if (sscanf(Buffer, "PAT %d %d %s", &i_val[0], &i_val[1], s_val) == 3)
+            if (sscanf(Buffer, "PAT %s", s_val) == 1)
             {
-                LOG(5,"PAT %d %d %s", i_val[0], i_val[1], s_val);
-                m_Width = i_val[0];
-                m_Height = i_val[1];
+                LOG(5,"PAT %s", s_val);
                 strcpy(m_PatternName, strstr(&Buffer[4], s_val));
             }
             else if ((n = sscanf(Buffer, "RECT %d %d %d %d %s %d %d %d %d %d %d %s %d %d", &i_val[0], &i_val[1], &i_val[2], &i_val[3], s_val, &i_val[4], &i_val[5], &i_val[6], &i_val[7], &i_val[8], &i_val[9], s_val2, &i_val[10])) >= 12)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.57 2003-01-02 21:26:33 atnak Exp $
+// $Id: VBI_VideoText.cpp,v 1.58 2003-01-03 14:44:19 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.57  2003/01/02 21:26:33  atnak
+// Only redraw the clock if it changed
+//
 // Revision 1.56  2003/01/02 14:48:50  atnak
 // Added Teletext Settings page
 //
@@ -737,19 +740,13 @@ BOOL VT_PerformFlofKey(HDC hDC, LPRECT lpRect, BYTE nFlofKey)
     dwPageCode = VTVisiblePage.EditorialLink[nFlofKey];
 
     WORD wPageHex = LOWORD(dwPageCode);
-    WORD wPageSubCode = HIWORD(dwPageCode);
 
     if (wPageHex == 0 || (wPageHex & 0xFF) == 0xFF)
     {
         return FALSE;
     }
 
-    if (wPageSubCode >= 0x3F7F)
-    {
-        wPageSubCode = 0xFFFF;
-    }
-
-    return VT_SetPage(hDC, lpRect, wPageHex, wPageSubCode);
+    return VT_SetPage(hDC, lpRect, wPageHex);
 }
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.h,v 1.35 2003-01-03 00:54:19 laurentg Exp $
+// $Id: AspectRatio.h,v 1.36 2003-01-04 13:36:42 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -251,11 +251,11 @@ typedef struct
     */
     BOOL bUseWSS;
 
-    /** if TRUE, only the WSS data included in the signal is used
-        to determine the aspect ratio
-        This setting is relevant only when bUseWSS is TRUE
+    /** Default source aspect ratio to use when using WSS signal to set
+	    the ratio, and no WSS signal is embedded in the signal
     */
-    BOOL bUseOnlyWSS;
+    int DefaultSourceAspect;
+    int DefaultAspectMode;
 
     // Assume analogue blanking
     BOOL bAnalogueBlanking;

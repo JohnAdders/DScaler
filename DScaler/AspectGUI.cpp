@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.50 2003-01-03 00:54:19 laurentg Exp $
+// $Id: AspectGUI.cpp,v 1.51 2003-01-04 13:36:42 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.50  2003/01/03 00:54:19  laurentg
+// New mode for AR autodetection using only WSS
+//
 // Revision 1.49  2002/10/31 14:03:33  adcockj
 // Added Analogue blanking option to aspect code
 //
@@ -366,7 +369,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         {
             // If autodetect enabled, don't change aspect ratio, just anamorphic status
             // This applies to both letterbox and 4:3
-            SwitchToRatio(AR_NONANAMORPHIC, -1);
+            SwitchToRatio(AR_NONANAMORPHIC, AspectSettings.SourceAspect);
             ShowText(hWnd, "Nonanamorphic Signal");
             AspectSettings.DetectAspectNow = TRUE;
         }
@@ -386,7 +389,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         {
             // If autodetect enabled, don't change aspect ratio, just anamorphic status
             // This applies to both letterbox and 4:3
-            SwitchToRatio(AR_NONANAMORPHIC, -1);
+            SwitchToRatio(AR_NONANAMORPHIC, AspectSettings.SourceAspect);
             ShowText(hWnd, "Nonanamorphic Signal");
             AspectSettings.DetectAspectNow = TRUE;
         }
@@ -405,7 +408,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         if (AspectSettings.AutoDetectAspect == 1)
         {
             // If autodetect enabled, don't change aspect ratio, just anamorphic status
-            SwitchToRatio(AR_ANAMORPHIC, -1);
+            SwitchToRatio(AR_ANAMORPHIC, AspectSettings.SourceAspect);
             ShowText(hWnd, "Anamorphic Signal");
             AspectSettings.DetectAspectNow = TRUE;
         }
@@ -541,12 +544,12 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
 		if (AspectSettings.AutoDetectAspect != 0)
 		{
 			AspectSettings.AutoDetectAspect = 0;
-            ShowText(hWnd, "Auto Detect Aspect Data OFF");
+            ShowText(hWnd, "Use Signal Aspect Data OFF");
 		}
 		else
 		{
 			AspectSettings.AutoDetectAspect = 2;
-            ShowText(hWnd, "Auto Detect Aspect Data ON");
+            ShowText(hWnd, "Use Signal Aspect Data ON");
 		}
         UpdateSquarePixelsMode(FALSE);
         if (AspectSettings.AutoDetectAspect)
@@ -1354,12 +1357,6 @@ SETTING AspectGUISettings[ASPECT_SETTING_LASTONE] =
         "ASPECT_DETECT", "MaskGreyShade", MaskGreyShade_OnChange,
     },
     {
-        "Use only WSS data", ONOFF, 0, (long*)&AspectSettings.bUseOnlyWSS,
-        FALSE, 0, 1, 1, 1,
-        NULL,
-        "ASPECT_DETECT", "UseOnlyWSS", NULL,
-    },
-    {
         "Use WSS data", ONOFF, 0, (long*)&AspectSettings.bUseWSS,
         FALSE, 0, 1, 1, 1,
         NULL,
@@ -1370,6 +1367,18 @@ SETTING AspectGUISettings[ASPECT_SETTING_LASTONE] =
         FALSE, 0, 1, 1, 1,
         NULL,
         "ASPECT_DETECT", "AnalogueBlanking", AnalogueBlanking_OnChange,
+    },
+    {
+        "Default Source Aspect", SLIDER, 0, (long*)&AspectSettings.DefaultSourceAspect,
+        1333, 1333, 3000, 1, 1000,
+        NULL,
+        "ASPECT_DETECT", "DefaultSourceAspect", NULL,
+    },
+    {
+        "Default Aspect Mode", SLIDER, 0, (long*)&AspectSettings.DefaultAspectMode,
+        1, 1, 2, 1, 1,
+        NULL,
+        "ASPECT_DETECT", "DefaultAspectMode", NULL,
     },
 };
 
@@ -1478,7 +1487,6 @@ void Aspect_SavePerChannelSetup(void *pThis, int Start)
     SettingsPerChannel_RegisterSetting("ARDetectSettings","View - AR Detect Settings",FALSE, &AspectGUISettings[ZOOMOUTFRAMECOUNT]);
     SettingsPerChannel_RegisterSetting("ARDetectSettings","View - AR Detect Settings",FALSE, &AspectGUISettings[ALLOWGREATERTHANSCREEN]);
     SettingsPerChannel_RegisterSetting("ARDetectSettings","View - AR Detect Settings",FALSE, &AspectGUISettings[MASKGREYSHADE]);
-    SettingsPerChannel_RegisterSetting("ARDetectSettings","View - AR Detect Settings",FALSE, &AspectGUISettings[USEONLYWSS]);
     SettingsPerChannel_RegisterSetting("ARDetectSettings","View - AR Detect Settings",FALSE, &AspectGUISettings[USEWSS]);        
   }   
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectDetect.cpp,v 1.33 2003-01-03 00:54:19 laurentg Exp $
+// $Id: AspectDetect.cpp,v 1.34 2003-01-04 13:36:41 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -39,6 +39,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2003/01/03 00:54:19  laurentg
+// New mode for AR autodetection using only WSS
+//
 // Revision 1.32  2002/06/24 21:49:28  laurentg
 // New option to use or not WSS data when doing AR detection
 //
@@ -529,8 +532,8 @@ void AdjustAspectRatio(long SourceAspectAdjust, TDeinterlaceInfo* pInfo)
         {
 			if (!WSS_GetRecommendedAR(&newMode, &newRatio))
 			{
-	            newRatio = 1333;
-				newMode = 1;
+	            newRatio = AspectSettings.DefaultSourceAspect;
+				newMode = AspectSettings.DefaultAspectMode;
 				WssSourceRatio = -1;
 			}
 			else
@@ -582,7 +585,15 @@ void AdjustAspectRatio(long SourceAspectAdjust, TDeinterlaceInfo* pInfo)
         AspectSettings.DetectAspectNow = FALSE;
         return;
     }
-    else if (AspectSettings.AutoDetectAspect)
+    else if (AspectSettings.AutoDetectAspect == 2)
+    {
+		if (newMode != AspectSettings.AspectMode || newRatio != AspectSettings.SourceAspect)
+		{
+			SwitchToRatio(newMode, newRatio);
+			return;
+		}
+	}
+    else if (AspectSettings.AutoDetectAspect == 1)
     {
         // If we've just crossed a 1-second boundary, scroll the aspect ratio
         // histories.  If not, update the max ratio found in the current second.

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.cpp,v 1.39 2003-01-03 00:54:19 laurentg Exp $
+// $Id: AspectRatio.cpp,v 1.40 2003-01-04 13:36:42 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -72,6 +72,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.39  2003/01/03 00:54:19  laurentg
+// New mode for AR autodetection using only WSS
+//
 // Revision 1.38  2002/10/31 14:03:33  adcockj
 // Added Analogue blanking option to aspect code
 //
@@ -181,7 +184,8 @@ TAspectSettings AspectSettings =
     0,
     FALSE,
     FALSE,
-    FALSE,
+    1333,
+	1,
     FALSE,
 };
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.39 2002-03-03 10:03:52 laurentg Exp $
+// $Id: StillSource.cpp,v 1.40 2002-03-04 23:07:25 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.39  2002/03/03 10:03:52  laurentg
+// Prototype for method ResizeOriginalFrame added
+// Log traces added
+//
 // Revision 1.38  2002/02/27 20:47:21  laurentg
 // Still settings
 //
@@ -377,7 +381,7 @@ BOOL CStillSource::OpenPictureFile(LPCSTR FileName)
     }
     else
     {
-        LOG(2, "OpenPictureFile: Still ok m_Width %d X m_Height %d", m_Width, m_Height);
+        LOG(2, "OpenPictureFile: Still ok m_Width %d X m_Height %d m_OriginalFrame.pData %d", m_Width, m_Height, m_OriginalFrame.pData);
 
         m_IsPictureRead = TRUE;
 
@@ -841,23 +845,25 @@ BOOL CStillSource::ReadNextFrameInFile()
     {
         if (Realloc && m_StillFrame.pData != NULL)
         {
+            LOG(2, "CStillSource::ReadNextFrameInFile: Memory free for m_StillFrame.pData (%d)", m_StillFrame.pData);
             free(m_StillFrame.pData);
             m_StillFrame.pData = NULL;
         }
         if (m_StillFrame.pData == NULL)
         {
             m_StillFrame.pData = (BYTE*)malloc(m_Width * 2 * m_Height * sizeof(BYTE));
-            LOG(2, "CStillSource::ReadNextFrameInFile: Memory alloc for m_StillFrame.pData");
+            LOG(2, "CStillSource::ReadNextFrameInFile: Memory alloc for m_StillFrame.pData (%d) (width %d height %d)", m_StillFrame.pData, m_Width, m_Height);
         }
         if (m_StillFrame.pData != NULL && m_OriginalFrame.pData != NULL)
         {
+            LOG(2, "CStillSource::ReadNextFrameInFile: Copy m_OriginalFrame.pData (%d) into m_StillFrame.pData (%d) (width %d height %d)", m_OriginalFrame.pData, m_StillFrame.pData, m_Width, m_Height);
             if (m_pMemcpy == NULL)
             {
-                memcpy(m_StillFrame.pData, m_OriginalFrame.pData, m_Width * 2 * m_Height * sizeof(BYTE));;
+                memcpy(m_StillFrame.pData, m_OriginalFrame.pData, m_Width * 2 * m_Height * sizeof(BYTE));
             }
             else
             {
-                m_pMemcpy(m_StillFrame.pData, m_OriginalFrame.pData, m_Width * 2 * m_Height * sizeof(BYTE));;
+                m_pMemcpy(m_StillFrame.pData, m_OriginalFrame.pData, m_Width * 2 * m_Height * sizeof(BYTE));
             }
             return TRUE;
         }

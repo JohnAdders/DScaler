@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.46 2002-09-15 19:52:22 kooiman Exp $
+// $Id: BT848Souce_UI.cpp,v 1.47 2002-09-16 14:37:36 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.46  2002/09/15 19:52:22  kooiman
+// Adressed some NICAM AM issues.
+//
 // Revision 1.45  2002/09/15 15:57:27  kooiman
 // Added Audio standard support.
 //
@@ -173,6 +176,7 @@
 #include "DebugLog.h"
 #include "SettingsPerChannel.h"
 #include "Slider.h"
+#include "OSD.h"
 
 extern const char *TunerNames[TUNER_LASTONE];
 long EnableCancelButton = 1;
@@ -836,17 +840,100 @@ void CBT848Source::SetMenu(HMENU hMenu)
     CheckMenuItemBool(m_hMenu, IDM_AUDIO_4, (GetCurrentAudioSetting()->GetValue() == 4));
     CheckMenuItemBool(m_hMenu, IDM_AUDIO_5, (GetCurrentAudioSetting()->GetValue() == 5));
 
-    CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_MONO, (m_AudioChannel->GetValue() == 1));
-    CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_STEREO, (m_AudioChannel->GetValue() == 2));
-    CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE1, (m_AudioChannel->GetValue() == 3));
-    CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_LANGUAGE2, (m_AudioChannel->GetValue() == 4));
+    // Rename sound channels
+    // Add [] around the name of unsuppored channels
+    int RealAudioChannel = m_pBT848Card->IsAudioChannelDetected((eSoundChannel)m_AudioChannel->GetValue());
 
+    // Find submenu
+    HMENU hBTMenu = GetSubMenu(m_hMenu, 0);
+    HMENU hSoundChannelMenu = NULL;
+    for (i = 0; i < GetMenuItemCount(hBTMenu); i++)
+    {
+        if (GetMenuItemID(GetSubMenu(hBTMenu, i), 0) == IDM_SOUNDCHANNEL_MONO)
+        {
+           hSoundChannelMenu = GetSubMenu(hBTMenu, i);
+           SetMenuDefaultItem(hSoundChannelMenu, -1, TRUE);
+           break;
+        }
+    }
+    
+    UINT MenuID = IDM_SOUNDCHANNEL_MONO;
+    int AudioChannelNr = 1;
+    Buffer[0]=0;
+    do {
+        // reset the menu info structure
+        memset(&MenuItemInfo, 0, sizeof(MenuItemInfo));
+        MenuItemInfo.cbSize = sizeof(MenuItemInfo);
+        MenuItemInfo.fMask = MIIM_TYPE;
+
+        // get the size of the string
+        GetMenuItemInfo(m_hMenu, MenuID, FALSE, &MenuItemInfo);
+        MenuItemInfo.cch++; //??
+        // get string into buffer
+        MenuItemInfo.dwTypeData = Buffer;
+        GetMenuItemInfo(m_hMenu, MenuID, FALSE, &MenuItemInfo);
+
+        LOG(2,"BT848Source::SetMenu: Menuitem name = '%s'",Buffer);
+        
+        char Buffer2[256];
+        if (Buffer[0]=='[') 
+        {            
+            strcpy(Buffer2, &Buffer[1]);
+        }
+        else
+        {
+            strcpy(Buffer2, Buffer);
+        }   
+        int Len = strlen(Buffer2);
+        if (Buffer2[Len-1]==']') { Buffer2[Len-1]=0; }        
+        
+        
+        if (m_AutoStereoSelect->GetValue() && (AudioChannelNr!=m_pBT848Card->IsAudioChannelDetected((eSoundChannel)AudioChannelNr)))
+        {
+            sprintf(Buffer, "[%s]",Buffer2);
+            MenuItemInfo.dwTypeData = Buffer;
+            MenuItemInfo.cch = strlen(Buffer);
+            LOG(2,"BT848Source::SetMenu: Menuitem name = '%s' (new)",Buffer);
+        }
+        else
+        {
+            MenuItemInfo.dwTypeData = Buffer2;
+            MenuItemInfo.cch = strlen(Buffer2);
+            LOG(2,"BT848Source::SetMenu: Menuitem name = '%s' (new)",Buffer2);        
+        }                
+        SetMenuItemInfo(m_hMenu, MenuID, FALSE, &MenuItemInfo);
+        
+        CheckMenuItemBool(m_hMenu, MenuID, (m_AudioChannel->GetValue() == AudioChannelNr));
+        
+        if (m_AutoStereoSelect->GetValue() && (hSoundChannelMenu != NULL) && (AudioChannelNr == RealAudioChannel))
+        {
+            //Highlight real audio channel
+            //SetMenuDefaultItem(hSoundChannelMenu, AudioChannelNr-1, TRUE); //MenuID, FALSE);
+        }        
+
+        AudioChannelNr++;
+        if (AudioChannelNr==2)
+        {
+            MenuID = IDM_SOUNDCHANNEL_STEREO;
+        }
+        else if (AudioChannelNr==3)
+        {
+            MenuID = IDM_SOUNDCHANNEL_LANGUAGE1;
+        }
+        if (AudioChannelNr==4)
+        {
+            MenuID = IDM_SOUNDCHANNEL_LANGUAGE2;
+        }
+    } while (AudioChannelNr<=4);
+    
+
+    EnableMenuItemBool(m_hMenu, IDM_AUTOSTEREO, TRUE);
     CheckMenuItemBool(m_hMenu, IDM_AUTOSTEREO, m_AutoStereoSelect->GetValue());
 
     CheckMenuItemBool(m_hMenu, IDM_USEINPUTPIN1, m_UseInputPin1->GetValue());
 
     // Why does a pop-up menu item don't have an own ID?
-	HMENU hBTMenu = GetSubMenu(m_hMenu, 0);
+	hBTMenu = GetSubMenu(m_hMenu, 0);
     for (i = 0; i < GetMenuItemCount(hBTMenu); i++)
     {
         if (GetMenuItemID(GetSubMenu(hBTMenu, i), 0) == IDM_AUDIOSTANDARD_VIDEOFORMATDEFAULT)
@@ -1138,7 +1225,7 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             break;
 
         case IDM_AUTOSTEREO:
-            m_AutoStereoSelect->SetValue(!m_AutoStereoSelect->GetValue());
+            m_AutoStereoSelect->SetValue(!m_AutoStereoSelect->GetValue());            
             break;
 
         case IDM_USEINPUTPIN1:
@@ -1295,12 +1382,19 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             m_AudioStandardDetect->SetValue(3);
             break;
 		case IDM_AUDIOSTANDARD_MANUAL:
-            m_AudioStandardDetect->SetValue(4);
+            m_AudioStandardDetect->SetValue(4, TRUE);
             DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_AUDIOSTANDARD_MANUAL), hWnd, AudioStandardManualProc, (LPARAM)this);
             break;
         case IDM_AUDIOSTANDARD_DETECTNOW:
             {
-                m_pBT848Card->DetectAudioStandard(m_AudioStandardDetectInterval->GetValue(), this, StaticAudioStandardDetected); 
+                if (m_DetectingAudioStandard) 
+                {
+                    OSD_ShowText(hWnd, "Detection in progress", 0);
+                    break;
+                }   
+                m_DetectingAudioStandard = 1;
+                m_pBT848Card->DetectAudioStandard(m_AudioStandardDetectInterval->GetValue(), 1, this, StaticAudioStandardDetected); 
+                OSD_ShowText(hWnd, "Detect Audio Standard", 0);
             }
             break;
 
@@ -1531,9 +1625,5 @@ void CBT848Source::ChangeChannelSectionNames()
         SettingsPerChannel_RegisterSetting("BT848Delays","BT8x8 - H/V/B Delay",FALSE, m_HDelay);
         SettingsPerChannel_RegisterSetting("BT848Delays","BT8x8 - H/V/B Delay",FALSE, m_VDelay);
         SettingsPerChannel_RegisterSetting("BT848Delays","BT8x8 - H/V/B Delay",FALSE, m_BDelay);
-
-        
-
-
     }
 }

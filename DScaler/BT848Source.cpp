@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.65 2002-09-15 15:57:27 kooiman Exp $
+// $Id: BT848Source.cpp,v 1.66 2002-09-16 14:37:36 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.65  2002/09/15 15:57:27  kooiman
+// Added Audio standard support.
+//
 // Revision 1.64  2002/09/15 14:20:37  adcockj
 // Fixed timing problems for cx2388x chips
 //
@@ -291,8 +294,8 @@ CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CU
     m_CurrentChannel(-1),
     m_SettingsByChannelStarted(FALSE),
     m_ChipName(ChipName),
-    m_DeviceIndex(DeviceIndex)
-
+    m_DeviceIndex(DeviceIndex),
+    m_DetectingAudioStandard(0)
 {
     m_IDString = IniSection;
     CreateSettings(IniSection);
@@ -1420,7 +1423,12 @@ void CBT848Source::ChannelChange(int PreChange, int OldChannel, int NewChannel)
     if (!PreChange && (m_AudioStandardDetect->GetValue()==3))
     {
         m_AudioStandardDetect->SetValue(m_AudioStandardDetect->GetValue());
+    } 
+    else if ((!PreChange) && m_AutoStereoSelect->GetValue())
+    {      
+        m_pBT848Card->DetectAudioStandard(m_AudioStandardDetectInterval->GetValue(), 2, this, StaticAudioStandardDetected);         
     }
+    ///\todo schedule to occur after audio standard / stereo detect
     if (!PreChange && (m_AudioAutoVolumeCorrection->GetValue() > 0))
     {
        //Turn off & on after channel change

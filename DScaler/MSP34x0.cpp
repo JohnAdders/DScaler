@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.cpp,v 1.23 2002-09-16 14:37:35 kooiman Exp $
+// $Id: MSP34x0.cpp,v 1.24 2002-09-16 14:38:59 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2002/09/16 14:37:35  kooiman
+// Added stereo autodetection.
+//
 // Revision 1.22  2002/09/15 19:52:22  kooiman
 // Adressed some NICAM AM issues.
 //
@@ -477,7 +480,7 @@ CMSP34x0Decoder::CMSP34x0Decoder() : CAudioDecoder(), CMSP34x0()
     m_bStopThread = FALSE;
     m_AutoDetecting = 0;    
 
-    m_ForceVersionA = TRUE; //FALSE;
+    m_ForceVersionA = FALSE;
     m_KeepWatchingStereo = FALSE;
 
     m_SupportedSoundChannels = SUPPORTEDSOUNDCHANNEL_NONE;

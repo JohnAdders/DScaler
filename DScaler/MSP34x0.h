@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.h,v 1.17 2002-09-15 15:58:33 kooiman Exp $
+// $Id: MSP34x0.h,v 1.18 2002-09-16 14:37:36 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2002/09/15 15:58:33  kooiman
+// Added Audio standard detection & some MSP fixes.
+//
 // Revision 1.16  2002/09/12 21:44:44  ittarnavsky
 // split the MSP34x0 in two files one for the AudioControls the other foe AudioDecoder
 //
@@ -277,7 +280,7 @@ public:
     long GetAudioStandardMinorCarrier(long Standard);
     void SetAudioStandardCarriers(long MajorCarrier, long MinorCarrier);
     long GetAudioStandardFromVideoFormat(eVideoFormat videoFormat);
-    void DetectAudioStandard(long Interval, void *pThis, void (*pfnDetected)(void *pThis, long Standard));
+    void DetectAudioStandard(long Interval, int SupportedSoundChannels, void *pThis, void (*pfnDetected)(void *pThis, int what, long Value));
 
 	BOOL HasEqualizer() { return m_bHasEqualizer; }
 	BOOL HasDolby() { return m_bHasDolby; }
@@ -407,6 +410,7 @@ private:
       eCarrier Minor[10];
     } TCarrierDetect;
 
+
     void SetSCARTxbar(eScartOutput output, eScartInput input);
 
 public:
@@ -415,12 +419,14 @@ private:
     int m_CarrierDetect_Phase;    
     void Initialize3400();
     eStandard DetectStandard3400();
-    void SetStandard3400(eStandard standard, eVideoFormat videoformat);
+    eSupportedSoundChannels DetectSoundChannels3400();
+    void SetStandard3400(eStandard standard, eVideoFormat videoformat, BOOL bCurrentCarriers, eSoundChannel soundChannel);
     void SetSoundChannel3400(eSoundChannel soundChannel);
     void SetCarrier3400(eCarrier MajorCarrier, eCarrier MinorCarrier);
     
     void Initialize34x1G();
     eStandard DetectStandard34x1G();
+    eSupportedSoundChannels DetectSoundChannels34x1G();
     void SetStandard34x1G(eStandard standard, eVideoFormat videoformat);
     void SetSoundChannel34x1G(eSoundChannel soundChannel);
     void SetCarrier34x1G(eCarrier MajorCarrier, eCarrier MinorCarrier);
@@ -445,6 +451,9 @@ private:
 	BOOL m_bHasDolby;    
     BOOL m_ForceAMSound;
     BOOL m_ForceVersionA;
+    BOOL m_KeepWatchingStereo;
+    BOOL m_DetectSupportedSoundChannels;
+    eSupportedSoundChannels m_SupportedSoundChannels;
     static TStandardDefinition m_MSPStandards[];
     static TFIRType            m_FIRTypes[];
     static WORD m_ScartMasks[MSP34x0_SCARTOUTPUT_LASTONE][MSP34x0_SCARTINPUT_LASTONE + 1];

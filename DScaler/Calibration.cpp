@@ -53,7 +53,6 @@
 
 CColorBar::CColorBar(unsigned short int left, unsigned short int right, unsigned short int top, unsigned short int bottom, BOOL YUV, unsigned char R_Y, unsigned char G_U, unsigned char B_V)
 { 
-//    unsigned char Y, U, V, R, G, B;
     left_border = left; 
     right_border = right; 
     top_border = top; 
@@ -75,27 +74,7 @@ CColorBar::CColorBar(unsigned short int left, unsigned short int right, unsigned
         RGB2YUV(ref_R_val, ref_G_val, ref_B_val, &ref_Y_val, &ref_U_val, &ref_V_val);
     }
 
-    min_Y = max_Y = min_U = max_U = min_V = max_V = 0;
-
-    // TEMPORARY tests for YUV <=> RGB
-//    Y = 100; U = 50; V = 75;
-//    LOG(5, "Y = %d U = %d V = %d", Y, U, V);
-//    YUV2RGB(Y, U, V, &R, &G, &B);
-//    LOG(5, "=> YUV2RGB R = %d G = %d B = %d", R, G, B);
-//    RGB2YUV(R, G, B, &Y, &U, &V);
-//    LOG(5, "=> YUV2RGB => RGB2YUV Y = %d U = %d V = %d", Y, U, V);
-//    Y = 50; U = 150; V = 100;
-//    LOG(5, "Y = %d U = %d V = %d", Y, U, V);
-//    YUV2RGB(Y, U, V, &R, &G, &B);
-//    LOG(5, "=> YUV2RGB R = %d G = %d B = %d", R, G, B);
-//    RGB2YUV(R, G, B, &Y, &U, &V);
-//    LOG(5, "=> YUV2RGB => RGB2YUV Y = %d U = %d V = %d", Y, U, V);
-//    Y = 200; U = 225; V = 175;
-//    LOG(5, "Y = %d U = %d V = %d", Y, U, V);
-//    YUV2RGB(Y, U, V, &R, &G, &B);
-//    LOG(5, "=> YUV2RGB R = %d G = %d B = %d", R, G, B);
-//    RGB2YUV(R, G, B, &Y, &U, &V);
-//    LOG(5, "=> YUV2RGB => RGB2YUV Y = %d U = %d V = %d", Y, U, V);
+    cpt_Y = cpt_U = cpt_V = cpt_nb = 0;
 }
 
 CColorBar::CColorBar(CColorBar *pColorBar)
@@ -119,7 +98,7 @@ CColorBar::CColorBar(CColorBar *pColorBar)
     ref_U_val = val2;
     ref_V_val = val3;
 
-    min_Y = max_Y = min_U = max_U = min_V = max_V = 0;
+    cpt_Y = cpt_U = cpt_V = cpt_nb = 0;
 }
 
 // This methode returns the position of the color bar
@@ -193,12 +172,19 @@ void CColorBar::GetDeltaColor(BOOL YUV, int *pR_Y, int *pG_U, int *pB_V, int *pT
 
 // This method analyzed the overlay buffer to calculate average color
 // in the zone defined by the color bar
-void CColorBar::CalcAvgColor(short **Lines, int height, int width)
+BOOL CColorBar::CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, short **Lines, int height, int width)
 { 
     int left, right, top, bottom, i, j;
     unsigned int Y, U, V, nb_Y, nb_U, nb_V;
-    unsigned int val;
     BYTE *buf;
+
+    if (reinit)
+    {
+        cpt_Y = 0;
+        cpt_U = 0;
+        cpt_V = 0;
+        cpt_nb = 0;
+    }
 
     // Calculate the exact coordinates of rectangular zone in the buffer
     left = width * left_border / 10000;
@@ -232,56 +218,71 @@ void CColorBar::CalcAvgColor(short **Lines, int height, int width)
     }
 
     // Calculate the average for Y, U and V
-    if (nb_Y > 0)
+//    if (nb_Y > 0)
+//    {
+//        cpt_Y += (Y + (nb_Y / 2)) / nb_Y;
+//    }
+//    if (nb_U > 0)
+//    {
+//        cpt_U += (U + (nb_U / 2)) / nb_U;
+//    }
+//    if (nb_V > 0)
+//    {
+//        cpt_V += (V + (nb_V / 2)) / nb_V;
+//    }
+    cpt_Y += Y;
+    cpt_U += U;
+    cpt_V += V;
+    cpt_nb++;
+
+    if (cpt_nb >= nb_calc_needed)
     {
-		Y_val = (Y + (nb_Y / 2)) / nb_Y;
-        val = (Y * 100 + (nb_Y / 2)) / nb_Y;
-        if ((min_Y == 0) || (val < min_Y))
-            min_Y = val;
-        if ((max_Y == 0) || (val > max_Y))
-            max_Y = val;
+//        Y_val = (cpt_Y + (cpt_nb / 2)) / cpt_nb;
+//        U_val = (cpt_U + (cpt_nb / 2)) / cpt_nb;
+//        V_val = (cpt_V + (cpt_nb / 2)) / cpt_nb;
+        if (nb_Y > 0)
+        {
+            Y_val = (cpt_Y + (cpt_nb * nb_Y / 2)) / (cpt_nb * nb_Y);
+        }
+        else
+        {
+            Y_val = 0;
+        }
+        if (nb_Y > 0)
+        {
+            U_val = (cpt_U + (cpt_nb * nb_U / 2)) / (cpt_nb * nb_U);
+        }
+        else
+        {
+            U_val = 0;
+        }
+        if (nb_Y > 0)
+        {
+            V_val = (cpt_V + (cpt_nb * nb_V / 2)) / (cpt_nb * nb_V);
+        }
+        else
+        {
+            V_val = 0;
+        }
+        V_val = (cpt_V + (cpt_nb * nb_V / 2)) / (cpt_nb * nb_V);
+
+        // Save corresponding RGB values too
+        YUV2RGB(Y_val, U_val, V_val, &R_val, &G_val, &B_val);
+
+        LOG(5, "CalcAvgColor YUV %d %d %d %d %d %d %d %d %d", Y_val, U_val, V_val, left, right, top, bottom, height, width);
+        LOG(5, "CalcAvgColor RGB %d %d %d %d %d %d %d %d %d", R_val, G_val, B_val, left, right, top, bottom, height, width);
+
+        cpt_Y = 0;
+        cpt_U = 0;
+        cpt_V = 0;
+        cpt_nb = 0;
+
+        return TRUE;
     }
     else
     {
-		Y_val = 0;
+        return FALSE;
     }
-    if (nb_U > 0)
-    {
-		U_val = (U + (nb_U / 2)) / nb_U;
-        val = (U * 100 + (nb_U / 2)) / nb_U;
-        if ((min_U == 0) || (val < min_U))
-            min_U = val;
-        if ((max_U == 0) || (val > max_U))
-            max_U = val;
-    }
-    else
-    {
-		U_val = 0;
-    }
-    if (nb_V > 0)
-    {
-		V_val = (V + (nb_V / 2)) / nb_V;
-        val = (V * 100 + (nb_V / 2)) / nb_V;
-        if ((min_V == 0) || (val < min_V))
-            min_V = val;
-        if ((max_V == 0) || (val > max_V))
-            max_V = val;
-    }
-    else
-    {
-		V_val = 0;
-    }
-
-    LOG(4, "CalcAvgColor min Y %d U %d V %d", min_Y, min_U, min_V);
-    LOG(4, "CalcAvgColor max Y %d U %d V %d", max_Y, max_U, max_V);
-    LOG(4, "CalcAvgColor delta max Y %d U %d V %d", max_Y - min_Y, max_U - min_U, max_V - min_V);
-
-    LOG(5, "CalcAvgColor YUV %d %d %d %d %d %d %d %d %d", Y_val, U_val, V_val, left, right, top, bottom, height, width);
-
-    // Save corresponding RGB values too
-    YUV2RGB(Y_val, U_val, V_val, &R_val, &G_val, &B_val);
-
-    LOG(5, "CalcAvgColor RGB %d %d %d %d %d %d %d %d %d", R_val, G_val, B_val, left, right, top, bottom, height, width);
 }
 
 // Convert RGB to YUV
@@ -289,12 +290,12 @@ void CColorBar::RGB2YUV(unsigned char R, unsigned char G, unsigned char B, unsig
 {
     unsigned int y, cr, cb;
 
-//    y  = ( 50396*R + 33058*G +  6405*B + 1048576)>>16;
-    y  = ( 16840*R + 33058*G +  6405*B + 1048576)>>16;
-    cr = ( 28781*R - 24110*G -  4671*B + 8388608)>>16;
-    cb = ( -9713*R - 19068*G + 28781*B + 8388608)>>16;
-
-//    LOG(5, "RGB2YUV %d %d %d", y, cb, cr);
+//    y  = ( 16840*R + 33058*G +  6405*B + 1048576)>>16;
+//    cr = ( 28781*R - 24110*G -  4671*B + 8388608)>>16;
+//    cb = ( -9713*R - 19068*G + 28781*B + 8388608)>>16;
+    y  = ( 16843*R + 33030*G +  6423*B + 1048576)>>16;
+    cr = ( 28770*R - 24117*G -  4653*B + 8388608)>>16;
+    cb = ( -9699*R - 19071*G + 28770*B + 8388608)>>16;
 
     *pY = LIMIT(y);
     *pU = LIMIT(cb);
@@ -311,7 +312,7 @@ void CColorBar::YUV2RGB(unsigned char Y, unsigned char U, unsigned char V, unsig
     y = Y - 16;
 
     r = ( 76284*y + 104595*cr             )>>16;
-    g = ( 76284*y -  53281*cr -  25624*cb )>>16;
+    g = ( 76284*y -  53281*cr -  25625*cb )>>16;
     b = ( 76284*y             + 132252*cb )>>16;
 
     *pR = LIMIT(r);
@@ -443,16 +444,20 @@ CColorBar *CSubPattern::FindSameCoclorBar(CColorBar *pColorBar)
 }
 
 // This method analyzes the current overlay buffer
-void CSubPattern::CalcCurrentSubPattern(short **Lines, int height, int width)
+BOOL CSubPattern::CalcCurrentSubPattern(BOOL reinit, unsigned int nb_calc_needed, short **Lines, int height, int width)
 {
+    BOOL result_avail;
+
     // Do the job for each defined color bar
     for (int i = 0 ; i < MAX_COLOR_BARS ; i++)
     {
         if (color_bars[i] != NULL)
         {
-            color_bars[i]->CalcAvgColor(Lines, height, width);
+            result_avail = color_bars[i]->CalcAvgColor(reinit, nb_calc_needed, Lines, height, width);
         }
     }
+
+    return result_avail;
 }
 
 // This methode returns the sum of absolute delta between reference color
@@ -1600,6 +1605,7 @@ void CCalibration::Start(eTypeCalibration type)
     current_step = initial_step;
     full_range = FALSE;
     nb_tries = 0;
+    first_calc = TRUE;
 
     // Display the specific OSD screen
     OSD_ShowInfosScreen(hWnd, 4, 0);
@@ -1665,6 +1671,12 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         break;
 
     case 0:     // Manual calibration
+        current_sub_pattern = GetSubPattern(ADJ_MANUAL);
+        if (current_sub_pattern == NULL)
+        {
+            break;
+        }
+
         new_settings = FALSE;
         new_settings |= brightness->Update();
         new_settings |= contrast->Update();
@@ -1672,17 +1684,14 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
         new_settings |= saturation_V->Update();
         new_settings |= hue->Update();
 
-        current_sub_pattern = GetSubPattern(ADJ_MANUAL);
-        if (current_sub_pattern != NULL)
-        {
-            // Calculations with current setitngs
-            current_sub_pattern->CalcCurrentSubPattern(Lines, height, width);
-        }
-        if (type_calibration != CAL_MANUAL)
+        // Calculations with current setitngs
+        if ( current_sub_pattern->CalcCurrentSubPattern(first_calc || new_settings, NB_CALCULATIONS, Lines, height, width)
+          && (type_calibration != CAL_MANUAL) )
         {
             current_step = -1;
-        	last_tick_count = tick_count + 500;
+            last_tick_count = tick_count + 500;
         }
+        first_calc = FALSE;
         break;
 
     case 1:
@@ -1964,6 +1973,7 @@ void CCalibration::Make(short **Lines, int height, int width, int tick_count)
     if ((current_step > 0) && ((current_step - initial_step) >= nb_steps))
     {
         current_step = 0;
+        first_calc = TRUE;
     }
 }
 
@@ -2003,7 +2013,9 @@ BOOL CCalibration::step_init(eTypeAdjust type_adjust, CCalSetting *_setting1, CC
             setting3->InitResult();
         }
 
+//        first_calc = TRUE;
         nb_calcul = 0;
+        total_dif = 0;
 
         return TRUE;
     }
@@ -2014,10 +2026,10 @@ BOOL CCalibration::step_process(short **Lines, int height, int width, unsigned i
     int val[4];
     BOOL YUV;
     int idx;
-    int dif;
+//    int dif;
 
     // Calculations with current settings
-    current_sub_pattern->CalcCurrentSubPattern(Lines, height, width);
+    current_sub_pattern->CalcCurrentSubPattern(TRUE, 1, Lines, height, width);
 
     // See how good is the red result
     if ((sig_component >= 1) && (sig_component <= 4))
@@ -2031,40 +2043,35 @@ BOOL CCalibration::step_process(short **Lines, int height, int width, unsigned i
         idx = sig_component - 5;
     }
     current_sub_pattern->GetSumDeltaColor(YUV, &val[0], &val[1], &val[2], &val[3]);
-    dif = val[idx];
-
+//    dif = val[idx];
+    total_dif += val[idx];
     nb_calcul++;
-    if (nb_calcul == 1)
-    {
-        total_dif = dif;
-    }
-    else
-    {
-        total_dif += dif;
-    }
+
     // Waiting at least 5 calculations
     if (nb_calcul < NB_CALCULATIONS)
     {
-	    last_tick_count = -1;
+        last_tick_count = -1;
         return FALSE;
-    }
-    else
-    {
-        nb_calcul = 0;
     }
 
     if (setting1 != (CCalSetting *)NULL)
     {
         *best_found = setting1->UpdateResult(total_dif, stop_when_found ? DELTA_STOP*NB_CALCULATIONS : -1, only_one);
+//        *best_found = setting1->UpdateResult(dif, stop_when_found ? DELTA_STOP : -1, only_one);
     }
     if (setting2 != (CCalSetting *)NULL)
     {
         *best_found = setting2->UpdateResult(total_dif, stop_when_found ? DELTA_STOP*NB_CALCULATIONS : -1, only_one);
+//        *best_found = setting2->UpdateResult(dif, stop_when_found ? DELTA_STOP : -1, only_one);
     }
     if (setting3 != (CCalSetting *)NULL)
     {
         *best_found = setting3->UpdateResult(total_dif, stop_when_found ? DELTA_STOP*NB_CALCULATIONS : -1, only_one);
+//        *best_found = setting3->UpdateResult(dif, stop_when_found ? DELTA_STOP : -1, only_one);
     }
+
+    nb_calcul = 0;
+    total_dif = 0;
 
     // Increase the third setting
     if ((setting3 != (CCalSetting *)NULL) && setting3->AdjustNext())

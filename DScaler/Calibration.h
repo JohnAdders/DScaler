@@ -95,7 +95,7 @@ public:
 
     // This method analyzed the overlay buffer to calculate average color
     // in the zone defined by the color bar
-    void CalcAvgColor(short **Lines, int height, int width);
+    BOOL CalcAvgColor(BOOL reinit, unsigned int nb_calc_needed, short **Lines, int height, int width);
 
 protected: 
     // Left position of the rectangular zone in the full test pattern
@@ -156,12 +156,11 @@ private:
 
     // Convert YUV to RGB
     void YUV2RGB(unsigned char Y, unsigned char U, unsigned char V, unsigned char *pR, unsigned char *pG, unsigned char *pB);
-    unsigned int min_Y;
-    unsigned int max_Y;
-    unsigned int min_U;
-    unsigned int max_U;
-    unsigned int min_V;
-    unsigned int max_V;
+
+    unsigned int cpt_Y;
+    unsigned int cpt_U;
+    unsigned int cpt_V;
+    unsigned int cpt_nb;
 };
 
 
@@ -194,7 +193,7 @@ public:
     CColorBar *FindSameCoclorBar(CColorBar *pColorBar);
 
     // This method analyzes the current overlay buffer
-    void CalcCurrentSubPattern(short **Lines, int height, int width);
+    BOOL CalcCurrentSubPattern(BOOL reinit, unsigned int nb_calc_needed, short **Lines, int height, int width);
 
     // This methode returns the sum of absolute delta between reference color
     // and calculated average color through all the color bars
@@ -368,6 +367,7 @@ private:
     int nb_tries;
     int total_dif;
     int nb_calcul;
+    BOOL first_calc;
     CCalSetting *setting1;
     CCalSetting *setting2;
     CCalSetting *setting3;

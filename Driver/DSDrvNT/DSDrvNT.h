@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSDrvNT.h,v 1.2 2001-07-13 16:13:53 adcockj Exp $
+// $Id: DSDrvNT.h,v 1.3 2001-11-02 10:45:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -35,9 +35,9 @@
 //#endif
 
 //device name
-#define DSDRVNT_DEVNAME L"\\Device\\DSDrvNT"
+#define DSDRVNT_DEVNAME L"\\Device\\DSDrv4"
 //name of symbolic link
-#define DSDRVNT_LNKNAME L"\\DosDevices\\DSDrvNT"
+#define DSDRVNT_LNKNAME L"\\DosDevices\\DSDrv4"
 
 
 NTSTATUS DSDrvDispatch(IN PDEVICE_OBJECT deviceObject, IN PIRP Irp);

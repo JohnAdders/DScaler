@@ -32,11 +32,18 @@
 ; CVS Log
 ;
 ; $Log: not supported by cvs2svn $
+; Revision 1.2.2.1  2001/08/14 16:41:37  adcockj
+; Renamed driver
+; Got to compile with new class based card
+;
+; Revision 1.2  2001/07/13 16:13:53  adcockj
+; Added CVS tags and removed tabs
+;
 ;///////////////////////////////////////////////////////////////////////////
 
 PAGE 58,132
 
-DSDrv95_DYNAMIC   EQU 1            ; this equate makes the VXD dynamically
+DSDrv4_DYNAMIC   EQU 1            ; this equate makes the VXD dynamically
 DDK_VERSION      EQU 400h
 
  .386p
@@ -48,7 +55,7 @@ DDK_VERSION      EQU 400h
 ;        V I R T U A L   D E V I C E   D E C L A R A T I O N
 ;============================================================================
 
-DECLARE_VIRTUAL_DEVICE DSDrv95, 1, 0, DSDrv95_Control, Undefined_Device_ID,\
+DECLARE_VIRTUAL_DEVICE DSDrv4, 1, 0, DSDrv4_Control, Undefined_Device_ID,\
                                UNDEFINED_INIT_ORDER,0,0,0
 
 
@@ -74,11 +81,11 @@ DECLARE_VIRTUAL_DEVICE DSDrv95, 1, 0, DSDrv95_Control, Undefined_Device_ID,\
 ;
 ;============================================================================
 
-Begin_Control_Dispatch DSDrv95
+Begin_Control_Dispatch DSDrv4
   Control_Dispatch   SYS_DYNAMIC_DEVICE_INIT, DSDrvDynamicInit, sCall
   Control_Dispatch   SYS_DYNAMIC_DEVICE_EXIT, DSDrvDynamicExit, sCall
   Control_Dispatch   INIT_COMPLETE,           DSDrvInitComplete, sCall
   Control_Dispatch   W32_DEVICEIOCONTROL,     DSDrvW32DeviceIOControl, sCall, <ecx, ebx, edx, esi>
-End_Control_Dispatch DSDrv95
+End_Control_Dispatch DSDrv4
 
 end

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.41 2001-10-18 16:20:39 adcockj Exp $
+// $Id: DS_Control.h,v 1.42 2001-11-02 10:45:29 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.41  2001/10/18 16:20:39  adcockj
+// Made Color of blanking adjustable
+//
 // Revision 1.40  2001/09/25 22:24:04  laurentg
 // New control settings for calibration
 //
@@ -88,6 +91,15 @@
 //
 // Revision 1.35  2001/08/14 11:36:03  adcockj
 // Mixer change to allow restore of initial mixer settings
+//
+// Revision 1.34.2.3  2001/08/21 16:42:15  adcockj
+// Per format/input settings and ini file fixes
+//
+// Revision 1.34.2.2  2001/08/20 16:14:18  adcockj
+// Massive tidy up of code to new structure
+//
+// Revision 1.34.2.1  2001/08/17 16:35:13  adcockj
+// Another interim check-in still doesn't compile. Getting closer ...
 //
 // Revision 1.34  2001/08/09 21:34:59  adcockj
 // Fixed bugs raise by Timo and Keld
@@ -335,6 +347,32 @@ typedef enum
     TVFORMAT,
     HDELAY,
     VDELAY,
+    REVERSEPOLARITY,
+    CURRENTCARDTYPE,
+    CURRENTTUNERTYPE,
+    PROCESSORSPEED,
+    TRADEOFF,
+    AUDIOSOURCE,
+    MSPMODE,
+    MSPMAJORMODE,
+    MSPMINORMODE,
+    MSPSTEREO,
+    AUTOSTEREOSELECT,
+    VOLUME,
+    SPATIAL,
+    LOUDNESS,
+    BASS,
+    TREBLE,
+    BALANCE,
+    SUPERBASS,
+    MSPEQ1,
+    MSPEQ2,
+    MSPEQ3,
+    MSPEQ4,
+    MSPEQ5,
+    BT848SAVEPERINPUT,
+    BT848SAVEPERFORMAT,
+    BT848SAVETVFORMATPERINPUT,
     BT848_SETTING_LASTONE,
 } BT848_SETTING;
 
@@ -385,7 +423,7 @@ typedef enum
     AUTODETECT,
     REFRESHRATE,
     WAITFORVSYNC,
-    REVERSEPOLARITY,
+    DOJUDDERTERMINATORONVIDEO,
     OUTTHREADS_SETTING_LASTONE,
 } OUTTHREADS_SETTING;
 
@@ -584,37 +622,6 @@ typedef enum
 #define WM_FLT_TNOISE_CHANGEVALUE   (WM_USER + 214)
 
 /////////////////////////////////////////////////////////////////////////////
-// Control settings contained in TVCards.c
-/////////////////////////////////////////////////////////////////////////////
-
-typedef enum
-{
-    CURRENTCARDTYPE = 0,
-    CURRENTTUNERTYPE,
-    PROCESSORSPEED,
-    TRADEOFF,
-    TVCARD_SETTING_LASTONE,
-} TVCARD_SETTING;
-#define WM_TVCARD_GETVALUE      (WM_USER + 16)
-#define WM_TVCARD_SETVALUE      (WM_USER + 116)
-#define WM_TVCARD_CHANGEVALUE   (WM_USER + 216)
-
-/////////////////////////////////////////////////////////////////////////////
-// Control settings contained in VideoSettings.c
-/////////////////////////////////////////////////////////////////////////////
-
-typedef enum
-{
-    SAVEPERINPUT = 0,
-    SAVEPERFORMAT,
-    SAVETVFORMATPERINPUT,
-    VIDEOSETTINGS_SETTING_LASTONE,
-} VIDEOSETTINGS_SETTING;
-#define WM_VIDEOSETTINGS_GETVALUE       (WM_USER + 17)
-#define WM_VIDEOSETTINGS_SETVALUE       (WM_USER + 117)
-#define WM_VIDEOSETTINGS_CHANGEVALUE    (WM_USER + 217)
-
-/////////////////////////////////////////////////////////////////////////////
 // Control settings contained in OSD.c
 /////////////////////////////////////////////////////////////////////////////
 typedef enum
@@ -760,7 +767,6 @@ typedef enum
     FIFTY_HZ_FORMAT,
     SIXTY_HZ_FORMAT,
     FORMATCHANGETHRESHOLD,
-    DOJUDDERTERMINATORONVIDEO,
     SLEEPINTERVAL,
     SLEEPSKIPFIELDS,
     SLEEPSKIPFIELDSLATE,
@@ -793,25 +799,7 @@ typedef enum
 
 typedef enum
 {
-    AUDIOSOURCE = 0,
-    MSPMODE,
-    MSPMAJORMODE,
-    MSPMINORMODE,
-    MSPSTEREO,
-    AUTOSTEREOSELECT,
-    VOLUME,
-    SPATIAL,
-    LOUDNESS,
-    BASS,
-    TREBLE,
-    BALANCE,
-    SUPERBASS,
-    MSPEQ1,
-    MSPEQ2,
-    MSPEQ3,
-    MSPEQ4,
-    MSPEQ5,
-	SYSTEMINMUTE,
+	SYSTEMINMUTE = 0,
     AUDIO_SETTING_LASTONE,
 } AUDIO_SETTING;
 
@@ -963,6 +951,20 @@ typedef enum
 #define WM_CALIBR_GETVALUE     (WM_USER + 36)
 #define WM_CALIBR_SETVALUE     (WM_USER + 136)
 #define WM_CALIBR_CHANGEVALUE  (WM_USER + 236)
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Control settings contained in DVBT.c
+/////////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+    DVBT_SETTING_LASTONE = 0,
+} DVBT_SETTING;
+
+#define WM_DVBT_GETVALUE     (WM_USER + 37)
+#define WM_DVBT_SETVALUE     (WM_USER + 137)
+#define WM_DVBT_CHANGEVALUE  (WM_USER + 237)
 
 
 #endif

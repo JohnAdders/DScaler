@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSDrv.H,v 1.8 2001-08-14 10:30:38 adcockj Exp $
+// $Id: DSDrv.H,v 1.9 2001-11-02 10:45:29 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -38,6 +38,11 @@
 
 #if ! defined (__DSDRVDEF_H)
 #define __DSDRVDEF_H
+
+// define version number to be compiled into both files
+// we use this to make sure that we are atlingh the same language in both the 
+// drivers and the dll
+#define DSDRV_VERSION 0x4000
 
 #define ALLOC_MEMORY_CONTIG 1
 
@@ -117,13 +122,13 @@ extern "C" {
 #define FILE_DEVICE_DSCALER 0x8002
 #define DSDRV_BASE 0x800
 
-#define DSDRV_READ_BYTE (DSDRV_BASE + 1)
-#define DSDRV_READ_WORD (DSDRV_BASE + 2)
-#define DSDRV_READ_DWORD (DSDRV_BASE + 3)
+#define DSDRV_READ_PORT_BYTE (DSDRV_BASE + 1)
+#define DSDRV_READ_PORT_WORD (DSDRV_BASE + 2)
+#define DSDRV_READ_PORT_DWORD (DSDRV_BASE + 3)
 
-#define DSDRV_WRITE_BYTE (DSDRV_BASE + 4)
-#define DSDRV_WRITE_WORD (DSDRV_BASE + 5)
-#define DSDRV_WRITE_DWORD (DSDRV_BASE + 6)
+#define DSDRV_WRITE_PORT_BYTE (DSDRV_BASE + 4)
+#define DSDRV_WRITE_PORT_WORD (DSDRV_BASE + 5)
+#define DSDRV_WRITE_PORT_DWORD (DSDRV_BASE + 6)
 
 #define DSDRV_GET_PCI_INFO (DSDRV_BASE + 7)
 
@@ -151,12 +156,12 @@ extern "C" {
 #define DSDRV_CTL_CODE(function,method) CTL_CODE( FILE_DEVICE_DSCALER,function,method,FILE_ANY_ACCESS)
 
 
-#define ioctlReadBYTE DSDRV_CTL_CODE( DSDRV_READ_BYTE, METHOD_OUT_DIRECT)
-#define ioctlReadWORD DSDRV_CTL_CODE( DSDRV_READ_WORD, METHOD_OUT_DIRECT)
-#define ioctlReadDWORD DSDRV_CTL_CODE( DSDRV_READ_DWORD, METHOD_OUT_DIRECT)
-#define ioctlWriteBYTE DSDRV_CTL_CODE( DSDRV_WRITE_BYTE, METHOD_IN_DIRECT)
-#define ioctlWriteWORD DSDRV_CTL_CODE( DSDRV_WRITE_WORD, METHOD_IN_DIRECT)
-#define ioctlWriteDWORD DSDRV_CTL_CODE( DSDRV_WRITE_DWORD, METHOD_IN_DIRECT)
+#define ioctlReadPortBYTE DSDRV_CTL_CODE( DSDRV_READ_PORT_BYTE, METHOD_OUT_DIRECT)
+#define ioctlReadPortWORD DSDRV_CTL_CODE( DSDRV_READ_PORT_WORD, METHOD_OUT_DIRECT)
+#define ioctlReadPortDWORD DSDRV_CTL_CODE( DSDRV_READ_PORT_DWORD, METHOD_OUT_DIRECT)
+#define ioctlWritePortBYTE DSDRV_CTL_CODE( DSDRV_WRITE_PORT_BYTE, METHOD_IN_DIRECT)
+#define ioctlWritePortWORD DSDRV_CTL_CODE( DSDRV_WRITE_PORT_WORD, METHOD_IN_DIRECT)
+#define ioctlWritePortDWORD DSDRV_CTL_CODE( DSDRV_WRITE_PORT_DWORD, METHOD_IN_DIRECT)
 #define ioctlAllocMemory DSDRV_CTL_CODE( DSDRV_ALLOC_MEMORY, METHOD_BUFFERED)
 #define ioctlFreeMemory DSDRV_CTL_CODE( DSDRV_FREE_MEMORY, METHOD_IN_DIRECT)
 #define ioctlGetPCIInfo DSDRV_CTL_CODE( DSDRV_GET_PCI_INFO, METHOD_OUT_DIRECT)
@@ -217,64 +222,6 @@ typedef struct _PCI_COMMON_CONFIG
     UCHAR   DeviceSpecific[192];
 } PCI_COMMON_CONFIG, *PPCI_COMMON_CONFIG;
 
-#if defined (WIN32)
-
-//---------------------------------------------------------------------------
-// The DSDrv DLL application interface
-//---------------------------------------------------------------------------
-
-int WINAPI isDriverOpened (void);
-
-BYTE WINAPI readPort(WORD address);
-WORD WINAPI readPortW(WORD address);
-DWORD WINAPI readPortL(WORD address);
-void WINAPI writePort(WORD address, BYTE bValue);
-void WINAPI writePortW(WORD address, WORD uValue);
-void WINAPI writePortL(WORD address, DWORD dwValue);
-
-DWORD WINAPI memoryAlloc(DWORD  dwLength,
-                          DWORD  dwFlags,
-						  PMemStruct* ppMemStruct);
-
-DWORD WINAPI memoryFree(PMemStruct pMemStruct);
-
-DWORD WINAPI pciGetHardwareResources(DWORD   dwVendorID,
-                                      DWORD   dwDeviceID,
-                                      PDWORD  pdwMemoryAddress,
-                                      PDWORD  pdwMemoryLength,
-                                      PDWORD  pdwSubSystemId);
-
-DWORD WINAPI memoryMap(DWORD dwAddress, DWORD dwLength);
-void WINAPI memoryUnmap(DWORD dwAddress, DWORD dwLength);
-void WINAPI memoryWriteDWORD(DWORD dwAddress, DWORD dwValue);
-DWORD WINAPI memoryReadDWORD(DWORD dwAddress);
-void WINAPI memoryWriteWORD(DWORD dwAddress, WORD wValue);
-WORD WINAPI memoryReadWORD(DWORD dwAddress);
-void WINAPI memoryWriteBYTE(DWORD dwAddress, BYTE ucValue);
-BYTE WINAPI memoryReadBYTE(DWORD dwAddress);
-
-
-typedef int (WINAPI * PIsDriverOpened)(void);
-typedef DWORD (WINAPI * PMemoryRead)(DWORD dwAddress);
-typedef DWORD (WINAPI * PMemoryWrite)(DWORD dwAddress, DWORD dwValue);
-
-typedef DWORD (WINAPI * PPCIGetHardwareResources)(DWORD   dwVendorID,
-                                                  DWORD   dwDeviceID,
-                                                  PDWORD  pdwMemoryAddress,
-                                                  PDWORD  pdwMemoryLength,
-                                                  PDWORD  pdwSubSystemId);
-
-typedef DWORD (WINAPI * PMemoryAlloc)(DWORD  dwLength,
-                                        DWORD  dwFlags,
-										PMemStruct pMemStruct);
-
-typedef DWORD (WINAPI * PMemoryFree)(DWORD dwUserAddress);
-typedef DWORD (WINAPI * PMemoryMap)(DWORD dwAddress, DWORD dwLength);
-typedef void * (WINAPI * PMemoryMapEx)(DWORD dwAddress, DWORD dwLength);
-typedef DWORD (WINAPI * PMemoryRead) (DWORD dwAddress);
-typedef DWORD (WINAPI * PMemoryWrite) (DWORD dwAddress, DWORD dwValue);
-
-#endif
 #endif
 
 #ifdef __cplusplus

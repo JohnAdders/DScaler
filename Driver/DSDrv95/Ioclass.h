@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Ioclass.h,v 1.5 2001-08-14 10:30:39 adcockj Exp $
+// $Id: Ioclass.h,v 1.6 2001-11-02 10:45:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,8 +37,6 @@
 #include "Basetype.h"
 #include "DSDrv.h"
 
-#if defined (WIN95)
-
 #include <vmmreg.h>
 
 #define PCI_ENUM_FUNC_GET_DEVICE_INFO  0
@@ -49,7 +47,8 @@ typedef DWORD CONFIGRET;
 typedef DWORD ENUMFUNC;
 typedef DWORD HKEY, * PHKEY;
 
-extern "C" {
+extern "C" 
+{
 
 int  __cdecl _inp(unsigned short);
 unsigned short __cdecl _inpw(unsigned short);
@@ -75,21 +74,6 @@ BOOL __cdecl _CopyPageTable(DWORD PageNumber,DWORD nPages, PDWORD ppte,DWORD fla
 #pragma intrinsic(_inpd)
 
 
-#define  osPortReadByte(port,data)       data=_inp(port)
-#define  osPortReadWord(port,data)       data=_inpw(port)
-#define  osPortReadLong(port,data)       data=_inpw(port)
-
-#define  osPortWriteByte(port,data)      _outp(port,data)
-#define  osPortWriteWord(port,data)      _outpw(port,data)
-#define  osPortWriteLong(port,data)      _outpd(port,data)
-
-#define  osMemoryReadDWORD(port,data)         data = *((PDWORD)port)
-#define  osMemoryWriteDWORD(port,data)        *((PDWORD)port) = (DWORD)data
-#define  osMemoryReadWORD(port,data)         data = *((PWORD)port)
-#define  osMemoryWriteWORD(port,data)        *((PWORD)port) = (WORD)data
-#define  osMemoryReadBYTE(port,data)         data = *((PBYTE)port)
-#define  osMemoryWriteBYTE(port,data)        *((PBYTE)port) = (BYTE)data
-
 LONG __cdecl _RegCloseKey(HKEY hkey);
 LONG __cdecl _RegOpenKey(HKEY hkey, PCHAR lpszSubKey, PHKEY phkResult) ;
 LONG __cdecl _RegEnumKey(HKEY hkey, DWORD iSubKey, PCHAR lpszName, DWORD cchName) ;
@@ -99,24 +83,6 @@ LONG __cdecl _RegCloseKey(HKEY hkey) ;
 CONFIGRET __cdecl _CONFIGMG_Locate_DevNode (DEVNODE * pNode, PCHAR szDevId, DWORD flags) ;
 CONFIGRET __cdecl _CONFIGMG_Call_Enumerator_Function (DEVNODE dnDevNode, ENUMFUNC efFunc, DWORD RefData, void* pBuffer, DWORD ulBufferSize, DWORD ulFlags);
 }
-
-#elif defined (_NTKERNEL_)
-
-#define  osPortReadByte(port,data) data = READ_PORT_UCHAR ( (PUCHAR) &port )
-#define  osPortReadWord(port,data) data = READ_PORT_USHORT( (PUSHORT) &port)
-#define  osPortReadLong(port,data) data = READ_PORT_ULONG( (PULONG) &port )
-#define  osPortWriteByte(port,data) WRITE_PORT_UCHAR ( (PUCHAR) &port, (UCHAR) data)
-#define  osPortWriteWord(port,data) WRITE_PORT_USHORT( (PUSHORT) &port, (USHORT) data)
-#define  osPortWriteLong(port,data) WRITE_PORT_ULONG ( (PULONG) &port, (DWORD) data)
-
-#define  osMemoryReadDWORD(port,data) data = READ_REGISTER_ULONG( (PULONG) port)
-#define  osMemoryWriteDWORD(port,data) WRITE_REGISTER_ULONG( (PULONG) port, (DWORD) data)
-#define  osMemoryReadWORD(port,data) data = READ_REGISTER_USHORT( (PUSHORT) port)
-#define  osMemoryWriteWORD(port,data) WRITE_REGISTER_USHORT( (PUSHORT) port, (USHORT) data)
-#define  osMemoryReadBYTE(port,data) data = READ_REGISTER_UCHAR( (PUCHAR) port)
-#define  osMemoryWriteBYTE(port,data) WRITE_REGISTER_UCHAR( (PUCHAR) port, (UCHAR) data)
-
-#endif
 
 
 #define MAX_FREE_MEMORY_NODES   32

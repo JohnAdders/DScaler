@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Ioclass.cpp,v 1.8 2001-08-14 10:30:39 adcockj Exp $
+// $Id: Ioclass.cpp,v 1.9 2001-11-02 10:45:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -33,6 +33,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7.2.1  2001/08/15 08:54:28  adcockj
+// Tidy up driver code
+//
 // Revision 1.7  2001/08/11 13:46:03  adcockj
 // Fix for driver problem
 //
@@ -179,31 +182,39 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
 
     switch ( ioControlCode )
     {
-    case ioctlReadBYTE:
-        osPortReadByte((ULONG)ioParam->dwAddress, *outputBuffer);
-        *pBytesWritten = 1;
+    case ioctlReadPortBYTE:
+        {
+            UCHAR* pByte = (UCHAR*)outputBuffer;
+            *pByte = READ_PORT_UCHAR ((PUCHAR)&ioParam->dwAddress);
+            *pBytesWritten = 1;
+        }
         break;
 
-    case ioctlReadWORD:
-        osPortReadWord((ULONG)ioParam->dwAddress, *outputBuffer);
-        *pBytesWritten = 2;
+    case ioctlReadPortWORD:
+        {
+            USHORT* pWord = (USHORT*)outputBuffer;
+            *pWord = READ_PORT_USHORT ((PUSHORT)&ioParam->dwAddress);
+            *pBytesWritten = 2;
+        }
         break;
 
-    case ioctlReadDWORD:
-        osPortReadLong((ULONG)ioParam->dwAddress, *outputBuffer);
-        *pBytesWritten = 4;
+    case ioctlReadPortDWORD:
+        {
+            *outputBuffer = READ_PORT_ULONG ((PULONG)&ioParam->dwAddress);
+            *pBytesWritten = 4;
+        }
         break;
 
-    case ioctlWriteBYTE:
-        osPortWriteByte((ULONG)ioParam->dwAddress, ioParam->dwValue);
+    case ioctlWritePortBYTE:
+        WRITE_PORT_UCHAR((PUCHAR)&ioParam->dwAddress, (UCHAR)ioParam->dwValue);
         break;
 
-    case ioctlWriteWORD:
-        osPortWriteWord((ULONG)ioParam->dwAddress, (USHORT) ioParam->dwValue);
+    case ioctlWritePortWORD:
+        WRITE_PORT_USHORT((PUSHORT)&ioParam->dwAddress, (USHORT)ioParam->dwValue);
         break;
 
-    case ioctlWriteDWORD:
-        osPortWriteLong((ULONG)ioParam->dwAddress, ioParam->dwValue);
+    case ioctlWritePortDWORD:
+        WRITE_PORT_ULONG(&ioParam->dwAddress, (ULONG)ioParam->dwValue);
         break;
 
     case ioctlGetPCIInfo:
@@ -259,8 +270,7 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
     case ioctlReadMemoryDWORD:
         if (dwMemoryBase)
         {
-            DWORD Address = ioParam->dwAddress + dwMemoryBase;
-            osMemoryReadDWORD( Address, *outputBuffer);
+            *outputBuffer = READ_REGISTER_ULONG((PULONG)ioParam->dwAddress);
             *pBytesWritten = 4;
             debugOut(dbTrace,"memory %X read %X",ioParam->dwAddress, *outputBuffer);
         }
@@ -269,8 +279,7 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
     case ioctlWriteMemoryDWORD:
         if (dwMemoryBase)
         {
-            DWORD Address = ioParam->dwAddress + dwMemoryBase;
-            osMemoryWriteDWORD( Address, ioParam->dwValue );
+            WRITE_REGISTER_ULONG((PULONG)ioParam->dwAddress, ioParam->dwValue);
             debugOut(dbTrace,"memory %X write %X",ioParam->dwAddress, ioParam->dwValue);
         }
         break;
@@ -278,18 +287,17 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
     case ioctlReadMemoryWORD:
         if (dwMemoryBase)
         {
-            DWORD Address = ioParam->dwAddress + dwMemoryBase;
-            osMemoryReadWORD( Address, *outputBuffer);
+            USHORT* pWord = (USHORT*)outputBuffer;
+            *pWord = READ_REGISTER_USHORT((PUSHORT)ioParam->dwAddress);
             *pBytesWritten = 2;
-            debugOut(dbTrace,"memory %X read %X",ioParam->dwAddress, (DWORD)*outputBuffer);
+            debugOut(dbTrace,"memory %X read %X",ioParam->dwAddress, *pWord);
         }
         break;
 
     case ioctlWriteMemoryWORD:
         if (dwMemoryBase)
         {
-            DWORD Address = ioParam->dwAddress + dwMemoryBase;
-            osMemoryWriteWORD( Address, ioParam->dwValue );
+            WRITE_REGISTER_USHORT((PUSHORT)ioParam->dwAddress, (USHORT)ioParam->dwValue);
             debugOut(dbTrace,"memory %X write %X",ioParam->dwAddress, ioParam->dwValue);
         }
         break;
@@ -297,25 +305,25 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
     case ioctlReadMemoryBYTE:
         if (dwMemoryBase)
         {
-            DWORD Address = ioParam->dwAddress + dwMemoryBase;
-            osMemoryReadBYTE( Address, *outputBuffer);
+            UCHAR* pByte = (UCHAR*)outputBuffer;
+            *pByte = READ_REGISTER_UCHAR((PUCHAR)ioParam->dwAddress);
             *pBytesWritten = 1;
-            debugOut(dbTrace,"memory %X read %X",ioParam->dwAddress, (DWORD)*outputBuffer);
+            debugOut(dbTrace,"memory %X read %X",ioParam->dwAddress, *pByte);
         }
         break;
 
     case ioctlWriteMemoryBYTE:
         if (dwMemoryBase)
         {
-            DWORD Address = ioParam->dwAddress + dwMemoryBase;
-            osMemoryWriteBYTE( Address, ioParam->dwValue );
+            WRITE_REGISTER_UCHAR((PUCHAR)ioParam->dwAddress, (UCHAR)ioParam->dwValue);
             debugOut(dbTrace,"memory %X write %X",ioParam->dwAddress, ioParam->dwValue);
         }
         break;
 
     default:
         debugOut(dbError,"unknown command %lX",ioControlCode);
-        status=STATUS_INVALID_PARAMETER;
+        status = STATUS_INVALID_PARAMETER;
+        *pBytesWritten = 0;
         break;
     }
     return status;

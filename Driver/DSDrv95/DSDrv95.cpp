@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSDrv95.cpp,v 1.2 2001-07-13 16:13:53 adcockj Exp $
+// $Id: DSDrv95.cpp,v 1.3 2001-11-02 10:45:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -33,6 +33,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2.2.1  2001/08/14 16:41:37  adcockj
+// Renamed driver
+// Got to compile with new class based card
+//
+// Revision 1.2  2001/07/13 16:13:53  adcockj
+// Added CVS tags and removed tabs
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #include "ioclass.h"
@@ -80,7 +87,7 @@ DWORD _stdcall DSDrvW32DeviceIOControl(DWORD           dwService,
 //---------------------------------------------------------------------------
 DWORD _stdcall DSDrvDynamicInit(void)
  {
-  debugInitialize("DSDrv95",0xFFFFFFFFL);
+  debugInitialize("DSDrv4",0xFFFFFFFFL);
 
   debugOut(dbTrace,"DSDrvDynamicInit()");
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSDrvNT.cpp,v 1.3 2001-07-13 16:13:53 adcockj Exp $
+// $Id: DSDrvNT.cpp,v 1.4 2001-11-02 10:45:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -33,6 +33,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3.2.1  2001/08/14 16:41:37  adcockj
+// Renamed driver
+// Got to compile with new class based card
+//
+// Revision 1.3  2001/07/13 16:13:53  adcockj
+// Added CVS tags and removed tabs
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #include "precomp.h"
@@ -108,7 +115,7 @@ NTSTATUS DriverEntry(IN PDRIVER_OBJECT driverObject, IN PUNICODE_STRING registry
     UNICODE_STRING          deviceLinkUnicodeString;
     PDEVICE_OBJECT          deviceObject;
 
-    debugInitialize( "DSDrvNT",0xFFFFFFFFL);
+    debugInitialize( "DSDrv4",0xFFFFFFFFL);
 
     debugOut(dbTrace,"DriverEntry");
 
@@ -183,7 +190,7 @@ VOID DSDrvUnload(IN PDRIVER_OBJECT driverObject)
 {
     UNICODE_STRING deviceLinkUnicodeString;
 
-    debugOut(dbTrace,"DSDrvNT Unload");
+    debugOut(dbTrace,"DSDrv4 Unload");
 
     RtlInitUnicodeString(&deviceLinkUnicodeString, DSDRVNT_LNKNAME);
     IoDeleteSymbolicLink(&deviceLinkUnicodeString);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Ioclass.h,v 1.6 2001-08-14 10:30:39 adcockj Exp $
+// $Id: Ioclass.h,v 1.7 2001-11-02 10:45:51 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -39,20 +39,6 @@
 #if !defined(__cplusplus)
 #error C++ compiler required.
 #endif
-
-#define  osPortReadByte(port,data) data = READ_PORT_UCHAR ( (PUCHAR) &port )
-#define  osPortReadWord(port,data) data = READ_PORT_USHORT( (PUSHORT) &port)
-#define  osPortReadLong(port,data) data = READ_PORT_ULONG( (PULONG) &port )
-#define  osPortWriteByte(port,data) WRITE_PORT_UCHAR ( (PUCHAR) &port, (UCHAR) data)
-#define  osPortWriteWord(port,data) WRITE_PORT_USHORT( (PUSHORT) &port, (USHORT) data)
-#define  osPortWriteLong(port,data) WRITE_PORT_ULONG ( (PULONG) &port, (DWORD) data)
-
-#define  osMemoryReadDWORD(port,data) data = READ_REGISTER_ULONG( (PULONG) port)
-#define  osMemoryWriteDWORD(port,data) WRITE_REGISTER_ULONG( (PULONG) port, (DWORD) data)
-#define  osMemoryReadWORD(port,data) data = READ_REGISTER_USHORT( (PUSHORT) port)
-#define  osMemoryWriteWORD(port,data) WRITE_REGISTER_USHORT( (PUSHORT) port, (USHORT) data)
-#define  osMemoryReadBYTE(port,data) data = READ_REGISTER_UCHAR( (PUCHAR) port)
-#define  osMemoryWriteBYTE(port,data) WRITE_REGISTER_UCHAR( (PUCHAR) port, (UCHAR) data)
 
 #define MAX_FREE_MEMORY_NODES   32
 

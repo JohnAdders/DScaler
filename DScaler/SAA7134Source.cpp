@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.93 2004-11-20 14:23:55 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.94 2005-03-06 00:35:26 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.93  2004/11/20 14:23:55  atnak
+// Added SAA7134 card name setting for storing the card selection as text.
+//
 // Revision 1.92  2004/11/16 08:58:58  atnak
 // Renumbered eAudioInputSource constants for consistency to actual values
 //
@@ -609,7 +612,7 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
 
     // HELPTEXT: Automatic Volume Leveling control to avoid
     // digital clipping at analog audio output
-    m_AutomaticVolumeLevel = new CAutomaticVolumeLevelSetting(this, "Automatic Volume Leveling", AUTOMATICVOLUME_MEDIUMDECAY, AUTOMATICVOLUME_LONGDECAY, IniSection, m_AutomaticVolumeSzList);
+    m_AutomaticVolumeLevel = new CAutomaticVolumeLevelSetting(this, "Automatic Volume Leveling", AUTOMATICVOLUME_OFF, AUTOMATICVOLUME_LONGDECAY, IniSection, m_AutomaticVolumeSzList);
     m_Settings.push_back(m_AutomaticVolumeLevel);
 
     // HELPTEXT: Lower means better VBI reception/decoding but

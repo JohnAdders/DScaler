@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsPerChannel.cpp,v 1.10 2002-08-27 22:02:32 kooiman Exp $
+// $Id: SettingsPerChannel.cpp,v 1.11 2002-08-31 16:30:17 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 DScaler team.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/08/27 22:02:32  kooiman
+// Added Get/Set input for video and audio for all sources. Added source input change notification.
+//
 // Revision 1.9  2002/08/21 20:27:13  kooiman
 // Improvements and cleanup of some settings per channel code.
 //
@@ -582,10 +585,9 @@ BOOL TChannelSetting::CompareToggleSetting(const char *szName,const char *szDesc
       return ( (std::string(ToggleSetting->szIniEntry) == std::string(szName)) && (std::string(ToggleSetting->szDisplayName) == std::string(szDescription)) );
    }
    else
-   {
-      return FALSE;
-   }
-   return ( (sIniEntry == std::string(szName)) && (sDisplayName == std::string(szDescription)) );
+   {      
+      return ( (sIniEntry == std::string(szName)) && (sDisplayName == std::string(szDescription)) );
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -848,7 +850,7 @@ int SettingsPerChannel_RegisterSetting(const char *szName,const char *szDescript
         it != vSpcChannelSettings.end();
         ++it)
     {
-        if ((*it)->CompareToggleSetting (szName, szDescription))        
+        if (!(*it)->ToggleSettingIsLink && (*it)->CompareToggleSetting (szName, szDescription))        
         {                    
             if ((CSSetting == NULL) && (Setting==NULL) && (pToggleValue==NULL))
             {
@@ -1729,7 +1731,7 @@ void SettingsPerChannel_WriteSettingsToIni(BOOL bOptimizeFileAccess)
         it != vSpcChannelSettings.end();
         ++it)
     {        
-        if (!(*it)->ToggleSettingIsLink)
+        if (!(*it)->ToggleSettingIsLink && (*it)->ToggleSetting!=NULL)
         {
             Setting_WriteToIni((*it)->ToggleSetting, bOptimizeFileAccess);
         }

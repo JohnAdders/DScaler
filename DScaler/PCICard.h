@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCICard.h,v 1.11 2002-09-11 18:19:43 adcockj Exp $
+// $Id: PCICard.h,v 1.12 2002-09-12 21:40:37 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,9 +40,10 @@ public:
 protected:
     CPCICard(CHardwareDriver* pDriver);
     ~CPCICard();
-    /// Clos the card and unmap memory
+    /// Close the card and unmap memory
     void ClosePCICard();
 
+public:
     /// Write a BYTE to shared memory
     void WriteByte(DWORD Offset, BYTE Data);
     /// Write a WORD to shared memory
@@ -57,18 +58,18 @@ protected:
     /// Read a DWORD from shared memory
     DWORD ReadDword(DWORD Offset);
 
-	void MaskDataByte(DWORD Offset, BYTE Data, BYTE Mask);
-	void MaskDataWord(DWORD Offset, WORD Data, WORD Mask);
-	void MaskDataDword(DWORD Offset, DWORD Data, DWORD Mask);
-	void AndOrDataByte(DWORD Offset, DWORD Data, BYTE Mask);
-	void AndOrDataWord(DWORD Offset, DWORD Data, WORD Mask);
-	void AndOrDataDword(DWORD Offset, DWORD Data, DWORD Mask);
-	void AndDataByte(DWORD Offset, BYTE Data);
-	void AndDataWord(DWORD Offset, WORD Data);
-	void AndDataDword(DWORD Offset, DWORD Data);
-	void OrDataByte(DWORD Offset, BYTE Data);
-	void OrDataWord(DWORD Offset, WORD Data);
-	void OrDataDword(DWORD Offset, DWORD Data);
+    void MaskDataByte(DWORD Offset, BYTE Data, BYTE Mask);
+    void MaskDataWord(DWORD Offset, WORD Data, WORD Mask);
+    void MaskDataDword(DWORD Offset, DWORD Data, DWORD Mask);
+    void AndOrDataByte(DWORD Offset, DWORD Data, BYTE Mask);
+    void AndOrDataWord(DWORD Offset, DWORD Data, WORD Mask);
+    void AndOrDataDword(DWORD Offset, DWORD Data, DWORD Mask);
+    void AndDataByte(DWORD Offset, BYTE Data);
+    void AndDataWord(DWORD Offset, WORD Data);
+    void AndDataDword(DWORD Offset, DWORD Data);
+    void OrDataByte(DWORD Offset, BYTE Data);
+    void OrDataWord(DWORD Offset, WORD Data);
+    void OrDataDword(DWORD Offset, DWORD Data);
 
 protected:
     DWORD  m_SubSystemId;

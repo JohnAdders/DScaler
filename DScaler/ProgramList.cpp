@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.62 2002-08-02 18:37:35 robmuller Exp $
+// $Id: ProgramList.cpp,v 1.63 2002-08-02 19:33:24 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.62  2002/08/02 18:37:35  robmuller
+// Patch #588554 by Markus Debus. Change channel on remove added.
+//
 // Revision 1.61  2002/07/27 15:20:34  laurentg
 // Channels menu updated
 //
@@ -1541,13 +1544,19 @@ void Channels_UpdateMenu(HMENU hMenu)
     j = 0;
     for (it = MyChannels.begin(); it != MyChannels.end() && (j < MAXPROGS); ++it)
     {
-        AppendMenu(hMenuChannels, MF_STRING | MF_ENABLED, IDM_CHANNEL_SELECT + j, (*it)->GetName());
+        if((*it)->IsActive())
+        {
+            AppendMenu(hMenuChannels, MF_STRING | MF_ENABLED, IDM_CHANNEL_SELECT + j, (*it)->GetName());
+        }
         j++;
     }
 }
 
 void Channels_SetMenu(HMENU hMenu)
 {
+    int NDisabledChannels = 0;
+    int j = 0;
+    CHANNELLIST::iterator it;
     HMENU hMenuChannels(GetChannelsSubmenu());
     if(hMenuChannels == NULL) return;
 
@@ -1559,10 +1568,17 @@ void Channels_SetMenu(HMENU hMenu)
     EnableMenuItem(hMenu, IDM_CHANNEL_PREVIOUS, bHasTuner && bInTunerMode?MF_ENABLED:MF_GRAYED);
     EnableMenuItem(hMenu, IDM_CHANNEL_LIST, bHasTuner?MF_ENABLED:MF_GRAYED);
 
-    for (int i(0); (i < MAXPROGS) && (i < (GetMenuItemCount(hMenuChannels)-6)); ++i)
+    for (it = MyChannels.begin(); it != MyChannels.end() && (j < MAXPROGS); ++it)
     {
-        EnableMenuItem(hMenuChannels, i+6, bHasTuner?MF_BYPOSITION | MF_ENABLED:MF_BYPOSITION | MF_GRAYED);
-        CheckMenuItem(hMenuChannels, i+6, (CurrentProgram == i) ? MF_BYPOSITION | MF_CHECKED : MF_BYPOSITION | MF_UNCHECKED);
+        if(!(*it)->IsActive())
+        {
+            NDisabledChannels++;
+        }
+        EnableMenuItem(hMenuChannels, j + 6 - NDisabledChannels,
+                       bHasTuner ? MF_BYPOSITION | MF_ENABLED:MF_BYPOSITION | MF_GRAYED);
+        CheckMenuItem(hMenuChannels, j + 6 - NDisabledChannels,
+                      (CurrentProgram == j) ? MF_BYPOSITION | MF_CHECKED : MF_BYPOSITION | MF_UNCHECKED);
+        j++;
     }
 }
 

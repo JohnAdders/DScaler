@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.24 2003-01-05 19:01:13 adcockj Exp $
+// $Id: CX2388xSource.cpp,v 1.25 2003-01-07 16:49:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2003/01/05 19:01:13  adcockj
+// Made some changes to Laurent's last set of VBI fixes
+//
 // Revision 1.23  2003/01/05 18:35:45  laurentg
 // Init function for VBI added
 //
@@ -593,14 +596,7 @@ void CCX2388xSource::Start()
     else
     {
         // we use  only two different sampling rates which are based off the pal and ntsc fsc values
-        if(m_CurrentY == 576)
-        {
-    	    VBI_Init_data(8*GetTVFormat(VIDEOFORMAT_PAL_B)->Fsc);
-        }
-        else
-        {
-       	    VBI_Init_data(28.636363);
-        }
+        VBI_Init_data(GetTVFormat((eVideoFormat)m_VideoFormat->GetValue())->Bt848VBISamplingFrequency);
     }
 }
 

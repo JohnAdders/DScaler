@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI.cpp,v 1.22 2003-01-05 18:35:45 laurentg Exp $
+// $Id: VBI.cpp,v 1.23 2003-01-07 16:49:09 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2003/01/05 18:35:45  laurentg
+// Init function for VBI added
+//
 // Revision 1.21  2003/01/05 12:42:52  laurentg
 // WSS decoding updated to take into account a VBI frequency of 27.0 MHz
 //
@@ -113,8 +116,6 @@ HANDLE VBIThread;
 
 BYTE VBI_thresh;
 BYTE VBIOffset;
-int VTStep;
-int VPSStep;
 
 BOOL bCaptureVBI = FALSE;
 BOOL DoTeletext = FALSE;
@@ -160,8 +161,6 @@ void VBI_ChannelChange()
 void VBI_DecodeLine(unsigned char* VBI_Buffer, int line, BOOL IsOdd)
 {
     TTVFormat* TVFormat = GetTVFormat(Providers_GetCurrentSource()->GetFormat());
-    VTStep = (int) ((35.468950 / 6.9375) * FPFAC + 0.5);
-    VPSStep = 2 * (int) ((35.468950 / 5.0) * FPFAC + 0.5);
 
     // set up threshold and offset data
     VBI_AGC(VBI_Buffer, 120, 450, 1);

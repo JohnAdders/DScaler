@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VPSdecode.cpp,v 1.2 2003-01-05 18:35:45 laurentg Exp $
+// $Id: VBI_VPSdecode.cpp,v 1.3 2003-01-07 16:49:11 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -42,6 +42,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2003/01/05 18:35:45  laurentg
+// Init function for VBI added
+//
 // Revision 1.1  2003/01/01 20:35:32  atnak
 // Moved VPS stuff out of VBI_VideoText.*
 //
@@ -62,6 +65,8 @@ int VPSNameIndex = 0;
 int VBIFPS = 0;
 HWND hVPSInfoWnd = NULL;
 
+int VPSStep;
+
 
 void VBI_VPS_Init()
 {
@@ -77,6 +82,7 @@ void VBI_VPS_Exit()
 
 void VPS_Init_Data(double VBI_Frequency)
 {
+    VPSStep = 2 * (int) ((VBI_Frequency / 5.0) * FPFAC + 0.5);
 }
 
 
@@ -154,8 +160,8 @@ void VBI_DecodeLine_VPS(BYTE* VBI_Buffer)
     int i, p;
     UINT scanPos;
 
-    p = 150;
-    while ((VBI_Buffer[p] < VBI_thresh) && (p < 260))
+    p = VPSStep * 21 / FPFAC;
+    while ((VBI_Buffer[p] < VBI_thresh) && (p < (VPSStep * 37 / FPFAC)))
     {
         p++;
     }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_CCdecode.cpp,v 1.15 2003-01-05 18:35:45 laurentg Exp $
+// $Id: VBI_CCdecode.cpp,v 1.16 2003-01-07 16:49:10 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Mike Baker.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2003/01/05 18:35:45  laurentg
+// Init function for VBI added
+//
 // Revision 1.14  2003/01/01 20:32:39  atnak
 // Renamed DecodeLine function
 //
@@ -104,8 +107,25 @@ int           LastCode;
 int           CCDisplayMode=1;       //cc1 or cc2
 char          CCBuf[3][256];      //cc is 32 columns per row, this allows for extra characters
 
+int CC_Clock;
+int CC_Gap;
+
+
 void CC_Init_Data(double VBI_Frequency)
 {
+    TTVFormat* TVFormat = GetTVFormat(Providers_GetCurrentSource()->GetFormat());
+    // there are two different CC frequencies
+    // one for PAL type and one for NTSC type formats
+    if(TVFormat->wCropHeight == 576)
+    {
+        CC_Clock = (VBI_Frequency / 0.5 + 0.5);
+        CC_Gap = (VBI_Frequency * 9 / 0.5 + 0.5);
+    }
+    else
+    {
+        CC_Clock = (VBI_Frequency / 0.503 + 0.5);
+        CC_Gap = (VBI_Frequency * 9 / 0.503 + 0.5);
+    }
 }
 
 int parityok(int n) // check parity for 2 bytes packed in n 
@@ -189,13 +209,12 @@ int decode(unsigned char* vbiline)
     int ClockPos = -1;
     DWORD Threshold = 0;
     int ClockCur;
-    TTVFormat* TVFormat = GetTVFormat(Providers_GetCurrentSource()->GetFormat());
     
     i=0;
 
     while (i < 120)
     {
-        ClockCur = FindClock(vbiline + i, TVFormat->CC_Clock);
+        ClockCur = FindClock(vbiline + i, CC_Clock);
         if(ClockCur > ClockMax)
         {
             ClockMax = ClockCur;
@@ -209,25 +228,25 @@ int decode(unsigned char* vbiline)
         return -1;
     }
 
-    tmp = ClockPos + TVFormat->CC_Gap - 3 * TVFormat->CC_Clock / 2;
+    tmp = ClockPos + CC_Gap - 3 * CC_Clock / 2;
 
-    for(i = 0; i < TVFormat->CC_Clock; i++)
+    for(i = 0; i < CC_Clock; i++)
     {
         Threshold += vbiline[tmp + i];
     }
-    Threshold /= TVFormat->CC_Clock;
+    Threshold /= CC_Clock;
     Threshold += ClockMax / 2; 
-    tmp = ClockPos + TVFormat->CC_Gap;
+    tmp = ClockPos + CC_Gap;
 
-    if(!decodebit(&vbiline[tmp], Threshold, TVFormat->CC_Clock / 2))
+    if(!decodebit(&vbiline[tmp], Threshold, CC_Clock / 2))
     {
         // no start bit
         return -1;
     }
     for (i = 0; i < 16; i++)
     {
-        tmp += TVFormat->CC_Clock;
-        if(decodebit(&vbiline[tmp], Threshold, TVFormat->CC_Clock / 2))
+        tmp += CC_Clock;
+        if(decodebit(&vbiline[tmp], Threshold, CC_Clock / 2))
         {
             packedbits |= 1<<i;
         }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI.h,v 1.9 2003-01-05 18:35:45 laurentg Exp $
+// $Id: VBI.h,v 1.10 2003-01-07 16:49:09 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -62,7 +62,5 @@ void VBI_AGC(BYTE* Buffer, int start, int stop, int step);
 extern BYTE VBI_thresh;
 extern BYTE VBIOffset;
 extern BOOL bCaptureVBI;
-extern int VTStep;
-extern int VPSStep;
 extern BOOL bSearchHighlight;
 #endif

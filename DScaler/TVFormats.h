@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TVFormats.h,v 1.5 2002-10-18 11:41:47 adcockj Exp $
+// $Id: TVFormats.h,v 1.6 2003-01-07 16:49:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/10/18 11:41:47  adcockj
+// Updated Fsc values
+//
 // Revision 1.4  2001/12/05 21:45:11  ittarnavsky
 // added changes for the AudioDecoder and AudioControls support
 //
@@ -73,9 +76,12 @@ typedef struct
         for others it is Fsc
     */
     double Fsc;
+    /** Frequency at which the bt848 will sample VBI
+        Also used by the cx2388x in some modes
+    */
+    double Bt848VBISamplingFrequency;
     BOOL NeedsPLL;
-    WORD CC_Clock;
-    WORD CC_Gap;
+
     WORD CC_Line;
     WORD WSS_Line;
 } TTVFormat;

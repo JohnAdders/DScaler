@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.61 2003-01-07 07:37:38 atnak Exp $
+// $Id: VBI_VideoText.cpp,v 1.62 2003-01-07 16:49:11 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.61  2003/01/07 07:37:38  atnak
+// Fixed page subcodes
+//
 // Revision 1.60  2003/01/05 18:35:45  laurentg
 // Init function for VBI added
 //
@@ -225,6 +228,7 @@
 #include "VBI_VideoText.h"
 #include "VBI.h"
 #include "DScaler.h"
+#include "Providers.h"
 
 #define VT_MAXPAGEHISTORY   64
 
@@ -303,6 +307,8 @@ WORD                VTCursorPageHex = 0;
 
 CRITICAL_SECTION    VTPageChangeMutex;
 
+int VTStep;
+
 
 void VBI_VT_Init()
 {
@@ -335,6 +341,18 @@ void VBI_VT_Exit()
 
 void VT_Init_Data(double VBI_Frequency)
 {
+    TTVFormat* TVFormat = GetTVFormat(Providers_GetCurrentSource()->GetFormat());
+    // set up the desired Teletext step frequency
+    // there are two different Teletext frequencies
+    // one for PAL type and one for NTSC type formats
+    if(TVFormat->wCropHeight == 576)
+    {
+        VTStep = (int) ((VBI_Frequency / 6.9375) * FPFAC + 0.5);
+    }
+    else
+    {
+        VTStep = (int) ((VBI_Frequency / 5.7272) * FPFAC + 0.5);
+    }
 }
 
 
@@ -1913,39 +1931,49 @@ void VBI_DecodeLine_VT(BYTE* VBI_Buffer)
     int i, n, sync, thr;
 
     // remove DC. edge-detector
-    for (i = 40; i < 240; ++i)
+    // \todo is this really required????
+    // shouldn't we just use a better clock signal
+    // detector
+    // this seems to operate on the region betweens 8 and 48 bit worth of the
+    // incoming signal
+    // these values seem quite wide and may not really suit all cards
+    // also may possible corrupt data real data
+    for (i = (VTStep * 8 / FPFAC); i < (VTStep * 48 / FPFAC); ++i)
     {
         dt[i] = VBI_Buffer[i + VTStep / FPFAC] - VBI_Buffer[i]; // amplifies the edges best.
     }
 
-    // set barrier
-    for (i = 240; i < 256; i += 2)
-    {
-        dt[i] = 100;
-        dt[i+1] = -100;
-    }
 
     // find 6 rising and falling edges
-    for (i = 40, n = 0; n < 6; ++n)
+    for (i = (VTStep * 8 / FPFAC), n = 0; n < 6 && i < (VTStep * 48 / FPFAC); ++n)
     {
-        while (dt[i] < 32)
+        while (dt[i] < 32 && i < (VTStep * 48 / FPFAC))
         {
             i++;
         }
         hi[n] = i;
-        while (dt[i] > -32)
+        while (dt[i] > -32 && i < (VTStep * 48 / FPFAC))
         {
             i++;
         }
         lo[n] = i;
     }
-    if (i >= 240)
+    // If we exited look after looking too far
+    // then we haven't found the clock run-in
+    if (i = (VTStep * 48 / FPFAC))
     {
         return; // not enough periods found
     }
 
-    i = hi[5] - hi[1];  // length of 4 periods (8 bits), normally 40.9
-    if (i < 39 || i > 42)
+    // length of 4 periods (8 bits)
+    // normally 40 ish for PAL @ 8*fsc
+    // or 31 ish for PAL 27Mhz
+    i = hi[5] - hi[1];  
+
+    // check that the found frequency is very close to what we expect it
+    // to be.  We will use the precalculated one rather than the one we've 
+    // just locked to
+    if ( (i - (VTStep * 8 / FPFAC)) < -1 || (i - (VTStep * 8 / FPFAC)) > 1)
     {
         return; // bad frequency
     }
@@ -1974,7 +2002,6 @@ void VBI_DecodeLine_VT(BYTE* VBI_Buffer)
     thr = (min + max) / 2;
 
     // search start-byte 11100100
-    //for (i = 4 * VTStep + vbi->pll_adj*VTStep/10; i < 16*VTStep; i += VTStep)
     for (i = 4 * VTStep; i < (int)(16*VTStep); i += VTStep)
     {
         if (VBI_Buffer[sync + i/FPFAC] > thr && VBI_Buffer[sync + (i+VTStep)/FPFAC] > thr) // two ones is enough...
@@ -1983,7 +2010,7 @@ void VBI_DecodeLine_VT(BYTE* VBI_Buffer)
             memset(data, 0, sizeof(data));
             data[0] = 0x55;
             data[1] = 0x55;
-            for (n = 0; n < 43*8; ++n, i += VTStep)
+            for (n = 0; n < 43 * 8; ++n, i += VTStep)
             {
                 if (VBI_Buffer[sync + i/FPFAC] +
                     VBI_Buffer[sync + i/FPFAC - 1] +

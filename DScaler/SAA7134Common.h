@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Common.h,v 1.7 2002-10-29 03:07:19 atnak Exp $
+// $Id: SAA7134Common.h,v 1.8 2002-11-07 18:54:21 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/10/29 03:07:19  atnak
+// Added SAA713x TreeSettings Page
+//
 // Revision 1.6  2002/10/26 06:59:30  atnak
 // Minor change to video standards definition
 //
@@ -58,14 +61,15 @@ protected:
 
     enum
     {
-        kMAX_VBILINES                = 19,
-        kMAX_VIDLINES                = 288,
+        kMAX_VBILINES               = 19,
+        kMAX_VIDLINES               = 288,
 
-        // do not change
-        kMAX_FRAMEBUFFERS            = 2,
-        kMAX_VBI_PAGETABLES          = kMAX_FRAMEBUFFERS,
-        kMAX_VID_PAGETABLES          = kMAX_FRAMEBUFFERS,
-        kMAX_PAGETABLES              = kMAX_VID_PAGETABLES + kMAX_VBI_PAGETABLES,
+        // DO NOT change
+        kMAX_FRAMEBUFFERS           = 2,
+        kMAX_FIELDBUFFERS           = kMAX_FRAMEBUFFERS * 2,
+        kMAX_VBI_PAGETABLES         = kMAX_FRAMEBUFFERS,
+        kMAX_VID_PAGETABLES         = kMAX_FRAMEBUFFERS,
+        kMAX_PAGETABLES             = kMAX_VID_PAGETABLES + kMAX_VBI_PAGETABLES,
     };
 
     /// SAA713x Card Ids
@@ -87,17 +91,25 @@ protected:
 
     enum eTaskID
     {
-        TASKID_A            = 0,
-        TASKID_B            = 1
+        TASKID_A                = 0,
+        TASKID_B                = 1
     };
 
     enum eRegionID
     {
-        REGIONID_INVALID    = -1,
-        REGIONID_VIDEO_A    = 0,
-        REGIONID_VIDEO_B    = 1,
-        REGIONID_VBI_A      = 2,
-        REGIONID_VBI_B      = 3
+        REGIONID_INVALID        = -1,
+        REGIONID_VIDEO_A        = 0,
+        REGIONID_VIDEO_B        = 1,
+        REGIONID_VBI_A          = 2,
+        REGIONID_VBI_B          = 3
+    };
+
+    /// Bit masks used in TFieldID
+    enum
+    {
+        FIELDID_FRAMESHIFT        = 1,
+        FIELDID_FIELDMASK         = 0x01,
+        FIELDID_SECONDFIELD       = FIELDID_FIELDMASK
     };
 
     enum
@@ -292,6 +304,10 @@ protected:
     } TAudioStandardDefinition;
 
 
+    /// Used by Source and Card to identify fields
+    typedef char TFieldID;
+
+
 protected:
 
     BOOL        IsRegionIDVideo(eRegionID RegionID);
@@ -300,6 +316,10 @@ protected:
     eTaskID     RegionID2TaskID(eRegionID RegionID);
     eRegionID   TaskID2VideoRegion(eTaskID TaskID);
     eRegionID   TaskID2VBIRegion(eTaskID TaskID);
+
+    TFieldID    GetNextFieldID(TFieldID FieldID);
+    TFieldID    GetPrevFieldID(TFieldID FieldID);
+    int         GetFieldDistance(TFieldID FromID, TFieldID ToID);
 
     BOOL IsPALVideoStandard(eVideoStandard VideoStandard);
     BOOL IsSECAMVideoStandard(eVideoStandard VideoStandard);
@@ -313,6 +333,7 @@ protected:
 
     int GetMaxAudioCarrierNames();
     int GetMaxFMDeemphasisNames();
+
 
 protected:
 

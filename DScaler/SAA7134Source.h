@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.h,v 1.23 2002-10-31 05:39:02 atnak Exp $
+// $Id: SAA7134Source.h,v 1.24 2002-11-07 18:54:20 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2002/10/31 05:39:02  atnak
+// Added SoundChannel change event for toolbar
+//
 // Revision 1.22  2002/10/31 05:02:55  atnak
 // Settings cleanup and audio tweaks
 //
@@ -112,7 +115,7 @@ class CSAA7134Source : public CSource,
 {
     DECLARE_CLASS_SETTINGS(CSAA7134Source);
 public:
-    CSAA7134Source(CSAA7134Card* pSAA7134Card, CContigMemory* PagelistDMAMem[4], CUserMemory* DisplayDMAMem[2], CUserMemory* VBIDMAMem[2], LPCSTR IniSection, LPCSTR ChipName, int DeviceIndex);
+    CSAA7134Source(CSAA7134Card* pSAA7134Card, CContigMemory* PagelistDMAMem[kMAX_PAGETABLES], CUserMemory* DisplayDMAMem[kMAX_FRAMEBUFFERS], CUserMemory* VBIDMAMem[kMAX_FRAMEBUFFERS], LPCSTR IniSection, LPCSTR ChipName, int DeviceIndex);
     ~CSAA7134Source();
 
     void Start();
@@ -189,21 +192,23 @@ private:
     void SetupAudioSource();
     void SetupVideoStandard();
     void SetupAudioStandard();
+    void UpdateAudioStatus();
 
     void SetupDMAMemory();
     DWORD CreatePageTable(CUserMemory* pDMAMemory, DWORD nPagesWanted, LPDWORD pPageTable);
     
+    TPicture* GetFieldBuffer(TFieldID FieldID);
+    void GetFrameIndex(TFieldID FieldID, BYTE* pFrameIndex, BOOL* pIsFieldOdd);
+
     void GiveNextField(TDeinterlaceInfo* pInfo, TPicture* picture);
     void GetNextFieldNormal(TDeinterlaceInfo* pInfo);
     void GetNextFieldAccurate(TDeinterlaceInfo* pInfo);
 
-    void UpdateAudioStatus();
+    BOOL PollForNextField(TFieldID* pNextFieldID, int* pFieldDistance, BOOL bSmartSleep);
 
-    BOOL GetFinishedField(eRegionID& DoneRegionID, BOOL& bDoneIsFieldOdd);
-    BOOL WaitForFinishedField(eRegionID& RegionID, BOOL& bIsFieldOdd, TDeinterlaceInfo* pInfo);
-
-    int EnumulateField(eRegionID RegionID, BOOL bIsFieldOdd);
-    void DenumulateField(int Index, eRegionID* RegionID, BOOL* bIsFieldOdd);
+    void InitializeSmartSleep();
+    void PerformSmartSleep(ULONGLONG* pPerformanceTick, ULONGLONG* pTimePassed);
+    void UpdateSmartSleep(BOOL bRecalculate, ULONGLONG LastTick, ULONGLONG TimePassed);
 
     void InitializeUI();
     void CleanupUI();
@@ -256,16 +261,16 @@ protected:
 
 private:
     CSAA7134Card*   m_pSAA7134Card;
-    BYTE*           m_pDisplay[2];
-    BYTE*           m_pVBILines[2];
-    CUserMemory*    m_VBIDMAMem[2];
-    CUserMemory*    m_DisplayDMAMem[2];
-    DWORD           m_DisplayPageTablePhysical[2];
-    DWORD*          m_DisplayPageTableLinear[2];
-    DWORD           m_VBIPageTablePhysical[2];
-    DWORD*          m_VBIPageTableLinear[2];
-    TPicture        m_EvenFields[2];
-    TPicture        m_OddFields[2];
+    BYTE*           m_pDisplay[kMAX_FRAMEBUFFERS];
+    BYTE*           m_pVBILines[kMAX_FRAMEBUFFERS];
+    CUserMemory*    m_VBIDMAMem[kMAX_FRAMEBUFFERS];
+    CUserMemory*    m_DisplayDMAMem[kMAX_FRAMEBUFFERS];
+    DWORD           m_DisplayPageTablePhysical[kMAX_VID_PAGETABLES];
+    DWORD*          m_DisplayPageTableLinear[kMAX_VID_PAGETABLES];
+    DWORD           m_VBIPageTablePhysical[kMAX_VBI_PAGETABLES];
+    DWORD*          m_VBIPageTableLinear[kMAX_VBI_PAGETABLES];
+    TPicture        m_EvenFields[kMAX_FRAMEBUFFERS];
+    TPicture        m_OddFields[kMAX_FRAMEBUFFERS];
     long            m_CurrentX;
     long            m_CurrentY;
     long            m_CurrentVBILines;
@@ -280,22 +285,20 @@ private:
     std::string     m_Section;
     std::string     m_IDString;
 
-    int             m_CurrentFrame;
-    BOOL            m_IsFieldOdd;
-    int             m_LastFieldIndex;
-
     eAudioChannel   m_DetectedAudioChannel;
 
     DWORD           m_ChannelChangeTick;
 
+    ULONGLONG       m_PerformanceFrequency;
     // Used to time field to field tick delay
-    ULONGLONG       m_LastPerformanceCount;
+    ULONGLONG       m_LastFieldPerformanceCount;
     // Used to store current field to field microsecond delay
     ULONGLONG       m_MinimumFieldDelay;
 
     // The field the card is currently processing
-    eRegionID       m_ProcessingRegionID;
-    BOOL            m_IsProcessingFieldOdd;
+    TFieldID        m_ProcessingFieldID;
+    // The field that is currently in use
+    TFieldID        m_CurrentFieldID;
 
     BOOL            m_bSelectCardCancelButton;
 

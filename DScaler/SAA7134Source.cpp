@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.40 2002-10-31 05:39:02 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.41 2002-11-07 18:54:21 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.40  2002/10/31 05:39:02  atnak
+// Added SoundChannel change event for toolbar
+//
 // Revision 1.39  2002/10/31 05:02:55  atnak
 // Settings cleanup and audio tweaks
 //
@@ -181,6 +184,7 @@ void SAA7134_OnSetup(void *pThis, int Start)
    }
 }
 
+
 CSAA7134Source::CSAA7134Source(CSAA7134Card* pSAA7134Card, CContigMemory* PageTableDMAMem[4], CUserMemory* DisplayDMAMem[2], CUserMemory* VBIDMAMem[2], LPCSTR IniSection, LPCSTR ChipName, int DeviceIndex) :
     CSource(WM_SAA7134_GETVALUE, IDC_SAA7134),
     m_pSAA7134Card(pSAA7134Card),
@@ -188,13 +192,13 @@ CSAA7134Source::CSAA7134Source(CSAA7134Card* pSAA7134Card, CContigMemory* PageTa
     m_CurrentY(576),
     m_CurrentVBILines(19),
     m_Section(IniSection),
-    m_IsFieldOdd(FALSE),
     m_InSaturationUpdate(FALSE),
     m_CurrentChannel(-1),
     m_SettingsByChannelStarted(FALSE),
     m_ChipName(ChipName),
     m_DeviceIndex(DeviceIndex),
-    m_LastFieldIndex(0),
+    m_CurrentFieldID(0),
+    m_ProcessingFieldID(-1),
     m_hSAA7134ResourceInst(NULL),
     m_SettingsSetup(NULL),
     m_DetectedAudioChannel((eAudioChannel)-1)
@@ -257,6 +261,7 @@ CSAA7134Source::CSAA7134Source(CSAA7134Card* pSAA7134Card, CContigMemory* PageTa
     NotifyInputChange(0, VIDEOINPUT, -1, m_VideoSource->GetValue());
     NotifyInputChange(0, VIDEOFORMAT, -1, m_VideoFormat->GetValue());
 }
+
 
 CSAA7134Source::~CSAA7134Source()
 {
@@ -582,7 +587,7 @@ void CSAA7134Source::Start()
     SetTimer(hWnd, TIMER_MSP, 1000, NULL);
 
     NotifySquarePixelsCheck();
-    m_ProcessingRegionID = REGIONID_INVALID;
+    m_ProcessingFieldID = -1;
 }
 
 
@@ -676,6 +681,8 @@ DWORD CSAA7134Source::CreatePageTable(CUserMemory* pDMAMemory, DWORD nPagesWante
 
 void CSAA7134Source::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 {
+    TPicture* FieldBuffer;
+
     if (AccurateTiming)
     {
         GetNextFieldAccurate(pInfo);
@@ -689,52 +696,28 @@ void CSAA7134Source::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     {
     }
 
-    if (m_IsFieldOdd)
-    {
-        if (m_ReversePolarity->GetValue() == FALSE)
-        {
-            if (m_VBIDebugOverlay->GetValue())
-            {
-                for (int nLine(0); nLine < m_CurrentVBILines; nLine++)
-                {
-                    for (int i(0); i < 2048; i++)
-                    {
-                        m_OddFields[m_CurrentFrame].pData[nLine * 4096 + i] =
-                            m_pVBILines[m_CurrentFrame][(m_CurrentVBILines + nLine) * 2048 + i];
-                    }
-                }
-            }
+    FieldBuffer = GetFieldBuffer(m_CurrentFieldID);
 
-            GiveNextField(pInfo, &m_OddFields[m_CurrentFrame]);
-        }
-        else
+    if (m_VBIDebugOverlay->GetValue())
+    {
+        BYTE nFrameIndex;
+        BOOL bIsFieldOdd;
+
+        GetFrameIndex(m_CurrentFieldID, &nFrameIndex, &bIsFieldOdd);
+
+        BYTE* pVBI = m_pVBILines[nFrameIndex];
+        pVBI += bIsFieldOdd ? (m_CurrentVBILines * 2048) : 0;
+
+        for (int nLine(0); nLine < m_CurrentVBILines; nLine++)
         {
-            GiveNextField(pInfo, &m_EvenFields[(pInfo->CurrentFrame + 1) % 2]);
+            for (int i(0); i < 2048; i++)
+            {
+                FieldBuffer->pData[nLine * 4096 + i] = pVBI[nLine * 2048 + i];
+            }
         }
     }
-    else
-    {
-        if (m_ReversePolarity->GetValue() == FALSE)
-        {
-            if (m_VBIDebugOverlay->GetValue())
-            {
-                for (int nLine(0); nLine < m_CurrentVBILines; nLine++)
-                {
-                    for (int i(0); i < 2048; i++)
-                    {
-                        m_EvenFields[m_CurrentFrame].pData[nLine * 4096 + i] =
-                            m_pVBILines[m_CurrentFrame][nLine * 2048 + i];
-                    }
-                }
-            }
 
-            GiveNextField(pInfo, &m_EvenFields[m_CurrentFrame]);
-        }
-        else
-        {
-            GiveNextField(pInfo, &m_OddFields[m_CurrentFrame]);
-        }
-    }
+    GiveNextField(pInfo, FieldBuffer);
 
     pInfo->LineLength = m_CurrentX * 2;
     pInfo->FrameWidth = m_CurrentX;
@@ -749,172 +732,171 @@ void CSAA7134Source::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 }
 
 
-void CSAA7134Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
+TPicture* CSAA7134Source::GetFieldBuffer(TFieldID FieldID)
 {
-    eRegionID   RegionID;
-    BOOL        bIsFieldOdd;
-    int         FieldIndex;
-    int         SkippedFields;
-    BOOL        bTolerateDrops = TRUE;
-    BOOL        bFirstTime;
+    BYTE nFrameIndex;
+    BOOL bIsFieldOdd;
 
-    bFirstTime = (m_ProcessingRegionID == REGIONID_INVALID);
+    GetFrameIndex(FieldID, &nFrameIndex, &bIsFieldOdd);
 
-    // This function waits until field is ready
-    WaitForFinishedField(RegionID, bIsFieldOdd, pInfo);
-
-    if (bFirstTime)
+    if (bIsFieldOdd)
     {
-        FieldIndex = EnumulateField(RegionID, bIsFieldOdd);
-        SkippedFields = 0;
-    }
-    else
-    {
-        FieldIndex = EnumulateField(RegionID, bIsFieldOdd);
-        SkippedFields = (4 + FieldIndex - m_LastFieldIndex - 1) % 4;
-    }
-
-    if (SkippedFields != 0)
-    {
-        if (bTolerateDrops && SkippedFields < 2)
+        if (m_ReversePolarity->GetValue() == FALSE)
         {
-            // Try to catch up but we have to drop if too late
-            if (EnumulateField(m_ProcessingRegionID,
-                m_IsProcessingFieldOdd) == (m_LastFieldIndex + 1) % 4)
-            {
-                m_LastFieldIndex = (m_LastFieldIndex + 1) % 4;
-                Timing_AddDroppedFields(1);
-                LOG(2, " Dropped Frame");
-            }
-            else
-            {
-                LOG(2, "Running Late");
-            }
-
-            m_ProcessingRegionID = RegionID;
-            m_IsProcessingFieldOdd = bIsFieldOdd;
-
-            FieldIndex = (m_LastFieldIndex + 1) % 4;
-            DenumulateField(FieldIndex, &RegionID, &bIsFieldOdd);
+            return &m_OddFields[nFrameIndex];
         }
         else
         {
-            // delete all history
-            ClearPictureHistory(pInfo);
-            pInfo->bMissedFrame = TRUE;
-            Timing_AddDroppedFields(SkippedFields);
-            LOG(2, " Dropped Frame");
+            nFrameIndex = (kMAX_FRAMEBUFFERS + nFrameIndex - 1) % kMAX_FRAMEBUFFERS;
+            return &m_EvenFields[nFrameIndex];
         }
     }
     else
     {
+        if (m_ReversePolarity->GetValue() == FALSE)
+        {
+            return &m_EvenFields[nFrameIndex];
+        }
+        else
+        {
+            return &m_OddFields[nFrameIndex];
+        }
+    }
+    return NULL;
+}
+
+
+void CSAA7134Source::GiveNextField(TDeinterlaceInfo* pInfo, TPicture* pPicture)
+{
+    if (pInfo->bMissedFrame)
+    {
+        ClearPictureHistory(pInfo);
+        pPicture->IsFirstInSeries = TRUE;
+    }
+    else
+    {
+        pPicture->IsFirstInSeries = FALSE;
+    }
+
+    // Re-enumerate our 4 field cycle to a 10 field cycle
+    if ((pPicture->Flags & PICTURE_INTERLACED_EVEN) > 0 ||
+        pInfo->bMissedFrame)
+    {
+        pInfo->CurrentFrame = (pInfo->CurrentFrame + 1) % 5;
+    }
+
+    // we only have 4 unique fields
+    ShiftPictureHistory(pInfo, 4);
+    pInfo->PictureHistory[0] = pPicture;
+}
+
+
+void CSAA7134Source::GetFrameIndex(TFieldID FieldID, BYTE* pFrameIndex, BOOL* pIsFieldOdd)
+{
+    *pFrameIndex = (FieldID >> FIELDID_FRAMESHIFT) % kMAX_FRAMEBUFFERS;
+    *pIsFieldOdd = ((FieldID & FIELDID_SECONDFIELD) == 0);
+}
+
+
+void CSAA7134Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
+{
+    TFieldID    NextFieldID;
+    int         FieldDistance;
+    BOOL        bTryToCatchUp = TRUE;
+    BOOL        bSlept = FALSE;
+
+    // This function waits for the next field
+    if (PollForNextField(&NextFieldID, &FieldDistance, TRUE))
+    {
+        // if we waited then we are not late
+        pInfo->bRunningLate = FALSE;
+    }
+
+    // The distance from the new field the field card
+    // is currently working on
+    if (FieldDistance == 1)
+    {
+        // No skipped fields
         pInfo->bMissedFrame = FALSE;
+
         if (pInfo->bRunningLate)
         {
+            // Not sure why we need to do this
             Timing_AddDroppedFields(1);
             LOG(2, "Running Late");
         }
     }
-
-    m_LastFieldIndex = FieldIndex;
-
-    if (RegionID2TaskID(RegionID) == TASKID_A)
+    else if (bTryToCatchUp && FieldDistance <= 2)
     {
-        m_CurrentFrame = 0;
-    }
-    else
-    {
-        m_CurrentFrame = 1;
-    }
-
-    m_IsFieldOdd = bIsFieldOdd;
-}
-
-
-void CSAA7134Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
-{
-    eRegionID RegionID;
-    BOOL bIsFieldOdd;
-    BOOL bSlept = FALSE;
-    int FieldIndex;
-    int SkippedFields;
-    BOOL bFirstTime = FALSE;
-
-    if (m_ProcessingRegionID == REGIONID_INVALID)
-    {
-        while (!m_pSAA7134Card->GetProcessingRegion(m_ProcessingRegionID,
-                        m_IsProcessingFieldOdd))
-        {
-            // do nothing
-        }
-        bFirstTime = TRUE;
-    }
-
-    while (!GetFinishedField(RegionID, bIsFieldOdd))
-    {
-        pInfo->bRunningLate = FALSE;            // if we waited then we are not late
-    }
-
-    if (bFirstTime)
-    {
-        FieldIndex = EnumulateField(RegionID, bIsFieldOdd);
-        SkippedFields = 0;
-    }
-    else
-    {
-        FieldIndex = EnumulateField(RegionID, bIsFieldOdd);
-        SkippedFields = (4 + FieldIndex - m_LastFieldIndex - 1) % 4;
-    }
-
-    if (SkippedFields == 0)
-    {
-    }
-    else if (SkippedFields == 1)
-    {
-        m_ProcessingRegionID = RegionID;
-        m_IsProcessingFieldOdd = bIsFieldOdd;
-        FieldIndex = (m_LastFieldIndex + 1) % 4;
-        DenumulateField(FieldIndex, &RegionID, &bIsFieldOdd);
-        Timing_SetFlipAdjustFlag(TRUE);
-        LOG(2, " Slightly late");
-    }
-    // This might not be possible with only a 4 field cycle
-    else if (SkippedFields == 2)
-    {
-        m_ProcessingRegionID = RegionID;
-        m_IsProcessingFieldOdd = bIsFieldOdd;
-        FieldIndex = (m_LastFieldIndex + 1) % 4;
-        DenumulateField(FieldIndex, &RegionID, &bIsFieldOdd);
-        Timing_SetFlipAdjustFlag(TRUE);
-        LOG(2, " Very late");
+        // Try to catch up
+        pInfo->bRunningLate = TRUE;
+        // Not sure why we need to do this
+        // Timing_AddDroppedFields(FieldDistance);
+        LOG(2, " Running late by %d fields", FieldDistance - 1);
     }
     else
     {
         // delete all history
         ClearPictureHistory(pInfo);
         pInfo->bMissedFrame = TRUE;
-        Timing_AddDroppedFields(SkippedFields);
-        LOG(2, " Dropped Frame");
-        Timing_Reset();
+        Timing_AddDroppedFields(FieldDistance - 1);
+        LOG(2, " Dropped %d Field(s)", FieldDistance - 1);
+
+        // Use the most recent field
+        NextFieldID = GetPrevFieldID(m_ProcessingFieldID);
     }
 
-    m_LastFieldIndex = FieldIndex;
+    // Update the current field
+    m_CurrentFieldID = NextFieldID;
+}
 
-    if (RegionID2TaskID(RegionID) == TASKID_A)
+
+void CSAA7134Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
+{
+    TFieldID    NextFieldID;
+    int         FieldDistance;
+    BOOL        bSlept = FALSE;
+
+    // This function waits for the next field
+    if (PollForNextField(&NextFieldID, &FieldDistance, FALSE))
     {
-        m_CurrentFrame = 0;
+        // if we waited then we are not late
+        pInfo->bRunningLate = FALSE;
+    }
+
+    // The distance from the new field the field card
+    // is currently working on
+    if (FieldDistance == 1)
+    {
+        // No skipped fields, do nothing
+    }
+    else if (FieldDistance == 2)
+    {
+        // Slightly late but try to recover
+        Timing_SetFlipAdjustFlag(TRUE);
+        LOG(2, " Running late by %d fields", FieldDistance - 1);
     }
     else
     {
-        m_CurrentFrame = 1;
+        // There is too much delay to recover, throw
+        // out the extra fields.
+        ClearPictureHistory(pInfo);
+        pInfo->bMissedFrame = TRUE;
+        Timing_AddDroppedFields(FieldDistance - 1);
+        LOG(2, " Dropped %d Fields", FieldDistance - 1);
+        Timing_Reset();
+
+        // Use the most recent field
+        NextFieldID = GetPrevFieldID(m_ProcessingFieldID);
     }
 
-    m_IsFieldOdd = bIsFieldOdd;
+    // Update the current field
+    m_CurrentFieldID = NextFieldID;
 
     // we've just got a new field
     // we are going to time the odd to odd
     // input frequency
-    if (m_IsFieldOdd)
+    if (m_CurrentFieldID & FIELDID_SECONDFIELD)
     {
         Timing_UpdateRunningAverage(pInfo, 2);
     }
@@ -923,196 +905,187 @@ void CSAA7134Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
 }
 
 
-void CSAA7134Source::GiveNextField(TDeinterlaceInfo* pInfo, TPicture* picture)
+BOOL CSAA7134Source::PollForNextField(TFieldID* pNextFieldID, int* pFieldDistance, BOOL bSmartSleep)
 {
-    if (pInfo->bMissedFrame)
+    TFieldID    NextFieldID;
+    TFieldID    ProcessingFieldID;
+    int         FieldDistance;
+    BOOL        bWaited = FALSE;
+
+    // Initialize if we need to
+    if (m_ProcessingFieldID == -1)
     {
-        ClearPictureHistory(pInfo);
-        picture->IsFirstInSeries = TRUE;
+        while (!m_pSAA7134Card->GetProcessingFieldID(&m_ProcessingFieldID))
+        {
+            // do nothing
+        }
+        InitializeSmartSleep();
+        NextFieldID = m_ProcessingFieldID;
     }
     else
     {
-        picture->IsFirstInSeries = FALSE;
+        NextFieldID = GetNextFieldID(m_CurrentFieldID);
     }
 
-    // Re-enumerate our 4 field cycle to a 10 field cycle
-    if ((picture->Flags & PICTURE_INTERLACED_EVEN) > 0 ||
-        pInfo->bMissedFrame)
+    if (bSmartSleep)
     {
-        pInfo->CurrentFrame = (pInfo->CurrentFrame + 1) % 5;
+        ULONGLONG   PerformanceTick;
+        ULONGLONG   TimePassed;
+
+        while (TRUE)
+        {
+            if (m_pSAA7134Card->GetProcessingFieldID(&ProcessingFieldID))
+            {
+                // Check if the field is finished
+                if (ProcessingFieldID != NextFieldID ||
+                    ProcessingFieldID != m_ProcessingFieldID)
+                {
+                    break;
+                }
+                bWaited = TRUE;
+            }
+
+            PerformSmartSleep(&PerformanceTick, &TimePassed);
+        }
+
+        // We can't recalculate unless we waited
+        UpdateSmartSleep(bWaited, PerformanceTick, TimePassed);
+    }
+    else
+    {
+        while (TRUE)
+        {
+            if (m_pSAA7134Card->GetProcessingFieldID(&ProcessingFieldID))
+            {
+                // Check if the field is finished
+                if (ProcessingFieldID != NextFieldID ||
+                    ProcessingFieldID != m_ProcessingFieldID)
+                {
+                    break;
+                }
+                bWaited = TRUE;
+            }
+        }
     }
 
-    // we only have 4 unique fields
-    ShiftPictureHistory(pInfo, 4);
-    pInfo->PictureHistory[0] = picture;
+    // Get the distance from the new field to the processing
+    // field (used to calculate the number of dropped fields)
+    FieldDistance = GetFieldDistance(NextFieldID, ProcessingFieldID);
+
+    // Determine if the card has done a complete circuit
+    if (GetFieldDistance(NextFieldID, m_ProcessingFieldID) > FieldDistance)
+    {
+        FieldDistance += kMAX_FIELDBUFFERS;
+    }
+    
+    // Updated the processing field ID
+    m_ProcessingFieldID = ProcessingFieldID;
+
+    *pNextFieldID = NextFieldID;
+    *pFieldDistance = FieldDistance;
+
+    return bWaited;
 }
 
 
-BOOL CSAA7134Source::WaitForFinishedField(eRegionID& RegionID, BOOL& bIsFieldOdd,
-                                          TDeinterlaceInfo* pInfo)
+void CSAA7134Source::InitializeSmartSleep()
 {
-    BOOL        bUsingInterrupts = FALSE;
-    ULONGLONG   Frequency;
-
-    if (bUsingInterrupts)
+    if (QueryPerformanceFrequency((PLARGE_INTEGER)&m_PerformanceFrequency))
     {
-        // Need to implement interrupts
-
-        return FALSE;
+        m_LastFieldPerformanceCount = 0;
+        m_MinimumFieldDelay = 0;
     }
-
-    if (QueryPerformanceFrequency((PLARGE_INTEGER)&Frequency))
+    else
     {
-        ULONGLONG       PerformanceCount;
-        ULONGLONG       WaitTimeSpent;
-        ULONG           SleepTime;
-        BOOL            bWaited = FALSE;
+        // there is no high-resolution counter
+        m_PerformanceFrequency = 0;
+    }
+}
 
-        if (m_ProcessingRegionID == REGIONID_INVALID)
+
+void CSAA7134Source::PerformSmartSleep(ULONGLONG* pPerformanceTick, ULONGLONG* pTimePassed)
+{
+    ULONGLONG       PerformanceCount;
+    ULONGLONG       WaitTimeSpent;
+    ULONG           SleepTime;
+
+    if (m_PerformanceFrequency)
+    {
+        // Get the current time
+        QueryPerformanceCounter((PLARGE_INTEGER)&PerformanceCount);
+
+        // Calculate how much time has past since the last field
+        WaitTimeSpent = PerformanceCount - m_LastFieldPerformanceCount;
+
+        // If we've gone past the field delay time
+        if (WaitTimeSpent > m_MinimumFieldDelay)
         {
-            while (!m_pSAA7134Card->GetProcessingRegion(
-                                m_ProcessingRegionID,
-                                m_IsProcessingFieldOdd
-                            ))
-            {
-                // do nothing
-            }
-
-            QueryPerformanceCounter((PLARGE_INTEGER)&m_LastPerformanceCount);
-            m_MinimumFieldDelay = 0;
+            // Wait blindly with 1ms delays
+            SleepTime = (m_PerformanceFrequency * 0.001);
+        }
+        else
+        {
+            // Sleep for three quarters of the remaining time
+            SleepTime = (m_MinimumFieldDelay - WaitTimeSpent) * 3 / 4;
         }
 
-        while (!GetFinishedField(RegionID, bIsFieldOdd))
-        {
-            bWaited = TRUE;
+        // NOTE: Sleep is not very accurate with only 10ms accuracy
+        Sleep(SleepTime * 1000 / m_PerformanceFrequency);
 
-            QueryPerformanceCounter((PLARGE_INTEGER)&PerformanceCount);
-            WaitTimeSpent = PerformanceCount - m_LastPerformanceCount;
+        *pPerformanceTick = PerformanceCount;
+        *pTimePassed = WaitTimeSpent;
+    }
+    else
+    {
+        // There is no high-resolution counter,
+        // just sleep for one millisecond instead
+        Sleep(1);
+    }
+}
 
-            if (WaitTimeSpent > m_MinimumFieldDelay)
-            {
-                // Wait blindly with 1ms delays
-                SleepTime = (Frequency * 0.001);
-            }
-            else
-            {
-                SleepTime = (m_MinimumFieldDelay - WaitTimeSpent) * 3 / 4;
-            }
 
-            // Sleep is only accurate to 10ms.  We should have 1ms accuracy.
-            Sleep(SleepTime * 1000 / Frequency);
-        }
+void CSAA7134Source::UpdateSmartSleep(BOOL bRecalculate, ULONGLONG LastTick, ULONGLONG TimePassed)
+{
+    if (m_PerformanceFrequency)
+    {
+        // Update the field time with the current time
+        QueryPerformanceCounter((PLARGE_INTEGER)&m_LastFieldPerformanceCount);
 
-        QueryPerformanceCounter((PLARGE_INTEGER)&m_LastPerformanceCount);
-
-        if (bWaited)
+        // Recalculate the field to field delay
+        if (bRecalculate)
         {
             // If we waited longer than 30ms, something probably went wrong
-            if (WaitTimeSpent * 1000 / Frequency > 30)
+            if (TimePassed * 1000 / m_PerformanceFrequency > 30)
             {
                 // reset to 10ms
-                m_MinimumFieldDelay = (Frequency * 0.010);
+                m_MinimumFieldDelay = (m_PerformanceFrequency * 0.010);
             }
             else
             {
-                ULONGLONG Delta = m_LastPerformanceCount - PerformanceCount;
-                m_MinimumFieldDelay = WaitTimeSpent + Delta / 2;
+                ULONGLONG LastSleptTime;
+
+                LastSleptTime = m_LastFieldPerformanceCount - LastTick;
+
+                // Add the time passed while waiting for the field
+                // to half the duration of our last sleep
+                m_MinimumFieldDelay = TimePassed + LastSleptTime / 2;
             }
-            pInfo->bRunningLate = FALSE;
         }
-    }
-    else
-    {
-        BOOL bSlept = FALSE;
-
-        while (m_ProcessingRegionID == REGIONID_INVALID)
-        {
-            m_pSAA7134Card->GetProcessingRegion(
-                            m_ProcessingRegionID,
-                            m_IsProcessingFieldOdd
-                            );
-        }
-
-        while (!GetFinishedField(RegionID, bIsFieldOdd))
-        {
-            // need to sleep more often
-            // so that we don't take total control of machine
-            // in normal operation
-            Timing_SmartSleep(pInfo, FALSE, bSlept);
-            pInfo->bRunningLate = FALSE;            // if we waited then we are not late
-        }
-    }
-
-    return TRUE;
-}
-
-
-BOOL CSAA7134Source::GetFinishedField(eRegionID& DoneRegionID, BOOL& bDoneIsFieldOdd)
-{
-    eRegionID RegionID;
-    BOOL bIsFieldOdd;
-
-/*    // DEBUGGIN
-    while (1)
-    {
-        m_pSAA7134Card->CheckRegisters((DWORD*) &m_pDisplay[0][2048 + 4190],
-            (DWORD*) &m_pDisplay[0][4190], (DWORD*) &m_pDisplay[1][2048 + 4190],
-            (DWORD*) &m_pDisplay[1][4190]);
-    }
-    //*/
-
-    if (!m_pSAA7134Card->GetProcessingRegion(RegionID, bIsFieldOdd))
-    {
-        return FALSE;
-    }
-
-    if (RegionID == m_ProcessingRegionID && bIsFieldOdd == m_IsProcessingFieldOdd)
-    {
-        return FALSE;
-    }
-
-    DoneRegionID = m_ProcessingRegionID;
-    bDoneIsFieldOdd = m_IsProcessingFieldOdd;
-
-    m_ProcessingRegionID = RegionID;
-    m_IsProcessingFieldOdd = bIsFieldOdd;
-
-    return TRUE;
-}
-
-
-int CSAA7134Source::EnumulateField(eRegionID RegionID, BOOL bIsFieldOdd)
-{
-    if (RegionID == REGIONID_VIDEO_A)
-    {
-        return bIsFieldOdd ? 0 : 1;
-    }
-    else if (RegionID == REGIONID_VIDEO_B)
-    {
-        return bIsFieldOdd ? 2 : 3;
-    }
-
-    return -1;
-}
-
-
-void CSAA7134Source::DenumulateField(int Index, eRegionID* RegionID, BOOL* bIsFieldOdd)
-{
-    switch (Index)
-    {
-    case 0: *RegionID = REGIONID_VIDEO_A; *bIsFieldOdd = TRUE; break;
-    case 1: *RegionID = REGIONID_VIDEO_A; *bIsFieldOdd = FALSE; break;
-    case 2: *RegionID = REGIONID_VIDEO_B; *bIsFieldOdd = TRUE; break;
-    case 3: *RegionID = REGIONID_VIDEO_B; *bIsFieldOdd = FALSE; break;
     }
 }
 
 
 void CSAA7134Source::DecodeVBI(TDeinterlaceInfo* pInfo)
 {
+    BYTE nFrameIndex;
+    BOOL bIsFieldOdd;
     int nLineTarget;
+    BYTE* pVBI;
+
+    GetFrameIndex(m_CurrentFieldID, &nFrameIndex, &bIsFieldOdd);
+
     // VBI should have been DMA'd before the video
-    BYTE* pVBI = (LPBYTE) m_pVBILines[m_CurrentFrame];
+    pVBI = (LPBYTE) m_pVBILines[nFrameIndex];
 
     if (m_ChannelChangeTick)
     {
@@ -1128,7 +1101,7 @@ void CSAA7134Source::DecodeVBI(TDeinterlaceInfo* pInfo)
 
     BYTE ConvertBuffer[2048];
 
-    if (m_IsFieldOdd)
+    if (bIsFieldOdd)
     {
         pVBI += m_CurrentVBILines * 2048;
     }
@@ -1153,7 +1126,7 @@ void CSAA7134Source::DecodeVBI(TDeinterlaceInfo* pInfo)
         {
             ConvertBuffer[i] = pVBI[nLineTarget * 2048 + (int)(j * ScaleRatio)];
         }
-        VBI_DecodeLine(ConvertBuffer, nLineTarget, m_IsFieldOdd);
+        VBI_DecodeLine(ConvertBuffer, nLineTarget, bIsFieldOdd);
     }
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.cpp,v 1.25 2002-11-07 13:37:43 adcockj Exp $
+// $Id: SAA7134Card.cpp,v 1.26 2002-11-07 18:54:21 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2002/11/07 13:37:43  adcockj
+// Added State restoration code to PCICard
+// Functionality disabled prior to testing and not done for SAA7134
+//
 // Revision 1.24  2002/10/31 05:02:55  atnak
 // Settings cleanup and audio tweaks
 //
@@ -668,6 +672,56 @@ BOOL CSAA7134Card::GetProcessingRegion(eRegionID& RegionID, BOOL& bIsFieldOdd)
     // has to top line --instead of odd which SAA7134 uses.
     //   ala. CSAACard::SetBaseOffsets()
     bIsFieldOdd = !bIsFieldOdd;
+
+    return TRUE;
+}
+
+
+BOOL CSAA7134Card::GetProcessingFieldID(TFieldID* pFieldID)
+{
+    WORD Status;
+    BYTE FieldID;
+
+    Status  = ReadWord(SAA7134_SCALER_STATUS);
+
+    if (Status & (SAA7134_SCALER_STATUS_TRERR |
+        SAA7134_SCALER_STATUS_CFERR |
+        SAA7134_SCALER_STATUS_LDERR |
+        SAA7134_SCALER_STATUS_WASRST))
+    {
+        CheckScalerError(TRUE, Status);
+        return FALSE;
+    }
+
+    CheckScalerError(FALSE, Status);
+
+    // FIDSCI XOR FIDSCO should be 0
+    if (Status & SAA7134_SCALER_STATUS_D6_D5)
+    {
+        return FALSE;
+    }
+
+    if (Status & SAA7134_SCALER_STATUS_VID_A)
+    {
+        FieldID = 0;
+    }
+    else if (Status & SAA7134_SCALER_STATUS_VID_B)
+    {
+        FieldID = 1;
+    }
+    else
+    {
+        return FALSE;
+    }
+
+    FieldID <<= FIELDID_FRAMESHIFT;
+
+    if ((Status & SAA7134_SCALER_STATUS_FIDSCO) == 0)
+    {
+        FieldID |= FIELDID_SECONDFIELD;
+    }
+
+    *pFieldID = FieldID;
 
     return TRUE;
 }

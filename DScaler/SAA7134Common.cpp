@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Common.cpp,v 1.8 2002-10-29 03:07:19 atnak Exp $
+// $Id: SAA7134Common.cpp,v 1.9 2002-11-07 18:54:21 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/10/29 03:07:19  atnak
+// Added SAA713x TreeSettings Page
+//
 // Revision 1.7  2002/10/26 06:59:30  atnak
 // Minor change to video standards definition
 //
@@ -584,4 +587,22 @@ int CSAA7134Common::GetMaxAudioCarrierNames()
 int CSAA7134Common::GetMaxFMDeemphasisNames()
 {
     return sizeof(m_AudioFMDeemphasisSzList) / sizeof(char*);
+}
+
+
+CSAA7134Common::TFieldID CSAA7134Common::GetNextFieldID(TFieldID FieldID)
+{
+    return (FieldID + 1) % kMAX_FIELDBUFFERS;
+}
+
+
+CSAA7134Common::TFieldID CSAA7134Common::GetPrevFieldID(TFieldID FieldID)
+{
+    return (kMAX_FIELDBUFFERS + FieldID - 1) % kMAX_FIELDBUFFERS;
+}
+
+
+int CSAA7134Common::GetFieldDistance(TFieldID FromID, TFieldID ToID)
+{
+    return (kMAX_FIELDBUFFERS + ToID - FromID) % kMAX_FIELDBUFFERS;
 }

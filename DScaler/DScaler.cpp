@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.217 2002-08-11 16:14:36 laurentg Exp $
+// $Id: DScaler.cpp,v 1.218 2002-08-11 19:39:30 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.217  2002/08/11 16:14:36  laurentg
+// New setting to choose between keep CPU for other applications or use full CPU for best results
+//
 // Revision 1.216  2002/08/11 13:52:02  laurentg
 // Show automatically the general hardware setup dialog box the first time DScaler is started
 //
@@ -4013,7 +4016,7 @@ HMENU GetPatternsSubmenu()
     GetMenuString(hMenu, 2, string, sizeof(string), MF_BYPOSITION);
     reduc = !strcmp(string, "&Channels") ? 0 : 1;
 
-    HMENU hmenu = GetOrCreateSubSubSubMenu(6-reduc, 1, 0, "Test &Patterns");
+    HMENU hmenu = GetOrCreateSubSubSubMenu(6-reduc, 2, 0, "Test &Patterns");
     ASSERT(hmenu != NULL);
 
     return hmenu;

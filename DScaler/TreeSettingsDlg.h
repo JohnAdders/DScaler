@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.h,v 1.9 2003-01-11 15:22:28 adcockj Exp $
+// $Id: TreeSettingsDlg.h,v 1.10 2004-02-06 21:01:40 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,12 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2003/01/11 15:22:28  adcockj
+// Interim Checkin of setting code rewrite
+//  - Remove CSettingsGroupList class
+//  - Fixed bugs in format switching
+//  - Some new CSettingGroup code
+//
 // Revision 1.8  2002/10/19 15:15:42  tobbej
 // Implemented new gradient header above active page.
 // Changed resizing a bit to minimize flashing when repainting window
@@ -124,6 +130,9 @@ protected:
 	virtual BOOL OnInitDialog();
 	afx_msg void OnHelpBtn();
 	afx_msg void OnSize(UINT nType, int cx, int cy);
+	afx_msg void OnPaint();
+	afx_msg void OnGetMinMaxInfo(MINMAXINFO FAR* lpMMI);
+	afx_msg UINT OnNcHitTest(CPoint point);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 
@@ -149,6 +158,8 @@ private:
     CImageList m_ImageList;
 
 	CFont m_StaticFont;
+	CRect m_GripperRect;
+	CPoint m_MinMaxInfo;
 };
 
 //{{AFX_INSERT_LOCATION}}

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.cpp,v 1.33 2003-08-02 12:04:13 laurentg Exp $
+// $Id: TreeSettingsDlg.cpp,v 1.34 2004-02-06 21:01:40 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2003/08/02 12:04:13  laurentg
+// Two new settings to define how many channels to display in preview mode
+//
 // Revision 1.32  2003/07/02 21:44:19  laurentg
 // TimeShift settings
 //
@@ -171,7 +174,8 @@ CTreeSettingsDlg::CTreeSettingsDlg(CString caption,CWnd* pParent /*=NULL*/)
 	: CDialog(CTreeSettingsDlg::IDD, pParent),
 	m_settingsDlgCaption(caption),
 	m_iCurrentPage(-1),
-	m_iStartPage(-1)
+	m_iStartPage(-1),
+	m_MinMaxInfo(0)
 {
 	//{{AFX_DATA_INIT(CTreeSettingsDlg)
 		// NOTE: the ClassWizard will add member initialization here
@@ -195,6 +199,9 @@ BEGIN_MESSAGE_MAP(CTreeSettingsDlg, CDialog)
 	ON_NOTIFY(TVN_SELCHANGING, IDC_TREESETTINGS_TREE, OnSelchangingTree)
 	ON_BN_CLICKED(IDC_HELPBTN, OnHelpBtn)
 	ON_WM_SIZE()
+	ON_WM_PAINT()
+	ON_WM_GETMINMAXINFO()
+	ON_WM_NCHITTEST()
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -321,6 +328,11 @@ BOOL CTreeSettingsDlg::OnInitDialog()
 		ShowPage(0);
 	}
 
+	CRect rect;
+	GetWindowRect(&rect);
+	m_MinMaxInfo.x = rect.Width();
+	m_MinMaxInfo.y = rect.Height();
+
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
 }
@@ -407,6 +419,9 @@ void CTreeSettingsDlg::OnSize(UINT nType, int cx, int cy)
 {
 	CDialog::OnSize(nType, cx, cy);
 
+	// redraw Gripper
+	InvalidateRect(m_GripperRect);
+
 	if(m_iCurrentPage>=0 && m_iCurrentPage<m_pages.size())
 	{
 		CRect rect;
@@ -482,7 +497,7 @@ void CTreeSettingsDlg::OnSize(UINT nType, int cx, int cy)
 		width=rect.Width();
 		height=rect.Height();
 
-		rect.right=cx-10;
+		rect.right=cx-20;
 		rect.left=rect.right-width;
 		rect.top=cy-30;
 		rect.bottom=rect.top+height;
@@ -694,4 +709,53 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
 		delete *it;
 	}
 	pages.erase(pages.begin(),pages.end());
+}
+
+// the next code based on free sources from
+// www.codeguru.com
+void CTreeSettingsDlg::OnPaint() 
+{
+	CDialog::OnPaint();
+
+	CRect rc;
+	GetClientRect(rc);
+
+	rc.left = rc.right  - GetSystemMetrics(SM_CXHSCROLL);
+	rc.top  = rc.bottom - GetSystemMetrics(SM_CYVSCROLL);
+	
+	m_GripperRect = rc;
+	
+	// paint the Gripper
+	CClientDC dc(this);
+	dc.DrawFrameControl(rc,DFC_SCROLL,DFCS_SCROLLSIZEGRIP);
+}
+
+UINT CTreeSettingsDlg::OnNcHitTest(CPoint point) 
+{
+	UINT ht = CDialog::OnNcHitTest(point);
+
+	if(ht==HTCLIENT)
+	{
+		CRect rc;
+		GetWindowRect( rc );
+		
+		rc.left = rc.right  - GetSystemMetrics (SM_CXHSCROLL);
+		rc.top  = rc.bottom - GetSystemMetrics (SM_CYVSCROLL);
+		
+		if(rc.PtInRect(point))
+		{
+			ht = HTBOTTOMRIGHT;
+		}
+	}
+	return ht;
+}
+
+void CTreeSettingsDlg::OnGetMinMaxInfo(MINMAXINFO FAR* lpMMI) 
+{
+	if( (m_MinMaxInfo.x > 0) && (m_MinMaxInfo.y > 0) )
+	{
+		lpMMI->ptMinTrackSize = m_MinMaxInfo;
+	}
+
+	CDialog::OnGetMinMaxInfo(lpMMI);
 }

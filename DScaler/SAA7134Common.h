@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Common.h,v 1.16 2003-01-08 00:22:41 atnak Exp $
+// $Id: SAA7134Common.h,v 1.17 2003-01-27 03:17:46 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2003/01/08 00:22:41  atnak
+// Put back VBI upscale divisor
+//
 // Revision 1.14  2002/12/26 05:06:17  atnak
 // Added Terratec Cinergy 600 TV
 //
@@ -110,6 +113,7 @@ protected:
         SAA7134CARDID_MANLIMTV001,
         SAA7134CARDID_PRIMETV7133,
         SAA7134CARDID_CINERGY600,
+        SAA7134CARDID_MEDION7134,
         SAA7134CARDID_LASTONE,
     };
 

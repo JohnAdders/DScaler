@@ -173,6 +173,7 @@ BEGIN
     VK_F9,          IDM_TELETEXT_KEY5,      VIRTKEY, NOINVERT
     VK_HOME,        IDM_CHANNEL_LIST,       VIRTKEY, NOINVERT
     VK_HOME,        IDM_PLAYLIST_FIRST,     VIRTKEY, CONTROL, NOINVERT
+    VK_INSERT,      IDM_CHANNEL_PREVIEW,    VIRTKEY, NOINVERT
     VK_LEFT,        IDM_VT_PAGE_MINUS,      VIRTKEY, NOINVERT
     VK_LEFT,        IDM_RIGHT_CROP_MINUS,   VIRTKEY, CONTROL, NOINVERT
     VK_LEFT,        IDM_LEFT_CROP_PLUS,     VIRTKEY, SHIFT, NOINVERT
@@ -1110,7 +1111,7 @@ BEGIN
         MENUITEM "&Next\tPgUp",                 IDM_CHANNELPLUS
         MENUITEM "&Previous\tPgDn",             IDM_CHANNELMINUS
         MENUITEM "&Last\tCtrl+Back",            IDM_CHANNEL_PREVIOUS
-        MENUITEM "Previe&w (experimental)",     IDM_CHANNEL_PREVIEW
+        MENUITEM "Previe&w (experimental)\tInsert", IDM_CHANNEL_PREVIEW
         MENUITEM SEPARATOR
     END
     POPUP "&View"
@@ -1508,7 +1509,7 @@ BEGIN
         MENUITEM "&Down",                       IDM_PLAYLIST_DOWN
         MENUITEM SEPARATOR
         MENUITEM "Slides&how",                  IDM_PLAYLIST_SLIDESHOW
-        MENUITEM "Previe&w (experimental)",     IDM_PLAYLIST_PREVIEW
+        MENUITEM "Previe&w (experimental)\tInsert", IDM_PLAYLIST_PREVIEW
     END
 END
 

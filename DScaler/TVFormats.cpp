@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TVFormats.cpp,v 1.3 2001-11-02 17:03:59 adcockj Exp $
+// $Id: TVFormats.cpp,v 1.4 2001-11-18 10:07:00 temperton Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/11/02 17:03:59  adcockj
+// Merge in PAL_NC change again
+//
 // Revision 1.2  2001/11/02 16:30:08  adcockj
 // Check in merged code from multiple cards branch into main tree
 //
@@ -114,5 +117,6 @@ const char* FormatList[FORMAT_LASTONE] =
     "NTSC_J",
     "PAL60",
     "NTSC50",
+    "PAL-NC"
 };
 

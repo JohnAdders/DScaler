@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.107 2002-10-31 14:03:32 adcockj Exp $
+// $Id: DS_Control.h,v 1.108 2002-10-31 14:47:19 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.107  2002/10/31 14:03:32  adcockj
+// Added Analogue blanking option to aspect code
+//
 // Revision 1.106  2002/10/30 13:41:02  atnak
 // Added SINGLEKEYTELETEXTTOGGLE to DSCALER_SETTING
 //
@@ -1445,6 +1448,7 @@ typedef enum
     CX2388XHDELAY,
     CX2388XVDELAY,
     CX2388XEATLINESATTOP,
+    CX2388XSHARPNESS,
     CX2388X_SETTING_LASTONE,
 } CX2388X_SETTING;
 

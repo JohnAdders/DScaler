@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////
 //
-// $Id: SAA7118.cpp,v 1.3 2002-09-26 16:32:34 adcockj Exp $
+// $Id: SAA7118.cpp,v 1.4 2002-10-31 14:47:20 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
@@ -19,6 +19,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/09/26 16:32:34  adcockj
+// Holo3d fixes
+//
 // Revision 1.2  2002/09/19 22:10:08  adcockj
 // Holo3D Fixes for PAL
 //
@@ -92,12 +95,11 @@ void CSAA7118::SetRegister(BYTE Register, BYTE Value)
 	WriteToSubAddress(Register, &Value, 1);
 }
 
-
-void CSAA7118::DumpRegister(FILE* hFile, BYTE Reg)
+BYTE CSAA7118::GetRegister(BYTE Register)
 {
 	BYTE Result(0);
-	ReadFromSubAddress(Reg, &Result, 1);
-	fprintf(hFile, "%02x\t%02x\n", Reg, Result);
+	ReadFromSubAddress(Register, &Result, 1);
+    return Result;
 }
 
 void CSAA7118::DumpSettings()
@@ -112,17 +114,17 @@ void CSAA7118::DumpSettings()
 
 	for(int i(0); i < 0x2d; ++i)
 	{
-		DumpRegister(hFile, i);
+	    fprintf(hFile, "%02x\t%02x\n", i, GetRegister(i));
 	}
 
     for(i = 0x40; i <= 0x62; ++i)
 	{
-		DumpRegister(hFile, i);
+	    fprintf(hFile, "%02x\t%02x\n", i, GetRegister(i));
 	}
 
     for(i = 0x80; i <= 0xBF; ++i)
 	{
-		DumpRegister(hFile, i);
+	    fprintf(hFile, "%02x\t%02x\n", i, GetRegister(i));
 	}
 
 	fclose(hFile);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.h,v 1.1 2002-10-29 11:05:28 adcockj Exp $
+// $Id: CX2388xCard.h,v 1.2 2002-10-31 14:47:20 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -127,6 +127,7 @@ public:
     void SetContrast(BYTE Contrast);
     void SetSaturationU(BYTE SaturationU);
     void SetSaturationV(BYTE SaturationV);
+    void SetSharpness(char Sharpness);
 
     void SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX, long& CurrentY, long& CurrentVBILines, int VDelay, int HDelay, BOOL IsProgressive);
 

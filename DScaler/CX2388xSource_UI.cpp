@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_UI.cpp,v 1.3 2002-10-31 03:10:55 atnak Exp $
+// $Id: CX2388xSource_UI.cpp,v 1.4 2002-10-31 14:47:20 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/10/31 03:10:55  atnak
+// Changed CSource::GetTreeSettingsPage to return CTreeSettingsPage*
+//
 // Revision 1.2  2002/10/29 22:00:30  adcockj
 // Added EatlLinesAtTop setting for SDI on holo3d
 //
@@ -534,6 +537,7 @@ CTreeSettingsPage* CCX2388xSource::GetTreeSettingsPage()
     if(m_CardType->GetValue() == CX2388xCARD_HOLO3D)
     {
         vSettingsList.push_back(m_EatLinesAtTop);
+        vSettingsList.push_back(m_Sharpness);
     }
 
     return new CTreeSettingsGeneric("CX2388x Advanced",vSettingsList);

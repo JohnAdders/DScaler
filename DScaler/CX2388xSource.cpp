@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.3 2002-10-29 22:36:41 adcockj Exp $
+// $Id: CX2388xSource.cpp,v 1.4 2002-10-31 14:47:20 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/10/29 22:36:41  adcockj
+// VBI fixes (still doesn't work)
+//
 // Revision 1.2  2002/10/29 22:00:30  adcockj
 // Added EatlLinesAtTop setting for SDI on holo3d
 //
@@ -302,6 +305,9 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
 
     m_EatLinesAtTop = new CEatLinesAtTopSetting(this, "Eat Lines At Top", 25, 0, 100, IniSection, pH3DGroup, FlagsAll);
     m_Settings.push_back(m_EatLinesAtTop);
+    
+    m_Sharpness = new CSharpnessSetting(this, "Sharpness", 0, -8, 7, IniSection, pH3DGroup, FlagsAll);
+    m_Settings.push_back(m_Sharpness);
 
 #ifdef _DEBUG    
     if (CX2388X_SETTING_LASTONE != m_Settings.size())
@@ -353,6 +359,7 @@ void CCX2388xSource::Reset()
     if(m_CardType->GetValue() == CX2388xCARD_HOLO3D)
     {
         m_pCard->SetFLIFilmDetect(m_FLIFilmDetect->GetValue());
+        m_pCard->SetSharpness(m_Sharpness->GetValue());
     }
     NotifySizeChange();
 }
@@ -1222,6 +1229,11 @@ void CCX2388xSource::EatLinesAtTopOnChange(long NewValue, long OldValue)
 {
     Stop_Capture();
     Start_Capture();
+}
+
+void CCX2388xSource::SharpnessOnChange(long NewValue, long OldValue)
+{
+    m_pCard->SetSharpness(NewValue);
 }
 
 

@@ -1,5 +1,5 @@
 //
-// $Id: SAA7118.h,v 1.1 2002-09-11 18:32:43 adcockj Exp $
+// $Id: SAA7118.h,v 1.2 2002-10-31 14:47:20 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
@@ -41,11 +41,11 @@ public:
 	void DumpSettings();
 
     void SetRegister(BYTE Register, BYTE Value);
+    BYTE GetRegister(BYTE Register);
 
 protected:
     // from CI2CDevice
     virtual BYTE GetDefaultAddress() const;
-	void DumpRegister(FILE* hFile, BYTE Reg);
 
 private:
 };

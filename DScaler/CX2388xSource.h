@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.h,v 1.3 2002-10-31 03:10:55 atnak Exp $
+// $Id: CX2388xSource.h,v 1.4 2002-10-31 14:47:20 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -162,6 +162,7 @@ private:
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, HDelay);
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, VDelay);
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, EatLinesAtTop);
+    DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, Sharpness);
 
 protected:
     int m_InitialACPIStatus;

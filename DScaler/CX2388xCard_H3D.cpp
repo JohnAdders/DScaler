@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_H3D.cpp,v 1.1 2002-10-29 11:05:28 adcockj Exp $
+// $Id: CX2388xCard_H3D.cpp,v 1.2 2002-10-31 14:47:20 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/10/29 11:05:28  adcockj
+// Renamed CT2388x to CX2388x
+//
 // 
 // CVS Log while file was called CT2388xCard_H3D.cpp
 //
@@ -183,7 +186,10 @@ void CCX2388xCard::H3DSetFormat(int nInput, eVideoFormat TVFormat, BOOL IsProgre
     BYTE ChrominanceControl(0x81);
     BYTE ChrominanceControl2(0x00);
     BYTE ChrominanceGainControl(0x2A);
-    BYTE LuminaceControl(0x40);
+    BYTE LuminaceControl;
+
+    // get existing sharpness and set luma comb filter
+    LuminaceControl = (m_SAA7118->GetRegister(0x09) & 0x0F) | 0x40;
 
     if(GetTVFormat(TVFormat)->wCropHeight == 576)
     {
@@ -391,6 +397,19 @@ void CCX2388xCard::SetH3DSaturationU(BYTE Saturation)
 void CCX2388xCard::SetH3DSaturationV(BYTE NotUsed)
 {
     // we'll do nothing with this but it needs to be here
+}
+
+void CCX2388xCard::SetSharpness(char Sharpness)
+{
+    // had better check that we've been initilaized here as
+    // this is a public function
+    if(m_SAA7118 != NULL)
+    {
+        // get existing sharpness and set luma comb filter
+        BYTE LuminaceControl = m_SAA7118->GetRegister(0x09) & 0xF0;
+        LuminaceControl |= (BYTE)Sharpness;
+        m_SAA7118->SetRegister(0x09, LuminaceControl);
+    }
 }
 
 void CCX2388xCard::SetFLIFilmDetect(BOOL FLIFilmDetect)

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.cpp,v 1.19 2003-01-20 15:18:33 adcockj Exp $
+// $Id: TimeShift.cpp,v 1.20 2003-01-21 09:09:55 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2003/01/20 15:18:33  adcockj
+// Added warning
+//
 // Revision 1.18  2002/12/06 08:20:21  atnak
 // Fixes audio settings corrupting if user Cancels audio options.
 //
@@ -157,10 +160,9 @@ bool CTimeShift::OnRecord(void)
 
 bool CTimeShift::OnPause(void)
 {
-    AssureCreated();
-
     bool result = false;
 
+    // if we've not been created there is nothing to pause
     if (m_pTimeShift)
     {
         EnterCriticalSection(&m_pTimeShift->m_lock);
@@ -203,10 +205,9 @@ bool CTimeShift::OnPlay(void)
 
 bool CTimeShift::OnStop(void)
 {
-    AssureCreated();
-
     bool result = false;
 
+    // if we've not been created there is nothing to stop
     if (m_pTimeShift)
     {
         EnterCriticalSection(&m_pTimeShift->m_lock);

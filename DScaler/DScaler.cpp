@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.164 2002-05-29 18:44:54 robmuller Exp $
+// $Id: DScaler.cpp,v 1.165 2002-05-30 12:58:28 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.164  2002/05/29 18:44:54  robmuller
+// Added option to disable font anti-aliasing in Teletext.
+//
 // Revision 1.163  2002/05/28 08:54:07  robmuller
 // Fixed broken OSD menu.
 // Added ASSERTs to prevent similar errors in the future.
@@ -2512,7 +2515,6 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         }
         break;
 
-//  case WM_LBUTTONUP:
     case WM_LBUTTONDBLCLK:
         SendMessage(hWnd, WM_COMMAND, IDM_FULL_SCREEN, 0);
         break;
@@ -2542,19 +2544,31 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             // when the menu and title bar are hidden
             return DefWindowProc(hWnd, WM_NCLBUTTONDOWN, HTCAPTION, lParam);
         }
+        Cursor_UpdateVisibility();
+        break;
+
+    case WM_LBUTTONUP:
+    case WM_RBUTTONUP:
+    case WM_RBUTTONDOWN:
+        Cursor_UpdateVisibility();
         break;
 
     case WM_MOUSEMOVE:
-        if (VTState != VT_OFF) 
-            Cursor_VTUpdate(true, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-        break;
-
-    case WM_NCHITTEST:
-        if (!bIgnoreMouse && !bInMenuOrDialogBox && bAutoHideCursor)
         {
-            Cursor_UpdateVisibility();
+            static int x = -1;
+            static int y = -1;
+            int newx = GET_X_LPARAM(lParam);
+            int newy = GET_Y_LPARAM(lParam);
+            
+            if(x != newx || y != newy)
+            {
+                x = newx;
+                y = newy;
+                Cursor_UpdateVisibility();
+                if (VTState != VT_OFF) 
+                    Cursor_VTUpdate(true, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            }
         }
-        bIgnoreMouse = FALSE;
         break;
 
     case WM_ENTERMENULOOP:

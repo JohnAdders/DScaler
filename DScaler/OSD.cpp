@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.59 2002-05-20 18:08:29 robmuller Exp $
+// $Id: OSD.cpp,v 1.60 2002-05-28 08:23:05 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.59  2002/05/20 18:08:29  robmuller
+// Fixed: screen only partly updated when in video text mode.
+//
 // Revision 1.58  2002/05/06 15:34:59  laurentg
 // Key <i> to show source informations through OSD
 //
@@ -616,7 +619,7 @@ void OSD_Redraw(HWND hWnd, HDC hDC)
     TEXTMETRIC  tmOSDFont;
     SIZE        sizeText;
     RECT        winRect;
-    DWORD       dwQuality = 0;
+    DWORD       dwQuality = NONANTIALIASED_QUALITY;
     int         i;
 
     nLen = strlen(grOSD[0].szText);
@@ -642,7 +645,7 @@ void OSD_Redraw(HWND hWnd, HDC hDC)
             {
                 dwQuality = ANTIALIASED_QUALITY;
             }
-
+            
             strcpy(szCurrentFont, szFontName);
             hOSDfont = CreateFont(nFontsize, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, dwQuality, DEFAULT_PITCH | FF_DONTCARE, szFontName);
             if (!hOSDfont)
@@ -2032,7 +2035,7 @@ SETTING OSDSettings[OSD_SETTING_LASTONE] =
     },
     {
         "OSD Anti Alias", ONOFF, 0, (long*)&bAntiAlias,
-         TRUE, 0, 1, 1, 1,
+         FALSE, 0, 1, 1, 1,
          NULL,
         "OSD", "AntiAlias", NULL,
     },

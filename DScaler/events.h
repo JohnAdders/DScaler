@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: events.h,v 1.2 2002-09-26 16:34:19 kooiman Exp $
+// $Id: events.h,v 1.3 2002-09-27 14:11:35 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Jeroen Kooiman.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -20,6 +20,7 @@
 #define __EVENTS_H___
 
 #include <vector>
+#include <deque>
 
 enum eEventType
 {
@@ -38,7 +39,9 @@ enum eEventType
     EVENT_CHANNEL_CHANGE,
 	EVENT_MUTE,
 	EVENT_VOLUME,
-	EVENT_MIXERVOLUME
+	EVENT_MIXERVOLUME,
+	EVENT_AUDIOSTANDARD_DETECTED,
+	EVENT_AUDIOCHANNELSUPPORT_DETECTED
 };
 #define EVENT_ENDOFLIST EVENT_NONE
 typedef void (__cdecl EVENTCALLBACK)(void *pThis, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
@@ -69,9 +72,30 @@ protected:
 	vector<long> m_LastOldValues;
 	vector<long> m_LastNewValues;
 
+	typedef struct
+	{
+		eEventType Event;
+		long	   OldValue;
+		long	   NewValue;
+		eEventType *ComingUp;
+	} TEventInfo;
+
+	deque<TEventInfo> m_ScheduledEventList;
+	CRITICAL_SECTION  m_EventCriticalSection;
+	long			  m_ScheduleTimerID;
+
+	HANDLE			  m_EventCollectorThread;		
+    BOOL			  m_bStopThread;
+    
+	void StartThread();
+    void StopThread();
 protected:
     eEventType *CEventCollector::CopyEventList(eEventType *EventList);
-    
+
+	void RaiseScheduledEvent(eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
+    void ScheduleEvent(eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
+
+	static VOID CALLBACK StaticEventTimerWrap(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
 public:
     CEventCollector();
     ~CEventCollector();
@@ -82,9 +106,13 @@ public:
     void Register(CEventObject *pObject, eEventType *EventList);
     void Unregister(CEventObject *pObject);
 
+	void EventTimer();
+
     void RaiseEvent(eEventType Event, long OldValue, long NewValue, eEventType *ComingUp = NULL);    
 
 	int LastEventValues(eEventType Event, long *OldValue, long *NewValue);
+	int NumEventsWaiting();
+	
 };
 
 //Defined, allocated & destroyed in Dscaler.cpp

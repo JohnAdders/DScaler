@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.228 2002-09-26 16:34:19 kooiman Exp $
+// $Id: DScaler.cpp,v 1.229 2002-09-27 14:11:35 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.228  2002/09/26 16:34:19  kooiman
+// Lots of toolbar fixes &added EVENT_VOLUME support.
+//
 // Revision 1.227  2002/09/26 06:11:57  kooiman
 // Added toolbar, skin & event collector.
 //
@@ -851,6 +854,9 @@ HRGN UpdateWindowRegion(HWND hWnd, BOOL bUpdateWindowState);
 void SetWindowBorder(HWND hWnd, LPCSTR szSkinName, BOOL bShow);
 void Skin_SetMenu(HMENU hMenu, BOOL bUpdateOnly);
 LPCSTR GetSkinDirectory();
+void GlobalEventTimer_Start();
+void GlobalEventTimer_Stop();
+
 
 static const char *UIPriorityNames[3] = 
 {
@@ -875,6 +881,7 @@ static int TradeOff = 1;
 static int FullCpu = 1;
 static int VideoCard = 0;
 static int ShowHWSetupBox;
+static long m_EventTimerID = 0;
 
 ///**************************************************************************
 //
@@ -1085,6 +1092,7 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     {
         EventCollector = new CEventCollector();        
     }
+	GlobalEventTimer_Start();
         
     // Master setting. Holds all settings in the future
     //  For now, only settings that are registered here respond to events 
@@ -4352,6 +4360,7 @@ void MainWndOnDestroy()
     __try
     {
         LOG(1, "Try free EventCollector");
+		GlobalEventTimer_Stop();
         if (EventCollector!=NULL)
         {
             delete EventCollector;
@@ -5044,6 +5053,36 @@ BOOL KeyboardLock_OnChange(long NewValue)
     SetKeyboardLock(bKeyboardLock);
     return FALSE;
 }
+
+VOID CALLBACK GlobalEventTimer(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
+{		
+	if (EventCollector->NumEventsWaiting()>0)
+	{
+		if (m_EventTimerID>0)
+		{
+			::KillTimer(NULL, m_EventTimerID);
+			m_EventTimerID = 0;
+		}
+		EventCollector->EventTimer();
+		m_EventTimerID = ::SetTimer(NULL,NULL, 1, GlobalEventTimer);
+		return;
+	}	
+}
+
+void GlobalEventTimer_Start()
+{
+	m_EventTimerID = ::SetTimer(NULL,NULL, 1, GlobalEventTimer);
+}
+
+void GlobalEventTimer_Stop()
+{
+	if (m_EventTimerID!=0)
+	{
+		::KillTimer(NULL, m_EventTimerID);
+		m_EventTimerID = 0;
+	}
+}
+
 
 ////////////////////////////////////////////////////////////////////////////
 // Start of Settings related code

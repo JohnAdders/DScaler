@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.35 2003-01-13 17:46:48 adcockj Exp $
+// $Id: CX2388xSource.cpp,v 1.36 2003-01-13 19:00:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.35  2003/01/13 17:46:48  adcockj
+// HDelay and VDelay turned from absolute to adjustments
+//
 // Revision 1.34  2003/01/12 21:19:18  adcockj
 // Added Settings per flags to groups
 //
@@ -318,8 +321,6 @@ CCX2388xSource::CCX2388xSource(CCX2388xCard* pCard, CContigMemory* RiscDMAMem, C
     SetupCard();
 
     InitializeUI();
-
-    Reset();
 }
 
 
@@ -350,6 +351,8 @@ void CCX2388xSource::SetSourceAsCurrent()
     }
 
     SettingsMaster->LoadSettings();
+
+    Reset();
 }
 
 void CCX2388xSource::OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp)

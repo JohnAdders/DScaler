@@ -339,6 +339,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "FLT_Histogram"=..\Plugins\FLT_Histogram\FLT_Histogram.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "FLT_LinearCorrection"=..\Plugins\FLT_LinearCorrection\FLT_LinearCorrection.dsp - Package Owner=<4>
 
 Package=<5>

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FieldTiming.cpp,v 1.29 2002-09-16 20:08:21 adcockj Exp $
+// $Id: FieldTiming.cpp,v 1.30 2002-09-19 17:33:44 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2002/09/16 20:08:21  adcockj
+// fixed format detect for cx2388x
+//
 // Revision 1.28  2002/09/15 14:20:38  adcockj
 // Fixed timing problems for cx2388x chips
 //
@@ -221,41 +224,47 @@ void Timimg_AutoFormatDetect(TDeinterlaceInfo* pInfo, int NumFields)
 
                 // If we are not on a 50Hz Mode and we get 50hz timings then flip
                 // to 50hz Mode
-                if(!(GetTVFormat(Providers_GetCurrentSource()->GetFormat())->Is25fps) &&
-                    TenFieldTime >= 195 && TenFieldTime <= 205)
+                if(TenFieldTime >= 195 && TenFieldTime <= 205)
                 {
-                    ++RepeatCount;
-                    if(RepeatCount > FormatChangeThreshold)
+                    if(!(GetTVFormat(Providers_GetCurrentSource()->GetFormat())->Is25fps))
                     {
-						Providers_GetCurrentSource()->SetFormat(FiftyHzFormat);
-                        LOG(1, "Went to 50Hz Mode - Last Ten Count %d", TenFieldTime);
+                        ++RepeatCount;
+                        if(RepeatCount > FormatChangeThreshold)
+                        {
+						    Providers_GetCurrentSource()->SetFormat(FiftyHzFormat);
+                            LOG(1, "Went to 50Hz Mode - Last Ten Count %d", TenFieldTime);
+                        }
                     }
                 }
                 // If we are not on a 60Hz Mode and we get 60hz timings then flip
                 // to 60hz Mode, however this is not what we seem to get when playing
                 // back 60Hz stuff when in PAL
-                else if(GetTVFormat(Providers_GetCurrentSource()->GetFormat())->Is25fps && 
-                    TenFieldTime >= 160 && TenFieldTime <= 172)
+                else if(TenFieldTime >= 160 && TenFieldTime <= 172)
                 {
-                    ++RepeatCount;
-                    if(RepeatCount > FormatChangeThreshold)
+                    if(GetTVFormat(Providers_GetCurrentSource()->GetFormat())->Is25fps)
                     {
-						Providers_GetCurrentSource()->SetFormat(SixtyHzFormat);
-                        LOG(1, "Went to 60Hz Mode - Last Ten Count %d", TenFieldTime);
+                        ++RepeatCount;
+                        if(RepeatCount > FormatChangeThreshold)
+                        {
+						    Providers_GetCurrentSource()->SetFormat(SixtyHzFormat);
+                            LOG(1, "Went to 60Hz Mode - Last Ten Count %d", TenFieldTime);
+                        }
                     }
                 }
                 // If we are not on a 60Hz Mode and we get 60hz timings then flip
                 // to 60hz Mode, in my tests I get 334 come back as the timings
                 // when playing NTSC in PAL Mode so this check is also needed
-                else if(GetTVFormat(Providers_GetCurrentSource()->GetFormat())->Is25fps && 
-                    TenFieldTime >= 330 && TenFieldTime <= 340)
+                else if(TenFieldTime >= 330 && TenFieldTime <= 340)
                 {
-                    ++RepeatCount;
-                    if(RepeatCount > FormatChangeThreshold)
+                   if(GetTVFormat(Providers_GetCurrentSource()->GetFormat())->Is25fps)
                     {
-						Providers_GetCurrentSource()->SetFormat(SixtyHzFormat);
-                        PostMessage(hWnd, WM_COMMAND, IDM_TYPEFORMAT_0 + SixtyHzFormat, 0);
-                        LOG(1, "Went to 60Hz Mode - Last Ten Count %d", TenFieldTime);
+                        ++RepeatCount;
+                        if(RepeatCount > FormatChangeThreshold)
+                        {
+						    Providers_GetCurrentSource()->SetFormat(SixtyHzFormat);
+                            PostMessage(hWnd, WM_COMMAND, IDM_TYPEFORMAT_0 + SixtyHzFormat, 0);
+                            LOG(1, "Went to 60Hz Mode - Last Ten Count %d", TenFieldTime);
+                        }
                     }
                 }
                 else

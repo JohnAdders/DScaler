@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.64 2002-06-01 22:24:36 laurentg Exp $
+// $Id: Calibration.cpp,v 1.65 2002-06-02 09:43:23 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.64  2002/06/01 22:24:36  laurentg
+// New calibration mode to compute YUV range
+//
 // Revision 1.63  2002/05/27 22:28:20  laurentg
 // LIMIT_Y and LIMIT_CbCr used in the conversion from RGB to YCbCr
 //
@@ -1309,7 +1312,7 @@ void CCalSetting::Save()
 
 void CCalSetting::Restore()
 {
-    saved_value = current_value;
+    Adjust(saved_value);
     LOG(2, "Automatic Calibration - restored value = %d", saved_value);
 }
 

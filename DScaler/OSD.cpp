@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.61 2002-06-01 22:24:36 laurentg Exp $
+// $Id: OSD.cpp,v 1.62 2002-06-02 09:43:23 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.61  2002/06/01 22:24:36  laurentg
+// New calibration mode to compute YUV range
+//
 // Revision 1.60  2002/05/28 08:23:05  robmuller
 // Fixed: OSD did never output non-antialiased.
 // Changed: OSD font now defaults to non-antialiased to fix the OSD performance problems.
@@ -1458,7 +1461,7 @@ static void OSD_RefreshCalibrationScreen(double Size)
             pSetting = pSource->GetBrightness();
             if(pSetting != NULL)
             {
-                sprintf (szInfo, "Brightness : %03d", pSetting->GetValue());
+                sprintf (szInfo, "Brightness : %+04d", pSetting->GetValue());
                 OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (1, dfMargin, Size));
             }
             pSetting = pSource->GetContrast();
@@ -1482,7 +1485,7 @@ static void OSD_RefreshCalibrationScreen(double Size)
             pSetting = pSource->GetHue();
             if(pSetting != NULL)
             {
-                sprintf (szInfo, "Hue : %03u", pSetting->GetValue());
+                sprintf (szInfo, "Hue : %+04d", pSetting->GetValue());
                 OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (3, dfMargin, Size));
             }
         }
@@ -1520,7 +1523,7 @@ static void OSD_RefreshCalibrationScreen(double Size)
             pSetting = pSource->GetContrast();
             if(pSetting != NULL)
             {
-                sprintf (szInfo, "Contrast : %03d", pSetting->GetValue());
+                sprintf (szInfo, "Contrast : %03u", pSetting->GetValue());
                 if ( pCalibration->IsRunning()
                   && ( (pCalibration->GetCurrentStep() == 5)
                     || (pCalibration->GetCurrentStep() == 6)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.cpp,v 1.39 2002-07-29 21:33:06 laurentg Exp $
+// $Id: Deinterlace.cpp,v 1.40 2002-08-09 09:40:25 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.39  2002/07/29 21:33:06  laurentg
+// "Show Video Method UI" feature restored
+//
 // Revision 1.38  2002/07/27 16:27:35  laurentg
 // Deinterlace and Settings menus updated
 //
@@ -829,6 +832,13 @@ BOOL LoadDeinterlacePlugins()
             // update the names list which will be used in the generic settings 
             // dialog box
             DeinterlaceNames[VideoDeintMethods[i]->nMethodIndex] = VideoDeintMethods[i]->szName;
+        }
+        // Cut the menu in two colums if there are a lot of deinterlace video modes
+        if (GetMenuItemCount(hMenu) > 29)
+        {
+            char Text[32];
+            GetMenuString(hMenu, IDM_PROGRESSIVE_SCAN, Text, sizeof(Text), MF_BYCOMMAND);
+            ModifyMenu(hMenu, IDM_PROGRESSIVE_SCAN, MF_MENUBARBREAK | MF_STRING, IDM_PROGRESSIVE_SCAN, Text);
         }
         return TRUE;
     }

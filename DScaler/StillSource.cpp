@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.102 2004-08-31 15:54:57 adcockj Exp $
+// $Id: StillSource.cpp,v 1.103 2005-03-04 20:23:34 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.102  2004/08/31 15:54:57  adcockj
+// Patch from emu
+//
 // Revision 1.101  2003/10/27 10:39:54  adcockj
 // Updated files for better doxygen compatability
 //
@@ -1962,7 +1965,7 @@ void CStillSource::SetMenu(HMENU hMenu)
 {
     HMENU           hSubMenu;
     HMENU           hMenuFiles;
-	BOOL			OneInMemory = FALSE;
+	BOOL			OneInMemory;
 
     CheckMenuItemBool(hMenu, IDM_PLAYLIST_PREVIEW, pMultiFrames && (pMultiFrames->GetMode() == PREVIEW_STILLS) && pMultiFrames->IsActive());
 	EnableMenuItem(hMenu, IDM_PLAYLIST_PREVIEW, m_NavigOnly ? MF_GRAYED : MF_ENABLED);
@@ -2022,19 +2025,7 @@ void CStillSource::SetMenu(HMENU hMenu)
 		EnableMenuItem(hMenu, IDM_SAVE_IN_FILE, MF_ENABLED);
 	}
 
-    if (!m_NavigOnly && (m_PlayList.size() > 0))
-	{
-		for(vector<CPlayListItem*>::iterator it = m_PlayList.begin(); 
-			it != m_PlayList.end(); 
-			++it)
-		{
-			if ((*it)->IsInMemory())
-			{
-				OneInMemory = TRUE;
-				break;
-			}
-		}
-	}
+	OneInMemory = IsOneItemInMemory();
 	EnableMenuItem(hMenu, IDM_SAVE_ALL_IN_FILE, OneInMemory ? MF_ENABLED : MF_GRAYED);
 
     hSubMenu = GetSubMenu(m_hMenu, 0);
@@ -2590,4 +2581,22 @@ BOOL CStillSource::IsItemInList(LPCSTR FileName)
     return found;
 }
 
+BOOL CStillSource::IsOneItemInMemory()
+{
+    BOOL OneInMemory = FALSE;
 
+    if (!m_NavigOnly && (m_PlayList.size() > 0))
+	{
+		for(vector<CPlayListItem*>::iterator it = m_PlayList.begin(); 
+			it != m_PlayList.end(); 
+			++it)
+		{
+			if ((*it)->IsInMemory())
+			{
+				OneInMemory = TRUE;
+				break;
+			}
+		}
+	}
+    return OneInMemory;
+}

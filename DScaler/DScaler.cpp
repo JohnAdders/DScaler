@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.367 2004-12-25 22:40:18 to_see Exp $
+// $Id: DScaler.cpp,v 1.368 2005-03-04 20:23:33 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.367  2004/12/25 22:40:18  to_see
+// Changed the card list to an ini file
+//
 // Revision 1.366  2004/12/13 23:24:43  laurentg
 // Request in GUI thread regarding output thread - extended code
 //
@@ -3527,6 +3530,17 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_END:
+			if (((CStillSource*)Providers_GetSnapshotsSource())->IsOneItemInMemory())
+			{
+				if (MessageBox(hWnd,
+							   "At least one of your snapshots is not yet saved in a file.\n"
+							   "Do you confirm that you want to exit without saving it?", 
+							   "DScaler - Unsaved Snapshots", 
+							   MB_YESNO | MB_ICONQUESTION | MB_APPLMODAL) == IDNO)
+				{
+					break;
+				} 
+			}
             ShowWindow(hWnd, SW_HIDE);
             PostMessage(hWnd, WM_DESTROY, wParam, lParam);
             break;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.72 2003-10-27 10:39:54 adcockj Exp $
+// $Id: StillSource.h,v 1.73 2005-03-04 20:23:34 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -173,6 +173,8 @@ public:
 
 	int	 GetPlaylistPosition();
 	int CountMemoryUsage();
+
+    BOOL IsOneItemInMemory();
 
     friend class CTiffHelper;
     friend class CJpegHelper;

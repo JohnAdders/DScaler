@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.h,v 1.29 2002-10-26 08:38:59 tobbej Exp $
+// $Id: DSSource.h,v 1.30 2002-10-27 12:17:29 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2002/10/26 08:38:59  tobbej
+// fixed compile problems by reverting HasTuner and SetTunerFrequency
+//
 // Revision 1.28  2002/10/22 04:10:12  flibuste2
 // -- Modified CSource to include virtual ITuner* GetTuner();
 // -- Modified HasTuner() and GetTunerId() when relevant
@@ -175,8 +178,6 @@ public:
 	eVideoFormat GetFormat();
 	BOOL IsInTunerMode();
 	
-	eTunerId GetTunerId() {return TUNER_ABSENT;}
-	
 	BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat);
 	BOOL IsVideoPresent();
 
@@ -211,7 +212,27 @@ public:
 	void Start();
 	void Stop();
 
+	ITuner* GetTuner();
+
 private:
+
+	/**
+	 * Dummy ITuner.
+	 * The purpose of this implementation of ITuner is only to get the
+	 * channels menu active.
+	 */
+	class CDummyTuner : public ITuner
+	{
+	public:
+		eTunerId GetTunerId();
+		eVideoFormat GetDefaultVideoFormat();
+		bool HasRadio() const;
+		bool SetRadioFrequency(long nFrequency);
+		bool SetTVFrequency(long nFrequency, eVideoFormat videoFormat);
+		long GetFrequency();
+		eTunerLocked IsLocked();
+		eTunerAFCStatus GetAFCStatus(long &nFreqDeviation);
+	};
 	///resets m_VideoFmt to default
 	void CreateDefaultVideoFmt();
 
@@ -224,6 +245,7 @@ private:
 	BOOL m_HaveInputList;
 	vector<int> m_VideoInputList;
 	vector<int> m_AudioInputList;
+	CDummyTuner m_Tuner;
 
 	DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, Brightness);
 	DEFINE_SLIDER_CALLBACK_SETTING(CDSCaptureSource, Contrast);

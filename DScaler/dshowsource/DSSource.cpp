@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.49 2002-10-26 17:51:53 adcockj Exp $
+// $Id: DSSource.cpp,v 1.50 2002-10-27 12:17:29 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.49  2002/10/26 17:51:53  adcockj
+// Simplified hide cusror code and removed PreShowDialogOrMenu & PostShowDialogOrMenu
+//
 // Revision 1.48  2002/10/26 08:38:59  tobbej
 // fixed compile problems by reverting HasTuner and SetTunerFrequency
 //
@@ -817,31 +820,11 @@ BOOL CDSCaptureSource::IsInTunerMode()
 	}
 	return FALSE;
 }
-/*
-BOOL CDSCaptureSource::HasTuner()
+
+ITuner* CDSCaptureSource::GetTuner()
 {
-    if(m_pDSGraph==NULL)
-	{
-		return NULL;
-	}
-
-	CDShowBaseSource *pSrc=m_pDSGraph->getSourceDevice();
-	if(pSrc==NULL)
-		return FALSE;
-
-	CDShowCaptureDevice *pCap=NULL;
-	if(pSrc->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
-	{
-		pCap=(CDShowCaptureDevice*)pSrc;
-		if(pCap->getTVTuner()!=NULL)
-		{
-			return TRUE;
-		}
-	}
-	
-	return FALSE;
+	return &m_Tuner;
 }
-*/
 
 BOOL CDSCaptureSource::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
 {
@@ -860,7 +843,7 @@ BOOL CDSCaptureSource::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFor
 	if(pSrc->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
 	{
 		pCap=(CDShowCaptureDevice*)pSrc;
-		CDShowTVTuner *pTvTuner = pCap->getTVTuner();
+		CDShowTVTuner *pTvTuner = pCap->GetTVTuner();
 		if(pTvTuner == NULL)
 		{
 			return FALSE;
@@ -874,21 +857,21 @@ BOOL CDSCaptureSource::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFor
 			//Choose a country with a unicable frequency table
 			int CountryCode = 31;
 			
-			long lCurrentCountryCode = pTvTuner->getCountryCode();
+			long lCurrentCountryCode = pTvTuner->GetCountryCode();
 			if (bFirstTime || (CountryCode != lCurrentCountryCode))
 			{
 				LOG(2,"DSSource: SetTunerFrequency: Set country code");
-				pTvTuner->putCountryCode(CountryCode);
+				pTvTuner->PutCountryCode(CountryCode);
 			}
 			
 			
-			TunerInputType pInputType = pTvTuner->getInputType();
+			TunerInputType pInputType = pTvTuner->GetInputType();
 			TunerInputType pNewInputType = TunerInputCable; //unicable frequency table
 			
 			if (bFirstTime || (pInputType != pNewInputType))
 			{
 				LOG(2,"DSSource: SetTunerFrequency: Set input type");
-				pTvTuner->setInputType(pNewInputType);
+				pTvTuner->SetInputType(pNewInputType);
 			}
 			
 			// set video format
@@ -912,7 +895,7 @@ BOOL CDSCaptureSource::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFor
 			bFirstTime = FALSE;
 			
 			LOG(2,"DSSource: SetTunerFrequency: Set Frequency %d",FrequencyId);
-			return pTvTuner->setTunerFrequency(FrequencyId);
+			return pTvTuner->SetTunerFrequency(FrequencyId);
 		}
 		catch(CDShowException e)
 		{
@@ -926,6 +909,40 @@ BOOL CDSCaptureSource::IsVideoPresent()
 {
 	///@todo this needs to be fixed, looks like channel scanning depends on this.
 	return TRUE;
+}
+eTunerId CDSCaptureSource::CDummyTuner::GetTunerId()
+{
+	//there is no value that fits dshow
+	//any value besides TUNER_ABSENT will work
+	return TUNER_USER_SETUP;
+}
+eVideoFormat CDSCaptureSource::CDummyTuner::GetDefaultVideoFormat()
+{
+	return VIDEOFORMAT_PAL_B;
+}
+bool CDSCaptureSource::CDummyTuner::HasRadio() const
+{
+	return false;
+}
+bool CDSCaptureSource::CDummyTuner::SetRadioFrequency(long nFrequency)
+{
+	return false;
+}
+bool CDSCaptureSource::CDummyTuner::SetTVFrequency(long nFrequency, eVideoFormat videoFormat)
+{
+	return false;
+}
+long CDSCaptureSource::CDummyTuner::GetFrequency()
+{
+	return 0;
+}
+eTunerLocked CDSCaptureSource::CDummyTuner::IsLocked()
+{
+	return TUNER_LOCK_NOTSUPPORTED;
+}
+eTunerAFCStatus CDSCaptureSource::CDummyTuner::GetAFCStatus(long &nFreqDeviation)
+{
+	return TUNER_AFC_NOTSUPPORTED;
 }
 
 void CDSCaptureSource::SetMenu(HMENU hMenu)
@@ -1203,7 +1220,7 @@ void CDSCaptureSource::VideoInputOnChange(long NewValue, long OldValue)
 
 				if(NewInputType == PhysConn_Video_Tuner)
 				{
-					if(pCap->getTVTuner()!=NULL)
+					if(pCap->GetTVTuner()!=NULL)
 					{
 						Channel_ChangeToNumber(m_LastTunerChannel->GetValue());
 					}

@@ -135,6 +135,20 @@ DEINTERLACE_METHOD* GetVideoDeintMethod(int Mode)
 	}
 }
 
+DEINTERLACE_METHOD* GetVideoDeintIndex(int Index)
+{
+	int i;
+	for(i = 0; i < NumVideoModes; i++)
+	{
+		if(VideoDeintMethods[i]->nMethodIndex == Index)
+		{
+			return VideoDeintMethods[i];
+		}
+	}
+	//must get something
+	return VideoDeintMethods[0];
+}
+
 DEINTERLACE_METHOD* GetFilmDeintMethod(eFILMPULLDOWNMODES Mode)
 {
 	if(Mode < FILMPULLDOWNMODES_LAST_ONE)

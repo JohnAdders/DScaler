@@ -425,7 +425,6 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 		while(!bStopThread)
 		{
 			// update with any changes
-			CurrentMethod = GetCurrentDeintMethod();
 			info.SleepInterval = Sleep_Interval;
 			info.bDoAccurateFlips = DoAccurateFlips;
 			info.bRunningLate = Hurry_When_Late;
@@ -435,6 +434,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 			
 			if(bIsPaused == FALSE)
 			{
+				CurrentMethod = GetCurrentDeintMethod();
 				info.OverlayPitch = OverlayPitch;
 				info.LineLength = CurrentX * 2;
 				info.FrameWidth = CurrentX;
@@ -485,7 +485,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 					    // does both comb and diff
 					    // but in slightly different way
 					    // uncomment to play
-					    //DoBothCombAndDiff(&info);
+					    DoBothCombAndDiff(&info);
 
 					    if(bIsPAL)
 					    {
@@ -495,9 +495,13 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         {
 						    UpdateNTSCPulldownMode(&info);
 					    }
+						// get the current method after the film modes have been selected
+						CurrentMethod = GetCurrentDeintMethod();
                     }
                     else
                     {
+						CurrentMethod = GetCurrentDeintMethod();
+
 					    if(CurrentMethod->bNeedCombFactor)
 					    {
 						    GetCombFactor(&info);

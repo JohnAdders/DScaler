@@ -39,6 +39,7 @@ void FD60_SetMenu(HMENU hMenu);
 #define MAXMODESWITCHES 50	// Maximum number of switches to track in TrackModeSwitches()
 
 void UpdateNTSCPulldownMode(DEINTERLACE_INFO *pInfo);
+eFILMPULLDOWNMODES GetFilmModeFromPosition(DEINTERLACE_INFO *pInfo);
 BOOL DoWeWantToFlipNTSC(DEINTERLACE_INFO *pInfo);
 BOOL FilmModeNTSC1st(DEINTERLACE_INFO *info);
 BOOL FilmModeNTSC2nd(DEINTERLACE_INFO *info);

@@ -76,6 +76,7 @@ void UnloadDeinterlacePlugins();
 
 DEINTERLACE_METHOD* GetCurrentDeintMethod();
 DEINTERLACE_METHOD* GetVideoDeintMethod(int Mode);
+DEINTERLACE_METHOD* GetVideoDeintIndex(int Index);
 DEINTERLACE_METHOD* GetFilmDeintMethod(eFILMPULLDOWNMODES Mode);
 BOOL ProcessDeinterlaceSelection(HWND hWnd, WORD wMenuID);
 

@@ -519,7 +519,7 @@ BEGIN
     GROUPBOX        "Support",IDC_STATIC,194,37,180,100
     LTEXT           "The best place to get support for DScaler is in DScaler's very own forum. Click on link below.",
                     IDC_STATIC,200,47,166,27
-    LTEXT           "Eric Schmidt\nMuljadi Budiman\nLindsey Dubb\nMike Temperton\nIvan Tarnavsky\nRob Muller",
+    LTEXT           "Eric Schmidt\nMuljadi Budiman\nLindsey Dubb\nMike Temperton\nIvan Tarnavsky\nRob Muller\tAtsushi Nakagawa\tDenis Balazuc",
                     IDC_STATIC,103,52,74,81
     LTEXT           "Please read the Support section in the help and the FAQ in the support forum before posting.",
                     IDC_STATIC,200,104,166,26

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.h,v 1.13 2003-01-24 01:55:18 atnak Exp $
+// $Id: OSD.h,v 1.14 2003-06-02 13:15:34 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -81,6 +81,7 @@ SETTING* OSD_GetSetting(OSD_SETTING Setting);
 void OSD_ReadSettingsFromIni();
 void OSD_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 CTreeSettingsGeneric* OSD_GetTreeSettingsPage();
+void OSD_FreeSettings();
 
 void OSD_UpdateMenu(HMENU hMenu);
 void OSD_SetMenu(HMENU hMenu);

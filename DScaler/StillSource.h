@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.66 2003-04-26 16:05:37 laurentg Exp $
+// $Id: StillSource.h,v 1.67 2003-06-02 13:15:35 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -225,6 +225,7 @@ SETTING* Still_GetSetting(STILL_SETTING Setting);
 void Still_ReadSettingsFromIni();
 void Still_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 CTreeSettingsGeneric* Still_GetTreeSettingsPage();
+void Still_FreeSettings();
 
 
 #endif

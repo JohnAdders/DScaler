@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.39 2003-04-26 19:39:10 laurentg Exp $
+// $Id: MixerDev.cpp,v 1.40 2003-06-02 13:15:32 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.39  2003/04/26 19:39:10  laurentg
+// New character string settings
+//
 // Revision 1.38  2003/01/15 15:54:22  adcockj
 // Fixed some keyboard focus issues
 //
@@ -760,7 +763,7 @@ BOOL APIENTRY MixerSetupProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             }
 
             MixerIndex = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_MIXER));
-            lstrcpy((char*) &MixerName, pSoundSystem->GetMixerName2(MixerIndex));
+            Setting_SetValue(&MixerDevSettings[MIXERNAME], (long)pSoundSystem->GetMixerName2(MixerIndex), FALSE);
             DestIndex = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_DEST));
             InputIndexes[0] = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_INPUT1));
             InputIndexes[1] = ComboBox_GetCurSelItemData(GetDlgItem(hDlg, IDC_INPUT2));
@@ -1286,4 +1289,13 @@ void MixerDev_SettingSetSection(LPCSTR szSource)
     Setting_SetSection(&MixerDevSettings[INPUT4INDEX], (char*)MixerDev_Section.c_str());
     Setting_SetSection(&MixerDevSettings[INPUT5INDEX], (char*)MixerDev_Section.c_str());
     Setting_SetSection(&MixerDevSettings[INPUT6INDEX], (char*)MixerDev_Section.c_str());    
+}
+
+void MixerDev_FreeSettings()
+{
+    int i;
+    for(i = 0; i < MIXERDEV_SETTING_LASTONE; i++)
+    {
+        Setting_Free(&MixerDevSettings[i]);
+    }
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.h,v 1.16 2002-10-18 03:33:19 flibuste2 Exp $
+// $Id: MixerDev.h,v 1.17 2003-06-02 13:15:33 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,6 +44,7 @@ SETTING* MixerDev_GetSetting(MIXERDEV_SETTING Setting);
 void MixerDev_ReadSettingsFromIni();
 void MixerDev_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void MixerDev_SetMenu(HMENU hMenu);
+void MixerDev_FreeSettings();
 
 
 /** Control a mixer source line on the system

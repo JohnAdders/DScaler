@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.98 2003-04-28 13:34:22 laurentg Exp $
+// $Id: StillSource.cpp,v 1.99 2003-06-02 13:15:34 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.98  2003/04/28 13:34:22  laurentg
+// Default value for still saving path updated
+//
 // Revision 1.97  2003/04/26 19:39:11  laurentg
 // New character string settings
 //
@@ -2255,6 +2258,15 @@ void Still_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 CTreeSettingsGeneric* Still_GetTreeSettingsPage()
 {
     return new CTreeSettingsGeneric("Still Settings",StillSettings, STILL_SETTING_LASTONE);
+}
+
+void Still_FreeSettings()
+{
+    int i;
+    for(i = 0; i < STILL_SETTING_LASTONE; i++)
+    {
+        Setting_Free(&StillSettings[i]);
+    }
 }
 
 

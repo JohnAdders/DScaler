@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DebugLog.h,v 1.11 2002-06-13 12:10:21 adcockj Exp $
+// $Id: DebugLog.h,v 1.12 2003-06-02 13:15:32 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,7 @@
 SETTING* Debug_GetSetting(DEBUG_SETTING Setting);
 void Debug_ReadSettingsFromIni();
 void Debug_WriteSettingsToIni(BOOL bOptimizeFileAccess);
+void Debug_FreeSettings();
 CTreeSettingsGeneric* Debug_GetTreeSettingsPage();
 
 #if !defined(NOLOGGING)

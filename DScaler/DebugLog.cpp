@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DebugLog.cpp,v 1.24 2003-04-26 19:39:09 laurentg Exp $
+// $Id: DebugLog.cpp,v 1.25 2003-06-02 13:15:31 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2003/04/26 19:39:09  laurentg
+// New character string settings
+//
 // Revision 1.23  2003/03/02 16:21:29  tobbej
 // fixed crashing in LOGD if string is too long
 //
@@ -234,3 +237,13 @@ CTreeSettingsGeneric* Debug_GetTreeSettingsPage()
 {
     return new CTreeSettingsGeneric("Logging Settings",DebugSettings, DEBUG_SETTING_LASTONE);
 }
+
+void Debug_FreeSettings()
+{
+    int i;
+    for(i = 0; i < DEBUG_SETTING_LASTONE; i++)
+    {
+        Setting_Free(&DebugSettings[i]);
+    }
+}
+

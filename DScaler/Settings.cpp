@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.50 2003-04-28 12:42:22 laurentg Exp $
+// $Id: Settings.cpp,v 1.51 2003-06-02 13:15:34 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.50  2003/04/28 12:42:22  laurentg
+// Management of character string settings updated
+//
 // Revision 1.49  2003/04/26 23:19:15  laurentg
 // Character string settings
 //
@@ -223,7 +226,7 @@ TFileWithSettings Settings[] =
         (GENERICGETSETTING*)Debug_GetSetting,
         Debug_ReadSettingsFromIni,
         Debug_WriteSettingsToIni,
-		NULL,
+		Debug_FreeSettings,
     },
     {
         WM_ASPECT_GETVALUE,
@@ -279,7 +282,7 @@ TFileWithSettings Settings[] =
         (GENERICGETSETTING*)OSD_GetSetting,
         OSD_ReadSettingsFromIni,
         OSD_WriteSettingsToIni,
-		NULL,
+		OSD_FreeSettings,
     },
     {
         WM_VBI_GETVALUE,
@@ -300,7 +303,7 @@ TFileWithSettings Settings[] =
         (GENERICGETSETTING*)MixerDev_GetSetting,
         MixerDev_ReadSettingsFromIni,
         MixerDev_WriteSettingsToIni,
-		NULL,
+		MixerDev_FreeSettings,
     },
     {
         WM_CHANNELS_GETVALUE,
@@ -335,7 +338,7 @@ TFileWithSettings Settings[] =
         (GENERICGETSETTING*)Still_GetSetting,
         Still_ReadSettingsFromIni,
         Still_WriteSettingsToIni,
-		NULL,
+		Still_FreeSettings,
     },
     {
         WM_ANTIPLOP_GETVALUE,

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.84 2003-05-26 22:04:17 laurentg Exp $
+// $Id: OSD.cpp,v 1.85 2003-06-02 13:15:34 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.84  2003/05/26 22:04:17  laurentg
+// Update of the OSD displayed when doing calibration
+//
 // Revision 1.83  2003/04/26 19:39:10  laurentg
 // New character string settings
 //
@@ -2567,4 +2570,13 @@ void OSD_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 CTreeSettingsGeneric* OSD_GetTreeSettingsPage()
 {
     return new CTreeSettingsGeneric("OSD Settings",OSDSettings, OSD_SETTING_LASTONE);
+}
+
+void OSD_FreeSettings()
+{
+    int i;
+    for(i = 0; i < OSD_SETTING_LASTONE; i++)
+    {
+        Setting_Free(&OSDSettings[i]);
+    }
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: stdafx.h,v 1.20 2004-08-14 13:45:23 adcockj Exp $
+// $Id: stdafx.h,v 1.21 2005-03-07 21:44:13 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2004/08/14 13:45:23  adcockj
+// Fixes to get new settings code working under VS6
+//
 // Revision 1.19  2003/10/27 10:39:54  adcockj
 // Updated files for better doxygen compatability
 //
@@ -86,6 +89,10 @@
 //uncomment the folowing line if you want to try the experimental direct show support
 #define WANT_DSHOW_SUPPORT 0
 #ifdef WANT_DSHOW_SUPPORT
+	// JA 7-Mar-2005 added to get compiled
+    // want to remove the need for this
+	// but will require changing a lot of string functions
+	#define NO_DSHOW_STRSAFE
     #include <dshow.h>
 #endif
 

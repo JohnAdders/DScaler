@@ -20,10 +20,10 @@ cd ..\DScaler
 cd Help
 "c:\Program Files\HTML Help Workshop\hhc.exe" Dscaler.hhp
 cd ..\DScaler
-call c:\PROGRA~1\MICROS~2\VC98\bin\vcvars32.bat
+call c:\PROGRA~1\MICROS~4\VC98\bin\vcvars32.bat
 msdev Dscaler.dsw /MAKE "All"
 cd ..\Install
-"c:\Program Files\Inno Setup 2\Compil32.exe" /cc DScaler.iss
+"c:\Program Files\Inno Setup 5\Compil32.exe" /cc DScaler.iss
 copy Output\Setup.exe ..\..\DScaler%1.exe
 cd ..\..
 del /f /q /s DSRend

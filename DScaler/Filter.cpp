@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Filter.cpp,v 1.15 2001-11-21 15:21:39 adcockj Exp $
+// $Id: Filter.cpp,v 1.16 2001-11-22 22:32:09 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2001/11/21 15:21:39  adcockj
+// Renamed DEINTERLACE_INFO to TDeinterlaceInfo in line with standards
+// Changed TDeinterlaceInfo structure to have history of pictures.
+//
 // Revision 1.14  2001/11/02 16:30:08  adcockj
 // Check in merged code from multiple cards branch into main tree
 //
@@ -183,7 +187,6 @@ void AddUIForFilterPlugin(HMENU hFilterMenu, HMENU hSettingMenu, FILTER_METHOD* 
         AppendMenu(hFilterMenu, MF_STRING | MF_ENABLED, FilterMethod->MenuId, FilterMethod->szName);
         AppendMenu(hSettingMenu, MF_STRING | MF_ENABLED, MenuId + 100, FilterMethod->szName);
     }
-    AppendMenu(hSettingMenu, MF_STRING | MF_ENABLED, MenuId + 100, FilterMethod->szName);
 }
 
 BOOL LoadFilterPlugins()

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HSListBox.h,v 1.5 2001-11-29 17:30:52 adcockj Exp $
+// $Id: HSListBox.h,v 1.6 2001-12-03 17:57:14 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,11 @@
 // 24 Jun 2001   Torbjörn Jansson      Initial release
 //
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @file HSListBox.h Header file for CHSListBox class.
+ * @see CHSListBox
+ */
 
 #if !defined(AFX_HSLISTBOX_H__3CCC6FDD_B7F9_486D_A66D_98E0D8B92C0C__INCLUDED_)
 #define AFX_HSLISTBOX_H__3CCC6FDD_B7F9_486D_A66D_98E0D8B92C0C__INCLUDED_
@@ -69,6 +74,12 @@ protected:
 
     DECLARE_MESSAGE_MAP()
 private:
+
+    /**
+     * Calculates the size of a given string
+     * @param lpszItem the string
+     * @return size of the string
+     */
     CSize GetTextSize(LPCTSTR lpszItem);
 };
 

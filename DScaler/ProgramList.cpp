@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.32 2001-08-23 16:03:26 adcockj Exp $
+// $Id: ProgramList.cpp,v 1.33 2001-08-23 18:54:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2001/08/23 16:03:26  adcockj
+// Improvements to dynamic menus to remove requirement that they are not empty
+//
 // Revision 1.31  2001/08/08 08:47:26  adcockj
 // Stopped resetting program list when not in US mode
 //
@@ -1006,7 +1009,7 @@ void Channels_UpdateMenu(HMENU hMenu)
             MenuItemInfo.dwTypeData = (LPSTR) (*it)->GetName();
             MenuItemInfo.cch = strlen ((*it)->GetName());
             MenuItemInfo.fState = (CurrentProgramm == j) ? MFS_CHECKED : MFS_ENABLED;
-            MenuItemInfo.wID = IDM_CHANNEL_SELECT + j;
+            MenuItemInfo.wID = IDM_CHANNEL_SELECT + j + 1;
             InsertMenuItem(hMenuChannels, j, TRUE, &MenuItemInfo);
         }
         j++;

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.63 2001-08-23 16:03:26 adcockj Exp $
+// $Id: DScaler.cpp,v 1.64 2001-08-23 18:54:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.63  2001/08/23 16:03:26  adcockj
+// Improvements to dynamic menus to remove requirement that they are not empty
+//
 // Revision 1.62  2001/08/21 09:39:46  adcockj
 // Added Greek teletext Codepage
 //
@@ -2402,7 +2405,7 @@ HMENU GetFiltersSubmenu()
 
 HMENU GetFilterSettingsSubmenu()
 {
-    return GetOrCreateSubSubMenu(4, 6, "Filter &Settings");
+    return GetOrCreateSubSubMenu(4, 7, "Filter &Settings");
 }
 
 HMENU GetVideoDeinterlaceSubmenu()

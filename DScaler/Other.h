@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.h,v 1.8 2001-07-28 13:24:40 adcockj Exp $
+// $Id: Other.h,v 1.9 2001-08-23 18:54:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -69,5 +69,6 @@ extern DWORD SrcSizeAlign;
 
 extern LPDIRECTDRAWSURFACE lpDDOverlay;
 extern LPDIRECTDRAWSURFACE lpDDOverlayBack;
+extern LPDIRECTDRAWSURFACE lpDDSurface;
 
 #endif

@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TemporalComb.asm,v 1.6 2001-12-20 05:28:37 lindsey Exp $
+// $Id: FLT_TemporalComb.asm,v 1.7 2002-01-05 22:53:27 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2001 Lindsey Dubb.  All rights reserved.
+// Copyright (c) 2001, 2002 Lindsey Dubb.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 //
 //  This file is subject to the terms of the GNU General Public License as
@@ -18,6 +18,9 @@
 // CVS Log
 // 
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/12/20 05:28:37  lindsey
+// Corrected a crash with small overscan values
+//
 // Revision 1.5  2001/12/20 03:06:58  lindsey
 // Fixed use of incorrect algorithm (hopefully for good)
 // Switched to a two pixel block for motion and shimmer detection
@@ -91,14 +94,14 @@
 // Changes destMM, tempMM
 
 #undef AVERAGE
-#if defined(IS_SSE) || defined(IS_MMXEXT)
-#define AVERAGE(destMM, sourceMM, tempMM, shiftMask) \
+#if defined( IS_SSE ) || defined( IS_MMXEXT )
+#define AVERAGE( destMM, sourceMM, tempMM, shiftMask ) \
     pavgb destMM, sourceMM
-#elif defined(IS_3DNOW)
-#define AVERAGE(destMM, sourceMM, tempMM, shiftMask) \
+#elif defined( IS_3DNOW )
+#define AVERAGE( destMM, sourceMM, tempMM, shiftMask ) \
     pavgusb destMM, sourceMM
 #else
-#define AVERAGE(destMM, sourceMM, tempMM, shiftMask) __asm \
+#define AVERAGE( destMM, sourceMM, tempMM, shiftMask ) __asm \
     { \
 	__asm movq tempMM, sourceMM \
 	__asm pand tempMM, shiftMask \
@@ -114,7 +117,7 @@
 // Changes destMM, tempMM
 
 #ifndef ABSOLUTE_DIFFERENCE_BYTES
-#define ABSOLUTE_DIFFERENCE_BYTES(destMM, source1MM, source2MM, tempMM) __asm \
+#define ABSOLUTE_DIFFERENCE_BYTES( destMM, source1MM, source2MM, tempMM ) __asm \
     { \
     __asm movq destMM, source1MM \
     __asm psubusb destMM, source2MM \
@@ -130,17 +133,17 @@
 // coefficient by 2, then shift left 1 after multiplication
 
 #undef MULTIPLY_WORDS_SHIFT_RIGHT_16
-#if defined(IS_MMXEXT) || defined(IS_SSE)
-#define MULTIPLY_WORDS_SHIFT_RIGHT_16(destMM, coefficient) \
+#if defined( IS_MMXEXT ) || defined( IS_SSE )
+#define MULTIPLY_WORDS_SHIFT_RIGHT_16( destMM, coefficient ) \
     pmulhuw destMM, coefficient
 #elif defined (IS_3DNOW)
-#define MULTIPLY_WORDS_SHIFT_RIGHT_16(destMM, coefficient) __asm \
+#define MULTIPLY_WORDS_SHIFT_RIGHT_16( destMM, coefficient ) __asm \
     { \
     __asm pmulhrw destMM, coefficient \
     __asm psllw destMM, 1 \
     }
 #else \\ IS_MMX
-#define MULTIPLY_WORDS_SHIFT_RIGHT_16(destMM, coefficient) __asm \
+#define MULTIPLY_WORDS_SHIFT_RIGHT_16( destMM, coefficient ) __asm \
     { \
     __asm pmulhw destMM, coefficient \
     __asm psllw destMM, 1 \
@@ -154,12 +157,11 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #undef MAINLOOP_LABEL
-
-#if defined(IS_MMXEXT)
+#if defined( IS_MMXEXT )
 #define MAINLOOP_LABEL DoNext32Bytes_MMXEXT
-#elif defined(IS_SSE)
+#elif defined( IS_SSE )
 #define MAINLOOP_LABEL DoNext32Bytes_SSE
-#elif defined(IS_3DNOW)
+#elif defined( IS_3DNOW )
 #define MAINLOOP_LABEL DoNext32Bytes_3DNow
 #else
 #define MAINLOOP_LABEL DoNext32Bytes_MMX
@@ -170,28 +172,27 @@
 // The actual main code.  Wow.
 /////////////////////////////////////////////////////////////////////////////
 
-
 // Translate user supplied parameters into values useful to the plugin
 
 #undef RESCALING_PROCEDURE_NAME
-#if defined(IS_MMXEXT)
+#if defined( IS_MMXEXT )
 #define RESCALING_PROCEDURE_NAME    RescaleParameters_MMXEXT
-#elif defined(IS_SSE)
+#elif defined( IS_SSE )
 #define RESCALING_PROCEDURE_NAME    RescaleParameters_SSE
-#elif defined(IS_3DNOW)
+#elif defined( IS_3DNOW )
 #define RESCALING_PROCEDURE_NAME    RescaleParameters_3DNOW
 #else
 #define RESCALING_PROCEDURE_NAME    RescaleParameters_MMX
 #endif  // processor specific routine name
 
-void RESCALING_PROCEDURE_NAME(LONG* pDecayNumerator, LONG* pAveragingThreshold)
+void RESCALING_PROCEDURE_NAME( LONG* pDecayNumerator, LONG* pAveragingThreshold, DWORD Accumulation )
 {
     DWORD           MinThreshold = 0;
     DWORD           MaxThreshold = 0;
     DWORD           ThisShimmer = 0;
     DWORD           LastShimmer = 0;
     DWORD           LocalDecayCoefficient = 0;
-#if defined(IS_3DNOW)
+#if defined( IS_3DNOW )
     const DWORD     RoundingCompensation = 1 + FIXED_POINT_DIVISOR/2;
 #else
     const DWORD     RoundingCompensation = 0;
@@ -238,39 +239,39 @@ void RESCALING_PROCEDURE_NAME(LONG* pDecayNumerator, LONG* pAveragingThreshold)
     {
         LastShimmer = ThisShimmer;
         ThisShimmer = (((*pDecayNumerator)*LastShimmer + RoundingCompensation) / FIXED_POINT_DIVISOR);
-        ThisShimmer += ACCUMULATION;
-#if defined(IS_3DNOW) || defined(IS_MMX)
+        ThisShimmer += Accumulation;
+#if defined( IS_3DNOW ) || defined( IS_MMX )
         ThisShimmer &= 0xFFFFFFFE;
 #endif // Lost ones bit
-    } while (LastShimmer < ThisShimmer);
+    } while( LastShimmer < ThisShimmer );
     MaxThreshold = LastShimmer;
 
     // The equations for finding the minimum threshold are a bit unwieldy so that rounding
     // errors are dealt with correctly.
 
-    if (LocalDecayCoefficient < ACCUMULATION_MINIMUM_METHOD_THRESHOLD)
+    if(LocalDecayCoefficient < ACCUMULATION_MINIMUM_METHOD_THRESHOLD)
     {
         // Below (A + D*A) and we'll see lots of motion artifacts:
 
-        MinThreshold = ((*pDecayNumerator)*ACCUMULATION + RoundingCompensation)/FIXED_POINT_DIVISOR;
+        MinThreshold = ((*pDecayNumerator)*Accumulation + RoundingCompensation)/FIXED_POINT_DIVISOR;
 #if defined(IS_3DNOW) || defined(IS_MMX)
         MinThreshold &= 0xFFFFFFFE;
 #endif // Lost ones bit
-        MinThreshold += ACCUMULATION;
+        MinThreshold += Accumulation;
     }
     else
     {
         // Below (D * (maximum accumulation ~= A / (1 - D))) and we'll see fade out artifacts:
 
         MinThreshold = ((*pDecayNumerator)*MaxThreshold + RoundingCompensation)/FIXED_POINT_DIVISOR;
-#if defined(IS_3DNOW) || defined(IS_MMX)
+#if defined( IS_3DNOW ) || defined( IS_MMX )
         MinThreshold &= 0xFFFFFFFE;
 #endif // Lost ones bit
     }
 
     // This is probably unnecessary, but just in case rounding causes something strange...
 
-    if (MinThreshold > MaxThreshold)
+    if( MinThreshold > MaxThreshold )
     {
         MinThreshold = MaxThreshold;
     }
@@ -286,24 +287,24 @@ void RESCALING_PROCEDURE_NAME(LONG* pDecayNumerator, LONG* pAveragingThreshold)
 
 // The image processing routine
 
-#if defined(IS_MMXEXT)
-long FilterTemporalComb_MMXEXT(TDeinterlaceInfo *pInfo)
-#elif defined(IS_SSE)
-long FilterTemporalComb_SSE(TDeinterlaceInfo *pInfo)
-#elif defined(IS_3DNOW)
-long FilterTemporalComb_3DNOW(TDeinterlaceInfo *pInfo)
+#if defined( IS_MMXEXT )
+long FilterTemporalComb_MMXEXT( TDeinterlaceInfo *pInfo )
+#elif defined( IS_SSE )
+long FilterTemporalComb_SSE( TDeinterlaceInfo *pInfo )
+#elif defined( IS_3DNOW )
+long FilterTemporalComb_3DNOW( TDeinterlaceInfo *pInfo )
 #else
-long FilterTemporalComb_MMX(TDeinterlaceInfo *pInfo)
+long FilterTemporalComb_MMX( TDeinterlaceInfo *pInfo )
 #endif  // processor specific routine name
 {
-    DWORD           ThisLine = pInfo->SourceRect.top/2;
+    DWORD           ThisLine = pInfo->SourceRect.top/2;             // Needs change to work right in a half-height mode
     TPicture**      pTPictures = pInfo->PictureHistory;
     BYTE*           pSource = NULL;
     BYTE*           pLastLast = NULL;
-    const __int64   qwAccumulate = 0x0147014701470147;              // = quadword of 327 (= ACCUMULATION) decimal
+    __int64         qwAccumulate = 0;
     __int64         qwDecayCoefficient = 0;
 
-    const LONG      Cycles = -(((int) pInfo->LineLength/32) * 32);
+    const LONG      Cycles = -(((LONG) pInfo->LineLength/32) * 32);
     static LONG     sAveragingThreshold = 0;
     BYTE*           pLast = NULL;
     BYTE*           pMap = NULL;
@@ -311,59 +312,84 @@ long FilterTemporalComb_MMX(TDeinterlaceInfo *pInfo)
     __int64         qwAveragingThreshold = 0;
 
     const __int64   qwShiftMask = 0xFEFFFEFFFEFFFEFF;
-    const DWORD     BottomLine = pInfo->SourceRect.bottom/2;        // Limit processing to displayed picture
+    const DWORD     BottomLine = pInfo->SourceRect.bottom/2;        // Limit processing to displayed picture; wrong in half-height
     static DWORD    sDecayNumerator = 0;
     static DWORD    sLastOverlayPitch = 0;
     static int      sLastFieldHeight = 0;
     static DWORD    sLastShimmerPercent = 0;
     static DWORD    sLastDecayPercent = 0;
 
-    if ((pInfo->OverlayPitch != sLastOverlayPitch) || (pInfo->FieldHeight != sLastFieldHeight))
+    DWORD           Accumulation = 0;
+
+    if( (pInfo->OverlayPitch != sLastOverlayPitch) || (pInfo->FieldHeight != sLastFieldHeight) )
     {
         sLastOverlayPitch = pInfo->OverlayPitch;
         sLastFieldHeight = pInfo->FieldHeight;
         CleanupTemporalComb();
     }
-    if (gpShimmerMap == NULL)
+    else
+    {
+        ;                   // Do nothing
+    }
+    if( gpShimmerMap == NULL )
     {
         DWORD   Index = 0;
-        gpShimmerMap = malloc(pInfo->InputPitch * pInfo->FieldHeight);
-        if (gpShimmerMap == NULL)
+        gpShimmerMap = malloc( pInfo->InputPitch * pInfo->FieldHeight );
+        if( gpShimmerMap == NULL )
         {
             return 1000;    // !! Should notify user !!
         }
-        for ( ; Index < (pInfo->InputPitch * pInfo->FieldHeight / sizeof(DWORD)); ++Index)
+        for( ; Index < (pInfo->InputPitch * pInfo->FieldHeight / sizeof(DWORD)); ++Index)
         {
             ((DWORD*)gpShimmerMap)[Index] = 0;
         }
     }
+    else
+    {
+        ;                   // Do nothing
+    }
 
-    if (
+    if(
         (pTPictures[0] == NULL) || (pTPictures[2] == NULL) || (pTPictures[4] == NULL)
     ) {
         return 1000;
     }
 
-    if (gDoFieldBuffering == TRUE)
+    if( gDoFieldBuffering == TRUE )
     {
         LONG    ErrorCode;
-        ErrorCode = UpdateBuffers(pInfo);
+        ErrorCode = UpdateBuffers( pInfo );
         if (ErrorCode != 0)
         {
             return ErrorCode;
         }
     }
+    else
+    {
+        ;                   // Do nothing
+    }
+
+    // Determine the accumulation constant
+    // This is chosen to be just small enough that accumulated shimmer can never exceed SHRT_MAX, which
+    // is the limit because the accumulated shimmer is used in a signed comparison.
+    // 100/(100 - gDecayCoefficient) is the sum of a geometric series with the appropriate decay.
+
+    Accumulation = (SHRT_MAX*(100 - gDecayCoefficient))/100;
 
     // Have either of the scaled parameters changed?
     // If so, we need to reparameterize again.  Reparameterization is a good idea with this filter
     // because otherwise, most parameter combinations result in useless behavior -- either too many
     // artifacts, or too little averaging.
 
-    if (( (DWORD)gShimmerThreshold != sLastShimmerPercent) || ( (DWORD)gDecayCoefficient != sLastDecayPercent))
+    if( ( (DWORD)gShimmerThreshold != sLastShimmerPercent) || ( (DWORD)gDecayCoefficient != sLastDecayPercent) )
     {
         sLastShimmerPercent = gShimmerThreshold;
         sLastDecayPercent = gDecayCoefficient;
-        RESCALING_PROCEDURE_NAME(&sDecayNumerator, &sAveragingThreshold);
+        RESCALING_PROCEDURE_NAME( &sDecayNumerator, &sAveragingThreshold, Accumulation );
+    }
+    else
+    {
+        ;                   // Do nothing
     }
 
 
@@ -385,13 +411,16 @@ long FilterTemporalComb_MMX(TDeinterlaceInfo *pInfo)
     qwAveragingThreshold = sAveragingThreshold;
     qwAveragingThreshold |= (qwAveragingThreshold << 48) | (qwAveragingThreshold << 32) | (qwAveragingThreshold << 16);
 
-    qwMotionThreshold = gInPhaseLuminanceThreshold | (gInPhaseChromaThreshold << 8);
+    qwMotionThreshold = gInPhaseColorThreshold | (gInPhaseColorThreshold << 8);
     qwMotionThreshold |= (qwMotionThreshold << 48) | (qwMotionThreshold << 32) | (qwMotionThreshold << 16);
+
+    qwAccumulate = Accumulation;
+    qwAccumulate |= (qwAccumulate << 48) | (qwAccumulate << 32) | (qwAccumulate << 16);
 
 
     pMap = gpShimmerMap + (ThisLine * pInfo->InputPitch);
     pSource = pTPictures[0]->pData + (ThisLine * pInfo->InputPitch);
-    if (gDoFieldBuffering == TRUE)
+    if( gDoFieldBuffering == TRUE )
     {
         pLast = gppFieldBuffer[2] + (ThisLine * pInfo->InputPitch);
         pLastLast = gppFieldBuffer[4] + (ThisLine * pInfo->InputPitch);
@@ -402,7 +431,7 @@ long FilterTemporalComb_MMX(TDeinterlaceInfo *pInfo)
         pLastLast = pTPictures[4]->pData + (ThisLine * pInfo->InputPitch);
     }
 
-    for ( ; ThisLine < BottomLine; ++ThisLine)
+    for( ; ThisLine < BottomLine; ++ThisLine)
     {        
         __asm
         {
@@ -412,18 +441,18 @@ long FilterTemporalComb_MMX(TDeinterlaceInfo *pInfo)
 
             // What a confusing explanation.  I should probably have done this the sensible way, instead.
 
-            mov ecx, Cycles
+            mov     ecx, Cycles
 
             // load pointers into normal registers
 
-            mov eax, dword ptr[pSource]
-            sub eax, ecx
-            mov edi, dword ptr[pLast]
-            sub edi, ecx
-            mov ebx, dword ptr[pLastLast]
-            sub ebx, ecx
-            mov edx, dword ptr[pMap]
-            sub edx, ecx
+            mov     eax, dword ptr[pSource]
+            sub     eax, ecx
+            mov     edi, dword ptr[pLast]
+            sub     edi, ecx
+            mov     ebx, dword ptr[pLastLast]
+            sub     ebx, ecx
+            mov     edx, dword ptr[pMap]
+            sub     edx, ecx
 
             // 32 bytes are handled per loop in order to make the preload instructions
             // a little more efficient.
@@ -432,18 +461,18 @@ align 8
 MAINLOOP_LABEL:
             // Loop 1
 
-            movq mm0, qword ptr[eax + ecx]                  // mm0 = sourcePixel
-            movq mm1, qword ptr[edi + ecx]                  // mm1 = lastPixel
+            movq    mm0, qword ptr[eax + ecx]               // mm0 = sourcePixel
+            movq    mm1, qword ptr[edi + ecx]               // mm1 = lastPixel
 
             // Get inPhase, outPhase deltas
 
             ABSOLUTE_DIFFERENCE_BYTES(mm3, mm0, mm1, mm7)   // mm3 = outPhase delta
         
-            movq mm2, qword ptr[ebx + ecx]                  // mm2 = lastLastPixel
+            movq    mm2, qword ptr[ebx + ecx]               // mm2 = lastLastPixel
 
-#if defined(IS_3DNOW) || defined(IS_MMXEXT)
+#if defined( IS_3DNOW ) || defined( IS_MMXEXT )
             prefetchw [eax + ecx + PREFETCH_STRIDE]
-#elif defined(IS_SSE)
+#elif defined( IS_SSE )
             prefetchnta [eax + ecx + PREFETCH_STRIDE]
 #endif
 
@@ -455,51 +484,51 @@ MAINLOOP_LABEL:
             pcmpgtb mm3, mm4                                // mm3 bytewise on where outPhase > inPhase
                                                             // i.e., on where shimmering
             psubusb mm4, qwMotionThreshold                  // mm4 bytewise off where no motion
-            pxor mm7, mm7                                   // mm7 = 0
+            pxor    mm7, mm7                                // mm7 = 0
             pcmpeqd mm4, mm7                                // mm4 dwordwise on where no motion
             pcmpeqd mm3, mm7                                // mm3 dwordwise off where shimmering
-            pandn mm3, mm4                                  // mm3 dwordwise on where shimmering & no motion
+            pandn   mm3, mm4                                // mm3 dwordwise on where shimmering & no motion
 
             // Update shimmerMap where significant shimmering was detected
 
-            movq mm4, qword ptr[edx + ecx]                  // mm4 = shimmer map at this pixel
-            movq mm2, qwAccumulate                          // mm2 = amount to add if shimmering is detected
-            pand mm2, mm3                                   // mm2 = amount to add
+            movq    mm4, qword ptr[edx + ecx]               // mm4 = shimmer map at this pixel
+            movq    mm2, qwAccumulate                       // mm2 = amount to add if shimmering is detected
+            pand    mm2, mm3                                // mm2 = amount to add
             paddusw mm4, mm2                                // mm4 = updated shimmer value
 
             // Check shimmerMap at pixel: if it's above the threshold,
             // average at this location to reduce dot crawl
 
-            movq mm6, mm4                                   // mm6 = shimmer map
+            movq    mm6, mm4                                // mm6 = shimmer map
             pcmpgtw mm4, qwAveragingThreshold               // mm4 wordwise on where we need to average
-#ifdef TCOMB_DEBUG
-            movq mm1, mm4
+#if defined( TCOMB_DEBUG )
+            movq    mm1, mm4
 #else
-            pand mm1, mm4                                   // mm1 = lastPixel where we need to average
+            pand    mm1, mm4                                // mm1 = lastPixel where we need to average
 #endif // Debug pink
-            pandn mm4, mm0                                  // mm4 = srcPixel where we don't need to avg
-            por mm4, mm1                                    // mm4 = appropriate mix of src and last
+            pandn   mm4, mm0                                // mm4 = srcPixel where we don't need to avg
+            por     mm4, mm1                                // mm4 = appropriate mix of src and last
             AVERAGE(mm4, mm0, mm2, qwShiftMask)             // mm4 = adjusted pixel value
             movq qword ptr[eax + ecx], mm4                  // store the new value
 
             // Decay shimmerMap (mm6 is the prior value)
 
             MULTIPLY_WORDS_SHIFT_RIGHT_16(mm6, qwDecayCoefficient)
-            movq qword ptr[edx + ecx], mm6
+            movq    qword ptr[edx + ecx], mm6
 
 
             // Loop 2
 
-            movq mm0, qword ptr[eax + ecx + 8]              // mm0 = sourcePixel
-            movq mm1, qword ptr[edi + ecx + 8]              // mm1 = lastPixel
+            movq    mm0, qword ptr[eax + ecx + 8]           // mm0 = sourcePixel
+            movq    mm1, qword ptr[edi + ecx + 8]           // mm1 = lastPixel
 
             // Get inPhase, outPhase deltas
 
             ABSOLUTE_DIFFERENCE_BYTES(mm3, mm0, mm1, mm7)   // mm3 = outPhase delta
         
-            movq mm2, qword ptr[ebx + ecx + 8]              // mm2 = lastLastPixel
+            movq    mm2, qword ptr[ebx + ecx + 8]           // mm2 = lastLastPixel
 
-#if defined(IS_SSE) || defined(IS_MMXEXT)
+#if defined( IS_SSE ) || defined( IS_MMXEXT )
             prefetchnta [edi + ecx + PREFETCH_STRIDE]
 #endif
 
@@ -511,51 +540,51 @@ MAINLOOP_LABEL:
             pcmpgtb mm3, mm4                                // mm3 bytewise on where outPhase > inPhase
                                                             // i.e., on where shimmering
             psubusb mm4, qwMotionThreshold                  // mm4 bytewise off where no motion
-            pxor mm7, mm7                                   // mm7 = 0
+            pxor    mm7, mm7                                // mm7 = 0
             pcmpeqd mm4, mm7                                // mm4 dwordwise on where no motion
             pcmpeqd mm3, mm7                                // mm3 dwordwise off where shimmering
-            pandn mm3, mm4                                  // mm3 dwordwise on where shimmering & no motion
+            pandn   mm3, mm4                                // mm3 dwordwise on where shimmering & no motion
 
             // Update shimmerMap where significant shimmering was detected
 
-            movq mm4, qword ptr[edx + ecx + 8]              // mm4 = shimmer map at this pixel
-            movq mm2, qwAccumulate                          // mm2 = amount to add if shimmering is detected
-            pand mm2, mm3                                   // mm2 = amount to add
+            movq    mm4, qword ptr[edx + ecx + 8]           // mm4 = shimmer map at this pixel
+            movq    mm2, qwAccumulate                       // mm2 = amount to add if shimmering is detected
+            pand    mm2, mm3                                // mm2 = amount to add
             paddusw mm4, mm2                                // mm4 = updated shimmer value
 
             // Check shimmerMap at pixel: if it's above the threshold,
             // average at this location to reduce dot crawl
 
-            movq mm6, mm4                                   // mm6 = shimmer map
+            movq    mm6, mm4                                // mm6 = shimmer map
             pcmpgtw mm4, qwAveragingThreshold               // mm4 wordwise on where we need to average
-#ifdef TCOMB_DEBUG
-            movq mm1, mm4
+#if defined( TCOMB_DEBUG )
+            movq    mm1, mm4
 #else
-            pand mm1, mm4                                   // mm1 = lastPixel where we need to average
+            pand    mm1, mm4                                // mm1 = lastPixel where we need to average
 #endif // Debug pink
-            pandn mm4, mm0                                  // mm4 = srcPixel where we don't need to avg
-            por mm4, mm1                                    // mm4 = appropriate mix of src and last
+            pandn   mm4, mm0                                // mm4 = srcPixel where we don't need to avg
+            por     mm4, mm1                                // mm4 = appropriate mix of src and last
             AVERAGE(mm4, mm0, mm2, qwShiftMask)             // mm4 = adjusted pixel value
             movq qword ptr[eax + ecx + 8], mm4              // store the new value
 
             // Decay shimmerMap (mm6 is the prior value)
 
             MULTIPLY_WORDS_SHIFT_RIGHT_16(mm6, qwDecayCoefficient)
-            movq qword ptr[edx + ecx + 8], mm6
+            movq    qword ptr[edx + ecx + 8], mm6
 
 
             // Loop 3
 
-            movq mm0, qword ptr[eax + ecx + 16]             // mm0 = sourcePixel
-            movq mm1, qword ptr[edi + ecx + 16]             // mm1 = lastPixel
+            movq    mm0, qword ptr[eax + ecx + 16]          // mm0 = sourcePixel
+            movq    mm1, qword ptr[edi + ecx + 16]          // mm1 = lastPixel
 
             // Get inPhase, outPhase deltas
 
             ABSOLUTE_DIFFERENCE_BYTES(mm3, mm0, mm1, mm7)   // mm3 = outPhase delta
         
-            movq mm2, qword ptr[ebx + ecx + 16]             // mm2 = lastLastPixel
+            movq    mm2, qword ptr[ebx + ecx + 16]          // mm2 = lastLastPixel
 
-#if defined(IS_SSE) || defined(IS_MMXEXT)
+#if defined( IS_SSE ) || defined( IS_MMXEXT )
             prefetchnta [ebx + ecx + PREFETCH_STRIDE]
 #endif
 
@@ -567,53 +596,53 @@ MAINLOOP_LABEL:
             pcmpgtb mm3, mm4                                // mm3 bytewise on where outPhase > inPhase
                                                             // i.e., on where shimmering
             psubusb mm4, qwMotionThreshold                  // mm4 bytewise off where no motion
-            pxor mm7, mm7                                   // mm7 = 0
+            pxor    mm7, mm7                                // mm7 = 0
             pcmpeqd mm4, mm7                                // mm4 dwordwise on where no motion
             pcmpeqd mm3, mm7                                // mm3 dwordwise off where shimmering
-            pandn mm3, mm4                                  // mm3 dwordwise on where shimmering & no motion
+            pandn   mm3, mm4                                // mm3 dwordwise on where shimmering & no motion
 
             // Update shimmerMap where significant shimmering was detected
 
-            movq mm4, qword ptr[edx + ecx + 16]             // mm4 = shimmer map at this pixel
-            movq mm2, qwAccumulate                          // mm2 = amount to add if shimmering is detected
-            pand mm2, mm3                                   // mm2 = amount to add
+            movq    mm4, qword ptr[edx + ecx + 16]          // mm4 = shimmer map at this pixel
+            movq    mm2, qwAccumulate                       // mm2 = amount to add if shimmering is detected
+            pand    mm2, mm3                                // mm2 = amount to add
             paddusw mm4, mm2                                // mm4 = updated shimmer value
 
             // Check shimmerMap at pixel: if it's above the threshold,
             // average at this location to reduce dot crawl
 
-            movq mm6, mm4                                   // mm6 = shimmer map
+            movq    mm6, mm4                                // mm6 = shimmer map
             pcmpgtw mm4, qwAveragingThreshold               // mm4 wordwise on where we need to average
-#ifdef TCOMB_DEBUG
-            movq mm1, mm4
+#if defined( TCOMB_DEBUG )
+            movq    mm1, mm4
 #else
-            pand mm1, mm4                                   // mm1 = lastPixel where we need to average
+            pand    mm1, mm4                                // mm1 = lastPixel where we need to average
 #endif // Debug pink
-            pandn mm4, mm0                                  // mm4 = srcPixel where we don't need to avg
-            por mm4, mm1                                    // mm4 = appropriate mix of src and last
+            pandn   mm4, mm0                                // mm4 = srcPixel where we don't need to avg
+            por     mm4, mm1                                // mm4 = appropriate mix of src and last
             AVERAGE(mm4, mm0, mm2, qwShiftMask)             // mm4 = adjusted pixel value
             movq qword ptr[eax + ecx + 16], mm4             // store the new value
 
             // Decay shimmerMap (mm6 is the prior value)
 
             MULTIPLY_WORDS_SHIFT_RIGHT_16(mm6, qwDecayCoefficient)
-            movq qword ptr[edx + ecx + 16], mm6
+            movq    qword ptr[edx + ecx + 16], mm6
 
 
             // Loop 4
 
-            movq mm0, qword ptr[eax + ecx + 24]             // mm0 = sourcePixel
-            movq mm1, qword ptr[edi + ecx + 24]             // mm1 = lastPixel
+            movq    mm0, qword ptr[eax + ecx + 24]          // mm0 = sourcePixel
+            movq    mm1, qword ptr[edi + ecx + 24]          // mm1 = lastPixel
 
             // Get inPhase, outPhase deltas
 
             ABSOLUTE_DIFFERENCE_BYTES(mm3, mm0, mm1, mm7)   // mm3 = outPhase delta
         
-            movq mm2, qword ptr[ebx + ecx + 24]             // mm2 = lastLastPixel
+            movq    mm2, qword ptr[ebx + ecx + 24]          // mm2 = lastLastPixel
 
-#if defined(IS_3DNOW) || defined(IS_MMXEXT)
+#if defined( IS_3DNOW ) || defined( IS_MMXEXT )
             prefetchw [edx + ecx + PREFETCH_STRIDE]
-#elif defined(IS_SSE)
+#elif defined( IS_SSE )
             prefetchnta [edx + ecx + PREFETCH_STRIDE]
 #endif
 
@@ -625,37 +654,37 @@ MAINLOOP_LABEL:
             pcmpgtb mm3, mm4                                // mm3 bytewise on where outPhase > inPhase
                                                             // i.e., on where shimmering
             psubusb mm4, qwMotionThreshold                  // mm4 bytewise off where no motion
-            pxor mm7, mm7                                   // mm7 = 0
+            pxor    mm7, mm7                                // mm7 = 0
             pcmpeqd mm4, mm7                                // mm4 dwordwise on where no motion
             pcmpeqd mm3, mm7                                // mm3 dwordwise off where shimmering
-            pandn mm3, mm4                                  // mm3 dwordwise on where shimmering & no motion
+            pandn   mm3, mm4                                // mm3 dwordwise on where shimmering & no motion
 
             // Update shimmerMap where significant shimmering was detected
 
-            movq mm4, qword ptr[edx + ecx + 24]             // mm4 = shimmer map at this pixel
-            movq mm2, qwAccumulate                          // mm2 = amount to add if shimmering is detected
-            pand mm2, mm3                                   // mm2 = amount to add
+            movq    mm4, qword ptr[edx + ecx + 24]          // mm4 = shimmer map at this pixel
+            movq    mm2, qwAccumulate                       // mm2 = amount to add if shimmering is detected
+            pand    mm2, mm3                                // mm2 = amount to add
             paddusw mm4, mm2                                // mm4 = updated shimmer value
 
             // Check shimmerMap at pixel: if it's above the threshold,
             // average at this location to reduce dot crawl
 
-            movq mm6, mm4                                   // mm6 = shimmer map
+            movq    mm6, mm4                                // mm6 = shimmer map
             pcmpgtw mm4, qwAveragingThreshold               // mm4 wordwise on where we need to average
-#ifdef TCOMB_DEBUG
-            movq mm1, mm4
+#if defined( TCOMB_DEBUG )
+            movq    mm1, mm4
 #else
-            pand mm1, mm4                                   // mm1 = lastPixel where we need to average
+            pand    mm1, mm4                                // mm1 = lastPixel where we need to average
 #endif // Debug pink
-            pandn mm4, mm0                                  // mm4 = srcPixel where we don't need to avg
-            por mm4, mm1                                    // mm4 = appropriate mix of src and last
+            pandn   mm4, mm0                                // mm4 = srcPixel where we don't need to avg
+            por     mm4, mm1                                // mm4 = appropriate mix of src and last
             AVERAGE(mm4, mm0, mm2, qwShiftMask)             // mm4 = adjusted pixel value
             movq qword ptr[eax + ecx + 24], mm4             // store the new value
 
             // Decay shimmerMap (mm6 is the prior value)
 
             MULTIPLY_WORDS_SHIFT_RIGHT_16(mm6, qwDecayCoefficient)
-            movq qword ptr[edx + ecx + 24], mm6
+            movq    qword ptr[edx + ecx + 24], mm6
 
 
             // Loopy stuff
@@ -674,7 +703,7 @@ MAINLOOP_LABEL:
 
     _asm
     {
-#if defined (IS_3DNOW)
+#if defined ( IS_3DNOW )
         femms
 #else
         emms

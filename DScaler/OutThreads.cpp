@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.56 2002-02-11 23:18:33 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.57 2002-02-14 23:16:59 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.56  2002/02/11 23:18:33  laurentg
+// Creation of a DEINTERLACE_METHOD data structure for the progressive mode
+//
 // Revision 1.55  2002/02/10 21:42:29  laurentg
 // New menu items "Progressive Scan" and "Film Mode"
 //
@@ -541,8 +544,14 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
             
             pSource->GetNextField(&Info, Info.bDoAccurateFlips && (IsFilmMode() || bJudderTerminatorOnVideo));
 
-            CurrentX = Info.FrameWidth;
-            CurrentY = Info.FrameHeight;
+            if (CurrentX != Info.FrameWidth || CurrentY != Info.FrameHeight)
+            {
+                CurrentX = Info.FrameWidth;
+                CurrentY = Info.FrameHeight;
+                // WARNING: WorkoutOverlaySize must be executed two times to have a correct result !!!
+                WorkoutOverlaySize(TRUE);
+                WorkoutOverlaySize(TRUE);
+            }
 
             pPerf->StopCount(PERF_WAIT_FIELD);
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TiffHelper.cpp,v 1.6 2002-02-02 21:19:05 laurentg Exp $
+// $Id: TiffHelper.cpp,v 1.7 2002-02-14 23:16:59 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/02/02 21:19:05  laurentg
+// Read/write of TIFF files updated
+//
 // Revision 1.5  2002/02/02 12:41:44  laurentg
 // CurrentX and CurrentY set when changing source and when switching between still files
 //
@@ -82,13 +85,6 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
     uint32 StripSize;
     uint16 Compression;
 
-    m_pParent->m_IsPictureRead = FALSE;
-
-    m_pParent->m_Height = 480;
-    m_pParent->m_Width = 720;
-    CurrentX = m_pParent->m_Width;
-    CurrentY = m_pParent->m_Height;
-
     // Open the file
     tif = TIFFOpen(FileName, "r");
     if (!tif) {
@@ -110,13 +106,8 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
         return FALSE;
     }
 
-    m_pParent->m_Height = h;
-    m_pParent->m_Width = w;
-    CurrentX = m_pParent->m_Width;
-    CurrentY = m_pParent->m_Height;
-
     // Allocate memory buffer to store the YUYV values
-    m_pParent->m_OriginalFrame.pData = (BYTE*)malloc(m_pParent->m_Width * 2 * m_pParent->m_Height * sizeof(BYTE));
+    m_pParent->m_OriginalFrame.pData = (BYTE*)malloc(w * 2 * h * sizeof(BYTE));
     if (m_pParent->m_OriginalFrame.pData == NULL)
     {
         TIFFClose(tif);
@@ -157,10 +148,10 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
 
         // YYUV => YUYV
         pDestBuf = m_pParent->m_OriginalFrame.pData;
-        for (i = 0 ; i < m_pParent->m_Height ; i++)
+        for (i = 0 ; i < h ; i++)
         {
             pSrcBuf = bufYCbCr + i * w * 2;
-            for (j = 0 ; j < (m_pParent->m_Width/2) ; j++)
+            for (j = 0 ; j < (w/2) ; j++)
             {
                 *pDestBuf = pSrcBuf[j * 4];
                 ++pDestBuf;
@@ -171,7 +162,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
                 *pDestBuf = pSrcBuf[j * 4 + 3];
                 ++pDestBuf;
             }
-            if (m_pParent->m_Width % 2)
+            if (w % 2)
             {
                 *pDestBuf = pSrcBuf[j * 4];
                 ++pDestBuf;
@@ -204,9 +195,9 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
 
         // RGBRGB => YUYV
         pDestBuf = m_pParent->m_OriginalFrame.pData;
-        for (i = (m_pParent->m_Height - 1) ; i >= 0 ; i--)
+        for (i = (h - 1) ; i >= 0 ; i--)
         {
-            for (j = 0 ; j < (m_pParent->m_Width/2) ; j++)
+            for (j = 0 ; j < (w/2) ; j++)
             {
                 PackedABGRValue = bufPackedRGB[i * w + j * 2];
                 r = TIFFGetR(PackedABGRValue);
@@ -233,7 +224,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
                 *pDestBuf = LIMIT(cr);
                 ++pDestBuf;
             }
-            if (m_pParent->m_Width % 2)
+            if (w % 2)
             {
                 PackedABGRValue = bufPackedRGB[i * w + j * 2];
                 r = TIFFGetR(PackedABGRValue);
@@ -256,7 +247,8 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
     // Close the file
     TIFFClose(tif);
 
-    m_pParent->m_IsPictureRead = TRUE;
+    m_pParent->m_Height = h;
+    m_pParent->m_Width = w;
 
     return TRUE;
 }

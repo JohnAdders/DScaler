@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.20 2002-02-13 00:23:24 laurentg Exp $
+// $Id: StillSource.h,v 1.21 2002-02-14 23:16:59 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,16 @@ enum eStillFormat
     STILL_TIFF_RGB = 0,
     STILL_TIFF_YCbCr,
     STILL_FORMAT_LASTONE,
+};
+
+enum eStillNewFileRequest
+{
+    STILL_REQ_NONE = 0,
+    STILL_REQ_THIS_ONE,
+    STILL_REQ_NEXT,
+    STILL_REQ_NEXT_CIRC,
+    STILL_REQ_PREVIOUS,
+    STILL_REQ_PREVIOUS_CIRC,
 };
 
 class CStillSource;
@@ -130,7 +140,9 @@ private:
     DWORD       m_LastTickCount;
     double      m_FrameDuration;
     BOOL        m_SlideShowActive;
-    BOOL        m_ReallocRequested;
+    
+    eStillNewFileRequest    m_NewFileRequested;
+    int                     m_NewFileReqPos;
 
     MEMCPY_FUNC*    m_pMemcpy;
 

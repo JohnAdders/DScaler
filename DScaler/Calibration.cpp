@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.44 2002-02-10 09:25:03 laurentg Exp $
+// $Id: Calibration.cpp,v 1.45 2002-02-14 23:16:59 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.44  2002/02/10 09:25:03  laurentg
+// Don't paint the background in white
+//
 // Revision 1.43  2002/02/09 21:12:28  laurentg
 // Old test patterns restored
 // Loading of d3u files improved (absolute or relative path)
@@ -2094,13 +2097,6 @@ CPatternHelper::CPatternHelper(CStillSource* pParent) :
 
 BOOL CPatternHelper::OpenMediaFile(LPCSTR FileName)
 {
-    m_pParent->m_IsPictureRead = FALSE;
-
-    m_pParent->m_Height = 480;
-    m_pParent->m_Width = 720;
-    CurrentX = m_pParent->m_Width;
-    CurrentY = m_pParent->m_Height;
-
     CTestPattern pattern(FileName);
 
     if ( (pattern.GetWidth() > DSCALER_MAX_WIDTH) || (pattern.GetHeight() > DSCALER_MAX_HEIGHT) )
@@ -2108,13 +2104,8 @@ BOOL CPatternHelper::OpenMediaFile(LPCSTR FileName)
         return FALSE;
     }
 
-    m_pParent->m_Height = pattern.GetHeight();
-    m_pParent->m_Width = pattern.GetWidth();
-    CurrentX = m_pParent->m_Width;
-    CurrentY = m_pParent->m_Height;
-
     // Allocate memory buffer to store the YUYV values
-    m_pParent->m_OriginalFrame.pData = (BYTE*)malloc(m_pParent->m_Width * 2 * m_pParent->m_Height * sizeof(BYTE));
+    m_pParent->m_OriginalFrame.pData = (BYTE*)malloc(pattern.GetWidth() * 2 * pattern.GetHeight() * sizeof(BYTE));
     if (m_pParent->m_OriginalFrame.pData == NULL)
     {
         return FALSE;
@@ -2122,7 +2113,8 @@ BOOL CPatternHelper::OpenMediaFile(LPCSTR FileName)
 
     pattern.Draw(m_pParent->m_OriginalFrame.pData);
 
-    m_pParent->m_IsPictureRead = TRUE;
+    m_pParent->m_Height = pattern.GetHeight();
+    m_pParent->m_Width = pattern.GetWidth();
 
     return TRUE;
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.32 2002-02-13 00:23:24 laurentg Exp $
+// $Id: StillSource.cpp,v 1.33 2002-02-14 23:16:59 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2002/02/13 00:23:24  laurentg
+// Optimizations to avoid memory reallocation and to use an optimized memcpy
+//
 // Revision 1.31  2002/02/11 21:33:13  laurentg
 // Patterns as a new source from the Still provider
 //
@@ -192,7 +195,6 @@ CStillSource::CStillSource(LPCSTR IniSection) :
     m_Position = -1;
     m_SlideShowActive = FALSE;
     m_pMemcpy = NULL;
-    m_ReallocRequested = TRUE;
 }
 
 CStillSource::~CStillSource()
@@ -316,7 +318,7 @@ BOOL CStillSource::OpenPictureFile(LPCSTR FileName)
     }
     else
     {
-        m_ReallocRequested = TRUE;
+        m_IsPictureRead = TRUE;
     }
 
     return FileRead;
@@ -325,11 +327,15 @@ BOOL CStillSource::OpenPictureFile(LPCSTR FileName)
 
 BOOL CStillSource::OpenMediaFile(LPCSTR FileName, BOOL NewPlayList)
 {
+    int i;
+
     if (NewPlayList)
     {
         ClearPlayList();
         m_Position = -1;
     }
+
+    i = m_Position;
 
     // test for the correct extension and work out the 
     // correct helper for the file type
@@ -337,7 +343,14 @@ BOOL CStillSource::OpenMediaFile(LPCSTR FileName, BOOL NewPlayList)
     {
         if (LoadPlayList(FileName))
         {
-            ShowNextInPlayList();
+            if (!ShowNextInPlayList())
+            {
+                if (i != -1)
+                {
+                    m_Position = i;
+                    ShowNextInPlayList();
+                }
+            }
             return TRUE;
         }
     }
@@ -347,10 +360,6 @@ BOOL CStillSource::OpenMediaFile(LPCSTR FileName, BOOL NewPlayList)
         m_PlayList.push_back(Item);
         m_Position = m_PlayList.size() - 1;
         return TRUE;
-    }
-    else if ((m_Position != -1) && (m_PlayList.size() > 0))
-    {
-        OpenPictureFile(m_PlayList[m_Position]->GetFileName());
     }
 
     return FALSE;
@@ -423,9 +432,9 @@ void CStillSource::Start()
     if (!m_IsPictureRead && IsAccessAllowed())
     {
         ShowNextInPlayList();
-        WorkoutOverlaySize(TRUE);
     }
     m_LastTickCount = 0;
+    m_NewFileRequested = STILL_REQ_NONE;
 }
 
 void CStillSource::Stop()
@@ -464,8 +473,9 @@ void CStillSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     {
         pInfo->bRunningLate = TRUE;
         pInfo->bMissedFrame = TRUE;
-        pInfo->FrameWidth = 720;
-        pInfo->FrameHeight = 480;
+        pInfo->FrameWidth = CurrentX;
+        pInfo->FrameHeight = CurrentY;
+        pInfo->PictureHistory[0] = NULL;
         return;
     }
 
@@ -519,16 +529,14 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
     char FilePath[MAX_PATH];
     char* FileFilters = "DScaler Playlists\0*.d3u\0";
 
-    if ((m_Position == -1) || (m_PlayList.size() == 0))
+    if ((m_Position == -1) || (m_PlayList.size() == 0) || (m_NewFileRequested != STILL_REQ_NONE))
         return FALSE;
 
     if ( (LOWORD(wParam) >= IDM_PLAYLIST_FILES) && (LOWORD(wParam) < (IDM_PLAYLIST_FILES+MAX_PLAYLIST_SIZE)) )
     {
         m_SlideShowActive = FALSE;
-        m_Position = LOWORD(wParam) - IDM_PLAYLIST_FILES;
-        Stop_Capture();
-        OpenPictureFile(m_PlayList[m_Position]->GetFileName());
-        Start_Capture();
+        m_NewFileRequested = STILL_REQ_THIS_ONE;
+        m_NewFileReqPos = LOWORD(wParam) - IDM_PLAYLIST_FILES;
         return TRUE;
     }
 
@@ -538,10 +546,8 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         if(m_Position > 0)
         {
             m_SlideShowActive = FALSE;
-            --m_Position;
-            Stop_Capture();
-            ShowPreviousInPlayList();
-            Start_Capture();
+            m_NewFileRequested = STILL_REQ_PREVIOUS;
+            m_NewFileReqPos = m_Position - 1;
         }
         return TRUE;
         break;
@@ -549,10 +555,8 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         if(m_Position < m_PlayList.size() - 1)
         {
             m_SlideShowActive = FALSE;
-            ++m_Position;
-            Stop_Capture();
-            ShowNextInPlayList();
-            Start_Capture();
+            m_NewFileRequested = STILL_REQ_NEXT;
+            m_NewFileReqPos = m_Position + 1;
         }
         return TRUE;
         break;
@@ -560,10 +564,8 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         if(m_Position != 0)
         {
             m_SlideShowActive = FALSE;
-            m_Position = 0;
-            Stop_Capture();
-            ShowNextInPlayList();
-            Start_Capture();
+            m_NewFileRequested = STILL_REQ_NEXT;
+            m_NewFileReqPos = 0;
         }
         return TRUE;
         break;
@@ -571,10 +573,8 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         if(m_Position != m_PlayList.size() - 1)
         {
             m_SlideShowActive = FALSE;
-            m_Position = m_PlayList.size() - 1;
-            Stop_Capture();
-            ShowPreviousInPlayList();
-            Start_Capture();
+            m_NewFileRequested = STILL_REQ_PREVIOUS;
+            m_NewFileReqPos = m_PlayList.size() - 1;
         }
         return TRUE;
         break;
@@ -637,9 +637,8 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         }
         else
         {
-            Stop_Capture();
-            ShowNextInPlayList();
-            Start_Capture();
+            m_NewFileRequested = STILL_REQ_NEXT_CIRC;
+            m_NewFileReqPos = m_Position;
         }
         return TRUE;
         break;
@@ -681,16 +680,59 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 
 BOOL CStillSource::ReadNextFrameInFile()
 {
+    BOOL Realloc = FALSE;
+
+    switch (m_NewFileRequested)
+    {
+    case STILL_REQ_THIS_ONE:
+        m_Position = m_NewFileReqPos;
+        OpenPictureFile(m_PlayList[m_Position]->GetFileName());
+        Realloc = TRUE;
+        break;
+    case STILL_REQ_NEXT:
+        m_Position = m_NewFileReqPos;
+        ShowNextInPlayList();
+        Realloc = TRUE;
+        break;
+    case STILL_REQ_NEXT_CIRC:
+        m_Position = m_NewFileReqPos;
+        if (!ShowNextInPlayList())
+        {
+            m_Position = 0;
+            ShowNextInPlayList();
+        }
+        Realloc = TRUE;
+        break;
+    case STILL_REQ_PREVIOUS:
+        m_Position = m_NewFileReqPos;
+        ShowPreviousInPlayList();
+        Realloc = TRUE;
+        break;
+    case STILL_REQ_PREVIOUS_CIRC:
+        m_Position = m_NewFileReqPos;
+        if (!ShowPreviousInPlayList())
+        {
+            m_Position = m_PlayList.size() - 1;
+            ShowPreviousInPlayList();
+        }
+        Realloc = TRUE;
+        break;
+    case STILL_REQ_NONE:
+    default:
+        break;
+    }
+    m_NewFileRequested = STILL_REQ_NONE;
+
     if (m_IsPictureRead)
     {
-        if (m_ReallocRequested)
+        if (Realloc && m_StillFrame.pData != NULL)
         {
-            if(m_StillFrame.pData != NULL)
-            {
-                free(m_StillFrame.pData);
-            }
+            free(m_StillFrame.pData);
+            m_StillFrame.pData = NULL;
+        }
+        if (m_StillFrame.pData == NULL)
+        {
             m_StillFrame.pData = (BYTE*)malloc(m_Width * 2 * m_Height * sizeof(BYTE));
-            m_ReallocRequested = FALSE;
         }
         if (m_StillFrame.pData != NULL && m_OriginalFrame.pData != NULL)
         {
@@ -900,16 +942,13 @@ void CStillSource::SetMenu(HMENU hMenu)
 
 void CStillSource::HandleTimerMessages(int TimerId)
 {
+    if (m_NewFileRequested != STILL_REQ_NONE)
+        return;
+
     if ( (TimerId == TIMER_SLIDESHOW) && m_SlideShowActive )
     {
-        Stop_Capture();
-        ++m_Position;
-        if (!ShowNextInPlayList())
-        {
-            m_Position = 0;
-            ShowNextInPlayList();
-        }
-        Start_Capture();
+        m_NewFileRequested = STILL_REQ_NEXT_CIRC;
+        m_NewFileReqPos = m_Position + 1;
         m_SlideShowActive = TRUE;
         SetTimer(hWnd, TIMER_SLIDESHOW, m_SlideShowDelay->GetValue() * 1000, NULL);
     }

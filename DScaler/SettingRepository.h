@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingRepository.h,v 1.1 2004-08-06 17:12:10 atnak Exp $
+// $Id: SettingRepository.h,v 1.2 2004-08-13 08:53:50 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2004/08/06 17:12:10  atnak
+// Setting repository initial upload.
+//
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef __SETTINGREPOSITORY_H__
@@ -67,6 +70,139 @@ typedef BYTE DBIT;
 #include "SettingGroup.h"
 #include "SettingKey.h"
 #include "SettingConfig.h"
+
+
+//
+// Using setting repository:
+//
+// 1. Creating a setting repository:
+//
+//     CSettingRepository repository(".\\filename.ini");
+//   or
+//     PSETTINGREPOSITORY pRepository = CSettingRepository(".\\filename.ini");
+//
+//
+// 2. Creating a setting group:
+//
+//     CSettingGroup group("ini_section", &repository);
+//   or 
+//     PSETTINGROUP pGroup = new CSettingGroup("ini_section", &repository);
+//   or
+//     PSETTINGROUP pGroup = repository.CreateGroup("ini_section");
+//
+//   Note: If the group is created using the last method, it should not
+//   be deleted manually.  'repository' will take care if its deletion
+//   when it is deleted.
+//
+//
+// 3. Adding a setting to a setting group:
+//
+//     HSETTING setting = group.AddSetting(CSettingKeyLong::NewSetting("setting_entry", 0, -10, 10));
+//
+//
+// 4. Loading and saving settings:
+//
+//     group.LoadSettings();
+//     group.SaveSettings();
+//   or
+//     group.LoadSetting(setting);
+//     group.SaveSetting(setting);
+//
+//
+// 5. Working with setting values:
+//
+//   Setting the value:
+//     group.SetValue(setting, value);
+//
+//   Getting the value:
+//     value = group.GetValue(setting);
+//
+//   Setting the default value:
+//     group.UseDefault(setting);
+//
+//   Changing the default value:
+//     group.SetDefault(setting, value);
+//
+//   Getting the default value:
+//     value = group.GetDefault(setting);
+//
+//   Note: 'value' is of type CSettingValue.
+//
+//
+// 6. Using a setting key:
+//
+//   Setting keys simplify the process of working with setting values.
+//
+//   To use a setting key, first declare a setting key:
+//     CSettingKeyLong key;
+//
+//   When creating a setting, use this alternate method:
+//     group.AddSetting(CSettingKeyLong::NewSetting("setting_entry", 0, -10, 10), &key);
+//
+//   To save and load values:
+//     key.LoadSetting();
+//     key.SaveSetting();
+//
+//   To access setting values:
+//     key.SetValue(iValue);
+//     iValue = key.GetValue();
+//
+//     ...
+//
+//
+// 7. Setting change notifications:
+//
+//   Registering a global callback for receiving notifications when any
+//   setting in a group changes its value:
+//
+//     group.SetNotifyProc(NotifyProc, contextValue);
+//
+//   Note: See "SettingGroup.h" for more information about various
+//   notifications.
+//
+//
+//   To have a single callback for individual settings, use a special
+//   setting key definition macro:
+//
+//     CSETTINGKEY_P_CALLBACK_LONG(SettingName) globalKey;
+//   or
+//     CSETTINGKEY_C_CALLBACK_LONG(ClassName, SettingName) classKey;
+//     classKey.Setup(..., classInstance, ...);
+//
+//   Note: The callbacks from the above two declarations will be called
+//   SettingNameOnNotify() and ClassName::SettingNameOnNotify() respectively.
+//   See the bottom of "SettingKey.h" for more information.
+//
+//
+// 8. Settings with per setting associations:
+//
+//   Note: See CSettingGroupEx documentation in "SettingGroup.h".
+//
+//
+// 9. Configuration interfaces for settings:
+//
+//   CSettingConfigContainer container("Setting Collection Name");
+//
+//   container.AddSetting(new CSettingConfigSlider("Setting Name", &group, setting, -10, 10));
+//   container.AddSetting(new CSettingConfigSlider(&key, -10, 10));
+//
+//   container.SetPurgable(FALSE);
+//
+//   return new CTreeSettingsSettingConfig(&container);
+//
+//   Note: The last depends on other implementation factors.
+//
+//
+//   For association configurations:
+//
+//     CSettingConfigContainer* container = groupex.CreateAssociationConfig("Setting Collection Name");
+//
+//     container->AddSetting(new CSettingConfigDependant("Setting Name", &group, setting));
+//
+//   return new CTreeSettingsAssociations(container);
+//
+//   Note: The last depends on other implementation factors.
+//
 
 
 //

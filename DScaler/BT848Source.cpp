@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.62 2002-09-07 20:54:50 kooiman Exp $
+// $Id: BT848Source.cpp,v 1.63 2002-09-12 21:55:23 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.62  2002/09/07 20:54:50  kooiman
+// Added equalizer, loudness, spatial effects for MSP34xx
+//
 // Revision 1.61  2002/09/02 19:07:21  kooiman
 // Added BT848 advanced settings to advanced settings dialog
 //
@@ -501,32 +504,32 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     m_UseInputPin1 = new CUseInputPin1Setting(this, "Use MSP Input Pin 1", FALSE, IniSection);
     m_Settings.push_back(m_UseInputPin1);
 
-	m_UseEqualizer = new CUseEqualizerSetting(this, "Use equalizer", FALSE, IniSection);
-	m_Settings.push_back(m_UseEqualizer);
+    m_UseEqualizer = new CUseEqualizerSetting(this, "Use equalizer", FALSE, IniSection);
+    m_Settings.push_back(m_UseEqualizer);
 
-	m_EqualizerBand1 = new CEqualizerBand1Setting(this, "Equalizer band 1", 0, -96, 96, IniSection);
-	m_Settings.push_back(m_EqualizerBand1);
+    m_EqualizerBand1 = new CEqualizerBand1Setting(this, "Equalizer band 1", 0, -96, 96, IniSection);
+    m_Settings.push_back(m_EqualizerBand1);
 
-	m_EqualizerBand2 = new CEqualizerBand2Setting(this, "Equalizer band 2", 0, -96, 96, IniSection);
-	m_Settings.push_back(m_EqualizerBand2);
+    m_EqualizerBand2 = new CEqualizerBand2Setting(this, "Equalizer band 2", 0, -96, 96, IniSection);
+    m_Settings.push_back(m_EqualizerBand2);
 
-	m_EqualizerBand3 = new CEqualizerBand3Setting(this, "Equalizer band 3", 0, -96, 96, IniSection);
-	m_Settings.push_back(m_EqualizerBand3);
+    m_EqualizerBand3 = new CEqualizerBand3Setting(this, "Equalizer band 3", 0, -96, 96, IniSection);
+    m_Settings.push_back(m_EqualizerBand3);
 
-	m_EqualizerBand4 = new CEqualizerBand4Setting(this, "Equalizer band 4", 0, -96, 96, IniSection);
-	m_Settings.push_back(m_EqualizerBand4);
+    m_EqualizerBand4 = new CEqualizerBand4Setting(this, "Equalizer band 4", 0, -96, 96, IniSection);
+    m_Settings.push_back(m_EqualizerBand4);
 
-	m_EqualizerBand5 = new CEqualizerBand5Setting(this, "Equalizer band 5", 0, -96, 96, IniSection);
-	m_Settings.push_back(m_EqualizerBand5);
+    m_EqualizerBand5 = new CEqualizerBand5Setting(this, "Equalizer band 5", 0, -96, 96, IniSection);
+    m_Settings.push_back(m_EqualizerBand5);
 
-	m_AudioLoudness = new CAudioLoudnessSetting(this, "Loudness", 0, 0, 255, IniSection);
-	m_Settings.push_back(m_AudioLoudness);
+    m_AudioLoudness = new CAudioLoudnessSetting(this, "Loudness", 0, 0, 255, IniSection);
+    m_Settings.push_back(m_AudioLoudness);
 
-	m_AudioSuperbass = new CAudioSuperbassSetting(this, "Super Bass", FALSE, IniSection);
-	m_Settings.push_back(m_AudioSuperbass);
+    m_AudioSuperbass = new CAudioSuperbassSetting(this, "Super Bass", FALSE, IniSection);
+    m_Settings.push_back(m_AudioSuperbass);
 
-	m_AudioSpatialEffect = new CAudioSpatialEffectSetting(this, "Spatial Effect", 0, -128, 127, IniSection);
-	m_Settings.push_back(m_AudioSpatialEffect);
+    m_AudioSpatialEffect = new CAudioSpatialEffectSetting(this, "Spatial Effect", 0, -128, 127, IniSection);
+    m_Settings.push_back(m_AudioSpatialEffect);
 
     ReadFromIni();
 }
@@ -541,7 +544,7 @@ void CBT848Source::Start()
     Audio_Unmute();
     Timing_Reset();
     NotifySizeChange();
-    if(m_pBT848Card->HasMSP())
+    // \todo: FIXME check to see if we need this timer
     {
         SetTimer(hWnd, TIMER_MSP, TIMER_MSP_MS, NULL);
     }
@@ -598,7 +601,7 @@ void CBT848Source::Reset()
 
     m_pBT848Card->SetAudioStandard((eVideoFormat)m_VideoFormat->GetValue());
     m_pBT848Card->SetAudioSource((eAudioInput)GetCurrentAudioSetting()->GetValue());
-    m_pBT848Card->SetAudioChannel((eSoundChannel)m_AudioChannel->GetValue(), (m_UseInputPin1->GetValue() != 0));
+    m_pBT848Card->SetAudioChannel((eSoundChannel)m_AudioChannel->GetValue()); // FIXME, (m_UseInputPin1->GetValue() != 0));
 }
 
 
@@ -694,7 +697,7 @@ void CBT848Source::Stop()
     // stop capture
     m_pBT848Card->StopCapture();
     Audio_Mute();
-    if(m_pBT848Card->HasMSP())
+    // \todo: FIXME check to see if we need this timer
     {
         KillTimer(hWnd, TIMER_MSP);
     }

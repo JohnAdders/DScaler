@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Disasm.h,v 1.3 2002-09-17 17:28:24 tobbej Exp $
+// $Id: Disasm.h,v 1.4 2003-01-20 15:19:38 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (C) 1998-2001 Avery Lee.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -26,6 +26,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/09/17 17:28:24  tobbej
+// updated crashloging to same version as in latest virtualdub
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef __DISASM_H__
@@ -93,7 +96,6 @@ public:
     BOOL DoMeasureItem(LPARAM lParam);
     BOOL DoDrawItem(LPARAM lParam);
     void parse();
-    BOOL post(HWND);
     long getInstruction(char *buf, long val);
 
     void setFaultAddress(void *_pFault)

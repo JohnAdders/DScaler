@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Crash.cpp,v 1.5 2002-09-17 17:28:23 tobbej Exp $
+// $Id: Crash.cpp,v 1.6 2003-01-20 15:19:36 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) 1998-2001 Avery Lee.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -28,6 +28,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/09/17 17:28:23  tobbej
+// updated crashloging to same version as in latest virtualdub
+//
 // Revision 1.4  2001/11/23 10:49:16  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -1304,7 +1307,11 @@ long VDDebugInfoLookupRVA(VDDebugInfoContext *pctx, unsigned rva, char *buf, int
         const char *class_name = NULL;
         const char *prefix = "";
 
-        if (*fn_name < 32)
+        if(!*fn_name)
+        {
+            fn_name = "(special)";
+        }
+        else if (*fn_name < 32)
         {
             int class_idx;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Disasm.cpp,v 1.7 2002-11-20 19:50:00 tobbej Exp $
+// $Id: Disasm.cpp,v 1.8 2003-01-20 15:19:36 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (C) 1998-2001 Avery Lee.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -26,6 +26,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/11/20 19:50:00  tobbej
+// synced crashlogging code with virtualdub
+//
 // Revision 1.6  2002/09/17 17:28:24  tobbej
 // updated crashloging to same version as in latest virtualdub
 //
@@ -710,20 +713,14 @@ CCodeDisassemblyWindow::CCodeDisassemblyWindow(void *_code, long _length, void *
 , length(_length)
 , pFault(0)
 {
-//  lbents = new lbent[MAX_INSTRUCTIONS];
-
     char buf[MAX_PATH];
 
     vdc.pRuleSystem = NULL;
     vdc.pSymLookup = NULL;
     vdc.physToVirtOffset = -(long)_rbaseptr;
 
-    SpliceProgramPath(buf, sizeof buf, "ia32.vdi");
-    if (!VDDisasmInit(&vdc, buf))
-    {
-        SpliceProgramPath(buf, sizeof buf, "DScaler.vdi");
-        VDDisasmInit(&vdc, buf);
-    }
+    SpliceProgramPath(buf, sizeof(buf), "DScaler.vdi");
+    VDDisasmInit(&vdc, buf);
 
     lbents = (lbent *)VirtualAlloc(NULL, sizeof(lbent)*MAX_INSTRUCTIONS, MEM_COMMIT, PAGE_READWRITE);
 
@@ -771,7 +768,8 @@ CCodeDisassemblyWindow::~CCodeDisassemblyWindow()
 
 
 void CCodeDisassemblyWindow::parse()
- {
+{
+    num_ents = 0;
     if (!vdc.pRuleSystem)
     {
         return;
@@ -784,7 +782,6 @@ void CCodeDisassemblyWindow::parse()
 
     if (!ipd)
     {
-        num_ents = 0;
         return;
     }
 
@@ -803,18 +800,6 @@ void CCodeDisassemblyWindow::parse()
 
     num_ents = ipd-lbents;
 }
-
-/*BOOL CCodeDisassemblyWindow::post(HWND hWnd)
-{
-    if (!lbents)
-    {
-        return FALSE;
-    }
-
-    DialogBoxParam(g_hInst, MAKEINTRESOURCE(IDD_DISASM), hWnd, CCodeDisassemblyWindow::DlgProc, (LPARAM)this);
-
-    return TRUE;
-}*/
 
 long CCodeDisassemblyWindow::getInstruction(char *buf, long val)
 {
@@ -999,7 +984,7 @@ BOOL CALLBACK CCodeDisassemblyWindow::DlgProc(HWND hDlg, UINT msg, WPARAM wParam
 
         case WM_COMMAND:
             switch(LOWORD(wParam))
-            {
+            {   
             case IDCANCEL:
             case IDOK:
                 EndDialog(hDlg, FALSE);

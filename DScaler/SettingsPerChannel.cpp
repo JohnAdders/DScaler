@@ -10,7 +10,7 @@
 #include "SettingsPerChannel.h"
 
 /// Channel setting structures
-
+ 
 typedef struct {
         int  Channel;
         int  Flag;                      //Channel Flag
@@ -391,6 +391,11 @@ void SettingsPerChannel_Disable()
 //
 void SettingsPerChannel_ToDefaultState(BOOL bTrue)
 {    
+    if (!bSbcEnabled)
+    {
+        return;
+    }
+        
     for(vector<TChannelSetting*>::iterator it = vSbcChannelSettings.begin();
                 it != vSbcChannelSettings.end(); ++it)
     {

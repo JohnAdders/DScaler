@@ -1,4 +1,3 @@
-
 #ifndef __SETTINGSPERCHANNEL_H___
 #define __SETTINGSPERCHANNEL_H___
 

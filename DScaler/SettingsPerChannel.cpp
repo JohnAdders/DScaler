@@ -1,3 +1,30 @@
+/////////////////////////////////////////////////////////////////////////////
+// $Id: SettingsPerChannel.cpp,v 1.5 2002-08-08 21:17:05 kooiman Exp $
+/////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2002 DScaler team.  All rights reserved.
+/////////////////////////////////////////////////////////////////////////////
+//
+//  This file is subject to the terms of the GNU General Public License as
+//  published by the Free Software Foundation.  A copy of this license is
+//  included with this software distribution in the file COPYING.  If you
+//  do not have a copy, you may obtain a copy by writing to the Free
+//  Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+//
+//  This software is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details
+//
+/////////////////////////////////////////////////////////////////////////////
+// CVS Log
+//
+// $Log: not supported by cvs2svn $
+// Revision 1.4  2002/08/08 20:00:00 kooiman
+// Revised version of settings per channel
+//
+//
+/////////////////////////////////////////////////////////////////////////////
+ 
 #include "stdafx.h"
 #include <stack>
 #include "..\DScalerRes\resource.h"
@@ -45,9 +72,10 @@ private:
         std::string sIniSection;        // ..
         std::string sIniEntry;          // ..        
 public:
-        TChannelSetting(long** pTVal = NULL) { CSSetting=NULL; Setting=NULL; pToggleValue=pTVal; }
-        TChannelSetting(CSimpleSetting *cs1, long** pTVal = NULL) { CSSetting=cs1; Setting=NULL; pToggleValue=pTVal; }
-        TChannelSetting(SETTING *s1, long** pTVal = NULL) { CSSetting=NULL; Setting=s1; pToggleValue=pTVal; }
+        TChannelSetting(long** pTVal = NULL);
+        TChannelSetting(CSimpleSetting *cs1, long** pTVal = NULL);
+        TChannelSetting(SETTING *s1, long** pTVal = NULL);
+        ~TChannelSetting();
   
         long GetValue();
         void SetValue(long NewValue, BOOL bNoOnChange = FALSE);
@@ -91,11 +119,12 @@ static int iSbcLastChannel = -1;
 static int iSbcLastLoadedChannel = -1;
 static std::vector< SETTINGSPERCHANNEL_ONSETUP* > vSbcOnSetupList;
 static std::vector< void* > vSbcOnSetupThisList;
+static SETTING* SettingsPerChannel_SettingsArray = NULL;
 
 /// Internal functions
 
 BOOL SettingsPerChannel_OnOff(long NewValue);
-TChannelSetting *SettingsPerChannel_RegisterAddSetting(const char *szSubSection, CSimpleSetting *CSSetting, SETTING *Setting, long **pToggleValue);
+int SettingsPerChannel_RegisterAddSetting(const char *szSubSection, CSimpleSetting *CSSetting, SETTING *Setting, long **pToggleValue);
 int SettingsPerChannel_RegisterSetting(const char *szName,const char *szDescription,BOOL bDefault, CSimpleSetting *CSSetting, SETTING *Setting, long **pToggleValue);
 
 BOOL SettingsPerChannel_ReadFromIni(int Channel, const char *szSubSection, CSimpleSetting *CSSetting);
@@ -110,6 +139,57 @@ void SettingsPerChannel_SaveChannelSettings(const char *szSubSection, int Channe
 // Enable/disable channel setting ////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////
 
+TChannelSetting::TChannelSetting(CSimpleSetting *cs1, long** pTVal)
+{
+    CSSetting=cs1;
+    Setting = NULL;
+    pToggleValue = pTVal;
+
+    ToggleSetting = NULL;
+    ToggleSettingIsLink = 0;
+}
+
+
+TChannelSetting::TChannelSetting(SETTING *s1, long** pTVal)
+{
+    CSSetting = NULL;
+    Setting = s1;
+    pToggleValue = pTVal;
+
+    ToggleSetting = NULL;
+    ToggleSettingIsLink = 0;
+}
+
+TChannelSetting::TChannelSetting(long** pTVal)
+{
+    CSSetting = NULL;
+    Setting = NULL;
+    pToggleValue = pTVal;
+
+    ToggleSetting = NULL;
+    ToggleSettingIsLink = 0;
+}
+
+TChannelSetting::~TChannelSetting()
+{
+    if (!ToggleSettingIsLink)
+    {
+        if (ToggleSetting != NULL)
+        {
+            delete ToggleSetting;
+            ToggleSetting = NULL;
+        }
+    }
+    for(vector<TChannelSpecificSetting*>::iterator it = vChannelSpecificSettings.begin();
+                it != vChannelSpecificSettings.end(); ++it)
+    {
+         if ((*it) != NULL)
+         {  
+            delete (*it);
+         }
+    }
+    vChannelSpecificSettings.clear();
+}
 
 void TChannelSetting::Start()
 {    
@@ -314,6 +394,7 @@ void TChannelSetting::MakeToggleSetting(const char *szName,const char *szDescrip
         if (!ToggleSettingIsLink)
         {
             delete ToggleSetting;
+            ToggleSetting = NULL;
         }
     }
     ToggleSetting = new SETTING;
@@ -439,13 +520,24 @@ BOOL SettingsPerChannel_OnOff(long NewValue)
 
 void SettingsPerChannel_ClearAll()
 {
+    if (SettingsPerChannel_SettingsArray != NULL)
+    {
+        delete[] SettingsPerChannel_SettingsArray;
+        SettingsPerChannel_SettingsArray = NULL;
+    }
+
     //Clear list
     if (vSbcChannelSettings.size()>0) 
     {                               
+        int n = 0;
         for(vector<TChannelSetting*>::iterator it = vSbcChannelSettings.begin();
                 it != vSbcChannelSettings.end(); ++it)
         {            
-            delete (*it);
+            if ( (it != NULL) && ((*it) != NULL) )
+            {
+                delete (*it);
+            }
+            n++;
         }
         vSbcChannelSettings.clear();
     }
@@ -457,7 +549,7 @@ void SettingsPerChannel_ClearAll()
 /////////////////////////////////////////////////////////////////////////////////
 
 // Create new channel setting
-TChannelSetting *SettingsPerChannel_RegisterAddSetting(const char *szSubSection, CSimpleSetting *CSSetting, SETTING *Setting, long **pToggleValue)
+int SettingsPerChannel_RegisterAddSetting(const char *szSubSection, CSimpleSetting *CSSetting, SETTING *Setting, long **pToggleValue)
 {
     int n = 0;
     for(vector<TChannelSetting*>::iterator it = vSbcChannelSettings.begin();
@@ -470,7 +562,7 @@ TChannelSetting *SettingsPerChannel_RegisterAddSetting(const char *szSubSection,
               && ( (szSubSection==NULL) || (std::string(szSubSection) == (*it)->sSubSection) ) )
         {
             //setting already exists
-            return (*it);
+            return n;
         }
         n++;
     }    
@@ -488,8 +580,6 @@ TChannelSetting *SettingsPerChannel_RegisterAddSetting(const char *szSubSection,
       ChannelSetting = new TChannelSetting(pToggleValue);
     }
 
-    
-
     ChannelSetting->LastValue = ChannelSetting->GetValue();
     ChannelSetting->DefaultValue = ChannelSetting->GetValue(); //GetDefault();
     ChannelSetting->CommonFlag = 0;
@@ -501,21 +591,24 @@ TChannelSetting *SettingsPerChannel_RegisterAddSetting(const char *szSubSection,
     ChannelSetting->DefaultStateValue = ChannelSetting->DefaultValue;
     ChannelSetting->bInDefaultState = FALSE;
 
-
-
-    return ChannelSetting;
+    vSbcChannelSettings.push_back(ChannelSetting);
+    return n;
 }
 
 //
 int SettingsPerChannel_RegisterSetting(const char *szName,const char *szDescription,BOOL bDefault, CSimpleSetting *CSSetting, SETTING *Setting, long **pToggleValue)
 {    
-    TChannelSetting *ChannelSetting = SettingsPerChannel_RegisterAddSetting(sSbcSubSection.c_str(), CSSetting, Setting, pToggleValue);
+    int n = SettingsPerChannel_RegisterAddSetting(sSbcSubSection.c_str(), CSSetting, Setting, pToggleValue);
 
-    if (ChannelSetting == NULL)
+    if ( (n < 0) || (n >= vSbcChannelSettings.size()) )
     {
         return -1;
     }
-    vSbcChannelSettings.push_back(ChannelSetting);
+    TChannelSetting *ChannelSetting = vSbcChannelSettings[n];
+    if ( ChannelSetting == NULL )
+    {
+        return -1;
+    }
 
     // Check if toggle settting already exists
 
@@ -538,7 +631,7 @@ int SettingsPerChannel_RegisterSetting(const char *szName,const char *szDescript
         Setting_ReadFromIni(ChannelSetting->ToggleSetting);
     }
     
-    return 0;
+    return n;
 }
 
 
@@ -581,7 +674,11 @@ void SettingsPerChannel_UnregisterSection(const char *szSubSection)
         {
             if (!(*it)->ToggleSettingIsLink)
             {
-               delete (*it)->ToggleSetting;
+               if ((*it)->ToggleSetting != NULL)
+               {
+                  delete (*it)->ToggleSetting;
+                  (*it)->ToggleSetting = NULL;
+               }
             }
             delete (*it);
         }
@@ -1008,6 +1105,7 @@ void SettingsPerChannel_Setup(int Start, int StartChannel)
     else
     {
        Channel_UnRegister_Change_Notification(NULL, SettingsPerChannel_ChannelChange);
+       SettingsPerChannel_ClearAll();
     }
 }
 
@@ -1035,6 +1133,7 @@ int SettingsPerChannel_BuildSettingsArray(SETTING* &SettingsPerChannel_Settings)
     if (SettingsPerChannel_Settings != NULL)
     {
         delete[] SettingsPerChannel_Settings;
+
     }
     SettingsPerChannel_Settings = new SETTING[SETTINGSPERCHANNEL_COMMONSETTINGS_LASTONE +  vSbcChannelSettings.size()];
     int i;
@@ -1056,10 +1155,9 @@ int SettingsPerChannel_BuildSettingsArray(SETTING* &SettingsPerChannel_Settings)
 
 
 CTreeSettingsGeneric* SettingsPerChannel_GetTreeSettingsPage()
-{
-    static SETTING* SettingsPerChannel_Settings = NULL;
-    int NumSettings = SettingsPerChannel_BuildSettingsArray(SettingsPerChannel_Settings);
-    return new CTreeSettingsGeneric("Settings per Channel", SettingsPerChannel_Settings, NumSettings);
+{    
+    int NumSettings = SettingsPerChannel_BuildSettingsArray(SettingsPerChannel_SettingsArray);
+    return new CTreeSettingsGeneric("Settings per Channel", SettingsPerChannel_SettingsArray, NumSettings);
 }
 
 

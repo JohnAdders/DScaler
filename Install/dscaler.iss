@@ -1,5 +1,5 @@
 ;////////////////////////////////////////////////////////////////////////////
-;// $Id: dscaler.iss,v 1.7 2002-07-08 17:41:14 adcockj Exp $
+;// $Id: dscaler.iss,v 1.8 2002-07-08 18:16:42 adcockj Exp $
 ;/////////////////////////////////////////////////////////////////////////////
 ;// Copyright (c) 2002 Rob Muller.  All rights reserved.
 ;/////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 ;// CVS Log
 ;//
 ;// $Log: not supported by cvs2svn $
+;// Revision 1.7  2002/07/08 17:41:14  adcockj
+;// Getting REady for new version
+;//
 ;// Revision 1.6  2002/06/22 20:53:04  robmuller
 ;// Added uninstall icon to the DScaler start menu.
 ;//
@@ -46,7 +49,7 @@
 
 [Setup]
 AppName=DScaler Alpha
-AppVerName=DScaler 4.0 Alpha 2
+AppVerName=DScaler 4.0 Alpha 3
 AppPublisherURL=http://www.dscaler.org
 AppSupportURL=http://www.dscaler.org/phpBB/
 AppUpdatesURL=http://www.dscaler.org

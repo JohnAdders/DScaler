@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_TomsMoComp.c,v 1.2 2002-07-08 17:44:58 adcockj Exp $
+// $Id: DI_TomsMoComp.c,v 1.3 2002-07-08 18:16:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/07/08 17:44:58  adcockj
+// Corrected Settings messages
+//
 // Revision 1.1  2002/07/07 20:07:24  trbarry
 // First cut at TomsMoComp, motion compensated deinterlace
 //
@@ -42,6 +45,7 @@
 #include <DS_Deinterlace.h>
 #define USE_FOR_DSCALER
 #include "TomsMoComp.h"
+#include "..\help\helpids.h"
 
 long SearchEffort = 03;
 

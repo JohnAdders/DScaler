@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DebugLog.cpp,v 1.25 2003-06-02 13:15:31 adcockj Exp $
+// $Id: DebugLog.cpp,v 1.26 2003-08-10 12:14:42 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2003/06/02 13:15:31  adcockj
+// Fixes for CHARSTRING problems
+//
 // Revision 1.24  2003/04/26 19:39:09  laurentg
 // New character string settings
 //
@@ -115,7 +118,7 @@ void LOG(int DebugLevel, LPCSTR Format, ...)
         return;
     }
 
-    if (debugLog == NULL && DebugLogFilename[0] != '\0')
+    if (debugLog == NULL && DebugLogFilename!=NULL && DebugLogFilename[0] != '\0')
         debugLog = fopen(DebugLogFilename, "w");
 
     if (debugLog == NULL)

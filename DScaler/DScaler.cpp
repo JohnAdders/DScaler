@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.333 2003-08-02 12:04:13 laurentg Exp $
+// $Id: DScaler.cpp,v 1.334 2003-08-09 13:03:09 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.333  2003/08/02 12:04:13  laurentg
+// Two new settings to define how many channels to display in preview mode
+//
 // Revision 1.332  2003/07/29 13:33:06  atnak
 // Overhauled mixer code
 //
@@ -2259,6 +2262,7 @@ void UpdateSleepMode(TSMState* SMState, char* Text)
 BOOL GetDisplayAreaRect(HWND hWnd, LPRECT lpRect)
 {
     BOOL result = GetClientRect(hWnd, lpRect);
+
     if(bIsFullScreen == TRUE) 
     {
         return result;
@@ -4846,7 +4850,8 @@ void MainWndOnInitBT(HWND hWnd)
         if (ToolbarControl == NULL)
         {
             ToolbarControl = new CToolbarControl(WM_TOOLBARS_GETVALUE);
-			ToolbarControl->Set(hWnd, NULL, bIsFullScreen?1:0);
+//			ToolbarControl->Set(hWnd, NULL, bIsFullScreen?1:0);
+			ToolbarControl->Set(hWnd, NULL);
         }
 
         if (szSkinName[0] != 0)
@@ -4856,7 +4861,8 @@ void MainWndOnInitBT(HWND hWnd)
             SetWindowBorder(hWnd, szSkinName, (szSkinName[0]!=0));  
             if (ToolbarControl!=NULL)
             {
-                ToolbarControl->Set(hWnd, szSkinName, bIsFullScreen?1:0);  
+//                ToolbarControl->Set(hWnd, szSkinName, bIsFullScreen?1:0);  
+                ToolbarControl->Set(hWnd, szSkinName);
             }
         }
 
@@ -6337,7 +6343,8 @@ BOOL IsFullScreen_OnChange(long NewValue)
         }
         if (ToolbarControl!=NULL)
         {            
-			ToolbarControl->Set(hWnd, NULL, bIsFullScreen?1:0);
+//			ToolbarControl->Set(hWnd, NULL, bIsFullScreen?1:0);
+			ToolbarControl->Set(hWnd, NULL);
         }
         
         Cursor_UpdateVisibility();

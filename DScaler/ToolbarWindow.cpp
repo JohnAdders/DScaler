@@ -1,5 +1,5 @@
 //
-// $Id: ToolbarWindow.cpp,v 1.3 2002-10-07 20:33:50 kooiman Exp $
+// $Id: ToolbarWindow.cpp,v 1.4 2003-08-09 12:59:46 laurentg Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/10/07 20:33:50  kooiman
+// Fixed lots of toolbar bugs & added grip/separator bars.
+//
 // Revision 1.2  2002/09/26 16:34:19  kooiman
 // Lots of toolbar fixes &added EVENT_VOLUME support.
 //
@@ -516,8 +519,7 @@ void CToolbarWindow::UpdateWindowPosition(HWND hParentWnd)
       {                    
           int YPos = rc.bottom; // - Height;
           
-          //if ((rcBar.left != rc.left) || (rcBar.top != YPos) || (rcBar.right!=Width) || (rcBar.bottom != (YPos+Height)))
-		  if ((rcBar.left != rc.left) || (rcBar.right!=Width) || (rcBar.bottom != YPos))
+          if ((rcBar.left != rc.left) || (rcBar.top != YPos) || (rcBar.right!=Width) || (rcBar.bottom != (YPos+Height)))
           {
               Height = -2;
               SetPos(rc.left,YPos,Width, Height);              

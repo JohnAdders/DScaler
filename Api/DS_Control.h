@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.44 2001-12-16 17:04:37 adcockj Exp $
+// $Id: DS_Control.h,v 1.45 2001-12-23 00:51:55 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.44  2001/12/16 17:04:37  adcockj
+// Debug Log improvements
+//
 // Revision 1.43  2001/11/26 12:26:07  trbarry
 // Missed update first commit?
 //
@@ -981,6 +984,22 @@ typedef enum
 #define WM_DVBT_GETVALUE     (WM_USER + 37)
 #define WM_DVBT_SETVALUE     (WM_USER + 137)
 #define WM_DVBT_CHANGEVALUE  (WM_USER + 237)
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Control settings contained in FLT_GradualNoise.c
+/////////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+    NOISEREDUCTION = 0,
+    USEGRADUALNOISE,
+    FLT_GNOISE_SETTING_LASTONE,
+} FLT_GNOISE_SETTING;
+
+#define WM_FLT_GNOISE_GETVALUE      (WM_USER + 38)
+#define WM_FLT_GNOISE_SETVALUE      (WM_USER + 138)
+#define WM_FLT_GNOISE_CHANGEVALUE   (WM_USER + 238)
 
 
 #endif

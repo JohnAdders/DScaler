@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSProvider.cpp,v 1.1 2001-12-09 22:01:48 tobbej Exp $
+// $Id: DSProvider.cpp,v 1.2 2001-12-14 14:11:13 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/12/09 22:01:48  tobbej
+// experimental dshow support, doesnt work yet
+// define WANT_DSHOW_SUPPORT if you want to try it
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -31,7 +35,10 @@
  * @file DSProvider.cpp implementation of the CDSProvider class.
  */
 
+
 #include "stdafx.h"
+
+#ifdef WANT_DSHOW_SUPPORT
 //#include "dscaler.h"
 #include "DSProvider.h"
 #include "devenum.h"
@@ -81,3 +88,5 @@ CSource* CDSProvider::GetSource(int SourceIndex)
 	ASSERT(SourceIndex>=0 && SourceIndex<m_DSSources.size());
 	return m_DSSources[SourceIndex];
 }
+
+#endif

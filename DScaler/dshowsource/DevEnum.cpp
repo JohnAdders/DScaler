@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DevEnum.cpp,v 1.1 2001-12-09 22:01:48 tobbej Exp $
+// $Id: DevEnum.cpp,v 1.2 2001-12-14 14:11:13 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,14 +24,20 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/12/09 22:01:48  tobbej
+// experimental dshow support, doesnt work yet
+// define WANT_DSHOW_SUPPORT if you want to try it
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file DevEnum.cpp implementation of the CDevEnum class.
  */
-
 #include "stdafx.h"
+
+#ifdef WANT_DSHOW_SUPPORT
+
 #include "DevEnum.h"
 
 #include "exception.h"
@@ -187,3 +193,5 @@ string CDevEnum::getProperty(string szName)
 		return "";
 	}
 }
+
+#endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PinEnum.cpp,v 1.1 2001-12-09 22:01:48 tobbej Exp $
+// $Id: PinEnum.cpp,v 1.2 2001-12-14 14:11:13 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/12/09 22:01:48  tobbej
+// experimental dshow support, doesnt work yet
+// define WANT_DSHOW_SUPPORT if you want to try it
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -31,7 +35,10 @@
  * @file PinEnum.cpp implementation of the CPinEnum class.
  */
 
+
 #include "stdafx.h"
+
+#ifdef WANT_DSHOW_SUPPORT
 #include "PinEnum.h"
 #include "exception.h"
 
@@ -158,3 +165,5 @@ CComPtr<IEnumPins> CPinEnum::clone()
 
 	return pEnum;
 }
+
+#endif

@@ -953,6 +953,8 @@ BEGIN
             MENUITEM "&Greek",                      IDM_VT_GREEK
             MENUITEM "&Russian",                    IDM_VT_RUSSIAN
             MENUITEM "G&erman",                     IDM_VT_GERMAN
+            MENUITEM "&Hungarian",                  IDM_VT_HUNGARIAN
+            MENUITEM "He&brew",                     IDM_VT_HEBREW
         END
         POPUP "Teletext Remote Button"
         BEGIN

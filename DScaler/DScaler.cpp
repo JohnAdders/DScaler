@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.89 2001-11-22 13:32:03 adcockj Exp $
+// $Id: DScaler.cpp,v 1.90 2001-11-23 10:47:44 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.89  2001/11/22 13:32:03  adcockj
+// Finished changes caused by changes to TDeinterlaceInfo - Compiles
+//
 // Revision 1.88  2001/11/19 14:02:48  adcockj
 // Apply patches from Sandu Turcan
 //
@@ -255,6 +258,8 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include "..\DScalerRes\resource.h"
+#include "resource.h"
 #include "Other.h"
 #include "CPU.h"
 #include "MixerDev.h"
@@ -1282,6 +1287,18 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_VT_GERMAN:
             Stop_Capture();
             VT_SetCodePage(VT_GERMAN_CODE_PAGE);
+            Start_Capture();
+            break;
+        
+        case IDM_VT_HUNGARIAN:
+            Stop_Capture();
+            VT_SetCodePage(VT_HUNGARIAN_CODE_PAGE);
+            Start_Capture();
+            break;
+
+        case IDM_VT_HEBREW:
+            Stop_Capture();
+            VT_SetCodePage(VT_HEBREW_CODE_PAGE);
             Start_Capture();
             break;
 

@@ -746,12 +746,14 @@
 #define IDM_NOISE_SETTINGS              2019
 #define IDM_PULLDOWNCOMMON_SETTINGS     2020
 #define IDM_DEBUG_SETTINGS              2021
+#define IDM_VT_HEBREW                   2022
 #define IDM_ASPECT_SETTINGS             2023
 #define IDM_TIMING_SETTNGS              2024
 #define IDM_ALWAYONTOPFULLSCREEN        2025
 #define IDM_VT_UK                       2026
 #define IDM_VT_FRENCH                   2027
 #define IDM_LOGOKILL_SETTINGS           2028
+#define IDM_VT_HUNGARIAN                2028
 #define IDM_LINCORR_SETTINGS            2029
 #define IDM_TSOPTIONS                   2030
 #define IDM_TSRECORD                    2031
@@ -802,7 +804,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        2092
-#define _APS_NEXT_COMMAND_VALUE         2022
+#define _APS_NEXT_COMMAND_VALUE         2029
 #define _APS_NEXT_CONTROL_VALUE         1893
 #define _APS_NEXT_SYMED_VALUE           2191
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.26 2001-11-09 12:42:07 adcockj Exp $
+// $Id: VBI_VideoText.cpp,v 1.27 2001-11-23 10:45:32 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2001/11/09 12:42:07  adcockj
+// Separated most resources out into separate dll ready for localization
+//
 // Revision 1.25  2001/11/02 16:30:08  adcockj
 // Check in merged code from multiple cards branch into main tree
 //
@@ -99,6 +102,8 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include "..\DScalerRes\resource.h"
+#include "resource.h"
 #include "VBI_VideoText.h"
 #include "VBI_CCdecode.h"
 #include "VBI.h"
@@ -1192,6 +1197,12 @@ void VT_SetCodePage(eVTCodePage Codepage)
     case VT_GERMAN_CODE_PAGE:
         VTCharSet = (BITMAPINFO *)LoadResource(hDScalerInst, FindResource(hDScalerInst, MAKEINTRESOURCE(IDB_GERMAN_VTCHARS), RT_BITMAP));
         break;
+    case VT_HUNGARIAN_CODE_PAGE:
+        VTCharSet = (BITMAPINFO *)LoadResource(hDScalerInst, FindResource(hDScalerInst, MAKEINTRESOURCE(IDB_HUNGARIAN_VTCHARS), RT_BITMAP));
+        break;
+    case VT_HEBREW_CODE_PAGE:
+        VTCharSet = (BITMAPINFO *)LoadResource(hDScalerInst, FindResource(hDScalerInst, MAKEINTRESOURCE(IDB_HEBREW_VTCHARS), RT_BITMAP));
+        break;
     case VT_UK_CODE_PAGE:
     default:
         VTCharSet = (BITMAPINFO *)LoadResource(hDScalerInst, FindResource(hDScalerInst, MAKEINTRESOURCE(IDB_VTCHARS), RT_BITMAP));
@@ -1422,5 +1433,7 @@ void VT_SetMenu(HMENU hMenu)
     CheckMenuItemBool(hMenu, IDM_VT_GREEK, (VTCodePage == VT_GREEK_CODE_PAGE));
     CheckMenuItemBool(hMenu, IDM_VT_RUSSIAN, (VTCodePage == VT_RUSSIAN_CODE_PAGE));
     CheckMenuItemBool(hMenu, IDM_VT_GERMAN, (VTCodePage == VT_GERMAN_CODE_PAGE));
+    CheckMenuItemBool(hMenu, IDM_VT_HUNGARIAN, (VTCodePage == VT_HUNGARIAN_CODE_PAGE));
+    CheckMenuItemBool(hMenu, IDM_VT_HEBREW, (VTCodePage == VT_HEBREW_CODE_PAGE));
 }
 

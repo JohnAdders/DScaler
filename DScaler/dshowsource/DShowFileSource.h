@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DShowFileSource.h,v 1.2 2002-02-13 16:58:22 tobbej Exp $
+// $Id: DShowFileSource.h,v 1.3 2002-03-15 23:01:54 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/02/13 16:58:22  tobbej
+// changed some comments
+//
 // Revision 1.1  2002/02/07 22:05:43  tobbej
 // new classes for file input
 // rearanged class inheritance a bit
@@ -56,6 +59,7 @@ public:
 	eDSObjectType getObjectType() {return DSHOW_TYPE_SOURCE_FILE;}
 	void connect(CComPtr<IBaseFilter> filter);
 	bool isConnected() {return m_bIsConnected;};
+	long getNumDroppedFrames(){return 0;};
 	
 	string getFileName() {return m_file;}
 

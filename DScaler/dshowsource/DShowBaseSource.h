@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DShowBaseSource.h,v 1.1 2002-02-07 22:05:43 tobbej Exp $
+// $Id: DShowBaseSource.h,v 1.2 2002-03-15 23:01:53 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/02/07 22:05:43  tobbej
+// new classes for file input
+// rearanged class inheritance a bit
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -60,6 +64,12 @@ public:
 	 * @return true if this source is connected
 	 */
 	virtual bool isConnected()=0;
+
+	/**
+	 * Gets number of dropped frames.
+	 * @return number of dropped frames
+	 */
+	virtual long getNumDroppedFrames()=0;
 };
 
 #endif // !defined(AFX_DSHOWBASESOURCE_H__AB8F10EC_CF36_4398_8F9F_68144D830D0D__INCLUDED_)

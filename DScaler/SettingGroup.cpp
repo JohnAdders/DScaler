@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingGroup.cpp,v 1.10 2005-03-18 16:19:04 atnak Exp $
+// $Id: SettingGroup.cpp,v 1.11 2005-03-20 11:12:40 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2005/03/18 16:19:04  atnak
+// Synchronizing work in progress.
+//
 // Revision 1.9  2005/03/17 03:55:18  atnak
 // Syncing wip.
 //
@@ -1726,7 +1729,7 @@ void CSettingGroupEx::_JostleBit(IN POPERATIONINFO opinfo)
 // Changed notify list functions
 //////////////////////////////////////////////////////////////////////////
 
-CSettingGroup_::PCHANGEDNOTIFYSTACK CSettingGroupEx::GetChangedNotifyStack()
+CSettingGroupEx::PCHANGEDNOTIFYSTACK CSettingGroupEx::GetChangedNotifyStack()
 {
 	if (m_parentGroup != NULL)
 	{
@@ -1740,7 +1743,7 @@ CSettingGroup_::PCHANGEDNOTIFYSTACK CSettingGroupEx::GetChangedNotifyStack()
 // Active notification and deferring functions
 //////////////////////////////////////////////////////////////////////////
 
-CSettingGroup_::PNOTIFICATIONSTACK CSettingGroupEx::GetNotificationStack()
+CSettingGroupEx::PNOTIFICATIONSTACK CSettingGroupEx::GetNotificationStack()
 {
 	if (m_parentGroup != NULL)
 	{

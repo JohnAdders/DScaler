@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsSettingConfig.cpp,v 1.4 2005-03-18 16:19:07 atnak Exp $
+// $Id: TreeSettingsSettingConfig.cpp,v 1.5 2005-03-20 11:12:40 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2005/03/18 16:19:07  atnak
+// Synchronizing work in progress.
+//
 // Revision 1.3  2004/08/15 03:04:00  atnak
 // MAX_CLASS_NAME is not defined on all systems.
 //
@@ -337,7 +340,7 @@ void CTreeSettingsSettingConfig::UpdateCurrentSettingControls(CWnd* pSkipControl
 			CSpinButtonCtrl* pSpin = (CSpinButtonCtrl*)GetDlgItem(IDC_TREESETTINGS_GENERIC_SPIN);
 			if (pSpin != pSkipControl)
 			{
-				pSpin->SetPos32(config->GetSliderValue());
+				pSpin->SetPos(config->GetSliderValue());
 			}
 		}
 		break;
@@ -758,7 +761,7 @@ void CTreeSettingsSettingConfig::CreateAdjustButton()
 	// Create the button.
 	m_adjustButton = new CButton();
 	m_adjustButton->Create("", BS_FLAT, rect, this, IDC_TREESETTINGS_GENERIC_ADJUST);
-
+/*
 	// Create the image list and icon picture.
 	m_adjustButtonImagelist = ImageList_Create(GetSystemMetrics(SM_CXSMICON),
 		GetSystemMetrics(SM_CYSMICON), ILC_COLOR32, 1, 1);
@@ -769,7 +772,7 @@ void CTreeSettingsSettingConfig::CreateAdjustButton()
 	buttonImagelist.himl = m_adjustButtonImagelist;
 	SetRect(&buttonImagelist.margin, 0, 0, 0, 0);
 	buttonImagelist.uAlign = BUTTON_IMAGELIST_ALIGN_CENTER;
-	m_adjustButton->SetImageList(&buttonImagelist);
+	m_adjustButton->SetImageList(&buttonImagelist);*/
 }
 
 
@@ -809,8 +812,8 @@ void CTreeSettingsSettingConfig::PositionAdjustButtonBeside(CWnd* pWnd, BOOL mov
 
 	m_adjustButton->GetWindowRect(rectButton);
 
-	rectButton.MoveToX(rectWnd.right + rectButton.Width() / 2);
-	rectButton.MoveToY(rectWnd.top + (rectWnd.Height() - rectButton.Height()) / 2);
+	rectButton.OffsetRect(rectWnd.right + rectButton.Width() / 2,
+		rectWnd.top + (rectWnd.Height() - rectButton.Height()) / 2);
 	m_adjustButton->MoveWindow(rectButton);
 
 	m_adjustButtonMoveOnResize = moveOnResize;

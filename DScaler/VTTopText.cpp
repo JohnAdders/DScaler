@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTTopText.cpp,v 1.6 2003-01-05 16:09:44 atnak Exp $
+// $Id: VTTopText.cpp,v 1.7 2003-01-07 07:37:38 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2003/01/05 16:09:44  atnak
+// Updated TopText for new teletext
+//
 // Revision 1.5  2003/01/01 20:30:12  atnak
 // Commented out everything so I can redo TopText for the new CVTCommon
 // functions later
@@ -899,6 +902,14 @@ BOOL CVTTopText::GetTopTextDetails(DWORD dwPageCode, TVTPage* pBuffer, BOOL bWai
             memset(pLineInput, 0x20, 15);
             pLineInput += 15;
         }
+    }
+
+    pBuffer->EditorialLink[VTFLOF_INDEX] = 0x0100;
+
+    for (int i = VTFLOF_RED; i <= VTFLOF_INDEX; i++)
+    {
+        // All TOP-Text pages have unspecified subcodes
+        pBuffer->EditorialLink[i] |= (0x3F7F << 16);
     }
 
     if (memcmp(pBuffer->Frame[24], m_LastBuffer, 40) != 0)

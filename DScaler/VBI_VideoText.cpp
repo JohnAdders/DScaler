@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.60 2003-01-05 18:35:45 laurentg Exp $
+// $Id: VBI_VideoText.cpp,v 1.61 2003-01-07 07:37:38 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.60  2003/01/05 18:35:45  laurentg
+// Init function for VBI added
+//
 // Revision 1.59  2003/01/05 16:09:44  atnak
 // Updated TopText for new teletext
 //
@@ -603,12 +606,16 @@ BOOL VT_PageScroll(HDC hDC, LPRECT lpRect, BOOL bForwards)
 
 BOOL VT_SubPageScroll(HDC hDC, LPRECT lpRect, BOOL bForwards)
 {
-    if (LOWORD(VTLoadedPageCode) != VTPageHex)
-    {
-        return FALSE;
-    }
+    DWORD dwPageCode;
 
-    DWORD dwPageCode = VTLoadedPageCode;
+    if (LOWORD(VTLoadedPageCode) == VTPageHex)
+    {
+        dwPageCode = VTLoadedPageCode;
+    }
+    else
+    {
+        dwPageCode = MAKELONG(VTPageHex, VTPageSubCode);
+    }
 
     EnterCriticalSection(&VTPageChangeMutex);
 
@@ -642,7 +649,13 @@ BOOL VT_SubPageScroll(HDC hDC, LPRECT lpRect, BOOL bForwards)
     }
     else
     {
-        VT_ShowHeader(hDC, lpRect);
+        // There's no point calling showing the header
+        // if the page isn't loaded because the header
+        // is always shown before the page loads.
+        if (LOWORD(VTLoadedPageCode) == VTPageHex)
+        {
+            VT_ShowHeader(hDC, lpRect);
+        }
     }
 
     return FALSE;
@@ -774,6 +787,7 @@ BOOL VT_PerformFlofKey(HDC hDC, LPRECT lpRect, BYTE nFlofKey)
     dwPageCode = VTVisiblePage.EditorialLink[nFlofKey];
 
     WORD wPageHex = LOWORD(dwPageCode);
+    WORD wPageSubCode = HIWORD(dwPageCode);
 
     if (wPageHex == VTPAGE_PREVIOUS)
     {
@@ -786,7 +800,12 @@ BOOL VT_PerformFlofKey(HDC hDC, LPRECT lpRect, BYTE nFlofKey)
         return FALSE;
     }
 
-    return VT_SetPage(hDC, lpRect, wPageHex);
+    if (wPageSubCode >= 0x3F7F)
+    {
+        wPageSubCode = 0xFFFF;
+    }
+
+    return VT_SetPage(hDC, lpRect, wPageHex, wPageSubCode);
 }
 
 

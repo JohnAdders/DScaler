@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDecoder.cpp,v 1.4 2003-01-05 16:09:44 atnak Exp $
+// $Id: VTDecoder.cpp,v 1.5 2003-01-07 07:37:38 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,6 +44,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2003/01/05 16:09:44  atnak
+// Updated TopText for new teletext
+//
 // Revision 1.3  2003/01/03 13:46:10  atnak
 // Fixed editorial link page number
 //
@@ -223,7 +226,7 @@ void CVTDecoder::DecodeLine(BYTE* data)
             return;
         }
         // Work out the page sub-code
-        wPageSubCode = (s1 | ((s2 & 0x7) << 4) | (s3 << 7) | ((s4 & 0x3) << 11));
+        wPageSubCode = (s1 | ((s2 & 0x7) << 4) | (s3 << 8) | ((s4 & 0x3) << 12));
 
         // Get the page control bits
         wControlBits = (magazine | (s2 & 0x8) | ((s4 & 0xC) << 2) | (c7_14 << 6));
@@ -383,7 +386,7 @@ void CVTDecoder::DecodeLine(BYTE* data)
 
                     wPageHex |= (linkMagazine == 0 ? 0x800 : linkMagazine * 0x100);
                     wPageSubCode = (s1 | ((s2 & 0x7) << 4));
-                    wPageSubCode |= ((s3 << 7) | ((s4 & 0x3) << 11));
+                    wPageSubCode |= ((s3 << 8) | ((s4 & 0x3) << 12));
 
                     dwPageCode = MAKELONG(wPageHex, wPageSubCode);
 
@@ -462,7 +465,7 @@ void CVTDecoder::DecodeLine(BYTE* data)
 
                 wPageHex |= (initialMagazine == 0 ? 0x800 : initialMagazine * 0x100);
                 wPageSubCode = (s1 | ((s2 & 0x7) << 4));
-                wPageSubCode |= ((s3 << 7) | ((s4 & 0x3) << 11));
+                wPageSubCode |= ((s3 << 8) | ((s4 & 0x3) << 12));
 
                 dwPageCode = (DWORD)MAKELONG(wPageHex, wPageSubCode);
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.11 2002-10-08 19:35:45 atnak Exp $
+// $Id: SAA7134Card.h,v 1.12 2002-10-08 20:35:39 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/10/08 19:35:45  atnak
+// various fixes, tweaks, cleanups
+//
 // Revision 1.10  2002/10/08 12:24:46  atnak
 // added various functions to configure carriers
 //
@@ -179,8 +182,8 @@ public:
 
     void SetWhitePeak(BOOL WhitePeak);
     BOOL GetWhitePeak();
-    void SetColourPeak(BOOL ColourPeak);
-    BOOL GetColourPeak();
+    void SetColorPeak(BOOL ColorPeak);
+    BOOL GetColorPeak();
 
     void SetHPLLMode(eHPLLMode HPLLMode);
     void SetVSyncRecovery(eVSyncRecovery VSyncRecovery);

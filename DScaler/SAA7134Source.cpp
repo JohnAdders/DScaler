@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.18 2002-10-08 12:30:38 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.19 2002-10-08 20:35:39 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2002/10/08 12:30:38  atnak
+// tweaks and fixes
+//
 // Revision 1.17  2002/10/06 09:49:19  atnak
 // Smarter GetNextField sleeping
 //
@@ -246,6 +249,15 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
     m_HPLLMode = new CHPLLModeSetting(this, "HPLL Locking Mode", HPLLMODE_FAST_TRACKING, HPLLMODE_TV, HPLLMODE_LASTONE - 1, IniSection);
     m_Settings.push_back(m_HPLLMode);
 
+    m_WhitePeak = new CWhitePeakSetting(this, "White Peak", TRUE, IniSection);
+    m_Settings.push_back(m_WhitePeak);
+
+    m_ColorPeak = new CColorPeakSetting(this, "Color Peak", TRUE, IniSection);
+    m_Settings.push_back(m_ColorPeak);
+
+    m_AdaptiveCombFilter = new CAdaptiveCombFilterSetting(this, "Adaptive Comb Filter", TRUE, IniSection);
+    m_Settings.push_back(m_AdaptiveCombFilter);
+
     m_HDelay = new CHDelaySetting(this, "Horizontal Delay", 0, 0, 20, IniSection);
     m_HDelay->SetStepValue(2);
     m_Settings.push_back(m_HDelay);
@@ -325,6 +337,10 @@ void CSAA7134Source::Reset()
     SetupVideoAudioStandards();
 
     m_pSAA7134Card->SetHPLLMode((eHPLLMode)m_HPLLMode->GetValue());
+
+    m_pSAA7134Card->SetWhitePeak(m_WhitePeak->GetValue());
+    m_pSAA7134Card->SetColorPeak(m_ColorPeak->GetValue());
+    m_pSAA7134Card->SetCombFilter(m_AdaptiveCombFilter->GetValue());
 
     if (m_AutoStereoSelect->GetValue())
     {
@@ -814,11 +830,11 @@ BOOL CSAA7134Source::GetFinishedField(eRegionID& DoneRegionID, BOOL& bDoneIsFiel
 
 /*    // DEBUGGIN
     while (1)
-    {
+    {*/
         m_pSAA7134Card->CheckRegisters((DWORD*) &m_pDisplay[0][2048 + 4190],
             (DWORD*) &m_pDisplay[0][4190], (DWORD*) &m_pDisplay[1][2048 + 4190],
             (DWORD*) &m_pDisplay[1][4190]);
-     }
+//     }
     //*/
 
     if (!m_pSAA7134Card->GetProcessingRegion(RegionID, bIsFieldOdd))
@@ -1088,6 +1104,20 @@ void CSAA7134Source::HPLLModeOnChange(long HPLLMode, long OldValue)
     m_pSAA7134Card->SetHPLLMode((eHPLLMode)HPLLMode);
 }
 
+void CSAA7134Source::WhitePeakOnChange(long NewValue, long OldValue)
+{
+    m_pSAA7134Card->SetWhitePeak(NewValue);
+}
+
+void CSAA7134Source::ColorPeakOnChange(long NewValue, long OldValue)
+{
+    m_pSAA7134Card->SetColorPeak(NewValue);
+}
+
+void CSAA7134Source::AdaptiveCombFilterOnChange(long NewValue, long OldValue)
+{
+    m_pSAA7134Card->SetCombFilter(NewValue);
+}
 
 BOOL CSAA7134Source::IsInTunerMode()
 {

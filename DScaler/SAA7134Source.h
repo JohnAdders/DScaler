@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.h,v 1.11 2002-10-08 12:30:38 atnak Exp $
+// $Id: SAA7134Source.h,v 1.12 2002-10-08 20:35:39 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/10/08 12:30:38  atnak
+// tweaks and fixes
+//
 // Revision 1.10  2002/10/06 09:49:19  atnak
 // Smarter GetNextField sleeping
 //
@@ -242,6 +245,10 @@ private:
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioSource6);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioChannel);
     DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source, AutoStereoSelect);
+    DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source, WhitePeak);
+    DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source, ColorPeak);
+    DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source, AdaptiveCombFilter);
+
 protected:
     int         m_InitialACPIStatus;
     HINSTANCE   m_hSAA7134ResourceInst;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Video.cpp,v 1.3 2002-10-08 19:35:45 atnak Exp $
+// $Id: SAA7134Card_Video.cpp,v 1.4 2002-10-08 20:35:39 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/10/08 19:35:45  atnak
+// various fixes, tweaks, cleanups
+//
 // Revision 1.2  2002/10/06 11:11:29  atnak
 // Added SetVSync recovery
 //
@@ -446,9 +449,9 @@ BOOL CSAA7134Card::GetWhitePeak()
     return (ReadByte(SAA7134_INCR_DELAY) & SAA7134_INCR_DELAY_WPOFF) == 0;
 }
 
-void CSAA7134Card::SetColourPeak(BOOL ColourPeak)
+void CSAA7134Card::SetColorPeak(BOOL ColorPeak)
 {
-    if (ColourPeak)
+    if (ColorPeak)
     {
         AndDataByte(SAA7134_ANALOG_IN_CTRL2, ~SAA7134_ANALOG_IN_CTRL2_CPOFF);
     }
@@ -458,7 +461,7 @@ void CSAA7134Card::SetColourPeak(BOOL ColourPeak)
     }
 }
 
-BOOL CSAA7134Card::GetColourPeak()
+BOOL CSAA7134Card::GetColorPeak()
 {
     return (ReadByte(SAA7134_ANALOG_IN_CTRL2) &
         SAA7134_ANALOG_IN_CTRL2_CPOFF) == 0;

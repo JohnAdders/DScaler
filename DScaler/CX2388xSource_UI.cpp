@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_UI.cpp,v 1.14 2002-12-03 07:56:31 adcockj Exp $
+// $Id: CX2388xSource_UI.cpp,v 1.15 2002-12-03 13:28:23 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/12/03 07:56:31  adcockj
+// Fixed some problems with settings not saving
+//
 // Revision 1.13  2002/11/28 18:06:32  adcockj
 // Changed text for progressive mode
 //
@@ -637,16 +640,43 @@ void CCX2388xSource::ChangeChannelSectionNames()
         }
     
         SettingsPerChannel_RegisterSetSection(m_ChannelSubSection.c_str());
-        SettingsPerChannel_RegisterSetting("Brightness","BT8x8 - Brightness",TRUE, m_Brightness);
-        SettingsPerChannel_RegisterSetting("Hue","BT8x8 - Hue",TRUE, m_Hue);            
-        SettingsPerChannel_RegisterSetting("Contrast","BT8x8 - Contrast",TRUE, m_Contrast);
+        SettingsPerChannel_RegisterSetting("Brightness","CX2388x - Brightness",TRUE, m_Brightness);
+        SettingsPerChannel_RegisterSetting("Hue","CX2388x - Hue",TRUE, m_Hue);            
+        SettingsPerChannel_RegisterSetting("Contrast","CX2388x - Contrast",TRUE, m_Contrast);
         
-        SettingsPerChannel_RegisterSetting("Saturation","BT8x8 - Saturation",TRUE, m_Saturation);
-        SettingsPerChannel_RegisterSetting("Saturation","BT8x8 - Saturation",TRUE, m_SaturationU);
-        SettingsPerChannel_RegisterSetting("Saturation","BT8x8 - Saturation",TRUE, m_SaturationV);
+        SettingsPerChannel_RegisterSetting("Saturation","CX2388x - Saturation",TRUE, m_Saturation);
+        SettingsPerChannel_RegisterSetting("Saturation","CX2388x - Saturation",TRUE, m_SaturationU);
+        SettingsPerChannel_RegisterSetting("Saturation","CX2388x - Saturation",TRUE, m_SaturationV);
     
-        SettingsPerChannel_RegisterSetting("Overscan","BT8x8 - Overscan",TRUE, m_Overscan);
-        
+        SettingsPerChannel_RegisterSetting("Overscan","CX2388x - Overscan",TRUE, m_Overscan);
+
+        if(m_CardType->GetValue() == CX2388xCARD_HOLO3D)
+        {
+            SettingsPerChannel_RegisterSetting("FLIFilmDetect", "CX2388x - FLIFilmDetect" , TRUE, m_FLIFilmDetect);
+            SettingsPerChannel_RegisterSetting("Sharpness", "CX2388x - Sharpness", TRUE, m_Sharpness);
+            SettingsPerChannel_RegisterSetting("UseFLIDeinterlacing", "CX2388x - UseFLIDeinterlacing", TRUE, m_IsVideoProgressive);
+        }
+        else
+        {
+            SettingsPerChannel_RegisterSetting("LumaAGC", "CX2388x - LumaAGC", TRUE, m_LumaAGC);
+            SettingsPerChannel_RegisterSetting("ChromaAGC", "CX2388x - ChromaAGC", TRUE, m_ChromaAGC);
+            SettingsPerChannel_RegisterSetting("FastSubcarrierLock", "CX2388x - FastSubcarrierLock", TRUE, m_FastSubcarrierLock);
+            SettingsPerChannel_RegisterSetting("WhiteCrushEnable", "CX2388x - WhiteCrushEnable", TRUE, m_WhiteCrush);
+            SettingsPerChannel_RegisterSetting("LowColorRemoval", "CX2388x - LowColorRemoval", TRUE, m_LowColorRemoval);
+            SettingsPerChannel_RegisterSetting("CombFilter", "CX2388x - CombFilter", TRUE, m_CombFilter);
+            SettingsPerChannel_RegisterSetting("FullLumaRange", "CX2388x - FullLumaRange", TRUE, m_FullLumaRange);
+            SettingsPerChannel_RegisterSetting("Remodulation", "CX2388x - Remodulation", TRUE, m_Remodulation);
+            SettingsPerChannel_RegisterSetting("Chroma2HComb", "CX2388x - Chroma2HComb", TRUE, m_Chroma2HComb);
+            SettingsPerChannel_RegisterSetting("ForceRemodExcessChroma", "CX2388x - ForceRemodExcessChroma", TRUE, m_ForceRemodExcessChroma);
+            SettingsPerChannel_RegisterSetting("IFXInterpolation", "CX2388x - IFXInterpolation", TRUE, m_IFXInterpolation);
+            SettingsPerChannel_RegisterSetting("CombRange", "CX2388x - CombRange", TRUE, m_CombRange);
+            SettingsPerChannel_RegisterSetting("SecondChromaDemod", "CX2388x - SecondChromaDemod", TRUE, m_SecondChromaDemod);
+            SettingsPerChannel_RegisterSetting("ThirdChromaDemod", "CX2388x - ThirdChromaDemod", TRUE, m_ThirdChromaDemod);
+            SettingsPerChannel_RegisterSetting("WhiteCrushUp", "CX2388x - WhiteCrushUp", TRUE, m_WhiteCrushUp);
+            SettingsPerChannel_RegisterSetting("WhiteCrushDown", "CX2388x - WhiteCrushDown", TRUE, m_WhiteCrushDown);
+            SettingsPerChannel_RegisterSetting("WhiteCrushMajorityPoint", "CX2388x - WhiteCrushMajorityPoint", TRUE, m_WhiteCrushMajorityPoint);
+            SettingsPerChannel_RegisterSetting("WhiteCrushPerFrame", "CX2388x - WhiteCrushPerFrame", TRUE, m_WhiteCrushPerFrame);
+        }
     }
 }
 

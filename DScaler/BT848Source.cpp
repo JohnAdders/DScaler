@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.91 2002-11-07 20:33:16 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.92 2002-12-03 13:28:23 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.91  2002/11/07 20:33:16  adcockj
+// Promoted ACPI functions so that state management works properly
+//
 // Revision 1.90  2002/10/31 03:10:55  atnak
 // Changed CSource::GetTreeSettingsPage to return CTreeSettingsPage*
 //
@@ -419,7 +422,6 @@ CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CU
 
 CBT848Source::~CBT848Source()
 {
-    
     EventCollector->Unregister(this);
     BT848_OnSetup(this, 0);
 

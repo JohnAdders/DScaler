@@ -334,66 +334,111 @@ BOOL CPanAndZoomAspectFilter::adjustAspect(CAspectRectangles &ar)
     {
     	dx = (int)floor(ar.rCurrentOverlaySrc.width() * (1.0 - 1.0/xZoom));
     	ar.rCurrentOverlaySrc.shrink(0,dx,0,0);
+
+        // do we have to crop the input if we do we have to
+        // change the output too
+        if(xPos > 1.0)
+        {
+    	    ar.rCurrentOverlaySrc.shift(dx,0);
+            dx = (int)floor(ar.rCurrentOverlaySrc.width() * (xPos - 1.0));
+            ar.rCurrentOverlaySrc.shrink(0,dx,0,0);
+            dx = (int)floor(ar.rCurrentOverlayDest.width() * (xPos - 1.0));
+            ar.rCurrentOverlayDest.shrink(dx, 0, 0, 0);
+        }
+        else if(xPos < 0.0)
+        {
+            dx = (int)floor(ar.rCurrentOverlaySrc.width() * -xPos);
+            ar.rCurrentOverlaySrc.shrink(dx,0,0,0);
+            dx = (int)floor(ar.rCurrentOverlayDest.width() * -xPos);
+            ar.rCurrentOverlayDest.shrink(0, dx, 0, 0);
+        }
+        else
+        {
+    	    ar.rCurrentOverlaySrc.shift((int)floor(dx*xPos), 0);
+        }
     }
     else
     {
     	dx = (int)floor(ar.rCurrentOverlayDest.width() * (1.0 - xZoom));
     	ar.rCurrentOverlayDest.shrink(0,dx,0,0);
+
+        // do we have to crop the input if we do we have to
+        // change the output too
+        if(xPos > 1.0)
+        {
+    	    ar.rCurrentOverlayDest.shift(dx,0);
+            dx = (int)floor(ar.rCurrentOverlaySrc.width() * (xPos - 1.0));
+            ar.rCurrentOverlaySrc.shrink(0,dx,0,0);
+            dx = (int)floor(ar.rCurrentOverlayDest.width() * (xPos - 1.0));
+            ar.rCurrentOverlayDest.shrink(dx, 0, 0, 0);
+        }
+        else if(xPos < 0.0)
+        {
+            dx = (int)floor(ar.rCurrentOverlaySrc.width() * -xPos);
+            ar.rCurrentOverlaySrc.shrink(dx,0,0,0);
+            dx = (int)floor(ar.rCurrentOverlayDest.width() * -xPos);
+            ar.rCurrentOverlayDest.shrink(0, dx, 0, 0);
+        }
+        else
+        {
+    	    ar.rCurrentOverlayDest.shift((int)floor(dx*xPos), 0);
+        }
     }
 
-    // do we have to crop the input if we do we have to
-    // change the output too
-    if(xPos > 1.0)
-    {
-    	ar.rCurrentOverlaySrc.shift(dx,0);
-        dx = (int)floor(ar.rCurrentOverlaySrc.width() * (xPos - 1.0));
-        ar.rCurrentOverlaySrc.shrink(0,dx,0,0);
-        dx = (int)floor(ar.rCurrentOverlayDest.width() * (xPos - 1.0));
-        ar.rCurrentOverlayDest.shrink(dx, 0, 0, 0);
-    }
-    else if(xPos < 0.0)
-    {
-        dx = (int)floor(ar.rCurrentOverlaySrc.width() * -xPos);
-        ar.rCurrentOverlaySrc.shrink(dx,0,0,0);
-        dx = (int)floor(ar.rCurrentOverlayDest.width() * -xPos);
-        ar.rCurrentOverlayDest.shrink(0, dx, 0, 0);
-    }
-    else
-    {
-    	ar.rCurrentOverlaySrc.shift((int)floor(dx*xPos), 0);
-    }
 
     if(yZoom > 1.0)
     {
     	dy = (int)floor(ar.rCurrentOverlaySrc.height() * (1.0 - 1.0/yZoom));
     	ar.rCurrentOverlaySrc.shrink(0,0,0,dy);
+
+        // do we have to crop the input if we do we have to
+        // change the output too
+        if(yPos > 1.0)
+        {
+    	    ar.rCurrentOverlaySrc.shift(0, dy);
+            dy = (int)floor(ar.rCurrentOverlaySrc.height() * (yPos - 1.0));
+            ar.rCurrentOverlaySrc.shrink(0,0,0,dy);
+            dy = (int)floor(ar.rCurrentOverlayDest.height() * (yPos - 1.0));
+            ar.rCurrentOverlayDest.shrink(0, 0, dy, 0);
+        }
+        else if(yPos < 0.0)
+        {
+            dy = (int)floor(ar.rCurrentOverlaySrc.height() * -yPos);
+            ar.rCurrentOverlaySrc.shrink(0,0,dy,0);
+            dy =(int)floor(ar.rCurrentOverlayDest.height() * -yPos);
+            ar.rCurrentOverlayDest.shrink(0, 0, 0, dy);
+        }
+        else
+        {
+    	    ar.rCurrentOverlaySrc.shift(0, (int)floor(dy*yPos));
+        }
     }
     else
     {
     	dy = (int)floor(ar.rCurrentOverlayDest.height() * (1.0 - yZoom));
     	ar.rCurrentOverlayDest.shrink(0,0,0,dy);
-    }
 
-    // do we have to crop the input if we do we have to
-    // change the output too
-    if(yPos > 1.0)
-    {
-    	ar.rCurrentOverlaySrc.shift(0, dy);
-        dy = (int)floor(ar.rCurrentOverlaySrc.height() * (yPos - 1.0));
-        ar.rCurrentOverlaySrc.shrink(0,0,0,dy);
-        dy = (int)floor(ar.rCurrentOverlayDest.height() * (yPos - 1.0));
-        ar.rCurrentOverlayDest.shrink(0, 0, dy, 0);
-    }
-    else if(yPos < 0.0)
-    {
-        dy = (int)floor(ar.rCurrentOverlaySrc.height() * -yPos);
-        ar.rCurrentOverlaySrc.shrink(0,0,dy,0);
-        dy =(int)floor(ar.rCurrentOverlayDest.height() * -yPos);
-        ar.rCurrentOverlayDest.shrink(0, 0, 0, dy);
-    }
-    else
-    {
-    	ar.rCurrentOverlaySrc.shift(0, (int)floor(dy*yPos));
+        // do we have to crop the input if we do we have to
+        // change the output too
+        if(yPos > 1.0)
+        {
+    	    ar.rCurrentOverlayDest.shift(0, dy);
+            dy = (int)floor(ar.rCurrentOverlaySrc.height() * (yPos - 1.0));
+            ar.rCurrentOverlaySrc.shrink(0,0,0,dy);
+            dy = (int)floor(ar.rCurrentOverlayDest.height() * (yPos - 1.0));
+            ar.rCurrentOverlayDest.shrink(0, 0, dy, 0);
+        }
+        else if(yPos < 0.0)
+        {
+            dy = (int)floor(ar.rCurrentOverlaySrc.height() * -yPos);
+            ar.rCurrentOverlaySrc.shrink(0,0,dy,0);
+            dy =(int)floor(ar.rCurrentOverlayDest.height() * -yPos);
+            ar.rCurrentOverlayDest.shrink(0, 0, 0, dy);
+        }
+        else
+        {
+    	    ar.rCurrentOverlayDest.shift(0, (int)floor(dy*yPos));
+        }
     }
 
 	// Clip the source image to actually available image

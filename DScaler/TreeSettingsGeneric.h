@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsGeneric.h,v 1.2 2002-06-13 12:10:23 adcockj Exp $
+// $Id: TreeSettingsGeneric.h,v 1.3 2002-09-02 19:06:09 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,7 +37,11 @@
 #include "DS_ApiCommon.h"
 #include "HSListBox.h"
 #include "TreeSettingsPage.h"
+#include "Settings.h"
+#include "Setting.h"
 #include "..\DScalerRes\resource.h"
+
+class CSimpleSetting;
 
 /**
  * Generic settings page for tree based settings dialog.
@@ -58,6 +62,8 @@ public:
      * @param count size of settings array
 	 */
     CTreeSettingsGeneric(CString name,SETTING* settings,long count);
+    CTreeSettingsGeneric(CString name,vector<CSimpleSetting*> settings); 
+    ~CTreeSettingsGeneric();
 
 // Dialog Data
     //{{AFX_DATA(CTreeSettingsGeneric)
@@ -97,6 +103,7 @@ private:
     void UpdateControls();
     long m_SettingsCount;
     SETTING* m_Settings;
+    vector<CSimpleSetting*> m_CSettings;
     long m_CurrentSetting;
 };
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.cpp,v 1.11 2002-08-21 20:26:31 kooiman Exp $
+// $Id: Setting.cpp,v 1.12 2002-09-02 19:06:10 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/08/21 20:26:31  kooiman
+// Added option to ChangeDefault to only change the current value if you want it.
+//
 // Revision 1.10  2002/08/08 12:13:32  kooiman
 // Bit more flexibility.
 //
@@ -545,4 +548,34 @@ void CYesNoSetting::SetControlValue(HWND hWnd)
 void CYesNoSetting::SetFromControl(HWND hWnd)
 {
     SetValue(Button_GetCheck(hWnd) == BST_CHECKED);
+}
+
+
+void CSimpleSetting::MakeSETTING(SETTING *pSetting)
+{
+    pSetting->szDisplayName = (char*)m_DisplayName.c_str();
+    pSetting->Type = SLIDER;
+    pSetting->pValue = &m_Value;
+    pSetting->Default = m_Default;
+    pSetting->MinValue = m_Min;
+    pSetting->MaxValue = m_Max;
+    pSetting->StepValue = m_StepValue;
+    pSetting->OSDDivider = m_StepValue;
+    pSetting->pszList = NULL;
+    pSetting->szIniEntry = (char*)m_Entry.c_str();
+    pSetting->szIniSection = (char*)m_Section.c_str();
+    pSetting->pfnOnChange = NULL;
+}
+
+void CYesNoSetting::MakeSETTING(SETTING *pSetting) 
+{ 
+    CSimpleSetting::MakeSETTING(pSetting);
+    pSetting->Type = YESNO;
+}
+
+void CListSetting::MakeSETTING(SETTING *pSetting) 
+{ 
+    CSimpleSetting::MakeSETTING(pSetting);
+    pSetting->Type = ITEMFROMLIST;
+    pSetting->pszList = m_List;
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.h,v 1.9 2002-08-21 20:26:31 kooiman Exp $
+// $Id: Setting.h,v 1.10 2002-09-02 19:06:10 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -96,6 +96,8 @@ public:
     long GetMax();
     long GetDefault();
     virtual void GetDisplayText(LPSTR szBuffer) = 0;
+
+    virtual void MakeSETTING(SETTING *pSetting);
 protected:
     std::string  m_DisplayName;
     long m_Value;
@@ -121,6 +123,8 @@ public:
     void SetupControl(HWND hWnd);
     void SetControlValue(HWND hWnd);
     void SetFromControl(HWND hWnd);
+
+    void MakeSETTING(SETTING *pSetting);
 };
 
 /** Simple setting with a long value represenmted by a slider
@@ -153,6 +157,8 @@ public:
     void SetupControl(HWND hWnd);
     void SetControlValue(HWND hWnd);
     void SetFromControl(HWND hWnd);
+
+    void MakeSETTING(SETTING *pSetting);
 private:
     const char** m_List;
 };

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.14 2001-07-16 18:07:50 adcockj Exp $
+// $Id: OSD.cpp,v 1.15 2001-07-26 22:02:12 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2001/07/16 18:07:50  adcockj
+// Added Optimisation parameter to ini file saving
+//
 // Revision 1.13  2001/07/13 18:13:24  adcockj
 // Changed Mute to not be persisted and to work properly
 //
@@ -86,6 +89,7 @@
 #include "Dialogs.h"
 #include "DScaler.h"
 #include "VBI_WSSdecode.h"
+#include "Calibration.h"
 
 extern long NumFilters;
 extern FILTER_METHOD* Filters[];
@@ -103,6 +107,7 @@ BOOL bAntiAlias = TRUE;
 BOOL bOutline = TRUE;
 eOSDBackground Background;
 BOOL bAutoHide = TRUE;
+BOOL bUseRGB = TRUE;
 
 //---------------------------------------------------------------------------
 // Global OSD Information structure
@@ -114,9 +119,10 @@ static struct
     int     refresh_delay;  // Refresh period in ms (0 means no refresh)
     BOOL    active;         // Screen to take into account or not
 } ActiveScreens[] = {
-    {   "General screen",       OSD_TIMER_REFRESH_DELAY,    TRUE    },
-    {   "Statistics screen",    1000,                       FALSE   },
-    {   "WSS decoding screen",  OSD_TIMER_REFRESH_DELAY,    FALSE   },
+    { "General screen",          OSD_TIMER_REFRESH_DELAY, TRUE  },
+    { "Statistics screen",       1000,                    FALSE },
+    { "WSS decoding screen",     OSD_TIMER_REFRESH_DELAY, FALSE },
+    { "Card calibration screen", 250,                     FALSE },
 };
 static int  IdxCurrentScreen = -1;  // index of the current displayed OSD screen
 static BOOL bRestoreScreen = FALSE; // Restore Info screen when clear OSD
@@ -475,6 +481,10 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
     long            Color;
     double          pos;
     DEINTERLACE_METHOD* DeintMethod;
+    unsigned char   val1, val2, val3;
+    int             dif_val1, dif_val2, dif_val3;
+    CTestPattern *pTestPattern;
+    CColorBar* pColorBar;
 
     // Case : no OSD screen
     if (IdxCurrentScreen == -1)
@@ -826,6 +836,84 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
         }
         break;
 
+    // CARD CALIBRATION SCREEN
+    case 3:
+        // Title
+        OSD_AddText("Card calibration", Size*1.5, OSD_COLOR_TITLE, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
+
+        // Video settings
+        nLine = 3;
+        OSD_AddText("Current Settings", Size, OSD_COLOR_SECTION, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+        sprintf (szInfo, "Brightness : %03d", Setting_GetValue(BT848_GetSetting(BRIGHTNESS)));
+        OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+        sprintf (szInfo, "Contrast : %03u", Setting_GetValue(BT848_GetSetting(CONTRAST)));
+        OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+        sprintf (szInfo, "Hue : %03d", Setting_GetValue(BT848_GetSetting(HUE)));
+        OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+        sprintf (szInfo, "Color : %03u", Setting_GetValue(BT848_GetSetting(SATURATION)));
+        OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+        sprintf (szInfo, "Color U : %03u", Setting_GetValue(BT848_GetSetting(SATURATIONU)));
+        OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+        sprintf (szInfo, "Color V : %03u", Setting_GetValue(BT848_GetSetting(SATURATIONV)));
+        OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+
+		// Name of the test pattern
+		pTestPattern = pCalibration->GetCurrentTestPattern();
+        if (pTestPattern != NULL)
+		{
+            OSD_AddText(pTestPattern->GetName(), Size, OSD_COLOR_SECTION, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (3, dfMargin, Size));
+		}
+
+        if (pCalibration->IsRunning() && (pTestPattern != NULL))
+		{
+            OSD_AddText("RUNNING", Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (1, dfMargin, Size));
+            OSD_AddText((pCalibration->GetType() == AUTO_CALIBR) ? "AUTOMATIC" : "MANUALLY", Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (1, dfMargin, Size));
+
+            nLine = 4;
+
+            pColorBar = pTestPattern->GetFirstColorBar();
+            while (pColorBar != NULL)
+			{
+                pColorBar->GetRefPixel(FALSE, &val1, &val2, &val3);
+				Color = RGB(val1, val2, val3);
+                pColorBar->GetDiffPixel(!bUseRGB, &dif_val1, &dif_val2, &dif_val3);
+                sprintf (szInfo, "%s (%+d,%+d,%+d)", bUseRGB ? "RGB" : "YUV", dif_val1, dif_val2, dif_val3);
+                OSD_AddText(szInfo, Size, Color, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
+                i = pColorBar->GetQuality(!bUseRGB);
+				switch (i)
+				{
+				case 1:
+					strcpy (szInfo, "very good");
+					Color = RGB(0,255,0);
+					break;
+				case 2:
+					strcpy (szInfo, "good");
+					Color = RGB(64,255,64);
+					break;
+				case 3:
+					strcpy (szInfo, "medium");
+					Color = RGB(255,64,64);
+					break;
+				case 4:
+					strcpy (szInfo, "bad");
+					Color = RGB(128,128,0);
+					break;
+				case 5:
+					strcpy (szInfo, "very bad");
+					Color = RGB(255,0,0);
+					break;
+				default:
+					strcpy (szInfo, "???");
+					Color = 0;
+					break;
+				}
+                OSD_AddText(szInfo, Size, Color, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (nLine++, dfMargin, Size));
+
+                pColorBar = pTestPattern->GetNextColorBar();
+			}
+		}
+        break;
+
     default:
         break;
     }
@@ -1045,6 +1133,12 @@ SETTING OSDSettings[OSD_SETTING_LASTONE] =
          TRUE, 0, 1, 1, 1,
          NULL,
         "OSD", "AutoHide", OSD_AutoHide_OnChange,
+    },
+    {
+        "OSD use RGB for pixels", ONOFF, 0, (long*)&bUseRGB,
+         TRUE, 0, 1, 1, 1,
+         NULL,
+        "OSD", "UseRGB", NULL,
     },
 };
 

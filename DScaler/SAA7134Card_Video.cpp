@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Video.cpp,v 1.8 2002-10-26 04:42:50 atnak Exp $
+// $Id: SAA7134Card_Video.cpp,v 1.9 2002-11-10 09:30:57 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/10/26 04:42:50  atnak
+// Added AGC config and automatic volume leveling control
+//
 // Revision 1.7  2002/10/23 17:05:19  atnak
 // Added variable VBI sample rate scaling
 //
@@ -118,7 +121,6 @@ void CSAA7134Card::SetVideoStandard(eVideoStandard VideoStandard, long& VBILines
     {
         // Automatic field rate (50Hz/60z) detection
         SyncControl = SAA7134_SYNC_CTRL_AUFD;
-        LumaControl = SAA7134_LUMA_CTRL_YCOMB;
 
         // Automatic colour standard detection
         ChromaCtrl1 = SAA7134_CHROMA_CTRL1_AUTO | SAA7134_CHROMA_CTRL1_DCVF;
@@ -136,7 +138,6 @@ void CSAA7134Card::SetVideoStandard(eVideoStandard VideoStandard, long& VBILines
 
         if (IsPALVideoStandard(VideoStandard))
         {
-            LumaControl = SAA7134_LUMA_CTRL_YCOMB;
             ChromaCtrl2 = 0x06;
         }
         else if (IsSECAMVideoStandard(VideoStandard))
@@ -146,7 +147,6 @@ void CSAA7134Card::SetVideoStandard(eVideoStandard VideoStandard, long& VBILines
         }
         else if (IsNTSCVideoStandard(VideoStandard))
         {
-            LumaControl = SAA7134_LUMA_CTRL_YCOMB;
             ChromaCtrl1 = SAA7134_CHROMA_CTRL1_DCVF;
             ChromaCtrl2 = SAA7134_CHROMA_CTRL2_CHBW | 0x06;
         }
@@ -166,8 +166,7 @@ void CSAA7134Card::SetVideoStandard(eVideoStandard VideoStandard, long& VBILines
     MaskDataByte(SAA7134_LUMA_CTRL, LumaControl,
         SAA7134_LUMA_CTRL_LUFI |
         SAA7134_LUMA_CTRL_LUBW |
-        SAA7134_LUMA_CTRL_LDEL |
-        SAA7134_LUMA_CTRL_YCOMB);
+        SAA7134_LUMA_CTRL_LDEL);
 
     MaskDataByte(SAA7134_CHROMA_CTRL1, ChromaCtrl1,
         SAA7134_CHROMA_CTRL1_CSTD |
@@ -433,17 +432,27 @@ void CSAA7134Card::SetVSyncRecovery(eVSyncRecovery VSyncRecovery)
 }
 
 
-void CSAA7134Card::SetCombFilter(BOOL bEnable)
+void CSAA7134Card::SetCombFilter(eCombFilter CombFilter)
 {
-    if (bEnable)
+    switch (CombFilter)
     {
-        OrDataByte(SAA7134_LUMA_CTRL, SAA7134_LUMA_CTRL_YCOMB);
-        OrDataByte(SAA7134_CHROMA_CTRL1, SAA7134_CHROMA_CTRL1_CCOMB);
-    }
-    else
-    {
+    case COMBFILTER_OFF:
         AndDataByte(SAA7134_LUMA_CTRL, ~SAA7134_LUMA_CTRL_YCOMB);
         AndDataByte(SAA7134_CHROMA_CTRL1, ~SAA7134_CHROMA_CTRL1_CCOMB);
+        break;
+
+    case COMBFILTER_CHROMA_ONLY:
+        AndDataByte(SAA7134_LUMA_CTRL, ~SAA7134_LUMA_CTRL_YCOMB);
+        OrDataByte(SAA7134_CHROMA_CTRL1, SAA7134_CHROMA_CTRL1_CCOMB);
+        break;
+
+    case COMBFILTER_FULL:
+        OrDataByte(SAA7134_LUMA_CTRL, SAA7134_LUMA_CTRL_YCOMB);
+        OrDataByte(SAA7134_CHROMA_CTRL1, SAA7134_CHROMA_CTRL1_CCOMB);
+        break;
+
+    default:
+        break;
     }
 }
 

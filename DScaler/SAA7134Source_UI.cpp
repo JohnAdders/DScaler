@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.20 2002-11-10 05:11:23 atnak Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.21 2002-11-10 09:30:56 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2002/11/10 05:11:23  atnak
+// Added adjustable audio input level
+//
 // Revision 1.19  2002/10/31 05:02:54  atnak
 // Settings cleanup and audio tweaks
 //
@@ -1211,7 +1214,7 @@ void CSAA7134Source::SetMenu(HMENU hMenu)
 
     CheckMenuItemBool(m_hMenu, IDM_SAA7134_WHITEPEAK, m_WhitePeak->GetValue());
     CheckMenuItemBool(m_hMenu, IDM_SAA7134_COLORPEAK, m_ColorPeak->GetValue());
-    CheckMenuItemBool(m_hMenu, IDM_SAA7134_COMBFILTER, m_AdaptiveCombFilter->GetValue());
+    CheckMenuItemBool(m_hMenu, IDM_SAA7134_COMBFILTER, m_AdaptiveCombFilter->GetValue() != COMBFILTER_OFF);
 
     CheckMenuItemBool(m_hMenu, IDM_SAVE_BY_FORMAT, m_bSavePerFormat->GetValue());
     CheckMenuItemBool(m_hMenu, IDM_SAVE_BY_INPUT, m_bSavePerInput->GetValue());
@@ -1359,7 +1362,24 @@ BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             break;
 
         case IDM_SAA7134_COMBFILTER:
-            m_AdaptiveCombFilter->SetValue(!m_AdaptiveCombFilter->GetValue());
+            if (m_AdaptiveCombFilter->GetValue() != COMBFILTER_OFF)
+            {
+                m_AdaptiveCombFilter->SetValue(COMBFILTER_OFF);
+                ShowText(hWnd, "Adaptive Comb Filter OFF");
+            }
+            else
+            {
+                if (IsSECAMVideoFormat((eVideoFormat)m_VideoFormat->GetValue()))
+                {
+                    m_AdaptiveCombFilter->SetValue(COMBFILTER_CHROMA_ONLY);
+                    ShowText(hWnd, "ACF ON - SECAM Mode");
+                }
+                else
+                {
+                    m_AdaptiveCombFilter->SetValue(COMBFILTER_FULL);
+                    ShowText(hWnd, "Adaptive Comb Filter ON");
+                }
+            }
             break;
 
         case IDM_AUDIO_0:
@@ -1703,12 +1723,12 @@ void CSAA7134Source::ChangeDefaultsForVideoFormat()
 {
     eVideoFormat VideoFormat = (eVideoFormat)m_VideoFormat->GetValue();
 
-    if(IsPALVideoFormat(VideoFormat))
+    if (IsPALVideoFormat(VideoFormat))
     {
         m_Saturation->ChangeDefault(SAA7134_DEFAULT_PAL_SATURATION);
         m_Overscan->ChangeDefault(SAA7134_DEFAULT_PAL_OVERSCAN);
     }
-    else if(IsNTSCVideoFormat(VideoFormat))
+    else if (IsNTSCVideoFormat(VideoFormat))
     {
         m_Saturation->ChangeDefault(SAA7134_DEFAULT_NTSC_SATURATION);
         m_Overscan->ChangeDefault(SAA7134_DEFAULT_NTSC_OVERSCAN);
@@ -1717,6 +1737,15 @@ void CSAA7134Source::ChangeDefaultsForVideoFormat()
     {
         m_Saturation->ChangeDefault(SAA7134_DEFAULT_SATURATION);
         m_Overscan->ChangeDefault(SAA7134_DEFAULT_OVERSCAN);
+    }
+
+    if (IsSECAMVideoFormat(VideoFormat))
+    {
+        m_AdaptiveCombFilter->ChangeDefault(COMBFILTER_CHROMA_ONLY);
+    }
+    else
+    {
+        m_AdaptiveCombFilter->ChangeDefault(COMBFILTER_FULL);
     }
 
     eAudioStandard AudioStandard = TVFormat2AudioStandard(VideoFormat);
@@ -1840,6 +1869,7 @@ CTreeSettingsPage* CSAA7134Source::GetTreeSettingsPage()
     vSettingsList.push_back(m_VBIUpscaleDivisor);
     vSettingsList.push_back(m_VBIDebugOverlay);
     vSettingsList.push_back(m_AutomaticGainControl);
+    vSettingsList.push_back(m_AdaptiveCombFilter);
     vSettingsList.push_back(m_GainControlLevel);
     vSettingsList.push_back(m_VideoMirror);
     vSettingsList.push_back(m_CustomPixelWidth);

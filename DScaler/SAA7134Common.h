@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Common.h,v 1.9 2002-11-10 05:11:24 atnak Exp $
+// $Id: SAA7134Common.h,v 1.10 2002-11-10 09:30:57 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/11/10 05:11:24  atnak
+// Added adjustable audio input level
+//
 // Revision 1.8  2002/11/07 18:54:21  atnak
 // Redid getting next field -- fixes some issues
 //
@@ -159,6 +162,13 @@ protected:
         VSYNCRECOVERY_FAST_TRACKING,
         VSYNCRECOVERY_FREE_RUNNING,
         VSYNCRECOVERY_IMMEDIATE_MODE,
+    };
+
+    enum eCombFilter
+    {
+        COMBFILTER_OFF = 0,
+        COMBFILTER_CHROMA_ONLY,
+        COMBFILTER_FULL,
     };
 
     enum eAudioInputSource
@@ -352,6 +362,8 @@ protected:
 
     static const char*              m_AutomaticVolumeSzList[];
     static const char*              m_LineVoltageSzList[];
+
+    static const char*              m_CombFilterSzList[];
 
     // Video standards (TV Formats) table, uses eVideoFormat
     static TVideoStandardDefinition m_VideoStandards[];

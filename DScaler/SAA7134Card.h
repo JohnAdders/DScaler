@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.25 2002-11-10 05:11:24 atnak Exp $
+// $Id: SAA7134Card.h,v 1.26 2002-11-10 09:30:57 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2002/11/10 05:11:24  atnak
+// Added adjustable audio input level
+//
 // Revision 1.24  2002/11/08 06:15:34  atnak
 // Added state saving
 //
@@ -283,7 +286,7 @@ public:
     void SetColorPeak(BOOL ColorPeak);
     BOOL GetColorPeak();
 
-    void SetCombFilter(BOOL bEnable);
+    void SetCombFilter(eCombFilter CombFilter);
     void SetVideoMirror(BOOL bMirror);
 
     void SetAutomaticGainControl(BOOL bAGC);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.44 2002-11-10 05:11:23 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.45 2002-11-10 09:30:57 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.44  2002/11/10 05:11:23  atnak
+// Added adjustable audio input level
+//
 // Revision 1.43  2002/11/08 12:16:12  atnak
 // Fixed settings not being set at startup
 //
@@ -330,7 +333,7 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
     m_ColorPeak = new CColorPeakSetting(this, "Color Peak", TRUE, IniSection);
     m_Settings.push_back(m_ColorPeak);
 
-    m_AdaptiveCombFilter = new CAdaptiveCombFilterSetting(this, "Adaptive Comb Filter", TRUE, IniSection);
+    m_AdaptiveCombFilter = new CAdaptiveCombFilterSetting(this, "Adaptive Comb Filter", COMBFILTER_FULL, COMBFILTER_FULL, IniSection, m_CombFilterSzList);
     m_Settings.push_back(m_AdaptiveCombFilter);
 
     m_HDelay = new CHDelaySetting(this, "Horizontal Delay", 0, 0, 20, IniSection);
@@ -466,7 +469,6 @@ void CSAA7134Source::SetupSettings()
         { m_HPLLMode,               PER_VIDEOINPUT | PER_CHANNEL },
         { m_WhitePeak,              PER_VIDEOINPUT | PER_CHANNEL },
         { m_ColorPeak,              PER_VIDEOINPUT | PER_CHANNEL },
-        { m_AdaptiveCombFilter,     PER_VIDEOINPUT | PER_CHANNEL },
         { m_HDelay,                 PER_VIDEOINPUT | PER_CHANNEL },
         { m_VDelay,                 PER_VIDEOINPUT | PER_CHANNEL },
 
@@ -477,6 +479,7 @@ void CSAA7134Source::SetupSettings()
         { m_Hue,                    PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
         { m_Overscan,               PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
         { m_PixelWidth,             PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
+        { m_AdaptiveCombFilter,     PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
         { m_AudioStandard,          PER_VIDEOINPUT | PER_VIDEOFORMAT | PER_CHANNEL },
 
         { m_AudioSource,            SETUP_CHANGE_AUDIOINPUT | PER_VIDEOINPUT },
@@ -549,7 +552,6 @@ void CSAA7134Source::SetupVideoSource()
 
     m_pSAA7134Card->SetWhitePeak(m_WhitePeak->GetValue());
     m_pSAA7134Card->SetColorPeak(m_ColorPeak->GetValue());
-    m_pSAA7134Card->SetCombFilter(m_AdaptiveCombFilter->GetValue());
 
     SetupAudioSource();
     SetupVideoStandard();
@@ -576,6 +578,7 @@ void CSAA7134Source::SetupVideoStandard()
     m_pSAA7134Card->SetContrast(m_Contrast->GetValue());
     m_pSAA7134Card->SetSaturation(m_Saturation->GetValue());
     m_pSAA7134Card->SetHue(m_Hue->GetValue());
+    m_pSAA7134Card->SetCombFilter((eCombFilter)m_AdaptiveCombFilter->GetValue());
 
     SetOverscan();
     NotifySizeChange();
@@ -1552,7 +1555,7 @@ void CSAA7134Source::ColorPeakOnChange(long NewValue, long OldValue)
 
 void CSAA7134Source::AdaptiveCombFilterOnChange(long NewValue, long OldValue)
 {
-    m_pSAA7134Card->SetCombFilter(NewValue);
+    m_pSAA7134Card->SetCombFilter((eCombFilter)NewValue);
 }
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.h,v 1.26 2002-11-10 05:11:23 atnak Exp $
+// $Id: SAA7134Source.h,v 1.27 2002-11-10 09:30:57 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2002/11/10 05:11:23  atnak
+// Added adjustable audio input level
+//
 // Revision 1.25  2002/11/07 20:33:17  adcockj
 // Promoted ACPI functions so that state management works properly
 //
@@ -342,8 +345,8 @@ private:
     DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source,  AutoStereoSelect);
     DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source,  WhitePeak);
     DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source,  ColorPeak);
-    DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source,  AdaptiveCombFilter);
     DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source,  CustomAudioStandard);
+    DEFINE_LIST_CALLBACK_SETTING(CSAA7134Source,   AdaptiveCombFilter);
     DEFINE_LIST_CALLBACK_SETTING(CSAA7134Source,   AutomaticVolumeLevel);
     DEFINE_LIST_CALLBACK_SETTING(CSAA7134Source,   AudioLine1Voltage);
     DEFINE_LIST_CALLBACK_SETTING(CSAA7134Source,   AudioLine2Voltage);

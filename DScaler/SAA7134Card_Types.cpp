@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.32 2003-06-27 08:05:41 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.33 2003-07-31 05:01:38 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2003/06/27 08:05:41  atnak
+// Added AOPEN VA1000 Lite2
+//
 // Revision 1.31  2003/04/28 06:28:05  atnak
 // Added ASUS TV/FM
 //
@@ -829,23 +832,58 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         NULL,
         AOpenVA1000L2CardInputSelect,
     },
+    // SAA7134CARDID_ASK_ASVCV300_PCI (saa7130)
+    // Thanks "Tetsuya Takahashi" <tetsu_64k@zer...>
+    //  - may have Videoport
+    //  - may have Transport Stream
+    {
+        "ASK SELECT AS-VCV300/PCI",
+        2,
+        {
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                VIDEOINPUTSOURCE_PIN0,
+                AUDIOINPUTSOURCE_LINE1,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                VIDEOINPUTSOURCE_PIN1,
+                AUDIOINPUTSOURCE_LINE1,
+            },
+        },
+        TUNER_ABSENT,
+        AUDIOCRYSTAL_NONE,
+        NULL,
+        StandardSAA7134InputSelect,
+    },
 };
 
 
 const CSAA7134Card::TAutoDetectSAA7134 CSAA7134Card::m_AutoDetectSAA7134[] =
 {
+    // How to use RegSpy dump header information:
+    //
+    // Vendor ID:           0x1131  (drop this value)
+    // Device ID:           0xDDDD
+    // Subsystem ID:        0xSSSSVVVV
+    //
+    // { 0xDDDD, 0xVVVV, 0xSSSS, SAA7134CARDID_    },
+
     // DeviceId, Subsystem vendor Id, Subsystem Id, Card Id
-    { 0x7134, 0x1131, 0x0000, SAA7134CARDID_UNKNOWN      },
-    { 0x7130, 0x1131, 0x0000, SAA7134CARDID_UNKNOWN      },
-    { 0x7134, 0x1131, 0x2001, SAA7134CARDID_PROTEUSPRO   },
-    { 0x7134, 0x1131, 0x6752, SAA7134CARDID_EMPRESS      },
-    { 0x7134, 0x1131, 0x4E85, SAA7134CARDID_MONSTERTV    },
-    { 0x7134, 0x153B, 0x1142, SAA7134CARDID_CINERGY400   },
-    { 0x7130, 0x5168, 0x0138, SAA7134CARDID_FLYVIDEO2000 },
-    { 0x7133, 0x5168, 0x0138, SAA7134CARDID_PRIMETV7133  },
-    { 0x7134, 0x153b, 0x1143, SAA7134CARDID_CINERGY600   },
-    { 0x7134, 0x16be, 0x0003, SAA7134CARDID_MEDION7134   },
-    { 0x7134, 0x1043, 0x4842, SAA7134CARDID_ASUS_TVFM    },
+    { 0x7134, 0x1131, 0x0000, SAA7134CARDID_UNKNOWN             },
+    { 0x7130, 0x1131, 0x0000, SAA7134CARDID_UNKNOWN             },
+    { 0x7134, 0x1131, 0x2001, SAA7134CARDID_PROTEUSPRO          },
+    { 0x7134, 0x1131, 0x6752, SAA7134CARDID_EMPRESS             },
+    { 0x7134, 0x1131, 0x4E85, SAA7134CARDID_MONSTERTV           },
+    { 0x7134, 0x153B, 0x1142, SAA7134CARDID_CINERGY400          },
+    { 0x7130, 0x5168, 0x0138, SAA7134CARDID_FLYVIDEO2000        },
+    { 0x7133, 0x5168, 0x0138, SAA7134CARDID_PRIMETV7133         },
+    { 0x7134, 0x153b, 0x1143, SAA7134CARDID_CINERGY600          },
+    { 0x7134, 0x16be, 0x0003, SAA7134CARDID_MEDION7134          },
+    { 0x7134, 0x1043, 0x4842, SAA7134CARDID_ASUS_TVFM           },
+    { 0x7130, 0x1048, 0x226e, SAA7134CARDID_ASK_ASVCV300_PCI    },
 };
 
 

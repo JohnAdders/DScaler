@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.69 2003-02-22 16:48:59 tobbej Exp $
+// $Id: DSSource.cpp,v 1.70 2004-12-12 01:17:53 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.69  2003/02/22 16:48:59  tobbej
+// added some comments about requierments for OpenFile (to avoid crashing)
+//
 // Revision 1.68  2003/02/05 19:12:40  tobbej
 // added support for capture devices where audio can be rendered from directshow
 // modified audio setings dialog so audio rendering can be turned off (usefull for devices with both internal and external audio)
@@ -1691,12 +1694,24 @@ void CDSCaptureSource::CreateDefaultVideoFmt()
 	}res[]=
 	{
 		768,576,
+		720,576,
 		720,480,
+		720,288,
+		720,240,
+		704,576,
 		640,480,
 		640,360,
+		640,288,
+		640,240,
 		480,360,
+		352,288,
+		352,240,
 		320,240,
+		240,180,
+		240,176,
+		176,144,
 		160,120,
+		120,96,
 		88,72
 	};
 

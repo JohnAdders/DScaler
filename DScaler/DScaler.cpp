@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.126 2002-02-09 15:30:19 laurentg Exp $
+// $Id: DScaler.cpp,v 1.127 2002-02-10 21:38:04 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.126  2002/02/09 15:30:19  laurentg
+// Card calibration menus revisited.
+//
 // Revision 1.125  2002/02/09 13:08:41  laurentg
 // New menu items to access to UI for calibration and OSD settings
 //
@@ -436,7 +439,7 @@ HCURSOR hCursorDefault = NULL;
 HCURSOR hCursorHand = NULL;
 
 BOOL bShowCursor = TRUE;
-BOOL bAutoHideCursor = FALSE;
+BOOL bAutoHideCursor = TRUE;
 
 long MainWndWidth = 649;
 long MainWndHeight = 547;
@@ -3369,7 +3372,7 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
     },
     {
         "Auto Hide Cursor", ONOFF, 0, (long*)&bAutoHideCursor,
-        FALSE, 0, 1, 1, 1,
+        TRUE, 0, 1, 1, 1,
         NULL,
         "Show", "AutoHideCursor", NULL,
     },

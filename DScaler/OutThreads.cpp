@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.86 2002-09-29 10:14:14 adcockj Exp $
+// $Id: OutThreads.cpp,v 1.87 2002-09-29 13:53:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.86  2002/09/29 10:14:14  adcockj
+// Fixed problem with history in OutThreads
+//
 // Revision 1.85  2002/09/28 14:49:39  tobbej
 // fixed thread init/deinit for crashloging
 //
@@ -374,14 +377,21 @@ BOOL                bNoScreenUpdateDuringTuning = FALSE; //Don't update if set. 
     #define DDFLIP_DONOTWAIT 0
 #endif
 
+
+// Zero out all the picture hsitory
+// need to do this if we drop a frame
 void ClearPictureHistory(TDeinterlaceInfo* pInfo)
 {
     memset(pInfo->PictureHistory, 0, MAX_PICTURE_HISTORY * sizeof(TPicture*));
 }
 
-void ShiftPictureHistory(TDeinterlaceInfo* pInfo)
+// Shift the picture history up one
+// do this before adding a new picture at the index zero
+// the NumFieldsValid should be set to the number of different fields that
+// you hold in the source.  This must not be greater than MAX_PICTURE_HISTORY
+void ShiftPictureHistory(TDeinterlaceInfo* pInfo, int NumFieldsValid)
 {
-    memmove(&pInfo->PictureHistory[1], &pInfo->PictureHistory[0], sizeof(pInfo->PictureHistory) - sizeof(pInfo->PictureHistory[0]));
+    memmove(&pInfo->PictureHistory[1], &pInfo->PictureHistory[0], sizeof(pInfo->PictureHistory[0]) * (NumFieldsValid - 1));
     pInfo->PictureHistory[0] = NULL;
 }
 
@@ -703,10 +713,13 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                     ; // Do nothing
                 }
 
-                // Vertical flipping
+                // Vertical flipping support
+                // Here we change all the valid history so that the top line is the bottom one
+                // and the pitch is negative
+                // Note that we don't "own" these picture but we have them for the time being
+                // so make sure that we change them back after we use them
                 if (bDoVerticalFlip)
                 {
-                    // Use of a negative pitch + a pointer to the last line of the field
                     for(int i(0); i < MAX_PICTURE_HISTORY; ++i)
                     {
                         if(Info.PictureHistory[i] != NULL)
@@ -985,7 +998,12 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                     LOG(1, "Crash in output code");
                 }
             
-                // Vertical flipping
+                // Vertical flipping support
+                // change the pictures back to how they were before
+                // not that we use the bDoVerticalFlip
+                // at the top and here, so this variable cannot change 
+                // during the processing
+                // this is enforced by the RequestToggleFlip variable
                 if (bDoVerticalFlip)
                 {
                     // Use of a negative pitch + a pointer to the last line of the field

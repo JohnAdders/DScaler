@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.13 2002-09-29 10:14:15 adcockj Exp $
+// $Id: SAA7134Source.cpp,v 1.14 2002-09-29 13:53:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/09/29 10:14:15  adcockj
+// Fixed problem with history in OutThreads
+//
 // Revision 1.12  2002/09/28 13:33:04  kooiman
 // Added sender object to events and added setting flag to treesettingsgeneric.
 //
@@ -459,6 +462,7 @@ void CSAA7134Source::GiveNextField(TDeinterlaceInfo* pInfo, TPicture* picture)
 {
     if (pInfo->bMissedFrame)
     {
+        ClearPictureHistory(pInfo);
         picture->IsFirstInSeries = TRUE;
     }
     else
@@ -473,7 +477,8 @@ void CSAA7134Source::GiveNextField(TDeinterlaceInfo* pInfo, TPicture* picture)
         pInfo->CurrentFrame = (pInfo->CurrentFrame + 1) % 5;
     }
 
-    ShiftPictureHistory(pInfo);
+    // we only have 4 unique fields
+    ShiftPictureHistory(pInfo, 4);
     pInfo->PictureHistory[0] = picture;
 }
 
@@ -973,7 +978,9 @@ void CSAA7134Source::SetupCard()
         // then display the hardware setup dialog
         // \todo FIXME
         m_bSelectCardCancelButton = FALSE;
+        PreShowDialogOrMenu();
         DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_SELECTCARD), hWnd, (DLGPROC) SelectCardProc, (LPARAM)this);
+        PostShowDialogOrMenu();
         m_bSelectCardCancelButton = TRUE;
 
         bCardChanged = TRUE;

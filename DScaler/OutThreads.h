@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.h,v 1.16 2002-09-29 10:14:14 adcockj Exp $
+// $Id: OutThreads.h,v 1.17 2002-09-29 13:53:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -51,7 +51,7 @@ CTreeSettingsGeneric* OutThreads_GetTreeSettingsPage();
 void OutThreads_SetMenu(HMENU hMenu);
 
 void ClearPictureHistory(TDeinterlaceInfo* pInfo);
-void ShiftPictureHistory(TDeinterlaceInfo* pInfo);
+void ShiftPictureHistory(TDeinterlaceInfo* pInfo, int NumFieldsValid);
 
 void Start_Capture();
 void Stop_Capture();

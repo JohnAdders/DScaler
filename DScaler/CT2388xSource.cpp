@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource.cpp,v 1.9 2002-09-29 10:14:14 adcockj Exp $
+// $Id: CT2388xSource.cpp,v 1.10 2002-09-29 13:53:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/09/29 10:14:14  adcockj
+// Fixed problem with history in OutThreads
+//
 // Revision 1.8  2002/09/28 13:33:04  kooiman
 // Added sender object to events and added setting flag to treesettingsgeneric.
 //
@@ -407,11 +410,7 @@ void CCT2388xSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
         }
     }
 
-    if (!pInfo->bRunningLate)
-    {
-    }
-
-    ShiftPictureHistory(pInfo);
+    ShiftPictureHistory(pInfo, m_NumFields);
 
     if(m_IsVideoProgressive->GetValue())
     {
@@ -901,7 +900,9 @@ void CCT2388xSource::SetupCard()
 
         // then display the hardware setup dialog
         EnableCancelButton = 0;
+        PreShowDialogOrMenu();
         DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_SELECTCARD), hWnd, (DLGPROC) SelectCardProc, (LPARAM)this);
+        PostShowDialogOrMenu();
         EnableCancelButton = 1;
 
     }

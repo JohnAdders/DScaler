@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.78 2002-09-29 10:14:14 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.79 2002-09-29 13:53:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.78  2002/09/29 10:14:14  adcockj
+// Fixed problem with history in OutThreads
+//
 // Revision 1.77  2002/09/28 14:31:32  kooiman
 // Base class this pointer apparently not equal to this of main class. fixed comparison.
 //
@@ -853,7 +856,7 @@ void CBT848Source::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     {
     }
 
-    ShiftPictureHistory(pInfo);
+    ShiftPictureHistory(pInfo, 10);
     if(m_IsFieldOdd)
     {
         if(m_ReversePolarity->GetValue() == FALSE)
@@ -1398,7 +1401,9 @@ void CBT848Source::SetupCard()
 
         // then display the hardware setup dialog
         EnableCancelButton = 0;
+        PreShowDialogOrMenu();
         DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_SELECTCARD), hWnd, (DLGPROC) SelectCardProc, (LPARAM)this);
+        PostShowDialogOrMenu();
         EnableCancelButton = 1;
 
         if(m_TunerType->GetValue() != TUNER_ABSENT)

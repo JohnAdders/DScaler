@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DShowFileSource.cpp,v 1.1 2002-02-07 22:05:43 tobbej Exp $
+// $Id: DShowFileSource.cpp,v 1.2 2002-04-03 19:54:28 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/02/07 22:05:43  tobbej
+// new classes for file input
+// rearanged class inheritance a bit
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -38,6 +42,7 @@
 #include "dscaler.h"
 #include "DShowFileSource.h"
 #include "exception.h"
+#include "PinEnum.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -77,13 +82,52 @@ CDShowFileSource::~CDShowFileSource()
 void CDShowFileSource::connect(CComPtr<IBaseFilter> filter)
 {
 	HRESULT hr;
+	//the simple case, RenderStream is able to properly connect the filters
 	hr=m_pBuilder->RenderStream(NULL,NULL,m_pFileSource,NULL,filter);
 	if(FAILED(hr))
 	{
-		throw CDShowException("Cant connect filesource to renderer",hr);
+		//that didnt work, try to manualy connect the pins on the source filter
+		CDShowPinEnum outPins(m_pFileSource,PINDIR_OUTPUT);
+		CComPtr<IPin> outPin;
+		bool bSucceeded=false;
+		while(outPin=outPins.next(),bSucceeded==false && outPin!=NULL)
+		{
+			CDShowPinEnum inPins(filter,PINDIR_INPUT);
+			CComPtr<IPin> inPin;
+			while(inPin=inPins.next(),inPin!=NULL)
+			{
+				hr=m_pGraph->Connect(outPin,inPin);
+				if(SUCCEEDED(hr))
+				{
+					//now the video is connected properly
+
+					//render the other pins if any, it is not a big problem if it fails,
+					//just continue with the stream we already got
+					outPins.reset();
+					CComPtr<IPin> pin;
+					while(pin=outPins.next(),pin!=NULL)
+					{
+						CComPtr<IPin> dest;
+						hr=pin->ConnectedTo(&dest);
+						if(FAILED(hr))
+						{
+							m_pGraph->Render(pin);
+						}
+					}
+
+					bSucceeded=true;
+					break;
+				}
+			}
+		}
+		if(!bSucceeded)
+		{
+			throw CDShowException("Cant connect filesource to renderer",hr);
+		}
 	}
+	//try to render audio, if this fails then this file probably dont have any audio
 	hr=m_pBuilder->RenderStream(NULL,&MEDIATYPE_Audio,m_pFileSource,NULL,NULL);
-	//MEDIATYPE_Audio
+	
 	m_bIsConnected=true;
 }
 

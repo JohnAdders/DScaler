@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.54 2003-07-29 12:04:23 atnak Exp $
+// $Id: Settings.cpp,v 1.55 2003-09-14 08:45:30 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.54  2003/07/29 12:04:23  atnak
+// Minor changes
+//
 // Revision 1.53  2003/07/02 21:44:19  laurentg
 // TimeShift settings
 //
@@ -683,7 +686,7 @@ BOOL Setting_SetValue(SETTING* pSetting, long Value, int iForceOnChange)
     
     // If no action is needed, bail out early. This prevents the long delays when
     // pSetting->pfnOnChange() takes a while.
-	if (pSetting->Type == CHARSTRING)
+	if (pSetting->Type == CHARSTRING && *pSetting->pValue != NULL)
 	{
 		if (!strcmp((char *)(*pSetting->pValue), (char *)NewValue) && (iForceOnChange!=1))
 		{

@@ -1,5 +1,5 @@
 ;////////////////////////////////////////////////////////////////////////////
-;// $Id: dscaler.iss,v 1.21 2003-01-21 18:40:10 adcockj Exp $
+;// $Id: dscaler.iss,v 1.22 2003-02-04 17:23:09 adcockj Exp $
 ;/////////////////////////////////////////////////////////////////////////////
 ;// Copyright (c) 2002 Rob Muller.  All rights reserved.
 ;/////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 ;// CVS Log
 ;//
 ;// $Log: not supported by cvs2svn $
+;// Revision 1.21  2003/01/21 18:40:10  adcockj
+;// Prepare for release 4.1.5
+;//
 ;// Revision 1.20  2003/01/09 12:53:51  robmuller
 ;// Disable startup prompt. Upgrade logo killer and mirror filter.
 ;// Add "Components: main" to files that are always installed.
@@ -97,6 +100,7 @@ DefaultDirName={pf}\DScaler
 DefaultGroupName=DScaler
 AllowNoIcons=yes
 AlwaysCreateUninstallIcon=yes
+InfoBeforeFile=Warning.rtf
 LicenseFile=gpl.rtf
 AppMutex=DScaler
 ;required for installing the driver on NT platforms

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.cpp,v 1.14 2002-08-04 17:19:08 tobbej Exp $
+// $Id: TreeSettingsDlg.cpp,v 1.15 2002-08-07 09:55:24 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/08/04 17:19:08  tobbej
+// removed empty nodes in the tree
+//
 // Revision 1.13  2002/07/27 13:48:53  laurentg
 // Distinguish menu entries for filter settings, video modes settings and advanced settings
 //
@@ -82,6 +85,7 @@
 #include "OSD.h"
 #include "Calibration.h"
 #include "OutThreads.h"
+#include "SettingsPerChannel.h"
 #include "..\help\helpids.h"
 
 #include <afxpriv.h>	//WM_COMMANDHELP
@@ -521,6 +525,12 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
 	    pPage->SetHelpID(IDH_OVERLAY);
 	    pages.push_back(pPage);
 	    dlg.AddPage(pPage, Root);
+
+        pPage = SettingsPerChannel_GetTreeSettingsPage();
+	    pPage->SetHelpID(IDH_SETTINGSBYCHANNEL);
+	    pages.push_back(pPage);
+	    dlg.AddPage(pPage, Root);
+
 
         pPage = Debug_GetTreeSettingsPage();
 	    pPage->SetHelpID(IDH_LOGGING);

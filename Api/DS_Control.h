@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.118 2002-11-26 21:32:14 adcockj Exp $
+// $Id: DS_Control.h,v 1.119 2002-12-02 13:47:01 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.118  2002/11/26 21:32:14  adcockj
+// Made new strange bob method optional
+//
 // Revision 1.117  2002/11/12 15:22:44  adcockj
 // Made new flag settings have default setting
 // Added pixel width for CX2388x cards
@@ -1505,6 +1508,10 @@ typedef enum
     CX2388XTHIRDCHROMADEMOD,
     CX2388XPIXELWIDTH,
     CX2388XCUSTOMPIXELWIDTH,
+    CX2388XWHITECRUSHUP,
+    CX2388XWHITECRUSHDOWN,
+    CX2388XWHITECRUSHMAJSEL,
+    CX2388XWHITECRUSHPERFRAME,
     CX2388X_SETTING_LASTONE,
 } CX2388X_SETTING;
 

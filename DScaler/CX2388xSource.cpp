@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.14 2002-11-13 10:34:36 adcockj Exp $
+// $Id: CX2388xSource.cpp,v 1.15 2002-12-02 13:47:01 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/11/13 10:34:36  adcockj
+// Improved pixel width support
+//
 // Revision 1.13  2002/11/12 15:22:47  adcockj
 // Made new flag settings have default setting
 // Added pixel width for CX2388x cards
@@ -173,6 +176,14 @@ const char* DefaultOffOnSzList[] =
     { "Default"				},
     { "Force Off"           },
     { "Force On"			},
+};
+
+const char* WhiteCrushMajorityPointList[] =
+{
+    { "3/4"			},
+    { "1/2"         },
+    { "1/4"			},
+    { "Automatic"   },
 };
 
 void CX2388x_OnSetup(void *pThis, int Start)
@@ -394,6 +405,18 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
     m_CustomPixelWidth->SetStepValue(2);
     m_Settings.push_back(m_CustomPixelWidth);
 
+    m_WhiteCrushUp = new CWhiteCrushUpSetting(this, "White Crush Up", 15, 0, 63, IniSection, pCX2388xGroup, FlagsAll);
+    m_Settings.push_back(m_WhiteCrushUp);
+
+    m_WhiteCrushDown = new CWhiteCrushDownSetting(this, "White Crush Down", 63, 0, 63, IniSection, pCX2388xGroup, FlagsAll);
+    m_Settings.push_back(m_WhiteCrushDown);
+
+    m_WhiteCrushMajorityPoint = new CWhiteCrushMajorityPointSetting(this, "White Crush Majority Point", CCX2388xCard::MAJSEL_AUTOMATIC, CCX2388xCard::MAJSEL_AUTOMATIC, IniSection, WhiteCrushMajorityPointList, pCX2388xGroup, FlagsAll);
+    m_Settings.push_back(m_WhiteCrushMajorityPoint);
+
+    m_WhiteCrushPerFrame = new CWhiteCrushPerFrameSetting(this, "White Crush Per Frame", TRUE, IniSection, pCX2388xGroup, FlagsAll);
+    m_Settings.push_back(m_WhiteCrushPerFrame);
+
 #ifdef _DEBUG    
     if (CX2388X_SETTING_LASTONE != m_Settings.size())
     {
@@ -461,6 +484,10 @@ void CCX2388xSource::Reset()
         m_pCard->SetCombRange(m_CombRange->GetValue());
         m_pCard->SetSecondChromaDemod((CCX2388xCard::eFlagWithDefault)m_SecondChromaDemod->GetValue());
         m_pCard->SetThirdChromaDemod((CCX2388xCard::eFlagWithDefault)m_ThirdChromaDemod->GetValue());
+        m_pCard->SetWhiteCrushUp(m_WhiteCrushUp->GetValue());
+        m_pCard->SetWhiteCrushDown(m_WhiteCrushDown->GetValue());
+        m_pCard->SetWhiteCrushMajorityPoint((CCX2388xCard::eWhiteCrushMajSel)m_WhiteCrushMajorityPoint->GetValue());
+        m_pCard->SetWhiteCrushPerFrame(m_WhiteCrushPerFrame->GetValue());
    }
     NotifySizeChange();
 }
@@ -1326,6 +1353,26 @@ void CCX2388xSource::FastSubcarrierLockOnChange(long NewValue, long OldValue)
 void CCX2388xSource::WhiteCrushOnChange(long NewValue, long OldValue)
 {
     m_pCard->SetWhiteCrushEnable(NewValue);
+}
+
+void CCX2388xSource::WhiteCrushUpOnChange(long NewValue, long OldValue)
+{
+    m_pCard->SetWhiteCrushUp(NewValue);
+}
+
+void CCX2388xSource::WhiteCrushDownOnChange(long NewValue, long OldValue)
+{
+    m_pCard->SetWhiteCrushDown(NewValue);
+}
+
+void CCX2388xSource::WhiteCrushMajorityPointOnChange(long NewValue, long OldValue)
+{
+    m_pCard->SetWhiteCrushMajorityPoint((CCX2388xCard::eWhiteCrushMajSel)NewValue);
+}
+
+void CCX2388xSource::WhiteCrushPerFrameOnChange(long NewValue, long OldValue)
+{
+    m_pCard->SetWhiteCrushPerFrame(NewValue);
 }
 
 void CCX2388xSource::LowColorRemovalOnChange(long NewValue, long OldValue)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.h,v 1.11 2002-11-12 15:22:48 adcockj Exp $
+// $Id: CX2388xSource.h,v 1.12 2002-12-02 13:47:01 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -183,6 +183,10 @@ private:
 	DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, SecondChromaDemod);
 	DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, ThirdChromaDemod);
     DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, PixelWidth);
+    DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, WhiteCrushUp);
+    DEFINE_SLIDER_CALLBACK_SETTING(CCX2388xSource, WhiteCrushDown);
+	DEFINE_LIST_CALLBACK_SETTING(CCX2388xSource, WhiteCrushMajorityPoint);
+	DEFINE_YESNO_CALLBACK_SETTING(CCX2388xSource, WhiteCrushPerFrame);
 
 protected:
 };

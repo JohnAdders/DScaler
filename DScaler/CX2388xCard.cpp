@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.24 2002-11-28 18:07:37 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.25 2002-12-02 13:47:01 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2002/11/28 18:07:37  adcockj
+// Fixed overflowing registers
+//
 // Revision 1.23  2002/11/28 15:15:21  adcockj
 // Fixed pll dump
 //
@@ -427,6 +430,26 @@ void CCX2388xCard::SetWhiteCrushEnable(BOOL WhiteCrush)
     {
         AndDataDword(CX2388X_VIDEO_INPUT, ~(1 << 11));
     }
+}
+
+void CCX2388xCard::SetWhiteCrushUp(BYTE WhiteCrushUp)
+{
+    MaskDataDword(CX2388X_WHITE_CRUSH, WhiteCrushUp, 0x3F);
+}
+
+void CCX2388xCard::SetWhiteCrushDown(BYTE WhiteCrushDown)
+{
+    MaskDataDword(CX2388X_WHITE_CRUSH, WhiteCrushDown << 8, (0x3F << 8));
+}
+
+void CCX2388xCard::SetWhiteCrushMajorityPoint(eWhiteCrushMajSel WhiteCrushMajSel)
+{
+    MaskDataDword(CX2388X_WHITE_CRUSH, WhiteCrushMajSel << 6, (11 << 6));
+}
+
+void CCX2388xCard::SetWhiteCrushPerFrame(BOOL WhiteCrushPerFrame)
+{
+    MaskDataDword(CX2388X_WHITE_CRUSH, WhiteCrushPerFrame << 14, (1 << 14));
 }
 
 void CCX2388xCard::SetLowColorRemoval(BOOL LowColorRemoval)

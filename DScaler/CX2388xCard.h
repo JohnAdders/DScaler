@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.h,v 1.11 2002-11-15 17:10:50 adcockj Exp $
+// $Id: CX2388xCard.h,v 1.12 2002-12-02 13:47:01 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -54,6 +54,14 @@ public:
         FLAG_DEFAULT = 0,
         FLAG_OFF,
         FLAG_ON,
+    };
+    
+    enum eWhiteCrushMajSel
+    {
+        MAJSEL_3_OVER_4 = 0,
+        MAJSEL_1_OVER_2,
+        MAJSEL_1_OVER_4,
+        MAJSEL_AUTOMATIC
     };
 
 private:
@@ -163,6 +171,10 @@ public:
     void SetChromaAGC(BOOL ChromaAGC);
     void SetFastSubcarrierLock(BOOL LockFast);
     void SetWhiteCrushEnable(BOOL WhiteCrush);
+    void SetWhiteCrushUp(BYTE WhiteCrushUp);
+    void SetWhiteCrushDown(BYTE WhiteCrushDown);
+    void SetWhiteCrushMajorityPoint(eWhiteCrushMajSel WhiteCrushMajSel);
+    void SetWhiteCrushPerFrame(BOOL WhiteCrushPerFrame);
     void SetLowColorRemoval(BOOL LowColorRemoval);
     void SetCombFilter(eCombFilter CombFilter);
     void SetFullLumaRange(BOOL FullLumaRange);

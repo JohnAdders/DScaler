@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.226 2002-09-25 15:11:12 adcockj Exp $
+// $Id: DScaler.cpp,v 1.227 2002-09-26 06:11:57 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.226  2002/09/25 15:11:12  adcockj
+// Preliminary code for format specific support for settings per channel
+//
 // Revision 1.225  2002/09/24 17:21:07  tobbej
 // fixed osd flashing when changing volume
 //
@@ -722,6 +725,16 @@
 #include "TreeSettingsDlg.h"
 #include "SettingsPerChannel.h"
 #include "HardwareSettings.h"
+#include "Events.h"
+#include "WindowBorder.h"
+#include "ToolbarControl.h"
+
+#ifdef _DEBUG
+#undef THIS_FILE
+static char THIS_FILE[]=__FILE__;
+#define new DEBUG_NEW
+#endif
+
 
 HWND hWnd = NULL;
 HINSTANCE hResourceInst = NULL;
@@ -805,6 +818,18 @@ int SMPeriods[SMPeriodCount] =
     120
 };
 
+HRGN DScalerWindowRgn = NULL;
+
+char szSkinName[MAX_PATH+1];
+char szSkinDirectory[MAX_PATH+1];
+vector<string> vSkinNameList;
+
+CSettingsMaster *pSettingsMaster = NULL;
+CEventCollector *EventCollector = NULL;
+CWindowBorder *WindowBorder = NULL;
+CToolbarControl *ToolbarControl = NULL;
+
+
 BOOL IsFullScreen_OnChange(long NewValue);
 BOOL DisplayStatusBar_OnChange(long NewValue);
 BOOL ScreensaverOff_OnChange(long NewValue);
@@ -819,6 +844,10 @@ void SetKeyboardLock(BOOL Enabled);
 bool bScreensaverDisabled = false;
 HMENU CreateDScalerPopupMenu();
 BOOL IsStatusBarVisible();
+HRGN UpdateWindowRegion(HWND hWnd, BOOL bUpdateWindowState);
+void SetWindowBorder(HWND hWnd, LPCSTR szSkinName, BOOL bShow);
+void Skin_SetMenu(HMENU hMenu, BOOL bUpdateOnly);
+LPCSTR GetSkinDirectory();
 
 static const char *UIPriorityNames[3] = 
 {
@@ -1047,9 +1076,27 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
                      || !Setting_ReadFromIni(DScaler_GetSetting(FULLCPU))
                      || !Setting_ReadFromIni(DScaler_GetSetting(VIDEOCARD));
 
+    
+    // Event collector
+    if (EventCollector == NULL)
+    {
+        EventCollector = new CEventCollector();        
+    }
+        
+    // Master setting. Holds all settings in the future
+    //  For now, only settings that are registered here respond to events 
+    //  like source/input/format/channel changes
+    if (pSettingsMaster == NULL)
+    {
+        pSettingsMaster = new CSettingsMaster(EventCollector);
+    }
+    pSettingsMaster->IniFile(GetIniFileForSettings());
+    
     // load up ini file settings after parsing parms as 
     // the ini file location may have changed
     LoadSettingsFromIni();
+    //
+    
 
     // make sure dscaler.ini exists with many of the options in it.
     // even if dscaler crashes a new user is able to make changes to dscaler.ini.
@@ -1333,7 +1380,7 @@ void SetVTPage(int Page, int SubPage, bool SubPageValid, bool LockSubPage)
     VT_DoUpdate_Page(VTPage - 100, VTSubPage);
     VT_UpdateFlashTimerStatus();
     Cursor_VTUpdate(false, 0, 0);
-    InvalidateRect(hWnd, NULL, FALSE);
+    InvalidateDisplayAreaRect(hWnd, NULL, FALSE);
 }
 
 void SetVTShowHidden(bool Enabled)
@@ -1342,7 +1389,7 @@ void SetVTShowHidden(bool Enabled)
     {
         VTShowHidden = Enabled;
         VT_DoUpdate_Page(VTPage - 100, VTSubPage);
-        InvalidateRect(hWnd, NULL, FALSE);
+        InvalidateDisplayAreaRect(hWnd, NULL, FALSE);
     }
 }
 
@@ -1543,19 +1590,19 @@ BOOL GetDisplayAreaRect(HWND hWnd, LPRECT lpRect)
 
     if (result)
     {
-       /* if ((WindowBorder!=NULL) && WindowBorder->Visible())
+        if (IsStatusBarVisible())
+        {
+            lpRect->bottom -= StatusBar_Height();
+        }
+
+        if ((WindowBorder!=NULL) && WindowBorder->Visible())
         {
             WindowBorder->AdjustArea(lpRect,1);
         }
 
-        if ((Toolbar1!=NULL) && Toolbar1->Visible())
+        if (ToolbarControl!=NULL)
         {
-            Toolbar1->AdjustArea(lpRect,1);
-        }
-    */
-        if (IsStatusBarVisible())
-        {
-            lpRect->bottom -= StatusBar_Height();
+            ToolbarControl->AdjustArea(lpRect, 1);        
         }
     }
     return result;
@@ -1563,15 +1610,15 @@ BOOL GetDisplayAreaRect(HWND hWnd, LPRECT lpRect)
 
 void AddDisplayAreaRect(HWND hWnd, LPRECT lpRect)
 {
-    /*if ((WindowBorder!=NULL) && WindowBorder->Visible())
-    { 
-       WindowBorder->AdjustArea(lpRect,0);
+    if (ToolbarControl!=NULL)
+    {
+        ToolbarControl->AdjustArea(lpRect, 0);    
     }
 
-    if ((Toolbar1!=NULL) && Toolbar1->Visible())
-    {
-        Toolbar1->AdjustArea(lpRect,0);
-    }*/
+    if ((WindowBorder!=NULL) && WindowBorder->Visible())
+    { 
+       WindowBorder->AdjustArea(lpRect,0);
+    }    
     
     if (IsStatusBarVisible())
     {
@@ -1593,6 +1640,257 @@ void InvalidateDisplayAreaRect(HWND hWnd, LPRECT lpRect, BOOL bErase)
     }
 }
 
+BOOL BorderGetClientRect(HWND hWnd, LPRECT lpRect)
+{
+    BOOL result = GetClientRect(hWnd, lpRect);
+    if (IsStatusBarVisible())
+    {
+       lpRect->bottom -= StatusBar_Height();
+    }
+    return result;
+}
+
+LRESULT BorderButtonProc(string sID, void *pThis, HWND hWndParent, UINT MouseFlags, HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    if (sID=="BUTTON_CLOSE")
+    {
+        switch(message)
+        {
+          case WM_LBUTTONUP:
+              {
+                  SendMessage(hWndParent,WM_CLOSE,0,0);                  
+              }
+              return TRUE;              
+        }
+    } 
+    else if (sID=="BUTTON_MINIMIZE")
+    {
+        switch(message)
+        {
+          case WM_LBUTTONUP:
+              {
+                  ShowWindow(hWndParent,SW_MINIMIZE);
+              }
+              return TRUE;              
+        }
+    } 
+    else if (sID=="BUTTON_MAXIMIZE")
+    {
+        switch(message)
+        {
+          case WM_LBUTTONUP:
+              {
+                  SendMessage(hWnd, WM_COMMAND, IDM_FULL_SCREEN, 0);                  
+              }
+              return TRUE;              
+        }
+    } 
+    else if (sID=="BUTTON_SIZE")
+    {
+        switch(message)
+        {
+          case WM_NCHITTEST:
+              {
+                  if (MouseFlags & MK_LBUTTON)
+                  {
+                      return ::DefWindowProc(hWndParent, WM_NCLBUTTONDOWN, HTBOTTOMRIGHT, lParam);                                            
+                  }
+              }
+              break;
+          case WM_SETCURSOR:
+            static HCURSOR hResizeCursor = NULL;
+            if (hResizeCursor == NULL)
+            {
+                hResizeCursor = LoadCursor(NULL,IDC_SIZENWSE);
+            }
+            if (hResizeCursor != NULL)
+            {
+                SetCursor(hResizeCursor);
+            }
+            return TRUE;
+        }
+    }
+    else if (sID=="BUTTON_SIDEBAR")
+    {
+        switch(message)
+        {
+          case WM_LBUTTONUP:
+              {                  
+              }
+              return TRUE;              
+        }
+    }
+    return FALSE;
+}
+
+LPCSTR GetSkinDirectory()
+{
+    if (szSkinDirectory[0] != 0)
+    {
+        return szSkinDirectory;
+    }
+
+    char szPath[MAX_PATH+1];
+    char *s = NULL;
+    int len = GetFullPathName(GetIniFileForSettings(), MAX_PATH, szPath, &s);
+    if ((len > 0) && (s!=NULL))
+    {
+        *s = 0;            
+    }
+    else
+    {
+        GetCurrentDirectory(MAX_PATH, szPath);
+        strcat(szPath,"\\");
+    }
+    strcpy(szSkinDirectory,szPath);        
+    strcat(szSkinDirectory,"Skins\\");    
+
+    return szSkinDirectory;
+}
+
+void SetWindowBorder(HWND hWnd, LPCSTR szSkinName, BOOL bShow)
+{
+    if (WindowBorder==NULL) 
+    {                
+        WindowBorder = new CWindowBorder(hWnd, hDScalerInst, BorderGetClientRect);
+
+        //Test border (white)
+        //WindowBorder->SolidBorder(10,10,10,10, 0xFFFFFF);
+
+        WindowBorder->RegisterButton("BUTTON_CLOSE",BITMAPASBUTTON_PUSH,"ButtonClose","ButtonCloseMouseOver","ButtonCloseClick", BorderButtonProc);
+        WindowBorder->RegisterButton("BUTTON_SIZE",BITMAPASBUTTON_PUSH,"ButtonSize","ButtonSizeMouseOver","ButtonSizeClick", BorderButtonProc);
+        WindowBorder->RegisterButton("BUTTON_MINIMIZE",BITMAPASBUTTON_PUSH,"ButtonMinimize","ButtonMinimizeMouseOver","ButtonMinimizeClick", BorderButtonProc);
+        WindowBorder->RegisterButton("BUTTON_MAXIMIZE",BITMAPASBUTTON_PUSH,"ButtonMaximize","ButtonMaximizeMouseOver","ButtonMaximizeClick", BorderButtonProc);
+        //WindowBorder->RegisterButton("BUTTON_SIDEBAR",BITMAPASBUTTON_PUSH,"ButtonSideBar","ButtonSideBarMouseOver","ButtonSideBarClick", BorderButtonProc);
+        
+    }
+
+    if ((szSkinName != NULL) && (szSkinName[0] == 0))
+    {
+        WindowBorder->ClearSkin();
+    }
+
+    if ((szSkinName != NULL) && (szSkinName[0] != 0))
+    {
+        char szSkinIniFile[MAX_PATH*2];
+        strcpy(szSkinIniFile,GetSkinDirectory());
+        strcat(szSkinIniFile,szSkinName);
+        strcat(szSkinIniFile,"\\skin.ini");
+
+        ///\todo check if the ini file exists
+        
+        vector<int>Results;        
+        WindowBorder->LoadSkin(szSkinIniFile,"Border",&Results);
+
+        ///\todo Process errors    
+    }
+    
+    if (bShow && ((szSkinName == NULL) || (szSkinName[0]!=0)))
+    {
+        WindowBorder->Show();                        
+    }
+    else
+    {
+        WindowBorder->Hide();
+    }
+}
+
+void Skin_SetMenu(HMENU hMenu, BOOL bUpdateOnly)
+{
+    if (!bUpdateOnly)
+    {                
+        vSkinNameList.clear();
+
+        //Find sub directories with skin.ini files
+        WIN32_FIND_DATA FindFileData;
+        HANDLE hFind;                
+        char szSearch[MAX_PATH+10];
+
+        strcpy(szSearch,GetSkinDirectory());        
+        strcat(szSearch,"*.*");
+        hFind = FindFirstFile(szSearch, &FindFileData);
+        if (hFind != INVALID_HANDLE_VALUE) 
+        {
+            do           
+            {
+                if ((FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+                    && strcmp(FindFileData.cFileName,".") && strcmp(FindFileData.cFileName,"..") )
+                {
+                    char szSearchFile[MAX_PATH];
+                    WIN32_FIND_DATA FindFileData2;
+                    HANDLE hFind2;
+
+                    strcpy(szSearchFile,GetSkinDirectory());
+                    strcat(szSearchFile,FindFileData.cFileName);
+                    strcat(szSearchFile,"\\skin.ini");
+                    if ((hFind2=FindFirstFile(szSearchFile, &FindFileData2)) != INVALID_HANDLE_VALUE)
+                    {
+                        FindClose(hFind2);
+                        vSkinNameList.push_back(FindFileData.cFileName);
+                    }
+                }
+            } while (FindNextFile(hFind, &FindFileData));
+            FindClose(hFind);       
+        }        
+
+        //Make menu
+
+        // Find submenu
+        char string[256];
+        string[0] = '\0';
+        GetMenuString(hMenu, 2, string, sizeof(string), MF_BYPOSITION);
+        int reduc1 = !strcmp(string, "&Channels") ? 0 : 1;        
+        HMENU hViewMenu = GetSubMenuWithName(hMenu, 3-reduc1, "&View");        
+        HMENU hSkinMenu = NULL;
+        for (int i = 0; i < GetMenuItemCount(hViewMenu); i++)
+        {
+            if (GetMenuItemID(GetSubMenu(hViewMenu, i), 0) == IDM_SKIN_NONE)
+            {
+                hSkinMenu = GetSubMenu(hViewMenu, i);
+                break;
+            }
+        }
+
+        if (hSkinMenu != NULL)
+        {
+            int num = GetMenuItemCount(hSkinMenu);
+			int i;
+            for (i = 2; i < num; i++)
+            {
+                DeleteMenu(hSkinMenu, 2, MF_BYPOSITION);
+            }
+            
+            MENUITEMINFO MenuItemInfo;
+            memset(&MenuItemInfo, 0, sizeof(MenuItemInfo));            
+            for (i = 0; i < vSkinNameList.size(); i++)
+            {
+                MenuItemInfo.cbSize = sizeof (MenuItemInfo);
+                MenuItemInfo.fMask = MIIM_TYPE | MIIM_ID;
+                MenuItemInfo.fType = MFT_STRING;
+                MenuItemInfo.cch = sizeof(vSkinNameList[i].c_str());
+                MenuItemInfo.dwTypeData = (LPSTR)vSkinNameList[i].c_str();
+                MenuItemInfo.wID = IDM_SKIN_FIRST + i;
+                InsertMenuItem(hSkinMenu, i+2, TRUE, &MenuItemInfo);
+            }
+        }
+    }
+
+    CheckMenuItemBool(hMenu, IDM_SKIN_NONE, ((vSkinNameList.size()==0) || (szSkinName[0] == 0)));
+        
+    int Found = 0;
+    for (int i = 0; i < vSkinNameList.size(); i++)
+    {
+        if ((Found == 0) && (vSkinNameList[i] == szSkinName))
+        {
+            Found = 1;
+        }
+        CheckMenuItemBool(hMenu, IDM_SKIN_FIRST+i, (Found==1));
+        if (Found==1) 
+        {
+            Found=2;
+        }
+    }    
+}
 
 ///**************************************************************************
 //
@@ -1742,7 +2040,16 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 ShowText(hWnd,"UNMUTE");
             }
             break;
-
+	 case IDC_TOOLBAR_VOLUME_MUTE:
+            {
+                BOOL bMute = lParam;
+            
+                Setting_SetValue(Audio_GetSetting(SYSTEMINMUTE), bMute);
+                
+                ShowText(hWnd,bMute ? "MUTE" : "UNMUTE");
+            }
+            break;
+            
         case IDM_VOLUMEPLUS:
             if (Setting_GetValue(Audio_GetSetting(SYSTEMINMUTE)) == TRUE)
             {
@@ -1800,7 +2107,36 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 }
             }
             break;
-
+	case IDC_TOOLBAR_VOLUME_SLIDER:
+            if (Setting_GetValue(Audio_GetSetting(SYSTEMINMUTE)) == TRUE)
+            {
+                SendMessage(hWnd, WM_COMMAND, IDM_MUTE, 0);
+            }
+            if (bUseMixer == FALSE)
+            {
+                ISetting* pSetting = Providers_GetCurrentSource()->GetVolume();
+                if(pSetting != NULL)
+                {
+                    pSetting->SetValue(lParam);
+                    //sprintf(Text, "BT-Volume %d", pSetting->GetValue() / 10);
+                }
+                else
+                {
+                    strcpy(Text, "Volume not supported");
+                    ShowText(hWnd, Text);
+                }
+            }
+            else
+            {
+                extern void Mixer_SetVolume(long volume);
+            
+                Mixer_SetVolume(lParam/10);
+                sprintf(Text, "Mixer-Volume %d", Mixer_GetVolume());
+                ShowText(hWnd, Text);
+            }
+            
+                    
+            break;
         case IDM_AUTO_FORMAT:
             Setting_SetValue(Timing_GetSetting(AUTOFORMATDETECT), 
                 !Setting_GetValue(Timing_GetSetting(AUTOFORMATDETECT)));
@@ -1901,7 +2237,13 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 Channel_Previous();
             }
             break;
-
+	case IDC_TOOLBAR_CHANNELS_LIST:
+            if (Providers_GetCurrentSource()->IsInTunerMode() && VTState == VT_OFF)
+            {
+                Channel_Change(lParam);
+            }
+            break;
+            
         case IDM_PATTERN_SELECT:
             pCalibration->SelectTestPattern(lParam);
             break;
@@ -1938,7 +2280,8 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
         case IDM_TOGGLE_MENU:
             bShowMenu = !bShowMenu;
-            WorkoutOverlaySize(TRUE);
+            UpdateWindowState();
+            //WorkoutOverlaySize(TRUE);
             break;
 
         case IDM_SLEEPMODE:
@@ -2282,12 +2625,12 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
             WorkoutOverlaySize(TRUE);
 
-            InvalidateRect(hWnd,NULL,FALSE);
+            InvalidateDisplayAreaRect(hWnd,NULL,FALSE);
             break;
 
         case IDM_VT_RESET:
             VT_ChannelChange();
-            InvalidateRect(hWnd, NULL, FALSE);
+            InvalidateDisplayAreaRect(hWnd, NULL, FALSE);
             break;
 
         case IDM_VIDEOSETTINGS:
@@ -2316,7 +2659,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_VT_SEARCHHIGHLIGHT:
             Setting_SetValue(VBI_GetSetting(SEARCHHIGHLIGHT), 
                 !Setting_GetValue(VBI_GetSetting(SEARCHHIGHLIGHT)));
-            InvalidateRect(hWnd, NULL, FALSE);
+            InvalidateDisplayAreaRect(hWnd, NULL, FALSE);
             break;
 
         case IDM_CAPTURE_PAUSE:
@@ -2347,7 +2690,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         
         case IDM_VT_ANTIALIAS:
             VTAntiAlias = !VTAntiAlias;
-            InvalidateRect(hWnd, NULL, FALSE);
+            InvalidateDisplayAreaRect(hWnd, NULL, FALSE);
             break;
 
         case IDM_KEYBOARDLOCK:
@@ -2406,62 +2749,62 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
         case IDM_VT_UK:
             VT_SetCodePage(VT_UK_CODE_PAGE);
-            InvalidateRect(hWnd, NULL, TRUE);
+            InvalidateDisplayAreaRect(hWnd, NULL, TRUE);
             break;
 
         case IDM_VT_FRENCH:
             VT_SetCodePage(VT_FRENCH_CODE_PAGE);
-            InvalidateRect(hWnd, NULL, TRUE);            
+            InvalidateDisplayAreaRect(hWnd, NULL, TRUE);            
             break;
 
         case IDM_VT_CZECH:
             VT_SetCodePage(VT_CZECH_CODE_PAGE);
-            InvalidateRect(hWnd, NULL, TRUE);            
+            InvalidateDisplayAreaRect(hWnd, NULL, TRUE);            
             break;
 
         case IDM_VT_GREEK:
             VT_SetCodePage(VT_GREEK_CODE_PAGE);
-            InvalidateRect(hWnd, NULL, TRUE);
+            InvalidateDisplayAreaRect(hWnd, NULL, TRUE);
             break;
 
         case IDM_VT_RUSSIAN:
             VT_SetCodePage(VT_RUSSIAN_CODE_PAGE);
-            InvalidateRect(hWnd, NULL, TRUE);
+            InvalidateDisplayAreaRect(hWnd, NULL, TRUE);
             break;
 
         case IDM_VT_GERMAN:
             VT_SetCodePage(VT_GERMAN_CODE_PAGE);
-            InvalidateRect(hWnd, NULL, TRUE);
+            InvalidateDisplayAreaRect(hWnd, NULL, TRUE);
             break;
         
         case IDM_VT_HUNGARIAN:
             VT_SetCodePage(VT_HUNGARIAN_CODE_PAGE);
-            InvalidateRect(hWnd, NULL, TRUE);            
+            InvalidateDisplayAreaRect(hWnd, NULL, TRUE);            
             break;
 
         case IDM_VT_HEBREW:
             VT_SetCodePage(VT_HEBREW_CODE_PAGE);
-            InvalidateRect(hWnd, NULL, TRUE);           
+            InvalidateDisplayAreaRect(hWnd, NULL, TRUE);           
             break;
 
         case IDM_VT_SWEDISH:
             VT_SetCodePage(VT_SWEDISH_CODE_PAGE);
-            InvalidateRect(hWnd, NULL, TRUE);
+            InvalidateDisplayAreaRect(hWnd, NULL, TRUE);
             break;
 
         case IDM_VT_ITALIAN:
             VT_SetCodePage(VT_ITALIAN_CODE_PAGE);
-            InvalidateRect(hWnd, NULL, TRUE);
+            InvalidateDisplayAreaRect(hWnd, NULL, TRUE);
             break;
 
         case IDM_VT_SPANISH:
             VT_SetCodePage(VT_SPANISH_CODE_PAGE);
-            InvalidateRect(hWnd, NULL, TRUE);
+            InvalidateDisplayAreaRect(hWnd, NULL, TRUE);
             break;
 
         case IDM_VT_POLISH:
             VT_SetCodePage(VT_POLISH_CODE_PAGE);
-            InvalidateRect(hWnd, NULL, TRUE);
+            InvalidateDisplayAreaRect(hWnd, NULL, TRUE);
             break;
 
         case IDM_USECHROMA:
@@ -2624,11 +2967,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 RECT winRect;
                 RECT DestRect;
                 PAINTSTRUCT sPaint;
-                GetClientRect(hWnd, &winRect);
-                if(bDisplayStatusBar == TRUE)
-                {
-                    winRect.bottom -= StatusBar_Height();
-                }
+                GetDisplayAreaRect(hWnd, &winRect);                
                 InvalidateRect(hWnd, &winRect, FALSE);
                 BeginPaint(hWnd, &sPaint);
                 PaintColorkey(hWnd, TRUE, sPaint.hdc, &winRect);
@@ -2667,11 +3006,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             {
                 RECT winRect;
                 PAINTSTRUCT sPaint;
-                GetClientRect(hWnd, &winRect);
-                if(bDisplayStatusBar == TRUE)
-                {
-                    winRect.bottom -= StatusBar_Height();
-                }
+                GetDisplayAreaRect(hWnd, &winRect);
                 BeginPaint(hWnd, &sPaint);
                 if(VTState == VT_OFF)
                 {
@@ -2682,6 +3017,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 {
                     VT_Redraw(hWnd, sPaint.hdc, FALSE, FALSE);
                 }
+                if (!bIsFullScreen && (WindowBorder!=NULL) && WindowBorder->Visible())
+                {
+                    WindowBorder->Paint(hWnd, sPaint.hdc, NULL);
+                }  
                 EndPaint(hWnd, &sPaint);
                 ValidateRect(hWnd, &sPaint.rcPaint);
             }
@@ -2793,11 +3132,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             if(VTState != VT_OFF)
             {
                 VT_CreateTestPage();
-                InvalidateRect(hWnd, NULL, TRUE);
+                InvalidateDisplayAreaRect(hWnd, NULL, TRUE);
             }
             break;
 		
-		case IDM_SETTINGS_CHANGESETTINGS:
+	case IDM_SETTINGS_CHANGESETTINGS:
             bInMenuOrDialogBox = TRUE;
             Cursor_UpdateVisibility();
             CTreeSettingsDlg::ShowTreeSettingsDlg(ADVANCED_SETTINGS_MASK);
@@ -2845,10 +3184,44 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             Start_Capture();
             break;
 
+        case IDM_SKIN_NONE:
+            szSkinName[0] = 0;
+            SetWindowBorder(hWnd, szSkinName, FALSE);
+            if (ToolbarControl!=NULL)
+            {
+                ToolbarControl->Set(hWnd, szSkinName);
+            }
+            UpdateWindowState();
+            InvalidateRect(hWnd, NULL, FALSE);
+            break;
+        
         default:
+            bDone = FALSE;
+
+            if ((LOWORD(wParam)>=IDM_SKIN_FIRST) && (LOWORD(wParam)<=IDM_SKIN_LAST))
+            {
+                int n = LOWORD(wParam)-IDM_SKIN_FIRST;
+                if (n<vSkinNameList.size())
+                {
+                    strcpy(szSkinName, vSkinNameList[n].c_str());
+                }
+                Skin_SetMenu(hMenu, TRUE);
+                SetWindowBorder(hWnd, szSkinName, TRUE);  
+                if (ToolbarControl!=NULL)
+                {
+                    ToolbarControl->Set(hWnd, szSkinName);
+                }
+                UpdateWindowState();            
+                InvalidateRect(hWnd, NULL, FALSE);
+                bDone = TRUE;
+            }
+
             // Check whether menu ID is an aspect ratio related item
-            bDone = ProcessAspectRatioSelection(hWnd, LOWORD(wParam));
-            if(!bDone)
+            if (!bDone)
+            {
+                bDone = ProcessAspectRatioSelection(hWnd, LOWORD(wParam));
+            }
+	    if(!bDone)
             {
                 bDone = ProcessDeinterlaceSelection(hWnd, LOWORD(wParam));
             }
@@ -2868,6 +3241,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             {
                 bDone = pCalibration->ProcessSelection(hWnd, LOWORD(wParam));
             }
+            if(!bDone && ToolbarControl != NULL)
+            {
+                bDone = ToolbarControl->ProcessToolbar1Selection(hWnd, LOWORD(wParam));
+            }
             if(!bDone)
             {
                 bDone = Providers_HandleWindowsCommands(hWnd, wParam, lParam);
@@ -2880,6 +3257,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
         // Updates the menu checkbox settings
         SetMenuAnalog();
+        if (ToolbarControl!=NULL)
+        {
+            ToolbarControl->UpdateMenu(hMenu);
+        }
 
         if(bUseAutoSave)
         {
@@ -3305,8 +3686,13 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         }
         break;
 
-    case WM_SIZE:
+    case WM_SIZE:        
         StatusBar_Adjust(hWnd);
+        if (ToolbarControl!=NULL)
+        {
+            ToolbarControl->Adjust(hWnd, FALSE);
+        }
+        UpdateWindowRegion(hWnd, FALSE);
         if (bDoResize == TRUE)
         {
             switch(wParam)
@@ -3448,6 +3834,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 PaintColorkey(hWnd, TRUE, sPaint.hdc, &sPaint.rcPaint);
                 OSD_Redraw(hWnd, sPaint.hdc);
             }
+            if (!bIsFullScreen && (WindowBorder!=NULL) && WindowBorder->Visible())
+            {
+                WindowBorder->Paint(hWnd, sPaint.hdc, &sPaint.rcPaint);
+            } 
             EndPaint(hWnd, &sPaint);
         }
         return 0;
@@ -3658,6 +4048,23 @@ void MainWndOnInitBT(HWND hWnd)
             SendMessage(hWnd, WM_COMMAND, IDM_TOGGLE_MENU, 0);
         }
 
+        AddSplashTextLine("Load Toolbars");
+        if (ToolbarControl == NULL)
+        {
+            ToolbarControl = new CToolbarControl(WM_TOOLBARS_GETVALUE);
+            ToolbarControl->Set(hWnd, NULL);
+        }
+
+        if (szSkinName[0] != 0)
+        {
+            AddSplashTextLine("Load Skin");
+            
+            SetWindowBorder(hWnd, szSkinName, (szSkinName[0]!=0));  
+            if (ToolbarControl!=NULL)
+            {
+                ToolbarControl->Set(hWnd, szSkinName);  
+            }
+        }
 
         AddSplashTextLine("Setup Mixer");
         Mixer_Init();
@@ -3681,6 +4088,11 @@ void MainWndOnInitBT(HWND hWnd)
         pCalibration->UpdateMenu(hMenu);
         Channels_UpdateMenu(hMenu);
         SetMenuAnalog();
+        if (ToolbarControl!=NULL)
+        {
+            ToolbarControl->UpdateMenu(hMenu);
+        }
+        Skin_SetMenu(hMenu, FALSE);
 
         bDoResize = TRUE;
 
@@ -3865,14 +4277,34 @@ void MainWndOnDestroy()
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error SaveWindowPos");}
     
+     __try
+    {
+        LOG(1, "Try free skinned border");
+        if (WindowBorder != NULL)
+        {
+            delete WindowBorder;
+            WindowBorder = NULL;
+        }            
+    }
+    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error free skinned border");}
+
+    __try
+    {
+        LOG(1, "Try free toolbars");
+        if (ToolbarControl!=NULL)
+        {
+            delete ToolbarControl;
+            ToolbarControl = NULL;
+        }        
+    }
+    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error free toolbars");}    
     
     __try
     {
         // save settings
         // must be done before providers are unloaded
         LOG(1, "WriteSettingsToIni");
-        WriteSettingsToIni(TRUE);
-        
+        WriteSettingsToIni(TRUE);        
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error WriteSettingsToIni");}
 
@@ -3890,12 +4322,35 @@ void MainWndOnDestroy()
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error Providers_Unload");}
 
+    
+    __try
+    {
+        LOG(1, "Try free settings");
+        if (pSettingsMaster!=NULL)
+        {
+            delete pSettingsMaster;
+            pSettingsMaster = NULL;
+        }                
+    }
+    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error free settings");}
+    
+
     __try
     {
         LOG(1, "Try StatusBar_Destroy");
         StatusBar_Destroy();
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error StatusBar_Destroy");}
+
+    __try
+    {
+        LOG(1, "Try free EventCollector");
+        if (EventCollector!=NULL)
+        {
+            delete EventCollector;
+        }
+    }
+    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error free EventCollector");}
     
     __try
     {
@@ -4217,14 +4672,69 @@ void UpdateWindowState()
 		}
 		else
 		{
-			SetWindowLong(hWnd, GWL_STYLE, WS_THICKFRAME | WS_POPUP | WS_VISIBLE | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));
-			SetMenu(hWnd, NULL);
+			if ((WindowBorder!=NULL) && WindowBorder->Visible())
+            {
+                SetWindowLong(hWnd, GWL_STYLE, WS_POPUP | WS_VISIBLE | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));
+            }
+            else
+            {
+                SetWindowLong(hWnd, GWL_STYLE, WS_THICKFRAME | WS_POPUP | WS_VISIBLE | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));
+            }
+			SetMenu(hWnd, NULL);            
 		}
         StatusBar_ShowWindow(bDisplayStatusBar);
+        if (ToolbarControl!=NULL)
+        {
+            ToolbarControl->Adjust(hWnd, FALSE);
+        }
+        if (UpdateWindowRegion(hWnd, FALSE) == NULL)
+        {                
+           if (!bShowMenu)
+           {
+               SetWindowLong(hWnd, GWL_STYLE, WS_THICKFRAME | WS_POPUP | WS_VISIBLE | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));
+           }
+        }
         SetWindowPos(hWnd,bAlwaysOnTop?HWND_TOPMOST:HWND_NOTOPMOST,
                     0,0,0,0,
-                    SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW | SWP_NOACTIVATE);
+                    SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW | SWP_NOACTIVATE);        
     }
+}
+
+HRGN UpdateWindowRegion(HWND hWnd, BOOL bUpdateWindowState)
+{
+    if (!bIsFullScreen && (WindowBorder!=NULL) && WindowBorder->Visible() && !bShowMenu)
+    {   
+        RECT rcExtra;
+        if (IsStatusBarVisible())
+        {
+            ::SetRect(&rcExtra,0,0,0, StatusBar_Height());
+        }
+        else
+        {
+            ::SetRect(&rcExtra,0,0,0,0);
+        }   
+        HRGN hRgn = WindowBorder->MakeRegion(&rcExtra);
+        if (hRgn != NULL)
+        {
+            if (bUpdateWindowState)
+            {
+                SetWindowLong(hWnd, GWL_STYLE, WS_POPUP | WS_VISIBLE | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));
+            }
+            LOG(2,"DScaler: Set window region (0x%08x)",hRgn);
+            SetWindowRgn(hWnd,hRgn,TRUE);            
+            DScalerWindowRgn = hRgn;
+        }
+    }
+    else
+    {
+        if (DScalerWindowRgn != NULL)
+        {
+            LOG(2,"DScaler: Set window region (0x%08x)",NULL);
+            SetWindowRgn(hWnd,NULL,TRUE);
+            DScalerWindowRgn = NULL;
+        }
+    }
+    return DScalerWindowRgn;
 }
 
 BOOL IsStatusBarVisible()
@@ -4441,9 +4951,26 @@ BOOL IsFullScreen_OnChange(long NewValue)
             SaveWindowPos(hWnd);
             KillTimer(hWnd, TIMER_STATUS);
         }
+        if (WindowBorder!=NULL)
+        {
+            if (bIsFullScreen && WindowBorder->Visible())
+            {                
+                WindowBorder->Hide();
+            }
+            else if (!bIsFullScreen && szSkinName[0]!=0)
+            {
+                WindowBorder->Show();
+            }
+        }
+        if (ToolbarControl!=NULL)
+        {
+            ToolbarControl->Set(hWnd, NULL);
+        }
+        
         Cursor_UpdateVisibility();
-        InvalidateRect(hWnd, NULL, FALSE);
-        WorkoutOverlaySize(FALSE);
+        //InvalidateRect(hWnd, NULL, FALSE);
+        //WorkoutOverlaySize(FALSE);
+        UpdateWindowState();
     }
     bDoResize = TRUE;
     return FALSE;
@@ -4483,7 +5010,12 @@ BOOL DisplayStatusBar_OnChange(long NewValue)
         {
             KillTimer(hWnd, TIMER_STATUS);
         }
-        WorkoutOverlaySize(TRUE);
+        if (ToolbarControl!=NULL)
+        {
+            ToolbarControl->Adjust(hWnd, TRUE);
+        }
+        //WorkoutOverlaySize(TRUE);
+        UpdateWindowState();
     }
     return FALSE;
 }
@@ -4699,6 +5231,9 @@ void DScaler_ReadSettingsFromIni()
     {
         Setting_ReadFromIni(&(DScalerSettings[i]));
     }
+    
+    GetPrivateProfileString("MainWindow", "SkinName", "", (char*) &szSkinName, sizeof(szSkinName), GetIniFileForSettings());
+    
     if(bForceFullScreen)
     {
         bIsFullScreen = TRUE;
@@ -4717,6 +5252,7 @@ void DScaler_WriteSettingsToIni(BOOL bOptimizeFileAccess)
     {
         Setting_WriteToIni(&(DScalerSettings[i]), bOptimizeFileAccess);
     }
+    WritePrivateProfileString("MainWindow", "SkinName", szSkinName, GetIniFileForSettings());
 }
 
 CTreeSettingsGeneric* DScaler_GetTreeSettingsPage()

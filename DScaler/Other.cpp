@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.62 2003-03-29 13:36:36 laurentg Exp $
+// $Id: Other.cpp,v 1.63 2003-04-08 14:17:23 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.62  2003/03/29 13:36:36  laurentg
+// Allow the display of DScaler to monitors other than the primary
+//
 // Revision 1.61  2003/03/16 18:29:20  laurentg
 // New multiple frames feature
 //
@@ -299,6 +302,12 @@ static TMonitor Monitors[MAX_MONITORS];
 static int NbMonitors = 0;
 static HMONITOR hCurrentMon = NULL;
 
+// we've got to load these functions dynamically 
+// so that we continue to run on NT 4
+HMONITOR (WINAPI * lpMonitorFromWindowA)( IN HWND hwnd, IN DWORD dwFlags) = NULL;
+BOOL (WINAPI* lpGetMonitorInfoA)( IN HMONITOR hMonitor, OUT LPMONITORINFO lpmi) = NULL;
+
+
 //-----------------------------------------------------------------------------
 // Callback function used by DirectDrawEnumerateEx to find all monitors
 static BOOL WINAPI DDEnumCallbackEx(GUID* pGuid, LPTSTR pszDesc, LPTSTR pszDriverName,
@@ -316,7 +325,7 @@ static BOOL WINAPI DDEnumCallbackEx(GUID* pGuid, LPTSTR pszDesc, LPTSTR pszDrive
 	// so we need to replace the NULL handle in single monitor context with the non-NULL value
 	if (hMonitor == NULL)
 	{
-		hMonitor = MonitorFromWindow(NULL, MONITOR_DEFAULTTOPRIMARY);
+		hMonitor = lpMonitorFromWindowA(NULL, MONITOR_DEFAULTTOPRIMARY);
 	}	
 	LOG(2, "Monitor %d %s %s", hMonitor, pszDesc, pszDriverName);
 
@@ -331,7 +340,7 @@ static BOOL WINAPI DDEnumCallbackEx(GUID* pGuid, LPTSTR pszDesc, LPTSTR pszDrive
 	}
 
 	MonInfo.cbSize = sizeof(MONITORINFO);
-	if (GetMonitorInfo(hMonitor, &MonInfo))
+	if (lpGetMonitorInfoA(hMonitor, &MonInfo))
 	{
 		if (SUCCEEDED(DirectDrawCreate(pGuid, &lpDD, NULL)))
 		{
@@ -372,7 +381,25 @@ void ListMonitors(HWND hWnd)
 //-----------------------------------------------------------------------------
 static LPDIRECTDRAW GetCurrentDD(HWND hWnd)
 {
-	HMONITOR hMonitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
+    // we've got to load these functions dynamically 
+    // so that we continue to run on NT 4
+    HMONITOR (WINAPI * lpMonitorFromWindowA)( IN HWND hwnd, IN DWORD dwFlags);
+	HINSTANCE h = LoadLibrary("user32.dll");
+    lpMonitorFromWindowA = (HMONITOR (WINAPI *)( IN HWND hwnd, IN DWORD dwFlags)) GetProcAddress(h,"MonitorFromWindowA");
+    lpGetMonitorInfoA = (BOOL (WINAPI *)( IN HMONITOR hMonitor, OUT LPMONITORINFO lpmi)) GetProcAddress(h,"GetMonitorInfoA");
+
+    // if we can't see these new functions just use a normal DD create
+    if(lpMonitorFromWindowA == NULL || lpGetMonitorInfoA == NULL)
+    {
+        if (FAILED(DirectDrawCreate(NULL, &lpDD, NULL)))
+        {
+            ErrorBox("DirectDrawCreate failed");
+            return (FALSE);
+        }
+        return lpDD;
+    }
+
+	HMONITOR hMonitor = lpMonitorFromWindowA(hWnd, MONITOR_DEFAULTTOPRIMARY);
 
 	for (int i=0 ; i<NbMonitors ; i++)
 	{
@@ -387,11 +414,21 @@ static LPDIRECTDRAW GetCurrentDD(HWND hWnd)
 //-----------------------------------------------------------------------------
 void GetMonitorRect(HWND hWnd, RECT* rect)
 {
-	HMONITOR hMonitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
+    if(lpMonitorFromWindowA == NULL)
+    {
+        rect->top = 0;
+        rect->left = 0;
+        rect->bottom = GetSystemMetrics(SM_CYSCREEN);
+        rect->right = GetSystemMetrics(SM_CXSCREEN);
+        return;
+    }
+
+	HMONITOR hMonitor = lpMonitorFromWindowA(hWnd, MONITOR_DEFAULTTOPRIMARY);
 	MONITORINFO MonInfo;
 
 	MonInfo.cbSize = sizeof(MONITORINFO);
-	GetMonitorInfo(hMonitor, &MonInfo);
+
+	lpGetMonitorInfoA(hMonitor, &MonInfo);
 	memcpy(rect, &MonInfo.rcMonitor, sizeof(RECT));
 	LOG(2, "GetMonitorRect %d %d %d %d", rect->left, rect->right, rect->top, rect->bottom);
 }
@@ -399,13 +436,21 @@ void GetMonitorRect(HWND hWnd, RECT* rect)
 //-----------------------------------------------------------------------------
 void SetCurrentMonitor(HWND hWnd)
 {
-	hCurrentMon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
+    if(lpMonitorFromWindowA != NULL)
+    {
+    	hCurrentMon = lpMonitorFromWindowA(hWnd, MONITOR_DEFAULTTOPRIMARY);
+    }
 }
 
 //-----------------------------------------------------------------------------
 void CheckChangeMonitor(HWND hWnd)
 {
-	HMONITOR hMon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
+    if(lpMonitorFromWindowA == NULL)
+    {
+    	return;
+    }
+
+	HMONITOR hMon = lpMonitorFromWindowA(hWnd, MONITOR_DEFAULTTOPRIMARY);
 
 	if (hCurrentMon == NULL)
 		return;
@@ -1456,13 +1501,6 @@ BOOL InitDD(HWND hWnd)
     InitializeCriticalSection(&hDDCritSect);
 
 	lpDD = GetCurrentDD(hWnd);
-	/*
-    if (FAILED(DirectDrawCreate(NULL, &lpDD, NULL)))
-    {
-        ErrorBox("DirectDrawCreate failed");
-        return (FALSE);
-    }
-	*/
 
     // can we use Overlay ??
     memset(&DriverCaps, 0x00, sizeof(DriverCaps));
@@ -1525,13 +1563,19 @@ void ExitDD(void)
     if (lpDD != NULL)
     {
         Overlay_Destroy();
-//        lpDD->Release();
+        if(lpMonitorFromWindowA != NULL)
+        {
+	        for (int i=0 ; i<NbMonitors ; i++)
+	        {
+		        Monitors[i].lpDD->Release();
+	        }
+        }
+        else
+        {
+            lpDD->Release();
+        }
         lpDD = NULL;
     }
-	for (int i=0 ; i<NbMonitors ; i++)
-	{
-		Monitors[i].lpDD->Release();
-	}
     DeleteCriticalSection(&hDDCritSect);
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillProvider.cpp,v 1.16 2002-05-02 20:16:27 laurentg Exp $
+// $Id: StillProvider.cpp,v 1.17 2002-05-23 21:25:33 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/05/02 20:16:27  laurentg
+// JPEG format added to take still
+//
 // Revision 1.15  2002/04/27 00:38:33  laurentg
 // New default source (still) used at DScaler startup or when there is no more source accessible
 //
@@ -141,6 +144,9 @@ void StillProvider_SaveSnapshot(TDeinterlaceInfo* pInfo)
     {
         int n = 0;
         char name[MAX_PATH];
+        time_t curr=time(0);
+        struct tm *ctm=localtime(&curr);
+
         char extension[4];
         struct stat st;
 
@@ -158,17 +164,23 @@ void StillProvider_SaveSnapshot(TDeinterlaceInfo* pInfo)
             break;
         }
 
-        while (n < MAX_SNAPSHOT_FILES)
+        while (n < 100)
         {
-            sprintf(name,"%s\\tv%06d.%s",SavingPath,++n,extension);
+            sprintf(name,"%s\\TV%04d%02d%02d%02d%02d%02d%02d.%s",
+				    SavingPath,
+                    ctm->tm_year+1900,ctm->tm_mon+1,ctm->tm_mday,ctm->tm_hour,ctm->tm_min,ctm->tm_sec,++n, 
+                    // name ~ date & time & per-second-counter (for if anyone succeeds in multiple captures per second)
+                    // TMYYYYMMDDHHMMSSCC.ext ; eg .\TV2002123123595901.tif
+                    extension);
+
             if (stat(name, &st))
             {
                 break;
             }
         }
-        if(n == MAX_SNAPSHOT_FILES)
+        if(n == 100) // never reached in 1 second, so could be scrapped
         {
-            ErrorBox("Could not create a file.  You may have too many captures already.");
+            ErrorBox("Could not create a file. You may have too many captures already.");
             return;
         }
 

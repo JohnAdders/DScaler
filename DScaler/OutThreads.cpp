@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.64 2002-04-28 16:47:44 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.65 2002-05-01 20:35:26 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.64  2002/04/28 16:47:44  laurentg
+// Don't call AR autodetection for progressive source as the code works only for interlaced source
+//
 // Revision 1.63  2002/04/13 18:56:23  laurentg
 // Checks added to manage case where the current source is not yet defined
 //
@@ -891,7 +894,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     // if there is any exception thrown then exit the thread
     __except (CrashHandler((EXCEPTION_POINTERS*)_exception_info())) 
     { 
-        LOG(1, "Crash in SetDMA");
+        LOG(1, "Crash in in OutThreads Providers_GetCurrentSource()->Stop()");
         ExitThread(1);
         return 0;
     }

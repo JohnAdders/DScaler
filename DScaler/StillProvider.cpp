@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillProvider.cpp,v 1.11 2002-02-11 21:33:13 laurentg Exp $
+// $Id: StillProvider.cpp,v 1.12 2002-02-18 23:25:01 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/02/11 21:33:13  laurentg
+// Patterns as a new source from the Still provider
+//
 // Revision 1.10  2001/12/08 13:48:40  laurentg
 // New StillSource for snapshots done during the DScaler session
 //
@@ -69,14 +72,14 @@ CStillProvider::CStillProvider()
     pStillSource = new CStillSource("Still");
     m_StillSources.push_back(pStillSource);
 
-    pStillSource = new CStillSource("Snapshots");
-    m_StillSources.push_back(pStillSource);
-
     pStillSource = new CStillSource("Patterns");
     m_StillSources.push_back(pStillSource);
     GetModuleFileName (NULL, PlayList, sizeof(PlayList));
     strcpy(strrchr(PlayList, '\\'), "\\patterns\\pj_calibr.d3u");
     pStillSource->LoadPlayList(PlayList);
+
+    pStillSource = new CStillSource("Snapshots");
+    m_StillSources.push_back(pStillSource);
 }
 
 CStillProvider::~CStillProvider()

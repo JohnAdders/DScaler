@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.25 2002-02-17 00:35:35 laurentg Exp $
+// $Id: Providers.cpp,v 1.26 2002-02-18 23:25:01 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2002/02/17 00:35:35  laurentg
+// Problem to modify source submenu when menubar is hidden is solved
+//
 // Revision 1.24  2002/02/12 16:33:40  tobbej
 // updated file-open menu with filetype for media files (avi for example)
 //
@@ -204,6 +207,13 @@ int Providers_Load(HMENU hMenu)
         Sources.push_back(DSProvider->GetSource(i));
     }
 #endif
+
+    // Switch to the first source which access is "allowed"
+    while ((CurrentSource < Sources.size()) && !Sources[CurrentSource]->IsAccessAllowed())
+    {
+        CurrentSource++;
+    }
+
     Providers_UpdateMenu(hMenu);
 
     return Sources.size();
@@ -256,12 +266,12 @@ CSource* Providers_GetStillsSource()
 
 CSource* Providers_GetSnapshotsSource()
 {
-    return StillProvider->GetSource(1);
+    return StillProvider->GetSource(2);
 }
 
 CSource* Providers_GetPatternsSource()
 {
-    return StillProvider->GetSource(2);
+    return StillProvider->GetSource(1);
 }
 
 void Providers_SetMenu(HMENU hMenu)

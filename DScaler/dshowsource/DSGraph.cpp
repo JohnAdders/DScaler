@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.cpp,v 1.23 2002-09-14 17:03:11 tobbej Exp $
+// $Id: DSGraph.cpp,v 1.24 2002-09-24 17:19:35 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2002/09/14 17:03:11  tobbej
+// implemented audio output device selection
+//
 // Revision 1.22  2002/09/07 13:32:34  tobbej
 // save/restore video format settings to ini file
 //
@@ -118,6 +121,7 @@
 #include "..\..\..\DSRend\DSRend_i.c"
 #include <dvdmedia.h>
 #include "DevEnum.h"
+#include "DShowGenericAudioControls.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -130,12 +134,13 @@ static char THIS_FILE[]=__FILE__;
 //////////////////////////////////////////////////////////////////////
 
 CDShowGraph::CDShowGraph(string device,string deviceName,string AudioDevice)
-:m_pSource(NULL),m_GraphState(State_Stopped)
+:m_pSource(NULL),m_GraphState(State_Stopped),m_pAudioControlls(NULL)
 {
-	initGraph();
+	InitGraph();
 	CreateRenderer(AudioDevice);
 
 	m_pSource=new CDShowCaptureDevice(m_pGraph,device,deviceName);
+	m_pSource->SetAudioDevice(AudioDevice);
 
 #ifdef _DEBUG
 	//this makes it posibel to connect graphedit to the graph
@@ -144,12 +149,13 @@ CDShowGraph::CDShowGraph(string device,string deviceName,string AudioDevice)
 }
 
 CDShowGraph::CDShowGraph(string filename,string AudioDevice)
-:m_pSource(NULL),m_GraphState(State_Stopped)
+:m_pSource(NULL),m_GraphState(State_Stopped),m_pAudioControlls(NULL)
 {
-	initGraph();
+	InitGraph();
 	CreateRenderer(AudioDevice);
 
 	m_pSource=new CDShowFileSource(m_pGraph,filename);
+	m_pSource->SetAudioDevice(AudioDevice);
 
 #ifdef _DEBUG
 	AddToRot(m_pGraph,&m_hROT);
@@ -158,6 +164,11 @@ CDShowGraph::CDShowGraph(string filename,string AudioDevice)
 
 CDShowGraph::~CDShowGraph()
 {
+	if(m_pAudioControlls!=NULL)
+	{
+		delete m_pAudioControlls;
+		m_pAudioControlls=NULL;
+	}
 	if(m_DSRend!=NULL)
 	{
 		//make shure that all fields are marked as free
@@ -180,7 +191,7 @@ CDShowGraph::~CDShowGraph()
 #endif
 }
 
-void CDShowGraph::initGraph()
+void CDShowGraph::InitGraph()
 {
 	HRESULT hr=m_pGraph.CoCreateInstance(CLSID_FilterGraph);
 	if(FAILED(hr))
@@ -253,16 +264,7 @@ void CDShowGraph::CreateRenderer(string AudioDevice)
 		throw CDShowException("Failed to find IDSRendSettings",hr);
 	}
 
-	if(AudioDevice.size()>0)
-	{
-		CDShowDevEnum::createDevice(AudioDevice,IID_IBaseFilter,&m_pAudioRenderer);
 
-		hr=m_pGraph->AddFilter(m_pAudioRenderer,L"Audio Renderer");
-		if(FAILED(hr))
-		{
-			throw CDShowException("Failed to add audio renderer to filter graph",hr);
-		}
-	}
 }
 
 bool CDShowGraph::GetFields(long *pcFields, FieldBuffer *ppFields,BufferInfo &info,DWORD dwLateness)
@@ -289,7 +291,7 @@ void CDShowGraph::ConnectGraph()
 {
 	if(m_pSource!=NULL)
 	{
-		//check if the dsrend is unconnected
+		//check if the dsrend filter is unconnected
 		bool IsUnConnected=false;
 		CDShowPinEnum pins(m_renderer,PINDIR_INPUT);
 		CComPtr<IPin> InPin=pins.next();
@@ -301,11 +303,29 @@ void CDShowGraph::ConnectGraph()
 			IsUnConnected=true;
 		}
 		
-		if(IsUnConnected || !m_pSource->isConnected())
+		if(IsUnConnected || !m_pSource->IsConnected())
 		{
-			m_pSource->Connect(m_renderer,m_pAudioRenderer);
+			m_pSource->Connect(m_renderer);
+
+			//setup the audio controlls
+			if(m_pAudioControlls!=NULL)
+			{
+				delete m_pAudioControlls;
+				m_pAudioControlls=NULL;
+			}
+			CComPtr<IBasicAudio> pAudio;
+			hr=m_pGraph.QueryInterface(&pAudio);
+			if(SUCCEEDED(hr))
+			{
+				m_pAudioControlls=new CDShowGenericAudioControls(pAudio);
+			}
+			else
+			{
+				LOG(3,"IBasicAudio interface not found, audio controlls might not work");
+			}
 		}
-		buildFilterList();
+
+		BuildFilterList();
 	}
 }
 
@@ -331,9 +351,9 @@ void CDShowGraph::pause()
 {
 	if(m_pSource!=NULL)
 	{
-		if(!m_pSource->isConnected())
+		if(!m_pSource->IsConnected())
 		{
-			m_pSource->Connect(m_renderer,m_pAudioRenderer);
+			m_pSource->Connect(m_renderer);
 		}
 
 		HRESULT hr=m_pControl->Pause();
@@ -377,7 +397,7 @@ void CDShowGraph::getConnectionMediatype(AM_MEDIA_TYPE *pmt)
 	CComPtr<IPin> inPin=pins.next();
 	if(inPin==NULL)
 	{
-		throw CDShowException("Cant find input pin on video renderer");
+		throw CDShowException("Can't find input pin on video renderer (bug)");
 	}
 	
 	HRESULT hr=inPin->ConnectionMediaType(pmt);
@@ -387,7 +407,7 @@ void CDShowGraph::getConnectionMediatype(AM_MEDIA_TYPE *pmt)
 	}
 }
 
-void CDShowGraph::buildFilterList()
+void CDShowGraph::BuildFilterList()
 {
 	m_filters.erase(m_filters.begin(),m_filters.end());
 	
@@ -558,7 +578,7 @@ long CDShowGraph::getDroppedFrames()
 	{
 		throw CDShowException("Failed to get dropped frames count",hr);
 	}
-	return frames+m_pSource->getNumDroppedFrames();
+	return frames+m_pSource->GetNumDroppedFrames();
 }
 
 CDShowGraph::eChangeRes_Error CDShowGraph::ChangeRes(CDShowGraph::CVideoFormat fmt)
@@ -773,7 +793,7 @@ bool CDShowGraph::IsValidRes(CDShowGraph::CVideoFormat fmt)
 	{
 		try
 		{
-			findStreamConfig();
+			FindStreamConfig();
 		}
 		catch(CDShowException e)
 		{
@@ -818,7 +838,7 @@ bool CDShowGraph::IsValidRes(CDShowGraph::CVideoFormat fmt)
 	}
 	return false;
 }
-void CDShowGraph::findStreamConfig()
+void CDShowGraph::FindStreamConfig()
 {
 	CDShowPinEnum rendPins(m_renderer,PINDIR_INPUT);
 	CComPtr<IPin> inPin;
@@ -845,7 +865,7 @@ void CDShowGraph::findStreamConfig()
 	}
 }
 
-void CDShowGraph::disableClock()
+void CDShowGraph::DisableClock()
 {
 	//prevent multiple disableClock calls
 	if(m_pOldRefClk!=NULL)
@@ -873,7 +893,7 @@ void CDShowGraph::disableClock()
 	}
 }
 
-void CDShowGraph::restoreClock()
+void CDShowGraph::RestoreClock()
 {
 	if(m_pOldRefClk==NULL)
 		return;
@@ -893,6 +913,16 @@ void CDShowGraph::restoreClock()
 	}
 	m_pOldRefClk=NULL;
 
+}
+
+CDShowAudioControls *CDShowGraph::GetAudioControls()
+{
+	/**
+	 * @todo check the source (CDShowBaseSource derived class) if it has 
+	 * CDShowAudioControlls, this will allow the source to override the 
+	 * generic controlls (btwincap audio controls for example)
+	 */
+	return m_pAudioControlls;
 }
 
 bool CDShowGraph::CVideoFormat::operator==(CVideoFormat &fmt)

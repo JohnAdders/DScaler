@@ -290,11 +290,19 @@ SOURCE=.\dshowsource\DSGraph.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\dshowsource\DShowAudioControls.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\dshowsource\DShowBaseSource.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\dshowsource\DShowFileSource.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\dshowsource\DShowGenericAudioControls.cpp
 # End Source File
 # Begin Source File
 
@@ -838,11 +846,19 @@ SOURCE=.\dshowsource\DSGraph.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\dshowsource\DShowAudioControls.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\dshowsource\DShowBaseSource.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\dshowsource\DShowFileSource.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\dshowsource\DShowGenericAudioControls.h
 # End Source File
 # Begin Source File
 

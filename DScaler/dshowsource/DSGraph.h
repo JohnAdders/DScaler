@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.h,v 1.18 2002-09-14 17:03:11 tobbej Exp $
+// $Id: DSGraph.h,v 1.19 2002-09-24 17:19:35 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2002/09/14 17:03:11  tobbej
+// implemented audio output device selection
+//
 // Revision 1.17  2002/09/07 13:32:35  tobbej
 // save/restore video format settings to ini file
 //
@@ -98,6 +101,7 @@
 #include "exception.h"
 #include "DShowBaseSource.h"
 #include "TreeSettingsOleProperties.h"
+#include "DShowAudioControls.h"
 
 //if you get an error here, that means you have not checked out the DSRend filter
 //or compiled it atleast once.
@@ -225,26 +229,30 @@ public:
 	 * Disables the graph reference clock
 	 * @throws CDShowException
 	 */
-	void disableClock();
+	void DisableClock();
 
 	/**
 	 * Restored the old clock after a call to disableClock()
 	 * @throws CDShowException
 	 */
-	void restoreClock();
+	void RestoreClock();
+
+	/**
+	 * @return
+	 */
+	CDShowAudioControls *GetAudioControls();
 
 private:
-	void initGraph();
+	void InitGraph();
 	void CreateRenderer(string AudioDevice);
 
-	void findStreamConfig();
+	void FindStreamConfig();
 	
 	/// updates m_filter vector with filters in the graph
-	void buildFilterList();
+	void BuildFilterList();
 
 	///Custom video renderer. Used for transfering the picture to dscaler
 	CComPtr<IBaseFilter> m_renderer;
-	CComPtr<IBaseFilter> m_pAudioRenderer;
 
 	///Interface used for geting media samples from the renderer filter
 	CComPtr<IDSRendFilter> m_DSRend;
@@ -259,6 +267,7 @@ private:
 	CComPtr<IMediaControl> m_pControl;
 		
 	CDShowBaseSource *m_pSource;
+	CDShowAudioControls *m_pAudioControlls;
 
 	FILTER_STATE m_GraphState;
 

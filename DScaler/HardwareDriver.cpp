@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareDriver.cpp,v 1.12 2002-05-27 11:27:37 robmuller Exp $
+// $Id: HardwareDriver.cpp,v 1.13 2002-06-14 12:18:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/05/27 11:27:37  robmuller
+// Uninstall the driver if the driver location in the registry is incorrect.
+//
 // Revision 1.11  2002/05/27 07:22:09  robmuller
 // Corrected detection of network drives.
 // Use short file name for driver passed to CreateService().
@@ -185,7 +188,7 @@ BOOL CHardwareDriver::LoadDriver()
                 m_hFile = CreateFile(
                                      "\\\\.\\DSDrv4",
                                      GENERIC_READ | GENERIC_WRITE,
-                                     FILE_SHARE_READ,
+                                     FILE_SHARE_READ | FILE_SHARE_WRITE,
                                      NULL,
                                      OPEN_EXISTING,
                                      0,

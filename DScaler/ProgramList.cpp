@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.63 2002-08-02 19:33:24 robmuller Exp $
+// $Id: ProgramList.cpp,v 1.64 2002-08-02 20:33:52 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.63  2002/08/02 19:33:24  robmuller
+// Hide disabled channels from the menu.
+//
 // Revision 1.62  2002/08/02 18:37:35  robmuller
 // Patch #588554 by Markus Debus. Change channel on remove added.
 //
@@ -235,6 +238,8 @@ long DragItemIndex = 0;
 
 int PreSwitchMuteDelay = 0;
 int PostSwitchMuteDelay = 0;
+
+static int InitialNbMenuItems = -1;
 
 CChannel::CChannel(LPCSTR Name, DWORD Freq, int ChannelNumber, int Format, BOOL Active)
 {
@@ -1534,8 +1539,13 @@ void Channels_UpdateMenu(HMENU hMenu)
     hMenuChannels = GetChannelsSubmenu();
     if(hMenuChannels == NULL) return;
 
+    if (InitialNbMenuItems == -1)
+    {
+        InitialNbMenuItems = GetMenuItemCount(hMenuChannels);
+    }
+
     j = GetMenuItemCount(hMenuChannels);
-    while (j > 6)
+    while (j > InitialNbMenuItems)
     {
         --j;
         RemoveMenu(hMenuChannels, j, MF_BYPOSITION);
@@ -1544,21 +1554,36 @@ void Channels_UpdateMenu(HMENU hMenu)
     j = 0;
     for (it = MyChannels.begin(); it != MyChannels.end() && (j < MAXPROGS); ++it)
     {
-        if((*it)->IsActive())
+        if (((*it)->GetFrequency() != 0) && (*it)->IsActive() )
         {
-            AppendMenu(hMenuChannels, MF_STRING | MF_ENABLED, IDM_CHANNEL_SELECT + j, (*it)->GetName());
+            // Cut every 28 channels which is ok even when in 640x480
+            // For the first column, take into account the first items (InitialNbMenuItems)
+            // but reduce by 1 because of the two line separators
+            if ((j+InitialNbMenuItems-1) % 28)
+            {
+                AppendMenu(hMenuChannels, MF_STRING | MF_ENABLED, IDM_CHANNEL_SELECT + j, (*it)->GetName());
+            }
+            else
+            {
+                AppendMenu(hMenuChannels, MF_STRING | MF_ENABLED | MF_MENUBARBREAK, IDM_CHANNEL_SELECT + j, (*it)->GetName());
+            }
+            j++;
         }
-        j++;
     }
 }
 
 void Channels_SetMenu(HMENU hMenu)
 {
     int NDisabledChannels = 0;
-    int j = 0;
     CHANNELLIST::iterator it;
     HMENU hMenuChannels(GetChannelsSubmenu());
+    int i, j;
     if(hMenuChannels == NULL) return;
+
+    if (InitialNbMenuItems == -1)
+    {
+        InitialNbMenuItems = GetMenuItemCount(hMenuChannels);
+    }
 
     BOOL bHasTuner = Providers_GetCurrentSource() ? Providers_GetCurrentSource()->HasTuner() : FALSE;
     BOOL bInTunerMode = Providers_GetCurrentSource() ? Providers_GetCurrentSource()->IsInTunerMode() : FALSE;
@@ -1568,27 +1593,42 @@ void Channels_SetMenu(HMENU hMenu)
     EnableMenuItem(hMenu, IDM_CHANNEL_PREVIOUS, bHasTuner && bInTunerMode?MF_ENABLED:MF_GRAYED);
     EnableMenuItem(hMenu, IDM_CHANNEL_LIST, bHasTuner?MF_ENABLED:MF_GRAYED);
 
+    i = j = 0;
     for (it = MyChannels.begin(); it != MyChannels.end() && (j < MAXPROGS); ++it)
     {
-        if(!(*it)->IsActive())
+        if (((*it)->GetFrequency() != 0) && (*it)->IsActive() )
         {
-            NDisabledChannels++;
+            EnableMenuItem(hMenuChannels, IDM_CHANNEL_SELECT + j, bHasTuner ? MF_ENABLED : MF_GRAYED);
+            CheckMenuItem(hMenuChannels, IDM_CHANNEL_SELECT + j, (CurrentProgram == i) ? MF_CHECKED : MF_UNCHECKED);
+            j++;
         }
-        EnableMenuItem(hMenuChannels, j + 6 - NDisabledChannels,
-                       bHasTuner ? MF_BYPOSITION | MF_ENABLED:MF_BYPOSITION | MF_GRAYED);
-        CheckMenuItem(hMenuChannels, j + 6 - NDisabledChannels,
-                      (CurrentProgram == j) ? MF_BYPOSITION | MF_CHECKED : MF_BYPOSITION | MF_UNCHECKED);
-        j++;
+        i++;
     }
 }
 
 BOOL ProcessProgramSelection(HWND hWnd, WORD wMenuID)
 {
+    int i, j;
+    CHANNELLIST::iterator it;
+
     if ( (wMenuID >= IDM_CHANNEL_SELECT) && (wMenuID < (IDM_CHANNEL_SELECT+MAXPROGS)) )
     {
         if (Providers_GetCurrentSource()->IsInTunerMode())
         {
-            Channel_Change(wMenuID - IDM_CHANNEL_SELECT);
+            i = j = 0;
+            for (it = MyChannels.begin(); it != MyChannels.end() && (j < MAXPROGS); ++it)
+            {
+                if (((*it)->GetFrequency() != 0) && (*it)->IsActive() )
+                {
+                    if ((wMenuID - IDM_CHANNEL_SELECT) == j)
+                    {
+                        Channel_Change(i);
+                        break;
+                    }
+                    j++;
+                }
+                i++;
+            }
         }
         else
         {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.56 2003-01-25 17:50:37 robmuller Exp $
+// $Id: Other.cpp,v 1.57 2003-01-25 20:54:29 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.56  2003/01/25 17:50:37  robmuller
+// Bug fix from Kevin Radke.
+//
 // Revision 1.55  2003/01/24 01:55:18  atnak
 // OSD + Teletext conflict fix, offscreen buffering for OSD and Teletext,
 // got rid of the pink overlay colorkey for Teletext.
@@ -920,6 +923,7 @@ BOOL Overlay_Destroy()
     if (lpExtraMemoryForFilters != NULL)
     {
         free(lpExtraMemoryForFilters);
+        lpExtraMemoryForFilters = NULL;
     }
    
     // Now destroy the Back Overlay

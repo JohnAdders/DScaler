@@ -5,9 +5,9 @@ xcopy ..\ThirdParty\LibJpeg\*.dll ..\%1\ /Y /D
 xcopy ..\ThirdParty\LibTiff\*.dll ..\%1\ /Y /D
 xcopy ..\ThirdParty\zlib\*.dll ..\%1\ /Y /D
 rem It copies the extra files from the Release folder to the Debug folder.
-if "%1" == "Release" then goto endbatch
-xcopy ..\release\DSDrv4.sys ..\debug\ /Y /D
-xcopy ..\release\DSDrv4.vxd ..\debug\ /Y /D
+if "%1" == "Release" goto endbatch
+if "%2" == "" xcopy ..\release\DSDrv4.sys ..\debug\ /Y /D
+if "%2" == "" xcopy ..\release\DSDrv4.vxd ..\debug\ /Y /D
 xcopy ..\release\channel.txt ..\debug\ /Y /D
 xcopy ..\release\channel.txt ..\debug\ /Y /D
 xcopy ..\release\dscaler.d3u ..\debug\ /Y /D

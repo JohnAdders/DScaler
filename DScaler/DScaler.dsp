@@ -1,24 +1,24 @@
 # Microsoft Developer Studio Project File - Name="DScaler" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
-# ** NICHT BEARBEITEN **
+# ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Application" 0x0101
 
 CFG=DScaler - Win32 Debug
-!MESSAGE Dies ist kein gültiges Makefile. Zum Erstellen dieses Projekts mit NMAKE
-!MESSAGE verwenden Sie den Befehl "Makefile exportieren" und führen Sie den Befehl
+!MESSAGE This is not a valid makefile. To build this project using NMAKE,
+!MESSAGE use the Export Makefile command and run
 !MESSAGE 
 !MESSAGE NMAKE /f "DScaler.mak".
 !MESSAGE 
-!MESSAGE Sie können beim Ausführen von NMAKE eine Konfiguration angeben
-!MESSAGE durch Definieren des Makros CFG in der Befehlszeile. Zum Beispiel:
+!MESSAGE You can specify a configuration when running NMAKE
+!MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
 !MESSAGE NMAKE /f "DScaler.mak" CFG="DScaler - Win32 Debug"
 !MESSAGE 
-!MESSAGE Für die Konfiguration stehen zur Auswahl:
+!MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "DScaler - Win32 Debug" (basierend auf  "Win32 (x86) Application")
-!MESSAGE "DScaler - Win32 Release" (basierend auf  "Win32 (x86) Application")
+!MESSAGE "DScaler - Win32 Debug" (based on "Win32 (x86) Application")
+!MESSAGE "DScaler - Win32 Release" (based on "Win32 (x86) Application")
 !MESSAGE 
 
 # Begin Project
@@ -60,21 +60,11 @@ LINK32=link.exe
 # ADD BASE LINK32 ddraw.lib dxguid.lib kernel32.lib user32.lib gdi32.lib advapi32.lib winmm.lib comdlg32.lib ..\driver\bin\DScalerdrv.lib /nologo /subsystem:windows /profile /debug /machine:I386 /out:".\DScaler.exe"
 # SUBTRACT BASE LINK32 /map /nodefaultlib
 # ADD LINK32 libtiff.lib libjpeg.lib ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib strmiids.lib quartz.lib setupapi.lib /nologo /stack:0x4000,0x4000 /subsystem:windows /pdb:none /map:"..\Debug/DScaler.map" /debug /machine:I386 /out:"..\Debug\DScaler.exe" /libpath:"..\ThirdParty\LibTiff\\" /libpath:"..\ThirdParty\LibJpeg\\"
-# Begin Custom Build
-ProjDir=.
-InputPath=\deinterlace\DScaler\Debug\DScaler.exe
-SOURCE="$(InputPath)"
-
-"$(ProjDir)\..\Debug\DScaler.vdi" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	$(ProjDir)\..\Debug\disasm.exe $(ProjDir)\..\Disasm\ia32.txt $(ProjDir)\..\Debug\ia32.bin 
-	$(ProjDir)\..\Debug\mapconv.exe $(ProjDir)\..\Debug\DScaler.map $(ProjDir)\..\Debug\DScaler.vdi $(ProjDir)\..\Debug\ia32.bin 
-	
-# End Custom Build
 # Begin Special Build Tool
 ProjDir=.
 SOURCE="$(InputPath)"
-PostBuild_Desc=Copy extra files from Release to Debug folder
-PostBuild_Cmds=$(ProjDir)\CopyExtraFiles.bat
+PostBuild_Desc=Post build Steps
+PostBuild_Cmds=$(ProjDir)\CopyExtraFiles.bat Debug NoDriver
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "DScaler - Win32 Release"
@@ -110,16 +100,12 @@ LINK32=link.exe
 # ADD BASE LINK32 ddraw.lib dxguid.lib kernel32.lib user32.lib gdi32.lib advapi32.lib winmm.lib comdlg32.lib ..\driver\bin\hwiodrv.lib /nologo /subsystem:windows /incremental:yes /machine:I386
 # SUBTRACT BASE LINK32 /profile /map /debug /nodefaultlib
 # ADD LINK32 COMMODE.OBJ libtiff.lib libjpeg.lib ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib strmiids.lib quartz.lib setupapi.lib /nologo /subsystem:windows /pdb:none /map:"..\Release/DScaler.map" /machine:I386 /out:"..\Release\DScaler.exe" /libpath:"..\ThirdParty\LibTiff\\" /libpath:"..\ThirdParty\LibJpeg\\"
-# Begin Custom Build
+# Begin Special Build Tool
 ProjDir=.
-InputPath=\deinterlace\DScaler\Release\DScaler.exe
 SOURCE="$(InputPath)"
-
-"$(ProjDir)\..\Release\DScaler.vdi" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	$(ProjDir)\..\Release\disasm.exe $(ProjDir)\..\Disasm\ia32.txt $(ProjDir)\..\Release\ia32.bin 
-	$(ProjDir)\..\Release\mapconv.exe $(ProjDir)\..\Release\DScaler.map $(ProjDir)\..\Release\DScaler.vdi $(ProjDir)\..\Release\ia32.bin 
-	
-# End Custom Build
+PostBuild_Desc=Post Build Steps
+PostBuild_Cmds=$(ProjDir)\CopyExtraFiles.bat Release
+# End Special Build Tool
 
 !ENDIF 
 

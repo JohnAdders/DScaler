@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388x_Defines.h,v 1.26 2004-11-13 21:45:56 to_see Exp $
+// $Id: CX2388x_Defines.h,v 1.27 2005-01-13 20:29:33 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -769,25 +769,7 @@
 enum eCX2388xCardId
 {
     CX2388xCARD_UNKNOWN = 0,
-    CX2388xCARD_CONEXANT_EVK,
-    CX2388xCARD_CONEXANT_EVK_PAL,
-    CX2388xCARD_HOLO3D,
-    CX2388xCARD_PIXELVIEW_XCAPTURE,
-    CX2388xCARD_MSI_TV_ANYWHERE_NTSC,
-    CX2388xCARD_MSI_TV_ANYWHERE_PAL,
-    CX2388xCARD_ASUS,
-    CX2388xCARD_PLAYHD,
-    CX2388xCARD_HAUPPAUGE_PCI_FM,
-    CX2388xCARD_PIXELVIEW_XCAPTURE_PDIMOD,
-    CX2388xCARD_LEADTEK_WINFAST_EXPERT,
-	CX2388xCARD_MSI_TV_ANYWHERE_MASTER_PAL,
-	CX2388xCARD_ATI_WONDER_PRO,
-    CX2388xCARD_HAUPPAUGE_PCI_FM_TUNERSOUND,
-	CX2388xCARD_PIXELVIEW_PLAYTV_ULTRA_TUNERSOUND,
-	CX2388xCARD_KWORLD_TV_STEREO,
-	CX2388xCARD_PIXELVIEW_PLAYTV_ULTRA,
-	CX2388xCARD_AVERTV_303,
-    CX2388xCARD_LASTONE,
+    // The rest are no longer used
 };
 
 enum eCX2388xAudioStandard

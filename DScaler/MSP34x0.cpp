@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.cpp,v 1.17 2002-03-04 20:48:52 adcockj Exp $
+// $Id: MSP34x0.cpp,v 1.18 2002-07-02 20:00:09 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2002/03/04 20:48:52  adcockj
+// Reversed incorrect change
+//
 // Revision 1.15  2002/02/01 04:43:55  ittarnavsky
 // some more audio related fixes
 // removed the handletimermessages and getaudioname methods
@@ -611,9 +614,9 @@ void CMSP34x0Decoder::SetVideoFormat(eVideoFormat videoFormat)
     }
 }
 
-void CMSP34x0Decoder::SetSoundChannel(eSoundChannel soundChannel)
+void CMSP34x0Decoder::SetSoundChannel(eSoundChannel soundChannel, bool UseInputPin1)
 {
-    CAudioDecoder::SetSoundChannel(soundChannel);
+    CAudioDecoder::SetSoundChannel(soundChannel, UseInputPin1);
 
     if(m_MSPVersion != MSPVersionG)
     {
@@ -645,7 +648,10 @@ void CMSP34x0Decoder::SetSoundChannel(eSoundChannel soundChannel)
     {
     case AUDIOINPUT_RADIO:
     case AUDIOINPUT_TUNER:
-        modus |= 0x100;
+        if(!UseInputPin1)
+        {
+            modus |= 0x100;
+        }
         break;
     default:
         break;

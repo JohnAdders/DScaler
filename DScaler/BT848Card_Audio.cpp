@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Audio.cpp,v 1.15 2002-04-07 10:37:53 adcockj Exp $
+// $Id: BT848Card_Audio.cpp,v 1.16 2002-07-02 20:00:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2002/04/07 10:37:53  adcockj
+// Made audio source work per input
+//
 // Revision 1.14  2002/02/12 02:27:45  ittarnavsky
 // fixed the hardware info dialog
 //
@@ -162,11 +165,11 @@ void CBT848Card::SetAudioTreble(WORD nTreble)
     m_AudioControls->SetTreble(nTreble);
 }
 
-void CBT848Card::SetAudioChannel(eSoundChannel soundChannel)
+void CBT848Card::SetAudioChannel(eSoundChannel soundChannel, bool UseInputPin1)
 {
     if(m_bHasMSP)
     {
-        m_AudioDecoder->SetSoundChannel(soundChannel);
+        m_AudioDecoder->SetSoundChannel(soundChannel, UseInputPin1);
     }
     else
     {
@@ -281,4 +284,3 @@ void CBT848Card::SetAudioSource(eAudioInput nChannel)
 
     m_AudioDecoder->SetAudioInput(nChannel);
 }
-

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_Audio.cpp,v 1.14 2002-04-07 10:37:53 adcockj Exp $
+// $Id: BT848Source_Audio.cpp,v 1.15 2002-07-02 20:00:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/04/07 10:37:53  adcockj
+// Made audio source work per input
+//
 // Revision 1.13  2002/03/04 20:44:49  adcockj
 // Reversed incorrect changed
 //
@@ -171,13 +174,19 @@ void CBT848Source::AudioSource6OnChange(long NewValue, long OldValue)
 
 void CBT848Source::AudioChannelOnChange(long NewValue, long OldValue)
 {
-    m_pBT848Card->SetAudioChannel((eSoundChannel)NewValue);
+    m_pBT848Card->SetAudioChannel((eSoundChannel)NewValue, (m_UseInputPin1->GetValue() != 0));
 }
 
 void CBT848Source::AutoStereoSelectOnChange(long NewValue, long OldValue)
 {
     /// \todo FIXME
 }
+
+void CBT848Source::UseInputPin1OnChange(long NewValue, long OldValue)
+{
+    m_pBT848Card->SetAudioChannel((eSoundChannel)m_AudioChannel->GetValue(), (NewValue != 0));
+}
+
 
 void CBT848Source::HandleTimerMessages(int TimerId)
 {

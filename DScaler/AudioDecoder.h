@@ -1,5 +1,5 @@
 //
-// $Id: AudioDecoder.h,v 1.5 2002-02-01 04:43:55 ittarnavsky Exp $
+// $Id: AudioDecoder.h,v 1.6 2002-07-02 20:00:06 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,11 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/02/01 04:43:55  ittarnavsky
+// some more audio related fixes
+// removed the handletimermessages and getaudioname methods
+// which break the separation of concerns oo principle
+//
 // Revision 1.4  2002/01/23 22:52:01  robmuller
 // Added member function GetAudioName()
 //
@@ -63,7 +68,7 @@ public:
     virtual ~CAudioDecoder();
     virtual void SetVideoFormat(eVideoFormat videoFormat);
     virtual eVideoFormat GetVideoFormat();
-    virtual void SetSoundChannel(eSoundChannel soundChannel);
+    virtual void SetSoundChannel(eSoundChannel soundChannel, bool UseInputPin1);
     virtual eSoundChannel GetSoundChannel();
     virtual eSoundChannel IsAudioChannelDetected(eSoundChannel desiredAudioChannel);
     virtual void SetAudioInput(eAudioInput audioInput);

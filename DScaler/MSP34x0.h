@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.h,v 1.13 2002-03-04 20:03:50 adcockj Exp $
+// $Id: MSP34x0.h,v 1.14 2002-07-02 20:00:10 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/03/04 20:03:50  adcockj
+// About box changes
+//
 // Revision 1.12  2002/02/01 04:43:56  ittarnavsky
 // some more audio related fixes
 // removed the handletimermessages and getaudioname methods
@@ -274,7 +277,7 @@ public:
 	virtual ~CMSP34x0Decoder();
     // from CAudioDecoder the default Getters are used
     void SetVideoFormat(eVideoFormat videoFormat);
-    void SetSoundChannel(eSoundChannel soundChannel);
+    void SetSoundChannel(eSoundChannel soundChannel, bool UseInputPin1);
     void SetAudioInput(eAudioInput audioInput);
     eSoundChannel IsAudioChannelDetected(eSoundChannel desiredAudioChannel);
 

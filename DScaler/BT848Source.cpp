@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.42 2002-06-22 15:00:22 laurentg Exp $
+// $Id: BT848Source.cpp,v 1.43 2002-07-02 20:00:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.42  2002/06/22 15:00:22  laurentg
+// New vertical flip mode
+//
 // Revision 1.41  2002/06/16 18:54:59  robmuller
 // ACPI powersafe support.
 //
@@ -426,6 +429,9 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     m_AudioSource6 = new CAudioSource6Setting(this, "Audio Source 6", AUDIOINPUT_MUTE, AUDIOINPUT_TUNER, AUDIOINPUT_STEREO, IniSection);
     m_Settings.push_back(m_AudioSource6);
 
+    m_UseInputPin1 = new CUseInputPin1Setting(this, "Use MSP Input Pin 1", FALSE, IniSection);
+    m_Settings.push_back(m_UseInputPin1);
+
     ReadFromIni();
 }
 
@@ -497,7 +503,7 @@ void CBT848Source::Reset()
     /// \todo FIXME anything else to initialize here?
     m_pBT848Card->SetAudioStandard((eVideoFormat)m_VideoFormat->GetValue());
     m_pBT848Card->SetAudioSource((eAudioInput)GetCurrentAudioSetting()->GetValue());
-    m_pBT848Card->SetAudioChannel((eSoundChannel)m_AudioChannel->GetValue());
+    m_pBT848Card->SetAudioChannel((eSoundChannel)m_AudioChannel->GetValue(), (m_UseInputPin1->GetValue() != 0));
 }
 
 

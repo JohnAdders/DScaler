@@ -1160,6 +1160,8 @@ BEGIN
             MENUITEM "&Internal\tCtrl+Shift+F4",    IDM_AUDIO_3
             MENUITEM "&Disabled\tCtrl+Shift+F5",    IDM_AUDIO_4
             MENUITEM "&Stereo\tCtrl+Shift+F6",      IDM_AUDIO_5
+            MENUITEM "",                            1
+            MENUITEM "Use Input Pin &1",            IDM_USEINPUTPIN1
         END
         POPUP "Audio &Channel"
         BEGIN

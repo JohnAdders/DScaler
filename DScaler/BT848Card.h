@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.20 2002-06-16 18:54:59 robmuller Exp $
+// $Id: BT848Card.h,v 1.21 2002-07-02 20:00:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2002/06/16 18:54:59  robmuller
+// ACPI powersafe support.
+//
 // Revision 1.19  2002/06/05 20:02:27  adcockj
 // Applied old RS BT card patch
 //
@@ -246,7 +249,7 @@ public:
 
     void SetAudioStandard(eVideoFormat videoFormat);
     void SetAudioSource(eAudioInput nChannel);
-    void SetAudioChannel(eSoundChannel audioChannel);
+    void SetAudioChannel(eSoundChannel audioChannel, bool UseInputPin1);
     void GetMSPPrintMode(LPSTR Text);
     eSoundChannel IsAudioChannelDetected(eSoundChannel desiredAudioChannel);
     

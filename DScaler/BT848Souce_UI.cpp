@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.28 2002-06-30 20:02:50 laurentg Exp $
+// $Id: BT848Souce_UI.cpp,v 1.29 2002-07-02 20:00:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2002/06/30 20:02:50  laurentg
+// Menus entries grayed because not yet implemented
+//
 // Revision 1.27  2002/06/18 19:29:14  robmuller
 // Reset videotext if video source changed.
 //
@@ -397,6 +400,8 @@ void CBT848Source::SetMenu(HMENU hMenu)
 
     CheckMenuItemBool(m_hMenu, IDM_AUTOSTEREO, m_AutoStereoSelect->GetValue());
 
+    CheckMenuItemBool(m_hMenu, IDM_USEINPUTPIN1, m_UseInputPin1->GetValue());
+
     CheckMenuItemBool(m_hMenu, IDM_SAVE_BY_FORMAT, m_bSavePerFormat->GetValue());
     CheckMenuItemBool(m_hMenu, IDM_SAVE_BY_INPUT, m_bSavePerInput->GetValue());
     CheckMenuItemBool(m_hMenu, IDM_SAVE_BY_CHANNEL, m_bSavePerChannel->GetValue());
@@ -662,6 +667,10 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 
         case IDM_AUTOSTEREO:
             m_AutoStereoSelect->SetValue(!m_AutoStereoSelect->GetValue());
+            break;
+
+        case IDM_USEINPUTPIN1:
+            m_UseInputPin1->SetValue(!m_UseInputPin1->GetValue());
             break;
 
         case IDM_AUDIO_0:

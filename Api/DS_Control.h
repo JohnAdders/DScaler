@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.67 2002-06-24 21:45:42 laurentg Exp $
+// $Id: DS_Control.h,v 1.68 2002-07-02 20:00:05 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.67  2002/06/24 21:45:42  laurentg
+// New option to use or not WSS data when doing AR detection
+//
 // Revision 1.66  2002/06/20 20:00:42  robmuller
 // Implemented videotext search highlighting.
 //
@@ -456,6 +459,7 @@ typedef enum
     AUDIOSOURCE4,
     AUDIOSOURCE5,
     AUDIOSOURCE6,
+    USEINPUTPIN1,
     BT848_SETTING_LASTONE,
 } BT848_SETTING;
 

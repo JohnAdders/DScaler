@@ -898,6 +898,14 @@ BEGIN
             MENUITEM "&Russian",                    IDM_VT_RUSSIAN
             MENUITEM "G&erman",                     IDM_VT_GERMAN
         END
+        POPUP "Teletext Remote Button"
+        BEGIN
+            MENUITEM "Red\tF5",                     IDM_TELETEXT_KEY1
+            MENUITEM "Green\tF6",                   IDM_TELETEXT_KEY2
+            MENUITEM "Yellow\tF7",                  IDM_TELETEXT_KEY3
+            MENUITEM "Blue\tF8",                    IDM_TELETEXT_KEY4
+            MENUITEM "Index\tF9",                   IDM_TELETEXT_KEY5
+        END
         MENUITEM "&Videotext Reset (After switch over Composite)  ", 
                                                 IDM_VT_RESET, GRAYED
         MENUITEM SEPARATOR
@@ -1240,16 +1248,21 @@ BEGIN
     VK_F4,          IDM_AUDIO_3,            VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
     VK_F4,          IDM_TYPEFORMAT_3,       VIRTKEY, SHIFT, ALT, NOINVERT
+    VK_F5,          IDM_TELETEXT_KEY1,      VIRTKEY, NOINVERT
     VK_F5,          IDM_SOURCE_OTHER1,      VIRTKEY, CONTROL, ALT, NOINVERT
     VK_F5,          IDM_AUDIO_4,            VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
     VK_F5,          IDM_TYPEFORMAT_4,       VIRTKEY, SHIFT, ALT, NOINVERT
+    VK_F6,          IDM_TELETEXT_KEY2,      VIRTKEY, NOINVERT
     VK_F6,          IDM_SOURCE_OTHER2,      VIRTKEY, CONTROL, ALT, NOINVERT
     VK_F6,          IDM_AUDIO_5,            VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
     VK_F6,          IDM_TYPEFORMAT_5,       VIRTKEY, SHIFT, ALT, NOINVERT
+    VK_F7,          IDM_TELETEXT_KEY3,      VIRTKEY, NOINVERT
     VK_F7,          IDM_TYPEFORMAT_6,       VIRTKEY, SHIFT, ALT, NOINVERT
+    VK_F8,          IDM_TELETEXT_KEY4,      VIRTKEY, NOINVERT
     VK_F8,          IDM_TYPEFORMAT_7,       VIRTKEY, SHIFT, ALT, NOINVERT
+    VK_F9,          IDM_TELETEXT_KEY5,      VIRTKEY, NOINVERT
     VK_HOME,        IDM_CHANNEL_LIST,       VIRTKEY, NOINVERT
     VK_LEFT,        IDM_VT_PAGE_MINUS,      VIRTKEY, NOINVERT
     VK_NEXT,        IDM_CHANNELMINUS,       VIRTKEY, NOINVERT

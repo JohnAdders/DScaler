@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.76 2001-09-29 10:51:09 laurentg Exp $
+// $Id: DScaler.cpp,v 1.77 2001-10-04 12:39:16 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.76  2001/09/29 10:51:09  laurentg
+// O and Shift+O to adjust specific overscan when in calibration mode
+// Enter and Backspace to show and hide calibration OSD when in calibration mode
+//
 // Revision 1.75  2001/09/21 20:47:12  laurentg
 // SaveStill modified to return the name of the written file
 // Name of the file added in the OSD text when doing a snapshot
@@ -1680,6 +1684,27 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             HtmlHelp(hWnd, "DScaler.chm::/Help.htm", HH_DISPLAY_TOPIC, 0);
             break;
 
+        case IDM_TELETEXT_KEY1:
+        case IDM_TELETEXT_KEY2:
+        case IDM_TELETEXT_KEY3:
+        case IDM_TELETEXT_KEY4:
+        case IDM_TELETEXT_KEY5:
+            if(VTState != VT_OFF)
+            {
+                if(VTPage >= 100)
+                {
+                    i = VT_GetFlofPageNumber(VTPage-100, LOWORD(wParam) - IDM_TELETEXT_KEY5);
+                    if (i) 
+                    {
+                        VTPage = i;
+                        VT_DoUpdate_Page(VTPage - 100);
+                        Cursor_VTUpdate(false, 0, 0);
+                        InvalidateRect(hWnd,NULL,FALSE);
+                    }
+                }
+            }
+            break;
+
         default:
             // Check whether menu ID is an aspect ratio related item
             bDone = ProcessAspectRatioSelection(hWnd, LOWORD(wParam));
@@ -1775,26 +1800,6 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 //          Cursor_UpdateVisibility();
 //      }
 //      break;
-
-    case WM_KEYDOWN:
-        if ((VK_F5 <= wParam) && (wParam <= VK_F8))
-        {
-            if(VTState != VT_OFF)
-            {
-                if(VTPage >= 100)
-                {
-                    i = VT_GetFlofPageNumber(VTPage-100, wParam - VK_F5);
-                    if (i) 
-                    {
-                        VTPage = i;
-                        VT_DoUpdate_Page(VTPage - 100);
-                        Cursor_VTUpdate(false, 0, 0);
-                        InvalidateRect(hWnd,NULL,FALSE);
-                    }
-                }
-            }
-        }
-        break;
 
     case WM_LBUTTONDOWN:
         if (VTState != VT_OFF) 

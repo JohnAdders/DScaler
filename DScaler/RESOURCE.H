@@ -914,13 +914,18 @@
 #define IDM_OVERLAYSETTINGS             2070
 #define IDM_VT_RUSSIAN                  2071
 #define IDM_VT_GERMAN                   2072
+#define IDM_TELETEXT_KEY1               2073
+#define IDM_TELETEXT_KEY2               2074
+#define IDM_TELETEXT_KEY3               2075
+#define IDM_TELETEXT_KEY4               2076
+#define IDM_TELETEXT_KEY5               2077
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        191
-#define _APS_NEXT_COMMAND_VALUE         2073
+#define _APS_NEXT_COMMAND_VALUE         2078
 #define _APS_NEXT_CONTROL_VALUE         1904
 #define _APS_NEXT_SYMED_VALUE           114
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CaptureDevice.cpp,v 1.9 2002-07-29 17:41:44 tobbej Exp $
+// $Id: CaptureDevice.cpp,v 1.10 2002-08-10 16:52:00 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/07/29 17:41:44  tobbej
+// commented nonworking videoport code
+//
 // Revision 1.8  2002/07/17 19:18:08  tobbej
 // try to connect the videoport pin first if there is one.
 // commented out unused ir code
@@ -131,38 +134,48 @@ void CDShowCaptureDevice::connect(CComPtr<IBaseFilter> filter)
 	//caputure filter it it has one.
 	//it looks like this code needs some tweaking since it doesnt work yet.
 	//winxp has a special filter that other os:es dont have.
-	/*CComPtr<IPin> pVPPin;
+	CComPtr<IPin> pVPPin;
 	HRESULT hr=m_pBuilder->FindPin(m_vidDev,PINDIR_OUTPUT,&PIN_CATEGORY_VIDEOPORT,NULL,TRUE,0,&pVPPin);
 	if(SUCCEEDED(hr))
 	{
-		CComPtr<IBaseFilter> pVBISurfAlloc;
-		hr=pVBISurfAlloc.CoCreateInstance(CLSID_VBISurfaces);
-		if(FAILED(hr))
+		LOG(2,"Capture device has a VideoPort pin, trying to connect it...",hr);
+		//render the vp pin
+		CString tmpstr;
+		hr=m_pGraph->Render(pVPPin);
+		if(SUCCEEDED(hr))
 		{
-			throw CDShowException("Failed to create VBI Surface Allocator",hr);
+			//the render call above most likely inserted a video renderer filter,
+			//disable it so we dont get an extra window.
+			CComPtr<IVideoWindow> pVWnd;
+			hr=m_pBuilder->FindInterface(&LOOK_DOWNSTREAM_ONLY,NULL,m_vidDev,IID_IVideoWindow,(void**)&pVWnd);
+			if(SUCCEEDED(hr))
+			{
+				hr=pVWnd->put_AutoShow(OAFALSE);
+				if(FAILED(hr))
+				{
+					DWORD len=AMGetErrorText(hr,tmpstr.GetBufferSetLength(MAX_ERROR_TEXT_LEN),MAX_ERROR_TEXT_LEN);
+					tmpstr.ReleaseBuffer(len);
+					LOG(2,"IVideoWindow::put_AutoShow failed. ErrorCode: 0x%x ErrorText: '%s'",hr,(LPCTSTR)tmpstr);
+				}
+				hr=pVWnd->put_Visible(OAFALSE);
+				if(FAILED(hr))
+				{
+					DWORD len=AMGetErrorText(hr,tmpstr.GetBufferSetLength(MAX_ERROR_TEXT_LEN),MAX_ERROR_TEXT_LEN);
+					tmpstr.ReleaseBuffer(len);
+					LOG(2,"IVideoWindow::put_Visible failed. ErrorCode: 0x%x ErrorText: '%s'",hr,(LPCTSTR)tmpstr);
+				}
+			}
 		}
-		hr=m_pGraph->AddFilter(pVBISurfAlloc,L"VBI Surface Allocator");
-		if(FAILED(hr))
+		else
 		{
-			throw CDShowException("Failed to add VBI Surface Allocator to graph",hr);
+			DWORD len=AMGetErrorText(hr,tmpstr.GetBufferSetLength(MAX_ERROR_TEXT_LEN),MAX_ERROR_TEXT_LEN);
+			tmpstr.ReleaseBuffer(len);
+			LOG(1,"Failed to connect VideoPort pin. ErrorCode: 0x%x ErrorText: '%s'",hr,(LPCTSTR)tmpstr);
 		}
-		CDShowPinEnum pins(pVBISurfAlloc,PINDIR_INPUT);
-		CComPtr<IPin> pVBIInPin;
-		pVBIInPin=pins.next();
-		
-		//there must be a input pin
-		ASSERT(pVBIInPin!=NULL);
-		hr=pVPPin->Connect(pVBIInPin,NULL);
-		if(FAILED(hr))
-		{
-			//shoud this be counted as fatal error or just continue and
-			//hope that RenderStream can fix this?
-			LOG(2, "Failed to connect VideoPort pin to VBI Surface Allocator");
-		}
-	}*/
-
+	}
+	
 	//first try to render interleaved (dv source), if it fails try normal render
-	HRESULT hr=m_pBuilder->RenderStream(&PIN_CATEGORY_CAPTURE,&MEDIATYPE_Interleaved,m_vidDev,NULL,filter);
+	hr=m_pBuilder->RenderStream(&PIN_CATEGORY_CAPTURE,&MEDIATYPE_Interleaved,m_vidDev,NULL,filter);
 	if(FAILED(hr))
 	{
 		hr=m_pBuilder->RenderStream(&PIN_CATEGORY_CAPTURE,&MEDIATYPE_Video,m_vidDev,NULL,filter);

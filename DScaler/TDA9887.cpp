@@ -1,5 +1,5 @@
 //
-// $Id: TDA9887.cpp,v 1.13 2004-11-27 14:15:56 atnak Exp $
+// $Id: TDA9887.cpp,v 1.14 2004-11-27 19:07:43 atnak Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2004/11/27 14:15:56  atnak
+// Changed variable name to fix conflict.
+//
 // Revision 1.12  2004/11/27 01:14:25  atnak
 // Fixed comments.
 //
@@ -597,10 +600,10 @@ void CTDA9887Ex::SetModes(IN eTDA9887Format format, IN BYTE mask, IN BYTE bits)
 	}
 
 	// Override demodulation
-	if (mask & TDA9887_SM_DEMODULATION_QSS)
+	if (mask & TDA9887_SM_CARRIER_QSS)
 	{
 		SetBit(m_TDASettings[format].b,
-			TDA9887_QSS, (bits & TDA9887_SM_DEMODULATION_QSS) != 0);
+			TDA9887_QSS, (bits & TDA9887_SM_CARRIER_QSS) != 0);
 	}
 	// Override OutputPort1
 	if (mask & TDA9887_SM_OUTPUTPORT1_INACTIVE)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ParsingCommon.cpp,v 1.1 2004-11-27 01:00:54 atnak Exp $
+// $Id: ParsingCommon.cpp,v 1.2 2004-11-27 19:07:43 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2004/11/27 01:00:54  atnak
+// New file for storing common parsing procedures for ini file card lists.
+//
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
@@ -243,7 +246,7 @@ BOOL ReadUseTDA9887Proc(IN int report, IN const ParseTag* tag, IN unsigned char 
 		if (report == REPORT_TAG)
 		{
 			SetTDA9887ModeMaskAndBits(useTDA9887Info->_readingModes,
-				TDA9887_SM_DEMODULATION_QSS, FALSE);
+				TDA9887_SM_CARRIER_QSS, FALSE);
 		}
 	}
 	// QSS
@@ -252,7 +255,7 @@ BOOL ReadUseTDA9887Proc(IN int report, IN const ParseTag* tag, IN unsigned char 
 		if (report == REPORT_TAG)
 		{
 			SetTDA9887ModeMaskAndBits(useTDA9887Info->_readingModes,
-				TDA9887_SM_DEMODULATION_QSS, TRUE);
+				TDA9887_SM_CARRIER_QSS, TRUE);
 		}
 	}
 	// Demodulation
@@ -261,7 +264,7 @@ BOOL ReadUseTDA9887Proc(IN int report, IN const ParseTag* tag, IN unsigned char 
 		if (report == REPORT_VALUE)
 		{
 			SetTDA9887ModeMaskAndBits(useTDA9887Info->_readingModes,
-				TDA9887_SM_DEMODULATION_QSS, reinterpret_cast<int>(value) != 0);
+				TDA9887_SM_CARRIER_QSS, reinterpret_cast<int>(value) != 0);
 		}
 	}
 	// OutputPort1

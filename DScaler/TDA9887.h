@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA9887.h,v 1.12 2004-11-27 14:15:57 atnak Exp $
+// $Id: TDA9887.h,v 1.13 2004-11-27 19:07:44 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2002 John Adcock.  All rights reserved.
@@ -21,6 +21,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2004/11/27 14:15:57  atnak
+// Changed variable name to fix conflict.
+//
 // Revision 1.11  2004/11/27 00:57:36  atnak
 // Completed changes for CTDA9887FromIni (and renamed to CTDA9887Ex).
 //
@@ -221,7 +224,7 @@ enum eTDA9887Format
 // Bits for SetCardSpecifics(...)'s TTDA9887CardSpecifics
 enum
 {
-	TDA9887_SM_DEMODULATION_QSS     = 0x04,   // != Intercarrier
+	TDA9887_SM_CARRIER_QSS     = 0x04,   // != Intercarrier
 	TDA9887_SM_OUTPUTPORT1_INACTIVE = 0x40,   // != Active
 	TDA9887_SM_OUTPUTPORT2_INACTIVE = 0x80,   // != Active
 	TDA9887_SM_TAKEOVERPOINT_MASK   = 0x1F,
@@ -231,11 +234,11 @@ enum
 // Only the modes specified in the enum above can be changed with
 // SetModes(...).  To change a mode, add the respective constant to the
 // 'mask' value then specify the new value in 'bits'.  For example, to
-// use the QSS demodulation mode and active OutputPort2 mode, the
+// use the QSS carrier mode and active OutputPort2 mode, the
 // following will be used:
 //
-// mask = TDA9887_SM_DEMODULATION_QSS|TDA9887_SM_OUTPUTPORT2_INACTIVE;
-// value = TDA9887_SM_DEMODULATION_QSS;
+// mask = TDA9887_SM_CARRIER_QSS|TDA9887_SM_OUTPUTPORT2_INACTIVE;
+// value = TDA9887_SM_CARRIER_QSS;
 //
 // If no changes are made, modes listed in k_TDAStandardtSettings are
 // used.

@@ -782,7 +782,7 @@ BEGIN
             POPUP "Major Carrier"
             BEGIN
                 MENUITEM "NTSC",                        IDM_MAJOR_CARRIER_0
-                MENUITEM "PAl BGH",                     IDM_MAJOR_CARRIER_1
+                MENUITEM "PAL BGH",                     IDM_MAJOR_CARRIER_1
                 MENUITEM "PAL I",                       IDM_MAJOR_CARRIER_2
                 MENUITEM "PAL D + Sat + Secam",         IDM_MAJOR_CARRIER_3
             END

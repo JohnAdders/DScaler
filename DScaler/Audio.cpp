@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Audio.cpp,v 1.16 2001-08-05 16:31:55 adcockj Exp $
+// $Id: Audio.cpp,v 1.17 2001-08-30 10:08:24 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2001/08/05 16:31:55  adcockj
+// Removed Fake MSP code
+//
 // Revision 1.15  2001/08/02 18:08:17  adcockj
 // Made all logging code use new levels
 //
@@ -203,7 +206,6 @@ int CarrierDetect[8] =
 
 int MSPMode = 3;
 int MSPStereo = VIDEO_SOUND_STEREO; // MAE 8 Dec 2000 Added default
-int MSPNewStereo;
 int MSPAutoDetectValue;
 BOOL MSPNicam;
 int MSPMajorMode = 0; // MAE 8 Dec 2000 Added default

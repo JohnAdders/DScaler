@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Tuner.cpp,v 1.6 2001-07-12 16:16:40 adcockj Exp $
+// $Id: Tuner.cpp,v 1.7 2001-07-13 16:14:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Code sourced from bttv linux driver tuner.c file
 //
@@ -35,6 +35,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/07/12 16:16:40  adcockj
+// Added CVS Id and Log
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -76,9 +79,8 @@ BOOL Tuner_Init()
     return (TRUE);
 }
 
-/*
- *  Set TSA5522 synthesizer frequency
- */
+// Set TSA5522 synthesizer frequency
+ 
 BOOL Tuner_SetFrequency(int wFrequency)
 {
     BYTE config;
@@ -97,8 +99,8 @@ BOOL Tuner_SetFrequency(int wFrequency)
 
     div = wFrequency + GetTunerSetup()->IFPCoff;
 
-    // handle mode on Philips SECAM tuners
-    // they can also recive PAL if the mode is set properly
+    // handle Mode on Philips SECAM tuners
+    // they can also recive PAL if the Mode is set properly
     if(Setting_GetValue(TVCard_GetSetting(CURRENTTUNERTYPE)) == TUNER_PHILIPS_SECAM)
     {
         if(Setting_GetValue(BT848_GetSetting(TVFORMAT)) == FORMAT_SECAM)

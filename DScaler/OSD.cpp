@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.11 2001-07-12 16:16:40 adcockj Exp $
+// $Id: OSD.cpp,v 1.12 2001-07-13 16:14:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2001/07/12 16:16:40  adcockj
+// Added CVS Id and Log
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -109,7 +112,7 @@ static struct {
     {   "WSS decoding screen",  OSD_TIMER_REFRESH_DELAY,    FALSE   },
 };
 static int  IdxCurrentScreen = -1;  // index of the current displayed OSD screen
-static BOOL bRestoreScreen = FALSE; // Restore info screen when clear OSD
+static BOOL bRestoreScreen = FALSE; // Restore Info screen when clear OSD
 
 BOOL        bOverride = FALSE;
 
@@ -122,32 +125,32 @@ void OSD_ClearAllTexts()
 
 //---------------------------------------------------------------------------
 // Add a new text to the list of texts for OSD
-void OSD_AddText(LPCTSTR szText, double dfSize, long textColor, OSD_TEXT_XPOS textXpos, double dfXpos, double dfYpos)
+void OSD_AddText(LPCTSTR szText, double Size, long TextColor, eOSDTextXPos TextXPos, double XPos, double YPos)
 {
     if ( (strlen(szText) == 0) || (NbText >= OSD_MAX_TEXT) )
     {
         return;
     }
 
-    if (dfSize == 0)
+    if (Size == 0)
     {
-        grOSD[NbText].dfSize = DefaultSizePerc;
+        grOSD[NbText].Size = DefaultSizePerc;
     }
     else
     {
-        grOSD[NbText].dfSize = dfSize;
+        grOSD[NbText].Size = Size;
     }
-    if (textColor == 0)
+    if (TextColor == 0)
     {
-        grOSD[NbText].textColor = TextColor;
+        grOSD[NbText].TextColor = TextColor;
     }
     else
     {
-        grOSD[NbText].textColor = textColor;
+        grOSD[NbText].TextColor = TextColor;
     }
-    grOSD[NbText].textXpos = textXpos;
-    grOSD[NbText].dfXpos = dfXpos;
-    grOSD[NbText].dfYpos = dfYpos;
+    grOSD[NbText].TextXPos = TextXPos;
+    grOSD[NbText].XPos = XPos;
+    grOSD[NbText].YPos = YPos;
     strncpy(grOSD[NbText].szText, szText, sizeof(grOSD[NbText].szText));
 
     NbText++;
@@ -178,13 +181,13 @@ void OSD_Show(HWND hWnd, int ShowType, int refresh_delay)
 
 //---------------------------------------------------------------------------
 // Display specified OSD text with autohide
-void OSD_ShowText(HWND hWnd, LPCTSTR szText, double dfSize)
+void OSD_ShowText(HWND hWnd, LPCTSTR szText, double Size)
 {
     if (bOverride) return;
     if (strlen(szText))
     {
         OSD_ClearAllTexts();
-        OSD_AddText(szText, dfSize, 0, OSD_XPOS_RIGHT, 0.9, 0.1);
+        OSD_AddText(szText, Size, 0, OSD_XPOS_RIGHT, 0.9, 0.1);
         OSD_Show(hWnd, OSD_AUTOHIDE, 0);
         if (bAutoHide)
             IdxCurrentScreen = -1;
@@ -200,13 +203,13 @@ void OSD_ShowText(HWND hWnd, LPCTSTR szText, double dfSize)
 //---------------------------------------------------------------------------
 // Displayed specified OSD text without autohide timer.
 // Stays on screen until a new OSD message replaces current OSD message.
-void OSD_ShowTextPersistent(HWND hWnd, LPCTSTR szText, double dfSize)
+void OSD_ShowTextPersistent(HWND hWnd, LPCTSTR szText, double Size)
 {
     if (bOverride) return;
     if (strlen(szText))
     {
         OSD_ClearAllTexts();
-        OSD_AddText(szText, dfSize, 0, OSD_XPOS_RIGHT, 0.9, 0.1);
+        OSD_AddText(szText, Size, 0, OSD_XPOS_RIGHT, 0.9, 0.1);
         OSD_Show(hWnd, OSD_PERSISTENT, 0);
         if (bAutoHide)
             IdxCurrentScreen = -1;
@@ -224,10 +227,10 @@ void OSD_ShowTextPersistent(HWND hWnd, LPCTSTR szText, double dfSize)
 // to override all other OSD text showings (done by the above functions).
 // This is useful for external programs to override DScaler's own OSD text
 // for its own controls.
-void OSD_ShowTextOverride(HWND hWnd, LPCTSTR szText, double dfSize)
+void OSD_ShowTextOverride(HWND hWnd, LPCTSTR szText, double Size)
 {
     bOverride = FALSE;
-    OSD_ShowText(hWnd, szText, dfSize);
+    OSD_ShowText(hWnd, szText, Size);
     if (strlen(szText)) bOverride = TRUE;
 }
 
@@ -242,7 +245,7 @@ void OSD_Clear(HWND hWnd)
     bOverride = FALSE;
     for (i = 0 ; i < NbText ; i++)
     {
-        InvalidateRect(hWnd, &(grOSD[i].currentRect), FALSE);
+        InvalidateRect(hWnd, &(grOSD[i].CurrentRect), FALSE);
     }
     if (bRestoreScreen && (IdxCurrentScreen != -1) && ActiveScreens[IdxCurrentScreen].active)
     {
@@ -286,9 +289,9 @@ void OSD_Redraw(HWND hWnd, HDC hDC)
         {
 
         // LG 02/25/2001 This line is no more needed
-        // if (grOSD[i].dfSize == 0) grOSD[i].dfSize = DefaultSizePerc;
+        // if (grOSD[i].Size == 0) grOSD[i].Size = DefaultSizePerc;
 
-        nFontsize = (int)((double)nYWinSize * (grOSD[i].dfSize / 100.00));
+        nFontsize = (int)((double)nYWinSize * (grOSD[i].Size / 100.00));
 
         // Set specified font
         if(bAntiAlias)
@@ -321,21 +324,21 @@ void OSD_Redraw(HWND hWnd, HDC hDC)
             GetTextMetrics(hDC, &tmOSDFont);
             GetTextExtentPoint32(hDC, grOSD[i].szText, strlen(grOSD[i].szText), &sizeText);
 
-            switch (grOSD[i].textXpos)
+            switch (grOSD[i].TextXPos)
             {
             case OSD_XPOS_RIGHT:
-                nXpos = (int)((double)nXWinSize * grOSD[i].dfXpos) - sizeText.cx;
+                nXpos = (int)((double)nXWinSize * grOSD[i].XPos) - sizeText.cx;
                 break;
             case OSD_XPOS_CENTER:
-                nXpos = (int)((double)nXWinSize * grOSD[i].dfXpos - (double)sizeText.cx / 2.0);
+                nXpos = (int)((double)nXWinSize * grOSD[i].XPos - (double)sizeText.cx / 2.0);
                 break;
             case OSD_XPOS_LEFT:
             default:
-                nXpos = (int)((double)nXWinSize * grOSD[i].dfXpos);
+                nXpos = (int)((double)nXWinSize * grOSD[i].XPos);
                 break;
             }
 
-            nYpos = (int)((double)nYWinSize * grOSD[i].dfYpos);
+            nYpos = (int)((double)nYWinSize * grOSD[i].YPos);
 
             // Draw the requested background for the text
             switch(Background)
@@ -396,7 +399,7 @@ void OSD_Redraw(HWND hWnd, HDC hDC)
             // Draw OSD text
             if (SelectObject(hDC, hOSDfont))
             {
-                SetTextColor(hDC, grOSD[i].textColor);
+                SetTextColor(hDC, grOSD[i].TextColor);
                 SetBkColor(hDC, OutlineColor);
                 TextOut(hDC, nXpos, nYpos, grOSD[i].szText, strlen(grOSD[i].szText));
 
@@ -405,10 +408,10 @@ void OSD_Redraw(HWND hWnd, HDC hDC)
                     SIZE sz;
                     GetTextExtentExPoint(hDC, grOSD[i].szText, strlen(grOSD[i].szText), 
                                             32000, NULL, NULL, &sz);
-                    grOSD[i].currentRect.left = nXpos-4; if (grOSD[i].currentRect.left < 0) grOSD[i].currentRect.left = 0;
-                    grOSD[i].currentRect.right = nXpos + sz.cx + 4;
-                    grOSD[i].currentRect.top = nYpos-4; if (grOSD[i].currentRect.top < 0) grOSD[i].currentRect.top = 0;
-                    grOSD[i].currentRect.bottom = nYpos + sz.cy + 4;
+                    grOSD[i].CurrentRect.left = nXpos-4; if (grOSD[i].CurrentRect.left < 0) grOSD[i].CurrentRect.left = 0;
+                    grOSD[i].CurrentRect.right = nXpos + sz.cx + 4;
+                    grOSD[i].CurrentRect.top = nYpos-4; if (grOSD[i].CurrentRect.top < 0) grOSD[i].CurrentRect.top = 0;
+                    grOSD[i].CurrentRect.bottom = nYpos + sz.cy + 4;
                 }
             }
 
@@ -423,15 +426,15 @@ void OSD_Redraw(HWND hWnd, HDC hDC)
 
 //---------------------------------------------------------------------------
 // Calculate vertical position of line in OSD screen
-//    Return value between 0 (top) and 1 (bottom)
+//    Return Value between 0 (top) and 1 (bottom)
 //    Use line number > 0 if reference is top
 //    Use line number < 0 if reference is bottom
-//    dfMargin is a percent of screen height/width and value must be between 0 and 1
-//    dfSize is a percent of screen height and value must be between 0 and 100
-static double OSD_GetLineYpos (int nLine, double dfMargin, double dfSize)
+//    dfMargin is a percent of screen height/width and Value must be between 0 and 1
+//    Size is a percent of screen height and Value must be between 0 and 100
+static double OSD_GetLineYpos (int nLine, double dfMargin, double Size)
 {
     double  dfY;
-    double  dfH = dfSize / 100;
+    double  dfH = Size / 100;
 
     // Line number 0 has no sense
     if (nLine == 0) return (0);
@@ -456,7 +459,7 @@ static double OSD_GetLineYpos (int nLine, double dfMargin, double dfSize)
 
 //---------------------------------------------------------------------------
 // Display/Refresh on screen the current information screen
-void OSD_RefreshInfosScreen(HWND hWnd, double dfSize, int ShowType)
+void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
 {
     double          dfMargin = 0.02;    // 2% of screen height/width
     char            szInfo[64];
@@ -470,7 +473,7 @@ void OSD_RefreshInfosScreen(HWND hWnd, double dfSize, int ShowType)
     if (IdxCurrentScreen == -1)
         return;
 
-    if (dfSize == 0)    dfSize = DefaultSmallSizePerc;
+    if (Size == 0)    Size = DefaultSmallSizePerc;
 
     OSD_ClearAllTexts();
 
@@ -479,13 +482,13 @@ void OSD_RefreshInfosScreen(HWND hWnd, double dfSize, int ShowType)
     // GENERAL SCREEN
     case 0:
         // DScaler version
-        OSD_AddText(GetProductNameAndVersion(), dfSize, 0, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, dfSize));
+        OSD_AddText(GetProductNameAndVersion(), Size, 0, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size));
 
         // Channel
         nLine = 2;
         if (Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)) == SOURCE_TUNER)
         {
-            OSD_AddText(Channel_GetName(), dfSize, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine, dfMargin, dfSize));
+            OSD_AddText(Channel_GetName(), Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
             nLine++;
         }
 
@@ -527,7 +530,7 @@ void OSD_RefreshInfosScreen(HWND hWnd, double dfSize, int ShowType)
             break;
         }
         strcat(szInfo, BT848_GetTVFormat()->szDesc);
-        OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
+        OSD_AddText(szInfo, Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
         // Audio input + muting
         switch (AudioSource) {
@@ -557,11 +560,11 @@ void OSD_RefreshInfosScreen(HWND hWnd, double dfSize, int ShowType)
         {
             strcat (szInfo, " - MUTE");
         }
-        OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
+        OSD_AddText(szInfo, Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
         // Pixel width
         sprintf (szInfo, "Pixel width : %u", Setting_GetValue(BT848_GetSetting(CURRENTX)));
-        OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
+        OSD_AddText(szInfo, Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
         // Source ratio
         sprintf(szInfo, "Source %.2f:1", (double)Setting_GetValue(Aspect_GetSetting(SOURCE_ASPECT)) / 1000.0);
@@ -574,31 +577,31 @@ void OSD_RefreshInfosScreen(HWND hWnd, double dfSize, int ShowType)
         {
             strcat(szInfo, " Anamorphic");
         }
-        OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
+        OSD_AddText(szInfo, Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
         // Display ratio
         if (Setting_GetValue(Aspect_GetSetting(TARGET_ASPECT)) == 0)
             strcpy(szInfo, "Display ratio from current resolution");
         else
             sprintf(szInfo, "Display %.2f:1", (double)Setting_GetValue(Aspect_GetSetting(TARGET_ASPECT)) / 1000.0);
-        OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
+        OSD_AddText(szInfo, Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
         // Video settings
         nLine = 2;
         sprintf (szInfo, "Brightness : %03d", Setting_GetValue(BT848_GetSetting(BRIGHTNESS)));
-        OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
+        OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
         sprintf (szInfo, "Contrast : %03u", Setting_GetValue(BT848_GetSetting(CONTRAST)));
-        OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
+        OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
         sprintf (szInfo, "Hue : %03d", Setting_GetValue(BT848_GetSetting(HUE)));
-        OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
+        OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
         sprintf (szInfo, "Color : %03u", Setting_GetValue(BT848_GetSetting(SATURATION)));
-        OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
+        OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
         sprintf (szInfo, "Color U : %03u", Setting_GetValue(BT848_GetSetting(SATURATIONU)));
-        OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
+        OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
         sprintf (szInfo, "Color V : %03u", Setting_GetValue(BT848_GetSetting(SATURATIONV)));
-        OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
+        OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
-        // Deinterlace mode
+        // Deinterlace Mode
         nLine = -1;
         if (Setting_GetValue(OutThreads_GetSetting(DOACCURATEFLIPS)))
         {
@@ -608,7 +611,7 @@ void OSD_RefreshInfosScreen(HWND hWnd, double dfSize, int ShowType)
         {
             strcpy(szInfo, "Judder Terminator OFF");
         }
-        OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, dfSize));
+        OSD_AddText(szInfo, Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
         if (Setting_GetValue(FD60_GetSetting(FALLBACKTOVIDEO)))
         {
             strcpy(szInfo, "Fallback on Bad Pulldown ON");
@@ -617,7 +620,7 @@ void OSD_RefreshInfosScreen(HWND hWnd, double dfSize, int ShowType)
         {
             strcpy(szInfo, "Fallback on Bad Pulldown OFF");
         }
-        OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, dfSize));
+        OSD_AddText(szInfo, Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
         if (Setting_GetValue(OutThreads_GetSetting(AUTODETECT)))
         {
             strcpy(szInfo, "Auto Pulldown Detect ON");
@@ -626,8 +629,8 @@ void OSD_RefreshInfosScreen(HWND hWnd, double dfSize, int ShowType)
         {
             strcpy(szInfo, "Auto Pulldown Detect OFF");
         }
-        OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, dfSize));
-        OSD_AddText(GetDeinterlaceModeName(), dfSize, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, dfSize));
+        OSD_AddText(szInfo, Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
+        OSD_AddText(GetDeinterlaceModeName(), Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
 
         // Filters
         nLine = -1;
@@ -642,27 +645,27 @@ void OSD_RefreshInfosScreen(HWND hWnd, double dfSize, int ShowType)
             {
                 strcat(szInfo, " OFF");
             }
-            OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine--, dfMargin, dfSize));
+            OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
         }
         break;
 
     // WSS DATA DECODING SCREEN
     case 2:
         // Title
-        OSD_AddText("WSS data decoding", dfSize*1.5, OSD_COLOR_TITLE, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, dfSize*1.5));
+        OSD_AddText("WSS data decoding", Size*1.5, OSD_COLOR_TITLE, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
 
         nLine = 3;
 
-        OSD_AddText("Status", dfSize, OSD_COLOR_SECTION, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
+        OSD_AddText("Status", Size, OSD_COLOR_SECTION, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
         sprintf (szInfo, "Errors : %d", WSS_CtrlData.NbDecodeErr);
-        OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
+        OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
         sprintf (szInfo, "Ok : %d", WSS_CtrlData.NbDecodeOk);
-        OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
+        OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
         if ((WSS_CtrlData.NbDecodeErr+WSS_CtrlData.NbDecodeOk) > 0)
         {
             sprintf (szInfo, "Last : %s", (WSS_CtrlData.DecodeStatus == WSS_STATUS_OK) ? "OK" : "ERROR");
-            OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
+            OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
         }
 
         if ((WSS_CtrlData.NbDecodeOk+WSS_CtrlData.NbDecodeErr) > 0)
@@ -674,17 +677,17 @@ void OSD_RefreshInfosScreen(HWND hWnd, double dfSize, int ShowType)
             if (WSS_CtrlData.NbDecodeOk > 0)
             {
                 sprintf (szInfo, "Start position min / max : %d / %d", WSS_CtrlData.MinPos, WSS_CtrlData.MaxPos);
-                OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine--, dfMargin, dfSize));
+                OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
             }
             sprintf (szInfo, "Errors searching start position : %d", WSS_CtrlData.NbErrPos);
-            OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine--, dfMargin, dfSize));
-            OSD_AddText("Debug", dfSize, OSD_COLOR_SECTION, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine--, dfMargin, dfSize));
+            OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
+            OSD_AddText("Debug", Size, OSD_COLOR_SECTION, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
 
             if (WSS_CtrlData.DecodeStatus != WSS_STATUS_ERROR)
             {
                 nLine = 3;
 
-                OSD_AddText("Data", dfSize, OSD_COLOR_SECTION, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
+                OSD_AddText("Data", Size, OSD_COLOR_SECTION, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
                 // WSS data
                 if (WSS_Data.AspectRatio > 0)
@@ -699,15 +702,15 @@ void OSD_RefreshInfosScreen(HWND hWnd, double dfSize, int ShowType)
                 {
                     strcpy (szInfo, "Aspect ratio : undefined");
                 }
-                OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
-                sprintf (szInfo, "Mode : %s", WSS_Data.FilmMode ? "film mode" : "camera mode");     
-                OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
+                OSD_AddText(szInfo, Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+                sprintf (szInfo, "Mode : %s", WSS_Data.FilmMode ? "film Mode" : "camera Mode");     
+                OSD_AddText(szInfo, Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
                 sprintf (szInfo, "Helper signals : %s", WSS_Data.HelperSignals ? "yes" : "no");     
-                OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
+                OSD_AddText(szInfo, Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
                 sprintf (szInfo, "Color encoding : %s", WSS_Data.ColorPlus ? "ColorPlus" : "normal");
-                OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
+                OSD_AddText(szInfo, Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
                 sprintf (szInfo, "Teletext subtitles : %s", WSS_Data.TeletextSubtitle ? "yes" : "no");      
-                OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
+                OSD_AddText(szInfo, Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
                 switch (WSS_Data.OpenSubtitles)
                 {
                 case WSS625_SUBTITLE_NO:
@@ -723,13 +726,13 @@ void OSD_RefreshInfosScreen(HWND hWnd, double dfSize, int ShowType)
                     strcpy (szInfo, "Open subtitles : ???");
                     break;
                 }
-                OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
+                OSD_AddText(szInfo, Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
                 sprintf (szInfo, "Surround sound : %s", WSS_Data.SurroundSound ? "yes" : "no");     
-                OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
+                OSD_AddText(szInfo, Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
                 sprintf (szInfo, "Copyright asserted : %s", WSS_Data.CopyrightAsserted ? "yes" : "no");     
-                OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
+                OSD_AddText(szInfo, Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
                 sprintf (szInfo, "Copy protection : %s", WSS_Data.CopyProtection ? "yes" : "no");       
-                OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
+                OSD_AddText(szInfo, Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
             }
         }
         break;
@@ -737,42 +740,42 @@ void OSD_RefreshInfosScreen(HWND hWnd, double dfSize, int ShowType)
     // STATISTICS SCREEN
     case 1:
         // Title
-        OSD_AddText("Statistics", dfSize*1.5, OSD_COLOR_TITLE, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, dfSize*1.5));
+        OSD_AddText("Statistics", Size*1.5, OSD_COLOR_TITLE, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
 
         nLine = 3;
 
-        OSD_AddText("Dropped fields", dfSize, OSD_COLOR_SECTION, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
+        OSD_AddText("Dropped fields", Size, OSD_COLOR_SECTION, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
         sprintf (szInfo, "Number : %ld", nTotalDropFields);
-        OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
+        OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
         sprintf (szInfo, "Last second : %d", (int)ceil(nDropFieldsLastSec - 0.5));
 //      sprintf (szInfo, "Last second : %.1f", nDropFieldsLastSec);
-        OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
+        OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
         sprintf (szInfo, "Average / s : %.1f", (double)nTotalDropFields * 1000 / (double)nSecTicks);
-        OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
+        OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
-        OSD_AddText("Used fields", dfSize, OSD_COLOR_SECTION, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
+        OSD_AddText("Used fields", Size, OSD_COLOR_SECTION, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
         sprintf (szInfo, "Last second : %d", (int)ceil(nUsedFieldsLastSec - 0.5));
 //      sprintf (szInfo, "Last second : %.1f", nUsedFieldsLastSec);
-        OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
+        OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
         sprintf (szInfo, "Average / s : %.1f", (double)nTotalUsedFields * 1000.0 / (double)nSecTicks);
-        OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
+        OSD_AddText(szInfo, Size, 0, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
         nLine = 3;
 
-        OSD_AddText("Deinterlace modes", dfSize, OSD_COLOR_SECTION, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
+        OSD_AddText("Deinterlace Modes", Size, OSD_COLOR_SECTION, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
         sprintf (szInfo, "Number of changes : %ld", nTotalDeintModeChanges);
-        OSD_AddText(szInfo, dfSize, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
+        OSD_AddText(szInfo, Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
         nLine++;
-        OSD_AddText("changes - % of time - mode", dfSize, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, dfSize));
+        OSD_AddText("changes - % of time - Mode", Size, 0, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
         for (i = 0 ; i < FILMPULLDOWNMODES_LAST_ONE ; i++)
         {
-            DeintMethod = GetFilmDeintMethod((eFILMPULLDOWNMODES)i);
+            DeintMethod = GetFilmDeintMethod((eFilmPulldownMode)i);
             if (DeintMethod->ModeChanges > 0)
             {
-                pos = OSD_GetLineYpos (nLine, dfMargin, dfSize);
+                pos = OSD_GetLineYpos (nLine, dfMargin, Size);
                 if (pos > 0)
                 {
                     if (DeintMethod == GetCurrentDeintMethod())
@@ -784,7 +787,7 @@ void OSD_RefreshInfosScreen(HWND hWnd, double dfSize, int ShowType)
                         Color = 0;
                     }
                     sprintf (szInfo, "%04d - %05.1f %% - %s", DeintMethod->ModeChanges, DeintMethod->ModeTicks * 100 / (double)(nLastTicks - nInitialTicks), DeintMethod->szName);
-                    OSD_AddText(szInfo, dfSize, Color, OSD_XPOS_LEFT, dfMargin, pos);
+                    OSD_AddText(szInfo, Size, Color, OSD_XPOS_LEFT, dfMargin, pos);
                     nLine++;
                 }
             }
@@ -795,7 +798,7 @@ void OSD_RefreshInfosScreen(HWND hWnd, double dfSize, int ShowType)
         {
             if (DeintMethod->ModeChanges > 0)
             {
-                pos = OSD_GetLineYpos (nLine, dfMargin, dfSize);
+                pos = OSD_GetLineYpos (nLine, dfMargin, Size);
                 if (pos > 0)
                 {
                     if (DeintMethod == GetCurrentDeintMethod())
@@ -807,7 +810,7 @@ void OSD_RefreshInfosScreen(HWND hWnd, double dfSize, int ShowType)
                         Color = 0;
                     }
                     sprintf (szInfo, "%04d - %05.1f %% - %s", DeintMethod->ModeChanges, DeintMethod->ModeTicks * 100 / (double)(nLastTicks - nInitialTicks), DeintMethod->szName);
-                    OSD_AddText(szInfo, dfSize, Color, OSD_XPOS_LEFT, dfMargin, pos);
+                    OSD_AddText(szInfo, Size, Color, OSD_XPOS_LEFT, dfMargin, pos);
                     nLine++;
                 }
             }
@@ -827,7 +830,7 @@ void OSD_RefreshInfosScreen(HWND hWnd, double dfSize, int ShowType)
 //---------------------------------------------------------------------------
 // Display on screen the first information screen if no screen is already
 // displayed, or the next one
-void OSD_ShowNextInfosScreen(HWND hWnd, double dfSize)
+void OSD_ShowNextInfosScreen(HWND hWnd, double Size)
 {
     int     NbScreens;          // number of OSD scrrens
     int     IdxScreen;
@@ -856,12 +859,12 @@ void OSD_ShowNextInfosScreen(HWND hWnd, double dfSize)
         return;
     }
 
-    OSD_RefreshInfosScreen(hWnd, dfSize, bAutoHide ? OSD_AUTOHIDE : OSD_PERSISTENT);
+    OSD_RefreshInfosScreen(hWnd, Size, bAutoHide ? OSD_AUTOHIDE : OSD_PERSISTENT);
 }
 
 //---------------------------------------------------------------------------
 // Display on screen the information screen whose number is given as parameter
-void OSD_ShowInfosScreen(HWND hWnd, int IdxScreen, double dfSize)
+void OSD_ShowInfosScreen(HWND hWnd, int IdxScreen, double Size)
 {
     int     NbScreens;      // number of OSD scrrens
     int     PrevIdxScreen;
@@ -884,12 +887,12 @@ void OSD_ShowInfosScreen(HWND hWnd, int IdxScreen, double dfSize)
         return;
     }
 
-    OSD_RefreshInfosScreen(hWnd, dfSize, bAutoHide ? OSD_AUTOHIDE : OSD_PERSISTENT);
+    OSD_RefreshInfosScreen(hWnd, Size, bAutoHide ? OSD_AUTOHIDE : OSD_PERSISTENT);
 }
 
 //---------------------------------------------------------------------------
 // Activate or desactivate the information screen whose number is given as parameter
-void OSD_ActivateInfosScreen(HWND hWnd, int IdxScreen, double dfSize)
+void OSD_ActivateInfosScreen(HWND hWnd, int IdxScreen, double Size)
 {
     int     NbScreens;      // number of OSD scrrens
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_CCdecode.h,v 1.4 2001-07-12 16:16:40 adcockj Exp $
+// $Id: VBI_CCdecode.h,v 1.5 2001-07-13 16:14:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 1998 Timecop.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -28,7 +28,7 @@
 #ifndef __CCDECODE_H___
 #define __CCDECODE_H___
 
-typedef enum
+enum eCCColor
 {
     CC_WHITE,
     CC_GREEN,
@@ -38,20 +38,20 @@ typedef enum
     CC_YELLOW,
     CC_MAGENTA,
     CC_BLACK,
-} CC_Color;
+};
 
 typedef struct
 {
     BOOL bIsActive;
     char Text;
-    CC_Color ForeColor;
-    CC_Color BackColor;
+    eCCColor ForeColor;
+    eCCColor BackColor;
     BOOL bUnderline;
     BOOL bFlash;
     BOOL bItalics;
-} TCC_Char;
+} TCCChar;
 
-typedef enum
+enum eCCMode
 {
     CCMODE_OFF,
     CCMODE_CC1,
@@ -62,25 +62,25 @@ typedef enum
     CCMODE_TEXT2,
     CCMODE_TEXT3,
     CCMODE_TEXT4,
-} CCMODE;
+};
 
-typedef enum
+enum eCaptionMode
 {
     TEXT,
     ROLL_UP,
     POP_ON,
     PAINT_ON,
-} CAPTIONMODE;
+};
 
 #define CC_CHARS_PER_LINE 48
 
 typedef struct
 {
-    TCC_Char ScreenData[15][CC_CHARS_PER_LINE];
-} TCC_Screen;
+    TCCChar ScreenData[15][CC_CHARS_PER_LINE];
+} TCCScreen;
 
-int CC_DecodeLine(BYTE* vbiline, CCMODE CCMode, BOOL IsOdd);
-void CC_PaintScreen(HWND hWnd, TCC_Screen* Screen, HDC hDC, RECT* PaintRect);
+int CC_DecodeLine(BYTE* vbiline, eCCMode CCMode, BOOL IsOdd);
+void CC_PaintScreen(HWND hWnd, TCCScreen* Screen, HDC hDC, RECT* PaintRect);
 
 
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.h,v 1.8 2001-07-12 16:16:40 adcockj Exp $
+// $Id: MixerDev.h,v 1.9 2001-07-13 16:14:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -119,7 +119,7 @@ void Mixer_Mute();
 void Mixer_UnMute();
 void Mixer_Volume_Up();
 void Mixer_Volume_Down();
-void Mixer_OnInputChange(VIDEOSOURCETYPE NewType);
+void Mixer_OnInputChange(eVideoSourceType NewType);
 long Mixer_GetVolume();
 void Mixer_Init();
 void Mixer_Exit();

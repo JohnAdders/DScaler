@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Dialogs.h,v 1.6 2001-07-12 16:16:39 adcockj Exp $
+// $Id: Dialogs.h,v 1.7 2001-07-13 16:14:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -42,7 +42,7 @@ BOOL APIENTRY SplashProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 BOOL APIENTRY VPSInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 BOOL APIENTRY AboutProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 BOOL APIENTRY ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
-void SetHorSliderInt(HWND hDlgItem, int yPos, int Value, int nMin, int nMax);
+void SetHorSliderInt(HWND hDlgItem, int m_YPos, int Value, int nMin, int nMax);
 int GetHorSliderInt(int MouseX, int nMin, int nMax);
 LPCSTR GetProductNameAndVersion();
 

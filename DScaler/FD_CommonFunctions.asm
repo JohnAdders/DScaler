@@ -1,5 +1,5 @@
 ;////////////////////////////////////////////////////////////////////////////
-; $Id: FD_CommonFunctions.asm,v 1.11 2001-07-12 16:16:40 adcockj Exp $
+; $Id: FD_CommonFunctions.asm,v 1.12 2001-07-13 16:14:56 adcockj Exp $
 ;////////////////////////////////////////////////////////////////////////////
 ; Copyright (c) 2000 John Adcock. All rights reserved.
 ;////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,9 @@
 ; CVS Log
 ;
 ; $Log: not supported by cvs2svn $
+; Revision 1.11  2001/07/12 16:16:40  adcockj
+; Added CVS Id and Log
+;
 ;
 ;////////////////////////////////////////////////////////////////////////////
 
@@ -371,7 +374,7 @@ DiffChroma_Loop:
     ret 
 
 ;////////////////////////////////////////////////////////////////////
-; void memcpyBOBMMX(void *Dest1, void *Dest2, void *Src, size_t nBytes);
+; void memcpyBOBMMX(void* Dest1, void* Dest2, void* Src, size_t nBytes);
 ;////////////////////////////////////////////////////////////////////
 
 public _memcpyBOBMMX
@@ -447,7 +450,7 @@ memcpyBOB_End:
     ret 
 
 ;////////////////////////////////////////////////////////////////////
-; void memcpyBOBSSE(void *Dest1, void *Dest2, void *Src, size_t nBytes);
+; void memcpyBOBSSE(void* Dest1, void* Dest2, void* Src, size_t nBytes);
 ;////////////////////////////////////////////////////////////////////
 
 public _memcpyBOBSSE
@@ -523,7 +526,7 @@ memcpyBOBSSE_End:
     ret 
 
 ;////////////////////////////////////////////////////////////////////
-; void memcpyMMX(void *Dest, void *Src, size_t nBytes);
+; void memcpyMMX(void* Dest, void* Src, size_t nBytes);
 ;
 ; Uses MMX instructions to move memory around
 ; does as much as we can in 64 byte chunks (128-byte on SSE machines)
@@ -582,7 +585,7 @@ Memcpy_End:
 
 
 ;////////////////////////////////////////////////////////////////////
-; void memcpySSE(void *Dest, void *Src, size_t nBytes);
+; void memcpySSE(void* Dest, void* Src, size_t nBytes);
 ;
 ; On SSE machines we use the 
 ; bypass write caching to copy a bit faster.  The destination has to be
@@ -639,7 +642,7 @@ MemcpySSE_End:
     ret 
 
 ;////////////////////////////////////////////////////////////////////
-; void memcpyAMD(void *Dest, void *Src, size_t nBytes);
+; void memcpyAMD(void* Dest, void* Src, size_t nBytes);
 ;
 ; Comes from AMD Site
 ;////////////////////////////////////////////////////////////////////
@@ -711,7 +714,7 @@ MemcpyAMD_End:
     ret 
 
 ;////////////////////////////////////////////////////////////////////
-; void memcpySimple(void *Dest, void *Src, size_t nBytes);
+; void memcpySimple(void* Dest, void* Src, size_t nBytes);
 ;
 ; On SSE machines we use the 
 ; bypass write caching to copy a bit faster.  The destination has to be

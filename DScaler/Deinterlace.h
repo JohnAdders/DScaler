@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.h,v 1.10 2001-07-12 16:16:39 adcockj Exp $
+// $Id: Deinterlace.h,v 1.11 2001-07-13 16:14:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -45,12 +45,12 @@ void Deinterlace_WriteSettingsToIni();
 void Deinterlace_SetMenu(HMENU hMenu);
 
 
-// Deinterlace modes.  Since these modes are referred to by number in the
+// Deinterlace Modes.  Since these Modes are referred to by number in the
 // INI file, it's desirable to keep the numbers consistent between releases.
-// Otherwise users will end up in the wrong modes when they upgrade.  If
-// you renumber or add/remove modes, be sure to update inifile.htm, which
-// documents the mode IDs!
-typedef enum
+// Otherwise users will end up in the wrong Modes when they upgrade.  If
+// you renumber or add/remove Modes, be sure to update inifile.htm, which
+// documents the Mode IDs!
+enum eFilmPulldownMode
 {
     FILM_22_PULLDOWN_ODD = 0,
     FILM_22_PULLDOWN_EVEN = 1,
@@ -62,7 +62,7 @@ typedef enum
     FILM_32_PULLDOWN_COMB = 7,
     FILM_22_PULLDOWN_COMB = 8,
     FILMPULLDOWNMODES_LAST_ONE = 9
-} eFILMPULLDOWNMODES;
+};
 
 #define MAX_FIELD_HISTORY 5
 
@@ -72,13 +72,13 @@ void UnloadDeinterlacePlugins();
 DEINTERLACE_METHOD* GetCurrentDeintMethod();
 DEINTERLACE_METHOD* GetVideoDeintMethod(int Mode);
 DEINTERLACE_METHOD* GetVideoDeintIndex(int Index);
-DEINTERLACE_METHOD* GetFilmDeintMethod(eFILMPULLDOWNMODES Mode);
+DEINTERLACE_METHOD* GetFilmDeintMethod(eFilmPulldownMode Mode);
 BOOL ProcessDeinterlaceSelection(HWND hWnd, WORD wMenuID);
 
 BOOL IsFilmMode();
-eFILMPULLDOWNMODES GetFilmMode();
+eFilmPulldownMode GetFilmMode();
 BOOL InHalfHeightMode();
-void SetFilmDeinterlaceMode(eFILMPULLDOWNMODES mode);
+void SetFilmDeinterlaceMode(eFilmPulldownMode Mode);
 void SetVideoDeinterlaceIndex(int index);
 void ShowVideoModeUI();
 char* GetDeinterlaceModeName();

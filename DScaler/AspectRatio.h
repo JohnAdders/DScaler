@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.h,v 1.13 2001-07-12 16:16:39 adcockj Exp $
+// $Id: AspectRatio.h,v 1.14 2001-07-13 16:14:55 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -57,21 +57,21 @@ void Aspect_ShowUI();
 
 #define ABS(x) ((x) < 0 ? -(x) : (x))
 
-// The HORIZ_POS and VERT_POS are ordered in reverse
+// The HORIZ_POS and eVertPos are ordered in reverse
 // because it works better during increment/decrement operations
-typedef enum
+enum eVertPos
 {
     VERT_POS_BOTTOM = 0,
     VERT_POS_CENTRE,
     VERT_POS_TOP,
-} VERT_POS;
+};
 
-typedef enum
+enum eHorzPos
 {
     HORZ_POS_RIGHT = 0,
     HORZ_POS_CENTRE,
     HORZ_POS_LEFT,
-} HORZ_POS;
+};
 
 BOOL    ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID);
 void    AspectRatio_SetMenu(HMENU hMenu);
@@ -79,8 +79,8 @@ void    WorkoutOverlaySize(BOOL allowResize = TRUE);
 void    PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect);
 int     FindAspectRatio(short** EvenField, short** OddField);
 void    AdjustAspectRatio(long SourceAspectAdjust, short** EvenField, short** OddField);
-void    GetSourceRect(RECT *rect);
-void    GetDestRect(RECT *rect);
+void    GetSourceRect(RECT* rect);
+void    GetDestRect(RECT* rect);
 void    SwitchToRatio(int nMode, int nRatio);
 double  GetActualSourceFrameAspect();
 
@@ -88,17 +88,17 @@ double  GetActualSourceFrameAspect();
 // based on function of the various settings.
 typedef struct 
 {
-    // Added variable in dTV.c to track which aspect mode we are currently in
+    // Added variable in dTV.c to track which aspect Mode we are currently in
     // Use aspect * 1000 (1.66 = 1660, 2.35 = 2350, etc)
-    // Use negative values for source_aspect to imply anamorphic sources
-    // Note: target_aspect is the aspect ratio of the screen.
-    int source_aspect;
-    int target_aspect;
+    // Use negative values for SourceAspect to imply anamorphic sources
+    // Note: TargetAspect is the aspect ratio of the screen.
+    int SourceAspect;
+    int TargetAspect;
 
     // Mode 0 = do nothing, 1 = Letterboxed, 2 = 16:9 anamorphic
-    int aspect_mode;
+    int AspectMode;
 
-    int custom_source_aspect;
+    int CustomSourceAspect;
     int custom_target_aspect;
 
     // Luminance cutoff for a black pixel for letterbox detection.  0-127.
@@ -141,63 +141,63 @@ typedef struct
 
     // Where does the window sit on the screen
     // defaults to bang in the middle
-    VERT_POS VerticalPos;
-    HORZ_POS HorizontalPos;
+    eVertPos VerticalPos;
+    eHorzPos HorizontalPos;
 
-    RECT destinationRectangle;
-    RECT sourceRectangle;
-    RECT destinationRectangleWindow; // MRS 2-22-01 
-    BOOL deferedSetOverlay; // MRS 2-22-01 - Wait until middle of WM_PAINT to set overlay (between drawing of black bars and drawing of overlay color)
-    BOOL overlayNeedsSetting; // MRS 2-22-01
+    RECT DestinationRect;
+    RECT SourceRect;
+    RECT DestinationRectWindow; // MRS 2-22-01 
+    BOOL DeferedSetOverlay; // MRS 2-22-01 - Wait until middle of WM_PAINT to set overlay (between drawing of black bars and drawing of overlay color)
+    BOOL OverlayNeedsSetting; // MRS 2-22-01
 
     int InitialOverscan;
 
     // If TRUE, black bars are drawn.  If FALSE, we leave any leftover image on the screen
     // For advanced use - typically used FALSE with top-aligned for viewing captions
-    BOOL aspectImageClipped;
+    BOOL AspectImageClipped;
 
     // If TRUE, the WorkoutOverlaySize function will gradually bounce the image
     // across any black space, starting at the middle, working to the right/bottom
     // then bouncing to the right/top.
     // NOTE: SOMETHING ELSE must take responsibility for calling WorkoutOverlaySize
     // to ensure the bouncing takes place.
-    BOOL bounceEnabled;
+    BOOL BounceEnabled;
     // Time to consider bouncing as started - once set it is not reset
     // until dTV is restarted.
 
-    time_t bounceStartTime;
+    time_t BounceStartTime;
     // Number of minutes for a complete cycle of bounce to occur (default is half hour)
-    time_t bouncePeriod;
-    long timerBounceMS; // # of miliseconds between aspect updates
-    long bounceAmplitude; // percentage of window over which the overlay bounces
+    time_t BouncePeriod;
+    long TimerBounceMS; // # of miliseconds between aspect updates
+    long BounceAmplitude; // percentage of window over which the overlay bounces
 
     // Orbit - shifts the source image around on a regular basis
-    // Shares the bounceStartTime for calculations
+    // Shares the BounceStartTime for calculations
     // PeriodX and PeriodY should be different for ideal results
-    BOOL orbitEnabled;
-    int orbitSize; // # of pixels of variation (both X and Y axis)
-    time_t orbitPeriodX; // Time to move across the entire orbit area on X axis (seconds)
-    time_t orbitPeriodY; // Time to move across the entire orbit area on Y axis (seconds)
-    long timerOrbitMS; // # of miliseconds between aspect updates for orbiting (miliseconds)
-    BOOL autoResizeWindow; // If TRUE, resize non-fullscreen window to fit image exactly
+    BOOL OrbitEnabled;
+    int OrbitSize; // # of pixels of variation (both X and Y axis)
+    time_t OrbitPeriodX; // Time to move across the entire orbit area on X axis (seconds)
+    time_t OrbitPeriodY; // Time to move across the entire orbit area on Y axis (seconds)
+    long TimerOrbitMS; // # of miliseconds between aspect updates for orbiting (miliseconds)
+    BOOL AutoResizeWindow; // If TRUE, resize non-fullscreen window to fit image exactly
 
     // True if we want to use whatever ratio is present on the next frame.
     BOOL DetectAspectNow;
 
     // Zoom
-    long xZoomFactor;
-    long yZoomFactor;
-    long xZoomCenter;
-    long yZoomCenter;
+    long ZoomFactorX;
+    long ZoomFactorY;
+    long ZoomCenterX;
+    long ZoomCenterY;
 
     // WaitForVerticalBlank
     BOOL bWaitForVerticalBlank;
 
     // this is used by filters to adjust the aspect ratio
-    int source_aspect_adjust;
+    int SourceAspectAdjust;
 
 } TAspectSettingsStruct;
 
-extern TAspectSettingsStruct aspectSettings;
+extern TAspectSettingsStruct AspectSettings;
 
 #endif

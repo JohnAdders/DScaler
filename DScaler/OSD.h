@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.h,v 1.4 2001-07-12 16:16:40 adcockj Exp $
+// $Id: OSD.h,v 1.5 2001-07-13 16:14:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,36 +58,36 @@ void OSD_SetMenu(HMENU hMenu);
 #define OSD_AUTOHIDE        2
 #define OSD_REFRESH_DATA    3
 
-typedef enum
+enum eOSDTextXPos
 {
     OSD_XPOS_LEFT = 0,
     OSD_XPOS_RIGHT,
     OSD_XPOS_CENTER,
-} OSD_TEXT_XPOS;
+};
 
 typedef struct
 {
     char            szText[512];       // Text of OSD
-    double          dfSize;            // Size of OSD as percentage of screen height
-    long            textColor;         // Text color (RGB)
-    OSD_TEXT_XPOS   textXpos;          // Text position / Xpos
-    double          dfXpos;            // X position (0 = left, 1 = right)
-    double          dfYpos;            // Y position (0 = top, 1 = bottom)
-    RECT            currentRect;       // MRS 2-24-01 Saves the current drawn rectangle (used to limit invalidation area)
+    double          Size;            // Size of OSD as percentage of screen height
+    long            TextColor;         // Text color (RGB)
+    eOSDTextXPos   TextXPos;          // Text position / Xpos
+    double          XPos;            // X position (0 = left, 1 = right)
+    double          YPos;            // Y position (0 = top, 1 = bottom)
+    RECT            CurrentRect;       // MRS 2-24-01 Saves the current drawn rectangle (used to limit invalidation area)
 } TOsdInfo;
 
 void OSD_ClearAllTexts();
-void OSD_AddText(LPCTSTR szText, double dfSize, long textColor, OSD_TEXT_XPOS textXpos, double dfXpos, double dfYpos);
+void OSD_AddText(LPCTSTR szText, double Size, long TextColor, eOSDTextXPos TextXPos, double XPos, double YPos);
 void OSD_Show(HWND hWnd, int ShowType, int refresh_delay);
-void OSD_ShowText(HWND hWnd, LPCTSTR szText, double dfSize);
-void OSD_ShowTextPersistent(HWND hWnd, LPCTSTR szText, double dfSize);
-void OSD_ShowTextOverride(HWND hWnd, LPCTSTR szText, double dfSize);
+void OSD_ShowText(HWND hWnd, LPCTSTR szText, double Size);
+void OSD_ShowTextPersistent(HWND hWnd, LPCTSTR szText, double Size);
+void OSD_ShowTextOverride(HWND hWnd, LPCTSTR szText, double Size);
 void OSD_Redraw(HWND hWnd, HDC hDC);
 void OSD_Clear(HWND hWnd);
-void OSD_RefreshInfosScreen(HWND hWnd, double dfSize, int ShowType);
-void OSD_ShowNextInfosScreen(HWND hWnd, double dfSize);
-void OSD_ShowInfosScreen(HWND hWnd, int IdxScreen, double dfSize);
-void OSD_ActivateInfosScreen(HWND hWnd, int IdxScreen, double dfSize);
+void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType);
+void OSD_ShowNextInfosScreen(HWND hWnd, double Size);
+void OSD_ShowInfosScreen(HWND hWnd, int IdxScreen, double Size);
+void OSD_ActivateInfosScreen(HWND hWnd, int IdxScreen, double Size);
 void OSD_UpdateMenu(HMENU hMenu);
 void OSD_SetMenu(HMENU hMenu);
 

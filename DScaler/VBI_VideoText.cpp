@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.9 2001-07-12 16:16:40 adcockj Exp $
+// $Id: VBI_VideoText.cpp,v 1.10 2001-07-13 16:14:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2001/07/12 16:16:40  adcockj
+// Added CVS Id and Log
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -56,67 +59,78 @@ TPacket30 Packet30;
 TVTPage VTPages[800];
 int VTPage = 100;
 
-unsigned int VBI_spos;
+unsigned int VBIScanPos;
 
-int VBI_FPS;
+int VBIFPS;
 int VTCachedPages = 0;
 int VTCurrentPage = 0;
 int VTCurrentSubCode = 0;
-eCODEPAGE VTCodePage = VT_UK_CODE_PAGE;
+eVTCodePage VTCodePage = VT_UK_CODE_PAGE;
 
-char VPS_tmpName[9]={0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
-char VPS_lastname[9]={0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
-char VPS_chname[9]={0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
-int VPS_namep=0;
+char VPSTempName[9] = 
+{ 
+    0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
+};
+char VPSLastName[9] = 
+{
+    0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
+};
+char VPSChannelName[9] = 
+{
+    0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
+};
+int VPSNameIndex=0;
 
-unsigned char revham[16] = {
-  0x00, 0x08, 0x04, 0x0c, 0x02, 0x0a, 0x06, 0x0e,
-  0x01, 0x09, 0x05, 0x0d, 0x03, 0x0b, 0x07, 0x0f };
-
-unsigned char unhamtab[256] = {
-  0x01, 0x0f, 0x01, 0x01, 0x0f, 0x00, 0x01, 0x0f,
-  0x0f, 0x02, 0x01, 0x0f, 0x0a, 0x0f, 0x0f, 0x07,
-  0x0f, 0x00, 0x01, 0x0f, 0x00, 0x00, 0x0f, 0x00,
-  0x06, 0x0f, 0x0f, 0x0b, 0x0f, 0x00, 0x03, 0x0f,
-  0x0f, 0x0c, 0x01, 0x0f, 0x04, 0x0f, 0x0f, 0x07,
-  0x06, 0x0f, 0x0f, 0x07, 0x0f, 0x07, 0x07, 0x07,
-  0x06, 0x0f, 0x0f, 0x05, 0x0f, 0x00, 0x0d, 0x0f,
-  0x06, 0x06, 0x06, 0x0f, 0x06, 0x0f, 0x0f, 0x07,
-  0x0f, 0x02, 0x01, 0x0f, 0x04, 0x0f, 0x0f, 0x09,
-  0x02, 0x02, 0x0f, 0x02, 0x0f, 0x02, 0x03, 0x0f,
-  0x08, 0x0f, 0x0f, 0x05, 0x0f, 0x00, 0x03, 0x0f,
-  0x0f, 0x02, 0x03, 0x0f, 0x03, 0x0f, 0x03, 0x03,
-  0x04, 0x0f, 0x0f, 0x05, 0x04, 0x04, 0x04, 0x0f,
-  0x0f, 0x02, 0x0f, 0x0f, 0x04, 0x0f, 0x0f, 0x07,
-  0x0f, 0x05, 0x05, 0x05, 0x04, 0x0f, 0x0f, 0x05,
-  0x06, 0x0f, 0x0f, 0x05, 0x0f, 0x0e, 0x03, 0x0f,
-  0x0f, 0x0c, 0x01, 0x0f, 0x0a, 0x0f, 0x0f, 0x09,
-  0x0a, 0x0f, 0x0f, 0x0b, 0x0a, 0x0a, 0x0a, 0x0f,
-  0x08, 0x0f, 0x0f, 0x0b, 0x0f, 0x00, 0x0d, 0x0f,
-  0x0f, 0x0b, 0x0b, 0x0b, 0x0a, 0x0f, 0x0f, 0x0b,
-  0x0c, 0x0c, 0x0f, 0x0c, 0x0f, 0x0c, 0x0d, 0x0f,
-  0x0f, 0x0c, 0x0f, 0x0f, 0x0a, 0x0f, 0x0f, 0x07,
-  0x0f, 0x0c, 0x0d, 0x0f, 0x0d, 0x0f, 0x0d, 0x0d,
-  0x06, 0x0f, 0x0f, 0x0b, 0x0f, 0x0e, 0x0d, 0x0f,
-  0x08, 0x0f, 0x0f, 0x09, 0x0f, 0x09, 0x09, 0x09,
-  0x0f, 0x02, 0x0f, 0x0f, 0x0a, 0x0f, 0x0f, 0x09,
-  0x08, 0x08, 0x08, 0x0f, 0x08, 0x0f, 0x0f, 0x09,
-  0x08, 0x0f, 0x0f, 0x0b, 0x0f, 0x0e, 0x03, 0x0f,
-  0x0f, 0x0c, 0x0f, 0x0f, 0x04, 0x0f, 0x0f, 0x09,
-  0x0f, 0x0f, 0x0f, 0x0f, 0x0f, 0x0e, 0x0f, 0x0f,
-  0x08, 0x0f, 0x0f, 0x05, 0x0f, 0x0e, 0x0d, 0x0f,
-  0x0f, 0x0e, 0x0f, 0x0f, 0x0e, 0x0e, 0x0f, 0x0e,
+unsigned char RevHam[16] = 
+{
+    0x00, 0x08, 0x04, 0x0c, 0x02, 0x0a, 0x06, 0x0e,
+    0x01, 0x09, 0x05, 0x0d, 0x03, 0x0b, 0x07, 0x0f
 };
 
-BYTE VT_Header_Line[40];
+unsigned char UnhamTab[256] = 
+{
+    0x01, 0x0f, 0x01, 0x01, 0x0f, 0x00, 0x01, 0x0f,
+    0x0f, 0x02, 0x01, 0x0f, 0x0a, 0x0f, 0x0f, 0x07,
+    0x0f, 0x00, 0x01, 0x0f, 0x00, 0x00, 0x0f, 0x00,
+    0x06, 0x0f, 0x0f, 0x0b, 0x0f, 0x00, 0x03, 0x0f,
+    0x0f, 0x0c, 0x01, 0x0f, 0x04, 0x0f, 0x0f, 0x07,
+    0x06, 0x0f, 0x0f, 0x07, 0x0f, 0x07, 0x07, 0x07,
+    0x06, 0x0f, 0x0f, 0x05, 0x0f, 0x00, 0x0d, 0x0f,
+    0x06, 0x06, 0x06, 0x0f, 0x06, 0x0f, 0x0f, 0x07,
+    0x0f, 0x02, 0x01, 0x0f, 0x04, 0x0f, 0x0f, 0x09,
+    0x02, 0x02, 0x0f, 0x02, 0x0f, 0x02, 0x03, 0x0f,
+    0x08, 0x0f, 0x0f, 0x05, 0x0f, 0x00, 0x03, 0x0f,
+    0x0f, 0x02, 0x03, 0x0f, 0x03, 0x0f, 0x03, 0x03,
+    0x04, 0x0f, 0x0f, 0x05, 0x04, 0x04, 0x04, 0x0f,
+    0x0f, 0x02, 0x0f, 0x0f, 0x04, 0x0f, 0x0f, 0x07,
+    0x0f, 0x05, 0x05, 0x05, 0x04, 0x0f, 0x0f, 0x05,
+    0x06, 0x0f, 0x0f, 0x05, 0x0f, 0x0e, 0x03, 0x0f,
+    0x0f, 0x0c, 0x01, 0x0f, 0x0a, 0x0f, 0x0f, 0x09,
+    0x0a, 0x0f, 0x0f, 0x0b, 0x0a, 0x0a, 0x0a, 0x0f,
+    0x08, 0x0f, 0x0f, 0x0b, 0x0f, 0x00, 0x0d, 0x0f,
+    0x0f, 0x0b, 0x0b, 0x0b, 0x0a, 0x0f, 0x0f, 0x0b,
+    0x0c, 0x0c, 0x0f, 0x0c, 0x0f, 0x0c, 0x0d, 0x0f,
+    0x0f, 0x0c, 0x0f, 0x0f, 0x0a, 0x0f, 0x0f, 0x07,
+    0x0f, 0x0c, 0x0d, 0x0f, 0x0d, 0x0f, 0x0d, 0x0d,
+    0x06, 0x0f, 0x0f, 0x0b, 0x0f, 0x0e, 0x0d, 0x0f,
+    0x08, 0x0f, 0x0f, 0x09, 0x0f, 0x09, 0x09, 0x09,
+    0x0f, 0x02, 0x0f, 0x0f, 0x0a, 0x0f, 0x0f, 0x09,
+    0x08, 0x08, 0x08, 0x0f, 0x08, 0x0f, 0x0f, 0x09,
+    0x08, 0x0f, 0x0f, 0x0b, 0x0f, 0x0e, 0x03, 0x0f,
+    0x0f, 0x0c, 0x0f, 0x0f, 0x04, 0x0f, 0x0f, 0x09,
+    0x0f, 0x0f, 0x0f, 0x0f, 0x0f, 0x0e, 0x0f, 0x0f,
+    0x08, 0x0f, 0x0f, 0x05, 0x0f, 0x0e, 0x0d, 0x0f,
+    0x0f, 0x0e, 0x0f, 0x0f, 0x0e, 0x0e, 0x0f, 0x0e,
+};
+
+BYTE VTHeaderLine[40];
 
 #define GetBit(val,bit,mask) (BYTE)(((val)>>(bit))&(mask))
 
 BITMAPINFO* VTCharSet = NULL;
 BITMAPINFO* VTScreen = NULL;
 
-VT_STATE VTState = VT_OFF;
-
+eVTState VTState = VT_OFF;
 
 typedef struct
 {
@@ -124,11 +138,11 @@ typedef struct
     int SubPage;
     BOOL PageErase;
     BOOL bStarted;
-} TMAGSTATE;
+} TMagState;
 
 #define NUM_MAGAZINES 8
 
-TMAGSTATE MagazineStates[NUM_MAGAZINES];
+TMagState MagazineStates[NUM_MAGAZINES];
 
 /// VideoText
 unsigned short VTColourTable[9] =
@@ -153,7 +167,7 @@ void VBI_VT_Init()
     VTPage = 100;
     VT_ChannelChange();
 
-    VTScreen = (BITMAPINFO *) calloc(1, sizeof(BITMAPINFOHEADER) + sizeof(WORD) * 256 + VT_LARGE_BITMAP_WIDTH * 2 * VT_LARGE_BITMAP_HEIGHT);
+    VTScreen = (BITMAPINFO*) calloc(1, sizeof(BITMAPINFOHEADER) + sizeof(WORD) * 256 + VT_LARGE_BITMAP_WIDTH * 2 * VT_LARGE_BITMAP_HEIGHT);
     VTScreen->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
     VTScreen->bmiHeader.biWidth = VT_LARGE_BITMAP_WIDTH;
     VTScreen->bmiHeader.biHeight = VT_LARGE_BITMAP_HEIGHT;
@@ -182,57 +196,56 @@ void VBI_VT_Exit()
     }
 }
 
-void VBI_decode_vps(unsigned char *data)
+void VBI_decode_vps(unsigned char* data)
 {
+    unsigned char* Info;
 
-    unsigned char *info;
-
-    info = data;
-    if ((info[3] & 0x80))
+    Info = data;
+    if ((Info[3] & 0x80))
     {
-        VPS_chname[VPS_namep] = 0;
-        if (VPS_namep == 8)
+        VPSChannelName[VPSNameIndex] = 0;
+        if (VPSNameIndex == 8)
         {
-            if (strcpy(VPS_chname, VPS_tmpName) == 0)
-                memcpy(VPS_lastname, VPS_chname, 9);    // VPS-Channel-Name
-            strcpy(VPS_tmpName, VPS_chname);
+            if (strcpy(VPSChannelName, VPSTempName) == 0)
+                memcpy(VPSLastName, VPSChannelName, 9);    // VPS-Channel-Name
+            strcpy(VPSTempName, VPSChannelName);
         }
-        VPS_namep = 0;
+        VPSNameIndex = 0;
     }
-    VPS_chname[VPS_namep++] = info[3] & 0x7f;
-    if (VPS_namep >= 9)
-        VPS_namep = 0;
+    VPSChannelName[VPSNameIndex++] = Info[3] & 0x7f;
+    if (VPSNameIndex >= 9)
+        VPSNameIndex = 0;
     if (ShowVPSInfo != NULL)
-        SetDlgItemText(ShowVPSInfo, TEXT1, VPS_lastname);
+        SetDlgItemText(ShowVPSInfo, TEXT1, VPSLastName);
 }
 
-unsigned char VBI_Scan(BYTE * VBI_Buffer, unsigned int step)
+unsigned char VBI_Scan(BYTE* VBI_Buffer, unsigned int step)
 {
     int j;
     unsigned char dat;
 
-    for (j = 7, dat = 0; j >= 0; j--, VBI_spos += step)
-        dat |= ((VBI_Buffer[VBI_spos >> FPSHIFT] + VBI_off) & 0x80) >> j;
+    for (j = 7, dat = 0; j >= 0; j--, VBIScanPos += step)
+        dat |= ((VBI_Buffer[VBIScanPos >> FPSHIFT] + VBIOffset) & 0x80) >> j;
     return dat;
 }
 
 // unham 2 bytes into 1, report 2 bit errors but ignore them
-unsigned char unham(unsigned char *d)
+unsigned char unham(unsigned char* d)
 {
     unsigned char c1, c2;
 
-    c1 = unhamtab[d[0]];
-    c2 = unhamtab[d[1]];
+    c1 = UnhamTab[d[0]];
+    c2 = UnhamTab[d[1]];
     return (c2 << 4) | (c1);
 }
 
 // unham, but with reversed nibble order for VC
-unsigned char unham2(unsigned char *d)
+unsigned char unham2(unsigned char* d)
 {
     unsigned char c1, c2;
 
-    c1 = unhamtab[d[0]];
-    c2 = unhamtab[d[1]];
+    c1 = UnhamTab[d[0]];
+    c2 = UnhamTab[d[1]];
     return (c1 << 4) | (c2);
 }
 
@@ -255,7 +268,7 @@ int MakePage(int mag, int page)
 }
 
 
-void VBI_decode_vt(unsigned char *dat)
+void VBI_decode_vt(unsigned char* dat)
 {
     int i;
     unsigned char mag, pack, mpag, ftal, ft, al, page;
@@ -268,7 +281,7 @@ void VBI_decode_vt(unsigned char *dat)
     int nPage;
     int nPage1;
 
-    /* dat: 55 55 27 %MPAG% */
+    // dat: 55 55 27 %MPAG% 
     mpag = unham(dat + 3);
     mag = mpag & 7;
 
@@ -279,9 +292,8 @@ void VBI_decode_vt(unsigned char *dat)
     case 0:
         //hdump(udat,4); cout << " HD\n";
 
-        /* dat: 55 55 27 %MPAG% %PAGE% %SUB%
-           00 01 02  03 04  05 06 07-0a
-         */
+        // dat: 55 55 27 %MPAG% %PAGE% %SUB%
+        // 00 01 02  03 04  05 06 07-0a
 
         if(MagazineStates[mag].bStarted)
         {
@@ -323,7 +335,7 @@ void VBI_decode_vt(unsigned char *dat)
         if ((pnum >= 0) && (pnum < 800))
         {
 
-            ctrl = (unhamtab[dat[3]] & 0x7) + ((unhamtab[dat[8]] >> 3) << 3) + ((unhamtab[dat[10]] >> 2) << 4) + (unhamtab[dat[11]] << 6) + (unhamtab[dat[12]] << 10);
+            ctrl = (UnhamTab[dat[3]] & 0x7) + ((UnhamTab[dat[8]] >> 3) << 3) + ((UnhamTab[dat[10]] >> 2) << 4) + (UnhamTab[dat[11]] << 6) + (UnhamTab[dat[12]] << 10);
 
             if (sub > 0)
                 sub--;
@@ -344,7 +356,7 @@ void VBI_decode_vt(unsigned char *dat)
                 memset(&VTPages[pnum].LineUpdate[1], 0x00, 24);
             }
             memcpy(&VTPages[pnum].Frame[0], dat + 5, 40);
-            memcpy(&VT_Header_Line[0], dat + 5, 40);
+            memcpy(&VTHeaderLine[0], dat + 5, 40);
             VTPages[pnum].bUpdated = 1;
             VTPages[pnum].Fill = TRUE;
             VTPages[pnum].SubPage = sub + 1;
@@ -404,17 +416,17 @@ void VBI_decode_vt(unsigned char *dat)
         break;
     case 31:
         ftal = unham(dat + 5);
-        al = ftal >> 4;         /* address length */
+        al = ftal >> 4;         // address length 
         ft = ftal & 0x0f;
         for (addr = 0, i = 0; i < al; i++)
-            addr = (addr << 4) | unhamtab[dat[7 + i]];
+            addr = (addr << 4) | UnhamTab[dat[7 + i]];
 
         switch (addr)
         {
         case 0x07:
             break;
 
-        case 0x0f00:            /* also used by ZDF and DSF, data format unknown */
+        case 0x0f00:            // also used by ZDF and DSF, data format unknown 
             break;
         default:
             break;
@@ -426,7 +438,7 @@ void VBI_decode_vt(unsigned char *dat)
     }
 }
 
-void StorePacket30(BYTE * p)
+void StorePacket30(BYTE* p)
 {
     DWORD d, b;
     BYTE h, m, s, a, CNI0, CNI1, CNI2, CNI3;
@@ -436,13 +448,13 @@ void StorePacket30(BYTE * p)
         return;                 // Some error, the data should be here...
     p += 5;
 
-    if (unhamtab[*p] == 0)      // TSDP
+    if (UnhamTab[*p] == 0)      // TSDP
     {
         p++;
         Packet30.HomePage.nPage = unham(p);
-        Packet30.HomePage.nSubcode = (((unhamtab[p[5]] & 0x3) << 12) + (unhamtab[p[4]] << 8) + ((unhamtab[p[3]] & 0x7) << 4) + unhamtab[p[2]]);
+        Packet30.HomePage.nSubcode = (((UnhamTab[p[5]] & 0x3) << 12) + (UnhamTab[p[4]] << 8) + ((UnhamTab[p[3]] & 0x7) << 4) + UnhamTab[p[2]]);
 
-        Packet30.HomePage.nMag = ((unhamtab[p[5]] >> 1) & 0x6) + ((unhamtab[p[3]] >> 3) & 0x1);
+        Packet30.HomePage.nMag = ((UnhamTab[p[5]] >> 1) & 0x6) + ((UnhamTab[p[3]] >> 3) & 0x1);
         p += 6;
         Packet30.NetId = (p[1] << 8) + p[0];
         p += 2;
@@ -467,25 +479,25 @@ void StorePacket30(BYTE * p)
         Packet30.Identifier[n] = '\0';
 
     }
-    else if (unhamtab[*p] == 2) // PDC
+    else if (UnhamTab[*p] == 2) // PDC
     {
         p++;
         Packet30.HomePage.nPage = unham(p);
-        Packet30.HomePage.nSubcode = (((unhamtab[p[5]] & 0x3) << 12) + (unhamtab[p[4]] << 8) + ((unhamtab[p[3]] & 0x7) << 4) + unhamtab[p[2]]);
+        Packet30.HomePage.nSubcode = (((UnhamTab[p[5]] & 0x3) << 12) + (UnhamTab[p[4]] << 8) + ((UnhamTab[p[3]] & 0x7) << 4) + UnhamTab[p[2]]);
 
-        Packet30.HomePage.nMag = ((unhamtab[p[5]] >> 1) & 0x6) + ((unhamtab[p[3]] >> 3) & 0x1);
+        Packet30.HomePage.nMag = ((UnhamTab[p[5]] >> 1) & 0x6) + ((UnhamTab[p[3]] >> 3) & 0x1);
         p += 6;
-        a = revham[unhamtab[p[0]]];
+        a = RevHam[UnhamTab[p[0]]];
         Packet30.PDC.LCI = GetBit(a, 2, 3);
         Packet30.PDC.LUF = GetBit(a, 1, 1);
         Packet30.PDC.PRF = GetBit(a, 0, 1);
-        a = revham[unhamtab[p[1]]];
+        a = RevHam[UnhamTab[p[1]]];
         Packet30.PDC.PCS = GetBit(a, 2, 3);
         Packet30.PDC.MI = GetBit(a, 1, 1);
-        CNI0 = revham[unhamtab[p[2]]];
-        b = (revham[unhamtab[p[3]]] << 28) + (revham[unhamtab[p[4]]] << 24) +
-            (revham[unhamtab[p[5]]] << 20) + (revham[unhamtab[p[6]]] << 16) +
-            (revham[unhamtab[p[7]]] << 12) + (revham[unhamtab[p[8]]] << 8) + (revham[unhamtab[p[9]]] << 4) + (revham[unhamtab[p[10]]]);
+        CNI0 = RevHam[UnhamTab[p[2]]];
+        b = (RevHam[UnhamTab[p[3]]] << 28) + (RevHam[UnhamTab[p[4]]] << 24) +
+            (RevHam[UnhamTab[p[5]]] << 20) + (RevHam[UnhamTab[p[6]]] << 16) +
+            (RevHam[UnhamTab[p[7]]] << 12) + (RevHam[UnhamTab[p[8]]] << 8) + (RevHam[UnhamTab[p[9]]] << 4) + (RevHam[UnhamTab[p[10]]]);
         CNI2 = GetBit(b, 30, 3);
         Packet30.PDC.day = GetBit(b, 25, 0x1f);
         Packet30.PDC.month = GetBit(b, 21, 0xf);
@@ -493,7 +505,7 @@ void StorePacket30(BYTE * p)
         Packet30.PDC.minute = GetBit(b, 10, 0x3f);
         CNI1 = GetBit(b, 6, 0xf);
         CNI3 = GetBit(b, 0, 0x3f);
-        Packet30.PDC.PTY = (revham[unhamtab[p[11]]] << 4) + revham[unhamtab[p[12]]];;
+        Packet30.PDC.PTY = (RevHam[UnhamTab[p[11]]] << 4) + RevHam[UnhamTab[p[12]]];;
         Packet30.PDC.CNI = (CNI0 << 12) + (CNI1 << 8) + (CNI2 << 4) + CNI3;
         p += 13;
         for (n = 0; n < 20; n++)
@@ -522,12 +534,13 @@ void VT_DoUpdate_Page(int Page)
     int endrow;
     int n, row, x, y;
     char tmp[41];
-    BITMAPINFO *pCharSet;
+    BITMAPINFO* pCharSet;
     char tmp2[9];
     int VT_Bitmap_width;
 
-    BYTE *src, *dest;
-    unsigned short *dest1;
+    BYTE* src;
+    BYTE* dest;
+    unsigned short* dest1;
 
     BOOL bHideTopLine, bForceShowTopLine;
     unsigned short Black, ForceBlack, ForceTransparent;
@@ -592,7 +605,7 @@ void VT_DoUpdate_Page(int Page)
             sprintf(tmp2, "  P%-3d \x7", VTPage);
             for (n = 0; n < 40; n++)
             {
-                tmp[n] = VT_Header_Line[n] & 0x7f;
+                tmp[n] = VTHeaderLine[n] & 0x7f;
                 if (tmp[n] == 0x0d)
                     bHasDouble = TRUE;
                 strncpy(tmp, tmp2, 8);
@@ -618,7 +631,7 @@ void VT_DoUpdate_Page(int Page)
                 {
                     for (n = 0; n < 40; n++)
                     {
-                        tmp[n] = VT_Header_Line[n] & 0x7f;
+                        tmp[n] = VTHeaderLine[n] & 0x7f;
                         if (tmp[n] == 0x0d)
                             bHasDouble = TRUE;
                         strncpy(tmp, tmp2, 8);
@@ -628,7 +641,7 @@ void VT_DoUpdate_Page(int Page)
                 {
                     for (n = 30; n < 40; n++)
                     {
-                        tmp[n] = VT_Header_Line[n] & 0x7f;
+                        tmp[n] = VTHeaderLine[n] & 0x7f;
                         if (tmp[n] == 0x0d)
                             bHasDouble = TRUE;
                     }
@@ -765,7 +778,7 @@ void VT_DoUpdate_Page(int Page)
 void VT_ChannelChange()
 {
     memset(VTPages, 0, 800 * sizeof(TVTPage));
-    memset(MagazineStates, 0, sizeof(TMAGSTATE) * NUM_MAGAZINES);
+    memset(MagazineStates, 0, sizeof(TMagState) * NUM_MAGAZINES);
     VTCachedPages = 0;
 }
 
@@ -799,20 +812,20 @@ void VT_DecodeLine(BYTE* VBI_Buffer, int line, BOOL IsOdd)
     int dt[256], hi[6], lo[6];
     int i, n, sync, thr;
 
-    /* remove DC. edge-detector */
+    // remove DC. edge-detector 
     for (i = 40; i < 240; ++i)
     {
-        dt[i] = VBI_Buffer[i + vtstep / FPFAC] - VBI_Buffer[i]; // amplifies the edges best.
+        dt[i] = VBI_Buffer[i + VTStep / FPFAC] - VBI_Buffer[i]; // amplifies the edges best.
     }
 
-    /* set barrier */
+    // set barrier 
     for (i = 240; i < 256; i += 2)
     {
         dt[i] = 100;
         dt[i+1] = -100;
     }
 
-    /* find 6 rising and falling edges */
+    // find 6 rising and falling edges 
     for (i = 40, n = 0; n < 6; ++n)
     {
         while (dt[i] < 32)
@@ -837,7 +850,7 @@ void VT_DecodeLine(BYTE* VBI_Buffer, int line, BOOL IsOdd)
         return; // bad frequency
     }
 
-    /* AGC and sync-reference */
+    // AGC and sync-reference 
     min = 255;
     max = 0;
     sync = 0;
@@ -860,17 +873,17 @@ void VT_DecodeLine(BYTE* VBI_Buffer, int line, BOOL IsOdd)
     
     thr = (min + max) / 2;
 
-    /* search start-byte 11100100 */
-    //for (i = 4 * vtstep + vbi->pll_adj*vtstep/10; i < 16*vtstep; i += vtstep)
-    for (i = 4 * vtstep; i < (int)(16*vtstep); i += vtstep)
+    // search start-byte 11100100 
+    //for (i = 4 * VTStep + vbi->pll_adj*VTStep/10; i < 16*VTStep; i += VTStep)
+    for (i = 4 * VTStep; i < (int)(16*VTStep); i += VTStep)
     {
-        if (VBI_Buffer[sync + i/FPFAC] > thr && VBI_Buffer[sync + (i+vtstep)/FPFAC] > thr) // two ones is enough...
+        if (VBI_Buffer[sync + i/FPFAC] > thr && VBI_Buffer[sync + (i+VTStep)/FPFAC] > thr) // two ones is enough...
         {
-            /* got it... */
+            // got it... 
             memset(data, 0, sizeof(data));
             data[0] = 0x55;
             data[1] = 0x55;
-            for (n = 0; n < 43*8; ++n, i += vtstep)
+            for (n = 0; n < 43*8; ++n, i += VTStep)
             {
                 if (VBI_Buffer[sync + i/FPFAC] > thr)
                 {
@@ -898,14 +911,14 @@ void VTS_DecodeLine(BYTE* VBI_Buffer)
     while ((VBI_Buffer[p] < VBI_thresh) && (p < 260))
         p++;
     p += 2;
-    VBI_spos = p << FPSHIFT;
-    if ((data[0] = VBI_Scan(VBI_Buffer, vpsstep)) != 0xff)
+    VBIScanPos = p << FPSHIFT;
+    if ((data[0] = VBI_Scan(VBI_Buffer, VPSStep)) != 0xff)
         return;
-    if ((data[1] = VBI_Scan(VBI_Buffer, vpsstep)) != 0x5d)
+    if ((data[1] = VBI_Scan(VBI_Buffer, VPSStep)) != 0x5d)
         return;
     for (i = 2; i < 16; i++)
     {
-        data[i] = VBI_Scan(VBI_Buffer, vpsstep);
+        data[i] = VBI_Scan(VBI_Buffer, VPSStep);
     }
     VBI_decode_vps(data);
 }
@@ -946,7 +959,7 @@ BOOL APIENTRY VTInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 }
 
 
-void VT_SetCodePage(eCODEPAGE Codepage)
+void VT_SetCodePage(eVTCodePage Codepage)
 {
     if(VTCharSet != NULL)
     {
@@ -1008,6 +1021,6 @@ void VT_WriteSettingsToIni()
 
 void VT_SetMenu(HMENU hMenu)
 {
-    CheckMenuItem(hMenu, IDM_VT_UK, (VTCodePage == VT_UK_CODE_PAGE)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_VT_FRENCH, (VTCodePage == VT_FRENCH_CODE_PAGE)?MF_CHECKED:MF_UNCHECKED);
+    CheckMenuItemBool(hMenu, IDM_VT_UK, (VTCodePage == VT_UK_CODE_PAGE));
+    CheckMenuItemBool(hMenu, IDM_VT_FRENCH, (VTCodePage == VT_FRENCH_CODE_PAGE));
 }

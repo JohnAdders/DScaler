@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_50Hz.cpp,v 1.11 2001-07-12 16:16:39 adcockj Exp $
+// $Id: FD_50Hz.cpp,v 1.12 2001-07-13 16:14:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -20,7 +20,7 @@
 // Date          Developer             Changes
 //
 // 02 Jan 2001   John Adcock           Made PAL pulldown detect remember last video
-//                                     mode
+//                                     Mode
 //
 // 07 Jan 2001   John Adcock           Fixed PAL detection bug
 //
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2001/07/12 16:16:39  adcockj
+// Added CVS Id and Log
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -64,7 +67,7 @@ extern long ThresholdPulldownComb;
 //
 // This is the 2:2 pulldown detection for PAL.
 ///////////////////////////////////////////////////////////////////////////////
-void UpdatePALPulldownMode(DEINTERLACE_INFO *pInfo)
+void UpdatePALPulldownMode(DEINTERLACE_INFO* pInfo)
 {
     static long LastCombFactor = 0;
     static long RepeatCount;
@@ -181,7 +184,7 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO *pInfo)
     }
     else
     {
-        // we are in a real 2:2 film mode but we need to check that nothing
+        // we are in a real 2:2 film Mode but we need to check that nothing
         // bad has happened
 
         // if we are about to flip
@@ -229,7 +232,7 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO *pInfo)
                     {
                         if(NotSureCount > 0)
                         {
-                            LOG(" Reset not sure count");
+                            LOG(" Reset not sure Count");
                             NotSureCount = 0;
                         }
                     }
@@ -238,7 +241,7 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO *pInfo)
                         if(NotSureCount > 0)
                         {
                             --NotSureCount;
-                            LOG(" Decreased not sure count %d", NotSureCount);
+                            LOG(" Decreased not sure Count %d", NotSureCount);
                         }
                     }
                 }
@@ -276,7 +279,7 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO *pInfo)
                     }
                     else
                     {
-                        LOG(" Increased not sure count %d", NotSureCount);
+                        LOG(" Increased not sure Count %d", NotSureCount);
                     }
                 }
             }
@@ -287,7 +290,7 @@ void UpdatePALPulldownMode(DEINTERLACE_INFO *pInfo)
     LastCombFactor = pInfo->CombFactor;
 }
 
-BOOL FilmModePALEven(DEINTERLACE_INFO *pInfo)
+BOOL FilmModePALEven(DEINTERLACE_INFO* pInfo)
 {
     if (!pInfo->IsOdd)
     {
@@ -300,7 +303,7 @@ BOOL FilmModePALEven(DEINTERLACE_INFO *pInfo)
     }
 }
 
-BOOL FilmModePALOdd(DEINTERLACE_INFO *pInfo)
+BOOL FilmModePALOdd(DEINTERLACE_INFO* pInfo)
 {
     if (pInfo->IsOdd)
     {
@@ -313,7 +316,7 @@ BOOL FilmModePALOdd(DEINTERLACE_INFO *pInfo)
     }
 }
 
-BOOL FilmModePALComb(DEINTERLACE_INFO *pInfo)
+BOOL FilmModePALComb(DEINTERLACE_INFO* pInfo)
 {
     static long LastComb = 0;
     static long NumSkipped = 0;
@@ -342,7 +345,7 @@ BOOL FilmModePALComb(DEINTERLACE_INFO *pInfo)
     {
         NumSkipped = 0;
         LastComb = pInfo->CombFactor;
-        LOG(" Weaved in Comb mode");
+        LOG(" Weaved in Comb Mode");
         return Weave(pInfo);
     }
     else

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.H,v 1.6 2001-07-12 16:16:40 adcockj Exp $
+// $Id: VBI_VideoText.H,v 1.7 2001-07-13 16:14:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -47,20 +47,20 @@ void VT_WriteSettingsToIni();
 void VT_SetMenu(HMENU hMenu);
 
 
-typedef enum
+enum eVTState
 {
     VT_OFF,
     VT_BLACK,
     VT_MIX,
     VT_LASTSTATE,
-} VT_STATE;
+};
 
-typedef enum
+enum eVTCodePage
 {
     VT_UK_CODE_PAGE,
     VT_FRENCH_CODE_PAGE,
     VT_CODE_PAGE_LASTONE,
-} eCODEPAGE;
+};
 
 typedef struct
 {
@@ -149,14 +149,14 @@ BOOL APIENTRY VTInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 BYTE DeHam(BYTE byte);
 BYTE ReverseDeHam(BYTE b);
 void StorePage(BYTE mag, BYTE page);
-void StorePacket30(BYTE * p);
+void StorePacket30(BYTE* p);
 
-unsigned char unham(unsigned char *d);
-unsigned char unham2(unsigned char *d);
-unsigned char VBI_Scan(BYTE * Buffer, unsigned int step);
+unsigned char unham(unsigned char* d);
+unsigned char unham2(unsigned char* d);
+unsigned char VBI_Scan(BYTE* Buffer, unsigned int step);
 
-void VBI_decode_vt(unsigned char *dat);
-void VBI_decode_line(unsigned char *d, int line);
+void VBI_decode_vt(unsigned char* dat);
+void VBI_decode_line(unsigned char* d, int line);
 
 void VT_ChannelChange();
 
@@ -167,10 +167,10 @@ void VT_DoUpdate_Page(int Page);
 void VT_Redraw(HWND hWnd, HDC hDC);
 void VT_ResetStation();
 LPCSTR VT_GetStation();
-void VT_SetCodePage(eCODEPAGE Codepage);
+void VT_SetCodePage(eVTCodePage Codepage);
 
 
-extern VT_STATE VTState;
+extern eVTState VTState;
 
 extern int VTPage;
 

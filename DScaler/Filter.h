@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Filter.h,v 1.6 2001-07-12 16:16:40 adcockj Exp $
+// $Id: Filter.h,v 1.7 2001-07-13 16:14:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,7 +41,7 @@ void Filter_WriteSettingsToIni();
 void Filter_ShowUI(LPCSTR SearchText);
 
 
-long Filter_DoInput(DEINTERLACE_INFO *info, BOOL HurryUp);
-void Filter_DoOutput(DEINTERLACE_INFO *info, BOOL HurryUp);
+long Filter_DoInput(DEINTERLACE_INFO* Info, BOOL HurryUp);
+void Filter_DoOutput(DEINTERLACE_INFO* Info, BOOL HurryUp);
 
 #endif

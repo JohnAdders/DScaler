@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Audio.h,v 1.6 2001-07-12 16:16:39 adcockj Exp $
+// $Id: Audio.h,v 1.7 2001-07-13 16:14:55 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -43,7 +43,7 @@ void Audio_WriteSettingsToIni();
 void Audio_SetMenu(HMENU hMenu);
 
 
-typedef enum
+enum eAudioMuxType
 {
     AUDIOMUX_TUNER = 0,
     AUDIOMUX_MSP_RADIO,
@@ -51,12 +51,12 @@ typedef enum
     AUDIOMUX_INTERNAL,
     AUDIOMUX_MUTE,
     AUDIOMUX_STEREO
-} AUDIOMUXTYPE;
+};
 
 BOOL APIENTRY AudioSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 BOOL APIENTRY AudioSettingProc1(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 
-BOOL Audio_SetSource(AUDIOMUXTYPE nChannel);
+BOOL Audio_SetSource(eAudioMuxType nChannel);
 void Audio_Autodetect();
 BOOL Audio_WriteMSP(BYTE bSubAddr, int wAddr, int wData);
 void Audio_SetToneControl();
@@ -72,7 +72,7 @@ const char* Audio_MSP_VersionString();
 BOOL Audio_MSP_Reset();
 BOOL Audio_MSP_Version();
 void Audio_MSP_Set_MajorMinor_Mode(int MajorMode, int MinorMode);
-void Audio_MSP_SetStereo(int MajorMode, int MinorMode, int mode);
+void Audio_MSP_SetStereo(int MajorMode, int MinorMode, int Mode);
 void Audio_MSP_Watch_Mode();
 void Audio_MSP_Print_Mode();
 void Audio_MSP_Mute(void); // MAE 8 Dec 2000
@@ -100,10 +100,10 @@ BOOL APIENTRY AudioSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam
 #define VIDEO_SOUND_LANG1   3
 #define VIDEO_SOUND_LANG2   4
 
-/* This macro is allowed for *constants* only, gcc must calculate it
-   at compile time.  Remember -- no floats in kernel mode */
+// This macro is allowed for *constants* only, gcc must calculate it
+// at compile time.  Remember -- no floats in kernel Mode
 #define MSP_CARRIER(freq) ((int)((float)(freq/18.432)*(1<<24)))
 
-extern AUDIOMUXTYPE AudioSource;
+extern eAudioMuxType AudioSource;
 
 #endif

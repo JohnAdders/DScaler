@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TVCards.h,v 1.11 2001-07-12 16:16:40 adcockj Exp $
+// $Id: TVCards.h,v 1.12 2001-07-13 16:14:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // The structures where taken from bttv driver version 7.37
 // bttv - Bt848 frame grabber driver
@@ -41,8 +41,7 @@ void TVCard_SetMenu(HMENU hMenu);
 
 typedef void (AUDIOMODE_FUNC)(int StereoMode);
 
-
-typedef enum
+enum eTVCardId
 {
     TVCARD_UNKNOWN = 0,
     TVCARD_MIRO,
@@ -122,9 +121,9 @@ typedef enum
     TVCARD_GMV1,
     TVCARD_BESTBUY_NEW,
     TVCARD_LASTONE,
-} TVCARDID;
+};
 
-typedef enum
+enum eTunerId
 {
     TUNER_AUTODETECT = -2,
     TUNER_USER_SETUP = -1,
@@ -162,16 +161,16 @@ typedef enum
     TUNER_LG_B11D_PAL,
     TUNER_TEMIC_4009FN5_PAL,
     TUNER_LASTONE,
-} TVTUNERID;
+};
 
-typedef enum
+enum ePLLFreq
 {
     PLL_NONE = 0,
     PLL_28,
     PLL_35,
-} PLLFREQ;
+};
 
-typedef enum
+enum eTunerMaker
 {
     NOMFTR = 0,
     PHILIPS,
@@ -179,61 +178,61 @@ typedef enum
     SONY,
     ALPS,
     LGINNOTEK,
-} TUNERMFTR;
+};
 
-typedef enum
+enum eTunerType
 {
     NOTTYPE = 0,
     PAL,
     PAL_I,
     NTSC,
     SECAM,
-} TUNERTYPE;
+};
 
 typedef struct
 {
-    char *szName;
+    char* szName;
     int nVideoInputs;
     int nAudioInputs;
     int TunerInput;
     int SVideoInput;
     DWORD GPIOMask;
     DWORD MuxSelect[10];
-    DWORD AudioMuxSelect[6]; /* Tuner, Radio, external, internal, mute, stereo */
-    DWORD GPIOMuxMask;   /* GPIO MUX mask */
+    DWORD AudioMuxSelect[6]; // Tuner, Radio, external, internal, mute, stereo 
+    DWORD GPIOMuxMask;   // GPIO MUX mask 
 
-    /* other settings */
-    PLLFREQ pll;
-    TVTUNERID TunerId;
+    // other settings 
+    ePLLFreq pll;
+    eTunerId TunerId;
     AUDIOMODE_FUNC* pfnSetAudioMode;
-} TVCARDSETUP;
+} TCardSetup;
 
 typedef struct
 {
     DWORD ID;
-    TVCARDID CardId;
-    char *szName;
+    eTVCardId CardId;
+    char* szName;
 } TAutoDectect878;
 
 typedef struct
 {
     char* szName;
-    TUNERMFTR Vendor;
-    TUNERTYPE Type;
-    WORD thresh1; /* frequency Range for UHF,VHF-L, VHF_H */   
+    eTunerMaker Vendor;
+    eTunerType Type;
+    WORD thresh1; // frequency Range for UHF,VHF-L, VHF_H    
     WORD thresh2;  
     BYTE VHF_L;
     BYTE VHF_H;
     BYTE UHF;
     BYTE config; 
     WORD IFPCoff;
-} TVTUNERSETUP;
+} TTunerSetup;
 
-TVCARDID Card_AutoDetect();
-int Card_AutoDetectTuner(TVCARDID CardId);
+eTVCardId Card_AutoDetect();
+int Card_AutoDetectTuner(eTVCardId CardId);
 void Card_Init();
-const TVCARDSETUP* GetCardSetup();
-const TVTUNERSETUP* GetTunerSetup();
+const TCardSetup* GetCardSetup();
+const TTunerSetup* GetTunerSetup();
 void TVCard_FirstTimeSetupHardware(HINSTANCE hInst, HWND hWnd);
 LPCSTR TVCard_AutoDetectID();
 long GetTunersTVFormat();

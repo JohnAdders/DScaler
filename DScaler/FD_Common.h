@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_Common.h,v 1.8 2001-07-12 16:16:40 adcockj Exp $
+// $Id: FD_Common.h,v 1.9 2001-07-13 16:14:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -43,10 +43,10 @@ void FD_Common_ShowUI();
 void ResetModeSwitches();
 BOOL TrackModeSwitches();
 
-void PerformFilmDetectCalculations(DEINTERLACE_INFO *pInfo, BOOL NeedComb, BOOL NeedDiff);
+void PerformFilmDetectCalculations(DEINTERLACE_INFO* pInfo, BOOL NeedComb, BOOL NeedDiff);
 
-BOOL Weave(DEINTERLACE_INFO *info);
-BOOL Bob(DEINTERLACE_INFO *info);
+BOOL Weave(DEINTERLACE_INFO* pInfo);
+BOOL Bob(DEINTERLACE_INFO* pInfo);
 
 
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Filter.cpp,v 1.6 2001-07-12 16:16:40 adcockj Exp $
+// $Id: Filter.cpp,v 1.7 2001-07-13 16:14:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/07/12 16:16:40  adcockj
+// Added CVS Id and Log
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -41,7 +44,7 @@ long NumFilters = 0;
 
 FILTER_METHOD* Filters[100] = {NULL,};
 
-long Filter_DoInput(DEINTERLACE_INFO *pInfo, BOOL HurryUp)
+long Filter_DoInput(DEINTERLACE_INFO* pInfo, BOOL HurryUp)
 {
     long SourceAspectAdjust = 1000;
     int i;
@@ -59,7 +62,7 @@ long Filter_DoInput(DEINTERLACE_INFO *pInfo, BOOL HurryUp)
     return SourceAspectAdjust;
 }
 
-void Filter_DoOutput(DEINTERLACE_INFO *pInfo, BOOL HurryUp)
+void Filter_DoOutput(DEINTERLACE_INFO* pInfo, BOOL HurryUp)
 {
     int i;
     for(i = 0; i < NumFilters; i++)
@@ -306,7 +309,7 @@ void Filter_SetMenu(HMENU hMenu)
     int i;
     for(i = 0; i < NumFilters; i++)
     {
-        CheckMenuItem(hMenu, Filters[i]->MenuId, Filters[i]->bActive ? MF_CHECKED : MF_UNCHECKED);
+        CheckMenuItemBool(hMenu, Filters[i]->MenuId, Filters[i]->bActive);
     }
 }
 

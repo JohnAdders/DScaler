@@ -1,19 +1,19 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DebugLog.cpp,v 1.8 2001-07-12 16:16:39 adcockj Exp $
+// $Id: DebugLog.cpp,v 1.9 2001-07-13 16:14:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
 //
-//	This file is subject to the terms of the GNU General Public License as
-//	published by the Free Software Foundation.  A copy of this license is
-//	included with this software distribution in the file COPYING.  If you
-//	do not have a copy, you may obtain a copy by writing to the Free
-//	Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+//  This file is subject to the terms of the GNU General Public License as
+//  published by the Free Software Foundation.  A copy of this license is
+//  included with this software distribution in the file COPYING.  If you
+//  do not have a copy, you may obtain a copy by writing to the Free
+//  Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 //
-//	This software is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//	GNU General Public License for more details
+//  This software is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // Change Log
 //
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2001/07/12 16:16:39  adcockj
+// Added CVS Id and Log
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -31,53 +34,53 @@
 #include "DebugLog.h"
 #include "SettingsDlg.h"
 
-static FILE *debugLog = NULL;
+static FILE* debugLog = NULL;
 char DebugLogFilename[MAX_PATH] = "DScaler.txt";
 boolean DebugLogEnabled = FALSE;
 
 #if !defined(NOLOGGING)
 
-void LOG(LPCSTR format, ...)
+void LOG(LPCSTR Format, ...)
 {
-	DWORD systime;
-	struct _timeb tb;
-	struct tm *tm;
-	char stamp[100];
-	va_list args;
+    DWORD SysTime;
+    struct _timeb TimeB;
+    struct tm* Time;
+    char Stamp[100];
+    va_list Args;
 
-	if (DebugLogEnabled == FALSE)
-		return;
+    if (DebugLogEnabled == FALSE)
+        return;
 
-	if (debugLog == NULL)
-		debugLog = fopen(DebugLogFilename, "w");
+    if (debugLog == NULL)
+        debugLog = fopen(DebugLogFilename, "w");
 
-	if (debugLog == NULL)
-		return;
+    if (debugLog == NULL)
+        return;
 
-	systime = timeGetTime();
+    SysTime = timeGetTime();
 
-	_ftime(&tb);
-	tm = localtime(&tb.time);
-	strftime(stamp, sizeof(stamp), "%y%m%d %H%M%S", tm);
-	fprintf(debugLog, "%s.%03d(%03d)", stamp, tb.millitm, systime % 1000);
+    _ftime(&TimeB);
+    Time = localtime(&TimeB.time);
+    strftime(Stamp, sizeof(Stamp), "%y%m%d %H%M%S", Time);
+    fprintf(debugLog, "%s.%03d(%03d)", Stamp, TimeB.millitm, SysTime % 1000);
 
-	va_start(args, format);
-	vfprintf(debugLog, format, args);
-	va_end(args);
+    va_start(Args, Format);
+    vfprintf(debugLog, Format, Args);
+    va_end(Args);
 
-	fputc('\n', debugLog);
-	fflush(debugLog);
+    fputc('\n', debugLog);
+    fflush(debugLog);
 }
 
-void LOGD(LPCSTR format, ...)
+void LOGD(LPCSTR Format, ...)
 {
-	char szMessage[2048];
-	va_list args;
+    char szMessage[2048];
+    va_list Args;
 
-	va_start(args, format);
-	vsprintf(szMessage, format, args);
-	va_end(args);
-	OutputDebugString(szMessage);
+    va_start(Args, Format);
+    vsprintf(szMessage, Format, Args);
+    va_end(Args);
+    OutputDebugString(szMessage);
 }
 
 #endif
@@ -87,48 +90,48 @@ void LOGD(LPCSTR format, ...)
 /////////////////////////////////////////////////////////////////////////////
 SETTING DebugSettings[DEBUG_SETTING_LASTONE] =
 {
-	{
-		"Debug Log", ONOFF, 0, (long*)&DebugLogEnabled,
-		FALSE, 0, 1, 1, 1,
-		NULL,
-		"Files", "DebugLogEnabled", NULL,
-	},
+    {
+        "Debug Log", ONOFF, 0, (long*)&DebugLogEnabled,
+        FALSE, 0, 1, 1, 1,
+        NULL,
+        "Files", "DebugLogEnabled", NULL,
+    },
 };
 
 SETTING* Debug_GetSetting(DEBUG_SETTING Setting)
 {
-	if(Setting > -1 && Setting < DEBUG_SETTING_LASTONE)
-	{
-		return &(DebugSettings[Setting]);
-	}
-	else
-	{
-		return NULL;
-	}
+    if(Setting > -1 && Setting < DEBUG_SETTING_LASTONE)
+    {
+        return &(DebugSettings[Setting]);
+    }
+    else
+    {
+        return NULL;
+    }
 }
 
 void Debug_ReadSettingsFromIni()
 {
-	int i;
-	for(i = 0; i < DEBUG_SETTING_LASTONE; i++)
-	{
-		Setting_ReadFromIni(&(DebugSettings[i]));
-	}
+    int i;
+    for(i = 0; i < DEBUG_SETTING_LASTONE; i++)
+    {
+        Setting_ReadFromIni(&(DebugSettings[i]));
+    }
 
-	GetPrivateProfileString("Files", "DebugLogFilename", DebugLogFilename, DebugLogFilename, MAX_PATH, GetIniFileForSettings());
+    GetPrivateProfileString("Files", "DebugLogFilename", DebugLogFilename, DebugLogFilename, MAX_PATH, GetIniFileForSettings());
 }
 
 void Debug_WriteSettingsToIni()
 {
-	int i;
-	for(i = 0; i < DEBUG_SETTING_LASTONE; i++)
-	{
-		Setting_WriteToIni(&(DebugSettings[i]));
-	}
-	WritePrivateProfileString("Files", "DebugLogFilename", DebugLogFilename, GetIniFileForSettings());
+    int i;
+    for(i = 0; i < DEBUG_SETTING_LASTONE; i++)
+    {
+        Setting_WriteToIni(&(DebugSettings[i]));
+    }
+    WritePrivateProfileString("Files", "DebugLogFilename", DebugLogFilename, GetIniFileForSettings());
 }
 
 void Debug_ShowUI()
 {
-	CSettingsDlg::ShowSettingsDlg("Logging Settings",DebugSettings, DEBUG_SETTING_LASTONE);
+    CSettingsDlg::ShowSettingsDlg("Logging Settings",DebugSettings, DEBUG_SETTING_LASTONE);
 }

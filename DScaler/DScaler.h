@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.4 2001-07-12 16:16:39 adcockj Exp $
+// $Id: DScaler.h,v 1.5 2001-07-13 16:14:55 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -92,11 +92,6 @@ extern HMENU GetOSDSubmenu2();
 
 extern HINSTANCE hInst;
 extern HWND hWnd;
-
-extern int pgsizex;
-extern int pgsizey;
-extern int pgstartx;
-extern int pgstarty;
 
 extern BOOL bIgnoreMouse;
 

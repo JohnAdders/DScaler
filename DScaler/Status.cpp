@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Status.cpp,v 1.5 2001-07-12 16:16:40 adcockj Exp $
+// $Id: Status.cpp,v 1.6 2001-07-13 16:14:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/07/12 16:16:40  adcockj
+// Added CVS Id and Log
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -51,18 +54,18 @@
 #define MAXSTATUS 5
 typedef struct
 {
-    HWND hwnd;
-    int iMaxWidth;
-    int iMinWidth;
-    int iGiveWidth;
+    HWND hWnd;
+    int MaxWidth;
+    int MinWidth;
+    int GivenWidth;
 } TStatus;
 
-TStatus statusField[MAXSTATUS];
+TStatus StatusFields[MAXSTATUS];
 
 HWND hwndStatusBar = NULL;
 
-int cntStatusField = 0;
-int dyStatus, cxStatusBorder, cyStatusBorder, cxFrame, cyFrame, dyField;
+int NumStatusFields = 0;
+int StatusY, StatusBorderX, StatusBorderY, FrameX, FrameY, FieldY;
 HFONT hfontStatus;
 TEXTMETRIC tmStatusFont;
 HBRUSH hbrBtnFace;
@@ -117,8 +120,8 @@ BOOL StatusBar_Init()
     if (!RegisterClass(&wndclass))
         return FALSE;
 
-    cxStatusBorder = GetSystemMetrics(SM_CXBORDER);
-    cyStatusBorder = GetSystemMetrics(SM_CYBORDER);
+    StatusBorderX = GetSystemMetrics(SM_CXBORDER);
+    StatusBorderY = GetSystemMetrics(SM_CYBORDER);
 
     hwndStatusBar = CreateWindow("SamplerStatus", "SamplerStatus", WS_CHILD | WS_BORDER | WS_VISIBLE, 0, 0, 0, 0, hWnd, (HMENU)ID_STATUSBAR, hInst, NULL);
 
@@ -138,7 +141,7 @@ BOOL StatusBar_Init()
     return (TRUE);
 }
 
-void StatusBar_ShowText(eSTATUSBAR_BOX Box, LPCTSTR szText)
+void StatusBar_ShowText(eStatusBarBox Box, LPCTSTR szText)
 {
     if (IsWindowVisible(hwndStatusBar))
     {
@@ -165,7 +168,7 @@ void StatusBar_ShowText(eSTATUSBAR_BOX Box, LPCTSTR szText)
     }
 }
 
-HWND StatusBar_GetHWnd(eSTATUSBAR_BOX Box)
+HWND StatusBar_GetHWnd(eStatusBarBox Box)
 {
     switch(Box)
     {
@@ -193,12 +196,12 @@ HWND StatusBar_GetHWnd(eSTATUSBAR_BOX Box)
     return NULL;
 }
 
-BOOL StatusBar_Adjust(HWND hwnd)
+BOOL StatusBar_Adjust(HWND hWnd)
 {
     RECT rect;
 
-    GetClientRect(hwnd, &rect);
-    MoveWindow(hwndStatusBar, rect.left - cxStatusBorder, rect.bottom - dyStatus + cyStatusBorder, rect.right - rect.left + (cxStatusBorder * 2), dyStatus, TRUE);
+    GetClientRect(hWnd, &rect);
+    MoveWindow(hwndStatusBar, rect.left - StatusBorderX, rect.bottom - StatusY + StatusBorderY, rect.right - rect.left + (StatusBorderX * 2), StatusY, TRUE);
     InvalidateRect(hwndStatusBar, NULL, FALSE);
     return TRUE;
 }
@@ -207,43 +210,43 @@ HWND StatusBar_AddField(int iId, int iMin, int iMax, BOOL bNewGroup)
 {
     LONG lStyle;
 
-    if (cntStatusField >= MAXSTATUS)
+    if (NumStatusFields >= MAXSTATUS)
         return (HWND) 0;        // No room left in our fixed array
 
-    statusField[cntStatusField].hwnd = CreateWindow("StatusField", "", WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, hwndStatusBar, (HMENU) iId, hInst, NULL);
+    StatusFields[NumStatusFields].hWnd = CreateWindow("StatusField", "", WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, hwndStatusBar, (HMENU) iId, hInst, NULL);
 
-    if (!statusField[cntStatusField].hwnd)
+    if (!StatusFields[NumStatusFields].hWnd)
         return (HWND) 0;        // CreateWindow failed for some reason
 
     if (iMin < 0)
     {
-        statusField[cntStatusField].iMinWidth = tmStatusFont.tmAveCharWidth * abs(iMin);
+        StatusFields[NumStatusFields].MinWidth = tmStatusFont.tmAveCharWidth * abs(iMin);
     }
     else
     {
-        statusField[cntStatusField].iMinWidth = iMin;
+        StatusFields[NumStatusFields].MinWidth = iMin;
     }
 
     if (iMax < 0)
     {
-        statusField[cntStatusField].iMaxWidth = tmStatusFont.tmAveCharWidth * abs(iMax);
+        StatusFields[NumStatusFields].MaxWidth = tmStatusFont.tmAveCharWidth * abs(iMax);
     }
     else
     {
-        statusField[cntStatusField].iMaxWidth = iMax;
+        StatusFields[NumStatusFields].MaxWidth = iMax;
     }
 
     if (bNewGroup)
     {
-        lStyle = GetWindowLong(statusField[cntStatusField].hwnd, GWL_STYLE);
+        lStyle = GetWindowLong(StatusFields[NumStatusFields].hWnd, GWL_STYLE);
         lStyle |= WS_GROUP;
-        SetWindowLong(statusField[cntStatusField].hwnd, GWL_STYLE, lStyle);
+        SetWindowLong(StatusFields[NumStatusFields].hWnd, GWL_STYLE, lStyle);
     }
 
-    return statusField[cntStatusField++].hwnd;
+    return StatusFields[NumStatusFields++].hWnd;
 }
 
-LONG APIENTRY StatusProc(HWND hwnd, UINT msg, UINT wParam, LONG lParam)
+LONG APIENTRY StatusProc(HWND hWnd, UINT msg, UINT wParam, LONG lParam)
 {
     HDC hdc;
     PAINTSTRUCT ps;
@@ -274,17 +277,17 @@ LONG APIENTRY StatusProc(HWND hwnd, UINT msg, UINT wParam, LONG lParam)
         {
             ErrorBox("Failed To Create Font");
         }
-        hdc = GetDC(hwnd);
+        hdc = GetDC(hWnd);
         SelectObject(hdc, hfontStatus);
         GetTextMetrics(hdc, &tmStatusFont);
-        cxStatusBorder = GetSystemMetrics(SM_CXBORDER);
-        cyStatusBorder = GetSystemMetrics(SM_CYBORDER);
-        cxFrame = 3 * cxStatusBorder;
-        cyFrame = 3 * cyStatusBorder;
-        dyField = tmStatusFont.tmHeight + (2 * cyStatusBorder);
-        dyStatus = dyField + (2 * cyFrame);
-        ReleaseDC(hwnd, hdc);
-        return DefWindowProc(hwnd, msg, wParam, lParam);
+        StatusBorderX = GetSystemMetrics(SM_CXBORDER);
+        StatusBorderY = GetSystemMetrics(SM_CYBORDER);
+        FrameX = 3 * StatusBorderX;
+        FrameY = 3 * StatusBorderY;
+        FieldY = tmStatusFont.tmHeight + (2 * StatusBorderY);
+        StatusY = FieldY + (2 * FrameY);
+        ReleaseDC(hWnd, hdc);
+        return DefWindowProc(hWnd, msg, wParam, lParam);
 
     case WM_DESTROY:
         if (hfontStatus)
@@ -294,54 +297,54 @@ LONG APIENTRY StatusProc(HWND hwnd, UINT msg, UINT wParam, LONG lParam)
         break;
 
     case WM_SIZE:
-        if (cntStatusField)
+        if (NumStatusFields)
         {
-            GetClientRect(hwnd, &rect);
-            wAvailWidth = rect.right - rect.left - (cxStatusBorder * 8);
+            GetClientRect(hWnd, &rect);
+            wAvailWidth = rect.right - rect.left - (StatusBorderX * 8);
             wNeedWidth = 0;
             cntNeedWidth = 0;
             cntFlexWidth = 0;
 
-            /* First Pass: Dole out to fields that have a minimum need */
-            for (i = 0; i < cntStatusField; i++)
+            // First Pass: Dole out to fields that have a minimum need 
+            for (i = 0; i < NumStatusFields; i++)
             {
-                statusField[i].iGiveWidth = 0;  // Make sure all are initialized to 0
-                if (statusField[i].iMinWidth)
+                StatusFields[i].GivenWidth = 0;  // Make sure all are initialized to 0
+                if (StatusFields[i].MinWidth)
                 {
-                    /* (n, ?) */
-                    statusField[i].iGiveWidth = statusField[i].iMinWidth;
-                    wAvailWidth -= (statusField[i].iGiveWidth + cxStatusBorder * 2);
-                    if (GetWindowLong(statusField[i].hwnd, GWL_STYLE) & WS_GROUP)
+                    // (n, ?) 
+                    StatusFields[i].GivenWidth = StatusFields[i].MinWidth;
+                    wAvailWidth -= (StatusFields[i].GivenWidth + StatusBorderX * 2);
+                    if (GetWindowLong(StatusFields[i].hWnd, GWL_STYLE) & WS_GROUP)
                     {
-                        wAvailWidth -= cxStatusBorder * 4;
+                        wAvailWidth -= StatusBorderX * 4;
                     }
                 }
                 else
                 {
-                    /* They didn't specify a minimum... don't give them anything yet */
-                    /* (0, ?) */
-                    statusField[i].iGiveWidth = 0;
+                    // They didn't specify a minimum... don't give them anything yet 
+                    // (0, ?) 
+                    StatusFields[i].GivenWidth = 0;
                 }
 
-                /* For those that have a minimum, but can grow to be as large as possible... */
-                /* (n, 0) */
-                if ((statusField[i].iMinWidth > 0) && (statusField[i].iMaxWidth == 0))
+                // For those that have a minimum, but can grow to be as large as possible... 
+                // (n, 0) 
+                if ((StatusFields[i].MinWidth > 0) && (StatusFields[i].MaxWidth == 0))
                 {
                     ++cntFlexWidth;
                 }
 
-                /* For those that have a max that is greater then their min... */
-                /* Includes (0,n) and (n,>n) */
-                if (statusField[i].iMaxWidth > statusField[i].iGiveWidth)
+                // For those that have a max that is greater then their min... 
+                // Includes (0,n) and (n,>n) 
+                if (StatusFields[i].MaxWidth > StatusFields[i].GivenWidth)
                 {
-                    wNeedWidth += (statusField[i].iMaxWidth - statusField[i].iGiveWidth);
+                    wNeedWidth += (StatusFields[i].MaxWidth - StatusFields[i].GivenWidth);
                     ++cntNeedWidth;
                 }
             }
 
-            /* Second Pass: Dole out to fields that have a stated maximum need */
-            /* This will also hit those who had no minimum, but did have a maximum */
-            /* It will still not give anything to those with no min, no max */
+            // Second Pass: Dole out to fields that have a stated maximum need 
+            // This will also hit those who had no minimum, but did have a maximum 
+            // It will still not give anything to those with no min, no max 
             if ((cntNeedWidth > 0) && (wAvailWidth > 0))
             {
                 if (wNeedWidth > wAvailWidth)
@@ -349,84 +352,84 @@ LONG APIENTRY StatusProc(HWND hwnd, UINT msg, UINT wParam, LONG lParam)
                     wNeedWidth = wAvailWidth;
                 }
                 wNeedWidth = wNeedWidth / cntNeedWidth;
-                for (i = 0; i < cntStatusField; i++)
+                for (i = 0; i < NumStatusFields; i++)
                 {
-                    if (statusField[i].iMaxWidth > statusField[i].iGiveWidth)
+                    if (StatusFields[i].MaxWidth > StatusFields[i].GivenWidth)
                     {
-                        statusField[i].iGiveWidth += wNeedWidth;
-                        wAvailWidth -= (statusField[i].iGiveWidth + cxStatusBorder * 2);
-                        if (GetWindowLong(statusField[i].hwnd, GWL_STYLE) & WS_GROUP)
+                        StatusFields[i].GivenWidth += wNeedWidth;
+                        wAvailWidth -= (StatusFields[i].GivenWidth + StatusBorderX * 2);
+                        if (GetWindowLong(StatusFields[i].hWnd, GWL_STYLE) & WS_GROUP)
                         {
-                            wAvailWidth -= cxStatusBorder * 4;
+                            wAvailWidth -= StatusBorderX * 4;
                         }
                     }
                 }
             }
 
-            /* Third Pass: Dole out the remaining to fields that want all they can get */
-            /* This includes those who had a minimum, but no maximum */
+            // Third Pass: Dole out the remaining to fields that want all they can get 
+            // This includes those who had a minimum, but no maximum 
             if ((cntFlexWidth > 0) && (wAvailWidth > 0))
             {
                 wFlexWidth = wAvailWidth / cntFlexWidth;
-                for (i = 0; i < cntStatusField; i++)
+                for (i = 0; i < NumStatusFields; i++)
                 {
-                    if (statusField[i].iMaxWidth == 0)
+                    if (StatusFields[i].MaxWidth == 0)
                     {
-                        statusField[i].iGiveWidth += wFlexWidth;
-                        wAvailWidth -= ((wFlexWidth - statusField[i].iMinWidth) + cxStatusBorder * 2);
-                        if (GetWindowLong(statusField[i].hwnd, GWL_STYLE) & WS_GROUP)
+                        StatusFields[i].GivenWidth += wFlexWidth;
+                        wAvailWidth -= ((wFlexWidth - StatusFields[i].MinWidth) + StatusBorderX * 2);
+                        if (GetWindowLong(StatusFields[i].hWnd, GWL_STYLE) & WS_GROUP)
                         {
-                            wAvailWidth -= cxStatusBorder * 4;
+                            wAvailWidth -= StatusBorderX * 4;
                         }
                     }
                 }
             }
 
-            x = cxStatusBorder * 4;
-            y = rect.top + (2 * cyStatusBorder);
-            for (i = 0; i < cntStatusField; i++)
+            x = StatusBorderX * 4;
+            y = rect.top + (2 * StatusBorderY);
+            for (i = 0; i < NumStatusFields; i++)
             {
-                if (GetWindowLong(statusField[i].hwnd, GWL_STYLE) & WS_GROUP)
+                if (GetWindowLong(StatusFields[i].hWnd, GWL_STYLE) & WS_GROUP)
                 {
-                    x += (cxStatusBorder * 4);
+                    x += (StatusBorderX * 4);
                 }
-                MoveWindow(statusField[i].hwnd, x, y, statusField[i].iGiveWidth, dyField, TRUE);
-                x += statusField[i].iGiveWidth + (cxStatusBorder * 2);
+                MoveWindow(StatusFields[i].hWnd, x, y, StatusFields[i].GivenWidth, FieldY, TRUE);
+                x += StatusFields[i].GivenWidth + (StatusBorderX * 2);
             }
         }
         break;
 
     case WM_PAINT:
-        hdc = BeginPaint(hwnd, &ps);
-        GetClientRect(hwnd, &rect);
+        hdc = BeginPaint(hWnd, &ps);
+        GetClientRect(hWnd, &rect);
 
         hBrush = CreateSolidBrush(GetSysColor(COLOR_WINDOW));
         border = rect;
-        border.bottom = border.top + cyStatusBorder;
+        border.bottom = border.top + StatusBorderY;
         FillRect(hdc, &border, hBrush);
         DeleteObject(hBrush);
 
         hBrush = CreateSolidBrush(GetSysColor(COLOR_BTNSHADOW));
         border = rect;
-        border.top = border.bottom - cyStatusBorder;
+        border.top = border.bottom - StatusBorderY;
         FillRect(hdc, &border, hBrush);
         DeleteObject(hBrush);
 
-        EndPaint(hwnd, &ps);
+        EndPaint(hWnd, &ps);
 
-        return DefWindowProc(hwnd, msg, wParam, lParam);
+        return DefWindowProc(hWnd, msg, wParam, lParam);
 
     case WM_USER + 10:
         StatusBar_ShowText(STATUS_PAL, (LPCTSTR)lParam);
         break;
 
     default:
-        return DefWindowProc(hwnd, msg, wParam, lParam);
+        return DefWindowProc(hWnd, msg, wParam, lParam);
     }
     return 0L;
 }
 
-LONG APIENTRY StatusFieldProc(HWND hwnd, UINT msg, UINT wParam, LONG lParam)
+LONG APIENTRY StatusFieldProc(HWND hWnd, UINT msg, UINT wParam, LONG lParam)
 {
     HDC hdc;
     PAINTSTRUCT ps;
@@ -439,49 +442,49 @@ LONG APIENTRY StatusFieldProc(HWND hwnd, UINT msg, UINT wParam, LONG lParam)
     switch (msg)
     {
     case WM_PAINT:
-        hdc = BeginPaint(hwnd, &ps);
-        GetClientRect(hwnd, &rect);
+        hdc = BeginPaint(hWnd, &ps);
+        GetClientRect(hWnd, &rect);
 
         hBrush = CreateSolidBrush(GetSysColor(COLOR_BTNSHADOW));
         border = rect;
-        border.bottom = border.top + cyStatusBorder;
+        border.bottom = border.top + StatusBorderY;
         FillRect(hdc, &border, hBrush);
         border = rect;
-        border.right = border.left + cxStatusBorder;
+        border.right = border.left + StatusBorderX;
         FillRect(hdc, &border, hBrush);
         DeleteObject(hBrush);
 
         hBrush = CreateSolidBrush(GetSysColor(COLOR_WINDOW));
         border = rect;
-        border.top = border.bottom - cyStatusBorder;
+        border.top = border.bottom - StatusBorderY;
         FillRect(hdc, &border, hBrush);
         border = rect;
-        border.left = border.right - cxStatusBorder;
+        border.left = border.right - StatusBorderX;
         FillRect(hdc, &border, hBrush);
         DeleteObject(hBrush);
 
-        if (len = GetWindowText(hwnd, szText, sizeof(szText)))
+        if (len = GetWindowText(hWnd, szText, sizeof(szText)))
         {
             hTmp = (HFONT)SelectObject(hdc, hfontStatus);
 
             SetTextColor(hdc, GetSysColor(COLOR_BTNTEXT));
             SetBkColor(hdc, GetSysColor(COLOR_BTNFACE));
 
-            InflateRect(&rect, -(cxStatusBorder * 2), -cyStatusBorder);
+            InflateRect(&rect, -(StatusBorderX * 2), -StatusBorderY);
             ExtTextOut(hdc, rect.left, rect.top, ETO_OPAQUE | ETO_CLIPPED, &rect, (LPSTR) szText, len, NULL);
 
             SelectObject(hdc, hTmp);
         }
 
-        EndPaint(hwnd, &ps);
+        EndPaint(hWnd, &ps);
         break;
 
     case WM_SETTEXT:
-        InvalidateRect(hwnd, NULL, TRUE);
-        return DefWindowProc(hwnd, msg, wParam, lParam);
+        InvalidateRect(hWnd, NULL, TRUE);
+        return DefWindowProc(hWnd, msg, wParam, lParam);
 
     default:
-        return DefWindowProc(hwnd, msg, wParam, lParam);
+        return DefWindowProc(hWnd, msg, wParam, lParam);
     }
     return 0L;
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_CCdecode.cpp,v 1.5 2001-07-12 16:16:40 adcockj Exp $
+// $Id: VBI_CCdecode.cpp,v 1.6 2001-07-13 16:14:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Mike Baker.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/07/12 16:16:40  adcockj
+// Added CVS Id and Log
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -45,31 +48,23 @@
 #include "BT848.h"
 
 //XDSdecode
-char    info[8][25][256]; 
-char    newinfo[8][25][256];
-char    *infoptr=newinfo[0][0];
-int mode,type;
-char    infochecksum;
+char          Info[8][25][256]; 
+char          NewInfo[8][25][256];
+char*         pInfo = NewInfo[0][0];
+int           Mode;
+int           Type;
+char          InfoCheckSum;
 
 //ccdecode
-char    *ratings[] = {"(NOT RATED)","TV-Y","TV-Y7","TV-G","TV-PG","TV-14","TV-MA","(NOT RATED)"};
-int     rowdata[] = {10,0,0,1,2,3,11,12,13,14,4,5,6,7,8,9};
-char    *specialchar[] = {"®","°","½","¿","™","¢","£","¶ ","à"," ","è","â","ê","î","ô","û"};
-char    *modes[]={"current","future","channel","miscellanious","public service","reserved","invalid","invalid","invalid","invalid"};
-int lastcode;
-int ccmode=1;       //cc1 or cc2
-char    ccbuf[3][256];      //cc is 32 columns per row, this allows for extra characters
-int keywords=0;
-char    *keyword[32];
+char*         Ratings[] = {"(NOT RATED)","TV-Y","TV-Y7","TV-G","TV-PG","TV-14","TV-MA","(NOT RATED)"};
+int           RowData[] = {10,0,0,1,2,3,11,12,13,14,4,5,6,7,8,9};
+char*         SpecialChars[] = {"®","°","½","¿","™","¢","£","¶ ","à"," ","è","â","ê","î","ô","û"};
+char*         Modes[]={"current","future","channel","miscellanious","public service","reserved","invalid","invalid","invalid","invalid"};
+int           LastCode;
+int           CCDisplayMode=1;       //cc1 or cc2
+char          CCBuf[3][256];      //cc is 32 columns per row, this allows for extra characters
 
-
-//args (this should probably be put into a structure later)
-char rawline=-1;
-
-int sen;
-int inval;
-
-int parityok(int n) /* check parity for 2 bytes packed in n */
+int parityok(int n) // check parity for 2 bytes packed in n 
 {
     int mask=0;
     int j, k;
@@ -99,7 +94,7 @@ int parityok(int n) /* check parity for 2 bytes packed in n */
    return mask;
 }
 
-int decodebit(unsigned char *data, int threshold, int NumPixels)
+int decodebit(unsigned char* data, int threshold, int NumPixels)
 {
     int i, sum = 0;
     for (i = 0; i < NumPixels; i++)
@@ -109,7 +104,7 @@ int decodebit(unsigned char *data, int threshold, int NumPixels)
     return (sum > threshold * NumPixels);
 }
 
-int FindClock(unsigned char *vbiline, int ClockPixels)
+int FindClock(unsigned char* vbiline, int ClockPixels)
 {
     int i;
     DWORD MinTotal = 0;
@@ -143,7 +138,7 @@ int FindClock(unsigned char *vbiline, int ClockPixels)
     }
 }
 
-int decode(unsigned char *vbiline)
+int decode(unsigned char* vbiline)
 {
     int i, tmp, packedbits = 0;
     int ClockMax = -1;
@@ -194,7 +189,7 @@ int decode(unsigned char *vbiline)
     }
     
     return packedbits & parityok(packedbits);
-} /* decode */
+} // decode 
 
 int XDSdecode(int data)
 {
@@ -207,78 +202,78 @@ int XDSdecode(int data)
 
     if (b1 < 15) // start packet 
     {
-        mode = b1;
-        type = b2;
-        infochecksum = b1 + b2 + 15;
-        if (mode > 8 || type > 20)
+        Mode = b1;
+        Type = b2;
+        InfoCheckSum = b1 + b2 + 15;
+        if (Mode > 8 || Type > 20)
         {
-//          LOGD("%% Unsupported mode %s(%d) [%d]\n",modes[(mode-1)>>1],mode,type);
-            mode=0; type=0;
+//          LOGD("%% Unsupported Mode %s(%d) [%d]\n",Modes[(Mode-1)>>1],Mode,Type);
+            Mode=0; Type=0;
         }
-        infoptr = newinfo[mode][type];
+        pInfo = NewInfo[Mode][Type];
     }
     else if (b1 == 15) // eof (next byte is checksum)
     {
 #if 0 //debug
-        if (mode == 0)
+        if (Mode == 0)
         {
-            length=infoptr - newinfo[0][0];
-            infoptr[1]=0;
+            length=pInfo - NewInfo[0][0];
+            pInfo[1]=0;
             LOGD("LEN: %d\n",length);
             for (y=0;y<length;y++)
-                LOGD(" %03d",newinfo[0][0][y]);
-            LOGD(" --- %s\n",newinfo[0][0]);
+                LOGD(" %03d",NewInfo[0][0][y]);
+            LOGD(" --- %s\n",NewInfo[0][0]);
         }
 #endif
-        if (mode == 0) return 0;
-        if (b2 != 128-((infochecksum%128)&0x7F)) return 0;
+        if (Mode == 0) return 0;
+        if (b2 != 128-((InfoCheckSum%128)&0x7F)) return 0;
 
-        length = infoptr - newinfo[mode][type];
+        length = pInfo - NewInfo[Mode][Type];
 
         //don't bug the user with repeated data
         //only parse it if it's different
-        if (strncmp(info[mode][type],newinfo[mode][type],length-1))
+        if (strncmp(Info[Mode][Type],NewInfo[Mode][Type],length-1))
         {
-            infoptr = info[mode][type];
-            memcpy(info[mode][type],newinfo[mode][type],length+1);
+            pInfo = Info[Mode][Type];
+            memcpy(Info[Mode][Type],NewInfo[Mode][Type],length+1);
             LOGD("\33[33m%%");
-            switch ((mode<<8) + type)
+            switch ((Mode<<8) + Type)
             {
                 case 0x0101:
                     LOGD(" TIMECODE: %d/%02d %d:%02d",
-                    infoptr[3]&0x0f,infoptr[2]&0x1f,infoptr[1]&0x1f,infoptr[0]&0x3f);
+                    pInfo[3]&0x0f,pInfo[2]&0x1f,pInfo[1]&0x1f,pInfo[0]&0x3f);
                 case 0x0102:
-                    if ((infoptr[1]&0x3f)>5)
+                    if ((pInfo[1]&0x3f)>5)
                         break;
                     LOGD("   LENGTH: %d:%02d:%02d of %d:%02d:00",
-                    infoptr[3]&0x3f,infoptr[2]&0x3f,infoptr[4]&0x3f,infoptr[1]&0x3f,infoptr[0]&0x3f);
+                    pInfo[3]&0x3f,pInfo[2]&0x3f,pInfo[4]&0x3f,pInfo[1]&0x3f,pInfo[0]&0x3f);
                     break;
                 case 0x0103:
-                    infoptr[length] = 0;
-                    LOGD("    TITLE: %s",infoptr);
+                    pInfo[length] = 0;
+                    LOGD("    TITLE: %s",pInfo);
                     break;
                 case 0x0105:
-                    LOGD("   RATING: %s (%d)",ratings[infoptr[0]&0x07],infoptr[0]);
-                    if ((infoptr[0]&0x07)>0)
+                    LOGD("   RATING: %s (%d)",Ratings[pInfo[0]&0x07],pInfo[0]);
+                    if ((pInfo[0]&0x07)>0)
                     {
-                        if (infoptr[0]&0x20) LOGD(" VIOLENCE");
-                        if (infoptr[0]&0x10) LOGD(" SEXUAL");
-                        if (infoptr[0]&0x08) LOGD(" LANGUAGE");
+                        if (pInfo[0]&0x20) LOGD(" VIOLENCE");
+                        if (pInfo[0]&0x10) LOGD(" SEXUAL");
+                        if (pInfo[0]&0x08) LOGD(" LANGUAGE");
                     }
                     break;
                 case 0x0501:
-                    infoptr[length] = 0;
-                    LOGD("  NETWORK: %s",infoptr);
+                    pInfo[length] = 0;
+                    LOGD("  NETWORK: %s",pInfo);
                     break;
                 case 0x0502:
-                    infoptr[length] = 0;
-                    LOGD("     CALL: %s",infoptr);
+                    pInfo[length] = 0;
+                    LOGD("     CALL: %s",pInfo);
                     break;
                 case 0x0701:
-                    LOGD(" CUR.TIME: %d:%02d %d/%02d/%04d UTC",infoptr[1]&0x1F,infoptr[0]&0x3f,infoptr[3]&0x0f,infoptr[2]&0x1f,(infoptr[5]&0x3f)+1990);
+                    LOGD(" CUR.TIME: %d:%02d %d/%02d/%04d UTC",pInfo[1]&0x1F,pInfo[0]&0x3f,pInfo[3]&0x0f,pInfo[2]&0x1f,(pInfo[5]&0x3f)+1990);
                     break;
                 case 0x0704: //timezone
-                    LOGD(" TIMEZONE: UTC-%d",infoptr[0]&0x1f);
+                    LOGD(" TIMEZONE: UTC-%d",pInfo[0]&0x1f);
                     break;
                 case 0x0104: //program genere
                     break;
@@ -290,24 +285,24 @@ int XDSdecode(int data)
                 case 0x0115:
                 case 0x0116:
                 case 0x0117:
-                    infoptr[length+1] = 0;
-                    LOGD("     DESC: %s",infoptr);
+                    pInfo[length+1] = 0;
+                    LOGD("     DESC: %s",pInfo);
                     break;
             }
             LOGD("\33[0m\n");
         }
-        mode = 0; type = 0;
+        Mode = 0; Type = 0;
     }
-    else if( (infoptr - newinfo[mode][type]) < 250 ) // must be a data packet, check if we're in a supported mode
+    else if( (pInfo - NewInfo[Mode][Type]) < 250 ) // must be a data packet, check if we're in a supported Mode
     {
-        infoptr[0] = b1; infoptr++;
-        infoptr[0] = b2; infoptr++;
-        infochecksum += b1 + b2;
+        pInfo[0] = b1; pInfo++;
+        pInfo[0] = b2; pInfo++;
+        InfoCheckSum += b1 + b2;
     }
     return 0;
 }
 
-void webtv_check(char * buf,int len)
+void webtv_check(char* buf,int len)
 {
     unsigned long   sum;
     unsigned long   nwords;
@@ -363,17 +358,17 @@ void webtv_check(char * buf,int len)
 int CCdecode(int data, BOOL CaptionMode, int Channel)
 {
     int b1, b2, len, x;
-    static TCC_Screen Screens[2];
+    static TCCScreen Screens[2];
     static int ScreenToWrite = 0;
     static int CursorPos = 0;
     static int CursorRow = 14;
     static char ForeColor = 0;
-    static CAPTIONMODE Mode = TEXT;
+    static eCaptionMode Mode = TEXT;
     static int ModeRows = 0;
     static int LastIndent = -1;
-    static TCC_Char CurrentState =
+    static TCCChar CurrentState =
         { TRUE, ' ', CC_WHITE, CC_BLACK, FALSE, FALSE, FALSE,};
-    static TCC_Char ResetState =
+    static TCCChar ResetState =
         { TRUE, ' ', CC_WHITE, CC_BLACK, FALSE, FALSE, FALSE,};
     static BOOL bCaptureText = FALSE;
     static int BadCount = 0;
@@ -387,7 +382,7 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
         BadCount++;
         if(BadCount == 3)
         {
-            memset(&Screens[0],0,sizeof(TCC_Screen));
+            memset(&Screens[0],0,sizeof(TCCScreen));
             bPaintNow = TRUE;
             bCaptureText = FALSE;
         }
@@ -398,14 +393,14 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
         b1 = data & 0x7f;
         b2 = (data>>8) & 0x7f;
 
-        if (b1&0x60 && data != lastcode) // text
+        if (b1&0x60 && data != LastCode) // text
         {
             if(bCaptureText)
             {
                 // copy first character
                 if(CursorPos < CC_CHARS_PER_LINE - 1)
                 {
-                    memcpy(&Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos], &CurrentState, sizeof(TCC_Char));
+                    memcpy(&Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos], &CurrentState, sizeof(TCCChar));
                     Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos].Text = b1;
                     CursorPos++;
                 }
@@ -415,9 +410,9 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                     {
                         memcpy(&Screens[ScreenToWrite].ScreenData[CursorRow][x - 1], 
                             &Screens[ScreenToWrite].ScreenData[CursorRow][x], 
-                            sizeof(TCC_Char));
+                            sizeof(TCCChar));
                     }
-                    memcpy(&Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos], &CurrentState, sizeof(TCC_Char));
+                    memcpy(&Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos], &CurrentState, sizeof(TCCChar));
                     Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos].Text = b1;
                 };
                 
@@ -426,7 +421,7 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                     // copy second character
                     if(CursorPos < CC_CHARS_PER_LINE - 1)
                     {
-                        memcpy(&Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos], &CurrentState, sizeof(TCC_Char));
+                        memcpy(&Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos], &CurrentState, sizeof(TCCChar));
                         Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos].Text = b2;
                         CursorPos++;
                     }
@@ -436,16 +431,16 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                         {
                             memcpy(&Screens[ScreenToWrite].ScreenData[CursorRow][x - 1], 
                                 &Screens[ScreenToWrite].ScreenData[CursorRow][x], 
-                                sizeof(TCC_Char));
+                                sizeof(TCCChar));
                         }
-                        memcpy(&Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos], &CurrentState, sizeof(TCC_Char));
+                        memcpy(&Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos], &CurrentState, sizeof(TCCChar));
                         Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos].Text = b2;
                     }
                 }
                 bPaintNow = (ScreenToWrite == 0);
             }
         }
-        else if ((b1&0x10) && (b2>0x1F) && (data != lastcode)) //codes are always transmitted twice (apparently not, ignore the second occurance)
+        else if ((b1&0x10) && (b2>0x1F) && (data != LastCode)) //codes are always transmitted twice (apparently not, ignore the second occurance)
         {
             // if we have been asked for the other channel
             // need to ignore any text that follows
@@ -454,19 +449,19 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                 bCaptureText = FALSE;
                 return 0;
             }
-            len = strlen(ccbuf[ccmode]);
+            len = strlen(CCBuf[CCDisplayMode]);
 
             if (b2 & 0x40)  //preamble address code (row & indent)
             {
                 if(bCaptureText == TRUE)
                 {
                     // reset state
-                    memcpy(&CurrentState, &ResetState, sizeof(TCC_Char));
+                    memcpy(&CurrentState, &ResetState, sizeof(TCCChar));
 
-                    // row inofrmation ignored in text mode
+                    // row inofrmation ignored in text Mode
                     if(Mode != ROLL_UP)
                     {
-                        CursorRow = rowdata[((b1<<1)&14)|((b2>>5)&1)];
+                        CursorRow = RowData[((b1<<1)&14)|((b2>>5)&1)];
                     }
                     
                     CursorPos = 0;
@@ -474,7 +469,7 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                     // get underline flag
                     CurrentState.bUnderline = b2&0x1;
 
-                    // get indent info
+                    // get indent Info
                     if (b2&0x10)
                     {
                         //row contains indent flag
@@ -491,14 +486,14 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                     }
                     else
                     {
-                        // get color and indent info
+                        // get color and indent Info
                         if(b2&0x0E >> 1 == 0x8)
                         {
                             CurrentState.bItalics = TRUE;
                         }
                         else
                         {
-                            CurrentState.ForeColor = (CC_Color)(b2&0x0E >> 1);
+                            CurrentState.ForeColor = (eCCColor)(b2&0x0E >> 1);
                         }
                     }
                 }               
@@ -510,8 +505,8 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                     case 0x00:  //attribute
                         if(bCaptureText == TRUE)
                         {
-                            CurrentState.BackColor = (CC_Color)(b2&0x0E >> 1);
-                            memcpy(&Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos], &CurrentState, sizeof(TCC_Char));
+                            CurrentState.BackColor = (eCCColor)(b2&0x0E >> 1);
+                            memcpy(&Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos], &CurrentState, sizeof(TCCChar));
                             Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos].Text = ' ';
                             if(CursorPos < CC_CHARS_PER_LINE - 1) CursorPos++;
                         }
@@ -528,7 +523,7 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                                             CurrentState.bItalics = TRUE;
                                             break;
                                         default:
-                                            CurrentState.ForeColor = (CC_Color)(b2&0x0E >> 1);
+                                            CurrentState.ForeColor = (eCCColor)(b2&0x0E >> 1);
                                             CurrentState.bItalics = FALSE;
                                             break;
                                     }
@@ -536,13 +531,13 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                                         CurrentState.bUnderline = TRUE;
                                     else
                                         CurrentState.bUnderline = FALSE;
-                                    memcpy(&Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos], &CurrentState, sizeof(TCC_Char));
+                                    memcpy(&Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos], &CurrentState, sizeof(TCCChar));
                                     Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos].Text = ' ';
                                     if(CursorPos < CC_CHARS_PER_LINE - 1) CursorPos++;
                                     break;
                                 case 0x30: //special character..
-                                    memcpy(&Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos], &CurrentState, sizeof(TCC_Char));
-                                    Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos].Text = *(specialchar[b2&0x0f]);
+                                    memcpy(&Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos], &CurrentState, sizeof(TCCChar));
+                                    Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos].Text = *(SpecialChars[b2&0x0f]);
                                     if(CursorPos < CC_CHARS_PER_LINE - 1) CursorPos++;
                                     break;
                             }
@@ -558,8 +553,8 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                             {
                                 ScreenToWrite = 1;
                                 Mode = POP_ON;
-                                memset(&Screens[1],0,sizeof(TCC_Screen));
-                                memcpy(&CurrentState, &ResetState, sizeof(TCC_Char));
+                                memset(&Screens[1],0,sizeof(TCCScreen));
+                                memcpy(&CurrentState, &ResetState, sizeof(TCCChar));
                                 CursorPos = 0;
                                 CursorRow = 14;
                                 bPaintNow = FALSE;
@@ -591,7 +586,7 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                             }
                             break;
 
-                        // reset screen becase we've gone into roll up mode
+                        // reset screen becase we've gone into roll up Mode
                         case 0x25: //2 row caption
                         case 0x26: //3 row caption
                         case 0x27: //4 row caption
@@ -600,7 +595,7 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                                 Mode = ROLL_UP;
                                 ModeRows = b2 - 0x23;
                                 ScreenToWrite = 0;
-                                memcpy(&CurrentState, &ResetState, sizeof(TCC_Char));
+                                memcpy(&CurrentState, &ResetState, sizeof(TCCChar));
                                 CursorPos = 0;
                                 CursorRow = 14;
                                 bPaintNow = TRUE;
@@ -612,21 +607,21 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                             if(bCaptureText == TRUE)
                             {
                                 CurrentState.bFlash = TRUE;
-                                memcpy(&Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos], &CurrentState, sizeof(TCC_Char));
+                                memcpy(&Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos], &CurrentState, sizeof(TCCChar));
                                 Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos].Text = '\0';
                                 if(CursorPos < CC_CHARS_PER_LINE - 1) CursorPos++;
                             }
                             break;
 
-                        // reset screen becase we've gone into paint on mode
+                        // reset screen becase we've gone into paint on Mode
                         case 0x29: //resume direct caption
                             if(CaptionMode)
                             {
                                 ScreenToWrite = 0;
                                 Mode = PAINT_ON;
-                                memset(&Screens[0],0,sizeof(TCC_Screen));
+                                memset(&Screens[0],0,sizeof(TCCScreen));
                                 ScreenToWrite = 0;
-                                memcpy(&CurrentState, &ResetState, sizeof(TCC_Char));
+                                memcpy(&CurrentState, &ResetState, sizeof(TCCChar));
                                 CursorPos = 0;
                                 CursorRow = 14;
                                 bPaintNow = TRUE;
@@ -637,7 +632,7 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                         case 0x2C: //erase displayed memory
                             if(CaptionMode)
                             {
-                                memset(&Screens[0],0,sizeof(TCC_Screen));
+                                memset(&Screens[0],0,sizeof(TCCScreen));
                                 bPaintNow = TRUE;
                             }
                             break;
@@ -645,7 +640,7 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                         case 0x2E: //erase non-displayed memory
                             if(CaptionMode)
                             {
-                                memset(&Screens[1],0,sizeof(TCC_Screen));
+                                memset(&Screens[1],0,sizeof(TCCScreen));
                                 LastIndent = -1;
                             }
                             break;
@@ -655,9 +650,9 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                             {
                                 Mode = TEXT;
                                 ModeRows = 9;
-                                memset(&Screens[0],0,sizeof(TCC_Screen));
+                                memset(&Screens[0],0,sizeof(TCCScreen));
                                 ScreenToWrite = 0;
-                                memcpy(&CurrentState, &ResetState, sizeof(TCC_Char));
+                                memcpy(&CurrentState, &ResetState, sizeof(TCCChar));
                                 CursorPos = 0;
                                 CursorRow = 6;
                                 bPaintNow = TRUE;
@@ -685,12 +680,12 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                                     {
                                         for(x = 14 - ModeRows; x < 14; x++)
                                         {
-                                            memcpy(Screens[ScreenToWrite].ScreenData[x], Screens[ScreenToWrite].ScreenData[x + 1], CC_CHARS_PER_LINE * sizeof(TCC_Char));
+                                            memcpy(Screens[ScreenToWrite].ScreenData[x], Screens[ScreenToWrite].ScreenData[x + 1], CC_CHARS_PER_LINE * sizeof(TCCChar));
                                         }
                                         CursorRow = 14;
                                     }
-                                    memset(Screens[ScreenToWrite].ScreenData[x], 0 ,CC_CHARS_PER_LINE * sizeof(TCC_Char));
-                                    memcpy(&CurrentState, &ResetState, sizeof(TCC_Char));
+                                    memset(Screens[ScreenToWrite].ScreenData[x], 0 ,CC_CHARS_PER_LINE * sizeof(TCCChar));
+                                    memcpy(&CurrentState, &ResetState, sizeof(TCCChar));
                                     CursorPos = 0;
                                 }
                             }
@@ -699,8 +694,8 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                         case 0x2F: //end caption + swap memory
                             if(CaptionMode)
                             {
-                                memcpy(Screens, Screens + 1, sizeof(TCC_Screen));
-                                memcpy(&CurrentState, &ResetState, sizeof(TCC_Char));
+                                memcpy(Screens, Screens + 1, sizeof(TCCScreen));
+                                memcpy(&CurrentState, &ResetState, sizeof(TCCChar));
                                 ScreenToWrite = 0;
                                 CursorPos = 0;
                                 CursorRow = 14;
@@ -718,11 +713,11 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                         case 0x23:
                             Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos].bIsActive = FALSE;
                             if(CursorPos < CC_CHARS_PER_LINE - 1) CursorPos++;
-                            /* FALL */
+                            // FALL 
                         case 0x22:
                             Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos].bIsActive = FALSE;
                             if(CursorPos < CC_CHARS_PER_LINE - 1) CursorPos++;
-                            /* FALL */
+                            // FALL 
                         case 0x21:
                             Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos].bIsActive = FALSE;
                             if(CursorPos < CC_CHARS_PER_LINE - 1) CursorPos++;
@@ -730,10 +725,10 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
 
                         case 0x2F:
                             CurrentState.bUnderline = TRUE;
-                            /* FALL */
+                            // FALL 
                         case 0x2E:
                             CurrentState.ForeColor = CC_BLACK;
-                            memcpy(&Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos], &CurrentState, sizeof(TCC_Char));
+                            memcpy(&Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos], &CurrentState, sizeof(TCCChar));
                             Screens[ScreenToWrite].ScreenData[CursorRow][CursorPos].Text = ' ';
                             if(CursorPos < CC_CHARS_PER_LINE - 1) CursorPos++;
                             break;
@@ -748,11 +743,11 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
     {
         PostMessage(hWnd, WM_COMMAND, IDM_OSD_CC_TEXT, (LPARAM)Screens);
     }
-    lastcode=data;
+    LastCode=data;
     return 0;
 }
 
-int CC_DecodeLine(BYTE* vbiline, CCMODE CCMode, BOOL IsOdd)
+int CC_DecodeLine(BYTE* vbiline, eCCMode CCMode, BOOL IsOdd)
 {
     if(!IsOdd)
     {
@@ -803,7 +798,7 @@ int XDS_DecodeLine(BYTE* vbiline)
     return 0;
 }
 
-COLORREF CC_GetColor(CC_Color Color)
+COLORREF CC_GetColor(eCCColor Color)
 {
     switch(Color)
     {
@@ -828,7 +823,7 @@ COLORREF CC_GetColor(CC_Color Color)
 }
 
 
-void CC_PaintChars(HWND hWnd, TCC_Char* Char, char* szLine, HDC hDC, RECT* PaintRect, int nFontsize)
+void CC_PaintChars(HWND hWnd, TCCChar* Char, char* szLine, HDC hDC, RECT* PaintRect, int nFontsize)
 {
     SIZE sizeText;
     HFONT hTmp, hOSDfont;
@@ -871,14 +866,14 @@ void CC_PaintChars(HWND hWnd, TCC_Char* Char, char* szLine, HDC hDC, RECT* Paint
 }
 
 
-void CC_PaintLine(HWND hWnd, TCC_Char* Line, HDC hDC, RECT* PaintRect, int nFontsize)
+void CC_PaintLine(HWND hWnd, TCCChar* Line, HDC hDC, RECT* PaintRect, int nFontsize)
 {
     int i;
     BOOL bAnyText = FALSE;
     int Count = 0;
     int LineWidth = (PaintRect->right - PaintRect->left);
     char szString[CC_CHARS_PER_LINE + 1];
-    TCC_Char* LastChar = NULL;
+    TCCChar* LastChar = NULL;
     int StrPos = 0;
 
     for(i = 0; i < CC_CHARS_PER_LINE; i++)
@@ -960,7 +955,7 @@ void CC_PaintLine(HWND hWnd, TCC_Char* Line, HDC hDC, RECT* PaintRect, int nFont
     }
 }
 
-void CC_PaintScreen(HWND hWnd, TCC_Screen* Screen, HDC hDC, RECT* PaintRect)
+void CC_PaintScreen(HWND hWnd, TCCScreen* Screen, HDC hDC, RECT* PaintRect)
 {
     int i;
     RECT LineRect;

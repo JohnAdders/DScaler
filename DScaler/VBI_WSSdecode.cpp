@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_WSSdecode.cpp,v 1.5 2001-07-12 16:16:40 adcockj Exp $
+// $Id: VBI_WSSdecode.cpp,v 1.6 2001-07-13 16:14:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/07/12 16:16:40  adcockj
+// Added CVS Id and Log
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -68,13 +71,13 @@
 #define AR_NONANAMORPHIC 1
 #define AR_ANAMORPHIC    2
 
-extern int decodebit(unsigned char *data, int threshold, int NumPixels);
+extern int decodebit(unsigned char* data, int threshold, int NumPixels);
 
 // WSS decoded data
-TWSS_DataStruct WSS_Data = { -1,-1,FALSE,FALSE,FALSE,FALSE,WSS625_SUBTITLE_NO,FALSE,FALSE,FALSE };
+TWSSDataStruct WSS_Data = { -1,-1,FALSE,FALSE,FALSE,FALSE,WSS625_SUBTITLE_NO,FALSE,FALSE,FALSE };
 
 // WSS control data
-TWSS_CtrlDataStruct WSS_CtrlData = { FALSE,0,0,WSS_MAX_SUCCESSIVE_ERR,WSS625_START_POS_MAX,WSS625_START_POS_MIN,0,0,-1,-1};
+TWSSCtrlDataStruct WSS_CtrlData = { FALSE,0,0,WSS_MAX_SUCCESSIVE_ERR,WSS625_START_POS_MAX,WSS625_START_POS_MIN,0,0,-1,-1};
 
 // Offsets of each clock pixels (7.09379) in VBI buffer line
 static int offsets[] = {   0,   7,  14,  21,  28,  35,  43,  50,  57,  64,
@@ -138,7 +141,7 @@ void WSS_init ()
     WSS_clear_data ();
 }
 
-static BOOL decode_sequence(BYTE* vbiline, int *DecodedVals, int NbVal, int Threshold, int *Offsets)
+static BOOL decode_sequence(BYTE* vbiline, int* DecodedVals, int NbVal, int Threshold, int *Offsets)
 {
     int i;
 
@@ -390,8 +393,8 @@ int WSS_DecodeLine(BYTE* vbiline)
     {
 //      if (! PrevDecodeOk && (WSS_CtrlData.NbSuccessiveErr >= WSS_MAX_SUCCESSIVE_ERR))
 //      {
-//          WSS_CtrlData.AspectModeWhenErr = aspectSettings.aspect_mode;
-//          WSS_CtrlData.AspectRatioWhenErr = aspectSettings.source_aspect;
+//          WSS_CtrlData.AspectModeWhenErr = AspectSettings.AspectMode;
+//          WSS_CtrlData.AspectRatioWhenErr = AspectSettings.SourceAspect;
 //      }
 
         WSS_CtrlData.DecodeStatus = WSS_STATUS_OK;
@@ -412,18 +415,18 @@ int WSS_DecodeLine(BYTE* vbiline)
 //          else
 //          {
 //              NewAspectMode = WSS_Data.AspectMode;
-//              if (WSS_Data.AspectMode != aspectSettings.aspect_mode)
+//              if (WSS_Data.AspectMode != AspectSettings.AspectMode)
 //              {
 //                  bSwitch = TRUE;
 //              }
-//              if (WSS_Data.AspectRatio > aspectSettings.source_aspect)
+//              if (WSS_Data.AspectRatio > AspectSettings.SourceAspect)
 //              {
 //                  bSwitch = TRUE;
 //                  NewAspectRatio = WSS_Data.AspectRatio;
 //              }
 //              else
 //              {
-//                  NewAspectRatio = aspectSettings.source_aspect;
+//                  NewAspectRatio = AspectSettings.SourceAspect;
 //              }
 //          }
 //      }
@@ -432,8 +435,8 @@ int WSS_DecodeLine(BYTE* vbiline)
 //  if (bSwitch
 //   && (NewAspectMode != -1)
 //   && (NewAspectRatio != -1)
-//   && ( (NewAspectMode != aspectSettings.aspect_mode)
-//     || (NewAspectRatio != aspectSettings.source_aspect) ) )
+//   && ( (NewAspectMode != AspectSettings.AspectMode)
+//     || (NewAspectRatio != AspectSettings.SourceAspect) ) )
 //  {
 //      SwitchToRatio (NewAspectMode, NewAspectRatio);
 //

@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// $Id: CPU.cpp,v 1.3 2001-07-12 16:16:39 adcockj Exp $
+// $Id: CPU.cpp,v 1.4 2001-07-13 16:14:55 adcockj Exp $
 ///////////////////////////////////////////////////////////////////////////////
 //  This file is subject to the terms of the GNU General Public License as
 //  published by the Free Software Foundation.  A copy of this license is
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/07/12 16:16:39  adcockj
+// Added CVS Id and Log
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -68,7 +71,7 @@
 #define CPUID_STD_SSE          0x02000000
 #define CPUID_STD_SSE2         0x04000000
 
-/* Symbolic constants for feature flags in CPUID extended feature flags */
+// Symbolic constants for feature flags in CPUID extended feature flags
 
 #define CPUID_EXT_3DNOW        0x80000000
 #define CPUID_EXT_AMD_3DNOWEXT 0x40000000
@@ -82,12 +85,12 @@ UINT CpuFeatureFlags = 0;
 void CPU_SetupFeatureFlag(void)
 {
    UINT signature = 0;
-    char vendor[13]        = "UnknownVendr";  /* Needs to be exactly 12 chars */
+    char vendor[13]        = "UnknownVendr";  // Needs to be exactly 12 chars 
 
-   /* Define known vendor strings here */
+   // Define known vendor strings here 
 
-   char vendorAMD[13]     = "AuthenticAMD";  /* Needs to be exactly 12 chars */
-   char vendorIntel[13]   = "GenuineIntel";  /* Needs to be exactly 12 chars */
+   char vendorAMD[13]     = "AuthenticAMD";  // Needs to be exactly 12 chars 
+   char vendorIntel[13]   = "GenuineIntel";  // Needs to be exactly 12 chars 
 
    // Step 1: Check if processor has CPUID support. Processor faults
    // with an illegal instruction exception if the instruction is not

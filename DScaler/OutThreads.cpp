@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.21 2001-07-13 07:04:43 adcockj Exp $
+// $Id: OutThreads.cpp,v 1.22 2001-07-13 16:14:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,7 +41,7 @@
 //
 // 02 Jan 2001   John Adcock           Fixed bug at end of GetCombFactor assember
 //                                     Made PAL pulldown detect remember last video
-//                                     mode
+//                                     Mode
 //                                     Removed bTV plug-in
 //                                     Added Scaled BOB method
 //
@@ -66,6 +66,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2001/07/13 07:04:43  adcockj
+// Attemp 1 at fixing MSP muting
+//
 // Revision 1.20  2001/07/12 16:16:40  adcockj
 // Added CVS Id and Log
 //
@@ -107,11 +110,11 @@ BOOL                bAutoDetectMode = TRUE;
 
 
 // TRB 10/28/00 changes, parms, and new fields for sync problem fixes
-DDSURFACEDESC       ddsd;                       // also add a surface descriptor for Lock           
+DDSURFACEDESC       SurfaceDesc;                       // also add a surface descriptor for Lock           
 HRESULT             FlipResult = 0;             // Need to try again for flip?
-BOOL                Wait_For_Flip = TRUE;       // User parm, default=TRUE
+BOOL                WaitForFlip = TRUE;       // User parm, default=TRUE
 BOOL                DoAccurateFlips = TRUE;     // User parm, default=TRUE
-BOOL                Hurry_When_Late = FALSE;    // " , default=FALSE, skip processing if behind
+BOOL                bHurryWhenLate = FALSE;    // " , default=FALSE, skip processing if behind
 long                RefreshRate = 0;
 BOOL bIsOddField = FALSE;
 BOOL bWaitForVsync = FALSE;
@@ -151,10 +154,10 @@ void Start_Thread()
                              NULL,                          // Parameter.
                              (DWORD) 0,                     // Start immediatly.
                              (LPDWORD) & LinkThreadID);     // Thread ID.
-	if(!bSystemInMute)
-	{
-		Audio_Unmute();
-	}
+    if(!bSystemInMute)
+    {
+        Audio_Unmute();
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -214,14 +217,14 @@ void RequestStreamSnap()
 }
 
 
-// save the info structure to a snapshot file
+// save the Info structure to a snapshot file
 // these files will make it easier to test 
 // deinterlacing techniques as we can start
 // to exchange the actual data we are each looking
 // at and have the ability to recreate results
-void SaveStreamSnapshot(DEINTERLACE_INFO *info)
+void SaveStreamSnapshot(DEINTERLACE_INFO* pInfo)
 {
-    FILE *file;
+    FILE* file;
     char name[13];
     int n = 0;
     int i = 0;
@@ -248,33 +251,33 @@ void SaveStreamSnapshot(DEINTERLACE_INFO *info)
         return;
     }
 
-    // just save the info struct
+    // just save the Info struct
     // most of the data is pointers which will be useless
     // to anyone else
     // but NULLs will be useful in determining how many
     // fields we have.
     // The rest will contain all the data we need to use
     // the data in a test program
-    fwrite(info, sizeof(DEINTERLACE_INFO), 1, file);
+    fwrite(pInfo, sizeof(DEINTERLACE_INFO), 1, file);
 
     // save all the Odd fields first
     i = 0;
-    while(i < MAX_FIELD_HISTORY && info->OddLines[i] != NULL)
+    while(i < MAX_FIELD_HISTORY && pInfo->OddLines[i] != NULL)
     {
-        for(j = 0; j < info->FieldHeight; ++j)
+        for(j = 0; j < pInfo->FieldHeight; ++j)
         {
-            fwrite(info->OddLines[i][j], info->LineLength, 1, file);
+            fwrite(pInfo->OddLines[i][j], pInfo->LineLength, 1, file);
         }
         i++;      
     }
 
     // then all the even frames
     i = 0;
-    while(i < MAX_FIELD_HISTORY && info->EvenLines[i] != NULL)
+    while(i < MAX_FIELD_HISTORY && pInfo->EvenLines[i] != NULL)
     {
-        for(j = 0; j < info->FieldHeight; ++j)
+        for(j = 0; j < pInfo->FieldHeight; ++j)
         {
-            fwrite(info->EvenLines[i][j], info->LineLength, 1, file);
+            fwrite(pInfo->EvenLines[i][j], pInfo->LineLength, 1, file);
         }
     i++;      
     }
@@ -297,7 +300,7 @@ void Pause_Toggle_Capture()
 void Start_Capture()
 {
     int nFlags = BT848_CAP_CTL_CAPTURE_EVEN | BT848_CAP_CTL_CAPTURE_ODD;
-    if (Capture_VBI == TRUE)
+    if (bCaptureVBI == TRUE)
     {
         nFlags |= BT848_CAP_CTL_CAPTURE_VBI_EVEN | BT848_CAP_CTL_CAPTURE_VBI_ODD;
     }
@@ -308,7 +311,7 @@ void Start_Capture()
     BT848_MaskDataByte(BT848_CAP_CTL, (BYTE) nFlags, (BYTE) 0x0f);
     BT848_SetDMA(TRUE);
 
-    // ame sure half height modes are set correctly
+    // ame sure half height Modes are set correctly
     PrepareDeinterlaceMode();
 
     Start_Thread();
@@ -336,10 +339,10 @@ void Reset_Capture()
 }
 
 //
-// Add a function to Lock the overlay surface and update some info from it.
+// Add a function to Lock the overlay surface and update some Info from it.
 // We always lock and write to the back buffer.
 // Flipping takes care of the proper buffer addresses.
-// Some of this info can change each time.  
+// Some of this Info can change each time.  
 // We also check to see if we still need to Flip because the
 // non-waiting last flip failed.  If so, try it one more time,
 // then give up.  Tom Barry 10/26/00
@@ -359,15 +362,15 @@ BYTE* LockOverlay()
         FlipResult = 0;                 // but no time to try any more
     }
 
-    memset(&ddsd, 0x00, sizeof(ddsd));
-    ddsd.dwSize = sizeof(ddsd);
-    ddrval = lpDDOverlayBack->Lock(NULL, &ddsd, dwFlags, NULL);
+    memset(&SurfaceDesc, 0x00, sizeof(SurfaceDesc));
+    SurfaceDesc.dwSize = sizeof(SurfaceDesc);
+    ddrval = lpDDOverlayBack->Lock(NULL, &SurfaceDesc, dwFlags, NULL);
 
     // fix suggested by christoph for NT 4.0 sp6
     if(ddrval == E_INVALIDARG && (dwFlags & DDLOCK_NOSYSLOCK))
     {
         //remove flag
-        ddrval = lpDDOverlayBack->Lock(NULL, &ddsd, DDLOCK_WAIT, NULL);
+        ddrval = lpDDOverlayBack->Lock(NULL, &SurfaceDesc, DDLOCK_WAIT, NULL);
         if( SUCCEEDED(ddrval) )
         {
             //remember for next time
@@ -381,8 +384,8 @@ BYTE* LockOverlay()
         return NULL;
     }
 
-    OverlayPitch = ddsd.lPitch;         // Set new pitch, may change
-    return (BYTE*)ddsd.lpSurface;
+    OverlayPitch = SurfaceDesc.lPitch;         // Set new pitch, may change
+    return (BYTE*)SurfaceDesc.lpSurface;
 }
 
 DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
@@ -396,7 +399,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     BYTE* pDest;
     BOOL bFlipNow = TRUE;
     HRESULT ddrval;
-    DEINTERLACE_INFO info;
+    DEINTERLACE_INFO Info;
     DWORD FlipFlag;
     DEINTERLACE_METHOD* PrevDeintMethod = NULL;
     DEINTERLACE_METHOD* CurrentMethod = NULL;
@@ -408,15 +411,15 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     Timing_Setup();
 
     // set up Deinterlace Info struct
-    memset(&info, 0, sizeof(info));
-    info.CpuFeatureFlags = CpuFeatureFlags;
+    memset(&Info, 0, sizeof(Info));
+    Info.CpuFeatureFlags = CpuFeatureFlags;
     if(CpuFeatureFlags & FEATURE_SSE)
     {
-        info.pMemcpy = memcpySSE;
+        Info.pMemcpy = memcpySSE;
     }
     else
     {
-        info.pMemcpy = memcpyMMX;
+        Info.pMemcpy = memcpyMMX;
     }
 
     // catch anything fatal in this loop so we don't crash the machine
@@ -436,8 +439,8 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
         {
             for (i = 0; i < CurrentY; i += 2)
             {
-                ppOddLines[j][i / 2] = (short *) pDisplay[j] + (i + 1) * 1024;
-                ppEvenLines[j][i / 2] = (short *) pDisplay[j] + i * 1024;
+                ppOddLines[j][i / 2] = (short*) pDisplay[j] + (i + 1) * 1024;
+                ppEvenLines[j][i / 2] = (short*) pDisplay[j] + i * 1024;
             }
         }
         PrevDeintMethod = GetCurrentDeintMethod();
@@ -456,57 +459,57 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
         {
             // update with any changes
             CurrentMethod = GetCurrentDeintMethod();
-            info.bDoAccurateFlips = DoAccurateFlips;
-            info.bRunningLate = Hurry_When_Late;
-            info.bMissedFrame = FALSE;
+            Info.bDoAccurateFlips = DoAccurateFlips;
+            Info.bRunningLate = bHurryWhenLate;
+            Info.bMissedFrame = FALSE;
             
-            Timing_WaitForNextField(&info);
+            Timing_WaitForNextField(&Info);
             
             if(bIsPaused == FALSE)
             {
-                info.OverlayPitch = OverlayPitch;
-                info.LineLength = CurrentX * 2;
-                info.FrameWidth = CurrentX;
-                info.FrameHeight = CurrentY;
-                info.FieldHeight = CurrentY / 2;
-                info.CombFactor = -1;
-                info.FieldDiff = -1;
+                Info.OverlayPitch = OverlayPitch;
+                Info.LineLength = CurrentX * 2;
+                Info.FrameWidth = CurrentX;
+                Info.FrameHeight = CurrentY;
+                Info.FieldHeight = CurrentY / 2;
+                Info.CombFactor = -1;
+                Info.FieldDiff = -1;
                 bFlipNow = FALSE;
-                GetDestRect(&info.DestRect);
+                GetDestRect(&Info.DestRect);
 
-                if(info.IsOdd)
+                if(Info.IsOdd)
                 {
-                    memmove(&info.OddLines[1], &info.OddLines[0], sizeof(info.OddLines) - sizeof(info.OddLines[0]));
+                    memmove(&Info.OddLines[1], &Info.OddLines[0], sizeof(Info.OddLines) - sizeof(Info.OddLines[0]));
                     if(bReversePolarity == FALSE)
                     {
-                        info.OddLines[0] = ppOddLines[info.CurrentFrame];
+                        Info.OddLines[0] = ppOddLines[Info.CurrentFrame];
                     }
                     else
                     {
-                        info.OddLines[0] = ppEvenLines[info.CurrentFrame];
+                        Info.OddLines[0] = ppEvenLines[Info.CurrentFrame];
                     }
                 }
                 else
                 {
-                    memmove(&info.EvenLines[1], &info.EvenLines[0], sizeof(info.EvenLines) - sizeof(info.EvenLines[0]));
+                    memmove(&Info.EvenLines[1], &Info.EvenLines[0], sizeof(Info.EvenLines) - sizeof(Info.EvenLines[0]));
                     if(bReversePolarity == FALSE)
                     {
-                        info.EvenLines[0] = ppEvenLines[info.CurrentFrame];
+                        Info.EvenLines[0] = ppEvenLines[Info.CurrentFrame];
                     }
                     else
                     {
-                        info.EvenLines[0] = ppOddLines[(info.CurrentFrame + 4) % 5];
+                        Info.EvenLines[0] = ppOddLines[(Info.CurrentFrame + 4) % 5];
                     }
                 }
 
                 // update the source area
-                GetSourceRect(&info.SourceRect);
+                GetSourceRect(&Info.SourceRect);
                 
                 // do any filters that operarate on the input
                 // only
-                SourceAspectAdjust = Filter_DoInput(&info, (info.bRunningLate || info.bMissedFrame));
+                SourceAspectAdjust = Filter_DoInput(&Info, (Info.bRunningLate || Info.bMissedFrame));
 
-                if(!info.bMissedFrame)
+                if(!Info.bMissedFrame)
                 {
                     if(bAutoDetectMode == TRUE)
                     {
@@ -514,47 +517,47 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         {
                             // we will need always need both comb and diff
                             // for film detect to work properly
-                            PerformFilmDetectCalculations(&info, TRUE, TRUE);
-                            UpdatePALPulldownMode(&info);
+                            PerformFilmDetectCalculations(&Info, TRUE, TRUE);
+                            UpdatePALPulldownMode(&Info);
                         }
                         else
                         {
                             // we will need always need diff
-                            // comb is needed in film mode orwhen we ask for it
-                            PerformFilmDetectCalculations(&info, 
+                            // comb is needed in film Mode orwhen we ask for it
+                            PerformFilmDetectCalculations(&Info, 
                                                         IsFilmMode() ||
                                                             CurrentMethod->bNeedCombFactor,
                                                         TRUE);
-                            UpdateNTSCPulldownMode(&info);
+                            UpdateNTSCPulldownMode(&Info);
                         }
                         // get the current method again
-                        // after the film modes have been selected
+                        // after the film Modes have been selected
                         CurrentMethod = GetCurrentDeintMethod();
                     }
                     else
                     {
-                        PerformFilmDetectCalculations(&info, 
+                        PerformFilmDetectCalculations(&Info, 
                                                         CurrentMethod->bNeedCombFactor, 
                                                         CurrentMethod->bNeedFieldDiff);
                     }
                 }
 
-                if (Capture_VBI == TRUE)
+                if (bCaptureVBI == TRUE)
                 {
-                    BYTE * pVBI = (LPBYTE) pVBILines[(info.CurrentFrame + 4) % 5];
-                    if (info.IsOdd)
+                    BYTE* pVBI = (LPBYTE) pVBILines[(Info.CurrentFrame + 4) % 5];
+                    if (Info.IsOdd)
                     {
                         pVBI += CurrentVBILines * 2048;
                     }
                     for (nLineTarget = 0; nLineTarget < CurrentVBILines ; nLineTarget++)
                     {
-                        VBI_DecodeLine(pVBI + nLineTarget * 2048, nLineTarget, info.IsOdd);
+                        VBI_DecodeLine(pVBI + nLineTarget * 2048, nLineTarget, Info.IsOdd);
                     }
                 }
 
                 __try
                 {
-                    if (!info.bRunningLate)
+                    if (!Info.bRunningLate)
                     {
                         pDest = LockOverlay();  // Ready to access screen, Lock back buffer berfore accessing
                                                 // can't do this until after Lock Call
@@ -566,20 +569,20 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                             ExitThread(1);
                             return 0;
                         }
-                        info.Overlay = pDest;
+                        Info.Overlay = pDest;
                     }
 
-                    if(info.IsOdd)
+                    if(Info.IsOdd)
                     {
-                        if(info.EvenLines[0] == NULL)
+                        if(Info.EvenLines[0] == NULL)
                         {
                             nHistory = 1;
                         }
-                        else if(info.OddLines[1] == NULL)
+                        else if(Info.OddLines[1] == NULL)
                         {
                             nHistory = 2;
                         }
-                        else if(info.EvenLines[1] == NULL)
+                        else if(Info.EvenLines[1] == NULL)
                         {
                             nHistory = 3;
                         }
@@ -590,15 +593,15 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                     }
                     else
                     {
-                        if(info.OddLines[0] == NULL)
+                        if(Info.OddLines[0] == NULL)
                         {
                             nHistory = 1;
                         }
-                        else if(info.EvenLines[1] == NULL)
+                        else if(Info.EvenLines[1] == NULL)
                         {
                             nHistory = 2;
                         }
-                        else if(info.OddLines[1] == NULL)
+                        else if(Info.OddLines[1] == NULL)
                         {
                             nHistory = 3;
                         }
@@ -608,31 +611,31 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         }
                     }
 
-                    if (info.bRunningLate)
+                    if (Info.bRunningLate)
                     {
                         ;     // do nothing
                     }
                     // if we have dropped a field then do BOB 
                     // or if we need to get more history
-                    // if we are doing a half height mode then just do that
+                    // if we are doing a half height Mode then just do that
                     // anyway as it will be just as fast
-                    else if(!CurrentMethod->bIsHalfHeight && (info.bMissedFrame || nHistory < CurrentMethod->nFieldsRequired))
+                    else if(!CurrentMethod->bIsHalfHeight && (Info.bMissedFrame || nHistory < CurrentMethod->nFieldsRequired))
                     {
-                        bFlipNow = Bob(&info);
+                        bFlipNow = Bob(&Info);
                     }
                     else
                     {
-                        bFlipNow = CurrentMethod->pfnAlgorithm(&info);
+                        bFlipNow = CurrentMethod->pfnAlgorithm(&Info);
                     }
                     
                     if (bFlipNow)
                     {
                         // Do any filters that run on the output
                         // need to do this while the surface is locked
-                        Filter_DoOutput(&info, (info.bRunningLate || info.bMissedFrame));
+                        Filter_DoOutput(&Info, (Info.bRunningLate || Info.bMissedFrame));
                     }
 
-                    AdjustAspectRatio(SourceAspectAdjust, info.EvenLines[0], info.OddLines[0]);
+                    AdjustAspectRatio(SourceAspectAdjust, Info.EvenLines[0], Info.OddLines[0]);
                 }                   
                 // if there is any exception thrown in the above then just carry on
                 __except (EXCEPTION_EXECUTE_HANDLER) 
@@ -640,7 +643,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                     LOG(" Crash in output code");
                 }
 
-                if (!info.bRunningLate)
+                if (!Info.bRunningLate)
                 {
                     // somewhere above we will have locked the buffer, unlock before flip
                     ddrval = lpDDOverlayBack->Unlock(NULL);
@@ -658,17 +661,17 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         // setup flip flag
                         // the odd and even flags may help the scaled bob
                         // on some cards
-                        FlipFlag = (Wait_For_Flip)?DDFLIP_WAIT:DDFLIP_DONOTWAIT;
+                        FlipFlag = (WaitForFlip)?DDFLIP_WAIT:DDFLIP_DONOTWAIT;
                         if(CurrentMethod->nMethodIndex == INDEX_SCALER_BOB)
                         {
-                            FlipFlag |= (info.IsOdd)?DDFLIP_ODD:DDFLIP_EVEN;
+                            FlipFlag |= (Info.IsOdd)?DDFLIP_ODD:DDFLIP_EVEN;
                         }
 
                         // Need to wait for a good time to flip
-                        // only if we have been in the same mode for at least one flip
-                        if(info.bDoAccurateFlips && PrevDeintMethod == CurrentMethod)
+                        // only if we have been in the same Mode for at least one flip
+                        if(Info.bDoAccurateFlips && PrevDeintMethod == CurrentMethod)
                         {
-                            Timing_WaitForTimeToFlip(&info, CurrentMethod, &bStopThread);
+                            Timing_WaitForTimeToFlip(&Info, CurrentMethod, &bStopThread);
                         }
 
                         FlipResult = lpDDOverlay->Flip(NULL, FlipFlag); 
@@ -707,14 +710,14 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                 }
             }
 
-            // if asked save the current info to a file
+            // if asked save the current Info to a file
             if(bRequestStreamSnap == TRUE)
             {
-                SaveStreamSnapshot(&info);
+                SaveStreamSnapshot(&Info);
                 bRequestStreamSnap = FALSE;
             }
 
-            // save the last pulldown mode so that we know if its changed
+            // save the last pulldown Mode so that we know if its changed
             PrevDeintMethod = CurrentMethod;
         }
 
@@ -739,16 +742,16 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 SETTING OutThreadsSettings[OUTTHREADS_SETTING_LASTONE] =
 {
     {
-        "Hurry When Late", ONOFF, 0, (long*)&Hurry_When_Late,
+        "Hurry When Late", ONOFF, 0, (long*)&bHurryWhenLate,
         FALSE, 0, 1, 1, 1,
         NULL,
-        "Threads", "Hurry_When_Late", NULL,
+        "Threads", "bHurryWhenLate", NULL,
     },
     {
-        "Wait For Flip", ONOFF, 0, (long*)&Wait_For_Flip,
+        "Wait For Flip", ONOFF, 0, (long*)&WaitForFlip,
         TRUE, 0, 1, 1, 1,
         NULL,
-        "Threads", "Wait_For_Flip", NULL,
+        "Threads", "WaitForFlip", NULL,
     },
     {
         "JudderTerminator", ONOFF, 0, (long*)&DoAccurateFlips,
@@ -814,7 +817,7 @@ void OutThreads_WriteSettingsToIni()
 
 void OutThreads_SetMenu(HMENU hMenu)
 {
-    CheckMenuItem(hMenu, IDM_CAPTURE_PAUSE, bIsPaused?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_AUTODETECT, bAutoDetectMode?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_JUDDERTERMINATOR, DoAccurateFlips?MF_CHECKED:MF_UNCHECKED);
+    CheckMenuItemBool(hMenu, IDM_CAPTURE_PAUSE, bIsPaused);
+    CheckMenuItemBool(hMenu, IDM_AUTODETECT, bAutoDetectMode);
+    CheckMenuItemBool(hMenu, IDM_JUDDERTERMINATOR, DoAccurateFlips);
 }

@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// DS_ApiCommon.h
+// $Id: DS_ApiCommon.h,v 1.10 2001-07-13 16:15:43 adcockj Exp $
 ///////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,10 @@
 //
 // 27 Mar 2001   John Adcock           Separated code to support plug-ins
 //
+/////////////////////////////////////////////////////////////////////////////
+// CVS Log
+//
+// $Log: not supported by cvs2svn $
 /////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -52,7 +56,7 @@
 #define FEATURE_SSEFP           0x00000400
 #define FEATURE_K6_MTRR         0x00000800
 #define FEATURE_P6_MTRR         0x00001000
-#define FEATURE_SSE				0x00002000
+#define FEATURE_SSE             0x00002000
 #define FEATURE_SSE2            0x00004000
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -61,34 +65,34 @@
 
 typedef enum
 {
-	NOT_PRESENT = 0,
-	ONOFF,
-	YESNO,
-	ITEMFROMLIST,
-	SLIDER,
-	SUBMENU,
+    NOT_PRESENT = 0,
+    ONOFF,
+    YESNO,
+    ITEMFROMLIST,
+    SLIDER,
+    SUBMENU,
 } SETTING_TYPE;
 
-// Function called when setting value changes
-// return value indicates whether.rest of screen needs to be
+// Function called when setting Value changes
+// return Value indicates whether.rest of screen needs to be
 // refreshed
 typedef BOOL (__cdecl SETTING_ONCHANGE)(long NewValue);
 
 typedef struct
 {
-	char* szDisplayName;
-	SETTING_TYPE Type;
-	long OriginalValue;
-	long* pValue;
-	long Default;
-	long MinValue;
-	long MaxValue;
-	long StepValue;
-	long OSDDivider;
-	const char** pszList;
-	char* szIniSection;
-	char* szIniEntry;
-	SETTING_ONCHANGE* pfnOnChange;
+    char* szDisplayName;
+    SETTING_TYPE Type;
+    long OriginalValue;
+    long* pValue;
+    long Default;
+    long MinValue;
+    long MaxValue;
+    long StepValue;
+    long OSDDivider;
+    const char** pszList;
+    char* szIniSection;
+    char* szIniEntry;
+    SETTING_ONCHANGE* pfnOnChange;
 } SETTING;
 
 #define SETTINGS_PER_MENU 8
@@ -109,59 +113,59 @@ typedef void (MEMCPY_FUNC)(void* pOutput, void* pInput, size_t nSize);
 
 typedef struct
 {
-	// Data from the most recent several odd and even fields, from newest
-	// to oldest, i.e., OddLines[0] is always the most recent odd field.
-	// Pointers are NULL if the field in question isn't valid, e.g. because
-	// the program just started or a field was skipped.
-	short **OddLines[MAX_FIELD_HISTORY];
-	short **EvenLines[MAX_FIELD_HISTORY];
+    // Data from the most recent several odd and even fields, from newest
+    // to oldest, i.e., OddLines[0] is always the most recent odd field.
+    // Pointers are NULL if the field in question isn't valid, e.g. because
+    // the program just started or a field was skipped.
+    short **OddLines[MAX_FIELD_HISTORY];
+    short **EvenLines[MAX_FIELD_HISTORY];
 
-	// Current overlay buffer pointer.
-	BYTE *Overlay;
+    // Current overlay buffer pointer.
+    BYTE *Overlay;
 
-	// The part of the overlay that we actually show
-	RECT SourceRect;
+    // The part of the overlay that we actually show
+    RECT SourceRect;
 
-	// True if the most recent field is an odd one; false if it was even.
-	BOOL IsOdd;
+    // True if the most recent field is an odd one; false if it was even.
+    BOOL IsOdd;
 
-	// which frame are we on
-	int CurrentFrame;
+    // which frame are we on
+    int CurrentFrame;
 
-	// Overlay pitch (number of bytes between scanlines).
-	DWORD OverlayPitch;
+    // Overlay pitch (number of bytes between scanlines).
+    DWORD OverlayPitch;
 
-	// Number of bytes of actual data in each scanline.  May be less than
-	// OverlayPitch since the overlay's scanlines might have alignment
-	// requirements.  Generally equal to FrameWidth * 2.
-	DWORD LineLength;
+    // Number of bytes of actual data in each scanline.  May be less than
+    // OverlayPitch since the overlay's scanlines might have alignment
+    // requirements.  Generally equal to FrameWidth * 2.
+    DWORD LineLength;
 
-	// Number of pixels in each scanline.
-	int FrameWidth;
+    // Number of pixels in each scanline.
+    int FrameWidth;
 
-	// Number of scanlines per frame.
-	int FrameHeight;
+    // Number of scanlines per frame.
+    int FrameHeight;
 
-	// Number of scanlines per field.  FrameHeight / 2, mostly for
-	// cleanliness so we don't have to keep dividing FrameHeight by 2.
-	int FieldHeight;
+    // Number of scanlines per field.  FrameHeight / 2, mostly for
+    // cleanliness so we don't have to keep dividing FrameHeight by 2.
+    int FieldHeight;
 
-	// Results from the NTSC Field compare
-	long FieldDiff;
-	// Results of the PAL mode deinterlace detect
-	long CombFactor;
-	// Function pointer to optimized memcpy function
-	MEMCPY_FUNC* pMemcpy;
-	// What type of CPU are we running
-	long CpuFeatureFlags;
-	// Are we behind with processing
-	BOOL bRunningLate;
-	// Are we behind with processing
-	BOOL bMissedFrame;
-	// Do we want to flip accuratly
-	BOOL bDoAccurateFlips;
-	// How big the source will end up
-	RECT DestRect;
+    // Results from the NTSC Field compare
+    long FieldDiff;
+    // Results of the PAL Mode deinterlace detect
+    long CombFactor;
+    // Function pointer to optimized memcpy function
+    MEMCPY_FUNC* pMemcpy;
+    // What Type of CPU are we running
+    long CpuFeatureFlags;
+    // Are we behind with processing
+    BOOL bRunningLate;
+    // Are we behind with processing
+    BOOL bMissedFrame;
+    // Do we want to flip accuratly
+    BOOL bDoAccurateFlips;
+    // How big the source will end up
+    RECT DestRect;
 } DEINTERLACE_INFO;
 
 #endif

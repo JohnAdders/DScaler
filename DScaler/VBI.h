@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI.h,v 1.3 2001-07-12 16:16:40 adcockj Exp $
+// $Id: VBI.h,v 1.4 2001-07-13 16:14:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,16 +55,16 @@ void VBI_SetMenu(HMENU hMenu);
 
 void VBI_Init();
 void VBI_Exit();
-void VBI_DecodeLine(unsigned char *VBI_Buffer, int line, BOOL IsOdd);
-void VBI_AGC(BYTE * Buffer, int start, int stop, int step);
+void VBI_DecodeLine(unsigned char* VBI_Buffer, int line, BOOL IsOdd);
+void VBI_AGC(BYTE* Buffer, int start, int stop, int step);
 
-extern int VBI_FPS;
+extern int VBIFPS;
 extern BYTE VBI_thresh;
-extern BYTE VBI_off;
-extern BOOL Capture_VBI;
-extern char VPS_lastname[9];
+extern BYTE VBIOffset;
+extern BOOL bCaptureVBI;
+extern char VPSLastName[9];
 extern HWND ShowVPSInfo;
-extern int vtstep;
-extern int vpsstep;
+extern int VTStep;
+extern int VPSStep;
 
 #endif

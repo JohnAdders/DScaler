@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.25 2001-07-12 16:16:40 adcockj Exp $
+// $Id: ProgramList.cpp,v 1.26 2001-07-13 16:14:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2001/07/12 16:16:40  adcockj
+// Added CVS Id and Log
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -758,7 +761,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 //
 void Write_Program_List_ASCII()
 {
-    FILE *SettingFile;
+    FILE* SettingFile;
     CHANNELLIST::iterator it;
     
     if ((SettingFile = fopen("program.txt", "w")) != NULL)
@@ -807,7 +810,7 @@ void Channels_Exit()
 void Load_Program_List_ASCII()
 {
     char sbuf[256];
-    FILE *SettingFile;
+    FILE* SettingFile;
     CHANNELLIST::iterator it;
     DWORD Frequency = -1;
     int Channel = 1;
@@ -1123,11 +1126,11 @@ void Unload_Country_Settings()
 
 void Load_Country_Settings()
 {
-    FILE *CountryFile;
+    FILE* CountryFile;
     char line[128];
-    char *Pos;
-    char *Pos1;
-    char *eol_ptr;
+    char* Pos;
+    char* Pos1;
+    char* eol_ptr;
     unsigned int i;
     string Name;
     CCountry* NewCountry = NULL;

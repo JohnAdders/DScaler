@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI.cpp,v 1.7 2001-07-12 16:16:40 adcockj Exp $
+// $Id: VBI.cpp,v 1.8 2001-07-13 16:14:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2001/07/12 16:16:40  adcockj
+// Added CVS Id and Log
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -57,15 +60,15 @@ BOOL bStopVBI;
 HANDLE VBIThread;
 
 BYTE VBI_thresh;
-BYTE VBI_off;
-int vtstep;
-int vpsstep;
+BYTE VBIOffset;
+int VTStep;
+int VPSStep;
 
-BOOL Capture_VBI = FALSE;
+BOOL bCaptureVBI = FALSE;
 BOOL DoTeletext = FALSE;
 BOOL DoVPS = FALSE;
 BOOL DoWSS = FALSE;
-CCMODE CCMode = CCMODE_OFF;
+eCCMode CCMode = CCMODE_OFF;
 
 HWND ShowVPSInfo=NULL;
 
@@ -79,15 +82,15 @@ void VBI_Exit()
     VBI_VT_Exit();
 }
 
-void VBI_DecodeLine(unsigned char *VBI_Buffer, int line, BOOL IsOdd)
+void VBI_DecodeLine(unsigned char* VBI_Buffer, int line, BOOL IsOdd)
 {
-    vtstep = (int) ((35.468950 / 6.9375) * FPFAC + 0.5);
-    vpsstep = 2 * (int) ((35.468950 / 5.0) * FPFAC + 0.5);
+    VTStep = (int) ((35.468950 / 6.9375) * FPFAC + 0.5);
+    VPSStep = 2 * (int) ((35.468950 / 5.0) * FPFAC + 0.5);
 
     // set up threshold and offset data
     VBI_AGC(VBI_Buffer, 120, 450, 1);
 
-    /* all kinds of data with videotext data format: videotext, intercast, ... */
+    // all kinds of data with videotext data format: videotext, intercast, ... 
     if (DoTeletext)
     {
         VT_DecodeLine(VBI_Buffer, line, IsOdd);
@@ -102,20 +105,20 @@ void VBI_DecodeLine(unsigned char *VBI_Buffer, int line, BOOL IsOdd)
         CC_DecodeLine(VBI_Buffer, CCMode, IsOdd);
     }
 
-    /* VPS information with channel name, time, VCR programming info, etc. */
+    // VPS information with channel name, time, VCR programming Info, etc. 
     if (DoVPS && (line == 9))
     {
         VTS_DecodeLine(VBI_Buffer);
     }
 
-    /* WSS information with source aspect ratio. */
+    // WSS information with source aspect ratio. 
     if (DoWSS && !IsOdd && (line == BT848_GetTVFormat()->WSS_Line))
     {
         WSS_DecodeLine(VBI_Buffer);
     }
 }
 
-void VBI_AGC(BYTE * Buffer, int start, int stop, int step)
+void VBI_AGC(BYTE* Buffer, int start, int stop, int step)
 {
     int i, min = 255, max = 0;
 
@@ -131,7 +134,7 @@ void VBI_AGC(BYTE * Buffer, int start, int stop, int step)
         }
     }
     VBI_thresh = (max + min) / 2;
-    VBI_off = 128 - VBI_thresh;
+    VBIOffset = 128 - VBI_thresh;
 }
 
 
@@ -140,7 +143,7 @@ void VBI_AGC(BYTE * Buffer, int start, int stop, int step)
 /////////////////////////////////////////////////////////////////////////////
 BOOL Capture_VBI_OnChange(long NewValue)
 {
-    Capture_VBI = (BOOL)NewValue;
+    bCaptureVBI = (BOOL)NewValue;
     WSS_init();
     return FALSE;
 }
@@ -155,7 +158,7 @@ BOOL DoWSS_OnChange(long NewValue)
 SETTING VBISettings[VBI_SETTING_LASTONE] =
 {
     {
-        "Capture VBI", ONOFF, 0, (long*)&Capture_VBI,
+        "Capture VBI", ONOFF, 0, (long*)&bCaptureVBI,
         FALSE, 0, 1, 1, 1,
         NULL,
         "Show", "CaptureVBI", Capture_VBI_OnChange,
@@ -223,8 +226,8 @@ void VBI_SetMenu(HMENU hMenu)
     EnableMenuItem(hMenu, IDM_VT_OUT, MF_GRAYED);
     EnableMenuItem(hMenu, IDM_VPS_OUT, MF_GRAYED);
 
-    CheckMenuItem(hMenu, IDM_VBI, Capture_VBI?MF_CHECKED:MF_UNCHECKED);
-    if (Capture_VBI == TRUE)
+    CheckMenuItemBool(hMenu, IDM_VBI, bCaptureVBI);
+    if (bCaptureVBI == TRUE)
     {
         // set vt dialog menu items up
         EnableMenuItem(hMenu, IDM_CALL_VIDEOTEXT, (DoTeletext)?MF_ENABLED:MF_GRAYED);
@@ -234,13 +237,13 @@ void VBI_SetMenu(HMENU hMenu)
         EnableMenuItem(hMenu, IDM_VBI_VT, MF_ENABLED);
         EnableMenuItem(hMenu, IDM_VBI_VPS, MF_ENABLED);
         EnableMenuItem(hMenu, IDM_VBI_WSS, MF_ENABLED);
-        CheckMenuItem(hMenu, IDM_VBI_VT, (DoTeletext)?MF_CHECKED:MF_UNCHECKED);
-        CheckMenuItem(hMenu, IDM_VBI_VPS, (DoVPS)?MF_CHECKED:MF_UNCHECKED);
-        CheckMenuItem(hMenu, IDM_VBI_WSS, (DoWSS)?MF_CHECKED:MF_UNCHECKED);
+        CheckMenuItemBool(hMenu, IDM_VBI_VT, DoTeletext);
+        CheckMenuItemBool(hMenu, IDM_VBI_VPS, DoVPS);
+        CheckMenuItemBool(hMenu, IDM_VBI_WSS, DoWSS);
         for(i = CCMODE_OFF; i <= CCMODE_TEXT4; i++)
         {
             EnableMenuItem(hMenu, IDM_CCOFF + i, MF_ENABLED);
-            CheckMenuItem(hMenu, IDM_CCOFF + i, (CCMode == i)?MF_CHECKED:MF_UNCHECKED);
+            CheckMenuItemBool(hMenu, IDM_CCOFF + i, (CCMode == i));
         }
     }
     else

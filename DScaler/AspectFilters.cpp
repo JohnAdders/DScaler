@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectFilters.cpp,v 1.6 2001-07-12 16:16:39 adcockj Exp $
+// $Id: AspectFilters.cpp,v 1.7 2001-07-13 16:14:55 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/07/12 16:16:39  adcockj
+// Added CVS Id and Log
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -38,62 +41,60 @@
 // From dtv.c .... We really need to reduce reliance on globals by going C++!
 // Perhaps in the meantime, it could be passed as a parameter to WorkoutOverlay()
 extern BOOL bIsFullScreen;
-extern BOOL Show_Menu;
+extern BOOL bShowMenu;
 
 
 #define __ASPECTFILTER_DEBUG__ "CAspectFilterDebug.log"
 #ifdef __ASPECTFILTER_DEBUG__
-    static FILE *debugLog = NULL;
+    static FILE* debugLog = NULL;
 #endif
 
-/* Used to calculate positions for a given period and timing.
-    Values go from Amplitude/2+Offset to Amplitude+Offset, down to Offset, and then back to Amplitude/2+Offset
-    This results in a bounce between Offset and Amplitude+Offset, starting at the midpoint.
-*/
+// Used to calculate positions for a given period and timing.
+// Values go from Amplitude/2+Offset to Amplitude+Offset, down to Offset, and then back to Amplitude/2+Offset
+// This results in a bounce between Offset and Amplitude+Offset, starting at the midpoint.
 
 CPeriodBouncer::CPeriodBouncer(time_t period, double amplitude, double offset)
 { 
-    time(&m_startTime); 
-    m_period = period; 
-    m_amplitude = amplitude; 
-    m_offset = offset; 
+    time(&m_StartTime); 
+    m_Period = period; 
+    m_Amplitude = amplitude; 
+    m_Offset = offset; 
 }
 
 CPeriodBouncer::CPeriodBouncer(time_t startTime, time_t period, double amplitude, double offset)
 { 
-    m_startTime = startTime; 
-    m_period = period; 
-    m_amplitude = amplitude; 
-    m_offset = offset;
+    m_StartTime = startTime; 
+    m_Period = period; 
+    m_Amplitude = amplitude; 
+    m_Offset = offset;
 }
 
 double CPeriodBouncer::position()
 {
-    double phase = fmod((((double)((time(NULL)-m_startTime)%m_period))/m_period+0.25),1);
-        // We go from 0% to 100% over m_period - but start 25% of the way into the phase.
-    double val = phase*m_amplitude*2.0;
-    if (val > m_amplitude)
+    double phase = fmod((((double)((time(NULL)-m_StartTime)%m_Period))/m_Period+0.25),1);
+        // We go from 0% to 100% over m_Period - but start 25% of the way into the phase.
+    double val = phase*m_Amplitude*2.0;
+    if (val > m_Amplitude)
     {
-        val = fabs(2*m_amplitude-val); // Adjust - 50% into the phase, turn around and go down
+        val = fabs(2*m_Amplitude-val); // Adjust - 50% into the phase, turn around and go down
     }
-    return val + m_offset;
+    return val + m_Offset;
 }
 
-/* Class containing all the rectangles a filter might want 
-Dest rectanges refer to the image rectangle on the screen
-Src rectangles refer to the rectangle of the source image being used
+// Class containing all the rectangles a filter might want 
+// Dest rectanges refer to the image rectangle on the screen
+// Src rectangles refer to the rectangle of the source image being used
+// 
+// Prev rectangles refer to the values from before this current filter run
+// Original rectangles refer to the initial values of "Current" passed into the filter chain
+// Current rectangles are the Value being used and adjusted.
+// 
+// ONLY CURRENT VALUES SHOULD BE ADJUSTED BY FILTERS!
 
-Prev rectangles refer to the values from before this current filter run
-Original rectangles refer to the initial values of "Current" passed into the filter chain
-Current rectangles are the value being used and adjusted.
-
-ONLY CURRENT VALUES SHOULD BE ADJUSTED BY FILTERS!
-*/
-
-void CAspectRectangles::DebugDump(FILE *f)
+void CAspectRectangles::DebugDump(FILE* f)
 {
-    fprintf(f,"SRC : "); rCurrentOverlaySrc.DebugDump(f);
-    fprintf(f,"DEST: "); rCurrentOverlayDest.DebugDump(f);
+    fprintf(f,"SRC : "); m_CurrentOverlaySrcRect.DebugDump(f);
+    fprintf(f,"DEST: "); m_CurrentOverlayDestRect.DebugDump(f);
 }
 
 CAspectFilter::CAspectFilter()
@@ -111,11 +112,11 @@ CAspectFilter::~CAspectFilter()
 
 // Called to actually perform the adjustment for 1 filter
 // If it returns TRUE, this is a request from the filter to re-run the aspect calculation
-//    The TRUE value is currently only used by the filter which adjusts the window rectangle
+//    The TRUE Value is currently only used by the filter which adjusts the window rectangle
 //    as this adjustment affects all calculations.  Current implementation only allows 
 //    1 level of re-calculate requests.
 
-void CAspectFilter::DebugDump(FILE *f)
+void CAspectFilter::DebugDump(FILE* f)
 {
     ; // empty if not implemented
 }
@@ -127,12 +128,12 @@ void CAspectFilter::SetChild(CAspectFilter* Child)
 
 COverscanAspectFilter::COverscanAspectFilter(int overscanSize)
 {
-    overscan = overscanSize;
+    m_Overscan = overscanSize;
 }
 
 BOOL COverscanAspectFilter::adjustAspect(CAspectRectangles &ar)
 {
-    ar.rCurrentOverlaySrc.shrink(overscan);
+    ar.m_CurrentOverlaySrcRect.shrink(m_Overscan);
     return FALSE;
 }
 
@@ -140,34 +141,34 @@ LPCSTR COverscanAspectFilter::getFilterName()
 {
     return "COverscanAspectFilter";
 }
-void COverscanAspectFilter::DebugDump(FILE *f)
+void COverscanAspectFilter::DebugDump(FILE* f)
 { 
-    fprintf(f,"Overscan = %i\n",overscan);
+    fprintf(f,"Overscan = %i\n",m_Overscan);
 }
 
 // This filter orbits the source image using independent X and Y timers.
 // It is assumed that bouncing is enabled if this filter is in the chain.
-// The bounce comes out of the overscan (the overscan filter performs a sanity check to ensure the overscan is of appropriate size.
-COrbitAspectFilter::COrbitAspectFilter(time_t orbitPeriodX, time_t orbitPeriodY, long orbitSize)
+// The bounce comes out of the m_Overscan (the m_Overscan filter performs a sanity check to ensure the m_Overscan is of appropriate size.
+COrbitAspectFilter::COrbitAspectFilter(time_t OrbitPeriodX, time_t OrbitPeriodY, long OrbitSize)
 {
-    if (aspectSettings.bounceStartTime == 0)
+    if (AspectSettings.BounceStartTime == 0)
     {
-        time(&aspectSettings.bounceStartTime);
+        time(&AspectSettings.BounceStartTime);
     }
-    xOrbit = new CPeriodBouncer(aspectSettings.bounceStartTime,orbitPeriodX,orbitSize,-orbitSize/2.0);
-    yOrbit = new CPeriodBouncer(aspectSettings.bounceStartTime,orbitPeriodY,orbitSize,-orbitSize/2.0);
+    m_pXOrbitBouncer = new CPeriodBouncer(AspectSettings.BounceStartTime,OrbitPeriodX,OrbitSize,-OrbitSize/2.0);
+    m_pYOrbitBouncer = new CPeriodBouncer(AspectSettings.BounceStartTime,OrbitPeriodY,OrbitSize,-OrbitSize/2.0);
 }
 
 COrbitAspectFilter::~COrbitAspectFilter()
 { 
-    delete xOrbit; 
-    delete yOrbit; 
+    delete m_pXOrbitBouncer; 
+    delete m_pYOrbitBouncer; 
 }
 
 BOOL COrbitAspectFilter::adjustAspect(CAspectRectangles &ar)
 {
-    ar.rCurrentOverlaySrc.shift((int)xOrbit->position(),
-                                (int)yOrbit->position());
+    ar.m_CurrentOverlaySrcRect.shift((int)m_pXOrbitBouncer->position(),
+                                (int)m_pYOrbitBouncer->position());
     return FALSE;
 }
 
@@ -176,39 +177,39 @@ LPCSTR COrbitAspectFilter::getFilterName()
     return "COrbitAspectFilter";
 }
 
-void COrbitAspectFilter::DebugDump(FILE *f)
+void COrbitAspectFilter::DebugDump(FILE* f)
 {
-    fprintf(f,"xOrbit = %lf, yOrbit = %lf\n",xOrbit->position(), yOrbit->position());
+    fprintf(f,"m_pXOrbitBouncer = %lf, m_pYOrbitBouncer = %lf\n",m_pXOrbitBouncer->position(), m_pYOrbitBouncer->position());
 }
 
 CBounceDestinationAspectFilter::CBounceDestinationAspectFilter(time_t period)
 {
-    if (aspectSettings.bounceStartTime == 0)
+    if (AspectSettings.BounceStartTime == 0)
     {
-        time(&aspectSettings.bounceStartTime);
+        time(&AspectSettings.BounceStartTime);
     }
-    bouncer = new CPeriodBouncer(
-        aspectSettings.bounceStartTime, period,
-        // bounceAmplitude ranges from 0 to 100, we want 0 to 2.
-        2.0 * (double)aspectSettings.bounceAmplitude / 100.0,
-        // bounceAmplitude ranges from 0 to 100, we want 0 to -1.
-        -1.0 * (double)aspectSettings.bounceAmplitude / 100.0);
+    m_pBouncer = new CPeriodBouncer(
+        AspectSettings.BounceStartTime, period,
+        // BounceAmplitude ranges from 0 to 100, we want 0 to 2.
+        2.0 * (double)AspectSettings.BounceAmplitude / 100.0,
+        // BounceAmplitude ranges from 0 to 100, we want 0 to -1.
+        -1.0 * (double)AspectSettings.BounceAmplitude / 100.0);
 }
 
 CBounceDestinationAspectFilter::~CBounceDestinationAspectFilter()
 {
-    delete bouncer;
+    delete m_pBouncer;
 }
 
 BOOL CBounceDestinationAspectFilter::adjustAspect(CAspectRectangles &ar)
 {
-    CAspectRect oldDest = ar.rCurrentOverlayDest;
+    CAspectRect oldDest = ar.m_CurrentOverlayDestRect;
 
     m_Child->adjustAspect(ar);
 
-    double pos = bouncer->position();
-    ar.rCurrentOverlayDest.shift((int) (((oldDest.width()-ar.rCurrentOverlayDest.width())*pos)/2),
-                                 (int) (((oldDest.height()-ar.rCurrentOverlayDest.height())*pos)/2));
+    double pos = m_pBouncer->position();
+    ar.m_CurrentOverlayDestRect.shift((int) (((oldDest.width()-ar.m_CurrentOverlayDestRect.width())*pos)/2),
+                                 (int) (((oldDest.height()-ar.m_CurrentOverlayDestRect.height())*pos)/2));
     return FALSE;
 }
 
@@ -217,27 +218,27 @@ LPCSTR CBounceDestinationAspectFilter::getFilterName()
     return "CBounceDestinationAspectFilter"; 
 }
 
-void CBounceDestinationAspectFilter::DebugDump(FILE *f)
+void CBounceDestinationAspectFilter::DebugDump(FILE* f)
 {
-    fprintf(f,"position = %lf\n",bouncer->position());
+    fprintf(f,"position = %lf\n",m_pBouncer->position());
 }
 
 // Applys child filters than adjusts the position of the destination rectangle - this class fixed floating point positions
 // from -1 to 1 (0 = centered, -1 = left/top +1 = right/bottom
 CPositionDestinationAspectFilter::CPositionDestinationAspectFilter(double x, double y)
 {
-    xPos = x; 
-    yPos = y;
+    m_XPos = x; 
+    m_YPos = y;
 }
 
 BOOL CPositionDestinationAspectFilter::adjustAspect(CAspectRectangles &ar)
 {
-    CAspectRect oldDest = ar.rCurrentOverlayDest;
+    CAspectRect oldDest = ar.m_CurrentOverlayDestRect;
 
     m_Child->adjustAspect(ar);
 
-    ar.rCurrentOverlayDest.shift((int) (((oldDest.width()-ar.rCurrentOverlayDest.width())*xPos)/2),
-                                 (int) (((oldDest.height()-ar.rCurrentOverlayDest.height())*yPos)/2));
+    ar.m_CurrentOverlayDestRect.shift((int) (((oldDest.width()-ar.m_CurrentOverlayDestRect.width())*m_XPos)/2),
+                                 (int) (((oldDest.height()-ar.m_CurrentOverlayDestRect.height())*m_YPos)/2));
     return FALSE;
 }
 
@@ -246,21 +247,21 @@ LPCSTR CPositionDestinationAspectFilter::getFilterName()
     return "CPositionDestinationAspectFilter"; 
 }
 
-void CPositionDestinationAspectFilter::DebugDump(FILE *f)
+void CPositionDestinationAspectFilter::DebugDump(FILE* f)
 {
-    fprintf(f,"xPos = %lf, yPos = %lf\n",xPos,yPos); 
+    fprintf(f,"m_XPos = %lf, m_YPos = %lf\n",m_XPos,m_YPos); 
 }
 
 BOOL CCropAspectFilter::adjustAspect(CAspectRectangles &ar)
 {
-    double MaterialAspect = aspectSettings.source_aspect ? (aspectSettings.source_aspect/1000.0) : ar.rCurrentOverlayDest.targetAspect();
+    double MaterialAspect = AspectSettings.SourceAspect ? (AspectSettings.SourceAspect/1000.0) : ar.m_CurrentOverlayDestRect.targetAspect();
 
     // Crop the source rectangle down to the desired aspect...
-    ar.rCurrentOverlaySrc.adjustTargetAspectByShrink(MaterialAspect);
+    ar.m_CurrentOverlaySrcRect.adjustTargetAspectByShrink(MaterialAspect);
 
     // Crop the destination rectangle
     // Bouncers are used to position the target rectangle within the cropped region...
-    ar.rCurrentOverlayDest.adjustTargetAspectByShrink(MaterialAspect);
+    ar.m_CurrentOverlayDestRect.adjustTargetAspectByShrink(MaterialAspect);
     return FALSE;
 }
 
@@ -274,38 +275,38 @@ LPCSTR CCropAspectFilter::getFilterName()
 BOOL CUnCropAspectFilter::adjustAspect(CAspectRectangles &ar)
 {
     // Save source and dest going in - needed for un-cropping the window...
-    CAspectRect rOriginalDest(ar.rCurrentOverlayDest);
-    CAspectRect rOriginalSrc(ar.rCurrentOverlaySrc);
+    CAspectRect rOriginalDest(ar.m_CurrentOverlayDestRect);
+    CAspectRect rOriginalSrc(ar.m_CurrentOverlaySrcRect);
 
     // Apply sub-filters
     m_Child->adjustAspect(ar);
-    CAspectRect lastSrc = ar.rCurrentOverlaySrc;
+    CAspectRect lastSrc = ar.m_CurrentOverlaySrcRect;
 
     // Figure out where we have space left and add it back in (up to the amount of image we have)
-    double vScale = ar.rCurrentOverlayDest.height() / ar.rCurrentOverlaySrc.height();
-    double hScale = ar.rCurrentOverlayDest.width() / ar.rCurrentOverlaySrc.width();
+    double vScale = ar.m_CurrentOverlayDestRect.height() / ar.m_CurrentOverlaySrcRect.height();
+    double hScale = ar.m_CurrentOverlayDestRect.width() / ar.m_CurrentOverlaySrcRect.width();
 
     // Scale the source image to use the entire display area
-    ar.rCurrentOverlaySrc.left -= (int)floor((ar.rCurrentOverlayDest.left - rOriginalDest.left)/hScale);
-    ar.rCurrentOverlaySrc.right += (int)floor((rOriginalDest.right - ar.rCurrentOverlayDest.right)/hScale);
-    ar.rCurrentOverlaySrc.top -= (int)floor((ar.rCurrentOverlayDest.top - rOriginalDest.top)/vScale);
-    ar.rCurrentOverlaySrc.bottom += (int)floor((rOriginalDest.bottom - ar.rCurrentOverlayDest.bottom)/vScale);
+    ar.m_CurrentOverlaySrcRect.left -= (int)floor((ar.m_CurrentOverlayDestRect.left - rOriginalDest.left)/hScale);
+    ar.m_CurrentOverlaySrcRect.right += (int)floor((rOriginalDest.right - ar.m_CurrentOverlayDestRect.right)/hScale);
+    ar.m_CurrentOverlaySrcRect.top -= (int)floor((ar.m_CurrentOverlayDestRect.top - rOriginalDest.top)/vScale);
+    ar.m_CurrentOverlaySrcRect.bottom += (int)floor((rOriginalDest.bottom - ar.m_CurrentOverlayDestRect.bottom)/vScale);
 
     // Can't use crop function in rectangle - rounding differences in scaling factors
     // due to calculating factors at different times cause issues
     // Need to do all cropping and scaling w/ same scale factors...
 
     // Clip the source image to actually available image
-    if (ar.rCurrentOverlaySrc.left < rOriginalSrc.left) ar.rCurrentOverlaySrc.left = rOriginalSrc.left;
-    if (ar.rCurrentOverlaySrc.right > rOriginalSrc.right) ar.rCurrentOverlaySrc.right = rOriginalSrc.right;
-    if (ar.rCurrentOverlaySrc.top < rOriginalSrc.top) ar.rCurrentOverlaySrc.top = rOriginalSrc.top;
-    if (ar.rCurrentOverlaySrc.bottom > rOriginalSrc.bottom) ar.rCurrentOverlaySrc.bottom = rOriginalSrc.bottom;
+    if (ar.m_CurrentOverlaySrcRect.left < rOriginalSrc.left) ar.m_CurrentOverlaySrcRect.left = rOriginalSrc.left;
+    if (ar.m_CurrentOverlaySrcRect.right > rOriginalSrc.right) ar.m_CurrentOverlaySrcRect.right = rOriginalSrc.right;
+    if (ar.m_CurrentOverlaySrcRect.top < rOriginalSrc.top) ar.m_CurrentOverlaySrcRect.top = rOriginalSrc.top;
+    if (ar.m_CurrentOverlaySrcRect.bottom > rOriginalSrc.bottom) ar.m_CurrentOverlaySrcRect.bottom = rOriginalSrc.bottom;
     
     // Now scale the destination to the source remaining
-    ar.rCurrentOverlayDest.left += (int)floor((ar.rCurrentOverlaySrc.left-lastSrc.left)*hScale);
-    ar.rCurrentOverlayDest.right -= (int)floor((lastSrc.right-ar.rCurrentOverlaySrc.right)*hScale);
-    ar.rCurrentOverlayDest.top += (int)floor((ar.rCurrentOverlaySrc.top-lastSrc.top)*vScale);
-    ar.rCurrentOverlayDest.bottom -= (int)floor((lastSrc.bottom-ar.rCurrentOverlaySrc.bottom)*vScale);
+    ar.m_CurrentOverlayDestRect.left += (int)floor((ar.m_CurrentOverlaySrcRect.left-lastSrc.left)*hScale);
+    ar.m_CurrentOverlayDestRect.right -= (int)floor((lastSrc.right-ar.m_CurrentOverlaySrcRect.right)*hScale);
+    ar.m_CurrentOverlayDestRect.top += (int)floor((ar.m_CurrentOverlaySrcRect.top-lastSrc.top)*vScale);
+    ar.m_CurrentOverlayDestRect.bottom -= (int)floor((lastSrc.bottom-ar.m_CurrentOverlaySrcRect.bottom)*vScale);
 
     return FALSE;
 }
@@ -316,141 +317,141 @@ LPCSTR CUnCropAspectFilter::getFilterName()
 }
 
 // Zooms in on the source image
-// x/yZoom is the amount to zoom - 1 = full size, 2 = double size, 4 = quad size 
+// x/m_YZoom is the amount to zoom - 1 = full size, 2 = double size, 4 = quad size 
 //    both zoom factors should normally be equal - any other values will wreck the 
 //    aspect ratio of the image (that would be a shame after spending all this code to keep it correct <grin>
-// x/yPos is the position to zoom in on - 0 = left/top of frame, .5 = middle, 1 = right/bottom of frame
+// x/m_YPos is the position to zoom in on - 0 = left/top of frame, .5 = middle, 1 = right/bottom of frame
 // Normally this filter will be applied just before the CScreenSanityAspectFilter
 CPanAndZoomAspectFilter::CPanAndZoomAspectFilter(long _xPos, long _yPos, long _xZoom, long _yZoom)
 {
-    xPos = (double)_xPos / 100.0; 
-    yPos = (double)_yPos / 100.0;
-    xZoom = (double)_xZoom / 100.0; 
-    yZoom = (double)_yZoom / 100.0;
+    m_XPos = (double)_xPos / 100.0; 
+    m_YPos = (double)_yPos / 100.0;
+    m_XZoom = (double)_xZoom / 100.0; 
+    m_YZoom = (double)_yZoom / 100.0;
 }
 
 BOOL CPanAndZoomAspectFilter::adjustAspect(CAspectRectangles &ar)
 {
     int dx;
     int dy;
-    CAspectRect rOriginalSrc(ar.rCurrentOverlaySrc);
+    CAspectRect rOriginalSrc(ar.m_CurrentOverlaySrcRect);
 
-    if(xZoom >= 1.0)
+    if(m_XZoom >= 1.0)
     {
-        dx = (int)floor(ar.rCurrentOverlaySrc.width() * (1.0 - 1.0/xZoom));
-        ar.rCurrentOverlaySrc.shrink(0,dx,0,0);
+        dx = (int)floor(ar.m_CurrentOverlaySrcRect.width() * (1.0 - 1.0/m_XZoom));
+        ar.m_CurrentOverlaySrcRect.shrink(0,dx,0,0);
 
         // do we have to crop the input if we do we have to
         // change the output too
-        if(xPos > 1.0)
+        if(m_XPos > 1.0)
         {
-            ar.rCurrentOverlaySrc.shift(dx,0);
-            dx = (int)floor(ar.rCurrentOverlaySrc.width() * (xPos - 1.0));
-            ar.rCurrentOverlaySrc.shrink(0,dx,0,0);
-            dx = (int)floor(ar.rCurrentOverlayDest.width() * (xPos - 1.0));
-            ar.rCurrentOverlayDest.shrink(dx, 0, 0, 0);
+            ar.m_CurrentOverlaySrcRect.shift(dx,0);
+            dx = (int)floor(ar.m_CurrentOverlaySrcRect.width() * (m_XPos - 1.0));
+            ar.m_CurrentOverlaySrcRect.shrink(0,dx,0,0);
+            dx = (int)floor(ar.m_CurrentOverlayDestRect.width() * (m_XPos - 1.0));
+            ar.m_CurrentOverlayDestRect.shrink(dx, 0, 0, 0);
         }
-        else if(xPos < 0.0)
+        else if(m_XPos < 0.0)
         {
-            dx = (int)floor(ar.rCurrentOverlaySrc.width() * -xPos);
-            ar.rCurrentOverlaySrc.shrink(dx,0,0,0);
-            dx = (int)floor(ar.rCurrentOverlayDest.width() * -xPos);
-            ar.rCurrentOverlayDest.shrink(0, dx, 0, 0);
+            dx = (int)floor(ar.m_CurrentOverlaySrcRect.width() * -m_XPos);
+            ar.m_CurrentOverlaySrcRect.shrink(dx,0,0,0);
+            dx = (int)floor(ar.m_CurrentOverlayDestRect.width() * -m_XPos);
+            ar.m_CurrentOverlayDestRect.shrink(0, dx, 0, 0);
         }
         else
         {
-            ar.rCurrentOverlaySrc.shift((int)floor(dx*xPos), 0);
+            ar.m_CurrentOverlaySrcRect.shift((int)floor(dx*m_XPos), 0);
         }
     }
     else
     {
-        dx = (int)floor(ar.rCurrentOverlayDest.width() * (1.0 - xZoom));
-        ar.rCurrentOverlayDest.shrink(0,dx,0,0);
+        dx = (int)floor(ar.m_CurrentOverlayDestRect.width() * (1.0 - m_XZoom));
+        ar.m_CurrentOverlayDestRect.shrink(0,dx,0,0);
 
         // do we have to crop the input if we do we have to
         // change the output too
-        if(xPos > 1.0)
+        if(m_XPos > 1.0)
         {
-            ar.rCurrentOverlayDest.shift(dx,0);
-            dx = (int)floor(ar.rCurrentOverlaySrc.width() * (xPos - 1.0));
-            ar.rCurrentOverlaySrc.shrink(0,dx,0,0);
-            dx = (int)floor(ar.rCurrentOverlayDest.width() * (xPos - 1.0));
-            ar.rCurrentOverlayDest.shrink(dx, 0, 0, 0);
+            ar.m_CurrentOverlayDestRect.shift(dx,0);
+            dx = (int)floor(ar.m_CurrentOverlaySrcRect.width() * (m_XPos - 1.0));
+            ar.m_CurrentOverlaySrcRect.shrink(0,dx,0,0);
+            dx = (int)floor(ar.m_CurrentOverlayDestRect.width() * (m_XPos - 1.0));
+            ar.m_CurrentOverlayDestRect.shrink(dx, 0, 0, 0);
         }
-        else if(xPos < 0.0)
+        else if(m_XPos < 0.0)
         {
-            dx = (int)floor(ar.rCurrentOverlaySrc.width() * -xPos);
-            ar.rCurrentOverlaySrc.shrink(dx,0,0,0);
-            dx = (int)floor(ar.rCurrentOverlayDest.width() * -xPos);
-            ar.rCurrentOverlayDest.shrink(0, dx, 0, 0);
+            dx = (int)floor(ar.m_CurrentOverlaySrcRect.width() * -m_XPos);
+            ar.m_CurrentOverlaySrcRect.shrink(dx,0,0,0);
+            dx = (int)floor(ar.m_CurrentOverlayDestRect.width() * -m_XPos);
+            ar.m_CurrentOverlayDestRect.shrink(0, dx, 0, 0);
         }
         else
         {
-            ar.rCurrentOverlayDest.shift((int)floor(dx*xPos), 0);
+            ar.m_CurrentOverlayDestRect.shift((int)floor(dx*m_XPos), 0);
         }
     }
 
 
-    if(yZoom >= 1.0)
+    if(m_YZoom >= 1.0)
     {
-        dy = (int)floor(ar.rCurrentOverlaySrc.height() * (1.0 - 1.0/yZoom));
-        ar.rCurrentOverlaySrc.shrink(0,0,0,dy);
+        dy = (int)floor(ar.m_CurrentOverlaySrcRect.height() * (1.0 - 1.0/m_YZoom));
+        ar.m_CurrentOverlaySrcRect.shrink(0,0,0,dy);
 
         // do we have to crop the input if we do we have to
         // change the output too
-        if(yPos > 1.0)
+        if(m_YPos > 1.0)
         {
-            ar.rCurrentOverlaySrc.shift(0, dy);
-            dy = (int)floor(ar.rCurrentOverlaySrc.height() * (yPos - 1.0));
-            ar.rCurrentOverlaySrc.shrink(0,0,0,dy);
-            dy = (int)floor(ar.rCurrentOverlayDest.height() * (yPos - 1.0));
-            ar.rCurrentOverlayDest.shrink(0, 0, dy, 0);
+            ar.m_CurrentOverlaySrcRect.shift(0, dy);
+            dy = (int)floor(ar.m_CurrentOverlaySrcRect.height() * (m_YPos - 1.0));
+            ar.m_CurrentOverlaySrcRect.shrink(0,0,0,dy);
+            dy = (int)floor(ar.m_CurrentOverlayDestRect.height() * (m_YPos - 1.0));
+            ar.m_CurrentOverlayDestRect.shrink(0, 0, dy, 0);
         }
-        else if(yPos < 0.0)
+        else if(m_YPos < 0.0)
         {
-            dy = (int)floor(ar.rCurrentOverlaySrc.height() * -yPos);
-            ar.rCurrentOverlaySrc.shrink(0,0,dy,0);
-            dy =(int)floor(ar.rCurrentOverlayDest.height() * -yPos);
-            ar.rCurrentOverlayDest.shrink(0, 0, 0, dy);
+            dy = (int)floor(ar.m_CurrentOverlaySrcRect.height() * -m_YPos);
+            ar.m_CurrentOverlaySrcRect.shrink(0,0,dy,0);
+            dy =(int)floor(ar.m_CurrentOverlayDestRect.height() * -m_YPos);
+            ar.m_CurrentOverlayDestRect.shrink(0, 0, 0, dy);
         }
         else
         {
-            ar.rCurrentOverlaySrc.shift(0, (int)floor(dy*yPos));
+            ar.m_CurrentOverlaySrcRect.shift(0, (int)floor(dy*m_YPos));
         }
     }
     else
     {
-        dy = (int)floor(ar.rCurrentOverlayDest.height() * (1.0 - yZoom));
-        ar.rCurrentOverlayDest.shrink(0,0,0,dy);
+        dy = (int)floor(ar.m_CurrentOverlayDestRect.height() * (1.0 - m_YZoom));
+        ar.m_CurrentOverlayDestRect.shrink(0,0,0,dy);
 
         // do we have to crop the input if we do we have to
         // change the output too
-        if(yPos > 1.0)
+        if(m_YPos > 1.0)
         {
-            ar.rCurrentOverlayDest.shift(0, dy);
-            dy = (int)floor(ar.rCurrentOverlaySrc.height() * (yPos - 1.0));
-            ar.rCurrentOverlaySrc.shrink(0,0,0,dy);
-            dy = (int)floor(ar.rCurrentOverlayDest.height() * (yPos - 1.0));
-            ar.rCurrentOverlayDest.shrink(0, 0, dy, 0);
+            ar.m_CurrentOverlayDestRect.shift(0, dy);
+            dy = (int)floor(ar.m_CurrentOverlaySrcRect.height() * (m_YPos - 1.0));
+            ar.m_CurrentOverlaySrcRect.shrink(0,0,0,dy);
+            dy = (int)floor(ar.m_CurrentOverlayDestRect.height() * (m_YPos - 1.0));
+            ar.m_CurrentOverlayDestRect.shrink(0, 0, dy, 0);
         }
-        else if(yPos < 0.0)
+        else if(m_YPos < 0.0)
         {
-            dy = (int)floor(ar.rCurrentOverlaySrc.height() * -yPos);
-            ar.rCurrentOverlaySrc.shrink(0,0,dy,0);
-            dy =(int)floor(ar.rCurrentOverlayDest.height() * -yPos);
-            ar.rCurrentOverlayDest.shrink(0, 0, 0, dy);
+            dy = (int)floor(ar.m_CurrentOverlaySrcRect.height() * -m_YPos);
+            ar.m_CurrentOverlaySrcRect.shrink(0,0,dy,0);
+            dy =(int)floor(ar.m_CurrentOverlayDestRect.height() * -m_YPos);
+            ar.m_CurrentOverlayDestRect.shrink(0, 0, 0, dy);
         }
         else
         {
-            ar.rCurrentOverlayDest.shift(0, (int)floor(dy*yPos));
+            ar.m_CurrentOverlayDestRect.shift(0, (int)floor(dy*m_YPos));
         }
     }
 
     // Clip the source image to actually available image
-    if (ar.rCurrentOverlaySrc.left < rOriginalSrc.left) ar.rCurrentOverlaySrc.left = rOriginalSrc.left;
-    if (ar.rCurrentOverlaySrc.right > rOriginalSrc.right) ar.rCurrentOverlaySrc.right = rOriginalSrc.right;
-    if (ar.rCurrentOverlaySrc.top < rOriginalSrc.top) ar.rCurrentOverlaySrc.top = rOriginalSrc.top;
-    if (ar.rCurrentOverlaySrc.bottom > rOriginalSrc.bottom) ar.rCurrentOverlaySrc.bottom = rOriginalSrc.bottom;
+    if (ar.m_CurrentOverlaySrcRect.left < rOriginalSrc.left) ar.m_CurrentOverlaySrcRect.left = rOriginalSrc.left;
+    if (ar.m_CurrentOverlaySrcRect.right > rOriginalSrc.right) ar.m_CurrentOverlaySrcRect.right = rOriginalSrc.right;
+    if (ar.m_CurrentOverlaySrcRect.top < rOriginalSrc.top) ar.m_CurrentOverlaySrcRect.top = rOriginalSrc.top;
+    if (ar.m_CurrentOverlaySrcRect.bottom > rOriginalSrc.bottom) ar.m_CurrentOverlaySrcRect.bottom = rOriginalSrc.bottom;
 
     return FALSE;
 }
@@ -459,9 +460,9 @@ LPCSTR CPanAndZoomAspectFilter::getFilterName()
 {
     return "CPanAndZoomAspectFilter";
 }
-void CPanAndZoomAspectFilter::DebugDump(FILE *f)
+void CPanAndZoomAspectFilter::DebugDump(FILE* f)
 { 
-    fprintf(f,"xPos = %lf, yPos = %lf, xZoom = %lf, yZoom = %lf\n",xPos,yPos,xZoom,yZoom);
+    fprintf(f,"m_XPos = %lf, m_YPos = %lf, m_XZoom = %lf, m_YZoom = %lf\n",m_XPos,m_YPos,m_XZoom,m_YZoom);
 }
 
 // Performs important sanity checks on the destination rectangle
@@ -473,21 +474,21 @@ BOOL CScreenSanityAspectFilter::adjustAspect(CAspectRectangles &ar)
     // so that we see the appropriate portion on the screen
     // (this should make us compatable with YXY)
     RECT screenRect = {0,0,GetSystemMetrics(SM_CXSCREEN),GetSystemMetrics(SM_CYSCREEN) };
-    ar.rCurrentOverlayDest.crop(screenRect,&ar.rCurrentOverlaySrc);
+    ar.m_CurrentOverlayDestRect.crop(screenRect,&ar.m_CurrentOverlaySrcRect);
 
     // make sure that any alignment restrictions are taken care of
     if (SrcSizeAlign > 1)
     {
-        ar.rCurrentOverlaySrc.align(SrcSizeAlign);
+        ar.m_CurrentOverlaySrcRect.align(SrcSizeAlign);
     }
     if (DestSizeAlign > 1)
     {
-        ar.rCurrentOverlayDest.align(DestSizeAlign);
+        ar.m_CurrentOverlayDestRect.align(DestSizeAlign);
     }
 
     // Ensure we do not shrink too small...avoids crashes when window gets too small
-    ar.rCurrentOverlayDest.enforceMinSize(1);
-    ar.rCurrentOverlaySrc.enforceMinSize(1);
+    ar.m_CurrentOverlayDestRect.enforceMinSize(1);
+    ar.m_CurrentOverlaySrcRect.enforceMinSize(1);
     return FALSE;
 }
 
@@ -503,7 +504,7 @@ BOOL CResizeWindowAspectFilter::adjustAspect(CAspectRectangles &ar)
     {
         // See if we need to resize the window
         CAspectRect currentClientRect;
-        CAspectRect newRect = ar.rCurrentOverlayDest;
+        CAspectRect newRect = ar.m_CurrentOverlayDestRect;
             
         currentClientRect.setToClient(hWnd,TRUE);
         if (IsStatusBarVisible())
@@ -536,7 +537,7 @@ BOOL CResizeWindowAspectFilter::adjustAspect(CAspectRectangles &ar)
             
             // Convert client rect to window rect...
             currentClientRect.enforceMinSize(8);
-            AdjustWindowRectEx(&currentClientRect,GetWindowLong(hWnd,GWL_STYLE),Show_Menu,0);
+            AdjustWindowRectEx(&currentClientRect,GetWindowLong(hWnd,GWL_STYLE),bShowMenu,0);
             
             #ifdef __ASPECTFILTER_DEBUG__
                 fprintf(debugLog, "New Window Pos     :"); 
@@ -574,60 +575,60 @@ CFilterChain::CFilterChain()
 
 void CFilterChain::BuildFilterChain()
 {
-    if (aspectSettings.orbitEnabled)
+    if (AspectSettings.OrbitEnabled)
     { 
-        int overscan = aspectSettings.InitialOverscan;
-        if (aspectSettings.orbitEnabled && overscan*2 < aspectSettings.orbitSize)
+        int m_Overscan = AspectSettings.InitialOverscan;
+        if (AspectSettings.OrbitEnabled && m_Overscan*2 < AspectSettings.OrbitSize)
         {
-            overscan = (aspectSettings.orbitSize+1)/2;
+            m_Overscan = (AspectSettings.OrbitSize+1)/2;
         }
-        m_FilterChain.push_back(new COverscanAspectFilter(aspectSettings.InitialOverscan));
-        m_FilterChain.push_back(new COrbitAspectFilter(aspectSettings.orbitPeriodX, aspectSettings.orbitPeriodY, aspectSettings.orbitSize)); 
+        m_FilterChain.push_back(new COverscanAspectFilter(AspectSettings.InitialOverscan));
+        m_FilterChain.push_back(new COrbitAspectFilter(AspectSettings.OrbitPeriodX, AspectSettings.OrbitPeriodY, AspectSettings.OrbitSize)); 
     }
     else 
     {
-        m_FilterChain.push_back(new COverscanAspectFilter(aspectSettings.InitialOverscan));
+        m_FilterChain.push_back(new COverscanAspectFilter(AspectSettings.InitialOverscan));
     }
-    if (aspectSettings.aspect_mode)
+    if (AspectSettings.AspectMode)
     { 
         CAspectFilter* PosFilter;
-        if (aspectSettings.bounceEnabled)
+        if (AspectSettings.BounceEnabled)
         {
-            PosFilter = new CBounceDestinationAspectFilter(aspectSettings.bouncePeriod);
+            PosFilter = new CBounceDestinationAspectFilter(AspectSettings.BouncePeriod);
         }
         else
         {
-            double xPos, yPos;
-            switch (aspectSettings.HorizontalPos)
+            double m_XPos, m_YPos;
+            switch (AspectSettings.HorizontalPos)
             {
             case HORZ_POS_LEFT:
-                xPos = -1; 
+                m_XPos = -1; 
                 break;
             case HORZ_POS_RIGHT:
-                xPos = 1; 
+                m_XPos = 1; 
                 break;
             default: 
-                xPos = 0; 
+                m_XPos = 0; 
                 break;
             }
-            switch (aspectSettings.VerticalPos)
+            switch (AspectSettings.VerticalPos)
             {
             case VERT_POS_TOP: 
-                yPos = -1;
+                m_YPos = -1;
                 break;
             case VERT_POS_BOTTOM: 
-                yPos = 1; 
+                m_YPos = 1; 
                 break;
             default:
-                yPos = 0; 
+                m_YPos = 0; 
                 break;
             }
-            PosFilter = new CPositionDestinationAspectFilter(xPos,yPos);
+            PosFilter = new CPositionDestinationAspectFilter(m_XPos,m_YPos);
         }
         
         PosFilter->SetChild(new CCropAspectFilter());
 
-        if (!aspectSettings.aspectImageClipped)
+        if (!AspectSettings.AspectImageClipped)
         {
             CAspectFilter* UnCropFilter = new CUnCropAspectFilter();
             UnCropFilter->SetChild(PosFilter);
@@ -642,17 +643,17 @@ void CFilterChain::BuildFilterChain()
     // This like is where image zooming would be implemented...
     // Sample code zooms in 2x on the center of the image
     // See comments in AspectFilters.hpp for PanAndZoomAspectFilter details.
-    if (aspectSettings.xZoomFactor != 100 || aspectSettings.yZoomFactor != 100 ||
-        aspectSettings.xZoomCenter != 50 || aspectSettings.yZoomCenter != 50)
+    if (AspectSettings.ZoomFactorX != 100 || AspectSettings.ZoomFactorY != 100 ||
+        AspectSettings.ZoomCenterX != 50 || AspectSettings.ZoomCenterY != 50)
     {
-        m_FilterChain.push_back(new CPanAndZoomAspectFilter(aspectSettings.xZoomCenter,
-                                               aspectSettings.yZoomCenter,
-                                               aspectSettings.xZoomFactor,
-                                               aspectSettings.yZoomFactor));
+        m_FilterChain.push_back(new CPanAndZoomAspectFilter(AspectSettings.ZoomCenterX,
+                                               AspectSettings.ZoomCenterY,
+                                               AspectSettings.ZoomFactorX,
+                                               AspectSettings.ZoomFactorY));
     }
 
     m_FilterChain.push_back(new CScreenSanityAspectFilter());
-    if (aspectSettings.autoResizeWindow)
+    if (AspectSettings.AutoResizeWindow)
     {
         m_FilterChain.push_back(new CResizeWindowAspectFilter());
     }
@@ -669,7 +670,7 @@ CFilterChain::~CFilterChain()
     m_FilterChain.empty();
 }
 
-// Applies all filters in a chain.  See above for return value.
+// Applies all filters in a chain.  See above for return Value.
 // If allowReadjust is FALSE, the filter will ignore any re-calculate requests from filters
 // to avoid infinite recursion.
 BOOL CFilterChain::ApplyFilters(CAspectRectangles &ar, BOOL allowReadjust)

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.42 2001-07-13 07:04:43 adcockj Exp $
+// $Id: DScaler.cpp,v 1.43 2001-07-13 16:14:55 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -65,6 +65,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.42  2001/07/13 07:04:43  adcockj
+// Attemp 1 at fixing MSP muting
+//
 // Revision 1.41  2001/07/12 19:28:03  adcockj
 // Limit VT display to valid pages
 //
@@ -117,32 +120,14 @@ BOOL bDoResize = FALSE;
 
 HWND VThWnd;
 
-unsigned long freq;
-char Typ;
-unsigned int srate;
-
-int MoveXDist=-1;
-int MoveYDist=-1;
-
 long WStyle;
 
-BOOL    Show_Menu=TRUE;
+BOOL    bShowMenu=TRUE;
 HMENU   hMenu;
 HMENU   hMenuPopup;
 HACCEL  hAccel;
 
 char ChannelString[10];
-
-int LastFrame;
-
-int FORMAT_MASK = 0x0F;
-int PalFormat = 0;
-
-BOOL  BlackSet[288];
-
-int BeforeVD=0;
-
-int WriteIndex=1;
 
 int MainProcessor=0;
 int DecodeProcessor=0;
@@ -152,15 +137,10 @@ int ThreadClassId = 1;
 BOOL bShowCursor = TRUE;
 BOOL bAutoHideCursor = FALSE;
 
-long emsizex = 649;
-long emsizey = 547;
-long emstartx = 10;
-long emstarty = 10;
-
-int pgsizex = -1;
-int pgsizey = -1;
-int pgstartx = -1;
-int pgstarty = -1;
+long MainWndWidth = 649;
+long MainWndHeight = 547;
+long MainWndLeft = 10;
+long MainWndTop = 10;
 
 BOOL bAlwaysOnTop = FALSE;
 BOOL bAlwaysOnTopFull = TRUE;
@@ -170,7 +150,7 @@ BOOL bIsFullScreen = FALSE;
 BOOL bForceFullScreen = FALSE;
 BOOL bUseAutoSave = FALSE;
 
-HFONT currFont = NULL;
+HFONT hCurrentFont = NULL;
 
 BOOL bInMenuOrDialogBox = FALSE;
 BOOL bIgnoreMouse = FALSE;
@@ -181,17 +161,17 @@ BOOL IsFullScreen_OnChange(long NewValue);
 BOOL DisplayStatusBar_OnChange(long NewValue);
 void Cursor_UpdateVisibility();
 void Cursor_SetVisibility(BOOL bVisible);
-const char * GetSourceName(int nVideoSource);
+const char* GetSourceName(int nVideoSource);
 void MainWndOnDestroy();
 
 
-/****************************************************************************
-
-    FUNCTION: WinMain(HANDLE, HANDLE, LPSTR, int)
-
-    PURPOSE: calls initialization function, processes message loop
-
-****************************************************************************/
+///**************************************************************************
+//
+// FUNCTION: WinMain(HANDLE, HANDLE, LPSTR, int)
+//
+// PURPOSE: calls initialization function, processes message loop
+//
+///**************************************************************************
 
 int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
@@ -341,7 +321,7 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
 
     hWnd = CreateWindow(DSCALER_APPNAME, DSCALER_APPNAME, WS_POPUP, 0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), NULL, NULL, hInstance, NULL);
     if (!hWnd) return FALSE;
-    if (!bIsFullScreen) SetWindowPos(hWnd, 0, emstartx, emstarty, emsizex, emsizey, SWP_SHOWWINDOW);
+    if (!bIsFullScreen) SetWindowPos(hWnd, 0, MainWndLeft, MainWndTop, MainWndWidth, MainWndHeight, SWP_SHOWWINDOW);
 
     if (!StatusBar_Init()) return FALSE;
 
@@ -358,7 +338,7 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     // it won't flash a window right before maximizing.
     UpdateWindowState();
 
-    PostMessage(hWnd, WM_SIZE, SIZENORMAL, MAKELONG(emsizex, emsizey));
+    PostMessage(hWnd, WM_SIZE, SIZENORMAL, MAKELONG(MainWndWidth, MainWndHeight));
     if (!(hAccel = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDA_DSCALER))))
     {
         ErrorBox("Accelerators not Loaded");
@@ -411,28 +391,28 @@ BOOL WINAPI OnContextMenu(HWND hWnd, int x, int y)
 } 
 
 
-/****************************************************************************
-
-    FUNCTION: MainWndProc(HWND, unsigned, WORD, LONG)
-
-    PURPOSE:  Processes messages
-
-    MESSAGES:
-
-        WM_COMMAND    - application menu (About dialog box)
-        WM_CREATE     - create window and objects
-        WM_PAINT      - update window, draw objects
-        WM_DESTROY    - destroy window
-
-    COMMENTS:
-
-        Handles to the objects you will use are obtained when the WM_CREATE
-        message is received, and deleted when the WM_DESTROY message is
-        received.  The actual drawing is done whenever a WM_PAINT message is
-        received.
-
-
-****************************************************************************/
+///**************************************************************************
+//
+//    FUNCTION: MainWndProc(HWND, unsigned, WORD, LONG)
+//
+//    PURPOSE:  Processes messages
+//
+//    MESSAGES:
+//
+//        WM_COMMAND    - application menu (About dialog box)
+//        WM_CREATE     - create window and objects
+//        WM_PAINT      - update window, draw objects
+//        WM_DESTROY    - destroy window
+//
+//    COMMENTS:
+//
+//        Handles to the objects you will use are obtained when the WM_CREATE
+//        message is received, and deleted when the WM_DESTROY message is
+//        received.  The actual drawing is done whenever a WM_PAINT message is
+//        received.
+//
+//
+///**************************************************************************
 LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 {
     char Text[128];
@@ -577,7 +557,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_TOGGLE_MENU:
-            Show_Menu = !Show_Menu;
+            bShowMenu = !bShowMenu;
             WorkoutOverlaySize();
             break;
 
@@ -625,7 +605,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_32PULL4:
         case IDM_32PULL5:
             Setting_SetValue(OutThreads_GetSetting(AUTODETECT), FALSE);
-            SetFilmDeinterlaceMode((eFILMPULLDOWNMODES)(LOWORD(wParam) - IDM_22PULLODD));
+            SetFilmDeinterlaceMode((eFilmPulldownMode)(LOWORD(wParam) - IDM_22PULLODD));
             ShowText(hWnd, GetDeinterlaceModeName());
             break;
 
@@ -924,7 +904,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_AUDIO_3:
         case IDM_AUDIO_4:
         case IDM_AUDIO_5:
-            AudioSource = (AUDIOMUXTYPE)(LOWORD(wParam) - IDM_AUDIO_0);
+            AudioSource = (eAudioMuxType)(LOWORD(wParam) - IDM_AUDIO_0);
             switch (AudioSource)
             {
             case AUDIOMUX_TUNER:     ShowText(hWnd, "Audio Input - Tuner");     break;
@@ -1298,7 +1278,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 BeginPaint(hWnd, &sPaint);
                 PaintColorkey(hWnd, TRUE, sPaint.hdc, &winRect);
                 GetDestRect(&DestRect);
-                CC_PaintScreen(hWnd, (TCC_Screen*)lParam, sPaint.hdc, &DestRect);
+                CC_PaintScreen(hWnd, (TCCScreen*)lParam, sPaint.hdc, &DestRect);
                 EndPaint(hWnd, &sPaint);
                 ValidateRect(hWnd, &winRect);
             }
@@ -1565,10 +1545,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                     sprintf(Text, "%s ", VT_GetStation());
                     VT_ResetStation();
                 }
-                else if (VPS_lastname[0] != 0x00)
+                else if (VPSLastName[0] != 0x00)
                 {
-                    sprintf(Text, "%s ", VPS_lastname);
-                    VPS_lastname[0] = 0x00;
+                    sprintf(Text, "%s ", VPSLastName);
+                    VPSLastName[0] = 0x00;
                 }
 
                 strcpy(Text1, Text);
@@ -1584,11 +1564,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             if(VTState != VT_OFF)
             {
                 VTPage = atoi(ChannelString);
-				if(VTPage >= 100 && VTPage < 900)
-				{
-					VT_DoUpdate_Page(VTPage - 100);
-					InvalidateRect(hWnd, NULL, FALSE);
-				}
+                if(VTPage >= 100 && VTPage < 900)
+                {
+                    VT_DoUpdate_Page(VTPage - 100);
+                    InvalidateRect(hWnd, NULL, FALSE);
+                }
             }
             else
             {
@@ -1628,7 +1608,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         break;
     
     // support for mouse wheel
-    // the WM_MOUSEWHEEL message is not defined but this is it's value
+    // the WM_MOUSEWHEEL message is not defined but this is it's Value
     case WM_MOUSELAST + 1:
         if ((wParam & (MK_SHIFT | MK_CONTROL)) == 0)
         {
@@ -1794,10 +1774,10 @@ void SaveWindowPos(HWND hWnd)
         WndPlace.length = sizeof(WndPlace);
         // End 2-20-01
         GetWindowPlacement(hWnd, &WndPlace);
-        emstarty = WndPlace.rcNormalPosition.top;
-        emsizey = WndPlace.rcNormalPosition.bottom - WndPlace.rcNormalPosition.top;
-        emstartx = WndPlace.rcNormalPosition.left;
-        emsizex = WndPlace.rcNormalPosition.right - WndPlace.rcNormalPosition.left;
+        MainWndTop = WndPlace.rcNormalPosition.top;
+        MainWndHeight = WndPlace.rcNormalPosition.bottom - WndPlace.rcNormalPosition.top;
+        MainWndLeft = WndPlace.rcNormalPosition.left;
+        MainWndWidth = WndPlace.rcNormalPosition.right - WndPlace.rcNormalPosition.left;
     }
 }
 
@@ -1869,9 +1849,9 @@ void MainWndOnInitBT(HWND hWnd)
             SetWindowPos(hWnd, HWND_TOPMOST, 10, 10, 20, 20, SWP_NOMOVE | SWP_NOCOPYBITS | SWP_NOSIZE | SWP_SHOWWINDOW);
         }
 
-        if (Show_Menu == FALSE)
+        if (bShowMenu == FALSE)
         {
-            Show_Menu = TRUE;
+            bShowMenu = TRUE;
             SendMessage(hWnd, WM_COMMAND, IDM_TOGGLE_MENU, 0);
         }
 
@@ -2112,29 +2092,27 @@ void MainWndOnDestroy()
 //---------------------------------------------------------------------------
 void SetMenuAnalog()
 {
-//  HMENU hMenu;
-//  hMenu = GetMenu(hWnd);
     CheckMenuItem(hMenu, ThreadClassId + 1150, MF_CHECKED);
     CheckMenuItem(hMenu, PriorClassId + 1160, MF_CHECKED);
 
-    CheckMenuItem(hMenu, IDM_TREADPRIOR_0, (ThreadClassId == 0)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_TREADPRIOR_1, (ThreadClassId == 1)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_TREADPRIOR_2, (ThreadClassId == 2)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_TREADPRIOR_3, (ThreadClassId == 3)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_TREADPRIOR_4, (ThreadClassId == 4)?MF_CHECKED:MF_UNCHECKED);
+    CheckMenuItemBool(hMenu, IDM_TREADPRIOR_0, (ThreadClassId == 0));
+    CheckMenuItemBool(hMenu, IDM_TREADPRIOR_1, (ThreadClassId == 1));
+    CheckMenuItemBool(hMenu, IDM_TREADPRIOR_2, (ThreadClassId == 2));
+    CheckMenuItemBool(hMenu, IDM_TREADPRIOR_3, (ThreadClassId == 3));
+    CheckMenuItemBool(hMenu, IDM_TREADPRIOR_4, (ThreadClassId == 4));
 
-    CheckMenuItem(hMenu, IDM_PRIORCLASS_0, (PriorClassId == 0)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_PRIORCLASS_1, (PriorClassId == 1)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_PRIORCLASS_2, (PriorClassId == 2)?MF_CHECKED:MF_UNCHECKED);
+    CheckMenuItemBool(hMenu, IDM_PRIORCLASS_0, (PriorClassId == 0));
+    CheckMenuItemBool(hMenu, IDM_PRIORCLASS_1, (PriorClassId == 1));
+    CheckMenuItemBool(hMenu, IDM_PRIORCLASS_2, (PriorClassId == 2));
 
-    CheckMenuItem(hMenu, IDM_TOGGLECURSOR,      bShowCursor?MF_CHECKED:MF_UNCHECKED);
-    EnableMenuItem(hMenu,IDM_TOGGLECURSOR,      bAutoHideCursor?MF_GRAYED:MF_ENABLED);
-    CheckMenuItem(hMenu, IDM_AUTOHIDE_CURSOR,   bAutoHideCursor?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_STATUSBAR,         bDisplayStatusBar?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_ON_TOP,            bAlwaysOnTop?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_ALWAYONTOPFULLSCREEN, bAlwaysOnTopFull?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_SPLASH_ON_STARTUP, bDisplaySplashScreen?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_AUTOHIDE_OSD,      Setting_GetValue(OSD_GetSetting(OSD_AUTOHIDE_SCREEN))?MF_CHECKED:MF_UNCHECKED);
+    CheckMenuItemBool(hMenu, IDM_TOGGLECURSOR, bShowCursor);
+    EnableMenuItem(hMenu,IDM_TOGGLECURSOR, bAutoHideCursor?MF_GRAYED:MF_ENABLED);
+    CheckMenuItemBool(hMenu, IDM_AUTOHIDE_CURSOR, bAutoHideCursor);
+    CheckMenuItemBool(hMenu, IDM_STATUSBAR, bDisplayStatusBar);
+    CheckMenuItemBool(hMenu, IDM_ON_TOP, bAlwaysOnTop);
+    CheckMenuItemBool(hMenu, IDM_ALWAYONTOPFULLSCREEN, bAlwaysOnTopFull);
+    CheckMenuItemBool(hMenu, IDM_SPLASH_ON_STARTUP, bDisplaySplashScreen);
+    CheckMenuItemBool(hMenu, IDM_AUTOHIDE_OSD, Setting_GetValue(OSD_GetSetting(OSD_AUTOHIDE_SCREEN)));
 
     AspectRatio_SetMenu(hMenu);
     FD60_SetMenu(hMenu);
@@ -2257,7 +2235,7 @@ void Overlay_Start(HWND hWnd)
     Reset_Capture();
 }
 
-const char * GetSourceName(int nVideoSource)
+const char* GetSourceName(int nVideoSource)
 {
     switch (nVideoSource)
     {
@@ -2311,7 +2289,7 @@ void UpdateWindowState()
     else
     {
         SetWindowLong(hWnd, GWL_STYLE, WS_OVERLAPPEDWINDOW | WS_VISIBLE);
-        SetMenu(hWnd, (Show_Menu == TRUE)?hMenu:NULL);
+        SetMenu(hWnd, (bShowMenu == TRUE)?hMenu:NULL);
         StatusBar_ShowWindow(bDisplayStatusBar);
         SetWindowPos(hWnd,bAlwaysOnTop?HWND_TOPMOST:HWND_NOTOPMOST,
                     0,0,0,0,
@@ -2401,7 +2379,7 @@ BOOL IsFullScreen_OnChange(long NewValue)
     {
         if(bIsFullScreen == FALSE)
         {
-            SetWindowPos(hWnd, 0, emstartx, emstarty, emsizex, emsizey, SWP_SHOWWINDOW);
+            SetWindowPos(hWnd, 0, MainWndLeft, MainWndTop, MainWndWidth, MainWndHeight, SWP_SHOWWINDOW);
             if (bDisplayStatusBar == TRUE)
             {
                 SetTimer(hWnd, TIMER_STATUS, TIMER_STATUS_MS, NULL);
@@ -2453,7 +2431,7 @@ BOOL DisplayStatusBar_OnChange(long NewValue)
 
 BOOL ShowMenu_OnChange(long NewValue)
 {
-    Show_Menu = (BOOL)NewValue;
+    bShowMenu = (BOOL)NewValue;
     if(bIsFullScreen == FALSE)
     {
         WorkoutOverlaySize();
@@ -2467,25 +2445,25 @@ BOOL ShowMenu_OnChange(long NewValue)
 SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
 {
     {
-        "Window Left", SLIDER, 0, (long*)&emstartx,
+        "Window Left", SLIDER, 0, (long*)&MainWndLeft,
         10, 0, 2048, 1, 1,
         NULL,
         "MainWindow", "StartLeft", NULL,
     },
     {
-        "Window Top", SLIDER, 0, (long*)&emstarty,
+        "Window Top", SLIDER, 0, (long*)&MainWndTop,
         10, 0, 2048, 1, 1,
         NULL,
         "MainWindow", "StartTop", NULL,
     },
     {
-        "Window Width", SLIDER, 0, (long*)&emsizex,
+        "Window Width", SLIDER, 0, (long*)&MainWndWidth,
         649, 0, 2048, 1, 1,
         NULL,
         "MainWindow", "StartWidth", NULL,
     },
     {
-        "Window Height", SLIDER, 0, (long*)&emsizey,
+        "Window Height", SLIDER, 0, (long*)&MainWndHeight,
         547, 0, 2048, 1, 1,
         NULL,
         "MainWindow", "StartHeight", NULL,
@@ -2521,7 +2499,7 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
         "Show", "StatusBar", DisplayStatusBar_OnChange,
     },
     {
-        "Menu", ONOFF, 0, (long*)&Show_Menu,
+        "Menu", ONOFF, 0, (long*)&bShowMenu,
         TRUE, 0, 1, 1, 1,
         NULL,
         "Show", "Menu", ShowMenu_OnChange,

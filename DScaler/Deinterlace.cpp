@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.cpp,v 1.15 2001-07-12 16:16:39 adcockj Exp $
+// $Id: Deinterlace.cpp,v 1.16 2001-07-13 16:14:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,13 +34,16 @@
 //
 // 09 Jan 2001   John Adcock           Split out memcpySSE as separate function
 //                                     Changed DeintMethods to reflect the two
-//                                     film mode functions replacing the one before
+//                                     film Mode functions replacing the one before
 //                                     Moved CombFactor and CompareFields to new file
 //
 /////////////////////////////////////////////////////////////////////////////
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2001/07/12 16:16:39  adcockj
+// Added CVS Id and Log
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -124,7 +127,7 @@ DEINTERLACE_METHOD* VideoDeintMethods[100] = {NULL,};
 BOOL bIsFilmMode = FALSE;
 
 long gVideoPulldownMode = 0;
-eFILMPULLDOWNMODES gFilmPulldownMode = FILMPULLDOWNMODES_LAST_ONE;
+eFilmPulldownMode gFilmPulldownMode = FILMPULLDOWNMODES_LAST_ONE;
 
 DEINTERLACE_METHOD* GetCurrentDeintMethod()
 {
@@ -164,7 +167,7 @@ DEINTERLACE_METHOD* GetVideoDeintIndex(int Index)
     return VideoDeintMethods[0];
 }
 
-DEINTERLACE_METHOD* GetFilmDeintMethod(eFILMPULLDOWNMODES Mode)
+DEINTERLACE_METHOD* GetFilmDeintMethod(eFilmPulldownMode Mode)
 {
     if(Mode < FILMPULLDOWNMODES_LAST_ONE)
     {
@@ -210,7 +213,7 @@ void ShowVideoModeUI()
     }
 }
 
-eFILMPULLDOWNMODES GetFilmMode()
+eFilmPulldownMode GetFilmMode()
 {
     if(bIsFilmMode)
     {
@@ -222,9 +225,9 @@ eFILMPULLDOWNMODES GetFilmMode()
     }
 }
 
-void SetFilmDeinterlaceMode(eFILMPULLDOWNMODES mode)
+void SetFilmDeinterlaceMode(eFilmPulldownMode Mode)
 {
-    if (gFilmPulldownMode != mode || bIsFilmMode == FALSE)
+    if (gFilmPulldownMode != Mode || bIsFilmMode == FALSE)
     {
         DWORD CurrentTickCount = GetTickCount();
         BOOL WereInHalfHeight = InHalfHeightMode();
@@ -245,7 +248,7 @@ void SetFilmDeinterlaceMode(eFILMPULLDOWNMODES mode)
                 VideoDeintMethods[gVideoPulldownMode]->ModeTicks += CurrentTickCount - nLastTicks;
             }
         }
-        gFilmPulldownMode = mode;
+        gFilmPulldownMode = Mode;
         bIsFilmMode = TRUE;
         nLastTicks = CurrentTickCount;
         StatusBar_ShowText(STATUS_PAL, GetDeinterlaceModeName());
@@ -258,9 +261,9 @@ void SetFilmDeinterlaceMode(eFILMPULLDOWNMODES mode)
     }
 }
 
-void SetVideoDeinterlaceMode(int mode)
+void SetVideoDeinterlaceMode(int Mode)
 {
-    if (gVideoPulldownMode != mode || bIsFilmMode == TRUE)
+    if (gVideoPulldownMode != Mode || bIsFilmMode == TRUE)
     {
         DWORD CurrentTickCount = GetTickCount();
         BOOL WereInHalfHeight = InHalfHeightMode();
@@ -281,7 +284,7 @@ void SetVideoDeinterlaceMode(int mode)
                 VideoDeintMethods[gVideoPulldownMode]->ModeTicks += CurrentTickCount - nLastTicks;
             }
         }
-        gVideoPulldownMode = mode;
+        gVideoPulldownMode = Mode;
         bIsFilmMode = FALSE;
         nLastTicks = CurrentTickCount;
         StatusBar_ShowText(STATUS_PAL, GetDeinterlaceModeName());
@@ -352,7 +355,7 @@ void IncrementDeinterlaceMode()
         }
         else
         {
-            SetFilmDeinterlaceMode((eFILMPULLDOWNMODES)Mode);
+            SetFilmDeinterlaceMode((eFilmPulldownMode)Mode);
         }
     }
     else
@@ -383,7 +386,7 @@ void DecrementDeinterlaceMode()
         }
         else
         {
-            SetFilmDeinterlaceMode((eFILMPULLDOWNMODES)Mode);
+            SetFilmDeinterlaceMode((eFilmPulldownMode)Mode);
         }
     }
     else
@@ -509,7 +512,7 @@ void UnloadDeinterlacePlugins()
     NumVideoModes = 0;
 }
 
-int DeintMethodCompare( const void *arg1, const void *arg2 )
+int DeintMethodCompare(const void* arg1, const void* arg2)
 {
     DEINTERLACE_METHOD* pMethod1 = *(DEINTERLACE_METHOD**)arg1;
     DEINTERLACE_METHOD* pMethod2 = *(DEINTERLACE_METHOD**)arg2;
@@ -609,7 +612,7 @@ BOOL LoadDeinterlacePlugins()
 ////////////////////////////////////////////////////////////////////////////
 // Start of Settings related code
 // there are no settings at the moment but here is a good place to set
-// up the DeintModeNames array used where modes are to be selected
+// up the DeintModeNames array used where Modes are to be selected
 /////////////////////////////////////////////////////////////////////////////
 SETTING* Deinterlace_GetSetting(long nIndex, long Setting)
 {
@@ -699,13 +702,13 @@ void Deinterlace_SetMenu(HMENU hMenu)
 
     if(bIsFilmMode)
     {
-        CheckMenuItem(hMenu, IDM_22PULLODD, (gFilmPulldownMode == FILM_22_PULLDOWN_ODD) ?MF_CHECKED:MF_UNCHECKED);
-        CheckMenuItem(hMenu, IDM_22PULLEVEN, (gFilmPulldownMode == FILM_22_PULLDOWN_EVEN) ?MF_CHECKED:MF_UNCHECKED);
-        CheckMenuItem(hMenu, IDM_32PULL1, (gFilmPulldownMode == FILM_32_PULLDOWN_0) ?MF_CHECKED:MF_UNCHECKED);
-        CheckMenuItem(hMenu, IDM_32PULL2, (gFilmPulldownMode == FILM_32_PULLDOWN_1) ?MF_CHECKED:MF_UNCHECKED);
-        CheckMenuItem(hMenu, IDM_32PULL3, (gFilmPulldownMode == FILM_32_PULLDOWN_2) ?MF_CHECKED:MF_UNCHECKED);
-        CheckMenuItem(hMenu, IDM_32PULL4, (gFilmPulldownMode == FILM_32_PULLDOWN_3) ?MF_CHECKED:MF_UNCHECKED);
-        CheckMenuItem(hMenu, IDM_32PULL5, (gFilmPulldownMode == FILM_32_PULLDOWN_4) ?MF_CHECKED:MF_UNCHECKED);
+        CheckMenuItemBool(hMenu, IDM_22PULLODD, (gFilmPulldownMode == FILM_22_PULLDOWN_ODD) );
+        CheckMenuItemBool(hMenu, IDM_22PULLEVEN, (gFilmPulldownMode == FILM_22_PULLDOWN_EVEN) );
+        CheckMenuItemBool(hMenu, IDM_32PULL1, (gFilmPulldownMode == FILM_32_PULLDOWN_0) );
+        CheckMenuItemBool(hMenu, IDM_32PULL2, (gFilmPulldownMode == FILM_32_PULLDOWN_1) );
+        CheckMenuItemBool(hMenu, IDM_32PULL3, (gFilmPulldownMode == FILM_32_PULLDOWN_2) );
+        CheckMenuItemBool(hMenu, IDM_32PULL4, (gFilmPulldownMode == FILM_32_PULLDOWN_3) );
+        CheckMenuItemBool(hMenu, IDM_32PULL5, (gFilmPulldownMode == FILM_32_PULLDOWN_4) );
     }
     else
     {
@@ -720,13 +723,6 @@ void Deinterlace_SetMenu(HMENU hMenu)
 
     for(i = 0; i < NumVideoModes; i++)
     {
-        if(gVideoPulldownMode == i)
-        {
-            CheckMenuItem(hMenu, VideoDeintMethods[i]->MenuId, MF_CHECKED);
-        }
-        else
-        {
-            CheckMenuItem(hMenu, VideoDeintMethods[i]->MenuId, MF_UNCHECKED);
-        }
+        CheckMenuItemBool(hMenu, VideoDeintMethods[i]->MenuId, (gVideoPulldownMode == i));
     }
 }

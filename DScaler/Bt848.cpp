@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Bt848.cpp,v 1.22 2001-07-12 16:16:39 adcockj Exp $
+// $Id: Bt848.cpp,v 1.23 2001-07-13 16:14:55 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -36,7 +36,7 @@
 // 01 Mar 2001   Laurent Garnier       Auto-switch to default video format
 //                                     when switching to tuner video input
 //
-// 11 Mar 2001   Laurent Garnier       Added WSS_Line in TTVFORMAT structure
+// 11 Mar 2001   Laurent Garnier       Added WSS_Line in TTVFormat structure
 //
 // 31 Mar 2001   Laurent Garnier       Last used format saved per video input
 //
@@ -44,6 +44,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2001/07/12 16:16:39  adcockj
+// Added CVS Id and Log
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -89,15 +92,15 @@ BOOL BT848_WhiteCrushDown_OnChange(long NewValue);
 BOOL CurrentX_OnChange(long NewValue);
 BOOL VideoSource_OnChange(long NewValue);
 
-PMemStruct Risc_dma;
-PMemStruct Vbi_dma[5];
-PMemStruct Display_dma[5];
+PMemStruct RiscDMAMem;
+PMemStruct VBIDMAMem[5];
+PMemStruct DisplayDMAMem[5];
 
 BYTE* pDisplay[5] = { NULL,NULL,NULL,NULL,NULL };
 BYTE* pVBILines[5] = { NULL,NULL,NULL,NULL,NULL };
 
 PHYS    RiscBasePhysical; 
-DWORD  *RiscBaseLinear;
+DWORD*  RiscBaseLinear;
 long BytesPerRISCField = 1;
 
 char BTVendorID[10] = "";
@@ -106,7 +109,7 @@ char BTChipType[10] = "";
 
 // MAE 2 Nov 2000 - Start of change for Macrovision fix
 // If non-zero in .ini file, will override TV table setting
-long InitialBDelay = 0x00;  // Original hardware default value was 0x5D
+long InitialBDelay = 0x00;  // Original hardware default Value was 0x5D
 // MAE 2 Nov 2000 - End of change for Macrovision fix
 
 BOOL    BtAgcDisable = FALSE;       // Luma AGC, 0 says AGC enabled
@@ -128,8 +131,8 @@ BOOL    BtHorFilter = FALSE;        // Horizontal Filer: (0,1,2,3) << 3
                                     // maybe only 0,1 valid for full res?
 BOOL    BtVertFilter = FALSE;       // Vert. Filter, only 0 and 4 valid here
 BOOL    BtColorKill = TRUE;         // Kill color if B/W: (0,1) << 5
-long    BtWhiteCrushUp = 0xcf;      // Crush up - entire register value
-long    BtWhiteCrushDown = 0x7f;    // Crush down - entire register value
+long    BtWhiteCrushUp = 0xcf;      // Crush up - entire register Value
+long    BtWhiteCrushDown = 0x7f;    // Crush down - entire register Value
 
 // MAE, 3 Nov 2000
 //    Changed all BDELAY values from 5D to 5C for Macrovision fix
@@ -137,66 +140,66 @@ long    BtWhiteCrushDown = 0x7f;    // Crush down - entire register value
 // John Adcock, 19 Dec 2000
 //    Fixed PAL-N to stop it from crashing, improved PAL-M values
 //    These were the old PAL-N Values that crashed dTV
-//    /* PAL-M */
+//    // PAL-M 
 //    { 754, 480,  910, 0x70, 0x5c, (BT848_IFORM_PAL_M|BT848_IFORM_XT0),
 //        910, 754, 135, 754, 0x1a, 0, FALSE, 400},
-//    /* PAL-N */
+//    // PAL-N 
 //    { 922, 576, 1135, 0x7f, 0x72, (BT848_IFORM_PAL_N|BT848_IFORM_XT1),
 //        1135, 922, 186, 922, 0x1c, 0, TRUE, 400},
 //
 
-TTVFORMAT TVFormats[FORMAT_LASTONE] =
+TTVFormat TVFormats[FORMAT_LASTONE] =
 {
-    /* PAL-BDGHI */
+    // PAL-BDGHI 
     { 
         "PAL", 576, 1135, 0x7f, 0x72, (BT848_IFORM_PAL_BDGHI|BT848_IFORM_XT1),
         186, 922, 0x24, 0, TRUE, 511, 19,
         4.43361875, TRUE, 71, 626, 15,
         16,
     },
-    /* NTSC */
+    // NTSC 
     {
         "NTSC", 480, 910, 0x68, 0x5c, (BT848_IFORM_NTSC|BT848_IFORM_XT0),
         137, 754, 0x1a, 0, FALSE, 400, 13,
         3.579545,  FALSE, 57, 512, 11, 
         10,
     },
-    /* SECAM */
+    // SECAM 
     {
         "SECAM", 576, 1135, 0x7f, 0xb0, (BT848_IFORM_SECAM|BT848_IFORM_XT1),
         186, 922, 0x22, 0, TRUE, 511, 19,
         4.43361875, TRUE, 71, 633, 15,
         16,
     },
-    /* PAL-M */
+    // PAL-M 
     {
         "PAL-M", 480,  910, 0x68, 0x5c, (BT848_IFORM_PAL_M|BT848_IFORM_XT0),
         137, 754, 0x1a, 0, FALSE, 400, 13,
         3.579545,  FALSE, 57, 512, 11,
         10,
     },
-    /* PAL-N */
+    // PAL-N 
     {
         "PAL-N", 576, 1135, 0x7f, 0x72, (BT848_IFORM_PAL_N|BT848_IFORM_XT1),
         186, 922, 0x20, 0, TRUE, 511, 19,
         4.43361875, TRUE,  71, 626, 15,
         16,
     },
-    /* NTSC Japan*/
+    // NTSC Japan
     {
         "NTSC Japan", 480,  910, 0x70, 0x5c, (BT848_IFORM_NTSC_JAP|BT848_IFORM_XT0),
         135, 754, 0x1a, 0, FALSE, 400, 13,
         3.579545, FALSE, 57, 512, 11, 
         10,
     },
-    /* PAL-60 */
+    // PAL-60 
     {
         "PAL60", 480, 1135, 0x7f, 0x72, (BT848_IFORM_PAL_BDGHI|BT848_IFORM_XT1),
         186, 922, 0x20, 0, FALSE, 400, 16,
         4.43361875, TRUE, 70, 626, 14,
         13,
     },
-    /* NTSC-50 */   
+    // NTSC-50    
     {       
         "NTSC50", 576, 910, 0x68, 0x5c, (BT848_IFORM_NTSC|BT848_IFORM_XT0),
         137, 754, 0x24, 0, TRUE, 511, 19,
@@ -224,7 +227,7 @@ long CustomPixelWidth = 750;
 int CurrentY;
 int CurrentVBILines = 0;
 
-VIDEOSOURCETYPE VideoSource = SOURCE_COMPOSITE;
+eVideoSourceType VideoSource = SOURCE_COMPOSITE;
 
 int HDelay = 0;
 int VDelay = 0;
@@ -381,7 +384,7 @@ BOOL BT848_FindTVCard(HWND hWnd)
 //-------------------------------
 void BT848_SaveSettings(LPCSTR szFileName)
 {
-    FILE *SettingFile;
+    FILE* SettingFile;
     unsigned short i;
 
     if ((SettingFile = fopen(szFileName, "w")) != NULL)
@@ -458,35 +461,35 @@ BOOL BT848_MemoryInit(void)
 {
     int i;
 
-    if (!Alloc_DMA(83968, &Risc_dma, ALLOC_MEMORY_CONTIG))
+    if (!Alloc_DMA(83968, &RiscDMAMem, ALLOC_MEMORY_CONTIG))
     {
         ErrorBox("Risc Memory (83 KB Contiguous) not Allocated");
         return (FALSE);
     }
 
-    RiscBaseLinear = (DWORD*)Risc_dma->dwUser;
-    RiscBasePhysical = GetPhysicalAddress(Risc_dma, (BYTE*)Risc_dma->dwUser, 83968, NULL);
+    RiscBaseLinear = (DWORD*)RiscDMAMem->dwUser;
+    RiscBasePhysical = GetPhysicalAddress(RiscDMAMem, (BYTE*)RiscDMAMem->dwUser, 83968, NULL);
     
     for (i = 0; i < 5; i++)
     {
         // JA 02/01/2001
         // Allocate some extra memory so that we can skip
         // start of buffer that is not page aligned
-        if (!Alloc_DMA(2048 * 19 * 2 + 4095, &Vbi_dma[i], 0))
+        if (!Alloc_DMA(2048 * 19 * 2 + 4095, &VBIDMAMem[i], 0))
         {
             ErrorBox("VBI Memory for DMA not allocated");
             return (FALSE);
         }
-        pVBILines[i] = GetFirstFullPage(Vbi_dma[i]);
+        pVBILines[i] = GetFirstFullPage(VBIDMAMem[i]);
         // JA 29/12/2000
         // Allocate some extra memory so that we can skip
         // start of buffer that is not page aligned
-        if (!Alloc_DMA(1024 * 576 * 2 + 4095, &Display_dma[i], 0))
+        if (!Alloc_DMA(1024 * 576 * 2 + 4095, &DisplayDMAMem[i], 0))
         {
             ErrorBox("Display Memory for DMA not allocated");
             return (FALSE);
         }
-        pDisplay[i] = GetFirstFullPage(Display_dma[i]);
+        pDisplay[i] = GetFirstFullPage(DisplayDMAMem[i]);
     }
 
     return (TRUE);
@@ -496,10 +499,10 @@ BOOL BT848_MemoryInit(void)
 void BT848_MemoryFree()
 {
     int i;
-    Free_DMA(&Risc_dma);
+    Free_DMA(&RiscDMAMem);
     for(i = 0; i < 5; i++)
     {
-        Free_DMA(&Vbi_dma[i]);
+        Free_DMA(&VBIDMAMem[i]);
         Free_Display_DMA(i);
     }
 }
@@ -598,14 +601,14 @@ void BT848_ResetHardware()
 }
 
 //-------------------------------
-PHYS RiscLogToPhys(DWORD * pLog)
+PHYS RiscLogToPhys(DWORD* pLog)
 {
     return (RiscBasePhysical + (pLog - RiscBaseLinear) * 4);
 }
 
 //-------------------------------
 // JA 17012001 Updated to do exactly what it says in the bt848 docs
-void BT848_SetPLL(PLLFREQ PLL)
+void BT848_SetPLL(ePLLFreq PLL)
 {
     int i = 6;
 
@@ -917,7 +920,7 @@ BOOL BT848_Registers_OnChange()
 }
 
 
-BOOL BT848_SetVideoSource(VIDEOSOURCETYPE nInput)
+BOOL BT848_SetVideoSource(eVideoSourceType nInput)
 {
     DWORD MuxSel;
     // 0= Tuner,
@@ -994,7 +997,7 @@ BOOL BT848_IsVideoPresent()
 // Then tells the bt848 where to put each line of data
 void BT848_CreateRiscCode(int nFlags)
 {
-    DWORD *pRiscCode;
+    DWORD* pRiscCode;
     WORD nField;
     WORD nLine;
     LPBYTE pUser;
@@ -1002,7 +1005,7 @@ void BT848_CreateRiscCode(int nFlags)
     DWORD GotBytesPerLine;
     DWORD BytesPerLine = 0;
 
-    pRiscCode = (DWORD*)Risc_dma->dwUser;
+    pRiscCode = (DWORD*)RiscDMAMem->dwUser;
     // we create the RISC code for 10 fields
     // the first one (0) is even
     // last one (9) is odd
@@ -1020,7 +1023,7 @@ void BT848_CreateRiscCode(int nFlags)
         *(pRiscCode++) = 0;
 
         // Create VBI code of required
-        if (Capture_VBI)
+        if (bCaptureVBI)
         {
             *(pRiscCode++) = (DWORD) (BT848_RISC_SYNC | BT848_FIFO_STATUS_FM1);
             *(pRiscCode++) = 0;
@@ -1032,7 +1035,7 @@ void BT848_CreateRiscCode(int nFlags)
             }
             for (nLine = 0; nLine < CurrentVBILines; nLine++)
             {
-                pPhysical = GetPhysicalAddress(Vbi_dma[nField / 2], pUser, VBI_SPL, &GotBytesPerLine);
+                pPhysical = GetPhysicalAddress(VBIDMAMem[nField / 2], pUser, VBI_SPL, &GotBytesPerLine);
                 if(pPhysical == 0 || VBI_SPL > GotBytesPerLine)
                 {
                     return;
@@ -1058,7 +1061,7 @@ void BT848_CreateRiscCode(int nFlags)
         for (nLine = 0; nLine < CurrentY / 2; nLine++)
         {
 
-            pPhysical = GetPhysicalAddress(Display_dma[nField / 2], pUser, BytesPerLine, &GotBytesPerLine);
+            pPhysical = GetPhysicalAddress(DisplayDMAMem[nField / 2], pUser, BytesPerLine, &GotBytesPerLine);
             if(pPhysical == 0 || BytesPerLine > GotBytesPerLine)
             {
                 return;
@@ -1071,7 +1074,7 @@ void BT848_CreateRiscCode(int nFlags)
         }
     }
 
-    BytesPerRISCField = ((long)pRiscCode - (long)Risc_dma->dwUser) / 10;
+    BytesPerRISCField = ((long)pRiscCode - (long)RiscDMAMem->dwUser) / 10;
     *(pRiscCode++) = BT848_RISC_JUMP;
     *(pRiscCode++) = RiscBasePhysical;
 
@@ -1114,7 +1117,7 @@ int BT848_Open(DWORD dwVendorID, DWORD dwDeviceID, DWORD options, BOOL Lock)
         BT848_Close();
     }
     
-    hBT8X8 = (TBT848 *) malloc(sizeof(TBT848));
+    hBT8X8 = (TBT848*) malloc(sizeof(TBT848));
 
     memset(hBT8X8, 0, sizeof(TBT848));
 
@@ -1150,7 +1153,7 @@ int BT848_Open(DWORD dwVendorID, DWORD dwDeviceID, DWORD options, BOOL Lock)
     return Ret;
 }
 
-BOOL Alloc_DMA(DWORD dwSize, PMemStruct * dma, int Option)
+BOOL Alloc_DMA(DWORD dwSize, PMemStruct* dma, int Option)
 {
     *dma = NULL;
 
@@ -1163,22 +1166,22 @@ BOOL Alloc_DMA(DWORD dwSize, PMemStruct * dma, int Option)
     return TRUE;
 }
 
-void Free_DMA(PMemStruct * dma)
+void Free_DMA(PMemStruct* dma)
 {
     memoryFree(*dma);
 }
 
 void Free_Display_DMA(int NR)
 {
-    if (Display_dma[NR] == NULL)
+    if (DisplayDMAMem[NR] == NULL)
     {
         return;
     }
-    memoryFree(Display_dma[NR]);
-    Display_dma[NR] = NULL;
+    memoryFree(DisplayDMAMem[NR]);
+    DisplayDMAMem[NR] = NULL;
 }
 
-PHYS GetPhysicalAddress(PMemStruct pMem, LPBYTE pLinear, DWORD dwSizeWanted, DWORD * pdwSizeAvailable)
+PHYS GetPhysicalAddress(PMemStruct pMem, LPBYTE pLinear, DWORD dwSizeWanted, DWORD* pdwSizeAvailable)
 {
     PPageStruct pPages = (PPageStruct)(pMem + 1);
     DWORD Offset;
@@ -1320,7 +1323,7 @@ void BT848_OrDataDword(int Offset, DWORD d)
 
 
 //===========================================================================
-// Enable CCIR656 Input mode
+// Enable CCIR656 Input Mode
 //===========================================================================
 BOOL BT848_Enable656()
 {
@@ -1336,7 +1339,7 @@ BOOL BT848_Enable656()
     // MAE 20Mar2001 
     if (BT848_IsPAL()) CurrentY = 576;
 
-    // Disable TG mode
+    // Disable TG Mode
     BT848_MaskDataByte(BT848_TGCTRL, 0, BT848_TGCTRL_TGMODE_ENABLE);
     
     // Reset the TG address
@@ -1362,13 +1365,13 @@ BOOL BT848_Enable656()
         }
     }
     
-    // Enable TG mode
+    // Enable TG Mode
     BT848_MaskDataByte(BT848_TGCTRL, BT848_TGCTRL_TGMODE_ENABLE, BT848_TGCTRL_TGMODE_ENABLE);
 
     // Enable the GPCLOCK
     BT848_MaskDataByte(BT848_TGCTRL, BT848_TGCTRL_TGCKI_GPCLK, BT848_TGCTRL_TGCKI_GPCLK);
 
-    // Set the PLL mode
+    // Set the PLL Mode
     BT848_WriteByte(BT848_PLL_XCI, 0x00);
 
     // Enable 656 Mode, bypass chroma filters
@@ -1377,12 +1380,12 @@ BOOL BT848_Enable656()
     // MAE 20Mar2001
     if (BT848_IsPAL())
     {
-        // Enable PAL mode (or SECAM)
+        // Enable PAL Mode (or SECAM)
         BT848_MaskDataByte(BT848_IFORM, (BT848_IFORM_PAL_BDGHI | BT848_IFORM_XTBOTH), (BT848_IFORM_NORM | BT848_IFORM_XTBOTH));
     }
     else
     {
-        // Enable NTSC mode (or PAL60)
+        // Enable NTSC Mode (or PAL60)
         BT848_MaskDataByte(BT848_IFORM, (BT848_IFORM_NTSC | BT848_IFORM_XTBOTH), (BT848_IFORM_NORM | BT848_IFORM_XTBOTH));
     }
 
@@ -1393,7 +1396,7 @@ BOOL BT848_Enable656()
     BT848_WriteByte(BT848_E_SCLOOP, BT848_SCLOOP_LUMA_PEAK);
     BT848_WriteByte(BT848_O_SCLOOP, BT848_SCLOOP_LUMA_PEAK);
 
-    // Standard NTSC 525 line count
+    // Standard NTSC 525 line Count
     BT848_WriteByte(BT848_VTOTAL_LO, 0x00);
     BT848_WriteByte(BT848_VTOTAL_HI, 0x00);
 
@@ -1416,7 +1419,7 @@ BOOL BT848_Enable656()
     return TRUE;
 }
 
-TTVFORMAT* BT848_GetTVFormat()
+TTVFormat* BT848_GetTVFormat()
 {
     return TVFormats + TVFormat;
 }
@@ -1561,7 +1564,7 @@ BOOL VideoSource_OnChange(long NewValue)
     }
     VideoSettings_SaveTVFormat();
     VideoSettings_Save();
-    VideoSource = (VIDEOSOURCETYPE)NewValue;
+    VideoSource = (eVideoSourceType)NewValue;
     VideoSettings_LoadTVFormat();
     VideoSettings_Load();
     switch(NewValue)
@@ -2023,16 +2026,16 @@ void BT848_WriteSettingsToIni()
 void BT848_SetMenu(HMENU hMenu)
 {
     BOOL DoneWidth = FALSE;
-    CheckMenuItem(hMenu, IDM_SOURCE_TUNER,         (VideoSource == 0)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_SOURCE_COMPOSITE,     (VideoSource == 1)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_SOURCE_SVIDEO,        (VideoSource == 2)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_SOURCE_OTHER1,        (VideoSource == 3)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_SOURCE_OTHER2,        (VideoSource == 4)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_SOURCE_COMPVIASVIDEO, (VideoSource == 5)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_SOURCE_CCIR656_1,       (VideoSource == 6)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_SOURCE_CCIR656_2,       (VideoSource == 7)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_SOURCE_CCIR656_3,       (VideoSource == 8)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_SOURCE_CCIR656_4,       (VideoSource == 9)?MF_CHECKED:MF_UNCHECKED);
+    CheckMenuItemBool(hMenu, IDM_SOURCE_TUNER, (VideoSource == 0));
+    CheckMenuItemBool(hMenu, IDM_SOURCE_COMPOSITE, (VideoSource == 1));
+    CheckMenuItemBool(hMenu, IDM_SOURCE_SVIDEO, (VideoSource == 2));
+    CheckMenuItemBool(hMenu, IDM_SOURCE_OTHER1, (VideoSource == 3));
+    CheckMenuItemBool(hMenu, IDM_SOURCE_OTHER2, (VideoSource == 4));
+    CheckMenuItemBool(hMenu, IDM_SOURCE_COMPVIASVIDEO, (VideoSource == 5));
+    CheckMenuItemBool(hMenu, IDM_SOURCE_CCIR656_1, (VideoSource == 6));
+    CheckMenuItemBool(hMenu, IDM_SOURCE_CCIR656_2, (VideoSource == 7));
+    CheckMenuItemBool(hMenu, IDM_SOURCE_CCIR656_3, (VideoSource == 8));
+    CheckMenuItemBool(hMenu, IDM_SOURCE_CCIR656_4, (VideoSource == 9));
 
     if(BT848_GetTVFormat()->wHActivex1 < 768)
     {
@@ -2042,30 +2045,30 @@ void BT848_SetMenu(HMENU hMenu)
     {
         EnableMenuItem(hMenu, ID_SETTINGS_PIXELWIDTH_768, MF_ENABLED);
     }
-    CheckMenuItem(hMenu, ID_SETTINGS_PIXELWIDTH_768, (CurrentX == 768)?MF_CHECKED:MF_UNCHECKED);
+    CheckMenuItemBool(hMenu, ID_SETTINGS_PIXELWIDTH_768, (CurrentX == 768));
     DoneWidth |= (CurrentX == 768);
-    CheckMenuItem(hMenu, ID_SETTINGS_PIXELWIDTH_754, (CurrentX == 754)?MF_CHECKED:MF_UNCHECKED);
+    CheckMenuItemBool(hMenu, ID_SETTINGS_PIXELWIDTH_754, (CurrentX == 754));
     DoneWidth |= (CurrentX == 754);
-    CheckMenuItem(hMenu, ID_SETTINGS_PIXELWIDTH_720, (CurrentX == 720)?MF_CHECKED:MF_UNCHECKED);
+    CheckMenuItemBool(hMenu, ID_SETTINGS_PIXELWIDTH_720, (CurrentX == 720));
     DoneWidth |= (CurrentX == 720);
-    CheckMenuItem(hMenu, ID_SETTINGS_PIXELWIDTH_640, (CurrentX == 640)?MF_CHECKED:MF_UNCHECKED);
+    CheckMenuItemBool(hMenu, ID_SETTINGS_PIXELWIDTH_640, (CurrentX == 640));
     DoneWidth |= (CurrentX == 640);
-    CheckMenuItem(hMenu, ID_SETTINGS_PIXELWIDTH_384, (CurrentX == 384)?MF_CHECKED:MF_UNCHECKED);
+    CheckMenuItemBool(hMenu, ID_SETTINGS_PIXELWIDTH_384, (CurrentX == 384));
     DoneWidth |= (CurrentX == 384);
-    CheckMenuItem(hMenu, ID_SETTINGS_PIXELWIDTH_320, (CurrentX == 320)?MF_CHECKED:MF_UNCHECKED);
+    CheckMenuItemBool(hMenu, ID_SETTINGS_PIXELWIDTH_320, (CurrentX == 320));
     DoneWidth |= (CurrentX == 320);
-    CheckMenuItem(hMenu, ID_SETTINGS_PIXELWIDTH_CUSTOM, (!DoneWidth)?MF_CHECKED:MF_UNCHECKED);
+    CheckMenuItemBool(hMenu, ID_SETTINGS_PIXELWIDTH_CUSTOM, !DoneWidth);
 
-    CheckMenuItem(hMenu, IDM_TYPEFORMAT_0, (TVFormat == 0)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_TYPEFORMAT_1, (TVFormat == 1)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_TYPEFORMAT_2, (TVFormat == 2)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_TYPEFORMAT_3, (TVFormat == 3)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_TYPEFORMAT_4, (TVFormat == 4)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_TYPEFORMAT_5, (TVFormat == 5)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_TYPEFORMAT_6, (TVFormat == 6)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_TYPEFORMAT_7, (TVFormat == 7)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_TYPEFORMAT_8, (TVFormat == 8)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_TYPEFORMAT_9, (TVFormat == 9)?MF_CHECKED:MF_UNCHECKED);
+    CheckMenuItemBool(hMenu, IDM_TYPEFORMAT_0, (TVFormat == 0));
+    CheckMenuItemBool(hMenu, IDM_TYPEFORMAT_1, (TVFormat == 1));
+    CheckMenuItemBool(hMenu, IDM_TYPEFORMAT_2, (TVFormat == 2));
+    CheckMenuItemBool(hMenu, IDM_TYPEFORMAT_3, (TVFormat == 3));
+    CheckMenuItemBool(hMenu, IDM_TYPEFORMAT_4, (TVFormat == 4));
+    CheckMenuItemBool(hMenu, IDM_TYPEFORMAT_5, (TVFormat == 5));
+    CheckMenuItemBool(hMenu, IDM_TYPEFORMAT_6, (TVFormat == 6));
+    CheckMenuItemBool(hMenu, IDM_TYPEFORMAT_7, (TVFormat == 7));
+    CheckMenuItemBool(hMenu, IDM_TYPEFORMAT_8, (TVFormat == 8));
+    CheckMenuItemBool(hMenu, IDM_TYPEFORMAT_9, (TVFormat == 9));
 }
 
 void BT848_ShowUI()

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TVCards.cpp,v 1.17 2001-07-12 16:16:40 adcockj Exp $
+// $Id: TVCards.cpp,v 1.18 2001-07-13 16:14:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // The structures where taken from bttv driver version 7.37
 // bttv - Bt848 frame grabber driver
@@ -33,6 +33,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2001/07/12 16:16:40  adcockj
+// Added CVS Id and Log
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -46,8 +49,8 @@
 #include "FD_60Hz.h"
 #include "Audio.h"
 
-TVCARDID CardType = TVCARD_UNKNOWN;
-TVTUNERID TunerType = TUNER_ABSENT;
+eTVCardId CardType = TVCARD_UNKNOWN;
+eTunerId TunerType = TUNER_ABSENT;
 long ProcessorSpeed = 1;
 long TradeOff = 1;
 
@@ -60,7 +63,7 @@ void TERRATV_SetAudio(int StereoMode);
 void AVER_TVPHONE_SetAudio(int StereoMode);
 void WINFAST2000_SetAudio(int StereoMode);
 
-const TVCARDSETUP TVCards[TVCARD_LASTONE] =
+const TCardSetup TVCards[TVCARD_LASTONE] =
 {
     {
         "Unknown Card",
@@ -142,7 +145,7 @@ const TVCARDSETUP TVCards[TVCARD_LASTONE] =
         TUNER_USER_SETUP,
         NULL,
     },
-    /* 0x08 */
+    // 0x08 
     {
         "Fly Video II",
         3, 1, 0, 2, 0xc00,
@@ -223,7 +226,7 @@ const TVCARDSETUP TVCards[TVCARD_LASTONE] =
         TUNER_USER_SETUP,
         NULL,
     },
-    /* 0x10 */
+    // 0x10 
     {
         "Pixelview PlayTV (bt878)",
         3, 1, 0, 2, 0x01fe00,
@@ -305,7 +308,7 @@ const TVCARDSETUP TVCards[TVCARD_LASTONE] =
         TUNER_USER_SETUP,
         NULL,
     },
-    /* 0x18 */
+    // 0x18 
     {
         "Askey/Typhoon/Anubis Magic TView CPH051/061 (bt878)",
         3, 1, 0, 2, 0xe00,
@@ -386,7 +389,7 @@ const TVCARDSETUP TVCards[TVCARD_LASTONE] =
         TUNER_USER_SETUP,
         NULL,
     },
-    /* 0x20 */
+    // 0x20 
     {
         "Intel Create and Share PCI",
         4, 1, 0, 2, 7,
@@ -467,7 +470,7 @@ const TVCARDSETUP TVCards[TVCARD_LASTONE] =
         TUNER_USER_SETUP,
         NULL,
     },
-    /* 0x28 */
+    // 0x28 
     {
         "STB2",
         3, 1, 0, 2, 7,
@@ -489,7 +492,7 @@ const TVCARDSETUP TVCards[TVCARD_LASTONE] =
         NULL,
     },
     {
-        "ProVideo PV951", /* pic16c54 */
+        "ProVideo PV951", // pic16c54 
         3, 1, 0, 2, 0,
         { 2, 3, 1, 1, 0, 0, 0, 0},
         { 0, 0, 0, 0, 0, 0},
@@ -539,7 +542,7 @@ const TVCARDSETUP TVCards[TVCARD_LASTONE] =
         NULL,
     },
     {
-        "Terratec TV/Radio+", /* Radio ?? */
+        "Terratec TV/Radio+", // Radio ?? 
         3, 1, 0, 2, 0x1f0000,
         { 2, 3, 1, 1, 0, 0, 0, 0},
         { 0xe2ffff, 0, 0, 0, 0xe0ffff, 0xe2ffff },
@@ -548,7 +551,7 @@ const TVCARDSETUP TVCards[TVCARD_LASTONE] =
         TUNER_PHILIPS_PAL_I,
         NULL,
     },
-    /* 0x30 */
+    // 0x30 
     {
         "Dynalink Magic TView",
         3, 1, 0, 2, 15,
@@ -724,7 +727,7 @@ const TVCARDSETUP TVCards[TVCARD_LASTONE] =
         //   in de.comp.os.unix.linux.hardware:
         //  options bttv card=0 pll=1 radio=1 gpiomask=0x18e0
         //  audiomux=0x44c71f,0x44d71f,0,0x44d71f,0x44dfff
-        //  options tuner type=5 */
+        //  options tuner Type=5 
         "Lifetec LT 9415 TV",
         4,1,0,2,0x18e0,
         { 2, 3, 1, 1},
@@ -735,8 +738,8 @@ const TVCARDSETUP TVCards[TVCARD_LASTONE] =
         LT9415_SetAudio,
     },
     {
-        /* Miguel Angel Alvarez <maacruz@navegalia.com>
-           old Easy TV BT848 version (model CPH031) */
+        // Miguel Angel Alvarez <maacruz@navegalia.com>
+        //   old Easy TV BT848 version (model CPH031) 
         "BESTBUY Easy TV",
         4,1,0,2,0xF,
         { 2, 3, 1, 0},
@@ -814,7 +817,7 @@ const TVCARDSETUP TVCards[TVCARD_LASTONE] =
     {
         // Miguel Angel Alvarez <maacruz@navegalia.com>
         // new Easy TV BT878 version (model CPH061) 
-        // special thanks to Informatica Mieres for providing the card */
+        // special thanks to Informatica Mieres for providing the card 
         "BESTBUY Easy TV (bt878)",
         3, 2, 0, 2, 0xFF,
         { 2, 3, 1, 0},
@@ -872,10 +875,10 @@ const TAutoDectect878 AutoDectect878[] =
     { 0x023214F1, TVCARD_CONEXANTFOGHORNREVB,  "Conexant Foghorn NTSC/ATSC-B" },
     { 0x033214F1, TVCARD_CONEXANTFOGHORNREVC,  "Conexant Foghorn NTSC/ATSC-C" },
     // MAE 5 Dec 2000 End of change
-    { 0, (TVCARDID)-1, NULL }
+    { 0, (eTVCardId)-1, NULL }
 };
 
-const TVTUNERSETUP Tuners[TUNER_LASTONE] =
+const TTunerSetup Tuners[TUNER_LASTONE] =
 {
     // TUNER_ABSENT
     { 
@@ -1063,12 +1066,12 @@ void Card_Init()
     }
 }
 
-/* reset/enable the MSP on some Hauppauge cards */
-/* Thanks to Kyösti Mälkki (kmalkki@cc.hut.fi)! */
+// reset/enable the MSP on some Hauppauge cards 
+// Thanks to Kyösti Mälkki (kmalkki@cc.hut.fi)! 
 void hauppauge_boot_msp34xx()
 {
-    /* reset/enable the MSP on some Hauppauge cards */
-    /* Thanks to Kyösti Mälkki (kmalkki@cc.hut.fi)! */
+    // reset/enable the MSP on some Hauppauge cards 
+    // Thanks to Kyösti Mälkki (kmalkki@cc.hut.fi)! 
     BT848_AndOrDataDword(BT848_GPIO_DATA, 32, ~32);
     BT848_AndOrDataDword(BT848_GPIO_DATA, 0, ~32);
     Sleep(10);
@@ -1076,11 +1079,11 @@ void hauppauge_boot_msp34xx()
 }
 
 
-/* ----------------------------------------------------------------------- */
-/*  Imagenation L-Model PXC200 Framegrabber */
-/*  This is basically the same procedure as
- *  used by Alessandro Rubini in his pxc200
- *  driver, but using BTTV functions */
+// ----------------------------------------------------------------------- 
+//  Imagenation L-Model PXC200 Framegrabber 
+//  This is basically the same procedure as
+//  used by Alessandro Rubini in his pxc200
+//  driver, but using BTTV functions 
 
 void init_PXC200()
 {
@@ -1092,32 +1095,32 @@ void init_PXC200()
     };
     int i;
 
-    /* Initialise GPIO-connevted stuff */
-    BT848_WriteWord(BT848_GPIO_OUT_EN, 1<<13); /* Reset pin only */
+    // Initialise GPIO-connevted stuff 
+    BT848_WriteWord(BT848_GPIO_OUT_EN, 1<<13); // Reset pin only 
     BT848_WriteWord(BT848_GPIO_DATA, 0);
     Sleep(30);
     BT848_WriteWord(BT848_GPIO_DATA, 1<<13);
-    /* GPIO inputs are pulled up, so no need to drive
-     * reset pin any longer */
+    // GPIO inputs are pulled up, so no need to drive
+    // reset pin any longer 
     BT848_WriteWord(BT848_GPIO_OUT_EN, 0);
 
-    /*  we could/should try and reset/control the AD pots? but
-        right now  we simply  turned off the crushing.  Without
-        this the AGC drifts drifts
-        remember the EN is reverse logic -->
-        setting BT848_ADC_AGC_EN disable the AGC
-        tboult@eecs.lehigh.edu
-    */
+    //  we could/should try and reset/control the AD pots? but
+    //  right now  we simply  turned off the crushing.  Without
+    //  this the AGC drifts drifts
+    //  remember the EN is reverse logic -->
+    //  setting BT848_ADC_AGC_EN disable the AGC
+    //  tboult@eecs.lehigh.edu
+    
     BT848_WriteByte(BT848_ADC, BT848_ADC_RESERVED|BT848_ADC_AGC_EN);
 
-    /*  Initialise MAX517 DAC */
+    //  Initialise MAX517 DAC 
     I2CBus_Lock();
     I2CBus_Write(0x5E, 0, 0x80, 1);
 
-    /*  Initialise 12C508 PIC */
-    /*  The I2CWrite and I2CRead commmands are actually to the
-     *  same chips - but the R/W bit is included in the address
-     *  argument so the numbers are different */
+    //  Initialise 12C508 PIC 
+    //  The I2CWrite and I2CRead commmands are actually to the
+    //  same chips - but the R/W bit is included in the address
+    //  argument so the numbers are different 
     for (i = 0; i < sizeof(vals)/sizeof(int); i++)
     {
         I2CBus_Write(0x1E, vals[i], 0, 1);
@@ -1215,14 +1218,14 @@ void WINFAST2000_SetAudio(int StereoMode)
     }
 }
 
-int Card_AutoDetectTuner(TVCARDID CardId)
+int Card_AutoDetectTuner(eTVCardId CardId)
 {
-    TVTUNERID Tuner = TUNER_ABSENT;
+    eTunerId Tuner = TUNER_ABSENT;
     switch(CardId)
     {
     case TVCARD_MIRO:
     case TVCARD_MIROPRO:
-        Tuner = (TVTUNERID)(((BT848_ReadWord(BT848_GPIO_DATA)>>10)-1)&7);
+        Tuner = (eTunerId)(((BT848_ReadWord(BT848_GPIO_DATA)>>10)-1)&7);
         break;
     default:
         break;
@@ -1247,7 +1250,7 @@ LPCSTR TVCard_AutoDetectID()
 }
 
 
-TVCARDID Card_AutoDetect()
+eTVCardId Card_AutoDetect()
 {
     // look for normal eeprom address
     if(I2CBus_AddDevice(I2C_HAUPEE))
@@ -1275,12 +1278,12 @@ TVCARDID Card_AutoDetect()
     return TVCARD_UNKNOWN;
 }
 
-const TVCARDSETUP* GetCardSetup()
+const TCardSetup* GetCardSetup()
 {
     return TVCards + CardType;
 }
 
-const TVTUNERSETUP* GetTunerSetup()
+const TTunerSetup* GetTunerSetup()
 {
     if(TunerType >= 0)
     {
@@ -1477,9 +1480,9 @@ BOOL APIENTRY SelectCardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         switch(LOWORD(wParam))
         {
         case IDOK:
-            TunerType = (TVTUNERID)SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_GETCURSEL, 0, 0);
+            TunerType = (eTunerId)SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_GETCURSEL, 0, 0);
             i =  SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_GETCURSEL, 0, 0);
-            CardType = (TVCARDID)SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_GETITEMDATA, i, 0);
+            CardType = (eTVCardId)SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_GETITEMDATA, i, 0);
             ProcessorSpeed = SendMessage(GetDlgItem(hDlg, IDC_PROCESSOR_SPEED), CB_GETCURSEL, 0, 0);
             TradeOff = SendMessage(GetDlgItem(hDlg, IDC_TRADEOFF), CB_GETCURSEL, 0, 0);
             if(OrigProcessorSpeed != ProcessorSpeed || 
@@ -1505,7 +1508,7 @@ BOOL APIENTRY SelectCardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             }
             else if(TVCards[i].TunerId == TUNER_AUTODETECT)
             {
-                SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETCURSEL, Card_AutoDetectTuner((TVCARDID)i), 0);
+                SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETCURSEL, Card_AutoDetectTuner((eTVCardId)i), 0);
             }
             else
             {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRect.h,v 1.7 2001-07-12 16:16:39 adcockj Exp $
+// $Id: AspectRect.h,v 1.8 2001-07-13 16:14:55 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,7 +34,7 @@ public:
     CAspectRect()
     { 
         left = right = top = bottom = 0; 
-        m_outputAdjustment = 1; 
+        m_OutputAdjustment = 1; 
     }
     CAspectRect(RECT const &src)
     { 
@@ -42,7 +42,7 @@ public:
         right = src.right; 
         top = src.top; 
         bottom = src.bottom; 
-        m_outputAdjustment = 1; 
+        m_OutputAdjustment = 1; 
     }
     CAspectRect(CAspectRect const &src)
     { 
@@ -56,7 +56,7 @@ public:
             right = src.right; 
             top = src.top; 
             bottom = src.bottom;
-            m_outputAdjustment = src.m_outputAdjustment;
+            m_OutputAdjustment = src.m_OutputAdjustment;
         }
         return *this;
     }
@@ -64,12 +64,12 @@ public:
     BOOL operator==(const CAspectRect &src)
     {
         return left==src.left && right==src.right && top==src.top && bottom==src.bottom
-            && fabs(m_outputAdjustment-src.m_outputAdjustment) < .00001;
+            && fabs(m_OutputAdjustment-src.m_OutputAdjustment) < .00001;
     }
     // Considers 2 rectangles equal if they are within n pixels of each other on each edge
     BOOL tolerantEquals(const CAspectRect &src, int tolerance = 4)
     {
-        if (fabs(m_outputAdjustment-src.m_outputAdjustment) > .00001) return false;
+        if (fabs(m_OutputAdjustment-src.m_OutputAdjustment) > .00001) return false;
         if (abs(left - src.left) > tolerance) return false;
         if (abs(right - src.right) > tolerance) return false;
         if (abs(top - src.top) > tolerance) return false;
@@ -91,15 +91,15 @@ public:
     }
     double targetAspect()
     { 
-        return sourceAspect() * m_outputAdjustment;
+        return sourceAspect() * m_OutputAdjustment;
     }
     void setTargetAspect(double target)
     { 
-        m_outputAdjustment = target / sourceAspect(); 
+        m_OutputAdjustment = target / sourceAspect(); 
     }
     void setAspectAdjust(double source, double target)
     {
-        m_outputAdjustment = target/RoundTo3dp(source); 
+        m_OutputAdjustment = target/RoundTo3dp(source); 
     }
     double RoundTo3dp(double InputNumber)
     {
@@ -195,7 +195,7 @@ public:
 
     // Crops this rectangle to a specified rectangle
     // Optionally Proprotionally crops a second rectangle at the same time...
-    void crop(RECT cropToRect, CAspectRect *r2)
+    void crop(RECT cropToRect, CAspectRect* r2)
     {
         if (width() > 0)
         {       
@@ -298,7 +298,7 @@ public:
     // Aspect adjustment functions...
     void adjustTargetAspectByHeight(double ar)
     { 
-        adjustSourceAspectByHeight(ar/m_outputAdjustment); 
+        adjustSourceAspectByHeight(ar/m_OutputAdjustment); 
     }
     void adjustSourceAspectByHeight(double ar)
     {
@@ -308,7 +308,7 @@ public:
     }
     void adjustTargetAspectByWidth(double ar)
     { 
-        adjustSourceAspectByWidth(ar/m_outputAdjustment); 
+        adjustSourceAspectByWidth(ar/m_OutputAdjustment); 
     }
     void adjustSourceAspectByWidth(double ar) 
     {
@@ -318,7 +318,7 @@ public:
     }
     void adjustTargetAspectByGrowth(double ar)
     { 
-        adjustSourceAspectByGrowth(ar/m_outputAdjustment); 
+        adjustSourceAspectByGrowth(ar/m_OutputAdjustment); 
     }
     void adjustSourceAspectByGrowth(double ar)
     {
@@ -333,7 +333,7 @@ public:
     }
     void adjustTargetAspectByShrink(double ar)
     { 
-        adjustSourceAspectByShrink(ar/m_outputAdjustment);
+        adjustSourceAspectByShrink(ar/m_OutputAdjustment);
     }
     void adjustSourceAspectByShrink(double ar) 
     {
@@ -351,7 +351,7 @@ public:
     // Note: r must be in source space for both functions...
     void adjustTargetAspectSmart(double ar, RECT &boundRect, BOOL preserveWidth = TRUE)
     { 
-        adjustSourceAspectSmart(ar/m_outputAdjustment,boundRect,preserveWidth); 
+        adjustSourceAspectSmart(ar/m_OutputAdjustment,boundRect,preserveWidth); 
     }
     void adjustSourceAspectSmart(double ar, RECT &boundRect, BOOL preserveWidth = TRUE) 
     {
@@ -381,19 +381,19 @@ public:
         }
     }
 
-    void setToClient(HWND hwnd, BOOL useScreenCoords)
+    void setToClient(HWND hWnd, BOOL useScreenCoords)
     {
-        GetClientRect(hwnd, this);
+        GetClientRect(hWnd, this);
         if (useScreenCoords) 
         {
-            ClientToScreen(hwnd, (POINT *) &left);
-            ClientToScreen(hwnd, (POINT *) &right);
+            ClientToScreen(hWnd, (POINT*) &left);
+            ClientToScreen(hWnd, (POINT*) &right);
         }
     }
 
-    void DebugDump(FILE *f)
+    void DebugDump(FILE* f)
     {
-        fprintf(f,"L:%04i R:%04i T:%04i B:%04i [SA: %.4lf TA: %.4lf Adj:%.4lf]\n",left,right,top,bottom,sourceAspect(),targetAspect(),m_outputAdjustment);
+        fprintf(f,"L:%04i R:%04i T:%04i B:%04i [SA: %.4lf TA: %.4lf Adj:%.4lf]\n",left,right,top,bottom,sourceAspect(),targetAspect(),m_OutputAdjustment);
     }
 
 protected:
@@ -401,7 +401,7 @@ protected:
     // For example, using a 4:3 resolution with a anamorphic (16:9) lens would have an output
     // adjustment of (16/9)/(4/3) = 1.3333
     // An anamorphic source would be (4/3)/(16/9) = .75
-    double m_outputAdjustment;
+    double m_OutputAdjustment;
 };
 
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_CommonFunctions.h,v 1.5 2001-07-12 16:16:40 adcockj Exp $
+// $Id: FD_CommonFunctions.h,v 1.6 2001-07-13 16:14:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -33,12 +33,12 @@ extern "C"
     WORD CalcCombFactorLineChroma(short* YVal1, short* YVal2, short* YVal3, long BytesToProcess);
     DWORD CalcDiffFactorLine(short* YVal1, short* YVal2, long BytesToProcess);
     DWORD CalcDiffFactorLineChroma(short* YVal1, short* YVal2, long BytesToProcess);
-    void memcpyBOBMMX(void *Dest1, void *Dest2, void *Src, size_t nBytes);
-    void memcpyBOBSSE(void *Dest1, void *Dest2, void *Src, size_t nBytes);
-    void memcpyMMX(void *Dest, void *Src, size_t nBytes);
-    void memcpySSE(void *Dest, void *Src, size_t nBytes);
-    void memcpyAMD(void *Dest, void *Src, size_t nBytes);
-    void memcpySimple(void *Dest, void *Src, size_t nBytes);
+    void memcpyBOBMMX(void* Dest1, void* Dest2, void* Src, size_t nBytes);
+    void memcpyBOBSSE(void* Dest1, void* Dest2, void* Src, size_t nBytes);
+    void memcpyMMX(void* Dest, void* Src, size_t nBytes);
+    void memcpySSE(void* Dest, void* Src, size_t nBytes);
+    void memcpyAMD(void* Dest, void* Src, size_t nBytes);
+    void memcpySimple(void* Dest, void* Src, size_t nBytes);
 }
 
 #endif

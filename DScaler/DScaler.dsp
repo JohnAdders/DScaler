@@ -475,10 +475,6 @@ SOURCE=.\res\Vtx15x18.bmp
 
 SOURCE=.\READ_ME_FIRST_NOW.txt
 # End Source File
-# Begin Source File
-
-SOURCE=.\RES\STARTUP.rle
-# End Source File
 # End Target
 # End Project
 # Section DScaler : {F08DF954-8592-11D1-B16A-00C0F0283628}

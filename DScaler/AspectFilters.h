@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectFilters.h,v 1.10 2001-07-12 16:16:39 adcockj Exp $
+// $Id: AspectFilters.h,v 1.11 2001-07-13 16:14:55 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -33,21 +33,17 @@
 
 #include "AspectRect.h"
 
-/*
-This module is #included by AspectRatio.cpp for now.  It defines various filters
-which are applyed in order to adjust the aspect ratio of the video image.
-
-The filters are stored in a linked list and applied in order.  A filter can have
-child filters to allow it to take advantage of values from before and after 
-the child filters were applied.  This is currently used by the uncrop filter which
-needs the original destination rectangle.
-*/
-
-
-/* Used to calculate positions for a given period and timing.
-    Values go from Amplitude/2+Offset to Amplitude+Offset, down to Offset, and then back to Amplitude/2+Offset
-    This results in a bounce between Offset and Amplitude+Offset, starting at the midpoint.
-*/
+// This module is #included by AspectRatio.cpp for now.  It defines various filters
+// which are applyed in order to adjust the aspect ratio of the video image.
+// 
+// The filters are stored in a linked list and applied in order.  A filter can have
+// child filters to allow it to take advantage of values from before and after 
+// the child filters were applied.  This is currently used by the uncrop filter which
+// needs the original destination rectangle.
+// 
+// Used to calculate positions for a given period and timing.
+// Values go from Amplitude/2+Offset to Amplitude+Offset, down to Offset, and then back to Amplitude/2+Offset
+// This results in a bounce between Offset and Amplitude+Offset, starting at the midpoint.
 
 class CPeriodBouncer
 {
@@ -56,39 +52,39 @@ public:
     CPeriodBouncer(time_t startTime, time_t period, double amplitude, double offset);
     double position();
 protected: 
-    time_t m_startTime;
-    time_t m_period;
-    double m_amplitude;
-    double m_offset;
+    time_t m_StartTime;
+    time_t m_Period;
+    double m_Amplitude;
+    double m_Offset;
 };
 
 class CAspectRectangles
 {
-/* Class containing all the rectangles a filter might want 
-   Dest rectanges refer to the image rectangle on the screen
-   Src rectangles refer to the rectangle of the source image being used
+    // Class containing all the rectangles a filter might want 
+    // Dest rectanges refer to the image rectangle on the screen
+    // Src rectangles refer to the rectangle of the source image being used
+    // 
+    // Prev rectangles refer to the values from before this current filter run
+    // Original rectangles refer to the initial values of "Current" passed into the filter chain
+    // Current rectangles are the Value being used and adjusted.
+    // 
+    // ONLY CURRENT VALUES SHOULD BE ADJUSTED BY FILTERS!
 
-   Prev rectangles refer to the values from before this current filter run
-   Original rectangles refer to the initial values of "Current" passed into the filter chain
-   Current rectangles are the value being used and adjusted.
-
-   ONLY CURRENT VALUES SHOULD BE ADJUSTED BY FILTERS!
-*/
 public:
-    void DebugDump(FILE *f);
+    void DebugDump(FILE* f);
 
-    RECT rPrevDest;
-    RECT rPrevSrc;
+    RECT m_PrevDestRect;
+    RECT m_PrevSrcRect;
 
-    CAspectRect rOriginalOverlayDest;
-    CAspectRect rOriginalOverlaySrc;
+    CAspectRect m_OriginalOverlayDestRect;
+    CAspectRect m_OriginalOverlaySrcRect;
 
-    CAspectRect rCurrentOverlayDest;
-    CAspectRect rCurrentOverlaySrc;
+    CAspectRect m_CurrentOverlayDestRect;
+    CAspectRect m_CurrentOverlaySrcRect;
 
 };
 
-/* Abstract Base class for the aspect filter */
+// Abstract Base class for the aspect filter
 class CAspectFilter
 {
 public:
@@ -98,46 +94,46 @@ public:
 
     // Called to actually perform the adjustment for 1 filter
     // If it returns TRUE, this is a request from the filter to re-run the aspect calculation
-    //    The TRUE value is currently only used by the filter which adjusts the window rectangle
+    //    The TRUE Value is currently only used by the filter which adjusts the window rectangle
     //    as this adjustment affects all calculations.  Current implementation only allows 
     //    1 level of re-calculate requests.
     virtual BOOL adjustAspect(CAspectRectangles &ar) = 0; 
 
-    virtual void DebugDump(FILE *f);
+    virtual void DebugDump(FILE* f);
     void SetChild(CAspectFilter* Child);
 protected:
     CAspectFilter* m_Child;
 };
 
-// This filter adjust for the overscan area of the image.  It checks the orbit settings to ensure
-// the overscan is large enough.
+// This filter adjust for the m_Overscan area of the image.  It checks the orbit settings to ensure
+// the m_Overscan is large enough.
 class COverscanAspectFilter : public CAspectFilter
 {
 public:
     COverscanAspectFilter(int overscanSize);
     virtual BOOL adjustAspect(CAspectRectangles &ar);
     virtual LPCSTR getFilterName();
-    virtual void DebugDump(FILE *f);
+    virtual void DebugDump(FILE* f);
 
 protected:
-    int overscan;
+    int m_Overscan;
 };
 
 // This filter orbits the source image using independent X and Y timers.
 // It is assumed that bouncing is enabled if this filter is in the chain.
-// The bounce comes out of the overscan (the overscan filter performs a sanity check to ensure the overscan is of appropriate size.
+// The bounce comes out of the m_Overscan (the m_Overscan filter performs a sanity check to ensure the m_Overscan is of appropriate size.
 class COrbitAspectFilter : public CAspectFilter
 {
 public:
-    COrbitAspectFilter(time_t orbitPeriodX, time_t orbitPeriodY, long orbitSize);
+    COrbitAspectFilter(time_t OrbitPeriodX, time_t OrbitPeriodY, long OrbitSize);
     ~COrbitAspectFilter();
     virtual BOOL adjustAspect(CAspectRectangles &ar);
     virtual LPCSTR getFilterName();
-    virtual void DebugDump(FILE *f);
+    virtual void DebugDump(FILE* f);
 
 protected:
-    CPeriodBouncer *xOrbit;
-    CPeriodBouncer *yOrbit;
+    CPeriodBouncer* m_pXOrbitBouncer;
+    CPeriodBouncer* m_pYOrbitBouncer;
 };
 
 
@@ -149,10 +145,10 @@ public:
     ~CBounceDestinationAspectFilter();
     virtual BOOL adjustAspect(CAspectRectangles &ar);
     virtual LPCSTR getFilterName();
-    virtual void DebugDump(FILE *f);
+    virtual void DebugDump(FILE* f);
 
 protected:
-    CPeriodBouncer *bouncer;
+    CPeriodBouncer* m_pBouncer;
 };
 
 // Applys child filters than adjusts the position of the destination rectangle - this class fixed floating point positions
@@ -163,11 +159,11 @@ public:
     CPositionDestinationAspectFilter(double x, double y);
     virtual BOOL adjustAspect(CAspectRectangles &ar);
     virtual LPCSTR getFilterName();
-    virtual void DebugDump(FILE *f);
+    virtual void DebugDump(FILE* f);
 
 protected:
-    double xPos;
-    double yPos;
+    double m_XPos;
+    double m_YPos;
 };
 
 // Crops the source and destination rectangles to the requested aspect ratio.  
@@ -188,10 +184,10 @@ public:
 };
 
 // Zooms in on the source image
-// x/yZoom is the amount to zoom - 1 = full size, 2 = double size, 4 = quad size 
+// x/m_YZoom is the amount to zoom - 1 = full size, 2 = double size, 4 = quad size 
 //    both zoom factors should normally be equal - any other values will wreck the 
 //    aspect ratio of the image (that would be a shame after spending all this code to keep it correct <grin>
-// x/yPos is the position to zoom in on - 0 = left/top of frame, .5 = middle, 1 = right/bottom of frame
+// x/m_YPos is the position to zoom in on - 0 = left/top of frame, .5 = middle, 1 = right/bottom of frame
 // Normally this filter will be applied just before the CScreenSanityAspectFilter
 class CPanAndZoomAspectFilter : public CAspectFilter
 {
@@ -199,13 +195,13 @@ public:
     CPanAndZoomAspectFilter(long _xPos, long _yPos, long _xZoom, long _yZoom);
     virtual BOOL adjustAspect(CAspectRectangles &ar);
     virtual LPCSTR getFilterName();
-    virtual void DebugDump(FILE *f);
+    virtual void DebugDump(FILE* f);
 
 protected:
-    double xPos;
-    double yPos;
-    double xZoom;
-    double yZoom;
+    double m_XPos;
+    double m_YPos;
+    double m_XZoom;
+    double m_YZoom;
 };
 
 // Performs important sanity checks on the destination rectangle

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.h,v 1.7 2001-07-12 16:16:40 adcockj Exp $
+// $Id: Settings.h,v 1.8 2001-07-13 16:14:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -81,5 +81,6 @@ void WritePrivateProfileInt(LPCTSTR lpAppName,  LPCTSTR lpKeyName,  int nValue, 
 #define ADJ_BUTTON_REPRESS_ACCEL_STEP       400    // Milliseconds between each acceleration of adjustment
 #define ADJ_BUTTON_REPRESS_MAX_STEP         30     // Maximum adjustment step at one time
 
+#define CheckMenuItemBool(hMenu, MenuId, Condition) CheckMenuItem(hMenu, MenuId, (Condition)?MF_CHECKED:MF_UNCHECKED)
 
 #endif

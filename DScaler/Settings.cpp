@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.19 2001-07-12 19:24:35 adcockj Exp $
+// $Id: Settings.cpp,v 1.20 2001-07-13 16:14:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -35,7 +35,7 @@
 //
 // 07 Jan 2001   John Adcock           Added gNTSCFilmFallbackMode setting
 //                                     Changed saving of gPulldownMode
-//                                     so that we don't ever restart in film mode
+//                                     so that we don't ever restart in film Mode
 //                                     when we're doing autodetect  
 //
 // 08 Jan 2001   John Adcock           Global Variable Tidy up
@@ -50,6 +50,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2001/07/12 19:24:35  adcockj
+// Fixes for vertical sliders
+//
 // Revision 1.18  2001/07/12 16:16:40  adcockj
 // Added CVS Id and Log
 //
@@ -365,18 +368,18 @@ void Setting_SetDefault(SETTING* pSetting)
 
 void Setting_SetupSlider(SETTING* pSetting, HWND hSlider)
 {
-	Slider_ClearTicks(hSlider, TRUE);
+    Slider_ClearTicks(hSlider, TRUE);
     Slider_SetRangeMax(hSlider, pSetting->MaxValue);
     Slider_SetRangeMin(hSlider, pSetting->MinValue);
     Slider_SetPageSize(hSlider, pSetting->StepValue);
     Slider_SetLineSize(hSlider, pSetting->StepValue);
     if(GetWindowLong(hSlider, GWL_STYLE) & TBS_VERT)
     {
-	    Slider_SetTic(hSlider, pSetting->MaxValue - pSetting->Default);
+        Slider_SetTic(hSlider, pSetting->MaxValue - pSetting->Default);
     }
     else
     {
-	    Slider_SetTic(hSlider, pSetting->Default);
+        Slider_SetTic(hSlider, pSetting->Default);
     }
     Setting_SetControlValue(pSetting, hSlider);
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_WSSdecode.h,v 1.4 2001-07-12 16:16:40 adcockj Exp $
+// $Id: VBI_WSSdecode.h,v 1.5 2001-07-13 16:14:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 1998 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -47,9 +47,9 @@ typedef struct
     BOOL    SurroundSound;
     BOOL    CopyrightAsserted;
     BOOL    CopyProtection;
-} TWSS_DataStruct;
+} TWSSDataStruct;
 
-extern TWSS_DataStruct WSS_Data;
+extern TWSSDataStruct WSS_Data;
 
 // WSS control data
 typedef struct 
@@ -64,9 +64,9 @@ typedef struct
     int NbErrPos;
     int AspectRatioWhenErr;
     int AspectModeWhenErr;
-} TWSS_CtrlDataStruct;
+} TWSSCtrlDataStruct;
 
-extern TWSS_CtrlDataStruct WSS_CtrlData;
+extern TWSSCtrlDataStruct WSS_CtrlData;
 
 extern void WSS_init ();
 extern int WSS_DecodeLine(BYTE* vbiline);

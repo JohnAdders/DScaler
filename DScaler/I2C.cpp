@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: I2C.cpp,v 1.3 2001-07-12 16:16:40 adcockj Exp $
+// $Id: I2C.cpp,v 1.4 2001-07-13 16:14:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,13 +25,16 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/07/12 16:16:40  adcockj
+// Added CVS Id and Log
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include "i2c.h"
 
-CRITICAL_SECTION cCritSect;
+CRITICAL_SECTION hCritSect;
 
 void I2C_SetLine(BOOL bCtrl, BOOL bData)
 {
@@ -115,15 +118,15 @@ BOOL I2CBus_AddDevice(BYTE I2C_Port)
 
 BOOL I2CBus_Lock()
 {
-    InitializeCriticalSection(&cCritSect);
-    EnterCriticalSection(&cCritSect);
+    InitializeCriticalSection(&hCritSect);
+    EnterCriticalSection(&hCritSect);
     return TRUE;
 }
 
 BOOL I2CBus_Unlock()
 {
-    LeaveCriticalSection(&cCritSect);
-    DeleteCriticalSection(&cCritSect);
+    LeaveCriticalSection(&hCritSect);
+    DeleteCriticalSection(&hCritSect);
     return TRUE;
 }
 

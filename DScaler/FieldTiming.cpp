@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FieldTiming.cpp,v 1.11 2001-07-12 16:16:40 adcockj Exp $
+// $Id: FieldTiming.cpp,v 1.12 2001-07-13 16:14:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2001/07/12 16:16:40  adcockj
+// Added CVS Id and Log
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -59,9 +62,9 @@ long FiftyHzFormat = FORMAT_PAL_BDGHI;
 long SixtyHzFormat = FORMAT_NTSC;
 long FormatChangeThreshold = 2;
 BOOL bJudderTerminatorOnVideo = TRUE;
-long Sleep_Interval = 0;         // " , default=0, how long to wait for BT chip
-long Sleep_SkipFields = 0;       // Number of fields to skip before doing sleep interval
-long Sleep_SkipFieldsLate = 0;   // Number of fields to skip before doing sleep interval, when we're running late
+long SleepInterval = 0;         // " , default=0, how long to wait for BT chip
+long SleepSkipFields = 0;       // Number of fields to skip before doing sleep interval
+long SleepSkipFieldsLate = 0;   // Number of fields to skip before doing sleep interval, when we're running late
 
 void Timing_Setup()
 {
@@ -92,7 +95,7 @@ void UpdateRunningAverage(LARGE_INTEGER* pNewFieldTime)
     {
         // gets the last ticks odd - odd
         double RecentTicks = (double)(pNewFieldTime->QuadPart - LastFieldTime.QuadPart);
-        // only allow values within 5% if current value
+        // only allow values within 5% if current Value
         // should prevent spurious values getting through
         if(RecentTicks > RunningAverageCounterTicks * 0.95 &&
             RecentTicks < RunningAverageCounterTicks * 1.05)
@@ -112,7 +115,7 @@ void UpdateRunningAverage(LARGE_INTEGER* pNewFieldTime)
             LOG(" Old Running Average %f", RunningAverageCounterTicks);
         }
     }
-    // save current value for next time
+    // save current Value for next time
     LastFieldTime.QuadPart = pNewFieldTime->QuadPart;
 }
 
@@ -126,13 +129,13 @@ void Timing_SmartSleep(DEINTERLACE_INFO* pInfo, BOOL bRunningLate)
     {
         // Sleep skipping whenever we're running late
         ++nSleepSkipFields;
-        Sleep((nSleepSkipFields % (Sleep_SkipFieldsLate + 1)) ? 0 : Sleep_Interval);
+        Sleep((nSleepSkipFields % (SleepSkipFieldsLate + 1)) ? 0 : SleepInterval);
     }
     else
     {
         // Sleep skipping whenever we're running on time
         ++nSleepSkipFields;
-        Sleep((nSleepSkipFields % (Sleep_SkipFields + 1)) ? 0 : Sleep_Interval);
+        Sleep((nSleepSkipFields % (SleepSkipFields + 1)) ? 0 : SleepInterval);
     }
 }
 
@@ -171,7 +174,7 @@ void Timing_WaitForNextFieldNormal(DEINTERLACE_INFO* pInfo)
         // need to sleep more often
         // so that we don't take total control of machine
         // in normal operation
-        if (!bSlept || Sleep_SkipFields == 0)
+        if (!bSlept || SleepSkipFields == 0)
         {
             Timing_SmartSleep(pInfo, FALSE);
             bSlept = TRUE;
@@ -316,8 +319,8 @@ void Timing_WaitForNextField(DEINTERLACE_INFO* pInfo)
                 long TenFieldTime;
                 TenFieldTime = MulDiv((int)(CurrentTime.QuadPart - LastTenFieldTime.QuadPart), 1000, (int)(TimerFrequency.QuadPart));
 
-                // If we are not on a 50Hz mode and we get 50hz timings then flip
-                // to 50hz mode
+                // If we are not on a 50Hz Mode and we get 50hz timings then flip
+                // to 50hz Mode
                 if(!(BT848_GetTVFormat()->Is25fps) &&
                     TenFieldTime >= 195 && TenFieldTime <= 205)
                 {
@@ -325,11 +328,11 @@ void Timing_WaitForNextField(DEINTERLACE_INFO* pInfo)
                     if(RepeatCount > FormatChangeThreshold)
                     {
                         PostMessage(hWnd, WM_COMMAND, IDM_TYPEFORMAT_0 + FiftyHzFormat, 0);
-                        LOG("Went to 50Hz mode - Last Ten Count %d", TenFieldTime);
+                        LOG("Went to 50Hz Mode - Last Ten Count %d", TenFieldTime);
                     }
                 }
-                // If we are not on a 60Hz mode and we get 60hz timings then flip
-                // to 60hz mode, however this is not what we seem to get when playing
+                // If we are not on a 60Hz Mode and we get 60hz timings then flip
+                // to 60hz Mode, however this is not what we seem to get when playing
                 // back 60Hz stuff when in PAL
                 else if(BT848_GetTVFormat()->Is25fps && 
                     TenFieldTime >= 160 && TenFieldTime <= 172)
@@ -338,12 +341,12 @@ void Timing_WaitForNextField(DEINTERLACE_INFO* pInfo)
                     if(RepeatCount > FormatChangeThreshold)
                     {
                         PostMessage(hWnd, WM_COMMAND, IDM_TYPEFORMAT_0 + SixtyHzFormat, 0);
-                        LOG("Went to 60Hz mode - Last Ten Count %d", TenFieldTime);
+                        LOG("Went to 60Hz Mode - Last Ten Count %d", TenFieldTime);
                     }
                 }
-                // If we are not on a 60Hz mode and we get 60hz timings then flip
-                // to 60hz mode, in my tests I get 334 come back as the timings
-                // when playing NTSC in PAL mode so this check is also needed
+                // If we are not on a 60Hz Mode and we get 60hz timings then flip
+                // to 60hz Mode, in my tests I get 334 come back as the timings
+                // when playing NTSC in PAL Mode so this check is also needed
                 else if(BT848_GetTVFormat()->Is25fps && 
                     TenFieldTime >= 330 && TenFieldTime <= 340)
                 {
@@ -351,7 +354,7 @@ void Timing_WaitForNextField(DEINTERLACE_INFO* pInfo)
                     if(RepeatCount > FormatChangeThreshold)
                     {
                         PostMessage(hWnd, WM_COMMAND, IDM_TYPEFORMAT_0 + SixtyHzFormat, 0);
-                        LOG("Went to 60Hz mode - Last Ten Count %d", TenFieldTime);
+                        LOG("Went to 60Hz Mode - Last Ten Count %d", TenFieldTime);
                     }
                 }
                 else
@@ -466,22 +469,22 @@ SETTING TimingSettings[TIMING_SETTING_LASTONE] =
         "Timing", "DoJudderTerminatorOnVideo", NULL,
     },
     {
-        "Sleep Interval", SLIDER, 0, (long*)&Sleep_Interval,
+        "Sleep Interval", SLIDER, 0, (long*)&SleepInterval,
         0, 0, 100, 1, 1,
         NULL,
-        "Threads", "Sleep_Interval", NULL,
+        "Threads", "SleepInterval", NULL,
     },
     {
-        "Sleep Skip Fields", SLIDER, 0, (long*)&Sleep_SkipFields,
+        "Sleep Skip Fields", SLIDER, 0, (long*)&SleepSkipFields,
         0, 0, 60, 1, 1,
         NULL,
-        "Threads", "Sleep_SkipFields", NULL,
+        "Threads", "SleepSkipFields", NULL,
     },
     {
-        "Sleep Skip Fields Late", SLIDER, 0, (long*)&Sleep_SkipFieldsLate,
+        "Sleep Skip Fields Late", SLIDER, 0, (long*)&SleepSkipFieldsLate,
         0, 0, 60, 1, 1,
         NULL,
-        "Threads", "Sleep_SkipFieldsLate", NULL,
+        "Threads", "SleepSkipFieldsLate", NULL,
     },
 };
 
@@ -517,7 +520,7 @@ void Timing_WriteSettingsToIni()
 
 void Timing_SetMenu(HMENU hMenu)
 {
-    CheckMenuItem(hMenu, IDM_AUTO_FORMAT, bDoAutoFormatDetect?MF_CHECKED:MF_UNCHECKED);
+    CheckMenuItemBool(hMenu, IDM_AUTO_FORMAT, bDoAutoFormatDetect);
 }
 
 void Timing_ShowUI()

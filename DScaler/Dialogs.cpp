@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Dialogs.cpp,v 1.8 2001-07-12 16:16:39 adcockj Exp $
+// $Id: Dialogs.cpp,v 1.9 2001-07-13 16:14:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -33,14 +33,17 @@
 // 08 Jan 2001   John Adcock           Global Variable Tidy up
 //                                     Got rid of global.h structs.h defines.h
 //
-// 08 Jan 2001   John Adcock           Added Version info to about box
+// 08 Jan 2001   John Adcock           Added Version Info to about box
 //
-// 09 Jan 2001   Tom Barry             Added Chip type to hardware dialog
+// 09 Jan 2001   Tom Barry             Added Chip Type to hardware dialog
 //
 /////////////////////////////////////////////////////////////////////////////
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2001/07/12 16:16:39  adcockj
+// Added CVS Id and Log
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -67,7 +70,7 @@ BOOL APIENTRY AboutProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
     WORD    wRootLen;           // length of the 'root' portion of string
     char    szFullPath[MAX_PATH];   // full path of module
     char    szResult[256];      // Temporary result string
-    char    szGetName[256];     // String to use for extracting version info
+    char    szGetName[256];     // String to use for extracting version Info
 
     switch (message)
     {
@@ -82,7 +85,7 @@ BOOL APIENTRY AboutProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 hMem = (LPSTR)GlobalAlloc(GMEM_MOVEABLE, dwVerInfoSize);
                 lpstrVffInfo = (LPSTR)GlobalLock(hMem);
                 GetFileVersionInfo(szFullPath, dwVerHnd, dwVerInfoSize, lpstrVffInfo);
-                // The below 'hex' value looks a little confusing, but
+                // The below 'hex' Value looks a little confusing, but
                 // essentially what it is, is the hexidecimal representation
                 // of a couple different values that represent the language
                 // and character set that we are wanting string values for.
@@ -100,7 +103,7 @@ BOOL APIENTRY AboutProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 if(VerQueryValue((LPVOID)lpstrVffInfo,
                     (LPSTR)szGetName,
                     (void**)&lpVersion,
-                    (UINT *)&uVersionLen))
+                    (UINT*)&uVersionLen))
                 {
                     lstrcpy(szResult, "About ");
                     lstrcat(szResult, lpVersion);
@@ -115,7 +118,7 @@ BOOL APIENTRY AboutProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                     if(VerQueryValue((LPVOID)lpstrVffInfo,
                         (LPSTR)szGetName,
                         (void**)&lpVersion,
-                        (UINT *)&uVersionLen))
+                        (UINT*)&uVersionLen))
                     {
                         lstrcat(szResult, lpVersion);
                         lstrcat(szResult, " Compiled ");
@@ -158,7 +161,7 @@ BOOL APIENTRY VPSInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         SetTimer(hDlg, 100, 1000, NULL);
         break;
     case WM_TIMER:
-        SetDlgItemInt(hDlg, IDT_VBI_FPS, VBI_FPS, FALSE);
+        SetDlgItemInt(hDlg, IDT_VBI_FPS, VBIFPS, FALSE);
         break;
 
     case WM_COMMAND:
@@ -189,7 +192,7 @@ BOOL APIENTRY ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 
         SetDlgItemText(hDlg, IDC_TEXT18, "YUV2");
         
-        // TB 20010109 added Chip type
+        // TB 20010109 added Chip Type
         if (CpuFeatureFlags & FEATURE_SSE2)
         {
             SetDlgItemText(hDlg, IDC_CPU_TYPE, "SSE2");
@@ -253,7 +256,7 @@ LPCSTR GetProductNameAndVersion()
         hMem = GlobalAlloc(GMEM_MOVEABLE, dwVerInfoSize);
         lpstrVffInfo = (LPSTR)GlobalLock(hMem);
         GetFileVersionInfo(szFullPath, dwVerHnd, dwVerInfoSize, lpstrVffInfo);
-        // The below 'hex' value looks a little confusing, but
+        // The below 'hex' Value looks a little confusing, but
         // essentially what it is, is the hexidecimal representation
         // of a couple different values that represent the language
         // and character set that we are wanting string values for.
@@ -271,7 +274,7 @@ LPCSTR GetProductNameAndVersion()
         if(VerQueryValue((LPVOID)lpstrVffInfo,
             (LPSTR)szGetName,
             (void**)&lpVersion,
-            (UINT *)&uVersionLen))
+            (UINT*)&uVersionLen))
         {
             lstrcpy(szResult, lpVersion);
 
@@ -281,7 +284,7 @@ LPCSTR GetProductNameAndVersion()
             if(VerQueryValue((LPVOID)lpstrVffInfo,
                 (LPSTR)szGetName,
                 (void**)&lpVersion,
-                (UINT *)&uVersionLen))
+                (UINT*)&uVersionLen))
             {
                 lstrcat(szResult, " Version ");
                 lstrcat(szResult, lpVersion);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_Common.cpp,v 1.11 2001-07-12 16:16:40 adcockj Exp $
+// $Id: FD_Common.cpp,v 1.12 2001-07-13 16:14:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2001/07/12 16:16:40  adcockj
+// Added CVS Id and Log
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -62,12 +65,12 @@ long CombJaggieThreshold = 73;
 long DiffThreshold = 224;
 BOOL UseChromaInDetect = FALSE;
 
-void CalcCombFactor(DEINTERLACE_INFO *pInfo);
-void CalcDiffFactor(DEINTERLACE_INFO *pInfo);
-void DoBothCombAndDiff(DEINTERLACE_INFO *pInfo);
-void CalcCombFactorChroma(DEINTERLACE_INFO *pInfo);
-void CalcDiffFactorChroma(DEINTERLACE_INFO *pInfo);
-void DoBothCombAndDiffChroma(DEINTERLACE_INFO *pInfo);
+void CalcCombFactor(DEINTERLACE_INFO* pInfo);
+void CalcDiffFactor(DEINTERLACE_INFO* pInfo);
+void DoBothCombAndDiff(DEINTERLACE_INFO* pInfo);
+void CalcCombFactorChroma(DEINTERLACE_INFO* pInfo);
+void CalcDiffFactorChroma(DEINTERLACE_INFO* pInfo);
+void DoBothCombAndDiffChroma(DEINTERLACE_INFO* pInfo);
 
 // want to be able to access these from the assembler routines they should
 // be together in memory so don't make them const even though they are
@@ -79,7 +82,7 @@ extern "C"
     __int64 qwBitShift;
 }
 
-void PerformFilmDetectCalculations(DEINTERLACE_INFO *pInfo, BOOL NeedComb, BOOL NeedDiff)
+void PerformFilmDetectCalculations(DEINTERLACE_INFO* pInfo, BOOL NeedComb, BOOL NeedDiff)
 {
     if(NeedComb && NeedDiff)
     {
@@ -154,9 +157,9 @@ long CalculateTotalCombFactor(DWORD* Combs, DEINTERLACE_INFO* pInfo)
 // determine the best ordering of the fields
 // This function only works on the area displayed so will perform better if any
 // VBI lines are off screen
-// the BitShift value is used to filter out noise and quantization error
+// the BitShift Value is used to filter out noise and quantization error
 ///////////////////////////////////////////////////////////////////////////////
-void CalcCombFactor(DEINTERLACE_INFO *pInfo)
+void CalcCombFactor(DEINTERLACE_INFO* pInfo)
 {
     int Line;
     DWORD Combs[DSCALER_MAX_HEIGHT / 2];
@@ -190,7 +193,7 @@ void CalcCombFactor(DEINTERLACE_INFO *pInfo)
     return;
 }
 
-void CalcCombFactorChroma(DEINTERLACE_INFO *pInfo)
+void CalcCombFactorChroma(DEINTERLACE_INFO* pInfo)
 {
     int Line;
     DWORD Combs[DSCALER_MAX_HEIGHT / 2];
@@ -235,9 +238,9 @@ void CalcCombFactorChroma(DEINTERLACE_INFO *pInfo)
 // the result is the total average diffrence between the Y components of each pixel
 // This function only works on the area displayed so will perform better if any
 // VBI lines are off screen
-// the BitShift value is used to filter out noise and quantization error
+// the BitShift Value is used to filter out noise and quantization error
 ///////////////////////////////////////////////////////////////////////////////
-void CalcDiffFactor(DEINTERLACE_INFO *pInfo)
+void CalcDiffFactor(DEINTERLACE_INFO* pInfo)
 {
     int Line;
     long DiffFactor = 0;
@@ -291,9 +294,9 @@ void CalcDiffFactor(DEINTERLACE_INFO *pInfo)
 // the result is the total average diffrence between the Y components of each pixel
 // This function only works on the area displayed so will perform better if any
 // VBI lines are off screen
-// the BitShift value is used to filter out noise and quantization error
+// the BitShift Value is used to filter out noise and quantization error
 ///////////////////////////////////////////////////////////////////////////////
-void CalcDiffFactorChroma(DEINTERLACE_INFO *pInfo)
+void CalcDiffFactorChroma(DEINTERLACE_INFO* pInfo)
 {
     int Line;
     long DiffFactor = 0;
@@ -336,7 +339,7 @@ void CalcDiffFactorChroma(DEINTERLACE_INFO *pInfo)
     LOG(" Frame %d %c FD = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->FieldDiff);
 }
 
-void DoBothCombAndDiff(DEINTERLACE_INFO *pInfo)
+void DoBothCombAndDiff(DEINTERLACE_INFO* pInfo)
 {
     int Line;
     long DiffFactor = 0;
@@ -396,7 +399,7 @@ void DoBothCombAndDiff(DEINTERLACE_INFO *pInfo)
     LOG(" Frame %d %c FD = %d \t CF = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->FieldDiff, pInfo->CombFactor);
 }
 
-void DoBothCombAndDiffChroma(DEINTERLACE_INFO *pInfo)
+void DoBothCombAndDiffChroma(DEINTERLACE_INFO* pInfo)
 {
     int Line;
     DWORD DiffFactor = 0;
@@ -456,7 +459,7 @@ void DoBothCombAndDiffChroma(DEINTERLACE_INFO *pInfo)
     LOG(" Frame %d %c FD = %d \t CF = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->FieldDiff, pInfo->CombFactor);
 }
 
-void DoBothCombAndDiffExperimental(DEINTERLACE_INFO *info)
+void DoBothCombAndDiffExperimental(DEINTERLACE_INFO* pInfo)
 {
     int Line;
     int LoopCtr;
@@ -464,9 +467,9 @@ void DoBothCombAndDiffExperimental(DEINTERLACE_INFO *info)
     short* L2;     // ptr to Line2, the weave line
     short* L3;     // ptr to Line3
     short* LP2;     // ptr to prev Line2
-    short **pOddLines = info->OddLines[0];
-    short **pEvenLines = info->EvenLines[0];
-    short **pPrevLines = info->IsOdd ? info->OddLines[1] : info->EvenLines[1];
+    short** pOddLines = pInfo->OddLines[0];
+    short** pEvenLines = pInfo->EvenLines[0];
+    short** pPrevLines = pInfo->IsOdd ? pInfo->OddLines[1] : pInfo->EvenLines[1];
     const __int64 qwShiftMask = 0xfefffefffefffeff; // to avoid shifting chroma to luma
     const __int64 qwOnes = 0x0001000100010001;
     __int64 qwThresholdWeave;
@@ -484,11 +487,11 @@ void DoBothCombAndDiffExperimental(DEINTERLACE_INFO *info)
     if (pOddLines == NULL || pEvenLines == NULL || pPrevLines == NULL)
         return;
 
-    for (Line = 16; Line < (info->FieldHeight - 16); ++Line)
+    for (Line = 16; Line < (pInfo->FieldHeight - 16); ++Line)
     {
-        LoopCtr = info->LineLength / 8;    // there are LineLength / 8 qwords per line
+        LoopCtr = pInfo->LineLength / 8;    // there are LineLength / 8 qwords per line
 
-        if (info->IsOdd)
+        if (pInfo->IsOdd)
         {
             L1 = pEvenLines[Line];
             L2 = pOddLines[Line];
@@ -527,7 +530,7 @@ void DoBothCombAndDiffExperimental(DEINTERLACE_INFO *info)
             paddb   mm0, mm1    // the average, for computing comb
 
             movq mm1, qword ptr[ebx]  // L2
-            // get abs value of possible L2 comb answer in mm0
+            // get abs Value of possible L2 comb answer in mm0
             // mm2 will have L2 in it
             movq mm2, mm1    // L2
             psubusb mm1, mm0    // L2 - avg
@@ -538,7 +541,7 @@ void DoBothCombAndDiffExperimental(DEINTERLACE_INFO *info)
             psrlw mm0, 1           // abs(avg-L2)/2
             pcmpgtb mm0, qwThresholdWeave
             pand mm0, qwOnes       // 1 if abs(avg-L2)/2 > Threshold
-            paddusb mm7, mm0                // count of all times the comb threshold
+            paddusb mm7, mm0                // Count of all times the comb threshold
                                     // has been exceeded
 
             movq mm1, qword ptr[esi]     // LP2
@@ -551,7 +554,7 @@ void DoBothCombAndDiffExperimental(DEINTERLACE_INFO *info)
             psrlw mm1, 1           // abs(avg-L2)/2
             pcmpgtb mm1, qwThresholdDiff
             pand mm1, qwOnes       // 1 if abs(avg-L2)/2 > Threshold
-            paddusb mm6, mm1                // count of all times the diff threshold
+            paddusb mm6, mm1                // Count of all times the diff threshold
 
             // bump ptrs and loop
             lea  eax,[eax+8]
@@ -621,10 +624,10 @@ void DoBothCombAndDiffExperimental(DEINTERLACE_INFO *info)
         }
     }
 
-    info->CombFactor = WeaveFactor;
-    info->FieldDiff = DiffFactor;
+    pInfo->CombFactor = WeaveFactor;
+    pInfo->FieldDiff = DiffFactor;
 
-    LOG(" Frame %d %c FD = %d CF = %d", info->CurrentFrame, info->IsOdd ? 'O' : 'E', info->FieldDiff, info->CombFactor);
+    LOG(" Frame %d %c FD = %d CF = %d", pInfo->CurrentFrame, pInfo->IsOdd ? 'O' : 'E', pInfo->FieldDiff, pInfo->CombFactor);
 
     // clear out the MMX registers ready for doing floating point
     // again
@@ -638,21 +641,21 @@ void DoBothCombAndDiffExperimental(DEINTERLACE_INFO *info)
 
 ///////////////////////////////////////////////////////////////////////////////
 // Simple Weave.  Copies alternating scanlines from the most recent fields.
-BOOL Weave(DEINTERLACE_INFO *info)
+BOOL Weave(DEINTERLACE_INFO* pInfo)
 {
     int i;
-    BYTE *lpOverlay = info->Overlay;
+    BYTE* lpOverlay = pInfo->Overlay;
 
-    if (info->EvenLines[0] == NULL || info->OddLines[0] == NULL)
+    if (pInfo->EvenLines[0] == NULL || pInfo->OddLines[0] == NULL)
         return FALSE;
 
-    for (i = 0; i < info->FieldHeight; i++)
+    for (i = 0; i < pInfo->FieldHeight; i++)
     {
-        info->pMemcpy(lpOverlay, info->EvenLines[0][i], info->LineLength);
-        lpOverlay += info->OverlayPitch;
+        pInfo->pMemcpy(lpOverlay, pInfo->EvenLines[0][i], pInfo->LineLength);
+        lpOverlay += pInfo->OverlayPitch;
 
-        info->pMemcpy(lpOverlay, info->OddLines[0][i], info->LineLength);
-        lpOverlay += info->OverlayPitch;
+        pInfo->pMemcpy(lpOverlay, pInfo->OddLines[0][i], pInfo->LineLength);
+        lpOverlay += pInfo->OverlayPitch;
     }
     _asm
     {
@@ -665,66 +668,66 @@ BOOL Weave(DEINTERLACE_INFO *info)
 // Simple Bob.  Copies the most recent field to the overlay, with each scanline
 // copied twice.
 /////////////////////////////////////////////////////////////////////////////
-BOOL Bob(DEINTERLACE_INFO *info)
+BOOL Bob(DEINTERLACE_INFO* pInfo)
 {
     int i;
-    BYTE *lpOverlay = info->Overlay;
-    short **lines;
+    BYTE* lpOverlay = pInfo->Overlay;
+    short** lines;
  
     // If field is odd we will offset it down 1 line to avoid jitter  TRB 1/21/01
-    if (info->IsOdd)
+    if (pInfo->IsOdd)
     {
-        lines = info->OddLines[0];
+        lines = pInfo->OddLines[0];
         // No recent data?  We can't do anything.
         if (lines == NULL)
             return FALSE;
 
-        if (info->CpuFeatureFlags & FEATURE_SSE)
+        if (pInfo->CpuFeatureFlags & FEATURE_SSE)
         {
-            memcpySSE(lpOverlay, lines[0], info->LineLength);   // extra copy of first line
-            lpOverlay += info->OverlayPitch;                    // and offset out output ptr
-            for (i = 0; i < info->FieldHeight - 1; i++)
+            memcpySSE(lpOverlay, lines[0], pInfo->LineLength);   // extra copy of first line
+            lpOverlay += pInfo->OverlayPitch;                    // and offset out output ptr
+            for (i = 0; i < pInfo->FieldHeight - 1; i++)
             {
-                memcpyBOBSSE(lpOverlay, lpOverlay + info->OverlayPitch,
-                    lines[i], info->LineLength);
-                lpOverlay += 2 * info->OverlayPitch;
+                memcpyBOBSSE(lpOverlay, lpOverlay + pInfo->OverlayPitch,
+                    lines[i], pInfo->LineLength);
+                lpOverlay += 2 * pInfo->OverlayPitch;
             }
-            memcpySSE(lpOverlay, lines[i], info->LineLength);   // only 1 copy of last line
+            memcpySSE(lpOverlay, lines[i], pInfo->LineLength);   // only 1 copy of last line
         }
         else
         {
-            memcpyMMX(lpOverlay, lines[0], info->LineLength);   // extra copy of first line
-            lpOverlay += info->OverlayPitch;                    // and offset out output ptr
-            for (i = 0; i < info->FieldHeight - 1; i++)
+            memcpyMMX(lpOverlay, lines[0], pInfo->LineLength);   // extra copy of first line
+            lpOverlay += pInfo->OverlayPitch;                    // and offset out output ptr
+            for (i = 0; i < pInfo->FieldHeight - 1; i++)
             {
-                memcpyBOBMMX(lpOverlay, lpOverlay + info->OverlayPitch,
-                    lines[i], info->LineLength);
-                lpOverlay += 2 * info->OverlayPitch;
+                memcpyBOBMMX(lpOverlay, lpOverlay + pInfo->OverlayPitch,
+                    lines[i], pInfo->LineLength);
+                lpOverlay += 2 * pInfo->OverlayPitch;
             }
-            memcpyMMX(lpOverlay, lines[i], info->LineLength);   // only 1 copy of last line
+            memcpyMMX(lpOverlay, lines[i], pInfo->LineLength);   // only 1 copy of last line
         }
     }   
     else
     {
-        lines = info->EvenLines[0];
+        lines = pInfo->EvenLines[0];
         if (lines == NULL)
                 return FALSE;
-        if (info->CpuFeatureFlags & FEATURE_SSE)
+        if (pInfo->CpuFeatureFlags & FEATURE_SSE)
         {
-            for (i = 0; i < info->FieldHeight; i++)
+            for (i = 0; i < pInfo->FieldHeight; i++)
             {
-                memcpyBOBSSE(lpOverlay, lpOverlay + info->OverlayPitch,
-                    lines[i], info->LineLength);
-                lpOverlay += 2 * info->OverlayPitch;
+                memcpyBOBSSE(lpOverlay, lpOverlay + pInfo->OverlayPitch,
+                    lines[i], pInfo->LineLength);
+                lpOverlay += 2 * pInfo->OverlayPitch;
             }
         }
         else
         {
-            for (i = 0; i < info->FieldHeight; i++)
+            for (i = 0; i < pInfo->FieldHeight; i++)
             {
-                memcpyBOBMMX(lpOverlay, lpOverlay + info->OverlayPitch,
-                    lines[i], info->LineLength);
-                lpOverlay += 2 * info->OverlayPitch;
+                memcpyBOBMMX(lpOverlay, lpOverlay + pInfo->OverlayPitch,
+                    lines[i], pInfo->LineLength);
+                lpOverlay += 2 * pInfo->OverlayPitch;
             }
         }
     }
@@ -810,7 +813,7 @@ void FD_Common_WriteSettingsToIni()
 
 void FD_Common_SetMenu(HMENU hMenu)
 {
-    CheckMenuItem(hMenu, IDM_USECHROMA, UseChromaInDetect?MF_CHECKED:MF_UNCHECKED);
+    CheckMenuItemBool(hMenu, IDM_USECHROMA, UseChromaInDetect);
 }
 
 void FD_Common_ShowUI()

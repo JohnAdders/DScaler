@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// DS_Control.h
+// $Id: DS_Control.h,v 1.23 2001-07-13 16:15:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -63,10 +63,14 @@
 //                                     Control DScaler externally to this file
 //
 // 20 Feb 2001   Michael Samblanet     Added new values for Aspect Control
-//                                     (bounce & clipping modes)
+//                                     (bounce & clipping Modes)
 //
 // 08 Jun 2001   Eric Schmidt          Added bounce amplitude to ini
 //
+/////////////////////////////////////////////////////////////////////////////
+// CVS Log
+//
+// $Log: not supported by cvs2svn $
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef __DS_CONTROL_H___
@@ -170,12 +174,12 @@ typedef enum
 /////////////////////////////////////////////////////////////////////////////
 typedef enum
 {
-    DISPLAY = 0,          // Display OSD value.
-    ADJUSTUP,             // Increase value, with acceleration [display OSD]
-    ADJUSTDOWN,           // Decrease value, with acceleration [display OSD]
-    INCREMENT,            // Increase value by 1 [display OSD]
-    DECREMENT,            // Decrease value by 1 [display OSD]
-    RESET,                // Reset value to default [display OSD]
+    DISPLAY = 0,          // Display OSD Value.
+    ADJUSTUP,             // Increase Value, with acceleration [display OSD]
+    ADJUSTDOWN,           // Decrease Value, with acceleration [display OSD]
+    INCREMENT,            // Increase Value by 1 [display OSD]
+    DECREMENT,            // Decrease Value by 1 [display OSD]
+    RESET,                // Reset Value to default [display OSD]
     TOGGLEBOOL,           // Toggle a boolean setting [display OSD]
     ADJUSTUP_SILENT,      // Same, but no OSD
     ADJUSTDOWN_SILENT,    // Same, but no OSD

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: stdafx.h,v 1.5 2001-07-12 16:26:59 adcockj Exp $
+// $Id: stdafx.h,v 1.6 2001-07-13 16:14:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/07/12 16:26:59  adcockj
+// Added CVS id and log
+//
 //////////////////////////////////////////////////////////////////////////////
 
 #if _MSC_VER > 1000
@@ -50,7 +53,6 @@
 #include <winioctl.h>
 #include "ErrorBox.h"
 #include "DSDrv.h"
-#include "COMMCTRL.H"
 #include "HtmlHelp.H"
 #include <vector>
 #include <string>

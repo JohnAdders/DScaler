@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Audio.cpp,v 1.10 2001-07-13 07:04:43 adcockj Exp $
+// $Id: Audio.cpp,v 1.11 2001-07-13 16:14:55 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2001/07/13 07:04:43  adcockj
+// Attemp 1 at fixing MSP muting
+//
 // Revision 1.9  2001/07/12 16:16:39  adcockj
 // Added CVS Id and Log
 //
@@ -76,18 +79,7 @@ BOOL InitialSuperBass = FALSE;
 long InitialEqualizer[5] = {0x00, 0x00, 0x00, 0x00, 0x00};
 long InitialSpatial = 0x00;
 
-AUDIOMUXTYPE AudioSource = AUDIOMUX_MUTE;
-
-/*
-0       Audio_Tuner,
-1       Audio_Radio,
-2       Audio_External,
-3       Audio_Internal,
-4       Audio_Off,
-5       Audio_On,
-0x80    Audio_Mute = 0x80,
-0x81    Audio_UnMute = 0x81
-*/
+eAudioMuxType AudioSource = AUDIOMUX_MUTE;
 
 #define WriteDem(wAddr,wData) Audio_WriteMSP(MSP_WR_DEM,wAddr,wData) // I2C_MSP3400C_DEM
 #define WriteDSP(wAddr,wData) Audio_WriteMSP(MSP_WR_DSP,wAddr,wData) // I2C_MSP3400C_DEM
@@ -109,67 +101,87 @@ typedef struct
 
 TMSPInitData MSP_init_data[] =
 {
-    /* AM (for carrier detect / msp3400) */
-    { { 75, 19, 36, 35, 39, 40 }, { 75, 19, 36, 35, 39, 40 },
-      MSP_CARRIER(5.5), MSP_CARRIER(5.5),
-      0x00d0, 0x0500,   0x0020, 0x3000, 1},
+    // AM (for carrier detect / msp3400)
+    { 
+        { 75, 19, 36, 35, 39, 40 }, 
+        { 75, 19, 36, 35, 39, 40 },
+        MSP_CARRIER(5.5), MSP_CARRIER(5.5),
+        0x00d0, 0x0500,   0x0020, 0x3000, 1
+    },
 
-    /* AM (for carrier detect / msp3410) */
-    { { -1, -1, -8, 2, 59, 126 }, { -1, -1, -8, 2, 59, 126 },
-      MSP_CARRIER(5.5), MSP_CARRIER(5.5),
-      0x00d0, 0x0100,   0x0020, 0x3000, 0},
-
-    /* FM Radio */
-    { { -8, -8, 4, 6, 78, 107 }, { -8, -8, 4, 6, 78, 107 },
-      MSP_CARRIER(10.7), MSP_CARRIER(10.7),
-      0x00d0, 0x0480, 0x0020, 0x3000, 0 },
-
-    /* Terrestial FM-mono + FM-stereo */
-    { {  3, 18, 27, 48, 66, 72 }, {  3, 18, 27, 48, 66, 72 },
-      MSP_CARRIER(5.5), MSP_CARRIER(5.5),
-      0x00d0, 0x0480,   0x0030, 0x3000, 0}, 
-
-    /* Sat FM-mono */
-    { {  1,  9, 14, 24, 33, 37 }, {  3, 18, 27, 48, 66, 72 },
-      MSP_CARRIER(6.5), MSP_CARRIER(6.5),
-      0x00c6, 0x0480,   0x0000, 0x3000, 0},
-
-    /* NICAM B/G, D/K */
-    { { -2, -8, -10, 10, 50, 86 }, {  3, 18, 27, 48, 66, 72 },
-      MSP_CARRIER(5.5), MSP_CARRIER(5.5),
-      0x00d0, 0x0040,   0x0120, 0x3000, 0},
-
-    /* NICAM I */
-    { {  2, 4, -6, -4, 40, 94 }, {  3, 18, 27, 48, 66, 72 },
-      MSP_CARRIER(6.0), MSP_CARRIER(6.0),
-      0x00d0, 0x0040,   0x0120, 0x3000, 0},
-
-     /* NICAM/AM -- L (6.5/5.85) */
-    { {  -2, -8, -10, 10, 50, 86 }, {  -4, -12, -9, 23, 79, 126 },
-      MSP_CARRIER(6.5), MSP_CARRIER(6.5),
-      0x00c6, 0x0140,   0x0120, 0x7c03},
+    // AM (for carrier detect / msp3410) 
+    {
+        { -1, -1, -8, 2, 59, 126 }, 
+        { -1, -1, -8, 2, 59, 126 },
+        MSP_CARRIER(5.5), MSP_CARRIER(5.5),
+        0x00d0, 0x0100,   0x0020, 0x3000, 0
+    },
+    // FM Radio 
+    {
+        { -8, -8, 4, 6, 78, 107 }, 
+        { -8, -8, 4, 6, 78, 107 },
+        MSP_CARRIER(10.7), MSP_CARRIER(10.7),
+        0x00d0, 0x0480, 0x0020, 0x3000, 0 
+    },
+    // Terrestial FM-mono + FM-stereo 
+    { 
+        {  3, 18, 27, 48, 66, 72 }, 
+        {  3, 18, 27, 48, 66, 72 },
+        MSP_CARRIER(5.5), MSP_CARRIER(5.5),
+        0x00d0, 0x0480,   0x0030, 0x3000, 0
+    }, 
+    // Sat FM-mono 
+    { 
+        {  1,  9, 14, 24, 33, 37 }, 
+        {  3, 18, 27, 48, 66, 72 },
+        MSP_CARRIER(6.5), MSP_CARRIER(6.5),
+        0x00c6, 0x0480,   0x0000, 0x3000, 0
+    },
+    // NICAM B/G, D/K 
+    {
+        { -2, -8, -10, 10, 50, 86 }, 
+        {  3, 18, 27, 48, 66, 72 },
+        MSP_CARRIER(5.5), MSP_CARRIER(5.5),
+        0x00d0, 0x0040,   0x0120, 0x3000, 0
+    },
+    // NICAM I 
+    { 
+        {  2, 4, -6, -4, 40, 94 }, 
+        {  3, 18, 27, 48, 66, 72 },
+        MSP_CARRIER(6.0), MSP_CARRIER(6.0),
+        0x00d0, 0x0040,   0x0120, 0x3000, 0
+    },
+     // NICAM/AM -- L (6.5/5.85) 
+    {
+        {  -2, -8, -10, 10, 50, 86 }, 
+        {  -4, -12, -9, 23, 79, 126 },
+        MSP_CARRIER(6.5), MSP_CARRIER(6.5),
+        0x00c6, 0x0140,   0x0120, 0x7c03
+    },
 };
 
 
-int carrier_detect_main[4] = {
-    /* main carrier */
-     MSP_CARRIER(4.5),   // 4.5   NTSC
-     MSP_CARRIER(5.5),   // 5.5   PAL B/G
-     MSP_CARRIER(6.0),   // 6.0   PAL I
-     MSP_CARRIER(6.5),   // 6.5   PAL D/K + SAT + SECAM
+int carrier_detect_main[4] = 
+{
+    // main carrier 
+    MSP_CARRIER(4.5),   // 4.5   NTSC
+    MSP_CARRIER(5.5),   // 5.5   PAL B/G
+    MSP_CARRIER(6.0),   // 6.0   PAL I
+    MSP_CARRIER(6.5),   // 6.5   PAL D/K + SAT + SECAM
 };
 
-int carrier_detect[8] = {
-    /* PAL B/G */
-     MSP_CARRIER(5.7421875), // 5.742 PAL B/G FM-stereo
-     MSP_CARRIER(5.85),      // 5.85  PAL B/G NICAM
-    /* PAL SAT / SECAM */
-     MSP_CARRIER(5.85),      // 5.85  PAL D/K NICAM
-     MSP_CARRIER(6.2578125), //6.25  PAL D/K1 FM-stereo
-     MSP_CARRIER(6.7421875), //6.74  PAL D/K2 FM-stereo
-     MSP_CARRIER(7.02),      //7.02  PAL SAT FM-stereo s/b
-     MSP_CARRIER(7.20),      //7.20  PAL SAT FM-stereo s
-     MSP_CARRIER(7.38),      //7.38  PAL SAT FM-stereo b
+int CarrierDetect[8] = 
+{
+    // PAL B/G 
+    MSP_CARRIER(5.7421875), // 5.742 PAL B/G FM-stereo
+    MSP_CARRIER(5.85),      // 5.85  PAL B/G NICAM
+    // PAL SAT / SECAM 
+    MSP_CARRIER(5.85),      // 5.85  PAL D/K NICAM
+    MSP_CARRIER(6.2578125), //6.25  PAL D/K1 FM-stereo
+    MSP_CARRIER(6.7421875), //6.74  PAL D/K2 FM-stereo
+    MSP_CARRIER(7.02),      //7.02  PAL SAT FM-stereo s/b
+    MSP_CARRIER(7.20),      //7.20  PAL SAT FM-stereo s
+    MSP_CARRIER(7.38),      //7.38  PAL SAT FM-stereo b
 };
 
 int MSPMode = 3;
@@ -435,7 +447,7 @@ void Audio_MSP_Unmute(void)
 }
 
 
-BOOL Audio_SetSource(AUDIOMUXTYPE nChannel)
+BOOL Audio_SetSource(eAudioMuxType nChannel)
 {
     int i;
     DWORD MuxSelect;
@@ -457,7 +469,7 @@ BOOL Audio_SetSource(AUDIOMUXTYPE nChannel)
             i++;
             Sleep(50);
         }
-        /* if video not in H-lock, turn audio off */
+        // if video not in H-lock, turn audio off 
         if (i == 20)
         {
             MuxSelect = GetCardSetup()->AudioMuxSelect[AUDIOMUX_MUTE];
@@ -469,7 +481,7 @@ BOOL Audio_SetSource(AUDIOMUXTYPE nChannel)
         break;
     }
 
-    /* select direct input */
+    // select direct input 
     //BT848_WriteWord(BT848_GPIO_REG_INP, 0x00); // MAE 14 Dec 2000 disabled
     BT848_AndOrDataDword(BT848_GPIO_DATA, MuxSelect, ~GetCardSetup()->GPIOMask); 
     return TRUE;
@@ -516,7 +528,7 @@ BOOL Audio_MSP_Init(BYTE DWrite, BYTE DRead)
     Audio_MSP_Version();
     Sleep(4);
 
-	// set volume to Mute level
+    // set volume to Mute level
     WriteDSP(0, 0x00 << 4);
     WriteDSP(6, 0x00 << 4);
 
@@ -834,7 +846,7 @@ BOOL MSPMode_OnChange(long NewValue)
     for (i = 5; i >= 0; i--)
         WriteDem(0x01, MSP_init_data[MSPMode].fir1[i]);
 
-    WriteDem(0x05, 0x0004);     /* fir 2 */
+    WriteDem(0x05, 0x0004);     // fir 2 
     WriteDem(0x05, 0x0040);
     WriteDem(0x05, 0x0000);
 
@@ -856,12 +868,12 @@ BOOL MSPMode_OnChange(long NewValue)
     return FALSE;
 }
 
-void Audio_MSP_SetStereo(int MajorMode, int MinorMode, int mode)
+void Audio_MSP_SetStereo(int MajorMode, int MinorMode, int Mode)
 {
     int nicam = 0;
     int src = 0;
 
-    MSPStereo = mode;
+    MSPStereo = Mode;
 
     if(bHasMSP == FALSE)
     {
@@ -870,7 +882,7 @@ void Audio_MSP_SetStereo(int MajorMode, int MinorMode, int mode)
 
     if(GetCardSetup()->pfnSetAudioMode != NULL)
     {
-        GetCardSetup()->pfnSetAudioMode(mode);
+        GetCardSetup()->pfnSetAudioMode(Mode);
         return;
     }
 
@@ -878,7 +890,7 @@ void Audio_MSP_SetStereo(int MajorMode, int MinorMode, int mode)
     switch (MSPMode)
     {
     case MSP_MODE_FM_TERRA:
-        Audio_MSP_SetCarrier(carrier_detect[MinorMode], carrier_detect_main[MajorMode]);
+        Audio_MSP_SetCarrier(CarrierDetect[MinorMode], carrier_detect_main[MajorMode]);
         switch (MSPStereo)
         {
         case VIDEO_SOUND_STEREO:
@@ -912,7 +924,7 @@ void Audio_MSP_SetStereo(int MajorMode, int MinorMode, int mode)
         break;
     case MSP_MODE_FM_NICAM1:
     case MSP_MODE_FM_NICAM2:
-        Audio_MSP_SetCarrier(carrier_detect[MinorMode], carrier_detect_main[MajorMode]);
+        Audio_MSP_SetCarrier(CarrierDetect[MinorMode], carrier_detect_main[MajorMode]);
         nicam = 0x0100;
         break;
     default:
@@ -984,11 +996,11 @@ void Audio_MSP_Set_MajorMinor_Mode(int MajorMode, int MinorMode)
         else if (MinorMode == 1 && MSPNicam)
         {
             // B/G NICAM
-            Audio_MSP_SetCarrier(carrier_detect[MinorMode], carrier_detect_main[MajorMode]);
+            Audio_MSP_SetCarrier(CarrierDetect[MinorMode], carrier_detect_main[MajorMode]);
         }
         else
         {
-            Audio_MSP_SetCarrier(carrier_detect[MinorMode], carrier_detect_main[MajorMode]);
+            Audio_MSP_SetCarrier(CarrierDetect[MinorMode], carrier_detect_main[MajorMode]);
         }
         break;
     case 2:                 // 6.0
@@ -1004,16 +1016,16 @@ void Audio_MSP_Set_MajorMinor_Mode(int MajorMode, int MinorMode)
         else if (MinorMode == 0 && MSPNicam)
         {
             // D/K NICAM
-            Audio_MSP_SetCarrier(carrier_detect[MinorMode], carrier_detect_main[MajorMode]);
+            Audio_MSP_SetCarrier(CarrierDetect[MinorMode], carrier_detect_main[MajorMode]);
         }
         else
         {
-            Audio_MSP_SetCarrier(carrier_detect[MinorMode], carrier_detect_main[MajorMode]);
+            Audio_MSP_SetCarrier(CarrierDetect[MinorMode], carrier_detect_main[MajorMode]);
         }
         break;
     case 0:                 // 4.5
     default:
-        Audio_MSP_SetCarrier(carrier_detect[MinorMode], carrier_detect_main[MajorMode]);
+        Audio_MSP_SetCarrier(CarrierDetect[MinorMode], carrier_detect_main[MajorMode]);
         break;
     }
 
@@ -1165,7 +1177,7 @@ void Audio_MSP_Watch_Mode()
 
 BOOL AudioSource_OnChange(long NewValue)
 {
-    AudioSource = (AUDIOMUXTYPE)NewValue;
+    AudioSource = (eAudioMuxType)NewValue;
     Audio_SetSource(AudioSource);
     return FALSE;
 }
@@ -1335,39 +1347,39 @@ void Audio_WriteSettingsToIni()
 
 void Audio_SetMenu(HMENU hMenu)
 {
-    CheckMenuItem(hMenu, IDM_AUDIO_0, (AudioSource == 0)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_AUDIO_1, (AudioSource == 1)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_AUDIO_2, (AudioSource == 2)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_AUDIO_3, (AudioSource == 3)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_AUDIO_4, (AudioSource == 4)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_AUDIO_5, (AudioSource == 5)?MF_CHECKED:MF_UNCHECKED);
+    CheckMenuItemBool(hMenu, IDM_AUDIO_0, (AudioSource == 0));
+    CheckMenuItemBool(hMenu, IDM_AUDIO_1, (AudioSource == 1));
+    CheckMenuItemBool(hMenu, IDM_AUDIO_2, (AudioSource == 2));
+    CheckMenuItemBool(hMenu, IDM_AUDIO_3, (AudioSource == 3));
+    CheckMenuItemBool(hMenu, IDM_AUDIO_4, (AudioSource == 4));
+    CheckMenuItemBool(hMenu, IDM_AUDIO_5, (AudioSource == 5));
 
-    CheckMenuItem(hMenu, IDM_MSPMODE_2, (MSPMode == 2)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_MSPMODE_3, (MSPMode == 3)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_MSPMODE_4, (MSPMode == 4)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_MSPMODE_5, (MSPMode == 5)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_MSPMODE_6, (MSPMode == 6)?MF_CHECKED:MF_UNCHECKED);
+    CheckMenuItemBool(hMenu, IDM_MSPMODE_2, (MSPMode == 2));
+    CheckMenuItemBool(hMenu, IDM_MSPMODE_3, (MSPMode == 3));
+    CheckMenuItemBool(hMenu, IDM_MSPMODE_4, (MSPMode == 4));
+    CheckMenuItemBool(hMenu, IDM_MSPMODE_5, (MSPMode == 5));
+    CheckMenuItemBool(hMenu, IDM_MSPMODE_6, (MSPMode == 6));
 
-    CheckMenuItem(hMenu, IDM_MSPSTEREO_1, (MSPStereo == 1)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_MSPSTEREO_2, (MSPStereo == 2)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_MSPSTEREO_3, (MSPStereo == 3)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_MSPSTEREO_4, (MSPStereo == 4)?MF_CHECKED:MF_UNCHECKED);
+    CheckMenuItemBool(hMenu, IDM_MSPSTEREO_1, (MSPStereo == 1));
+    CheckMenuItemBool(hMenu, IDM_MSPSTEREO_2, (MSPStereo == 2));
+    CheckMenuItemBool(hMenu, IDM_MSPSTEREO_3, (MSPStereo == 3));
+    CheckMenuItemBool(hMenu, IDM_MSPSTEREO_4, (MSPStereo == 4));
 
-    CheckMenuItem(hMenu, IDM_MAJOR_CARRIER_0, (MSPMajorMode == 0)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_MAJOR_CARRIER_1, (MSPMajorMode == 1)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_MAJOR_CARRIER_2, (MSPMajorMode == 2)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_MAJOR_CARRIER_3, (MSPMajorMode == 3)?MF_CHECKED:MF_UNCHECKED);
+    CheckMenuItemBool(hMenu, IDM_MAJOR_CARRIER_0, (MSPMajorMode == 0));
+    CheckMenuItemBool(hMenu, IDM_MAJOR_CARRIER_1, (MSPMajorMode == 1));
+    CheckMenuItemBool(hMenu, IDM_MAJOR_CARRIER_2, (MSPMajorMode == 2));
+    CheckMenuItemBool(hMenu, IDM_MAJOR_CARRIER_3, (MSPMajorMode == 3));
 
-    CheckMenuItem(hMenu, IDM_MINOR_CARRIER_0, (MSPMinorMode == 0)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_MINOR_CARRIER_1, (MSPMinorMode == 1)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_MINOR_CARRIER_2, (MSPMinorMode == 2)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_MINOR_CARRIER_3, (MSPMinorMode == 3)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_MINOR_CARRIER_4, (MSPMinorMode == 4)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_MINOR_CARRIER_5, (MSPMinorMode == 5)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_MINOR_CARRIER_6, (MSPMinorMode == 6)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_MINOR_CARRIER_7, (MSPMinorMode == 7)?MF_CHECKED:MF_UNCHECKED);
+    CheckMenuItemBool(hMenu, IDM_MINOR_CARRIER_0, (MSPMinorMode == 0));
+    CheckMenuItemBool(hMenu, IDM_MINOR_CARRIER_1, (MSPMinorMode == 1));
+    CheckMenuItemBool(hMenu, IDM_MINOR_CARRIER_2, (MSPMinorMode == 2));
+    CheckMenuItemBool(hMenu, IDM_MINOR_CARRIER_3, (MSPMinorMode == 3));
+    CheckMenuItemBool(hMenu, IDM_MINOR_CARRIER_4, (MSPMinorMode == 4));
+    CheckMenuItemBool(hMenu, IDM_MINOR_CARRIER_5, (MSPMinorMode == 5));
+    CheckMenuItemBool(hMenu, IDM_MINOR_CARRIER_6, (MSPMinorMode == 6));
+    CheckMenuItemBool(hMenu, IDM_MINOR_CARRIER_7, (MSPMinorMode == 7));
 
-    CheckMenuItem(hMenu, IDM_AUTOSTEREO,        AutoStereoSelect?MF_CHECKED:MF_UNCHECKED);
+    CheckMenuItemBool(hMenu, IDM_AUTOSTEREO, AutoStereoSelect);
 }
 
 void Audio_Mute()

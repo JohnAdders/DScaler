@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.18 2001-07-12 16:16:39 adcockj Exp $
+// $Id: AspectGUI.cpp,v 1.19 2001-07-13 16:14:55 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2001/07/12 16:16:39  adcockj
+// Added CVS Id and Log
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -73,7 +76,7 @@ BOOL Orbit_OnChange(long NewValue); // Forward declaration to reuse this code...
 void AspectRatio_SetMenu(HMENU hMenu)
 {
     CheckMenuItem(hMenu, IDM_ASPECT_FULLSCREEN, MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_ASPECT_LETTERBOX,  MF_UNCHECKED);
+    CheckMenuItem(hMenu, IDM_ASPECT_LETTERBOX, MF_UNCHECKED);
     CheckMenuItem(hMenu, IDM_ASPECT_ANAMORPHIC, MF_UNCHECKED);
 
     CheckMenuItem(hMenu, IDM_SASPECT_133, MF_UNCHECKED);
@@ -91,13 +94,13 @@ void AspectRatio_SetMenu(HMENU hMenu)
     CheckMenuItem(hMenu, IDM_SASPECT_235A, MF_UNCHECKED);
     CheckMenuItem(hMenu, IDM_SASPECT_AUTO_TOGGLE, MF_UNCHECKED);
 
-    if (aspectSettings.AutoDetectAspect)
+    if(AspectSettings.AutoDetectAspect)
     {
         CheckMenuItem(hMenu, IDM_SASPECT_AUTO_TOGGLE, MF_CHECKED);
     }
-    else if (aspectSettings.aspect_mode == 1)
+    else if (AspectSettings.AspectMode == 1)
     {
-        switch (aspectSettings.source_aspect)
+        switch (AspectSettings.SourceAspect)
         {
         case 1333:
             CheckMenuItem(hMenu, IDM_SASPECT_133, MF_CHECKED);
@@ -127,9 +130,9 @@ void AspectRatio_SetMenu(HMENU hMenu)
             break;
         }
     }
-    else if (aspectSettings.aspect_mode == 2)
+    else if (AspectSettings.AspectMode == 2)
     {
-        switch (aspectSettings.source_aspect)
+        switch (AspectSettings.SourceAspect)
         {
         case 1667:
             CheckMenuItem(hMenu, IDM_SASPECT_166A, MF_CHECKED);
@@ -149,41 +152,41 @@ void AspectRatio_SetMenu(HMENU hMenu)
             break;
         }
     }
-    CheckMenuItem(hMenu, IDM_SASPECT_0,   (aspectSettings.source_aspect == 0)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_SASPECT_CUSTOM, (aspectSettings.source_aspect && aspectSettings.source_aspect == aspectSettings.custom_source_aspect)?MF_CHECKED:MF_UNCHECKED);
+    CheckMenuItemBool(hMenu, IDM_SASPECT_0, (AspectSettings.SourceAspect == 0));
+    CheckMenuItemBool(hMenu, IDM_SASPECT_CUSTOM, (AspectSettings.SourceAspect && AspectSettings.SourceAspect == AspectSettings.CustomSourceAspect));
 
     // Advanced Aspect Ratio -> Display Aspect Ratio
-    CheckMenuItem(hMenu, IDM_TASPECT_0,   (aspectSettings.target_aspect == 0)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_TASPECT_133, (aspectSettings.target_aspect == 1333)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_TASPECT_166, (aspectSettings.target_aspect == 1667)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_TASPECT_178, (aspectSettings.target_aspect == 1778)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_TASPECT_185, (aspectSettings.target_aspect == 1850)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_TASPECT_200, (aspectSettings.target_aspect == 2000)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_TASPECT_235, (aspectSettings.target_aspect == 2350)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_TASPECT_CUSTOM, (aspectSettings.target_aspect && aspectSettings.target_aspect == aspectSettings.custom_target_aspect)?MF_CHECKED:MF_UNCHECKED);
+    CheckMenuItemBool(hMenu, IDM_TASPECT_0, (AspectSettings.TargetAspect == 0));
+    CheckMenuItemBool(hMenu, IDM_TASPECT_133, (AspectSettings.TargetAspect == 1333));
+    CheckMenuItemBool(hMenu, IDM_TASPECT_166, (AspectSettings.TargetAspect == 1667));
+    CheckMenuItemBool(hMenu, IDM_TASPECT_178, (AspectSettings.TargetAspect == 1778));
+    CheckMenuItemBool(hMenu, IDM_TASPECT_185, (AspectSettings.TargetAspect == 1850));
+    CheckMenuItemBool(hMenu, IDM_TASPECT_200, (AspectSettings.TargetAspect == 2000));
+    CheckMenuItemBool(hMenu, IDM_TASPECT_235, (AspectSettings.TargetAspect == 2350));
+    CheckMenuItemBool(hMenu, IDM_TASPECT_CUSTOM, (AspectSettings.TargetAspect && AspectSettings.TargetAspect == AspectSettings.custom_target_aspect));
 
-    CheckMenuItem(hMenu, IDM_WINPOS_VERT_CENTRE, (aspectSettings.VerticalPos == VERT_POS_CENTRE)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_WINPOS_VERT_TOP, (aspectSettings.VerticalPos == VERT_POS_TOP)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_WINPOS_VERT_BOTTOM, (aspectSettings.VerticalPos == VERT_POS_BOTTOM)?MF_CHECKED:MF_UNCHECKED);
+    CheckMenuItemBool(hMenu, IDM_WINPOS_VERT_CENTRE, (AspectSettings.VerticalPos == VERT_POS_CENTRE));
+    CheckMenuItemBool(hMenu, IDM_WINPOS_VERT_TOP, (AspectSettings.VerticalPos == VERT_POS_TOP));
+    CheckMenuItemBool(hMenu, IDM_WINPOS_VERT_BOTTOM, (AspectSettings.VerticalPos == VERT_POS_BOTTOM));
 
-    CheckMenuItem(hMenu, IDM_WINPOS_HORZ_CENTRE, (aspectSettings.HorizontalPos == HORZ_POS_CENTRE)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_WINPOS_HORZ_LEFT, (aspectSettings.HorizontalPos == HORZ_POS_LEFT)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_WINPOS_HORZ_RIGHT, (aspectSettings.HorizontalPos == HORZ_POS_RIGHT)?MF_CHECKED:MF_UNCHECKED);
+    CheckMenuItemBool(hMenu, IDM_WINPOS_HORZ_CENTRE, (AspectSettings.HorizontalPos == HORZ_POS_CENTRE));
+    CheckMenuItemBool(hMenu, IDM_WINPOS_HORZ_LEFT, (AspectSettings.HorizontalPos == HORZ_POS_LEFT));
+    CheckMenuItemBool(hMenu, IDM_WINPOS_HORZ_RIGHT, (AspectSettings.HorizontalPos == HORZ_POS_RIGHT));
 
-    CheckMenuItem(hMenu, IDM_SASPECT_CLIP, (aspectSettings.aspectImageClipped)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_WINPOS_BOUNCE, (aspectSettings.bounceEnabled)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_WINPOS_ORBIT, (aspectSettings.orbitEnabled)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_ASPECT_DEFER_OVERLAY, (aspectSettings.deferedSetOverlay)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_WINPOS_AUTOSIZE, (aspectSettings.autoResizeWindow)?MF_CHECKED:MF_UNCHECKED);
+    CheckMenuItemBool(hMenu, IDM_SASPECT_CLIP, (AspectSettings.AspectImageClipped));
+    CheckMenuItemBool(hMenu, IDM_WINPOS_BOUNCE, (AspectSettings.BounceEnabled));
+    CheckMenuItemBool(hMenu, IDM_WINPOS_ORBIT, (AspectSettings.OrbitEnabled));
+    CheckMenuItemBool(hMenu, IDM_ASPECT_DEFER_OVERLAY, (AspectSettings.DeferedSetOverlay));
+    CheckMenuItemBool(hMenu, IDM_WINPOS_AUTOSIZE, (AspectSettings.AutoResizeWindow));
 
     // Zoom
-    CheckMenuItem(hMenu, IDM_ZOOM_10, (aspectSettings.xZoomFactor == 100 && aspectSettings.yZoomFactor == 100)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_ZOOM_15, (aspectSettings.xZoomFactor == 150 && aspectSettings.yZoomFactor == 150)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_ZOOM_20, (aspectSettings.xZoomFactor == 200 && aspectSettings.yZoomFactor == 200)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_ZOOM_25, (aspectSettings.xZoomFactor == 250 && aspectSettings.yZoomFactor == 250)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_ZOOM_30, (aspectSettings.xZoomFactor == 300 && aspectSettings.yZoomFactor == 300)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_ZOOM_35, (aspectSettings.xZoomFactor == 350 && aspectSettings.yZoomFactor == 350)?MF_CHECKED:MF_UNCHECKED);
-    CheckMenuItem(hMenu, IDM_ZOOM_40, (aspectSettings.xZoomFactor == 400 && aspectSettings.yZoomFactor == 400)?MF_CHECKED:MF_UNCHECKED);
+    CheckMenuItemBool(hMenu, IDM_ZOOM_10, (AspectSettings.ZoomFactorX == 100 && AspectSettings.ZoomFactorY == 100));
+    CheckMenuItemBool(hMenu, IDM_ZOOM_15, (AspectSettings.ZoomFactorX == 150 && AspectSettings.ZoomFactorY == 150));
+    CheckMenuItemBool(hMenu, IDM_ZOOM_20, (AspectSettings.ZoomFactorX == 200 && AspectSettings.ZoomFactorY == 200));
+    CheckMenuItemBool(hMenu, IDM_ZOOM_25, (AspectSettings.ZoomFactorX == 250 && AspectSettings.ZoomFactorY == 250));
+    CheckMenuItemBool(hMenu, IDM_ZOOM_30, (AspectSettings.ZoomFactorX == 300 && AspectSettings.ZoomFactorY == 300));
+    CheckMenuItemBool(hMenu, IDM_ZOOM_35, (AspectSettings.ZoomFactorX == 350 && AspectSettings.ZoomFactorY == 350));
+    CheckMenuItemBool(hMenu, IDM_ZOOM_40, (AspectSettings.ZoomFactorX == 400 && AspectSettings.ZoomFactorY == 400));
 
 }
 
@@ -200,13 +203,13 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
     //------------------------------------------------------------------
     // Easily Accessible Aspect Ratios
     case IDM_ASPECT_FULLSCREEN:
-        if (aspectSettings.AutoDetectAspect)
+        if (AspectSettings.AutoDetectAspect)
         {
             // If autodetect enabled, don't change aspect ratio, just anamorphic status
             // This applies to both letterbox and 4:3
             SwitchToRatio(AR_NONANAMORPHIC, -1);
             ShowText(hWnd, "Nonanamorphic Signal");
-            aspectSettings.DetectAspectNow = TRUE;
+            AspectSettings.DetectAspectNow = TRUE;
         }
         else
         {
@@ -215,13 +218,13 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         }
         break;
     case IDM_ASPECT_LETTERBOX:
-        if (aspectSettings.AutoDetectAspect)
+        if (AspectSettings.AutoDetectAspect)
         {
             // If autodetect enabled, don't change aspect ratio, just anamorphic status
             // This applies to both letterbox and 4:3
             SwitchToRatio(AR_NONANAMORPHIC, -1);
             ShowText(hWnd, "Nonanamorphic Signal");
-            aspectSettings.DetectAspectNow = TRUE;
+            AspectSettings.DetectAspectNow = TRUE;
         }
         else
         {
@@ -230,12 +233,12 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         }
         break;
     case IDM_ASPECT_ANAMORPHIC:
-        if (aspectSettings.AutoDetectAspect)
+        if (AspectSettings.AutoDetectAspect)
         {
             // If autodetect enabled, don't change aspect ratio, just anamorphic status
             SwitchToRatio(AR_ANAMORPHIC, -1);
             ShowText(hWnd, "Anamorphic Signal");
-            aspectSettings.DetectAspectNow = TRUE;
+            AspectSettings.DetectAspectNow = TRUE;
         }
         else
         {
@@ -249,55 +252,55 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
     case IDM_WINPOS_VERT_CENTRE:
     case IDM_WINPOS_VERT_TOP:
     case IDM_WINPOS_VERT_BOTTOM:
-        aspectSettings.VerticalPos = (VERT_POS)(wMenuID - IDM_WINPOS_VERT_BOTTOM); 
+        AspectSettings.VerticalPos = (eVertPos)(wMenuID - IDM_WINPOS_VERT_BOTTOM); 
         WorkoutOverlaySize();
         break;
 
     case IDM_WINPOS_HORZ_CENTRE:
     case IDM_WINPOS_HORZ_LEFT:
     case IDM_WINPOS_HORZ_RIGHT:
-        aspectSettings.HorizontalPos = (HORZ_POS)(wMenuID - IDM_WINPOS_HORZ_RIGHT);
+        AspectSettings.HorizontalPos = (eHorzPos)(wMenuID - IDM_WINPOS_HORZ_RIGHT);
         WorkoutOverlaySize();
         break;
 
     case IDM_SASPECT_CLIP:
-        aspectSettings.aspectImageClipped = !aspectSettings.aspectImageClipped;
-        ShowText(hWnd, aspectSettings.aspectImageClipped ? "Image Clipping ON" : "Image Clipping OFF");
+        AspectSettings.AspectImageClipped = !AspectSettings.AspectImageClipped;
+        ShowText(hWnd, AspectSettings.AspectImageClipped ? "Image Clipping ON" : "Image Clipping OFF");
         break;
 
     case IDM_WINPOS_BOUNCE:
-        Bounce_OnChange(!aspectSettings.bounceEnabled);
-        ShowText(hWnd, aspectSettings.bounceEnabled ? "Image Bouncing ON" : "Image Bouncing OFF");
+        Bounce_OnChange(!AspectSettings.BounceEnabled);
+        ShowText(hWnd, AspectSettings.BounceEnabled ? "Image Bouncing ON" : "Image Bouncing OFF");
         break;
 
     case IDM_WINPOS_ORBIT:
-        Orbit_OnChange(!aspectSettings.orbitEnabled);
-        ShowText(hWnd, aspectSettings.orbitEnabled ? "Orbit ON" : "Orbit OFF");
+        Orbit_OnChange(!AspectSettings.OrbitEnabled);
+        ShowText(hWnd, AspectSettings.OrbitEnabled ? "Orbit ON" : "Orbit OFF");
         break;
 
     case IDM_WINPOS_AUTOSIZE:
-        aspectSettings.autoResizeWindow = !aspectSettings.autoResizeWindow;
-        ShowText(hWnd, aspectSettings.autoResizeWindow ? "Auto-Size Window ON" : "Auto-Size Window OFF");
+        AspectSettings.AutoResizeWindow = !AspectSettings.AutoResizeWindow;
+        ShowText(hWnd, AspectSettings.AutoResizeWindow ? "Auto-Size Window ON" : "Auto-Size Window OFF");
         break;
 
     case IDM_ASPECT_DEFER_OVERLAY:
-        aspectSettings.deferedSetOverlay = !aspectSettings.deferedSetOverlay;
+        AspectSettings.DeferedSetOverlay = !AspectSettings.DeferedSetOverlay;
         break;
 
 
     //-----------------------------------------------------------------
     // Autodetect aspect ratio toggles
     case IDM_SASPECT_AUTO_ON:
-        aspectSettings.AutoDetectAspect = TRUE;
+        AspectSettings.AutoDetectAspect = TRUE;
         ShowText(hWnd, "Auto Aspect Detect ON");
         break;
     case IDM_SASPECT_AUTO_OFF:
-        aspectSettings.AutoDetectAspect = FALSE;
+        AspectSettings.AutoDetectAspect = FALSE;
         ShowText(hWnd, "Auto Aspect Detect OFF");
         break;
     case IDM_SASPECT_AUTO_TOGGLE:
-        aspectSettings.AutoDetectAspect = !aspectSettings.AutoDetectAspect;
-        if (aspectSettings.AutoDetectAspect)
+        AspectSettings.AutoDetectAspect = !AspectSettings.AutoDetectAspect;
+        if (AspectSettings.AutoDetectAspect)
         {
             ShowText(hWnd, "Auto Aspect Detect ON");
         }
@@ -311,161 +314,161 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
     //------------------------------------------------------------------
     // Output Display Aspect Ratios
     case IDM_TASPECT_0:
-        aspectSettings.target_aspect = 0;
+        AspectSettings.TargetAspect = 0;
         ShowText(hWnd, "Aspect Ratio From Current Resolution");
         break;
     case IDM_TASPECT_133:
-        aspectSettings.target_aspect = 1333;
+        AspectSettings.TargetAspect = 1333;
         ShowText(hWnd, "1.33:1 Screen");
         break;
     case IDM_TASPECT_166:
-        aspectSettings.target_aspect = 1667;
+        AspectSettings.TargetAspect = 1667;
         ShowText(hWnd, "1.66:1 Screen");
         break;
     case IDM_TASPECT_178:
-        aspectSettings.target_aspect = 1778;
+        AspectSettings.TargetAspect = 1778;
         ShowText(hWnd, "1.78:1 Screen");
         break;
     case IDM_TASPECT_185:
-        aspectSettings.target_aspect = 1850;
+        AspectSettings.TargetAspect = 1850;
         ShowText(hWnd, "1.85:1 Screen");
         break;
     case IDM_TASPECT_200:
-        aspectSettings.target_aspect = 2000;
+        AspectSettings.TargetAspect = 2000;
         ShowText(hWnd, "2.00:1 Screen");
         break;
     case IDM_TASPECT_235:
-        aspectSettings.target_aspect = 2350;
+        AspectSettings.TargetAspect = 2350;
         ShowText(hWnd, "2.35:1 Screen");
         break;
     case IDM_TASPECT_CUSTOM:
-        aspectSettings.target_aspect = aspectSettings.custom_target_aspect;
+        AspectSettings.TargetAspect = AspectSettings.custom_target_aspect;
         ShowText(hWnd, "Custom Aspect Ratio Screen");
         break;
 
     // Manually-triggered one-time automatic detect of aspect ratio
     case IDM_SASPECT_COMPUTE:
-        aspectSettings.DetectAspectNow = TRUE;
+        AspectSettings.DetectAspectNow = TRUE;
         break;
 
     //------------------------------------------------------------------
     // Zoom
     case IDM_ZOOM_MINUS:
-        aspectSettings.xZoomFactor -= 50;
-        if (aspectSettings.xZoomFactor < 50)
+        AspectSettings.ZoomFactorX -= 50;
+        if (AspectSettings.ZoomFactorX < 50)
         {
-            aspectSettings.xZoomFactor = 25;
+            AspectSettings.ZoomFactorX = 25;
         }
-        aspectSettings.yZoomFactor -= 50;
-        if (aspectSettings.yZoomFactor < 50)
+        AspectSettings.ZoomFactorY -= 50;
+        if (AspectSettings.ZoomFactorY < 50)
         {
-            aspectSettings.yZoomFactor = 50;
+            AspectSettings.ZoomFactorY = 50;
         }
-        if ((aspectSettings.xZoomFactor == 100) && (aspectSettings.yZoomFactor == 100))
+        if ((AspectSettings.ZoomFactorX == 100) && (AspectSettings.ZoomFactorY == 100))
         {
             ShowText(hWnd,"Zoom Off");
         }
         else
         {
-            sprintf(Text,"Zoom %.1fx", (double)aspectSettings.xZoomFactor / 100.0);
+            sprintf(Text,"Zoom %.1fx", (double)AspectSettings.ZoomFactorX / 100.0);
             ShowText(hWnd, Text);
         }
         break;
 
     case IDM_ZOOM_PLUS:
-        if(aspectSettings.xZoomFactor >= 50)
+        if(AspectSettings.ZoomFactorX >= 50)
         {
-            aspectSettings.xZoomFactor += 50;
+            AspectSettings.ZoomFactorX += 50;
         }
         else
         {
-            aspectSettings.xZoomFactor = 50;
+            AspectSettings.ZoomFactorX = 50;
         }
-        if (aspectSettings.xZoomFactor > 1000)
+        if (AspectSettings.ZoomFactorX > 1000)
         {
-            aspectSettings.xZoomFactor = 1000;
+            AspectSettings.ZoomFactorX = 1000;
         }
-        aspectSettings.yZoomFactor += 50;
-        if (aspectSettings.yZoomFactor > 1000)
+        AspectSettings.ZoomFactorY += 50;
+        if (AspectSettings.ZoomFactorY > 1000)
         {
-            aspectSettings.yZoomFactor = 1000;
+            AspectSettings.ZoomFactorY = 1000;
         }
-        sprintf(Text,"Zoom %.1fx", (double)aspectSettings.xZoomFactor / 100.0);
+        sprintf(Text,"Zoom %.1fx", (double)AspectSettings.ZoomFactorX / 100.0);
         ShowText(hWnd, Text);
         break;
 
     case IDM_ZOOM_10:
-        aspectSettings.xZoomFactor = aspectSettings.yZoomFactor = 100;
+        AspectSettings.ZoomFactorX = AspectSettings.ZoomFactorY = 100;
         ShowText(hWnd,"Zoom Off");
         break;
 
     case IDM_ZOOM_15:
-        aspectSettings.xZoomFactor = aspectSettings.yZoomFactor = 150;
+        AspectSettings.ZoomFactorX = AspectSettings.ZoomFactorY = 150;
         ShowText(hWnd,"Zoom 1.5x");
         break;
 
     case IDM_ZOOM_20:
-        aspectSettings.xZoomFactor = aspectSettings.yZoomFactor = 200;
+        AspectSettings.ZoomFactorX = AspectSettings.ZoomFactorY = 200;
         ShowText(hWnd,"Zoom 2x");
         break;
 
     case IDM_ZOOM_25:
-        aspectSettings.xZoomFactor = aspectSettings.yZoomFactor = 250;
+        AspectSettings.ZoomFactorX = AspectSettings.ZoomFactorY = 250;
         ShowText(hWnd,"Zoom 2.5x");
         break;
 
     case IDM_ZOOM_30:
-        aspectSettings.xZoomFactor = aspectSettings.yZoomFactor = 300;
+        AspectSettings.ZoomFactorX = AspectSettings.ZoomFactorY = 300;
         ShowText(hWnd,"Zoom 3x");
         break;
 
     case IDM_ZOOM_35:
-        aspectSettings.xZoomFactor = aspectSettings.yZoomFactor = 350;
+        AspectSettings.ZoomFactorX = AspectSettings.ZoomFactorY = 350;
         ShowText(hWnd,"Zoom 3.5x");
         break;
 
     case IDM_ZOOM_40:
-        aspectSettings.xZoomFactor = aspectSettings.yZoomFactor = 400;
+        AspectSettings.ZoomFactorX = AspectSettings.ZoomFactorY = 400;
         ShowText(hWnd,"Zoom 4x");
         break;
 
     case IDM_VT_PAGE_MINUS:
-        aspectSettings.xZoomCenter -= 5;
-        if (aspectSettings.xZoomCenter < -100)
+        AspectSettings.ZoomCenterX -= 5;
+        if (AspectSettings.ZoomCenterX < -100)
         {
-            aspectSettings.xZoomCenter = -100;
+            AspectSettings.ZoomCenterX = -100;
         }
-        sprintf(Text,"X Center %.2fx", (double)aspectSettings.xZoomCenter / 100.0);
+        sprintf(Text,"X Center %.2fx", (double)AspectSettings.ZoomCenterX / 100.0);
         ShowText(hWnd, Text);
         break;
 
     case IDM_VT_PAGE_PLUS:
-        aspectSettings.xZoomCenter += 5;
-        if (aspectSettings.xZoomCenter > 200)
+        AspectSettings.ZoomCenterX += 5;
+        if (AspectSettings.ZoomCenterX > 200)
         {
-            aspectSettings.xZoomCenter = 200;
+            AspectSettings.ZoomCenterX = 200;
         }
-        sprintf(Text,"X Center %.2fx", (double)aspectSettings.xZoomCenter / 100.0);
+        sprintf(Text,"X Center %.2fx", (double)AspectSettings.ZoomCenterX / 100.0);
         ShowText(hWnd, Text);
         break;
 
     case IDM_VT_PAGE_DOWN:
-        aspectSettings.yZoomCenter += 5;
-        if (aspectSettings.yZoomCenter > 200)
+        AspectSettings.ZoomCenterY += 5;
+        if (AspectSettings.ZoomCenterY > 200)
         {
-            aspectSettings.yZoomCenter = 200;
+            AspectSettings.ZoomCenterY = 200;
         }
-        sprintf(Text,"Y Center %.2fx", (double)aspectSettings.yZoomCenter / 100.0);
+        sprintf(Text,"Y Center %.2fx", (double)AspectSettings.ZoomCenterY / 100.0);
         ShowText(hWnd, Text);
         break;
 
     case IDM_VT_PAGE_UP:
-        aspectSettings.yZoomCenter -= 5;
-        if (aspectSettings.yZoomCenter < -100)
+        AspectSettings.ZoomCenterY -= 5;
+        if (AspectSettings.ZoomCenterY < -100)
         {
-            aspectSettings.yZoomCenter = 100;
+            AspectSettings.ZoomCenterY = 100;
         }
-        sprintf(Text,"Y Center %.2fx", (double)aspectSettings.yZoomCenter / 100.0);
+        sprintf(Text,"Y Center %.2fx", (double)AspectSettings.ZoomCenterY / 100.0);
         ShowText(hWnd, Text);
         break;
 
@@ -476,7 +479,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         // In this case, turn off automatic aspect ratio detect.
         // Then restart the 'switch' statement.
 
-        aspectSettings.AutoDetectAspect = FALSE;
+        AspectSettings.AutoDetectAspect = FALSE;
 
         //--------------------------------------------------------------
         // Advanced Source Aspect Ratios
@@ -539,7 +542,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
             ShowText(hWnd, "2.35:1 Anamorphic Signal");
             break;
         case IDM_SASPECT_CUSTOM:
-            SwitchToRatio(AR_ANAMORPHIC, aspectSettings.custom_source_aspect);
+            SwitchToRatio(AR_ANAMORPHIC, AspectSettings.CustomSourceAspect);
             ShowText(hWnd, "Custom Aspect Ratio Signal");
             break;
         default:
@@ -579,15 +582,15 @@ void PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect)
     }
 
     // MRS 2-22-01 - Reworked to fixup the rectangle rather than not draw piecemeal to help out defered overlay setting
-    if (aspectSettings.destinationRectangle.right < aspectSettings.destinationRectangle.left) {
-        int t = aspectSettings.destinationRectangle.right;
-        aspectSettings.destinationRectangle.right = aspectSettings.destinationRectangle.left;
-        aspectSettings.destinationRectangle.left = t;
+    if (AspectSettings.DestinationRect.right < AspectSettings.DestinationRect.left) {
+        int t = AspectSettings.DestinationRect.right;
+        AspectSettings.DestinationRect.right = AspectSettings.DestinationRect.left;
+        AspectSettings.DestinationRect.left = t;
     }
-    if (aspectSettings.destinationRectangle.bottom < aspectSettings.destinationRectangle.top) {
-        int t = aspectSettings.destinationRectangle.top;
-        aspectSettings.destinationRectangle.top = aspectSettings.destinationRectangle.bottom;
-        aspectSettings.destinationRectangle.bottom = t;
+    if (AspectSettings.DestinationRect.bottom < AspectSettings.DestinationRect.top) {
+        int t = AspectSettings.DestinationRect.top;
+        AspectSettings.DestinationRect.top = AspectSettings.DestinationRect.bottom;
+        AspectSettings.DestinationRect.bottom = t;
     }
     
     // Draw black in the 4 borders
@@ -602,13 +605,13 @@ void PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect)
     r2.left = 0;
     r2.top = 0;
     r2.right = winRect.right;
-    r2.bottom = aspectSettings.destinationRectangle.top;
+    r2.bottom = AspectSettings.DestinationRect.top;
     IntersectRect(&r, &r2, PaintRect);
     FillRect(hDC, &r, black);
 
     // Bottom
     r2.left = 0;
-    r2.top = aspectSettings.destinationRectangle.bottom;
+    r2.top = AspectSettings.DestinationRect.bottom;
     r2.right = winRect.right;
     r2.bottom = winRect.bottom;
     IntersectRect(&r, &r2, PaintRect);
@@ -617,26 +620,26 @@ void PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect)
     // Left
     r2.left = 0;
     r2.top = 0;
-    r2.right = aspectSettings.destinationRectangle.left;
+    r2.right = AspectSettings.DestinationRect.left;
     r2.bottom = winRect.bottom;
     IntersectRect(&r, &r2, PaintRect);
     FillRect(hDC, &r, black);
 
     // Right
-    r2.left = aspectSettings.destinationRectangle.right;
+    r2.left = AspectSettings.DestinationRect.right;
     r2.top = 0;
     r2.right = winRect.right;
     r2.bottom = winRect.bottom;
     IntersectRect(&r, &r2, PaintRect);
     FillRect(hDC, &r, black);
 
-    if (aspectSettings.overlayNeedsSetting)
+    if (AspectSettings.OverlayNeedsSetting)
     { 
         // MRS 2-22-01
         // Intended to prevent purple flashing by setting overlay
         // after drawing black but before drawing purple.
-        Overlay_Update(&aspectSettings.sourceRectangle, &aspectSettings.destinationRectangleWindow, DDOVER_SHOW);
-        aspectSettings.overlayNeedsSetting = FALSE;
+        Overlay_Update(&AspectSettings.SourceRect, &AspectSettings.DestinationRectWindow, DDOVER_SHOW);
+        AspectSettings.OverlayNeedsSetting = FALSE;
         // Wait till current frame is done before drawing purple...
         // Overlay changes do not seem to take place (at least on a GeForce)
         // until the VBI...so need to wait to avoid purple flashing
@@ -645,14 +648,14 @@ void PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect)
         // the flashing has been much reduced by using dark grey as
         // overlay colour.  Also this may cause the pausing effect
         // on Teletext and CC
-        if (lpDD != NULL && aspectSettings.bWaitForVerticalBlank == TRUE)
+        if (lpDD != NULL && AspectSettings.bWaitForVerticalBlank == TRUE)
         {
             lpDD->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN, NULL);
         }
     }
 
     // Draw overlay color in the middle.
-    IntersectRect(&r, &aspectSettings.destinationRectangle, PaintRect);
+    IntersectRect(&r, &AspectSettings.DestinationRect, PaintRect);
     FillRect(hDC, &r, overlay);
 
     DeleteObject(black);
@@ -674,130 +677,130 @@ const char* VertPosString[3] =
 
 BOOL Aspect_Overscan_OnChange(long Overscan)
 {
-    aspectSettings.InitialOverscan = Overscan;
+    AspectSettings.InitialOverscan = Overscan;
     WorkoutOverlaySize();
     return FALSE;
 }
 
 BOOL AspectMode_OnChange(long NewValue)
 {
-    aspectSettings.aspect_mode = NewValue;
+    AspectSettings.AspectMode = NewValue;
     WorkoutOverlaySize();
     return FALSE;
 }
 
 BOOL TargetAspect_OnChange(long NewValue)
 {
-    aspectSettings.target_aspect = NewValue;
+    AspectSettings.TargetAspect = NewValue;
     WorkoutOverlaySize();
     return FALSE;
 }
 
 BOOL CustomTargetAspect_OnChange(long NewValue)
 {
-    aspectSettings.target_aspect = NewValue;
-    aspectSettings.custom_target_aspect = NewValue;
+    AspectSettings.TargetAspect = NewValue;
+    AspectSettings.custom_target_aspect = NewValue;
     WorkoutOverlaySize();
     return FALSE;
 }
 
 BOOL SourceAspect_OnChange(long NewValue)
 {
-    aspectSettings.AutoDetectAspect = FALSE;
-    aspectSettings.source_aspect = NewValue;
+    AspectSettings.AutoDetectAspect = FALSE;
+    AspectSettings.SourceAspect = NewValue;
     WorkoutOverlaySize();
     return FALSE;
 }
 
 BOOL CustomSourceAspect_OnChange(long NewValue)
 {
-    aspectSettings.AutoDetectAspect = FALSE;
-    aspectSettings.custom_source_aspect = NewValue;
-    aspectSettings.source_aspect = NewValue;
+    AspectSettings.AutoDetectAspect = FALSE;
+    AspectSettings.CustomSourceAspect = NewValue;
+    AspectSettings.SourceAspect = NewValue;
     WorkoutOverlaySize();
     return FALSE;
 }
 
 BOOL HorizPos_OnChange(long NewValue)
 {
-    aspectSettings.HorizontalPos = (HORZ_POS)NewValue;
+    AspectSettings.HorizontalPos = (eHorzPos)NewValue;
     WorkoutOverlaySize();
     return FALSE;
 }
 
 BOOL VertPos_OnChange(long NewValue)
 {
-    aspectSettings.VerticalPos = (VERT_POS)NewValue;
+    AspectSettings.VerticalPos = (eVertPos)NewValue;
     WorkoutOverlaySize();
     return FALSE;
 }
 
 BOOL Bounce_OnChange(long NewValue)
 {
-    aspectSettings.bounceEnabled = NewValue != 0;
-    if (!aspectSettings.bounceEnabled)
+    AspectSettings.BounceEnabled = NewValue != 0;
+    if (!AspectSettings.BounceEnabled)
     {
         KillTimer(hWnd, TIMER_BOUNCE);
     }
     else
     {
-        SetTimer(hWnd, TIMER_BOUNCE, aspectSettings.timerBounceMS, NULL);
+        SetTimer(hWnd, TIMER_BOUNCE, AspectSettings.TimerBounceMS, NULL);
     }
     return FALSE;
 }
 
 BOOL Orbit_OnChange(long NewValue) 
 {
-    aspectSettings.orbitEnabled = NewValue != 0;
-    if (!aspectSettings.orbitEnabled) 
+    AspectSettings.OrbitEnabled = NewValue != 0;
+    if (!AspectSettings.OrbitEnabled) 
     {
         KillTimer(hWnd, TIMER_ORBIT);
     }
     else
     {
-        SetTimer(hWnd, TIMER_ORBIT, aspectSettings.timerOrbitMS, NULL);
+        SetTimer(hWnd, TIMER_ORBIT, AspectSettings.TimerOrbitMS, NULL);
     }
     return FALSE;
 }
 
 BOOL Clipping_OnChange(long NewValue)
 {
-    aspectSettings.aspectImageClipped = (BOOL)NewValue;
+    AspectSettings.AspectImageClipped = (BOOL)NewValue;
     WorkoutOverlaySize();
     return FALSE;
 }
 
 BOOL XZoom_Factor_OnChange(long NewValue)
 {
-    aspectSettings.xZoomFactor = NewValue;  
+    AspectSettings.ZoomFactorX = NewValue;  
     WorkoutOverlaySize();
     return FALSE;
 }
 
 BOOL YZoom_Factor_OnChange(long NewValue)
 {
-    aspectSettings.yZoomFactor = NewValue;  
+    AspectSettings.ZoomFactorY = NewValue;  
     WorkoutOverlaySize();
     return FALSE;
 }
 
 BOOL XZoom_Center_OnChange(long NewValue)
 {
-    aspectSettings.xZoomCenter = NewValue;  
+    AspectSettings.ZoomCenterX = NewValue;  
     WorkoutOverlaySize();
     return FALSE;
 }
 
 BOOL YZoom_Center_OnChange(long NewValue)
 {
-    aspectSettings.yZoomCenter = NewValue;  
+    AspectSettings.ZoomCenterY = NewValue;  
     WorkoutOverlaySize();
     return FALSE;
 }
 
 BOOL ChromaRange_OnChange(long NewValue)
 {
-    aspectSettings.ChromaRange = NewValue;  
+    AspectSettings.ChromaRange = NewValue;  
     WorkoutOverlaySize();
     return FALSE;
 }
@@ -806,202 +809,202 @@ BOOL ChromaRange_OnChange(long NewValue)
 // Start of Settings related code
 /////////////////////////////////////////////////////////////////////////////
 
-SETTING AspectSettings[ASPECT_SETTING_LASTONE] =
+SETTING AspectGUISettings[ASPECT_SETTING_LASTONE] =
 {
     {
-        "Overscan", SLIDER, 0, (long*)&aspectSettings.InitialOverscan,
+        "Overscan", SLIDER, 0, (long*)&AspectSettings.InitialOverscan,
         DEFAULT_OVERSCAN_NTSC, 0, 150, 1, 1,
         NULL,
         "Hardware", "InitialOverscan", Aspect_Overscan_OnChange,
     },
     {
-        "Source Aspect", SLIDER, 0, (long*)&aspectSettings.source_aspect,
+        "Source Aspect", SLIDER, 0, (long*)&AspectSettings.SourceAspect,
         1333, 1000, 3000, 1, 1000,
         NULL,
         "ASPECT", "SourceAspect", SourceAspect_OnChange,
     },
     {
-        "Custom Source Aspect", SLIDER, 0, (long*)&aspectSettings.custom_source_aspect,
+        "Custom Source Aspect", SLIDER, 0, (long*)&AspectSettings.CustomSourceAspect,
         1335, 1000, 3000, 5, 1000,
         NULL,
         "ASPECT", "CustomSourceAspect", CustomSourceAspect_OnChange,
     },
     {
-        "Screen Aspect", SLIDER, 0, (long*)&aspectSettings.target_aspect,
+        "Screen Aspect", SLIDER, 0, (long*)&AspectSettings.TargetAspect,
         1333, 0, 3000, 1, 1000,
         NULL,
         "ASPECT", "TargetAspect", TargetAspect_OnChange,
     },
     {
-        "Custom Screen Aspect", SLIDER, 0, (long*)&aspectSettings.custom_target_aspect,
+        "Custom Screen Aspect", SLIDER, 0, (long*)&AspectSettings.custom_target_aspect,
         1335, 1000, 3000, 5, 1000,
         NULL,
         "ASPECT", "CustomTargetAspect", CustomTargetAspect_OnChange,
     },
     {
-        "Aspect Mode", SLIDER, 0, (long*)&aspectSettings.aspect_mode,
+        "Aspect Mode", SLIDER, 0, (long*)&AspectSettings.AspectMode,
         1, 0, 2, 1, 1,
         NULL,
         "ASPECT", "Mode", AspectMode_OnChange,
     },
     {
-        "Auto Detect Aspect Sensitivity", SLIDER, 0, (long*)&aspectSettings.LuminanceThreshold,
+        "Auto Detect Aspect Sensitivity", SLIDER, 0, (long*)&AspectSettings.LuminanceThreshold,
         40, 0, 255, 1, 1,
         NULL,
         "ASPECT", "LuminanceThreshold", NULL,
     },
     {
-        "Ignore Non-Black Pixels", SLIDER, 0, (long*)&aspectSettings.IgnoreNonBlackPixels,
+        "Ignore Non-Black Pixels", SLIDER, 0, (long*)&AspectSettings.IgnoreNonBlackPixels,
         3, 0, 750, 1, 1,
         NULL,
         "ASPECT", "IgnoreNonBlackPixels", NULL,
     },
     {
-        "Auto Detect Aspect", ONOFF, 0, (long*)&aspectSettings.AutoDetectAspect,
+        "Auto Detect Aspect", ONOFF, 0, (long*)&AspectSettings.AutoDetectAspect,
         FALSE, 0, 1, 1, 1,
         NULL,
         "ASPECT", "AutoDetectAspect", NULL,
     },
     {
-        "Zoom In Frame Count", SLIDER, 0, (long*)&aspectSettings.ZoomInFrameCount,
+        "Zoom In Frame Count", SLIDER, 0, (long*)&AspectSettings.ZoomInFrameCount,
         60, 0, 1000, 10, 1,
         NULL,
         "ASPECT", "ZoomInFrameCount", NULL,
     },
     {
-        "Aspect History Time", SLIDER, 0, (long*)&aspectSettings.AspectHistoryTime,
+        "Aspect History Time", SLIDER, 0, (long*)&AspectSettings.AspectHistoryTime,
         300, 0, 3000, 10, 1,
         NULL,
         "ASPECT", "AspectHistoryTime", NULL,
     },
     {
-        "AspectConsistencyTime", SLIDER, 0, (long*)&aspectSettings.AspectConsistencyTime,
+        "AspectConsistencyTime", SLIDER, 0, (long*)&AspectSettings.AspectConsistencyTime,
         15, 0, 300, 5, 1,
         NULL,
         "ASPECT", "AspectConsistencyTime", NULL,
     },
     {
-        "Vert Image Pos", ITEMFROMLIST, 0, (long*)&aspectSettings.VerticalPos,
+        "Vert Image Pos", ITEMFROMLIST, 0, (long*)&AspectSettings.VerticalPos,
         VERT_POS_CENTRE, 0, 2, 1, 1,
         VertPosString,
         "ASPECT", "VerticalPos", VertPos_OnChange,
     },
     {
-        "Horiz Image Pos", ITEMFROMLIST, 0, (long*)&aspectSettings.HorizontalPos,
+        "Horiz Image Pos", ITEMFROMLIST, 0, (long*)&AspectSettings.HorizontalPos,
         HORZ_POS_CENTRE, 0, 2, 1, 1,
         HorzPosString,
         "ASPECT", "HorizontalPos", HorizPos_OnChange,
     },
     {
-        "Clipping", ONOFF, 0, (long*)&aspectSettings.aspectImageClipped,
+        "Clipping", ONOFF, 0, (long*)&AspectSettings.AspectImageClipped,
         TRUE, 0, 1, 1, 1,
         NULL,
         "ASPECT", "Clipping", Clipping_OnChange,
     },
     {
-        "Bounce", ONOFF, 0, (long*)&aspectSettings.bounceEnabled,
+        "Bounce", ONOFF, 0, (long*)&AspectSettings.BounceEnabled,
         FALSE, 0, 1, 1, 1,
         NULL,
         "ASPECT", "Bounce", Bounce_OnChange,
     },
     {
-        "Bounce Period", SLIDER, 0, (long*)&aspectSettings.bouncePeriod,
+        "Bounce Period", SLIDER, 0, (long*)&AspectSettings.BouncePeriod,
         60*30, 0, 2, 1, 1,
         NULL,
         "ASPECT", "BouncePeriod", NULL,
     },
     {
-        "Defer Setting Overlay", ONOFF, 0, (long*)&aspectSettings.deferedSetOverlay,
+        "Defer Setting Overlay", ONOFF, 0, (long*)&AspectSettings.DeferedSetOverlay,
         TRUE, 0, 1, 1, 1,
         NULL,
-        "ASPECT", "deferedOverlay", NULL,
+        "ASPECT", "DeferedOverlay", NULL,
     },
     {
-        "Bounce Timer Period (ms)", SLIDER, 0, (long*)&aspectSettings.timerBounceMS,
+        "Bounce Timer Period (ms)", SLIDER, 0, (long*)&AspectSettings.TimerBounceMS,
         1000, 0, 2, 1, 1,
         NULL,
         "ASPECT", "BounceTimerPeriod", NULL,
     },
     {
-        "Bounce Amplitude (%)", SLIDER, 0, (long*)&aspectSettings.bounceAmplitude,
+        "Bounce Amplitude (%)", SLIDER, 0, (long*)&AspectSettings.BounceAmplitude,
         100, 0, 100, 1, 1,
         NULL,
         "ASPECT", "BounceAmplitude", NULL,
     },
     {
-        "Orbit", ONOFF, 0, (long*)&aspectSettings.orbitEnabled,
+        "Orbit", ONOFF, 0, (long*)&AspectSettings.OrbitEnabled,
         FALSE, 0, 1, 1, 1,
         NULL,
         "ASPECT", "Orbit", Orbit_OnChange,
     },
     {
-        "Orbit Period X", SLIDER, 0, (long*)&aspectSettings.orbitPeriodX,
+        "Orbit Period X", SLIDER, 0, (long*)&AspectSettings.OrbitPeriodX,
         60*45, 0, 2, 1, 1,
         NULL,
         "ASPECT", "OrbitPeriodX", NULL,
     },
     {
-        "Orbit Period Y", SLIDER, 0, (long*)&aspectSettings.orbitPeriodY,
+        "Orbit Period Y", SLIDER, 0, (long*)&AspectSettings.OrbitPeriodY,
         60*60, 0, 2, 1, 1,
         NULL,
         "ASPECT", "OrbitPeriodY", NULL,
     },
     {
-        "Orbit Size", SLIDER, 0, (long*)&aspectSettings.orbitSize,
+        "Orbit Size", SLIDER, 0, (long*)&AspectSettings.OrbitSize,
         8, 0, 2, 1, 1,
         NULL,
         "ASPECT", "OrbitSize", NULL,
     },
     {
-        "Orbit Timer Period (ms)", SLIDER, 0, (long*)&aspectSettings.timerOrbitMS,
+        "Orbit Timer Period (ms)", SLIDER, 0, (long*)&AspectSettings.TimerOrbitMS,
         60000, 0, 2, 1, 1,
         NULL,
         "ASPECT", "OrbitTimerPeriod", NULL,
     },
     {
-        "Auto-Size Window", ONOFF, 0, (long*)&aspectSettings.autoResizeWindow,
+        "Auto-Size Window", ONOFF, 0, (long*)&AspectSettings.AutoResizeWindow,
         FALSE, 0, 1, 1, 1,
         NULL,
         "ASPECT", "AutoSizeWindow", NULL,
     },
     {
-        "Skip Percentage", SLIDER, 0, (long*)&aspectSettings.SkipPercent,
+        "Skip Percentage", SLIDER, 0, (long*)&AspectSettings.SkipPercent,
         17, 0, 49, 1, 1,
         NULL,
         "ASPECT", "SkipPercent", NULL,
     },
     {
-        "X Zoom Factor", SLIDER, 0, &aspectSettings.xZoomFactor,
+        "X Zoom Factor", SLIDER, 0, &AspectSettings.ZoomFactorX,
         100, 1, 1000, 10, 100,
         NULL,
         "ASPECT", "XZoomFactor", XZoom_Factor_OnChange,
     },
     {
-        "Y Zoom Factor", SLIDER, 0, &aspectSettings.yZoomFactor,
+        "Y Zoom Factor", SLIDER, 0, &AspectSettings.ZoomFactorY,
         100, 1, 1000, 10, 100,
         NULL,
         "ASPECT", "YZoomFactor", YZoom_Factor_OnChange,
     },
     {
-        "X Zoom Center", SLIDER, 0, &aspectSettings.xZoomCenter,
+        "X Zoom Center", SLIDER, 0, &AspectSettings.ZoomCenterX,
         50, -100, 200, 5, 100,
         NULL,
         "ASPECT", "XZoomCenter", XZoom_Center_OnChange,
     },
     {
-        "Y Zoom Center", SLIDER, 0, &aspectSettings.yZoomCenter,
+        "Y Zoom Center", SLIDER, 0, &AspectSettings.ZoomCenterY,
         50, -100, 200, 5, 100,
         NULL,
         "ASPECT", "YZoomCenter", YZoom_Center_OnChange,
     },
     {
-        "Chroma Range", SLIDER, 0, &aspectSettings.ChromaRange,
+        "Chroma Range", SLIDER, 0, &AspectSettings.ChromaRange,
         16, 0, 255, 1, 1,
         NULL,
         "ASPECT", "ChromaRange", ChromaRange_OnChange,
     },
     {
-        "Wait for Vertical Blank While Drawing", ONOFF, 0, (long*)&aspectSettings.bWaitForVerticalBlank,
+        "Wait for Vertical Blank While Drawing", ONOFF, 0, (long*)&AspectSettings.bWaitForVerticalBlank,
         FALSE, 0, 1, 1, 1,
         NULL,
         "ASPECT", "WaitForVerticalBlank", NULL,
@@ -1012,7 +1015,7 @@ SETTING* Aspect_GetSetting(ASPECT_SETTING Setting)
 {
     if(Setting > -1 && Setting < ASPECT_SETTING_LASTONE)
     {
-        return &(AspectSettings[Setting]);
+        return &(AspectGUISettings[Setting]);
     }
     else
     {
@@ -1025,7 +1028,7 @@ void Aspect_ReadSettingsFromIni()
     int i;
     for(i = 0; i < ASPECT_SETTING_LASTONE; i++)
     {
-        Setting_ReadFromIni(&(AspectSettings[i]));
+        Setting_ReadFromIni(&(AspectGUISettings[i]));
     }
 }
 
@@ -1034,17 +1037,17 @@ void Aspect_WriteSettingsToIni()
     int i;
     for(i = 0; i < ASPECT_SETTING_LASTONE; i++)
     {
-        Setting_WriteToIni(&(AspectSettings[i]));
+        Setting_WriteToIni(&(AspectGUISettings[i]));
     }
 }
 
 void Aspect_FinalSetup()
 {
-    Bounce_OnChange(aspectSettings.bounceEnabled);
-    Orbit_OnChange(aspectSettings.orbitEnabled);
+    Bounce_OnChange(AspectSettings.BounceEnabled);
+    Orbit_OnChange(AspectSettings.OrbitEnabled);
 }
 
 void Aspect_ShowUI()
 {
-    CSettingsDlg::ShowSettingsDlg("Aspect Ratio Settings",AspectSettings, ASPECT_SETTING_LASTONE);
+    CSettingsDlg::ShowSettingsDlg("Aspect Ratio Settings",AspectGUISettings, ASPECT_SETTING_LASTONE);
 }

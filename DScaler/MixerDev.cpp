@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.10 2001-07-12 16:16:40 adcockj Exp $
+// $Id: MixerDev.cpp,v 1.11 2001-07-13 16:14:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2001/07/12 16:16:40  adcockj
+// Added CVS Id and Log
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -696,7 +699,7 @@ long Mixer_GetVolume()
 }
 
 // here we go down and mute all input execpt the one we want
-void Mixer_OnInputChange(VIDEOSOURCETYPE NewType)
+void Mixer_OnInputChange(eVideoSourceType NewType)
 {
     CMixerLineDest* DestLine = Mixer_GetDestLine();
     if(DestLine == NULL)
@@ -767,7 +770,7 @@ void Mixer_Init()
         pSoundSystem->SetMixer(MixerIndex);
         if(pSoundSystem->GetMixer() != NULL)
         {
-            Mixer_OnInputChange((VIDEOSOURCETYPE)Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)));
+            Mixer_OnInputChange((eVideoSourceType)Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)));
         }
         else
         {
@@ -866,5 +869,5 @@ void MixerDev_WriteSettingsToIni()
 
 void MixerDev_SetMenu(HMENU hMenu)
 {
-    CheckMenuItem(hMenu, IDM_MUTE,    bSystemInMute?MF_CHECKED:MF_UNCHECKED);
+    CheckMenuItemBool(hMenu, IDM_MUTE, bSystemInMute);
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsDlg.cpp,v 1.8 2001-07-12 19:24:35 adcockj Exp $
+// $Id: SettingsDlg.cpp,v 1.9 2001-07-13 16:14:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2001/07/12 19:24:35  adcockj
+// Fixes for vertical sliders
+//
 // Revision 1.7  2001/07/12 16:16:40  adcockj
 // Added CVS Id and Log
 //
@@ -44,8 +47,8 @@ static char THIS_FILE[] = __FILE__;
 /////////////////////////////////////////////////////////////////////////////
 // CSettingsDlg dialog
 
-CSettingsDlg::CSettingsDlg(CWnd* pParent /*=NULL*/)
-    : CDialog(CSettingsDlg::IDD, pParent),m_currentSetting(0)
+CSettingsDlg::CSettingsDlg(CWnd* pParent)
+    : CDialog(CSettingsDlg::IDD, pParent),m_CurrentSetting(0)
 {
     //{{AFX_DATA_INIT(CSettingsDlg)
     //}}AFX_DATA_INIT
@@ -55,13 +58,13 @@ void CSettingsDlg::DoDataExchange(CDataExchange* pDX)
 {
     CDialog::DoDataExchange(pDX);
     //{{AFX_DATA_MAP(CSettingsDlg)
-    DDX_Control(pDX, IDC_CHOOSEFROMLIST, m_combo);
-    DDX_Control(pDX, IDC_SETTINGS_CHECK, m_chk);
-    DDX_Control(pDX, IDC_SETTINGS_SPIN, m_spin);
-    DDX_Control(pDX, IDC_SETTINGS_SLIDER, m_slider);
-    DDX_Control(pDX, IDC_SETTINGS_EDIT, m_edit);
-    DDX_Control(pDX, IDC_SETTINGS_DEFAULT, m_btnDefault);
-    DDX_Control(pDX, IDC_SETTINGS_LIST, m_lstbox);
+    DDX_Control(pDX, IDC_CHOOSEFROMLIST, m_Combo);
+    DDX_Control(pDX, IDC_SETTINGS_CHECK, m_CheckBox);
+    DDX_Control(pDX, IDC_SETTINGS_SPIN, m_Spin);
+    DDX_Control(pDX, IDC_SETTINGS_SLIDER, m_Slider);
+    DDX_Control(pDX, IDC_SETTINGS_EDIT, m_Edit);
+    DDX_Control(pDX, IDC_SETTINGS_DEFAULT, m_DefaultButton);
+    DDX_Control(pDX, IDC_SETTINGS_LIST, m_ListBox);
     //}}AFX_DATA_MAP
 }
 
@@ -85,83 +88,83 @@ BOOL CSettingsDlg::OnInitDialog()
     CDialog::OnInitDialog();
     
     //add all settings to listbox
-    //shoud probably filter out settings with NOT_PRESENT type
-    for(int i=0;i<m_settingsCount;i++)
+    //shoud probably filter out settings with NOT_PRESENT Type
+    for(int i=0;i<m_SettingsCount;i++)
     {
-        int index=m_lstbox.AddString(m_settings[i].szDisplayName);
+        int index=m_ListBox.AddString(m_Settings[i].szDisplayName);
         if(index!=LB_ERR)
         {
-            m_lstbox.SetItemData(index,i);
+            m_ListBox.SetItemData(index,i);
         }
     }
-    SetWindowText(m_caption);
+    SetWindowText(m_Caption);
     
-    if(m_settingsCount>0)
+    if(m_SettingsCount>0)
     {
-        m_lstbox.SetCurSel(0);
+        m_ListBox.SetCurSel(0);
         OnSelchangeList();
     }
     return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
-void CSettingsDlg::ShowSettingsDlg(CString caption,SETTING *settings,long count,CWnd *pParent)
+void CSettingsDlg::ShowSettingsDlg(CString caption,SETTING *settings,long Count,CWnd *pParent)
 {
-    if(settings==NULL || count==0)
+    if(settings==NULL || Count==0)
     {
         AfxMessageBox("No settings to display",MB_OK|MB_ICONINFORMATION);
         return;
     }
 
     CSettingsDlg dlg(pParent);
-    dlg.m_settingsCount=count;
-    dlg.m_settings=settings;
-    dlg.m_caption=caption;
+    dlg.m_SettingsCount=Count;
+    dlg.m_Settings=settings;
+    dlg.m_Caption=caption;
 
     dlg.DoModal();
 }
 
 void CSettingsDlg::OnSelchangeList() 
 {
-    long idx=m_lstbox.GetItemData(m_lstbox.GetCurSel());
-    m_currentSetting=idx;
+    long idx=m_ListBox.GetItemData(m_ListBox.GetCurSel());
+    m_CurrentSetting=idx;
     
-    switch(m_settings[idx].Type)
+    switch(m_Settings[idx].Type)
     {
     case YESNO:
     case ONOFF:
-        m_btnDefault.ShowWindow(SW_SHOWNA);
-        m_chk.ShowWindow(SW_SHOWNA);
-        m_edit.ShowWindow(SW_HIDE);
-        m_slider.ShowWindow(SW_HIDE);
-        m_spin.ShowWindow(SW_HIDE);     
-        m_combo.ShowWindow(SW_HIDE);
+        m_DefaultButton.ShowWindow(SW_SHOWNA);
+        m_CheckBox.ShowWindow(SW_SHOWNA);
+        m_Edit.ShowWindow(SW_HIDE);
+        m_Slider.ShowWindow(SW_HIDE);
+        m_Spin.ShowWindow(SW_HIDE);     
+        m_Combo.ShowWindow(SW_HIDE);
         break;
 
     case SLIDER:
-        m_btnDefault.ShowWindow(SW_SHOWNA);
-        m_edit.ShowWindow(SW_SHOWNA);
-        m_spin.ShowWindow(SW_SHOWNA);
-        m_slider.ShowWindow(SW_SHOWNA);
-        m_chk.ShowWindow(SW_HIDE);
-        m_combo.ShowWindow(SW_HIDE);
+        m_DefaultButton.ShowWindow(SW_SHOWNA);
+        m_Edit.ShowWindow(SW_SHOWNA);
+        m_Spin.ShowWindow(SW_SHOWNA);
+        m_Slider.ShowWindow(SW_SHOWNA);
+        m_CheckBox.ShowWindow(SW_HIDE);
+        m_Combo.ShowWindow(SW_HIDE);
         break;
 
     case ITEMFROMLIST:
-        m_chk.ShowWindow(SW_HIDE);
-        m_btnDefault.ShowWindow(SW_SHOWNA);
-        m_edit.ShowWindow(SW_HIDE);
-        m_slider.ShowWindow(SW_HIDE);
-        m_spin.ShowWindow(SW_HIDE);
-        m_combo.ShowWindow(SW_SHOWNA);
+        m_CheckBox.ShowWindow(SW_HIDE);
+        m_DefaultButton.ShowWindow(SW_SHOWNA);
+        m_Edit.ShowWindow(SW_HIDE);
+        m_Slider.ShowWindow(SW_HIDE);
+        m_Spin.ShowWindow(SW_HIDE);
+        m_Combo.ShowWindow(SW_SHOWNA);
         break;
 
     default:
-        m_chk.ShowWindow(SW_HIDE);
-        m_btnDefault.ShowWindow(SW_HIDE);
-        m_edit.ShowWindow(SW_HIDE);
-        m_slider.ShowWindow(SW_HIDE);
-        m_spin.ShowWindow(SW_HIDE);
-        m_combo.ShowWindow(SW_HIDE);
+        m_CheckBox.ShowWindow(SW_HIDE);
+        m_DefaultButton.ShowWindow(SW_HIDE);
+        m_Edit.ShowWindow(SW_HIDE);
+        m_Slider.ShowWindow(SW_HIDE);
+        m_Spin.ShowWindow(SW_HIDE);
+        m_Combo.ShowWindow(SW_HIDE);
     }
     
     UpdateControls();
@@ -169,44 +172,44 @@ void CSettingsDlg::OnSelchangeList()
 
 void CSettingsDlg::UpdateControls()
 {
-    ASSERT(m_currentSetting>=0 && m_currentSetting<m_settingsCount);
+    ASSERT(m_CurrentSetting>=0 && m_CurrentSetting<m_SettingsCount);
 
     CString newValue;
     CString oldValue;
-    newValue.Format("%ld",*m_settings[m_currentSetting].pValue);
-    m_edit.GetWindowText(oldValue);
+    newValue.Format("%ld",*m_Settings[m_CurrentSetting].pValue);
+    m_Edit.GetWindowText(oldValue);
     
     //if we dont do this check there will be a loop
     if(oldValue!=newValue)
     {
-        m_edit.SetWindowText(newValue);
-        m_spin.SetRange32(m_settings[m_currentSetting].MinValue,m_settings[m_currentSetting].MaxValue);
-        m_spin.SetPos(*m_settings[m_currentSetting].pValue);
+        m_Edit.SetWindowText(newValue);
+        m_Spin.SetRange32(m_Settings[m_CurrentSetting].MinValue,m_Settings[m_CurrentSetting].MaxValue);
+        m_Spin.SetPos(*m_Settings[m_CurrentSetting].pValue);
     }
     
-    m_chk.SetCheck(*m_settings[m_currentSetting].pValue);
-    m_chk.SetWindowText(m_settings[m_currentSetting].szDisplayName);
+    m_CheckBox.SetCheck(*m_Settings[m_CurrentSetting].pValue);
+    m_CheckBox.SetWindowText(m_Settings[m_CurrentSetting].szDisplayName);
 
-    Setting_SetupSlider(&m_settings[m_currentSetting], m_slider.m_hWnd);
+    Setting_SetupSlider(&m_Settings[m_CurrentSetting], m_Slider.m_hWnd);
     
-    m_combo.ResetContent();
-    if(m_settings[m_currentSetting].pszList != NULL)
+    m_Combo.ResetContent();
+    if(m_Settings[m_CurrentSetting].pszList != NULL)
     {
         bool bFoundSetting=false;
-        for(int i(m_settings[m_currentSetting].MinValue); i <= m_settings[m_currentSetting].MaxValue; ++i)
+        for(int i(m_Settings[m_CurrentSetting].MinValue); i <= m_Settings[m_CurrentSetting].MaxValue; ++i)
         {
             //is there any text for this item?
-            if(strlen(m_settings[m_currentSetting].pszList[i])>0)
+            if(strlen(m_Settings[m_CurrentSetting].pszList[i])>0)
             {
-                int pos=m_combo.AddString(m_settings[m_currentSetting].pszList[i]);
+                int pos=m_Combo.AddString(m_Settings[m_CurrentSetting].pszList[i]);
                 
-                //store value in itemdata
-                m_combo.SetItemData(pos,i);
+                //store Value in itemdata
+                m_Combo.SetItemData(pos,i);
                 
-                //is this item the current value?
-                if(Setting_GetValue(&m_settings[m_currentSetting]) == i)
+                //is this item the current Value?
+                if(Setting_GetValue(&m_Settings[m_CurrentSetting]) == i)
                 {
-                    m_combo.SetCurSel(pos);
+                    m_Combo.SetCurSel(pos);
                     bFoundSetting=true;
                 }
             }
@@ -214,46 +217,46 @@ void CSettingsDlg::UpdateControls()
         if(bFoundSetting==false)
         {
             //clear selection since we didnt find pValue
-            m_combo.SetCurSel(-1);
+            m_Combo.SetCurSel(-1);
         }
     }
 }
 
 void CSettingsDlg::OnChangeEdit() 
 {
-    if(m_edit.m_hWnd==NULL)
+    if(m_Edit.m_hWnd==NULL)
         return;
 
-    CString value;
-    m_edit.GetWindowText(value);
-    Setting_SetValue(&m_settings[m_currentSetting], atol(value));
+    CString Value;
+    m_Edit.GetWindowText(Value);
+    Setting_SetValue(&m_Settings[m_CurrentSetting], atol(Value));
     UpdateControls();
 }
 
 void CSettingsDlg::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar) 
 {
     //slider has changed
-    Setting_SetFromControl(&m_settings[m_currentSetting], m_slider.m_hWnd);
+    Setting_SetFromControl(&m_Settings[m_CurrentSetting], m_Slider.m_hWnd);
     UpdateControls();
 }
 
 void CSettingsDlg::OnSettingsDefault() 
 {
-    Setting_SetDefault(&m_settings[m_currentSetting]);
+    Setting_SetDefault(&m_Settings[m_CurrentSetting]);
     UpdateControls();
 }
 
 void CSettingsDlg::OnCheckClick() 
 {
-    Setting_SetValue(&m_settings[m_currentSetting], m_chk.GetCheck());
+    Setting_SetValue(&m_Settings[m_CurrentSetting], m_CheckBox.GetCheck());
     UpdateControls();   
 }
 
 void CSettingsDlg::OnSelchangeChoosefromlist()
 {
-    if(m_combo.GetCurSel()!=CB_ERR)
+    if(m_Combo.GetCurSel()!=CB_ERR)
     {
-        Setting_SetValue(&m_settings[m_currentSetting], m_combo.GetItemData(m_combo.GetCurSel()));
+        Setting_SetValue(&m_Settings[m_CurrentSetting], m_Combo.GetItemData(m_Combo.GetCurSel()));
     }
     UpdateControls();
 }
@@ -264,14 +267,14 @@ void CSettingsDlg::OnDeltaposSettingsSpin(NMHDR* pNMHDR, LRESULT* pResult)
 
     if(pNMUpDown->iDelta > 0)
     {
-        Setting_Up(&m_settings[m_currentSetting]);
+        Setting_Up(&m_Settings[m_CurrentSetting]);
     }
     else
     {
-        Setting_Down(&m_settings[m_currentSetting]);
+        Setting_Down(&m_Settings[m_CurrentSetting]);
     }
         
-    *pResult = *m_settings[m_currentSetting].pValue;
+    *pResult = *m_Settings[m_CurrentSetting].pValue;
 
     UpdateControls();
 }

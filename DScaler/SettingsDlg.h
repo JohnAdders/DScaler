@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsDlg.h,v 1.5 2001-07-12 16:02:57 adcockj Exp $
+// $Id: SettingsDlg.h,v 1.6 2001-07-13 16:14:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,21 +41,21 @@ class CSettingsDlg : public CDialog
 {
 // Construction
 public:
-    static void ShowSettingsDlg(CString caption,SETTING *settings,long count,CWnd *pParent=NULL);
-    friend CSettingsDlg::ShowSettingsDlg(SETTING *,long );
+    static void ShowSettingsDlg(CString caption,SETTING* settings,long Count,CWnd* pParent=NULL);
+    friend CSettingsDlg::ShowSettingsDlg(SETTING*,long );
 
     CSettingsDlg(CWnd* pParent = NULL); // standard constructor
 
 // Dialog Data
     //{{AFX_DATA(CSettingsDlg)
     enum { IDD = IDD_SETTINGS };
-    CComboBox   m_combo;
-    CButton m_chk;
-    CSpinButtonCtrl m_spin;
-    CSliderCtrl m_slider;
-    CEdit   m_edit;
-    CButton m_btnDefault;
-    CHSListBox  m_lstbox;
+    CComboBox   m_Combo;
+    CButton m_CheckBox;
+    CSpinButtonCtrl m_Spin;
+    CSliderCtrl m_Slider;
+    CEdit   m_Edit;
+    CButton m_DefaultButton;
+    CHSListBox  m_ListBox;
     //}}AFX_DATA
 
     // ClassWizard generated virtual function overrides
@@ -81,10 +81,10 @@ protected:
     DECLARE_MESSAGE_MAP()
 private:
     void UpdateControls();
-    long m_settingsCount;
-    SETTING* m_settings;
-    long m_currentSetting;
-    CString m_caption;
+    long m_SettingsCount;
+    SETTING* m_Settings;
+    long m_CurrentSetting;
+    CString m_Caption;
 };
 
 //{{AFX_INSERT_LOCATION}}

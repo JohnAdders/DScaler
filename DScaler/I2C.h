@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: I2C.h,v 1.3 2001-07-12 16:16:40 adcockj Exp $
+// $Id: I2C.h,v 1.4 2001-07-13 16:14:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -59,7 +59,7 @@ BOOL I2C_Write(BYTE nAddr, BYTE nData1, BYTE nData2, BOOL bSendBoth);
 #define I2C_TDA7432        0x8a
 #define I2C_TDA8425        0x82
 #define I2C_TDA9840        0x84
-#define I2C_TDA9850        0xb6 /* also used by 9855,9873 */
+#define I2C_TDA9850        0xb6 // also used by 9855,9873 
 #define I2C_TDA9875        0xb0
 #define I2C_HAUPEE         0xa0
 #define I2C_STBEE          0xae

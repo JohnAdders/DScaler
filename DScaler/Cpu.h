@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// $Id: Cpu.h,v 1.4 2001-07-12 16:16:39 adcockj Exp $
+// $Id: Cpu.h,v 1.5 2001-07-13 16:14:55 adcockj Exp $
 ///////////////////////////////////////////////////////////////////////////////
 //  This file is subject to the terms of the GNU General Public License as
 //  published by the Free Software Foundation.  A copy of this license is
@@ -45,4 +45,4 @@
 void  CPU_SetupFeatureFlag(void);
 extern UINT CpuFeatureFlags;        // TRB 12/20/00 Processor capability flags
 
-#endif /* __CPU_H__ */
+#endif

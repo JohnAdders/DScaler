@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Bt848.h,v 1.10 2001-07-12 16:16:39 adcockj Exp $
+// $Id: Bt848.h,v 1.11 2001-07-13 16:14:55 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,7 +37,7 @@
 // 08 Jan 2001   John Adcock           Global Variable Tidy up
 //                                     Got rid of global.h structs.h defines.h
 //
-// 11 Mar 2001   Laurent Garnier       Added WSS_Line in TTVFORMAT structure
+// 11 Mar 2001   Laurent Garnier       Added WSS_Line in TTVFormat structure
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -47,7 +47,7 @@
 #include "tvcards.h"
 #include "settings.h"
 
-typedef enum
+enum eVideoSourceType
 {
     SOURCE_TUNER = 0,
     SOURCE_COMPOSITE,
@@ -59,9 +59,9 @@ typedef enum
     SOURCE_CCIR656_2,
     SOURCE_CCIR656_3,
     SOURCE_CCIR656_4,
-} VIDEOSOURCETYPE;
+};
 
-typedef enum
+enum eVideoFormat
 {
     FORMAT_PAL_BDGHI = 0,
     FORMAT_NTSC,
@@ -72,7 +72,7 @@ typedef enum
     FORMAT_PAL60,
     FORMAT_NTSC50,
     FORMAT_LASTONE,
-} VIDEOFORMAT;
+};
 
 typedef struct
 {
@@ -95,7 +95,7 @@ typedef struct
     WORD CC_Gap;
     WORD CC_Line;
     WORD WSS_Line;
-} TTVFORMAT;
+} TTVFormat;
 
 
 // Get Hold of the bt848.c file settings
@@ -105,7 +105,7 @@ void BT848_WriteSettingsToIni();
 void BT848_SetMenu(HMENU hMenu);
 void BT848_ShowUI();
 
-// create new type for physical memory
+// create new Type for physical memory
 typedef unsigned long PHYS;
 
 // externally callable functions
@@ -116,18 +116,18 @@ void BT848_MemoryFree();
 void BT848_ResetHardware();
 int BT848_Open(DWORD dwVendorID, DWORD dwDeviceID,  DWORD options,BOOL Lock);
 void BT848_Close();
-void BT848_SetPLL(PLLFREQ PLL);
+void BT848_SetPLL(ePLLFreq PLL);
 void BT848_CreateRiscCode(int nFlags);
 int BT848_GetRISCPosAsInt();
 BOOL BT848_SetGeoSize();
 BOOL BT848_IsPAL();
 
-BOOL BT848_SetVideoSource(VIDEOSOURCETYPE nInput);
+BOOL BT848_SetVideoSource(eVideoSourceType nInput);
 void BT848_SetDMA(BOOL bState);
 BOOL BT848_IsVideoPresent();
 void BT848_SetGeometryEvenOdd(BOOL bOdd, BYTE bVtc, int wHScale, int wVScale, int wHActive, int wVActive, int wHDelay, int wVDelay, BYTE bCrop);
 void BT848_Restart_RISC_Code();
-TTVFORMAT* BT848_GetTVFormat();
+TTVFormat* BT848_GetTVFormat();
 
 BOOL APIENTRY AdvVideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 
@@ -150,13 +150,13 @@ void BT848_OrDataWord(int Offset, WORD d);
 void BT848_OrDataDword(int Offset, DWORD d);
 
 // Internal Functions
-PHYS RiscLogToPhys(DWORD * pLog);
+PHYS RiscLogToPhys(DWORD* pLog);
 void Free_Display_DMA(int NR);
 
-BOOL Alloc_DMA(DWORD dwSize, PMemStruct * dma, int Option);
-void Free_DMA(PMemStruct * dma);
+BOOL Alloc_DMA(DWORD dwSize, PMemStruct* dma, int Option);
+void Free_DMA(PMemStruct* dma);
 BYTE* GetFirstFullPage(PMemStruct pMem);
-PHYS GetPhysicalAddress(PMemStruct dma, LPBYTE pLinear, DWORD dwSizeWanted, DWORD * pdwSizeAvailable);
+PHYS GetPhysicalAddress(PMemStruct dma, LPBYTE pLinear, DWORD dwSizeWanted, DWORD* pdwSizeAvailable);
 
 // CCIR656 Digital input support
 BOOL BT848_Enable656(void);
@@ -436,9 +436,9 @@ void BT848_SaveSettings(LPCSTR szFileName);
 #define BT848_GPIO_DATA_HIBYTE 0x202
 
 
-/* Bt848 RISC commands */
+// Bt848 RISC commands 
 
-/* only for the SYNC RISC command */
+// only for the SYNC RISC command 
 #define BT848_FIFO_STATUS_FM1  0x06
 #define BT848_FIFO_STATUS_FM3  0x0e
 #define BT848_FIFO_STATUS_SOL  0x02
@@ -452,19 +452,19 @@ void BT848_SaveSettings(LPCSTR szFileName);
 
 #define BT848_RISC_RESYNC      (1<<15)
 
-/* WRITE and SKIP */
-/* disable which bytes of each DWORD */
+// WRITE and SKIP 
+// disable which bytes of each DWORD 
 #define BT848_RISC_BYTE0       (1<<12)
 #define BT848_RISC_BYTE1       (1<<13)
 #define BT848_RISC_BYTE2       (1<<14)
 #define BT848_RISC_BYTE3       (1<<15)
 #define BT848_RISC_BYTE_ALL    (0x0f<<12)
 #define BT848_RISC_BYTE_NONE   0
-/* cause RISCI */
+// cause RISCI 
 #define BT848_RISC_IRQ         (1<<24)
-/* RISC command is last one in this line */
+// RISC command is last one in this line 
 #define BT848_RISC_EOL         (1<<26)
-/* RISC command is first one in this line */
+// RISC command is first one in this line 
 #define BT848_RISC_SOL         (1<<27)
 
 #define BT848_RISC_WRITE       (0x01<<28)

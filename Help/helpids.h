@@ -35,3 +35,4 @@
 #define IDH_OVERLAY                     131127
 #define IDH_STILL                       131128
 #define IDH_CALIBRATION                 131129
+#define IDH_SETTINGSBYCHANNEL           131130

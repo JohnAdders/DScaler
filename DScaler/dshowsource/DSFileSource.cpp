@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSFileSource.cpp,v 1.13 2003-08-12 19:10:05 laurentg Exp $
+// $Id: DSFileSource.cpp,v 1.14 2003-10-10 13:34:16 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2003/08/12 19:10:05  laurentg
+// Move some methods from CDSFileSource to CDSSourceBase
+//
 // Revision 1.12  2003/08/12 08:56:56  laurentg
 // OSD texts attached to media player actions
 //
@@ -219,7 +222,7 @@ BOOL CDSFileSource::IsVideoPresent()
 
 BOOL CDSFileSource::HasSquarePixels()
 {
-	return TRUE;
+	return FALSE;
 }
 
 LPCSTR CDSFileSource::GetMenuLabel()

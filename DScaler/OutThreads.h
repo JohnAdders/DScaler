@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.h,v 1.23 2004-12-13 23:24:44 laurentg Exp $
+// $Id: OutThreads.h,v 1.24 2004-12-16 21:58:17 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -52,8 +52,10 @@ typedef enum
     REQ_NONE,
     REQ_STILL,
     REQ_SNAPSHOT,
+#ifdef WANT_DSHOW_SUPPORT
 	REQ_DSHOW_CHANGERES,
 	REQ_DSHOW_STOP,
+#endif
 } eRequestType;
 
 typedef struct {

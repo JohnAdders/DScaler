@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.135 2004-12-14 23:23:44 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.136 2004-12-16 21:58:17 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.135  2004/12/14 23:23:44  laurentg
+// Action behind menu "DShow => Stop" now run by the output thread
+//
 // Revision 1.134  2004/12/14 21:30:14  laurentg
 // DShow ChangeRes run by the output thread
 //
@@ -498,8 +501,10 @@
 #include "Perf.h"
 #include "OSD.h"
 #include "MultiFrames.h"
-#include "dshowsource\DSSource.h"
 
+#ifdef WANT_DSHOW_SUPPORT
+#include "dshowsource\DSSource.h"
+#endif
 
 // Thread related variables
 BOOL                bStopThread = FALSE;
@@ -662,6 +667,9 @@ void PutRequest(TGUIRequest *req)
 			}
 			break;
 		case REQ_SNAPSHOT:
+			Request.type = req->type;
+			break;
+#ifdef WANT_DSHOW_SUPPORT
 		case REQ_DSHOW_STOP:
 			Request.type = req->type;
 			break;
@@ -669,6 +677,7 @@ void PutRequest(TGUIRequest *req)
 			Request.type = req->type;
 			Request.param1 = req->param1;
 			break;
+#endif
 		default:
 			break;
 		}
@@ -1569,6 +1578,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                 Request.type = REQ_NONE;
             }
 
+#ifdef WANT_DSHOW_SUPPORT
             // if request for changing capture resolution
             if(Request.type == REQ_DSHOW_CHANGERES)
             {
@@ -1582,6 +1592,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 				((CDSSourceBase*)Providers_GetCurrentSource())->StopAndSeekToBeginning();
                 Request.type = REQ_NONE;
             }
+#endif
 
 			if (pMultiFrames && pMultiFrames->IsSwitchRequested())
 			{

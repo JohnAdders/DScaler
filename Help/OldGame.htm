@@ -1,13 +1,14 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
-<html>
-<!-- #BeginTemplate "/Templates/dtvnormal.dwt" -->
-<head>
-<!-- #BeginEditable "doctitle" -->
-<title>DScaler &mdash; Old Game Method</title>
-<!-- #EndEditable -->
-<meta http-equiv="Content-Type" content=
-"text/html; charset=iso-8859-1">
-<style type="text/css">
+<HTML>
+  <!-- #BeginTemplate "/Templates/dtvnormal.dwt" -->
+  <HEAD>
+    <!-- #BeginEditable "doctitle" -->
+    <TITLE>
+      DScaler -- Old Game Method
+    </TITLE>
+    <!-- #EndEditable -->
+    <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<STYLE TYPE="text/css">
 <!--
 p {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
 .bottommenu {  font-family: Arial, Helvetica, sans-serif; font-size: 8pt; font-style: normal; text-decoration: none}
@@ -20,181 +21,161 @@ blockquote {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
 pre {  font-family: "Courier New", Courier, mono; font-size: 9pt}
 ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
 -->
-</style>
-</head>
-<body bgcolor="#FFFFFF">
-<table width="100%" border="0" cellspacing="0" cellpadding="0">
-<tr>
-<td height="1" width="160"><img src="images/spacer.gif" width="1"
-height="1"></td>
-<td height="1" width="342"><img src="images/spacer.gif" width="1"
-height="1"></td>
-<td height="1" width="501"><img src="images/spacer.gif" width="1"
-height="1"></td>
-</tr>
-
-<tr>
-<td width="160"><img src="images/dscalerlogo.jpg" alt=
-"DScaler Logo"></td>
-<td colspan="2" align="right" valign="bottom"><font face=
-"Verdana, Arial, Helvetica, sans-serif" size="5"><b>
-<!-- #BeginEditable "Page%20Title" -->
-Old Game Method
-<!-- #EndEditable --></b></font></td>
-</tr>
-
-<tr bgcolor="#FFCC00" align="right">
-<td colspan="3"><img src="images/yellowspacer.gif" width="100%"
-height="2"></td>
-</tr>
-
-<tr>
-<td colspan="3"> </td>
-</tr>
-
-<tr>
-<td colspan="3">
-<!-- #BeginEditable "Text" -->
-<p>
-This method improves the display of video games from old
-consoles on your computer. Instead of de&shy;interlac&shy;ing like most
-DScaler methods, it smoothes verti&shy;cally. That gets rid of the
-block&shy;iness you&rsquo;d other&shy;wise see. It works nicely with just
-about any game on a Play&shy;Station, Super Nin&shy;tendo, or Genesis.
-Presum&shy;ably, it will work well with a Nin&shy;tendo 64, Saturn, Atari,
-NES, Mega&shy;drive, and so on. Just don&rsquo;t try it with your
-Vectrex.
-</p>
-
-<p>
-More exactly, this method assumes that you&rsquo;re look&shy;ing at a
-progres&shy;sive half vertical resolu&shy;tion image. So any video source which fits
-that descrip&shy;tion should work well. The Old Game method is similar
-to <A HREF="OddOnly.HTM">Odd Scan&shy;lines Only</A> and
-<A HREF="EvenOnly.HTM">Even Scan&shy;lines Only</A>, but improves the picture in
-a couple ways. First, it works well with material running at any
-FPS (frames per second) rate, instead of just 25 or 30 FPS.
-Second, it option&shy;ally uses averag&shy;ing between frames to reduce
-noise and color cross&shy;talk. The averag&shy;ing works well alone or along with a noise
-filter.
-</p>
-
-<p>
-Later consoles such as the Dream&shy;cast, Play&shy;Station 2, Game&shy;Cube,
-or XBox use inter&shy;laced output, and will look lousy with this
-de&shy;interlac&shy;ing method. (Well, some of them allow progres&shy;sive output, too, but
-not in a way the sup&shy;ported input cards can under&shy;stand.) To play
-them on your computer, use the more standard <A HREF="Deinterlace.HTM">deinterlac&shy;ing
-methods</A>&nbsp;&mdash; or better yet, find a VGA adaptor. The Super
-Nin&shy;tendo, Play&shy;Station, Nin&shy;tendo 64, and Saturn
-can also use an inter&shy;laced mode. The Play&shy;Station uses interlaced
-mode for its start&shy;up logo, for example. But almost all games
-switch back into progres&shy;sive half vertical resolu&shy;tion mode for the main play
-of the game. Auto&shy;matic sensing of the inter&shy;lace mode is some&shy;thing
-I&rsquo;d like to add in the future.
-</p>
-
-<HR>
-
-<p><b><font face="Arial" size="4">
-Who Should Use It?
-</font></b></p>
-
-<p>
-Anybody who plays old video games on their computer via video
-input should use this de&shy;interlac&shy;ing method. (Well, at least until some&shy;thing
-better comes along.)
-</p>
-
-<p>
-There&rsquo;s a bug in some older Matrox overlay drivers which
-allows the <A HREF="ScalerBob.HTM">Scaler Bob</A> method to work nearly as well as Old Game
-for progres&shy;sive half vertical resolu&shy;tion video. It doesn&rsquo;t use averag&shy;ing to
-reduce noise, but it should run a little faster. On the other
-hand, Old Game is fast enough to run just fine on any
-computer sup&shy;ported by DScaler, so that doesn&rsquo;t really get you
-much.
-</p>
-
-<HR>
-
-<p><b><font face="Arial" size="4">
-The Settings
-</font></b></p>
-
-<p>
-There are two options to set for this method, <font color = "#993300">Compos&shy;ite Mode</font>
-and <font color = "#993300">Motion Threshold</font>. <font color = "#993300">Compos&shy;ite Mode</font>
-forces the method to always average between frames. <font color = "#993300">Motion Threshold</font>
-is the amount of motion (in arbi&shy;trary units) which will con&shy;vince the method not to
-average between frames.
-</p>
-
-<p>
-The way you should set these options depends on the way you&rsquo;ve connected your console.
-</p>
-
-<p><b><font face="Arial">
-Composite or F-Connector
-</font></b></p>
-
-<p>
-With a composite connection, the biggest problem by far will
-be color crosstalk. To get rid of it, check
-<font color = "#993300">Compos&shy;ite Mode</font>. That way, the crosstalk will be
-averaged out. This makes the picture look much, much nicer.
-</p>
-
-<p>
-With <font color = "#993300">Composite Mode</font> checked, the <font color = "#993300">Motion Threshold</font> slider won&rsquo;t
-do anything at all.
-</p>
-
-<p>
-Surprisingly, the <A HREF="TemporalComb.htm">Tempo&shy;ral Comb</A> filter doesn&rsquo;t help at all for
-cross&shy;talk in most old video games. That&rsquo;s for an obscure
-tech&shy;nical reason involv&shy;ing the phase of the color carrier signal
-and the number of scan lines per frame.
-</p>
-
-<p><b><font face="Arial">
-S-video
-</font></b></p>
-
-<p>
-With an S-video con&shy;nection, you shouldn&rsquo;t see much color
-cross&shy;talk. So you can afford to set the slider to prevent
-averag&shy;ing when the scene is moving. Turn off <font color = "#993300">Compos&shy;ite Mode</font>
-and put the <font color = "#993300">Motion Threshold</font> at about 300. Increase it a bit
-if you have a noisy picture (and turn on a noise filter), or
-decrease it if you see blur&shy;ring with fast motion.
-</p>
-
-<!-- #EndEditable -->
-</td>
-</tr>
-
-<tr>
-<td colspan="3"> </td>
-</tr>
-
-<tr>
-<td colspan="3"></td>
-</tr>
-
-<tr>
-<td colspan="3"> </td>
-</tr>
-
-<tr bgcolor="#FFCC00">
-<td colspan="3">
-<div align="center"><img src="images/yellowspacer.gif" width=
-"100%" height="2"></div>
-</td>
-</tr>
-</table>
-
-<!-- #EndTemplate -->
-</body>
-</html>
+</STYLE>
+  </HEAD>
+  <BODY BGCOLOR="#FFFFFF">
+    <TABLE WIDTH="100%" BORDER="0" CELLSPACING="0" CELLPADDING="0">
+      <TR>
+        <TD HEIGHT="1" WIDTH="160">
+          <IMG SRC="images/spacer.gif" WIDTH="1" HEIGHT="1">
+        </TD>
+        <TD HEIGHT="1" WIDTH="342">
+          <IMG SRC="images/spacer.gif" WIDTH="1" HEIGHT="1">
+        </TD>
+        <TD HEIGHT="1" WIDTH="501">
+          <IMG SRC="images/spacer.gif" WIDTH="1" HEIGHT="1">
+        </TD>
+      </TR>
+      <TR>
+        <TD WIDTH="160">
+          <IMG SRC="images/dscalerlogo.jpg" ALT="DScaler Logo">
+        </TD>
+        <TD COLSPAN="2" ALIGN="right" VALIGN="bottom">
+          <FONT FACE="Verdana, Arial, Helvetica, sans-serif" SIZE="5"><B>
+          <!-- #BeginEditable "Page%20Title" -->
+          Old Game Method <!-- #EndEditable --></B></FONT>
+        </TD>
+      </TR>
+      <TR BGCOLOR="#FFCC00" ALIGN="right">
+        <TD COLSPAN="3">
+          <IMG SRC="images/yellowspacer.gif" WIDTH="100%" HEIGHT="2"></TD>
+      </TR>
+      <TR>
+        <TD COLSPAN="3">
+          &nbsp;
+        </TD>
+      </TR>
+      <TR>
+        <TD COLSPAN="3">
+          <!-- #BeginEditable "Text" -->
+          <P>
+            This method improves the display of video games from old consoles on your computer. Instead of
+            deinterlacing like most DScaler methods, it smoothes vertically. That gets rid of
+            the blockiness you&rsquo;d otherwise see. It works nicely with just about any game on a
+            PlayStation, Super Nintendo, or Genesis. Presumably, it will work well with a
+            Nintendo 64, Saturn, Atari, NES, Megadrive, and so on. Just don&rsquo;t try it with
+            your Vectrex.
+          </P>
+          <P>
+            More exactly, this method assumes that you&rsquo;re looking at a progressive half
+            vertical resolution image. So any video source which fits that description should work
+            well. The Old Game method is similar to <A HREF="OddOnly.HTM">Odd Scanlines Only</A> and <A
+            HREF="EvenOnly.HTM">Even Scanlines Only</A>, but improves the picture in a couple ways.
+            First, it works well with material running at any FPS (frames per second) rate, instead of just
+            25 or 30 FPS. Second, it optionally uses averaging between frames to reduce noise and
+            color crosstalk. The averaging works well alone or along with a noise filter.
+          </P>
+          <P>
+            Later consoles such as the Dreamcast, PlayStation 2, GameCube, or XBox use
+            interlaced output, and will look lousy with this deinterlacing method. (Well, some
+            of them allow progressive output, too, but not in a way the supported input cards can
+            understand.) To play them on your computer, use the more standard <A HREF=
+            "Deinterlace.HTM">deinterlacing methods</A>&nbsp;&mdash; or better yet, find a VGA adaptor.
+            The Super Nintendo, PlayStation, Nintendo 64, and Saturn can also use an
+            interlaced mode. The PlayStation uses interlaced mode for its startup logo, for
+            example. But almost all games switch back into progressive half vertical resolution
+            mode for the main play of the game. Automatic sensing of the interlace mode is
+            something I&rsquo;d like to add in the future.
+          </P>
+          <HR>
+          <P>
+            <B><FONT FACE="Arial" SIZE="4">
+						  Who Should Use It?
+						</FONT></B>
+          </P>
+          <P>
+            Anybody who plays old video games on their computer via video input should use this
+            deinterlacing method. (Well, at least until something better comes along.)
+          </P>
+          <P>
+            There&rsquo;s a bug in some older Matrox overlay drivers which allows the <A HREF=
+            "ScalerBob.HTM">Scaler Bob</A> method to work nearly as well as Old Game for progressive
+            half vertical resolution video. It doesn&rsquo;t use averaging to reduce noise, but it
+            should run a little faster. On the other hand, Old Game is fast enough to run just fine on any
+            computer supported by DScaler, so that doesn&rsquo;t really get you much.
+          </P>
+          <HR>
+          <P>
+            <B><FONT FACE="Arial" SIZE="4">
+						  The Settings
+						</FONT></B>
+          </P>
+          <P>
+            There are two options to set for this method, <FONT COLOR="#993300">Composite Mode</FONT>
+            and <FONT COLOR="#993300">Motion Threshold</FONT>. <FONT COLOR="#993300">Composite
+            Mode</FONT> forces the method to always average between frames. <FONT COLOR="#993300">Motion
+            Threshold</FONT> is the amount of motion (in arbitrary units) which will convince the
+            method not to average between frames.
+          </P>
+          <P>
+            The way you should set these options depends on the way you&rsquo;ve connected your console.
+          </P>
+          <P>
+            <B><FONT FACE="Arial">
+						  Composite or F-Connector
+						</FONT></B>
+          </P>
+          <P>
+            With a composite connection, the biggest problem by far will be color crosstalk. To get rid of
+            it, check <FONT COLOR="#993300">Composite Mode</FONT>. That way, the crosstalk will be
+            averaged out. This makes the picture look much, much nicer.
+          </P>
+          <P>
+            With <FONT COLOR="#993300">Composite Mode</FONT> checked, the <FONT COLOR="#993300">Motion
+            Threshold</FONT> slider won&rsquo;t do anything at all.
+          </P>
+          <P>
+            Surprisingly, the <A HREF="TemporalComb.htm">Temporal Comb</A> filter doesn&rsquo;t help at
+            all for crosstalk in most old video games. That&rsquo;s for an obscure technical reason
+            involving the phase of the color carrier signal and the number of scan lines per frame.
+          </P>
+          <P>
+            <B><FONT FACE="Arial">
+						  S-video
+						</FONT></B>
+          </P>
+          <P>
+            With an S-video connection, you shouldn&rsquo;t see much color crosstalk. So you can
+            afford to set the slider to prevent averaging when the scene is moving. Turn off <FONT
+            COLOR="#993300">Composite Mode</FONT> and put the <FONT COLOR="#993300">Motion
+            Threshold</FONT> at about 300. Increase it a bit if you have a noisy picture (and turn on a noise
+            filter), or decrease it if you see blurring with fast motion.
+          </P>
+          <!-- #EndEditable -->
+        </TD>
+      </TR>
+      <TR>
+        <TD COLSPAN="3">
+          &nbsp;
+        </TD>
+      </TR>
+      <TR>
+        <TD COLSPAN="3">
+        </TD>
+      </TR>
+      <TR>
+        <TD COLSPAN="3">
+          &nbsp;
+        </TD>
+      </TR>
+      <TR BGCOLOR="#FFCC00">
+        <TD COLSPAN="3">
+          <DIV ALIGN="center">
+            <IMG SRC="images/yellowspacer.gif" WIDTH="100%" HEIGHT="2"></DIV>
+        </TD>
+      </TR>
+    </TABLE>
+    <!-- #EndTemplate -->
+  </BODY>
+</HTML>
 

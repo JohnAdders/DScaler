@@ -1,13 +1,13 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
-<html>
-<!-- #BeginTemplate "/Templates/dtvnormal.dwt" -->
-<head>
-<!-- #BeginEditable "doctitle" -->
-<title>DScaler &mdash; Gradual Noise filter</title>
-<!-- #EndEditable -->
-<meta http-equiv="Content-Type" content=
-"text/html; charset=iso-8859-1">
-<style type="text/css">
+<HTML>
+  <!-- #BeginTemplate "/Templates/dtvnormal.dwt" -->
+  <HEAD>
+    <TITLE>
+      DScaler -- Gradual Noise filter
+    </TITLE>
+    <!-- #EndEditable -->
+    <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<STYLE TYPE="text/css">
 <!--
 p {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
 .bottommenu {  font-family: Arial, Helvetica, sans-serif; font-size: 8pt; font-style: normal; text-decoration: none}
@@ -20,118 +20,116 @@ blockquote {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
 pre {  font-family: "Courier New", Courier, mono; font-size: 9pt}
 ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
 -->
-</style>
-</head>
-<body bgcolor="#FFFFFF">
-<table width="100%" border="0" cellspacing="0" cellpadding="0">
-<tr>
-<td height="1" width="160"><img src="images/spacer.gif" width="1"
-height="1"></td>
-<td height="1" width="342"><img src="images/spacer.gif" width="1"
-height="1"></td>
-<td height="1" width="501"><img src="images/spacer.gif" width="1"
-height="1"></td>
-</tr>
-
-<tr>
-<td width="160"><img src="images/dscalerlogo.jpg" alt=
-"DScaler Logo"></td>
-<td colspan="2" align="right" valign="bottom"><font face=
-"Verdana, Arial, Helvetica, sans-serif" size="5"><b>
-<!-- #BeginEditable "Page%20Title" -->
-Gradual Noise Filter
-<!-- #EndEditable --></b></font></td>
-</tr>
-
-<tr bgcolor="#FFCC00" align="right">
-<td colspan="3"><img src="images/yellowspacer.gif" width="100%"
-height="2"></td>
-</tr>
-
-<tr>
-<td colspan="3"> </td>
-</tr>
-
-<tr>
-<td colspan="3">
-<!-- #BeginEditable "Text" -->
-<p>
-This filter cleans up the picture, averag&shy;ing out visual noise between frames.
-</p>
-
-<p>
-When colors change just a little, the filter decides that it&rsquo;s prob&shy;ably noise,
-and only slight&shy;ly changes the color from the pre&shy;vious frame. As the change in color
-increases, the filter becomes more and more con&shy;vinced that the change is due to motion
-rather than noise&nbsp;&mdash; and the new color gets more and more weight.
-</p>
-
-<HR>
-<p><b><font face="Arial" size="4" font color="#993300">
-Noise Reduction
-</font></b></p>
-
-<p>
-There&rsquo;s just one setting&nbsp;&mdash; <font color="#993300">Noise Reduc&shy;tion</font>.
-</p>
-
-<P>
-The higher you set it, the more you&rsquo;ll cut down on noise&nbsp;&mdash; but the more blur&shy;ring you will see.
-In general, reason&shy;able set&shy;tings range from 10 (to soften the occa&shy;sional speckle without
-artifacts) to 25 (to reduce noise with min&shy;imal artifacts) to 45 (for better reduc&shy;tion, but visible
-blur&shy;ring) up to 80 (to average out really heavy noise at the cost of bad
-blur&shy;ring). At extreme&shy;ly high <font color="#993300">Noise Reduc&shy;tion</font>
-values, you&rsquo;ll start to see artifact&shy;ual verti&shy;cal lines.
-</P>
-
-<p>
-To choose a setting for it, turn on just about any comedy or drama&nbsp;&mdash; any&shy;thing with
-close-ups of moving faces. Increase <font color="#993300">Noise Reduc&shy;tion</font> until the
-sup&shy;pres&shy;sion of noise doesn&rsquo;t
-seem worth the blur.
-</p>
-
-<HR>
-
-<p><b><font face="Arial" size="4">
-Noise Notes
-<font></b></p>
-
-<P>
-You might want to take a look at <A HREF="AdaptiveNoise.htm#Fun With Noise">Fun With Noise</A>, a discus&shy;sion of noise filter&shy;ing in general.
-</P>
-
-<p>
-Don&rsquo;t run this filter at the same time as the Tem&shy;por&shy;al Noise Filter. Together they give you the &ldquo;comical poster&shy;iza&shy;tion
-and speckling&rdquo; filter.
-</p>
-
-
-<!-- #EndEditable -->
-</td>
-</tr>
-
-<tr>
-<td colspan="3"> </td>
-</tr>
-
-<tr>
-<td colspan="3"></td>
-</tr>
-
-<tr>
-<td colspan="3"> </td>
-</tr>
-
-<tr bgcolor="#FFCC00">
-<td colspan="3">
-<div align="center"><img src="images/yellowspacer.gif" width=
-"100%" height="2"></div>
-</td>
-</tr>
-</table>
-
-<!-- #EndTemplate -->
-</body>
-</html>
+</STYLE>
+  </HEAD>
+  <BODY BGCOLOR="#FFFFFF">
+    <TABLE WIDTH="100%" BORDER="0" CELLSPACING="0" CELLPADDING="0">
+      <TR>
+        <TD HEIGHT="1" WIDTH="160">
+          <IMG SRC="images/spacer.gif" WIDTH="1" HEIGHT="1"> 
+        </TD>
+        <TD HEIGHT="1" WIDTH="342">
+          <IMG SRC="images/spacer.gif" WIDTH="1" HEIGHT="1"> 
+        </TD>
+        <TD HEIGHT="1" WIDTH="501">
+          <IMG SRC="images/spacer.gif" WIDTH="1" HEIGHT="1"> 
+        </TD>
+      </TR>
+      <TR>
+        <TD WIDTH="160">
+          <IMG SRC="images/dscalerlogo.jpg" ALT="DScaler Logo"> 
+        </TD>
+        <TD COLSPAN="2" ALIGN="right" VALIGN="bottom">
+          <FONT FACE="Verdana, Arial, Helvetica, sans-serif" SIZE="5"><B>
+          <!-- #BeginEditable "Page%20Title" -->
+           Gradual Noise Filter <!-- #EndEditable --></B></FONT> 
+        </TD>
+      </TR>
+      <TR BGCOLOR="#FFCC00" ALIGN="right">
+        <TD COLSPAN="3">
+          <IMG SRC="images/yellowspacer.gif" WIDTH="100%" HEIGHT="2"></TD>
+      </TR>
+      <TR>
+        <TD COLSPAN="3">
+          &nbsp;
+        </TD>
+      </TR>
+      <TR>
+        <TD COLSPAN="3">
+          <!-- #BeginEditable "Text" -->
+          <P>
+            This filter cleans up the picture, averaging out visual noise between frames.
+          </P>
+          <P>
+            When colors change just a little, the filter decides that it&rsquo;s probably noise, and
+            only slightly changes the color from the previous frame. As the change in color
+            increases, the filter becomes more and more convinced that the change is due to motion
+            rather than noise&nbsp;&mdash; and the new color gets more and more weight.
+          </P>
+          <HR>
+          <P>
+            <B><FONT FACE="Arial" SIZE="4" COLOR="#993300">
+						  Noise Reduction
+					  </FONT></B>
+          </P>
+          <P>
+            There&rsquo;s just one setting&nbsp;&mdash; <FONT COLOR="#993300">Noise Reduction</FONT>.
+          </P>
+          <P>
+            The higher you set it, the more you&rsquo;ll cut down on noise&nbsp;&mdash; but the more
+            blurring you will see. In general, reasonable settings range from 10 (to soften
+            the occasional speckle without artifacts) to 25 (to reduce noise with minimal
+            artifacts) to 45 (for better reduction, but visible blurring) up to 80 (to average out
+            really heavy noise at the cost of bad blurring). At extremely high <FONT COLOR=
+            "#993300">Noise Reduction</FONT> values, you&rsquo;ll start to see artifactual
+            vertical lines.
+          </P>
+          <P>
+            To choose a setting for it, turn on just about any comedy or drama&nbsp;&mdash; anything
+            with close-ups of moving faces. Increase <FONT COLOR="#993300">Noise Reduction</FONT> until
+            the suppression of noise doesn&rsquo;t seem worth the blur.
+          </P>
+          <HR>
+          <P>
+            <B><FONT FACE="Arial" SIZE="4">
+						  Noise Notes
+					  </FONT></B>
+          </P>
+          <P>
+            You might want to take a look at <A HREF=
+            "AdaptiveNoise.htm#Fun With Noise">Fun With Noise</A>, a discussion of noise filtering
+            in general.
+          </P>
+          <P>
+            Don&rsquo;t run this filter at the same time as the
+            Temporal Noise Filter. Together they give you the &ldquo;comical
+            posterization and speckling&rdquo; filter.
+          </P>
+          <!-- #EndEditable -->
+        </TD>
+      </TR>
+      <TR>
+        <TD COLSPAN="3">
+          &nbsp;
+        </TD>
+      </TR>
+      <TR>
+        <TD COLSPAN="3">
+        </TD>
+      </TR>
+      <TR>
+        <TD COLSPAN="3">
+          &nbsp;
+        </TD>
+      </TR>
+      <TR BGCOLOR="#FFCC00">
+        <TD COLSPAN="3">
+          <DIV ALIGN="center">
+            <IMG SRC="images/yellowspacer.gif" WIDTH="100%" HEIGHT="2"></DIV>
+        </TD>
+      </TR>
+    </TABLE>
+    <!-- #EndTemplate -->
+  </BODY>
+</HTML>
 

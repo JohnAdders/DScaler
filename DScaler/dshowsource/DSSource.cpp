@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.25 2002-07-06 16:48:11 tobbej Exp $
+// $Id: DSSource.cpp,v 1.26 2002-07-07 20:17:53 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2002/07/06 16:48:11  tobbej
+// new field buffering
+//
 // Revision 1.24  2002/06/22 15:03:16  laurentg
 // New vertical flip mode
 //
@@ -625,6 +628,12 @@ BOOL CDSSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 	case IDM_DSHOW_STOP:
 		try
 		{
+			//we must ensure that the output thread dont tries to get any
+			//more fields. if it does a deadlock can occure.
+			//the deadlock will only occure if the output thread is 
+			//blocked when it accesses the main threads gui, 
+			//since this prevents IDSRendFilter::FreeFields from being called
+			CAutoCriticalSection lock(m_hOutThreadSync);
 			m_pDSGraph->stop();
 		}
 		catch(CDShowException &e)

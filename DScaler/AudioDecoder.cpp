@@ -1,5 +1,5 @@
 //
-// $Id: AudioDecoder.cpp,v 1.11 2002-09-27 14:13:27 kooiman Exp $
+// $Id: AudioDecoder.cpp,v 1.12 2002-10-11 21:32:36 ittarnavsky Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/09/27 14:13:27  kooiman
+// Improved stereo detection & manual audio standard dialog box.
+//
 // Revision 1.10  2002/09/16 14:37:35  kooiman
 // Added stereo autodetection.
 //
@@ -75,7 +78,6 @@ CAudioDecoder::CAudioDecoder()
 
 CAudioDecoder::~CAudioDecoder()
 {
-
 }
 
 eSoundChannel CAudioDecoder::GetSoundChannel()
@@ -105,29 +107,29 @@ void CAudioDecoder::SetAudioInput(eAudioInput audioInput)
 
 const char* CAudioDecoder::GetAudioInputName(eAudioInput audioInput)
 {    
-      switch (audioInput)
-        {
-        case AUDIOINPUT_TUNER:
-            return "Tuner";
-            break;
-        case AUDIOINPUT_RADIO:
-            return "Radio";
-            break;
-        case AUDIOINPUT_EXTERNAL:
-            return "External";
-            break;
-        case AUDIOINPUT_INTERNAL:
-            return "Internal";
-            break;
-        case AUDIOINPUT_MUTE:
-            return "Mute";
-            break;
-        case AUDIOINPUT_STEREO:
-            return "Stereo";
-            break;
-        }
-
-        return NULL;
+    switch (audioInput)
+    {
+    case AUDIOINPUT_TUNER:
+        return "Tuner";
+        break;
+    case AUDIOINPUT_RADIO:
+        return "Radio";
+        break;
+    case AUDIOINPUT_EXTERNAL:
+        return "External";
+        break;
+    case AUDIOINPUT_INTERNAL:
+        return "Internal";
+        break;
+    case AUDIOINPUT_MUTE:
+        return "Mute";
+        break;
+    case AUDIOINPUT_STEREO:
+        return "Stereo";
+        break;
+    }
+    
+    return NULL;
 }
 
 void CAudioDecoder::SetAudioStandard(long Standard, eVideoFormat VideoFormat) 
@@ -182,4 +184,9 @@ long CAudioDecoder::GetAudioStandardFromVideoFormat(eVideoFormat videoFormat)
 void CAudioDecoder::DetectAudioStandard(long Interval, int SupportedSoundChannels, eSoundChannel TargetChannel)
 {    
     m_StandardDetectInterval = Interval;
+}
+
+CAudioDecoder::eAudioDecoderType CAudioDecoder::GetAudioDecoderType()
+{
+    return AUDIODECODERTYPE_NONE;
 }

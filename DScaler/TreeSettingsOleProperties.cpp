@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsOleProperties.cpp,v 1.3 2002-05-09 17:20:15 tobbej Exp $
+// $Id: TreeSettingsOleProperties.cpp,v 1.4 2002-05-19 12:01:42 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/05/09 17:20:15  tobbej
+// fixed resize problem in CTreeSettingsOleProperties
+// (everytime a new page was activated the dialog size incresed)
+//
 // Revision 1.2  2002/05/02 20:05:51  tobbej
 // removed an assert
 //
@@ -44,7 +48,7 @@ static char THIS_FILE[]=__FILE__;
 //////////////////////////////////////////////////////////////////////
 
 CTreeSettingsOleProperties::CTreeSettingsOleProperties(CString name,ULONG cObjects,LPUNKNOWN FAR* lplpUnk,ULONG cPages,LPCLSID lpPageClsID,LCID lcid)
-:CTreeSettingsPage(name,IDD_TREESETTINGS_OLEPAGE),m_minSize(0,0)
+:CTreeSettingsPage(name,IDD_TREESETTINGS_OLEPAGE)
 {
 	//{{AFX_DATA_INIT(CTreeSettingsOleProperties)
 		// NOTE: the ClassWizard will add member initialization here
@@ -117,18 +121,24 @@ BOOL CTreeSettingsOleProperties::OnInitDialog()
 		HRESULT hr=m_pages[i]->m_pPropertyPage->GetPageInfo(&pageInfo);
 		if(SUCCEEDED(hr))
 		{
-			if(pageInfo.size.cx>m_minSize.cx)
+			if(pageInfo.size.cx>m_minWidth)
 			{
-				m_minSize.cx=pageInfo.size.cx;
+				m_minWidth=pageInfo.size.cx;
 			}
-			if(pageInfo.size.cy>m_minSize.cy)
+			if(pageInfo.size.cy>m_minHeight)
 			{
-				m_minSize.cy=pageInfo.size.cy;
+				m_minHeight=pageInfo.size.cy;
 			}
 		}
 	}
+	m_bInitMinSize=false;
 
-	CRect rect;
+	CRect rect(0,0,0,0);
+	//add the border size of the tab controll
+	m_tabCtrl.AdjustRect(TRUE,&rect);
+	m_minWidth+=rect.Width();
+	m_minHeight+=rect.Height();
+	
 	m_tabCtrl.GetClientRect(&rect);
 
 	m_tabCtrl.ClientToScreen(&rect);
@@ -203,12 +213,6 @@ void CTreeSettingsOleProperties::OnOK()
 			//FIXME: log error if any
 		}
 	}
-}
-
-void CTreeSettingsOleProperties::GetMinSize(int &width,int &height)
-{
-	width=m_minSize.cx;
-	height=m_minSize.cy;
 }
 
 ULONG CTreeSettingsOleProperties::CPageSite::AddRef()

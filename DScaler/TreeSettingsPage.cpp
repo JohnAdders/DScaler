@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsPage.cpp,v 1.2 2002-05-09 17:20:15 tobbej Exp $
+// $Id: TreeSettingsPage.cpp,v 1.3 2002-05-19 12:01:43 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/05/09 17:20:15  tobbej
+// fixed resize problem in CTreeSettingsOleProperties
+// (everytime a new page was activated the dialog size incresed)
+//
 // Revision 1.1  2002/04/24 19:04:01  tobbej
 // new treebased settings dialog
 //
@@ -41,7 +45,7 @@ static char THIS_FILE[] = __FILE__;
 
 
 CTreeSettingsPage::CTreeSettingsPage(CString name,UINT nIDTemplate)
-	: CDialog(nIDTemplate, NULL),m_dlgID(nIDTemplate),m_name(name)
+	: CDialog(nIDTemplate, NULL),m_dlgID(nIDTemplate),m_name(name),m_minHeight(0),m_minWidth(0),m_bInitMinSize(true)
 {
 	//{{AFX_DATA_INIT(CTreeSettingsPage)
 		// NOTE: the ClassWizard will add member initialization here
@@ -81,8 +85,18 @@ BOOL CTreeSettingsPage::PreTranslateMessage(MSG* pMsg)
 
 void CTreeSettingsPage::GetMinSize(int &width,int &height)
 {
-	width=0;
-	height=0;
+	//check if minimum size is initialized
+	if(m_bInitMinSize && m_hWnd!=NULL)
+	{
+		//use current window width and height as minimum
+		CRect rect;
+		GetClientRect(&rect);
+		m_minHeight=rect.Height();
+		m_minWidth=rect.Width();
+		m_bInitMinSize=false;
+	}
+	width=m_minWidth;
+	height=m_minHeight;
 }
 
 void CTreeSettingsPage::OnOK()

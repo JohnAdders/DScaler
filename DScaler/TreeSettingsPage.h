@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsPage.h,v 1.2 2002-05-09 17:20:15 tobbej Exp $
+// $Id: TreeSettingsPage.h,v 1.3 2002-05-19 12:01:43 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/05/09 17:20:15  tobbej
+// fixed resize problem in CTreeSettingsOleProperties
+// (everytime a new page was activated the dialog size incresed)
+//
 // Revision 1.1  2002/04/24 19:04:01  tobbej
 // new treebased settings dialog
 //
@@ -107,23 +111,29 @@ protected:
 	virtual bool OnQueryCancel();
 	
 	/**
-	 * This function is used by the dialog to get the minimum allowed size of the page.
-	 * @param width
-	 * @param height
+	 * This function is used by CTreeSettingsDlg to get the minimum allowed
+	 * size of the page.
+	 * The default implementation of this function gets the windows size at 
+	 * first call and then uses that for width and height.
+	 * @see CTreeSettingsDlg
+	 * @param width minimum allowed width of the page
+	 * @param height minimum allowed heith of the page
 	 */
 	virtual void GetMinSize(int &width,int &height);
 	
-	CString m_name;
-	
-public:
 	/// @return name of this page
 	virtual CString GetName() {return m_name;};
 
 	/// @return dialog template id for the dialog
 	UINT GetDlgID() {return m_dlgID;};
 
-private:
+protected:
+	CString m_name;
 	UINT m_dlgID;
+
+	int m_minWidth;
+	int m_minHeight;
+	bool m_bInitMinSize;
 };
 
 //{{AFX_INSERT_LOCATION}}

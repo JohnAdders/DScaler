@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsOleProperties.h,v 1.2 2002-05-09 17:20:15 tobbej Exp $
+// $Id: TreeSettingsOleProperties.h,v 1.3 2002-05-19 12:01:43 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/05/09 17:20:15  tobbej
+// fixed resize problem in CTreeSettingsOleProperties
+// (everytime a new page was activated the dialog size incresed)
+//
 // Revision 1.1  2002/04/24 19:04:01  tobbej
 // new treebased settings dialog
 //
@@ -76,7 +80,6 @@ protected:
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 	void OnOK();
-	void GetMinSize(int &width,int &height);
 private:
 	/**
 	 * Internal IPropertyPageSite COM object.
@@ -117,10 +120,6 @@ private:
 	};
 	///vector of all pages
 	std::vector<CPageInfo*> m_pages;
-	
-	///minimum size of the page
-	CSize m_minSize;
-
 };
 
 #endif // !defined(AFX_TREESETTINGSOLEPROPERTIES_H__D135AD9A_6F42_4439_90A3_025DA1E71858__INCLUDED_)

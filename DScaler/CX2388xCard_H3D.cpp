@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_H3D.cpp,v 1.8 2003-11-14 13:24:55 adcockj Exp $
+// $Id: CX2388xCard_H3D.cpp,v 1.9 2003-11-26 17:40:58 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2003/11/14 13:24:55  adcockj
+// PMS card fixes
+//
 // Revision 1.7  2003/10/27 10:39:51  adcockj
 // Updated files for better doxygen compatability
 //
@@ -162,6 +165,51 @@ void CCX2388xCard::InitH3D()
     m_SAA7118->SetRegister(0x5E, 0x00);
     m_SAA7118->SetRegister(0x5F, 0x00);
 
+    // 2
+    // stop the scaler
+    m_SAA7118->SetRegister(0x88,0x00);
+    m_SAA7118->SetRegister(0x83,0x00); // Xport Output Disable (i.e. Enable Input)
+
+    m_SAA7118->SetRegister(0x84,0x00);
+    m_SAA7118->SetRegister(0x85,0x00);
+    m_SAA7118->SetRegister(0x86,0x40);
+    m_SAA7118->SetRegister(0x87,0x01);
+
+    m_SAA7118->SetRegister(0x90,0x00);
+
+    m_SAA7118->SetRegister(0x93,0x80);
+
+    /* Acquisition Window Settings */
+    m_SAA7118->SetRegister(0x94,0x00); // horizontal input offset, min >= 2
+    m_SAA7118->SetRegister(0x95,0x00);
+    m_SAA7118->SetRegister(0x96,0xd0); // horizontal input window length = 720
+    m_SAA7118->SetRegister(0x97,0x02);
+
+    m_SAA7118->SetRegister(0x9c,0xd0); // horizontal output window length = 720
+    m_SAA7118->SetRegister(0x9d,0x02);
+
+    /* Scaler Settings */
+    m_SAA7118->SetRegister(0xa0,0x1); // hori prescaling
+    m_SAA7118->SetRegister(0xa1,0x00);
+    m_SAA7118->SetRegister(0xa2,0x00);
+    m_SAA7118->SetRegister(0xa4,0x80);//Register A Brightness(Lumin)
+    m_SAA7118->SetRegister(0xa5,0x40);//Register A Contrast(Lumin)
+    m_SAA7118->SetRegister(0xa6,0x40);//Register A Saturation(Chromin)
+    m_SAA7118->SetRegister(0xa8,0x00);
+    m_SAA7118->SetRegister(0xa9,0x04);
+    m_SAA7118->SetRegister(0xaa,0x20);
+    m_SAA7118->SetRegister(0xac,0x00);
+    m_SAA7118->SetRegister(0xad,0x02);
+    m_SAA7118->SetRegister(0xae,0x00);
+    m_SAA7118->SetRegister(0xb0,0x00);
+    m_SAA7118->SetRegister(0xb1,0x04);
+    m_SAA7118->SetRegister(0xb2,0x00);
+    m_SAA7118->SetRegister(0xb3,0x04);
+    m_SAA7118->SetRegister(0xb4,0x00);
+
+    m_SAA7118->SetRegister(0xb8,0x00);
+    m_SAA7118->SetRegister(0xbc,0x00);
+
 }
 
 void CCX2388xCard::H3DInputSelect(int nInput)
@@ -222,13 +270,34 @@ void CCX2388xCard::H3DSetFormat(int nInput, eVideoFormat TVFormat, BOOL IsProgre
         m_SAA7118->SetRegister(0x5A, 0x03);
         m_SAA7118->SetRegister(0x5B, 0x03);
         WriteByte(0x390007, 0xc8);
+
+        m_SAA7118->SetRegister(0x98,0x0d); // vertical input offset
+        m_SAA7118->SetRegister(0x99,0x00);
+
+        m_SAA7118->SetRegister(0x9A, 0x28);
+        m_SAA7118->SetRegister(0x9B, 0x01);
+        m_SAA7118->SetRegister(0x9E, 0x28);
+        m_SAA7118->SetRegister(0x9F, 0x01);
     }
     else
     {
         m_SAA7118->SetRegister(0x5A, 0x06);
         m_SAA7118->SetRegister(0x5B, 0x83);
         WriteByte(0x390007, 0x50);
+
+        m_SAA7118->SetRegister(0x98,0x0a); // vertical input offset
+        m_SAA7118->SetRegister(0x99,0x00);
+
+        m_SAA7118->SetRegister(0x9A, 0xf6);
+        m_SAA7118->SetRegister(0x9B, 0x00);
+        m_SAA7118->SetRegister(0x9E, 0xf6);
+        m_SAA7118->SetRegister(0x9F, 0x00);
     }
+
+    m_SAA7118->SetRegister(0x80, 0x10);
+    m_SAA7118->SetRegister(0x91, 0x08);
+    m_SAA7118->SetRegister(0x92, 0x10);
+
 
     switch(nInput)
     {
@@ -328,6 +397,10 @@ void CCX2388xCard::H3DSetFormat(int nInput, eVideoFormat TVFormat, BOOL IsProgre
         WriteByte(0x39000e, 0x00);
         WriteByte(0x39000f, 0x01);
     }
+
+    // reset the scaler
+    m_SAA7118->SetRegister(0x88,0x00);
+    m_SAA7118->SetRegister(0x88,0x20);
 
     FILE* hFile = fopen("FPGA.txt", "w");
     if(!hFile)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.32 2002-02-23 00:30:47 laurentg Exp $
+// $Id: BT848Source.cpp,v 1.33 2002-02-23 16:41:09 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2002/02/23 00:30:47  laurentg
+// NotifySizeChange
+//
 // Revision 1.31  2002/02/19 16:03:36  tobbej
 // removed CurrentX and CurrentY
 // added new member in CSource, NotifySizeChange
@@ -210,10 +213,6 @@ CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CU
         m_EvenFields[j].IsFirstInSeries = FALSE;
     }
     SetupCard();
-    if(pBT848Card->HasMSP())
-    {
-        SetTimer(hWnd, TIMER_MSP, TIMER_MSP_MS, NULL);
-    }
     Reset();
 }
 
@@ -387,6 +386,10 @@ void CBT848Source::Start()
     Audio_Unmute();
     Timing_Reset();
     NotifySizeChange();
+    if(m_pBT848Card->HasMSP())
+    {
+        SetTimer(hWnd, TIMER_MSP, TIMER_MSP_MS, NULL);
+    }
 }
 
 void CBT848Source::Reset()
@@ -536,6 +539,10 @@ void CBT848Source::Stop()
     // stop capture
     m_pBT848Card->StopCapture();
     Audio_Mute();
+    if(m_pBT848Card->HasMSP())
+    {
+        KillTimer(hWnd, TIMER_MSP);
+    }
 }
 
 void CBT848Source::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)

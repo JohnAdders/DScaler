@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Bt848_Defines.h,v 1.22 2003-02-20 10:39:59 adcockj Exp $
+// $Id: Bt848_Defines.h,v 1.23 2003-03-20 18:43:25 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -138,7 +138,7 @@
 #define BT848_VSCALE_YCOMB     (1<<7)
 #define BT848_VSCALE_COMB      (1<<6)
 #define BT848_VSCALE_INT       (1<<5)
-#define BT848_VSCALE_HI        15
+#define BT848_VSCALE_HI        31
 
 #define BT848_E_VSCALE_LO      0x050
 #define BT848_O_VSCALE_LO      0x0D0

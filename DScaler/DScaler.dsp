@@ -142,6 +142,10 @@ SOURCE=.\AudioDecoder.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\dshowsource\BaseCrossbar.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\BT848Card.cpp
 # End Source File
 # Begin Source File
@@ -175,6 +179,10 @@ SOURCE=.\BT848Source_Audio.cpp
 # Begin Source File
 
 SOURCE=.\Calibration.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\dshowsource\CaptureDevice.cpp
 # End Source File
 # Begin Source File
 
@@ -221,6 +229,14 @@ SOURCE=.\DScaler.rc
 # Begin Source File
 
 SOURCE=.\DScalerApp.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\dshowsource\DSGraph.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\dshowsource\DSObject.cpp
 # End Source File
 # Begin Source File
 
@@ -391,6 +407,10 @@ SOURCE=.\SettingsDlg.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\dshowsource\SingleCrossbar.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Source.cpp
 # End Source File
 # Begin Source File
@@ -511,6 +531,10 @@ SOURCE=.\AudioDecoder.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\dshowsource\BaseCrossbar.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Bt848_Defines.h
 # End Source File
 # Begin Source File
@@ -528,6 +552,10 @@ SOURCE=.\BT848Source.h
 # Begin Source File
 
 SOURCE=.\Calibration.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\dshowsource\CaptureDevice.h
 # End Source File
 # Begin Source File
 
@@ -572,6 +600,14 @@ SOURCE=.\DScaler.H
 # Begin Source File
 
 SOURCE=.\DScalerApp.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\dshowsource\DSGraph.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\dshowsource\DSObject.h
 # End Source File
 # Begin Source File
 
@@ -728,6 +764,10 @@ SOURCE=.\settings.h
 # Begin Source File
 
 SOURCE=.\SettingsDlg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\dshowsource\SingleCrossbar.h
 # End Source File
 # Begin Source File
 

@@ -607,7 +607,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             break;
         
         case IDC_CHANNEL:
-            if(InUpdate == FALSE)
+            if(InUpdate == FALSE && HIWORD(wParam) == CBN_SELCHANGE)
             {
                 char sbuf[256];
                 // set the frequency
@@ -635,7 +635,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDC_FORMAT:
-            if(InUpdate == FALSE)
+            if(InUpdate == FALSE && HIWORD(wParam) == CBN_SELCHANGE)
             {
                 int Format = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_FORMAT)) - 1;
 

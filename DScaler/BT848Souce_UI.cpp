@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.41 2002-08-13 21:21:24 kooiman Exp $
+// $Id: BT848Souce_UI.cpp,v 1.42 2002-09-04 21:13:55 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.41  2002/08/13 21:21:24  kooiman
+// Improved settings per channel to account for source and input changes.
+//
 // Revision 1.40  2002/08/12 22:39:51  kooiman
 // Registered more channel specific settings.
 //
@@ -340,6 +343,43 @@ BOOL APIENTRY CBT848Source::SelectCardProc(HWND hDlg, UINT message, UINT wParam,
               {          
                  ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_TUNERSELECT), nIndex);
               }
+            }
+            break;
+        case IDC_AUTODETECT:
+            {
+                eTVCardId CardId = pThis->m_pBT848Card->AutoDetectCardType();
+                eTunerId TunerId = pThis->m_pBT848Card->AutoDetectTuner(CardId);
+                
+                SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_RESETCONTENT, 0, 0);
+                for(i = 0; i < TVCARD_LASTONE; i++)
+                {
+                    int nIndex;
+                    nIndex = SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_ADDSTRING, 0, (LONG)pThis->m_pBT848Card->GetCardName((eTVCardId)i));
+                    SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_SETITEMDATA, nIndex, i);
+                    if(i == pThis->m_CardType->GetValue())
+                    {
+                        SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_SETCURSEL, nIndex, 0);
+                    }
+                }
+                
+                SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_RESETCONTENT, 0, 0);
+                for(i = 0; i < TUNER_LASTONE; i++)
+                {
+                    nIndex = SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_ADDSTRING, 0, (LONG)TunerNames[i]);
+                    SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETITEMDATA, nIndex, i);
+                }
+                SetFocus(hDlg);
+                // Update the tuner combobox after the SetFocus
+                // because SetFocus modifies this combobox
+                for (nIndex = 0; nIndex < TUNER_LASTONE; nIndex++)
+                {
+                    i = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_TUNERSELECT), nIndex);
+                    if (i == pThis->m_TunerType->GetValue() )
+                    {          
+                        SendMessage(GetDlgItem(hDlg, IDC_TUNERSELECT), CB_SETCURSEL, nIndex, 0);
+                    }
+                }
+                
             }
             break;
         default:

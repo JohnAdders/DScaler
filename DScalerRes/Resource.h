@@ -4,6 +4,7 @@
 //
 #define IDM_POPUP_FILTERS               1
 #define IDC_CLEAR                       3
+#define IDC_AUTODETECT                  3
 #define IDA_DSCALER                     150
 #define IDM_SAVE_SETTINGS_NOW           151
 #define IDM_STATUSBAR                   152
@@ -1004,7 +1005,7 @@
 #define IDM_HOLDER                      65535
 
 // Next default values for new objects
-//
+// 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1

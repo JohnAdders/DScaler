@@ -1,5 +1,5 @@
 //
-// $Id: TunerID.cpp,v 1.6 2005-03-06 12:43:13 to_see Exp $
+// $Id: TunerID.cpp,v 1.7 2005-03-06 13:15:06 to_see Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2005/03/06 12:43:13  to_see
+// Added some tuner
+//
 // Revision 1.5  2004/12/29 20:17:19  to_see
 // Added TCL 2002N tuner (from v4l2)
 //
@@ -109,7 +112,6 @@ const char *TunerNames[TUNER_LASTONE] =
     "Philips FM1256 MK3 [PAL/SECAM D]",         //   51     TUNER_PHILIPS_FM1256_IH3
     "Philips FQ1286 [NTSC]",                    //   53     TUNER_PHILIPS_FQ1286
     "LG TAPE series [PAL]",                     //   55     TUNER_LG_PAL_TAPE
-
     "Philips FM1216ME [PAL/SECAM multi]",       //   56     TUNER_PHILIPS_FM1216ME
     "Philips FQ1236A MK4 [NTSC]"                //   57     TUNER_PHILIPS_FQ1236A_MK4
 };

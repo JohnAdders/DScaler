@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ParsingCommon.cpp,v 1.11 2004-12-29 20:17:19 to_see Exp $
+// $Id: ParsingCommon.cpp,v 1.12 2005-03-06 13:15:06 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2004/12/29 20:17:19  to_see
+// Added TCL 2002N tuner (from v4l2)
+//
 // Revision 1.10  2004/12/17 00:22:51  atnak
 // Added a keyword for setting tda9887 modes for all formats.
 //
@@ -122,6 +125,16 @@ const CParseConstant k_parseTunerConstants[] =
 	PC( "MT2050_PAL",					TUNER_MT2050_PAL				),
 	PC( "PHILIPS_4IN1",					TUNER_PHILIPS_4IN1				),
 	PC( "TCL_2002N",					TUNER_TCL_2002N  				),
+    PC( "HITACHI_NTSC",			        TUNER_HITACHI_NTSC  			),
+	PC( "PHILIPS_PAL_MK",			    TUNER_PHILIPS_PAL_MK  			),
+	PC( "PHILIPS_FM1236_MK3",		    TUNER_PHILIPS_FM1236_MK3  		),
+	PC( "LG_NTSC_TAPE",			        TUNER_LG_NTSC_TAPE  			),
+	PC( "TNF_8831BGFF",			        TUNER_TNF_8831BGFF  			),
+	PC( "PHILIPS_FM1256_IH3",		    TUNER_PHILIPS_FM1256_IH3  		),
+	PC( "PHILIPS_FQ1286",			    TUNER_PHILIPS_FQ1286  			),
+	PC( "LG_PAL_TAPE",			        TUNER_LG_PAL_TAPE  				),
+	PC( "PHILIPS_FM1216ME",		        TUNER_PHILIPS_FM1216ME  		),
+	PC( "PHILIPS_FQ1236A_MK4",	        TUNER_PHILIPS_FQ1236A_MK4  		),
 	PC( NULL )
 };
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.59 2003-02-17 11:39:00 adcockj Exp $
+// $Id: Other.cpp,v 1.60 2003-03-05 13:54:55 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.59  2003/02/17 11:39:00  adcockj
+// Added group flags for setting per channel on more settings
+//
 // Revision 1.58  2003/01/26 18:03:04  laurentg
 // Problem with initial values for overlay settings fixed
 //
@@ -1167,7 +1170,7 @@ void Overlay_Copy_Extra(TDeinterlaceInfo* pInfo)
 
     for(int i(0) ; i < pInfo->FrameHeight; ++i)
     {
-        memcpy(ToPtr, FromPtr, pInfo->LineLength);
+        pInfo->pMemcpy(ToPtr, FromPtr, pInfo->LineLength);
         FromPtr += FromPitch;
         ToPtr += pInfo->OverlayPitch;
     }

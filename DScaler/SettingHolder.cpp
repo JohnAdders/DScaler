@@ -305,79 +305,72 @@ LONG CSettingsHolder::HandleSettingsMessage(HWND hWnd, UINT message, UINT wParam
     Adds an array of SETTING structures to the SettingHolder.
     Optionally specify a default SettingGroup    
 */
-void CSettingsHolder::LoadSettingStructures(SETTING* pSetting, int StartNum, int Num, CSettingGroup* pGroup)
+int CSettingsHolder::LoadSettingStructures(SETTING* pSetting, int StartNum, int Num, CSettingGroup* pGroup)
 {
-    int i;
-    for (i = 0; i < StartNum; i++)
+    int Count(0);
+
+    m_Settings.clear();
+
+    for (int i(StartNum) ; i < Num; i++)
     {
-        if (m_Settings.size()<=i) 
+        if(pSetting[i].szDisplayName != NULL)
         {
-            m_Settings.push_back(NULL);
-        }
-    }
-    for (i = StartNum; i < m_Settings.size(); i++)
-    {
-        m_Settings.pop_back();        
-    }
-    for (i = 0 ; i < Num; i++)
-    {
-        switch (pSetting[i].Type)
-        {
-        case ONOFF:
-        case YESNO:
-            AddSetting(new CYesNoSetting(&pSetting[i], pGroup));
-            break;
-        case ITEMFROMLIST:
-            AddSetting(new CListSetting(&pSetting[i], pGroup));
-            break;
-        case SLIDER:
-            AddSetting(new CSliderSetting(&pSetting[i], pGroup));    
-            break;
+            switch (pSetting[i].Type)
+            {
+            case ONOFF:
+            case YESNO:
+                AddSetting(new CYesNoSetting(&pSetting[i], pGroup));
+                break;
+            case ITEMFROMLIST:
+                AddSetting(new CListSetting(&pSetting[i], pGroup));
+                break;
+            case SLIDER:
+                AddSetting(new CSliderSetting(&pSetting[i], pGroup));    
+                break;
+            }
+            ++Count;
         }
     }    
     RegisterMe();
+    return Count;
 }
 
 /**
     Adds an array of SETTINGEX structures to the SettingHolder.    
 */
-void CSettingsHolder::LoadSettingStructuresEx(SETTINGEX* pSetting, int StartNum, int Num, CSettingGroupList* pGroupList)
+int CSettingsHolder::LoadSettingStructuresEx(SETTINGEX* pSetting, int StartNum, int Num, CSettingGroupList* pGroupList)
 {   
-    int i;
-    for (i = 0; i < StartNum; i++)
-    {
-        if (m_Settings.size()<=i) 
-        {
-            m_Settings.push_back(NULL);
-        }
-    }
-    for (i = StartNum; i < m_Settings.size(); i++)
-    {
-        m_Settings.pop_back();        
-    }
+    int Count(0);
+
+    m_Settings.clear();
 
     if (pGroupList == NULL)
     {
         pGroupList = SettingsMaster->Groups();
     }
 
-    for (i = 0 ; i < Num; i++)
+    for (int i(0) ; i < Num; i++)
     {
-        switch (pSetting[i].Type)
+        if(pSetting[i].szDisplayName != NULL)
         {
-        case ONOFF:
-        case YESNO:
-            AddSetting(new CYesNoSetting(&pSetting[i], pGroupList));
-            break;
-        case ITEMFROMLIST:
-            AddSetting(new CListSetting(&pSetting[i], pGroupList));
-            break;
-        case SLIDER:
-            AddSetting(new CSliderSetting(&pSetting[i], pGroupList));    
-            break;
+            switch (pSetting[i].Type)
+            {
+            case ONOFF:
+            case YESNO:
+                AddSetting(new CYesNoSetting(&pSetting[i], pGroupList));
+                break;
+            case ITEMFROMLIST:
+                AddSetting(new CListSetting(&pSetting[i], pGroupList));
+                break;
+            case SLIDER:
+                AddSetting(new CSliderSetting(&pSetting[i], pGroupList));    
+                break;
+            }
+            ++Count;
         }
     }    
     RegisterMe();
+    return Count;
 }
 
 /**

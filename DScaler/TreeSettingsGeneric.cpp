@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsGeneric.cpp,v 1.6 2002-10-19 15:15:42 tobbej Exp $
+// $Id: TreeSettingsGeneric.cpp,v 1.7 2002-10-23 09:46:46 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/10/19 15:15:42  tobbej
+// Implemented new gradient header above active page.
+// Changed resizing a bit to minimize flashing when repainting window
+//
 // Revision 1.5  2002/10/15 15:04:01  kooiman
 // Resizable tree setting dialog and use ISetting/CSimpleSetting as setting interface.
 //
@@ -71,8 +75,7 @@ CTreeSettingsGeneric::CTreeSettingsGeneric(CString name,SETTING* settings,long c
     //{{AFX_DATA_INIT(CTreeSettingsGeneric)
     //}}AFX_DATA_INIT
 
-    m_SettingsCount = count;
-    m_Settings.LoadSettingStructures(settings,0,m_SettingsCount);
+    m_SettingsCount = m_Settings.LoadSettingStructures(settings, 0, count);
     m_DeleteSettingsOnExit = TRUE;
 }
 
@@ -100,8 +103,7 @@ CTreeSettingsGeneric::CTreeSettingsGeneric(CString name,SETTINGEX* settings,long
 
     CSettingGroupList LocalGroupList;
 
-    m_SettingsCount = count;
-    m_Settings.LoadSettingStructuresEx(settings,0,m_SettingsCount,&LocalGroupList);
+    m_SettingsCount = m_Settings.LoadSettingStructuresEx(settings, 0, count, &LocalGroupList);
     for (int i = 0; i < m_SettingsCount; i++)
     {
         if (m_Settings[i] != NULL)

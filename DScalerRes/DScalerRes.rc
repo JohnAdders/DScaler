@@ -745,7 +745,7 @@ BEGIN
     POPUP "&Channels"
     BEGIN
         MENUITEM "Channel &Setup\tHome",        IDM_CHANNEL_LIST
-        MENUITEM "&Channel Select",             65535
+        MENUITEM "&Channel Select",             IDM_CHANNEL_SELECT
         MENUITEM SEPARATOR
         MENUITEM "&Next Channel\tPgUp",         IDM_CHANNELPLUS
         MENUITEM "&Previous Channel\tPgDn",     IDM_CHANNELMINUS
@@ -765,8 +765,8 @@ BEGIN
         BEGIN
             MENUITEM "Show &Next\tEnter",           IDM_SHOW_OSD
             MENUITEM "&Hide\tBackspace",            IDM_HIDE_OSD
-            MENUITEM "&Show Screen",                65535
-            MENUITEM "A&ctivate Screens",           65535
+            MENUITEM "&Show Screen",                IDM_SHOW_SCREEN
+            MENUITEM "A&ctivate Screens",           IDM_SHOW_SCREEN
             MENUITEM "&Autohide",                   IDM_AUTOHIDE_OSD
             , CHECKED
         END
@@ -880,10 +880,10 @@ BEGIN
             MENUITEM "Show Video Method &UI",       IDM_SHOWPLUGINUI
             MENUITEM SEPARATOR
         END
-        MENUITEM "Select &Filters",             65535
-        MENUITEM "Filter &Settings",            65535
+        MENUITEM "Select &Filters",             IDM_SHOW_SCREEN
+        MENUITEM "Filter &Settings",            IDM_SHOW_SCREEN
         MENUITEM SEPARATOR
-        MENUITEM "Test &Pattern Select",        65535
+        MENUITEM "Test &Pattern Select",        IDM_SHOW_SCREEN
         POPUP "St&art Card Calibration"
         BEGIN
             MENUITEM "&Manual",                     IDM_START_MANUAL_CALIBRATION
@@ -901,8 +901,8 @@ BEGIN
         MENUITEM "&Video Adjustments ...",      IDM_VIDEOSETTINGS
         MENUITEM "Auto Format Detection",       IDM_AUTO_FORMAT
     END
-    MENUITEM "Source",                      65535
-    MENUITEM "Holder",                      65535
+    MENUITEM "Source",                      IDM_SHOW_SCREEN
+    MENUITEM "Holder",                      IDM_SHOW_SCREEN
     POPUP "&Datacasting"
     BEGIN
         MENUITEM "Capture VBI-&Data",           IDM_VBI
@@ -985,7 +985,7 @@ BEGIN
         POPUP "Video &Overlay"
         BEGIN
             MENUITEM "Settings &Adjustment ...",    IDM_OVERLAYSETTINGS
-            MENUITEM "Groups of Settings",          65535, GRAYED
+            MENUITEM "Groups of Settings",          IDM_SHOW_SCREEN, GRAYED
             MENUITEM "St&op",                       IDM_OVERLAY_STOP
             MENUITEM "St&art",                      IDM_OVERLAY_START
         END
@@ -1007,13 +1007,13 @@ IDC_CONTEXTMENU MENU DISCARDABLE
 BEGIN
     POPUP "Menu1"
     BEGIN
-        MENUITEM "&Sources",                    65535
-        MENUITEM "&Holder",                     65535
-        MENUITEM "Deinterlace &Mode",           65535
-        MENUITEM "Aspect &Ratio",               65535
-        MENUITEM "Fi&lters",                    1
-        MENUITEM "&Datacasting",                65535
-        MENUITEM "&OSD",                        65535
+        MENUITEM "&Sources",                    IDM_POPUP_SOURCES
+        MENUITEM "&Holder",                     IDM_POPUP_SOURCES
+        MENUITEM "Deinterlace &Mode",           IDM_POPUP_SOURCES
+        MENUITEM "Aspect &Ratio",               IDM_POPUP_SOURCES
+        MENUITEM "Fi&lters",                    IDM_POPUP_FILTERS
+        MENUITEM "&Datacasting",                IDM_POPUP_SOURCES
+        MENUITEM "&OSD",                        IDM_POPUP_SOURCES
         MENUITEM "Full &Screen",                IDM_FULL_SCREEN
         MENUITEM "E&xit",                       IDM_END
     END
@@ -1289,10 +1289,10 @@ BEGIN
             VALUE "LegalCopyright", "Copyright © 2001\0"
             VALUE "LegalTrademarks", "This Program is covered by the term of the GNU GPL\0"
             VALUE "OriginalFilename", "DScalerRes.dll\0"
-            VALUE "PrivateBuild", "0\0"
+            VALUE "PrivateBuild", "None0\0"
             VALUE "ProductName", "DScaler\0"
             VALUE "ProductVersion", "4.0.0\0"
-            VALUE "SpecialBuild", "0\0"
+            VALUE "SpecialBuild", "None0\0"
         END
     END
     BLOCK "VarFileInfo"

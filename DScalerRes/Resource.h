@@ -2,6 +2,7 @@
 // Microsoft Developer Studio generated include file.
 // Used by DScalerRes.rc
 //
+#define IDM_POPUP_FILTERS               1
 #define IDA_DSCALER                     150
 #define IDM_SAVE_SETTINGS_NOW           151
 #define IDM_STATUSBAR                   152
@@ -829,6 +830,19 @@
 #define IDM_CROSSBAR_INPUT_MAX          2240
 
 #define IDC_STATIC                      -1
+#define IDM_POPUP_SOURCES               65535
+#define IDM_POPUP_HOLDER                65535
+#define IDM_POPUP_MODE                  65535
+#define IDM_POPUP_ASPECT                65535
+#define IDM_POPUP_DATA                  65535
+#define IDM_POPUP_OSD                   65535
+#define IDM_SHOW_SCREEN                 65535
+#define IDM_ACTIVATE_SCREEN             65535
+#define IDM_SELECT_FILTERS              65535
+#define IDM_FILTER_SETTINGS             65535
+#define IDM_TEST_PATTERN_SELECT         65535
+#define IDM_SOURCE                      65535
+#define IDM_HOLDER                      65535
 
 // Next default values for new objects
 //

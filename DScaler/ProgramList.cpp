@@ -40,6 +40,8 @@
 //
 // 06 Apr 2001   Laurent Garnier       New menu to select channel
 //
+// 26 May 2001   Eric Schmidt          Added Custom Channel Order.
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
@@ -65,6 +67,7 @@ int CountryCode = 1;
 
 long CurrentProgramm = 0;
 long PreviousProgramm = 0;
+BOOL bCustomChannelOrder = FALSE;
 
 BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
@@ -270,6 +273,7 @@ void Write_Program_List_ASCII()
 			{
 				fprintf(SettingFile, "Name: %s\n", Programm[j].Name);
 				fprintf(SettingFile, "Freq: %ld\n", Programm[j].freq);
+				fprintf(SettingFile, "Chan: %ld\n", Programm[j].chan);
 			}
 
 			fclose(SettingFile);
@@ -311,6 +315,21 @@ void Load_Program_List_ASCII()
 			// Read the name (may contain white space)
             if (fscanf(SettingFile, "%s ", sbuf) == EOF) // Skip past "Name: "
                 break;
+
+            // If "Chan:" is found, it must be for the previous Programm.
+            if (i > 0 && strnicmp(sbuf, "Chan", 4) == 0)
+            {
+                if (fscanf(SettingFile, "%ld\n", &Programm[i - 1].chan) == EOF)
+                {
+                    // Error condition - premature EOF
+                    goto error;
+                }
+
+                // Skip past "Name: "
+                if (fscanf(SettingFile, "%s ", sbuf) == EOF)
+                    break;
+            }
+
             j = 0;
             while (1)
             {
@@ -332,6 +351,10 @@ void Load_Program_List_ASCII()
 				// Error condition - premature EOF
 				goto error;
 			}
+
+            // For backward compatibility, in case there's no "Chan:" entry next
+            Programm[i].chan = i + 1;
+
 			i++;
 		}
 
@@ -451,7 +474,7 @@ BOOL APIENTRY AnalogScanProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 					VT_ResetStation();
 
 					Programm[progindex].freq = Freq;
-					
+                    Programm[progindex].chan = Channels.MinChannel + ChannelNr;
 					Programm[progindex].Typ = 'A';
 					
 					Freq = Freq + 2500;

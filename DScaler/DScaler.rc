@@ -607,6 +607,7 @@ BEGIN
         MENUITEM "&Next Channel\tPgUp",         IDM_CHANNELPLUS
         MENUITEM "&Previous Channel\tPgDn",     IDM_CHANNELMINUS
         MENUITEM "L&ast Channel\tCtrl+Backspace", IDM_CHANNEL_PREVIOUS
+        MENUITEM "Use Custom Channel &Order",   IDM_CHANNEL_CUSTOMORDER
     END
     POPUP "&View"
     BEGIN

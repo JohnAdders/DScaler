@@ -59,6 +59,8 @@
 //
 // 04 Apr 2001   Laurent Garnier       Automatic hide cursor
 //
+// 26 May 2001   Eric Schmidt          Added Custom Channel Order.
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
@@ -549,6 +551,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 				StatusBar_ShowText(STATUS_KEY, Programm[CurrentProgramm].Name);
 				OSD_ShowText(hWnd,Programm[CurrentProgramm].Name, 0);
 			}
+			break;
+
+		case IDM_CHANNEL_CUSTOMORDER:
+            bCustomChannelOrder = !bCustomChannelOrder;
 			break;
 
 		case IDM_CHANNEL_SELECT:
@@ -1560,9 +1566,34 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 			else
 			{
 				i = atoi(ChannelString);
-				i = i - 1;
-				ChangeChannel(i);
-				if(CurrentProgramm == i)
+
+                BOOL found = FALSE;
+                if (bCustomChannelOrder)
+                {
+                    // Find the channel the user typed.
+                    for (int j = 0; j < MAXPROGS; ++j)
+                    {
+                        if (Programm[j].freq != 0 && int(Programm[j].chan) == i)
+                        {
+                            found = TRUE;
+                            i = j;
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    found = TRUE;
+                    i = i - 1;
+                }
+
+                if (found)
+                {
+                    ChangeChannel(i);
+                    found = CurrentProgramm == i;
+                }
+
+				if (found)
 				{
 					StatusBar_ShowText(STATUS_KEY, Programm[CurrentProgramm].Name);
 					OSD_ShowText(hWnd, Programm[CurrentProgramm].Name, 0);
@@ -2198,6 +2229,8 @@ void SetMenuAnalog()
 	CheckMenuItem(hMenu, IDM_AUTOSTEREO,        AutoStereoSelect?MF_CHECKED:MF_UNCHECKED);
 	CheckMenuItem(hMenu, IDM_SPLASH_ON_STARTUP, bDisplaySplashScreen?MF_CHECKED:MF_UNCHECKED);
 	CheckMenuItem(hMenu, IDM_AUTOHIDE_OSD,      Setting_GetValue(OSD_GetSetting(OSD_AUTOHIDE_SCREEN))?MF_CHECKED:MF_UNCHECKED);
+
+    CheckMenuItem(hMenu, IDM_CHANNEL_CUSTOMORDER, bCustomChannelOrder ? MF_CHECKED : MF_UNCHECKED);
 
 	AspectRatio_SetMenu(hMenu);
 	FD60_SetMenu(hMenu);

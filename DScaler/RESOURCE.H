@@ -796,6 +796,7 @@
 #define IDM_SHOWPLUGINUI                2011
 #define ID_SETTINGS_PIXELWIDTH_754      2012
 #define IDM_RETURN_TO_WINDOW            2013
+#define IDM_CHANNEL_CUSTOMORDER         2014
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -803,7 +804,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        159
-#define _APS_NEXT_COMMAND_VALUE         2014
+#define _APS_NEXT_COMMAND_VALUE         2015
 #define _APS_NEXT_CONTROL_VALUE         1879
 #define _APS_NEXT_SYMED_VALUE           108
 #endif

@@ -44,6 +44,8 @@
 // 08 Jan 2001   John Adcock           Made all ini file reads use initial values
 //                                     of variables rather than hardcoded values here
 //
+// 26 Dec 2001   Eric Schmidt          Added Custom Channel Order.
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
@@ -123,6 +125,7 @@ void LoadSettingsFromIni()
 
 	Capture_VBI = (GetPrivateProfileInt("Show", "CaptureVBI", Capture_VBI, szIniFile) != 0);  
 	CurrentProgramm = GetPrivateProfileInt("Show", "LastProgram", CurrentProgramm, szIniFile);
+	bCustomChannelOrder = GetPrivateProfileInt("Show", "CustomChannelOrder", bCustomChannelOrder, szIniFile);
 
 	AudioSource = (AUDIOMUXTYPE)GetPrivateProfileInt("Sound", "AudioSource", AudioSource, szIniFile);
 	System_In_Mute = (GetPrivateProfileInt("Sound", "System_In_Mute", System_In_Mute, szIniFile) != 0);
@@ -348,6 +351,7 @@ void WriteSettingsToIni()
 
 	WritePrivateProfileInt("Show", "CaptureVBI", Capture_VBI, szIniFile);
 	WritePrivateProfileInt("Show", "LastProgram", CurrentProgramm, szIniFile);
+	WritePrivateProfileInt("Show", "CustomChannelOrder", bCustomChannelOrder, szIniFile);
 
 	WritePrivateProfileInt("Sound", "AudioSource", AudioSource, szIniFile);
 	WritePrivateProfileInt("Sound", "System_In_Mute", System_In_Mute, szIniFile);	

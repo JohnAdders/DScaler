@@ -37,6 +37,8 @@
 //
 // 06 Apr 2001   Laurent Garnier       New menu to select channel
 //
+// 26 May 2001   Eric Schmidt          Added Custom Channel Order.
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef __PROGRAMLIST_H___
@@ -55,6 +57,7 @@ typedef struct tagProgramm
 {
 	char Name[255];
     unsigned long freq;
+    unsigned long chan;
     char Typ;
     BOOL  Tuner_Auto;
 	BOOL  PMT_Auto;
@@ -105,5 +108,6 @@ extern TProgramm Programm[MAXPROGS+1];
 extern int CountryCode;
 extern long CurrentProgramm;
 extern long PreviousProgramm;
+extern BOOL bCustomChannelOrder;
 
 #endif

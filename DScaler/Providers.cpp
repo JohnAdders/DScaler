@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.15 2002-01-24 00:00:13 robmuller Exp $
+// $Id: Providers.cpp,v 1.16 2002-02-01 00:41:58 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2002/01/24 00:00:13  robmuller
+// Added bOptimizeFileAccess flag to WriteToIni from the settings classes.
+//
 // Revision 1.14  2001/12/09 22:00:42  tobbej
 // experimental dshow support, doesnt work yet
 // define WANT_DSHOW_SUPPORT if you want to try it
@@ -300,7 +303,7 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             Stop_Capture();
             for(int i = 0; i < Sources.size(); ++i)
             {
-                if(Sources[i]->OpenMediaFile(FilePath, TRUE))
+                if(Sources[i]->OpenMediaFile(FilePath, FALSE))
                 {
                     CurrentSource = i;
                     Providers_UpdateMenu(hMenu);

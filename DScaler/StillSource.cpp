@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.23 2002-01-17 22:22:06 robmuller Exp $
+// $Id: StillSource.cpp,v 1.24 2002-02-01 00:41:58 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2002/01/17 22:22:06  robmuller
+// Added member function GetTunerId().
+//
 // Revision 1.22  2001/12/18 14:53:00  adcockj
 // Fixed overlay problem when running on machine with no tv card
 //
@@ -195,7 +198,7 @@ BOOL CStillSource::OpenMediaFile(LPCSTR FileName, BOOL NewPlayList)
     if (NewPlayList)
     {
         ClearPlayList();
-        m_Position = 0;
+        m_Position = -1;
     }
 
     // test for the correct extension and work out the 
@@ -203,6 +206,7 @@ BOOL CStillSource::OpenMediaFile(LPCSTR FileName, BOOL NewPlayList)
     if(strlen(FileName) > 4 && stricmp(FileName + strlen(FileName) - 4, ".d3u") == 0)
     {
         char Buffer[512];
+        BOOL FirstNewAdded = FALSE;
         FILE* Playlist = fopen(FileName, "r");
         if(Playlist != NULL)
         {
@@ -220,6 +224,11 @@ BOOL CStillSource::OpenMediaFile(LPCSTR FileName, BOOL NewPlayList)
                         }
                         CPlayListItem* Item = new CPlayListItem(Buffer, 10);
                         m_PlayList.push_back(Item);
+                        if (!FirstNewAdded)
+                        {
+                            m_Position = m_PlayList.size() - 1;
+                            FirstNewAdded = TRUE;
+                        }
                     }
                 }
             }
@@ -233,7 +242,10 @@ BOOL CStillSource::OpenMediaFile(LPCSTR FileName, BOOL NewPlayList)
         m_Position = m_PlayList.size() - 1;
     }
 
-    return ShowNextInPlayList();
+    if ((m_Position == -1) || (m_PlayList.size() == 0))
+        return FALSE;
+    else
+        return ShowNextInPlayList();
 }
 
 BOOL CStillSource::ShowNextInPlayList()
@@ -380,11 +392,18 @@ void CStillSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 
 BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 {
+    CPlayListItem* Item;
+    vector<CPlayListItem*>::iterator it;
+
+    if ((m_Position == -1) || (m_PlayList.size() == 0))
+        return FALSE;
+
     switch(LOWORD(wParam))
     {
     case IDM_PLAYLIST_PREVIOUS:
         if(m_Position > 0)
         {
+            m_SlideShowActive = FALSE;
             --m_Position;
             Stop_Capture();
             ShowPreviousInPlayList();
@@ -395,6 +414,7 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
     case IDM_PLAYLIST_NEXT:
         if(m_Position < m_PlayList.size() - 1)
         {
+            m_SlideShowActive = FALSE;
             ++m_Position;
             Stop_Capture();
             ShowNextInPlayList();
@@ -405,6 +425,7 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
     case IDM_PLAYLIST_FIRST:
         if(m_Position != 0)
         {
+            m_SlideShowActive = FALSE;
             m_Position = 0;
             Stop_Capture();
             ShowNextInPlayList();
@@ -415,10 +436,42 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
     case IDM_PLAYLIST_LAST:
         if(m_Position != m_PlayList.size() - 1)
         {
+            m_SlideShowActive = FALSE;
             m_Position = m_PlayList.size() - 1;
             Stop_Capture();
             ShowPreviousInPlayList();
             Start_Capture();
+        }
+        return TRUE;
+        break;
+    case IDM_PLAYLIST_UP:
+        if(m_Position > 0)
+        {
+            m_SlideShowActive = FALSE;
+            Item = m_PlayList[m_Position];
+            it = m_PlayList.erase(m_PlayList.begin() + m_Position);
+            --it;
+            m_PlayList.insert(it, Item);
+            --m_Position;
+        }
+        return TRUE;
+        break;
+    case IDM_PLAYLIST_DOWN:
+        if(m_Position < m_PlayList.size() - 1)
+        {
+            m_SlideShowActive = FALSE;
+            Item = m_PlayList[m_Position];
+            it = m_PlayList.erase(m_PlayList.begin() + m_Position);
+            ++it;
+            if (it != m_PlayList.end())
+            {
+                m_PlayList.insert(it, Item);
+            }
+            else
+            {
+                m_PlayList.push_back(Item);
+            }
+            ++m_Position;
         }
         return TRUE;
         break;
@@ -432,11 +485,33 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         {
             KillTimer(hWnd, TIMER_SLIDESHOW);
         }
+        return TRUE;
         break;
     case IDM_CLOSE_FILE:
+        m_SlideShowActive = FALSE;
+        m_PlayList.erase(m_PlayList.begin() + m_Position);
+        if (m_Position >= m_PlayList.size())
+        {
+                m_Position = m_PlayList.size() - 1;
+        }
+        if (m_Position == -1)
+        {
+            PostMessage(hWnd, WM_COMMAND, IDM_SOURCE_FIRST, 0);
+        }
+        else
+        {
+            Stop_Capture();
+            ShowNextInPlayList();
+            Start_Capture();
+        }
+        return TRUE;
+        break;
+    case IDM_CLOSE_ALL:
+        m_SlideShowActive = FALSE;
         ClearPlayList();
         m_Position = -1;
         PostMessage(hWnd, WM_COMMAND, IDM_SOURCE_FIRST, 0);
+        return TRUE;
         break;
     default:
         break;
@@ -531,21 +606,25 @@ void CStillSource::SetMenu(HMENU hMenu)
         {
             EnableMenuItem(hMenu, IDM_PLAYLIST_PREVIOUS, MF_ENABLED);
             EnableMenuItem(hMenu, IDM_PLAYLIST_FIRST, MF_ENABLED);
+            EnableMenuItem(hMenu, IDM_PLAYLIST_UP, MF_ENABLED);
         }
         else
         {
             EnableMenuItem(hMenu, IDM_PLAYLIST_PREVIOUS, MF_GRAYED);
             EnableMenuItem(hMenu, IDM_PLAYLIST_FIRST, MF_GRAYED);
+            EnableMenuItem(hMenu, IDM_PLAYLIST_UP, MF_GRAYED);
         }
         if(m_Position < m_PlayList.size() - 1)
         {
             EnableMenuItem(hMenu, IDM_PLAYLIST_NEXT, MF_ENABLED);
             EnableMenuItem(hMenu, IDM_PLAYLIST_LAST, MF_ENABLED);
+            EnableMenuItem(hMenu, IDM_PLAYLIST_DOWN, MF_ENABLED);
         }
         else
         {
             EnableMenuItem(hMenu, IDM_PLAYLIST_NEXT, MF_GRAYED);
             EnableMenuItem(hMenu, IDM_PLAYLIST_LAST, MF_GRAYED);
+            EnableMenuItem(hMenu, IDM_PLAYLIST_DOWN, MF_GRAYED);
         }
         EnableMenuItem(hMenu, IDM_PLAYLIST_SLIDESHOW, MF_ENABLED);
     }
@@ -555,27 +634,26 @@ void CStillSource::SetMenu(HMENU hMenu)
         EnableMenuItem(hMenu, IDM_PLAYLIST_NEXT, MF_GRAYED);
         EnableMenuItem(hMenu, IDM_PLAYLIST_FIRST, MF_GRAYED);
         EnableMenuItem(hMenu, IDM_PLAYLIST_LAST, MF_GRAYED);
-        EnableMenuItem(hMenu, IDM_PLAYLIST_SLIDESHOW, (m_PlayList.size() > 1) ? MF_ENABLED : MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_PLAYLIST_UP, MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_PLAYLIST_DOWN, MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_PLAYLIST_SLIDESHOW, MF_GRAYED);
     }
 }
 
 void CStillSource::HandleTimerMessages(int TimerId)
 {
-    if (TimerId == TIMER_SLIDESHOW)
+    if ( (TimerId == TIMER_SLIDESHOW) && m_SlideShowActive )
     {
-        if (m_SlideShowActive)
+        Stop_Capture();
+        ++m_Position;
+        if (!ShowNextInPlayList())
         {
-            Stop_Capture();
-            ++m_Position;
-            if (!ShowNextInPlayList())
-            {
-                m_Position = 0;
-                ShowNextInPlayList();
-            }
-            Start_Capture();
-            m_SlideShowActive = TRUE;
-            SetTimer(hWnd, TIMER_SLIDESHOW, m_SlideShowDelay->GetValue() * 1000, NULL);
+            m_Position = 0;
+            ShowNextInPlayList();
         }
+        Start_Capture();
+        m_SlideShowActive = TRUE;
+        SetTimer(hWnd, TIMER_SLIDESHOW, m_SlideShowDelay->GetValue() * 1000, NULL);
     }
 }
 

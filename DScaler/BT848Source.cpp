@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.133 2004-11-13 21:45:56 to_see Exp $
+// $Id: BT848Source.cpp,v 1.134 2005-03-11 14:54:39 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.133  2004/11/13 21:45:56  to_see
+// - Some minor fixes
+// - Added "Vertical Sync Detection" in CX2388x Advanced Settings, enabled by default.
+//   It reduces dead lock problems dramaticaly if no video signal is present. Faster videosignal detection.
+//
 // Revision 1.132  2004/05/12 16:52:42  adcockj
 // Added channel gains fgor PMS cards
 //
@@ -944,7 +949,7 @@ void CBT848Source::Reset()
     if (m_BDelay->GetValue() != 0)
     {
         // BDELAY override from .ini file
-        m_pBT848Card->SetBDelay(m_BDelay->GetValue());
+        m_pBT848Card->SetBDelay((BYTE)m_BDelay->GetValue());
     }
     else
     {
@@ -952,10 +957,10 @@ void CBT848Source::Reset()
     }
 
 
-    m_pBT848Card->SetContrastBrightness(m_Contrast->GetValue(), m_Brightness->GetValue());
-    m_pBT848Card->SetHue(m_Hue->GetValue());
-    m_pBT848Card->SetSaturationU(m_SaturationU->GetValue());
-    m_pBT848Card->SetSaturationV(m_SaturationV->GetValue());
+    m_pBT848Card->SetContrastBrightness((WORD)m_Contrast->GetValue(), (WORD)m_Brightness->GetValue());
+    m_pBT848Card->SetHue((BYTE)m_Hue->GetValue());
+    m_pBT848Card->SetSaturationU((WORD)m_SaturationU->GetValue());
+    m_pBT848Card->SetSaturationV((WORD)m_SaturationV->GetValue());
     m_pBT848Card->SetFullLumaRange(m_BtFullLumaRange->GetValue());
 
     if(m_CardType->GetValue() != TVCARD_PMSDELUXE && m_CardType->GetValue() != TVCARD_SWEETSPOT)
@@ -976,16 +981,16 @@ void CBT848Source::Reset()
         m_pBT848Card->SetCrush(m_BtCrush->GetValue());
         m_pBT848Card->SetColorBars(m_BtColorBars->GetValue());
         m_pBT848Card->SetGammaCorrection(m_BtGammaCorrection->GetValue());
-        m_pBT848Card->SetWhiteCrushUp(m_BtWhiteCrushUp->GetValue());
-        m_pBT848Card->SetWhiteCrushDown(m_BtWhiteCrushDown->GetValue());
+        m_pBT848Card->SetWhiteCrushUp((BYTE)m_BtWhiteCrushUp->GetValue());
+        m_pBT848Card->SetWhiteCrushDown((BYTE)m_BtWhiteCrushDown->GetValue());
     }
     else
     {
         // set up the PMS gains for use in component modes
-        m_pBT848Card->SetPMSChannelGain(1, m_PMSGain1->GetValue());
-        m_pBT848Card->SetPMSChannelGain(2, m_PMSGain2->GetValue());
-        m_pBT848Card->SetPMSChannelGain(3, m_PMSGain3->GetValue());
-        m_pBT848Card->SetPMSChannelGain(4, m_PMSGain4->GetValue());
+        m_pBT848Card->SetPMSChannelGain(1, (WORD)m_PMSGain1->GetValue());
+        m_pBT848Card->SetPMSChannelGain(2, (WORD)m_PMSGain2->GetValue());
+        m_pBT848Card->SetPMSChannelGain(3, (WORD)m_PMSGain3->GetValue());
+        m_pBT848Card->SetPMSChannelGain(4, (WORD)m_PMSGain4->GetValue());
     }
 
     m_CurrentX = m_PixelWidth->GetValue();
@@ -1723,17 +1728,17 @@ void CBT848Source::VDelayOnChange(long NewValue, long OldValue)
 
 void CBT848Source::BrightnessOnChange(long Brightness, long OldValue)
 {
-    m_pBT848Card->SetContrastBrightness(m_Contrast->GetValue(), Brightness);
+    m_pBT848Card->SetContrastBrightness((WORD)m_Contrast->GetValue(), (WORD)Brightness);
 }
 
 void CBT848Source::BtWhiteCrushUpOnChange(long NewValue, long OldValue)
 {
-    m_pBT848Card->SetWhiteCrushUp(NewValue);
+    m_pBT848Card->SetWhiteCrushUp((BYTE)NewValue);
 }
 
 void CBT848Source::BtWhiteCrushDownOnChange(long NewValue, long OldValue)
 {
-    m_pBT848Card->SetWhiteCrushDown(NewValue);
+    m_pBT848Card->SetWhiteCrushDown((BYTE)NewValue);
 }
 
 void CBT848Source::BtCoringOnChange(long NewValue, long OldValue)
@@ -1751,7 +1756,7 @@ void CBT848Source::BDelayOnChange(long NewValue, long OldValue)
     // zero means use format's default value
     if(NewValue != 0)
     {
-        m_pBT848Card->SetBDelay(NewValue);  
+        m_pBT848Card->SetBDelay((BYTE)NewValue);  
     }
     else
     {
@@ -1761,17 +1766,17 @@ void CBT848Source::BDelayOnChange(long NewValue, long OldValue)
 
 void CBT848Source::HueOnChange(long Hue, long OldValue)
 {
-    m_pBT848Card->SetHue(Hue);
+    m_pBT848Card->SetHue((BYTE)Hue);
 }
 
 void CBT848Source::ContrastOnChange(long Contrast, long OldValue)
 {
-    m_pBT848Card->SetContrastBrightness(Contrast, m_Brightness->GetValue());
+    m_pBT848Card->SetContrastBrightness((WORD)Contrast, (WORD)m_Brightness->GetValue());
 }
 
 void CBT848Source::SaturationUOnChange(long SatU, long OldValue)
 {
-    m_pBT848Card->SetSaturationU(SatU);
+    m_pBT848Card->SetSaturationU((WORD)SatU);
     if(m_InSaturationUpdate == FALSE)
     {
         m_InSaturationUpdate = TRUE;
@@ -1784,7 +1789,7 @@ void CBT848Source::SaturationUOnChange(long SatU, long OldValue)
 
 void CBT848Source::SaturationVOnChange(long SatV, long OldValue)
 {
-    m_pBT848Card->SetSaturationV(SatV);
+    m_pBT848Card->SetSaturationV((WORD)SatV);
     if(m_InSaturationUpdate == FALSE)
     {
         m_InSaturationUpdate = TRUE;
@@ -1844,7 +1849,7 @@ void CBT848Source::PMSGain1OnChange(long Gain, long OldValue)
 {
     if(m_CardType->GetValue() == TVCARD_PMSDELUXE || m_CardType->GetValue() == TVCARD_SWEETSPOT)
     {
-        m_pBT848Card->SetPMSChannelGain(1, Gain);
+        m_pBT848Card->SetPMSChannelGain(1, (WORD)Gain);
     }
 }
 
@@ -1852,7 +1857,7 @@ void CBT848Source::PMSGain2OnChange(long Gain, long OldValue)
 {
     if(m_CardType->GetValue() == TVCARD_PMSDELUXE || m_CardType->GetValue() == TVCARD_SWEETSPOT)
     {
-        m_pBT848Card->SetPMSChannelGain(2, Gain);
+        m_pBT848Card->SetPMSChannelGain(2, (WORD)Gain);
     }
 }
 
@@ -1860,7 +1865,7 @@ void CBT848Source::PMSGain3OnChange(long Gain, long OldValue)
 {
     if(m_CardType->GetValue() == TVCARD_PMSDELUXE || m_CardType->GetValue() == TVCARD_SWEETSPOT)
     {
-        m_pBT848Card->SetPMSChannelGain(3, Gain);
+        m_pBT848Card->SetPMSChannelGain(3, (WORD)Gain);
     }
 }
 
@@ -1868,7 +1873,7 @@ void CBT848Source::PMSGain4OnChange(long Gain, long OldValue)
 {
     if(m_CardType->GetValue() == TVCARD_PMSDELUXE || m_CardType->GetValue() == TVCARD_SWEETSPOT)
     {
-        m_pBT848Card->SetPMSChannelGain(4, Gain);
+        m_pBT848Card->SetPMSChannelGain(4, (WORD)Gain);
     }
 }
 

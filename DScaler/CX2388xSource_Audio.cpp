@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_Audio.cpp,v 1.13 2004-12-30 18:14:42 to_see Exp $
+// $Id: CX2388xSource_Audio.cpp,v 1.14 2005-03-11 14:54:39 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2004/12/30 18:14:42  to_see
+// Added Pal(I) FM audio
+//
 // Revision 1.12  2004/08/31 17:54:50  to_see
 // New entry for PixelView PlayTV Ultra + on chip audio
 // Minor fixes
@@ -100,18 +103,18 @@ void CCX2388xSource::Mute()
 
 void CCX2388xSource::UnMute()
 {
-    m_pCard->SetAudioUnMute(m_Volume->GetValue());
+    m_pCard->SetAudioUnMute((WORD)m_Volume->GetValue());
 }
 
 void CCX2388xSource::VolumeOnChange(long NewValue, long OldValue)
 {
-    m_pCard->SetAudioVolume(NewValue);    
+    m_pCard->SetAudioVolume((WORD)NewValue);    
 	EventCollector->RaiseEvent(this, EVENT_VOLUME, OldValue, NewValue);
 }
 
 void CCX2388xSource::BalanceOnChange(long NewValue, long OldValue)
 {
-    m_pCard->SetAudioBalance(NewValue);
+    m_pCard->SetAudioBalance((WORD)NewValue);
 }
 
 void CCX2388xSource::AudioStandardOnChange(long NewValue, long OldValue)

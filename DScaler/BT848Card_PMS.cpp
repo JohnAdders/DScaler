@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_PMS.cpp,v 1.7 2005-03-09 09:35:16 atnak Exp $
+// $Id: BT848Card_PMS.cpp,v 1.8 2005-03-11 14:54:38 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2005/03/09 09:35:16  atnak
+// Renamed CI2CDevice:::Attach(...) to SetI2CBus(...) to better portray its
+// non-intrusive nature.
+//
 // Revision 1.6  2004/05/12 16:52:42  adcockj
 // Added channel gains fgor PMS cards
 //
@@ -421,7 +425,7 @@ void CBT848Card::SetPMSDeluxeContrastBrightness(WORD Contrast, WORD Brightness)
     }
     else
     {
-        ContrastLimited = Contrast;
+        ContrastLimited = (BYTE)Contrast;
     }
 
     switch(m_CurrentInput)
@@ -555,7 +559,7 @@ void CBT848Card::SetPMSDeluxeSaturationU(WORD Saturation)
     }
     else
     {
-        SaturationLimited = Saturation;
+        SaturationLimited = (BYTE)Saturation;
     }
 
     switch(m_CurrentInput)

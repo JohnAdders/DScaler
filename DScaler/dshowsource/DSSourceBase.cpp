@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.cpp,v 1.27 2004-12-15 00:38:26 laurentg Exp $
+// $Id: DSSourceBase.cpp,v 1.28 2005-03-11 14:54:41 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2004/12/15 00:38:26  laurentg
+// Unnecessary Sleep was added
+//
 // Revision 1.26  2004/12/14 23:22:16  laurentg
 // Action behind menu "DShow => Stop" now run by the output thread
 //
@@ -719,7 +722,7 @@ int CDSSourceBase::GetCurrentPos()
 	{
 		if(pSeeking->GetCaps()&AM_SEEKING_CanGetDuration)
 		{
-			return pSeeking->GetCurrentPos() / 1000000;
+			return (int)(pSeeking->GetCurrentPos() / 1000000);
 		}
 	}
 	return -1;
@@ -735,7 +738,7 @@ void CDSSourceBase::SetPos(int pos)
 			LONGLONG RealPos = (LONGLONG)pos * 1000000;
 			pSeeking->SeekTo(RealPos);
 
-			int pos1=RealPos/10000000;
+			int pos1 = (int)(RealPos / 10000000);
 			char text[32];
 			sprintf(text, "Jump to time %d:%2.2d", pos1 / 60, pos1 % 60);
 			OSD_ShowText(text, 0);
@@ -750,7 +753,7 @@ int CDSSourceBase::GetDuration()
 	{
 		if(pSeeking->GetCaps()&AM_SEEKING_CanGetDuration)
 		{
-			return pSeeking->GetDuration() / 1000000;
+			return (int)(pSeeking->GetDuration() / 1000000);
 		}
 	}
 	return -1;
@@ -779,7 +782,7 @@ void CDSSourceBase::ChangePos(int delta_sec)
 			{
 				pSeeking->SeekTo(newpos);
 
-				int pos1=newpos/10000000;
+				int pos1 = (int)(newpos / 10000000);
 				char text[32];
 				sprintf(text, "Jump to time %d:%2.2d", pos1 / 60, pos1 % 60);
 				OSD_ShowText(text, 0);

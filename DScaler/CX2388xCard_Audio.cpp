@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Audio.cpp,v 1.31 2005-02-05 20:07:25 to_see Exp $
+// $Id: CX2388xCard_Audio.cpp,v 1.32 2005-03-11 14:54:39 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2005/02/05 20:07:25  to_see
+// Added Secam(L) AM Mono. Thanks to Hervé.
+//
 // Revision 1.30  2004/12/30 18:14:42  to_see
 // Added Pal(I) FM audio
 //
@@ -713,7 +716,7 @@ void CCX2388xCard::SetAudioRegisters(const TAudioRegList* pAudioList)
 		case AUD_QAM_MODE:
 		case AUD_PHACC_FREQ_8MSB:
 		case AUD_PHACC_FREQ_8LSB:
-			WriteByte(pAudioList[i].dwRegister, pAudioList[i].dwValue);
+			WriteByte(pAudioList[i].dwRegister, (BYTE)pAudioList[i].dwValue);
 			break;
 
 		default:

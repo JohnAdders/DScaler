@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_UI.cpp,v 1.25 2004-03-25 17:59:44 adcockj Exp $
+// $Id: BT848Source_UI.cpp,v 1.26 2005-03-11 14:54:39 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2004/03/25 17:59:44  adcockj
+// Added Sweetspot as new card type
+//
 // Revision 1.24  2004/01/05 13:25:25  adcockj
 // Added patch for Diamond DTV2000 from Robert Milharcic
 //
@@ -636,9 +639,9 @@ BOOL APIENTRY CBT848Source::AudioStandardManualProc(HWND hDlg, UINT message, UIN
 BOOL APIENTRY CBT848Source::AudioSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
     static int  TVolume;
-    static char TBalance;
-    static char TBass;
-    static char TTreble;
+    static int TBalance;
+    static int TBass;
+    static int TTreble;
 	static BOOL TSuperBass;
 	static int  TLoudness;
 	static int  TSpatialEffect;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.44 2004-04-18 12:00:55 adcockj Exp $
+// $Id: BT848Card.cpp,v 1.45 2005-03-11 14:54:38 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.44  2004/04/18 12:00:55  adcockj
+// Fixes for eeprom corruption
+//
 // Revision 1.43  2003/11/14 10:32:10  adcockj
 // Dohm, coded new debug code properly..
 //
@@ -423,7 +426,7 @@ void CBT848Card::SetAnalogContrastBrightness(WORD Contrast, WORD Brightness)
         MaskDataByte(BT848_E_CONTROL, 0, BT848_CONTROL_CON_MSB);
         MaskDataByte(BT848_O_CONTROL, 0, BT848_CONTROL_CON_MSB);
     }
-    WriteByte(BT848_BRIGHT, Brightness);
+    WriteByte(BT848_BRIGHT, (BYTE)Brightness);
 }
 
 void CBT848Card::SetWhiteCrushUp(BYTE WhiteCrushUp)
@@ -1327,7 +1330,7 @@ BOOL APIENTRY CBT848Card::RegisterEditProc(HWND hDlg, UINT message, UINT wParam,
             {
                 if(pThis->m_SAA7118 != NULL)
                 {
-                    pThis->m_SAA7118->SetRegister(dwAddress - 0x1000, RegValue);
+                    pThis->m_SAA7118->SetRegister((BYTE)(dwAddress - 0x1000), RegValue);
                 }
             }
             break;
@@ -1347,7 +1350,7 @@ BOOL APIENTRY CBT848Card::RegisterEditProc(HWND hDlg, UINT message, UINT wParam,
                     {
                         if(pThis->m_SAA7118 != NULL)
                         {
-                            RegValue = pThis->m_SAA7118->GetRegister(dwAddress - 0x1000);
+                            RegValue = pThis->m_SAA7118->GetRegister((BYTE)(dwAddress - 0x1000));
                         }
                     }
                     BYTE TempRegValue(RegValue);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.104 2005-03-04 20:40:55 laurentg Exp $
+// $Id: StillSource.cpp,v 1.105 2005-03-11 14:54:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.104  2005/03/04 20:40:55  laurentg
+// Change unit (1/10 sec) for the setting defining the delay between periodic stills
+//
 // Revision 1.103  2005/03/04 20:23:34  laurentg
 // Message box added when exiting and snapshots are only in memory
 //
@@ -979,17 +982,17 @@ void CStillSource::SaveSnapshotInFile(int FrameHeight, int FrameWidth, BYTE* pFr
 
     if (!m_SquarePixels && Setting_GetValue(Still_GetSetting(KEEPORIGINALRATIO)))
     {
-		float Width;
+		double Width;
 
 		// if source is 16/9 anamorphic
 		if (AspectSettings.AspectMode == 2)
 		{
-			Width = (float)NewFrameHeight * 1.7777;
+			Width = NewFrameHeight * 1.7777;
 		}
 		// else source is 4/3 non anamorphic
 		else
 		{
-			Width = (float)NewFrameHeight * 1.3333;
+			Width = NewFrameHeight * 1.3333;
 		}
 		NewFrameWidth = (int)floor(Width / 2.0 + 0.5) * 2;
 
@@ -1123,17 +1126,17 @@ void CStillSource::SaveInFile(int pos)
 
     if (!m_SquarePixels && Setting_GetValue(Still_GetSetting(KEEPORIGINALRATIO)))
     {
-		float Width;
+		double Width;
 
 		// if source is 16/9 anamorphic
 		if (AspectSettings.AspectMode == 2)
 		{
-			Width = (float)NewFrameHeight * 1.7777;
+			Width = NewFrameHeight * 1.7777;
 		}
 		// else source is 4/3 non anamorphic
 		else
 		{
-			Width = (float)NewFrameHeight * 1.3333;
+			Width = NewFrameHeight * 1.3333;
 		}
 		NewFrameWidth = (int)floor(Width / 2.0 + 0.5) * 2;
 

@@ -1,5 +1,5 @@
 //
-// $Id: MT2050.cpp,v 1.5 2004-04-06 12:20:48 adcockj Exp $
+// $Id: MT2050.cpp,v 1.6 2005-03-11 14:54:40 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -23,6 +23,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2004/04/06 12:20:48  adcockj
+// Added .NET 2003 project files and some fixes to support this
+//
 // Revision 1.4  2004/02/11 15:29:52  robmuller
 // Register tweak thanks to Pityu.
 //
@@ -236,16 +239,16 @@ void CMT2050::SetIFFreq(int rfin, int if1, int if2, eVideoFormat videoFormat)
 
 	flo1step = 1000000;
 	flo2step = 50000;
-	LO1I = floor(flo1 / 4000000.0);
-	LO2I = floor(flo2 / 4000000.0);
+	LO1I = (long)floor(flo1 / 4000000.0);
+	LO2I = (long)floor(flo2 / 4000000.0);
 	flo1rem = flo1 % 4000000;
 	flo2rem = flo2 % 4000000;
-	flo1tune = flo1step * floor((flo1rem + flo1step / 2.0) / flo1step);
-	flo2tune = flo2step * floor((flo2rem + flo2step / 2.0) / flo2step);
+	flo1tune = flo1step * (long)floor((flo1rem + flo1step / 2.0) / flo1step);
+	flo2tune = flo2step * (long)floor((flo2rem + flo2step / 2.0) / flo2step);
 	Denom1 = 4;
 	Denom2 = 4095;
-	num1 = floor(flo1tune / (4000000.0 / Denom1) + 0.5);
-	num2 = floor(flo2tune / (4000000.0 / Denom2) + 0.5);
+	num1 = (int)floor(flo1tune / (4000000.0 / Denom1) + 0.5);
+	num2 = (int)floor(flo2tune / (4000000.0 / Denom2) + 0.5);
 	if (num1 >= Denom1)
 	{
 		num1 = 0;
@@ -256,9 +259,9 @@ void CMT2050::SetIFFreq(int rfin, int if1, int if2, eVideoFormat videoFormat)
 		num2 = 0;
 		LO2I++;
 	}
-	div1a = floor((double)(LO1I / 12.0)) - 1;
+	div1a = (int)floor((double)(LO1I / 12.0)) - 1;
 	div1b = LO1I % 12;
-	div2a = floor(double(LO2I / 8.0)) - 1;
+	div2a = (int)floor(double(LO2I / 8.0)) - 1;
 	div2b = LO2I % 8;
 //3.4 Writing registers
 	if (rfin < 277000000)
@@ -270,7 +273,7 @@ void CMT2050::SetIFFreq(int rfin, int if1, int if2, eVideoFormat videoFormat)
 		buf [0] = 4 * div1b + num1;
 	}
 	buf [1] = div1a;
-	buf [2] = 32 * div2b + floor(num2 / 256.0);
+	buf [2] = 32 * div2b + (UCHAR)floor(num2 / 256.0);
 	buf [3] = num2 % 256;
 	if (num2 == 0)
 	{

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.cpp,v 1.34 2004-08-12 16:27:47 adcockj Exp $
+// $Id: TimeShift.cpp,v 1.35 2005-03-11 14:54:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.34  2004/08/12 16:27:47  adcockj
+// added timeshift changes from emu
+//
 // Revision 1.33  2003/12/29 01:58:46  robmuller
 // Fix problem with latest addition.
 //
@@ -598,7 +601,9 @@ bool CTimeShift::OnRecord(void)
         // Need to use a temp for AVIFileSizeLimit to stop INI overwrite
         AVIFileSizeLimitTemp = AVIFileSizeLimit; // Initialize the temp
         if (TotalFreeBytes < (262144000 + (AVIFileSizeLimit*1024*1024)))
-            AVIFileSizeLimitTemp = ((TotalFreeBytes - 262144000)/(1024*1024));
+        {
+            AVIFileSizeLimitTemp = (DWORD)((TotalFreeBytes - 262144000)/(1024*1024));
+        }
         
         // Only start recording if we're stopped.
         result =

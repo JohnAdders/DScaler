@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DShowFileSource.cpp,v 1.8 2002-09-24 17:18:14 tobbej Exp $
+// $Id: DShowFileSource.cpp,v 1.9 2005-03-11 14:54:41 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/09/24 17:18:14  tobbej
+// support for files with multiple audio streams when using a user specified audio renderer
+// changed some log messages
+//
 // Revision 1.7  2002/09/21 16:33:30  tobbej
 // render all audio streams, this makes suround work
 //
@@ -277,7 +281,7 @@ void CDShowFileSource::Connect(CComPtr<IBaseFilter> VideoFilter)
 					if(IsEqualGUID(OldGUID,NewGUID))
 					{	
 						CComPtr<IStream> pStream;
-						HGLOBAL hg=GlobalAlloc(GMEM_MOVEABLE,ulSize.QuadPart);
+						HGLOBAL hg=GlobalAlloc(GMEM_MOVEABLE,(SIZE_T)ulSize.QuadPart);
 						if(hg!=NULL)
 						{
 							if(CreateStreamOnHGlobal(hg,TRUE,&pStream)==S_OK)

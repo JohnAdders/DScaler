@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDrawer.cpp,v 1.22 2004-04-24 08:35:15 atnak Exp $
+// $Id: VTDrawer.cpp,v 1.23 2005-03-11 14:54:41 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (c) 2002 Mike Temperton.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -35,6 +35,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2004/04/24 08:35:15  atnak
+// fix: cursor change to hand over hidden header number
+//
 // Revision 1.21  2003/10/27 10:39:54  adcockj
 // Updated files for better doxygen compatability
 //
@@ -313,14 +316,14 @@ BYTE CVTDrawer::DrawPageProc(TVTPage*, WORD wPoint, LPWORD lpFlags, WORD wColour
     BYTE nRow = LOBYTE(wPoint);
     BYTE nCol = HIBYTE(wPoint);
 
-    RECT DrawRect = { nCol * pThis->m_dAvgWidth + 0.5,
-                      nRow * pThis->m_dAvgHeight + 0.5,
-                      (nCol + 1) * pThis->m_dAvgWidth + 0.5,
-                      (nRow + 1) * pThis->m_dAvgHeight + 0.5 };
+    RECT DrawRect = {(LONG)(nCol * pThis->m_dAvgWidth + 0.5),
+                      (LONG)(nRow * pThis->m_dAvgHeight + 0.5),
+                      (LONG)((nCol + 1) * pThis->m_dAvgWidth + 0.5),
+                      (LONG)((nRow + 1) * pThis->m_dAvgHeight + 0.5) };
 
     if (*lpFlags & PARSE_DOUBLEHEIGHT)
     {
-        DrawRect.bottom = (nRow + 2) * pThis->m_dAvgHeight + 0.5;
+        DrawRect.bottom = (LONG)((nRow + 2) * pThis->m_dAvgHeight + 0.5);
     }
 
     OffsetRect(&DrawRect, lpRect->left, lpRect->top);
@@ -400,7 +403,7 @@ BYTE CVTDrawer::DrawPageProc(TVTPage*, WORD wPoint, LPWORD lpFlags, WORD wColour
 
     if ((*lpFlags & PARSE_DOUBLEHEIGHT) && !(uMode & VTMODE_DOUBLE))
     {
-        DrawRect.bottom = (nRow + 1) * pThis->m_dAvgHeight + 0.5;
+        DrawRect.bottom = (LONG)((nRow + 1) * pThis->m_dAvgHeight + 0.5);
         DrawRect.bottom += lpRect->top;
     }
 
@@ -475,7 +478,7 @@ BYTE CVTDrawer::DrawPageProc(TVTPage*, WORD wPoint, LPWORD lpFlags, WORD wColour
                 GetTextExtentPoint32W(hDC, (LPCWSTR)&UnicodeChar, 1, &Size);
             }
 
-            LeftOffset = (pThis->m_dAvgWidth - Size.cx) / 2;
+            LeftOffset = (int)((pThis->m_dAvgWidth - Size.cx) / 2);
 
             if (nCol == 0)
             {
@@ -559,8 +562,8 @@ WORD CVTDrawer::GetRowColAtPoint(LPRECT lpDisplayRect, LPPOINT DisplayPoint)
     double dWidth = (lpDisplayRect->right - lpDisplayRect->left) / 40.0;
     double dHeight = (lpDisplayRect->bottom - lpDisplayRect->top) / 25.0;
 
-    BYTE nRow = (DisplayPoint->y - lpDisplayRect->top + 1) / dHeight;
-    BYTE nCol = (DisplayPoint->x - lpDisplayRect->left + 1) / dWidth;
+    BYTE nRow = (BYTE)((DisplayPoint->y - lpDisplayRect->top + 1) / dHeight);
+    BYTE nCol = (BYTE)((DisplayPoint->x - lpDisplayRect->left + 1) / dWidth);
 
     if (nRow >= 25 || nCol >= 40)
     {
@@ -919,7 +922,7 @@ HFONT CVTDrawer::MakeFont(HDC hDC, double iSize, double iWidth, LPCTSTR szFaceNa
     SelectObject(hDC, hSave);
     DeleteObject(hFont);
 
-    hFont = CreateFont(-iSize, iWidth, 0, 0, bWeight, FALSE, FALSE, FALSE, DEFAULT_CHARSET,
+    hFont = CreateFont((int)-iSize, (int)iWidth, 0, 0, bWeight, FALSE, FALSE, FALSE, DEFAULT_CHARSET,
         OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, dwQuality, DEFAULT_PITCH, szFaceName);
 
     return hFont;

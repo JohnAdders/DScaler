@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_CCdecode.cpp,v 1.20 2004-10-26 16:44:54 adcockj Exp $
+// $Id: VBI_CCdecode.cpp,v 1.21 2005-03-11 14:54:41 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Mike Baker.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2004/10/26 16:44:54  adcockj
+// More CC fixes from Rani Feldman
+//
 // Revision 1.19  2004/10/18 16:04:08  adcockj
 // Much delayed CC pop up fix from Rani Feldman
 //
@@ -134,13 +137,13 @@ void CC_Init_Data(double VBI_Frequency)
     // one for PAL type and one for NTSC type formats
     if(TVFormat->wCropHeight == 576)
     {
-        CC_Clock = (VBI_Frequency / 0.5 + 0.5);
-        CC_Gap = (VBI_Frequency * 9 / 0.5 + 0.5);
+        CC_Clock = (int)(VBI_Frequency / 0.5 + 0.5);
+        CC_Gap = (int)(VBI_Frequency * 9 / 0.5 + 0.5);
     }
     else
     {
-        CC_Clock = (VBI_Frequency / 0.503 + 0.5);
-        CC_Gap = (VBI_Frequency * 9 / 0.503 + 0.5);
+        CC_Clock = (int)(VBI_Frequency / 0.503 + 0.5);
+        CC_Gap = (int)(VBI_Frequency * 9 / 0.503 + 0.5);
     }
 }
 

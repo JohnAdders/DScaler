@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutReso.cpp,v 1.16 2003-10-27 10:39:52 adcockj Exp $
+// $Id: OutReso.cpp,v 1.17 2005-03-11 14:54:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2003/10/27 10:39:52  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.15  2003/04/28 16:44:41  laurentg
 // New menu item to enable use of PowerStrip
 //
@@ -386,7 +389,7 @@ void OutReso_Change(HWND hWnd, HWND hPSWnd, BOOL bUseRegistrySettings, BOOL bCap
 		BOOL changeRes = FALSE;
 
 		// Get the actual PStrip timing string
-		ATOM pActualPStripTimingString = SendMessage(hPSWnd, UM_GETPSTRIPTIMING, 0, 0);
+		ATOM pActualPStripTimingString = (ATOM)SendMessage(hPSWnd, UM_GETPSTRIPTIMING, 0, 0);
 		LPSTR lActualPStripTimingString = new char[PSTRIP_TIMING_STRING_SIZE];	
 		GlobalGetAtomName(pActualPStripTimingString, lActualPStripTimingString, PSTRIP_TIMING_STRING_SIZE);
 		GlobalDeleteAtom(pActualPStripTimingString);

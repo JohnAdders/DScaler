@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.71 2004-12-25 22:40:18 to_see Exp $
+// $Id: CX2388xSource.cpp,v 1.72 2005-03-11 14:54:39 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.71  2004/12/25 22:40:18  to_see
+// Changed the card list to an ini file
+//
 // Revision 1.70  2004/11/13 21:45:56  to_see
 // - Some minor fixes
 // - Added "Vertical Sync Detection" in CX2388x Advanced Settings, enabled by default.
@@ -763,10 +766,10 @@ void CCX2388xSource::Reset()
     m_pCard->ResetHardware();
     m_pCard->SetVideoSource(m_VideoSource->GetValue());
 
-    m_pCard->SetContrastBrightness(m_Contrast->GetValue(), m_Brightness->GetValue());
-    m_pCard->SetHue(m_Hue->GetValue());
-    m_pCard->SetSaturationU(m_SaturationU->GetValue());
-    m_pCard->SetSaturationV(m_SaturationV->GetValue());
+    m_pCard->SetContrastBrightness((BYTE)m_Contrast->GetValue(), (BYTE)m_Brightness->GetValue());
+    m_pCard->SetHue((BYTE)m_Hue->GetValue());
+    m_pCard->SetSaturationU((BYTE)m_SaturationU->GetValue());
+    m_pCard->SetSaturationV((BYTE)m_SaturationV->GetValue());
 
     m_CurrentX = m_PixelWidth->GetValue();
     m_pCard->SetGeoSize(
@@ -809,7 +812,7 @@ void CCX2388xSource::Reset()
     if(m_pCard->IsThisCardH3D((eCX2388xCardId)m_CardType->GetValue()))
     {
         m_pCard->SetFLIFilmDetect(m_FLIFilmDetect->GetValue());
-        m_pCard->SetSharpness(m_Sharpness->GetValue());
+        m_pCard->SetSharpness((char)m_Sharpness->GetValue());
     }
     
     else
@@ -828,8 +831,8 @@ void CCX2388xSource::Reset()
         m_pCard->SetCombRange(m_CombRange->GetValue());
         m_pCard->SetSecondChromaDemod((CCX2388xCard::eFlagWithDefault)m_SecondChromaDemod->GetValue());
         m_pCard->SetThirdChromaDemod((CCX2388xCard::eFlagWithDefault)m_ThirdChromaDemod->GetValue());
-        m_pCard->SetWhiteCrushUp(m_WhiteCrushUp->GetValue());
-        m_pCard->SetWhiteCrushDown(m_WhiteCrushDown->GetValue());
+        m_pCard->SetWhiteCrushUp((BYTE)m_WhiteCrushUp->GetValue());
+        m_pCard->SetWhiteCrushDown((BYTE)m_WhiteCrushDown->GetValue());
         m_pCard->SetWhiteCrushMajorityPoint((CCX2388xCard::eWhiteCrushMajSel)m_WhiteCrushMajorityPoint->GetValue());
         m_pCard->SetWhiteCrushPerFrame(m_WhiteCrushPerFrame->GetValue());
         m_pCard->SetVerticalSyncDetection(m_VerticalSyncDetection->GetValue());
@@ -1669,22 +1672,22 @@ void CCX2388xSource::VideoFormatOnChange(long NewValue, long OldValue)
 
 void CCX2388xSource::BrightnessOnChange(long Brightness, long OldValue)
 {
-    m_pCard->SetContrastBrightness(m_Contrast->GetValue(), Brightness);
+    m_pCard->SetContrastBrightness((BYTE)m_Contrast->GetValue(), (BYTE)Brightness);
 }
 
 void CCX2388xSource::HueOnChange(long Hue, long OldValue)
 {
-    m_pCard->SetHue(Hue);
+    m_pCard->SetHue((BYTE)Hue);
 }
 
 void CCX2388xSource::ContrastOnChange(long Contrast, long OldValue)
 {
-    m_pCard->SetContrastBrightness(Contrast, m_Brightness->GetValue());
+    m_pCard->SetContrastBrightness((BYTE)Contrast, (BYTE)m_Brightness->GetValue());
 }
 
 void CCX2388xSource::SaturationUOnChange(long SatU, long OldValue)
 {
-    m_pCard->SetSaturationU(SatU);
+    m_pCard->SetSaturationU((BYTE)SatU);
     if(m_InSaturationUpdate == FALSE)
     {
         m_InSaturationUpdate = TRUE;
@@ -1697,7 +1700,7 @@ void CCX2388xSource::SaturationUOnChange(long SatU, long OldValue)
 
 void CCX2388xSource::SaturationVOnChange(long SatV, long OldValue)
 {
-    m_pCard->SetSaturationV(SatV);
+    m_pCard->SetSaturationV((BYTE)SatV);
     if(m_InSaturationUpdate == FALSE)
     {
         m_InSaturationUpdate = TRUE;
@@ -1984,12 +1987,12 @@ void CCX2388xSource::WhiteCrushOnChange(long NewValue, long OldValue)
 
 void CCX2388xSource::WhiteCrushUpOnChange(long NewValue, long OldValue)
 {
-    m_pCard->SetWhiteCrushUp(NewValue);
+    m_pCard->SetWhiteCrushUp((BYTE)NewValue);
 }
 
 void CCX2388xSource::WhiteCrushDownOnChange(long NewValue, long OldValue)
 {
-    m_pCard->SetWhiteCrushDown(NewValue);
+    m_pCard->SetWhiteCrushDown((BYTE)NewValue);
 }
 
 void CCX2388xSource::WhiteCrushMajorityPointOnChange(long NewValue, long OldValue)
@@ -2089,7 +2092,7 @@ void CCX2388xSource::EatLinesAtTopOnChange(long NewValue, long OldValue)
 
 void CCX2388xSource::SharpnessOnChange(long NewValue, long OldValue)
 {
-    m_pCard->SetSharpness(NewValue);
+    m_pCard->SetSharpness((char)NewValue);
 }
 
 

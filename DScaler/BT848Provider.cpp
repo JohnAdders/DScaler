@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Provider.cpp,v 1.9 2003-10-27 10:39:50 adcockj Exp $
+// $Id: BT848Provider.cpp,v 1.10 2005-03-11 14:54:38 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2003/10/27 10:39:50  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.8  2002/08/11 16:56:34  laurentg
 // More information displayed in the title of the BT card setup dialog box
 //
@@ -69,8 +72,8 @@
 
 typedef struct
 {
-    DWORD VendorId;
-    DWORD DeviceId;
+    WORD VendorId;
+    WORD DeviceId;
     char* szName;
 } TBT848Chip;
 

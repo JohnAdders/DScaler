@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_Audio.cpp,v 1.34 2003-10-27 10:39:50 adcockj Exp $
+// $Id: BT848Source_Audio.cpp,v 1.35 2005-03-11 14:54:39 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.34  2003/10/27 10:39:50  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.33  2003/02/06 19:51:31  ittarnavsky
 // changes due to the move of TIMER_MSP definition
 //
@@ -150,28 +153,28 @@ void CBT848Source::Mute()
 
 void CBT848Source::UnMute()
 {
-    m_pBT848Card->SetAudioUnMute(m_Volume->GetValue(), (eAudioInput)GetCurrentAudioSetting()->GetValue());
+    m_pBT848Card->SetAudioUnMute((WORD)m_Volume->GetValue(), (eAudioInput)GetCurrentAudioSetting()->GetValue());
 }
 
 void CBT848Source::VolumeOnChange(long NewValue, long OldValue)
 {
-    m_pBT848Card->SetAudioVolume(NewValue);    
+    m_pBT848Card->SetAudioVolume((WORD)NewValue);    
 	EventCollector->RaiseEvent(this, EVENT_VOLUME, OldValue, NewValue);
 }
 
 void CBT848Source::BalanceOnChange(long NewValue, long OldValue)
 {
-    m_pBT848Card->SetAudioBalance(NewValue);
+    m_pBT848Card->SetAudioBalance((WORD)NewValue);
 }
 
 void CBT848Source::BassOnChange(long NewValue, long OldValue)
 {
-    m_pBT848Card->SetAudioBass(NewValue);
+    m_pBT848Card->SetAudioBass((WORD)NewValue);
 }
 
 void CBT848Source::TrebleOnChange(long NewValue, long OldValue)
 {
-    m_pBT848Card->SetAudioTreble(NewValue);
+    m_pBT848Card->SetAudioTreble((WORD)NewValue);
 }
 
 void CBT848Source::AudioSource1OnChange(long NewValue, long OldValue)
@@ -259,11 +262,11 @@ void CBT848Source::UseEqualizerOnChange(long NewValue, long OldValue)
 
 			m_pBT848Card->SetAudioEqualizerLevel(-1, TRUE); //Enable equalizer
 
-			m_pBT848Card->SetAudioEqualizerLevel(0, m_EqualizerBand1->GetValue());
-			m_pBT848Card->SetAudioEqualizerLevel(1, m_EqualizerBand2->GetValue());
-			m_pBT848Card->SetAudioEqualizerLevel(2, m_EqualizerBand3->GetValue());
-			m_pBT848Card->SetAudioEqualizerLevel(3, m_EqualizerBand4->GetValue());
-			m_pBT848Card->SetAudioEqualizerLevel(4, m_EqualizerBand5->GetValue());
+			m_pBT848Card->SetAudioEqualizerLevel(0, (WORD)m_EqualizerBand1->GetValue());
+			m_pBT848Card->SetAudioEqualizerLevel(1, (WORD)m_EqualizerBand2->GetValue());
+			m_pBT848Card->SetAudioEqualizerLevel(2, (WORD)m_EqualizerBand3->GetValue());
+			m_pBT848Card->SetAudioEqualizerLevel(3, (WORD)m_EqualizerBand4->GetValue());
+			m_pBT848Card->SetAudioEqualizerLevel(4, (WORD)m_EqualizerBand5->GetValue());
 		}
 		else
 		{
@@ -277,8 +280,8 @@ void CBT848Source::UseEqualizerOnChange(long NewValue, long OldValue)
 			m_pBT848Card->SetAudioEqualizerLevel(-1, FALSE); //Disable equalizer
 
 			// Set bass & treble back
-			m_pBT848Card->SetAudioBass(m_Bass->GetValue());
-			m_pBT848Card->SetAudioTreble(m_Treble->GetValue());
+			m_pBT848Card->SetAudioBass((WORD)m_Bass->GetValue());
+			m_pBT848Card->SetAudioTreble((WORD)m_Treble->GetValue());
 		}
 	}
 }
@@ -287,7 +290,7 @@ void CBT848Source::EqualizerBand1OnChange(long NewValue, long OldValue)
 {
 	if(m_UseEqualizer->GetValue() && m_pBT848Card->HasAudioEqualizers())
 	{
-		m_pBT848Card->SetAudioEqualizerLevel(0, NewValue);
+		m_pBT848Card->SetAudioEqualizerLevel(0, (WORD)NewValue);
 	}
 }
 
@@ -295,34 +298,34 @@ void CBT848Source::EqualizerBand2OnChange(long NewValue, long OldValue)
 {
 	if(m_UseEqualizer->GetValue() && m_pBT848Card->HasAudioEqualizers())
 	{
-		m_pBT848Card->SetAudioEqualizerLevel(1, NewValue);
+		m_pBT848Card->SetAudioEqualizerLevel(1, (WORD)NewValue);
 	}
 }
 void CBT848Source::EqualizerBand3OnChange(long NewValue, long OldValue)
 {
 	if(m_UseEqualizer->GetValue() && m_pBT848Card->HasAudioEqualizers())
 	{
-		m_pBT848Card->SetAudioEqualizerLevel(2, NewValue);
+		m_pBT848Card->SetAudioEqualizerLevel(2, (WORD)NewValue);
 	}
 }
 void CBT848Source::EqualizerBand4OnChange(long NewValue, long OldValue)
 {
 	if(m_UseEqualizer->GetValue() && m_pBT848Card->HasAudioEqualizers())
 	{
-		m_pBT848Card->SetAudioEqualizerLevel(3, NewValue);
+		m_pBT848Card->SetAudioEqualizerLevel(3, (WORD)NewValue);
 	}
 }
 void CBT848Source::EqualizerBand5OnChange(long NewValue, long OldValue)
 {
 	if(m_UseEqualizer->GetValue() && m_pBT848Card->HasAudioEqualizers())
 	{
-		m_pBT848Card->SetAudioEqualizerLevel(4, NewValue);
+		m_pBT848Card->SetAudioEqualizerLevel(4, (WORD)NewValue);
 	}
 }
 
 void CBT848Source::AudioLoudnessOnChange(long NewValue, long OldValue)
 {
-	m_pBT848Card->SetAudioLoudness(m_AudioLoudness->GetValue());
+	m_pBT848Card->SetAudioLoudness((WORD)m_AudioLoudness->GetValue());
 }
 
 void CBT848Source::AudioSuperbassOnChange(long NewValue, long OldValue)
@@ -379,7 +382,7 @@ void CBT848Source::AudioStandardDetectOnChange(long NewValue, long OldValue)
                     m_InitAudioControls = FALSE;
                     InitAudioControls();
                 }
-                m_pBT848Card->SetAudioVolume(m_Volume->GetValue());
+                m_pBT848Card->SetAudioVolume((WORD)m_Volume->GetValue());
                 break;
             } 
             else
@@ -431,7 +434,7 @@ void CBT848Source::AudioStandardDetectOnChange(long NewValue, long OldValue)
                 m_InitAudioControls = FALSE;
                 InitAudioControls();
             }
-            m_pBT848Card->SetAudioVolume(m_Volume->GetValue());
+            m_pBT848Card->SetAudioVolume((WORD)m_Volume->GetValue());
         }
         break;
     }        
@@ -471,7 +474,7 @@ void CBT848Source::AudioStandardDetected(long Standard)
         m_InitAudioControls = FALSE;
         InitAudioControls();
     }
-    m_pBT848Card->SetAudioVolume(m_Volume->GetValue());
+    m_pBT848Card->SetAudioVolume((WORD)m_Volume->GetValue());
     m_DetectingAudioStandard = 0;
 }
 
@@ -480,7 +483,7 @@ void CBT848Source::AudioStandardManualOnChange(long NewValue, long OldValue)
     if (m_AudioStandardDetect->GetValue() == 4)
     {
         m_pBT848Card->SetAudioStandard(NewValue, (eVideoFormat)m_VideoFormat->GetValue());
-        m_pBT848Card->SetAudioVolume(m_Volume->GetValue());
+        m_pBT848Card->SetAudioVolume((WORD)m_Volume->GetValue());
         m_AudioStandardMajorCarrier->SetValue(m_pBT848Card->GetAudioStandardMajorCarrier(NewValue), TRUE);
         m_AudioStandardMinorCarrier->SetValue(m_pBT848Card->GetAudioStandardMinorCarrier(NewValue), TRUE);
     }

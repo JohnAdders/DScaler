@@ -1,5 +1,5 @@
 //
-// $Id: GenericTuner.cpp,v 1.18 2005-03-06 12:50:50 to_see Exp $
+// $Id: GenericTuner.cpp,v 1.19 2005-03-11 14:54:40 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2005/03/06 12:50:50  to_see
+// Added some tuner
+//
 // Revision 1.17  2004/12/29 20:17:19  to_see
 // Added TCL 2002N tuner (from v4l2)
 //
@@ -138,8 +141,8 @@
 #define TUNERDEF(TID,VFMT,T1,T2,VHFL,VHFH,UHF,CFG,IFPC) \
         m_TunerId = (TID); \
         m_VideoFormat = (VFMT); \
-        m_Thresh1 = (T1); \
-        m_Thresh2 = (T2); \
+        m_Thresh1 = (WORD)(T1); \
+        m_Thresh2 = (WORD)(T2); \
         m_VHF_L = (VHFL); \
         m_VHF_H = (VHFH); \
         m_UHF = (UHF); \
@@ -505,7 +508,7 @@ bool CGenericTuner::SetTVFrequency(long nFrequencyHz, eVideoFormat videoFormat)
         config = m_UHF;
     }
     
-    div = nFrequency + m_IFPCoff;
+    div = (WORD)nFrequency + m_IFPCoff;
     
     // handle Mode on Philips SECAM tuners
     // they can also recive PAL if the Mode is set properly
@@ -631,7 +634,7 @@ bool CGenericTuner::SetRadioFrequency(long nFrequencyHz)
 
 #if 1
     long nFrequency = MulDiv(nFrequencyHz, 20, 1000000);
-    WORD div = nFrequency + (WORD)(10.7*20);
+    WORD div = (WORD)nFrequency + (WORD)(10.7*20);
     BYTE config = 0x88;
 #else
     long nFrequency = MulDiv(nFrequencyHz, 16, 1000000);

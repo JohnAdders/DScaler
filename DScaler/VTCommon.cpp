@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTCommon.cpp,v 1.4 2003-10-27 10:39:54 adcockj Exp $
+// $Id: VTCommon.cpp,v 1.5 2005-03-11 14:54:41 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2003/10/27 10:39:54  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.3  2003/01/12 17:12:45  atnak
 // Added hex pages display and goto dialog
 //
@@ -507,7 +510,7 @@ BYTE CVTCommon::ParsePageElements(TVTPage* pPage, LPWORD lpFlags,
 
     *lpFlags = wFlags;
 
-    return uResult;
+    return (BYTE)uResult;
 }
 
 
@@ -607,7 +610,7 @@ BYTE CVTCommon::ParseLineElements(TVTPage* pPage, BYTE nRow, LPWORD lpFlags,
         {
             return ParseEmptyLine(pPage, nRow, lpFlags, fnParseProc, lpParam);
         }
-        return uResult;
+        return (BYTE)uResult;
     }
 
     if (nRow != 25)
@@ -794,7 +797,7 @@ BYTE CVTCommon::ParseLineElements(TVTPage* pPage, BYTE nRow, LPWORD lpFlags,
             HeldGraphChar = 0x20;
         }
     }
-    return uResult;
+    return (BYTE)uResult;
 }
 
 
@@ -902,7 +905,7 @@ BYTE CVTCommon::ParseEmptyLine(TVTPage* pPage, BYTE nRow, LPWORD lpFlags,
         }
     }
 
-    return uResult;
+    return (BYTE)uResult;
 }
 
 

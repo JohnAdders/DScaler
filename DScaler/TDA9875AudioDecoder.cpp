@@ -1,5 +1,5 @@
 //
-// $Id: TDA9875AudioDecoder.cpp,v 1.2 2005-03-09 10:02:10 atnak Exp $
+// $Id: TDA9875AudioDecoder.cpp,v 1.3 2005-03-11 14:54:40 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,10 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2005/03/09 10:02:10  atnak
+// Removed subclass definition of WriteToSubAddress(BYTE, BYTE) because
+// it was added to the base class.
+//
 // Revision 1.1  2004/01/05 13:25:25  adcockj
 // Added patch for Diamond DTV2000 from Robert Milharcic
 //
@@ -602,16 +606,16 @@ long CTDA9875AudioDecoder::GetAudioStandardMinorCarrier(long Standard)
 }
 void CTDA9875AudioDecoder::SetAudioStandardCarriersTDA9875(long MajorCarrier, long MinorCarrier)
 {
-	DWORD dwC2 = TDA9875_CARRIER(MinorCarrier);
-	DWORD dwC1 = TDA9875_CARRIER(MajorCarrier);
+	DWORD dwC2 = (DWORD)TDA9875_CARRIER(MinorCarrier);
+	DWORD dwC1 = (DWORD)TDA9875_CARRIER(MajorCarrier);
 
-	WriteToSubAddress(TDA9875_C1MSB, (dwC1 & 0xff0000) >> 16);
-	WriteToSubAddress(TDA9875_C1MIB, (dwC1 & 0x00ff00) >> 8);
-	WriteToSubAddress(TDA9875_C1LSB,  dwC1 & 0x0000ff);
+	WriteToSubAddress(TDA9875_C1MSB, (BYTE)((dwC1 & 0xff0000) >> 16));
+	WriteToSubAddress(TDA9875_C1MIB, (BYTE)((dwC1 & 0x00ff00) >> 8));
+	WriteToSubAddress(TDA9875_C1LSB, (BYTE)(dwC1 & 0x0000ff));
 
-	WriteToSubAddress(TDA9875_C2MSB, (dwC2 & 0xff0000) >> 16);
-	WriteToSubAddress(TDA9875_C2MIB, (dwC2 & 0x00ff00) >> 8);
-	WriteToSubAddress(TDA9875_C2LSB,  dwC2 & 0x0000ff);
+	WriteToSubAddress(TDA9875_C2MSB, (BYTE)((dwC2 & 0xff0000) >> 16));
+	WriteToSubAddress(TDA9875_C2MIB, (BYTE)((dwC2 & 0x00ff00) >> 8));
+	WriteToSubAddress(TDA9875_C2LSB, (BYTE)(dwC2 & 0x0000ff));
 
 }
 void CTDA9875AudioDecoder::SetAudioStandardCarriers(long MajorCarrier, long MinorCarrier)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: stdafx.h,v 1.21 2005-03-07 21:44:13 adcockj Exp $
+// $Id: stdafx.h,v 1.22 2005-03-11 14:54:41 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2005/03/07 21:44:13  adcockj
+// More prep for new release
+//
 // Revision 1.20  2004/08/14 13:45:23  adcockj
 // Fixes to get new settings code working under VS6
 //
@@ -128,3 +131,5 @@
 #endif
 
 using namespace std;
+
+#pragma warning (disable : 4018)

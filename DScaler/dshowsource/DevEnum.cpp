@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DevEnum.cpp,v 1.5 2004-04-06 12:20:49 adcockj Exp $
+// $Id: DevEnum.cpp,v 1.6 2005-03-11 14:54:41 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2004/04/06 12:20:49  adcockj
+// Added .NET 2003 project files and some fixes to support this
+//
 // Revision 1.4  2003/10/27 10:39:57  adcockj
 // Updated files for better doxygen compatability
 //
@@ -195,7 +198,7 @@ string CDShowDevEnum::getProperty(string szName)
 		CString tmp;
 		tmp.Format("%S",varProperty.bstrVal);
 		SysFreeString(varProperty.bstrVal);
-		return tmp;
+        return std::string(tmp);
 	}
 	else
 	{

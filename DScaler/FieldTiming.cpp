@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FieldTiming.cpp,v 1.40 2003-11-14 13:24:55 adcockj Exp $
+// $Id: FieldTiming.cpp,v 1.41 2005-03-11 14:54:40 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.40  2003/11/14 13:24:55  adcockj
+// PMS card fixes
+//
 // Revision 1.39  2003/10/27 10:39:51  adcockj
 // Updated files for better doxygen compatability
 //
@@ -410,7 +413,7 @@ void Timing_WaitForTimeToFlip(TDeinterlaceInfo* pInfo, DEINTERLACE_METHOD* Curre
                 // if we don't give up some time here we will hog the processor
                 // this method is in test and should be used with an elevated priority on the
                 // decoding thread so that when the event is fired out thread gets priority
-                long MilliSecondsToWait = (CurrentFlipTime.QuadPart - LastFlipTime.QuadPart) * 1000 / TimerFrequency.QuadPart;
+                long MilliSecondsToWait = (long)((CurrentFlipTime.QuadPart - LastFlipTime.QuadPart) * 1000 / TimerFrequency.QuadPart);
                 if(MilliSecondsToWait > wTimerRes * 2)
                 {
                     ResetEvent(hTimerEvent);

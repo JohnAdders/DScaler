@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.cpp,v 1.17 2002-06-05 22:03:40 adcockj Exp $
+// $Id: TimeShift.cpp,v 1.18 2002-12-06 08:20:21 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2002/06/05 22:03:40  adcockj
+// Hopefully fixed some timeshift issues and some bracketing changes
+//
 // Revision 1.16  2002/05/24 22:51:52  robmuller
 // Patch #560339 from PietOO.
 // Added missing emms statements.
@@ -2057,7 +2060,9 @@ bool CTimeShift::CompressionOptions(void)
     if (AVISaveOptions(hWnd, 0, numStreams, streams, opts))
     {
         // For audio, we need to reset the wave format.
-        if (optsAudio.lpFormat && optsAudio.cbFormat)
+        // Check the user clicked OK on this stream setup by looking for
+        // AVICOMPRESSF_VALID (This is undocumented but seems to work --AtNak)
+        if (optsAudio.dwFlags & AVICOMPRESSF_VALID)
         {
             // If the format given isn't even as big as a WAVEFORMATEX, we'll
             // take what we can get and leave any old parameters at the end of

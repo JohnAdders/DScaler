@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.330 2003-07-18 09:48:48 adcockj Exp $
+// $Id: DScaler.cpp,v 1.331 2003-07-24 21:15:18 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.330  2003/07/18 09:48:48  adcockj
+// Added Timer clean up
+//
 // Revision 1.329  2003/07/18 09:41:23  adcockj
 // Added PDI input to holo3d (doesn't yet work)
 //
@@ -4835,7 +4838,7 @@ void MainWndOnInitBT(HWND hWnd)
         if (ToolbarControl == NULL)
         {
             ToolbarControl = new CToolbarControl(WM_TOOLBARS_GETVALUE);
-            ToolbarControl->Set(hWnd, NULL);
+			ToolbarControl->Set(hWnd, NULL, bIsFullScreen?1:0);
         }
 
         if (szSkinName[0] != 0)
@@ -4845,7 +4848,7 @@ void MainWndOnInitBT(HWND hWnd)
             SetWindowBorder(hWnd, szSkinName, (szSkinName[0]!=0));  
             if (ToolbarControl!=NULL)
             {
-                ToolbarControl->Set(hWnd, szSkinName);  
+                ToolbarControl->Set(hWnd, szSkinName, bIsFullScreen?1:0);  
             }
         }
 

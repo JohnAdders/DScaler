@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.h,v 1.30 2002-10-27 12:17:29 tobbej Exp $
+// $Id: DSSource.h,v 1.31 2002-10-29 19:32:22 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2002/10/27 12:17:29  tobbej
+// implemented ITuner
+//
 // Revision 1.29  2002/10/26 08:38:59  tobbej
 // fixed compile problems by reverting HasTuner and SetTunerFrequency
 //
@@ -233,6 +236,10 @@ private:
 		eTunerLocked IsLocked();
 		eTunerAFCStatus GetAFCStatus(long &nFreqDeviation);
 	};
+
+	///coverts from dscaler eVideoFormat to directshow AnalogVideoStandard
+	AnalogVideoStandard ConvertVideoFmt(eVideoFormat fmt);
+
 	///resets m_VideoFmt to default
 	void CreateDefaultVideoFmt();
 

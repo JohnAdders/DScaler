@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CaptureDevice.cpp,v 1.14 2002-10-27 12:18:49 tobbej Exp $
+// $Id: CaptureDevice.cpp,v 1.15 2002-10-29 19:32:21 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/10/27 12:18:49  tobbej
+// renamed GetTVTuner
+// changed FindInterface
+//
 // Revision 1.13  2002/09/24 17:22:19  tobbej
 // a few renamed function
 //
@@ -334,26 +338,26 @@ CDShowBaseCrossbar* CDShowCaptureDevice::getCrossbar()
 	return m_pCrossbar;
 }
 
-CDShowTVTuner *CDShowCaptureDevice::GetTVTuner()
+CDShowDirectTuner* CDShowCaptureDevice::GetTuner()
 {
-	LOG(2,"DShowCaptureDevice: GetTVTuner");
+	LOG(2,"DShowCaptureDevice: GetTuner");
 	if(m_pTVTuner==NULL)
 	{
-		LOG(2,"DShowCaptureDevice: find TVTuner");
+		LOG(2,"DShowCaptureDevice: find Tuner");
 
 		CComPtr<IAMTVTuner> pTVTuner;
 		HRESULT hr=m_pBuilder->FindInterface(&LOOK_UPSTREAM_ONLY,NULL,m_vidDev,IID_IAMTVTuner,(void**)&pTVTuner);
 		if(SUCCEEDED(hr))
 		{
-			m_pTVTuner=new CDShowTVTuner(pTVTuner, m_pGraph);
-			LOG(2,"DShowCaptureDevice: GetTVTuner found");
+			m_pTVTuner=new CDShowDirectTuner(pTVTuner, m_pGraph);
+			LOG(2,"DShowCaptureDevice: GetTuner found");
 		}
 		else
 		{
-			LOG(2,"DShowCaptureDevice: GetTVTuner not found");
+			LOG(2,"DShowCaptureDevice: GetTuner not found");
 		}
 	}
-	LOG(2,"DShowCaptureDevice: GetTVTuner (%s)",(m_pTVTuner==NULL)?"Failed":"Ok");
+	LOG(2,"DShowCaptureDevice: GetTuner (%s)",(m_pTVTuner==NULL)?"Failed":"Ok");
 	return m_pTVTuner;
 }
 
@@ -398,6 +402,21 @@ void CDShowCaptureDevice::putTVFormat(long format)
 	{
 		throw CDShowException("Failed to set tvformat",hr);
 	}
+}
+
+bool CDShowCaptureDevice::IsHorizontalLocked()
+{
+	if(m_pAVideoDec==NULL)
+	{
+		throw CDShowException("No IAMAnalogVideoDecoder interface");
+	}
+	long hlock=0;
+	HRESULT hr=m_pAVideoDec->get_HorizontalLocked(&hlock);
+	if(FAILED(hr))
+	{
+		throw CDShowException("get_HorizontalLocked Failed",hr);
+	}
+	return hlock!=0;
 }
 
 void CDShowCaptureDevice::set(long prop,long value,long flags)

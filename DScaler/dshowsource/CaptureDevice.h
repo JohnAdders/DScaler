@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CaptureDevice.h,v 1.12 2002-10-27 12:18:49 tobbej Exp $
+// $Id: CaptureDevice.h,v 1.13 2002-10-29 19:32:22 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/10/27 12:18:49  tobbej
+// renamed GetTVTuner
+// changed FindInterface
+//
 // Revision 1.11  2002/09/24 17:22:19  tobbej
 // a few renamed function
 //
@@ -76,7 +80,7 @@
 
 #include "DShowBaseSource.h"
 #include "SingleCrossbar.h"
-#include "DSTVTuner.h"
+#include "DShowDirectTuner.h"
 
 /**
  * Exception class for CDShowCaptureDevice
@@ -113,13 +117,14 @@ public:
 	CDShowBaseCrossbar* getCrossbar();
 
 	// IAMTVTuner
-	CDShowTVTuner *GetTVTuner();
+	CDShowDirectTuner *GetTuner();
 	
 	// IAMAnalogVideoDecoder
 	bool hasVideoDec() {return m_pAVideoDec!=NULL;}
 	long getSupportedTVFormats();
 	long getTVFormat();
 	void putTVFormat(long format);
+	bool IsHorizontalLocked();
 
 	// IAMVideoProcAmp
 	bool hasVideoProcAmp() {return m_pVideoProcAmp!=NULL;}
@@ -138,7 +143,7 @@ private:
 	void findIAMDroppedFrames(CComPtr<IBaseFilter> filter);
 	bool m_bIsConnected;
 	CDShowBaseCrossbar *m_pCrossbar;
-	CDShowTVTuner *m_pTVTuner;
+	CDShowDirectTuner *m_pTVTuner;
 
 	///video capture device
 	CComPtr<IBaseFilter> m_vidDev;

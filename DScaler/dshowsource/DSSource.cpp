@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.50 2002-10-27 12:17:29 tobbej Exp $
+// $Id: DSSource.cpp,v 1.51 2002-10-29 19:32:22 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.50  2002/10/27 12:17:29  tobbej
+// implemented ITuner
+//
 // Revision 1.49  2002/10/26 17:51:53  adcockj
 // Simplified hide cusror code and removed PreShowDialogOrMenu & PostShowDialogOrMenu
 //
@@ -251,33 +254,6 @@ videoStandardsType videoStandards[] =
 		AnalogVideo_PAL_N_COMBO,"PAL_N_COMBO",
 		0,NULL
 	};
-
-// For conversion from eVideoformat to DShow AnalogVideoStandard
-const AnalogVideoStandard eVideoFormatTable[] =
-{
-	AnalogVideo_PAL_B,
-	AnalogVideo_PAL_D,
-	AnalogVideo_PAL_G,
-	AnalogVideo_PAL_H,
-	AnalogVideo_PAL_I,
-	AnalogVideo_PAL_M,
-	AnalogVideo_PAL_N,
-	AnalogVideo_PAL_60,
-	AnalogVideo_PAL_N_COMBO,
-
-	AnalogVideo_SECAM_B,
-	AnalogVideo_SECAM_D,
-	AnalogVideo_SECAM_G,
-	AnalogVideo_SECAM_H,
-	AnalogVideo_SECAM_K,
-	AnalogVideo_SECAM_K1,
-	AnalogVideo_SECAM_L,
-	AnalogVideo_SECAM_L1,
-
-	AnalogVideo_NTSC_M,
-	AnalogVideo_NTSC_M_J,
-	AnalogVideo_NTSC_433,	// == VIDEOFORMAT_NTSC_50 ?
-};
 
 CDSCaptureSource::CDSCaptureSource(string device,string deviceName) :
 	CDSSourceBase(0,IDC_DSHOWSOURCEMENU),
@@ -826,6 +802,56 @@ ITuner* CDSCaptureSource::GetTuner()
 	return &m_Tuner;
 }
 
+AnalogVideoStandard CDSCaptureSource::ConvertVideoFmt(eVideoFormat fmt)
+{
+	switch(fmt)
+	{
+	case VIDEOFORMAT_PAL_B:
+		return AnalogVideo_PAL_B;
+    case VIDEOFORMAT_PAL_D:
+		return AnalogVideo_PAL_D;
+    case VIDEOFORMAT_PAL_G:
+		return AnalogVideo_PAL_G;
+    case VIDEOFORMAT_PAL_H:
+		return AnalogVideo_PAL_H;
+    case VIDEOFORMAT_PAL_I:
+		return AnalogVideo_PAL_I;
+    case VIDEOFORMAT_PAL_M:
+		return AnalogVideo_PAL_M;
+    case VIDEOFORMAT_PAL_N:
+		return AnalogVideo_PAL_N;
+    case VIDEOFORMAT_PAL_60:
+		return AnalogVideo_PAL_60;
+    case VIDEOFORMAT_PAL_N_COMBO:
+		return AnalogVideo_PAL_N_COMBO;
+    case VIDEOFORMAT_SECAM_B:
+		return AnalogVideo_SECAM_B;
+    case VIDEOFORMAT_SECAM_D:
+		return AnalogVideo_SECAM_D;
+    case VIDEOFORMAT_SECAM_G:
+		return AnalogVideo_SECAM_G;
+    case VIDEOFORMAT_SECAM_H:
+		return AnalogVideo_SECAM_H;
+    case VIDEOFORMAT_SECAM_K:
+		return AnalogVideo_SECAM_K;
+    case VIDEOFORMAT_SECAM_K1:
+		return AnalogVideo_SECAM_K1;
+    case VIDEOFORMAT_SECAM_L:
+		return AnalogVideo_SECAM_L;
+    case VIDEOFORMAT_SECAM_L1:
+		return AnalogVideo_SECAM_L1;
+    case VIDEOFORMAT_NTSC_M:
+		return AnalogVideo_NTSC_M;
+    case VIDEOFORMAT_NTSC_M_Japan:
+		return AnalogVideo_NTSC_M_J;
+    case VIDEOFORMAT_NTSC_50:
+		return AnalogVideo_NTSC_433;
+	default:
+		LOG(1,"CDSCaptureSource::ConvertVideoFmt: Unknown videoformat!");
+		return AnalogVideo_None;
+	}
+}
+
 BOOL CDSCaptureSource::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
 {
 	if(m_pDSGraph==NULL)
@@ -840,75 +866,106 @@ BOOL CDSCaptureSource::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFor
 	}
 
 	CDShowCaptureDevice *pCap=NULL;
-	if(pSrc->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
+	if(pSrc->getObjectType()!=DSHOW_TYPE_SOURCE_CAPTURE)
 	{
-		pCap=(CDShowCaptureDevice*)pSrc;
-		CDShowTVTuner *pTvTuner = pCap->GetTVTuner();
-		if(pTvTuner == NULL)
+		return FALSE;
+	}
+
+	pCap=(CDShowCaptureDevice*)pSrc;
+	CDShowDirectTuner *pTuner = pCap->GetTuner();
+	if(pTuner==NULL)
+	{
+		return FALSE;
+	}
+	try
+	{
+		if(pTuner->GetAvailableModes()&AMTUNER_MODE_TV)
 		{
-			return FALSE;
-		}
-		
-		LOG(3,"DSSource: SetTunerFrequency: Found TVTuner");
-		try
-		{
-			static BOOL bFirstTime = TRUE;
-			
-			//Choose a country with a unicable frequency table
-			int CountryCode = 31;
-			
-			long lCurrentCountryCode = pTvTuner->GetCountryCode();
-			if (bFirstTime || (CountryCode != lCurrentCountryCode))
+			AnalogVideoStandard format=ConvertVideoFmt(VideoFormat);
+			if(format&pCap->getSupportedTVFormats())
 			{
-				LOG(2,"DSSource: SetTunerFrequency: Set country code");
-				pTvTuner->PutCountryCode(CountryCode);
-			}
-			
-			
-			TunerInputType pInputType = pTvTuner->GetInputType();
-			TunerInputType pNewInputType = TunerInputCable; //unicable frequency table
-			
-			if (bFirstTime || (pInputType != pNewInputType))
-			{
-				LOG(2,"DSSource: SetTunerFrequency: Set input type");
-				pTvTuner->SetInputType(pNewInputType);
-			}
-			
-			// set video format
-			long lAnalogVideoStandard = pCap->getTVFormat();
-			long lNewAnalogVideoStandard;
-			if ( ((int)VideoFormat < 0) || (VideoFormat >= VIDEOFORMAT_LASTONE))
-			{
-				lNewAnalogVideoStandard = lAnalogVideoStandard;
+				pCap->putTVFormat(format);
 			}
 			else
 			{
-				lNewAnalogVideoStandard = eVideoFormatTable[VideoFormat];
+				LOG(1,"CDSCaptureSource::SetTunerFrequency: Specified video format is not supported!!!");
 			}
-			
-			if (bFirstTime || (lAnalogVideoStandard != lNewAnalogVideoStandard))
-			{
-				LOG(2,"DSSource: SetTunerFrequency: pCap: Set TV format");
-				pCap->putTVFormat(lNewAnalogVideoStandard);
-			}
-			
-			bFirstTime = FALSE;
-			
-			LOG(2,"DSSource: SetTunerFrequency: Set Frequency %d",FrequencyId);
-			return pTvTuner->SetTunerFrequency(FrequencyId);
+			pTuner->SetFrequency(FrequencyId,AMTUNER_MODE_TV,format);
+
+			return TRUE;
 		}
-		catch(CDShowException e)
+		else
 		{
-			LOG(1, "DShow Exception - %s", (LPCSTR)e.getErrorText());
+			LOG(1,"CDSCaptureSource::SetTunerFrequency: Tuner is not a tvtuner");
+			return FALSE;
 		}
 	}
-	return FALSE;
+	catch(CDShowException e)
+	{
+		LOG(1, "CDSCaptureSource::SetTunerFrequency: DShow Exception - %s", (LPCSTR)e.getErrorText());
+		return FALSE;
+	}
+
 }
 
 BOOL CDSCaptureSource::IsVideoPresent()
 {
-	///@todo this needs to be fixed, looks like channel scanning depends on this.
-	return TRUE;
+	if(m_pDSGraph==NULL)
+	{
+		return FALSE;
+	}
+
+	CDShowBaseSource *pSrc=m_pDSGraph->getSourceDevice();
+	if(pSrc==NULL)
+	{
+		return FALSE;
+	}
+
+	CDShowCaptureDevice *pCap=NULL;
+	if(pSrc->getObjectType()!=DSHOW_TYPE_SOURCE_CAPTURE)
+	{
+		return FALSE;
+	}
+
+	pCap=(CDShowCaptureDevice*)pSrc;
+	CDShowDirectTuner *pTuner = pCap->GetTuner();
+	if(pTuner==NULL)
+	{
+		return FALSE;
+	}
+	try
+	{
+		CDShowDirectTuner::eSignalType type;
+
+		long signal=pTuner->GetSignalStrength(type);
+		switch(type)
+		{
+		case CDShowDirectTuner::eSignalType::SIGNALTYPE_SIGNALSTRENGTH:
+			LOG(2,"CDSCaptureSource::IsVideoPresent: Using SignalStrength to determine signal present");
+			if(signal>0)
+			{
+				return TRUE;
+			}
+			break;
+		case CDShowDirectTuner::eSignalType::SIGNALTYPE_PLL:
+			LOG(2,"CDSCaptureSource::IsVideoPresent: Using PLL to determine signal present");
+			if(signal==0)
+			{
+				return TRUE;
+			}
+			break;
+		case CDShowDirectTuner::eSignalType::SIGNALTYPE_NONE:
+			LOG(2,"CDSCaptureSource::IsVideoPresent: Using IsHorizontalLocked() to determine signal present");
+			return pCap->IsHorizontalLocked();
+			break;
+		}
+	}
+	catch(CDShowException e)
+	{
+		LOG(1, "CDSCaptureSource::IsVideoPresent: DShow Exception - %s", (LPCSTR)e.getErrorText());
+	}
+
+	return FALSE;
 }
 eTunerId CDSCaptureSource::CDummyTuner::GetTunerId()
 {
@@ -1220,7 +1277,7 @@ void CDSCaptureSource::VideoInputOnChange(long NewValue, long OldValue)
 
 				if(NewInputType == PhysConn_Video_Tuner)
 				{
-					if(pCap->GetTVTuner()!=NULL)
+					if(pCap->GetTuner()!=NULL)
 					{
 						Channel_ChangeToNumber(m_LastTunerChannel->GetValue());
 					}
@@ -1417,9 +1474,9 @@ void CDSCaptureSource::ResolutionOnChange(long NewValue, long OldValue)
     //
 }
 
-int  CDSCaptureSource::NumInputs(eSourceInputType InputType)
+int CDSCaptureSource::NumInputs(eSourceInputType InputType)
 {
-  if(m_pDSGraph==NULL)
+	if(m_pDSGraph==NULL)
 	{
 		return 0;
 	}
@@ -1429,116 +1486,118 @@ int  CDSCaptureSource::NumInputs(eSourceInputType InputType)
 	{
 		pCap=(CDShowCaptureDevice*)m_pDSGraph->getSourceDevice();
 	}
-	if (pCap == NULL) { return 0; }
-
-  if (!m_HaveInputList)
-  {
-      m_VideoInputList.clear();
-      m_AudioInputList.clear();
-      try
-      {
-         CDShowBaseCrossbar *pCrossbar=pCap->getCrossbar();
-			   if(pCrossbar==NULL)
-           return 0;
-
-         long cIn,cOut;
-		     pCrossbar->GetPinCounts(cIn,cOut);
-		     for(int i=0;i<cIn;i++)
-		     {
-       			//is it an audio or video input?
-      	  		if(pCrossbar->GetInputType(i)<4096)
-              {
-                  m_VideoInputList.push_back(i);
-              }
-              else
-              {
-                  m_AudioInputList.push_back(i);
-              }
-          }
-          m_HaveInputList = TRUE;
-      }
-      catch(CDShowException &e)
-	    {
-		      LOG(1,"DSCaptureSource: NumInputs: Error: %s",e.getErrorText());
-          return 0;
-      }
-  }
-
-  if (InputType == VIDEOINPUT)
-  {
-	   return m_VideoInputList.size();
-  }
-  else
-  {
-     return m_AudioInputList.size();
-  }
-  return 0;
+	if(pCap == NULL) { return 0; }
+	
+	if(!m_HaveInputList)
+	{
+		m_VideoInputList.clear();
+		m_AudioInputList.clear();
+		try
+		{
+			CDShowBaseCrossbar *pCrossbar=pCap->getCrossbar();
+			if(pCrossbar==NULL)
+			{
+				return 0;
+			}
+			
+			long cIn,cOut;
+			pCrossbar->GetPinCounts(cIn,cOut);
+			for(int i=0;i<cIn;i++)
+			{
+				//is it an audio or video input?
+				if(pCrossbar->GetInputType(i)<4096)
+				{
+					m_VideoInputList.push_back(i);
+				}
+				else
+				{
+					m_AudioInputList.push_back(i);
+				}
+			}
+			m_HaveInputList = TRUE;
+		}
+		catch(CDShowException &e)
+		{
+			LOG(1,"DSCaptureSource: NumInputs: Error: %s",e.getErrorText());
+			return 0;
+		}
+	}
+	
+	if(InputType == VIDEOINPUT)
+	{
+		return m_VideoInputList.size();
+	}
+	else
+	{
+		return m_AudioInputList.size();
+	}
+	return 0;
 }
 
 BOOL CDSCaptureSource::SetInput(eSourceInputType InputType, int Nr)
 {
-  if (!m_HaveInputList)
-  {
-      NumInputs(InputType);   // Make input list
-  }
-  if (InputType == VIDEOINPUT)
-  {
-      if ((Nr>=0) && (Nr < m_VideoInputList.size()))
-      {
-          m_VideoInput->SetValue(m_VideoInputList[Nr]);
-          /// \todo Should check if this failed
-          return TRUE;
-      }
-      return FALSE;
-  }
-  else if (InputType == AUDIOINPUT)
-  {
-      if ((Nr>=0) && (Nr < m_AudioInputList.size()))
-      {
-          m_AudioInput->SetValue(m_AudioInputList[Nr]);
-          /// \todo Should check if this failed
-          return TRUE;
-      }
-      return FALSE;
-  }
-  return FALSE;
+	if(!m_HaveInputList)
+	{
+		NumInputs(InputType);   // Make input list
+	}
+	if(InputType == VIDEOINPUT)
+	{
+		if((Nr>=0) && (Nr < m_VideoInputList.size()))
+		{
+			m_VideoInput->SetValue(m_VideoInputList[Nr]);
+			/// \todo Should check if this failed
+			return TRUE;
+		}
+		return FALSE;
+	}
+	else if(InputType == AUDIOINPUT)
+	{
+		if((Nr>=0) && (Nr < m_AudioInputList.size()))
+		{
+			m_AudioInput->SetValue(m_AudioInputList[Nr]);
+			/// \todo Should check if this failed
+			return TRUE;
+		}
+		return FALSE;
+	}
+	return FALSE;
 }
 
-int  CDSCaptureSource::GetInput(eSourceInputType InputType)
+int CDSCaptureSource::GetInput(eSourceInputType InputType)
 {
-  if (!m_HaveInputList)
-  {
-      NumInputs(InputType);   // Make input list
-  }
-
-  if (InputType == VIDEOINPUT)
-  {
-      int i;
-      for (i = 0; i < m_VideoInputList.size(); i++)
-      {
-          if (m_VideoInputList[i] == m_VideoInput->GetValue())
-          {
-              return i;
-          }
-      }
-  }
-  else if (InputType == AUDIOINPUT)
-  {
-      int i;
-      for (i = 0; i < m_AudioInputList.size(); i++)
-      {
-          if (m_AudioInputList[i] == m_AudioInput->GetValue())
-          {
-              return i;
-          }
-      }
-  }
-  return -1;
+	if(!m_HaveInputList)
+	{
+		NumInputs(InputType);   // Make input list
+	}
+	
+	if(InputType == VIDEOINPUT)
+	{
+		int i;
+		for(i = 0; i < m_VideoInputList.size(); i++)
+		{
+			if(m_VideoInputList[i] == m_VideoInput->GetValue())
+			{
+				return i;
+			}
+		}
+	}
+	else if(InputType == AUDIOINPUT)
+	{
+		int i;
+		for(i = 0; i < m_AudioInputList.size(); i++)
+		{
+			if(m_AudioInputList[i] == m_AudioInput->GetValue())
+			{
+				return i;
+			}
+		}
+	}
+	return -1;
 }
 
 const char* CDSCaptureSource::GetInputName(eSourceInputType InputType, int Nr)
 {
-  if(m_pDSGraph==NULL)
+	if(m_pDSGraph==NULL)
 	{
 		return NULL;
 	}
@@ -1548,47 +1607,54 @@ const char* CDSCaptureSource::GetInputName(eSourceInputType InputType, int Nr)
 	{
 		pCap=(CDShowCaptureDevice*)m_pDSGraph->getSourceDevice();
 	}
-	if (pCap == NULL) { return NULL; }
-
-  if (!m_HaveInputList)
-  {
-     // Make input list
-     NumInputs(InputType);
-  }
-  char *szName = NULL;
-  if ((InputType == VIDEOINPUT) || (InputType == AUDIOINPUT))
-  {
-      if ( (Nr>=0) &&  (   ((InputType == VIDEOINPUT) && (Nr < m_VideoInputList.size()))
-                        || ((InputType == AUDIOINPUT) && (Nr < m_AudioInputList.size())) )
-         )
-      {
-        	try {
-			        CDShowBaseCrossbar *pCrossbar=pCap->getCrossbar();
-			        if(pCrossbar==NULL)
-                return NULL;
-
-              int nInputNumber;
-              if (InputType == VIDEOINPUT)
-              {
-                  nInputNumber = m_VideoInputList[ Nr ];
-              }
-              else
-              {
-                  nInputNumber = m_AudioInputList[ Nr ];
-              }
-              szName = pCrossbar->GetInputName(nInputNumber);
-          } catch(CDShowException &e)
-	        {
-		          LOG(1,"DSCaptureSource: GetInputName: Error: %s",e.getErrorText());
-          }
-      }
-  }
-  return (const char*)szName;
+	if (pCap == NULL)
+	{
+		return NULL;
+	}
+	
+	if(!m_HaveInputList)
+	{
+		// Make input list
+		NumInputs(InputType);
+	}
+	char *szName = NULL;
+	if((InputType == VIDEOINPUT) || (InputType == AUDIOINPUT))
+	{
+		if((Nr>=0) && (((InputType == VIDEOINPUT) && (Nr < m_VideoInputList.size()))
+			|| ((InputType == AUDIOINPUT) && (Nr < m_AudioInputList.size())))
+			)
+		{
+			try
+			{
+				CDShowBaseCrossbar *pCrossbar=pCap->getCrossbar();
+				if(pCrossbar==NULL)
+				{
+					return NULL;
+				}
+				
+				int nInputNumber;
+				if (InputType == VIDEOINPUT)
+				{
+					nInputNumber = m_VideoInputList[ Nr ];
+				}
+				else
+				{
+					nInputNumber = m_AudioInputList[ Nr ];
+				}
+				szName = pCrossbar->GetInputName(nInputNumber);
+			}
+			catch(CDShowException &e)
+			{
+				LOG(1,"DSCaptureSource: GetInputName: Error: %s",e.getErrorText());
+			}
+		}
+	}
+	return (const char*)szName;
 }
 
 BOOL CDSCaptureSource::InputHasTuner(eSourceInputType InputType, int Nr)
 {
-  if(m_pDSGraph==NULL)
+	if(m_pDSGraph==NULL)
 	{
 		return FALSE;
 	}
@@ -1598,35 +1664,42 @@ BOOL CDSCaptureSource::InputHasTuner(eSourceInputType InputType, int Nr)
 	{
 		pCap=(CDShowCaptureDevice*)m_pDSGraph->getSourceDevice();
 	}
-	if (pCap == NULL) { return FALSE; }
+	if(pCap == NULL)
+	{
+		return FALSE;
+	}
+	
+	
+	if(InputType == VIDEOINPUT)
+	{
+		if(!m_HaveInputList)
+		{
+			NumInputs(InputType);
+		}
+		
+		if((Nr>=0) && (Nr < m_VideoInputList.size()))
+		{
+			try
+			{
+				CDShowBaseCrossbar *pCrossbar=pCap->getCrossbar();
+				if(pCrossbar==NULL)
+				{
+					return FALSE;
+				}
+				
+				if(pCrossbar->GetInputType(m_VideoInputList[Nr]) == PhysConn_Video_Tuner)
+				{
+					return TRUE;
+				}
+			}
+			catch(CDShowException &e)
+			{
+				LOG(1,"DSCaptureSource: InputHasTuner: Error: %s",e.getErrorText());
+			}
+		}
+	}
 
-
-  if (InputType == VIDEOINPUT)
-  {
-      if (!m_HaveInputList)
-      {
-          NumInputs(InputType);
-      }
-
-      if ((Nr>=0) && (Nr < m_VideoInputList.size()))
-      {
-        	try {
-              CDShowBaseCrossbar *pCrossbar=pCap->getCrossbar();
-			        if(pCrossbar==NULL)
-                return FALSE;
-
-			        if (pCrossbar->GetInputType(m_VideoInputList[Nr]) == PhysConn_Video_Tuner)
-					    {
-                  return TRUE;
-              }
-          } catch(CDShowException &e)
-	        {
-		          LOG(1,"DSCaptureSource: InputHasTuner: Error: %s",e.getErrorText());
-          }
-      }
-   }
-
-  return FALSE;
+	return FALSE;
 }
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.cpp,v 1.14 2002-10-12 01:37:45 atnak Exp $
+// $Id: SAA7134Card.cpp,v 1.15 2002-10-12 20:01:52 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/10/12 01:37:45  atnak
+// insignificant
+//
 // Revision 1.13  2002/10/10 12:12:15  atnak
 // fixed writing byte to SAA7134_SOURCE_TIMING should be word
 //
@@ -99,6 +102,8 @@ CSAA7134Card::CSAA7134Card(CHardwareDriver* pDriver) :
     m_VideoStandard(VIDEOSTANDARD_INVALID),
     m_AudioStandard(AUDIOSTANDARD_BG_DUAL_FM)
 {
+    m_LastTriggerError = 0UL;
+
     m_I2CInitialized = false;
     m_I2CBus = new CSAA7134I2CBus(this);
 }
@@ -565,14 +570,16 @@ BOOL CSAA7134Card::GetProcessingRegion(eRegionID& RegionID, BOOL& bIsFieldOdd)
 
     Status  = ReadWord(SAA7134_SCALER_STATUS);
 
-    // This shouldn't usually happen
     if (Status & (SAA7134_SCALER_STATUS_TRERR |
         SAA7134_SCALER_STATUS_CFERR |
         SAA7134_SCALER_STATUS_LDERR |
         SAA7134_SCALER_STATUS_WASRST))
     {
+        CheckScalerError(TRUE, Status);
         return FALSE;
     }
+
+    CheckScalerError(FALSE, Status);
 
     // FIDSCI XOR FIDSCO should be 0
     if (Status & SAA7134_SCALER_STATUS_D6_D5)
@@ -603,12 +610,80 @@ BOOL CSAA7134Card::GetProcessingRegion(eRegionID& RegionID, BOOL& bIsFieldOdd)
     }
 
     // Everything above is SAA7134 style, here we convert evens
-    // to odd and odds to even so SAA7137Source can take even
-    // has to top line --instead of odd which SAA7137 uses.
+    // to odd and odds to even so SAA7134Source can take even
+    // has to top line --instead of odd which SAA7134 uses.
     //   ala. CSAACard::SetBaseOffsets()
     bIsFieldOdd = !bIsFieldOdd;
 
     return TRUE;
+}
+
+
+/*
+ * CheckScalerError
+ *
+ * Tries to recover from card errors by resetting various
+ * parts of the card.
+ */
+void CSAA7134Card::CheckScalerError(BOOL bErrorOccurred, WORD ScalerStatus)
+{
+    if (!bErrorOccurred)
+    {
+        m_LastTriggerError = 0UL;
+        return;
+    }
+
+    if (ScalerStatus & SAA7134_SCALER_STATUS_TRERR)
+    {
+        // - Wait 1 second from the first time this occurred
+        // and if it's still a problem, reset the task
+        // conditions.  Hopefully, the card will sort itself out.
+        //
+        // - If the last sighting is older than 2 seconds prior,
+        // CheckScalerError() wasn't called consistently enough
+        // for the value to be useful.
+
+        DWORD CurrentTick = GetTickCount();
+
+        if (CurrentTick < m_LastTriggerError ||
+            CurrentTick > m_LastTriggerError + 2000)
+        {
+            m_LastTriggerError = CurrentTick;
+        }
+        else if (CurrentTick > m_LastTriggerError + 1000)
+        {
+            LOG(2, "SAA7134: Trigger Error recovery trying");
+            WriteByte(SAA7134_TASK_CONDITIONS(SAA7134_TASK_A_MASK), 0x0D);
+            WriteByte(SAA7134_TASK_CONDITIONS(SAA7134_TASK_B_MASK), 0x0D);
+
+            m_LastTriggerError = CurrentTick;
+        }
+    }
+    else if (ScalerStatus & SAA7134_SCALER_STATUS_CFERR)
+    {
+        // This one sorts itself out.
+    }
+    else
+    {
+        // do nothing
+    }
+
+    /*
+    LOG(0, "Scaler Status: %s%s%s%s%s%s%s%s%s%s%s%s",
+        (ScalerStatus & SAA7134_SCALER_STATUS_VID_A) ? "VID_A " : "",
+        (ScalerStatus & SAA7134_SCALER_STATUS_VBI_A) ? "VBI_A " : "",
+        (ScalerStatus & SAA7134_SCALER_STATUS_VID_B) ? "VID_B " : "",
+        (ScalerStatus & SAA7134_SCALER_STATUS_VBI_B) ? "VBI_B " : "",
+        (ScalerStatus & SAA7134_SCALER_STATUS_TRERR) ? "TRERR " : "",
+        (ScalerStatus & SAA7134_SCALER_STATUS_CFERR) ? "CFERR " : "",
+        (ScalerStatus & SAA7134_SCALER_STATUS_LDERR) ? "LDERR " : "",
+        (ScalerStatus & SAA7134_SCALER_STATUS_WASRST) ? "WASRST " : "",
+        (ScalerStatus & SAA7134_SCALER_STATUS_FIDSCI) ? "FIDSCI " : "",
+        (ScalerStatus & SAA7134_SCALER_STATUS_FIDSCO) ? "FIDSCO " : "",
+        (ScalerStatus & SAA7134_SCALER_STATUS_D6_D5) ? "D6_D5 " : "",
+        (ScalerStatus & SAA7134_SCALER_STATUS_TASK) ? "TASK " : ""
+    );
+    */
 }
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.12 2002-10-08 20:35:39 atnak Exp $
+// $Id: SAA7134Card.h,v 1.13 2002-10-12 20:01:52 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/10/08 20:35:39  atnak
+// whitepeak, colorpeak, comb filter UI options
+//
 // Revision 1.11  2002/10/08 19:35:45  atnak
 // various fixes, tweaks, cleanups
 //
@@ -308,10 +311,9 @@ protected:
     BYTE TaskID2TaskMask(eTaskID TaskID);
 
     void UpdateAudioClocksPerField(eVideoStandard VideoStandard);
-
+    void CheckScalerError(BOOL bErrorOccurred, WORD ScalerStatus);
 
 private:
-    ULONG GetTickCount();
     void InitializeI2C();
 
     DWORD m_I2CSleepCycle;
@@ -332,12 +334,14 @@ private:
 
 
 private:
-    eTVCardId       m_CardType;
-    char            m_TunerType[32];
+    eTVCardId           m_CardType;
+    char                m_TunerType[32];
 
-    CI2CBus*        m_I2CBus;
-    ITuner*         m_Tuner;
-    IAudioControls* m_AudioControls;
+    CI2CBus*            m_I2CBus;
+    ITuner*             m_Tuner;
+    IAudioControls*     m_AudioControls;
+
+    DWORD               m_LastTriggerError;
 
 private:
     static const TCardType m_TVCards[];

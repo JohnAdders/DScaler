@@ -1,5 +1,5 @@
 //
-// $Id: TDA9887.cpp,v 1.4 2004-05-16 19:45:08 to_see Exp $
+// $Id: TDA9887.cpp,v 1.5 2004-06-02 18:41:34 to_see Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2004/05/16 19:45:08  to_see
+// Added an new class for Msi Master Card
+//
 // Revision 1.3  2003/10/27 10:39:54  adcockj
 // Updated files for better doxygen compatability
 //
@@ -478,7 +481,7 @@ CTDA9887MsiMaster::~CTDA9887MsiMaster()
 void CTDA9887MsiMaster::TunerSet(bool bPreSet, eVideoFormat VideoFormat)
 {
    static BYTE tda9887set_pal_bg[] =   {m_DeviceAddress, 0x00, 0x56, 0x70, 0x49}; // working
-   static BYTE tda9887set_pal_i[] =    {m_DeviceAddress, 0x00, 0x56, 0x70, 0x4a}; // not tested
+   static BYTE tda9887set_pal_i[] =    {m_DeviceAddress, 0x00, 0x56, 0x6e, 0x4a}; // working
    static BYTE tda9887set_pal_dk[] =   {m_DeviceAddress, 0x00, 0x56, 0x70, 0x4b}; // working
    static BYTE tda9887set_pal_l[] =    {m_DeviceAddress, 0x00, 0x86, 0x50, 0x4b}; // ?
    static BYTE tda9887set_ntsc[] =     {m_DeviceAddress, 0x00, 0x92, 0x30, 0x04}; // working

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.h,v 1.3 2002-02-05 17:27:47 tobbej Exp $
+// $Id: DSGraph.h,v 1.4 2002-02-07 22:09:11 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/02/05 17:27:47  tobbej
+// update dropped/drawn fields stats
+//
 // Revision 1.2  2002/02/03 11:02:34  tobbej
 // various updates for new filter
 //
@@ -45,10 +48,13 @@
 #endif // _MSC_VER > 1000
 
 #include "exception.h"
-#include "CaptureDevice.h"
+#include "DShowBaseSource.h"
 
 #include "..\..\..\DSRend\DSRend.h"
 
+/**
+ * Class that manages a direct show filter graph and the filters in it.
+ */
 class CDShowGraph
 {
 public:
@@ -57,16 +63,19 @@ public:
 	 * @throws 
 	 */
 	CDShowGraph(string device,string deviceName);
+	CDShowGraph(string filename);
 	virtual ~CDShowGraph();
 
-	CDShowCaptureDevice* getCaptureDevice();
+	CDShowBaseSource* getSourceDevice();
 	bool getNextSample(CComPtr<IMediaSample> &pSample);
 	void getConnectionMediatype(AM_MEDIA_TYPE *pmt);
 	void showRendererProperies(HWND hParent);
 	int getDroppedFrames();
 
 	void start();
+	void pause();
 	void stop();
+	FILTER_STATE getState() {return m_pGraphState;}
 	
 private:
 	void initGraph();
@@ -75,7 +84,7 @@ private:
 	void setRes(long x,long y);
 	void findStreamConfig();
 
-	///custom video renderer. used for transfering the picture to dscaler
+	///Custom video renderer. Used for transfering the picture to dscaler
 	CComPtr<IBaseFilter> m_renderer;
 	CComPtr<IDSRendFilter> m_DSRend;
 	CComPtr<IQualProp> m_pQualProp;
@@ -87,9 +96,9 @@ private:
 	CComPtr<ICaptureGraphBuilder2> m_pBuilder;
 	CComPtr<IMediaControl> m_pControl;
 		
-	CDShowCaptureDevice *m_pSource;
+	CDShowBaseSource *m_pSource;
 
-	//CMediaType m_currentMediaType;
+	FILTER_STATE m_pGraphState;
 
 #ifdef _DEBUG
 	DWORD m_hROT;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.h,v 1.6 2002-02-05 17:27:17 tobbej Exp $
+// $Id: DSSource.h,v 1.7 2002-02-07 22:08:23 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/02/05 17:27:17  tobbej
+// fixed alignment problems
+// update dropped/drawn fields stats
+//
 // Revision 1.5  2002/02/03 20:05:58  tobbej
 // made video format menu work
 // fixed color controls
@@ -66,12 +70,12 @@
  * This source controls a Direct show filter graph.
  * @see CDSProvider
  * @see CDShowGraph
- * @bug alignment problems in picture history (SSE only)
  */
 class CDSSource : public CSource
 {
 public:
 	CDSSource(string device,string deviceName);
+	CDSSource();
 	virtual ~CDSSource();
 
 	//from CSettingsHolder
@@ -112,10 +116,10 @@ public:
 
     void UpdateMenu() {return;};
 	void SetMenu(HMENU hMenu);
-	BOOL IsAccessAllowed() {return TRUE;};
+	BOOL IsAccessAllowed();
 	LPCSTR GetMenuLabel();
 	
-	BOOL OpenMediaFile(LPCSTR FileName, BOOL NewPlayList) {return FALSE;};
+	BOOL OpenMediaFile(LPCSTR FileName, BOOL NewPlayList);
 	void DecodeVBI(TDeinterlaceInfo* pInfo){};
 
 private:
@@ -125,6 +129,10 @@ private:
 	CDShowGraph *m_pDSGraph;
 	string m_device;
 	string m_deviceName;
+	
+	bool m_bIsFileSource;
+	string m_filename;
+
 	long m_currentX;
 	long m_currentY;
 

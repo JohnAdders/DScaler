@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.cpp,v 1.3 2002-02-05 17:27:46 tobbej Exp $
+// $Id: DSGraph.cpp,v 1.4 2002-02-07 22:09:11 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/02/05 17:27:46  tobbej
+// update dropped/drawn fields stats
+//
 // Revision 1.2  2002/02/03 11:02:34  tobbej
 // various updates for new filter
 //
@@ -45,6 +48,7 @@
 #include "DSGraph.h"
 #include "debug.h"
 #include "CaptureDevice.h"
+#include "DShowFileSource.h"
 #include "PinEnum.h"
 
 #include "..\..\..\DSRend\DSRend_i.c"
@@ -62,7 +66,7 @@ static char THIS_FILE[]=__FILE__;
 //////////////////////////////////////////////////////////////////////
 
 CDShowGraph::CDShowGraph(string device,string deviceName)
-:m_pSource(NULL)
+:m_pSource(NULL),m_pGraphState(State_Stopped)
 {
 	initGraph();
 	createRenderer();
@@ -71,6 +75,19 @@ CDShowGraph::CDShowGraph(string device,string deviceName)
 
 #ifdef _DEBUG
 	//this makes it posibel to connect graphedit to the graph
+	AddToRot(m_pGraph,&m_hROT);
+#endif
+}
+
+CDShowGraph::CDShowGraph(string filename)
+:m_pSource(NULL),m_pGraphState(State_Stopped)
+{
+	initGraph();
+	createRenderer();
+
+	m_pSource=new CDShowFileSource(m_pGraph,filename);
+
+#ifdef _DEBUG
 	AddToRot(m_pGraph,&m_hROT);
 #endif
 }
@@ -155,7 +172,7 @@ void CDShowGraph::start()
 		{
 			m_pSource->connect(m_renderer);
 			//testing
-			setRes(768,576);
+			//setRes(768,576);
 		}
 
 		HRESULT hr=m_pControl->Run();
@@ -163,6 +180,25 @@ void CDShowGraph::start()
 		{
 			throw CDShowException("Failed to start filter graph",hr);
 		}
+		m_pGraphState=State_Running;
+	}
+}
+
+void CDShowGraph::pause()
+{
+	if(m_pSource!=NULL)
+	{
+		if(!m_pSource->isConnected())
+		{
+			m_pSource->connect(m_renderer);
+		}
+
+		HRESULT hr=m_pControl->Pause();
+		if(FAILED(hr))
+		{
+			throw CDShowException("Failed to pause filter graph",hr);
+		}
+		m_pGraphState=State_Paused;
 	}
 }
 
@@ -173,13 +209,14 @@ void CDShowGraph::stop()
 	{
 		throw CDShowException("Failed to stop filter graph",hr);
 	}
+	m_pGraphState=State_Stopped;
 }
 
-CDShowCaptureDevice* CDShowGraph::getCaptureDevice()
+CDShowBaseSource* CDShowGraph::getSourceDevice()
 {
 	if(m_pSource==NULL)
 	{
-		throw CDShowException("No capture device");
+		throw CDShowException("No source device/filter");
 	}
 	return m_pSource;
 };

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.8 2002-02-05 17:52:27 tobbej Exp $
+// $Id: DSSource.cpp,v 1.9 2002-02-07 22:08:23 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/02/05 17:52:27  tobbej
+// changed alignment calc
+//
 // Revision 1.7  2002/02/05 17:27:17  tobbej
 // fixed alignment problems
 // update dropped/drawn fields stats
@@ -66,6 +69,8 @@
 #include "FieldTiming.h"
 #include "..\DScalerRes\resource.h"
 #include "DSSource.h"
+#include "DShowFileSource.h"
+#include "CaptureDevice.h"
 #include <dvdmedia.h>		//VIDEOINFOHEADER2
 
 #ifdef _DEBUG
@@ -118,11 +123,34 @@ CDSSource::CDSSource(string device,string deviceName) :
 	m_cbFieldSize(0),
 	m_bProcessingFirstField(true),
 	m_pictureHistoryPos(0),
-	m_lastNumDroppedFrames(-1)
+	m_lastNumDroppedFrames(-1),
+	m_bIsFileSource(false)
 
 {
 	CreateSettings(device.c_str());
 
+	for(int i=0;i<MAX_PICTURE_HISTORY;i++)
+	{
+		m_pictureHistory[i].IsFirstInSeries=FALSE;
+		m_pictureHistory[i].pData=NULL;
+		m_pictureHistory[i].Flags= i%2 ? PICTURE_INTERLACED_ODD : PICTURE_INTERLACED_EVEN;
+		m_unalignedBuffers[i]=NULL;
+	}
+}
+
+CDSSource::CDSSource() :
+	CSource(0,IDC_DSHOWSOURCEMENU),
+	m_pDSGraph(NULL),
+	m_currentX(0),
+	m_currentY(0),
+	m_cbFieldSize(0),
+	m_bProcessingFirstField(true),
+	m_pictureHistoryPos(0),
+	m_lastNumDroppedFrames(-1),
+	m_bIsFileSource(true)
+
+{
+	CreateSettings("DShowFileInput");
 	for(int i=0;i<MAX_PICTURE_HISTORY;i++)
 	{
 		m_pictureHistory[i].IsFirstInSeries=FALSE;
@@ -151,32 +179,85 @@ CDSSource::~CDSSource()
 	}
 }
 
+BOOL CDSSource::IsAccessAllowed()
+{
+	if(!m_bIsFileSource)
+	{
+		return TRUE;
+	}
+
+	/*
+	if(m_pDSGraph!=NULL)
+	{
+		if(m_pDSGraph->getSourceDevice()->getObjectType()==DSHOW_TYPE_SOURCE_FILE)
+		{
+			CDShowBaseSource *pFile=(CDShowBaseSource*)m_pDSGraph->getSourceDevice();
+			if(pFile->isConnected())
+				return TRUE;
+		}
+	}
+	*/
+	if(m_filename.size()>0)
+	{
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+BOOL CDSSource::OpenMediaFile(LPCSTR FileName, BOOL NewPlayList)
+{
+	if(!m_bIsFileSource)
+		return FALSE;
+	
+	if(m_pDSGraph!=NULL)
+		Stop();
+	
+	m_filename="";
+	try
+	{
+		m_pDSGraph=new CDShowGraph(FileName);
+		m_filename=FileName;
+		m_pDSGraph->start();
+		return TRUE;
+	}
+	catch(CDShowException e)
+	{
+		return FALSE;
+	}
+}
+
 ISetting* CDSSource::GetBrightness()
 {
 	if(m_pDSGraph==NULL)
 		return NULL;
 	
-	if(m_pDSGraph->getCaptureDevice()->hasVideoProcAmp())
+	CDShowCaptureDevice *pCap=NULL;
+	if(m_pDSGraph->getSourceDevice()->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
 	{
-		long min;
-		long max;
-		long def;
-		long value;
-
-		try
+		pCap=(CDShowCaptureDevice*)m_pDSGraph->getSourceDevice();
+		if(pCap->hasVideoProcAmp())
 		{
-			m_pDSGraph->getCaptureDevice()->getRange(VideoProcAmp_Brightness,&min,&max,NULL,&def);
-			m_Brightness->SetMax(max);
-			m_Brightness->SetMin(min);
+			long min;
+			long max;
+			long def;
+			long value;
 
-			//why does ChangeDefault() change the value itself too?
-			value=m_Brightness->GetValue();
-			m_Brightness->ChangeDefault(def);
-			m_Brightness->SetValue(value);
-			return m_Brightness;
+			try
+			{
+				pCap->getRange(VideoProcAmp_Brightness,&min,&max,NULL,&def);
+				m_Brightness->SetMax(max);
+				m_Brightness->SetMin(min);
+
+				//why does ChangeDefault() change the value itself too?
+				value=m_Brightness->GetValue();
+				m_Brightness->ChangeDefault(def);
+				m_Brightness->SetValue(value);
+				return m_Brightness;
+			}
+			catch(CDShowException e)
+			{}
 		}
-		catch(CDShowException e)
-		{}
 	}
 	return NULL;
 }
@@ -187,9 +268,15 @@ void CDSSource::BrightnessOnChange(long Brightness, long OldValue)
 		return;
 	if(m_pDSGraph==NULL)
 		return;
+	
 	try
 	{
-		m_pDSGraph->getCaptureDevice()->set(VideoProcAmp_Brightness,Brightness,VideoProcAmp_Flags_Manual);
+		CDShowCaptureDevice *pCap=NULL;
+		if(m_pDSGraph->getSourceDevice()->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
+		{
+			pCap=(CDShowCaptureDevice*)m_pDSGraph->getSourceDevice();
+			pCap->set(VideoProcAmp_Brightness,Brightness,VideoProcAmp_Flags_Manual);
+		}
 	}
 	catch(CDShowException e)
 	{
@@ -202,25 +289,30 @@ ISetting* CDSSource::GetContrast()
 	if(m_pDSGraph==NULL)
 		return NULL;
 
-	if(m_pDSGraph->getCaptureDevice()->hasVideoProcAmp())
+	CDShowCaptureDevice *pCap=NULL;
+	if(m_pDSGraph->getSourceDevice()->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
 	{
-		long min;
-		long max;
-		long def;
-		long value;
-
-		try
+		pCap=(CDShowCaptureDevice*)m_pDSGraph->getSourceDevice();
+		if(pCap->hasVideoProcAmp())
 		{
-			m_pDSGraph->getCaptureDevice()->getRange(VideoProcAmp_Contrast,&min,&max,NULL,&def);
-			m_Contrast->SetMax(max);
-			m_Contrast->SetMin(min);
-			value=m_Contrast->GetValue();
-			m_Contrast->ChangeDefault(def);
-			m_Contrast->SetValue(value);
-			return m_Contrast;
+			long min;
+			long max;
+			long def;
+			long value;
+
+			try
+			{
+				pCap->getRange(VideoProcAmp_Contrast,&min,&max,NULL,&def);
+				m_Contrast->SetMax(max);
+				m_Contrast->SetMin(min);
+				value=m_Contrast->GetValue();
+				m_Contrast->ChangeDefault(def);
+				m_Contrast->SetValue(value);
+				return m_Contrast;
+			}
+			catch(CDShowException e)
+			{}
 		}
-		catch(CDShowException e)
-		{}
 	}
 	return NULL;
 }
@@ -233,7 +325,12 @@ void CDSSource::ContrastOnChange(long Contrast, long OldValue)
 		return;
 	try
 	{
-		m_pDSGraph->getCaptureDevice()->set(VideoProcAmp_Contrast,Contrast,VideoProcAmp_Flags_Manual);
+		CDShowCaptureDevice *pCap=NULL;
+		if(m_pDSGraph->getSourceDevice()->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
+		{
+			pCap=(CDShowCaptureDevice*)m_pDSGraph->getSourceDevice();
+			pCap->set(VideoProcAmp_Contrast,Contrast,VideoProcAmp_Flags_Manual);
+		}
 	}
 	catch(CDShowException e)
 	{
@@ -246,25 +343,30 @@ ISetting* CDSSource::GetHue()
 	if(m_pDSGraph==NULL)
 		return NULL;
 
-	if(m_pDSGraph->getCaptureDevice()->hasVideoProcAmp())
+	CDShowCaptureDevice *pCap=NULL;
+	if(m_pDSGraph->getSourceDevice()->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
 	{
-		long min;
-		long max;
-		long def;
-		long value;
-		
-		try
+		pCap=(CDShowCaptureDevice*)m_pDSGraph->getSourceDevice();
+		if(pCap->hasVideoProcAmp())
 		{
-			m_pDSGraph->getCaptureDevice()->getRange(VideoProcAmp_Hue,&min,&max,NULL,&def);
-			m_Hue->SetMax(max);
-			m_Hue->SetMin(min);
-			value=m_Hue->GetValue();
-			m_Hue->ChangeDefault(def);
-			m_Hue->SetValue(value);
-			return m_Hue;
+			long min;
+			long max;
+			long def;
+			long value;
+
+			try
+			{
+				pCap->getRange(VideoProcAmp_Hue,&min,&max,NULL,&def);
+				m_Hue->SetMax(max);
+				m_Hue->SetMin(min);
+				value=m_Hue->GetValue();
+				m_Hue->ChangeDefault(def);
+				m_Hue->SetValue(value);
+				return m_Hue;
+			}
+			catch(CDShowException e)
+			{}
 		}
-		catch(CDShowException e)
-		{}
 	}
 	return NULL;
 }
@@ -277,7 +379,12 @@ void CDSSource::HueOnChange(long Hue, long OldValue)
 		return;
 	try
 	{
-		m_pDSGraph->getCaptureDevice()->set(VideoProcAmp_Hue,Hue,VideoProcAmp_Flags_Manual);
+		CDShowCaptureDevice *pCap=NULL;
+		if(m_pDSGraph->getSourceDevice()->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
+		{
+			pCap=(CDShowCaptureDevice*)m_pDSGraph->getSourceDevice();
+			pCap->set(VideoProcAmp_Hue,Hue,VideoProcAmp_Flags_Manual);
+		}
 	}
 	catch(CDShowException e)
 	{
@@ -290,25 +397,30 @@ ISetting* CDSSource::GetSaturation()
 	if(m_pDSGraph==NULL)
 		return NULL;
 
-	if(m_pDSGraph->getCaptureDevice()->hasVideoProcAmp())
+	CDShowCaptureDevice *pCap=NULL;
+	if(m_pDSGraph->getSourceDevice()->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
 	{
-		long min;
-		long max;
-		long def;
-		long value;
-		
-		try
+		pCap=(CDShowCaptureDevice*)m_pDSGraph->getSourceDevice();
+		if(pCap->hasVideoProcAmp())
 		{
-			m_pDSGraph->getCaptureDevice()->getRange(VideoProcAmp_Saturation,&min,&max,NULL,&def);
-			m_Saturation->SetMax(max);
-			m_Saturation->SetMin(min);
-			value=m_Saturation->GetValue();
-			m_Saturation->ChangeDefault(def);
-			m_Saturation->SetValue(value);
-			return m_Saturation;
+			long min;
+			long max;
+			long def;
+			long value;
+
+			try
+			{
+				pCap->getRange(VideoProcAmp_Saturation,&min,&max,NULL,&def);
+				m_Saturation->SetMax(max);
+				m_Saturation->SetMin(min);
+				value=m_Saturation->GetValue();
+				m_Saturation->ChangeDefault(def);
+				m_Saturation->SetValue(value);
+				return m_Saturation;
+			}
+			catch(CDShowException e)
+			{}
 		}
-		catch(CDShowException e)
-		{}
 	}
 	return NULL;
 }
@@ -321,7 +433,12 @@ void CDSSource::SaturationOnChange(long Saturation, long OldValue)
 		return;
 	try
 	{
-		m_pDSGraph->getCaptureDevice()->set(VideoProcAmp_Saturation,Saturation,VideoProcAmp_Flags_Manual);
+		CDShowCaptureDevice *pCap=NULL;
+		if(m_pDSGraph->getSourceDevice()->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
+		{
+			pCap=(CDShowCaptureDevice*)m_pDSGraph->getSourceDevice();
+			pCap->set(VideoProcAmp_Saturation,Saturation,VideoProcAmp_Flags_Manual);
+		}
 	}
 	catch(CDShowException e)
 	{
@@ -348,13 +465,23 @@ void CDSSource::CreateSettings(LPCSTR IniSection)
 
 BOOL CDSSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 {
+	if(m_pDSGraph==NULL)
+	{
+		return FALSE;
+	}
+	CDShowCaptureDevice *pCap=NULL;
+	if(m_pDSGraph->getSourceDevice()->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
+	{
+		pCap=(CDShowCaptureDevice*)m_pDSGraph->getSourceDevice();
+	}
+
 	if(LOWORD(wParam)>=IDM_CROSSBAR_INPUT0 && LOWORD(wParam)<=IDM_CROSSBAR_INPUT_MAX)
 	{
 		try
 		{
-			if(m_pDSGraph!=NULL)
+			if(pCap!=NULL)
 			{
-				CDShowBaseCrossbar *pCrossbar=m_pDSGraph->getCaptureDevice()->getCrossbar();
+				CDShowBaseCrossbar *pCrossbar=pCap->getCrossbar();
 				if(pCrossbar!=NULL)
 				{
 					//if changing a video input, set the related pin too
@@ -374,28 +501,61 @@ BOOL CDSSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 	{
 		try
 		{
-			if(m_pDSGraph!=NULL)
+			if(pCap!=NULL)
 			{
-				m_pDSGraph->getCaptureDevice()->putTVFormat(videoStandards[LOWORD(wParam)-IDM_DSVIDEO_STANDARD_0].format);
+				pCap->putTVFormat(videoStandards[LOWORD(wParam)-IDM_DSVIDEO_STANDARD_0].format);
 			}
 		}
 		catch(CDShowException &e)
 		{
 			AfxMessageBox(CString("Failed to change video format\n\n")+e.getErrorText(),MB_OK|MB_ICONERROR);
 		}
+		return TRUE;
 	}
 	
 	switch(LOWORD(wParam))
 	{
 	case IDM_DSHOW_RENDERERPROPERTIES:
-		if(m_pDSGraph!=NULL)
+		m_pDSGraph->showRendererProperies(hWnd);
+		return TRUE;
+		break;
+
+	case IDM_DSHOW_PLAY:
+		try
 		{
-			m_pDSGraph->showRendererProperies(hWnd);
+			m_pDSGraph->start();
+		}
+		catch(CDShowException &e)
+		{
+			AfxMessageBox(CString("Play failed\n\n")+e.getErrorText(),MB_OK|MB_ICONINFORMATION);
+		}
+		return TRUE;
+		break;
+
+	case IDM_DSHOW_PAUSE:
+		try
+		{
+			m_pDSGraph->pause();
+		}
+		catch(CDShowException &e)
+		{
+			AfxMessageBox(CString("Pause failed\n\n")+e.getErrorText(),MB_OK|MB_ICONINFORMATION);
+		}
+		return TRUE;
+		break;
+
+	case IDM_DSHOW_STOP:
+		try
+		{
+			m_pDSGraph->stop();
+		}
+		catch(CDShowException &e)
+		{
+			AfxMessageBox(CString("Stop failed\n\n")+e.getErrorText(),MB_OK|MB_ICONINFORMATION);
 		}
 		return TRUE;
 		break;
 	}
-	
 	return FALSE;
 }
 
@@ -408,8 +568,16 @@ void CDSSource::Start()
 		CWaitCursor wait;
 		if(m_pDSGraph==NULL)
 		{
-			m_pDSGraph=new CDShowGraph(m_device,m_deviceName);
+			if(m_bIsFileSource)
+			{
+				m_pDSGraph=new CDShowGraph(m_filename);
+			}
+			else
+			{
+				m_pDSGraph=new CDShowGraph(m_device,m_deviceName);
+			}
 		}
+
 		m_pDSGraph->start();
 		
 		//get the stored settings
@@ -481,21 +649,6 @@ BOOL CDSSource::IsVideoPresent()
 	return FALSE;
 }
 
-/*int CDSSource::FindMenuID(CMenu *menu,UINT menuID)
-{
-	ASSERT(menu);
-	ASSERT(::IsMenu(menu->GetSafeHmenu()));
-
-	int count=menu->GetMenuItemCount();
-	for(int i=0;i<count;i++)
-	{
-		if(menu->GetMenuItemID(i)==menuID)
-			return i;
-	}
-
-	return -1;
-}*/
-
 void CDSSource::SetMenu(HMENU hMenu)
 {
 	if(m_pDSGraph==NULL)
@@ -506,12 +659,17 @@ void CDSSource::SetMenu(HMENU hMenu)
 	topMenu.Attach(m_hMenu);
 	CMenu *menu=topMenu.GetSubMenu(0);
 	
+	CDShowCaptureDevice *pCap=NULL;
+	CDShowBaseCrossbar *pCrossbar=NULL;
+
+	if(m_pDSGraph->getSourceDevice()->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
+	{
+		pCap=(CDShowCaptureDevice*)m_pDSGraph->getSourceDevice();
+		pCrossbar=pCap->getCrossbar();
+	}
+
 	//setup input selection menus
 	CString menuText;
-	
-	int vidPos=0;//FindMenuID(menu,IDM_DSHOW_VIDEOINPUT);
-	int audPos=3;//FindMenuID(menu,IDM_DSHOW_AUDIOINPUT);
-	CDShowBaseCrossbar *pCrossbar=m_pDSGraph->getCaptureDevice()->getCrossbar();
 	if(pCrossbar!=NULL)
 	{
 		CMenu vidSubMenu;
@@ -519,15 +677,15 @@ void CDSSource::SetMenu(HMENU hMenu)
 		
 		//create video input submenu and insert it
 		vidSubMenu.CreateMenu();
-		menu->GetMenuString(vidPos,menuText,MF_BYPOSITION);
-		menu->ModifyMenu(vidPos,MF_POPUP|MF_BYPOSITION,(UINT) vidSubMenu.GetSafeHmenu(),menuText);
-		menu->EnableMenuItem(vidPos,MF_BYPOSITION|MF_ENABLED);
+		menu->GetMenuString(0,menuText,MF_BYPOSITION);
+		menu->ModifyMenu(0,MF_POPUP|MF_BYPOSITION,(UINT) vidSubMenu.GetSafeHmenu(),menuText);
+		menu->EnableMenuItem(0,MF_BYPOSITION|MF_ENABLED);
 
 		//same for audio input menu
 		audSubMenu.CreateMenu();
-		menu->GetMenuString(audPos,menuText,MF_BYPOSITION);
-		menu->ModifyMenu(audPos,MF_POPUP|MF_BYPOSITION,(UINT) audSubMenu.GetSafeHmenu(),menuText);
-		menu->EnableMenuItem(audPos,MF_BYPOSITION|MF_ENABLED);
+		menu->GetMenuString(3,menuText,MF_BYPOSITION);
+		menu->ModifyMenu(3,MF_POPUP|MF_BYPOSITION,(UINT) audSubMenu.GetSafeHmenu(),menuText);
+		menu->EnableMenuItem(3,MF_BYPOSITION|MF_ENABLED);
 
 		for(int i=0;i<pCrossbar->GetInputCount();i++)
 		{
@@ -552,8 +710,9 @@ void CDSSource::SetMenu(HMENU hMenu)
 		menu->EnableMenuItem(0,MF_BYPOSITION|MF_GRAYED);
 		menu->EnableMenuItem(3,MF_BYPOSITION|MF_GRAYED);
 	}
-	
-	if(m_pDSGraph->getCaptureDevice()->hasVideoDec())
+
+	//video format menu
+	if(pCap!=NULL && pCap->hasVideoDec())
 	{
 		CMenu formatMenu;
 		
@@ -561,8 +720,8 @@ void CDSSource::SetMenu(HMENU hMenu)
 		long selectedFormat=0;
 		try
 		{
-			formats=m_pDSGraph->getCaptureDevice()->getSupportedTVFormats();
-			selectedFormat=m_pDSGraph->getCaptureDevice()->getTVFormat();
+			formats=pCap->getSupportedTVFormats();
+			selectedFormat=pCap->getTVFormat();
 		}
 		catch(CDShowException e)
 		{}
@@ -593,9 +752,17 @@ void CDSSource::SetMenu(HMENU hMenu)
 		{
 			menu->EnableMenuItem(1,MF_BYPOSITION|MF_GRAYED);
 		}
-
-
 	}
+	else
+	{
+		menu->EnableMenuItem(1,MF_BYPOSITION|MF_GRAYED);
+	}
+
+
+	//set a radio checkmark infront of the current play/pause/stop menu entry
+	FILTER_STATE state=m_pDSGraph->getState();
+	UINT pos=7-state;
+	menu->CheckMenuRadioItem(5,7,pos,MF_BYPOSITION);
 
 	topMenu.Detach();
 }
@@ -607,11 +774,27 @@ void CDSSource::HandleTimerMessages(int TimerId)
 
 LPCSTR CDSSource::GetMenuLabel()
 {
+	if(m_pDSGraph!=NULL)
+	{
+		if(m_pDSGraph->getSourceDevice()->getObjectType()==DSHOW_TYPE_SOURCE_FILE)
+		{
+			CDShowFileSource *pFile=(CDShowFileSource*)m_pDSGraph->getSourceDevice();
+			return pFile->getFileName().c_str();
+		}
+	}
 	return NULL;
 }
 
 LPCSTR CDSSource::GetStatus()
 {
+	if(m_pDSGraph!=NULL)
+	{
+		if(m_pDSGraph->getSourceDevice()->getObjectType()==DSHOW_TYPE_SOURCE_FILE)
+		{
+			CDShowFileSource *pFile=(CDShowFileSource*)m_pDSGraph->getSourceDevice();
+			return pFile->getFileName().c_str();
+		}
+	}
 	return "This source dont work yet";
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTTopText.cpp,v 1.7 2003-01-07 07:37:38 atnak Exp $
+// $Id: VTTopText.cpp,v 1.8 2003-01-27 11:45:58 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2003/01/07 07:37:38  atnak
+// Fixed page subcodes
+//
 // Revision 1.6  2003/01/05 16:09:44  atnak
 // Updated TopText for new teletext
 //
@@ -509,7 +512,9 @@ short CVTTopText::GetFirstInGroup(short Page, short* MissingPage)
 
 short CVTTopText::GetNextBlock(short Page, short* MissingPage)
 {
-    for (int i = Page + 1; i != Page; i = (i + 1) % 800)
+    int i = Page;
+
+    while ((i = (i + 1) % 800) != Page)
     {
         if (m_BTTable[i] & TOP_UNRECEIVED)
         {
@@ -533,7 +538,9 @@ short CVTTopText::GetNextBlock(short Page, short* MissingPage)
 
 short CVTTopText::GetNextGroup(short Page, short* MissingPage)
 {
-    for (int i = Page + 1; i != Page; i = (i + 1) % 800)
+    int i = Page;
+
+    while ((i = (i + 1) % 800) != Page)
     {
         if (m_BTTable[i] & TOP_UNRECEIVED)
         {
@@ -587,7 +594,9 @@ short CVTTopText::GetNextGroupInBlock(short Page, short* MissingPage)
 
 short CVTTopText::GetNextPage(short Page, short* MissingPage)
 {
-    for (int i = Page + 1; i != Page; i = (i + 1) % 800)
+    int i = Page;
+
+    while ((i = (i + 1) % 800) != Page)
     {
         if (m_BTTable[i] & TOP_UNRECEIVED)
         {
@@ -827,7 +836,7 @@ BOOL CVTTopText::GetTopTextDetails(DWORD dwPageCode, TVTPage* pBuffer, BOOL bWai
             }
 
             m_WaitingPage[TOPWAIT_YELLOW] = -1;
-            LinkPage = GetNextPage(Page, &MissingPage);
+            LinkPage = GetNextGroup(Page, &MissingPage);
         }
 
         pBuffer->EditorialLink[VTFLOF_YELLOW] = Page2PageHex(LinkPage);
@@ -872,7 +881,7 @@ BOOL CVTTopText::GetTopTextDetails(DWORD dwPageCode, TVTPage* pBuffer, BOOL bWai
             }
 
             m_WaitingPage[TOPWAIT_BLUE] = -1;
-            LinkPage = GetNextPage(Page, &MissingPage);
+            LinkPage = GetNextBlock(Page, &MissingPage);
         }
 
         pBuffer->EditorialLink[VTFLOF_BLUE] = Page2PageHex(LinkPage);

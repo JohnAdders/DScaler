@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.119 2003-06-14 19:38:10 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.120 2003-07-05 21:50:25 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.119  2003/06/14 19:38:10  laurentg
+// Preview mode improved
+//
 // Revision 1.118  2003/04/07 09:17:13  adcockj
 // Fixes for correct operation of IsFirstInSeries
 //
@@ -857,7 +860,8 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
             UpdateProgPulldownModeNTSC(NULL);
         }
         VDCHECKPOINT;
-        while(!bStopThread)
+
+		do
         {
 			if (bCheckSignalPresent)
 			{
@@ -1503,7 +1507,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
             // save the last pulldown Mode so that we know if its changed
             PrevDeintMethod = CurrentMethod;
         }
-
+        while(!bStopThread);
 
     }
     // if there is any exception thrown then exit the thread

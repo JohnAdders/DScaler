@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.cpp,v 1.14 2003-01-10 17:38:47 adcockj Exp $
+// $Id: DSSourceBase.cpp,v 1.15 2003-02-22 16:49:02 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2003/01/10 17:38:47  adcockj
+// Interrim Check in of Settings rewrite
+//  - Removed SETTINGSEX structures and flags
+//  - Removed Seperate settings per channel code
+//  - Removed Settings flags
+//  - Cut away some unused features
+//
 // Revision 1.13  2002/12/05 21:03:46  tobbej
 // changed a comment (spelling)
 //
@@ -102,10 +109,13 @@ CDSSourceBase::CDSSourceBase(long SetMessage, long MenuId) :
 
 CDSSourceBase::~CDSSourceBase()
 {
-	if(m_pDSGraph!=NULL)
 	{
-		delete m_pDSGraph;
-		m_pDSGraph=NULL;
+		CAutoCriticalSection lock(m_hOutThreadSync);
+		if(m_pDSGraph!=NULL)
+		{
+			delete m_pDSGraph;
+			m_pDSGraph=NULL;
+		}
 	}
 	DeleteCriticalSection(&m_hOutThreadSync);
 	WritePrivateProfileString(m_IniSection,_T("AudioDevice"),m_AudioDevice.c_str(),GetIniFileForSettings());

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.68 2003-02-05 19:12:40 tobbej Exp $
+// $Id: DSSource.cpp,v 1.69 2003-02-22 16:48:59 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.68  2003/02/05 19:12:40  tobbej
+// added support for capture devices where audio can be rendered from directshow
+// modified audio setings dialog so audio rendering can be turned off (usefull for devices with both internal and external audio)
+//
 // Revision 1.67  2003/01/18 10:49:10  laurentg
 // SetOverscan renamed SetAspectRatioData
 //
@@ -1665,6 +1669,8 @@ void CDSCaptureSource::Start()
 
 void CDSCaptureSource::Stop()
 {
+	CAutoCriticalSection lock(m_hOutThreadSync);
+
 	CDSSourceBase::Stop();
 
 	//need to remove the graph since we dont want to risk having both

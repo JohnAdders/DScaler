@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSFileSource.cpp,v 1.8 2003-01-18 10:49:10 laurentg Exp $
+// $Id: DSFileSource.cpp,v 1.9 2003-02-22 16:48:56 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2003/01/18 10:49:10  laurentg
+// SetOverscan renamed SetAspectRatioData
+//
 // Revision 1.7  2003/01/08 20:49:49  laurentg
 // New settings for analogue blanking by source
 //
@@ -102,8 +105,9 @@ BOOL CDSFileSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 
 		dlg.AddPage(&AudioDevice);
 		dlg.DoModal();
+		return TRUE;
 	}
-	return TRUE;
+	return FALSE;
 }
 
 
@@ -118,6 +122,14 @@ BOOL CDSFileSource::IsAccessAllowed()
 
 BOOL CDSFileSource::OpenMediaFile(LPCSTR FileName, BOOL NewPlayList)
 {
+	//The output thread MUST be stoped when calling this function
+	//or the output thread will probably crash.
+	//There is two problems that causes this
+	//1: the delete of m_pDSGraph while output thread is running
+	//2: in Stop() all fields from DSRend is marked as not in use, this must
+	//be done since dsrend must release all buffered IMediaSamples or stop
+	//will deadlock. So that makes all buffers used in the output thread invalid.
+
 	if(m_pDSGraph!=NULL)
 	{
 		Stop();
@@ -209,6 +221,7 @@ LPCSTR CDSFileSource::GetMenuLabel()
 
 void CDSFileSource::Start()
 {
+
 	try
 	{
 		if(m_pDSGraph==NULL)

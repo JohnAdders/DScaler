@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsAssociations.cpp,v 1.1 2004-08-12 14:08:55 atnak Exp $
+// $Id: TreeSettingsAssociations.cpp,v 1.2 2004-08-12 14:14:43 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2004/08/12 14:08:55  atnak
+// TreeSettingsPage for configuring setting repository's setting associations.
+//
 //////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -90,6 +93,10 @@ CTreeSettingsAssociations::~CTreeSettingsAssociations()
 	if (m_dependantHeading != NULL)
 	{
 		delete m_dependantHeading;
+	}
+	if (m_informationText != NULL)
+	{
+		delete m_informationText;
 	}
 	if (m_pListCtrl != NULL)
 	{

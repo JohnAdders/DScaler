@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.95 2003-01-12 16:19:34 adcockj Exp $
+// $Id: ProgramList.cpp,v 1.96 2003-01-15 15:38:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.95  2003/01/12 16:19:34  adcockj
+// Added SettingsGroup activity setting
+// Corrected event sequence and channel change behaviour
+//
 // Revision 1.94  2002/12/10 12:33:16  adcockj
 // Fixed problem with resetting last channel when cancel is pressed
 //
@@ -1129,6 +1133,8 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             SetFocus(GetDlgItem(hDlg, IDC_COUNTRY));
             UpdateEnabledState(hDlg, TRUE);            
         }
+        // we set focus
+        return FALSE;
         break;
 
     case WM_HSCROLL:
@@ -1252,7 +1258,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         switch(LOWORD(wParam))
         {
         case IDC_PROGRAMLIST:
-            if (MyInUpdate == FALSE && HIWORD(wParam) == LBN_SELCHANGE && (FALSE == MyInScan))
+            if ((HIWORD(wParam) == LBN_SELCHANGE) && (MyInUpdate == FALSE) && (FALSE == MyInScan))
             {
                 i = ListBox_GetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST));
 
@@ -1298,20 +1304,23 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDC_CUSTOMCHANNELORDER:
-            if (Button_GetCheck(GetDlgItem(hDlg, IDC_CUSTOMCHANNELORDER)) == BST_CHECKED)
-            {                
-                MyScanMode = SCAN_MODE_CUSTOM_ORDER;
-            }
-            else 
+            if(HIWORD(wParam) == BN_CLICKED)
             {
-                MyScanMode = SCAN_MODE_PRESETS;            
-            }            
+                if (Button_GetCheck(GetDlgItem(hDlg, IDC_CUSTOMCHANNELORDER)) == BST_CHECKED)
+                {                
+                    MyScanMode = SCAN_MODE_CUSTOM_ORDER;
+                }
+                else 
+                {
+                    MyScanMode = SCAN_MODE_PRESETS;            
+                }            
 
-            UpdateEnabledState(hDlg, TRUE);            
+                UpdateEnabledState(hDlg, TRUE);            
+            }
             break;
 
         case IDC_CHANNEL:
-            if(MyInUpdate == FALSE && HIWORD(wParam) == CBN_SELCHANGE)
+            if(HIWORD(wParam) == CBN_SELCHANGE && MyInUpdate == FALSE)
             {
                 int ChannelNum = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_CHANNEL));                
                 CChannel* Channel = (CChannel*)ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CHANNEL), ChannelNum);
@@ -1328,7 +1337,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDC_SETFREQ:
-            if(MyInUpdate == FALSE)
+            if(HIWORD(wParam) == BN_CLICKED && MyInUpdate == FALSE)
             {
                 char* cLast;
                 Edit_GetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf, 255);
@@ -1344,8 +1353,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             //the listbox updated immediately, 
             //reacting to each textbox change is not good
             //according to the way ChangeChannelInfo is currently implemented
-            
-            if(MyInUpdate == FALSE)
+            if(HIWORD(wParam) == EN_CHANGE && MyInUpdate == FALSE)
             {
                 ChangeChannelInfo(hDlg, CurrentProgram);
             }
@@ -1353,14 +1361,14 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 
         case IDC_ACTIVE:
             //(DB) Same comment as for IDC_NAME
-            if(MyInUpdate == FALSE)
+            if(HIWORD(wParam) == BN_CLICKED && MyInUpdate == FALSE)
             {
                 ChangeChannelInfo(hDlg, CurrentProgram);
             }
             break;
 
         case IDC_FORMAT:
-            if(MyInUpdate == FALSE && HIWORD(wParam) == CBN_SELCHANGE)
+            if(HIWORD(wParam) == CBN_SELCHANGE && MyInUpdate == FALSE)
             {
                 Edit_GetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf, 255);
                 char* cLast;
@@ -1372,6 +1380,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDC_ADD:
+            if(HIWORD(wParam) == BN_CLICKED)
             {
                 MyInUpdate = TRUE;                
                 Edit_GetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf, 254);
@@ -1390,7 +1399,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             }
             break;
         case IDC_REMOVE:
-            if(CurrentProgram >= 0 && CurrentProgram < MyChannels.GetSize())
+            if(HIWORD(wParam) == BN_CLICKED && CurrentProgram >= 0 && CurrentProgram < MyChannels.GetSize())
             {
                 int TopIndex = 0;
                 MyChannels.RemoveChannel(CurrentProgram);               
@@ -1406,7 +1415,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             }
             break;
         case IDC_UP:
-            if(CurrentProgram > 0 && CurrentProgram < MyChannels.GetSize())
+            if(HIWORD(wParam) == BN_CLICKED && CurrentProgram > 0 && CurrentProgram < MyChannels.GetSize())
             {
                 int TopIndex = 0;
                 MyChannels.SwapChannels(CurrentProgram, CurrentProgram - 1);                               
@@ -1417,7 +1426,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             }
             break;
         case IDC_DOWN:
-            if(CurrentProgram >= 0 && CurrentProgram < MyChannels.GetSize() - 1)
+            if(HIWORD(wParam) == BN_CLICKED && CurrentProgram >= 0 && CurrentProgram < MyChannels.GetSize() - 1)
             {
                 int TopIndex = 0;
                 MyChannels.SwapChannels(CurrentProgram, CurrentProgram + 1);
@@ -1429,61 +1438,57 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDC_CLEAR:
-            //Be polite and ask user
-            /*if (MessageBox(
-                        hDlg, 
-                        "Are you sure ?", 
-                        "Clear All", 
-                        MB_YESNO | MB_ICONQUESTION | MB_APPLMODAL)
-                    == IDYES)
-            {*/
+            if(HIWORD(wParam) == BN_CLICKED)
+            {
                 //The enabled state of this button tells us if we can clear or not
                 //no need to check any state
                 ClearProgramList(hDlg);
-                //This selects "Same as tuner" on "Clear"
-                //I'm not sure this is really wanted (you may want to keep current settings)
-                //ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_FORMAT), 0);
-         //   }
+            }
             break;
 
         case IDC_SCAN :
-            if(MyInScan == TRUE)
+            if(HIWORD(wParam) == BN_CLICKED)
             {
-                EndScan(hDlg);
-            }
-            else
-            {
-                // It doesn't really make sense to do a US style scan
-                // unless the list is empty so tell the user
-                if(MyChannels.GetSize() > 0 && MyScanMode == SCAN_MODE_CUSTOM_ORDER)
+                if(MyInScan == TRUE)
                 {
-                    if (MessageBox(
-                                hDlg, 
-                                "You have requested a channel position scan and you already have channels.\n"
-                                "Proceeding will delete all your existing setup.\n"
-                                "Do you want to proceed and delete the existing list?", 
-                                "Clear All", 
-                                MB_YESNO | MB_ICONQUESTION | MB_APPLMODAL)
-                            == IDYES)
-                    {
-                        ClearProgramList(hDlg);
-                    }
-                    else
-                    {
-                        return TRUE;
-                    }
+                    EndScan(hDlg);
                 }
-                BeginScan(hDlg);
+                else
+                {
+                    // It doesn't really make sense to do a US style scan
+                    // unless the list is empty so tell the user
+                    if(MyChannels.GetSize() > 0 && MyScanMode == SCAN_MODE_CUSTOM_ORDER)
+                    {
+                        if (MessageBox(
+                                    hDlg, 
+                                    "You have requested a channel position scan and you already have channels.\n"
+                                    "Proceeding will delete all your existing setup.\n"
+                                    "Do you want to proceed and delete the existing list?", 
+                                    "Clear All", 
+                                    MB_YESNO | MB_ICONQUESTION | MB_APPLMODAL)
+                                == IDYES)
+                        {
+                            ClearProgramList(hDlg);
+                        }
+                        else
+                        {
+                            return TRUE;
+                        }
+                    }
+                    BeginScan(hDlg);
+                }
             }
             break;
 
         case IDC_SCAN_AFC :
+            if(HIWORD(wParam) == BN_CLICKED)
             {
                 MyIsUsingAFC = (Button_GetCheck(GetDlgItem(hDlg, IDC_SCAN_AFC)) == BST_CHECKED);
             }
             break;
 
         case IDC_CHANNEL_MUTE :    
+            if(HIWORD(wParam) == BN_CLICKED)
             {
                 BOOL muteAudio = (Button_GetCheck(GetDlgItem(hDlg, IDC_CHANNEL_MUTE)) == BST_CHECKED);
                 Audio_SetUserMute(muteAudio);
@@ -1491,38 +1496,47 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDOK:   
-            TidyUp(hDlg);
-            // try to write out programs
-            if (!MyChannels.WriteASCII(SZ_DEFAULT_PROGRAMS_FILENAME))
+            if(HIWORD(wParam) == BN_CLICKED)
             {
-                CString dummy("Unable to write to file \n\""); 
-                dummy += SZ_DEFAULT_PROGRAMS_FILENAME;
-                dummy += "\"";
-                ErrorBox((LPCSTR)dummy);
-                dummy.Empty();
+                TidyUp(hDlg);
+                // try to write out programs
+                if (!MyChannels.WriteASCII(SZ_DEFAULT_PROGRAMS_FILENAME))
+                {
+                    CString dummy("Unable to write to file \n\""); 
+                    dummy += SZ_DEFAULT_PROGRAMS_FILENAME;
+                    dummy += "\"";
+                    ErrorBox((LPCSTR)dummy);
+                    dummy.Empty();
+                }
+                WriteSettingsToIni(TRUE);
+                EndDialog(hDlg, TRUE);
             }
-            WriteSettingsToIni(TRUE);
-            EndDialog(hDlg, TRUE);
             break;
 
         case IDCANCEL:
-            TidyUp(hDlg);
-            // revert to previously saved channel list
-            MyChannels.Clear();
-            MyChannels.ReadASCII(SZ_DEFAULT_PROGRAMS_FILENAME);
-            // revert to previous settings
-            MyScanMode = OldScanMode;
-            CountryCode = OldCountryCode;    
-            CurrentProgram = OldCurrentProgram;
-            MyIsUsingAFC = OldIsUsingAFC;
-            // Tune in to whatever we were showing before 
-            // we went into dialog
-            Channel_Change(CurrentProgram);
-            EndDialog(hDlg, FALSE);
+            if(HIWORD(wParam) == BN_CLICKED)
+            {
+                TidyUp(hDlg);
+                // revert to previously saved channel list
+                MyChannels.Clear();
+                MyChannels.ReadASCII(SZ_DEFAULT_PROGRAMS_FILENAME);
+                // revert to previous settings
+                MyScanMode = OldScanMode;
+                CountryCode = OldCountryCode;    
+                CurrentProgram = OldCurrentProgram;
+                MyIsUsingAFC = OldIsUsingAFC;
+                // Tune in to whatever we were showing before 
+                // we went into dialog
+                Channel_Change(CurrentProgram);
+                EndDialog(hDlg, FALSE);
+            }
             break;
 
         case IDC_HELPBTN:
-            HtmlHelp(hWnd, "DScaler.chm::/ProgramList.htm", HH_DISPLAY_TOPIC, 0);
+            if(HIWORD(wParam) == BN_CLICKED)
+            {
+                HtmlHelp(hWnd, "DScaler.chm::/ProgramList.htm", HH_DISPLAY_TOPIC, 0);
+            }
             break;
 
         default:

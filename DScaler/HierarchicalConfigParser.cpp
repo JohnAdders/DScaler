@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HierarchicalConfigParser.cpp,v 1.11 2004-12-02 18:16:00 atnak Exp $
+// $Id: HierarchicalConfigParser.cpp,v 1.12 2004-12-06 00:07:31 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2004/12/02 18:16:00  atnak
+// Minor fix.
+//
 // Revision 1.10  2004/12/01 22:01:17  atnak
 // Fix the VC++ 6 incompatibility introduced by last change.
 //
@@ -1573,3 +1576,16 @@ wstring CHCParser::ParseError::wstr()
 	return m_oss.str();
 }
 
+CHCParser::ParseError& CHCParser::ParseError::operator << (const char* s)
+{
+	wchar_t wbuffer[512];
+
+	// Convert const char* to wchar_t*
+	if (!MultiByteToWideChar(CP_ACP, 0, s, -1, wbuffer, sizeof(wbuffer)))
+	{
+		m_oss << L"Multi-byte to unicode conversion error.";
+	}
+
+	m_oss << wbuffer;
+	return *this;
+}

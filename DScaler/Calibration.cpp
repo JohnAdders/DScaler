@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.78 2003-01-24 01:55:18 atnak Exp $
+// $Id: Calibration.cpp,v 1.79 2003-01-30 22:32:39 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.78  2003/01/24 01:55:18  atnak
+// OSD + Teletext conflict fix, offscreen buffering for OSD and Teletext,
+// got rid of the pink overlay colorkey for Teletext.
+//
 // Revision 1.77  2003/01/18 10:52:11  laurentg
 // SetOverscan renamed SetAspectRatioData
 // Unnecessary call to SetOverscan deleted
@@ -222,9 +226,22 @@ CCalSetting::CCalSetting(ISetting* pSetting)
     m_pSetting = pSetting;
     min = pSetting->GetMin();
     max = pSetting->GetMax();
+	mask_nb = (max-min+1) / 32;
+	if ((max-min+1) % 32)
+	{
+		mask_nb++;
+	}
+	mask_input = (unsigned int*) malloc(mask_nb * sizeof(unsigned int)), 
+	mask_output = (unsigned int*) malloc(mask_nb * sizeof(unsigned int)), 
     current_value = pSetting->GetValue();
     SetFullRange();
     InitResult();
+}
+
+CCalSetting::~CCalSetting()
+{
+	free(mask_input);
+	free(mask_output);
 }
 
 BOOL CCalSetting::Update()
@@ -264,7 +281,7 @@ void CCalSetting::SetRange(int min_val, int max_val)
 
     min_value = min_val;
     max_value = max_val;
-    for (i=0 ; i<16 ; i++)
+    for (i=0 ; i<mask_nb ; i++)
     {
         mask_input[i] = 0;
     }
@@ -293,11 +310,11 @@ void CCalSetting::SetRange(int delta)
     SetRange(min_val, max_val);
 }
 
-void CCalSetting::SetRange(int* mask)
+void CCalSetting::SetRange(unsigned int* mask)
 {
     int i, nb;
 
-    for (i=0 ; i<16 ; i++)
+    for (i=0 ; i<mask_nb ; i++)
     {
         mask_input[i] = mask[i];
     }
@@ -319,11 +336,11 @@ void CCalSetting::SetRange(int* mask)
     }
 }
 
-int CCalSetting::GetRange(int* mask, int* min_val, int* max_val)
+int CCalSetting::GetRange(unsigned int** mask, int* min_val, int* max_val)
 {
     int i, nb;
 
-    for (i=0,nb=0 ; i<=(max - min) ; i++)
+	for (i=0,nb=0 ; i<=(max - min) ; i++)
     {
         if (mask_input[i/32] & (1 << (i%32)))
         {
@@ -331,12 +348,16 @@ int CCalSetting::GetRange(int* mask, int* min_val, int* max_val)
         }
     }
 
-    for (i=0 ; i<16; i++)
-    {
-        mask[i] = mask_input[i];
-    }
-   * min_val = min_value;
-   * max_val = max_value;
+	if (mask != NULL)
+	{
+		*mask = (unsigned int*) malloc(mask_nb * sizeof(unsigned int));
+		for (i=0 ; i<mask_nb; i++)
+		{
+			(*mask)[i] = mask_input[i];
+		}
+	}
+	*min_val = min_value;
+	*max_val = max_value;
 
     return nb;
 }
@@ -383,9 +404,10 @@ void CCalSetting::AdjustBest()
     int nb_min;
     int best_val_min;
     int best_val_max;
-    int mask[16];
+    unsigned int* mask;
 
-    nb_min = GetResult(&mask[0], &best_val_min, &best_val_max);
+    nb_min = GetResult(&mask, &best_val_min, &best_val_max);
+	free(mask);
     if (nb_min > 0)
     {
         // Set the setting to one of the best found values
@@ -406,7 +428,7 @@ void CCalSetting::InitResult()
     min_diff = MAX_VALUE;
     max_diff = 0;
     desc = FALSE;
-    for (i=0 ; i<16 ; i++)
+    for (i=0 ; i<mask_nb ; i++)
     {
         mask_output[i] = 0;
     }
@@ -427,7 +449,7 @@ BOOL CCalSetting::UpdateResult(int diff, int threshold, BOOL only_one)
     {
         min_diff = diff;
 
-        for (j=0 ; j<16 ; j++)
+        for (j=0 ; j<mask_nb ; j++)
         {
             mask_output[j] = 0;
         }
@@ -451,7 +473,7 @@ BOOL CCalSetting::UpdateResult(int diff, int threshold, BOOL only_one)
     return min_found;
 }
 
-int CCalSetting::GetResult(int* mask, int* min_val, int* max_val)
+int CCalSetting::GetResult(unsigned int** mask, int* min_val, int* max_val)
 {
     int i;
     int nb_min;
@@ -475,14 +497,16 @@ int CCalSetting::GetResult(int* mask, int* min_val, int* max_val)
         }
     }
 
-    if (nb_min > 0)
+	*mask = (unsigned int*) malloc(mask_nb * sizeof(unsigned int));
+
+	if (nb_min > 0)
     {
-        for (i=0 ; i<16; i++)
+        for (i=0 ; i<mask_nb; i++)
         {
-            mask[i] = mask_output[i];
+            (*mask)[i] = mask_output[i];
         }
-       * min_val = best_val_min;
-       * max_val = best_val_max;
+		*min_val = best_val_min;
+		*max_val = best_val_max;
     }
 
     return nb_min;
@@ -1143,7 +1167,7 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
 {
     int nb1, nb2, nb3;
     int min, max;
-    int mask[16];
+    unsigned int* mask;
     BOOL new_settings;
     BOOL found;
 
@@ -1296,7 +1320,7 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
         break;
 
     case 10:
-        if (m_Brightness->GetResult(mask, &min, &max) > 0)
+        if (m_Brightness->GetResult(&mask, &min, &max) > 0)
         {
             m_Brightness->SetRange(mask);
         }
@@ -1304,8 +1328,9 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
         {
             m_Brightness->SetRange(0);
         }
-        nb1 = m_Brightness->GetRange(mask, &min, &max);
-        if (m_Contrast->GetResult(mask, &min, &max) > 0)
+		free(mask);
+        nb1 = m_Brightness->GetRange(NULL, &min, &max);
+        if (m_Contrast->GetResult(&mask, &min, &max) > 0)
         {
             m_Contrast->SetRange(mask);
         }
@@ -1313,7 +1338,8 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
         {
             m_Contrast->SetRange(0);
         }
-        nb2 = m_Contrast->GetRange(mask, &min, &max);
+		free(mask);
+        nb2 = m_Contrast->GetRange(NULL, &min, &max);
         if ((nb1 == 1) && (nb2 == 1))
         {
             current_step += 2;
@@ -1448,7 +1474,7 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
         break;
 
     case 22:
-        if (m_Saturation_U->GetResult(mask, &min, &max) > 0)
+        if (m_Saturation_U->GetResult(&mask, &min, &max) > 0)
         {
             m_Saturation_U->SetRange(mask);
         }
@@ -1456,10 +1482,11 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
         {
             m_Saturation_U->SetRange(0);
         }
-        nb1 = m_Saturation_U->GetRange(mask, &min, &max);
+		free(mask);
+        nb1 = m_Saturation_U->GetRange(NULL, &min, &max);
 		if (m_Saturation_V != NULL)
 		{
-			if (m_Saturation_V->GetResult(mask, &min, &max) > 0)
+			if (m_Saturation_V->GetResult(&mask, &min, &max) > 0)
 			{
 				m_Saturation_V->SetRange(mask);
 			}
@@ -1467,13 +1494,14 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
 			{
 				m_Saturation_V->SetRange(0);
 			}
-			nb2 = m_Saturation_V->GetRange(mask, &min, &max);
+			free(mask);
+			nb2 = m_Saturation_V->GetRange(NULL, &min, &max);
 		}
 		else
 		{
 			nb2 = 1;
 		}
-        if (m_Hue->GetResult(mask, &min, &max) > 0)
+        if (m_Hue->GetResult(&mask, &min, &max) > 0)
         {
             m_Hue->SetRange(mask);
         }
@@ -1481,7 +1509,8 @@ void CCalibration::Make(TDeinterlaceInfo* pInfo, int tick_count)
         {
             m_Hue->SetRange(0);
         }
-        nb3 = m_Hue->GetRange(mask, &min, &max);
+		free(mask);
+        nb3 = m_Hue->GetRange(NULL, &min, &max);
         if ((nb1 == 1) && (nb2 == 1) && (nb3 == 1))
         {
             current_step += 2;

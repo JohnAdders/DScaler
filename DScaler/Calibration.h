@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.h,v 1.33 2002-10-29 21:02:55 laurentg Exp $
+// $Id: Calibration.h,v 1.34 2003-01-30 22:32:40 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2002/10/29 21:02:55  laurentg
+// Change log added
+//
 //
 // Date          Developer             Changes
 //
@@ -48,14 +51,15 @@ class CCalSetting
 {
 public:
     CCalSetting(ISetting* setting);
+    ~CCalSetting();
     BOOL Update();
     void Save();
     void Restore();
     void SetFullRange();
     void SetRange(int min_val, int max_val);
     void SetRange(int delta);
-    void SetRange(int* mask);
-    int GetRange(int* mask, int* min_val, int* max_val);
+    void SetRange(unsigned int* mask);
+    int GetRange(unsigned int** mask, int* min_val, int* max_val);
     void AdjustMin();
     void AdjustMax();
     void AdjustDefault();
@@ -63,19 +67,20 @@ public:
     void AdjustBest();
     void InitResult();
     BOOL UpdateResult(int diff, int stop_threshold, BOOL only_one);
-    int GetResult(int* mask, int* min_val, int* max_val);
+    int GetResult(unsigned int** mask, int* min_val, int* max_val);
 
 protected:
     void Adjust(int value);
     ISetting* m_pSetting;
     int min_value;
     int max_value;
-    unsigned int mask_input[16];
-    unsigned int mask_output[16];
+    unsigned int* mask_input;
+    unsigned int* mask_output;
 
 private:
     int min;
     int max;
+	int mask_nb;
     int current_value;
     int saved_value;
     unsigned int min_diff;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.h,v 1.5 2002-02-03 20:05:58 tobbej Exp $
+// $Id: DSSource.h,v 1.6 2002-02-05 17:27:17 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/02/03 20:05:58  tobbej
+// made video format menu work
+// fixed color controls
+// enable/disable menu items
+//
 // Revision 1.4  2002/02/03 11:00:43  tobbej
 // added support for picure controls
 // fixed menu handling
@@ -114,6 +119,7 @@ public:
 	void DecodeVBI(TDeinterlaceInfo* pInfo){};
 
 private:
+	void updateDroppedFields();
 	//int FindMenuID(CMenu *menu,UINT menuID);
 
 	CDShowGraph *m_pDSGraph;
@@ -124,6 +130,8 @@ private:
 
 	///Array for picture history, implemented as a circular queue
 	TPicture m_pictureHistory[MAX_PICTURE_HISTORY];
+	BYTE* m_unalignedBuffers[MAX_PICTURE_HISTORY];
+
 	///Index of next position in m_pictureHistory to be used
 	int m_pictureHistoryPos;
 	///size allocated for each field in the history
@@ -132,6 +140,9 @@ private:
 	int m_bytePerPixel;
 	
 	bool m_bProcessingFirstField;
+
+	///number of frames dropped at last call of updateDroppedFields()
+	int m_lastNumDroppedFrames;
 
 	DEFINE_SLIDER_CALLBACK_SETTING(CDSSource, Brightness);
 	DEFINE_SLIDER_CALLBACK_SETTING(CDSSource, Contrast);

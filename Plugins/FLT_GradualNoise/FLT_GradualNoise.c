@@ -16,6 +16,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/02/01 23:19:49  lindsey
+// Enabled SSE version, again.  (Oops.)
+//
 // Revision 1.4  2002/02/01 23:16:29  lindsey
 // Added code for MMX computers
 // Removed MMXEXT version (since it didn't do anything)
@@ -108,6 +111,10 @@ a hard threshold in the Temporal Noise Filter.  The problems were:
   barely exceed the noise threshold while another part is just below it. As a
   result, the second area will be averaged while the first is left alone.  This
   causes an artificial boundary in the image.
+  Because those pixels which are affected by the artifacts are not averaged,
+  their difference with the proceeding pixel will have a higher variance, thus
+  propagating the error through time.  (Thanks to Rob Muller for pointing this
+  out.)
 
 By using a gradual method rather than a hard threshold, those artifacts are
 affected so:
@@ -145,9 +152,9 @@ image error at a pixel Q = ("true" image - displayed image)^2 . For the purpose 
 plugin, make the questionable assumption that pixels never switch between {stationary,
 moving}, ignore edge effects, and ignore correlation between neighboring pixels.
 
-Then, as a function of the color difference, the variances, and the distribution of past
-estimates, you can find P(moving|Data) and P(stationary|Data) and calculate the pixel value
-which will minimize Q.
+Then, as a function of the color difference, the variances, the distribution of past
+estimates, and the prior probability of motion, you can find P(moving|Data) and
+P(stationary|Data) and calculate the pixel value which will minimize Q.
 
 That's not what this plugin does.  But for a reasonable range of m_sigma and n_sigma,
 when applied to a single pixel, the function is a passable approximation. One caveat: I
@@ -193,6 +200,7 @@ you the "comical posterization" filter.
 __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo( long CpuFeatureFlags );
 BOOL WINAPI     _DllMainCRTStartup( HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved );
 long            FilterGradualNoise_SSE( TDeinterlaceInfo *pInfo );
+long            FilterGradualNoise_3DNOW( TDeinterlaceInfo *pInfo );
 long            FilterGradualNoise_MMX( TDeinterlaceInfo *pInfo );
 
 
@@ -255,6 +263,10 @@ FILTER_METHOD GradualNoiseMethod =
 #include "FLT_GradualNoise.asm"
 #undef IS_SSE
 
+#define IS_3DNOW
+#include "FLT_GradualNoise.asm"
+#undef IS_3DNOW
+
 #define IS_MMX
 #include "FLT_GradualNoise.asm"
 #undef IS_MMX
@@ -269,6 +281,10 @@ __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo( long CpuFeatureFlags )
     if( (CpuFeatureFlags & FEATURE_SSE) || (CpuFeatureFlags & FEATURE_MMXEXT) )
     {
         GradualNoiseMethod.pfnAlgorithm = FilterGradualNoise_SSE;
+    }
+    else if( CpuFeatureFlags & FEATURE_3DNOW )
+    {
+        GradualNoiseMethod.pfnAlgorithm = FilterGradualNoise_3DNOW;
     }
     else
     {

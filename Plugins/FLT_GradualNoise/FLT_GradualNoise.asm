@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_GradualNoise.asm,v 1.5 2002-02-02 00:57:54 lindsey Exp $
+// $Id: FLT_GradualNoise.asm,v 1.6 2002-02-04 01:06:03 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001, 2002 Lindsey Dubb.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/02/02 00:57:54  lindsey
+// Removed an SSE instruction from the MMX version (Thanks to Rob for catching it!)
+//
 // Revision 1.4  2002/02/01 23:16:29  lindsey
 // Added code for MMX computers
 // Removed MMXEXT version (since it didn't do anything)
@@ -81,12 +84,16 @@
 
 #if defined( IS_SSE )
 #define MAINLOOP_LABEL DoNext8Bytes_SSE
+#elif defined( IS_3DNOW )
+#define MAINLOOP_LABEL DoNext8Bytes_3DNOW
 #else // IS_MMX
 #define MAINLOOP_LABEL DoNext8Bytes_MMX
 #endif
 
 #if defined( IS_SSE )
 long FilterGradualNoise_SSE( TDeinterlaceInfo *pInfo )
+#elif defined( IS_3DNOW )
+long FilterGradualNoise_3DNOW( TDeinterlaceInfo *pInfo )
 #else // IS_MMX
 long FilterGradualNoise_MMX( TDeinterlaceInfo *pInfo )
 #endif
@@ -144,6 +151,8 @@ MAINLOOP_LABEL:
             pmaddwd mm2, qwNoiseMultiplier    // mm2 (low Dword) = Multiplier to move toward new pixel value
 #if defined( IS_SSE )
             prefetchnta[edi + PREFETCH_STRIDE]
+#elif defined( IS_3DNOW )
+            prefetch[edi + PREFETCH_STRIDE]
 #endif
             movq    mm3, mm2                // mm3 = same
             pxor    mm6, mm6                // mm6 = 0
@@ -152,13 +161,13 @@ MAINLOOP_LABEL:
             por     mm3, mm2                // mm3 = (low word) Adjusted multiplier to move toward new
 #if defined( IS_SSE )
             pshufw  mm2, mm3, 0x00          // * mm2 = (wordwise) adjusted multiplier to move toward new
-#else   // IS_MMX
+#else   // IS_MMX or IS_3DNOW
             pand    mm3, qwLowWord          // mm3 = same limited to low word 
             movq    mm2, mm3                // mm2 = same
             psllq   mm3, 16                 // mm3 = moved to second word
             por     mm2, mm3                // mm2 = copied to first and second words
             movq    mm3, mm2                // mm3 = same
-            psllq   mm3, 32                 // mm3 = moved to thrid and fourth words
+            psllq   mm3, 32                 // mm3 = moved to third and fourth words
             por     mm2, mm3                // mm2 = low word copied to all four words
 #endif
 
@@ -182,7 +191,8 @@ MAINLOOP_LABEL:
             pand    mm7, mm3                // mm7 = bytewise |new - old| chroma
 #if defined( IS_SSE )
             pmulhuw mm7, mm2                // mm7 = amount of chroma to add/subtract from old, with remainders
-#else // IS_MMX
+            pand    mm7, mm3                // mm7 = amount of chroma to add/subtract from old
+#else // IS_MMX or IS_3DNOW
             psrlq   mm7, 8                  // mm7 = bytewise |new - old| chroma in low byte of words
             movq    mm5, mm2                // mm5 = multiplier to move toward new
             psraw   mm5, 15                 // mm5 = words filled with high bit of multiplier words
@@ -190,17 +200,16 @@ MAINLOOP_LABEL:
             pmulhw  mm7, mm2                // mm7 = signed product of chroma and multiplier
             // A twos compliment trick:
             paddw   mm7, mm5                // mm7 = unsigned product of chroma and multiplier
-            psllq   mm7, 8                  // mm7 = amount of chroma to add/subtract from old, with remainders
+            psllq   mm7, 8                  // mm7 = amount of chroma to add/subtract from old, without remainders
 #endif
 #if defined( IS_SSE )
             prefetchnta[ebx + PREFETCH_STRIDE]
 #endif
 
-            pand    mm7, mm3                // mm7 = amount of chroma to add/subtract from old
             pandn   mm3, mm4                // mm3 = bytewise |new - old| luma
 #if defined( IS_SSE )
             pmulhuw mm3, mm2                // mm3 = amount of luma to add/subtract from old
-#else // IS_MMX
+#else // IS_MMX or IS_3DNOW
             movq    mm5, mm2                // mm5 = multiplier to move toward new
             psraw   mm5, 15                 // mm5 = words filled with high bit of multiplier words
             pand    mm5, mm3                // mm5 = wordwise chroma to add/subtract iff high bit of mulitplier is on
@@ -234,7 +243,11 @@ MAINLOOP_LABEL:
     // again
     _asm
     {
+#if defined( IS_3DNOW )
+        femms
+#else
         emms
+#endif
     }
 
     return 1000;

@@ -57,7 +57,7 @@ height="2"></td>
         for this type of source, but you can use all the available filters as 
         you do for all other video sources.</p>
       <p>They are three different still sources in DScaler, and a virtual playlist 
-        (a playlist not necessarily attached to a file) is associated to each 
+        (a playlist is not necessarily attached to a file) is associated to each 
         of them :</p>
       <p> 
       <ul>
@@ -85,16 +85,25 @@ height="2"></td>
       <p></p>
       <p>DScaler can be used to take a still of what is currently displayed by 
         DScaler.</p>
-      <p>To take a still, select the item &quot;Take Still Picture&quot; in the 
-        menu &quot;Actions&quot;, or use the &quot;L&quot; shortcut.<br>
+      <p>To take a still, select the item &quot;Take One Still Picture&quot; in 
+        the menu &quot;Actions&quot;, or use the &quot;L&quot; shortcut.<br>
         You can use a particular mode to take stills periodically, that is every 
         &lt;n&gt; seconds. The time to wait between each still is defined in the 
-        still settings. To launch the process, select the item &quot;Take Cyclic 
+        still settings. To launch the process, select the item &quot;Take Periodic 
         Still Pictures&quot; in the menu &quot;Actions&quot;; to stop the process, 
-        select it again. </p>
-      <p>When you take a still, a file is automatically created in the DScaler 
-        main directory or in the directory you specified in your settings. The 
-        following rule is applied to define the file name :<br>
+        select it again.<br>
+        Finally, there is another mode that allows you to take &lt;n&gt; consecutive 
+        stills. The number of stills to take is defined in the still settings. 
+        With this mode of use, the stills are stored in memory and are not saved 
+        in a file. That is necessary to avoid dropped fields and really have the 
+        consecutive pictures of a video stream. To do that, select the item &quot;Take 
+        Consecutive Still Pictures&quot; in the the menu &quot;Actions&quot;.<br>
+      </p>
+      <p>When you take a still, depending on a setting you can adjust, either 
+        the still is stored in memory and you can save it in a file later, or 
+        a file is automatically created in the DScaler main directory or in the 
+        directory you specified in your settings. The following rule is applied 
+        to define the file name :<br>
         TV&lt;yyyy&gt;&lt;mm&gt;&lt;dd&gt;&lt;hh&gt;&lt;mi&gt;&lt;ss&gt;&lt;cc&gt;.&lt;ext&gt; 
         where :<br>
         &lt;yyyy&gt; is the current year, &lt;mm&gt; is the current month, &lt;dd&gt; 
@@ -104,6 +113,9 @@ height="2"></td>
         &lt;cc&gt; is a counter between 00 and 99 allowing 100 captures in the 
         same second<br>
         &lt;ext&gt; is tif or jpg<br>
+        The same rule is applied when saving a still that is currently only stored 
+        in memory (the date and time used will be those when the still is taken 
+        and not those when you save the file).<br>
         A particular setting allows to use a different file naming, and always 
         override the same file when taking stills : TV.&lt;ext&gt; where &lt;ext&gt; 
         is tif or jpg.</p>
@@ -164,9 +176,28 @@ height="2"></td>
         </tr>
         <tr> 
           <td>DelayBetweenStills</td>
-          <td>10 seconds</td>
+          <td>60 seconds</td>
           <td>Time in seconds to wait between each still when using the mode &quot;take 
             cyclic still pictures&quot;.</td>
+        </tr>
+        <tr> 
+          <td>NbConsecutiveStills</td>
+          <td>20</td>
+          <td>Number of stills taken when using the mode &quot;take consecutive 
+            still pictures&quot;.</td>
+        </tr>
+        <tr> 
+          <td>KeepOriginalRatio</td>
+          <td>OFF</td>
+          <td>Set it to 1 (ON) to keep the original ratio of the video source 
+            for the still, or set it to 0 (OFF) to do no resizing and take exactly 
+            what is in the video card overlay.</td>
+        </tr>
+        <tr> 
+          <td>StillsInMemory</td>
+          <td>OFF</td>
+          <td>Set it to 1 (ON) to take the stills in memory and defer the creation 
+            of the file, or set it to 0 (OFF) to immediately create the file.</td>
         </tr>
       </table>
       <p></p>

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TiffHelper.cpp,v 1.23 2002-05-10 20:34:38 laurentg Exp $
+// $Id: TiffHelper.cpp,v 1.24 2002-05-27 22:24:27 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2002/05/10 20:34:38  laurentg
+// Formula for conversion RGB <=> YCbCr updated
+//
 // Revision 1.22  2002/05/06 15:48:53  laurentg
 // Informations saved in a DScaler still updated
 // Use of the comments field to show informations about a DScaler still
@@ -114,7 +117,9 @@
 
 #define SQUARE_MARK "(square)"
 
-#define LIMIT(x) (((x)<0)?0:((x)>255)?255:(x))
+#define LIMIT_RGB(x)    (((x)<0)?0:((x)>255)?255:(x))
+#define LIMIT_Y(x)      (((x)<16)?16:((x)>235)?235:(x))
+#define LIMIT_CbCr(x)   (((x)<16)?16:((x)>240)?240:(x))
 
 //#define NO_CHECK_TIFF_COMPRESS
 
@@ -313,7 +318,7 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
             return FALSE;
         }
 
-        // RGBRGB => YUYV
+        // RGBRGB => YUYV normalized
         for (i = (h - 1) ; i >= 0 ; i--)
         {
             pDestBuf = pFrameBuf + (h - 1 - i) * LinePitch;
@@ -335,13 +340,13 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
                 y2 = ( ( 16829*r + 33039*g +  6416*b + 32768 ) >> 16 ) + 16;
                 cr = ( ( 28784*r - 24103*g -  4681*b + 32768 ) >> 16 ) + 128;
 
-                *pDestBuf = LIMIT(y1);
+                *pDestBuf = LIMIT_Y(y1);
                 ++pDestBuf;
-                *pDestBuf = LIMIT(cb);
+                *pDestBuf = LIMIT_CbCr(cb);
                 ++pDestBuf;
-                *pDestBuf = LIMIT(y2);
+                *pDestBuf = LIMIT_Y(y2);
                 ++pDestBuf;
-                *pDestBuf = LIMIT(cr);
+                *pDestBuf = LIMIT_CbCr(cr);
                 ++pDestBuf;
             }
         }
@@ -433,38 +438,40 @@ void CTiffHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOv
             }
             else
             {
-                y = pBufOverlay[0] - 16;
-                cb = pBufOverlay[1] - 128;
-                cr = pBufOverlay[3] - 128;
+                // YUYV is first normalized : Y in range [16,235] and Cb/Cr in range [16,240]
+                // and then converted in RGB
+                y = LIMIT_Y(pBufOverlay[0]) - 16;
+                cb = LIMIT_CbCr(pBufOverlay[1]) - 128;
+                cr = LIMIT_CbCr(pBufOverlay[3]) - 128;
                 r = ( 76309*y             + 104597*cr + 32768 ) >> 16;
                 g = ( 76309*y -  25675*cb -  53279*cr + 32768 ) >> 16;
                 b = ( 76309*y + 132201*cb             + 32768 ) >> 16;
-                *pBuf++ = LIMIT(r);
-                *pBuf++ = LIMIT(g);
-                *pBuf++ = LIMIT(b);
+                *pBuf++ = LIMIT_RGB(r);
+                *pBuf++ = LIMIT_RGB(g);
+                *pBuf++ = LIMIT_RGB(b);
 
-                y = pBufOverlay[2] - 16;
+                y = LIMIT_Y(pBufOverlay[2]) - 16;
                 r = ( 76309*y             + 104597*cr + 32768 ) >> 16;
                 g = ( 76309*y -  25675*cb -  53279*cr + 32768 ) >> 16;
                 b = ( 76309*y + 132201*cb             + 32768 ) >> 16;
-                *pBuf++ = LIMIT(r);
-                *pBuf++ = LIMIT(g);
-                *pBuf++ = LIMIT(b);
+                *pBuf++ = LIMIT_RGB(r);
+                *pBuf++ = LIMIT_RGB(g);
+                *pBuf++ = LIMIT_RGB(b);
             }
 
             pBufOverlay += 4;
         }
         if ((w != Width) && (m_FormatSaving != TIFF_CLASS_Y))
         {
-            y = pBufOverlay[0] - 16;
-            cb = pBufOverlay[1] - 128;
-            cr = pBufOverlay[-1] - 128;
+            y = LIMIT_Y(pBufOverlay[0]) - 16;
+            cb = LIMIT_CbCr(pBufOverlay[1]) - 128;
+            cr = LIMIT_CbCr(pBufOverlay[-1]) - 128;
             r = ( 76309*y             + 104597*cr + 32768 ) >> 16;
             g = ( 76309*y -  25675*cb -  53279*cr + 32768 ) >> 16;
             b = ( 76309*y + 132201*cb             + 32768 ) >> 16;
-            *pBuf++ = LIMIT(r);
-            *pBuf++ = LIMIT(g);
-            *pBuf++ = LIMIT(b);
+            *pBuf++ = LIMIT_RGB(r);
+            *pBuf++ = LIMIT_RGB(g);
+            *pBuf++ = LIMIT_RGB(b);
         }
     }
 

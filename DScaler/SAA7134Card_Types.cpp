@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.43 2004-02-24 05:02:19 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.44 2004-02-24 05:35:18 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.43  2004/02/24 05:02:19  atnak
+// Renamed Much TV Plus IT005
+//
 // Revision 1.42  2004/02/24 04:18:42  atnak
 // Added new card Manli M-TV005
 //
@@ -1421,7 +1424,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
     // Much TV Plus IT005
     // Thanks "Norman Jonas" <normanjonas@ar...>
     {
-        "Much TV Plus IT005",
+        "Much TV Plus",
         0x7134,
         4,
         {

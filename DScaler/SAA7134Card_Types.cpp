@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.21 2003-01-28 03:41:21 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.22 2003-01-30 07:19:47 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2003/01/28 03:41:21  atnak
+// Updated MEDION TV-TUNER 7134 MK2/3
+//
 // Revision 1.20  2003/01/27 12:32:37  atnak
 // Updated Medion TV-Tuner 7134 MK2/3
 //
@@ -656,7 +659,7 @@ int CSAA7134Card::GetMaxCards()
 CSAA7134Card::eSAA7134CardId CSAA7134Card::AutoDetectCardType()
 {
     WORD DeviceId           = GetDeviceId();
-    WORD SubSystemId        = (GetSubSystemId() & 0xFFFF0000) << 16;
+    WORD SubSystemId        = (GetSubSystemId() & 0xFFFF0000) >> 16;
     WORD SubSystemVendorId  = (GetSubSystemId() & 0x0000FFFF);
 
     int ListSize = sizeof(m_AutoDetectSAA7134)/sizeof(TAutoDetectSAA7134);

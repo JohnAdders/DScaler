@@ -60,7 +60,7 @@ height="2"></td>
 This filter removes dot crawl and some kinds of shimmering.
 The effect is most noticable on computer generated images like
 subtitles, weather maps, and station logos using a composite
-video signal.
+video signal.  Normal composite video is more subtly improved.
 </p> 
 
 <HR>
@@ -147,31 +147,31 @@ crawl, you can safely set this near 100%.
 </p>
 
 <p><A NAME="ColorDifferences"><b><font face="Arial" font color = "#993300">
-Maximum in phase luminance (and chroma) differences
+Maximum color variation
 </font></b></A></p>
 
 <p>
-These options let you choose just how different a color can be
-before the filter decides that the difference must be due to
-motion. They can be set much higher than for the <A HREF="Noise.htm">Temporal Noise
+This option lets you choose just how much the color can change
+before the filter decides the difference must be due to
+motion. It can be set much higher than the thresholds in the <A HREF="Noise.htm">Temporal Noise
 Filter</A>, since this filter uses a stricter motion detection
 method. If you've enabled Even Luma Peaking and Odd Luma Peaking
-(in the Advanced Video Flags dialog), you'll need to set these
-very high -- to 45 or 50, each. With peaking disabled, you can
-keep them much lower -- around 35 with my setup. You can lower
-the settings by about 10 points apiece if you turn on <font color = "#993300">Trade Speed
-for Accuracy</font>.
+(in the Advanced Video Flags dialog), you'll need to set this
+very high -- to 45 or 50. With peaking disabled, you can
+drop this setting a bit -- to around 35 with my setup. You can lower it by about 10 points 
+if you turn on <font color = "#993300">Trade Speed for Accuracy</font>.
 </p>
 
 <p>
-The higher the settings are, the more likely you
-are to see transient spots. So if you put these really high,
+The higher you set this, the more likely you
+are to see transient spots. So if you set this really high,
 you'll want to increase <font color = "#993300">Recall</font>
 and/or <font color = "#993300">Shimmering</font>.
 </p>
 
 <P>
-Here's how to optimize them:
+There isn't an intuitive way to choose the <font color = "#993300">Maximum color variation</font>,
+so here's a guide to help you set it:
 </P>
 
 <UL>
@@ -185,16 +185,15 @@ color bars.
 
 <LI>
 Turn <font color = "#993300">Recall</font> and <font color = "#993300">Shimmering</font> all the way down.
-Turn the <font color = "#993300">In Phase Difference</font> settings up really high (about 80).
+Turn <font color = "#993300">Maximum color variation</font> up really high (to about 80).
 The dot crawl should disappear. (Well, bad dot crawl does still
 leave a residual shimmer unless you enable <font color = "#993300">Trade Speed for
 Accuracy</font>.)
 
 <LI>
-Move the two <font color = "#993300">in phase differences</font> down until the dot crawl
-returns. Then raise the settings until the dot crawl disappears,
-again. You've now got yourself the minimum values for those
-sliders.
+Move <font color = "#993300">Maximum color variation</font> down until the dot crawl
+returns. Then raise it until the dot crawl disappears,
+again. You've now got yourself the best value for it.
 
 <LI>
 Turn <font color = "#993300">Recall</font> and
@@ -272,7 +271,7 @@ taken with the default settings.
 <img src="images/TComb_Off_Jack.JPG" width="134" height="202" align=left alt="Jack without Temporal Comb">
 <p>
 The comb filter
-also helps more subtly with edges of saturated colors in cartoons and normal video. This
+also helps more subtly with edges in cartoons and normal video. This
 first picture shows "Jack" without filtering.
 </p>
 <TR><TD>
@@ -288,9 +287,9 @@ picture was taken with <font color="#993300">Trade Speed for Accuracy</font> tur
 
 
 <p>
-But despite these examples, there's also plenty of low
-contrast material for which the Temporal Comb Filter does very little
-(except keep your processor busy).
+But this comb filter only works temporally, not spatially.  As a result,
+it does not help with dot crawl and shimmering in moving
+images.
 </p>
 
 <p>
@@ -298,11 +297,6 @@ Note that this filter is not in any way related to "comb" in
 the sense used by many video folks! It's not supposed to reduce
 weave artifacts (lagging horizontal lines) at all.  For that,
 you need to take a look at the <A HREF="Deinterlace.HTM">deinterlacing methods</A>.
-</p>
-
-<p>
-This comb filter only works temporally, not spatially. That
-means dot crawl on moving backgrounds won't be corrected.
 </p>
 
 

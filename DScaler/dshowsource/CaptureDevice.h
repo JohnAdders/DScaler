@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CaptureDevice.h,v 1.11 2002-09-24 17:22:19 tobbej Exp $
+// $Id: CaptureDevice.h,v 1.12 2002-10-27 12:18:49 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/09/24 17:22:19  tobbej
+// a few renamed function
+//
 // Revision 1.10  2002/09/14 17:03:11  tobbej
 // implemented audio output device selection
 //
@@ -57,7 +60,6 @@
 //
 // Revision 1.1  2001/12/17 19:28:26  tobbej
 // class for capture devices
-//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -111,7 +113,7 @@ public:
 	CDShowBaseCrossbar* getCrossbar();
 
 	// IAMTVTuner
-	CDShowTVTuner *getTVTuner();
+	CDShowTVTuner *GetTVTuner();
 	
 	// IAMAnalogVideoDecoder
 	bool hasVideoDec() {return m_pAVideoDec!=NULL;}

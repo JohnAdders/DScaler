@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CaptureDevice.cpp,v 1.13 2002-09-24 17:22:19 tobbej Exp $
+// $Id: CaptureDevice.cpp,v 1.14 2002-10-27 12:18:49 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/09/24 17:22:19  tobbej
+// a few renamed function
+//
 // Revision 1.12  2002/09/14 17:03:11  tobbej
 // implemented audio output device selection
 //
@@ -331,33 +334,26 @@ CDShowBaseCrossbar* CDShowCaptureDevice::getCrossbar()
 	return m_pCrossbar;
 }
 
-CDShowTVTuner *CDShowCaptureDevice::getTVTuner()
+CDShowTVTuner *CDShowCaptureDevice::GetTVTuner()
 {
-	LOG(2,"DShowCaptureDevice: getTVTuner");
+	LOG(2,"DShowCaptureDevice: GetTVTuner");
 	if(m_pTVTuner==NULL)
 	{
 		LOG(2,"DShowCaptureDevice: find TVTuner");
 
 		CComPtr<IAMTVTuner> pTVTuner;
-		//FindInterface adds any nessesary filters upstream of the videocapture device
-		//like tvtunners and crossbars
-		HRESULT hr=m_pBuilder->FindInterface(&PIN_CATEGORY_CAPTURE,&MEDIATYPE_Interleaved,m_vidDev,IID_IAMTVTuner,(void**)&pTVTuner);
-		if(hr != S_OK) 
-		{
-			hr = m_pBuilder->FindInterface(&PIN_CATEGORY_CAPTURE,&MEDIATYPE_Video,m_vidDev,IID_IAMTVTuner,(void**)&pTVTuner);
-		}
-		
+		HRESULT hr=m_pBuilder->FindInterface(&LOOK_UPSTREAM_ONLY,NULL,m_vidDev,IID_IAMTVTuner,(void**)&pTVTuner);
 		if(SUCCEEDED(hr))
 		{
 			m_pTVTuner=new CDShowTVTuner(pTVTuner, m_pGraph);
-			LOG(2,"DShowCaptureDevice: getTVTuner found");
+			LOG(2,"DShowCaptureDevice: GetTVTuner found");
 		}
 		else
 		{
-			LOG(2,"DShowCaptureDevice: getTVTuner not found");
+			LOG(2,"DShowCaptureDevice: GetTVTuner not found");
 		}
 	}
-	LOG(2,"DShowCaptureDevice: getTVTuner (%s)",(m_pTVTuner==NULL)?"Failed":"Ok");
+	LOG(2,"DShowCaptureDevice: GetTVTuner (%s)",(m_pTVTuner==NULL)?"Failed":"Ok");
 	return m_pTVTuner;
 }
 

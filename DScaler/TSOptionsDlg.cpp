@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TSOptionsDlg.cpp,v 1.10 2003-08-15 16:51:11 laurentg Exp $
+// $Id: TSOptionsDlg.cpp,v 1.11 2003-08-15 17:18:36 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -26,6 +26,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2003/08/15 16:51:11  laurentg
+// New event type EVENT_NO_VOLUME
+// Update the volume toolbar when exiting from the audio mixer setup dialog box
+//
 // Revision 1.9  2003/07/08 21:04:59  laurentg
 // New timeshift mode (full height) - experimental
 //
@@ -65,7 +69,6 @@
 #include "TSOptionsDlg.h"
 #include "TimeShift.h"
 #include "MixerDev.h"
-#include "Providers.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -218,19 +221,6 @@ void CTSOptionsDlg::OnButtonMixer()
 {
     // Bring up the audio mixer setup dialog.
     Mixer_SetupDlg(m_hWnd);
-
-	CSource* source = Providers_GetCurrentSource();
-	if (source != NULL)
-	{
-		if (source->GetVolume() != NULL)
-		{
-			EventCollector->RaiseEvent(source, EVENT_VOLUME, 0, source->GetVolume()->GetValue());
-		}
-		else
-		{
-			EventCollector->RaiseEvent(source, EVENT_NO_VOLUME, 0, 1);
-		}
-	}
 }
 
 void CTSOptionsDlg::OnButtonOK() 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MixerDev.cpp,v 1.45 2003-08-15 09:56:49 atnak Exp $
+// $Id: MixerDev.cpp,v 1.46 2003-08-15 17:18:36 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.45  2003/08/15 09:56:49  atnak
+// Another update
+//
 // Revision 1.44  2003/08/15 09:29:08  atnak
 // Minor updates
 //
@@ -390,6 +393,19 @@ void Mixer_SetupDlg(HWND hWndParent)
     if (mixerFinder.GetMixerCount() > 0)
     {
         DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_MIXERSETUP), hWndParent, MixerSetupProc);
+
+		CSource* source = Providers_GetCurrentSource();
+		if (source != NULL)
+		{
+			if (source->GetVolume() != NULL)
+			{
+				EventCollector->RaiseEvent(source, EVENT_VOLUME, 0, source->GetVolume()->GetValue());
+			}
+			else
+			{
+				EventCollector->RaiseEvent(source, EVENT_NO_VOLUME, 0, 1);
+			}
+		}
     }
     else
     {

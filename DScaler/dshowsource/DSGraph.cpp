@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.cpp,v 1.11 2002-04-16 15:26:54 tobbej Exp $
+// $Id: DSGraph.cpp,v 1.12 2002-05-01 20:38:40 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/04/16 15:26:54  tobbej
+// fixed filter reference leak when geting filter names (filters submenu)
+// added waitForNextField
+//
 // Revision 1.10  2002/04/07 14:52:13  tobbej
 // fixed race when changing resolution
 // improved error handling
@@ -515,6 +519,19 @@ void CDShowGraph::changeRes(long x,long y)
 	else if(oldState==State_Paused)
 	{
 		pause();
+	}
+	
+	//free mediatypes
+	if(mt->pUnk!=NULL)
+	{
+		mt->pUnk->Release();
+		mt->pUnk=NULL;
+	}
+	if(mt->pbFormat!=NULL && mt->cbFormat>0)
+	{
+		CoTaskMemFree(mt->pbFormat);
+		mt->pbFormat=NULL;
+		mt->cbFormat=0;
 	}
 }
 

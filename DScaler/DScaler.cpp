@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.370 2005-03-06 00:52:27 robmuller Exp $
+// $Id: DScaler.cpp,v 1.371 2005-03-06 01:40:49 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.370  2005/03/06 00:52:27  robmuller
+// Changed default value for 'Always on Top (Window)'.
+//
 // Revision 1.369  2005/03/04 20:40:54  laurentg
 // Change unit (1/10 sec) for the setting defining the delay between periodic stills
 //
@@ -6896,7 +6899,7 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
     },
     {
         "Processor Speed", SLIDER, 0, (long*)&ProcessorSpeed,
-        1, 0, 3, 1, 1,
+        3, 0, 3, 1, 1,
         NULL,
         "MainWindow", "ProcessorSpeed", NULL,
     },

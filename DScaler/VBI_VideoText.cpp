@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.73 2004-11-08 16:12:27 atnak Exp $
+// $Id: VBI_VideoText.cpp,v 1.74 2004-11-08 18:15:24 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.73  2004/11/08 16:12:27  atnak
+// Fix to strange problem with vertical tab control when using XP visual style
+//
 // Revision 1.72  2004/04/24 11:34:51  atnak
 // minor fix
 //
@@ -1744,6 +1747,9 @@ BOOL APIENTRY VTInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 }
 
 
+typedef HRESULT (__stdcall *PFNSETWINDOWTHEME)(HWND, LPCWSTR, LPCWSTR);
+typedef BOOL (__stdcall *PFNISAPPTHEMED)();
+
 BOOL APIENTRY VTGotoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
     char szBuffer[4];
@@ -1757,14 +1763,22 @@ BOOL APIENTRY VTGotoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 
             // Disable the use of XP visual styles on the IDC_VTPAGEGROUP
             // tab control because the vertical tabs aren't supported by
-            // XP visual styles (comctl32.dll version 6).
-            //
-            // The checking of IsAppThemed() here should make sure no
-            // errors arise on pre XP operating systems from the lack of
-            // UxTheme.dll.
-            if (IsAppThemed())
+            // XP visual styles (comctl32.dll version 6).  Dynamically load
+            // UxTheme.dll so its compatible with OSes before XP.
+            static HMODULE hThemeDll = LoadLibrary(_T("UxTheme.dll"));
+
+            if (hThemeDll != NULL)
             {
-                SetWindowTheme(hItem, L" ", L" ");
+                PFNISAPPTHEMED pfnIsAppThemed = (PFNISAPPTHEMED)GetProcAddress(hThemeDll, "IsAppThemed");
+                PFNSETWINDOWTHEME pfnSetWindowThemed = (PFNSETWINDOWTHEME)GetProcAddress(hThemeDll, "SetWindowTheme");
+
+                if (pfnIsAppThemed != NULL && pfnSetWindowThemed != NULL)
+                {
+                    if ((pfnIsAppThemed)())
+                    {
+                        (pfnSetWindowThemed)(hItem, L" ", L" ");
+                    }
+                }
             }
 
             TCITEM TCItem;

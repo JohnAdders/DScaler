@@ -1,5 +1,5 @@
 //
-// $Id: ToolbarControl.cpp,v 1.14 2003-09-07 11:05:14 laurentg Exp $
+// $Id: ToolbarControl.cpp,v 1.15 2003-09-26 20:54:06 laurentg Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2003/09/07 11:05:14  laurentg
+// Elapsed time slider and skin
+//
 // Revision 1.13  2003/08/16 09:29:56  laurentg
 // Hide the volume toolbar when the current source is a still
 //
@@ -188,7 +191,7 @@ void CToolbarControl::Toolbar1MediaPlayerOnChange(long OldValue, long NewValue)
 }
 
 
-void CToolbarControl::Set(HWND hWnd, LPCSTR szSkinName, int ForceHide)
+void CToolbarControl::Set(HWND hWnd, LPCSTR SkinName, int ForceHide, int ForceResize)
 {        
     if (Toolbar1==NULL) //Initialize
     {
@@ -284,7 +287,7 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR szSkinName, int ForceHide)
         }   
     }
     
-    if ((szSkinName != NULL) && (szSkinName[0] == 0)) //Remove skin
+    if ((SkinName != NULL) && (SkinName[0] == 0)) //Remove skin
     {      
         //Remove skin from main toolbar window
 		Toolbar1->ClearSkin();
@@ -341,11 +344,11 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR szSkinName, int ForceHide)
 		InvalidateRect(Toolbar1->GethWnd(), NULL, FALSE);
     }
     
-    if ((szSkinName != NULL) && (szSkinName[0] != 0)) //Load skin
+    if ((SkinName != NULL) && (SkinName[0] != 0)) //Load skin
     {
         char szSkinIniFile[MAX_PATH*2];
         strcpy(szSkinIniFile,GetSkinDirectory());
-        strcat(szSkinIniFile,szSkinName);
+        strcat(szSkinIniFile,SkinName);
         strcat(szSkinIniFile,"\\skin.ini");
 		///\todo check if the ini file exists
 
@@ -474,7 +477,11 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR szSkinName, int ForceHide)
         if (Toolbar1MediaPlayer!=NULL)
         {
             Toolbar1->SetChildPosition(Toolbar1MediaPlayer, LOWORD(m_Toolbar1MediaPlayer->GetValue()), 0);
-			if ((HIWORD(m_Toolbar1MediaPlayer->GetValue())&3)==3)
+			// Temporary : hide the toolbar when a skin is enabled
+			// TODO : integrate this new toolbar in the skins
+			extern char* szSkinName;
+			if ( ((HIWORD(m_Toolbar1MediaPlayer->GetValue())&3)==3)
+			  && ( (szSkinName == NULL) || (szSkinName[0] == 0)) )
             {
                 Toolbar1->ShowChild(Toolbar1MediaPlayer);
             }
@@ -494,6 +501,10 @@ void CToolbarControl::Set(HWND hWnd, LPCSTR szSkinName, int ForceHide)
                 Toolbar1->HideChild(Toolbar1Logo);
             }
         }
+		if (ForceResize)
+		{
+			Toolbar1->ForceUpdateWindowPosition(NULL);
+		}
 		//Set position & visibility of main toolbar
         if ((m_ShowToolbar1->GetValue() && (ForceHide==0)) || (ForceHide==2))
         {
@@ -558,11 +569,18 @@ int CToolbarControl::CreateToolbar1Bar()
 }
 
 //Update toolbar position
-void CToolbarControl::Adjust(HWND hWnd, BOOL bRedraw)
+void CToolbarControl::Adjust(HWND hWnd, BOOL bRedraw, BOOL ForceUpdate)
 {
     if ((Toolbar1!=NULL) && Toolbar1->Visible())
     {
-        Toolbar1->UpdateWindowPosition(hWnd);
+        if (ForceUpdate)
+        {
+			Toolbar1->ForceUpdateWindowPosition(hWnd);
+		}
+		else
+		{
+	        Toolbar1->UpdateWindowPosition(hWnd);
+		}
         if (bRedraw)
         {
             InvalidateRect(Toolbar1->GethWnd(), NULL, FALSE);

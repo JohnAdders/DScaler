@@ -36,8 +36,8 @@ public:
 
 	virtual void OnEvent(CEventObject *pEventObject, eEventType Event, long OldValue, long NewValue, eEventType *ComingUp);
 
-    void Set(HWND hWnd, LPCSTR szSkinName, int ForceHide = 0);
-    void Adjust(HWND hWnd, BOOL bRedraw);
+    void Set(HWND hWnd, LPCSTR SkinName, int ForceHide = 0, int ForceResize = 0);
+    void Adjust(HWND hWnd, BOOL bRedraw, BOOL ForceUpdate);
     void UpdateMenu(HMENU hMenu);
     void Free();
     void AdjustArea(LPRECT lpRect, int Crop);

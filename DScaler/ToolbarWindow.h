@@ -105,6 +105,7 @@ public:
     BOOL Show();
     BOOL Hide();
     void UpdateWindowPosition(HWND hParentWnd);
+	void ForceUpdateWindowPosition(HWND hParentWnd);
 
 	virtual BOOL LoadSkin(const char *szSkinIniFile,  const char *szSection, vector<int> *Results, CBitmapCache *pBitmapCache = NULL);
 	virtual void ClearSkin();

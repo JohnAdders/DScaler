@@ -1,5 +1,5 @@
 //
-// $Id: ToolbarWindow.cpp,v 1.6 2003-09-07 19:09:52 laurentg Exp $
+// $Id: ToolbarWindow.cpp,v 1.7 2003-09-26 20:54:06 laurentg Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2003/09/07 19:09:52  laurentg
+// Display of toolbars on several rows when not enough space
+//
 // Revision 1.5  2003/08/09 15:53:39  laurentg
 // Bad refresh of the toolbar when in full screen mode corrected
 //
@@ -365,6 +368,7 @@ BOOL CToolbarWindow::SetPos(int x, int y, int w, int h)
 		XLPos = LeftMargin;
 		XRPos = w - RightMargin;
 		row = 0;
+		int in_row = 0;
 		int Height = 0;
         for (n = 0; n < vChildOrder.size(); n++)
         {
@@ -395,19 +399,35 @@ BOOL CToolbarWindow::SetPos(int x, int y, int w, int h)
 			  {   
 				 XRPos -= BarLeftWidth + Width + BarRightWidth + ChildLeftRightMargin;
 			  }
-			  if (XRPos<XLPos)
-			  {                    
-//			     DetachBar(vChildList[i].pChild, 0);
-//			     DetachBar(vChildList[i].pChild, 1);
-			     vRowHeight.push_back(Height);
+			  if ( (XRPos<XLPos) && (in_row > 0) )
+			  {
+				 // This block of code should allow to erase the separator mark
+				 // at the end of a line when the next toolbar is on the next line
+				 // IT DOES NOT WORK WELL
+//				 if (vChildList[i].pBarLeft != NULL)
+//				 {
+//					vChildList[i].pBarLeft->Hide();
+//					DetachBar(vChildList[i].pChild, 1);
+//				 }
+//				 if (n > 0)
+//				 {
+//				    if (vChildList[vChildOrder[n-1]].pBarRight != NULL)
+//					{
+//				       vChildList[vChildOrder[n-1]].pBarRight->Hide();
+//					   DetachBar(vChildList[vChildOrder[n-1]].pChild, 0);
+//					}
+//				 }
+				 vRowHeight.push_back(Height);
 			     FitHeight += Height;
 				 row++;
+				 in_row = 0;
 				 Height = 0;
 			  }    
               if (vChildList[i].pChild->Height() > Height)
 			  {
                  Height = vChildList[i].pChild->Height();
 			  }
+			  in_row++;
 		   }
 		   SetChildRow(vChildList[i].pChild, row);
         }
@@ -608,6 +628,12 @@ void CToolbarWindow::UpdateWindowPosition(HWND hParentWnd)
               SetPos(rc.left,YPos,Width, Height);              
           }
       }
+}
+
+void CToolbarWindow::ForceUpdateWindowPosition(HWND hParentWnd)
+{
+	bChildOrderChanged = TRUE;
+	UpdateWindowPosition((hParentWnd != NULL) ? hParentWnd : hWndParent);
 }
 
 void CToolbarWindow::SetPosition(int Pos)

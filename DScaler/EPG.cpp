@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.cpp,v 1.1 2005-03-20 09:48:58 laurentg Exp $
+// $Id: EPG.cpp,v 1.2 2005-03-20 16:56:26 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2005/03/20 09:48:58  laurentg
+// XMLTV file import
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 // Change Log
@@ -41,15 +44,13 @@
 #define	ONE_DAY			86400
 #define	ONE_HOUR		3600
 #define	DEFAULT_INPUT_FILE		"epg.xml"
-#define	DEFAULT_OUTPUT_XML_FILE	"DScaler.xml"
-#define	DEFAULT_OUTPUT_TXT_FILE	"DScaler.txt"
-#define	DEFAULT_TMP_FILE		"DScaler_tmp.txt"
+#define	DEFAULT_OUTPUT_XML_FILE	"DScalerEPG.xml"
+#define	DEFAULT_OUTPUT_TXT_FILE	"DScalerEPG.txt"
+#define	DEFAULT_TMP_FILE		"DScalerEPG_tmp.txt"
 
 
 CEPG MyEPG;
 
-
-// TODO Bug: special characters like "+" in the channel name
 
 // TODO Enhancement: display of EPG information in the OSD
 
@@ -156,7 +157,6 @@ CEPG::CEPG()
     *strrchr(Path, '\\') = '\0';
 
 	m_FilesDir = Path;
-	m_FilesDir = m_FilesDir + "\\EPG";
 	m_XMLTVExe = m_FilesDir + "\\xmltv.exe";
 }
 
@@ -217,7 +217,7 @@ int CEPG::ExecuteCommand(string command)
 //
 int CEPG::ScanXMLTVFile(LPCSTR file, int delta_time)
 {
-	// If file not provided, try with "epg.xml" in the EPG sub-directory
+	// If file not provided, try with "epg.xml"
 	string XMLFile;
 	if (file == NULL)
 		XMLFile = m_FilesDir + "\\" + DEFAULT_INPUT_FILE;
@@ -231,8 +231,33 @@ int CEPG::ScanXMLTVFile(LPCSTR file, int delta_time)
 	string RegExp = "\"(?i)";
 	for (int i=0; (i < MyChannels.GetSize()); i++)
 	{
+		// Add an escape character "\" before each character of the channel name
+		// that are special characters in PERL REGEXP (like + for example)
+		LPCSTR name = MyChannels.GetChannelName(i);
+		char name2[64];
+		for (int j=0, k=0; j<strlen(name); j++)
+		{
+			if (   (name[j] == '^')
+				|| (name[j] == '$')
+				|| (name[j] == '.')
+				|| (name[j] == '*')
+				|| (name[j] == '+')
+				|| (name[j] == '?')
+				|| (name[j] == '|')
+				|| (name[j] == '(')
+				|| (name[j] == ')')
+				|| (name[j] == '[')
+				|| (name[j] == ']')
+				|| (name[j] == '{')
+				|| (name[j] == '}')
+				|| (name[j] == '\\'))
+				name2[k++] = '\\';
+			name2[k++] = name[j];
+		}
+		name2[k] = '\0';
+
 		RegExp += "^";
-		RegExp += MyChannels.GetChannelName(i);
+		RegExp += name2;
 		RegExp += "$";
 		if (i < (MyChannels.GetSize() - 1))
 			RegExp += "|";

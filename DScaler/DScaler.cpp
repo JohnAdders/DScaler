@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.301 2003-02-05 17:21:50 robmuller Exp $
+// $Id: DScaler.cpp,v 1.302 2003-02-05 17:50:51 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.301  2003/02/05 17:21:50  robmuller
+// Hide systray menu when another window is activated.
+//
 // Revision 1.300  2003/02/05 16:40:17  laurentg
 // New option to stop capture when DScaler is minimized
 //
@@ -1050,6 +1053,7 @@ BOOL bIgnoreNextRightButtonUpMsg = FALSE;
 
 UINT MsgWheel;
 UINT MsgOSDShow;
+UINT MsgTaskbarRestart;
 
 NOTIFYICONDATA nIcon;
 
@@ -1167,6 +1171,8 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     CPU_SetupFeatureFlag();
 
     MsgOSDShow = RegisterWindowMessage("DScalerShowOSDMsgString");
+    MsgWheel = RegisterWindowMessage("MSWHEEL_ROLLMSG");
+    MsgTaskbarRestart = RegisterWindowMessage("TaskbarCreated");
 
     // make a copy of the command line since ProcessCommandLine() will replace the spaces with \0
     char OldCmdLine[1024];
@@ -1432,8 +1438,6 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
 	{
         SetTray(TRUE);
 	}
-
-    MsgWheel = RegisterWindowMessage("MSWHEEL_ROLLMSG");
 
     // 2000-10-31 Added by Mark Rejhon
     // Now show the window, directly to maximized or windowed right away.
@@ -2571,6 +2575,15 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
         }
         return 0;
+    }
+    else if(message == MsgTaskbarRestart)
+    // the task bar has been restarted so the systray icon needs to be added again.
+    {
+        bIconOn = FALSE;
+	    if (bMinToTray)
+	    {
+            SetTray(TRUE);
+	    }
     }
     
     if (message == IDI_TRAYICON)

@@ -300,6 +300,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "FLT_AdaptiveNoise"=..\Plugins\FLT_AdaptiveNoise\FLT_AdaptiveNoise.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "FLT_Gamma"=..\Plugins\FLT_Gamma\FLT_Gamma.dsp - Package Owner=<4>
 
 Package=<5>

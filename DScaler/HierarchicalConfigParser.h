@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HierarchicalConfigParser.h,v 1.3 2004-11-20 16:36:40 atnak Exp $
+// $Id: HierarchicalConfigParser.h,v 1.4 2004-11-20 16:43:16 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2004/11/20 16:36:40  atnak
+// Removed the use of ifstream and added custom buffered line reader.
+//
 // Revision 1.2  2004/11/20 14:10:48  atnak
 // Removed throw(...) because VS6 didn't like it and probably isn't necessary.
 //
@@ -253,6 +256,15 @@ public:
 	static FILE* OpenLocalFile(const char* filename);
 	static FILE* OpenLocalFile(const wchar_t* filename);
 
+public:
+	enum
+	{
+		PARSE_ERROR_GENERIC,
+		PARSE_ERROR_FILE,
+		PARSE_ERROR_LINE,
+		PARSE_ERROR_POINT,
+	};
+
 private:
 	enum
 	{
@@ -275,14 +287,6 @@ private:
 		EXPECT_CLOSE_EOL	= 1 << 10,
 		EXPECT_CLOSE_COMMA	= 1 << 11,
 		EXPECT_MAX			= 12,
-	};
-
-	enum
-	{
-		PARSE_ERROR_GENERIC,
-		PARSE_ERROR_FILE,
-		PARSE_ERROR_LINE,
-		PARSE_ERROR_POINT,
 	};
 
 	typedef struct _ParseState

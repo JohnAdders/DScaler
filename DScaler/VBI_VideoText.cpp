@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.28 2001-11-26 12:48:01 temperton Exp $
+// $Id: VBI_VideoText.cpp,v 1.29 2002-01-12 16:56:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2001/11/26 12:48:01  temperton
+// Teletext corrections
+//
 // Revision 1.27  2001/11/23 10:45:32  adcockj
 // Added Hebrew and Hungarian codepages
 //
@@ -1193,6 +1196,12 @@ void VT_SetCodePage(eVTCodePage Codepage)
     case VT_HEBREW_CODE_PAGE:
         VTCharSet = (BITMAPINFO *)LoadResource(hDScalerInst, FindResource(hDScalerInst, MAKEINTRESOURCE(IDB_HEBREW_VTCHARS), RT_BITMAP));
         break;
+    case VT_SWEDISH_CODE_PAGE:
+        VTCharSet = (BITMAPINFO *)LoadResource(hDScalerInst, FindResource(hDScalerInst, MAKEINTRESOURCE(IDB_SWEDISH_VTCHARS), RT_BITMAP));
+        break;
+    case VT_ITALIAN_CODE_PAGE:
+        VTCharSet = (BITMAPINFO *)LoadResource(hDScalerInst, FindResource(hDScalerInst, MAKEINTRESOURCE(IDB_ITALIAN_VTCHARS), RT_BITMAP));
+        break;
     case VT_UK_CODE_PAGE:
     default:
         VTCharSet = (BITMAPINFO *)LoadResource(hDScalerInst, FindResource(hDScalerInst, MAKEINTRESOURCE(IDB_VTCHARS), RT_BITMAP));
@@ -1435,5 +1444,7 @@ void VT_SetMenu(HMENU hMenu)
     CheckMenuItemBool(hMenu, IDM_VT_GERMAN, (VTCodePage == VT_GERMAN_CODE_PAGE));
     CheckMenuItemBool(hMenu, IDM_VT_HUNGARIAN, (VTCodePage == VT_HUNGARIAN_CODE_PAGE));
     CheckMenuItemBool(hMenu, IDM_VT_HEBREW, (VTCodePage == VT_HEBREW_CODE_PAGE));
+    CheckMenuItemBool(hMenu, IDM_VT_SWEDISH, (VTCodePage == VT_SWEDISH_CODE_PAGE));
+    CheckMenuItemBool(hMenu, IDM_VT_ITALIAN, (VTCodePage == VT_ITALIAN_CODE_PAGE));
 }
 

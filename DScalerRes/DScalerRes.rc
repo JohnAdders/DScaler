@@ -937,6 +937,8 @@ BEGIN
             MENUITEM "G&erman",                     IDM_VT_GERMAN
             MENUITEM "&Hungarian",                  IDM_VT_HUNGARIAN
             MENUITEM "He&brew",                     IDM_VT_HEBREW
+            MENUITEM "&Swedish",                    IDM_VT_SWEDISH
+            MENUITEM "&Italian",                    IDM_VT_ITALIAN
         END
         POPUP "Teletext Remote Button"
         BEGIN
@@ -1054,6 +1056,8 @@ BEGIN
             MENUITEM "720",                         IDM_SETTINGS_PIXELWIDTH_720
             , CHECKED
             MENUITEM "640",                         IDM_SETTINGS_PIXELWIDTH_640
+
+            MENUITEM "480",                         IDM_SETTINGS_PIXELWIDTH_480
 
             MENUITEM "384",                         IDM_SETTINGS_PIXELWIDTH_384
 

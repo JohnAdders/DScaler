@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.107 2001-12-22 13:18:04 adcockj Exp $
+// $Id: DScaler.cpp,v 1.108 2002-01-12 16:56:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.107  2001/12/22 13:18:04  adcockj
+// Tuner bugfixes
+//
 // Revision 1.106  2001/12/18 13:12:11  adcockj
 // Interim check-in for redesign of card specific settings
 //
@@ -1403,6 +1406,18 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             Start_Capture();
             break;
 
+        case IDM_VT_SWEDISH:
+            Stop_Capture();
+            VT_SetCodePage(VT_SWEDISH_CODE_PAGE);
+            Start_Capture();
+            break;
+
+        case IDM_VT_ITALIAN:
+            Stop_Capture();
+            VT_SetCodePage(VT_ITALIAN_CODE_PAGE);
+            Start_Capture();
+            break;
+
         case IDM_USECHROMA:
             Stop_Capture();
             Setting_SetValue(FD_Common_GetSetting(USECHROMA), 
@@ -2173,19 +2188,15 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 //---------------------------------------------------------------------------
 void SaveWindowPos(HWND hWnd)
 {
-    WINDOWPLACEMENT WndPlace;
-    if(hWnd != NULL)
-    {
-        // MRS 2-20-01 - length must be set in WindowPlacement structure
-        memset(&WndPlace,0,sizeof(WndPlace));
-        WndPlace.length = sizeof(WndPlace);
-        // End 2-20-01
-        GetWindowPlacement(hWnd, &WndPlace);
-        MainWndTop = WndPlace.rcNormalPosition.top;
-        MainWndHeight = WndPlace.rcNormalPosition.bottom - WndPlace.rcNormalPosition.top;
-        MainWndLeft = WndPlace.rcNormalPosition.left;
-        MainWndWidth = WndPlace.rcNormalPosition.right - WndPlace.rcNormalPosition.left;
-    }
+	if(hWnd != NULL)
+	{
+		RECT Rect;
+        GetWindowRect(hWnd, &Rect);
+        MainWndTop = Rect.top;
+        MainWndHeight = Rect.bottom - Rect.top;
+        MainWndLeft = Rect.left;
+        MainWndWidth = Rect.right - Rect.left;
+	}
 }
 
 
@@ -2500,6 +2511,7 @@ void SetMenuAnalog()
     EnableMenuItem(hMenu,IDM_TOGGLECURSOR, bAutoHideCursor?MF_GRAYED:MF_ENABLED);
     CheckMenuItemBool(hMenu, IDM_AUTOHIDE_CURSOR, bAutoHideCursor);
     CheckMenuItemBool(hMenu, IDM_STATUSBAR, bDisplayStatusBar);
+    CheckMenuItemBool(hMenu, IDM_TOGGLE_MENU, bShowMenu);
     CheckMenuItemBool(hMenu, IDM_ON_TOP, bAlwaysOnTop);
     CheckMenuItemBool(hMenu, IDM_ALWAYONTOPFULLSCREEN, bAlwaysOnTopFull);
     CheckMenuItemBool(hMenu, IDM_SPLASH_ON_STARTUP, bDisplaySplashScreen);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.12 2001-12-19 19:24:45 ittarnavsky Exp $
+// $Id: BT848Souce_UI.cpp,v 1.13 2002-01-12 16:56:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2001/12/19 19:24:45  ittarnavsky
+// prepended SOUNDCHANNEL_ to all members of the eSoundChannel enum
+//
 // Revision 1.11  2001/12/18 17:56:11  adcockj
 // Backed out menu modification functions for inputs
 //
@@ -294,6 +297,8 @@ void CBT848Source::SetMenu(HMENU hMenu)
     DoneWidth |= (m_PixelWidth->GetValue() == 720);
     CheckMenuItemBool(m_hMenu, IDM_SETTINGS_PIXELWIDTH_640, (m_PixelWidth->GetValue() == 640));
     DoneWidth |= (m_PixelWidth->GetValue() == 640);
+    CheckMenuItemBool(m_hMenu, IDM_SETTINGS_PIXELWIDTH_480, (m_PixelWidth->GetValue() == 480));
+    DoneWidth |= (m_PixelWidth->GetValue() == 480);
     CheckMenuItemBool(m_hMenu, IDM_SETTINGS_PIXELWIDTH_384, (m_PixelWidth->GetValue() == 384));
     DoneWidth |= (m_PixelWidth->GetValue() == 384);
     CheckMenuItemBool(m_hMenu, IDM_SETTINGS_PIXELWIDTH_320, (m_PixelWidth->GetValue() == 320));
@@ -652,6 +657,10 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
     
         case IDM_SETTINGS_PIXELWIDTH_640:
             m_PixelWidth->SetValue(640);
+            break;
+    
+        case IDM_SETTINGS_PIXELWIDTH_480:
+            m_PixelWidth->SetValue(480);
             break;
     
         case IDM_SETTINGS_PIXELWIDTH_384:

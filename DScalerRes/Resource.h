@@ -830,7 +830,10 @@
 #define IDM_CROSSBAR_INPUT19            2240
 #define IDM_CROSSBAR_INPUT_MAX          2240
 #define IDM_RESET_STATS                 2241
-#define IDM_DSHOW_RENDERERPROPERTIES     2242
+#define IDM_DSHOW_RENDERERPROPERTIES    2242
+#define IDM_SETTINGS_PIXELWIDTH_480     2243
+#define IDM_VT_ITALIAN                  2245
+#define IDM_VT_SWEDISH                  2246
 #define IDC_STATIC                      -1
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
@@ -850,9 +853,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_3D_CONTROLS                1
+#define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        188
-#define _APS_NEXT_COMMAND_VALUE         2243
+#define _APS_NEXT_COMMAND_VALUE         2247
 #define _APS_NEXT_CONTROL_VALUE         1895
 #define _APS_NEXT_SYMED_VALUE           2213
 #endif

@@ -883,7 +883,15 @@ SOURCE=.\RES\VTHUNGARIANX15X18.bmp
 # End Source File
 # Begin Source File
 
+SOURCE=.\RES\VTITALIANX15X18.bmp
+# End Source File
+# Begin Source File
+
 SOURCE=.\RES\VTRUSSIANX15X18.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\RES\VTSWEDISHX15X18.bmp
 # End Source File
 # Begin Source File
 

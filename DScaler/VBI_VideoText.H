@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.H,v 1.16 2001-11-26 12:48:01 temperton Exp $
+// $Id: VBI_VideoText.H,v 1.17 2002-01-12 16:56:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -65,6 +65,8 @@ enum eVTCodePage
     VT_GERMAN_CODE_PAGE,
     VT_HUNGARIAN_CODE_PAGE,
     VT_HEBREW_CODE_PAGE,
+    VT_SWEDISH_CODE_PAGE,
+    VT_ITALIAN_CODE_PAGE,
     VT_CODE_PAGE_LASTONE,
 };
 

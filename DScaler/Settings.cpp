@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.49 2003-04-26 23:19:15 laurentg Exp $
+// $Id: Settings.cpp,v 1.50 2003-04-28 12:42:22 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.49  2003/04/26 23:19:15  laurentg
+// Character string settings
+//
 // Revision 1.48  2003/04/26 19:02:41  laurentg
 // Character string settings and memory management
 //
@@ -582,7 +585,6 @@ void FreeSettings()
 	        Settings[i].pfnFreeSettings();
 		}
     }
-
 	Deinterlace_FreeSettings();
 }
 
@@ -790,9 +792,9 @@ BOOL Setting_ReadFromIni(SETTING* pSetting, BOOL bDontSetDefault)
 		if (pSetting->Type == CHARSTRING)
 		{
 			char szDefaultString[] = {0};
-			char szBuffer[MAX_PATH+1];
+			char szBuffer[256];
 			char* szValue;
-			nValue = GetPrivateProfileString(pSetting->szIniSection, pSetting->szIniEntry, szDefaultString, szBuffer, MAX_PATH, szIniFile);
+			nValue = GetPrivateProfileString(pSetting->szIniSection, pSetting->szIniEntry, szDefaultString, szBuffer, 255, szIniFile);
 			if (nValue <= 0)
 			{
 				IsSettingInIniFile = FALSE;
@@ -800,6 +802,7 @@ BOOL Setting_ReadFromIni(SETTING* pSetting, BOOL bDontSetDefault)
 			}
 			else
 			{
+				IsSettingInIniFile = TRUE;
 				szValue = (char *)szBuffer;
 			}
 			if (IsSettingInIniFile || !bDontSetDefault)
@@ -848,7 +851,7 @@ BOOL Setting_ReadFromIni(SETTING* pSetting, BOOL bDontSetDefault)
     }
     else
     {
-        return FALSE;
+        IsSettingInIniFile =  FALSE;
     }
     return IsSettingInIniFile;
 }
@@ -862,13 +865,14 @@ void Setting_WriteToIni(SETTING* pSetting, BOOL bOptimizeFileAccess)
 			if (pSetting->Type == CHARSTRING)
 			{
 				WritePrivateProfileString(pSetting->szIniSection, pSetting->szIniEntry, (char *)(*pSetting->pValue), szIniFile);
+	            LOG(2, " Setting_WriteToIni %s %s Value %s", pSetting->szIniSection, pSetting->szIniEntry, (char*)(*pSetting->pValue));
 			}
 			else
 			{
 		        WritePrivateProfileInt(pSetting->szIniSection, pSetting->szIniEntry, *pSetting->pValue, szIniFile);
 		        pSetting->LastSavedValue = *pSetting->pValue;
+	            LOG(2, " Setting_WriteToIni %s %s Value %d", pSetting->szIniSection, pSetting->szIniEntry, *pSetting->pValue);
 			}
-            LOG(2, " Setting_WriteToIni %s %s Value %d", pSetting->szIniSection, pSetting->szIniEntry, *pSetting->pValue);
 		}
     }
 }
@@ -905,7 +909,7 @@ void Setting_OSDShow(SETTING* pSetting, HWND hWnd)
             }
             break;
         case CHARSTRING:
-            sprintf(szBuffer, "%s %s", pSetting->szDisplayName, *(pSetting->pValue) ? (char*)*(pSetting->pValue) : "");
+            sprintf(szBuffer, "%s %s", pSetting->szDisplayName, *pSetting->pValue ? (char*)(*pSetting->pValue) : "");
             break;
         default:
             break;
@@ -1130,7 +1134,7 @@ void Setting_Free(SETTING* pSetting)
 {
     if ( (pSetting != NULL)
 	  && (pSetting->Type == CHARSTRING)
-	  && (pSetting->pValue != NULL) )
+	  && (*pSetting->pValue != NULL) )
     {
 		delete (char *)(*pSetting->pValue);
     }

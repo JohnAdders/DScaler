@@ -1,5 +1,5 @@
 //
-// $Id: GenericTuner.cpp,v 1.14 2004-01-29 15:19:49 adcockj Exp $
+// $Id: GenericTuner.cpp,v 1.15 2004-06-30 17:39:00 to_see Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2004/01/29 15:19:49  adcockj
+// Generic tuner radio patch from Sven Grothklags
+//
 // Revision 1.13  2003/10/27 10:39:51  adcockj
 // Updated files for better doxygen compatability
 //
@@ -503,8 +506,19 @@ bool CGenericTuner::SetTVFrequency(long nFrequencyHz, eVideoFormat videoFormat)
 
     if (m_I2CBus != NULL)
     {
+		if (m_ExternalIFDemodulator != NULL)
+		{
+			m_ExternalIFDemodulator->TunerSet(TRUE, videoFormat);
+		}
+
         bool result = m_I2CBus->Write(buffer, sizeof(buffer));
-        return result;
+
+		if (m_ExternalIFDemodulator != NULL)
+		{
+			m_ExternalIFDemodulator->TunerSet(FALSE, videoFormat);
+		}
+        
+		return result;
     }
     else
     {
@@ -551,8 +565,24 @@ bool CGenericTuner::SetRadioFrequency(long nFrequencyHz)
 
     if (m_I2CBus != NULL)
     {
+		// not working but needed for FM Radio
+		/*
+		if (m_ExternalIFDemodulator != NULL)
+		{
+			m_ExternalIFDemodulator->TunerSet(TRUE, VIDEOFORMAT_LASTONE+1);
+		}
+		*/
+
         bool result = m_I2CBus->Write(buffer, sizeof(buffer));
-        return result;
+
+		/*
+		if (m_ExternalIFDemodulator != NULL)
+		{
+			m_ExternalIFDemodulator->TunerSet(FALSE, VIDEOFORMAT_LASTONE+1);
+		}
+        */
+
+		return result;
     }
     else
     {
@@ -597,36 +627,45 @@ eTunerAFCStatus CGenericTuner::GetAFCStatus(long &nFreqDeviation)
 {
     if (m_I2CBus != NULL)
     {
-        BYTE addr;
-        BYTE result;
-        addr = (BYTE)(m_DeviceAddress << 1);
-        if (m_I2CBus->Read(&addr, 1, &result, 1))
-        {
-            int afc = (result&I2CTUNER_AFC);
+        if (m_ExternalIFDemodulator != NULL)
+		{
+			eTunerAFCStatus AFCStatus = m_ExternalIFDemodulator->GetAFCStatus(nFreqDeviation);
+			return AFCStatus;
+		}
 
-            afc -= 2;
-            switch (afc)
-            {
-            case -2:
-                nFreqDeviation = -125000;
-                break;
-            case -1:
-                nFreqDeviation = -62500;
-                break;
-            case 0:
-                nFreqDeviation = 0;
-                break;
-            case 1:
-                nFreqDeviation = 62500;
-                break;
-            //case 2:
-            //    nFreqDeviation = 125000;
-            //   break;
-            default:
-                return TUNER_AFC_NOCARRIER;
-            }
-            return TUNER_AFC_CARRIER;
-        }
+		else
+		{
+			BYTE addr;
+			BYTE result;
+			addr = (BYTE)(m_DeviceAddress << 1);
+			if (m_I2CBus->Read(&addr, 1, &result, 1))
+			{
+				int afc = (result&I2CTUNER_AFC);
+
+				afc -= 2;
+				switch (afc)
+				{
+				case -2:
+					nFreqDeviation = -125000;
+					break;
+				case -1:
+					nFreqDeviation = -62500;
+					break;
+				case 0:
+					nFreqDeviation = 0;
+					break;
+				case 1:
+					nFreqDeviation = 62500;
+					break;
+				//case 2:
+				//    nFreqDeviation = 125000;
+				//   break;
+				default:
+					return TUNER_AFC_NOCARRIER;
+				}
+				return TUNER_AFC_CARRIER;
+			}
+		}
     }
     return TUNER_AFC_NOTSUPPORTED;
 }

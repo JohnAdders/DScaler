@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388x_Defines.h,v 1.17 2004-01-07 10:08:12 adcockj Exp $
+// $Id: CX2388x_Defines.h,v 1.18 2004-01-16 09:35:12 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -830,25 +830,18 @@ enum eCX2388xCardId
 #define SRAM_FIFO_VBI_BUFFERS            (SRAM_CLUSTER_TABLE_VBI + SRAM_CLUSTER_TABLE_VBI_SIZE)
 #define SRAM_FIFO_VBI_BUFFERS_SIZE       (SRAM_FIFO_VBI_BUFFER_SIZE * SRAM_VIDEO_BUFFERS)
 
-// Cluster table for Audio In
-#define SRAM_CLUSTER_TABLE_AUDIO_IN      (SRAM_FIFO_VBI_BUFFERS + SRAM_FIFO_VBI_BUFFERS_SIZE)
-#define SRAM_CLUSTER_TABLE_AUDIO_IN_SIZE (SRAM_AUDIO_BUFFERS * 0x10)
+// Cluster table for Audio In & Out
+#define SRAM_CLUSTER_TABLE_AUDIO         (SRAM_FIFO_VBI_BUFFERS + SRAM_FIFO_VBI_BUFFERS_SIZE)
+#define SRAM_CLUSTER_TABLE_AUDIO_SIZE    (SRAM_AUDIO_BUFFERS * 0x10)
 
-// FIFO buffers for Audio In
-#define SRAM_FIFO_AUDIO_IN_BUFFERS       (SRAM_CLUSTER_TABLE_AUDIO_IN + SRAM_CLUSTER_TABLE_AUDIO_IN_SIZE)
-#define SRAM_FIFO_AUDIO_IN_BUFFERS_SIZE  (SRAM_FIFO_AUDIO_BUFFER_SIZE * SRAM_AUDIO_BUFFERS)
+// FIFO buffers for Audio In & Out
+#define SRAM_FIFO_AUDIO_BUFFERS          (SRAM_CLUSTER_TABLE_AUDIO + SRAM_CLUSTER_TABLE_AUDIO_SIZE)
+#define SRAM_FIFO_AUDIO_BUFFERS_SIZE     (SRAM_FIFO_AUDIO_BUFFER_SIZE * SRAM_AUDIO_BUFFERS)
 
-// Cluster table for Audio Out
-#define SRAM_CLUSTER_TABLE_AUDIO_OUT     (SRAM_FIFO_AUDIO_IN_BUFFERS + SRAM_FIFO_AUDIO_IN_BUFFERS_SIZE)
-#define SRAM_CLUSTER_TABLE_AUDIO_OUT_SIZE (SRAM_AUDIO_BUFFERS * 0x10)
-
-// FIFO buffers for Audio Out
-#define SRAM_FIFO_AUDIO_OUT_BUFFERS      (SRAM_CLUSTER_TABLE_AUDIO_OUT + SRAM_CLUSTER_TABLE_AUDIO_OUT_SIZE)
-#define SRAM_FIFO_AUDIO_OUT_BUFFERS_SIZE (SRAM_FIFO_AUDIO_BUFFER_SIZE * SRAM_AUDIO_BUFFERS)
 
 // if adding new buffers the next one to be defined must use this value
 // you should maintain SRAM_NEXT as it is used as a safety check that
-#define SRAM_NEXT                      (SRAM_FIFO_AUDIO_OUT_BUFFERS + SRAM_FIFO_AUDIO_OUT_BUFFERS_SIZE)
+#define SRAM_NEXT                        (SRAM_FIFO_AUDIO_BUFFERS + SRAM_FIFO_AUDIO_BUFFERS_SIZE)
 
 // largest possible value in SRAM
 #define SRAM_MAX                       0x187FFF

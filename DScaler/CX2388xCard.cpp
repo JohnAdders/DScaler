@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.46 2004-01-07 10:27:18 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.47 2004-01-16 09:35:12 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.46  2004/01/07 10:27:18  adcockj
+// Patch from MidiMaker to fix issue with PAL comb filter
+//
 // Revision 1.45  2004/01/05 13:12:24  adcockj
 // Added patch from Lavrenov Dmitrij (midimaker)
 //
@@ -1470,63 +1473,62 @@ void CCX2388xCard::ResetHardware()
 
     /////////////////////////////////////////////////////////////////
     // Setup for Audio Input
+    // Note that the cluster table and buffers are shared
+    // between the input and output.
+    // This setup will work where the sound is being decoded and
+    // sent to the internal DAC for routing via an analog cable
+    // If capture of audio is required I'd guess that this
+    // will need to be changed and some RISC code will be required.
     /////////////////////////////////////////////////////////////////
         
     // Cluster table base 
-    WriteDword(SRAM_CMDS_25 + 0x04, SRAM_CLUSTER_TABLE_AUDIO_IN); 
+    WriteDword(SRAM_CMDS_25 + 0x04, SRAM_CLUSTER_TABLE_AUDIO); 
 
     // Cluster table size is in QWORDS
-    WriteDword(SRAM_CMDS_25 + 0x08, (SRAM_CLUSTER_TABLE_AUDIO_IN_SIZE / 8));
+    WriteDword(SRAM_CMDS_25 + 0x08, (SRAM_CLUSTER_TABLE_AUDIO_SIZE / 8));
 
     // Fill in cluster buffer entries
     for(i = 0; i < SRAM_AUDIO_BUFFERS; ++i)
     {
         WriteDword(
-                    SRAM_CLUSTER_TABLE_AUDIO_IN + (i * 0x10), 
-                    SRAM_FIFO_AUDIO_IN_BUFFERS + (i * SRAM_FIFO_AUDIO_BUFFER_SIZE)
+                    SRAM_CLUSTER_TABLE_AUDIO + (i * 0x10), 
+                    SRAM_FIFO_AUDIO_BUFFERS + (i * SRAM_FIFO_AUDIO_BUFFER_SIZE)
                   );
     }
     
     // Copy the cluster buffer info to the DMAC 
     
     // Set the DMA Cluster Table Address
-    WriteDword( MO_DMA25_PTR2, SRAM_CLUSTER_TABLE_AUDIO_IN);
+    WriteDword( MO_DMA25_PTR2, SRAM_CLUSTER_TABLE_AUDIO);
     
     // Set the DMA buffer limit size in qwords
     WriteDword( MO_DMA25_CNT1, SRAM_FIFO_AUDIO_BUFFER_SIZE / 8);
     
     // Set the DMA Cluster Table Size in qwords
-    WriteDword( MO_DMA25_CNT2, (SRAM_CLUSTER_TABLE_AUDIO_IN_SIZE / 8));
+    WriteDword( MO_DMA25_CNT2, (SRAM_CLUSTER_TABLE_AUDIO_SIZE / 8));
 
     /////////////////////////////////////////////////////////////////
     // Setup for Audio Output
     /////////////////////////////////////////////////////////////////
         
     // Cluster table base 
-    WriteDword(SRAM_CMDS_26 + 0x04, SRAM_CLUSTER_TABLE_AUDIO_OUT); 
+    WriteDword(SRAM_CMDS_26 + 0x04, SRAM_CLUSTER_TABLE_AUDIO); 
 
     // Cluster table size is in QWORDS
-    WriteDword(SRAM_CMDS_26 + 0x08, (SRAM_CLUSTER_TABLE_AUDIO_OUT_SIZE / 8));
+    WriteDword(SRAM_CMDS_26 + 0x08, (SRAM_CLUSTER_TABLE_AUDIO_SIZE / 8));
 
-    // Fill in cluster buffer entries
-    for(i = 0; i < SRAM_AUDIO_BUFFERS; ++i)
-    {
-        WriteDword(
-                    SRAM_CLUSTER_TABLE_AUDIO_OUT + (i * 0x10), 
-                    SRAM_FIFO_AUDIO_OUT_BUFFERS + (i * SRAM_FIFO_AUDIO_BUFFER_SIZE)
-                  );
-    }
-    
+    // cluster buffer entries already filled as shared with audio input
+
     // Copy the cluster buffer info to the DMAC 
     
     // Set the DMA Cluster Table Address
-    WriteDword( MO_DMA26_PTR2, SRAM_CLUSTER_TABLE_AUDIO_OUT);
+    WriteDword( MO_DMA26_PTR2, SRAM_CLUSTER_TABLE_AUDIO);
     
     // Set the DMA buffer limit size in qwords
     WriteDword( MO_DMA26_CNT1, SRAM_FIFO_AUDIO_BUFFER_SIZE / 8);
     
     // Set the DMA Cluster Table Size in qwords
-    WriteDword( MO_DMA26_CNT2, (SRAM_CLUSTER_TABLE_AUDIO_OUT_SIZE / 8));
+    WriteDword( MO_DMA26_CNT2, (SRAM_CLUSTER_TABLE_AUDIO_SIZE / 8));
 
     /////////////////////////////////////////////////////////////////
     // Other one off settings for the chip

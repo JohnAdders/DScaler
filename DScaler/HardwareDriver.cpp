@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareDriver.cpp,v 1.7 2002-02-03 22:47:31 robmuller Exp $
+// $Id: HardwareDriver.cpp,v 1.8 2002-02-13 16:37:16 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/02/03 22:47:31  robmuller
+// Added (un)installation of the NT/2000/XP driver, this includes code to change
+// the access rights. The driver is not automatically deleted on exit anymore.
+//
 // Revision 1.6  2001/11/29 17:30:52  adcockj
 // Reorgainised bt848 initilization
 // More Javadoc-ing
@@ -152,7 +156,7 @@ BOOL CHardwareDriver::LoadDriver()
                     LOG(1, "Service already started");
                 }
             }
-            else
+            if(!bError)
             {
                 m_hFile = CreateFile(
                                      "\\\\.\\DSDrv4",
@@ -164,6 +168,7 @@ BOOL CHardwareDriver::LoadDriver()
                                      INVALID_HANDLE_VALUE
                                     );
             }
+
         }
 
     }

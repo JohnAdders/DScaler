@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TVCards.cpp,v 1.22 2001-09-07 20:39:43 laurentg Exp $
+// $Id: TVCards.cpp,v 1.23 2001-09-07 20:56:57 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // The structures where taken from bttv driver version 7.37
 // bttv - Bt848 frame grabber driver
@@ -33,6 +33,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2001/09/07 20:39:43  laurentg
+// New card added : Pinnacle PCTV Sat
+//
 // Revision 1.21  2001/07/27 10:54:23  adcockj
 // Fix for s-video on ATI TV wonder
 //
@@ -1712,8 +1715,6 @@ void TVCard_SetMenu(HMENU hMenu)
 
     if(TVCards[CardType].TunerInput == -1 || TunerType == TUNER_ABSENT)
     {
-        EnableMenuItem(hMenu, IDM_CHANNEL_ANCHOR1, MF_GRAYED);
-        EnableMenuItem(hMenu, IDM_CHANNEL_ANCHOR2, MF_GRAYED);
         EnableMenuItem(hMenu, IDM_CHANNELPLUS, MF_GRAYED);
         EnableMenuItem(hMenu, IDM_CHANNELMINUS, MF_GRAYED);
         EnableMenuItem(hMenu, IDM_CHANNEL_PREVIOUS, MF_GRAYED);
@@ -1724,8 +1725,6 @@ void TVCard_SetMenu(HMENU hMenu)
     }
     else
     {
-        EnableMenuItem(hMenu, IDM_CHANNEL_ANCHOR1, MF_ENABLED);
-        EnableMenuItem(hMenu, IDM_CHANNEL_ANCHOR2, MF_ENABLED);
         EnableMenuItem(hMenu, IDM_CHANNELPLUS, MF_ENABLED);
         EnableMenuItem(hMenu, IDM_CHANNELMINUS, MF_ENABLED);
         EnableMenuItem(hMenu, IDM_CHANNEL_PREVIOUS, MF_ENABLED);

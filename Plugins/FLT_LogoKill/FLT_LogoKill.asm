@@ -1,5 +1,5 @@
  /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_LogoKill.asm,v 1.6 2002-11-06 20:54:07 adcockj Exp $
+// $Id: FLT_LogoKill.asm,v 1.7 2002-11-06 21:03:15 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Rob Muller. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/11/06 20:54:07  adcockj
+// Added black as option in logo killer
+//
 // Revision 1.5  2002/11/05 13:07:08  adcockj
 // Logo Killer Smoothing patch from Jochen Trenner
 //
@@ -295,7 +298,7 @@ long FilterLogoKiller_MMX(TDeinterlaceInfo* pInfo)
 
             for(i = 0; i < Height; i++)
             {
-                memset(lpLogoRect + i*Pitch, 0x00, Width*2);
+                _wcsnset((wchar_t*)(lpLogoRect + i*Pitch), 0x7f00, Width);
             }
         }
 		break;

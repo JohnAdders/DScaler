@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.cpp,v 1.2 2002-02-03 11:02:34 tobbej Exp $
+// $Id: DSGraph.cpp,v 1.3 2002-02-05 17:27:46 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/02/03 11:02:34  tobbej
+// various updates for new filter
+//
 // Revision 1.1  2001/12/17 19:30:24  tobbej
 // class for managing the capture graph
 //
@@ -233,6 +236,27 @@ void CDShowGraph::showRendererProperies(HWND hParent)
 	}
 	
 	CoTaskMemFree(pages.pElems);
+}
+
+int CDShowGraph::getDroppedFrames()
+{
+	HRESULT hr;
+	if(m_pQualProp==NULL)
+	{
+		hr=m_renderer->QueryInterface(IID_IQualProp,(void**)&m_pQualProp);
+		if(FAILED(hr))
+		{
+			throw CDShowException("Failed to get IQualProp interface on renderer filter (most likely a bug)",hr);
+		}
+	}
+	
+	int frames;
+	hr=m_pQualProp->get_FramesDroppedInRenderer(&frames);
+	if(FAILED(hr))
+	{
+		throw CDShowException("Failed to get dropped frames count",hr);
+	}
+	return frames;
 }
 
 void CDShowGraph::setRes(long x,long y)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HierarchicalConfigParser.h,v 1.1 2004-11-19 23:51:04 atnak Exp $
+// $Id: HierarchicalConfigParser.h,v 1.2 2004-11-20 14:10:48 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2004/11/19 23:51:04  atnak
+// Release of the configuration parser that is used for card list parsing.
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -201,7 +204,7 @@ typedef struct _ParseTag ParseTag;
 
 // Callback function type for ParseTag
 typedef void (ParseReportProc)(int reason, const ParseTag* tag, unsigned char type,
-							   const char* value, void* context) throw(...);
+							   const char* value, void* context);
 
 // Constants definition for ParseTag
 struct _ParseConstant

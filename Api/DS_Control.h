@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.37 2001-08-23 06:48:57 adcockj Exp $
+// $Id: DS_Control.h,v 1.38 2001-08-30 10:06:29 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.37  2001/08/23 06:48:57  adcockj
+// Fixed control header for TemporalComb filter
+//
 // Revision 1.36  2001/08/15 17:45:41  laurentg
 // UseRGB ini parameter suppressed
 //
@@ -890,6 +893,7 @@ typedef enum
 typedef enum
 {
     DI_OLDGAME_MAXCOMB = 0,
+    DI_OLDGAME_COMPOSITEMODE,
     DI_OLDGAME_SETTING_LASTONE,
 } DI_OLDGAME_SETTING;
 
@@ -923,6 +927,7 @@ typedef enum
     SHIMMERHISTPERCENT,
     SHIMMERPERCENT,
     USETCOMB,
+    TRADESPEEDFORACCURACY,
     FLT_TCOMB_SETTING_LASTONE,
 } FLT_TCOMB_SETTING;
 

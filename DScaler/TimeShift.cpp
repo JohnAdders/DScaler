@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.cpp,v 1.22 2003-07-02 21:44:19 laurentg Exp $
+// $Id: TimeShift.cpp,v 1.23 2003-07-05 12:59:51 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2003/07/02 21:44:19  laurentg
+// TimeShift settings
+//
 // Revision 1.21  2003/04/23 08:20:19  adcockj
 // Save width on record
 //
@@ -121,11 +124,8 @@
 #include "MixerDev.h"     // Mute and UnMute
 #include "Settings.h"     // Setting_Set/GetValue
 #include "Cpu.h"          // CpuFeatureFlags
-#include "DebugLog.h"
-/// \todo remove 
-#include "OutThreads.h"
-
-#include "Providers.h"
+#include "Providers.h"    // Providers_GetCurrentSource
+#include "DebugLog.h"	  // LOG
 
 BOOL ShownWarning = FALSE;
 
@@ -157,8 +157,15 @@ bool CTimeShift::OnRecord(void)
     {
         EnterCriticalSection(&m_pTimeShift->m_lock);
 
-        // Save this off before we start playing.
-        m_pTimeShift->m_origPixelWidth = SendMessage(hWnd, WM_BT848_GETVALUE, CURRENTX, 0);
+        // Save this off before we start recording.
+		if (m_pTimeShift->m_mode == MODE_STOPPED)
+		{
+			CSource* pSource = Providers_GetCurrentSource();
+			if (pSource != NULL)
+			{
+				m_pTimeShift->m_origPixelWidth = pSource->GetWidth();
+			}
+		}
 
         // Only start recording if we're stopped.
         result =
@@ -173,6 +180,8 @@ bool CTimeShift::OnRecord(void)
 
 bool CTimeShift::OnPause(void)
 {
+    AssureCreated();
+
     bool result = false;
 
     // if we've not been created there is nothing to pause
@@ -180,9 +189,21 @@ bool CTimeShift::OnPause(void)
     {
         EnterCriticalSection(&m_pTimeShift->m_lock);
 
+        // Save this off before we start "time shifing".
+		if (m_pTimeShift->m_mode == MODE_STOPPED)
+		{
+			CSource* pSource = Providers_GetCurrentSource();
+			if (pSource != NULL)
+			{
+				m_pTimeShift->m_origPixelWidth = pSource->GetWidth();
+			}
+		}
+
         // Only start "time shifing" if we're stopped.
         result =
-            m_pTimeShift->m_mode == MODE_STOPPED ?
+            m_pTimeShift->m_mode == MODE_STOPPED ||
+            m_pTimeShift->m_mode == MODE_RECORDING ||
+            m_pTimeShift->m_mode == MODE_SHIFTING ?
             m_pTimeShift->Record(true) : false;
 
         LeaveCriticalSection(&m_pTimeShift->m_lock);
@@ -202,7 +223,14 @@ bool CTimeShift::OnPlay(void)
         EnterCriticalSection(&m_pTimeShift->m_lock);
 
         // Save this off before we start playing.
-        m_pTimeShift->m_origPixelWidth = SendMessage(hWnd, WM_BT848_GETVALUE, CURRENTX, 0);
+		if (m_pTimeShift->m_mode == MODE_STOPPED)
+		{
+			CSource* pSource = Providers_GetCurrentSource();
+			if (pSource != NULL)
+			{
+				m_pTimeShift->m_origPixelWidth = pSource->GetWidth();
+			}
+		}
 
         // Only start playing if we're stopped.
         result =
@@ -235,9 +263,10 @@ bool CTimeShift::OnStop(void)
 
         // Reset the user's pixel width outside the Stop function since we
         // call it between clips and pixelwidth-setting is slow.
-        if (result && SendMessage(hWnd, WM_BT848_GETVALUE, CURRENTX, 0) != m_pTimeShift->m_origPixelWidth)
+		CSource* pSource = Providers_GetCurrentSource();
+        if (result && pSource != NULL && pSource->GetWidth() != m_pTimeShift->m_origPixelWidth)
         {
-            SetBT848PixelWidth(m_pTimeShift->m_origPixelWidth);
+            SetPixelWidth(m_pTimeShift->m_origPixelWidth);
         }
 
         LeaveCriticalSection(&m_pTimeShift->m_lock);
@@ -331,7 +360,7 @@ bool CTimeShift::OnNewFrame(TDeinterlaceInfo *pInfo)
 
     if (m_pTimeShift)
     {
-        EnterCriticalSection(&m_pTimeShift->m_lock);
+		EnterCriticalSection(&m_pTimeShift->m_lock);
 
         if(m_pTimeShift->m_mode == MODE_RECORDING ||
             m_pTimeShift->m_mode == MODE_PAUSED ||
@@ -343,7 +372,8 @@ bool CTimeShift::OnNewFrame(TDeinterlaceInfo *pInfo)
         {
             result = m_pTimeShift->ReadVideo(pInfo);
         }
-        LeaveCriticalSection(&m_pTimeShift->m_lock);
+
+		LeaveCriticalSection(&m_pTimeShift->m_lock);
     }
 
     return result;
@@ -919,7 +949,7 @@ LPBYTE C_RGBtoYUV(short *dest, LPBYTE src, DWORD w)
 CTimeShift::CTimeShift()
     :
     m_mode(MODE_STOPPED),
-    m_fps(30), // Our AVIs will always be 30 fps.
+    m_fps(30),
     m_curFile(0),
     m_lpbi(NULL),
     m_recordBits(NULL),
@@ -938,6 +968,9 @@ CTimeShift::CTimeShift()
     m_startTimePlay(0),
     m_thisTimeRecord(0),
     m_thisTimePlay(0),
+    m_lastFrameRecord(0),
+    m_lastFramePlay(0),
+    m_startFramePlay(0),
     m_nextSampleRecord(0),
     m_nextSamplePlay(0),
     m_hWaveIn(NULL),
@@ -1145,7 +1178,7 @@ bool CTimeShift::OnCompressionOptions(void)
     return m_pTimeShift ? m_pTimeShift->CompressionOptions() : false;
 }
 
-bool CTimeShift::SetBT848PixelWidth(int pixelWidth)
+bool CTimeShift::SetPixelWidth(int pixelWidth)
 {
     if (m_pTimeShift)
     {
@@ -1153,8 +1186,11 @@ bool CTimeShift::SetBT848PixelWidth(int pixelWidth)
         // We have to let the capture thread do its thing to change the pixel
         // width.  Leave the critical section for this call.
         LeaveCriticalSection(&m_pTimeShift->m_lock);
-        /// \todo Reinstate this line
-        SendMessage(hWnd, WM_BT848_SETVALUE, CURRENTX, pixelWidth);
+		CSource* pSource = Providers_GetCurrentSource();
+        if (pSource != NULL)
+		{
+			pSource->SetWidth(pixelWidth);
+		}
         EnterCriticalSection(&m_pTimeShift->m_lock);
         return true;
     }
@@ -1233,6 +1269,19 @@ static void CALLBACK WaveOutProc(
 
 bool CTimeShift::Record(bool pause)
 {
+	if (pause &&
+		(m_mode == MODE_RECORDING ||
+         m_mode == MODE_SHIFTING))
+	{
+		m_mode = MODE_PAUSED;
+		m_startFramePlay = m_lastFramePlay;
+		m_startTimePlay = 0;
+		if (!m_playBits)
+			m_playBits = new BYTE[m_bih.biSizeImage];
+        DoMute(true);
+		return true;
+	}
+
     // Clear all variables.
     Stop();
 
@@ -1266,7 +1315,7 @@ bool CTimeShift::Record(bool pause)
         return false;
     }
 
-    eVideoFormat VideoFormat = Providers_GetCurrentSource()->GetFormat();
+    eVideoFormat VideoFormat = Providers_GetCurrentSource() ? Providers_GetCurrentSource()->GetFormat() : VIDEOFORMAT_NTSC_M;
     m_fps = (GetTVFormat(VideoFormat)->Is25fps) ? 25 : 30;
     m_infoVideo.dwRate = m_fps;
     UpdateAudioInfo();
@@ -1389,17 +1438,34 @@ bool CTimeShift::Play(void)
                                 NULL) != 0)
     {
         if (m_mode != MODE_PAUSED)
+		{
             Stop();
+		}
         return false;
     }
 
-    if (AVIFileGetStream(m_pfile, &m_psCompressedVideoP, 0, 0) != 0 ||
-        AVIFileGetStream(m_pfile, &m_psCompressedAudioP, 0, 1) != 0)
-    {
-        if (m_mode != MODE_PAUSED)
-            Stop();
-        return false;
-    }
+	if (!m_psCompressedVideoP)
+	{
+		if (AVIFileGetStream(m_pfile, &m_psCompressedVideoP, streamtypeVIDEO, 0) != 0)
+		{
+			if (m_mode != MODE_PAUSED)
+			{
+				Stop();
+			}
+			return false;
+		}
+	}
+	if (!m_psCompressedAudioP)
+	{
+		if (AVIFileGetStream(m_pfile, &m_psCompressedAudioP, streamtypeAUDIO, 0) != 0)
+		{
+			if (m_mode != MODE_PAUSED)
+			{
+				Stop();
+			}
+			return false;
+		}
+	}
 
     if (m_mode != MODE_PAUSED)
     {
@@ -1411,16 +1477,20 @@ bool CTimeShift::Play(void)
                           sizeof(m_infoAudio)) != 0)
         {
             if (m_mode != MODE_PAUSED)
-                Stop();
+			{
+				Stop();
+			}
             return false;
         }
         
         m_fps = m_infoVideo.dwRate;
 
         // Make sure the pixel width is ready for the incoming AVI's width.
-        if (SendMessage(hWnd, WM_BT848_GETVALUE, CURRENTX, 0) != m_infoVideo.rcFrame.right)
+		CSource* pSource = Providers_GetCurrentSource();
+        if (pSource != NULL && pSource->GetWidth() != m_infoVideo.rcFrame.right)
         {
-            SetBT848PixelWidth(m_infoVideo.rcFrame.right);
+
+            SetPixelWidth(m_infoVideo.rcFrame.right);
         }
 
         // Update the size for current pixel width.
@@ -1430,15 +1500,18 @@ bool CTimeShift::Play(void)
         DoMute(true);
     }
 
-    if ((m_pGetFrame = AVIStreamGetFrameOpen(m_psCompressedVideoP, NULL))
-        == NULL)
-    {
-        if (m_mode != MODE_PAUSED)
-        {
-            Stop();
+	if (m_pGetFrame == NULL)
+	{
+		m_pGetFrame = AVIStreamGetFrameOpen(m_psCompressedVideoP, NULL);
+		if (m_pGetFrame == NULL)
+		{
+			if (m_mode != MODE_PAUSED)
+			{
+				Stop();
+			}
+			return false;
         }
-        return false;
-    }
+	}
 
     m_gotPauseBits = false;
 
@@ -1526,44 +1599,60 @@ bool CTimeShift::Stop(void)
         }
     }
 
+    if (m_pGetFrame)
+    {
+		LOG(1, "AVIStreamGetFrameClose m_pGetFrame %d",
+        AVIStreamGetFrameClose(m_pGetFrame)
+		);
+    }
+
     if (m_psCompressedVideo)
     {
-        AVIStreamRelease(m_psCompressedVideo);
+		LOG(1, "AVIStreamRelease m_psCompressedVideo %d",
+        AVIStreamRelease(m_psCompressedVideo)
+		);
     }
 
     if (m_psCompressedVideoP)
     {
-        AVIStreamRelease(m_psCompressedVideoP);
+		LOG(1, "AVIStreamRelease m_psCompressedVideoP %d",
+        AVIStreamRelease(m_psCompressedVideoP)
+		);
     }
 
     if (m_psVideo)
     {
-        AVIStreamRelease(m_psVideo);
+		LOG(1, "AVIStreamRelease m_psVideo %d",
+        AVIStreamRelease(m_psVideo)
+		);
     }
 
     if (m_psCompressedAudio)
     {
-        AVIStreamRelease(m_psCompressedAudio);
+		LOG(1, "AVIStreamRelease m_psCompressedAudio %d",
+        AVIStreamRelease(m_psCompressedAudio)
+		);
     }
 
     if (m_psCompressedAudioP)
     {
-        AVIStreamRelease(m_psCompressedAudioP);
+		LOG(1, "AVIStreamRelease m_psCompressedAudioP %d",
+        AVIStreamRelease(m_psCompressedAudioP)
+		);
     }
 
     if (m_psAudio)
     {
-        AVIStreamRelease(m_psAudio);
+		LOG(1, "AVIStreamRelease m_psAudio %d",
+        AVIStreamRelease(m_psAudio)
+		);
     }
 
     if (m_pfile)
     {
-        AVIFileRelease(m_pfile);
-    }
-
-    if (m_pGetFrame)
-    {
-        AVIStreamGetFrameClose(m_pGetFrame);
+		LOG(1, "AVIFileRelease m_pfile %d",
+        AVIFileRelease(m_pfile)
+		);
     }
 
     if (m_recordBits)
@@ -1594,6 +1683,9 @@ bool CTimeShift::Stop(void)
     m_startTimePlay = 0;
     m_thisTimeRecord = 0;
     m_thisTimePlay = 0;
+    m_lastFrameRecord = 0;
+    m_lastFramePlay = 0;
+    m_startFramePlay = 0;
     m_nextSampleRecord = 0;
     m_nextSamplePlay = 0;
 
@@ -1663,99 +1755,110 @@ bool CTimeShift::WriteVideo(TDeinterlaceInfo* pInfo)
         return false;
     }
 
-    // Use this more restrictive check.
-    if (pInfo->PictureHistory[0] == NULL || pInfo->PictureHistory[1] == NULL)
-    {
-        return false;
-    }
+	if (pInfo->PictureHistory[0] == NULL)
+	{
+		return false;
+	}
 
-    m_thisTimeRecord = GetTickCount();
+	int recHeight = (m_mode == MODE_PAUSED || m_mode == MODE_SHIFTING) ? TS_HALFHEIGHTEVEN : m_recHeight;
+	// todo: check why mode TS_HALFHEIGHTAVG crashes everything
+	if (recHeight == TS_HALFHEIGHTAVG)
+		recHeight = TS_HALFHEIGHTEVEN;
+	BOOL DataOkForPause = false;
 
-    // Make sure everything starts out at zero.
-    if (!m_startTimeRecord)
-    {
-        m_startTimeRecord = m_thisTimeRecord;
-    }
+	if( ( (recHeight == TS_HALFHEIGHTEVEN) && (pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_EVEN) )
+	 || ( (recHeight == TS_HALFHEIGHTODD) && (pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD) )
+	 || ( (recHeight == TS_HALFHEIGHTAVG) && (pInfo->PictureHistory[1] != NULL) && (pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_EVEN) )
+	  )
+	{
+		m_thisTimeRecord = GetTickCount();
 
-    DWORD thisFrame =
-        DWORD((double)m_fps * double(m_thisTimeRecord - m_startTimeRecord)
-              / 1000.0 + 0.5);
+		// Make sure everything starts out at zero.
+		if (!m_startTimeRecord)
+		{
+			m_startTimeRecord = m_thisTimeRecord;
+		}
 
-    LPBYTE dest = m_recordBits;
-    DWORD frameWidth = (pInfo->FrameWidth >> 2) << 2;
-    DWORD w = min(m_bih.biWidth, frameWidth);
-    DWORD h = min(m_bih.biHeight, pInfo->FieldHeight);
-    DWORD more = (m_bih.biBitCount >> 3) * (m_bih.biWidth - w);
+		DWORD thisFrame =
+			DWORD((double)m_fps * double(m_thisTimeRecord - m_startTimeRecord)
+				  / 1000.0 + 0.5);
 
-    // Our AVI is 30fps.  Write after even field is received.
-    if(pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_EVEN)
-    {
-        int y = h - 1;
+		LPBYTE dest = m_recordBits;
+		DWORD frameWidth = (pInfo->FrameWidth >> 2) << 2;
+		DWORD w = min(m_bih.biWidth, frameWidth);
+		DWORD h = min(m_bih.biHeight, pInfo->FieldHeight);
+		DWORD more = (m_bih.biBitCount >> 3) * (m_bih.biWidth - w);
+		int y = h - 1;
 
-        // IMPORTANT: In some of the following cases, we're using the previous
-        // even field data, and presumably, since we only handle these cases
-        // when we receive odd field data, then the even data must've been
-        // received 1/60 of a second ago, and therefore is valid for us to use.
-        // Otherwise, crash!
+		// IMPORTANT: In some of the following cases, we're using the previous
+		// even field data, and presumably, since we only handle these cases
+		// when we receive odd field data, then the even data must've been
+		// received 1/60 of a second ago, and therefore is valid for us to use.
+		// Otherwise, crash!
 
-        switch (m_mode == MODE_PAUSED || m_mode == MODE_SHIFTING ?
-                TS_HALFHEIGHTEVEN : m_recHeight)
-        {
-        case TS_FULLHEIGHT:
-            // Not yet implemented.
-            // I think you'd have to have a monster machine to get a good frame
-            // rate out of this, so it's a low priority to implement.  I've got
-            // a Pentium-III 733MHz and even with 1/2-height, I'm teetering on
-            // 0 DF/S with pixel width 640.
-            // No break here for now, just let if fall into the default case.
+		switch (recHeight)
+		{
+		case TS_HALFHEIGHTEVEN:
+			for (; y >= 0; --y)
+			{
+				BYTE* CurrentLine = pInfo->PictureHistory[0]->pData + y * pInfo->InputPitch;
+				dest = m_YUVtoRGB(dest,
+								  (SHORT*)CurrentLine,
+								  w) + more;
+			}
+			DataOkForPause = true;
+			break;
 
-        default:
-        case TS_HALFHEIGHTEVEN:
-            for (; y >= 0; --y)
-            {
-                BYTE* CurrentLine = pInfo->PictureHistory[0]->pData + y * pInfo->InputPitch;
-                dest = m_YUVtoRGB(dest,
-                                  (SHORT*)CurrentLine,
-                                  w) + more;
-            }
-            break;
-        case TS_HALFHEIGHTODD:
-            for (; y >= 0; --y)
-            {
-                BYTE* CurrentLine = pInfo->PictureHistory[1]->pData + y * pInfo->InputPitch;
-                dest = m_YUVtoRGB(dest,
-                                  (SHORT*)CurrentLine,
-                                  w) + more;
-            }
-            break;
+		case TS_HALFHEIGHTODD:
+			for (; y >= 0; --y)
+			{
+				BYTE* CurrentLine = pInfo->PictureHistory[0]->pData + y * pInfo->InputPitch;
+				dest = m_YUVtoRGB(dest,
+								  (SHORT*)CurrentLine,
+								  w) + more;
+			}
+			DataOkForPause = true;
+			break;
 
-        case TS_HALFHEIGHTAVG:
-            for (; y >= 0; --y)
-            {
-                BYTE* EvenLine = pInfo->PictureHistory[0]->pData + y * pInfo->InputPitch;
-                BYTE* OddLine = pInfo->PictureHistory[1]->pData + y * pInfo->InputPitch;
-                dest = m_AvgYUVtoRGB(dest,
-                                     (SHORT*)EvenLine,
-                                     (SHORT*)OddLine,
-                                     w) + more;
-            }
-            break;
-        }
+		case TS_HALFHEIGHTAVG:
+			for (; y >= 0; --y)
+			{
+				BYTE* EvenLine = pInfo->PictureHistory[0]->pData + y * pInfo->InputPitch;
+				BYTE* OddLine = pInfo->PictureHistory[1]->pData + y * pInfo->InputPitch;
+				dest = m_AvgYUVtoRGB(dest,
+									 (SHORT*)EvenLine,
+									 (SHORT*)OddLine,
+									 w) + more;
+			}
+			DataOkForPause = true;
+			break;
 
-        long bytesWritten = 0;
-        long samplesWritten = 0;
-        AVIStreamWrite(m_psCompressedVideo,
-                       thisFrame,
-                       1,
-                       m_recordBits,
-                       m_bih.biSizeImage,
-                       AVIIF_KEYFRAME,
-                       &samplesWritten,
-                       &bytesWritten);
+		case TS_FULLHEIGHT:
+			// Not yet implemented.
+			// I think you'd have to have a monster machine to get a good frame
+			// rate out of this, so it's a low priority to implement.  I've got
+			// a Pentium-III 733MHz and even with 1/2-height, I'm teetering on
+			// 0 DF/S with pixel width 640.
+			// No break here for now, just let if fall into the default case.
+		default:
+			break;
+		}
 
-        // Even if we failed to write to the stream, we'll leave space.
-        m_infoVideo.dwLength = thisFrame + 1;
-    }
+		long bytesWritten = 0;
+		long samplesWritten = 0;
+		AVIStreamWrite(m_psCompressedVideo,
+					   thisFrame,
+					   1,
+					   m_recordBits,
+					   m_bih.biSizeImage,
+					   AVIIF_KEYFRAME,
+					   &samplesWritten,
+					   &bytesWritten);
+
+		// Even if we failed to write to the stream, we'll leave space.
+		m_infoVideo.dwLength = thisFrame + 1;
+		m_lastFrameRecord = thisFrame;
+	}
 
     switch (m_mode)
     {
@@ -1763,7 +1866,7 @@ bool CTimeShift::WriteVideo(TDeinterlaceInfo* pInfo)
         /** \todo Make pause bits YUY2 so we don't have to convert every time.
                   Use pInfo->pMemcpy() here, but it crashes. ???
         */
-        if (!m_gotPauseBits && (pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_EVEN))
+        if (!m_gotPauseBits && DataOkForPause)
         {
             memcpy(m_playBits, m_recordBits, m_bih.biSizeImage);
             m_gotPauseBits = true;
@@ -1796,7 +1899,9 @@ bool CTimeShift::WriteVideo(TDeinterlaceInfo* pInfo)
 bool CTimeShift::ReadVideo(TDeinterlaceInfo *pInfo)
 {
     if (!m_psCompressedVideoP)
+    {
         return false;
+    }
 
     if (pInfo->PictureHistory[0] == NULL)
     {
@@ -1811,7 +1916,7 @@ bool CTimeShift::ReadVideo(TDeinterlaceInfo *pInfo)
         m_startTimePlay = m_thisTimePlay;
     }
 
-    DWORD thisFrame =
+    DWORD thisFrame = m_startFramePlay + 
         DWORD((double)m_fps * double(m_thisTimePlay - m_startTimePlay)
               / 1000.0 + 0.5);
 
@@ -1829,12 +1934,28 @@ bool CTimeShift::ReadVideo(TDeinterlaceInfo *pInfo)
         return false;
     }
 
-    // Our AVI is 30fps.  Read after odd field is received.
-    if(pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD)
-    {
-        m_lpbi = m_pGetFrame ?
-            (LPBITMAPINFOHEADER)AVIStreamGetFrame(m_pGetFrame, thisFrame) :NULL;
-    }
+	if (m_pGetFrame)
+	{
+		// Check that the current frame is not empty
+		// If empty, find the nearest one that is not empty
+		if (m_lastFramePlay == 0 || m_lastFramePlay != thisFrame)
+		{
+			DWORD nonEmptyFrame = AVIStreamNearestSample(m_psCompressedVideoP, thisFrame);
+			if (nonEmptyFrame != thisFrame)
+			{
+				LOG(2, "thisFrame %d, nonEmptyFrame %d", thisFrame, nonEmptyFrame);
+			}
+			if (nonEmptyFrame != -1)
+			{
+				m_lastFramePlay = thisFrame;
+				m_lpbi = (LPBITMAPINFOHEADER)AVIStreamGetFrame(m_pGetFrame, nonEmptyFrame);
+			}
+		}
+	}
+	else
+	{
+		m_lpbi = NULL;
+	}
 
     if (m_lpbi)
     {
@@ -1851,18 +1972,15 @@ bool CTimeShift::ReadVideo(TDeinterlaceInfo *pInfo)
         }
     }
 
-    if(pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_EVEN)
-    {
-        m_lpbi = NULL;
-    }
-
     return true;
 }
 
 bool CTimeShift::WriteAudio(void)
 {
     if (!m_psCompressedAudio)
+    {
         return false;
+    }
 
     DWORD count = m_waveInHdrs[m_nextWaveInHdr].dwBytesRecorded;
 
@@ -1892,7 +2010,9 @@ bool CTimeShift::WriteAudio(void)
 bool CTimeShift::ReadAudio(void)
 {
     if (!m_psCompressedAudioP)
+    {
         return false;
+    }
 
     DWORD count = sizeof(*m_waveOutBufs);
 

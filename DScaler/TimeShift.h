@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.h,v 1.12 2003-07-02 21:44:19 laurentg Exp $
+// $Id: TimeShift.h,v 1.13 2003-07-05 12:59:51 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2003/07/02 21:44:19  laurentg
+// TimeShift settings
+//
 // Revision 1.11  2002/02/09 11:09:50  temperton
 // Frame rate of created AVI now depends on TV format.
 //
@@ -209,7 +212,7 @@ private:
     static bool OnCompressionOptions(void);
 
     /// A thread-safe wrapper for setting CurrentX.
-    static bool SetBT848PixelWidth(int pixelWidth);
+    static bool SetPixelWidth(int pixelWidth);
 
     /// A wrapper for using the MixerDev for muting during pause/shifting.
     static bool DoMute(bool mute);
@@ -295,6 +298,9 @@ private:
     DWORD m_startTimePlay;
     DWORD m_thisTimeRecord;
     DWORD m_thisTimePlay;
+    DWORD m_lastFrameRecord;
+    DWORD m_lastFramePlay;
+    DWORD m_startFramePlay;
     DWORD m_nextSampleRecord;
     DWORD m_nextSamplePlay;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.22 2002-07-23 18:11:48 adcockj Exp $
+// $Id: BT848Card.h,v 1.23 2002-07-25 05:21:35 dschmelzer Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2002/07/23 18:11:48  adcockj
+// Tuner autodetect patch from Jeroen Kooiman
+//
 // Revision 1.21  2002/07/02 20:00:06  adcockj
 // New setting for MSP input pin selection
 //
@@ -291,6 +294,7 @@ private:
     void StandardBT848InputSelect(int nInput);
     void Sasem4ChannelInputSelect(int nInput);
     void RSBTCardInputSelect(int nInput);
+    void Silk200InputSelect(int nInput);
 
     void InitPXC200();
     void InitHauppauge();
@@ -306,6 +310,7 @@ private:
 
     void BootMSP34xx(int pin);
     void CtrlTDA8540(BYTE SLV, BYTE SUB, BYTE SW1, BYTE GCO, BYTE OEN);
+    void CtrlSilkSDISwitch(BYTE SLV, BYTE IEN);
 
     char m_AudioDecoderType[32];
     char m_TunerType[32];

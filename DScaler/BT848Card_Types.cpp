@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Types.cpp,v 1.18 2002-07-23 18:11:48 adcockj Exp $
+// $Id: BT848Card_Types.cpp,v 1.19 2002-07-25 05:22:18 dschmelzer Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2002/07/23 18:11:48  adcockj
+// Tuner autodetect patch from Jeroen Kooiman
+//
 // Revision 1.17  2002/06/05 20:02:27  adcockj
 // Applied old RS BT card patch
 //
@@ -3261,6 +3264,107 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
 		0x07,
 		{ 0, 0, 2, 0, 1, 0}
 	},
+    // Card Number 90 - SDI Silk 200 (S-Video Jumper)
+	{
+		"SDI Silk 200 (S-Video Jumper)",
+		7,
+		{
+			{
+				"Composite 1",
+				INPUTTYPE_COMPOSITE,
+				0x00,
+			},
+			{
+				"Composite 2",
+				INPUTTYPE_COMPOSITE,
+				0x01,
+			},
+			{
+				"Composite 3",
+				INPUTTYPE_COMPOSITE,
+				0x03,
+			},
+			{
+				"S-Video",
+				INPUTTYPE_SVIDEO,
+				0xD2,
+			},
+			{
+				"SDI 1",
+				INPUTTYPE_CCIR,
+				0x00,
+			},
+			{
+				"SDI 2",
+				INPUTTYPE_CCIR,
+				0x01,
+			},
+			{
+				"SDI 3",
+				INPUTTYPE_CCIR,
+				0x02,
+			},
+		},
+		PLL_28,
+		TUNER_ABSENT,
+		SOUNDCHIP_NONE,
+		InitSasem,
+		Silk200InputSelect,
+		NULL,
+		0x1F800,
+		{0xD, 0xE, 0xB, 0x7, 0, 0, }
+	},
+
+	// Card Number 91 - SDI Silk 200 (C-Video Jumper)
+	{
+		"SDI Silk 200 (C-Video Jumper)",
+		5,
+		{
+			{
+				"Composite 1",
+				INPUTTYPE_COMPOSITE,
+				0x00,
+			},
+			{
+				"Composite 2",
+				INPUTTYPE_COMPOSITE,
+				0x01,
+			},
+			{
+				"Composite 3",
+				INPUTTYPE_COMPOSITE,
+				0x02,
+			},
+			{
+				"Composite 4",
+				INPUTTYPE_COMPOSITE,
+				0x03,
+			},
+			{
+				"SDI 1",
+				INPUTTYPE_CCIR,
+				0x00,
+			},
+			{
+				"SDI 2",
+				INPUTTYPE_CCIR,
+				0x01,
+			},
+			{
+				"SDI 3",
+				INPUTTYPE_CCIR,
+				0x02,
+			},
+		},
+		PLL_28,
+		TUNER_ABSENT,
+		SOUNDCHIP_NONE,
+		InitSasem,
+		Silk200InputSelect,
+		NULL,
+		0x1F800,
+		{0xD, 0xE, 0xB, 0x7, 0, 0, }
+    },
 };
 
 const CBT848Card::TAutoDectect878 CBT848Card::m_AutoDectect878[] =
@@ -3915,6 +4019,22 @@ void CBT848Card::Sasem4ChannelInputSelect(int nInput)
     }
 }
 
+void CBT848Card::Silk200InputSelect(int nInput)
+{
+    //Is this an analog input?
+    if(nInput < 0x4)
+    {
+        Sasem4ChannelInputSelect (nInput);
+    }
+    else
+    //No, it's an SDI input
+    {
+        BYTE OutputSelect = m_TVCards[m_CardType].Inputs[nInput].MuxSelect;
+        CtrlSilkSDISwitch(0xB0, OutputSelect);
+    }
+}
+
+
 // ----------------------------------------------------------------------- 
 // Card specifc settings for those cards that
 // use GPIO pinds to control the stereo output
@@ -4146,4 +4266,32 @@ void CBT848Card::CtrlTDA8540(BYTE SLV, BYTE SUB, BYTE SW1, BYTE GCO, BYTE OEN)
 {
 	BYTE Buffer[] = {SLV, SUB, SW1, GCO, OEN};
 	m_I2CBus->Write(Buffer, 5);
+}
+
+// ----------------------------------------------------------------------- 
+// SDI Silk SDI Input Switch
+// 21 May 2002 Dan Schmelzer
+// 
+// Slave addres (SLV) = 0xB0 for the Silk 200; write only
+// Input enable (IEN) = from 0 to x
+//
+// You can never have too many inputs!
+
+void CBT848Card::CtrlSilkSDISwitch(BYTE SLV, BYTE IEN)
+{
+	BYTE Buffer[] = {SLV, IEN};
+    // The switch is flakey sometimes; retry a few times if it fails
+	if (m_I2CBus->Write(Buffer, 2)!=true)
+    {
+        Sleep();
+        if (m_I2CBus->Write(Buffer, 2)!=true)
+        {
+            Sleep();
+            if (m_I2CBus->Write(Buffer, 2)!=true)
+            {
+                Sleep();
+                m_I2CBus->Write(Buffer, 2);
+            }
+        }
+    }
 }

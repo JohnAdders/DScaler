@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDecoder.cpp,v 1.1 2003-01-01 20:38:11 atnak Exp $
+// $Id: VTDecoder.cpp,v 1.2 2003-01-02 23:36:24 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,6 +44,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2003/01/01 20:38:11  atnak
+// New videotext decoder
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -1507,7 +1510,7 @@ void CVTDecoder::CreateTestDisplayPage(TVTPage* pBuffer)
         pBuffer->LineState[nRow] = CACHESTATE_HASDATA | CACHESTATE_UPDATED;
     }
 
-    ZeroMemory(pBuffer->EditorialLink, 6);
+    ZeroMemory(pBuffer->EditorialLink, sizeof(DWORD) * 6);
 
     pBuffer->bShowRow24 = FALSE;
     pBuffer->bBufferReserved = TRUE;

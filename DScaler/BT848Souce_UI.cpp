@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.22 2002-04-07 10:37:53 adcockj Exp $
+// $Id: BT848Souce_UI.cpp,v 1.23 2002-05-09 12:47:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2002/04/07 10:37:53  adcockj
+// Made audio source work per input
+//
 // Revision 1.21  2002/02/26 15:48:49  robmuller
 // Balance slider no longer changes the treble value.
 //
@@ -535,7 +538,7 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             break;
 
         case IDM_HDELAY_MINUS:
-            m_BDelay->ChangeValue(ADJUSTDOWN);
+            m_HDelay->ChangeValue(ADJUSTDOWN);
             SendMessage(hWnd, WM_COMMAND, IDM_HDELAY_CURRENT, 0);
             break;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.98 2005-03-28 13:42:02 laurentg Exp $
+// $Id: OSD.cpp,v 1.99 2005-03-28 17:48:10 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.98  2005/03/28 13:42:02  laurentg
+// EPG: preparation for when new data (category, sub-title, description) will be available
+//
 // Revision 1.97  2005/03/28 12:53:20  laurentg
 // EPG: previous and next page to show programs
 //
@@ -2506,8 +2509,8 @@ static void OSD_RefreshProgramsScreen(double Size)
 	if (CurrentSource && Providers_GetCurrentSource()->IsInTunerMode())
 		CurChannel = Channel_GetEPGName();
 
-	int IdxMin, IdxMax;
-	MyEPG.GetDisplayIndexes(&IdxMin, &IdxMax);
+	int IdxMin, IdxMax, IdxCur;
+	MyEPG.GetDisplayIndexes(&IdxMin, &IdxMax, &IdxCur);
 
 	if (IdxMax == -1)
 	{
@@ -2520,16 +2523,14 @@ static void OSD_RefreshProgramsScreen(double Size)
 	double pos3;
 	if (IdxMin == -1)
 	{
-		double dfPosLimit = OSD_GetLineYpos (nLine, dfMargin, Size);
-
-		nLine = -1;
-		for (i=IdxMax-1; i>=0; i--)
+		nLine++;
+		for (i=IdxMax; i>=1; i--)
 		{
 			pos2 = OSD_GetLineYpos (nLine, dfMargin, Size);
-			nLine -= 2;
-			if (pos2 < dfPosLimit)
+			nLine += 2;
+			if (pos2 == 0.0)
 			{
-				IdxMin = i+2;
+				IdxMin = i+1;
 				break;
 			}
 		}
@@ -2575,10 +2576,10 @@ static void OSD_RefreshProgramsScreen(double Size)
 			IdxMax = i;
 			break;
 		}
-        OSD_AddText(ChannelName.c_str(), Size, OSD_COLOR_CURRENT, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos2);
+        OSD_AddText(ChannelName.c_str(), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos2);
         sprintf(szInfo, "%s - %s", StartTimeStr, EndTimeStr);
         OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos2);
-        OSD_AddText(ProgramTitle.c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos3);
+        OSD_AddText(ProgramTitle.c_str(), Size, (i == (IdxCur -1)) ? OSD_COLOR_CURRENT : -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos3);
 		if (   (TimeNow >= StartTime)
 			&& (TimeNow < EndTime) )
 		{
@@ -2587,7 +2588,7 @@ static void OSD_RefreshProgramsScreen(double Size)
 		}
 	}
 
-	MyEPG.SetDisplayIndexes(IdxMin, IdxMax);
+	MyEPG.SetDisplayIndexes(IdxMin, IdxMax, IdxCur);
 
     sprintf(szInfo, "%u-%u / %u", IdxMin, IdxMax, nb);
     OSD_AddText(szInfo, Size*1.5, OSD_COLOR_TITLE, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos1);

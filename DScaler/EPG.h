@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.h,v 1.8 2005-03-28 13:42:02 laurentg Exp $
+// $Id: EPG.h,v 1.9 2005-03-28 17:48:10 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2005/03/28 13:42:02  laurentg
+// EPG: preparation for when new data (category, sub-title, description) will be available
+//
 // Revision 1.7  2005/03/28 13:11:16  laurentg
 // New EPG setting to shift times during import
 //
@@ -114,8 +117,8 @@ public:
 	int GetProgramMainData(int Index, time_t *StartTime, time_t *EndTime, string &Channel, string &Title);
 	int GetProgramData(int Index, time_t *StartTime, time_t *EndTime, string &Channel, string &Title, string &SubTitle, string &Category, string &Description);
 
-	void SetDisplayIndexes(int IdxMin, int IdxMax);
-	int GetDisplayIndexes(int *IdxMin, int *IdxMax);
+	void SetDisplayIndexes(int IdxMin, int IdxMax, int IdxCur);
+	int GetDisplayIndexes(int *IdxMin, int *IdxMax, int *IdxCur);
 
 	BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
 
@@ -145,6 +148,8 @@ private:
 	// defined in DScaler
 	BOOL IsValidChannelName(LPCSTR Name);
 
+	int GetChannelNumber(LPCSTR Name);
+
     typedef vector<CProgram*> CPrograms;
 
     CPrograms	m_Programs;
@@ -161,6 +166,7 @@ private:
 	time_t		m_SearchTimeMax;
 	int			m_IdxShowSelectMin;
 	int			m_IdxShowSelectMax;
+	int			m_IdxShowSelectCur;
 };
 
 

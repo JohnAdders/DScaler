@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.cpp,v 1.10 2005-03-28 13:42:02 laurentg Exp $
+// $Id: EPG.cpp,v 1.11 2005-03-28 17:47:57 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2005/03/28 13:42:02  laurentg
+// EPG: preparation for when new data (category, sub-title, description) will be available
+//
 // Revision 1.9  2005/03/28 13:11:16  laurentg
 // New EPG setting to shift times during import
 //
@@ -69,6 +72,7 @@
 #include "ProgramList.h"
 #include "OSD.h"
 #include "Providers.h"
+#include "DScaler.h"
 
 
 #define	ONE_DAY			86400
@@ -200,7 +204,7 @@ CEPG::CEPG()
 	m_SearchTimeMin = 0;
 	m_SearchTimeMax = 0;
 
-	SetDisplayIndexes(-1, -1);
+	SetDisplayIndexes(-1, -1, -1);
 }
 
 
@@ -769,22 +773,24 @@ int CEPG::SearchForPrograms(LPCSTR ChannelName, time_t TimeMin, time_t TimeMax)
 			m_ProgramsSelection.push_back(*it);
 		}
     }
-	SetDisplayIndexes(1, m_ProgramsSelection.size());
+	SetDisplayIndexes(1, m_ProgramsSelection.size(), 1);
 	return m_ProgramsSelection.size();
 }
 
 
-void CEPG::SetDisplayIndexes(int IdxMin, int IdxMax)
+void CEPG::SetDisplayIndexes(int IdxMin, int IdxMax, int IdxCur)
 {
 	m_IdxShowSelectMin = IdxMin;
 	m_IdxShowSelectMax = IdxMax;
+	m_IdxShowSelectCur = IdxCur;
 }
 
 
-int CEPG::GetDisplayIndexes(int *IdxMin, int *IdxMax)
+int CEPG::GetDisplayIndexes(int *IdxMin, int *IdxMax, int *IdxCur)
 {
 	*IdxMin = m_IdxShowSelectMin;
 	*IdxMax = m_IdxShowSelectMax;
+	*IdxCur = m_IdxShowSelectCur;
 	return m_ProgramsSelection.size();
 }
 
@@ -822,6 +828,8 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 	struct tm *datetime_tm;
 	LPCSTR ChannelName = NULL;
 	LPCSTR ChannelEPGName = NULL;
+	string Channel;
+	string Title;
 
 	switch(LOWORD(wParam))
     {
@@ -946,7 +954,7 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		if (   (m_IdxShowSelectMax != -1)
 			&& (m_IdxShowSelectMax < m_ProgramsSelection.size()) )
 		{
-			SetDisplayIndexes(m_IdxShowSelectMax + 1, -1);
+			SetDisplayIndexes(m_IdxShowSelectMax + 1, -1, m_IdxShowSelectMax + 1);
 		}
         return TRUE;
         break;
@@ -955,7 +963,51 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		if (   (m_IdxShowSelectMin != -1)
 			&& (m_IdxShowSelectMin > 1) )
 		{
-			SetDisplayIndexes(-1, m_IdxShowSelectMin - 1);
+			SetDisplayIndexes(-1, m_IdxShowSelectMin - 1, m_IdxShowSelectMin - 1);
+		}
+        return TRUE;
+        break;
+
+	case IDM_DISPLAY_EPG_NEXT_IN_PAGE:
+		if (   (m_IdxShowSelectMin != -1)
+			&& (m_IdxShowSelectMax != -1)
+			&& (m_IdxShowSelectCur < m_IdxShowSelectMax) )
+		{
+			SetDisplayIndexes(m_IdxShowSelectMin, m_IdxShowSelectMax, m_IdxShowSelectCur + 1);
+		}
+		else if (   (m_IdxShowSelectMin != -1)
+			     && (m_IdxShowSelectMax != -1)
+			     && (m_IdxShowSelectCur == m_IdxShowSelectMax) )
+		{
+			PostMessageToMainWindow(WM_COMMAND, IDM_DISPLAY_EPG_NEXT, 0);
+		}
+        return TRUE;
+        break;
+
+	case IDM_DISPLAY_EPG_PREV_IN_PAGE:
+		if (   (m_IdxShowSelectMin != -1)
+			&& (m_IdxShowSelectMax != -1)
+			&& (m_IdxShowSelectCur > m_IdxShowSelectMin) )
+		{
+			SetDisplayIndexes(m_IdxShowSelectMin, m_IdxShowSelectMax, m_IdxShowSelectCur - 1);
+		}
+		else if (   (m_IdxShowSelectMin != -1)
+			     && (m_IdxShowSelectMax != -1)
+			     && (m_IdxShowSelectCur == m_IdxShowSelectMin) )
+		{
+			PostMessageToMainWindow(WM_COMMAND, IDM_DISPLAY_EPG_PREV, 0);
+		}
+        return TRUE;
+        break;
+
+	case IDM_EPG_VIEW_PROG:
+		if (!MyEPG.GetProgramMainData(m_IdxShowSelectCur-1, &TimeMin, &TimeMax, Channel, Title))
+		{
+			int n = GetChannelNumber(Channel.c_str());
+			if (n >= 0)
+			{
+				Channel_Change(n);
+			}
 		}
         return TRUE;
         break;
@@ -1028,6 +1080,17 @@ BOOL CEPG::IsValidChannelName(LPCSTR Name)
 			return TRUE;
 	}
 	return FALSE;
+}
+
+
+int CEPG::GetChannelNumber(LPCSTR Name)
+{
+	for (int i=0; (i < MyChannels.GetSize()); i++)
+	{
+		if (!_stricmp(Name, MyChannels.GetChannelEPGName(i)))
+			return i;
+	}
+	return -1;
 }
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.41 2002-10-07 22:31:27 kooiman Exp $
+// $Id: BT848Source.h,v 1.42 2002-10-11 21:44:40 ittarnavsky Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -14,6 +14,9 @@
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details
+/////////////////////////////////////////////////////////////////////////////
+//
+// $Log: not supported by cvs2svn $
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef __BT848SOURCE_H___
@@ -199,26 +202,26 @@ private:
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioSource6);
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioChannel);
     DEFINE_YESNO_CALLBACK_SETTING(CBT848Source, UseInputPin1);
-	DEFINE_YESNO_CALLBACK_SETTING(CBT848Source, UseEqualizer);
-	DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, EqualizerBand1);
-	DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, EqualizerBand2);
-	DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, EqualizerBand3);
-	DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, EqualizerBand4);
-	DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, EqualizerBand5);
-	DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioLoudness);
-	DEFINE_YESNO_CALLBACK_SETTING(CBT848Source, AudioSuperbass);
-	DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioSpatialEffect);
+    DEFINE_YESNO_CALLBACK_SETTING(CBT848Source, UseEqualizer);
+    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, EqualizerBand1);
+    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, EqualizerBand2);
+    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, EqualizerBand3);
+    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, EqualizerBand4);
+    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, EqualizerBand5);
+    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioLoudness);
+    DEFINE_YESNO_CALLBACK_SETTING(CBT848Source, AudioSuperbass);
+    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioSpatialEffect);
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioAutoVolumeCorrection);
-	DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioStandardDetect);
+    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioStandardDetect);
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioStandardDetectInterval);
-	DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioStandardManual);
-	DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioStandardMajorCarrier);
-	DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioStandardMinorCarrier);    	
-    DEFINE_YESNO_CALLBACK_SETTING(CBT848Source, AudioStandardInStatusBar);    
+    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioStandardManual);
+    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioStandardMajorCarrier);
+    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioStandardMinorCarrier);
+    DEFINE_YESNO_CALLBACK_SETTING(CBT848Source, AudioStandardInStatusBar);
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, MSP34xxFlags);
 
 protected:
-	int m_InitialACPIStatus;
+    int m_InitialACPIStatus;
 };
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Credits.cpp,v 1.1 2003-01-16 16:55:44 adcockj Exp $
+// $Id: Credits.cpp,v 1.2 2003-01-28 09:15:35 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) 1998-2001 Mark Findlay.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2003/01/16 16:55:44  adcockj
+// Added new credits dialog
+//
 /////////////////////////////////////////////////////////////////////////////
 
 // NOTE: Be sure you have defined your bitmaps by assigning them a resource
@@ -111,17 +114,17 @@ char *ArrCredits[] = { 	"DScaler\n",
 						"",
 						"Other Developers\t",
 						"",
-                        "Mark Rejhon\f",
-                        "Steve Grimm\f",
-                        "Michael Eskin\f",
-                        "Michael Samblanet\f",
-                        "Jochen Trenner\f",
-						"Eric Schmidt\f",
+						"Denis Balazuc\f",
 						"Muljadi Budiman\f",
 						"Lindsey Dubb\f",
-						"Mike Temperton\f",
+                        "Michael Eskin\f",
+                        "Steve Grimm\f",
+                        "Mark Rejhon\f",
+                        "Michael Samblanet\f",
+						"Eric Schmidt\f",
+                        "Jochen Trenner\f",
 						"Ivan Tarnavsky\f",
-						"Denis Balazuc\f",
+						"Mike Temperton\f",
                         "",
 						"",
 						"Documentation \t",
@@ -142,27 +145,29 @@ char *ArrCredits[] = { 	"DScaler\n",
 						"",
 						"Patches From\t",
 						"",
-                        "Péter Gulyás\f",
+                        "Billy Chang\f",
                         "Tom Fojta\f",
+                        "Péter Gulyás\f",
                         "John Isar\f",
+                        "Kevin Radke\f",
                         "Eduardo José Tagle\f",
 						"",
 						"",
 						"Projects we've borrowed from\t",
 						"",
-						"MultiDec - Copyright © Espresso\f",
 						"bttv - Copyright © Ralph Metzler & Marcus Metzler\f",
-						"I2C Interface - Copyright © Gerd Knorr\f",
-						"VirtualDub - Copyright © Avery Lee\f",
-                        "saa713x - Copyright © Gerd Knorr\f",
+                        "Credits screen - Copyright © Mark Findlay\f",
                         "FreeTV Driver - Copyright © Mathias Ellinger\f",
-                        "This credits screen - Copyright © Mark Findlay\f",
+						"I2C Interface - Copyright © Gerd Knorr\f",
+						"MultiDec - Copyright © Espresso\f",
+                        "saa713x - Copyright © Gerd Knorr\f",
+						"VirtualDub - Copyright © Avery Lee\f",
 						"",
 						"",
 						"Libraries we use\t",
 						"",
-						"LibTiff - Copyright © Sam Leffler & Silicon Graphics\f",
 						"LibJpeg - A work of the Independent JPEG Group\f",
+						"LibTiff - Copyright © Sam Leffler & Silicon Graphics\f",
 						"",
 						"",
 						"",

@@ -104,7 +104,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				OutputFile="..\..\Debug\FLT_Mirror.dll"
-				LinkIncremental="1"
+				LinkIncremental="0"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile=".\Debug/FLT_Mirror.pdb"

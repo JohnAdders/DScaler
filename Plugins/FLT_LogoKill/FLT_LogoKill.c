@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_LogoKill.c,v 1.23 2002-11-18 20:08:55 robmuller Exp $
+// $Id: FLT_LogoKill.c,v 1.24 2005-03-11 13:31:55 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2002/11/18 20:08:55  robmuller
+// Added Smoothing Only mode.
+//
 // Revision 1.22  2002/11/06 21:03:15  adcockj
 // Fixed black feature in logo killer ;) (note to self must test before checking in....)
 //
@@ -78,6 +81,8 @@
 // Added CVS tags and removed tabs
 //
 /////////////////////////////////////////////////////////////////////////////
+
+#pragma warning(disable : 4799)
 
 #include "windows.h"
 #include "DS_Filter.h"

@@ -37,7 +37,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				OutputFile="..\Debug/Verinc.exe"
-				LinkIncremental="1"
+				LinkIncremental="0"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile=".\Debug/Verinc.pdb"

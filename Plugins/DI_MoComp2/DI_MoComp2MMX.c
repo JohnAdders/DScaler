@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_MoComp2MMX.c,v 1.1 2003-01-02 13:15:00 adcockj Exp $
+// $Id: DI_MoComp2MMX.c,v 1.2 2005-03-11 13:31:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Tom Barry & John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,7 +25,12 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2003/01/02 13:15:00  adcockj
+// Added new plug-ins ready for developement by copying TomsMoComp and Gamma
+//
 /////////////////////////////////////////////////////////////////////////////
+
+#pragma warning(disable : 4799)
 
 #define IS_MMX
 #define SSE_TYPE MMX

@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				OutputFile="..\Debug/RegSpy.exe"
-				LinkIncremental="1"
+				LinkIncremental="0"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile=".\Debug/RegSpy.pdb"

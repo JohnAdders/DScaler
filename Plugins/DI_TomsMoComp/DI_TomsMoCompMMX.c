@@ -1,3 +1,5 @@
+#pragma warning(disable : 4799)
+
 #define USE_FOR_DSCALER
 #define IS_MMX
 #define SSE_TYPE MMX

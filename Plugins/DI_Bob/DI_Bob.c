@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_Bob.c,v 1.8 2002-06-13 12:10:24 adcockj Exp $
+// $Id: DI_Bob.c,v 1.9 2005-03-11 13:31:53 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/06/13 12:10:24  adcockj
+// Move to new Setings dialog for filers, video deint and advanced settings
+//
 // Revision 1.7  2001/11/23 19:33:14  adcockj
 // Fixes to bob to make is less jittery
 //
@@ -39,6 +42,8 @@
 // Added CVS tags and removed tabs
 //
 /////////////////////////////////////////////////////////////////////////////
+
+#pragma warning(disable : 4799)
 
 #include "windows.h"
 #include "DS_Deinterlace.h"

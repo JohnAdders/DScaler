@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_Colorimetry.c,v 1.4 2003-11-13 13:57:26 robmuller Exp $
+// $Id: FLT_Colorimetry.c,v 1.5 2005-03-11 13:31:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2003/11/13 13:57:26  robmuller
+// Don't load when SSE is not available.
+//
 // Revision 1.3  2003/06/26 11:42:54  adcockj
 // Reduced teh size of some of the dlls
 //
@@ -195,7 +198,7 @@ SETTING FLT_ColorimetrySettings[FLT_COLORIMETRY_SETTING_LASTONE] =
         "ColorimetryFilter", "UseColorimetryFilter", NULL,
     },
     {
-        "Colorimetry Type", ITEMFROMLIST, 0, &ColorimetryType,
+        "Colorimetry Type", ITEMFROMLIST, 0, (long*)&ColorimetryType,
         0, 0, COLORIMETRY_LASTONE - 1, 1, 1,
         ModeList,
         "ColorimetryFilter", "Colorimetry", Colorimetry_OnChange,

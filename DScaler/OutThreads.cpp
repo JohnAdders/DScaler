@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.92 2002-10-27 11:29:29 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.93 2002-10-27 11:39:21 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.92  2002/10/27 11:29:29  laurentg
+// New way to take stills - filling a memory buffer rather than the overlay
+//
 // Revision 1.91  2002/10/26 21:42:05  laurentg
 // Take consecutive stills
 //
@@ -928,24 +931,17 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 						if(RequestStillType == STILL_TIFF)
 						{
 							TakeStill = TRUE;
-							if (RequestStillInMemory)
+							// If we are taking a still, we need to allocate
+							// a memory buffer and use this buffer as output
+							// That means too that the overlay will not be updated
+							Info.OverlayPitch = (Info.FrameWidth * 2 * sizeof(BYTE) + 15) & 0xfffffff0;
+							pAllocBuf = MallocStillBuf(Info.OverlayPitch * Info.FrameHeight, &(Info.Overlay));
+							if (pAllocBuf == NULL)
 							{
-								// If we are taking a still, we need to allocate
-								// a memory buffer and use this buffer as output
-								// That means too that the overlay will not be updated
-								Info.OverlayPitch = (Info.FrameWidth * 2 * sizeof(BYTE) + 15) & 0xfffffff0;
-								pAllocBuf = MallocStillBuf(Info.OverlayPitch * Info.FrameHeight, &(Info.Overlay));
-								if (pAllocBuf == NULL)
-								{
-									RequestStillType = STILL_NONE;
-									TakeStill = FALSE;
-								}
-								LOG(2, "Alloc for still - start buf %d, start frame %d", pAllocBuf, Info.Overlay);
+								RequestStillType = STILL_NONE;
+								TakeStill = FALSE;
 							}
-							else
-							{
-								pAllocBuf = NULL;
-							}
+							LOG(2, "Alloc for still - start buf %d, start frame %d", pAllocBuf, Info.Overlay);
 						}
 						else
 						{
@@ -1089,6 +1085,11 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
                             pPerf->StopCount(PERF_FLIP_OVERLAY);
                         }
+
+						if(TakeStill && !RequestStillInMemory && pAllocBuf)
+						{
+							free(pAllocBuf);
+						}
                     }
                 }                   
                 // if there is any exception thrown in the above then just carry on

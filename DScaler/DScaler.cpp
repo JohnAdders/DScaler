@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.320 2003-04-15 13:07:09 adcockj Exp $
+// $Id: DScaler.cpp,v 1.321 2003-04-16 14:38:01 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.320  2003/04/15 13:07:09  adcockj
+// Fixed memory leak
+//
 // Revision 1.319  2003/04/12 15:23:22  laurentg
 // Interface with PowerStrip when changing resolution (code from Olivier Borca)
 //
@@ -1197,6 +1200,7 @@ static const char* MinimizeHandlingLabels[3] =
 
 
 static BOOL bTakingCyclicStills = FALSE;
+static BOOL bIgnoreDoubleClick = FALSE;
 
 static int ProcessorSpeed = 1;
 static int TradeOff = 1;
@@ -4101,7 +4105,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         break;
 
     case WM_LBUTTONDBLCLK:
-        SendMessage(hWnd, WM_COMMAND, IDM_FULL_SCREEN, 0);
+		if (bIgnoreDoubleClick == FALSE)
+		{
+	        SendMessage(hWnd, WM_COMMAND, IDM_FULL_SCREEN, 0);
+		}
         return 0;
         break;
 
@@ -4116,11 +4123,12 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
     case WM_LBUTTONDOWN:
         if (ProcessVTMessage(hWnd, message, wParam, lParam))
         {
-            // This is the only way I could figure out how
-            // to reset the double click record.  --AtNak
-            mouse_event(MOUSEEVENTF_MIDDLEDOWN, 0, 0, 0, 0);
-            mouse_event(MOUSEEVENTF_MIDDLEUP, 0, 0, 0, 0);
+			bIgnoreDoubleClick = TRUE;
         }
+		else
+		{
+			bIgnoreDoubleClick = FALSE;
+		}
 
         if((bShowMenu == FALSE || (GetKeyState(VK_CONTROL) < 0)) && bIsFullScreen == FALSE)
         {

@@ -948,6 +948,8 @@ BEGIN
             MENUITEM "He&brew",                     IDM_VT_HEBREW
             MENUITEM "&Swedish",                    IDM_VT_SWEDISH
             MENUITEM "&Italian",                    IDM_VT_ITALIAN
+            MENUITEM "Sp&anish",                    IDM_VT_SPANISH
+            MENUITEM "&Polish",                     IDM_VT_POLISH
         END
         POPUP "Teletext Remote Button"
         BEGIN

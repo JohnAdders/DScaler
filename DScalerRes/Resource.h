@@ -862,6 +862,8 @@
 #define IDM_DSVIDEO_STANDARD_19         2272
 #define IDM_DSVIDEO_STANDARD_20         2273
 #define IDM_DSVIDEO_STANDARD_MAX        2273
+#define IDM_VT_SPANISH                  2303
+#define IDM_VT_POLISH                   2304
 #define IDC_STATIC                      -1
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
@@ -883,7 +885,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        188
-#define _APS_NEXT_COMMAND_VALUE         2303
+#define _APS_NEXT_COMMAND_VALUE         2305
 #define _APS_NEXT_CONTROL_VALUE         1895
 #define _APS_NEXT_SYMED_VALUE           2274
 #endif

@@ -35,6 +35,9 @@
 #define IDD_VTSEARCH                    201
 #define IDD_HWSETUP                     202
 #define IDC_DSHOW_FILESOURCE_MENU       203
+#define IDD_DSHOW_AUDIODEVICE           204
+#define IDD_DSHOW_VIDEOFMTS             205
+#define IDC_DSHOW_VIDEOFMTS_CONTEXTMENU 206
 #define IDM_VBI                         231
 #define IDM_CAPTURE_PAUSE               232
 #define IDM_CHANNEL_LIST                242
@@ -940,6 +943,23 @@
 #define IDC_MIXER_INPUT3NAME            8003
 #define IDC_MIXER_INPUT4NAME            8004
 #define IDC_MIXER_INPUT5NAME            8005
+#define IDC_DSHOW_VIDEOFMTS_WIDTH_SPIN  8006
+#define IDC_DSHOW_VIDEOFMTS_HEIGHT_SPIN 8007
+#define IDC_DSHOW_VIDEOFMTS_FIELDFMT    8008
+#define IDC_DSHOW_VIDEOFMTS_YUY2        8009
+#define IDC_DSHOW_VIDEOFMTS_FMTLIST     8010
+#define IDC_DSHOW_AUDIODEVICE_DEVICE    8011
+#define IDC_DSHOW_VIDEOFMTS_SWAP        8012
+#define IDC_SPIN3                       8013
+#define IDC_SPIN4                       8014
+#define IDC_SPIN5                       8015
+#define IDC_SPIN6                       8016
+#define IDC_DSHOW_VIDEOFMTS_CLEAR       8017
+#define IDC_DSHOW_VIDEOFMTS_DEFAULTS    8018
+#define IDC_DSHOW_VIDEOFMTS_VERTMIRROR  8019
+#define IDC_DSHOW_VIDEOFMTS_WIDTH       8020
+#define IDC_DSHOW_VIDEOFMTS_HEIGHT      8021
+#define IDC_DSHOW_VIDEOFMTS_NAME        8022
 #define IDM_SETTINGS_FILTERSETTINGS     32771
 #define IDM_SOURCE_INITIAL              32772
 #define IDM_DSHOW_FILTERS               32773
@@ -965,6 +985,9 @@
 #define ID_SETTINGS_SAVESETTINGSPERCHANNEL 32795
 #define ID_SETTINGS_CLEARCHANNELSETTINGS 32796
 #define IDM_SETUPHARDWARE               32797
+#define IDM_DSHOW_SETTINGS              32798
+#define IDC_DSHOW_VIDEOFMTS_DELETE      32799
+#define IDC_DSHOW_VIDEOFMTS_NEW         32800
 #define IDC_STATIC                      -1
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
@@ -981,13 +1004,13 @@
 #define IDM_HOLDER                      65535
 
 // Next default values for new objects
-// 
+//
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        204
-#define _APS_NEXT_COMMAND_VALUE         32798
-#define _APS_NEXT_CONTROL_VALUE         8005
+#define _APS_NEXT_RESOURCE_VALUE        207
+#define _APS_NEXT_COMMAND_VALUE         32801
+#define _APS_NEXT_CONTROL_VALUE         8023
 #define _APS_NEXT_SYMED_VALUE           2391
 #endif
 #endif

@@ -1,5 +1,5 @@
 ;////////////////////////////////////////////////////////////////////////////
-;// $Id: dscaler.iss,v 1.2 2002-06-06 18:15:52 robmuller Exp $
+;// $Id: dscaler.iss,v 1.3 2002-06-12 18:01:45 robmuller Exp $
 ;/////////////////////////////////////////////////////////////////////////////
 ;// Copyright (c) 2002 Rob Muller.  All rights reserved.
 ;/////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 ;// CVS Log
 ;//
 ;// $Log: not supported by cvs2svn $
+;// Revision 1.2  2002/06/06 18:15:52  robmuller
+;// Added new files. Added AppMutex. Remove dscaler.ini and program.txt on uninstall.
+;//
 ;// Revision 1.1  2002/03/06 22:50:58  robmuller
 ;// New InnoSetup script.
 ;//
@@ -54,7 +57,7 @@ Source: "..\Release\DScaler.exe"; DestDir: "{app}"; CopyMode: alwaysoverwrite
 Source: "..\Release\DI_*.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite
 Source: "..\Release\FLT_*.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite
 Source: "..\Release\DScalerRes.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite
-Source: "..\Release\DSRend.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite
+Source: "..\Release\DSRend.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Flags: regserver
 Source: "..\Release\dscaler.d3u"; DestDir: "{app}"; CopyMode: alwaysoverwrite
 Source: "..\Release\dscaler_intro.tif"; DestDir: "{app}"; CopyMode: alwaysoverwrite
 Source: "..\Release\DScaler.dbg"; DestDir: "{app}"; CopyMode: alwaysoverwrite
@@ -92,6 +95,6 @@ Type: files; Name: "{app}\DScaler.url"
 Type: files; Name: "{app}\Support.url"
 Type: files; Name: "{app}\dscaler.ini"
 Type: files; Name: "{app}\program.txt"
-Type: files; Name: "{app}\dscaler.txt"
+Type: files; Name: "{app}\dscaler.log"
 Type: files; Name: "{app}\crashinfo.txt"
 

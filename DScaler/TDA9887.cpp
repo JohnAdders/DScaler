@@ -1,5 +1,5 @@
 //
-// $Id: TDA9887.cpp,v 1.11 2004-11-27 00:57:35 atnak Exp $
+// $Id: TDA9887.cpp,v 1.12 2004-11-27 01:14:25 atnak Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2004/11/27 00:57:35  atnak
+// Completed changes for CTDA9887FromIni (and renamed to CTDA9887Ex).
+//
 // Revision 1.10  2004/11/23 18:19:28  to_see
 // Created new class CTDA9887FromIni
 //
@@ -488,55 +491,55 @@ void CTDA9887Pinnacle::TunerSet(bool bPreSet, eVideoFormat videoFormat)
 const CTDA9887Ex::TTDABytes CTDA9887Ex::k_TDAStandardtSettings[TDA9887_FORMAT_LASTONE] =
 {
 	{
-		// Pal_BG
+		// TDA9887_FORMAT_PAL_BG
 		TDA9887_NegativeFmTV | TDA9887_QSS,
 		TDA9887_DeemphasisON | TDA9887_Deemphasis50 | TDA9887_TakeOverPointDefault,
 		TDA9887_AudioIF_5_5  | TDA9887_VideoIF_38_90,
 	},
 	{
-		// Pal_I
+		// TDA9887_FORMAT_PAL_I
 		TDA9887_NegativeFmTV | TDA9887_QSS,
 		TDA9887_DeemphasisON | TDA9887_Deemphasis50 | TDA9887_TakeOverPointDefault,
 		TDA9887_AudioIF_6_0  | TDA9887_VideoIF_38_90,
 	},
 	{
-		// Pal_DK
+		// TDA9887_FORMAT_PAL_DK
 		TDA9887_NegativeFmTV | TDA9887_QSS,
 		TDA9887_DeemphasisON | TDA9887_Deemphasis50 | TDA9887_TakeOverPointDefault,
 		TDA9887_AudioIF_6_5  | TDA9887_VideoIF_38_00,
 	},
 	{
-		// BYTE Pal_MN
+		// TDA9887_FORMAT_PAL_MN
 		TDA9887_NegativeFmTV | TDA9887_QSS,
 		TDA9887_DeemphasisON | TDA9887_Deemphasis75 | TDA9887_TakeOverPointDefault,
 		TDA9887_AudioIF_4_5  | TDA9887_VideoIF_45_75,
 	},
 	{
-		// Secam_L
+		// TDA9887_FORMAT_SECAM_L
 		TDA9887_PositiveAmTV | TDA9887_QSS,
 		TDA9887_TakeOverPointDefault,
 		TDA9887_AudioIF_6_5  | TDA9887_VideoIF_38_90,
 	},
 	{
-		// Secam_DK
+		// TDA9887_FORMAT_SECAM_DK
 		TDA9887_NegativeFmTV | TDA9887_QSS,
 		TDA9887_DeemphasisON | TDA9887_Deemphasis50 | TDA9887_TakeOverPointDefault,
 		TDA9887_AudioIF_6_5  | TDA9887_VideoIF_38_00,
 	},
 	{
-		// Ntsc_M
+		// TDA9887_FORMAT_NTSC_M
 		TDA9887_NegativeFmTV | TDA9887_QSS,
 		TDA9887_DeemphasisON | TDA9887_Deemphasis50  | TDA9887_TakeOverPointDefault,
 		TDA9887_AudioIF_4_5  | TDA9887_VideoIF_45_75 | TDA9887_Gating_36,
 	},
 	{
-		// Ntsc_Jp
+		// TDA9887_FORMAT_NTSC_JP
 		TDA9887_NegativeFmTV | TDA9887_QSS,
 		TDA9887_DeemphasisON | TDA9887_Deemphasis50  | TDA9887_TakeOverPointDefault,
 		TDA9887_AudioIF_4_5  | TDA9887_VideoIF_58_75 | TDA9887_Gating_36,
 	},
 	{
-		// Fm_Radio
+		// TDA9887_FORMAT_RADIO
 		TDA9887_FmRadio      | TDA9887_QSS,
 		TDA9887_DeemphasisON | TDA9887_Deemphasis75 | TDA9887_TakeOverPointDefault,
 		TDA9887_AudioIF_5_5  | TDA9887_RadioIF_38_90,

@@ -210,9 +210,13 @@ typedef unsigned int JDIMENSION;
  */
 
 #ifdef NEED_FAR_POINTERS
+#ifndef FAR
 #define FAR  far
+#endif
 #else
+#ifndef FAR
 #define FAR
+#endif
 #endif
 
 
@@ -224,7 +228,7 @@ typedef unsigned int JDIMENSION;
  */
 
 #ifndef HAVE_BOOLEAN
-typedef int boolean;
+typedef int Boolean;
 #endif
 #ifndef FALSE			/* in case these macros already exist */
 #define FALSE	0		/* values of boolean */

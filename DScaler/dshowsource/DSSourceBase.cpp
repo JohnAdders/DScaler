@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.cpp,v 1.16 2003-04-07 09:17:16 adcockj Exp $
+// $Id: DSSourceBase.cpp,v 1.17 2003-07-05 10:58:17 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2003/04/07 09:17:16  adcockj
+// Fixes for correct operation of IsFirstInSeries
+//
 // Revision 1.15  2003/02/22 16:49:02  tobbej
 // added some comments about requierments for OpenFile (to avoid crashing)
 //
@@ -147,6 +150,11 @@ int CDSSourceBase::GetWidth()
 int CDSSourceBase::GetHeight()
 {
 	return m_CurrentY;
+}
+
+void CDSSourceBase::SetWidth(int w)
+{
+	// todo: set the width
 }
 
 void CDSSourceBase::Start()

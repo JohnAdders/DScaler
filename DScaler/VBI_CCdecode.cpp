@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_CCdecode.cpp,v 1.18 2003-10-27 10:39:54 adcockj Exp $
+// $Id: VBI_CCdecode.cpp,v 1.19 2004-10-18 16:04:08 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Mike Baker.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2003/10/27 10:39:54  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.17  2003/06/28 10:54:01  laurentg
 // Erase first CC display when changing CC selection
 //
@@ -644,6 +647,10 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                                 LastIndent = -1;
                                 bCaptureText = TRUE;
                             }
+                            else
+                            {
+                                bCaptureText = FALSE;
+                            }
                             break;
 
                         case 0x21: //backspace
@@ -684,6 +691,10 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                                 bPaintNow = TRUE;
                                 bCaptureText = TRUE;
                             }
+                            else
+                            {
+                                bCaptureText = FALSE;
+                            }
                             break;
 
                         case 0x28: //flash on
@@ -708,6 +719,10 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                                 CursorRow = 14;
                                 bPaintNow = TRUE;
                                 bCaptureText = TRUE;
+                            }
+                            else
+                            {
+                                bCaptureText = FALSE;
                             }
                             break;
 
@@ -740,12 +755,20 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                                 bPaintNow = TRUE;
                                 bCaptureText = TRUE;
                             }
+                            else
+                            {
+                                bCaptureText = FALSE;
+                            }
                             break;
 
                         case 0x2B: //resume text display
                             if(!CaptionMode)
                             {
                                 bCaptureText = TRUE;
+                            }
+                            else
+                            {
+                                bCaptureText = FALSE;
                             }
                             break;
                             
@@ -783,6 +806,7 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                                 CursorRow = 14;
                                 bPaintNow = TRUE;
                                 LastIndent = -1;
+                                bCaptureText = TRUE;
                             }
                             break;
                     }

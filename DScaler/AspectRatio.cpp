@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.cpp,v 1.25 2001-11-29 17:30:51 adcockj Exp $
+// $Id: AspectRatio.cpp,v 1.26 2002-02-19 16:03:36 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -72,6 +72,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2001/11/29 17:30:51  adcockj
+// Reorgainised bt848 initilization
+// More Javadoc-ing
+//
 // Revision 1.24  2001/11/26 13:02:27  adcockj
 // Bug Fixes and standards changes
 //
@@ -115,8 +119,7 @@
 #include "DScaler.h"
 #include "AspectFilters.h"
 #include "Deinterlace.h"
-/// \todo remove need for this
-#include "OutThreads.h"
+#include "Providers.h"
 
 #define AR_STRETCH       0
 #define AR_NONANAMORPHIC 1
@@ -177,6 +180,10 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
     UpdateWindowState();
 
     CAspectRectangles ar;
+    CSource* pSource = Providers_GetCurrentSource();
+    //what happends if we dont have a current source?
+    //maybe just return and not do anything more?
+    ASSERT(pSource!=NULL);
 
     // Setup the rectangles...
     // Previous ones...
@@ -184,11 +191,12 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
     ar.m_PrevSrcRect = AspectSettings.SourceRect;
     // Source frame
     ar.m_OriginalOverlaySrcRect.left = 0;
-    ar.m_OriginalOverlaySrcRect.right = CurrentX;
+    ar.m_OriginalOverlaySrcRect.right = pSource->GetWidth();
     ar.m_OriginalOverlaySrcRect.top = 0;
-    ar.m_OriginalOverlaySrcRect.bottom = CurrentY;
+    ar.m_OriginalOverlaySrcRect.bottom = pSource->GetHeight();
     // Set the aspect adjustment factor...
-    ar.m_OriginalOverlaySrcRect.setAspectAdjust((double)CurrentX/(double)CurrentY,
+	///@todo maybe some error checking here?, like div. by zero
+    ar.m_OriginalOverlaySrcRect.setAspectAdjust((double)pSource->GetWidth()/(double)pSource->GetHeight(),
                                             GetActualSourceFrameAspect());
 
     // Destination rectangle

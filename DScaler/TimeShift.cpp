@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.cpp,v 1.14 2002-02-09 11:09:50 temperton Exp $
+// $Id: TimeShift.cpp,v 1.15 2002-02-19 16:04:01 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/02/09 11:09:50  temperton
+// Frame rate of created AVI now depends on TV format.
+//
 // Revision 1.13  2001/11/29 17:30:52  adcockj
 // Reorgainised bt848 initilization
 // More Javadoc-ing
@@ -168,7 +171,7 @@ bool CTimeShift::OnPlay(void)
         EnterCriticalSection(&m_pTimeShift->m_lock);
 
         // Save this off before we start playing.
-        m_pTimeShift->m_origPixelWidth = CurrentX;
+        //m_pTimeShift->m_origPixelWidth = CurrentX;
 
         // Only start playing if we're stopped.
         result =
@@ -202,8 +205,9 @@ bool CTimeShift::OnStop(void)
 
         // Reset the user's pixel width outside the Stop function since we
         // call it between clips and pixelwidth-setting is slow.
-        if (result && CurrentX != m_pTimeShift->m_origPixelWidth)
+        /*if (result && CurrentX != m_pTimeShift->m_origPixelWidth)
             SetBT848PixelWidth(m_pTimeShift->m_origPixelWidth);
+		*/
 
         LeaveCriticalSection(&m_pTimeShift->m_lock);
     }
@@ -907,7 +911,7 @@ CTimeShift::CTimeShift()
     m_hWaveOut(NULL),
     m_nextWaveOutHdr(0),
     m_recHeight(TS_HALFHEIGHTEVEN),
-    m_origPixelWidth(CurrentX),
+    //m_origPixelWidth(CurrentX),
     m_origUseMixer(-1)
 {
     m_waveInDevice[0] = 0;
@@ -1350,8 +1354,9 @@ bool CTimeShift::Play(void)
         m_fps = m_infoVideo.dwRate;
 
         // Make sure the pixel width is ready for the incoming AVI's width.
-        if (CurrentX != m_infoVideo.rcFrame.right)
+        /*if (CurrentX != m_infoVideo.rcFrame.right)
             SetBT848PixelWidth(m_infoVideo.rcFrame.right);
+		*/
 
         // Update the size for current pixel width.
         SetDimensions();
@@ -1827,11 +1832,14 @@ bool CTimeShift::ReadAudio(void)
 
 bool CTimeShift::SetDimensions(void)
 {
+    CSource *pSource=Providers_GetCurrentSource();
+    ASSERT(pSource!=NULL);
+
     if (m_mode == MODE_STOPPED)
     {
         // Use current pixel width and field heights to determine our AVI size.
-        int w = CurrentX;
-        int h = CurrentY;
+        int w = pSource->GetWidth();
+        int h = pSource->GetHeight();
 
         // Reset all the bitmappInfo stuff.
         memset(&m_bih, 0, sizeof(m_bih));

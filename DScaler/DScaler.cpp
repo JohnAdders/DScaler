@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.132 2002-02-18 23:28:05 laurentg Exp $
+// $Id: DScaler.cpp,v 1.133 2002-02-19 16:03:36 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.132  2002/02/18 23:28:05  laurentg
+// Overlay settings dialog box updated
+// New menu item to choose between DScaler overlay settings and external overlay settings
+//
 // Revision 1.131  2002/02/18 20:51:51  laurentg
 // Statistics regarding deinterlace modes now takes into account the progressive mode
 // Reset of the deinterlace statistics at each start of the decoding thread
@@ -2434,6 +2438,14 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 }
             }
         }
+        break;
+
+    case UWM_INPUTSIZE_CHANGE:
+        //the input source has changed its size, update overlay.
+
+        //for some reason when the input is a still source, WorkoutOverlaySize
+        //must be called twice to get the desired result
+        WorkoutOverlaySize(FALSE);
         break;
     
     //TJ 010506 make sure we dont erase the background

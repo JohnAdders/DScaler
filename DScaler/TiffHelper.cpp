@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TiffHelper.cpp,v 1.7 2002-02-14 23:16:59 laurentg Exp $
+// $Id: TiffHelper.cpp,v 1.8 2002-02-19 16:03:36 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/02/14 23:16:59  laurentg
+// Stop / start capture never needed when switching between files of the playlist
+// CurrentX / CurrentY not updated in StillSource but in the main decoding loop
+//
 // Revision 1.6  2002/02/02 21:19:05  laurentg
 // Read/write of TIFF files updated
 //
@@ -247,6 +251,11 @@ BOOL CTiffHelper::OpenMediaFile(LPCSTR FileName)
     // Close the file
     TIFFClose(tif);
 
+	//check if size has changed
+	if(m_pParent->m_Height!=h || m_pParent->m_Width != w)
+	{
+		m_pParent->NotifySizeChange();
+	}
     m_pParent->m_Height = h;
     m_pParent->m_Width = w;
 

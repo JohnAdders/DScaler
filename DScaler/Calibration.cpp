@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.48 2002-02-16 16:43:15 laurentg Exp $
+// $Id: Calibration.cpp,v 1.49 2002-02-19 16:03:36 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.48  2002/02/16 16:43:15  laurentg
+// Syntax modification for patterns
+//
 // Revision 1.47  2002/02/16 13:22:23  laurentg
 // Gradation of colors for pattern generator
 //
@@ -2307,6 +2310,11 @@ BOOL CPatternHelper::OpenMediaFile(LPCSTR FileName)
 
     pattern.Draw(m_pParent->m_OriginalFrame.pData);
 
+    //check if size has changed
+    if(m_pParent->m_Height!=pattern.GetHeight() || m_pParent->m_Width != pattern.GetWidth())
+    {
+        m_pParent->NotifySizeChange();
+    }
     m_pParent->m_Height = pattern.GetHeight();
     m_pParent->m_Width = pattern.GetWidth();
 

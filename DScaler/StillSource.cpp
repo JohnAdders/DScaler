@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.33 2002-02-14 23:16:59 laurentg Exp $
+// $Id: StillSource.cpp,v 1.34 2002-02-19 16:03:36 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2002/02/14 23:16:59  laurentg
+// Stop / start capture never needed when switching between files of the playlist
+// CurrentX / CurrentY not updated in StillSource but in the main decoding loop
+//
 // Revision 1.32  2002/02/13 00:23:24  laurentg
 // Optimizations to avoid memory reallocation and to use an optimized memcpy
 //
@@ -473,8 +477,8 @@ void CStillSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     {
         pInfo->bRunningLate = TRUE;
         pInfo->bMissedFrame = TRUE;
-        pInfo->FrameWidth = CurrentX;
-        pInfo->FrameHeight = CurrentY;
+        pInfo->FrameWidth = 720;
+        pInfo->FrameHeight = 480;
         pInfo->PictureHistory[0] = NULL;
         return;
     }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.16 2002-02-17 21:41:03 laurentg Exp $
+// $Id: DScaler.h,v 1.17 2002-02-19 16:03:36 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -101,6 +101,7 @@ HMENU GetPatternsSubmenu();
 #define TIMER_FINDPULL_MS   4000
 
 #define WM_VIDEOTEXT        0x3001
+#define UWM_INPUTSIZE_CHANGE WM_APP+1
 #define VTM_REDRAWHEADER    0x0001
 
 extern HINSTANCE hDScalerInst;

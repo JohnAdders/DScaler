@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.h,v 1.11 2001-12-16 18:40:28 laurentg Exp $
+// $Id: OutThreads.h,v 1.12 2002-02-19 16:03:36 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,8 +67,5 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter);
 
 BOOL WaitForNextField(BOOL LastField, BOOL* RunningLate);
 BOOL LockOverlay(TDeinterlaceInfo* pInfo);
-
-extern long CurrentX;
-extern long CurrentY;
 
 #endif

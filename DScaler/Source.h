@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.h,v 1.10 2002-02-09 02:44:56 laurentg Exp $
+// $Id: Source.h,v 1.11 2002-02-19 16:03:36 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,7 +41,7 @@ public:
     /// Reset to known state
     virtual void Reset() = 0;
     /** Fill the TDeinteralceInfo structure with the most recent data
-        and update the history.  The Accuarate timiing flag is used by
+        and update the history.  The Accuarate timing flag is used by
         JudderTermonator to tell the code to time the input
         Frequency exactly.
     */
@@ -110,6 +110,13 @@ public:
 protected:
     CSource(long SetMessage, long MenuId);
     ~CSource();
+
+	/**
+	 * Notify dscaler that the input size has changed.
+	 * Call this function when the width and/or height has changed.
+	 */
+	void NotifySizeChange();
+
     double m_FieldFrequency;
     HMENU m_hMenu;
 };

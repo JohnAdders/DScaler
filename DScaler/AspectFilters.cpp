@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectFilters.cpp,v 1.15 2001-11-29 17:30:51 adcockj Exp $
+// $Id: AspectFilters.cpp,v 1.16 2002-02-19 16:03:36 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2001/11/29 17:30:51  adcockj
+// Reorgainised bt848 initilization
+// More Javadoc-ing
+//
 // Revision 1.14  2001/11/23 10:49:16  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -66,8 +70,7 @@
 #include "Other.h"
 #include "DScaler.h"
 #include "Status.h"
-/// \todo remove need for this
-#include "OutThreads.h"
+#include "Providers.h"
 
 // From DScaler.cpp .... We really need to reduce reliance on globals by going C++!
 // Perhaps in the meantime, it could be passed as a parameter to WorkoutOverlay()
@@ -503,12 +506,16 @@ void CPanAndZoomAspectFilter::DebugDump()
 // Should occur at the end of the aspect processing chain (but before the ResizeWindow filter)
 BOOL CScreenSanityAspectFilter::adjustAspect(CAspectRectangles &ar)
 {
+    CSource *pSource=Providers_GetCurrentSource();
+    ///@todo better error handling, maybe return FALSE?
+    ASSERT(pSource!=NULL);
+
     // crop the Destination rect so that the overlay destination region is 
     // always on the screen we will also update the source area to reflect this
     // so that we see the appropriate portion on the screen
     // (this should make us compatable with YXY)
     RECT screenRect = {0,0,GetSystemMetrics(SM_CXSCREEN),GetSystemMetrics(SM_CYSCREEN) };
-    RECT sourceRect = {0, 0, CurrentX, CurrentY};
+    RECT sourceRect = {0, 0, pSource->GetWidth(), pSource->GetHeight()};
     ar.m_CurrentOverlayDestRect.crop(screenRect,&ar.m_CurrentOverlaySrcRect);
 
     // then make sure we are still onscreen

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.30 2002-02-17 20:32:34 laurentg Exp $
+// $Id: BT848Source.cpp,v 1.31 2002-02-19 16:03:36 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2002/02/17 20:32:34  laurentg
+// Audio input display suppressed from the OSD main screen
+// GetStatus modified to display the video input name in OSD main screen even when there is no signal
+//
 // Revision 1.29  2002/02/17 18:45:08  laurentg
 // At the first hardware setup, select the correct audio input
 //
@@ -426,9 +430,7 @@ void CBT848Source::Reset()
                                 m_HDelay->GetValue()
                             );
     
-    /// \todo FIXME get rid of these
-    CurrentX = m_CurrentX;
-    CurrentY = m_CurrentY; 
+    NotifySizeChange();
 
     /// \todo FIXME anything else to initialize here?
     m_pBT848Card->SetAudioStandard((eVideoFormat)m_VideoFormat->GetValue());
@@ -942,8 +944,7 @@ void CBT848Source::PixelWidthOnChange(long NewValue, long OldValue)
                                 m_HDelay->GetValue()
                             );
     
-    /// \todo FIXME get rid of these
-    CurrentX = m_CurrentX;
+    NotifySizeChange();
 
     Start_Capture();
 }

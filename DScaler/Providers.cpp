@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.26 2002-02-18 23:25:01 laurentg Exp $
+// $Id: Providers.cpp,v 1.27 2002-02-19 16:03:36 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2002/02/18 23:25:01  laurentg
+// At startup, go to the first source having a content
+// Order of still sources changed (Patterns before Snapshots)
+//
 // Revision 1.25  2002/02/17 00:35:35  laurentg
 // Problem to modify source submenu when menubar is hidden is solved
 //
@@ -324,8 +328,6 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             Stop_Capture();
             CurrentSource = NewSource;
             Providers_UpdateMenu(hMenu);
-            CurrentX = Sources[CurrentSource]->GetWidth();
-            CurrentY = Sources[CurrentSource]->GetHeight();
             Start_Capture();
             return TRUE;
         }

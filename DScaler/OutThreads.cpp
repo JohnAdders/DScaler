@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.59 2002-02-19 10:24:08 tobbej Exp $
+// $Id: OutThreads.cpp,v 1.60 2002-02-19 16:03:36 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.59  2002/02/19 10:24:08  tobbej
+// increased timeout a bit, since dshow takes longer to terminate
+//
 // Revision 1.58  2002/02/18 20:51:51  laurentg
 // Statistics regarding deinterlace modes now takes into account the progressive mode
 // Reset of the deinterlace statistics at each start of the decoding thread
@@ -285,11 +288,6 @@ BOOL                bJudderTerminatorOnVideo = TRUE;
 
 /// \todo should be able to get of this variable
 long                OverlayPitch = 0;
-
-
-long CurrentX = 720;
-long CurrentY = 480;
-
 
 // cope with older DX header files
 #if !defined(DDFLIP_DONOTWAIT)
@@ -523,8 +521,6 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     __try
     {
         pSource->SetOverscan();
-        WorkoutOverlaySize(TRUE);
-
         pSource->Start();
 
         // Sets processor Affinity and Thread priority according to menu selection
@@ -554,15 +550,6 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
             GetDestRect(&Info.DestRect);
             
             pSource->GetNextField(&Info, Info.bDoAccurateFlips && (IsFilmMode() || bJudderTerminatorOnVideo));
-
-            if (CurrentX != Info.FrameWidth || CurrentY != Info.FrameHeight)
-            {
-                CurrentX = Info.FrameWidth;
-                CurrentY = Info.FrameHeight;
-                // WARNING: WorkoutOverlaySize must be executed two times to have a correct result !!!
-                WorkoutOverlaySize(TRUE);
-                WorkoutOverlaySize(TRUE);
-            }
 
             pPerf->StopCount(PERF_WAIT_FIELD);
 

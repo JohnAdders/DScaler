@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.11 2002-02-13 17:02:08 tobbej Exp $
+// $Id: DSSource.cpp,v 1.12 2002-02-19 16:03:37 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/02/13 17:02:08  tobbej
+// new filter properties menu
+// fixed some problems in GetNextFiled
+//
 // Revision 1.10  2002/02/09 02:49:23  laurentg
 // Overscan now stored in a setting of the source
 //
@@ -935,6 +939,7 @@ void CDSSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 		
 		
 		//split the media sample into even and odd field
+		//what if the input picture upside down?
 		long lineSize=bmi->biWidth*bmi->biBitCount/8;
 		for(int i=0;i<(bmi->biHeight/2);i++)
 		{
@@ -944,6 +949,12 @@ void CDSSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 
 		m_pictureHistory[m_pictureHistoryPos].Flags=PICTURE_INTERLACED_EVEN;
 		m_pictureHistory[m_pictureHistoryPos+1].Flags=PICTURE_INTERLACED_ODD;
+		
+		//check if size has changed
+		if(m_currentX!=bmi->biWidth || m_currentY!=bmi->biHeight)
+		{
+			NotifySizeChange();
+		}
 
 		m_currentX=bmi->biWidth;
 		m_currentY=bmi->biHeight;
@@ -984,6 +995,9 @@ void CDSSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 	}
 	else
 	{
+		//FIXME: need to wait one field here
+		Sleep(20);
+
 		pInfo->FrameHeight=m_currentY;
 		pInfo->FrameWidth=m_currentX;
 		pInfo->LineLength=m_currentX * m_bytePerPixel;

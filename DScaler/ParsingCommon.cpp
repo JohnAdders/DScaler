@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ParsingCommon.cpp,v 1.9 2004-12-16 04:53:50 atnak Exp $
+// $Id: ParsingCommon.cpp,v 1.10 2004-12-17 00:22:51 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2004/12/16 04:53:50  atnak
+// Added "auto detect" and "user setup" to tuner parsing.
+//
 // Revision 1.8  2004/12/12 11:46:23  atnak
 // Fixes bug with incorrect OutputPort active parsing.
 //
@@ -120,6 +123,7 @@ const CParseConstant k_parseTunerConstants[] =
 
 const CParseConstant k_parseTDAFormatConstants[] =
 {
+	PC( "GLOBAL",						TDA9887_FORMAT_NONE			),
 	PC( "PAL-BG",						TDA9887_FORMAT_PAL_BG		),
 	PC( "PAL-I",						TDA9887_FORMAT_PAL_I		),
 	PC( "PAL-DK",						TDA9887_FORMAT_PAL_DK		),
@@ -162,7 +166,7 @@ const CParseConstant k_parseTakeoverPointConstants[] =
 
 const CParseTag k_parseUseTDA9887SetOverride[] =
 {
-	PT( "Format",			PARSE_CONSTANT,		1, 8,	k_parseTDAFormatConstants,		PASS_TO_PARENT	),
+	PT( "Format",			PARSE_CONSTANT,		0, 8,	k_parseTDAFormatConstants,		PASS_TO_PARENT	),
 	PT( "Intercarrier",		0,					0, 0,	NULL,							PASS_TO_PARENT	),
 	PT( "QSS",				0,					0, 0,	NULL,							PASS_TO_PARENT	),
 	PT( "Carrier",			PARSE_CONSTANT,		0, 16,	k_parseCarrierConstants,		PASS_TO_PARENT	),
@@ -233,17 +237,31 @@ BOOL ReadUseTDA9887Proc(IN int report, IN const CParseTag* tag, IN unsigned char
 		}
 		else if (report == REPORT_CLOSE)
 		{
-			// This should not fail if HCParser enforces the minimum limit.
-			ASSERT(useTDA9887Info->_readingFormat != TDA9887_FORMAT_NONE);
 			// This should not fail because constants only provide 0 .. TDA9887_LASTFORMAT.
-			ASSERT(useTDA9887Info->_readingFormat >= 0 &&
-				useTDA9887Info->_readingFormat < TDA9887_FORMAT_LASTONE);
+			ASSERT(useTDA9887Info->_readingFormat == TDA9887_FORMAT_NONE ||
+				(useTDA9887Info->_readingFormat >= 0 &&
+				useTDA9887Info->_readingFormat < TDA9887_FORMAT_LASTONE));
 
 			// It is pointless copying if mask is zero.
 			if (useTDA9887Info->_readingModes.mask != 0)
 			{
-				memcpy(&useTDA9887Info->tdaModes[useTDA9887Info->_readingFormat],
-					&useTDA9887Info->_readingModes, sizeof(TTDA9887Modes));
+				if (useTDA9887Info->_readingFormat == TDA9887_FORMAT_NONE)
+				{
+					// Copy for all formats.
+					for (int i = 0; i < TDA9887_FORMAT_LASTONE; i++)
+					{
+						useTDA9887Info->tdaModes[i].bits &= ~useTDA9887Info->_readingModes.mask;
+						useTDA9887Info->tdaModes[i].bits |= useTDA9887Info->_readingModes.bits;
+						useTDA9887Info->tdaModes[i].mask |= useTDA9887Info->_readingModes.mask;
+					}
+				}
+				else
+				{
+					int i = useTDA9887Info->_readingFormat;
+					useTDA9887Info->tdaModes[i].bits &= ~useTDA9887Info->_readingModes.mask;
+					useTDA9887Info->tdaModes[i].bits |= useTDA9887Info->_readingModes.bits;
+					useTDA9887Info->tdaModes[i].mask |= useTDA9887Info->_readingModes.mask;
+				}
 			}
 		}
 	}

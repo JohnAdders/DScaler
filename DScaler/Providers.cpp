@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.7 2001-11-24 17:58:06 laurentg Exp $
+// $Id: Providers.cpp,v 1.8 2001-11-24 22:54:25 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2001/11/24 17:58:06  laurentg
+// Still source
+//
 // Revision 1.6  2001/11/23 10:49:17  adcockj
 // Move resource includes back to top of files to avoid need to rebuild all
 //
@@ -150,6 +153,57 @@ CSource* Providers_GetCurrentSource()
     }
 }
 
+BOOL Providers_RemoveSource(CSource* pSource, HMENU hMenu)
+{
+    HMENU           hSubMenu = GetSubMenu(hMenu, 5);
+    BOOL            Removed = FALSE;
+    MENUITEMINFO    MenuInfo;
+    int             i, j;
+    CSource*        pCurrentSource = Providers_GetCurrentSource();
+
+    i = 0;
+    for(vector<CSource*>::iterator it = Sources.begin();
+        it != Sources.end();
+        ++it, ++i)
+    {
+        if (*it == pSource)
+        {
+            Removed = RemoveMenu(hSubMenu, IDM_SOURCE_FIRST + i, MF_BYCOMMAND);
+            if (Removed)
+            {
+                Sources.erase(it);
+                break;
+            }
+        }
+    }
+
+    if (Removed)
+    {
+        if (pSource == pCurrentSource)
+        {
+            if (CurrentSource >= Sources.size())
+            {
+                CurrentSource--;
+            }
+            Providers_UpdateMenu(hMenu);
+        }
+
+        MenuInfo.cbSize = sizeof(MenuInfo);
+        MenuInfo.fMask = MIIM_ID;
+        for(j = i; j < Sources.size(); ++j)
+        {
+            MenuInfo.wID = IDM_SOURCE_FIRST + j;
+            SetMenuItemInfo(hSubMenu, IDM_SOURCE_FIRST + j + 1, FALSE, &MenuInfo);
+            CheckMenuItemBool(hSubMenu, IDM_SOURCE_FIRST + j + 1, j == CurrentSource);
+        }
+
+        StillProvider->RemoveStillSource((CStillSource*)pSource);
+        delete (CStillSource*)pSource;
+    }
+
+    return Removed;
+}
+
 void Providers_SetMenu(HMENU hMenu)
 {
     if(Providers_GetCurrentSource()->HasTuner())
@@ -201,8 +255,10 @@ void Providers_UpdateMenu(HMENU hMenu)
     }
 }
 
-BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam, HMENU hMenu)
+BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 {
+    CSource* pCurrentSource = Providers_GetCurrentSource();
+
     if(LOWORD(wParam) >= IDM_SOURCE_FIRST && LOWORD(wParam) <= IDM_SOURCE_LAST)
     {
         int NewSource(LOWORD(wParam) - IDM_SOURCE_FIRST);
@@ -238,41 +294,26 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam, HMENU 
         OpenFileInfo.lpstrDefExt = NULL;
         if (GetOpenFileName(&OpenFileInfo))
         {
+            HMENU hMenu = GetMenu(hWnd);
+            HMENU hSubMenu = GetSubMenu(hMenu, 5);
+
             Stop_Capture();
             CTiffSource* TiffSource = new CTiffSource(FilePath);
             StillProvider->AddStillSource(TiffSource);
-            HMENU hSubMenu = GetSubMenu(hMenu, 5);
             AppendMenu(hSubMenu, MF_STRING | MF_ENABLED, IDM_SOURCE_FIRST + Sources.size(), FilePath);
             Sources.push_back(TiffSource);
             CurrentSource = Sources.size() - 1;
-            Providers_UpdateMenu(GetMenu(hWnd));
+            Providers_UpdateMenu(hMenu);
             Start_Capture();
             return TRUE;
         }
     }
     else if (LOWORD(wParam) == IDM_CLOSE_FILE)
     {
+        HMENU hMenu = GetMenu(hWnd);
+
         Stop_Capture();
-        CSource* pCurrentSource = Providers_GetCurrentSource();
-        StillProvider->RemoveStillSource((CStillSource*)pCurrentSource);
-        HMENU hSubMenu = GetSubMenu(hMenu, 5);
-        RemoveMenu(hSubMenu, IDM_SOURCE_FIRST + CurrentSource, MF_BYCOMMAND);
-//        for(vector<CSource*>::iterator it = Sources.begin();
-//            it != Sources.end();
-//            ++it)
-//        {
-//            if (*it == pCurrentSource)
-//            {
-//                Sources.erase(it);
-//            }
-//        }
-//        if (CurrentSource >= Sources.size())
-//        {
-//            CurrentSource--;
-//        }
-        CurrentSource = 0;
-        CheckMenuItemBool(hSubMenu, IDM_SOURCE_FIRST + CurrentSource, TRUE);
-        Providers_UpdateMenu(GetMenu(hWnd));
+        Providers_RemoveSource(pCurrentSource, hMenu);
         Start_Capture();
         return TRUE;
     }

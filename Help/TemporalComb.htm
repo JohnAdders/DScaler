@@ -3,7 +3,7 @@
 <!-- #BeginTemplate "/Templates/dtvnormal.dwt" -->
 <head>
 <!-- #BeginEditable "doctitle" -->
-<title>DScaler -- Temporal Comb Filter</title>
+<title>DScaler &mdash; Temporal Comb Filter</title>
 <!-- #EndEditable -->
 <meta http-equiv="Content-Type" content=
 "text/html; charset=iso-8859-1">
@@ -57,10 +57,10 @@ height="2"></td>
 <!-- #BeginEditable "Text" -->
 
 <p>
-This filter removes dot crawl and some kinds of shimmering.
-The effect is most noticable on computer generated images like
-subtitles, weather maps, and station logos using a composite
-video signal.  Normal composite video is more subtly improved.
+This filter removes dot crawl and some kinds of shim&shy;mering.
+The effect is most notic&shy;able on com&shy;puter gener&shy;ated images like
+sub&shy;titles, weather maps, and sta&shy;tion logos using a compos&shy;ite
+video signal.  Normal compos&shy;ite video is more subtly improved.
 </p> 
 
 <HR>
@@ -70,24 +70,24 @@ Who Should Use It?
 </font></b></p>
 
 <p>
-The <A HREF="#Comb Explanation">comb filter</A> is pretty slow, requiring roughly 350 MHz of processor time. So
-unless you've got a Pentium 3, Athlon, or better, it's probably not worth the cost.
+The <A HREF="#Comb Explanation">comb filter</A> is pretty slow, requir&shy;ing roughly 350 MHz of proces&shy;sor time. So
+unless you&rsquo;ve got a Pentium 3, Athlon, or better, it&rsquo;s prob&shy;ably not worth the cost.
 </p>
 
 <p>
 If your computer is fast enough, you should run the comb filter
-whenever you're watching a composite signal.  That's
-what you have if you're using an internal TV tuner or an RCA connector.
-It also helps very slightly with shimmering from an S-Video signal -- but you can probably find
-something more productive to keep your processor busy.
+when&shy;ever you&rsquo;re watch&shy;ing a compos&shy;ite signal.  That&rsquo;s
+what you have if you&rsquo;re using an internal TV tuner or an RCA con&shy;nector.
+It also helps very slightly with shim&shy;mering from an S-Video sig&shy;nal&nbsp;&mdash; but you can prob&shy;ably find
+some&shy;thing more produc&shy;tive to keep your processor busy.
 </p>
 
 <p>
-The comb filter helps a great deal with recent consoles such as the
-PS2 -- but it doesn't do a thing for video from older consoles
-like the Super Nintendo or original PlayStation.  To get rid of
-color crosstalk from older consoles, turn off this filter and use
-the <A HREF="OldGame.htm">Old Game</A> deinterlacer, instead.
+The comb filter helps a great deal with games for recent con&shy;soles such as the
+PS2&nbsp;&mdash; but it doesn&rsquo;t do a thing for video from older con&shy;soles
+like the Super Nin&shy;tendo or original Play&shy;Station.  To get rid of
+color cross&shy;talk from older consoles, turn off this filter and use
+the <A HREF="OldGame.htm">Old Game</A> de&shy;interlac&shy;er, instead.
 </p>
 
 <HR>
@@ -97,30 +97,30 @@ The Settings
 </font></b></p>
 
 <p>
-I'm going to describe how to configure this filter
-conservatively, so you can forget about it afterward. If you like
-to fiddle with sliders, you can instead use much more aggressive
-settings (lower <font color = "#993300">Recall</font> and
-<font color = "#993300">Shimmering</font> values) and turn them up
+I&rsquo;m going to describe how to config&shy;ure this filter
+conserva&shy;tively, so you can forget about it after&shy;ward. If you like
+to fiddle with sliders, you can instead use much more ag&shy;gres&shy;sive
+set&shy;tings (lower <font color = "#993300">Recall</font> and
+<font color = "#993300">Shim&shy;mering</font> values) and turn them up
 only when you have to.
 </p>
 
 <p><A NAME="Recall"><b><font face="Arial" font color = "#993300">
-Recall of past shimmering
+Recall of past shim&shy;mering
 </font></b></A></p>
 
 <p>
-This is the really important setting. It decides just how far
+This is the really impor&shy;tant setting. It decides just how far
 back into the past the filter will look in order to confirm that
-there's really some shimmering going on. Set it high (above 75%)
-to avoid artifacts in scenes with repetitive motion. But don't
-set it too high (above 95%), or it'll take a long time for the
+there&rsquo;s really some shim&shy;mering going on. Set it high (above 75%)
+to avoid artifacts in scenes with repeti&shy;tive motion. But don&rsquo;t
+set it too high (above 95%), or it&rsquo;ll take a long time for the
 filter to kick in.
 </p>
 
 <P>
-When you change this setting, it'll take a moment before the
-screen can adjust.  Really high settings (above 90%) need especially
+When you change this setting, it&rsquo;ll take a moment before the
+screen can adjust.  Really high set&shy;tings (above 90%) need especially
 long to take.
 </P>
 
@@ -130,19 +130,19 @@ Shimmering to activate
 
 <p>
 This setting has a much subtler effect. If you set it high,
-the filter will only correct when there has been uninterrupted
-shimmering. Set it low, and the filter will tolerate more
-interruptions -- but will also be a little more susceptible to
+the filter will only correct when there has been uninter&shy;rupted
+shim&shy;mering. Set it low, and the filter will tolerate more
+inter&shy;ruptions&nbsp;&mdash; but will also be a little more suscep&shy;tible to
 artifacts.
 </p>
 
 <p>
-If you're running a noise filter, too, you can afford to set
-this low -- 30% works well for me. That's a good idea, since it
-will allow the filter to correct more subtle shimmering. Without
-a noise filter, you'll need to set it pretty high (about 70%) to
-avoid transient spots where dot crawl has just disappeared. If
-you don't care about shimmering and just want to take care of dot
+If you&rsquo;re running a noise filter, too, you can afford to set
+this low&nbsp;&mdash; 30% works well for me. That&rsquo;s a good idea, since it
+will allow the filter to correct more subtle shim&shy;mering. Without
+a noise filter, you&rsquo;ll need to set it pretty high (about 70%) to
+avoid tran&shy;sient spots where dot crawl has just disap&shy;peared. If
+you don&rsquo;t care about shim&shy;mering and just want to take care of dot
 crawl, you can safely set this near 100%.
 </p>
 
@@ -152,52 +152,52 @@ Maximum color variation
 
 <p>
 This option lets you choose just how much the color can change
-before the filter decides the difference must be due to
-motion. It can be set much higher than the thresholds in the <A HREF="Noise.htm">Temporal Noise
-Filter</A>, since this filter uses a stricter motion detection
-method. If you've enabled Even Luma Peaking and Odd Luma Peaking
-(in the Advanced Video Flags dialog), you'll need to set this
-very high -- to 45 or 50. With peaking disabled, you can
-drop this setting a bit -- to around 35 with my setup. You can lower it by about 10 points 
+before the filter decides the dif&shy;ference must be due to
+motion. It can be set much higher than the thresholds in the <A HREF="Noise.htm">Tempo&shy;ral Noise
+Filter</A>, since this filter uses a stricter motion detec&shy;tion
+method. If you&rsquo;ve enabled Even Luma Peaking and Odd Luma Peaking
+(in the Advanced Video Flags dialog), you&rsquo;ll need to set this
+very high&nbsp;&mdash; to 45 or 50. With peaking dis&shy;abled, you can
+drop this setting to around 35. You can lower it by about 10 points 
 if you turn on <font color = "#993300">Trade Speed for Accuracy</font>.
 </p>
 
 <p>
 The higher you set this, the more likely you
-are to see transient spots. So if you set this really high,
-you'll want to increase <font color = "#993300">Recall</font>
-and/or <font color = "#993300">Shimmering</font>.
+are to see tran&shy;sient spots. So if you set this really high,
+you&rsquo;ll want to increase <font color = "#993300">Recall</font>
+and/or <font color = "#993300">Shim&shy;mering</font>.
 </p>
 
 <P>
-There isn't an intuitive way to choose the <font color = "#993300">Maximum color variation</font>,
-so here's a guide to help you set it:
+There isn&rsquo;t an intuitive way to choose the <font color = "#993300">Maximum color varia&shy;tion</font>,
+so here&rsquo;s a guide to help you set it:
 </P>
 
 <UL>
 <LI>
 First, tune in the worst dot crawl you can find. In the US,
-CNN Headlines is a dependable source, as are the "T" in the
-Country Music Station's logo and the radar maps on the Weather
-Channel. If you've got a video reference DVD, connect it via
-composite and show a still with neighboring green and magenta
+CNN Head&shy;lines is a depend&shy;able source, as are the &ldquo;T&rdquo; in the
+Coun&shy;try Music Sta&shy;tion&rsquo;s logo and the radar maps on the Weather
+Chan&shy;nel. If you&rsquo;ve got a video refer&shy;ence DVD, con&shy;nect it via
+compos&shy;ite and show a still with neigh&shy;boring green and magenta
 color bars.
 
 <LI>
-Turn <font color = "#993300">Recall</font> and <font color = "#993300">Shimmering</font> all the way down.
-Turn <font color = "#993300">Maximum color variation</font> up really high (to about 80).
-The dot crawl should disappear. (Well, bad dot crawl does still
-leave a residual shimmer unless you enable <font color = "#993300">Trade Speed for
+Turn <font color = "#993300">Recall</font> and <font color = "#993300">Shim&shy;mering</font> all the way down.
+Turn <font color = "#993300">Max&shy;imum color varia&shy;tion</font> up really high (to about 80).
+The dot crawl should dis&shy;appear. (Well, bad dot crawl does still
+leave a resid&shy;ual shim&shy;mer unless you enable <font color = "#993300">Trade Speed for
 Accuracy</font>.)
 
 <LI>
-Move <font color = "#993300">Maximum color variation</font> down until the dot crawl
-returns. Then raise it until the dot crawl disappears,
-again. You've now got yourself the best value for it.
+Move <font color = "#993300">Max&shy;imum color varia&shy;tion</font> down until the dot crawl
+returns. Then raise it until the dot crawl dis&shy;appears,
+again. You&rsquo;ve now got your&shy;self the best value for it.
 
 <LI>
 Turn <font color = "#993300">Recall</font> and
-<font color = "#993300">Shimmering</font> back up to more reasonable
+<font color = "#993300">Shim&shy;mering</font> back up to more reason&shy;able
 values.
 </UL>
 
@@ -207,12 +207,12 @@ Trade speed for accuracy
 
 <p>
 This checkbox does pretty much what it says. It improves the
-accuracy and colors -- but slows things down, and uses an
-additional 2 MB of memory (on top of the ~400K it always needs).
+accuracy and colors&nbsp;&mdash; but slows things down, and uses an
+addi&shy;tional 2 MB of memory (on top of the ~400K it always needs).
 </p>
 
 <P>
-As with <font color = "#993300">Recall</font>, you'll need to wait a
+As with <font color = "#993300">Recall</font>, you&rsquo;ll need to wait a
 moment before this setting takes effect.
 </P>
 
@@ -221,14 +221,14 @@ Looking for trouble
 </font></b></p>
 
 <p>
-If you want to find artifacts to help you pick settings, there
-are a couple types of material which are especially problematic.
+If you want to find artifacts to help you pick set&shy;tings, there
+are a couple types of mater&shy;ial which are especially prob&shy;lematic.
 Strobe effects in music videos may cause fits. But the very worst
 case is the ticker tape on CNBC (on US Cable), which goes by at
 the right speed to fool the filter. Worse yet, it has bad (but
-moving) dot crawl. You'll need to set the
+moving) dot crawl. You&rsquo;ll need to set the
 <font color = "#993300">Recall</font> option pretty
-high (about 85%) to avoid problems with it.
+high (about 85%) to avoid prob&shy;lems with it.
 </p>
 
 <HR>
@@ -239,11 +239,11 @@ What the heck is a comb filter?
 
 <P>
 In technical terms, it
-averages out chrominance/luminance crosstalk caused by imperfect
-separation from a composite signal. It's called a "comb" for a
-really obscure reason -- because the frequency response looks a
-(very little) bit like a comb. Apparently, signal processing
-engineers are obsessed with grooming.
+averages out chrom&shy;in&shy;ance/lum&shy;in&shy;ance cross&shy;talk caused by imperfect
+separ&shy;ation from a compos&shy;ite signal. It&rsquo;s called a &ldquo;comb&rdquo; for a
+really obscure reason&nbsp;&mdash; because the fre&shy;quency response looks a
+(very little) bit like a comb. Appar&shy;ently, signal proces&shy;sing
+engi&shy;neers are obses&shy;sed with grooming.
 </p>
 
 <TABLE width="100%" border=0>
@@ -251,10 +251,10 @@ engineers are obsessed with grooming.
 <TR><TD>
 <img src="images/TComb_Off_CNN.JPG" width="50%" align=right alt="CNN without Temporal Comb">
 <p>
-Here's an
-example of the problem, taken from a US Cable TV broadcast with an internal tuner. There's
-heavy dot crawl in the weather map and CNN logo, and more subtle color problems
-in and around the text. On your screen, those dots would seem to be moving slowly upward.
+Here&rsquo;s an
+ex&shy;ample of the prob&shy;lem, taken from a US Cable TV broad&shy;cast with an in&shy;ter&shy;nal tuner. There&rsquo;s
+heavy dot crawl in the weath&shy;er map and CNN logo, and more subtle color prob&shy;lems
+in and around the text. On your screen, those dots would seem to be mov&shy;ing slow&shy;ly up&shy;ward. &rarr;
 </p>
 <P>
 (Try to ignore the JPEG artifacts.)
@@ -262,41 +262,41 @@ in and around the text. On your screen, those dots would seem to be moving slowl
 <TR><TD><BR>
 <img src="images/TComb_On_CNN.JPG" width="50%" align=right alt="CNN with Temporal Comb">
 <p>
-And here's the
-effect of the Temporal Comb Filter on the same (well, a really similar) picture. This was
-taken with the default settings.
+And here&rsquo;s the
+ef&shy;fect of the Tem&shy;por&shy;al Comb Fil&shy;ter on the same (well, a real&shy;ly simi&shy;lar) pic&shy;ture. This was
+taken with the de&shy;fault set&shy;tings. &rarr;
 </p>
 <TR><TD><BR>
 <TR><TD>
 <img src="images/TComb_Off_Jack.JPG" width="134" height="202" align=left alt="Jack without Temporal Comb">
 <p>
 The comb filter
-also helps more subtly with edges in cartoons and normal video. This
-first picture shows "Jack" without filtering.
+also helps more subtly with edges in car&shy;toons and normal video. This
+first pic&shy;ture shows &ldquo;Jack&rdquo; without fil&shy;ter&shy;ing. &larr; 
 </p>
 <TR><TD>
 <img src="images/TComb_On_Jack.JPG" width="134" height="202" align = left alt="Jack with Temporal Comb">
 <P>
 ...and here he
-is with the comb filter enabled. Note the smoother boundary between his head/neck and the
-background.  (Ignore the stuff under his lip -- it comes from the image compression.) This
-picture was taken with <font color="#993300">Trade Speed for Accuracy</font> turned on.
+is with the comb fil&shy;ter enabled. Note the smooth&shy;er bound&shy;ary be&shy;tween his head/neck and the
+back&shy;ground.  (Ig&shy;nore the stuff under his lip&nbsp;&mdash; it comes from the im&shy;age com&shy;pres&shy;sion.) This
+pic&shy;ture was taken with <font color="#993300">Trade Speed for Ac&shy;cu&shy;ra&shy;cy</font> turned on. &larr; 
 <BR>
 
 </TR></TBODY></TABLE>
 
 
 <p>
-But this comb filter only works temporally, not spatially.  As a result,
-it does not help with dot crawl and shimmering in moving
+But this comb filter only works tempor&shy;ally, not spatial&shy;ly.  As a result,
+it does not help with dot crawl and shim&shy;mering in moving
 images.
 </p>
 
 <p>
-Note that this filter is not in any way related to "comb" in
-the sense used by many video folks! It's not supposed to reduce
+Note that this filter is not in any way related to &ldquo;comb&rdquo; in
+the sense used by many video folks! It&rsquo;s not sup&shy;posed to reduce
 weave artifacts (lagging horizontal lines) at all.  For that,
-you need to take a look at the <A HREF="Deinterlace.HTM">deinterlacing methods</A>.
+you need to take a look at the <A HREF="Deinterlace.HTM">de&shy;interlac&shy;ing methods</A>.
 </p>
 
 

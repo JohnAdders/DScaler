@@ -3,7 +3,7 @@
 <!-- #BeginTemplate "/Templates/dtvnormal.dwt" -->
 <head>
 <!-- #BeginEditable "doctitle" -->
-<title>DScaler -- Old Game Method</title>
+<title>DScaler &mdash; Old Game Method</title>
 <!-- #EndEditable -->
 <meta http-equiv="Content-Type" content=
 "text/html; charset=iso-8859-1">
@@ -55,90 +55,120 @@ height="2"></td>
 <tr>
 <td colspan="3">
 <!-- #BeginEditable "Text" -->
-<p>This method improves the display of video games from old
-consoles on your computer. Instead of deinterlacing like most
-DScaler methods, it smooths vertically. That gets rid of the
-blockiness you'd otherwise see. It works nicely with just
-about any game on a PlayStation, Super Nintendo, or Genesis.
-Presumably, it will work well with a Nintendo 64, Saturn, Atari,
-NES, Megadrive, and so on. Just don't try it with your
-Vectrex.</p>
+<p>
+This method improves the display of video games from old
+consoles on your computer. Instead of de&shy;interlac&shy;ing like most
+DScaler methods, it smoothes verti&shy;cally. That gets rid of the
+block&shy;iness you&rsquo;d other&shy;wise see. It works nicely with just
+about any game on a Play&shy;Station, Super Nin&shy;tendo, or Genesis.
+Presum&shy;ably, it will work well with a Nin&shy;tendo 64, Saturn, Atari,
+NES, Mega&shy;drive, and so on. Just don&rsquo;t try it with your
+Vectrex.
+</p>
 
-<p>More exactly, this method assumes that you're looking at a
-progressive half vertical resolution image. So any video source which fits
-that description should work well. The Old Game method is similar
-to <A HREF="OddOnly.HTM">OddOnly</A> and <A HREF="EvenOnly.HTM">EvenOnly</A>, but improves the picture in
+<p>
+More exactly, this method assumes that you&rsquo;re look&shy;ing at a
+progres&shy;sive half vertical resolu&shy;tion image. So any video source which fits
+that descrip&shy;tion should work well. The Old Game method is similar
+to <A HREF="OddOnly.HTM">Odd Scan&shy;lines Only</A> and
+<A HREF="EvenOnly.HTM">Even Scan&shy;lines Only</A>, but improves the picture in
 a couple ways. First, it works well with material running at any
 FPS (frames per second) rate, instead of just 25 or 30 FPS.
-Second, it optionally uses averaging between frames to reduce
-noise and color crosstalk. The averaging works well alone or along with a noise
-filter.</p>
+Second, it option&shy;ally uses averag&shy;ing between frames to reduce
+noise and color cross&shy;talk. The averag&shy;ing works well alone or along with a noise
+filter.
+</p>
 
-<p>Later consoles such as the Dreamcast, PlayStation 2, GameCube,
-or XBox use interlaced output, and will look lousy with this
-plugin. (Well, some of them allow progressive output, too, but
-not in a way the supported input cards can understand.) To play
-them on your computer, use the more standard deinterlacing
-plugins -- or better yet, find a VGA adaptor. The Super Nintendo, PlayStation, Nintendo 64, and Saturn
-can also use an interlaced mode. The PlayStation uses interlaced
-mode for its startup logo, for example. But almost all games
-switch back into progressive half vertical resolution mode for the main play
-of the game. Automatic sensing of the interlace mode is something
-I'd like to add in the future.</p>
+<p>
+Later consoles such as the Dream&shy;cast, Play&shy;Station 2, Game&shy;Cube,
+or XBox use inter&shy;laced output, and will look lousy with this
+de&shy;interlac&shy;ing method. (Well, some of them allow progres&shy;sive output, too, but
+not in a way the sup&shy;ported input cards can under&shy;stand.) To play
+them on your computer, use the more standard <A HREF="Deinterlace.HTM">deinterlac&shy;ing
+methods</A>&nbsp;&mdash; or better yet, find a VGA adaptor. The Super
+Nin&shy;tendo, Play&shy;Station, Nin&shy;tendo 64, and Saturn
+can also use an inter&shy;laced mode. The Play&shy;Station uses interlaced
+mode for its start&shy;up logo, for example. But almost all games
+switch back into progres&shy;sive half vertical resolu&shy;tion mode for the main play
+of the game. Auto&shy;matic sensing of the inter&shy;lace mode is some&shy;thing
+I&rsquo;d like to add in the future.
+</p>
 
 <HR>
 
-<p><b><font face="Arial" size="4">Who Should Use
-It?</font></b></p>
+<p><b><font face="Arial" size="4">
+Who Should Use It?
+</font></b></p>
 
-<p>Anybody who plays old video games on their computer via video
-input should use this plugin. (Well, at least until something
-better comes along.)</p>
+<p>
+Anybody who plays old video games on their computer via video
+input should use this de&shy;interlac&shy;ing method. (Well, at least until some&shy;thing
+better comes along.)
+</p>
 
-<p>There's a bug in some older Matrox overlay drivers which
-allows the Scaler Bob plugin to work nearly as well as Old Game
-for progressive half vertical resolution video. It doesn't use averaging to
+<p>
+There&rsquo;s a bug in some older Matrox overlay drivers which
+allows the <A HREF="ScalerBob.HTM">Scaler Bob</A> method to work nearly as well as Old Game
+for progres&shy;sive half vertical resolu&shy;tion video. It doesn&rsquo;t use averag&shy;ing to
 reduce noise, but it should run a little faster. On the other
 hand, Old Game is fast enough to run just fine on any
-computer supported by DScaler, so that doesn't really get you
-much.</p>
+computer sup&shy;ported by DScaler, so that doesn&rsquo;t really get you
+much.
+</p>
 
 <HR>
 
-<p><b><font face="Arial" size="4">The Settings</font></b></p>
+<p><b><font face="Arial" size="4">
+The Settings
+</font></b></p>
 
-<p>There are two options to set for this plugin, <font color = "#993300">Composite Mode</font>
-and <font color = "#993300">Motion Threshold</font>. <font color = "#993300">Composite Mode</font> forces the plugin to always
-average between frames. <font color = "#993300">Motion Threshold</font> is the amount of motion
-(in arbitrary units) which will convince the plugin not to
-average between frames.</p>
+<p>
+There are two options to set for this method, <font color = "#993300">Compos&shy;ite Mode</font>
+and <font color = "#993300">Motion Threshold</font>. <font color = "#993300">Compos&shy;ite Mode</font>
+forces the method to always average between frames. <font color = "#993300">Motion Threshold</font>
+is the amount of motion (in arbi&shy;trary units) which will con&shy;vince the method not to
+average between frames.
+</p>
 
-<p>The way you should set these options depends on the way you've
-connected your console.</p>
+<p>
+The way you should set these options depends on the way you&rsquo;ve connected your console.
+</p>
 
-<p><b><font face="Arial">Composite or F-Connector</font></b></p>
+<p><b><font face="Arial">
+Composite or F-Connector
+</font></b></p>
 
-<p>With a composite connection, the biggest problem by far will
+<p>
+With a composite connection, the biggest problem by far will
 be color crosstalk. To get rid of it, check
-<font color = "#993300">Composite Mode</font>. That way, the crosstalk will be
-averaged out. This makes the picture look much, much nicer.</p>
+<font color = "#993300">Compos&shy;ite Mode</font>. That way, the crosstalk will be
+averaged out. This makes the picture look much, much nicer.
+</p>
 
-<p>With <font color = "#993300">Composite Mode</font> checked, the <font color = "#993300">Motion Threshold</font> slider won't
-do anything at all.</p>
+<p>
+With <font color = "#993300">Composite Mode</font> checked, the <font color = "#993300">Motion Threshold</font> slider won&rsquo;t
+do anything at all.
+</p>
 
-<p>Surprisingly, the <A HREF="TemporalComb.htm">Temporal Comb</A> filter doesn't help at all for
-crosstalk in most old video games. That's for an obscure
-technical reason involving the phase of the color carrier signal
-and the number of scanlines per frame.</p>
+<p>
+Surprisingly, the <A HREF="TemporalComb.htm">Tempo&shy;ral Comb</A> filter doesn&rsquo;t help at all for
+cross&shy;talk in most old video games. That&rsquo;s for an obscure
+tech&shy;nical reason involv&shy;ing the phase of the color carrier signal
+and the number of scan lines per frame.
+</p>
 
-<p><b><font face="Arial">S-video</font></b></p>
+<p><b><font face="Arial">
+S-video
+</font></b></p>
 
-<p>With an S-video connection, you shouldn't see much color
-crosstalk. So you can afford to set the slider to prevent
-averaging when the scene is moving. Turn off <font color = "#993300">Composite Mode</font>
+<p>
+With an S-video con&shy;nection, you shouldn&rsquo;t see much color
+cross&shy;talk. So you can afford to set the slider to prevent
+averag&shy;ing when the scene is moving. Turn off <font color = "#993300">Compos&shy;ite Mode</font>
 and put the <font color = "#993300">Motion Threshold</font> at about 300. Increase it a bit
 if you have a noisy picture (and turn on a noise filter), or
-decrease it if you see blurring with fast motion.</p>
+decrease it if you see blur&shy;ring with fast motion.
+</p>
 
 <!-- #EndEditable -->
 </td>

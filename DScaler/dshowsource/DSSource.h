@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.h,v 1.8 2002-02-09 02:49:23 laurentg Exp $
+// $Id: DSSource.h,v 1.9 2002-04-07 14:52:13 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/02/09 02:49:23  laurentg
+// Overscan now stored in a setting of the source
+//
 // Revision 1.7  2002/02/07 22:08:23  tobbej
 // changed for new file input
 //
@@ -131,7 +134,6 @@ public:
 
 private:
 	void updateDroppedFields();
-	//int FindMenuID(CMenu *menu,UINT menuID);
 
 	CDShowGraph *m_pDSGraph;
 	string m_device;
@@ -158,6 +160,8 @@ private:
 
 	///number of frames dropped at last call of updateDroppedFields()
 	int m_lastNumDroppedFrames;
+
+	CRITICAL_SECTION m_hOutThreadSync;
 
 	DEFINE_SLIDER_CALLBACK_SETTING(CDSSource, Brightness);
 	DEFINE_SLIDER_CALLBACK_SETTING(CDSSource, Contrast);

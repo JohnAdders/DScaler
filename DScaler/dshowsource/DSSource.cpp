@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.18 2002-04-03 19:52:30 tobbej Exp $
+// $Id: DSSource.cpp,v 1.19 2002-04-07 14:52:13 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2002/04/03 19:52:30  tobbej
+// added some more logging to help track the filters submenu problem
+//
 // Revision 1.17  2002/03/26 19:48:59  adcockj
 // Improved error handling in DShow code
 //
@@ -103,6 +106,7 @@
 #include <dvdmedia.h>		//VIDEOINFOHEADER2
 #include "AspectRatio.h"
 #include "DebugLog.h"
+#include "AutoCriticalSection.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -157,6 +161,7 @@ resolutionType res[]=
 	640,480,
 	320,240,
 	160,120,
+	88,72,
 	0,0
 };
 
@@ -174,6 +179,7 @@ CDSSource::CDSSource(string device,string deviceName) :
 	m_bIsFileSource(false)
 
 {
+	InitializeCriticalSection(&m_hOutThreadSync);
 	CreateSettings(device.c_str());
 
 	for(int i=0;i<MAX_PICTURE_HISTORY;i++)
@@ -197,6 +203,8 @@ CDSSource::CDSSource() :
 	m_bIsFileSource(true)
 
 {
+	InitializeCriticalSection(&m_hOutThreadSync);
+
 	CreateSettings("DShowFileInput");
 	for(int i=0;i<MAX_PICTURE_HISTORY;i++)
 	{
@@ -224,6 +232,7 @@ CDSSource::~CDSSource()
 		}
 		m_pictureHistory[i].pData=NULL;
 	}
+	DeleteCriticalSection(&m_hOutThreadSync);
 }
 
 BOOL CDSSource::IsAccessAllowed()
@@ -280,10 +289,14 @@ ISetting* CDSSource::GetBrightness()
 	if(m_pDSGraph==NULL)
 		return NULL;
 	
+	CDShowBaseSource *pSrc=m_pDSGraph->getSourceDevice();
+	if(pSrc==NULL)
+		return NULL;
+
 	CDShowCaptureDevice *pCap=NULL;
-	if(m_pDSGraph->getSourceDevice()->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
+	if(pSrc->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
 	{
-		pCap=(CDShowCaptureDevice*)m_pDSGraph->getSourceDevice();
+		pCap=(CDShowCaptureDevice*)pSrc;
 		if(pCap->hasVideoProcAmp())
 		{
 			long min;
@@ -339,10 +352,14 @@ ISetting* CDSSource::GetContrast()
 	if(m_pDSGraph==NULL)
 		return NULL;
 
+	CDShowBaseSource *pSrc=m_pDSGraph->getSourceDevice();
+	if(pSrc==NULL)
+		return NULL;
+
 	CDShowCaptureDevice *pCap=NULL;
-	if(m_pDSGraph->getSourceDevice()->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
+	if(pSrc->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
 	{
-		pCap=(CDShowCaptureDevice*)m_pDSGraph->getSourceDevice();
+		pCap=(CDShowCaptureDevice*)pSrc;
 		if(pCap->hasVideoProcAmp())
 		{
 			long min;
@@ -395,10 +412,14 @@ ISetting* CDSSource::GetHue()
 	if(m_pDSGraph==NULL)
 		return NULL;
 
+	CDShowBaseSource *pSrc=m_pDSGraph->getSourceDevice();
+	if(pSrc==NULL)
+		return NULL;
+
 	CDShowCaptureDevice *pCap=NULL;
-	if(m_pDSGraph->getSourceDevice()->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
+	if(pSrc->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
 	{
-		pCap=(CDShowCaptureDevice*)m_pDSGraph->getSourceDevice();
+		pCap=(CDShowCaptureDevice*)pSrc;
 		if(pCap->hasVideoProcAmp())
 		{
 			long min;
@@ -451,10 +472,14 @@ ISetting* CDSSource::GetSaturation()
 	if(m_pDSGraph==NULL)
 		return NULL;
 
+	CDShowBaseSource *pSrc=m_pDSGraph->getSourceDevice();
+	if(pSrc==NULL)
+		return NULL;
+
 	CDShowCaptureDevice *pCap=NULL;
-	if(m_pDSGraph->getSourceDevice()->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
+	if(pSrc->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
 	{
-		pCap=(CDShowCaptureDevice*)m_pDSGraph->getSourceDevice();
+		pCap=(CDShowCaptureDevice*)pSrc;
 		if(pCap->hasVideoProcAmp())
 		{
 			long min;
@@ -584,6 +609,7 @@ BOOL CDSSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 	{
 		try
 		{
+			CAutoCriticalSection lock(m_hOutThreadSync);
 			m_pDSGraph->changeRes(res[LOWORD(wParam)-IDM_DSHOW_RES_0].x,res[LOWORD(wParam)-IDM_DSHOW_RES_0].y);
 		}
 		catch(CDShowException &e)
@@ -738,11 +764,15 @@ void CDSSource::SetMenu(HMENU hMenu)
 	
 	CDShowCaptureDevice *pCap=NULL;
 	CDShowBaseCrossbar *pCrossbar=NULL;
-
-	if(m_pDSGraph->getSourceDevice()->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
+	
+	CDShowBaseSource *pSrc=m_pDSGraph->getSourceDevice();
+	if(pSrc!=NULL)
 	{
-		pCap=(CDShowCaptureDevice*)m_pDSGraph->getSourceDevice();
-		pCrossbar=pCap->getCrossbar();
+		if(pSrc->getObjectType()==DSHOW_TYPE_SOURCE_CAPTURE)
+		{
+			pCap=(CDShowCaptureDevice*)pSrc;
+			pCrossbar=pCap->getCrossbar();
+		}
 	}
 
 	//setup input selection menus
@@ -937,6 +967,7 @@ LPCSTR CDSSource::GetStatus()
 
 void CDSSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
 {
+	CAutoCriticalSection lock(m_hOutThreadSync);
 	if(m_pDSGraph==NULL)
 	{
 		return;
@@ -1143,4 +1174,3 @@ void CDSSource::updateDroppedFields()
 }
 
 #endif
-

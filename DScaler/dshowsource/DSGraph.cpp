@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.cpp,v 1.9 2002-04-03 19:52:30 tobbej Exp $
+// $Id: DSGraph.cpp,v 1.10 2002-04-07 14:52:13 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/04/03 19:52:30  tobbej
+// added some more logging to help track the filters submenu problem
+//
 // Revision 1.8  2002/03/26 19:48:59  adcockj
 // Improved error handling in DShow code
 //
@@ -231,10 +234,6 @@ void CDShowGraph::stop()
 
 CDShowBaseSource* CDShowGraph::getSourceDevice()
 {
-	if(m_pSource==NULL)
-	{
-		throw CDShowException("No source device/filter");
-	}
 	return m_pSource;
 };
 

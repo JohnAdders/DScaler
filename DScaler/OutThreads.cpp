@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.54 2002-02-09 02:44:56 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.55 2002-02-10 21:42:29 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.54  2002/02/09 02:44:56  laurentg
+// Overscan now stored in a setting of the source
+//
 // Revision 1.53  2002/01/26 18:04:28  laurentg
 // Locking and unlocking the overlay and not the overlay back buffer when taking stills
 //
@@ -656,7 +659,8 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                     else
                     {
                         // we have an progressive source
-                        // don't know what to do with this yet
+                        SetProgressiveMode(TRUE);
+                        CurrentMethod = GetCurrentDeintMethod();
                     }
                 }
 
@@ -782,7 +786,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                             // the odd and even flags may help the scaled bob
                             // on some cards
                             DWORD FlipFlag = (WaitForFlip)?DDFLIP_WAIT:DDFLIP_DONOTWAIT;
-                            if(CurrentMethod->nMethodIndex == INDEX_SCALER_BOB)
+                            if((CurrentMethod != NULL) && (CurrentMethod->nMethodIndex == INDEX_SCALER_BOB))
                             {
                                 if(Info.PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD)
                                 {
@@ -796,7 +800,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
                             // Need to wait for a good time to flip
                             // only if we have been in the same Mode for at least one flip
-                            if(Info.bDoAccurateFlips && PrevDeintMethod == CurrentMethod)
+                            if(Info.bDoAccurateFlips && CurrentMethod != NULL && PrevDeintMethod == CurrentMethod)
                             {
                                 Timing_WaitForTimeToFlip(&Info, CurrentMethod, &bStopThread);
                             }

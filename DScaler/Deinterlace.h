@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.h,v 1.13 2001-12-16 13:13:34 laurentg Exp $
+// $Id: Deinterlace.h,v 1.14 2002-02-10 21:42:29 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -76,9 +76,11 @@ DEINTERLACE_METHOD* GetVideoDeintIndex(int Index);
 DEINTERLACE_METHOD* GetFilmDeintMethod(eFilmPulldownMode Mode);
 BOOL ProcessDeinterlaceSelection(HWND hWnd, WORD wMenuID);
 
+BOOL IsProgressiveMode();
 BOOL IsFilmMode();
 eFilmPulldownMode GetFilmMode();
 BOOL InHalfHeightMode();
+void SetProgressiveMode(BOOL Mode);
 void SetFilmDeinterlaceMode(eFilmPulldownMode Mode);
 void SetVideoDeinterlaceIndex(int index);
 void ShowVideoModeUI();

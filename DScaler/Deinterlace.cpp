@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.cpp,v 1.30 2001-12-18 14:45:05 adcockj Exp $
+// $Id: Deinterlace.cpp,v 1.31 2002-02-10 21:42:29 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2001/12/18 14:45:05  adcockj
+// Moved to Common Controls status bar
+//
 // Revision 1.29  2001/12/16 13:13:34  laurentg
 // New statistics
 //
@@ -190,9 +193,15 @@ BOOL bIsFilmMode = FALSE;
 long gVideoPulldownMode = 0;
 eFilmPulldownMode gFilmPulldownMode = FILMPULLDOWNMODES_LAST_ONE;
 
+BOOL bIsProgressiveMode = FALSE;
+
 DEINTERLACE_METHOD* GetCurrentDeintMethod()
 {
-    if(bIsFilmMode)
+    if(bIsProgressiveMode)
+    {
+        return NULL;
+    }
+    else if(bIsFilmMode)
     {
         return FilmDeintMethods + gFilmPulldownMode;
     }
@@ -240,6 +249,10 @@ DEINTERLACE_METHOD* GetFilmDeintMethod(eFilmPulldownMode Mode)
     }
 }
 
+BOOL IsProgressiveMode()
+{
+    return bIsProgressiveMode;
+}
 
 BOOL IsFilmMode()
 {
@@ -248,7 +261,7 @@ BOOL IsFilmMode()
 
 BOOL InHalfHeightMode()
 {
-    if(bIsFilmMode)
+    if(bIsFilmMode || bIsProgressiveMode)
     {
         return FALSE;
     }
@@ -260,6 +273,10 @@ BOOL InHalfHeightMode()
 
 void ShowVideoModeUI()
 {
+    if(bIsFilmMode || bIsProgressiveMode)
+    {
+        return;
+    }
     if(VideoDeintMethods[gVideoPulldownMode]->pfnPluginShowUI != NULL)
     {
         VideoDeintMethods[gVideoPulldownMode]->pfnPluginShowUI(hWnd);
@@ -286,9 +303,14 @@ eFilmPulldownMode GetFilmMode()
     }
 }
 
+void SetProgressiveMode(BOOL Mode)
+{
+    bIsProgressiveMode = Mode;
+}
+
 void SetFilmDeinterlaceMode(eFilmPulldownMode Mode)
 {
-    if (gFilmPulldownMode != Mode || bIsFilmMode == FALSE)
+    if (!bIsProgressiveMode && (gFilmPulldownMode != Mode || bIsFilmMode == FALSE))
     {
         DWORD CurrentTickCount = GetTickCount();
         BOOL WereInHalfHeight = InHalfHeightMode();
@@ -324,7 +346,7 @@ void SetFilmDeinterlaceMode(eFilmPulldownMode Mode)
 
 void SetVideoDeinterlaceMode(int Mode)
 {
-    if (gVideoPulldownMode != Mode || bIsFilmMode == TRUE)
+    if (!bIsProgressiveMode && (gVideoPulldownMode != Mode || bIsFilmMode == TRUE))
     {
         DWORD CurrentTickCount = GetTickCount();
         BOOL WereInHalfHeight = InHalfHeightMode();
@@ -375,7 +397,11 @@ void SetVideoDeinterlaceIndex(int index)
 
 char* GetDeinterlaceModeName()
 {
-    if(bIsFilmMode)
+    if(bIsProgressiveMode)
+    {
+        return "Progressive Scan";
+    }
+    else if(bIsFilmMode)
     {
         return FilmDeintMethods[gFilmPulldownMode].szName;
     }
@@ -387,6 +413,7 @@ char* GetDeinterlaceModeName()
 
 void PrepareDeinterlaceMode()
 {
+    bIsProgressiveMode = FALSE;
     bIsFilmMode = FALSE;
     eVideoFormat VideoFormat(Providers_GetCurrentSource()->GetFormat());
 
@@ -408,7 +435,11 @@ void PrepareDeinterlaceMode()
 void IncrementDeinterlaceMode()
 {
     long Mode;
-    if(bIsFilmMode)
+    if(bIsProgressiveMode)
+    {
+        return;
+    }
+    else if(bIsFilmMode)
     {
         Mode = gFilmPulldownMode;
         Mode++;
@@ -439,7 +470,11 @@ void IncrementDeinterlaceMode()
 void DecrementDeinterlaceMode()
 {
     long Mode;
-    if(bIsFilmMode)
+    if(bIsProgressiveMode)
+    {
+        return;
+    }
+    else if(bIsFilmMode)
     {
         Mode = gFilmPulldownMode;
         Mode--;
@@ -472,6 +507,11 @@ BOOL ProcessDeinterlaceSelection(HWND hWnd, WORD wMenuID)
     int     nDeinterlaceIndex = 0;
     int     bFound = FALSE;
     int     i;
+
+    if(bIsProgressiveMode)
+    {
+        return FALSE;
+    }
 
     if(wMenuID >= IDM_FIRST_DEINTMETHOD && wMenuID <= IDM_LAST_DEINTMETHOD)
     {
@@ -764,8 +804,23 @@ void Deinterlace_SetMenu(HMENU hMenu)
 {
     int i;
 
-    if(bIsFilmMode)
+    EnableMenuItem(hMenu, IDM_SHOWPLUGINUI, bIsFilmMode || bIsProgressiveMode ? MF_GRAYED : MF_ENABLED);
+
+    EnableMenuItem(hMenu, IDM_PROGRESSIVE_SCAN, bIsProgressiveMode ? MF_ENABLED : MF_GRAYED);
+    CheckMenuItemBool(hMenu, IDM_PROGRESSIVE_SCAN, bIsProgressiveMode);
+
+    EnableMenuItem(hMenu, IDM_FILM_MODE, bIsProgressiveMode ? MF_GRAYED : MF_ENABLED);
+    EnableMenuItem(hMenu, IDM_22PULLODD, bIsProgressiveMode ? MF_GRAYED : MF_ENABLED);
+    EnableMenuItem(hMenu, IDM_22PULLEVEN, bIsProgressiveMode ? MF_GRAYED : MF_ENABLED);
+    EnableMenuItem(hMenu, IDM_32PULL1, bIsProgressiveMode ? MF_GRAYED : MF_ENABLED);
+    EnableMenuItem(hMenu, IDM_32PULL2, bIsProgressiveMode ? MF_GRAYED : MF_ENABLED);
+    EnableMenuItem(hMenu, IDM_32PULL3, bIsProgressiveMode ? MF_GRAYED : MF_ENABLED);
+    EnableMenuItem(hMenu, IDM_32PULL4, bIsProgressiveMode ? MF_GRAYED : MF_ENABLED);
+    EnableMenuItem(hMenu, IDM_32PULL5, bIsProgressiveMode ? MF_GRAYED : MF_ENABLED);
+
+    if(bIsFilmMode && !bIsProgressiveMode)
     {
+        CheckMenuItemBool(hMenu, IDM_FILM_MODE, bIsFilmMode);
         CheckMenuItemBool(hMenu, IDM_22PULLODD, (gFilmPulldownMode == FILM_22_PULLDOWN_ODD) );
         CheckMenuItemBool(hMenu, IDM_22PULLEVEN, (gFilmPulldownMode == FILM_22_PULLDOWN_EVEN) );
         CheckMenuItemBool(hMenu, IDM_32PULL1, (gFilmPulldownMode == FILM_32_PULLDOWN_0) );
@@ -776,6 +831,7 @@ void Deinterlace_SetMenu(HMENU hMenu)
     }
     else
     {
+        CheckMenuItem(hMenu, IDM_FILM_MODE, MF_UNCHECKED);
         CheckMenuItem(hMenu, IDM_22PULLODD, MF_UNCHECKED);
         CheckMenuItem(hMenu, IDM_22PULLEVEN, MF_UNCHECKED);
         CheckMenuItem(hMenu, IDM_32PULL1, MF_UNCHECKED);
@@ -787,8 +843,9 @@ void Deinterlace_SetMenu(HMENU hMenu)
 
     for(i = 0; i < NumVideoModes; i++)
     {
+        EnableMenuItem(hMenu, VideoDeintMethods[i]->MenuId, bIsProgressiveMode ? MF_GRAYED : MF_ENABLED);
         // don't put a video tick if we are in a manually selected film mode
-        if(!bIsFilmMode || (Setting_GetValue(OutThreads_GetSetting(AUTODETECT)) == TRUE))
+        if(!bIsProgressiveMode && (!bIsFilmMode || (Setting_GetValue(OutThreads_GetSetting(AUTODETECT)) == TRUE)))
         {
             CheckMenuItemBool(hMenu, VideoDeintMethods[i]->MenuId, (gVideoPulldownMode == i));
         }

@@ -870,6 +870,8 @@
 #define IDM_CALIBR_SETTINGS             2307
 #define IDM_OSD_SETTINGS                2308
 #define IDM_SHOW_PATTERNS               2309
+#define IDM_PROGRESSIVE_SCAN            2310
+#define IDM_FILM_MODE                   2311
 #define IDC_STATIC                      -1
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
@@ -891,7 +893,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        188
-#define _APS_NEXT_COMMAND_VALUE         2310
+#define _APS_NEXT_COMMAND_VALUE         2312
 #define _APS_NEXT_CONTROL_VALUE         1895
 #define _APS_NEXT_SYMED_VALUE           2274
 #endif

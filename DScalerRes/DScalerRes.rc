@@ -892,6 +892,8 @@ BEGIN
             MENUITEM SEPARATOR
             MENUITEM "Show Video Method &UI",       IDM_SHOWPLUGINUI
             MENUITEM SEPARATOR
+            MENUITEM "Progressive Scan",            IDM_PROGRESSIVE_SCAN
+            MENUITEM "Film Mode",                   IDM_FILM_MODE
         END
         MENUITEM "Select &Filters",             IDM_SHOW_SCREEN
         MENUITEM "Filter &Settings",            IDM_SHOW_SCREEN

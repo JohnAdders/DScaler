@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_WSSdecode.cpp,v 1.6 2001-07-13 16:14:56 adcockj Exp $
+// $Id: VBI_WSSdecode.cpp,v 1.7 2001-08-02 16:43:05 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2001/07/13 16:14:56  adcockj
+// Changed lots of variables to match Coding standards
+//
 // Revision 1.5  2001/07/12 16:16:40  adcockj
 // Added CVS Id and Log
 //
@@ -167,7 +170,7 @@ static BOOL WSS625_DecodeLine(BYTE* vbiline)
 
     if (Threshold < WSS625_MIN_THRESHOLD)
     {
-//      LOG("WSS signal threshold too low (%x)", Threshold);
+//      LOG(3, "WSS signal threshold too low (%x)", Threshold);
         return FALSE;
     }
 
@@ -182,19 +185,19 @@ static BOOL WSS625_DecodeLine(BYTE* vbiline)
             continue;
 
         StartPos = i;
-//      LOG("WSS decoding at start position = %d", StartPos);
+//      LOG(3, "WSS decoding at start position = %d", StartPos);
 
         // run-in code decoding
         k = 0;
         if (decode_sequence (vbiline + i + offsets[k], WSS625_runin, WSS625_RUNIN_CODE_LENGTH, Threshold, &offsets[k]))
         {
-//          LOG("WSS run-in code detected (start pos = %d, Threshold = %x)", i, Threshold);
+//          LOG(3, "WSS run-in code detected (start pos = %d, Threshold = %x)", i, Threshold);
             k += WSS625_RUNIN_CODE_LENGTH;
 
             // Start code decoding
             if (decode_sequence (vbiline + i + offsets[k], WSS625_start, WSS625_START_CODE_LENGTH, Threshold, &offsets[k]))
             {
-//              LOG("WSS start code detected");
+//              LOG(3, "WSS start code detected");
                 k += WSS625_START_CODE_LENGTH;
 
                 // Data bits decoding
@@ -205,18 +208,18 @@ static BOOL WSS625_DecodeLine(BYTE* vbiline)
                     {
                         bits[j] = 0;
                         nb++;
-//                      LOG("WSS b%d = 0 (start pos = %d, Threshold = %x)", j, i, Threshold);
+//                      LOG(3, "WSS b%d = 0 (start pos = %d, Threshold = %x)", j, i, Threshold);
                     }
                     else if (decode_sequence (vbiline + i + offsets[k], WSS625_1, WSS625_DATA_BIT_LENGTH, Threshold, &offsets[k]))
                     {
                         bits[j] = 1;
                         nb++;
-//                      LOG("WSS b%d = 1 (start pos = %d, Threshold = %x)", j, i, Threshold);
+//                      LOG(3, "WSS b%d = 1 (start pos = %d, Threshold = %x)", j, i, Threshold);
                     }
                     else
                     {
                         bits[j] = -1;
-//                      LOG("WSS b%d = ?", j);
+//                      LOG(3, "WSS b%d = ?", j);
                     }
                     k += WSS625_DATA_BIT_LENGTH;
                 }
@@ -232,17 +235,17 @@ static BOOL WSS625_DecodeLine(BYTE* vbiline)
 
     if (DecodeOk)
     {
-//      LOG("WSS decode OK start pos = %d, Threshold = %x", StartPos, Threshold);
+//      LOG(3, "WSS decode OK start pos = %d, Threshold = %x", StartPos, Threshold);
 //      k = WSS625_RUNIN_CODE_LENGTH + WSS625_START_CODE_LENGTH;
 //      for (i = 0 ; i < WSS625_NB_DATA_BITS ; i++)
 //      {
 //          for (j = 0 ; j < WSS625_DATA_BIT_LENGTH ; j++)
 //          {
 //              int pos = StartPos + offsets[k];
-//              LOG("WSS bit b%d => %x %x %x %x %x %x %x", i, vbiline[pos], vbiline[pos+1], vbiline[pos+2], vbiline[pos+3], vbiline[pos+4], vbiline[pos+5], vbiline[pos+6]);
+//              LOG(3, "WSS bit b%d => %x %x %x %x %x %x %x", i, vbiline[pos], vbiline[pos+1], vbiline[pos+2], vbiline[pos+3], vbiline[pos+4], vbiline[pos+5], vbiline[pos+6]);
 //              k++;
 //          }
-//          LOG("WSS bit b%d = %d", i, bits[i]);
+//          LOG(3, "WSS bit b%d = %d", i, bits[i]);
 //      }
 
         // Decoding statistics
@@ -298,12 +301,12 @@ static BOOL WSS625_DecodeLine(BYTE* vbiline)
     }
 //  else
 //  {
-//      LOG("WSS decode ERROR Threshold = %x", Threshold);
+//      LOG(3, "WSS decode ERROR Threshold = %x", Threshold);
 //      StartPos = 0;
 //      for (j = 0 ; j < 250 ; j++)
 //      {
 //          k = StartPos + j * 7;
-//          LOG("WSS pos = %d : %x %x %x %x %x %x %x", k, vbiline[k], vbiline[k + 1], vbiline[k + 2], vbiline[k + 3], vbiline[k + 4], vbiline[k + 5], vbiline[k + 6]);
+//          LOG(3, "WSS pos = %d : %x %x %x %x %x %x %x", k, vbiline[k], vbiline[k + 1], vbiline[k + 2], vbiline[k + 3], vbiline[k + 4], vbiline[k + 5], vbiline[k + 6]);
 //      }
 //  }
 

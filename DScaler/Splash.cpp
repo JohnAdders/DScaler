@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Splash.cpp,v 1.5 2001-07-12 16:16:40 adcockj Exp $
+// $Id: Splash.cpp,v 1.6 2001-08-02 16:43:05 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/07/12 16:16:40  adcockj
+// Added CVS Id and Log
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -121,5 +124,5 @@ void AddSplashTextLine(const char* szText)
         InvalidateRect(GetDlgItem(SplashWnd, IDC_LIST1), NULL, TRUE);
         Sleep(20);
     }
-    LOG(szText);
+    LOG(1, szText);
 }

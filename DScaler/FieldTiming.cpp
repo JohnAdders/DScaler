@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FieldTiming.cpp,v 1.14 2001-07-28 13:24:40 adcockj Exp $
+// $Id: FieldTiming.cpp,v 1.15 2001-08-02 16:43:05 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2001/07/28 13:24:40  adcockj
+// Added UI for Overlay Controls and fixed issues with SettingsDlg
+//
 // Revision 1.13  2001/07/16 18:07:50  adcockj
 // Added Optimisation parameter to ini file saving
 //
@@ -112,13 +115,13 @@ void UpdateRunningAverage(LARGE_INTEGER* pNewFieldTime)
             // especially that we don't need to keep a 
             // data history
             RunningAverageCounterTicks = Weight * RecentTicks + (1.0 - Weight) * RunningAverageCounterTicks;
-            LOG(" Last %f", RecentTicks);
-            LOG(" Running Average %f", RunningAverageCounterTicks);
+            LOG(2, " Last %f", RecentTicks);
+            LOG(2, " Running Average %f", RunningAverageCounterTicks);
         }
         else
         {
-            LOG(" Last %f (IGNORED)", RecentTicks);
-            LOG(" Old Running Average %f", RunningAverageCounterTicks);
+            LOG(2, " Last %f (IGNORED)", RecentTicks);
+            LOG(2, " Old Running Average %f", RunningAverageCounterTicks);
         }
     }
     // save current Value for next time
@@ -196,7 +199,7 @@ void Timing_WaitForNextFieldNormal(DEINTERLACE_INFO* pInfo)
         memset(pInfo->OddLines, 0, MAX_FIELD_HISTORY * sizeof(short**));
         pInfo->bMissedFrame = TRUE;
         nDroppedFields += Diff - 1;
-        LOG(" Dropped Frame");
+        LOG(2, " Dropped Frame");
     }
     else
     {
@@ -204,7 +207,7 @@ void Timing_WaitForNextFieldNormal(DEINTERLACE_INFO* pInfo)
         if (pInfo->bRunningLate)
         {
             nDroppedFields++;
-            LOG("Running Late");
+            LOG(2, "Running Late");
         }
     }
 
@@ -242,13 +245,13 @@ void Timing_WaitForNextFieldAccurate(DEINTERLACE_INFO* pInfo)
     {
         NewPos = (OldPos + 1) % 10;
         FlipAdjust = TRUE;
-        //LOG(" Slightly late");
+        LOG(2, " Slightly late");
     }
     else if(Diff == 3) 
     {
         NewPos = (OldPos + 1) % 10;
         FlipAdjust = TRUE;
-        //LOG(" Very late");
+        LOG(2, " Very late");
     }
     else
     {
@@ -257,7 +260,7 @@ void Timing_WaitForNextFieldAccurate(DEINTERLACE_INFO* pInfo)
         memset(pInfo->OddLines, 0, MAX_FIELD_HISTORY * sizeof(short**));
         pInfo->bMissedFrame = TRUE;
         nDroppedFields += Diff - 1;
-        LOG(" Dropped Frame");
+        LOG(1, " Dropped Frame");
         Timing_Reset();
     }
 
@@ -334,7 +337,7 @@ void Timing_WaitForNextField(DEINTERLACE_INFO* pInfo)
                     if(RepeatCount > FormatChangeThreshold)
                     {
                         PostMessage(hWnd, WM_COMMAND, IDM_TYPEFORMAT_0 + FiftyHzFormat, 0);
-                        LOG("Went to 50Hz Mode - Last Ten Count %d", TenFieldTime);
+                        LOG(1, "Went to 50Hz Mode - Last Ten Count %d", TenFieldTime);
                     }
                 }
                 // If we are not on a 60Hz Mode and we get 60hz timings then flip
@@ -347,7 +350,7 @@ void Timing_WaitForNextField(DEINTERLACE_INFO* pInfo)
                     if(RepeatCount > FormatChangeThreshold)
                     {
                         PostMessage(hWnd, WM_COMMAND, IDM_TYPEFORMAT_0 + SixtyHzFormat, 0);
-                        LOG("Went to 60Hz Mode - Last Ten Count %d", TenFieldTime);
+                        LOG(1, "Went to 60Hz Mode - Last Ten Count %d", TenFieldTime);
                     }
                 }
                 // If we are not on a 60Hz Mode and we get 60hz timings then flip
@@ -360,7 +363,7 @@ void Timing_WaitForNextField(DEINTERLACE_INFO* pInfo)
                     if(RepeatCount > FormatChangeThreshold)
                     {
                         PostMessage(hWnd, WM_COMMAND, IDM_TYPEFORMAT_0 + SixtyHzFormat, 0);
-                        LOG("Went to 60Hz Mode - Last Ten Count %d", TenFieldTime);
+                        LOG(1, "Went to 60Hz Mode - Last Ten Count %d", TenFieldTime);
                     }
                 }
                 else

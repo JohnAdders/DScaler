@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.29 2001-07-30 12:18:14 adcockj Exp $
+// $Id: DS_Control.h,v 1.30 2001-08-02 16:43:05 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2001/07/30 12:18:14  adcockj
+// Added new OldGame plug-in
+//
 // Revision 1.28  2001/07/27 16:11:31  adcockj
 // Added support for new Crash dialog
 //
@@ -783,6 +786,7 @@ typedef enum
 typedef enum
 {
     DEBUGLOG = 0,
+    DEBUGLEVEL,
     DEBUG_SETTING_LASTONE,
 } DEBUG_SETTING;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_60Hz.cpp,v 1.14 2001-07-16 18:07:50 adcockj Exp $
+// $Id: FD_60Hz.cpp,v 1.15 2001-08-02 16:43:05 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -42,6 +42,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2001/07/16 18:07:50  adcockj
+// Added Optimisation parameter to ini file saving
+//
 // Revision 1.13  2001/07/13 16:14:56  adcockj
 // Changed lots of variables to match Coding standards
 //
@@ -210,7 +213,7 @@ void UpdateNTSCPulldownMode(DEINTERLACE_INFO* pInfo)
                 // in switching to video source everytime there is
                 // video noise or a single spurious field added/dropped
                 // during a movie causing mis-synchronization problems. 
-                LOG(" Back to Video, No field pairs");
+                LOG(2, " Back to Video, No field pairs");
                 SetVideoDeinterlaceIndex(gNTSCFilmFallbackIndex);
                 MOVIE_VERIFY_CYCLE = 0;
                 MOVIE_FIELD_CYCLE = 0;
@@ -231,7 +234,7 @@ void UpdateNTSCPulldownMode(DEINTERLACE_INFO* pInfo)
                     {
                         SwitchToVideo = TRUE;
                         NextPulldownRepeatCount = 1;
-                        LOG(" Back to Video, comb factor %d", pInfo->CombFactor);
+                        LOG(2, " Back to Video, comb factor %d", pInfo->CombFactor);
                         SetVideoDeinterlaceIndex(gNTSCFilmFallbackIndex);
                         MOVIE_VERIFY_CYCLE = 0;
                         MOVIE_FIELD_CYCLE = 0;
@@ -246,7 +249,7 @@ void UpdateNTSCPulldownMode(DEINTERLACE_INFO* pInfo)
                         MOVIE_VERIFY_CYCLE = PulldownRepeatCount;
                         NextPulldownRepeatCount = 0;
                         LastFilmMode = FILM_32_PULLDOWN_COMB;
-                        LOG(" Gone to Comb Method, comb factor %d", pInfo->CombFactor);
+                        LOG(2, " Gone to Comb Method, comb factor %d", pInfo->CombFactor);
                     }
                     MISMATCH_COUNT++;
                 }
@@ -297,7 +300,7 @@ void UpdateNTSCPulldownMode(DEINTERLACE_INFO* pInfo)
 
                     if (OldPulldownMethod != GetCurrentDeintMethod())
                     {
-                        LOG("Gone to film Mode %d", NewFilmMode - FILM_32_PULLDOWN_0); 
+                        LOG(2, "Gone to film Mode %d", NewFilmMode - FILM_32_PULLDOWN_0); 
                         // A Mode switch.  If we've done a lot of them recently,
                         // force video Mode since it means we're having trouble
                         // locking onto a reliable film Mode.   
@@ -327,7 +330,7 @@ void UpdateNTSCPulldownMode(DEINTERLACE_INFO* pInfo)
                                 SetVideoDeinterlaceIndex(gNTSCFilmFallbackIndex);
                                 MOVIE_VERIFY_CYCLE = 0;
                                 MOVIE_FIELD_CYCLE = 0;
-                                LOG(" Too much film Mode cycling, switching to video");
+                                LOG(2, " Too much film Mode cycling, switching to video");
                                 
                                 // Require pulldown Mode to be consistent for the
                                 // rapid-Mode-switch interval before we'll lock onto
@@ -345,7 +348,7 @@ void UpdateNTSCPulldownMode(DEINTERLACE_INFO* pInfo)
                             }
                             else
                             {
-                                LOG(" Rapid Cycling");
+                                LOG(2, " Rapid Cycling");
                             }
                         }
                     }
@@ -360,7 +363,7 @@ void UpdateNTSCPulldownMode(DEINTERLACE_INFO* pInfo)
                     // pulldown and not a false alarm
                     //
                     MOVIE_VERIFY_CYCLE++;
-                    LOG(" Found Pulldown Match");
+                    LOG(2, " Found Pulldown Match");
                 }
                 LastFilmMode = NewFilmMode;
             }
@@ -376,7 +379,7 @@ void UpdateNTSCPulldownMode(DEINTERLACE_INFO* pInfo)
                             SetVideoDeinterlaceIndex(gNTSCFilmFallbackIndex);
                             MOVIE_VERIFY_CYCLE = 0;
                             MOVIE_FIELD_CYCLE = 0;
-                            LOG(" Too much film Mode cycling, switching to video");
+                            LOG(2, " Too much film Mode cycling, switching to video");
                             NextPulldownRepeatCount = PulldownRepeatCount * 2;
                         }
                     }
@@ -389,13 +392,13 @@ void UpdateNTSCPulldownMode(DEINTERLACE_INFO* pInfo)
                 else
                 {
                     SetFilmDeinterlaceMode(NewFilmMode);
-                    LOG("Gone to film Mode %d", NewFilmMode - FILM_32_PULLDOWN_0); 
+                    LOG(2, "Gone to film Mode %d", NewFilmMode - FILM_32_PULLDOWN_0); 
                     if(TrackModeSwitches())
                     {
                         SetVideoDeinterlaceIndex(gNTSCFilmFallbackIndex);
                         MOVIE_VERIFY_CYCLE = 0;
                         MOVIE_FIELD_CYCLE = 0;
-                        LOG(" Too much film Mode cycling, switching to video");
+                        LOG(2, " Too much film Mode cycling, switching to video");
                         NextPulldownRepeatCount = PulldownRepeatCount * 2;
                     }
                     LastFilmMode = NewFilmMode;
@@ -571,7 +574,7 @@ BOOL FilmModeNTSCComb(DEINTERLACE_INFO* pInfo)
     if(NumCalls > MaxCallsToComb)
     {
         SetVideoDeinterlaceIndex(gNTSCFilmFallbackIndex);
-        LOG(" Gone back to video from Comb");
+        LOG(2, " Gone back to video from Comb");
     }
     // if we can weave these frames together without too
     // much weaving or because there is no motion then go ahead
@@ -580,7 +583,7 @@ BOOL FilmModeNTSCComb(DEINTERLACE_INFO* pInfo)
     {
         NumSkipped = 0;
         LastComb = pInfo->CombFactor;
-        LOG(" Weaved in Comb Mode");
+        LOG(2, " Weaved in Comb Mode");
         return Weave(pInfo);
     }
     else
@@ -591,12 +594,12 @@ BOOL FilmModeNTSCComb(DEINTERLACE_INFO* pInfo)
         ++NumSkipped;
         if(NumSkipped > 2)
         {
-            LOG(" Had too many skipped frames, had to use video method");
+            LOG(2, " Had too many skipped frames, had to use video method");
             ++NumVideo;
             if(NumVideo > 2)
             {
                 SetVideoDeinterlaceIndex(gNTSCFilmFallbackIndex);
-                LOG(" Gone back to video from Comb");
+                LOG(2, " Gone back to video from Comb");
             }
             LastComb = 0;
             return GetVideoDeintIndex(gNTSCFilmFallbackIndex)->pfnAlgorithm(pInfo);

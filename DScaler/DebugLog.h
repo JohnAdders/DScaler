@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DebugLog.h,v 1.8 2001-07-16 18:07:50 adcockj Exp $
+// $Id: DebugLog.h,v 1.9 2001-08-02 16:43:05 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,14 +34,15 @@ void Debug_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void Debug_ShowUI();
 
 #if !defined(NOLOGGING)
-void LOG(LPCSTR format, ...);
-void LOGD(LPCSTR format, ...);
-
+void LOG(int DebugLevel, LPCSTR format, ...);
 #else
-
 #define LOG 
-#define LOGD
+#endif
 
+#if defined(_DEBUG)
+void LOGD(LPCSTR format, ...);
+#else
+#define LOGD
 #endif
 
 #endif

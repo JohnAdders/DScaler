@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectDetect.cpp,v 1.9 2001-07-13 16:14:55 adcockj Exp $
+// $Id: AspectDetect.cpp,v 1.10 2001-08-02 16:43:05 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -39,6 +39,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2001/07/13 16:14:55  adcockj
+// Changed lots of variables to match Coding standards
+//
 // Revision 1.8  2001/07/12 16:16:39  adcockj
 // Added CVS Id and Log
 //
@@ -98,7 +101,7 @@ void SwitchToRatio(int nMode, int nRatio)
     // Update aspect ratio only if a positive one is specified
     if (nRatio > 0)
     {
-        LOG(" Switching to ratio %d", nRatio);
+        LOG(1, " Switching to ratio %d", nRatio);
 
         // If the most recent ratio switch just happened, don't remember it since it
         // was probably a transient ratio due to improperly locking onto a dark scene.
@@ -217,11 +220,11 @@ BlackLoop:
     // Log the offending pixels
     if (counts > 0) {
         int x;
-        LOG("Count %d min %d max %d lumthresh %d", counts, chromaMin, chromaMax, threshold);
+        LOG(3, "Count %d min %d max %d lumthresh %d", counts, chromaMin, chromaMax, threshold);
         for (x = 0; x < qwordCount * 4; x++) {
             if ((Line[x] & 0xff) > threshold || ((((Line[x] & 0xff00) >> 8) - chromaMin) & 0xff) > chromaMax)
             {
-                LOG("pixel %d lum %d chrom %d", x, Line[x] & 0xff, (Line[x] & 0xff00) >> 8);
+                LOG(3, "pixel %d lum %d chrom %d", x, Line[x] & 0xff, (Line[x] & 0xff00) >> 8);
             }
         }
     }
@@ -265,7 +268,7 @@ int FindEdgeOfImage(short** EvenField, short** OddField, int direction)
         pixelCount = GetNonBlackCount(line, skipCount, CurrentX - skipCount * 2);
         if (pixelCount > 0)
         {
-            LOG("FindEdgeOfImage line %d Count %d", y, pixelCount);
+            LOG(3, "FindEdgeOfImage line %d Count %d", y, pixelCount);
         }
 
         if (pixelCount > AspectSettings.IgnoreNonBlackPixels)
@@ -273,7 +276,7 @@ int FindEdgeOfImage(short** EvenField, short** OddField, int direction)
 
         if (y < 0 || y > CurrentY)
         {
-            LOG("Sanity check failed; scanned past edge of screen");
+            LOG(2, "Sanity check failed; scanned past edge of screen");
             y = (direction > 0) ? AspectSettings.InitialOverscan : CurrentY - AspectSettings.InitialOverscan;
             break;
         }
@@ -315,7 +318,7 @@ int FindAspectRatio(short** EvenField, short** OddField)
     // We compute effective width from height using the source-frame aspect ratio, since
     // this will change depending on whether or not the image is anamorphic.
     ratio = (int)((imageHeight * 1000) * GetActualSourceFrameAspect() / (imageHeight - border * 2));
-    LOG(" top %d bot %d bord %d rat %d", topBorder, bottomBorder, border, ratio);
+    LOG(2, " top %d bot %d bord %d rat %d", topBorder, bottomBorder, border, ratio);
 
     return ratio;
 }

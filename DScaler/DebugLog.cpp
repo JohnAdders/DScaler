@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DebugLog.cpp,v 1.10 2001-07-16 18:07:50 adcockj Exp $
+// $Id: DebugLog.cpp,v 1.11 2001-08-02 16:43:05 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2001/07/16 18:07:50  adcockj
+// Added Optimisation parameter to ini file saving
+//
 // Revision 1.9  2001/07/13 16:14:56  adcockj
 // Changed lots of variables to match Coding standards
 //
@@ -39,11 +42,12 @@
 
 static FILE* debugLog = NULL;
 char DebugLogFilename[MAX_PATH] = "DScaler.txt";
-boolean DebugLogEnabled = FALSE;
+BOOL DebugLogEnabled = FALSE;
+long gDebugLogLevel = 1;
 
 #if !defined(NOLOGGING)
 
-void LOG(LPCSTR Format, ...)
+void LOG(int DebugLevel, LPCSTR Format, ...)
 {
     DWORD SysTime;
     struct _timeb TimeB;
@@ -52,7 +56,14 @@ void LOG(LPCSTR Format, ...)
     va_list Args;
 
     if (DebugLogEnabled == FALSE)
+    {
         return;
+    }
+
+    if (DebugLevel > gDebugLogLevel)
+    {
+        return;
+    }
 
     if (debugLog == NULL)
         debugLog = fopen(DebugLogFilename, "w");
@@ -98,6 +109,12 @@ SETTING DebugSettings[DEBUG_SETTING_LASTONE] =
         FALSE, 0, 1, 1, 1,
         NULL,
         "Files", "DebugLogEnabled", NULL,
+    },
+    {
+        "Debug Level", SLIDER, 0, (long*)&gDebugLogLevel,
+        1, 0, 5, 1, 1,
+        NULL,
+        "Files", "DebugLevel", NULL,
     },
 };
 

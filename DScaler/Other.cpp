@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.11 2001-07-28 13:24:40 adcockj Exp $
+// $Id: Other.cpp,v 1.12 2001-08-02 16:43:05 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2001/07/28 13:24:40  adcockj
+// Added UI for Overlay Controls and fixed issues with SettingsDlg
+//
 // Revision 1.10  2001/07/27 12:30:09  adcockj
 // Added Overlay Color controls (Thanks to Muljadi Budiman)
 //
@@ -218,10 +221,10 @@ BOOL Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags)
                 PhysicalOverlayColor = Overlay_ColorMatch(lpDDSurface, OverlayColor);
                 if (PhysicalOverlayColor == 0)      // sometimes we glitch and can't get the Value
                 {
-                    LOG(" Physical overlay color is zero!  Retrying.");
+                    LOG(1, " Physical overlay color is zero!  Retrying.");
                     PhysicalOverlayColor = Overlay_ColorMatch(lpDDSurface, OverlayColor);
                 }
-                LOG(" Physical overlay color is %x", PhysicalOverlayColor);
+                LOG(1, " Physical overlay color is %x", PhysicalOverlayColor);
             }
             else
             {
@@ -259,12 +262,12 @@ BOOL Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags)
         {
             DDCOLORKEY ColorKey;
 
-            LOG(" Got unsupported error from Overlay Update");
+            LOG(1, " Got unsupported error from Overlay Update");
             ddrval = lpDDOverlay->GetColorKey(DDCKEY_DESTOVERLAY, &ColorKey);
             if(SUCCEEDED(ddrval))
             {
                 OverlayColor = ColorKey.dwColorSpaceHighValue;
-                LOG(" Reset overlay color to %x", OverlayColor);
+                LOG(1, " Reset overlay color to %x", OverlayColor);
             }
             dwFlags &= ~DDOVER_KEYDESTOVERRIDE;
             memset(&DDOverlayFX, 0x00, sizeof(DDOverlayFX));
@@ -521,7 +524,7 @@ BOOL Overlay_Create()
 
     sprintf(msg, "%d Back Buffers", numBuffers);
     AddSplashTextLine(msg);
-    LOG(msg);
+    LOG(1, msg);
 
     ddrval = lpDDOverlay->Lock(NULL, &SurfaceDesc, DDLOCK_WAIT, NULL);
     // sometimes in win98 we get weird error messages here

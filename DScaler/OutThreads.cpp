@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.29 2001-07-30 19:51:30 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.30 2001-08-02 16:43:05 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2001/07/30 19:51:30  laurentg
+// no message
+//
 // Revision 1.28  2001/07/29 22:51:09  laurentg
 // OSD screen for card calibration improved
 // Test patterns description added or corrected
@@ -451,7 +454,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     {
         if (lpDDOverlay == NULL || lpDDOverlayBack == NULL)
         {
-            LOG(" No Overlay surface Created");
+            LOG(1, " No Overlay surface Created");
             ExitThread(-1);
         }
 
@@ -601,7 +604,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         {
                             PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_STOP, 0);
                             PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_START, 0);
-                            LOG(" Falling out after LockOverlay");
+                            LOG(1, " Falling out after LockOverlay");
                             ExitThread(1);
                             return 0;
                         }
@@ -676,7 +679,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                 // if there is any exception thrown in the above then just carry on
                 __except (CrashHandler((EXCEPTION_POINTERS*)_exception_info())) 
                 { 
-                    LOG(" Crash in output code");
+                    LOG(1, " Crash in output code");
                 }
 
                 if (!Info.bRunningLate)
@@ -687,7 +690,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                     {
                         PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_STOP, 0);
                         PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_START, 0);
-                        LOG(" Falling out after Surface Unlock");
+                        LOG(1, " Falling out after Surface Unlock");
                         ExitThread(1);
                         return 0;
                     }
@@ -715,7 +718,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         {
                             PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_STOP, 0);
                             PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_START, 0);
-                            LOG(" Falling out after flip");
+                            LOG(1, " Falling out after flip");
                             ExitThread(1);
                             return 0;
                         }
@@ -762,7 +765,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     // if there is any exception thrown then exit the thread
     __except (CrashHandler((EXCEPTION_POINTERS*)_exception_info())) 
     { 
-        LOG(" Crash in OutThreads main loop");
+        LOG(1, " Crash in OutThreads main loop");
         ExitThread(1);
         return 0;
     }

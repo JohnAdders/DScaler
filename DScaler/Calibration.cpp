@@ -198,8 +198,8 @@ void CColorBar::CalcCurrentPixel(short **Lines, int height, int width)
 		V_val = 0;
 	}
 
-//	LOG("CalcCurrentPixel %d %d %d %d %d %d", height, width, left, right, top, bottom);
-//	LOG("CalcCurrentPixel %d %d %d", Y_val, U_val, V_val);
+//	LOG(5, "CalcCurrentPixel %d %d %d %d %d %d", height, width, left, right, top, bottom);
+//	LOG(5, "CalcCurrentPixel %d %d %d", Y_val, U_val, V_val);
 
 	YUV2RGB(Y_val, U_val, V_val, &R_val, &G_val, &B_val);
 }

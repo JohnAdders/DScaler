@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.51 2001-07-30 22:44:04 laurentg Exp $
+// $Id: DScaler.cpp,v 1.52 2001-08-02 16:43:05 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.51  2001/07/30 22:44:04  laurentg
+// Bug fixed concerning saturation V accelerator
+//
 // Revision 1.50  2001/07/28 13:24:40  adcockj
 // Added UI for Overlay Controls and fixed issues with SettingsDlg
 //
@@ -2137,76 +2140,76 @@ void MainWndOnDestroy()
     {
         KillTimers();
     }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG("Kill Timers");}
+    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Kill Timers");}
 
     // Kill timeshift before muting since it always exits unmuted on cleanup.
 	__try
 	{
-		LOG("Try TimeShift::OnDestroy");
+		LOG(1, "Try TimeShift::OnDestroy");
 
         TimeShift::OnDestroy();
 	}
-	__except(EXCEPTION_EXECUTE_HANDLER) {LOG("Error TimeShift::OnDestroy");}
+	__except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error TimeShift::OnDestroy");}
 
     __try
     {
-        LOG("Try Mute");
+        LOG(1, "Try Mute");
         Audio_Mute();
     }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG("Error Mute");}
+    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error Mute");}
 
     __try
     {
-        LOG("Try Stop_Capture");
+        LOG(1, "Try Stop_Capture");
         Stop_Capture();
     }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG("Error Stop_Capture");}
+    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error Stop_Capture");}
 
     __try
     {
-        LOG("Try CleanUpMemory");
+        LOG(1, "Try CleanUpMemory");
         CleanUpMemory();
     }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG("Error CleanUpMemory");}
+    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error CleanUpMemory");}
 
     __try
     {
         if(bIsFullScreen == FALSE)
         {
-            LOG("Try SaveWindowPos");
+            LOG(1, "Try SaveWindowPos");
             SaveWindowPos(hWnd);
         }
     }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG("Error SaveWindowPos");}
+    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error SaveWindowPos");}
     
     __try
     {
-        LOG("Try BT848_Close");
+        LOG(1, "Try BT848_Close");
         BT848_Close();
     }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG("Error BT848_Close");}
+    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error BT848_Close");}
 
     __try
     {
-        LOG("Try StatusBar_Destroy");
+        LOG(1, "Try StatusBar_Destroy");
         StatusBar_Destroy();
     }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG("Error StatusBar_Destroy");}
+    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error StatusBar_Destroy");}
     
     __try
     {
-        LOG("Try ExitDD");
+        LOG(1, "Try ExitDD");
         ExitDD();
     }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG("Error ExitDD");}
+    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error ExitDD");}
 
     __try
     {
         // save settings
-        LOG("WriteSettingsToIni");
+        LOG(1, "WriteSettingsToIni");
         WriteSettingsToIni(FALSE);
     }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG("Error WriteSettingsToIni");}
+    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error WriteSettingsToIni");}
 
     __try
     {
@@ -2214,7 +2217,7 @@ void MainWndOnDestroy()
         UnloadDeinterlacePlugins();
         UnloadFilterPlugins();
     }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG("Error Unload plug-ins");}
+    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error Unload plug-ins");}
 
 }
 

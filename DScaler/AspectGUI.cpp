@@ -805,13 +805,13 @@ SETTING AspectSettings[ASPECT_SETTING_LASTONE] =
 	},
 	{
 		"Auto Detect Aspect Sensitivity", SLIDER, 0, (long*)&aspectSettings.LuminanceThreshold,
-		30, 0, 127, 1, 1,
+		40, 0, 255, 1, 1,
 		NULL,
 		"ASPECT", "LuminanceThreshold", NULL,
 	},
 	{
 		"Ignore Non-Black Pixels", SLIDER, 0, (long*)&aspectSettings.IgnoreNonBlackPixels,
-		-1, -1, 100, 1, 1,
+		3, 0, 750, 1, 1,
 		NULL,
 		"ASPECT", "IgnoreNonBlackPixels", NULL,
 	},
@@ -924,10 +924,10 @@ SETTING AspectSettings[ASPECT_SETTING_LASTONE] =
 		"ASPECT", "AutoSizeWindow", NULL,
 	},
 	{
-		"Skip Pixels", SLIDER, 0, (long*)&aspectSettings.SkipPixels,
-		8, 1, 16, 1, 1,
+		"Skip Percentage", SLIDER, 0, (long*)&aspectSettings.SkipPercent,
+		17, 0, 49, 1, 1,
 		NULL,
-		"ASPECT", "SkipPixels", NULL,
+		"ASPECT", "SkipPercent", NULL,
 	},
 	{
 		"X Zoom Factor", NUMBER, 0, &aspectSettings.xZoomFactor,

@@ -107,7 +107,8 @@ void SwitchToRatio(int nMode, int nRatio)
 }
 
 //----------------------------------------------------------------------------
-// Scan the top of a letterboxed image to find out where the picture starts.
+// Scan the top or bottom of a letterboxed image to find out where the picture
+// starts.
 //
 // The basic idea is that we find a bounding rectangle for the image (which
 // is assumed to be centered in the overlay buffer, an assumption the aspect
@@ -116,107 +117,118 @@ void SwitchToRatio(int nMode, int nRatio)
 // pixels with luminance above a certain threshold.
 //
 // To support letterboxed movies shown on TV channels that put little channel
-// logos in the corner, we allow the user to configure a maximum number of
-// non-black pixels which will be ignored for purposes of the computation.
-// By default this is 15% of the horizontal capture resolution, which will
-// produce good results if the aspect ratio analysis is done on a bright scene.
+// logos in the corner, we allow the user to configure a percentage of the
+// image that will be ignored on either side.  We only look at pixels in the
+// middle of the image, so channel logos will be ignored.  The default is 15%.
+// This is in addition to any pixels we ignore due to the overscan setting.
 //
-// This function can almost certainly be made more efficient using MMX
-// instructions.
-int FindTopOfImage(short** EvenField, short **OddField)
+// For speed's sake, the code is a little sloppy at the moment; it always
+// looks at a multiple of 4 pixels.  It never looks at *more* pixels than are
+// requested, though.
+static inline int GetNonBlackCount(short *Line, int StartX, int EndX)
 {
-	int y, x;
-	int maxX = CurrentX - aspectSettings.InitialOverscan * 2;
-	int maxY = CurrentY / 2 - aspectSettings.InitialOverscan;
-	BYTE *pixel;
-	int ignoreCount = 0;
-	int ignoreCountPercent = aspectSettings.IgnoreNonBlackPixels;
-	int pixelCount;
-	const int BytesBetweenLuminanceValues = 2;	// just for clarity's sake
-	const int SkipPixels = aspectSettings.SkipPixels;	// check fewer pixels to reduce CPU hit
+	int qwordCount = (EndX - StartX) / 4;
+	int threshold;
+	int counts;
+	__int64 luminances;
+	const __int64 YMask = 0x00FF00FF00FF00FF;
+	const __int64 OneMask = 0x0001000100010001;
 
-	if (ignoreCountPercent == -1)
-	{
-		// The user didn't specify an ignore count.  Default to ~16%
-		// of the horizontal size of the image.
-		ignoreCountPercent = 16;
+	if (qwordCount <= 0)
+		return 0;
+
+	threshold = aspectSettings.LuminanceThreshold;
+	if (threshold > 255)
+		threshold = 255;
+
+	luminances = threshold;
+	luminances |= (luminances << 48) | (luminances << 32) | (luminances << 16);
+
+	// Start on a 16-byte boundary even if it means ignoring some extra
+	// pixels?  Try not doing it for now, but it could make memory access
+	// more efficient.
+
+	Line += StartX;
+
+	_asm {
+		mov		ecx, qwordCount
+		mov		eax, dword ptr[Line]
+		movq	mm1, YMask
+		movq	mm2, luminances
+		movq	mm3, OneMask
+		pxor	mm4, mm4			// mm3 = pixel counts, one count in each word
+
+BlackLoop:
+		movq	mm0, qword ptr[eax]
+		pand	mm0, mm1			// Mask off chroma
+		pcmpgtw	mm0, mm2			// How many pixels exceed threshold?
+		pand	mm0, mm3			// Translate that into 1 for exceed, 0 for not, in each word
+		paddw	mm4, mm0			// And add up the ones, maintaining four separate counts
+		add		eax, 8				// Next qword
+		loop	BlackLoop
+
+		// Now add up all four words in mm4 to get the total overall count.
+		pextrw	ebx, mm4, 0
+		pextrw	eax, mm4, 1
+		add		ebx, eax
+		pextrw	eax, mm4, 2
+		add		ebx, eax
+		pextrw	eax, mm4, 3
+		add		ebx, eax
+		mov		counts, ebx
+
+		emms
 	}
-	if (ignoreCountPercent > 0)
-	{
-		ignoreCount = CurrentX * ignoreCountPercent / SkipPixels / 100;
-		if (ignoreCount == 0)
-			ignoreCount = 1;
-	}
 
-	for (y = aspectSettings.InitialOverscan; y < maxY; y++)
-	{
-		if (y & 1)
-			pixel = (BYTE *)OddField[y / 2];
-		else
-			pixel = (BYTE *)EvenField[y / 2];
+	// if (counts > 0)	{ int x; for (x = 0; x < qwordCount * 4; x++) { LOG("pixel %d lum %d chrom %d", x, Line[x] & 0xff, (Line[x] & 0xff00) >> 8); } }
 
-		pixel += aspectSettings.InitialOverscan * BytesBetweenLuminanceValues;
-
-		pixelCount = -ignoreCount;
-		for (x = aspectSettings.InitialOverscan; x < maxX; x += SkipPixels)
-		{
-			if (((*pixel) & 0x7f) > aspectSettings.LuminanceThreshold)
-				pixelCount++;
-			pixel += BytesBetweenLuminanceValues * SkipPixels;
-		}
-
-		if (pixelCount > 0)
-			break;
-	}
-
-	return y;
+	return counts;
 }
 
-//----------------------------------------------------------------------------
-int FindBottomOfImage(short** EvenField, short** OddField)
+// direction is -1 to scan up from bottom of image, 1 to scan down from top.
+int FindEdgeOfImage(short** EvenField, short **OddField, int direction)
 {
-	int y, x;
-	int maxX = CurrentX - aspectSettings.InitialOverscan * 2;
-	int maxY = CurrentY - aspectSettings.InitialOverscan * 2;
-	BYTE *pixel;
-	int ignoreCount = 0;
-	int ignoreCountPercent = aspectSettings.IgnoreNonBlackPixels;
+	int y;
+	int maxY = CurrentY / 2 - aspectSettings.InitialOverscan;
+	int maxX;
+	short *line;
+	int skipCount = 0;
+	int skipCountPercent = aspectSettings.SkipPercent;
 	int pixelCount;
-	const int BytesBetweenLuminanceValues = 2;	// just for clarity's sake
-	const int SkipPixels = aspectSettings.SkipPixels;	// check fewer pixels to reduce CPU hit
 
-	if (ignoreCountPercent == -1)
+	skipCount = (CurrentX * aspectSettings.SkipPercent / 100) +
+				aspectSettings.InitialOverscan;
+	maxX = CurrentX - skipCount * 2;
+
+	// Decide whether we're scanning from the top or bottom
+	if (direction < 0)
 	{
-		// The user didn't specify an ignore count.  Default to ~16%
-		// of the horizontal size of the image.
-		ignoreCountPercent = 16;
+		y = CurrentY - aspectSettings.InitialOverscan * 2;	// from bottom
 	}
-	if (ignoreCountPercent > 0)
+	else
 	{
-		ignoreCount = CurrentX * ignoreCountPercent / SkipPixels / 100;
-		if (ignoreCount == 0)
-			ignoreCount = 1;
+		y = aspectSettings.InitialOverscan;	// from top
 	}
 
-	for (y = maxY - 1; y >= maxY / 2; y--)
+	for (; y != CurrentY / 2; y += direction)
 	{
 		if (y & 1)
-			pixel = (BYTE *)OddField[y / 2];
+			line = OddField[y / 2];
 		else
-			pixel = (BYTE *)EvenField[y / 2];
+			line = EvenField[y / 2];
 
-		pixel += aspectSettings.InitialOverscan * BytesBetweenLuminanceValues;
+		pixelCount = GetNonBlackCount(line, skipCount, CurrentX - skipCount * 2);
+		// LOG("FindEdgeOfImage line %d count %d", y, pixelCount);
 
-		pixelCount = -ignoreCount;
-		for (x = aspectSettings.InitialOverscan; x < maxX; x += SkipPixels)
-		{
-			if (((*pixel) & 0x7f) > aspectSettings.LuminanceThreshold)
-				pixelCount++;
-			pixel += BytesBetweenLuminanceValues * SkipPixels;
-		}
-
-		if (pixelCount > 0)
+		if (pixelCount > aspectSettings.IgnoreNonBlackPixels)
 			break;
+
+		if (y < 0 || y > CurrentY)
+		{
+			LOG("Sanity check failed; scanned past edge of screen");
+			y = (direction > 0) ? aspectSettings.InitialOverscan : CurrentY - aspectSettings.InitialOverscan;
+			break;
+		}
 	}
 
 	return y;
@@ -240,10 +252,10 @@ int FindAspectRatio(short** EvenField, short** OddField)
 	// Find the top of the image relative to the overscan area.  Overscan has to
 	// be discarded from the computations since it can't really be regarded as
 	// part of the picture.
-	topBorder = FindTopOfImage(EvenField, OddField) - aspectSettings.InitialOverscan;
+	topBorder = FindEdgeOfImage(EvenField, OddField, 1) - aspectSettings.InitialOverscan;
 
 	// Now find the size of the border at the bottom of the image.
-	bottomBorder = CurrentY - FindBottomOfImage(EvenField, OddField) - aspectSettings.InitialOverscan * 2;
+	bottomBorder = CurrentY - FindEdgeOfImage(EvenField, OddField, -1) - aspectSettings.InitialOverscan;
 
 	// The border size is the smaller of the two.
 	border = (topBorder < bottomBorder) ? topBorder : bottomBorder;
@@ -255,7 +267,7 @@ int FindAspectRatio(short** EvenField, short** OddField)
 	// We compute effective width from height using the source-frame aspect ratio, since
 	// this will change depending on whether or not the image is anamorphic.
 	ratio = (int)((imageHeight * 1000) * GetActualSourceFrameAspect() / (imageHeight - border * 2));
-	//LOG(" top %d bot %d bord %d rat %d", topBorder, bottomBorder, border, ratio);
+	LOG(" top %d bot %d bord %d rat %d", topBorder, bottomBorder, border, ratio);
 
 	return ratio;
 }

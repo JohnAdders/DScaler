@@ -93,7 +93,7 @@ int HalfHeight = FALSE;
 
 AspectSettingsStruct aspectSettings = 
 {
-	1333,0,1,0,0,30,-1,8,FALSE,60,300,15,20,
+	1333,0,1,0,0,40,1,17,FALSE,60,300,15,20,
 	2000,VERT_POS_CENTRE,HORZ_POS_CENTRE,
 	{0,0,0,0},
 	{0,0,0,0},

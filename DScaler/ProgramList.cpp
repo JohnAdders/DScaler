@@ -345,8 +345,15 @@ void ScanFrequency(HWND hDlg, int FreqNum)
     int i = 0;
     char sbuf[256];
 
-    SelectChannel(hDlg, FreqNum);
 	DWORD Freq = Countries[CountryCode]->m_Frequencies[FreqNum];
+	
+	if(Freq == 0)
+	{
+		return;
+	}
+
+    SelectChannel(hDlg, FreqNum + Countries[CountryCode]->m_MinChannel);
+
 	sprintf(sbuf, "%10.4f MHz", (double)Freq / 16.0);
     Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf);
 
@@ -687,7 +694,6 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 				    Edit_SetText(GetDlgItem(hDlg, IDC_NAME), "");
 				    ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_FORMAT), 0);
                 }
-				else
                 PostMessage(hDlg, WM_USER, 0, 101);
             }
             break;

@@ -330,7 +330,7 @@ void WorkoutOverlaySize(BOOL allowResize)
 	// Set the overlay
 	if (!aspectSettings.deferedSetOverlay) // MRS 2-22-01 - Defered overlay set
 	{
-		Overlay_Update(&aspectSettings.sourceRectangle, &aspectSettings.destinationRectangleWindow, DDOVER_SHOW, TRUE);
+		Overlay_Update(&aspectSettings.sourceRectangle, &aspectSettings.destinationRectangleWindow, DDOVER_SHOW);
 	}
 	else
 	{
@@ -349,7 +349,7 @@ void WorkoutOverlaySize(BOOL allowResize)
 	else if (aspectSettings.overlayNeedsSetting)
 	{
 		// If not invalidating, we need to update the overlay now...
-		Overlay_Update(&aspectSettings.sourceRectangle, &aspectSettings.destinationRectangleWindow, DDOVER_SHOW, TRUE);
+		Overlay_Update(&aspectSettings.sourceRectangle, &aspectSettings.destinationRectangleWindow, DDOVER_SHOW);
 		aspectSettings.overlayNeedsSetting = FALSE;
 	}
 	InFunction = FALSE;

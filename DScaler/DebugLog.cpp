@@ -2,7 +2,7 @@
 /*
 * Debug logging functions.
 */
-#include <StdAfx.h>
+#include "StdAfx.h"
 #include "DebugLog.h"
 
 static FILE *debugLog = NULL;

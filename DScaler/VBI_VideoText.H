@@ -103,7 +103,6 @@ typedef struct
 	BYTE Frame[25][40];
     BYTE LineUpdate[25];
 	BYTE bUpdated;
-    unsigned short SubCount;
     unsigned short SubPage;
 } TVTPage;
 
@@ -135,9 +134,6 @@ typedef struct
 #define _BitmapSmallText(bmp,row,c) (_BitmapSmallRowP(bmp,row)+((c)*SMALL_WIDTH*2))
 
 
-#define _MakePage(mag,page) (((mag)?(mag):8)*100+((page)>>4)*10+((page)&0xf))
-
-
 void VBI_VT_Init();
 void VBI_VT_Exit();
 
@@ -155,15 +151,15 @@ void VBI_decode_line(unsigned char *d, int line);
 
 void VT_ChannelChange();
 
-void VT_DecodeLine(BYTE* VBI_Buffer);
+void VT_DecodeLine(BYTE* VBI_Buffer, int line, BOOL IsOdd);
 void VTS_DecodeLine(BYTE* VBI_Buffer);
+void VT_DoUpdate_Page(int Page);
 
 void VT_Redraw(HWND hWnd, HDC hDC);
 void VT_ResetStation();
 LPCSTR VT_GetStation();
 
 
-extern unsigned short UTPages[12];
 extern VT_STATE VTState;
 
 extern HWND ShowVTInfo;

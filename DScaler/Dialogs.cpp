@@ -152,30 +152,6 @@ BOOL APIENTRY VTInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 		ShowVTInfo = hDlg;
 		SetTimer(hDlg, 0, 2000, NULL);
 	case WM_TIMER:
-		if (UTPages[0] != 0)
-			SetDlgItemInt(hDlg, TEXT8, UTPages[0], FALSE);
-		if (UTPages[1] != 0)
-			SetDlgItemInt(hDlg, TEXT9, UTPages[1], FALSE);
-		if (UTPages[2] != 0)
-			SetDlgItemInt(hDlg, TEXT10, UTPages[2], FALSE);
-		if (UTPages[3] != 0)
-			SetDlgItemInt(hDlg, TEXT11, UTPages[3], FALSE);
-		if (UTPages[4] != 0)
-			SetDlgItemInt(hDlg, TEXT12, UTPages[4], FALSE);
-		if (UTPages[5] != 0)
-			SetDlgItemInt(hDlg, TEXT13, UTPages[5], FALSE);
-		if (UTPages[6] != 0)
-			SetDlgItemInt(hDlg, TEXT14, UTPages[6], FALSE);
-		if (UTPages[7] != 0)
-			SetDlgItemInt(hDlg, TEXT15, UTPages[7], FALSE);
-		if (UTPages[8] != 0)
-			SetDlgItemInt(hDlg, TEXT16, UTPages[8], FALSE);
-		if (UTPages[9] != 0)
-			SetDlgItemInt(hDlg, TEXT17, UTPages[9], FALSE);
-		if (UTPages[10] != 0)
-			SetDlgItemInt(hDlg, TEXT18, UTPages[10], FALSE);
-		if (UTPages[11] != 0)
-			SetDlgItemInt(hDlg, TEXT19, UTPages[11], FALSE);
 		SetDlgItemInt(hDlg, IDT_VBI_FPS, VBI_FPS, FALSE);
 
 		break;

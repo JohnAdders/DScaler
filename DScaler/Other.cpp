@@ -130,7 +130,7 @@ void Overlay_Clean()
 
 //-----------------------------------------------------------------------------
 // Update video overlay with new rectangle
-BOOL Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags, BOOL ColorKey)
+BOOL Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags)
 {
 	HRESULT		ddrval;
 	DDOVERLAYFX DDOverlayFX;
@@ -182,13 +182,20 @@ BOOL Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags, BOOL Color
 		{
 			dwFlags |= DDOVER_KEYDESTOVERRIDE;
 
-			PhysicalOverlayColor = Overlay_ColorMatch(lpDDSurface, OverlayColor);
-			if (PhysicalOverlayColor == 0)		// sometimes we glitch and can't get the value
+			if(VTState == VT_OFF)
 			{
-				LOG(" Physical overlay color is zero!  Retrying.");
 				PhysicalOverlayColor = Overlay_ColorMatch(lpDDSurface, OverlayColor);
+				if (PhysicalOverlayColor == 0)		// sometimes we glitch and can't get the value
+				{
+					LOG(" Physical overlay color is zero!  Retrying.");
+					PhysicalOverlayColor = Overlay_ColorMatch(lpDDSurface, OverlayColor);
+				}
+				LOG(" Physical overlay color is %x", PhysicalOverlayColor);
 			}
-			LOG(" Physical overlay color is %x", PhysicalOverlayColor);
+			else
+			{
+				PhysicalOverlayColor = RGB(255, 0, 255);
+			}
 
 			DDOverlayFX.dckDestColorkey.dwColorSpaceHighValue = PhysicalOverlayColor;
 			DDOverlayFX.dckDestColorkey.dwColorSpaceLowValue = PhysicalOverlayColor;

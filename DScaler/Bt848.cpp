@@ -999,7 +999,7 @@ void BT848_CreateRiscCode(int nFlags)
 			*(pRiscCode++) = 0;
 
 			pUser = pVBILines[nField / 2];
-			if(nField & 1)
+			if((nField & 1) == 1)
 			{
 				pUser += CurrentVBILines * 2048;
 			}

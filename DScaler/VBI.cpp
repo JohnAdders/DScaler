@@ -85,7 +85,7 @@ void VBI_DecodeLine(unsigned char *VBI_Buffer, int line, BOOL IsOdd)
 	/* all kinds of data with videotext data format: videotext, intercast, ... */
 	if (DoTeletext)
 	{
-		VT_DecodeLine(VBI_Buffer);
+		VT_DecodeLine(VBI_Buffer, line, IsOdd);
 	}
 
 	// Closed caption information appears on line 21 (line == 11) for NTSC

@@ -526,7 +526,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
 				if (Capture_VBI == TRUE)
 				{
-					BYTE * pVBI = (LPBYTE) pVBILines[info.CurrentFrame];
+					BYTE * pVBI = (LPBYTE) pVBILines[(info.CurrentFrame + 4) % 5];
 					if (info.IsOdd)
 					{
 						pVBI += CurrentVBILines * 2048;

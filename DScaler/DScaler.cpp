@@ -479,6 +479,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 				{
 					VTDialog.Page--;
 					VTDialog.PageChange = TRUE;
+					VT_DoUpdate_Page(VTDialog.Page - 100);
 					InvalidateRect(hWnd,NULL,FALSE);
 				}
 			}
@@ -492,6 +493,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 				{
 					VTDialog.Page++;
 					VTDialog.PageChange = TRUE;
+					VT_DoUpdate_Page(VTDialog.Page - 100);
 					InvalidateRect(hWnd,NULL,FALSE);
 				}
 			}
@@ -986,6 +988,8 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 				Setting_SetValue(VBI_GetSetting(CAPTURE_VBI), TRUE);
 				Setting_SetValue(VBI_GetSetting(DOTELETEXT), TRUE);
 			}
+            WorkoutOverlaySize();
+
 			InvalidateRect(hWnd,NULL,FALSE);
 			break;
 
@@ -1276,9 +1280,12 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 					winRect.bottom -= StatusBar_Height();
 				}
 				BeginPaint(hWnd, &sPaint);
-			    PaintColorkey(hWnd, TRUE, sPaint.hdc, &winRect);
-			    OSD_Redraw(hWnd, sPaint.hdc);
-				if(VTState != VT_OFF)
+				if(VTState == VT_OFF)
+				{
+					PaintColorkey(hWnd, TRUE, sPaint.hdc, &winRect);
+					OSD_Redraw(hWnd, sPaint.hdc);
+				}
+				else
 				{
 					VT_Redraw(hWnd, sPaint.hdc);
 				}
@@ -1491,6 +1498,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 			if(VTState != VT_OFF)
 			{
 				VTDialog.Page = atoi(ChannelString);
+				VT_DoUpdate_Page(VTDialog.Page - 100);
 				InvalidateRect(hWnd, NULL, FALSE);
 			}
 			else
@@ -1573,7 +1581,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 				}
 				break;
 			case SIZE_MINIMIZED:
-				Overlay_Update(NULL, NULL, DDOVER_HIDE, FALSE);
+				Overlay_Update(NULL, NULL, DDOVER_HIDE);
 				break;
 			case SIZE_RESTORED:
                 InvalidateRect(hWnd, NULL, FALSE);
@@ -1621,13 +1629,14 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 		{
 			PAINTSTRUCT sPaint;
 			BeginPaint(hWnd, &sPaint);
-			PaintColorkey(hWnd, TRUE, sPaint.hdc, &sPaint.rcPaint);
 			if(VTState != VT_OFF)
 			{
+				PaintColorkey(hWnd, TRUE, sPaint.hdc, &sPaint.rcPaint);
 				VT_Redraw(hWnd, sPaint.hdc);
 			}
             else
             {
+				PaintColorkey(hWnd, TRUE, sPaint.hdc, &sPaint.rcPaint);
     			OSD_Redraw(hWnd, sPaint.hdc);
             }
 			EndPaint(hWnd, &sPaint);

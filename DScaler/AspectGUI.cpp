@@ -537,6 +537,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
 // Repaints the overlay colorkey, optionally with black borders around it
 // during aspect ratio control
 extern LPDIRECTDRAW lpDD; // Temporary expierement MRS 2-22-01
+
 void PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect)
 {
 	// MRS 9-9-00
@@ -609,7 +610,7 @@ void PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect)
 	if (aspectSettings.overlayNeedsSetting) { // MRS 2-22-01
 		// Intended to prevent purple flashing by setting overlay
 		// after drawing black but before drawing purple.
-		Overlay_Update(&aspectSettings.sourceRectangle, &aspectSettings.destinationRectangleWindow, DDOVER_SHOW, TRUE);
+		Overlay_Update(&aspectSettings.sourceRectangle, &aspectSettings.destinationRectangleWindow, DDOVER_SHOW);
 		aspectSettings.overlayNeedsSetting = FALSE;
 		// Wait till current frame is done before drawing purple...
 		// Overlay changes do not seem to take place (at least on a GeForce)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSDrv.cpp,v 1.5 2001-08-08 16:37:49 adcockj Exp $
+// $Id: DSDrv.cpp,v 1.6 2001-08-08 18:02:23 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -35,6 +35,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2001/08/08 16:37:49  adcockj
+// Made drivers stateless to support multiple cards
+// Added version check
+// Changed meaning of memory access functions so that you no longer pass just the offset
+//
 // Revision 1.4  2001/08/08 10:53:30  adcockj
 // Preliminary changes to driver to support multiple cards
 //
@@ -430,12 +435,12 @@ DWORD CDSDriver::freeMemory(PMemStruct pMemStruct)
 DWORD CDSDriver::memoryMap(DWORD dwBusNumber, DWORD dwAddress, DWORD dwLength)
 {
     TDSDrvParam hwParam;
-    DWORD       dwMappedAddress;
+    DWORD       dwMappedAddress(0);
     DWORD       dwReturnedLength;
 
     hwParam.dwAddress = dwBusNumber;
-    hwParam.dwValue   = dwAddress;
-    dwMappedAddress = dwLength;
+    hwParam.dwValue = dwAddress;
+    hwParam.dwFlags = dwLength;
 
     deviceControl(ioctlMapMemory,
                     &hwParam,

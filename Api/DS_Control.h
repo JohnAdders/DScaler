@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.80 2002-08-07 19:13:23 adcockj Exp $
+// $Id: DS_Control.h,v 1.81 2002-08-09 13:27:54 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.80  2002/08/07 19:13:23  adcockj
+// Added Colour Inversion Filter
+//
 // Revision 1.79  2002/08/07 09:42:12  kooiman
 // Add settings for 'save per channel'
 //
@@ -468,8 +471,6 @@ typedef enum
     REVERSEPOLARITY,
     CURRENTCARDTYPE,
     CURRENTTUNERTYPE,
-    PROCESSORSPEED,
-    TRADEOFF,
     AUDIOSOURCE1,
     MSPMODE,
     MSPMAJORMODE,
@@ -534,6 +535,8 @@ typedef enum
     VTANTIALIAS,
     INITIALSOURCE,
     CHANNELENTERTIME,
+    PROCESSORSPEED,
+    TRADEOFF,
     DSCALER_SETTING_LASTONE,
 } DSCALER_SETTING;
 

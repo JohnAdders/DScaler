@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.18 2001-07-12 16:16:40 adcockj Exp $
+// $Id: Settings.cpp,v 1.19 2001-07-12 19:24:35 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2001/07/12 16:16:40  adcockj
+// Added CVS Id and Log
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -362,11 +365,19 @@ void Setting_SetDefault(SETTING* pSetting)
 
 void Setting_SetupSlider(SETTING* pSetting, HWND hSlider)
 {
+	Slider_ClearTicks(hSlider, TRUE);
     Slider_SetRangeMax(hSlider, pSetting->MaxValue);
     Slider_SetRangeMin(hSlider, pSetting->MinValue);
     Slider_SetPageSize(hSlider, pSetting->StepValue);
     Slider_SetLineSize(hSlider, pSetting->StepValue);
-    Slider_SetTic(hSlider, pSetting->Default);
+    if(GetWindowLong(hSlider, GWL_STYLE) & TBS_VERT)
+    {
+	    Slider_SetTic(hSlider, pSetting->MaxValue - pSetting->Default);
+    }
+    else
+    {
+	    Slider_SetTic(hSlider, pSetting->Default);
+    }
     Setting_SetControlValue(pSetting, hSlider);
 }
 
@@ -384,7 +395,7 @@ void Setting_SetControlValue(SETTING* pSetting, HWND hControl)
         break;
 
     case SLIDER:
-        if(GetWindowLong(hControl, GWL_STYLE) & TBS_REVERSED)
+        if(GetWindowLong(hControl, GWL_STYLE) & TBS_VERT)
         {
             Slider_SetPos(hControl, pSetting->MaxValue - *pSetting->pValue);
         }
@@ -414,7 +425,7 @@ BOOL Setting_SetFromControl(SETTING* pSetting, HWND hControl)
         break;
 
     case SLIDER:
-        if(GetWindowLong(hControl, GWL_STYLE) & TBS_REVERSED)
+        if(GetWindowLong(hControl, GWL_STYLE) & TBS_VERT)
         {
             nValue = pSetting->MaxValue - Slider_GetPos(hControl);
         }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsDlg.cpp,v 1.7 2001-07-12 16:16:40 adcockj Exp $
+// $Id: SettingsDlg.cpp,v 1.8 2001-07-12 19:24:35 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2001/07/12 16:16:40  adcockj
+// Added CVS Id and Log
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -183,12 +186,8 @@ void CSettingsDlg::UpdateControls()
     
     m_chk.SetCheck(*m_settings[m_currentSetting].pValue);
     m_chk.SetWindowText(m_settings[m_currentSetting].szDisplayName);
-    
-    m_slider.SetRange(m_settings[m_currentSetting].MinValue,m_settings[m_currentSetting].MaxValue);
-    m_slider.ClearTics(TRUE);
-    m_slider.SetTic(m_settings[m_currentSetting].Default);
-    m_slider.SetPos(*m_settings[m_currentSetting].pValue);
-    m_slider.SetPageSize(m_settings[m_currentSetting].StepValue);
+
+    Setting_SetupSlider(&m_settings[m_currentSetting], m_slider.m_hWnd);
     
     m_combo.ResetContent();
     if(m_settings[m_currentSetting].pszList != NULL)
@@ -234,9 +233,7 @@ void CSettingsDlg::OnChangeEdit()
 void CSettingsDlg::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar) 
 {
     //slider has changed
-    long value=m_slider.GetPos();
-    
-    Setting_SetValue(&m_settings[m_currentSetting], value);
+    Setting_SetFromControl(&m_settings[m_currentSetting], m_slider.m_hWnd);
     UpdateControls();
 }
 

@@ -1,5 +1,5 @@
 //
-// $Id: TDA9887.cpp,v 1.14 2004-11-27 19:07:43 atnak Exp $
+// $Id: TDA9887.cpp,v 1.15 2004-11-28 06:46:25 atnak Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2004/11/27 19:07:43  atnak
+// Changed constant to more correct name.
+//
 // Revision 1.13  2004/11/27 14:15:56  atnak
 // Changed variable name to fix conflict.
 //
@@ -145,14 +148,35 @@ CTDA9887::~CTDA9887()
 {
 }
 
+
+bool CTDA9887::DetectAttach(CI2CBus* i2cBus)
+{
+	BYTE tda9887Addresses[4] = { I2C_TDA9887_0, I2C_TDA9887_1,
+								 I2C_TDA9887_2, I2C_TDA9887_3 };
+	return DetectAttach(i2cBus, tda9887Addresses, 4);
+}
+
+bool CTDA9887::DetectAttach(CI2CBus* i2cBus, BYTE* addresses, size_t count)
+{
+	for (size_t i = 0; i < count; ++i)
+	{
+		if (addresses[i] != 0x00)
+		{
+			Attach(i2cBus, addresses[i]);
+
+			if (Detect())
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
 bool CTDA9887::Detect()
 {
-    BYTE tda9887set[] = {m_DeviceAddress, 0x00, 0x54, 0x70, 0x44};
-	if (m_I2CBus->Write(tda9887set,5))
-	{
-		return true;
-	}
-    return false;
+    BYTE tda9887set[5] = { m_DeviceAddress, 0x00, 0x54, 0x70, 0x44 };
+	return m_I2CBus->Write(tda9887set, 5);
 }
 
 void CTDA9887::Init(bool bPreInit, eVideoFormat videoFormat)

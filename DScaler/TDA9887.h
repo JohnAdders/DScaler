@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA9887.h,v 1.14 2004-11-27 22:01:40 to_see Exp $
+// $Id: TDA9887.h,v 1.15 2004-11-28 06:46:26 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2002 John Adcock.  All rights reserved.
@@ -21,6 +21,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2004/11/27 22:01:40  to_see
+// Added more I2C Addresses from datasheet
+//
 // Revision 1.13  2004/11/27 19:07:44  atnak
 // Changed constant to more correct name.
 //
@@ -150,8 +153,10 @@ enum eTDA9887Card
 	TDA9887_LASTONE,
 };
 
-///////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// CTDA9887
+//////////////////////////////////////////////////////////////////////////
 
 class CTDA9887 : public IExternalIFDemodulator
 {
@@ -160,7 +165,16 @@ public:
 	CTDA9887(eTDA9887Card TDA9887Card);
     virtual ~CTDA9887();
 
-    virtual bool Detect();
+	// Attaches to each known TDA9887 address on the given bus and tries to
+	// detect a TDA9887 device.
+	virtual bool DetectAttach(CI2CBus* i2cBus);
+	// Attaches to each specified address on the given bus and tries detect
+	// a device.  (This should go into a lower level class but the class
+	// below this is an interface class. --atnak 2004-11-28)
+	virtual bool DetectAttach(CI2CBus* i2cBus, BYTE* addresses, size_t count);
+
+	// Detects if a TDA9887 device exists at the attached address.
+	virtual bool Detect();
 
     virtual void Init(bool bPreInit, eVideoFormat videoFormat);
     virtual void TunerSet(bool bPreSet, eVideoFormat videoFormat);
@@ -190,17 +204,19 @@ private:
 	eTDA9887Card m_eCardID;
 };
 
-///////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// CTDA9887Pinnacle
+//////////////////////////////////////////////////////////////////////////
 
 class CTDA9887Pinnacle : public CTDA9887
 {
 public:
     CTDA9887Pinnacle(int CardId);
-    ~CTDA9887Pinnacle();
+    virtual ~CTDA9887Pinnacle();
 
-    void Init(bool bPreInit, eVideoFormat videoFormat);
-    void TunerSet(bool bPreSet, eVideoFormat videoFormat);
+    virtual void Init(bool bPreInit, eVideoFormat videoFormat);
+    virtual void TunerSet(bool bPreSet, eVideoFormat videoFormat);
 private:
     int m_CardId;
     eVideoFormat m_LastVideoFormat;
@@ -230,7 +246,7 @@ enum eTDA9887Format
 // Bits for SetCardSpecifics(...)'s TTDA9887CardSpecifics
 enum
 {
-	TDA9887_SM_CARRIER_QSS     = 0x04,   // != Intercarrier
+    TDA9887_SM_CARRIER_QSS          = 0x04,   // != Intercarrier
 	TDA9887_SM_OUTPUTPORT1_INACTIVE = 0x40,   // != Active
 	TDA9887_SM_OUTPUTPORT2_INACTIVE = 0x80,   // != Active
 	TDA9887_SM_TAKEOVERPOINT_MASK   = 0x1F,

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.60 2003-08-09 15:53:39 laurentg Exp $
+// $Id: AspectGUI.cpp,v 1.61 2003-09-14 08:43:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.60  2003/08/09 15:53:39  laurentg
+// Bad refresh of the toolbar when in full screen mode corrected
+//
 // Revision 1.59  2003/04/28 17:31:59  laurentg
 // Fix to avoid crash when exiting
 //
@@ -1442,8 +1445,7 @@ void Aspect_ReadSettingsFromIni()
         AspectSettingsHolder.AddSetting(&AspectGUISettings[TARGET_ASPECT], pRatioGroup);
         AspectSettingsHolder.AddSetting(&AspectGUISettings[CUSTOM_TARGET_ASPECT], pRatioGroup);
         AspectSettingsHolder.AddSetting(&AspectGUISettings[ASPECT_MODE], pRatioGroup);
-        AspectSettingsHolder.AddSetting(&AspectGUISettings[SOURCE_ASPECT], pRatioGroup);
-
+        
         AspectSettingsHolder.AddSetting(&AspectGUISettings[VERTICALPOS], pImagePositionGroup);
         AspectSettingsHolder.AddSetting(&AspectGUISettings[HORIZONTALPOS], pImagePositionGroup);
         
@@ -1482,6 +1484,8 @@ void Aspect_ReadSettingsFromIni()
         AspectSettingsHolder.AddSetting(&AspectGUISettings[ALLOWGREATERTHANSCREEN], pAspectDetectSettingsGroup);
         AspectSettingsHolder.AddSetting(&AspectGUISettings[MASKGREYSHADE], pAspectDetectSettingsGroup);
         AspectSettingsHolder.AddSetting(&AspectGUISettings[USEWSS], pAspectDetectSettingsGroup);
+        AspectSettingsHolder.AddSetting(&AspectGUISettings[DEFAULTSOURCEASPECT], pAspectDetectSettingsGroup);
+        AspectSettingsHolder.AddSetting(&AspectGUISettings[DEFAULTASPECTMODE], pAspectDetectSettingsGroup);
 
 #ifdef _DEBUG
         if (ASPECT_SETTING_LASTONE != AspectSettingsHolder.GetNumSettings())

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.19 2002-10-08 20:35:39 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.20 2002-10-08 20:42:05 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2002/10/08 20:35:39  atnak
+// whitepeak, colorpeak, comb filter UI options
+//
 // Revision 1.18  2002/10/08 12:30:38  atnak
 // tweaks and fixes
 //
@@ -830,11 +833,11 @@ BOOL CSAA7134Source::GetFinishedField(eRegionID& DoneRegionID, BOOL& bDoneIsFiel
 
 /*    // DEBUGGIN
     while (1)
-    {*/
+    {
         m_pSAA7134Card->CheckRegisters((DWORD*) &m_pDisplay[0][2048 + 4190],
             (DWORD*) &m_pDisplay[0][4190], (DWORD*) &m_pDisplay[1][2048 + 4190],
             (DWORD*) &m_pDisplay[1][4190]);
-//     }
+    }
     //*/
 
     if (!m_pSAA7134Card->GetProcessingRegion(RegionID, bIsFieldOdd))

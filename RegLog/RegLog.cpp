@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: RegLog.cpp,v 1.4 2002-11-28 14:50:52 adcockj Exp $
+// $Id: RegLog.cpp,v 1.5 2002-11-28 14:56:19 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/11/28 14:50:52  adcockj
+// Added set directory so that files aways go to the exe location
+//
 // Revision 1.3  2002/11/28 14:47:21  adcockj
 // Added bt848 logging
 //
@@ -116,12 +119,12 @@ void __cdecl BT848RegLog(CGenericCard* pCard, LPCSTR Filename)
     DumpBRegister(BT848_CAP_CTL);
     DumpBRegister(BT848_VBI_PACK_SIZE);
     DumpBRegister(BT848_VBI_PACK_DEL);
-    DumpBRegister(BT848_INT_MASK);
-    DumpBRegister(BT848_GPIO_OUT_EN);
-    DumpBRegister(BT848_GPIO_OUT_EN_HIBYTE);
-    DumpBRegister(BT848_GPIO_DATA);
-    DumpBRegister(BT848_RISC_STRT_ADD);
-    DumpBRegister(BT848_GPIO_DMA_CTL);
+    DumpDWRegister(BT848_INT_MASK);
+    DumpDWRegister(BT848_GPIO_OUT_EN);
+    DumpDWRegister(BT848_GPIO_OUT_EN_HIBYTE);
+    DumpDWRegister(BT848_GPIO_DATA);
+    DumpDWRegister(BT848_RISC_STRT_ADD);
+    DumpWRegister(BT848_GPIO_DMA_CTL);
 
     fclose(hFile);
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.30 2002-11-13 11:15:37 adcockj Exp $
+// $Id: BT848Card.cpp,v 1.31 2002-11-28 14:56:19 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2002/11/13 11:15:37  adcockj
+// disabled save state for bt848 cards
+//
 // Revision 1.29  2002/11/07 20:33:16  adcockj
 // Promoted ACPI functions so that state management works properly
 //
@@ -293,13 +296,13 @@ void CBT848Card::ManageMyState()
     ManageByte(BT848_CAP_CTL);
     ManageByte(BT848_VBI_PACK_SIZE);
     ManageByte(BT848_VBI_PACK_DEL);
-    ManageByte(BT848_INT_MASK);
-    ManageByte(BT848_GPIO_OUT_EN);
-    ManageByte(BT848_GPIO_OUT_EN_HIBYTE);
-    ManageByte(BT848_GPIO_DATA);
+    ManageDword(BT848_INT_MASK);
+    ManageDword(BT848_GPIO_OUT_EN);
+    ManageDword(BT848_GPIO_OUT_EN_HIBYTE);
+    ManageDword(BT848_GPIO_DATA);
     // do these ones last
-    ManageByte(BT848_RISC_STRT_ADD);
-    ManageByte(BT848_GPIO_DMA_CTL);
+    ManageDword(BT848_RISC_STRT_ADD);
+    ManageWord(BT848_GPIO_DMA_CTL);
 }
 
 

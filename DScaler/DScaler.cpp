@@ -520,11 +520,6 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 			}
 			break;
 
-		case IDM_CHANNEL_CUSTOMORDER:
-   			Setting_SetValue(Channels_GetSetting(CUSTOMCHANNELORDER), 
-				!Setting_GetValue(Channels_GetSetting(CUSTOMCHANNELORDER)));
-			break;
-
 		case IDM_CHANNEL_SELECT:
 			if (Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)) == SOURCE_TUNER)
 			{
@@ -1054,16 +1049,9 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 			bDisplaySplashScreen = !bDisplaySplashScreen;
 			break;
 
-		case IDM_ANALOGSCAN:
-			SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_TUNER, 0);
-			DialogBox(hInst, MAKEINTRESOURCE(IDD_ANALOGSCAN), hWnd, (DLGPROC)AnalogScanProc);
-			break;
-
 		case IDM_CHANNEL_LIST:
-			if (Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)) == SOURCE_TUNER)
-			{
-				DialogBox(hInst, MAKEINTRESOURCE(IDD_CHANNELLIST), hWnd, (DLGPROC) ProgramListProc);
-			}
+			SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_TUNER, 0);
+			DialogBox(hInst, MAKEINTRESOURCE(IDD_CHANNELLIST), hWnd, (DLGPROC) ProgramListProc);
 			break;
 
 		case IDM_TREADPRIOR_0:

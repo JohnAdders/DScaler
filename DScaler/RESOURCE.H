@@ -2,7 +2,6 @@
 // Microsoft Developer Studio generated include file.
 // Used by DScaler.rc
 //
-#define IDOK2                           2
 #define IDBEFORE                        3
 #define IDDEL                           3
 #define IDSET                           3
@@ -33,8 +32,6 @@
 #define IDD_SPLASHBOX                   172
 #define IDD_UI_SUB_MENU                 173
 #define IDA_DSCALER                     174
-#define IDB_GREENBULB                   175
-#define IDB_REDBULB                     176
 #define IDB_STARTUP                     177
 #define IDB_VTCHARS                     178
 #define IDI_DSCALER                     179
@@ -253,17 +250,21 @@
 #define IDC_LIST2                       1522
 #define IDC_BUTTON2                     1523
 #define IDC_EDIT1                       1523
+#define IDC_SCAN                        1523
 #define IDC_BUTTON3                     1524
 #define IDC_EDIT2                       1524
+#define IDC_REMOVE                      1524
 #define IDC_BUTTON4                     1525
 #define IDC_EDIT3                       1525
 #define IDC_PRGNR                       1525
+#define IDC_UP                          1525
 #define IDB_FMINUS                      1526
 #define IDC_BUTTON5                     1526
 #define IDC_EDIT4                       1526
 #define IDB_FPLUS                       1527
 #define IDC_BUTTON6                     1527
 #define IDC_EDIT5                       1527
+#define IDC_DOWN                        1527
 #define IDC_BUTTON7                     1528
 #define IDC_EDIT6                       1528
 #define IDC_BUTTON8                     1529
@@ -733,6 +734,7 @@
 #define IDC_DJ12                        1831
 #define S32                             1831
 #define IDC_USE_MIXER                   1831
+#define IDC_CUTOMCHANNELORDER           1831
 #define IDC_CHECK3                      1832
 #define IDC_CHECK4                      1833
 #define IDC_CHECK5                      1834
@@ -817,6 +819,10 @@
 #define IDC_CHANNEL                     1889
 #define IDC_FORMAT                      1890
 #define IDC_CHANGE                      1891
+#define IDC_SCROLLBAR1                  1892
+#define IDC_FINETUNE                    1892
+#define IDC_COUNTRY                     1893
+#define IDC_ACTIVE                      1894
 #define IDM_TAKESTREAMSNAP              1899
 #define IDM_FIRST_DEINTMETHOD           1900
 #define IDM_LAST_DEINTMETHOD            1999
@@ -833,9 +839,8 @@
 #define IDM_SHOWPLUGINUI                2011
 #define ID_SETTINGS_PIXELWIDTH_754      2012
 #define IDM_RETURN_TO_WINDOW            2013
-#define IDM_CHANNEL_CUSTOMORDER         2014
-#define IDM_USECHROMA                   2015
-#define IDM_AUTO_FORMAT                 2016
+#define IDM_USECHROMA                   2014
+#define IDM_AUTO_FORMAT                 2015
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -843,8 +848,8 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        182
-#define _APS_NEXT_COMMAND_VALUE         2017
-#define _APS_NEXT_CONTROL_VALUE         1892
+#define _APS_NEXT_COMMAND_VALUE         2016
+#define _APS_NEXT_CONTROL_VALUE         1895
 #define _APS_NEXT_SYMED_VALUE           108
 #endif
 #endif

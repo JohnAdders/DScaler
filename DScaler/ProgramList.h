@@ -59,17 +59,21 @@ void Channels_SetMenu(HMENU hMenu);
 class CChannel
 {
 public:
-    CChannel(LPCSTR Name, DWORD Freq, int ChannelNumber, int Format);
+    CChannel(LPCSTR Name, DWORD Freq, int ChannelNumber, int Format, BOOL Active);
+    CChannel(const CChannel& CopyFrom);
     ~CChannel();
     LPCSTR GetName();
     DWORD GetFrequency();
     int GetChannelNumber();
     int GetFormat();
+    BOOL IsActive();
+    void SetActive(BOOL Active);
 private:
 	string m_Name;
     DWORD m_Freq;
     int m_Chan;
     int m_Format;
+    BOOL m_Active;
 };
 
 class CCountry
@@ -89,8 +93,6 @@ void Load_Country_Settings();
 void Unload_Country_Settings();
 
 BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
-BOOL APIENTRY ChannelNumberProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
-BOOL APIENTRY AnalogScanProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 
 void Channel_Change(int NewChannelIndex);
 void Channel_ChangeToNumber(int NewChannelNumber);

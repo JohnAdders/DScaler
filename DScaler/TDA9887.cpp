@@ -1,5 +1,5 @@
 //
-// $Id: TDA9887.cpp,v 1.8 2004-09-11 20:19:55 to_see Exp $
+// $Id: TDA9887.cpp,v 1.9 2004-09-29 20:36:02 to_see Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2004/09/11 20:19:55  to_see
+// Renamed variable name from Pal_L to Secam_L (Sorry)
+//
 // Revision 1.7  2004/08/27 13:12:41  to_see
 // Added audio support for Ati Tv Wonder Pro
 //
@@ -89,6 +92,16 @@ const CTDA9887::TControlSettings CTDA9887::m_ControlSettings[TDA9887_LASTONE] =
         {0x16, 0x70, 0x4b}, // PAL_DK		?
         {0x86, 0x50, 0x4b}, // SECAM_L		?
         {0x92, 0x30, 0x04}, // NTSC			Working
+        {0x92, 0x30, 0x40}, // NTSC_JP		?
+        {0x8e, 0x0d, 0x77}, // FM_RADIO		?
+    },
+	{
+        TDA9887_AVERTV_303,
+        {0x16, 0x70, 0x49}, // PAL_BG		?
+        {0x16, 0x6e, 0x4a}, // PAL_I		?
+        {0x16, 0x70, 0x4b}, // PAL_DK		Working
+        {0x86, 0x50, 0x4b}, // SECAM_L		?
+        {0x92, 0x30, 0x04}, // NTSC			?
         {0x92, 0x30, 0x40}, // NTSC_JP		?
         {0x8e, 0x0d, 0x77}, // FM_RADIO		?
     },

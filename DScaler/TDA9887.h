@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA9887.h,v 1.7 2004-09-11 20:19:55 to_see Exp $
+// $Id: TDA9887.h,v 1.8 2004-09-29 20:36:02 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2002 John Adcock.  All rights reserved.
@@ -21,6 +21,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2004/09/11 20:19:55  to_see
+// Renamed variable name from Pal_L to Secam_L (Sorry)
+//
 // Revision 1.6  2004/08/27 13:12:41  to_see
 // Added audio support for Ati Tv Wonder Pro
 //
@@ -59,6 +62,7 @@ enum eTDA9887Card
 	TDA9887_MSI_TV_ANYWHERE_MASTER,
 	TDA9887_LEADTEK_WINFAST_EXPERT,
 	TDA9887_ATI_TV_WONDER_PRO,
+	TDA9887_AVERTV_303,
 	// Add here new tda9887 settings.
 	TDA9887_LASTONE,
 };

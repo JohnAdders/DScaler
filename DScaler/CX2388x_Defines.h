@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388x_Defines.h,v 1.24 2004-08-31 17:54:50 to_see Exp $
+// $Id: CX2388x_Defines.h,v 1.25 2004-09-29 20:36:01 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -785,6 +785,7 @@ enum eCX2388xCardId
 	CX2388xCARD_PIXELVIEW_PLAYTV_ULTRA_TUNERSOUND,
 	CX2388xCARD_KWORLD_TV_STEREO,
 	CX2388xCARD_PIXELVIEW_PLAYTV_ULTRA,
+	CX2388xCARD_AVERTV_303,
     CX2388xCARD_LASTONE,
 };
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Types.cpp,v 1.29 2004-08-31 17:54:50 to_see Exp $
+// $Id: CX2388xCard_Types.cpp,v 1.30 2004-09-29 20:36:02 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2004/08/31 17:54:50  to_see
+// New entry for PixelView PlayTV Ultra + on chip audio
+// Minor fixes
+//
 // Revision 1.28  2004/08/27 13:12:40  to_see
 // Added audio support for Ati Tv Wonder Pro
 //
@@ -896,6 +900,44 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
         TUNER_PHILIPS_PAL,
         IDC_CX2388X,
     },
+	
+	// Card info Zbigniew Pluta
+    {
+        "AverTV Studio 303 (M126)",
+        3,
+        {
+            {
+                "Tuner",
+                INPUTTYPE_TUNER,
+                0,
+    			0x00000000,
+
+            },
+            {
+                "Composite",
+                INPUTTYPE_COMPOSITE,
+                1,
+    			0x00000000,
+            },
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                2,
+    			0x00000000,
+            },
+            // FM radio input omitted
+        },
+        NULL,
+        NULL,
+        AverTV303InputSelect,
+        SetAnalogContrastBrightness,
+        SetAnalogHue,
+        SetAnalogSaturationU,
+        SetAnalogSaturationV,
+        StandardSetFormat,
+        TUNER_PHILIPS_FM1216ME_MK3,
+        IDC_CX2388X,
+    },
 };
 
 const CCX2388xCard::TAutoDectect CCX2388xCard::m_AutoDectect[] =
@@ -913,6 +955,7 @@ const CCX2388xCard::TAutoDectect CCX2388xCard::m_AutoDectect[] =
 	{ 0x48111554, CX2388xCARD_PIXELVIEW_PLAYTV_ULTRA, "PixelView PlayTV Ultra" },
 	{ 0x088317DE, CX2388xCARD_KWORLD_TV_STEREO, "K-World DV/AV Expert TV Stereo" }, // NTSC
 	{ 0x088217DE, CX2388xCARD_KWORLD_TV_STEREO, "K-World DV/AV Expert TV Stereo" }, // PAL
+	{ 0x000b1461, CX2388xCARD_AVERTV_303, "AverTV Studio 303 (M126)" },
     { 0, (eCX2388xCardId)-1, NULL }
 };
 
@@ -1052,18 +1095,18 @@ void CCX2388xCard::MSIInputSelect(int nInput)
 	{
 		// GPIO pins set according to values supplied by
 		// Ryan Griffin - Stegink
+		WriteDword(MO_GP3_IO, 0x00000000); 
 		WriteDword(MO_GP0_IO, 0x000000ff);
 		WriteDword(MO_GP1_IO, 0x00008040);
 		WriteDword(MO_GP2_IO, 0x0000fc1f); 
-		WriteDword(MO_GP3_IO, 0x00000000); 
 	}
 	else
 	{
 		// Turn off anything audio if we're not the tuner
+		WriteDword(MO_GP3_IO, 0x00000000); 
 		WriteDword(MO_GP0_IO, 0x00000000);
 		WriteDword(MO_GP1_IO, 0x00008000);
 		WriteDword(MO_GP2_IO, 0x0000ff80); 
-		WriteDword(MO_GP3_IO, 0x00000000); 
 	}
 }
 
@@ -1072,18 +1115,18 @@ void CCX2388xCard::MSIPalInputSelect(int nInput)
     StandardInputSelect(nInput);
 	if(nInput == 0)
 	{
+		WriteDword(MO_GP3_IO, 0x00000000); 
 		WriteDword(MO_GP0_IO, 0x000040bf);
 		WriteDword(MO_GP1_IO, 0x000080c0);
 		WriteDword(MO_GP2_IO, 0x0000ff40); 
-		WriteDword(MO_GP3_IO, 0x00000000); 
 	}
 	else
 	{
 		// Turn off anything audio if we're not the tuner
+		WriteDword(MO_GP3_IO, 0x00000000); 
 		WriteDword(MO_GP0_IO, 0x000040bf);
 		WriteDword(MO_GP1_IO, 0x000080c0);
 		WriteDword(MO_GP2_IO, 0x0000ff20); 
-		WriteDword(MO_GP3_IO, 0x00000000); 
 	}
 }
 
@@ -1118,18 +1161,18 @@ void CCX2388xCard::AsusInputSelect(int nInput)
     {
         // GPIO pins set according to values supplied by
         // Phil Rasmussen 
+        WriteDword(MO_GP3_IO, 0x00000000); 
         WriteDword(MO_GP0_IO, 0x000080ff);
         WriteDword(MO_GP1_IO, 0x000001ff);
         WriteDword(MO_GP2_IO, 0x000000ff); 
-        WriteDword(MO_GP3_IO, 0x00000000); 
     }
     else
     {
         // Turn off anything audio if we're not the tuner
+        WriteDword(MO_GP3_IO, 0x00000000); 
         WriteDword(MO_GP0_IO, 0x0000ff00);
         WriteDword(MO_GP1_IO, 0x0000ff00);
         WriteDword(MO_GP2_IO, 0x0000ff00); 
-        WriteDword(MO_GP3_IO, 0x00000000); 
     }
 }
 
@@ -1158,6 +1201,34 @@ void CCX2388xCard::LeadtekInputSelect(int nInput)
         WriteDword(MO_GP0_IO, 0x00F5d700);
         WriteDword(MO_GP1_IO, 0x00003004);
         WriteDword(MO_GP2_IO, 0x00F5d700); 
+	*/
+}
+
+void CCX2388xCard::AverTV303InputSelect(int nInput)
+{
+    StandardInputSelect(nInput);
+    if(nInput == 0)
+    {
+        WriteDword(MO_GP3_IO, 0x00000000); 
+        WriteDword(MO_GP0_IO, 0x000000ff);
+        WriteDword(MO_GP1_IO, 0x0000e09f);
+        WriteDword(MO_GP2_IO, 0x000000d1); 
+    }
+    
+	else
+    {
+        WriteDword(MO_GP3_IO, 0x00000000); 
+        WriteDword(MO_GP0_IO, 0x000000ff);
+        WriteDword(MO_GP1_IO, 0x0000e05f);
+        WriteDword(MO_GP2_IO, 0x000000d1); 
+    }
+
+	// muted:
+	/*
+        WriteDword(MO_GP3_IO, 0x00000000); 
+        WriteDword(MO_GP0_IO, 0x000000ff);
+        WriteDword(MO_GP1_IO, 0x000020ff);
+        WriteDword(MO_GP2_IO, 0x000000d1); 
 	*/
 }
 

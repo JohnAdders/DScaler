@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.65 2004-08-27 13:12:40 to_see Exp $
+// $Id: CX2388xCard.cpp,v 1.66 2004-09-29 20:36:02 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.65  2004/08/27 13:12:40  to_see
+// Added audio support for Ati Tv Wonder Pro
+//
 // Revision 1.64  2004/07/10 11:57:17  adcockj
 // improved cx2388x driver coverage when disabling drivers
 //
@@ -1959,6 +1962,12 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
 
 		case CX2388xCARD_ATI_WONDER_PRO:
             pExternalIFDemodulator = new CTDA9887(TDA9887_ATI_TV_WONDER_PRO);
+            IFDemDeviceAddress[0] = I2C_TDA9887_0;
+            IFDemDeviceAddress[1] = I2C_TDA9887_1;
+            break;
+
+		case CX2388xCARD_AVERTV_303:
+            pExternalIFDemodulator = new CTDA9887(TDA9887_AVERTV_303);
             IFDemDeviceAddress[0] = I2C_TDA9887_0;
             IFDemDeviceAddress[1] = I2C_TDA9887_1;
             break;

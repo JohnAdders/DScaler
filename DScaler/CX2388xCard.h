@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.h,v 1.32 2004-09-11 19:01:01 to_see Exp $
+// $Id: CX2388xCard.h,v 1.33 2004-09-29 20:36:02 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -266,6 +266,7 @@ private:
     void PlayHDStopCapture();
     void AsusInputSelect(int nInput);
 	void LeadtekInputSelect(int nInput);
+	void AverTV303InputSelect(int nInput);
 
 	void H3DSetFormat(int nInput, eVideoFormat TVFormat, BOOL IsProgressive);
     void SetH3DContrastBrightness(BYTE Contrast, BYTE Brightness);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillProvider.cpp,v 1.15 2002-04-27 00:38:33 laurentg Exp $
+// $Id: StillProvider.cpp,v 1.16 2002-05-02 20:16:27 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2002/04/27 00:38:33  laurentg
+// New default source (still) used at DScaler startup or when there is no more source accessible
+//
 // Revision 1.14  2002/03/30 13:18:31  laurentg
 // New ini setting to choose the directory where to save snapshots
 //
@@ -138,25 +141,39 @@ void StillProvider_SaveSnapshot(TDeinterlaceInfo* pInfo)
     {
         int n = 0;
         char name[MAX_PATH];
+        char extension[4];
         struct stat st;
+
+        switch ((eStillFormat)Setting_GetValue(Still_GetSetting(FORMATSAVING)))
+        {
+        case STILL_TIFF_RGB:
+        case STILL_TIFF_YCbCr:
+            strcpy(extension, "tif");
+            break;
+        case STILL_JPEG:
+            strcpy(extension, "jpg");
+            break;
+        default:
+            return;
+            break;
+        }
+
+        while (n < MAX_SNAPSHOT_FILES)
+        {
+            sprintf(name,"%s\\tv%06d.%s",SavingPath,++n,extension);
+            if (stat(name, &st))
+            {
+                break;
+            }
+        }
+        if(n == MAX_SNAPSHOT_FILES)
+        {
+            ErrorBox("Could not create a file.  You may have too many captures already.");
+            return;
+        }
 
         if(Overlay_Lock(pInfo))
         {
-            while (n < MAX_SNAPSHOT_FILES)
-            {
-                sprintf(name,"%s\\tv%06d.tif",SavingPath,++n) ;
-                if (stat(name, &st))
-                {
-                    break;
-                }
-            }
-            if(n == MAX_SNAPSHOT_FILES)
-            {
-                ErrorBox("Could not create a file.  You may have too many captures already.");
-                Overlay_Unlock();
-                return;
-            }
-
             pStillSource->SaveSnapshot(name, pInfo->FrameHeight, pInfo->FrameWidth, pInfo->Overlay, pInfo->OverlayPitch);
             Overlay_Unlock();
         }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.51 2002-05-01 13:00:18 laurentg Exp $
+// $Id: StillSource.cpp,v 1.52 2002-05-02 20:16:27 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.51  2002/05/01 13:00:18  laurentg
+// Support of JPEG files added
+//
 // Revision 1.50  2002/04/27 00:38:33  laurentg
 // New default source (still) used at DScaler startup or when there is no more source accessible
 //
@@ -213,6 +216,7 @@ int __stdcall SimpleResize_InitTables(unsigned int* hControl, unsigned int* vOff
 
 static eStillFormat FormatSaving = STILL_TIFF_RGB;
 static int SlideShowDelay = 5;
+static int JpegQuality = 95;
 
 char SavingPath[MAX_PATH];
 
@@ -552,17 +556,17 @@ void CStillSource::SaveSnapshot(LPCSTR FilePath, int FrameHeight, int FrameWidth
             OpenMediaFile(FilePath, FALSE);
             break;
         }
-    case STILL_TIFF_RGB_JPEG:
-        {
-            CTiffHelper TiffHelper(this, TIFF_CLASS_R_JPEG);
-            TiffHelper.SaveSnapshot(FilePath, FrameHeight, FrameWidth, pOverlay, OverlayPitch);
-            OpenMediaFile(FilePath, FALSE);
-            break;
-        }
     case STILL_TIFF_YCbCr:
         {
             CTiffHelper TiffHelper(this, TIFF_CLASS_Y);
             TiffHelper.SaveSnapshot(FilePath, FrameHeight, FrameWidth, pOverlay, OverlayPitch);
+            OpenMediaFile(FilePath, FALSE);
+            break;
+        }
+    case STILL_JPEG:
+        {
+            CJpegHelper JpegHelper(this);
+            JpegHelper.SaveSnapshot(FilePath, FrameHeight, FrameWidth, pOverlay, OverlayPitch);
             OpenMediaFile(FilePath, FALSE);
             break;
         }
@@ -1264,6 +1268,12 @@ SETTING StillSettings[STILL_SETTING_LASTONE] =
          5, 1, 60, 1, 1,
          NULL,
         "Still", "SlideShowDelay", NULL,
+    },
+    {
+        "JPEG quality compression", SLIDER, 0, (long*)&JpegQuality,
+         95, 0, 100, 1, 1,
+         NULL,
+        "Still", "JPEGQuality", NULL,
     },
 };
 

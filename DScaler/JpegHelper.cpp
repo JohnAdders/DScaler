@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: JpegHelper.cpp,v 1.1 2002-05-01 12:57:19 laurentg Exp $
+// $Id: JpegHelper.cpp,v 1.2 2002-05-02 20:16:27 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2002/05/01 12:57:19  laurentg
+// Support of JPEG files added
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -33,7 +36,6 @@ extern "C"
 #include <setjmp.h>
 
 
-
 /* Expanded data source object for stdio input */
 
 typedef struct {
@@ -46,10 +48,26 @@ typedef struct {
 
 typedef my_source_mgr * my_src_ptr;
 
+/* Expanded data destination object for stdio output */
+
+typedef struct {
+  struct jpeg_destination_mgr pub; /* public fields */
+
+  FILE * outfile;		/* target stream */
+  JOCTET * buffer;		/* start of buffer */
+} my_destination_mgr;
+
+typedef my_destination_mgr * my_dest_ptr;
+
+
 #define INPUT_BUF_SIZE  4096	/* choose an efficiently fread'able size */
+#define OUTPUT_BUF_SIZE  4096	/* choose an efficiently fwrite'able size */
 
 #define JFREAD(file,buf,sizeofbuf)  \
   ((size_t) fread((void *) (buf), (size_t) 1, (size_t) (sizeofbuf), (file)))
+#define JFWRITE(file,buf,sizeofbuf)  \
+  ((size_t) fwrite((const void *) (buf), (size_t) 1, (size_t) (sizeofbuf), (file)))
+
 
 char msg_err[512];
 
@@ -113,9 +131,12 @@ fill_input_buffer (j_decompress_ptr cinfo)
 
   nbytes = JFREAD(src->infile, src->buffer, INPUT_BUF_SIZE);
 
-  if (nbytes <= 0) {
+  if (nbytes <= 0)
+  {
     if (src->start_of_file)	/* Treat empty input file as fatal error */
+    {
       ERREXIT(cinfo, JERR_INPUT_EMPTY);
+    }
     WARNMS(cinfo, JWRN_JPEG_EOF);
     /* Insert a fake EOI marker */
     src->buffer[0] = (JOCTET) 0xFF;
@@ -152,8 +173,10 @@ skip_input_data (j_decompress_ptr cinfo, long num_bytes)
    * it doesn't work on pipes.  Not clear that being smart is worth
    * any trouble anyway --- large skips are infrequent.
    */
-  if (num_bytes > 0) {
-    while (num_bytes > (long) src->pub.bytes_in_buffer) {
+  if (num_bytes > 0)
+  {
+    while (num_bytes > (long) src->pub.bytes_in_buffer)
+    {
       num_bytes -= (long) src->pub.bytes_in_buffer;
       (void) fill_input_buffer(cinfo);
       /* note we assume that fill_input_buffer will never return FALSE,
@@ -200,7 +223,8 @@ my_jpeg_stdio_src (j_decompress_ptr cinfo, FILE * infile)
    * This makes it unsafe to use this manager and a different source
    * manager serially with the same JPEG object.  Caveat programmer.
    */
-  if (cinfo->src == NULL) {	/* first time for this JPEG object? */
+  if (cinfo->src == NULL) /* first time for this JPEG object? */
+  {
     cinfo->src = (struct jpeg_source_mgr *)
       (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_PERMANENT,
 				  (size_t) sizeof(my_source_mgr));
@@ -219,6 +243,131 @@ my_jpeg_stdio_src (j_decompress_ptr cinfo, FILE * infile)
   src->infile = infile;
   src->pub.bytes_in_buffer = 0; /* forces fill_input_buffer on first read */
   src->pub.next_input_byte = NULL; /* until buffer loaded */
+}
+
+
+/*
+ * Initialize destination --- called by jpeg_start_compress
+ * before any data is actually written.
+ */
+
+METHODDEF(void)
+init_destination (j_compress_ptr cinfo)
+{
+  my_dest_ptr dest = (my_dest_ptr) cinfo->dest;
+
+  /* Allocate the output buffer --- it will be released when done with image */
+  dest->buffer = (JOCTET *)
+      (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_IMAGE,
+				  OUTPUT_BUF_SIZE * (size_t) sizeof(JOCTET));
+
+  dest->pub.next_output_byte = dest->buffer;
+  dest->pub.free_in_buffer = OUTPUT_BUF_SIZE;
+}
+
+
+/*
+ * Empty the output buffer --- called whenever buffer fills up.
+ *
+ * In typical applications, this should write the entire output buffer
+ * (ignoring the current state of next_output_byte & free_in_buffer),
+ * reset the pointer & count to the start of the buffer, and return TRUE
+ * indicating that the buffer has been dumped.
+ *
+ * In applications that need to be able to suspend compression due to output
+ * overrun, a FALSE return indicates that the buffer cannot be emptied now.
+ * In this situation, the compressor will return to its caller (possibly with
+ * an indication that it has not accepted all the supplied scanlines).  The
+ * application should resume compression after it has made more room in the
+ * output buffer.  Note that there are substantial restrictions on the use of
+ * suspension --- see the documentation.
+ *
+ * When suspending, the compressor will back up to a convenient restart point
+ * (typically the start of the current MCU). next_output_byte & free_in_buffer
+ * indicate where the restart point will be if the current call returns FALSE.
+ * Data beyond this point will be regenerated after resumption, so do not
+ * write it out when emptying the buffer externally.
+ */
+
+METHODDEF(Boolean)
+empty_output_buffer (j_compress_ptr cinfo)
+{
+  my_dest_ptr dest = (my_dest_ptr) cinfo->dest;
+
+  if (JFWRITE(dest->outfile, dest->buffer, OUTPUT_BUF_SIZE) !=
+      (size_t) OUTPUT_BUF_SIZE)
+  {
+    ERREXIT(cinfo, JERR_FILE_WRITE);
+  }
+
+  dest->pub.next_output_byte = dest->buffer;
+  dest->pub.free_in_buffer = OUTPUT_BUF_SIZE;
+
+  return TRUE;
+}
+
+
+/*
+ * Terminate destination --- called by jpeg_finish_compress
+ * after all data has been written.  Usually needs to flush buffer.
+ *
+ * NB: *not* called by jpeg_abort or jpeg_destroy; surrounding
+ * application must deal with any cleanup that should happen even
+ * for error exit.
+ */
+
+METHODDEF(void)
+term_destination (j_compress_ptr cinfo)
+{
+  my_dest_ptr dest = (my_dest_ptr) cinfo->dest;
+  size_t datacount = OUTPUT_BUF_SIZE - dest->pub.free_in_buffer;
+
+  /* Write any data remaining in the buffer */
+  if (datacount > 0)
+  {
+    if (JFWRITE(dest->outfile, dest->buffer, datacount) != datacount)
+    {
+      ERREXIT(cinfo, JERR_FILE_WRITE);
+    }
+  }
+  fflush(dest->outfile);
+  /* Make sure we wrote the output file OK */
+  if (ferror(dest->outfile))
+  {
+    ERREXIT(cinfo, JERR_FILE_WRITE);
+  }
+}
+
+
+/*
+ * Prepare for output to a stdio stream.
+ * The caller must have already opened the stream, and is responsible
+ * for closing it after finishing compression.
+ */
+
+GLOBAL(void)
+my_jpeg_stdio_dest (j_compress_ptr cinfo, FILE * outfile)
+{
+  my_dest_ptr dest;
+
+  /* The destination object is made permanent so that multiple JPEG images
+   * can be written to the same file without re-executing jpeg_stdio_dest.
+   * This makes it dangerous to use this manager and a different destination
+   * manager serially with the same JPEG object, because their private object
+   * sizes may be different.  Caveat programmer.
+   */
+  if (cinfo->dest == NULL)	/* first time for this JPEG object? */
+  {
+    cinfo->dest = (struct jpeg_destination_mgr *)
+      (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_PERMANENT,
+				  (size_t) sizeof(my_destination_mgr));
+  }
+
+  dest = (my_dest_ptr) cinfo->dest;
+  dest->pub.init_destination = init_destination;
+  dest->pub.empty_output_buffer = empty_output_buffer;
+  dest->pub.term_destination = term_destination;
+  dest->outfile = outfile;
 }
 
 
@@ -272,7 +421,6 @@ BOOL CJpegHelper::OpenMediaFile(LPCSTR FileName)
         return FALSE;
 	}
 
-    // Initialize the JPEG decompression object with default error handling
     // Error handling
     cinfo.err = jpeg_std_error(&jerr);
     cinfo.client_data = &jmp_mark;
@@ -294,6 +442,7 @@ BOOL CJpegHelper::OpenMediaFile(LPCSTR FileName)
         return FALSE;
     }
 
+    // Initialize the JPEG decompression object
 	jpeg_create_decompress(&cinfo);
 
 	// Specify the source of the compressed data (eg, a file)
@@ -317,9 +466,9 @@ BOOL CJpegHelper::OpenMediaFile(LPCSTR FileName)
     cinfo.quantize_colors = FALSE;
     cinfo.dct_method = JDCT_ISLOW;
     cinfo.do_fancy_upsampling = TRUE;
-    cinfo.do_block_smoothing = TRUE;
+    cinfo.do_block_smoothing = FALSE;
 
-    // Begin decompression
+    // Start decompression
 	(void)jpeg_start_decompress(&cinfo);
 
     LOG(2, "output_height %d - output_width %d", cinfo.output_height, cinfo.output_width);
@@ -395,5 +544,105 @@ BOOL CJpegHelper::OpenMediaFile(LPCSTR FileName)
 
 void CJpegHelper::SaveSnapshot(LPCSTR FilePath, int Height, int Width, BYTE* pOverlay, LONG OverlayPitch)
 {
+    struct jpeg_compress_struct cinfo;
+    struct jpeg_error_mgr jerr;
+    FILE * outfile;
+    JSAMPROW row_pointer[1];
+    JSAMPLE* pLineBuf;
+    BYTE *pBufOverlay;
+    int i, quality;
+    jmp_buf jmp_mark;
+
+    // Allocate memory buffer to store one line of data
+    pLineBuf = (JSAMPLE*)malloc(Width * 3 * sizeof(JSAMPLE));
+    if (pLineBuf == NULL)
+    {
+        return;
+    }
+
+    // Open the output stream (file)
+	if ((outfile = fopen(FilePath, "wb")) == NULL)
+    {
+        free(pLineBuf);
+        return;
+	}
+
+    // Error handling
+    cinfo.err = jpeg_std_error(&jerr);
+    cinfo.client_data = &jmp_mark;
+    cinfo.err->error_exit = my_error_exit;
+    cinfo.err->output_message = my_output_message;
+    cinfo.err->emit_message = my_emit_message;
+    cinfo.err->trace_level = 0;
+    if (setjmp(jmp_mark))
+    {
+        // If we get here, the JPEG code has signaled an error.
+        // We need to clean up the JPEG object, close the output file, and return.
+        LOG(1, "libjpeg fatal error : %s", msg_err);
+        jpeg_destroy_compress(&cinfo);
+        fclose(outfile);
+        free(pLineBuf);
+        return;
+    }
+
+    // Initialize the JPEG compression object
+    jpeg_create_compress(&cinfo);
+
+	// Specify the destination of the compressed data (eg, a file)
+	my_jpeg_stdio_dest(&cinfo, outfile);
+
+    // Set parameters for compression
+    cinfo.image_width = Width;
+    cinfo.image_height = Height;
+    cinfo.input_components = 3;
+    cinfo.in_color_space = JCS_YCbCr;
+    jpeg_set_defaults(&cinfo);
+    jpeg_set_colorspace(&cinfo, JCS_YCbCr);
+    quality = Setting_GetValue(Still_GetSetting(JPEGQUALITY));
+    jpeg_set_quality(&cinfo, quality, TRUE /* limit to baseline-JPEG values */);
+    cinfo.dct_method = JDCT_ISLOW;
+    cinfo.optimize_coding = TRUE;
+
+    // Start compression
+    jpeg_start_compress(&cinfo, TRUE);
+
+    // Process data
+    row_pointer[0] = pLineBuf;
+    while (cinfo.next_scanline < Height)
+    {
+        pBufOverlay = pOverlay + cinfo.next_scanline * OverlayPitch;
+        // YUYV => YUVYUV
+        for (i = 0 ; i < Width ; i++)
+        {
+            pLineBuf[i * 3] = pBufOverlay[i * 2];
+            if (i%2)
+            {
+                pLineBuf[i * 3 + 1] = pBufOverlay[i * 2 - 1];
+                pLineBuf[i * 3 + 2] = pBufOverlay[i * 2 + 1];
+            }
+            else
+            {
+                pLineBuf[i * 3 + 1] = pBufOverlay[i * 2 + 1];
+                if (i != (Width - 1))
+                {
+                    pLineBuf[i * 3 + 2] = pBufOverlay[i * 2 + 3];
+                }
+            }
+        }
+        (void)jpeg_write_scanlines(&cinfo, row_pointer, 1);
+    }
+
+    // Finish compression
+    jpeg_finish_compress(&cinfo);
+
+	// Release the JPEG decompression object
+    jpeg_destroy_compress(&cinfo);
+
+    // Close the input stream (file)
+    fclose(outfile);
+
+    // Free the line buffer
+    free(pLineBuf);
+
     return;
 }

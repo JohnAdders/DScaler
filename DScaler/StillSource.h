@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.29 2002-05-01 13:00:18 laurentg Exp $
+// $Id: StillSource.h,v 1.30 2002-05-02 20:16:27 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -27,8 +27,8 @@
 enum eStillFormat
 {
     STILL_TIFF_RGB = 0,
-    STILL_TIFF_RGB_JPEG,
     STILL_TIFF_YCbCr,
+    STILL_JPEG,
     STILL_FORMAT_LASTONE,
 };
 

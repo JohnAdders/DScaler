@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.94 2002-10-21 16:07:26 adcockj Exp $
+// $Id: DS_Control.h,v 1.95 2002-10-21 19:47:43 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.94  2002/10/21 16:07:26  adcockj
+// Added H & V delay options for CX2388x cards
+//
 // Revision 1.93  2002/10/21 07:29:21  adcockj
 // Added new option for reversing scroll wheel intent
 //
@@ -1394,6 +1397,7 @@ typedef enum
     CT2388XSAVEPERFORMAT,
     CT2388XSAVETVFORMATPERINPUT,
     CT2388XISINPUTPROGRESSIVE,
+    CT2388XFLIFILMDETECT,
     CT2388XHDELAY,
     CT2388XVDELAY,
     CT2388X_SETTING_LASTONE,

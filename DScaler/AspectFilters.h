@@ -45,8 +45,8 @@ needs the original destination rectangle.
    on the aspect filter execution - if no path is specified, working directory is used. 
    This file can get big pretty quickly - only use for debugging
 */
-//#define __CAspectFilterDEBUG__ "CAspectFilterDebug.log"
-#ifdef __CAspectFilterDEBUG__
+//#define __ASPECTFILTER_DEBUG__ "CAspectFilterDebug.log"
+#ifdef __ASPECTFILTER_DEBUG__
 	static FILE *debugLog = NULL;
 #endif
 
@@ -148,10 +148,10 @@ public:
 	// to avoid infinite recursion.
 	virtual BOOL applyFilters(CAspectRectangles &ar, BOOL allowReadjust)
 	{
-		#ifdef __CAspectFilterDEBUG__
+		#ifdef __ASPECTFILTER_DEBUG__
 			if (debugLog == NULL) 
 			{
-				debugLog = fopen(__CAspectFilterDEBUG__,"wt");
+				debugLog = fopen(__ASPECTFILTER_DEBUG__,"wt");
 				setvbuf(debugLog,NULL,_IONBF,0);
 			}
 		#endif
@@ -161,13 +161,13 @@ public:
 		{
 			if (bEnabled)
 			{
-				#ifdef __CAspectFilterDEBUG__
+				#ifdef __ASPECTFILTER_DEBUG__
 					fprintf(debugLog,"PRE FILTER VALUES: %s\n",f->getFilterName());
 					f->DebugDump(debugLog);
 					ar.DebugDump(debugLog);
 				#endif
 				BOOL readjust = f->adjustAspect(ar);
-				#ifdef __CAspectFilterDEBUG__
+				#ifdef __ASPECTFILTER_DEBUG__
 					fprintf(debugLog,"POST FILTER VALUES: %s\n",f->getFilterName());
 					ar.DebugDump(debugLog);
 					if (readjust) 
@@ -178,7 +178,7 @@ public:
 			}
 			else if (firstChild)
 			{
-				#ifdef __CAspectFilterDEBUG__
+				#ifdef __ASPECTFILTER_DEBUG__
 					fprintf(debugLog,"DISABLED FILTER: %s\n",f->getFilterName());
 					f->DebugDump(debugLog);
 					ar.DebugDump(debugLog);
@@ -545,7 +545,7 @@ public:
 				currentClientRect.bottom -= StatusBar_Height();
 			}
 
-			#ifdef __CAspectFilterDEBUG__
+			#ifdef __ASPECTFILTER_DEBUG__
 				fprintf(debugLog, "Current Client Rect:"); currentClientRect.DebugDump(debugLog);
 				fprintf(debugLog, "Target Client Rect :"); newRect.DebugDump(debugLog);
 			#endif
@@ -558,7 +558,7 @@ public:
 
 				currentClientRect.adjustSourceAspectSmart(newRect.sourceAspect(),screenRect);
 				
-				#ifdef __CAspectFilterDEBUG__
+				#ifdef __ASPECTFILTER_DEBUG__
 					fprintf(debugLog, "New Client Rect    :"); currentClientRect.DebugDump(debugLog);
 				#endif
 							
@@ -572,7 +572,7 @@ public:
 				currentClientRect.enforceMinSize(8);
 				AdjustWindowRectEx(&currentClientRect,GetWindowLong(hWnd,GWL_STYLE),Show_Menu,0);
 				
-				#ifdef __CAspectFilterDEBUG__
+				#ifdef __ASPECTFILTER_DEBUG__
 					fprintf(debugLog, "New Window Pos     :"); 
 					currentClientRect.DebugDump(debugLog);
 				#endif
@@ -581,7 +581,7 @@ public:
 				SetWindowPos(hWnd,NULL,currentClientRect.left,currentClientRect.top,currentClientRect.width(),currentClientRect.height(),
 							 SWP_NOZORDER);
 				
-				#ifdef __CAspectFilterDEBUG__
+				#ifdef __ASPECTFILTER_DEBUG__
                     currentClientRect.setToClient(hWnd,TRUE);
 					if (IsStatusBarVisible())
 					{

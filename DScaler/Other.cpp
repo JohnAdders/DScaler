@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.42 2002-08-07 21:53:04 adcockj Exp $
+// $Id: Other.cpp,v 1.43 2002-08-08 12:49:33 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.42  2002/08/07 21:53:04  adcockj
+// Removed todo item
+//
 // Revision 1.41  2002/07/19 10:04:26  laurentg
 // LOG in double suppressed
 //
@@ -177,6 +180,8 @@
 #include "Splash.h"
 #include "DebugLog.h"
 #include "AspectRatio.h"
+#include "SettingsPerChannel.h"
+
 
 // cope with older DX header files
 #if !defined(DDFLIP_DONOTWAIT)
@@ -215,6 +220,7 @@ long OverlayGamma = 1;
 long OverlaySharpness = 5;
 
 SETTING OtherSettings[];
+void Other_SavePerChannelSetup(void *pThis, int Start);
 
 //-----------------------------------------------------------------------------
 // Tells whether or not video overlay color control is possible
@@ -1358,6 +1364,10 @@ SETTING* Other_GetSetting(OTHER_SETTING Setting)
 void Other_ReadSettingsFromIni()
 {
     int i;
+
+    // Maybe find a better place for this
+    SettingsPerChannel_RegisterOnSetup(NULL, Other_SavePerChannelSetup);
+
     for(i = 0; i < OTHER_SETTING_LASTONE; i++)
     {
         Setting_ReadFromIni(&(OtherSettings[i]));
@@ -1376,4 +1386,20 @@ void Other_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 CTreeSettingsGeneric* Other_GetTreeSettingsPage()
 {
     return new CTreeSettingsGeneric("Overlay Settings",OtherSettings, OVERLAYBRIGHTNESS);
+}
+
+
+void Other_SavePerChannelSetup(void *pThis, int Start)
+{     
+  if (Start)
+  {
+     // Register for per channel settings
+    SettingsPerChannel_RegisterSetSection("Overlay");
+    SettingsPerChannel_RegisterSetting("OverlayBrightness","Overlay - Brightness", TRUE, &OtherSettings[OVERLAYBRIGHTNESS]);
+    SettingsPerChannel_RegisterSetting("OverlayContrast","Overlay - Contrast", TRUE, &OtherSettings[OVERLAYCONTRAST]);
+    SettingsPerChannel_RegisterSetting("OverlayHue","Overlay - Hue", TRUE, &OtherSettings[OVERLAYHUE]);
+    SettingsPerChannel_RegisterSetting("OverlaySaturation","Overlay - Saturation", TRUE, &OtherSettings[OVERLAYSATURATION]);
+    SettingsPerChannel_RegisterSetting("OverlayGamma","Overlay - Gamma", TRUE, &OtherSettings[OVERLAYGAMMA]);
+    SettingsPerChannel_RegisterSetting("OverlaySharpness","Overlay - Sharpness", TRUE, &OtherSettings[OVERLAYSHARPNESS]);
+  }   
 }

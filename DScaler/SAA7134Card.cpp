@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.cpp,v 1.6 2002-10-03 23:36:23 atnak Exp $
+// $Id: SAA7134Card.cpp,v 1.7 2002-10-04 13:24:46 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/10/03 23:36:23  atnak
+// Various changes (major): VideoStandard, AudioStandard, CSAA7134Common, cleanups, tweaks etc,
+//
 // Revision 1.5  2002/09/15 14:28:07  atnak
 // Tweaked VBI and VDelay settings
 //
@@ -898,11 +901,12 @@ void CSAA7134Card::DumpRegisters()
 // Don't know what this is for, came from v4l2 saa7134 code
 void CSAA7134Card::StatGPIO()
 {
-	MaskDataByte(SAA7134_GPIO_GPMODE3, 0, SAA7134_GPIO_GPRESCAN);
-	MaskDataByte(SAA7134_GPIO_GPMODE3, SAA7134_GPIO_GPRESCAN, SAA7134_GPIO_GPRESCAN);
+	MaskDataDword(SAA7134_GPIO_GPMODE, 0UL, SAA7134_GPIO_GPMODE_GPRESCN);
+	MaskDataDword(SAA7134_GPIO_GPMODE, SAA7134_GPIO_GPMODE_GPRESCN,
+        SAA7134_GPIO_GPMODE_GPRESCN);
 
-	DWORD Mode = ReadDword(SAA7134_GPIO_GPMODE0) & 0x0fffffff;
-	DWORD Status = ReadDword(SAA7134_GPIO_GPSTATUS0) & 0x0fffffff;
+	DWORD Mode = ReadDword(SAA7134_GPIO_GPMODE) & 0x0FFFFFFF;
+	DWORD Status = ReadDword(SAA7134_GPIO_GPSTATUS) & 0x0FFFFFFF;
 	LOG(0, "debug: gpio: mode=0x%07lx in=0x%07lx out=0x%07lx\n", Mode,
 			(~Mode) & Status, Mode & Status);
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.6 2002-10-03 23:36:23 atnak Exp $
+// $Id: SAA7134Card.h,v 1.7 2002-10-04 13:24:46 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/10/03 23:36:23  atnak
+// Various changes (major): VideoStandard, AudioStandard, CSAA7134Common, cleanups, tweaks etc,
+//
 // Revision 1.5  2002/09/16 17:51:58  atnak
 // Added controls for L/R/Nicam audio volume
 //
@@ -129,8 +132,6 @@ private:
         void (CSAA7134Card::*pInputSwitchFunction)(int);
         /// Any card specific method used to select stereo - may be NULL
         void (CSAA7134Card::*pSoundChannelFunction)(eSoundChannel);
-        /// Bit Mask for audio GPIO operations
-        DWORD GPIOMask;
     } TCardType;
 
     /// used to store the ID for autodection
@@ -342,7 +343,9 @@ private:
     const TCardType* GetCardSetup();
 
     void StandardSAA7134InputSelect(int nInput);
- 
+    void FLYVIDEO2000CardInputSelect(int nInput);
+    void MEDION5044CardInputSelect(int nInput);
+
     void SetCh1FMDeemphasis(eAudioFMDeemphasis FMDeemphasis);
     void SetCh2FMDeemphasis(eAudioFMDeemphasis FMDeemphasis);
     void SetAudioFMDematrix(eAudioFMDematrix FMDematrix);

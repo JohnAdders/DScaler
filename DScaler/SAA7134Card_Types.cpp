@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.4 2002-10-03 23:36:23 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.5 2002-10-04 13:24:46 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/10/03 23:36:23  atnak
+// Various changes (major): VideoStandard, AudioStandard, CSAA7134Common, cleanups, tweaks etc,
+//
 // Revision 1.3  2002/09/14 19:40:48  atnak
 // various changes
 //
@@ -87,7 +90,6 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
         NULL,
         StandardSAA7134InputSelect,
         NULL,
-        0,
     },
     // Card Number 1 - Proteus Pro [philips reference design]
     {
@@ -112,7 +114,6 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
         NULL,
         StandardSAA7134InputSelect,
         NULL,
-        0,
     },
     // Card Number 2 - LifeView FlyVIDEO3000
     {
@@ -155,7 +156,6 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
         NULL,
         StandardSAA7134InputSelect,
         NULL,
-        0,
     },
     // Card Number 3 - LifeView FlyVIDEO2000
     {
@@ -163,25 +163,25 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
         4,
         {
             {
-                "Tuner",  // gpio: 0x0000
+                "Tuner",
                 INPUTTYPE_TUNER,
                 1,
                 AUDIOINPUTSOURCE_LINE2,
             },
             {
-                "Composite",  // gpio: 0x4000
+                "Composite",
                 INPUTTYPE_COMPOSITE,
                 0,
                 AUDIOINPUTSOURCE_LINE2,
             },
             {
-                "Composite 2",  // gpio: 0x4000
+                "Composite 2",
                 INPUTTYPE_COMPOSITE,
                 3,
                 AUDIOINPUTSOURCE_LINE2,
             },
             {
-                "S-Video",  // gpio: 0x4000
+                "S-Video",
                 INPUTTYPE_SVIDEO,
                 8,
                 AUDIOINPUTSOURCE_LINE2,
@@ -196,9 +196,8 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
         TUNER_LG_TAPCNEW_PAL,
         AUDIOCRYSTAL_24576Hz,
         NULL,
-        StandardSAA7134InputSelect,
+        FLYVIDEO2000CardInputSelect,
         NULL,
-        0x6000,
     },
     // Card Number 4 - EMPRESS (has TS, i2srate=48000, has CCIR656 video out)
     {
@@ -235,7 +234,6 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
         NULL,
         StandardSAA7134InputSelect,
         NULL,
-        0,
     },
     // Card Number 5 - SKNet Monster TV
     {
@@ -272,7 +270,6 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
         NULL,
         StandardSAA7134InputSelect,
         NULL,
-        0,
     },
     // Card Number 6 - Tevion MD 9717
     {
@@ -309,7 +306,6 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
         NULL,
         StandardSAA7134InputSelect,
         NULL,
-        0,
     },
     // Card Number 7 - KNC One TV-Station RDS  (needs tda9887)
     {
@@ -346,7 +342,6 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
         NULL,
         StandardSAA7134InputSelect,
         NULL,
-        0,
     },
     // Card Number 8 - Terratec Cinergy 400 TV
     {
@@ -383,7 +378,6 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
         NULL,
         StandardSAA7134InputSelect,
         NULL,
-        0,
     },
     // Card Number 9 - Medion 5044
     {
@@ -391,7 +385,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
         5,
         {
             {
-                "Tuner", // gpio: 0x4000
+                "Tuner",
                 INPUTTYPE_TUNER,
                 1,
                 AUDIOINPUTSOURCE_DAC,
@@ -424,9 +418,8 @@ const CSAA7134Card::TCardType CSAA7134Card::m_TVCards[] =
         TUNER_USER_SETUP, //TUNER_PHILIPS_FM1216ME_MK3,
         AUDIOCRYSTAL_24576Hz,
         NULL,
-        StandardSAA7134InputSelect,
+        MEDION5044CardInputSelect,
         NULL,
-        0x6000,
     },
 };
 
@@ -499,38 +492,50 @@ const CSAA7134Card::TCardType* CSAA7134Card::GetCardSetup()
 {
     return &(m_TVCards[m_CardType]);
 }
-/*
 
-void CBT848Card::RSBTCardInputSelect(int nInput)
+
+void CSAA7134Card::FLYVIDEO2000CardInputSelect(int nInput)
 {
-    StandardBT848InputSelect(nInput);
+    StandardSAA7134InputSelect(nInput);
     switch(nInput)
     {
+    case 0:
+        MaskDataDword(SAA7134_GPIO_GPMODE, 0x6000, 0x6000);
+        MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x0000, 0x6000);
+        break;
+    case 1:
+    case 2:
     case 3:
-        AndOrDataDword(BT848_GPIO_DATA, 0x1000, ~0x1F800);
-        Sleep();
-        AndOrDataDword(BT848_GPIO_DATA, 0x0000, ~0x1000);
-        break;
-    case 4:
-        AndOrDataDword(BT848_GPIO_DATA, 0x9000, ~0x1F800);
-        Sleep();
-        AndOrDataDword(BT848_GPIO_DATA, 0x0000, ~0x1000);
-        break;
-    case 5:
-        AndOrDataDword(BT848_GPIO_DATA, 0x11000, ~0x1F800);
-        Sleep();
-        AndOrDataDword(BT848_GPIO_DATA, 0x0000, ~0x1000);
-        break;
-    case 6:
-        AndOrDataDword(BT848_GPIO_DATA, 0x19000, ~0x1F800);
-        Sleep();
-        AndOrDataDword(BT848_GPIO_DATA, 0x0000, ~0x1000);
+        MaskDataDword(SAA7134_GPIO_GPMODE, 0x6000, 0x6000);
+        MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x4000, 0x6000);
         break;
     default:
         break;
     }
 }
-*/
+
+
+void CSAA7134Card::MEDION5044CardInputSelect(int nInput)
+{
+    StandardSAA7134InputSelect(nInput);
+    switch(nInput)
+    {
+    case 0:
+        MaskDataDword(SAA7134_GPIO_GPMODE, 0x6000, 0x6000);
+        MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x4000, 0x6000);
+        break;
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+        MaskDataDword(SAA7134_GPIO_GPMODE, 0x6000, 0x6000);
+        MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x0000, 0x6000);
+        break;
+    default:
+        break;
+    }
+}
+
 
 void CSAA7134Card::StandardSAA7134InputSelect(int nInput)
 {
@@ -561,118 +566,4 @@ void CSAA7134Card::StandardSAA7134InputSelect(int nInput)
     BYTE MuxSelect = m_TVCards[m_CardType].Inputs[nInput].MuxSelect;
     MaskDataByte(SAA7134_ANALOG_IN_CTRL1, MuxSelect, 0x0F);
 }
-
-
-// ----------------------------------------------------------------------- 
-// Card specifc settings for those cards that
-// use GPIO pinds to control the stereo output
-// from the tuner
-/*
-void CBT848Card::SetAudioGVBCTV3PCI(eSoundChannel soundChannel)
-{
-    OrDataDword(BT848_GPIO_DATA, 0x300);
-    switch(soundChannel)
-    {
-    case SOUNDCHANNEL_STEREO:
-        AndOrDataDword(BT848_GPIO_DATA, 0x200, ~0x300);
-        break;
-    case SOUNDCHANNEL_LANGUAGE2:
-        AndOrDataDword(BT848_GPIO_DATA, 0x300, ~0x300);
-        break;
-    default:
-    case SOUNDCHANNEL_LANGUAGE1:
-        AndOrDataDword(BT848_GPIO_DATA, 0x000, ~0x300);
-        break;
-    }
-}
-
-void CBT848Card::SetAudioLT9415(eSoundChannel soundChannel)
-{
-    switch(soundChannel)
-    {
-    case SOUNDCHANNEL_STEREO:
-        AndOrDataDword(BT848_GPIO_DATA, 0x0880, ~0x0880);
-        break;
-    case SOUNDCHANNEL_LANGUAGE2:
-        AndOrDataDword(BT848_GPIO_DATA, 0x0080, ~0x0880);
-        break;
-    default:
-    case SOUNDCHANNEL_LANGUAGE1:
-        AndOrDataDword(BT848_GPIO_DATA, 0x0000, ~0x0880);
-        break;
-    }
-}
-
-void CBT848Card::SetAudioTERRATV(eSoundChannel soundChannel)
-{
-    OrDataDword(BT848_GPIO_DATA, 0x180000);
-    switch(soundChannel)
-    {
-    case SOUNDCHANNEL_STEREO:
-        AndOrDataDword(BT848_GPIO_DATA, 0x180000, ~0x180000);
-        break;
-    case SOUNDCHANNEL_LANGUAGE2:
-        AndOrDataDword(BT848_GPIO_DATA, 0x080000, ~0x180000);
-        break;
-    default:
-    case SOUNDCHANNEL_LANGUAGE1:
-        AndOrDataDword(BT848_GPIO_DATA, 0x000000, ~0x180000);
-        break;
-    }
-}
-
-void CBT848Card::SetAudioAVER_TVPHONE(eSoundChannel soundChannel)
-{
-    OrDataDword(BT848_GPIO_DATA, 0x180000);
-    switch(soundChannel)
-    {
-    case SOUNDCHANNEL_STEREO:
-        AndOrDataDword(BT848_GPIO_DATA, 0x01, ~0x03);
-        break;
-    case SOUNDCHANNEL_LANGUAGE1:
-        AndOrDataDword(BT848_GPIO_DATA, 0x02, ~0x03);
-        break;
-    default:
-        break;
-    }
-}
-
-void CBT848Card::SetAudioWINFAST2000(eSoundChannel soundChannel)
-{
-    OrDataDword(BT848_GPIO_DATA, 0x180000);
-    switch(soundChannel)
-    {
-    case SOUNDCHANNEL_STEREO:
-        AndOrDataDword(BT848_GPIO_DATA, 0x020000, ~0x430000);
-        break;
-    case SOUNDCHANNEL_LANGUAGE1:
-        AndOrDataDword(BT848_GPIO_DATA, 0x420000, ~0x430000);
-        break;
-    case SOUNDCHANNEL_LANGUAGE2:
-        AndOrDataDword(BT848_GPIO_DATA, 0x410000, ~0x430000);
-        break;
-    default:
-        AndOrDataDword(BT848_GPIO_DATA, 0x420000, ~0x430000);
-        break;
-    }
-}
-
-void CBT848Card::SetAudioWINDVR(eSoundChannel soundChannel)
-{
-    OrDataDword(BT848_GPIO_DATA, 0x180000);
-    switch(soundChannel)                                                                   
-    {
-    case SOUNDCHANNEL_MONO:
-        AndOrDataDword(BT848_GPIO_DATA, 0x040000, ~0x140000);
-        break;
-    case SOUNDCHANNEL_LANGUAGE2:
-        AndOrDataDword(BT848_GPIO_DATA, 0x100000, ~0x140000);
-        break;
-    default:
-        //
-        break;
-    }
-}
-*/
-
 

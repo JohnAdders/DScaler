@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134_Defines.h,v 1.5 2002-10-03 23:36:23 atnak Exp $
+// $Id: SAA7134_Defines.h,v 1.6 2002-10-04 13:24:46 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/10/03 23:36:23  atnak
+// Various changes (major): VideoStandard, AudioStandard, CSAA7134Common, cleanups, tweaks etc,
+//
 // Revision 1.4  2002/09/14 19:40:48  atnak
 // various changes
 //
@@ -530,17 +533,13 @@
 #define SAA7134_TS_DMA2                         0x1A6
 
 // GPIO Controls
-#define SAA7134_GPIO_GPRESCAN                   0x80
-#define SAA7134_GPIO_27_25                      0x0E
-
-#define SAA7134_GPIO_GPMODE0                    0x1B0
-#define SAA7134_GPIO_GPMODE1                    0x1B1
-#define SAA7134_GPIO_GPMODE2                    0x1B2
-#define SAA7134_GPIO_GPMODE3                    0x1B3
-#define SAA7134_GPIO_GPSTATUS0                  0x1B4
-#define SAA7134_GPIO_GPSTATUS1                  0x1B5
-#define SAA7134_GPIO_GPSTATUS2                  0x1B6
-#define SAA7134_GPIO_GPSTATUS3                  0x1B7
+#define SAA7134_GPIO_GPMODE                     0x1B0
+#define     SAA7134_GPIO_GPMODE_GPMOD_23_0          (0x7FFFFF)
+#define     SAA7134_GPIO_GPMODE_GPMOD_27_25         (7<<25)
+#define     SAA7134_GPIO_GPMODE_GPRESCN             (1<<31)
+#define SAA7134_GPIO_GPSTATUS                   0x1B4
+#define     SAA7134_GPIO_GPSTATUS_GPSTA_23_0        (0x7FFFFF)
+#define     SAA7134_GPIO_GPSTATUS_GPSTA_27_25       (7<<25)
 
 // I2S output
 #define SAA7134_I2S_AUDIO_OUTPUT                0x1C0

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Filter.cpp,v 1.29 2002-08-15 14:16:18 kooiman Exp $
+// $Id: Filter.cpp,v 1.30 2002-09-17 17:41:54 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2002/08/15 14:16:18  kooiman
+// Cleaner settings per channel implementation
+//
 // Revision 1.28  2002/08/14 07:09:18  robmuller
 // Improved filter ordering.
 //
@@ -108,6 +111,7 @@
 #include "OSD.h"
 #include "DebugLog.h"
 #include "SettingsPerChannel.h"
+#include "crash.h"
 
 long NumFilters = 0;
 
@@ -135,6 +139,7 @@ long Filter_DoInput(TDeinterlaceInfo* pInfo, int History, BOOL HurryUp)
                         Filters[i]->CanDoInterlaced)
                     {
                         SourceAspectAdjust *= Filters[i]->pfnAlgorithm(pInfo);
+						CHECK_FPU_STACK
                         SourceAspectAdjust /= 1000;
                     }
                 }
@@ -156,6 +161,7 @@ void Filter_DoOutput(TDeinterlaceInfo* pInfo, int History, BOOL HurryUp)
                 if(History >= Filters[i]->HistoryRequired)
                 {
                     Filters[i]->pfnAlgorithm(pInfo);
+					CHECK_FPU_STACK
                 }
             }
         }

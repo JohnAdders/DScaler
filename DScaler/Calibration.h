@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.h,v 1.26 2002-02-16 13:22:23 laurentg Exp $
+// $Id: Calibration.h,v 1.27 2002-02-16 16:43:15 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -81,14 +81,14 @@ enum eTypeCalibration {
 class CColorBar
 {
 public:
-    CColorBar(unsigned short int left, unsigned short int right, unsigned short int top, unsigned short int bottom, eTypeDraw type_draw, int param_draw, BOOL YUV, unsigned char R_Y, unsigned char G_U, unsigned char B_V, unsigned char R_Y_2, unsigned char G_U_2, unsigned char B_V_2);
+    CColorBar(unsigned short int left, unsigned short int right, unsigned short int top, unsigned short int bottom, eTypeDraw type_draw, int param1_draw, int param2_draw, BOOL YUV, unsigned char R_Y, unsigned char G_U, unsigned char B_V, unsigned char R_Y_2, unsigned char G_U_2, unsigned char B_V_2);
     CColorBar(CColorBar* pColorBar);
 
     /// This method returns the position of the color bar
     void GetPosition(unsigned short int* left, unsigned short int* right, unsigned short int* top, unsigned short int* bottom);
 
     /// This method returns the type of draw for the color bar
-    eTypeDraw GetTypeDraw(int* pParamDraw);
+    eTypeDraw GetTypeDraw(int* pParam1Draw, int* pParam2Draw);
 
     /// This methode returns the reference color
     void GetRefColor(BOOL YUV, unsigned char* pR_Y, unsigned char* pG_U, unsigned char* pB_V);
@@ -187,8 +187,9 @@ protected:
     /// Type of draw
     eTypeDraw m_TypeDraw;
 
-    /// Parameter
-    int m_ParamDraw;
+    /// Parameters
+    int m_Param1Draw;
+    int m_Param2Draw;
 
 private:
     /// Convert RGB to YUV

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Calibration.cpp,v 1.47 2002-02-16 13:22:23 laurentg Exp $
+// $Id: Calibration.cpp,v 1.48 2002-02-16 16:43:15 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.47  2002/02/16 13:22:23  laurentg
+// Gradation of colors for pattern generator
+//
 // Revision 1.46  2002/02/16 11:37:29  laurentg
 // Pattern generator improvments
 // New gamma and test scaling patterns
@@ -129,14 +132,15 @@ static BOOL ShowYUVDelta = TRUE;
 /////////////////////////////////////////////////////////////////////////////
 // Class CColorBar
 
-CColorBar::CColorBar(unsigned short int left, unsigned short int right, unsigned short int top, unsigned short int bottom, eTypeDraw type_draw, int param_draw, BOOL YUV, unsigned char R_Y, unsigned char G_U, unsigned char B_V, unsigned char R_Y_2, unsigned char G_U_2, unsigned char B_V_2)
+CColorBar::CColorBar(unsigned short int left, unsigned short int right, unsigned short int top, unsigned short int bottom, eTypeDraw type_draw, int param1_draw, int param2_draw, BOOL YUV, unsigned char R_Y, unsigned char G_U, unsigned char B_V, unsigned char R_Y_2, unsigned char G_U_2, unsigned char B_V_2)
 { 
     m_LeftBorder = left; 
     m_RightBorder = right; 
     m_TopBorder = top; 
     m_BottomBorder = bottom;
     m_TypeDraw = type_draw;
-    m_ParamDraw = param_draw;
+    m_Param1Draw = param1_draw;
+    m_Param2Draw = param2_draw;
     if (YUV)
     {
         ref_Y_val = R_Y;
@@ -178,7 +182,7 @@ CColorBar::CColorBar(CColorBar* pColorBar)
     m_TopBorder = top; 
     m_BottomBorder = bottom;
 
-    m_TypeDraw = pColorBar->GetTypeDraw(&m_ParamDraw);
+    m_TypeDraw = pColorBar->GetTypeDraw(&m_Param1Draw, &m_Param1Draw);
 
     pColorBar->GetRefColor(FALSE, &val1, &val2, &val3);
     ref_R_val = val1;
@@ -213,9 +217,10 @@ void CColorBar::GetPosition(unsigned short int* left, unsigned short int* right,
 }
 
 // This method returns the type of draw for the color bar
-eTypeDraw CColorBar::GetTypeDraw(int* pParamDraw)
+eTypeDraw CColorBar::GetTypeDraw(int* pParam1Draw, int* pParam2Draw)
 {
-    *pParamDraw = m_ParamDraw;
+    *pParam1Draw = m_Param1Draw;
+    *pParam2Draw = m_Param2Draw;
     return m_TypeDraw;
 }
 
@@ -496,7 +501,7 @@ void CColorBar::Draw(BYTE* Buffer, int Pitch, int Height, int Width, int Oversca
     case DRAW_LINEH:
         for (i = top ; i <= bottom ; i++)
         {
-            k = (i - top) / m_ParamDraw;
+            k = (i - top) / m_Param1Draw;
             buf = Buffer + (i * Pitch);
             for (j = left ; j <= right ; j++)
             {
@@ -520,7 +525,7 @@ void CColorBar::Draw(BYTE* Buffer, int Pitch, int Height, int Width, int Oversca
             buf = Buffer + (i * Pitch);
             for (j = left ; j <= right ; j++)
             {
-                k = (j - left) / m_ParamDraw;
+                k = (j - left) / m_Param1Draw;
                 if (k%2)
                 {
                     buf[j*2  ] = ref_Y_val2;
@@ -541,8 +546,8 @@ void CColorBar::Draw(BYTE* Buffer, int Pitch, int Height, int Width, int Oversca
             buf = Buffer + (i * Pitch);
             for (j = left ; j <= right ; j++)
             {
-                k = (i - top) / m_ParamDraw;
-                l = (j - left) / m_ParamDraw;
+                k = (i - top) / m_Param1Draw;
+                l = (j - left) / m_Param1Draw;
                 if (k%2 != l%2)
                 {
                     buf[j*2  ] = ref_Y_val2;
@@ -575,7 +580,7 @@ void CColorBar::Draw(BYTE* Buffer, int Pitch, int Height, int Width, int Oversca
             buf = Buffer + (i * Pitch);
             for (j = left ; j <= right ; j++)
             {
-                buf[j*2  ] = 219 * (j - left) / (right - left) + 16;
+                buf[j*2  ] = (m_Param2Draw - m_Param1Draw) * (j - left) / (right - left) + m_Param1Draw;
                 buf[j*2+1] = (j % 2) ? ref_V_val : ref_U_val;
             }
         }
@@ -587,7 +592,7 @@ void CColorBar::Draw(BYTE* Buffer, int Pitch, int Height, int Width, int Oversca
             buf = Buffer + (i * Pitch);
             for (j = left ; j <= right ; j++)
             {
-                buf[j*2  ] = 219 * (i - top) / (bottom - top) + 16;
+                buf[j*2  ] = (m_Param2Draw - m_Param1Draw) * (i - top) / (bottom - top) + m_Param1Draw;
                 buf[j*2+1] = (j % 2) ? ref_V_val : ref_U_val;
             }
         }
@@ -774,7 +779,7 @@ CTestPattern::CTestPattern(LPCSTR FileName)
                 m_Height = i_val[1];
                 strcpy(m_PatternName, strstr(&Buffer[4], s_val));
             }
-            else if ((n = sscanf(Buffer, "RECT %d %d %d %d %s %d %d %d %d %d %d %s %d", &i_val[0], &i_val[1], &i_val[2], &i_val[3], s_val, &i_val[4], &i_val[5], &i_val[6], &i_val[7], &i_val[8], &i_val[9], s_val2, &i_val[10])) >= 12)
+            else if ((n = sscanf(Buffer, "RECT %d %d %d %d %s %d %d %d %d %d %d %s %d %d", &i_val[0], &i_val[1], &i_val[2], &i_val[3], s_val, &i_val[4], &i_val[5], &i_val[6], &i_val[7], &i_val[8], &i_val[9], s_val2, &i_val[10])) >= 12)
             {
                 if (!strcmp(s_val, "RGB"))
                 {
@@ -788,11 +793,7 @@ CTestPattern::CTestPattern(LPCSTR FileName)
                 {
                     continue;
                 }
-                if (!strcmp(s_val2, "FILLED"))
-                {
-                    TypeDraw = DRAW_FILLED;
-                }
-                else if (!strcmp(s_val2, "BORDER"))
+                if (!strcmp(s_val2, "BORDER"))
                 {
                     TypeDraw = DRAW_BORDER;
                 }
@@ -808,14 +809,6 @@ CTestPattern::CTestPattern(LPCSTR FileName)
                 {
                     TypeDraw = DRAW_LINEX;
                 }
-                else if (!strcmp(s_val2, "GRADH"))
-                {
-                    TypeDraw = DRAW_GRADATIONH;
-                }
-                else if (!strcmp(s_val2, "GRADV"))
-                {
-                    TypeDraw = DRAW_GRADATIONV;
-                }
                 else
                 {
                     continue;
@@ -825,7 +818,54 @@ CTestPattern::CTestPattern(LPCSTR FileName)
                     i_val[10] = 1;
                 }
                 LOG(5,"RECT %s (%d) %s %d %d %d %d %d %d %d %d %d %d", s_val2, i_val[10], YUV?"YUV":"RGB", i_val[0], i_val[1], i_val[2], i_val[3], i_val[4], i_val[5], i_val[6], i_val[7], i_val[8], i_val[9]);
-                color_bar = new CColorBar(i_val[0], i_val[1], i_val[2], i_val[3], TypeDraw, i_val[10], YUV, i_val[4], i_val[5], i_val[6], i_val[7], i_val[8], i_val[9]);
+                color_bar = new CColorBar(i_val[0], i_val[1], i_val[2], i_val[3], TypeDraw, i_val[10], 0, YUV, i_val[4], i_val[5], i_val[6], i_val[7], i_val[8], i_val[9]);
+                m_ColorBars.push_back(color_bar);
+            }
+            else if ((n = sscanf(Buffer, "RECT %d %d %d %d %s %d %d %d %s %d %d", &i_val[0], &i_val[1], &i_val[2], &i_val[3], s_val, &i_val[4], &i_val[5], &i_val[6], s_val2, &i_val[7], &i_val[8])) >= 9)
+            {
+                if (!strcmp(s_val, "RGB"))
+                {
+                    YUV = FALSE;
+                }
+                else if (!strcmp(s_val, "YUV"))
+                {
+                    YUV = TRUE;
+                }
+                else
+                {
+                    continue;
+                }
+                if (!strcmp(s_val2, "FILLED") && n == 9)
+                {
+                    TypeDraw = DRAW_FILLED;
+                    i_val[7] = 0;
+                    i_val[8] = 0;
+                }
+                else if (!strcmp(s_val2, "BORDER") && n == 10)
+                {
+                    TypeDraw = DRAW_BORDER;
+                    i_val[8] = 0;
+                }
+                else if (!strcmp(s_val2, "BORDER") && n == 9)
+                {
+                    TypeDraw = DRAW_BORDER;
+                    i_val[7] = 1;
+                    i_val[8] = 0;
+                }
+                else if (!strcmp(s_val2, "GRADH") && n == 11)
+                {
+                    TypeDraw = DRAW_GRADATIONH;
+                }
+                else if (!strcmp(s_val2, "GRADV") && n == 11)
+                {
+                    TypeDraw = DRAW_GRADATIONV;
+                }
+                else
+                {
+                    continue;
+                }
+                LOG(5,"RECT %s (%d) %s %d %d %d %d %d %d %d", s_val2, i_val[7], YUV?"YUV":"RGB", i_val[0], i_val[1], i_val[2], i_val[3], i_val[4], i_val[5], i_val[6]);
+                color_bar = new CColorBar(i_val[0], i_val[1], i_val[2], i_val[3], TypeDraw, i_val[7], i_val[8], YUV, i_val[4], i_val[5], i_val[6], i_val[4], i_val[5], i_val[6]);
                 m_ColorBars.push_back(color_bar);
             }
             else if ((n = sscanf(Buffer, "GRP %s %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d", s_val, &i_val[0], &i_val[1], &i_val[2], &i_val[3], &i_val[4], &i_val[5], &i_val[6], &i_val[7], &i_val[8], &i_val[9], &i_val[10], &i_val[11], &i_val[12], &i_val[13], &i_val[14], &i_val[15])) >= 2)

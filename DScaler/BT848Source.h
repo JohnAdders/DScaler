@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.19 2002-02-09 02:44:56 laurentg Exp $
+// $Id: BT848Source.h,v 1.20 2002-02-09 14:46:05 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,7 +67,7 @@ public:
     BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat);
     BOOL IsVideoPresent();
     void DecodeVBI(TDeinterlaceInfo* pInfo);
-    LPCSTR GetMenuLabel() {return NULL;};
+    LPCSTR GetMenuLabel();
     BOOL OpenMediaFile(LPCSTR FileName, BOOL NewPlayList) {return FALSE;};
     BOOL IsAccessAllowed() {return TRUE;};
     void SetOverscan();

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.20 2002-02-09 02:51:38 laurentg Exp $
+// $Id: Providers.cpp,v 1.21 2002-02-09 14:46:04 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2002/02/09 02:51:38  laurentg
+// Grayed the channels when the source has no tuner
+//
 // Revision 1.19  2002/02/08 00:36:06  laurentg
 // Support of a new type of file : DScaler patterns
 //
@@ -136,7 +139,14 @@ int Providers_Load(HMENU hMenu)
         {
             if(Sources.size() < 100)
             {
-                sprintf(Text, "BT848 Card %d", i + 1);
+                if (BT848Provider->GetSource(i)->GetMenuLabel() == NULL)
+                {
+                    sprintf(Text, "BT848 Card %d", i + 1);
+                }
+                else
+                {
+                    strcpy(Text, BT848Provider->GetSource(i)->GetMenuLabel());
+                }
                 AppendMenu(hSubMenu, MF_STRING | MF_ENABLED, IDM_SOURCE_FIRST + Sources.size(), Text);
             }
             Sources.push_back(BT848Provider->GetSource(i));

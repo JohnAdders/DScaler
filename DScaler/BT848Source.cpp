@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.25 2002-02-09 02:44:56 laurentg Exp $
+// $Id: BT848Source.cpp,v 1.26 2002-02-09 14:46:05 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2002/02/09 02:44:56  laurentg
+// Overscan now stored in a setting of the source
+//
 // Revision 1.24  2002/02/08 19:27:18  adcockj
 // Fixed problems with video settings dialog
 //
@@ -589,7 +592,7 @@ LPCSTR CBT848Source::GetStatus()
     {
         pRetVal = "No Video Signal Found";
     }
-    else
+    else if (IsInTunerMode())
     {
         if (*VT_GetStation() != 0x00)
         {
@@ -599,6 +602,14 @@ LPCSTR CBT848Source::GetStatus()
         {
             pRetVal = VPSLastName;
         }
+        else
+        {
+            pRetVal = Channel_GetName();
+        }
+    }
+    else
+    {
+        pRetVal = m_pBT848Card->GetInputName(m_VideoSource->GetValue());
     }
     return pRetVal;
 }
@@ -1194,6 +1205,11 @@ void CBT848Source::DecodeVBI(TDeinterlaceInfo* pInfo)
 eTunerId CBT848Source::GetTunerId()
 {
     return m_pBT848Card->GetTuner()->GetTunerId();
+}
+
+LPCSTR CBT848Source::GetMenuLabel()
+{
+    return m_pBT848Card->GetCardName(m_pBT848Card->GetCardType());
 }
 
 void CBT848Source::SetOverscan()

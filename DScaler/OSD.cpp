@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.48 2002-02-09 13:01:57 laurentg Exp $
+// $Id: OSD.cpp,v 1.49 2002-02-09 14:46:04 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.48  2002/02/09 13:01:57  laurentg
+// Function OSD_ShowUI added
+//
 // Revision 1.47  2002/02/08 00:42:25  laurentg
 // Support of a new type of file : DScaler patterns
 //
@@ -802,7 +805,7 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
         // Channel
         nLine = 2;
 
-        // Video input + video format
+        // Video input
         OSD_AddText(pSource->GetStatus(), Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
 		/// \todo fix this to get correct details
@@ -888,31 +891,16 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
         nLine = -1;
         if (Setting_GetValue(OutThreads_GetSetting(DOACCURATEFLIPS)))
         {
-            strcpy(szInfo, "Judder Terminator ON");
+            OSD_AddText("Judder Terminator", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
         }
-        else
-        {
-            strcpy(szInfo, "Judder Terminator OFF");
-        }
-        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
         if (Setting_GetValue(FD60_GetSetting(FALLBACKTOVIDEO)))
         {
-            strcpy(szInfo, "Fallback on Bad Pulldown ON");
+            OSD_AddText("Fallback on Bad Pulldown", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
         }
-        else
-        {
-            strcpy(szInfo, "Fallback on Bad Pulldown OFF");
-        }
-        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
         if (Setting_GetValue(OutThreads_GetSetting(AUTODETECT)))
         {
-            strcpy(szInfo, "Auto Pulldown Detect ON");
+            OSD_AddText("Auto Pulldown Detect", Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
         }
-        else
-        {
-            strcpy(szInfo, "Auto Pulldown Detect OFF");
-        }
-        OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
         OSD_AddText(GetDeinterlaceModeName(), Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_LEFT, dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
 
         // Filters
@@ -922,13 +910,8 @@ void OSD_RefreshInfosScreen(HWND hWnd, double Size, int ShowType)
             strcpy(szInfo, Filters[i]->szName);
             if (Filters[i]->bActive)
             {
-                strcat(szInfo, " ON");
+                OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
             }
-            else
-            {
-                strcat(szInfo, " OFF");
-            }
-            OSD_AddText(szInfo, Size, -1, -1, OSDBACK_LASTONE, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine--, dfMargin, Size));
         }
         break;
 

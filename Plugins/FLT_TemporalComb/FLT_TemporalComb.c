@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TemporalComb.c,v 1.14 2002-08-29 23:52:54 lindsey Exp $
+// $Id: FLT_TemporalComb.c,v 1.15 2002-10-13 07:42:55 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001, 2002 Lindsey Dubb.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/08/29 23:52:54  lindsey
+// Corrected comb filter for PAL video
+//
 // Revision 1.13  2002/08/07 00:41:59  lindsey
 // Made prefetching into a user option.
 //
@@ -171,8 +174,8 @@ typedef enum
     MODE_LASTONE,
 } combMODE;
 
-// Uncomment this and turn on "Trade Speed for Accuracy" to turn the pixels which
-// would have been averaged pink.  (Without the Trade Speed setting, feedback will
+// Uncomment this and turn on "High Quality" to turn the pixels which
+// would have been averaged pink.  (Without the High Quality setting, feedback will
 // make the result impossible to usefully interpret.)
 
 //#define TCOMB_DEBUG
@@ -246,15 +249,15 @@ static LONG             gDecayCoefficient = 85;
 // this filter uses a better motion detector, and also only looks at shimmering pixels.
 // Still, don't set it too high or you will see artifacts.  And don't set it too low
 // or you will miss some of the worst dot crawl.  Note that you'll have to increase its
-// value if you have Odd/Even Luma Peaking enabled, and can decrease it if Trade Speed
-// for Accuracy is enabled.
+// value if you have Odd/Even Luma Peaking enabled, and can decrease it if High Quality
+// is enabled.
 // You can afford to set this a bit lower if you run a noise filter, first.  That cuts
 // down on spurious identification of shimmering.
 
 static LONG             gInPhaseColorThreshold = 35;
 
 
-// For "Trade Speed for Accuracy," store the most recent four fields (and the current
+// For "High Quality," store the most recent four fields (and the current
 // field) to prevent feedback effects
 
 #define MAX_BUFFERS     9
@@ -306,7 +309,7 @@ static SETTING          FLT_TemporalCombSettings[FLT_TCOMB_SETTING_LASTONE] =
         "TCombFilter", "UseCombFilter", NULL,
     },
     {
-        "Trade Speed for Accuracy", ONOFF, 0, &gDoFieldBuffering,
+        "High Quality", ONOFF, 0, &gDoFieldBuffering,
         FALSE, 0, 1, 1, 1,
         NULL,
         "TCombFilter", "SpeedForAccuracy", NULL,
@@ -315,7 +318,7 @@ static SETTING          FLT_TemporalCombSettings[FLT_TCOMB_SETTING_LASTONE] =
         "Video Mode", ITEMFROMLIST, 0, (LONG*)&gMode,
         MODE_NTSC, MODE_NTSC, MODE_LASTONE -1, 1, 1,
         ModeList,
-        "HistogramFilter", "DisplayMode", NULL,
+        "TCombFilter", "DisplayMode", NULL,
     },
 };
 
@@ -338,7 +341,7 @@ static FILTER_METHOD    TemporalCombMethod =
     FLT_TemporalCombSettings,
     WM_FLT_TCOMB_GETVALUE - WM_APP,         // Settings offset
     TRUE,                                   // Can handle interlaced material (but progressive?)
-    4,                                      // Required past fields
+    9,                                      // Required past fields (9 are only necessary with PAL low quality mode)
     IDH_TEMPORAL_COMB,
 };
 

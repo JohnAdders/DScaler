@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TemporalComb.asm,v 1.10 2002-08-29 23:52:54 lindsey Exp $
+// $Id: FLT_TemporalComb.asm,v 1.11 2002-10-13 07:42:55 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001, 2002 Lindsey Dubb.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 // 
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/08/29 23:52:54  lindsey
+// Corrected comb filter for PAL video
+//
 // Revision 1.9  2002/08/07 00:41:59  lindsey
 // Made prefetching into a user option.
 //
@@ -417,11 +420,8 @@ void RESCALING_PROCEDURE_NAME( LONG* pDecayNumerator, LONG* pAveragingThreshold,
         LastLastIndex = 8;
     }
 
-    if( (pTPictures[0] == NULL) || (pTPictures[LastIndex] == NULL) || (pTPictures[LastLastIndex] == NULL) )
-    {
-        return 1000;
-    }
 
+    // Update buffers (if necessary), and verify that we have enough fields to run the filter
     if( gDoFieldBuffering == TRUE )
     {
         LONG    ErrorCode;
@@ -431,10 +431,11 @@ void RESCALING_PROCEDURE_NAME( LONG* pDecayNumerator, LONG* pAveragingThreshold,
             return ErrorCode;
         }
     }
-    else
+    else if( (pTPictures[0] == NULL) || (pTPictures[LastIndex] == NULL) || (pTPictures[LastLastIndex] == NULL) )
     {
-        ;                   // Do nothing
+        return 1000;;                   // Do nothing
     }
+
 
     // Determine the accumulation constant
     // This is chosen to be just small enough that accumulated shimmer can never exceed SHRT_MAX, which

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.cpp,v 1.10 2002-04-07 14:52:13 tobbej Exp $
+// $Id: DSGraph.cpp,v 1.11 2002-04-16 15:26:54 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/04/07 14:52:13  tobbej
+// fixed race when changing resolution
+// improved error handling
+//
 // Revision 1.9  2002/04/03 19:52:30  tobbej
 // added some more logging to help track the filters submenu problem
 //
@@ -186,6 +190,22 @@ bool CDShowGraph::getNextSample(CComPtr<IMediaSample> &pSample)
 	return true;
 }
 
+void CDShowGraph::waitForNextField()
+{
+	if(m_DSRend==NULL)
+	{
+		return;
+	}
+	HRESULT hr=m_DSRend->WaitForNextField(400);
+	if(FAILED(hr))
+	{
+		CString tmpstr;
+		DWORD len=AMGetErrorText(hr,tmpstr.GetBufferSetLength(MAX_ERROR_TEXT_LEN),MAX_ERROR_TEXT_LEN);
+		tmpstr.ReleaseBuffer(len);
+		LOG(3, "WaitForNextField failed - Error Code: '0x%x' Error Text: '%s'", hr,(LPCSTR)tmpstr);
+	}
+}
+
 void CDShowGraph::start()
 {
 	if(m_pSource!=NULL)
@@ -194,6 +214,8 @@ void CDShowGraph::start()
 		{
 			m_pSource->connect(m_renderer);
 		}
+
+		buildFilterList();
 
 		HRESULT hr=m_pControl->Run();
 		if(FAILED(hr))
@@ -300,31 +322,41 @@ void CDShowGraph::showPropertyPage(HWND hParent,string caption,CComPtr<IBaseFilt
 	CoTaskMemFree(pages.pElems);
 }
 
-bool CDShowGraph::getFilterName(int index,string &filterName,bool &hasPropertyPages)
+void CDShowGraph::buildFilterList()
 {
-	USES_CONVERSION;
+	m_filters.erase(m_filters.begin(),m_filters.end());
+	
 	CDShowGenericEnum<IEnumFilters,IBaseFilter> filterEnum;
 	HRESULT hr=m_pGraph->EnumFilters(&filterEnum.m_pEnum);
 	if(FAILED(hr))
 	{
-		CDShowException tmp("",hr);
-		LOG(1, "Failed to get filter enumerator!!! : %s",(LPCSTR)tmp.getErrorText());
+		CString tmpstr;
+		DWORD len=AMGetErrorText(hr,tmpstr.GetBufferSetLength(MAX_ERROR_TEXT_LEN),MAX_ERROR_TEXT_LEN);
+		tmpstr.ReleaseBuffer(len);
+		LOG(1, "Failed to get filter enumerator!!! : Error Code: '0x%x' Error Text: '%s'",hr,(LPCSTR)tmpstr);
+		return;
+	}
+	CComPtr<IBaseFilter> pFilter;
+	while(hr=filterEnum.next(&pFilter),hr==S_OK && pFilter!=NULL)
+	{
+		m_filters.push_back(pFilter);
+		pFilter.Release();
+	}
+}
+
+bool CDShowGraph::getFilterName(int index,string &filterName,bool &hasPropertyPages)
+{
+	USES_CONVERSION;
+	if(index>=m_filters.size())
+	{
 		return false;
 	}
 
 	CComPtr<IBaseFilter> pFilter;
-	try
-	{
-		pFilter=filterEnum[index];
-	}
-	catch(CDShowException e)
-	{
-        LOG(1, "DShow Exception - %s", (LPCSTR)e.getErrorText());
-		return false;
-	}
+	pFilter=m_filters[index];
 
 	FILTER_INFO info;
-	hr=pFilter->QueryFilterInfo(&info);
+	HRESULT hr=pFilter->QueryFilterInfo(&info);
 	if(SUCCEEDED(hr))
 	{
 		filterName=W2A(info.achName);
@@ -343,24 +375,17 @@ bool CDShowGraph::getFilterName(int index,string &filterName,bool &hasPropertyPa
 void CDShowGraph::showPropertyPage(HWND hParent,int index)
 {
 	USES_CONVERSION;
-	CDShowGenericEnum<IEnumFilters,IBaseFilter> filterEnum;
-	HRESULT hr=m_pGraph->EnumFilters(&filterEnum.m_pEnum);
-	if(FAILED(hr))
+	if(index>=m_filters.size())
+	{
 		return;
-	
+	}
+
 	CComPtr<IBaseFilter> pFilter;
-	try
-	{
-		pFilter=filterEnum[index];
-	}
-	catch(CDShowException e)
-	{
-        LOG(1, "DShow Exception - %s", (LPCSTR)e.getErrorText());
-		return;
-	}
+	pFilter=m_filters[index];
+
 	FILTER_INFO info;
 	string filterName;
-	hr=pFilter->QueryFilterInfo(&info);
+	HRESULT hr=pFilter->QueryFilterInfo(&info);
 	if(SUCCEEDED(hr))
 	{
 		filterName=W2A(info.achName);

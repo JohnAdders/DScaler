@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.h,v 1.8 2002-04-07 14:52:13 tobbej Exp $
+// $Id: DSGraph.h,v 1.9 2002-04-16 15:26:55 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/04/07 14:52:13  tobbej
+// fixed race when changing resolution
+// improved error handling
+//
 // Revision 1.7  2002/03/17 21:43:23  tobbej
 // added input resolution submenu
 //
@@ -95,6 +99,7 @@ public:
 	CDShowBaseSource* getSourceDevice();
 	bool getNextSample(CComPtr<IMediaSample> &pSample);
 	void getConnectionMediatype(AM_MEDIA_TYPE *pmt);
+	void waitForNextField();
 
 	/**
 	 * Get number of dropped frames.
@@ -145,6 +150,9 @@ private:
 	void createRenderer();
 
 	void findStreamConfig();
+	
+	/// updates m_filter vector with filters in the graph
+	void buildFilterList();
 
 	///Custom video renderer. Used for transfering the picture to dscaler
 	CComPtr<IBaseFilter> m_renderer;
@@ -164,6 +172,9 @@ private:
 	FILTER_STATE m_pGraphState;
 
 	CComPtr<IReferenceClock> m_pOldRefClk;
+	
+	/// used in getFilterName and showPropertyPage
+	vector<CComPtr<IBaseFilter> > m_filters;
 
 #ifdef _DEBUG
 	DWORD m_hROT;

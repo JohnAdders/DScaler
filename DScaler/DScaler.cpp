@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.369 2005-03-04 20:40:54 laurentg Exp $
+// $Id: DScaler.cpp,v 1.370 2005-03-06 00:52:27 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.369  2005/03/04 20:40:54  laurentg
+// Change unit (1/10 sec) for the setting defining the delay between periodic stills
+//
 // Revision 1.368  2005/03/04 20:23:33  laurentg
 // Message box added when exiting and snapshots are only in memory
 //
@@ -6767,7 +6770,7 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
     },
     {
         "Always On Top (Window)", YESNO, 0, (long*)&bAlwaysOnTop,
-        FALSE, 0, 1, 1, 1,
+        TRUE, 0, 1, 1, 1,
         NULL,
         "MainWindow", "AlwaysOnTop", AlwaysOnTop_OnChange,
     },

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.cpp,v 1.12 2002-10-07 20:35:17 kooiman Exp $
+// $Id: DSSourceBase.cpp,v 1.13 2002-12-05 21:03:46 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/10/07 20:35:17  kooiman
+// Fixed cursor hide problem
+//
 // Revision 1.11  2002/09/29 10:14:15  adcockj
 // Fixed problem with history in OutThreads
 //
@@ -319,7 +322,7 @@ BOOL CDSSourceBase::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 	case IDM_DSHOW_STOP:
 		try
 		{
-			//we must ensure that the output thread dont tries to get any
+			//we must ensure that the output thread don't try to get any
 			//more fields. if it does a deadlock can occure.
 			//the deadlock will only occure if the output thread is 
 			//blocked when it accesses the main threads gui, 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VPSdecode.cpp,v 1.1 2003-01-01 20:35:32 atnak Exp $
+// $Id: VBI_VPSdecode.cpp,v 1.2 2003-01-05 18:35:45 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -42,6 +42,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2003/01/01 20:35:32  atnak
+// Moved VPS stuff out of VBI_VideoText.*
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -69,6 +72,11 @@ void VBI_VPS_Init()
 void VBI_VPS_Exit()
 {
     ;
+}
+
+
+void VPS_Init_Data(double VBI_Frequency)
+{
 }
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI.cpp,v 1.21 2003-01-05 12:42:52 laurentg Exp $
+// $Id: VBI.cpp,v 1.22 2003-01-05 18:35:45 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2003/01/05 12:42:52  laurentg
+// WSS decoding updated to take into account a VBI frequency of 27.0 MHz
+//
 // Revision 1.20  2003/01/03 00:54:19  laurentg
 // New mode for AR autodetection using only WSS
 //
@@ -121,8 +124,6 @@ BOOL bSearchHighlight = TRUE;
 
 eCCMode CCMode = CCMODE_OFF;
 
-double VBI_Frequency;
-
 void VBI_SavePerChannelSetup(void *pThis, int Start);
 
 void VBI_Init()
@@ -137,18 +138,30 @@ void VBI_Exit()
     VBI_VT_Exit();
 }
 
+void VBI_Init_data(double Frequency)
+{
+	static double VBI_Frequency = -1;
+	if (Frequency != VBI_Frequency)
+	{
+		VBI_Frequency = Frequency;
+		VT_Init_Data(VBI_Frequency);
+		CC_Init_Data(VBI_Frequency);
+		VPS_Init_Data(VBI_Frequency);
+		WSS_Init_Data(VBI_Frequency);
+	}
+}
+
 void VBI_ChannelChange()
 {
     VT_ChannelChange();
     VPS_ChannelChange();
 }
 
-void VBI_DecodeLine(unsigned char* VBI_Buffer, int line, BOOL IsOdd, double Frequency)
+void VBI_DecodeLine(unsigned char* VBI_Buffer, int line, BOOL IsOdd)
 {
     TTVFormat* TVFormat = GetTVFormat(Providers_GetCurrentSource()->GetFormat());
     VTStep = (int) ((35.468950 / 6.9375) * FPFAC + 0.5);
     VPSStep = 2 * (int) ((35.468950 / 5.0) * FPFAC + 0.5);
-	VBI_Frequency = Frequency;
 
     // set up threshold and offset data
     VBI_AGC(VBI_Buffer, 120, 450, 1);

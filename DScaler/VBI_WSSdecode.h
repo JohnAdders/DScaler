@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_WSSdecode.h,v 1.6 2003-01-01 20:32:39 atnak Exp $
+// $Id: VBI_WSSdecode.h,v 1.7 2003-01-05 18:35:45 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 1998 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,7 @@ typedef struct
 
 extern TWSSCtrlDataStruct WSS_CtrlData;
 
+extern void WSS_Init_Data(double VBI_Frequency);
 extern void WSS_init ();
 extern BOOL WSS_GetRecommendedAR (int* pMode, int* pRatio);
 extern int VBI_DecodeLine_WSS(BYTE* vbiline);

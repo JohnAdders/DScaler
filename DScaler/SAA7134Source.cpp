@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.52 2003-01-05 16:54:54 laurentg Exp $
+// $Id: SAA7134Source.cpp,v 1.53 2003-01-05 18:35:45 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.52  2003/01/05 16:54:54  laurentg
+// Updated parameters for VBI_DecodeLine
+//
 // Revision 1.51  2003/01/01 20:56:45  atnak
 // Updates for various VideoText changes
 //
@@ -622,6 +625,8 @@ void CSAA7134Source::Start()
 
     NotifySquarePixelsCheck();
     m_ProcessingFieldID = -1;
+
+	VBI_Init_data(27.0);
 }
 
 
@@ -1159,7 +1164,7 @@ void CSAA7134Source::DecodeVBI(TDeinterlaceInfo* pInfo)
         {
             ConvertBuffer[i] = pVBI[nLineTarget * 2048 + (int)(j * ScaleRatio)];
         }
-        VBI_DecodeLine(ConvertBuffer, nLineTarget, bIsFieldOdd, 8*GetTVFormat(GetFormat())->Fsc);
+        VBI_DecodeLine(ConvertBuffer, nLineTarget, bIsFieldOdd);
     }
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.H,v 1.31 2003-01-05 16:09:44 atnak Exp $
+// $Id: VBI_VideoText.H,v 1.32 2003-01-05 18:35:45 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -59,6 +59,8 @@ enum eVTState
 
 void VBI_VT_Init();
 void VBI_VT_Exit();
+
+void VT_Init_Data(double VBI_Frequency);
 
 void VT_SetState(HDC hDC, LPRECT lpRect, eVTState State);
 eVTState VT_GetState();

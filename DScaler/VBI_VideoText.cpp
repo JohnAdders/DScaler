@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.59 2003-01-05 16:09:44 atnak Exp $
+// $Id: VBI_VideoText.cpp,v 1.60 2003-01-05 18:35:45 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.59  2003/01/05 16:09:44  atnak
+// Updated TopText for new teletext
+//
 // Revision 1.58  2003/01/03 14:44:19  robmuller
 // Removed wPageSubCode from VT_PerformFlofKey() as suggested by Atsushi.
 //
@@ -324,6 +327,11 @@ void VBI_VT_Exit()
     }
 
     DeleteCriticalSection(&VTPageChangeMutex);
+}
+
+
+void VT_Init_Data(double VBI_Frequency)
+{
 }
 
 

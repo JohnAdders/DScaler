@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.22 2003-01-05 16:54:54 laurentg Exp $
+// $Id: CX2388xSource.cpp,v 1.23 2003-01-05 18:35:45 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2003/01/05 16:54:54  laurentg
+// Updated parameters for VBI_DecodeLine
+//
 // Revision 1.21  2003/01/04 20:58:59  laurentg
 // Shift of one line when dealing with VBI line for CX2388x
 //
@@ -579,6 +582,8 @@ void CCX2388xSource::Start()
     Timing_Reset();
     NotifySizeChange();
     NotifySquarePixelsCheck();
+
+	VBI_Init_data((GetWidth() == 720) ? 27.0 : 8*GetTVFormat(GetFormat())->Fsc);
 }
 
 void CCX2388xSource::Reset()
@@ -1439,7 +1444,7 @@ void CCX2388xSource::DecodeVBI(TDeinterlaceInfo* pInfo)
     pVBI += 2048;	// There is a shift of one line compared to BT8x8 we have to compensate
     for (nLineTarget = 0; nLineTarget < m_CurrentVBILines; nLineTarget++)
     {
-		VBI_DecodeLine(pVBI + nLineTarget * 2048, nLineTarget, m_IsFieldOdd, (GetWidth() == 720) ? 27.0 : 8*GetTVFormat(GetFormat())->Fsc);
+		VBI_DecodeLine(pVBI + nLineTarget * 2048, nLineTarget, m_IsFieldOdd);
     }
 }
 

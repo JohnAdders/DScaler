@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VPSdecode.h,v 1.1 2003-01-01 20:35:32 atnak Exp $
+// $Id: VBI_VPSdecode.h,v 1.2 2003-01-05 18:35:45 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -43,6 +43,7 @@
 
 void VBI_VPS_Init();
 void VBI_VPS_Exit();
+void VPS_Init_Data(double VBI_Frequency);
 
 void VBI_DecodeLine_VPS(BYTE* VBI_Buffer);
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_WSSdecode.cpp,v 1.13 2003-01-05 12:42:52 laurentg Exp $
+// $Id: VBI_WSSdecode.cpp,v 1.14 2003-01-05 18:35:45 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2003/01/05 12:42:52  laurentg
+// WSS decoding updated to take into account a VBI frequency of 27.0 MHz
+//
 // Revision 1.12  2003/01/04 20:13:32  laurentg
 // Update range for start position
 //
@@ -108,6 +111,9 @@ TWSSDataStruct WSS_Data = { -1,-1,FALSE,FALSE,FALSE,FALSE,WSS625_SUBTITLE_NO,FAL
 // WSS control data
 TWSSCtrlDataStruct WSS_CtrlData = { FALSE,0,0,WSS_MAX_SUCCESSIVE_ERR,WSS625_START_POS_MAX,WSS625_START_POS_MIN,0,0,-1,-1};
 
+int	BitLength;
+int	*BitOffsets;
+
 // Offsets of each clock pixels (7.09379) in VBI buffer line
 // VBI capture frequency : 8 * 4.43361875 = 35.46895 MHz
 // WSS frequency : 5.0 MHz
@@ -177,6 +183,45 @@ static int WSS625_0[WSS625_DATA_BIT_LENGTH] = { 0,0,0,1,1,1 };
 // Sequence values for a data bit = 1
 static int WSS625_1[WSS625_DATA_BIT_LENGTH] = { 1,1,1,0,0,0 };
 
+
+
+void WSS_Init_Data(double VBI_Frequency)
+{
+	double	diff1, diff2, diff3;
+
+	// 27.0 MHz
+	diff1 = VBI_Frequency - 27.0;
+	if (diff1 < 0)
+		diff1 = -diff1;
+	// 8 * 4.25 = 34.0 MHz
+	diff2 = VBI_Frequency - 34.0;
+	if (diff2 < 0)
+		diff2 = -diff2;
+	// 8 * 4.43361875 = 35.46895 MHz
+	diff3 = VBI_Frequency - 35.46895;
+	if (diff3 < 0)
+		diff3 = -diff3;
+
+	if (diff1 <= diff2 && diff1 <= diff3)
+	{
+		// The closest is 27.0 MHz
+		BitLength = 5;
+		BitOffsets = &offsets3[0];
+	}
+	else if (diff2 <= diff1 && diff2 <= diff3)
+	{
+		// The closest is 34.0 MHz
+		BitLength = 7;
+		BitOffsets = &offsets[0];
+	}
+	else
+	{
+		// The closest is 35.46895 MHz
+		BitLength = 7;
+		BitOffsets = &offsets[0];
+	}
+}
+
 // Clear WSS decoded data
 static void WSS_clear_data ()
 {
@@ -232,40 +277,6 @@ static BOOL WSS625_DecodeLine(BYTE* vbiline)
     int     bits[WSS625_NB_DATA_BITS];
     int     packedbits;
     int     nb;
-	int		BitLength;
-	int		*BitOffsets;
-	double	diff1, diff2, diff3;
-
-	// 27.0 MHz
-	diff1 = VBI_Frequency - 27.0;
-	if (diff1 < 0)
-		diff1 = -diff1;
-	// 8 * 4.25 = 34.0 MHz
-	diff2 = VBI_Frequency - 34.0;
-	if (diff2 < 0)
-		diff2 = -diff2;
-	// 8 * 4.43361875 = 35.46895 MHz
-	diff3 = VBI_Frequency - 35.46895;
-	if (diff3 < 0)
-		diff3 = -diff3;
-	if (diff1 <= diff2 && diff1 <= diff3)
-	{
-		// The closest is 27.0 MHz
-		BitLength = 5;
-		BitOffsets = &offsets3[0];
-	}
-	else if (diff2 <= diff1 && diff2 <= diff3)
-	{
-		// The closest is 34.0 MHz
-		BitLength = 7;
-		BitOffsets = &offsets[0];
-	}
-	else
-	{
-		// The closest is 35.46895 MHz
-		BitLength = 7;
-		BitOffsets = &offsets[0];
-	}
 
     Threshold = VBI_thresh;
 //  LOG(1, "threshold %x", Threshold);

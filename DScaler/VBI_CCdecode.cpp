@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_CCdecode.cpp,v 1.14 2003-01-01 20:32:39 atnak Exp $
+// $Id: VBI_CCdecode.cpp,v 1.15 2003-01-05 18:35:45 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Mike Baker.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2003/01/01 20:32:39  atnak
+// Renamed DecodeLine function
+//
 // Revision 1.13  2002/12/06 10:30:02  adcockj
 // Pop On Captioning Fix from Kevin Radke
 //
@@ -100,6 +103,10 @@ char*         Modes[]={"current","future","channel","miscellanious","public serv
 int           LastCode;
 int           CCDisplayMode=1;       //cc1 or cc2
 char          CCBuf[3][256];      //cc is 32 columns per row, this allows for extra characters
+
+void CC_Init_Data(double VBI_Frequency)
+{
+}
 
 int parityok(int n) // check parity for 2 bytes packed in n 
 {

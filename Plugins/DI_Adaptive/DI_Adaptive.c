@@ -62,7 +62,7 @@ void UpdateAdaptiveMode(long Index)
 		{
 			CurrentMethod = DeintMethods[i];
             bFound = TRUE;
-			if(ghwndStatus != NULL)
+			if(ghwndStatus != NULL && IsWindowVisible(ghwndStatus))
 			{
 				char AdaptiveName[200];
 				char* ModeName;

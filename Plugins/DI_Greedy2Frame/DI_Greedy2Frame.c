@@ -59,7 +59,7 @@ DEINTERLACE_METHOD Greedy2FrameMethod =
 	sizeof(DEINTERLACE_METHOD),
 	DEINTERLACE_CURRENT_VERSION,
 	"Greedy 2 Frame", 
-	NULL,
+	"Greedy2", 
 	FALSE, 
 	FALSE, 
 	DeinterlaceGreedy2Frame_MMX, 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.cpp,v 1.6 2002-06-30 18:51:34 laurentg Exp $
+// $Id: TreeSettingsDlg.cpp,v 1.7 2002-07-03 00:45:41 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/06/30 18:51:34  laurentg
+// IDH_STILL added
+//
 // Revision 1.5  2002/06/23 21:49:39  laurentg
 // Change the title of the dialog box
 //
@@ -54,6 +57,7 @@
 #include "Other.h"
 #include "ProgramList.h"
 #include "StillSource.h"
+#include "DScaler.h"
 #include "..\help\helpids.h"
 
 #include <afxpriv.h>	//WM_COMMANDHELP
@@ -462,6 +466,11 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg()
 
     pPage = Still_GetTreeSettingsPage();
 	pPage->SetHelpID(IDH_STILL);
+	pages.push_back(pPage);
+	dlg.AddPage(pPage, Root);
+
+    pPage = DScaler_GetTreeSettingsPage();
+	pPage->SetHelpID(IDH_ADVANCED);
 	pages.push_back(pPage);
 	dlg.AddPage(pPage, Root);
 

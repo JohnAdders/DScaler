@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.188 2002-06-30 20:10:15 laurentg Exp $
+// $Id: DScaler.cpp,v 1.189 2002-07-03 00:45:41 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.188  2002/06/30 20:10:15  laurentg
+// Mouse wheel + CTRL key to go to previous and next playlist file
+//
 // Revision 1.187  2002/06/30 00:33:39  robmuller
 // Change volume with the mousewheel when the right mouse button is down.
 //
@@ -3670,10 +3673,61 @@ HMENU GetOrCreateSubSubSubMenu(int SubId, int SubSubId, int SubSubSubId, LPCSTR 
     }
 }
 
+HMENU GetOrCreateSubSubSubSubMenu(int SubId, int SubSubId, int SubSubSubId, int SubSubSubSubId, LPCSTR szMenuText)
+{
+    if(hMenu != NULL)
+    {
+        HMENU hSubMenu = GetSubMenu(hMenu, SubId);
+        if(hSubMenu != NULL)
+        {
+            HMENU hSubSubMenu = GetSubMenu(hSubMenu, SubSubId);
+            if(hSubSubMenu != NULL)
+            {
+                HMENU hSubSubSubMenu = GetSubMenu(hSubSubMenu, SubSubSubId);
+                if(hSubSubSubMenu != NULL)
+                {
+                    HMENU hSubSubSubSubMenu = GetSubMenu(hSubSubSubMenu, SubSubSubSubId);
+                    if(hSubSubSubSubMenu != NULL)
+                    {
+                        return hSubSubSubSubMenu;
+                    }
+                    else
+                    {
+                        if(ModifyMenu(hSubSubSubMenu, SubSubSubSubId, MF_STRING | MF_BYPOSITION | MF_POPUP, (UINT)CreatePopupMenu(), szMenuText))
+                        {
+                            return GetSubMenu(hSubSubSubMenu, SubSubSubSubId);
+                        }
+                        else
+                        {
+                            return NULL;
+                        }
+                    }
+                }
+                else
+                {
+                    return NULL;
+                }
+            }
+            else
+            {
+                return NULL;
+            }
+        }
+        else
+        {
+            return NULL;
+        }
+    }
+    else
+    {
+        return NULL;
+    }
+}
+
 
 HMENU GetFiltersSubmenu()
 {
-    HMENU hmenu = GetOrCreateSubSubMenu(4, 2, "Select &Filters");
+    HMENU hmenu = GetOrCreateSubSubMenu(4, 3, "Select &Filters");
     ASSERT(hmenu != NULL);
 
     return hmenu;
@@ -3682,7 +3736,7 @@ HMENU GetFiltersSubmenu()
 
 HMENU GetVideoDeinterlaceSubmenu()
 {
-    HMENU hmenu = GetOrCreateSubSubMenu(4, 1, "&Deinterlace Mode");
+    HMENU hmenu = GetOrCreateSubSubMenu(4, 2, "&Deinterlace Mode");
     ASSERT(hmenu != NULL);
 
     return hmenu;
@@ -3723,7 +3777,7 @@ HMENU GetOSDSubmenu2()
 
 HMENU GetPatternsSubmenu()
 {
-    HMENU hmenu = GetOrCreateSubSubSubMenu(4, 8, 0, "Test &Patterns");
+    HMENU hmenu = GetOrCreateSubSubSubSubMenu(4, 1, 0, 0, "Test &Patterns");
     ASSERT(hmenu != NULL);
 
     return hmenu;
@@ -4297,4 +4351,7 @@ void DScaler_WriteSettingsToIni(BOOL bOptimizeFileAccess)
     }
 }
 
-
+CTreeSettingsGeneric* DScaler_GetTreeSettingsPage()
+{
+    return new CTreeSettingsGeneric("Thread Settings", &DScalerSettings[WINDOWPRIORITY], AUTOSAVESETTINGS - WINDOWPRIORITY);
+}

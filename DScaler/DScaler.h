@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.26 2002-06-18 19:46:06 adcockj Exp $
+// $Id: DScaler.h,v 1.27 2002-07-03 00:45:41 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,7 @@
 SETTING* DScaler_GetSetting(DSCALER_SETTING Setting);
 void DScaler_ReadSettingsFromIni();
 void DScaler_WriteSettingsToIni(BOOL bOptimizeFileAccess);
+CTreeSettingsGeneric* DScaler_GetTreeSettingsPage();
 
 void SetThreadProcessorAndPriority();
 

@@ -661,7 +661,7 @@ const TVCARDSETUP TVCards[TVCARD_LASTONE] =
 		TUNER_USER_SETUP,
         NULL,
      },
-    {
+     {
         "GV-BCTV3",
         3, 1, 0, 2, 0x010f00,
         {2, 3, 0, 0},
@@ -671,8 +671,6 @@ const TVCARDSETUP TVCards[TVCARD_LASTONE] =
         TUNER_ALPS_TSCH6_NTSC,
         GVBCTV3PCI_SetAudio,
     },
-
-
     {
 	    "Prolink PV-BT878P+4E (PixelView PlayTV PAK)",
     	4, 1, 0, 2, 0xAA0000,

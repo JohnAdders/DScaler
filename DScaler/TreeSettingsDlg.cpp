@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.cpp,v 1.4 2002-06-23 21:41:22 laurentg Exp $
+// $Id: TreeSettingsDlg.cpp,v 1.5 2002-06-23 21:49:39 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/06/23 21:41:22  laurentg
+// New entry in the tree settings dialog box for still settings
+//
 // Revision 1.3  2002/06/13 12:10:23  adcockj
 // Move to new Setings dialog for filers, video deint and advanced settings
 //
@@ -362,7 +365,7 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg()
 	//it shoud probably be cleand up and moved somwere else
 
 	vector<CTreeSettingsGeneric*> pages;
-	CTreeSettingsDlg dlg(CString("Filter settings"));
+	CTreeSettingsDlg dlg(CString("DScaler settings"));
 	
 	CTreeSettingsPage RootPage(CString("Filter settings"),IDD_TREESETTINGS_EMPTY);
 	

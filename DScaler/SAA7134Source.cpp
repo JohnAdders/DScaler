@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.48 2002-12-10 11:05:45 atnak Exp $
+// $Id: SAA7134Source.cpp,v 1.49 2002-12-10 12:17:31 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.48  2002/12/10 11:05:45  atnak
+// Fixed FlyVideo 3000 audio for external inputs
+//
 // Revision 1.47  2002/12/09 00:32:13  atnak
 // Added new muting stuff
 //
@@ -273,7 +276,7 @@ CSAA7134Source::CSAA7134Source(CSAA7134Card* pSAA7134Card, CContigMemory* PageTa
     Reset();
 
     NotifyInputChange(0, VIDEOINPUT, -1, m_VideoSource->GetValue());
-    NotifyInputChange(0, VIDEOFORMAT, -1, m_VideoFormat->GetValue());
+    NotifyVideoFormatChange(0, (eVideoFormat)-1, (eVideoFormat)m_VideoFormat->GetValue());
 }
 
 
@@ -1431,14 +1434,14 @@ void CSAA7134Source::VideoSourceOnChange(long NewValue, long OldValue)
 
 void CSAA7134Source::VideoFormatOnChange(long NewValue, long OldValue)
 {
-    NotifyInputChange(1, VIDEOFORMAT, OldValue, NewValue);
+    NotifyVideoFormatChange(1, (eVideoFormat)OldValue, (eVideoFormat)NewValue);
     Stop_Capture();
 
     SaveSettings(SETUP_CHANGE_VIDEOFORMAT);
     LoadSettings(SETUP_CHANGE_VIDEOFORMAT);
     SetupVideoStandard();
 
-    NotifyInputChange(0, VIDEOFORMAT, OldValue, NewValue);
+    NotifyVideoFormatChange(0, (eVideoFormat)OldValue, (eVideoFormat)NewValue);
 
     Start_Capture();
 }

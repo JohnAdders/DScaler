@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Audio.cpp,v 1.36 2003-02-06 00:37:28 robmuller Exp $
+// $Id: Audio.cpp,v 1.37 2003-06-26 09:07:58 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.36  2003/02/06 00:37:28  robmuller
+// Changed log level to prevent rattle when changing channels.
+//
 // Revision 1.35  2003/01/29 18:24:12  adcockj
 // Added logging for mute calls
 //
@@ -183,15 +186,17 @@ void Audio_Mute(DWORD PostMuteDelay)
     // for complex and messy checks elsewhere in the program.
     if(++AudioMuteStatus == 1)
     {
-        if(Providers_GetCurrentSource())
-        {
-            Providers_GetCurrentSource()->Mute();
-        }
-
+        // use mixer only if possible as we think that works
+        // cleanly most of the time, whereas the hardware mute
+        // can be a bit ploppy
 	    if(bUseMixer == TRUE)
 	    {
 		    Mixer_Mute();
 	    }
+        else if(Providers_GetCurrentSource())
+        {
+            Providers_GetCurrentSource()->Mute();
+        }
 
 	    EventCollector->RaiseEvent(NULL, EVENT_MUTE, 0, 1);
 
@@ -230,15 +235,17 @@ void Audio_Unmute(DWORD PreUnmuteDelay)
         {
             if(--AudioMuteStatus == 0)
             {
-                if(Providers_GetCurrentSource())
-                {
-                    Providers_GetCurrentSource()->UnMute();
-                }
-
+                // use mixer only if possible as we think that works
+                // cleanly most of the time, whereas the hardware mute
+                // can be a bit ploppy
 		        if(bUseMixer == TRUE)
 		        {
 			        Mixer_UnMute();
 		        }	
+                else if(Providers_GetCurrentSource())
+                {
+                    Providers_GetCurrentSource()->UnMute();
+                }
 
                 EventCollector->RaiseEvent(NULL, EVENT_MUTE, 1, 0);
             }

@@ -1,0 +1,252 @@
+/////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2001, 2002 Lindsey Dubb.  All rights reserved.
+/////////////////////////////////////////////////////////////////////////////
+//
+//  This file is subject to the terms of the GNU General Public License as
+//  published by the Free Software Foundation.  A copy of this license is
+//  included with this software distribution in the file COPYING.  If you
+//  do not have a copy, you may obtain a copy by writing to the Free
+//  Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+//
+//  This software is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details
+/////////////////////////////////////////////////////////////////////////////
+// CVS Log
+//
+// $Log: not supported by cvs2svn $
+/////////////////////////////////////////////////////////////////////////////
+
+And thus the native hue of resolution
+Is sicklied o'er with the pale cast of thought,
+And enterprises of great pitch and moment
+With this regard their currents turn awry,
+And lose the name of action.
+                             -- Hamlet
+
+Adaptive noise reduction filter
+
+This plug-in detects the global noise level based on the histogram of noise throughout
+the image.  The estimated noise is combined with user supplied noise/motion tradeoff values 
+to decide how to best combine the old and new pixel values to choose a displayed pixel
+color.
+
+This is as much a motion detector as it is a noise detector.  Feel free to pull ideas
+from here to improve motion detection in other parts of the program.
+
+
+A note to developers:
+
+Hidden in this filter is a very useful motion detection indicator.  Just #define
+ADAPTIVE_NOISE_DEBUG and turn on "pink dots" and you'll get a histogram of the
+N statistic (see below) along with some other less useful stats. (These stats are
+explained just above the AnalyzeHistogram() routine.)
+
+In addition, you can have the filter periodically flash all pixels whose N value
+is in a certain range.  To do so, set the Testing Threshold and Second Testing Threshold
+sliders to the bottom and top of the range of N you want to view, then turn on
+Use Testing Switch.
+
+Together these provide a nice way to see whether an alteration to a motion detection
+statistic has helped differentiate particular regions.  Its use is limited to N-like
+statistics, though.
+
+
+The algorithm:
+
+At each four pixel horizontal block, the sum of absolute byte differences is calculated 
+between the block and the same block in the previous frame.  The block size and the absolute
+difference statistic were chosen entirely for speed reasons.
+
+It might make more sense to use a squarer block and a sum of squared differences statistic,
+instead.  Well, actually there are some reasons for using the sum of absolute differences.
+It results in a single peak histogram, which makes determination of the peak much easier.
+And it reduces posterization in moving gradients.  Also, if you assume a Brownian model
+for the value at moving pixels and a squared difference model for perceived error,
+then a linear measure turns out to be a better approximation of the resulting curve.
+(See FLT_GradualNoise.c for a slightly more exact description of this -- eventually
+I'll write it up in more detail.)
+
+
+The "cumulative absolute difference statistic" will be called "N". It is calculated as:
+
+A = N for the ~corresponding block from the previous _field_
+B = N for the block to the left in the current field
+C = N for the block above in the current field
+V = N for the block to the right in the previous field
+W = N for the block below in the previous field
+
+D = Decay factor (fixed to 0.88/3.56 = 0.247 in the current build)
+E = Horizontal decay factor (fixed to (0.247)^2 in the current build)
+
+F = Absolute byte difference between current block and block in previous frame
+
+Then,
+N = A*D + B*E + C*D + V*E + W*D + F
+
+In other words, it's a weird IIRish filter -- But an oddity comes from the use of
+the decay above and to the left. Previously I used a Max function here, but simple
+addition turns out to give better stability and less of a "halo" of noise around
+moving objects.
+
+The horizontal decay is faster because the blocks are approximately
+2 horizontal x 1 vertical when you take the interlace into account.  On top of that,
+noise tends to be horizontally correlated.  Vertical and temporal decay are the same
+for computational reasons: It saves a multiplication.  Note that the real temporal
+decay is slower than it looks from the equation above, because B and C contain
+some signal from their previous V and W terms, which in turn depend on the previous
+F at that pixel.
+
+Optimally, you would want to derive the spatial decay factor from the level of
+detail (specifically, the frequency with which the image switches between moving
+and stationary regions) and the temporal decay from the amount of change in the
+regions of motion.
+
+MaxNoise exists to prevent a single dramatic change from causing too great a
+perturbation of N.  Beyond a certain point, motion is certain, so the statistic
+shouldn't increase further.  Because of this quirk in the algorithm, I don't know
+if any standard IIR algorithm stuff applies very well to this.
+
+Note that the filter is largely unidirectional.  There's surely some room for
+improvement, there.  (The V and W terms do not really make the algorithm
+bidirectional, since processing occurs left to right, top to bottom.)
+
+The new N value is then used to determine what kind of weighting to use between
+the old and new pixel values in that block.  This is similar to the method used
+in the "Gradual Noise" filter, but N is used in place of the simple sum of absolute
+differences, and there is a new "noise baseline" term.  More exactly,
+
+G = Noise baseline
+H = Noise divisor
+
+M = motion evidence = 1             if (N - G)/H > 1
+                      (N - G)/H     if 0 < (N - G)/H < 1
+                      0**           if (N - G)/H < 0
+
+Result pixel = (bytewise) oldPixel * (1 - M) + newPixel * M
+** As with the Gradual Noise filter, the amount of change is always set to a minimum
+of 1.  So if oldPixel != newPixel, then even if M would be 0, the result pixel is
+oldPixel moved 1 bit toward the newPixel value.
+
+
+The Noise baseline G and Noise divisor H are determined through analysis of a
+histogram of the N statistic from the entire previous field.  The histogram is collected
+from all pixels whose values are not too near 0 or 255.  The noise at low and
+(to a lesser extent) high valued pixels is reduced due to an edge effect, resulting
+in a different and lower distribution, which would foil the peak finder.
+
+When there is no motion, the histogram is distributed as something like a chi^2.
+A low quantile (one scanline) Q of the histogram is collected, along with the
+lowest "significant" peak P.  These measures were chosen for robustness to motion
+and interference: The higher part of the distribution changes a great deal in response
+to motion or interference.
+
+These estimates along with the past estimate of Q and P are combined according to the
+reliability of the current and past estimates to produce the new estimates Q' and P'.
+See below in the comments for the AnalyzeHistogram() procedure for detail.  But it's
+weird, arbitrary stuff, so I wouldn't look if I were you.
+
+From the curve determined by Q' and P', combined with the user specified
+"Noise Reduction" and "Stability", the new Noise baseline G and Noise
+divisor H are determined.  Specifically:
+
+Q' = Estimated low quantile
+P' = Estimated peak
+
+R = P' - Q' = "Curve width"  (which is used as a general measure of the curve's breadth)
+
+The baseline G is
+G = (Q' - R) + Stability% * (amount of noise reduction)
+G = Q' - R + (Stability/100)*(R*NoiseReduction/12.5)
+if (G < 0), G = 0
+
+So G is in the range
+(Q' - R, Q' - R + Stability%*R*NoiseReduction/12.5)
+This is limited on the low end to 0, if necessary.
+
+The default (Stability = 25) gives
+G = Q' - R + R*NoiseReduction/50
+
+The noise threshold J (the amount above G at which any difference is assumed to represent
+noise) is determined as
+
+J = (curve width)*NoiseReduction/12.5
+J = R*NoiseReduction/12.5
+
+So J is in the range
+(0, 16R)
+with the default
+J = 4R
+
+And the noise divisor H (used to scale any noise between G and H) is
+
+H = J*(1 - Stability%)
+H = J*(100-Stability)/100
+
+So H is in the range
+(0, J) => (0, 16R)
+with the default
+H = 3J/4 = 3R
+
+and for both defaults (Stability = 25, NoiseReduction = 50), the baseline is
+G = Q' - R + R*NoiseReduction/50
+  = Q'
+
+
+Things tried and discarded:
+
+Ornstein-Uhlenbeck ("red") noise reduction
+If you look closely at the noise in a normal TV signal, you'll notice that it
+is horizontally highly correlated.  So it makes sense to model the noise as a random
+walk with bias toward return to 0 -- an Ornstein-Uhlenbeck process.  I have come up with
+some ways to successfully cut way back on horizontally correlated noise (generally, I've
+used the previous horizontal noise estimate as a predictor of the next noise estimate),
+but so far they've all caused artifacts.  There's probably a good way to do this.
+
+Temporal gradients
+In most gradual motion, the color changes directionally -- or so you'd think.  I tried to
+use the direction of change at a pixel as an additional contribution to the motion evidence,
+but it was completely useless.  Using indicator pink pixels, it was clear that directionality
+of change was worthless as an indicator -- It showed up reliably only when the motion was so
+obvious that the mechanisms already in place could identify it without help.
+
+Parametric noise estimation
+The first (unposted) version of this plug-in estimated the noise using assuming normally
+distributed additive noise.  Specifically, it gathered the distribution of pixelwise
+changes, truncated just to the "noise" portion of the distribution, and estimated the
+standard deviation of noise by fitting to a truncated normal.  This worked okay, but was
+too sensitive to deviations from normality -- specifically from motion and unusual kinds
+of interference.
+
+Things which need to be done:
+- Lots of cleanup.  This is still a mess, and there are a bunch of unnecessarily arbitrary
+  constants hanging around.
+
+Potential improvements:
+- Global motion detection.  Full screen pans are this filter's worst enemy, since they
+  often cause a low peak which is different from the noise peak.  Partial screen motion
+  is much less of a problem.  And -- very importantly -- Global motion detection is a much
+  easier problem, and very possibly doable in real time.  Maybe some kind of mipmappish
+  approach would be the way to go?
+- Get the Ornstein-Uhlenbeck stuff to work (see above)
+- Transmit the information better up and to the left, as well as down and to the right.
+  Maybe do two passes and blur the color difference measures?
+- Delay one or more fields, and make use of future colors and motion.  I suspect this won't
+  help all that much.
+- Use picture information to determine the decay coefficients used to calculate N
+- Consideration of variation in the picture when choosing the noise/motion tradeoff.  This
+  was very roughly incorporated in the model which was used to justify the averaging method
+  (see FLT_GradualNoise.c for its description).  But the lowering of noise compensation in
+  low contrast areas of the picture would greatly reduce blurring.  On the other hand, this
+  is completely impossible with flat backgrounds.  (On a flat background, you can never
+  distinguish noise from motion because there's no sign whatsoever of motion.)  So this would
+  have to be done carefully.
+- Optimization: I've done a moderate amount of code optimization.  Prefetch in particular
+  sped the filter 2x (from 600 MHz to 300 MHz on my SDR Athlon).  But there's probably
+  a bit more to speed to be had.
+- Explicit pull down handling.  3:2 Pull down currently gives a "pulse" to the detected noise
+  level (since it contains no motion and only the reception noise, and not the noise present
+  in the source material).  Since the filter uses time averages, this is dealt with reasonably
+  well already.  But explicit detection would give a better noise estimate.
+

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.h,v 1.15 2002-08-21 20:26:31 kooiman Exp $
+// $Id: Settings.h,v 1.16 2003-04-26 19:02:41 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -61,6 +61,7 @@ void Setting_Down(SETTING* pSetting);
 void Setting_ChangeValue(SETTING* pSetting, eCHANGEVALUE NewValue);
 void Setting_SetSection(SETTING* pSetting, LPSTR NewValue);
 LONG Settings_HandleSettingMsgs(HWND hWnd, UINT message, UINT wParam, LONG lParam, BOOL* bDone);
+void Setting_Free(SETTING* pSetting);
 // End of new UI code header
 
 void SetIniFileForSettings(LPSTR Name);
@@ -69,6 +70,7 @@ void LoadSettingsFromIni();
 void WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void WritePrivateProfileInt(LPCTSTR lpAppName,  LPCTSTR lpKeyName,  int nValue, LPCTSTR lpFileName);
 int GetCurrentAdjustmentStepCount(void* pSetting);
+void FreeSettings();
 
 //---------------------------------------------------------------------------
 // 2000-12-19 Added by Mark Rejhon

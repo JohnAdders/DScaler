@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.322 2003-04-26 16:07:48 laurentg Exp $
+// $Id: DScaler.cpp,v 1.323 2003-04-26 19:02:38 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.322  2003/04/26 16:07:48  laurentg
+// Character string settings
+//
 // Revision 1.321  2003/04/16 14:38:01  atnak
 // Changed the double click hack to be less hacky
 //
@@ -5024,7 +5027,7 @@ void MainWndOnDestroy()
         {
             delete ToolbarControl;
             ToolbarControl = NULL;
-        }        
+        }
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error free toolbars");}    
 
@@ -5063,6 +5066,7 @@ void MainWndOnDestroy()
             delete SettingsMaster;
             SettingsMaster = NULL;
         }                
+		FreeSettings();
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error free settings");}
     
@@ -5622,8 +5626,6 @@ void CleanUpMemory()
     pCalibration = NULL;
     delete pPerf;
     pPerf = NULL;
-	// Don't do that here because the settings must not be freed before the saving in the ini file
-//    PStripTiming_CleanUp();
 }
 
 //---------------------------------------------------------------------------
@@ -6605,6 +6607,15 @@ void DScaler_WriteSettingsToIni(BOOL bOptimizeFileAccess)
     for(i = 0; i < DSCALER_SETTING_LASTONE; i++)
     {
         Setting_WriteToIni(&(DScalerSettings[i]), bOptimizeFileAccess);
+    }
+}
+
+void DScaler_FreeSettings()
+{
+    int i;
+    for(i = 0; i < DSCALER_SETTING_LASTONE; i++)
+    {
+        Setting_Free(&(DScalerSettings[i]));
     }
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.cpp,v 1.47 2003-02-08 14:43:49 laurentg Exp $
+// $Id: Deinterlace.cpp,v 1.48 2003-04-26 19:02:37 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.47  2003/02/08 14:43:49  laurentg
+// gFilmPulldownMode must used instead of gProgMode  => solved the display in statistics screen
+//
 // Revision 1.46  2003/01/26 10:34:57  tobbej
 // changed statusbar updates from output thread to be thread safe (PostMessage instead of SendMessage)
 //
@@ -1094,6 +1097,18 @@ void Deinterlace_WriteSettingsToIni(BOOL bOptimizeFileAccess)
         for(j = 0; j < VideoDeintMethods[i]->nSettings; j++)
         {
             Setting_WriteToIni(&(VideoDeintMethods[i]->pSettings[j]), bOptimizeFileAccess);
+        }
+    }
+}
+
+void Deinterlace_FreeSettings()
+{
+    int i,j;
+    for(i = 0; i < NumVideoModes; i++)
+    {
+        for(j = 0; j < VideoDeintMethods[i]->nSettings; j++)
+        {
+            Setting_Free(&(VideoDeintMethods[i]->pSettings[j]));
         }
     }
 }

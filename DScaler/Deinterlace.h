@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.h,v 1.19 2002-09-11 18:19:41 adcockj Exp $
+// $Id: Deinterlace.h,v 1.20 2003-04-26 19:02:38 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -43,6 +43,7 @@ SETTING* Deinterlace_GetSetting(long nIndex, long Setting);
 LONG Deinterlace_HandleSettingsMsg(HWND hWnd, UINT message, UINT wParam, LONG lParam, BOOL* bDone);
 void Deinterlace_ReadSettingsFromIni();
 void Deinterlace_WriteSettingsToIni(BOOL bOptimizeFileAccess);
+void Deinterlace_FreeSettings();
 void Deinterlace_SetMenu(HMENU hMenu);
 void GetDeinterlaceSettings(DEINTERLACE_METHOD**& DeinterlaceMethods,long& NumMethods);
 

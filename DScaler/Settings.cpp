@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.47 2003-04-26 16:04:54 laurentg Exp $
+// $Id: Settings.cpp,v 1.48 2003-04-26 19:02:41 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.47  2003/04/26 16:04:54  laurentg
+// Character string settings
+//
 // Revision 1.46  2003/01/24 01:55:17  atnak
 // OSD + Teletext conflict fix, offscreen buffering for OSD and Teletext,
 // got rid of the pink overlay colorkey for Teletext.
@@ -196,6 +199,7 @@
 typedef SETTING* (__cdecl GENERICGETSETTING)(long SettingIndex);
 typedef void (__cdecl GENERICREADSETTINGS)();
 typedef void (__cdecl GENERICWRITESETTINGS)(BOOL);
+typedef void (__cdecl GENERICFREESETTINGS)();
 
 typedef struct
 {
@@ -203,6 +207,7 @@ typedef struct
     GENERICGETSETTING* pfnGetSetting;
     GENERICREADSETTINGS* pfnReadSettings;
     GENERICWRITESETTINGS* pfnWriteSettings;
+    GENERICFREESETTINGS* pfnFreeSettings;
 } TFileWithSettings;
 
 TFileWithSettings Settings[] =
@@ -212,120 +217,140 @@ TFileWithSettings Settings[] =
         (GENERICGETSETTING*)Debug_GetSetting,
         Debug_ReadSettingsFromIni,
         Debug_WriteSettingsToIni,
+		NULL,
     },
     {
         WM_ASPECT_GETVALUE,
         (GENERICGETSETTING*)Aspect_GetSetting,
         Aspect_ReadSettingsFromIni,
         Aspect_WriteSettingsToIni,
+		NULL,
     },
     {
         WM_DSCALER_GETVALUE,
         (GENERICGETSETTING*)DScaler_GetSetting,
         DScaler_ReadSettingsFromIni,
         DScaler_WriteSettingsToIni,
+		DScaler_FreeSettings,
     },
     {
         WM_OUTTHREADS_GETVALUE,
         (GENERICGETSETTING*)OutThreads_GetSetting,
         OutThreads_ReadSettingsFromIni,
         OutThreads_WriteSettingsToIni,
+		NULL,
     },
     {
         WM_OTHER_GETVALUE,
         (GENERICGETSETTING*)Other_GetSetting,
         Other_ReadSettingsFromIni,
         Other_WriteSettingsToIni,
+		NULL,
     },
     {
         WM_FD50_GETVALUE,
         (GENERICGETSETTING*)FD50_GetSetting,
         FD50_ReadSettingsFromIni,
         FD50_WriteSettingsToIni,
+		NULL,
     },
     {
         WM_FD60_GETVALUE,
         (GENERICGETSETTING*)FD60_GetSetting,
         FD60_ReadSettingsFromIni,
         FD60_WriteSettingsToIni,
+		NULL,
     },
     {
         WM_FD_COMMON_GETVALUE,
         (GENERICGETSETTING*)FD_Common_GetSetting,
         FD_Common_ReadSettingsFromIni,
         FD_Common_WriteSettingsToIni,
+		NULL,
     },
     {
         WM_OSD_GETVALUE,
         (GENERICGETSETTING*)OSD_GetSetting,
         OSD_ReadSettingsFromIni,
         OSD_WriteSettingsToIni,
+		NULL,
     },
     {
         WM_VBI_GETVALUE,
         (GENERICGETSETTING*)VBI_GetSetting,
         VBI_ReadSettingsFromIni,
         VBI_WriteSettingsToIni,
+		NULL,
     },
     {
         WM_TIMING_GETVALUE,
         (GENERICGETSETTING*)Timing_GetSetting,
         Timing_ReadSettingsFromIni,
         Timing_WriteSettingsToIni,
+		NULL,
     },
     {
         WM_MIXERDEV_GETVALUE,
         (GENERICGETSETTING*)MixerDev_GetSetting,
         MixerDev_ReadSettingsFromIni,
         MixerDev_WriteSettingsToIni,
+		NULL,
     },
     {
         WM_CHANNELS_GETVALUE,
         (GENERICGETSETTING*)Channels_GetSetting,
         Channels_ReadSettingsFromIni,
         Channels_WriteSettingsToIni,
+		NULL,
     },
     {
         WM_AUDIO_GETVALUE,
         (GENERICGETSETTING*)Audio_GetSetting,
         Audio_ReadSettingsFromIni,
         Audio_WriteSettingsToIni,
+		NULL,
     },
     {
         WM_VT_GETVALUE,
         (GENERICGETSETTING*)VT_GetSetting,
         VT_ReadSettingsFromIni,
         VT_WriteSettingsToIni,
+		NULL,
     },
     {
         WM_CALIBR_GETVALUE,
         (GENERICGETSETTING*)Calibr_GetSetting,
         Calibr_ReadSettingsFromIni,
         Calibr_WriteSettingsToIni,
+		NULL,
     },
     {
         WM_STILL_GETVALUE,
         (GENERICGETSETTING*)Still_GetSetting,
         Still_ReadSettingsFromIni,
         Still_WriteSettingsToIni,
+		NULL,
     },
     {
         WM_ANTIPLOP_GETVALUE,
         (GENERICGETSETTING*)AntiPlop_GetSetting,
         AntiPlop_ReadSettingsFromIni,
         AntiPlop_WriteSettingsToIni,
+		NULL,
     },
     {
         WM_SETTINGSPERCHANNEL_GETVALUE,
         (GENERICGETSETTING*)SettingsPerChannel_GetSetting,
         SettingsPerChannel_ReadSettingsFromIni,
         SettingsPerChannel_WriteSettingsToIni,
+		NULL,
     },
     {
         WM_FDPROG_GETVALUE,
         (GENERICGETSETTING*)FDProg_GetSetting,
         FDProg_ReadSettingsFromIni,
         FDProg_WriteSettingsToIni,
+		NULL,
     },
 };
 
@@ -543,6 +568,19 @@ void WriteSettingsToIni(BOOL bOptimizeFileAccess)
     WritePrivateProfileString(NULL, NULL, NULL, szIniFile);
 
     BeautifyIniFile(szIniFile);
+}
+
+void FreeSettings()
+{
+    for(int i(0); i < NUMSETTINGS; ++i)
+    {
+		if (Settings[i].pfnFreeSettings != NULL)
+		{
+	        Settings[i].pfnFreeSettings();
+		}
+    }
+
+	Deinterlace_FreeSettings();
 }
 
 void WritePrivateProfileInt(LPCTSTR lpAppName,  LPCTSTR lpKeyName,  int nValue, LPCTSTR lpFileName)
@@ -1082,6 +1120,16 @@ void Setting_ChangeValue(SETTING* pSetting, eCHANGEVALUE NewValue)
         break;
     default:
         break;
+    }
+}
+
+void Setting_Free(SETTING* pSetting)
+{
+    if ( (pSetting != NULL)
+	  && (pSetting->Type == CHARSTRING)
+	  && (pSetting->pValue != NULL) )
+    {
+		delete (char *)(*pSetting->pValue);
     }
 }
 

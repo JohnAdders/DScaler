@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutReso.cpp,v 1.13 2003-04-26 16:06:20 laurentg Exp $
+// $Id: OutReso.cpp,v 1.14 2003-04-26 19:02:41 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2003/04/26 16:06:20  laurentg
+// Character string settings
+//
 // Revision 1.12  2003/04/26 11:24:11  laurentg
 // Interface with PowerStrip (changes from Olivier Borca)
 //
@@ -187,19 +190,6 @@ int OutputReso = 0;
 LPSTR PStrip576i = NULL;
 LPSTR PStrip480i = NULL;
 
-void PStripTiming_CleanUp()
-{
-    if(PStrip576i != NULL)
-    {
-        delete PStrip576i; 
-        PStrip576i = NULL;
-    }
-    if(PStrip480i != NULL)
-    {
-        delete PStrip480i; 
-        PStrip480i = NULL;
-    }
-}
 
 /////////////////////////////////////////////////////////////////////////////
 // Start of Menus related code

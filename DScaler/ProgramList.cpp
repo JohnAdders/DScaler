@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.65 2002-08-02 21:59:03 laurentg Exp $
+// $Id: ProgramList.cpp,v 1.66 2002-08-04 12:28:32 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.65  2002/08/02 21:59:03  laurentg
+// Hide the menu "Channels" from the menu bar when the source has no tuner or when the tuner is not the selected input
+//
 // Revision 1.64  2002/08/02 20:33:52  laurentg
 // Menu for channels without inactive channels and cut on several columns
 //
@@ -1219,7 +1222,7 @@ void Load_Program_List_ASCII()
 }
 
 //---------------------------------------------------------------------------
-void Channel_Change(int NewChannel)
+void Channel_Change(int NewChannel, int DontStorePrevious)
 {
     eVideoFormat VideoFormat;
 
@@ -1231,7 +1234,10 @@ void Channel_Change(int NewChannel)
             {
 				Audio_Mute();
                 Sleep(PreSwitchMuteDelay); // This helps reduce the static click noise.
-                PreviousProgram = CurrentProgram;
+                if (!DontStorePrevious)
+                {
+                    PreviousProgram = CurrentProgram;
+                }
                 CurrentProgram = NewChannel;
                 if(MyChannels[CurrentProgram]->GetFormat() != -1)
                 {
@@ -1375,7 +1381,7 @@ void Channel_Previous()
 
 }
 
-void Channel_ChangeToNumber(int ChannelNumber)
+void Channel_ChangeToNumber(int ChannelNumber, int DontStorePrevious)
 {
     BOOL found = FALSE;
 
@@ -1400,7 +1406,7 @@ void Channel_ChangeToNumber(int ChannelNumber)
 
     if (found)
     {
-        Channel_Change(ChannelNumber);
+        Channel_Change(ChannelNumber, DontStorePrevious);
         found = CurrentProgram == ChannelNumber;
     }
 

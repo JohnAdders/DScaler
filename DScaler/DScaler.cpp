@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.205 2002-08-02 21:59:03 laurentg Exp $
+// $Id: DScaler.cpp,v 1.206 2002-08-04 12:29:02 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.205  2002/08/02 21:59:03  laurentg
+// Hide the menu "Channels" from the menu bar when the source has no tuner or when the tuner is not the selected input
+//
 // Revision 1.204  2002/08/02 18:56:27  robmuller
 // 'EasyMove' feature added.
 //
@@ -3120,7 +3123,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                     i = atoi(ChannelString);
                     if(i != 0)
                     {
-                        Channel_ChangeToNumber(i);
+                        Channel_ChangeToNumber(i,(strlen(ChannelString)>1)?1:0);
                     }
                 }
             }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.h,v 1.16 2002-06-13 12:10:23 adcockj Exp $
+// $Id: ProgramList.h,v 1.17 2002-08-04 12:28:20 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -106,8 +106,8 @@ void Unload_Country_Settings();
 
 BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
 
-void Channel_Change(int NewChannelIndex);
-void Channel_ChangeToNumber(int NewChannelNumber);
+void Channel_Change(int NewChannel, int DontStorePrevious=0);
+void Channel_ChangeToNumber(int NewChannelNumber, int DontStorePrevious=0);
 void Channel_Increment();
 void Channel_Decrement();
 void Channel_SetCurrent();

@@ -1034,6 +1034,20 @@ BEGIN
                     WS_TABSTOP,42,97,287,19
 END
 
+IDD_OPEN DIALOG DISCARDABLE  0, 0, 227, 66
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Open url"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,60,45,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,115,45,50,14
+    LTEXT           "Open:",IDC_STATIC,5,25,20,8
+    EDITTEXT        IDC_OPEN_FILE,40,20,180,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Browse...",IDC_OPEN_BROWSE,170,45,50,14
+    LTEXT           "Type the name of a file or url, and DScaler will open it.",
+                    IDC_STATIC,40,5,180,10
+END
+
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -1877,6 +1891,14 @@ BEGIN
         RIGHTMARGIN, 373
         TOPMARGIN, 7
         BOTTOMMARGIN, 240
+    END
+
+    IDD_OPEN, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 220
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 59
     END
 END
 #endif    // APSTUDIO_INVOKED

@@ -85,6 +85,7 @@
 #define IDM_TOGGLE_MENU                 268
 #define IDM_HWINFO                      270
 #define IDM_RESET                       280
+#define IDD_OPEN                        300
 #define IDM_ON_TOP                      309
 #define IDM_AUTOSTEREO                  345
 #define IDM_AUDIOSETTINGS1              350
@@ -305,6 +306,7 @@
 #define IDC_TOOLBAR_CHANNELS_SPINUP     1415
 #define IDC_TOOLBAR_BAR_BAR             1415
 #define IDC_TOOLBAR_VOLUME_CHANNEL      1415
+#define IDC_OPEN_BROWSE                 1415
 #define IDC_BUTTON2                     1416
 #define IDC_TOOLBAR_CHANNELS_SPINDOWN   1416
 #define IDC_AUDIOSTANDARD_MANUAL_DETECTSTEREO 1416
@@ -429,6 +431,7 @@
 #define IDC_E_LUMA_PEAK                 1522
 #define IDC_EDIT1                       1523
 #define IDC_SCAN_MAX_FREQ               1523
+#define IDC_OPEN_FILE                   1523
 #define IDC_EDIT2                       1524
 #define IDC_SCAN_MIN_FREQ               1524
 #define IDC_EDIT3                       1525

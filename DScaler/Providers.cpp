@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.58 2003-02-05 19:39:49 tobbej Exp $
+// $Id: Providers.cpp,v 1.59 2003-02-22 16:45:02 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.58  2003/02/05 19:39:49  tobbej
+// renamed some functions
+//
 // Revision 1.57  2003/01/11 12:53:58  adcockj
 // Interim Check in of settings changes
 //  - bug fixes for overlay settings changes
@@ -236,7 +239,7 @@
 #include "Audio.h"
 #include "VBI_WSSdecode.h"
 #include "SettingsMaster.h"
-
+#include "OpenDlg.h"
 
 #ifdef WANT_DSHOW_SUPPORT
 #include "dshowsource\DSProvider.h"
@@ -619,45 +622,13 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
     }
     else if (LOWORD(wParam) == IDM_OPEN_FILE)
     {
-        OPENFILENAME OpenFileInfo;
-        char FilePath[MAX_PATH];
-        char* FileFilters;
-        FileFilters =
-#ifndef WANT_DSHOW_SUPPORT
-                        "All Supported Files\0*.d3u;*.pat;*.tif;*.tiff;*.jpg;*.jpeg;\0"
-#else
-                        "All Supported Files\0*.d3u;*.pat;*.tif;*.tiff;*.jpg;*.jpeg;*.avi;*.mpg;*.mpeg;*.mpe;*.asf;*.wmv;*.grf\0"
-#endif
-                        "TIFF Files\0*.tif;*.tiff\0"
-                        "JPEG Files\0*.jpg;*.jpeg\0"
-                        "DScaler Playlists\0*.d3u\0"
-                        "DScaler Patterns\0*.pat\0"
-#ifdef WANT_DSHOW_SUPPORT
-                        "Media Files (*.avi;*.mpg;*.mpeg;*.mpe;*.asf;*.wmv)\0*.avi;*.mpg;*.mpeg;*.mpe;*.asf;*.wmv\0"
-						"GraphEdit Filter Graphs (*.grf)\0*.grf\0"
-#endif
-                        ;
-
-        ZeroMemory(&OpenFileInfo,sizeof(OpenFileInfo));
-        OpenFileInfo.lStructSize = sizeof(OpenFileInfo);
-        OpenFileInfo.hwndOwner = hWnd;
-        OpenFileInfo.lpstrFilter = FileFilters;
-        OpenFileInfo.nFilterIndex = 1;
-        OpenFileInfo.lpstrCustomFilter = NULL;
-        FilePath[0] = 0;
-        OpenFileInfo.lpstrFile = FilePath;
-        OpenFileInfo.nMaxFile = sizeof(FilePath);
-        OpenFileInfo.lpstrFileTitle = NULL;
-        OpenFileInfo.lpstrInitialDir = NULL;
-        OpenFileInfo.lpstrTitle = NULL;
-        OpenFileInfo.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
-        OpenFileInfo.lpstrDefExt = NULL;
-        if (GetOpenFileName(&OpenFileInfo))
+        CString file;
+		if(COpenDlg::ShowOpenDialog(hWnd,file))
         {
             Stop_Capture();
             for(int i = 0; i < Sources.size(); ++i)
             {
-                if(Sources[i]->Object->OpenMediaFile(FilePath, FALSE))
+                if(Sources[i]->Object->OpenMediaFile(file, FALSE))
                 {                    
                     Providers_NotifySourcePreChange();
                     

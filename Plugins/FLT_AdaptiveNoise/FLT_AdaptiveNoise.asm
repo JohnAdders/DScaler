@@ -16,6 +16,16 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/01/26 00:47:00  lindsey
+// Fixed big bug in noise threshold / motion correlation interaction
+// Fixed bug in parameterization
+// Changed to an additive filter for motion correlation
+// Changed parameterization
+// Changed use of coefficient of variation in reliability estimate
+// Reduced size of histogram
+// Optimized a little
+// Moved algorithm description to a separate file
+//
 // Revision 1.3  2002/01/17 07:49:18  lindsey
 // Fixed vertical correlation information bug
 // Increased effect of nearby motion on averaging
@@ -159,8 +169,6 @@ long FilterAdaptiveNoise( TDeinterlaceInfo* pInfo )
         }
     }
     // Histogram needs to be emptied before each field
-    // But: at the top and bottom, instead set the map value to the low peak value.
-    // this helps avoid artifacts at the top and bottom of the screen
     for( Index = 0; Index < HISTOGRAM_LENGTH * sizeof(DWORD) / sizeof(DOUBLE); ++Index)
     {
         ((DOUBLE*)gpHistogram)[Index] = 0.0;
@@ -331,17 +339,17 @@ MAINLOOP_LABEL:
             movq    mm7, mm2                // mm7 = Cumulative weights
             pmulhuw mm7, qwHorizontalDecay  // mm7 = weight to apply to next horizontal block
             prefetchnta[eax + 2*edx + PREFETCH_STRIDE]
-            paddusw mm5, mm7
+            paddusw mm5, mm7                // mm5 = sum(right map value, decayed value at this pixel)
             movq    qword ptr[eax + 8], mm5 // store updated rightMap
 
             movq    mm5, qword ptr[eax - 8] // get previous map
-            paddusw mm5, mm7                // mm5 = max(old next weight, proposed new next weight)
+            paddusw mm5, mm7                // mm5 = sum(old next weight, proposed new next weight)
             movq    qword ptr[eax - 8], mm5 // store updated previous map
 
             // mm6 (= up map value) is collected at the bottom of the loop to avoid some cache problems
-            paddusw  mm6, mm4                // mm6 = max(up map value, decayed value at this pixel)
+            paddusw  mm6, mm4               // mm6 = sum(up map value, decayed value at this pixel)
             movq     qword ptr[eax], mm6
-            paddusw  mm3, mm4                // mm3 = max(down map value, decayed value at this pixel)
+            paddusw  mm3, mm4               // mm3 = sum(down map value, decayed value at this pixel)
             movq     qword ptr[eax + 2*edx], mm3
 
 

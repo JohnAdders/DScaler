@@ -16,6 +16,16 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/01/26 00:47:00  lindsey
+// Fixed big bug in noise threshold / motion correlation interaction
+// Fixed bug in parameterization
+// Changed to an additive filter for motion correlation
+// Changed parameterization
+// Changed use of coefficient of variation in reliability estimate
+// Reduced size of histogram
+// Optimized a little
+// Moved algorithm description to a separate file
+//
 // Revision 1.4  2002/01/17 07:55:12  lindsey
 // Turned off the debug flag
 //
@@ -160,7 +170,7 @@ long            gDecayCoefficient = 88;
 // Determines the placement toward the "start" of the N histogram at which we completely
 // compensate for noise
 
-long            gStability = 35;
+long            gStability = 25;
 
 // Determines the placement after the peak of the N histogram where we decide that there
 // must be motion in a block
@@ -616,7 +626,8 @@ void AnalyzeHistogram( TDeinterlaceInfo* pInfo, DWORD MaxNoise, DOUBLE* pCumBase
                     CoeffVar = 0.000001;
                 }
                 CoeffVar = 1.0/sqrt(CoeffVar);
-                CoeffVar /= 50.0;  // Should be a function of the screen size
+                CoeffVar /= sqrt(pInfo->FrameWidth*(pInfo->DestRect.bottom - pInfo->DestRect.top)/2);
+                CoeffVar *= 8;
                 if (CoeffVar > 0.999999)
                 {
                     CoeffVar = 0.999999;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.55 2002-02-10 21:42:29 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.56 2002-02-11 23:18:33 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.55  2002/02/10 21:42:29  laurentg
+// New menu items "Progressive Scan" and "Film Mode"
+//
 // Revision 1.54  2002/02/09 02:44:56  laurentg
 // Overscan now stored in a setting of the source
 //
@@ -659,7 +662,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                     else
                     {
                         // we have an progressive source
-                        SetProgressiveMode(TRUE);
+                        SetProgressiveMode();
                         CurrentMethod = GetCurrentDeintMethod();
                     }
                 }
@@ -712,40 +715,22 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
                         pPerf->StartCount(PERF_DEINTERLACE);
 
-                        if(Info.PictureHistory[0]->Flags & PICTURE_INTERLACED_MASK)
+                        if (IsProgressiveMode())
                         {
-                            // if we are interlaced do the selected alogrithm
-
-                            // if we have dropped a field then do BOB 
-                            // or if we need to get more history
-                            // if we are doing a half height Mode then just do that
-                            // anyway as it will be just as fast
-                            if(CurrentMethod->bIsHalfHeight == FALSE && 
+                            bFlipNow = CurrentMethod->pfnAlgorithm(&Info);
+                        }
+                        // if we have dropped a field then do BOB 
+                        // or if we need to get more history
+                        // if we are doing a half height Mode then just do that
+                        // anyway as it will be just as fast
+                        else if(CurrentMethod->bIsHalfHeight == FALSE && 
                                 ((Info.bMissedFrame == TRUE) || (nHistory < CurrentMethod->nFieldsRequired)))
-                            {
-                                bFlipNow = Bob(&Info);
-                            }
-                            else
-                            {
-                                bFlipNow = CurrentMethod->pfnAlgorithm(&Info);
-                            }
+                        {
+                            bFlipNow = Bob(&Info);
                         }
                         else
                         {
-                            // if we have a progressive source just copy
-                            // input to output
-                            if (Info.PictureHistory[0]->pData != NULL)
-                            {
-                                BYTE *lpOverlay = Info.Overlay;
-                                BYTE* CurrentLine = Info.PictureHistory[0]->pData;
-                                for (int i = 0; i < Info.FrameHeight; i++)
-                                {
-                                    Info.pMemcpy(lpOverlay, CurrentLine, Info.LineLength);
-                                    lpOverlay += Info.OverlayPitch;
-                                    CurrentLine += Info.InputPitch;
-                                }
-                                bFlipNow = TRUE;
-                            }
+                            bFlipNow = CurrentMethod->pfnAlgorithm(&Info);
                         }
                     
                         pPerf->StopCount(PERF_DEINTERLACE);
@@ -786,7 +771,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                             // the odd and even flags may help the scaled bob
                             // on some cards
                             DWORD FlipFlag = (WaitForFlip)?DDFLIP_WAIT:DDFLIP_DONOTWAIT;
-                            if((CurrentMethod != NULL) && (CurrentMethod->nMethodIndex == INDEX_SCALER_BOB))
+                            if(CurrentMethod->nMethodIndex == INDEX_SCALER_BOB)
                             {
                                 if(Info.PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD)
                                 {
@@ -800,7 +785,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
                             // Need to wait for a good time to flip
                             // only if we have been in the same Mode for at least one flip
-                            if(Info.bDoAccurateFlips && CurrentMethod != NULL && PrevDeintMethod == CurrentMethod)
+                            if(Info.bDoAccurateFlips && PrevDeintMethod == CurrentMethod)
                             {
                                 Timing_WaitForTimeToFlip(&Info, CurrentMethod, &bStopThread);
                             }

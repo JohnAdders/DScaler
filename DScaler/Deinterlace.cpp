@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.cpp,v 1.31 2002-02-10 21:42:29 laurentg Exp $
+// $Id: Deinterlace.cpp,v 1.32 2002-02-11 23:18:33 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2002/02/10 21:42:29  laurentg
+// New menu items "Progressive Scan" and "Film Mode"
+//
 // Revision 1.30  2001/12/18 14:45:05  adcockj
 // Moved to Common Controls status bar
 //
@@ -126,6 +129,13 @@ long    nInitialTicks = -1;
 long    nLastTicks = 0;
 long    nTotalDeintModeChanges = 0;
 
+DEINTERLACE_METHOD ProgressiveMethod =
+    {
+        sizeof(DEINTERLACE_METHOD), DEINTERLACE_CURRENT_VERSION,
+        "Progressive Scan", NULL, FALSE, FALSE, CopyFrame, 25, 30, 
+        0, NULL, 0, NULL, NULL, NULL, NULL, 1, 0, 0, -1, NULL, 0, FALSE, FALSE, 
+    };
+
 DEINTERLACE_METHOD FilmDeintMethods[FILMPULLDOWNMODES_LAST_ONE] =
 {
     // FILM_22_PULLDOWN_ODD
@@ -195,11 +205,16 @@ eFilmPulldownMode gFilmPulldownMode = FILMPULLDOWNMODES_LAST_ONE;
 
 BOOL bIsProgressiveMode = FALSE;
 
+void Deinterlace_SetStatus(LPCSTR StatusText)
+{
+    StatusBar_ShowText(STATUS_MODE, StatusText);
+}
+
 DEINTERLACE_METHOD* GetCurrentDeintMethod()
 {
     if(bIsProgressiveMode)
     {
-        return NULL;
+        return &ProgressiveMethod;
     }
     else if(bIsFilmMode)
     {
@@ -209,6 +224,11 @@ DEINTERLACE_METHOD* GetCurrentDeintMethod()
     {
         return VideoDeintMethods[gVideoPulldownMode];
     }
+}
+
+DEINTERLACE_METHOD* GetProgressiveMethod()
+{
+    return &ProgressiveMethod;
 }
 
 DEINTERLACE_METHOD* GetVideoDeintMethod(int Mode)
@@ -303,9 +323,13 @@ eFilmPulldownMode GetFilmMode()
     }
 }
 
-void SetProgressiveMode(BOOL Mode)
+void SetProgressiveMode()
 {
-    bIsProgressiveMode = Mode;
+    if (!bIsProgressiveMode)
+    {
+        bIsProgressiveMode = TRUE;
+        Deinterlace_SetStatus(GetDeinterlaceModeName());
+    }
 }
 
 void SetFilmDeinterlaceMode(eFilmPulldownMode Mode)
@@ -334,7 +358,7 @@ void SetFilmDeinterlaceMode(eFilmPulldownMode Mode)
         gFilmPulldownMode = Mode;
         bIsFilmMode = TRUE;
         nLastTicks = CurrentTickCount;
-        StatusBar_ShowText(STATUS_MODE, GetDeinterlaceModeName());
+        Deinterlace_SetStatus(GetDeinterlaceModeName());
         nTotalDeintModeChanges++;
         FilmDeintMethods[gFilmPulldownMode].ModeChanges++;
         if(WereInHalfHeight != InHalfHeightMode())
@@ -370,7 +394,7 @@ void SetVideoDeinterlaceMode(int Mode)
         gVideoPulldownMode = Mode;
         bIsFilmMode = FALSE;
         nLastTicks = CurrentTickCount;
-        StatusBar_ShowText(STATUS_MODE, GetDeinterlaceModeName());
+        Deinterlace_SetStatus(GetDeinterlaceModeName());
         nTotalDeintModeChanges++;
         VideoDeintMethods[gVideoPulldownMode]->ModeChanges++;
         if(WereInHalfHeight != InHalfHeightMode())
@@ -399,7 +423,7 @@ char* GetDeinterlaceModeName()
 {
     if(bIsProgressiveMode)
     {
-        return "Progressive Scan";
+        return ProgressiveMethod.szName;
     }
     else if(bIsFilmMode)
     {
@@ -430,6 +454,8 @@ void PrepareDeinterlaceMode()
     {
         SetVideoDeinterlaceMode(0);
     }
+    // Update the status bar
+    Deinterlace_SetStatus(GetDeinterlaceModeName());
 }
 
 void IncrementDeinterlaceMode()
@@ -645,11 +671,6 @@ void AddUIForDeintPlugin(HMENU hMenu, DEINTERLACE_METHOD* DeintMethod)
     AppendMenu(hMenu, MF_STRING | MF_ENABLED, DeintMethod->MenuId, DeintMethod->szName);
 }
 
-void Deinterlace_SetStatus(LPCSTR StatusText)
-{
-    StatusBar_ShowText(STATUS_MODE, StatusText);
-}
-
 BOOL LoadDeinterlacePlugins()
 {
     WIN32_FIND_DATA FindFileData;
@@ -853,5 +874,25 @@ void Deinterlace_SetMenu(HMENU hMenu)
         {
             CheckMenuItemBool(hMenu, VideoDeintMethods[i]->MenuId, FALSE);
         }
+    }
+}
+
+BOOL CopyFrame(TDeinterlaceInfo* pInfo)
+{
+    BYTE* CurrentLine = pInfo->PictureHistory[0]->pData;
+    if (CurrentLine != NULL)
+    {
+        BYTE *lpOverlay = pInfo->Overlay;
+        for (int i = 0; i < pInfo->FrameHeight; i++)
+        {
+            pInfo->pMemcpy(lpOverlay, CurrentLine, pInfo->LineLength);
+            lpOverlay += pInfo->OverlayPitch;
+            CurrentLine += pInfo->InputPitch;
+        }
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
     }
 }

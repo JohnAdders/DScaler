@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.h,v 1.14 2002-02-10 21:42:29 laurentg Exp $
+// $Id: Deinterlace.h,v 1.15 2002-02-11 23:18:33 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,7 @@ BOOL LoadDeinterlacePlugins();
 void UnloadDeinterlacePlugins();
 
 DEINTERLACE_METHOD* GetCurrentDeintMethod();
+DEINTERLACE_METHOD* GetProgressiveMethod();
 DEINTERLACE_METHOD* GetVideoDeintMethod(int Mode);
 DEINTERLACE_METHOD* GetVideoDeintIndex(int Index);
 DEINTERLACE_METHOD* GetFilmDeintMethod(eFilmPulldownMode Mode);
@@ -80,7 +81,7 @@ BOOL IsProgressiveMode();
 BOOL IsFilmMode();
 eFilmPulldownMode GetFilmMode();
 BOOL InHalfHeightMode();
-void SetProgressiveMode(BOOL Mode);
+void SetProgressiveMode();
 void SetFilmDeinterlaceMode(eFilmPulldownMode Mode);
 void SetVideoDeinterlaceIndex(int index);
 void ShowVideoModeUI();
@@ -88,6 +89,8 @@ char* GetDeinterlaceModeName();
 void IncrementDeinterlaceMode();
 void DecrementDeinterlaceMode();
 void PrepareDeinterlaceMode();
+
+BOOL CopyFrame(TDeinterlaceInfo* pInfo);
 
 extern const char* DeinterlaceNames[100];
 

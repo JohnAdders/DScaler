@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.27 2003-02-14 09:10:40 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.28 2003-04-16 14:43:16 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2003/02/14 09:10:40  atnak
+// Updated Manli M-TV002
+//
 // Revision 1.26  2003/02/14 08:59:15  atnak
 // Updated Manli M-TV002
 //
@@ -890,7 +893,7 @@ void CSAA7134Card::FLYVIDEO2000CardInputSelect(int nInput)
         break;
     case 4: // Radio
         MaskDataDword(SAA7134_GPIO_GPMODE, 0x0018e700, 0x0EFFFFFF);
-        MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x0000, 0xE000);
+        MaskDataDword(SAA7134_GPIO_GPSTATUS, 0x2000, 0xE000);
         break;
     case -1: // Ending cleanup
         MaskDataDword(SAA7134_GPIO_GPMODE, 0x0018e700, 0x0EFFFFFF);

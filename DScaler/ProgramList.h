@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.h,v 1.17 2002-08-04 12:28:20 kooiman Exp $
+// $Id: ProgramList.h,v 1.18 2002-08-06 18:35:29 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -47,6 +47,8 @@
 
 #include "settings.h"
 
+typedef void (__cdecl CHANNELCHANGE_NOTIFICATION)(void *pThis,int PreChange,int OldChannel,int NewChannel);
+
 // Get Hold of the OutThreads.c file settings
 SETTING* Channels_GetSetting(CHANNELS_SETTING Setting);
 void Channels_ReadSettingsFromIni();
@@ -54,6 +56,10 @@ void Channels_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 void Channels_UpdateMenu(HMENU hMenu);
 void Channels_SetMenu(HMENU hMenu);
 BOOL ProcessProgramSelection(HWND hWnd, WORD wMenuID);
+
+void Channel_Register_Change_Notification(void *pThis,CHANNELCHANGE_NOTIFICATION *pfnChange);
+void Channel_UnRegister_Change_Notification(void *pThis,CHANNELCHANGE_NOTIFICATION *pfnChange);
+void Channel_Change_Notify(int PreChange, int OldChannel, int NewChannel);
 
 SETTING* AntiPlop_GetSetting(ANTIPLOP_SETTING Setting);
 void AntiPlop_ReadSettingsFromIni();

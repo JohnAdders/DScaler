@@ -1,5 +1,5 @@
 ;////////////////////////////////////////////////////////////////////////////
-;// $Id: dscaler.iss,v 1.23 2003-02-22 12:36:46 adcockj Exp $
+;// $Id: dscaler.iss,v 1.24 2003-04-23 08:19:26 adcockj Exp $
 ;/////////////////////////////////////////////////////////////////////////////
 ;// Copyright (c) 2002 Rob Muller.  All rights reserved.
 ;/////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 ;// CVS Log
 ;//
 ;// $Log: not supported by cvs2svn $
+;// Revision 1.23  2003/02/22 12:36:46  adcockj
+;// Prepare for new alpha
+;//
 ;// Revision 1.22  2003/02/04 17:23:09  adcockj
 ;// Added Warning to install
 ;//
@@ -112,6 +115,8 @@ DisableStartupPrompt=yes
 
 [Messages]
 BeveledLabel=DScaler
+WizardLicense=GPL License Agreement
+LicenseLabel2=Do you want to continue to install [name]? If you choose No, Setup will close.
 
 [Components]
 Name: "main"; Description: "Main Files"; Types: full compact custom; Flags: fixed

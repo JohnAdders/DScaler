@@ -195,7 +195,7 @@ void __cdecl AdaptiveStart(long NumPlugIns, DEINTERLACE_METHOD** OtherPlugins, H
 
 	for(i = 0; i < 100; i++)
 	{
-		ModeList[i] = "(empty)";
+		ModeList[i] = "";
 		for(j = 0; j < NumPlugIns; j++)
 		{
 			if(DeintMethods[j]->nMethodIndex == i)

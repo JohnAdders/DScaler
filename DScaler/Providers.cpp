@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.67 2003-08-25 04:04:00 atnak Exp $
+// $Id: Providers.cpp,v 1.68 2003-09-14 09:20:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.67  2003/08/25 04:04:00  atnak
+// Moved the initial Mixer_Init() call to the correct place
+//
 // Revision 1.66  2003/08/16 18:40:43  laurentg
 // Disable access to the audio mixer dialog box for the movie file source
 // Display the audio mixer dialog box at first setup of a DShow capture source
@@ -297,6 +300,25 @@ static long CurrentSource = 0;
 static long DefSourceIdx = -1;
 long InitSourceIdx = -1;
 
+void Providers_MixerSetup()
+{
+	MessageBox(hWnd,
+		"The following dialog will allow you to configure how "
+		"DScaler uses the system mixer.  Configuring DScaler to use the "
+		"system mixer allows DScaler to change the volume level and the "
+		"mute state of your sound card by using the Windows mixer.  This is a "
+		"must for cards that do not support these functions in hardware. "
+		"You should specify the line into which your TV card's loopback "
+		"sound cable is attached.\n"
+		"\n"
+		"If you do not wish to let DScaler use the system mixer, leave "
+		"the \"Use the system mixer\" option unchecked.  If unsure, it "
+		"is recommended you use the system mixer.", "Next...", MB_OK);
+
+    Mixer_SetupDlg(hWnd);
+}
+
+
 int Providers_Load(HMENU hMenu)
 {
     int i(0);
@@ -332,20 +354,7 @@ int Providers_Load(HMENU hMenu)
 			// The first time, setup the audio mixer for the card
 			if (((CBT848Source*)(BT848Provider->GetSource(i)))->IsInitialSetup())
 			{
-				MessageBox(hWnd,
-					"The proceeding dialog will allow you to configure how "
-					"DScaler uses the system mixer.  Configuring DScaler to use the "
-					"system mixer allows DScaler to change the volume level and the "
-					"mute state of your card by using the Windows mixer.  This is a "
-					"must for cards that do not support these functions in hardware. "
-					"You should specify the line into which your TV card's loopback "
-					"sound cable is attached.\n"
-					"\n"
-					"If you do not wish to let DScaler use the system mixer, leave "
-					"the \"Use the system mixer\" option unchecked.  If unsure, it "
-					"is recommended you use the system mixer.", "Next...", MB_OK);
-
-                Mixer_SetupDlg(hWnd);
+                Providers_MixerSetup();
 			}
 
             // Mute the audio of each source
@@ -374,20 +383,7 @@ int Providers_Load(HMENU hMenu)
 			// The first time, setup the audio mixer for the card
 			if (((CCX2388xSource*)(CX2388xProvider->GetSource(i)))->IsInitialSetup())
 			{
-				MessageBox(hWnd,
-					"The proceeding dialog will allow you to configure how "
-					"DScaler uses the system mixer.  Configuring DScaler to use the "
-					"system mixer allows DScaler to change the volume level and the "
-					"mute state of your card by using the Windows mixer.  This is a "
-					"must for cards that do not support these functions in hardware. "
-					"You should specify the line into which your TV card's loopback "
-					"sound cable is attached.\n"
-					"\n"
-					"If you do not wish to let DScaler use the system mixer, leave "
-					"the \"Use the system mixer\" option unchecked.  If unsure, it "
-					"is recommended you use the system mixer.", "Next...", MB_OK);
-
-                Mixer_SetupDlg(hWnd);
+                Providers_MixerSetup();
             }
 
             // Mute the audio of each source
@@ -416,20 +412,7 @@ int Providers_Load(HMENU hMenu)
 			// The first time, setup the audio mixer for the card
 			if (((CSAA7134Source*)(SAA7134Provider->GetSource(i)))->IsInitialSetup())
 			{
-				MessageBox(hWnd,
-					"The proceeding dialog will allow you to configure how "
-					"DScaler uses the system mixer.  Configuring DScaler to use the "
-					"system mixer allows DScaler to change the volume level and the "
-					"mute state of your card by using the Windows mixer.  This is a "
-					"must for cards that do not support these functions in hardware. "
-					"You should specify the line into which your TV card's loopback "
-					"sound cable is attached.\n"
-					"\n"
-					"If you do not wish to let DScaler use the system mixer, leave "
-					"the \"Use the system mixer\" option unchecked.  If unsure, it "
-					"is recommended you use the system mixer.", "Next...", MB_OK);
-
-                Mixer_SetupDlg(hWnd);
+                Providers_MixerSetup();
 			}
 
             // Mute the audio of each source
@@ -484,20 +467,7 @@ int Providers_Load(HMENU hMenu)
 		// The first time, setup the audio mixer for the card
 		if (((CDSSourceBase*)(DSProvider->GetSource(i)))->IsInitialSetup())
 		{
-			MessageBox(hWnd,
-				"The proceeding dialog will allow you to configure how "
-				"DScaler uses the system mixer.  Configuring DScaler to use the "
-				"system mixer allows DScaler to change the volume level and the "
-				"mute state of your card by using the Windows mixer.  This is a "
-				"must for cards that do not support these functions in hardware. "
-				"You should specify the line into which your TV card's loopback "
-				"sound cable is attached.\n"
-				"\n"
-				"If you do not wish to let DScaler use the system mixer, leave "
-				"the \"Use the system mixer\" option unchecked.  If unsure, it "
-				"is recommended you use the system mixer.", "Next...", MB_OK);
-
-            Mixer_SetupDlg(hWnd);
+            Providers_MixerSetup();
 		}
 
         DSProvider->GetSource(i)->Mute();

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.85 2002-08-17 11:42:06 kooiman Exp $
+// $Id: DS_Control.h,v 1.86 2002-08-29 23:53:40 lindsey Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.85  2002/08/17 11:42:06  kooiman
+// Applied LogoKiller Filter Smoothing option from Jochen Trenner.
+//
 // Revision 1.84  2002/08/16 18:46:34  kooiman
 // Added setting entry for optional screen update delay during tuner frequency switch.
 //
@@ -1093,6 +1096,7 @@ typedef enum
     TCOMB_SHIMMER_PERCENT,
     TCOMB_ACTIVATE,
     TCOMB_TRADE_SPEED_FOR_ACCURACY,
+	TCOMB_VIDOE_MODE,
     FLT_TCOMB_SETTING_LASTONE,
 } FLT_TCOMB_SETTING;
 

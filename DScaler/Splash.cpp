@@ -38,48 +38,62 @@ HWND SplashWnd = NULL;
 
 BOOL APIENTRY SplashProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
+    static HBITMAP hSplashBm;
+    static HBITMAP hOldBm;
+	static BITMAP bm;
+	PAINTSTRUCT wps;
+	HDC hdc;
+	HDC hMemDC;
+
 	switch (message)
 	{
 	case WM_INITDIALOG:
-		{
-			RECT rPicture;
-			RECT rList;
-			int Width = GetSystemMetrics(SM_CXSCREEN);
-			int Height = GetSystemMetrics(SM_CYSCREEN);
-			GetWindowRect(GetDlgItem(hDlg, IDC_P1), &rPicture);
-			GetWindowRect(GetDlgItem(hDlg, IDC_LIST1), &rList);
-			SetWindowPos(hDlg, HWND_TOPMOST, 
-				(Width - (rPicture.right - rPicture.left)) / 2, 
-				(Height - (rPicture.bottom - rPicture.top)) / 2, 
-				(rPicture.right - rPicture.left), 
-				(rPicture.bottom - rPicture.top), 
-				SWP_SHOWWINDOW);
-			MoveWindow(GetDlgItem(hDlg, IDC_LIST1), 
-				((rPicture.right - rPicture.left) - (rList.right - rList.left)) / 2, 
-				((rPicture.bottom - rPicture.top) - (rList.bottom - rList.top) - 10), 
-				(rList.right - rList.left), 
-				(rList.bottom - rList.top), 
-				FALSE);
-			InvalidateRect(GetDlgItem(hDlg, IDC_P1), NULL, TRUE);
-			SetTimer(hDlg, 2, 5000, NULL);
-			return (TRUE);
-		}
+ 		{
+ 			int Width = GetSystemMetrics(SM_CXSCREEN);
+ 			int Height = GetSystemMetrics(SM_CYSCREEN);
+            hSplashBm = (HBITMAP)LoadImage(hInst, MAKEINTRESOURCE(IDB_STARTUP), IMAGE_BITMAP, 0, 0, LR_VGACOLOR);
+		    GetObject(hSplashBm, sizeof(BITMAP), (LPSTR) &bm);
 
+ 			SetWindowPos(hDlg, HWND_TOPMOST, 
+ 				(Width - bm.bmWidth) / 2, 
+ 				(Height - bm.bmHeight) / 2, 
+ 				bm.bmWidth, 
+ 				bm.bmHeight, 
+ 				SWP_SHOWWINDOW);
+ 			SetTimer(hDlg, 2, 5000, NULL);
+    		InvalidateRect(hDlg, NULL, TRUE);
+    		return TRUE;
+        }
+        break;
+
+    case WM_ERASEBKGND:
+		hdc = BeginPaint(hDlg, &wps);
+		hMemDC = CreateCompatibleDC(hdc);
+		hOldBm = (HBITMAP)SelectObject(hMemDC, hSplashBm);
+        BitBlt(hdc, 0, 0, bm.bmWidth, bm.bmHeight, hMemDC, 0, 0, SRCCOPY);
+		SelectObject(hMemDC, hOldBm);
+		DeleteDC(hMemDC);
+		DeleteDC(hdc);
+		EndPaint(hDlg, &wps);
+		return TRUE;
+        break;
+    
 	case WM_TIMER:
 		if (wParam == 2)
 		{
 			SplashWnd  = NULL;
+            DeleteObject(hSplashBm);
 			EndDialog(hDlg, 0);
 		}
-		return (FALSE);
+		return FALSE;
 	}
-	return (FALSE);
+	return FALSE;
 	UNREFERENCED_PARAMETER(lParam);
 }
 
 void ShowSpashScreen()
 {
-	SplashWnd = CreateDialog(hInst, "SPLASHBOX", NULL, SplashProc);
+	SplashWnd = CreateDialog(hInst, MAKEINTRESOURCE(IDD_SPLASHBOX), NULL, SplashProc);
 }
 
 void HideSplashScreen()

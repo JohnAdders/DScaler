@@ -789,6 +789,6 @@ BOOL APIENTRY UISubMenuProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 
 void DisplayUISubMenuAsDialog(UI_SUBMENU* pSubMenu)
 {
-	DialogBoxParam(hInst, "UI_SUB_MENU", hWnd, UISubMenuProc, (LPARAM)pSubMenu);
+	DialogBoxParam(hInst, MAKEINTRESOURCE(IDD_UI_SUB_MENU), hWnd, UISubMenuProc, (LPARAM)pSubMenu);
 }
 

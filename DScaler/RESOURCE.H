@@ -18,6 +18,28 @@
 #define IDGETSDT                        7
 #define IDM_SAVE_SETTINGS_NOW           100
 #define IDM_STATUSBAR                   133
+#define IDD_ABOUT                       160
+#define IDD_ADV_VIDEOSETTINGS           161
+#define IDD_ANALOGSCAN                  162
+#define IDD_AUDIOEQUALIZER              163
+#define IDD_VTSTATUS                    164
+#define IDD_VPSSTATUS                   165
+#define IDD_VIDEOSETTINGS               166
+#define IDD_AUDIOSETTINGS               167
+#define IDD_CHANNELLIST                 168
+#define IDD_HWINFO                      169
+#define IDD_MIXERSETUP                  170
+#define IDD_SELECTCARD                  171
+#define IDD_SPLASHBOX                   172
+#define IDD_UI_SUB_MENU                 173
+#define IDA_DSCALER                     174
+#define IDB_GREENBULB                   175
+#define IDB_REDBULB                     176
+#define IDB_STARTUP                     177
+#define IDB_VTCHARS                     178
+#define IDI_DSCALER                     179
+#define IDC_DSCALERMENU                 180
+#define IDC_CONTEXTMENU                 181
 #define IDM_VBI                         231
 #define IDM_CAPTURE_PAUSE               232
 #define IDM_CHANNEL_LIST                242
@@ -820,7 +842,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        160
+#define _APS_NEXT_RESOURCE_VALUE        182
 #define _APS_NEXT_COMMAND_VALUE         2017
 #define _APS_NEXT_CONTROL_VALUE         1892
 #define _APS_NEXT_SYMED_VALUE           108

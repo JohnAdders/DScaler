@@ -215,7 +215,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	wc.cbClsExtra = 0;
 	wc.cbWndExtra = sizeof(LONG);
 	wc.hInstance = hInstance;
-	wc.hIcon = LoadIcon(hInstance, "DSCALERICON");
+	wc.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_DSCALER));
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wc.hbrBackground = CreateSolidBrush(0);
 	wc.lpszMenuName = NULL;
@@ -225,9 +225,9 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	{
 		return FALSE;
 	}
-	hMenu = LoadMenu(hInstance, "ANALOGMENU");
+	hMenu = LoadMenu(hInstance, MAKEINTRESOURCE(IDC_DSCALERMENU));
 
-	hMenuPopup = LoadMenu(hInstance, "CONTEXTMENU");
+	hMenuPopup = LoadMenu(hInstance, MAKEINTRESOURCE(IDC_CONTEXTMENU));
 	if (hMenuPopup != NULL)
 		hMenuPopup = GetSubMenu(hMenuPopup,0);
 	if (hMenuPopup != NULL && hMenu != NULL)
@@ -343,7 +343,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	UpdateWindowState();
 
 	PostMessage(hWnd, WM_SIZE, SIZENORMAL, MAKELONG(emsizex, emsizey));
-	if (!(hAccel = LoadAccelerators(hInstance, "ANALOGACCEL")))
+	if (!(hAccel = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDA_DSCALER))))
 	{
 		ErrorBox("Accelerators not Loaded");
 	}
@@ -465,7 +465,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 		{
 		case IDM_SETUPCARD:
 			Stop_Capture();
-			DialogBox(hInst, "SELECTCARD", hWnd, (DLGPROC) SelectCardProc);
+			DialogBox(hInst, MAKEINTRESOURCE(IDD_SELECTCARD), hWnd, (DLGPROC) SelectCardProc);
 			Card_Init();
 			Tuner_Init();
             Reset_Capture();
@@ -592,7 +592,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 			break;
 
 		case IDM_ABOUT:
-			DialogBox(hInst, "ABOUT", hWnd, AboutProc);
+			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUT), hWnd, AboutProc);
 			break;
 
 		case IDM_BRIGHTNESS_PLUS:
@@ -935,7 +935,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 			break;
 		        
 		case IDM_HWINFO:
-			DialogBox(hInst, "HWINFO", hWnd, (DLGPROC) ChipSettingProc);
+			DialogBox(hInst, MAKEINTRESOURCE(IDD_HWINFO), hWnd, (DLGPROC) ChipSettingProc);
 			break;
 
 		case IDM_VBI_VT:
@@ -998,27 +998,27 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 			break;
 
 		case IDM_AUDIOSETTINGS:
-			DialogBox(hInst, "AUDIOSETTINGS", hWnd, AudioSettingProc);
+			DialogBox(hInst, MAKEINTRESOURCE(IDD_AUDIOSETTINGS), hWnd, AudioSettingProc);
 			break;
 
 		case IDM_AUDIOSETTINGS1:
-			DialogBox(hInst, "AUDIOEQUALIZER", hWnd, AudioSettingProc1);
+			DialogBox(hInst, MAKEINTRESOURCE(IDD_AUDIOEQUALIZER), hWnd, AudioSettingProc1);
 			break;
 
 		case IDM_VIDEOSETTINGS:
-			DialogBox(hInst, "VIDEOSETTINGS", hWnd, VideoSettingProc);
+			DialogBox(hInst, MAKEINTRESOURCE(IDD_VIDEOSETTINGS), hWnd, VideoSettingProc);
 			break;
 
 		case IDM_ADV_VIDEOSETTINGS:
-			DialogBox(hInst, "ADV_VIDEOSETTINGS", hWnd, AdvVideoSettingProc);
+			DialogBox(hInst, MAKEINTRESOURCE(IDD_ADV_VIDEOSETTINGS), hWnd, AdvVideoSettingProc);
 			break;
 
 		case IDM_VPS_OUT:
-			DialogBox(hInst, "VPSSTATUS", hWnd, VPSInfoProc);
+			DialogBox(hInst, MAKEINTRESOURCE(IDD_VPSSTATUS), hWnd, VPSInfoProc);
 			break;
 
 		case IDM_VT_OUT:
-			DialogBox(hInst, "VTSTATUS", hWnd, VTInfoProc);
+			DialogBox(hInst, MAKEINTRESOURCE(IDD_VTSTATUS), hWnd, VTInfoProc);
 			break;
 
 		case IDM_VBI:
@@ -1038,7 +1038,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 			break;
 
 		case IDM_AUDIO_MIXER:
-			DialogBox(hInst, "MIXERSETUP", hWnd, MixerSetupProc);
+			DialogBox(hInst, MAKEINTRESOURCE(IDD_MIXERSETUP), hWnd, MixerSetupProc);
 			break;
 
 		case IDM_STATUSBAR:
@@ -1056,13 +1056,13 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
 		case IDM_ANALOGSCAN:
 			SendMessage(hWnd, WM_COMMAND, IDM_SOURCE_TUNER, 0);
-			DialogBox(hInst, "ANALOGSCAN", hWnd, (DLGPROC) AnalogScanProc);
+			DialogBox(hInst, MAKEINTRESOURCE(IDD_ANALOGSCAN), hWnd, (DLGPROC)AnalogScanProc);
 			break;
 
 		case IDM_CHANNEL_LIST:
 			if (Setting_GetValue(BT848_GetSetting(VIDEOSOURCE)) == SOURCE_TUNER)
 			{
-				DialogBox(hInst, "CHANNELLIST", hWnd, (DLGPROC) ProgramListProc);
+				DialogBox(hInst, MAKEINTRESOURCE(IDD_CHANNELLIST), hWnd, (DLGPROC) ProgramListProc);
 			}
 			break;
 

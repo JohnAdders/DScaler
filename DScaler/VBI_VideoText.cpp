@@ -145,7 +145,7 @@ void VBI_VT_Init()
 {
 	HGLOBAL hGlobal;
 
-	hGlobal = LoadResource(hInst, FindResource(hInst, "VTCHARLARGE", RT_BITMAP));
+	hGlobal = LoadResource(hInst, FindResource(hInst, MAKEINTRESOURCE(IDB_VTCHARS), RT_BITMAP));
 	VTCharSetLarge = (BITMAPINFO *) LockResource(hGlobal);
 
 	memset(VTPages, 0, 800 * sizeof(TVTPage));

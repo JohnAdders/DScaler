@@ -856,7 +856,7 @@ void TVCard_FirstTimeSetupHardware(HINSTANCE hInst, HWND hWnd)
 	Card_AutoDetectTuner(CardType);
 
 	// then display the hardware setup dialog
-	DialogBox(hInst, "SELECTCARD", hWnd, (DLGPROC) SelectCardProc);
+	DialogBox(hInst, MAKEINTRESOURCE(IDD_SELECTCARD), hWnd, (DLGPROC) SelectCardProc);
 }
 
 void TVCard_ChangeDefault(SETTING* pSetting, long Default)

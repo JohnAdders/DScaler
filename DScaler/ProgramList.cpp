@@ -390,8 +390,8 @@ BOOL APIENTRY AnalogScanProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 		}
 		SendMessage(GetDlgItem(hDlg, IDC_COMBO1), CB_SETCURSEL, CountryCode, 0);
 
-		RedBulb = LoadBitmap(hInst, "REDBULB");
-		GreenBulb = LoadBitmap(hInst, "GREENBULB");
+		RedBulb = LoadBitmap(hInst, MAKEINTRESOURCE(IDB_REDBULB));
+		GreenBulb = LoadBitmap(hInst, MAKEINTRESOURCE(IDB_GREENBULB));
 
 		return (TRUE);
 
@@ -628,7 +628,7 @@ void Channel_Change(int NewChannel)
 {
 	if (GetTunerSetup() != NULL)
 	{
-		if(NewChannel >= 0 && NewChannel < MAXPROGS)
+		if(NewChannel >= 0 && NewChannel < MyChannels.size())
 		{
 			if (MyChannels[NewChannel]->GetFrequency() != 0)
 			{
@@ -738,7 +738,7 @@ void Channel_ChangeToNumber(int ChannelNumber)
     if (bCustomChannelOrder)
     {
         // Find the channel the user typed.
-        for (int j = 0; j < MAXPROGS; ++j)
+        for (int j = 0; j < MyChannels.size(); ++j)
         {
             if (MyChannels[j]->GetFrequency() != 0 && int(MyChannels[j]->GetChannelNumber()) == ChannelNumber)
             {

@@ -1,5 +1,5 @@
 //
-// $Id: AudioDecoder.cpp,v 1.2 2001-12-19 19:24:44 ittarnavsky Exp $
+// $Id: AudioDecoder.cpp,v 1.3 2002-01-23 12:20:32 robmuller Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/12/19 19:24:44  ittarnavsky
+// prepended SOUNDCHANNEL_ to all members of the eSoundChannel enum
+//
 // Revision 1.1  2001/12/05 21:45:10  ittarnavsky
 // added changes for the AudioDecoder and AudioControls support
 //
@@ -79,4 +82,9 @@ eAudioInput CAudioDecoder::GetAudioInput()
 void CAudioDecoder::SetAudioInput(eAudioInput audioInput)
 {
     m_AudioInput = audioInput;
+}
+
+void CAudioDecoder::HandleTimerMessages(int TimerId)
+{
+
 }

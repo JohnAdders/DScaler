@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.13 2001-12-18 15:30:35 adcockj Exp $
+// $Id: BT848Card.h,v 1.14 2002-01-23 12:20:32 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2001/12/18 15:30:35  adcockj
+// Comment changes
+//
 // Revision 1.10  2001/12/18 13:12:11  adcockj
 // Interim check-in for redesign of card specific settings
 //
@@ -132,6 +135,7 @@ private:
     } TAutoDectect878;
 
 public:
+	void HandleTimerMessages(int TimerId);
     CBT848Card(CHardwareDriver* pDriver);
 	~CBT848Card();
 

@@ -1063,8 +1063,8 @@ BEGIN
         MENUITEM "&Videotext Reset (After switch over Composite)  ", 
                                                 IDM_VT_RESET, GRAYED
         MENUITEM SEPARATOR
-        MENUITEM "&Search VideoText ...\tCtrl+F", IDM_VT_SEARCH
-        MENUITEM "Search &Next\tF3",            IDM_VT_SEARCHNEXT
+        MENUITEM "&Search VideoText ...\tCtrl+F", IDM_VT_SEARCH, GRAYED
+        MENUITEM "Search &Next\tF3",            IDM_VT_SEARCHNEXT, GRAYED
         MENUITEM SEPARATOR
         MENUITEM "Videotext-Infos ...",         IDM_VT_OUT, GRAYED
         MENUITEM "VPS-Infos ...",               IDM_VPS_OUT, GRAYED

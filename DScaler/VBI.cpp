@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI.cpp,v 1.12 2001-11-23 10:49:17 adcockj Exp $
+// $Id: VBI.cpp,v 1.13 2002-05-24 18:04:32 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2001/11/23 10:49:17  adcockj
+// Move resource includes back to top of files to avoid need to rebuild all
+//
 // Revision 1.11  2001/11/09 12:42:07  adcockj
 // Separated most resources out into separate dll ready for localization
 //
@@ -253,6 +256,8 @@ void VBI_SetMenu(HMENU hMenu)
         EnableMenuItem(hMenu, IDM_CALL_VIDEOTEXT, (DoTeletext)?MF_ENABLED:MF_GRAYED);
         EnableMenuItem(hMenu, IDM_VT_RESET, (DoTeletext)?MF_ENABLED:MF_GRAYED);
         EnableMenuItem(hMenu, IDM_VT_OUT, (DoTeletext)?MF_ENABLED:MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_VT_SEARCH, (DoTeletext && VTState != VT_OFF)?MF_ENABLED:MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_VT_SEARCHNEXT, (DoTeletext && VTState != VT_OFF)?MF_ENABLED:MF_GRAYED);
         EnableMenuItem(hMenu, IDM_VPS_OUT, (DoVPS)?MF_ENABLED:MF_GRAYED);
         EnableMenuItem(hMenu, IDM_VBI_VT, MF_ENABLED);
         EnableMenuItem(hMenu, IDM_VBI_VPS, MF_ENABLED);
@@ -274,6 +279,8 @@ void VBI_SetMenu(HMENU hMenu)
         EnableMenuItem(hMenu, IDM_CALL_VIDEOTEXT, MF_GRAYED);
         EnableMenuItem(hMenu, IDM_VT_RESET, MF_GRAYED);
         EnableMenuItem(hMenu, IDM_VT_OUT, MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_VT_SEARCH, MF_GRAYED);
+        EnableMenuItem(hMenu, IDM_VT_SEARCHNEXT, MF_GRAYED);
         EnableMenuItem(hMenu, IDM_VPS_OUT, MF_GRAYED);
         for(i = CCMODE_OFF; i <= CCMODE_TEXT4; i++)
         {

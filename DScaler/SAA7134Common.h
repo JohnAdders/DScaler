@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Common.h,v 1.10 2002-11-10 09:30:57 atnak Exp $
+// $Id: SAA7134Common.h,v 1.11 2002-11-12 01:26:25 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/11/10 09:30:57  atnak
+// Added Chroma only comb filter mode for SECAM
+//
 // Revision 1.9  2002/11/10 05:11:24  atnak
 // Added adjustable audio input level
 //
@@ -88,7 +91,7 @@ protected:
         SAA7134CARDID_EMPRESS,
         SAA7134CARDID_MONSTERTV,
         SAA7134CARDID_TEVIONMD9717,
-        SAA7134CARDID_TVSTATIONRDS,
+        SAA7134CARDID_KNC1RDS,
         SAA7134CARDID_CINERGY400,
         SAA7134CARDID_MEDION5044,
         SAA7134CARDID_KWTV713XRF,

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.11 2002-10-28 11:10:13 atnak Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.12 2002-11-12 01:26:25 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2002/10/28 11:10:13  atnak
+// Various changes and revamp to settings
+//
 // Revision 1.10  2002/10/26 05:24:23  atnak
 // Minor cleanups
 //
@@ -312,7 +315,7 @@ const CSAA7134Card::TCardType CSAA7134Card::m_SAA7134Cards[] =
         NULL,
         StandardSAA7134InputSelect,
     },
-    // SAA7134CARD_TVSTATIONRDS - KNC One TV-Station RDS
+    // SAA7134CARDID_KNC1RDS - KNC One TV-Station RDS
     {
         "KNC One TV-Station RDS",
         4,

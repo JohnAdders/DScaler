@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA9887TesterDlg.cpp,v 1.1 2004-10-30 19:30:22 to_see Exp $
+// $Id: TDA9887TesterDlg.cpp,v 1.2 2004-11-28 21:33:29 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Torsten Seeboth. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 /////////////////////////////////////////////////////////////////////////////
 // CVS Log
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2004/10/30 19:30:22  to_see
+// initial checkin
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
@@ -48,10 +51,10 @@ const CTDA9887TesterDlg::TChip CTDA9887TesterDlg::m_ChipList[] =
 
 const CTDA9887TesterDlg::TRegList CTDA9887TesterDlg::m_TTVModulation[]=
 {
-	{"Positive AM TV",		cPositiveAmTV},
-	{"FM Radio (1)",		cFmRadio1},
-	{"Negative FM TV",		cNegativeFmTV},
-	{"FM Radio (2)",		cFmRadio2},
+	{"Positive AM TV",		TDA9887_PositiveAmTV},
+	{"FM Radio (1)",		TDA9887_FmRadio1},
+	{"Negative FM TV",		TDA9887_NegativeFmTV},
+	{"FM Radio (2)",		TDA9887_FmRadio2},
 	{NULL, NULL},
 };
 
@@ -70,23 +73,23 @@ const CTDA9887TesterDlg::TRegList CTDA9887TesterDlg::m_TTakeOverPoint[]=
 
 const CTDA9887TesterDlg::TRegList CTDA9887TesterDlg::m_TVideoIF[]=
 {
-	{"58.75 MHz",			cVideoIF_58_75},
-	{"45.75 MHz",			cVideoIF_45_75},
-	{"38.9 MHz",			cVideoIF_38_90},
-	{"38.0 MHz",			cVideoIF_38_00},
-	{"33.9 MHz",			cVideoIF_33_90},
-	{"33.4 MHz",			cVideoIF_33_40},
-	{"45.75 MHz + pin13",	cRadioIF_45_75},
-	{"38.9 MHz + pin13",	cRadioIF_38_90},
+	{"58.75 MHz",			TDA9887_VideoIF_58_75},
+	{"45.75 MHz",			TDA9887_VideoIF_45_75},
+	{"38.9 MHz",			TDA9887_VideoIF_38_90},
+	{"38.0 MHz",			TDA9887_VideoIF_38_00},
+	{"33.9 MHz",			TDA9887_VideoIF_33_90},
+	{"33.4 MHz",			TDA9887_VideoIF_33_40},
+	{"45.75 MHz + pin13",	TDA9887_RadioIF_45_75},
+	{"38.9 MHz + pin13",	TDA9887_RadioIF_38_90},
 	{NULL, NULL},
 };
 
 const CTDA9887TesterDlg::TRegList CTDA9887TesterDlg::m_TAudioIF[]=
 {
-	{"4.5 MHz",				cAudioIF_4_5},
-	{"5.5 MHz",				cAudioIF_5_5},
-	{"6.0 MHz",				cAudioIF_6_0},
-	{"6.5 MHz / AM",		cAudioIF_6_5},
+	{"4.5 MHz",				TDA9887_AudioIF_4_5},
+	{"5.5 MHz",				TDA9887_AudioIF_5_5},
+	{"6.0 MHz",				TDA9887_AudioIF_6_0},
+	{"6.5 MHz / AM",		TDA9887_AudioIF_6_5},
 	{NULL, NULL},
 };
 
@@ -94,57 +97,57 @@ const CTDA9887TesterDlg::TStandard CTDA9887TesterDlg::m_TStandards[]=
 {
 	{	
 		"PAL-BG",
-		cNegativeFmTV | cQSS,
-		cDeemphasisON | cDeemphasis50 | cTakeOverPointDefault,
-		cAudioIF_5_5  | cVideoIF_38_90,
+		TDA9887_NegativeFmTV | TDA9887_QSS | TDA9887_OutputPort1Inactive | TDA9887_OutputPort2Inactive,
+		TDA9887_DeemphasisON | TDA9887_Deemphasis50 | TDA9887_TakeOverPointDefault,
+		TDA9887_AudioIF_5_5  | TDA9887_VideoIF_38_90,
 	},
 	{	
 		"PAL-I",
-		cNegativeFmTV | cQSS,
-		cDeemphasisON | cDeemphasis50 | cTakeOverPointDefault,
-		cAudioIF_6_0  | cVideoIF_38_90,
+		TDA9887_NegativeFmTV | TDA9887_QSS | TDA9887_OutputPort1Inactive | TDA9887_OutputPort2Inactive,
+		TDA9887_DeemphasisON | TDA9887_Deemphasis50 | TDA9887_TakeOverPointDefault,
+		TDA9887_AudioIF_6_0  | TDA9887_VideoIF_38_90,
 	},
 	{	
 		"PAL-DK",
-		cNegativeFmTV | cQSS,
-		cDeemphasisON | cDeemphasis50 | cTakeOverPointDefault,
-		cAudioIF_6_5  | cVideoIF_38_00,
+		TDA9887_NegativeFmTV | TDA9887_QSS | TDA9887_OutputPort1Inactive | TDA9887_OutputPort2Inactive,
+		TDA9887_DeemphasisON | TDA9887_Deemphasis50 | TDA9887_TakeOverPointDefault,
+		TDA9887_AudioIF_6_5  | TDA9887_VideoIF_38_00,
 	},
 	{	
 		"PAL-M/N",
-		cNegativeFmTV | cQSS,
-		cDeemphasisON | cDeemphasis75 | cTakeOverPointDefault,
-		cAudioIF_4_5  | cVideoIF_45_75,
+		TDA9887_NegativeFmTV | TDA9887_QSS | TDA9887_OutputPort1Inactive | TDA9887_OutputPort2Inactive,
+		TDA9887_DeemphasisON | TDA9887_Deemphasis75 | TDA9887_TakeOverPointDefault,
+		TDA9887_AudioIF_4_5  | TDA9887_VideoIF_45_75,
 	},
 	{	
 		"SECAM-L",
-		cPositiveAmTV | cQSS,
-		cTakeOverPointDefault,
-		cAudioIF_6_5  | cVideoIF_38_90,
+		TDA9887_PositiveAmTV | TDA9887_QSS | TDA9887_OutputPort1Inactive | TDA9887_OutputPort2Inactive,
+		TDA9887_TakeOverPointDefault,
+		TDA9887_AudioIF_6_5  | TDA9887_VideoIF_38_90,
 	},
 	{	
 		"SECAM-DK",
-		cNegativeFmTV | cQSS,
-		cDeemphasisON | cDeemphasis50 | cTakeOverPointDefault,
-		cAudioIF_6_5  | cVideoIF_38_00,
+		TDA9887_NegativeFmTV | TDA9887_QSS | TDA9887_OutputPort1Inactive | TDA9887_OutputPort2Inactive,
+		TDA9887_DeemphasisON | TDA9887_Deemphasis50 | TDA9887_TakeOverPointDefault,
+		TDA9887_AudioIF_6_5  | TDA9887_VideoIF_38_00,
 	},
 	{	
 		"NTSC-M",
-		cNegativeFmTV | cQSS,
-		cDeemphasisON | cDeemphasis50  | cTakeOverPointDefault,
-		cAudioIF_4_5  | cVideoIF_45_75 | cGating_36,
+		TDA9887_NegativeFmTV | TDA9887_QSS | TDA9887_OutputPort1Inactive | TDA9887_OutputPort2Inactive,
+		TDA9887_DeemphasisON | TDA9887_Deemphasis50  | TDA9887_TakeOverPointDefault,
+		TDA9887_AudioIF_4_5  | TDA9887_VideoIF_45_75 | TDA9887_Gating_36,
 	},
 	{	
 		"NTSC-JP",
-		cNegativeFmTV | cQSS,
-		cDeemphasisON | cDeemphasis50  | cTakeOverPointDefault,
-		cAudioIF_4_5  | cVideoIF_58_75 | cGating_36,
+		TDA9887_NegativeFmTV | TDA9887_QSS | TDA9887_OutputPort1Inactive | TDA9887_OutputPort2Inactive,
+		TDA9887_DeemphasisON | TDA9887_Deemphasis50  | TDA9887_TakeOverPointDefault,
+		TDA9887_AudioIF_4_5  | TDA9887_VideoIF_58_75 | TDA9887_Gating_36,
 	},
 	{	
 		"Radio",
-		cFmRadio1 | cQSS,
-		cDeemphasisON | cDeemphasis75 | cTakeOverPointDefault,
-		cAudioIF_5_5  | cRadioIF_38_90,
+		TDA9887_FmRadio1	 | TDA9887_QSS | TDA9887_OutputPort1Inactive | TDA9887_OutputPort2Inactive,
+		TDA9887_DeemphasisON | TDA9887_Deemphasis75 | TDA9887_TakeOverPointDefault,
+		TDA9887_AudioIF_5_5  | TDA9887_RadioIF_38_90,
 	},
 };
 
@@ -478,24 +481,24 @@ void CTDA9887TesterDlg::OnSelchangeComboStandards()
 		return;
 	}
 
-	m_TStandards[iSel].B & cOutputPort2Inactive	?		m_b_B7 = FALSE : m_b_B7 = TRUE;			// bit b7
-	m_TStandards[iSel].B & cOutputPort1Inactive	?		m_b_B6 = FALSE : m_b_B6 = TRUE;			// bit b6
-	m_TStandards[iSel].B & cForcedMuteAudioON ?			m_b_B5 = TRUE : m_b_B5 = FALSE;			// bit b5
-	SelectComboBoxByData(m_TStandards[iSel].B & cFmRadio2, &m_ctrlComboTVMod);					// bit b3:4
-	m_TStandards[iSel].B & cQSS ?						m_b_B2 = TRUE : m_b_B2 = FALSE;			// bit b2
-	m_TStandards[iSel].B & cAutoMuteFmActive ?			m_b_B1 = TRUE : m_b_B1 = FALSE;			// bit b1
-	m_TStandards[iSel].B & cVideoTrapBypassON ?			m_b_B0 = TRUE : m_b_B0 = FALSE;			// bit b0
+	m_TStandards[iSel].B & TDA9887_OutputPort2Inactive	?	m_b_B7 = FALSE	: m_b_B7 = TRUE;			// bit b7
+	m_TStandards[iSel].B & TDA9887_OutputPort1Inactive	?	m_b_B6 = FALSE	: m_b_B6 = TRUE;			// bit b6
+	m_TStandards[iSel].B & TDA9887_ForcedMuteAudioON	?	m_b_B5 = TRUE	: m_b_B5 = FALSE;			// bit b5
+	SelectComboBoxByData(m_TStandards[iSel].B & TDA9887_FmRadio2, &m_ctrlComboTVMod);					// bit b3:4
+	m_TStandards[iSel].B & TDA9887_QSS					?	m_b_B2 = TRUE : m_b_B2 = FALSE;				// bit b2
+	m_TStandards[iSel].B & TDA9887_AutoMuteFmActive		?	m_b_B1 = TRUE : m_b_B1 = FALSE;				// bit b1
+	m_TStandards[iSel].B & TDA9887_VideoTrapBypassON	?	m_b_B0 = TRUE : m_b_B0 = FALSE;				// bit b0
 
-	m_TStandards[iSel].C & cAudioGain6 ?				m_b_C7 = TRUE : m_b_C7 = FALSE;			// bit c7
-	m_TStandards[iSel].C & cDeemphasis50 ?				m_b_C6 = TRUE : m_b_C6 = FALSE;			// bit c6
-	m_TStandards[iSel].C & cDeemphasisON ?				m_b_C5 = TRUE : m_b_C5 = FALSE;			// bit c5
-	SelectComboBoxByData(m_TStandards[iSel].C & cTakeOverPointMax, &m_ctrlComboTakeOverPoint);	// bit c0:4
+	m_TStandards[iSel].C & TDA9887_AudioGain6			?	m_b_C7 = TRUE : m_b_C7 = FALSE;				// bit c7
+	m_TStandards[iSel].C & TDA9887_Deemphasis50			?	m_b_C6 = TRUE : m_b_C6 = FALSE;				// bit c6
+	m_TStandards[iSel].C & TDA9887_DeemphasisON			?	m_b_C5 = TRUE : m_b_C5 = FALSE;				// bit c5
+	SelectComboBoxByData(m_TStandards[iSel].C & TDA9887_TakeOverPointMax, &m_ctrlComboTakeOverPoint);	// bit c0:4
 
-	m_TStandards[iSel].E & cAgcOutON ?					m_b_E7 = TRUE : m_b_E7 = FALSE;			// bit e7
-	m_TStandards[iSel].E & cGating_36 ?					m_b_E6 = TRUE : m_b_E6 = FALSE;			// bit e6
-	m_TStandards[iSel].E & cTunerGainLow ?				m_b_E5 = TRUE : m_b_E5 = FALSE;			// bit e5
-	SelectComboBoxByData(m_TStandards[iSel].E & cRadioIF_38_90,	&m_ctrlComboVideoIF);			// bit e2:4
-	SelectComboBoxByData(m_TStandards[iSel].E & cAudioIF_6_5,	&m_ctrlComboAudioIF);			// bit e0:1
+	m_TStandards[iSel].E & TDA9887_AgcOutON				?	m_b_E7 = TRUE : m_b_E7 = FALSE;				// bit e7
+	m_TStandards[iSel].E & TDA9887_Gating_36			?	m_b_E6 = TRUE : m_b_E6 = FALSE;				// bit e6
+	m_TStandards[iSel].E & TDA9887_TunerGainLow			?	m_b_E5 = TRUE : m_b_E5 = FALSE;				// bit e5
+	SelectComboBoxByData(m_TStandards[iSel].E & TDA9887_RadioIF_38_90,	&m_ctrlComboVideoIF);			// bit e2:4
+	SelectComboBoxByData(m_TStandards[iSel].E & TDA9887_AudioIF_6_5,	&m_ctrlComboAudioIF);			// bit e0:1
 
 	UpdateData(FALSE);
 
@@ -522,24 +525,24 @@ void CTDA9887TesterDlg::ParseAndWrite(UINT nID)
 	bData[2] = Byte E
 */
 
-	if(m_b_B7	== FALSE) bData[0] |= 0x80;						// bit b7
-	if(m_b_B6	== FALSE) bData[0] |= 0x40;						// bit b6
-	if(m_b_B5	== TRUE ) bData[0] |= 0x20;						// bit b5
-	bData[0] |= GetComboSelItemData(&m_ctrlComboTVMod);			// bit b3:4
-	if(m_b_B2	== TRUE ) bData[0] |= 0x04;						// bit b2
-	if(m_b_B1	== TRUE ) bData[0] |= 0x02;						// bit b1
-	if(m_b_B0	== TRUE ) bData[0] |= 0x01;						// bit b0
+	if(m_b_B7	== FALSE) bData[0] |= TDA9887_OutputPort2Inactive;	// bit b7
+	if(m_b_B6	== FALSE) bData[0] |= TDA9887_OutputPort1Inactive;	// bit b6
+	if(m_b_B5	== TRUE ) bData[0] |= TDA9887_ForcedMuteAudioON;	// bit b5
+	bData[0] |= GetComboSelItemData(&m_ctrlComboTVMod);				// bit b3:4
+	if(m_b_B2	== TRUE ) bData[0] |= TDA9887_QSS;					// bit b2
+	if(m_b_B1	== TRUE ) bData[0] |= TDA9887_AutoMuteFmActive;		// bit b1
+	if(m_b_B0	== TRUE ) bData[0] |= TDA9887_VideoTrapBypassON;	// bit b0
 
-	if(m_b_C7	== TRUE ) bData[1] |= 0x80;						// bit c7
-	if(m_b_C6	== TRUE ) bData[1] |= 0x40;						// bit c6
-	if(m_b_C5	== TRUE ) bData[1] |= 0x20;						// bit c5
-	bData[1] |= GetComboSelItemData(&m_ctrlComboTakeOverPoint);	// bit c0:4
+	if(m_b_C7	== TRUE ) bData[1] |= TDA9887_AudioGain6;			// bit c7
+	if(m_b_C6	== TRUE ) bData[1] |= TDA9887_Deemphasis50;			// bit c6
+	if(m_b_C5	== TRUE ) bData[1] |= TDA9887_DeemphasisON;			// bit c5
+	bData[1] |= GetComboSelItemData(&m_ctrlComboTakeOverPoint);		// bit c0:4
 
-	if(m_b_E7	== TRUE ) bData[2] |= 0x80;						// bit e7
-	if(m_b_E6	== TRUE ) bData[2] |= 0x40;						// bit e6
-	if(m_b_E5	== TRUE ) bData[2] |= 0x20;						// bit e5
-	bData[2] |= GetComboSelItemData(&m_ctrlComboVideoIF);		// bit e2:4
-	bData[2] |= GetComboSelItemData(&m_ctrlComboAudioIF);		// bit e0:1
+	if(m_b_E7	== TRUE ) bData[2] |= TDA9887_AgcOutOFF;			// bit e7
+	if(m_b_E6	== TRUE ) bData[2] |= TDA9887_Gating_36;			// bit e6
+	if(m_b_E5	== TRUE ) bData[2] |= TDA9887_TunerGainLow;			// bit e5
+	bData[2] |= GetComboSelItemData(&m_ctrlComboVideoIF);			// bit e2:4
+	bData[2] |= GetComboSelItemData(&m_ctrlComboAudioIF);			// bit e0:1
 
 	m_strControlBytes.Format("0x%02x 0x%02x 0x%02x", bData[0], bData[1], bData[2]);
 	UpdateData(FALSE);

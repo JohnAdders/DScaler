@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Tuner.cpp,v 1.3 2002-09-14 19:40:48 atnak Exp $
+// $Id: SAA7134Card_Tuner.cpp,v 1.4 2002-10-11 13:39:37 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/09/14 19:40:48  atnak
+// various changes
+//
 //
 //
 //////////////////////////////////////////////////////////////////////////////
@@ -57,11 +60,11 @@ BOOL CSAA7134Card::InitTuner(eTunerId tunerId)
     switch (tunerId)
     {
     case TUNER_MT2032:
-        m_Tuner = new CMT2032(VIDEOFORMAT_NTSC_M, m_CardType);
+        m_Tuner = new CMT2032(NULL, VIDEOFORMAT_NTSC_M, m_CardType);
         strcpy(m_TunerType, "MT2032 ");
         break;
     case TUNER_MT2032_PAL:
-        m_Tuner = new CMT2032(VIDEOFORMAT_PAL_B, m_CardType);
+        m_Tuner = new CMT2032(NULL, VIDEOFORMAT_PAL_B, m_CardType);
         strcpy(m_TunerType, "MT2032 ");
         break;    case TUNER_AUTODETECT:
     case TUNER_USER_SETUP:

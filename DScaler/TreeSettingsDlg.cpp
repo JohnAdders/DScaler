@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.cpp,v 1.7 2002-07-03 00:45:41 laurentg Exp $
+// $Id: TreeSettingsDlg.cpp,v 1.8 2002-07-11 17:41:37 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/07/03 00:45:41  laurentg
+// Add a new section in the Change Settings dialog box to set the thread priorities
+//
 // Revision 1.6  2002/06/30 18:51:34  laurentg
 // IDH_STILL added
 //
@@ -91,7 +94,7 @@ void CTreeSettingsDlg::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CTreeSettingsDlg, CDialog)
 	//{{AFX_MSG_MAP(CTreeSettingsDlg)
-	ON_NOTIFY(TVN_SELCHANGED, IDC_TREESETTINGS_TREE, OnSelchangedTree)
+	ON_NOTIFY(TVN_SELCHANGING, IDC_TREESETTINGS_TREE, OnSelchangingTree)
 	ON_BN_CLICKED(IDC_HELPBTN, OnHelpBtn)
 	ON_WM_SIZE()
 	//}}AFX_MSG_MAP
@@ -158,7 +161,7 @@ void CTreeSettingsDlg::OnCancel()
 	CDialog::OnCancel();
 }
 
-void CTreeSettingsDlg::OnSelchangedTree(NMHDR* pNMHDR, LRESULT* pResult) 
+void CTreeSettingsDlg::OnSelchangingTree(NMHDR* pNMHDR, LRESULT* pResult) 
 {
 	NM_TREEVIEW* pNMTreeView = (NM_TREEVIEW*)pNMHDR;
 	*pResult = 0;

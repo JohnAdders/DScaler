@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.h,v 1.2 2002-06-13 12:10:23 adcockj Exp $
+// $Id: TreeSettingsDlg.h,v 1.3 2002-07-11 17:41:37 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/06/13 12:10:23  adcockj
+// Move to new Setings dialog for filers, video deint and advanced settings
+//
 // Revision 1.1  2002/04/24 19:04:01  tobbej
 // new treebased settings dialog
 //
@@ -89,7 +92,7 @@ protected:
 	//{{AFX_MSG(CTreeSettingsDlg)
 	virtual void OnOK();
 	virtual void OnCancel();
-	afx_msg void OnSelchangedTree(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnSelchangingTree(NMHDR* pNMHDR, LRESULT* pResult);
 	virtual BOOL OnInitDialog();
 	afx_msg void OnHelpBtn();
 	afx_msg void OnSize(UINT nType, int cx, int cy);

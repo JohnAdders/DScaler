@@ -1238,25 +1238,25 @@ BOOL APIENTRY SelectCardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 SETTING TVCardSettings[TVCARD_SETTING_LASTONE] =
 {
 	{
-		"Card Type", NUMBER, 0, (long*)&CardType,
+		"Card Type", SLIDER, 0, (long*)&CardType,
 		 TVCARD_UNKNOWN, TVCARD_UNKNOWN, TVCARD_LASTONE - 1, 1, 1,
 		 NULL,
 		"Hardware", "CardType", NULL,
 	},
 	{
-		"Tuner Type", NUMBER, 0, (long*)&TunerType,
+		"Tuner Type", SLIDER, 0, (long*)&TunerType,
 		 TUNER_ABSENT, TUNER_ABSENT, TUNER_LASTONE - 1, 1, 1,
 		 NULL,
 		"Hardware", "TunerType", NULL,
 	},
 	{
-		"Processor Speed", NUMBER, 0, (long*)&ProcessorSpeed,
+		"Processor Speed", SLIDER, 0, (long*)&ProcessorSpeed,
 		 1, 0, 2, 1, 1,
 		 NULL,
 		"Hardware", "ProcessorSpeed", NULL,
 	},
 	{
-		"Trade Off", NUMBER, 0, (long*)&TradeOff,
+		"Trade Off", SLIDER, 0, (long*)&TradeOff,
 		 1, 0, 1, 1, 1,
 		 NULL,
 		"Hardware", "TradeOff", NULL,

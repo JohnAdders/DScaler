@@ -630,12 +630,12 @@ void PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect)
 //----------------------------------------------------------------------------
 // Aspect ratio API
 
-char* HorzPosString[3] =
+const char* HorzPosString[3] =
 {
 	"RIGHT", "CENTER", "LEFT"
 };
 
-char* VertPosString[3] =
+const char* VertPosString[3] =
 {
 	"BOTTOM", "CENTER", "TOP"
 };
@@ -783,7 +783,7 @@ SETTING AspectSettings[ASPECT_SETTING_LASTONE] =
 		"Hardware", "InitialOverscan", Aspect_Overscan_OnChange,
 	},
 	{
-		"Source Aspect", NUMBER, 0, (long*)&aspectSettings.source_aspect,
+		"Source Aspect", SLIDER, 0, (long*)&aspectSettings.source_aspect,
 		1333, 1000, 3000, 1, 1000,
 		NULL,
 		"ASPECT", "SourceAspect", SourceAspect_OnChange,
@@ -795,7 +795,7 @@ SETTING AspectSettings[ASPECT_SETTING_LASTONE] =
 		"ASPECT", "CustomSourceAspect", CustomSourceAspect_OnChange,
 	},
 	{
-		"Screen Aspect", NUMBER, 0, (long*)&aspectSettings.target_aspect,
+		"Screen Aspect", SLIDER, 0, (long*)&aspectSettings.target_aspect,
 		1333, 0, 3000, 1, 1000,
 		NULL,
 		"ASPECT", "TargetAspect", TargetAspect_OnChange,
@@ -807,7 +807,7 @@ SETTING AspectSettings[ASPECT_SETTING_LASTONE] =
 		"ASPECT", "CustomTargetAspect", CustomTargetAspect_OnChange,
 	},
 	{
-		"Aspect Mode", NUMBER, 0, (long*)&aspectSettings.aspect_mode,
+		"Aspect Mode", SLIDER, 0, (long*)&aspectSettings.aspect_mode,
 		1, 0, 2, 1, 1,
 		NULL,
 		"ASPECT", "Mode", AspectMode_OnChange,
@@ -873,7 +873,7 @@ SETTING AspectSettings[ASPECT_SETTING_LASTONE] =
 		"ASPECT", "Bounce", Bounce_OnChange,
 	},
 	{
-		"Bounce Period", NUMBER, 0, (long*)&aspectSettings.bouncePeriod,
+		"Bounce Period", SLIDER, 0, (long*)&aspectSettings.bouncePeriod,
 		60*30, 0, 2, 1, 1,
 		NULL,
 		"ASPECT", "BouncePeriod", NULL,
@@ -885,13 +885,13 @@ SETTING AspectSettings[ASPECT_SETTING_LASTONE] =
 		"ASPECT", "deferedOverlay", NULL,
 	},
 	{
-		"Bounce Timer Period (ms)", NUMBER, 0, (long*)&aspectSettings.timerBounceMS,
+		"Bounce Timer Period (ms)", SLIDER, 0, (long*)&aspectSettings.timerBounceMS,
 		1000, 0, 2, 1, 1,
 		NULL,
 		"ASPECT", "BounceTimerPeriod", NULL,
 	},
 	{
-		"Bounce Amplitude (%)", NUMBER, 0, (long*)&aspectSettings.bounceAmplitude,
+		"Bounce Amplitude (%)", SLIDER, 0, (long*)&aspectSettings.bounceAmplitude,
 		100, 0, 100, 1, 1,
 		NULL,
 		"ASPECT", "BounceAmplitude", NULL,
@@ -903,25 +903,25 @@ SETTING AspectSettings[ASPECT_SETTING_LASTONE] =
 		"ASPECT", "Orbit", Orbit_OnChange,
 	},
 	{
-		"Orbit Period X", NUMBER, 0, (long*)&aspectSettings.orbitPeriodX,
+		"Orbit Period X", SLIDER, 0, (long*)&aspectSettings.orbitPeriodX,
 		60*45, 0, 2, 1, 1,
 		NULL,
 		"ASPECT", "OrbitPeriodX", NULL,
 	},
 	{
-		"Orbit Period Y", NUMBER, 0, (long*)&aspectSettings.orbitPeriodY,
+		"Orbit Period Y", SLIDER, 0, (long*)&aspectSettings.orbitPeriodY,
 		60*60, 0, 2, 1, 1,
 		NULL,
 		"ASPECT", "OrbitPeriodY", NULL,
 	},
 	{
-		"Orbit Size", NUMBER, 0, (long*)&aspectSettings.orbitSize,
+		"Orbit Size", SLIDER, 0, (long*)&aspectSettings.orbitSize,
 		8, 0, 2, 1, 1,
 		NULL,
 		"ASPECT", "OrbitSize", NULL,
 	},
 	{
-		"Orbit Timer Period (ms)", NUMBER, 0, (long*)&aspectSettings.timerOrbitMS,
+		"Orbit Timer Period (ms)", SLIDER, 0, (long*)&aspectSettings.timerOrbitMS,
 		60000, 0, 2, 1, 1,
 		NULL,
 		"ASPECT", "OrbitTimerPeriod", NULL,
@@ -939,31 +939,31 @@ SETTING AspectSettings[ASPECT_SETTING_LASTONE] =
 		"ASPECT", "SkipPercent", NULL,
 	},
 	{
-		"X Zoom Factor", NUMBER, 0, &aspectSettings.xZoomFactor,
+		"X Zoom Factor", SLIDER, 0, &aspectSettings.xZoomFactor,
 		100, 1, 500, 10, 100,
 		NULL,
 		"ASPECT", "XZoomFactor", XZoom_Factor_OnChange,
 	},
 	{
-		"Y Zoom Factor", NUMBER, 0, &aspectSettings.yZoomFactor,
+		"Y Zoom Factor", SLIDER, 0, &aspectSettings.yZoomFactor,
 		100, 1, 500, 10, 100,
 		NULL,
 		"ASPECT", "YZoomFactor", YZoom_Factor_OnChange,
 	},
 	{
-		"X Zoom Center", NUMBER, 0, &aspectSettings.xZoomCenter,
+		"X Zoom Center", SLIDER, 0, &aspectSettings.xZoomCenter,
 		50, 0, 100, 5, 100,
 		NULL,
 		"ASPECT", "XZoomCenter", XZoom_Center_OnChange,
 	},
 	{
-		"Y Zoom Center", NUMBER, 0, &aspectSettings.yZoomCenter,
+		"Y Zoom Center", SLIDER, 0, &aspectSettings.yZoomCenter,
 		50, 0, 100, 5, 100,
 		NULL,
 		"ASPECT", "YZoomCenter", YZoom_Center_OnChange,
 	},
 	{
-		"Chroma Range", NUMBER, 0, &aspectSettings.ChromaRange,
+		"Chroma Range", SLIDER, 0, &aspectSettings.ChromaRange,
 		16, 0, 255, 1, 1,
 		NULL,
 		"ASPECT", "ChromaRange", ChromaRange_OnChange,

@@ -518,6 +518,6 @@ extern BYTE* pVBILines[5];
 extern long CurrentX;
 extern int CurrentY;
 extern int CurrentVBILines;
-extern char** FormatList;
+extern const char* FormatList[FORMAT_LASTONE];
 
 #endif

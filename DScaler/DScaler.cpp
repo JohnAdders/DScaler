@@ -2414,25 +2414,25 @@ BOOL ShowMenu_OnChange(long NewValue)
 SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
 {
 	{
-		"Window Left", NUMBER, 0, (long*)&emstartx,
+		"Window Left", SLIDER, 0, (long*)&emstartx,
 		10, 0, 2048, 1, 1,
 		NULL,
 		"MainWindow", "StartLeft", NULL,
 	},
 	{
-		"Window Top", NUMBER, 0, (long*)&emstarty,
+		"Window Top", SLIDER, 0, (long*)&emstarty,
 		10, 0, 2048, 1, 1,
 		NULL,
 		"MainWindow", "StartTop", NULL,
 	},
 	{
-		"Window Width", NUMBER, 0, (long*)&emsizex,
+		"Window Width", SLIDER, 0, (long*)&emsizex,
 		649, 0, 2048, 1, 1,
 		NULL,
 		"MainWindow", "StartWidth", NULL,
 	},
 	{
-		"Window Height", NUMBER, 0, (long*)&emsizey,
+		"Window Height", SLIDER, 0, (long*)&emsizey,
 		547, 0, 2048, 1, 1,
 		NULL,
 		"MainWindow", "StartHeight", NULL,
@@ -2480,25 +2480,25 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
 		"Show", "AutoHideCursor", NULL,
 	},
 	{
-		"Window Processor", NUMBER, 0, (long*)&MainProcessor,
+		"Window Processor", SLIDER, 0, (long*)&MainProcessor,
 		0, 0, 3, 1, 1,
 		NULL,
 		"Threads", "WindowProcessor", NULL,
 	},
 	{
-		"Thread Processor", NUMBER, 0, (long*)&DecodeProcessor,
+		"Thread Processor", SLIDER, 0, (long*)&DecodeProcessor,
 		0, 0, 3, 1, 1,
 		NULL,
 		"Threads", "DecodeProcessor", NULL,
 	},
 	{
-		"Window Priority", NUMBER, 0, (long*)&PriorClassId,
+		"Window Priority", SLIDER, 0, (long*)&PriorClassId,
 		0, 0, 2, 1, 1,
 		NULL,
 		"Threads", "WindowPriority", NULL,
 	},
 	{
-		"Thread Priority", NUMBER, 0, (long*)&ThreadClassId,
+		"Thread Priority", SLIDER, 0, (long*)&ThreadClassId,
 		1, 0, 4, 1, 1,
 		NULL,
 		"Threads", "ThreadPriority", NULL,

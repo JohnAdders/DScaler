@@ -891,13 +891,13 @@ void SaveStill()
 SETTING OtherSettings[OTHER_SETTING_LASTONE] =
 {
 	{
-		"Back Buffers", NUMBER, 0, (long*)&Back_Buffers,
+		"Back Buffers", SLIDER, 0, (long*)&Back_Buffers,
 		-1, -1, 2, 1, 1,
 		NULL,
 		"Overlay", "Back_Buffers", NULL,
 	},
 	{
-		"Overlay Color", NUMBER, 0, (long*)&OverlayColor,
+		"Overlay Color", SLIDER, 0, (long*)&OverlayColor,
 		RGB(32,16,16), 0, RGB(255,255,255), 1, 1,
 		NULL,
 		"Overlay", "OverlayColor", NULL,

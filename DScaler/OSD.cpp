@@ -984,25 +984,25 @@ BOOL OSD_AutoHide_OnChange(long NewValue)
 SETTING OSDSettings[OSD_SETTING_LASTONE] =
 {
 	{
-		"OSD Outline Color", NUMBER, 0, (long*)&OutlineColor,
+		"OSD Outline Color", SLIDER, 0, (long*)&OutlineColor,
 		 RGB(0,0,0), 0, RGB(255,255,255), 1, 1,
 		 NULL,
 		"OSD", "OutlineColor", NULL,
 	},
 	{
-		"OSD Text Color", NUMBER, 0, (long*)&TextColor,
+		"OSD Text Color", SLIDER, 0, (long*)&TextColor,
 		 RGB(0,255,0), 0, RGB(255,255,255), 1, 1,
 		 NULL,
 		"OSD", "TextColor", NULL,
 	},
 	{
-		"OSD Default Size", NUMBER, 0, (long*)&DefaultSizePerc,
+		"OSD Default Size", SLIDER, 0, (long*)&DefaultSizePerc,
 		 10, 0, 100, 1, 1,
 		 NULL,
 		"OSD", "DefaultSizePerc", NULL,
 	},
 	{
-		"OSD Default Small Size", NUMBER, 0, (long*)&DefaultSmallSizePerc,
+		"OSD Default Small Size", SLIDER, 0, (long*)&DefaultSmallSizePerc,
 		 5, 0, 100, 1, 1,
 		 NULL,
 		"OSD", "DefaultSmallSizePerc", NULL,
@@ -1014,7 +1014,7 @@ SETTING OSDSettings[OSD_SETTING_LASTONE] =
 		"OSD", "AntiAlias", NULL,
 	},
 	{
-		"OSD Background", NUMBER, 0, (long*)&Background,
+		"OSD Background", SLIDER, 0, (long*)&Background,
 		 OSDB_TRANSPARENT, 0, OSDBACK_LASTONE - 1, 1, 1,
 		 NULL,
 		"OSD", "Background", NULL,

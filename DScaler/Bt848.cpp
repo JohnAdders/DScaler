@@ -200,7 +200,7 @@ TTVFORMAT TVFormats[FORMAT_LASTONE] =
     },
 };
 
-char** FormatList = (char**)TVFormats;
+const char* FormatList[FORMAT_LASTONE];
 
 long TVFormat = -1;
 
@@ -1978,6 +1978,10 @@ SETTING* BT848_GetSetting(BT848_SETTING Setting)
 void BT848_ReadSettingsFromIni()
 {
 	int i;
+	for(i = 0; i < FORMAT_LASTONE; i++)
+	{
+		FormatList[i] = TVFormats[i].szDesc;
+	}
 	for(i = 0; i < BT848_SETTING_LASTONE; i++)
 	{
 		Setting_ReadFromIni(&(BT848Settings[i]));

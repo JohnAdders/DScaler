@@ -66,15 +66,13 @@ typedef enum
 	YESNO,
 	ITEMFROMLIST,
 	SLIDER,
-	NUMBER,
 	SUBMENU,
-
 } SETTING_TYPE;
 
 // Function called when setting value changes
 // return value indicates whether.rest of screen needs to be
 // refreshed
-typedef BOOL (SETTING_ONCHANGE)(long NewValue);
+typedef BOOL (__cdecl SETTING_ONCHANGE)(long NewValue);
 
 typedef struct
 {
@@ -87,7 +85,7 @@ typedef struct
 	long MaxValue;
 	long StepValue;
 	long OSDDivider;
-	char** pszList;
+	const char** pszList;
 	char* szIniSection;
 	char* szIniEntry;
 	SETTING_ONCHANGE* pfnOnChange;

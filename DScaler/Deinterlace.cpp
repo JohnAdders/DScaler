@@ -112,7 +112,7 @@ DEINTERLACE_METHOD FilmDeintMethods[FILMPULLDOWNMODES_LAST_ONE] =
 	},
 };
 
-char* DeinterlaceNames[100];
+const char* DeinterlaceNames[100];
 
 long NumVideoModes = 0;
 DEINTERLACE_METHOD* VideoDeintMethods[100] = {NULL,};

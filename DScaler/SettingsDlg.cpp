@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsDlg.cpp,v 1.4 2001-06-26 21:47:25 adcockj Exp $
+// $Id: SettingsDlg.cpp,v 1.5 2001-06-27 18:48:29 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -136,15 +136,6 @@ void CSettingsDlg::OnSelchangeList()
 		m_slider.ShowWindow(SW_SHOWNA);
 		m_chk.ShowWindow(SW_HIDE);
 		m_combo.ShowWindow(SW_HIDE);
-		break;
-
-	case NUMBER:
-		m_btnDefault.ShowWindow(SW_SHOWNA);
-		m_edit.ShowWindow(SW_HIDE);
-		m_spin.ShowWindow(SW_HIDE);
-		m_chk.ShowWindow(SW_HIDE);
-		m_slider.ShowWindow(SW_HIDE);
-		m_combo.ShowWindow(SW_SHOWNA);
 		break;
 
 	case ITEMFROMLIST:

@@ -302,7 +302,6 @@ long Setting_GetValue(SETTING* pSetting)
 		break;
 	case ITEMFROMLIST:
 	case SLIDER:
-	case NUMBER:
 		return *pSetting->pValue;
 		break;
 	default:
@@ -326,7 +325,6 @@ BOOL Setting_SetValue(SETTING* pSetting, long Value)
 		break;
 	case ITEMFROMLIST:
 	case SLIDER:
-	case NUMBER:
 		if(Value > pSetting->MaxValue)
 		{
 			NewValue = pSetting->MaxValue;
@@ -373,8 +371,6 @@ void Setting_SetupSlider(SETTING* pSetting, HWND hSlider)
 
 void Setting_SetControlValue(SETTING* pSetting, HWND hControl)
 {
-	char szBuffer[15];
-
 	switch(pSetting->Type)
 	{
 	case YESNO:
@@ -389,10 +385,6 @@ void Setting_SetControlValue(SETTING* pSetting, HWND hControl)
 	case SLIDER:
 		Slider_SetPos(hControl, *pSetting->pValue);
 		break;
-	
-	case NUMBER:
-		Edit_SetText(hControl, _itoa(*pSetting->pValue, szBuffer, 10));
-		break;
 	default:
 		break;
 	}
@@ -401,7 +393,6 @@ void Setting_SetControlValue(SETTING* pSetting, HWND hControl)
 BOOL Setting_SetFromControl(SETTING* pSetting, HWND hControl)
 {
 	long nValue;
-	char szBuffer[15];
 
 	switch(pSetting->Type)
 	{
@@ -418,10 +409,6 @@ BOOL Setting_SetFromControl(SETTING* pSetting, HWND hControl)
 		nValue = Slider_GetPos(hControl);
 		break;
 	
-	case NUMBER:
-		Edit_GetText(hControl, szBuffer, 15);
-		nValue = atoi(szBuffer);
-		break;
 	default:
 		break;
 	}
@@ -440,8 +427,6 @@ HWND Setting_CreateControl(SETTING* pSetting, HWND hDlg, int* VertPos)
 	case ITEMFROMLIST:
 		break;
 	case SLIDER:
-		break;
-	case NUMBER:
 		break;
 	default:
 		break;
@@ -523,7 +508,6 @@ void Setting_OSDShow(SETTING* pSetting, HWND hWnd)
 		sprintf(szBuffer, "%s %s", pSetting->szDisplayName, *(pSetting->pValue)?"ON":"OFF");
 		break;
 	case SLIDER:
-	case NUMBER:
 		if(pSetting->OSDDivider == 1)
 		{
 			sprintf(szBuffer, "%s %d", pSetting->szDisplayName, *(pSetting->pValue));

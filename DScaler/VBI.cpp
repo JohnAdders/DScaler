@@ -156,7 +156,7 @@ SETTING VBISettings[VBI_SETTING_LASTONE] =
 		"Show", "CaptureVBI", Capture_VBI_OnChange,
 	},
 	{
-		"CC Mode", NUMBER, 0, (long*)&CCMode,
+		"CC Mode", SLIDER, 0, (long*)&CCMode,
 		CCMODE_OFF, CCMODE_OFF, CCMODE_TEXT4, 1, 1,
 		NULL,
 		"VBI", "CCMode", NULL,

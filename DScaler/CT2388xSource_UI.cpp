@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource_UI.cpp,v 1.6 2002-10-21 07:19:33 adcockj Exp $
+// $Id: CT2388xSource_UI.cpp,v 1.7 2002-10-21 19:08:09 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/10/21 07:19:33  adcockj
+// Preliminary Support for PixelView XCapture
+//
 // Revision 1.5  2002/09/29 16:16:21  adcockj
 // Holo3d imrprovements
 //
@@ -293,6 +296,34 @@ BOOL CCT2388xSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 
 		case IDM_FLI_FILMDETECT:
             m_FLIFilmDetect->SetValue(!m_FLIFilmDetect->GetValue());
+            break;
+
+        case IDM_HDELAY_PLUS:
+            m_HDelay->ChangeValue(ADJUSTUP);
+            SendMessage(hWnd, WM_COMMAND, IDM_HDELAY_CURRENT, 0);
+            break;
+
+        case IDM_HDELAY_MINUS:
+            m_HDelay->ChangeValue(ADJUSTDOWN);
+            SendMessage(hWnd, WM_COMMAND, IDM_HDELAY_CURRENT, 0);
+            break;
+
+        case IDM_HDELAY_CURRENT:
+            m_HDelay->OSDShow();
+            break;
+
+        case IDM_VDELAY_PLUS:
+            m_VDelay->ChangeValue(ADJUSTUP);
+            SendMessage(hWnd, WM_COMMAND, IDM_VDELAY_CURRENT, 0);
+            break;
+
+        case IDM_VDELAY_MINUS:
+            m_VDelay->ChangeValue(ADJUSTDOWN);
+            SendMessage(hWnd, WM_COMMAND, IDM_VDELAY_CURRENT, 0);
+            break;
+
+        case IDM_VDELAY_CURRENT:
+            m_VDelay->OSDShow();
             break;
 
         default:

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.70 2002-09-21 08:28:04 kooiman Exp $
+// $Id: BT848Source.cpp,v 1.71 2002-09-22 17:47:04 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.70  2002/09/21 08:28:04  kooiman
+// Preparations for fm radio accidentally slipped in. Disabled it till it works.
+//
 // Revision 1.69  2002/09/20 19:19:07  kooiman
 // Force call to audiostandard detect onchange.
 //
@@ -321,7 +324,6 @@ CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CU
 
     SettingsPerChannel_RegisterOnSetup(this, BT848_OnSetup);
     Channel_Register_Change_Notification(this, CBT848Source::StaticChannelChange);
-
 
     ReadFromIni();
     ChangeSectionNamesForInput();

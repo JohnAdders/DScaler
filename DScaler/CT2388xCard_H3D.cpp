@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard_H3D.cpp,v 1.4 2002-09-19 22:10:08 adcockj Exp $
+// $Id: CT2388xCard_H3D.cpp,v 1.5 2002-09-22 17:47:04 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/09/19 22:10:08  adcockj
+// Holo3D Fixes for PAL
+//
 // Revision 1.3  2002/09/16 19:34:18  adcockj
 // Fix for auto format change
 //
@@ -114,19 +117,19 @@ void CCT2388xCard::H3DInputSelect(int nInput)
         WriteByte(0x390002, 0x14);
         break;
     case H3D_COMPOSITE1:
-        m_SAA7118->SetRegister(0x02, 0xd5);
+        m_SAA7118->SetRegister(0x02, 0xc5);
         WriteByte(0x390002, 0x04);
         break;
     case H3D_COMPOSITE2:
-        m_SAA7118->SetRegister(0x02, 0xd4);
+        m_SAA7118->SetRegister(0x02, 0xdf);
         WriteByte(0x390002, 0x04);
         break;
     case H3D_COMPOSITE3:
-        m_SAA7118->SetRegister(0x02, 0xd3);
+        m_SAA7118->SetRegister(0x02, 0xd5);
         WriteByte(0x390002, 0x04);
         break;
     case H3D_COMPOSITE4:
-        m_SAA7118->SetRegister(0x02, 0xd2);
+        m_SAA7118->SetRegister(0x02, 0xd0);
         WriteByte(0x390002, 0x04);
         break;
     }
@@ -159,12 +162,14 @@ void CCT2388xCard::H3DSetFormat(int nInput, eVideoFormat TVFormat, BOOL IsProgre
         // doesn't really matter for these inputs
         // but we'll set the default
         ChrominanceControl = 0x89;
+	    m_SAA7118->SetRegister(0x29, 0x40);
         break;
     case H3D_SVIDEO:
     case H3D_COMPOSITE1:
     case H3D_COMPOSITE2:
     case H3D_COMPOSITE3:
     case H3D_COMPOSITE4:
+	    m_SAA7118->SetRegister(0x29, 0x00);
         switch(TVFormat)
         {
         case VIDEOFORMAT_PAL_M:

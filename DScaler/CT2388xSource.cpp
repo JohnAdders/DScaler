@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource.cpp,v 1.4 2002-09-16 20:08:21 adcockj Exp $
+// $Id: CT2388xSource.cpp,v 1.5 2002-09-22 17:47:04 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2002/09/16 20:08:21  adcockj
+// fixed format detect for cx2388x
+//
 // Revision 1.3  2002/09/16 19:34:19  adcockj
 // Fix for auto format change
 //
@@ -152,7 +155,7 @@ void CCT2388xSource::CreateSettings(LPCSTR IniSection)
     m_Overscan = new COverscanSetting(this, "Overscan", DEFAULT_OVERSCAN_NTSC, 0, 150, IniSection);
     m_Settings.push_back(m_Overscan);
 
-    m_VideoSource = new CVideoSourceSetting(this, "Video Source", 0, 0, 6, IniSection);
+    m_VideoSource = new CVideoSourceSetting(this, "Video Source", 0, 0, 7, IniSection);
     m_Settings.push_back(m_VideoSource);
 
     m_VideoFormat = new CVideoFormatSetting(this, "Video Format", VIDEOFORMAT_NTSC_M, 0, VIDEOFORMAT_LASTONE - 1, IniSection);

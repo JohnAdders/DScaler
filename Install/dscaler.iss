@@ -1,5 +1,5 @@
 ;////////////////////////////////////////////////////////////////////////////
-;// $Id: dscaler.iss,v 1.1 2002-03-06 22:50:58 robmuller Exp $
+;// $Id: dscaler.iss,v 1.2 2002-06-06 18:15:52 robmuller Exp $
 ;/////////////////////////////////////////////////////////////////////////////
 ;// Copyright (c) 2002 Rob Muller.  All rights reserved.
 ;/////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 ;// CVS Log
 ;//
 ;// $Log: not supported by cvs2svn $
+;// Revision 1.1  2002/03/06 22:50:58  robmuller
+;// New InnoSetup script.
+;//
 ;//
 ;//
 ;/////////////////////////////////////////////////////////////////////////////
@@ -35,6 +38,7 @@ DefaultDirName={pf}\DScaler
 DefaultGroupName=DScaler
 AllowNoIcons=yes
 LicenseFile=gpl.rtf
+AppMutex=DScaler
 ;required for installing the driver on NT platforms
 AdminPrivilegesRequired=yes
 
@@ -47,15 +51,22 @@ Name: "quicklaunchicon"; Description: "Create a &Quick Launch icon"; GroupDescri
 
 [Files]
 Source: "..\Release\DScaler.exe"; DestDir: "{app}"; CopyMode: alwaysoverwrite
-Source: "..\Release\*.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite
+Source: "..\Release\DI_*.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite
+Source: "..\Release\FLT_*.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite
+Source: "..\Release\DScalerRes.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite
+Source: "..\Release\DSRend.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite
+Source: "..\Release\dscaler.d3u"; DestDir: "{app}"; CopyMode: alwaysoverwrite
+Source: "..\Release\dscaler_intro.tif"; DestDir: "{app}"; CopyMode: alwaysoverwrite
 Source: "..\Release\DScaler.dbg"; DestDir: "{app}"; CopyMode: alwaysoverwrite
 Source: "..\Release\DSDrv4.sys"; DestDir: "{app}"; CopyMode: alwaysoverwrite
 Source: "..\Release\DSDrv4.vxd"; DestDir: "{app}"; CopyMode: alwaysoverwrite
 Source: "..\Release\channel.txt"; DestDir: "{app}"; CopyMode: alwaysoverwrite
+Source: "..\Release\dscaler.chm"; DestDir: "{app}"; CopyMode: alwaysoverwrite
 Source: "..\Release\Patterns\*.pat"; DestDir: "{app}\Patterns"; CopyMode: alwaysoverwrite
 Source: "..\Release\Patterns\*.d3u"; DestDir: "{app}\Patterns"; CopyMode: alwaysoverwrite
 Source: "..\ThirdParty\LibTiff\libtiff.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite
-;Help file comes here.
+Source: "..\ThirdParty\LibJpeg\libjpeg.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite
+Source: "..\ThirdParty\zlib\zlib.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite
 
 [INI]
 Filename: "{app}\DScaler.url"; Section: "InternetShortcut"; Key: "URL"; String: "http://www.dscaler.org"
@@ -65,7 +76,7 @@ Filename: "{app}\Support.url"; Section: "InternetShortcut"; Key: "URL"; String: 
 Name: "{group}\DScaler"; Filename: "{app}\DScaler.exe"
 Name: "{group}\DScaler on the Web"; Filename: "{app}\DScaler.url"
 Name: "{group}\Support Forum"; Filename: "{app}\Support.url"
-;Shortcut to help file comes here.
+Name: "{group}\DScaler Help"; Filename: "{app}\DScaler.chm"
 Name: "{userdesktop}\DScaler"; Filename: "{app}\DScaler.exe"; MinVersion: 4,4; Tasks: desktopicon
 Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\DScaler"; Filename: "{app}\DScaler.exe"; MinVersion: 4,4; Tasks: quicklaunchicon
 
@@ -79,6 +90,8 @@ Filename: "{app}\DScaler.exe"; Parameters: "/driveruninstall"
 [UninstallDelete]
 Type: files; Name: "{app}\DScaler.url"
 Type: files; Name: "{app}\Support.url"
+Type: files; Name: "{app}\dscaler.ini"
+Type: files; Name: "{app}\program.txt"
 Type: files; Name: "{app}\dscaler.txt"
 Type: files; Name: "{app}\crashinfo.txt"
 

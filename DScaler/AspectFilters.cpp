@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectFilters.cpp,v 1.29 2003-01-07 23:27:00 laurentg Exp $
+// $Id: AspectFilters.cpp,v 1.30 2003-01-07 23:55:35 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2003/01/07 23:27:00  laurentg
+// New overscan settings
+//
 // Revision 1.28  2002/11/06 20:02:19  adcockj
 // Ananlogue blanking fixed to work with my STB
 //
@@ -197,14 +200,17 @@ void CAspectFilter::SetChild(CAspectFilter* Child)
 }
 
 
-COverscanAspectFilter::COverscanAspectFilter(int overscanSize)
+COverscanAspectFilter::COverscanAspectFilter(int TopOverscanSize, int BottomOverscanSize, int LeftOverscanSize, int RightOverscanSize)
 {
-    m_Overscan = overscanSize;
+    m_TopOverscan = TopOverscanSize;
+    m_BottomOverscan = BottomOverscanSize;
+    m_LeftOverscan = LeftOverscanSize;
+    m_RightOverscan = RightOverscanSize;
 }
 
 BOOL COverscanAspectFilter::adjustAspect(CAspectRectangles &ar)
 {
-    ar.m_CurrentOverlaySrcRect.shrink(m_Overscan);
+    ar.m_CurrentOverlaySrcRect.shrink(m_LeftOverscan, m_RightOverscan, m_TopOverscan, m_BottomOverscan);
     return FALSE;
 }
 
@@ -212,9 +218,10 @@ LPCSTR COverscanAspectFilter::getFilterName()
 {
     return "COverscanAspectFilter";
 }
+
 void COverscanAspectFilter::DebugDump()
 { 
-    LOG(2,"Overscan = %i",m_Overscan);
+    LOG(2,"Overscans (Top,Bottom,Left,Right) = (%d,%d,%d,%d)",m_TopOverscan, m_BottomOverscan, m_LeftOverscan, m_RightOverscan);
 }
 
 CAnalogueBlankingFilter::CAnalogueBlankingFilter(int SourceWidth, int SourceHeight)
@@ -772,20 +779,19 @@ void CFilterChain::BuildFilterChain(int SrcWidth, int SrcHeight)
 
     if (AspectSettings.OrbitEnabled)
     { 
-		// TO BE CHANGED (LG) : 4 different overscans
+		// TO BE CHANGED (LG) : don't know what to put in m_Overscan
+		// and why m_Overscan is not used after ?
         int m_Overscan = AspectSettings.InitialTopOverscan;
         if (AspectSettings.OrbitEnabled && m_Overscan*2 < AspectSettings.OrbitSize)
         {
             m_Overscan = (AspectSettings.OrbitSize+1)/2;
         }
-		// TO BE CHANGED (LG) : 4 different overscans
-        m_FilterChain.push_back(new COverscanAspectFilter(AspectSettings.InitialTopOverscan));
+        m_FilterChain.push_back(new COverscanAspectFilter(AspectSettings.InitialTopOverscan, AspectSettings.InitialBottomOverscan, AspectSettings.InitialLeftOverscan, AspectSettings.InitialRightOverscan));
         m_FilterChain.push_back(new COrbitAspectFilter(AspectSettings.OrbitPeriodX, AspectSettings.OrbitPeriodY, AspectSettings.OrbitSize)); 
     }
     else 
     {
-		// TO BE CHANGED (LG) : 4 different overscans
-        m_FilterChain.push_back(new COverscanAspectFilter(AspectSettings.InitialTopOverscan));
+        m_FilterChain.push_back(new COverscanAspectFilter(AspectSettings.InitialTopOverscan, AspectSettings.InitialBottomOverscan, AspectSettings.InitialLeftOverscan, AspectSettings.InitialRightOverscan));
     }
     if (AspectSettings.AspectMode)
     { 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectFilters.h,v 1.15 2002-10-31 14:03:33 adcockj Exp $
+// $Id: AspectFilters.h,v 1.16 2003-01-07 23:55:35 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -115,13 +115,16 @@ protected:
 class COverscanAspectFilter : public CAspectFilter
 {
 public:
-    COverscanAspectFilter(int overscanSize);
+    COverscanAspectFilter(int TopOverscanSize, int BottomOverscanSize, int LeftOverscanSize, int RightOverscanSize);
     virtual BOOL adjustAspect(CAspectRectangles &ar);
     virtual LPCSTR getFilterName();
     virtual void DebugDump();
 
 protected:
-    int m_Overscan;
+    int m_TopOverscan;
+    int m_BottomOverscan;
+    int m_LeftOverscan;
+    int m_RightOverscan;
 };
 
 /// This filter adjusts for Analogue blanking

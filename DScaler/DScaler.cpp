@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.116 2002-01-24 00:00:13 robmuller Exp $
+// $Id: DScaler.cpp,v 1.117 2002-01-31 13:02:46 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.116  2002/01/24 00:00:13  robmuller
+// Added bOptimizeFileAccess flag to WriteToIni from the settings classes.
+//
 // Revision 1.115  2002/01/22 14:50:10  robmuller
 // Added keyboard lock option.
 //
@@ -2042,6 +2045,8 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         break;
 
     case WM_TIMER:
+        pPerf->Suspend();
+
         switch (LOWORD(wParam))
         {
         //-------------------------------
@@ -2137,6 +2142,8 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             Provider_HandleTimerMessages(LOWORD(wParam));
             break;
         }
+        pPerf->Resume();
+
         return FALSE;
         break;
     

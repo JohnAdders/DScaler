@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Perf.h,v 1.2 2001-12-16 16:31:43 adcockj Exp $
+// $Id: Perf.h,v 1.3 2002-01-31 13:02:46 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/12/16 16:31:43  adcockj
+// Bug fixes
+//
 // Revision 1.1  2001/12/16 13:00:51  laurentg
 // New statistics
 //
@@ -47,6 +50,8 @@ enum ePerfType
 class CPerfItem
 {
 public:
+	void Resume();
+	void Suspend();
     CPerfItem(const char* Name);
     ~CPerfItem();
     void Reset();
@@ -68,6 +73,7 @@ protected:
     DWORD           m_MaxDuration;
 
 private:
+	DWORD           m_SuspendCounter;
     DWORD           m_TickStart;
     BOOL            m_IsCounting;
 };
@@ -75,6 +81,8 @@ private:
 class CPerf
 {
 public:
+	void Resume();
+	void Suspend();
     CPerf();
     ~CPerf();
     void Reset();

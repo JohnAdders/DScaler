@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Perf.cpp,v 1.3 2001-12-16 18:40:28 laurentg Exp $
+// $Id: Perf.cpp,v 1.4 2002-01-31 13:02:46 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2001/12/16 18:40:28  laurentg
+// Reset statistics
+//
 // Revision 1.2  2001/12/16 16:31:43  adcockj
 // Bug fixes
 //
@@ -30,6 +33,18 @@
 #include "stdafx.h"
 #include "Perf.h"
 #include "FieldTiming.h"
+
+ULONG GetAccurateTickCount()
+{
+    ULONGLONG ticks;
+    ULONGLONG frequency;
+
+    QueryPerformanceFrequency((PLARGE_INTEGER)&frequency);
+    QueryPerformanceCounter((PLARGE_INTEGER)&ticks);
+    ticks = (ticks & 0xFFFFFFFF00000000) / frequency * 10000000 +
+            (ticks & 0xFFFFFFFF) * 10000000 / frequency;
+    return ((ULONG)(ticks / 10000));
+}
 
 static const char* PerfNames[PERF_TYPE_LASTONE] = 
 {
@@ -59,6 +74,7 @@ CPerfItem::CPerfItem(const char* Name)
     m_MaxDuration = 0;
     m_TickStart = 0;
     m_IsCounting = FALSE;
+    m_SuspendCounter = 0;
 }
 
 CPerfItem::~CPerfItem()
@@ -74,24 +90,28 @@ void CPerfItem::Reset()
     m_MaxDuration = 0;
     m_TickStart = 0;
     m_IsCounting = FALSE;
+    m_SuspendCounter = 0;
 }
 
 void CPerfItem::StartCount()
 {
-    m_TickStart = GetTickCount();
-    m_IsCounting = TRUE;
+    if(m_SuspendCounter <= 0)
+    {
+        m_TickStart = GetAccurateTickCount();
+        m_IsCounting = TRUE;
+    }
 }
 
 void CPerfItem::StopCount()
 {
     DWORD Duration;
 
-    if (!m_IsCounting)
+    if (!m_IsCounting || m_SuspendCounter > 0)
     {
         return;
     }
 
-    Duration = GetTickCount() - m_TickStart;
+    Duration = GetAccurateTickCount() - m_TickStart;
     m_LastDuration = Duration;
     m_SumDuration += Duration;
     ++m_NbCounts;
@@ -105,6 +125,19 @@ void CPerfItem::StopCount()
     }
     m_TickStart = 0;
     m_IsCounting = FALSE;
+}
+
+// To not contaminate the statistics call this before doing any lenghty concurrent operation.
+// If the counter is running it will be aborted and will not be included in the overall statistics.
+// You must call Resume() afterwards. Suspend() and Resume() can be nested.
+void CPerfItem::Suspend()
+{
+    m_SuspendCounter++;
+}
+
+void CPerfItem::Resume()
+{
+    m_SuspendCounter--;
 }
 
 const char* CPerfItem::GetName()
@@ -165,7 +198,7 @@ void CPerf::Reset()
 
 void CPerf::InitCycle()
 {
-    DWORD CurrentTickCount = GetTickCount();
+    DWORD CurrentTickCount = GetAccurateTickCount();
 
     if (m_ResetRequested)
     {
@@ -211,6 +244,23 @@ void CPerf::StopCount(ePerfType PerfType)
     m_PerfCalculated[PerfType] = TRUE;
 }
 
+
+void CPerf::Suspend()
+{
+    for (int i(0) ; i < PERF_TYPE_LASTONE ; ++i)
+    {
+        m_PerfItems[i]->Suspend();
+    }
+}
+
+void CPerf::Resume()
+{
+    for (int i(0) ; i < PERF_TYPE_LASTONE ; ++i)
+    {
+        m_PerfItems[i]->Resume();
+    }
+}
+
 int CPerf::GetDurationLastCycle(ePerfType PerfType)
 {
     if (m_PerfCalculated[PerfType])
@@ -225,7 +275,7 @@ int CPerf::GetDurationLastCycle(ePerfType PerfType)
 
 unsigned int CPerf::GetNbCycles(int NbFramesPerSec)
 {
-    DWORD TotalDuration = GetTickCount() - m_TickStart;
+    DWORD TotalDuration = GetAccurateTickCount() - m_TickStart;
 
     return TotalDuration * NbFramesPerSec / 1000;
 }
@@ -308,3 +358,4 @@ int CPerf::GetUsedFieldsLastSecond()
 {
     return (int)ceil(m_UsedFieldsLastSec - 0.5);
 }
+

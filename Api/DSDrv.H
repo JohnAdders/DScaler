@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSDrv.H,v 1.9 2001-11-02 10:45:29 adcockj Exp $
+// $Id: DSDrv.H,v 1.10 2001-11-02 16:36:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,13 +46,13 @@
 
 #define ALLOC_MEMORY_CONTIG 1
 
-typedef struct _PageStruct
+typedef struct
 {
 	DWORD dwSize;
 	DWORD dwPhysical;
 } TPageStruct, * PPageStruct;
 
-typedef struct _MemStruct
+typedef struct
 {
 	DWORD dwTotalSize;
 	DWORD dwPages;
@@ -61,6 +61,15 @@ typedef struct _MemStruct
 	void* dwUser;
 } TMemStruct, * PMemStruct;
 
+
+typedef struct
+{
+    DWORD  dwMemoryAddress;
+    DWORD  dwMemoryLength;
+    DWORD  dwSubSystemId;
+    DWORD  dwBusNumber;
+    DWORD  dwSlotNumber;
+} TPCICARDINFO;
 
 #if defined (WIN32) && !defined (_NTKERNEL_)
 
@@ -147,6 +156,8 @@ extern "C" {
 #define DSDRV_READ_MEMORY_BYTE (DSDRV_BASE + 16)
 #define DSDRV_WRITE_MEMORY_BYTE (DSDRV_BASE + 17)
 
+#define DSDRV_GETVERSION (DSDRV_BASE + 18)
+
 
 
 //
@@ -173,6 +184,7 @@ extern "C" {
 #define ioctlWriteMemoryWORD DSDRV_CTL_CODE( DSDRV_WRITE_MEMORY_WORD, METHOD_IN_DIRECT)
 #define ioctlReadMemoryBYTE DSDRV_CTL_CODE( DSDRV_READ_MEMORY_BYTE, METHOD_OUT_DIRECT)
 #define ioctlWriteMemoryBYTE DSDRV_CTL_CODE( DSDRV_WRITE_MEMORY_BYTE, METHOD_IN_DIRECT)
+#define ioctlGetVersion DSDRV_CTL_CODE( DSDRV_GETVERSION, METHOD_OUT_DIRECT)
 
 
 typedef struct tagDSDrvParam

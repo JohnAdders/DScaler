@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCIENUM.CPP,v 1.6 2001-11-02 10:45:50 adcockj Exp $
+// $Id: PCIENUM.CPP,v 1.7 2001-11-02 16:36:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,9 +37,6 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
-// Revision 1.5  2001/08/14 10:30:39  adcockj
-// Reverted to old driver code in main branch
-//
 // Revision 1.4  2001/08/08 16:37:50  adcockj
 // Made drivers stateless to support multiple cards
 // Added version check
@@ -54,7 +51,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "ioclass.h"
-#include "debugout.h"
+#include <debugout.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -68,7 +65,13 @@
 //---------------------------------------------------------------------------
 // We can find some PCI information for WINDOWS 9x in the registry
 //---------------------------------------------------------------------------
-NTSTATUS CIOAccessDevice::pciFindDevice(USHORT  vendorID, USHORT  deviceID, DWORD* pdwBusNumber, DWORD* pdwSlotNumber)
+NTSTATUS CIOAccessDevice::pciFindDevice(
+                                            DWORD  vendorID, 
+                                            DWORD  deviceID, 
+                                            DWORD dwCardIndex,
+                                            DWORD* pdwBusNumber, 
+                                            DWORD* pdwSlotNumber
+                                       )
 {
     CHAR                  devicePath[128];
     CHAR                  subkeyPath[128];
@@ -82,6 +85,7 @@ NTSTATUS CIOAccessDevice::pciFindDevice(USHORT  vendorID, USHORT  deviceID, DWOR
     int                   iIndex,jIndex;
     CONFIGRET             cr;
     int                   bFound;
+    DWORD                 CardCount(0);
 
     sprintf(devicePath, "VEN_%04X&DEV_%04X", vendorID, deviceID);
 
@@ -97,7 +101,7 @@ NTSTATUS CIOAccessDevice::pciFindDevice(USHORT  vendorID, USHORT  deviceID, DWOR
     bFound         = 0;
 
     status = _RegOpenKey(HKEY_LOCAL_MACHINE,"ENUM\\PCI",&pciKey);
-    if ( status != STATUS_SUCCESS)
+    if(status != STATUS_SUCCESS)
     {
         debugOut(dbError,"! cannot open HKL\\ENUM\\PCI error %X",status);
         return status;
@@ -105,14 +109,14 @@ NTSTATUS CIOAccessDevice::pciFindDevice(USHORT  vendorID, USHORT  deviceID, DWOR
     
     bFound = FALSE;
 
-    for ( iIndex = 0; ! bFound && (status == STATUS_SUCCESS); iIndex++)
+    for(iIndex = 0; !bFound && (status == STATUS_SUCCESS); iIndex++)
     {
         status = _RegEnumKey(pciKey, iIndex, subkeyPath, sizeof(subkeyPath));
 
-        if ( status == STATUS_SUCCESS)
+        if( status == STATUS_SUCCESS)
         {
             debugOut(dbTrace," found <%s>", subkeyPath);
-            if (strstr(subkeyPath, devicePath ) != NULL)
+            if(strstr(subkeyPath, devicePath ) != NULL)
             {
                 //
                 // Now we have the full path name for given vendor ID
@@ -129,7 +133,7 @@ NTSTATUS CIOAccessDevice::pciFindDevice(USHORT  vendorID, USHORT  deviceID, DWOR
 
                     status2 = STATUS_SUCCESS;
 
-                    for ( jIndex = 0; ! bFound && (status2 == STATUS_SUCCESS); jIndex++)
+                    for (jIndex = 0; !bFound && (status2 == STATUS_SUCCESS); jIndex++)
                     {
                         status2 = _RegEnumKey(deviceKey, jIndex, workingPath2, sizeof(workingPath2));
 
@@ -142,8 +146,16 @@ NTSTATUS CIOAccessDevice::pciFindDevice(USHORT  vendorID, USHORT  deviceID, DWOR
                             cr = _CONFIGMG_Locate_DevNode((DEVNODE *)pdwSlotNumber, hardwareID, 0);
                             if (cr == STATUS_SUCCESS)
                             {
-                                bFound = TRUE;
-                                debugOut(dbTrace," device node %X found", *pdwSlotNumber);
+                                if(CardCount == dwCardIndex)
+                                {
+                                    debugOut(dbTrace," device node %X found", *pdwSlotNumber);
+                                    bFound = TRUE;
+                                }
+                                else
+                                {
+                                    *pdwSlotNumber = 0;
+                                    ++CardCount;
+                                }
                             }
                         }
                     }
@@ -159,7 +171,7 @@ NTSTATUS CIOAccessDevice::pciFindDevice(USHORT  vendorID, USHORT  deviceID, DWOR
 
     _RegCloseKey(pciKey);
 
-    if ( *pdwSlotNumber == 0)
+    if (bFound == FALSE || *pdwSlotNumber == 0)
     {
         debugOut(dbError," key not found, PCI board not installed");
         return ERROR_ACCESS_DENIED;
@@ -173,18 +185,22 @@ NTSTATUS CIOAccessDevice::pciFindDevice(USHORT  vendorID, USHORT  deviceID, DWOR
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
-NTSTATUS CIOAccessDevice::pciGetDeviceConfig(DWORD dwBusNumber, DWORD dwSlotNumber, PPCI_COMMON_CONFIG pciConfiguration)
+NTSTATUS CIOAccessDevice::pciGetDeviceConfig(TPCICARDINFO* pPCICardInfo)
 {
+    PCI_COMMON_CONFIG PCIConfiguration;
     CONFIGRET cr;
 
-    cr = _CONFIGMG_Call_Enumerator_Function(dwSlotNumber,
+    cr = _CONFIGMG_Call_Enumerator_Function(pPCICardInfo->dwSlotNumber,
                                             PCI_ENUM_FUNC_GET_DEVICE_INFO,
                                             0,
-                                            pciConfiguration,
-                                            sizeof(*pciConfiguration),
+                                            &PCIConfiguration,
+                                            sizeof(PCIConfiguration),
                                             0);
 
-    debugOut(dbTrace,"get PCI device info for node %lX returns %X",dwSlotNumber,cr);
+    debugOut(dbTrace,"get PCI device info for node %lX returns %X",pPCICardInfo->dwSlotNumber, cr);
 
+    pPCICardInfo->dwMemoryAddress = PCIConfiguration.u.type0.BaseAddresses[0] & 0xFFFFFFF0;
+    pPCICardInfo->dwMemoryLength = 0x1000;
+    pPCICardInfo->dwSubSystemId = (PCIConfiguration.u.type0.SubSystemID << 16) + PCIConfiguration.u.type0.SubVendorID;
     return cr;
 }

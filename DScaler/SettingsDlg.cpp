@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsDlg.cpp,v 1.3 2001-06-24 14:07:22 tobbej Exp $
+// $Id: SettingsDlg.cpp,v 1.4 2001-06-26 21:47:25 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,7 @@
 
 #include "stdafx.h"
 #include "SettingsDlg.h"
+#include "Settings.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -64,6 +65,7 @@ BEGIN_MESSAGE_MAP(CSettingsDlg, CDialog)
 	ON_BN_CLICKED(IDC_SETTINGS_DEFAULT, OnSettingsDefault)
 	ON_BN_CLICKED(IDC_SETTINGS_CHECK, OnCheckClick)
 	ON_CBN_SELCHANGE(IDC_CHOOSEFROMLIST, OnSelchangeChoosefromlist)
+	ON_NOTIFY(UDN_DELTAPOS, IDC_SETTINGS_SPIN, OnDeltaposSettingsSpin)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -180,6 +182,7 @@ void CSettingsDlg::UpdateControls()
 	{
 		m_edit.SetWindowText(newValue);
 		m_spin.SetRange32(m_settings[m_currentSetting].MinValue,m_settings[m_currentSetting].MaxValue);
+		m_spin.SetPos(*m_settings[m_currentSetting].pValue);
 	}
 	
 	m_chk.SetCheck(*m_settings[m_currentSetting].pValue);
@@ -206,7 +209,7 @@ void CSettingsDlg::UpdateControls()
 				m_combo.SetItemData(pos,i);
 				
 				//is this item the current value?
-				if(*m_settings[m_currentSetting].pValue==i)
+				if(Setting_GetValue(&m_settings[m_currentSetting]) == i)
 				{
 					m_combo.SetCurSel(pos);
 					bFoundSetting=true;
@@ -228,7 +231,7 @@ void CSettingsDlg::OnChangeEdit()
 
 	CString value;
 	m_edit.GetWindowText(value);
-	*m_settings[m_currentSetting].pValue=atol(value);
+	Setting_SetValue(&m_settings[m_currentSetting], atol(value));
 	UpdateControls();
 }
 
@@ -237,28 +240,45 @@ void CSettingsDlg::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 	//slider has changed
 	long value=m_slider.GetPos();
 	
-	*m_settings[m_currentSetting].pValue=value;
+	Setting_SetValue(&m_settings[m_currentSetting], value);
 	UpdateControls();
 }
 
 void CSettingsDlg::OnSettingsDefault() 
 {
-	*m_settings[m_currentSetting].pValue=m_settings[m_currentSetting].Default;
+	Setting_SetDefault(&m_settings[m_currentSetting]);
 	UpdateControls();
 }
 
 void CSettingsDlg::OnCheckClick() 
 {
-	*m_settings[m_currentSetting].pValue=m_chk.GetCheck();
+	Setting_SetValue(&m_settings[m_currentSetting], m_chk.GetCheck());
 	UpdateControls();	
 }
 
 void CSettingsDlg::OnSelchangeChoosefromlist()
 {
-	
 	if(m_combo.GetCurSel()!=CB_ERR)
 	{
-		*m_settings[m_currentSetting].pValue = m_combo.GetItemData(m_combo.GetCurSel());
+		Setting_SetValue(&m_settings[m_currentSetting], m_combo.GetItemData(m_combo.GetCurSel()));
 	}
+	UpdateControls();
+}
+
+void CSettingsDlg::OnDeltaposSettingsSpin(NMHDR* pNMHDR, LRESULT* pResult) 
+{
+	NM_UPDOWN* pNMUpDown = (NM_UPDOWN*)pNMHDR;
+
+	if(pNMUpDown->iDelta > 0)
+	{
+		Setting_Up(&m_settings[m_currentSetting]);
+	}
+	else
+	{
+		Setting_Down(&m_settings[m_currentSetting]);
+	}
+		
+	*pResult = *m_settings[m_currentSetting].pValue;
+
 	UpdateControls();
 }

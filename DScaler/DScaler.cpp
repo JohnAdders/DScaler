@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.64 2001-08-23 18:54:21 adcockj Exp $
+// $Id: DScaler.cpp,v 1.65 2001-08-24 21:36:46 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.64  2001/08/23 18:54:21  adcockj
+// Menu and Settings fixes
+//
 // Revision 1.63  2001/08/23 16:03:26  adcockj
 // Improvements to dynamic menus to remove requirement that they are not empty
 //
@@ -2436,7 +2439,7 @@ HMENU GetOSDSubmenu2()
 
 HMENU GetPatternsSubmenu()
 {
-    return GetOrCreateSubSubMenu(4, 5, "Test &Pattern Select");
+    return GetOrCreateSubSubMenu(5, 6, "Test &Pattern Select");
 }
 
 //---------------------------------------------------------------------------

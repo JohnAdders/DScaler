@@ -436,7 +436,7 @@ BEGIN
                     UDS_ARROWKEYS | NOT WS_VISIBLE,167,1,11,14
     CONTROL         "",IDC_SETTINGS_CHECK,"Button",BS_AUTOCHECKBOX | 
                     BS_NOTIFY | NOT WS_VISIBLE | WS_TABSTOP,113,1,128,10
-    DEFPUSHBUTTON   "OK",IDOK,191,158,50,14
+    DEFPUSHBUTTON   "Close",IDOK,191,158,50,14
     CONTROL         "Slider1",IDC_SETTINGS_SLIDER,"msctls_trackbar32",
                     TBS_VERT | TBS_TOP | NOT WS_VISIBLE | WS_TABSTOP,208,1,
                     33,148

@@ -1,11 +1,12 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Developer Studio generated include file.
+// Microsoft Visual C++ generated include file.
 // Used by DScalerRes.rc
 //
 #define IDM_POPUP_FILTERS               1
 #define IDC_CLEAR                       3
 #define IDC_AUTODETECT                  3
 #define IDC_AUDIOSTANDARD_MANUAL_DETECTNOW 3
+#define IDD_PARSE_ERROR                 101
 #define IDA_DSCALER                     150
 #define IDM_SAVE_SETTINGS_NOW           151
 #define IDM_STATUSBAR                   152
@@ -252,6 +253,9 @@
 #define IDM_AUTOHIDE_CURSOR             817
 #define IDM_OSDSCREEN_SHOW              820
 #define IDM_OSDSCREEN_ACTIVATE          840
+#define IDC_ERROR_MESSAGE               1001
+#define IDC_TOP_STATIC                  1006
+#define IDC_BOTTOM_STATIC               1007
 #define IDM_END                         1032
 #define IDM_SOURCE_INPUT1               1089
 #define IDM_SOURCE_INPUT2               1090
@@ -375,28 +379,28 @@
 #define IDC_COMBO12                     1460
 #define IDC_MIXER_INPUT0                1461
 #define IDC_MIXER_INPUT1                1462
-#define IDC_MIXER_INPUT2                1463
-#define IDC_MIXER_INPUT3                1464
-#define IDC_MIXER_INPUT4                1465
-#define IDC_MIXER_INPUT5                1466
-#define IDC_MIXER_INPUT6                1467
-#define IDC_MIXER_INPUT7                1468
-#define IDC_MIXER_INPUT8                1469
-#define IDC_MIXER_INPUT9                1470
-#define IDC_MIXER_INPUT10               1471
-#define IDC_MIXER_INPUT11               1472
-#define IDC_MIXER_INPUT12               1473
 #define IDC_CONTEXTMENU                 1462
+#define IDC_MIXER_INPUT2                1463
 #define IDC_COUNTRY                     1463
+#define IDC_MIXER_INPUT3                1464
 #define IDC_CPU_TYPE                    1464
+#define IDC_MIXER_INPUT4                1465
 #define IDC_CRUSH                       1465
+#define IDC_MIXER_INPUT5                1466
 #define IDC_CUSTOMCHANNELORDER          1466
+#define IDC_MIXER_INPUT6                1467
 #define IDC_D1                          1467
+#define IDC_MIXER_INPUT7                1468
 #define IDC_D2                          1468
+#define IDC_MIXER_INPUT8                1469
 #define IDC_D3                          1469
+#define IDC_MIXER_INPUT9                1470
 #define IDC_D4                          1470
+#define IDC_MIXER_INPUT10               1471
 #define IDC_D5                          1471
+#define IDC_MIXER_INPUT11               1472
 #define IDC_D6                          1472
+#define IDC_MIXER_INPUT12               1473
 #define IDC_D7                          1473
 #define IDC_D8                          1474
 #define IDC_D9                          1475
@@ -1152,7 +1156,6 @@
 #define IDC_RETARD                      8103
 #define IDC_TIMERHELP                   8104
 #define IDC_ADVANCE                     8105
-
 #define IDM_SETTINGS_FILTERSETTINGS     32771
 #define IDM_SOURCE_INITIAL              32772
 #define IDM_DSHOW_FILTERS               32773
@@ -1263,10 +1266,10 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_3D_CONTROLS                1
+#define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        267
 #define _APS_NEXT_COMMAND_VALUE         32979
-#define _APS_NEXT_CONTROL_VALUE         
+#define _APS_NEXT_CONTROL_VALUE         1000
 #define _APS_NEXT_SYMED_VALUE           2526
 #endif
 #endif

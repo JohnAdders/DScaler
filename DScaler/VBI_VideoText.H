@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.H,v 1.9 2001-08-13 18:07:24 adcockj Exp $
+// $Id: VBI_VideoText.H,v 1.10 2001-08-21 09:39:46 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -60,6 +60,7 @@ enum eVTCodePage
     VT_UK_CODE_PAGE,
     VT_FRENCH_CODE_PAGE,
     VT_CZECH_CODE_PAGE,
+    VT_GREEK_CODE_PAGE,
     VT_CODE_PAGE_LASTONE,
 };
 

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.61 2001-08-16 21:17:34 laurentg Exp $
+// $Id: DScaler.cpp,v 1.62 2001-08-21 09:39:46 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.61  2001/08/16 21:17:34  laurentg
+// Automatic calibration improved with a fine adjustment
+//
 // Revision 1.60  2001/08/15 17:50:11  laurentg
 // UseRGB ini parameter suppressed
 // OSD screen concerning card calibration fully modified
@@ -1257,6 +1260,12 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         case IDM_VT_CZECH:
             Stop_Capture();
             VT_SetCodePage(VT_CZECH_CODE_PAGE);
+            Start_Capture();
+            break;
+
+        case IDM_VT_GREEK:
+            Stop_Capture();
+            VT_SetCodePage(VT_GREEK_CODE_PAGE);
             Start_Capture();
             break;
 

@@ -873,6 +873,7 @@ BEGIN
             MENUITEM "&English",                    IDM_VT_UK
             MENUITEM "&French",                     IDM_VT_FRENCH
             MENUITEM "&Czech",                      IDM_VT_CZECH
+            MENUITEM "&Greek",                      IDM_VT_GREEK
         END
         MENUITEM "&Videotext Reset (After switch over Composite)  ", 
                                                 IDM_VT_RESET, GRAYED
@@ -964,6 +965,7 @@ IDB_STARTUP             BITMAP  DISCARDABLE     "res\\STARTUP.bmp"
 IDB_VTCHARS             BITMAP  DISCARDABLE     "res\\Vtx15x18.bmp"
 IDB_FRENCH_VTCHARS      BITMAP  DISCARDABLE     "RES\\VTFRENCHX15X18.BMP"
 IDB_CZECH_VTCHARS       BITMAP  DISCARDABLE     "RES\\VTCZECHX15X18.bmp"
+IDB_GREEK_VTCHARS       BITMAP  DISCARDABLE     "RES\\VTGREEKX15X18.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //

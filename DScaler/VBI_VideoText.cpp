@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.13 2001-08-13 18:07:24 adcockj Exp $
+// $Id: VBI_VideoText.cpp,v 1.14 2001-08-21 09:39:46 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2001/08/13 18:07:24  adcockj
+// Added Czech code page for teletext
+//
 // Revision 1.12  2001/08/02 16:43:05  adcockj
 // Added Debug level to LOG function
 //
@@ -978,6 +981,9 @@ void VT_SetCodePage(eVTCodePage Codepage)
     VTCodePage = Codepage;
     switch(Codepage)
     {
+    case VT_GREEK_CODE_PAGE:
+        VTCharSet = (BITMAPINFO *)LoadResource(hInst, FindResource(hInst, MAKEINTRESOURCE(IDB_GREEK_VTCHARS), RT_BITMAP));
+        break;
     case VT_CZECH_CODE_PAGE:
         VTCharSet = (BITMAPINFO *)LoadResource(hInst, FindResource(hInst, MAKEINTRESOURCE(IDB_CZECH_VTCHARS), RT_BITMAP));
         break;
@@ -1036,4 +1042,5 @@ void VT_SetMenu(HMENU hMenu)
     CheckMenuItemBool(hMenu, IDM_VT_UK, (VTCodePage == VT_UK_CODE_PAGE));
     CheckMenuItemBool(hMenu, IDM_VT_FRENCH, (VTCodePage == VT_FRENCH_CODE_PAGE));
     CheckMenuItemBool(hMenu, IDM_VT_CZECH, (VTCodePage == VT_CZECH_CODE_PAGE));
+    CheckMenuItemBool(hMenu, IDM_VT_GREEK, (VTCodePage == VT_GREEK_CODE_PAGE));
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FieldTiming.cpp,v 1.16 2001-08-11 12:02:13 adcockj Exp $
+// $Id: FieldTiming.cpp,v 1.17 2001-08-21 09:39:46 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2001/08/11 12:02:13  adcockj
+// Updated SleepInterval default
+//
 // Revision 1.15  2001/08/02 16:43:05  adcockj
 // Added Debug level to LOG function
 //
@@ -54,7 +57,7 @@
 #include "Deinterlace.h"
 #include "DScaler.h"
 #include "resource.h"
-    #include "SettingsDlg.h"
+#include "SettingsDlg.h"
 
 LARGE_INTEGER TimerFrequency;
 double RunningAverageCounterTicks;

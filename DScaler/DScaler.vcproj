@@ -2975,6 +2975,12 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\TDA9874.cpp">
+			</File>
+			<File
+				RelativePath=".\TDA9874AudioDecoder.cpp">
+			</File>
+			<File
 				RelativePath="TDA9875.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -4034,6 +4040,12 @@
 			</File>
 			<File
 				RelativePath="TDA9873AudioDecoder.h">
+			</File>
+			<File
+				RelativePath=".\TDA9874.h">
+			</File>
+			<File
+				RelativePath=".\TDA9874AudioDecoder.h">
 			</File>
 			<File
 				RelativePath="TDA9875.h">

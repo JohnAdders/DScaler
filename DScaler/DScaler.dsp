@@ -722,6 +722,14 @@ SOURCE=.\TDA9873AudioDecoder.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\TDA9874.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\TDA9874AudioDecoder.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\TDA9875.cpp
 # End Source File
 # Begin Source File
@@ -1442,6 +1450,14 @@ SOURCE=.\SubItemCheckboxListCtrl.h
 # Begin Source File
 
 SOURCE=.\TDA9873AudioDecoder.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\TDA9874.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\TDA9874AudioDecoder.h
 # End Source File
 # Begin Source File
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Types.cpp,v 1.18 2004-01-27 22:48:57 robmuller Exp $
+// $Id: CX2388xCard_Types.cpp,v 1.19 2004-02-21 21:47:06 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2004/01/27 22:48:57  robmuller
+// Use correct GPIO settings for TV@nywhere Master.
+//
 // Revision 1.17  2004/01/19 14:31:20  adcockj
 // Test code for Hauppauge cards inspired by Torsten's diagram
 //
@@ -536,7 +539,8 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
         // \todo add eeprom read functionality
         // these cards seem similar to the bt848 except that
         // the contents are shifted by 8 bytes
-        TUNER_USER_SETUP,
+		// ...fixed 21.02.2004 to_see
+        TUNER_AUTODETECT,
         IDC_CX2388X,
     },
     {
@@ -726,7 +730,8 @@ const CCX2388xCard::TCardType CCX2388xCard::m_TVCards[CX2388xCARD_LASTONE] =
         // \todo add eeprom read functionality
         // these cards seem similar to the bt848 except that
         // the contents are shifted by 8 bytes
-        TUNER_USER_SETUP,
+		// ...fixed 21.02.2004 to_see
+        TUNER_AUTODETECT,
         IDC_CX2388X,
     },
 };
@@ -953,3 +958,72 @@ void CCX2388xCard::AsusInputSelect(int nInput)
         WriteDword(MO_GP3_IO, 0x00000000); 
     }
 }
+
+const eTunerId CCX2388xCard::m_Tuners_Hauppauge_CX2388x_Card[]=
+{
+	TUNER_ABSENT,
+	TUNER_ABSENT,						//"External"
+	TUNER_ABSENT,						//"Unspecified"
+	TUNER_PHILIPS_PAL,					//"Philips FI1216"
+	//4
+	TUNER_PHILIPS_SECAM,				//"Philips FI1216MF"
+	TUNER_PHILIPS_NTSC,					//"Philips FI1236"
+	TUNER_PHILIPS_PAL_I,				//"Philips FI1246"
+	TUNER_PHILIPS_PAL_DK,				//"Philips FI1256"
+	//8
+	TUNER_PHILIPS_PAL,					//"Philips FI1216 MK2"
+	TUNER_PHILIPS_SECAM,				//"Philips FI1216MF MK2"
+	TUNER_PHILIPS_NTSC,					//"Philips FI1236 MK2"
+	TUNER_PHILIPS_PAL_I,				//"Philips FI1246 MK2"
+	//12
+	TUNER_PHILIPS_PAL_DK,				//"Philips FI1256 MK2"
+	TUNER_TEMIC_4032FY5_NTSC,			//"Temic 4032FY5"
+	TUNER_TEMIC_4002FH5_PAL,			//"Temic 4002FH5"
+	TUNER_TEMIC_4062FY5_PAL_I,			//"Temic 4062FY5"
+	//16
+	TUNER_PHILIPS_PAL,					//"Philips FR1216 MK2"
+	TUNER_PHILIPS_SECAM,				//"Philips FR1216MF MK2"
+	TUNER_PHILIPS_NTSC,					//"Philips FR1236 MK2"
+	TUNER_PHILIPS_PAL_I,				//"Philips FR1246 MK2"
+	//20
+	TUNER_PHILIPS_PAL_DK,				//"Philips FR1256 MK2"
+	TUNER_PHILIPS_PAL,					//"Philips FM1216"
+	TUNER_PHILIPS_SECAM,				//"Philips FM1216MF"
+	TUNER_PHILIPS_NTSC,					//"Philips FM1236"
+	//24
+	TUNER_PHILIPS_PAL_I,				//"Philips FM1246"
+	TUNER_PHILIPS_PAL_DK,				//"Philips FM1256"
+	TUNER_TEMIC_4036FY5_NTSC,			//"Temic 4036FY5"
+	TUNER_ABSENT,						//"Samsung TCPN9082D"
+	//28
+	TUNER_ABSENT,						//"Samsung TCPM9092P"
+	TUNER_TEMIC_4006FH5_PAL,			//"Temic 4006FH5"
+	TUNER_ABSENT,						//"Samsung TCPN9085D"
+	TUNER_ABSENT,						//"Samsung TCPB9085P"
+	//32
+	TUNER_ABSENT,						//"Samsung TCPL9091P"
+	TUNER_TEMIC_4039FR5_NTSC,			//"Temic 4039FR5"
+	TUNER_PHILIPS_MULTI,				//"Philips FQ1216 ME"
+	TUNER_TEMIC_4066FY5_PAL_I,			//"Temic 4066FY5"
+	//36
+	TUNER_PHILIPS_NTSC,					//"Philips TD1536"
+	TUNER_PHILIPS_NTSC,					//"Philips TD1536D"
+	TUNER_PHILIPS_NTSC,					//"Philips FMR1236"
+	TUNER_ABSENT,						//"Philips FI1256MP"
+	//40
+	TUNER_ABSENT,						//"Samsung TCPQ9091P"
+	TUNER_TEMIC_4006FN5_PAL,			//"Temic 4006FN5"
+	TUNER_TEMIC_4009FR5_PAL,			//"Temic 4009FR5"
+	TUNER_TEMIC_4046FM5_MULTI,			//"Temic 4046FM5"
+	//44
+	TUNER_TEMIC_4009FN5_PAL,			//"Temic 4009FN5"
+	TUNER_ABSENT,						//"Philips TD1536D_FH_44"
+	TUNER_LG_R01F_NTSC,					//"LG TPI8NSR01F"}
+	TUNER_LG_B01D_PAL,					//"LG TPI8PSB01D"}
+	//48
+	TUNER_LG_B11D_PAL,					//"LG TPI8PSB11D"}
+	TUNER_LG_I001D_PAL_I,				//"LG TAPC-I001D"}
+	TUNER_LG_I701D_PAL_I,				//"LG TAPC-I701D"}
+};
+
+

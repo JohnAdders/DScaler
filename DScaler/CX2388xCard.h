@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.h,v 1.24 2004-02-21 14:11:30 to_see Exp $
+// $Id: CX2388xCard.h,v 1.25 2004-02-21 21:47:06 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -320,6 +320,7 @@ private:
 private:
     static const TCardType m_TVCards[CX2388xCARD_LASTONE];
     static const TAutoDectect m_AutoDectect[];
+    static const eTunerId m_Tuners_Hauppauge_CX2388x_Card[];
 };
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareDriver.cpp,v 1.19 2002-12-04 14:15:06 adcockj Exp $
+// $Id: HardwareDriver.cpp,v 1.20 2003-04-10 11:18:55 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2002/12/04 14:15:06  adcockj
+// Fixed RegSpy Problems
+//
 // Revision 1.18  2002/11/27 17:42:37  adcockj
 // Added RegLog to project
 //
@@ -136,6 +139,19 @@ BOOL CHardwareDriver::LoadDriver()
     if (!m_bWindows95)
     {
         // get handle of the Service Control Manager
+
+        // This function fails on WinXP when not logged on as an administrator.
+        // The following note comes from the updated Platform SDK documentation:
+
+        // Windows 2000 and earlier: All processes are granted SC_MANAGER_CONNECT, 
+        // SC_MANAGER_ENUMERATE_SERVICE, and SC_MANAGER_QUERY_LOCK_STATUS access to all service control
+        // manager databases. This enables any process to open a service control manager database handle
+        // that it can use in the OpenService, EnumServicesStatus, and QueryServiceLockStatus functions. 
+        //
+        // Windows XP: Only authenticated users are granted SC_MANAGER_CONNECT, 
+        // SC_MANAGER_ENUMERATE_SERVICE, and SC_MANAGER_QUERY_LOCK_STATUS access to all service control
+        // manager databases. 
+
         hSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_CONNECT);
         if(hSCManager == NULL)
         {

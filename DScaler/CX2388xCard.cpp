@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.18 2002-11-12 15:22:45 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.19 2002-11-12 19:32:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2002/11/12 15:22:45  adcockj
+// Made new flag settings have default setting
+// Added pixel width for CX2388x cards
+//
 // Revision 1.17  2002/11/11 17:10:37  adcockj
 // Added GPIO to dump and save/restore
 //
@@ -894,20 +898,30 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
             WriteDword( CX2388X_SUBCARRIERSTEPDR, RegValue);
 
             WriteDword( CX2388X_SAMPLERATECONV, 0x19D5F);
+
+            // set up burst gate delay and AGC gate delay
+            RegValue = (DWORD)(6.8 * PLL / 2.0 + 15.5);
+            RegValue |= (DWORD)(6.5 * PLL / 2.0 + 21.5) << 8;
+            WriteDword(CX2388X_AGC_BURST_DELAY, RegValue);
         }
         else
         {
-            SetPLL(28.636363);
+            double PLL = SetPLL(28.636363);
 
             // set up subcarrier frequency
-            DWORD RegValue = (DWORD)(((8.0 * GetTVFormat(TVFormat)->Fsc) / 28.636363) * (double)(1<<22));
+            DWORD RegValue = (DWORD)(((8.0 * GetTVFormat(TVFormat)->Fsc) / PLL) * (double)(1<<22));
             WriteDword( CX2388X_SUBCARRIERSTEP, RegValue & 0x7FFFFF );
             // Subcarrier frequency Dr, for SECAM only but lets
             // set it anyway
-            RegValue = (DWORD)((8.0 * 4.406250 / 28.636363) * (double)(1<<22));
+            RegValue = (DWORD)((8.0 * 4.406250 / PLL) * (double)(1<<22));
             WriteDword( CX2388X_SUBCARRIERSTEPDR, RegValue);
 
             WriteDword( CX2388X_SAMPLERATECONV, 0x20000);
+
+            // set up burst gate delay and AGC gate delay
+            RegValue = (DWORD)(6.8 * PLL / 2.0 + 15.5);
+            RegValue |= (DWORD)(6.5 * PLL / 2.0 + 21.5) << 8;
+            WriteDword(CX2388X_AGC_BURST_DELAY, RegValue);
         }
 
         // set up HorzScaling factor

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388x_Defines.h,v 1.5 2002-11-07 13:37:43 adcockj Exp $
+// $Id: CX2388x_Defines.h,v 1.6 2002-11-12 19:32:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -773,12 +773,12 @@ enum eCX2388xCardId
 
 // say how many buffers we want to have for each channel
 #define SRAM_VIDEO_BUFFERS               6
-#define SRAM_VBI_BUFFERS                 6
+#define SRAM_VBI_BUFFERS                 5
 #define SRAM_AUDIO_BUFFERS               3
 
 // say how big each buffer is
 // we need to hold a complete line in each buffer
-#define SRAM_FIFO_VIDEO_BUFFER_SIZE      0x5a0  // 720 WORDS (0x5A0)
+#define SRAM_FIFO_VIDEO_BUFFER_SIZE      (768 * 2)  // 720 WORDS (0x5A0)
 #define SRAM_FIFO_VBI_BUFFER_SIZE        0x800
 #define SRAM_FIFO_AUDIO_BUFFER_SIZE      0x500
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillProvider.cpp,v 1.18 2002-05-25 17:57:28 laurentg Exp $
+// $Id: StillProvider.cpp,v 1.19 2002-06-30 18:52:31 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2002/05/25 17:57:28  laurentg
+// no message
+//
 // Revision 1.17  2002/05/23 21:25:33  robmuller
 // Applied patch #558348 by PietOO.
 // New naming of snapshots.
@@ -82,6 +85,8 @@
 #include "StillProvider.h"
 #include "Other.h"
 #include "Providers.h"
+#include "OSD.h"
+#include "DScaler.h"
 
 
 #define MAX_SNAPSHOT_FILES 10000
@@ -190,6 +195,7 @@ void StillProvider_SaveSnapshot(TDeinterlaceInfo* pInfo)
 
         if(Overlay_Lock(pInfo))
         {
+            OSD_ShowText(hWnd, strrchr(name, '\\') + 1, 0);
             pStillSource->SaveSnapshot(name, pInfo->FrameHeight, pInfo->FrameWidth, pInfo->Overlay, pInfo->OverlayPitch);
             Overlay_Unlock();
         }

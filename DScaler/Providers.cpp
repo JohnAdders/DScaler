@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.16 2002-02-01 00:41:58 laurentg Exp $
+// $Id: Providers.cpp,v 1.17 2002-02-02 01:31:18 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/02/01 00:41:58  laurentg
+// Playlist code updated
+//
 // Revision 1.15  2002/01/24 00:00:13  robmuller
 // Added bOptimizeFileAccess flag to WriteToIni from the settings classes.
 //
@@ -253,6 +256,9 @@ void Providers_UpdateMenu(HMENU hMenu)
         GetMenuString(hSubMenu, 0, Text, 256, MF_BYPOSITION);
         // Add the new menu
         InsertMenu(hMenu, 6, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT)GetSubMenu(hSubMenu, 0), Text);
+
+        // Update our menu
+        Sources[CurrentSource]->UpdateMenu();
     }
     else
     {
@@ -312,7 +318,7 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
                 }
             }
             Start_Capture();
-            MessageBox(hWnd, "DScaler Warning", "Unsupported File Type", MB_OK);
+            MessageBox(hWnd, "Unsupported File Type", "DScaler Warning", MB_OK);
             return TRUE;
         }
     }

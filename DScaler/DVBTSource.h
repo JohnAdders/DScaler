@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DVBTSource.h,v 1.6 2001-12-08 20:00:24 laurentg Exp $
+// $Id: DVBTSource.h,v 1.7 2002-02-02 01:31:18 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -51,6 +51,7 @@ public:
     int GetWidth() {return 720;};
     int GetHeight() {return 576;};
     BOOL HasTuner();
+    void UpdateMenu() {return;};
     void SetMenu(HMENU hMenu);
     void HandleTimerMessages(int TimerId);
     BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat);

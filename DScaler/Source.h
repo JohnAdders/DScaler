@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.h,v 1.8 2002-01-17 22:22:06 robmuller Exp $
+// $Id: Source.h,v 1.9 2002-02-02 01:31:18 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -84,6 +84,8 @@ public:
     virtual int GetHeight() = 0;
     /// Does this source have an anologue tuner
     virtual BOOL HasTuner() = 0;
+    /// Update the content of the menu
+    virtual void UpdateMenu() = 0;
     /// Update the menu with any settings
     virtual void SetMenu(HMENU hMenu) = 0;
     /// Handle any timers that you control

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.24 2002-02-01 00:41:58 laurentg Exp $
+// $Id: StillSource.cpp,v 1.25 2002-02-02 01:31:18 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2002/02/01 00:41:58  laurentg
+// Playlist code updated
+//
 // Revision 1.23  2002/01/17 22:22:06  robmuller
 // Added member function GetTunerId().
 //
@@ -394,9 +397,22 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 {
     CPlayListItem* Item;
     vector<CPlayListItem*>::iterator it;
+    OPENFILENAME SaveFileInfo;
+    char FilePath[MAX_PATH];
+    char* FileFilters = "DScaler Playlists\0*.d3u\0";
 
     if ((m_Position == -1) || (m_PlayList.size() == 0))
         return FALSE;
+
+    if ( (LOWORD(wParam) >= IDM_PLAYLIST_FILES) && (LOWORD(wParam) < (IDM_PLAYLIST_FILES+MAX_PLAYLIST_SIZE)) )
+    {
+        m_SlideShowActive = FALSE;
+        m_Position = LOWORD(wParam) - IDM_PLAYLIST_FILES;
+        Stop_Capture();
+        OpenPictureFile(m_PlayList[m_Position]->GetFileName());
+        Start_Capture();
+        return TRUE;
+    }
 
     switch(LOWORD(wParam))
     {
@@ -453,6 +469,7 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             --it;
             m_PlayList.insert(it, Item);
             --m_Position;
+            UpdateMenu();
         }
         return TRUE;
         break;
@@ -472,6 +489,7 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
                 m_PlayList.push_back(Item);
             }
             ++m_Position;
+            UpdateMenu();
         }
         return TRUE;
         break;
@@ -492,8 +510,9 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         m_PlayList.erase(m_PlayList.begin() + m_Position);
         if (m_Position >= m_PlayList.size())
         {
-                m_Position = m_PlayList.size() - 1;
+            m_Position = m_PlayList.size() - 1;
         }
+        UpdateMenu();
         if (m_Position == -1)
         {
             PostMessage(hWnd, WM_COMMAND, IDM_SOURCE_FIRST, 0);
@@ -510,7 +529,30 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         m_SlideShowActive = FALSE;
         ClearPlayList();
         m_Position = -1;
+        UpdateMenu();
         PostMessage(hWnd, WM_COMMAND, IDM_SOURCE_FIRST, 0);
+        return TRUE;
+        break;
+    case IDM_PLAYLIST_SAVE:
+        SaveFileInfo.lStructSize = sizeof(SaveFileInfo);
+        SaveFileInfo.hwndOwner = hWnd;
+        SaveFileInfo.lpstrFilter = FileFilters;
+        SaveFileInfo.lpstrCustomFilter = NULL;
+        FilePath[0] = 0;
+        SaveFileInfo.lpstrFile = FilePath;
+        SaveFileInfo.nMaxFile = sizeof(FilePath);
+        SaveFileInfo.lpstrFileTitle = NULL;
+        SaveFileInfo.lpstrInitialDir = NULL;
+        SaveFileInfo.lpstrTitle = "Save Playlist As";
+        SaveFileInfo.Flags = OFN_PATHMUSTEXIST | OFN_HIDEREADONLY | OFN_NOREADONLYRETURN | OFN_OVERWRITEPROMPT;
+        SaveFileInfo.lpstrDefExt = "d3u";
+        if (GetSaveFileName(&SaveFileInfo))
+        {
+            if (!SavePlayList(FilePath))
+            {
+                MessageBox(hWnd, "Playlist not saved", "DScaler Warning", MB_OK);
+            }
+        }
         return TRUE;
         break;
     default:
@@ -596,9 +638,71 @@ void CStillSource::ClearPlayList()
     m_PlayList.clear();
 }
 
+BOOL CStillSource::SavePlayList(LPCSTR FileName)
+{
+    FILE* Playlist = fopen(FileName, "w");
+    if (Playlist == NULL)
+        return FALSE;
+
+    for(vector<CPlayListItem*>::iterator it = m_PlayList.begin(); 
+        it != m_PlayList.end(); 
+        ++it)
+    {
+        fprintf(Playlist, "%s\n", (*it)->GetFileName());
+    }
+
+    fclose(Playlist);
+
+    return TRUE;
+}
+
+void CStillSource::UpdateMenu()
+{
+    HMENU           hSubMenu;
+    HMENU           hMenuFiles;
+    MENUITEMINFO    MenuItemInfo;
+    int             j;
+
+    hSubMenu = GetSubMenu(m_hMenu, 0);
+    if(hSubMenu == NULL) return;
+    hMenuFiles = GetSubMenu(hSubMenu, 4);
+    if(hMenuFiles == NULL)
+    {
+        if (ModifyMenu(hSubMenu, 4, MF_STRING | MF_BYPOSITION | MF_POPUP, (UINT)CreatePopupMenu(), "F&iles"))
+        {
+            hMenuFiles = GetSubMenu(hSubMenu, 4);
+        }
+    }
+    if(hMenuFiles == NULL) return;
+
+    j = GetMenuItemCount(hMenuFiles);
+    while (j)
+    {
+        --j;
+        RemoveMenu(hMenuFiles, j, MF_BYPOSITION);
+    }
+    
+    j = 0;
+    for (vector<CPlayListItem*>::iterator it = m_PlayList.begin(); 
+        it != m_PlayList.end(); 
+        ++it, ++j)
+    {
+        MenuItemInfo.cbSize = sizeof (MenuItemInfo);
+        MenuItemInfo.fMask = MIIM_TYPE | MIIM_STATE | MIIM_ID;
+        MenuItemInfo.fType = MFT_STRING;
+        MenuItemInfo.dwTypeData = (LPSTR) (*it)->GetFileName();
+        MenuItemInfo.cch = strlen ((*it)->GetFileName());
+        MenuItemInfo.fState = (m_Position == j) ? MFS_CHECKED : MFS_UNCHECKED;
+        MenuItemInfo.wID = IDM_PLAYLIST_FILES + j;
+        InsertMenuItem(hMenuFiles, j, TRUE, &MenuItemInfo);
+    }
+}
 
 void CStillSource::SetMenu(HMENU hMenu)
 {
+    HMENU           hSubMenu;
+    HMENU           hMenuFiles;
+
     CheckMenuItemBool(hMenu, IDM_PLAYLIST_SLIDESHOW, m_SlideShowActive);
     if(m_PlayList.size() > 1)
     {
@@ -637,6 +741,23 @@ void CStillSource::SetMenu(HMENU hMenu)
         EnableMenuItem(hMenu, IDM_PLAYLIST_UP, MF_GRAYED);
         EnableMenuItem(hMenu, IDM_PLAYLIST_DOWN, MF_GRAYED);
         EnableMenuItem(hMenu, IDM_PLAYLIST_SLIDESHOW, MF_GRAYED);
+    }
+
+    hSubMenu = GetSubMenu(m_hMenu, 0);
+    if(hSubMenu == NULL) return;
+    hMenuFiles = GetSubMenu(hSubMenu, 4);
+    if(hMenuFiles == NULL) return;
+
+    for (int i(0); i < GetMenuItemCount(hMenuFiles); ++i)
+    {
+        if (m_Position == i)
+        {
+            CheckMenuItem(hMenuFiles, i, MF_BYPOSITION | MF_CHECKED);
+        }
+        else
+        {
+            CheckMenuItem(hMenuFiles, i, MF_BYPOSITION | MF_UNCHECKED);
+        }
     }
 }
 

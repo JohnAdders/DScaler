@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.16 2002-01-24 00:00:13 robmuller Exp $
+// $Id: BT848Source.h,v 1.17 2002-02-02 01:31:19 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -59,6 +59,7 @@ public:
     BOOL IsInTunerMode();
     int GetWidth();
     int GetHeight();
+    void UpdateMenu() {return;};
     void SetMenu(HMENU hMenu);
     BOOL HasTuner();
     void HandleTimerMessages(int TimerId);

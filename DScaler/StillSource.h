@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.15 2002-01-17 22:22:06 robmuller Exp $
+// $Id: StillSource.h,v 1.16 2002-02-02 01:31:18 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,8 @@
 
 #include "Source.h"
 #include "Bt848_Defines.h"
+
+#define MAX_PLAYLIST_SIZE   50
 
 enum eStillFormat
 {
@@ -89,6 +91,7 @@ public:
     int GetWidth();
     int GetHeight();
     BOOL HasTuner() {return FALSE;};
+    void UpdateMenu();
     void SetMenu(HMENU hMenu);
     void HandleTimerMessages(int TimerId);
     BOOL SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat) {return FALSE;};
@@ -107,6 +110,7 @@ private:
     BOOL ShowNextInPlayList();
     BOOL ShowPreviousInPlayList();
     BOOL OpenPictureFile(LPCSTR FileName);
+    BOOL SavePlayList(LPCSTR FileName);
 
 protected:
     int         m_Width;

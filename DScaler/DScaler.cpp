@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.118 2002-01-31 18:07:15 robmuller Exp $
+// $Id: DScaler.cpp,v 1.119 2002-02-02 01:31:18 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.118  2002/01/31 18:07:15  robmuller
+// Fixed crash when using command line parameter /c.
+//
 // Revision 1.117  2002/01/31 13:02:46  robmuller
 // Improved accuracy and reliability of the performance statistics.
 //
@@ -652,32 +655,39 @@ HMENU CreateDScalerPopupMenu()
             SetMenuItemInfo(hMenuPopup,1,TRUE,&MenuItemInfo);
         }
 
-        hSubMenu = GetVideoDeinterlaceSubmenu();
+        hSubMenu = GetChannelsSubmenu();
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
             SetMenuItemInfo(hMenuPopup,2, TRUE, &MenuItemInfo);
         }
 
-        hSubMenu = GetSubMenu(hMenu, 3);
+        hSubMenu = GetVideoDeinterlaceSubmenu();
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
-            SetMenuItemInfo(hMenuPopup,3,TRUE,&MenuItemInfo);
+            SetMenuItemInfo(hMenuPopup,3, TRUE, &MenuItemInfo);
         }
 
-        hSubMenu = GetFiltersSubmenu();
+        hSubMenu = GetSubMenu(hMenu, 3);
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
             SetMenuItemInfo(hMenuPopup,4,TRUE,&MenuItemInfo);
         }
 
-        hSubMenu = GetSubMenu(hMenu, 7);
+        hSubMenu = GetFiltersSubmenu();
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
             SetMenuItemInfo(hMenuPopup,5,TRUE,&MenuItemInfo);
+        }
+
+        hSubMenu = GetSubMenu(hMenu, 7);
+        if(hSubMenu != NULL)
+        {
+            MenuItemInfo.hSubMenu = hSubMenu;
+            SetMenuItemInfo(hMenuPopup,7,TRUE,&MenuItemInfo);
         }
 
         hSubMenu = GetSubMenu(hMenu, 2);
@@ -686,7 +696,7 @@ HMENU CreateDScalerPopupMenu()
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;
-            SetMenuItemInfo(hMenuPopup,6,TRUE,&MenuItemInfo);
+            SetMenuItemInfo(hMenuPopup,8,TRUE,&MenuItemInfo);
         }
         CheckMenuItemBool(hMenuPopup, IDM_FULL_SCREEN, bIsFullScreen);
     }
@@ -2784,26 +2794,6 @@ HMENU GetOrCreateSubSubSubMenu(int SubId, int SubSubId, int SubSubSubId, LPCSTR 
 HMENU GetFiltersSubmenu()
 {
     return GetOrCreateSubSubMenu(4, 2, "Select &Filters");
-
-    HMENU hSubMenu;
-
-    if(hMenu == NULL) return NULL;
-    hSubMenu = GetSubMenu(hMenu, 4);
-    if(hSubMenu == NULL) return NULL;
-    hSubMenu = GetSubMenu(hSubMenu, 2);
-    if(hSubMenu == NULL)
-    {
-        hSubMenu = GetSubMenu(hMenu, 3);
-        if(ModifyMenu(hSubMenu, 2, MF_STRING | MF_BYPOSITION | MF_POPUP, (UINT)CreatePopupMenu(), "&Filters"))
-        {
-            hSubMenu = GetSubMenu(hSubMenu, 2);
-        }
-        else
-        {
-            hSubMenu = NULL;
-        }
-    }
-    return hSubMenu;
 }
 
 HMENU GetFilterSettingsSubmenu()
@@ -2813,13 +2803,7 @@ HMENU GetFilterSettingsSubmenu()
 
 HMENU GetVideoDeinterlaceSubmenu()
 {
-    HMENU hSubMenu;
-
-    if(hMenu == NULL) return NULL;
-    hSubMenu = GetSubMenu(hMenu, 4);
-    if(hSubMenu == NULL) return NULL;
-    hSubMenu = GetSubMenu(hSubMenu, 1);
-    return hSubMenu;
+    return GetOrCreateSubSubMenu(4, 1, "&Deinterlace Mode");
 }
 
 HMENU GetChannelsSubmenu()

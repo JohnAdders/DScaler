@@ -1021,9 +1021,11 @@ BEGIN
     BEGIN
         MENUITEM "&Sources",                    IDM_POPUP_SOURCES
         MENUITEM "&Holder",                     IDM_POPUP_SOURCES
+        MENUITEM "&Channels",                   IDM_CHANNEL_SELECT
         MENUITEM "Deinterlace &Mode",           IDM_POPUP_SOURCES
         MENUITEM "Aspect &Ratio",               IDM_POPUP_SOURCES
         MENUITEM "Fi&lters",                    IDM_POPUP_FILTERS
+        MENUITEM "&Video Adjustments ...",      IDM_VIDEOSETTINGS
         MENUITEM "&Datacasting",                IDM_POPUP_SOURCES
         MENUITEM "&OSD",                        IDM_POPUP_SOURCES
         MENUITEM "Full &Screen",                IDM_FULL_SCREEN
@@ -1121,6 +1123,12 @@ IDC_STILL MENU DISCARDABLE
 BEGIN
     POPUP "Pla&ylist"
     BEGIN
+        MENUITEM "&Close",                      IDM_CLOSE_FILE
+        MENUITEM "Cl&ose All",                  IDM_CLOSE_ALL
+        MENUITEM "S&ave As ...",                IDM_PLAYLIST_SAVE
+        MENUITEM SEPARATOR
+        MENUITEM "F&iles",                      IDM_PLAYLIST_FILES
+        MENUITEM SEPARATOR
         MENUITEM "&Previous\tCtrl+PgUp",        IDM_PLAYLIST_PREVIOUS
         MENUITEM "&Next\tCtrl+PgDn",            IDM_PLAYLIST_NEXT
         MENUITEM "&First\tCtrl+Home",           IDM_PLAYLIST_FIRST
@@ -1130,10 +1138,6 @@ BEGIN
         MENUITEM "&Down",                       IDM_PLAYLIST_DOWN
         MENUITEM SEPARATOR
         MENUITEM "&Slideshow",                  IDM_PLAYLIST_SLIDESHOW
-        MENUITEM SEPARATOR
-        MENUITEM "&Close",                      IDM_CLOSE_FILE
-        MENUITEM "Cl&ose All",                  IDM_CLOSE_ALL
-        MENUITEM "S&ave As ...",                IDM_PLAYLIST_SAVE, GRAYED
     END
 END
 

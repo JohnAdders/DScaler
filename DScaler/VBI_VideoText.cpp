@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.32 2002-01-19 12:53:00 temperton Exp $
+// $Id: VBI_VideoText.cpp,v 1.33 2002-01-19 17:50:41 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2002/01/19 12:53:00  temperton
+// Teletext pages updates at correct time.
+// Teletext can use variable-width font.
+//
 // Revision 1.31  2002/01/15 20:25:45  adcockj
 // removed old bitmap code
 //
@@ -681,6 +685,8 @@ void VT_ChannelChange()
     {
         VT_PageFree(a);
     }
+    memset(VPSLastName , 0x00, 9);
+    memset(VPSChannelName , 0x00, 9);
     memset(VTPages, 0, 800 * sizeof(TVTPage));
     memset(MagazineStates, 0, sizeof(TMagState) * NUM_MAGAZINES);
     for(int i(0); i < NUM_MAGAZINES; ++i)
@@ -692,6 +698,8 @@ void VT_ChannelChange()
     VTPage = 100;
     VTSubPage = 0;
     VTSubPageLocked = false;
+
+    VT_ResetStation();
 }
 
 

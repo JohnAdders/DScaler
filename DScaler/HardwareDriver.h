@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareDriver.h,v 1.1 2001-08-09 16:44:50 adcockj Exp $
+// $Id: HardwareDriver.h,v 1.2 2001-08-09 16:46:48 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,17 +21,6 @@
 
 #include "DSDrv.h"
 #include <winsvc.h>
-
-class CHardwareMemory
-{
-public:
-    CHardwareMemory(size_t Bytes, size_t Align);
-    ~CHardwareMemory();
-    BYTE* GetUserPointer();
-    DWORD TranslateToPhysical(BYTE* pUser);
-private:
-
-}
 
 class CHardwareDriver
 {

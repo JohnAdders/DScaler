@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.34 2002-02-19 16:03:36 tobbej Exp $
+// $Id: StillSource.cpp,v 1.35 2002-02-22 23:32:12 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.34  2002/02/19 16:03:36  tobbej
+// removed CurrentX and CurrentY
+// added new member in CSource, NotifySizeChange
+//
 // Revision 1.33  2002/02/14 23:16:59  laurentg
 // Stop / start capture never needed when switching between files of the playlist
 // CurrentX / CurrentY not updated in StillSource but in the main decoding loop
@@ -459,6 +463,8 @@ void CStillSource::Stop()
         m_OriginalFrame.pData = NULL;
     }
     m_IsPictureRead = FALSE;
+    m_Width = 0;
+    m_Height = 0;
 }
 
 void CStillSource::Reset()

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsGeneric.cpp,v 1.13 2003-04-28 13:21:46 laurentg Exp $
+// $Id: TreeSettingsGeneric.cpp,v 1.14 2004-10-22 19:33:23 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2003/04/28 13:21:46  laurentg
+// New field to enter character string in tree settings dialog box
+//
 // Revision 1.12  2003/04/26 23:19:15  laurentg
 // Character string settings
 //
@@ -699,6 +702,18 @@ void CTreeSettingsGeneric::OnSize(UINT nType, int cx, int cy)
             rect.top = (rect.top - rcBoxOrg.top) + rcBox.top;
             rect.bottom = rect.top + Height;
             pEditBox->MoveWindow(&rect);
+        }
+
+		// Edit box2
+        CWnd *pEditBox2 = GetDlgItem(IDC_TREESETTINGS_GENERIC_EDIT2);
+        if (pEditBox2 != NULL)
+        {
+            pEditBox2->GetWindowRect(&rect);
+            ScreenToClient(&rect);
+            int Height= (rect.bottom-rect.top);
+            rect.top = (rect.top - rcBoxOrg.top) + rcBox.top;
+            rect.bottom = rect.top + Height;
+            pEditBox2->MoveWindow(&rect);
         }
 
         // Spin

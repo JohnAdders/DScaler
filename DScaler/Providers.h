@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.h,v 1.14 2002-08-13 21:16:06 kooiman Exp $
+// $Id: Providers.h,v 1.15 2002-09-07 13:34:38 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -39,8 +39,6 @@ CSource* Providers_GetSnapshotsSource();
 CSource* Providers_GetPatternsSource();
 CSource* Providers_GetIntroSource();
 int Providers_FindSource();
-BOOL Providers_AddSource(CSource* pSource, HMENU hMenu);
-BOOL Providers_RemoveSource(CSource* pSource, HMENU hMenu);
 void Providers_SetMenu(HMENU hMenu);
 void Providers_UpdateMenu(HMENU hMenu);
 long Providers_GetNumber();

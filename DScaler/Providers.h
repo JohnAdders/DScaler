@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.h,v 1.12 2002-04-27 16:02:59 laurentg Exp $
+// $Id: Providers.h,v 1.13 2002-08-11 12:12:10 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -42,5 +42,6 @@ long Providers_GetNumber();
 CSource*  Providers_GetByIndex(long Index);
 void Providers_ReadFromIni();
 void Providers_WriteToIni(BOOL bOptimizeFileAccess);
+void Providers_ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff);
 
 #endif

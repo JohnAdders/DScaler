@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.h,v 1.16 2002-08-10 16:54:25 tobbej Exp $
+// $Id: DSSource.h,v 1.17 2002-08-11 12:06:19 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/08/10 16:54:25  tobbej
+// use square pixels by default
+//
 // Revision 1.15  2002/08/09 13:35:11  laurentg
 // Processor speed and trade off settings moved from BT source settings to DScaler settings
 //
@@ -162,7 +165,7 @@ public:
 
     BOOL HasSquarePixels() {return TRUE;};
 
-    void ChangeDefaultsBasedOnHardware(int ProcessorSpeed, int TradeOff) {;};
+    void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff) {;};
 
     void ChannelPreChange(int OldChannel,int NewChannel) {; };
     void ChannelChange(int NewChannel) {; };

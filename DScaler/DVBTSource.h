@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DVBTSource.h,v 1.10 2002-08-09 13:33:24 laurentg Exp $
+// $Id: DVBTSource.h,v 1.11 2002-08-11 12:08:24 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -62,7 +62,7 @@ public:
     BOOL IsAccessAllowed() {return TRUE;};
     void SetOverscan();
     BOOL HasSquarePixels() {return FALSE;};
-    void ChangeDefaultsBasedOnHardware(int ProcessorSpeed, int TradeOff) {;};
+    void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff) {;};
 
 private:
     std::string  m_Section;

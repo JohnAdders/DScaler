@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.39 2002-07-29 17:43:29 tobbej Exp $
+// $Id: Providers.cpp,v 1.40 2002-08-11 12:12:10 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.39  2002/07/29 17:43:29  tobbej
+// support for opening graphedit saved filter graphs
+//
 // Revision 1.38  2002/07/26 22:40:55  laurentg
 // Menus updates
 //
@@ -585,5 +588,13 @@ void Providers_WriteToIni(BOOL bOptimizeFileAccess)
     if(CurrentSource >= 0 && CurrentSource < Sources.size())
     {
         Sources[CurrentSource]->Object->WriteToIni(bOptimizeFileAccess);
+    }
+}
+
+void Providers_ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff)
+{
+    for (int i(0) ; i < Sources.size() ; i++)
+    {
+        Sources[i]->Object->ChangeSettingsBasedOnHW(ProcessorSpeed, TradeOff);
     }
 }

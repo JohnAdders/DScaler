@@ -331,6 +331,10 @@ SOURCE=.\HardwareMemory.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\HardwareSettings.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\HSListBox.cpp
 # End Source File
 # Begin Source File
@@ -720,6 +724,10 @@ SOURCE=.\HardwareDriver.h
 # Begin Source File
 
 SOURCE=.\HardwareMemory.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\HardwareSettings.h
 # End Source File
 # Begin Source File
 

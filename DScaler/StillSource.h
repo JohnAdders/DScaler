@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.39 2002-08-09 13:33:24 laurentg Exp $
+// $Id: StillSource.h,v 1.40 2002-08-11 12:08:24 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -120,7 +120,7 @@ public:
     BOOL IsAccessAllowed();
     void SetOverscan();
     BOOL HasSquarePixels() {return m_SquarePixels;};
-    void ChangeDefaultsBasedOnHardware(int ProcessorSpeed, int TradeOff) {;};
+    void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff) {;};
     void SetNavigOnly(BOOL NavigOnly);
     BOOL IsNavigOnly();
 

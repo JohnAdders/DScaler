@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.214 2002-08-09 13:33:24 laurentg Exp $
+// $Id: DScaler.cpp,v 1.215 2002-08-11 12:12:10 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.214  2002/08/09 13:33:24  laurentg
+// Processor speed and trade off settings moved from BT source settings to DScaler settings
+//
 // Revision 1.213  2002/08/08 21:16:24  kooiman
 // Add call to free memory for settings per channel.
 //
@@ -685,6 +688,7 @@
 #include "StillSource.h"
 #include "TreeSettingsDlg.h"
 #include "SettingsPerChannel.h"
+#include "HardwareSettings.h"
 
 extern long CurrentProgram;
 
@@ -2727,6 +2731,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         
         case IDM_CLEAROSD:
             OSD_Clear(hWnd);
+            break;
+
+        case IDM_SETUPHARDWARE:
+            DialogBox(hResourceInst, MAKEINTRESOURCE(IDD_HWSETUP), hWnd, (DLGPROC) HardwareSettingProc);
             break;
 
         default:

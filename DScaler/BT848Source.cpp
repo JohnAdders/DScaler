@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.49 2002-08-09 13:33:24 laurentg Exp $
+// $Id: BT848Source.cpp,v 1.50 2002-08-11 12:08:24 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.49  2002/08/09 13:33:24  laurentg
+// Processor speed and trade off settings moved from BT source settings to DScaler settings
+//
 // Revision 1.48  2002/08/08 21:15:07  kooiman
 // Fix settings per channel timing issue.
 //
@@ -1194,57 +1197,32 @@ void CBT848Source::SetupCard()
     m_pBT848Card->InitAudio();
 }
 
-void CBT848Source::ChangeDefaultsBasedOnHardware(int ProcessorSpeed, int TradeOff)
+void CBT848Source::ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff)
 {
     // now do defaults based on the processor speed selected
     if(ProcessorSpeed == 1 && TradeOff == 0)
     {
         // User has selected 300-500 MHz and low judder
-        Setting_ChangeDefault(OutThreads_GetSetting(WAITFORFLIP), TRUE);
-        Setting_ChangeDefault(OutThreads_GetSetting(DOACCURATEFLIPS), FALSE);
-        Setting_ChangeDefault(OutThreads_GetSetting(AUTODETECT), TRUE);
-        Setting_ChangeDefault(FD60_GetSetting(NTSCFILMFALLBACKMODE), INDEX_VIDEO_GREEDY);
-        Setting_ChangeDefault(FD50_GetSetting(PALFILMFALLBACKMODE), INDEX_VIDEO_GREEDY);
         m_PixelWidth->ChangeDefault(720);
     }
     else if(ProcessorSpeed == 1 && TradeOff == 1)
     {
         // User has selected 300-500 MHz and best picture
-        Setting_ChangeDefault(OutThreads_GetSetting(WAITFORFLIP), FALSE);
-        Setting_ChangeDefault(OutThreads_GetSetting(DOACCURATEFLIPS), FALSE);
-        Setting_ChangeDefault(OutThreads_GetSetting(AUTODETECT), TRUE);
-        Setting_ChangeDefault(FD60_GetSetting(NTSCFILMFALLBACKMODE), INDEX_VIDEO_GREEDY);
-        Setting_ChangeDefault(FD50_GetSetting(PALFILMFALLBACKMODE), INDEX_VIDEO_GREEDY);
         m_PixelWidth->ChangeDefault(720);
     }
     else if(ProcessorSpeed == 2 && TradeOff == 0)
     {
         // User has selected below 300 MHz and low judder
-        Setting_ChangeDefault(OutThreads_GetSetting(WAITFORFLIP), TRUE);
-        Setting_ChangeDefault(OutThreads_GetSetting(DOACCURATEFLIPS), FALSE);
-        Setting_ChangeDefault(OutThreads_GetSetting(AUTODETECT), FALSE);
-        Setting_ChangeDefault(FD60_GetSetting(NTSCFILMFALLBACKMODE), INDEX_VIDEO_GREEDY);
-        Setting_ChangeDefault(FD50_GetSetting(PALFILMFALLBACKMODE), INDEX_VIDEO_GREEDY);
         m_PixelWidth->ChangeDefault(640);
     }
     else if(ProcessorSpeed == 2 && TradeOff == 1)
     {
         // User has selected below 300 MHz and best picture
-        Setting_ChangeDefault(OutThreads_GetSetting(WAITFORFLIP), FALSE);
-        Setting_ChangeDefault(OutThreads_GetSetting(DOACCURATEFLIPS), FALSE);
-        Setting_ChangeDefault(OutThreads_GetSetting(AUTODETECT), FALSE);
-        Setting_ChangeDefault(FD60_GetSetting(NTSCFILMFALLBACKMODE), INDEX_VIDEO_GREEDY);
-        Setting_ChangeDefault(FD50_GetSetting(PALFILMFALLBACKMODE), INDEX_VIDEO_GREEDY);
         m_PixelWidth->ChangeDefault(640);
     }
     else
     {
         // user has fast processor use best defaults
-        Setting_ChangeDefault(OutThreads_GetSetting(WAITFORFLIP), TRUE);
-        Setting_ChangeDefault(OutThreads_GetSetting(DOACCURATEFLIPS), TRUE);
-        Setting_ChangeDefault(OutThreads_GetSetting(AUTODETECT), TRUE);
-        Setting_ChangeDefault(FD60_GetSetting(NTSCFILMFALLBACKMODE), INDEX_VIDEO_GREEDYH);
-        Setting_ChangeDefault(FD50_GetSetting(PALFILMFALLBACKMODE), INDEX_VIDEO_GREEDYH);
         m_PixelWidth->ChangeDefault(720);
     }
 

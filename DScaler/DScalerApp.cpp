@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScalerApp.cpp,v 1.14 2002-06-13 12:10:21 adcockj Exp $
+// $Id: DScalerApp.cpp,v 1.15 2002-07-09 07:20:31 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/06/13 12:10:21  adcockj
+// Move to new Setings dialog for filers, video deint and advanced settings
+//
 // Revision 1.13  2002/05/24 23:04:55  robmuller
 // Patch #553392 by Anonymous.
 // Fix for VS.NET.
@@ -171,8 +174,7 @@ void CDScalerApp::WinHelp(DWORD dwData, UINT nCmd)
         //the default help id is HID_BASE_RESOURCE+dialog template id
         //but we cant use that for empty pages and the generic property page
         //so set a new help id to use insted.
-        if(dwData >= HID_BASE_RESOURCE &&
-            dwData < HID_BASE_PROMPT)
+        if(dwData >= HID_BASE_RESOURCE)
         {
             dwData -= HID_BASE_RESOURCE;
         }

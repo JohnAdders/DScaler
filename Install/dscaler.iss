@@ -1,5 +1,5 @@
 ;////////////////////////////////////////////////////////////////////////////
-;// $Id: dscaler.iss,v 1.25 2003-06-26 17:55:39 adcockj Exp $
+;// $Id: dscaler.iss,v 1.26 2003-10-01 12:22:28 adcockj Exp $
 ;/////////////////////////////////////////////////////////////////////////////
 ;// Copyright (c) 2002 Rob Muller.  All rights reserved.
 ;/////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 ;// CVS Log
 ;//
 ;// $Log: not supported by cvs2svn $
+;// Revision 1.25  2003/06/26 17:55:39  adcockj
+;// Prep for new version
+;//
 ;// Revision 1.24  2003/04/23 08:19:26  adcockj
 ;// Chnaged text on licencing page so that users don't have to accept the GPL
 ;//
@@ -100,8 +103,8 @@
 ;  For more information about InnoSetup see http://www.innosetup.com
 
 [Setup]
-AppName=DScaler 4.1.7
-AppVerName=DScaler 4.1.7
+AppName=DScaler 4.1.8
+AppVerName=DScaler 4.1.8
 AppPublisherURL=http://www.dscaler.org
 AppSupportURL=http://www.dscaler.org/phpBB/
 AppUpdatesURL=http://www.dscaler.org
@@ -165,8 +168,8 @@ Source: "..\Release\channel.txt"; DestDir: "{app}"; CopyMode: alwaysoverwrite; C
 Source: "..\Release\dscaler.chm"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
 Source: "..\Release\Patterns\*.pat"; DestDir: "{app}\Patterns"; CopyMode: alwaysoverwrite; Components: main
 Source: "..\Release\Patterns\*.d3u"; DestDir: "{app}\Patterns"; CopyMode: alwaysoverwrite; Components: main
-Source: "..\Release\Skins\*.bmp"; DestDir: "{app}\Skins"; CopyMode: alwaysoverwrite; Flags: recursesubdirs; Components: main
-Source: "..\Release\Skins\*.ini"; DestDir: "{app}\Skins"; CopyMode: alwaysoverwrite; Flags: recursesubdirs; Components: main
+Source: "..\Release\Skins\default\*.bmp"; DestDir: "{app}\Skins\default"; CopyMode: alwaysoverwrite; Flags: recursesubdirs; Components: main
+Source: "..\Release\Skins\default\*.ini"; DestDir: "{app}\Skins\default"; CopyMode: alwaysoverwrite; Flags: recursesubdirs; Components: main
 Source: "..\ThirdParty\LibTiff\libtiff.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
 Source: "..\ThirdParty\LibJpeg\libjpeg.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
 Source: "..\ThirdParty\zlib\zlib.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: main
@@ -181,6 +184,7 @@ Source: "..\Release\DI_VideoBob.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrit
 Source: "..\Release\DI_VideoWeave.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite;  Components: extra
 Source: "..\Release\DI_Greedy2Frame.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite;  Components: extra
 Source: "..\Release\FLT_ColourInversion.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite;  Components: extra
+Source: "..\Release\FLT_Colorimetry.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite;  Components: extra
 
 ; beta
 Source: "..\Release\FLT_LuminChromaShift.dll"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Components: beta

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_GreedyHM_V.c,v 1.2 2001-07-25 12:04:31 adcockj Exp $
+// $Id: DI_GreedyHM_V.c,v 1.3 2001-08-17 17:08:42 trbarry Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -26,6 +26,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2001/07/25 12:04:31  adcockj
+// Moved Control stuff into DS_Control.h
+// Added $Id and $Log to comment blocks as per standards
+//
 /////////////////////////////////////////////////////////////////////////////
 
 // This version handles Greedy High Motion with Vertical Filtering
@@ -68,6 +72,9 @@ BOOL FUNCT_NAME()
 
 	int DestIncr = 2 * OverlayPitch;  // we go throug overlay buffer 2 lines per
 	__int64 LastAvg=0;					//interp value from left qword
+	__int64 SaveQword1=0;				// Temp Save pixels
+	__int64 SaveQword2=0;				// Temp Save pixels
+	__int64 SaveQword3=0;				// Temp Save pixels
 
 
 
@@ -79,7 +86,8 @@ BOOL FUNCT_NAME()
 	pFieldStore = & FieldStore[0];		// starting ptr into FieldStore[L2]
 	pFieldStoreEnd = & FieldStore[FieldHeight * FSCOLCT];		// ending ptr into FieldStore[L2]
 	pL2 = & FieldStore[L2];				// starting ptr into FieldStore[L2]
-	LoopCtrW = LineLength / 8 - 1;		// do 8 bytes at a time, adjusted
+//>>>	LoopCtrW = LineLength / 8 - 1;		// do 8 bytes at a time, adjusted
+	LoopCtrW = LineLength / 32 - 1;		// do 8 bytes at a time, adjusted
 
 	for (line = 0; line < (FieldHeight); ++line)
 	{
@@ -118,19 +126,65 @@ L3OK:
 		align 8
 QwordLoop:
 		}
+
+// 1st 4 qwords
 #define FSOFFS 0 * FSCOLSIZE				// following include needs an offset
 #include "DI_GreedyDeLoop.asm"
 		_asm
 		{
 		pavgb   mm1, mm4
-		movntq	qword ptr[edx], mm1  // avg clipped best with above line
+		movntq	qword ptr[edx], mm1         // avg clipped best with above line
 		pavgb   mm3, mm4
-		movntq	qword ptr[edi], mm3	// avg clipped best with below line
+		movq	SaveQword1, mm3	            // avg clipped best with below line, save for later
+        }
 
-		// bump ptrs and loop for next qword
-		lea		edx,[edx+8]				// bump CopyDest
-		lea		edi,[edi+8]				// bump WeaveDest
-		lea		esi,[esi+FSCOLSIZE]			
+// 2nd 4 qwords
+#undef  FSOFFS
+#define FSOFFS 1 * FSCOLSIZE				// following include needs an offset
+#include "DI_GreedyDeLoop.asm"
+		_asm
+		{
+		pavgb   mm1, mm4
+		movntq	qword ptr[edx+8], mm1       // avg clipped best with above line
+		pavgb   mm3, mm4
+		movq	SaveQword2, mm3	            // avg clipped best with below line, save for later
+        }
+// 3rd 4 qwords
+#undef  FSOFFS
+#define FSOFFS 2 * FSCOLSIZE				// following include needs an offset
+#include "DI_GreedyDeLoop.asm"
+		_asm
+		{
+		pavgb   mm1, mm4
+		movntq	qword ptr[edx+16], mm1      // avg clipped best with above line
+		pavgb   mm3, mm4
+		movq	SaveQword3, mm3	            // avg clipped best with below line, save for later
+        }
+
+// 4'th 4 qwords
+#undef  FSOFFS
+#define FSOFFS 3 * FSCOLSIZE				// following include needs an offset
+#include "DI_GreedyDeLoop.asm"
+		_asm
+		{
+        movq    mm5, SaveQword1             // get saved pixels
+        movq    mm6, SaveQword2             // get saved pixels
+        movq    mm7, SaveQword3             // get saved pixels
+        pavgb   mm1, mm4
+		movntq	qword ptr[edx+24], mm1      // avg clipped best with above line
+		pavgb   mm3, mm4
+		movntq	qword ptr[edi], mm5	        // store saved pixels
+		movntq	qword ptr[edi+8], mm6	    // store saved pixels
+		movntq	qword ptr[edi+16], mm7	    // store saved pixels
+		movntq	qword ptr[edi+24], mm3	        // avg clipped best with below line
+        }
+
+        _asm
+        {
+		// bump ptrs and loop for next 4 qword
+		lea		edx,[edx+32]				// bump CopyDest
+		lea		edi,[edi+32]				// bump WeaveDest
+		lea		esi,[esi+4*FSCOLSIZE]			
 		dec		LoopCtr
 		jg		QwordLoop			
 

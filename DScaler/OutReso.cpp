@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutReso.cpp,v 1.2 2003-02-06 09:59:40 laurentg Exp $
+// $Id: OutReso.cpp,v 1.3 2003-02-06 12:22:57 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2003/02/06 09:59:40  laurentg
+// Change resolution in full screen
+//
 // Revision 1.1  2003/02/06 00:58:53  laurentg
 // Change output resolution (first step)
 //
@@ -42,21 +45,42 @@ typedef struct
 	int		intResWidth;
 	int		intResHeight;
 	int		intResDepth;
+	int		intResFreq;
 } sResolution;
 
 
 static sResolution resSettings[] = {
-	{	FALSE,	"None",				0,		0,		0	},
-	{	TRUE,	"640x480 16bit",	640,	480,	16	},
-	{	TRUE,	"640x480 32bit",	640,	480,	32	},
-//	{	TRUE,	"720x480 16bit",	720,	480,	16	},
-//	{	TRUE,	"720x480 32bit",	720,	480,	32	},
-//	{	TRUE,	"720x576 16bit",	720,	576,	16	},
-//	{	TRUE,	"720x576 32bit",	720,	576,	32	},
-	{	TRUE,	"800x600 16bit",	800,	600,	16	},
-	{	TRUE,	"800x600 32bit",	800,	600,	32	},
-	{	TRUE,	"1024x768 16bit",	1024,	768,	16	},
-	{	TRUE,	"1024x768 32bit",	1024,	768,	32	},
+	{	FALSE,	"None",						0,		0,		0,	0	},
+	{	TRUE,	"640x480 16bit 60 Hz",		640,	480,	16,	60	},
+	{	TRUE,	"640x480 16bit 72 Hz",		640,	480,	16,	72	},
+	{	TRUE,	"640x480 16bit 75 Hz",		640,	480,	16,	75	},
+	{	TRUE,	"640x480 16bit 100 Hz",		640,	480,	16,	100	},
+	{	TRUE,	"640x480 16bit 120 Hz",		640,	480,	16,	120	},
+	{	TRUE,	"640x480 32bit 60 Hz",		640,	480,	32,	60	},
+	{	TRUE,	"640x480 32bit 72 Hz",		640,	480,	32,	72	},
+	{	TRUE,	"640x480 32bit 75 Hz",		640,	480,	32,	75	},
+	{	TRUE,	"640x480 32bit 100 Hz",		640,	480,	32,	100	},
+	{	TRUE,	"640x480 32bit 120 Hz",		640,	480,	32,	120	},
+	{	TRUE,	"800x600 16bit 60 Hz",		800,	600,	16,	60	},
+	{	TRUE,	"800x600 16bit 72 Hz",		800,	600,	16,	72	},
+	{	TRUE,	"800x600 16bit 75 Hz",		800,	600,	16,	75	},
+	{	TRUE,	"800x600 16bit 100 Hz",		800,	600,	16,	100	},
+	{	TRUE,	"800x600 16bit 120 Hz",		800,	600,	16,	120	},
+	{	TRUE,	"800x600 32bit 60 Hz",		800,	600,	32,	60	},
+	{	TRUE,	"800x600 32bit 72 Hz",		800,	600,	32,	72	},
+	{	TRUE,	"800x600 32bit 75 Hz",		800,	600,	32,	75	},
+	{	TRUE,	"800x600 32bit 100 Hz",		800,	600,	32,	100	},
+	{	TRUE,	"800x600 32bit 120 Hz",		800,	600,	32,	120	},
+	{	TRUE,	"1024x768 16bit 60 Hz",		1024,	768,	16,	60	},
+	{	TRUE,	"1024x768 16bit 72 Hz",		1024,	768,	16,	72	},
+	{	TRUE,	"1024x768 16bit 75 Hz",		1024,	768,	16,	75	},
+	{	TRUE,	"1024x768 16bit 100 Hz",	1024,	768,	16,	100	},
+	{	TRUE,	"1024x768 16bit 120 Hz",	1024,	768,	16,	120	},
+	{	TRUE,	"1024x768 32bit 60 Hz",		1024,	768,	32,	60	},
+	{	TRUE,	"1024x768 32bit 72 Hz",		1024,	768,	32,	72	},
+	{	TRUE,	"1024x768 32bit 75 Hz",		1024,	768,	32,	75	},
+	{	TRUE,	"1024x768 32bit 100 Hz",	1024,	768,	32,	100	},
+	{	TRUE,	"1024x768 32bit 120 Hz",	1024,	768,	32,	120	},
 };
 
 
@@ -125,7 +149,7 @@ void OutReso_Change(HWND hWnd, BOOL bUseRegistrySettings)
 	if (resSettings[OutputReso].bSwitchScreen)
 	{
         dm.dmSize = sizeof(DEVMODE);
-        dm.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT | DM_BITSPERPEL;
+        dm.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT | DM_BITSPERPEL | DM_DISPLAYFREQUENCY;
 		if (bUseRegistrySettings)
 		{
 	        EnumDisplaySettings(NULL, ENUM_REGISTRY_SETTINGS, &dm);
@@ -135,6 +159,7 @@ void OutReso_Change(HWND hWnd, BOOL bUseRegistrySettings)
 			dm.dmPelsWidth = resSettings[OutputReso].intResWidth;
 			dm.dmPelsHeight = resSettings[OutputReso].intResHeight;
 			dm.dmBitsPerPel = resSettings[OutputReso].intResDepth;
+			dm.dmDisplayFrequency = resSettings[OutputReso].intResFreq;
 		}
 		Overlay_Stop(hWnd);
 //        ShowWindow(hWnd, SW_HIDE);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_LinearCorrection.c,v 1.16 2002-01-18 14:17:48 robmuller Exp $
+// $Id: FLT_LinearCorrection.c,v 1.17 2002-06-01 09:38:12 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/01/18 14:17:48  robmuller
+// Initialization is now done if the filter is used for the first time. This saves 1 second startup time on slow machines.
+//
 // Revision 1.15  2001/11/26 15:27:19  adcockj
 // Changed filter structure
 //
@@ -476,11 +479,11 @@ BOOL LinearCorrection(TDeinterlaceInfo* pInfo)
 
     // If there is a change concerning the height or the width of the picture,
     // or if the internal tables have not been calculated before.
-    if ((pInfo->FrameWidth != PictureWidth) || (pInfo->FrameHeight != PictureHeight) ||
+    if ((pInfo->FrameWidth != PictureWidth) || (pInfo->FieldHeight != PictureHeight) ||
         !IsInitialised)
     {
         // Verify that the filter can manage this size of picture
-        if ((pInfo->FrameWidth > MAX_WIDTH) || (pInfo->FrameHeight > MAX_HEIGHT))
+        if ((pInfo->FrameWidth > MAX_WIDTH) || (pInfo->FieldHeight > MAX_HEIGHT))
         {
             return 1000;
         }
@@ -488,14 +491,14 @@ BOOL LinearCorrection(TDeinterlaceInfo* pInfo)
         IsInitialised = TRUE;
 
         // Update the internal tables of the filter
-        UpdNbPixelsPerLineTable(pInfo->FrameHeight, pInfo->FrameWidth);
+        UpdNbPixelsPerLineTable(pInfo->FieldHeight, pInfo->FrameWidth);
         UpdLinearFilterTables(pInfo->FrameWidth);
         PictureWidth = pInfo->FrameWidth;
-        PictureHeight = pInfo->FrameHeight;
+        PictureHeight = pInfo->FieldHeight;
     }
 
     // Update each line of the picture
-    for (i = 1 ; i < PictureHeight ; i += 2)
+    for (i = 1 ; i < PictureHeight ; i++)
     {
         if (NbPixelsPerLineTab[i] != PictureWidth || MaskType == MASK_STRETCH)
         {

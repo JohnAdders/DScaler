@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Audio.cpp,v 1.10 2002-10-16 21:59:05 atnak Exp $
+// $Id: SAA7134Card_Audio.cpp,v 1.11 2002-10-18 01:14:43 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/10/16 21:59:05  atnak
+// Nicam tweaks
+//
 // Revision 1.9  2002/10/16 11:37:59  atnak
 // added saa7130 support
 //
@@ -95,29 +98,29 @@ void CSAA7134Card::InitAudio()
     WriteByte(SAA7134_DEMODULATOR,              0x00);
     WriteByte(SAA7134_DCXO_IDENT_CTRL,          0x00);
     WriteByte(SAA7134_FM_DEEMPHASIS,            0x22);
-    WriteByte(SAA7134_STEREO_DAC_OUTPUT_SELECT, 0xA0);
+    WriteByte(SAA7134_STEREO_DAC_OUTPUT_SELECT, 0xA1);
 
     SetAudioFMDematrix(AUDIOFMDEMATRIX_AUTOSWITCHING);
 
     WriteByte(SAA7134_DSP_OUTPUT_SELECT,        0x80);
 
-    OrDataByte(SAA7134_ANALOG_IO_SELECT, SAA7134_ANALOG_IO_SELECT_VSEL1);
-    OrDataByte(SAA7134_ANALOG_IO_SELECT, SAA7134_ANALOG_IO_SELECT_VSEL2);
+    OrDataByte(SAA7134_ANALOG_IO_SELECT,        SAA7134_ANALOG_IO_SELECT_VSEL1);
+    OrDataByte(SAA7134_ANALOG_IO_SELECT,        SAA7134_ANALOG_IO_SELECT_VSEL2);
 
     // no audio capture through DMA
-    MaskDataDword(SAA7134_NUM_SAMPLES, 0x00, SAA7134_NUM_SAMPLES_MASK);
-    WriteByte(SAA7134_AUDIO_FORMAT_CTRL, 0xDD);
+    MaskDataDword(SAA7134_NUM_SAMPLES,          0x00, SAA7134_NUM_SAMPLES_MASK);
+    WriteByte(SAA7134_AUDIO_FORMAT_CTRL,        0xDD);
 
     SetAudioSource(AUDIOINPUTSOURCE_LINE1);
 
     // normal output gain
-    MaskDataByte(SAA7134_CHANNEL1_LEVEL, 0x00, 0x1F);
-    MaskDataByte(SAA7134_CHANNEL2_LEVEL, 0x00, 0x1F);
+    MaskDataByte(SAA7134_CHANNEL1_LEVEL,        0x00, 0x1F);
+    MaskDataByte(SAA7134_CHANNEL2_LEVEL,        0x00, 0x1F);
 
     // no I2S output
-    WriteByte(SAA7134_I2S_OUTPUT_FORMAT, 0x00);
-    WriteByte(SAA7134_I2S_OUTPUT_SELECT, 0x00);
-    WriteByte(SAA7134_I2S_OUTPUT_LEVEL, 0x00);
+    WriteByte(SAA7134_I2S_OUTPUT_FORMAT,        0x00);
+    WriteByte(SAA7134_I2S_OUTPUT_SELECT,        0x00);
+    WriteByte(SAA7134_I2S_OUTPUT_LEVEL,         0x00);
 
     SetAudioLockToVideo(FALSE);
 }
@@ -650,12 +653,16 @@ void CSAA7134Card::SetAudioChannel(eAudioChannel AudioChannel)
         // Disable automatic stereo adjustment
         AndDataByte(SAA7134_DSP_OUTPUT_SELECT, ~SAA7134_DSP_OUTPUT_SELECT_AASDMA);
 
+        // Selecting 00 will force FM/AM.  This means selecting mono
+        // when on NICAM will revert to ch1 FM
         MaskDataByte(SAA7134_STEREO_DAC_OUTPUT_SELECT, 0x00,
             SAA7134_STEREO_DAC_OUTPUT_SELECT_SDOS);    
     }
     else
     {
-        MaskDataByte(SAA7134_STEREO_DAC_OUTPUT_SELECT, 0x00,
+        // When AASDMA is on, SDOS 01 will select NICAM over
+        // FM only if it is available
+        MaskDataByte(SAA7134_STEREO_DAC_OUTPUT_SELECT, 0x01,
             SAA7134_STEREO_DAC_OUTPUT_SELECT_SDOS);
 
         // Enable automatic stereo adjustment and the card

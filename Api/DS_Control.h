@@ -95,21 +95,6 @@
 #define IDM_ASPECT_LETTERBOX            702
 #define IDM_ASPECT_ANAMORPHIC           703
 
-// Messages for the Source Aspect Ratio Menu
-#define IDM_SASPECT_0                   710
-#define IDM_SASPECT_133                 711
-#define IDM_SASPECT_166                 712
-#define IDM_SASPECT_178                 713
-#define IDM_SASPECT_185                 714
-#define IDM_SASPECT_200                 715
-#define IDM_SASPECT_235                 716
-#define IDM_SASPECT_166A                720
-#define IDM_SASPECT_178A                721
-#define IDM_SASPECT_185A                722
-#define IDM_SASPECT_200A                723
-#define IDM_SASPECT_235A                724
-#define IDM_SASPECT_COMPUTE             731
-
 // Messages for the Video Format Menu
 #define IDM_TYPEFORMAT_PAL              1120
 #define IDM_TYPEFORMAT_NTSC             1121
@@ -118,27 +103,6 @@
 #define IDM_TYPEFORMAT_PAL_N            1124
 #define IDM_TYPEFORMAT_NTSC_JAPAN       1125
 #define IDM_TYPEFORMAT_PAL60            1126
-
-// Messages for the Input Select Menu
-#define IDM_SOURCE_TUNER                1089
-#define IDM_SOURCE_COMPOSITE            1090
-#define IDM_SOURCE_SVIDEO               1091
-#define IDM_SOURCE_OTHER1               1092
-#define IDM_SOURCE_OTHER2               1093
-#define IDM_SOURCE_COMPVIASVIDEO        1094
-#define IDM_SOURCE_CCIR656_1            1095
-#define IDM_SOURCE_CCIR656_2            1096
-#define IDM_SOURCE_CCIR656_3            1097
-#define IDM_SOURCE_CCIR656_4            1098
-
-// Messages for the Screen Aspect Ratio Menu
-#define IDM_TASPECT_0                   740
-#define IDM_TASPECT_133                 741
-#define IDM_TASPECT_166                 742
-#define IDM_TASPECT_178                 743
-#define IDM_TASPECT_185                 744
-#define IDM_TASPECT_200                 745
-#define IDM_TASPECT_235                 746
 
 // Indexes for the Video Deinterlace Algorithms
 // to select a deinterlace method send a WM_COMMAND message
@@ -350,7 +314,7 @@ typedef enum
 	WAITFORFLIP,
 	DOACCURATEFLIPS,
 	SLEEPINTERVAL,
-	SLLEPSKIPFIELDS,
+	SLEEPSKIPFIELDS,
 	AUTODETECT,
 	PULLDOWNMODE_DEPRECATED,
 	REFRESHRATE,

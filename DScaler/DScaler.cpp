@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.87 2001-11-17 18:15:57 adcockj Exp $
+// $Id: DScaler.cpp,v 1.88 2001-11-19 14:02:48 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.87  2001/11/17 18:15:57  adcockj
+// Bugfixes (including very silly performance bug)
+//
 // Revision 1.86  2001/11/14 11:28:03  adcockj
 // Bug fixes
 //
@@ -1767,8 +1770,14 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 SetVTPage(a, 0, false, false);
             }
         }
+        else if(bShowMenu == FALSE)
+        {
+            // pretend we are hitting the caption bar
+            // this will allow the user to move the window
+            // when the menu and title bar are hidden
+            return DefWindowProc(hWnd, WM_NCLBUTTONDOWN, HTCAPTION, lParam);
+        }
         break;
-
 
     case WM_MOUSEMOVE:
         if (VTState != VT_OFF) 
@@ -1904,6 +1913,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             return FALSE;
             break;
         }
+        break;
 
     case WM_SIZE:
         StatusBar_Adjust(hWnd);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScalerApp.cpp,v 1.7 2001-11-14 11:28:03 adcockj Exp $
+// $Id: DScalerApp.cpp,v 1.8 2001-11-19 14:02:48 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2001/11/14 11:28:03  adcockj
+// Bug fixes
+//
 // Revision 1.6  2001/11/09 12:42:07  adcockj
 // Separated most resources out into separate dll ready for localization
 //
@@ -89,11 +92,14 @@ BOOL CDScalerApp::InitInstance()
     //afxMemDF=allocMemDF|checkAlwaysMemDF|delayFreeMemDF;
 #endif
 
+// changes to allow copmilation under VC 7.0 added by IDLSOFT
+#if _MFC_VER<0x0700
 #ifdef _AFXDLL
     Enable3dControls();         // Call this when using MFC in a shared DLL
 #else
     Enable3dControlsStatic();   // Call this when linking to MFC statically
 #endif
+#endif    
 
     hResourceInst = LoadLibrary("DScalerRes.dll");
     if(hResourceInst == NULL)
@@ -112,7 +118,13 @@ BOOL CDScalerApp::InitInstance()
     SetRegistryKey(_T("DScaler"));
 
     // call the real winmain
-    WinMainOld(m_hInstance, m_hPrevInstance, m_lpCmdLine,m_nCmdShow);
+
+// changes to allow copmilation under VC 7.0 added by IDLSOFT
+#if _MFC_VER<0x0700
+	WinMainOld(m_hInstance,m_hPrevInstance,m_lpCmdLine,m_nCmdShow);
+#else
+	WinMainOld(m_hInstance,NULL,m_lpCmdLine,m_nCmdShow);
+#endif
 
     AfxSetResourceHandle(m_hInstance);
     FreeLibrary(hResourceInst);

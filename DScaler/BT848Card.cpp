@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.41 2003-11-13 17:32:48 adcockj Exp $
+// $Id: BT848Card.cpp,v 1.42 2003-11-14 09:37:47 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.41  2003/11/13 17:32:48  adcockj
+// Added BT8x8 register debugger
+//
 // Revision 1.40  2003/11/03 17:29:47  adcockj
 // Fixes for new PMS deluxe
 //
@@ -1256,6 +1259,16 @@ BOOL APIENTRY CBT848Card::RegisterEditProc(HWND hDlg, UINT message, UINT wParam,
         AddRegister(BT848_GPIO_DATA);
         AddRegister(BT848_GPIO_DATA_HIBYTE);
         AddRegister(BT848_TBLG);
+        if(pThis->m_SAA7118 != NULL)
+        {
+            for(int i(0); i < 0xFF; ++i)
+            {
+                char RegName[20];
+                sprintf(RegName, "SAA7118_%02x",i);
+                long Index = ComboBox_AddString(GetDlgItem(hDlg, IDC_REGISTERSELECT), RegName); 
+                ComboBox_SetItemData(GetDlgItem(hDlg, IDC_REGISTERSELECT), Index, i + 0x1000);
+            }
+        }
         return TRUE;
         break;
 
@@ -1282,7 +1295,17 @@ BOOL APIENTRY CBT848Card::RegisterEditProc(HWND hDlg, UINT message, UINT wParam,
             {
                 RegValue &= ~(1 << (LOWORD(wParam) - IDC_BIT0));
             }
-            pThis->WriteDword(dwAddress, RegValue);
+            if(RegValue < 0x1000)
+            {
+                pThis->WriteDword(dwAddress, RegValue);
+            }
+            else
+            {
+                if(pThis->m_SAA7118 != NULL)
+                {
+                    pThis->m_SAA7118->SetRegister(RegValue - 0x1000, RegValue);
+                }
+            }
             break;
 
         case IDC_REGISTERSELECT:
@@ -1292,7 +1315,17 @@ BOOL APIENTRY CBT848Card::RegisterEditProc(HWND hDlg, UINT message, UINT wParam,
                 if(Index != -1)
                 {
                     dwAddress = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_REGISTERSELECT), Index);
-                    RegValue = pThis->ReadByte(dwAddress);
+                    if(RegValue < 0x1000)
+                    {
+                        RegValue = pThis->ReadByte(dwAddress);
+                    }
+                    else
+                    {
+                        if(pThis->m_SAA7118 != NULL)
+                        {
+                            RegValue = pThis->m_SAA7118->GetRegister(RegValue - 0x1000);
+                        }
+                    }
                     BYTE TempRegValue(RegValue);
                     for(int i(0); i < 8; ++i)
                     {

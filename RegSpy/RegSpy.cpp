@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: RegSpy.cpp,v 1.8 2002-12-10 10:15:33 atnak Exp $
+// $Id: RegSpy.cpp,v 1.9 2002-12-11 01:01:08 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/12/10 10:15:33  atnak
+// Fixed binary display order, changed some ini stuff
+//
 // Revision 1.7  2002/12/06 00:28:40  atnak
 // Replaced CreateDIBSection() with CreateCompatibleBitmap()
 //
@@ -399,6 +402,62 @@ void __cdecl SAA7134RegSpy(TRegister** hRegisterListTail)
 {
     AddDWRegister(SAA7134_GPIO_GPMODE);
     AddDWRegister(SAA7134_GPIO_GPSTATUS);
+    AddBRegister(SAA7134_ANALOG_IN_CTRL1);      // Video input pin
+    AddBRegister(SAA7134_ANALOG_IO_SELECT);     // Audio input pin
+    AddDWRegister(SAA7134_AUDIO_CLOCK);         // Audio clock crystal
+
+    // != 0 means card may have CCIR656
+    AddDWRegister(SAA7134_VIDEO_PORT_CTRL0);    // CCIR656 video out
+    AddDWRegister(SAA7134_VIDEO_PORT_CTRL4);    // CCIR656 video out
+    AddBRegister(SAA7134_VIDEO_PORT_CTRL8);     // CCIR656 video out
+    
+    // != 0 means card may have i2s Audio
+    AddBRegister(SAA7134_I2S_OUTPUT_SELECT);    // i2s Audio
+    AddBRegister(SAA7134_I2S_OUTPUT_FORMAT);    // i2s Audio
+    AddBRegister(SAA7134_I2S_OUTPUT_LEVEL);     // i2s Audio
+    AddBRegister(SAA7134_I2S_AUDIO_OUTPUT);     // i2s Audio
+    
+    // != 0 means card may have DTV/DVB TS
+    AddBRegister(SAA7134_TS_PARALLEL);          // Transport stream
+    AddBRegister(SAA7134_TS_PARALLEL_SERIAL);   // Transport stream
+    AddBRegister(SAA7134_TS_SERIAL0);           // Transport stream
+    AddBRegister(SAA7134_TS_SERIAL1);           // Transport stream
+    AddBRegister(SAA7134_TS_DMA0);              // Transport stream
+    AddBRegister(SAA7134_TS_DMA1);              // Transport stream
+    AddBRegister(SAA7134_TS_DMA2);              // Transport stream
+
+    AddBRegister(SAA7134_SPECIAL_MODE);         // Propagated reset
+}
+
+
+void __cdecl SAA7130RegSpy(TRegister** hRegisterListTail)
+{
+    AddDWRegister(SAA7134_GPIO_GPMODE);
+    AddDWRegister(SAA7134_GPIO_GPSTATUS);
+    AddBRegister(SAA7134_ANALOG_IN_CTRL1);      // Video input pin
+    AddBRegister(SAA7134_ANALOG_IO_SELECT);     // Audio input pin
+
+    // != 0 means card may have CCIR656
+    AddDWRegister(SAA7134_VIDEO_PORT_CTRL0);    // CCIR656 video out
+    AddDWRegister(SAA7134_VIDEO_PORT_CTRL4);    // CCIR656 video out
+    AddBRegister(SAA7134_VIDEO_PORT_CTRL8);     // CCIR656 video out
+    
+    // != 0 means card may have i2s Audio
+    AddBRegister(SAA7134_I2S_OUTPUT_SELECT);    // i2s Audio
+    AddBRegister(SAA7134_I2S_OUTPUT_FORMAT);    // i2s Audio
+    AddBRegister(SAA7134_I2S_OUTPUT_LEVEL);     // i2s Audio
+    AddBRegister(SAA7134_I2S_AUDIO_OUTPUT);     // i2s Audio
+    
+    // != 0 means card may have DTV/DVB TS
+    AddBRegister(SAA7134_TS_PARALLEL);          // Transport stream
+    AddBRegister(SAA7134_TS_PARALLEL_SERIAL);   // Transport stream
+    AddBRegister(SAA7134_TS_SERIAL0);           // Transport stream
+    AddBRegister(SAA7134_TS_SERIAL1);           // Transport stream
+    AddBRegister(SAA7134_TS_DMA0);              // Transport stream
+    AddBRegister(SAA7134_TS_DMA1);              // Transport stream
+    AddBRegister(SAA7134_TS_DMA2);              // Transport stream
+
+    AddBRegister(SAA7134_SPECIAL_MODE);         // Propagated reset
 }
 
 
@@ -447,6 +506,12 @@ TChip Chips[] =
         0x1131,
         0x7134,
         SAA7134RegSpy,
+    },
+    {
+        "SAA7130",
+        0x1131,
+        0x7130,
+        SAA7130RegSpy,
     },
 };
 
@@ -1758,10 +1823,7 @@ BOOL APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, UINT wParam, LONG lParam)
             {
                 bResetLogState = TRUE;
                 SetDlgItemText(hDlg, IDC_LOGSTATE, "Reset States");
-                if(nLogState == 0)
-                {
-                    EnableWindow(hLogState, FALSE);
-                }
+                EnableWindow(hLogState, nLogState != 0);
             }
         }
         break;
@@ -1775,10 +1837,7 @@ BOOL APIENTRY MainWindowProc(HWND hDlg, UINT uMsg, UINT wParam, LONG lParam)
                 if(nLogState > 0)
                 {
                     sprintf(szBuffer, "Log State (%d)", nLogState);
-                    if(nLogState != MAX_LOG_STATES)
-                    {
-                        EnableWindow(hLogState, TRUE);
-                    }
+                    EnableWindow(hLogState, nLogState != MAX_LOG_STATES);
                 }
                 else
                 {

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.148 2002-04-24 19:10:38 tobbej Exp $
+// $Id: DScaler.cpp,v 1.149 2002-04-27 16:02:59 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.148  2002/04/24 19:10:38  tobbej
+// test of new tree based setting dialog
+//
 // Revision 1.147  2002/04/15 22:50:08  laurentg
 // Change again the available formats for still saving
 // Automatic switch to "square pixels" AR mode when needed
@@ -3602,6 +3605,12 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
         FALSE, 0, 1, 1, 1,
         NULL,
         "MainWindow", "KeyboardLock", KeyboardLock_OnChange,
+    },
+    {
+        "Initial source", SLIDER, 0, (long*)&InitSourceIdx,
+        -1, -1, 100, 1, 1,
+        NULL,
+        "Show", "InitialSource", NULL,
     },
 };
 

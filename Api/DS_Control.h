@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.53 2002-04-07 10:37:53 adcockj Exp $
+// $Id: DS_Control.h,v 1.54 2002-04-27 16:06:15 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.53  2002/04/07 10:37:53  adcockj
+// Made audio source work per input
+//
 // Revision 1.52  2002/02/27 20:41:08  laurentg
 // Still settings
 //
@@ -442,6 +445,7 @@ typedef enum
     ALWAYSONTOPFULL,
     SHOWCRASHDIALOG,
     LOCKKEYBOARD,
+    INITIALSOURCE,
     DSCALER_SETTING_LASTONE,
 } DSCALER_SETTING;
 

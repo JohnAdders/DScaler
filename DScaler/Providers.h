@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.h,v 1.11 2002-04-27 00:38:33 laurentg Exp $
+// $Id: Providers.h,v 1.12 2002-04-27 16:02:59 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -20,6 +20,8 @@
 #define __PROVIDERS_H___
 
 #include "Source.h"
+
+extern long InitSourceIdx;
 
 int Providers_Load(HMENU hMenu);
 void Providers_Unload();

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.34 2002-04-27 11:21:04 tobbej Exp $
+// $Id: Providers.cpp,v 1.35 2002-04-27 16:02:59 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.34  2002/04/27 11:21:04  tobbej
+// fixed crashing, dont use c style malloc to allocate memory for structs with c++ members
+//
 // Revision 1.33  2002/04/27 00:38:33  laurentg
 // New default source (still) used at DScaler startup or when there is no more source accessible
 //
@@ -174,6 +177,7 @@ static CBT848Provider* BT848Provider = NULL;
 static CStillProvider* StillProvider = NULL;
 static long CurrentSource = 0;
 static long DefSourceIdx = -1;
+long InitSourceIdx = -1;
 
 int Providers_Load(HMENU hMenu)
 {
@@ -181,7 +185,7 @@ int Providers_Load(HMENU hMenu)
     TSource* Source;
     CSource* DefaultSource = NULL;
 
-    ModifyMenu(hMenu, 5, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT)CreatePopupMenu(), "&Sources");
+//    ModifyMenu(hMenu, 5, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT)CreatePopupMenu(), "&Sources");
     HMENU hSubMenu = GetSubMenu(hMenu, 5);
 
     Providers_Unload();
@@ -262,12 +266,19 @@ int Providers_Load(HMENU hMenu)
 
     DefSourceIdx = Providers_GetSourceIndex(DefaultSource);
 
+    // The default source is not listed in the menu
     if (DefSourceIdx >= 0 && DefSourceIdx < Sources.size())
     {
-        // The default source is not listed in the menu
         Source = *(Sources.begin() + DefSourceIdx);
         Source->DisplayInMenu = FALSE;
+    }
 
+    if (InitSourceIdx >= 0 && InitSourceIdx < Sources.size() && Sources[InitSourceIdx]->Object->IsAccessAllowed())
+    {
+        CurrentSource = InitSourceIdx;
+    }
+    else if (DefSourceIdx >= 0 && DefSourceIdx < Sources.size())
+    {
         CurrentSource = DefSourceIdx;
     }
     else
@@ -438,6 +449,11 @@ BOOL Providers_HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             Start_Capture();
             return TRUE;
         }
+    }
+    else if (LOWORD(wParam) == IDM_SOURCE_INITIAL)
+    {
+        InitSourceIdx = CurrentSource;
+        return TRUE;
     }
     else if (LOWORD(wParam) == IDM_OPEN_FILE)
     {

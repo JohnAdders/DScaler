@@ -983,7 +983,11 @@ BEGIN
         MENUITEM "&Keyboard lock\tCtrl+Shift+L", IDM_KEYBOARDLOCK
         MENUITEM "Filter S&ettings...",         IDM_SETTINGS_FILTERSETTINGS
     END
-    MENUITEM "&Sources",                    IDM_SHOW_SCREEN
+    POPUP "&Sources"
+    BEGIN
+        MENUITEM "Set as &initial source",      IDM_SOURCE_INITIAL
+        MENUITEM SEPARATOR
+    END
     MENUITEM "Holder",                      IDM_SHOW_SCREEN
     POPUP "&Datacasting"
     BEGIN

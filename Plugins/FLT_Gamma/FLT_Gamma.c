@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_Gamma.c,v 1.8 2001-07-13 16:13:33 adcockj Exp $
+// $Id: FLT_Gamma.c,v 1.9 2001-10-17 11:45:17 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2001/07/13 16:13:33  adcockj
+// Added CVS tags and removed tabs
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #include "windows.h"
@@ -95,7 +98,11 @@ double GetGammaAdjustedValue(double Input, double Gamma)
     }
     else
     {
-        return pow(Input, Gamma);
+		// make gamma consistent with
+		// industry standard
+		// above 1 is brighter
+		// below 1 is darker
+        return pow(Input, 1.0 / Gamma);
     }
 }
 
@@ -178,13 +185,13 @@ SETTING FLT_GammaSettings[FLT_GAMMA_SETTING_LASTONE] =
     },
     {
         "Black Level", SLIDER, 0, &BlackLevel,
-        0, 0, 255, 10, 1000,
+        0, 0, 255, 5, 1,
         NULL,
         "GammaFilter", "BlackLevel", BlackLevel_OnChange,
     },
     {
         "White Level", SLIDER, 0, &WhiteLevel,
-        255, 0, 255, 10, 1000,
+        255, 0, 255, 5, 1,
         NULL,
         "GammaFilter", "WhiteLevel", WhiteLevel_OnChange,
     },

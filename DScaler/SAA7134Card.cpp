@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.cpp,v 1.34 2003-02-06 21:30:43 ittarnavsky Exp $
+// $Id: SAA7134Card.cpp,v 1.35 2003-03-02 17:03:48 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.34  2003/02/06 21:30:43  ittarnavsky
+// changes to support primetv 7133
+//
 // Revision 1.33  2003/01/28 07:22:28  atnak
 // Visual changes
 //
@@ -294,17 +297,19 @@ void CSAA7134Card::ManageMyState()
     ManageByte(SAA7134_CLIP_GREEN);
     ManageByte(SAA7134_CLIP_BLUE);
 
+    /* We don't really need to save these
     for (i = 0; i < 16; i++)
     {
-        SAA7134_CLIP_H_ACTIVE(i);
-        SAA7134_CLIP_H_NOIDEA(i);
-        SAA7134_CLIP_H_POS(i);
-        SAA7134_CLIP_H_POS_HIBYTE(i);
-        SAA7134_CLIP_V_ACTIVE(i);
-        SAA7134_CLIP_V_NOIDEA(i);
-        SAA7134_CLIP_V_POS(i);
-        SAA7134_CLIP_V_POS_HIBYTE(i);
+        ManageByte(SAA7134_CLIP_H_ACTIVE(i));
+        ManageByte(SAA7134_CLIP_H_NOIDEA(i));
+        ManageByte(SAA7134_CLIP_H_POS(i));
+        ManageByte(SAA7134_CLIP_H_POS_HIBYTE(i));
+        ManageByte(SAA7134_CLIP_V_ACTIVE(i));
+        ManageByte(SAA7134_CLIP_V_NOIDEA(i));
+        ManageByte(SAA7134_CLIP_V_POS(i));
+        ManageByte(SAA7134_CLIP_V_POS_HIBYTE(i));
     }
+    */
 
     ManageByte(SAA7134_DCXO_IDENT_CTRL);
     ManageByte(SAA7134_DEMODULATOR);
@@ -989,6 +994,7 @@ BYTE CSAA7134Card::GetI2CData()
 {
     return ReadByte(SAA7134_I2C_DATA);
 }
+
 
 BOOL APIENTRY CSAA7134Card::ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {

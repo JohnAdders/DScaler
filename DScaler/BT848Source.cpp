@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.124 2003-06-02 15:30:11 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.125 2003-06-14 14:29:21 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.124  2003/06/02 15:30:11  adcockj
+// Fix for bdelay problems
+//
 // Revision 1.123  2003/05/30 12:21:19  laurentg
 // Don't forget to notify video format change if necessary when switching source and video input of destination source is tuner
 //
@@ -544,12 +547,20 @@ void CBT848Source::SetSourceAsCurrent()
     {
         Channel_Reset();
     }
+	else
+	{
+		// We read what is the video format saved for this video input
+	    SettingsMaster->LoadOneSetting(m_VideoFormat);
+	}
 
     // tell the world if the format has changed
     if(OldFormat != m_VideoFormat->GetValue())
     {
         EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldFormat, m_VideoFormat->GetValue());
         EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldFormat, m_VideoFormat->GetValue());
+
+		// We save the video format attached to this video input
+	    SettingsMaster->WriteOneSetting(m_VideoFormat);
     }
 
     // make sure the defaults are correct
@@ -604,6 +615,7 @@ void CBT848Source::OnEvent(CEventObject *pEventObject, eEventType Event, long Ol
 
 void CBT848Source::CreateSettings(LPCSTR IniSection)
 {
+    CSettingGroup *pVideoFormatGroup = GetSettingsGroup("BT848 - Video Format", SETTING_BY_INPUT, TRUE);
     CSettingGroup *pVideoGroup = GetSettingsGroup("BT848 - Video", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, TRUE);
     CSettingGroup *pAudioGroup = GetSettingsGroup("BT848 - Audio", SETTING_BY_CHANNEL);
     CSettingGroup *pAudioStandard = GetSettingsGroup("BT848 - Audio Standard", SETTING_BY_CHANNEL);
@@ -714,7 +726,7 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     m_VideoSource = new CVideoSourceSetting(this, "Video Source", 0, 0, 6, IniSection);
     m_Settings.push_back(m_VideoSource);
 
-    m_VideoFormat = new CVideoFormatSetting(this, "Video Format", VIDEOFORMAT_NTSC_M, 0, VIDEOFORMAT_LASTONE - 1, IniSection);
+    m_VideoFormat = new CVideoFormatSetting(this, "Video Format", VIDEOFORMAT_NTSC_M, 0, VIDEOFORMAT_LASTONE - 1, IniSection, pVideoFormatGroup);
     m_Settings.push_back(m_VideoFormat);
 
     m_HDelay = new CHDelaySetting(this, "Horizontal Delay Adjust", 0, -16, 16, IniSection, pAdvancedTimingGroup);
@@ -1502,12 +1514,20 @@ void CBT848Source::VideoSourceOnChange(long NewValue, long OldValue)
     {
         Channel_SetCurrent();
     }
+	else
+	{
+		// We read what is the video format saved for this video input
+	    SettingsMaster->LoadOneSetting(m_VideoFormat);
+	}
 
     // tell the world if the format has changed
     if(OldFormat != m_VideoFormat->GetValue())
     {
         EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldFormat, m_VideoFormat->GetValue());
         EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldFormat, m_VideoFormat->GetValue());
+
+		// We save the video format attached to this video input
+	    SettingsMaster->WriteOneSetting(m_VideoFormat);
     }
 
     // make sure the defaults are correct

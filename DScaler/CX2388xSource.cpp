@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.51 2003-05-30 12:21:20 laurentg Exp $
+// $Id: CX2388xSource.cpp,v 1.52 2003-06-14 14:29:21 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.51  2003/05/30 12:21:20  laurentg
+// Don't forget to notify video format change if necessary when switching source and video input of destination source is tuner
+//
 // Revision 1.50  2003/05/29 17:07:27  laurentg
 // no message
 //
@@ -397,12 +400,20 @@ void CCX2388xSource::SetSourceAsCurrent()
     {
         Channel_Reset();
     }
+	else
+	{
+		// We read what is the video format saved for this video input
+	    SettingsMaster->LoadOneSetting(m_VideoFormat);
+	}
 
     // tell the world if the format has changed
     if(OldFormat != m_VideoFormat->GetValue())
     {
         EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldFormat, m_VideoFormat->GetValue());
         EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldFormat, m_VideoFormat->GetValue());
+
+		// We save the video format attached to this video input
+	    SettingsMaster->WriteOneSetting(m_VideoFormat);
     }
 
     // make sure the defaults are correct
@@ -447,6 +458,7 @@ void CCX2388xSource::SetupPictureStructures()
 
 void CCX2388xSource::CreateSettings(LPCSTR IniSection)
 {
+    CSettingGroup *pVideoFormatGroup = GetSettingsGroup("CX2388x - Video Format", SETTING_BY_INPUT, TRUE);
     CSettingGroup *pVideoGroup = GetSettingsGroup("CX2388x - Video", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, TRUE);
     CSettingGroup *pH3DGroup = GetSettingsGroup("CX2388x - H3D", SETTING_BY_FORMAT | SETTING_BY_INPUT);
     CSettingGroup *pAudioGroup = GetSettingsGroup("CX2388x - Audio", SETTING_BY_CHANNEL, FALSE);
@@ -475,7 +487,7 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
     m_VideoSource = new CVideoSourceSetting(this, "Video Source", 0, 0, 7, IniSection);
     m_Settings.push_back(m_VideoSource);
 
-    m_VideoFormat = new CVideoFormatSetting(this, "Video Format", VIDEOFORMAT_NTSC_M, 0, VIDEOFORMAT_LASTONE - 1, IniSection);
+    m_VideoFormat = new CVideoFormatSetting(this, "Video Format", VIDEOFORMAT_NTSC_M, 0, VIDEOFORMAT_LASTONE - 1, IniSection, pVideoFormatGroup);
     m_Settings.push_back(m_VideoFormat);
 
     m_CardType = new CSliderSetting("Card Type", CX2388xCARD_UNKNOWN, CX2388xCARD_UNKNOWN, CX2388xCARD_LASTONE - 1, IniSection, "CardType");
@@ -1456,12 +1468,20 @@ void CCX2388xSource::VideoSourceOnChange(long NewValue, long OldValue)
     {
         Channel_SetCurrent();
     }
+	else
+	{
+		// We read what is the video format saved for this video input
+	    SettingsMaster->LoadOneSetting(m_VideoFormat);
+	}
 
     // tell the world if the format has changed
     if(OldFormat != m_VideoFormat->GetValue())
     {
         EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldFormat, m_VideoFormat->GetValue());
         EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldFormat, m_VideoFormat->GetValue());
+
+		// We save the video format attached to this video input
+	    SettingsMaster->WriteOneSetting(m_VideoFormat);
     }
 
     // make sure the defaults are correct

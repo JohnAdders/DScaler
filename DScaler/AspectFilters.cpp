@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectFilters.cpp,v 1.26 2002-10-31 14:03:33 adcockj Exp $
+// $Id: AspectFilters.cpp,v 1.27 2002-11-03 18:38:32 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2002/10/31 14:03:33  adcockj
+// Added Analogue blanking option to aspect code
+//
 // Revision 1.25  2002/10/11 13:40:52  kooiman
 // Changed bounding screen rectangle to virtual screen. Maybe the overlay doesn't get clipped on multi-monitor setups.
 //
@@ -214,19 +217,25 @@ CAnalogueBlankingFilter::CAnalogueBlankingFilter(int SourceWidth, int SourceHeig
     {
         m_TopShift = 1;
         m_BottomShift = 1;
-        m_LeftShift = SourceWidth * 3 / 720;
-        m_LeftShift = SourceWidth * 3 / 720;
+        m_LeftShift = SourceWidth * 2 / 720;
+        m_RightShift = SourceWidth * 4 / 720;
     }
     else if(SourceHeight == 576)
     {
         m_TopShift = 1;
         m_BottomShift = 1;
-        m_LeftShift = SourceWidth * 9 / 720;
-        m_RightShift = SourceWidth * 9 / 720;
+        m_LeftShift = SourceWidth * 8 / 720;
+        m_RightShift = SourceWidth * 10 / 720;
     }
     else
     {
-        ; // do nothing
+        // do nothing to image if we're not an expected height
+        // since we are probably in a still or some other source 
+        // were analogue blanking doesn't apply
+        m_TopShift = 0;
+        m_BottomShift = 0;
+        m_LeftShift = 0;
+        m_RightShift = 0;
     }
 }
 

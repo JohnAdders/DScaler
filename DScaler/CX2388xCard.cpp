@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.6 2002-11-03 15:54:10 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.7 2002-11-03 18:38:32 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/11/03 15:54:10  adcockj
+// Added cx2388x register tweaker support
+//
 // Revision 1.5  2002/10/31 15:55:46  adcockj
 // Moved audio code from Connexant dTV version
 //
@@ -467,14 +470,6 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         WriteDword(CX2388X_VBI_SIZE, GetTVFormat(TVFormat)->VBIPacketSize);
 
 	    CurrentX = 720;
-        if (CurrentY == 576)
-        {
-			WriteDword(CX2388X_AGC_BURST_DELAY, 0x6D6b);
-        }
-        else
-        {
-			WriteDword(CX2388X_AGC_BURST_DELAY, 0x6D63);
-		}
 
         double PLL = SetPLL(27.0);
         SetSampleRateConverter(PLL);
@@ -482,6 +477,10 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         // Setup correct format
 		DWORD VideoInput = ReadDword(CX2388X_VIDEO_INPUT);
 		VideoInput &= 0xfffbfff0;
+        VideoInput |= (1 << 13) | (1 << 12) | (1 << 10);
+
+        // start with default values except turn of CFILT
+        DWORD FilterSetup(1 << 19);
 
 		if(m_TVCards[m_CardType].Inputs[nInput].InputType == INPUTTYPE_SVIDEO)
 		{
@@ -493,6 +492,14 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
 			// PAL Invert Phase - off
 			// Coring - off
 			Format2HComb = 0x08;
+
+            // switch off luma notch
+            // Luma notch is 1 = off
+            FilterSetup |= CX2388X_FILTER_LNOTCH;
+            // turn off Comb Filter
+            FilterSetup |= 3 << 5;
+            // Disable luma dec
+            FilterSetup |= 1 << 12;
 		}
 		else
 		{
@@ -506,6 +513,7 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
 			Format2HComb = 0x181f0008;
 			VideoInput |= 0x4000;
 		}
+
 
 		if(m_TVCards[m_CardType].Inputs[nInput].InputType == INPUTTYPE_TUNER)
 		{
@@ -524,27 +532,27 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         case VIDEOFORMAT_PAL_H:
         case VIDEOFORMAT_PAL_I:
             VideoInput |= VideoFormatPALBDGHI;
-            HTotal = 864;
+            HTotal = HLNotchFilter135PAL | 864;
             Format2HComb |= (1 << 26);
             break;
         case VIDEOFORMAT_PAL_N:
             VideoInput |= VideoFormatPALN;
-            HTotal = 864;
+            HTotal = HLNotchFilter135PAL | 864;
             Format2HComb |= (1 << 26);
             break;
         case VIDEOFORMAT_PAL_M:
             VideoInput |= VideoFormatPALM;
-            HTotal = 858;
+            HTotal = HLNotchFilter135NTSC | 858;
             Format2HComb |= (1 << 26);
             break;
         case VIDEOFORMAT_PAL_60:
             VideoInput |= VideoFormatPAL60;
-            HTotal = 858;
+            HTotal = HLNotchFilter135NTSC | 858;
             Format2HComb |= (1 << 26);
             break;
         case VIDEOFORMAT_PAL_N_COMBO:
             VideoInput |= VideoFormatPALNC;
-            HTotal = 864;
+            HTotal = HLNotchFilter135PAL | 864;
             Format2HComb |= (1 << 26);
             break;
         case VIDEOFORMAT_SECAM_B:
@@ -556,40 +564,46 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         case VIDEOFORMAT_SECAM_L:
         case VIDEOFORMAT_SECAM_L1:
             VideoInput |= VideoFormatSECAM;
-            HTotal = 864;
+            HTotal = HLNotchFilter135PAL | 864;
+            // test for Laurent
+            // other stuff that may be required
+		    // Comments from Laurent
+		    // Bits 12, 16, and 18 must be set to 1 for SECAM
+		    // It seems to work even for PAL with these bits
+		    // TODO : check that they must be set for all the video formats
+            // QCIF HFilter
+            FilterSetup |= (1<<11);
+            // 29 Tap first chroma demod
+            FilterSetup |= (1<<15);
+			// Laurent : very important for Secam
+            FilterSetup |= (1<<17);
             break;
         case VIDEOFORMAT_NTSC_M:
             VideoInput |= VideoFormatNTSC;
-            HTotal = 858;
+            HTotal = HLNotchFilter135NTSC | 858;
             break;
         case VIDEOFORMAT_NTSC_M_Japan:
             VideoInput |= VideoFormatNTSCJapan;
-			HTotal = 858;
+			HTotal = HLNotchFilter135NTSC | 858;
             break;
         case VIDEOFORMAT_NTSC_50:
             VideoInput |= VideoFormatNTSC443;
-            HTotal = 864;
+            HTotal = HLNotchFilter135PAL | 864;
             break;
         default:
             VideoInput |= VideoFormatAuto;
-            HTotal = 858;
+            HTotal = HLNotchFilter135NTSC | 858;
             break;
         }
 
         WriteDword(CX2388X_VIDEO_INPUT, VideoInput);
         WriteDword(CX2388X_PIXEL_CNT_NOTCH, HTotal);
         WriteDword(CX2388X_FORMAT_2HCOMB, Format2HComb);
+        WriteDword(CX2388X_FILTER_EVEN, FilterSetup);
+        WriteDword(CX2388X_FILTER_ODD, FilterSetup);
 
         // set up subcarrier frequency
         DWORD RegValue = (DWORD)(((8.0 * GetTVFormat(TVFormat)->Fsc) / PLL) * (double)(1<<22));
-		if (CurrentY == 576)
-		{
-			//RegValue = (DWORD)(((35.46895) / 27.0) * (double)(1<<22) + 0.5);
-		}
-		else
-		{
-			RegValue = (DWORD)(((28.63636) / PLL) * (double)(1<<22) + 0.5);
-		}
         WriteDword( CX2388X_SUBCARRIERSTEP, RegValue & 0x7FFFFF );
         // Subcarrier frequency Dr, for SECAM only but lets
         // set it anyway
@@ -614,6 +628,11 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
 
         WriteDword(CX2388X_VERT_DELAY_EVEN, VertDelay);
         WriteDword(CX2388X_VERT_DELAY_ODD, VertDelay);
+
+        // set up burst gate delay and AGC gate delay
+        RegValue = (DWORD)(6.8 * PLL / 2.0 + 15.5);
+        RegValue |= (DWORD)(6.5 * PLL / 2.0 + 21.5) << 8;
+        WriteDword(CX2388X_AGC_BURST_DELAY, RegValue);
 
         if(HDelayOverride != 0)
         {
@@ -661,9 +680,13 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
 			// The sub carriers frequencies are wrong for SECAM
 			// => use the values given by AMCAP
 			if(TVFormat == VIDEOFORMAT_SECAM_L)
+            {
 				RegValue = 0x003d5985;
+            }
 			else
+            {
 				RegValue = (DWORD)(((8.0 * GetTVFormat(TVFormat)->Fsc) / PALFsc8) * (double)(1<<22));
+            }
 			WriteDword( CX2388X_SUBCARRIERSTEP, RegValue & 0x7FFFFF );
 			// Subcarrier frequency Dr, for SECAM only but lets
 			// set it anyway
@@ -690,8 +713,6 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
 
             WriteDword( CX2388X_SAMPLERATECONV, 0x20000);
         }
-
-
 
         // Setup correct format
 		DWORD VideoInput = ReadDword(CX2388X_VIDEO_INPUT);

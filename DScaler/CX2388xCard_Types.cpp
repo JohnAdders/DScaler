@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Types.cpp,v 1.3 2002-11-03 15:54:10 adcockj Exp $
+// $Id: CX2388xCard_Types.cpp,v 1.4 2002-11-03 18:38:32 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/11/03 15:54:10  adcockj
+// Added cx2388x register tweaker support
+//
 // Revision 1.2  2002/10/29 16:20:30  adcockj
 // Added card setup for MSI TV@nywhere (no work done on sound)
 //
@@ -430,9 +433,6 @@ void CCX2388xCard::StandardInputSelect(int nInput)
         // also VERTEN & SPSPD
         VideoInput &= 0x0F;
         
-        // start with default values except turn of CFILT
-        DWORD FilterSetup(1 << 19);
-
         // set the Mux up from the card setup
         VideoInput |= (m_TVCards[m_CardType].Inputs[nInput].MuxSelect << CX2388X_VIDEO_INPUT_MUX_SHIFT);
 
@@ -446,13 +446,6 @@ void CCX2388xCard::StandardInputSelect(int nInput)
                 // Switch chroma DAC to chroma channel
                 OrDataDword(MO_AFECFG_IO, 0x00000001);
 
-                // switch off luma notch
-                // Luma notch is 1 = off
-                FilterSetup |= CX2388X_FILTER_LNOTCH;
-                // turn off Comb Filter
-                FilterSetup |= 3 << 5;
-                // Disbale luma dec
-                FilterSetup |= 1 << 12;
                 break;
             
             case INPUTTYPE_CCIR:
@@ -463,52 +456,12 @@ void CCX2388xCard::StandardInputSelect(int nInput)
             case INPUTTYPE_TUNER:
             case INPUTTYPE_COMPOSITE:
             default:
-
-                // test for Laurent
-                // Try out SECAM Notch Filter
-				// Comments from Laurent
-				// It seems that these SECAM Notch Filters are not necessary
-                if(false)
-                {
-                    // May have to switch off normal luma notch
-                    // to see any effect
-                    //FilterSetup |= CX2388X_FILTER_LNOTCH;
-                    
-                    // SECAM Luma notch is 1 = on
-                    //FilterSetup |= CX2388X_FILTER_SNOTCH;
-                }
-
                 // Switch chroma DAC to audio
                 AndDataDword(MO_AFECFG_IO, 0xFFFFFFFE);
                 break;
         }
         
         WriteDword(CX2388X_VIDEO_INPUT, VideoInput);
-
-        // test for Laurent
-        // other stuff that may be required
-		// Comments from Laurent
-		// Bits 12, 16, and 18 must be set to 1 for SECAM
-		// It seems to work even for PAL with these bits
-		// TODO : check that they must be set for all the video formats
-        if(true)
-        {
-            // QCIF HFilter
-            FilterSetup |= (1<<11);
-
-            // 29 Tap first chroma demod
-            FilterSetup |= (1<<15);
-
-			// Laurent : very important for Secam
-            FilterSetup |= (1<<17);
-
-//            FilterSetup |= (1<<3);
-//            FilterSetup |= (1<<16);
-        }
-
-        //FilterSetup = 0x8268;
-        WriteDword(CX2388X_FILTER_EVEN, FilterSetup);
-        WriteDword(CX2388X_FILTER_ODD, FilterSetup);
     }
 }
 

@@ -1747,6 +1747,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\HierarchicalConfigParser.cpp">
+			</File>
+			<File
 				RelativePath="HSListBox.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -3843,6 +3846,9 @@
 			</File>
 			<File
 				RelativePath="HardwareSettings.h">
+			</File>
+			<File
+				RelativePath=".\HierarchicalConfigParser.h">
 			</File>
 			<File
 				RelativePath="HSListBox.h">

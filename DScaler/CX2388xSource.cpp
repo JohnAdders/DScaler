@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.10 2002-11-09 20:53:46 laurentg Exp $
+// $Id: CX2388xSource.cpp,v 1.11 2002-11-10 12:48:16 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/11/09 20:53:46  laurentg
+// New CX2388x settings
+//
 // Revision 1.9  2002/11/09 00:22:23  laurentg
 // New settings for CX2388x chip
 //
@@ -149,9 +152,9 @@ extern long EnableCancelButton;
 
 const char* CombFilterSzList[] =
 {
-    { "Full Comb"			},
+    { "Off"					},
     { "Chroma comb only"    },
-    { "Off	"				},
+    { "Full Comb"			},
 };
 
 void CX2388x_OnSetup(void *pThis, int Start)

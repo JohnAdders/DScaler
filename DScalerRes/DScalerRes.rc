@@ -1246,6 +1246,19 @@ BEGIN
     END
 END
 
+IDC_DSHOW_FILESOURCE_MENU MENU DISCARDABLE 
+BEGIN
+    POPUP "DShow"
+    BEGIN
+        MENUITEM "&Play",                       IDM_DSHOW_PLAY
+        MENUITEM "Pa&use",                      IDM_DSHOW_PAUSE
+        MENUITEM "&Stop",                       IDM_DSHOW_STOP
+        MENUITEM SEPARATOR
+        MENUITEM "&Reset",                      IDM_RESET
+        MENUITEM "Filter properties...",        IDM_DSHOW_FILTERS
+    END
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //

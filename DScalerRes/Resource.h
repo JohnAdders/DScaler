@@ -34,6 +34,7 @@
 #define IDD_TREESETTINGS_NOPROPERTIES   199
 #define IDD_VTSEARCH                    201
 #define IDD_HWSETUP                     202
+#define IDC_DSHOW_FILESOURCE_MENU       203
 #define IDM_VBI                         231
 #define IDM_CAPTURE_PAUSE               232
 #define IDM_CHANNEL_LIST                242
@@ -978,7 +979,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        203
+#define _APS_NEXT_RESOURCE_VALUE        204
 #define _APS_NEXT_COMMAND_VALUE         32798
 #define _APS_NEXT_CONTROL_VALUE         8000
 #define _APS_NEXT_SYMED_VALUE           2391

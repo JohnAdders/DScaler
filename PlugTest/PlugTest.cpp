@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PlugTest.cpp,v 1.15 2002-06-03 17:50:07 tobbej Exp $
+// $Id: PlugTest.cpp,v 1.16 2002-12-10 12:33:39 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2002/06/03 17:50:07  tobbej
+// added missing emms instruction
+//
 // Revision 1.14  2002/02/03 18:15:32  adcockj
 // Fixed plugtest
 //
@@ -453,7 +456,7 @@ BOOL MakeTifFile(TDeinterlaceInfo* pInfo, char* TifFile, DEINTERLACE_METHOD* Dei
     for (i = 0; i < NbLines; i++)
     {
         if (PictureToStore >= 0)
-            buf = (BYTE*)pInfo->PictureHistory[PictureToStore] + i * pInfo->InputPitch;
+            buf = (BYTE*)(pInfo->PictureHistory[PictureToStore]->pData) + i * pInfo->InputPitch;
         else
             buf = (BYTE*)pInfo->Overlay + i * pInfo->OverlayPitch;
         for (j = 0; j < pInfo->FrameWidth ; j+=2)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_LinearCorrection.c,v 1.11 2001-08-30 12:04:37 adcockj Exp $
+// $Id: FLT_LinearCorrection.c,v 1.12 2001-09-11 14:33:48 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2001/08/30 12:04:37  adcockj
+// Replaced numbers with defines in mask mode setting
+//
 // Revision 1.10  2001/08/30 11:58:10  adcockj
 // Changed mode setting to be select fom list
 //
@@ -501,6 +504,45 @@ void LinearCorrStart(void)
     PictureHeight = 576;
 }
 
+BOOL MaskParam1_OnChange(long NewValue)
+{
+    MaskParam1 = NewValue;
+    UpdNbPixelsPerLineTable(PictureHeight, PictureWidth);
+    UpdLinearFilterTables(PictureWidth);
+    return FALSE;
+}
+
+BOOL MaskParam2_OnChange(long NewValue)
+{
+    MaskParam2 = NewValue;
+    UpdNbPixelsPerLineTable(PictureHeight, PictureWidth);
+    UpdLinearFilterTables(PictureWidth);
+    return FALSE;
+}
+
+BOOL MaskParam3_OnChange(long NewValue)
+{
+    MaskParam3 = NewValue;
+    UpdNbPixelsPerLineTable(PictureHeight, PictureWidth);
+    UpdLinearFilterTables(PictureWidth);
+    return FALSE;
+}
+
+BOOL MaskParam4_OnChange(long NewValue)
+{
+    MaskParam4 = NewValue;
+    UpdNbPixelsPerLineTable(PictureHeight, PictureWidth);
+    UpdLinearFilterTables(PictureWidth);
+    return FALSE;
+}
+
+BOOL MaskType_OnChange(long NewValue)
+{
+    MaskType = NewValue;
+    UpdNbPixelsPerLineTable(PictureHeight, PictureWidth);
+    UpdLinearFilterTables(PictureWidth);
+    return FALSE;
+}
 
 ////////////////////////////////////////////////////////////////////////////
 // Start of Settings related code
@@ -523,31 +565,31 @@ SETTING FLT_LinearCorrSettings[FLT_LINEAR_CORR_SETTING_LASTONE] =
         "Mask Type", ITEMFROMLIST, 0, &MaskType,
         MASK_TRAPEZOID, MASK_TRAPEZOID, MASK_STRETCH, 1, 1,
         ModeList,
-        "LinearCorrectionFilter", "MaskType", NULL,
+        "LinearCorrectionFilter", "MaskType", MaskType_OnChange,
     },
     {
         "Mask Parameter 1", SLIDER, 0, &MaskParam1,
         0, 0, 100, 1, 1,
         NULL,
-        "LinearCorrectionFilter", "MaskParam1", NULL,
+        "LinearCorrectionFilter", "MaskParam1", MaskParam1_OnChange,
     },
     {
         "Mask Parameter 2", SLIDER, 0, &MaskParam2,
         0, 0, 100, 1, 1,
         NULL,
-        "LinearCorrectionFilter", "MaskParam2", NULL,
+        "LinearCorrectionFilter", "MaskParam2", MaskParam2_OnChange,
     },
     {
         "Mask Parameter 3", SLIDER, 0, &MaskParam3,
         0, 0, 100, 1, 1,
         NULL,
-        "LinearCorrectionFilter", "MaskParam3", NULL,
+        "LinearCorrectionFilter", "MaskParam3", MaskParam3_OnChange,
     },
     {
         "Mask Parameter 4", SLIDER, 0, &MaskParam4,
         0, 0, 100, 1, 1,
         NULL,
-        "LinearCorrectionFilter", "MaskParam4", NULL,
+        "LinearCorrectionFilter", "MaskParam4", MaskParam4_OnChange,
     },
 };
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.36 2003-01-16 13:30:49 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.37 2003-01-26 12:33:26 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.36  2003/01/16 13:30:49  adcockj
+// Fixes for various settings problems reported by Laurent 15/Jan/2003
+//
 // Revision 1.35  2003/01/15 15:54:22  adcockj
 // Fixed some keyboard focus issues
 //
@@ -958,7 +961,7 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
         // set up VBI information
         WriteDword(CX2388X_VBI_SIZE, GetTVFormat(TVFormat)->VBIPacketSize);
 
-        if (CurrentY == 576)
+        if(GetTVFormat(TVFormat)->NeedsPLL == TRUE)
         {
             DWORD RegValue;
 

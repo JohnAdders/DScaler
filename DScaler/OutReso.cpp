@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutReso.cpp,v 1.8 2003-02-10 21:35:37 laurentg Exp $
+// $Id: OutReso.cpp,v 1.9 2003-02-14 22:06:14 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2003/02/10 21:35:37  laurentg
+// Menu updated (patch from Kristian Trenskow)
+//
 // Revision 1.7  2003/02/08 13:16:47  laurentg
 // Change resolution in full screen mode slightly updated
 //
@@ -94,6 +97,16 @@ static sResolution resSettings[] = {
 	{	TRUE,		720,	480,	32,		75,			FALSE,		0,	0	},
 	{	TRUE,		720,	480,	32,		100,		FALSE,		0,	0	},
 	{	TRUE,		720,	480,	32,		120,		FALSE,		0,	0	},
+	{	TRUE,		854,	480,	16,		60,			FALSE,		0,	0	},
+	{	TRUE,		854,	480,	16,		72,			FALSE,		0,	0	},
+	{	TRUE,		854,	480,	16,		75,			FALSE,		0,	0	},
+	{	TRUE,		854,	480,	16,		100,		FALSE,		0,	0	},
+	{	TRUE,		854,	480,	16,		120,		FALSE,		0,	0	},
+	{	TRUE,		854,	480,	32,		60,			FALSE,		0,	0	},
+	{	TRUE,		854,	480,	32,		72,			FALSE,		0,	0	},
+	{	TRUE,		854,	480,	32,		75,			FALSE,		0,	0	},
+	{	TRUE,		854,	480,	32,		100,		FALSE,		0,	0	},
+	{	TRUE,		854,	480,	32,		120,		FALSE,		0,	0	},
 	{	TRUE,		720,	576,	16,		60,			FALSE,		0,	0	},
 	{	TRUE,		720,	576,	16,		72,			FALSE,		0,	0	},
 	{	TRUE,		720,	576,	16,		75,			FALSE,		0,	0	},
@@ -114,6 +127,16 @@ static sResolution resSettings[] = {
 	{	TRUE,		768,	576,	32,		75,			FALSE,		0,	0	},
 	{	TRUE,		768,	576,	32,		100,		FALSE,		0,	0	},
 	{	TRUE,		768,	576,	32,		120,		FALSE,		0,	0	},
+	{	TRUE,		1024,	576,	16,		60,			FALSE,		0,	0	},
+	{	TRUE,		1024,	576,	16,		72,			FALSE,		0,	0	},
+	{	TRUE,		1024,	576,	16,		75,			FALSE,		0,	0	},
+	{	TRUE,		1024,	576,	16,		100,		FALSE,		0,	0	},
+	{	TRUE,		1024,	576,	16,		120,		FALSE,		0,	0	},
+	{	TRUE,		1024,	576,	32,		60,			FALSE,		0,	0	},
+	{	TRUE,		1024,	576,	32,		72,			FALSE,		0,	0	},
+	{	TRUE,		1024,	576,	32,		75,			FALSE,		0,	0	},
+	{	TRUE,		1024,	576,	32,		100,		FALSE,		0,	0	},
+	{	TRUE,		1024,	576,	32,		120,		FALSE,		0,	0	},
 	{	TRUE,		800,	600,	16,		60,			FALSE,		0,	0	},
 	{	TRUE,		800,	600,	16,		72,			FALSE,		0,	0	},
 	{	TRUE,		800,	600,	16,		75,			FALSE,		0,	0	},
@@ -124,6 +147,16 @@ static sResolution resSettings[] = {
 	{	TRUE,		800,	600,	32,		75,			FALSE,		0,	0	},
 	{	TRUE,		800,	600,	32,		100,		FALSE,		0,	0	},
 	{	TRUE,		800,	600,	32,		120,		FALSE,		0,	0	},
+	{	TRUE,		1280,	720,	16,		60,			FALSE,		0,	0	},
+	{	TRUE,		1280,	720,	16,		72,			FALSE,		0,	0	},
+	{	TRUE,		1280,	720,	16,		75,			FALSE,		0,	0	},
+	{	TRUE,		1280,	720,	16,		100,		FALSE,		0,	0	},
+	{	TRUE,		1280,	720,	16,		120,		FALSE,		0,	0	},
+	{	TRUE,		1280,	720,	32,		60,			FALSE,		0,	0	},
+	{	TRUE,		1280,	720,	32,		72,			FALSE,		0,	0	},
+	{	TRUE,		1280,	720,	32,		75,			FALSE,		0,	0	},
+	{	TRUE,		1280,	720,	32,		100,		FALSE,		0,	0	},
+	{	TRUE,		1280,	720,	32,		120,		FALSE,		0,	0	},
 	{	TRUE,		1024,	768,	16,		60,			FALSE,		0,	0	},
 	{	TRUE,		1024,	768,	16,		72,			FALSE,		0,	0	},
 	{	TRUE,		1024,	768,	16,		75,			FALSE,		0,	0	},

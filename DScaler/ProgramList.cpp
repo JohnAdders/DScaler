@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.85 2002-10-28 08:09:33 adcockj Exp $
+// $Id: ProgramList.cpp,v 1.86 2002-10-28 17:50:02 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.85  2002/10/28 08:09:33  adcockj
+// Fix for zero frequencies on inactive channels supplied by Denis Balazuc
+//
 // Revision 1.84  2002/10/26 07:37:54  atnak
 // Fixed "pre switch mute delay".  (Reverted to the way it was in Rev 1.77)
 //
@@ -306,15 +309,15 @@ const UINT WM_SCAN_ABORT            = WM_SCAN_MESSAGE + 4;
 
 const DWORD SCAN_DEFAULT_STEPS      = 62500;
 
-enum SCAN_MODE 
+enum eScanMode 
 {    
     SCAN_MODE_PRESETS = 0,
     SCAN_MODE_CUSTOM_ORDER,
-    SCAN_MODE_AUTOSCAN,
+    SCAN_MODE_FULL_FREQUENCY,
     SCAN_MODE_LASTONE
 };
 
-SCAN_MODE MyScanMode = SCAN_MODE_CUSTOM_ORDER;
+eScanMode MyScanMode = SCAN_MODE_CUSTOM_ORDER;
 
 
 
@@ -352,11 +355,11 @@ static int InitialNbMenuItems = -1;
 
 //TODO->Remove this (find a way to store user channels in DScaler APP)
 //The implementation is now in Channels
-BOOL Load_Program_List_ASCII() {
+BOOL Load_Program_List_ASCII() 
+{
     return MyChannels.ReadASCII(SZ_DEFAULT_PROGRAMS_FILENAME);
 }
                    
-
 void Channel_SetCurrent()
 {
     Channel_Change(CurrentProgram);
@@ -394,6 +397,31 @@ DWORD SelectedScanSteps(HWND hDlg)
     return (DWORD)strtol(sbuf, '\0', 10);
 }
 
+void SelectChannel(HWND hDlg, long ChannelToSelect)
+{
+    const CCountryChannels* channels = MyCountries.GetChannels(CountryCode);
+
+    ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_CHANNEL), 0);
+
+    for(int i(0); i < ComboBox_GetCount(GetDlgItem(hDlg, IDC_CHANNEL)); ++i)
+    {
+        CChannel* Channel = (CChannel*)ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CHANNEL), i);
+        if(Channel != NULL && Channel->GetChannelNumber() == ChannelToSelect)
+        {
+            ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_CHANNEL), i);
+        }
+    }
+}
+
+void SetFrequencyEditBox(HWND hDlg, long Frequency)
+{
+    char sbuf[256];
+
+    sprintf(sbuf, "%10.4lf", (double)Frequency / 1000000.0);
+    Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf);
+}
+
+
 void UpdateDetails(HWND hDlg, const CChannel* const pChannel)
 {
     static char sbuf[256];
@@ -402,7 +430,7 @@ void UpdateDetails(HWND hDlg, const CChannel* const pChannel)
     {
         Edit_SetText(GetDlgItem(hDlg, IDC_NAME), "");
         Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY), "");
-        //ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_FORMAT), 0);
+        ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_FORMAT), 0);
         ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_CHANNEL), 0);
         Button_SetCheck(GetDlgItem(hDlg, IDC_ACTIVE), BST_CHECKED);
     }
@@ -413,12 +441,10 @@ void UpdateDetails(HWND hDlg, const CChannel* const pChannel)
         Edit_SetText(GetDlgItem(hDlg, IDC_NAME), pChannel->GetName());
 
         // set the frequency
-        sprintf(sbuf, "%10.4f", (double)pChannel->GetFrequency() / 1000000.0);
-        Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY),sbuf);
+        SetFrequencyEditBox(hDlg, pChannel->GetFrequency());
 
         // set the channel
-        // select none to start off with
-        //SelectChannel(hDlg, (MyChannels.GetChannelNumber(iCurrentProgramIndex)));
+        SelectChannel(hDlg, pChannel->GetChannelNumber());
         
         // set format
         ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_FORMAT), pChannel->GetFormat() + 1);
@@ -481,8 +507,8 @@ void RefreshProgramList(HWND hDlg, int ProgToSelect)
     
     for(int i = 0; i < MyChannels.GetSize(); i++)
     {
-        CChannel* channel = MyChannels.GetChannel(i); 
-        sprintf(sbuf, "%s", channel->GetName());
+        CChannel* Channel = MyChannels.GetChannel(i); 
+        sprintf(sbuf, "%s", Channel->GetName());
         ListBox_AddString(GetDlgItem(hDlg, IDC_PROGRAMLIST), sbuf);
     }
 
@@ -504,15 +530,23 @@ void RefreshChannelList(HWND hDlg, int iCountryCode)
 {
     static char sbuf[256];
     MyInUpdate = TRUE;    
+
     ComboBox_ResetContent(GetDlgItem(hDlg, IDC_CHANNEL));
     
+    int Index = ComboBox_AddString(GetDlgItem(hDlg, IDC_CHANNEL), "None");
+    SendMessage(GetDlgItem(hDlg, IDC_CHANNEL), CB_SETITEMDATA, Index, 0);
+
     const CCountryChannels* channels = MyCountries.GetChannels(iCountryCode);
     for(int i = 0; i < channels->GetSize(); i++)
     {
         CChannel* channel = channels->GetChannel(i);
-        sprintf(sbuf, "%d - %s", channel->GetChannelNumber(), channel->GetName());
+        // Channel names not yet available so adding name
+        // to combo a bit pointless, the class does support this for the
+        // future though
+        //sprintf(sbuf, "%d - %s", channel->GetChannelNumber(), channel->GetName());
+        sprintf(sbuf, "%d", channel->GetChannelNumber());
         int insertAt = ComboBox_AddString(GetDlgItem(hDlg, IDC_CHANNEL), sbuf);
-        ComboBox_SetItemData(GetDlgItem(hDlg, IDC_CHANNEL), insertAt, channel->GetChannelNumber());
+        ComboBox_SetItemData(GetDlgItem(hDlg, IDC_CHANNEL), insertAt, (LPARAM)channel);
     }           
     MyInUpdate = FALSE;
 }
@@ -521,7 +555,6 @@ void ClearProgramList(HWND hDlg)
 {
     MyChannels.Clear();
     ListBox_ResetContent(GetDlgItem(hDlg, IDC_PROGRAMLIST));
-    ComboBox_ResetContent(GetDlgItem(hDlg, IDC_CHANNEL));
     Edit_SetText(GetDlgItem(hDlg, IDC_NAME), "");
 }
 
@@ -550,15 +583,11 @@ void UpdateEnabledState(HWND hDlg, BOOL bEnabled)
 
     switch (MyScanMode) {    
         case SCAN_MODE_PRESETS :     
-            Button_Enable(GetDlgItem(hDlg, IDC_SCAN), bEnabled);    
-            Button_Enable(GetDlgItem(hDlg, IDC_SEEK), FALSE);    
-
-            ComboBox_Enable(GetDlgItem(hDlg, IDC_CHANNEL), enabledButInScan);
             Button_Enable(GetDlgItem(hDlg, IDC_ADD), enabledButInScan);
             Button_Enable(GetDlgItem(hDlg, IDC_REMOVE), enabledButInScan);            
             
             Button_Enable(GetDlgItem(hDlg, IDC_CUSTOMCHANNELORDER), bEnabled);
-            Edit_Enable(GetDlgItem(hDlg, IDC_COUNTRY), bEnabled);
+            ComboBox_Enable(GetDlgItem(hDlg, IDC_COUNTRY), bEnabled);
             
             //Disable the whole AutoScan Panel
             //(I know it's a copy/paste, but it's easier than a
@@ -572,15 +601,11 @@ void UpdateEnabledState(HWND hDlg, BOOL bEnabled)
             break;
 
         case SCAN_MODE_CUSTOM_ORDER :
-            Button_Enable(GetDlgItem(hDlg, IDC_SCAN), bEnabled);    
-            Button_Enable(GetDlgItem(hDlg, IDC_SEEK), FALSE);    
-
-            ComboBox_Enable(GetDlgItem(hDlg, IDC_CHANNEL), FALSE);
             Button_Enable(GetDlgItem(hDlg, IDC_ADD), FALSE);
             Button_Enable(GetDlgItem(hDlg, IDC_REMOVE), FALSE);            
             
             Button_Enable(GetDlgItem(hDlg, IDC_CUSTOMCHANNELORDER), bEnabled);
-            Edit_Enable(GetDlgItem(hDlg, IDC_COUNTRY), bEnabled);
+            ComboBox_Enable(GetDlgItem(hDlg, IDC_COUNTRY), bEnabled);
              
             Edit_Enable(GetDlgItem(hDlg, IDC_SCAN_MIN_FREQ), FALSE);
             Edit_Enable(GetDlgItem(hDlg, IDC_SCAN_MAX_FREQ), FALSE);
@@ -590,16 +615,12 @@ void UpdateEnabledState(HWND hDlg, BOOL bEnabled)
             Button_Enable(GetDlgItem(hDlg, IDC_DOWN), FALSE);
             break;
     
-        case  SCAN_MODE_AUTOSCAN :  
-            Button_Enable(GetDlgItem(hDlg, IDC_SCAN), FALSE);    
-            Button_Enable(GetDlgItem(hDlg, IDC_SEEK), bEnabled);    
-
-            ComboBox_Enable(GetDlgItem(hDlg, IDC_CHANNEL), enabledButInScan);
+        case  SCAN_MODE_FULL_FREQUENCY :  
             Button_Enable(GetDlgItem(hDlg, IDC_ADD), enabledButInScan);
             Button_Enable(GetDlgItem(hDlg, IDC_REMOVE), enabledButInScan); 
 
             Button_Enable(GetDlgItem(hDlg, IDC_CUSTOMCHANNELORDER), FALSE);
-            Edit_Enable(GetDlgItem(hDlg, IDC_COUNTRY), FALSE);  
+            ComboBox_Enable(GetDlgItem(hDlg, IDC_COUNTRY), bEnabled);  
 
             Edit_Enable(GetDlgItem(hDlg, IDC_SCAN_MIN_FREQ), enabledButInScan);
             Edit_Enable(GetDlgItem(hDlg, IDC_SCAN_MAX_FREQ), enabledButInScan);
@@ -615,7 +636,6 @@ void UpdateEnabledState(HWND hDlg, BOOL bEnabled)
    
     MyInUpdate = FALSE;
 }
-
 
 //returns TRUE if a video signal is found
 DWORD FindFrequency(DWORD Freq, int Format, DWORD dwAFCFrequencyDeviationThreshold)
@@ -746,14 +766,13 @@ void AddScannedChannel(HWND hDlg, CChannel* pNewChannel)
     static char sbuf[256];
     MyChannels.AddChannel(pNewChannel);
     
-    //Increment current program ?!
+    // We are going to add current channel at the end
+    // so set up CurrentProgram to be the last one
+    // as we will have just tunes to it and it will be
+    // what is showing
     CurrentProgram = MyChannels.GetSize() - 1;         
     sprintf(sbuf, "%s", pNewChannel->GetName());        
     ListBox_AddString(GetDlgItem(hDlg, IDC_PROGRAMLIST), sbuf);
-    
-    sprintf(sbuf, "%d - %s", pNewChannel->GetChannelNumber(), pNewChannel->GetName());
-    int insertAt = ComboBox_AddString(GetDlgItem(hDlg, IDC_CHANNEL), sbuf);
-    ComboBox_SetItemData(GetDlgItem(hDlg, IDC_CHANNEL), insertAt, pNewChannel->GetChannelNumber());    
     
     ListBox_SetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST), CurrentProgram);
     UpdateDetails(hDlg, pNewChannel);          
@@ -765,8 +784,6 @@ void ScanChannel(HWND hDlg, int iCurrentChannelIndex, int iCountryCode, BOOL Alw
 {            
     ASSERT(iCountryCode >= 0);
     ASSERT(iCountryCode < MyCountries.GetSize());
-
-
 
     MyInUpdate = TRUE; 
 
@@ -823,9 +840,7 @@ DWORD ScanFrequency(HWND hDlg, DWORD dwFrequency)
 
     eVideoFormat videoFormat = SelectedVideoFormat(hDlg);
     
-    sprintf(sbuf, "%10.4lf MHz", dwFrequency / 1000000.0);
-    Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY),sbuf);
-
+    SetFrequencyEditBox(hDlg, dwFrequency);
     DWORD returned = FindFrequency(dwFrequency, videoFormat, afcThreshold);
       
     if (returned == 0)
@@ -835,11 +850,13 @@ DWORD ScanFrequency(HWND hDlg, DWORD dwFrequency)
     else
     {              
         //returned = returned + afcThreshold;                
+        sprintf(sbuf, "%10.4lf MHz", (double)dwFrequency / 1000000.0);
+
         AddScannedChannel(hDlg,
             new CChannel(
                     sbuf,
                     returned,
-                    MyChannels.GetSize() + 1,
+                    0,
                     videoFormat,
                     TRUE)); 
         
@@ -859,26 +876,25 @@ void BeginScan(HWND hDlg)
     UpdateEnabledState(hDlg, TRUE);
             
     CurrentProgram = 0;        
+    Button_SetText(GetDlgItem(hDlg, IDC_SCAN), "Abort");
     switch (MyScanMode) 
     {
         case SCAN_MODE_CUSTOM_ORDER :            
-            Button_SetText(GetDlgItem(hDlg, IDC_SCAN), "Abort");            
             PostMessage(hDlg, WM_SCAN_CUSTOM_ORDER, 0, CountryCode);            
             break;
 
         case SCAN_MODE_PRESETS :               
-            Button_SetText(GetDlgItem(hDlg, IDC_SCAN), "Abort");
             PostMessage(hDlg, WM_SCAN_PRESET_FREQ, 0, CountryCode);
             break;
 
-        case SCAN_MODE_AUTOSCAN :                    
-            Button_SetText(GetDlgItem(hDlg, IDC_SEEK), "Abort");
+        case SCAN_MODE_FULL_FREQUENCY :                    
             sbuf[255] = '\0';
             Edit_GetText(GetDlgItem(hDlg, IDC_SCAN_MIN_FREQ), sbuf, 254);                    
             DWORD minFrequency = (DWORD)(strtod(sbuf, '\0') * 1000000.0);                    
 
             Edit_GetText(GetDlgItem(hDlg, IDC_SCAN_MAX_FREQ), sbuf, 254);                    
-            DWORD maxFrequency = (DWORD)(strtod(sbuf, '\0') * 1000000.0);                    
+            DWORD maxFrequency = (DWORD)(strtod(sbuf, '\0') * 1000000.0);
+
             PostMessage(hDlg, WM_SCAN_AUTO, minFrequency, maxFrequency);
             break;
     }    
@@ -900,11 +916,21 @@ void EndScan(HWND hDlg)
     }    
 
     Button_SetText(GetDlgItem(hDlg, IDC_SCAN), "Scan");      
-    Button_SetText(GetDlgItem(hDlg, IDC_SEEK), "Seek");
     UpdateDetails(hDlg, CurrentProgram);
     UpdateEnabledState(hDlg, TRUE);
 }
 
+int GetCurrentChannelNumber(HWND hDlg)
+{
+    int Channel(0);
+    int ChannelIndex = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_CHANNEL));
+    CChannel* pChannel = (CChannel*)ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CHANNEL), ChannelIndex);
+    if(pChannel != NULL)
+    {
+        Channel = pChannel->GetChannelNumber();
+    }
+    return Channel;
+}
 
 void ChangeChannelInfo(HWND hDlg, int iCurrentProgramIndex)
 {
@@ -917,8 +943,7 @@ void ChangeChannelInfo(HWND hDlg, int iCurrentProgramIndex)
         Edit_GetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf, 255);
         double dFreq = strtod(sbuf, &cLast);
         long Freq = (long)(dFreq * 1000000.0);
-        int Channel = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_CHANNEL));
-        Channel = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CHANNEL), Channel);
+        int Channel = GetCurrentChannelNumber(hDlg);
         int Format = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_FORMAT)) - 1;        
         Edit_GetText(GetDlgItem(hDlg, IDC_NAME), sbuf , 255);
         BOOL Active = (Button_GetCheck(GetDlgItem(hDlg, IDC_ACTIVE)) == BST_CHECKED);
@@ -929,7 +954,6 @@ void ChangeChannelInfo(HWND hDlg, int iCurrentProgramIndex)
     }
     MyInUpdate = FALSE;
 }
-
 
 
 void CloseDialog(HWND hDlg, BOOL bCancelled)
@@ -979,7 +1003,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
     int i;
     char sbuf[256];
-    static SCAN_MODE OldScanMode;
+    static eScanMode OldScanMode;
     static int OldCountryCode;
     static BOOL OldIsUsingAFC;
 
@@ -1032,21 +1056,22 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             {
                 ComboBox_AddString(GetDlgItem(hDlg, IDC_COUNTRY), MyCountries.GetCountryName(i));                
             }
-            ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_COUNTRY), 0);
+            ComboBox_AddString(GetDlgItem(hDlg, IDC_COUNTRY), "Full Frequency Scan" );                
         
             switch (MyScanMode) 
             {
                 case SCAN_MODE_CUSTOM_ORDER :
-                    Button_SetCheck(GetDlgItem(hDlg, IDC_SCAN_RADIO1), BST_CHECKED);                    
                     Button_SetCheck(GetDlgItem(hDlg, IDC_CUSTOMCHANNELORDER), BST_CHECKED);
+                    ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_COUNTRY), CountryCode);
                     break;
 
                 case SCAN_MODE_PRESETS :
-                    Button_SetCheck(GetDlgItem(hDlg, IDC_SCAN_RADIO1), BST_CHECKED);                                                    
+                    Button_SetCheck(GetDlgItem(hDlg, IDC_CUSTOMCHANNELORDER), BST_UNCHECKED);
+                    ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_COUNTRY), CountryCode);
                     break;
 
-                case SCAN_MODE_AUTOSCAN :                
-                    Button_SetCheck(GetDlgItem(hDlg, IDC_SCAN_RADIO2), BST_CHECKED);                    
+                case SCAN_MODE_FULL_FREQUENCY :                
+                    ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_COUNTRY), MyCountries.GetSize());
                     break;
             }   
             
@@ -1090,8 +1115,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 {
                     Freq = 0;
                 }
-                sprintf(sbuf, "%10.4lf", (double)Freq / 1000000.0);
-                Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf);
+                SetFrequencyEditBox(hDlg, Freq);
                 Providers_GetCurrentSource()->SetTunerFrequency(Freq, SelectedVideoFormat(hDlg));
                 ChangeChannelInfo(hDlg, CurrentProgram);
             }
@@ -1104,8 +1128,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 long Freq = (long)(dFreq * 1000000.0);
                 //++Freq;
                 Freq += 62500;
-                sprintf(sbuf, "%10.4f", (double)Freq / 1000000.0);
-                Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf);
+                SetFrequencyEditBox(hDlg, Freq);
                 Providers_GetCurrentSource()->SetTunerFrequency(Freq, SelectedVideoFormat(hDlg));
                 ChangeChannelInfo(hDlg, CurrentProgram);
             }
@@ -1153,8 +1176,8 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         //Scans using settings and adds to current list
         //wParam = current channel frequency - lParam = max frequency
     case WM_SCAN_AUTO :
-        if (MyInScan == TRUE) {
-                        
+        if (MyInScan == TRUE) 
+        {
             DWORD newFrequency = ScanFrequency(hDlg, wParam);
             
             if (newFrequency < lParam)
@@ -1162,14 +1185,15 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 if (MyChannels.GetSize() >= MAX_CHANNELS) 
                 {
                     MessageBox(
-                            hDlg, 
-                            "Number of channels limit reached.\nRemove some channels before proceeding further", 
-                            "Channel Limit Reached", 
-                            MB_OK | MB_ICONINFORMATION | MB_APPLMODAL
-                            );                    
+                                hDlg, 
+                                "Number of channels limit reached.\nRemove some channels before proceeding further", 
+                                "Channel Limit Reached", 
+                                MB_OK | MB_ICONINFORMATION | MB_APPLMODAL
+                              );                    
                     PostMessage(hDlg, WM_SCAN_ABORT, 0, 0);                
                 }
-                else {
+                else 
+                {
                     PostMessage(hDlg, WM_SCAN_AUTO, wParam + SelectedScanSteps(hDlg), lParam);                
                 }
             }
@@ -1214,13 +1238,28 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             }
             break;
 
-        case IDC_COUNTRY:          
-            //prevent this event from being processed too often
-            //(You get a combo box change event on select, expand and display...)
-            if (CountryCode != ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_COUNTRY))) 
+        case IDC_COUNTRY:
+            if(HIWORD(wParam) == LBN_SELCHANGE)
             {
-                CountryCode = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_COUNTRY));
-                RefreshChannelList(hDlg, CountryCode);  
+                int NewCountryCode = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_COUNTRY));
+                if(NewCountryCode <  MyCountries.GetSize())
+                {
+                    CountryCode = NewCountryCode;
+                    RefreshChannelList(hDlg, CountryCode);  
+                    if (Button_GetCheck(GetDlgItem(hDlg, IDC_CUSTOMCHANNELORDER)) == BST_CHECKED)
+                    {
+                        MyScanMode = SCAN_MODE_CUSTOM_ORDER;
+                    }
+                    else 
+                    {
+                        MyScanMode = SCAN_MODE_PRESETS;
+                    }
+                }
+                else
+                {
+                    ComboBox_ResetContent(GetDlgItem(hDlg, IDC_CHANNEL));
+                    MyScanMode = SCAN_MODE_FULL_FREQUENCY;
+                }
                 UpdateAutoScanDetails(hDlg);
                 UpdateEnabledState(hDlg, TRUE);             
             }
@@ -1242,11 +1281,17 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         case IDC_CHANNEL:
             if(MyInUpdate == FALSE && HIWORD(wParam) == CBN_SELCHANGE)
             {
-                int Channel = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_CHANNEL));                
-                Channel_Change(Channel, TRUE);                
-                ListBox_SetCurSel(GetDlgItem(hDlg, IDC_PROGRAMLIST), Channel);
-                CurrentProgram = Channel;     
-                UpdateDetails(hDlg, Channel);                   
+                int ChannelNum = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_CHANNEL));                
+                CChannel* Channel = (CChannel*)ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CHANNEL), ChannelNum);
+                if(Channel != NULL && Channel != (CChannel*)(-1))
+                {
+                    long Freq = Channel->GetFrequency();
+                    SetFrequencyEditBox(hDlg, Freq);
+                    ScrollBar_SetPos(GetDlgItem(hDlg, IDC_FINETUNE), 50, FALSE);
+                    ComboBox_SetCurSel(GetDlgItem(hDlg, IDC_FORMAT), Channel->GetFormat() + 1);
+                    Providers_GetCurrentSource()->SetTunerFrequency(Freq, SelectedVideoFormat(hDlg));
+                    ChangeChannelInfo(hDlg, CurrentProgram);
+                }
             }
             break;
 
@@ -1257,8 +1302,6 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 Edit_GetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf, 255);
                 double dFreq = strtod(sbuf, &cLast);
                 long Freq = (long)(dFreq * 1000000.0);
-                sprintf(sbuf, "%10.4lf", (double)Freq / 1000000.0);
-                Edit_SetText(GetDlgItem(hDlg, IDC_FREQUENCY), sbuf);
                 Providers_GetCurrentSource()->SetTunerFrequency(Freq, SelectedVideoFormat(hDlg));
                 ChangeChannelInfo(hDlg, CurrentProgram);
             }
@@ -1304,8 +1347,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 double dFreq = strtod(sbuf, '\0');
                 long Freq = (long)(dFreq * 1000000.0);
 
-                int Channel = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_CHANNEL));
-                Channel = ComboBox_GetItemData(GetDlgItem(hDlg, IDC_CHANNEL), Channel);
+                int Channel = GetCurrentChannelNumber(hDlg);
                 int Format = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_FORMAT)) - 1;
                 Edit_GetText(GetDlgItem(hDlg, IDC_NAME), sbuf , 255);
                 BOOL Active = (Button_GetCheck(GetDlgItem(hDlg, IDC_ACTIVE)) == BST_CHECKED);
@@ -1373,7 +1415,6 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDC_SCAN :
-        case IDC_SEEK :
             if(MyInScan == TRUE)
             {
                 EndScan(hDlg);
@@ -1434,24 +1475,6 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             CountryCode = OldCountryCode;    
             MyIsUsingAFC = OldIsUsingAFC;
             CloseDialog(hDlg, TRUE);
-            break;
-
-        case IDC_SCAN_RADIO1 :
-            if (Button_GetCheck(GetDlgItem(hDlg, IDC_CUSTOMCHANNELORDER)) == BST_CHECKED)
-            {
-                MyScanMode = SCAN_MODE_CUSTOM_ORDER;
-            }
-            else 
-            {
-                MyScanMode = SCAN_MODE_PRESETS;
-            }
-            RefreshChannelList(hDlg, CountryCode);
-            UpdateEnabledState(hDlg, TRUE);
-            break;
-
-        case IDC_SCAN_RADIO2 :
-            MyScanMode = SCAN_MODE_AUTOSCAN;
-            UpdateEnabledState(hDlg, TRUE);           
             break;
         }
         
@@ -1928,37 +1951,18 @@ SETTING ChannelsSettings[CHANNELS_SETTING_LASTONE] =
         NULL,
         "Show", "LastProgram", CurrentProgram_OnChange,
     },
-    
-    //that is the old settings for scanning
-    /*{
-        "Custom Channel Order", ONOFF, 0, (long*)&bCustomChannelOrder,
-        FALSE, 0, 1, 1, 1,
-        NULL,
-        "Show", "CustomChannelOrder", NULL,
-    }, */ 
-
-    //Which may need to be replaced by this for 
-    //backward compat (but according to John, it's not needed)
-    /*{
-        NULL, SLIDER, 0, NULL,
-        0, 0, 0, 0, 0,
-        NULL,
-        NULL, NULL, NULL,
-    },*/
     {
         "Scan Mode", SLIDER, 0, (long*)&MyScanMode,
         0, 0, SCAN_MODE_LASTONE, 1, 1,
         NULL,
         "Show", "ScanMode", NULL,
     }, 
-
-    //Cant commit DS_Control.h for some reason...
-    /*{
+    {
         "Use AFC While Scanning", ONOFF, 0, (long*)&MyIsUsingAFC,
         TRUE, 0, 1, 1, 1,
         NULL,
         "Show", "ScanUsingAFC", NULL,
-    }, */
+    },
 };
 
 SETTING* Channels_GetSetting(CHANNELS_SETTING Setting)

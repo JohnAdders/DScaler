@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.100 2002-10-28 12:04:56 atnak Exp $
+// $Id: DS_Control.h,v 1.101 2002-10-28 17:50:01 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.100  2002/10/28 12:04:56  atnak
+// Updated SAA7134_SETTING
+//
 // Revision 1.99  2002/10/27 12:08:50  laurentg
 // New setting to define the number of consecutive stills
 //
@@ -1058,7 +1061,8 @@ typedef enum
 {
     COUNTRYCODE = 0,
     CURRENTPROGRAM,
-    CUSTOMCHANNELORDER,    
+    SCANMODE,
+    USEAFCWHILESCANNING,
     CHANNELS_SETTING_LASTONE,
 } CHANNELS_SETTING;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.46 2002-10-26 17:56:19 laurentg Exp $
+// $Id: StillSource.h,v 1.47 2002-10-26 21:37:14 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -130,7 +130,7 @@ public:
     LPCSTR GetMenuLabel();
     BOOL ReadNextFrameInFile();
     BOOL LoadPlayList(LPCSTR FileName);
-    void SaveSnapshotInFile(LPCSTR FilePath, int FrameHeight, int FrameWidth, BYTE* pOverlay, LONG OverlayPitch);
+    void SaveSnapshotInFile(int FrameHeight, int FrameWidth, BYTE* pOverlay, LONG OverlayPitch);
     void SaveSnapshotInMemory(int FrameHeight, int FrameWidth, BYTE* pOverlay, LONG OverlayPitch);
     void SaveInFile();
     BOOL OpenMediaFile(LPCSTR FileName, BOOL NewPlayList);
@@ -163,6 +163,7 @@ private:
     BOOL SavePlayList(LPCSTR FileName);
     BOOL ResizeOriginalFrame(int NewWidth, int NewHeight);
     BOOL IsItemInList(LPCSTR FileName);
+	BOOL FindFileName(time_t TimeStamp, char* FileName);
 
 protected:
     int         m_Width;

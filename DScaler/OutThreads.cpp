@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.90 2002-10-26 15:22:04 adcockj Exp $
+// $Id: OutThreads.cpp,v 1.91 2002-10-26 21:42:05 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.90  2002/10/26 15:22:04  adcockj
+// Fixed issue with vertical flipping
+//
 // Revision 1.89  2002/10/08 12:12:35  adcockj
 // Changed minimize behaviour back to how it was
 //
@@ -350,6 +353,7 @@
 #include "Providers.h"
 #include "StillProvider.h"
 #include "Perf.h"
+#include "OSD.h"
 
 typedef enum
 {
@@ -362,6 +366,8 @@ typedef enum
 BOOL                bStopThread = FALSE;
 BOOL                bIsPaused = FALSE;
 eStreamStillType    RequestStillType = STILL_NONE;
+int					RequestStillNb = 0;
+BOOL				RequestStillInMemory = FALSE;
 BOOL                RequestToggleFlip = FALSE;
 BOOL                bDoVerticalFlipSetting = FALSE;
 HANDLE              OutThread;
@@ -476,12 +482,27 @@ void UnPause_Capture()
 
 void RequestStreamSnap()
 {
-   RequestStillType = STILL_SNAPSHOT;
+	if (RequestStillType == STILL_NONE)
+	{
+		RequestStillType = STILL_SNAPSHOT;
+	}
 }
 
-void RequestStill()
+void RequestStill(int nb)
 {
-   RequestStillType = STILL_TIFF;
+	if (RequestStillType == STILL_NONE && nb > 0)
+	{
+		RequestStillType = STILL_TIFF;
+		RequestStillNb = nb;
+		if (nb > 1)
+		{
+			RequestStillInMemory = TRUE;
+		}
+		else
+		{
+			RequestStillInMemory = Setting_GetValue(Still_GetSetting(STILLSINMEMORY));
+		}
+	}
 }
 
 void Toggle_Vertical_Flip()
@@ -950,6 +971,27 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
                         pPerf->StartCount(PERF_UNLOCK_OVERLAY);
 
+						// Take the still now rather than later, because the overlay is already
+						// locked and filled with the next frame to display
+						// This avoids to lock the overlay again later.only to take the still
+						if(RequestStillType == STILL_TIFF)
+						{
+							StillProvider_SaveSnapshot(&Info, RequestStillInMemory);
+							RequestStillNb--;
+							if (RequestStillNb <= 0)
+							{
+								if (RequestStillInMemory)
+								{
+									OSD_ShowText(hWnd, "Still(s) stored in memory", 0);
+								}
+								else
+								{
+									OSD_ShowText(hWnd, "Still saved in file", 0);
+								}
+								RequestStillType = STILL_NONE;
+							}
+						}
+
                         // somewhere above we will have locked the buffer, unlock before flip
                         if(!Overlay_Unlock_Back_Buffer())
                         {
@@ -1060,18 +1102,9 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
             }
 
             // if asked save the current Info to a file
-            if(RequestStillType == STILL_NONE)
-            {
-                ; // carry on
-            }
-            else if(RequestStillType == STILL_SNAPSHOT)
+            if(RequestStillType == STILL_SNAPSHOT)
             {
                 SaveStreamSnapshot(&Info);
-                RequestStillType = STILL_NONE;
-            }
-            else if(RequestStillType == STILL_TIFF)
-            {
-                StillProvider_SaveSnapshot(&Info);
                 RequestStillType = STILL_NONE;
             }
 

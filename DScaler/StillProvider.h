@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillProvider.h,v 1.8 2001-12-08 12:02:45 laurentg Exp $
+// $Id: StillProvider.h,v 1.9 2002-10-26 21:37:13 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -39,6 +39,6 @@ private:
 };
 
 /// Create a snapshot of the current overlay using one of the still helpers
-void StillProvider_SaveSnapshot(TDeinterlaceInfo* pInfo);
+void StillProvider_SaveSnapshot(TDeinterlaceInfo* pInfo, BOOL InMemory);
 
 #endif

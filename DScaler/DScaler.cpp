@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.255 2002-10-26 17:51:52 adcockj Exp $
+// $Id: DScaler.cpp,v 1.256 2002-10-26 21:42:04 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.255  2002/10/26 17:51:52  adcockj
+// Simplified hide cusror code and removed PreShowDialogOrMenu & PostShowDialogOrMenu
+//
 // Revision 1.254  2002/10/26 16:36:41  atnak
 // Made DisableScreensaver disable monitor sleeping
 //
@@ -3031,7 +3034,12 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_TAKESTILL:
-            RequestStill();
+            RequestStill(1);
+            break;
+
+        case IDM_TAKECONSECUTIVESTILL:
+			// Take 24 cpnsecutive stills
+            RequestStill(24);
             break;
 
         case IDM_TAKECYCLICSTILL:
@@ -3039,7 +3047,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             KillTimer(hWnd, TIMER_TAKESTILL);
             if (bTakingCyclicStills)
             {
-                RequestStill();
+                RequestStill(1);
                 SetTimer(hWnd, TIMER_TAKESTILL, Setting_GetValue(Still_GetSetting(DELAYBETWEENSTILLS)) * 1000, NULL);
             }
             break;
@@ -3798,7 +3806,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
         //---------------------------------
         case TIMER_TAKESTILL:
-            RequestStill();
+            RequestStill(1);
             break;
         //---------------------------------
         default:

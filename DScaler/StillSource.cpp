@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.71 2002-10-26 17:56:19 laurentg Exp $
+// $Id: StillSource.cpp,v 1.72 2002-10-26 21:37:13 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.71  2002/10/26 17:56:19  laurentg
+// Possibility to take stills in memory added
+//
 // Revision 1.70  2002/10/22 04:08:50  flibuste2
 // -- Modified CSource to include virtual ITuner* GetTuner();
 // -- Modified HasTuner() and GetTunerId() when relevant
@@ -268,6 +271,7 @@
 #include "Other.h"
 #include "Filter.h"
 #include "Dialogs.h"
+#include "OSD.h"
 
 
 #define TIMER_SLIDESHOW 50
@@ -756,9 +760,66 @@ BOOL CStillSource::ShowPreviousInPlayList()
     return FALSE;
 }
 
-void CStillSource::SaveSnapshotInFile(LPCSTR FilePath, int FrameHeight, int FrameWidth, BYTE* pOverlay, LONG OverlayPitch)
+BOOL CStillSource::FindFileName(time_t TimeStamp, char* FileName)
+{
+	int n = 0;
+	struct tm *ctm=localtime(&TimeStamp);
+	char extension[4];
+	struct stat st;
+
+	switch ((eStillFormat)Setting_GetValue(Still_GetSetting(FORMATSAVING)))
+	{
+	case STILL_TIFF_RGB:
+	case STILL_TIFF_YCbCr:
+		strcpy(extension, "tif");
+		break;
+	case STILL_JPEG:
+		strcpy(extension, "jpg");
+		break;
+	default:
+		ErrorBox("Format of saving not supported.\nPlease change format in advanced settings");
+		return FALSE;
+		break;
+	}
+
+	if (Setting_GetValue(Still_GetSetting(SAVEINSAMEFILE)))
+	{
+		sprintf(FileName,"%s\\TV.%s", SavingPath, extension);
+	}
+	else
+	{
+		while (n < 100)
+		{
+			sprintf(FileName,"%s\\TV%04d%02d%02d%02d%02d%02d%02d.%s",
+					SavingPath,
+					ctm->tm_year+1900,ctm->tm_mon+1,ctm->tm_mday,ctm->tm_hour,ctm->tm_min,ctm->tm_sec,n++, 
+					// name ~ date & time & per-second-counter (for if anyone succeeds in multiple captures per second)
+					// TVYYYYMMDDHHMMSSCC.ext ; eg .\TV2002123123595900.tif
+					extension);
+
+			if (stat(FileName, &st))
+			{
+				break;
+			}
+		}
+		if(n == 100) // never reached in 1 second, so could be scrapped
+		{
+			ErrorBox("Could not create a file. You may have too many captures already.");
+			return FALSE;
+		}
+	}
+	return TRUE;
+}
+
+void CStillSource::SaveSnapshotInFile(int FrameHeight, int FrameWidth, BYTE* pOverlay, LONG OverlayPitch)
 {
     BOOL NewToAdd;
+	char FilePath[MAX_PATH];
+
+	if (!FindFileName(time(0), FilePath))
+	{
+		return;
+	}
 
     m_SquarePixels = AspectSettings.SquarePixels;
     switch ((eStillFormat)Setting_GetValue(Still_GetSetting(FORMATSAVING)))
@@ -850,12 +911,7 @@ void CStillSource::SaveInFile()
 	int FrameWidth;
 	int LinePitch;
 	BOOL SquarePixels;
-	int n = 0;
-	char name[MAX_PATH];
-	time_t time_still;
-	struct tm *ctm;	
-	char extension[4];
-	struct stat st;
+	char FilePath[MAX_PATH];
 
     if ((m_Position == -1)
 	 || (m_PlayList.size() == 0)
@@ -864,52 +920,12 @@ void CStillSource::SaveInFile()
 		return;
 	}
 
-	time_still = m_PlayList[m_Position]->GetTimeStamp();
-	ctm = localtime(&time_still);
-
-	switch ((eStillFormat)Setting_GetValue(Still_GetSetting(FORMATSAVING)))
+	if (!FindFileName(m_PlayList[m_Position]->GetTimeStamp(), FilePath))
 	{
-	case STILL_TIFF_RGB:
-	case STILL_TIFF_YCbCr:
-		strcpy(extension, "tif");
-		break;
-	case STILL_JPEG:
-		strcpy(extension, "jpg");
-		break;
-	default:
-		ErrorBox("Format of saving not supported.\nPlease change format in advanced settings");
 		return;
-		break;
 	}
 
-	if (Setting_GetValue(Still_GetSetting(SAVEINSAMEFILE)))
-	{
-		sprintf(name,"%s\\TV.%s", SavingPath, extension);
-	}
-	else
-	{
-		while (n < 100)
-		{
-			sprintf(name,"%s\\TV%04d%02d%02d%02d%02d%02d%02d.%s",
-					SavingPath,
-					ctm->tm_year+1900,ctm->tm_mon+1,ctm->tm_mday,ctm->tm_hour,ctm->tm_min,ctm->tm_sec,n++, 
-					// name ~ date & time & per-second-counter (for if anyone succeeds in multiple captures per second)
-					// TVYYYYMMDDHHMMSSCC.ext ; eg .\TV2002123123595900.tif
-					extension);
-
-			if (stat(name, &st))
-			{
-				break;
-			}
-		}
-		if(n == 100) // never reached in 1 second, so could be scrapped
-		{
-			ErrorBox("Could not create a file. You may have too many captures already.");
-			return;
-		}
-	}
-
-	m_PlayList[m_Position]->SetFileName(name);
+	m_PlayList[m_Position]->SetFileName(FilePath);
     UpdateMenu();
 
     switch ((eStillFormat)Setting_GetValue(Still_GetSetting(FORMATSAVING)))
@@ -917,19 +933,19 @@ void CStillSource::SaveInFile()
     case STILL_TIFF_RGB:
         {
             CTiffHelper TiffHelper(this, TIFF_CLASS_R);
-            TiffHelper.SaveSnapshot(name, FrameHeight, FrameWidth, StartFrame, LinePitch);
+            TiffHelper.SaveSnapshot(FilePath, FrameHeight, FrameWidth, StartFrame, LinePitch);
             break;
         }
     case STILL_TIFF_YCbCr:
         {
             CTiffHelper TiffHelper(this, TIFF_CLASS_Y);
-            TiffHelper.SaveSnapshot(name, FrameHeight, FrameWidth, StartFrame, LinePitch);
+            TiffHelper.SaveSnapshot(FilePath, FrameHeight, FrameWidth, StartFrame, LinePitch);
             break;
         }
     case STILL_JPEG:
         {
             CJpegHelper JpegHelper(this);
-            JpegHelper.SaveSnapshot(name, FrameHeight, FrameWidth, StartFrame, LinePitch);
+            JpegHelper.SaveSnapshot(FilePath, FrameHeight, FrameWidth, StartFrame, LinePitch);
             break;
         }
     default:
@@ -1236,7 +1252,7 @@ BOOL CStillSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		if (m_PlayList[m_Position]->IsInMemory())
 		{
 			SaveInFile();
-			ShowText(hWnd, strrchr(m_PlayList[m_Position]->GetFileName(), '\\') + 1);
+			OSD_ShowText(hWnd, strrchr(m_PlayList[m_Position]->GetFileName(), '\\') + 1, 0);
 		}
         return TRUE;
         break;

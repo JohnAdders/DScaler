@@ -1,5 +1,5 @@
 //
-// $Id: ToolbarControl.cpp,v 1.12 2003-08-14 19:35:37 laurentg Exp $
+// $Id: ToolbarControl.cpp,v 1.13 2003-08-16 09:29:56 laurentg Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2003/08/14 19:35:37  laurentg
+// Timer for toolbar only when the toolbar is visible
+//
 // Revision 1.11  2003/08/11 20:49:54  laurentg
 // Hide the media player toolbar when it cannot be used with the current source
 //
@@ -111,8 +114,7 @@ Toolbar1Logo(NULL)
 	{
 		int VideoInput = Providers_GetCurrentSource()->GetInput(VIDEOINPUT);
 		bShowChannels = Providers_GetCurrentSource()->InputHasTuner(VIDEOINPUT,VideoInput);
-		bShowVolume = Providers_GetCurrentSource()->GetVolume()!=NULL;
-		bShowVolume = TRUE;
+		bShowVolume = !Providers_IsStillSource(Providers_GetCurrentSource());
 		bShowMediaPlayer = Providers_GetCurrentSource()->HasMediaControl();
 	}
 	
@@ -573,8 +575,7 @@ void CToolbarControl::OnEvent(CEventObject *pEventObject, eEventType Event, long
 		{
 			int VideoInput = Providers_GetCurrentSource()->GetInput(VIDEOINPUT);
 			BOOL bShowChannels = Providers_GetCurrentSource()->InputHasTuner(VIDEOINPUT,VideoInput);
-			BOOL bShowVolume = Providers_GetCurrentSource()->GetVolume()!=NULL;
-			bShowVolume = TRUE;
+			BOOL bShowVolume = !Providers_IsStillSource(Providers_GetCurrentSource());
 			BOOL bShowMediaPlayer = Providers_GetCurrentSource()->HasMediaControl();
 			
 			//Set proper bit

@@ -16,6 +16,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2002/11/04 02:09:32  lindsey
+// Removed the debug flag again
+//
 // Revision 1.16  2002/11/04 02:08:05  lindsey
 // Allowed stability values below 0.
 //

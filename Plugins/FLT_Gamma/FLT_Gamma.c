@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_Gamma.c,v 1.14 2002-06-18 19:46:08 adcockj Exp $
+// $Id: FLT_Gamma.c,v 1.15 2003-06-26 11:42:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/06/18 19:46:08  adcockj
+// Changed appliaction Messages to use WM_APP instead of WM_USER
+//
 // Revision 1.13  2002/06/13 12:10:25  adcockj
 // Move to new Setings dialog for filers, video deint and advanced settings
 //
@@ -241,3 +244,7 @@ __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo(long CpuFeatureFlags)
     return &GammaMethod;
 }
 
+BOOL WINAPI _DllMainCRTStartup(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
+{
+    return TRUE;
+}

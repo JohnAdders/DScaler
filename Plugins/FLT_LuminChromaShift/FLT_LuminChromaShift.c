@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_LuminChromaShift.c,v 1.2 2003-05-31 12:19:22 laurentg Exp $
+// $Id: FLT_LuminChromaShift.c,v 1.3 2003-06-26 11:42:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2003/05/31 12:19:22  laurentg
+// Adjusting by 1/16 of pixel is sufficient
+//
 // Revision 1.1  2003/03/29 22:33:57  laurentg
 // New filter
 //
@@ -170,3 +173,7 @@ __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo(long CpuFeatureFlags)
     return &LuminChromaShiftMethod;
 }
 
+BOOL WINAPI _DllMainCRTStartup(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
+{
+    return TRUE;
+}

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_ColourInversion.c,v 1.2 2002-08-07 21:52:05 adcockj Exp $
+// $Id: FLT_ColourInversion.c,v 1.3 2003-06-26 11:42:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 TM. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -93,3 +93,7 @@ __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo(long CpuFeatureFlags)
     return &InversionMethod;
 }
 
+BOOL WINAPI _DllMainCRTStartup(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
+{
+    return TRUE;
+}

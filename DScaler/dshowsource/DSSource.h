@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.h,v 1.42 2003-10-10 11:13:37 laurentg Exp $
+// $Id: DSSource.h,v 1.43 2004-12-14 21:25:15 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.42  2003/10/10 11:13:37  laurentg
+// Bug fixed : access to the audio mixer
+//
 // Revision 1.41  2003/08/16 18:36:58  laurentg
 // New method to know if it was the first setup of the card
 // New method to know if the source is a movie file
@@ -263,6 +266,8 @@ public:
 	ITuner* GetTuner();
 
     BOOL IsAudioMixerAccessAllowed() {return TRUE;};
+
+	int ChangeRes(int nResIndex);
 
 private:
 

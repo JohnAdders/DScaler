@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.133 2004-12-13 23:24:44 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.134 2004-12-14 21:30:14 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.133  2004/12/13 23:24:44  laurentg
+// Request in GUI thread regarding output thread - extended code
+//
 // Revision 1.132  2004/05/06 13:49:13  atnak
 // updated a comment
 //
@@ -492,6 +495,7 @@
 #include "Perf.h"
 #include "OSD.h"
 #include "MultiFrames.h"
+#include "dshowsource\DSSource.h"
 
 
 // Thread related variables
@@ -658,6 +662,9 @@ void PutRequest(TGUIRequest *req)
 			Request.type = req->type;
 			break;
 		case REQ_DSHOW_CHANGERES:
+			Request.type = req->type;
+			Request.param1 = req->param1;
+			break;
 		case REQ_DSHOW_STOP:
 		default:
 			break;
@@ -1555,7 +1562,14 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
             // if asked save the current Info to a file
             if(Request.type == REQ_SNAPSHOT)
             {
-                SaveStreamSnapshot(&Info);
+				SaveStreamSnapshot(&Info);
+                Request.type = REQ_NONE;
+            }
+
+            // if request for changing capture resolution
+            if(Request.type == REQ_DSHOW_CHANGERES)
+            {
+				((CDSCaptureSource*)Providers_GetCurrentSource())->ChangeRes(Request.param1);
                 Request.type = REQ_NONE;
             }
 

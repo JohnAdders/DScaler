@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.70 2004-12-12 01:17:53 laurentg Exp $
+// $Id: DSSource.cpp,v 1.71 2004-12-14 21:25:15 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.70  2004/12/12 01:17:53  laurentg
+// Extended choice of resolution
+//
 // Revision 1.69  2003/02/22 16:48:59  tobbej
 // added some comments about requierments for OpenFile (to avoid crashing)
 //
@@ -289,6 +292,7 @@
 #include "TreeSettingsDlg.h"
 #include "DSVideoFormatPage.h"
 #include "DSAudioDevicePage.h"
+#include "OutThreads.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -710,6 +714,46 @@ void CDSCaptureSource::CreateSettings(LPCSTR IniSection)
 	LOG(2,"DSCaptureSource: setting read from .ini");
 }
 
+int CDSCaptureSource::ChangeRes(int nResIndex)
+{
+	int resu = 1;
+	try
+	{
+		CAutoCriticalSection lock(m_hOutThreadSync);
+
+		ASSERT(nResIndex>=0 && nResIndex<m_VideoFmt.size());
+		CDShowGraph::eChangeRes_Error err=m_pDSGraph->ChangeRes(m_VideoFmt[nResIndex]);
+		switch(err)
+		{
+		case CDShowGraph::eChangeRes_Error::ERROR_NO_GRAPH:
+			ErrorBox("Can't change resolution because there is no filter graph (bug)");
+			break;
+		case CDShowGraph::eChangeRes_Error::ERROR_CHANGED_BACK:
+			ErrorBox("The selected resolution is not valid or coud not be used");
+			break;
+		case CDShowGraph::eChangeRes_Error::ERROR_FAILED_TO_CHANGE_BACK:
+			ErrorBox("Failed to change resolution and faild to change back to previous resolution");
+			//shod probably call Stop() or Reset() here since the
+			//filter graph is most likely broken now
+			break;
+		case CDShowGraph::eChangeRes_Error::SUCCESS:
+			m_Resolution->SetValue(nResIndex);
+			resu = 0;
+			break;
+		}
+		NotifySquarePixelsCheck();
+	}
+	catch(CDShowException &e)
+	{
+		ErrorBox(CString("Error when changeing resolution\n\n")+e.getErrorText());
+	}
+	catch(exception &e2)
+	{
+		ErrorBox(CString("Stl exception:\n\n")+e2.what());
+	}
+	return resu;
+}
+
 BOOL CDSCaptureSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 {
 	if(CDSSourceBase::HandleWindowsCommands(hWnd,wParam,lParam)==TRUE)
@@ -792,41 +836,11 @@ BOOL CDSCaptureSource::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam
 	}
 	else if(LOWORD(wParam)>=IDM_DSHOW_RES_0 && LOWORD(wParam<=IDM_DSHOW_RES_MAX))
 	{
-		try
-		{
-			CAutoCriticalSection lock(m_hOutThreadSync);
-			long OldRes=m_Resolution->GetValue();
-			long NewRes=LOWORD(wParam)-IDM_DSHOW_RES_0;
-
-			ASSERT(NewRes>=0 && NewRes<m_VideoFmt.size());
-			CDShowGraph::eChangeRes_Error err=m_pDSGraph->ChangeRes(m_VideoFmt[NewRes]);
-			switch(err)
-			{
-			case CDShowGraph::eChangeRes_Error::ERROR_NO_GRAPH:
-				ErrorBox("Can't change resolution because there is no filter graph (bug)");
-				break;
-			case CDShowGraph::eChangeRes_Error::ERROR_CHANGED_BACK:
-				ErrorBox("The selected resolution is not valid or coud not be used");
-				break;
-			case CDShowGraph::eChangeRes_Error::ERROR_FAILED_TO_CHANGE_BACK:
-				ErrorBox("Failed to change resolution and faild to change back to previous resolution");
-				//shod probably call Stop() or Reset() here since the
-				//filter graph is most likely broken now
-				break;
-			case CDShowGraph::eChangeRes_Error::SUCCESS:
-				m_Resolution->SetValue(NewRes);
-				break;
-			}
-			NotifySquarePixelsCheck();
-		}
-		catch(CDShowException &e)
-		{
-			ErrorBox(CString("Error when changeing resolution\n\n")+e.getErrorText());
-		}
-		catch(exception &e2)
-		{
-			ErrorBox(CString("Stl exception:\n\n")+e2.what());
-		}
+		TGUIRequest req;
+		req.type = REQ_DSHOW_CHANGERES;
+		req.param1 = LOWORD(wParam)-IDM_DSHOW_RES_0;
+		ASSERT(req.param1>=0 && req.param1<m_VideoFmt.size());
+		PutRequest(&req);
 	}
 	else if(LOWORD(wParam)==ID_DSHOW_AUDIOCHANNEL_MONO)
 	{

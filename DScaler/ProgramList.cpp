@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.68 2002-08-06 18:35:43 kooiman Exp $
+// $Id: ProgramList.cpp,v 1.69 2002-08-11 19:53:32 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.68  2002/08/06 18:35:43  kooiman
+// Expandable and more independent channel change notification.
+//
 // Revision 1.67  2002/08/05 12:04:26  kooiman
 // Added functions for channel change notification
 //
@@ -1751,7 +1754,7 @@ SETTING AntiPlopSettings[ANTIPLOP_SETTING_LASTONE] =
     },
     {
         "Post switch mute delay", SLIDER, 0, (long*)&PostSwitchMuteDelay,
-        20, 0, 1000, 1, 1,
+        100, 0, 1000, 1, 1,
         NULL,
         "Audio", "PostSwitchMuteDelay", NULL,
     },

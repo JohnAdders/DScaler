@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.75 2002-11-10 09:42:01 laurentg Exp $
+// $Id: OSD.cpp,v 1.76 2003-01-08 22:01:24 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.75  2002/11/10 09:42:01  laurentg
+// Settings "Use OSD screen..."
+//
 // Revision 1.74  2002/10/29 23:38:35  laurentg
 // Display of the calibration OSD
 //
@@ -470,7 +473,7 @@ void OSD_AddText(LPCTSTR szText, double Size, long NewTextColor, long Background
             SingleLineIndex = 0;
             if(Size == 0)
             {
-                YPos += DefaultSizePerc/100;
+                YPos += (double)DefaultSizePerc/100;
             }
             else
             {

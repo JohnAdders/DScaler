@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.98 2002-11-01 11:09:49 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.99 2002-11-10 16:53:33 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.98  2002/11/01 11:09:49  laurentg
+// Possibility to take still when pause is on restored
+// Problem of memory leak when taking consecutive stills probably solved
+// Display in OSD of the file name used for the still restored
+//
 // Revision 1.97  2002/10/29 20:51:55  laurentg
 // Overlay must be locked when taking a still from the overlay
 //
@@ -852,7 +857,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                     pPerf->StartCount(PERF_CALIBRATION);
 #endif
 
-    				pCalibration->Make(&Info, GetTickCount());
+                    pCalibration->Make(&Info, GetTickCount());
 
 #ifdef _DEBUG
                     pPerf->StopCount(PERF_CALIBRATION);
@@ -1014,7 +1019,10 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 								LOG(1, "Falling out after Overlay_Lock_Back_Buffer");
 								PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_STOP, 0);
 								PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_START, 0);
-								ExitThread(1);
+#ifdef WANT_DSHOW_SUPPORT
+								CoUninitialize();
+#endif
+								DScalerDeinitializeThread();
 								return 1;
 							}
 							bOverlayLocked = TRUE;
@@ -1079,9 +1087,11 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 								LOG(1, "Falling out after Overlay_Unlock_Back_Buffer");
 								PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_STOP, 0);
 								PostMessage(hWnd, WM_COMMAND, IDM_OVERLAY_START, 0);
+#ifdef WANT_DSHOW_SUPPORT
+								CoUninitialize();
+#endif
 								DScalerDeinitializeThread();
-								ExitThread(1);
-								return 0;
+								return 1;
 							}
 							bOverlayLocked = FALSE;
 						}
@@ -1280,9 +1290,13 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     { 
         Providers_GetCurrentSource()->Stop();
         LOG(1, "Crash in OutThreads main loop");
-        DScalerDeinitializeThread();
-        ExitThread(1);
-        return 0;
+
+#ifdef WANT_DSHOW_SUPPORT
+		//i don't know if it's a good idea or not to call CoUninitialize when there has been a crash
+		CoUninitialize();
+#endif
+		DScalerDeinitializeThread();
+        return 1;
     }
 
     // try and stop the capture
@@ -1294,18 +1308,17 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     __except (CrashHandler((EXCEPTION_POINTERS*)_exception_info())) 
     {
         LOG(1, "Crash in in OutThreads Providers_GetCurrentSource()->Stop()");
+#ifdef WANT_DSHOW_SUPPORT
+		CoUninitialize();
+#endif
         DScalerDeinitializeThread();
-        ExitThread(1);
-        return 0;
+        return 1;
     }
-    DScalerDeinitializeThread();
-
 #ifdef WANT_DSHOW_SUPPORT
     //com deinit
     CoUninitialize();
 #endif
-
-    //ExitThread(0);
+    DScalerDeinitializeThread();
     return 0;
 }
 

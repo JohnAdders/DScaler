@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_Audio.cpp,v 1.30 2002-10-15 18:31:45 kooiman Exp $
+// $Id: BT848Source_Audio.cpp,v 1.31 2002-10-27 14:01:36 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2002/10/15 18:31:45  kooiman
+// Added stereo detect interval for continuous scanning for stereo mode.
+//
 // Revision 1.29  2002/10/11 21:48:33  ittarnavsky
 // added back in support for UseInputPin1
 //
@@ -204,7 +207,7 @@ void CBT848Source::AudioSource6OnChange(long NewValue, long OldValue)
 
 void CBT848Source::AudioChannelOnChange(long NewValue, long OldValue)
 {
-   m_pBT848Card->SetAudioChannel((eSoundChannel)NewValue); // FIXME, (m_UseInputPin1->GetValue() != 0));    
+   m_pBT848Card->SetAudioChannel((eSoundChannel)NewValue);   
 	EventCollector->RaiseEvent(this, EVENT_SOUNDCHANNEL, OldValue, NewValue);
 }
 
@@ -580,7 +583,7 @@ ISetting* CBT848Source::GetCurrentAudioSetting()
 
 void CBT848Source::InitAudio()
 {
-    m_pBT848Card->InitAudio();
+    m_pBT848Card->InitAudio((m_UseInputPin1->GetValue() != 0));
 
     m_InitAudioControls = TRUE; //done in audiostandarddetectonchange
     

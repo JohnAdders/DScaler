@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: RegLog.cpp,v 1.2 2002-11-27 17:39:30 adcockj Exp $
+// $Id: RegLog.cpp,v 1.3 2002-11-28 14:47:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,12 +18,16 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/11/27 17:39:30  adcockj
+// Added headers
+//
 //////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include "resource.h"
 #include "GenericCard.h"
 #include "../DScaler/CX2388X_Defines.h"
+#include "../DScaler/BT848_Defines.h"
 
 #define DumpBRegister(Reg) fprintf(hFile, #Reg "\t%02x\n", pCard->ReadByte(Reg))
 #define DumpWRegister(Reg) fprintf(hFile, #Reg "\t%04x\n", pCard->ReadWord(Reg))
@@ -31,6 +35,71 @@
 
 void __cdecl BT848RegLog(CGenericCard* pCard, LPCSTR Filename)
 {
+    FILE* hFile;
+
+    hFile = fopen(Filename, "w");
+    if(!hFile)
+    {
+        return;
+    }
+
+    fprintf(hFile, "SubSystemId\t%08x\n", pCard->GetSubSystemId());
+    DumpBRegister(BT848_IFORM);
+    DumpBRegister(BT848_FCNTR);
+    DumpBRegister(BT848_PLL_F_LO);
+    DumpBRegister(BT848_PLL_F_HI);
+    DumpBRegister(BT848_PLL_XCI);
+    DumpBRegister(BT848_TGCTRL);
+    DumpBRegister(BT848_TDEC);
+    DumpBRegister(BT848_E_CROP);
+    DumpBRegister(BT848_O_CROP);
+    DumpBRegister(BT848_E_VDELAY_LO);
+    DumpBRegister(BT848_O_VDELAY_LO);
+    DumpBRegister(BT848_E_VACTIVE_LO);
+    DumpBRegister(BT848_O_VACTIVE_LO);
+    DumpBRegister(BT848_E_HDELAY_LO);
+    DumpBRegister(BT848_O_HDELAY_LO);
+    DumpBRegister(BT848_E_HACTIVE_LO);
+    DumpBRegister(BT848_O_HACTIVE_LO);
+    DumpBRegister(BT848_E_HSCALE_HI);
+    DumpBRegister(BT848_O_HSCALE_HI);
+    DumpBRegister(BT848_E_HSCALE_LO);
+    DumpBRegister(BT848_O_HSCALE_LO);
+    DumpBRegister(BT848_BRIGHT);
+    DumpBRegister(BT848_E_CONTROL);
+    DumpBRegister(BT848_O_CONTROL);
+    DumpBRegister(BT848_CONTRAST_LO);
+    DumpBRegister(BT848_SAT_U_LO);
+    DumpBRegister(BT848_SAT_V_LO);
+    DumpBRegister(BT848_HUE);
+    DumpBRegister(BT848_E_SCLOOP);
+    DumpBRegister(BT848_O_SCLOOP);
+    DumpBRegister(BT848_WC_UP);
+    DumpBRegister(BT848_WC_DOWN);
+    DumpBRegister(BT848_VTOTAL_LO);
+    DumpBRegister(BT848_VTOTAL_HI);
+    DumpBRegister(BT848_DVSIF);
+    DumpBRegister(BT848_OFORM);
+    DumpBRegister(BT848_E_VSCALE_HI);
+    DumpBRegister(BT848_O_VSCALE_HI);
+    DumpBRegister(BT848_E_VSCALE_LO);
+    DumpBRegister(BT848_O_VSCALE_LO);
+    DumpBRegister(BT848_ADC);
+    DumpBRegister(BT848_E_VTC);
+    DumpBRegister(BT848_O_VTC);
+    DumpBRegister(BT848_COLOR_FMT);
+    DumpBRegister(BT848_COLOR_CTL);
+    DumpBRegister(BT848_CAP_CTL);
+    DumpBRegister(BT848_VBI_PACK_SIZE);
+    DumpBRegister(BT848_VBI_PACK_DEL);
+    DumpBRegister(BT848_INT_MASK);
+    DumpBRegister(BT848_GPIO_OUT_EN);
+    DumpBRegister(BT848_GPIO_OUT_EN_HIBYTE);
+    DumpBRegister(BT848_GPIO_DATA);
+    DumpBRegister(BT848_RISC_STRT_ADD);
+    DumpBRegister(BT848_GPIO_DMA_CTL);
+
+    fclose(hFile);
 }
 
 void __cdecl CX2388xRegLog(CGenericCard* pCard, LPCSTR Filename)
@@ -204,7 +273,6 @@ void __cdecl CX2388xRegLog(CGenericCard* pCard, LPCSTR Filename)
     DumpDWRegister(AUD_CORDIC_SHIFT_1);
     DumpDWRegister(AUD_PLL_PRESCALE);
     DumpDWRegister(AUD_PLL_INT);
-
 
     fclose(hFile);
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.46 2004-11-20 14:23:56 atnak Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.47 2005-03-10 05:04:55 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.46  2004/11/20 14:23:56  atnak
+// Added SAA7134 card name setting for storing the card selection as text.
+//
 // Revision 1.45  2004/03/18 03:36:13  atnak
 // Fixed Bug: Tuner changes in card setup is not saved
 //
@@ -1291,9 +1294,9 @@ void CSAA7134Source::SetMenu(HMENU hMenu)
 
     EnableMenuItemBool(m_hMenu, IDM_AUDIO_0, m_pSAA7134Card->GetDeviceId() != 0x7130);
 
-    CheckMenuItemBool(m_hMenu, IDM_AUDIO_0, (m_AudioSource->GetValue() == 0));
-    CheckMenuItemBool(m_hMenu, IDM_AUDIO_1, (m_AudioSource->GetValue() == 1));
-    CheckMenuItemBool(m_hMenu, IDM_AUDIO_2, (m_AudioSource->GetValue() == 2));
+    CheckMenuItemBool(m_hMenu, IDM_AUDIO_0, (m_AudioSource->GetValue() == AUDIOINPUTSOURCE_DAC));
+    CheckMenuItemBool(m_hMenu, IDM_AUDIO_1, (m_AudioSource->GetValue() == AUDIOINPUTSOURCE_LINE1));
+    CheckMenuItemBool(m_hMenu, IDM_AUDIO_2, (m_AudioSource->GetValue() == AUDIOINPUTSOURCE_LINE2));
 
     BOOL bDACActive = m_AudioSource->GetValue() == AUDIOINPUTSOURCE_DAC;
 
@@ -1505,19 +1508,21 @@ BOOL CSAA7134Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         case IDM_AUDIO_0:
         case IDM_AUDIO_1:
         case IDM_AUDIO_2:
-            m_AudioSource->SetValue((LOWORD(wParam) - IDM_AUDIO_0));
-            switch (m_AudioSource->GetValue())
-            {
-            case AUDIOINPUTSOURCE_DAC:
-                ShowText(hWnd, "Audio Input - Tuner");
-                break;
-            case AUDIOINPUTSOURCE_LINE1:
-                ShowText(hWnd, "Audio Input - Line 1");
-                break;
-            case AUDIOINPUTSOURCE_LINE2:
-                ShowText(hWnd, "Audio Input - Line 2");
-                break;
-            }
+			switch(LOWORD(wParam))
+			{
+			case IDM_AUDIO_0:
+				m_AudioSource->SetValue(AUDIOINPUTSOURCE_DAC);
+				ShowText(hWnd, "Audio Input - Tuner");
+				break;
+			case IDM_AUDIO_1:
+				m_AudioSource->SetValue(AUDIOINPUTSOURCE_LINE1);
+				ShowText(hWnd, "Audio Input - Line 1");
+				break;
+			case IDM_AUDIO_2:
+				m_AudioSource->SetValue(AUDIOINPUTSOURCE_LINE2);
+				ShowText(hWnd, "Audio Input - Line 2");
+				break;
+			}
             break;
 
         case IDM_SOURCE_INPUT1:

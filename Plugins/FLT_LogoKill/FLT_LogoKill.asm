@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_LogoKill.asm,v 1.2 2002-10-14 20:43:42 robmuller Exp $
+// $Id: FLT_LogoKill.asm,v 1.3 2002-10-14 21:55:36 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Rob Muller. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/10/14 20:43:42  robmuller
+// Changed into input filter. New mode added. Miscellaneous improvements.
+//
 // Revision 1.1  2002/10/09 22:16:35  robmuller
 // Implemented 3dnow and MMX versions.
 //
@@ -190,7 +193,7 @@ long FilterLogoKiller_MMX(TDeinterlaceInfo* pInfo)
             BYTE* pByte = lpLogoRect;
             int i = 0;
 
-            // first find the highest luma value of the top and bottom row
+            // first find the highest luma value of the top and bottom boundary
             MaxByte = 0;
             for(i = 0; i < Width; i++)
             {
@@ -198,7 +201,6 @@ long FilterLogoKiller_MMX(TDeinterlaceInfo* pInfo)
                 {
                     MaxByte = *pByte;
                 }
-                *pByte = 0x7f;
                 pByte++;
                 pByte++;
             }
@@ -209,10 +211,29 @@ long FilterLogoKiller_MMX(TDeinterlaceInfo* pInfo)
                 {
                     MaxByte = *pByte;
                 }
-                *pByte = 0x7f;
                 pByte++;
                 pByte++;
             }
+            // left/right boundary
+            pByte =  lpLogoRect;
+            for(i = 0; i < Height; i++)
+            {
+                if(*pByte > MaxByte)
+                {
+                    MaxByte = *pByte;
+                }
+                pByte += Pitch;
+            }
+            pByte =  lpLogoRect + Width*2;
+            for(i = 0; i < Height; i++)
+            {
+                if(*pByte > MaxByte)
+                {
+                    MaxByte = *pByte;
+                }
+                pByte += Pitch;
+            }
+
             LimitToMaximum(MaxByte, lpLogoRect8, Pitch, Height, Width8);
         }
         break;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.46 2002-08-07 21:53:04 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.47 2002-08-08 12:35:39 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.46  2002/08/07 21:53:04  adcockj
+// Removed todo item
+//
 // Revision 1.45  2002/08/05 13:25:17  kooiman
 // Added BT volume to save by channel settings.
 //
@@ -209,7 +212,15 @@
 #include "FD_50Hz.h"
 #include "DebugLog.h"
 #include "AspectRatio.h"
+#include "SettingsPerChannel.h"
 
+void BT848_OnSetup(void *pThis, int Start)
+{
+   if (pThis != NULL)
+   {
+      ((CBT848Source*)pThis)->SavePerChannelSetup(Start);
+   }
+}
 
 
 CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CUserMemory* DisplayDMAMem[5], CUserMemory* VBIDMAMem[5], LPCSTR IniSection) :
@@ -231,6 +242,8 @@ CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CU
     {
         m_pBT848Card->SetACPIStatus(0);
     }
+
+    SettingsPerChannel_RegisterOnSetup(this, BT848_OnSetup);
 
     ReadFromIni();
     ChangeSectionNamesForInput();
@@ -263,7 +276,6 @@ CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CU
 
 CBT848Source::~CBT848Source()
 {
-    CloseChannelSettings();
     // if the BT878 was not in D0 state we restore the original ACPI power state
     if(m_InitialACPIStatus != 0)
     {
@@ -1059,7 +1071,6 @@ void CBT848Source::VDelayOnChange(long NewValue, long OldValue)
 void CBT848Source::BrightnessOnChange(long Brightness, long OldValue)
 {
     m_pBT848Card->SetBrightness(Brightness);
-    ChannelSettingChanged(m_Brightness);
 }
 
 void CBT848Source::BtWhiteCrushUpOnChange(long NewValue, long OldValue)
@@ -1090,13 +1101,11 @@ void CBT848Source::BDelayOnChange(long NewValue, long OldValue)
 void CBT848Source::HueOnChange(long Hue, long OldValue)
 {
     m_pBT848Card->SetHue(Hue);
-    ChannelSettingChanged(m_Hue);
 }
 
 void CBT848Source::ContrastOnChange(long Contrast, long OldValue)
 {
     m_pBT848Card->SetContrast(Contrast);
-    ChannelSettingChanged(m_Contrast);
 }
 
 void CBT848Source::SaturationUOnChange(long SatU, long OldValue)
@@ -1110,7 +1119,6 @@ void CBT848Source::SaturationUOnChange(long SatU, long OldValue)
         m_Saturation->SetMax(511 - abs(SatU - m_SaturationV->GetValue()) / 2);
         m_InSaturationUpdate = FALSE;
     }
-    ChannelSettingChanged(m_SaturationU);
 }
 
 void CBT848Source::SaturationVOnChange(long SatV, long OldValue)
@@ -1124,7 +1132,6 @@ void CBT848Source::SaturationVOnChange(long SatV, long OldValue)
         m_Saturation->SetMax(511 - abs(SatV - m_SaturationU->GetValue()) / 2);
         m_InSaturationUpdate = FALSE;
     }
-    ChannelSettingChanged(m_SaturationV);
 }
 
 
@@ -1141,7 +1148,6 @@ void CBT848Source::SaturationOnChange(long Sat, long OldValue)
         m_Saturation->SetMax(511 - abs(m_SaturationV->GetValue() - m_SaturationU->GetValue()) / 2);
         m_InSaturationUpdate = FALSE;
     }
-    ChannelSettingChanged(m_Saturation);
 }
 
 void CBT848Source::OverscanOnChange(long Overscan, long OldValue)
@@ -1316,100 +1322,10 @@ void CBT848Source::SetOverscan()
     AspectSettings.InitialOverscan = m_Overscan->GetValue();
 }
 
-void CBT848Source::ChannelSettingChanged(CSimpleSetting *Setting, int NewSetting)
+void CBT848Source::SavePerChannelSetup(int Start)
 {
-    if (!IsInTunerMode() || !m_bSavePerChannel->GetValue())
+    if (Start)
     {
-        return;
-    }
-    
-    for(vector<CBT848Source::TChannelSetting*>::iterator it = m_ChannelSettings.begin();
-        it != m_ChannelSettings.end();
-        ++it)
-    {        
-        /// Failes if settings get reallocated. Does this ever happen?
-        if ( Setting == (*it)->Setting )
-        {
-            if (!NewSetting)
-            {
-                (*it)->Flag|=1;
-            }
-            return;
-        }
-
-    }
-    if (!NewSetting)
-    {
-        // Non-registered setting, ignore.
-        return;
-    }
-
-    // Add new setting
-    TChannelSetting *ChannelSetting = new TChannelSetting;
-    ChannelSetting->Setting = Setting;
-    ChannelSetting->Flag    = 0; 
-    if (!NewSetting)
-    {
-        ChannelSetting->Flag |= 1; 
-    }
-    m_ChannelSettings.push_back(ChannelSetting);
+        ChangeChannelSectionNames();
+    }    
 }
-
-
-void CBT848Source::CloseChannelSettings()
-{
-
-    //Clear list
-    if (m_ChannelSettings.size()>0) 
-    {                               
-        for(vector<CBT848Source::TChannelSetting*>::iterator it = m_ChannelSettings.begin();
-                it != m_ChannelSettings.end(); ++it)
-        {
-            delete (*it);
-        }
-        m_ChannelSettings.clear();
-    }
-}
-
-void CBT848Source::ChannelPreChange(int OldChannel, int NewChannel)
-{
-    if(IsInTunerMode() && m_bSavePerChannel->GetValue())
-    {
-        if (m_ChannelSettings.size()==0)
-        {
-            // First time, build setting list
-
-            //ChannelSettingChanged(m_VideoFormat, 1); // mostly covered by existing code
-            ChannelSettingChanged(m_Brightness, 1);
-            ChannelSettingChanged(m_Contrast, 1);
-            ChannelSettingChanged(m_Hue, 1);
-            ChannelSettingChanged(m_SaturationU, 1);
-            ChannelSettingChanged(m_SaturationV, 1);
-            ChannelSettingChanged(m_Saturation, 1);
-            ChannelSettingChanged(m_AudioChannel, 1);
-            ChannelSettingChanged(m_UseInputPin1, 1);
-            ChannelSettingChanged(m_AutoStereoSelect, 1);
-            if (GetVolume()!=NULL)
-            {                
-                ChannelSettingChanged(m_Volume, 1);
-            }
-        } 
-        else
-        {
-            if (OldChannel>=0) 
-            {
-                SaveChannelSettings(OldChannel,TRUE);
-            }
-        }
-    }
-}
-
-void CBT848Source::ChannelChange(int NewChannel)
-{    
-    m_CurrentChannel=NewChannel;    
-    if(IsInTunerMode() && m_bSavePerChannel->GetValue())
-    {                
-        LoadChannelSettings(NewChannel,1);
-    }
-}
-

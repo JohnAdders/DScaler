@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Audio.cpp,v 1.5 2002-11-29 17:09:46 adcockj Exp $
+// $Id: CX2388xCard_Audio.cpp,v 1.6 2002-11-29 17:19:09 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/11/29 17:09:46  adcockj
+// Some sound fixes (hopefully)
+//
 // Revision 1.4  2002/11/28 18:07:37  adcockj
 // Fixed overflowing registers
 //
@@ -240,7 +243,7 @@ void CCX2388xCard::AudioInitEIAJ()
     WriteDword(AUD_C1_LO_THR,            0x2c00);
     WriteDword(AUD_MODE_CHG_TIMER,       0x0050);
     WriteDword(AUD_START_TIMER,          0x0200);
-    WriteDword(AUD_AFE_16DB_EN,          0x0001);
+    WriteDword(AUD_AFE_12DB_EN,          0x0001);
     WriteDword(AUD_CORDIC_SHIFT_0,       0x0006);
 
     // slow-in, fast-out stereo only

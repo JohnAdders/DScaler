@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: RegLog.cpp,v 1.5 2002-11-28 14:56:19 adcockj Exp $
+// $Id: RegLog.cpp,v 1.6 2002-11-29 17:19:09 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/11/28 14:56:19  adcockj
+// Fixed some register size issues
+//
 // Revision 1.4  2002/11/28 14:50:52  adcockj
 // Added set directory so that files aways go to the exe location
 //
@@ -300,6 +303,7 @@ void __cdecl CX2388xRegLog(CGenericCard* pCard, LPCSTR Filename)
     DumpDWRegister(AUD_CORDIC_SHIFT_1);
     DumpDWRegister(AUD_PLL_PRESCALE);
     DumpDWRegister(AUD_PLL_INT);
+    DumpDWRegister(AUD_AFE_12DB_EN);
 
     fclose(hFile);
 }

@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.cpp,v 1.30 2002-10-02 10:52:35 kooiman Exp $
+// $Id: MSP34x0.cpp,v 1.31 2002-10-07 20:38:17 kooiman Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2002/10/02 10:52:35  kooiman
+// Fixed C++ type casting for events.
+//
 // Revision 1.29  2002/09/28 15:04:58  kooiman
 // Added object to raiseevent
 //
@@ -1107,7 +1110,16 @@ void CMSP34x0Decoder::DetectAudioStandard(long Interval, int SupportedSoundChann
 {
     CAudioDecoder::DetectAudioStandard(Interval, SupportedSoundChannels, TargetChannel);
 
-    m_DetectInterval10ms = (Interval/10);
+	if (Interval > 0)
+	{				
+		m_DetectInterval10ms = (Interval/10);
+	}
+	else
+	{
+		//Abort
+		StopThread();	
+		return;
+	}
 
     if (SupportedSoundChannels)
     {
@@ -1118,58 +1130,55 @@ void CMSP34x0Decoder::DetectAudioStandard(long Interval, int SupportedSoundChann
 
     EnterCriticalSection(&MSP34xxCriticalSection);
     AutoDetecting = m_AutoDetecting;
-    if (m_AutoDetecting != 1)
-    {
-        m_DetectCounter = 0;
-        m_ThreadWait = TRUE;
+	LeaveCriticalSection(&MSP34xxCriticalSection);
 
-        if (SupportedSoundChannels == 2)
+	if (AutoDetecting == 1)
+	{
+		//Abort
+		StopThread();
+	}
+
+    EnterCriticalSection(&MSP34xxCriticalSection);
+	
+    m_DetectCounter = 0;
+    m_ThreadWait = TRUE;
+
+    if (SupportedSoundChannels == 2)
+    {
+        m_AutoDetecting = 2;
+    }
+    else
+    {
+        m_AutoDetecting = 1;
+        m_DetectSupportedSoundChannels = (SupportedSoundChannels == 1);    
+    }
+    LeaveCriticalSection(&MSP34xxCriticalSection);
+
+    if (SupportedSoundChannels == 2)
+    {
+        if (TargetChannel != SOUNDCHANNEL_MONO)
         {
-            m_AutoDetecting = 2;
-        }
-        else
-        {
-            m_AutoDetecting = 1;
-            m_DetectSupportedSoundChannels = (SupportedSoundChannels == 1);
+            if(m_MSPVersion == MSPVersionG)
+            {
+                SetDEMRegister(DEM_WR_MODUS, 0x2003);
+            }
         }
     }
     else
     {
-        if (SupportedSoundChannels)
+        if(m_MSPVersion == MSPVersionG)
         {
-            m_DetectSupportedSoundChannels = TRUE;
-        }
-    }
-    LeaveCriticalSection(&MSP34xxCriticalSection);
-
-    if (AutoDetecting != 1)
-    {
-        if (SupportedSoundChannels == 2)
-        {
-            if (TargetChannel != SOUNDCHANNEL_MONO)
-            {
-                if(m_MSPVersion == MSPVersionG)
-                {
-                    SetDEMRegister(DEM_WR_MODUS, 0x2003);
-                }
-            }
+            SetStandard34x1G(MSP34x0_STANDARD_AUTO, m_VideoFormat);
         }
         else
         {
-            if(m_MSPVersion == MSPVersionG)
-            {
-                SetStandard34x1G(MSP34x0_STANDARD_AUTO, m_VideoFormat);
-            }
-            else
-            {
-                SetStandard3400(MSP34x0_STANDARD_AUTO, m_VideoFormat, FALSE, SOUNDCHANNEL_MONO);
-            }
+            SetStandard3400(MSP34x0_STANDARD_AUTO, m_VideoFormat, FALSE, SOUNDCHANNEL_MONO);
         }
-        EnterCriticalSection(&MSP34xxCriticalSection);
-        m_ThreadWait = FALSE;
-        LeaveCriticalSection(&MSP34xxCriticalSection);
-        StartThread();
     }
+    EnterCriticalSection(&MSP34xxCriticalSection);
+    m_ThreadWait = FALSE;
+    LeaveCriticalSection(&MSP34xxCriticalSection);
+    StartThread();
 }
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: debug.h,v 1.1 2001-12-09 22:01:48 tobbej Exp $
+// $Id: debug.h,v 1.2 2003-03-05 21:44:22 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2001/12/09 22:01:48  tobbej
+// experimental dshow support, doesnt work yet
+// define WANT_DSHOW_SUPPORT if you want to try it
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -33,9 +37,43 @@
 
 #ifdef _DEBUG
 
-/** this function makes it posibel to use graphedit to view/change a running filter graph */
+/**
+ * This function makes it posibel to use graphedit to view/change a running filter graph.
+ * @param pUnkGraph filter graph
+ * @param pdwRegister
+ */
 HRESULT AddToRot(IUnknown *pUnkGraph, DWORD *pdwRegister);
 
+/**
+ * Removes the filter graph from rot.
+ * @param pdwRegister value returned from AddToRot
+ */
 void RemoveFromRot(DWORD pdwRegister);
 
 #endif
+
+/**
+ * @param pGraph
+ * @param text
+ */
+void DumpGraph(IFilterGraph *pGraph,std::string &text);
+
+/**
+ * @param pFilter filter to dump
+ * @param text textual description of filter
+ */
+void DumpFilter(CComPtr<IBaseFilter> pFilter,std::string &text);
+
+/**
+ * Dumps the preferred mediatypes of all pins on a filter.
+ * @param pFilter
+ * @param text
+ */
+void DumpPreferredMediaTypes(CComPtr<IBaseFilter> pFilter,std::string &text);
+
+/**
+ * Decodes a AM_MEDIA_TYPE struct to text.
+ * @param mt mediatype to dump
+ * @param text textual description of the mediatype
+ */
+void DumpMediaType(AM_MEDIA_TYPE *mt,std::string &text);

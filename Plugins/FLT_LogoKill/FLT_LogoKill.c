@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_LogoKill.c,v 1.12 2002-06-18 19:46:09 adcockj Exp $
+// $Id: FLT_LogoKill.c,v 1.13 2002-08-17 11:42:06 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/06/18 19:46:09  adcockj
+// Changed appliaction Messages to use WM_APP instead of WM_USER
+//
 // Revision 1.11  2002/06/13 12:10:26  adcockj
 // Move to new Setings dialog for filers, video deint and advanced settings
 //
@@ -54,6 +57,8 @@ long Left = 5;
 long Width = 30;
 long Height = 30;
 long Max = 128;
+long gUseSmoothing = TRUE;
+long gLogoThreshold = 50;
 
 typedef enum
 {
@@ -72,12 +77,13 @@ LPCSTR ModeList[] =
     "Grey",
     "Limit To Max Value",
     "Dynamic Max",
-    "Weighted Average (asm)",
     "Weighted Average (c)",
+    "Weighted Average (asm)",
     "Dynamic Max",
 };
 
 SETTING FLT_LogoKillSettings[FLT_LOGOKILL_SETTING_LASTONE];
+
 
 long LogoKiller(TDeinterlaceInfo* pInfo)
 {
@@ -304,6 +310,45 @@ long LogoKiller(TDeinterlaceInfo* pInfo)
 				}
 			}
 
+if(gUseSmoothing)
+{
+	_asm
+        {
+            // set edi to top left
+            mov edi, lpOverlay
+            mov ebx, Pitch
+            mov eax, Top
+            imul eax, ebx
+            add edi, eax
+            // loop over height
+            mov eax, Height
+            LOOP_SMOOTH_OUTER:
+            // loop over width
+            mov edx, edi
+            mov ecx, Width
+            LOOP_SMOOTH_INNER:
+			add edx, ebx //2 samples one line below
+			movq mm4, qword ptr[edx-8]
+			movq mm5, qword ptr[edx+8]
+			pavgb mm4, mm5
+			sub edx, ebx
+            sub edx, ebx //2 samples one line above
+			movq mm1, qword ptr[edx-8]
+			movq mm2, qword ptr[edx+8]
+			pavgb mm1, mm1
+			pavgb mm1, mm4
+			add edx, ebx
+            movq mm0, qword ptr[edx]
+			pavgb mm0,mm1
+            movq qword ptr[edx], mm0
+            add edx, 8
+            dec ecx
+            jnz LOOP_SMOOTH_INNER
+            add edi, ebx
+            dec eax
+            jnz LOOP_SMOOTH_OUTER
+        }
+}
         }
         break;
     // weighted average mode supplied by
@@ -454,6 +499,45 @@ long LogoKiller(TDeinterlaceInfo* pInfo)
             dec eax
             jnz LOOP_JT1_OUTER
         }
+if(gUseSmoothing)
+{
+	_asm
+        {
+            // set edi to top left
+            mov edi, lpOverlay
+            mov ebx, Pitch
+            mov eax, Top
+            imul eax, ebx
+            add edi, eax
+            // loop over height
+            mov eax, Height
+            LOOP_SMOOTH_OUTER_ASM:
+            // loop over width
+            mov edx, edi
+            mov ecx, Width
+            LOOP_SMOOTH_INNER_ASM:
+			add edx, ebx //2 samples one line below
+			movq mm4, qword ptr[edx-8]
+			movq mm5, qword ptr[edx+8]
+			pavgb mm4, mm5
+			sub edx, ebx
+            sub edx, ebx //2 samples one line above
+			movq mm1, qword ptr[edx-8]
+			movq mm2, qword ptr[edx+8]
+			pavgb mm1, mm1
+			pavgb mm1, mm4
+			add edx, ebx
+            movq mm0, qword ptr[edx]
+			pavgb mm0,mm1
+            movq qword ptr[edx], mm0
+            add edx, 8
+            dec ecx
+            jnz LOOP_SMOOTH_INNER_ASM
+            add edi, ebx
+            dec eax
+            jnz LOOP_SMOOTH_OUTER_ASM
+        }
+}
         break;
 		}
     case MODE_GREY:
@@ -574,7 +658,12 @@ SETTING FLT_LogoKillSettings[FLT_LOGOKILL_SETTING_LASTONE] =
         NULL,
         "LogoKillFilter", "UseLogoKillFilter", NULL,
     },
-
+    {
+        "Smoothing", ONOFF, 0, &gUseSmoothing,
+        TRUE, 0, 1, 1, 1,
+        NULL,
+        "LogoKillFilter", "UseSmoothing", NULL,
+    },
 };
 
 FILTER_METHOD LogoKillMethod =

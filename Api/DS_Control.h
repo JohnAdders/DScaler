@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.84 2002-08-16 18:46:34 kooiman Exp $
+// $Id: DS_Control.h,v 1.85 2002-08-17 11:42:06 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.84  2002/08/16 18:46:34  kooiman
+// Added setting entry for optional screen update delay during tuner frequency switch.
+//
 // Revision 1.83  2002/08/12 19:52:14  laurentg
 // Selection of video card to adjust DScaler settings
 //
@@ -962,7 +965,7 @@ typedef enum
 	SYSTEMINMUTE = 0,
     AUDIO_SETTING_LASTONE,
 } AUDIO_SETTING;
-
+  
 #define WM_AUDIO_GETVALUE               (WM_APP + 28)
 #define WM_AUDIO_SETVALUE               (WM_APP + 128)
 #define WM_AUDIO_CHANGEVALUE            (WM_APP + 228)
@@ -996,6 +999,7 @@ typedef enum
     LOGOKILL_MODE,
     LOGOKILL_MAX,
     USELOGOKILL,
+    SMOOTHLOGOKILL,
     FLT_LOGOKILL_SETTING_LASTONE,
 } FLT_LOGOKILL_SETTING;
 

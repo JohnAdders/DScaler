@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.248 2002-10-20 23:51:12 atnak Exp $
+// $Id: DScaler.cpp,v 1.249 2002-10-21 00:12:30 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.248  2002/10/20 23:51:12  atnak
+// Added option to reverse mousewheel
+//
 // Revision 1.247  2002/10/20 21:51:30  laurentg
 // Don't show window border when in full screen mode
 //
@@ -2319,6 +2322,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             }
             else if (Providers_GetCurrentSource()->IsInTunerMode())
             {
+                // IDM_CHANNELPLUS and IDM_CHANNELMINUS are used
+                // as the hub of all user interface channel up/down
+                // commands.  Put bReverseChannelScroll check here
+                // so mousewheel/page keys/toolbar arrows are taken
+                // care of.
                 if (!bReverseChannelScroll)
                 {
                     Channel_Increment();

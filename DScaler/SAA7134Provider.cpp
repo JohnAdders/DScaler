@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Provider.cpp,v 1.7 2002-10-10 12:11:31 atnak Exp $
+// $Id: SAA7134Provider.cpp,v 1.8 2002-10-16 11:37:59 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/10/10 12:11:31  atnak
+// fixes crash on exit
+//
 // Revision 1.6  2002/10/03 23:36:22  atnak
 // Various changes (major): VideoStandard, AudioStandard, CSAA7134Common, cleanups, tweaks etc,
 //
@@ -68,10 +71,14 @@ TSAA7134Chip SAA7134Chips[] =
 {
     {
         0x1131,
+        0x7130,
+        "SAA7130",
+    },
+    {
+        0x1131,
         0x7134,
         "SAA7134",
     }
-
 };
 
 CSAA7134Provider::CSAA7134Provider(CHardwareDriver* pHardwareDriver)

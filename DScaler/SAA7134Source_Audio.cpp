@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_Audio.cpp,v 1.7 2002-10-04 23:40:46 atnak Exp $
+// $Id: SAA7134Source_Audio.cpp,v 1.8 2002-10-16 11:37:58 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/10/04 23:40:46  atnak
+// proper support for audio channels mono,stereo,lang1,lang2 added
+//
 // Revision 1.6  2002/10/03 23:36:22  atnak
 // Various changes (major): VideoStandard, AudioStandard, CSAA7134Common, cleanups, tweaks etc,
 //
@@ -70,7 +73,7 @@ void CSAA7134Source::Mute()
 
 void CSAA7134Source::UnMute()
 {
-    m_pSAA7134Card->SetAudioUnMute(m_Volume->GetValue(), (eAudioInputSource)GetCurrentAudioSetting()->GetValue());
+    m_pSAA7134Card->SetAudioUnMute(m_Volume->GetValue());
 }
 
 void CSAA7134Source::VolumeOnChange(long NewValue, long OldValue)
@@ -149,7 +152,8 @@ void CSAA7134Source::AudioSource6OnChange(long NewValue, long OldValue)
 
 void CSAA7134Source::AudioChannelOnChange(long AudioChannel, long OldValue)
 {
-    if (AudioChannel == AUDIOCHANNEL_MONO)
+    if (AudioChannel == AUDIOCHANNEL_MONO &&
+        GetCurrentAudioSetting()->GetValue() == AUDIOINPUTSOURCE_DAC)
     {
         if (m_AutoStereoSelect->GetValue())
         {

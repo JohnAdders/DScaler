@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Audio.cpp,v 1.8 2002-10-08 12:24:46 atnak Exp $
+// $Id: SAA7134Card_Audio.cpp,v 1.9 2002-10-16 11:37:59 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/10/08 12:24:46  atnak
+// added various functions to configure carriers
+//
 // Revision 1.7  2002/10/04 23:40:46  atnak
 // proper support for audio channels mono,stereo,lang1,lang2 added
 //
@@ -65,6 +68,12 @@
 
 void CSAA7134Card::InitAudio()
 {
+    if (m_DeviceId == 0x7130)
+    {
+        // saa7130 doesn't support most audio stuff
+        return;
+    }
+
     m_AudioSampleRate = AUDIOSAMPLERATE_48000Hz;
     
     // mute all
@@ -116,64 +125,38 @@ void CSAA7134Card::SetAudioStandard(eAudioStandard AudioStandard)
     BYTE Demodulator    = 0;
     BYTE AudioPLLCtrl   = 0;
 
+    if (m_DeviceId == 0x7130)
+    {
+        // saa7130 doesn't support this
+        return;
+    }
+
     DWORD Carrier1 = m_AudioStandards[AudioStandard].Carrier1;
     DWORD Carrier2 = m_AudioStandards[AudioStandard].Carrier2;
 
-    switch (m_AudioStandards[AudioStandard].FIRType)
+    if (m_AudioStandards[AudioStandard].Carrier1Mode == AUDIOCHANNELMODE_FM_KOREA ||
+        m_AudioStandards[AudioStandard].Carrier2Mode == AUDIOCHANNELMODE_FM_KOREA)
     {
-    case FIR_BG_DK_DUAL_FM:
-        // nothing specifc to do
-        break;
-
-    case FIR_SAT_DUAL_FM:
-        // nothing specifc to do
-        break;
-
-    case FIR_BG_DK_NICAM:
-    case FIR_I_NICAM:
-    case FIR_L_NICAM:
-        AudioPLLCtrl = SAA7134_AUDIO_PLL_CTRL_SWLOOP;
-        break;
-
-    case FIR_M_DUAL_FM:
-        IdentCtrl = (0xFF & SAA7134_DCXO_IDENT_CTRL_IDAREA);
-        break;
+        IdentCtrl |= SAA7134_DCXO_IDENT_CTRL_IDAREA;
     }
 
-    if (m_AudioStandards[AudioStandard].Carrier1Mode == AUDIOCHANNELMODE_AM)
+    if (m_AudioStandards[AudioStandard].Carrier2Mode == AUDIOCHANNELMODE_NICAM)
     {
-        Demodulator = (0xFF & SAA7134_DEMODULATOR_CH1MODE);
-    }
-
-    switch (m_AudioStandards[AudioStandard].Carrier2Mode)
-    {
-    case AUDIOCHANNELMODE_FM:
-        Demodulator |= 0x00;
-        break;
-
-    case AUDIOCHANNELMODE_AM:
-        Demodulator |= 0x01;
-        break;
-
-    case AUDIOCHANNELMODE_NICAM:
-        Demodulator |= 0x10;
-        break;
+        AudioPLLCtrl |= SAA7134_AUDIO_PLL_CTRL_SWLOOP;
     }
 
     WriteDword(SAA7134_CARRIER1_FREQ, Carrier1);
     WriteDword(SAA7134_CARRIER2_FREQ, Carrier2);
 
-    SetCh1FMDeemphasis(m_AudioStandards[AudioStandard].Ch1FMDeemphasis);
-    SetCh2FMDeemphasis(m_AudioStandards[AudioStandard].Ch2FMDeemphasis);
+    SetAudioCarrier1Mode(m_AudioStandards[AudioStandard].Carrier1Mode);
+    SetAudioCarrier2Mode(m_AudioStandards[AudioStandard].Carrier2Mode);
 
     MaskDataByte(SAA7134_DCXO_IDENT_CTRL, IdentCtrl,
         SAA7134_DCXO_IDENT_CTRL_IDAREA);
 
-    MaskDataByte(SAA7134_DEMODULATOR, Demodulator,
-        SAA7134_DEMODULATOR_CH2MOD0 |
-        SAA7134_DEMODULATOR_CH1MODE |
-        SAA7134_DEMODULATOR_CH2MOD1);
-
+    SetCh1FMDeemphasis(m_AudioStandards[AudioStandard].Ch1FMDeemphasis);
+    SetCh2FMDeemphasis(m_AudioStandards[AudioStandard].Ch2FMDeemphasis);
+    
     MaskDataByte(SAA7134_AUDIO_PLL_CTRL, AudioPLLCtrl,
         SAA7134_AUDIO_PLL_CTRL_SWLOOP);
 
@@ -183,25 +166,40 @@ void CSAA7134Card::SetAudioStandard(eAudioStandard AudioStandard)
 
 void CSAA7134Card::SetAudioCarrier1Freq(DWORD Carrier)
 {
+    if (m_DeviceId == 0x7130)
+    {
+        // saa7130 doesn't support this
+        return;
+    }
     WriteDword(SAA7134_CARRIER1_FREQ, Carrier);
 }
 
 
 void CSAA7134Card::SetAudioCarrier2Freq(DWORD Carrier)
 {
+    if (m_DeviceId == 0x7130)
+    {
+        // saa7130 doesn't support this
+        return;
+    }
     WriteDword(SAA7134_CARRIER2_FREQ, Carrier);
 }
 
 
 void CSAA7134Card::SetAudioCarrier1Mode(eAudioCarrierMode Mode)
 {
+    if (m_DeviceId == 0x7130)
+    {
+        // saa7130 doesn't support this
+        return;
+    }
     if (Mode == AUDIOCHANNELMODE_AM)
     {
-        AndDataByte(SAA7134_DEMODULATOR, ~SAA7134_DEMODULATOR_CH1MODE);
+        OrDataByte(SAA7134_DEMODULATOR, SAA7134_DEMODULATOR_CH1MODE);
     }
     else
     {
-        OrDataByte(SAA7134_DEMODULATOR, SAA7134_DEMODULATOR_CH1MODE);
+        AndDataByte(SAA7134_DEMODULATOR, ~SAA7134_DEMODULATOR_CH1MODE);
     }
 }
 
@@ -210,9 +208,15 @@ void CSAA7134Card::SetAudioCarrier2Mode(eAudioCarrierMode Mode)
 {
     BYTE Demodulator = 0x00;
 
+    if (m_DeviceId == 0x7130)
+    {
+        // saa7130 doesn't support this
+        return;
+    }
     switch (Mode)
     {
     case AUDIOCHANNELMODE_FM:
+    case AUDIOCHANNELMODE_FM_KOREA:
         Demodulator = 0x00;
         break;
 
@@ -222,6 +226,11 @@ void CSAA7134Card::SetAudioCarrier2Mode(eAudioCarrierMode Mode)
 
     case AUDIOCHANNELMODE_NICAM:
         Demodulator = 0x10;
+        break;
+
+    case AUDIOCHANNELMODE_BTSC:
+    case AUDIOCHANNELMODE_EIAJ:
+        // not supported by saa7134
         break;
     }
 
@@ -233,6 +242,11 @@ void CSAA7134Card::SetAudioCarrier2Mode(eAudioCarrierMode Mode)
 
 void CSAA7134Card::SetAudioLockToVideo(BOOL bLockAudio)
 {
+    if (m_DeviceId == 0x7130)
+    {
+        // saa7130 doesn't support this
+        return;
+    }
     if (bLockAudio)
     {
         AndDataByte(SAA7134_AUDIO_PLL_CTRL, ~SAA7134_AUDIO_PLL_CTRL_APLL);
@@ -248,6 +262,12 @@ void CSAA7134Card::UpdateAudioClocksPerField(eVideoStandard VideoStandard)
     DWORD AudioClock = 0x000000;
     DWORD AudioClocksPerField = 0x00000;
 
+    if (m_DeviceId == 0x7130)
+    {
+        // saa7130 doesn't support this
+        return;
+    }
+
     if (m_AudioInputSource == AUDIOINPUTSOURCE_DAC ||
         m_AudioSampleRate != AUDIOSAMPLERATE_44100Hz)
     {
@@ -259,6 +279,10 @@ void CSAA7134Card::UpdateAudioClocksPerField(eVideoStandard VideoStandard)
 
         case AUDIOCRYSTAL_24576Hz:
             AudioClock = 0x200000;
+            break;
+
+        default:
+            // NEVER_GET_HERE;
             break;
         }
 
@@ -308,6 +332,12 @@ void CSAA7134Card::SetCh1FMDeemphasis(eAudioFMDeemphasis FMDeemphasis)
 {
     BYTE Ch1FMDeemphasis = 0x00;
 
+    if (m_DeviceId == 0x7130)
+    {
+        // saa7130 doesn't support this
+        return;
+    }
+
     switch (FMDeemphasis)
     {
     case AUDIOFMDEEMPHASIS_OFF:
@@ -343,6 +373,12 @@ void CSAA7134Card::SetCh2FMDeemphasis(eAudioFMDeemphasis FMDeemphasis)
 {
     BYTE Ch2FMDeemphasis = 0x00;
 
+    if (m_DeviceId == 0x7130)
+    {
+        // saa7130 doesn't support this
+        return;
+    }
+
     switch (FMDeemphasis)
     {
     case AUDIOFMDEEMPHASIS_OFF:
@@ -377,6 +413,12 @@ void CSAA7134Card::SetCh2FMDeemphasis(eAudioFMDeemphasis FMDeemphasis)
 void CSAA7134Card::SetAudioFMDematrix(eAudioFMDematrix FMDematrix)
 {
     BYTE FMDematrixSelect = 0x00;
+
+    if (m_DeviceId == 0x7130)
+    {
+        // saa7130 doesn't support this
+        return;
+    }
 
     switch (FMDematrix)
     {
@@ -420,6 +462,12 @@ void CSAA7134Card::SetAudioFMDematrix(eAudioFMDematrix FMDematrix)
 
 void CSAA7134Card::SetFilterBandwidth(eAudioFilterBandwidth FilterBandwidth)
 {
+    if (m_DeviceId == 0x7130)
+    {
+        // saa7130 doesn't support this
+        return;
+    }
+
     switch (FilterBandwidth)
     {
     case AUDIOFILTERBANDWIDTH_NARROW_NARROW:
@@ -442,6 +490,12 @@ void CSAA7134Card::SetFilterBandwidth(eAudioFilterBandwidth FilterBandwidth)
 void CSAA7134Card::SetAudioSampleRate(eAudioSampleRate SampleRate)
 {
     BYTE SampleFrequency = 0;
+
+    if (m_DeviceId == 0x7130)
+    {
+        // saa7130 doesn't support this
+        return;
+    }
 
     if (m_AudioInputSource == AUDIOINPUTSOURCE_DAC)
     {
@@ -492,25 +546,23 @@ void CSAA7134Card::SetAudioSource(eAudioInputSource InputSource)
     }
 
     SetAudioSampleRate(m_AudioSampleRate);
-
-    // TODO: some cards need GPIO for audio selecting
-    /*
-    BYTE GpioMask = 0x0;  // FlyVideo 3000 
-    BYTE InputGpio = 0x0; // FlyVideo 3000
-
-    if (!GpioMask)
-        return;
-
-    MaskDataDword(SAA7134_GPIO_GPMODE0,   GpioMask, GpioMask);
-    MaskDataDword(SAA7134_GPIO_GPSTATUS0, InputGpio, GpioMask);
-    StatGPIO();
-    */
 }
 
 
 BOOL CSAA7134Card::IsAudioChannelDetected(eAudioChannel AudioChannel)
 {
     BYTE Status;
+
+    if (m_AudioInputSource != AUDIOINPUTSOURCE_DAC)
+    {
+        // external lines are only stereo
+        if (AudioChannel == AUDIOCHANNEL_MONO ||
+            AudioChannel == AUDIOCHANNEL_STEREO)
+        {
+            return TRUE;
+        }
+        return FALSE;
+    }
 
     if (IsNICAMAudioStandard(m_AudioStandard))
     {
@@ -554,6 +606,37 @@ BOOL CSAA7134Card::IsAudioChannelDetected(eAudioChannel AudioChannel)
 
 void CSAA7134Card::SetAudioChannel(eAudioChannel AudioChannel)
 {
+    if (m_AudioInputSource != AUDIOINPUTSOURCE_DAC)
+    {
+        BYTE AudioLine;
+
+        if (AudioChannel == AUDIOCHANNEL_MONO)
+        {
+            switch (m_AudioInputSource)
+            {
+            case AUDIOINPUTSOURCE_LINE1: AudioLine = 0x03; break;
+            case AUDIOINPUTSOURCE_LINE2: AudioLine = 0x04; break;
+            }
+        }
+        else if (AudioChannel == AUDIOCHANNEL_STEREO)
+        {
+            switch (m_AudioInputSource)
+            {
+            case AUDIOINPUTSOURCE_LINE1: AudioLine = 0x00; break;
+            case AUDIOINPUTSOURCE_LINE2: AudioLine = 0x01; break;
+            }
+        }
+        else
+        {
+            // not supported
+            return;
+        }
+
+        MaskDataByte(SAA7134_ANALOG_IO_SELECT, AudioLine,
+            SAA7134_ANALOG_IO_SELECT_OCS);
+        return;
+    }
+
     if (AudioChannel == AUDIOCHANNEL_MONO)
     {
         // Select Left/Left
@@ -591,6 +674,30 @@ void CSAA7134Card::SetAudioChannel(eAudioChannel AudioChannel)
 
 CSAA7134Card::eAudioChannel CSAA7134Card::GetAudioChannel()
 {
+    if (m_AudioInputSource != AUDIOINPUTSOURCE_DAC)
+    {
+        BYTE AudioLine;
+
+        AudioLine = ReadByte(SAA7134_ANALOG_IO_SELECT) &
+            SAA7134_ANALOG_IO_SELECT_OCS;
+
+        switch (AudioLine)
+        {
+        case 0x00:
+        case 0x01:
+            return AUDIOCHANNEL_STEREO;
+
+        case 0x03:
+        case 0x04:
+            return AUDIOCHANNEL_MONO;
+        
+        default:
+            // NEVER_GET_HERE;
+            break;
+        }
+        return AUDIOCHANNEL_MONO;
+    }
+
     // If automatic select is enabled, things work a bit different
     if (ReadByte(SAA7134_DSP_OUTPUT_SELECT) & SAA7134_DSP_OUTPUT_SELECT_AASDMA)
     {
@@ -645,23 +752,49 @@ CSAA7134Card::eAudioChannel CSAA7134Card::GetAudioChannel()
 
 void CSAA7134Card::SetAudioMute()
 {
-    // if SAA7134
-    WriteByte(SAA7134_AUDIO_MUTE_CTRL, 0xFF);
+    if (m_DeviceId == 0x7130)
+    {
+        BYTE MuteLine;
 
-    // if SAA7130 select MUTE line
+        // Mute by selecting the opposite audio line
+        switch (GetCardSetup()->Inputs[0].AudioLineSelect)
+        {
+        case AUDIOINPUTSOURCE_LINE1: MuteLine = 0x01; break;
+        case AUDIOINPUTSOURCE_LINE2: MuteLine = 0x00; break;
+        }
+
+        MaskDataByte(SAA7134_ANALOG_IO_SELECT, MuteLine,
+            SAA7134_ANALOG_IO_SELECT_OCS);
+    }
+    else
+    {
+        // if SAA7134
+        WriteByte(SAA7134_AUDIO_MUTE_CTRL, 0xFF);
+    }
 }
 
-void CSAA7134Card::SetAudioUnMute(long nVolume, eAudioInputSource InputSource)
+void CSAA7134Card::SetAudioUnMute(long nVolume)
 {
-    // if SAA7134
-    MaskDataByte(SAA7134_AUDIO_MUTE_CTRL, 0x00, SAA7134_AUDIO_MUTE_CTRL_MUTSOUT);
-
-    // SetAudioSource(Input);
+    if (m_DeviceId == 0x7130)
+    {
+        SetAudioSource(m_AudioInputSource);
+    }
+    else
+    {
+        // if SAA7134
+        MaskDataByte(SAA7134_AUDIO_MUTE_CTRL, 0x00, SAA7134_AUDIO_MUTE_CTRL_MUTSOUT);
+    }
 }
 
 // Unlatched. has some problems with distorted sound
 void CSAA7134Card::SetAudioVolume(BYTE nGain)
 {
+    if (m_DeviceId == 0x7130)
+    {
+        // saa7130 doesn't support this
+        return;
+    }
+
     // nGain = -15..0..15, 0 = normal
 
     // Dual FM Level adjust

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.90 2002-09-26 06:05:21 kooiman Exp $
+// $Id: DS_Control.h,v 1.91 2002-10-15 15:46:49 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.90  2002/09/26 06:05:21  kooiman
+// Added toolbar settings
+//
 // Revision 1.89  2002/09/16 19:34:18  adcockj
 // Fix for auto format change
 //
@@ -523,6 +526,7 @@ typedef enum
     SATURATION,
     SATURATIONU,
     SATURATIONV,
+    OVERSCAN,
     BDELAY,
     BTAGCDISABLE,
     BTCRUSH,
@@ -552,33 +556,38 @@ typedef enum
     REVERSEPOLARITY,
     CURRENTCARDTYPE,
     CURRENTTUNERTYPE,
-    AUDIOSOURCE1,
-    MSPMODE,
-    MSPMAJORMODE,
-    MSPMINORMODE,
-    MSPSTEREO,
+    AUDIOSOURCE1,    
+    AUDIOCHANNEL,
     AUTOSTEREOSELECT,
     VOLUME,
-    SPATIAL,
-    LOUDNESS,
     BASS,
     TREBLE,
     BALANCE,
-    SUPERBASS,
-    MSPEQ1,
-    MSPEQ2,
-    MSPEQ3,
-    MSPEQ4,
-    MSPEQ5,
     BT848SAVEPERINPUT,
-    BT848SAVEPERFORMAT,
-    BT848SAVETVFORMATPERINPUT,
+    BT848SAVEPERFORMAT,    
     AUDIOSOURCE2,
     AUDIOSOURCE3,
     AUDIOSOURCE4,
     AUDIOSOURCE5,
     AUDIOSOURCE6,
     USEINPUTPIN1,
+    USEEQUALIZER,
+    EQUALIZERBAND1,
+    EQUALIZERBAND2,
+    EQUALIZERBAND3,
+    EQUALIZERBAND4,
+    EQUALIZERBAND5,
+    LOUDNESS,    
+    SUPERBASS,
+    SPATIAL,
+    AUTOVOLUMECORRECTION,
+    AUDIOSTANDARDDETECT,
+    AUDIOSTANDARDDETECTINTERVAL,
+    AUDIOSTANDARDMANUAL,
+    AUDIOSTANDARDMAJORCARRIER,
+    AUDIOSTANDARDMINORCARRIER,
+    AUDIOSTANDARDINSTATUSBAR,
+    MSP34XXFLAGS,
     BT848_SETTING_LASTONE,
 } BT848_SETTING;
 

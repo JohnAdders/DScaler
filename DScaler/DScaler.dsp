@@ -762,6 +762,10 @@ SOURCE=.\TDA9887.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\TEA5767.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\TiffHelper.cpp
 # End Source File
 # Begin Source File
@@ -1502,6 +1506,10 @@ SOURCE=.\TDA9875AudioDecoder.h
 # Begin Source File
 
 SOURCE=.\TDA9887.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\TEA5767.h
 # End Source File
 # Begin Source File
 

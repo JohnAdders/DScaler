@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Tuner.cpp,v 1.2 2004-12-25 22:40:18 to_see Exp $
+// $Id: CX2388xCard_Tuner.cpp,v 1.3 2005-01-13 19:44:17 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2004/12/25 22:40:18  to_see
+// Changed the card list to an ini file
+//
 // Revision 1.1  2004/12/20 18:55:35  to_see
 // Moved tuner code to new file CX2388xCard_Tuner.cpp
 //
@@ -37,6 +40,7 @@
 #include "MT2050.h"
 #include "GenericTuner.h"
 #include "TDA9887.h"
+#include "TEA5767.h"
 
 BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
 {
@@ -124,11 +128,22 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
 		pExternalIFDemodulator->Init(TRUE, videoFormat);
 	}
                 
-    // Scan the I2C bus addresses 0xC0 - 0xCF for tuners
+    // Scan the I2C bus addresses for tuners
     BOOL bFoundTuner = FALSE;
 
+    // Try to detect TEA5767 FM-Radio chip 
+    BYTE StartAddress;
+    if(IsTEA5767PresentAtC0(m_I2CBus))
+    {
+        StartAddress = 0xC2;
+    }
+    else
+    {
+        StartAddress = 0xC0;
+    }
+
     int kk = strlen(m_TunerType);
-    for (BYTE test = 0xC0; test < 0xCF; test +=2)
+    for (BYTE test = StartAddress; test < 0xCF; test +=2)
     {
         if (m_I2CBus->Write(&test, sizeof(test)))
         {

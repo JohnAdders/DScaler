@@ -1435,8 +1435,9 @@ BEGIN
             MENUITEM "&Import XMLTV File",          IDM_SCAN_EPG
             MENUITEM "L&oad EPG Data",              IDM_LOAD_EPG
             MENUITEM SEPARATOR
-            MENUITEM "View Program &Details\tCtrl+Shift+G", IDM_DISPLAY_EPG
-            MENUITEM "View &Current Programs\tG",   IDM_DISPLAY_EPG_NOW
+            MENUITEM "View Programme &Details\tCtrl+Shift+G", 
+                                                    IDM_DISPLAY_EPG
+            MENUITEM "&Browse Programmes\tG",       IDM_DISPLAY_EPG_NOW
             MENUITEM "Shift Time Frame &Earlier\tCtrl+G", 
                                                     IDM_DISPLAY_EPG_EARLIER
             MENUITEM "Shift Time Frame &Later\tShift+G", 

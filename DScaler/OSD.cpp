@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.99 2005-03-28 17:48:10 laurentg Exp $
+// $Id: OSD.cpp,v 1.100 2005-03-29 21:08:34 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.99  2005/03/28 17:48:10  laurentg
+// Navigation into EPG + change of channel
+//
 // Revision 1.98  2005/03/28 13:42:02  laurentg
 // EPG: preparation for when new data (category, sub-title, description) will be available
 //
@@ -502,18 +505,18 @@ static void OSD_RefreshWSSScreen(double Size);
 static void OSD_RefreshARScreen(double Size);
 static void OSD_RefreshCalibrationScreen(double Size);
 static void OSD_RefreshDeveloperScreen(double Size);
-static void OSD_RefreshCurrentProgramScreen(double Size);
-static void OSD_RefreshProgramsScreen(double Size);
-static void OSD_DisplayProgramInfos(double Size);
+static void OSD_RefreshCurrentProgrammeScreen(double Size);
+static void OSD_RefreshProgrammesScreen(double Size);
+static void OSD_DisplayProgrammeInfos(double Size);
 
 
 // Screens definition
 static TActiveScreen ActiveScreens[] =
 {
     { "Card calibration screen", TRUE,  FALSE, 250,                     TRUE,  TRUE,  OSD_RefreshCalibrationScreen },
-    { "Short program screen",    TRUE,  TRUE,  0,                       TRUE,  FALSE, OSD_DisplayProgramInfos },
-    { "Detailed program screen", TRUE,  FALSE, 500,                     TRUE,  TRUE,  OSD_RefreshCurrentProgramScreen },
-    { "Programs browser screen", TRUE,  FALSE, 250,                     TRUE,  TRUE,  OSD_RefreshProgramsScreen },
+    { "Short prog screen",       TRUE,  TRUE,  0,                       TRUE,  FALSE, OSD_DisplayProgrammeInfos },
+    { "Detailed prog screen",    TRUE,  FALSE, 500,                     TRUE,  TRUE,  OSD_RefreshCurrentProgrammeScreen },
+    { "Prog browser screen",     TRUE,  FALSE, 250,                     TRUE,  TRUE,  OSD_RefreshProgrammesScreen },
     { "General screen",          FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, TRUE,  FALSE, OSD_RefreshGeneralScreen },
     { "Statistics screen",       FALSE, TRUE,  1000,                    TRUE,  FALSE, OSD_RefreshStatisticsScreen },
     { "WSS decoding screen",     FALSE, TRUE,  OSD_TIMER_REFRESH_DELAY, TRUE,  FALSE, OSD_RefreshWSSScreen },
@@ -2322,7 +2325,7 @@ static void OSD_RefreshDeveloperScreen(double Size)
 }
 
 
-static void OSD_DisplayProgramInfos(double Size)
+static void OSD_DisplayProgrammeInfos(double Size)
 {
     double	dfMargin = 0.02;    // 2% of screen height/width
 
@@ -2353,7 +2356,7 @@ static void OSD_DisplayProgramInfos(double Size)
 
 	time_t	TimeNow;
 	time(&TimeNow);
-	int nb = MyEPG.SearchForPrograms(ChannelEPGName, TimeNow, TimeNow);
+	int nb = MyEPG.SearchForProgrammes(ChannelEPGName, TimeNow, TimeNow);
 	if (nb == 0)
 	{
 		OSD_AddText("No EPG information", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos2);
@@ -2366,9 +2369,9 @@ static void OSD_DisplayProgramInfos(double Size)
 	char StartTimeStr[6];
 	char EndTimeStr[6];
 	string Channel;
-	string ProgramTitle;
+	string ProgrammeTitle;
 
-	MyEPG.GetProgramMainData(0, &StartTime, &EndTime, Channel, ProgramTitle);
+	MyEPG.GetProgrammeMainData(0, &StartTime, &EndTime, Channel, ProgrammeTitle);
 	struct tm *date_tm;
 	date_tm = localtime(&StartTime);
 	sprintf(StartTimeStr, "%02u:%02u", date_tm->tm_hour, date_tm->tm_min);
@@ -2378,7 +2381,7 @@ static void OSD_DisplayProgramInfos(double Size)
     double pos3 = pos2 + OSD_GetLineYpos (2, dfMargin, Size) - OSD_GetLineYpos (1, dfMargin, Size);
 	double pos4 = pos3 + pos3 - pos2;
 
-    OSD_AddText(ProgramTitle.c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos2);
+    OSD_AddText(ProgrammeTitle.c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos2);
     sprintf(szInfo, "%s - %s", StartTimeStr, EndTimeStr);
     OSD_AddText(szInfo, Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos3);
     sprintf(szInfo, "%.1f %%", (double)(TimeNow - StartTime) * 100.0 / (double)(EndTime - StartTime));
@@ -2386,7 +2389,7 @@ static void OSD_DisplayProgramInfos(double Size)
 }
 
 
-static void OSD_RefreshCurrentProgramScreen(double Size)
+static void OSD_RefreshCurrentProgrammeScreen(double Size)
 {
     double	dfMargin = 0.02;    // 2% of screen height/width
 
@@ -2406,7 +2409,7 @@ static void OSD_RefreshCurrentProgramScreen(double Size)
     }
 
     // Title
-    OSD_AddText("Current Program", Size*1.5, OSD_COLOR_TITLE, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
+    OSD_AddText("Current Programme", Size*1.5, OSD_COLOR_TITLE, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, OSD_GetLineYpos (1, dfMargin, Size*1.5));
 
 	int nLine = 3;
 
@@ -2421,7 +2424,7 @@ static void OSD_RefreshCurrentProgramScreen(double Size)
 
 	time_t	TimeNow;
 	time(&TimeNow);
-	int nb = MyEPG.SearchForPrograms(ChannelEPGName, TimeNow, TimeNow);
+	int nb = MyEPG.SearchForProgrammes(ChannelEPGName, TimeNow, TimeNow);
 	if (nb == 0)
 	{
 		OSD_AddText(ChannelName, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos1);
@@ -2435,12 +2438,12 @@ static void OSD_RefreshCurrentProgramScreen(double Size)
 	char StartTimeStr[6];
 	char EndTimeStr[6];
 	string Channel;
-	string ProgramTitle;
+	string ProgrammeTitle;
 	string SubTitle;
 	string Category;
 	string Description;
 
-	MyEPG.GetProgramData(0, &StartTime, &EndTime, Channel, ProgramTitle, SubTitle, Category, Description);
+	MyEPG.GetProgrammeData(0, &StartTime, &EndTime, Channel, ProgrammeTitle, SubTitle, Category, Description);
 	struct tm *date_tm;
 	date_tm = localtime(&StartTime);
 	sprintf(StartTimeStr, "%02u:%02u", date_tm->tm_hour, date_tm->tm_min);
@@ -2454,7 +2457,7 @@ static void OSD_RefreshCurrentProgramScreen(double Size)
 	{
 	    OSD_AddText(Category.c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, pos1);
 	}
-    OSD_AddText(ProgramTitle.c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos2);
+    OSD_AddText(ProgrammeTitle.c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos2);
     sprintf(szInfo, "%.1f %%", (double)(TimeNow - StartTime) * 100.0 / (double)(EndTime - StartTime));
     OSD_AddText(szInfo, Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos2);
 	if (SubTitle.length() > 0)
@@ -2472,7 +2475,7 @@ static void OSD_RefreshCurrentProgramScreen(double Size)
 }
 
 
-static void OSD_RefreshProgramsScreen(double Size)
+static void OSD_RefreshProgrammesScreen(double Size)
 {
     double	dfMargin = 0.02;    // 2% of screen height/width
 
@@ -2549,9 +2552,9 @@ static void OSD_RefreshProgramsScreen(double Size)
 		char StartTimeStr[6];
 		char EndTimeStr[6];
 		string ChannelName;
-		string ProgramTitle;
+		string ProgrammeTitle;
 
-		MyEPG.GetProgramMainData(i, &StartTime, &EndTime, ChannelName, ProgramTitle);
+		MyEPG.GetProgrammeMainData(i, &StartTime, &EndTime, ChannelName, ProgrammeTitle);
 		struct tm *date_tm;
 		date_tm = localtime(&StartTime);
 		sprintf(StartTimeStr, "%02u:%02u", date_tm->tm_hour, date_tm->tm_min);
@@ -2579,7 +2582,7 @@ static void OSD_RefreshProgramsScreen(double Size)
         OSD_AddText(ChannelName.c_str(), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos2);
         sprintf(szInfo, "%s - %s", StartTimeStr, EndTimeStr);
         OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos2);
-        OSD_AddText(ProgramTitle.c_str(), Size, (i == (IdxCur -1)) ? OSD_COLOR_CURRENT : -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos3);
+        OSD_AddText(ProgrammeTitle.c_str(), Size, (i == (IdxCur -1)) ? OSD_COLOR_CURRENT : -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos3);
 		if (   (TimeNow >= StartTime)
 			&& (TimeNow < EndTime) )
 		{

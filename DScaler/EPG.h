@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.h,v 1.9 2005-03-28 17:48:10 laurentg Exp $
+// $Id: EPG.h,v 1.10 2005-03-29 21:08:34 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2005/03/28 17:48:10  laurentg
+// Navigation into EPG + change of channel
+//
 // Revision 1.8  2005/03/28 13:42:02  laurentg
 // EPG: preparation for when new data (category, sub-title, description) will be available
 //
@@ -64,24 +67,24 @@
 #include "Channels.h"
 
 
-class CProgram
+class CProgramme
 {
 public:
-	CProgram(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR Channel);
-	~CProgram();
+	CProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR Channel);
+	~CProgramme();
 
-	// Check whether the program matchs the channel (if provided)
+	// Check whether the programme matchs the channel (if provided)
 	// and overlaps the period of time defined by DateMin and DateMax
-	BOOL IsProgramMatching(time_t DateMin, time_t DateMax, LPCSTR Channel=NULL);
+	BOOL IsProgrammeMatching(time_t DateMin, time_t DateMax, LPCSTR Channel=NULL);
 
-	// Get the program main data : start and end time + title
-	void GetProgramMainData(time_t *StartTime, time_t *EndTime, string &Channel, string &Title);
+	// Get the programme main data : start and end time + title
+	void GetProgrammeMainData(time_t *StartTime, time_t *EndTime, string &Channel, string &Title);
 
-	// Get all the program data
-	void GetProgramData(time_t *StartTime, time_t *EndTime, string &Channel, string &Title, string &SubTitle, string &Category, string &Description);
+	// Get all the programme data
+	void GetProgrammeData(time_t *StartTime, time_t *EndTime, string &Channel, string &Title, string &SubTitle, string &Category, string &Description);
 
-	// Dump the program main data : start and end time + channel + title
-	void DumpProgramMainData();
+	// Dump the programme main data : start and end time + channel + title
+	void DumpProgrammeMainData();
 
 private:
 	time_t	m_StartTime;
@@ -101,11 +104,11 @@ public:
 	CEPG();
 	~CEPG();
 
-	// Scan a XML file containing programs and generate the corresponding DScaler data files
+	// Scan a XML file containing programmes and generate the corresponding DScaler data files
 	// The input file must be compatible with the XMLTV DTD
 	int ScanXMLTVFile(LPCSTR file=NULL);
 
-	// Load the DScaler EPG data for the programs between two dates
+	// Load the DScaler EPG data for the programmes between two dates
 	// If DateMin and DateMax are not set, load the EPG data for
 	// the interval [current time - 2 hours, current time + 6 hours]
 	// TODO Rewrite LoadEPGData as soon as XML API will be used
@@ -113,9 +116,9 @@ public:
 	int ReloadEPGData();
 
 	int GetSearchContext(LPCSTR *ChannelName, time_t *TimeMin, time_t *TimeMax);
-	int SearchForPrograms(LPCSTR ChannelName, time_t TimeMin, time_t TimeMax);
-	int GetProgramMainData(int Index, time_t *StartTime, time_t *EndTime, string &Channel, string &Title);
-	int GetProgramData(int Index, time_t *StartTime, time_t *EndTime, string &Channel, string &Title, string &SubTitle, string &Category, string &Description);
+	int SearchForProgrammes(LPCSTR ChannelName, time_t TimeMin, time_t TimeMax);
+	int GetProgrammeMainData(int Index, time_t *StartTime, time_t *EndTime, string &Channel, string &Title);
+	int GetProgrammeData(int Index, time_t *StartTime, time_t *EndTime, string &Channel, string &Title, string &SubTitle, string &Category, string &Description);
 
 	void SetDisplayIndexes(int IdxMin, int IdxMax, int IdxCur);
 	int GetDisplayIndexes(int *IdxMin, int *IdxMax, int *IdxCur);
@@ -127,8 +130,8 @@ public:
 	// Dump the EPG data
 	void DumpEPGData();
 
-	void ClearPrograms();
-	void AddProgram(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR Channel);
+	void ClearProgrammes();
+	void AddProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR Channel);
 
 private:
 	// Convert the DScaler_tmp.txt file to the DScaler.txt final file
@@ -150,10 +153,10 @@ private:
 
 	int GetChannelNumber(LPCSTR Name);
 
-    typedef vector<CProgram*> CPrograms;
+    typedef vector<CProgramme*> CProgrammes;
 
-    CPrograms	m_Programs;
-    CPrograms	m_ProgramsSelection;
+    CProgrammes	m_Programmes;
+    CProgrammes	m_ProgrammesSelection;
 
 	string		m_CMDExe;
 	string		m_FilesDir;

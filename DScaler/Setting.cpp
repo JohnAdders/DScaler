@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.cpp,v 1.7 2002-02-08 19:27:18 adcockj Exp $
+// $Id: Setting.cpp,v 1.8 2002-06-13 11:43:56 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/02/08 19:27:18  adcockj
+// Fixed problems with video settings dialog
+//
 // Revision 1.6  2002/01/24 00:00:13  robmuller
 // Added bOptimizeFileAccess flag to WriteToIni from the settings classes.
 //
@@ -202,6 +205,7 @@ void CSimpleSetting::SetSection(LPCSTR NewValue)
 void CSimpleSetting::ReadFromIni()
 {
     long nValue;
+    BOOL IsSettingInIniFile = TRUE;
 
     if(!m_Section.empty())
     {
@@ -209,6 +213,7 @@ void CSimpleSetting::ReadFromIni()
         if(nValue == m_Min - 100)
         {
             nValue = m_Default;
+            IsSettingInIniFile = FALSE;
         }
         if(nValue < m_Min)
         {
@@ -221,7 +226,14 @@ void CSimpleSetting::ReadFromIni()
             nValue = m_Max;
         }
         m_Value = nValue;
-        m_LastSavedValue = nValue;
+        if(IsSettingInIniFile)
+        {
+            m_LastSavedValue = nValue;
+        }
+        else
+        {
+            m_LastSavedValue = m_Min - 100;
+        }
     }
 }
 

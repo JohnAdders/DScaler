@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.33 2002-06-13 10:40:37 robmuller Exp $
+// $Id: Settings.cpp,v 1.34 2002-06-13 11:43:55 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2002/06/13 10:40:37  robmuller
+// Made anti plop mute delay configurable.
+//
 // Revision 1.32  2002/06/12 18:41:11  robmuller
 // Fixed duplicating lines in dscaler.ini.
 //
@@ -653,6 +656,7 @@ BOOL Setting_SetFromControl(SETTING* pSetting, HWND hControl)
 void Setting_ReadFromIni(SETTING* pSetting)
 {
     long nValue;
+    BOOL IsSettingInIniFile = TRUE;
 
     if(pSetting->szIniSection != NULL)
     {
@@ -660,6 +664,7 @@ void Setting_ReadFromIni(SETTING* pSetting)
         if(nValue == pSetting->MinValue - 100)
         {
             nValue = pSetting->Default;
+            IsSettingInIniFile = FALSE;
         }
         if(nValue < pSetting->MinValue)
         {
@@ -672,7 +677,14 @@ void Setting_ReadFromIni(SETTING* pSetting)
             nValue = pSetting->MaxValue;
         }
         *pSetting->pValue = nValue;
-        pSetting->LastSavedValue = *pSetting->pValue;
+        if(IsSettingInIniFile)
+        {
+            pSetting->LastSavedValue = *pSetting->pValue;
+        }
+        else
+        {
+            pSetting->LastSavedValue = pSetting->MinValue - 100;
+        }
     }
 }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.44 2002-08-09 08:31:15 kooiman Exp $
+// $Id: Other.cpp,v 1.45 2002-08-15 14:16:18 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.44  2002/08/09 08:31:15  kooiman
+// Changed default value for settings in the channel setting list.
+//
 // Revision 1.43  2002/08/08 12:49:33  kooiman
 // Added Overlay settings to settings per channel.
 //
@@ -1394,7 +1397,7 @@ CTreeSettingsGeneric* Other_GetTreeSettingsPage()
 
 void Other_SavePerChannelSetup(void *pThis, int Start)
 {     
-  if (Start)
+  if (Start==1)
   {
      // Register for per channel settings
     SettingsPerChannel_RegisterSetSection("Overlay");
@@ -1405,4 +1408,8 @@ void Other_SavePerChannelSetup(void *pThis, int Start)
     SettingsPerChannel_RegisterSetting("OverlayGamma","Overlay - Gamma", FALSE, &OtherSettings[OVERLAYGAMMA]);
     SettingsPerChannel_RegisterSetting("OverlaySharpness","Overlay - Sharpness", FALSE, &OtherSettings[OVERLAYSHARPNESS]);
   }   
+  if (Start==0)
+  {
+    SettingsPerChannel_UnregisterSection("Overlay");
+  }
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI.cpp,v 1.16 2002-08-08 12:57:03 kooiman Exp $
+// $Id: VBI.cpp,v 1.17 2002-08-15 14:16:18 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/08/08 12:57:03  kooiman
+// Added VBI settings to settings per channel.
+//
 // Revision 1.15  2002/08/05 22:33:38  laurentg
 // WSS decoding and VBI decoding locked when AR autodetection mode is ON and this mode used is set to use WSS
 //
@@ -321,7 +324,7 @@ void VBI_SetMenu(HMENU hMenu)
 
 void VBI_SavePerChannelSetup(void *pThis, int Start)
 {     
-  if (Start)
+  if (Start == 1)
   {
      // Register for per channel settings
     SettingsPerChannel_RegisterSetSection("VBI");
@@ -333,4 +336,8 @@ void VBI_SavePerChannelSetup(void *pThis, int Start)
     SettingsPerChannel_RegisterSetting("VBISettings","VBI - Settings", FALSE, &VBISettings[DOWSS]);    
     
   }   
+  if (Start == 0)
+  {
+    SettingsPerChannel_UnregisterSection("VBI");
+  }
 }

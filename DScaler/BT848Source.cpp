@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.56 2002-08-13 21:21:24 kooiman Exp $
+// $Id: BT848Source.cpp,v 1.57 2002-08-15 14:16:18 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.56  2002/08/13 21:21:24  kooiman
+// Improved settings per channel to account for source and input changes.
+//
 // Revision 1.55  2002/08/13 21:04:42  kooiman
 // Add IDString() to Sources for identification purposes.
 //
@@ -1328,7 +1331,7 @@ void CBT848Source::SetOverscan()
 
 void CBT848Source::SavePerChannelSetup(int Start)
 {
-    if (Start)
+    if (Start&1)
     {
         m_SettingsByChannelStarted = TRUE;
         ChangeChannelSectionNames();

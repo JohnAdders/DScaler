@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Filter.cpp,v 1.28 2002-08-14 07:09:18 robmuller Exp $
+// $Id: Filter.cpp,v 1.29 2002-08-15 14:16:18 kooiman Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2002/08/14 07:09:18  robmuller
+// Improved filter ordering.
+//
 // Revision 1.27  2002/08/12 20:00:59  laurentg
 // no message
 //
@@ -489,7 +492,7 @@ void Filter_SetMenu(HMENU hMenu)
 void Filter_SaveByChannelSetup(void *pThis, int Start)
 
 {
-    if (Start)
+    if (Start == 1)
     {
         int i;
         char szSubSection[100];                
@@ -497,6 +500,16 @@ void Filter_SaveByChannelSetup(void *pThis, int Start)
         {            
             Filter_ChannelSubSection(Filters[i], szSubSection);
             Filter_RegisterChannelSettings(Filters[i], szSubSection);            
+        }     
+    }
+    if (Start == 0)
+    {
+        int i;
+        char szSubSection[100];                
+        for(i = 0; i < NumFilters; i++)
+        {            
+            Filter_ChannelSubSection(Filters[i], szSubSection);
+            SettingsPerChannel_UnregisterSection(szSubSection);            
         }     
     }
 }

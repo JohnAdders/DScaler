@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.h,v 1.39 2003-07-05 10:55:57 laurentg Exp $
+// $Id: SAA7134Source.h,v 1.40 2003-07-22 22:31:36 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.39  2003/07/05 10:55:57  laurentg
+// New method SetWidth
+//
 // Revision 1.38  2003/01/27 22:04:15  laurentg
 // First step to merge setup hardware and hardware info dialog boxes
 // CPU flag information moved in the general hardware dialog box
@@ -250,6 +253,9 @@ public:
     
     void SetSourceAsCurrent();
    
+    void Pause() {return;};
+    void UnPause() {return;};
+
 private:
     virtual void CreateSettings(LPCSTR IniSection);
 

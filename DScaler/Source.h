@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Source.h,v 1.36 2003-07-05 10:55:57 laurentg Exp $
+// $Id: Source.h,v 1.37 2003-07-22 22:31:36 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -172,6 +172,9 @@ public:
 
     virtual void SetSourceAsCurrent();
     virtual void UnsetSourceAsCurrent();
+
+    virtual void Pause() = 0;
+    virtual void UnPause() = 0;
 
 protected:
     CSource(long SetMessage, long MenuId);

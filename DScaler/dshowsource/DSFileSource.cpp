@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSFileSource.cpp,v 1.9 2003-02-22 16:48:56 tobbej Exp $
+// $Id: DSFileSource.cpp,v 1.10 2003-07-22 22:30:20 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2003/02/22 16:48:56  tobbej
+// added some comments about requierments for OpenFile (to avoid crashing)
+//
 // Revision 1.8  2003/01/18 10:49:10  laurentg
 // SetOverscan renamed SetAspectRatioData
 //
@@ -262,6 +265,37 @@ void CDSFileSource::SetMenu(HMENU hMenu)
 	menu->CheckMenuRadioItem(0,2,pos,MF_BYPOSITION);
 
 	topMenu.Detach();
+}
+
+void CDSFileSource::Pause()
+{
+	if (m_pDSGraph != NULL && m_pDSGraph->getState() == State_Running)
+	{
+		try
+		{
+			m_pDSGraph->pause();
+		}
+		catch(CDShowException &e)
+		{
+			ErrorBox(CString("Pause failed\n\n")+e.getErrorText());
+		}
+	}
+}
+
+void CDSFileSource::UnPause()
+{
+	if (m_pDSGraph != NULL && m_pDSGraph->getState() == State_Paused)
+	{
+		try
+		{
+			m_pDSGraph->start();
+			//VideoInputOnChange(m_VideoInput->GetValue(), m_VideoInput->GetValue());
+		}
+		catch(CDShowException &e)
+		{
+			ErrorBox(CString("Play failed\n\n")+e.getErrorText());
+		}
+	}
 }
 
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.121 2003-07-08 21:04:59 laurentg Exp $
+// $Id: OutThreads.cpp,v 1.122 2003-07-22 22:33:12 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.121  2003/07/08 21:04:59  laurentg
+// New timeshift mode (full height) - experimental
+//
 // Revision 1.120  2003/07/05 21:50:25  atnak
 // Changed the main YUV thread loop so it runs at least once.
 //
@@ -704,10 +707,18 @@ void Pause_Toggle_Capture()
     if(bIsPaused)
     {
         UnPause_Capture();
+        if (Providers_GetCurrentSource())
+        {
+			Providers_GetCurrentSource()->UnPause();
+        }
     }
     else
     {
         Pause_Capture();
+        if (Providers_GetCurrentSource())
+        {
+			Providers_GetCurrentSource()->Pause();
+        }
     }
 }
 

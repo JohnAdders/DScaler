@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.57 2003-07-05 10:55:57 laurentg Exp $
+// $Id: BT848Source.h,v 1.58 2003-07-22 22:31:36 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.57  2003/07/05 10:55:57  laurentg
+// New method SetWidth
+//
 // Revision 1.56  2003/01/19 19:45:12  laurentg
 // GetInitialHeight must return the height of the input picture
 //
@@ -154,7 +157,10 @@ public:
     CTreeSettingsPage* GetTreeSettingsPage();
     
     void SetSourceAsCurrent();
-   
+
+    void Pause() {return;};
+    void UnPause() {return;};
+
 private:
     virtual void CreateSettings(LPCSTR IniSection);
 

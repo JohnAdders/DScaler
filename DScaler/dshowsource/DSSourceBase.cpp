@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.cpp,v 1.17 2003-07-05 10:58:17 laurentg Exp $
+// $Id: DSSourceBase.cpp,v 1.18 2003-07-22 22:30:20 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2003/07/05 10:58:17  laurentg
+// New method SetWidth (not yet implemented)
+//
 // Revision 1.16  2003/04/07 09:17:16  adcockj
 // Fixes for correct operation of IsFirstInSeries
 //
@@ -311,6 +314,8 @@ void CDSSourceBase::UpdateDroppedFields()
 
 BOOL CDSSourceBase::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 {
+	FILTER_STATE OldState;
+
 	if(m_pDSGraph==NULL)
 	{
 		return FALSE;
@@ -319,31 +324,35 @@ BOOL CDSSourceBase::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 	switch(LOWORD(wParam))
 	{
 	case IDM_DSHOW_PLAY:
-		try
+		if (m_pDSGraph->getState() == State_Paused)
 		{
-			m_pDSGraph->start();
-			//VideoInputOnChange(m_VideoInput->GetValue(), m_VideoInput->GetValue());
+			SendMessage(hWnd, WM_COMMAND, IDM_CAPTURE_PAUSE, 0);
 		}
-		catch(CDShowException &e)
+		else if (m_pDSGraph->getState() == State_Stopped)
 		{
-			ErrorBox(CString("Play failed\n\n")+e.getErrorText());
+			try
+			{
+				m_pDSGraph->start();
+				//VideoInputOnChange(m_VideoInput->GetValue(), m_VideoInput->GetValue());
+			}
+			catch(CDShowException &e)
+			{
+				ErrorBox(CString("Play failed\n\n")+e.getErrorText());
+			}
 		}
 		return TRUE;
 		break;
 
 	case IDM_DSHOW_PAUSE:
-		try
+		if (m_pDSGraph->getState() == State_Running)
 		{
-			m_pDSGraph->pause();
-		}
-		catch(CDShowException &e)
-		{
-			ErrorBox(CString("Pause failed\n\n")+e.getErrorText());
+			SendMessage(hWnd, WM_COMMAND, IDM_CAPTURE_PAUSE, 0);
 		}
 		return TRUE;
 		break;
 
 	case IDM_DSHOW_STOP:
+		OldState = m_pDSGraph->getState();
 		try
 		{
 			//we must ensure that the output thread don't try to get any
@@ -357,6 +366,10 @@ BOOL CDSSourceBase::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		catch(CDShowException &e)
 		{
 			ErrorBox(CString("Stop failed\n\n")+e.getErrorText());
+		}
+		if (OldState == State_Paused)
+		{
+			SendMessage(hWnd, WM_COMMAND, IDM_CAPTURE_PAUSE, 0);
 		}
 		return TRUE;
 		break;

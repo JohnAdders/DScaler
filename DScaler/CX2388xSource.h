@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.h,v 1.24 2003-07-05 10:55:57 laurentg Exp $
+// $Id: CX2388xSource.h,v 1.25 2003-07-22 22:31:36 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -100,6 +100,9 @@ public:
     ITuner* GetTuner();
 
     virtual void SetSourceAsCurrent();
+
+    void Pause() {return;};
+    void UnPause() {return;};
 
 private:
     virtual void CreateSettings(LPCSTR IniSection);

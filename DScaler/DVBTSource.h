@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DVBTSource.h,v 1.19 2003-07-05 10:55:57 laurentg Exp $
+// $Id: DVBTSource.h,v 1.20 2003-07-22 22:31:36 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -72,6 +72,9 @@ public:
     void SetAspectRatioData();
     BOOL HasSquarePixels() {return FALSE;};
     void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff) {;};
+
+    void Pause() {return;};
+    void UnPause() {return;};
 
 private:
     std::string  m_Section;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.h,v 1.68 2003-07-05 10:55:57 laurentg Exp $
+// $Id: StillSource.h,v 1.69 2003-07-22 22:31:36 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -159,6 +159,9 @@ public:
     BOOL InputHasTuner(eSourceInputType InputType, int Nr) { return FALSE; };
 
     ITuner* GetTuner() {return NULL;}
+
+    void Pause() {return;};
+    void UnPause() {return;};
 
 	int	 GetPlaylistPosition();
 	int CountMemoryUsage();

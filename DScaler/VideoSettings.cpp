@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VideoSettings.cpp,v 1.14 2002-02-09 02:44:55 laurentg Exp $
+// $Id: VideoSettings.cpp,v 1.15 2002-03-13 13:36:45 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/02/09 02:44:55  laurentg
+// Overscan now stored in a setting of the source
+//
 // Revision 1.13  2001/11/29 14:04:07  adcockj
 // Added Javadoc comments
 //
@@ -316,11 +319,23 @@ BOOL APIENTRY VideoSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam
         else if((HWND)lParam == GetDlgItem(hDlg, IDC_SLIDER4))
         {
             Saturation->SetFromControl((HWND)lParam);
-            SaturationU->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER5));
-            SaturationV->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER6));
+            if(SaturationU!=NULL)
+            {
+                SaturationU->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER5));
+            }
+            if(SaturationV!=NULL)
+            {
+                SaturationV->SetControlValue(GetDlgItem(hDlg, IDC_SLIDER6));
+            }
             SetDlgItemInt(hDlg, IDC_D4, Saturation->GetValue(), FALSE);
-            SetDlgItemInt(hDlg, IDC_D5, SaturationU->GetValue(), FALSE);
-            SetDlgItemInt(hDlg, IDC_D6, SaturationV->GetValue(), FALSE);
+            if(SaturationU!=NULL)
+            {
+                SetDlgItemInt(hDlg, IDC_D5, SaturationU->GetValue(), FALSE);
+            }
+            if(SaturationV!=NULL)
+            {
+                SetDlgItemInt(hDlg, IDC_D6, SaturationV->GetValue(), FALSE);
+            }
         }
         else if((HWND)lParam == GetDlgItem(hDlg, IDC_SLIDER5))
         {

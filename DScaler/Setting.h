@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.h,v 1.7 2002-08-08 12:13:01 kooiman Exp $
+// $Id: Setting.h,v 1.8 2002-08-17 18:05:30 tobbej Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,7 +67,7 @@ public:
     virtual void SetFromControl(HWND hWnd) = 0;
 };
 
-/** Base class for settings taht can be represented as a long
+/** Base class for settings that can be represented as a long
 */
 class CSimpleSetting : public ISetting
 {

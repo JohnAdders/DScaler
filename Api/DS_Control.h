@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.52 2002-02-27 20:41:08 laurentg Exp $
+// $Id: DS_Control.h,v 1.53 2002-04-07 10:37:53 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.52  2002/02/27 20:41:08  laurentg
+// Still settings
+//
 // Revision 1.51  2002/02/16 00:20:20  lindsey
 // Added constants for FLT_Histogram
 //
@@ -381,7 +384,7 @@ typedef enum
     CURRENTTUNERTYPE,
     PROCESSORSPEED,
     TRADEOFF,
-    AUDIOSOURCE,
+    AUDIOSOURCE1,
     MSPMODE,
     MSPMAJORMODE,
     MSPMINORMODE,
@@ -402,6 +405,11 @@ typedef enum
     BT848SAVEPERINPUT,
     BT848SAVEPERFORMAT,
     BT848SAVETVFORMATPERINPUT,
+    AUDIOSOURCE2,
+    AUDIOSOURCE3,
+    AUDIOSOURCE4,
+    AUDIOSOURCE5,
+    AUDIOSOURCE6,
     BT848_SETTING_LASTONE,
 } BT848_SETTING;
 

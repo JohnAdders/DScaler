@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.16 2002-02-12 02:27:45 ittarnavsky Exp $
+// $Id: BT848Card.h,v 1.17 2002-04-07 10:37:53 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/02/12 02:27:45  ittarnavsky
+// fixed the hardware info dialog
+//
 // Revision 1.15  2002/02/03 18:14:40  adcockj
 // Fixed SDI Silk & Sasem cards
 //
@@ -223,7 +226,7 @@ public:
     void InitAudio();
 
     void SetAudioMute();
-    void SetAudioUnMute(long nVolume);
+    void SetAudioUnMute(long nVolume, eAudioInput Input);
     void SetAudioVolume(WORD nVolume);
     void SetAudioBalance(WORD nBalance);
     void SetAudioBass(WORD nBass);
@@ -295,7 +298,6 @@ private:
     ITuner*         m_Tuner;
     CAudioDecoder*  m_AudioDecoder;
     IAudioControls* m_AudioControls;
-    eAudioInput     m_LastAudioSource;
 
 private:
     static const TCardType m_TVCards[TVCARD_LASTONE];

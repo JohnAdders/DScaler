@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.36 2002-03-12 21:10:04 robmuller Exp $
+// $Id: BT848Source.cpp,v 1.37 2002-04-07 10:37:53 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.36  2002/03/12 21:10:04  robmuller
+// Corrected error in TradeOff setting.
+//
 // Revision 1.35  2002/03/04 20:44:49  adcockj
 // Reversed incorrect changed
 //
@@ -348,8 +351,8 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     m_TradeOff = new CSliderSetting("Quality Trade Off", 1, 0, 1, IniSection, "TradeOff");
     m_Settings.push_back(m_TradeOff);
 
-    m_AudioSource = new CAudioSourceSetting(this, "Audio Source", AUDIOINPUT_MUTE, AUDIOINPUT_TUNER, AUDIOINPUT_STEREO, IniSection);
-    m_Settings.push_back(m_AudioSource);
+    m_AudioSource1 = new CAudioSource1Setting(this, "Audio Source 1", AUDIOINPUT_MUTE, AUDIOINPUT_TUNER, AUDIOINPUT_STEREO, IniSection);
+    m_Settings.push_back(m_AudioSource1);
 
     m_AudioChannel = new CAudioChannelSetting(this, "Audio Channel", SOUNDCHANNEL_STEREO, SOUNDCHANNEL_MONO, SOUNDCHANNEL_LANGUAGE2, IniSection);
     m_Settings.push_back(m_AudioChannel);
@@ -378,6 +381,21 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     
     m_bSavePerChannel = new CYesNoSetting("Save Per Channel", FALSE, IniSection, "SavePerChannel");
     m_Settings.push_back(m_bSavePerChannel);
+
+    m_AudioSource2 = new CAudioSource2Setting(this, "Audio Source 2", AUDIOINPUT_MUTE, AUDIOINPUT_TUNER, AUDIOINPUT_STEREO, IniSection);
+    m_Settings.push_back(m_AudioSource1);
+
+    m_AudioSource3 = new CAudioSource3Setting(this, "Audio Source 3", AUDIOINPUT_MUTE, AUDIOINPUT_TUNER, AUDIOINPUT_STEREO, IniSection);
+    m_Settings.push_back(m_AudioSource1);
+
+    m_AudioSource4 = new CAudioSource4Setting(this, "Audio Source 4", AUDIOINPUT_MUTE, AUDIOINPUT_TUNER, AUDIOINPUT_STEREO, IniSection);
+    m_Settings.push_back(m_AudioSource1);
+
+    m_AudioSource5 = new CAudioSource5Setting(this, "Audio Source 5", AUDIOINPUT_MUTE, AUDIOINPUT_TUNER, AUDIOINPUT_STEREO, IniSection);
+    m_Settings.push_back(m_AudioSource1);
+
+    m_AudioSource6 = new CAudioSource6Setting(this, "Audio Source 6", AUDIOINPUT_MUTE, AUDIOINPUT_TUNER, AUDIOINPUT_STEREO, IniSection);
+    m_Settings.push_back(m_AudioSource1);
 
     ReadFromIni();
 }
@@ -448,7 +466,7 @@ void CBT848Source::Reset()
 
     /// \todo FIXME anything else to initialize here?
     m_pBT848Card->SetAudioStandard((eVideoFormat)m_VideoFormat->GetValue());
-    m_pBT848Card->SetAudioSource((eAudioInput)m_AudioSource->GetValue());
+    m_pBT848Card->SetAudioSource((eAudioInput)GetCurrentAudioSetting()->GetValue());
     m_pBT848Card->SetAudioChannel((eSoundChannel)m_AudioChannel->GetValue());
 }
 
@@ -919,12 +937,7 @@ void CBT848Source::VideoSourceOnChange(long NewValue, long OldValue)
     // set up sound
     if(m_pBT848Card->IsInputATuner(NewValue))
     {
-        m_AudioSource->SetValue(AUDIOINPUT_TUNER);
         Channel_SetCurrent();
-    }
-    else
-    {
-        m_AudioSource->SetValue(AUDIOINPUT_EXTERNAL);
     }
     Audio_Unmute();
     Start_Capture();
@@ -1107,19 +1120,19 @@ void CBT848Source::SetupCard()
 
         // then display the hardware setup dialog
         DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_SELECTCARD), hWnd, (DLGPROC) SelectCardProc, (LPARAM)this);
+
+        if(m_TunerType->GetValue() != TUNER_ABSENT)
+        {
+            m_AudioSource1->SetValue(AUDIOINPUT_TUNER);
+        }
+        else
+        {
+            m_AudioSource1->SetValue(AUDIOINPUT_EXTERNAL);
+        }
     }
     m_pBT848Card->SetCardType(m_CardType->GetValue());
     m_pBT848Card->InitTuner((eTunerId)m_TunerType->GetValue());
     m_pBT848Card->InitAudio();
-
-    if(m_pBT848Card->IsInputATuner(m_VideoSource->GetValue()))
-    {
-        m_AudioSource->SetValue(AUDIOINPUT_TUNER);
-    }
-    else
-    {
-        m_AudioSource->SetValue(AUDIOINPUT_EXTERNAL);
-    }
 }
 
 void CBT848Source::ChangeDefaultsBasedOnHardware()

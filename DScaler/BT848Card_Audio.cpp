@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Audio.cpp,v 1.14 2002-02-12 02:27:45 ittarnavsky Exp $
+// $Id: BT848Card_Audio.cpp,v 1.15 2002-04-07 10:37:53 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2002/02/12 02:27:45  ittarnavsky
+// fixed the hardware info dialog
+//
 // Revision 1.13  2002/02/01 04:43:55  ittarnavsky
 // some more audio related fixes
 // removed the handletimermessages and getaudioname methods
@@ -124,7 +127,7 @@ void CBT848Card::SetAudioMute()
     }
 }
 
-void CBT848Card::SetAudioUnMute(long nVolume)
+void CBT848Card::SetAudioUnMute(long nVolume, eAudioInput Input)
 {
     if(m_bHasMSP)
     {
@@ -133,7 +136,7 @@ void CBT848Card::SetAudioUnMute(long nVolume)
     }
     else
     {
-        SetAudioSource(m_LastAudioSource);
+        SetAudioSource(Input);
     }
 }
 
@@ -269,7 +272,6 @@ void CBT848Card::SetAudioSource(eAudioInput nChannel)
         {
             MuxSelect = GetCardSetup()->AudioMuxSelect[nChannel];
         }
-        m_LastAudioSource = nChannel;
         break;
     }
     

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_Audio.cpp,v 1.13 2002-03-04 20:44:49 adcockj Exp $
+// $Id: BT848Source_Audio.cpp,v 1.14 2002-04-07 10:37:53 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2002/03/04 20:44:49  adcockj
+// Reversed incorrect changed
+//
 // Revision 1.11  2002/02/03 18:11:03  adcockj
 // Fixed volume key
 //
@@ -94,7 +97,7 @@ void CBT848Source::Mute()
 
 void CBT848Source::UnMute()
 {
-    m_pBT848Card->SetAudioUnMute(m_Volume->GetValue());
+    m_pBT848Card->SetAudioUnMute(m_Volume->GetValue(), (eAudioInput)GetCurrentAudioSetting()->GetValue());
 }
 
 void CBT848Source::VolumeOnChange(long NewValue, long OldValue)
@@ -117,10 +120,54 @@ void CBT848Source::TrebleOnChange(long NewValue, long OldValue)
     m_pBT848Card->SetAudioTreble(NewValue);
 }
 
-void CBT848Source::AudioSourceOnChange(long NewValue, long OldValue)
+void CBT848Source::AudioSource1OnChange(long NewValue, long OldValue)
 {
-    m_pBT848Card->SetAudioSource((eAudioInput)NewValue);
+    if(m_VideoSource->GetValue() == 0)
+    {
+        m_pBT848Card->SetAudioSource((eAudioInput)NewValue);
+    }
 }
+
+void CBT848Source::AudioSource2OnChange(long NewValue, long OldValue)
+{
+    if(m_VideoSource->GetValue() == 1)
+    {
+        m_pBT848Card->SetAudioSource((eAudioInput)NewValue);
+    }
+}
+
+void CBT848Source::AudioSource3OnChange(long NewValue, long OldValue)
+{
+    if(m_VideoSource->GetValue() == 2)
+    {
+        m_pBT848Card->SetAudioSource((eAudioInput)NewValue);
+    }
+}
+
+void CBT848Source::AudioSource4OnChange(long NewValue, long OldValue)
+{
+    if(m_VideoSource->GetValue() == 3)
+    {
+        m_pBT848Card->SetAudioSource((eAudioInput)NewValue);
+    }
+}
+
+void CBT848Source::AudioSource5OnChange(long NewValue, long OldValue)
+{
+    if(m_VideoSource->GetValue() == 4)
+    {
+        m_pBT848Card->SetAudioSource((eAudioInput)NewValue);
+    }
+}
+
+void CBT848Source::AudioSource6OnChange(long NewValue, long OldValue)
+{
+    if(m_VideoSource->GetValue() == 5)
+    {
+        m_pBT848Card->SetAudioSource((eAudioInput)NewValue);
+    }
+}
+
 
 void CBT848Source::AudioChannelOnChange(long NewValue, long OldValue)
 {
@@ -135,4 +182,24 @@ void CBT848Source::AutoStereoSelectOnChange(long NewValue, long OldValue)
 void CBT848Source::HandleTimerMessages(int TimerId)
 {
     /// \todo FIXME autodetec stero here
+}
+
+ISetting* CBT848Source::GetCurrentAudioSetting()
+{
+    switch(m_VideoSource->GetValue())
+    {
+    case 0:
+        return m_AudioSource1;
+    case 1:
+        return m_AudioSource2;
+    case 2:
+        return m_AudioSource3;
+    case 3:
+        return m_AudioSource4;
+    case 4:
+        return m_AudioSource5;
+    default:
+    case 5:
+        return m_AudioSource6;
+    }
 }

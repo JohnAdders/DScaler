@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Souce_UI.cpp,v 1.21 2002-02-26 15:48:49 robmuller Exp $
+// $Id: BT848Souce_UI.cpp,v 1.22 2002-04-07 10:37:53 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2002/02/26 15:48:49  robmuller
+// Balance slider no longer changes the treble value.
+//
 // Revision 1.20  2002/02/17 17:48:03  laurentg
 // Bug with tuner combobox corrected
 //
@@ -360,12 +363,12 @@ void CBT848Source::SetMenu(HMENU hMenu)
     CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_7, (videoFormat == VIDEOFORMAT_NTSC_50));
     CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_8, (videoFormat == VIDEOFORMAT_PAL_N_COMBO));
 
-    CheckMenuItemBool(m_hMenu, IDM_AUDIO_0, (m_AudioSource->GetValue() == 0));
-    CheckMenuItemBool(m_hMenu, IDM_AUDIO_1, (m_AudioSource->GetValue() == 1));
-    CheckMenuItemBool(m_hMenu, IDM_AUDIO_2, (m_AudioSource->GetValue() == 2));
-    CheckMenuItemBool(m_hMenu, IDM_AUDIO_3, (m_AudioSource->GetValue() == 3));
-    CheckMenuItemBool(m_hMenu, IDM_AUDIO_4, (m_AudioSource->GetValue() == 4));
-    CheckMenuItemBool(m_hMenu, IDM_AUDIO_5, (m_AudioSource->GetValue() == 5));
+    CheckMenuItemBool(m_hMenu, IDM_AUDIO_0, (GetCurrentAudioSetting()->GetValue() == 0));
+    CheckMenuItemBool(m_hMenu, IDM_AUDIO_1, (GetCurrentAudioSetting()->GetValue() == 1));
+    CheckMenuItemBool(m_hMenu, IDM_AUDIO_2, (GetCurrentAudioSetting()->GetValue() == 2));
+    CheckMenuItemBool(m_hMenu, IDM_AUDIO_3, (GetCurrentAudioSetting()->GetValue() == 3));
+    CheckMenuItemBool(m_hMenu, IDM_AUDIO_4, (GetCurrentAudioSetting()->GetValue() == 4));
+    CheckMenuItemBool(m_hMenu, IDM_AUDIO_5, (GetCurrentAudioSetting()->GetValue() == 5));
 
     CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_MONO, (m_AudioChannel->GetValue() == 1));
     CheckMenuItemBool(m_hMenu, IDM_SOUNDCHANNEL_STEREO, (m_AudioChannel->GetValue() == 2));
@@ -591,8 +594,8 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         case IDM_AUDIO_3:
         case IDM_AUDIO_4:
         case IDM_AUDIO_5:
-            m_AudioSource->SetValue((LOWORD(wParam) - IDM_AUDIO_0));
-            switch (m_AudioSource->GetValue())
+            GetCurrentAudioSetting()->SetValue((LOWORD(wParam) - IDM_AUDIO_0));
+            switch (GetCurrentAudioSetting()->GetValue())
             {
             case AUDIOINPUT_TUNER:     
                 ShowText(hWnd, "Audio Input - Tuner");     

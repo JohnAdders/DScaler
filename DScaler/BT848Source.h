@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.20 2002-02-09 14:46:05 laurentg Exp $
+// $Id: BT848Source.h,v 1.21 2002-04-07 10:37:53 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -94,6 +94,8 @@ private:
     void LoadInputSettings();
     void SaveInputSettings(BOOL bOptimizeFileAccess);
 
+    ISetting* GetCurrentAudioSetting();
+
 private:
     CBT848Card*  m_pBT848Card;
     BYTE*        m_pDisplay[5];
@@ -160,7 +162,12 @@ private:
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, Treble);
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, Balance);
     DEFINE_YESNO_CALLBACK_SETTING(CBT848Source, AutoStereoSelect);
-    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioSource);
+    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioSource1);
+    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioSource2);
+    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioSource3);
+    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioSource4);
+    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioSource5);
+    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioSource6);
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AudioChannel);
 };
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.42 2001-12-18 14:45:05 adcockj Exp $
+// $Id: ProgramList.cpp,v 1.43 2002-01-17 22:25:23 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.42  2001/12/18 14:45:05  adcockj
+// Moved to Common Controls status bar
+//
 // Revision 1.41  2001/12/05 21:45:11  ittarnavsky
 // added changes for the AudioDecoder and AudioControls support
 //
@@ -378,7 +381,6 @@ void ScanCustomChannel(HWND hDlg, int ChannelNum)
     {
         return;
     }
-    int i = 0;
 
     MyChannels[ChannelNum]->SetActive(FALSE);
 
@@ -395,17 +397,40 @@ void ScanCustomChannel(HWND hDlg, int ChannelNum)
         return;
     }
 
-    Sleep(100);
+    int       MaxTuneDelay = 0;
 
-    while ((i < 75) && (Providers_GetCurrentSource()->IsVideoPresent() == FALSE))
+    switch(Providers_GetCurrentSource()->GetTunerId())
+    {
+        // The MT2032 is a silicon tuner and tunes real fast, no delay needed at this point.
+        // Even channels with interference and snow are tuned and detected in about max 80ms,
+        // so 120ms seems to be a safe value.
+    case TUNER_MT2032:
+        MaxTuneDelay = 120;
+        break;
+    default:
+        MaxTuneDelay = 225;
+        Sleep(100);
+        break;
+    }
+
+    int       StartTick = 0;
+    int       ElapsedTicks = 0;
+
+    StartTick = GetTickCount();
+    while (Providers_GetCurrentSource()->IsVideoPresent() == FALSE)
     {
         MSG msg;
         if (PeekMessage(&msg, NULL, 0, 0xffffffff, PM_REMOVE) == TRUE)
         {
             SendMessage(msg.hwnd, msg.message, msg.wParam, msg.lParam);
         }
+
+        if(ElapsedTicks > MaxTuneDelay)
+        {
+            break;
+        }
  
-        i++;
+        ElapsedTicks = GetTickCount() - StartTick;
         Sleep(3);
     }
 
@@ -422,7 +447,6 @@ void ScanFrequency(HWND hDlg, int FreqNum)
         return;
     }
 
-    int i = 0;
     char sbuf[256];
 
     DWORD Freq = Countries[CountryCode]->m_Frequencies[FreqNum];
@@ -444,19 +468,43 @@ void ScanFrequency(HWND hDlg, int FreqNum)
         return;
     }
 
-    Sleep(100);
+    int       MaxTuneDelay = 0;
 
-    while ((i < 75) && (Providers_GetCurrentSource()->IsVideoPresent() == FALSE))
+    switch(Providers_GetCurrentSource()->GetTunerId())
+    {
+        // The MT2032 is a silicon tuner and tunes real fast, no delay needed at this point.
+        // Even channels with interference and snow are tuned and detected in about max 80ms,
+        // so 120ms seems to be a safe value.
+    case TUNER_MT2032:
+        MaxTuneDelay = 120;
+        break;
+    default:
+        MaxTuneDelay = 225;
+        Sleep(100);
+        break;
+    }
+
+    int       StartTick = 0;
+    int       ElapsedTicks = 0;
+
+    StartTick = GetTickCount();
+    while (Providers_GetCurrentSource()->IsVideoPresent() == FALSE)
     {
         MSG msg;
         if (PeekMessage(&msg, NULL, 0, 0xffffffff, PM_REMOVE) == TRUE)
         {
             SendMessage(msg.hwnd, msg.message, msg.wParam, msg.lParam);
         }
-        i++;
+
+        if(ElapsedTicks > MaxTuneDelay)
+        {
+            break;
+        }
+ 
+        ElapsedTicks = GetTickCount() - StartTick;
         Sleep(3);
     }
-    
+
     if(Providers_GetCurrentSource()->IsVideoPresent())
     {
         char sbuf[256];

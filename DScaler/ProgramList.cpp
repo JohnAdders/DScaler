@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.34 2001-09-12 15:59:18 adcockj Exp $
+// $Id: ProgramList.cpp,v 1.35 2001-10-17 11:46:11 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.34  2001/09/12 15:59:18  adcockj
+// Added mute during scan code
+//
 // Revision 1.33  2001/08/23 18:54:21  adcockj
 // Menu and Settings fixes
 //
@@ -958,6 +961,7 @@ void Channel_Change(int NewChannel)
         {
             if (MyChannels[NewChannel]->GetFrequency() != 0)
             {
+				Audio_Mute();
                 Sleep(100); // This helps reduce the static click noise.
                 PreviousProgramm = CurrentProgramm;
                 CurrentProgramm = NewChannel;
@@ -980,6 +984,7 @@ void Channel_Change(int NewChannel)
                 VT_ChannelChange();
                 StatusBar_ShowText(STATUS_KEY, MyChannels[CurrentProgramm]->GetName());
                 OSD_ShowText(hWnd,MyChannels[CurrentProgramm]->GetName(), 0);
+				Audio_Unmute();
             }
         }
     }

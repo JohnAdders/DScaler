@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.20 2001-09-21 20:47:12 laurentg Exp $
+// $Id: Other.cpp,v 1.21 2001-10-17 11:46:11 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2001/09/21 20:47:12  laurentg
+// SaveStill modified to return the name of the written file
+// Name of the file added in the OSD text when doing a snapshot
+//
 // Revision 1.19  2001/09/19 10:05:50  adcockj
 // Updated feature help
 //
@@ -273,7 +277,6 @@ BOOL Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags)
                 {
                     LOG(3, "Physical overlay color is zero!  Retrying.");
                     PhysicalOverlayColor = Overlay_ColorMatch(lpDDSurface, OverlayColor);
-                    LeaveCriticalSection(&hDDCritSect);
                 }
                 LOG(3, "Physical overlay color is %x", PhysicalOverlayColor);
             }

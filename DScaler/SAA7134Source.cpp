@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.8 2002-09-16 19:34:19 adcockj Exp $
+// $Id: SAA7134Source.cpp,v 1.9 2002-09-16 20:08:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/09/16 19:34:19  adcockj
+// Fix for auto format change
+//
 // Revision 1.7  2002/09/16 17:52:34  atnak
 // Support for SAA7134Res.dll dialogs
 //
@@ -504,7 +507,8 @@ void CSAA7134Source::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     Timing_IncrementUsedFields();
 
     // auto input detect
-    Timimg_AutoFormatDetect(pInfo);
+    // \todo check this
+    Timimg_AutoFormatDetect(pInfo, 10);
 }
 
 void CSAA7134Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FieldTiming.cpp,v 1.28 2002-09-15 14:20:38 adcockj Exp $
+// $Id: FieldTiming.cpp,v 1.29 2002-09-16 20:08:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2002/09/15 14:20:38  adcockj
+// Fixed timing problems for cx2388x chips
+//
 // Revision 1.27  2002/08/26 18:25:10  adcockj
 // Fixed problem with PAL/NTSC detection
 //
@@ -200,21 +203,21 @@ void Timing_SmartSleep(TDeinterlaceInfo* pInfo, BOOL bRunningLate, BOOL& bSleptA
     bSleptAlready = TRUE;
 }
 
-void Timimg_AutoFormatDetect(TDeinterlaceInfo* pInfo)
+void Timimg_AutoFormatDetect(TDeinterlaceInfo* pInfo, int NumFields)
 {
     static long RepeatCount = 0;
 	static LARGE_INTEGER LastTenFieldTime = {LONGLONG(0)};
 
     if(bDoAutoFormatDetect == TRUE)
     {
-        if(pInfo->CurrentFrame == 0 && ((pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD) > 0))
+        if(pInfo->CurrentFrame == 0 && (((pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD) > 0) || !(pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_MASK)))
         {
             LARGE_INTEGER CurrentTime;
             QueryPerformanceCounter(&CurrentTime);
             if(LastTenFieldTime.QuadPart != 0)
             {
                 long TenFieldTime;
-                TenFieldTime = MulDiv((int)(CurrentTime.QuadPart - LastTenFieldTime.QuadPart), 1000, (int)(TimerFrequency.QuadPart));
+                TenFieldTime = MulDiv((int)(CurrentTime.QuadPart - LastTenFieldTime.QuadPart), 10000, (int)(TimerFrequency.QuadPart) * NumFields);
 
                 // If we are not on a 50Hz Mode and we get 50hz timings then flip
                 // to 50hz Mode
@@ -257,6 +260,7 @@ void Timimg_AutoFormatDetect(TDeinterlaceInfo* pInfo)
                 }
                 else
                 {
+                    LOG(2, "Got unexpected Last Ten Count %d", TenFieldTime);
                     RepeatCount = 0;
                 }
             }

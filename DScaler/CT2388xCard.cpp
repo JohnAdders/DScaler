@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xCard.cpp,v 1.5 2002-09-16 19:34:18 adcockj Exp $
+// $Id: CT2388xCard.cpp,v 1.6 2002-09-16 20:08:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2002/09/16 19:34:18  adcockj
+// Fix for auto format change
+//
 // Revision 1.4  2002/09/15 14:20:38  adcockj
 // Fixed timing problems for cx2388x chips
 //
@@ -335,8 +338,8 @@ void CCT2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
             }
         }
 
-        WriteDword(CT2388X_VDELAYCCIR_EVEN, 0x0c);
-        WriteDword(CT2388X_VDELAYCCIR_ODD, 0x0e);
+        WriteDword(CT2388X_VDELAYCCIR_EVEN, 0x0C);
+        WriteDword(CT2388X_VDELAYCCIR_ODD, 0x0C);
     }
     else
     {

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FieldTiming.h,v 1.11 2002-09-15 14:20:38 adcockj Exp $
+// $Id: FieldTiming.h,v 1.12 2002-09-16 20:08:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -52,7 +52,7 @@ int Timing_GetUsedFields();
 void Timing_ResetUsedFields();
 void Timing_IncrementUsedFields();
 void Timing_AddDroppedFields(int nDropped);
-void Timimg_AutoFormatDetect(TDeinterlaceInfo* pInfo);
+void Timimg_AutoFormatDetect(TDeinterlaceInfo* pInfo, int NumFields);
 void Timing_SmartSleep(TDeinterlaceInfo* pInfo, BOOL bRunningLate, BOOL& bSleptAlready);
 void Timing_SetFlipAdjustFlag(BOOL NewValue);
 

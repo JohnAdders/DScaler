@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.67 2002-09-16 19:34:18 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.68 2002-09-16 20:08:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.67  2002/09/16 19:34:18  adcockj
+// Fix for auto format change
+//
 // Revision 1.66  2002/09/16 14:37:36  kooiman
 // Added stereo autodetection.
 //
@@ -786,7 +789,7 @@ void CBT848Source::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
     Timing_IncrementUsedFields();
 
     // auto input detect
-    Timimg_AutoFormatDetect(pInfo);
+    Timimg_AutoFormatDetect(pInfo, 10);
 }
 
 int CBT848Source::GetWidth()

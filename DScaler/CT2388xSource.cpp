@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CT2388xSource.cpp,v 1.3 2002-09-16 19:34:19 adcockj Exp $
+// $Id: CT2388xSource.cpp,v 1.4 2002-09-16 20:08:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2002/09/16 19:34:19  adcockj
+// Fix for auto format change
+//
 // Revision 1.2  2002/09/15 14:20:38  adcockj
 // Fixed timing problems for cx2388x chips
 //
@@ -385,6 +388,7 @@ void CCT2388xSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
         pInfo->FrameHeight = m_CurrentY;
         pInfo->FieldHeight = m_CurrentY;
         pInfo->InputPitch = 2048;
+
     }
     else
     {
@@ -402,12 +406,13 @@ void CCT2388xSource::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
         pInfo->FrameHeight = m_CurrentY;
         pInfo->FieldHeight = m_CurrentY / 2;
         pInfo->InputPitch = 4096;
+
     }
 
     Timing_IncrementUsedFields();
 
     // auto input detect
-    Timimg_AutoFormatDetect(pInfo);
+    Timimg_AutoFormatDetect(pInfo, m_NumFields);
 
 }
 

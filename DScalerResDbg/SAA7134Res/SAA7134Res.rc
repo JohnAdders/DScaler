@@ -1,0 +1,233 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#define APSTUDIO_HIDDEN_SYMBOLS
+#include "windows.h"
+#undef APSTUDIO_HIDDEN_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""windows.h""\r\n"
+    "#undef APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (Australia) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENA)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_AUS
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+REGISTEREDIT DIALOG DISCARDABLE  0, 0, 336, 157
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Edit Register"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "Close",IDOK,128,137,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,60,36,50,14,NOT WS_VISIBLE
+    COMBOBOX        IDC_REGISTERSELECT,8,28,164,16,CBS_DROPDOWN | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Refresh",IDC_REFRESH,184,28,50,14
+    EDITTEXT        IDC_VALUE_DEC,188,70,40,14,ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_VALUE_HEX,188,107,40,14,ES_AUTOHSCROLL | ES_READONLY
+    CONTROL         "",IDC_BIT0,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,164,68,
+                    12,12
+    CONTROL         "",IDC_BIT1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,148,68,
+                    12,12
+    CONTROL         "",IDC_BIT2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,132,68,
+                    12,12
+    CONTROL         "",IDC_BIT3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,116,68,
+                    12,12
+    CONTROL         "",IDC_BIT4,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,100,68,
+                    12,12
+    CONTROL         "",IDC_BIT5,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,84,68,
+                    12,12
+    CONTROL         "",IDC_BIT6,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,68,68,
+                    12,12
+    CONTROL         "",IDC_BIT7,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,52,68,
+                    12,12
+    CONTROL         "Slider1",IDC_VALUE_SLIDER,"msctls_trackbar32",
+                    TBS_AUTOTICKS | TBS_BOTH | WS_DISABLED | WS_TABSTOP,48,
+                    100,132,24
+    CTEXT           "Bit 7",IDC_STATIC,48,81,16,8
+    CTEXT           "Bit 0",IDC_STATIC,160,81,16,8
+    CTEXT           "0",IDC_STATIC,48,92,16,8
+    CTEXT           "255",IDC_STATIC,164,92,12,8
+    GROUPBOX        "Value",IDC_STATIC,8,49,228,80
+    LTEXT           "Decimal",IDC_STATIC,188,57,26,8
+    LTEXT           "Hex",IDC_STATIC,188,95,14,8
+    CONTROL         "Signed",IDC_SIGNED,"Button",BS_AUTOCHECKBOX | NOT 
+                    WS_VISIBLE | WS_TABSTOP,112,137,38,10
+    CONTROL         "WORD",IDC_WORDCHECK,"Button",BS_AUTOCHECKBOX | 
+                    WS_DISABLED | WS_TABSTOP,68,137,39,10
+    CONTROL         "Little Endian",IDC_ENDIANCHECK,"Button",BS_AUTOCHECKBOX | 
+                    WS_DISABLED | WS_TABSTOP,8,137,55,10
+    CONTROL         "Show Mask",IDC_MASKCHECK,"Button",BS_AUTOCHECKBOX | 
+                    BS_MULTILINE | WS_DISABLED | WS_TABSTOP,12,65,33,16
+    PUSHBUTTON      "Write",IDC_SEND,184,137,50,14
+    CONTROL         "Auto Write",IDC_AUTOWRITE,"Button",BS_AUTOCHECKBOX | 
+                    BS_MULTILINE | WS_DISABLED | WS_TABSTOP,12,100,32,16
+    CTEXT           "1",IDC_STATIC_BIT0,164,60,8,8
+    CTEXT           "1",IDC_STATIC_BIT1,148,60,8,8
+    CTEXT           "1",IDC_STATIC_BIT2,132,60,8,8
+    CTEXT           "1",IDC_STATIC_BIT3,116,60,8,8
+    CTEXT           "1",IDC_STATIC_BIT4,100,60,8,8
+    CTEXT           "1",IDC_STATIC_BIT5,84,60,8,8
+    CTEXT           "1",IDC_STATIC_BIT6,68,60,8,8
+    CTEXT           "1",IDC_STATIC_BIT7,52,60,8,8
+    GROUPBOX        "Bit Vector",IDC_STATIC,244,28,88,124
+    CONTROL         "Unknown",IDC_SETBIT0,"Button",BS_AUTOCHECKBOX | 
+                    WS_DISABLED | WS_TABSTOP,252,52,47,10
+    CONTROL         "Unknown",IDC_SETBIT1,"Button",BS_AUTOCHECKBOX | 
+                    WS_DISABLED | WS_TABSTOP,252,65,47,10
+    CONTROL         "Unknown",IDC_SETBIT2,"Button",BS_AUTOCHECKBOX | 
+                    WS_DISABLED | WS_TABSTOP,252,76,47,10
+    CONTROL         "Unknown",IDC_SETBIT3,"Button",BS_AUTOCHECKBOX | 
+                    WS_DISABLED | WS_TABSTOP,252,89,47,10
+    CONTROL         "Unknown",IDC_SETBIT4,"Button",BS_AUTOCHECKBOX | 
+                    WS_DISABLED | WS_TABSTOP,252,100,47,10
+    CONTROL         "Unknown",IDC_SETBIT5,"Button",BS_AUTOCHECKBOX | 
+                    WS_DISABLED | WS_TABSTOP,252,113,47,10
+    CONTROL         "Unknown",IDC_SETBIT6,"Button",BS_AUTOCHECKBOX | 
+                    WS_DISABLED | WS_TABSTOP,252,124,47,10
+    CONTROL         "Unknown",IDC_SETBIT7,"Button",BS_AUTOCHECKBOX | 
+                    WS_DISABLED | WS_TABSTOP,252,137,47,10
+    CONTROL         "",IDC_SEL_BIT0,"Button",BS_AUTORADIOBUTTON | 
+                    WS_DISABLED,304,52,16,8
+    CONTROL         "",IDC_SEL_BIT1,"Button",BS_AUTORADIOBUTTON | 
+                    WS_DISABLED,304,65,16,8
+    CONTROL         "",IDC_SEL_BIT2,"Button",BS_AUTORADIOBUTTON | 
+                    WS_DISABLED,304,76,16,8
+    CONTROL         "",IDC_SEL_BIT3,"Button",BS_AUTORADIOBUTTON | 
+                    WS_DISABLED,304,89,16,8
+    CONTROL         "",IDC_SEL_BIT4,"Button",BS_AUTORADIOBUTTON | 
+                    WS_DISABLED,304,100,16,8
+    CONTROL         "",IDC_SEL_BIT5,"Button",BS_AUTORADIOBUTTON | 
+                    WS_DISABLED,304,113,16,8
+    CONTROL         "",IDC_SEL_BIT6,"Button",BS_AUTORADIOBUTTON | 
+                    WS_DISABLED,304,124,16,8
+    CONTROL         "",IDC_SEL_BIT7,"Button",BS_AUTORADIOBUTTON | 
+                    WS_DISABLED,304,137,16,8
+    CONTROL         "All",IDC_SEL_BIT8,"Button",BS_AUTORADIOBUTTON,304,41,24,
+                    8
+    LTEXT           "Preset Mask",IDC_STATIC,260,41,40,8
+    LTEXT           "WARNING!!  Do not change stuff here unless you know what you are doing.  Changing the wrong register could literally result in the hosing of your system.  (Keep away from the DMA set up registers.)",
+                    IDC_STATIC,8,4,320,20
+END
+
+OTHEREDIT DIALOG DISCARDABLE  0, 0, 272, 193
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Edit Misc Stuff"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,164,176,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,216,176,50,14
+    CONTROL         "Slider2",IDC_LEFT_SLIDER,"msctls_trackbar32",TBS_VERT | 
+                    TBS_BOTH | WS_TABSTOP,148,44,28,96
+    EDITTEXT        IDC_LEFT_EDIT,148,145,24,12,ES_CENTER | ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER | NOT WS_TABSTOP
+    GROUPBOX        "Dual-FM Left/Right",IDC_STATIC,140,17,76,148
+    CONTROL         "Slider2",IDC_NICAM_SLIDER,"msctls_trackbar32",TBS_VERT | 
+                    TBS_BOTH | WS_TABSTOP,232,44,28,96
+    EDITTEXT        IDC_NICAM_EDIT,232,145,24,12,ES_CENTER | ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER | NOT WS_TABSTOP
+    GROUPBOX        "NICAM",IDC_STATIC,224,17,40,148
+    CONTROL         "Slider2",IDC_RIGHT_SLIDER,"msctls_trackbar32",TBS_VERT | 
+                    TBS_BOTH | WS_TABSTOP,184,44,28,96
+    EDITTEXT        IDC_RIGHT_EDIT,184,145,24,12,ES_CENTER | ES_AUTOHSCROLL | 
+                    ES_READONLY | ES_NUMBER | NOT WS_TABSTOP
+    CONTROL         "Linked",IDC_LINKED_CHECK,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,148,28,37,10
+    GROUPBOX        "AudioGain",IDC_STATIC,136,4,132,164
+    CONTROL         "Slider3",IDC_BLUR_SLIDER,"msctls_trackbar32",WS_TABSTOP,
+                    40,17,60,12
+    CONTROL         "Auto",IDC_AUTOBLUR_CHECK,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,8,17,31,10
+    EDITTEXT        IDC_BLUR_EDIT,104,17,20,12,ES_AUTOHSCROLL | ES_READONLY
+    GROUPBOX        "Sharpness",IDC_STATIC,4,4,124,28
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    "OTHEREDIT", DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 265
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 186
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (Australia) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

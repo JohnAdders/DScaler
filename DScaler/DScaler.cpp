@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.360 2004-04-24 09:14:30 atnak Exp $
+// $Id: DScaler.cpp,v 1.361 2004-05-02 15:18:59 atnak Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.360  2004/04/24 09:14:30  atnak
+// changed maximum channel enter time to 20 seconds
+//
 // Revision 1.359  2004/04/24 09:11:24  atnak
 // added channel enter time setting to advanced settings screen
 //
@@ -1600,7 +1603,9 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     wc.hInstance = hInstance;
     wc.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_DSCALER));
     wc.hCursor = hCursorDefault; 
-    wc.hbrBackground = CreateSolidBrush(0);
+    // Set to the default overlay colour to workaround a redraw bug that happens
+    // over overlay surfaces on some systems.  atnak 3rd May 2004
+    wc.hbrBackground = CreateSolidBrush(RGB(32, 16, 16));
     wc.lpszMenuName = NULL;
     wc.lpszClassName = DSCALER_APPNAME;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.h,v 1.12 2005-04-02 14:04:12 laurentg Exp $
+// $Id: EPG.h,v 1.13 2005-04-07 23:17:28 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2005/04/02 14:04:12  laurentg
+// EPG: navigation between the browser view and the programme view improved
+//
 // Revision 1.11  2005/04/01 22:16:33  laurentg
 // EPG: new menu "Hide EPG" + new setting to define the time frame duration
 //
@@ -117,7 +120,10 @@ public:
 
 	// Scan a XML file containing programmes and generate the corresponding DScaler data files
 	// The input file must be compatible with the XMLTV DTD
-	int ScanXMLTVFile(LPCSTR file=NULL);
+	int ImportXMLTVFile(LPCSTR file=NULL);
+
+	// Import the NextviewEPG database
+	int ImportNxtvepgEPGDB();
 
 	// Load the DScaler EPG data for the programmes between two dates
 	// If DateMin and DateMax are not set, load the EPG data for
@@ -149,9 +155,9 @@ public:
 	void AddProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR ChannelName, LPCSTR ChannelEPGName, int ChannelNumber);
 
 private:
-	// Convert the DScaler_tmp.txt file to the DScaler.txt final file
-	// TODO Suppress ConvertXMLtoTXT as soon as XML API will be used
-	int ConvertXMLtoTXT();
+	// Convert the DScalerEPG_tmp.txt file to the DScalerEPG.txt final file
+	// TODO Suppress CreateDScalerEPGTXTFile as soon as XML API will be used
+	int CreateDScalerEPGTXTFile();
 	
 	// Execute a command using the Windows command interpreter
 	int ExecuteCommand(string command);

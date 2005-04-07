@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.cpp,v 1.15 2005-04-02 14:23:44 laurentg Exp $
+// $Id: EPG.cpp,v 1.16 2005-04-07 23:17:27 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2005/04/02 14:23:44  laurentg
+// EPG: little bugs fixed
+//
 // Revision 1.14  2005/04/02 14:04:11  laurentg
 // EPG: navigation between the browser view and the programme view improved
 //
@@ -287,13 +290,47 @@ int CEPG::ExecuteCommand(string command)
 }
 
 
+// TODO Replace PROVIDER by a new setting
+#define PROVIDER	"2f04"
+
+//
+// Import the NextviewEPG database
+//
+int CEPG::ImportNxtvepgEPGDB()
+{
+	string Exe = (char*)Setting_GetValue(EPG_GetSetting(EPG_NXTVEPGPATH));
+	string OutputFile = m_FilesDir + "\\" + DEFAULT_OUTPUT_XML_FILE;
+	string command = "\"" + m_CMDExe + "\" /C echo NextviewEPG database export ... && \""
+		+ Exe + "\" -dump xml5ltz -provider " + PROVIDER + " > \"" + OutputFile + "\"";
+
+	// Use tv_to_text to convert the XML dump to a DScaler_tmp.txt file
+	// TODO Suppress usage of tv_to_text as soon as XML API will be used
+	Exe = (char*)Setting_GetValue(EPG_GetSetting(EPG_XMLTVPATH));
+	string InputFile = OutputFile;
+	OutputFile = m_FilesDir + "\\" + DEFAULT_TMP_FILE;
+	command += " && echo XMLTV file analysis ... && type \"" + InputFile + "\" | \""
+		+ Exe + "\" tv_to_text --output \"" + OutputFile + "\"";
+
+	LOG(2, "NextviewEPG database import ... (%s)", command.c_str());
+	int resu = ExecuteCommand(command);
+	LOG(2, "NextviewEPG database import %d", resu);
+
+	// TODO Suppress call to CreateDScalerEPGTXTFile as soon as XML API will be used
+	resu = CreateDScalerEPGTXTFile();
+
+	ReloadEPGData();
+
+	return resu;
+}
+
+
 //
 // Scan a XML file containing programmes and generate the corresponding DScaler data file
 // The input file must be compatible with the XMLTV DTD
 //
-int CEPG::ScanXMLTVFile(LPCSTR file)
+int CEPG::ImportXMLTVFile(LPCSTR file)
 {
-	string XMLTVExe = (char*)Setting_GetValue(EPG_GetSetting(EPG_XMLTVPATH));
+	string Exe = (char*)Setting_GetValue(EPG_GetSetting(EPG_XMLTVPATH));
 
 	// If file not provided, try with "epg.xml"
 	string XMLFile;
@@ -342,23 +379,23 @@ int CEPG::ScanXMLTVFile(LPCSTR file)
 	}
 	RegExp += "\"";
 	string OutputFile = m_FilesDir + "\\" + DEFAULT_OUTPUT_XML_FILE;
-	string command = "\"" + m_CMDExe + "\" /C echo \"XMLTV file analysis ...\" && type \"" + XMLFile + "\" | \""
-		+ XMLTVExe + "\" tv_grep --channel-name " + RegExp + " | \""
-		+ XMLTVExe + "\" tv_sort --output \"" + OutputFile + "\"";
+	string command = "\"" + m_CMDExe + "\" /C echo XMLTV file analysis ... && type \"" + XMLFile + "\" | \""
+		+ Exe + "\" tv_grep --channel-name " + RegExp + " | \""
+		+ Exe + "\" tv_sort --output \"" + OutputFile + "\"";
 
 	// Use tv_to_text to convert the DScaler.xml file to a DScaler_tmp.txt file
 	// TODO Suppress usage of tv_to_text as soon as XML API will be used
 	string InputFile = m_FilesDir + "\\" + DEFAULT_OUTPUT_XML_FILE;
 	OutputFile = m_FilesDir + "\\" + DEFAULT_TMP_FILE;
 	command += " && type \"" + InputFile + "\" | \""
-		+ XMLTVExe + "\" tv_to_text --output \"" + OutputFile + "\"";
+		+ Exe + "\" tv_to_text --output \"" + OutputFile + "\"";
 
 	LOG(2, "XMLTV tv_grep/tv_sort/tv_to_text ... (%s)", command.c_str());
 	int resu = ExecuteCommand(command);
 	LOG(2, "XMLTV tv_grep/tv_sort/tv_to_text %d", resu);
 
-	// TODO Suppress call to ConvertXMLtoTXT as soon as XML API will be used
-	resu = ConvertXMLtoTXT();
+	// TODO Suppress call to CreateDScalerEPGTXTFile as soon as XML API will be used
+	resu = CreateDScalerEPGTXTFile();
 
 	ReloadEPGData();
 
@@ -367,11 +404,11 @@ int CEPG::ScanXMLTVFile(LPCSTR file)
 
 
 //
-// Convert the DScaler_tmp.txt file to the DScaler.txt final file
+// Convert the DScalerEPG_tmp.txt file to the DScalerEPG.txt final file
 //
-// TODO Suppress ConvertXMLtoTXT as soon as XML API will be used
+// TODO Suppress CreateDScalerEPGTXTFile as soon as XML API will be used
 //
-int CEPG::ConvertXMLtoTXT()
+int CEPG::CreateDScalerEPGTXTFile()
 {
 	int resu = -1;
 	int delta_time = Setting_GetValue(EPG_GetSetting(EPG_SHIFTTIMES)) * 60;
@@ -955,10 +992,19 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 	string ChannelName;
 	string ChannelEPGName;
 	int ChannelNumber;
+	char* Exe;
+    struct stat st;
 
 	switch(LOWORD(wParam))
     {
 	case IDM_IMPORT_XMLTV:
+		Exe = (char*)Setting_GetValue(EPG_GetSetting(EPG_XMLTVPATH));
+		if ((Exe == NULL) || stat(Exe, &st))
+		{
+			MessageBox(hWnd, "XMLTV application not found.\nPlease go to the advanced settings to update its location.", "DScaler Warning", MB_ICONWARNING | MB_OK);
+			return TRUE;
+		}
+
 		FileFilters = "XML Files\0*.xml\0";
 		FilePath[0] = 0;
 		ZeroMemory(&OpenFileInfo,sizeof(OpenFileInfo));
@@ -976,12 +1022,26 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		OpenFileInfo.lpstrDefExt = NULL;
 		if(GetOpenFileName(&OpenFileInfo))
 		{
-			ScanXMLTVFile(FilePath);
+			ImportXMLTVFile(FilePath);
 		}
         return TRUE;
 		break;
 
 	case IDM_IMPORT_NEXTVIEW:
+		Exe = (char*)Setting_GetValue(EPG_GetSetting(EPG_NXTVEPGPATH));
+		if ((Exe == NULL) || stat(Exe, &st))
+		{
+			MessageBox(hWnd, "NextviewEPG application not found.\nPlease go to the advanced settings to update its location.", "DScaler Warning", MB_ICONWARNING | MB_OK);
+			return TRUE;
+		}
+		Exe = (char*)Setting_GetValue(EPG_GetSetting(EPG_XMLTVPATH));
+		if ((Exe == NULL) || stat(Exe, &st))
+		{
+			MessageBox(hWnd, "XMLTV application not found.\nPlease go to the advanced settings to update its location.", "DScaler Warning", MB_ICONWARNING | MB_OK);
+			return TRUE;
+		}
+
+		ImportNxtvepgEPGDB();
         return TRUE;
 		break;
 
@@ -1332,7 +1392,9 @@ BOOL CEPG::GetFileLine(FILE *Stream, char *Buffer, int MaxLen)
 
 
 static char		ExePath[MAX_PATH] = {0};
+static char		ExePath2[MAX_PATH] = {0};
 static char*	XMLTVExePath = NULL;
+static char*	NextviewEPGExePath = NULL;
 static long		EPG_DefaultSizePerc = 5;
 static long		EPG_ShiftTimes = 0;
 static long		EPG_FrameDuration = 1;
@@ -1364,6 +1426,12 @@ SETTING EPGSettings[EPG_SETTING_LASTONE] =
          NULL,
         "EPG", "TimeFrameDuration", NULL,
     },
+    {
+        "nxtvepg.exe file path", CHARSTRING, 0, (long*)&NextviewEPGExePath,
+         (long)ExePath2, 0, 0, 0, 0,
+         NULL,
+        "EPG", "nxtvepg.exe", NULL,
+    },
 };
 
 
@@ -1382,21 +1450,25 @@ SETTING* EPG_GetSetting(EPG_SETTING Setting)
 void EPG_ReadSettingsFromIni()
 {
     int i;
-    struct stat st;
 
 	GetModuleFileName (NULL, ExePath, sizeof(ExePath));
 	*(strrchr(ExePath, '\\')) = '\0';
+	strcpy(ExePath2, ExePath);
 	strcat(ExePath, "\\xmltv.exe");
+	strcat(ExePath2, "\\nxtvepg.exe");
 
     for(i = 0; i < EPG_SETTING_LASTONE; i++)
     {
         Setting_ReadFromIni(&(EPGSettings[i]));
     }
 
-    if ((XMLTVExePath == NULL) || stat(XMLTVExePath, &st))
+    if (XMLTVExePath == NULL)
     {
-        LOG(1, "Incorrect path for xmltv.exe; using %s", ExePath);
 		Setting_SetValue(EPG_GetSetting(EPG_XMLTVPATH), (long)ExePath);
+    }
+    if (NextviewEPGExePath == NULL)
+    {
+		Setting_SetValue(EPG_GetSetting(EPG_NXTVEPGPATH), (long)ExePath2);
     }
 }
 

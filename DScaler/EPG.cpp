@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.cpp,v 1.16 2005-04-07 23:17:27 laurentg Exp $
+// $Id: EPG.cpp,v 1.17 2005-04-09 12:49:49 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2005/04/07 23:17:27  laurentg
+// EPG: import NextviewEPG database
+//
 // Revision 1.15  2005/04/02 14:23:44  laurentg
 // EPG: little bugs fixed
 //
@@ -245,6 +248,7 @@ CEPG::CEPG()
 CEPG::~CEPG()
 {
 	ClearProgrammes();
+	ClearNextviewEPGProviders();
 }
 
 
@@ -290,18 +294,15 @@ int CEPG::ExecuteCommand(string command)
 }
 
 
-// TODO Replace PROVIDER by a new setting
-#define PROVIDER	"2f04"
-
 //
 // Import the NextviewEPG database
 //
-int CEPG::ImportNxtvepgEPGDB()
+int CEPG::ImportNxtvepgEPGDB(LPCSTR Provider)
 {
 	string Exe = (char*)Setting_GetValue(EPG_GetSetting(EPG_NXTVEPGPATH));
 	string OutputFile = m_FilesDir + "\\" + DEFAULT_OUTPUT_XML_FILE;
 	string command = "\"" + m_CMDExe + "\" /C echo NextviewEPG database export ... && \""
-		+ Exe + "\" -dump xml5ltz -provider " + PROVIDER + " > \"" + OutputFile + "\"";
+		+ Exe + "\" -dump xml5ltz -provider " + Provider + " > \"" + OutputFile + "\"";
 
 	// Use tv_to_text to convert the XML dump to a DScaler_tmp.txt file
 	// TODO Suppress usage of tv_to_text as soon as XML API will be used
@@ -994,6 +995,8 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 	int ChannelNumber;
 	char* Exe;
     struct stat st;
+	int n;
+	LPCSTR Provider = NULL;
 
 	switch(LOWORD(wParam))
     {
@@ -1041,7 +1044,32 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 			return TRUE;
 		}
 
-		ImportNxtvepgEPGDB();
+		n = GetNextviewEPGProviders();
+		if (n == 0)
+		{
+			MessageBox(hWnd, "No NextviewEPG database found.", "DScaler Warning", MB_ICONWARNING | MB_OK);
+		}
+		else if (n == 1)
+		{
+			Provider = m_NextviewProviders[0]->c_str();
+		}
+		else
+		{
+			for (int i=0; i<n ; i++)
+			{
+				char MsgTxt[128];
+				sprintf(MsgTxt, "Do you want to import the database\ncorresponding to the provider %s ?", m_NextviewProviders[i]->c_str());
+				if (MessageBox(hWnd, MsgTxt, "DScaler - NextviewEPG Provider", MB_YESNO | MB_ICONQUESTION /*| MB_APPLMODAL*/) == IDYES)
+				{
+					Provider = m_NextviewProviders[i]->c_str();
+					break;
+				}
+			}
+		}
+		if (Provider != NULL)
+		{
+			ImportNxtvepgEPGDB(Provider);
+		}
         return TRUE;
 		break;
 
@@ -1385,6 +1413,105 @@ BOOL CEPG::GetFileLine(FILE *Stream, char *Buffer, int MaxLen)
 	Buffer[i] = '\0';
 
 	return (i>0) ? TRUE : FALSE;
+}
+
+
+void CEPG::ClearNextviewEPGProviders()
+{
+    for(strings::iterator it = m_NextviewProviders.begin();
+        it != m_NextviewProviders.end();
+        ++it)
+    {
+        delete (*it);
+    }
+	m_NextviewProviders.clear();
+}
+
+
+int CEPG::GetNextviewEPGProviders()
+{
+	ClearNextviewEPGProviders();
+
+    struct stat st;
+	char* Exe = (char*)Setting_GetValue(EPG_GetSetting(EPG_NXTVEPGPATH));
+	if ((Exe == NULL) || stat(Exe, &st))
+	{
+		return m_NextviewProviders.size();
+	}
+
+    WIN32_FIND_DATA FindFileData;
+    HANDLE hFindFile;
+	char SearchFiles[MAX_PATH];
+    BOOL RetVal;
+	char Provider[5];
+	string* newProvider;
+	char* c;
+
+	strcpy(SearchFiles, Exe);
+	c = strrchr(SearchFiles, '\\');
+	if (c)
+	{
+		strcpy(c+1, "nxtv*.epg");
+	}
+	else
+	{
+		strcpy(SearchFiles, "nxtv*.epg");
+	}
+
+    hFindFile = FindFirstFile(SearchFiles, &FindFileData);
+
+    if (hFindFile != INVALID_HANDLE_VALUE)
+    {
+        RetVal = TRUE;
+        while(RetVal != 0)
+        {
+            // check to see if the extension is .epg
+			// and * matchs 4 characters
+            if(   (_stricmp(".epg", &FindFileData.cFileName[strlen(FindFileData.cFileName)-4]) == 0)
+			   && (strlen(&FindFileData.cFileName[0]) == 12) )
+            {
+				strncpy(Provider, &FindFileData.cFileName[strlen(FindFileData.cFileName)-8], 4);
+				Provider[4] = '\0';
+				newProvider = new string(Provider);
+				m_NextviewProviders.push_back(newProvider);
+            }
+            RetVal = FindNextFile(hFindFile, &FindFileData);
+        }
+        FindClose(hFindFile);
+    }
+
+	strcpy(SearchFiles, Exe);
+	c = strrchr(SearchFiles, '\\');
+	if (c)
+	{
+		strcpy(c+1, "nxtvdb-*");
+	}
+	else
+	{
+		strcpy(SearchFiles, "nxtvdb-*");
+	}
+
+    hFindFile = FindFirstFile(SearchFiles, &FindFileData);
+
+    if (hFindFile != INVALID_HANDLE_VALUE)
+    {
+        RetVal = TRUE;
+        while(RetVal != 0)
+        {
+            // check * matchs 4 characters
+            if(strlen(&FindFileData.cFileName[0]) == 11)
+            {
+				strncpy(Provider, &FindFileData.cFileName[strlen(FindFileData.cFileName)-4], 4);
+				Provider[4] = '\0';
+				newProvider = new string(Provider);
+				m_NextviewProviders.push_back(newProvider);
+            }
+            RetVal = FindNextFile(hFindFile, &FindFileData);
+        }
+        FindClose(hFindFile);
+    }
+
+	return m_NextviewProviders.size();
 }
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.h,v 1.13 2005-04-07 23:17:28 laurentg Exp $
+// $Id: EPG.h,v 1.14 2005-04-09 12:49:49 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2005/04/07 23:17:28  laurentg
+// EPG: import NextviewEPG database
+//
 // Revision 1.12  2005/04/02 14:04:12  laurentg
 // EPG: navigation between the browser view and the programme view improved
 //
@@ -123,7 +126,7 @@ public:
 	int ImportXMLTVFile(LPCSTR file=NULL);
 
 	// Import the NextviewEPG database
-	int ImportNxtvepgEPGDB();
+	int ImportNxtvepgEPGDB(LPCSTR Provider);
 
 	// Load the DScaler EPG data for the programmes between two dates
 	// If DateMin and DateMax are not set, load the EPG data for
@@ -172,11 +175,18 @@ private:
 	// defined in DScaler
 	BOOL IsValidChannelName(LPCSTR EPGName, LPCSTR *Name=NULL, int *Number=NULL);
 
+	void ClearNextviewEPGProviders();
+	int GetNextviewEPGProviders();
+
     typedef vector<CProgramme*> CProgrammes;
 
     CProgrammes	m_Programmes;
     CProgrammes	m_ProgrammesSelection;
 	CProgramme*	m_ProgrammeSelected;
+
+    typedef vector<string*> strings;
+
+	strings		m_NextviewProviders;
 
 	string		m_CMDExe;
 	string		m_FilesDir;

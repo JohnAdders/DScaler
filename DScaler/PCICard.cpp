@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCICard.cpp,v 1.21 2005-03-24 17:57:58 adcockj Exp $
+// $Id: PCICard.cpp,v 1.22 2005-05-05 12:43:48 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2005/03/24 17:57:58  adcockj
+// Card access from one thread at a time
+//
 // Revision 1.20  2005/02/03 04:09:31  atnak
 // Fixed compile problem introduced in the last commit.
 //
@@ -184,12 +187,10 @@ BOOL CPCICard::OpenPCICard(WORD VendorID, WORD DeviceID, int DeviceIndex)
 		// \todo should make this a parameter
 		if((VendorID == 0x14F1) && (DeviceID == 0x8800))
 		{
-			hwParam.dwFlags = 0x400000;
+			m_MemoryLength = 0x400000;
 		}
-		else
-		{
-			hwParam.dwFlags = m_MemoryLength;
-		}
+
+        hwParam.dwFlags = m_MemoryLength;
 
         dwStatus = m_pDriver->SendCommand(IOCTL_DSDRV_MAPMEMORY,
                                             &hwParam,

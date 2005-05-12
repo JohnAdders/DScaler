@@ -1,5 +1,5 @@
 //
-// $Id: BitmapAsButton.cpp,v 1.4 2003-10-27 10:39:50 adcockj Exp $
+// $Id: BitmapAsButton.cpp,v 1.5 2005-05-12 08:33:18 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2003/10/27 10:39:50  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.3  2002/10/07 20:32:43  kooiman
 // Fixed small bugs. Added 3/4state button.
 //
@@ -173,6 +176,11 @@ BOOL CBitmapAsButton::TakeOver(HWND hTakeOver, string sID, HWND hWndParent )
     if (hCursorHand == NULL)
     {
         hCursorHand = ::LoadCursor(NULL, IDC_HAND);
+        // hand isn't available on all OSes so fall back to arrow
+        if(hCursorHand == NULL)
+        {
+            hCursorHand = ::LoadCursor(NULL, IDC_ARROW);
+        }
     }
      
     SetWindowLong(hTakeOver, GWL_USERDATA, (LONG)this);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: stdafx.h,v 1.23 2005-03-20 14:06:54 adcockj Exp $
+// $Id: stdafx.h,v 1.24 2005-05-12 08:33:19 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2005/03/20 14:06:54  adcockj
+// Added defines for new SDK
+//
 // Revision 1.22  2005/03/11 14:54:41  adcockj
 // Get rid of a load of compilation warnings in vs.net
 //
@@ -84,8 +87,8 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#define WINVER 0x0501
-#define _WIN32_WINNT 0x0501
+#define WINVER 0x0400
+#define _WIN32_WINNT 0x0400
 
 #define VC_EXTRALEAN
 #include <afxwin.h>
@@ -130,10 +133,17 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <multimon.h>
+
 // fix for including external header with IDC_STATIC defined
 #ifdef IDC_STATIC
 #undef IDC_STATIC
 #endif
+
+// defien stuff that we try and use if they are available
+#define WC_NO_BEST_FIT_CHARS      0x00000400
+#define IDC_HAND MAKEINTRESOURCE(32649)
+
 
 using namespace std;
 

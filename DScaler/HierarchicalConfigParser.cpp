@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HierarchicalConfigParser.cpp,v 1.14 2005-03-20 14:05:48 adcockj Exp $
+// $Id: HierarchicalConfigParser.cpp,v 1.15 2005-05-12 08:33:18 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2005/03/20 14:05:48  adcockj
+// Fixed win98 runtime error
+//
 // Revision 1.13  2004/12/12 11:26:08  atnak
 // Fixes problem found by Torsten with hex numbers not properly being parsed.
 //
@@ -69,7 +72,6 @@
 
 #include "stdafx.h"
 #include <iostream>
-#include <windows.h>
 #include <crtdbg.h>
 #include "HierarchicalConfigParser.h"
 
@@ -173,8 +175,6 @@ bool CHCParser::IsUnicodeOS()
 	// Windows NT (major version 3) and newer supports unicode.
 	// however windows 98 doesn't support the VerfifyVersionInfo function
 	// so we call it via the indirect method
-	VER_SET_CONDITION(dwlConditionMask, VER_MAJORVERSION, VER_GREATER_EQUAL);
-
 	HINSTANCE h = LoadLibrary("kernel32.dll");
 
 	BOOL (WINAPI* lpVerifyVersionInfoA)(LPOSVERSIONINFOEXA lpVersionInformation, DWORD dwTypeMask, DWORDLONG dwlConditionMask) = NULL;
@@ -1586,7 +1586,12 @@ string CHCParser::ParseError::str()
 	if (!WideCharToMultiByte(CP_ACP, WC_NO_BEST_FIT_CHARS,
 		m_oss.str().c_str(), -1, buffer, sizeof(buffer), NULL, NULL))
 	{
-		return std::string("Unicode to multi-byte conversion error.");
+        // may fail on early OSes so fall back to some older behaviour
+	    if (!WideCharToMultiByte(CP_ACP, WC_DEFAULTCHAR,
+		    m_oss.str().c_str(), -1, buffer, sizeof(buffer), NULL, NULL))
+	    {
+    		return std::string("Unicode to multi-byte conversion error.");
+        }
 	}
 	return std::string(buffer);
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Types.cpp,v 1.43 2004-09-21 17:43:08 to_see Exp $
+// $Id: BT848Card_Types.cpp,v 1.44 2005-05-12 20:06:22 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.43  2004/09/21 17:43:08  to_see
+// Preparing support for "Hercules Smart TV Stereo" card.
+// Thanks to Quenotte and Mika Laine.
+//
 // Revision 1.42  2004/03/25 17:59:44  adcockj
 // Added Sweetspot as new card type
 //
@@ -4493,72 +4497,6 @@ const bool CBT848Card::m_Tuners_miro_fm[] =
     false   ,false   ,false  ,false 
 };
 
-const eTunerId CBT848Card::m_Tuners_hauppauge[]=
-{
-    TUNER_ABSENT,                           /* ""                                 */
-    TUNER_ABSENT,                           /* "External"                     */
-    TUNER_ABSENT,                           /* "Unspecified"                */
-    TUNER_PHILIPS_PAL,                  /* "Philips FI1216"           */
-    /*4*/   
-    TUNER_PHILIPS_SECAM,                /* "Philips FI1216MF"       */
-    TUNER_PHILIPS_NTSC,                 /* "Philips FI1236"           */
-    TUNER_PHILIPS_PAL_I,                /* "Philips FI1246"         */
-    TUNER_PHILIPS_PAL_DK,               /* "Philips FI1256"           */
-    /*8*/
-    TUNER_PHILIPS_PAL,                  /* "Philips FI1216 MK2"     */
-    TUNER_PHILIPS_SECAM,                /* "Philips FI1216MF MK2"   */
-    TUNER_PHILIPS_NTSC,                 /* "Philips FI1236 MK2"     */
-    TUNER_PHILIPS_PAL_I,                /* "Philips FI1246 MK2"     */
-    /*12*/
-    TUNER_PHILIPS_PAL_DK,               /* "Philips FI1256 MK2"     */
-    TUNER_TEMIC_4032FY5_NTSC,       /* "Temic 4032FY5"            */
-    TUNER_TEMIC_4002FH5_PAL,        /* "Temic 4002FH5"          */
-    TUNER_TEMIC_4062FY5_PAL_I,  /* "Temic 4062FY5"          */
-    /*16*/
-    TUNER_PHILIPS_PAL,                  /* "Philips FR1216 MK2"     */
-    TUNER_PHILIPS_SECAM,                /* "Philips FR1216MF MK2"   */
-    TUNER_PHILIPS_NTSC,                 /* "Philips FR1236 MK2"     */
-    TUNER_PHILIPS_PAL_I,                /* "Philips FR1246 MK2"     */
-    /*20*/
-    TUNER_PHILIPS_PAL_DK,               /* "Philips FR1256 MK2"     */
-    TUNER_PHILIPS_PAL,                  /* "Philips FM1216"         */
-    TUNER_PHILIPS_SECAM,                /* "Philips FM1216MF"       */
-    TUNER_PHILIPS_NTSC,                 /* "Philips FM1236"         */
-    /*24*/
-    TUNER_PHILIPS_PAL_I,                /* "Philips FM1246"         */
-    TUNER_PHILIPS_PAL_DK,               /* "Philips FM1256"           */
-    TUNER_TEMIC_4036FY5_NTSC,       /* "Temic 4036FY5"            */
-    TUNER_ABSENT,                           /* "Samsung TCPN9082D"      */
-    /*28*/
-    TUNER_ABSENT,                           /* "Samsung TCPM9092P"      */
-    TUNER_TEMIC_4006FH5_PAL,        /* "Temic 4006FH5"          */
-    TUNER_ABSENT,                           /* "Samsung TCPN9085D"      */
-    TUNER_ABSENT,                           /* "Samsung TCPB9085P"      */
-    /*32*/
-    TUNER_ABSENT,                           /* "Samsung TCPL9091P"      */
-    TUNER_TEMIC_4039FR5_NTSC,       /* "Temic 4039FR5"            */
-    TUNER_PHILIPS_MULTI,                /* "Philips FQ1216 ME"      */
-    TUNER_TEMIC_4066FY5_PAL_I,  /* "Temic 4066FY5"          */
-    /*36*/
-    TUNER_ABSENT,                           /* "Philips TD1536"           */
-    TUNER_ABSENT,                           /* "Philips TD1536D"        */
-    TUNER_PHILIPS_NTSC,                 /* "Philips FMR1236"          */
-    TUNER_ABSENT,                           /* "Philips FI1256MP"         */
-    /*40*/
-    TUNER_ABSENT,                           /* "Samsung TCPQ9091P"      */
-    TUNER_TEMIC_4006FN5_PAL,        /* "Temic 4006FN5"            */
-    TUNER_TEMIC_4009FR5_PAL,        /* "Temic 4009FR5"            */
-    TUNER_TEMIC_4046FM5_MULTI,  /* "Temic 4046FM5"            */
-    /*44*/
-    TUNER_TEMIC_4009FN5_PAL,      /* "Temic 4009FN5"              */
-    TUNER_ABSENT,                           /* "Philips TD1536D_FH_44"*/
-    TUNER_LG_R01F_NTSC,                 /* "LG TP18NSR01F"          */
-    TUNER_LG_B01D_PAL,                  /* "LG TP18PSB01D"            */
-    TUNER_LG_B11D_PAL,                  /* "LG TP18PSB11D"            */    
-    TUNER_LG_I001D_PAL_I,               /* "LG TAPC-I001D"          */
-    TUNER_LG_I701D_PAL_I                /* "LG TAPC-I701D"          */
-};
-
 const eTunerId CBT848Card::m_Tuners_avermedia_0[] = 
 {
     TUNER_PHILIPS_NTSC,  
@@ -4782,9 +4720,9 @@ eTunerId CBT848Card::AutoDetectTuner(eTVCardId CardId)
                 
                 LOG(2, "AutoDetectTuner: Hauppage card. Id: 0x%02X",Eeprom[9]);
                 
-                if (Eeprom[9] < sizeof(m_Tuners_hauppauge)/sizeof(m_Tuners_hauppauge[0])) 
+                if (Eeprom[9] < sizeof(m_TunerHauppaugeAnalog)/sizeof(m_TunerHauppaugeAnalog[0])) 
                 {
-                  Tuner = m_Tuners_hauppauge[Eeprom[9]];
+                  Tuner = m_TunerHauppaugeAnalog[Eeprom[9]];
                 }
                 
                 LOG(2, "AutoDetectTuner: Hauppage card. Block 2: 0x%02X at %d+3",Eeprom[ Eeprom[1]+3 ],Eeprom[1]);

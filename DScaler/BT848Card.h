@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.46 2005-03-24 17:57:57 adcockj Exp $
+// $Id: BT848Card.h,v 1.47 2005-05-12 20:06:22 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.46  2005/03/24 17:57:57  adcockj
+// Card access from one thread at a time
+//
 // Revision 1.45  2004/09/21 17:43:08  to_see
 // Preparing support for "Hercules Smart TV Stereo" card.
 // Thanks to Quenotte and Mika Laine.
@@ -455,7 +458,6 @@ private:
     static const TAutoDectect878 m_AutoDectect878[];
     static const eTunerId m_Tuners_miro[];
     static const bool     m_Tuners_miro_fm[];
-    static const eTunerId m_Tuners_hauppauge[];
     static const eTunerId m_Tuners_avermedia_0[];
     static const eTunerId m_Tuners_avermedia_0_fm[];
     static const eTunerId m_Tuners_avermedia_1[];

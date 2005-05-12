@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.h,v 1.38 2005-03-24 17:57:57 adcockj Exp $
+// $Id: CX2388xCard.h,v 1.39 2005-05-12 20:06:22 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -331,9 +331,6 @@ private:
     static const TAudioRegList m_RegList_TV_Deemph75[];
     static const TAudioRegList m_RegList_FM_Deemph50[];
     static const TAudioRegList m_RegList_FM_Deemph75[];
-
-    // Tuner auto detection    
-    static const eTunerId m_TunerHauppaugeAnalog[];
 
 // Parsing
 public:

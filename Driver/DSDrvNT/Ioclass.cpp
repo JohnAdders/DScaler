@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Ioclass.cpp,v 1.13 2004-04-14 10:02:02 adcockj Exp $
+// $Id: Ioclass.cpp,v 1.14 2005-05-13 10:12:46 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -33,6 +33,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2004/04/14 10:02:02  adcockj
+// Added new offset functions for manipulating PCI config space
+//
 // Revision 1.12  2002/10/22 16:01:45  adcockj
 // Changed definition of IOCTLs
 //
@@ -107,7 +110,7 @@ NTSTATUS CIOAccessDevice::deviceIOControl(PIRP irp)
 {
     PIO_STACK_LOCATION      irpStack;
     PVOID                   inputBuffer;
-    PVOID                   outputBuffer;
+    PVOID                   outputBuffer = NULL;
     DWORD                   inputBufferLength;
     DWORD                   outputBufferLength;
     NTSTATUS                ntStatus;

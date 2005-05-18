@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.97 2005-03-29 13:07:00 adcockj Exp $
+// $Id: SAA7134Source.cpp,v 1.98 2005-05-18 12:18:32 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.97  2005/03/29 13:07:00  adcockj
+// Avoid tight loops in processing
+//
 // Revision 1.96  2005/03/23 14:21:00  adcockj
 // Test fix for threading issues
 //
@@ -638,6 +641,12 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
     m_GainControlLevel = new CGainControlLevelSetting(this, "Gain Control Level", 0x0100, 0x0000, 0x01FF, IniSection, pGainControlGroup);
     m_Settings.push_back(m_GainControlLevel);
 
+    m_GammaControl = new CGammaControlSetting(this, "Gamma Control", FALSE, IniSection, pVideoGroup);
+    m_Settings.push_back(m_GammaControl);
+
+    m_GammaLevel = new CGammaLevelSetting(this, "Gamma Level", 1300, 0x0000, 3000, IniSection, pVideoGroup);
+    m_Settings.push_back(m_GammaLevel);
+
     m_VideoMirror = new CVideoMirrorSetting(this, "Mirroring", FALSE, IniSection);
     m_Settings.push_back(m_VideoMirror);
 
@@ -735,6 +744,8 @@ void CSAA7134Source::SetupVideoStandard()
     m_pSAA7134Card->SetSaturation((BYTE)m_Saturation->GetValue());
     m_pSAA7134Card->SetHue((BYTE)m_Hue->GetValue());
     m_pSAA7134Card->SetCombFilter((eCombFilter)m_AdaptiveCombFilter->GetValue());
+	m_pSAA7134Card->SetGammaControl((BOOL)m_GammaControl->GetValue());
+	m_pSAA7134Card->SetGammaLevel((WORD)m_GammaLevel->GetValue());
 
     NotifySizeChange();
 
@@ -1903,6 +1914,18 @@ void CSAA7134Source::AutomaticGainControlOnChange(long NewValue, long OldValue)
 void CSAA7134Source::GainControlLevelOnChange(long NewValue, long OldValue)
 {
     m_pSAA7134Card->SetGainControl((WORD)NewValue);
+}
+
+
+void CSAA7134Source::GammaControlOnChange(long NewValue, long OldValue)
+{
+	m_pSAA7134Card->SetGammaControl(NewValue);
+}
+
+
+void CSAA7134Source::GammaLevelOnChange(long NewValue, long OldValue)
+{
+	m_pSAA7134Card->SetGammaLevel((WORD)NewValue);
 }
 
 

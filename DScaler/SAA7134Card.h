@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.50 2005-03-24 17:57:58 adcockj Exp $
+// $Id: SAA7134Card.h,v 1.51 2005-05-18 12:18:32 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.	 All rights	reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.50  2005/03/24 17:57:58  adcockj
+// Card access from one thread at a time
+//
 // Revision 1.49  2004/12/16 01:52:05  atnak
 // Added SAA7133 audio support.
 //
@@ -426,6 +429,9 @@ public:
 
 	void SetAutomaticGainControl(BOOL bAGC);
 	void SetGainControl(WORD GainControl);
+
+	void SetGammaControl(BOOL bGammaControl);
+	void SetGammaLevel(WORD bGammaLevel);
 
 	/* Video sync
 	 */

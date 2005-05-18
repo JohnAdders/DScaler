@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.48 2005-03-16 14:42:32 atnak Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.49 2005-05-18 12:18:32 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.48  2005/03/16 14:42:32  atnak
+// Fixed problem with Stereo not appearing selected in the Audio Channel
+// menu with external lines.
+//
 // Revision 1.47  2005/03/10 05:04:55  atnak
 // Fixed inconsistencies left from audio line reordering.  Audio Input menu was
 // broken.
@@ -1794,6 +1798,8 @@ CTreeSettingsPage* CSAA7134Source::GetTreeSettingsPage()
     vSettingsList.push_back(m_AutomaticGainControl);
     vSettingsList.push_back(m_AdaptiveCombFilter);
     vSettingsList.push_back(m_GainControlLevel);
+	vSettingsList.push_back(m_GammaControl);
+	vSettingsList.push_back(m_GammaLevel);
     vSettingsList.push_back(m_VideoMirror);
     vSettingsList.push_back(m_CustomPixelWidth);
     vSettingsList.push_back(m_HDelay);

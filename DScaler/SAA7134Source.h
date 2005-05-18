@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.h,v 1.46 2004-11-20 14:23:55 atnak Exp $
+// $Id: SAA7134Source.h,v 1.47 2005-05-18 12:18:32 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.46  2004/11/20 14:23:55  atnak
+// Added SAA7134 card name setting for storing the card selection as text.
+//
 // Revision 1.45  2004/04/06 12:20:48  adcockj
 // Added .NET 2003 project files and some fixes to support this
 //
@@ -400,12 +403,14 @@ private:
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioSampleRate);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, VBIUpscaleDivisor);
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, GainControlLevel);
+	DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, GammaLevel);
     DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source,  AutomaticGainControl);
     DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source,  VideoMirror);
     DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source,  AutoStereoSelect);
     DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source,  WhitePeak);
     DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source,  ColorPeak);
     DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source,  CustomAudioStandard);
+	DEFINE_YESNO_CALLBACK_SETTING(CSAA7134Source,  GammaControl);
     DEFINE_LIST_CALLBACK_SETTING(CSAA7134Source,   AdaptiveCombFilter);
     DEFINE_LIST_CALLBACK_SETTING(CSAA7134Source,   AutomaticVolumeLevel);
     DEFINE_LIST_CALLBACK_SETTING(CSAA7134Source,   AudioLine1Voltage);

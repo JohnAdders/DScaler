@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Video.cpp,v 1.12 2004-11-19 23:47:21 atnak Exp $
+// $Id: SAA7134Card_Video.cpp,v 1.13 2005-05-18 12:18:32 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2004/11/19 23:47:21  atnak
+// Changes to get rid of warnings.
+//
 // Revision 1.11  2003/10/27 10:39:53  adcockj
 // Updated files for better doxygen compatability
 //
@@ -536,6 +539,51 @@ void CSAA7134Card::SetGainControl(WORD GainControl)
     MaskDataByte(SAA7134_ANALOG_IN_CTRL2, AnalogInputCtrl2,
         SAA7134_ANALOG_IN_CTRL2_GAI18 |
         SAA7134_ANALOG_IN_CTRL2_GAI18);
+}
+
+void CSAA7134Card::SetGammaControl(BOOL bGammaControl)
+{
+	// bit 0: ??? (this one is not explained in the documentation. Set to bypass RGB to YUV matrix?)
+	// bit 1: set to bypass YUV to RGB matrix 
+	// bit 2: set to enable transformation via LUT curve
+	
+	if(bGammaControl)
+	{
+		AndDataByte(SAA7134_DATA_PATH(SAA7134_TASK_A_MASK), ~3);
+		OrDataByte(SAA7134_DATA_PATH(SAA7134_TASK_A_MASK), 4);
+
+		AndDataByte(SAA7134_DATA_PATH(SAA7134_TASK_B_MASK), ~3);
+		OrDataByte(SAA7134_DATA_PATH(SAA7134_TASK_B_MASK), 4);
+
+	}
+	else
+	{
+		AndDataByte(SAA7134_DATA_PATH(SAA7134_TASK_A_MASK), ~4);
+		OrDataByte(SAA7134_DATA_PATH(SAA7134_TASK_A_MASK), 3);
+
+		AndDataByte(SAA7134_DATA_PATH(SAA7134_TASK_B_MASK), ~4);
+		OrDataByte(SAA7134_DATA_PATH(SAA7134_TASK_B_MASK), 3);
+	}
+}
+
+void CSAA7134Card::SetGammaLevel(WORD bGammaLevel)
+{
+    WriteByte(SAA7134_START_GREEN, 0x00);
+    WriteByte(SAA7134_START_BLUE, 0x00);
+    WriteByte(SAA7134_START_RED, 0x00);
+
+    for (int i = 0; i < 0x0F; i++)
+    {
+		BYTE AdjustedValue = (BYTE)(255.0 * pow(((i+1)<<4)/255.0, 1000/(double)bGammaLevel));
+
+        WriteByte(SAA7134_GREEN_PATH(i), AdjustedValue);
+        WriteByte(SAA7134_BLUE_PATH(i), AdjustedValue);
+        WriteByte(SAA7134_RED_PATH(i), AdjustedValue);
+    }
+
+    WriteByte(SAA7134_GREEN_PATH(0x0F), 0xFF);
+    WriteByte(SAA7134_BLUE_PATH(0x0F), 0xFF);
+    WriteByte(SAA7134_RED_PATH(0x0F), 0xFF);
 }
 
 

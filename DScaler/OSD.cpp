@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.103 2005-04-02 14:23:44 laurentg Exp $
+// $Id: OSD.cpp,v 1.104 2005-06-09 23:27:41 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.103  2005/04/02 14:23:44  laurentg
+// EPG: little bugs fixed
+//
 // Revision 1.102  2005/04/02 14:04:12  laurentg
 // EPG: navigation between the browser view and the programme view improved
 //
@@ -2878,7 +2881,7 @@ SETTING OSDSettings[OSD_SETTING_LASTONE] =
     },
     {
         "Use Developer Screen", ONOFF, 0, (long*)&(ActiveScreens[7].active),
-         FALSE, 0, 1, 1, 1,
+         TRUE, 0, 1, 1, 1,
          NULL,
         "OSD", "UseDeveloperScreen", NULL,
     },

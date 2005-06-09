@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134I2CBus.cpp,v 1.5 2005-03-24 17:57:58 adcockj Exp $
+// $Id: SAA7134I2CBus.cpp,v 1.6 2005-06-09 23:22:01 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2005/03/24 17:57:58  adcockj
+// Card access from one thread at a time
+//
 // Revision 1.4  2003/10/27 10:39:53  adcockj
 // Updated files for better doxygen compatability
 //
@@ -322,17 +325,17 @@ void CSAA7134I2CBus::InitializeSleep()
 
 
 ULONG CSAA7134I2CBus::GetTickCount()
+// an overflow happens after 21 days uptime on a 10GHz machine
 {
     ULONGLONG ticks;
     ULONGLONG frequency;
 
     QueryPerformanceFrequency((PLARGE_INTEGER)&frequency);
     QueryPerformanceCounter((PLARGE_INTEGER)&ticks);
-    ticks = (ticks & 0xFFFFFFFF00000000) / frequency * 10000000 +
-            (ticks & 0xFFFFFFFF) * 10000000 / frequency;
-    return (ULONG)(ticks / 10000);
-}
 
+	ticks = ticks * 1000 / frequency;
+    return (ULONG)ticks;
+}
 
 void CSAA7134I2CBus::Start()
 {

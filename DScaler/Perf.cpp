@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Perf.cpp,v 1.15 2003-11-11 22:16:30 robmuller Exp $
+// $Id: Perf.cpp,v 1.16 2005-06-09 23:22:00 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2003/11/11 22:16:30  robmuller
+// Add ability to include the performance statistics in a release build.
+//
 // Revision 1.14  2003/10/27 10:39:52  adcockj
 // Updated files for better doxygen compatability
 //
@@ -74,15 +77,16 @@
 #include "FieldTiming.h"
 
 ULONG GetAccurateTickCount()
+// an overflow happens after 21 days uptime on a 10GHz machine
 {
     ULONGLONG ticks;
     ULONGLONG frequency;
 
     QueryPerformanceFrequency((PLARGE_INTEGER)&frequency);
     QueryPerformanceCounter((PLARGE_INTEGER)&ticks);
-    ticks = (ticks & 0xFFFFFFFF00000000) / frequency * 10000000 +
-            (ticks & 0xFFFFFFFF) * 10000000 / frequency;
-    return ((ULONG)(ticks / 10000));
+
+	ticks = ticks * 1000 / frequency;
+    return (ULONG)ticks;
 }
 
 static const char* PerfNames[PERF_TYPE_LASTONE] =

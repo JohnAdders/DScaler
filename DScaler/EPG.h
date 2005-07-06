@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.h,v 1.14 2005-04-09 12:49:49 laurentg Exp $
+// $Id: EPG.h,v 1.15 2005-07-06 19:40:44 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2005/04/09 12:49:49  laurentg
+// EPG: choose the NextviewEPG provider
+//
 // Revision 1.13  2005/04/07 23:17:28  laurentg
 // EPG: import NextviewEPG database
 //
@@ -82,18 +85,21 @@
 class CProgramme
 {
 public:
-	CProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR ChannelName, LPCSTR ChannelEPGName, int ChannelNumber);
+	CProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR ChannelName, LPCSTR ChannelEPGName, int ChannelNumber, LPCSTR SubTitle, LPCSTR Category, LPCSTR Description);
 	~CProgramme();
 
 	// Check whether the programme matchs the channel (if provided)
 	// and overlaps the period of time defined by DateMin and DateMax
 	BOOL IsProgrammeMatching(time_t DateMin, time_t DateMax, LPCSTR Channel=NULL);
 
+	// Get the programme dates : start and end time
+	void GetProgrammeDates(time_t *StartTime, time_t *EndTime);
+
 	// Get the channel data : DScaler name + EPG name + number
 	void GetProgrammeChannelData(string &ChannelName, string &ChannelEPGName, int *ChannelNumber);
 
 	// Get the programme main data : start and end time + title
-	void GetProgrammeMainData(time_t *StartTime, time_t *EndTime, string &Channel, string &Title);
+	void GetProgrammeMainData(time_t *StartTime, time_t *EndTime, string &Channel, string &Title, string &Category);
 
 	// Get all the programme data
 	void GetProgrammeData(time_t *StartTime, time_t *EndTime, string &Channel, string &Title, string &SubTitle, string &Category, string &Description);
@@ -121,17 +127,16 @@ public:
 	CEPG();
 	~CEPG();
 
-	// Scan a XML file containing programmes and generate the corresponding DScaler data files
-	// The input file must be compatible with the XMLTV DTD
+	// Copy the input file in DScalerEPG.xml
 	int ImportXMLTVFile(LPCSTR file=NULL);
 
 	// Import the NextviewEPG database
+	// Put the result in DScalerEPG.xml
 	int ImportNxtvepgEPGDB(LPCSTR Provider);
 
 	// Load the DScaler EPG data for the programmes between two dates
 	// If DateMin and DateMax are not set, load the EPG data for
 	// the interval [current time - 2 hours, current time + 6 hours]
-	// TODO Rewrite LoadEPGData as soon as XML API will be used
 	int LoadEPGData(time_t DateMin=0, time_t DateMax=0);
 	int ReloadEPGData();
 
@@ -140,7 +145,7 @@ public:
 	BOOL SearchForProgramme(LPCSTR ChannelName, time_t ThatTime);
 	int SearchForProgrammes(LPCSTR ChannelName, time_t TimeMin, time_t TimeMax);
 	BOOL GetProgrammeChannelData(int Index, string &ChannelName, string &ChannelEPGName, int *ChannelNumber);
-	BOOL GetProgrammeMainData(int Index, time_t *StartTime, time_t *EndTime, string &Channel, string &Title);
+	BOOL GetProgrammeMainData(int Index, time_t *StartTime, time_t *EndTime, string &Channel, string &Title, string &Category);
 	BOOL GetProgrammeData(int Index, time_t *StartTime, time_t *EndTime, string &Channel, string &Title, string &SubTitle, string &Category, string &Description);
 
 	void SetDisplayIndexes(int IdxMin, int IdxMax, int IdxCur);
@@ -155,25 +160,27 @@ public:
 	void DumpEPGData();
 
 	void ClearProgrammes();
+	int CheckProgrammeValidity(time_t StartTime, time_t EndTime, LPCSTR ChannelName);
 	void AddProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR ChannelName, LPCSTR ChannelEPGName, int ChannelNumber);
+	void AddProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR ChannelName, LPCSTR ChannelEPGName, int ChannelNumber, LPCSTR SubTitle, LPCSTR Category, LPCSTR Description);
+	void AddProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR ChannelEPGName, LPCSTR SubTitle, LPCSTR Category, LPCSTR Description);
 
 private:
-	// Convert the DScalerEPG_tmp.txt file to the DScalerEPG.txt final file
-	// TODO Suppress CreateDScalerEPGTXTFile as soon as XML API will be used
-	int CreateDScalerEPGTXTFile();
-	
 	// Execute a command using the Windows command interpreter
 	int ExecuteCommand(string command);
 
 	// Check if new EPG data have to be loaded
 	BOOL LoadEPGDataIfNeeded(time_t TimeMin, time_t TimeMax, int DeltaEarlier, int DeltaLater);
 
-	// Retrieve a line of text in a file (stream)
-	BOOL GetFileLine(FILE *Stream, char *Buffer, int MaxLen);
+	// Copy a file
+	BOOL CopyFile(LPCSTR InPath, LPCSTR OutPath);
 
 	// Check whether a channel name belongs to the list of channels
 	// defined in DScaler
 	BOOL IsValidChannelName(LPCSTR EPGName, LPCSTR *Name=NULL, int *Number=NULL);
+
+	// Insert a new programme in the list keeping an order by dates of the programmes
+	void InsertProgramme(CProgramme* NewProg);
 
 	void ClearNextviewEPGProviders();
 	int GetNextviewEPGProviders();

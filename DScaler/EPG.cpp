@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.cpp,v 1.17 2005-04-09 12:49:49 laurentg Exp $
+// $Id: EPG.cpp,v 1.18 2005-07-06 19:40:38 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2005/04/09 12:49:49  laurentg
+// EPG: choose the NextviewEPG provider
+//
 // Revision 1.16  2005/04/07 23:17:27  laurentg
 // EPG: import NextviewEPG database
 //
@@ -91,23 +94,19 @@
 #include "OSD.h"
 #include "Providers.h"
 #include "DScaler.h"
+#include "xmltv_db.h"
 
 
 #define	ONE_DAY			86400
 #define	ONE_HOUR		3600
 #define	DEFAULT_INPUT_FILE		"epg.xml"
-#define	DEFAULT_OUTPUT_XML_FILE	"DScalerEPG.xml"
-#define	DEFAULT_OUTPUT_TXT_FILE	"DScalerEPG.txt"
-#define	DEFAULT_TMP_FILE		"DScalerEPG_tmp.txt"
+#define	DEFAULT_OUTPUT_FILE		"DScalerEPG.xml"
 
 
 CEPG MyEPG;
 
 
-// TODO Enhancement: use a XML API
-
-
-CProgramme::CProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR ChannelName, LPCSTR ChannelEPGName, int ChannelNumber)
+CProgramme::CProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR ChannelName, LPCSTR ChannelEPGName, int ChannelNumber, LPCSTR SubTitle, LPCSTR Category, LPCSTR Description)
 {
 	m_StartTime = StartTime;
 	m_EndTime = EndTime;
@@ -115,9 +114,9 @@ CProgramme::CProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR Ch
 	m_ChannelName = ChannelName;
 	m_ChannelEPGName = ChannelEPGName;
 	m_ChannelNumber = ChannelNumber;
-	m_SubTitle = "";
-	m_Category = "";
-	m_Description = "";
+	m_SubTitle = SubTitle;
+	m_Category = Category;
+	m_Description = Description;
 	m_Length = 0;
 }
 
@@ -143,6 +142,14 @@ BOOL CProgramme::IsProgrammeMatching(time_t DateMin, time_t DateMax, LPCSTR Chan
 }
 
 
+// Get the programme dates : start and end time
+void CProgramme::GetProgrammeDates(time_t *StartTime, time_t *EndTime)
+{
+	*StartTime = m_StartTime;
+	*EndTime = m_EndTime;
+}
+
+
 //
 // Get the channel data : DScaler name + EPG name + number
 //
@@ -157,12 +164,13 @@ void CProgramme::GetProgrammeChannelData(string &ChannelName, string &ChannelEPG
 //
 // Get the programme main data : start and end time + title
 //
-void CProgramme::GetProgrammeMainData(time_t *StartTime, time_t *EndTime, string &Channel, string &Title)
+void CProgramme::GetProgrammeMainData(time_t *StartTime, time_t *EndTime, string &Channel, string &Title, string &Category)
 {
 	*StartTime = m_StartTime;
 	*EndTime = m_EndTime;
 	Channel = m_ChannelName;
 	Title = m_Title;
+	Category = m_Category;
 }
 
 
@@ -296,28 +304,18 @@ int CEPG::ExecuteCommand(string command)
 
 //
 // Import the NextviewEPG database
+// Put the result in DScalerEPG.xml
 //
 int CEPG::ImportNxtvepgEPGDB(LPCSTR Provider)
 {
 	string Exe = (char*)Setting_GetValue(EPG_GetSetting(EPG_NXTVEPGPATH));
-	string OutputFile = m_FilesDir + "\\" + DEFAULT_OUTPUT_XML_FILE;
+	string OutputFile = m_FilesDir + "\\" + DEFAULT_OUTPUT_FILE;
 	string command = "\"" + m_CMDExe + "\" /C echo NextviewEPG database export ... && \""
 		+ Exe + "\" -dump xml5ltz -provider " + Provider + " > \"" + OutputFile + "\"";
-
-	// Use tv_to_text to convert the XML dump to a DScaler_tmp.txt file
-	// TODO Suppress usage of tv_to_text as soon as XML API will be used
-	Exe = (char*)Setting_GetValue(EPG_GetSetting(EPG_XMLTVPATH));
-	string InputFile = OutputFile;
-	OutputFile = m_FilesDir + "\\" + DEFAULT_TMP_FILE;
-	command += " && echo XMLTV file analysis ... && type \"" + InputFile + "\" | \""
-		+ Exe + "\" tv_to_text --output \"" + OutputFile + "\"";
 
 	LOG(2, "NextviewEPG database import ... (%s)", command.c_str());
 	int resu = ExecuteCommand(command);
 	LOG(2, "NextviewEPG database import %d", resu);
-
-	// TODO Suppress call to CreateDScalerEPGTXTFile as soon as XML API will be used
-	resu = CreateDScalerEPGTXTFile();
 
 	ReloadEPGData();
 
@@ -326,13 +324,10 @@ int CEPG::ImportNxtvepgEPGDB(LPCSTR Provider)
 
 
 //
-// Scan a XML file containing programmes and generate the corresponding DScaler data file
-// The input file must be compatible with the XMLTV DTD
+// Copy the input file in DScalerEPG.xml
 //
 int CEPG::ImportXMLTVFile(LPCSTR file)
 {
-	string Exe = (char*)Setting_GetValue(EPG_GetSetting(EPG_XMLTVPATH));
-
 	// If file not provided, try with "epg.xml"
 	string XMLFile;
 	if (file == NULL)
@@ -340,309 +335,13 @@ int CEPG::ImportXMLTVFile(LPCSTR file)
 	else
 		XMLFile = file;
 
-	//
-	// Use tv_grep to select only channels defined in DScaler
-	// Use tv_sort to correct the end times (if missing) and sort the programme by date and time
-	//
-	string RegExp = "\"(?i)";
-	for (int i=0; (i < MyChannels.GetSize()); i++)
-	{
-		// Add an escape character "\" before each character of the channel name
-		// that are special characters in PERL REGEXP (like + for example)
-		LPCSTR name = MyChannels.GetChannelEPGName(i);
-		char name2[64];
-		for (int j=0, k=0; j<strlen(name); j++)
-		{
-			if (   (name[j] == '^')
-				|| (name[j] == '$')
-				|| (name[j] == '.')
-				|| (name[j] == '*')
-				|| (name[j] == '+')
-				|| (name[j] == '?')
-				|| (name[j] == '|')
-				|| (name[j] == '(')
-				|| (name[j] == ')')
-				|| (name[j] == '[')
-				|| (name[j] == ']')
-				|| (name[j] == '{')
-				|| (name[j] == '}')
-				|| (name[j] == '\\'))
-				name2[k++] = '\\';
-			name2[k++] = name[j];
-		}
-		name2[k] = '\0';
+	string OutputFile = m_FilesDir + "\\" + DEFAULT_OUTPUT_FILE;
 
-		RegExp += "^";
-		RegExp += name2;
-		RegExp += "$";
-		if (i < (MyChannels.GetSize() - 1))
-			RegExp += "|";
-	}
-	RegExp += "\"";
-	string OutputFile = m_FilesDir + "\\" + DEFAULT_OUTPUT_XML_FILE;
-	string command = "\"" + m_CMDExe + "\" /C echo XMLTV file analysis ... && type \"" + XMLFile + "\" | \""
-		+ Exe + "\" tv_grep --channel-name " + RegExp + " | \""
-		+ Exe + "\" tv_sort --output \"" + OutputFile + "\"";
-
-	// Use tv_to_text to convert the DScaler.xml file to a DScaler_tmp.txt file
-	// TODO Suppress usage of tv_to_text as soon as XML API will be used
-	string InputFile = m_FilesDir + "\\" + DEFAULT_OUTPUT_XML_FILE;
-	OutputFile = m_FilesDir + "\\" + DEFAULT_TMP_FILE;
-	command += " && type \"" + InputFile + "\" | \""
-		+ Exe + "\" tv_to_text --output \"" + OutputFile + "\"";
-
-	LOG(2, "XMLTV tv_grep/tv_sort/tv_to_text ... (%s)", command.c_str());
-	int resu = ExecuteCommand(command);
-	LOG(2, "XMLTV tv_grep/tv_sort/tv_to_text %d", resu);
-
-	// TODO Suppress call to CreateDScalerEPGTXTFile as soon as XML API will be used
-	resu = CreateDScalerEPGTXTFile();
+	LOG(2, "Copy file ... (%s)", XMLFile.c_str());
+	BOOL resu = CopyFile(XMLFile.c_str(), OutputFile.c_str());
+	LOG(2, "Copy file %d", resu);
 
 	ReloadEPGData();
-
-	return resu;
-}
-
-
-//
-// Convert the DScalerEPG_tmp.txt file to the DScalerEPG.txt final file
-//
-// TODO Suppress CreateDScalerEPGTXTFile as soon as XML API will be used
-//
-int CEPG::CreateDScalerEPGTXTFile()
-{
-	int resu = -1;
-	int delta_time = Setting_GetValue(EPG_GetSetting(EPG_SHIFTTIMES)) * 60;
-
-	string InputFile = m_FilesDir + "\\" + DEFAULT_TMP_FILE;
-	string OutputFile = m_FilesDir + "\\" + DEFAULT_OUTPUT_TXT_FILE;
-    LOG(2, "XMLTV %s => %s ...", InputFile.c_str(), OutputFile.c_str());
-	FILE *InFile = fopen(InputFile.c_str(), "r");
-	FILE *OutFile = fopen(OutputFile.c_str(), "w");
-	if (InFile != NULL && OutFile != NULL)
-	{
-		char Line[384];
-		char *start;
-		char *end;
-		char *Time;
-		char *Title;
-		char *Channel;
-
-		// Construct a default Date YYYY/MM/DD using the current date
-		time_t DateTime;
-		time(&DateTime);
-		struct tm *date_tm = localtime(&DateTime);
-		int year = date_tm->tm_year+1900;
-		int month = date_tm->tm_mon+1;
-		int day = date_tm->tm_mday;
-		char Date1[11];
-		char Date2[11];
-		sprintf(Date1, "%04u/%02u/%02u", year, month, day);
-		sprintf(Date2, "%04u/%02u/%02u", year, month, day);
-
-		while (GetFileLine(InFile, Line, 383) == TRUE)
-		{
-			Time = NULL;
-			Title = NULL;
-			Channel = NULL;
-			start = Line;
-			end = strchr(start, '-');
-			if (!end)
-				continue;
-			if ((end-start) == 2)
-			{
-				*end = '\0';
-				month = atoi(start);
-				start = end+1;
-				end = strchr(start, ' ');
-				if (!end || ((end- start) != 2))
-					continue;
-				*end = '\0';
-				day = atoi(start);
-				sprintf(Date1, "%04u/%02u/%02u", year, month, day);
-				sprintf(Date2, "%04u/%02u/%02u", year, month, day);
-				date_tm->tm_year = year-1900;
-				date_tm->tm_mon = month-1;
-				date_tm->tm_mday = day;
-				DateTime = mktime(date_tm);
-				continue;
-			}
-			start = Line;
-			end = strchr(start, '\t');
-			if (!end)
-				continue;
-			Time = start;
-			*end = '\0';
-			start = end+1;
-			end = strchr(start, '\t');
-			if (!end)
-				continue;
-			Title = start;
-			*end = '\0';
-			Channel = end+1;
-			if (!*Time || !*Title || !*Channel)
-				continue;
-			if (!IsValidChannelName(Channel))
-				continue;
-			if (strlen(Time) != 12)
-				continue;
-			start = Time;
-			end = &Time[7];
-			Time[5] = '\0';
-			if (delta_time != 0)
-			{
-				int hour1;
-				int hour2;
-				int hour;
-				int min;
-
-				start[2] = '\0';
-				hour1 = hour = atoi(start);
-				min = atoi(&start[3]);
-				min += delta_time;
-				if (min >= 60)
-				{
-					hour += (min / 60);
-					min %= 60;
-				}
-				else if (min < 0)
-				{
-					min *= -1;
-					if ((min % 60) == 0)
-					{
-						hour -= (min / 60);
-						min = 0;
-					}
-					else
-					{
-						hour -= ((min / 60) + 1);
-						min = 60 - (min % 60);
-					}
-				}
-				if (hour >= 24)
-				{
-					time_t NextDay = DateTime + ONE_DAY * (hour / 24);
-					date_tm = localtime(&NextDay);
-					hour %= 24;
-				}
-				else if (hour < 0)
-				{
-					time_t PrevDay;
-					if ((-hour % 24) == 0)
-					{
-						PrevDay = DateTime - ONE_DAY * (-hour / 24);
-						hour = 0;
-					}
-					else
-					{
-						PrevDay = DateTime - ONE_DAY * ((-hour / 24) + 1);
-						hour = 24 - (-hour % 24);
-					}
-					date_tm = localtime(&PrevDay);
-				}
-				else
-				{
-					date_tm = localtime(&DateTime);
-				}
-				year = date_tm->tm_year+1900;
-				month = date_tm->tm_mon+1;
-				day = date_tm->tm_mday;
-				sprintf(Date1, "%04u/%02u/%02u", year, month, day);
-				sprintf(start, "%02u:%02u", hour, min);
-
-				end[2] = '\0';
-				hour2 = hour = atoi(end);
-				min = atoi(&end[3]);
-				min += delta_time;
-				if (min >= 60)
-				{
-					hour += (min / 60);
-					min %= 60;
-				}
-				else if (min < 0)
-				{
-					min *= -1;
-					if ((min % 60) == 0)
-					{
-						hour -= (min / 60);
-						min = 0;
-					}
-					else
-					{
-						hour -= ((min / 60) + 1);
-						min = 60 - (min % 60);
-					}
-				}
-				if (hour >= 24)
-				{
-					time_t NextDay = DateTime + ONE_DAY * (hour / 24);
-					date_tm = localtime(&NextDay);
-					hour %= 24;
-				}
-				else if (hour < 0)
-				{
-					time_t PrevDay;
-					if ((-hour % 24) == 0)
-					{
-						PrevDay = DateTime - ONE_DAY * (-hour / 24);
-						hour = 0;
-					}
-					else
-					{
-						PrevDay = DateTime - ONE_DAY * ((-hour / 24) + 1);
-						hour = 24 - (-hour % 24);
-					}
-					date_tm = localtime(&PrevDay);
-				}
-				else
-				{
-					if (hour1 > hour2)
-					{
-						time_t NextDay = DateTime + ONE_DAY;
-						date_tm = localtime(&NextDay);
-					}
-					else
-					{
-						date_tm = localtime(&DateTime);
-					}
-				}
-				year = date_tm->tm_year+1900;
-				month = date_tm->tm_mon+1;
-				day = date_tm->tm_mday;
-				sprintf(Date2, "%04u/%02u/%02u", year, month, day);
-				sprintf(end, "%02u:%02u", hour, min);
-			}
-			else
-			{
-				start[2] = '\0';
-				int hour1 = atoi(start);
-				start[2] = ':';
-				end[2] = '\0';
-				int hour2 = atoi(end);
-				end[2] = ':';
-				if (hour1 > hour2)
-				{
-					time_t NextDay = DateTime + ONE_DAY;
-					date_tm = localtime(&NextDay);
-				}
-				else
-				{
-					date_tm = localtime(&DateTime);
-				}
-				year = date_tm->tm_year+1900;
-				month = date_tm->tm_mon+1;
-				day = date_tm->tm_mday;
-				sprintf(Date2, "%04u/%02u/%02u", year, month, day);
-			}
-			fprintf(OutFile, "%s\t%s\t%s\t%s\t%s\t%s\n", Date1, start, Date2, end, Title, Channel);
-		}
-		resu = 0;
-	}
-	if (InFile != NULL)
-		fclose(InFile);
-	if (OutFile != NULL)
-		fclose(OutFile);
-	unlink(InputFile.c_str());
 
 	return resu;
 }
@@ -652,8 +351,6 @@ int CEPG::CreateDScalerEPGTXTFile()
 // Load the DScaler EPG data for the programmes between two dates
 // If DateMin and DateMax are not set, load the EPG data for
 // the interval [current time - 2 hours, current time + 6 hours]
-//
-// TODO Rewrite LoadEPGData as soon as XML API will be used
 //
 int CEPG::LoadEPGData(time_t DateMin, time_t DateMax)
 {
@@ -670,125 +367,11 @@ int CEPG::LoadEPGData(time_t DateMin, time_t DateMax)
 		DateMax = DateTime + 6 * ONE_HOUR;
 	}
 
-	if ( (m_LoadedTimeMin == 0) || (DateMin < m_LoadedTimeMin) )
-		m_LoadedTimeMin = DateMin;
-	if ( (m_LoadedTimeMax == 0) || (DateMax > m_LoadedTimeMax) )
-		m_LoadedTimeMax = DateMax;
+	m_LoadedTimeMin = DateMin;
+	m_LoadedTimeMax = DateMax;
 
-	//
-	// Read the file DScaler.txt
-	//
-	string InputFile = m_FilesDir + "\\" + DEFAULT_OUTPUT_TXT_FILE;
-	FILE *InFile = fopen(InputFile.c_str(), "r");
-	if (InFile == NULL)
-		return -1;
-
-	char Line[384];
-	char *start;
-	char *end;
-	char *StartDate;
-	char *StartTime;
-	char *EndDate;
-	char *EndTime;
-	char *Title;
-	char *Channel;
-	LPCSTR ChannelName;
-	int  ChannelNumber;
-	while (GetFileLine(InFile, Line, 383) == TRUE)
-	{
-		StartDate = NULL;
-		StartTime = NULL;
-		EndDate = NULL;
-		EndTime = NULL;
-		Title = NULL;
-		Channel = NULL;
-		start = Line;
-		end = strchr(start, '\t');
-		if (!end)
-			continue;
-		StartDate = start;
-		*end = '\0';
-		start = end+1;
-		end = strchr(start, '\t');
-		if (!end)
-			continue;
-		StartTime = start;
-		*end = '\0';
-		start = end+1;
-		end = strchr(start, '\t');
-		if (!end)
-			continue;
-		EndDate = start;
-		*end = '\0';
-		start = end+1;
-		end = strchr(start, '\t');
-		if (!end)
-			continue;
-		EndTime = start;
-		*end = '\0';
-		start = end+1;
-		end = strchr(start, '\t');
-		if (!end)
-			continue;
-		Title = start;
-		*end = '\0';
-		Channel = end+1;
-		if (!*StartDate || !*StartTime || !*EndDate || !*EndTime || !*Title || !*Channel)
-			continue;
-		if (!IsValidChannelName(Channel, &ChannelName, &ChannelNumber))
-			continue;
-
-		int year;
-		int month;
-		int day;
-		int hour;
-		int min;
-		struct tm *date_tm;
-
-		StartDate[4] = '\0';
-		StartDate[7] = '\0';
-		year = atoi(StartDate);
-		month = atoi(&StartDate[5]);
-		day = atoi(&StartDate[8]);
-		StartTime[2] = '\0';
-		hour = atoi(StartTime);
-		min = atoi(&StartTime[3]);
-
-		date_tm = localtime(&DateMin);
-		date_tm->tm_year = year-1900;
-		date_tm->tm_mon = month-1;
-		date_tm->tm_mday = day;
-		date_tm->tm_hour = hour;
-		date_tm->tm_min = min;
-		date_tm->tm_sec = 0;
-		time_t TimeStart = mktime(date_tm);
-
-		EndDate[4] = '\0';
-		EndDate[7] = '\0';
-		year = atoi(EndDate);
-		month = atoi(&EndDate[5]);
-		day = atoi(&EndDate[8]);
-		EndTime[2] = '\0';
-		hour = atoi(EndTime);
-		min = atoi(&EndTime[3]);
-
-		date_tm = localtime(&DateMin);
-		date_tm->tm_year = year-1900;
-		date_tm->tm_mon = month-1;
-		date_tm->tm_mday = day;
-		date_tm->tm_hour = hour;
-		date_tm->tm_min = min;
-		date_tm->tm_sec = 0;
-		time_t TimeEnd = mktime(date_tm);
-
-		// Keep only programmes scheduled between DateMin and DateMax
-		if ( (TimeEnd <= DateMin) || (TimeStart > DateMax) )
-			continue;
-
-		AddProgramme(TimeStart, TimeEnd, Title, ChannelName, Channel, ChannelNumber);
-	}
-
-	fclose(InFile);
+	string InputXMLFile = m_FilesDir + "\\" + DEFAULT_OUTPUT_FILE;
+	Xmltv_LoadFile(InputXMLFile.c_str());
 
 	return 0;
 }
@@ -796,7 +379,11 @@ int CEPG::LoadEPGData(time_t DateMin, time_t DateMax)
 
 int CEPG::ReloadEPGData()
 {
-	return LoadEPGData(m_LoadedTimeMin, m_LoadedTimeMax);
+	int resu = LoadEPGData(m_LoadedTimeMin, m_LoadedTimeMax);
+
+	// TODO Update the OSD
+
+	return resu;
 }
 
 
@@ -938,7 +525,7 @@ BOOL CEPG::GetProgrammeChannelData(int Index, string &ChannelName, string &Chann
 }
 
 
-BOOL CEPG::GetProgrammeMainData(int Index, time_t *StartTime, time_t *EndTime, string &Channel, string &Title)
+BOOL CEPG::GetProgrammeMainData(int Index, time_t *StartTime, time_t *EndTime, string &Channel, string &Title, string &Category)
 {
 	if ( (Index < 0) && (m_ProgrammeSelected == NULL))
 		return FALSE;
@@ -948,11 +535,11 @@ BOOL CEPG::GetProgrammeMainData(int Index, time_t *StartTime, time_t *EndTime, s
 
 	if (Index < 0)
 	{
-		m_ProgrammeSelected->GetProgrammeMainData(StartTime, EndTime, Channel, Title);
+		m_ProgrammeSelected->GetProgrammeMainData(StartTime, EndTime, Channel, Title, Category);
 	}
 	else
 	{
-		m_ProgrammesSelection[Index]->GetProgrammeMainData(StartTime, EndTime, Channel, Title);
+		m_ProgrammesSelection[Index]->GetProgrammeMainData(StartTime, EndTime, Channel, Title, Category);
 	}
 
 	return TRUE;
@@ -1001,13 +588,6 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 	switch(LOWORD(wParam))
     {
 	case IDM_IMPORT_XMLTV:
-		Exe = (char*)Setting_GetValue(EPG_GetSetting(EPG_XMLTVPATH));
-		if ((Exe == NULL) || stat(Exe, &st))
-		{
-			MessageBox(hWnd, "XMLTV application not found.\nPlease go to the advanced settings to update its location.", "DScaler Warning", MB_ICONWARNING | MB_OK);
-			return TRUE;
-		}
-
 		FileFilters = "XML Files\0*.xml\0";
 		FilePath[0] = 0;
 		ZeroMemory(&OpenFileInfo,sizeof(OpenFileInfo));
@@ -1035,12 +615,6 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		if ((Exe == NULL) || stat(Exe, &st))
 		{
 			MessageBox(hWnd, "NextviewEPG application not found.\nPlease go to the advanced settings to update its location.", "DScaler Warning", MB_ICONWARNING | MB_OK);
-			return TRUE;
-		}
-		Exe = (char*)Setting_GetValue(EPG_GetSetting(EPG_XMLTVPATH));
-		if ((Exe == NULL) || stat(Exe, &st))
-		{
-			MessageBox(hWnd, "XMLTV application not found.\nPlease go to the advanced settings to update its location.", "DScaler Warning", MB_ICONWARNING | MB_OK);
 			return TRUE;
 		}
 
@@ -1083,7 +657,7 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 			OSD_ShowText("EPG not found", 0);
 		}
 		// Dump the loaded EPG data in the log file
-		// DumpEPGData();
+		//DumpEPGData();
         return TRUE;
 		break;
 
@@ -1351,10 +925,80 @@ void CEPG::ClearProgrammes()
 }
 
 
+int CEPG::CheckProgrammeValidity(time_t StartTime, time_t EndTime, LPCSTR ChannelName)
+{
+	if (!IsValidChannelName(ChannelName))
+		return 0;
+	// Keep only programmes scheduled between m_LoadedTimeMin and m_LoadedTimeMax
+	if ( (EndTime <= m_LoadedTimeMin) || (StartTime > m_LoadedTimeMax) )
+		return 0;
+	return 1;
+}
+
+
+//
+// Insert a new programme in the list keeping an order by dates of the programmes
+//
+void CEPG::InsertProgramme(CProgramme* NewProg)
+{
+	time_t NewProgStart, NewProgEnd;
+	time_t ProgStart, ProgEnd;
+
+	NewProg->GetProgrammeDates(&NewProgStart, &NewProgEnd);
+
+	int added = 0;
+	// Search the first programme having a start time later
+	// or an identical start time but a end time later
+	for(CProgrammes::iterator it = m_Programmes.begin();
+		it != m_Programmes.end();
+		++it)
+	{
+		(*it)->GetProgrammeDates(&ProgStart, &ProgEnd);
+		if (   (ProgStart > NewProgStart)
+			|| ((ProgStart == NewProgStart) && (ProgEnd > NewProgEnd))
+		   )
+		{
+			m_Programmes.insert(it, NewProg);
+			added = 1;
+			break;
+		}
+	}
+	if (!added)
+	{
+		m_Programmes.push_back(NewProg);
+	}
+}
+
+
 void CEPG::AddProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR ChannelName, LPCSTR ChannelEPGName, int ChannelNumber)
 {
-    CProgramme* newProgramme = new CProgramme(StartTime, EndTime, Title, ChannelName, ChannelEPGName, ChannelNumber);
-	m_Programmes.push_back(newProgramme);
+	if ( (EndTime > m_LoadedTimeMin) && (StartTime <= m_LoadedTimeMax) )
+	{
+		CProgramme* newProgramme = new CProgramme(StartTime, EndTime, Title, ChannelName, ChannelEPGName, ChannelNumber, "", "", "");
+		InsertProgramme(newProgramme);
+	}
+}
+
+
+void CEPG::AddProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR ChannelName, LPCSTR ChannelEPGName, int ChannelNumber, LPCSTR SubTitle, LPCSTR Category, LPCSTR Description)
+{
+	if ( (EndTime > m_LoadedTimeMin) && (StartTime <= m_LoadedTimeMax) )
+	{
+		CProgramme* newProgramme = new CProgramme(StartTime, EndTime, Title, ChannelName, ChannelEPGName, ChannelNumber, SubTitle, Category, Description);
+		InsertProgramme(newProgramme);
+	}
+}
+
+
+void CEPG::AddProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR ChannelEPGName, LPCSTR SubTitle, LPCSTR Category, LPCSTR Description)
+{
+	LPCSTR ChannelName;
+	int  ChannelNumber;
+
+	if (IsValidChannelName(ChannelEPGName, &ChannelName, &ChannelNumber))
+	{
+		AddProgramme(StartTime, EndTime, Title, ChannelName, ChannelEPGName, ChannelNumber, SubTitle, Category, Description);
+	}
 }
 
 
@@ -1392,27 +1036,36 @@ BOOL CEPG::IsValidChannelName(LPCSTR EPGName, LPCSTR *Name, int *Number)
 
 
 //
-// Retrieve a line of text in a file (stream)
+// Copy a file
 //
-BOOL CEPG::GetFileLine(FILE *Stream, char *Buffer, int MaxLen)
+BOOL CEPG::CopyFile(LPCSTR InPath, LPCSTR OutPath)
 {
-	int pos=0;
-	int i, ch;
+	FILE *InStream;
+	FILE *OutStream;
 
-	ch = fgetc(Stream);
-	for (i=0 ; (i<MaxLen) && (feof(Stream) == 0) ; i++)
+	InStream = fopen(InPath, "r");
+	if (InStream == NULL)
 	{
-		if  (((char)ch) == '\n')
-		{
-			Buffer[i] = '\0';
-			return TRUE;
-		}
-		Buffer[i] = (char)ch;
-		ch = fgetc(Stream);
+		return FALSE;
 	}
-	Buffer[i] = '\0';
+	OutStream = fopen(OutPath, "w");
+	if (OutStream == NULL)
+	{
+		fclose(InStream);
+		return FALSE;
+	}
 
-	return (i>0) ? TRUE : FALSE;
+	while (feof(InStream) == 0)
+	{
+		char buffer[512];
+		int n = fread(buffer, 1, 512, InStream);
+		fwrite(buffer, 1, n, OutStream);
+	}
+
+	fclose(InStream);
+	fclose(OutStream);
+
+	return TRUE;
 }
 
 
@@ -1519,33 +1172,18 @@ int CEPG::GetNextviewEPGProviders()
 
 
 static char		ExePath[MAX_PATH] = {0};
-static char		ExePath2[MAX_PATH] = {0};
-static char*	XMLTVExePath = NULL;
 static char*	NextviewEPGExePath = NULL;
 static long		EPG_DefaultSizePerc = 5;
-static long		EPG_ShiftTimes = 0;
 static long		EPG_FrameDuration = 1;
 
 
 SETTING EPGSettings[EPG_SETTING_LASTONE] =
 {
     {
-        "xmltv.exe file path", CHARSTRING, 0, (long*)&XMLTVExePath,
-         (long)ExePath, 0, 0, 0, 0,
-         NULL,
-        "EPG", "xmltv.exe", NULL,
-    },
-    {
         "Text Size", SLIDER, 0, (long*)&EPG_DefaultSizePerc,
          5, 2, 7, 1, 1,
          NULL,
         "EPG", "DefaultSizePerc", NULL,
-    },
-    {
-        "Shift times during import (hours)", SLIDER, 0, (long*)&EPG_ShiftTimes,
-         0, -12, 12, 1, 1,
-         NULL,
-        "EPG", "ImportShiftTimes", NULL,
     },
     {
         "Time frame duration (hours)", SLIDER, 0, (long*)&EPG_FrameDuration,
@@ -1555,7 +1193,7 @@ SETTING EPGSettings[EPG_SETTING_LASTONE] =
     },
     {
         "nxtvepg.exe file path", CHARSTRING, 0, (long*)&NextviewEPGExePath,
-         (long)ExePath2, 0, 0, 0, 0,
+         (long)ExePath, 0, 0, 0, 0,
          NULL,
         "EPG", "nxtvepg.exe", NULL,
     },
@@ -1580,22 +1218,16 @@ void EPG_ReadSettingsFromIni()
 
 	GetModuleFileName (NULL, ExePath, sizeof(ExePath));
 	*(strrchr(ExePath, '\\')) = '\0';
-	strcpy(ExePath2, ExePath);
-	strcat(ExePath, "\\xmltv.exe");
-	strcat(ExePath2, "\\nxtvepg.exe");
+	strcat(ExePath, "\\nxtvepg.exe");
 
     for(i = 0; i < EPG_SETTING_LASTONE; i++)
     {
         Setting_ReadFromIni(&(EPGSettings[i]));
     }
 
-    if (XMLTVExePath == NULL)
-    {
-		Setting_SetValue(EPG_GetSetting(EPG_XMLTVPATH), (long)ExePath);
-    }
     if (NextviewEPGExePath == NULL)
     {
-		Setting_SetValue(EPG_GetSetting(EPG_NXTVEPGPATH), (long)ExePath2);
+		Setting_SetValue(EPG_GetSetting(EPG_NXTVEPGPATH), (long)ExePath);
     }
 }
 
@@ -1620,4 +1252,23 @@ void EPG_FreeSettings()
     {
         Setting_Free(&EPGSettings[i]);
     }
+}
+
+
+// -----------------------------------------------------
+
+
+extern "C"
+{
+
+int CheckProgrammeValidity(time_t StartTime, time_t EndTime, char * ChannelName)
+{
+	return 	MyEPG.CheckProgrammeValidity(StartTime, EndTime, ChannelName);
+}
+
+void AddProgramme(time_t StartTime, time_t EndTime, char * Title, char * ChannelName, char * SubTitle, char * Category, char * Description)
+{
+	MyEPG.AddProgramme(StartTime, EndTime, Title, ChannelName, SubTitle, Category, Description);
+}
+
 }

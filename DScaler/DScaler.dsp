@@ -1777,15 +1777,15 @@ SOURCE=.\xmltv_debug.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\xmltv_mytypes.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\xmltv_tags.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\xmltv_timestamp.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\xmltv_types.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

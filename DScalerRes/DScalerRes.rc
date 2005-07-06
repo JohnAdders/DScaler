@@ -1434,7 +1434,6 @@ BEGIN
         BEGIN
             MENUITEM "&Import XMLTV File",          IDM_IMPORT_XMLTV
             MENUITEM "&Import NextviewEPG database", IDM_IMPORT_NEXTVIEW
-            MENUITEM "L&oad EPG Data",              IDM_LOAD_EPG, GRAYED
             MENUITEM SEPARATOR
             MENUITEM "View Programme &Details\tCtrl+Shift+G", 
                                                     IDM_DISPLAY_EPG

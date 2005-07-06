@@ -915,6 +915,118 @@ SOURCE=.\VTTopText.cpp
 
 SOURCE=.\WindowBorder.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\xml_cdata.c
+
+!IF  "$(CFG)" == "DScaler - Win32 Debug"
+
+!ELSEIF  "$(CFG)" == "DScaler - Win32 Release"
+
+# ADD CPP /D "_X86_"
+# SUBTRACT CPP /YX /Yc /Yu
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\xml_hash.c
+
+!IF  "$(CFG)" == "DScaler - Win32 Debug"
+
+!ELSEIF  "$(CFG)" == "DScaler - Win32 Release"
+
+# ADD CPP /D "_X86_"
+# SUBTRACT CPP /YX /Yc /Yu
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\xml_prolog.tab.c
+
+!IF  "$(CFG)" == "DScaler - Win32 Debug"
+
+!ELSEIF  "$(CFG)" == "DScaler - Win32 Release"
+
+# ADD CPP /D "_X86_"
+# SUBTRACT CPP /YX /Yc /Yu
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\xml_scan.yy.c
+
+!IF  "$(CFG)" == "DScaler - Win32 Debug"
+
+!ELSEIF  "$(CFG)" == "DScaler - Win32 Release"
+
+# ADD CPP /D "_X86_"
+# SUBTRACT CPP /YX /Yc /Yu
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\xmltv_db.c
+
+!IF  "$(CFG)" == "DScaler - Win32 Debug"
+
+!ELSEIF  "$(CFG)" == "DScaler - Win32 Release"
+
+# ADD CPP /D "_X86_"
+# SUBTRACT CPP /YX /Yc /Yu
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\xmltv_debug.c
+
+!IF  "$(CFG)" == "DScaler - Win32 Debug"
+
+!ELSEIF  "$(CFG)" == "DScaler - Win32 Release"
+
+# ADD CPP /D "_X86_"
+# SUBTRACT CPP /YX /Yc /Yu
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\xmltv_tags.c
+
+!IF  "$(CFG)" == "DScaler - Win32 Debug"
+
+!ELSEIF  "$(CFG)" == "DScaler - Win32 Release"
+
+# ADD CPP /D "_X86_"
+# SUBTRACT CPP /YX /Yc /Yu
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\xmltv_timestamp.c
+
+!IF  "$(CFG)" == "DScaler - Win32 Debug"
+
+!ELSEIF  "$(CFG)" == "DScaler - Win32 Release"
+
+# ADD CPP /D "_X86_"
+# SUBTRACT CPP /YX /Yc /Yu
+
+!ENDIF 
+
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -1642,6 +1754,38 @@ SOURCE=.\VTTopText.h
 # Begin Source File
 
 SOURCE=.\WindowBorder.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\xml_cdata.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\xml_hash.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\xml_prolog.tab.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\xmltv_db.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\xmltv_debug.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\xmltv_mytypes.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\xmltv_tags.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\xmltv_timestamp.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.h,v 1.15 2005-07-06 19:40:44 laurentg Exp $
+// $Id: EPG.h,v 1.16 2005-07-06 20:27:54 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2005/07/06 19:40:44  laurentg
+// New EPG code using Tom Zoerner's XMLTV parser
+//
 // Revision 1.14  2005/04/09 12:49:49  laurentg
 // EPG: choose the NextviewEPG provider
 //
@@ -128,7 +131,7 @@ public:
 	~CEPG();
 
 	// Copy the input file in DScalerEPG.xml
-	int ImportXMLTVFile(LPCSTR file=NULL);
+	int ImportXMLTVFile(LPCSTR file);
 
 	// Import the NextviewEPG database
 	// Put the result in DScalerEPG.xml

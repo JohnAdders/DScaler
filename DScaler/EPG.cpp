@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.cpp,v 1.18 2005-07-06 19:40:38 laurentg Exp $
+// $Id: EPG.cpp,v 1.19 2005-07-06 20:27:54 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2005/07/06 19:40:38  laurentg
+// New EPG code using Tom Zoerner's XMLTV parser
+//
 // Revision 1.17  2005/04/09 12:49:49  laurentg
 // EPG: choose the NextviewEPG provider
 //
@@ -99,7 +102,6 @@
 
 #define	ONE_DAY			86400
 #define	ONE_HOUR		3600
-#define	DEFAULT_INPUT_FILE		"epg.xml"
 #define	DEFAULT_OUTPUT_FILE		"DScalerEPG.xml"
 
 
@@ -328,17 +330,16 @@ int CEPG::ImportNxtvepgEPGDB(LPCSTR Provider)
 //
 int CEPG::ImportXMLTVFile(LPCSTR file)
 {
-	// If file not provided, try with "epg.xml"
-	string XMLFile;
-	if (file == NULL)
-		XMLFile = m_FilesDir + "\\" + DEFAULT_INPUT_FILE;
-	else
-		XMLFile = file;
-
+	string InputFile = file;
 	string OutputFile = m_FilesDir + "\\" + DEFAULT_OUTPUT_FILE;
 
-	LOG(2, "Copy file ... (%s)", XMLFile.c_str());
-	BOOL resu = CopyFile(XMLFile.c_str(), OutputFile.c_str());
+	if (!strcmp(InputFile.c_str(), OutputFile.c_str()))
+	{
+		return 0;
+	}
+
+	LOG(2, "Copy file %s in %s ...", InputFile.c_str(), OutputFile.c_str());
+	BOOL resu = CopyFile(InputFile.c_str(), OutputFile.c_str());
 	LOG(2, "Copy file %d", resu);
 
 	ReloadEPGData();

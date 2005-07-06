@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.104 2005-06-09 23:27:41 robmuller Exp $
+// $Id: OSD.cpp,v 1.105 2005-07-06 19:48:33 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.104  2005/06/09 23:27:41  robmuller
+// Enable Developer Statistics by default (this screen is never shown in a release build).
+//
 // Revision 1.103  2005/04/02 14:23:44  laurentg
 // EPG: little bugs fixed
 //
@@ -489,6 +492,7 @@ void OSD_FreeCommand(TOSDCommand* pOSDCommand);
 
 void OSD_AddTextSingleLine(LPCTSTR, double, long, long, eOSDBackground, eOSDTextXPos, double, double);
 void OSD_AddText(LPCTSTR, double, long, long, eOSDBackground, eOSDTextXPos, double, double);
+void OSD_AddTextAutoCut(LPCTSTR, double, long, long, eOSDBackground, eOSDTextXPos, double, double);
 void OSD_ClearAllTexts();
 
 
@@ -2347,8 +2351,9 @@ static void OSD_DisplayProgrammeInfos(double Size)
 	time_t EndTime;
 	string ChannelName;
 	string ProgrammeTitle;
+	string Category;
 
-	if (MyEPG.GetProgrammeMainData(-1, &StartTime, &EndTime, ChannelName, ProgrammeTitle) == FALSE)
+	if (MyEPG.GetProgrammeMainData(-1, &StartTime, &EndTime, ChannelName, ProgrammeTitle, Category) == FALSE)
 	{
 		return;
 	}
@@ -2438,12 +2443,12 @@ static void OSD_RefreshCurrentProgrammeScreen(double Size)
 	char   szInfo[16];
     sprintf(szInfo, "%s - %s", StartTimeStr, EndTimeStr);
     OSD_AddText(szInfo, Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos1);
-    OSD_AddText(ChannelName.c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos1);
-	if (Category.length() > 0)
-	{
-	    OSD_AddText(Category.c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, pos1);
-	}
-    OSD_AddText(ProgrammeTitle.c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos2);
+    OSD_AddText(ChannelName.c_str(), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos1);
+//	if (Category.length() > 0)
+//	{
+//	    OSD_AddText(Category.c_str(), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, pos1);
+//	}
+    OSD_AddText(ProgrammeTitle.c_str(), Size, OSD_COLOR_CURRENT, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, pos2);
 	time_t TimeNow;
 	time(&TimeNow);
 	if (   (TimeNow >= StartTime)
@@ -2460,9 +2465,7 @@ static void OSD_RefreshCurrentProgrammeScreen(double Size)
 	if (Description.length() > 0)
 	{
 		pos2 = OSD_GetLineYpos (nLine++, dfMargin, Size);
-		OSD_AddText("Description", Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, pos2);
-		pos2 = OSD_GetLineYpos (nLine++, dfMargin, Size);
-		OSD_AddText(Description.c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos2);
+		OSD_AddTextAutoCut(Description.c_str(), Size-1, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos2);
 	}
 }
 
@@ -2545,8 +2548,9 @@ static void OSD_RefreshProgrammesScreen(double Size)
 		char EndTimeStr[6];
 		string ChannelName;
 		string ProgrammeTitle;
+		string Category;
 
-		MyEPG.GetProgrammeMainData(i, &StartTime, &EndTime, ChannelName, ProgrammeTitle);
+		MyEPG.GetProgrammeMainData(i, &StartTime, &EndTime, ChannelName, ProgrammeTitle, Category);
 		struct tm *date_tm;
 		date_tm = localtime(&StartTime);
 		sprintf(StartTimeStr, "%02u:%02u", date_tm->tm_hour, date_tm->tm_min);
@@ -2572,6 +2576,10 @@ static void OSD_RefreshProgrammesScreen(double Size)
 			break;
 		}
         OSD_AddText(ChannelName.c_str(), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos2);
+		if (Category.length() > 0)
+		{
+			OSD_AddText(Category.c_str(), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, pos2);
+		}
         sprintf(szInfo, "%s - %s", StartTimeStr, EndTimeStr);
         OSD_AddText(szInfo, Size, Color, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos2);
         OSD_AddText(ProgrammeTitle.c_str(), Size, (i == (IdxCur -1)) ? OSD_COLOR_CURRENT : -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos3);
@@ -2601,6 +2609,12 @@ void OSD_AddTextSingleLine(LPCTSTR szText, double Size, long NewTextColor, long 
                            double YPos)
 {
     if ( (strlen(szText) == 0) || (OSD_nTextCount >= OSD_MAX_TEXT) )
+    {
+        return;
+    }
+
+	// TODO Laurent Don't display lines that are outside or partially outside the screen
+	if (XPos < 0.0 || XPos > 1.0 || YPos < 0.0 /* || YPos > 1.0 */)
     {
         return;
     }
@@ -2669,7 +2683,55 @@ void OSD_AddText(LPCTSTR szText, double Size, long NewTextColor, long Background
             SingleLineIndex--;
             break;
         }
-        if( szText[i] != '\n')
+		if( szText[i] != '\n' )
+        {
+            SingleLine[SingleLineIndex++] = szText[i];
+        }
+        else
+        {
+            SingleLine[SingleLineIndex] = 0x00;
+            OSD_AddTextSingleLine(SingleLine, Size, NewTextColor, BackgroundColor, BackgroundMode,
+                                  TextXPos, XPos, YPos);
+            SingleLineIndex = 0;
+            if(Size == 0)
+            {
+                YPos += (double)OSD_DefaultSizePerc/100;
+            }
+            else
+            {
+                YPos += Size/100;
+            }
+        }
+    }
+    SingleLine[SingleLineIndex] = 0x00;
+    OSD_AddTextSingleLine(SingleLine,Size,NewTextColor,BackgroundColor,BackgroundMode,TextXPos,
+                          XPos,YPos);
+}
+
+
+//---------------------------------------------------------------------------
+// TODO Laurent Cut of lines
+void OSD_AddTextAutoCut(LPCTSTR szText, double Size, long NewTextColor, long BackgroundColor, 
+                        eOSDBackground BackgroundMode, eOSDTextXPos TextXPos, double XPos, double YPos)
+{
+    char      SingleLine[512];
+    int       SingleLineIndex = 0;
+    char      *s;
+
+    // convert "\r\n" to "\n"
+    while(s = strstr(szText, "\r\n"))
+    {
+        strcpy(&s[0], &s[1]);
+    }
+
+    for(int i = 0; i < strlen(szText); i++)
+    {
+        if(SingleLineIndex == 512)
+        {
+            SingleLineIndex--;
+            break;
+        }
+		if( (szText[i] != '\n') && ((szText[i] != ' ') || (SingleLineIndex <= 65)))
         {
             SingleLine[SingleLineIndex++] = szText[i];
         }

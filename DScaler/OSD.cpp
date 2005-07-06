@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.105 2005-07-06 19:48:33 laurentg Exp $
+// $Id: OSD.cpp,v 1.106 2005-07-06 21:44:41 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.105  2005/07/06 19:48:33  laurentg
+// Updated OSD for EPG
+//
 // Revision 1.104  2005/06/09 23:27:41  robmuller
 // Enable Developer Statistics by default (this screen is never shown in a release build).
 //
@@ -492,7 +495,7 @@ void OSD_FreeCommand(TOSDCommand* pOSDCommand);
 
 void OSD_AddTextSingleLine(LPCTSTR, double, long, long, eOSDBackground, eOSDTextXPos, double, double);
 void OSD_AddText(LPCTSTR, double, long, long, eOSDBackground, eOSDTextXPos, double, double);
-void OSD_AddTextAutoCut(LPCTSTR, double, long, long, eOSDBackground, eOSDTextXPos, double, double);
+void OSD_AddTextAutoCut(LPCTSTR, double, long, long, eOSDBackground, eOSDTextXPos, double, double, long MaxCharsPerLine);
 void OSD_ClearAllTexts();
 
 
@@ -2465,7 +2468,7 @@ static void OSD_RefreshCurrentProgrammeScreen(double Size)
 	if (Description.length() > 0)
 	{
 		pos2 = OSD_GetLineYpos (nLine++, dfMargin, Size);
-		OSD_AddTextAutoCut(Description.c_str(), Size-1, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos2);
+		OSD_AddTextAutoCut(Description.c_str(), Size-1, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos2, 75);
 	}
 }
 
@@ -2613,8 +2616,18 @@ void OSD_AddTextSingleLine(LPCTSTR szText, double Size, long NewTextColor, long 
         return;
     }
 
-	// TODO Laurent Don't display lines that are outside or partially outside the screen
-	if (XPos < 0.0 || XPos > 1.0 || YPos < 0.0 /* || YPos > 1.0 */)
+	// Don't display lines that are outside or partially outside
+	// the screen vertically
+	double YPos2;
+    if(Size == 0)
+    {
+        YPos2 = YPos + (double)OSD_DefaultSizePerc/100;
+    }
+    else
+    {
+        YPos2 = YPos + Size/100;
+    }
+	if (YPos < 0.0 || YPos2 > 1.0)
     {
         return;
     }
@@ -2710,9 +2723,10 @@ void OSD_AddText(LPCTSTR szText, double Size, long NewTextColor, long Background
 
 
 //---------------------------------------------------------------------------
-// TODO Laurent Cut of lines
+// Same as OSD_AddText except that the text is cut on several lines
+// as soon as one line has more than a certain number of characters.
 void OSD_AddTextAutoCut(LPCTSTR szText, double Size, long NewTextColor, long BackgroundColor, 
-                        eOSDBackground BackgroundMode, eOSDTextXPos TextXPos, double XPos, double YPos)
+                        eOSDBackground BackgroundMode, eOSDTextXPos TextXPos, double XPos, double YPos, long MaxCharsPerLine)
 {
     char      SingleLine[512];
     int       SingleLineIndex = 0;
@@ -2731,16 +2745,57 @@ void OSD_AddTextAutoCut(LPCTSTR szText, double Size, long NewTextColor, long Bac
             SingleLineIndex--;
             break;
         }
-		if( (szText[i] != '\n') && ((szText[i] != ' ') || (SingleLineIndex <= 65)))
+		if( (szText[i] != '\n') && (SingleLineIndex < MaxCharsPerLine))
         {
             SingleLine[SingleLineIndex++] = szText[i];
         }
         else
         {
             SingleLine[SingleLineIndex] = 0x00;
-            OSD_AddTextSingleLine(SingleLine, Size, NewTextColor, BackgroundColor, BackgroundMode,
-                                  TextXPos, XPos, YPos);
-            SingleLineIndex = 0;
+			// If the current character is a cariage return or a space,
+			// then go to the next line and skip the current character
+			if ((szText[i] == '\n') || (szText[i] == ' '))
+			{
+				OSD_AddTextSingleLine(SingleLine, Size, NewTextColor, BackgroundColor, BackgroundMode,
+									  TextXPos, XPos, YPos);
+				SingleLineIndex = 0;
+			}
+			else
+			{
+				// The current character is neither a cariage return nor a space
+
+				// If the last buffered character is a space,
+				// then go to the next line and keep the current character
+				// as first first character of the next line
+				if (SingleLine[SingleLineIndex-1] == ' ')
+				{
+					OSD_AddTextSingleLine(SingleLine, Size, NewTextColor, BackgroundColor, BackgroundMode,
+										  TextXPos, XPos, YPos);
+					SingleLineIndex = 0;
+				}
+				else
+				{
+					// Search the last space in the buffered line
+					s = strrchr(SingleLine, ' ');
+					if (s)
+					{
+						*s = 0x00;
+						OSD_AddTextSingleLine(SingleLine, Size, NewTextColor, BackgroundColor, BackgroundMode,
+											  TextXPos, XPos, YPos);
+				        strcpy(&SingleLine[0], s+1);
+						SingleLineIndex = strlen(SingleLine);
+					}
+					else
+					{
+						OSD_AddTextSingleLine(SingleLine, Size, NewTextColor, BackgroundColor, BackgroundMode,
+											  TextXPos, XPos, YPos);
+						SingleLineIndex = 0;
+					}
+				}
+
+				// Add the current character to the line buffer
+				SingleLine[SingleLineIndex++] = szText[i];
+			}
             if(Size == 0)
             {
                 YPos += (double)OSD_DefaultSizePerc/100;

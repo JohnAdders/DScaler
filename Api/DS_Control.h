@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.165 2005-04-07 23:16:01 laurentg Exp $
+// $Id: DS_Control.h,v 1.166 2005-07-06 19:36:52 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.165  2005/04/07 23:16:01  laurentg
+// EPG: import NextviewEPG database
+//
 // Revision 1.164  2005/04/01 22:17:13  laurentg
 // EPG: new setting to define the time frame duration
 //
@@ -1870,9 +1873,7 @@ typedef enum
 
 typedef enum
 {
-    EPG_XMLTVPATH = 0,
     EPG_PERCENTAGESIZE,
-    EPG_SHIFTTIMES,
 	EPG_TIMEFRAMEDURATION,
 	EPG_NXTVEPGPATH,
     EPG_SETTING_LASTONE,

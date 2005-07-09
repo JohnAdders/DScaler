@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.cpp,v 1.19 2005-07-06 20:27:54 laurentg Exp $
+// $Id: EPG.cpp,v 1.20 2005-07-09 13:43:43 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2005/07/06 20:27:54  laurentg
+// Copy the file if source different from destination
+//
 // Revision 1.18  2005/07/06 19:40:38  laurentg
 // New EPG code using Tom Zoerner's XMLTV parser
 //
@@ -100,9 +103,11 @@
 #include "xmltv_db.h"
 
 
-#define	ONE_DAY			86400
-#define	ONE_HOUR		3600
-#define	DEFAULT_OUTPUT_FILE		"DScalerEPG.xml"
+#define	ONE_DAY				86400
+#define	ONE_HOUR			3600
+#define	PRELOADING_EARLIER	(4 * ONE_HOUR)
+#define	PRELOADING_LATER	(6 * ONE_HOUR)
+#define	DEFAULT_OUTPUT_FILE	"DScalerEPG.xml"
 
 
 CEPG MyEPG;
@@ -144,6 +149,20 @@ BOOL CProgramme::IsProgrammeMatching(time_t DateMin, time_t DateMax, LPCSTR Chan
 }
 
 
+//
+// Check whether the programme matchs the channel
+//
+BOOL CProgramme::IsProgrammeMatching(LPCSTR Channel)
+{
+	if (   (Channel == NULL)
+		|| !_stricmp(Channel, m_ChannelName.c_str())
+	   )
+	   return TRUE;
+
+	return FALSE;
+}
+
+
 // Get the programme dates : start and end time
 void CProgramme::GetProgrammeDates(time_t *StartTime, time_t *EndTime)
 {
@@ -158,7 +177,7 @@ void CProgramme::GetProgrammeDates(time_t *StartTime, time_t *EndTime)
 void CProgramme::GetProgrammeChannelData(string &ChannelName, string &ChannelEPGName, int *ChannelNumber)
 {
 	ChannelName = m_ChannelName;
-	ChannelEPGName = m_ChannelName;
+	ChannelEPGName = m_ChannelEPGName;
 	*ChannelNumber = m_ChannelNumber;
 }
 
@@ -250,6 +269,8 @@ CEPG::CEPG()
 	m_ProgrammeSelected = NULL;
 
 	m_UseProgFronBrowser = FALSE;
+
+	m_PrevNextProg = 0;
 
 	m_Displayed = 0;
 }
@@ -364,17 +385,15 @@ int CEPG::LoadEPGData(time_t DateMin, time_t DateMax)
 	if ( (DateMin == 0) || (DateMax == 0) )
 	{
 		time(&DateTime);
-		DateMin = DateTime - 2 * ONE_HOUR;
-		DateMax = DateTime + 6 * ONE_HOUR;
+		DateMin = DateTime - PRELOADING_EARLIER;
+		DateMax = DateTime + PRELOADING_LATER;
 	}
 
 	m_LoadedTimeMin = DateMin;
 	m_LoadedTimeMax = DateMax;
 
 	string InputXMLFile = m_FilesDir + "\\" + DEFAULT_OUTPUT_FILE;
-	Xmltv_LoadFile(InputXMLFile.c_str());
-
-	return 0;
+	return Xmltv_LoadFile(InputXMLFile.c_str());
 }
 
 
@@ -382,7 +401,10 @@ int CEPG::ReloadEPGData()
 {
 	int resu = LoadEPGData(m_LoadedTimeMin, m_LoadedTimeMax);
 
-	// TODO Update the OSD
+	if (!resu)
+	{
+		OSD_Clear();
+	}
 
 	return resu;
 }
@@ -429,7 +451,7 @@ BOOL CEPG::SearchForProgramme(string &Channel)
 			time_t TimeNow;
 			time(&TimeNow);
 			Channel = Channel_GetName();
-			resu = SearchForProgramme(Channel.c_str(), TimeNow);
+			resu = SearchForProgramme(Channel.c_str(), TimeNow, m_PrevNextProg);
 		}
 	}
 	else
@@ -447,17 +469,64 @@ BOOL CEPG::SearchForProgramme(string &Channel)
 }
 
 
-BOOL CEPG::SearchForProgramme(LPCSTR ChannelName, time_t ThatTime)
+BOOL CEPG::SearchForProgramme(LPCSTR ChannelName, time_t ThatTime, int PrevNextProg)
 {
+	time_t ProgStart, ProgEnd;
+	CProgramme* PrevProgramme = NULL;
 	m_ProgrammeSelected = NULL;
     for(CProgrammes::iterator it = m_Programmes.begin();
         it != m_Programmes.end();
         ++it)
     {
-		if ((*it)->IsProgrammeMatching(ThatTime, ThatTime, ChannelName) == TRUE)
+		if (PrevNextProg < 0)
 		{
-			m_ProgrammeSelected = *it;
-			return TRUE;
+			if ((*it)->IsProgrammeMatching(ChannelName) == TRUE)
+			{
+				(*it)->GetProgrammeDates(&ProgStart, &ProgEnd);
+				if (   (ThatTime >= ProgStart)
+					&& (ThatTime < ProgEnd)
+				   )
+				{
+					if (PrevProgramme != NULL)
+					{
+						m_ProgrammeSelected = PrevProgramme;
+						return TRUE;
+					}
+				}
+				else
+				{
+					PrevProgramme = *it;
+				}
+			}
+		}
+		else if (PrevNextProg > 0)
+		{
+			if ((*it)->IsProgrammeMatching(ChannelName) == TRUE)
+			{
+				if (PrevProgramme != NULL)
+				{
+					m_ProgrammeSelected = *it;
+					return TRUE;
+				}
+				else
+				{
+					(*it)->GetProgrammeDates(&ProgStart, &ProgEnd);
+					if (   (ThatTime >= ProgStart)
+						&& (ThatTime < ProgEnd)
+					   )
+					{
+						PrevProgramme = *it;
+					}
+				}
+			}
+		}
+		else
+		{
+			if ((*it)->IsProgrammeMatching(ThatTime, ThatTime, ChannelName) == TRUE)
+			{
+				m_ProgrammeSelected = *it;
+				return TRUE;
+			}
 		}
     }
 	return FALSE;
@@ -466,6 +535,7 @@ BOOL CEPG::SearchForProgramme(LPCSTR ChannelName, time_t ThatTime)
 
 int CEPG::SearchForProgrammes(LPCSTR ChannelName, time_t TimeMin, time_t TimeMax)
 {
+	m_PrevNextProg = 0;
 	m_SearchChannel = ChannelName;
 	m_SearchTimeMin = TimeMin;
 	m_SearchTimeMax = TimeMax;
@@ -667,9 +737,10 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 			|| (m_UseProgFronBrowser == FALSE) )
 		{
 			m_UseProgFronBrowser = FALSE;
+			m_PrevNextProg = 0;
 			// Check if new EPG data have to be loaded
 			time(&TimeNow);
-			LoadEPGDataIfNeeded(m_LoadedTimeMin, TimeNow, 0, 6 * ONE_HOUR);
+			LoadEPGDataIfNeeded(m_LoadedTimeMin, TimeNow, PRELOADING_EARLIER, PRELOADING_LATER);
 			// Display the OSD screen
 			OSD_ShowInfosScreen(2, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
 			m_Displayed = 1;
@@ -693,7 +764,7 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 			time(&TimeMin);
 			TimeMax = TimeMin + ONE_HOUR * Setting_GetValue(EPG_GetSetting(EPG_TIMEFRAMEDURATION)) - 1;
 			// Check if new EPG data have to be loaded
-			LoadEPGDataIfNeeded(TimeMin, TimeMax, 0, 0);
+			LoadEPGDataIfNeeded(TimeMin, TimeMax, PRELOADING_EARLIER, PRELOADING_LATER);
 			// Select the corresponding programmes
 			SearchForProgrammes(NULL, TimeMin, TimeMax);
 		}
@@ -724,7 +795,7 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 			}
 			TimeMax = TimeMin + ONE_HOUR * Setting_GetValue(EPG_GetSetting(EPG_TIMEFRAMEDURATION)) - 1;
 			// Check if new EPG data have to be loaded
-			LoadEPGDataIfNeeded(TimeMin, TimeMax, 0, 0);
+			LoadEPGDataIfNeeded(TimeMin, TimeMax, PRELOADING_EARLIER, PRELOADING_LATER);
 			// Select the corresponding programmes
 			SearchForProgrammes(NULL, TimeMin, TimeMax);
 		}
@@ -752,7 +823,7 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 			}
 			TimeMax = TimeMin + ONE_HOUR * Setting_GetValue(EPG_GetSetting(EPG_TIMEFRAMEDURATION)) - 1;
 			// Check if new EPG data have to be loaded
-			LoadEPGDataIfNeeded(TimeMin, TimeMax, 0, 0);
+			LoadEPGDataIfNeeded(TimeMin, TimeMax, PRELOADING_EARLIER, PRELOADING_LATER);
 			// Select the corresponding programmes
 			SearchForProgrammes(NULL, TimeMin, TimeMax);
 		}
@@ -766,10 +837,6 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		{
 			SetDisplayIndexes(m_IdxShowSelectMax + 1, -1, m_IdxShowSelectMax + 1);
 		}
-		else if (m_Displayed == 1)
-		{
-			// TODO Show the details of the next programme on the same channel
-		}
         return TRUE;
         break;
 
@@ -779,10 +846,6 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 			&& (m_IdxShowSelectMin > 1) )
 		{
 			SetDisplayIndexes(-1, m_IdxShowSelectMin - 1, m_IdxShowSelectMin - 1);
-		}
-		else if (m_Displayed == 1)
-		{
-			// TODO Show the details of the previous programme on the same channel
 		}
         return TRUE;
         break;
@@ -803,6 +866,12 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 				PostMessageToMainWindow(WM_COMMAND, IDM_DISPLAY_EPG_NEXT, 0);
 			}
 		}
+		else if (   (m_Displayed == 1)
+			     && (m_UseProgFronBrowser == FALSE) )
+		{
+			// Show the details of the next programme on the same channel
+			ShowOSD(1);
+		}
         return TRUE;
         break;
 
@@ -821,6 +890,12 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 			{
 				PostMessageToMainWindow(WM_COMMAND, IDM_DISPLAY_EPG_PREV, 0);
 			}
+		}
+		else if (   (m_Displayed == 1)
+			     && (m_UseProgFronBrowser == FALSE) )
+		{
+			// Show the details of the previous programme on the same channel
+			ShowOSD(-1);
 		}
         return TRUE;
         break;
@@ -854,12 +929,14 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 }
 
 
-void CEPG::ShowOSD()
+void CEPG::ShowOSD(int PrevNextProg)
 {
 	// Check if new EPG data have to be loaded
 	time_t TimeNow;
 	time(&TimeNow);
-	LoadEPGDataIfNeeded(m_LoadedTimeMin, TimeNow, 0, 6 * ONE_HOUR);
+	LoadEPGDataIfNeeded(m_LoadedTimeMin, TimeNow, PRELOADING_EARLIER, PRELOADING_LATER);
+
+	m_PrevNextProg = PrevNextProg;
 
 	if (   (m_Programmes.size() > 0)
 		&& (m_UseProgFronBrowser == FALSE) )
@@ -868,7 +945,7 @@ void CEPG::ShowOSD()
 		if (CurrentSource && Providers_GetCurrentSource()->IsInTunerMode())
 		{
 			// Search EPG info for the currently viewed channel
-			if (MyEPG.SearchForProgramme(Channel_GetName(), TimeNow) == TRUE)
+			if (MyEPG.SearchForProgramme(Channel_GetName(), TimeNow, m_PrevNextProg) == TRUE)
 			{
 				if (m_Displayed == 0)
 				{
@@ -894,6 +971,8 @@ void CEPG::HideOSD()
 
 	m_UseProgFronBrowser = FALSE;
 
+	m_PrevNextProg = 0;
+
 	m_Displayed = 0;
 }
 
@@ -916,6 +995,7 @@ void CEPG::ClearProgrammes()
 {
 	m_ProgrammeSelected = NULL;
     m_ProgrammesSelection.clear();
+	m_PrevNextProg = 0;
     for(CProgrammes::iterator it = m_Programmes.begin();
         it != m_Programmes.end();
         ++it)
@@ -928,7 +1008,8 @@ void CEPG::ClearProgrammes()
 
 int CEPG::CheckProgrammeValidity(time_t StartTime, time_t EndTime, LPCSTR ChannelName)
 {
-	if (!IsValidChannelName(ChannelName))
+	if (   (Setting_GetValue(EPG_GetSetting(EPG_CHANNELFILTERING)) == TRUE)
+		&& !IsValidChannelName(ChannelName))
 		return 0;
 	// Keep only programmes scheduled between m_LoadedTimeMin and m_LoadedTimeMax
 	if ( (EndTime <= m_LoadedTimeMin) || (StartTime > m_LoadedTimeMax) )
@@ -999,6 +1080,10 @@ void CEPG::AddProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR C
 	if (IsValidChannelName(ChannelEPGName, &ChannelName, &ChannelNumber))
 	{
 		AddProgramme(StartTime, EndTime, Title, ChannelName, ChannelEPGName, ChannelNumber, SubTitle, Category, Description);
+	}
+	else if (Setting_GetValue(EPG_GetSetting(EPG_CHANNELFILTERING)) == FALSE)
+	{
+		AddProgramme(StartTime, EndTime, Title, ChannelEPGName, ChannelEPGName, -1, SubTitle, Category, Description);
 	}
 }
 
@@ -1176,6 +1261,16 @@ static char		ExePath[MAX_PATH] = {0};
 static char*	NextviewEPGExePath = NULL;
 static long		EPG_DefaultSizePerc = 5;
 static long		EPG_FrameDuration = 1;
+static BOOL		EPG_ChannelFiltering = FALSE;
+static long		EPG_MaxCharsPerLine = 75;
+
+
+BOOL ChannelFiltering_OnChange(long NewValue)
+{
+	OSD_Clear();
+	MyEPG.ReloadEPGData();
+    return FALSE;
+}
 
 
 SETTING EPGSettings[EPG_SETTING_LASTONE] =
@@ -1197,6 +1292,18 @@ SETTING EPGSettings[EPG_SETTING_LASTONE] =
          (long)ExePath, 0, 0, 0, 0,
          NULL,
         "EPG", "nxtvepg.exe", NULL,
+    },
+    {
+        "Keep only DScaler channels", YESNO, 0, (long*)&EPG_ChannelFiltering,
+         FALSE, 0, 1, 1, 1,
+         NULL,
+        "EPG", "ChannelFiltering", ChannelFiltering_OnChange,
+    },
+    {
+        "Max characters per line (programme description)", SLIDER, 0, (long*)&EPG_MaxCharsPerLine,
+         75, 20, 128, 1, 1,
+         NULL,
+        "EPG", "MaxCharsPerLine", NULL,
     },
 };
 

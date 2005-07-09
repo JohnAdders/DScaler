@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.106 2005-07-06 21:44:41 laurentg Exp $
+// $Id: OSD.cpp,v 1.107 2005-07-09 13:43:43 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.106  2005/07/06 21:44:41  laurentg
+// Cut on several lines for the display of the programme description ( EPG OSD)
+//
 // Revision 1.105  2005/07/06 19:48:33  laurentg
 // Updated OSD for EPG
 //
@@ -2468,7 +2471,7 @@ static void OSD_RefreshCurrentProgrammeScreen(double Size)
 	if (Description.length() > 0)
 	{
 		pos2 = OSD_GetLineYpos (nLine++, dfMargin, Size);
-		OSD_AddTextAutoCut(Description.c_str(), Size-1, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos2, 75);
+		OSD_AddTextAutoCut(Description.c_str(), Size-1, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos2, Setting_GetValue(EPG_GetSetting(EPG_MAXCHARSPERLINE)));
 	}
 }
 

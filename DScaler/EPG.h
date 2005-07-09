@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.h,v 1.16 2005-07-06 20:27:54 laurentg Exp $
+// $Id: EPG.h,v 1.17 2005-07-09 13:43:43 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2005/07/06 20:27:54  laurentg
+// Copy the file if source different from destination
+//
 // Revision 1.15  2005/07/06 19:40:44  laurentg
 // New EPG code using Tom Zoerner's XMLTV parser
 //
@@ -95,6 +98,9 @@ public:
 	// and overlaps the period of time defined by DateMin and DateMax
 	BOOL IsProgrammeMatching(time_t DateMin, time_t DateMax, LPCSTR Channel=NULL);
 
+	// Check whether the programme matchs the channel
+	BOOL IsProgrammeMatching(LPCSTR Channel=NULL);
+
 	// Get the programme dates : start and end time
 	void GetProgrammeDates(time_t *StartTime, time_t *EndTime);
 
@@ -145,7 +151,7 @@ public:
 
 	int GetSearchContext(LPCSTR *ChannelName, time_t *TimeMin, time_t *TimeMax);
 	BOOL SearchForProgramme(string &Channel);
-	BOOL SearchForProgramme(LPCSTR ChannelName, time_t ThatTime);
+	BOOL SearchForProgramme(LPCSTR ChannelName, time_t ThatTime, int PrevNextProg = 0);
 	int SearchForProgrammes(LPCSTR ChannelName, time_t TimeMin, time_t TimeMax);
 	BOOL GetProgrammeChannelData(int Index, string &ChannelName, string &ChannelEPGName, int *ChannelNumber);
 	BOOL GetProgrammeMainData(int Index, time_t *StartTime, time_t *EndTime, string &Channel, string &Title, string &Category);
@@ -156,7 +162,7 @@ public:
 
 	BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
 
-	void ShowOSD();
+	void ShowOSD(int PrevNextProg = 0);
 	void HideOSD();
 
 	// Dump the EPG data
@@ -211,6 +217,7 @@ private:
 	int			m_IdxShowSelectMax;
 	int			m_IdxShowSelectCur;
 	BOOL		m_UseProgFronBrowser;
+	int			m_PrevNextProg;
 
 	int			m_Displayed;
 };

@@ -82,6 +82,7 @@ BlackWhite.htm
 LuminanceShift.htm
 TomsMoComp.htm
 MoComp2.htm
+EPG.html
 
 [ALIAS]
 IDH_22_PULLDOWN=22Pulldown.htm
@@ -98,6 +99,7 @@ IDH_BT848_ADV=BT848Advanced.htm
 IDH_CALIBRATION=Calibration.htm
 IDH_CX2388X_ADV=CX2388xAdvanced.htm
 IDH_DEINTERLACE=Deinterlace.htm
+IDH_EPG=EPG.html
 IDH_EVEN=EvenOnly.htm
 IDH_FILTERS=Filters.htm
 IDH_GAMMA=Gamma.htm
@@ -112,6 +114,7 @@ IDH_LOGGING=Logging.htm
 IDH_LOGO_KILLER=LogoKiller.htm
 IDH_LUMINCHROMASHIFT=LuminanceShift.htm
 IDH_MIRROR=Mirror.htm
+IDH_MOCOMP2=MoComp2.htm
 IDH_ODD=OddOnly.htm
 IDH_OLD_GAME=OldGame.htm
 IDH_OVERLAY=Overlay.htm
@@ -126,11 +129,10 @@ IDH_TELETEXT=Teletext2.htm
 IDH_TEMPORAL_COMB=TemporalComb.htm
 IDH_TEMPORAL_NOISE=Noise.htm
 IDH_TIMING=Timing.htm
+IDH_TOMSMOCOMP=TomsMoComp.htm
 IDH_VIDEOBOB=VideoBob.htm
 IDH_VIDEOWEAVE=VideoWeave.htm
 IDH_WEAVE=Weave.htm
-IDH_TOMSMOCOMP=TomsMoComp.htm
-IDH_MOCOMP2=MoComp2.htm
 
 [MAP]
 #include helpids.h

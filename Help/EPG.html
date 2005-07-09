@@ -1,0 +1,322 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<head>
+<!-- #BeginTemplate "/Templates/dtvnormal.dwt" --><!-- #BeginEditable "doctitle" -->
+
+
+
+
+  
+
+  
+  <title>DScaler -- Calibration</title>
+<!-- #EndEditable -->
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+
+
+  
+  <style type="text/css">
+<!--
+p {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+.bottommenu {  font-family: Arial, Helvetica, sans-serif; font-size: 8pt; font-style: normal; text-decoration: none}
+h3 {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt; font-style: normal; font-weight: bold}
+h1 {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 18pt; font-weight: bold}
+li {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+h2 {  font-family: Arial, Helvetica, sans-serif; font-size: 14pt; font-weight: bold}
+ol {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+blockquote {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+pre {  font-family: "Courier New", Courier, mono; font-size: 9pt}
+ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
+-->
+  </style>
+</head>
+
+
+<body bgcolor="#ffffff">
+
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+
+
+  <tbody>
+
+    <tr>
+
+
+      <td height="1" width="160"><img src="images/spacer.gif" height="1" width="1"></td>
+
+
+      <td height="1" width="342"><img src="images/spacer.gif" height="1" width="1"></td>
+
+
+      <td height="1" width="501"><img src="images/spacer.gif" height="1" width="1"></td>
+
+
+    </tr>
+
+
+
+    <tr>
+
+
+      <td width="160"><img src="images/dscalerlogo.jpg" alt="DScaler Logo"></td>
+
+
+    <td colspan="2" align="right" valign="bottom"><font face="Verdana, Arial, Helvetica, sans-serif" size="5"><b> <!-- #BeginEditable "Page%20Title" --> Electronic Program Guide <!-- #EndEditable --></b></font></td>
+
+
+    </tr>
+
+
+
+    <tr align="right" bgcolor="#ffcc00">
+
+
+      <td colspan="3"><img src="images/yellowspacer.gif" height="2" width="100%"></td>
+
+
+    </tr>
+
+
+
+    <tr>
+
+
+      <td colspan="3">&nbsp;</td>
+
+
+    </tr>
+
+
+
+  <tr>
+
+ 
+    <td colspan="3"> <!-- #BeginEditable "Text" -->
+      <p>This DScaler feature allows to display using OSD some information about the TV programmes.<br>
+DScaler does not directly collect these data on-line. This task must be done by an external application.</p>
+      <p><font face="Arial" size="3"><b>Import an XMLTV file</b></font></p>
+      <p> Using the menu "Import XMLTV File", you can select on your
+hard drive a XML file and import in DScaler the EPG data contained in
+that file. That XML file must be compilant with the XMLTV DTD (either
+0.5 or 0.6).</p>
+      <p>To obtain that file, one solution is to use one of the&nbsp;grabbers
+included in the XMLTV package. A grabber is a script that will access
+a&nbsp;WEB site proposing the TV programmes, collect data relative to
+the TV programmes and finally produce a XML file compliant to the XMLTV
+DTD. This grab can require several hours depending on the number of
+channels and how many days are grabbed.</p>
+      <p>One another solution, easier and faster, is to download directly on the WEB
+that produced file containing EPG data. But of course that file must be
+available on the WEB for your country (your TV channels).</p>
+      <p><font face="Arial" size="3"><b>Import NextViewEPG database</b></font></p>
+
+
+      
+      
+      <p>NextViewEPG is an application that collects and
+displays&nbsp;Electronic Program Guide broadcasted by certain analog TV
+channels.</p>
+      <p>Using the menu "Import NextViewEPG database", you can&nbsp;import in DScaler the EPG data collected by NextViewEPG.</p>
+      <p>Please note that NextViewEPG and DScaler cannot be run at the
+same time because both of them are controling your TV card. So the idea
+is to run sometimes NextViewEPG alone to collect data and when it is
+done, you exit NextViewEPG and run DScaler to import NextViewEPG
+database. It is not necessary to do that everyday as the EPG providers
+often distribute programmes for several coming days (often 7 days).</p>
+      <p><font face="Arial" size="3"><b>Programme brwosing in OSD</b></font></p>
+
+
+      
+      
+      <p>...</p>
+      <p><font face="Arial" size="3"><b>Settings</b></font></p>
+
+
+      
+      
+      <p>All those settings are defined in the section "EPG" 
+        of the ini file and are available in the Advanced Settings dialog box in DScaler.</p>
+
+
+      
+      
+      <table border="1">
+
+
+        <tbody>
+
+          <tr>
+
+ 
+          <th>Setting</th>
+
+
+          <th>Default</th>
+
+
+          <th>Description</th>
+
+
+        </tr>
+
+
+        <tr>
+
+ 
+          <td>nxtvepg.exe</td>
+
+
+          <td>nxtvepg.exe in DScaler directory</td>
+
+
+          <td>This is the path of the NextViewEPG executable.</td>
+
+
+        </tr>
+
+
+        <tr>
+
+ 
+          <td>TimeFrameDuration</td>
+
+
+          <td>1 (hour)</td>
+
+
+          <td>This value defines the duration in hours of the time frame used by the programme browser.</td>
+
+
+        </tr>
+
+
+        <tr>
+
+ 
+          <td>DefaultSizePerc</td>
+
+
+          <td>5</td>
+
+
+          <td>This value defines the size of the font used to display EPG in OSD.</td>
+
+
+        </tr>
+
+
+        <tr>
+
+ 
+          <td>MaxCharsPerLine</td>
+
+
+          <td>75</td>
+
+
+          <td>This value defines the maximum number of characters per line for the display of a programme description in the OSD.</td>
+
+
+        </tr>
+
+
+        <tr>
+
+ 
+          <td>ChannelFiltering</td>
+
+
+          <td>OFF (0)</td>
+
+
+          <td>This boolean defines if the XML file must be filtered to take into account only channels defined in DScaler.</td>
+
+
+        </tr>
+
+
+      
+        
+        </tbody>
+      
+      </table>
+
+
+      
+      
+
+      
+      
+
+      
+      
+
+      
+      
+
+      
+      
+
+      
+      <!-- #EndEditable --> </td>
+
+
+    </tr>
+
+
+
+    <tr>
+
+
+      <td colspan="3">&nbsp;</td>
+
+
+    </tr>
+
+
+
+    <tr>
+
+
+      <td colspan="3"></td>
+
+
+    </tr>
+
+
+
+    <tr>
+
+
+      <td colspan="3">&nbsp;</td>
+
+
+    </tr>
+
+
+
+    <tr bgcolor="#ffcc00">
+
+
+      <td colspan="3">
+      
+      <div align="center"><img src="images/yellowspacer.gif" height="2" width="100%"></div>
+
+
+      </td>
+
+
+    </tr>
+
+
+  
+  </tbody>
+</table>
+
+
+
+<!-- #EndTemplate -->
+
+</body>
+</html>

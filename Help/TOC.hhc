@@ -69,7 +69,7 @@
 		</OBJECT>
 	<UL>
 		<LI> <OBJECT type="text/sitemap">
-			<param name="Name" value="Tuning & Channel Setup">
+			<param name="Name" value="Tuning &amp; Channel Setup">
 			<param name="Local" value="ProgramList.htm">
 			<param name="ImageNumber" value="11">
 			</OBJECT>
@@ -107,6 +107,10 @@
 			<param name="Name" value="Timeshifting">
 			<param name="Local" value="Timeshift.htm">
 			<param name="ImageNumber" value="11">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Electronic Program Guide">
+			<param name="Local" value="EPG.html">
 			</OBJECT>
 	</UL>
 	<LI> <OBJECT type="text/sitemap">

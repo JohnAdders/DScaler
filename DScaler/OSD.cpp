@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.107 2005-07-09 13:43:43 laurentg Exp $
+// $Id: OSD.cpp,v 1.108 2005-07-11 22:11:29 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.107  2005/07/09 13:43:43  laurentg
+// Two new EPG settings + Possibility to display next and previous programmes info
+//
 // Revision 1.106  2005/07/06 21:44:41  laurentg
 // Cut on several lines for the display of the programme description ( EPG OSD)
 //
@@ -2461,12 +2464,12 @@ static void OSD_RefreshCurrentProgrammeScreen(double Size)
 		&& (TimeNow < EndTime) )
 	{
 		sprintf(szInfo, "%.1f %%", (double)(TimeNow - StartTime) * 100.0 / (double)(EndTime - StartTime));
-		OSD_AddText(szInfo, Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos2);
+		OSD_AddText(szInfo, Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, pos1);
 	}
 	if (SubTitle.length() > 0)
 	{
 		pos2 = OSD_GetLineYpos (nLine++, dfMargin, Size);
-		OSD_AddText(SubTitle.c_str(), Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos2);
+		OSD_AddText(SubTitle.c_str(), Size, OSD_COLOR_CURRENT, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, pos2);
 	}
 	if (Description.length() > 0)
 	{

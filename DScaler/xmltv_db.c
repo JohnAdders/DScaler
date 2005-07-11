@@ -77,7 +77,7 @@
  *  Author: Tom Zoerner
  *          L. Garnier for interfacing with DScaler
  *
- *  $Id: xmltv_db.c,v 1.3 2005-07-11 16:00:52 laurentg Exp $
+ *  $Id: xmltv_db.c,v 1.4 2005-07-11 22:09:37 laurentg Exp $
  */
 
 #define DEBUG_SWITCH DEBUG_SWITCH_XMLTV
@@ -194,12 +194,15 @@ typedef struct
    XML_STR_BUF  pi_code_vp;
 #endif
    XMLTV_DTD_VERSION dtd;
+#ifdef ALL_CONTENT
    bool         isPeek;
+#endif
 
 } PARSE_STATE;
 
 static PARSE_STATE xds;
 
+#ifdef ALL_CONTENT
 #define PI_FEATURE_SUBTITLES       0x100
 #define PI_FEATURE_REPEAT          0x080
 #define PI_FEATURE_LIVE            0x040
@@ -212,6 +215,7 @@ static PARSE_STATE xds;
 #define PI_FEATURE_SOUND_2CHAN     0x001
 #define PI_FEATURE_SOUND_STEREO    0x002
 #define PI_FEATURE_SOUND_SURROUND  0x003
+#endif
 
 // ----------------------------------------------------------------------------
 // Parse timestamp
@@ -518,12 +522,12 @@ void Xmltv_TsOpen( void )
 
    XmlCdata_Reset(&xds.pi_code_sv);
    XmlCdata_Reset(&xds.pi_code_vp);
-#endif
 
    if (xds.isPeek)
    {
       XmlTags_ScanStop();
    }
+#endif
 }
 
 bool Xmltv_TsFilter( void )

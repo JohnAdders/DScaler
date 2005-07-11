@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.cpp,v 1.22 2005-07-11 14:56:06 laurentg Exp $
+// $Id: EPG.cpp,v 1.23 2005-07-11 22:12:49 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2005/07/11 14:56:06  laurentg
+// New version (0.3) of Tom Zoerner's XMLTV parser
+//
 // Revision 1.21  2005/07/11 12:49:00  laurentg
 // New menus to browse EPG at a certain day and time
 //
@@ -345,7 +348,7 @@ int CEPG::ImportNxtvepgEPGDB(LPCSTR Provider)
 	string Exe = (char*)Setting_GetValue(EPG_GetSetting(EPG_NXTVEPGPATH));
 	string OutputFile = m_FilesDir + "\\" + DEFAULT_OUTPUT_FILE;
 	string command = "\"" + m_CMDExe + "\" /C echo NextviewEPG database export ... && \""
-		+ Exe + "\" -dump xml5ltz -provider " + Provider + " > \"" + OutputFile + "\"";
+		+ Exe + "\" -dump xml5 -provider " + Provider + " > \"" + OutputFile + "\"";
 
 	LOG(2, "NextviewEPG database import ... (%s)", command.c_str());
 	int resu = ExecuteCommand(command);

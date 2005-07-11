@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.h,v 1.17 2005-07-09 13:43:43 laurentg Exp $
+// $Id: EPG.h,v 1.18 2005-07-11 12:49:00 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2005/07/09 13:43:43  laurentg
+// Two new EPG settings + Possibility to display next and previous programmes info
+//
 // Revision 1.16  2005/07/06 20:27:54  laurentg
 // Copy the file if source different from destination
 //
@@ -173,6 +176,8 @@ public:
 	void AddProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR ChannelName, LPCSTR ChannelEPGName, int ChannelNumber);
 	void AddProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR ChannelName, LPCSTR ChannelEPGName, int ChannelNumber, LPCSTR SubTitle, LPCSTR Category, LPCSTR Description);
 	void AddProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR ChannelEPGName, LPCSTR SubTitle, LPCSTR Category, LPCSTR Description);
+
+	void SetMenu(HMENU hMenu);
 
 private:
 	// Execute a command using the Windows command interpreter

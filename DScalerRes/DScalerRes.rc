@@ -1452,6 +1452,45 @@ BEGIN
             MENUITEM "P&revious Page\tShift+PgUp",  IDM_DISPLAY_EPG_PREV
             MENUITEM "Ne&xt Page\tShift+PgDn",      IDM_DISPLAY_EPG_NEXT
             MENUITEM SEPARATOR
+            POPUP "Day"
+            BEGIN
+                MENUITEM "Yesterday",                   IDM_EPG_DAY0
+                MENUITEM "Today",                       IDM_EPG_DAY1
+                MENUITEM "Tomorrow",                    IDM_EPG_DAY2
+                MENUITEM "day3",                        IDM_EPG_DAY3
+                MENUITEM "day4",                        IDM_EPG_DAY4
+                MENUITEM "day5",                        IDM_EPG_DAY5
+                MENUITEM "day6",                        IDM_EPG_DAY6
+                MENUITEM "day7",                        IDM_EPG_DAY7
+            END
+            POPUP "Hour"
+            BEGIN
+                MENUITEM "Midnight",                    IDM_EPG_HOUR0
+                MENUITEM "01 am",                       IDM_EPG_HOUR1
+                MENUITEM "02 am",                       IDM_EPG_HOUR2
+                MENUITEM "03 am",                       IDM_EPG_HOUR3
+                MENUITEM "04 am",                       IDM_EPG_HOUR4
+                MENUITEM "05 am",                       IDM_EPG_HOUR5
+                MENUITEM "06 am",                       IDM_EPG_HOUR6
+                MENUITEM "07 am",                       IDM_EPG_HOUR7
+                MENUITEM "08 am",                       IDM_EPG_HOUR8
+                MENUITEM "09 am",                       IDM_EPG_HOUR9
+                MENUITEM "10 am",                       IDM_EPG_HOUR10
+                MENUITEM "11 am",                       IDM_EPG_HOUR11
+                MENUITEM "Midday",                      IDM_EPG_HOUR12
+                MENUITEM "01 pm",                       IDM_EPG_HOUR13
+                MENUITEM "02 pm",                       IDM_EPG_HOUR14
+                MENUITEM "03 pm",                       IDM_EPG_HOUR15
+                MENUITEM "04 pm",                       IDM_EPG_HOUR16
+                MENUITEM "05 pm",                       IDM_EPG_HOUR17
+                MENUITEM "06 pm",                       IDM_EPG_HOUR18
+                MENUITEM "07 pm",                       IDM_EPG_HOUR19
+                MENUITEM "08 pm",                       IDM_EPG_HOUR20
+                MENUITEM "09 pm",                       IDM_EPG_HOUR21
+                MENUITEM "10 pm",                       IDM_EPG_HOUR22
+                MENUITEM "11 pm",                       IDM_EPG_HOUR23
+            END
+            MENUITEM SEPARATOR
             MENUITEM "&Show Programme\tShift+Enter", IDM_EPG_VIEW_PROG
         END
     END

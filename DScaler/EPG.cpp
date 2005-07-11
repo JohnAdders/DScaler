@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.cpp,v 1.20 2005-07-09 13:43:43 laurentg Exp $
+// $Id: EPG.cpp,v 1.21 2005-07-11 12:49:00 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2005/07/09 13:43:43  laurentg
+// Two new EPG settings + Possibility to display next and previous programmes info
+//
 // Revision 1.19  2005/07/06 20:27:54  laurentg
 // Copy the file if source different from destination
 //
@@ -647,6 +650,7 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 	time_t TimeMin;
 	time_t TimeMax;
 	struct tm *datetime_tm;
+	int sec, min, hour;
 	string Title;
 	string ChannelName;
 	string ChannelEPGName;
@@ -919,6 +923,102 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 
 	case IDM_HIDE_EPG:
         OSD_Clear();
+        return TRUE;
+        break;
+
+	case IDM_EPG_DAY0:
+	case IDM_EPG_DAY1:
+	case IDM_EPG_DAY2:
+	case IDM_EPG_DAY3:
+	case IDM_EPG_DAY4:
+	case IDM_EPG_DAY5:
+	case IDM_EPG_DAY6:
+	case IDM_EPG_DAY7:
+		if ( (m_Displayed != 1) || (m_UseProgFronBrowser == FALSE) )
+		{
+			time(&TimeMin);
+			TimeMin += (LOWORD(wParam) - IDM_EPG_DAY0 - 1) * ONE_DAY;
+			if ((m_Displayed != 1) && (m_SearchTimeMin != 0))
+			{
+				datetime_tm = localtime(&m_SearchTimeMin);
+				sec = datetime_tm->tm_sec;
+				min = datetime_tm->tm_min;
+				hour = datetime_tm->tm_hour;
+				datetime_tm = localtime(&TimeMin);
+				datetime_tm->tm_sec = sec;
+				datetime_tm->tm_min = min;
+				datetime_tm->tm_hour = hour;
+				TimeMin = mktime(datetime_tm);
+			}
+			else
+			{
+				datetime_tm = localtime(&TimeMin);
+				datetime_tm->tm_sec = 0;
+				datetime_tm->tm_min = 0;
+				TimeMin = mktime(datetime_tm);
+			}
+			TimeMax = TimeMin + ONE_HOUR * Setting_GetValue(EPG_GetSetting(EPG_TIMEFRAMEDURATION)) - 1;
+			// Check if new EPG data have to be loaded
+			LoadEPGDataIfNeeded(TimeMin, TimeMax, PRELOADING_EARLIER, PRELOADING_LATER);
+			// Select the corresponding programmes
+			SearchForProgrammes(NULL, TimeMin, TimeMax);
+			m_UseProgFronBrowser = TRUE;
+			// Display the OSD screen
+			OSD_ShowInfosScreen(3, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
+			m_Displayed = 2;
+		}
+        return TRUE;
+        break;
+
+	case IDM_EPG_HOUR0:
+	case IDM_EPG_HOUR1:
+	case IDM_EPG_HOUR2:
+	case IDM_EPG_HOUR3:
+	case IDM_EPG_HOUR4:
+	case IDM_EPG_HOUR5:
+	case IDM_EPG_HOUR6:
+	case IDM_EPG_HOUR7:
+	case IDM_EPG_HOUR8:
+	case IDM_EPG_HOUR9:
+	case IDM_EPG_HOUR10:
+	case IDM_EPG_HOUR11:
+	case IDM_EPG_HOUR12:
+	case IDM_EPG_HOUR13:
+	case IDM_EPG_HOUR14:
+	case IDM_EPG_HOUR15:
+	case IDM_EPG_HOUR16:
+	case IDM_EPG_HOUR17:
+	case IDM_EPG_HOUR18:
+	case IDM_EPG_HOUR19:
+	case IDM_EPG_HOUR20:
+	case IDM_EPG_HOUR21:
+	case IDM_EPG_HOUR22:
+	case IDM_EPG_HOUR23:
+		if ( (m_Displayed != 1) || (m_UseProgFronBrowser == FALSE) )
+		{
+			if ((m_Displayed != 1) && (m_SearchTimeMin != 0))
+			{
+				TimeMin = m_SearchTimeMin;
+			}
+			else
+			{
+				time(&TimeMin);
+			}
+			datetime_tm = localtime(&TimeMin);
+			datetime_tm->tm_sec = 0;
+			datetime_tm->tm_min = 0;
+			datetime_tm->tm_hour = LOWORD(wParam) - IDM_EPG_HOUR0;
+			TimeMin = mktime(datetime_tm);
+			TimeMax = TimeMin + ONE_HOUR * Setting_GetValue(EPG_GetSetting(EPG_TIMEFRAMEDURATION)) - 1;
+			// Check if new EPG data have to be loaded
+			LoadEPGDataIfNeeded(TimeMin, TimeMax, PRELOADING_EARLIER, PRELOADING_LATER);
+			// Select the corresponding programmes
+			SearchForProgrammes(NULL, TimeMin, TimeMax);
+			m_UseProgFronBrowser = TRUE;
+			// Display the OSD screen
+			OSD_ShowInfosScreen(3, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
+			m_Displayed = 2;
+		}
         return TRUE;
         break;
 
@@ -1251,6 +1351,74 @@ int CEPG::GetNextviewEPGProviders()
     }
 
 	return m_NextviewProviders.size();
+}
+
+
+void CEPG::SetMenu(HMENU hMenu)
+{
+	static time_t	LastDay = 0;
+	time_t			Day;
+	struct tm		*datetime_tm;
+	char			*week_days[] = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+
+	time(&Day);
+	datetime_tm = localtime(&Day);
+	datetime_tm->tm_sec = 0;
+	datetime_tm->tm_min = 0;
+	datetime_tm->tm_hour = 0;
+	Day = mktime(datetime_tm);
+	if (LastDay != Day)
+	{
+		LastDay = Day;
+
+		HMENU hMenuEPGDay = GetEPGDaySubmenu();
+		if (hMenuEPGDay == NULL)
+		{
+			return;
+		}
+
+        ModifyMenu(hMenuEPGDay, IDM_EPG_DAY3, MF_STRING, IDM_EPG_DAY3, week_days[(datetime_tm->tm_wday + 2) % 7]);
+        ModifyMenu(hMenuEPGDay, IDM_EPG_DAY4, MF_STRING, IDM_EPG_DAY4, week_days[(datetime_tm->tm_wday + 3) % 7]);
+        ModifyMenu(hMenuEPGDay, IDM_EPG_DAY5, MF_STRING, IDM_EPG_DAY5, week_days[(datetime_tm->tm_wday + 4) % 7]);
+        ModifyMenu(hMenuEPGDay, IDM_EPG_DAY6, MF_STRING, IDM_EPG_DAY6, week_days[(datetime_tm->tm_wday + 5) % 7]);
+        ModifyMenu(hMenuEPGDay, IDM_EPG_DAY7, MF_STRING, IDM_EPG_DAY7, week_days[(datetime_tm->tm_wday + 6) % 7]);
+    }
+
+	BOOL bEnable = (m_Displayed != 1) || (m_UseProgFronBrowser == FALSE);
+
+	EnableMenuItem(hMenu, IDM_EPG_DAY0, bEnable ? MF_ENABLED : MF_GRAYED);
+	EnableMenuItem(hMenu, IDM_EPG_DAY1, bEnable ? MF_ENABLED : MF_GRAYED);
+	EnableMenuItem(hMenu, IDM_EPG_DAY2, bEnable ? MF_ENABLED : MF_GRAYED);
+	EnableMenuItem(hMenu, IDM_EPG_DAY3, bEnable ? MF_ENABLED : MF_GRAYED);
+	EnableMenuItem(hMenu, IDM_EPG_DAY4, bEnable ? MF_ENABLED : MF_GRAYED);
+	EnableMenuItem(hMenu, IDM_EPG_DAY5, bEnable ? MF_ENABLED : MF_GRAYED);
+	EnableMenuItem(hMenu, IDM_EPG_DAY6, bEnable ? MF_ENABLED : MF_GRAYED);
+	EnableMenuItem(hMenu, IDM_EPG_DAY7, bEnable ? MF_ENABLED : MF_GRAYED);
+
+	EnableMenuItem(hMenu, IDM_EPG_HOUR0, bEnable ? MF_ENABLED : MF_GRAYED);
+	EnableMenuItem(hMenu, IDM_EPG_HOUR1, bEnable ? MF_ENABLED : MF_GRAYED);
+	EnableMenuItem(hMenu, IDM_EPG_HOUR2, bEnable ? MF_ENABLED : MF_GRAYED);
+	EnableMenuItem(hMenu, IDM_EPG_HOUR3, bEnable ? MF_ENABLED : MF_GRAYED);
+	EnableMenuItem(hMenu, IDM_EPG_HOUR4, bEnable ? MF_ENABLED : MF_GRAYED);
+	EnableMenuItem(hMenu, IDM_EPG_HOUR5, bEnable ? MF_ENABLED : MF_GRAYED);
+	EnableMenuItem(hMenu, IDM_EPG_HOUR6, bEnable ? MF_ENABLED : MF_GRAYED);
+	EnableMenuItem(hMenu, IDM_EPG_HOUR7, bEnable ? MF_ENABLED : MF_GRAYED);
+	EnableMenuItem(hMenu, IDM_EPG_HOUR8, bEnable ? MF_ENABLED : MF_GRAYED);
+	EnableMenuItem(hMenu, IDM_EPG_HOUR9, bEnable ? MF_ENABLED : MF_GRAYED);
+	EnableMenuItem(hMenu, IDM_EPG_HOUR10, bEnable ? MF_ENABLED : MF_GRAYED);
+	EnableMenuItem(hMenu, IDM_EPG_HOUR11, bEnable ? MF_ENABLED : MF_GRAYED);
+	EnableMenuItem(hMenu, IDM_EPG_HOUR12, bEnable ? MF_ENABLED : MF_GRAYED);
+	EnableMenuItem(hMenu, IDM_EPG_HOUR13, bEnable ? MF_ENABLED : MF_GRAYED);
+	EnableMenuItem(hMenu, IDM_EPG_HOUR14, bEnable ? MF_ENABLED : MF_GRAYED);
+	EnableMenuItem(hMenu, IDM_EPG_HOUR15, bEnable ? MF_ENABLED : MF_GRAYED);
+	EnableMenuItem(hMenu, IDM_EPG_HOUR16, bEnable ? MF_ENABLED : MF_GRAYED);
+	EnableMenuItem(hMenu, IDM_EPG_HOUR17, bEnable ? MF_ENABLED : MF_GRAYED);
+	EnableMenuItem(hMenu, IDM_EPG_HOUR18, bEnable ? MF_ENABLED : MF_GRAYED);
+	EnableMenuItem(hMenu, IDM_EPG_HOUR19, bEnable ? MF_ENABLED : MF_GRAYED);
+	EnableMenuItem(hMenu, IDM_EPG_HOUR20, bEnable ? MF_ENABLED : MF_GRAYED);
+	EnableMenuItem(hMenu, IDM_EPG_HOUR21, bEnable ? MF_ENABLED : MF_GRAYED);
+	EnableMenuItem(hMenu, IDM_EPG_HOUR22, bEnable ? MF_ENABLED : MF_GRAYED);
+	EnableMenuItem(hMenu, IDM_EPG_HOUR23, bEnable ? MF_ENABLED : MF_GRAYED);
 }
 
 

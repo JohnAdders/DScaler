@@ -1262,6 +1262,38 @@
 #define IDM_EPG_VIEW_PROG               32989
 #define IDM_HIDE_EPG                    32990
 #define IDM_IMPORT_NEXTVIEW             32991
+#define IDM_EPG_DAY0                    32992
+#define IDM_EPG_DAY1                    32993
+#define IDM_EPG_DAY2                    32994
+#define IDM_EPG_DAY3                    32995
+#define IDM_EPG_DAY4                    32996
+#define IDM_EPG_DAY5                    32997
+#define IDM_EPG_DAY6                    32998
+#define IDM_EPG_DAY7                    32999
+#define IDM_EPG_HOUR0                   33000
+#define IDM_EPG_HOUR1                   33001
+#define IDM_EPG_HOUR2                   33002
+#define IDM_EPG_HOUR3                   33003
+#define IDM_EPG_HOUR4                   33004
+#define IDM_EPG_HOUR5                   33005
+#define IDM_EPG_HOUR6                   33006
+#define IDM_EPG_HOUR7                   33007
+#define IDM_EPG_HOUR8                   33008
+#define IDM_EPG_HOUR9                   33009
+#define IDM_EPG_HOUR10                  33010
+#define IDM_EPG_HOUR11                  33011
+#define IDM_EPG_HOUR12                  33012
+#define IDM_EPG_HOUR13                  33013
+#define IDM_EPG_HOUR14                  33014
+#define IDM_EPG_HOUR15                  33015
+#define IDM_EPG_HOUR16                  33016
+#define IDM_EPG_HOUR17                  33017
+#define IDM_EPG_HOUR18                  33018
+#define IDM_EPG_HOUR19                  33019
+#define IDM_EPG_HOUR20                  33020
+#define IDM_EPG_HOUR21                  33021
+#define IDM_EPG_HOUR22                  33022
+#define IDM_EPG_HOUR23                  33023
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
 #define IDM_POPUP_MODE                  65535
@@ -1282,7 +1314,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        267
-#define _APS_NEXT_COMMAND_VALUE         32992
+#define _APS_NEXT_COMMAND_VALUE         33024
 #define _APS_NEXT_CONTROL_VALUE         1000
 #define _APS_NEXT_SYMED_VALUE           2526
 #endif

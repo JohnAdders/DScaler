@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.378 2005-03-26 18:53:22 laurentg Exp $
+// $Id: DScaler.cpp,v 1.379 2005-07-11 12:49:00 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.378  2005/03/26 18:53:22  laurentg
+// EPG code improved
+// => possibility to set the EPG channel name in the channel setup dialog box
+// => automatic loading of new data when needed
+// => OSD scrrens updated
+// => first step for programs "browser"
+//
 // Revision 1.377  2005/03/23 14:20:37  adcockj
 // Test fix for threading issues
 //
@@ -5784,6 +5791,8 @@ void SetMenuAnalog()
         pCalibration->SetMenu(hMenu);
     }
 
+	MyEPG.SetMenu(hMenu);
+
     CheckMenuItemBool(hMenu, ID_SETTINGS_SAVESETTINGSPERCHANNEL, SettingsPerChannel_IsPerChannel());
     CheckMenuItemBool(hMenu, ID_SETTINGS_SAVESETTINGSPERINPUT, SettingsPerChannel_IsPerInput());
     CheckMenuItemBool(hMenu, ID_SETTINGS_SAVESETTINGSPERFORMAT, SettingsPerChannel_IsPerFormat());
@@ -5979,6 +5988,19 @@ HMENU GetOutResoSubmenu()
     reduc = !strcmp(string, "&Channels") ? 0 : 1;
 
     HMENU hmenu = GetOrCreateSubSubMenu(3-reduc, 10, "Switch Resolution in F&ull Screen");
+    ASSERT(hmenu != NULL);
+
+    return hmenu;
+}
+
+HMENU GetEPGDaySubmenu()
+{
+    char string[128] = "\0";
+    int reduc;
+
+    GetMenuString(hMenu, 2, string, sizeof(string), MF_BYPOSITION);
+    reduc = !strcmp(string, "&Channels") ? 0 : 1;
+    HMENU hmenu = GetOrCreateSubSubSubMenu(8-reduc, 12, 15, "Day");
     ASSERT(hmenu != NULL);
 
     return hmenu;

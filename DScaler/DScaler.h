@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.55 2005-03-23 14:20:56 adcockj Exp $
+// $Id: DScaler.h,v 1.56 2005-07-11 12:49:00 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -90,6 +90,7 @@ HMENU GetOSDSubmenu();
 HMENU GetPatternsSubmenu();
 HMENU GetVTCodepageSubmenu();
 HMENU GetOutResoSubmenu();
+HMENU GetEPGDaySubmenu();
 
 void SetMixedModeMenu(HMENU hMenu, BOOL bShow);
 

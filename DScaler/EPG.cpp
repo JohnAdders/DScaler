@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.cpp,v 1.21 2005-07-11 12:49:00 laurentg Exp $
+// $Id: EPG.cpp,v 1.22 2005-07-11 14:56:06 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2005/07/11 12:49:00  laurentg
+// New menus to browse EPG at a certain day and time
+//
 // Revision 1.20  2005/07/09 13:43:43  laurentg
 // Two new EPG settings + Possibility to display next and previous programmes info
 //
@@ -103,7 +106,12 @@
 #include "OSD.h"
 #include "Providers.h"
 #include "DScaler.h"
-#include "xmltv_db.h"
+
+#ifdef __cplusplus
+extern "C" void XmltvParser_Start( const char * pFilename );
+#else
+void XmltvParser_Start( const char * pFilename );
+#endif
 
 
 #define	ONE_DAY				86400
@@ -396,7 +404,8 @@ int CEPG::LoadEPGData(time_t DateMin, time_t DateMax)
 	m_LoadedTimeMax = DateMax;
 
 	string InputXMLFile = m_FilesDir + "\\" + DEFAULT_OUTPUT_FILE;
-	return Xmltv_LoadFile(InputXMLFile.c_str());
+	XmltvParser_Start(InputXMLFile.c_str());
+	return 0;
 }
 
 

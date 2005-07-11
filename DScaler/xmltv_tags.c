@@ -23,15 +23,16 @@
  *    - re-sync after error when toplevel tags are found: channel, timeslot (programme)
  *    - search stack upwards when mis-matching closing tag is encountered
  *    - don't accept PCDATA or attributes in error state
- *    - don't accept tags or PCDATA after end of <tv> element
+ *    - don't accept tags or PCDATA after </tv>
  *    - check that attribute is set only once per tag (XML spec ch. 3.1)
- *    - check for unexpected PCDATA in non-MIXED elements
+ *    - complain about unexpected PCDATA in non-MIXED elements
  *    - strip whitespace from attributes which are not of type CDATA
- *    - dynamically grow stack if necessary
+ *    - transcode non-ASCII chars in tag and attribute names (not req. for XMLTV)
+ *    - dynamically grow parser stack if necessary (not req. for w.-f. XMLTV)
  *
  *  Author: Tom Zoerner
  *
- *  $Id: xmltv_tags.c,v 1.1 2005-07-06 19:42:39 laurentg Exp $
+ *  $Id: xmltv_tags.c,v 1.2 2005-07-11 14:56:06 laurentg Exp $
  */
 
 #define DEBUG_SWITCH DEBUG_SWITCH_XMLTV
@@ -350,8 +351,11 @@ static const XMLTV_TAG xmltv_auto_detect_tv[] =
    XMLTV_DETECT_TIMESLOT
 };
 
-static void XmltvTags_SetVersion5( void );
-static void XmltvTags_SetVersion6( void );
+static void XmltvTags_SetLanguage( XML_STR_BUF * pBuf );
+static void XmltvTags_SetVersion5_ByTag( void );
+static void XmltvTags_SetVersion5_ByAttr( XML_STR_BUF * pBuf );
+static void XmltvTags_SetVersion6_ByTag( void );
+static void XmltvTags_SetVersion6_ByAttr( XML_STR_BUF * pBuf );
 
 // ----------------------------------------------------------------------------
 // Definition of DTD 0.5 tag attributes & their callback functions
@@ -379,7 +383,7 @@ static const XMLTV_ATTS xmltv5_attr_channel[] =
 };
 static const XMLTV_ATTS xmltv5_attr_disp_name[] =
 {
-   { "lang", NULL }
+   { "lang", XmltvTags_SetLanguage }
 };
 static const XMLTV_ATTS xmltv5_attr_icon[] =
 {
@@ -398,21 +402,17 @@ static const XMLTV_ATTS xmltv5_attr_prog[] =
    { "videoplus", Xmltv_TsCodeTimeSetVP },
    { "clumpidx", NULL }
 };
-static const XMLTV_ATTS xmltv5_attr_desc[] =
-{
-   { "lang", NULL }
-};
-static const XMLTV_ATTS xmltv5_attr_pi_cat[] =
-{
-   { "lang", NULL }
-};
 static const XMLTV_ATTS xmltv5_attr_pi_subt[] =
 {
-   { "type", Xmltv_PiSubtitlesSetType, TRUE }
+   { "type", Xmltv_PiSubtitlesSetType }
 };
 static const XMLTV_ATTS xmltv5_attr_pi_prat[] =
 {
    { "system", Xmltv_PiRatingSetSystem }
+};
+static const XMLTV_ATTS xmltv5_attr_lang_only[] =
+{
+   { "lang", XmltvTags_SetLanguage }
 };
 
 // ----------------------------------------------------------------------------
@@ -422,7 +422,7 @@ static const XMLTV_ATTS xmltv6_attr_tv[] =
 {
    { "from", NULL },
    { "until", NULL },
-   { "xml:lang", NULL }
+   { "xml:lang", XmltvTags_SetLanguage }
 };
 static const XMLTV_ATTS xmltv6_attr_about[] =
 {
@@ -435,10 +435,6 @@ static const XMLTV_ATTS xmltv6_attr_src_data[] =
 static const XMLTV_ATTS xmltv6_attr_channel[] =
 {
    { "id", Xmltv_ChannelSetId }
-};
-static const XMLTV_ATTS xmltv6_attr_disp_name[] =
-{
-   { "xml:lang", NULL }
 };
 static const XMLTV_ATTS xmltv6_attr_ts[] =
 {
@@ -465,28 +461,33 @@ static const XMLTV_ATTS xmltv6_attr_prog[] =
 {
    { "newness", NULL, TRUE },
    { "will-repeat", NULL, TRUE },
-   { "xml:lang", NULL }
+   { "xml:lang", XmltvTags_SetLanguage }
 };
 static const XMLTV_ATTS xmltv6_attr_title[] =
 {
    { "original", NULL, TRUE },
-   { "lang", NULL }
+   { "xml:lang", XmltvTags_SetLanguage }
 };
 static const XMLTV_ATTS xmltv6_attr_desc[] =
 {
    { "type", NULL, TRUE },
-   { "lang", NULL }
+   { "xml:lang", XmltvTags_SetLanguage }
 };
 static const XMLTV_ATTS xmltv6_attr_actor[] =
 {
    { "guest", NULL, TRUE }
+};
+static const XMLTV_ATTS xmltv6_attr_adaptor_title[] =
+{
+   { "original", NULL, TRUE },
+   { "xml:lang", XmltvTags_SetLanguage }
 };
 static const XMLTV_ATTS xmltv6_attr_pi_cat[] =
 {
    { "type", Xmltv_PiCatSetType, TRUE },
    { "system", Xmltv_PiCatSetSystem },
    { "code", Xmltv_PiCatSetCode },
-   { "lang", NULL }
+   { "xml:lang", XmltvTags_SetLanguage }
 };
 static const XMLTV_ATTS xmltv6_attr_pi_aspect[] =
 {
@@ -513,6 +514,26 @@ static const XMLTV_ATTS xmltv6_attr_pi_erat[] =
 static const XMLTV_ATTS xmltv6_attr_link[] =
 {
    { "href", Xmltv_LinkHrefSet }
+};
+static const XMLTV_ATTS xmltv6_attr_lang_only[] =
+{
+   { "xml:lang", XmltvTags_SetLanguage }
+};
+
+// ----------------------------------------------------------------------------
+// Definition of tag attributes for DTD version auto-detection
+
+static const XMLTV_ATTS xmltv_auto_detect_attr_tv[] =
+{
+   { "source-info-name", XmltvTags_SetVersion5_ByAttr },  // DTD 0.5
+   { "source-info-url", XmltvTags_SetVersion5_ByAttr },
+   { "source-data-url", XmltvTags_SetVersion5_ByAttr },
+   { "generator-info-name", XmltvTags_SetVersion5_ByAttr },
+   { "generator-info-url", XmltvTags_SetVersion5_ByAttr },
+   { "date", XmltvTags_SetVersion5_ByAttr },
+   { "from", XmltvTags_SetVersion6_ByAttr }, // DTD 0.6
+   { "until", XmltvTags_SetVersion6_ByAttr },
+   { "xml:lang", XmltvTags_SetVersion6_ByAttr }
 };
 
 // ----------------------------------------------------------------------------
@@ -580,20 +601,20 @@ static const XML_TAGDEF xmltv_tag_def[] =
      XMLTV_NO_ATTR,
    },
    { XMLTV5_PROG, "programme", XML_CHILDS(xmltv5_tags_programme), XML_NO_PCDATA,
-     { Xmltv_TsOpen, Xmltv_TsClose, NULL, Xmltv_TsFilter },
+     { Xmltv_TsOpen, Xmltv_TsClose, NULL, NULL /*Xmltv_TsFilter*/ },
      XMLTV_ATTR(xmltv5_attr_prog),
    },
    { XMLTV5_PI_TITLE, "title", XML_NO_CHILDS, XML_HAS_PCDATA,
      { NULL, NULL, Xmltv_PiTitleAdd, NULL },
-     XMLTV_NO_ATTR,
+     XMLTV_ATTR(xmltv5_attr_lang_only),
    },
    { XMLTV5_PI_TITLE2, "sub-title", XML_NO_CHILDS, XML_HAS_PCDATA,
      { NULL, NULL, Xmltv_PiEpisodeTitleAdd, NULL },
-     XMLTV_NO_ATTR,
+     XMLTV_ATTR(xmltv5_attr_lang_only),
    },
    { XMLTV5_PI_DESC, "desc", XML_NO_CHILDS, XML_HAS_PCDATA,
      { Xmltv_PiDescOpen, Xmltv_PiDescClose, Xmltv_ParagraphAdd, NULL },
-     XMLTV_ATTR(xmltv5_attr_desc),
+     XMLTV_ATTR(xmltv5_attr_lang_only),
    },
    { XMLTV5_PI_CREDITS, "credits", XML_CHILDS(xmltv5_tags_credits), XML_NO_PCDATA,
      { Xmltv_PiCreditsOpen, Xmltv_PiCreditsClose, NULL, NULL },
@@ -637,7 +658,7 @@ static const XML_TAGDEF xmltv_tag_def[] =
    },
    { XMLTV5_PI_CAT, "category", XML_NO_CHILDS, XML_HAS_PCDATA,
      { Xmltv_PiCatOpen, Xmltv_PiCatClose, Xmltv_PiCatAddText, NULL },
-     XMLTV_ATTR(xmltv5_attr_pi_cat),
+     XMLTV_ATTR(xmltv5_attr_lang_only),
    },
    { XMLTV5_PI_VIDEO, "video", XML_CHILDS(xmltv5_tags_video), XML_NO_PCDATA,
      XMLTV_NO_OPEN_CLOSE_CB,
@@ -707,10 +728,10 @@ static const XML_TAGDEF xmltv_tag_def[] =
    },
    { XMLTV6_CHN_DISP_NAME, "display-name", XML_NO_CHILDS, XML_HAS_PCDATA,
      { NULL, NULL, Xmltv_ChannelAddName, NULL },
-     XMLTV_ATTR(xmltv6_attr_disp_name),
+     XMLTV_ATTR(xmltv6_attr_lang_only),
    },
    { XMLTV6_TIMESLOT, "timeslot", XML_CHILDS(xmltv6_tags_timeslot), XML_NO_PCDATA,
-     { Xmltv_TsOpen, Xmltv_TsClose, NULL, Xmltv_TsFilter },
+     { Xmltv_TsOpen, Xmltv_TsClose, NULL, NULL /*Xmltv_TsFilter*/ },
      XMLTV_ATTR(xmltv6_attr_ts),
    },
    { XMLTV6_TS_CODE_TIME, "code-time", XML_NO_CHILDS, XML_NO_PCDATA,
@@ -753,7 +774,7 @@ static const XML_TAGDEF xmltv_tag_def[] =
      { NULL, NULL, Xmltv_PiCreditsAddDirector, NULL },
      XMLTV_NO_ATTR,
    },
-   { XMLTV6_PI_CRED_ROLE, "role", XML_CHILDS(xmltv6_tags_credits_role), XML_NO_PCDATA,
+   { XMLTV6_PI_CRED_ROLE, "role", XML_CHILDS(xmltv6_tags_credits_role), XML_DISCARD_PCDATA,
      XMLTV_NO_OPEN_CLOSE_CB, /* TODO: open/close: combine actor&role */
      XMLTV_NO_ATTR,
    },
@@ -761,9 +782,9 @@ static const XML_TAGDEF xmltv_tag_def[] =
      { NULL, NULL, Xmltv_PiCreditsAddActor, NULL },
      XMLTV_ATTR(xmltv6_attr_actor),
    },
-   { XMLTV6_PI_CRED_ROLE_CHAR, "character", XML_NO_CHILDS, XML_NO_PCDATA,
+   { XMLTV6_PI_CRED_ROLE_CHAR, "character", XML_NO_CHILDS, XML_DISCARD_PCDATA,
      XMLTV_NO_OPEN_CLOSE_CB, /* TODO */
-     XMLTV_NO_ATTR,
+     XMLTV_ATTR(xmltv6_attr_lang_only),
    },
    { XMLTV6_PI_CRED_WRITER, "writer", XML_NO_CHILDS, XML_HAS_PCDATA,
      { NULL, NULL, Xmltv_PiCreditsAddWriter, NULL },
@@ -801,13 +822,13 @@ static const XML_TAGDEF xmltv_tag_def[] =
      XMLTV_NO_OPEN_CLOSE_CB /*TODO*/,
      XMLTV_NO_ATTR,
    },
-   { XMLTV6_PI_CRED_ADAP_TYPE, "type", XML_NO_CHILDS, XML_NO_PCDATA,
+   { XMLTV6_PI_CRED_ADAP_TYPE, "type", XML_NO_CHILDS, XML_DISCARD_PCDATA,
      XMLTV_NO_OPEN_CLOSE_CB /*TODO*/,
-     XMLTV_NO_ATTR,
+     XMLTV_ATTR(xmltv6_attr_lang_only),
    },
    { XMLTV6_PI_CRED_ADAP_TITLE, "title", XML_NO_CHILDS, XML_NO_PCDATA,
      XMLTV_NO_OPEN_CLOSE_CB /*TODO*/,
-     XMLTV_NO_ATTR,
+     XMLTV_ATTR(xmltv6_attr_adaptor_title),
    },
    { XMLTV6_PI_CRED_ADAP_WRITER, "writer", XML_NO_CHILDS, XML_NO_PCDATA,
      XMLTV_NO_OPEN_CLOSE_CB /*TODO*/,
@@ -887,11 +908,11 @@ static const XML_TAGDEF xmltv_tag_def[] =
    },
    { XMLTV6_LINK_TEXT, "text", XML_NO_CHILDS, XML_HAS_PCDATA,
      { NULL, NULL, Xmltv_LinkAddText, NULL },
-     XMLTV_NO_ATTR,
+     XMLTV_ATTR(xmltv6_attr_lang_only),
    },
    { XMLTV6_LINK_BLURB, "blurb", XML_CHILDS(xmltv6_tags_link_blurb), XML_NO_PCDATA,
      XMLTV_NO_OPEN_CLOSE_CB,
-     XMLTV_NO_ATTR,
+     XMLTV_ATTR(xmltv6_attr_lang_only),
    },
    { XMLTV6_LINK_BLURB_P, "p", XML_NO_CHILDS, XML_HAS_PCDATA,
      { NULL, NULL, Xmltv_LinkBlurbAddText, NULL },
@@ -905,18 +926,18 @@ static const XML_TAGDEF xmltv_tag_def[] =
    },
    { XMLTV_DETECT_TV, "tv", XML_CHILDS(xmltv_auto_detect_tv), XML_NO_PCDATA,
      XMLTV_NO_OPEN_CLOSE_CB,
-     XMLTV_NO_ATTR
+     XMLTV_ATTR(xmltv_auto_detect_attr_tv)
    },
    { XMLTV_DETECT_PROG, "programme", XML_NO_CHILDS, XML_NO_PCDATA,
-     { XmltvTags_SetVersion5, NULL, NULL},
+     { XmltvTags_SetVersion5_ByTag, NULL, NULL},
      XMLTV_NO_ATTR
    },
    { XMLTV_DETECT_ABOUT, "about", XML_NO_CHILDS, XML_NO_PCDATA,
-     { XmltvTags_SetVersion6, NULL, NULL},
+     { XmltvTags_SetVersion6_ByTag, NULL, NULL},
      XMLTV_NO_ATTR
    },
    { XMLTV_DETECT_TIMESLOT, "timeslot", XML_NO_CHILDS, XML_NO_PCDATA,
-     { XmltvTags_SetVersion6, NULL, NULL},
+     { XmltvTags_SetVersion6_ByTag, NULL, NULL},
      XMLTV_NO_ATTR
    },
    { XMLTV_SKIP, "*skip*", XML_NO_CHILDS, XML_DISCARD_PCDATA,
@@ -980,17 +1001,61 @@ static void XmltvScan_CheckTablesConsistency( void )
 //
 #define XML_STACK_MAX_DEPTH   20
 #define XML_SKIP_ATTRIB       (~0)
+#define XML_MAX_SYNTAX_ERR    10
 
 typedef struct
 {
-   XMLTV_TAG    tagStack[XML_STACK_MAX_DEPTH];
-   uint         stackIdx;
-   bool         syntaxError;
-   uint         xmlAttrToken;
-   XMLTV_DTD_VERSION dtd;
+   XMLTV_TAG            tagStack[XML_STACK_MAX_DEPTH];
+   XML_LANG_CODE        lang[XML_STACK_MAX_DEPTH];
+   uint                 stackIdx;
+   uint                 syntaxError;
+   bool                 earlyStop;
+   uint                 xmlAttrToken;
+   XMLTV_DTD_VERSION    dtd;
+   XML_ENCODING         encoding;
+   XMLTV_DETECTION      detected;
 } XML_PARSER_STATE;
 
 static XML_PARSER_STATE xps;
+
+// ----------------------------------------------------------------------------
+// Parse language code
+// - this is a callback function for the "lang" and "xml:lang" attributes
+// - implemented here to support inheritage to child elements
+// - expects language codes in RFC 1766 style; only the language itself is
+//   evaluated, possible dialect or country tags are ignored
+//
+static void XmltvTags_SetLanguage( XML_STR_BUF * pBuf )
+{
+   char * pStr;
+   uint  idx;
+   XML_LANG_CODE code;
+
+   pStr = XML_STR_BUF_GET_STR(*pBuf);
+   code = 0;
+
+   for (idx = 0; idx < 4; idx++)
+   {
+      if ((*pStr >= 'a') && (*pStr <= 'z'))
+         code = (code << 8) | (*pStr - 'a' + 'A');
+      else if ((*pStr >= 'A') && (*pStr <= 'Z'))
+         code = (code << 8) | *pStr;
+      else
+         break;
+
+      pStr++;
+   }
+
+   xps.lang[xps.stackIdx] = code;
+}
+
+// ----------------------------------------------------------------------------
+// Query the language of the current element's content
+// 
+XML_LANG_CODE XmltvTags_GetLanguage( void )
+{
+   return xps.lang[xps.stackIdx];
+}
 
 // ----------------------------------------------------------------------------
 // Push new tag on parser stack
@@ -1024,7 +1089,12 @@ void XmltvTags_Open( const char * pTagName )
          xps.stackIdx += 1;
          xps.tagStack[xps.stackIdx] = *pChild;
          xps.xmlAttrToken = XML_SKIP_ATTRIB;
-         xps.syntaxError = FALSE;
+         xps.syntaxError = 0;
+
+         if (xps.dtd == XMLTV_DTD_6)
+            xps.lang[xps.stackIdx] = xps.lang[xps.stackIdx - 1];
+         else
+            xps.lang[xps.stackIdx] = XML_LANG_UNKNOWN;
 
          state = *pChild;
          if (xmltv_tag_def[state].cb.TagOpen != NULL)
@@ -1035,6 +1105,11 @@ void XmltvTags_Open( const char * pTagName )
       else
       {
          dprintf2("XmltvTag-Open: ignore <%s> inside <%s>\n", pTagName, xmltv_tag_def[state].pTagName);
+         if ((xps.stackIdx == 0) && (xps.syntaxError == 0))
+         {
+            Xmltv_SyntaxError("XMLTV toplevel tag is not <tv> - probably not an XMLTV document", pTagName);
+            xps.detected |= XMLTV_DETECTED_NOT_TV;
+         }
          xps.stackIdx += 1;
          xps.tagStack[xps.stackIdx] = XMLTV_SKIP;
       }
@@ -1066,7 +1141,7 @@ bool XmltvTags_Close( const char * pTagName )
             if (pTagName != NULL)
             {
                dprintf2("XmltvTag-Close: </%s>, new stack depth %d\n", pTagName, xps.stackIdx - 1);
-               xps.syntaxError = FALSE;
+               xps.syntaxError = 0;
             }
 
             if (xmltv_tag_def[state].cb.TagClose != NULL)
@@ -1079,7 +1154,7 @@ bool XmltvTags_Close( const char * pTagName )
          }
          else
          {
-            debug2("XmltvTag-Close: mismatching close tag </%s> - expecting </%s>", pTagName, xmltv_tag_def[state].pTagName);
+            Xmltv_SyntaxError("XMLTV parser error: mismatching closing tag", pTagName);
          }
       }
       else
@@ -1091,8 +1166,7 @@ bool XmltvTags_Close( const char * pTagName )
    }
    else
    {
-      debug1("XmltvTag-Close: cannot pop tag <%s> from empty stack", pTagName);
-      xps.syntaxError = TRUE;
+      Xmltv_SyntaxError("XMLTV parser error: unexpected closing tag", pTagName);
    }
 
    return (xps.stackIdx > 0);
@@ -1116,6 +1190,8 @@ void XmltvTags_Data( XML_STR_BUF * pBuf )
       {
          XmlCdata_TrimWhitespace(pBuf);
       }
+
+      XML_STR_BUF_SET_LANG(*pBuf, xps.lang[xps.stackIdx]);
 
       if (xmltv_tag_def[state].cb.AddContent != NULL)
       {
@@ -1207,6 +1283,8 @@ void XmltvTags_AttribData( XML_STR_BUF * pBuf )
 
       dprintf2("XmltvTag-AttribData: assign value '%s' to attrib '%s'\n", XML_STR_BUF_GET_STR(*pBuf), pAttrib->pName);
 
+      XML_STR_BUF_SET_LANG(*pBuf, XML_LANG_UNKNOWN);
+
       if (pAttrib->SetAttr != NULL)
       {
          pAttrib->SetAttr(pBuf);
@@ -1220,14 +1298,88 @@ void XmltvTags_AttribData( XML_STR_BUF * pBuf )
 }
 
 // ----------------------------------------------------------------------------
+// Scanner callback when an unsupported encoding is encountered
+//
+void XmltvTags_ScanUnsupEncoding( const char * pName )
+{
+   Xmltv_SyntaxError("Unsupported encoding", pName);
+   xps.detected |= XMLTV_DETECTED_UNSUP_ENC;
+}
+
+// ----------------------------------------------------------------------------
+// Process XML header <?xml version="..." encoding="..."?>
+//
+void XmltvTags_Encoding( const char * pName )
+{
+   bool result;
+
+   if ( (strncasecmp(pName, "iso8859", 7) == 0) ||
+        (strncasecmp(pName, "iso-8859", 8) == 0) ||
+        (strncasecmp(pName, "iso_8859", 8) == 0) ||
+        (strncasecmp(pName, "8859", 4) == 0) ||
+        (strncasecmp(pName, "ascii", 5) == 0) ||
+        (strncasecmp(pName, "us-ascii", 8) == 0) )
+   {
+      xps.encoding = XML_ENC_ISO8859;
+   }
+   else if ( (strcasecmp(pName, "utf8") == 0) ||
+             (strcasecmp(pName, "utf-8") == 0) )
+   {
+      xps.encoding = XML_ENC_UTF8;
+   }
+   else if ( (strcasecmp(pName, "utf16") == 0) ||
+             (strcasecmp(pName, "utf-16") == 0) ||
+             (strcasecmp(pName, "utf16be") == 0) ||
+             (strcasecmp(pName, "utf-16be") == 0) )
+   {
+      xps.encoding = XML_ENC_UTF16BE;
+   }
+   else if ( (strcasecmp(pName, "utf16le") == 0) ||
+             (strcasecmp(pName, "utf-16le") == 0) )
+   {
+      xps.encoding = XML_ENC_UTF16LE;
+   }
+
+   xps.detected |= XMLTV_DETECTED_XML;
+
+   if (xps.encoding != XML_ENC_UNKNOWN)
+   {
+      result = XmlScan_SetEncoding(xps.encoding);
+      if (result == FALSE)
+      {
+         Xmltv_SyntaxError("Encoding in <?xml?> mismatches auto-detected encoding", pName);
+         xps.detected |= XMLTV_DETECTED_UNSUP_XMLENC;
+      }
+   }
+   else
+   {
+      Xmltv_SyntaxError("Unsupported encoding in <?xml?>", pName);
+      xps.detected |= XMLTV_DETECTED_UNSUP_XMLENC;
+      result = FALSE;
+   }
+}
+
+void XmltvTags_XmlVersion( const char * pVersion )
+{
+   if (strcmp(pVersion, "1.0") != 0)
+   {
+      Xmltv_SyntaxError("Incompatible XML version", pVersion);
+   }
+   else
+      xps.detected |= XMLTV_DETECTED_XML;
+}
+
+// ----------------------------------------------------------------------------
 // Process <!DOCTYPE...> declaration
 //
 void XmltvTags_DocType( const char * pName )
 {
    if (strcmp(pName, "tv") != 0)
    {
-      Xmltv_SyntaxError("XML DOCTYPE mismatch", pName);
+      Xmltv_SyntaxError("XML DOCTYPE name mismatch (probably not an XMLTV document)", pName);
+      xps.detected |= XMLTV_DETECTED_NOT_TV;
    }
+   xps.detected |= XMLTV_DETECTED_DOCTYPE;
 }
 
 // ----------------------------------------------------------------------------
@@ -1249,37 +1401,145 @@ void XmltvTags_Notation( int stepIdx, const char * pValue )
 {
 }
 
+void XmltvTags_CheckName( const char * pStr )
+{
+}
+
+void XmltvTags_CheckCharset( const char * pStr )
+{
+}
+
+void XmltvTags_CheckNmtoken( const char * pStr )
+{
+}
+
+void XmltvTags_CheckSystemLiteral( const char * pStr )
+{
+}
+
 // ----------------------------------------------------------------------------
-// Notify about syntax error inside a tag
+// Return a human-redable error message
+// - the "detection" code is a bit-field which is returned by the parser after
+//   reading (or attempting to read) the first tags of a document during XMLTV
+//   DTD version auto-detection
+//
+const char * XmltvTags_TranslateErrorCode( XMLTV_DETECTION detection )
+{
+   const char * pMsg;
+
+   if ((detection == 0) || (detection == XMLTV_DETECTED_SYNTAX))
+   {
+      pMsg = "does not appear to be an XML document (no markup found)";
+   }
+   else if (detection & XMLTV_DETECTED_UNSUP_ENC)
+   {
+      pMsg = "cannot be read because the character encoding is not supported";
+   }
+   else if (detection & XMLTV_DETECTED_UNSUP_XMLENC)
+   {
+      pMsg = "is an XML document with an unsupported character encoding";
+   }
+   else if (detection & XMLTV_DETECTED_NOT_TV)
+   {
+      pMsg = "is an XML document, but appearently not XMLTV (doctype mismatch)";
+   }
+   else if (detection & XMLTV_DETECTED_SYNTAX)
+   {
+      pMsg = "is not an XMLTV document or not valid (parse errors)";
+   }
+   else
+   {
+      pMsg = "is not an XMLTV document or incomplete (no content found)";
+   }
+   return pMsg;
+}
+
+// ----------------------------------------------------------------------------
+// Notification about syntax error
 //
 void Xmltv_SyntaxError( const char * pMsg, const char * pStr )
 {
-   debug2("XmltvTag-SyntaxError: %s: '%s'", pMsg, pStr);
-   xps.syntaxError = TRUE;
+   debug2("Xmltv-SyntaxError: %s: '%.200s'", pMsg, pStr);
+   xps.detected |= XMLTV_DETECTED_SYNTAX;
+   xps.syntaxError += 1;
+
+   if (xps.syntaxError > XML_MAX_SYNTAX_ERR)
+   {
+      debug0("Xmltv-SyntaxError: too many errors - aborting");
+      xps.earlyStop = TRUE;
+      XmlScan_Stop();
+   }
 }
 
 // ----------------------------------------------------------------------------
-// Callback functions for auto-detection mode
+// Function called by scanner upon I/O or malloc failures
+// - ideally this function should raise an exception and not return, else
+//   the scanner might run into a NULL pointer dereference
 //
-static void XmltvTags_SetVersion5( void )
+void Xmltv_ScanFatalError( const char * pMsg )
+{
+   debug1("Xmltv-ScanFatalError: %s", pMsg);
+}
+
+// ----------------------------------------------------------------------------
+// Callback functions for DTD version auto-detection mode
+// - in this mode the XML file is parsed (and all data discarded) until a tag
+//   or attribute is found which only exists in one of the DTD versions
+// - main difficutly is to detect the version also for near-empty files, e.g.
+//   a file without programme data (or even with 0 channels, which is legal
+//   for DTD 0.5)
+//
+static void XmltvTags_SetVersion5_ByTag( void )
 {
    dprintf0("XmltvTags-SetVersion5: DTD version 5 auto-detected\n");
    xps.dtd = XMLTV_DTD_5;
+   xps.earlyStop = TRUE;
+
+   // stop the scanner, i.e. skip the rest of the input file
    XmlScan_Stop();
 }
 
-static void XmltvTags_SetVersion6( void )
+static void XmltvTags_SetVersion5_ByAttr( XML_STR_BUF * pBuf )
+{
+   XmltvTags_SetVersion5_ByTag();
+}
+
+static void XmltvTags_SetVersion6_ByTag( void )
 {
    dprintf0("XmltvTags-SetVersion6: DTD version 6 auto-detected\n");
    xps.dtd = XMLTV_DTD_6;
+   xps.earlyStop = TRUE;
+   XmlScan_Stop();
+}
+
+static void XmltvTags_SetVersion6_ByAttr( XML_STR_BUF * pBuf )
+{
+   XmltvTags_SetVersion6_ByTag();
+}
+
+// ----------------------------------------------------------------------------
+// Function called by database front-end to discard the rest of input
+// - for example, used in "preview" mode when only source info and channel table
+//   are read
+//
+void XmlTags_ScanStop( void )
+{
+   xps.earlyStop = TRUE;
    XmlScan_Stop();
 }
 
 // ----------------------------------------------------------------------------
 // Query version after a run in DTD auto-detection mode
+// - optionally, an additional "detection code" is returned: in case the XMLTV
+//   version auto-detection fails this can be used to check if the file looks
+//   like XML at all to produce an appropriate error message
 //
-XMLTV_DTD_VERSION XmltvTags_QueryVersion( void )
+XMLTV_DTD_VERSION XmltvTags_QueryVersion( XMLTV_DETECTION * pXmlDetected )
 {
+   if (pXmlDetected != NULL)
+   {
+      *pXmlDetected = xps.detected;
+   }
    return xps.dtd;
 }
 
@@ -1303,6 +1563,8 @@ void XmltvTags_StartScan( FILE * fp, XMLTV_DTD_VERSION dtdVersion )
       xps.tagStack[0] = XMLTV_DETECT;
    xps.stackIdx = 0;
    xps.dtd = dtdVersion;
+   xps.detected = 0;
+   xps.encoding = XML_ENC_UNKNOWN;
 
    yyin = fp;
    //yylex();  // called by yacc
@@ -1310,7 +1572,7 @@ void XmltvTags_StartScan( FILE * fp, XMLTV_DTD_VERSION dtdVersion )
    yyparse();
 
    // check if all tags were closed, i.e. if the stack is empty
-   if ((xps.stackIdx > 0) && (xps.tagStack[0] != XMLTV_DETECT))
+   if ((xps.stackIdx > 0) && (xps.earlyStop == FALSE))
    {
       XMLTV_TAG  state;
       state = xps.tagStack[xps.stackIdx];

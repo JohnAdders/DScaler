@@ -1,5 +1,5 @@
 /*
- *  XMLTV main module and content management
+ *  XMLTV content processing
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License Version 2 as
@@ -77,7 +77,7 @@
  *  Author: Tom Zoerner
  *          L. Garnier for interfacing with DScaler
  *
- *  $Id: xmltv_db.c,v 1.1 2005-07-06 19:42:39 laurentg Exp $
+ *  $Id: xmltv_db.c,v 1.2 2005-07-11 14:56:06 laurentg Exp $
  */
 
 #define DEBUG_SWITCH DEBUG_SWITCH_XMLTV
@@ -110,14 +110,6 @@ typedef struct
    time_t       pi_min_time;
    time_t       pi_max_time;
 } XMLTV_CHN;
-
-typedef enum
-{
-   XMLTV_LANG_EN = 0,
-   XMLTV_LANG_DE = 1,
-   XMLTV_LANG_FR = 4,
-   XMLTV_LANG_UNKNOWN = 0xff
-} XMLTV_LANG;
 
 typedef enum
 {
@@ -190,8 +182,8 @@ typedef struct
    XML_STR_BUF  pi_code_time_str;
    XML_STR_BUF  pi_code_sv;
    XML_STR_BUF  pi_code_vp;
-   XMLTV_LANG   lang;
    XMLTV_DTD_VERSION dtd;
+   bool         isPeek;
 
 } PARSE_STATE;
 
@@ -215,17 +207,17 @@ static PARSE_STATE xds;
 // ----------------------------------------------------------------------------
 // Parse timestamp
 //
-static time_t Xmltv_ParseTimestamp( const char * pStr )
+static time_t Xmltv_ParseTimestamp( char * pStr, uint len )
 {
    time_t  tval;
 
    if (xds.dtd == XMLTV_DTD_6)
    {
-      tval = parse_xmltv_date_v6(pStr);
+      tval = parse_xmltv_date_v6(pStr, len);
    }
    else
    {
-      tval = parse_xmltv_date_v5(pStr);
+      tval = parse_xmltv_date_v5(pStr, len);
    }
 
    ifdebug1(tval == 0, "Xmltv-ParseTimestamp: parse error '%s'", pStr);
@@ -497,7 +489,7 @@ void Xmltv_TsOpen( void )
    dprintf0("Xmltv-TsOpen\n");
    xds.pi_start_time = 0;
    xds.pi_stop_time = 0;
-   xds.pi_netwop_no = -1;
+   xds.pi_netwop_no = xds.chn_count;
    xds.pi_pil = 0;
    xds.pi_feature_flags = 0;
    xds.audio_cnt = 0;
@@ -512,13 +504,17 @@ void Xmltv_TsOpen( void )
 
    XmlCdata_Reset(&xds.pi_code_sv);
    XmlCdata_Reset(&xds.pi_code_vp);
+
+   if (xds.isPeek)
+   {
+      XmlTags_ScanStop();
+   }
 }
 
 bool Xmltv_TsFilter( void )
 {
 	if (   (xds.pi_start_time == 0)
 		|| (xds.pi_stop_time == 0)
-		|| (xds.pi_netwop_no == -1)
 		|| (xds.pi_netwop_no >= xds.chn_count)
 		|| !CheckProgrammeValidity(xds.pi_start_time, xds.pi_stop_time, xds.p_chn_table[xds.pi_netwop_no].p_disp_name) )
 	{
@@ -603,8 +599,9 @@ void Xmltv_TsSetChannel( XML_STR_BUF * pBuf )
 void Xmltv_TsSetStartTime( XML_STR_BUF * pBuf )
 {
    char * pStr = XML_STR_BUF_GET_STR(*pBuf);
+   uint len = XML_STR_BUF_GET_STR_LEN(*pBuf);
 
-   xds.pi_start_time = Xmltv_ParseTimestamp(pStr);
+   xds.pi_start_time = Xmltv_ParseTimestamp(pStr, len);
 
    dprintf2("Xmltv-TsSetStartTime: start time %s: %d\n", pStr, (int)xds.pi.start_time);
 }
@@ -612,8 +609,9 @@ void Xmltv_TsSetStartTime( XML_STR_BUF * pBuf )
 void Xmltv_TsSetStopTime( XML_STR_BUF * pBuf )
 {
    char * pStr = XML_STR_BUF_GET_STR(*pBuf);
+   uint len = XML_STR_BUF_GET_STR_LEN(*pBuf);
 
-   xds.pi_stop_time = Xmltv_ParseTimestamp(pStr);
+   xds.pi_stop_time = Xmltv_ParseTimestamp(pStr, len);
 
    dprintf2("Xmltv-TsSetStopTime: stop time %s: %d\n", pStr, (int)xds.pi.stop_time);
 }
@@ -624,7 +622,7 @@ void Xmltv_TsSetFeatLive( XML_STR_BUF * pBuf )
 #ifdef ALL_CONTENT
    char * pStr = XML_STR_BUF_GET_STR(*pBuf);
 
-   if (STRCASECMP(pStr, "live") == 0)
+   if (strcasecmp(pStr, "live") == 0)
    {
       xds.pi_feature_flags |= PI_FEATURE_LIVE;
    }
@@ -734,13 +732,13 @@ void Xmltv_TsCodeTimeSetSystem( XML_STR_BUF * pBuf )
 #ifdef ALL_CONTENT
    char * pStr = XML_STR_BUF_GET_STR(*pBuf);
 
-   if (STRCASECMP(pStr, "vps") == 0)
+   if (strcasecmp(pStr, "vps") == 0)
       xds.pi_code_time_sys = XMLTV_CODE_VPS;
-   else if (STRCASECMP(pStr, "pdc") == 0)
+   else if (strcasecmp(pStr, "pdc") == 0)
       xds.pi_code_time_sys = XMLTV_CODE_PDC;
-   else if (STRCASECMP(pStr, "showview") == 0)
+   else if (strcasecmp(pStr, "showview") == 0)
       xds.pi_code_time_sys = XMLTV_CODE_SV;
-   else if (STRCASECMP(pStr, "videoplus") == 0)
+   else if (strcasecmp(pStr, "videoplus") == 0)
       xds.pi_code_time_sys = XMLTV_CODE_VP;
    else
       debug1("Xmltv-TsCodeTimeSetSystem: unknown code-time systm '%s'", pStr);
@@ -821,7 +819,7 @@ void Xmltv_PiVideoAspectClose( void )
 {
 #ifdef ALL_CONTENT
    if ( (xds.pi_aspect_x != 0) && (xds.pi_aspect_y != 0) &&
-        ((double)xds.pi_aspect_x / xds.pi_aspect_y > 1.33) )
+        (3 * xds.pi_aspect_x > 4 * xds.pi_aspect_y) )  // equiv: x/y > 4/3
    {
       xds.pi_feature_flags |= PI_FEATURE_FMT_WIDE;
    }
@@ -867,9 +865,9 @@ void Xmltv_PiVideoQualityAdd( XML_STR_BUF * pBuf )
 #ifdef ALL_CONTENT
    char * pStr = XML_STR_BUF_GET_STR(*pBuf);
 
-   if ( (STRCASECMP(pStr, "PAL+") == 0) ||
-        (STRCASECMP(pStr, "PALplus") == 0) ||
-        (STRCASECMP(pStr, "PAL-plus") == 0) )
+   if ( (strcasecmp(pStr, "PAL+") == 0) ||
+        (strcasecmp(pStr, "PALplus") == 0) ||
+        (strcasecmp(pStr, "PAL-plus") == 0) )
    {
       xds.pi_feature_flags |= PI_FEATURE_PAL_PLUS;
    }
@@ -901,18 +899,18 @@ void Xmltv_PiAudioStereoAdd( XML_STR_BUF * pBuf )
 #ifdef ALL_CONTENT
    char * pStr = XML_STR_BUF_GET_STR(*pBuf);
 
-   if (STRCASECMP(pStr, "mono") == 0)
+   if (strcasecmp(pStr, "mono") == 0)
    {
       xds.pi_feature_flags &= ~PI_FEATURE_SOUND_MASK;
       xds.pi_feature_flags |= PI_FEATURE_SOUND_MONO;
    }
-   else if (STRCASECMP(pStr, "stereo") == 0)
+   else if (strcasecmp(pStr, "stereo") == 0)
    {
       xds.pi_feature_flags &= ~PI_FEATURE_SOUND_MASK;
       xds.pi_feature_flags |= PI_FEATURE_SOUND_STEREO;
    }
-   else if ( (STRCASECMP(pStr, "surround") == 0) ||
-             (STRNCASECMP(pStr, "quad", 4) == 0) )
+   else if ( (strcasecmp(pStr, "surround") == 0) ||
+             (strncasecmp(pStr, "quad", 4) == 0) )
    {
       xds.pi_feature_flags &= ~PI_FEATURE_SOUND_MASK;
       xds.pi_feature_flags |= PI_FEATURE_SOUND_SURROUND;
@@ -988,19 +986,19 @@ void Xmltv_PiRatingSetSystem( XML_STR_BUF * pBuf )
 #ifdef ALL_CONTENT
    char * pStr = XML_STR_BUF_GET_STR(*pBuf);
 
-   if (STRCASECMP(pStr, "age") == 0)
+   if (strcasecmp(pStr, "age") == 0)
    {
       xds.pi_rating_sys = XMLTV_RATING_AGE;
    }
-   else if (STRCASECMP(pStr, "FSK") == 0)
+   else if (strcasecmp(pStr, "FSK") == 0)
    {
       xds.pi_rating_sys = XMLTV_RATING_FSK;
    }
-   else if (STRCASECMP(pStr, "BBFC") == 0)
+   else if (strcasecmp(pStr, "BBFC") == 0)
    {
       xds.pi_rating_sys = XMLTV_RATING_BBFC;
    }
-   else if (STRCASECMP(pStr, "MPAA") == 0)
+   else if (strcasecmp(pStr, "MPAA") == 0)
    {
       xds.pi_rating_sys = XMLTV_RATING_MPAA;
    }
@@ -1169,7 +1167,7 @@ void Xmltv_PiDateAdd( XML_STR_BUF * pBuf )
 // ----------------------------------------------------------------------------
 // Free resources
 //
-static void XmltvParser_Destroy( void )
+static void XmltvDb_Destroy( void )
 {
    uint  idx;
 
@@ -1213,7 +1211,7 @@ static void XmltvParser_Destroy( void )
 // ----------------------------------------------------------------------------
 // Initialize the local module state
 //
-static void XmltvParser_Init( void )
+static void XmltvDb_Init( void )
 {
    memset(&xds, 0, sizeof(xds));
    xds.pChannelHash = XmlHash_Init();
@@ -1231,64 +1229,39 @@ static void XmltvParser_Init( void )
 // ----------------------------------------------------------------------------
 // Entry point
 //
-static void XmltvParser_Start( const char * pFilename, XMLTV_DTD_VERSION dtd )
+void XmltvParser_Start( const char * pFilename )
 {
    FILE * fp;
-
-   fp = fopen(pFilename, "r");
-   if (fp != NULL)
-   {
-      // initialize internal state
-      XmltvParser_Init();
-      xds.dtd = dtd;
-
-      // parse the XMLTV file (will invoke the callbacks above to add programme data)
-      XmltvTags_StartScan(fp, dtd);
-
-      XmltvParser_Destroy();
-
-      fclose(fp);
-   }
-}
-
-// ----------------------------------------------------------------------------
-// Check if a given file is an XMLTV file and determine it's version
-//
-static XMLTV_DTD_VERSION Xmltv_CheckHeader( const char * pFilename )
-{
-   XMLTV_DTD_VERSION dtd;
-   FILE * fp;
-
-   fp = fopen(pFilename, "r");
-   if (fp != NULL)
-   {
-      XmltvTags_StartScan(fp, XMLTV_DTD_UNKNOWN);
-      dtd = XmltvTags_QueryVersion();
-
-      fclose(fp);
-   }
-   else
-      dtd = XMLTV_DTD_UNKNOWN;
-
-   return dtd;
-}
-
-int Xmltv_LoadFile( const char * pFilename )
-{
+   XMLTV_DETECTION detection;
    XMLTV_DTD_VERSION dtd;
 
    // initialize internal state
    memset(&xds, 0, sizeof(xds));
 
-   dtd = Xmltv_CheckHeader(pFilename);
-   if (dtd != XMLTV_DTD_UNKNOWN)
+   fp = fopen(pFilename, "r");
+   if (fp != NULL)
    {
-      // parse the XMLTV file (will invoke the callbacks above to add programme data)
-      XmltvParser_Start(pFilename, dtd);
-      return 0;
+     // start scanner in DTD version detection mode
+     XmltvTags_StartScan(fp, XMLTV_DTD_UNKNOWN);
+
+     dtd = XmltvTags_QueryVersion(&detection);
+     if (dtd != XMLTV_DTD_UNKNOWN)
+     {
+        // rewind to the beginning after reading the header for the version check
+        fseek(fp, 0, SEEK_SET);
+
+        // initialize internal state
+        XmltvDb_Init();
+        xds.dtd = dtd;
+
+        // parse the XMLTV file (will invoke the callbacks above to add programme data)
+        XmltvTags_StartScan(fp, dtd);
+
+        XmltvDb_Destroy();
+	 }
+
+      fclose(fp);
    }
-   else
-      return -1;
 }
 
 

@@ -18,7 +18,7 @@
  *    XMLTV parser demo package. Only the minimum necessary to compile
  *    other files of the package has been kept.
  *
- *  $Id: xmltv_debug.h,v 1.1 2005-07-06 19:42:39 laurentg Exp $
+ *  $Id: xmltv_debug.h,v 1.2 2005-07-11 14:56:06 laurentg Exp $
  */
 
 #ifndef __XMLTV_DEBUG_H
@@ -44,6 +44,7 @@
 #define dprintf2(S,A,B)
 #define dprintf3(S,A,B,C)
 #define dprintf4(S,A,B,C,D)
+#define dprintf5(S,A,B,C,D,E)
 
 
 // memory allocation debugging

@@ -1,5 +1,5 @@
 /*
- *  XMLTV main module and content management
+ *  XMLTV content processing
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License Version 2 as
@@ -17,16 +17,16 @@
  *  Author: Tom Zoerner
  *          L. Garnier for interfacing with DScaler
  *
- *  $Id: xmltv_db.h,v 1.1 2005-07-06 19:42:39 laurentg Exp $
+ *  $Id: xmltv_db.h,v 1.2 2005-07-11 14:56:06 laurentg Exp $
  */
 
 #ifndef __XMLTV_DB_H
 #define __XMLTV_DB_H
 
+
 // ----------------------------------------------------------------------------
 // Interface to the element parser (callback functions)
 //
-#ifdef __XMLTV_CDATA_H
 void Xmltv_AboutSetSourceInfoUrl( XML_STR_BUF * pBuf );
 void Xmltv_AboutSetSourceInfoName( XML_STR_BUF * pBuf );
 void Xmltv_AboutSetSourceDataUrl( XML_STR_BUF * pBuf );
@@ -115,27 +115,15 @@ void Xmltv_PiCreditsAddCommentator( XML_STR_BUF * pBuf );
 void Xmltv_PiCreditsAddNarrator( XML_STR_BUF * pBuf );
 void Xmltv_PiCreditsAddCompany( XML_STR_BUF * pBuf );
 void Xmltv_PiCreditsAddGuest( XML_STR_BUF * pBuf );
-#endif // __XMLTV_CDATA_H
 
 // ----------------------------------------------------------------------------
-// Interface to the outside world
+// Interface to main control module
 //
-typedef enum   
-{
-   XMLTV_DTD_UNKNOWN,
-   XMLTV_DTD_5,
-   XMLTV_DTD_6
-} XMLTV_DTD_VERSION;
-
 #ifdef __EPGBLOCK_H
-EPGDB_CONTEXT * XmltvParser_Start( const char * pFilename, XMLTV_DTD_VERSION dtd );
-XMLTV_DTD_VERSION Xmltv_CheckHeader( const char * pFilename );
+void XmltvDb_Init( XMLTV_DTD_VERSION dtd, bool isPeek );
+void XmltvDb_Destroy( void );
+EPGDB_CONTEXT * XmltvDb_GetDatabase( void );
 #endif
 
-#ifdef __cplusplus
-extern "C" int Xmltv_LoadFile( const char * pFilename );
-#else
-int Xmltv_LoadFile( const char * pFilename );
-#endif
 
 #endif // __XMLTV_DB_H

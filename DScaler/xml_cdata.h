@@ -16,11 +16,12 @@
  *
  *  Author: Tom Zoerner
  *
- *  $Id: xml_cdata.h,v 1.1 2005-07-06 19:42:39 laurentg Exp $
+ *  $Id: xml_cdata.h,v 1.2 2005-07-11 14:56:06 laurentg Exp $
  */
 
 #ifndef __XMLTV_CDATA_H
 #define __XMLTV_CDATA_H
+
 
 // ----------------------------------------------------------------------------
 // String buffer definition
@@ -32,11 +33,15 @@ typedef struct
    uint         size;           // max. text length, i.e. size of allocated buffer
    uint         skip;           // number of whitespace chars at text start
    uint         off;            // number of valid chars in buffer
+   uint         lang;           // language code (passed through only - not maintained here)
 } XML_STR_BUF;
 
 #define XML_STR_BUF_GET_LEN(S)     ((S).off)
 #define XML_STR_BUF_GET_STR_LEN(S) ((S).off - (S).skip)
 #define XML_STR_BUF_GET_STR(S)     (((S).pStrBuf != NULL) ? ((S).pStrBuf + (S).skip) : "")
+
+#define XML_STR_BUF_SET_LANG(S,L)  ((S).lang = (L))
+#define XML_STR_BUF_GET_LANG(S)    ((S).lang)
 
 // enables use of macros instead of function calls
 #define XML_CDATA_INLINE
@@ -50,6 +55,13 @@ void XmlCdata_Grow( XML_STR_BUF * pBuf, uint len );
 void XmlCdata_Assign( XML_STR_BUF * pDestBuf, XML_STR_BUF * pSrcBuf );
 void XmlCdata_TrimWhitespace( XML_STR_BUF * pBuf );
 void XmlCdata_AppendParagraph( XML_STR_BUF * pBuf, bool insertTwo );
+void XmlCdata_AppendRawNOINLINE( XML_STR_BUF * pBuf, const char * pStr, uint len );
+void XmlCdata_AppendUtf8ToLatin1( XML_STR_BUF * pBuf, const char * pStr, uint len );
+void XmlCdata_AppendLatin1ToUtf8( XML_STR_BUF * pBuf, const char * pStr, uint len );
+bool XmlCdata_CheckLatin1( const char * pStr );
+bool XmlCdata_CheckLatin1Name( const char * pStr, bool isNmToken );
+bool XmlCdata_CheckUtf8( const char * pStr );
+bool XmlCdata_CheckUtf8Name( const char * pStr, bool isNmtoken );
 
 #ifdef XML_CDATA_INLINE
 #define XmlCdata_AppendRaw(PBUF,PSTR,LEN) \
@@ -72,9 +84,14 @@ void XmlCdata_AppendParagraph( XML_STR_BUF * pBuf, bool insertTwo );
 #define XmlCdata_AssignOrAppend(DESTBUF,SRCBUF) \
    do { \
       if (((DESTBUF)->off == 0) && ((SRCBUF)->off > 128)) \
+      { \
          XmlCdata_Assign((DESTBUF), (SRCBUF)); \
+      } \
       else \
+      { \
          XmlCdata_AppendRaw((DESTBUF), XML_STR_BUF_GET_STR(*(SRCBUF)), XML_STR_BUF_GET_STR_LEN(*(SRCBUF))); \
+         (DESTBUF)->lang = (SRCBUF)->lang; \
+      } \
    } while(0)
 #define XmlCdata_Reset(PBUF) \
    do { \
@@ -86,8 +103,8 @@ void XmlCdata_AppendParagraph( XML_STR_BUF * pBuf, bool insertTwo );
       } \
    } while(0)
 #else
+#define XmlCdata_AppendRaw(B,S,L) XmlCdata_AppendRawNOINLINE((B),(S),(L))
 void XmlCdata_AppendString( XML_STR_BUF * pBuf, const char * pStr );
-void XmlCdata_AppendRaw( XML_STR_BUF * pBuf, const char * pStr, uint len );
 void XmlCdata_AssignOrAppend( XML_STR_BUF * pDestBuf, XML_STR_BUF * pSrcBuf );
 void XmlCdata_Reset( XML_STR_BUF * pBuf );
 #endif // XML_CDATA_INLINE

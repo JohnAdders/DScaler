@@ -39,15 +39,18 @@
  *
  *  Author: Tom Zoerner
  *
- *  $Id: xml_scan.lex,v 1.1 2005-07-06 19:42:39 laurentg Exp $
+ *  $Id: xml_scan.lex,v 1.2 2005-07-11 14:56:06 laurentg Exp $
  */
 
 %{
+#define DEBUG_SWITCH DEBUG_SWITCH_XMLTV
+#define DPRINTF_OFF
+
 #include <string.h>
 #include <stdlib.h>
 
-#include "mytypes.h"
-#include "debug.h"
+#include "xmltv_types.h"
+#include "xmltv_debug.h"
 
 #include "xml_cdata.h"
 #include "xml_hash.h"
@@ -56,11 +59,22 @@
 #include "xmltv_tags.h"
 
 
-/* buffer used to assemble attribute values */
+/* character encoding in the input stream: currently supported are the
+** Latin family (ISO-8859-1..15) and UTF-8 which are passed through to
+** the application as-is; also supported is UTF-16 (little or big endian)
+** which is automatically converted to UTF-8 prior scanning */
+static XML_ENCODING xml_scan_encoding;
+
+/* function pointer used to transcode input character set to application
+** requested character set; supported output encodings are UTF-8 and Latin-1;
+** mapped to function which uses memcpy() if no transcoding is required */
+static void (* XmlScan_CdataAppend)( XML_STR_BUF * pBuf, const char * pStr, uint len );
+
+/* buffers used to assemble content and attribute values */
 static XML_STR_BUF xml_attr;
 static XML_STR_BUF xml_content;
 
-/* stack used to parse nestesd entity references
+/* stack used to parse entity replacement text
 ** note: fixed limit of nesting depth prevents direct or indirect
 ** self-reference (which is disallowed by the XML spec) */
 #define MAX_ENTITY_REF_DEPTH 10
@@ -73,10 +87,11 @@ typedef struct
 static XML_ENTITY_STACK xml_entity_stack[MAX_ENTITY_REF_DEPTH];
 static int xml_entity_stack_depth;
 
-/* hash and temporary variables used for entity definitions */
+/* hash array and temporary variables used to process entity definitions */
 static XML_HASH_PTR pEntityHash;
 static XML_STR_BUF xml_entity_new_name;
 
+/* the payload of each hash array entry holds a pointer to a dup'ed string with the replacement text */
 typedef struct
 {
    char       * pValue;
@@ -84,24 +99,24 @@ typedef struct
 
 /* temporary flag which indicates the top-level tag was closed */
 static int xml_scan_docend;
-/* temporary pointer which holds an error message */
-static const char * p_xml_scan_err_msg;
 /* temporary cache for state while processing PI tag */
 static int xml_scan_pre_pi_state;
 
 /* forward declarations of internal operators
 ** (note: external operators are declard in xmltv_tag.h for lack of a scanner header file)
 */
+static void XmlScan_PopEntityBuffer( void );
 static int XmlScan_ParseEntity( const char * p_buffer, int scan_state, bool change_state );
 static const char * XmlScan_QueryEntity( const char * pName );
 
 /* ----------------------------------------------------------------------------
 ** Pass pre-processed content data to parser
-** - this function is called when a beginning to scan a tag (either opening or
-**   closing tag); hence for elements with mixed content data which is separated
-**   by child tags is forwarded separately
 ** - note the content may be assembled from multiple chunks if there are CDATA
-**   sections or parsed entities
+**   sections or parsed entities; this is transparent to the user-level
+** - this function is called when beginning to scan a tag (either opening or
+**   closing tag); hence it can be called more than once for elements with mixed
+**   content data which is separated by child tags (i.e. the application has to
+**   concatenate the chunks, if appropriate)
 */
 #ifdef __GNUC__
 __inline
@@ -114,57 +129,249 @@ static void XmlScan_ForwardContent( void )
       XmlCdata_Reset(&xml_content);
    }
 }
+
 /* ----------------------------------------------------------------------------
-** Add character reference to string buffer
-** - note: no need to check for parse errors, because the scanner already
-**   made sure we only have decimal or hexadecimal digits; string is not
-**   terminated by 0, instead by ';'
+** Add a character reference to a string buffer
+** - note: no need to check for parse errors in the conversion, because the
+**   scanner already made sure we only have decimal or hexadecimal digits;
+** - the string is terminated by ';'
 */
-#ifdef __GNUC__
-__inline
-#endif
 static void XmlScan_AddCharRef( XML_STR_BUF * p_buf, char * p_text, int base )
 {
    ulong lval;
-   char cval[1];
+   char cval[6];
 
    lval = strtol(p_text, NULL, base);
-   if (lval > 255)
-   {
-      Xmltv_SyntaxError("Unsupported UTF character in entity character reference", p_text);
-   }
-   else if (lval == 0)
+   if ( (lval < 32) &&
+        ((lval != 9) && (lval != 10) && (lval != 13)) )
    {
       Xmltv_SyntaxError("Disallowed entity character reference", "&#0;");
    }
    else
    {
-      cval[0] = (char) lval;
-      XmlCdata_AppendRaw(p_buf, cval, 1);
+      if (xml_scan_encoding == XML_ENC_ISO8859)
+      {
+         if (lval <= 0xFF)
+         {
+            cval[0] = (char) lval;
+            XmlScan_CdataAppend(p_buf, cval, 1);
+         }
+         else
+            Xmltv_SyntaxError("Invalid code in entity character reference", p_text);
+      }
+      else
+      {
+         /* From the Unicode FAQ (http://www.cl.cam.ac.uk/~mgk25/unicode.html)
+         ** U-00000000  U-0000007F:      0xxxxxxx
+         ** U-00000080  U-000007FF:      110xxxxx 10xxxxxx
+         ** U-00000800  U-0000FFFF:      1110xxxx 10xxxxxx 10xxxxxx
+         ** U-00010000  U-001FFFFF:      11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+         ** U-00200000  U-03FFFFFF:      111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+         ** U-04000000  U-7FFFFFFF:      1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+         */
+         if (lval <= 0x7F)
+         {
+            cval[0] = (char) lval;
+            XmlScan_CdataAppend(p_buf, cval, 1);
+         }
+         else if (lval <= 0x7FF)
+         {
+            cval[0] = 0xC0 | (char) (lval >> 6);
+            cval[1] = 0x80 | (char) (lval & 0x3F);
+            XmlScan_CdataAppend(p_buf, cval, 2);
+         }
+         /* else if (lval <= 0xFFFF) */
+         else if ((lval <= 0xD7FF) || ((lval >= 0xE000) && (lval <= 0xFFFD)))
+         {
+            cval[0] = 0xE0 | (char)  (lval >> (2*6));
+            cval[1] = 0x80 | (char) ((lval >>    6)  & 0x3F);
+            cval[2] = 0x80 | (char) ( lval           & 0x3F);
+            XmlScan_CdataAppend(p_buf, cval, 3);
+         }
+         /* else if (lval <= 0x10FFFFL) */
+         else if ((lval >= 0x10000) && (lval <= 0x10FFFFL))
+         {
+            cval[0] = 0xF0 | (char)  (lval >> (3*6));
+            cval[1] = 0x80 | (char) ((lval >> (2*6)) & 0x3F);
+            cval[2] = 0x80 | (char) ((lval >>    6)  & 0x3F);
+            cval[3] = 0x80 | (char) ( lval           & 0x3F);
+            XmlScan_CdataAppend(p_buf, cval, 4);
+         }
+         else
+         {  /* 0x110000... are disallowed in XML */
+            Xmltv_SyntaxError("Invalid code in entity character reference", p_text);
+         }
+      }
    }
 }
 
-int yylex( void );
-#define YY_NO_UNPUT
+/* ----------------------------------------------------------------------------
+** Fill the scanner's input buffer while transcoding from UTF-16 to UTF-8
+** - the XML standard requires to support UTF-16, however parsing UTF-16 would
+**   require to write a completely new scanner; so this function is a compromise,
+**   i.e. it allows to use the scanner in UTF-8 mode for UTF-16 input
+** - the function works by reading the input word for word, decoding UTF-16,
+**   re-encoding in UTF-8 and appending the result to the internal input buffer
+*/
+static size_t XmlScan_ReadUtf16IntoUtf8Buffer( uchar *ptr, size_t max_size )
+{
+   uint w1, w2, code;
+   int  c1, c2;
+   size_t result = 0;
+
+   while (result + 4 <= max_size)
+   {
+      /* load first UTF-16 codeword */
+      if ( ((c1 = getc(yyin)) == EOF) ||
+           ((c2 = getc(yyin)) == EOF) )
+      {
+         if ( ferror(yyin) )
+            Xmltv_ScanFatalError( "input in flex scanner failed" );
+         break;
+      }
+      if (xml_scan_encoding == XML_ENC_UTF16BE)
+         w1 = (c1 << 8) | c2;
+      else
+         w1 = (c2 << 8) | c1;
+
+      if ((w1 < 0xD800) || (w1 > 0xDFFF))
+      {  /* it's in the lower range, no decoding needed */
+         code = w1;
+      }
+      else
+      {
+         if (w1 > 0xDBFF)
+         {  /* 2nd word of a pair found in place of the 1st -> error */
+            if ( ferror(yyin) )
+               Xmltv_ScanFatalError( "UTF-16 input sequence error" );
+            break;
+         }
+         if ( ((c1 = getc(yyin)) == EOF) ||
+              ((c2 = getc(yyin)) == EOF) )
+         {
+            if ( ferror(yyin) )
+               Xmltv_ScanFatalError( "input in flex scanner failed" );
+            break;
+         }
+         /* decode UTF-16 to UCS-4 (acc. to RFC 2781 ch. 2.2) */
+         if (xml_scan_encoding == XML_ENC_UTF16BE)
+            w2 = (c1 << 8) | c2;
+         else
+            w2 = (c2 << 8) | c1;
+
+         if ((w2 < 0xDC00) || (w2 > 0xDFFF))
+         {  /* 1st word of a pair found in place of the 2nd -> error */
+            if ( ferror(yyin) )
+               Xmltv_ScanFatalError( "UTF-16 input sequence error" );
+            break;
+         }
+         code = 0x100000 | ((w1 & 0x3FF) << 10) | (w2 & 0x3FF);
+      }
+
+      /* now encode in UTF-8 and copy to the input buffer */
+      if (code <= 0x7F)
+      {
+         *(ptr++) = (char) code;
+         result += 1;
+      }
+      else if (code <= 0x7FF)
+      {
+         *(ptr++) = 0xC0 | (char) (code >> 6);
+         *(ptr++) = 0x80 | (char) (code & 0x3F);
+         result += 2;
+      }
+      else if (code <= 0xFFFF)
+      {
+         *(ptr++) = 0xE0 | (char)  (code >> (2*6));
+         *(ptr++) = 0x80 | (char) ((code >>    6)  & 0x3F);
+         *(ptr++) = 0x80 | (char) ( code           & 0x3F);
+         result += 3;
+      }
+      else /* if (code <= 0x1FFFFF) */
+      {
+         *(ptr++) = 0xF0 | (char)  (code >> (3*6));
+         *(ptr++) = 0x80 | (char) ((code >> (2*6)) & 0x3F);
+         *(ptr++) = 0x80 | (char) ((code >>    6)  & 0x3F);
+         *(ptr++) = 0x80 | (char) ( code           & 0x3F);
+         result += 4;
+      }
+   }
+   return result;
+}
+
+/* Helper macro used in error states to skip all input until a given
+** synchonization character is found (e.g. closing tag '>') and then
+** resume scanning in a given state */
+static int xml_scan_resync_start;
+static int xml_scan_resync_char;
+static int xml_scan_resync_state;
+static const char * p_xml_scan_err_msg;
+#define XML_SCAN_RESYNC(CHAR,STATE,MSG) \
+  do { \
+     xml_scan_resync_start = 1; \
+     xml_scan_resync_char = (CHAR); \
+     xml_scan_resync_state = (STATE); \
+     p_xml_scan_err_msg = (MSG); \
+     BEGIN resync; \
+     yyless(0); \
+  }while(0)
+
+/* For debug purposes, report characters which don't match any rule in
+** the current state; this should never happen, i.e. there should always
+** be an error rule to catch unexpected input. Unmatched characters will
+** simply be skipped and ignored by the scanner. */
+#define ECHO do{debug2("XMLTV yylex unmatched text in state %d: #%s#", YYSTATE, yytext);}while(0)
+
+/* Override the scanner's predefined error handler with one which doesn't call
+** exit() nor fprintf(stderr) because neither is useful in a GUI application */
+#define YY_FATAL_ERROR(MSG) do{Xmltv_ScanFatalError(MSG);}while(0)
+
+/* Replace the scanner's predefined input function (or macro, actually)
+** with one which supports trancoding UTF-16 to a supported input encoding */
+#undef YY_INPUT
+#define YY_INPUT(buf,result,max_size) \
+	if ((xml_scan_encoding == XML_ENC_UTF16BE) || (xml_scan_encoding == XML_ENC_UTF16LE)) \
+           result = XmlScan_ReadUtf16IntoUtf8Buffer(buf, max_size); \
+	else if ( ((result = fread( buf, 1, max_size, yyin )) == 0) \
+		  && ferror( yyin ) ) \
+		YY_FATAL_ERROR( "input in flex scanner failed" );
+
 #define YY_USE_CONST
 #define YY_USE_PROTOS
-#define ECHO do{debug2("XMLTV yylex unmatched text in state %d: #%s#", YYSTATE, yytext);}while(0)
+
+int yylex( void );
 %}
 
 %option noyywrap
 %option never-interactive
 
  /* Auto-detection of encoding; required to parse <?xml encoding=...?>, see XML 1.0 apx. F.1 */
+ /* BOM stands for "byte order mark"; it's used on Windows only */
 DETECT_UCS4_BOM         (\0\0(\xFE\xFF)|(\xFF\xFE))|((\xFF\xFE)|(\xFE\xFF)\0\0)
-DETECT_UTF16_BOM        (\xFE\xFF|\xFF\xFE)([^\0][\0-\xff]|[\0-\xff][^\0])
+DETECT_UTF16BE_BOM      (\xFE\xFF)([^\0][\0-\xff]|[\0-\xff][^\0])
+DETECT_UTF16LE_BOM      (\xFF\xFE)([^\0][\0-\xff]|[\0-\xff][^\0])
 DETECT_UTF8_BOM         \xEF\xBB\xBF
 DETECT_UCS4             (\0\0\0\x3C)|(\x3C\0\0\0)|(\0\0\x3C\0)|(\0\x3C\0\0)
-DETECT_UTF16            (\0\x3C\0\x3F)|(\x3C\0\x3F\0)
-DETECT_UTF8_ASCII       "<?x"
+DETECT_UTF16BE          (\0\x3C\0\x3F)
+DETECT_UTF16LE          (\x3C\0\x3F\0)
+DETECT_UTF8_ASCII       "<?xml"
 DETECT_EBCDIC           \x4C\x6F\xA7\x94
 
-XMLSPACE        [ \t\n\r]+
-XMLNAME         [a-zA-Z_:][a-zA-Z0-9.\-_:]*
+ /* Note about UTF-8 and ISO-8859-x character classes: in the scanner we only match on
+ ** characters in the ASCII range, whose encoding is identical in either coding scheme.
+ ** ISO characters in range 0x80-0xff and multi-byte UTF-8 characters are never used
+ ** for markup or syntax separators, so we can safely assume them to be part of the
+ ** current name or content element. This saves a lot of effort, esp. for UTF-8.
+ */
+NON_ASCII       [\x80-\xff]
+
+XMLWS           [ \t\n\r]
+XMLSPACE        {XMLWS}+
+XMLLETTER       ([a-zA-Z]|{NON_ASCII})
+XMLDIGIT        [0-9]
+XMLNAMECHAR     ({XMLLETTER}|{XMLDIGIT}|[\.\-_:])
+XMLNAME         ({XMLLETTER}|[_:]){XMLNAMECHAR}*
+XMLNMTOKEN      {XMLNAMECHAR}+
 COMMENT         "<!--"
 CDATA           "<![CDATA["
 CDEND           "]]>"
@@ -235,8 +442,12 @@ ENTSYS2         '[^']*'
 %s cdata0
 %s cdata1
 %s cdata2
+%s comment0
+%s comment1
+%s comment2
 %s stopped
 %s stopped_end
+%s resync
 
 %%
 
@@ -244,14 +455,31 @@ ENTSYS2         '[^']*'
 
  /* Auto-detect character encoding <?xml...?> */
 
-<INITIAL>{DETECT_UCS4_BOM}                      { Xmltv_SyntaxError("Unsupported encoding", "UCS-4"); yyterminate(); }
-<INITIAL>{DETECT_UTF16_BOM}                     { Xmltv_SyntaxError("Unsupported encoding", "UTF-16"); yyterminate(); }
-<INITIAL>{DETECT_UTF8_BOM}                      { Xmltv_SyntaxError("Unsupported encoding", "UTF-8"); yyterminate(); }
-<INITIAL>{DETECT_UCS4}                          { Xmltv_SyntaxError("Unsupported encoding", "UCS-4"); yyterminate(); }
-<INITIAL>{DETECT_UTF16}                         { Xmltv_SyntaxError("Unsupported encoding", "UTF-16"); yyterminate(); }
-<INITIAL>{DETECT_UTF8_ASCII}                    { BEGIN prolog; yyless(0); }
-<INITIAL>{DETECT_EBCDIC}                        { Xmltv_SyntaxError("Unsupported encoding", "EBCDIC"); yyterminate(); }
-<INITIAL>.                                      { BEGIN prolog; yyless(0); }
+<INITIAL>{DETECT_UCS4_BOM}|{DETECT_UCS4}        { BEGIN stopped_end; XmltvTags_ScanUnsupEncoding("UCS-4"); return XMLTOK_CONTENT_END; }
+<INITIAL>{DETECT_EBCDIC}                        { BEGIN stopped_end; XmltvTags_ScanUnsupEncoding("EBCDIC"); return XMLTOK_CONTENT_END; }
+<INITIAL>{DETECT_UTF16BE_BOM}                   { BEGIN prolog; yyless(0);
+                                                  xml_scan_encoding = XML_ENC_UTF16BE;
+                                                  YY_FLUSH_BUFFER;
+                                                  fseek(yyin, 2, SEEK_SET);
+                                                }
+<INITIAL>{DETECT_UTF16LE_BOM}                   { BEGIN prolog; yyless(0);
+                                                  xml_scan_encoding = XML_ENC_UTF16LE;
+                                                  YY_FLUSH_BUFFER;
+                                                  fseek(yyin, 2, SEEK_SET);
+                                                }
+<INITIAL>{DETECT_UTF16BE}                       { BEGIN prolog; yyless(0);
+                                                  xml_scan_encoding = XML_ENC_UTF16BE;
+                                                  YY_FLUSH_BUFFER;
+                                                  fseek(yyin, 0, SEEK_SET);
+                                                }
+<INITIAL>{DETECT_UTF16LE}                       { BEGIN prolog; yyless(0);
+                                                  xml_scan_encoding = XML_ENC_UTF16LE;
+                                                  YY_FLUSH_BUFFER;
+                                                  fseek(yyin, 0, SEEK_SET);
+                                                }
+<INITIAL>{DETECT_UTF8_BOM}                      { BEGIN prolog; xml_scan_encoding = XML_ENC_UTF8; }
+<INITIAL>{DETECT_UTF8_ASCII}                    { BEGIN prolog; yyless(0); xml_scan_encoding = XML_ENC_UTF8; }
+<INITIAL>[\0-\xff]                              { BEGIN prolog; yyless(0); xml_scan_encoding = XML_ENC_UTF8; }
 
 <prolog>{XMLSPACE}                              { return XMLTOK_SPACE; }
 
@@ -261,7 +489,8 @@ ENTSYS2         '[^']*'
 <xmlenc>"version"                               {  BEGIN xmlencv; return XMLTOK_VERSION; }
 <xmlencv>"="                                    {  return XMLTOK_EQ; }
 <xmlencv>\'[0-9.]+\'|\"[0-9.]+\"                {  BEGIN xmlenc;
-                                                   yylval.str = yytext;
+                                                   yytext[yyleng - 1] = 0;
+                                                   yylval.str = yytext + 1;
                                                    return XMLTOK_ENCVERS; }
 <xmlenc>"standalone"                            {  BEGIN xmlencsdecl; return XMLTOK_STANDALONE; }
 <xmlencsdecl>"="                                {  return XMLTOK_EQ; }
@@ -276,14 +505,15 @@ ENTSYS2         '[^']*'
                                                 }
 <xmlenc,xmlencv,xmlencsdecl,xmlencenc>{XMLSPACE} { return XMLTOK_SPACE; }
 <xmlenc>"?>"                                    {  BEGIN prolog; return XMLTOK_CLOSE; }
-<xmlenc,xmlencv,xmlencsdecl,xmlencenc>.         {  BEGIN xmlencerr; yyless(0); }
-<xmlencerr>[^>]*\>                              {  BEGIN prolog;
-                                                   Xmltv_SyntaxError("Malformed encoding declaration", yytext);
+<xmlenc,xmlencv,xmlencsdecl,xmlencenc>.         {  XML_SCAN_RESYNC('>', xmlencerr, "Malformed encoding declaration"); }
+<xmlencerr>">"                                  {  BEGIN prolog;
+                                                   return XMLTOK_ERR_CLOSE;
                                                 }
 
  /* Scan "processing instructions" (e.g. <?foo-bar...?>) */
 
 <prolog,content>"<?"                            {  xml_scan_pre_pi_state = YYSTATE;
+                                                   XmlCdata_Reset(&xml_attr);
                                                    BEGIN piname;
                                                    return XMLTOK_TAGPI;
                                                 }
@@ -295,7 +525,7 @@ ENTSYS2         '[^']*'
 <pispace>{XMLSPACE}                             {  BEGIN pi0; return XMLTOK_SPACE; }
 <pi0>"?"                                        {  BEGIN pi1; }
 <pi0>\r+                                        {  /*dropped*/ }
-<pi0>[^\?\r]+                                   {  XmlCdata_AppendRaw(&xml_attr, yytext, yyleng); }
+<pi0>[^\?\r]+                                   {  XmlScan_CdataAppend(&xml_attr, yytext, yyleng); }
 <pi1>">"                                        {  BEGIN piclose; yyless(0);
                                                    yylval.str = XML_STR_BUF_GET_STR(xml_attr);
                                                    return XMLTOK_PICONTENT;
@@ -304,14 +534,14 @@ ENTSYS2         '[^']*'
 <pi1>\r+                                        {  BEGIN pi0; /* dropped, but QM in stack is appended */
                                                    XmlCdata_AppendRaw(&xml_attr, "?", 1);
                                                 }
-<pi1>[^\?\>]                                    {  BEGIN pi0;
+<pi1>[^\?\>\r]                                  {  BEGIN pi0;
                                                    XmlCdata_AppendRaw(&xml_attr, "?", 1);
-                                                   XmlCdata_AppendRaw(&xml_attr, yytext, yyleng);
+                                                   XmlScan_CdataAppend(&xml_attr, yytext, yyleng);
                                                 }
 <piclose>">"                                    {  BEGIN xml_scan_pre_pi_state; return XMLTOK_CLOSE; }
-<piname,pispace>.                               {  BEGIN pierr; yyless(0); }
-<pierr>[^>]*>                                   {  BEGIN xml_scan_pre_pi_state;
-                                                   Xmltv_SyntaxError("Parse error in processing instruction", yytext);
+<piname,pispace>.                               {  XML_SCAN_RESYNC('>', pierr, "Parse error in processing instruction"); }
+<pierr>">"                                      {  BEGIN xml_scan_pre_pi_state;
+                                                   return XMLTOK_ERR_CLOSE;
                                                 }
 
  /* Parse DOCTYPE header */
@@ -337,9 +567,7 @@ ENTSYS2         '[^']*'
 <docdtd>"]"                                     {  BEGIN doctypedecl; return XMLTOK_DTD_CLOSE; }
 <doctype,doctypedecl>">"                        {  BEGIN prolog; return XMLTOK_CLOSE; }
 <doctype,doctypedecl,doctypesys,doctypepub,docdtd>{XMLSPACE}  { return XMLTOK_SPACE; }
-<doctype,doctypedecl,doctypesys,doctypepub>.    {  BEGIN prologerr2; yyless(0);
-                                                   p_xml_scan_err_msg = "Parse error in DOCTYPE declaration";
-                                                }
+<doctype,doctypedecl,doctypesys,doctypepub>.    {  XML_SCAN_RESYNC('>', prologerr2, "Parse error in DOCTYPE declaration"); }
 
  /* Scan entitity definitions (inside DTD only) */
 
@@ -353,7 +581,7 @@ ENTSYS2         '[^']*'
 <entval>\'                                      {  BEGIN entval2; XmlCdata_Reset(&xml_attr); }
 <entval1,entval2,entval3>&#x[0-9a-fA-F]+;       {  XmlScan_AddCharRef(&xml_attr, yytext + 3, 16); }
 <entval1,entval2,entval3>&#[0-9]+;              {  XmlScan_AddCharRef(&xml_attr, yytext + 2, 10); }
-<entval1,entval2,entval3>&{XMLNAME};            {  XmlCdata_AppendRaw(&xml_attr, yytext, yyleng); /* general entity references are bypassed */ }
+<entval1,entval2,entval3>&{XMLNAME};            {  XmlScan_CdataAppend(&xml_attr, yytext, yyleng); /* general entity references are bypassed */ }
 <entval1,entval2,entval3>"%"{XMLNAME}";"        {
                                                    const char * pValue;
                                                    yytext[yyleng - 1] = 0; /* remove trailing ';' */
@@ -370,13 +598,11 @@ ENTSYS2         '[^']*'
                                                          XmlScan_ParseEntity(pValue, 0, 0);
                                                    }
                                                 }
-<entval1,entval2,entval3>[&%]                   {  BEGIN docdtderr; yyless(0);
-                                                   p_xml_scan_err_msg = "Malformed entity reference in entity declaration";
-                                                }
+<entval1,entval2,entval3>[&%]                   {  XML_SCAN_RESYNC('>', docdtderr, "Malformed entity reference in entity declaration"); }
 <entval1,entval2>\r+                            {  /*dropped*/ }
-<entval1>[^\"\&\%\r]+                           {  XmlCdata_AppendRaw(&xml_attr, yytext, yyleng); }
-<entval2>[^\'\&\%\r]+                           {  XmlCdata_AppendRaw(&xml_attr, yytext, yyleng); }
-<entval3>[^\&\%]+                               {  XmlCdata_AppendRaw(&xml_attr, yytext, yyleng); }
+<entval1>[^\"\&\%\r]+                           {  XmlScan_CdataAppend(&xml_attr, yytext, yyleng); }
+<entval2>[^\'\&\%\r]+                           {  XmlScan_CdataAppend(&xml_attr, yytext, yyleng); }
+<entval3>[^\&\%]+                               {  XmlScan_CdataAppend(&xml_attr, yytext, yyleng); }
 <entval1>\"                                     {  BEGIN entval;
                                                    yylval.str = XML_STR_BUF_GET_STR(xml_attr);
                                                    return XMLTOK_ENTVAL;
@@ -400,9 +626,7 @@ ENTSYS2         '[^']*'
 <entval>"NDATA"                                 {  BEGIN entndata; return XMLTOK_NDATA; }
 <entdef,entval,entsys,entpub,entndata>{XMLSPACE} {  return XMLTOK_SPACE; }
 <entdef,entval,entsys,entpub,entndata>">"       {  BEGIN docdtd; return XMLTOK_CLOSE; }
-<entdef,entval,entsys,entpub,entndata>.         {  BEGIN docdtderr; yyless(0);
-                                                   p_xml_scan_err_msg = "Malformed entity declaration in DTD";
-                                                }
+<entdef,entval,entsys,entpub,entndata>.         {  XML_SCAN_RESYNC('>', docdtderr, "Malformed entity declaration in DTD"); }
 
  /* Parameter Entity Reference ("PEReference"; inside DTD only) */
 
@@ -419,12 +643,8 @@ ENTSYS2         '[^']*'
                                                       XmlScan_ParseEntity(" ", 0, 0);
                                                    }
                                                 }
-<docdtd>"%".                                    {  BEGIN docdtderr; yyless(0);
-                                                   p_xml_scan_err_msg = "Malformed parameter entity reference";
-                                                }
-<docdtd>"&"                                     {  BEGIN docdtderr; yyless(0);
-                                                   p_xml_scan_err_msg = "Disallowed entity reference in DTD";
-                                                }
+<docdtd>"%".                                    {  XML_SCAN_RESYNC('>', docdtderr, "Malformed parameter entity reference"); }
+<docdtd>"&"                                     {  XML_SCAN_RESYNC('>', docdtderr, "Disallowed entity reference in DTD"); }
 
  /* DTD element declaration */
 
@@ -449,9 +669,7 @@ ENTSYS2         '[^']*'
                                                 }
 <dtdelem,dtdelspec,dtdeldef>{XMLSPACE}          {  return XMLTOK_SPACE; }
 <dtdelem,dtdelspec,dtdeldef>">"                 {  BEGIN docdtd; return XMLTOK_CLOSE; }
-<dtdelem,dtdelspec,dtdeldef>.                   {  BEGIN docdtderr; yyless(0);
-                                                   p_xml_scan_err_msg = "Malformed element declaration in DTD";
-                                                }
+<dtdelem,dtdelspec,dtdeldef>.                   {  XML_SCAN_RESYNC('>', docdtderr, "Malformed element declaration in DTD"); }
 
  /* DTD attribute declaration */
 
@@ -472,7 +690,7 @@ ENTSYS2         '[^']*'
 <dtdattnot,dtdattenu>"|"                        {  return XMLTOK_CHR_PIPE; }
 <dtdattnot,dtdattenu>")"                        {  BEGIN dtdattnam; return XMLTOK_CHR_CLBR; }
 <dtdattnot>{XMLNAME}                            {  yylval.str = yytext; return XMLTOK_NAME; }
-<dtdattenu>[a-zA-Z0-9.\-_:]+                    {  return XMLTOK_NMTOKEN; }
+<dtdattenu>{XMLNMTOKEN}                         {  yylval.str = yytext; return XMLTOK_NMTOKEN; }
 <dtdattnam>"#REQUIRED"                          {  return XMLTOK_STR_REQUIRED; }
 <dtdattnam>"#IMPLIED"                           {  return XMLTOK_STR_IMPLIED; }
 <dtdattnam>"#FIXED"                             {  return XMLTOK_STR_FIXED; }
@@ -488,9 +706,7 @@ ENTSYS2         '[^']*'
                                                 }
 <dtdatt,dtdattnam,dtdatttyp,dtdattnot,dtdattenu>{XMLSPACE} {  return XMLTOK_SPACE; }
 <dtdatt,dtdattnam,dtdatttyp,dtdattnot,dtdattenu>">" {  BEGIN docdtd; return XMLTOK_CLOSE; }
-<dtdatt,dtdattnam,dtdatttyp,dtdattnot,dtdattenu>. {  BEGIN docdtderr; yyless(0);
-                                                   p_xml_scan_err_msg = "Malformed ATTLIST declaration in DTD";
-                                                }
+<dtdatt,dtdattnam,dtdatttyp,dtdattnot,dtdattenu>. {  XML_SCAN_RESYNC('>', docdtderr, "Malformed ATTLIST declaration in DTD"); }
 
  /* DTD notation declaration */
 
@@ -509,35 +725,34 @@ ENTSYS2         '[^']*'
                                                 }
 <docnotnam,docnottyp,docnotsys,docnotpub>{XMLSPACE} {  return XMLTOK_SPACE; }
 <docnotnam,docnottyp,docnotsys,docnotpub>">"    {  BEGIN docdtd; return XMLTOK_CLOSE; }
-<docnotnam,docnottyp,docnotsys,docnotpub>.      {  BEGIN docdtderr; yyless(0);
-                                                   p_xml_scan_err_msg = "Malformed notation declaration in DTD";
-                                                }
+<docnotnam,docnottyp,docnotsys,docnotpub>.      {  XML_SCAN_RESYNC('>', docdtderr, "Malformed notation declaration in DTD"); }
 
  /* DTD error rules */
 
-<docdtd>.                                       {  BEGIN docdtderr; yyless(0);
-                                                   p_xml_scan_err_msg = "Parse error: unknown markup in DTD";
-                                                }
-<docdtderr>[^>]*>                               {  BEGIN docdtd;
-                                                   Xmltv_SyntaxError(p_xml_scan_err_msg, yytext);
+<docdtd>[\0-\xff]                               {  XML_SCAN_RESYNC('>', docdtderr, "Parse error: unknown markup in DTD"); }
+<docdtderr>">"                                  {  BEGIN docdtd;
+                                                   return XMLTOK_ERR_CLOSE;
                                                 }
 
  /* Transition from prolog into content area */
 
 <prolog>\<{XMLNAME}                             {  BEGIN content; yyless(0); }
-<prolog>\<                                      {  BEGIN prologerr2; yyless(0);
-                                                   p_xml_scan_err_msg = "Invalid markup in XML prolog";
+
+<prolog>\<                                      {  XML_SCAN_RESYNC('>', prologerr2, "Invalid markup in XML prolog"); }
+<prolog>[\0-\xff]                               {  if (yytext[0] == 0)
+                                                      XML_SCAN_RESYNC('<', prologerr1, "Binary data in XML prolog");
+                                                   else
+                                                      XML_SCAN_RESYNC('<', prologerr1, "Garbage in XML prolog");
                                                 }
-<prolog>.                                       {  BEGIN prologerr1; yyless(0);
-                                                   p_xml_scan_err_msg = "Garbage in XML prolog";
+<prologerr1>"<"                                 {  BEGIN prolog;
+                                                   /* preserve '<' which belongs to the subsequent element */
+                                                   yyless(0);
+                                                   /* return XMLTOK_ERR; - simply skipped, error not indicated to yacc */
                                                 }
-<prologerr1>[^<]+<                              {  BEGIN prolog;
-                                                   Xmltv_SyntaxError(p_xml_scan_err_msg, yytext);
-                                                   yyless(yyleng - 1);
+<prologerr2>">"                                 {  BEGIN prolog;
+                                                   return XMLTOK_ERR_CLOSE;
                                                 }
-<prologerr2>[^>]+>                              {  BEGIN prolog;
-                                                   Xmltv_SyntaxError(p_xml_scan_err_msg, yytext);
-                                                }
+
 
  /* ------------  C  O  N  T  E  N  T  ------------ */
 
@@ -551,11 +766,9 @@ ENTSYS2         '[^']*'
 <content>"</>"                                  {  BEGIN content;
                                                    Xmltv_SyntaxError("Parse error: empty close tag", "</>");
                                                 }
-<content>"</".                                  {  BEGIN tagerror; yyless(0);
-                                                   p_xml_scan_err_msg = "Parse error in closing tag: not a valid tag name";
-                                                }
+<content>"</".                                  {  XML_SCAN_RESYNC('>', tagerror, "Parse error in closing tag: not a valid tag name"); }
 
-<tagcloseend>[[:space:]]*\>                     {
+<tagcloseend>{XMLWS}*">"                        {
                                                    if (xml_scan_docend == 0)
                                                    {
                                                       BEGIN prolog;
@@ -565,45 +778,7 @@ ENTSYS2         '[^']*'
                                                       BEGIN content;
                                                 }
 
-<tagcloseend>.                                  {  BEGIN tagerror; yyless(0);
-                                                   p_xml_scan_err_msg = "Garbage in closing tag after tag name";
-                                                }
-
- /* Skip comments <!-- ... --> */
-
-<prolog,docdtd,content>{COMMENT}                {
-                                                   static const char * const echars = "-->";
-                                                   int c;
-                                                   int estate = 0;
-
-                                                   /* eat up text of comment */
-                                                   while (1)
-                                                   {
-                                                      c = input();
-                                                      if (c != EOF)
-                                                      {
-                                                         /* check for stop sequence */
-                                                         if (c == echars[estate])
-                                                         {
-                                                            estate++;
-                                                            if (estate >= 3)
-                                                               break;
-                                                         }
-                                                         else
-                                                            estate = 0;
-                                                         /* note: the XML spec disallows "--" inside comments;
-                                                         ** we could emit a warning, but currently it's ignored */
-                                                      }
-                                                      else
-                                                      {
-                                                         Xmltv_SyntaxError("end-of-file inside comment", "");
-                                                         return 0;
-                                                         break;
-                                                      }
-                                                   }
-                                                   /*printf("COMMENT skipped\n");*/
-                                                   /* no return, continue scanning */
-                                                }
+<tagcloseend>.                                  {  XML_SCAN_RESYNC('>', tagerror, "Garbage in closing tag after tag name"); }
 
  /* Parse opening or empty tag (e.g. <tag attr="1"> or <tag /> */
 
@@ -619,28 +794,23 @@ ENTSYS2         '[^']*'
 <tagname>\>                                     {  BEGIN content;
                                                    Xmltv_SyntaxError("Parse error: empty tag", "<>");
                                                 }
-<tagname>.                                      {  BEGIN tagerror; yyless(0);
-                                                   p_xml_scan_err_msg = "Parse error in opening tag: not a valid tag name";
-                                                }
+<tagname>.                                      {  XML_SCAN_RESYNC('>', tagerror, "Parse error in opening tag: not a valid tag name"); }
 
-<tagattrspace>[[:space:]]+                      {  BEGIN tagattrname; }
+<tagattrspace>{XMLWS}+                          {  BEGIN tagattrname; }
 
 <tagattrname>{XMLNAME}                          {  BEGIN tagattrass;
                                                    XmltvTags_AttribIdentify(yytext);
                                                 }
 
-<tagattrass>[[:space:]]*=[[:space:]]*           {  BEGIN tagattrval;
+<tagattrass>{XMLWS}*={XMLWS}*                   {  BEGIN tagattrval;
                                                    XmlCdata_Reset(&xml_attr);
                                                 }
-<tagattrass>.                                   {  BEGIN tagerror; yyless(0);
-                                                   p_xml_scan_err_msg = "Parse error in tag attribute assignment: expected equal sign";
-                                                }
+<tagattrass>.                                   {  XML_SCAN_RESYNC('>', tagerror, "Parse error in tag attribute assignment: expected equal sign"); }
 
 <tagattrval>\"                                  {  BEGIN tagattrval1; }
 <tagattrval>\'                                  {  BEGIN tagattrval2; }
-<tagattrval>.                                   {  BEGIN tagerror; yyless(0);
-                                                   p_xml_scan_err_msg = "Parse error in tag attribute assignment: expected opening quote";
-                                                }
+<tagattrval>.                                   {  XML_SCAN_RESYNC('>', tagerror, "Parse error in tag attribute assignment: expected opening quote"); }
+
 <tagattrval1,tagattrval2,dtdattval1,dtdattval2,tagattrval3>{
    &amp;                                        {  XmlCdata_AppendRaw(&xml_attr, "&", 1); }
    &lt;                                         {  XmlCdata_AppendRaw(&xml_attr, "<", 1); }
@@ -655,7 +825,7 @@ ENTSYS2         '[^']*'
                                                    pValue = XmlScan_QueryEntity(yytext);
                                                    if (pValue == NULL)
                                                    {
-                                                      XmlCdata_AppendRaw(&xml_attr, yytext, yyleng - 1);
+                                                      XmlScan_CdataAppend(&xml_attr, yytext, yyleng - 1);
                                                       XmlCdata_AppendRaw(&xml_attr, ";", 1);
                                                    }
                                                    else
@@ -673,9 +843,9 @@ ENTSYS2         '[^']*'
 }
 <tagattrval1,tagattrval2,dtdattval1,dtdattval2>\r+  {  /*dropped*/ }
 <tagattrval3>\r                                 {  XmlCdata_AppendRaw(&xml_attr, " ", 1); }
-<tagattrval1,dtdattval1>[^\"\<\&\n\r\t]+        {  XmlCdata_AppendRaw(&xml_attr, yytext, yyleng); }
-<tagattrval2,dtdattval2>[^\'\<\&\n\r\t]+        {  XmlCdata_AppendRaw(&xml_attr, yytext, yyleng); }
-<tagattrval3>[^\<\&\n\r\t]+                     {  XmlCdata_AppendRaw(&xml_attr, yytext, yyleng); }
+<tagattrval1,dtdattval1>[^\"\<\&\n\r\t]+        {  XmlScan_CdataAppend(&xml_attr, yytext, yyleng); }
+<tagattrval2,dtdattval2>[^\'\<\&\n\r\t]+        {  XmlScan_CdataAppend(&xml_attr, yytext, yyleng); }
+<tagattrval3>[^\<\&\n\r\t]+                     {  XmlScan_CdataAppend(&xml_attr, yytext, yyleng); }
 
 <tagattrval1>\"                                 {  BEGIN tagattrspace;
                                                    XmltvTags_AttribData(&xml_attr);
@@ -684,16 +854,12 @@ ENTSYS2         '[^']*'
                                                    XmltvTags_AttribData(&xml_attr);
                                                 }
 
-<tagattrval1,tagattrval2>.                      {  BEGIN tagerror; yyless(0);
-                                                   p_xml_scan_err_msg = "Invalid character in attribute value";
-                                                }
+<tagattrval1,tagattrval2>.                      {  XML_SCAN_RESYNC('>', tagerror, "Invalid character in attribute value"); }
 <tagattrval3>.                                  {  BEGIN tagattrval3err; yyless(0); }
 <tagattrval3err>[\0-\xff]+                      {  /* discard remaining entity replacement text */
                                                    Xmltv_SyntaxError("Invalid character in attribute value", yytext);
                                                 }
-<dtdattval1,dtdattval2>.                        {  BEGIN docdtderr; yyless(0);
-                                                   p_xml_scan_err_msg = "Invalid character in default attribute value in DTD ATTLIST declaration";
-                                                }
+<dtdattval1,dtdattval2>.                        {  XML_SCAN_RESYNC('>', docdtderr, "Invalid character in default attribute value in DTD ATTLIST declaration"); }
 <tagattrname,tagattrspace>"/>"                  {  BEGIN content;
                                                    if (XmltvTags_Close(NULL) == FALSE)
                                                    {
@@ -701,26 +867,16 @@ ENTSYS2         '[^']*'
                                                       return XMLTOK_CONTENT_END;
                                                    }
                                                 }
-
-<tagattrname,tagattrspace>\/[^>]                {  BEGIN tagerror; yyless(0);
-                                                   p_xml_scan_err_msg = "Parse error at tag end: garbage after /";
-                                                }
+<tagattrname,tagattrspace>\/[^>]                {  XML_SCAN_RESYNC('>', tagerror, "Parse error at tag end: garbage after /"); }
 
 <tagattrname,tagattrspace>">"                   {  BEGIN content;
                                                    XmltvTags_AttribsComplete();
                                                 }
 
-<tagattrspace>.                                 {  BEGIN tagerror; yyless(0);
-                                                   p_xml_scan_err_msg = "Parse error in tag: garbage after tag name or assignment";
-                                                }
-<tagattrname>.                                  {  BEGIN tagerror; yyless(0);
-                                                   p_xml_scan_err_msg = "Parse error in tag: expected assignment or closing tag";
-                                                }
+<tagattrspace>.                                 {  XML_SCAN_RESYNC('>', tagerror, "Parse error in tag: garbage after tag name or assignment"); }
+<tagattrname>.                                  {  XML_SCAN_RESYNC('>', tagerror, "Parse error in tag: expected assignment or closing tag"); }
 
-<tagerror>[^>]*\>                               {  BEGIN content;
-                                                   Xmltv_SyntaxError(p_xml_scan_err_msg, yytext);
-                                                   p_xml_scan_err_msg = NULL;
-                                                }
+<tagerror>">"                                   {  BEGIN content; }
 
 
  /* CDATA inside content area (unparsed character data) */
@@ -729,19 +885,19 @@ ENTSYS2         '[^']*'
 
 <cdata0>"]"                                     {  BEGIN cdata1; }
 <cdata0>\r                                      {  /*dropped*/ }
-<cdata0>[^\]\r]+                                {  XmlCdata_AppendRaw(&xml_content, yytext, yyleng); }
+<cdata0>[^\]\r]+                                {  XmlScan_CdataAppend(&xml_content, yytext, yyleng); }
 <cdata1>"]"                                     {  BEGIN cdata2; }
-<cdata1>.                                       {  BEGIN cdata0;
+<cdata1>[^\]]                                   {  BEGIN cdata0;
                                                    XmlCdata_AppendRaw(&xml_content, "]", 1);
                                                    if (yytext[0] != '\r')
-                                                      XmlCdata_AppendRaw(&xml_content, yytext, 1);
+                                                      XmlScan_CdataAppend(&xml_content, yytext, 1);
                                                 }
 <cdata2>">"                                     {  BEGIN content; }
-<cdata2>"]"                                     {  XmlCdata_AppendRaw(&xml_content, "]", 1); }
-<cdata2>.                                       {  BEGIN cdata0;
+<cdata2>"]"                                     {  XmlScan_CdataAppend(&xml_content, "]", 1); }
+<cdata2>[^>\]]                                  {  BEGIN cdata0;
                                                    XmlCdata_AppendRaw(&xml_content, "]]", 2);
                                                    if (yytext[0] != '\r')
-                                                      XmlCdata_AppendRaw(&xml_content, yytext, 1);
+                                                      XmlScan_CdataAppend(&xml_content, yytext, 1);
                                                 }
 
  /* Parse content with entity references */
@@ -759,7 +915,7 @@ ENTSYS2         '[^']*'
                                                    pValue = XmlScan_QueryEntity(yytext);
                                                    if (pValue == NULL)
                                                    {
-                                                      XmlCdata_AppendRaw(&xml_content, yytext, yyleng - 1);
+                                                      XmlScan_CdataAppend(&xml_content, yytext, yyleng - 1);
                                                       XmlCdata_AppendRaw(&xml_content, ";", 1);
                                                    }
                                                    else
@@ -768,8 +924,8 @@ ENTSYS2         '[^']*'
                                                    }
                                                 }
 <content>&                                      {
-                                                   Xmltv_SyntaxError("Parse error in entity reference:", yytext);
                                                    XmlCdata_AppendRaw(&xml_content, "&", 1);
+                                                   Xmltv_SyntaxError("Parse error in entity reference:", yytext);
                                                 }
 <content>\r+                                    {  if (xml_entity_stack_depth > 0)
                                                    {  /* not dropped when inserted as "&#13;" in entity replacement text (testcase valid/sa/068.xml) */
@@ -777,35 +933,113 @@ ENTSYS2         '[^']*'
                                                    }
                                                 }
 <content>[^<&\r]+                               {
-                                                   XmlCdata_AppendRaw(&xml_content, yytext, yyleng);
+                                                   XmlScan_CdataAppend(&xml_content, yytext, yyleng);
                                                 }
 
+ /* Skip comments <!-- ... --> (both during prolog and content) */
+ /* note: catch-all error rules for these state are already above,
+ ** but this works anyways because the rule generates a longer match
+ ** (3 chars instead of 1 for error rules) */
+
+<prolog,docdtd,content>{COMMENT}                {  xml_scan_pre_pi_state = YYSTATE;
+                                                   BEGIN comment0;
+                                                }
+<comment0>"-"                                   {  BEGIN comment1; }
+<comment0>[^\-]                                 {  /* use C code for skipping to avoid matching possibly huge chunks of text */
+                                                   int skipped;
+                                                   int c;
+                                                   for (skipped = 0; skipped < 4000; skipped++)
+                                                   {
+                                                      c = input();
+                                                      if (c == EOF)
+                                                      {
+                                                         BEGIN xml_scan_pre_pi_state;
+                                                         if (xml_entity_stack_depth > 0)
+                                                            XmlScan_PopEntityBuffer();
+                                                         else
+                                                            yyterminate();
+                                                         Xmltv_SyntaxError("unterminated comment", "");
+                                                      }
+                                                      else if (c == '-')
+                                                      {
+                                                         BEGIN comment1;
+                                                         break;
+                                                      }
+                                                      /* else: continue to skip input */
+                                                   }
+                                                }
+<comment1>"-"                                   {  BEGIN comment2; }
+<comment1>[^\-]                                 {  BEGIN comment0; }
+<comment2>"-"                                   {  /* keep waiting for '>' */ }
+<comment2>">"                                   {  BEGIN xml_scan_pre_pi_state;
+                                                   /* no return, continue scanning */
+                                                }
+<comment2>[^>\-]                                {  BEGIN comment0; }
+
+
+ /* Skip input until a possible synchronization character is found */
+ /* (Implemented in C because in corrupt files there may be a huge amount of garbage which
+ ** would be extremely slow to skip with a "*" regexp, esp. if it contains many zero bytes;
+ ** also not using ".{0,2000}" because this generates huge state transition tables) */
+
+<resync>[\0-\xff]                               {
+                                                   char buf[50];
+                                                   int c = (uchar) yytext[0];
+                                                   int skip_count = 1;
+                                                   buf[0] = c;
+                                                   if (c != xml_scan_resync_char)
+                                                   {
+                                                      do {
+                                                         c = input();
+                                                         if (skip_count < sizeof(buf))
+                                                            buf[skip_count] = c;
+                                                         skip_count++;
+                                                      } while ( (c != EOF) && (c != xml_scan_resync_char) && (skip_count < 2000) );
+                                                   }
+                                                   if (xml_scan_resync_start)
+                                                   {  /* print error message and the offending characters in the input stream */
+                                                      if (skip_count < sizeof(buf))
+                                                         buf[skip_count] = 0;
+                                                      else
+                                                         buf[sizeof(buf) - 1] = 0;
+                                                      Xmltv_SyntaxError(p_xml_scan_err_msg, buf);
+                                                      /* abort handling if the above call changed the state */
+                                                      if (YYSTATE != resync)
+                                                         break;
+                                                   }
+                                                   if (c == EOF)
+                                                   {
+                                                      BEGIN xml_scan_resync_state;
+                                                      if (xml_entity_stack_depth > 0)
+                                                         XmlScan_PopEntityBuffer();
+                                                      else
+                                                         yyterminate();
+                                                   }
+                                                   else
+                                                   {
+                                                      if (c == xml_scan_resync_char)
+                                                      {  /* sync char found -> resume scanning */
+                                                         BEGIN xml_scan_resync_state;
+                                                         unput(c);
+                                                      }
+                                                      else if (xml_scan_resync_start == 0)
+                                                      {  /* sync not found yet -> keep reporting to allow parser to abort
+                                                         ** after a finite amount of data (e.g. in case some joker feeds us /dev/zero) */
+                                                         Xmltv_SyntaxError("Skipped 2000 characters, still trying to resync with input after error...", "");
+                                                      }
+                                                      xml_scan_resync_start = 0;
+                                                   }
+                                                }
+
+<stopped>[\0-\xff]                              {  BEGIN stopped_end; return XMLTOK_CONTENT_END; }
+<stopped_end>[\0-\xff]                          {  YY_FLUSH_BUFFER; yyterminate(); }
 
  /* Check the parser state at end-of-file or replacement string buffer */
-
-<stopped>.                                      {  BEGIN stopped_end; return XMLTOK_CONTENT_END; }
-<stopped_end>.                                  {  YY_FLUSH_BUFFER; yyterminate(); }
-
 
 <<EOF>>                                         {
                                                    if (xml_entity_stack_depth > 0)
                                                    {
-                                                      yy_delete_buffer(YY_CURRENT_BUFFER);
-                                                      xml_entity_stack_depth -= 1;
-                                                      yy_switch_to_buffer(xml_entity_stack[xml_entity_stack_depth].buffer);
-
-                                                      if (xml_entity_stack[xml_entity_stack_depth].change_state)
-                                                      {
-                                                         BEGIN xml_entity_stack[xml_entity_stack_depth].prev_state;
-                                                      }
-                                                      else /* check if state changed */
-                                                      {
-                                                         if (YYSTATE != xml_entity_stack[xml_entity_stack_depth].prev_state)
-                                                         {
-                                                            Xmltv_SyntaxError("Partial markup in entity replacement text:", "");
-                                                            BEGIN xml_entity_stack[xml_entity_stack_depth].prev_state;
-                                                         }
-                                                      }
+                                                      XmlScan_PopEntityBuffer();
                                                    }
                                                    else
                                                    {
@@ -815,6 +1049,8 @@ ENTSYS2         '[^']*'
                                                          ; /* also an error, but handled at semantic level */
                                                       else if ((YYSTATE >= cdata0) && (YYSTATE < cdata2))
                                                          Xmltv_SyntaxError("end-of-file inside CDATA", "");
+                                                      else if ((YYSTATE >= comment0) && (YYSTATE < comment2))
+                                                         Xmltv_SyntaxError("end-of-file inside comment", "");
                                                       else
                                                          Xmltv_SyntaxError("end-of-file inside markup", "");
                                                       yyterminate();
@@ -822,6 +1058,33 @@ ENTSYS2         '[^']*'
                                                 }
 
 %%
+
+/* ----------------------------------------------------------------------------
+** Pop replacement buffer from the entity stack
+** - called after all text in the buffer has been parsed
+*/
+static void XmlScan_PopEntityBuffer( void )
+{
+   if (xml_entity_stack_depth > 0)
+   {
+      yy_delete_buffer(YY_CURRENT_BUFFER);
+      xml_entity_stack_depth -= 1;
+      yy_switch_to_buffer(xml_entity_stack[xml_entity_stack_depth].buffer);
+
+      if (xml_entity_stack[xml_entity_stack_depth].change_state)
+      {
+         BEGIN xml_entity_stack[xml_entity_stack_depth].prev_state;
+      }
+      else /* check if state changed */
+      {
+         if (YYSTATE != xml_entity_stack[xml_entity_stack_depth].prev_state)
+         {
+            BEGIN xml_entity_stack[xml_entity_stack_depth].prev_state;
+            Xmltv_SyntaxError("Partial markup in entity replacement text", "");
+         }
+      }
+   }
+}
 
 /* ----------------------------------------------------------------------------
 ** Retrieve and parse an entity value (replacement string)
@@ -920,7 +1183,7 @@ void XmlScan_EntityDefValue( const char * pValue )
       if (isNew)
       {
          dprintf2("XmlCData-EntityDefValue: entity '%s' = '%s'\n", XML_STR_BUF_GET_STR(xml_entity_new_name), pValue);
-         assert(sizeof(XML_ENTITY_HASH_VAL) <= HASH_PAYLOAD_SIZE);
+         /*assert(sizeof(XML_ENTITY_HASH_VAL) <= HASH_PAYLOAD_SIZE);*/
 
          pEntVal->pValue = xstrdup(pValue);
       }
@@ -944,6 +1207,51 @@ static void XmlScan_EntityDefFree( XML_HASH_PTR pHash, char * pPayload )
 }
 
 /* ----------------------------------------------------------------------------
+** Set encoding
+** - called when the <?xml encoding="..."?> attribute is evaluated by the app.
+** - note: the primary encoding is automatically selected by the scanner upon
+**   reading the first few bytes; this is necessary to be able to read the
+**   <?xml?> tag in the first place; here we can only fine-tune the encoding,
+**   i.e. switch between related codes
+*/
+bool XmlScan_SetEncoding( XML_ENCODING encoding )
+{
+   bool result;
+
+   if (xml_scan_encoding == encoding)
+   {
+      result = TRUE;
+   }
+   else if ( (xml_scan_encoding == XML_ENC_UTF8) &&
+             (encoding == XML_ENC_ISO8859) )
+   {
+      xml_scan_encoding = encoding;
+      result = TRUE;
+   }
+   else if ( ( (xml_scan_encoding == XML_ENC_UTF16BE) ||
+               (xml_scan_encoding == XML_ENC_UTF16LE) ) &&
+             ( (encoding == XML_ENC_UTF16BE) ||
+               (encoding == XML_ENC_UTF16LE) ) )
+   {
+      // don't copy new value: don't touch endianess - better rely on auto-detection
+      result = TRUE;
+   }
+   else
+      result = FALSE;
+
+   if (xml_scan_encoding == XML_ENC_ISO8859)
+   {
+#ifdef XMLTV_OUTPUT_UTF8
+      XmlScan_CdataAppend = XmlCdata_AppendLatin1ToUtf8;
+#else /* output Latin-1 */
+      XmlScan_CdataAppend = XmlCdata_AppendRawNOINLINE;
+#endif
+   }
+
+   return result;
+}
+
+/* ----------------------------------------------------------------------------
 ** Early stop of the scanner - simulate end of file
 */
 void XmlScan_Stop( void )
@@ -952,7 +1260,7 @@ void XmlScan_Stop( void )
 }
 
 /* ----------------------------------------------------------------------------
-** Free resources allocated by C operators
+** Free resources
 */
 void XmlScan_Destroy( void )
 {
@@ -960,6 +1268,19 @@ void XmlScan_Destroy( void )
    XmlCdata_Free(&xml_entity_new_name);
    XmlCdata_Free(&xml_attr);
    XmlCdata_Free(&xml_content);
+
+   /* free entity stack, in case the parser is stopped
+   ** during parsing an entity replacement text */
+   while (xml_entity_stack_depth > 0)
+   {
+      yy_delete_buffer(YY_CURRENT_BUFFER);
+      xml_entity_stack_depth -= 1;
+      yy_switch_to_buffer(xml_entity_stack[xml_entity_stack_depth].buffer);
+   }
+
+   /* free internal state and buffer */
+   yy_delete_buffer(YY_CURRENT_BUFFER);
+   yy_init = 1;
 }
 
 /* ----------------------------------------------------------------------------
@@ -967,14 +1288,24 @@ void XmlScan_Destroy( void )
 */
 void XmlScan_Init( void )
 {
+   /* Make a bogus use of yy_fatal_error() to avoid spurious warning */
+   (void) &yy_fatal_error;
+
    XmlCdata_Init(&xml_attr, 256);
    XmlCdata_Init(&xml_content, 4096);
    XmlCdata_Init(&xml_entity_new_name, 256);
    pEntityHash = XmlHash_Init();
 
    xml_entity_stack_depth = 0;
+   xml_scan_encoding = XML_ENC_UNKNOWN;
 
-   p_xml_scan_err_msg = NULL;
+   /* select transcoding function for character data output */
+   /* default input encoding is UTF-8 (when no <?xml?> is present) */
+#ifdef XMLTV_OUTPUT_UTF8
+   XmlScan_CdataAppend = XmlCdata_AppendRawNOINLINE;
+#else
+   XmlScan_CdataAppend = XmlCdata_AppendUtf8ToLatin1;
+#endif
 
    BEGIN INITIAL;
 }

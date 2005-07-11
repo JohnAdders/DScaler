@@ -19,7 +19,7 @@
  *
  *  Author: Tom Zoerner
  *
- *  $Id: xmltv_types.h,v 1.1 2005-07-06 19:42:39 laurentg Exp $
+ *  $Id: xmltv_types.h,v 1.2 2005-07-11 14:56:06 laurentg Exp $
  */
 
 #ifndef __XMLTV_TYPES_H
@@ -84,11 +84,8 @@ typedef   signed long  slong;    // >=32 bit signed
 #define  UINT2PVOID(X)   ((void *)((ulong)(X)))
 
 #ifdef WIN32
-#define STRCASECMP	stricmp
-#define STRNCASECMP	strnicmp
-#else
-#define STRCASECMP	strcasecmp
-#define STRNCASECMP	strncasecmp
+#define strcasecmp	stricmp
+#define strncasecmp	strnicmp
 #endif
 
 #endif // __XMLTV_TYPES_H

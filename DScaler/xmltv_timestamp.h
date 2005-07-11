@@ -20,11 +20,14 @@
 #define __XMLTV_TIMESTAMP_H
 
 #ifdef __cplusplus
-extern "C" time_t parse_xmltv_date_v5( const char *date );
-extern "C" time_t parse_xmltv_date_v6( const char *date );
-#else
-time_t parse_xmltv_date_v5( const char *date );
-time_t parse_xmltv_date_v6( const char *date );
+extern "C" {
+#endif
+
+time_t parse_xmltv_date_v5( const char *date, unsigned int len );
+time_t parse_xmltv_date_v6( const char *date, unsigned int len );
+
+#ifdef __cplusplus
+} /* end of extern "C" */
 #endif
 
 #endif // __XMLTV_TIMESTAMP_H

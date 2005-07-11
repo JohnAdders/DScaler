@@ -18,7 +18,7 @@
  *    XMLTV parser demo package. Only the minimum necessary to compile
  *    other files of the package has been kept.
  *
- *  $Id: xmltv_debug.h,v 1.2 2005-07-11 14:56:06 laurentg Exp $
+ *  $Id: xmltv_debug.h,v 1.3 2005-07-11 15:18:59 laurentg Exp $
  */
 
 #ifndef __XMLTV_DEBUG_H
@@ -48,10 +48,10 @@
 
 
 // memory allocation debugging
-void * xmalloc( size_t size );
-void * xrealloc( void * ptr, size_t size );
-#define xfree(PTR)     free(PTR)
-#define xstrdup(PTR)   strdup(PTR)
+#define	xmalloc(SIZE)			malloc(SIZE)
+#define	xrealloc(PTR, SIZE)		realloc(PTR, SIZE)
+#define xfree(PTR)				free(PTR)
+#define xstrdup(PTR)			strdup(PTR)
 
 
 #endif  /* not __XMLTV_DEBUG_H */

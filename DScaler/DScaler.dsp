@@ -987,20 +987,6 @@ SOURCE=.\xmltv_db.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\xmltv_debug.c
-
-!IF  "$(CFG)" == "DScaler - Win32 Debug"
-
-!ELSEIF  "$(CFG)" == "DScaler - Win32 Release"
-
-# ADD CPP /D "_X86_"
-# SUBTRACT CPP /YX /Yc /Yu
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
 SOURCE=.\xmltv_tags.c
 
 !IF  "$(CFG)" == "DScaler - Win32 Debug"

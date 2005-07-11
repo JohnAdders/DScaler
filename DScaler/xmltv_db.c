@@ -77,7 +77,7 @@
  *  Author: Tom Zoerner
  *          L. Garnier for interfacing with DScaler
  *
- *  $Id: xmltv_db.c,v 1.2 2005-07-11 14:56:06 laurentg Exp $
+ *  $Id: xmltv_db.c,v 1.3 2005-07-11 16:00:52 laurentg Exp $
  */
 
 #define DEBUG_SWITCH DEBUG_SWITCH_XMLTV
@@ -104,6 +104,9 @@ extern int CheckProgrammeValidity(time_t StartTime, time_t EndTime, char * Chann
 extern void AddProgramme(time_t StartTime, time_t EndTime, char * Title, char * ChannelName, char * SubTitle, char * Category, char * Description);
 
 
+//#define ALL_CONTENT
+
+
 typedef struct
 {
    char       * p_disp_name;
@@ -111,6 +114,7 @@ typedef struct
    time_t       pi_max_time;
 } XMLTV_CHN;
 
+#ifdef ALL_CONTENT
 typedef enum
 {
    XMLTV_CAT_SYS_NONE,
@@ -137,6 +141,7 @@ typedef enum
 } XMLTV_RATING_SYS;
 
 #define XMLTV_PI_CAT_MAX  40   // 3 languages
+#endif
 
 typedef struct
 {
@@ -147,6 +152,7 @@ typedef struct
    XMLTV_CHN  * p_chn_table;
    XML_HASH_PTR pChannelHash;
 
+#ifdef ALL_CONTENT
    XML_STR_BUF  source_info_name;
    XML_STR_BUF  source_info_url;
    XML_STR_BUF  source_data_url;
@@ -154,17 +160,21 @@ typedef struct
    XML_STR_BUF  gen_info_url;
    XML_STR_BUF  * link_text_dest;
    XML_STR_BUF  * link_href_dest;
+#endif
 
    time_t       pi_start_time;
    time_t       pi_stop_time;
    uint         pi_netwop_no;
+#ifdef ALL_CONTENT
    uint         pi_pil;
    ulong        pi_feature_flags;
+#endif
 
    XML_STR_BUF  pi_title;
    XML_STR_BUF  pi_subtitle;
    XML_STR_BUF  pi_category;
    XML_STR_BUF  pi_desc;
+#ifdef ALL_CONTENT
    XML_STR_BUF  pi_credits;
    XML_STR_BUF  pi_actors;
 
@@ -182,6 +192,7 @@ typedef struct
    XML_STR_BUF  pi_code_time_str;
    XML_STR_BUF  pi_code_sv;
    XML_STR_BUF  pi_code_vp;
+#endif
    XMLTV_DTD_VERSION dtd;
    bool         isPeek;
 
@@ -201,8 +212,6 @@ static PARSE_STATE xds;
 #define PI_FEATURE_SOUND_2CHAN     0x001
 #define PI_FEATURE_SOUND_STEREO    0x002
 #define PI_FEATURE_SOUND_SURROUND  0x003
-
-#define ALL_CONTENT
 
 // ----------------------------------------------------------------------------
 // Parse timestamp
@@ -272,7 +281,9 @@ static uint Xmltv_ParseVpsPdc( const char * pStr )
 // DTD 0.5 only (DTD 0.6 uses <link>)
 void Xmltv_AboutSetSourceInfoUrl( XML_STR_BUF * pBuf )
 {
+#ifdef ALL_CONTENT
    XmlCdata_AssignOrAppend(&xds.source_info_name, pBuf);
+#endif
 }
 
 // DTD 0.5 only (DTD 0.6 uses <link>)
@@ -490,20 +501,24 @@ void Xmltv_TsOpen( void )
    xds.pi_start_time = 0;
    xds.pi_stop_time = 0;
    xds.pi_netwop_no = xds.chn_count;
+#ifdef ALL_CONTENT
    xds.pi_pil = 0;
    xds.pi_feature_flags = 0;
    xds.audio_cnt = 0;
    xds.pi_cat_count = 0;
+#endif
 
    XmlCdata_Reset(&xds.pi_title);
    XmlCdata_Reset(&xds.pi_subtitle);
    XmlCdata_Reset(&xds.pi_category);
    XmlCdata_Reset(&xds.pi_desc);
+#ifdef ALL_CONTENT
    XmlCdata_Reset(&xds.pi_credits);
    XmlCdata_Reset(&xds.pi_actors);
 
    XmlCdata_Reset(&xds.pi_code_sv);
    XmlCdata_Reset(&xds.pi_code_vp);
+#endif
 
    if (xds.isPeek)
    {
@@ -754,7 +769,6 @@ void Xmltv_PiTitleAdd( XML_STR_BUF * pBuf )
 
 void Xmltv_PiEpisodeTitleAdd( XML_STR_BUF * pBuf )
 {
-#ifdef ALL_CONTENT
    char * pStr = XML_STR_BUF_GET_STR(*pBuf);
 
    if ( isalnum(*pStr) )
@@ -767,7 +781,6 @@ void Xmltv_PiEpisodeTitleAdd( XML_STR_BUF * pBuf )
       XmlCdata_AssignOrAppend(&xds.pi_desc, pBuf);
 
    XmlCdata_Assign(&xds.pi_subtitle, pBuf);
-#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -828,16 +841,20 @@ void Xmltv_PiVideoAspectClose( void )
 
 void Xmltv_PiVideoAspectSetX( XML_STR_BUF * pBuf )
 {
+#ifdef ALL_CONTENT
    char * pStr = XML_STR_BUF_GET_STR(*pBuf);
 
    xds.pi_aspect_x = atoi(pStr);
+#endif
 }
 
 void Xmltv_PiVideoAspectSetY( XML_STR_BUF * pBuf )
 {
+#ifdef ALL_CONTENT
    char * pStr = XML_STR_BUF_GET_STR(*pBuf);
 
    xds.pi_aspect_y = atoi(pStr);
+#endif
 }
 
 // DTD 0.5: aspect specified as PCDATA
@@ -1051,18 +1068,18 @@ void Xmltv_ParagraphClose( void )
 
 void Xmltv_ParagraphAdd( XML_STR_BUF * pBuf )
 {
-#ifdef ALL_CONTENT
    XmlCdata_AppendParagraph(&xds.pi_desc, FALSE);
    XmlCdata_AssignOrAppend(&xds.pi_desc, pBuf);
-#endif
 }
 
 // ----------------------------------------------------------------------------
 
 void Xmltv_PiCreditsOpen( void )
 {
+#ifdef ALL_CONTENT
    XmlCdata_Reset(&xds.pi_credits);
    XmlCdata_Reset(&xds.pi_actors);
+#endif
 }
 
 void Xmltv_PiCreditsClose( void )
@@ -1194,6 +1211,7 @@ static void XmltvDb_Destroy( void )
    XmlCdata_Free(&xds.pi_subtitle);
    XmlCdata_Free(&xds.pi_category);
    XmlCdata_Free(&xds.pi_desc);
+#ifdef ALL_CONTENT
    XmlCdata_Free(&xds.pi_credits);
    XmlCdata_Free(&xds.pi_actors);
 
@@ -1206,6 +1224,7 @@ static void XmltvDb_Destroy( void )
    XmlCdata_Free(&xds.source_data_url);
    XmlCdata_Free(&xds.gen_info_name);
    XmlCdata_Free(&xds.gen_info_url);
+#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -1220,9 +1239,11 @@ static void XmltvDb_Init( void )
    XmlCdata_Init(&xds.pi_title, 256);
    XmlCdata_Init(&xds.pi_subtitle, 256);
    XmlCdata_Init(&xds.pi_category, 256);
+#ifdef ALL_CONTENT
    XmlCdata_Init(&xds.pi_code_time_str, 256);
    XmlCdata_Init(&xds.pi_code_sv, 256);
    XmlCdata_Init(&xds.pi_code_vp, 256);
+#endif
    XmlCdata_Init(&xds.pi_desc, 4096);
 }
 

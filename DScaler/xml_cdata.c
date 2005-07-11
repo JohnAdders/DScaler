@@ -21,7 +21,7 @@
  *
  *  Author: Tom Zoerner
  *
- *  $Id: xml_cdata.c,v 1.2 2005-07-11 14:56:06 laurentg Exp $
+ *  $Id: xml_cdata.c,v 1.3 2005-07-11 22:08:36 laurentg Exp $
  */
 
 #define DEBUG_SWITCH DEBUG_SWITCH_XMLTV
@@ -382,18 +382,18 @@ void XmlCdata_AppendUtf8ToLatin1( XML_STR_BUF * pBuf, const char * pStr, uint le
             if ( ((c2 & 0xC0) == 0x80) && (code < 0x100) )
                *(pDest++) = code;
             else
-               *(pDest++) = 0xA0;  // outside of ISO8859-1 range
+               *(pDest++) = (char)0xA0;  // outside of ISO8859-1 range
          }
          else
          {
             dprintf1("XmlCdata-AppendUtf8ToLatin1: sequence error in input: string ends after 0x%02X\n", c1);
-            *(pDest++) = 0xA0;
+            *(pDest++) = (char)0xA0;
          }
       }
       else
       {  // >= 3-byte sequence -> Unicode character codes >= 0x800
          // not a Latin-1 character, replace with Latin-1 'NBSP' (non-breaking space)
-         *(pDest++) = 0xA0;
+         *(pDest++) = (char)0xA0;
 
          // skip the complete multi-byte code in the source string
          while ( (len != 0) && ((*pStr & 0xC0) == 0x80) )

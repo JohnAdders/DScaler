@@ -32,7 +32,7 @@
  *
  *  Author: Tom Zoerner
  *
- *  $Id: xmltv_tags.c,v 1.2 2005-07-11 14:56:06 laurentg Exp $
+ *  $Id: xmltv_tags.c,v 1.3 2005-07-11 23:10:56 laurentg Exp $
  */
 
 #define DEBUG_SWITCH DEBUG_SWITCH_XMLTV
@@ -55,6 +55,10 @@ extern FILE *yyin;
 extern int yyparse( void );
 extern int yylex( void );
 
+
+//#define ALL_CONTENT
+
+
 // ----------------------------------------------------------------------------
 // Definition of tags and their hierarchy
 //
@@ -65,12 +69,15 @@ typedef enum
    XMLTV5_TV,
    XMLTV5_CHANNEL,
       XMLTV5_CHN_DISP_NAME,
+#ifdef ALL_CONTENT
       XMLTV5_CHN_ICON,
       XMLTV5_CHN_URL,
+#endif
    XMLTV5_PROG,
       XMLTV5_PI_TITLE,
       XMLTV5_PI_TITLE2,
       XMLTV5_PI_DESC,
+#ifdef ALL_CONTENT
       XMLTV5_PI_CREDITS,
          XMLTV5_PI_CRED_DIR,
          XMLTV5_PI_CRED_ACT,
@@ -81,7 +88,9 @@ typedef enum
          XMLTV5_PI_CRED_COMM,
          XMLTV5_PI_CRED_GUEST,
       XMLTV5_PI_DATE,
+#endif
       XMLTV5_PI_CAT,
+#ifdef ALL_CONTENT
       XMLTV5_PI_VIDEO,
          XMLTV5_PI_VIDEO_ASPECT,
       XMLTV5_PI_AUDIO,
@@ -91,24 +100,30 @@ typedef enum
          XMLTV5_PI_PRAT_VAL,
       XMLTV5_PI_ERAT,
          XMLTV5_PI_ERAT_VAL,
+#endif
    // tags according DTD 0.6
    XMLTV6_TOP,
    XMLTV6_TV,
+#ifdef ALL_CONTENT
    XMLTV6_ABOUT,
       XMLTV6_SRC_INFO,
       XMLTV6_SRC_DATA,
       XMLTV6_GEN_INFO,
+#endif
    XMLTV6_CHANNEL,
       XMLTV6_CHN_DISP_NAME,
    XMLTV6_TIMESLOT,
+#ifdef ALL_CONTENT
       XMLTV6_TS_CODE_TIME,
       XMLTV6_TS_CODE_NUM,
       XMLTV6_TS_PROG_REF,
       XMLTV6_TS_PROG_UNKNOWN,
+#endif
       XMLTV6_TS_PROG,
          XMLTV6_PI_TITLE,
          XMLTV6_PI_DESC,
             XMLTV6_PI_DESC_P,
+#ifdef ALL_CONTENT
          XMLTV6_PI_CREDITS,
             XMLTV6_PI_CRED_DIR,
             XMLTV6_PI_CRED_ROLE,
@@ -126,10 +141,12 @@ typedef enum
                XMLTV6_PI_CRED_ADAP_TYPE,
                XMLTV6_PI_CRED_ADAP_TITLE,
                XMLTV6_PI_CRED_ADAP_WRITER,
+#endif
          XMLTV6_PI_CAT,
          XMLTV6_PI_EPISODE,
             XMLTV6_PI_EPISODE_EP,
                XMLTV6_PI_EPISODE_EP_TITLE,
+#ifdef ALL_CONTENT
          XMLTV6_PI_VIDEO,
             XMLTV6_PI_VIDEO_ASPECT,
             XMLTV6_PI_VIDEO_QUAL,
@@ -147,6 +164,7 @@ typedef enum
       XMLTV6_LINK_TEXT,
       XMLTV6_LINK_BLURB,
          XMLTV6_LINK_BLURB_P,
+#endif
    // DTD auto-detection & catch-all for unrecognized tags
    XMLTV_DETECT,
       XMLTV_DETECT_TV,
@@ -173,14 +191,17 @@ static const XMLTV_TAG xmltv5_tags_tv[] =
 static const XMLTV_TAG xmltv5_tags_channel[] =
 {
    XMLTV5_CHN_DISP_NAME,
+#ifdef ALL_CONTENT
    XMLTV5_CHN_ICON,
    XMLTV5_CHN_URL
+#endif
 };
 static const XMLTV_TAG xmltv5_tags_programme[] =
 {
    XMLTV5_PI_TITLE,
    XMLTV5_PI_DESC,
    XMLTV5_PI_CAT,
+#ifdef ALL_CONTENT
    XMLTV5_PI_VIDEO,
    XMLTV5_PI_AUDIO,
    XMLTV5_PI_PRAT,
@@ -188,8 +209,10 @@ static const XMLTV_TAG xmltv5_tags_programme[] =
    XMLTV5_PI_SUBT,
    XMLTV5_PI_DATE,
    XMLTV5_PI_CREDITS,
+#endif
    XMLTV5_PI_TITLE2
 };
+#ifdef ALL_CONTENT
 static const XMLTV_TAG xmltv5_tags_credits[] =
 {
    XMLTV5_PI_CRED_DIR,
@@ -217,6 +240,7 @@ static const XMLTV_TAG xmltv5_tags_erat[] =
 {
    XMLTV5_PI_ERAT_VAL
 };
+#endif
 
 // ----------------------------------------------------------------------------
 // Tag hierarchy for XMLTV DTD 0.6
@@ -229,8 +253,11 @@ static const XMLTV_TAG xmltv6_tags_tv[] =
 {
    XMLTV6_TIMESLOT,
    XMLTV6_CHANNEL,
+#ifdef ALL_CONTENT
    XMLTV6_ABOUT
+#endif
 };
+#ifdef ALL_CONTENT
 static const XMLTV_TAG xmltv6_tags_about[] =
 {
    XMLTV6_SRC_INFO,
@@ -245,6 +272,7 @@ static const XMLTV_TAG xmltv6_tags_gen_info[] =
 {
    XMLTV6_LINK,
 };
+#endif
 static const XMLTV_TAG xmltv6_tags_channel[] =
 {
    XMLTV6_CHN_DISP_NAME
@@ -252,23 +280,29 @@ static const XMLTV_TAG xmltv6_tags_channel[] =
 static const XMLTV_TAG xmltv6_tags_timeslot[] =
 {
    XMLTV6_TS_PROG,
+#ifdef ALL_CONTENT
    XMLTV6_TS_PROG_REF,
    XMLTV6_TS_PROG_UNKNOWN,
    XMLTV6_TS_CODE_TIME,
    XMLTV6_TS_CODE_NUM
+#endif
 };
 static const XMLTV_TAG xmltv6_tags_prog[] =
 {
    XMLTV6_PI_TITLE,
    XMLTV6_PI_DESC,
    XMLTV6_PI_CAT,
+#ifdef ALL_CONTENT
    XMLTV6_PI_VIDEO,
    XMLTV6_PI_AUDIO,
    XMLTV6_PI_PRAT,
    XMLTV6_PI_ERAT,
    XMLTV6_PI_SUBT,
+#endif
    XMLTV6_PI_EPISODE,
+#ifdef ALL_CONTENT
    XMLTV6_PI_CREDITS
+#endif
 };
 static const XMLTV_TAG xmltv6_tags_episode[] =
 {
@@ -282,6 +316,7 @@ static const XMLTV_TAG xmltv6_tags_desc[] =
 {
    XMLTV6_PI_DESC_P
 };
+#ifdef ALL_CONTENT
 static const XMLTV_TAG xmltv6_tags_credits[] =
 {
    XMLTV6_PI_CRED_DIR,
@@ -336,6 +371,7 @@ static const XMLTV_TAG xmltv6_tags_link_blurb[] =
 {
    XMLTV6_LINK_BLURB_P
 };
+#endif
 
 // ----------------------------------------------------------------------------
 // Tag hierarchy for DTD auto-detection
@@ -592,6 +628,7 @@ static const XML_TAGDEF xmltv_tag_def[] =
      { NULL, NULL, Xmltv_ChannelAddName, NULL },
      XMLTV_ATTR(xmltv5_attr_disp_name),
    },
+#ifdef ALL_CONTENT
    { XMLTV5_CHN_ICON, "icon", XML_NO_CHILDS, XML_NO_PCDATA,
      XMLTV_NO_OPEN_CLOSE_CB,
      XMLTV_ATTR(xmltv5_attr_icon),
@@ -600,6 +637,7 @@ static const XML_TAGDEF xmltv_tag_def[] =
      { NULL, NULL, Xmltv_ChannelAddUrl, NULL },
      XMLTV_NO_ATTR,
    },
+#endif
    { XMLTV5_PROG, "programme", XML_CHILDS(xmltv5_tags_programme), XML_NO_PCDATA,
      { Xmltv_TsOpen, Xmltv_TsClose, NULL, NULL /*Xmltv_TsFilter*/ },
      XMLTV_ATTR(xmltv5_attr_prog),
@@ -616,6 +654,7 @@ static const XML_TAGDEF xmltv_tag_def[] =
      { Xmltv_PiDescOpen, Xmltv_PiDescClose, Xmltv_ParagraphAdd, NULL },
      XMLTV_ATTR(xmltv5_attr_lang_only),
    },
+#ifdef ALL_CONTENT
    { XMLTV5_PI_CREDITS, "credits", XML_CHILDS(xmltv5_tags_credits), XML_NO_PCDATA,
      { Xmltv_PiCreditsOpen, Xmltv_PiCreditsClose, NULL, NULL },
      XMLTV_NO_ATTR,
@@ -656,10 +695,12 @@ static const XML_TAGDEF xmltv_tag_def[] =
      { NULL, NULL, Xmltv_PiDateAdd, NULL },
      XMLTV_NO_ATTR,
    },
+#endif
    { XMLTV5_PI_CAT, "category", XML_NO_CHILDS, XML_HAS_PCDATA,
      { Xmltv_PiCatOpen, Xmltv_PiCatClose, Xmltv_PiCatAddText, NULL },
      XMLTV_ATTR(xmltv5_attr_lang_only),
    },
+#ifdef ALL_CONTENT
    { XMLTV5_PI_VIDEO, "video", XML_CHILDS(xmltv5_tags_video), XML_NO_PCDATA,
      XMLTV_NO_OPEN_CLOSE_CB,
      XMLTV_NO_ATTR,
@@ -696,6 +737,7 @@ static const XML_TAGDEF xmltv_tag_def[] =
      { NULL, NULL, Xmltv_PiStarRatingAddText, NULL },
      XMLTV_NO_ATTR,
    },
+#endif
 
    // DTD 0.6
    { XMLTV6_TOP, "*root/dtd-0.6*", XML_CHILDS(xmltv6_tags_top), XML_NO_PCDATA,
@@ -706,6 +748,7 @@ static const XML_TAGDEF xmltv_tag_def[] =
      XMLTV_NO_OPEN_CLOSE_CB,
      XMLTV_ATTR(xmltv6_attr_tv),
    },
+#ifdef ALL_CONTENT
    { XMLTV6_ABOUT, "about", XML_CHILDS(xmltv6_tags_about), XML_NO_PCDATA,
      XMLTV_NO_OPEN_CLOSE_CB,
      XMLTV_ATTR(xmltv6_attr_about),
@@ -722,6 +765,7 @@ static const XML_TAGDEF xmltv_tag_def[] =
      { Xmltv_GenInfoOpen, Xmltv_GenInfoClose, NULL, NULL },
      XMLTV_NO_ATTR,
    },
+#endif
    { XMLTV6_CHANNEL, "channel", XML_CHILDS(xmltv6_tags_channel), XML_NO_PCDATA,
      { Xmltv_ChannelCreate, Xmltv_ChannelClose, NULL, NULL },
      XMLTV_ATTR(xmltv6_attr_channel),
@@ -734,6 +778,7 @@ static const XML_TAGDEF xmltv_tag_def[] =
      { Xmltv_TsOpen, Xmltv_TsClose, NULL, NULL /*Xmltv_TsFilter*/ },
      XMLTV_ATTR(xmltv6_attr_ts),
    },
+#ifdef ALL_CONTENT
    { XMLTV6_TS_CODE_TIME, "code-time", XML_NO_CHILDS, XML_NO_PCDATA,
      { Xmltv_TsCodeTimeOpen, Xmltv_TsCodeTimeClose, NULL, NULL },
      XMLTV_ATTR(xmltv6_attr_ts_code_time),
@@ -750,6 +795,7 @@ static const XML_TAGDEF xmltv_tag_def[] =
      XMLTV_NO_OPEN_CLOSE_CB,
      XMLTV_NO_ATTR,
    },
+#endif
    { XMLTV6_TS_PROG, "programme", XML_CHILDS(xmltv6_tags_prog), XML_NO_PCDATA,
      XMLTV_NO_OPEN_CLOSE_CB,
      XMLTV_ATTR(xmltv6_attr_prog),
@@ -766,6 +812,7 @@ static const XML_TAGDEF xmltv_tag_def[] =
      { Xmltv_ParagraphCreate, Xmltv_ParagraphClose, Xmltv_ParagraphAdd, NULL },
      XMLTV_NO_ATTR,
    },
+#ifdef ALL_CONTENT
    { XMLTV6_PI_CREDITS, "credits", XML_CHILDS(xmltv6_tags_credits), XML_NO_PCDATA,
      { Xmltv_PiCreditsOpen, Xmltv_PiCreditsClose, NULL, NULL },
      XMLTV_NO_ATTR,
@@ -834,6 +881,7 @@ static const XML_TAGDEF xmltv_tag_def[] =
      XMLTV_NO_OPEN_CLOSE_CB /*TODO*/,
      XMLTV_NO_ATTR,
    },
+#endif
    { XMLTV6_PI_CAT, "category", XML_NO_CHILDS, XML_HAS_PCDATA,
      { Xmltv_PiCatOpen, Xmltv_PiCatClose, Xmltv_PiCatAddText, NULL },
      XMLTV_ATTR(xmltv6_attr_pi_cat),
@@ -850,6 +898,7 @@ static const XML_TAGDEF xmltv_tag_def[] =
      { NULL, NULL, Xmltv_PiEpisodeTitleAdd, NULL },
      XMLTV_NO_ATTR,
    },
+#ifdef ALL_CONTENT
    { XMLTV6_PI_VIDEO, "video", XML_CHILDS(xmltv6_tags_video), XML_NO_PCDATA,
      XMLTV_NO_OPEN_CLOSE_CB,
      XMLTV_NO_ATTR,
@@ -918,6 +967,7 @@ static const XML_TAGDEF xmltv_tag_def[] =
      { NULL, NULL, Xmltv_LinkBlurbAddText, NULL },
      XMLTV_NO_ATTR,
    },
+#endif
 
    // DTD auto-detection
    { XMLTV_DETECT, "*auto-detect*", XML_CHILDS(xmltv_auto_detect), XML_DISCARD_PCDATA,

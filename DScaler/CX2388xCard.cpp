@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.73 2005-06-09 23:22:00 robmuller Exp $
+// $Id: CX2388xCard.cpp,v 1.74 2005-07-14 05:05:21 dosx86 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.73  2005/06/09 23:22:00  robmuller
+// Fixed bug in GetTickCount().
+//
 // Revision 1.72  2005/03/24 17:57:57  adcockj
 // Card access from one thread at a time
 //
@@ -649,7 +652,7 @@ void CCX2388xCard::SetWhiteCrushDown(BYTE WhiteCrushDown)
 
 void CCX2388xCard::SetWhiteCrushMajorityPoint(eWhiteCrushMajSel WhiteCrushMajSel)
 {
-    MaskDataDword(CX2388X_WHITE_CRUSH, WhiteCrushMajSel << 6, (11 << 6));
+    MaskDataDword(CX2388X_WHITE_CRUSH, WhiteCrushMajSel << 6, 0x3 << 6);
 }
 
 void CCX2388xCard::SetWhiteCrushPerFrame(BOOL WhiteCrushPerFrame)

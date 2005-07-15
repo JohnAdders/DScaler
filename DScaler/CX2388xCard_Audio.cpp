@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Audio.cpp,v 1.32 2005-03-11 14:54:39 adcockj Exp $
+// $Id: CX2388xCard_Audio.cpp,v 1.33 2005-07-15 20:38:57 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2005/03/11 14:54:39  adcockj
+// Get rid of a load of compilation warnings in vs.net
+//
 // Revision 1.31  2005/02/05 20:07:25  to_see
 // Added Secam(L) AM Mono. Thanks to Hervé.
 //
@@ -737,6 +740,7 @@ void CCX2388xCard::AudioInit(int nInput, eVideoFormat TVFormat, eCX2388xAudioSta
         switch (TVFormat)
         {
         case VIDEOFORMAT_NTSC_M:
+        case VIDEOFORMAT_PAL_M:
             Standard = AUDIO_STANDARD_BTSC;
             break;
 

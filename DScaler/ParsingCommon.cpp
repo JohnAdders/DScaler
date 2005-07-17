@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ParsingCommon.cpp,v 1.13 2005-03-09 07:53:41 atnak Exp $
+// $Id: ParsingCommon.cpp,v 1.14 2005-07-17 15:59:22 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2005/03/09 07:53:41  atnak
+// Added the TDA8275 tuner.
+//
 // Revision 1.12  2005/03/06 13:15:06  to_see
 // Added some tuner
 //
@@ -136,9 +139,13 @@ const CParseConstant k_parseTunerConstants[] =
 	PC( "PHILIPS_FM1256_IH3",		    TUNER_PHILIPS_FM1256_IH3  		),
 	PC( "PHILIPS_FQ1286",			    TUNER_PHILIPS_FQ1286  			),
 	PC( "LG_PAL_TAPE",			        TUNER_LG_PAL_TAPE  				),
-	PC( "PHILIPS_FM1216ME",		        TUNER_PHILIPS_FM1216ME  		),
+	PC( "TUNER_PHILIPS_FQ1216AME_MK4",  TUNER_PHILIPS_FQ1216AME_MK4		),
 	PC( "PHILIPS_FQ1236A_MK4",	        TUNER_PHILIPS_FQ1236A_MK4  		),
 	PC( "PHILIPS_TDA8275",				TUNER_TDA8275			  		),
+	PC( "YMEC_TVF_8531MF",              TUNER_YMEC_TVF_8531MF           ),
+	PC( "YMEC_TVF_5533MF",              TUNER_YMEC_TVF_5533MF           ),
+	PC( "TENA_9533_DI",                 TUNER_TENA_9533_DI              ),
+	PC( "PHILIPS_FMD1216ME_MK3",        TUNER_PHILIPS_FMD1216ME_MK3     ),
 	PC( NULL )
 };
 

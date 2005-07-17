@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TSOptionsDlg.cpp,v 1.15 2004-12-01 22:03:35 atnak Exp $
+// $Id: TSOptionsDlg.cpp,v 1.16 2005-07-17 20:46:24 dosx86 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -112,81 +112,94 @@ CTSOptionsDlg::CTSOptionsDlg(CWnd* pParent /*=NULL*/)
 	//{{AFX_DATA_INIT(CTSOptionsDlg)
 		// NOTE: the ClassWizard will add member initialization here
 	//}}AFX_DATA_INIT
-    m_RecHeight = TS_HALFHEIGHTEVEN;
+    m_recHeight  = TS_HALFHEIGHTEVEN;
+    m_formatYUY2 = true;
 }
 
+/** Gets the current selections from the dialog */
+void CTSOptionsDlg::GetSettings(void)
+{
+    /* Recording height */
+    if (IsChecked(IDC_TSFULLHEIGHTRADIO))
+       m_recHeight = TS_FULLHEIGHT;
+       else if (IsChecked(IDC_TSHALFEVENRADIO))
+               m_recHeight = TS_HALFHEIGHTEVEN;
+       else if (IsChecked(IDC_TSHALFODDRADIO))
+               m_recHeight = TS_HALFHEIGHTODD;
+       else if (IsChecked(IDC_TSHALFAVERAGEDRADIO))
+               m_recHeight = TS_HALFHEIGHTAVG;
+
+    /* Recording format */
+    if (IsChecked(IDC_TSYUY2RADIO))
+       m_formatYUY2 = true;
+       else
+       m_formatYUY2 = false;
+}
 
 void CTSOptionsDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
+
 	//{{AFX_DATA_MAP(CTSOptionsDlg)
 	DDX_Control(pDX, IDC_TSWAVEOUTCOMBO, m_WaveOutComboBox);
 	DDX_Control(pDX, IDC_TSWAVEINCOMBO, m_WaveInComboBox);
-	DDX_Text(pDX, IDC_SYNC, m_Sync);
 	DDX_Text(pDX, IDC_RECORD_START, m_Start);
 	DDX_Text(pDX, IDC_RECORD_TIME, m_Time);
 	//}}AFX_DATA_MAP
-    if (pDX->m_bSaveAndValidate)
+
+    if (!pDX->m_bSaveAndValidate)
     {
-        if (IsChecked(IDC_TSFULLHEIGHTRADIO))
-            m_RecHeight = TS_FULLHEIGHT;
-        else if (IsChecked(IDC_TSHALFEVENRADIO))
-            m_RecHeight = TS_HALFHEIGHTEVEN;
-        else if (IsChecked(IDC_TSHALFODDRADIO))
-            m_RecHeight = TS_HALFHEIGHTODD;
-        else if (IsChecked(IDC_TSHALFAVERAGEDRADIO))
-            m_RecHeight = TS_HALFHEIGHTAVG;
-    }
-    else
-    {
-        switch (m_RecHeight)
+        /* Recording height radio buttons */
+        switch (m_recHeight)
         {
-        case TS_FULLHEIGHT:
-            SetChecked(IDC_TSFULLHEIGHTRADIO, TRUE);
-            SetChecked(IDC_TSHALFEVENRADIO, FALSE);
-            SetChecked(IDC_TSHALFODDRADIO, FALSE);
-            SetChecked(IDC_TSHALFAVERAGEDRADIO, FALSE);
+            case TS_FULLHEIGHT:
+                SetChecked(IDC_TSFULLHEIGHTRADIO, TRUE);
+                SetChecked(IDC_TSHALFEVENRADIO, FALSE);
+                SetChecked(IDC_TSHALFODDRADIO, FALSE);
+                SetChecked(IDC_TSHALFAVERAGEDRADIO, FALSE);
             break;
 
-        default:
-        case TS_HALFHEIGHTEVEN:
-            SetChecked(IDC_TSHALFEVENRADIO, TRUE);
-            SetChecked(IDC_TSFULLHEIGHTRADIO, FALSE);
-            SetChecked(IDC_TSHALFODDRADIO, FALSE);
-            SetChecked(IDC_TSHALFAVERAGEDRADIO, FALSE);
+            default:
+            case TS_HALFHEIGHTEVEN:
+                SetChecked(IDC_TSHALFEVENRADIO, TRUE);
+                SetChecked(IDC_TSFULLHEIGHTRADIO, FALSE);
+                SetChecked(IDC_TSHALFODDRADIO, FALSE);
+                SetChecked(IDC_TSHALFAVERAGEDRADIO, FALSE);
             break;
 
-        case TS_HALFHEIGHTODD:
-            SetChecked(IDC_TSHALFODDRADIO, TRUE);
-            SetChecked(IDC_TSFULLHEIGHTRADIO, FALSE);
-            SetChecked(IDC_TSHALFEVENRADIO, FALSE);
-            SetChecked(IDC_TSHALFAVERAGEDRADIO, FALSE);
+            case TS_HALFHEIGHTODD:
+                SetChecked(IDC_TSHALFODDRADIO, TRUE);
+                SetChecked(IDC_TSFULLHEIGHTRADIO, FALSE);
+                SetChecked(IDC_TSHALFEVENRADIO, FALSE);
+                SetChecked(IDC_TSHALFAVERAGEDRADIO, FALSE);
             break;
 
-        case TS_HALFHEIGHTAVG:
-            SetChecked(IDC_TSHALFAVERAGEDRADIO, TRUE);
-            SetChecked(IDC_TSFULLHEIGHTRADIO, FALSE);
-            SetChecked(IDC_TSHALFEVENRADIO, FALSE);
-            SetChecked(IDC_TSHALFODDRADIO, FALSE);
+            case TS_HALFHEIGHTAVG:
+                SetChecked(IDC_TSHALFAVERAGEDRADIO, TRUE);
+                SetChecked(IDC_TSFULLHEIGHTRADIO, FALSE);
+                SetChecked(IDC_TSHALFEVENRADIO, FALSE);
+                SetChecked(IDC_TSHALFODDRADIO, FALSE);
             break;
         }
-    }
+
+        /* Recording format radio buttons */
+        SetChecked(IDC_TSYUY2RADIO, m_formatYUY2 ? TRUE : FALSE);
+        SetChecked(IDC_TSRGBRADIO, m_formatYUY2 ? FALSE : TRUE);
+    } else
+      GetSettings();
 }
 
 BEGIN_MESSAGE_MAP(CTSOptionsDlg, CDialog)
 	//{{AFX_MSG_MAP(CTSOptionsDlg)
 	ON_BN_CLICKED(IDC_TSCOMPRESSIONBUTTON, OnButtonCompression)
-	ON_BN_CLICKED(IDOK, OnQuit)
-	ON_BN_CLICKED(IDC_UPDATE, OnButtonUpdate)
 	ON_BN_CLICKED(IDC_TSCOMPRESSIONHELP, OnCompressionhelp)
 	ON_BN_CLICKED(IDC_TSWAVEHELP, OnWavehelp)
 	ON_BN_CLICKED(IDC_TSHEIGHTHELP, OnHeighthelp)
 	ON_BN_CLICKED(IDC_TSMIXERHELP, OnMixerhelp)
 	ON_BN_CLICKED(IDC_TSMIXERBUTTON, OnButtonMixer)
-	ON_BN_CLICKED(IDC_RETARD, OnRetard)
-	ON_BN_CLICKED(IDC_ADVANCE, OnAdvance)
-	ON_BN_CLICKED(IDC_SYNCHELP, OnSyncHelp)
 	ON_BN_CLICKED(IDC_TIMERHELP, OnTimerHelp)
+	ON_BN_CLICKED(IDC_UPDATE, OnButtonUpdate)
+	ON_BN_CLICKED(IDOK, OnQuit)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -226,26 +239,14 @@ void CTSOptionsDlg::EnableCtrl(int id, BOOL enable)
 
 void CTSOptionsDlg::OnButtonCompression() 
 {
-	// Need to update m_RecHeight here to get correct value displayed 
-	// in AVICOMPRESSOPTIONS and not confuse codec about dimensions
-	if (IsChecked(IDC_TSFULLHEIGHTRADIO))
-            m_RecHeight = TS_FULLHEIGHT;
-        else if (IsChecked(IDC_TSHALFEVENRADIO))
-            m_RecHeight = TS_HALFHEIGHTEVEN;
-        else if (IsChecked(IDC_TSHALFODDRADIO))
-            m_RecHeight = TS_HALFHEIGHTODD;
-        else if (IsChecked(IDC_TSHALFAVERAGEDRADIO))
-            m_RecHeight = TS_HALFHEIGHTAVG;
-		CTimeShift::OnSetRecHeight(m_RecHeight);
+    /* Update the variables so the user can set compression options based on
+       their current selections */
+    GetSettings();
 
-    // Only popup the dialog if it's not up already, otherwise it'll crash.
-    static bool options = false;
-    if (!options)
-    {
-        options = true;
-        CTimeShift::OnCompressionOptions();
-        options = false;
-    }
+    TimeShiftSetRecHeight(m_recHeight);
+    TimeShiftSetRecFormat(m_formatYUY2 ? FORMAT_YUY2 : FORMAT_RGB);
+
+    TimeShiftCompressionOptions(m_hWnd);
 }
 
 void CTSOptionsDlg::OnButtonMixer() 
@@ -272,15 +273,16 @@ void CTSOptionsDlg::OnButtonUpdate()
         char name[MAXPNAMELEN];
         if(m_WaveInComboBox.GetLBText(m_WaveInComboBox.GetCurSel(), (char*)&name)!=CB_ERR)
         {
-            CTimeShift::OnSetWaveInDevice((char*) &name);
+            TimeShiftSetWaveInDevice((char *)&name);
         }
 
         if(m_WaveOutComboBox.GetLBText(m_WaveOutComboBox.GetCurSel(), (char*)&name)!=CB_ERR)
         {
-            CTimeShift::OnSetWaveOutDevice((char*) &name);
+            TimeShiftSetWaveOutDevice((char *)&name);
         }
 
-        CTimeShift::OnSetRecHeight(m_RecHeight);
+        TimeShiftSetRecHeight(m_recHeight);
+        TimeShiftSetRecFormat(m_formatYUY2 ? FORMAT_YUY2 : FORMAT_RGB);
 
 		// Need to update custom AV sync in the INI file here
 		CTSOptionsDlg::UpdateINI(); 
@@ -331,30 +333,27 @@ void CTSOptionsDlg::OnButtonUpdate()
 
 BOOL CTSOptionsDlg::OnInitDialog() 
 {
-	CDialog::OnInitDialog();
+    tsFormat_t format;
 
-    // Should've already created the timeshift object elsehere.
-    ASSERT(CTimeShift::m_pTimeShift != NULL);
+	CDialog::OnInitDialog();
 
 	// Get the custom AV sync setting in the INI file
 	extern char szIniFile[MAX_PATH];
-	m_Sync = GetPrivateProfileInt(
-			"TimeShift", "Sync", m_Sync, szIniFile);
 
 	// Initialize the timer and scheduler
 	m_Start = 0;
 	m_Time = 0;
 
 	// Initialize the simple schedule data in the INI file
-	WritePrivateProfileInt(
+	/*WritePrivateProfileInt(
 		"Schedule", "Start", m_Start, szIniFile);
 	WritePrivateProfileInt(
-		"Schedule", "Time", m_Time, szIniFile);
+		"Schedule", "Time", m_Time, szIniFile);*/
 
     int index = 0;
     char* waveInDevice;
-    if(!CTimeShift::OnGetWaveInDevice(&waveInDevice))
-        waveInDevice = NULL;
+    if (!TimeShiftGetWaveInDevice(&waveInDevice))
+       waveInDevice = NULL;
 
     UINT numDevs = waveInGetNumDevs();
     for (UINT i = 0; i < numDevs; ++i)
@@ -376,8 +375,8 @@ BOOL CTSOptionsDlg::OnInitDialog()
 
     index = 0;
     char* waveOutDevice;
-    if(!CTimeShift::OnGetWaveOutDevice(&waveOutDevice))
-        waveOutDevice = NULL;
+    if (!TimeShiftGetWaveOutDevice(&waveOutDevice))
+       waveOutDevice = NULL;
 
     numDevs = waveOutGetNumDevs();
     for (i = 0; i < numDevs; ++i)
@@ -397,9 +396,11 @@ BOOL CTSOptionsDlg::OnInitDialog()
 
     m_WaveOutComboBox.SetCurSel(index);
 
-    index;
-    if (CTimeShift::OnGetRecHeight(&index)) // Leave as default if fails.
-        m_RecHeight = index;
+    if (TimeShiftGetRecHeight(&index)) // Leave as default if fails.
+       m_recHeight = index;
+
+    if (TimeShiftGetRecFormat(&format))
+       m_formatYUY2 = format==FORMAT_YUY2 ? true : false;
 
     // Refresh the controls on the dialog with the current data.
     UpdateData(FALSE);
@@ -410,10 +411,10 @@ BOOL CTSOptionsDlg::OnInitDialog()
 
 void CTSOptionsDlg::OnCompressionhelp() 
 {
-    MessageBox("Choose a codec that's good at compressing 24-bit RGB images.  "
-               "The default is full frames and you'll quickly run out of room "
-               "if you stick with that.  Leave the audio at the default for "
-               "best results.",
+    MessageBox("Configure the audio and video compression settings. "
+               "The default is uncompressed frames, which should be "
+               "changed if the recording format is RGB. Try using a "
+               "fast codec for best results.",
                "Compression Help",
                MB_OK);
 }
@@ -430,15 +431,12 @@ void CTSOptionsDlg::OnWavehelp()
 
 void CTSOptionsDlg::OnHeighthelp() 
 {
-    MessageBox("Using Full-height will record 100% of the image data but it's "
-               "the slowest.  Using 1/2-height Even or Odd will throw out 1/2 "
-               "the available image data, but these are the fastest.  "
-               "Averaging will help to remove the pixelated look of 1/2 height "
-               "recording, and it's only slightly slower than using only "
-               "the Even or Odd lines.\n\n"
-               "NOTE: This only applys to straight recording.  During time "
-               "shifting operations (i.e. pausing of live TV), 1/2-height Even "
-               "will be used (Time Shift is not implemented yet).",
+    MessageBox("Using full height will record every interlaced frame assuming "
+               "none are lost. It's recommended that you use a fast, "
+               "lightweight lossless codec like Huffyuv in this mode. "
+               "Recording at half the height will reduce the vertical "
+               "resolution, but it's faster than recording at full height and "
+               "requires much less disk space.",
                "Recording Height Help",
                MB_OK);
 }
@@ -491,42 +489,6 @@ void CTSOptionsDlg::OnTimerHelp()
                MB_OK);
 }
 
-void CTSOptionsDlg::OnSyncHelp() 
-{
-    MessageBox("Advance or retard the sound relative to the video.\n"
-			   "\n"
-               "1 click will +/- the sound about 0.02 of a second\n"
-			   "per 60 minutes of video. You can enter a value directly\n"
-			   "into the box if you like.\n"
-			   "\n"
-			   "The custom AV sync value you choose will be stored in\n"
-			   "the INI file and used for all recodings. It can take a\n"
-			   "while (about 5 tries) to get the sync bang on for 180 mins\n"
-			   "of video - but its worth the effort. Good luck!",
-               "AV Sync Help",
-               MB_OK);
-}
-
-void CTSOptionsDlg::OnAdvance() 
-{
-	m_Sync = (m_Sync - 1);
-	UpdateData(FALSE);
-	// might as well update the INI each time we change sync
-	CTSOptionsDlg::UpdateINI();
-}
-
-void CTSOptionsDlg::OnRetard() 
-{
-    m_Sync = (m_Sync + 1);
-	UpdateData(FALSE);
-	// might as well update the INI each time we change sync
-	CTSOptionsDlg::UpdateINI();
-}
-
-
 void CTSOptionsDlg::UpdateINI()
 {
-	extern char szIniFile[MAX_PATH];
-	// Update custom AV sync setting in the INI file
-	WritePrivateProfileInt("TimeShift", "Sync", m_Sync, szIniFile);
 }

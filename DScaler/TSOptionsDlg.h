@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TSOptionsDlg.h,v 1.10 2004-08-12 16:27:47 adcockj Exp $
+// $Id: TSOptionsDlg.h,v 1.11 2005-07-17 20:46:25 dosx86 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // Put radio button to enable / disable 'TimeShift' warnings.
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2004/08/12 16:27:47  adcockj
+// added timeshift changes from emu
+//
 // Revision 1.9  2003/10/27 10:39:54  adcockj
 // Updated files for better doxygen compatability
 //
@@ -93,13 +96,15 @@ public:
 	int m_Start;
 	int	m_Time;
 	//}}AFX_DATA
-    int m_RecHeight;
+
+    int  m_recHeight;   /**< Equal to a TS_* height constant */
+    bool m_formatYUY2;  /**< True if the recording format is YUY2 */
 
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CTSOptionsDlg)
 	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+	virtual void DoDataExchange(CDataExchange* pDX);
 	//}}AFX_VIRTUAL
 
 // Implementation
@@ -114,11 +119,8 @@ protected:
 	afx_msg void OnHeighthelp();
 	afx_msg void OnMixerhelp();
 	afx_msg void OnButtonMixer();
-	afx_msg void OnSyncHelp();
 	afx_msg void OnTimerHelp();
 	afx_msg void OnButtonUpdate();
-	afx_msg void OnAdvance();
-	afx_msg void OnRetard();
 	afx_msg void OnQuit();
 	afx_msg void UpdateINI();
 	//}}AFX_MSG
@@ -127,6 +129,10 @@ protected:
     BOOL IsChecked(int id);
     void SetChecked(int id, BOOL checked);
     void EnableCtrl(int id, BOOL enable);
+
+private:
+    void GetSettings(void);
+
 };
 
 //{{AFX_INSERT_LOCATION}}

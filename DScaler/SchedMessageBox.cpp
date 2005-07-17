@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: SchedMessageBox.cpp,v 1.1 2004-08-12 16:27:47 adcockj Exp $
+// $Id: SchedMessageBox.cpp,v 1.2 2005-07-17 20:42:14 dosx86 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -169,7 +169,7 @@ LRESULT SchedMessageBox::DefWindowProc(UINT message, WPARAM wParam, LPARAM lPara
 			KillTimer(100);
 			if (m_count > 0) // For unknown reason I need to do this check
 			{
-				CTimeShift::CancelSchedule(); // Set the cancel flag
+				TimeShiftCancelSchedule(); // Set the cancel flag
 			}
 			PostMessage(WM_CLOSE,0,0); // close and go
 			}

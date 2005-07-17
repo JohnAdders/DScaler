@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.379 2005-07-11 12:49:00 laurentg Exp $
+// $Id: DScaler.cpp,v 1.380 2005-07-17 20:39:27 dosx86 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.379  2005/07/11 12:49:00  laurentg
+// New menus to browse EPG at a certain day and time
+//
 // Revision 1.378  2005/03/26 18:53:22  laurentg
 // EPG code improved
 // => possibility to set the EPG channel name in the channel setup dialog box
@@ -3937,22 +3940,22 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_TSOPTIONS:
-            CTimeShift::OnOptions();
+            TimeShiftOnOptions();
             break;
 
         case IDM_TSRECORD:
-            if (CTimeShift::OnRecord())
+            if (TimeShiftRecord())
             {
                 ShowText(hWnd, "Recording");
-                CTimeShift::OnSetMenu(hMenu);
+                TimeShiftOnSetMenu(hMenu);
             }
             break;
 
         case IDM_TSSTOP:
-            if (CTimeShift::OnStop())
+            if (TimeShiftStop())
             {
                 ShowText(hWnd, "Stopped");
-                CTimeShift::OnSetMenu(hMenu);
+                TimeShiftOnSetMenu(hMenu);
             }
             break;
 
@@ -5325,6 +5328,8 @@ void MainWndOnCreate(HWND hWnd)
 
     Cursor_UpdateVisibility();
 
+    TimeShiftInit(hWnd);
+
     PostMessage(hWnd, INIT_BT, 0, 0);
 }
 
@@ -5370,19 +5375,19 @@ void MainWndOnDestroy()
     {
         LOG(1, "Try CTimeShift::OnStop");
 
-        CTimeShift::OnStop();
+        TimeShiftStop();
     }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error CTimeShift::OnStop");}
+    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error TimeShiftStop");}
 
     
     // Kill timeshift before muting since it always exits unmuted on cleanup.
     __try
     {
-        LOG(1, "Try CTimeShift::OnDestroy");
+        LOG(1, "Try TimeShiftShutdown");
 
-        CTimeShift::OnDestroy();
+        TimeShiftShutdown();
     }
-    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error CTimeShift::OnDestroy");}
+    __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error TimeShiftShutdown");}
 
     __try
     {
@@ -5785,7 +5790,7 @@ void SetMenuAnalog()
     OutReso_SetMenu(hMenu);
     Providers_SetMenu(hMenu);
 
-    CTimeShift::OnSetMenu(hMenu);
+    TimeShiftOnSetMenu(hMenu);
     if(pCalibration)
     {
         pCalibration->SetMenu(hMenu);

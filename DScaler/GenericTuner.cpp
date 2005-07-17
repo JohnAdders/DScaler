@@ -1,5 +1,5 @@
 //
-// $Id: GenericTuner.cpp,v 1.19 2005-03-11 14:54:40 adcockj Exp $
+// $Id: GenericTuner.cpp,v 1.20 2005-07-17 09:39:02 to_see Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2005/03/11 14:54:40  adcockj
+// Get rid of a load of compilation warnings in vs.net
+//
 // Revision 1.18  2005/03/06 12:50:50  to_see
 // Added some tuner
 //
@@ -482,6 +485,30 @@ CGenericTuner::CGenericTuner(eTunerId tunerId) :
       {
           TUNERDEF(TUNER_PHILIPS_FQ1236A_MK4, VIDEOFORMAT_PAL_B,
               16*(160.00),16*(442.00),0x01,0x02,0x04,0x8e,732);
+          break;
+      }
+    case TUNER_YMEC_TVF_8531MF:
+      {
+          TUNERDEF(TUNER_PHILIPS_FQ1236A_MK4, VIDEOFORMAT_NTSC_M,
+              16*(160.00),16*(454.00),0xa0,0x90,0x30,0x8e,732);
+          break;
+      }
+    case TUNER_YMEC_TVF_5533MF:
+      {
+          TUNERDEF(TUNER_PHILIPS_FQ1236A_MK4, VIDEOFORMAT_NTSC_M,
+              16*(160.00),16*(454.00),0x01,0x02,0x04,0x8e,732);
+          break;
+      }
+    case TUNER_TENA_9533_DI:
+      {
+          TUNERDEF(TUNER_PHILIPS_FQ1236A_MK4, VIDEOFORMAT_PAL_B,
+              16*(160.25),16*(464.25),0x01,0x02,0x04,0x8e,623);
+          break;
+      }
+    case TUNER_PHILIPS_FMD1216ME_MK3:
+      {
+          TUNERDEF(TUNER_PHILIPS_FQ1236A_MK4, VIDEOFORMAT_PAL_B,
+              16*(160.00),16*(442.00),0x51,0x52,0x54,0x86,623);
           break;
       }
     }

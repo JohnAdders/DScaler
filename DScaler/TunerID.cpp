@@ -1,5 +1,5 @@
 //
-// $Id: TunerID.cpp,v 1.8 2005-03-09 07:53:41 atnak Exp $
+// $Id: TunerID.cpp,v 1.9 2005-07-17 09:39:02 to_see Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2005/03/09 07:53:41  atnak
+// Added the TDA8275 tuner.
+//
 // Revision 1.7  2005/03/06 13:15:06  to_see
 // Added some tuner
 //
@@ -101,10 +104,10 @@ const char *TunerNames[TUNER_LASTONE] =
     "LG TAPC-new [PAL]", 		  	            //   37     TUNER_LG_TAPCNEW_PAL		
     "Philips FQ1216ME MK3 [PAL/SECAM multi]",   //   38     TUNER_PHILIPS_FM1216ME_MK3
     "LG TAPC-new [NTSC]",                       //   39     TUNER_LG_TAPCNEW_NTSC
-    "MT2032 universal [PAL default]",           //          TUNER_MT2032_PAL
+    "MT2032 universal [PAL default]",           //   33     TUNER_MT2032_PAL
     "Philips FI1286 [NTCS M/J]",                //          TUNER_PHILIPS_FI1286_NTSC_M_J
-    "MT2050 [NTSC]",                            //          TUNER_MT2050
-    "MT2050 [PAL]",                             //          TUNER_MT2050_PAL
+    "MT2050 [NTSC]",                            //   33     TUNER_MT2050
+    "MT2050 [PAL]",                             //   33     TUNER_MT2050_PAL
     "Philips 4in1 [ATI TV Wonder Pro/Conexant]",//   44     TUNER_PHILIPS_4IN1
     "TCL 2002N",                                //   50     TUNER_TCL_2002N
     "HITACHI V7-J180AT",                        //   40     TUNER_HITACHI_NTSC
@@ -115,9 +118,13 @@ const char *TunerNames[TUNER_LASTONE] =
     "Philips FM1256 MK3 [PAL/SECAM D]",         //   51     TUNER_PHILIPS_FM1256_IH3
     "Philips FQ1286 [NTSC]",                    //   53     TUNER_PHILIPS_FQ1286
     "LG TAPE series [PAL]",                     //   55     TUNER_LG_PAL_TAPE
-    "Philips FM1216ME [PAL/SECAM multi]",       //   56     TUNER_PHILIPS_FM1216ME
+    "Philips FM1216AME [PAL/SECAM multi]",      //   56     TUNER_PHILIPS_FM1216ME
     "Philips FQ1236A MK4 [NTSC]",               //   57     TUNER_PHILIPS_FQ1236A_MK4
     "Philips TDA8275",                          //   54     TUNER_TDA8275
+    "Ymec TVF-8531MF/8831MF/8731MF [NTSC]",     //   58     TUNER_YMEC_TVF_8531MF
+    "Ymec TVision TVF-5533MF [NTSC]",           //   59     TUNER_YMEC_TVF_5533MF
+    "Tena TNF9533-D/IF/TNF9533-B/DF [PAL]",     //   61     TUNER_TENA_9533_DI
+    "Philips FMD1216ME MK3 Hybrid [PAL]",       //   63     TUNER_PHILIPS_FMD1216ME_MK3
 };
 
 }

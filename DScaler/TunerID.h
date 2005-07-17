@@ -1,5 +1,5 @@
 //
-// $Id: TunerID.h,v 1.9 2005-05-12 20:06:22 to_see Exp $
+// $Id: TunerID.h,v 1.10 2005-07-17 09:39:02 to_see Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2005/05/12 20:06:22  to_see
+// Moved m_TunerHauppaugeAnalog to TunerID.h for common using for BT and CX cards.
+//
 // Revision 1.8  2005/03/09 07:53:41  atnak
 // Added the TDA8275 tuner.
 //
@@ -123,6 +126,10 @@ enum eTunerId
     TUNER_PHILIPS_FM1216ME,
     TUNER_PHILIPS_FQ1236A_MK4,
     TUNER_TDA8275,
+    TUNER_YMEC_TVF_8531MF,
+    TUNER_YMEC_TVF_5533MF,
+    TUNER_TENA_9533_DI,
+    TUNER_PHILIPS_FMD1216ME_MK3,
     TUNER_LASTONE,
 };
 

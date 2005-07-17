@@ -1,5 +1,5 @@
 //
-// $Id: TunerID.h,v 1.10 2005-07-17 09:39:02 to_see Exp $
+// $Id: TunerID.h,v 1.11 2005-07-17 15:58:28 to_see Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2005/07/17 09:39:02  to_see
+// Added some tuner
+//
 // Revision 1.9  2005/05/12 20:06:22  to_see
 // Moved m_TunerHauppaugeAnalog to TunerID.h for common using for BT and CX cards.
 //
@@ -123,7 +126,7 @@ enum eTunerId
     TUNER_PHILIPS_FM1256_IH3,
     TUNER_PHILIPS_FQ1286,
     TUNER_LG_PAL_TAPE,
-    TUNER_PHILIPS_FM1216ME,
+    TUNER_PHILIPS_FQ1216AME_MK4,
     TUNER_PHILIPS_FQ1236A_MK4,
     TUNER_TDA8275,
     TUNER_YMEC_TVF_8531MF,
@@ -136,7 +139,7 @@ enum eTunerId
 const eTunerId m_TunerHauppaugeAnalog[]=
 {
 	/* 0-9 */
-    TUNER_ABSENT,
+    TUNER_ABSENT,                       //"None"
 	TUNER_ABSENT,						//"External"
 	TUNER_ABSENT,						//"Unspecified"
 	TUNER_PHILIPS_PAL,					//"Philips FI1216"
@@ -233,14 +236,16 @@ const eTunerId m_TunerHauppaugeAnalog[]=
     TUNER_ABSENT,                       //"Philips FQ1236 MK3"
     TUNER_ABSENT,                       //"Samsung TCPN 2121P30A"
     TUNER_ABSENT,                       //"Samsung TCPE 4121P30A"
-    TUNER_ABSENT,                       //"TCL MFPE05 2"
+    TUNER_PHILIPS_FM1216ME_MK3,         //"TCL MFPE05 2"
 	/* 90-99 */
     TUNER_ABSENT,                       //"LG TALN H202T"
-    TUNER_ABSENT,                       //"Philips FQ1216AME MK4"
+    TUNER_PHILIPS_FQ1216AME_MK4,        //"Philips FQ1216AME MK4"
     TUNER_PHILIPS_FQ1236A_MK4,          //"Philips FQ1236A MK4"
     TUNER_ABSENT,                       //"Philips FQ1286A MK4"
     TUNER_ABSENT,                       //"Philips FQ1216ME MK5"
     TUNER_ABSENT,                       //"Philips FQ1236 MK5"
+    TUNER_ABSENT,                       //"Unspecified"
+    TUNER_LG_PAL_TAPE,                  //"LG PAL (TAPE Series)"
 };
 
 extern const char *TunerNames[TUNER_LASTONE];

@@ -1,5 +1,5 @@
 //
-// $Id: TunerID.cpp,v 1.9 2005-07-17 09:39:02 to_see Exp $
+// $Id: TunerID.cpp,v 1.10 2005-07-17 15:58:28 to_see Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2005/07/17 09:39:02  to_see
+// Added some tuner
+//
 // Revision 1.8  2005/03/09 07:53:41  atnak
 // Added the TDA8275 tuner.
 //
@@ -118,7 +121,7 @@ const char *TunerNames[TUNER_LASTONE] =
     "Philips FM1256 MK3 [PAL/SECAM D]",         //   51     TUNER_PHILIPS_FM1256_IH3
     "Philips FQ1286 [NTSC]",                    //   53     TUNER_PHILIPS_FQ1286
     "LG TAPE series [PAL]",                     //   55     TUNER_LG_PAL_TAPE
-    "Philips FM1216AME [PAL/SECAM multi]",      //   56     TUNER_PHILIPS_FM1216ME
+    "Philips FM1216AME [PAL/SECAM multi]",      //   56     TUNER_PHILIPS_FQ1216AME_MK4
     "Philips FQ1236A MK4 [NTSC]",               //   57     TUNER_PHILIPS_FQ1236A_MK4
     "Philips TDA8275",                          //   54     TUNER_TDA8275
     "Ymec TVF-8531MF/8831MF/8731MF [NTSC]",     //   58     TUNER_YMEC_TVF_8531MF

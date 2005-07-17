@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.137 2005-03-23 14:20:58 adcockj Exp $
+// $Id: OutThreads.cpp,v 1.138 2005-07-17 20:40:58 dosx86 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.137  2005/03/23 14:20:58  adcockj
+// Test fix for threading issues
+//
 // Revision 1.136  2004/12/16 21:58:17  robmuller
 // Fix errors when compiling without DShow.
 //
@@ -906,7 +909,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
         bUseExtraBuffer = Filter_WillWeDoOutput()
 			           || (pMultiFrames && pMultiFrames->IsActive())
-					   || (CTimeShift::IsRunning() == TRUE && CTimeShift::WorkOnInputFrames() == FALSE);
+					   || (TimeShiftIsRunning() && !TimeShiftWorkOnInputFrames());
 
 
         // Anti-plop and update screen delay timers may have been cancelled.
@@ -1151,7 +1154,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                 pPerf->StopCount(PERF_INPUT_FILTERS);
 #endif
 
-				if (CTimeShift::WorkOnInputFrames() == TRUE)
+				if (TimeShiftWorkOnInputFrames())
 				{
 #ifdef USE_PERFORMANCE_STATS
 	                pPerf->StartCount(PERF_TIMESHIFT);
@@ -1161,7 +1164,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 					// filter at some point (i.e. FLT_TimeShift), but I'm not sure
 					// if that's the right thing to do since it ties into other
 					// parts of the app.
-					CTimeShift::OnNewInputFrame(&Info);
+					TimeShiftOnNewInputFrame(&Info);
 
 #ifdef USE_PERFORMANCE_STATS
 	                pPerf->StopCount(PERF_TIMESHIFT);
@@ -1346,13 +1349,13 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                             pPerf->StopCount(PERF_OUTPUT_FILTERS);
 #endif
 
-							if (CTimeShift::WorkOnInputFrames() == FALSE)
+							if (!TimeShiftWorkOnInputFrames())
 							{
 #ifdef USE_PERFORMANCE_STATS
 				                pPerf->StartCount(PERF_TIMESHIFT);
 #endif
 
-								CTimeShift::OnNewOutputFrame(&Info);
+								/* CTimeShift::OnNewOutputFrame(&Info); */
 
 #ifdef USE_PERFORMANCE_STATS
 				                pPerf->StopCount(PERF_TIMESHIFT);
@@ -1458,7 +1461,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                             // update which surface we write to only after a flip
 							bUseExtraBuffer = Filter_WillWeDoOutput()
 										   || (pMultiFrames && pMultiFrames->IsActive())
-										   || (CTimeShift::IsRunning() == TRUE && CTimeShift::WorkOnInputFrames() == FALSE);
+										   || (TimeShiftIsRunning() && !TimeShiftWorkOnInputFrames());
 
 #ifdef USE_PERFORMANCE_STATS
 	                        pPerf->StopCount(PERF_FLIP_OVERLAY);

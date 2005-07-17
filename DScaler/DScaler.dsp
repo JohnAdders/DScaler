@@ -150,6 +150,31 @@ SOURCE=.\AutoCriticalSection.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\avi.c
+# SUBTRACT CPP /YX /Yc /Yu
+# End Source File
+# Begin Source File
+
+SOURCE=.\avi_audio.c
+# SUBTRACT CPP /YX /Yc /Yu
+# End Source File
+# Begin Source File
+
+SOURCE=.\avi_file.c
+# SUBTRACT CPP /YX /Yc /Yu
+# End Source File
+# Begin Source File
+
+SOURCE=.\avi_index.c
+# SUBTRACT CPP /YX /Yc /Yu
+# End Source File
+# Begin Source File
+
+SOURCE=.\avi_video.c
+# SUBTRACT CPP /YX /Yc /Yu
+# End Source File
+# Begin Source File
+
 SOURCE=.\dshowsource\BaseCrossbar.cpp
 # End Source File
 # Begin Source File
@@ -822,6 +847,10 @@ SOURCE=.\TreeSettingsSettingConfig.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\TSCompressionDlg.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\TSOptionsDlg.cpp
 # End Source File
 # Begin Source File
@@ -918,121 +947,44 @@ SOURCE=.\WindowBorder.cpp
 # Begin Source File
 
 SOURCE=.\xml_cdata.c
-
-!IF  "$(CFG)" == "DScaler - Win32 Debug"
-
 # ADD CPP /D "_X86_"
 # SUBTRACT CPP /YX /Yc /Yu
-
-!ELSEIF  "$(CFG)" == "DScaler - Win32 Release"
-
-# ADD CPP /D "_X86_"
-# SUBTRACT CPP /YX /Yc /Yu
-
-!ENDIF 
-
 # End Source File
 # Begin Source File
 
 SOURCE=.\xml_hash.c
-
-!IF  "$(CFG)" == "DScaler - Win32 Debug"
-
 # ADD CPP /D "_X86_"
 # SUBTRACT CPP /YX /Yc /Yu
-
-!ELSEIF  "$(CFG)" == "DScaler - Win32 Release"
-
-# ADD CPP /D "_X86_"
-# SUBTRACT CPP /YX /Yc /Yu
-
-!ENDIF 
-
 # End Source File
 # Begin Source File
 
 SOURCE=.\xml_prolog.tab.c
-
-!IF  "$(CFG)" == "DScaler - Win32 Debug"
-
 # ADD CPP /D "_X86_"
 # SUBTRACT CPP /YX /Yc /Yu
-
-!ELSEIF  "$(CFG)" == "DScaler - Win32 Release"
-
-# ADD CPP /D "_X86_"
-# SUBTRACT CPP /YX /Yc /Yu
-
-!ENDIF 
-
 # End Source File
 # Begin Source File
 
 SOURCE=.\xml_scan.yy.c
-
-!IF  "$(CFG)" == "DScaler - Win32 Debug"
-
 # ADD CPP /D "_X86_"
 # SUBTRACT CPP /YX /Yc /Yu
-
-!ELSEIF  "$(CFG)" == "DScaler - Win32 Release"
-
-# ADD CPP /D "_X86_"
-# SUBTRACT CPP /YX /Yc /Yu
-
-!ENDIF 
-
 # End Source File
 # Begin Source File
 
 SOURCE=.\xmltv_db.c
-
-!IF  "$(CFG)" == "DScaler - Win32 Debug"
-
 # ADD CPP /D "_X86_"
 # SUBTRACT CPP /YX /Yc /Yu
-
-!ELSEIF  "$(CFG)" == "DScaler - Win32 Release"
-
-# ADD CPP /D "_X86_"
-# SUBTRACT CPP /YX /Yc /Yu
-
-!ENDIF 
-
 # End Source File
 # Begin Source File
 
 SOURCE=.\xmltv_tags.c
-
-!IF  "$(CFG)" == "DScaler - Win32 Debug"
-
 # ADD CPP /D "_X86_"
 # SUBTRACT CPP /YX /Yc /Yu
-
-!ELSEIF  "$(CFG)" == "DScaler - Win32 Release"
-
-# ADD CPP /D "_X86_"
-# SUBTRACT CPP /YX /Yc /Yu
-
-!ENDIF 
-
 # End Source File
 # Begin Source File
 
 SOURCE=.\xmltv_timestamp.c
-
-!IF  "$(CFG)" == "DScaler - Win32 Debug"
-
 # ADD CPP /D "_X86_"
 # SUBTRACT CPP /YX /Yc /Yu
-
-!ELSEIF  "$(CFG)" == "DScaler - Win32 Release"
-
-# ADD CPP /D "_X86_"
-# SUBTRACT CPP /YX /Yc /Yu
-
-!ENDIF 
-
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -1065,6 +1017,10 @@ SOURCE=.\AudioDecoder.h
 # Begin Source File
 
 SOURCE=.\AutoCriticalSection.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\avi.h
 # End Source File
 # Begin Source File
 
@@ -1424,6 +1380,10 @@ SOURCE=.\OpenDlg.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\opendml.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\OSD.h
 # End Source File
 # Begin Source File
@@ -1700,6 +1660,10 @@ SOURCE=.\TreeSettingsSettingConfig.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\TSCompressionDlg.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\TSOptionsDlg.h
 # End Source File
 # Begin Source File
@@ -1837,10 +1801,6 @@ SOURCE=..\Release\SAA713xCards.ini
 # End Group
 # End Target
 # End Project
-# Section DScaler : {F08DF954-8592-11D1-B16A-00C0F0283628}
-# 	2:21:DefaultSinkHeaderFile:slider.h
-# 	2:16:DefaultSinkClass:CSlider
-# End Section
 # Section DScaler : {F08DF952-8592-11D1-B16A-00C0F0283628}
 # 	2:5:Class:CSlider
 # 	2:10:HeaderFile:slider.h
@@ -1850,4 +1810,8 @@ SOURCE=..\Release\SAA713xCards.ini
 # 	2:5:Class:CPicture
 # 	2:10:HeaderFile:picture.h
 # 	2:8:ImplFile:picture.cpp
+# End Section
+# Section DScaler : {F08DF954-8592-11D1-B16A-00C0F0283628}
+# 	2:21:DefaultSinkHeaderFile:slider.h
+# 	2:16:DefaultSinkClass:CSlider
 # End Section

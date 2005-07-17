@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.cpp,v 1.36 2005-03-23 14:21:01 adcockj Exp $
+// $Id: TimeShift.cpp,v 1.37 2005-07-17 20:43:23 dosx86 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,9 +30,6 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
-// Revision 1.35  2005/03/11 14:54:40  adcockj
-// Get rid of a load of compilation warnings in vs.net
-//
 // Revision 1.34  2004/08/12 16:27:47  adcockj
 // added timeshift changes from emu
 //
@@ -198,6 +195,7 @@
 #include "TimeShift.h"    // this module
 #include "DScaler.h"      // hWnd global
 #include "TSOptionsDlg.h" // CTSOptionsDlg
+#include "TSCompressionDlg.h"
 #include "MixerDev.h"     // Mute and UnMute
 #include "Settings.h"     // Setting_Set/GetValue
 #include "Cpu.h"          // CpuFeatureFlags
@@ -206,829 +204,46 @@
 
 #include "SchedMessageBox.h" // For schedule timer notification
 
-bool nofreespace = false;   // flag - no free disk space 
-long EndRecordTime = 0;     // stores length of time to record (user input)
-long sleeptime = 0;         // time to sleep before a scheduled recording (seconds)
-
-bool RecordTimerCheckedF = false;  // Flag for a timed recording check
-bool RecordTimerF = false;         // Flag for a timed recording
-bool ScheduleF = false;            // Flag for a scheduled recording
-bool TimedRecodingDone = false;    // Flag for a timed recording done
-bool CancelSched = false;          // Flag to cancel scheduled recording
-
-int m_Sync = 0; // holds custom AV sync setting from INI file
-int m_Warn = 0; // holds flag for timeshift warnings (0 = enable / 1 = disable)
-
-int m_Start = 0; // holds schedule start time from INI file
-int m_Time = 0;  // holds length of time to record (minutes)
-
-static BOOL WarningShown = FALSE;
-static DWORD AVIFileSizeLimit = 0;
-static DWORD AVIFileSizeLimitTemp = 0;
-
-static char ExePath[MAX_PATH] = {0};
-static char* SavingPath = NULL;
-
-//free disk space routine - code based on MSDN example (but better)
-ULONGLONG GetFreeDiskSpace() 
-{
-
-/////////////////////////////////////////////////////////
-// NOTE:  This function returns an unsigned __int64    //
-//        (i.e. an unsigned 64 bit integer) as the     //
-//        amount of free space available to the caller //
-//        for the volume specified in lpszDrivePath in // 
-//        bytes.                                       //
-/////////////////////////////////////////////////////////
-
-    ULONGLONG totalbytes = 0;   // free disk space in bytes
-
-    typedef BOOL (CALLBACK * DSKFREE)(LPCTSTR,
-                                      PULARGE_INTEGER,
-                                      PULARGE_INTEGER,
-                                      PULARGE_INTEGER);
-    OSVERSIONINFO VersionInfo;
-    VersionInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-    CString strProcName, strErrMsg;
-    char lpszDrivePath[4] = "c:\\";
-
-    lpszDrivePath[0] = SavingPath[0];
-
-    // Get Operating System Version information
-    if(!GetVersionEx(&VersionInfo))
-        return totalbytes;
-
-    switch ( VersionInfo.dwPlatformId )
-    {
-    case VER_PLATFORM_WIN32_NT  :
-        if(VersionInfo.dwMajorVersion < 4)  // NT 3.51 or less
-            break;
-    case VER_PLATFORM_WIN32_WINDOWS :       // Windows 95 or higher
-        if ( LOWORD(VersionInfo.dwBuildNumber) <= 1000 )
-            break;                          // Non-Windows 95 OSR2
-
-        // This code if for Windows 95 OSR2 or higher and
-        // Windows NT 4.0 or higher and Windows XP
-        HINSTANCE hinstLib;
-        DSKFREE ProcAdd;
-        ULARGE_INTEGER FreeBytesAvailableToCaller,
-                       TotalNumberOfBytes,
-                       TotalNumberOfFreeBytes;
-        // Load Kernel32.dll
-        hinstLib = LoadLibrary(_T("Kernel32.dll"));
-        if ( hinstLib == NULL )
-        {
-            ::MessageBox( NULL,
-                          _T("Could not load Kernel32.dll"),
-                          NULL,
-                          MB_OK | MB_ICONERROR | MB_TASKMODAL
-                         );
-            return totalbytes;
-        }
-
-        #ifdef _UNICODE   // Unicode version of GetDiskFreeSpaceEx
-            strProcName = _T("GetDiskFreeSpaceExW");
-
-        #else             // Standard version of GetDiskFreeSpaceEx
-            strProcName = _T("GetDiskFreeSpaceExA");
-        #endif
-
-        // Get ProcAddress for GetDiskFreeSpaceEx function
-        ProcAdd = (DSKFREE) GetProcAddress(hinstLib, strProcName);
-
-        if ( ProcAdd == NULL )
-        {
-            strErrMsg = _T("Could not get the address for ");
-            strErrMsg += strProcName;
-            ::MessageBox( NULL,
-                          strErrMsg,
-                          NULL,
-                          MB_OK | MB_ICONERROR | MB_TASKMODAL
-                         );
-            return totalbytes;
-        }
-        // Execute the GetDiskFreeSpaceEx function
-        ProcAdd(lpszDrivePath,
-                &FreeBytesAvailableToCaller,
-                &TotalNumberOfBytes,
-                &TotalNumberOfFreeBytes);
-
-        totalbytes = FreeBytesAvailableToCaller.QuadPart;
-        FreeLibrary(hinstLib);
-
-        return totalbytes;
-    default :
-        ::MessageBox( NULL,
-                      _T("Platform not supported"),
-                      NULL,
-                      MB_OK | MB_ICONERROR | MB_TASKMODAL
-                     );
-        return totalbytes;
-    }
-
-    // This code if for Non-Windows 95 OSR2 (early Windows 95) and
-    // Windows NT 3.51 or lower (well you never know! - would DScaler run?)
-    DWORD lpSectorsPerCluster = 0;
-    DWORD lpBytesPerSector = 0;
-    DWORD lpNumberOfFreeClusters = 0;
-    DWORD lpTotalNumberOfClusters = 0;
-
-    GetDiskFreeSpace(lpszDrivePath,
-                     &lpSectorsPerCluster,
-                     &lpBytesPerSector,
-                     &lpNumberOfFreeClusters,
-                     &lpTotalNumberOfClusters);
-    totalbytes =
-        lpNumberOfFreeClusters*lpBytesPerSector*lpSectorsPerCluster;
-
-    return totalbytes;
+#define P3_OR_BETTER (FEATURE_SSE | FEATURE_MMXEXT)
+#define BUG()\
+{\
+    char bugText[256];\
+    _snprintf(bugText, sizeof(bugText), "Bug found in %s around line %d",\
+                                        __FILE__, __LINE__);\
+    MessageBox(NULL, bugText, "Error", MB_OK);\
 }
 
+static DWORD AVIFileSizeLimit  = 0;
+static DWORD WarningShown      = 0;
+static char  ExePath[MAX_PATH] = { 0 };
+static char  *SavingPath       = NULL;
 
-bool CTimeShift::OnDestroy(void)
+/* This is just to ensure that the TimeShift data is handled properly */
+TIME_SHIFT *timeShift = NULL;
+
+/* Internal function prototypes */
+bool TimeShiftSetDimensions(void);
+bool TimeShiftGetWaveInDeviceIndex(int *index);
+bool TimeShiftGetWaveOutDeviceIndex(int *index);
+bool TimeShiftReadFromINI(void);
+bool TimeShiftWriteToINI(void);
+
+/** Checks the recording format and changes its value if it's invalid
+ * \param format The format to check
+ * \return A valid format
+ */
+
+__inline tsFormat_t makeFormatValid(tsFormat_t format)
 {
-    bool result = false;
+    if (format != FORMAT_YUY2 && format != FORMAT_RGB)
+       format = FORMAT_YUY2;
 
-    if (m_pTimeShift)
-    {
-        delete m_pTimeShift;
-        m_pTimeShift = NULL;
-
-        result = true;
-    }
-
-    return result;
+    return format;
 }
 
-bool CTimeShift::OnRecord(void)
-{
-    AssureCreated();
-
-    bool result = false;
-    extern char szIniFile[MAX_PATH];
-
-    //////////////////////////////////////////
-    // Simple single event scheduler.  It just
-    // times down until time to record within 
-    // the next 24 hour period.
-    //////////////////////////////////////////
-
-    // Get the scheduled record time from INI file
-    m_Start = 0; // Initialize it first
-    m_Start = (GetPrivateProfileInt(
-        "Schedule", "Start", m_Start, szIniFile));
-
-    if (m_Start != 0) //has a schedule time been set (0 = not set)?
-    {
-        ScheduleF = true; // set the flag to show it is a scheduled recording
-        /* 
-        Get local time and fill the structure.
-        For reference: the structure of tm is:
-        struct tm
-        {
-            int tm_sec;   // seconds after the minute (0-61)
-            int tm_min;   // minutes after the hour (0-59)
-            int tm_hour;  // hours since midnight (0-23)
-            int tm_mday;  // day of the month (1-31)
-            int tm_mon;   // months since January (0-11)
-            int tm_year;  // elapsed years since 1900 
-            int tm_wday;  // days since Sunday (0-6)
-            int tm_yday;  // days since January 1st (0-365)
-            int tm_isdst; // 1 if daylight savings is on, zero if not, -1 if unknown
-        }
-        */
-        time_t rawtime;
-        struct tm * timeinfo;
-        time ( &rawtime );
-        timeinfo = localtime ( &rawtime );
-    
-        int m_hours = (m_Start / 100); // Get the scheduled hours value
-        
-        sleeptime = 0; // Initialise sleeptime   
-
-        // Calculate number of seconds to wait from the hours part
-        if (m_hours > timeinfo->tm_hour)
-        {
-            sleeptime = ((m_hours - timeinfo->tm_hour) * 3600);
-        }   
-        if (m_hours < timeinfo->tm_hour)
-        {
-            sleeptime = (((m_hours + 24) - timeinfo->tm_hour) * 3600);
-        }
-        
-        // Calculate number of seconds to wait from the minutes part
-        int m_minutes = (m_Start % 100); 
-
-        if (m_minutes > timeinfo->tm_min)
-        {
-            sleeptime = (sleeptime + (m_minutes - timeinfo->tm_min) * 60);
-        }
-        
-        if (m_minutes < timeinfo->tm_min)
-        {
-            if (m_hours == timeinfo->tm_hour)
-            {
-                sleeptime = (24 * 3600);
-            }
-            sleeptime = (sleeptime - (timeinfo->tm_min - m_minutes) * 60);
-        }
-
-        m_Start = 0; //reset the schedule start time 
-        WritePrivateProfileInt(
-        "Schedule", "Start", m_Start, szIniFile); // reset INI
-
-        // Do a timer messagebox to the start of the scheduled recording
-        SchedMessageBox mbox(CWnd::FromHandle(GetMainWnd()));   // handle
-        int m_delay = sleeptime; // set the count-down period
-        bool m_close = true; // irrelevant - hard coded the switch
-        // irrelevant - hardcoded the icon
-        SchedMessageBox::MBIcon mbicon = SchedMessageBox::MBIcon::MBICONINFORMATION;
-        // call the timer messagebox
-        mbox.MessageBox("Message is hard coded! NULL", m_delay,
-            m_close,(SchedMessageBox::MBIcon)mbicon);
-
-        if (true == CancelSched) // Was the scheduled recording cancelled
-        {
-            CancelSched = false; // Reset flag for next time thru
-            return 0; // Quit
-        }
-    }
-        
-    ////////////////////////////////////////
-    // End of simple single event scheduler.
-    ////////////////////////////////////////
-
-    ///////////////////////
-    // Simple record timer.
-    ///////////////////////
-    // Need to flag this is first time thru
-    // because can come thru here more than once
-    // during a single recording (on a file split)
-    if (false == RecordTimerCheckedF)
-    {
-        RecordTimerCheckedF = true; // set the checked flag
-
-        // Get the Timed Recordng value from INI file   
-        m_Time = 0; // Initialise
-        m_Time = (GetPrivateProfileInt(
-        "Schedule", "Time", m_Time, szIniFile));
-
-        if (m_Time != 0) // Has the record timer been set
-        {
-            RecordTimerF = true; // set the flag to show it is a timed recording
-
-            // do the calcs to find recording end time
-            time_t seconds;
-            seconds = time (NULL);
-            EndRecordTime = (seconds + (m_Time * 60));
-            // Now we know that when system clock == EndRecordTime
-            // the timed recording is done.
-
-            // Clear the INI file of the timed recording value
-            m_Time = 0; // Reset the timer
-            WritePrivateProfileInt(
-            "Schedule", "Time", m_Time, szIniFile);
-        }
-        else
-        {
-            RecordTimerCheckedF = false; // need to reset check flag
-            // in case it was just a manual recording - so we check 
-            // next time there is a recording to see if timed
-        }
-    }
-    //////////////////////////////
-    // End of simple record timer.
-    //////////////////////////////
-
-    if (m_pTimeShift)
-    {
-        EnterCriticalSection(&m_pTimeShift->m_lock);
-
-        // Save this off before we start recording.
-        if (m_pTimeShift->m_mode == MODE_STOPPED)
-        {
-            CSource* pSource = Providers_GetCurrentSource();
-            if (pSource != NULL)
-            {
-                m_pTimeShift->m_origPixelWidth = pSource->GetWidth();
-            }
-        }
-
-        // if nofreespace is true it means a recording was in progress but running
-        // low on space and the disk space check routine has decided another file
-        // cannot be started (on a file split), and set the flag to get out of TimeShift
-        if (nofreespace) 
-        {
-            // Message boxes for endless or timed recording
-            LeaveCriticalSection(&m_pTimeShift->m_lock); //unlock the stream 
-            if (RecordTimerF)
-            {
-                MessageBox(GetMainWnd(),
-                    "Sorry! Recording stopped!\n"
-                    "\n"
-                    "You do not have enough\n"
-                    "disk space to continue.\n"
-                    "\n"
-                    "Your recording was saved.",
-                    "Information",
-                    MB_ICONEXCLAMATION | MB_OK);
-            }
-            else
-            {
-                MessageBox(GetMainWnd(),
-                    "Sorry! Timed recording stopped!\n"
-                    "\n"
-                    "You do not have enough\n"
-                    "disk space to continue.\n"
-                    "\n"
-                    "Only a part of your timed\n"
-                    "recording was saved.",
-                    "Information",
-                    MB_ICONEXCLAMATION | MB_OK);
-            }
-            nofreespace = false; // Reset the nofreespace flag
-            
-            // Reset the flags for scheduled / timed recording
-            RecordTimerCheckedF = false; // We check again on new recording
-            ScheduleF = false; // Rest flag so to check again on new recording
-            TimedRecodingDone = false; // Rest flag so to check again on new recording          
-            RecordTimerF = false; // Rest flag so to check again on new recording
-            return result; // Exit TimeShift
-        }
-    
-        // Message and close down if timed recording is done
-        if (TimedRecodingDone) // Has the timed recording finished?
-        {
-            LeaveCriticalSection(&m_pTimeShift->m_lock); //unlock the stream
-            
-            
-            if (ScheduleF) // Was it a scheduled recording?
-            {
-                MessageBox(GetMainWnd(),
-                        "Your scheduled recording was saved.",
-                        "Recording Information",
-                        MB_ICONEXCLAMATION | MB_OK);
-            }
-            else
-            {
-                MessageBox(GetMainWnd(),
-                        "Your timed recording was saved.",
-                        "Recording Information",
-                        MB_ICONEXCLAMATION | MB_OK);
-            }
-            // Initialise the flags for scheduled / timed recording
-            ScheduleF = false;
-            TimedRecodingDone = false;
-            RecordTimerCheckedF = false;
-            RecordTimerF = false;
-            return result; //exit TimeShift         
-        }
-
-        // If less than 300 MB free disk space don't even start recoding.
-        ULONGLONG TotalFreeBytes = GetFreeDiskSpace();
-        if (TotalFreeBytes < 314572800)
-        {
-            LeaveCriticalSection(&m_pTimeShift->m_lock); //unlock the stream
-            MessageBox(GetMainWnd(),
-                        "Sorry! You do not have enough\n"
-                        "disk space to record a video.",
-                        "Information",
-                        MB_ICONEXCLAMATION | MB_OK);        
-            return result; //exit TimeShift
-        }
-
-        // make sure the last file written in the series of file splits 
-        // leaves at least 250MB free for the system (the means changing
-        // AVIFileSizeLimitTemp to a temporary value for last file.
-        //
-        // Need to use a temp for AVIFileSizeLimit to stop INI overwrite
-        AVIFileSizeLimitTemp = AVIFileSizeLimit; // Initialize the temp
-        if (TotalFreeBytes < (262144000 + (AVIFileSizeLimit*1024*1024)))
-        {
-            AVIFileSizeLimitTemp = (DWORD)((TotalFreeBytes - 262144000)/(1024*1024));
-        }
-        
-        // Only start recording if we're stopped.
-        result =
-            m_pTimeShift->m_mode == MODE_STOPPED ?
-            m_pTimeShift->Record(false) : false;
-
-        LeaveCriticalSection(&m_pTimeShift->m_lock);
-    }
-
-    return result;
-}
-
-bool CTimeShift::OnPause(void)
-{
-    AssureCreated();
-
-    bool result = false;
-
-    // if we've not been created there is nothing to pause
-    if (m_pTimeShift)
-    {
-        EnterCriticalSection(&m_pTimeShift->m_lock);
-
-        // Save this off before we start "time shifing".
-        if (m_pTimeShift->m_mode == MODE_STOPPED)
-        {
-            CSource* pSource = Providers_GetCurrentSource();
-            if (pSource != NULL)
-            {
-                m_pTimeShift->m_origPixelWidth = pSource->GetWidth();
-            }
-        }
-
-        // Only start "time shifing" if we're stopped.
-        result =
-            m_pTimeShift->m_mode == MODE_STOPPED ||
-            m_pTimeShift->m_mode == MODE_RECORDING ||
-            m_pTimeShift->m_mode == MODE_SHIFTING ?
-            m_pTimeShift->Record(true) : false;
-
-        LeaveCriticalSection(&m_pTimeShift->m_lock);
-    }
-
-    return result;
-}
-
-bool CTimeShift::OnPlay(void)
-{
-    AssureCreated();
-
-    bool result = false;
-
-    if (m_pTimeShift)
-    {
-        EnterCriticalSection(&m_pTimeShift->m_lock);
-
-        // Save this off before we start playing.
-        if (m_pTimeShift->m_mode == MODE_STOPPED)
-        {
-            CSource* pSource = Providers_GetCurrentSource();
-            if (pSource != NULL)
-            {
-                m_pTimeShift->m_origPixelWidth = pSource->GetWidth();
-            }
-        }
-
-        // Only start playing if we're stopped.
-        result =
-            m_pTimeShift->m_mode == MODE_STOPPED ||
-            m_pTimeShift->m_mode == MODE_PAUSED ?
-            m_pTimeShift->Play() : false;
-
-        LeaveCriticalSection(&m_pTimeShift->m_lock);
-    }
-
-    return result;
-}
-
-bool CTimeShift::OnStop(void)
-{
-    // Initialise the flags for scheduled / timed recording.
-    //
-    // Need to so this in case a timed or scheduled recording
-    // was stopped manually by the user.
-    ScheduleF = false;
-    TimedRecodingDone = false;
-    RecordTimerCheckedF = false;
-    RecordTimerF = false;
-
-    bool result = false;
-
-    // if we've not been created there is nothing to stop
-    if (m_pTimeShift)
-    {
-        EnterCriticalSection(&m_pTimeShift->m_lock);
-
-        // Only stop recording if we're recording.
-        result =
-            m_pTimeShift->m_mode == MODE_RECORDING ||
-            m_pTimeShift->m_mode == MODE_PAUSED ||
-            m_pTimeShift->m_mode == MODE_PLAYING ||
-            m_pTimeShift->m_mode == MODE_SHIFTING ?
-            m_pTimeShift->Stop() : false;
-
-        // Reset the user's pixel width outside the Stop function since we
-        // call it between clips and pixelwidth-setting is slow.
-        CSource* pSource = Providers_GetCurrentSource();
-        if (result && pSource != NULL && pSource->GetWidth() != m_pTimeShift->m_origPixelWidth)
-        {
-            SetPixelWidth(m_pTimeShift->m_origPixelWidth);
-        }
-
-        LeaveCriticalSection(&m_pTimeShift->m_lock);
-    }
-    return result;
-}
-
-bool CTimeShift::OnGoNext(void)
-{
-    AssureCreated();
-
-    bool result = false;
-
-    if (m_pTimeShift)
-    {
-        EnterCriticalSection(&m_pTimeShift->m_lock);
-
-        // Only track skip if playing.
-        result =
-            m_pTimeShift->m_mode == MODE_STOPPED ||
-            m_pTimeShift->m_mode == MODE_PLAYING ?
-            m_pTimeShift->GoNext() : false;
-
-        LeaveCriticalSection(&m_pTimeShift->m_lock);
-    }
-
-    return result;
-}
-
-bool CTimeShift::OnGoPrev(void)
-{
-    AssureCreated();
-
-    bool result = false;
-
-    if (m_pTimeShift)
-    {
-        EnterCriticalSection(&m_pTimeShift->m_lock);
-
-        // Only track skip if playing.
-        result =
-            m_pTimeShift->m_mode == MODE_STOPPED ||
-            m_pTimeShift->m_mode == MODE_PLAYING ?
-            m_pTimeShift->GoPrev() : false;
-
-        LeaveCriticalSection(&m_pTimeShift->m_lock);
-    }
-
-    return result;
-}
-
-bool CTimeShift::OnOptions(void)
-{
-    AssureCreated();
-
-    bool result = false;
-
-    if (m_pTimeShift)
-    {
-        // No enter critical section here.  If we're stopped, there is no
-        // need for one.  If we're recording, we'll show an error box and not
-        // access critical member variables anyway so recording can continue.
-
-        if (m_pTimeShift->m_mode == MODE_STOPPED)
-        {
-            CTSOptionsDlg dlg(CWnd::FromHandle(GetMainWnd()));
-            result = dlg.DoModal() == IDOK;
-
-            // Save off any changes we've made now, rather than in destructor.
-            // Even if cancel was hit, there still may be new compressions
-            // options to save.
-            m_pTimeShift->WriteToIni();
-        }
-        else
-        {
-            MessageBox(GetMainWnd(),
-                       "TimeShift options are only available during stop mode.",
-                       "Information",
-                       MB_OK);
-        }
-    }
-
-    return result;
-}
-
-bool CTimeShift::WorkOnInputFrames()
-{
-    bool result = true;
-
-    if (m_pTimeShift)
-    {
-        if (m_pTimeShift->m_recHeight == TS_FULLHEIGHT)
-        {
-            result = false;
-        }
-    }
-
-    return result;
-}
-
-bool CTimeShift::IsRunning()
-{
-    bool result = false;
-
-    if (m_pTimeShift)
-    {
-        EnterCriticalSection(&m_pTimeShift->m_lock);
-
-        if (m_pTimeShift->m_mode != MODE_STOPPED)
-        {
-            result = true;
-        }
-
-        LeaveCriticalSection(&m_pTimeShift->m_lock);
-    }
-
-    return result;
-}
-
-// Called from the capture thread.
-bool CTimeShift::OnNewInputFrame(TDeinterlaceInfo *pInfo)
-{
-    bool result = false;
-
-    if (m_pTimeShift)
-    {
-        EnterCriticalSection(&m_pTimeShift->m_lock);
-
-        if(m_pTimeShift->m_mode == MODE_RECORDING ||
-            m_pTimeShift->m_mode == MODE_PAUSED ||
-            m_pTimeShift->m_mode == MODE_SHIFTING)
-        {
-            result = m_pTimeShift->WriteVideo(pInfo);
-        }
-        else if(m_pTimeShift->m_mode == MODE_PLAYING)
-        {
-            result = m_pTimeShift->ReadVideo(pInfo);
-        }
-
-        LeaveCriticalSection(&m_pTimeShift->m_lock);
-
-        // It would be a good idea to fix the file size limitation. Until then we split the AVI.
-        if(m_pTimeShift->m_BytesWritten > AVIFileSizeLimit*1024*1024
-            || m_pTimeShift->m_BytesWritten > AVIFileSizeLimitTemp*1024*1024)
-        {
-            m_pTimeShift->OnStop();
-            
-
-            // Check free disk space while file splitting.
-            // If less than 300 MB free disk space don't start a new file. 
-            if (GetFreeDiskSpace() < 314572800)
-                nofreespace = true; //this flag stops a new file being created
-            m_pTimeShift->OnRecord();
-    }
-
-        // Timed recording check for completed
-        if (RecordTimerF) // is it a timed recording?
-        {
-            time_t seconds;
-            seconds = time (NULL);
-            if (seconds >= EndRecordTime)
-            {   m_pTimeShift->OnStop();   // Close the timed video recoding file    
-                TimedRecodingDone = true; // Set the flag for timed recording done              
-                m_pTimeShift->OnRecord(); // Message and close down
-            }
-        }
-    }
-    return result;
-}
-
-// Called from the capture thread.
-bool CTimeShift::OnNewOutputFrame(TDeinterlaceInfo *pInfo)
-{
-    bool result = false;
-
-    if (m_pTimeShift)
-    {
-        EnterCriticalSection(&m_pTimeShift->m_lock);
-
-        if(m_pTimeShift->m_mode == MODE_RECORDING ||
-            m_pTimeShift->m_mode == MODE_PAUSED ||
-            m_pTimeShift->m_mode == MODE_SHIFTING)
-        {
-            result = m_pTimeShift->WriteVideo2(pInfo);
-        }
-        else if(m_pTimeShift->m_mode == MODE_PLAYING)
-        {
-            result = m_pTimeShift->ReadVideo2(pInfo);
-        }
-
-        LeaveCriticalSection(&m_pTimeShift->m_lock);
-
-        // It would be a good idea to fix the file size limitation. Until then we split the AVI.
-        if(m_pTimeShift->m_BytesWritten > AVIFileSizeLimit*1024*1024
-            || m_pTimeShift->m_BytesWritten > AVIFileSizeLimitTemp*1024*1024)
-        {
-            m_pTimeShift->OnStop();
-        
-            // Check free disk space while file splitting.
-            // ===========================================
-            // Get the root directory of drive for recorded video files
-            // If less than 300 MB free disk space don't start a new file. 
-            if (GetFreeDiskSpace() < 314572800)
-                nofreespace = true; //this flag stops a new file being created
-            m_pTimeShift->OnRecord();
-    }
-
-        // Timed recording check for completed
-        if (RecordTimerF) // is it a timed recording?
-        {
-            time_t seconds;
-            seconds = time (NULL);
-            if (seconds >= EndRecordTime)
-            {   m_pTimeShift->OnStop();   // Close the timed video recoding file    
-                TimedRecodingDone = true; // Set the flag for timed recording done              
-                m_pTimeShift->OnRecord(); // Message and close down
-            }
-        }
-    }
-    return result;
-}
-
-bool CTimeShift::OnWaveInData(void)
-{
-    bool result = false;
-
-    if (m_pTimeShift)
-    {
-        EnterCriticalSection(&m_pTimeShift->m_lock);
-
-        // Only write the buffer if we're recording.
-        result =
-            m_pTimeShift->m_mode == MODE_RECORDING ||
-            m_pTimeShift->m_mode == MODE_PAUSED ||
-            m_pTimeShift->m_mode == MODE_SHIFTING ?
-            m_pTimeShift->WriteAudio() : false;
-
-        LeaveCriticalSection(&m_pTimeShift->m_lock);
-    }
-
-    return result;
-}
-
-bool CTimeShift::OnWaveOutDone(void)
-{
-    bool result = false;
-
-    if (m_pTimeShift)
-    {
-        EnterCriticalSection(&m_pTimeShift->m_lock);
-
-        // Only read the buffer if we're playing.
-        result =
-            m_pTimeShift->m_mode == MODE_PLAYING ||
-            m_pTimeShift->m_mode == MODE_SHIFTING ?
-            m_pTimeShift->ReadAudio() : false;
-
-        LeaveCriticalSection(&m_pTimeShift->m_lock);
-    }
-
-    return result;
-}
-
-bool CTimeShift::OnSetMenu(HMENU hMenu)
-{
-    bool result = false;
-
-    int item = IDM_TSSTOP;
-
-    if (m_pTimeShift)
-    {
-        EnterCriticalSection(&m_pTimeShift->m_lock);
-
-        switch (m_pTimeShift->m_mode)
-        {
-        default:
-        case MODE_STOPPED:
-            item = IDM_TSSTOP;
-            break;
-
-        case MODE_PLAYING:
-            item = IDM_TSPLAY;
-            break;
-
-        case MODE_RECORDING:
-        case MODE_SHIFTING:
-            item = IDM_TSRECORD;
-            break;
-
-        case MODE_PAUSED:
-            item = IDM_TSPAUSE;
-            break;
-
-        case MODE_FASTFWD:
-            item = IDM_TSFFWD;
-            break;
-
-        case MODE_REWIND:
-            item = IDM_TSRWND;
-            break;
-        }
-    }
-
-    CheckMenuRadioItem(hMenu, IDM_TSRECORD, IDM_TSNEXT, item, MF_BYCOMMAND);
-
-    if (m_pTimeShift)
-        LeaveCriticalSection(&m_pTimeShift->m_lock);
-
-    return result;
-}
-
-////////////////////////////// Instance Interface //////////////////////////////
+/**********************************************************************
+ *                   Image processing functions                       *
+ **********************************************************************/
 
 /** \todo Use this formula, it's our (BT and dScaler) "standard".
 
@@ -1071,15 +286,7 @@ bool CTimeShift::OnSetMenu(HMENU hMenu)
     B = (Y - 16) * 1.0711 + (U - 128.0) *  1.772 + (V - 128.0) *  0.00;
 */
 
-CTimeShift* CTimeShift::m_pTimeShift = NULL;
-LPBYTE (*CTimeShift::m_YUVtoRGB)(LPBYTE,short *,DWORD) = NULL;
-LPBYTE (*CTimeShift::m_AvgYUVtoRGB)(LPBYTE,short *,short *,DWORD) = NULL;
-LPBYTE (*CTimeShift::m_RGBtoYUV)(short *,LPBYTE,DWORD) = NULL;
-
-// The mmx code requires at least a Pentium-III.
-#define P3_OR_BETTER (FEATURE_SSE | FEATURE_MMXEXT)
-
-/* yuv <--> rgb conversion
+/* YUV <--> RGB conversion
 
   Start with assumed "exact" values for rgb-to-yuv conversion.
 
@@ -1127,16 +334,43 @@ LPBYTE (*CTimeShift::m_RGBtoYUV)(short *,LPBYTE,DWORD) = NULL;
 
 */
 
-// Note names are most-signif first, but the contents are least-signif first.
+/* Used for the YUV -> RGB conversions.
+   Note names are most-signif first, but the contents are least-signif first. */
 static unsigned short const8000[4] = { 0x8000, 0x8000, 0x8000, 0x8000 };
 static unsigned short const00ff[4] = { 0x00ff, 0x00ff, 0x00ff, 0x00ff };
-static short RvRuGvGu[4] = { -5629, -11689, -15, 22966 };
-static short GvGuBvBu[4] = { 29025, -45, -5629, -11689 };
-static short RvRuBvBu[4] = { 29025, -45, -15,    22966 };
+static short          RvRuGvGu[4]  = { -5629, -11689, -15, 22966 };
+static short          GvGuBvBu[4]  = { 29025, -45, -5629, -11689 };
+static short          RvRuBvBu[4]  = { 29025, -45, -15,    22966 };
 
-// YUV to RGB if processor is P3 or better - assembly code
-// This routine does the conversion for video file data
-LPBYTE P3_YUVtoRGB(LPBYTE dest, short *src, DWORD w)
+/*
+
+  Y = R *  .299 + G *  .587 + B *  .114;
+  U = R * -.168 + G * -.332 + B *  .500 + 128.;
+  V = R *  .500 + G * -.419 + B * -.081 + 128.;
+
+  These are the ones used by an example on Intel's dev site...
+  If we go with these, we should recalculate the inverse for the other mmx func.
+
+  Y = 0.299 R + 0.587 G + 0.114 B
+  U =-0.146 R - 0.288 G + 0.434 B           
+  V = 0.617 R - 0.517 G - 0.100 G
+
+  Y = [(9798 R + 19235G + 3736 B) / 32768]
+  U = [(-4784 R - 9437 G + 4221 B) / 32768] + 128   
+  V = [(20218R - 16941G - 3277 B) / 32768] + 128
+
+*/
+
+/* These are used for the RGB -> YUV conversion functions.
+   Note names are most-signif first, but the contents are least-signif first. */
+static short const128_0_128_0[4] = { 0, 128, 0, 128 };
+static short UgUbYgYb[4]         = { 3736, 19235,  16384, -10879 };
+static short Ur0Yr0[4]           = {    0,  9798,     0,   -5505 };
+static short VgVbYgYb[4]         = { 3736, 19235, -2654,  -13730 };
+static short Vr0Yr0[4]           = {    0,  9798,     0,   16384 };
+
+/** YUV to RGB conversion with SSE and MMX instructions */
+LPBYTE P3_YUVtoRGB(LPBYTE dest, LPBYTE src, DWORD w)
 {
     _asm
     {
@@ -1207,26 +441,24 @@ LPBYTE P3_YUVtoRGB(LPBYTE dest, short *src, DWORD w)
     return dest;
 }
 
-// The c-equivalent if P3-or-better is not present in cpu flags.
-// YUV to RGB if processor is NOT P3 or better - C++ code
-// This routine does the conversion for video file data
-LPBYTE C_YUVtoRGB(LPBYTE dest, short *src, DWORD w)
+/** YUV to RGB conversion without inline assembly */
+LPBYTE C_YUVtoRGB(LPBYTE dest, LPBYTE src, DWORD w)
 {
-    LPBYTE s = (LPBYTE)src;
     DWORD w2 = w >> 1;
+
+    #define clip(x) (((x) & 0xffffff00) ? ((x) & 0x80000000) ? 0 : 255 : (x))
+
     while (w2--)
     {
         // Y0 U Y1 V for YUY2...
-        int Y0 = (int)DWORD(*s++);
-        int U =  (int)DWORD(*s++) - 128;
-        int Y1 = (int)DWORD(*s++);
-        int V =  (int)DWORD(*s++) - 128;
+        int Y0 = (int)DWORD(*src++);
+        int U =  (int)DWORD(*src++) - 128;
+        int Y1 = (int)DWORD(*src++);
+        int V =  (int)DWORD(*src++) - 128;
 
         int preR = (U * -30 + V * 45931) >> 15;
         int preG = (U * -11258 + V * -23378) >> 15;
         int preB = (U * 58050 + V * -90) >> 15;
-
-    #define clip(x) (((x) & 0xffffff00) ? ((x) & 0x80000000) ? 0 : 255 : (x))
 
         *dest++ = clip(Y0 + preB);
         *dest++ = clip(Y0 + preG);
@@ -1240,15 +472,27 @@ LPBYTE C_YUVtoRGB(LPBYTE dest, short *src, DWORD w)
     return dest;
 }
 
+/** Copies YUV pixels
+ * \param dest Where the YUV pixels should be copied to
+ * \param src  Where the YUV pixels should be copied from
+ * \param w    The number of pixels to copy
+ * \return \a dest offset to the pixel after the last pixel that was copied
+ */
 
-// src will be calculated from the average of src1 and src2.
-// Emu: changed 'mov esp, src2' to ecx 'mov ecx, src2' and it seems to work OK.
-// Apparently 'esp' is a stack pointer and that was causing the crash.
-//
-// YUV to RGB if processor is P3 or better - assembly code
-// This routine does the conversion for video file data.
-// Each line is built from an average of ODD and EVEN pixels.
-LPBYTE P3_AvgYUVtoRGB(LPBYTE dest, short *src1, short *src2, DWORD w)
+LPBYTE C_CopyYUV(LPBYTE dest, LPBYTE src, DWORD w)
+{
+    w <<= 1;
+
+    memcpy(dest, src, w);
+
+    return dest + w;
+}
+
+/** Averages YUV scanlines and does a conversion to RGB
+ * \note Uses SSE and MMX instructions
+ */
+
+LPBYTE P3_AvgYUVtoRGB(LPBYTE dest, LPBYTE src1, LPBYTE src2, DWORD w)
 {
     _asm
     {
@@ -1324,28 +568,28 @@ LPBYTE P3_AvgYUVtoRGB(LPBYTE dest, short *src1, short *src2, DWORD w)
     return dest;
 }
 
-// The c-equivalent if P3-or-better is not present in cpu flags.
-//
-// YUV to RGB if processor is NOT P3 or better - C++ code.
-// This routine does the conversion for video file data.
-// Each line is built from an average of ODD and EVEN pixels.
-LPBYTE C_AvgYUVtoRGB(LPBYTE dest, short *src1, short *src2, DWORD w)
+/** Averages YUV scanlines and does a conversion to RGB
+ * \note This is the version that does not use inline assembly
+ */
+
+LPBYTE C_AvgYUVtoRGB(LPBYTE dest, LPBYTE src1, LPBYTE src2, DWORD w)
 {
-    LPBYTE s1 = (LPBYTE)src1;
-    LPBYTE s2 = (LPBYTE)src2;
     DWORD w2 = w >> 1;
+
+    #define clip(x) (((x) & 0xffffff00) ? ((x) & 0x80000000) ? 0 : 255 : (x))
+
     while (w2--)
     {
         // Y0 U Y1 V for YUY2...
-        int Y0a = (int)DWORD(*s1++);
-        int Ua =  (int)DWORD(*s1++) - 128;
-        int Y1a = (int)DWORD(*s1++);
-        int Va =  (int)DWORD(*s1++) - 128;
+        int Y0a = (int)DWORD(*src1++);
+        int Ua =  (int)DWORD(*src1++) - 128;
+        int Y1a = (int)DWORD(*src1++);
+        int Va =  (int)DWORD(*src1++) - 128;
 
-        int Y0b = (int)DWORD(*s2++);
-        int Ub =  (int)DWORD(*s2++) - 128;
-        int Y1b = (int)DWORD(*s2++);
-        int Vb =  (int)DWORD(*s2++) - 128;
+        int Y0b = (int)DWORD(*src2++);
+        int Ub =  (int)DWORD(*src2++) - 128;
+        int Y1b = (int)DWORD(*src2++);
+        int Vb =  (int)DWORD(*src2++) - 128;
 
         int Y0 = (Y0a + Y0b) >> 1;
         int U =  (Ua + Ub) >> 1;
@@ -1355,8 +599,6 @@ LPBYTE C_AvgYUVtoRGB(LPBYTE dest, short *src1, short *src2, DWORD w)
         int preR = (U * -30 + V * 45931) >> 15;
         int preG = (U * -11258 + V * -23378) >> 15;
         int preB = (U * 58050 + V * -90) >> 15;
-
-    #define clip(x) (((x) & 0xffffff00) ? ((x) & 0x80000000) ? 0 : 255 : (x))
 
         *dest++ = clip(Y0 + preB);
         *dest++ = clip(Y0 + preG);
@@ -1370,33 +612,77 @@ LPBYTE C_AvgYUVtoRGB(LPBYTE dest, short *src1, short *src2, DWORD w)
     return dest;
 }
 
-/*
+/** Averages two YUV scanlines together
+ * \param dest Where the averaged scanline should be stored
+ * \param s1   The first input scanline
+ * \param s2   The second input scanline
+ * \param w    The number of pixels in \a s1 and \a s2
+ * \return \a dest offset to the pixel after the last pixel in the scanline
+ */
 
-  Y = R *  .299 + G *  .587 + B *  .114;
-  U = R * -.168 + G * -.332 + B *  .500 + 128.;
-  V = R *  .500 + G * -.419 + B * -.081 + 128.;
+LPBYTE C_AvgYUV(LPBYTE dest, LPBYTE s1, LPBYTE s2, DWORD w)
+{
+    w >>= 1;
+    while (w > 0)
+    {
+        /* Y0 */
+        *dest++ = (BYTE)(((int)*s1++ + (int)*s2++) >> 1);
 
-  These are the ones used by an example on Intel's dev site...
-  If we go with these, we should recalculate the inverse for the other mmx func.
+        /* U */
+        *dest++ = (BYTE)(((int)*s1++ + (int)*s2++) >> 1);
 
-  Y = 0.299 R + 0.587 G + 0.114 B
-  U =-0.146 R - 0.288 G + 0.434 B           
-  V = 0.617 R - 0.517 G - 0.100 G
+        /* Y1 */
+        *dest++ = (BYTE)(((int)*s1++ + (int)*s2++) >> 1);
 
-  Y = [(9798 R + 19235G + 3736 B) / 32768]
-  U = [(-4784 R - 9437 G + 4221 B) / 32768] + 128   
-  V = [(20218R - 16941G - 3277 B) / 32768] + 128
+        /* V */
+        *dest++ = (BYTE)(((int)*s1++ + (int)*s2++) >> 1);
 
-*/
+        w--;
+    }
 
-// Note names are most-signif first, but the contents are least-signif first.
-static short const128_0_128_0[4] = { 0, 128, 0, 128 };
-static short UgUbYgYb[4] = { 3736, 19235,  16384, -10879 };
-static short Ur0Yr0[4] =   {    0,  9798,     0,   -5505 };
-static short VgVbYgYb[4] = { 3736, 19235, -2654,  -13730 };
-static short Vr0Yr0[4] =   {    0,  9798,     0,   16384 };
+    return dest;
+}
 
-LPBYTE P3_RGBtoYUV(short *dest, LPBYTE src, DWORD w)
+LPBYTE P3_AvgYUV(LPBYTE dest, LPBYTE s1, LPBYTE s2, DWORD w)
+{
+    __asm
+    {
+        mov edi, dest
+        mov esi, s1
+        mov ebx, s2
+
+        mov ecx, w
+        shr ecx, 2
+        jz end              /* Don't copy anything if the counter is equal to zero */
+
+        next4:
+          movq mm0, [esi]   /* Copy 4 pixels from s1 */
+          movq mm1, [ebx]   /* Copy 4 pixels from s2 */
+
+          pavgb mm0, mm1    /* Average the two scanlines */
+
+          movq [edi], mm0   /* Save the averaged scanline back into dest */
+
+          add edi, 8
+          add esi, 8
+          add ebx, 8
+
+          dec ecx
+        jnz next4
+
+        end:
+        mov dest, edi
+        emms
+    }
+
+    return dest;
+}
+
+/** Converts a RGB scanline to a YUV scanline
+ * \note Uses SSE and MMX instructions
+ */
+
+LPBYTE P3_RGBtoYUV(LPBYTE dest, LPBYTE src, DWORD w)
 {
     _asm
     {
@@ -1488,11 +774,13 @@ LPBYTE P3_RGBtoYUV(short *dest, LPBYTE src, DWORD w)
     return src;
 }
 
-// The c-equivalent if P3-or-better is not present in cpu flags.
-LPBYTE C_RGBtoYUV(short *dest, LPBYTE src, DWORD w)
+/** Converts a RGB scanline to a YUV scanline */
+LPBYTE C_RGBtoYUV(LPBYTE dest, LPBYTE src, DWORD w)
 {
-    LPBYTE dst = (LPBYTE)dest;
     DWORD w2 = w >> 1;
+
+    #define clip(x) (((x) & 0xffffff00) ? ((x) & 0x80000000) ? 0 : 255 : (x))
+
     while (w2--)
     {
         int B = *src++;
@@ -1502,10 +790,8 @@ LPBYTE C_RGBtoYUV(short *dest, LPBYTE src, DWORD w)
         int Y = (R * 9798 + G * 19235 + B * 3736) >> 15;
         int U = ((R * -5505 + G * -10879 + B * 16384) >> 15) + 128;
 
-    #define clip(x) (((x) & 0xffffff00) ? ((x) & 0x80000000) ? 0 : 255 : (x))
-
-        *dst++ = clip(Y);
-        *dst++ = clip(U);
+        *dest++ = clip(Y);
+        *dest++ = clip(U);
 
         B = *src++;
         G = *src++;
@@ -1514,285 +800,943 @@ LPBYTE C_RGBtoYUV(short *dest, LPBYTE src, DWORD w)
         Y = (R * 9798 + G * 19235 + B * 3736) >> 15;
         int V = ((R * 16384 + G * -13730 + B * -2654) >> 15) + 128;
 
-        *dst++ = clip(Y);
-        *dst++ = clip(V);
+        *dest++ = clip(Y);
+        *dest++ = clip(V);
     }
 
     return src;
 }
 
-CTimeShift::CTimeShift()
-    :
-    m_mode(MODE_STOPPED),
-    m_fps(30),
-    m_curFile(0),
-    m_lpbi(NULL),
-    m_recordBits(NULL),
-    m_playBits(NULL),
-    m_gotPauseBits(FALSE),
-    m_BytesWritten(0),
-    m_pfile(NULL),
-    m_psVideo(NULL),
-    m_psAudio(NULL),
-    m_psCompressedVideo(NULL),
-    m_psCompressedAudio(NULL),
-    m_psCompressedVideoP(NULL),
-    m_psCompressedAudioP(NULL),
-    m_pGetFrame(NULL),
-    m_setOptsVideo(false),
-    m_setOptsAudio(false),
-    m_startTimeRecord(0),
-    m_startTimePlay(0),
-    m_thisTimeRecord(0),
-    m_thisTimePlay(0),
-    m_lastFrameRecord(0),
-    m_lastFramePlay(0),
-    m_startFramePlay(0),
-    m_nextSampleRecord(0),
-    m_nextSamplePlay(0),
-    m_hWaveIn(NULL),
-    m_nextWaveInHdr(0),
-    m_hWaveOut(NULL),
-    m_nextWaveOutHdr(0),
-    m_recHeight(TS_HALFHEIGHTEVEN),
-    m_origPixelWidth(720),
-    m_origUseMixer(-1)
+/**********************************************************************
+ *                TimeShift internal utility functions                *
+ **********************************************************************/
+
+/** Free disk space routine - code based on MSDN example (but better)
+ * \return An unsigned __int64 (i.e. an unsigned 64 bit integer) as the amount
+ *         of free space available to the caller for the volume specified in
+ *         lpszDrivePath in bytes.
+ */
+
+ULONGLONG GetFreeDiskSpace(void) 
 {
-    m_waveInDevice[0] = 0;
-    m_waveOutDevice[0] = 0;
+    ULONGLONG totalbytes = 0; /**< Free disk space in bytes */
 
-    InitializeCriticalSection(&m_lock);
+    typedef BOOL (CALLBACK *DSKFREE)(LPCTSTR,
+                                     PULARGE_INTEGER,
+                                     PULARGE_INTEGER,
+                                     PULARGE_INTEGER);
+    OSVERSIONINFO VersionInfo;
+    VersionInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+    CString strProcName, strErrMsg;
+    char lpszDrivePath[4] = "c:\\";
 
-    if (CpuFeatureFlags & P3_OR_BETTER)
+    lpszDrivePath[0] = SavingPath[0];
+
+    // Get Operating System Version information
+    if(!GetVersionEx(&VersionInfo))
+        return totalbytes;
+
+    switch ( VersionInfo.dwPlatformId )
     {
-        m_YUVtoRGB = P3_YUVtoRGB;
-        m_AvgYUVtoRGB = P3_AvgYUVtoRGB;
-        m_RGBtoYUV = P3_RGBtoYUV;
-    }
-    else
-    {
-        // NOTE: If you're here, you'll need to set your Pixel Width to 320 in
-        // order to get a decent frame rate.
-        m_YUVtoRGB = C_YUVtoRGB;
-        m_AvgYUVtoRGB = C_AvgYUVtoRGB;
-        m_RGBtoYUV = C_RGBtoYUV;
-    }
+        case VER_PLATFORM_WIN32_NT:
+            if (VersionInfo.dwMajorVersion < 4)  // NT 3.51 or less
+               break;
 
-    memset(&m_bih, 0, sizeof(m_bih));
+        case VER_PLATFORM_WIN32_WINDOWS:       // Windows 95 or higher
+            if (LOWORD(VersionInfo.dwBuildNumber) <= 1000)
+               break;                          // Non-Windows 95 OSR2
 
-    AVIFileInit();
+            // This code if for Windows 95 OSR2 or higher and
+            // Windows NT 4.0 or higher and Windows XP
+            ULARGE_INTEGER FreeBytesAvailableToCaller;
+            ULARGE_INTEGER TotalNumberOfBytes;
+            ULARGE_INTEGER TotalNumberOfFreeBytes;
+            DSKFREE        ProcAdd;
 
-    // Default to full frames video.
-    memset(&m_infoVideo, 0, sizeof(m_infoVideo));
-    m_infoVideo.fccType = streamtypeVIDEO;
-    m_infoVideo.fccHandler = 0;//mmioFOURCC('D', 'I', 'B', ' ');
-    m_infoVideo.dwFlags = 0;
-    m_infoVideo.dwCaps = 0;
-    m_infoVideo.wPriority = 0;
-    m_infoVideo.wLanguage = 0;
-    m_infoVideo.dwScale = 1;
-    m_infoVideo.dwRate = m_fps;
-    m_infoVideo.dwStart = 0;
-    m_infoVideo.dwLength = 0;
-    m_infoVideo.dwInitialFrames = 0;
-    m_infoVideo.dwSuggestedBufferSize = m_bih.biSizeImage;
-    m_infoVideo.dwQuality = (DWORD)-1;
-    m_infoVideo.dwSampleSize = 0;
-    SetRect(&m_infoVideo.rcFrame, 0, 0, m_bih.biWidth, m_bih.biHeight);
-    m_infoVideo.dwEditCount = 0;
-    m_infoVideo.dwFormatChangeCount = 0;
-    strcpy(m_infoVideo.szName, "Video");
-    // Default to CD Quality audio.
-    m_waveFormat.wFormatTag = WAVE_FORMAT_PCM;
-    m_waveFormat.nChannels = 2;
-    m_waveFormat.nSamplesPerSec = 44100;
-    m_waveFormat.nAvgBytesPerSec = 176400; // nSamplesPer * nBlockAlign ?
-    // best for me is 176389 (defalt is 176400)
-    // an INI file custom setting will change this value
-    m_waveFormat.nBlockAlign = 4;
-    m_waveFormat.wBitsPerSample = 16;
-    m_waveFormat.cbSize = 0;
-    memset(&m_infoAudio, 0, sizeof(m_infoAudio));
-    m_infoAudio.fccType = streamtypeAUDIO;
-    m_infoAudio.fccHandler = 0; // Zero for PCM audio.
-    m_infoAudio.dwFlags = 0;
-    m_infoAudio.dwCaps = 0;
-    m_infoAudio.wPriority = 0;
-    m_infoAudio.wLanguage = 0;
-    m_infoAudio.dwScale = m_waveFormat.nBlockAlign;
-    m_infoAudio.dwRate = m_waveFormat.nAvgBytesPerSec;
-    m_infoAudio.dwStart = 0;
-    m_infoAudio.dwLength = 0;
-    m_infoAudio.dwInitialFrames = 0;
-    m_infoAudio.dwSuggestedBufferSize = m_infoAudio.dwRate / m_fps;
-    m_infoAudio.dwQuality = 0; // Laurent's comment : why 0 and not -1
-    m_infoAudio.dwSampleSize = m_waveFormat.nBlockAlign;
-    SetRect(&m_infoAudio.rcFrame, 0, 0, 0, 0);
-    m_infoAudio.dwEditCount = 0;
-    m_infoAudio.dwFormatChangeCount = 0;
-    strcpy(m_infoAudio.szName, "Audio");
+            #ifdef _UNICODE   // Unicode version of GetDiskFreeSpaceEx
+                strProcName = _T("GetDiskFreeSpaceExW");
+            #else             // Standard version of GetDiskFreeSpaceEx
+                strProcName = _T("GetDiskFreeSpaceExA");
+            #endif
 
-    memset(&m_optsVideo, 0, sizeof(m_optsVideo));
-    memset(&m_optsAudio, 0, sizeof(m_optsAudio));
-    m_optsAudio.cbFormat = sizeof(m_waveFormat);
-    m_optsAudio.lpFormat = &m_waveFormat;
+            // Get ProcAddress for GetDiskFreeSpaceEx function
+            ProcAdd = (DSKFREE)GetProcAddress(GetModuleHandle("kernel32.dll"),
+                                              strProcName);
 
-    // Overwrite any of the above defaults with whatever's in the ini file.
-    ReadFromIni();
-
-    m_pTimeShift = NULL;
-}
-
-CTimeShift::~CTimeShift()
-{
-    // NOTE: This will deadlock if we crash in OnNewFrame.  So, the solution
-    // would be to fix any crash bugs and we can leave this lock as is.
-    EnterCriticalSection(&m_lock);
-
-    Stop();
-
-    if (m_setOptsVideo && m_optsVideo.lpParms && m_optsVideo.cbParms)
-        delete m_optsVideo.lpParms;
-    if (m_setOptsAudio && m_optsAudio.lpFormat && m_optsAudio.cbFormat)
-        delete m_optsAudio.lpFormat;
-
-    AVIFileExit();
-
-    LeaveCriticalSection(&m_lock);
-
-    DeleteCriticalSection(&m_lock);
-}
-
-bool CTimeShift::AssureCreated(void)
-{
-    if (!m_pTimeShift)
-    {
-        // a bit messy - but its only a temp solution to stop warnings
-        if(WarningShown == FALSE)
-        {
-            int Result  = MessageBox(
-                                        GetMainWnd(), 
-                                        "TimeShift (only manual recording is implemented at the moment)\n"
-                                        "is an experimental/test feature. We have had reports of this\n" 
-                                        "feature crashing and causing serious problems including disk\n"
-                                        "corruption.\n"
-                                        "\n"
-                                        "Are you sure you want to continue?\n"
-                                        "\n"
-                                        "The recommended codec (for speed and quality) is XviD: release\n"
-                                        "XviD-04102002-1. You can edit / stitch vids (re 2GB file splits)\n"
-                                        "with MS Windows Movie Maker 2 (WMV output) - save  at high\n" 
-                                        "bit rate for good results from the MP4 produced by DScaler.",
-                                        "TimeShift Warning", 
-                                        MB_ICONWARNING | MB_YESNO | MB_DEFBUTTON2
-                                     );
-            if(Result != IDYES)
+            if (!ProcAdd)
             {
-                return FALSE;
+                strErrMsg = _T("Could not get the address for ");
+                strErrMsg += strProcName;
+                ::MessageBox( NULL,
+                              strErrMsg,
+                              NULL,
+                              MB_OK | MB_ICONERROR | MB_TASKMODAL
+                             );
+                return totalbytes;
             }
-            WarningShown = TRUE;
-        }
-        m_pTimeShift = new CTimeShift();
+
+            // Execute the GetDiskFreeSpaceEx function
+            if (ProcAdd(lpszDrivePath,
+                        &FreeBytesAvailableToCaller,
+                        &TotalNumberOfBytes,
+                        &TotalNumberOfFreeBytes))
+               totalbytes = FreeBytesAvailableToCaller.QuadPart;
+
+        return totalbytes;
+
+        default :
+            ::MessageBox( NULL,
+                          _T("Platform not supported"),
+                          NULL,
+                          MB_OK | MB_ICONERROR | MB_TASKMODAL
+                         );
+        return totalbytes;
     }
 
-    return m_pTimeShift != NULL;
+    // This code if for Non-Windows 95 OSR2 (early Windows 95) and
+    // Windows NT 3.51 or lower (well you never know! - would DScaler run?)
+    DWORD lpSectorsPerCluster = 0;
+    DWORD lpBytesPerSector = 0;
+    DWORD lpNumberOfFreeClusters = 0;
+    DWORD lpTotalNumberOfClusters = 0;
+
+    GetDiskFreeSpace(lpszDrivePath,
+                     &lpSectorsPerCluster,
+                     &lpBytesPerSector,
+                     &lpNumberOfFreeClusters,
+                     &lpTotalNumberOfClusters);
+    totalbytes = (ULONGLONG)lpNumberOfFreeClusters *
+                 (ULONGLONG)lpBytesPerSector * (ULONGLONG)lpSectorsPerCluster;
+
+    return totalbytes;
 }
 
-bool CTimeShift::OnSetDimensions(void)
-{
-    return m_pTimeShift ? m_pTimeShift->SetDimensions() : false;
-}
+/** Finds the name of a file that data can be written to
+ * \param fileName A pointer to where the file name will be stored
+ * \param length   The length of \a fileName in bytes
+ * \return true if a file name was found or false if no file name is available
+ */
 
-bool CTimeShift::OnGetDimenstions(int *w, int *h)
+bool FindNextFileName(char *fileName, DWORD length)
 {
-    if (m_pTimeShift && w && h)
+    int curFile = 0;
+
+    do
     {
-        *w = m_pTimeShift->m_bih.biWidth;
-        *h = m_pTimeShift->m_bih.biHeight;
-        return true;
-    }
-
-    return false;
-}
-
-bool CTimeShift::OnSetWaveInDevice(char *pszDevice)
-{
-    return m_pTimeShift ? m_pTimeShift->SetWaveInDevice(pszDevice) : false;
-}
-
-bool CTimeShift::OnGetWaveInDevice(char **ppszDevice)
-{
-    if (m_pTimeShift && ppszDevice)
-    {
-        *ppszDevice = (char*)&m_pTimeShift->m_waveInDevice;
-        return true;
-    }
-
-    return false;
-}
-
-bool CTimeShift::OnSetWaveOutDevice(char *pszDevice)
-{
-    return m_pTimeShift ? m_pTimeShift->SetWaveOutDevice(pszDevice) : false;
-}
-
-bool CTimeShift::OnGetWaveOutDevice(char **ppszDevice)
-{
-    if (m_pTimeShift && ppszDevice)
-    {
-        *ppszDevice = (char*)&m_pTimeShift->m_waveOutDevice;
-        return true;
-    }
-
-    return false;
-}
-
-bool CTimeShift::OnSetRecHeight(int index)
-{
-    return m_pTimeShift ? m_pTimeShift->SetRecHeight(index) : false;
-}
-
-bool CTimeShift::OnGetRecHeight(int *index)
-{
-    if (m_pTimeShift && index)
-    {
-        *index = m_pTimeShift->m_recHeight;
-        return true;
-    }
-
-    return false;
-}
-
-bool CTimeShift::OnCompressionOptions(void)
-{
-    return m_pTimeShift ? m_pTimeShift->CompressionOptions() : false;
-}
-
-bool CTimeShift::SetPixelWidth(int pixelWidth)
-{
-    if (m_pTimeShift)
-    {
-        // Must be called from within one of the critical sections.
-        // We have to let the capture thread do its thing to change the pixel
-        // width.  Leave the critical section for this call.
-        LeaveCriticalSection(&m_pTimeShift->m_lock);
-        CSource* pSource = Providers_GetCurrentSource();
-        if (pSource != NULL)
+        if (curFile==1000)
         {
-            pSource->SetWidth(pixelWidth);
+            ErrorBox("Could not create a file.  "
+                     "Delete some of your video files and try again.");
+
+            return false;
         }
-        EnterCriticalSection(&m_pTimeShift->m_lock);
-        return true;
-    }
-    else
+
+        if (_snprintf(fileName, length, "%s\\ds%.3u.avi", SavingPath,
+                      curFile++) >= length)
+        {
+            BUG();
+            return false;
+        }
+    } while (GetFileAttributes(fileName) != 0xffffffff);
+
+    return true;
+}
+
+/**********************************************************************
+ *                    TimeShift interface functions                   *
+ **********************************************************************/
+
+/** TimeShift init
+ * \return true if the initialization succeeded or false if it failed
+ */
+
+bool TimeShiftInit(HWND hWnd)
+{
+    WAVEFORMATEX *wfx;
+
+    if (!timeShift)
     {
+        timeShift = (TIME_SHIFT *)malloc(sizeof(TIME_SHIFT));
+        if (!timeShift)
+           return false;
+
+        memset(timeShift, 0, sizeof(TIME_SHIFT));
+
+        InitializeCriticalSection(&timeShift->lock);
+
+        timeShift->mode       = MODE_STOPPED;
+        timeShift->format     = FORMAT_YUY2;
+        timeShift->recHeight  = TS_HALFHEIGHTEVEN;
+        timeShift->fccHandler = 0;
+        timeShift->hWnd       = hWnd;
+
+        /* Default audio settings */
+        wfx = &timeShift->waveFormat;
+
+        wfx->wFormatTag      = WAVE_FORMAT_PCM;
+        wfx->nChannels       = 2;
+        wfx->nSamplesPerSec  = 44100;
+        wfx->wBitsPerSample  = 16;
+        wfx->nBlockAlign     = (wfx->nChannels * wfx->wBitsPerSample) / 8;
+        wfx->nAvgBytesPerSec = wfx->nSamplesPerSec * wfx->nBlockAlign;
+
+        /* Overwrite any of the above defaults with whatever's in the INI
+           file */
+        TimeShiftReadFromINI();
+    } else
+      BUG();
+
+    return true;
+}
+
+/** TimeShift shutdown */
+void TimeShiftShutdown(void)
+{
+    if (timeShift)
+    {
+        /* Stop recording */
+        TimeShiftStop();
+
+        DeleteCriticalSection(&timeShift->lock);
+
+        free(timeShift);
+        timeShift = NULL;
+    } else
+      BUG();
+}
+
+bool TimeShiftPause(void)
+{
+    bool result = false;
+
+    if (timeShift)
+    {
+        EnterCriticalSection(&timeShift->lock);
+
+        /* Only start "time shifing" if paused */
+        if (timeShift->mode==MODE_PAUSED)
+           result = TimeShiftRecord();
+           else if (timeShift->mode==MODE_RECORDING ||
+                    timeShift->mode==MODE_SHIFTING)
+           {
+                /* Pause recording/shifting */
+                /*timeShift->mode = MODE_PAUSED;
+                result = true;*/
+           }
+
+        LeaveCriticalSection(&timeShift->lock);
+    }
+
+    return result;
+}
+
+bool TimeShiftRecord(void)
+{
+    int       deviceId;
+    DWORD     rate, scale;
+    char      fileName[MAX_PATH];
+    bool      result = false;
+    ULONGLONG freeSpace;
+
+    if (!timeShift)
+       return false;
+
+    /* If less than 300 MB free disk space don't even start recoding */
+    freeSpace = GetFreeDiskSpace();
+    if (freeSpace < 314572800)
+    {
+        MessageBox(timeShift->hWnd,
+                   "Sorry! You do not have enough\n"
+                   "disk space to record a video.",
+                   "Information",
+                   MB_ICONEXCLAMATION | MB_OK);
+
         return false;
     }
+
+    EnterCriticalSection(&timeShift->lock);
+
+    /* Start recording if stopped  */
+    if (timeShift->mode==MODE_STOPPED)
+    {
+        /* Clear all variables. */
+        TimeShiftStop();
+
+        /* Update the recording format */
+        TimeShiftSetDimensions();
+
+        /* Set up the scanline function pointers */
+        if (CpuFeatureFlags & P3_OR_BETTER)
+        {
+            if (timeShift->format==FORMAT_YUY2)
+            {
+                timeShift->lpbCopyScanline = C_CopyYUV;
+                timeShift->lpbAvgScanline  = P3_AvgYUV;
+            } else
+            {
+                timeShift->lpbCopyScanline = P3_YUVtoRGB;
+                timeShift->lpbAvgScanline  = P3_AvgYUVtoRGB;
+            }
+        } else
+        {
+            if (timeShift->format==FORMAT_YUY2)
+            {
+                timeShift->lpbCopyScanline = C_CopyYUV;
+                timeShift->lpbAvgScanline  = C_AvgYUV;
+            } else
+            {
+                timeShift->lpbCopyScanline = C_YUVtoRGB;
+                timeShift->lpbAvgScanline  = C_AvgYUVtoRGB;
+            }
+        }
+
+        result = true;
+
+        /* This buffer shouldn't be allocated at this point */
+        if (timeShift->buffer.record)
+        {
+            BUG();
+            free(timeShift->buffer.record);
+        }
+
+        timeShift->buffer.record = (BYTE *)malloc(timeShift->bih.biSizeImage);
+        if (!timeShift->buffer.record)
+        {
+            TimeShiftStop();
+
+            MessageBox(timeShift->hWnd, "Could not allocate a recording "
+                                        "buffer. Your system is too low on "
+                                        "memory.",
+                                        "Error",
+                                        MB_OK | MB_ICONERROR);
+
+            result = false;
+        }
+
+        /* Get the file name to use */
+        if (result && FindNextFileName(fileName, sizeof(fileName)))
+        {
+            timeShift->file = aviFileCreate();
+            if (!timeShift->file)
+            {
+                TimeShiftStop();
+
+                MessageBox(timeShift->hWnd, "Could not allocate memory for "
+                                            "the AVI recording data. Your "
+                                            "system is too low on memory",
+                                            "Error",
+                                            MB_OK | MB_ICONERROR);
+
+                result = false;
+            }
+
+            if (result)
+            {
+                eVideoFormat VideoFormat;
+
+                if (Providers_GetCurrentSource())
+                   VideoFormat = Providers_GetCurrentSource()->GetFormat();
+                   else
+                   VideoFormat = VIDEOFORMAT_NTSC_M;
+
+                if (GetTVFormat(VideoFormat)->Is25fps)
+                {
+                    /* PAL */
+                    rate  = PAL_RATE;
+                    scale = PAL_SCALE;
+                } else
+                {
+                    /* NTSC */
+                    rate  = NTSC_RATE;
+                    scale = NTSC_SCALE;
+                }
+
+                /* Set the format of the video stream */
+                aviVideoDefineStream(timeShift->file, rate, scale,
+                                     timeShift->bih.biWidth,
+                                     timeShift->bih.biHeight);
+                aviVideoSetHandler(timeShift->file,
+                                   timeShift->fccHandler,
+                                   timeShift->bih.biCompression,
+                                   timeShift->bih.biBitCount);
+
+                if (TimeShiftGetWaveInDeviceIndex(&deviceId))
+                {
+                    /* Set the format of the audio stream */
+                    aviAudioDefineStream(timeShift->file, deviceId,
+                                         &timeShift->waveFormat,
+                                         &timeShift->waveFormat);
+                }
+            }
+
+            if (result)
+            {
+                if (aviBeginWriting(timeShift->file, fileName))
+                   timeShift->mode = MODE_RECORDING;
+                   else
+                   {
+                       aviDisplayError(timeShift->file, timeShift->hWnd, NULL);
+                       TimeShiftStop();
+                       result = false;
+                   }
+            }
+        } else
+          result = false;
+    }
+
+    LeaveCriticalSection(&timeShift->lock);
+
+    return result;
 }
 
-bool CTimeShift::DoMute(bool mute)
+bool TimeShiftStop(void)
 {
-    if (m_pTimeShift)
+    bool result = false;
+
+    if (timeShift)
+    {
+        EnterCriticalSection(&timeShift->lock);
+
+        timeShift->mode = MODE_STOPPED;
+
+        if (timeShift->file)
+        {
+            aviFileDestroy(timeShift->file);
+            timeShift->file = NULL;
+        }
+
+        if (timeShift->buffer.record)
+        {
+            free(timeShift->buffer.record);
+            timeShift->buffer.record = NULL;
+        }
+
+        LeaveCriticalSection(&timeShift->lock);
+
+        result = true;
+    }
+
+    return result;
+}
+
+/**
+ * \note Internal function
+ */
+
+bool TimeShiftWriteVideo(TDeinterlaceInfo *pInfo)
+{
+    aviTime_t frameTime;
+    LPBYTE    dest;
+    DWORD     w, h;
+    DWORD     more;
+    DWORD     y;
+    long      pitch;
+    int       offset;
+    BYTE      *scanLine[2];
+    bool      result = true;
+
+    if (!timeShift || !timeShift->file || !pInfo->PictureHistory[0])
+       return false;
+
+    if ((timeShift->recHeight==TS_HALFHEIGHTEVEN &&
+         (pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_EVEN)) ||
+        (timeShift->recHeight==TS_HALFHEIGHTODD &&
+         (pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD)) ||
+        (timeShift->recHeight==TS_HALFHEIGHTAVG &&
+         pInfo->PictureHistory[1] &&
+         (pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_EVEN)) ||
+        (timeShift->recHeight==TS_FULLHEIGHT &&
+         pInfo->PictureHistory[1] &&
+         (pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD)))
+    {
+        if (aviFrameReady(timeShift->file))
+        {
+            frameTime = aviGetTimer();
+            dest      = timeShift->buffer.record;
+            w         = (pInfo->FrameWidth >> 2) << 2;
+
+            if (timeShift->bih.biWidth < w)
+               w = timeShift->bih.biWidth;
+
+            if (timeShift->recHeight != TS_FULLHEIGHT)
+               h = min(timeShift->bih.biHeight, pInfo->FieldHeight);
+               else
+               h = timeShift->bih.biHeight; /* Use the actual height of the frame */
+
+            more = (timeShift->bih.biBitCount >> 3) *
+                   (timeShift->bih.biWidth - w);
+
+            /* YUY2 scans from top to bottom. RGB is the opposite. */
+            if (timeShift->format==FORMAT_YUY2)
+            {
+                y     = 0;
+                pitch = pInfo->InputPitch;
+            } else
+            {
+                if (timeShift->recHeight != TS_FULLHEIGHT)
+                   y = h - 1;
+                   else
+                   y = (h >> 1) - 1;
+
+                pitch = -pInfo->InputPitch;
+            }
+
+            switch (timeShift->recHeight)
+            {
+                case TS_HALFHEIGHTAVG:
+                    scanLine[0] = pInfo->PictureHistory[0]->pData + y *
+                                  pInfo->InputPitch;
+                    scanLine[1] = pInfo->PictureHistory[1]->pData + y *
+                                  pInfo->InputPitch;
+
+                    for (y = 0; y < h; y++)
+                    {
+                        dest = timeShift->lpbAvgScanline(dest,
+                                                         scanLine[0],
+                                                         scanLine[1],
+                                                         w) + more;
+
+                        scanLine[0] += pitch;
+                        scanLine[1] += pitch;
+                    }
+                break;
+
+                case TS_HALFHEIGHTEVEN:
+                case TS_HALFHEIGHTODD:
+                    scanLine[0] = pInfo->PictureHistory[0]->pData + y *
+                                  pInfo->InputPitch;
+
+                    for (y = 0; y < h; y++)
+                    {
+                        dest = timeShift->lpbCopyScanline(dest,
+                                                          scanLine[0],
+                                                          w) + more;
+
+                        scanLine[0] += pitch;
+                    }
+                break;
+
+                case TS_FULLHEIGHT:
+                    /* If the recording format is RGB, then the first scanline
+                       in the recording buffer that will be written to is at
+                       y = h - 1. If h - 1 is an odd value, then the offset
+                       needs to be set so that the first scanline that's saved
+                       is the odd one instead of the even one so that the order
+                       of the scanlines in the frame is correct. */
+                    if (timeShift->format==FORMAT_RGB && ((h - 1) % 2))
+                       offset = 1;
+                       else
+                       offset = 0;
+
+                    /* Even */
+                    scanLine[0] = pInfo->PictureHistory[1]->pData + y *
+                                  pInfo->InputPitch;
+
+                    /* Odd */
+                    scanLine[1] = pInfo->PictureHistory[0]->pData + y *
+                                  pInfo->InputPitch;
+
+                    for (y = 0; y < h; y++)
+                    {
+                        dest = timeShift->lpbCopyScanline(dest,
+                                                          scanLine[(y + offset) % 2],
+                                                          w) + more;
+
+                        scanLine[(y + offset) % 2] += pitch;
+                    }
+                break;
+            }
+
+            if (!aviSaveFrame(timeShift->file, timeShift->buffer.record,
+                              frameTime))
+               result = false;
+        }
+    }
+
+    return result;
+}
+
+/* Called from the capture thread */
+bool TimeShiftOnNewInputFrame(TDeinterlaceInfo *pInfo)
+{
+    bool result = false;
+    bool error  = false;
+
+    if (timeShift)
+    {
+        EnterCriticalSection(&timeShift->lock);
+
+        if (timeShift->mode==MODE_RECORDING ||
+            timeShift->mode==MODE_PAUSED ||
+            timeShift->mode==MODE_SHIFTING)
+        {
+            if (!TimeShiftWriteVideo(pInfo))
+            {
+                result = false;
+                error  = true;
+            }
+        }
+
+        LeaveCriticalSection(&timeShift->lock);
+
+        /* Stop recording if something bad happened */
+        if (error)
+        {
+            aviDisplayError(timeShift->file, timeShift->hWnd,
+                            "Recording stopped. You can try and recover "
+                            "the data with VirtualDub.");
+            TimeShiftStop();
+        }
+
+        /* It would be a good idea to fix the file size limitation. Until then
+           we split the AVI. */
+        /*if(m_pTimeShift->m_BytesWritten > AVIFileSizeLimit*1024*1024
+            || m_pTimeShift->m_BytesWritten > AVIFileSizeLimitTemp*1024*1024)
+        {
+            m_pTimeShift->OnStop();
+            
+
+            // Check free disk space while file splitting.
+            // If less than 300 MB free disk space don't start a new file. 
+            if (GetFreeDiskSpace() < 314572800)
+                nofreespace = true; //this flag stops a new file being created
+            m_pTimeShift->OnRecord();
+        }*/
+
+        /*// Timed recording check for completed
+        if (RecordTimerF) // is it a timed recording?
+        {
+            time_t seconds;
+            seconds = time (NULL);
+            if (seconds >= EndRecordTime)
+            {   m_pTimeShift->OnStop();   // Close the timed video recoding file    
+                TimedRecodingDone = true; // Set the flag for timed recording done              
+                m_pTimeShift->OnRecord(); // Message and close down
+            }
+        }*/
+    }
+
+    return result;
+}
+
+bool TimeShiftIsRunning(void)
+{
+    bool result = false;
+
+    if (timeShift)
+    {
+        if (timeShift->mode != MODE_STOPPED)
+           result = true;
+    }
+
+    return result;
+}
+
+bool TimeShiftWorkOnInputFrames(void)
+{
+    return true;
+}
+
+bool TimeShiftCancelSchedule(void)
+{
+    return true;
+}
+
+/**********************************************************************
+ *                    TimeShift get/set functions                     *
+ **********************************************************************/
+
+bool TimeShiftSetDimensions(void)
+{
+    CSource *pSource = Providers_GetCurrentSource();
+    int     w, h;
+    bool    result = false;
+
+    if (!pSource)
+    {
+        BUG();
+        return false;
+    }
+
+    if (!timeShift)
+       return false;
+
+    EnterCriticalSection(&timeShift->lock);
+
+    if (timeShift->mode==MODE_STOPPED)
+    {
+        /* Use current pixel width and field heights to determine our AVI
+           size */
+        w = pSource->GetWidth();
+        h = pSource->GetHeight();
+
+        /* Recreate the bitmap info header */
+        memset(&timeShift->bih, 0, sizeof(BITMAPINFOHEADER));
+        timeShift->bih.biSize  = sizeof(BITMAPINFOHEADER);
+        timeShift->bih.biWidth = (w >> 2) << 2; /* 4-pixel (12-byte) align */
+
+        timeShift->bih.biHeight = h >> 1;
+        if (timeShift->recHeight==TS_FULLHEIGHT)
+           timeShift->bih.biHeight <<= 1; /* Make biHeight a multiple of 2 */
+
+        timeShift->bih.biPlanes      = 1;
+        timeShift->bih.biBitCount    = (timeShift->format==FORMAT_YUY2) ?
+                                            16 : 24;
+        timeShift->bih.biCompression = (timeShift->format==FORMAT_YUY2) ?
+                                            YUY2_FOURCC : RGB_FOURCC;
+        timeShift->bih.biSizeImage   = (timeShift->bih.biBitCount >> 3) *
+                                       timeShift->bih.biWidth *
+                                       timeShift->bih.biHeight;
+
+        result = true;
+    }
+
+    LeaveCriticalSection(&timeShift->lock);
+
+    return result;
+}
+
+bool TimeShiftGetWaveInDeviceIndex(int *index)
+{
+    int        count;
+    int        i;
+    bool       result = false;
+    WAVEINCAPS wic;
+
+    if (timeShift && index)
+    {
+        EnterCriticalSection(&timeShift->lock);
+
+        count  = waveInGetNumDevs();
+        *index = 0;
+        if (strlen(timeShift->waveInDevice) && count)
+        {
+            for (i = 0; i < count && !result; i++)
+            {
+                if (waveInGetDevCaps(i, &wic, sizeof(wic))==MMSYSERR_NOERROR)
+                {
+                    if (!lstrcmp(timeShift->waveInDevice, wic.szPname))
+                    {
+                        *index = i;
+                        result = true;
+                    }
+                }
+            }
+        } else
+          result = true;
+
+        LeaveCriticalSection(&timeShift->lock);
+    }
+
+    return result;
+}
+
+bool TimeShiftSetWaveInDevice(char *pszDevice)
+{
+    bool result = false;
+
+    if (timeShift && pszDevice)
+    {
+        EnterCriticalSection(&timeShift->lock);
+        if (timeShift->mode==MODE_STOPPED)
+        {
+            strncpy(timeShift->waveInDevice, pszDevice,
+                    sizeof(timeShift->waveInDevice));
+            result = true;
+        }
+
+        LeaveCriticalSection(&timeShift->lock);
+    }
+
+    return result;
+}
+
+bool TimeShiftGetWaveOutDeviceIndex(int *index)
+{
+    int         count;
+    int         i;
+    bool        result = false;
+    WAVEOUTCAPS woc;
+
+    if (timeShift && index)
+    {
+        EnterCriticalSection(&timeShift->lock);
+
+        count  = waveOutGetNumDevs();
+        *index = 0;
+        if (strlen(timeShift->waveOutDevice) && count)
+        {
+            for(i = 0; i < count && !result; i++)
+            {
+                if (waveOutGetDevCaps(i, &woc, sizeof(woc))==MMSYSERR_NOERROR)
+                {
+                    if (!lstrcmp(timeShift->waveOutDevice, woc.szPname))
+                    {
+                        *index = i;
+                        result = true;
+                    }
+                }
+            }
+        } else
+          result = true;
+
+        LeaveCriticalSection(&timeShift->lock);
+    }
+
+    return result;
+}
+
+bool TimeShiftSetWaveOutDevice(char *pszDevice)
+{
+    bool result = false;
+
+    if (timeShift && pszDevice)
+    {
+        EnterCriticalSection(&timeShift->lock);
+        if (timeShift->mode==MODE_STOPPED)
+        {
+            strncpy(timeShift->waveOutDevice, pszDevice,
+                    sizeof(timeShift->waveOutDevice));
+            result = true;
+        }
+
+        LeaveCriticalSection(&timeShift->lock);
+    }
+
+    return result;
+}
+
+bool TimeShiftGetDimensions(int *w, int *h)
+{
+    bool result = false;
+
+    if (timeShift && w && h)
+    {
+        EnterCriticalSection(&timeShift->lock);
+        *w = timeShift->bih.biWidth;
+        *h = timeShift->bih.biHeight;
+        LeaveCriticalSection(&timeShift->lock);
+
+        result = true;
+    }
+
+    return result;
+}
+
+bool TimeShiftGetWaveInDevice(char **ppszDevice)
+{
+    bool result = false;
+
+    if (timeShift && ppszDevice)
+    {
+        *ppszDevice = (char *)&timeShift->waveInDevice;
+        result = true;
+    }
+
+    return result;
+}
+
+bool TimeShiftGetWaveOutDevice(char **ppszDevice)
+{
+    bool result = false;
+
+    if (timeShift && ppszDevice)
+    {
+        *ppszDevice = (char*)&timeShift->waveOutDevice;
+        result = true;
+    }
+
+    return result;
+}
+
+bool TimeShiftGetRecHeight(int *index)
+{
+    bool result = false;
+
+    if (timeShift && index)
+    {
+        *index = timeShift->recHeight;
+        result = true;
+    }
+
+    return result;
+}
+
+bool TimeShiftSetRecHeight(int index)
+{
+    bool result = false;
+
+    if (timeShift)
+    {
+        EnterCriticalSection(&timeShift->lock);
+
+        if (timeShift->mode==MODE_STOPPED)
+        {
+            timeShift->recHeight = index;
+            result               = true;
+        }
+
+        LeaveCriticalSection(&timeShift->lock);
+    }
+
+    return result;
+}
+
+bool TimeShiftGetRecFormat(tsFormat_t *format)
+{
+    bool result = false;
+
+    if (timeShift && format)
+    {
+        *format = timeShift->format;
+        result  = true;
+    }
+
+    return result;
+}
+
+bool TimeShiftSetRecFormat(tsFormat_t format)
+{
+    bool result = false;
+
+    if (timeShift)
+    {
+        EnterCriticalSection(&timeShift->lock);
+
+        if (timeShift->mode==MODE_STOPPED)
+        {
+            timeShift->format = format;
+            result            = true;
+        }
+
+        LeaveCriticalSection(&timeShift->lock);
+    }
+
+    return result;
+}
+
+bool TimeShiftSetPixelWidth(int pixelWidth)
+{
+    bool    result = false;
+    CSource *pSource;
+
+    if (timeShift)
+    {
+        pSource = Providers_GetCurrentSource();
+        if (pSource)
+           pSource->SetWidth(pixelWidth);
+
+        result = true;
+    }
+
+    return result;
+}
+
+bool TimeShiftDoMute(bool mute)
+{
+    bool result = false;
+
+    if (timeShift)
     {
         Mixer_SetMute(mute);
 
@@ -1834,1533 +1778,219 @@ bool CTimeShift::DoMute(bool mute)
             m_pTimeShift->m_origUseMixer = -1;
         }*/
 
-        return true;
-    }
-
-    return false;
-}
-
-static void CALLBACK WaveInProc(
-    HWAVEIN hwi,      
-    UINT uMsg,         
-    DWORD dwInstance,  
-    DWORD dwParam1,    
-    DWORD dwParam2)
-{
-    if (uMsg == WIM_DATA)
-        CTimeShift::OnWaveInData();
-}
-
-static void CALLBACK WaveOutProc(
-    HWAVEOUT hwo,      
-    UINT uMsg,         
-    DWORD dwInstance,  
-    DWORD dwParam1,    
-    DWORD dwParam2)
-{
-    if (uMsg == WOM_DONE)
-        CTimeShift::OnWaveOutDone();
-}
-
-bool CTimeShift::Record(bool pause)
-{
-    if (pause &&
-        (m_mode == MODE_RECORDING ||
-         m_mode == MODE_SHIFTING))
-    {
-        m_mode = MODE_PAUSED;
-        m_startFramePlay = m_lastFramePlay;
-        m_startTimePlay = 0;
-        if (!m_playBits)
-            m_playBits = new BYTE[m_bih.biSizeImage];
-        DoMute(true);
-        return true;
-    }
-
-    // Clear all variables.
-    Stop();
-
-    // Update the size in case pixel width has changed.
-    SetDimensions();
-
-    m_recordBits = new BYTE[m_bih.biSizeImage];
-    if (pause && !m_playBits)
-        m_playBits = new BYTE[m_bih.biSizeImage];
-
-    // Find the next available file name.
-    char fname[MAX_PATH];
-    int curFile = 0;
-    do {
-        if (curFile == 1000)
-        {
-            ErrorBox("Could not create a file.  "
-                     "Delete some of your video files and try again.");
-            return false;
-        }
-        sprintf(fname, "%s\\ds%.3u.avi", SavingPath, curFile++);
-    } while (GetFileAttributes(fname) != 0xffffffff);
-    m_curFile = curFile - 1;
-
-    // Open a new movie file for reading and writing.
-    if (AVIFileOpen(&m_pfile, fname,
-                    OF_READWRITE | OF_CREATE | OF_SHARE_DENY_NONE,
-                    NULL) != 0)
-    {
-        Stop();
-        return false;
-    }
-
-    eVideoFormat VideoFormat = Providers_GetCurrentSource() ? Providers_GetCurrentSource()->GetFormat() : VIDEOFORMAT_NTSC_M;
-    m_fps = (GetTVFormat(VideoFormat)->Is25fps) ? 25 : 30;
-    m_infoVideo.dwRate = m_fps;
-    UpdateAudioInfo();
-
-    // Create the video stream.
-    AVIFileCreateStream(m_pfile, &m_psVideo, &m_infoVideo);
-    if (m_setOptsVideo)
-    {
-        if (AVIMakeCompressedStream(&m_psCompressedVideo,
-                                    m_psVideo,
-                                    &m_optsVideo,
-                                    NULL) != AVIERR_OK)
-        {
-            Stop();
-            return false;
-        }
-    }
-    else
-    {
-        m_psCompressedVideo = m_psVideo;
-        m_psVideo = NULL;
-    }
-    // NOTE: Add space for the color table if we want to save 8-bit AVIs.
-    if (AVIStreamSetFormat(m_psCompressedVideo, 0, &m_bih, sizeof(m_bih)) != 0)
-    {
-        Stop();
-        return false;
-    }
-
-    // Create the audio stream.
-    if (AVIFileCreateStream(m_pfile, &m_psCompressedAudio, &m_infoAudio) != 0 ||
-        AVIStreamSetFormat(m_psCompressedAudio, 0, m_optsAudio.lpFormat,
-                           m_optsAudio.cbFormat) != 0)
-    {
-        Stop();
-        return false;
-    }
-//    AVIFileCreateStream(m_pfile, &m_psAudio, &m_infoAudio);
-//    if (m_setOptsAudio)
-//    {
-//        if (AVIMakeCompressedStream(&m_psCompressedAudio,
-//                                    m_psAudio,
-//                                    &m_optsAudio,
-//                                    NULL) != AVIERR_OK)
-//        {
-//          LOG(1, "Error AVIMakeCompressedStream");
-//            Stop();
-//            return false;
-//        }
-//    }
-//    else
-//    {
-//        m_psCompressedAudio = m_psAudio;
-//        m_psAudio = NULL;
-//    }
-//    if (AVIStreamSetFormat(m_psCompressedAudio, 0, m_optsAudio.lpFormat, m_optsAudio.cbFormat) != 0)
-//    {
-//      LOG(1, "Error AVIStreamSetFormat");
-//        Stop();
-//        return false;
-//    }
-
-    // Mute the current live feed if we're pausing, waveIn can still hear it.
-    if (pause)
-    {
-        DoMute(true);
-    }
-    
-
-    int DeviceId;
-    if(!GetWaveInDeviceIndex(&DeviceId))
-    {
-        ;
-    }
-    else
-    {
-        MMRESULT rslt;
-
-        // If this fails, we just won't have any audio recorded, still continue.
-        // Laurent's comment : it seems that m_waveFormat must be a WAVE PCM format; if not, we get a bad format error
-        rslt = waveInOpen(&m_hWaveIn,
-                        DeviceId,
-                        &m_waveFormat,
-                        (DWORD)WaveInProc,
-                        0,
-                        CALLBACK_FUNCTION);
-
-        if(rslt==MMSYSERR_NOERROR)
-        {
-            for (int i = 0; i < sizeof(m_waveInHdrs)/sizeof(*m_waveInHdrs); ++i)
-            {
-                memset(m_waveInHdrs + i, 0, sizeof(WAVEHDR));
-                m_waveInHdrs[i].lpData = (char *)m_waveInBufs[i];
-                m_waveInHdrs[i].dwBufferLength = sizeof(m_waveInBufs[i]);
-                waveInPrepareHeader(m_hWaveIn, m_waveInHdrs + i, sizeof(WAVEHDR));
-                waveInAddBuffer(m_hWaveIn, m_waveInHdrs + i, sizeof(WAVEHDR));
-            }
-        }
-        else
-        {
-            char szErrorMsg[200];
-            sprintf(szErrorMsg, "Error %x in waveInOpen()", rslt);
-            LOG(1, "%s", szErrorMsg);
-            /// \todo tell the user, that something wrong
-        }
-    }
-
-
-    m_mode = pause ? MODE_PAUSED : MODE_RECORDING;
-
-    if (m_hWaveIn)
-        waveInStart(m_hWaveIn);
-
-    return true;
-}
-
-bool CTimeShift::Play(void)
-{
-    if (m_mode != MODE_PAUSED)
-    {
-        // Clear all variables.
-        Stop();
-    }
-
-    // Find the first AVI available.
-    char fname[MAX_PATH];
-    int curFile = m_curFile;
-    do 
-    {
-        sprintf(fname, "%s\\ds%.3u.avi", SavingPath, curFile);
-        if (GetFileAttributes(fname) != 0xffffffff)
-        {
-            break;
-        }
-        if (++curFile == 1000)
-        {
-            curFile = 0;
-        }
-    }
-    while (curFile != m_curFile); // Bail if looped all the way around.
-    m_curFile = curFile;
-
-    // Open the movie file for writing.
-    if (!m_pfile && AVIFileOpen(&m_pfile, fname,
-                                OF_READWRITE | OF_SHARE_DENY_NONE,
-                                NULL) != 0)
-    {
-        if (m_mode != MODE_PAUSED)
-        {
-            Stop();
-        }
-        return false;
-    }
-
-    if (!m_psCompressedVideoP)
-    {
-        if (AVIFileGetStream(m_pfile, &m_psCompressedVideoP, streamtypeVIDEO, 0) != 0)
-        {
-            if (m_mode != MODE_PAUSED)
-            {
-                Stop();
-            }
-            return false;
-        }
-    }
-    if (!m_psCompressedAudioP)
-    {
-        if (AVIFileGetStream(m_pfile, &m_psCompressedAudioP, streamtypeAUDIO, 0) != 0)
-        {
-            if (m_mode != MODE_PAUSED)
-            {
-                Stop();
-            }
-            return false;
-        }
-    }
-
-    if (m_mode != MODE_PAUSED)
-    {
-        if (AVIStreamInfo(m_psCompressedVideoP,
-                          &m_infoVideo,
-                          sizeof(m_infoVideo)) != 0 ||
-            AVIStreamInfo(m_psCompressedAudioP,
-                          &m_infoAudio,
-                          sizeof(m_infoAudio)) != 0)
-        {
-            if (m_mode != MODE_PAUSED)
-            {
-                Stop();
-            }
-            return false;
-        }
-        
-        m_fps = m_infoVideo.dwRate;
-
-        // Make sure the pixel width is ready for the incoming AVI's width.
-        CSource* pSource = Providers_GetCurrentSource();
-        if (pSource != NULL && pSource->GetWidth() != m_infoVideo.rcFrame.right)
-        {
-
-            SetPixelWidth(m_infoVideo.rcFrame.right);
-        }
-
-        // Update the size for current pixel width.
-        SetDimensions();
-
-        // Mute the current live feed, we're going to playback our own audio.
-        DoMute(true);
-    }
-
-    if (m_pGetFrame == NULL)
-    {
-        m_pGetFrame = AVIStreamGetFrameOpen(m_psCompressedVideoP, NULL);
-        if (m_pGetFrame == NULL)
-        {
-            if (m_mode != MODE_PAUSED)
-            {
-                Stop();
-            }
-            return false;
-        }
-    }
-
-    m_gotPauseBits = false;
-
-    int DeviceId;
-    if(!GetWaveOutDeviceIndex(&DeviceId))
-    {
-        ;
-    }
-    else
-    {
-        MMRESULT rslt;
-  
-        // If this fails, we just won't have audio playback.
-        /// \todo FIXME: Need to make sure our m_waveFormat jives with the new m_infoAudio.
-        rslt = waveOutOpen(&m_hWaveOut,
-                           DeviceId,
-                           &m_waveFormat,
-                           (DWORD)WaveOutProc,
-                           0,
-                           CALLBACK_FUNCTION | WAVE_ALLOWSYNC);
-    
-        if(rslt==MMSYSERR_NOERROR)
-        {
-            // Start sending audio data to the waveOut device.
-            // Call twice to keep two buffers going at all times.
-            ReadAudio();
-            ReadAudio();
-        }
-        else
-        {
-            char szErrorMsg[200];
-            sprintf(szErrorMsg, "Error %x in waveOutOpen()", rslt);
-            LOG(1, "%s", szErrorMsg);
-            /// \todo tell the user, that something wrong
-        }
-    }
-
-    m_mode = m_mode == MODE_PAUSED ? MODE_SHIFTING : MODE_PLAYING;
-
-    return true;
-}
-
-bool CTimeShift::Stop(void)
-{
-    // Set mode to stopped first in case we continue to receive callbacks.
-    m_mode = MODE_STOPPED;
-
-    // The critical section setup is to prevent us from paying attention
-    // to any forthcoming audio device notifications.
-    // We're in a critical section right now, but we have to free that up
-    // for the audio callback mechanism that will be triggered by the reset,
-    // then restore it's original lock.
-
-    if (m_hWaveIn)
-    {
-        LeaveCriticalSection(&m_lock);
-        waveInReset(m_hWaveIn);
-        EnterCriticalSection(&m_lock);
-
-        waveInClose(m_hWaveIn);
-
-        // The audio device is finished with the header, unprepare it.
-        for (int i = 0; i < sizeof(m_waveInHdrs)/sizeof(*m_waveInHdrs); ++i)
-        {
-            waveInUnprepareHeader(m_hWaveIn,
-                                  m_waveInHdrs + i,
-                                  sizeof(WAVEHDR));
-        }
-    }
-
-    if (m_hWaveOut)
-    {
-        LeaveCriticalSection(&m_lock);
-        waveOutReset(m_hWaveOut);
-        EnterCriticalSection(&m_lock);
-
-        waveOutClose(m_hWaveOut);
-
-        // The audio device is finished with the header, unprepare it.
-        for (int i = 0; i < sizeof(m_waveOutHdrs)/sizeof(*m_waveOutHdrs); ++i)
-        {
-            // Unpreparing a header that wasn't prepared does nothing.
-            waveOutUnprepareHeader(m_hWaveOut,
-                                   m_waveOutHdrs + i,
-                                   sizeof(WAVEHDR));
-        }
-    }
-
-    if (m_pGetFrame)
-    {
-        LOG(1, "AVIStreamGetFrameClose m_pGetFrame %d",
-        AVIStreamGetFrameClose(m_pGetFrame)
-        );
-    }
-
-    if (m_psCompressedVideo)
-    {
-        LOG(1, "AVIStreamRelease m_psCompressedVideo %d",
-        AVIStreamRelease(m_psCompressedVideo)
-        );
-    }
-
-    if (m_psCompressedVideoP)
-    {
-        LOG(1, "AVIStreamRelease m_psCompressedVideoP %d",
-        AVIStreamRelease(m_psCompressedVideoP)
-        );
-    }
-
-    if (m_psVideo)
-    {
-        LOG(1, "AVIStreamRelease m_psVideo %d",
-        AVIStreamRelease(m_psVideo)
-        );
-    }
-
-    if (m_psCompressedAudio)
-    {
-        LOG(1, "AVIStreamRelease m_psCompressedAudio %d",
-        AVIStreamRelease(m_psCompressedAudio)
-        );
-    }
-
-    if (m_psCompressedAudioP)
-    {
-        LOG(1, "AVIStreamRelease m_psCompressedAudioP %d",
-        AVIStreamRelease(m_psCompressedAudioP)
-        );
-    }
-
-    if (m_psAudio)
-    {
-        LOG(1, "AVIStreamRelease m_psAudio %d",
-        AVIStreamRelease(m_psAudio)
-        );
-    }
-
-    if (m_pfile)
-    {
-        LOG(1, "AVIFileRelease m_pfile %d",
-        AVIFileRelease(m_pfile)
-        );
-    }
-
-    if (m_recordBits)
-    {
-        delete m_recordBits;
-    }
-
-    if (m_playBits)
-    {
-        delete m_playBits;
-    }
-
-    m_lpbi = NULL;
-    m_recordBits = NULL;
-    m_playBits = NULL;
-    m_gotPauseBits = FALSE;
-    m_BytesWritten = 0;
-
-    m_pfile = NULL;
-    m_psVideo = NULL;
-    m_psCompressedVideo = NULL;
-    m_psCompressedVideoP = NULL;
-    m_psAudio = NULL;
-    m_psCompressedAudio = NULL;
-    m_psCompressedAudioP = NULL;
-    m_pGetFrame = NULL;
-
-    m_startTimeRecord = 0;
-    m_startTimePlay = 0;
-    m_thisTimeRecord = 0;
-    m_thisTimePlay = 0;
-    m_lastFrameRecord = 0;
-    m_lastFramePlay = 0;
-    m_startFramePlay = 0;
-    m_nextSampleRecord = 0;
-    m_nextSamplePlay = 0;
-
-    m_hWaveIn = 0;
-    m_nextWaveInHdr = 0;
-    m_hWaveOut = 0;
-    m_nextWaveOutHdr = 0;
-
-    // Stop mode, allow live feed in again.
-    DoMute(false);
-
-    return true;
-}
-
-bool CTimeShift::GoNext(void)
-{
-    int curFile = m_curFile;
-
-    do 
-    {
-        if (++curFile == 1000)
-        {
-            curFile = 0;
-        }
-        char fname[MAX_PATH];
-        sprintf(fname, "%s\\ds%.3u.avi", SavingPath, curFile);
-        if (GetFileAttributes(fname) != 0xffffffff)
-        {
-            break;
-        }
-    }
-    while (curFile != m_curFile); // Bail if we've looped all the way around.
-
-    m_curFile = curFile;
-
-    return Play();
-}
-
-bool CTimeShift::GoPrev(void)
-{
-    int curFile = m_curFile;
-
-    do 
-    {
-        if (--curFile < 0)
-        {
-            curFile = 999;
-        }
-        char fname[MAX_PATH];
-        sprintf(fname, "%s\\ds%.3u.avi", SavingPath, curFile);
-        if (GetFileAttributes(fname) != 0xffffffff)
-        {
-            break;
-        }
-    } 
-    while (curFile != m_curFile); // Bail if we've looped all the way around.
-
-    m_curFile = curFile;
-
-    return Play();
-}
-
-bool CTimeShift::WriteVideo(TDeinterlaceInfo* pInfo)
-{
-    // Basic tests to see if we can proceed
-    if ((m_recHeight == TS_FULLHEIGHT) || (!m_psCompressedVideo) || (pInfo->PictureHistory[0] == NULL))
-    {
-        return false;
-    }
-
-    // Sets recHeight to TS_HALFHEIGHTEVEN whatever the user chosen m_recHeight is, if
-    // mode is paused or mode is shifting - need to so this to stop overloading system.
-    int recHeight = (m_mode == MODE_PAUSED || m_mode == MODE_SHIFTING) ? TS_HALFHEIGHTEVEN : m_recHeight;
-
-    BOOL DataOkForPause = false;
-
-    // Recording height tests
-    if( ((recHeight == TS_HALFHEIGHTEVEN) && (pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_EVEN))
-     || ((recHeight == TS_HALFHEIGHTODD)  && (pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_ODD ))
-     || ((recHeight == TS_HALFHEIGHTAVG)  && (pInfo->PictureHistory[1] != NULL) && (pInfo->PictureHistory[0]->Flags & PICTURE_INTERLACED_EVEN)))
-    {
-        m_thisTimeRecord = GetTickCount();
-
-        // Make sure everything starts out at zero.
-        if (!m_startTimeRecord)
-        {
-            m_startTimeRecord = m_thisTimeRecord;
-        }
-
-        DWORD thisFrame =
-            DWORD((double)m_fps * double(m_thisTimeRecord - m_startTimeRecord)
-                  / 1000.0 + 0.5);
-
-        if (m_lastFrameRecord == 0 || m_lastFrameRecord != thisFrame)
-        {
-            LPBYTE dest = m_recordBits;
-            DWORD frameWidth = (pInfo->FrameWidth >> 2) << 2;
-            DWORD w = min(m_bih.biWidth, frameWidth);
-            DWORD h = min(m_bih.biHeight, pInfo->FieldHeight);
-            DWORD more = (m_bih.biBitCount >> 3) * (m_bih.biWidth - w);
-            int y = h - 1;
-
-            // IMPORTANT: In some of the following cases, we're using the previous
-            // even field data, and presumably, since we only handle these cases
-            // when we receive odd field data, then the even data must've been
-            // received 1/60 of a second ago, and therefore is valid for us to use.
-            // Otherwise, crash!
-
-            switch (recHeight)
-            {
-            case TS_HALFHEIGHTAVG:
-                for (; y >= 0; --y)
-                {
-                    BYTE* EvenLine = pInfo->PictureHistory[0]->pData + y * pInfo->InputPitch;
-                    BYTE* OddLine = pInfo->PictureHistory[1]->pData + y * pInfo->InputPitch;
-                    // Note: m_AvgYUVtoRGB creates just one line from an average of ODD and EVEN line pixels 
-                    dest = m_AvgYUVtoRGB(dest,
-                                         (SHORT*)EvenLine,
-                                         (SHORT*)OddLine,
-                                      w) + more;
-                }
-                DataOkForPause = true;
-                break;
-
-            case TS_HALFHEIGHTEVEN:
-                for (; y >= 0; --y)
-                {
-                    BYTE* CurrentLine = pInfo->PictureHistory[0]->pData + y * pInfo->InputPitch;
-                    dest = m_YUVtoRGB(dest,
-                                      (SHORT*)CurrentLine,
-                                      w) + more;
-                }
-                DataOkForPause = true;
-                break;
-
-            case TS_HALFHEIGHTODD:
-                for (; y >= 0; --y)
-                {
-                    BYTE* CurrentLine = pInfo->PictureHistory[0]->pData + y * pInfo->InputPitch;
-                    dest = m_YUVtoRGB(dest,
-                                      (SHORT*)CurrentLine,
-                                         w) + more;
-                }
-                DataOkForPause = true;
-                break;
-
-            default:
-                break;
-            }
-
-            MyAVIStreamWrite(m_psCompressedVideo,
-                           thisFrame,
-                           1,
-                           m_recordBits,
-                           m_bih.biSizeImage,
-                           AVIIF_KEYFRAME);
-
-            // Even if we failed to write to the stream, we'll leave space.
-            m_infoVideo.dwLength = thisFrame + 1;
-            m_lastFrameRecord = thisFrame;
-        }
-    }
-
-    switch (m_mode)
-    {
-    case MODE_PAUSED:
-        //** \todo Make pause bits YUY2 so we don't have to convert every time.
-        //         Use pInfo->pMemcpy() here, but it crashes. ???
-        if (!m_gotPauseBits && DataOkForPause)
-        {
-            memcpy(m_playBits, m_recordBits, m_bih.biSizeImage);
-            m_gotPauseBits = true;
-        }
-
-        if (m_gotPauseBits)
-        {
-            LPBYTE src = m_playBits;
-            DWORD frameWidth = (pInfo->FrameWidth >> 2) << 2;
-            DWORD w = min(m_bih.biWidth, frameWidth);
-            DWORD h = min(m_bih.biHeight, pInfo->FieldHeight);
-            DWORD more = (m_bih.biBitCount >> 3) * (m_bih.biWidth - w);
-
-            for (int y = h - 1; y >= 0; --y)
-            {
-                BYTE* CurrentLine = pInfo->PictureHistory[0]->pData + y * pInfo->InputPitch;
-                src = m_RGBtoYUV((SHORT*)CurrentLine, src, w) + more;
-            }
-        }
-        break;
-
-    case MODE_SHIFTING:
-        ReadVideo(pInfo);
-        break;
-    }
-
-    return true;
-}
-
-bool CTimeShift::ReadVideo(TDeinterlaceInfo *pInfo)
-{
-    if (m_recHeight == TS_FULLHEIGHT)
-    {
-        return false;
-    }
-
-    if (!m_psCompressedVideoP)
-    {
-        return false;
-    }
-
-    if (pInfo->PictureHistory[0] == NULL)
-    {
-        return false;
-    }
-
-    m_thisTimePlay = GetTickCount();
-
-    // Make sure everything starts out at zero.
-    if (!m_startTimePlay)
-    {
-        m_startTimePlay = m_thisTimePlay;
-    }
-
-    DWORD thisFrame = m_startFramePlay + 
-        DWORD((double)m_fps * double(m_thisTimePlay - m_startTimePlay)
-              / 1000.0 + 0.5);
-
-    // If we're at the end of this clip, start playing the next one.
-    if (m_mode == MODE_PLAYING && thisFrame >= m_infoVideo.dwLength)
-    {
-        // Just change the mode so no further frames will be read.
-        // Can't call Stop from this thread.  Too dangerous.
-        m_mode = MODE_STOPPED;
-
-        // We basically want to trigger an OnGoNext() but I don't want to call
-        // that from within this thread.
-        PostMessageToMainWindow(WM_COMMAND, IDM_TSNEXT, 0);
-
-        return false;
-    }
-
-    if (m_pGetFrame)
-    {
-        // Check that the current frame is not empty
-        // If empty, find the nearest one that is not empty
-        if (m_lastFramePlay == 0 || m_lastFramePlay != thisFrame)
-        {
-            DWORD nonEmptyFrame = AVIStreamNearestSample(m_psCompressedVideoP, thisFrame);
-            if (nonEmptyFrame != thisFrame)
-            {
-                LOG(2, "thisFrame %d, nonEmptyFrame %d", thisFrame, nonEmptyFrame);
-            }
-            if (nonEmptyFrame != -1)
-            {
-                m_lastFramePlay = thisFrame;
-                m_lpbi = (LPBITMAPINFOHEADER)AVIStreamGetFrame(m_pGetFrame, nonEmptyFrame);
-            }
-        }
-    }
-    else
-    {
-        m_lpbi = NULL;
-    }
-
-    if (m_lpbi)
-    {
-        LPBYTE src = LPBYTE(m_lpbi) + m_lpbi->biSize;
-        DWORD frameWidth = (pInfo->FrameWidth >> 2) << 2;
-        DWORD w = min(m_lpbi->biWidth, frameWidth);
-        DWORD h = min(m_lpbi->biHeight, pInfo->FieldHeight);
-        DWORD more = (m_lpbi->biBitCount >> 3) * (m_lpbi->biWidth - w);
-
-        for (int y = h - 1; y >= 0; --y)
-        {
-            BYTE* CurrentLine = pInfo->PictureHistory[0]->pData + y * pInfo->InputPitch;
-            src = m_RGBtoYUV((SHORT*)CurrentLine, src, w) + more;
-        }
-    }
-
-    return true;
-}
-
-bool CTimeShift::WriteVideo2(TDeinterlaceInfo* pInfo)
-{
-    if (m_recHeight != TS_FULLHEIGHT)
-    {
-        return false;
-    }
-
-    if (!m_psCompressedVideo)
-    {
-        return false;
-    }
-
-    BOOL DataOkForPause = false;
-
-    m_thisTimeRecord = GetTickCount();
-
-    // Make sure everything starts out at zero.
-    if (!m_startTimeRecord)
-    {
-        m_startTimeRecord = m_thisTimeRecord;
-    }
-
-    DWORD thisFrame =
-        DWORD((double)m_fps * double(m_thisTimeRecord - m_startTimeRecord)
-              / 1000.0 + 0.5);
-
-    if (m_lastFrameRecord == 0 || m_lastFrameRecord != thisFrame)
-    {
-        LPBYTE dest = m_recordBits;
-        DWORD frameWidth = (pInfo->FrameWidth >> 2) << 2;
-        DWORD w = min(m_bih.biWidth, frameWidth);
-        DWORD h = min(m_bih.biHeight, pInfo->FrameHeight);
-        DWORD more = (m_bih.biBitCount >> 3) * (m_bih.biWidth - w);
-        int y = h - 1;
-
-        for (; y >= 0; --y)
-        {
-            BYTE* CurrentLine = pInfo->Overlay + y * pInfo->OverlayPitch;
-            dest = m_YUVtoRGB(dest,
-                              (SHORT*)CurrentLine,
-                              w) + more;
-        }
-        DataOkForPause = true;
-
-        MyAVIStreamWrite(m_psCompressedVideo,
-                       thisFrame,
-                       1,
-                       m_recordBits,
-                       m_bih.biSizeImage,
-                       AVIIF_KEYFRAME);
-
-        // Even if we failed to write to the stream, we'll leave space.
-        m_infoVideo.dwLength = thisFrame + 1;
-        m_lastFrameRecord = thisFrame;
-    }
-
-    switch (m_mode)
-    {
-    case MODE_PAUSED:
-        /** \todo Make pause bits YUY2 so we don't have to convert every time.
-                  Use pInfo->pMemcpy() here, but it crashes. ???
-        */
-        if (!m_gotPauseBits && DataOkForPause)
-        {
-            memcpy(m_playBits, m_recordBits, m_bih.biSizeImage);
-            m_gotPauseBits = true;
-        }
-
-        if (m_gotPauseBits)
-        {
-            LPBYTE src = m_playBits;
-            DWORD frameWidth = (pInfo->FrameWidth >> 2) << 2;
-            DWORD w = min(m_bih.biWidth, frameWidth);
-            DWORD h = min(m_bih.biHeight, pInfo->FrameHeight);
-            DWORD more = (m_bih.biBitCount >> 3) * (m_bih.biWidth - w);
-
-            for (int y = h - 1; y >= 0; --y)
-            {
-                BYTE* CurrentLine = pInfo->Overlay + y * pInfo->OverlayPitch;
-                src = m_RGBtoYUV((SHORT*)CurrentLine, src, w) + more;
-            }
-        }
-        break;
-
-    case MODE_SHIFTING:
-        ReadVideo2(pInfo);
-        break;
-    }
-
-    return true;
-}
-
-bool CTimeShift::ReadVideo2(TDeinterlaceInfo *pInfo)
-{
-    if (m_recHeight != TS_FULLHEIGHT)
-    {
-        return false;
-    }
-
-    if (!m_psCompressedVideoP)
-    {
-        return false;
-    }
-
-    m_thisTimePlay = GetTickCount();
-
-    // Make sure everything starts out at zero.
-    if (!m_startTimePlay)
-    {
-        m_startTimePlay = m_thisTimePlay;
-    }
-
-    DWORD thisFrame = m_startFramePlay + 
-        DWORD((double)m_fps * double(m_thisTimePlay - m_startTimePlay)
-              / 1000.0 + 0.5);
-
-    // If we're at the end of this clip, start playing the next one.
-    if (m_mode == MODE_PLAYING && thisFrame >= m_infoVideo.dwLength)
-    {
-        // Just change the mode so no further frames will be read.
-        // Can't call Stop from this thread.  Too dangerous.
-        m_mode = MODE_STOPPED;
-
-        // We basically want to trigger an OnGoNext() but I don't want to call
-        // that from within this thread.
-        PostMessageToMainWindow(WM_COMMAND, IDM_TSNEXT, 0);
-
-        return false;
-    }
-
-    if (m_pGetFrame)
-    {
-        // Check that the current frame is not empty
-        // If empty, find the nearest one that is not empty
-        if (m_lastFramePlay == 0 || m_lastFramePlay != thisFrame)
-        {
-            DWORD nonEmptyFrame = AVIStreamNearestSample(m_psCompressedVideoP, thisFrame);
-            if (nonEmptyFrame != thisFrame)
-            {
-                LOG(2, "thisFrame %d, nonEmptyFrame %d", thisFrame, nonEmptyFrame);
-            }
-            if (nonEmptyFrame != -1)
-            {
-                m_lastFramePlay = thisFrame;
-                m_lpbi = (LPBITMAPINFOHEADER)AVIStreamGetFrame(m_pGetFrame, nonEmptyFrame);
-            }
-        }
-    }
-    else
-    {
-        m_lpbi = NULL;
-    }
-
-    if (m_lpbi)
-    {
-        LPBYTE src = LPBYTE(m_lpbi) + m_lpbi->biSize;
-        DWORD frameWidth = (pInfo->FrameWidth >> 2) << 2;
-        DWORD w = min(m_lpbi->biWidth, frameWidth);
-        DWORD h = min(m_lpbi->biHeight, pInfo->FrameHeight);
-        DWORD more = (m_lpbi->biBitCount >> 3) * (m_lpbi->biWidth - w);
-
-        for (int y = h - 1; y >= 0; --y)
-        {
-            BYTE* CurrentLine = pInfo->Overlay + y * pInfo->OverlayPitch;
-            src = m_RGBtoYUV((SHORT*)CurrentLine, src, w) + more;
-        }
-    }
-
-    return true;
-}
-
-bool CTimeShift::WriteAudio(void)
-{
-    if (!m_psCompressedAudio)
-    {
-        return false;
-    }
-
-    DWORD count = m_waveInHdrs[m_nextWaveInHdr].dwBytesRecorded;
-
-    DWORD numSamples = count / m_infoAudio.dwSampleSize;
-
-    MyAVIStreamWrite(m_psCompressedAudio,
-                   m_nextSampleRecord,
-                   numSamples,
-                   m_waveInBufs[m_nextWaveInHdr],
-                   count,
-                   AVIIF_KEYFRAME);
-
-    // Re-add this buffer to the waveIn queue.
-    waveInAddBuffer(m_hWaveIn, m_waveInHdrs + m_nextWaveInHdr, sizeof(WAVEHDR));
-
-    ++m_nextWaveInHdr %= sizeof(m_waveInHdrs)/sizeof(*m_waveInHdrs);
-    m_nextSampleRecord += numSamples;
-
-    return true;
-}
-
-DWORD CTimeShift::MyAVIStreamWrite(PAVISTREAM pavi, LONG lStart, LONG lSamples, LPVOID lpBuffer, LONG cbBuffer, DWORD dwFlags)
-{
-    DWORD result = 0;
-    long bytesWritten = 0;
-    long samplesWritten = 0;
-
-    // If this fails, there's nothing we can do but continue, no problem.
-    result = AVIStreamWrite(pavi,
-                            lStart,
-                            lSamples,
-                            lpBuffer,
-                            cbBuffer,
-                            dwFlags,
-                            &samplesWritten,
-                            &bytesWritten);
-    m_BytesWritten += bytesWritten;
-
-    return result;
-}
-
-bool CTimeShift::ReadAudio(void)
-{
-    if (!m_psCompressedAudioP)
-    {
-        return false;
-    }
-
-    DWORD count = sizeof(*m_waveOutBufs);
-
-    DWORD numSamples = count / m_infoAudio.dwSampleSize;
-    long bytesRead = 0;
-    long samplesRead = 0;
-
-    // Even if this fails, we still need to send _something_ to waveOut device.
-    // Otherwise, we'd never get notification of its completion and the the
-    // audio rendering cycle would stop.
-    AVIStreamRead(m_psCompressedAudioP,
-                  m_nextSamplePlay,
-                  numSamples,
-                  m_waveOutBufs[m_nextWaveOutHdr],
-                  count,
-                  &bytesRead,
-                  &samplesRead);
-
-    memset(m_waveOutHdrs + m_nextWaveOutHdr, 0, sizeof(*m_waveOutHdrs));
-    m_waveOutHdrs[m_nextWaveOutHdr].lpData =
-        (LPSTR)m_waveOutBufs[m_nextWaveOutHdr];
-    m_waveOutHdrs[m_nextWaveOutHdr].dwBufferLength = bytesRead;
-
-    // Preparing a previously prepared header does nothing.
-    waveOutPrepareHeader(m_hWaveOut,
-                         m_waveOutHdrs + m_nextWaveOutHdr,
-                         sizeof(*m_waveOutHdrs));
-
-    waveOutWrite(m_hWaveOut,
-                 m_waveOutHdrs + m_nextWaveOutHdr,
-                 sizeof(*m_waveOutHdrs));
-
-    ++m_nextWaveOutHdr %= sizeof(m_waveOutHdrs)/sizeof(*m_waveOutHdrs);
-    m_nextSamplePlay += numSamples;
-
-    return true;
-}
-
-bool CTimeShift::SetDimensions(void)
-{
-    CSource *pSource=Providers_GetCurrentSource();
-    ASSERT(pSource!=NULL);
-
-    if (m_mode == MODE_STOPPED)
-    {
-        // Use current pixel width and field heights to determine our AVI size.
-        int w = pSource->GetWidth();
-        int h = pSource->GetHeight();
-
-        // Reset all the bitmappInfo stuff.
-        memset(&m_bih, 0, sizeof(m_bih));
-        m_bih.biSize = sizeof(m_bih);
-        m_bih.biWidth = (w >> 2) << 2; // 4-pixel (12-byte) align.
-        if (m_recHeight == TS_FULLHEIGHT)
-        {
-            m_bih.biHeight = (h >> 1) << 1;
-        }
-        else
-        {
-            m_bih.biHeight = h >> 1; // For speed (for now), we use 1/2 height AVIs.
-        }
-        m_bih.biPlanes = 1;
-        m_bih.biBitCount = 24; // Always convert to 24bits for compression.
-        m_bih.biCompression = BI_RGB; // The codec will compress our RGB data.
-        m_bih.biSizeImage =
-            (m_bih.biBitCount >> 3) * m_bih.biWidth * m_bih.biHeight;
-
-        m_infoVideo.dwSuggestedBufferSize = m_bih.biSizeImage;
-        SetRect(&m_infoVideo.rcFrame, 0, 0, m_bih.biWidth, m_bih.biHeight);
-
-        return true;
-    }
-
-    return false;
-}
-bool CTimeShift::SetWaveInDevice(char* pszDevice)
-{
-    if (m_mode == MODE_STOPPED && pszDevice)
-    {
-        lstrcpy((char*) m_waveInDevice, pszDevice);
-
-        return true;
-    }
-
-    return false;
-}
-
-bool CTimeShift::SetWaveOutDevice(char* pszDevice)
-{
-    if (m_mode == MODE_STOPPED && pszDevice)
-    {
-        lstrcpy((char*) m_waveOutDevice, pszDevice);
-
-        return true;
-    }
-
-    return false;
-}
-
-bool CTimeShift::GetWaveInDeviceIndex(int *index)
-{
-    int count = waveInGetNumDevs();
-
-    if(!m_waveInDevice[0] && count)
-    {
-        *index = 0;
-        return true;
-    }
-
-    for(int i=0; i < count; ++i)
-    {
-        WAVEINCAPS wic;
-        if(waveInGetDevCaps(i, &wic, sizeof(wic))==MMSYSERR_NOERROR)
-        {
-            if(!lstrcmp(m_waveInDevice, wic.szPname))
-            {
-                *index = i;
-
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
-
-bool CTimeShift::GetWaveOutDeviceIndex(int *index)
-{
-    int count = waveOutGetNumDevs();
-
-    if(!m_waveOutDevice[0] && count)
-    {
-        *index = 0;
-        return true;
-    }
-
-    for(int i=0; i < count; ++i)
-    {
-        WAVEOUTCAPS wic;
-        if(waveOutGetDevCaps(i, &wic, sizeof(wic))==MMSYSERR_NOERROR)
-        {
-            if(!lstrcmp(m_waveOutDevice, wic.szPname))
-            {
-                *index = i;
-
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
-
-bool CTimeShift::SetRecHeight(int index)
-{
-    if (m_mode == MODE_STOPPED)
-    {
-        m_recHeight = index;
-
-        return true;
-    }
-
-    return false;
-}
-
-bool CTimeShift::CompressionOptions(void)
-{
-    // Must be stopped before attempting to bring up compression options dialog.
-    if (m_mode != MODE_STOPPED)
-        return false;
-    bool result = false;
-
-    // Update these settings for the options dialog to display.
-    SetDimensions();
-
-    char fname[20] = "dstemp.avi";
-    DeleteFile(fname);
-
-    PAVIFILE pfile;
-    AVIFileOpen(&pfile, fname, OF_WRITE | OF_CREATE, NULL);
-
-    // Create the video stream and set its format.
-    PAVISTREAM psVideo = NULL;
-    AVIFileCreateStream(pfile, &psVideo, &m_infoVideo);
-
-    // NOTE: Add space for the color table if we want to save 8-bit AVIs.
-    // Also, for the options dialog, set the pInfo header's compression so it'll
-    // show up under "Current Format:", then set it back to BI_RGB for the
-    // actual recording process.
-    BITMAPINFOHEADER bih = m_bih;
-    bih.biCompression = m_infoVideo.fccHandler ? m_infoVideo.fccHandler :BI_RGB;
-    AVIStreamSetFormat(psVideo, 0, &bih, sizeof(bih));
-
-    // Create the audio stream and set its format.
-    PAVISTREAM psAudio = NULL;
-    AVIFileCreateStream(pfile, &psAudio, &m_infoAudio);
-    AVIStreamSetFormat(psAudio, 0, m_optsAudio.lpFormat, m_optsAudio.cbFormat);
-
-    // Prompt for compression options.
-    AVICOMPRESSOPTIONS optsVideo = m_optsVideo;
-    if (optsVideo.cbParms > 0)
-    {
-        optsVideo.lpParms = new BYTE[optsVideo.cbParms];
-        memcpy(optsVideo.lpParms, m_optsVideo.lpParms, optsVideo.cbParms);
-    }
-    AVICOMPRESSOPTIONS optsAudio = m_optsAudio;
-    if (optsAudio.cbFormat > 0)
-    {
-        optsAudio.lpFormat = new BYTE[optsAudio.cbFormat];
-        memcpy(optsAudio.lpFormat, m_optsAudio.lpFormat, optsAudio.cbFormat);
-    }
-    const int numStreams = 2;
-    PAVISTREAM streams[numStreams] = {psVideo, psAudio};
-    LPAVICOMPRESSOPTIONS opts[numStreams] = {&optsVideo, &optsAudio};
-
-    // hWnd is the main global hwnd.
-    if (AVISaveOptions(GetMainWnd(), 0, numStreams, streams, opts))
-    {
-        // For audio, we need to reset the wave format.
-        // Check the user clicked OK on this stream setup by looking for
-        // AVICOMPRESSF_VALID (This is undocumented but seems to work --AtNak)
-
-        //Emu - Notes: Blanked this code out for now.
-
-        // Just leave it at the default - CD Quality audio PCM.
-        // Would need to have an AV custom setting for all possible
-        // codec/ bitrate / channels etc. and i just can't be
-        // bothered doing it at the moment .... so stick to PCM
-
-        /*
-        if (optsAudio.dwFlags & AVICOMPRESSF_VALID)
-        {
-            SetAudioOptions(&optsAudio);
-            UpdateAudioInfo();
-        }
-        */
-
-        SetVideoOptions(&optsVideo);
-
-        AVISaveOptionsFree(numStreams, opts);
-
         result = true;
     }
 
-    // Clean up everything we created here.
-    if (psAudio)
-        AVIStreamRelease(psAudio);
-    if (psVideo)
-        AVIStreamRelease(psVideo);
-    if (pfile)
-        AVIFileRelease(pfile);
+    return result;
+}
 
-    DeleteFile(fname);
+/** Gets a text description for the current video or audio settings
+ * \param dest   Where the text should be stored
+ * \param length The total length of dest in bytes
+ * \param video  true to get the description for the video or false to get a
+ *               description for the audio
+ * \return true on success or false on failure
+ */
+
+bool TimeShiftGetCompressionDesc(LPSTR dest, DWORD length, bool video)
+{
+    bool result = false;
+
+    if (timeShift && dest)
+    {
+        EnterCriticalSection(&timeShift->lock);
+
+        if (video)
+        {
+            if (_snprintf(dest, length, "%dx%dx%d (%s)",
+                                timeShift->bih.biWidth,
+                                timeShift->bih.biHeight,
+                                timeShift->bih.biBitCount,
+                                timeShift->format==FORMAT_YUY2 ? "YUY2" :
+                                                                 "RGB") > 0)
+               result = true;
+        } else
+        {
+            if (_snprintf(dest, length, "%d Hz, %d bits, %s",
+                                timeShift->waveFormat.nSamplesPerSec,
+                                timeShift->waveFormat.wBitsPerSample,
+                                timeShift->waveFormat.nChannels==2 ?
+                                                "stereo" : "mono") > 0)
+               result = true;
+        }
+
+        LeaveCriticalSection(&timeShift->lock);
+    }
 
     return result;
 }
 
-bool CTimeShift::SetVideoOptions(AVICOMPRESSOPTIONS *opts)
+/**********************************************************************
+ *                    TimeShift dialog functions                      *
+ **********************************************************************/
+
+bool TimeShiftOnOptions(void)
 {
-    // Set the newly selected compression codec, if it was indeed set.
-    if (opts->fccHandler)
-        m_infoVideo.fccHandler = opts->fccHandler;
+    bool result = false;
 
-    // Tweak the options a bit before saving them off.
-    opts->fccHandler = m_infoVideo.fccHandler; // In case it was zero.
-    opts->dwFlags &= ~AVICOMPRESSF_INTERLEAVE; // No interleaving.
-
-    // ****** 'delete m_optsVideo.lpParms;' is the cause of the crash ******
-    // I think its to do with the buffer structure set up under
-    // AVICOMPRESSOPTIONS - my hard disk goes berzerk when 'delete m_op...' is exicuted
-    // ..... video compression options are set and saved and retreived fine with
-    // it commented out - so WGAF ... - AVICOMPRESSOPTIONS is considered to be a very poor API
-    //    if (m_setOptsVideo && m_optsVideo.lpParms && m_optsVideo.cbParms) //naughty code
-    //        delete m_optsVideo.lpParms;                                   //naughty code
-
-    m_optsVideo = *opts;
-    if (opts->lpParms && opts->cbParms)
+    if (timeShift)
     {
-        m_optsVideo.lpParms = new BYTE[opts->cbParms];
-        memcpy(m_optsVideo.lpParms, opts->lpParms, opts->cbParms);
+        // No enter critical section here.  If we're stopped, there is no
+        // need for one.  If we're recording, we'll show an error box and not
+        // access critical member variables anyway so recording can continue.
+
+        if (timeShift->mode==MODE_STOPPED)
+        {
+            CTSOptionsDlg dlg(CWnd::FromHandle(timeShift->hWnd));
+            if (dlg.DoModal()==IDOK)
+               result = true;
+
+            // Save off any changes we've made now, rather than in destructor.
+            // Even if cancel was hit, there still may be new compressions
+            // options to save.
+            TimeShiftWriteToINI();
+        } else
+          MessageBox(timeShift->hWnd,
+                     "TimeShift options are only available during stop mode.",
+                     "Information",
+                     MB_OK);
     }
 
-    m_setOptsVideo = true;
-
-    return true;
+    return result;
 }
 
-
-bool CTimeShift::SetAudioOptions(AVICOMPRESSOPTIONS *opts)
+bool TimeShiftCompressionOptions(HWND hWndParent)
 {
-    opts->fccHandler = 0;
+    bool result = false;
 
-    if (m_setOptsAudio && m_optsAudio.lpFormat && m_optsAudio.cbFormat)
-        delete m_optsAudio.lpFormat;
-    m_optsAudio = *opts;
-    if (opts->lpFormat && opts->cbFormat)
+    if (timeShift)
     {
-        m_optsAudio.lpFormat = new BYTE[opts->cbFormat];
-        memcpy(m_optsAudio.lpFormat, opts->lpFormat, opts->cbFormat);
+        /* Must be stopped before attempting to bring up compression options
+           dialog */
+        if (timeShift->mode != MODE_STOPPED)
+           return false;
 
-        // If the format given isn't even as big as a WAVEFORMATEX, we'll
-        // take what we can get and leave any old parameters at the end of
-        // our structure untouched.  Otherwise, we only care about the first
-        // sizeof(WAVEFORMATEX) bytes.
-        memcpy(&m_waveFormat,
-               m_optsAudio.lpFormat,
-               min(m_optsAudio.cbFormat, sizeof(m_waveFormat)));
-//      m_waveFormat.nSamplesPerSec = ((WAVEFORMATEX*)(m_optsAudio.lpFormat))->nSamplesPerSec;
-//      m_waveFormat.nAvgBytesPerSec = m_waveFormat.nSamplesPerSec * m_waveFormat.nBlockAlign;
-//      m_waveFormat.wBitsPerSample = 16;
-        // Laurent's comment : we keep a WAVE PCM format to avoid an error when running waveInOpen
-        m_waveFormat.wFormatTag = WAVE_FORMAT_PCM;
-//      LOG(1, "Audio format %d %d %d %d", m_waveFormat.wFormatTag, m_waveFormat.nChannels, m_waveFormat.nSamplesPerSec, m_waveFormat.wBitsPerSample);
+        /* Update these settings for the options dialog to display */
+        TimeShiftSetDimensions();
+
+        CTSCompressionDlg dlg(CWnd::FromHandle(hWndParent));
+        if (dlg.DoModal()==IDOK)
+           result = true;
     }
 
-    m_setOptsAudio = true;
-
-    return true;
+    return result;
 }
 
-/*
-
-// Emu Notes: A varient of 'CTimeShift::SetAudioOptions' when testing audio codec selection.
-bool CTimeShift::SetAudioOptions(AVICOMPRESSOPTIONS *opts)
+bool TimeShiftVideoCompressionOptions(HWND hWndParent)
 {
+    COMPVARS cv;
+    bool     result = false;
 
-// Just leave it at the default - CD Quality audio PCM.
-// Would need to have an AV custom setting for all possible
-// codec/ bitrate / channels etc. and i just can't be
-// bothered doing it at the moment .... so stick to PCM
+    memset(&cv, 0, sizeof(COMPVARS));
 
+    cv.cbSize     = sizeof(COMPVARS);
+    cv.dwFlags    = ICMF_COMPVARS_VALID;
+    cv.fccType    = ICTYPE_VIDEO;
+    cv.fccHandler = timeShift->fccHandler;
 
-
-    //opts->fccHandler = 0;
-    //m_infoAudio.fccHandler
-    // Set the newly selected compression codec, if it was indeed set.
-    //if (opts->fccHandler)
-    //    m_infoAudio.fccHandler = opts->fccHandler;
-    
-//  opts->fccHandler = m_infoAudio.fccHandler; // In case it was zero.
-
-    //if (m_setOptsAudio && m_optsAudio.lpFormat && m_optsAudio.cbFormat)
-    //    delete m_optsAudio.lpFormat;
-    m_optsAudio = *opts;
-    if (opts->lpFormat && opts->cbFormat)
+    if (timeShift && timeShift->mode==MODE_STOPPED)
     {
-        m_optsAudio.lpFormat = new BYTE[opts->cbFormat];
-        memcpy(m_optsAudio.lpFormat, opts->lpFormat, opts->cbFormat);
+        if (ICCompressorChoose(hWndParent, 0, &timeShift->bih, NULL, &cv,
+                               NULL))
+        {
+            timeShift->fccHandler = cv.fccHandler;
+            result = true;
 
-        // If the format given isn't even as big as a WAVEFORMATEX, we'll
-        // take what we can get and leave any old parameters at the end of
-        // our structure untouched.  Otherwise, we only care about the first
-        // sizeof(WAVEFORMATEX) bytes.
-        memcpy(&m_waveFormat,
-               m_optsAudio.lpFormat,
-               min(m_optsAudio.cbFormat, sizeof(m_waveFormat)));
+            ICCompressorFree(&cv);
+        }
+    } else
+      BUG();
 
-        m_waveFormat.nSamplesPerSec = ((WAVEFORMATEX*)(m_optsAudio.lpFormat))->nSamplesPerSec;
-        m_waveFormat.wFormatTag = ((WAVEFORMATEX*)(m_optsAudio.lpFormat))->wFormatTag;
-        m_waveFormat.nAvgBytesPerSec = (((WAVEFORMATEX*)(m_optsAudio.lpFormat))->nSamplesPerSec) *
-            ((WAVEFORMATEX*)(m_optsAudio.lpFormat))->nBlockAlign;
-        m_waveFormat.wBitsPerSample = ((WAVEFORMATEX*)(m_optsAudio.lpFormat))->wBitsPerSample;
-
-        m_waveFormat.nAvgBytesPerSec = m_waveFormat.nSamplesPerSec * m_waveFormat.nBlockAlign;
-        m_waveFormat.wBitsPerSample = 16;
-        // Laurent's comment : we keep a WAVE PCM format to avoid an error when running waveInOpen
-
-        /*
-        WORD  wFormatTag;      
-    WORD  nChannels;       
-    DWORD nSamplesPerSec;  
-    DWORD nAvgBytesPerSec; 
-    WORD  nBlockAlign;     
-    WORD  wBitsPerSample;  
-    WORD  cbSize;  
-    */
-        
-        //  m_waveFormat.wFormatTag = WAVE_FORMAT_PCM;
-//      LOG(1, "Audio format %d %d %d %d", m_waveFormat.wFormatTag, m_waveFormat.nChannels, m_waveFormat.nSamplesPerSec, m_waveFormat.wBitsPerSample);
-//    }
-//
-//    m_setOptsAudio = true;
-//
-//    return true;
-//}
-
-bool CTimeShift::UpdateAudioInfo(void)
-{
-    // Leave all other stream header fields as they were above.
-    m_infoAudio.fccHandler = 0; // optsAudio.fccHandler // Should be zero.
-
-    
-    m_infoAudio.dwScale = m_waveFormat.nBlockAlign;
-    m_infoAudio.dwRate = m_waveFormat.nAvgBytesPerSec;
-    m_infoAudio.dwSuggestedBufferSize = m_infoAudio.dwRate / m_fps;
-    m_infoAudio.dwSampleSize = m_waveFormat.nBlockAlign;
-
-    return true;
+    return result;
 }
 
-bool CTimeShift::ReadFromIni(void)
+bool TimeShiftOnSetMenu(HMENU hMenu)
 {
-    extern char szIniFile[MAX_PATH];
+    bool result = false;
+    int  item   = IDM_TSSTOP;
 
-    AVICOMPRESSOPTIONS opts;
-    if (GetPrivateProfileStruct(
-        "TimeShift", "Video", &opts, sizeof(opts), szIniFile))
+    if (timeShift)
     {
-        opts.lpParms = new BYTE[opts.cbParms];
+        EnterCriticalSection(&timeShift->lock);
 
-        // If this one fails, that's ok, there may not be compression params.
-        GetPrivateProfileStruct(
-            "TimeShift", "CodecVideo", opts.lpParms, opts.cbParms, szIniFile);
+        switch (timeShift->mode)
+        {
+            default:
+            case MODE_STOPPED:
+                item = IDM_TSSTOP;
+            break;
 
-        SetVideoOptions(&opts);
+            case MODE_PLAYING:
+                item = IDM_TSPLAY;
+            break;
 
-        delete opts.lpParms;
+            case MODE_RECORDING:
+            case MODE_SHIFTING:
+                item = IDM_TSRECORD;
+            break;
+
+            case MODE_PAUSED:
+                item = IDM_TSPAUSE;
+            break;
+
+            case MODE_FASTFWD:
+                item = IDM_TSFFWD;
+            break;
+
+            case MODE_REWIND:
+                item = IDM_TSRWND;
+            break;
+        }
     }
 
-    if (GetPrivateProfileStruct(
-        "TimeShift", "Audio", &opts, sizeof(opts), szIniFile))
-    {
-        opts.lpFormat = new BYTE[opts.cbFormat];
+    CheckMenuRadioItem(hMenu, IDM_TSRECORD, IDM_TSNEXT, item, MF_BYCOMMAND);
 
-        GetPrivateProfileStruct(
-            "TimeShift", "FormatAudio", opts.lpFormat, opts.cbFormat, szIniFile);
+    if (timeShift)
+       LeaveCriticalSection(&timeShift->lock);
 
-        SetAudioOptions(&opts);
-
-        delete opts.lpFormat;
-    }
-
-    UpdateAudioInfo();
-
-
-    GetPrivateProfileString(
-        "TimeShift", "WaveInDevice", "", m_waveInDevice, MAXPNAMELEN, szIniFile);
-
-    GetPrivateProfileString(
-        "TimeShift", "WaveOutDevice", "", m_waveOutDevice, MAXPNAMELEN, szIniFile);
-
-    m_recHeight = GetPrivateProfileInt(
-        "TimeShift", "RecHeight", m_recHeight, szIniFile);
-
-    // Get the custom AV sync setting from the INI file. If
-    // it does not exist create an entry with defalt value.
-    if (GetPrivateProfileInt(
-            "TimeShift", "Sync", m_Sync, szIniFile) != NULL)
-    {
-        m_Sync = GetPrivateProfileInt(
-            "TimeShift", "Sync", m_Sync, szIniFile);
-        m_waveFormat.nAvgBytesPerSec = m_Sync; //set the custom Syc value
-    }
-    else 
-    {
-        m_Sync = m_waveFormat.nAvgBytesPerSec; //defalut is 176400
-        WritePrivateProfileInt(
-            "TimeShift", "Sync", m_Sync, szIniFile);
-    }
-
-    return true;
+    return result;
 }
 
-bool CTimeShift::WriteToIni(void)
-{
-    extern char szIniFile[MAX_PATH];
-    char temp[1000];
-
-    if (m_setOptsVideo)
-    {
-        WritePrivateProfileStruct(
-            "TimeShift", "Video", &m_optsVideo, sizeof(m_optsVideo),
-            szIniFile);
-
-        if (m_optsVideo.lpParms && m_optsVideo.cbParms)
-            WritePrivateProfileStruct(
-                "TimeShift", "CodecVideo",
-                m_optsVideo.lpParms, m_optsVideo.cbParms,
-                szIniFile);
-    }
-
-    /*
-    // emu - Just leave it at the default - CD Quality audio PCM.
-    // Would need to have an AV custom setting for all possible
-    // codec/ bitrate / channels etc. and i just can't be
-    // bothered doing it at the moment .... so stick to PCM
-
-    if (m_setOptsAudio)
-    {
-        WritePrivateProfileStruct(
-            "TimeShift", "Audio", &m_optsAudio, sizeof(m_optsAudio),
-            szIniFile);
-
-        if (m_optsAudio.lpFormat && m_optsAudio.cbFormat)
-            WritePrivateProfileStruct(
-                "TimeShift", "FormatAudio",
-                m_optsAudio.lpFormat, m_optsAudio.cbFormat,
-                szIniFile);
-    }
-    */
-
-    WritePrivateProfileString("TimeShift", "WaveInDevice", m_waveInDevice, szIniFile);
-
-    WritePrivateProfileString("TimeShift", "WaveOutDevice", m_waveOutDevice, szIniFile);
-
-    sprintf(temp, "%u", m_recHeight);
-    WritePrivateProfileString("TimeShift", "RecHeight", temp, szIniFile);
-
-    return true;
-}
+/**********************************************************************
+ *                        TimeShift settings                          *
+ **********************************************************************/
 
 SETTING TimeShiftSettings[TIMESHIFT_SETTING_LASTONE] =
 {
     {
-        "Saving path for timeshift files", CHARSTRING, 0, (long*)&SavingPath,
+        "Saving path for timeshift files", CHARSTRING, 0, (long *)&SavingPath,
          (long)ExePath, 0, 0, 0, 0,
          NULL,
         "TimeShift", "SavingPath", NULL,
     },
     {
-        "Shown warning message", ONOFF, 0, (long*)&WarningShown,
+        "Shown warning message", ONOFF, 0, (long *)&WarningShown,
         TRUE, 0, 1, 1, 1,
         NULL,
         "TimeShift", "ShownWarning", NULL,
     },
     {
-        "AVI file size limit in MB", SLIDER, 0, (long*)&AVIFileSizeLimit,
-        2000, 0, 1000000, 1, 1,
+        "AVI file size limit in MB", SLIDER, 0, (long *)&AVIFileSizeLimit,
+        0, 0, 1000000, 1, 1,
         NULL,
         "TimeShift", "AVIFileSizeLimit", NULL,
     },
 };
 
-SETTING* TimeShift_GetSetting(TIMESHIFT_SETTING Setting)
+SETTING *TimeShift_GetSetting(TIMESHIFT_SETTING Setting)
 {
-    if(Setting > -1 && Setting < TIMESHIFT_SETTING_LASTONE)
-    {
-        return &(TimeShiftSettings[Setting]);
-    }
-    else
-    {
-        return NULL;
-    }
+    if (Setting > -1 && Setting < TIMESHIFT_SETTING_LASTONE)
+       return &TimeShiftSettings[Setting];
+
+    return NULL;
 }
 
-void TimeShift_ReadSettingsFromIni()
+void TimeShift_ReadSettingsFromIni(void)
 {
     int i;
     struct stat st;
@@ -3368,12 +1998,10 @@ void TimeShift_ReadSettingsFromIni()
     GetModuleFileName (NULL, ExePath, sizeof(ExePath));
     *(strrchr(ExePath, '\\')) = '\0';
 
-    for(i = 0; i < TIMESHIFT_SETTING_LASTONE; i++)
-    {
-        Setting_ReadFromIni(&(TimeShiftSettings[i]));
-    }
+    for (i = 0; i < TIMESHIFT_SETTING_LASTONE; i++)
+        Setting_ReadFromIni(&TimeShiftSettings[i]);
 
-    if ((SavingPath == NULL) || stat(SavingPath, &st))
+    if (!SavingPath || stat(SavingPath, &st))
     {
         LOG(1, "Incorrect path for timeshift files; using %s", ExePath);
         Setting_SetValue(TimeShift_GetSetting(TIMESHIFTSAVINGPATH), (long)ExePath);
@@ -3383,28 +2011,334 @@ void TimeShift_ReadSettingsFromIni()
 void TimeShift_WriteSettingsToIni(BOOL bOptimizeFileAccess)
 {
     int i;
-    for(i = 0; i < TIMESHIFT_SETTING_LASTONE; i++)
-    {
-        Setting_WriteToIni(&(TimeShiftSettings[i]), bOptimizeFileAccess);
-    }
+
+    for (i = 0; i < TIMESHIFT_SETTING_LASTONE; i++)
+        Setting_WriteToIni(&TimeShiftSettings[i], bOptimizeFileAccess);
 }
 
-CTreeSettingsGeneric* TimeShift_GetTreeSettingsPage()
+CTreeSettingsGeneric* TimeShift_GetTreeSettingsPage(void)
 {
-    return new CTreeSettingsGeneric("TimeShift Settings", TimeShiftSettings, TIMESHIFT_SETTING_LASTONE);
+    return new CTreeSettingsGeneric("TimeShift Settings", TimeShiftSettings,
+                                    TIMESHIFT_SETTING_LASTONE);
 }
 
-void TimeShift_FreeSettings()
+void TimeShift_FreeSettings(void)
 {
     int i;
-    for(i = 0; i < TIMESHIFT_SETTING_LASTONE; i++)
-    {
+
+    for (i = 0; i < TIMESHIFT_SETTING_LASTONE; i++)
         Setting_Free(&TimeShiftSettings[i]);
-    }
 }
 
-bool CTimeShift::CancelSchedule(void)
+bool TimeShiftReadFromINI(void)
 {
-    CancelSched = true; // Set flag to show scheduled recording cancelled
-    return 0;
+    extern char szIniFile[MAX_PATH];
+    bool        result = false;
+
+    if (timeShift)
+    {
+        GetPrivateProfileString("TimeShift", "WaveInDevice", "",
+                                timeShift->waveInDevice, MAXPNAMELEN,
+                                szIniFile);
+        GetPrivateProfileString("TimeShift", "WaveOutDevice", "",
+                                timeShift->waveOutDevice, MAXPNAMELEN,
+                                szIniFile);
+
+        timeShift->recHeight = GetPrivateProfileInt("TimeShift", "RecHeight",
+                                                    timeShift->recHeight,
+                                                    szIniFile);
+
+        timeShift->format = (tsFormat_t)GetPrivateProfileInt("TimeShift",
+                                                             "RecFormat",
+                                                             timeShift->format,
+                                                             szIniFile);
+
+        /* Make sure the format is valid */
+        timeShift->format = makeFormatValid(timeShift->format);
+
+        GetPrivateProfileStruct("TimeShift", "VideoFCC",
+                                &timeShift->fccHandler, sizeof(FOURCC),
+                                szIniFile);
+
+        result = true;
+    }
+
+    return result;
 }
+
+bool TimeShiftWriteToINI(void)
+{
+    extern char szIniFile[MAX_PATH];
+    bool        result = false;
+    TCHAR       temp[32];
+
+    if (timeShift)
+    {
+        WritePrivateProfileString("TimeShift", "WaveInDevice",
+                                  timeShift->waveInDevice, szIniFile);
+        WritePrivateProfileString("TimeShift", "WaveOutDevice",
+                                  timeShift->waveOutDevice, szIniFile);
+
+        _snprintf(temp, sizeof(temp), "%u", timeShift->recHeight);
+        WritePrivateProfileString("TimeShift", "RecHeight", temp, szIniFile);
+
+        _snprintf(temp, sizeof(temp), "%u", timeShift->format);
+        WritePrivateProfileString("TimeShift", "RecFormat", temp, szIniFile);
+
+        WritePrivateProfileStruct("TimeShift", "VideoFCC",
+                                  &timeShift->fccHandler, sizeof(FOURCC),
+                                  szIniFile);
+
+        result = true;
+    }
+
+    return result;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+#ifdef ____TO_DO
+bool CTimeShift::OnRecord(void)
+{
+    AssureCreated();
+
+    bool result = false;
+    extern char szIniFile[MAX_PATH];
+
+    //////////////////////////////////////////
+    // Simple single event scheduler.  It just
+    // times down until time to record within 
+    // the next 24 hour period.
+    //////////////////////////////////////////
+
+    // Get the scheduled record time from INI file
+    m_Start = 0; // Initialize it first
+    m_Start = (GetPrivateProfileInt(
+        "Schedule", "Start", m_Start, szIniFile));
+
+    if (m_Start != 0) //has a schedule time been set (0 = not set)?
+    {
+        ScheduleF = true; // set the flag to show it is a scheduled recording
+        /* 
+        Get local time and fill the structure.
+        For reference: the structure of tm is:
+        struct tm
+        {
+            int tm_sec;   // seconds after the minute (0-61)
+            int tm_min;   // minutes after the hour (0-59)
+            int tm_hour;  // hours since midnight (0-23)
+            int tm_mday;  // day of the month (1-31)
+            int tm_mon;   // months since January (0-11)
+            int tm_year;  // elapsed years since 1900 
+            int tm_wday;  // days since Sunday (0-6)
+            int tm_yday;  // days since January 1st (0-365)
+            int tm_isdst; // 1 if daylight savings is on, zero if not, -1 if unknown
+        }
+        */
+        time_t rawtime;
+        struct tm * timeinfo;
+        time ( &rawtime );
+        timeinfo = localtime ( &rawtime );
+    
+        int m_hours = (m_Start / 100); // Get the scheduled hours value
+        
+        sleeptime = 0; // Initialise sleeptime   
+
+        // Calculate number of seconds to wait from the hours part
+        if (m_hours > timeinfo->tm_hour)
+        {
+            sleeptime = ((m_hours - timeinfo->tm_hour) * 3600);
+        }   
+        if (m_hours < timeinfo->tm_hour)
+        {
+            sleeptime = (((m_hours + 24) - timeinfo->tm_hour) * 3600);
+        }
+        
+        // Calculate number of seconds to wait from the minutes part
+        int m_minutes = (m_Start % 100); 
+
+        if (m_minutes > timeinfo->tm_min)
+        {
+            sleeptime = (sleeptime + (m_minutes - timeinfo->tm_min) * 60);
+        }
+        
+        if (m_minutes < timeinfo->tm_min)
+        {
+            if (m_hours == timeinfo->tm_hour)
+            {
+                sleeptime = (24 * 3600);
+            }
+            sleeptime = (sleeptime - (timeinfo->tm_min - m_minutes) * 60);
+        }
+
+        m_Start = 0; //reset the schedule start time 
+        WritePrivateProfileInt(
+        "Schedule", "Start", m_Start, szIniFile); // reset INI
+
+        // Do a timer messagebox to the start of the scheduled recording
+        SchedMessageBox mbox(CWnd::FromHandle(hWnd));   // handle
+        int m_delay = sleeptime; // set the count-down period
+        bool m_close = true; // irrelevant - hard coded the switch
+        // irrelevant - hardcoded the icon
+        SchedMessageBox::MBIcon mbicon = SchedMessageBox::MBIcon::MBICONINFORMATION;
+        // call the timer messagebox
+        mbox.MessageBox("Message is hard coded! NULL", m_delay,
+            m_close,(SchedMessageBox::MBIcon)mbicon);
+
+        if (true == CancelSched) // Was the scheduled recording cancelled
+        {
+            CancelSched = false; // Reset flag for next time thru
+            return 0; // Quit
+        }
+    }
+        
+    ////////////////////////////////////////
+    // End of simple single event scheduler.
+    ////////////////////////////////////////
+
+    ///////////////////////
+    // Simple record timer.
+    ///////////////////////
+    // Need to flag this is first time thru
+    // because can come thru here more than once
+    // during a single recording (on a file split)
+    if (false == RecordTimerCheckedF)
+    {
+        RecordTimerCheckedF = true; // set the checked flag
+
+        // Get the Timed Recordng value from INI file   
+        m_Time = 0; // Initialise
+        m_Time = (GetPrivateProfileInt(
+        "Schedule", "Time", m_Time, szIniFile));
+
+        if (m_Time != 0) // Has the record timer been set
+        {
+            RecordTimerF = true; // set the flag to show it is a timed recording
+
+            // do the calcs to find recording end time
+            time_t seconds;
+            seconds = time (NULL);
+            EndRecordTime = (seconds + (m_Time * 60));
+            // Now we know that when system clock == EndRecordTime
+            // the timed recording is done.
+
+            // Clear the INI file of the timed recording value
+            m_Time = 0; // Reset the timer
+            WritePrivateProfileInt(
+            "Schedule", "Time", m_Time, szIniFile);
+        }
+        else
+        {
+            RecordTimerCheckedF = false; // need to reset check flag
+            // in case it was just a manual recording - so we check 
+            // next time there is a recording to see if timed
+        }
+    }
+    //////////////////////////////
+    // End of simple record timer.
+    //////////////////////////////
+
+    if (m_pTimeShift)
+    {
+        EnterCriticalSection(&m_pTimeShift->m_lock);
+
+        // Save this off before we start recording.
+        if (m_pTimeShift->m_mode == MODE_STOPPED)
+        {
+            CSource* pSource = Providers_GetCurrentSource();
+            if (pSource != NULL)
+            {
+                m_pTimeShift->m_origPixelWidth = pSource->GetWidth();
+            }
+        }
+
+        // if nofreespace is true it means a recording was in progress but running
+        // low on space and the disk space check routine has decided another file
+        // cannot be started (on a file split), and set the flag to get out of TimeShift
+        if (nofreespace) 
+        {
+            // Message boxes for endless or timed recording
+            LeaveCriticalSection(&m_pTimeShift->m_lock); //unlock the stream 
+            if (RecordTimerF)
+            {
+                MessageBox(hWnd,
+                    "Sorry! Recording stopped!\n"
+                    "\n"
+                    "You do not have enough\n"
+                    "disk space to continue.\n"
+                    "\n"
+                    "Your recording was saved.",
+                    "Information",
+                    MB_ICONEXCLAMATION | MB_OK);
+            }
+            else
+            {
+                MessageBox(hWnd,
+                    "Sorry! Timed recording stopped!\n"
+                    "\n"
+                    "You do not have enough\n"
+                    "disk space to continue.\n"
+                    "\n"
+                    "Only a part of your timed\n"
+                    "recording was saved.",
+                    "Information",
+                    MB_ICONEXCLAMATION | MB_OK);
+            }
+            nofreespace = false; // Reset the nofreespace flag
+            
+            // Reset the flags for scheduled / timed recording
+            RecordTimerCheckedF = false; // We check again on new recording
+            ScheduleF = false; // Rest flag so to check again on new recording
+            TimedRecodingDone = false; // Rest flag so to check again on new recording          
+            RecordTimerF = false; // Rest flag so to check again on new recording
+            return result; // Exit TimeShift
+        }
+    
+        // Message and close down if timed recording is done
+        if (TimedRecodingDone) // Has the timed recording finished?
+        {
+            LeaveCriticalSection(&m_pTimeShift->m_lock); //unlock the stream
+            
+            
+            if (ScheduleF) // Was it a scheduled recording?
+            {
+                MessageBox(hWnd,
+                        "Your scheduled recording was saved.",
+                        "Recording Information",
+                        MB_ICONEXCLAMATION | MB_OK);
+            }
+            else
+            {
+                MessageBox(hWnd,
+                        "Your timed recording was saved.",
+                        "Recording Information",
+                        MB_ICONEXCLAMATION | MB_OK);
+            }
+            // Initialise the flags for scheduled / timed recording
+            ScheduleF = false;
+            TimedRecodingDone = false;
+            RecordTimerCheckedF = false;
+            RecordTimerF = false;
+            return result; //exit TimeShift         
+        }
+
+        // Only start recording if we're stopped.
+        result =
+            m_pTimeShift->m_mode == MODE_STOPPED ?
+            m_pTimeShift->Record(false) : false;
+
+        LeaveCriticalSection(&m_pTimeShift->m_lock);
+    }
+
+    return result;
+}
+#endif

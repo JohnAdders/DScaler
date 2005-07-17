@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.h,v 1.21 2004-08-12 16:27:48 adcockj Exp $
+// $Id: TimeShift.h,v 1.22 2005-07-17 20:43:23 dosx86 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2004/08/12 16:27:48  adcockj
+// added timeshift changes from emu
+//
 // Revision 1.20  2003/12/29 01:27:54  robmuller
 // Added AVI file splitting.
 //
@@ -105,22 +108,93 @@
 #ifndef __TIMESHIFT_H___
 #define __TIMESHIFT_H___
 
-#include "DS_ApiCommon.h" // TDeinterlaceInfo struct.
+#include "DS_ApiCommon.h"
 #include "DS_Control.h"
 #include "TreeSettingsGeneric.h"
-
-// We'll only have one instance of a TimeShift, so everything's static.
-// Plus, we keep a semi-C-style function call convention which matches much
-// of the rest of the DScaler code, instead of referencing a global object ptr.
-
-// Declare this for friend declaration below.
-class CTSOptionsDlg;
+#include "avi.h"
 
 // These match the radio group in TSOptionsDlg.
 #define TS_FULLHEIGHT     0
 #define TS_HALFHEIGHTEVEN 1
 #define TS_HALFHEIGHTODD  2
 #define TS_HALFHEIGHTAVG  3
+
+#define NTSC_RATE  30
+#define NTSC_SCALE 1
+
+#define PAL_RATE  25
+#define PAL_SCALE 1
+
+#define NTSC_FPS ((float)NTSC_RATE / (float)NTSC_SCALE)
+#define PAL_FPS  ((float)PAL_RATE / (float)PAL_SCALE)
+
+#define RGB_FOURCC  BI_RGB
+#define YUY2_FOURCC mmioFOURCC('Y', 'U', 'Y', '2')
+
+/** TimeShift modes */
+typedef enum
+{
+    /** Not playing nor recording nor paused, default. */
+    MODE_STOPPED = 0,
+
+    /** Standard playback of avi file. */
+    MODE_PLAYING,
+
+    /** Standard recording of live capture. */
+    MODE_RECORDING,
+
+    /** Recording, and playing at a previous offset. */
+    MODE_SHIFTING,
+
+    /** Shifting, but playing is paused. */
+    MODE_PAUSED,
+
+    /** Scanning forward while playing or shifting. */
+    MODE_FASTFWD,
+
+    /** Scanning backward while playing or shifting. */
+    MODE_REWIND
+} tsMode_t;
+
+/** Defines the only two color formats that are currently being used
+ * \note Make sure the function makeFormatValid is updated if anything
+ *       here changes
+ */
+typedef enum
+{
+    FORMAT_YUY2 = 0,
+    FORMAT_RGB
+} tsFormat_t;
+
+typedef LPBYTE (*TSSCANLINECOPYPROC)(LPBYTE, LPBYTE, DWORD);
+typedef LPBYTE (*TSSCANLINEAVGPROC)(LPBYTE, LPBYTE, LPBYTE, DWORD);
+
+typedef struct
+{
+    CRITICAL_SECTION lock;
+    tsMode_t         mode;
+    tsFormat_t       format;
+    int              recHeight;
+    FOURCC           fccHandler;
+
+    struct
+    {
+        BYTE *record;
+    } buffer;
+
+    HWND hWnd;
+
+    char waveInDevice[MAXPNAMELEN];     /**< Selected waveIn device name */
+    char waveOutDevice[MAXPNAMELEN];    /**< Selected waveOut device name */
+
+    BITMAPINFOHEADER bih;
+    WAVEFORMATEX     waveFormat;
+
+    TSSCANLINECOPYPROC lpbCopyScanline; /**< Copy YUV data -> recording format */
+    TSSCANLINEAVGPROC  lpbAvgScanline;  /**< Average YUV data -> recording format */
+
+    AVI_FILE *file;
+} TIME_SHIFT;
 
 /**
   Here are some suggestions for TODO tasks...
@@ -164,217 +238,35 @@ class CTSOptionsDlg;
   - Made public static function pointers to the mmx/c yuv<->rgb converters.
   - Disabled all height control features.  They made pause/shifting difficult.
 */
-class CTimeShift
-{
-    friend CTSOptionsDlg;
 
-// Interface
-public:
-    /** There is no public "create" method, it's created the first time you
-        record, popup options, etc.  Call Destroy() as often as you want to
-        assure that all timeshift resources are freed.
-    */
+/* From TimeShift.cpp */
+bool TimeShiftInit(HWND hWnd);
+void TimeShiftShutdown(void);
+bool TimeShiftPause(void);
+bool TimeShiftRecord(void);
+bool TimeShiftStop(void);
+bool TimeShiftOnNewInputFrame(TDeinterlaceInfo *pInfo);
+bool TimeShiftIsRunning(void);
+bool TimeShiftWorkOnInputFrames(void);
+bool TimeShiftCancelSchedule(void);
+bool TimeShiftSetWaveInDevice(char *pszDevice);
+bool TimeShiftSetWaveOutDevice(char *pszDevice);
+bool TimeShiftGetWaveInDevice(char **ppszDevice);
+bool TimeShiftGetWaveOutDevice(char **ppszDevice);
+bool TimeShiftGetRecHeight(int *index);
+bool TimeShiftSetRecHeight(int index);
+bool TimeShiftGetRecFormat(tsFormat_t *format);
+bool TimeShiftSetRecFormat(tsFormat_t format);
+bool TimeShiftGetCompressionDesc(LPSTR dest, DWORD length, bool video);
+bool TimeShiftOnOptions(void);
+bool TimeShiftCompressionOptions(HWND hWndParent);
+bool TimeShiftVideoCompressionOptions(HWND hWndParent);
+bool TimeShiftOnSetMenu(HMENU hMenu);
 
-    /// Can only call this when stopped.  Call before control methods.
-    static bool OnDestroy(void);
-
-	/// mini routine to set cancel schedule flag
-	static bool CancelSchedule(void);
-
-    /// Standard control method.
-    static bool OnRecord(void);
-    /// Standard control method.
-    static bool OnPause(void);
-    /// Standard control method.
-    static bool OnPlay(void);
-    /// Standard control method.
-    static bool OnStop(void);
-    /// Not yet implemented.
-    static bool OnFastForward(void) { return false; }
-    /// Not yet implemented.
-    static bool OnFastBackward(void) { return false; }
-    /// Standard control method.
-    static bool OnGoNext(void);
-    /// Standard control method.
-    static bool OnGoPrev(void);
-
-    /// Pops up options dialog.  Call when stopped.
-    static bool OnOptions(void);
-
-	static bool WorkOnInputFrames();
-	static bool IsRunning();
-
-    /// Call these when you have new frames or audio data to read/write.
-    static bool OnNewInputFrame(TDeinterlaceInfo *info);
-    static bool OnNewOutputFrame(TDeinterlaceInfo *info);
-    static bool OnWaveInData(void);
-    static bool OnWaveOutDone(void);
-
-    /// Call this to update the radio check in the timeshift submenu.
-    static bool OnSetMenu(HMENU hMenu);
-
-    static LPBYTE(*m_YUVtoRGB)(LPBYTE dest,short *src,DWORD w);
-    static LPBYTE(*m_AvgYUVtoRGB)(LPBYTE dest,short *src1,short *src2,DWORD w);
-    static LPBYTE(*m_RGBtoYUV)(short *dest,LPBYTE src,DWORD w);
-
-// Implementation
-private:
-    CTimeShift();
-    ~CTimeShift();
-
-    /// Create the timeshift object if it's not already created.
-    static bool AssureCreated(void);
-
-    /// Can only call this when stopped.  Call before control methods.
-    static bool OnSetDimensions(void);
-    /// Can only call this when stopped.  Call before control methods.
-    static bool OnGetDimenstions(int *w, int *h);
-    /// Can only call this when stopped.  Call before control methods.
-    static bool OnSetWaveInDevice(char *pszDevice);
-    /// Can only call this when stopped.  Call before control methods.
-    static bool OnGetWaveInDevice(char **ppszDevice);
-    /// Can only call this when stopped.  Call before control methods.
-    static bool OnSetWaveOutDevice(char *pszDevice);
-    /// Can only call this when stopped.  Call before control methods.
-    static bool OnGetWaveOutDevice(char **ppszDevice);
-    /// Can only call this when stopped.  Call before control methods.
-    static bool OnSetRecHeight(int index);
-    /// Can only call this when stopped.  Call before control methods.
-    static bool OnGetRecHeight(int *index);
-
-    /// Called from within the options dialog to popup compression dialog.
-    static bool OnCompressionOptions(void);
-
-    /// A thread-safe wrapper for setting CurrentX.
-    static bool SetPixelWidth(int pixelWidth);
-
-    /// A wrapper for using the MixerDev for muting during pause/shifting.
-    static bool DoMute(bool mute);
-
-    /// Start recording, with the option of pausing live TV.
-    bool Record(bool pause);
-    bool Play(void);
-    bool Stop(void);
-    bool GoNext(void);
-    bool GoPrev(void);
-
-    /// The actaual videoframe/audiosample avi writing methods.
-    bool WriteVideo(TDeinterlaceInfo *info);
-    bool ReadVideo(TDeinterlaceInfo *info);
-    bool WriteVideo2(TDeinterlaceInfo *info);
-    bool ReadVideo2(TDeinterlaceInfo *info);
-    bool WriteAudio(void);
-    bool ReadAudio(void);
-	DWORD MyAVIStreamWrite(PAVISTREAM pavi, LONG lStart, LONG lSamples, LPVOID lpBuffer, LONG cbBuffer, DWORD dwFlags);
-
-    /// These simply implement their public static counterparts.
-    /// Uses current DScaler settings to set.
-    bool SetDimensions(); 
-    bool SetWaveInDevice(char* pszDevice);
-    bool SetWaveOutDevice(char* pszDevice);
-    bool GetWaveInDeviceIndex(int *index);
-    bool GetWaveOutDeviceIndex(int *index);
-    bool SetRecHeight(int index);
-    bool CompressionOptions(void);
-
-    bool SetVideoOptions(AVICOMPRESSOPTIONS *opts);
-    bool SetAudioOptions(AVICOMPRESSOPTIONS *opts);
-    bool UpdateAudioInfo(void);
-    bool ReadFromIni(void);
-    bool WriteToIni(void);
-
-    static CTimeShift *m_pTimeShift;
-
-    /// Audio and video come from different threads.
-    CRITICAL_SECTION m_lock;
-
-    enum MODE
-    {
-        /// Not playing nor recording nor paused, default.
-        MODE_STOPPED,
-        /// Standard playback of avi file.
-        MODE_PLAYING,
-        /// Standard recording of live capture.
-        MODE_RECORDING,
-        /// Recording, and playing at a previous offset.
-        MODE_SHIFTING,
-        /// Shifting, but playing is paused.
-        MODE_PAUSED,
-        /// Scanning forward while playing or shifting.
-        MODE_FASTFWD,
-        /// Scanning backward while playing or shifting.
-        MODE_REWIND
-    } m_mode;
-
-    int m_fps;
-
-    int m_curFile;
-
-    BITMAPINFOHEADER m_bih;
-    LPBITMAPINFOHEADER m_lpbi;
-    LPBYTE m_recordBits;
-    /// We'll decode the compressed bits into here.
-    LPBYTE m_playBits; 
-    bool m_gotPauseBits;
-	DWORD	m_BytesWritten;
-
-    WAVEFORMATEX m_waveFormat;
-
-	PAVIFILE m_pfile;
-	PAVISTREAM m_psVideo;
-	PAVISTREAM m_psAudio;
-	PAVISTREAM m_psCompressedVideo;
-	PAVISTREAM m_psCompressedAudio;
-	PAVISTREAM m_psCompressedVideoP;
-	PAVISTREAM m_psCompressedAudioP;
-    AVISTREAMINFO m_infoVideo;
-    AVISTREAMINFO m_infoAudio;
-    PGETFRAME m_pGetFrame;
-	AVICOMPRESSOPTIONS m_optsVideo;
-	AVICOMPRESSOPTIONS m_optsAudio;
-    bool m_setOptsVideo;
-    bool m_setOptsAudio;
-
-    DWORD m_startTimeRecord;
-    DWORD m_startTimePlay;
-    DWORD m_thisTimeRecord;
-    DWORD m_thisTimePlay;
-    DWORD m_lastFrameRecord;
-    DWORD m_lastFramePlay;
-    DWORD m_startFramePlay;
-    DWORD m_nextSampleRecord;
-    DWORD m_nextSamplePlay;
-
-    /** \todo FIXME: Make the 4 and 1<<17 semi-configurable in an advanced dialog?
-              The lower the numbers, the more "skipping" in the avi audio.
-              Also, isn't 2 all we need?  It is for waveOut for sure, but waveIn?
-    */
-    HWAVEIN m_hWaveIn;
-    char m_waveInDevice[MAXPNAMELEN];
-    WAVEHDR m_waveInHdrs[4];
-    /// 512KB total buffer space.
-    BYTE m_waveInBufs[4][1<<17];
-    int m_nextWaveInHdr;
-
-    HWAVEOUT m_hWaveOut;
-    char m_waveOutDevice[MAXPNAMELEN];
-    WAVEHDR m_waveOutHdrs[4];
-    /// 128KB total buffer space.
-    BYTE m_waveOutBufs[4][1<<15];
-    int m_nextWaveOutHdr;
-
-    /// One of TS_*HEIGHT* #defines above.
-    int m_recHeight;
-    /// What it was before we changed it.
-    int m_origPixelWidth;
-    /// What it was before we changed it.
-    BOOL m_origUseMixer;
-};
-
-SETTING* TimeShift_GetSetting(TIMESHIFT_SETTING Setting);
-void TimeShift_ReadSettingsFromIni();
-void TimeShift_WriteSettingsToIni(BOOL bOptimizeFileAccess);
-CTreeSettingsGeneric* TimeShift_GetTreeSettingsPage();
-void TimeShift_FreeSettings();
+SETTING *TimeShift_GetSetting(TIMESHIFT_SETTING Setting);
+void    TimeShift_ReadSettingsFromIni(void);
+void    TimeShift_WriteSettingsToIni(BOOL bOptimizeFileAccess);
+CTreeSettingsGeneric* TimeShift_GetTreeSettingsPage(void);
+void    TimeShift_FreeSettings(void);
 
 #endif // __TIMESHIFT_H___

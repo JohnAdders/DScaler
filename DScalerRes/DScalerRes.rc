@@ -622,59 +622,59 @@ BEGIN
                     IDC_STATIC,7,222,279,8
 END
 
-IDD_TSOPTIONS DIALOG DISCARDABLE  0, 0, 300, 285
+IDD_TSOPTIONS DIALOG DISCARDABLE  0, 0, 307, 246
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "TimeShift Options"
 FONT 8, "MS Sans Serif"
 BEGIN
-    LTEXT           "Record Start Time (24 Hour Clock)",IDC_STATIC,3,10,109,
-                    8
-    EDITTEXT        IDC_RECORD_START,121,8,52,12,ES_RIGHT | ES_NUMBER
-    LTEXT           "How Long To Record (In  Minutes)",IDC_STATIC,3,25,110,8
-    EDITTEXT        IDC_RECORD_TIME,121,23,52,13,ES_RIGHT | ES_NUMBER
-    LTEXT           "Note: You will need to press 'Record' after you have set 'Record Start Time' for the event to happen at given time. ",
-                    IDC_STATIC,179,9,120,26
+    EDITTEXT        IDC_RECORD_START,121,8,52,12,ES_RIGHT | ES_NUMBER | 
+                    WS_DISABLED
+    EDITTEXT        IDC_RECORD_TIME,121,23,52,13,ES_RIGHT | ES_NUMBER | 
+                    WS_DISABLED
+    PUSHBUTTON      "Timer / Schedule Help",IDC_TIMERHELP,183,42,101,14
     PUSHBUTTON      "Compression Options...",IDC_TSCOMPRESSIONBUTTON,12,41,
                     82,14
     PUSHBUTTON      "Help",IDC_TSCOMPRESSIONHELP,97,41,30,14
     PUSHBUTTON      "Audio-Mixer Setup...",IDC_TSMIXERBUTTON,12,57,82,14
     PUSHBUTTON      "Help",IDC_TSMIXERHELP,97,57,30,14
-    PUSHBUTTON      "Timer / Schedule Help",IDC_TIMERHELP,183,42,101,14
-    RTEXT           "Wave In:",IDC_STATIC,15,82,30,8
-    COMBOBOX        IDC_TSWAVEINCOMBO,49,79,146,88,CBS_DROPDOWNLIST | 
+    COMBOBOX        IDC_TSWAVEINCOMBO,90,80,146,88,CBS_DROPDOWNLIST | 
                     WS_VSCROLL | WS_TABSTOP
-    RTEXT           "Wave Out:",IDC_STATIC,10,100,36,8
-    COMBOBOX        IDC_TSWAVEOUTCOMBO,49,97,146,70,CBS_DROPDOWNLIST | 
+    COMBOBOX        IDC_TSWAVEOUTCOMBO,90,98,146,70,CBS_DROPDOWNLIST | 
                     WS_VSCROLL | WS_TABSTOP
-    PUSHBUTTON      "Help",IDC_TSWAVEHELP,203,86,30,14
-    GROUPBOX        "Recording Height",IDC_STATIC,39,117,219,56
-    LTEXT           "Fastest (OK Quality)",IDC_STATIC,45,129,63,8
-    LTEXT           "Faster (OK Quality)",IDC_STATIC,45,139,60,8
-    LTEXT           "Fast (Better Quality)",IDC_STATIC,45,149,62,8
-    LTEXT           "Slow (Best Quality)",IDC_STATIC,45,159,60,8
-    CONTROL         "1/2-height Even lines",IDC_TSHALFEVENRADIO,"Button",
-                    BS_AUTORADIOBUTTON,124,129,83,10
-    CONTROL         "1/2-height Odd lines",IDC_TSHALFODDRADIO,"Button",
-                    BS_AUTORADIOBUTTON,124,139,80,10
-    CONTROL         "1/2-height Even and Odd Averaged",
-                    IDC_TSHALFAVERAGEDRADIO,"Button",BS_AUTORADIOBUTTON,124,
-                    149,129,10
-    CONTROL         "Full-height",IDC_TSFULLHEIGHTRADIO,"Button",
-                    BS_AUTORADIOBUTTON,124,159,48,10
-    PUSHBUTTON      "Help",IDC_TSHEIGHTHELP,263,141,30,14
-    GROUPBOX        "",IDC_STATIC,43,174,179,19
-    LTEXT           "Audio / Video Sync (Default is 176400)",IDC_SYNTEXT,71,
-                    181,132,10
-    LTEXT           "Custom AV Sync Value",IDC_STATIC,97,196,112,8
-    EDITTEXT        IDC_SYNC,98,207,72,13,ES_RIGHT | ES_NUMBER | NOT 
-                    WS_TABSTOP
-    PUSHBUTTON      "Sync Help",IDC_SYNCHELP,187,205,65,14
-    LTEXT           "1 Click = +/- 0.02 of a Second Sync Change Per Hour of Recording",
-                    IDC_STATIC,33,224,220,8
-    PUSHBUTTON      "<-- Retard Sound + 1 click",IDC_RETARD,39,237,95,14
-    PUSHBUTTON      "Cancel",IDCANCEL,139,267,50,14
-    DEFPUSHBUTTON   "OK",IDOK,84,267,50,14
-    PUSHBUTTON      "Advance Sound  - 1 click-->",IDC_ADVANCE,139,237,99,14
+    PUSHBUTTON      "Help",IDC_TSWAVEHELP,265,90,30,14
+    CONTROL         "1/2-height even scanlines only",IDC_TSHALFEVENRADIO,
+                    "Button",BS_AUTORADIOBUTTON | WS_GROUP,40,130,113,10
+    CONTROL         "1/2-height odd scanlines only",IDC_TSHALFODDRADIO,
+                    "Button",BS_AUTORADIOBUTTON,40,140,109,10
+    CONTROL         "1/2-height even and odd averaged",
+                    IDC_TSHALFAVERAGEDRADIO,"Button",BS_AUTORADIOBUTTON,40,
+                    150,127,10
+    CONTROL         "Full height (interlaced)",IDC_TSFULLHEIGHTRADIO,"Button",
+                    BS_AUTORADIOBUTTON,40,160,85,10
+    PUSHBUTTON      "Help",IDC_TSHEIGHTHELP,265,140,30,14
+    CONTROL         "YUY2",IDC_TSYUY2RADIO,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,40,190,35,10
+    CONTROL         "RGB",IDC_TSRGBRADIO,"Button",BS_AUTORADIOBUTTON,40,200,
+                    35,10
+    DEFPUSHBUTTON   "OK",IDOK,100,225,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,155,225,50,14
+    RTEXT           "Wave In:",IDC_STATIC,55,83,30,8
+    RTEXT           "Wave Out:",IDC_STATIC,50,102,36,8
+    GROUPBOX        "Recording Height",IDC_STATIC,35,120,215,55
+    GROUPBOX        "Recording Format",IDC_STATIC,35,180,215,35
+    LTEXT           "Fastest",IDC_STATIC,170,130,40,8
+    LTEXT           "Fastest",IDC_STATIC,170,140,30,8
+    LTEXT           "Note: You will need to press 'Record' after you have set 'Record Start Time' for the event to happen at given time. ",
+                    IDC_STATIC,179,9,120,26
+    LTEXT           "How Long To Record (In  Minutes)",IDC_STATIC,3,25,110,8
+    LTEXT           "Record Start Time (24 Hour Clock)",IDC_STATIC,3,10,109,
+                    8
+    LTEXT           "Fast",IDC_STATIC,170,150,40,8
+    LTEXT           "Slower, more overhead",IDC_STATIC,170,160,75,8
+    LTEXT           "DScaler's native format",IDC_STATIC,85,190,75,8
+    LTEXT           "More compatible",IDC_STATIC,85,200,75,8
+    LTEXT           "Fastest, least overhead",IDC_STATIC,170,190,75,8
+    LTEXT           "Slower, more overhead",IDC_STATIC,170,200,75,8
 END
 
 IDD_OVERLAYSETTINGS DIALOG DISCARDABLE  0, 0, 372, 202
@@ -1161,6 +1161,21 @@ BEGIN
                     BS_ICON,31,0,16,16
     CTEXT           "000:00 / 000:00",IDC_TOOLBAR_MEDIAPLAYER_ELAPSED,52,4,
                     56,8,SS_CENTERIMAGE
+END
+
+IDD_TSCOMPRESSION DIALOG DISCARDABLE  0, 0, 186, 131
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Compression Options"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,37,110,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,97,110,50,14
+    GROUPBOX        "Video",IDC_STATIC,5,5,175,45
+    GROUPBOX        "Audio",IDC_STATIC,5,55,175,45
+    PUSHBUTTON      "Configure",IDC_TSCONFIGVIDEO,60,15,65,15
+    PUSHBUTTON      "Configure",IDC_TSCONFIGAUDIO,60,65,65,15,WS_DISABLED
+    CTEXT           "",IDC_TSVIDEOFORMAT,10,38,165,8
+    CTEXT           "",IDC_TSAUDIOFORMAT,10,88,165,8
 END
 
 
@@ -2095,7 +2110,7 @@ BEGIN
 
     IDD_TSOPTIONS, DIALOG
     BEGIN
-        BOTTOMMARGIN, 281
+        BOTTOMMARGIN, 242
     END
 
     IDD_OVERLAYSETTINGS, DIALOG
@@ -2193,6 +2208,14 @@ BEGIN
         RIGHTMARGIN, 264
         TOPMARGIN, 7
         BOTTOMMARGIN, 5
+    END
+
+    IDD_TSCOMPRESSION, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 124
     END
 END
 #endif    // APSTUDIO_INVOKED

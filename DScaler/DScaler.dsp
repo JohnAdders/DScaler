@@ -921,6 +921,9 @@ SOURCE=.\xml_cdata.c
 
 !IF  "$(CFG)" == "DScaler - Win32 Debug"
 
+# ADD CPP /D "_X86_"
+# SUBTRACT CPP /YX /Yc /Yu
+
 !ELSEIF  "$(CFG)" == "DScaler - Win32 Release"
 
 # ADD CPP /D "_X86_"
@@ -934,6 +937,9 @@ SOURCE=.\xml_cdata.c
 SOURCE=.\xml_hash.c
 
 !IF  "$(CFG)" == "DScaler - Win32 Debug"
+
+# ADD CPP /D "_X86_"
+# SUBTRACT CPP /YX /Yc /Yu
 
 !ELSEIF  "$(CFG)" == "DScaler - Win32 Release"
 
@@ -949,6 +955,9 @@ SOURCE=.\xml_prolog.tab.c
 
 !IF  "$(CFG)" == "DScaler - Win32 Debug"
 
+# ADD CPP /D "_X86_"
+# SUBTRACT CPP /YX /Yc /Yu
+
 !ELSEIF  "$(CFG)" == "DScaler - Win32 Release"
 
 # ADD CPP /D "_X86_"
@@ -962,6 +971,9 @@ SOURCE=.\xml_prolog.tab.c
 SOURCE=.\xml_scan.yy.c
 
 !IF  "$(CFG)" == "DScaler - Win32 Debug"
+
+# ADD CPP /D "_X86_"
+# SUBTRACT CPP /YX /Yc /Yu
 
 !ELSEIF  "$(CFG)" == "DScaler - Win32 Release"
 
@@ -977,6 +989,9 @@ SOURCE=.\xmltv_db.c
 
 !IF  "$(CFG)" == "DScaler - Win32 Debug"
 
+# ADD CPP /D "_X86_"
+# SUBTRACT CPP /YX /Yc /Yu
+
 !ELSEIF  "$(CFG)" == "DScaler - Win32 Release"
 
 # ADD CPP /D "_X86_"
@@ -991,6 +1006,9 @@ SOURCE=.\xmltv_tags.c
 
 !IF  "$(CFG)" == "DScaler - Win32 Debug"
 
+# ADD CPP /D "_X86_"
+# SUBTRACT CPP /YX /Yc /Yu
+
 !ELSEIF  "$(CFG)" == "DScaler - Win32 Release"
 
 # ADD CPP /D "_X86_"
@@ -1004,6 +1022,9 @@ SOURCE=.\xmltv_tags.c
 SOURCE=.\xmltv_timestamp.c
 
 !IF  "$(CFG)" == "DScaler - Win32 Debug"
+
+# ADD CPP /D "_X86_"
+# SUBTRACT CPP /YX /Yc /Yu
 
 !ELSEIF  "$(CFG)" == "DScaler - Win32 Release"
 

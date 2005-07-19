@@ -339,6 +339,81 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\avi.c">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\avi_audio.c">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\avi_file.c">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\avi_index.c">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\avi_video.c">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="dshowsource\BaseCrossbar.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -3285,6 +3360,9 @@
 				RelativePath=".\TreeSettingsSettingConfig.cpp">
 			</File>
 			<File
+				RelativePath=".\TSCompressionDlg.cpp">
+			</File>
+			<File
 				RelativePath="TSOptionsDlg.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -3639,6 +3717,125 @@
 						BrowseInformation="1"/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\xml_cdata.c">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions="_X86_"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions="_X86_"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\xml_hash.c">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions="_X86_"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions="_X86_"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\xml_prolog.tab.c">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions="_X86_"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions="_X86_"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\xml_scan.yy.c">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions="_X86_"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions="_X86_"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\xmltv_db.c">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions="_X86_"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions="_X86_"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\xmltv_tags.c">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions="_X86_"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions="_X86_"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\xmltv_timestamp.c">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions="_X86_"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions="_X86_"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -3663,6 +3860,12 @@
 			</File>
 			<File
 				RelativePath="AutoCriticalSection.h">
+			</File>
+			<File
+				RelativePath=".\avi.h">
+			</File>
+			<File
+				RelativePath=".\avi_internal.h">
 			</File>
 			<File
 				RelativePath="dshowsource\BaseCrossbar.h">
@@ -3932,6 +4135,9 @@
 				RelativePath="OpenDlg.h">
 			</File>
 			<File
+				RelativePath=".\opendml.h">
+			</File>
+			<File
 				RelativePath="OSD.h">
 			</File>
 			<File
@@ -4139,6 +4345,9 @@
 				RelativePath=".\TreeSettingsSettingConfig.h">
 			</File>
 			<File
+				RelativePath=".\TSCompressionDlg.h">
+			</File>
+			<File
 				RelativePath="TSOptionsDlg.h">
 			</File>
 			<File
@@ -4185,6 +4394,30 @@
 			</File>
 			<File
 				RelativePath="WindowBorder.h">
+			</File>
+			<File
+				RelativePath=".\xml_cdata.h">
+			</File>
+			<File
+				RelativePath=".\xml_hash.h">
+			</File>
+			<File
+				RelativePath=".\xml_prolog.tab.h">
+			</File>
+			<File
+				RelativePath=".\xmltv_db.h">
+			</File>
+			<File
+				RelativePath=".\xmltv_debug.h">
+			</File>
+			<File
+				RelativePath=".\xmltv_tags.h">
+			</File>
+			<File
+				RelativePath=".\xmltv_timestamp.h">
+			</File>
+			<File
+				RelativePath=".\xmltv_types.h">
 			</File>
 		</Filter>
 		<Filter

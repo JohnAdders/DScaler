@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.h,v 1.18 2005-07-11 12:49:00 laurentg Exp $
+// $Id: EPG.h,v 1.19 2005-07-19 21:41:54 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2005/07/11 12:49:00  laurentg
+// New menus to browse EPG at a certain day and time
+//
 // Revision 1.17  2005/07/09 13:43:43  laurentg
 // Two new EPG settings + Possibility to display next and previous programmes info
 //
@@ -140,17 +143,17 @@ public:
 	~CEPG();
 
 	// Copy the input file in DScalerEPG.xml
-	int ImportXMLTVFile(LPCSTR file);
+	void ImportXMLTVFile(LPCSTR file);
 
 	// Import the NextviewEPG database
 	// Put the result in DScalerEPG.xml
-	int ImportNxtvepgEPGDB(LPCSTR Provider);
+	void ImportNxtvepgEPGDB(LPCSTR Provider);
 
 	// Load the DScaler EPG data for the programmes between two dates
 	// If DateMin and DateMax are not set, load the EPG data for
 	// the interval [current time - 2 hours, current time + 6 hours]
-	int LoadEPGData(time_t DateMin=0, time_t DateMax=0);
-	int ReloadEPGData();
+	void LoadEPGData(time_t DateMin=0, time_t DateMax=0);
+	void ReloadEPGData();
 
 	int GetSearchContext(LPCSTR *ChannelName, time_t *TimeMin, time_t *TimeMax);
 	BOOL SearchForProgramme(string &Channel);
@@ -162,6 +165,7 @@ public:
 
 	void SetDisplayIndexes(int IdxMin, int IdxMax, int IdxCur);
 	int GetDisplayIndexes(int *IdxMin, int *IdxMax, int *IdxCur);
+	int GetDisplayLineShift(int NbLines);
 
 	BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
 
@@ -223,6 +227,7 @@ private:
 	int			m_IdxShowSelectCur;
 	BOOL		m_UseProgFronBrowser;
 	int			m_PrevNextProg;
+	int			m_ShiftLines;
 
 	int			m_Displayed;
 };

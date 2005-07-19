@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.cpp,v 1.23 2005-07-11 22:12:49 laurentg Exp $
+// $Id: EPG.cpp,v 1.24 2005-07-19 21:41:54 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2005/07/11 22:12:49  laurentg
+// Export NextViewEPG db using XLMTV 0.5 UTC
+//
 // Revision 1.22  2005/07/11 14:56:06  laurentg
 // New version (0.3) of Tom Zoerner's XMLTV parser
 //
@@ -110,11 +113,8 @@
 #include "Providers.h"
 #include "DScaler.h"
 
-#ifdef __cplusplus
+
 extern "C" void XmltvParser_Start( const char * pFilename );
-#else
-void XmltvParser_Start( const char * pFilename );
-#endif
 
 
 #define	ONE_DAY				86400
@@ -286,6 +286,8 @@ CEPG::CEPG()
 
 	m_PrevNextProg = 0;
 
+	m_ShiftLines = 0;
+
 	m_Displayed = 0;
 }
 
@@ -343,7 +345,7 @@ int CEPG::ExecuteCommand(string command)
 // Import the NextviewEPG database
 // Put the result in DScalerEPG.xml
 //
-int CEPG::ImportNxtvepgEPGDB(LPCSTR Provider)
+void CEPG::ImportNxtvepgEPGDB(LPCSTR Provider)
 {
 	string Exe = (char*)Setting_GetValue(EPG_GetSetting(EPG_NXTVEPGPATH));
 	string OutputFile = m_FilesDir + "\\" + DEFAULT_OUTPUT_FILE;
@@ -351,35 +353,27 @@ int CEPG::ImportNxtvepgEPGDB(LPCSTR Provider)
 		+ Exe + "\" -dump xml5 -provider " + Provider + " > \"" + OutputFile + "\"";
 
 	LOG(2, "NextviewEPG database import ... (%s)", command.c_str());
-	int resu = ExecuteCommand(command);
-	LOG(2, "NextviewEPG database import %d", resu);
+	ExecuteCommand(command);
 
 	ReloadEPGData();
-
-	return resu;
 }
 
 
 //
 // Copy the input file in DScalerEPG.xml
 //
-int CEPG::ImportXMLTVFile(LPCSTR file)
+void CEPG::ImportXMLTVFile(LPCSTR file)
 {
 	string InputFile = file;
 	string OutputFile = m_FilesDir + "\\" + DEFAULT_OUTPUT_FILE;
 
-	if (!strcmp(InputFile.c_str(), OutputFile.c_str()))
+	if (strcmp(InputFile.c_str(), OutputFile.c_str()))
 	{
-		return 0;
+		LOG(2, "Copy file %s in %s ...", InputFile.c_str(), OutputFile.c_str());
+		CopyFile(InputFile.c_str(), OutputFile.c_str());
+
+		ReloadEPGData();
 	}
-
-	LOG(2, "Copy file %s in %s ...", InputFile.c_str(), OutputFile.c_str());
-	BOOL resu = CopyFile(InputFile.c_str(), OutputFile.c_str());
-	LOG(2, "Copy file %d", resu);
-
-	ReloadEPGData();
-
-	return resu;
 }
 
 
@@ -388,7 +382,7 @@ int CEPG::ImportXMLTVFile(LPCSTR file)
 // If DateMin and DateMax are not set, load the EPG data for
 // the interval [current time - 2 hours, current time + 6 hours]
 //
-int CEPG::LoadEPGData(time_t DateMin, time_t DateMax)
+void CEPG::LoadEPGData(time_t DateMin, time_t DateMax)
 {
 	ClearProgrammes();
 
@@ -408,20 +402,13 @@ int CEPG::LoadEPGData(time_t DateMin, time_t DateMax)
 
 	string InputXMLFile = m_FilesDir + "\\" + DEFAULT_OUTPUT_FILE;
 	XmltvParser_Start(InputXMLFile.c_str());
-	return 0;
 }
 
 
-int CEPG::ReloadEPGData()
+void CEPG::ReloadEPGData()
 {
-	int resu = LoadEPGData(m_LoadedTimeMin, m_LoadedTimeMax);
-
-	if (!resu)
-	{
-		OSD_Clear();
-	}
-
-	return resu;
+	LoadEPGData(m_LoadedTimeMin, m_LoadedTimeMax);
+	OSD_Clear();
 }
 
 
@@ -590,6 +577,16 @@ int CEPG::GetDisplayIndexes(int *IdxMin, int *IdxMax, int *IdxCur)
 }
 
 
+int CEPG::GetDisplayLineShift(int NbLines)
+{
+	if (m_ShiftLines > NbLines)
+	{
+		m_ShiftLines = NbLines;
+	}
+	return m_ShiftLines;
+}
+
+
 BOOL CEPG::GetProgrammeChannelData(int Index, string &ChannelName, string &ChannelEPGName, int *ChannelNumber)
 {
 	if ( (Index < 0) && (m_ProgrammeSelected == NULL))
@@ -734,20 +731,6 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         return TRUE;
 		break;
 
-	case IDM_LOAD_EPG:
-		if (!ReloadEPGData())
-		{
-			OSD_ShowText("EPG loaded", 0);
-		}
-		else
-		{
-			OSD_ShowText("EPG not found", 0);
-		}
-		// Dump the loaded EPG data in the log file
-		//DumpEPGData();
-        return TRUE;
-		break;
-
 	case IDM_DISPLAY_EPG:
 		if (   (m_Displayed == 1)
 			|| (m_UseProgFronBrowser == FALSE) )
@@ -757,6 +740,7 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 			// Check if new EPG data have to be loaded
 			time(&TimeNow);
 			LoadEPGDataIfNeeded(m_LoadedTimeMin, TimeNow, PRELOADING_EARLIER, PRELOADING_LATER);
+			m_ShiftLines = 0;
 			// Display the OSD screen
 			OSD_ShowInfosScreen(2, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
 			m_Displayed = 1;
@@ -764,6 +748,7 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		else if (m_IdxShowSelectCur != -1)
 		{
 			m_ProgrammeSelected = m_ProgrammesSelection[m_IdxShowSelectCur-1];
+			m_ShiftLines = 0;
 			// Display the OSD screen
 			OSD_ShowInfosScreen(2, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
 			m_Displayed = 1;
@@ -853,6 +838,12 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		{
 			SetDisplayIndexes(m_IdxShowSelectMax + 1, -1, m_IdxShowSelectMax + 1);
 		}
+		else if (m_Displayed == 1)
+		{
+			m_ShiftLines++;
+			// Refresh the OSD screen immediately
+			OSD_ShowInfosScreen(2, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
+		}
         return TRUE;
         break;
 
@@ -862,6 +853,15 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 			&& (m_IdxShowSelectMin > 1) )
 		{
 			SetDisplayIndexes(-1, m_IdxShowSelectMin - 1, m_IdxShowSelectMin - 1);
+		}
+		else if (m_Displayed == 1)
+		{
+			if (m_ShiftLines > 0)
+			{
+				m_ShiftLines--;
+				// Refresh the OSD screen immediately
+				OSD_ShowInfosScreen(2, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
+			}
 		}
         return TRUE;
         break;
@@ -1084,6 +1084,8 @@ void CEPG::HideOSD()
 	m_UseProgFronBrowser = FALSE;
 
 	m_PrevNextProg = 0;
+
+	m_ShiftLines = 0;
 
 	m_Displayed = 0;
 }

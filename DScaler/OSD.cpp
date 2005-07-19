@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.108 2005-07-11 22:11:29 laurentg Exp $
+// $Id: OSD.cpp,v 1.109 2005-07-19 21:41:54 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.108  2005/07/11 22:11:29  laurentg
+// Minor change for display of EPG in OSD
+//
 // Revision 1.107  2005/07/09 13:43:43  laurentg
 // Two new EPG settings + Possibility to display next and previous programmes info
 //
@@ -501,7 +504,7 @@ void OSD_FreeCommand(TOSDCommand* pOSDCommand);
 
 void OSD_AddTextSingleLine(LPCTSTR, double, long, long, eOSDBackground, eOSDTextXPos, double, double);
 void OSD_AddText(LPCTSTR, double, long, long, eOSDBackground, eOSDTextXPos, double, double);
-void OSD_AddTextAutoCut(LPCTSTR, double, long, long, eOSDBackground, eOSDTextXPos, double, double, long MaxCharsPerLine);
+int OSD_CutLines(LPCTSTR, long);
 void OSD_ClearAllTexts();
 
 
@@ -559,6 +562,9 @@ static const char* OSD_szBackgroundNames[OSDB_LASTONE] =
     "Block",
     "Shaded",
 };
+
+
+static char TextLines[128][512];
 
 
 void OSD_Init()
@@ -2449,15 +2455,8 @@ static void OSD_RefreshCurrentProgrammeScreen(double Size)
 	date_tm = localtime(&EndTime);
 	sprintf(EndTimeStr, "%02u:%02u", date_tm->tm_hour, date_tm->tm_min);
 
-	char   szInfo[16];
-    sprintf(szInfo, "%s - %s", StartTimeStr, EndTimeStr);
-    OSD_AddText(szInfo, Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos1);
     OSD_AddText(ChannelName.c_str(), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos1);
-//	if (Category.length() > 0)
-//	{
-//	    OSD_AddText(Category.c_str(), Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, pos1);
-//	}
-    OSD_AddText(ProgrammeTitle.c_str(), Size, OSD_COLOR_CURRENT, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, pos2);
+	char   szInfo[16];
 	time_t TimeNow;
 	time(&TimeNow);
 	if (   (TimeNow >= StartTime)
@@ -2466,6 +2465,9 @@ static void OSD_RefreshCurrentProgrammeScreen(double Size)
 		sprintf(szInfo, "%.1f %%", (double)(TimeNow - StartTime) * 100.0 / (double)(EndTime - StartTime));
 		OSD_AddText(szInfo, Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, pos1);
 	}
+    sprintf(szInfo, "%s - %s", StartTimeStr, EndTimeStr);
+    OSD_AddText(szInfo, Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, pos1);
+    OSD_AddText(ProgrammeTitle.c_str(), Size, OSD_COLOR_CURRENT, -1, OSDB_USERDEFINED, OSD_XPOS_CENTER, 0.5, pos2);
 	if (SubTitle.length() > 0)
 	{
 		pos2 = OSD_GetLineYpos (nLine++, dfMargin, Size);
@@ -2473,8 +2475,41 @@ static void OSD_RefreshCurrentProgrammeScreen(double Size)
 	}
 	if (Description.length() > 0)
 	{
+		// Get the Y position of the first line of the description
 		pos2 = OSD_GetLineYpos (nLine++, dfMargin, Size);
-		OSD_AddTextAutoCut(Description.c_str(), Size-1, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos2, Setting_GetValue(EPG_GetSetting(EPG_MAXCHARSPERLINE)));
+
+		// Determine how many lines can still enter in the OSD
+		double LineHeight = (Size-1)/100;
+		int nb = 0;
+		pos1 = pos2;
+		while ( (pos1+LineHeight) <= 1.0)
+		{
+            pos1 += LineHeight;
+			nb++;
+		} 
+
+		// Cut the description test on several lines and
+		// determine the number of necessary lines
+		int nb2 = OSD_CutLines(Description.c_str(), Setting_GetValue(EPG_GetSetting(EPG_MAXCHARSPERLINE)));
+
+		// Display the lines skipping first lines if required
+		int IdxFirstLine;
+		int nb3;
+		if (nb2 <= nb)
+		{
+			IdxFirstLine = 0;
+			nb3 = nb2;
+		}
+		else
+		{
+			IdxFirstLine = MyEPG.GetDisplayLineShift(nb2 - nb);
+			nb3 = nb + IdxFirstLine;
+		}
+		for(int i = IdxFirstLine; i < nb3; i++)
+		{
+			OSD_AddTextSingleLine(TextLines[i], Size-1 ,-1 ,-1 , OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos2);
+			pos2 += LineHeight;
+		}
 	}
 }
 
@@ -2731,12 +2766,12 @@ void OSD_AddText(LPCTSTR szText, double Size, long NewTextColor, long Background
 //---------------------------------------------------------------------------
 // Same as OSD_AddText except that the text is cut on several lines
 // as soon as one line has more than a certain number of characters.
-void OSD_AddTextAutoCut(LPCTSTR szText, double Size, long NewTextColor, long BackgroundColor, 
-                        eOSDBackground BackgroundMode, eOSDTextXPos TextXPos, double XPos, double YPos, long MaxCharsPerLine)
+int OSD_CutLines(LPCTSTR szText, long MaxCharsPerLine)
 {
-    char      SingleLine[512];
-    int       SingleLineIndex = 0;
+	int       IndexLine = 0;
+    int       InLineIndex = 0;
     char      *s;
+	int       i;
 
     // convert "\r\n" to "\n"
     while(s = strstr(szText, "\r\n"))
@@ -2744,27 +2779,31 @@ void OSD_AddTextAutoCut(LPCTSTR szText, double Size, long NewTextColor, long Bac
         strcpy(&s[0], &s[1]);
     }
 
-    for(int i = 0; i < strlen(szText); i++)
+    for(i = 0; i < strlen(szText); i++)
     {
-        if(SingleLineIndex == 512)
+        if(InLineIndex == 512)
         {
-            SingleLineIndex--;
+            InLineIndex--;
             break;
         }
-		if( (szText[i] != '\n') && (SingleLineIndex < MaxCharsPerLine))
+		if( (szText[i] != '\n') && (InLineIndex < MaxCharsPerLine))
         {
-            SingleLine[SingleLineIndex++] = szText[i];
+            TextLines[IndexLine][InLineIndex++] = szText[i];
         }
         else
         {
-            SingleLine[SingleLineIndex] = 0x00;
+            TextLines[IndexLine][InLineIndex] = 0x00;
+
 			// If the current character is a cariage return or a space,
 			// then go to the next line and skip the current character
 			if ((szText[i] == '\n') || (szText[i] == ' '))
 			{
-				OSD_AddTextSingleLine(SingleLine, Size, NewTextColor, BackgroundColor, BackgroundMode,
-									  TextXPos, XPos, YPos);
-				SingleLineIndex = 0;
+				IndexLine++;
+				InLineIndex = 0;
+				if(IndexLine == 128)
+				{
+					break;
+				}
 			}
 			else
 			{
@@ -2773,48 +2812,51 @@ void OSD_AddTextAutoCut(LPCTSTR szText, double Size, long NewTextColor, long Bac
 				// If the last buffered character is a space,
 				// then go to the next line and keep the current character
 				// as first first character of the next line
-				if (SingleLine[SingleLineIndex-1] == ' ')
+				if (TextLines[IndexLine][InLineIndex-1] == ' ')
 				{
-					OSD_AddTextSingleLine(SingleLine, Size, NewTextColor, BackgroundColor, BackgroundMode,
-										  TextXPos, XPos, YPos);
-					SingleLineIndex = 0;
+					IndexLine++;
+					InLineIndex = 0;
 				}
 				else
 				{
 					// Search the last space in the buffered line
-					s = strrchr(SingleLine, ' ');
+					s = strrchr(TextLines[IndexLine], ' ');
 					if (s)
 					{
 						*s = 0x00;
-						OSD_AddTextSingleLine(SingleLine, Size, NewTextColor, BackgroundColor, BackgroundMode,
-											  TextXPos, XPos, YPos);
-				        strcpy(&SingleLine[0], s+1);
-						SingleLineIndex = strlen(SingleLine);
+						IndexLine++;
+						if (IndexLine == 128)
+						{
+							InLineIndex = 0;
+							break;
+						}
+				        strcpy(&TextLines[IndexLine][0], s+1);
+						InLineIndex = strlen(TextLines[IndexLine]);
 					}
 					else
 					{
-						OSD_AddTextSingleLine(SingleLine, Size, NewTextColor, BackgroundColor, BackgroundMode,
-											  TextXPos, XPos, YPos);
-						SingleLineIndex = 0;
+						IndexLine++;
+						InLineIndex = 0;
 					}
 				}
 
+				if (IndexLine == 128)
+				{
+					break;
+				}
+
 				// Add the current character to the line buffer
-				SingleLine[SingleLineIndex++] = szText[i];
+				TextLines[IndexLine][InLineIndex++] = szText[i];
 			}
-            if(Size == 0)
-            {
-                YPos += (double)OSD_DefaultSizePerc/100;
-            }
-            else
-            {
-                YPos += Size/100;
-            }
         }
     }
-    SingleLine[SingleLineIndex] = 0x00;
-    OSD_AddTextSingleLine(SingleLine,Size,NewTextColor,BackgroundColor,BackgroundMode,TextXPos,
-                          XPos,YPos);
+    if ( (IndexLine < 128) && (InLineIndex > 0) )
+    {
+		TextLines[IndexLine][InLineIndex] = 0x00;
+		IndexLine++;
+    }
+
+	return IndexLine;
 }
 
 

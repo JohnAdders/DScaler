@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.cpp,v 1.24 2005-07-19 21:41:54 laurentg Exp $
+// $Id: EPG.cpp,v 1.25 2005-07-20 22:29:05 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2005/07/19 21:41:54  laurentg
+// EPG: shift programme description at screen using Shift+PgUp and Shift+PgDn
+//
 // Revision 1.23  2005/07/11 22:12:49  laurentg
 // Export NextViewEPG db using XLMTV 0.5 UTC
 //
@@ -153,23 +156,9 @@ CProgramme::~CProgramme()
 //
 BOOL CProgramme::IsProgrammeMatching(time_t DateMin, time_t DateMax, LPCSTR Channel)
 {
-	if (   (DateMax >= m_StartTime)
-		&& (DateMin < m_EndTime)
+	if (   ( (DateMax == 0) || (DateMax >= m_StartTime) )
+		&& ( (DateMin == 0) || (DateMin < m_EndTime) )
 		&& ( (Channel == NULL) || !_stricmp(Channel, m_ChannelName.c_str()) )
-	   )
-	   return TRUE;
-
-	return FALSE;
-}
-
-
-//
-// Check whether the programme matchs the channel
-//
-BOOL CProgramme::IsProgrammeMatching(LPCSTR Channel)
-{
-	if (   (Channel == NULL)
-		|| !_stricmp(Channel, m_ChannelName.c_str())
 	   )
 	   return TRUE;
 
@@ -284,7 +273,7 @@ CEPG::CEPG()
 
 	m_UseProgFronBrowser = FALSE;
 
-	m_PrevNextProg = 0;
+	m_SearchCurrent = TRUE;
 
 	m_ShiftLines = 0;
 
@@ -450,10 +439,26 @@ BOOL CEPG::SearchForProgramme(string &Channel)
 		CSource *CurrentSource = Providers_GetCurrentSource();
 		if (CurrentSource && Providers_GetCurrentSource()->IsInTunerMode())
 		{
-			time_t TimeNow;
-			time(&TimeNow);
 			Channel = Channel_GetName();
-			resu = SearchForProgramme(Channel.c_str(), TimeNow, m_PrevNextProg);
+			if (m_SearchCurrent == TRUE)
+			{
+				time_t TimeNow;
+				time(&TimeNow);
+				resu = SearchForProgramme(Channel.c_str(), TimeNow);
+			}
+			else
+			{
+				if (m_ProgrammeSelected)
+				{
+					resu = TRUE;
+				}
+			}
+		}
+		else
+		{
+			m_ProgrammeSelected = NULL;
+			m_ProgrammesSelection.clear();
+			SetDisplayIndexes(-1, -1, -1);
 		}
 	}
 	else
@@ -471,64 +476,19 @@ BOOL CEPG::SearchForProgramme(string &Channel)
 }
 
 
-BOOL CEPG::SearchForProgramme(LPCSTR ChannelName, time_t ThatTime, int PrevNextProg)
+BOOL CEPG::SearchForProgramme(LPCSTR ChannelName, time_t ThatTime)
 {
-	time_t ProgStart, ProgEnd;
-	CProgramme* PrevProgramme = NULL;
+	SearchForProgrammes(ChannelName);
 	m_ProgrammeSelected = NULL;
-    for(CProgrammes::iterator it = m_Programmes.begin();
-        it != m_Programmes.end();
+    for(CProgrammes::iterator it = m_ProgrammesSelection.begin();
+        it != m_ProgrammesSelection.end();
         ++it)
     {
-		if (PrevNextProg < 0)
+		if ((*it)->IsProgrammeMatching(ThatTime, ThatTime, ChannelName) == TRUE)
 		{
-			if ((*it)->IsProgrammeMatching(ChannelName) == TRUE)
-			{
-				(*it)->GetProgrammeDates(&ProgStart, &ProgEnd);
-				if (   (ThatTime >= ProgStart)
-					&& (ThatTime < ProgEnd)
-				   )
-				{
-					if (PrevProgramme != NULL)
-					{
-						m_ProgrammeSelected = PrevProgramme;
-						return TRUE;
-					}
-				}
-				else
-				{
-					PrevProgramme = *it;
-				}
-			}
-		}
-		else if (PrevNextProg > 0)
-		{
-			if ((*it)->IsProgrammeMatching(ChannelName) == TRUE)
-			{
-				if (PrevProgramme != NULL)
-				{
-					m_ProgrammeSelected = *it;
-					return TRUE;
-				}
-				else
-				{
-					(*it)->GetProgrammeDates(&ProgStart, &ProgEnd);
-					if (   (ThatTime >= ProgStart)
-						&& (ThatTime < ProgEnd)
-					   )
-					{
-						PrevProgramme = *it;
-					}
-				}
-			}
-		}
-		else
-		{
-			if ((*it)->IsProgrammeMatching(ThatTime, ThatTime, ChannelName) == TRUE)
-			{
-				m_ProgrammeSelected = *it;
-				return TRUE;
-			}
+			m_ProgrammeSelected = *it;
+			SetDisplayIndexes(1, m_ProgrammesSelection.size(), it - m_ProgrammesSelection.begin() + 1);
+			return TRUE;
 		}
     }
 	return FALSE;
@@ -537,7 +497,6 @@ BOOL CEPG::SearchForProgramme(LPCSTR ChannelName, time_t ThatTime, int PrevNextP
 
 int CEPG::SearchForProgrammes(LPCSTR ChannelName, time_t TimeMin, time_t TimeMax)
 {
-	m_PrevNextProg = 0;
 	m_SearchChannel = ChannelName;
 	m_SearchTimeMin = TimeMin;
 	m_SearchTimeMax = TimeMax;
@@ -736,7 +695,7 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 			|| (m_UseProgFronBrowser == FALSE) )
 		{
 			m_UseProgFronBrowser = FALSE;
-			m_PrevNextProg = 0;
+			m_SearchCurrent = TRUE;
 			// Check if new EPG data have to be loaded
 			time(&TimeNow);
 			LoadEPGDataIfNeeded(m_LoadedTimeMin, TimeNow, PRELOADING_EARLIER, PRELOADING_LATER);
@@ -748,6 +707,7 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		else if (m_IdxShowSelectCur != -1)
 		{
 			m_ProgrammeSelected = m_ProgrammesSelection[m_IdxShowSelectCur-1];
+			m_SearchCurrent = FALSE;
 			m_ShiftLines = 0;
 			// Display the OSD screen
 			OSD_ShowInfosScreen(2, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
@@ -882,11 +842,26 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 				PostMessageToMainWindow(WM_COMMAND, IDM_DISPLAY_EPG_NEXT, 0);
 			}
 		}
-		else if (   (m_Displayed == 1)
-			     && (m_UseProgFronBrowser == FALSE) )
+		else if (m_Displayed == 1)
 		{
 			// Show the details of the next programme on the same channel
-			ShowOSD(1);
+			if (   (m_IdxShowSelectMin != -1)
+				&& (m_IdxShowSelectMax != -1) )
+			{
+				if (m_IdxShowSelectCur < m_IdxShowSelectMax)
+				{
+					SetDisplayIndexes(m_IdxShowSelectMin, m_IdxShowSelectMax, m_IdxShowSelectCur + 1);
+					m_ProgrammeSelected = m_ProgrammesSelection[m_IdxShowSelectCur-1];
+				}
+				else
+				{
+					// TODO Load next programmes
+				}
+				m_SearchCurrent = FALSE;
+				m_ShiftLines = 0;
+				// Refresh the OSD screen immediately
+				OSD_ShowInfosScreen(2, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
+			}
 		}
         return TRUE;
         break;
@@ -907,11 +882,26 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 				PostMessageToMainWindow(WM_COMMAND, IDM_DISPLAY_EPG_PREV, 0);
 			}
 		}
-		else if (   (m_Displayed == 1)
-			     && (m_UseProgFronBrowser == FALSE) )
+		else if (m_Displayed == 1)
 		{
 			// Show the details of the previous programme on the same channel
-			ShowOSD(-1);
+			if (   (m_IdxShowSelectMin != -1)
+				&& (m_IdxShowSelectMax != -1) )
+			{
+				if (m_IdxShowSelectCur > m_IdxShowSelectMin)
+				{
+					SetDisplayIndexes(m_IdxShowSelectMin, m_IdxShowSelectMax, m_IdxShowSelectCur - 1);
+					m_ProgrammeSelected = m_ProgrammesSelection[m_IdxShowSelectCur-1];
+				}
+				else
+				{
+					// TODO Load previous programmes
+				}
+				m_SearchCurrent = FALSE;
+				m_ShiftLines = 0;
+				// Refresh the OSD screen immediately
+				OSD_ShowInfosScreen(2, Setting_GetValue(EPG_GetSetting(EPG_PERCENTAGESIZE)));
+			}
 		}
         return TRUE;
         break;
@@ -1041,14 +1031,12 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 }
 
 
-void CEPG::ShowOSD(int PrevNextProg)
+void CEPG::ShowOSD()
 {
 	// Check if new EPG data have to be loaded
 	time_t TimeNow;
 	time(&TimeNow);
 	LoadEPGDataIfNeeded(m_LoadedTimeMin, TimeNow, PRELOADING_EARLIER, PRELOADING_LATER);
-
-	m_PrevNextProg = PrevNextProg;
 
 	if (   (m_Programmes.size() > 0)
 		&& (m_UseProgFronBrowser == FALSE) )
@@ -1057,7 +1045,8 @@ void CEPG::ShowOSD(int PrevNextProg)
 		if (CurrentSource && Providers_GetCurrentSource()->IsInTunerMode())
 		{
 			// Search EPG info for the currently viewed channel
-			if (MyEPG.SearchForProgramme(Channel_GetName(), TimeNow, m_PrevNextProg) == TRUE)
+			m_SearchCurrent = TRUE;
+			if (SearchForProgramme(Channel_GetName(), TimeNow) == TRUE)
 			{
 				if (m_Displayed == 0)
 				{
@@ -1083,7 +1072,7 @@ void CEPG::HideOSD()
 
 	m_UseProgFronBrowser = FALSE;
 
-	m_PrevNextProg = 0;
+	m_SearchCurrent = TRUE;
 
 	m_ShiftLines = 0;
 
@@ -1109,7 +1098,6 @@ void CEPG::ClearProgrammes()
 {
 	m_ProgrammeSelected = NULL;
     m_ProgrammesSelection.clear();
-	m_PrevNextProg = 0;
     for(CProgrammes::iterator it = m_Programmes.begin();
         it != m_Programmes.end();
         ++it)

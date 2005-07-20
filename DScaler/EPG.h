@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.h,v 1.19 2005-07-19 21:41:54 laurentg Exp $
+// $Id: EPG.h,v 1.20 2005-07-20 22:29:06 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2005/07/19 21:41:54  laurentg
+// EPG: shift programme description at screen using Shift+PgUp and Shift+PgDn
+//
 // Revision 1.18  2005/07/11 12:49:00  laurentg
 // New menus to browse EPG at a certain day and time
 //
@@ -100,12 +103,9 @@ public:
 	CProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR ChannelName, LPCSTR ChannelEPGName, int ChannelNumber, LPCSTR SubTitle, LPCSTR Category, LPCSTR Description);
 	~CProgramme();
 
-	// Check whether the programme matchs the channel (if provided)
-	// and overlaps the period of time defined by DateMin and DateMax
-	BOOL IsProgrammeMatching(time_t DateMin, time_t DateMax, LPCSTR Channel=NULL);
-
 	// Check whether the programme matchs the channel
-	BOOL IsProgrammeMatching(LPCSTR Channel=NULL);
+	// and overlaps the period of time defined by DateMin and DateMax
+	BOOL IsProgrammeMatching(time_t DateMin, time_t DateMax, LPCSTR Channel);
 
 	// Get the programme dates : start and end time
 	void GetProgrammeDates(time_t *StartTime, time_t *EndTime);
@@ -157,8 +157,8 @@ public:
 
 	int GetSearchContext(LPCSTR *ChannelName, time_t *TimeMin, time_t *TimeMax);
 	BOOL SearchForProgramme(string &Channel);
-	BOOL SearchForProgramme(LPCSTR ChannelName, time_t ThatTime, int PrevNextProg = 0);
-	int SearchForProgrammes(LPCSTR ChannelName, time_t TimeMin, time_t TimeMax);
+	BOOL SearchForProgramme(LPCSTR ChannelName, time_t ThatTime);
+	int SearchForProgrammes(LPCSTR ChannelName, time_t TimeMin=0, time_t TimeMax=0);
 	BOOL GetProgrammeChannelData(int Index, string &ChannelName, string &ChannelEPGName, int *ChannelNumber);
 	BOOL GetProgrammeMainData(int Index, time_t *StartTime, time_t *EndTime, string &Channel, string &Title, string &Category);
 	BOOL GetProgrammeData(int Index, time_t *StartTime, time_t *EndTime, string &Channel, string &Title, string &SubTitle, string &Category, string &Description);
@@ -169,7 +169,7 @@ public:
 
 	BOOL HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam);
 
-	void ShowOSD(int PrevNextProg = 0);
+	void ShowOSD();
 	void HideOSD();
 
 	// Dump the EPG data
@@ -226,7 +226,7 @@ private:
 	int			m_IdxShowSelectMax;
 	int			m_IdxShowSelectCur;
 	BOOL		m_UseProgFronBrowser;
-	int			m_PrevNextProg;
+	BOOL		m_SearchCurrent;
 	int			m_ShiftLines;
 
 	int			m_Displayed;

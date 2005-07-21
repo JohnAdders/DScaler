@@ -201,7 +201,7 @@ SOURCE=.\SAA7134I2CBus.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\DScaler\SAA7134I2CInterface.h
+SOURCE=.\SAA7134I2CInterface.h
 # End Source File
 # Begin Source File
 

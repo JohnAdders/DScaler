@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.1 2004-10-30 19:30:22 to_see Exp $
+// $Id: SAA7134Card.h,v 1.2 2005-07-21 20:37:01 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Torsten Seeboth. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 /////////////////////////////////////////////////////////////////////////////
 // CVS Log
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2004/10/30 19:30:22  to_see
+// initial checkin
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #if !defined(AFX_SAA7134CARD_H__13F16573_35A0_403E_BCA0_A187A8E7F745__INCLUDED_)
@@ -28,7 +31,7 @@
 #endif // _MSC_VER > 1000
 
 #include "PCICard.h"
-#include "..\..\DScaler\SAA7134I2CInterface.h"
+#include "SAA7134I2CInterface.h"
 #include "SAA7134I2CBus.h"
 
 class CSAA7134Card : public CPCICard,  

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134I2CBus.cpp,v 1.1 2004-10-30 19:30:22 to_see Exp $
+// $Id: SAA7134I2CBus.cpp,v 1.2 2005-07-21 20:37:01 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Torsten Seeboth. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,12 +18,15 @@
 /////////////////////////////////////////////////////////////////////////////
 // CVS Log
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2004/10/30 19:30:22  to_see
+// initial checkin
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include "I2CBus.h"
 #include "SAA7134I2CBus.h"
-#include "..\..\DScaler\SAA7134I2CInterface.h"
+#include "SAA7134I2CInterface.h"
 
 CSAA7134I2CBus::CSAA7134I2CBus(ISAA7134I2CInterface* pSAA7134I2C) :
     m_InitializedSleep(FALSE)

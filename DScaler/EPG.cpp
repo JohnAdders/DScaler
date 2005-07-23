@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.cpp,v 1.25 2005-07-20 22:29:05 laurentg Exp $
+// $Id: EPG.cpp,v 1.26 2005-07-23 12:40:57 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2005/07/20 22:29:05  laurentg
+// EPG: display of previous and next programmes improved
+//
 // Revision 1.24  2005/07/19 21:41:54  laurentg
 // EPG: shift programme description at screen using Shift+PgUp and Shift+PgDn
 //
@@ -491,6 +494,8 @@ BOOL CEPG::SearchForProgramme(LPCSTR ChannelName, time_t ThatTime)
 			return TRUE;
 		}
     }
+    m_ProgrammesSelection.clear();
+	SetDisplayIndexes(-1, -1, -1);
 	return FALSE;
 }
 
@@ -719,6 +724,9 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 	case IDM_DISPLAY_EPG_NOW:
 		if ( (m_Displayed == 1) && (m_UseProgFronBrowser == TRUE) )
 		{
+			// Force to recompute by the OSD which page to display
+			// (the one corresponding to the current selected programme)
+			SetDisplayIndexes(-1, -1, m_IdxShowSelectCur);
 		}
 		else
 		{
@@ -848,12 +856,13 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 			if (   (m_IdxShowSelectMin != -1)
 				&& (m_IdxShowSelectMax != -1) )
 			{
-				if (m_IdxShowSelectCur < m_IdxShowSelectMax)
+				if (m_IdxShowSelectCur < m_ProgrammesSelection.size())
 				{
-					SetDisplayIndexes(m_IdxShowSelectMin, m_IdxShowSelectMax, m_IdxShowSelectCur + 1);
+					m_IdxShowSelectCur++;
 					m_ProgrammeSelected = m_ProgrammesSelection[m_IdxShowSelectCur-1];
 				}
-				else
+				else if (   (m_UseProgFronBrowser == FALSE)
+				         && (m_IdxShowSelectCur == m_ProgrammesSelection.size()) )
 				{
 					// TODO Load next programmes
 				}
@@ -888,12 +897,13 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 			if (   (m_IdxShowSelectMin != -1)
 				&& (m_IdxShowSelectMax != -1) )
 			{
-				if (m_IdxShowSelectCur > m_IdxShowSelectMin)
+				if (m_IdxShowSelectCur > 1)
 				{
-					SetDisplayIndexes(m_IdxShowSelectMin, m_IdxShowSelectMax, m_IdxShowSelectCur - 1);
+					m_IdxShowSelectCur--;
 					m_ProgrammeSelected = m_ProgrammesSelection[m_IdxShowSelectCur-1];
 				}
-				else
+				else if (   (m_UseProgFronBrowser == FALSE)
+				         && (m_IdxShowSelectCur == 1) )
 				{
 					// TODO Load previous programmes
 				}
@@ -907,7 +917,7 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
         break;
 
 	case IDM_EPG_VIEW_PROG:
-		if (   (m_Displayed == 2)
+		if (   (m_Displayed > 0)
 			&& (m_IdxShowSelectCur != -1)
 		    && (MyEPG.GetProgrammeChannelData(m_IdxShowSelectCur-1, ChannelName, ChannelEPGName, &ChannelNumber) == TRUE) )
 		{

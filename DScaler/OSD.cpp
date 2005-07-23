@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.109 2005-07-19 21:41:54 laurentg Exp $
+// $Id: OSD.cpp,v 1.110 2005-07-23 12:40:57 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.109  2005/07/19 21:41:54  laurentg
+// EPG: shift programme description at screen using Shift+PgUp and Shift+PgDn
+//
 // Revision 1.108  2005/07/11 22:11:29  laurentg
 // Minor change for display of EPG in OSD
 //
@@ -2554,6 +2557,8 @@ static void OSD_RefreshProgrammesScreen(double Size)
 	int IdxMin, IdxMax, IdxCur;
 	MyEPG.GetDisplayIndexes(&IdxMin, &IdxMax, &IdxCur);
 
+	BOOL NeedAdjust = ( (IdxCur != -1) && (IdxMin == -1) && (IdxMax == -1) ) ? TRUE : FALSE;
+
 	if (IdxMax == -1)
 	{
 		IdxMax = nb;
@@ -2573,6 +2578,17 @@ static void OSD_RefreshProgrammesScreen(double Size)
 			if (pos2 == 0.0)
 			{
 				IdxMin = i+1;
+				if (NeedAdjust == TRUE)
+				{
+					int NbPerPage = IdxMax - IdxMin + 1;
+					int IdxPage = (IdxCur - 1) / NbPerPage;
+					IdxMin = (IdxPage * NbPerPage) + 1;
+					IdxMax = (IdxPage + 1) * NbPerPage;
+					if (IdxMax > nb)
+					{
+						IdxMax = nb;
+					}
+				}
 				break;
 			}
 		}

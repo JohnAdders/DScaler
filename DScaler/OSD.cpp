@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.111 2005-07-23 18:56:08 laurentg Exp $
+// $Id: OSD.cpp,v 1.112 2005-07-23 19:13:27 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.111  2005/07/23 18:56:08  laurentg
+// EPG with external tuner using teletext/VPS to get channel name
+//
 // Revision 1.110  2005/07/23 12:40:57  laurentg
 // EPG: switch between browser view and details view improved
 //
@@ -2544,32 +2547,8 @@ static void OSD_RefreshProgrammesScreen(double Size)
 	time_t TimeNow;
 	time(&TimeNow);
 
-	CSource *CurrentSource = Providers_GetCurrentSource();
-	LPCSTR Channel = NULL;
-	if (CurrentSource)
-	{
-		if (CurrentSource->IsInTunerMode())
-		{
-			Channel = Channel_GetName();
-		}
-		else if (Setting_GetValue(VBI_GetSetting(CAPTURE_VBI)))
-		{
-			char szStatus[24];
-			szStatus[0] = '\0';
-			if (Setting_GetValue(VBI_GetSetting(DOTELETEXT)))
-			{
-				VT_GetStation(szStatus, sizeof(szStatus));
-			}
-			if ( (*szStatus == '\0') && Setting_GetValue(VBI_GetSetting(DOVPS)) )
-			{
-				VPS_GetChannelName(szStatus, sizeof(szStatus));
-			}
-			if (szStatus[0] != '\0')
-			{
-				Channel = szStatus;
-			}
-		}
-	}
+	string Channel;
+	MyEPG.GetViewedChannelName(Channel);
 
 	int IdxMin, IdxMax, IdxCur;
 	MyEPG.GetDisplayIndexes(&IdxMin, &IdxMax, &IdxCur);
@@ -2634,8 +2613,8 @@ static void OSD_RefreshProgrammesScreen(double Size)
 		date_tm = localtime(&EndTime);
 		sprintf(EndTimeStr, "%02u:%02u", date_tm->tm_hour, date_tm->tm_min);
 
-		if (   Channel 
-			&& !_stricmp(ChannelName.c_str(), Channel)
+		if (   (Channel.length() > 0) 
+			&& !_stricmp(ChannelName.c_str(), Channel.c_str())
 			&& (TimeNow >= StartTime)
 			&& (TimeNow < EndTime) )
 		{

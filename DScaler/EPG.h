@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.h,v 1.20 2005-07-20 22:29:06 laurentg Exp $
+// $Id: EPG.h,v 1.21 2005-07-23 19:13:27 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2005/07/20 22:29:06  laurentg
+// EPG: display of previous and next programmes improved
+//
 // Revision 1.19  2005/07/19 21:41:54  laurentg
 // EPG: shift programme description at screen using Shift+PgUp and Shift+PgDn
 //
@@ -171,6 +174,8 @@ public:
 
 	void ShowOSD();
 	void HideOSD();
+
+	void GetViewedChannelName(string &Channel);
 
 	// Dump the EPG data
 	void DumpEPGData();

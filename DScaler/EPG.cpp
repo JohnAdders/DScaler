@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.cpp,v 1.27 2005-07-23 18:56:08 laurentg Exp $
+// $Id: EPG.cpp,v 1.28 2005-07-23 19:13:27 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2005/07/23 18:56:08  laurentg
+// EPG with external tuner using teletext/VPS to get channel name
+//
 // Revision 1.26  2005/07/23 12:40:57  laurentg
 // EPG: switch between browser view and details view improved
 //
@@ -445,31 +448,7 @@ BOOL CEPG::SearchForProgramme(string &Channel)
 	Channel = "";
 	if (m_UseProgFronBrowser == FALSE)
 	{
-		CSource *CurrentSource = Providers_GetCurrentSource();
-		if (CurrentSource)
-		{
-			if (CurrentSource->IsInTunerMode())
-			{
-				Channel = Channel_GetName();
-			}
-			else if (Setting_GetValue(VBI_GetSetting(CAPTURE_VBI)))
-			{
-				char szStatus[24];
-				szStatus[0] = '\0';
-				if (Setting_GetValue(VBI_GetSetting(DOTELETEXT)))
-				{
-					VT_GetStation(szStatus, sizeof(szStatus));
-				}
-				if ( (*szStatus == '\0') && Setting_GetValue(VBI_GetSetting(DOVPS)) )
-				{
-					VPS_GetChannelName(szStatus, sizeof(szStatus));
-				}
-				if (szStatus[0] != '\0')
-				{
-					Channel = szStatus;
-				}
-			}
-		}
+		GetViewedChannelName(Channel);
 		if (Channel.length() > 0)
 		{
 			if (m_SearchCurrent == TRUE)
@@ -1081,32 +1060,8 @@ void CEPG::ShowOSD()
 	if (   (m_Programmes.size() > 0)
 		&& (m_UseProgFronBrowser == FALSE) )
 	{
-		string Channel = "";
-		CSource *CurrentSource = Providers_GetCurrentSource();
-		if (CurrentSource)
-		{
-			if (CurrentSource->IsInTunerMode())
-			{
-				Channel = Channel_GetName();
-			}
-			else if (Setting_GetValue(VBI_GetSetting(CAPTURE_VBI)))
-			{
-				char szStatus[24];
-				szStatus[0] = '\0';
-				if (Setting_GetValue(VBI_GetSetting(DOTELETEXT)))
-				{
-					VT_GetStation(szStatus, sizeof(szStatus));
-				}
-				if ( (*szStatus == '\0') && Setting_GetValue(VBI_GetSetting(DOVPS)) )
-				{
-					VPS_GetChannelName(szStatus, sizeof(szStatus));
-				}
-				if (szStatus[0] != '\0')
-				{
-					Channel = szStatus;
-				}
-			}
-		}
+		string Channel;
+		GetViewedChannelName(Channel);
 		if (Channel.length() > 0)
 		{
 			// Search EPG info for the currently viewed channel
@@ -1142,6 +1097,37 @@ void CEPG::HideOSD()
 	m_ShiftLines = 0;
 
 	m_Displayed = 0;
+}
+
+
+void CEPG::GetViewedChannelName(string &Channel)
+{
+	Channel = "";
+	CSource *CurrentSource = Providers_GetCurrentSource();
+	if (CurrentSource)
+	{
+		if (CurrentSource->IsInTunerMode())
+		{
+			Channel = Channel_GetName();
+		}
+		else if (Setting_GetValue(VBI_GetSetting(CAPTURE_VBI)))
+		{
+			char szStatus[24];
+			szStatus[0] = '\0';
+			if (Setting_GetValue(VBI_GetSetting(DOTELETEXT)))
+			{
+				VT_GetStation(szStatus, sizeof(szStatus));
+			}
+			if ( (*szStatus == '\0') && Setting_GetValue(VBI_GetSetting(DOVPS)) )
+			{
+				VPS_GetChannelName(szStatus, sizeof(szStatus));
+			}
+			if (szStatus[0] != '\0')
+			{
+				Channel = szStatus;
+			}
+		}
+	}
 }
 
 

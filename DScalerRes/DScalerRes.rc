@@ -88,10 +88,10 @@ BEGIN
                                                     NOINVERT
     "F",            IDM_VT_SEARCH,          VIRTKEY, CONTROL, NOINVERT
     "F",            IDM_FLI_FILMDETECT,     VIRTKEY, CONTROL, ALT, NOINVERT
-    "G",            IDM_DISPLAY_EPG_NOW,    VIRTKEY, NOINVERT
+    "G",            IDM_DISPLAY_EPG,        VIRTKEY, NOINVERT
     "G",            IDM_DISPLAY_EPG_EARLIER, VIRTKEY, CONTROL, NOINVERT
     "G",            IDM_DISPLAY_EPG_LATER,  VIRTKEY, SHIFT, NOINVERT
-    "G",            IDM_DISPLAY_EPG,        VIRTKEY, SHIFT, CONTROL, 
+    "G",            IDM_DISPLAY_EPG_NOW,    VIRTKEY, SHIFT, CONTROL, 
                                                     NOINVERT
     "H",            IDM_HUE_MINUS,          VIRTKEY, NOINVERT
     "H",            IDM_HUE_PLUS,           VIRTKEY, SHIFT, NOINVERT
@@ -1450,9 +1450,8 @@ BEGIN
             MENUITEM "&Import XMLTV File",          IDM_IMPORT_XMLTV
             MENUITEM "&Import NextviewEPG database", IDM_IMPORT_NEXTVIEW
             MENUITEM SEPARATOR
-            MENUITEM "View Programme &Description\tCtrl+Shift+G", 
-                                                    IDM_DISPLAY_EPG
-            MENUITEM "&Browse Programmes\tG",       IDM_DISPLAY_EPG_NOW
+            MENUITEM "View Programme &Description\tG", IDM_DISPLAY_EPG
+            MENUITEM "&Browse Programmes\tCtrl+Shift+G", IDM_DISPLAY_EPG_NOW
             MENUITEM "Hide EPG\tBackspace",         IDM_HIDE_EPG
             MENUITEM SEPARATOR
             MENUITEM "Shift Time Frame &Earlier\tCtrl+G", 

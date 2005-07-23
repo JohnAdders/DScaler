@@ -77,7 +77,7 @@
  *  Author: Tom Zoerner
  *          L. Garnier for interfacing with DScaler
  *
- *  $Id: xmltv_db.c,v 1.4 2005-07-11 22:09:37 laurentg Exp $
+ *  $Id: xmltv_db.c,v 1.5 2005-07-23 13:00:44 laurentg Exp $
  */
 
 #define DEBUG_SWITCH DEBUG_SWITCH_XMLTV
@@ -1072,7 +1072,14 @@ void Xmltv_ParagraphClose( void )
 
 void Xmltv_ParagraphAdd( XML_STR_BUF * pBuf )
 {
-   XmlCdata_AppendParagraph(&xds.pi_desc, FALSE);
+   if (xds.dtd == XMLTV_DTD_6)
+   {
+      XmlCdata_AppendParagraph(&xds.pi_desc, TRUE);
+   }
+   else
+   {
+      XmlCdata_AppendParagraph(&xds.pi_desc, FALSE);
+   }
    XmlCdata_AssignOrAppend(&xds.pi_desc, pBuf);
 }
 

@@ -1,4 +1,4 @@
-/* $Id: opendml.h,v 1.1 2005-07-17 20:40:05 dosx86 Exp $ */
+/* $Id: opendml.h,v 1.2 2005-07-24 23:10:53 dosx86 Exp $ */
 
 /** \file
  * OpenDML definition header
@@ -7,8 +7,6 @@
 
 #ifndef __OPENDML_H
 #define __OPENDML_H
-
-#define INDEX_CHUNK mmioFOURCC('i', 'n', 'd', 'x')
 
 typedef __int64 QUADWORD;
 

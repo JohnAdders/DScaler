@@ -1,4 +1,4 @@
-/* $Id: avi.h,v 1.1 2005-07-17 20:38:34 dosx86 Exp $ */
+/* $Id: avi.h,v 1.2 2005-07-24 23:05:39 dosx86 Exp $ */
 
 /** \file
  * Main AVI file header
@@ -24,7 +24,7 @@ extern "C"
 #pragma comment(lib, "msacm32.lib")
 #pragma comment(lib, "winmm.lib")
 
-/* #define AVI_DEBUG */
+#define AVI_DEBUG
 
 #define RIFF_CHUNK mmioFOURCC('R', 'I', 'F', 'F')
 #define LIST_CHUNK mmioFOURCC('L', 'I', 'S', 'T')
@@ -32,6 +32,8 @@ extern "C"
 #define STRH_CHUNK mmioFOURCC('s', 't', 'r', 'h')
 #define STRF_CHUNK mmioFOURCC('s', 't', 'r', 'f')
 #define INDX_CHUNK mmioFOURCC('i', 'n', 'd', 'x')
+#define IDX1_CHUNK mmioFOURCC('i', 'd', 'x', '1')
+#define JUNK_CHUNK mmioFOURCC('J', 'U', 'N', 'K')
 
 /** The maximum size of a RIFF chunk. DO NOT CHANGE. */
 #define CHUNK_LIMIT 2097152000 /* 2 giga bytes */
@@ -74,11 +76,6 @@ typedef int64 aviTime_t;
 #define MAX_STD_INDEX   256 /**< The number of standard index entries to store before writing */
 #define MAX_WAVE_BUFFER 4   /**< The number of waveIn buffers to use */
 
-/* Debug log levels */
-#define AVI_DEBUG_INFO    0
-#define AVI_DEBUG_ERROR   1
-#define AVI_DEBUG_WARNING 2
-
 typedef enum
 {
     VIDEO_STREAM = 0,
@@ -108,6 +105,7 @@ typedef enum
     AVI_ERROR_FIFO,         /**< FIFO error */
     AVI_ERROR_AUDIO_OPEN,   /**< Audio initialization error */
     AVI_ERROR_VIDEO_OPEN,   /**< Video compression initialization error */
+    AVI_ERROR_BUILD_INDEX,  /**< Error while building the legacy index */
     AVI_MAX_ERROR
 } aviError_t;
 
@@ -245,7 +243,6 @@ typedef struct
         DWORD            scale;      /**< Used in the equation FPS = rate / scale */
         FOURCC           fccHandler; /**< The CC of the compressor */
         VIDEO_COMP       comp;       /**< Compression data */
-        DWORD            avi1Frames; /**< The number of frames in the first RIFF chunk */
         DWORD            numFrames;  /**< The number of frames that were saved */
         float            fps;        /**< The precalculated value of FPS for the video data */
     } video;
@@ -271,9 +268,18 @@ typedef struct
         void    *buffer[MAX_WAVE_BUFFER]; /**< Buffers used with the wave headers */
     } audio;
 
+    /** Information about the first RIFF chunk */
+    struct
+    {
+        int64 indexOffset;          /**< Offset to the legacy index chunk. 0 is invalid. */
+        DWORD frames;               /**< The number of frames in the chunk */
+        DWORD indices[NUM_STREAMS]; /**< The number of indices in the chunk */
+    } legacy;
+
     /* Index data for both streams */
-    STREAM_STD_INDEX   stdIndex[NUM_STREAMS];   /**< Standard index data for all streams */
-    STREAM_SUPER_INDEX superIndex[NUM_STREAMS]; /**< Super index data for all streams */
+    DWORD              stdIndexCount[NUM_STREAMS]; /**< The number of standard indices written for the current chunk */
+    STREAM_STD_INDEX   stdIndex[NUM_STREAMS];      /**< Standard index data for all streams */
+    STREAM_SUPER_INDEX superIndex[NUM_STREAMS];    /**< Super index data for all streams */
 } AVI_FILE;
 
 /* From avi.c */

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.cpp,v 1.37 2005-07-17 20:43:23 dosx86 Exp $
+// $Id: TimeShift.cpp,v 1.38 2005-07-24 08:47:35 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.37  2005/07/17 20:43:23  dosx86
+// Removed the C++ class and reorganized the functions. Uses the new AVI file
+// functions.
+//
 // Revision 1.34  2004/08/12 16:27:47  adcockj
 // added timeshift changes from emu
 //
@@ -214,7 +218,6 @@
 }
 
 static DWORD AVIFileSizeLimit  = 0;
-static DWORD WarningShown      = 0;
 static char  ExePath[MAX_PATH] = { 0 };
 static char  *SavingPath       = NULL;
 
@@ -1967,12 +1970,6 @@ SETTING TimeShiftSettings[TIMESHIFT_SETTING_LASTONE] =
          (long)ExePath, 0, 0, 0, 0,
          NULL,
         "TimeShift", "SavingPath", NULL,
-    },
-    {
-        "Shown warning message", ONOFF, 0, (long *)&WarningShown,
-        TRUE, 0, 1, 1, 1,
-        NULL,
-        "TimeShift", "ShownWarning", NULL,
     },
     {
         "AVI file size limit in MB", SLIDER, 0, (long *)&AVIFileSizeLimit,

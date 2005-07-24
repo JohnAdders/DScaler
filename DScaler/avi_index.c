@@ -1,4 +1,4 @@
-/* $Id: avi_index.c,v 1.1 2005-07-17 20:38:34 dosx86 Exp $ */
+/* $Id: avi_index.c,v 1.2 2005-07-24 23:07:08 dosx86 Exp $ */
 
 /** \file
  * OpenDML indexing
@@ -36,7 +36,7 @@ void aviWriteInitialSuperIndex(AVI_FILE *file, stream_t type)
     fileWrite(file, &index->header, sizeof(AVISUPERINDEX));
 
     /* Reserve space for a predefined number of entries */
-    reserveSpace(file, SUPER_INDEX_ENTRIES * sizeof(AVISUPERINDEX_ENTRY));
+    fileReserveSpace(file, SUPER_INDEX_ENTRIES * sizeof(AVISUPERINDEX_ENTRY));
 }
 
 /** Writes any data being held for the super index into the file
@@ -137,21 +137,30 @@ void aviIndexFlush(AVI_FILE *file)
 }
 
 /** Adds a standard index entry
- * \param file  The file to write to
- * \param type  The type of stream to add the index to
- * \param begin The absolute offset to the beginning of the chunk's data
- * \param size  The length of the chunk's data in bytes starting from begin
+ * \param file     The file to write to
+ * \param type     The type of stream to add the index to
+ * \param begin    The absolute offset to the beginning of the chunk's data
+ * \param size     The length of the chunk's data in bytes starting from begin
+ * \param keyFrame Determines if the entry is really a key frame. Only affects
+ *                 video streams.
  */
 
-void aviIndexAddEntry(AVI_FILE *file, stream_t type, int64 begin, DWORD size)
+void aviIndexAddEntry(AVI_FILE *file, stream_t type, int64 begin, DWORD size,
+                      BOOL keyFrame)
 {
     STREAM_STD_INDEX  *index;
     AVISTDINDEX_ENTRY *entry;
 
     index = &file->stdIndex[type];
 
+    /* Add this index to the count of indices for this stream */
+    file->stdIndexCount[type]++;
+
     assert(index->current < MAX_STD_INDEX);
     entry = &index->entry[index->current];
+
+    if (type==VIDEO_STREAM && !keyFrame)
+       size |= 0x80000000;
 
     /* Make a relative offset */
     entry->dwOffset = (DWORD)(begin - aviGetBaseOffset(file, MOVI_BASE));
@@ -195,4 +204,28 @@ void aviIndexAddSuperEntry(AVI_FILE *file, stream_t type, DWORD duration,
         /* Write the super index into the file */
         aviIndexFlushSuper(file, type);
     }
+}
+
+/** Resets the standard index counters for each stream
+ * \param file The file to modify
+ * \note The counters are used to determine how many index entries have been
+ *       written into the current RIFF chunk so they should be cleared when a
+ *       RIFF chunk has ended
+ */
+
+void aviIndexClearCounters(AVI_FILE *file)
+{
+    memset(file->stdIndexCount, 0, sizeof(file->stdIndexCount));
+}
+
+/** Copies the values from the current index counters to the legacy index
+ * counts
+ * \param file The file to modify
+ */
+
+void aviIndexSetLegacyCounters(AVI_FILE *file)
+{
+    assert(sizeof(file->legacy.indices)==sizeof(file->stdIndexCount));
+    memcpy(file->legacy.indices, file->stdIndexCount,
+                                 sizeof(file->legacy.indices));
 }

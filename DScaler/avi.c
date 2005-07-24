@@ -1,4 +1,4 @@
-/* $Id: avi.c,v 1.1 2005-07-17 20:38:34 dosx86 Exp $ */
+/* $Id: avi.c,v 1.2 2005-07-24 23:04:50 dosx86 Exp $ */
 
 /** \file
  * Main AVI file interface functions
@@ -38,7 +38,10 @@ const char *aviErrorLocations[AVI_MAX_ERROR] =
     "initializing the waveIn device",
 
     /* AVI_ERROR_VIDEO_OPEN */
-    "initializing the video compressor"
+    "initializing the video compressor",
+
+    /* AVI_ERROR_BUILD_INDEX */
+    "building the legacy index"
 };
 
 /** Sets a new error for a file
@@ -197,31 +200,6 @@ AVI_FILE *aviFileCreate(void)
     return file;
 }
 
-/** Zeroes out a specified amount of space
- * \param file An open file
- * \param size The number of zeroed bytes to write
- */
-
-void reserveSpace(AVI_FILE *file, DWORD size)
-{
-    #define R_BLOCK_SIZE 128
-    uint8 block[R_BLOCK_SIZE];
-
-    memset(block, 0, R_BLOCK_SIZE);
-    while (size > 0)
-    {
-        if (size >= R_BLOCK_SIZE)
-        {
-            fileWrite(file, block, R_BLOCK_SIZE);
-            size -= R_BLOCK_SIZE;
-        } else
-        {
-            fileWrite(file, block, size);
-            size = 0;
-        }
-    }
-}
-
 /**
  * Sets a type to have an absolute base offset equal to the current position of
  * the file pointer
@@ -268,8 +246,16 @@ BOOL aviBeginWriting(AVI_FILE *file, char *fileName)
     cprintf("----------------------\n");
     #endif
 
+    /**** Variable initialization ****/
+
     /* Clear any errors */
     aviSetError(file, AVI_ERROR_NONE, "No error");
+
+    /* Reset the legacy data */
+    memset(&file->legacy, 0, sizeof(file->legacy));
+
+    /* Clear the index counters */
+    aviIndexClearCounters(file);
 
     /* Set up the timer stuff */
     memset(&file->timer, 0, sizeof(struct AVI_FILE_TIMER));
@@ -332,6 +318,8 @@ BOOL aviBeginWriting(AVI_FILE *file, char *fileName)
       /* Check to see if the audio stream is going to be used */
       if (file->flags & AVI_FLAG_AUDIO)
          avih.dwStreams++;
+
+      avih.dwFlags = AVIF_HASINDEX | AVIF_MUSTUSEINDEX;
 
       /* FPS = rate / scale */
       avih.dwMicroSecPerFrame = (DWORD)(1000000.0f / ((float)file->video.rate /
@@ -473,16 +461,7 @@ void aviEndWriting(AVI_FILE *file)
             fileSeek(file, aviGetBaseOffset(file, AVIH_BASE) +
                            offsetof(MainAVIHeader, dwTotalFrames));
 
-            if (aviGetBaseOffset(file, RIFF_BASE)==0)
-            {
-                /* The file still only has one RIFF chunk. The total number of
-                   frames for the first chunk probably didn't get updated then.
-                   Use the current total number of frames as the total number
-                   of frames in the first RIFF chunk. */
-                file->video.avi1Frames = file->video.numFrames;
-            }
-
-            fileWrite(file, &file->video.avi1Frames, sizeof(DWORD));
+            fileWrite(file, &file->legacy.frames, sizeof(DWORD));
 
             /* Update dwLength in the video stream header */
             fileSeek(file, file->video.strhOffset +
@@ -560,10 +539,48 @@ void aviBeginChunk(AVI_FILE *file, FOURCC cc)
     file->chunk.current++;
 }
 
+/** Gets the size of the most recently opened chunk
+ * \param file The file to check
+ * \return The size of the most recently opened chunk in bytes
+ * \warning This is dependant on the position of the file pointer, so to get an
+ *          accurate reading the file pointer must be at the end of the chunk
+ * \pre The file has been locked and there is at least one chunk opened
+ */
+
+DWORD aviGetChunkSize(AVI_FILE *file)
+{
+    assert(file->chunk.current > 0);
+
+    return (DWORD)(fileTell(file) -
+                   (file->chunk.data[file->chunk.current - 1].begin + 8));
+}
+
+/** Called when an AVI/X RIFF chunk is ending */
+void aviRIFFChunkEnding(AVI_FILE *file)
+{
+    /* A base offset of 0 for the RIFF chunk means that the first RIFF chunk is
+       ending */
+    if (aviGetBaseOffset(file, RIFF_BASE)==0)
+    {
+        file->legacy.frames = file->video.numFrames;
+
+        aviIndexSetLegacyCounters(file);
+
+        /* Reserve space for the legacy index at the end of the first RIFF
+           chunk */
+        fileReserveLegacyIndex(file);
+    }
+
+    /* Reset the counters for the next RIFF chunk */
+    aviIndexClearCounters(file);
+}
+
 /** Ends a previously started RIFF chunk
  * \param file An open file
  * \return The size of the chunk's data in bytes
  * \pre The file has been locked
+ * \note This automatically detects when the main RIFF chunk is ending and
+ *       takes actions based on that. The main RIFF chunk must be at index 0.
  */
 
 DWORD aviEndChunk(AVI_FILE *file)
@@ -572,6 +589,12 @@ DWORD aviEndChunk(AVI_FILE *file)
     CHUNK *chunk;
 
     assert(file->chunk.current > 0);
+
+    if (file->chunk.current - 1 <= 0)
+    {
+        /* This should be the main RIFF chunk */
+        aviRIFFChunkEnding(file);
+    }
 
     file->chunk.current--;
 
@@ -588,17 +611,19 @@ DWORD aviEndChunk(AVI_FILE *file)
     return chunk->size;
 }
 
-/** Ends a RIFF chunk and adds an index entry for the stream
+/** Ends a chunk inside of a movi chunk and adds an index entry for the stream
  * \param file      An open file
  * \param type      A *_STREAM constant
  * \param replicate The number of times to replicate the index. If this value
  *                  is zero then only one index will be written for the chunk.
+ * \param keyFrame  Determines if this entry references a key frame. Only
+ *                  affects video streams.
  * \pre The file has been locked. This is being used to end a chunk inside of
  *      a LIST movi chunk.
  */
 
 void aviEndChunkWithIndex(AVI_FILE *file, stream_t type,
-                          unsigned long replicate)
+                          unsigned long replicate, BOOL keyFrame)
 {
     int64 begin;
     DWORD size;
@@ -616,7 +641,7 @@ void aviEndChunkWithIndex(AVI_FILE *file, stream_t type,
 
     while (replicate > 0)
     {
-        aviIndexAddEntry(file, type, begin, size);
+        aviIndexAddEntry(file, type, begin, size, keyFrame);
         replicate--;
     }
 }
@@ -661,11 +686,6 @@ void aviCheckFile(AVI_FILE *file)
 
         aviEndChunk(file);
         aviEndChunk(file);
-
-        /* A base offset of 0 for the RIFF chunk means that the first RIFF
-           chunk is ending */
-        if (aviGetBaseOffset(file, RIFF_BASE)==0)
-           file->video.avi1Frames = file->video.numFrames;
 
         /* Start a new RIFF AVIX chunk */
         aviSetBaseOffset(file, RIFF_BASE);
@@ -833,7 +853,7 @@ BOOL aviSaveFrame(AVI_FILE *file, void *src, aviTime_t inTime)
                result = FALSE;
         }
 
-        aviEndChunkWithIndex(file, VIDEO_STREAM, writeFrames - 1);
+        aviEndChunkWithIndex(file, VIDEO_STREAM, writeFrames - 1, isKey);
 
         file->video.numFrames += writeFrames;
 
@@ -865,7 +885,7 @@ BOOL aviSaveAudio(AVI_FILE *file, void *src, DWORD size)
 
     aviBeginChunk(file, file->audio.cc.data);
     result = fileWrite(file, src, size);
-    aviEndChunkWithIndex(file, AUDIO_STREAM, 0);
+    aviEndChunkWithIndex(file, AUDIO_STREAM, 0, FALSE);
 
     aviCheckFile(file);
 

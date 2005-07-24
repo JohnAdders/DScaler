@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.167 2005-07-09 13:41:28 laurentg Exp $
+// $Id: DS_Control.h,v 1.168 2005-07-24 09:58:37 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.167  2005/07/09 13:41:28  laurentg
+// Two new EPG settings
+//
 // Revision 1.166  2005/07/06 19:36:52  laurentg
 // Some old settings for EPG suppressed
 //
@@ -1861,7 +1864,6 @@ typedef enum
 typedef enum
 {
 	TIMESHIFTSAVINGPATH,
-	TIMESHIFTSHOWWARNING,
 	TIMESHIFTFILELIMIT,
     TIMESHIFT_SETTING_LASTONE,
 } TIMESHIFT_SETTING;

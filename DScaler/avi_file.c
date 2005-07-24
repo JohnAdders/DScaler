@@ -1,4 +1,4 @@
-/* $Id: avi_file.c,v 1.1 2005-07-17 20:38:34 dosx86 Exp $ */
+/* $Id: avi_file.c,v 1.2 2005-07-24 23:06:19 dosx86 Exp $ */
 
 /** \file
  * Async file writing functions
@@ -52,6 +52,51 @@ BOOL __seek(AVI_FILE *file, int64 offset)
     if (!SetFilePointerEx(file->async.f, dest, NULL, FILE_BEGIN))
     {
         aviSetError(file, AVI_ERROR_FILE, "Seek failed");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+/** Gets the current value of the file pointer
+ * \param file A pointer to an open file
+ * \param offset A pointer to where the file pointer will be stored
+ * \return TRUE if the file pointer was stored in \a offset or FALSE if there
+ *         was an error
+ */
+
+BOOL __tell(AVI_FILE *file, int64 *offset)
+{
+    LARGE_INTEGER result;
+    LARGE_INTEGER dest;
+
+    dest.QuadPart = 0;
+    if (!SetFilePointerEx(file->async.f, dest, &result, FILE_CURRENT))
+    {
+        aviSetError(file, AVI_ERROR_FILE, "Get file pointer falied");
+        return FALSE;
+    }
+
+    *offset = result.QuadPart;
+
+    return TRUE;
+}
+
+/** Reads data from a file
+ * \param file The file to read from
+ * \param data A pointer to where the data should be written to
+ * \param size The number of bytes to read
+ * \return TRUE if the data was read or FALSE if there was an error
+ * \warning Only use this function if you have exclusive access to the file
+ */
+
+BOOL __read(AVI_FILE *file, void *data, DWORD size)
+{
+    DWORD read;
+
+    if (!ReadFile(file->async.f, data, size, &read, NULL))
+    {
+        aviSetError(file, AVI_ERROR_FILE, "Read failed");
         return FALSE;
     }
 
@@ -399,6 +444,225 @@ BOOL fifoDumpBlock(FIFO *fifo, AVI_FILE *file)
 }
 
 /*****************************************
+ *         Legacy index functions        *
+ *****************************************/
+
+/** Builds the legacy AVI index for a stream using the OpenDML index entries
+ * \warning If this function fails then don't do anything else to the file
+ *          because the file pointer isn't left anywhere in particular when an
+ *          error occurs
+ */
+
+BOOL fileBuildStreamIndex(AVI_FILE *file, stream_t type)
+{
+    struct
+    {
+        BOOL  load;   /**< Set this to TRUE to get the next super index entry */
+        int64 offset; /**< Offset to the current position in the AVISUPERINDEX_ENTRY data */
+        DWORD next;   /**< The index of the next super index entry to read */
+
+        AVISUPERINDEX       header;
+        AVISUPERINDEX_ENTRY entry; /**< Data for the current super index entry */
+    } superIndex;
+
+    struct
+    {
+        int64 offset;    /**< Offset to the current position in the AVISTDINDEX_ENTRY data */
+        DWORD read;      /**< The number of entries that have been read into the array */
+        DWORD current;   /**< The current entry that's being processed */
+        DWORD remaining; /**< The number of entries that haven't been read from the file */
+
+        AVISTDINDEX       header;    /**< The header for the current standard index */
+        AVISTDINDEX_ENTRY data[128]; /**< Temporary storage for some of the standard index entries */
+    } stdIndex;
+
+    int64         legacyOffset;
+    DWORD         legacyCounter;
+    AVIINDEXENTRY entry;
+
+    #define TRY_FILE(x)\
+        if (!(x))\
+           return FALSE
+
+    if (file->superIndex[type].header.nEntriesInUse <= 0 ||
+        file->legacy.indices[type] <= 0)
+       return TRUE; /* Nothing to do for this stream */
+
+    TRY_FILE(__tell(file, &legacyOffset));
+
+    /* Set up the data for the super index. Make sure the first entry is read
+       when the loop starts. */
+    superIndex.offset = file->superIndex[type].offset + sizeof(AVISUPERINDEX);
+    superIndex.next   = 0;
+    superIndex.load   = TRUE;
+
+    /* Read the super index's header */
+    TRY_FILE(__seek(file, file->superIndex[type].offset));
+    TRY_FILE(__read(file, &superIndex.header, sizeof(AVISUPERINDEX)));
+
+    /* Only write a certain number of legacy index entries */
+    legacyCounter = file->legacy.indices[type];
+
+    TRY_FILE(__seek(file, legacyOffset));
+
+    while (legacyCounter > 0)
+    {
+        if (superIndex.load)
+        {
+            /* Load the next super index entry */
+            if (superIndex.next >= superIndex.header.nEntriesInUse)
+            {
+                /* Ran out of index entries to read. This is definitely an
+                   error. */
+                aviSetError(file, AVI_ERROR_BUILD_INDEX,
+                                  "Ran out of super index entries");
+                return FALSE;
+            }
+
+            TRY_FILE(__tell(file, &legacyOffset));
+
+            TRY_FILE(__seek(file, superIndex.offset));
+            TRY_FILE(__read(file, &superIndex.entry,
+                                  sizeof(AVISUPERINDEX_ENTRY)));
+
+            superIndex.offset += sizeof(AVISUPERINDEX_ENTRY);
+            superIndex.next++;
+            superIndex.load = FALSE;
+
+            /* Read the standard index's header and set it up so that the first
+               few entries will be read next time an entry is needed */
+            TRY_FILE(__seek(file, superIndex.entry.qwOffset + 8));
+            TRY_FILE(__read(file, &stdIndex.header, sizeof(AVISTDINDEX)));
+            TRY_FILE(__tell(file, &stdIndex.offset));
+
+            stdIndex.read      = 0;
+            stdIndex.current   = 0;
+            stdIndex.remaining = stdIndex.header.nEntriesInUse;
+
+            TRY_FILE(__seek(file, legacyOffset));
+        }
+
+        /* Load more standard index entries? */
+        if (stdIndex.current >= stdIndex.read)
+        {
+            if (stdIndex.remaining > 0)
+            {
+                /* Determine how many entries can be read */
+                if (stdIndex.remaining >= sizeof(stdIndex.data) /
+                                          sizeof(stdIndex.data[0]))
+                   stdIndex.read = sizeof(stdIndex.data) /
+                                   sizeof(stdIndex.data[0]);
+                   else
+                   stdIndex.read = stdIndex.remaining;
+
+                TRY_FILE(__tell(file, &legacyOffset));
+
+                TRY_FILE(__seek(file, stdIndex.offset));
+                TRY_FILE(__read(file, stdIndex.data,
+                                      stdIndex.read *
+                                      sizeof(AVISTDINDEX_ENTRY)));
+
+                stdIndex.current = 0;
+                stdIndex.remaining -= stdIndex.read;
+                stdIndex.offset += (QUADWORD)(stdIndex.read *
+                                              sizeof(AVISTDINDEX_ENTRY));
+
+                TRY_FILE(__seek(file, legacyOffset));
+            } else
+            {
+                /* This index is empty, so load the next one */
+                superIndex.load = TRUE;
+            }
+        }
+
+        /* Convert the OpenDML standard index entries to legacy AVI index
+           entries if there's anything left in the standard index array */
+        while (legacyCounter > 0 && stdIndex.current < stdIndex.read)
+        {
+            entry.ckid          = stdIndex.header.dwChunkId;
+            entry.dwChunkOffset = stdIndex.data[stdIndex.current].dwOffset - 16;
+            entry.dwChunkLength = stdIndex.data[stdIndex.current].dwSize;
+
+            if (!(entry.dwChunkLength & 0x80000000))
+               entry.dwFlags = AVIIF_KEYFRAME;
+               else
+               entry.dwFlags = 0;
+
+            entry.dwChunkLength &= ~0x80000000;
+
+            TRY_FILE(__write(file, &entry, sizeof(AVIINDEXENTRY)));
+
+            legacyCounter--;
+            stdIndex.current++;
+        }
+    }
+
+    return TRUE;
+}
+
+/** Builds the legacy AVI index
+ * \param file The file to build the index for
+ * \warning This function expects to have exclusive control over the file. Only
+ *          call this once right before the file is closed.
+ * \note I would have liked to not have this function here just because it
+ *       doesn't really fit here with everything else, but I also absolutely
+ *       did not want to expose the direct file access functions outside of
+ *       this file.
+ * \return TRUE if the index was built or FALSE if there was an error
+ */
+
+BOOL fileBuildIndex(AVI_FILE *file)
+{
+    BOOL result;
+
+    /* Don't do anything if the offset to the index chunk's data is invalid */
+    if (!file->legacy.indexOffset)
+       return FALSE;
+
+    result = TRUE;
+
+    /* Go to the beginning of the index chunk's data */
+    if (__seek(file, file->legacy.indexOffset))
+    {
+        if (fileBuildStreamIndex(file, VIDEO_STREAM))
+        {
+            if (file->flags & AVI_FLAG_AUDIO)
+            {
+                if (!fileBuildStreamIndex(file, AUDIO_STREAM))
+                   result = FALSE;
+            }
+        } else
+          result = FALSE;
+    } else
+    {
+        aviSetError(file, AVI_ERROR_BUILD_INDEX, "Seek to index chunk failed");
+        result = FALSE;
+    }
+
+    return result;
+}
+
+/** Creates a legacy index chunk and reserves space for it
+ * \param file The file to reserve space in
+ * \note This will modify the legacy index offset so it will point to the
+ *       beginning of the chunk
+ * \pre The file has been locked and the legacy index counters have been set
+ */
+
+void fileReserveLegacyIndex(AVI_FILE *file)
+{
+    aviBeginChunk(file, IDX1_CHUNK);
+
+    file->legacy.indexOffset = fileTell(file);
+    if (!fileReserveSpace(file, (file->legacy.indices[VIDEO_STREAM] +
+                                 file->legacy.indices[AUDIO_STREAM]) *
+                                sizeof(AVIINDEXENTRY)))
+       file->legacy.indexOffset = 0;
+
+    aviEndChunk(file);
+}
+
+/*****************************************
  *         Async file functions          *
  *****************************************/
 
@@ -500,7 +764,7 @@ BOOL fileOpen(AVI_FILE *file, char *fileName)
         return FALSE;
     }
 
-    file->async.f = CreateFile(fileName, GENERIC_WRITE, 0, NULL,
+    file->async.f = CreateFile(fileName, GENERIC_READ | GENERIC_WRITE, 0, NULL,
                                CREATE_ALWAYS, 0, NULL);
     if (file->async.f==INVALID_HANDLE_VALUE)
     {
@@ -543,6 +807,8 @@ void fileClose(AVI_FILE *file)
 
     if (file->async.f != INVALID_HANDLE_VALUE)
     {
+        fileBuildIndex(file);
+
         CloseHandle(file->async.f);
         file->async.f = INVALID_HANDLE_VALUE;
     }
@@ -660,6 +926,38 @@ BOOL fileWrite(AVI_FILE *file, void *data, DWORD size)
     SetEvent(file->async.hThreadKick);
 
     return aviHasError(file) ? FALSE : TRUE;
+}
+
+/** Zeroes out a specified amount of space
+ * \param file An open file
+ * \param size The number of zeroed bytes to write
+ * \return TRUE if the space was reserved or FALSE if there was a write error
+ */
+
+BOOL fileReserveSpace(AVI_FILE *file, DWORD size)
+{
+    #define R_BLOCK_SIZE 256
+    uint8 block[R_BLOCK_SIZE];
+
+    memset(block, 0, R_BLOCK_SIZE);
+    while (size > 0)
+    {
+        if (size >= R_BLOCK_SIZE)
+        {
+            if (!fileWrite(file, block, R_BLOCK_SIZE))
+               return FALSE;
+
+            size -= R_BLOCK_SIZE;
+        } else
+        {
+            if (!fileWrite(file, block, size))
+               return FALSE;
+
+            size = 0;
+        }
+    }
+
+    return TRUE;
 }
 
 /** Determines if a file is currently opened

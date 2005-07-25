@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDecoder.cpp,v 1.15 2005-07-25 22:32:51 laurentg Exp $
+// $Id: VTDecoder.cpp,v 1.16 2005-07-25 22:43:38 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,6 +44,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2005/07/25 22:32:51  laurentg
+// Mutex added to access m_BroadcastServiceData and m_PDC
+//
 // Revision 1.14  2005/07/25 21:57:13  laurentg
 // Bug fixed in PDC CNI decoding
 //
@@ -174,6 +177,17 @@ void CVTDecoder::ResetDecoder()
     m_BroadcastServiceData.UTCMinutes = 0;
     m_BroadcastServiceData.UTCSeconds = 0;
     FillMemory(m_BroadcastServiceData.StatusDisplay, 20, 0x20);
+	for (int i=0;i<4;i++)
+	{
+		m_PDC[i].LCI = 0;
+		m_PDC[i].LUF = 0;
+		m_PDC[i].PRF = 0;
+		m_PDC[i].PCS = 0;
+		m_PDC[i].MI = 0;
+		m_PDC[i].CNI = 0;
+		m_PDC[i].PIL = 0;
+		m_PDC[i].PTY = 0;
+	}
 	LeaveCriticalSection(&m_ServiceDataStoreMutex);
 
     m_bMagazineSerial = FALSE;

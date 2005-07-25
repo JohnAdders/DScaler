@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDecoder.cpp,v 1.13 2004-10-11 22:21:45 atnak Exp $
+// $Id: VTDecoder.cpp,v 1.14 2005-07-25 21:57:13 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,6 +44,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2004/10/11 22:21:45  atnak
+// Added cautionary notes for 1-based vs 0-based indexing.
+//
 // Revision 1.12  2004/10/11 21:57:12  atnak
 // Corrected parsing offset error in 8/30 packets.  (Thanks Rani Feldman)
 //
@@ -87,6 +90,7 @@
 #include "stdafx.h"
 #include "VTCommon.h"
 #include "VTDecoder.h"
+//#include "DebugLog.h"
 
 
 /*
@@ -570,7 +574,7 @@ void CVTDecoder::DecodeLine(BYTE* data)
                     if (bError == FALSE)
                     {
                         BYTE b22 = Unham84(data + 21, &bError);
-                        WORD CNI = Unham84(data + 15, &bError);
+                        WORD CNI = Unham84(data + 14, &bError);
 
                         CNI |= ((b21 & 0xC) << 2) | ((b22 & 0x3) << 6);
                         CNI |= ((b16 & 0x3) << 8) | ((b22 & 0xC) << 8);
@@ -608,9 +612,14 @@ void CVTDecoder::DecodeLine(BYTE* data)
                         m_PDC[LCI].PTY = PTY;
                     }
 
+//					LOG(1, "Country = %x, Network = %x", (m_PDC[LCI].CNI >> 8) & 0xFF, (m_PDC[LCI].CNI & 0xFF));
+//					LOG(1, "Day = %d, Month = %d, %d:%d", (m_PDC[LCI].PIL & 0x1F), (m_PDC[LCI].PIL >> 5) & 0x0F,
+//														  (m_PDC[LCI].PIL >> 9) & 0x1F, (m_PDC[LCI].PIL >> 14) & 0x3F);
+//					LOG(1, "Program Type = %d", m_PDC[LCI].PTY);
                     LeaveCriticalSection(&m_PDCStoreMutex);
 
                     NotifyDecoderEvent(DECODEREVENT_PDCUPDATE, 0);
+
                 }
             }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDecoder.cpp,v 1.14 2005-07-25 21:57:13 laurentg Exp $
+// $Id: VTDecoder.cpp,v 1.15 2005-07-25 22:32:51 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,6 +44,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2005/07/25 21:57:13  laurentg
+// Bug fixed in PDC CNI decoding
+//
 // Revision 1.13  2004/10/11 22:21:45  atnak
 // Added cautionary notes for 1-based vs 0-based indexing.
 //
@@ -111,7 +114,7 @@ CVTDecoder::CVTDecoder(TDecoderCallback* fnDecoderEventProc)
     InitializeCriticalSection(&m_CommonHeaderMutex);
     InitializeCriticalSection(&m_MagazineStateMutex);
     InitializeCriticalSection(&m_PageStoreMutex);
-    InitializeCriticalSection(&m_PDCStoreMutex);
+    InitializeCriticalSection(&m_ServiceDataStoreMutex);
 
     m_pVTTopText = new CVTTopText;
 
@@ -127,7 +130,7 @@ CVTDecoder::~CVTDecoder()
 
     delete m_pVTTopText;
 
-    DeleteCriticalSection(&m_PDCStoreMutex);
+    DeleteCriticalSection(&m_ServiceDataStoreMutex);
     DeleteCriticalSection(&m_PageStoreMutex);
     DeleteCriticalSection(&m_MagazineStateMutex);
     DeleteCriticalSection(&m_CommonHeaderMutex);
@@ -162,6 +165,7 @@ void CVTDecoder::ResetDecoder()
 
     m_pVTTopText->Reset();
 
+	EnterCriticalSection(&m_ServiceDataStoreMutex);
     m_BroadcastServiceData.InitialPage = 0UL;
     m_BroadcastServiceData.NetworkIDCode = 0;
     m_BroadcastServiceData.TimeOffset = 0;
@@ -170,6 +174,7 @@ void CVTDecoder::ResetDecoder()
     m_BroadcastServiceData.UTCMinutes = 0;
     m_BroadcastServiceData.UTCSeconds = 0;
     FillMemory(m_BroadcastServiceData.StatusDisplay, 20, 0x20);
+	LeaveCriticalSection(&m_ServiceDataStoreMutex);
 
     m_bMagazineSerial = FALSE;
     m_CharacterSubset = 0;
@@ -484,6 +489,8 @@ void CVTDecoder::DecodeLine(BYTE* data)
         break;
 
     case 30:
+		EnterCriticalSection(&m_ServiceDataStoreMutex);
+
         // 8/30/0,1 is Format 1 Broadcast Service Data
         // 8/30/2,3 is Format 2 Broadcast Service Data
         if (magazine == 0 && (designationCode & 0xC) == 0x0)
@@ -551,8 +558,6 @@ void CVTDecoder::DecodeLine(BYTE* data)
                     BYTE PRF = (LCI & 0x8) != 0;
                     LCI &= 0x3;
 
-                    EnterCriticalSection(&m_PDCStoreMutex);
-
                     m_PDC[LCI].LCI = LCI;
                     m_PDC[LCI].LUF = LUF;
                     m_PDC[LCI].PRF = PRF;
@@ -612,11 +617,12 @@ void CVTDecoder::DecodeLine(BYTE* data)
                         m_PDC[LCI].PTY = PTY;
                     }
 
-//					LOG(1, "Country = %x, Network = %x", (m_PDC[LCI].CNI >> 8) & 0xFF, (m_PDC[LCI].CNI & 0xFF));
-//					LOG(1, "Day = %d, Month = %d, %d:%d", (m_PDC[LCI].PIL & 0x1F), (m_PDC[LCI].PIL >> 5) & 0x0F,
-//														  (m_PDC[LCI].PIL >> 9) & 0x1F, (m_PDC[LCI].PIL >> 14) & 0x3F);
-//					LOG(1, "Program Type = %d", m_PDC[LCI].PTY);
-                    LeaveCriticalSection(&m_PDCStoreMutex);
+					/*
+					LOG(1, "LCI = %d, Country = %x, Network = %x", LCI, (m_PDC[LCI].CNI >> 8) & 0xFF, (m_PDC[LCI].CNI & 0xFF));
+					LOG(1, "Day = %d, Month = %d, %d:%d", (m_PDC[LCI].PIL & 0x1F), (m_PDC[LCI].PIL >> 5) & 0x0F,
+														  (m_PDC[LCI].PIL >> 9) & 0x1F, (m_PDC[LCI].PIL >> 14) & 0x3F);
+					LOG(1, "Program Type = %d", m_PDC[LCI].PTY);
+					*/
 
                     NotifyDecoderEvent(DECODEREVENT_PDCUPDATE, 0);
 
@@ -625,6 +631,8 @@ void CVTDecoder::DecodeLine(BYTE* data)
 
             CopyMemory(m_BroadcastServiceData.StatusDisplay, data + 25, 20);
         }
+
+		LeaveCriticalSection(&m_ServiceDataStoreMutex);
         break;
 
     case 31:  // Independent data services
@@ -1739,7 +1747,9 @@ void CVTDecoder::GetStatusDisplay(LPSTR lpBuffer, LONG nLength)
     ASSERT(nLength > 0);
 
     lpBuffer[--nLength] = '\0';
+	EnterCriticalSection(&m_ServiceDataStoreMutex);
     memcpy(lpBuffer, m_BroadcastServiceData.StatusDisplay, nLength);
+	LeaveCriticalSection(&m_ServiceDataStoreMutex);
     CheckParity((BYTE*)lpBuffer, nLength, TRUE);
 
     while (nLength-- > 0 && lpBuffer[nLength] == 0x20)

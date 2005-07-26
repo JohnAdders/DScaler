@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.136 2005-03-29 13:06:59 adcockj Exp $
+// $Id: BT848Source.cpp,v 1.137 2005-07-26 22:19:13 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.136  2005/03/29 13:06:59  adcockj
+// Avoid tight loops in processing
+//
 // Revision 1.135  2005/03/23 14:20:36  adcockj
 // Test fix for threading issues
 //
@@ -1197,24 +1200,15 @@ CBT848Card* CBT848Source::GetBT848Card()
 
 LPCSTR CBT848Source::GetStatus()
 {
-    static char szStatus[24];
     LPCSTR pRetVal;
 
     if (IsInTunerMode())
     {
-        VT_GetStation(szStatus, sizeof(szStatus));
+        pRetVal = Channel_GetVBIName();
 
-        if (*szStatus == '\0')
-        {
-            VPS_GetChannelName(szStatus, sizeof(szStatus));
-        }
-        if (*szStatus == '\0')
+        if (*pRetVal == '\0')
         {
             pRetVal = Channel_GetName();
-        }
-        else
-        {
-            pRetVal = szStatus;
         }
     }
     else

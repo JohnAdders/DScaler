@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.74 2005-03-29 13:07:00 adcockj Exp $
+// $Id: CX2388xSource.cpp,v 1.75 2005-07-26 22:19:31 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.74  2005/03/29 13:07:00  adcockj
+// Avoid tight loops in processing
+//
 // Revision 1.73  2005/03/23 14:20:36  adcockj
 // Test fix for threading issues
 //
@@ -1140,24 +1143,15 @@ CCX2388xCard* CCX2388xSource::GetCard()
 
 LPCSTR CCX2388xSource::GetStatus()
 {
-    static char szStatus[24];
     static LPCSTR pRetVal = "";
 
     if (IsInTunerMode())
     {
-        VT_GetStation(szStatus, sizeof(szStatus));
+        pRetVal = Channel_GetVBIName();
 
-        if (*szStatus == '\0')
-        {
-            VPS_GetChannelName(szStatus, sizeof(szStatus));
-        }
-        if (*szStatus == '\0')
+        if (*pRetVal == '\0')
         {
             pRetVal = Channel_GetName();
-        }
-        else
-        {
-            pRetVal = szStatus;
         }
     }
     else

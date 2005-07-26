@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.cpp,v 1.28 2005-07-23 19:13:27 laurentg Exp $
+// $Id: EPG.cpp,v 1.29 2005-07-26 22:19:31 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2005/07/23 19:13:27  laurentg
+// EPG: put common code in a new function
+//
 // Revision 1.27  2005/07/23 18:56:08  laurentg
 // EPG with external tuner using teletext/VPS to get channel name
 //
@@ -1112,19 +1115,10 @@ void CEPG::GetViewedChannelName(string &Channel)
 		}
 		else if (Setting_GetValue(VBI_GetSetting(CAPTURE_VBI)))
 		{
-			char szStatus[24];
-			szStatus[0] = '\0';
-			if (Setting_GetValue(VBI_GetSetting(DOTELETEXT)))
+			LPCSTR pChannel = Channel_GetVBIName();
+			if (*pChannel != '\0')
 			{
-				VT_GetStation(szStatus, sizeof(szStatus));
-			}
-			if ( (*szStatus == '\0') && Setting_GetValue(VBI_GetSetting(DOVPS)) )
-			{
-				VPS_GetChannelName(szStatus, sizeof(szStatus));
-			}
-			if (szStatus[0] != '\0')
-			{
-				Channel = szStatus;
+				Channel = pChannel;
 			}
 		}
 	}

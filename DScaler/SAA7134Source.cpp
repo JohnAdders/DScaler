@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.98 2005-05-18 12:18:32 robmuller Exp $
+// $Id: SAA7134Source.cpp,v 1.99 2005-07-26 22:19:31 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.98  2005/05/18 12:18:32  robmuller
+// Added gamma control.
+//
 // Revision 1.97  2005/03/29 13:07:00  adcockj
 // Avoid tight loops in processing
 //
@@ -1432,24 +1435,15 @@ BOOL CSAA7134Source::IsVideoPresent()
 
 LPCSTR CSAA7134Source::GetStatus()
 {
-    static char szStatus[24];
     LPCSTR pRetVal;
 
     if (IsInTunerMode())
     {
-        VT_GetStation(szStatus, sizeof(szStatus));
+        pRetVal = Channel_GetVBIName();
 
-        if (*szStatus == '\0')
-        {
-            VPS_GetChannelName(szStatus, sizeof(szStatus));
-        }
-        if (*szStatus == '\0')
+        if (*pRetVal == '\0')
         {
             pRetVal = Channel_GetName();
-        }
-        else
-        {
-            pRetVal = szStatus;
         }
     }
     else

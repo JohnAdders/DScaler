@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.76 2005-07-26 22:14:17 laurentg Exp $
+// $Id: VBI_VideoText.cpp,v 1.77 2005-07-26 23:13:59 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.76  2005/07/26 22:14:17  laurentg
+// Function to search network names using P8/30/1,2 and a table of registered CNI codes
+// Table not yet fully formatted
+//
 // Revision 1.75  2005/03/23 14:21:02  adcockj
 // Test fix for threading issues
 //
@@ -459,49 +463,47 @@ struct {
 {	"Belgium",		"Sporza",					0x3226,	0,	0,	0,	0	},
 {	"Belgium",		"VIJF tv",					0x3227,	0,	0,	0,	0	},
 {	"Croatia",		"HRT",						0x0385,	0,	0,	0,	0	},
-/*
-{	"Czech Republic CT 1 4201 32 C1 3C 21
-{	"Czech Republic CT 2 4202 32 C2 3C 22
-{	"Czech Republic CT1 Regional 4231 32 F1 3C 25
-{	"Czech Republic CT1 Regional, Brno 4211 32 D1 3B 01
-{	"Czech Republic CT1 Regional, Ostravia 4221 32 E1 3B 02
-{	"Czech Republic CT2 Regional 4232 32 F2 3B 03
-{	"Czech Republic CT2 Regional, Brno 4212 32 D2 3B 04
-{	"Czech Republic CT2 Regional, Ostravia 4222 32 E2 3B 05
-{	"Czech Republic NOVA TV 4203 32 C3 3C 23
-{	"Czech Republic Prima TV 4204 32 C4 3C 04
-{	"Czech Republic TV Praha 4205
-{	"Czech Republic TV HK 4206
-{	"Czech Republic TV Pardubice 4207
-{	"Czech Republic TV Brno 4208
-{	"Denmark Discovery Denmark 4504
-{	"Denmark DR1 7392 29 01 39 01
-{	"Denmark DR2 49CF 29 03 39 03
-{	"Denmark TV 2 4502 29 02 39 02
-{	"Denmark TV 2 Zulu 4503 29 04 39 04
-{	"Denmark TV 2 Charlie 4505 29 05
-{	"Denmark TV 2 Film 4508 29 08
-{	"Denmark TV Danmark 4506 29 06
-{	"Denmark Kanal 5 4507 29 07
-{	"Finland OWL3 358F 26 0F 36 14
-{	"Finland YLE future use 3583 26 03 36 08
-{	"Finland YLE future use 3584 26 04 36 09
-{	"Finland YLE future use 3585 26 05 36 0A
-{	"Finland YLE future use 3586 26 06 36 0B
-{	"Finland YLE future use 3587 26 07 36 0C
-{	"Finland YLE future use 3588 26 08 36 0D
-{	"Finland YLE future use 3589 26 09 36 0E
-{	"Finland YLE future use 358A 26 0A 36 0F
-{	"Finland YLE future use 358B 26 0B 36 10
-{	"Finland YLE future use 358C 26 0C 36 11
-{	"Finland YLE future use 358D 26 0D 36 12
-{	"Finland YLE future use 358E 26 0E 36 13
-{	"Finland YLE1 3581 26 01 36 01
-{	"Finland YLE2 3582 26 02 36 07
-*/
+{	"Czech Republic","CT 1",					0x4201,	0x32,	0xC1,	0x3C,	0x21	},
+{	"Czech Republic","CT 2",					0x4202,	0x32,	0xC2,	0x3C,	0x22	},
+{	"Czech Republic","CT1 Regional",			0x4231,	0x32,	0xF1,	0x3C,	0x25	},
+{	"Czech Republic","CT1 Regional, Brno",		0x4211,	0x32,	0xD1,	0x3B,	0x01	},
+{	"Czech Republic","CT1 Regional, Ostravia",	0x4221,	0x32,	0xE1,	0x3B,	0x02	},
+{	"Czech Republic","CT2 Regional",			0x4232,	0x32,	0xF2,	0x3B,	0x03	},
+{	"Czech Republic","CT2 Regional, Brno",		0x4212,	0x32,	0xD2,	0x3B,	0x04	},
+{	"Czech Republic","CT2 Regional, Ostravia",	0x4222,	0x32,	0xE2,	0x3B,	0x05	},
+{	"Czech Republic","NOVA TV",					0x4203,	0x32,	0xC3,	0x3C,	0x23	},
+{	"Czech Republic","Prima TV",				0x4204,	0x32,	0xC4,	0x3C,	0x04	},
+{	"Czech Republic","TV Praha",				0x4205,	0,	0,	0,	0	},
+{	"Czech Republic","TV HK",					0x4206,	0,	0,	0,	0	},
+{	"Czech Republic","TV Pardubice",			0x4207,	0,	0,	0,	0	},
+{	"Czech Republic","TV Brno",					0x4208,	0,	0,	0,	0	},
+{	"Denmark",		"Discovery Denmark",		0x4504,	0,	0,	0,	0	},
+{	"Denmark",		"DR1",						0x7392,	0x29,	0x01,	0x39,	0x01	},
+{	"Denmark",		"DR2",						0x49CF,	0x29,	0x03,	0x39,	0x03	},
+{	"Denmark",		"TV 2",						0x4502,	0x29,	0x02,	0x39,	0x02	},
+{	"Denmark",		"TV 2 0xZulu",				0x4503,	0x29,	0x04,	0x39,	0x04	},
+{	"Denmark",		"TV 2 0xCharlie",			0x4505,	0x29,	0x05,	0,	0	},
+{	"Denmark",		"TV 2 Film",				0x4508,	0x29,	0x08,	0,	0	},
+{	"Denmark",		"TV Danmark",				0x4506,	0x29,	0x06,	0,	0	},
+{	"Denmark",		"Kanal 5",					0x4507,	0x29,	0x07,	0,	0	},
+{	"Finland",		"OWL3",						0x358F,	0x26,	0x0F,	0x36,	0x14	},
+{	"Finland",		"YLE future use",			0x3583,	0x26,	0x03,	0x36,	0x08	},
+{	"Finland",		"YLE future use",			0x3584,	0x26,	0x04,	0x36,	0x09	},
+{	"Finland",		"YLE future use",			0x3585,	0x26,	0x05,	0x36,	0x0A	},
+{	"Finland",		"YLE future use",			0x3586,	0x26,	0x06,	0x36,	0x0B	},
+{	"Finland",		"YLE future use",			0x3587,	0x26,	0x07,	0x36,	0x0C	},
+{	"Finland",		"YLE future use",			0x3588,	0x26,	0x08,	0x36,	0x0D	},
+{	"Finland",		"YLE future use",			0x3589,	0x26,	0x09,	0x36,	0x0E	},
+{	"Finland",		"YLE future use",			0x358A,	0x26,	0x0A,	0x36,	0x0F	},
+{	"Finland",		"YLE future use",			0x358B,	0x26,	0x0B,	0x36,	0x10	},
+{	"Finland",		"YLE future use",			0x358C,	0x26,	0x0C,	0x36,	0x11	},
+{	"Finland",		"YLE future use",			0x358D,	0x26,	0x0D,	0x36,	0x12	},
+{	"Finland",		"YLE future use",			0x358E,	0x26,	0x0E,	0x36,	0x13	},
+{	"Finland",		"YLE1",						0x3581,	0x26,	0x01,	0x36,	0x01	},
+{	"Finland",		"YLE2",						0x3582,	0x26,	0x02,	0x36,	0x07	},
 {	"France",		"AB1",						0x33C1,	0x2F,	0xC1,	0x3F,	0x41	},
 {	"France",		"Aqui TV",					0x3320,	0x2F,	0x20,	0x3F,	0x20	},
-{	"France",		"Arte / La Cinquième",		0x330A,	0x2F,	0x0A,	0x3F,	0x0A	},
+{	"France",		"France 5 / Arte",			0x330A,	0x2F,	0x0A,	0x3F,	0x0A	},
 {	"France",		"Canal J",					0x33C2,	0x2F,	0xC2,	0x3F,	0x42	},
 {	"France",		"Canal Jimmy",				0x33C3,	0x2F,	0xC3,	0x3F,	0x43	},
 {	"France",		"Canal+",					0x33F4,	0x2F,	0x04,	0x3F,	0x04	},
@@ -526,263 +528,263 @@ struct {
 {	"France",		"TLT",						0x3322,	0x2F,	0x22,	0x3F,	0x22	},
 {	"France",		"TMC Monte-Carlo",			0x33C7,	0x2F,	0xC7,	0x3F,	0x47	},
 {	"France",		"TV5",						0xF500,	0x2F,	0xE5,	0x3F,	0x65	},
+{	"Germany",		"3SAT",						0x49C7,	0,	0,	0,	0	},
+{	"Germany",		"ARD",						0x4901,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49C1,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49C3,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49C4,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49C5,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49C6,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49CA,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49CC,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49CD,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49CE,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49D0,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49D1,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49D2,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49D3,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49D5,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49D6,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49D7,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49D8,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49DA,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49DB,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49DD,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49DE,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49E0,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49E2,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49E3,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49E5,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49E7,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49E8,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49E9,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49EA,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49EB,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49EC,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49ED,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49EE,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49EF,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49F0,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49F1,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49F2,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49F3,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49F4,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49F5,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49F6,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49F7,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49F8,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49F9,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49FA,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49FB,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49FC,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x49FD,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",			0x4981,	0,	0,	0,	0	},
+{	"Germany",		"Arte",						0x490A,	0,	0,	0,	0	},
+{	"Germany",		"BR",						0x49CB,	0,	0,	0,	0	},
+{	"Germany",		"BR-Alpha",					0x4944,	0,	0,	0,	0	},
+{	"Germany",		"EXTRA",					0x4943,	0,	0,	0,	0	},
+{	"Germany",		"Festival",					0x4941,	0,	0,	0,	0	},
+{	"Germany",		"HR",						0x49FF,	0,	0,	0,	0	},
+{	"Germany",		"Kinderkanal",				0x49C9,	0,	0,	0,	0	},
+{	"Germany",		"MDR",						0x49FE,	0,	0,	0,	0	},
+{	"Germany",		"MUXX",						0x4942,	0,	0,	0,	0	},
+{	"Germany",		"NDR",						0x49D4,	0,	0,	0,	0	},
+{	"Germany",		"ORB",						0x4982,	0,	0,	0,	0	},
+{	"Germany",		"Phoenix",					0x4908,	0,	0,	0,	0	},
+{	"Germany",		"QVC D Gmbh",				0x5C49,	0,	0,	0,	0	},
+{	"Germany",		"RB",						0x49D9,	0,	0,	0,	0	},
+{	"Germany",		"SFB",						0x49DC,	0,	0,	0,	0	},
+{	"Germany",		"SR",						0x49DF,	0,	0,	0,	0	},
+{	"Germany",		"SWR-BW",					0x49E1,	0,	0,	0,	0	},
+{	"Germany",		"SWR-RP",					0x49E4,	0,	0,	0,	0	},
+{	"Germany",		"1-2-3.TV",					0x49BD,	0,	0,	0,	0	},
+{	"Germany",		"TELE-5",					0x49BE,	0,	0,	0,	0	},
+{	"Germany",		"Home Shopping Europe",		0x49BF,	0,	0,	0,	0	},
+{	"Germany",		"VOX Television",			0x490C,	0,	0,	0,	0	},
+{	"Germany",		"WDR",						0x49E6,	0,	0,	0,	0	},
+{	"Germany",		"ZDF",						0x4902,	0,	0,	0,	0	},
 /*
-{	"Germany 3SAT 49C7
-{	"Germany ARD 4901
-{	"Germany ARD future use 49C1
-{	"Germany ARD future use 49C3
-{	"Germany ARD future use 49C4
-{	"Germany ARD future use 49C5
-Germany ARD future use 49C6
-Germany ARD future use 49CA
-Germany ARD future use 49CC
-Germany ARD future use 49CD
-Germany ARD future use 49CE
-Germany ARD future use 49D0
-Germany ARD future use 49D1
-Germany ARD future use 49D2
-Germany ARD future use 49D3
-Germany ARD future use 49D5
-Germany ARD future use 49D6
-Germany ARD future use 49D7
-Germany ARD future use 49D8
-Germany ARD future use 49DA
-Germany ARD future use 49DB
-Germany ARD future use 49DD
-Germany ARD future use 49DE
-Germany ARD future use 49E0
-Germany ARD future use 49E2
-Germany ARD future use 49E3
-Germany ARD future use 49E5
-Germany ARD future use 49E7
-Germany ARD future use 49E8
-Germany ARD future use 49E9
-Germany ARD future use 49EA
-Germany ARD future use 49EB
-Germany ARD future use 49EC
-Germany ARD future use 49ED
-Germany ARD future use 49EE
-Germany ARD future use 49EF
-Germany ARD future use 49F0
-Germany ARD future use 49F1
-Germany ARD future use 49F2
-Germany ARD future use 49F3
-Germany ARD future use 49F4
-Germany ARD future use 49F5
-Germany ARD future use 49F6
-Germany ARD future use 49F7
-Germany ARD future use 49F8
-Germany ARD future use 49F9
-Germany ARD future use 49FA
-Germany ARD future use 49FB
-Germany ARD future use 49FC
-Germany ARD future use 49FD
-Germany ARD future use 4981
-Germany Arte 490A
-Germany BR 49CB
-Germany BR-Alpha 4944
-Germany EXTRA 4943
-Germany Festival 4941
-Germany HR 49FF
-Germany Kinderkanal 49C9
-Germany MDR 49FE
-Germany MUXX 4942
-Germany NDR 49D4
-Germany ORB 4982
-Germany Phoenix 4908
-Germany QVC D Gmbh 5C49
-Germany RB 49D9
-Germany SFB 49DC
-Germany SR 49DF
-Germany SWR-BW 49E1
-Germany SWR-RP 49E4
-Germany 1-2-3.TV 49BD
-Germany TELE-5 49BE
-Germany Home Shopping Europe 49BF
-Germany VOX Television 490C
-Germany WDR 49E6
-Germany ZDF 4902
-Greece ET future use 3004 21 04 31 04
-Greece ET future use 3005 21 05 31 05
-Greece ET future use 3006 21 06 31 06
-Greece ET future use 3007 21 07 31 07
-Greece ET future use 3008 21 08 31 08
-Greece ET future use 3009 21 09 31 09
-Greece ET future use 300A 21 0A 31 0A
-Greece ET future use 300B 21 0B 31 0B
-Greece ET future use 300C 21 0C 31 0C
-Greece ET future use 300D 21 0D 31 0D
-Greece ET future use 300E 21 0E 31 0E
-Greece ET future use 300F 21 0F 31 0F
-Greece ET-1 3001 21 01 31 01
-Greece ET-3 3003 21 03 31 03
-Greece NET 3002 21 02 31 02
-Hungary Duna Televizio 3636
-Hungary MTV1 3601
-Hungary MTV1 future use 3681
-Hungary MTV1 regional, Budapest 3611
-Hungary MTV1 regional, Debrecen 3651
-Hungary MTV1 regional, Miskolc 3661
-Hungary MTV1 regional, Pécs 3621
-Hungary MTV1 regional, Szeged 3631
-Hungary MTV1 regional, Szombathely 3641
-Hungary MTV2 3602
-Hungary MTV2 future use 3682
-Hungary tv2 3622
-Hungary tv2 future use 3620
-Iceland Rikisutvarpid-Sjonvarp 3541
-Ireland Network 2 3532 42 02 32 02
-Ireland RTE future use 3534 42 04 32 04
-Ireland RTE future use 3535 42 05 32 05
-Ireland RTE future use 3536 42 06 32 06
-Ireland RTE future use 3537 42 07 32 07
-Ireland RTE future use 3538 42 08 32 08
-Ireland RTE future use 3539 42 09 32 09
-Ireland RTE future use 353A 42 0A 32 0A
-Ireland RTE future use 353B 42 0B 32 0B
-Ireland RTE future use 353C 42 0C 32 0C
-Ireland RTE future use 353D 42 0D 32 0D
-Ireland RTE future use 353E 42 0E 32 0E
-Ireland RTE future use 353F 42 0F 32 0F
-Ireland RTE1 3531 42 01 32 01
-Ireland Teilifis na Gaeilge 3533 42 03 32 03
-Ireland TV3 3333
-Italy RAI 1 3901
-Italy RAI 2 3902
-Italy RAI 3 3903
-Italy Rete A 3904
-Italy Canale Italia 3905 15 05
-Italy Telenova 3909
-Italy Arte 390A
-Italy TRS TV 3910
-Italy Sky Cinema Classic 3911 15 11
-Italy Sky Future use (canale 109) 3912 15 12
-Italy Sky Calcio 1 3913 15 13
-Italy Sky Calcio 2 3914 15 14
-Italy Sky Calcio 3 3915 15 15
-Italy Sky Calcio 4 3916 15 16
-Italy Sky Calcio 5 3917 15 17
-Italy Sky Calcio 6 3918 15 18
-Italy Sky Calcio 7 3919 15 19
-Italy RaiNews24 3920
-Italy RAI Med 3921
-Italy RAI Sport 3922
-Italy RAI Educational 3923
-Italy RAI Edu Lab 3924
-Italy RAI Nettuno 1 3925
-Italy RAI Nettuno 2 3926
-Italy Camera Deputati 3927
-Italy RAI Mosaico 3928
-Italy RAI future use 3929
-Italy RAI future use 392A
-Italy RAI future use 392B
-Italy RAI future use 392C
-Italy RAI future use 392D
-Italy RAI future use 392E
-Italy RAI future use 392F
-Italy Discovery Italy 3930
-Italy MTV Italia 3933
-Italy MTV Brand New 3934
-Italy MTV Hits 3935
-Italy RTV38 3938
-Italy GAY TV 3939
-Italy Video Italia 3940
-Italy SAT 2000 3941
-Italy Jimmy 3942 15 42
-Italy Planet 3943 15 43
-Italy Cartoon Network 3944 15 44
-Italy Boomerang 3945 15 45
-Italy CNN International 3946 15 46
-Italy Cartoon Network +1 3947 15 47
-Italy Sky Sports 3 3948 15 48
-Italy Sky Diretta Gol 3949 15 49
-Italy RAISat Album 3950
-Italy RAISat Art 3951
-Italy RAISat Cinema 3952
-Italy RAISat Fiction 3953
-Italy RAISat GamberoRosso 3954
-Italy RAISat Ragazzi 3955
-Italy RAISat Show 3956
-Italy RAISat G. Rosso interattivo 3957
-Italy RAISat future use 3958
-Italy RAISat future use 3959
-Italy RAISat future use 395A
-Italy RAISat future use 395B
-Italy RAISat future use 395C
-Italy RAISat future use 395D
-Italy RAISat future use 395E
-Italy RAISat future use 395F
-Italy SCI FI CHANNEL 3960 15 60
-Italy Discovery Civilisations 3961
-Italy Discovery Travel and Adventure 3962
-Italy Discovery Science 3963
-Italy Sky Meteo24 3968 15 68
-Italy Sky Cinema 2 3970
-Italy Sky Cinema 3 3971
-Italy Sky Cinema Autore 3972
-Italy Sky Cinema Max 3973
-Italy Sky Cinema 16:9 3974
-Italy Sky Sports 2 3975
-Italy Sky TG24 3976
-Italy Fox 3977 15 77
-Italy Foxlife 3978 15 78
-Italy National Geographic Channel 3979 15 79
-Italy A1 3980 15 80
-Italy History Channel 3981 15 81
-Italy FOX KIDS 3985
-Italy PEOPLE TV – RETE 7 3986
-Italy FOX KIDS +1 3987
-Italy LA7 3988
-Italy PrimaTV 3989
-Italy SportItalia 398A
-Italy STUDIO UNIVERSAL 3990 15 90
-Italy Marcopolo 3991 15 91
-Italy Alice 3992 15 92
-Italy Nuvolari 3993 15 93
-Italy Leonardo 3994 15 94
-Italy SUPERPIPPA CHANNEL 3996 15 96
-Italy Sky Sports 1 3997
-Italy Sky Cinema 1 3998
-Italy Tele+3 3999
-Italy Sky Calcio 8 39A0 15 A0
-Italy Sky Calcio 9 39A1 15 A1
-Italy Sky Calcio 10 39A2 15 A2
-Italy Sky Calcio 11 39A3 15 A3
-Italy Sky Calcio 12 39A4 15 A4
-Italy Sky Calcio 13 39A5 15 A5
-Italy Sky Calcio 14 39A6 15 A6
-Italy Telesanterno 39A7 15 A7
-Italy Telecentro 39A8 15 A8
-Italy Telestense 39A9 15 A9
-Italy Disney Channel +1 39B0 15 B0
-Italy Sailing Channel 39B1
-Italy Disney Channel 39B2 15 B2
-Italy 7 Gold-Sestra Rete 39B3 15 B3
-Italy Rete 8-VGA 39B4 15 B4
-Italy Nuovarete 39B5 15 B5
-Italy Radio Italia TV 39B6 15 B6
-Italy Rete 7 39B7 15 B7
-Italy E! Entertainment Television 39B8 15 B8
-Italy Toon Disney 39B9 15 B9
-Italy Bassano TV 39C7 15 C7
-Italy ESPN Classic Sport 39C8 15 C8
-Italy VIDEOLINA 39CA
-Italy Mediaset Premium 1 39D2 15 D2
-Italy Mediaset Premium 2 39D3 15 D3
-Italy Mediaset Premium 3 39D4 15 D4
-Italy Mediaset Premium 4 39D5 15 D5
-Italy BOING 39D6 15 D6
-Italy Playlist Italia 39D7 15 D7
-Italy MATCH MUSIC 39D8 15 D8
-Italy National Geographic +1 39E1 15 E1
-Italy History Channel +1 39E2 15 E2
-Italy Sky TV 39E3 15 E3
-Italy GXT 39E4 15 E4
-Italy Playhouse Disney 39E5 15 E5
-Italy Sky Canale 224 39E6 15 E6
-Italy Rete 4 FA04
-Italy Canale 5 FA05
-Italy Italia 1 FA06
+{	"Greece ET future use 3004 21 04 31 04
+{	"Greece ET future use 3005 21 05 31 05
+{	"Greece ET future use 3006 21 06 31 06
+{	"Greece ET future use 3007 21 07 31 07
+{	"Greece ET future use 3008 21 08 31 08
+{	"Greece ET future use 3009 21 09 31 09
+{	"Greece ET future use 300A 21 0A 31 0A
+{	"Greece ET future use 300B 21 0B 31 0B
+{	"Greece ET future use 300C 21 0C 31 0C
+{	"Greece ET future use 300D 21 0D 31 0D
+{	"Greece ET future use 300E 21 0E 31 0E
+{	"Greece ET future use 300F 21 0F 31 0F
+{	"Greece ET-1 3001 21 01 31 01
+{	"Greece ET-3 3003 21 03 31 03
+{	"Greece NET 3002 21 02 31 02
+{	"Hungary Duna Televizio 3636
+{	"Hungary MTV1 3601
+{	"Hungary MTV1 future use 3681
+{	"Hungary MTV1 regional, Budapest 3611
+{	"Hungary MTV1 regional, Debrecen 3651
+{	"Hungary MTV1 regional, Miskolc 3661
+{	"Hungary MTV1 regional, Pécs 3621
+{	"Hungary MTV1 regional, Szeged 3631
+{	"Hungary MTV1 regional, Szombathely 3641
+{	"Hungary MTV2 3602
+{	"Hungary MTV2 future use 3682
+{	"Hungary tv2 3622
+{	"Hungary tv2 future use 3620
+{	"Iceland Rikisutvarpid-Sjonvarp 3541
+{	"Iceland Network 2 3532 42 02 32 02
+{	"Iceland RTE future use 3534 42 04 32 04
+{	"Iceland RTE future use 3535 42 05 32 05
+{	"Iceland RTE future use 3536 42 06 32 06
+{	"Iceland RTE future use 3537 42 07 32 07
+{	"Iceland RTE future use 3538 42 08 32 08
+{	"Iceland RTE future use 3539 42 09 32 09
+{	"Iceland RTE future use 353A 42 0A 32 0A
+{	"Iceland RTE future use 353B 42 0B 32 0B
+{	"Iceland RTE future use 353C 42 0C 32 0C
+{	"Iceland RTE future use 353D 42 0D 32 0D
+{	"Iceland RTE future use 353E 42 0E 32 0E
+{	"Iceland RTE future use 353F 42 0F 32 0F
+{	"Iceland RTE1 3531 42 01 32 01
+{	"Iceland Teilifis na Gaeilge 3533 42 03 32 03
+{	"Iceland TV3 3333
+{	"Italy RAI 1 3901
+{	"Italy RAI 2 3902
+{	"Italy RAI 3 3903
+{	"Italy Rete A 3904
+{	"Italy Canale Italia 3905 15 05
+{	"Italy Telenova 3909
+{	"Italy Arte 390A
+{	"Italy TRS TV 3910
+{	"Italy Sky Cinema Classic 3911 15 11
+{	"Italy Sky Future use (canale 109) 3912 15 12
+{	"Italy Sky Calcio 1 3913 15 13
+{	"Italy Sky Calcio 2 3914 15 14
+{	"Italy Sky Calcio 3 3915 15 15
+{	"Italy Sky Calcio 4 3916 15 16
+{	"Italy Sky Calcio 5 3917 15 17
+{	"Italy Sky Calcio 6 3918 15 18
+{	"Italy Sky Calcio 7 3919 15 19
+{	"Italy RaiNews24 3920
+{	"Italy RAI Med 3921
+{	"Italy RAI Sport 3922
+{	"Italy RAI Educational 3923
+{	"Italy RAI Edu Lab 3924
+{	"Italy RAI Nettuno 1 3925
+{	"Italy RAI Nettuno 2 3926
+{	"Italy Camera Deputati 3927
+{	"Italy RAI Mosaico 3928
+{	"Italy RAI future use 3929
+{	"Italy RAI future use 392A
+{	"Italy RAI future use 392B
+{	"Italy RAI future use 392C
+{	"Italy RAI future use 392D
+{	"Italy RAI future use 392E
+{	"Italy RAI future use 392F
+{	"Italy Discovery Italy 3930
+{	"Italy MTV Italia 3933
+{	"Italy MTV Brand New 3934
+{	"Italy MTV Hits 3935
+{	"Italy RTV38 3938
+{	"Italy GAY TV 3939
+{	"Italy Video Italia 3940
+{	"Italy SAT 2000 3941
+{	"Italy Jimmy 3942 15 42
+{	"Italy Planet 3943 15 43
+{	"Italy Cartoon Network 3944 15 44
+{	"Italy Boomerang 3945 15 45
+{	"Italy CNN International 3946 15 46
+{	"Italy Cartoon Network +1 3947 15 47
+{	"Italy Sky Sports 3 3948 15 48
+{	"Italy Sky Diretta Gol 3949 15 49
+{	"Italy RAISat Album 3950
+{	"Italy RAISat Art 3951
+{	"Italy RAISat Cinema 3952
+{	"Italy RAISat Fiction 3953
+{	"Italy RAISat GamberoRosso 3954
+{	"Italy RAISat Ragazzi 3955
+{	"Italy RAISat Show 3956
+{	"Italy RAISat G. Rosso interattivo 3957
+{	"Italy RAISat future use 3958
+{	"Italy RAISat future use 3959
+{	"Italy RAISat future use 395A
+{	"Italy RAISat future use 395B
+{	"Italy RAISat future use 395C
+{	"Italy RAISat future use 395D
+{	"Italy RAISat future use 395E
+{	"Italy RAISat future use 395F
+{	"Italy SCI FI CHANNEL 3960 15 60
+{	"Italy Discovery Civilisations 3961
+{	"Italy Discovery Travel and Adventure 3962
+{	"Italy Discovery Science 3963
+{	"Italy Sky Meteo24 3968 15 68
+{	"Italy Sky Cinema 2 3970
+{	"Italy Sky Cinema 3 3971
+{	"Italy Sky Cinema Autore 3972
+{	"Italy Sky Cinema Max 3973
+{	"Italy Sky Cinema 16:9 3974
+{	"Italy Sky Sports 2 3975
+{	"Italy Sky TG24 3976
+{	"Italy Fox 3977 15 77
+{	"Italy Foxlife 3978 15 78
+{	"Italy National Geographic Channel 3979 15 79
+{	"Italy A1 3980 15 80
+{	"Italy History Channel 3981 15 81
+{	"Italy FOX KIDS 3985
+{	"Italy PEOPLE TV – RETE 7 3986
+{	"Italy FOX KIDS +1 3987
+{	"Italy LA7 3988
+{	"Italy PrimaTV 3989
+{	"Italy SportItalia 398A
+{	"Italy STUDIO UNIVERSAL 3990 15 90
+{	"Italy Marcopolo 3991 15 91
+{	"Italy Alice 3992 15 92
+{	"Italy Nuvolari 3993 15 93
+{	"Italy Leonardo 3994 15 94
+{	"Italy SUPERPIPPA CHANNEL 3996 15 96
+{	"Italy Sky Sports 1 3997
+{	"Italy Sky Cinema 1 3998
+{	"Italy Tele+3 3999
+{	"Italy Sky Calcio 8 39A0 15 A0
+{	"Italy Sky Calcio 9 39A1 15 A1
+{	"Italy Sky Calcio 10 39A2 15 A2
+{	"Italy Sky Calcio 11 39A3 15 A3
+{	"Italy Sky Calcio 12 39A4 15 A4
+{	"Italy Sky Calcio 13 39A5 15 A5
+{	"Italy Sky Calcio 14 39A6 15 A6
+{	"Italy Telesanterno 39A7 15 A7
+{	"Italy Telecentro 39A8 15 A8
+{	"Italy Telestense 39A9 15 A9
+{	"Italy Disney Channel +1 39B0 15 B0
+{	"Italy Sailing Channel 39B1
+{	"Italy Disney Channel 39B2 15 B2
+{	"Italy 7 Gold-Sestra Rete 39B3 15 B3
+{	"Italy Rete 8-VGA 39B4 15 B4
+{	"Italy Nuovarete 39B5 15 B5
+{	"Italy Radio Italia TV 39B6 15 B6
+{	"Italy Rete 7 39B7 15 B7
+{	"Italy E! Entertainment Television 39B8 15 B8
+{	"Italy Toon Disney 39B9 15 B9
+{	"Italy Bassano TV 39C7 15 C7
+{	"Italy ESPN Classic Sport 39C8 15 C8
+{	"Italy VIDEOLINA 39CA
+{	"Italy Mediaset Premium 1 39D2 15 D2
+{	"Italy Mediaset Premium 2 39D3 15 D3
+{	"Italy Mediaset Premium 3 39D4 15 D4
+{	"Italy Mediaset Premium 4 39D5 15 D5
+{	"Italy BOING 39D6 15 D6
+{	"Italy Playlist Italia 39D7 15 D7
+{	"Italy MATCH MUSIC 39D8 15 D8
+{	"Italy National Geographic +1 39E1 15 E1
+{	"Italy History Channel +1 39E2 15 E2
+{	"Italy Sky TV 39E3 15 E3
+{	"Italy GXT 39E4 15 E4
+{	"Italy Playhouse Disney 39E5 15 E5
+{	"Italy Sky Canale 224 39E6 15 E6
+{	"Italy Rete 4 FA04
+{	"Italy Canale 5 FA05
+{	"Italy Italia 1 FA06
 {	"Luxembourg RTL Télé Lëtzebuerg 4000
 {	"Netherlands Nederland 1 3101 48 01 38 01
 {	"Netherlands Nederland 2 3102 48 02 38 02
@@ -968,14 +970,16 @@ Italy Italia 1 FA06
 {	"Sweden TV 4 future use 464D 4E 4D 3E 4D
 {	"Sweden TV 4 future use 464E 4E 4E 3E 4E
 {	"Sweden TV 4 future use 464F 4E 4F 3E 4F
-{	"Switzerland SAT ACCESS 410A 24 CA 34 4A
-{	"Switzerland SF 1 4101 24 C1 34 41
-{	"Switzerland SF 2 4107 24 C7 34 47
-{	"Switzerland TSI 1 4103 24 C3 34 43
-{	"Switzerland TSI 2 4109 24 C9 34 49
-{	"Switzerland TSR 1 4102 24 C2 34 42
-{	"Switzerland TSR 2 4108 24 C8 34 48
-{	"Switzerland U1 4121 24 21
+*/
+{	"Switzerland",	"SAT ACCESS",				0x410A,	0x24,	0xCA,	0x34,	0x4A	},
+{	"Switzerland",	"SF 1",						0x4101,	0x24,	0xC1,	0x34,	0x41	},
+{	"Switzerland",	"SF 2",						0x4107,	0x24,	0xC7,	0x34,	0x47	},
+{	"Switzerland",	"TSI 1",					0x4103,	0x24,	0xC3,	0x34,	0x43	},
+{	"Switzerland",	"TSI 2",					0x4109,	0x24,	0xC9,	0x34,	0x49	},
+{	"Switzerland",	"TSR 1",					0x4102,	0x24,	0xC2,	0x34,	0x42	},
+{	"Switzerland",	"TSR 2",					0x4108,	0x24,	0xC8,	0x34,	0x48	},
+{	"Switzerland",	"U1",						0x4121,	0x24,	0x21,	0,	0	},
+/*
 {	"Turkey ATV 900A
 {	"Turkey AVRASYA 9006 43 06 33 06
 {	"Turkey BRAVO TV 900E
@@ -1201,14 +1205,14 @@ Italy Italia 1 FA06
 {	"UK YORKSHIRE TV future use FA2F 5B EC 3B 6C
 {	"UK YORKSHIRE TV future use FA30 5B ED 3B 6D
 {	"UK YORKSHIRE TV future use FA31 5B EE 3B 6E
-{	"Ukraine 1+1 7700
-{	"Ukraine 1+1 future use 7701
-{	"Ukraine 1+1 future use 7702
-{	"Ukraine 1+1 future use 7703
-{	"Ukraine M1 7705
-{	"Ukraine ICTV 7707
-{	"Ukraine Novy Kanal 7708
 */
+{	"Ukraine",		"1+1",						0x7700,	0,	0,	0,	0	},
+{	"Ukraine",		"1+1 future use",			0x7701,	0,	0,	0,	0	},
+{	"Ukraine",		"1+1 future use",			0x7702,	0,	0,	0,	0	},
+{	"Ukraine",		"1+1 future use",			0x7703,	0,	0,	0,	0	},
+{	"Ukraine",		"M1",						0x7705,	0,	0,	0,	0	},
+{	"Ukraine",		"ICTV",						0x7707,	0,	0,	0,	0	},
+{	"Ukraine",		"Novy Kanal",				0x7708,	0,	0,	0,	0	},
 };
 
 

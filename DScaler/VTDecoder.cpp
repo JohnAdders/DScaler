@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDecoder.cpp,v 1.16 2005-07-25 22:43:38 laurentg Exp $
+// $Id: VTDecoder.cpp,v 1.17 2005-07-26 19:36:03 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,6 +44,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2005/07/25 22:43:38  laurentg
+// m_PDC buffer cleared when decoder reset
+//
 // Revision 1.15  2005/07/25 22:32:51  laurentg
 // Mutex added to access m_BroadcastServiceData and m_PDC
 //
@@ -170,14 +173,18 @@ void CVTDecoder::ResetDecoder()
 
 	EnterCriticalSection(&m_ServiceDataStoreMutex);
     m_BroadcastServiceData.InitialPage = 0UL;
-    m_BroadcastServiceData.NetworkIDCode = 0;
+	int i;
+	for (i = 0; i < 2; i++)
+	{
+	    m_BroadcastServiceData.NetworkIDCode[i] = 0;
+	}
     m_BroadcastServiceData.TimeOffset = 0;
     m_BroadcastServiceData.ModifiedJulianDate = 45000;
     m_BroadcastServiceData.UTCHours = 0;
     m_BroadcastServiceData.UTCMinutes = 0;
     m_BroadcastServiceData.UTCSeconds = 0;
     FillMemory(m_BroadcastServiceData.StatusDisplay, 20, 0x20);
-	for (int i=0;i<4;i++)
+	for (i = 0; i < 4; i++)
 	{
 		m_PDC[i].LCI = 0;
 		m_PDC[i].LUF = 0;
@@ -536,7 +543,11 @@ void CVTDecoder::DecodeLine(BYTE* data)
             {
                 // The Network Identification Code has bits in reverse
                 WORD wNetworkIDCode = ReverseBits(data[13]) | ReverseBits(data[12]) << 8;
-                m_BroadcastServiceData.NetworkIDCode = wNetworkIDCode;
+                m_BroadcastServiceData.NetworkIDCode[1] = m_BroadcastServiceData.NetworkIDCode[0];
+                m_BroadcastServiceData.NetworkIDCode[0] = wNetworkIDCode;
+				/*
+				LOG(1, "m_BroadcastServiceData.NetworkIDCode[0] %x", m_BroadcastServiceData.NetworkIDCode[0]);
+				*/
 
                 // Time offset from UTC in half hour units
                 char timeOffset = (data[14] >> 1) * ((data[14] & 0x40) ? -1 : 1);
@@ -1770,6 +1781,39 @@ void CVTDecoder::GetStatusDisplay(LPSTR lpBuffer, LONG nLength)
     {
         lpBuffer[nLength] = '\0';
     }
+}
+
+
+DWORD CVTDecoder::GetNetworkIDFromP8301()
+{
+	DWORD dwCode = 0;
+	EnterCriticalSection(&m_ServiceDataStoreMutex);
+	// Check that there are at leat two values received
+	// and with same values
+	if (   (m_BroadcastServiceData.NetworkIDCode[0] != 0)
+		&& (m_BroadcastServiceData.NetworkIDCode[0] == m_BroadcastServiceData.NetworkIDCode[1]) )
+	{
+		dwCode = m_BroadcastServiceData.NetworkIDCode[0];
+	}
+	LeaveCriticalSection(&m_ServiceDataStoreMutex);
+	return dwCode;
+}
+
+
+DWORD CVTDecoder::GetCNIFromPDC()
+{
+	DWORD dwCode = 0;
+	EnterCriticalSection(&m_ServiceDataStoreMutex);
+	for (int i=0;i<4;i++)
+	{
+		if (m_PDC[i].CNI != 0)
+		{
+			dwCode = m_PDC[i].CNI;
+			break;
+		}
+	}
+	LeaveCriticalSection(&m_ServiceDataStoreMutex);
+	return dwCode;
 }
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.H,v 1.35 2003-10-27 10:39:54 adcockj Exp $
+// $Id: VBI_VideoText.H,v 1.36 2005-07-26 22:14:22 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -115,6 +115,7 @@ BOOL VT_ClickAtPosition(HDC hDC, LPRECT lpRect, WORD xPos, WORD yPos);
 BOOL VT_IsPageNumberAtPosition(LPRECT lpRect, LPPOINT lpPoint);
 BOOL VT_IsPageNumberAtPosition(LPRECT lpRect, WORD xPos, WORD yPos);
 
+void VT_GetStationFromID(LPSTR lpBuffer, LONG nLength);
 void VT_GetStation(LPSTR lpBuffer, LONG nLength);
 
 BOOL APIENTRY VTSearchProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);

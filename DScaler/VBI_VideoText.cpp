@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.75 2005-03-23 14:21:02 adcockj Exp $
+// $Id: VBI_VideoText.cpp,v 1.76 2005-07-26 22:14:17 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.75  2005/03/23 14:21:02  adcockj
+// Test fix for threading issues
+//
 // Revision 1.74  2004/11/08 18:15:24  atnak
 // Made UxTheme dynamically load for backwards compatibility
 //
@@ -274,6 +277,8 @@
 #include "VBI.h"
 #include "DScaler.h"
 #include "Providers.h"
+//#include "DebugLog.h"
+
 
 #define VT_MAXPAGEHISTORY               64
 
@@ -366,6 +371,845 @@ WORD                VTCursorPageHex = 0;
 HWND                VTGotoProcDlg = NULL;
 
 CRITICAL_SECTION    VTPageChangeMutex;
+
+
+struct {
+	char*	sCountry;
+	char*	sNetwork;
+	DWORD	dwNI_P8301;
+	BYTE	uC_P8302;
+	BYTE	uNI_P8302;
+	BYTE	uA_X26;
+	BYTE	uB_X26;
+} RegisteredCNICodes[] = 
+{
+{	"Austria",		"ORF-1",					0x4301,	0,	0,	0,	0	},
+{	"Austria",		"ORF-2",					0x4302,	0,	0,	0,	0	},
+{	"Austria",		"ORF future use",			0x4303,	0,	0,	0,	0	},
+{	"Austria",		"ORF future use",			0x4304,	0,	0,	0,	0	},
+{	"Austria",		"ORF future use",			0x4305,	0,	0,	0,	0	},
+{	"Austria",		"ORF future use",			0x4306,	0,	0,	0,	0	},
+{	"Austria",		"ORF future use",			0x4307,	0,	0,	0,	0	},
+{	"Austria",		"ORF future use",			0x4308,	0,	0,	0,	0	},
+{	"Austria",		"ORF future use",			0x4309,	0,	0,	0,	0	},
+{	"Austria",		"ORF future use",			0x430A,	0,	0,	0,	0	},
+{	"Austria",		"ORF future use",			0x430B,	0,	0,	0,	0	},
+{	"Austria",		"ATV",						0x430C,	0,	0,	0,	0	},
+{	"Belgium",		"AB3",						0x320C,	0,	0,	0,	0	},
+{	"Belgium",		"AB4e",						0x320D,	0,	0,	0,	0	},
+{	"Belgium",		"VRT TV1",					0x3201,	0x16,	0x01,	0x36,	0x03	},
+{	"Belgium",		"CANVAS",					0x3202,	0x16,	0x02,	0x36,	0x02	},
+{	"Belgium",		"RTBF 1",					0x3203,	0,	0,	0,	0	},
+{	"Belgium",		"RTBF 2",					0x3204,	0,	0,	0,	0	},
+{	"Belgium",		"VTM",						0x3205,	0x16,	0x05,	0x36,	0x05	},
+{	"Belgium",		"Kanaal2",					0x3206,	0x16,	0x06,	0x36,	0x06	},
+{	"Belgium",		"RTBF Sat",					0x3207,	0,	0,	0,	0	},
+{	"Belgium",		"RTBF future use",			0x3208,	0,	0,	0,	0	},
+{	"Belgium",		"RTL-TVI",					0x3209,	0,	0,	0,	0	},
+{	"Belgium",		"CLUB-RTL",					0x320A,	0,	0,	0,	0	},
+{	"Belgium",		"VT4",						0x0404,	0x16,	0x04,	0x36,	0x04	},
+{	"Belgium",		"JIM.tv",					0x320F,	0,	0,	0,	0	},
+{	"Belgium",		"PLUG TV",					0x3225,	0,	0,	0,	0	},
+{	"Belgium",		"RTV-Kempen",				0x3210,	0,	0,	0,	0	},
+{	"Belgium",		"RTV-Mechelen",				0x3211,	0,	0,	0,	0	},
+{	"Belgium",		"MCM Belgium",				0x3212,	0,	0,	0,	0	},
+{	"Belgium",		"Vitaya",					0x3213,	0,	0,	0,	0	},
+{	"Belgium",		"WTV",						0x3214,	0,	0,	0,	0	},
+{	"Belgium",		"FocusTV",					0x3215,	0,	0,	0,	0	},
+{	"Belgium",		"Be 1 ana",					0x3216,	0,	0,	0,	0	},
+{	"Belgium",		"Be 1 num",					0x3217,	0,	0,	0,	0	},
+{	"Belgium",		"Be Ciné 1",				0x3218,	0,	0,	0,	0	},
+{	"Belgium",		"Be Sport 1",				0x3219,	0,	0,	0,	0	},
+{	"Belgium",		"Be 1 + 1h",				0x32A7,	0,	0,	0,	0	},
+{	"Belgium",		"Be Ciné 2",				0x32A8,	0,	0,	0,	0	},
+{	"Belgium",		"Be Sport 2",				0x32A9,	0,	0,	0,	0	},
+{	"Belgium",		"Canal+VL1",				0x321A,	0,	0,	0,	0	},
+{	"Belgium",		"Canal+VL1",				0x321B,	0,	0,	0,	0	},
+{	"Belgium",		"Canal+ Blau",				0x321C,	0,	0,	0,	0	},
+{	"Belgium",		"Canal+ Rood",				0x321D,	0,	0,	0,	0	},
+{	"Belgium",		"TV Limburg",				0x3221,	0,	0,	0,	0	},
+{	"Belgium",		"Kanaal 3",					0x3222,	0,	0,	0,	0	},
+{	"Belgium",		"Ring TV",					0x320E,	0,	0,	0,	0	},
+{	"Belgium",		"TV Brussel",				0x321E,	0,	0,	0,	0	},
+{	"Belgium",		"AVSe",						0x321F,	0,	0,	0,	0	},
+{	"Belgium",		"ATV",						0x3223,	0,	0,	0,	0	},
+{	"Belgium",		"ROB TV",					0x3224,	0,	0,	0,	0	},
+{	"Belgium",		"Télé Bruxelles",			0x3230,	0,	0,	0,	0	},
+{	"Belgium",		"Télésambre",				0x3231,	0,	0,	0,	0	},
+{	"Belgium",		"TV Com",					0x3232,	0,	0,	0,	0	},
+{	"Belgium",		"Canal Zoom",				0x3233,	0,	0,	0,	0	},
+{	"Belgium",		"Vidéoscope",				0x3234,	0,	0,	0,	0	},
+{	"Belgium",		"Canal C",					0x3235,	0,	0,	0,	0	},
+{	"Belgium",		"Télé MB",					0x3236,	0,	0,	0,	0	},
+{	"Belgium",		"Antenne Centre",			0x3237,	0,	0,	0,	0	},
+{	"Belgium",		"Télévesdre",				0x3238,	0,	0,	0,	0	},
+{	"Belgium",		"RTC Télé Liège",			0x3239,	0,	0,	0,	0	},
+{	"Belgium",		"No tele",					0x3240,	0,	0,	0,	0	},
+{	"Belgium",		"TV Lux",					0x3241,	0,	0,	0,	0	},
+{	"Belgium",		"Kanaal Z - NL",			0x325A,	0,	0,	0,	0	},
+{	"Belgium",		"CANAL Z - FR",				0x325B,	0,	0,	0,	0	},
+{	"Belgium",		"CARTOON Network - NL",		0x326A,	0,	0,	0,	0	},
+{	"Belgium",		"CARTOON Network - FR",		0x326B,	0,	0,	0,	0	},
+{	"Belgium",		"LIBERTY CHANNEL - NL",		0x327A,	0,	0,	0,	0	},
+{	"Belgium",		"LIBERTY CHANNEL - FR",		0x327B,	0,	0,	0,	0	},
+{	"Belgium",		"TCM - NL",					0x328A,	0,	0,	0,	0	},
+{	"Belgium",		"TCM - FR",					0x328B,	0,	0,	0,	0	},
+{	"Belgium",		"Mozaiek/Mosaique",			0x3298,	0,	0,	0,	0	},
+{	"Belgium",		"Info Kanaal/Canal Info",	0x3299,	0,	0,	0,	0	},
+{	"Belgium",		"Sporza",					0x3226,	0,	0,	0,	0	},
+{	"Belgium",		"VIJF tv",					0x3227,	0,	0,	0,	0	},
+{	"Croatia",		"HRT",						0x0385,	0,	0,	0,	0	},
+/*
+{	"Czech Republic CT 1 4201 32 C1 3C 21
+{	"Czech Republic CT 2 4202 32 C2 3C 22
+{	"Czech Republic CT1 Regional 4231 32 F1 3C 25
+{	"Czech Republic CT1 Regional, Brno 4211 32 D1 3B 01
+{	"Czech Republic CT1 Regional, Ostravia 4221 32 E1 3B 02
+{	"Czech Republic CT2 Regional 4232 32 F2 3B 03
+{	"Czech Republic CT2 Regional, Brno 4212 32 D2 3B 04
+{	"Czech Republic CT2 Regional, Ostravia 4222 32 E2 3B 05
+{	"Czech Republic NOVA TV 4203 32 C3 3C 23
+{	"Czech Republic Prima TV 4204 32 C4 3C 04
+{	"Czech Republic TV Praha 4205
+{	"Czech Republic TV HK 4206
+{	"Czech Republic TV Pardubice 4207
+{	"Czech Republic TV Brno 4208
+{	"Denmark Discovery Denmark 4504
+{	"Denmark DR1 7392 29 01 39 01
+{	"Denmark DR2 49CF 29 03 39 03
+{	"Denmark TV 2 4502 29 02 39 02
+{	"Denmark TV 2 Zulu 4503 29 04 39 04
+{	"Denmark TV 2 Charlie 4505 29 05
+{	"Denmark TV 2 Film 4508 29 08
+{	"Denmark TV Danmark 4506 29 06
+{	"Denmark Kanal 5 4507 29 07
+{	"Finland OWL3 358F 26 0F 36 14
+{	"Finland YLE future use 3583 26 03 36 08
+{	"Finland YLE future use 3584 26 04 36 09
+{	"Finland YLE future use 3585 26 05 36 0A
+{	"Finland YLE future use 3586 26 06 36 0B
+{	"Finland YLE future use 3587 26 07 36 0C
+{	"Finland YLE future use 3588 26 08 36 0D
+{	"Finland YLE future use 3589 26 09 36 0E
+{	"Finland YLE future use 358A 26 0A 36 0F
+{	"Finland YLE future use 358B 26 0B 36 10
+{	"Finland YLE future use 358C 26 0C 36 11
+{	"Finland YLE future use 358D 26 0D 36 12
+{	"Finland YLE future use 358E 26 0E 36 13
+{	"Finland YLE1 3581 26 01 36 01
+{	"Finland YLE2 3582 26 02 36 07
+*/
+{	"France",		"AB1",						0x33C1,	0x2F,	0xC1,	0x3F,	0x41	},
+{	"France",		"Aqui TV",					0x3320,	0x2F,	0x20,	0x3F,	0x20	},
+{	"France",		"Arte / La Cinquième",		0x330A,	0x2F,	0x0A,	0x3F,	0x0A	},
+{	"France",		"Canal J",					0x33C2,	0x2F,	0xC2,	0x3F,	0x42	},
+{	"France",		"Canal Jimmy",				0x33C3,	0x2F,	0xC3,	0x3F,	0x43	},
+{	"France",		"Canal+",					0x33F4,	0x2F,	0x04,	0x3F,	0x04	},
+{	"France",		"Euronews",					0xFE01,	0x2F,	0xE1,	0x3F,	0x61	},
+{	"France",		"Eurosport",				0xF101,	0x2F,	0xE2,	0x3F,	0x62	},
+{	"France",		"France 2",					0x33F2,	0x2F,	0x02,	0x3F,	0x02	},
+{	"France",		"France 3",					0x33F3,	0x2F,	0x03,	0x3F,	0x03	},
+{	"France",		"La Chaîne Météo",			0x33C5,	0x2F,	0xC5,	0x3F,	0x45	},
+{	"France",		"LCI",						0x33C4,	0x2F,	0xC4,	0x3F,	0x44	},
+{	"France",		"M6",						0x33F6,	0x2F,	0x06,	0x3F,	0x06	},
+{	"France",		"MCM",						0x33C6,	0x2F,	0xC6,	0x3F,	0x46	},
+{	"France",		"Paris Première",			0x33C8,	0x2F,	0xC8,	0x3F,	0x48	},
+{	"France",		"Planète",					0x33C9,	0x2F,	0xC9,	0x3F,	0x49	},
+{	"France",		"RFO1",						0x3311,	0x2F,	0x11,	0x3F,	0x11	},
+{	"France",		"RFO2",						0x3312,	0x2F,	0x12,	0x3F,	0x12	},
+{	"France",		"Sailing Channel",			0x33B2,	0,	0,	0,	0	},
+{	"France",		"Série Club",				0x33CA,	0x2F,	0xCA,	0x3F,	0x4A	},
+{	"France",		"Télétoon",					0x33CB,	0x2F,	0xCB,	0x3F,	0x4B	},
+{	"France",		"Téva",						0x33CC,	0x2F,	0xCC,	0x3F,	0x4C	},
+{	"France",		"TF1",						0x33F1,	0x2F,	0x01,	0x3F,	0x01	},
+{	"France",		"TLM",						0x3321,	0x2F,	0x21,	0x3F,	0x21	},
+{	"France",		"TLT",						0x3322,	0x2F,	0x22,	0x3F,	0x22	},
+{	"France",		"TMC Monte-Carlo",			0x33C7,	0x2F,	0xC7,	0x3F,	0x47	},
+{	"France",		"TV5",						0xF500,	0x2F,	0xE5,	0x3F,	0x65	},
+/*
+{	"Germany 3SAT 49C7
+{	"Germany ARD 4901
+{	"Germany ARD future use 49C1
+{	"Germany ARD future use 49C3
+{	"Germany ARD future use 49C4
+{	"Germany ARD future use 49C5
+Germany ARD future use 49C6
+Germany ARD future use 49CA
+Germany ARD future use 49CC
+Germany ARD future use 49CD
+Germany ARD future use 49CE
+Germany ARD future use 49D0
+Germany ARD future use 49D1
+Germany ARD future use 49D2
+Germany ARD future use 49D3
+Germany ARD future use 49D5
+Germany ARD future use 49D6
+Germany ARD future use 49D7
+Germany ARD future use 49D8
+Germany ARD future use 49DA
+Germany ARD future use 49DB
+Germany ARD future use 49DD
+Germany ARD future use 49DE
+Germany ARD future use 49E0
+Germany ARD future use 49E2
+Germany ARD future use 49E3
+Germany ARD future use 49E5
+Germany ARD future use 49E7
+Germany ARD future use 49E8
+Germany ARD future use 49E9
+Germany ARD future use 49EA
+Germany ARD future use 49EB
+Germany ARD future use 49EC
+Germany ARD future use 49ED
+Germany ARD future use 49EE
+Germany ARD future use 49EF
+Germany ARD future use 49F0
+Germany ARD future use 49F1
+Germany ARD future use 49F2
+Germany ARD future use 49F3
+Germany ARD future use 49F4
+Germany ARD future use 49F5
+Germany ARD future use 49F6
+Germany ARD future use 49F7
+Germany ARD future use 49F8
+Germany ARD future use 49F9
+Germany ARD future use 49FA
+Germany ARD future use 49FB
+Germany ARD future use 49FC
+Germany ARD future use 49FD
+Germany ARD future use 4981
+Germany Arte 490A
+Germany BR 49CB
+Germany BR-Alpha 4944
+Germany EXTRA 4943
+Germany Festival 4941
+Germany HR 49FF
+Germany Kinderkanal 49C9
+Germany MDR 49FE
+Germany MUXX 4942
+Germany NDR 49D4
+Germany ORB 4982
+Germany Phoenix 4908
+Germany QVC D Gmbh 5C49
+Germany RB 49D9
+Germany SFB 49DC
+Germany SR 49DF
+Germany SWR-BW 49E1
+Germany SWR-RP 49E4
+Germany 1-2-3.TV 49BD
+Germany TELE-5 49BE
+Germany Home Shopping Europe 49BF
+Germany VOX Television 490C
+Germany WDR 49E6
+Germany ZDF 4902
+Greece ET future use 3004 21 04 31 04
+Greece ET future use 3005 21 05 31 05
+Greece ET future use 3006 21 06 31 06
+Greece ET future use 3007 21 07 31 07
+Greece ET future use 3008 21 08 31 08
+Greece ET future use 3009 21 09 31 09
+Greece ET future use 300A 21 0A 31 0A
+Greece ET future use 300B 21 0B 31 0B
+Greece ET future use 300C 21 0C 31 0C
+Greece ET future use 300D 21 0D 31 0D
+Greece ET future use 300E 21 0E 31 0E
+Greece ET future use 300F 21 0F 31 0F
+Greece ET-1 3001 21 01 31 01
+Greece ET-3 3003 21 03 31 03
+Greece NET 3002 21 02 31 02
+Hungary Duna Televizio 3636
+Hungary MTV1 3601
+Hungary MTV1 future use 3681
+Hungary MTV1 regional, Budapest 3611
+Hungary MTV1 regional, Debrecen 3651
+Hungary MTV1 regional, Miskolc 3661
+Hungary MTV1 regional, Pécs 3621
+Hungary MTV1 regional, Szeged 3631
+Hungary MTV1 regional, Szombathely 3641
+Hungary MTV2 3602
+Hungary MTV2 future use 3682
+Hungary tv2 3622
+Hungary tv2 future use 3620
+Iceland Rikisutvarpid-Sjonvarp 3541
+Ireland Network 2 3532 42 02 32 02
+Ireland RTE future use 3534 42 04 32 04
+Ireland RTE future use 3535 42 05 32 05
+Ireland RTE future use 3536 42 06 32 06
+Ireland RTE future use 3537 42 07 32 07
+Ireland RTE future use 3538 42 08 32 08
+Ireland RTE future use 3539 42 09 32 09
+Ireland RTE future use 353A 42 0A 32 0A
+Ireland RTE future use 353B 42 0B 32 0B
+Ireland RTE future use 353C 42 0C 32 0C
+Ireland RTE future use 353D 42 0D 32 0D
+Ireland RTE future use 353E 42 0E 32 0E
+Ireland RTE future use 353F 42 0F 32 0F
+Ireland RTE1 3531 42 01 32 01
+Ireland Teilifis na Gaeilge 3533 42 03 32 03
+Ireland TV3 3333
+Italy RAI 1 3901
+Italy RAI 2 3902
+Italy RAI 3 3903
+Italy Rete A 3904
+Italy Canale Italia 3905 15 05
+Italy Telenova 3909
+Italy Arte 390A
+Italy TRS TV 3910
+Italy Sky Cinema Classic 3911 15 11
+Italy Sky Future use (canale 109) 3912 15 12
+Italy Sky Calcio 1 3913 15 13
+Italy Sky Calcio 2 3914 15 14
+Italy Sky Calcio 3 3915 15 15
+Italy Sky Calcio 4 3916 15 16
+Italy Sky Calcio 5 3917 15 17
+Italy Sky Calcio 6 3918 15 18
+Italy Sky Calcio 7 3919 15 19
+Italy RaiNews24 3920
+Italy RAI Med 3921
+Italy RAI Sport 3922
+Italy RAI Educational 3923
+Italy RAI Edu Lab 3924
+Italy RAI Nettuno 1 3925
+Italy RAI Nettuno 2 3926
+Italy Camera Deputati 3927
+Italy RAI Mosaico 3928
+Italy RAI future use 3929
+Italy RAI future use 392A
+Italy RAI future use 392B
+Italy RAI future use 392C
+Italy RAI future use 392D
+Italy RAI future use 392E
+Italy RAI future use 392F
+Italy Discovery Italy 3930
+Italy MTV Italia 3933
+Italy MTV Brand New 3934
+Italy MTV Hits 3935
+Italy RTV38 3938
+Italy GAY TV 3939
+Italy Video Italia 3940
+Italy SAT 2000 3941
+Italy Jimmy 3942 15 42
+Italy Planet 3943 15 43
+Italy Cartoon Network 3944 15 44
+Italy Boomerang 3945 15 45
+Italy CNN International 3946 15 46
+Italy Cartoon Network +1 3947 15 47
+Italy Sky Sports 3 3948 15 48
+Italy Sky Diretta Gol 3949 15 49
+Italy RAISat Album 3950
+Italy RAISat Art 3951
+Italy RAISat Cinema 3952
+Italy RAISat Fiction 3953
+Italy RAISat GamberoRosso 3954
+Italy RAISat Ragazzi 3955
+Italy RAISat Show 3956
+Italy RAISat G. Rosso interattivo 3957
+Italy RAISat future use 3958
+Italy RAISat future use 3959
+Italy RAISat future use 395A
+Italy RAISat future use 395B
+Italy RAISat future use 395C
+Italy RAISat future use 395D
+Italy RAISat future use 395E
+Italy RAISat future use 395F
+Italy SCI FI CHANNEL 3960 15 60
+Italy Discovery Civilisations 3961
+Italy Discovery Travel and Adventure 3962
+Italy Discovery Science 3963
+Italy Sky Meteo24 3968 15 68
+Italy Sky Cinema 2 3970
+Italy Sky Cinema 3 3971
+Italy Sky Cinema Autore 3972
+Italy Sky Cinema Max 3973
+Italy Sky Cinema 16:9 3974
+Italy Sky Sports 2 3975
+Italy Sky TG24 3976
+Italy Fox 3977 15 77
+Italy Foxlife 3978 15 78
+Italy National Geographic Channel 3979 15 79
+Italy A1 3980 15 80
+Italy History Channel 3981 15 81
+Italy FOX KIDS 3985
+Italy PEOPLE TV – RETE 7 3986
+Italy FOX KIDS +1 3987
+Italy LA7 3988
+Italy PrimaTV 3989
+Italy SportItalia 398A
+Italy STUDIO UNIVERSAL 3990 15 90
+Italy Marcopolo 3991 15 91
+Italy Alice 3992 15 92
+Italy Nuvolari 3993 15 93
+Italy Leonardo 3994 15 94
+Italy SUPERPIPPA CHANNEL 3996 15 96
+Italy Sky Sports 1 3997
+Italy Sky Cinema 1 3998
+Italy Tele+3 3999
+Italy Sky Calcio 8 39A0 15 A0
+Italy Sky Calcio 9 39A1 15 A1
+Italy Sky Calcio 10 39A2 15 A2
+Italy Sky Calcio 11 39A3 15 A3
+Italy Sky Calcio 12 39A4 15 A4
+Italy Sky Calcio 13 39A5 15 A5
+Italy Sky Calcio 14 39A6 15 A6
+Italy Telesanterno 39A7 15 A7
+Italy Telecentro 39A8 15 A8
+Italy Telestense 39A9 15 A9
+Italy Disney Channel +1 39B0 15 B0
+Italy Sailing Channel 39B1
+Italy Disney Channel 39B2 15 B2
+Italy 7 Gold-Sestra Rete 39B3 15 B3
+Italy Rete 8-VGA 39B4 15 B4
+Italy Nuovarete 39B5 15 B5
+Italy Radio Italia TV 39B6 15 B6
+Italy Rete 7 39B7 15 B7
+Italy E! Entertainment Television 39B8 15 B8
+Italy Toon Disney 39B9 15 B9
+Italy Bassano TV 39C7 15 C7
+Italy ESPN Classic Sport 39C8 15 C8
+Italy VIDEOLINA 39CA
+Italy Mediaset Premium 1 39D2 15 D2
+Italy Mediaset Premium 2 39D3 15 D3
+Italy Mediaset Premium 3 39D4 15 D4
+Italy Mediaset Premium 4 39D5 15 D5
+Italy BOING 39D6 15 D6
+Italy Playlist Italia 39D7 15 D7
+Italy MATCH MUSIC 39D8 15 D8
+Italy National Geographic +1 39E1 15 E1
+Italy History Channel +1 39E2 15 E2
+Italy Sky TV 39E3 15 E3
+Italy GXT 39E4 15 E4
+Italy Playhouse Disney 39E5 15 E5
+Italy Sky Canale 224 39E6 15 E6
+Italy Rete 4 FA04
+Italy Canale 5 FA05
+Italy Italia 1 FA06
+{	"Luxembourg RTL Télé Lëtzebuerg 4000
+{	"Netherlands Nederland 1 3101 48 01 38 01
+{	"Netherlands Nederland 2 3102 48 02 38 02
+{	"Netherlands Nederland 3 3103 48 03 38 03
+{	"Netherlands RTL 4 3104 48 04 38 04
+{	"Netherlands RTL 5 3105 48 05 38 05
+{	"Netherlands Yorin 3106 48 06 38 06
+{	"Netherlands NOS future use 3110
+{	"Netherlands NOS future use 3111
+{	"Netherlands NOS future use 3112
+{	"Netherlands NOS future use 3113
+{	"Netherlands NOS future use 3114
+{	"Netherlands NOS future use 3115
+{	"Netherlands NOS future use 3116
+{	"Netherlands NOS future use 3117
+{	"Netherlands NOS future use 3118
+{	"Netherlands NOS future use 3119
+{	"Netherlands NOS future use 311A
+{	"Netherlands NOS future use 311B
+{	"Netherlands NOS future use 311C
+{	"Netherlands NOS future use 311D
+{	"Netherlands NOS future use 311E
+{	"Netherlands NOS future use 311F
+{	"Netherlands NOS future use 3107 48 07 38 07
+{	"Netherlands NOS future use 3108 48 08 38 08
+{	"Netherlands NOS future use 3109 48 09 38 09
+{	"Netherlands NOS future use 310A 48 0A 38 0A
+{	"Netherlands NOS future use 310B 48 0B 38 0B
+{	"Netherlands NOS future use 310C 48 0C 38 0C
+{	"Netherlands NOS future use 310D 48 0D 38 0D
+{	"Netherlands NOS future use 310E 48 0E 38 0E
+{	"Netherlands NOS future use 310F 48 0F 38 0F
+{	"Netherlands The BOX 3120 48 20 38 20
+{	"Netherlands Discovery Netherlands 3121
+{	"Netherlands Nickelodeon 3122 48 22 38 22
+{	"Netherlands Animal Planet Benelux 3123
+{	"Netherlands TALPA TV 3124
+{	"Netherlands NET5 3125
+{	"Netherlands SBS6 3126
+{	"Netherlands SBS future use 3127
+{	"Netherlands V8 3128
+{	"Netherlands SBS future use 3129
+{	"Netherlands SBS future use 312A
+{	"Netherlands SBS future use 312B
+{	"Netherlands SBS future use 312C
+{	"Netherlands SBS future use 312D
+{	"Netherlands SBS future use 312E
+{	"Netherlands SBS future use 312F
+{	"Netherlands TMF (Netherlands service) 3130
+{	"Netherlands TMF (Belgian Flanders service) 3131
+{	"Netherlands MTV NL 3132
+{	"Netherlands RNN7 3137
+{	"Norway NRK1 4701
+{	"Norway NRK2 4703
+{	"Norway TV 2 4702
+{	"Norway TV Norge 4704
+{	"Norway Discovery Nordic 4720
+{	"Poland Animal Planet 4831
+{	"Poland Discovery Poland 4830
+{	"Poland TV Polonia 4810
+{	"Poland TVP1 4801
+{	"Poland TVP2 4802
+{	"Poland TVP Warszawa 4880
+{	"Poland TVP Bialystok 4881
+{	"Poland TVP Bydgoszcz 4882
+{	"Poland TVP Gdansk 4883
+{	"Poland TVP Katowice 4884
+{	"Poland TVP Krakow 4886
+{	"Poland TVP Lublin 4887
+{	"Poland TVP Lodz 4888
+{	"Poland TVP Rzeszow 4890
+{	"Poland TVP Poznan 4891
+{	"Poland TVP Szczecin 4892
+{	"Poland TVP Wroclaw 4893
+{	"Poland TVN 4820
+{	"Poland TVN Siedem 4821
+{	"Poland TVN24 4822
+{	"Portugal Future use 3516
+{	"Portugal Future use 3517
+{	"Portugal Future use 3518
+{	"Portugal Future use 3519
+{	"Portugal RTP1 3510
+{	"Portugal RTP2 3511
+{	"Portugal RTPAF 3512
+{	"Portugal RTPAZ 3514
+{	"Portugal RTPI 3513
+{	"Portugal RTPM 3515
+{	"San Marino RTV 3781
+{	"Slovakia future use 42A7 35 A7 35 27
+{	"Slovakia future use 42A8 35 A8 35 28
+{	"Slovakia future use 42A9 35 A9 35 29
+{	"Slovakia future use 42AA 35 AA 35 2A
+{	"Slovakia future use 42AB 35 AB 35 2B
+{	"Slovakia future use 42AC 35 AC 35 2C
+{	"Slovakia future use 42AD 35 AD 35 2D
+{	"Slovakia future use 42AE 35 AE 35 2E
+{	"Slovakia future use 42AF 35 AF 35 2F
+{	"Slovakia STV1 42A1 35 A1 35 21
+{	"Slovakia STV1 Regional, B. Bystrica 42A5 35 A5 35 25
+{	"Slovakia STV1 Regional, Košice 42A3 35 A3 35 23
+{	"Slovakia STV2 42A2 35 A2 35 22
+{	"Slovakia STV2 Regional, B. Bystrica 42A6 35 A6 35 26
+{	"Slovakia STV2 Regional, Košice 42A4 35 A4 35 24
+{	"Slovenia future use AAE5
+{	"Slovenia future use AAE6
+{	"Slovenia future use AAE7
+{	"Slovenia future use AAE8
+{	"Slovenia future use AAE9
+{	"Slovenia future use AAEA
+{	"Slovenia future use AAEB
+{	"Slovenia future use AAEC
+{	"Slovenia future use AAED
+{	"Slovenia future use AAEE
+{	"Slovenia future use AAEF
+{	"Slovenia future use AAF2
+{	"Slovenia future use AAF3
+{	"Slovenia future use AAF4
+{	"Slovenia future use AAF5
+{	"Slovenia future use AAF6
+{	"Slovenia future use AAF7
+{	"Slovenia future use AAF8
+{	"Slovenia future use AAF9
+{	"Slovenia KC AAE3
+{	"Slovenia SLO1 AAE1
+{	"Slovenia SLO2 AAE2
+{	"Slovenia SLO3 AAF1
+{	"Slovenia TLM AAE4
+{	"Spain Arte 340A
+{	"Spain C33 CA33
+{	"Spain ETB 1 BA01
+{	"Spain ETB 2 3402
+{	"Spain TV3 CA03
+{	"Spain TVE1 3E00
+{	"Spain TVE2 E100
+{	"Spain TVE Internacional Europa E200
+{	"Spain CANAL 9 3403
+{	"Spain PUNT 2 3404
+{	"Spain CCV 3405
+{	"Spain CANAL 9 NEWS 24H Future use 3406
+{	"Spain CANAL 9 Future Use 3407
+{	"Spain CANAL 9 DVB Future Use 3408
+{	"Spain CANAL 9 DVB Future Use 3409
+{	"Spain CANAL 9 DVB Future Use 340B
+{	"Spain CANAL 9 DVB Future Use 340C
+{	"Spain CANAL 9 DVB Future Use 340D
+{	"Spain CANAL 9 DVB Future Use 340E
+{	"Spain CANAL 9 DVB Future Use 340F
+{	"Spain CANAL 9 DVB Future Use 3410
+{	"Spain CANAL 9 DVB Future Use 3411
+{	"Spain CANAL 9 DVB Future Use 3412
+{	"Spain CANAL 9 DVB Future Use 3413
+{	"Spain CANAL 9 DVB Future Use 3414
+{	"Spain Tele5 E500 1F E5
+{	"Sweden SVT 1 4601 4E 01 3E 01
+{	"Sweden SVT 2 4602 4E 02 3E 02
+{	"Sweden SVT future use 4603 4E 03 3E 03
+{	"Sweden SVT future use 4604 4E 04 3E 04
+{	"Sweden SVT future use 4605 4E 05 3E 05
+{	"Sweden SVT future use 4606 4E 06 3E 06
+{	"Sweden SVT future use 4607 4E 07 3E 07
+{	"Sweden SVT future use 4608 4E 08 3E 08
+{	"Sweden SVT future use 4609 4E 09 3E 09
+{	"Sweden SVT future use 460A 4E 0A 3E 0A
+{	"Sweden SVT future use 460B 4E 0B 3E 0B
+{	"Sweden SVT future use 460C 4E 0C 3E 0C
+{	"Sweden SVT future use 460D 4E 0D 3E 0D
+{	"Sweden SVT future use 460E 4E 0E 3E 0E
+{	"Sweden SVT future use 460F 4E 0F 3E 0F
+{	"Sweden SVT Test Txmns 4600 4E 00 3E 00
+{	"Sweden TV 4 4640 4E 40 3E 40
+{	"Sweden TV 4 future use 4641 4E 41 3E 41
+{	"Sweden TV 4 future use 4642 4E 42 3E 42
+{	"Sweden TV 4 future use 4643 4E 43 3E 43
+{	"Sweden TV 4 future use 4644 4E 44 3E 44
+{	"Sweden TV 4 future use 4645 4E 45 3E 45
+{	"Sweden TV 4 future use 4646 4E 46 3E 46
+{	"Sweden TV 4 future use 4647 4E 47 3E 47
+{	"Sweden TV 4 future use 4648 4E 48 3E 48
+{	"Sweden TV 4 future use 4649 4E 49 3E 49
+{	"Sweden TV 4 future use 464A 4E 4A 3E 4A
+{	"Sweden TV 4 future use 464B 4E 4B 3E 4B
+{	"Sweden TV 4 future use 464C 4E 4C 3E 4C
+{	"Sweden TV 4 future use 464D 4E 4D 3E 4D
+{	"Sweden TV 4 future use 464E 4E 4E 3E 4E
+{	"Sweden TV 4 future use 464F 4E 4F 3E 4F
+{	"Switzerland SAT ACCESS 410A 24 CA 34 4A
+{	"Switzerland SF 1 4101 24 C1 34 41
+{	"Switzerland SF 2 4107 24 C7 34 47
+{	"Switzerland TSI 1 4103 24 C3 34 43
+{	"Switzerland TSI 2 4109 24 C9 34 49
+{	"Switzerland TSR 1 4102 24 C2 34 42
+{	"Switzerland TSR 2 4108 24 C8 34 48
+{	"Switzerland U1 4121 24 21
+{	"Turkey ATV 900A
+{	"Turkey AVRASYA 9006 43 06 33 06
+{	"Turkey BRAVO TV 900E
+{	"Turkey Cine 5 9008
+{	"Turkey EKO TV 900D
+{	"Turkey EURO D 900C
+{	"Turkey FUN TV 9010
+{	"Turkey GALAKSI TV 900F
+{	"Turkey KANAL D 900B
+{	"Turkey KANAL D future use 9012
+{	"Turkey KANAL D future use 9013
+{	"Turkey Show TV 9007
+{	"Turkey STAR TV 9020
+{	"Turkey STARMAX 9021
+{	"Turkey KANAL 6 9022
+{	"Turkey STAR 4 9023
+{	"Turkey STAR 5 9024
+{	"Turkey STAR 6 9025
+{	"Turkey STAR 7 9026
+{	"Turkey STAR 8 9027
+{	"Turkey STAR TV future use 9028
+{	"Turkey STAR TV future use 9029
+{	"Turkey STAR TV future use 9030
+{	"Turkey STAR TV future use 9031
+{	"Turkey STAR TV future use 9032
+{	"Turkey STAR TV future use 9033
+{	"Turkey STAR TV future use 9034
+{	"Turkey STAR TV future use 9035
+{	"Turkey STAR TV future use 9036
+{	"Turkey STAR TV future use 9037
+{	"Turkey STAR TV future use 9038
+{	"Turkey STAR TV future use 9039
+{	"Turkey Super Sport 9009
+{	"Turkey TEMPO TV 9011
+{	"Turkey TGRT 9014
+{	"Turkey TRT-1 9001 43 01 33 01
+{	"Turkey TRT-2 9002 43 02 33 02
+{	"Turkey TRT-3 9003 43 03 33 03
+{	"Turkey TRT-4 9004 43 04 33 04
+{	"Turkey TRT-INT 9005 43 05 33 05
+{	"UK ANGLIA TV FB9C 2C 1C 3C 1C
+{	"UK ANGLIA TV future use FB9F 2C 1F 3C 1F
+{	"UK ANGLIA TV future use FB9D 5B CD 3B 4D
+{	"UK ANGLIA TV future use FB9E 5B CE 3B 4E
+{	"UK BBC News 24 4469 2C 69 3C 69
+{	"UK BBC Prime 4468 2C 68 3C 68
+{	"UK BBC World 4457 2C 57 3C 57
+{	"UK BBC Worldwide future 01 4458 2C 58 3C 58
+{	"UK BBC Worldwide future 02 4459 2C 59 3C 59
+{	"UK BBC Worldwide future 03 445A 2C 5A 3C 5A
+{	"UK BBC Worldwide future 04 445B 2C 5B 3C 5B
+{	"UK BBC Worldwide future 05 445C 2C 5C 3C 5C
+{	"UK BBC Worldwide future 06 445D 2C 5D 3C 5D
+{	"UK BBC Worldwide future 07 445E 2C 5E 3C 5E
+{	"UK BBC Worldwide future 08 445F 2C 5F 3C 5F
+{	"UK BBC Worldwide future 09 4460 2C 60 3C 60
+{	"UK BBC Worldwide future 10 4461 2C 61 3C 61
+{	"UK BBC Worldwide future 11 4462 2C 62 3C 62
+{	"UK BBC Worldwide future 12 4463 2C 63 3C 63
+{	"UK BBC Worldwide future 13 4464 2C 64 3C 64
+{	"UK BBC Worldwide future 14 4465 2C 65 3C 65
+{	"UK BBC Worldwide future 15 4466 2C 66 3C 66
+{	"UK BBC Worldwide future 16 4467 2C 67 3C 67
+{	"UK BBC1 447F 2C 7F 3C 7F
+{	"UK BBC1 future 01 4443 2C 43 3C 43
+{	"UK BBC1 future 02 4445 2C 45 3C 45
+{	"UK BBC1 future 03 4479 2C 79 3C 79
+{	"UK BBC1 future 04 4447 2C 47 3C 47
+{	"UK BBC1 future 05 4477 2C 77 3C 77
+{	"UK BBC1 future 06 4449 2C 49 3C 49
+{	"UK BBC1 future 07 4475 2C 75 3C 75
+{	"UK BBC1 future 08 444B 2C 4B 3C 4B
+{	"UK BBC1 future 09 4473 2C 73 3C 73
+{	"UK BBC1 future 10 444D 2C 4D 3C 4D
+{	"UK BBC1 future 11 4471 2C 71 3C 71
+{	"UK BBC1 future 12 444F 2C 4F 3C 4F
+{	"UK BBC1 future 13 446F 2C 6F 3C 6F
+{	"UK BBC1 future 14 4451 2C 51 3C 51
+{	"UK BBC1 future 15 446D 2C 6D 3C 6D
+{	"UK BBC1 future 16 4453 2C 53 3C 53
+{	"UK BBC1 future 17 446B 2C 6B 3C 6B
+{	"UK BBC1 future 18 4455 2C 55 3C 55
+{	"UK BBC1 NI 4441 2C 41 3C 41
+{	"UK BBC1 Scotland 447B 2C 7B 3C 7B
+{	"UK BBC1 Wales 447D 2C 7D 3C 7D
+{	"UK BBC2 4440 2C 40 3C 40
+{	"UK BBC2 future 01 447C 2C 7C 3C 7C
+{	"UK BBC2 future 02 447A 2C 7A 3C 7A
+{	"UK BBC2 future 03 4446 2C 46 3C 46
+{	"UK BBC2 future 04 4478 2C 78 3C 78
+{	"UK BBC2 future 05 4448 2C 48 3C 48
+{	"UK BBC2 future 06 4476 2C 76 3C 76
+{	"UK BBC2 future 07 444A 2C 4A 3C 4A
+{	"UK BBC2 future 08 4474 2C 74 3C 74
+{	"UK BBC2 future 09 444C 2C 4C 3C 4C
+{	"UK BBC2 future 10 4472 2C 72 3C 72
+{	"UK BBC2 future 11 444E 2C 4E 3C 4E
+{	"UK BBC2 future 12 4470 2C 70 3C 70
+{	"UK BBC2 future 13 4450 2C 50 3C 50
+{	"UK BBC2 future 14 446E 2C 6E 3C 6E
+{	"UK BBC2 future 15 4452 2C 52 3C 52
+{	"UK BBC2 future 16 446C 2C 6C 3C 6C
+{	"UK BBC2 future 17 4454 2C 54 3C 54
+{	"UK BBC2 future 18 446A 2C 6A 3C 6A
+{	"UK BBC2 future 19 4456 2C 56 3C 56
+{	"UK BBC2 NI 447E 2C 7E 3C 7E
+{	"UK BBC2 Scotland 4444 2C 44 3C 44
+{	"UK BBC2 Wales 4442 2C 42 3C 42
+{	"UK BORDER TV B7F7 2C 27 3C 27
+{	"UK BRAVO 4405 5B EF 3B 6F
+{	"UK CARLTON SEL. future use 82E2 2C 06 3C 06
+{	"UK CARLTON SELECT 82E1 2C 05 3C 05
+{	"UK CARLTON TV 82DD 2C 1D 3C 1D
+{	"UK CARLTON TV future use 82DE 5B CF 3B 4F
+{	"UK CARLTON TV future use 82DF 5B D0 3B 50
+{	"UK CARLTON TV future use 82E0 5B D1 3B 51
+{	"UK CENTRAL TV 2F27 2C 37 3C 37
+{	"UK CENTRAL TV future use 5699 2C 16 3C 16
+{	"UK CHANNEL 4 FCD1 2C 11 3C 11
+{	"UK CHANNEL 5 (1) 9602 2C 02 3C 02
+{	"UK CHANNEL 5 (2) 1609 2C 09 3C 09
+{	"UK CHANNEL 5 (3) 28EB 2C 2B 3C 2B
+{	"UK CHANNEL 5 (4) C47B 2C 3B 3C 3B
+{	"UK CHANNEL TV FCE4 2C 24 3C 24
+{	"UK CHILDREN'S CHANNEL 4404 5B F0 3B 70
+{	"UK CNNI 01F2 5B F1 3B 71
+{	"UK DISCOVERY 4407 5B F2 3B 72
+{	"UK Discovery Home & Leisure 4420
+{	"UK Animal Planet 4421
+{	"UK DISNEY CHANNEL UK 44D1 5B CC 3B 4C
+{	"UK FAMILY CHANNEL 4408 5B F3 3B 73
+{	"UK FilmFour C4F4 42 F4 32 74
+{	"UK GMTV ADDC 5B D2 3B 52
+{	"UK GMTV future use ADDD 5B D3 3B 53
+{	"UK GMTV future use ADDE 5B D4 3B 54
+{	"UK GMTV future use ADDF 5B D5 3B 55
+{	"UK GMTV future use ADE0 5B D6 3B 56
+{	"UK GMTV future use ADE1 5B D7 3B 57
+{	"UK GRAMPIAN TV F33A 2C 3A 3C 3A
+{	"UK GRANADA PLUS 4D5A 5B F4 3B 74
+{	"UK GRANADA Timeshare 4D5B 5B F5 3B 75
+{	"UK GRANADA TV ADD8 2C 18 3C 18
+{	"UK GRANADA TV future use ADD9 5B D8 3B 58
+{	"UK HISTORY Ch. FCF4 5B F6 3B 76
+{	"UK HTV 5AAF 2C 3F 3C 3F
+{	"UK HTV future use F258 2C 38 3C 38
+{	"UK ITV NETWORK C8DE 2C 1E 3C 1E
+{	"UK LEARNING CHANNEL 4406 5B F7 3B 77
+{	"UK Live TV 4409 5B F8 3B 78
+{	"UK LWT 884B 2C 0B 3C 0B
+{	"UK LWT future use 884C 5B D9 3B 59
+{	"UK LWT future use 884D 5B DA 3B 5A
+{	"UK LWT future use 884F 5B DB 3B 5B
+{	"UK LWT future use 8850 5B DC 3B 5C
+{	"UK LWT future use 8851 5B DD 3B 5D
+{	"UK LWT future use 8852 5B DE 3B 5E
+{	"UK LWT future use 8853 5B DF 3B 5F
+{	"UK LWT future use 8854 5B E0 3B 60
+{	"UK MERIDIAN 10E4 2C 34 3C 34
+{	"UK MERIDIAN future use DD50 2C 10 3C 10
+{	"UK MERIDIAN future use DD51 5B E1 3B 61
+{	"UK MERIDIAN future use DD52 5B E2 3B 62
+{	"UK MERIDIAN future use DD53 5B E3 3B 63
+{	"UK MERIDIAN future use DD54 5B E4 3B 64
+{	"UK MERIDIAN future use DD55 5B E5 3B 65
+{	"UK MOVIE CHANNEL FCFB 2C 1B 3C 1B
+{	"UK MTV 4D54 2C 14 3C 14
+{	"UK MTV future use 4D55 2C 33 3C 33
+{	"UK MTV future use 4D56 2C 36 3C 36
+{	"UK National Geographic Channel 320B
+{	"UK NBC Europe 8E71 2C 31 3C 31
+{	"UK NBC Europe future use 5343 2C 03 3C 03
+{	"UK NBC Europe future use 8E79 2C 23 3C 23
+{	"UK NBC Europe future use 8E78 2C 26 3C 26
+{	"UK NBC Europe future use 8E77 2C 28 3C 28
+{	"UK NBC Europe future use 8E76 2C 29 3C 29
+{	"UK NBC Europe future use 8E75 2C 2A 3C 2A
+{	"UK NBC Europe future use 8E74 2C 2E 3C 2E
+{	"UK NBC Europe future use 8E73 2C 32 3C 32
+{	"UK CNBC Europe 8E72 2C 35 3C 35
+{	"UK Nickelodeon UK A460
+{	"UK Paramount Comedy Channel UK A465
+{	"UK QVC future use 5C33
+{	"UK QVC future use 5C34
+{	"UK QVC future use 5C39
+{	"UK QVC UK 5C44
+{	"UK RACING Ch. FCF3 2C 13 3C 13
+{	"UK S4C B4C7 2C 07 3C 07
+{	"UK SCI FI CHANNEL FCF5 2C 15 3C 15
+{	"UK SCOTTISH TV F9D2 2C 12 3C 12
+{	"UK SKY GOLD FCF9 2C 19 3C 19
+{	"UK SKY MOVIES PLUS FCFC 2C 0C 3C 0C
+{	"UK SKY NEWS FCFD 2C 0D 3C 0D
+{	"UK SKY ONE FCFE 2C 0E 3C 0E
+{	"UK SKY SOAPS FCF7 2C 17 3C 17
+{	"UK SKY SPORTS FCFA 2C 1A 3C 1A
+{	"UK SKY SPORTS 2 FCF8 2C 08 3C 08
+{	"UK SKY TRAVEL FCF6 5B F9 3B 79
+{	"UK SKY TWO FCFF 2C 0F 3C 0F
+{	"UK SSVC 37E5 2C 25 3C 25
+{	"UK TNT / Cartoon Network 44C1
+{	"UK TYNE TEES TV A82C 2C 2C 3C 2C
+{	"UK TYNE TEES TV future use A82D 5B E6 3B 66
+{	"UK TYNE TEES TV future use A82E 5B E7 3B 67
+{	"UK UK GOLD 4401 5B FA 3B 7A
+{	"UK UK GOLD future use 4411 5B FB 3B 7B
+{	"UK UK GOLD future use 4412 5B FC 3B 7C
+{	"UK UK GOLD future use 4413 5B FD 3B 7D
+{	"UK UK GOLD future use 4414 5B FE 3B 7E
+{	"UK UK GOLD future use 4415 5B FF 3B 7F
+{	"UK UK LIVING 4402 2C 01 3C 01
+{	"UK ULSTER TV 833B 2C 3D 3C 3D
+{	"UK VH-1 4D58 2C 20 3C 20
+{	"UK VH-1 (German language) 4D59 2C 21 3C 21
+{	"UK VH-1 future use 4D57 2C 22 3C 22
+{	"UK WESTCOUNTRY future use 25D1 5B E8 3B 68
+{	"UK WESTCOUNTRY future use 25D2 5B E9 3B 69
+{	"UK WESTCOUNTRY TV 25D0 2C 30 3C 30
+{	"UK WIRE TV 4403 2C 3C 3C 3C
+{	"UK YORKSHIRE TV FA2C 2C 2D 3C 2D
+{	"UK YORKSHIRE TV future use FA2D 5B EA 3B 6A
+{	"UK YORKSHIRE TV future use FA2E 5B EB 3B 6B
+{	"UK YORKSHIRE TV future use FA2F 5B EC 3B 6C
+{	"UK YORKSHIRE TV future use FA30 5B ED 3B 6D
+{	"UK YORKSHIRE TV future use FA31 5B EE 3B 6E
+{	"Ukraine 1+1 7700
+{	"Ukraine 1+1 future use 7701
+{	"Ukraine 1+1 future use 7702
+{	"Ukraine 1+1 future use 7703
+{	"Ukraine M1 7705
+{	"Ukraine ICTV 7707
+{	"Ukraine Novy Kanal 7708
+*/
+};
 
 
 void VBI_VT_Init()
@@ -1667,6 +2511,56 @@ BYTE VT_UpdateHilightListProc(TVTPage*, WORD wPoint, LPWORD lpFlags,
         }
     }
     return PARSE_CONTINUE;
+}
+
+
+void VT_GetStationFromID(LPSTR lpBuffer, LONG nLength)
+{
+    ASSERT(nLength > 0);
+
+    lpBuffer[0] = '\0';
+
+	// Search first with CNI from PDC (P8/30/2)
+	DWORD dwCode = VTDecoder.GetCNIFromPDC();
+	if (dwCode != 0)
+	{
+		// dwCode is a CNI from PDC
+		BYTE uCountry = (dwCode >> 8) & 0xFF;
+		BYTE uNetwork = dwCode & 0xFF;
+		//LOG(1, "PDC Country %x Network %x", uCountry, uNetwork);
+		int iNbCodes = sizeof(RegisteredCNICodes) / sizeof(RegisteredCNICodes[0]);
+		for (int i(0); i < iNbCodes; i++)
+		{
+			if (   (RegisteredCNICodes[i].uC_P8302 == uCountry)
+				&& (RegisteredCNICodes[i].uNI_P8302 == uNetwork) )
+			{
+				strncpy(lpBuffer, RegisteredCNICodes[i].sNetwork, nLength-1);
+				lpBuffer[nLength] = '\0';
+				break;
+			}
+		}
+	}
+
+	// If not found, then search with network ID ocde from P8/30/1
+    if (*lpBuffer == '\0')
+	{
+		dwCode = VTDecoder.GetNetworkIDFromP8301();
+		if (dwCode != 0)
+		{
+			// dwCode is a network ID code
+			//LOG(1, "P8/30/1 Network ID Code %x", dwCode);
+			int iNbCodes = sizeof(RegisteredCNICodes) / sizeof(RegisteredCNICodes[0]);
+			for (int i(0); i < iNbCodes; i++)
+			{
+				if (RegisteredCNICodes[i].dwNI_P8301 == dwCode)
+				{
+					strncpy(lpBuffer, RegisteredCNICodes[i].sNetwork, nLength-1);
+					lpBuffer[nLength] = '\0';
+					break;
+				}
+			}
+		}
+	}
 }
 
 

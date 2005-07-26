@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.108 2005-03-26 18:53:24 laurentg Exp $
+// $Id: ProgramList.cpp,v 1.109 2005-07-26 22:17:44 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.108  2005/03/26 18:53:24  laurentg
+// EPG code improved
+// => possibility to set the EPG channel name in the channel setup dialog box
+// => automatic loading of new data when needed
+// => OSD scrrens updated
+// => first step for programs "browser"
+//
 // Revision 1.107  2005/03/23 14:20:59  adcockj
 // Test fix for threading issues
 //
@@ -361,6 +368,7 @@
 #include "Status.h"
 #include "Audio.h"
 #include "VBI_VideoText.h"
+#include "VBI_VPSdecode.h"
 #include "MixerDev.h"
 #include "OSD.h"
 #include "Providers.h"
@@ -464,6 +472,43 @@ const char* Channel_GetEPGName()
     {
         return "Unknown";
     }
+}
+
+
+const char* Channel_GetVBIName(BOOL bOnlyWithCodes)
+{
+	static char szName[24];
+
+	VT_GetStationFromID(szName, sizeof(szName));
+	//LOG(1, "VT_GetStationFromID => %s", szName);
+
+	// Laurent's comment
+	// We should implement the search of CNI in VPS
+	// for Germany, Switzerland, Austria and Ukraine
+	/* 
+	if (*szName == '\0')
+	{
+		VPS_GetChannelNameFromID(szName, sizeof(szName));
+		//LOG(1, "VPS_GetChannelNameFromID => %s", szName);
+	}
+	*/
+
+	if (bOnlyWithCodes == FALSE)
+	{
+		if (*szName == '\0')
+		{
+			VPS_GetChannelName(szName, sizeof(szName));
+			//LOG(1, "VPS_GetChannelName => %s", szName);
+		}
+
+		if (*szName == '\0')
+		{
+			VT_GetStation(szName, sizeof(szName));
+			//LOG(1, "VT_GetStation => %s", szName);
+		}
+	}
+
+	return szName;
 }
 
 
@@ -900,19 +945,30 @@ void ScanChannelPreset(HWND hDlg, int iCurrentChannelIndex, int iCountryCode)
 			char sbuf[256] = "";
 
 			// if teletext is active then get channel names
-			if(bCaptureVBI && Setting_GetValue(VBI_GetSetting(DOTELETEXT)))
+			if (   bCaptureVBI
+			    && (   Setting_GetValue(VBI_GetSetting(DOTELETEXT))
+					|| Setting_GetValue(VBI_GetSetting(DOVPS)) ) )
 			{
+				// Laurent's comment: should we not use VBI_ChannelChange ?
 				VT_ChannelChange();
+				// Laurent's comment: Increase the search duration because
+				// 10 * 200 seems to be sometimes not enough for some networks.
+				// The fact that the code ID in P8/30/1 needs to be received
+				// twice with the same value before being used is the main reason.
 				int i = 0; 
 				Sleep(50);
-				VT_GetStation(sbuf, 255);
-				while(i < 10 && (sbuf[0] == '\0' || sbuf[0] == ' '))
+				strcpy(sbuf, Channel_GetVBIName(TRUE));
+				while(i < 12 && (sbuf[0] == '\0' || sbuf[0] == ' '))
 				{
 					Sleep(200);
-					VT_GetStation(sbuf, 255);
+					strcpy(sbuf, Channel_GetVBIName(TRUE));
 					++i;
 				}
-				if(i == 10)
+				if(sbuf[0] == '\0' || sbuf[0] == ' ')
+				{
+					strcpy(sbuf, Channel_GetVBIName(FALSE));
+				}
+				if(sbuf[0] == '\0' || sbuf[0] == ' ')
 				{
 					sprintf(sbuf, "Channel %d", MyChannels.GetSize() + 1);
 				}
@@ -1807,7 +1863,8 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
                     SettingsMaster->LoadSettings();
                 }
 
-                VT_ChannelChange();                                
+				// Laurent's comment: should we not use VBI_ChannelChange ?
+                VT_ChannelChange();   
 
                 StatusBar_ShowText(STATUS_TEXT, MyChannels.GetChannel(CurrentProgram)->GetName());
 				OSD_ShowText(MyChannels.GetChannel(CurrentProgram)->GetName(), 0);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.109 2005-07-26 22:17:44 laurentg Exp $
+// $Id: ProgramList.cpp,v 1.110 2005-07-27 00:39:07 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.109  2005/07/26 22:17:44  laurentg
+// New function to get channel name from VBI
+// Used when scanning the channels
+//
 // Revision 1.108  2005/03/26 18:53:24  laurentg
 // EPG code improved
 // => possibility to set the EPG channel name in the channel setup dialog box
@@ -827,11 +831,6 @@ DWORD FindFrequency(DWORD Freq, int Format, DWORD dwAFCFrequencyDeviationThresho
     StartTick = GetTickCount();
     while (currentSource->IsVideoPresent() == FALSE)
     {
-        MSG msg;
-        if (PeekMessage(&msg, NULL, 0, 0xffffffff, PM_REMOVE) == TRUE)
-        {
-            SendMessage(msg.hwnd, msg.message, msg.wParam, msg.lParam);
-        }
 
         if(ElapsedTicks > MaxTuneDelay)
         {
@@ -840,6 +839,12 @@ DWORD FindFrequency(DWORD Freq, int Format, DWORD dwAFCFrequencyDeviationThresho
  
         ElapsedTicks = GetTickCount() - StartTick;
         Sleep(3);
+    }
+
+    MSG msg;
+    while (PeekMessage(&msg, NULL, 0, 0xffffffff, PM_REMOVE) == TRUE)
+    {
+        SendMessage(msg.hwnd, msg.message, msg.wParam, msg.lParam);
     }
     
     DWORD returnedFrequency = 0;
@@ -960,6 +965,12 @@ void ScanChannelPreset(HWND hDlg, int iCurrentChannelIndex, int iCountryCode)
 				strcpy(sbuf, Channel_GetVBIName(TRUE));
 				while(i < 12 && (sbuf[0] == '\0' || sbuf[0] == ' '))
 				{
+					MSG msg;
+					while (PeekMessage(&msg, NULL, 0, 0xffffffff, PM_REMOVE) == TRUE)
+					{
+						SendMessage(msg.hwnd, msg.message, msg.wParam, msg.lParam);
+					}
+
 					Sleep(200);
 					strcpy(sbuf, Channel_GetVBIName(TRUE));
 					++i;

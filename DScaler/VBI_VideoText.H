@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.H,v 1.37 2005-07-27 19:34:01 laurentg Exp $
+// $Id: VBI_VideoText.H,v 1.38 2005-07-27 22:56:47 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -59,6 +59,22 @@ enum eVTState
     VT_BLACK,
     VT_MIXED
 };
+
+
+typedef struct {
+	char*	sCountry;
+	char*	sNetwork;
+	WORD	wNI_P8301;
+	BYTE	uC_P8302;
+	BYTE	uNI_P8302;
+	BYTE	uA_X26;
+	BYTE	uB_X26;
+	WORD	wCNI_VPS;
+} TChannelIdentif;
+
+
+extern TChannelIdentif RegisteredCNICodes[];
+extern int iNbRegisteredCNICodes;
 
 
 void VBI_VT_Init();

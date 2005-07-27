@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VPSdecode.h,v 1.3 2003-10-27 10:39:54 adcockj Exp $
+// $Id: VBI_VPSdecode.h,v 1.4 2005-07-27 22:57:45 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -53,6 +53,7 @@ void VBI_DecodeLine_VPS(BYTE* VBI_Buffer);
 
 void VPS_ChannelChange();
 void VPS_GetChannelName(LPSTR lpBuffer, LONG nLength);
+void VPS_GetChannelNameFromCNI(LPSTR lpBuffer, LONG nLength);
 
 
 #endif

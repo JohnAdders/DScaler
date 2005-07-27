@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VPSdecode.cpp,v 1.5 2004-01-16 09:14:03 adcockj Exp $
+// $Id: VBI_VPSdecode.cpp,v 1.6 2005-07-27 22:57:45 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -42,6 +42,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2004/01/16 09:14:03  adcockj
+// Fixed a couple of bugs spotted by Robert Schlabbach
+//
 // Revision 1.4  2003/10/27 10:39:54  adcockj
 // Updated files for better doxygen compatability
 //
@@ -65,6 +68,7 @@
 #include "DScaler.h"
 #include "VBI.h"
 #include "VBI_VPSdecode.h"
+#include "VBI_VideoText.h"
 
 
 char VPSTempName[9];
@@ -117,6 +121,33 @@ void VPS_GetChannelName(LPSTR lpBuffer, LONG nLength)
 
     lpBuffer[--nLength] = '\0';
     memcpy(lpBuffer, VPSLastName, nLength);
+}
+
+
+void VPS_GetChannelNameFromCNI(LPSTR lpBuffer, LONG nLength)
+{
+	//
+	// Requires first to get the CNI code from VPS
+	//
+    ASSERT(nLength > 0);
+
+    lpBuffer[0] = '\0';
+
+	// TODO Here, we should use the decoded VPS CNI value
+	WORD wCNICode = 0;
+	if (wCNICode != 0)
+	{
+		//LOG(1, "VPS CNI Code %x", wCNICode);
+		for (int i(0); i < iNbRegisteredCNICodes; i++)
+		{
+			if (RegisteredCNICodes[i].wCNI_VPS == wCNICode)
+			{
+				strncpy(lpBuffer, RegisteredCNICodes[i].sNetwork, nLength-1);
+				lpBuffer[nLength] = '\0';
+				break;
+			}
+		}
+	}
 }
 
 

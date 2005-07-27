@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.111 2005-07-27 19:34:01 laurentg Exp $
+// $Id: ProgramList.cpp,v 1.112 2005-07-27 20:27:56 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.111  2005/07/27 19:34:01  laurentg
+// Separate PDC and P8/30/1
+//
 // Revision 1.110  2005/07/27 00:39:07  robmuller
 // Improved UI handling while scanning.
 //
@@ -996,8 +999,7 @@ void ScanChannelPreset(HWND hDlg, int iCurrentChannelIndex, int iCountryCode)
 			    && (   Setting_GetValue(VBI_GetSetting(DOTELETEXT))
 					|| Setting_GetValue(VBI_GetSetting(DOVPS)) ) )
 			{
-				// Laurent's comment: should we not use VBI_ChannelChange ?
-				VT_ChannelChange();
+				VBI_ChannelChange();
 				// Laurent's comment: Increase the search duration because
 				// 10 * 200 seems to be sometimes not enough for some networks.
 				// The fact that the code ID in P8/30/1 needs to be received
@@ -1916,8 +1918,7 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
                     SettingsMaster->LoadSettings();
                 }
 
-				// Laurent's comment: should we not use VBI_ChannelChange ?
-                VT_ChannelChange();   
+                VBI_ChannelChange();   
 
                 StatusBar_ShowText(STATUS_TEXT, MyChannels.GetChannel(CurrentProgram)->GetName());
 				OSD_ShowText(MyChannels.GetChannel(CurrentProgram)->GetName(), 0);

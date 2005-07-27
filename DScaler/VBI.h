@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI.h,v 1.12 2003-10-27 10:39:54 adcockj Exp $
+// $Id: VBI.h,v 1.13 2005-07-27 20:27:56 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -62,6 +62,7 @@ void VBI_SetMenu(HMENU hMenu);
 void VBI_Init();
 void VBI_Exit();
 void VBI_Init_data(double Frequency);
+void VBI_ChannelChange();
 void VBI_DecodeLine(unsigned char* VBI_Buffer, int line, BOOL IsOdd);
 void VBI_AGC(BYTE* Buffer, int start, int stop, int step);
 

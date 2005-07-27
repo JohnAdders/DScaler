@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDecoder.h,v 1.6 2005-07-26 19:36:03 laurentg Exp $
+// $Id: VTDecoder.h,v 1.7 2005-07-27 22:49:33 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2005/07/26 19:36:03  laurentg
+// New functions to get network ID from P8/30/1,2
+// History of 2 consecutive values for NetworkIDCode inside P8/30/1
+//
 // Revision 1.5  2005/07/25 22:32:52  laurentg
 // Mutex added to access m_BroadcastServiceData and m_PDC
 //
@@ -109,10 +113,10 @@ public:
     void GetStatusDisplay(LPSTR lpBuffer, LONG nLength);
 
 	// Get the network ID code from P8/30/1
-	DWORD GetNetworkIDFromP8301();
+	WORD GetNetworkIDFromP8301();
 
 	// Get the CNI from PDC (P8/30/2)
-	DWORD GetCNIFromPDC();
+	WORD GetCNIFromPDC();
 
     // Gets the list of visible page numbers in the cache
     WORD GetVisiblePageNumbers(LPWORD lpNumberList, WORD nListSize);

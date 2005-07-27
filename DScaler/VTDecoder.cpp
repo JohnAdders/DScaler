@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDecoder.cpp,v 1.17 2005-07-26 19:36:03 laurentg Exp $
+// $Id: VTDecoder.cpp,v 1.18 2005-07-27 22:49:33 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,6 +44,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2005/07/26 19:36:03  laurentg
+// New functions to get network ID from P8/30/1,2
+// History of 2 consecutive values for NetworkIDCode inside P8/30/1
+//
 // Revision 1.16  2005/07/25 22:43:38  laurentg
 // m_PDC buffer cleared when decoder reset
 //
@@ -1784,36 +1788,36 @@ void CVTDecoder::GetStatusDisplay(LPSTR lpBuffer, LONG nLength)
 }
 
 
-DWORD CVTDecoder::GetNetworkIDFromP8301()
+WORD CVTDecoder::GetNetworkIDFromP8301()
 {
-	DWORD dwCode = 0;
+	DWORD wCode = 0;
 	EnterCriticalSection(&m_ServiceDataStoreMutex);
 	// Check that there are at leat two values received
 	// and with same values
 	if (   (m_BroadcastServiceData.NetworkIDCode[0] != 0)
 		&& (m_BroadcastServiceData.NetworkIDCode[0] == m_BroadcastServiceData.NetworkIDCode[1]) )
 	{
-		dwCode = m_BroadcastServiceData.NetworkIDCode[0];
+		wCode = m_BroadcastServiceData.NetworkIDCode[0];
 	}
 	LeaveCriticalSection(&m_ServiceDataStoreMutex);
-	return dwCode;
+	return wCode;
 }
 
 
-DWORD CVTDecoder::GetCNIFromPDC()
+WORD CVTDecoder::GetCNIFromPDC()
 {
-	DWORD dwCode = 0;
+	WORD wCode = 0;
 	EnterCriticalSection(&m_ServiceDataStoreMutex);
 	for (int i=0;i<4;i++)
 	{
 		if (m_PDC[i].CNI != 0)
 		{
-			dwCode = m_PDC[i].CNI;
+			wCode = m_PDC[i].CNI;
 			break;
 		}
 	}
 	LeaveCriticalSection(&m_ServiceDataStoreMutex);
-	return dwCode;
+	return wCode;
 }
 
 

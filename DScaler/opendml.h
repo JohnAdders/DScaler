@@ -1,4 +1,4 @@
-/* $Id: opendml.h,v 1.2 2005-07-24 23:10:53 dosx86 Exp $ */
+/* $Id: opendml.h,v 1.3 2005-07-27 01:42:18 dosx86 Exp $ */
 
 /** \file
  * OpenDML definition header
@@ -25,8 +25,7 @@ typedef __int64 QUADWORD;
 /* when fields within frames are also indexed */
 #define AVI_INDEX_2FIELD 0x1
 
-#pragma pack(push, openDMLData)
-#pragma pack(1)
+#pragma pack(push, 1)
 
 /* Chunk: ix## */
 typedef struct
@@ -69,6 +68,6 @@ typedef struct
     DWORD dwTotalFrames;
 } ODMLExtendedAVIHeader;
 
-#pragma pack(pop, openDMLData)
+#pragma pack(pop)
 
 #endif

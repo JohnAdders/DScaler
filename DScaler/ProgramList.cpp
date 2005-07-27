@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.112 2005-07-27 20:27:56 laurentg Exp $
+// $Id: ProgramList.cpp,v 1.113 2005-07-27 22:59:02 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.112  2005/07/27 20:27:56  laurentg
+// Use VBI_ChannelChange instead of VT_ChannelChange
+//
 // Revision 1.111  2005/07/27 19:34:01  laurentg
 // Separate PDC and P8/30/1
 //
@@ -500,11 +503,6 @@ const char* Channel_GetVBIName(BOOL bOnlyWithCodes)
 	}
 #endif
 
-
-#ifdef VPS_CNI
-	// Laurent's comment
-	// We should implement the search of CNI in VPS
-	// for Germany, Switzerland, Austria and Ukraine
 	if (*szName == '\0')
 	{
 		VPS_GetChannelNameFromCNI(szName, sizeof(szName));
@@ -516,7 +514,6 @@ const char* Channel_GetVBIName(BOOL bOnlyWithCodes)
 		}
 #endif
 	}
-#endif
 
 	if (*szName == '\0')
 	{

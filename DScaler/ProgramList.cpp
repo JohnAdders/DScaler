@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.110 2005-07-27 00:39:07 robmuller Exp $
+// $Id: ProgramList.cpp,v 1.111 2005-07-27 19:34:01 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.110  2005/07/27 00:39:07  robmuller
+// Improved UI handling while scanning.
+//
 // Revision 1.109  2005/07/26 22:17:44  laurentg
 // New function to get channel name from VBI
 // Used when scanning the channels
@@ -479,23 +482,50 @@ const char* Channel_GetEPGName()
 }
 
 
+//#define	DEBUG_CHANNEL_IDENTIFICATION
+
 const char* Channel_GetVBIName(BOOL bOnlyWithCodes)
 {
 	static char szName[24];
 
-	VT_GetStationFromID(szName, sizeof(szName));
-	//LOG(1, "VT_GetStationFromID => %s", szName);
+	VT_GetStationFromPDC(szName, sizeof(szName));
+	//LOG(1, "VT_GetStationFromPDC => %s", szName);
+#ifdef DEBUG_CHANNEL_IDENTIFICATION
+	if (*szName != '\0' && strlen(szName) < (sizeof(szName) - 2))
+	{
+		strcat(szName, "#1");
+	}
+#endif
 
+
+#ifdef VPS_CNI
 	// Laurent's comment
 	// We should implement the search of CNI in VPS
 	// for Germany, Switzerland, Austria and Ukraine
-	/* 
 	if (*szName == '\0')
 	{
-		VPS_GetChannelNameFromID(szName, sizeof(szName));
-		//LOG(1, "VPS_GetChannelNameFromID => %s", szName);
+		VPS_GetChannelNameFromCNI(szName, sizeof(szName));
+		//LOG(1, "VPS_GetChannelNameFromCNI => %s", szName);
+#ifdef DEBUG_CHANNEL_IDENTIFICATION
+		if (*szName != '\0' && strlen(szName) < (sizeof(szName) - 2))
+		{
+			strcat(szName, "#2");
+		}
+#endif
 	}
-	*/
+#endif
+
+	if (*szName == '\0')
+	{
+		VT_GetStationFromIDP8301(szName, sizeof(szName));
+		//LOG(1, "VT_GetStationFromIDP8301 => %s", szName);
+#ifdef DEBUG_CHANNEL_IDENTIFICATION
+		if (*szName != '\0' && strlen(szName) < (sizeof(szName) - 2))
+		{
+			strcat(szName, "#3");
+		}
+#endif
+	}
 
 	if (bOnlyWithCodes == FALSE)
 	{
@@ -503,12 +533,24 @@ const char* Channel_GetVBIName(BOOL bOnlyWithCodes)
 		{
 			VPS_GetChannelName(szName, sizeof(szName));
 			//LOG(1, "VPS_GetChannelName => %s", szName);
+#ifdef DEBUG_CHANNEL_IDENTIFICATION
+			if (*szName != '\0' && strlen(szName) < (sizeof(szName) - 2))
+			{
+				strcat(szName, "#4");
+			}
+#endif
 		}
 
 		if (*szName == '\0')
 		{
 			VT_GetStation(szName, sizeof(szName));
 			//LOG(1, "VT_GetStation => %s", szName);
+#ifdef DEBUG_CHANNEL_IDENTIFICATION
+			if (*szName != '\0' && strlen(szName) < (sizeof(szName) - 2))
+			{
+				strcat(szName, "#5");
+			}
+#endif
 		}
 	}
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.77 2005-07-26 23:13:59 laurentg Exp $
+// $Id: VBI_VideoText.cpp,v 1.78 2005-07-27 19:34:01 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.77  2005/07/26 23:13:59  laurentg
+// New part of table with registered CNI codes added
+//
 // Revision 1.76  2005/07/26 22:14:17  laurentg
 // Function to search network names using P8/30/1,2 and a table of registered CNI codes
 // Table not yet fully formatted
@@ -377,7 +380,17 @@ HWND                VTGotoProcDlg = NULL;
 CRITICAL_SECTION    VTPageChangeMutex;
 
 
-struct {
+// 
+// ETSI TR 101 203
+//
+// The following table contains the registered values of the Network Identification (NI) field of the Teletext
+// Broadcast Service Data Packet (extension data packet of type 8/30 format 1), and the Country and Network
+// Identification (CNI) fields of the Programme Delivery Control (PDC) data packets (extension data packets X/26 and
+// 8/30 format 2).
+//
+// Source: http://www.ebu.ch/CMSimages/en/tec_info_tr231-2005_tcm6-18471.pdf
+//
+static struct {
 	char*	sCountry;
 	char*	sNetwork;
 	DWORD	dwNI_P8301;
@@ -387,456 +400,456 @@ struct {
 	BYTE	uB_X26;
 } RegisteredCNICodes[] = 
 {
-{	"Austria",		"ORF-1",					0x4301,	0,	0,	0,	0	},
-{	"Austria",		"ORF-2",					0x4302,	0,	0,	0,	0	},
-{	"Austria",		"ORF future use",			0x4303,	0,	0,	0,	0	},
-{	"Austria",		"ORF future use",			0x4304,	0,	0,	0,	0	},
-{	"Austria",		"ORF future use",			0x4305,	0,	0,	0,	0	},
-{	"Austria",		"ORF future use",			0x4306,	0,	0,	0,	0	},
-{	"Austria",		"ORF future use",			0x4307,	0,	0,	0,	0	},
-{	"Austria",		"ORF future use",			0x4308,	0,	0,	0,	0	},
-{	"Austria",		"ORF future use",			0x4309,	0,	0,	0,	0	},
-{	"Austria",		"ORF future use",			0x430A,	0,	0,	0,	0	},
-{	"Austria",		"ORF future use",			0x430B,	0,	0,	0,	0	},
-{	"Austria",		"ATV",						0x430C,	0,	0,	0,	0	},
-{	"Belgium",		"AB3",						0x320C,	0,	0,	0,	0	},
-{	"Belgium",		"AB4e",						0x320D,	0,	0,	0,	0	},
-{	"Belgium",		"VRT TV1",					0x3201,	0x16,	0x01,	0x36,	0x03	},
-{	"Belgium",		"CANVAS",					0x3202,	0x16,	0x02,	0x36,	0x02	},
-{	"Belgium",		"RTBF 1",					0x3203,	0,	0,	0,	0	},
-{	"Belgium",		"RTBF 2",					0x3204,	0,	0,	0,	0	},
-{	"Belgium",		"VTM",						0x3205,	0x16,	0x05,	0x36,	0x05	},
-{	"Belgium",		"Kanaal2",					0x3206,	0x16,	0x06,	0x36,	0x06	},
-{	"Belgium",		"RTBF Sat",					0x3207,	0,	0,	0,	0	},
-{	"Belgium",		"RTBF future use",			0x3208,	0,	0,	0,	0	},
-{	"Belgium",		"RTL-TVI",					0x3209,	0,	0,	0,	0	},
-{	"Belgium",		"CLUB-RTL",					0x320A,	0,	0,	0,	0	},
-{	"Belgium",		"VT4",						0x0404,	0x16,	0x04,	0x36,	0x04	},
-{	"Belgium",		"JIM.tv",					0x320F,	0,	0,	0,	0	},
-{	"Belgium",		"PLUG TV",					0x3225,	0,	0,	0,	0	},
-{	"Belgium",		"RTV-Kempen",				0x3210,	0,	0,	0,	0	},
-{	"Belgium",		"RTV-Mechelen",				0x3211,	0,	0,	0,	0	},
-{	"Belgium",		"MCM Belgium",				0x3212,	0,	0,	0,	0	},
-{	"Belgium",		"Vitaya",					0x3213,	0,	0,	0,	0	},
-{	"Belgium",		"WTV",						0x3214,	0,	0,	0,	0	},
-{	"Belgium",		"FocusTV",					0x3215,	0,	0,	0,	0	},
-{	"Belgium",		"Be 1 ana",					0x3216,	0,	0,	0,	0	},
-{	"Belgium",		"Be 1 num",					0x3217,	0,	0,	0,	0	},
-{	"Belgium",		"Be Ciné 1",				0x3218,	0,	0,	0,	0	},
-{	"Belgium",		"Be Sport 1",				0x3219,	0,	0,	0,	0	},
-{	"Belgium",		"Be 1 + 1h",				0x32A7,	0,	0,	0,	0	},
-{	"Belgium",		"Be Ciné 2",				0x32A8,	0,	0,	0,	0	},
-{	"Belgium",		"Be Sport 2",				0x32A9,	0,	0,	0,	0	},
-{	"Belgium",		"Canal+VL1",				0x321A,	0,	0,	0,	0	},
-{	"Belgium",		"Canal+VL1",				0x321B,	0,	0,	0,	0	},
-{	"Belgium",		"Canal+ Blau",				0x321C,	0,	0,	0,	0	},
-{	"Belgium",		"Canal+ Rood",				0x321D,	0,	0,	0,	0	},
-{	"Belgium",		"TV Limburg",				0x3221,	0,	0,	0,	0	},
-{	"Belgium",		"Kanaal 3",					0x3222,	0,	0,	0,	0	},
-{	"Belgium",		"Ring TV",					0x320E,	0,	0,	0,	0	},
-{	"Belgium",		"TV Brussel",				0x321E,	0,	0,	0,	0	},
-{	"Belgium",		"AVSe",						0x321F,	0,	0,	0,	0	},
-{	"Belgium",		"ATV",						0x3223,	0,	0,	0,	0	},
-{	"Belgium",		"ROB TV",					0x3224,	0,	0,	0,	0	},
-{	"Belgium",		"Télé Bruxelles",			0x3230,	0,	0,	0,	0	},
-{	"Belgium",		"Télésambre",				0x3231,	0,	0,	0,	0	},
-{	"Belgium",		"TV Com",					0x3232,	0,	0,	0,	0	},
-{	"Belgium",		"Canal Zoom",				0x3233,	0,	0,	0,	0	},
-{	"Belgium",		"Vidéoscope",				0x3234,	0,	0,	0,	0	},
-{	"Belgium",		"Canal C",					0x3235,	0,	0,	0,	0	},
-{	"Belgium",		"Télé MB",					0x3236,	0,	0,	0,	0	},
-{	"Belgium",		"Antenne Centre",			0x3237,	0,	0,	0,	0	},
-{	"Belgium",		"Télévesdre",				0x3238,	0,	0,	0,	0	},
-{	"Belgium",		"RTC Télé Liège",			0x3239,	0,	0,	0,	0	},
-{	"Belgium",		"No tele",					0x3240,	0,	0,	0,	0	},
-{	"Belgium",		"TV Lux",					0x3241,	0,	0,	0,	0	},
-{	"Belgium",		"Kanaal Z - NL",			0x325A,	0,	0,	0,	0	},
-{	"Belgium",		"CANAL Z - FR",				0x325B,	0,	0,	0,	0	},
-{	"Belgium",		"CARTOON Network - NL",		0x326A,	0,	0,	0,	0	},
-{	"Belgium",		"CARTOON Network - FR",		0x326B,	0,	0,	0,	0	},
-{	"Belgium",		"LIBERTY CHANNEL - NL",		0x327A,	0,	0,	0,	0	},
-{	"Belgium",		"LIBERTY CHANNEL - FR",		0x327B,	0,	0,	0,	0	},
-{	"Belgium",		"TCM - NL",					0x328A,	0,	0,	0,	0	},
-{	"Belgium",		"TCM - FR",					0x328B,	0,	0,	0,	0	},
-{	"Belgium",		"Mozaiek/Mosaique",			0x3298,	0,	0,	0,	0	},
-{	"Belgium",		"Info Kanaal/Canal Info",	0x3299,	0,	0,	0,	0	},
-{	"Belgium",		"Sporza",					0x3226,	0,	0,	0,	0	},
-{	"Belgium",		"VIJF tv",					0x3227,	0,	0,	0,	0	},
-{	"Croatia",		"HRT",						0x0385,	0,	0,	0,	0	},
-{	"Czech Republic","CT 1",					0x4201,	0x32,	0xC1,	0x3C,	0x21	},
-{	"Czech Republic","CT 2",					0x4202,	0x32,	0xC2,	0x3C,	0x22	},
-{	"Czech Republic","CT1 Regional",			0x4231,	0x32,	0xF1,	0x3C,	0x25	},
-{	"Czech Republic","CT1 Regional, Brno",		0x4211,	0x32,	0xD1,	0x3B,	0x01	},
-{	"Czech Republic","CT1 Regional, Ostravia",	0x4221,	0x32,	0xE1,	0x3B,	0x02	},
-{	"Czech Republic","CT2 Regional",			0x4232,	0x32,	0xF2,	0x3B,	0x03	},
-{	"Czech Republic","CT2 Regional, Brno",		0x4212,	0x32,	0xD2,	0x3B,	0x04	},
-{	"Czech Republic","CT2 Regional, Ostravia",	0x4222,	0x32,	0xE2,	0x3B,	0x05	},
-{	"Czech Republic","NOVA TV",					0x4203,	0x32,	0xC3,	0x3C,	0x23	},
-{	"Czech Republic","Prima TV",				0x4204,	0x32,	0xC4,	0x3C,	0x04	},
-{	"Czech Republic","TV Praha",				0x4205,	0,	0,	0,	0	},
-{	"Czech Republic","TV HK",					0x4206,	0,	0,	0,	0	},
-{	"Czech Republic","TV Pardubice",			0x4207,	0,	0,	0,	0	},
-{	"Czech Republic","TV Brno",					0x4208,	0,	0,	0,	0	},
-{	"Denmark",		"Discovery Denmark",		0x4504,	0,	0,	0,	0	},
-{	"Denmark",		"DR1",						0x7392,	0x29,	0x01,	0x39,	0x01	},
-{	"Denmark",		"DR2",						0x49CF,	0x29,	0x03,	0x39,	0x03	},
-{	"Denmark",		"TV 2",						0x4502,	0x29,	0x02,	0x39,	0x02	},
-{	"Denmark",		"TV 2 0xZulu",				0x4503,	0x29,	0x04,	0x39,	0x04	},
-{	"Denmark",		"TV 2 0xCharlie",			0x4505,	0x29,	0x05,	0,	0	},
-{	"Denmark",		"TV 2 Film",				0x4508,	0x29,	0x08,	0,	0	},
-{	"Denmark",		"TV Danmark",				0x4506,	0x29,	0x06,	0,	0	},
-{	"Denmark",		"Kanal 5",					0x4507,	0x29,	0x07,	0,	0	},
-{	"Finland",		"OWL3",						0x358F,	0x26,	0x0F,	0x36,	0x14	},
-{	"Finland",		"YLE future use",			0x3583,	0x26,	0x03,	0x36,	0x08	},
-{	"Finland",		"YLE future use",			0x3584,	0x26,	0x04,	0x36,	0x09	},
-{	"Finland",		"YLE future use",			0x3585,	0x26,	0x05,	0x36,	0x0A	},
-{	"Finland",		"YLE future use",			0x3586,	0x26,	0x06,	0x36,	0x0B	},
-{	"Finland",		"YLE future use",			0x3587,	0x26,	0x07,	0x36,	0x0C	},
-{	"Finland",		"YLE future use",			0x3588,	0x26,	0x08,	0x36,	0x0D	},
-{	"Finland",		"YLE future use",			0x3589,	0x26,	0x09,	0x36,	0x0E	},
-{	"Finland",		"YLE future use",			0x358A,	0x26,	0x0A,	0x36,	0x0F	},
-{	"Finland",		"YLE future use",			0x358B,	0x26,	0x0B,	0x36,	0x10	},
-{	"Finland",		"YLE future use",			0x358C,	0x26,	0x0C,	0x36,	0x11	},
-{	"Finland",		"YLE future use",			0x358D,	0x26,	0x0D,	0x36,	0x12	},
-{	"Finland",		"YLE future use",			0x358E,	0x26,	0x0E,	0x36,	0x13	},
-{	"Finland",		"YLE1",						0x3581,	0x26,	0x01,	0x36,	0x01	},
-{	"Finland",		"YLE2",						0x3582,	0x26,	0x02,	0x36,	0x07	},
-{	"France",		"AB1",						0x33C1,	0x2F,	0xC1,	0x3F,	0x41	},
-{	"France",		"Aqui TV",					0x3320,	0x2F,	0x20,	0x3F,	0x20	},
-{	"France",		"France 5 / Arte",			0x330A,	0x2F,	0x0A,	0x3F,	0x0A	},
-{	"France",		"Canal J",					0x33C2,	0x2F,	0xC2,	0x3F,	0x42	},
-{	"France",		"Canal Jimmy",				0x33C3,	0x2F,	0xC3,	0x3F,	0x43	},
-{	"France",		"Canal+",					0x33F4,	0x2F,	0x04,	0x3F,	0x04	},
-{	"France",		"Euronews",					0xFE01,	0x2F,	0xE1,	0x3F,	0x61	},
-{	"France",		"Eurosport",				0xF101,	0x2F,	0xE2,	0x3F,	0x62	},
-{	"France",		"France 2",					0x33F2,	0x2F,	0x02,	0x3F,	0x02	},
-{	"France",		"France 3",					0x33F3,	0x2F,	0x03,	0x3F,	0x03	},
-{	"France",		"La Chaîne Météo",			0x33C5,	0x2F,	0xC5,	0x3F,	0x45	},
-{	"France",		"LCI",						0x33C4,	0x2F,	0xC4,	0x3F,	0x44	},
-{	"France",		"M6",						0x33F6,	0x2F,	0x06,	0x3F,	0x06	},
-{	"France",		"MCM",						0x33C6,	0x2F,	0xC6,	0x3F,	0x46	},
-{	"France",		"Paris Première",			0x33C8,	0x2F,	0xC8,	0x3F,	0x48	},
-{	"France",		"Planète",					0x33C9,	0x2F,	0xC9,	0x3F,	0x49	},
-{	"France",		"RFO1",						0x3311,	0x2F,	0x11,	0x3F,	0x11	},
-{	"France",		"RFO2",						0x3312,	0x2F,	0x12,	0x3F,	0x12	},
-{	"France",		"Sailing Channel",			0x33B2,	0,	0,	0,	0	},
-{	"France",		"Série Club",				0x33CA,	0x2F,	0xCA,	0x3F,	0x4A	},
-{	"France",		"Télétoon",					0x33CB,	0x2F,	0xCB,	0x3F,	0x4B	},
-{	"France",		"Téva",						0x33CC,	0x2F,	0xCC,	0x3F,	0x4C	},
-{	"France",		"TF1",						0x33F1,	0x2F,	0x01,	0x3F,	0x01	},
-{	"France",		"TLM",						0x3321,	0x2F,	0x21,	0x3F,	0x21	},
-{	"France",		"TLT",						0x3322,	0x2F,	0x22,	0x3F,	0x22	},
-{	"France",		"TMC Monte-Carlo",			0x33C7,	0x2F,	0xC7,	0x3F,	0x47	},
-{	"France",		"TV5",						0xF500,	0x2F,	0xE5,	0x3F,	0x65	},
-{	"Germany",		"3SAT",						0x49C7,	0,	0,	0,	0	},
-{	"Germany",		"ARD",						0x4901,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49C1,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49C3,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49C4,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49C5,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49C6,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49CA,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49CC,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49CD,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49CE,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49D0,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49D1,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49D2,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49D3,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49D5,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49D6,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49D7,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49D8,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49DA,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49DB,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49DD,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49DE,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49E0,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49E2,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49E3,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49E5,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49E7,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49E8,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49E9,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49EA,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49EB,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49EC,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49ED,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49EE,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49EF,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49F0,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49F1,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49F2,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49F3,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49F4,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49F5,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49F6,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49F7,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49F8,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49F9,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49FA,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49FB,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49FC,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x49FD,	0,	0,	0,	0	},
-{	"Germany",		"ARD future use",			0x4981,	0,	0,	0,	0	},
-{	"Germany",		"Arte",						0x490A,	0,	0,	0,	0	},
-{	"Germany",		"BR",						0x49CB,	0,	0,	0,	0	},
-{	"Germany",		"BR-Alpha",					0x4944,	0,	0,	0,	0	},
-{	"Germany",		"EXTRA",					0x4943,	0,	0,	0,	0	},
-{	"Germany",		"Festival",					0x4941,	0,	0,	0,	0	},
-{	"Germany",		"HR",						0x49FF,	0,	0,	0,	0	},
-{	"Germany",		"Kinderkanal",				0x49C9,	0,	0,	0,	0	},
-{	"Germany",		"MDR",						0x49FE,	0,	0,	0,	0	},
-{	"Germany",		"MUXX",						0x4942,	0,	0,	0,	0	},
-{	"Germany",		"NDR",						0x49D4,	0,	0,	0,	0	},
-{	"Germany",		"ORB",						0x4982,	0,	0,	0,	0	},
-{	"Germany",		"Phoenix",					0x4908,	0,	0,	0,	0	},
-{	"Germany",		"QVC D Gmbh",				0x5C49,	0,	0,	0,	0	},
-{	"Germany",		"RB",						0x49D9,	0,	0,	0,	0	},
-{	"Germany",		"SFB",						0x49DC,	0,	0,	0,	0	},
-{	"Germany",		"SR",						0x49DF,	0,	0,	0,	0	},
-{	"Germany",		"SWR-BW",					0x49E1,	0,	0,	0,	0	},
-{	"Germany",		"SWR-RP",					0x49E4,	0,	0,	0,	0	},
-{	"Germany",		"1-2-3.TV",					0x49BD,	0,	0,	0,	0	},
-{	"Germany",		"TELE-5",					0x49BE,	0,	0,	0,	0	},
-{	"Germany",		"Home Shopping Europe",		0x49BF,	0,	0,	0,	0	},
-{	"Germany",		"VOX Television",			0x490C,	0,	0,	0,	0	},
-{	"Germany",		"WDR",						0x49E6,	0,	0,	0,	0	},
-{	"Germany",		"ZDF",						0x4902,	0,	0,	0,	0	},
+{	"Austria",		"ORF-1",						0x4301,	0,	0,	0,	0	},
+{	"Austria",		"ORF-2",						0x4302,	0,	0,	0,	0	},
+{	"Austria",		"ORF future use",				0x4303,	0,	0,	0,	0	},
+{	"Austria",		"ORF future use",				0x4304,	0,	0,	0,	0	},
+{	"Austria",		"ORF future use",				0x4305,	0,	0,	0,	0	},
+{	"Austria",		"ORF future use",				0x4306,	0,	0,	0,	0	},
+{	"Austria",		"ORF future use",				0x4307,	0,	0,	0,	0	},
+{	"Austria",		"ORF future use",				0x4308,	0,	0,	0,	0	},
+{	"Austria",		"ORF future use",				0x4309,	0,	0,	0,	0	},
+{	"Austria",		"ORF future use",				0x430A,	0,	0,	0,	0	},
+{	"Austria",		"ORF future use",				0x430B,	0,	0,	0,	0	},
+{	"Austria",		"ATV",							0x430C,	0,	0,	0,	0	},
+{	"Belgium",		"AB3",							0x320C,	0,	0,	0,	0	},
+{	"Belgium",		"AB4e",							0x320D,	0,	0,	0,	0	},
+{	"Belgium",		"VRT TV1",						0x3201,	0x16,	0x01,	0x36,	0x03	},
+{	"Belgium",		"CANVAS",						0x3202,	0x16,	0x02,	0x36,	0x02	},
+{	"Belgium",		"RTBF 1",						0x3203,	0,	0,	0,	0	},
+{	"Belgium",		"RTBF 2",						0x3204,	0,	0,	0,	0	},
+{	"Belgium",		"VTM",							0x3205,	0x16,	0x05,	0x36,	0x05	},
+{	"Belgium",		"Kanaal2",						0x3206,	0x16,	0x06,	0x36,	0x06	},
+{	"Belgium",		"RTBF Sat",						0x3207,	0,	0,	0,	0	},
+{	"Belgium",		"RTBF future use",				0x3208,	0,	0,	0,	0	},
+{	"Belgium",		"RTL-TVI",						0x3209,	0,	0,	0,	0	},
+{	"Belgium",		"CLUB-RTL",						0x320A,	0,	0,	0,	0	},
+{	"Belgium",		"VT4",							0x0404,	0x16,	0x04,	0x36,	0x04	},
+{	"Belgium",		"JIM.tv",						0x320F,	0,	0,	0,	0	},
+{	"Belgium",		"PLUG TV",						0x3225,	0,	0,	0,	0	},
+{	"Belgium",		"RTV-Kempen",					0x3210,	0,	0,	0,	0	},
+{	"Belgium",		"RTV-Mechelen",					0x3211,	0,	0,	0,	0	},
+{	"Belgium",		"MCM Belgium",					0x3212,	0,	0,	0,	0	},
+{	"Belgium",		"Vitaya",						0x3213,	0,	0,	0,	0	},
+{	"Belgium",		"WTV",							0x3214,	0,	0,	0,	0	},
+{	"Belgium",		"FocusTV",						0x3215,	0,	0,	0,	0	},
+{	"Belgium",		"Be 1 ana",						0x3216,	0,	0,	0,	0	},
+{	"Belgium",		"Be 1 num",						0x3217,	0,	0,	0,	0	},
+{	"Belgium",		"Be Ciné 1",					0x3218,	0,	0,	0,	0	},
+{	"Belgium",		"Be Sport 1",					0x3219,	0,	0,	0,	0	},
+{	"Belgium",		"Be 1 + 1h",					0x32A7,	0,	0,	0,	0	},
+{	"Belgium",		"Be Ciné 2",					0x32A8,	0,	0,	0,	0	},
+{	"Belgium",		"Be Sport 2",					0x32A9,	0,	0,	0,	0	},
+{	"Belgium",		"Canal+VL1",					0x321A,	0,	0,	0,	0	},
+{	"Belgium",		"Canal+VL1",					0x321B,	0,	0,	0,	0	},
+{	"Belgium",		"Canal+ Blau",					0x321C,	0,	0,	0,	0	},
+{	"Belgium",		"Canal+ Rood",					0x321D,	0,	0,	0,	0	},
+{	"Belgium",		"TV Limburg",					0x3221,	0,	0,	0,	0	},
+{	"Belgium",		"Kanaal 3",						0x3222,	0,	0,	0,	0	},
+{	"Belgium",		"Ring TV",						0x320E,	0,	0,	0,	0	},
+{	"Belgium",		"TV Brussel",					0x321E,	0,	0,	0,	0	},
+{	"Belgium",		"AVSe",							0x321F,	0,	0,	0,	0	},
+{	"Belgium",		"ATV",							0x3223,	0,	0,	0,	0	},
+{	"Belgium",		"ROB TV",						0x3224,	0,	0,	0,	0	},
+{	"Belgium",		"Télé Bruxelles",				0x3230,	0,	0,	0,	0	},
+{	"Belgium",		"Télésambre",					0x3231,	0,	0,	0,	0	},
+{	"Belgium",		"TV Com",						0x3232,	0,	0,	0,	0	},
+{	"Belgium",		"Canal Zoom",					0x3233,	0,	0,	0,	0	},
+{	"Belgium",		"Vidéoscope",					0x3234,	0,	0,	0,	0	},
+{	"Belgium",		"Canal C",						0x3235,	0,	0,	0,	0	},
+{	"Belgium",		"Télé MB",						0x3236,	0,	0,	0,	0	},
+{	"Belgium",		"Antenne Centre",				0x3237,	0,	0,	0,	0	},
+{	"Belgium",		"Télévesdre",					0x3238,	0,	0,	0,	0	},
+{	"Belgium",		"RTC Télé Liège",				0x3239,	0,	0,	0,	0	},
+{	"Belgium",		"No tele",						0x3240,	0,	0,	0,	0	},
+{	"Belgium",		"TV Lux",						0x3241,	0,	0,	0,	0	},
+{	"Belgium",		"Kanaal Z - NL",				0x325A,	0,	0,	0,	0	},
+{	"Belgium",		"CANAL Z - FR",					0x325B,	0,	0,	0,	0	},
+{	"Belgium",		"CARTOON Network - NL",			0x326A,	0,	0,	0,	0	},
+{	"Belgium",		"CARTOON Network - FR",			0x326B,	0,	0,	0,	0	},
+{	"Belgium",		"LIBERTY CHANNEL - NL",			0x327A,	0,	0,	0,	0	},
+{	"Belgium",		"LIBERTY CHANNEL - FR",			0x327B,	0,	0,	0,	0	},
+{	"Belgium",		"TCM - NL",						0x328A,	0,	0,	0,	0	},
+{	"Belgium",		"TCM - FR",						0x328B,	0,	0,	0,	0	},
+{	"Belgium",		"Mozaiek/Mosaique",				0x3298,	0,	0,	0,	0	},
+{	"Belgium",		"Info Kanaal/Canal Info",		0x3299,	0,	0,	0,	0	},
+{	"Belgium",		"Sporza",						0x3226,	0,	0,	0,	0	},
+{	"Belgium",		"VIJF tv",						0x3227,	0,	0,	0,	0	},
+{	"Croatia",		"HRT",							0x0385,	0,	0,	0,	0	},
+{	"Czech Republic","CT 1",						0x4201,	0x32,	0xC1,	0x3C,	0x21	},
+{	"Czech Republic","CT 2",						0x4202,	0x32,	0xC2,	0x3C,	0x22	},
+{	"Czech Republic","CT1 Regional",				0x4231,	0x32,	0xF1,	0x3C,	0x25	},
+{	"Czech Republic","CT1 Regional, Brno",			0x4211,	0x32,	0xD1,	0x3B,	0x01	},
+{	"Czech Republic","CT1 Regional, Ostravia",		0x4221,	0x32,	0xE1,	0x3B,	0x02	},
+{	"Czech Republic","CT2 Regional",				0x4232,	0x32,	0xF2,	0x3B,	0x03	},
+{	"Czech Republic","CT2 Regional, Brno",			0x4212,	0x32,	0xD2,	0x3B,	0x04	},
+{	"Czech Republic","CT2 Regional, Ostravia",		0x4222,	0x32,	0xE2,	0x3B,	0x05	},
+{	"Czech Republic","NOVA TV",						0x4203,	0x32,	0xC3,	0x3C,	0x23	},
+{	"Czech Republic","Prima TV",					0x4204,	0x32,	0xC4,	0x3C,	0x04	},
+{	"Czech Republic","TV Praha",					0x4205,	0,	0,	0,	0	},
+{	"Czech Republic","TV HK",						0x4206,	0,	0,	0,	0	},
+{	"Czech Republic","TV Pardubice",				0x4207,	0,	0,	0,	0	},
+{	"Czech Republic","TV Brno",						0x4208,	0,	0,	0,	0	},
+{	"Denmark",		"Discovery Denmark",			0x4504,	0,	0,	0,	0	},
+{	"Denmark",		"DR1",							0x7392,	0x29,	0x01,	0x39,	0x01	},
+{	"Denmark",		"DR2",							0x49CF,	0x29,	0x03,	0x39,	0x03	},
+{	"Denmark",		"TV 2",							0x4502,	0x29,	0x02,	0x39,	0x02	},
+{	"Denmark",		"TV 2 0xZulu",					0x4503,	0x29,	0x04,	0x39,	0x04	},
+{	"Denmark",		"TV 2 0xCharlie",				0x4505,	0x29,	0x05,	0,	0	},
+{	"Denmark",		"TV 2 Film",					0x4508,	0x29,	0x08,	0,	0	},
+{	"Denmark",		"TV Danmark",					0x4506,	0x29,	0x06,	0,	0	},
+{	"Denmark",		"Kanal 5",						0x4507,	0x29,	0x07,	0,	0	},
+{	"Finland",		"OWL3",							0x358F,	0x26,	0x0F,	0x36,	0x14	},
+{	"Finland",		"YLE future use",				0x3583,	0x26,	0x03,	0x36,	0x08	},
+{	"Finland",		"YLE future use",				0x3584,	0x26,	0x04,	0x36,	0x09	},
+{	"Finland",		"YLE future use",				0x3585,	0x26,	0x05,	0x36,	0x0A	},
+{	"Finland",		"YLE future use",				0x3586,	0x26,	0x06,	0x36,	0x0B	},
+{	"Finland",		"YLE future use",				0x3587,	0x26,	0x07,	0x36,	0x0C	},
+{	"Finland",		"YLE future use",				0x3588,	0x26,	0x08,	0x36,	0x0D	},
+{	"Finland",		"YLE future use",				0x3589,	0x26,	0x09,	0x36,	0x0E	},
+{	"Finland",		"YLE future use",				0x358A,	0x26,	0x0A,	0x36,	0x0F	},
+{	"Finland",		"YLE future use",				0x358B,	0x26,	0x0B,	0x36,	0x10	},
+{	"Finland",		"YLE future use",				0x358C,	0x26,	0x0C,	0x36,	0x11	},
+{	"Finland",		"YLE future use",				0x358D,	0x26,	0x0D,	0x36,	0x12	},
+{	"Finland",		"YLE future use",				0x358E,	0x26,	0x0E,	0x36,	0x13	},
+{	"Finland",		"YLE1",							0x3581,	0x26,	0x01,	0x36,	0x01	},
+{	"Finland",		"YLE2",							0x3582,	0x26,	0x02,	0x36,	0x07	},
+{	"France",		"AB1",							0x33C1,	0x2F,	0xC1,	0x3F,	0x41	},
+{	"France",		"Aqui TV",						0x3320,	0x2F,	0x20,	0x3F,	0x20	},
+{	"France",		"France 5 / Arte",				0x330A,	0x2F,	0x0A,	0x3F,	0x0A	},
+{	"France",		"Canal J",						0x33C2,	0x2F,	0xC2,	0x3F,	0x42	},
+{	"France",		"Canal Jimmy",					0x33C3,	0x2F,	0xC3,	0x3F,	0x43	},
+{	"France",		"Canal+",						0x33F4,	0x2F,	0x04,	0x3F,	0x04	},
+{	"France",		"Euronews",						0xFE01,	0x2F,	0xE1,	0x3F,	0x61	},
+{	"France",		"Eurosport",					0xF101,	0x2F,	0xE2,	0x3F,	0x62	},
+{	"France",		"France 2",						0x33F2,	0x2F,	0x02,	0x3F,	0x02	},
+{	"France",		"France 3",						0x33F3,	0x2F,	0x03,	0x3F,	0x03	},
+{	"France",		"La Chaîne Météo",				0x33C5,	0x2F,	0xC5,	0x3F,	0x45	},
+{	"France",		"LCI",							0x33C4,	0x2F,	0xC4,	0x3F,	0x44	},
+{	"France",		"M6",							0x33F6,	0x2F,	0x06,	0x3F,	0x06	},
+{	"France",		"MCM",							0x33C6,	0x2F,	0xC6,	0x3F,	0x46	},
+{	"France",		"Paris Première",				0x33C8,	0x2F,	0xC8,	0x3F,	0x48	},
+{	"France",		"Planète",						0x33C9,	0x2F,	0xC9,	0x3F,	0x49	},
+{	"France",		"RFO1",							0x3311,	0x2F,	0x11,	0x3F,	0x11	},
+{	"France",		"RFO2",							0x3312,	0x2F,	0x12,	0x3F,	0x12	},
+{	"France",		"Sailing Channel",				0x33B2,	0,	0,	0,	0	},
+{	"France",		"Série Club",					0x33CA,	0x2F,	0xCA,	0x3F,	0x4A	},
+{	"France",		"Télétoon",						0x33CB,	0x2F,	0xCB,	0x3F,	0x4B	},
+{	"France",		"Téva",							0x33CC,	0x2F,	0xCC,	0x3F,	0x4C	},
+{	"France",		"TF1",							0x33F1,	0x2F,	0x01,	0x3F,	0x01	},
+{	"France",		"TLM",							0x3321,	0x2F,	0x21,	0x3F,	0x21	},
+{	"France",		"TLT",							0x3322,	0x2F,	0x22,	0x3F,	0x22	},
+{	"France",		"TMC Monte-Carlo",				0x33C7,	0x2F,	0xC7,	0x3F,	0x47	},
+{	"France",		"TV5",							0xF500,	0x2F,	0xE5,	0x3F,	0x65	},
+{	"Germany",		"3SAT",							0x49C7,	0,	0,	0,	0	},
+{	"Germany",		"ARD",							0x4901,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49C1,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49C3,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49C4,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49C5,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49C6,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49CA,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49CC,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49CD,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49CE,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49D0,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49D1,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49D2,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49D3,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49D5,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49D6,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49D7,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49D8,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49DA,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49DB,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49DD,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49DE,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49E0,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49E2,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49E3,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49E5,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49E7,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49E8,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49E9,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49EA,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49EB,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49EC,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49ED,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49EE,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49EF,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49F0,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49F1,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49F2,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49F3,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49F4,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49F5,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49F6,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49F7,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49F8,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49F9,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49FA,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49FB,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49FC,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x49FD,	0,	0,	0,	0	},
+{	"Germany",		"ARD future use",				0x4981,	0,	0,	0,	0	},
+{	"Germany",		"Arte",							0x490A,	0,	0,	0,	0	},
+{	"Germany",		"BR",							0x49CB,	0,	0,	0,	0	},
+{	"Germany",		"BR-Alpha",						0x4944,	0,	0,	0,	0	},
+{	"Germany",		"EXTRA",						0x4943,	0,	0,	0,	0	},
+{	"Germany",		"Festival",						0x4941,	0,	0,	0,	0	},
+{	"Germany",		"HR",							0x49FF,	0,	0,	0,	0	},
+{	"Germany",		"Kinderkanal",					0x49C9,	0,	0,	0,	0	},
+{	"Germany",		"MDR",							0x49FE,	0,	0,	0,	0	},
+{	"Germany",		"MUXX",							0x4942,	0,	0,	0,	0	},
+{	"Germany",		"NDR",							0x49D4,	0,	0,	0,	0	},
+{	"Germany",		"ORB",							0x4982,	0,	0,	0,	0	},
+{	"Germany",		"Phoenix",						0x4908,	0,	0,	0,	0	},
+{	"Germany",		"QVC D Gmbh",					0x5C49,	0,	0,	0,	0	},
+{	"Germany",		"RB",							0x49D9,	0,	0,	0,	0	},
+{	"Germany",		"SFB",							0x49DC,	0,	0,	0,	0	},
+{	"Germany",		"SR",							0x49DF,	0,	0,	0,	0	},
+{	"Germany",		"SWR-BW",						0x49E1,	0,	0,	0,	0	},
+{	"Germany",		"SWR-RP",						0x49E4,	0,	0,	0,	0	},
+{	"Germany",		"1-2-3.TV",						0x49BD,	0,	0,	0,	0	},
+{	"Germany",		"TELE-5",						0x49BE,	0,	0,	0,	0	},
+{	"Germany",		"Home Shopping Europe",			0x49BF,	0,	0,	0,	0	},
+{	"Germany",		"VOX Television",				0x490C,	0,	0,	0,	0	},
+{	"Germany",		"WDR",							0x49E6,	0,	0,	0,	0	},
+{	"Germany",		"ZDF",							0x4902,	0,	0,	0,	0	},
+{	"Greece",		"ET future use",				0x3004,	0x21,	0x04,	0x31,	0x04	},
+{	"Greece",		"ET future use",				0x3005,	0x21,	0x05,	0x31,	0x05	},
+{	"Greece",		"ET future use",				0x3006,	0x21,	0x06,	0x31,	0x06	},
+{	"Greece",		"ET future use",				0x3007,	0x21,	0x07,	0x31,	0x07	},
+{	"Greece",		"ET future use",				0x3008,	0x21,	0x08,	0x31,	0x08	},
+{	"Greece",		"ET future use",				0x3009,	0x21,	0x09,	0x31,	0x09	},
+{	"Greece",		"ET future use",				0x300A,	0x21,	0x0A,	0x31,	0x0A	},
+{	"Greece",		"ET future use",				0x300B,	0x21,	0x0B,	0x31,	0x0B	},
+{	"Greece",		"ET future use",				0x300C,	0x21,	0x0C,	0x31,	0x0C	},
+{	"Greece",		"ET future use",				0x300D,	0x21,	0x0D,	0x31,	0x0D	},
+{	"Greece",		"ET future use",				0x300E,	0x21,	0x0E,	0x31,	0x0E	},
+{	"Greece",		"ET future use",				0x300F,	0x21,	0x0F,	0x31,	0x0F	},
+{	"Greece",		"ET-1",							0x3001,	0x21,	0x01,	0x31,	0x01	},
+{	"Greece",		"ET-3",							0x3003,	0x21,	0x03,	0x31,	0x03	},
+{	"Greece",		"NET",							0x3002,	0x21,	0x02,	0x31,	0x02	},
+{	"Hungary",		"Duna Televizio",				0x3636,	0,	0,	0,	0	},
+{	"Hungary",		"MTV1",							0x3601,	0,	0,	0,	0	},
+{	"Hungary",		"MTV1 future use",				0x3681,	0,	0,	0,	0	},
+{	"Hungary",		"MTV1 regional, Budapest",		0x3611,	0,	0,	0,	0	},
+{	"Hungary",		"MTV1 regional, Debrecen",		0x3651,	0,	0,	0,	0	},
+{	"Hungary",		"MTV1 regional, Miskolc",		0x3661,	0,	0,	0,	0	},
+{	"Hungary",		"MTV1 regional, Pécs",			0x3621,	0,	0,	0,	0	},
+{	"Hungary",		"MTV1 regional, Szeged",		0x3631,	0,	0,	0,	0	},
+{	"Hungary",		"MTV1 regional, Szombathely",	0x3641,	0,	0,	0,	0	},
+{	"Hungary",		"MTV2",							0x3602,	0,	0,	0,	0	},
+{	"Hungary",		"MTV2 future use",				0x3682,	0,	0,	0,	0	},
+{	"Hungary",		"tv2",							0x3622,	0,	0,	0,	0	},
+{	"Hungary",		"tv2 future use",				0x3620,	0,	0,	0,	0	},
+{	"Iceland",		"Rikisutvarpid-Sjonvarp",		0x3541,	0,	0,	0,	0	},
+{	"Iceland",		"Network 2",					0x3532,	0x42,	0x02,	0x32,	0x02	},
+{	"Iceland",		"RTE future use",				0x3534,	0x42,	0x04,	0x32,	0x04	},
+{	"Iceland",		"RTE future use",				0x3535,	0x42,	0x05,	0x32,	0x05	},
+{	"Iceland",		"RTE future use",				0x3536,	0x42,	0x06,	0x32,	0x06	},
+{	"Iceland",		"RTE future use",				0x3537,	0x42,	0x07,	0x32,	0x07	},
+{	"Iceland",		"RTE future use",				0x3538,	0x42,	0x08,	0x32,	0x08	},
+{	"Iceland",		"RTE future use",				0x3539,	0x42,	0x09,	0x32,	0x09	},
+{	"Iceland",		"RTE future use",				0x353A,	0x42,	0x0A,	0x32,	0x0A	},
+{	"Iceland",		"RTE future use",				0x353B,	0x42,	0x0B,	0x32,	0x0B	},
+{	"Iceland",		"RTE future use",				0x353C,	0x42,	0x0C,	0x32,	0x0C	},
+{	"Iceland",		"RTE future use",				0x353D,	0x42,	0x0D,	0x32,	0x0D	},
+{	"Iceland",		"RTE future use",				0x353E,	0x42,	0x0E,	0x32,	0x0E	},
+{	"Iceland",		"RTE future use",				0x353F,	0x42,	0x0F,	0x32,	0x0F	},
+{	"Iceland",		"RTE1",							0x3531,	0x42,	0x01,	0x32,	0x01	},
+{	"Iceland",		"Teilifis na Gaeilge",			0x3533,	0x42,	0x03,	0x32,	0x03	},
+{	"Iceland",		"TV3",							0x3333,	0,	0,	0,	0	},
+{	"Italy",		"RAI 1",						0x3901,	0,	0,	0,	0	},
+{	"Italy",		"RAI 2",						0x3902,	0,	0,	0,	0	},
+{	"Italy",		"RAI 3",						0x3903,	0,	0,	0,	0	},
+{	"Italy",		"Rete A",						0x3904,	0,	0,	0,	0	},
+{	"Italy",		"Canale Italia",				0x3905,	0x15,	0x05,	0,	0	},
+{	"Italy",		"Telenova",						0x3909,	0,	0,	0,	0	},
+{	"Italy",		"Arte",							0x390A,	0,	0,	0,	0	},
+{	"Italy",		"TRS TV",						0x3910,	0,	0,	0,	0	},
+{	"Italy",		"Sky Cinema Classic",			0x3911,	0x15,	0x11,	0,	0	},
+{	"Italy",		"Sky Future use (canale 109)",	0x3912,	0x15,	0x12,	0,	0	},
+{	"Italy",		"Sky Calcio 1",					0x3913,	0x15,	0x13,	0,	0	},
+{	"Italy",		"Sky Calcio 2",					0x3914,	0x15,	0x14,	0,	0	},
+{	"Italy",		"Sky Calcio 3",					0x3915,	0x15,	0x15,	0,	0	},
+{	"Italy",		"Sky Calcio 4",					0x3916,	0x15,	0x16,	0,	0	},
+{	"Italy",		"Sky Calcio 5",					0x3917,	0x15,	0x17,	0,	0	},
+{	"Italy",		"Sky Calcio 6",					0x3918,	0x15,	0x18,	0,	0	},
+{	"Italy",		"Sky Calcio 7",					0x3919,	0x15,	0x19,	0,	0	},
+{	"Italy",		"RaiNews24",					0x3920,	0,	0,	0,	0	},
+{	"Italy",		"RAI Med",						0x3921,	0,	0,	0,	0	},
+{	"Italy",		"RAI Sport",					0x3922,	0,	0,	0,	0	},
+{	"Italy",		"RAI Educational",				0x3923,	0,	0,	0,	0	},
+{	"Italy",		"RAI Edu Lab",					0x3924,	0,	0,	0,	0	},
+{	"Italy",		"RAI Nettuno 1",				0x3925,	0,	0,	0,	0	},
+{	"Italy",		"RAI Nettuno 2",				0x3926,	0,	0,	0,	0	},
+{	"Italy",		"Camera Deputati",				0x3927,	0,	0,	0,	0	},
+{	"Italy",		"RAI Mosaico",					0x3928,	0,	0,	0,	0	},
+{	"Italy",		"RAI future use",				0x3929,	0,	0,	0,	0	},
+{	"Italy",		"RAI future use",				0x392A,	0,	0,	0,	0	},
+{	"Italy",		"RAI future use",				0x392B,	0,	0,	0,	0	},
+{	"Italy",		"RAI future use",				0x392C,	0,	0,	0,	0	},
+{	"Italy",		"RAI future use",				0x392D,	0,	0,	0,	0	},
+{	"Italy",		"RAI future use",				0x392E,	0,	0,	0,	0	},
+{	"Italy",		"RAI future use",				0x392F,	0,	0,	0,	0	},
+{	"Italy",		"Discovery Italy",				0x3930,	0,	0,	0,	0	},
+{	"Italy",		"MTV Italia",					0x3933,	0,	0,	0,	0	},
+{	"Italy",		"MTV Brand New",				0x3934,	0,	0,	0,	0	},
+{	"Italy",		"MTV Hits",						0x3935,	0,	0,	0,	0	},
+{	"Italy",		"RTV38",						0x3938,	0,	0,	0,	0	},
+{	"Italy",		"GAY TV",						0x3939,	0,	0,	0,	0	},
+{	"Italy",		"Video Italia",					0x3940,	0,	0,	0,	0	},
+{	"Italy",		"SAT 2000",						0x3941,	0,	0,	0,	0	},
+{	"Italy",		"Jimmy",						0x3942,	0x15,	0x42,	0,	0	},
+{	"Italy",		"Planet",						0x3943,	0x15,	0x43,	0,	0	},
+{	"Italy",		"Cartoon Network",				0x3944,	0x15,	0x44,	0,	0	},
+{	"Italy",		"Boomerang",					0x3945,	0x15,	0x45,	0,	0	},
+{	"Italy",		"CNN International",			0x3946,	0x15,	0x46,	0,	0	},
+{	"Italy",		"Cartoon Network +1",			0x3947,	0x15,	0x47,	0,	0	},
+{	"Italy",		"Sky Sports 3",					0x3948,	0x15,	0x48,	0,	0	},
+{	"Italy",		"Sky Diretta Gol",				0x3949,	0x15,	0x49,	0,	0	},
+{	"Italy",		"RAISat Album",					0x3950,	0,	0,	0,	0	},
+{	"Italy",		"RAISat Art",					0x3951,	0,	0,	0,	0	},
+{	"Italy",		"RAISat Cinema",				0x3952,	0,	0,	0,	0	},
+{	"Italy",		"RAISat Fiction",				0x3953,	0,	0,	0,	0	},
+{	"Italy",		"RAISat GamberoRosso",			0x3954,	0,	0,	0,	0	},
+{	"Italy",		"RAISat Ragazzi",				0x3955,	0,	0,	0,	0	},
+{	"Italy",		"RAISat Show",					0x3956,	0,	0,	0,	0	},
+{	"Italy",		"RAISat G. Rosso interattivo",	0x3957,	0,	0,	0,	0	},
+{	"Italy",		"RAISat future use",			0x3958,	0,	0,	0,	0	},
+{	"Italy",		"RAISat future use",			0x3959,	0,	0,	0,	0	},
+{	"Italy",		"RAISat future use",			0x395A,	0,	0,	0,	0	},
+{	"Italy",		"RAISat future use",			0x395B,	0,	0,	0,	0	},
+{	"Italy",		"RAISat future use",			0x395C,	0,	0,	0,	0	},
+{	"Italy",		"RAISat future use",			0x395D,	0,	0,	0,	0	},
+{	"Italy",		"RAISat future use",			0x395E,	0,	0,	0,	0	},
+{	"Italy",		"RAISat future use",			0x395F,	0,	0,	0,	0	},
+{	"Italy",		"SCI FI CHANNEL",				0x3960,	0x15,	0x60,	0,	0	},
+{	"Italy",		"Discovery Civilisations",		0x3961,	0,	0,	0,	0	},
+{	"Italy",		"Discovery Travel and Adventure",	0x3962,	0,	0,	0,	0	},
+{	"Italy",		"Discovery Science",			0x3963,	0,	0,	0,	0	},
+{	"Italy",		"Sky Meteo24",					0x3968,	0x15,	0x68,	0,	0	},
+{	"Italy",		"Sky Cinema 2",					0x3970,	0,	0,	0,	0	},
+{	"Italy",		"Sky Cinema 3",					0x3971,	0,	0,	0,	0	},
+{	"Italy",		"Sky Cinema Autore",			0x3972,	0,	0,	0,	0	},
+{	"Italy",		"Sky Cinema Max",				0x3973,	0,	0,	0,	0	},
+{	"Italy",		"Sky Cinema 16:9",				0x3974,	0,	0,	0,	0	},
+{	"Italy",		"Sky Sports 2",					0x3975,	0,	0,	0,	0	},
+{	"Italy",		"Sky TG24",						0x3976,	0,	0,	0,	0	},
+{	"Italy",		"Fox",							0x3977,	0x15,	0x77,	0,	0	},
+{	"Italy",		"Foxlife",						0x3978,	0x15,	0x78,	0,	0	},
+{	"Italy",		"National Geographic Channel",	0x3979,	0x15,	0x79,	0,	0	},
+{	"Italy",		"A1",							0x3980,	0x15,	0x80,	0,	0	},
+{	"Italy",		"History Channel",				0x3981,	0x15,	0x81,	0,	0	},
+{	"Italy",		"FOX KIDS",						0x3985,	0,	0,	0,	0	},
+{	"Italy",		"PEOPLE TV – RETE 7",			0x3986,	0,	0,	0,	0	},
+{	"Italy",		"FOX KIDS +1",					0x3987,	0,	0,	0,	0	},
+{	"Italy",		"LA7",							0x3988,	0,	0,	0,	0	},
+{	"Italy",		"PrimaTV",						0x3989,	0,	0,	0,	0	},
+{	"Italy",		"SportItalia",					0x398A,	0,	0,	0,	0	},
+{	"Italy",		"STUDIO UNIVERSAL",				0x3990,	0x15,	0x90,	0,	0	},
+{	"Italy",		"Marcopolo",					0x3991,	0x15,	0x91,	0,	0	},
+{	"Italy",		"Alice",						0x3992,	0x15,	0x92,	0,	0	},
+{	"Italy",		"Nuvolari",						0x3993,	0x15,	0x93,	0,	0	},
+{	"Italy",		"Leonardo",						0x3994,	0x15,	0x94,	0,	0	},
+{	"Italy",		"SUPERPIPPA CHANNEL",			0x3996,	0x15,	0x96,	0,	0	},
+{	"Italy",		"Sky Sports 1",					0x3997,	0,	0,	0,	0	},
+{	"Italy",		"Sky Cinema 1",					0x3998,	0,	0,	0,	0	},
+{	"Italy",		"Tele+3",						0x3999,	0,	0,	0,	0	},
+{	"Italy",		"Sky Calcio 8",					0x39A0,	0x15,	0xA0,	0,	0	},
+{	"Italy",		"Sky Calcio 9",					0x39A1,	0x15,	0xA1,	0,	0	},
+{	"Italy",		"Sky Calcio 10",				0x39A2,	0x15,	0xA2,	0,	0	},
+{	"Italy",		"Sky Calcio 11",				0x39A3,	0x15,	0xA3,	0,	0	},
+{	"Italy",		"Sky Calcio 12",				0x39A4,	0x15,	0xA4,	0,	0	},
+{	"Italy",		"Sky Calcio 13",				0x39A5,	0x15,	0xA5,	0,	0	},
+{	"Italy",		"Sky Calcio 14",				0x39A6,	0x15,	0xA6,	0,	0	},
+{	"Italy",		"Telesanterno",					0x39A7,	0x15,	0xA7,	0,	0	},
+{	"Italy",		"Telecentro",					0x39A8,	0x15,	0xA8,	0,	0	},
+{	"Italy",		"Telestense",					0x39A9,	0x15,	0xA9,	0,	0	},
+{	"Italy",		"Disney Channel +1",			0x39B0,	0x15,	0xB0,	0,	0	},
+{	"Italy",		"Sailing Channel",				0x39B1,	0,	0,	0,	0	},
+{	"Italy",		"Disney Channel",				0x39B2,	0x15,	0xB2,	0,	0	},
+{	"Italy",		"7 Gold-Sestra Rete",			0x39B3,	0x15,	0xB3,	0,	0	},
+{	"Italy",		"Rete 8-VGA",					0x39B4,	0x15,	0xB4,	0,	0	},
+{	"Italy",		"Nuovarete",					0x39B5,	0x15,	0xB5,	0,	0	},
+{	"Italy",		"Radio Italia TV",				0x39B6,	0x15,	0xB6,	0,	0	},
+{	"Italy",		"Rete 7",						0x39B7,	0x15,	0xB7,	0,	0	},
+{	"Italy",		"E! Entertainment Television",	0x39B8,	0x15,	0xB8,	0,	0	},
+{	"Italy",		"Toon Disney",					0x39B9,	0x15,	0xB9,	0,	0	},
+{	"Italy",		"Bassano TV",					0x39C7,	0x15,	0xC7,	0,	0	},
+{	"Italy",		"ESPN Classic Sport",			0x39C8,	0x15,	0xC8,	0,	0	},
+{	"Italy",		"VIDEOLINA",					0x39CA,	0,	0,	0,	0	},
+{	"Italy",		"Mediaset Premium 1",			0x39D2,	0x15,	0xD2,	0,	0	},
+{	"Italy",		"Mediaset Premium 2",			0x39D3,	0x15,	0xD3,	0,	0	},
+{	"Italy",		"Mediaset Premium 3",			0x39D4,	0x15,	0xD4,	0,	0	},
+{	"Italy",		"Mediaset Premium 4",			0x39D5,	0x15,	0xD5,	0,	0	},
+{	"Italy",		"BOING",						0x39D6,	0x15,	0xD6,	0,	0	},
+{	"Italy",		"Playlist Italia",				0x39D7,	0x15,	0xD7,	0,	0	},
+{	"Italy",		"MATCH MUSIC",					0x39D8,	0x15,	0xD8,	0,	0	},
+{	"Italy",		"National Geographic +1"	,	0x39E1,	0x15,	0xE1,	0,	0	},
+{	"Italy",		"History Channel +1",			0x39E2,	0x15,	0xE2,	0,	0	},
+{	"Italy",		"Sky TV",						0x39E3,	0x15,	0xE3,	0,	0	},
+{	"Italy",		"GXT",							0x39E4,	0x15,	0xE4,	0,	0	},
+{	"Italy",		"Playhouse Disney",				0x39E5,	0x15,	0xE5,	0,	0	},
+{	"Italy",		"Sky Canale 224",				0x39E6,	0x15,	0xE6,	0,	0	},
+{	"Italy",		"Rete 4",						0xFA04,	0,	0,	0,	0	},
+{	"Italy",		"Canale 5",						0xFA05,	0,	0,	0,	0	},
+{	"Italy",		"Italia 1",						0xFA06,	0,	0,	0,	0	},
+{	"Luxembourg",	"RTL Télé Lëtzebuerg",			0x4000,	0,	0,	0,	0	},
+{	"Netherlands",	"Nederland 1",					0x3101,	0x48,	0x01,	0x38,	0x01	},
+{	"Netherlands",	"Nederland 2",					0x3102,	0x48,	0x02,	0x38,	0x02	},
+{	"Netherlands",	"Nederland 3",					0x3103,	0x48,	0x03,	0x38,	0x03	},
+{	"Netherlands",	"RTL 4",						0x3104,	0x48,	0x04,	0x38,	0x04	},
+{	"Netherlands",	"RTL 5",						0x3105,	0x48,	0x05,	0x38,	0x05	},
+{	"Netherlands",	"Yorin",						0x3106,	0x48,	0x06,	0x38,	0x06	},
+{	"Netherlands",	"NOS future use",				0x3110,	0,	0,	0,	0	},
+{	"Netherlands",	"NOS future use",				0x3111,	0,	0,	0,	0	},
+{	"Netherlands",	"NOS future use",				0x3112,	0,	0,	0,	0	},
+{	"Netherlands",	"NOS future use",				0x3113,	0,	0,	0,	0	},
+{	"Netherlands",	"NOS future use",				0x3114,	0,	0,	0,	0	},
+{	"Netherlands",	"NOS future use",				0x3115,	0,	0,	0,	0	},
+{	"Netherlands",	"NOS future use",				0x3116,	0,	0,	0,	0	},
+{	"Netherlands",	"NOS future use",				0x3117,	0,	0,	0,	0	},
+{	"Netherlands",	"NOS future use",				0x3118,	0,	0,	0,	0	},
+{	"Netherlands",	"NOS future use",				0x3119,	0,	0,	0,	0	},
+{	"Netherlands",	"NOS future use",				0x311A,	0,	0,	0,	0	},
+{	"Netherlands",	"NOS future use",				0x311B,	0,	0,	0,	0	},
+{	"Netherlands",	"NOS future use",				0x311C,	0,	0,	0,	0	},
+{	"Netherlands",	"NOS future use",				0x311D,	0,	0,	0,	0	},
+{	"Netherlands",	"NOS future use",				0x311E,	0,	0,	0,	0	},
+{	"Netherlands",	"NOS future use",				0x311F,	0,	0,	0,	0	},
+{	"Netherlands",	"NOS future use",				0x3107,	0x48,	0x07,	0x38,	0x07	},
+{	"Netherlands",	"NOS future use",				0x3108,	0x48,	0x08,	0x38,	0x08	},
+{	"Netherlands",	"NOS future use",				0x3109,	0x48,	0x09,	0x38,	0x09	},
+{	"Netherlands",	"NOS future use",				0x310A,	0x48,	0x0A,	0x38,	0x0A	},
+{	"Netherlands",	"NOS future use",				0x310B,	0x48,	0x0B,	0x38,	0x0B	},
+{	"Netherlands",	"NOS future use",				0x310C,	0x48,	0x0C,	0x38,	0x0C	},
+{	"Netherlands",	"NOS future use",				0x310D,	0x48,	0x0D,	0x38,	0x0D	},
+{	"Netherlands",	"NOS future use",				0x310E,	0x48,	0x0E,	0x38,	0x0E	},
+{	"Netherlands",	"NOS future use",				0x310F,	0x48,	0x0F,	0x38,	0x0F	},
+{	"Netherlands",	"The BOX",						0x3120,	0x48,	0x20,	0x38,	0x20	},
+{	"Netherlands",	"Discovery Netherlands",		0x3121,	0,	0,	0,	0	},
+{	"Netherlands",	"Nickelodeon",					0x3122,	0x48,	0x22,	0x38,	0x22	},
+{	"Netherlands",	"Animal Planet Benelux",		0x3123,	0,	0,	0,	0	},
+{	"Netherlands",	"TALPA TV",						0x3124,	0,	0,	0,	0	},
+{	"Netherlands",	"NET5",							0x3125,	0,	0,	0,	0	},
+{	"Netherlands",	"SBS6",							0x3126,	0,	0,	0,	0	},
+{	"Netherlands",	"SBS future use",				0x3127,	0,	0,	0,	0	},
+{	"Netherlands",	"V8",							0x3128,	0,	0,	0,	0	},
+{	"Netherlands",	"SBS future use",				0x3129,	0,	0,	0,	0	},
+{	"Netherlands",	"SBS future use",				0x312A,	0,	0,	0,	0	},
+{	"Netherlands",	"SBS future use",				0x312B,	0,	0,	0,	0	},
+{	"Netherlands",	"SBS future use",				0x312C,	0,	0,	0,	0	},
+{	"Netherlands",	"SBS future use",				0x312D,	0,	0,	0,	0	},
+{	"Netherlands",	"SBS future use",				0x312E,	0,	0,	0,	0	},
+{	"Netherlands",	"SBS future use",				0x312F,	0,	0,	0,	0	},
+{	"Netherlands",	"TMF (Netherlands service)",	0x3130,	0,	0,	0,	0	},
+{	"Netherlands",	"TMF (Belgian Flanders service)",	0x3131,	0,	0,	0,	0	},
+{	"Netherlands",	"MTV NL",						0x3132,	0,	0,	0,	0	},
+{	"Netherlands",	"RNN7",							0x3137,	0,	0,	0,	0	},
 /*
-{	"Greece ET future use 3004 21 04 31 04
-{	"Greece ET future use 3005 21 05 31 05
-{	"Greece ET future use 3006 21 06 31 06
-{	"Greece ET future use 3007 21 07 31 07
-{	"Greece ET future use 3008 21 08 31 08
-{	"Greece ET future use 3009 21 09 31 09
-{	"Greece ET future use 300A 21 0A 31 0A
-{	"Greece ET future use 300B 21 0B 31 0B
-{	"Greece ET future use 300C 21 0C 31 0C
-{	"Greece ET future use 300D 21 0D 31 0D
-{	"Greece ET future use 300E 21 0E 31 0E
-{	"Greece ET future use 300F 21 0F 31 0F
-{	"Greece ET-1 3001 21 01 31 01
-{	"Greece ET-3 3003 21 03 31 03
-{	"Greece NET 3002 21 02 31 02
-{	"Hungary Duna Televizio 3636
-{	"Hungary MTV1 3601
-{	"Hungary MTV1 future use 3681
-{	"Hungary MTV1 regional, Budapest 3611
-{	"Hungary MTV1 regional, Debrecen 3651
-{	"Hungary MTV1 regional, Miskolc 3661
-{	"Hungary MTV1 regional, Pécs 3621
-{	"Hungary MTV1 regional, Szeged 3631
-{	"Hungary MTV1 regional, Szombathely 3641
-{	"Hungary MTV2 3602
-{	"Hungary MTV2 future use 3682
-{	"Hungary tv2 3622
-{	"Hungary tv2 future use 3620
-{	"Iceland Rikisutvarpid-Sjonvarp 3541
-{	"Iceland Network 2 3532 42 02 32 02
-{	"Iceland RTE future use 3534 42 04 32 04
-{	"Iceland RTE future use 3535 42 05 32 05
-{	"Iceland RTE future use 3536 42 06 32 06
-{	"Iceland RTE future use 3537 42 07 32 07
-{	"Iceland RTE future use 3538 42 08 32 08
-{	"Iceland RTE future use 3539 42 09 32 09
-{	"Iceland RTE future use 353A 42 0A 32 0A
-{	"Iceland RTE future use 353B 42 0B 32 0B
-{	"Iceland RTE future use 353C 42 0C 32 0C
-{	"Iceland RTE future use 353D 42 0D 32 0D
-{	"Iceland RTE future use 353E 42 0E 32 0E
-{	"Iceland RTE future use 353F 42 0F 32 0F
-{	"Iceland RTE1 3531 42 01 32 01
-{	"Iceland Teilifis na Gaeilge 3533 42 03 32 03
-{	"Iceland TV3 3333
-{	"Italy RAI 1 3901
-{	"Italy RAI 2 3902
-{	"Italy RAI 3 3903
-{	"Italy Rete A 3904
-{	"Italy Canale Italia 3905 15 05
-{	"Italy Telenova 3909
-{	"Italy Arte 390A
-{	"Italy TRS TV 3910
-{	"Italy Sky Cinema Classic 3911 15 11
-{	"Italy Sky Future use (canale 109) 3912 15 12
-{	"Italy Sky Calcio 1 3913 15 13
-{	"Italy Sky Calcio 2 3914 15 14
-{	"Italy Sky Calcio 3 3915 15 15
-{	"Italy Sky Calcio 4 3916 15 16
-{	"Italy Sky Calcio 5 3917 15 17
-{	"Italy Sky Calcio 6 3918 15 18
-{	"Italy Sky Calcio 7 3919 15 19
-{	"Italy RaiNews24 3920
-{	"Italy RAI Med 3921
-{	"Italy RAI Sport 3922
-{	"Italy RAI Educational 3923
-{	"Italy RAI Edu Lab 3924
-{	"Italy RAI Nettuno 1 3925
-{	"Italy RAI Nettuno 2 3926
-{	"Italy Camera Deputati 3927
-{	"Italy RAI Mosaico 3928
-{	"Italy RAI future use 3929
-{	"Italy RAI future use 392A
-{	"Italy RAI future use 392B
-{	"Italy RAI future use 392C
-{	"Italy RAI future use 392D
-{	"Italy RAI future use 392E
-{	"Italy RAI future use 392F
-{	"Italy Discovery Italy 3930
-{	"Italy MTV Italia 3933
-{	"Italy MTV Brand New 3934
-{	"Italy MTV Hits 3935
-{	"Italy RTV38 3938
-{	"Italy GAY TV 3939
-{	"Italy Video Italia 3940
-{	"Italy SAT 2000 3941
-{	"Italy Jimmy 3942 15 42
-{	"Italy Planet 3943 15 43
-{	"Italy Cartoon Network 3944 15 44
-{	"Italy Boomerang 3945 15 45
-{	"Italy CNN International 3946 15 46
-{	"Italy Cartoon Network +1 3947 15 47
-{	"Italy Sky Sports 3 3948 15 48
-{	"Italy Sky Diretta Gol 3949 15 49
-{	"Italy RAISat Album 3950
-{	"Italy RAISat Art 3951
-{	"Italy RAISat Cinema 3952
-{	"Italy RAISat Fiction 3953
-{	"Italy RAISat GamberoRosso 3954
-{	"Italy RAISat Ragazzi 3955
-{	"Italy RAISat Show 3956
-{	"Italy RAISat G. Rosso interattivo 3957
-{	"Italy RAISat future use 3958
-{	"Italy RAISat future use 3959
-{	"Italy RAISat future use 395A
-{	"Italy RAISat future use 395B
-{	"Italy RAISat future use 395C
-{	"Italy RAISat future use 395D
-{	"Italy RAISat future use 395E
-{	"Italy RAISat future use 395F
-{	"Italy SCI FI CHANNEL 3960 15 60
-{	"Italy Discovery Civilisations 3961
-{	"Italy Discovery Travel and Adventure 3962
-{	"Italy Discovery Science 3963
-{	"Italy Sky Meteo24 3968 15 68
-{	"Italy Sky Cinema 2 3970
-{	"Italy Sky Cinema 3 3971
-{	"Italy Sky Cinema Autore 3972
-{	"Italy Sky Cinema Max 3973
-{	"Italy Sky Cinema 16:9 3974
-{	"Italy Sky Sports 2 3975
-{	"Italy Sky TG24 3976
-{	"Italy Fox 3977 15 77
-{	"Italy Foxlife 3978 15 78
-{	"Italy National Geographic Channel 3979 15 79
-{	"Italy A1 3980 15 80
-{	"Italy History Channel 3981 15 81
-{	"Italy FOX KIDS 3985
-{	"Italy PEOPLE TV – RETE 7 3986
-{	"Italy FOX KIDS +1 3987
-{	"Italy LA7 3988
-{	"Italy PrimaTV 3989
-{	"Italy SportItalia 398A
-{	"Italy STUDIO UNIVERSAL 3990 15 90
-{	"Italy Marcopolo 3991 15 91
-{	"Italy Alice 3992 15 92
-{	"Italy Nuvolari 3993 15 93
-{	"Italy Leonardo 3994 15 94
-{	"Italy SUPERPIPPA CHANNEL 3996 15 96
-{	"Italy Sky Sports 1 3997
-{	"Italy Sky Cinema 1 3998
-{	"Italy Tele+3 3999
-{	"Italy Sky Calcio 8 39A0 15 A0
-{	"Italy Sky Calcio 9 39A1 15 A1
-{	"Italy Sky Calcio 10 39A2 15 A2
-{	"Italy Sky Calcio 11 39A3 15 A3
-{	"Italy Sky Calcio 12 39A4 15 A4
-{	"Italy Sky Calcio 13 39A5 15 A5
-{	"Italy Sky Calcio 14 39A6 15 A6
-{	"Italy Telesanterno 39A7 15 A7
-{	"Italy Telecentro 39A8 15 A8
-{	"Italy Telestense 39A9 15 A9
-{	"Italy Disney Channel +1 39B0 15 B0
-{	"Italy Sailing Channel 39B1
-{	"Italy Disney Channel 39B2 15 B2
-{	"Italy 7 Gold-Sestra Rete 39B3 15 B3
-{	"Italy Rete 8-VGA 39B4 15 B4
-{	"Italy Nuovarete 39B5 15 B5
-{	"Italy Radio Italia TV 39B6 15 B6
-{	"Italy Rete 7 39B7 15 B7
-{	"Italy E! Entertainment Television 39B8 15 B8
-{	"Italy Toon Disney 39B9 15 B9
-{	"Italy Bassano TV 39C7 15 C7
-{	"Italy ESPN Classic Sport 39C8 15 C8
-{	"Italy VIDEOLINA 39CA
-{	"Italy Mediaset Premium 1 39D2 15 D2
-{	"Italy Mediaset Premium 2 39D3 15 D3
-{	"Italy Mediaset Premium 3 39D4 15 D4
-{	"Italy Mediaset Premium 4 39D5 15 D5
-{	"Italy BOING 39D6 15 D6
-{	"Italy Playlist Italia 39D7 15 D7
-{	"Italy MATCH MUSIC 39D8 15 D8
-{	"Italy National Geographic +1 39E1 15 E1
-{	"Italy History Channel +1 39E2 15 E2
-{	"Italy Sky TV 39E3 15 E3
-{	"Italy GXT 39E4 15 E4
-{	"Italy Playhouse Disney 39E5 15 E5
-{	"Italy Sky Canale 224 39E6 15 E6
-{	"Italy Rete 4 FA04
-{	"Italy Canale 5 FA05
-{	"Italy Italia 1 FA06
-{	"Luxembourg RTL Télé Lëtzebuerg 4000
-{	"Netherlands Nederland 1 3101 48 01 38 01
-{	"Netherlands Nederland 2 3102 48 02 38 02
-{	"Netherlands Nederland 3 3103 48 03 38 03
-{	"Netherlands RTL 4 3104 48 04 38 04
-{	"Netherlands RTL 5 3105 48 05 38 05
-{	"Netherlands Yorin 3106 48 06 38 06
-{	"Netherlands NOS future use 3110
-{	"Netherlands NOS future use 3111
-{	"Netherlands NOS future use 3112
-{	"Netherlands NOS future use 3113
-{	"Netherlands NOS future use 3114
-{	"Netherlands NOS future use 3115
-{	"Netherlands NOS future use 3116
-{	"Netherlands NOS future use 3117
-{	"Netherlands NOS future use 3118
-{	"Netherlands NOS future use 3119
-{	"Netherlands NOS future use 311A
-{	"Netherlands NOS future use 311B
-{	"Netherlands NOS future use 311C
-{	"Netherlands NOS future use 311D
-{	"Netherlands NOS future use 311E
-{	"Netherlands NOS future use 311F
-{	"Netherlands NOS future use 3107 48 07 38 07
-{	"Netherlands NOS future use 3108 48 08 38 08
-{	"Netherlands NOS future use 3109 48 09 38 09
-{	"Netherlands NOS future use 310A 48 0A 38 0A
-{	"Netherlands NOS future use 310B 48 0B 38 0B
-{	"Netherlands NOS future use 310C 48 0C 38 0C
-{	"Netherlands NOS future use 310D 48 0D 38 0D
-{	"Netherlands NOS future use 310E 48 0E 38 0E
-{	"Netherlands NOS future use 310F 48 0F 38 0F
-{	"Netherlands The BOX 3120 48 20 38 20
-{	"Netherlands Discovery Netherlands 3121
-{	"Netherlands Nickelodeon 3122 48 22 38 22
-{	"Netherlands Animal Planet Benelux 3123
-{	"Netherlands TALPA TV 3124
-{	"Netherlands NET5 3125
-{	"Netherlands SBS6 3126
-{	"Netherlands SBS future use 3127
-{	"Netherlands V8 3128
-{	"Netherlands SBS future use 3129
-{	"Netherlands SBS future use 312A
-{	"Netherlands SBS future use 312B
-{	"Netherlands SBS future use 312C
-{	"Netherlands SBS future use 312D
-{	"Netherlands SBS future use 312E
-{	"Netherlands SBS future use 312F
-{	"Netherlands TMF (Netherlands service) 3130
-{	"Netherlands TMF (Belgian Flanders service) 3131
-{	"Netherlands MTV NL 3132
-{	"Netherlands RNN7 3137
 {	"Norway NRK1 4701
 {	"Norway NRK2 4703
 {	"Norway TV 2 4702
@@ -2518,7 +2531,32 @@ BYTE VT_UpdateHilightListProc(TVTPage*, WORD wPoint, LPWORD lpFlags,
 }
 
 
-void VT_GetStationFromID(LPSTR lpBuffer, LONG nLength)
+void VT_GetStationFromIDP8301(LPSTR lpBuffer, LONG nLength)
+{
+    ASSERT(nLength > 0);
+
+    lpBuffer[0] = '\0';
+
+	DWORD dwCode = VTDecoder.GetNetworkIDFromP8301();
+	if (dwCode != 0)
+	{
+		// dwCode is a network ID code
+		//LOG(1, "P8/30/1 Network ID Code %x", dwCode);
+		int iNbCodes = sizeof(RegisteredCNICodes) / sizeof(RegisteredCNICodes[0]);
+		for (int i(0); i < iNbCodes; i++)
+		{
+			if (RegisteredCNICodes[i].dwNI_P8301 == dwCode)
+			{
+				strncpy(lpBuffer, RegisteredCNICodes[i].sNetwork, nLength-1);
+				lpBuffer[nLength] = '\0';
+				break;
+			}
+		}
+	}
+}
+
+
+void VT_GetStationFromPDC(LPSTR lpBuffer, LONG nLength)
 {
     ASSERT(nLength > 0);
 
@@ -2541,27 +2579,6 @@ void VT_GetStationFromID(LPSTR lpBuffer, LONG nLength)
 				strncpy(lpBuffer, RegisteredCNICodes[i].sNetwork, nLength-1);
 				lpBuffer[nLength] = '\0';
 				break;
-			}
-		}
-	}
-
-	// If not found, then search with network ID ocde from P8/30/1
-    if (*lpBuffer == '\0')
-	{
-		dwCode = VTDecoder.GetNetworkIDFromP8301();
-		if (dwCode != 0)
-		{
-			// dwCode is a network ID code
-			//LOG(1, "P8/30/1 Network ID Code %x", dwCode);
-			int iNbCodes = sizeof(RegisteredCNICodes) / sizeof(RegisteredCNICodes[0]);
-			for (int i(0); i < iNbCodes; i++)
-			{
-				if (RegisteredCNICodes[i].dwNI_P8301 == dwCode)
-				{
-					strncpy(lpBuffer, RegisteredCNICodes[i].sNetwork, nLength-1);
-					lpBuffer[nLength] = '\0';
-					break;
-				}
 			}
 		}
 	}

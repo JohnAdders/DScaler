@@ -1,4 +1,4 @@
-/* $Id: avi.h,v 1.2 2005-07-24 23:05:39 dosx86 Exp $ */
+/* $Id: avi.h,v 1.3 2005-07-28 00:41:30 dosx86 Exp $ */
 
 /** \file
  * Main AVI file header
@@ -24,8 +24,6 @@ extern "C"
 #pragma comment(lib, "msacm32.lib")
 #pragma comment(lib, "winmm.lib")
 
-#define AVI_DEBUG
-
 #define RIFF_CHUNK mmioFOURCC('R', 'I', 'F', 'F')
 #define LIST_CHUNK mmioFOURCC('L', 'I', 'S', 'T')
 #define AVIH_CHUNK mmioFOURCC('a', 'v', 'i', 'h')
@@ -36,14 +34,12 @@ extern "C"
 #define JUNK_CHUNK mmioFOURCC('J', 'U', 'N', 'K')
 
 /** The maximum size of a RIFF chunk. DO NOT CHANGE. */
-#define CHUNK_LIMIT 2097152000 /* 2 giga bytes */
+#define CHUNK_LIMIT 1027604480 /* About 1 giga byte */
 
 /** The maximum amount of memory to allocate for the async data writer */
 #define ASYNC_MEM_LIMIT (12 * 1024 * 1024) /* 12 mega bytes */
 
 typedef __int64 int64;
-typedef unsigned long uint32;
-typedef unsigned char uint8;
 
 /** Time data type
  * \warning This needs to be signed
@@ -157,7 +153,7 @@ typedef struct
 /** Main structure */
 typedef struct
 {
-    uint8 flags; /**< Zero or more AVI_FLAG_* constants */
+    BYTE flags; /**< Zero or more AVI_FLAG_* constants */
 
     /** Error data */
     struct

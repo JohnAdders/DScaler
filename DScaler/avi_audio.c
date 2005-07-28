@@ -1,4 +1,4 @@
-/* $Id: avi_audio.c,v 1.1 2005-07-17 20:38:34 dosx86 Exp $ */
+/* $Id: avi_audio.c,v 1.2 2005-07-28 00:43:54 dosx86 Exp $ */
 
 /** \file
  * Audio recording and compression functions
@@ -105,7 +105,7 @@ void CALLBACK waveInCallback(HWAVEIN hWaveIn, UINT uMsg, DWORD dwInstance,
             aviUnlockTimer(file);
 
             if (save)
-               aviSaveAudio(file, (uint8 *)whdr->lpData + startOffset,
+               aviSaveAudio(file, (BYTE *)whdr->lpData + startOffset,
                             whdr->dwBytesRecorded - startOffset);
         }
 

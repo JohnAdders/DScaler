@@ -1,4 +1,4 @@
-/* $Id: avi_file.c,v 1.2 2005-07-24 23:06:19 dosx86 Exp $ */
+/* $Id: avi_file.c,v 1.3 2005-07-28 00:44:51 dosx86 Exp $ */
 
 /** \file
  * Async file writing functions
@@ -29,7 +29,6 @@ typedef struct
     DWORD start; /**< Data start offset */
     DWORD end;   /**< Data end offset */
     DWORD size;  /**< Size of the data */
-    BYTE  flags; /**< Where the different FIFO flags are stored */
     BYTE  *data; /**< Data */
 } FIFO;
 
@@ -476,19 +475,31 @@ BOOL fileBuildStreamIndex(AVI_FILE *file, stream_t type)
         AVISTDINDEX_ENTRY data[128]; /**< Temporary storage for some of the standard index entries */
     } stdIndex;
 
+    /** Old index entries */
+    struct
+    {
+        DWORD         current;
+        AVIINDEXENTRY data[128];
+    } entry;
+
     int64         legacyOffset;
     DWORD         legacyCounter;
-    AVIINDEXENTRY entry;
+    AVIINDEXENTRY *legacy;
 
     #define TRY_FILE(x)\
         if (!(x))\
            return FALSE
+
+    #define ARRAY_LENGTH(x) (sizeof(x) / sizeof((x)[0]))
 
     if (file->superIndex[type].header.nEntriesInUse <= 0 ||
         file->legacy.indices[type] <= 0)
        return TRUE; /* Nothing to do for this stream */
 
     TRY_FILE(__tell(file, &legacyOffset));
+
+    /* Reset the old entry data */
+    entry.current = 0;
 
     /* Set up the data for the super index. Make sure the first entry is read
        when the loop starts. */
@@ -548,10 +559,8 @@ BOOL fileBuildStreamIndex(AVI_FILE *file, stream_t type)
             if (stdIndex.remaining > 0)
             {
                 /* Determine how many entries can be read */
-                if (stdIndex.remaining >= sizeof(stdIndex.data) /
-                                          sizeof(stdIndex.data[0]))
-                   stdIndex.read = sizeof(stdIndex.data) /
-                                   sizeof(stdIndex.data[0]);
+                if (stdIndex.remaining >= ARRAY_LENGTH(stdIndex.data))
+                   stdIndex.read = ARRAY_LENGTH(stdIndex.data);
                    else
                    stdIndex.read = stdIndex.remaining;
 
@@ -579,22 +588,39 @@ BOOL fileBuildStreamIndex(AVI_FILE *file, stream_t type)
            entries if there's anything left in the standard index array */
         while (legacyCounter > 0 && stdIndex.current < stdIndex.read)
         {
-            entry.ckid          = stdIndex.header.dwChunkId;
-            entry.dwChunkOffset = stdIndex.data[stdIndex.current].dwOffset - 16;
-            entry.dwChunkLength = stdIndex.data[stdIndex.current].dwSize;
+            legacy = &entry.data[entry.current];
 
-            if (!(entry.dwChunkLength & 0x80000000))
-               entry.dwFlags = AVIIF_KEYFRAME;
+            legacy->ckid          = stdIndex.header.dwChunkId;
+            legacy->dwChunkOffset = stdIndex.data[stdIndex.current].dwOffset - 16;
+            legacy->dwChunkLength = stdIndex.data[stdIndex.current].dwSize;
+
+            if (!(legacy->dwChunkLength & 0x80000000))
+               legacy->dwFlags = AVIIF_KEYFRAME;
                else
-               entry.dwFlags = 0;
+               legacy->dwFlags = 0;
 
-            entry.dwChunkLength &= ~0x80000000;
+            legacy->dwChunkLength &= ~0x80000000;
 
-            TRY_FILE(__write(file, &entry, sizeof(AVIINDEXENTRY)));
-
-            legacyCounter--;
+            entry.current++;
             stdIndex.current++;
+            legacyCounter--;
+
+            if (entry.current >= ARRAY_LENGTH(entry.data))
+            {
+                /* The legacy index array is full. Write it to the file then
+                   reset it. */
+                TRY_FILE(__write(file, entry.data, sizeof(entry.data)));
+                entry.current = 0;
+            }
         }
+    }
+
+    /* Write any remaining legacy indices to the file */
+    if (entry.current > 0)
+    {
+        TRY_FILE(__write(file, entry.data, entry.current *
+                                           sizeof(entry.data[0])));
+        entry.current = 0;
     }
 
     return TRUE;
@@ -937,7 +963,7 @@ BOOL fileWrite(AVI_FILE *file, void *data, DWORD size)
 BOOL fileReserveSpace(AVI_FILE *file, DWORD size)
 {
     #define R_BLOCK_SIZE 256
-    uint8 block[R_BLOCK_SIZE];
+    BYTE block[R_BLOCK_SIZE];
 
     memset(block, 0, R_BLOCK_SIZE);
     while (size > 0)

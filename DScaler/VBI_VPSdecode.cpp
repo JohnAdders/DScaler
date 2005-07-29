@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VPSdecode.cpp,v 1.6 2005-07-27 22:57:45 laurentg Exp $
+// $Id: VBI_VPSdecode.cpp,v 1.7 2005-07-29 16:29:35 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -42,6 +42,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2005/07/27 22:57:45  laurentg
+// New function to search the channel with the VPS CNI
+//
 // Revision 1.5  2004/01/16 09:14:03  adcockj
 // Fixed a couple of bugs spotted by Robert Schlabbach
 //
@@ -201,8 +204,8 @@ void VBI_DecodeLine_VPS(BYTE* VBI_Buffer)
     int i, p;
     UINT scanPos;
 
-    p = VPSStep * 21 / FPFAC;
-    while ((VBI_Buffer[p] < VBI_thresh) && (p < (VPSStep * 37 / FPFAC)))
+    p = 150;
+    while ((VBI_Buffer[p] < VBI_thresh) && (p < 260))
     {
         p++;
     }

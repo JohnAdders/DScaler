@@ -1,4 +1,4 @@
-/* $Id: avi_audio.c,v 1.2 2005-07-28 00:43:54 dosx86 Exp $ */
+/* $Id: avi_audio.c,v 1.3 2005-07-30 17:51:58 dosx86 Exp $ */
 
 /** \file
  * Audio recording and compression functions
@@ -40,6 +40,21 @@ __inline DWORD ticksToBytes(AVI_FILE *file, WAVEFORMATEX *wfx, aviTime_t ticks)
                    ((double)wfx->nSamplesPerSec * (double)wfx->nBlockAlign));
 }
 
+/** Converts the number of recorded bytes to the number of recorded samples
+ * \param file  An open file
+ * \param wfx   The format the data was recorded in
+ * \param bytes The number of recorded bytes
+ * \return The number of recorded samples
+ * \note The number of recorded bytes is a multiple of the block alignment so
+ *       there shouldn't be a need to ever worry about a fractional number
+ *       resulting from the calculation
+ */
+
+__inline DWORD bytesToSamples(AVI_FILE *file, WAVEFORMATEX *wfx, DWORD bytes)
+{
+    return wfx->nBlockAlign > 0 ? bytes / wfx->nBlockAlign : bytes;
+}
+
 /** Callback function for the waveIn device
  * \note This doesn't start saving audio data to an open file until the video
  *       stream has started to be saved
@@ -52,6 +67,8 @@ void CALLBACK waveInCallback(HWAVEIN hWaveIn, UINT uMsg, DWORD dwInstance,
     AVI_FILE *file;
     BOOL     save;
     DWORD    startOffset;
+    DWORD    size;
+    DWORD    samples;
 
     struct
     {
@@ -105,8 +122,21 @@ void CALLBACK waveInCallback(HWAVEIN hWaveIn, UINT uMsg, DWORD dwInstance,
             aviUnlockTimer(file);
 
             if (save)
-               aviSaveAudio(file, (BYTE *)whdr->lpData + startOffset,
-                            whdr->dwBytesRecorded - startOffset);
+            {
+                size    = whdr->dwBytesRecorded - startOffset;
+                samples = bytesToSamples(file, &file->audio.wfxIn, size);
+                aviSaveAudio(file, (BYTE *)whdr->lpData + startOffset, size,
+                             samples);
+
+                aviLockAudio(file);
+
+                if (size > file->audio.largestChunk)
+                   file->audio.largestChunk = size;
+
+                file->audio.streamLength += samples;
+
+                aviUnlockAudio(file);
+            }
         }
 
         if (file->audio.recording)

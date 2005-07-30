@@ -1,4 +1,4 @@
-/* $Id: avi.h,v 1.3 2005-07-28 00:41:30 dosx86 Exp $ */
+/* $Id: avi.h,v 1.4 2005-07-30 17:50:48 dosx86 Exp $ */
 
 /** \file
  * Main AVI file header
@@ -127,6 +127,7 @@ typedef struct
 /** Holds multiple OpenDML standard index entries */
 typedef struct
 {
+    DWORD             duration;             /**< Duration of the indices in stream ticks */
     DWORD             current;              /**< Current standard index entry */
     AVISTDINDEX_ENTRY entry[MAX_STD_INDEX]; /**< Standard index entries */
 } STREAM_STD_INDEX;
@@ -189,6 +190,7 @@ typedef struct
         CRITICAL_SECTION file;  /**< Lock for the file/chunk data */
         CRITICAL_SECTION timer; /**< Lock for the timer data */
         CRITICAL_SECTION video; /**< Lock for the video data */
+        CRITICAL_SECTION audio; /**< Lock for the audio data */
     } lock;
 
     /** Chunk data */
@@ -233,14 +235,15 @@ typedef struct
         } missing;
 
         STREAM_CC        cc;
-        DWORD            strhOffset; /**< Offset to the beginning of the stream header structure */
-        BITMAPINFOHEADER info;       /**< Image input format */
-        DWORD            rate;       /**< Rate of the video */
-        DWORD            scale;      /**< Used in the equation FPS = rate / scale */
-        FOURCC           fccHandler; /**< The CC of the compressor */
-        VIDEO_COMP       comp;       /**< Compression data */
-        DWORD            numFrames;  /**< The number of frames that were saved */
-        float            fps;        /**< The precalculated value of FPS for the video data */
+        DWORD            strhOffset;   /**< Offset to the beginning of the stream header structure */
+        DWORD            largestChunk; /**< The size of the largest chunk in the stream in bytes */
+        BITMAPINFOHEADER info;         /**< Image input format */
+        DWORD            rate;         /**< Rate of the video */
+        DWORD            scale;        /**< Used in the equation FPS = rate / scale */
+        FOURCC           fccHandler;   /**< The CC of the compressor */
+        VIDEO_COMP       comp;         /**< Compression data */
+        DWORD            numFrames;    /**< The number of frames that were saved */
+        float            fps;          /**< The precalculated value of FPS for the video data */
     } video;
 
     /** Audio stream */
@@ -252,8 +255,11 @@ typedef struct
         DWORD        strhOffset;   /**< Offset to the beginning of the stream header structure */
         HWAVEIN      hWaveIn;      /**< Handle to a waveIn device */
         BOOL         recording;    /**< Set to TRUE when audio is being recorded */
-        DWORD        streamLength; /**< The length of the audio stream */
         UINT_PTR     deviceID;     /**< The ID of the waveIn device to use */
+
+        /* These are protected by the audio lock */
+        DWORD streamLength; /**< The length of the audio stream */
+        DWORD largestChunk; /**< The size of the largest chunk in this stream in bytes */
 
         /* Make sure the number of buffers doesn't go below four. It's a nice
            thing to have especially if the system becomes heavily loaded. If

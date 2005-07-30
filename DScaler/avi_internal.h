@@ -1,4 +1,4 @@
-/* $Id: avi_internal.h,v 1.2 2005-07-24 23:07:48 dosx86 Exp $ */
+/* $Id: avi_internal.h,v 1.3 2005-07-30 17:53:35 dosx86 Exp $ */
 
 #ifndef __AVI_INTERNAL_H
 #define __AVI_INTERNAL_H
@@ -17,12 +17,12 @@ void      reserveSpace(AVI_FILE *file, DWORD size);
 void      aviBeginChunk(AVI_FILE *file, FOURCC cc);
 void      aviAlignChunk(AVI_FILE *file, DWORD boundary);
 DWORD     aviEndChunk(AVI_FILE *file);
-void      aviEndChunkWithIndex(AVI_FILE *file, stream_t type,
-                               unsigned long replicate, BOOL keyFrame);
+DWORD     aviEndChunkWithIndex(AVI_FILE *file, stream_t type, DWORD replicate,
+                               DWORD duration, BOOL keyFrame);
 void      aviEndAllChunks(AVI_FILE *file);
 void      aviWriteFourCC(AVI_FILE *file, FOURCC cc);
 void      aviCheckFile(AVI_FILE *file);
-BOOL      aviSaveAudio(AVI_FILE *file, void *src, DWORD size);
+BOOL      aviSaveAudio(AVI_FILE *file, void *src, DWORD size, DWORD samples);
 
 void aviLockFile(AVI_FILE *file);
 void aviUnlockFile(AVI_FILE *file);
@@ -30,6 +30,8 @@ void aviLockTimer(AVI_FILE *file);
 void aviUnlockTimer(AVI_FILE *file);
 void aviLockVideo(AVI_FILE *file);
 void aviUnlockVideo(AVI_FILE *file);
+void aviLockAudio(AVI_FILE *file);
+void aviUnlockAudio(AVI_FILE *file);
 
 extern __inline int64 aviGetTimerFreq(void);
 extern __inline int64 aviGetTimer(void);
@@ -41,7 +43,7 @@ extern __inline int64 aviTimerGetStart(AVI_FILE *file);
 void aviWriteInitialSuperIndex(AVI_FILE *file, stream_t type);
 void aviIndexFlush(AVI_FILE *file);
 void aviIndexAddEntry(AVI_FILE *file, stream_t type, int64 begin, DWORD size,
-                      BOOL keyFrame);
+                      DWORD duration, BOOL keyFrame);
 void aviIndexClearCounters(AVI_FILE *file);
 void aviIndexSetLegacyCounters(AVI_FILE *file);
 

@@ -1,4 +1,4 @@
-/* $Id: avi_index.c,v 1.2 2005-07-24 23:07:08 dosx86 Exp $ */
+/* $Id: avi_index.c,v 1.3 2005-07-30 17:52:53 dosx86 Exp $ */
 
 /** \file
  * OpenDML indexing
@@ -116,7 +116,9 @@ void aviIndexFlushStd(AVI_FILE *file, stream_t type)
     index->current = 0;
 
     /* Add this chunk to the super index */
-    aviIndexAddSuperEntry(file, type, 0, begin, size);
+    aviIndexAddSuperEntry(file, type, index->duration, begin, size);
+
+    index->duration = 0;
 }
 
 /** Flushes all standard and super indices for every stream
@@ -141,12 +143,13 @@ void aviIndexFlush(AVI_FILE *file)
  * \param type     The type of stream to add the index to
  * \param begin    The absolute offset to the beginning of the chunk's data
  * \param size     The length of the chunk's data in bytes starting from begin
+ * \param duration The duration of this entry in stream ticks
  * \param keyFrame Determines if the entry is really a key frame. Only affects
  *                 video streams.
  */
 
 void aviIndexAddEntry(AVI_FILE *file, stream_t type, int64 begin, DWORD size,
-                      BOOL keyFrame)
+                      DWORD duration, BOOL keyFrame)
 {
     STREAM_STD_INDEX  *index;
     AVISTDINDEX_ENTRY *entry;
@@ -155,6 +158,9 @@ void aviIndexAddEntry(AVI_FILE *file, stream_t type, int64 begin, DWORD size,
 
     /* Add this index to the count of indices for this stream */
     file->stdIndexCount[type]++;
+
+    /* Update the length of the current set of indices */
+    index->duration += duration;
 
     assert(index->current < MAX_STD_INDEX);
     entry = &index->entry[index->current];

@@ -1,4 +1,4 @@
-/* $Id: avi.c,v 1.2 2005-07-24 23:04:50 dosx86 Exp $ */
+/* $Id: avi.c,v 1.3 2005-07-30 17:49:26 dosx86 Exp $ */
 
 /** \file
  * Main AVI file interface functions
@@ -261,6 +261,10 @@ BOOL aviBeginWriting(AVI_FILE *file, char *fileName)
     memset(&file->timer, 0, sizeof(struct AVI_FILE_TIMER));
     memset(&file->video.timer, 0, sizeof(struct AVI_FILE_VIDEO_TIMER));
 
+    /* Reset the largest chunk sizes for each stream */
+    file->video.largestChunk = 0;
+    file->audio.largestChunk = 0;
+
     file->timer.freq = aviGetTimerFreq();
     if (!file->timer.freq)
     {
@@ -296,6 +300,7 @@ BOOL aviBeginWriting(AVI_FILE *file, char *fileName)
     InitializeCriticalSection(&file->lock.file);
     InitializeCriticalSection(&file->lock.timer);
     InitializeCriticalSection(&file->lock.video);
+    InitializeCriticalSection(&file->lock.audio);
 
     /**** Begin: First RIFF chunk ****/
     aviSetBaseOffset(file, RIFF_BASE);
@@ -463,11 +468,28 @@ void aviEndWriting(AVI_FILE *file)
 
             fileWrite(file, &file->legacy.frames, sizeof(DWORD));
 
+            /* Update dwSuggestedBufferSize in the AVI header */
+            fileSeek(file, aviGetBaseOffset(file, AVIH_BASE) +
+                           offsetof(MainAVIHeader, dwSuggestedBufferSize));
+
+            if (((file->flags & AVI_FLAG_AUDIO) &&
+                 file->video.largestChunk > file->audio.largestChunk) ||
+                !(file->flags & AVI_FLAG_AUDIO))
+               fileWrite(file, &file->video.largestChunk, sizeof(DWORD));
+               else
+               fileWrite(file, &file->audio.largestChunk, sizeof(DWORD));
+
             /* Update dwLength in the video stream header */
             fileSeek(file, file->video.strhOffset +
                            offsetof(AVIStreamHeader, dwLength));
 
             fileWrite(file, &file->video.numFrames, sizeof(DWORD));
+
+            /* Update dwSuggestedBufferSize in the video stream header */
+            fileSeek(file, file->video.strhOffset +
+                           offsetof(AVIStreamHeader, dwSuggestedBufferSize));
+
+            fileWrite(file, &file->video.largestChunk, sizeof(DWORD));
 
             if (file->flags & AVI_FLAG_AUDIO)
             {
@@ -476,6 +498,13 @@ void aviEndWriting(AVI_FILE *file)
                                offsetof(AVIStreamHeader, dwLength));
 
                 fileWrite(file, &file->audio.streamLength, sizeof(DWORD));
+
+                /* Update dwSuggestedBufferSize in the audio stream header */
+                fileSeek(file, file->audio.strhOffset +
+                               offsetof(AVIStreamHeader,
+                                        dwSuggestedBufferSize));
+
+                fileWrite(file, &file->audio.largestChunk, sizeof(DWORD));
             }
 
             /* Update dwTotalFrames in the extended AVI header */
@@ -492,6 +521,7 @@ void aviEndWriting(AVI_FILE *file)
             DeleteCriticalSection(&file->lock.file);
             DeleteCriticalSection(&file->lock.timer);
             DeleteCriticalSection(&file->lock.video);
+            DeleteCriticalSection(&file->lock.audio);
         }
     }
 }
@@ -539,22 +569,6 @@ void aviBeginChunk(AVI_FILE *file, FOURCC cc)
     file->chunk.current++;
 }
 
-/** Gets the size of the most recently opened chunk
- * \param file The file to check
- * \return The size of the most recently opened chunk in bytes
- * \warning This is dependant on the position of the file pointer, so to get an
- *          accurate reading the file pointer must be at the end of the chunk
- * \pre The file has been locked and there is at least one chunk opened
- */
-
-DWORD aviGetChunkSize(AVI_FILE *file)
-{
-    assert(file->chunk.current > 0);
-
-    return (DWORD)(fileTell(file) -
-                   (file->chunk.data[file->chunk.current - 1].begin + 8));
-}
-
 /** Called when an AVI/X RIFF chunk is ending */
 void aviRIFFChunkEnding(AVI_FILE *file)
 {
@@ -587,6 +601,7 @@ DWORD aviEndChunk(AVI_FILE *file)
 {
     int64 offset;
     CHUNK *chunk;
+    BYTE  temp;
 
     assert(file->chunk.current > 0);
 
@@ -608,6 +623,15 @@ DWORD aviEndChunk(AVI_FILE *file)
 
     fileSeek(file, offset);
 
+    /* Write an extra byte after the end of the chunk if it contains data that
+       has an odd number of bytes. This should rarely or never happen since
+       most things that are saved have an even number of data bytes. */
+    if (chunk->size % 2)
+    {
+        temp = 0;
+        fileWrite(file, &temp, 1);
+    }
+
     return chunk->size;
 }
 
@@ -616,14 +640,18 @@ DWORD aviEndChunk(AVI_FILE *file)
  * \param type      A *_STREAM constant
  * \param replicate The number of times to replicate the index. If this value
  *                  is zero then only one index will be written for the chunk.
+ * \param duration  The duration of this entry in stream ticks. This should NOT
+ *                  include anything that's replicated since that's taken care
+ *                  of automatically.
  * \param keyFrame  Determines if this entry references a key frame. Only
  *                  affects video streams.
+ * \return The size of the chunk's data in bytes
  * \pre The file has been locked. This is being used to end a chunk inside of
  *      a LIST movi chunk.
  */
 
-void aviEndChunkWithIndex(AVI_FILE *file, stream_t type,
-                          unsigned long replicate, BOOL keyFrame)
+DWORD aviEndChunkWithIndex(AVI_FILE *file, stream_t type, DWORD replicate,
+                           DWORD duration, BOOL keyFrame)
 {
     int64 begin;
     DWORD size;
@@ -641,9 +669,11 @@ void aviEndChunkWithIndex(AVI_FILE *file, stream_t type,
 
     while (replicate > 0)
     {
-        aviIndexAddEntry(file, type, begin, size, keyFrame);
+        aviIndexAddEntry(file, type, begin, size, duration, keyFrame);
         replicate--;
     }
+
+    return size;
 }
 
 /** Ends all currently opened chunks
@@ -853,7 +883,11 @@ BOOL aviSaveFrame(AVI_FILE *file, void *src, aviTime_t inTime)
                result = FALSE;
         }
 
-        aviEndChunkWithIndex(file, VIDEO_STREAM, writeFrames - 1, isKey);
+        size = aviEndChunkWithIndex(file, VIDEO_STREAM, writeFrames - 1, 1,
+                                    isKey);
+
+        if (size > file->video.largestChunk)
+           file->video.largestChunk = size;
 
         file->video.numFrames += writeFrames;
 
@@ -867,14 +901,15 @@ BOOL aviSaveFrame(AVI_FILE *file, void *src, aviTime_t inTime)
 }
 
 /** Compresses and writes a block of audio data to the file
- * \param src  A pointer to the uncompressed PCM data
- * \param size The size of \a src in bytes
+ * \param src     A pointer to the uncompressed PCM data
+ * \param size    The size of \a src in bytes
+ * \param samples The size of \a src in samples
  * \retval TRUE  The data was written to the file
  * \retval FALSE The data could not be written because of an error
  * \pre The data pointed to by \a src matches the recording format
  */
 
-BOOL aviSaveAudio(AVI_FILE *file, void *src, DWORD size)
+BOOL aviSaveAudio(AVI_FILE *file, void *src, DWORD size, DWORD samples)
 {
     BOOL result;
 
@@ -885,14 +920,9 @@ BOOL aviSaveAudio(AVI_FILE *file, void *src, DWORD size)
 
     aviBeginChunk(file, file->audio.cc.data);
     result = fileWrite(file, src, size);
-    aviEndChunkWithIndex(file, AUDIO_STREAM, 0, FALSE);
+    aviEndChunkWithIndex(file, AUDIO_STREAM, 0, samples, FALSE);
 
     aviCheckFile(file);
-
-    /*file->audio.streamLength =
-        (DWORD)((double)file->audio.streamLength +
-                ((double)(waveInSize / file->audio.wfxIn.nBlockAlign) /
-                 (double)file->audio.wfxIn.nSamplesPerSec));*/
 
     aviUnlockFile(file);
 
@@ -1045,4 +1075,26 @@ void aviUnlockVideo(AVI_FILE *file)
 {
     if (file)
        LeaveCriticalSection(&file->lock.video);
+}
+
+/** Locks the audio data
+ * \param file An open file
+ * \pre Writing to the file has begun
+ */
+
+void aviLockAudio(AVI_FILE *file)
+{
+    if (file)
+       EnterCriticalSection(&file->lock.audio);
+}
+
+/** Releases the lock on the audio data
+ * \param file An open file
+ * \pre Writing to the file has begun
+ */
+
+void aviUnlockAudio(AVI_FILE *file)
+{
+    if (file)
+       LeaveCriticalSection(&file->lock.audio);
 }

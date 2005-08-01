@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.79 2005-07-27 22:56:47 laurentg Exp $
+// $Id: VBI_VideoText.cpp,v 1.80 2005-08-01 12:49:09 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.79  2005/07/27 22:56:47  laurentg
+// Use WORD instead of DWORD for CNI codes
+// Table of registered codes updated
+//
 // Revision 1.78  2005/07/27 19:34:01  laurentg
 // Separate PDC and P8/30/1
 //
@@ -1210,13 +1214,13 @@ TChannelIdentif RegisteredCNICodes[] =
 {	"UK",			"YORKSHIRE TV future use",		0xFA2F,	0x5B,	0xEC,	0x3B,	0x6C,	0	},
 {	"UK",			"YORKSHIRE TV future use",		0xFA30,	0x5B,	0xED,	0x3B,	0x6D,	0	},
 {	"UK",			"YORKSHIRE TV future use",		0xFA31,	0x5B,	0xEE,	0x3B,	0x6E,	0	},
-{	"Ukraine",		"1+1",							0x7700,	0,	0,	0,	0,	0	},
+{	"Ukraine",		"1+1",							0x7700,	0,	0,	0,	0,	0x07C0	},
 {	"Ukraine",		"1+1 future use",				0x7701,	0,	0,	0,	0,	0	},
 {	"Ukraine",		"1+1 future use",				0x7702,	0,	0,	0,	0,	0	},
 {	"Ukraine",		"1+1 future use",				0x7703,	0,	0,	0,	0,	0	},
-{	"Ukraine",		"M1",							0x7705,	0,	0,	0,	0,	0	},
+{	"Ukraine",		"M1",							0x7705,	0,	0,	0,	0,	0x07C5	},
 {	"Ukraine",		"ICTV",							0x7707,	0,	0,	0,	0,	0	},
-{	"Ukraine",		"Novy Kanal",					0x7708,	0,	0,	0,	0,	0	},
+{	"Ukraine",		"Novy Kanal",					0x7708,	0,	0,	0,	0,	0x07C8	},
 };
 
 int iNbRegisteredCNICodes = sizeof(RegisteredCNICodes) / sizeof(RegisteredCNICodes[0]);
@@ -2641,6 +2645,10 @@ BOOL APIENTRY VTInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
             SetDlgItemText(hDlg, IDC_TEXT2, "null");
             SetDlgItemText(hDlg, IDC_TEXT3, "null");
         }
+        sprintf(buffer, "%x", VTDecoder.GetNetworkIDFromP8301());
+        SetDlgItemText(hDlg, IDC_TEXT4, buffer);
+        sprintf(buffer, "%x", VTDecoder.GetCNIFromPDC());
+        SetDlgItemText(hDlg, IDC_TEXT5, buffer);
         break;
 
     case WM_COMMAND:

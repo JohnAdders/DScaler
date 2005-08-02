@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VPSdecode.h,v 1.4 2005-07-27 22:57:45 laurentg Exp $
+// $Id: VBI_VPSdecode.h,v 1.5 2005-08-02 19:57:17 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,16 +44,37 @@
 #ifndef __VBI_VPSDECODE_H___
 #define __VBI_VPSDECODE_H___
 
+// VPS data
+typedef struct 
+{
+    BOOL Valid;
+    WORD CNI;
+    char LabelTemp[9];
+    char LabelLast[9];
+    char LabelCurr[9];
+    int  LabelIndex;
+    int  Month;
+    int  Day;
+    int  Hour;
+    int  Minute;
+} TVPSDataStruct;
 
 void VBI_VPS_Init();
 void VBI_VPS_Exit();
 void VPS_Init_Data(double VBI_Frequency);
+void VPS_Clear_Data();
 
 void VBI_DecodeLine_VPS(BYTE* VBI_Buffer);
+void VPS_DecodeLabel(BYTE b);
+
+BYTE VBI_Scan(BYTE* VBI_Buffer, UINT step, UINT* scanPos);
+BYTE VPS_Scan(const BYTE* VBI_Buffer, UINT step, UINT* scanPos, BOOL* pError);
 
 void VPS_ChannelChange();
 void VPS_GetChannelName(LPSTR lpBuffer, LONG nLength);
 void VPS_GetChannelNameFromCNI(LPSTR lpBuffer, LONG nLength);
+
+BYTE ReverseBitOrder( BYTE b );
 
 
 #endif

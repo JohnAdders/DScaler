@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VPSdecode.cpp,v 1.7 2005-07-29 16:29:35 to_see Exp $
+// $Id: VBI_VPSdecode.cpp,v 1.8 2005-08-02 19:57:17 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -42,6 +42,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2005/07/29 16:29:35  to_see
+// Fixed VPS decoding bug
+//
 // Revision 1.6  2005/07/27 22:57:45  laurentg
 // New function to search the channel with the VPS CNI
 //
@@ -73,77 +76,82 @@
 #include "VBI_VPSdecode.h"
 #include "VBI_VideoText.h"
 
+int VPSStep;
 
-char VPSTempName[9];
-char VPSLastName[9];
-char VPSChannelName[9];
-
-int VPSNameIndex = 0;
-int VBIFPS = 0;
 HWND hVPSInfoWnd = NULL;
 
-int VPSStep;
+// VPS decoded data
+TVPSDataStruct VPS_Data = {FALSE, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 
 void VBI_VPS_Init()
 {
-    VPS_ChannelChange();
+    VPS_Clear_Data();
 }
 
 
 void VBI_VPS_Exit()
 {
-    ;
-}
-
-
-void VPS_Init_Data(double VBI_Frequency)
-{
-    VPSStep = 2 * (int) ((VBI_Frequency / 5.0) * FPFAC + 0.5);
 }
 
 
 void VPS_ChannelChange()
 {
-    memset(VPSTempName, 0, 9);
-    memset(VPSLastName, 0, 9);
-    memset(VPSChannelName, 0, 9);
-
-    VPSNameIndex = 0;
+    VPS_Clear_Data();
 }
 
 
+void VPS_Init_Data(double VBI_Frequency)
+{
+    VPSStep = (int) ((VBI_Frequency / 4.995627) * FPFAC + 0.5);
+}
+
+void VPS_Clear_Data()
+{
+    VPS_Data.Valid      = FALSE;
+    VPS_Data.CNI        = 0;
+    VPS_Data.LabelIndex = 0;
+    VPS_Data.Month      = 0;
+    VPS_Data.Day        = 0;
+    VPS_Data.Hour       = 0;
+    VPS_Data.Minute     = 0;
+    ZeroMemory(VPS_Data.LabelTemp, 9);
+    ZeroMemory(VPS_Data.LabelLast, 9);
+    ZeroMemory(VPS_Data.LabelCurr, 9);
+}
+
+//
+// Comment from Torsten to Laurent:
+// That code should not be used for channel
+// identification because the string is much
+// different from the CNI's real station name
+//
 void VPS_GetChannelName(LPSTR lpBuffer, LONG nLength)
 {
-    if (nLength > 10)
+    if (nLength > 9)
     {
-        nLength = 10;
+        nLength = 9;
     }
 
     ASSERT(nLength > 0);
 
     lpBuffer[--nLength] = '\0';
-    memcpy(lpBuffer, VPSLastName, nLength);
+    memcpy(lpBuffer, VPS_Data.LabelCurr, nLength);
 }
 
 
 void VPS_GetChannelNameFromCNI(LPSTR lpBuffer, LONG nLength)
 {
-	//
-	// Requires first to get the CNI code from VPS
-	//
     ASSERT(nLength > 0);
 
     lpBuffer[0] = '\0';
 
-	// TODO Here, we should use the decoded VPS CNI value
-	WORD wCNICode = 0;
-	if (wCNICode != 0)
+	if (VPS_Data.CNI != 0)
 	{
-		//LOG(1, "VPS CNI Code %x", wCNICode);
+		//LOG(1, "VPS CNI Code %x", VPS_Data.CNI);
 		for (int i(0); i < iNbRegisteredCNICodes; i++)
 		{
-			if (RegisteredCNICodes[i].wCNI_VPS == wCNICode)
+			if (RegisteredCNICodes[i].wCNI_VPS == VPS_Data.CNI)
 			{
 				strncpy(lpBuffer, RegisteredCNICodes[i].sNetwork, nLength-1);
 				lpBuffer[nLength] = '\0';
@@ -154,34 +162,62 @@ void VPS_GetChannelNameFromCNI(LPSTR lpBuffer, LONG nLength)
 }
 
 
-void VPS_DecodeLine(BYTE* data)
+BYTE ReverseBitOrder( BYTE b )
 {
-    if ((data[3] & 0x80))
-    {
-        VPSChannelName[VPSNameIndex] = 0;
+    BYTE result = b & 0x1;
 
-        if (VPSNameIndex == 8)
+    for (int i=0; i < 7; i++)
+    {
+        b >>= 1;
+        result <<= 1;
+        result |= b & 0x1;
+    }
+
+    return result;
+}
+
+//
+// VPS Byte 3 and 4 are marked in datasheet as "not relevant for VPS"
+// but I do get any ASCII chars from Byte 3. I named it "Label" in hope it is ok.
+//
+void VPS_DecodeLabel(BYTE b)
+{
+    if(b & 0x80)
+    {
+        VPS_Data.LabelCurr[VPS_Data.LabelIndex] = 0;
+
+        if(VPS_Data.LabelIndex == 8)
         {
-            if (strcmp(VPSChannelName, VPSTempName) == 0)
+            if(strcmp(VPS_Data.LabelCurr, VPS_Data.LabelTemp) == 0)
             {
-                memcpy(VPSLastName, VPSChannelName, 9);    // VPS-Channel-Name
+                memcpy(VPS_Data.LabelLast, VPS_Data.LabelCurr, 9);
             }
-            strcpy(VPSTempName, VPSChannelName);
+
+            strcpy(VPS_Data.LabelTemp, VPS_Data.LabelCurr);
         }
 
-        VPSNameIndex = 0;
+        VPS_Data.LabelIndex = 0;
     }
+        
+    VPS_Data.LabelCurr[VPS_Data.LabelIndex++] = b & 0x7f;
 
-    VPSChannelName[VPSNameIndex++] = data[3] & 0x7f;
+    if(VPS_Data.LabelIndex >= 9)
+    {
+        VPS_Data.LabelIndex = 0;
+    }
+}
 
-    if (VPSNameIndex >= 9)
-    {
-        VPSNameIndex = 0;
-    }
-    if (hVPSInfoWnd != NULL)
-    {
-        SetDlgItemText(hVPSInfoWnd, IDC_TEXT1, VPSLastName);
-    }
+
+void VPS_DecodeLine(BYTE* data)
+{
+    VPS_DecodeLabel(ReverseBitOrder(data[3]));
+
+    VPS_Data.CNI    = ((data[12] & 0x3) << 10) | ((data[13] & 0xc0) << 2) |
+                      ((data[10] & 0xc0)) | (data[13] & 0x3f);
+    VPS_Data.Month  = ((data[11] & 0xe0) >> 5) | ((data[10] & 1) << 3);
+    VPS_Data.Day    = (data[10] & 0x3e) >> 1;
+    VPS_Data.Hour   = (data[11] & 0x1f);
+    VPS_Data.Minute = (data[12] >> 2);
 }
 
 
@@ -190,56 +226,111 @@ BYTE VBI_Scan(BYTE* VBI_Buffer, UINT step, UINT* scanPos)
     int j;
     BYTE dat;
 
-    for (j = 7, dat = 0; j >= 0; j--, *scanPos += step)
+    for(j = 7, dat = 0; j >= 0; j--, *scanPos += step)
     {
         dat |= ((VBI_Buffer[*scanPos >> FPSHIFT] + VBIOffset) & 0x80) >> j;
     }
+    
+    return dat;
+}
+
+
+BYTE VPS_Scan(const BYTE* VBI_Buffer, UINT step, UINT* scanPos, BOOL* pError)
+{
+    int j;
+    BYTE bit;
+    BYTE dat;
+
+    for(j = 0, dat = 0; j < 8; j++, *scanPos += step * 2)
+    {
+        bit = ((VBI_Buffer[*scanPos >> FPSHIFT] + VBIOffset) & 0x80);
+        
+        if (bit == ((VBI_Buffer[(*scanPos + step) >> FPSHIFT] + VBIOffset) & 0x80))
+        {
+            // bi-phase encoding error, i.e. bit is not followed by it's inverse
+            *pError = TRUE;
+            break;
+        }
+        
+        dat |= bit >> j;
+    }
+
     return dat;
 }
 
 
 void VBI_DecodeLine_VPS(BYTE* VBI_Buffer)
 {
-    BYTE data[45];
-    int i, p;
-    UINT scanPos;
+    BOOL bError = TRUE;
 
-    p = 150;
-    while ((VBI_Buffer[p] < VBI_thresh) && (p < 260))
+    // TODO:
+    // It does not work with cx2388x and Pixelwidth=720
+    // p needs an other unknown value
+    int p = VPSStep * 21 / FPFAC;
+    
+    while((VBI_Buffer[p] < VBI_thresh) && (VPSStep * 37 / FPFAC))
     {
         p++;
     }
 
-    scanPos = (p + 2) << FPSHIFT;
-    if ((data[0] = VBI_Scan(VBI_Buffer, VPSStep, &scanPos)) != 0xff)
+    UINT scanPos = (p + 2) << FPSHIFT;
+
+    if( (VBI_Scan(VBI_Buffer, VPSStep, &scanPos) == 0x55) &&
+        (VBI_Scan(VBI_Buffer, VPSStep, &scanPos) == 0x55) &&
+        (VBI_Scan(VBI_Buffer, VPSStep, &scanPos) == 0x51) &&
+        (VBI_Scan(VBI_Buffer, VPSStep, &scanPos) == 0x99) )
     {
-        return;
-    }
-    if ((data[1] = VBI_Scan(VBI_Buffer, VPSStep, &scanPos)) != 0x5d)
-    {
-        return;
-    }
-    for (i = 2; i < 16; i++)
-    {
-        data[i] = VBI_Scan(VBI_Buffer, VPSStep, &scanPos);
+        bError = FALSE;
+        BYTE data[15] = {0xff, 0x5d};
+
+        for(int i = 2; i <= 14; i++)
+        {
+            data[i] = VPS_Scan(VBI_Buffer, VPSStep, &scanPos, &bError);
+        }
+
+        if(!bError)
+        {
+            // for debug only
+            // TRACE("%02x %02x %02x %02x %02x %02x %02x %02x ",  data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7]);
+            // TRACE("%02x %02x %02x %02x %02x %02x %02x %02x\n", data[8], data[9], data[10], data[11], data[12], data[13], data[14]);
+
+            VPS_DecodeLine(data);
+        }
     }
 
-    VPS_DecodeLine(data);
+    VPS_Data.Valid = !bError;
 }
 
 
 BOOL APIENTRY VPSInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
+    char buffer[50];
 
     switch (message)
     {
     case WM_INITDIALOG:
         hVPSInfoWnd = hDlg;
-        SetTimer(hDlg, 100, 1000, NULL);
-        break;
+        SetTimer(hDlg, 100, 500, NULL);
+        // no break
 
     case WM_TIMER:
-        SetDlgItemInt(hDlg, IDC_VBI_FPS, VBIFPS, FALSE);
+        VPS_GetChannelNameFromCNI(buffer, sizeof(buffer));
+        SetDlgItemText(hDlg, IDC_VPS_NAME, buffer);
+
+        sprintf(buffer, "%X", VPS_Data.CNI);
+        SetDlgItemText(hDlg, IDC_VPS_CNI, buffer);
+
+        SetDlgItemText(hDlg, IDC_VPS_LABEL, VPS_Data.LabelTemp);
+
+        sprintf(buffer, "%02d.%02d", VPS_Data.Day, VPS_Data.Month);
+        SetDlgItemText(hDlg, IDC_VPS_MONTH, buffer);
+
+        sprintf(buffer, "%02d:%02d", VPS_Data.Hour, VPS_Data.Minute);
+        SetDlgItemText(hDlg, IDC_VPS_TIME, buffer);
+
+        (VPS_Data.Valid == FALSE) ? strcpy(buffer, "Error") : strcpy(buffer, "Ok");
+        SetDlgItemText(hDlg, IDC_VPS_STATUS, buffer);
+
         break;
 
     case WM_COMMAND:

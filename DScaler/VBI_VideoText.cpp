@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.80 2005-08-01 12:49:09 laurentg Exp $
+// $Id: VBI_VideoText.cpp,v 1.81 2005-08-02 19:57:17 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.80  2005/08/01 12:49:09  laurentg
+// Display the channel identification codes in the VT status window
+//
 // Revision 1.79  2005/07/27 22:56:47  laurentg
 // Use WORD instead of DWORD for CNI codes
 // Table of registered codes updated
@@ -541,7 +544,7 @@ TChannelIdentif RegisteredCNICodes[] =
 {	"France",		"TMC Monte-Carlo",				0x33C7,	0x2F,	0xC7,	0x3F,	0x47,	0	},
 {	"France",		"TV5",							0xF500,	0x2F,	0xE5,	0x3F,	0x65,	0	},
 {	"Germany",		"3SAT",							0x49C7,	0,	0,	0,	0,	0	},
-{	"Germany",		"ARD",							0x4901,	0,	0,	0,	0,	0	},
+{	"Germany",		"ARD",							0x4901,	0,	0,	0,	0,	0xDC1	},
 {	"Germany",		"ARD future use",				0x49C1,	0,	0,	0,	0,	0	},
 {	"Germany",		"ARD future use",				0x49C3,	0,	0,	0,	0,	0	},
 {	"Germany",		"ARD future use",				0x49C4,	0,	0,	0,	0,	0	},

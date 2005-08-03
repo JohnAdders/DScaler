@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VPSdecode.h,v 1.5 2005-08-02 19:57:17 to_see Exp $
+// $Id: VBI_VPSdecode.h,v 1.6 2005-08-03 19:53:14 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,6 +44,14 @@
 #ifndef __VBI_VPSDECODE_H___
 #define __VBI_VPSDECODE_H___
 
+enum eVPSAudio
+{
+    VPSAUDIO_UNKNOWN,
+    VPSAUDIO_MONO,
+    VPSAUDIO_STEREO,
+    VPSAUDIO_DUAL,
+};
+
 // VPS data
 typedef struct 
 {
@@ -57,6 +65,7 @@ typedef struct
     int  Day;
     int  Hour;
     int  Minute;
+    eVPSAudio Audio;
 } TVPSDataStruct;
 
 void VBI_VPS_Init();

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VPSdecode.cpp,v 1.8 2005-08-02 19:57:17 to_see Exp $
+// $Id: VBI_VPSdecode.cpp,v 1.9 2005-08-03 19:53:05 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -42,6 +42,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2005/08/02 19:57:17  to_see
+// Improved VPS decoding
+//
 // Revision 1.7  2005/07/29 16:29:35  to_see
 // Fixed VPS decoding bug
 //
@@ -81,7 +84,7 @@ int VPSStep;
 HWND hVPSInfoWnd = NULL;
 
 // VPS decoded data
-TVPSDataStruct VPS_Data = {FALSE, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+TVPSDataStruct VPS_Data = {FALSE, 0, 0, 0, 0, 0, 0, 0, 0, 0, VPSAUDIO_UNKNOWN};
 
 
 void VBI_VPS_Init()
@@ -115,6 +118,7 @@ void VPS_Clear_Data()
     VPS_Data.Day        = 0;
     VPS_Data.Hour       = 0;
     VPS_Data.Minute     = 0;
+    VPS_Data.Audio      = VPSAUDIO_UNKNOWN;
     ZeroMemory(VPS_Data.LabelTemp, 9);
     ZeroMemory(VPS_Data.LabelLast, 9);
     ZeroMemory(VPS_Data.LabelCurr, 9);
@@ -218,6 +222,7 @@ void VPS_DecodeLine(BYTE* data)
     VPS_Data.Day    = (data[10] & 0x3e) >> 1;
     VPS_Data.Hour   = (data[11] & 0x1f);
     VPS_Data.Minute = (data[12] >> 2);
+    VPS_Data.Audio  = (eVPSAudio) ((data[4] & 0xc0) >> 6);
 }
 
 
@@ -314,22 +319,55 @@ BOOL APIENTRY VPSInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         // no break
 
     case WM_TIMER:
-        VPS_GetChannelNameFromCNI(buffer, sizeof(buffer));
-        SetDlgItemText(hDlg, IDC_VPS_NAME, buffer);
+        if(VPS_Data.Valid)
+        {
+            SetDlgItemText(hDlg, IDC_VPS_STATUS, "Ok");
 
-        sprintf(buffer, "%X", VPS_Data.CNI);
-        SetDlgItemText(hDlg, IDC_VPS_CNI, buffer);
+            VPS_GetChannelNameFromCNI(buffer, sizeof(buffer));
+            SetDlgItemText(hDlg, IDC_VPS_NAME, buffer);
 
-        SetDlgItemText(hDlg, IDC_VPS_LABEL, VPS_Data.LabelTemp);
+            sprintf(buffer, "%X", VPS_Data.CNI);
+            SetDlgItemText(hDlg, IDC_VPS_CNI, buffer);
 
-        sprintf(buffer, "%02d.%02d", VPS_Data.Day, VPS_Data.Month);
-        SetDlgItemText(hDlg, IDC_VPS_MONTH, buffer);
+            SetDlgItemText(hDlg, IDC_VPS_LABEL, VPS_Data.LabelTemp);
 
-        sprintf(buffer, "%02d:%02d", VPS_Data.Hour, VPS_Data.Minute);
-        SetDlgItemText(hDlg, IDC_VPS_TIME, buffer);
+            sprintf(buffer, "%02d.%02d", VPS_Data.Day, VPS_Data.Month);
+            SetDlgItemText(hDlg, IDC_VPS_MONTH, buffer);
 
-        (VPS_Data.Valid == FALSE) ? strcpy(buffer, "Error") : strcpy(buffer, "Ok");
-        SetDlgItemText(hDlg, IDC_VPS_STATUS, buffer);
+            sprintf(buffer, "%02d:%02d", VPS_Data.Hour, VPS_Data.Minute);
+            SetDlgItemText(hDlg, IDC_VPS_TIME, buffer);
+
+            switch(VPS_Data.Audio)
+            {
+            case VPSAUDIO_UNKNOWN:
+                strcpy(buffer, "Don't know");
+                break;
+            case VPSAUDIO_MONO:
+                strcpy(buffer, "Mono");
+                break;
+            case VPSAUDIO_STEREO:
+                strcpy(buffer, "Stereo");
+                break;
+            case VPSAUDIO_DUAL:
+                strcpy(buffer, "Dual Sound");
+                break;
+            default:
+                strcpy(buffer, "Error");
+                break;
+            }
+            SetDlgItemText(hDlg, IDC_VPS_AUDIO, buffer);
+        }
+
+        else
+        {
+            SetDlgItemText(hDlg, IDC_VPS_STATUS, "Error");
+            SetDlgItemText(hDlg, IDC_VPS_NAME,   "");
+            SetDlgItemText(hDlg, IDC_VPS_CNI,    "");
+            SetDlgItemText(hDlg, IDC_VPS_LABEL,  "");
+            SetDlgItemText(hDlg, IDC_VPS_MONTH,  "");
+            SetDlgItemText(hDlg, IDC_VPS_TIME,   "");
+            SetDlgItemText(hDlg, IDC_VPS_AUDIO,  "");
+        }
 
         break;
 

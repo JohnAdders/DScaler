@@ -473,6 +473,7 @@
 #define IDC_EDIT6                       1528
 #define IDC_VPS_STATUS                  1528
 #define IDC_EDIT7                       1529
+#define IDC_VPS_AUDIO                   1529
 #define IDC_EDIT8                       1530
 #define IDC_EDIT9                       1531
 #define IDC_EDIT10                      1533

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI.cpp,v 1.31 2003-10-27 10:39:54 adcockj Exp $
+// $Id: VBI.cpp,v 1.32 2005-08-03 18:06:03 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2003/10/27 10:39:54  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.30  2003/06/28 10:54:01  laurentg
 // Erase first CC display when changing CC selection
 //
@@ -220,7 +223,7 @@ void VBI_DecodeLine(unsigned char* VBI_Buffer, int line, BOOL IsOdd)
     }
 
     // VPS information with channel name, time, VCR programming Info, etc. 
-    if (DoVPS && (line == 9))
+    if (DoVPS && !IsOdd && (line == 9))
     {
         VBI_DecodeLine_VPS(VBI_Buffer);
     }

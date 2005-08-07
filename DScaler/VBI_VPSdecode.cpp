@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VPSdecode.cpp,v 1.9 2005-08-03 19:53:05 to_see Exp $
+// $Id: VBI_VPSdecode.cpp,v 1.10 2005-08-07 18:47:28 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -42,6 +42,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2005/08/03 19:53:05  to_see
+// VPS Info Dialog improved
+// Added Audio info
+//
 // Revision 1.8  2005/08/02 19:57:17  to_see
 // Improved VPS decoding
 //
@@ -268,10 +272,7 @@ void VBI_DecodeLine_VPS(BYTE* VBI_Buffer)
 {
     BOOL bError = TRUE;
 
-    // TODO:
-    // It does not work with cx2388x and Pixelwidth=720
-    // p needs an other unknown value
-    int p = VPSStep * 21 / FPFAC;
+    int p = VPSStep * 12 / FPFAC;
     
     while((VBI_Buffer[p] < VBI_thresh) && (VPSStep * 37 / FPFAC))
     {
@@ -280,9 +281,9 @@ void VBI_DecodeLine_VPS(BYTE* VBI_Buffer)
 
     UINT scanPos = (p + 2) << FPSHIFT;
 
-    if( (VBI_Scan(VBI_Buffer, VPSStep, &scanPos) == 0x55) &&
+    if( (VBI_Scan(VBI_Buffer, VPSStep, &scanPos) == 0x55) &&    // VPS run in
         (VBI_Scan(VBI_Buffer, VPSStep, &scanPos) == 0x55) &&
-        (VBI_Scan(VBI_Buffer, VPSStep, &scanPos) == 0x51) &&
+        (VBI_Scan(VBI_Buffer, VPSStep, &scanPos) == 0x51) &&    // VPS start code
         (VBI_Scan(VBI_Buffer, VPSStep, &scanPos) == 0x99) )
     {
         bError = FALSE;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TEA5767.cpp,v 1.1 2005-01-13 19:44:17 to_see Exp $
+// $Id: TEA5767.cpp,v 1.2 2005-08-07 09:43:27 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2005 Torsten Seeboth.  All rights reserved.
@@ -22,6 +22,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2005/01/13 19:44:17  to_see
+// Added TEA5767 autodetection
+//
 //////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -36,7 +39,7 @@
 
 BOOL IsTEA5767PresentAtC0(IN CI2CBus* i2cBus)
 {
-	BYTE buffer[5] = { 0xff, 0xff, 0xff, 0xff, 0xff };
+	BYTE buffer[7] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 	BYTE addr = I2C_TEA5767;
 
 	// Sub addresses are not supported so read all five bytes.
@@ -52,23 +55,30 @@ BOOL IsTEA5767PresentAtC0(IN CI2CBus* i2cBus)
 		buffer[0] == buffer[3] &&
 		buffer[0] == buffer[4])
 	{
-		LOG(2, "TEA5767: Not Found.");
+		LOG(2, "TEA5767: Not Found. All bytes are equal.");
 		return FALSE;
 	}
 
-	// Status bytes
+	// Status bytes:
 	// Byte 4: bit 3:1 : CI (Chip Identification) == 0
 	//         bit 0   : internally set to 0
 	// Byte 5: bit 7:0 : == 0
-	if (((buffer[3] & 0x0f) == 0x00) && (buffer[4] == 0x00))
+	if (((buffer[3] & 0x0f) != 0x00) || (buffer[4] != 0x00))
 	{
-		LOG(1, "TEA5767: Found. 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X",
-			buffer[0], buffer[1], buffer[2], buffer[3], buffer[4]);
-		return TRUE;
+		LOG(2, "TEA5767: Not Found. Chip ID is not zero.");
+		return FALSE;
 	}
 
-	LOG(1, "TEA5767: Not Found. 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X",
+    // It seems that tea5767 returns 0xff after the 5th byte
+    if ((buffer[5] != 0xff) || (buffer[6] != 0xff))
+    {
+		LOG(2, "TEA5767: Not Found. Returned more than 5 bytes.");
+		return FALSE;
+    }
+
+	LOG(1, "TEA5767: Found. 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X",
 		buffer[0], buffer[1], buffer[2], buffer[3], buffer[4]);
-	return FALSE;
+	
+    return TRUE;
 }
 

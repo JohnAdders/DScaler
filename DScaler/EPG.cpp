@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.cpp,v 1.29 2005-07-26 22:19:31 laurentg Exp $
+// $Id: EPG.cpp,v 1.30 2005-08-11 13:42:35 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2005/07/26 22:19:31  laurentg
+// Use the new function Channel_GetVBIName
+//
 // Revision 1.28  2005/07/23 19:13:27  laurentg
 // EPG: put common code in a new function
 //
@@ -1069,7 +1072,7 @@ void CEPG::ShowOSD()
 		{
 			// Search EPG info for the currently viewed channel
 			m_SearchCurrent = TRUE;
-			if (SearchForProgramme(Channel_GetName(), TimeNow) == TRUE)
+			if (SearchForProgramme(Channel.c_str(), TimeNow) == TRUE)
 			{
 				if (m_Displayed == 0)
 				{
@@ -1106,6 +1109,8 @@ void CEPG::HideOSD()
 void CEPG::GetViewedChannelName(string &Channel)
 {
 	Channel = "";
+	static string LastChannel = "";
+	static time_t LastTime = 0;
 	CSource *CurrentSource = Providers_GetCurrentSource();
 	if (CurrentSource)
 	{
@@ -1115,10 +1120,24 @@ void CEPG::GetViewedChannelName(string &Channel)
 		}
 		else if (Setting_GetValue(VBI_GetSetting(CAPTURE_VBI)))
 		{
+			time_t CurrentTime;
+			time(&CurrentTime);
+
 			LPCSTR pChannel = Channel_GetVBIName();
 			if (*pChannel != '\0')
 			{
 				Channel = pChannel;
+				// Reset data each second to detect change of channel
+				if ((LastTime > 0) && ((CurrentTime - LastTime) > 0))
+				{
+					VBI_ChannelChange();
+				}
+				LastChannel = pChannel;
+				LastTime = CurrentTime;
+			}
+			else if ((LastTime > 0) && ((CurrentTime - LastTime) < 5))
+			{
+				Channel = LastChannel;
 			}
 		}
 	}

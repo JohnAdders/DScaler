@@ -1,5 +1,5 @@
 //
-// $Id: TunerID.h,v 1.11 2005-07-17 15:58:28 to_see Exp $
+// $Id: TunerID.h,v 1.12 2005-08-11 17:21:55 to_see Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,10 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2005/07/17 15:58:28  to_see
+// Corrected tuner defines
+// Updated m_TunerHauppaugeAnalog
+//
 // Revision 1.10  2005/07/17 09:39:02  to_see
 // Added some tuner
 //
@@ -205,7 +209,7 @@ const eTunerId m_TunerHauppaugeAnalog[]=
     TUNER_PHILIPS_FM1236_MK3,           //"Philips FM1236 MK3"
     TUNER_ABSENT,                       //"Philips FM1216MP MK3"
     /* 60-69 */
-    TUNER_ABSENT,                       //"LG S001D MK3"
+    TUNER_PHILIPS_FM1216ME_MK3,         //"LG S001D MK3"
     TUNER_ABSENT,                       //"LG M001D MK3"
     TUNER_ABSENT,                       //"LG S701D MK3"
     TUNER_ABSENT,                       //"LG M701D MK3"
@@ -230,8 +234,8 @@ const eTunerId m_TunerHauppaugeAnalog[]=
     TUNER_ABSENT,                       //"Philips FQ1216LME MK3"
     TUNER_ABSENT,                       //"LG TAPC G701D"
     TUNER_LG_TAPCNEW_NTSC,              //"LG TAPC H791F"
-    TUNER_ABSENT,                       //"TCL 2002MB 3"
-    TUNER_ABSENT,                       //"TCL 2002MI 3"
+    TUNER_LG_TAPCNEW_PAL,               //"TCL 2002MB 3"
+    TUNER_LG_TAPCNEW_PAL,               //"TCL 2002MI 3"
     TUNER_TCL_2002N,                    //"TCL 2002N 6A"
     TUNER_ABSENT,                       //"Philips FQ1236 MK3"
     TUNER_ABSENT,                       //"Samsung TCPN 2121P30A"

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.82 2005-08-12 19:48:26 to_see Exp $
+// $Id: VBI_VideoText.cpp,v 1.83 2005-08-14 16:09:11 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.82  2005/08/12 19:48:26  to_see
+// Added VPS CNI codes
+//
 // Revision 1.81  2005/08/02 19:57:17  to_see
 // Improved VPS decoding
 //
@@ -627,7 +630,7 @@ TChannelIdentif RegisteredCNICodes[] =
 { "Germany",        "NDR",                                              0x49D4, 0,    0,    0,    0,    0x0DD4 },
 { "Germany",        "ORB",                                              0x4982, 0,    0,    0,    0,    0x0D82 },
 { "Germany",        "Phoenix",                                          0x4918, 0,    0,    0,    0,    0x0DC8 }, // 0x4908 in ETSI TR
-{ "Germany",        "QVC D Gmbh",                                       0x5C49, 0,    0,    0,    0,    0x0D7C },
+{ "Germany",        "QVC D Gmbh",                                       0x5C49, 0,    0,    0,    0,    0x0D7D },
 { "Germany",        "RB",                                               0x49D9, 0,    0,    0,    0,    0x0DD9 },
 { "Germany",        "SFB",                                              0x49DC, 0,    0,    0,    0,    0x0DDC },
 { "Germany",        "SR",                                               0x49DF, 0,    0,    0,    0,    0x0DDF },

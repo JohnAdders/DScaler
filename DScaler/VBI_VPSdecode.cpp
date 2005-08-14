@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VPSdecode.cpp,v 1.10 2005-08-07 18:47:28 to_see Exp $
+// $Id: VBI_VPSdecode.cpp,v 1.11 2005-08-14 15:13:48 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -42,6 +42,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2005/08/07 18:47:28  to_see
+// Fixed: No VPS data at Pixel Width 720 and CX2388x chip
+//
 // Revision 1.9  2005/08/03 19:53:05  to_see
 // VPS Info Dialog improved
 // Added Audio info
@@ -88,7 +91,7 @@ int VPSStep;
 HWND hVPSInfoWnd = NULL;
 
 // VPS decoded data
-TVPSDataStruct VPS_Data = {FALSE, 0, 0, 0, 0, 0, 0, 0, 0, 0, VPSAUDIO_UNKNOWN};
+TVPSDataStruct VPS_Data = {FALSE, 0, 0, 0, 0, 0, 0, 0, 0, 0, VPSAUDIO_UNKNOWN, 0};
 
 
 void VBI_VPS_Init()
@@ -123,6 +126,7 @@ void VPS_Clear_Data()
     VPS_Data.Hour       = 0;
     VPS_Data.Minute     = 0;
     VPS_Data.Audio      = VPSAUDIO_UNKNOWN;
+    VPS_Data.PTY        = 0;
     ZeroMemory(VPS_Data.LabelTemp, 9);
     ZeroMemory(VPS_Data.LabelLast, 9);
     ZeroMemory(VPS_Data.LabelCurr, 9);
@@ -227,6 +231,7 @@ void VPS_DecodeLine(BYTE* data)
     VPS_Data.Hour   = (data[11] & 0x1f);
     VPS_Data.Minute = (data[12] >> 2);
     VPS_Data.Audio  = (eVPSAudio) ((data[4] & 0xc0) >> 6);
+    VPS_Data.PTY    = data[14];
 }
 
 
@@ -322,21 +327,49 @@ BOOL APIENTRY VPSInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
     case WM_TIMER:
         if(VPS_Data.Valid)
         {
-            SetDlgItemText(hDlg, IDC_VPS_STATUS, "Ok");
-
             VPS_GetChannelNameFromCNI(buffer, sizeof(buffer));
             SetDlgItemText(hDlg, IDC_VPS_NAME, buffer);
 
-            sprintf(buffer, "%X", VPS_Data.CNI);
+            sprintf(buffer, "0x%0x", VPS_Data.CNI);
             SetDlgItemText(hDlg, IDC_VPS_CNI, buffer);
+            
+            if(VPS_Data.Day == 0)
+            {
 
-            SetDlgItemText(hDlg, IDC_VPS_LABEL, VPS_Data.LabelTemp);
+                switch(VPS_Data.Hour)
+                {
+                case 31:
+                    strcpy(buffer, "Timer Control");
+                    break;
+                case 30:
+                    strcpy(buffer, "Pause");
+                    break;
+                case 29:
+                    strcpy(buffer, "Interrupt");
+                    break;
+                case 28:
+                    strcpy(buffer, "Continue");
+                    break;
+                default:
+                    strcpy(buffer, "Unknown");
+                    break;
+                }
 
-            sprintf(buffer, "%02d.%02d", VPS_Data.Day, VPS_Data.Month);
-            SetDlgItemText(hDlg, IDC_VPS_MONTH, buffer);
+                SetDlgItemText(hDlg, IDC_VPS_SERVICE, buffer);
+                SetDlgItemText(hDlg, IDC_VPS_MONTH, "");
+                SetDlgItemText(hDlg, IDC_VPS_TIME,  "");
+            }
 
-            sprintf(buffer, "%02d:%02d", VPS_Data.Hour, VPS_Data.Minute);
-            SetDlgItemText(hDlg, IDC_VPS_TIME, buffer);
+            else
+            {
+                SetDlgItemText(hDlg, IDC_VPS_SERVICE, "");
+                
+                sprintf(buffer, "%02d.%02d", VPS_Data.Day, VPS_Data.Month);
+                SetDlgItemText(hDlg, IDC_VPS_MONTH, buffer);
+
+                sprintf(buffer, "%02d:%02d", VPS_Data.Hour, VPS_Data.Minute);
+                SetDlgItemText(hDlg, IDC_VPS_TIME, buffer);
+            }
 
             switch(VPS_Data.Audio)
             {
@@ -356,18 +389,24 @@ BOOL APIENTRY VPSInfoProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
                 strcpy(buffer, "Error");
                 break;
             }
+            
             SetDlgItemText(hDlg, IDC_VPS_AUDIO, buffer);
+            SetDlgItemText(hDlg, IDC_VPS_LABEL, VPS_Data.LabelTemp);
+
+            sprintf(buffer, "0x%02x", VPS_Data.PTY);
+            SetDlgItemText(hDlg, IDC_VPS_PTY, buffer);
         }
 
         else
         {
-            SetDlgItemText(hDlg, IDC_VPS_STATUS, "Error");
-            SetDlgItemText(hDlg, IDC_VPS_NAME,   "");
-            SetDlgItemText(hDlg, IDC_VPS_CNI,    "");
-            SetDlgItemText(hDlg, IDC_VPS_LABEL,  "");
-            SetDlgItemText(hDlg, IDC_VPS_MONTH,  "");
-            SetDlgItemText(hDlg, IDC_VPS_TIME,   "");
-            SetDlgItemText(hDlg, IDC_VPS_AUDIO,  "");
+            SetDlgItemText(hDlg, IDC_VPS_NAME,    "");
+            SetDlgItemText(hDlg, IDC_VPS_CNI,     "");
+            SetDlgItemText(hDlg, IDC_VPS_MONTH,   "");
+            SetDlgItemText(hDlg, IDC_VPS_TIME,    "");
+            SetDlgItemText(hDlg, IDC_VPS_AUDIO,   "");
+            SetDlgItemText(hDlg, IDC_VPS_SERVICE, "");
+            SetDlgItemText(hDlg, IDC_VPS_LABEL,   "");
+            SetDlgItemText(hDlg, IDC_VPS_PTY,     "");
         }
 
         break;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VPSdecode.h,v 1.6 2005-08-03 19:53:14 to_see Exp $
+// $Id: VBI_VPSdecode.h,v 1.7 2005-08-14 15:13:48 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -66,6 +66,7 @@ typedef struct
     int  Hour;
     int  Minute;
     eVPSAudio Audio;
+    BYTE PTY;
 } TVPSDataStruct;
 
 void VBI_VPS_Init();

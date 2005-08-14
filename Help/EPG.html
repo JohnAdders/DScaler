@@ -7,6 +7,14 @@
 
 
 
+
+
+  
+
+  
+  
+
+  
   
 
   
@@ -19,6 +27,10 @@
 
 
 
+
+
+  
+  
   
   
   <style type="text/css">
@@ -42,14 +54,22 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
 
 
 
+
+
 <table border="0" cellpadding="0" cellspacing="0" width="100%">
+
+
 
 
 
   <tbody>
 
 
+
+
     <tr>
+
+
 
 
 
@@ -57,7 +77,11 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
 
 
 
+
+
       <td height="1" width="342"><img src="images/spacer.gif" height="1" width="1"></td>
+
+
 
 
 
@@ -65,7 +89,11 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
 
 
 
+
+
     </tr>
+
+
 
 
 
@@ -74,7 +102,11 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
 
 
 
+
+
       <td width="160"><img src="images/dscalerlogo.jpg" alt="DScaler Logo"></td>
+
+
 
 
 
@@ -82,7 +114,11 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
 
 
 
+
+
     </tr>
+
+
 
 
 
@@ -91,11 +127,17 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
 
 
 
+
+
       <td colspan="3"><img src="images/yellowspacer.gif" height="2" width="100%"></td>
 
 
 
+
+
     </tr>
+
+
 
 
 
@@ -104,7 +146,11 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
 
 
 
+
+
       <td colspan="3">&nbsp;</td>
+
+
 
 
 
@@ -113,26 +159,50 @@ ul {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
 
 
 
+
+
   <tr>
+
+
 
 
  
     <td colspan="3"> <!-- #BeginEditable "Text" -->
       
+      
+      
       <p>This DScaler feature allows to display using OSD some information about the TV programmes.<br>
 
+
+
 DScaler does not directly collect these data on-line. This task must be done by an external application.</p>
+
+
+      
+      
       <p></p>
 
+
+
+      
+      
       
       <p><font face="Arial" size="3"><b>Import an XMLTV file</b></font></p>
 
+
+
+      
+      
       
       <p> Using the menu "Import XMLTV File", you can select on your
 hard drive a XML file and import in DScaler the EPG data contained in
 that file. That XML file must be compilant with the XMLTV DTD (either
 0.5 or 0.6).</p>
 
+
+
+      
+      
       
       <p>To obtain that file, one solution is to use one of the&nbsp;grabbers
 included in the XMLTV package. A grabber is a script that will access
@@ -141,17 +211,33 @@ the TV programmes and finally produce a XML file compliant to the XMLTV
 DTD. This grab can require several hours depending on the number of
 channels and how many days are grabbed.</p>
 
+
+
+      
+      
       
       <p>One another solution, easier and faster, is to download directly on the WEB
 that produced file containing EPG data. But of course that file must be
 available on the WEB for your country (your TV channels).</p>
+
+
+      
+      
       <p></p>
 
+
+
+      
+      
       
       <p><font face="Arial" size="3"><b>Import NextViewEPG database</b></font></p>
 
 
 
+
+
+      
+      
       
       
       
@@ -159,9 +245,17 @@ available on the WEB for your country (your TV channels).</p>
 displays&nbsp;Electronic Program Guide broadcasted by certain TV
 channels.</p>
 
+
+
+      
+      
       
       <p>Using the menu "Import NextViewEPG database", you can&nbsp;import in DScaler the EPG data collected by NextViewEPG.</p>
 
+
+
+      
+      
       
       <p><span style="text-decoration: underline;">Please note that NextViewEPG and DScaler cannot be run at the
 same time</span>
@@ -176,59 +270,190 @@ EPG providers
 often distribute the schedule of programmes for several coming days
 (often 7 days) but the description of programmes description for only
 coming hours.</p>
+
+
+      
+      
       <p></p>
+
+
+      
+      
       <p><font face="Arial" size="3"><b>Setup</b></font></p>
 
 
 
+
+
       
       
       
-      <p>...</p>
+      
+      
+      <p>To work correctly, you need to define a link between the
+channel names you have defined in DScaler and the channel names defined
+in the XMLTV file you have imported. You can update it using the
+channel setup dialog box. For each channel, you can enter a name in the
+field "EPG Name" which is different from the channel name used by
+DScaler. By default, this is the same&nbsp;and that will probably be ok
+for most of your channels.</p>
+
+      
+      <p>One way to verify the setup is to press the key G to display
+the EPG
+information in the OSD and then to go through all your channels one by
+one, checking that the
+programme information is displayed for every channel. If no EPG
+information is found for a particular channel, press the key
+Ctrl+Shift+G without filtering the channels (ChannelFiltering setting
+set to OFF in the advanced DScaler settings) and try to find a
+programme corresponding to that channel. If you find it, that means the
+channel name displayed in the OSD is different from the channel name
+defined in DScaler. Open the channel setup dialog box and update the
+field "EPG Name" with the name you saw in the OSD. If you don't find
+any programme for that channel, that means that channel is probably not
+covered by the file you have imported.</p>
+
+      
+      <p>When you have finished the EPG setup, you can decide to
+activate the channel filtering in the advanced settings so that
+browsing programmes will display only the channels defined in DScaler.</p>
+
+
+      
+      
       <p></p>
 
+
+
+      
+      
       
       <p><font face="Arial" size="3"><b>Programme brwosing</b></font></p>
 
 
 
+
+
+      
+      
       
       
       
       <p>Program browsing is available using menus and/or keyboard
 shortcuts. A new sub-menu dedicated to EPG has been created in the
 "Actions" menu.</p>
+
+
+      
+      
       <p>All EPG information are displayed using two different OSD screens.</p>
+
+
+      
+      
       <p></p>
+
+
+      
+      
       <p>The first OSD screen allows to display detailed information but only for one particular programme:</p>
+
+
+      
+      
       <ul>
+
+
         <li>channel name</li>
+
+
         <li>start time</li>
+
+
         <li>end time</li>
+
+
         <li>percentage of completion</li>
+
+
         <li>title and sub-title</li>
+
+
         <li>description</li>
+
+
+      
+      
       </ul>
+
+
+      
+      
       <p>When you are looking at TV, you can press the key G to display
 the detailed information of the programme you are currently looking at.
 If the description does not fully enter in the screen, you can
 scroll-down and scroll-up the description using the keys Shift+PgDn and
 Shift+PgUp.</p>
-      <p>To see the detailed information of the later programme on the same channel, you can press the key Shift+Up. To see the detailed information of the earlier programme on the same channel, you can press the key Shift+Dn. At any time, pressing G allows to come back to the currently scheduled programme.</p>
+
+
+      
+      
+      <p>To see the detailed information of the later programme on the
+same channel, you can press the key Shift+Up. To see the detailed
+information of the earlier programme on the same channel, you can press
+the key Shift+Dn. At any time, pressing G allows to come back to the
+currently scheduled programme.</p>
+
+
+      
+      
       <p></p>
+
+
+      
+      
       <p>The second OSD screen allows to display basic information for several programmes:</p>
+
+
+      
+      
       <ul>
+
+
         <li>channel name</li>
+
+
         <li>category</li>
+
+
         <li>start time</li>
+
+
         <li>end time</li>
+
+
         <li>percentage of completion</li>
+
+
         <li>title</li>
+
+
+      
+      
       </ul>
+
+
+      
+      
       <p>In that OSD screen, the programme having its title in orange
 is the programme currently selected and the programme having its time
 information in blue is the programme you are currently looking at. The
 percentage of completion is displayed only for the programmes currently scheduled.</p>
+
+
+      
+      
       <p>To&nbsp;display that OSD screen and select all the programmes scheduled during the coming hour, you can press the
 key Ctrl+Shift+G. If there are more selected programmes than what can
 be displayed on screen, several pages are created and you can use the
@@ -236,21 +461,59 @@ keys Shift+PgDn and Shift+PgUp to go to the next and previous page. At
 the top right of the screen, you have an information telling you how
 many programmes belongs to your current selection and which ones are
 currently displayed on screen.</p>
+
+
+      
+      
       <p>The programme with the&nbsp;title in orange is the current
 programme of your selection. You can use the keys Shift+Up and Shift+Dn
 to change it and go to the next and previous programme of your
 selection. To switch to the first OSD screen and display the detailed
 information about that programme, you can press the key G. To return to
 the previous screen, use the key Ctrl+Shift+G.</p>
+
+
+      
+      
       <p>At any time, you can switch and show the current programme of your selection. Just press the key Shift+Enter. </p>
-      <p>...</p>
+
+
+      
+      
+      <p>Using the new menu, you can select a specific day (from
+yesterday until six days after today) and a specific start time inside
+that day. By default, your selection contains all the programmes
+covering one hour. You can change your selection and shift to the
+previous or next hour using the keysCtrl+G and Shift+G. For example, if
+time is 04:15pm, pressing Ctrl+Shift+G shows first programmes covering
+the time frame between 04:15pm and 05:14pm. Pressing Shift+G will then
+display programmes covering the time frame betwwen 05:00pm and 05:59pm.
+Pressing Shift+G again will then display programmes covering the time
+frame betwwen 06:00pm and 06:59pm. Pressing Ctrl+G will then return to
+the previous hour and display&nbsp;programmes covering the time frame betwwen 05:00pm and 05:59pm.</p>
+
+
+      
+      
+      <p></p>
       <p>To hide one of the EPG OSD screens, just press the key BackSpace.</p>
 
+      
+      <p></p>
+
+
+
+      
+      
       
       <p><font face="Arial" size="3"><b>Settings</b></font></p>
 
 
 
+
+
+      
+      
       
       
       
@@ -259,6 +522,10 @@ the previous screen, use the key Ctrl+Shift+G.</p>
 
 
 
+
+
+      
+      
       
       
       
@@ -266,10 +533,16 @@ the previous screen, use the key Ctrl+Shift+G.</p>
 
 
 
+
+
         <tbody>
 
 
+
+
           <tr>
+
+
 
 
  
@@ -277,7 +550,11 @@ the previous screen, use the key Ctrl+Shift+G.</p>
 
 
 
+
+
           <th>Default</th>
+
+
 
 
 
@@ -285,11 +562,17 @@ the previous screen, use the key Ctrl+Shift+G.</p>
 
 
 
+
+
         </tr>
 
 
 
+
+
         <tr>
+
+
 
 
  
@@ -297,7 +580,11 @@ the previous screen, use the key Ctrl+Shift+G.</p>
 
 
 
+
+
           <td>nxtvepg.exe in DScaler directory</td>
+
+
 
 
 
@@ -305,11 +592,17 @@ the previous screen, use the key Ctrl+Shift+G.</p>
 
 
 
+
+
         </tr>
 
 
 
+
+
         <tr>
+
+
 
 
  
@@ -317,7 +610,11 @@ the previous screen, use the key Ctrl+Shift+G.</p>
 
 
 
+
+
           <td>1 (hour)</td>
+
+
 
 
 
@@ -325,11 +622,17 @@ the previous screen, use the key Ctrl+Shift+G.</p>
 
 
 
+
+
         </tr>
 
 
 
+
+
         <tr>
+
+
 
 
  
@@ -337,7 +640,11 @@ the previous screen, use the key Ctrl+Shift+G.</p>
 
 
 
+
+
           <td>5</td>
+
+
 
 
 
@@ -345,11 +652,17 @@ the previous screen, use the key Ctrl+Shift+G.</p>
 
 
 
+
+
         </tr>
 
 
 
+
+
         <tr>
+
+
 
 
  
@@ -357,7 +670,11 @@ the previous screen, use the key Ctrl+Shift+G.</p>
 
 
 
+
+
           <td>75</td>
+
+
 
 
 
@@ -365,11 +682,17 @@ the previous screen, use the key Ctrl+Shift+G.</p>
 
 
 
+
+
         </tr>
 
 
 
+
+
         <tr>
+
+
 
 
  
@@ -377,7 +700,11 @@ the previous screen, use the key Ctrl+Shift+G.</p>
 
 
 
+
+
           <td>OFF (0)</td>
+
+
 
 
 
@@ -385,17 +712,27 @@ the previous screen, use the key Ctrl+Shift+G.</p>
 
 
 
+
+
         </tr>
 
 
 
+
+
       
+        
+        
         
         
         </tbody>
       
       
+      
+      
       </table>
+
+
 
 
 
@@ -419,12 +756,18 @@ the previous screen, use the key Ctrl+Shift+G.</p>
 
 
 
+
+
     </tr>
 
 
 
 
+
+
     <tr>
+
+
 
 
 
@@ -432,12 +775,18 @@ the previous screen, use the key Ctrl+Shift+G.</p>
 
 
 
+
+
     </tr>
 
 
 
 
+
+
     <tr>
+
+
 
 
 
@@ -445,7 +794,11 @@ the previous screen, use the key Ctrl+Shift+G.</p>
 
 
 
+
+
     </tr>
+
+
 
 
 
@@ -454,11 +807,17 @@ the previous screen, use the key Ctrl+Shift+G.</p>
 
 
 
+
+
       <td colspan="3">&nbsp;</td>
 
 
 
+
+
     </tr>
+
+
 
 
 
@@ -467,10 +826,16 @@ the previous screen, use the key Ctrl+Shift+G.</p>
 
 
 
+
+
       <td colspan="3">
       
       
+      
+      
       <div align="center"><img src="images/yellowspacer.gif" height="2" width="100%"></div>
+
+
 
 
 
@@ -478,14 +843,22 @@ the previous screen, use the key Ctrl+Shift+G.</p>
 
 
 
+
+
     </tr>
 
 
 
+
+
+  
+  
   
   
   </tbody>
 </table>
+
+
 
 
 

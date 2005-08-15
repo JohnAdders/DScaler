@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.75 2005-07-26 22:19:31 laurentg Exp $
+// $Id: CX2388xSource.cpp,v 1.76 2005-08-15 19:17:48 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.75  2005/07/26 22:19:31  laurentg
+// Use the new function Channel_GetVBIName
+//
 // Revision 1.74  2005/03/29 13:07:00  adcockj
 // Avoid tight loops in processing
 //
@@ -2230,16 +2233,19 @@ void CCX2388xSource::VerticalSyncDetectionOnChange(long NewValue,long OldValue)
 ///////////////////////////////////////////////////////////////////////
 BOOL CCX2388xSource::StartStopConexantDriver(DWORD NewState)
 {
-	// all CX2388x-Cards have
+	
+    LOG(1, "CX2388x: WDM-Driver start search ...");
+    
+    // all CX2388x-Cards are having
 	// VendorID = 0x14F1
 	// DeviceID = 0x8800 (first sub-device)
-	// we are only searching for this...
     const char* pszCX2388X_HW_ID = "PCI\\VEN_14F1&DEV_88";
 	
 	// scan only Media-Classes
 	HDEVINFO hDevInfo = SetupDiGetClassDevs((LPGUID)&GUID_DEVCLASS_MEDIA, NULL, NULL, DIGCF_PRESENT);
 	if (hDevInfo == INVALID_HANDLE_VALUE)
     {
+        LOG(0, "CX2388x: WDM-Driver search error - Media Class not found.");
         return FALSE;
     }
 	
@@ -2272,11 +2278,12 @@ BOOL CCX2388xSource::StartStopConexantDriver(DWORD NewState)
 				return FALSE;
 			}
 		}
-        LOG(0,buffer);
+
+        LOG(2, buffer);
 
 		if(strncmp(buffer, pszCX2388X_HW_ID, strlen(pszCX2388X_HW_ID)) == 0)
 		{
-            LOG(1,"CX2388x WDM-Driver found.");
+            LOG(1,"CX2388x: WDM-Driver found.");
 		    
 		    // see DDK src/setup/devcon
 		    SP_PROPCHANGE_PARAMS PropChangeParams = {sizeof(SP_CLASSINSTALL_HEADER)};
@@ -2289,7 +2296,7 @@ BOOL CCX2388xSource::StartStopConexantDriver(DWORD NewState)
 		    if (!SetupDiSetClassInstallParams(hDevInfo,&DeviceInfoData,
 			    (SP_CLASSINSTALL_HEADER *)&PropChangeParams,sizeof(PropChangeParams)))
 		    {
-			    LOG(0,"Unable to %s CX2388x WDM-Driver in DICS_FLAG_GLOBAL.", NewState == DICS_DISABLE ? "Stop" : "Start");
+			    LOG(0,"CX2388x: WDM-Driver unable to %s in DICS_FLAG_GLOBAL.", NewState == DICS_DISABLE ? "Stop" : "Start");
 			    return FALSE;
 		    }
 
@@ -2303,11 +2310,11 @@ BOOL CCX2388xSource::StartStopConexantDriver(DWORD NewState)
 			    (SP_CLASSINSTALL_HEADER *)&PropChangeParams,sizeof(PropChangeParams))
 			    || !SetupDiCallClassInstaller(DIF_PROPERTYCHANGE,hDevInfo,&DeviceInfoData))
 		    {
-			    LOG(0,"Unable to %s CX2388x WDM-Driver in DICS_FLAG_CONFIGSPECIFIC.", NewState == DICS_DISABLE ? "Stop" : "Start");
+			    LOG(0,"CX2388x: WDM-Driver unable to %s in DICS_FLAG_CONFIGSPECIFIC.", NewState == DICS_DISABLE ? "Stop" : "Start");
 			    return FALSE;
 		    }
 		    
-		    LOG(1,"CX2388x WDM-Driver %s.", NewState == DICS_DISABLE ? "Stop" : "Start");
+		    LOG(1,"CX2388x: WDM-Driver %s.", NewState == DICS_DISABLE ? "Stop" : "Start");
 			bFound = TRUE;
 		}
 		
@@ -2319,7 +2326,7 @@ BOOL CCX2388xSource::StartStopConexantDriver(DWORD NewState)
 
 	if(bFound != TRUE)
 	{
-        LOG(1,"CX2388x WDM-Driver not found.");
+        LOG(1,"CX2388x: WDM-Driver not found.");
 	}
 
 	SetupDiDestroyDeviceInfoList(hDevInfo);

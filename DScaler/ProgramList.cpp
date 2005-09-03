@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.113 2005-07-27 22:59:02 laurentg Exp $
+// $Id: ProgramList.cpp,v 1.114 2005-09-03 21:54:11 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.113  2005/07/27 22:59:02  laurentg
+// Use new function to search the channel with the VPS CNI
+//
 // Revision 1.112  2005/07/27 20:27:56  laurentg
 // Use VBI_ChannelChange instead of VT_ChannelChange
 //
@@ -531,24 +534,12 @@ const char* Channel_GetVBIName(BOOL bOnlyWithCodes)
 	{
 		if (*szName == '\0')
 		{
-			VPS_GetChannelName(szName, sizeof(szName));
-			//LOG(1, "VPS_GetChannelName => %s", szName);
-#ifdef DEBUG_CHANNEL_IDENTIFICATION
-			if (*szName != '\0' && strlen(szName) < (sizeof(szName) - 2))
-			{
-				strcat(szName, "#4");
-			}
-#endif
-		}
-
-		if (*szName == '\0')
-		{
 			VT_GetStation(szName, sizeof(szName));
 			//LOG(1, "VT_GetStation => %s", szName);
 #ifdef DEBUG_CHANNEL_IDENTIFICATION
 			if (*szName != '\0' && strlen(szName) < (sizeof(szName) - 2))
 			{
-				strcat(szName, "#5");
+				strcat(szName, "#4");
 			}
 #endif
 		}
@@ -996,14 +987,16 @@ void ScanChannelPreset(HWND hDlg, int iCurrentChannelIndex, int iCountryCode)
 			    && (   Setting_GetValue(VBI_GetSetting(DOTELETEXT))
 					|| Setting_GetValue(VBI_GetSetting(DOVPS)) ) )
 			{
-				VBI_ChannelChange();
-				// Laurent's comment: Increase the search duration because
-				// 10 * 200 seems to be sometimes not enough for some networks.
-				// The fact that the code ID in P8/30/1 needs to be received
-				// twice with the same value before being used is the main reason.
-				int i = 0; 
+                // Torsten's comment:
+                // Because VBI decoding is not stopped before tuned
+                // into the new channel we got in some cases old vbi data
+                // from the previous tuned channel. So let's at first wait
+                // some time to get stable signals from tuner. *After* waiting
+                // is done then clear all buffers in vbi decoding and try again.
 				Sleep(50);
-				strcpy(sbuf, Channel_GetVBIName(TRUE));
+				VBI_ChannelChange();
+                
+                int i = 0;
 				while(i < 12 && (sbuf[0] == '\0' || sbuf[0] == ' '))
 				{
 					MSG msg;
@@ -1012,6 +1005,10 @@ void ScanChannelPreset(HWND hDlg, int iCurrentChannelIndex, int iCountryCode)
 						SendMessage(msg.hwnd, msg.message, msg.wParam, msg.lParam);
 					}
 
+				    // Laurent's comment: Increase the search duration because
+				    // 10 * 200 seems to be sometimes not enough for some networks.
+				    // The fact that the code ID in P8/30/1 needs to be received
+				    // twice with the same value before being used is the main reason.
 					Sleep(200);
 					strcpy(sbuf, Channel_GetVBIName(TRUE));
 					++i;

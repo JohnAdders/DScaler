@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VPSdecode.cpp,v 1.11 2005-08-14 15:13:48 to_see Exp $
+// $Id: VBI_VPSdecode.cpp,v 1.12 2005-09-03 21:54:11 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -42,6 +42,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2005/08/14 15:13:48  to_see
+// Added PCS, PTY to VPS Info dialog
+//
 // Revision 1.10  2005/08/07 18:47:28  to_see
 // Fixed: No VPS data at Pixel Width 720 and CX2388x chip
 //
@@ -131,26 +134,6 @@ void VPS_Clear_Data()
     ZeroMemory(VPS_Data.LabelLast, 9);
     ZeroMemory(VPS_Data.LabelCurr, 9);
 }
-
-//
-// Comment from Torsten to Laurent:
-// That code should not be used for channel
-// identification because the string is much
-// different from the CNI's real station name
-//
-void VPS_GetChannelName(LPSTR lpBuffer, LONG nLength)
-{
-    if (nLength > 9)
-    {
-        nLength = 9;
-    }
-
-    ASSERT(nLength > 0);
-
-    lpBuffer[--nLength] = '\0';
-    memcpy(lpBuffer, VPS_Data.LabelCurr, nLength);
-}
-
 
 void VPS_GetChannelNameFromCNI(LPSTR lpBuffer, LONG nLength)
 {

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.380 2005-07-17 20:39:27 dosx86 Exp $
+// $Id: DScaler.cpp,v 1.381 2005-09-24 18:40:08 dosx86 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.380  2005/07/17 20:39:27  dosx86
+// Uses the new time shift functions
+//
 // Revision 1.379  2005/07/11 12:49:00  laurentg
 // New menus to browse EPG at a certain day and time
 //
@@ -1880,7 +1883,7 @@ HMENU CreateDScalerPopupMenu()
             SetMenuItemInfo(hMenuPopup,5, TRUE, &MenuItemInfo);
         }
 
-        hSubMenu = GetSubMenuWithName(hMenu, 6-reduc1, "&AspectRatio");
+        hSubMenu = GetSubMenuWithName(hMenu, 6-reduc1, "&Aspect Ratio");
         if(hSubMenu != NULL)
         {
             MenuItemInfo.hSubMenu = hSubMenu;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.60 2005-03-27 20:22:20 laurentg Exp $
+// $Id: Settings.cpp,v 1.61 2005-09-24 18:40:51 dosx86 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.60  2005/03/27 20:22:20  laurentg
+// EPG: new improvements
+//
 // Revision 1.59  2005/03/23 14:21:00  adcockj
 // Test fix for threading issues
 //
@@ -393,13 +396,6 @@ TFileWithSettings Settings[] =
         FDProg_ReadSettingsFromIni,
         FDProg_WriteSettingsToIni,
 		NULL,
-    },
-    {
-        WM_TIMESHIFT_GETVALUE,
-        (GENERICGETSETTING*)TimeShift_GetSetting,
-        TimeShift_ReadSettingsFromIni,
-        TimeShift_WriteSettingsToIni,
-		TimeShift_FreeSettings,
     },
     {
         WM_EPG_GETVALUE,

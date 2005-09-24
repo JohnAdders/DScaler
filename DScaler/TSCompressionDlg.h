@@ -1,4 +1,4 @@
-/* $Id: TSCompressionDlg.h,v 1.1 2005-07-17 20:45:44 dosx86 Exp $ */
+/* $Id: TSCompressionDlg.h,v 1.2 2005-09-24 18:47:56 dosx86 Exp $ */
 
 /** \file
  * Time Shift compression options dialog
@@ -14,6 +14,8 @@
 // TSCompression.h : header file
 //
 
+#include "TSOptionsDlg.h"
+
 /////////////////////////////////////////////////////////////////////////////
 // CTSCompressionDlg dialog
 
@@ -21,12 +23,13 @@ class CTSCompressionDlg : public CDialog
 {
 // Construction
 public:
-	CTSCompressionDlg(CWnd* pParent = NULL);   // standard constructor
+	CTSCompressionDlg(CWnd* pParent = NULL, TS_OPTIONS *options = NULL);
 
 // Dialog Data
 	//{{AFX_DATA(CTSCompressionDlg)
 	enum { IDD = IDD_TSCOMPRESSION };
-		// NOTE: the ClassWizard will add data members here
+	CString	m_AudioFormat;
+	CString	m_VideoFormat;
 	//}}AFX_DATA
 
 
@@ -44,10 +47,14 @@ protected:
 	//{{AFX_MSG(CTSCompressionDlg)
 	afx_msg void OnConfigVideo();
 	afx_msg void OnConfigAudio();
+	virtual void OnOK();
+	virtual BOOL OnInitDialog();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 
-    void SetText(int id, LPSTR text);
+private:
+    TS_OPTIONS *options;
+    FOURCC     m_fcc;
 };
 
 //{{AFX_INSERT_LOCATION}}

@@ -1,4 +1,4 @@
-/* $Id: TSCompressionDlg.cpp,v 1.1 2005-07-17 20:45:44 dosx86 Exp $ */
+/* $Id: TSCompressionDlg.cpp,v 1.2 2005-09-24 18:47:46 dosx86 Exp $ */
 
 /** \file
  * Time Shift compression options dialog
@@ -20,12 +20,17 @@ static char THIS_FILE[] = __FILE__;
 // CTSCompressionDlg dialog
 
 
-CTSCompressionDlg::CTSCompressionDlg(CWnd* pParent /*=NULL*/)
+CTSCompressionDlg::CTSCompressionDlg(CWnd *pParent /*=NULL*/,
+                                     TS_OPTIONS *options)
 	: CDialog(CTSCompressionDlg::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CTSCompressionDlg)
-		// NOTE: the ClassWizard will add member initialization here
+	m_AudioFormat = _T("");
+	m_VideoFormat = _T("");
 	//}}AFX_DATA_INIT
+
+    this->options = options;
+    m_fcc         = options->fcc;
 }
 
 
@@ -35,19 +40,22 @@ void CTSCompressionDlg::DoDataExchange(CDataExchange* pDX)
 
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CTSCompressionDlg)
-		// NOTE: the ClassWizard will add DDX and DDV calls here
+	DDX_Text(pDX, IDC_TSAUDIOFORMAT, m_AudioFormat);
+	DDX_Text(pDX, IDC_TSVIDEOFORMAT, m_VideoFormat);
 	//}}AFX_DATA_MAP
 
     if (!pDX->m_bSaveAndValidate)
     {
-        if (TimeShiftGetCompressionDesc(buffer, sizeof(buffer), true))
-           SetText(IDC_TSVIDEOFORMAT, buffer);
+        if (TimeShiftGetVideoCompressionDesc(buffer,
+                                             sizeof(buffer),
+                                             options->recHeight,
+                                             options->format))
+           m_VideoFormat = buffer;
 
-        if (TimeShiftGetCompressionDesc(buffer, sizeof(buffer), false))
-           SetText(IDC_TSAUDIOFORMAT, buffer);
+        if (TimeShiftGetAudioCompressionDesc(buffer, sizeof(buffer)))
+           m_AudioFormat = buffer;
     }
 }
-
 
 BEGIN_MESSAGE_MAP(CTSCompressionDlg, CDialog)
 	//{{AFX_MSG_MAP(CTSCompressionDlg)
@@ -59,20 +67,30 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CTSCompressionDlg message handlers
 
+BOOL CTSCompressionDlg::OnInitDialog() 
+{
+    CDialog::OnInitDialog();
+
+    UpdateData(FALSE);
+
+    return TRUE;  // return TRUE unless you set the focus to a control
+                  // EXCEPTION: OCX Property Pages should return FALSE
+}
+
 void CTSCompressionDlg::OnConfigVideo() 
 {
-    TimeShiftVideoCompressionOptions(m_hWnd);
+    TimeShiftVideoCompressionOptions(m_hWnd, options->recHeight,
+                                     options->format, &m_fcc);
 }
 
 void CTSCompressionDlg::OnConfigAudio() 
 {
 }
 
-void CTSCompressionDlg::SetText(int id, LPSTR text)
+void CTSCompressionDlg::OnOK() 
 {
-    HWND hWnd = NULL;
+    /* Update the options */
+    options->fcc = m_fcc;
 
-    GetDlgItem(id, &hWnd);
-    if (hWnd)
-       ::SetWindowText(hWnd, text);
+    CDialog::OnOK();
 }

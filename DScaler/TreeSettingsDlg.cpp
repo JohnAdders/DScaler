@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.cpp,v 1.35 2005-03-27 20:22:21 laurentg Exp $
+// $Id: TreeSettingsDlg.cpp,v 1.36 2005-09-24 18:46:57 dosx86 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.35  2005/03/27 20:22:21  laurentg
+// EPG: new improvements
+//
 // Revision 1.34  2004/02/06 21:01:40  to_see
 // -added an gripper
 // -fixed some sizing problems
@@ -692,11 +695,6 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
 	    dlg.AddPage(pPage, Root);
 
         pPage = DScaler_GetTreeSettingsPage4();
-	    pPage->SetHelpID(IDH_ADVANCED);
-	    pages.push_back(pPage);
-	    dlg.AddPage(pPage, Root);
-
-        pPage = TimeShift_GetTreeSettingsPage();
 	    pPage->SetHelpID(IDH_ADVANCED);
 	    pages.push_back(pPage);
 	    dlg.AddPage(pPage, Root);

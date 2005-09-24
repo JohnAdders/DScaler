@@ -13,7 +13,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Englisch (USA) resources
+// English (U.S.) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 #ifdef _WIN32
@@ -652,59 +652,60 @@ BEGIN
                     IDC_STATIC,7,222,279,8
 END
 
-IDD_TSOPTIONS DIALOG DISCARDABLE  0, 0, 307, 246
+IDD_TSOPTIONS DIALOG DISCARDABLE  0, 0, 238, 279
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "TimeShift Options"
 FONT 8, "MS Sans Serif"
 BEGIN
-    EDITTEXT        IDC_RECORD_START,121,8,52,12,ES_RIGHT | ES_NUMBER | 
-                    WS_DISABLED
-    EDITTEXT        IDC_RECORD_TIME,121,23,52,13,ES_RIGHT | ES_NUMBER | 
-                    WS_DISABLED
-    PUSHBUTTON      "Timer / Schedule Help",IDC_TIMERHELP,183,42,101,14
-    PUSHBUTTON      "Compression Options...",IDC_TSCOMPRESSIONBUTTON,12,41,
-                    82,14
-    PUSHBUTTON      "Help",IDC_TSCOMPRESSIONHELP,97,41,30,14
-    PUSHBUTTON      "Audio-Mixer Setup...",IDC_TSMIXERBUTTON,12,57,82,14
-    PUSHBUTTON      "Help",IDC_TSMIXERHELP,97,57,30,14
-    COMBOBOX        IDC_TSWAVEINCOMBO,90,80,146,88,CBS_DROPDOWNLIST | 
+    PUSHBUTTON      "Compression Options...",IDC_TSCOMPRESSIONBUTTON,9,6,82,
+                    14
+    PUSHBUTTON      "Tips",IDC_TSCOMPRESSIONHELP,93,6,30,14
+    PUSHBUTTON      "Audio-Mixer Setup...",IDC_TSMIXERBUTTON,15,33,82,14
+    COMBOBOX        IDC_TSWAVEINCOMBO,57,52,159,72,CBS_DROPDOWNLIST | 
                     WS_VSCROLL | WS_TABSTOP
-    COMBOBOX        IDC_TSWAVEOUTCOMBO,90,98,146,70,CBS_DROPDOWNLIST | 
-                    WS_VSCROLL | WS_TABSTOP
-    PUSHBUTTON      "Help",IDC_TSWAVEHELP,265,90,30,14
+    COMBOBOX        IDC_TSWAVEOUTCOMBO,57,67,159,72,CBS_DROPDOWNLIST | 
+                    WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Help",IDC_TSWAVEHELP,189,33,30,14
     CONTROL         "1/2-height even scanlines only",IDC_TSHALFEVENRADIO,
-                    "Button",BS_AUTORADIOBUTTON | WS_GROUP,40,130,113,10
+                    "Button",BS_AUTORADIOBUTTON | WS_GROUP,15,170,113,8
     CONTROL         "1/2-height odd scanlines only",IDC_TSHALFODDRADIO,
-                    "Button",BS_AUTORADIOBUTTON,40,140,109,10
+                    "Button",BS_AUTORADIOBUTTON,15,179,109,8
     CONTROL         "1/2-height even and odd averaged",
-                    IDC_TSHALFAVERAGEDRADIO,"Button",BS_AUTORADIOBUTTON,40,
-                    150,127,10
+                    IDC_TSHALFAVERAGEDRADIO,"Button",BS_AUTORADIOBUTTON,15,
+                    189,127,8
     CONTROL         "Full height (interlaced)",IDC_TSFULLHEIGHTRADIO,"Button",
-                    BS_AUTORADIOBUTTON,40,160,85,10
-    PUSHBUTTON      "Help",IDC_TSHEIGHTHELP,265,140,30,14
+                    BS_AUTORADIOBUTTON,15,199,85,8
+    PUSHBUTTON      "Help",IDC_TSHEIGHTHELP,189,167,30,14
     CONTROL         "YUY2",IDC_TSYUY2RADIO,"Button",BS_AUTORADIOBUTTON | 
-                    WS_GROUP,40,190,35,10
-    CONTROL         "RGB",IDC_TSRGBRADIO,"Button",BS_AUTORADIOBUTTON,40,200,
-                    35,10
-    DEFPUSHBUTTON   "OK",IDOK,100,225,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,155,225,50,14
-    RTEXT           "Wave In:",IDC_STATIC,55,83,30,8
-    RTEXT           "Wave Out:",IDC_STATIC,50,102,36,8
-    GROUPBOX        "Recording Height",IDC_STATIC,35,120,215,55
-    GROUPBOX        "Recording Format",IDC_STATIC,35,180,215,35
-    LTEXT           "Fastest",IDC_STATIC,170,130,40,8
-    LTEXT           "Fastest",IDC_STATIC,170,140,30,8
-    LTEXT           "Note: You will need to press 'Record' after you have set 'Record Start Time' for the event to happen at given time. ",
-                    IDC_STATIC,179,9,120,26
-    LTEXT           "How Long To Record (In  Minutes)",IDC_STATIC,3,25,110,8
-    LTEXT           "Record Start Time (24 Hour Clock)",IDC_STATIC,3,10,109,
-                    8
-    LTEXT           "Fast",IDC_STATIC,170,150,40,8
-    LTEXT           "Slower, more overhead",IDC_STATIC,170,160,75,8
-    LTEXT           "DScaler's native format",IDC_STATIC,85,190,75,8
-    LTEXT           "More compatible",IDC_STATIC,85,200,75,8
-    LTEXT           "Fastest, least overhead",IDC_STATIC,170,190,75,8
-    LTEXT           "Slower, more overhead",IDC_STATIC,170,200,75,8
+                    WS_GROUP,15,227,35,8
+    CONTROL         "RGB",IDC_TSRGBRADIO,"Button",BS_AUTORADIOBUTTON,15,237,
+                    35,8
+    DEFPUSHBUTTON   "OK",IDOK,65,258,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,121,258,50,14
+    RTEXT           "Wave In:",IDC_STATIC,18,54,36,8
+    RTEXT           "Wave Out:",IDC_STATIC,15,69,39,8,WS_DISABLED
+    GROUPBOX        "Recording Height",IDC_STATIC,9,159,216,54
+    GROUPBOX        "Recording Format",IDC_STATIC,9,216,216,33
+    LTEXT           "Fastest",IDC_STATIC,144,170,30,8
+    LTEXT           "Fastest",IDC_STATIC,144,179,30,8
+    LTEXT           "Fast",IDC_STATIC,144,189,15,8
+    LTEXT           "Slower, more overhead",IDC_STATIC,144,199,75,8
+    LTEXT           "DScaler's native format",IDC_STATIC,59,227,75,8
+    LTEXT           "More compatible",IDC_STATIC,59,237,75,8
+    LTEXT           "Fastest, least overhead",IDC_STATIC,144,227,75,8
+    LTEXT           "Slower, more overhead",IDC_STATIC,144,237,75,8
+    GROUPBOX        "Destination",IDC_STATIC,9,90,216,66
+    EDITTEXT        IDC_TS_PATH_DISPLAY,18,111,156,12,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "Save recorded files to",IDC_STATIC,18,99,111,9
+    PUSHBUTTON      "Select",IDC_TS_PATH_SELECT,183,111,30,12
+    EDITTEXT        IDC_TS_SIZE,18,138,45,12,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "MiB",IDC_STATIC,66,141,15,8
+    LTEXT           "Size of each recorded file",IDC_STATIC,18,126,138,8
+    CONTROL         "No limit",IDC_TS_SIZE_NO_LIMIT,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,135,141,51,9
+    GROUPBOX        "Audio",IDC_STATIC,9,24,216,63
+    LTEXT           "(0000.00 GiB)",IDC_TS_SIZE_GIB,84,141,48,8
 END
 
 IDD_OVERLAYSETTINGS DIALOG DISCARDABLE  0, 0, 372, 202
@@ -1339,7 +1340,7 @@ BEGIN
         MENUITEM "&Filters Settings...",        IDM_SETTINGS_FILTERSETTINGS
         MENUITEM SEPARATOR
     END
-    POPUP "&AspectRatio"
+    POPUP "&Aspect Ratio"
     BEGIN
         MENUITEM "Automatically detect Black Bars\tA", 
                                                 IDM_SASPECT_AUTO_TOGGLE
@@ -2139,7 +2140,7 @@ BEGIN
 
     IDD_TSOPTIONS, DIALOG
     BEGIN
-        BOTTOMMARGIN, 242
+        BOTTOMMARGIN, 275
     END
 
     IDD_OVERLAYSETTINGS, DIALOG
@@ -2275,12 +2276,12 @@ IDI_TRAYICON            ICON    DISCARDABLE     "DScalerSysTray.ico"
 
 IDB_TOOLBAR_BAR_BAR     BITMAP  MOVEABLE PURE   "toolbar_bar_bar.bmp"
 SMALLLOGO               BITMAP  MOVEABLE PURE   "small_logo.bmp"
-#endif    // Englisch (USA) resources
+#endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// Französisch (Frankreich) resources
+// French (France) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRA)
 #ifdef _WIN32
@@ -2298,12 +2299,12 @@ LANGUAGE LANG_FRENCH, SUBLANG_FRENCH
 IDI_TOOLBAR_MEDIAPLAYER_PLAY ICON    DISCARDABLE     "toolbar_mediaplayer_play.ico"
 IDI_TOOLBAR_MEDIAPLAYER_STOP ICON    DISCARDABLE     "toolbar_mediaplayer_stop.ico"
 IDI_TOOLBAR_MEDIAPLAYER_PAUSE ICON    DISCARDABLE     "toolbar_mediaplayer_pause.ico"
-#endif    // Französisch (Frankreich) resources
+#endif    // French (France) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// Englisch (Australien) resources
+// English (Australia) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENA)
 #ifdef _WIN32
@@ -2351,7 +2352,7 @@ BEGIN
 END
 #endif    // APSTUDIO_INVOKED
 
-#endif    // Englisch (Australien) resources
+#endif    // English (Australia) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.h,v 1.22 2005-07-17 20:43:23 dosx86 Exp $
+// $Id: TimeShift.h,v 1.23 2005-09-24 18:43:50 dosx86 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2005/07/17 20:43:23  dosx86
+// Removed the C++ class and reorganized the functions. Uses the new AVI file
+// functions.
+//
 // Revision 1.21  2004/08/12 16:27:48  adcockj
 // added timeshift changes from emu
 //
@@ -131,6 +135,14 @@
 #define RGB_FOURCC  BI_RGB
 #define YUY2_FOURCC mmioFOURCC('Y', 'U', 'Y', '2')
 
+/** The maximum size of a recorded file in MiB */
+#define MAX_FILE_SIZE 1000000
+
+/** This is the default path that's used if some error happened. Make sure this
+ * is kept short.
+ */
+#define TS_DEFAULT_PATH "C:\\"
+
 /** TimeShift modes */
 typedef enum
 {
@@ -172,10 +184,12 @@ typedef LPBYTE (*TSSCANLINEAVGPROC)(LPBYTE, LPBYTE, LPBYTE, DWORD);
 typedef struct
 {
     CRITICAL_SECTION lock;
-    tsMode_t         mode;
-    tsFormat_t       format;
-    int              recHeight;
-    FOURCC           fccHandler;
+    tsMode_t         mode;          /**< Recording mode (state) */
+    tsFormat_t       format;        /**< Recording format (color space) */
+    int              recHeight;     /**< Recording height */
+    FOURCC           fccHandler;    /**< Video compression codec FourCC */
+    char             savingPath[MAX_PATH + 1];  /**< Path to save files to */
+    DWORD            sizeLimit;     /**< Size limit of each file in MiB (0 = no limit) */
 
     struct
     {
@@ -240,6 +254,7 @@ typedef struct
 */
 
 /* From TimeShift.cpp */
+DWORD GetMaximumVolumeFileSize(const char *path);
 bool TimeShiftInit(HWND hWnd);
 void TimeShiftShutdown(void);
 bool TimeShiftPause(void);
@@ -251,22 +266,28 @@ bool TimeShiftWorkOnInputFrames(void);
 bool TimeShiftCancelSchedule(void);
 bool TimeShiftSetWaveInDevice(char *pszDevice);
 bool TimeShiftSetWaveOutDevice(char *pszDevice);
+bool TimeShiftSetSavingPath(char *newPath);
+bool TimeShiftIsPathValid(const char *path);
+bool TimeShiftSetFileSizeLimit(DWORD sizeLimit);
+bool TimeShiftGetDimensions(BITMAPINFOHEADER *bih, int recHeight,
+                            tsFormat_t format);
 bool TimeShiftGetWaveInDevice(char **ppszDevice);
 bool TimeShiftGetWaveOutDevice(char **ppszDevice);
 bool TimeShiftGetRecHeight(int *index);
 bool TimeShiftSetRecHeight(int index);
 bool TimeShiftGetRecFormat(tsFormat_t *format);
 bool TimeShiftSetRecFormat(tsFormat_t format);
-bool TimeShiftGetCompressionDesc(LPSTR dest, DWORD length, bool video);
+bool TimeShiftGetFourCC(FOURCC *fcc);
+bool TimeShiftSetFourCC(FOURCC fcc);
+bool TimeShiftGetVideoCompressionDesc(LPSTR dest, DWORD length, int recHeight,
+                                      tsFormat_t format);
+bool TimeShiftGetAudioCompressionDesc(LPSTR dest, DWORD length);
 bool TimeShiftOnOptions(void);
-bool TimeShiftCompressionOptions(HWND hWndParent);
-bool TimeShiftVideoCompressionOptions(HWND hWndParent);
+bool TimeShiftVideoCompressionOptions(HWND hWndParent, int recHeight,
+                                      tsFormat_t format, FOURCC *fccHandler);
 bool TimeShiftOnSetMenu(HMENU hMenu);
 
-SETTING *TimeShift_GetSetting(TIMESHIFT_SETTING Setting);
-void    TimeShift_ReadSettingsFromIni(void);
-void    TimeShift_WriteSettingsToIni(BOOL bOptimizeFileAccess);
-CTreeSettingsGeneric* TimeShift_GetTreeSettingsPage(void);
-void    TimeShift_FreeSettings(void);
+const char *TimeShiftGetSavingPath(void);
+DWORD      TimeShiftGetFileSizeLimit(void);
 
 #endif // __TIMESHIFT_H___

@@ -1,4 +1,4 @@
-/* $Id: avi_file.c,v 1.3 2005-07-28 00:44:51 dosx86 Exp $ */
+/* $Id: avi_file.c,v 1.4 2005-09-24 18:39:27 dosx86 Exp $ */
 
 /** \file
  * Async file writing functions
@@ -130,7 +130,7 @@ BOOL __write(AVI_FILE *file, void *data, DWORD size)
 
 #define FIFO_POS(fifo, pos) ((pos) % ((fifo)->size))
 
-DWORD fifoDistance(DWORD start, DWORD end, DWORD size)
+__inline DWORD fifoDistance(DWORD start, DWORD end, DWORD size)
 {
     if (end < start)
        end += size;
@@ -700,8 +700,20 @@ void fileReserveLegacyIndex(AVI_FILE *file)
 
 DWORD WINAPI asyncThread(AVI_FILE *file)
 {
-    BOOL bExit;
-    BOOL bFinishedWriting;
+    BOOL  bExit;
+    BOOL  bFinishedWriting;
+    int   priority;
+    int   setPriority;
+    DWORD totalSpace;
+    DWORD usedSpace;
+
+    priority = GetThreadPriority(GetCurrentThread());
+    if (priority==THREAD_PRIORITY_ERROR_RETURN)
+       priority = THREAD_PRIORITY_NORMAL;
+
+    setPriority = THREAD_PRIORITY_ERROR_RETURN;
+
+    totalSpace = fifoTotalSpace(file->async.fifo);
 
     bExit            = FALSE;
     bFinishedWriting = FALSE;
@@ -709,7 +721,39 @@ DWORD WINAPI asyncThread(AVI_FILE *file)
     {
         /* Attempt to write any data that might be in the FIFO buffer */
         while (fifoDumpBlock(file->async.fifo, file))
+        {
             SetEvent(file->async.hWriteEvent);
+
+            if (!bExit)
+            {
+                usedSpace = fifoReadableSpace(file->async.fifo);
+                switch (priority)
+                {
+                    case THREAD_PRIORITY_NORMAL:
+                        if (usedSpace >= totalSpace >> 1)
+                           setPriority = THREAD_PRIORITY_ABOVE_NORMAL;
+                    break;
+
+                    case THREAD_PRIORITY_ABOVE_NORMAL:
+                        if (usedSpace < totalSpace >> 1)
+                           setPriority = THREAD_PRIORITY_NORMAL;
+                    break;
+
+                    default:
+                        setPriority = THREAD_PRIORITY_NORMAL;
+                    break;
+                }
+
+                if (setPriority != THREAD_PRIORITY_ERROR_RETURN)
+                {
+                    if (SetThreadPriority(GetCurrentThread(), setPriority))
+                    {
+                        priority    = setPriority;
+                        setPriority = THREAD_PRIORITY_ERROR_RETURN;
+                    }
+                }
+            }
+        }
 
         if (!bExit)
         {
@@ -797,14 +841,6 @@ BOOL fileOpen(AVI_FILE *file, char *fileName)
         fileClose(file);
         aviSetError(file, AVI_ERROR_FILE_OPEN,
                           "Could not open the file for writing");
-        return FALSE;
-    }
-
-    if (!SetThreadPriority(file->async.hThread, THREAD_PRIORITY_ABOVE_NORMAL))
-    {
-        fileClose(file);
-        aviSetError(file, AVI_ERROR_FILE_OPEN,
-                          "Could not set the priority of the writing thread");
         return FALSE;
     }
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TSOptionsDlg.cpp,v 1.16 2005-07-17 20:46:24 dosx86 Exp $
+// $Id: TSOptionsDlg.cpp,v 1.17 2005-09-24 18:48:21 dosx86 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // Put radio button to enable / disable 'TimeShift' warnings.
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2005/07/17 20:46:24  dosx86
+// Updated to use the new time shift options dialog. Redid some of the help text.
+//
 // Revision 1.14  2004/08/12 16:27:47  adcockj
 // added timeshift changes from emu
 //
@@ -91,16 +94,16 @@
 #include "resource.h"
 #include "DScaler.h"
 #include "TSOptionsDlg.h"
+#include "TSCompressionDlg.h"
 #include "TimeShift.h"
 #include "MixerDev.h"
+#include <shlobj.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
 static char THIS_FILE[] = __FILE__;
 #endif
-
-int m_Valid = 1; // Ininialize valid flag for start time (valid)
 
 /////////////////////////////////////////////////////////////////////////////
 // CTSOptionsDlg dialog
@@ -110,30 +113,24 @@ CTSOptionsDlg::CTSOptionsDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CTSOptionsDlg::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CTSOptionsDlg)
-		// NOTE: the ClassWizard will add member initialization here
 	//}}AFX_DATA_INIT
-    m_recHeight  = TS_HALFHEIGHTEVEN;
-    m_formatYUY2 = true;
 }
 
-/** Gets the current selections from the dialog */
-void CTSOptionsDlg::GetSettings(void)
+int CTSOptionsDlg::OnCreate(LPCREATESTRUCT lpCreateStruct) 
 {
-    /* Recording height */
-    if (IsChecked(IDC_TSFULLHEIGHTRADIO))
-       m_recHeight = TS_FULLHEIGHT;
-       else if (IsChecked(IDC_TSHALFEVENRADIO))
-               m_recHeight = TS_HALFHEIGHTEVEN;
-       else if (IsChecked(IDC_TSHALFODDRADIO))
-               m_recHeight = TS_HALFHEIGHTODD;
-       else if (IsChecked(IDC_TSHALFAVERAGEDRADIO))
-               m_recHeight = TS_HALFHEIGHTAVG;
+    if (CDialog::OnCreate(lpCreateStruct)==-1)
+       return -1;
 
-    /* Recording format */
-    if (IsChecked(IDC_TSYUY2RADIO))
-       m_formatYUY2 = true;
-       else
-       m_formatYUY2 = false;
+    if (FAILED(CoInitialize(NULL)))
+       return -1;
+
+    return 0;
+}
+
+void CTSOptionsDlg::OnDestroy() 
+{
+    CDialog::OnDestroy();
+    CoUninitialize();
 }
 
 void CTSOptionsDlg::DoDataExchange(CDataExchange* pDX)
@@ -141,16 +138,18 @@ void CTSOptionsDlg::DoDataExchange(CDataExchange* pDX)
 	CDialog::DoDataExchange(pDX);
 
 	//{{AFX_DATA_MAP(CTSOptionsDlg)
+	DDX_Control(pDX, IDC_TS_PATH_DISPLAY, m_PathDisplay);
+	DDX_Control(pDX, IDC_TS_SIZE_GIB, m_SizeGiB);
+	DDX_Control(pDX, IDC_TS_SIZE_NO_LIMIT, m_SizeCheckBox);
+	DDX_Control(pDX, IDC_TS_SIZE, m_SizeEdit);
 	DDX_Control(pDX, IDC_TSWAVEOUTCOMBO, m_WaveOutComboBox);
 	DDX_Control(pDX, IDC_TSWAVEINCOMBO, m_WaveInComboBox);
-	DDX_Text(pDX, IDC_RECORD_START, m_Start);
-	DDX_Text(pDX, IDC_RECORD_TIME, m_Time);
 	//}}AFX_DATA_MAP
 
     if (!pDX->m_bSaveAndValidate)
     {
         /* Recording height radio buttons */
-        switch (m_recHeight)
+        switch (options.recHeight)
         {
             case TS_FULLHEIGHT:
                 SetChecked(IDC_TSFULLHEIGHTRADIO, TRUE);
@@ -183,10 +182,36 @@ void CTSOptionsDlg::DoDataExchange(CDataExchange* pDX)
         }
 
         /* Recording format radio buttons */
-        SetChecked(IDC_TSYUY2RADIO, m_formatYUY2 ? TRUE : FALSE);
-        SetChecked(IDC_TSRGBRADIO, m_formatYUY2 ? FALSE : TRUE);
+        SetChecked(IDC_TSYUY2RADIO, options.format==FORMAT_YUY2 ? TRUE : FALSE);
+        SetChecked(IDC_TSRGBRADIO, options.format==FORMAT_YUY2 ? FALSE : TRUE);
+
+        /* Path */
+        m_PathDisplay.SetWindowText(options.path);
+
+        /* File size limit */
+        SetDlgItemInt(IDC_TS_SIZE, options.sizeLimit, FALSE);
+        OnUpdateTSSize();
     } else
-      GetSettings();
+    {
+        /* Recording height */
+        if (IsChecked(IDC_TSFULLHEIGHTRADIO))
+           options.recHeight = TS_FULLHEIGHT;
+           else if (IsChecked(IDC_TSHALFEVENRADIO))
+                   options.recHeight = TS_HALFHEIGHTEVEN;
+           else if (IsChecked(IDC_TSHALFODDRADIO))
+                   options.recHeight = TS_HALFHEIGHTODD;
+           else if (IsChecked(IDC_TSHALFAVERAGEDRADIO))
+                   options.recHeight = TS_HALFHEIGHTAVG;
+
+        /* Recording format */
+        if (IsChecked(IDC_TSYUY2RADIO))
+           options.format = FORMAT_YUY2;
+           else
+           options.format = FORMAT_RGB;
+
+        /* File size */
+        options.sizeLimit = GetDlgItemInt(IDC_TS_SIZE, NULL, FALSE);
+    }
 }
 
 BEGIN_MESSAGE_MAP(CTSOptionsDlg, CDialog)
@@ -195,14 +220,15 @@ BEGIN_MESSAGE_MAP(CTSOptionsDlg, CDialog)
 	ON_BN_CLICKED(IDC_TSCOMPRESSIONHELP, OnCompressionhelp)
 	ON_BN_CLICKED(IDC_TSWAVEHELP, OnWavehelp)
 	ON_BN_CLICKED(IDC_TSHEIGHTHELP, OnHeighthelp)
-	ON_BN_CLICKED(IDC_TSMIXERHELP, OnMixerhelp)
 	ON_BN_CLICKED(IDC_TSMIXERBUTTON, OnButtonMixer)
-	ON_BN_CLICKED(IDC_TIMERHELP, OnTimerHelp)
-	ON_BN_CLICKED(IDC_UPDATE, OnButtonUpdate)
-	ON_BN_CLICKED(IDOK, OnQuit)
+	ON_BN_CLICKED(IDC_TS_PATH_SELECT, OnTSPathSelect)
+	ON_WM_CREATE()
+	ON_WM_DESTROY()
+	ON_EN_UPDATE(IDC_TS_SIZE, OnUpdateTSSize)
+	ON_EN_KILLFOCUS(IDC_TS_SIZE, OnKillfocusTSSize)
+	ON_BN_CLICKED(IDC_TS_SIZE_NO_LIMIT, OnTSSizeNoLimit)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
-
 
 BOOL CTSOptionsDlg::IsChecked(int id)
 {
@@ -225,147 +251,80 @@ void CTSOptionsDlg::SetChecked(int id, BOOL checked)
                       0);
 }
 
-void CTSOptionsDlg::EnableCtrl(int id, BOOL enable)
-{
-    HWND hwnd = NULL;
-    GetDlgItem(id, &hwnd);
-    if (hwnd)
-        ::EnableWindow(hwnd, enable);
-}
-
-
 /////////////////////////////////////////////////////////////////////////////
 // CTSOptionsDlg message handlers
 
 void CTSOptionsDlg::OnButtonCompression() 
 {
-    /* Update the variables so the user can set compression options based on
-       their current selections */
-    GetSettings();
+    if (UpdateData(TRUE))
+    {
+        CTSCompressionDlg dlg(CWnd::FromHandle(m_hWnd), &options);
 
-    TimeShiftSetRecHeight(m_recHeight);
-    TimeShiftSetRecFormat(m_formatYUY2 ? FORMAT_YUY2 : FORMAT_RGB);
-
-    TimeShiftCompressionOptions(m_hWnd);
+        dlg.DoModal();
+    }
 }
 
-void CTSOptionsDlg::OnButtonMixer() 
+void CTSOptionsDlg::OnButtonMixer()
 {
     // Bring up the audio mixer setup dialog.
     Mixer_SetupDlg(m_hWnd);
 }
 
-// Exit routine - update stuff and quit (if start time is valid)
-void CTSOptionsDlg::OnQuit() 
+void CTSOptionsDlg::OnOK()
 {
-	CTSOptionsDlg::OnButtonUpdate();
-	if (m_Valid == 1) // do not quit if start time is not valid
-	{
-		CDialog::OnOK();
-	}
-}
+    char name[MAXPNAMELEN];
 
-// Update routine 
-void CTSOptionsDlg::OnButtonUpdate() 
-{
+    /* Update the options that the user has selected in the dialog */
     if (UpdateData(TRUE))
     {
-        char name[MAXPNAMELEN];
-        if(m_WaveInComboBox.GetLBText(m_WaveInComboBox.GetCurSel(), (char*)&name)!=CB_ERR)
-        {
-            TimeShiftSetWaveInDevice((char *)&name);
-        }
+        /* Wave devices */
+        if (m_WaveInComboBox.GetLBText(m_WaveInComboBox.GetCurSel(), name) != CB_ERR)
+           TimeShiftSetWaveInDevice(name);
 
-        if(m_WaveOutComboBox.GetLBText(m_WaveOutComboBox.GetCurSel(), (char*)&name)!=CB_ERR)
-        {
-            TimeShiftSetWaveOutDevice((char *)&name);
-        }
+        if (m_WaveOutComboBox.GetLBText(m_WaveOutComboBox.GetCurSel(), name)!=CB_ERR)
+           TimeShiftSetWaveOutDevice(name);
 
-        TimeShiftSetRecHeight(m_recHeight);
-        TimeShiftSetRecFormat(m_formatYUY2 ? FORMAT_YUY2 : FORMAT_RGB);
+        TimeShiftSetRecHeight(options.recHeight);
+        TimeShiftSetRecFormat(options.format);
+        TimeShiftSetSavingPath(options.path);
+        TimeShiftSetFileSizeLimit(options.sizeLimit);
+        TimeShiftSetFourCC(options.fcc);
 
-		// Need to update custom AV sync in the INI file here
-		CTSOptionsDlg::UpdateINI(); 
-		
-		// Validate the start time
-		m_Valid = 1; // Ininialize valid flag for start time to valid
-
-		// 2359 is max value for 24 hour clock and mins not > 59
-		if ((m_Start > 2359) || ((m_Start % 100) > 59)) 
-		{
-			m_Valid = 0; // set valid flag for start time to invalid value
-			MessageBox("Start time not valid! Please re-enter.\n"
-				"\n"
-				"This 24 hour clock has valid values from 0001 to 2359 with the\n"
-				"last 2 digits (minutes) not exceeding 59.\n"
-				"\n"
-				"0001 is 1 minute past midnight and 2359 is 1 minute to midnight\n"
-				"A quater past five in the afternoon would be 1715, for example,\n"
-				"and a quater past five in the morning would be 0515. \n"
-				"\n"
-				"\n"
-				"Please enter a valid value (Note: 0 or 0000 means 'Not Set').",
-				"Start Time Not Valid! Please Re-Enter.",
-				MB_OK | MB_ICONERROR);
-			// Reset the simple schedule data			
-			m_Start = 0; //Initialize start time and start from scratch
-			m_Time = 0; //Initialize recording time and start from scratch
-			UpdateData(FALSE); // Refresh the dialog with the current data.
-
-			// Ininialize the INI file entries 
-			extern char szIniFile[MAX_PATH];
-			WritePrivateProfileInt(
-			"Schedule", "Start", m_Start, szIniFile);
-			WritePrivateProfileInt(
-			"Schedule", "Time", m_Time, szIniFile);
-		}
-		else
-		{
-		// Save the valid simple schedule data to the INI file
-		extern char szIniFile[MAX_PATH];
-		WritePrivateProfileInt(
-			"Schedule", "Start", m_Start, szIniFile);
-		WritePrivateProfileInt(
-			"Schedule", "Time", m_Time, szIniFile);
-		}
+        CDialog::OnOK();
     }
 }
 
 BOOL CTSOptionsDlg::OnInitDialog() 
 {
-    tsFormat_t format;
+    char       *waveDevice;
+    UINT       numDevs;
+    UINT       i;
+    int        index;
+    const char *tsPath = TimeShiftGetSavingPath();
 
 	CDialog::OnInitDialog();
 
-	// Get the custom AV sync setting in the INI file
-	extern char szIniFile[MAX_PATH];
+    /* Initialize the options */
+    memset(&options, 0, sizeof(options));
 
-	// Initialize the timer and scheduler
-	m_Start = 0;
-	m_Time = 0;
+    options.recHeight = TS_HALFHEIGHTEVEN;
+    options.format    = FORMAT_YUY2;
 
-	// Initialize the simple schedule data in the INI file
-	/*WritePrivateProfileInt(
-		"Schedule", "Start", m_Start, szIniFile);
-	WritePrivateProfileInt(
-		"Schedule", "Time", m_Time, szIniFile);*/
+    /**** Wave devices ****/
+    if (!TimeShiftGetWaveInDevice(&waveDevice))
+       waveDevice = NULL;
 
-    int index = 0;
-    char* waveInDevice;
-    if (!TimeShiftGetWaveInDevice(&waveInDevice))
-       waveInDevice = NULL;
-
-    UINT numDevs = waveInGetNumDevs();
-    for (UINT i = 0; i < numDevs; ++i)
+    numDevs = waveInGetNumDevs();
+    index   = 0;
+    for (i = 0; i < numDevs; i++)
     {        
         WAVEINCAPS caps;
+
         memset(&caps, 0, sizeof(caps));
         waveInGetDevCaps(i, &caps, sizeof(caps));
 
-        if(waveInDevice && !lstrcmp(caps.szPname, waveInDevice))
-        {
-            index = i;
-        }
+        if (waveDevice && !lstrcmp(caps.szPname, waveDevice))
+           index = i;
 
         // If getdevcaps fails, this'll just put a blank line in the control.
         m_WaveInComboBox.AddString(caps.szPname);
@@ -373,22 +332,20 @@ BOOL CTSOptionsDlg::OnInitDialog()
 
     m_WaveInComboBox.SetCurSel(index);
 
-    index = 0;
-    char* waveOutDevice;
-    if (!TimeShiftGetWaveOutDevice(&waveOutDevice))
-       waveOutDevice = NULL;
+    if (!TimeShiftGetWaveOutDevice(&waveDevice))
+       waveDevice = NULL;
 
     numDevs = waveOutGetNumDevs();
-    for (i = 0; i < numDevs; ++i)
+    index   = 0;
+    for (i = 0; i < numDevs; i++)
     {        
         WAVEOUTCAPS caps;
+
         memset(&caps, 0, sizeof(caps));
         waveOutGetDevCaps(i, &caps, sizeof(caps));
 
-        if(waveOutDevice && !lstrcmp(caps.szPname, waveOutDevice))
-        {
-            index = i;
-        }
+        if (waveDevice && !lstrcmp(caps.szPname, waveDevice))
+           index = i;
 
         // If getdevcaps fails, this'll just put a blank line in the control.
         m_WaveOutComboBox.AddString(caps.szPname);
@@ -396,11 +353,22 @@ BOOL CTSOptionsDlg::OnInitDialog()
 
     m_WaveOutComboBox.SetCurSel(index);
 
-    if (TimeShiftGetRecHeight(&index)) // Leave as default if fails.
-       m_recHeight = index;
+    /**** Recording format related ****/
+    if (TimeShiftGetRecHeight(&index))
+       options.recHeight = index;
 
-    if (TimeShiftGetRecFormat(&format))
-       m_formatYUY2 = format==FORMAT_YUY2 ? true : false;
+    TimeShiftGetRecFormat(&options.format);
+    TimeShiftGetFourCC(&options.fcc);
+
+    /**** File path and limit ****/
+    strncpy(options.path, tsPath ? tsPath : TS_DEFAULT_PATH,
+            sizeof(options.path));
+
+    options.sizeLimit = TimeShiftGetFileSizeLimit();
+    m_lastSize        = options.sizeLimit;
+
+    /* Limit the edit control to only accept 8 numbers */
+    m_SizeEdit.LimitText(8);
 
     // Refresh the controls on the dialog with the current data.
     UpdateData(FALSE);
@@ -409,22 +377,105 @@ BOOL CTSOptionsDlg::OnInitDialog()
 	              // EXCEPTION: OCX Property Pages should return FALSE
 }
 
+int CALLBACK browseCallback(HWND hWnd, UINT uMsg, LPARAM lParam, LPARAM lpData)
+{
+    LPITEMIDLIST list;
+    char         path[MAX_PATH + 1];
+
+    switch (uMsg)
+    {
+        case BFFM_INITIALIZED:
+            if (lpData && strlen((const char *)lpData) > 0)
+               ::SendMessage(hWnd, BFFM_SETSELECTION, TRUE,
+                             (LPARAM)(const char *)lpData);
+        break;
+
+        case BFFM_SELCHANGED:
+            /* Either enable or disable the OK button depending if the
+               currently selected path is valid or not */
+            list = (LPITEMIDLIST)lParam;
+
+            if (SHGetPathFromIDList(list, path))
+               ::SendMessage(hWnd, BFFM_ENABLEOK, 0,
+                             TimeShiftIsPathValid(path) ? 1 : 0);
+               else
+               ::SendMessage(hWnd, BFFM_ENABLEOK, 0, 0);
+        break;
+    }
+
+    return 0;
+}
+
+/** Path select button pressed */
+void CTSOptionsDlg::OnTSPathSelect() 
+{
+    BROWSEINFO   info;
+    LPITEMIDLIST list;
+    char         path[MAX_PATH + 1];
+    LPMALLOC     pMalloc;
+    DWORD        maxSize;
+
+    /* Get the path that's currently being used and pass it to the callback
+       function so it can select it after the dialog initializes */
+    strncpy(path, TimeShiftGetSavingPath(), sizeof(path));
+    if (!TimeShiftIsPathValid(path))
+       memset(path, 0, sizeof(path));
+
+    memset(&info, 0, sizeof(info));
+    info.hwndOwner = m_hWnd;
+    info.lpfn      = browseCallback;
+    info.ulFlags   = BIF_NEWDIALOGSTYLE;
+    info.lParam    = (LPARAM)path;
+
+    list = SHBrowseForFolder(&info);
+    if (list)
+    {
+        if (!SHGetPathFromIDList(list, path) || !TimeShiftIsPathValid(path))
+           MessageBox("Invalid path selected", "Error", MB_OK | MB_ICONERROR);
+           else
+           {
+               strncpy(options.path, path, sizeof(options.path));
+
+               maxSize = GetMaximumVolumeFileSize(options.path);
+               if (maxSize)
+               {
+                   CString text;
+
+                   text.Format("The path you have selected is on a volume "
+                               "that can't store files that are larger than "
+                               "about %0.2f GiB. Your recorded files will be "
+                               "limited to this size even if the maximum size "
+                               "is set higher.",
+                               (float)maxSize / (float)(1 << 10));
+                   MessageBox(text, "Limited Volume", MB_ICONWARNING | MB_OK);
+               }
+           }
+
+        if (SHGetMalloc(&pMalloc) != E_FAIL)
+        {
+            pMalloc->Free(list);
+            pMalloc->Release();
+        } else
+          MessageBox("Memory leak", "Error", MB_OK | MB_ICONERROR);
+
+        m_PathDisplay.SetWindowText(options.path);
+    }
+}
+
 void CTSOptionsDlg::OnCompressionhelp() 
 {
     MessageBox("Configure the audio and video compression settings. "
                "The default is uncompressed frames, which should be "
                "changed if the recording format is RGB. Try using a "
-               "fast codec for best results.",
-               "Compression Help",
+               "fast codec for best results. Huffyuv is recommended.",
+               "Compression Tips",
                MB_OK);
 }
 
 void CTSOptionsDlg::OnWavehelp() 
 {
-    MessageBox("Choose the device to which your tuner card is directly "
-               "attached.  (i.e. via an internal stereo patch cable.)  But "
-               "feel free to try all your devices if you don't get audio "
-               "recording/playback from the recorded video file.",
+    MessageBox("WaveIn: Choose the device to which your tuner card is "
+               "directly attached.",
                "Wave Device Help",
                MB_OK);
 }
@@ -441,54 +492,62 @@ void CTSOptionsDlg::OnHeighthelp()
                MB_OK);
 }
 
-void CTSOptionsDlg::OnMixerhelp() 
+void CTSOptionsDlg::OnUpdateTSSize() 
 {
-    MessageBox("The audio mixer is used during playback to mute the input from "
-               "your tuner card, yet still receive audio from it for recording "
-               "during time shifting operations (i.e. pausing of live TV).  "
-               "You do not need to have the 'Use Mixer' checkbox checked, but "
-               "you do need to have all of the combo boxes below it set to "
-               "the correct input in order for playback of audio to function "
-               "correctly.",
-               "Audio-Mixer Setup Help",
-               MB_OK);
+    DWORD   value;
+    CString text;
+
+    /* The file size edit control has been changed */
+    value = GetDlgItemInt(IDC_TS_SIZE, NULL, FALSE);
+
+    /* Enable or disable the "no limit" check box */
+    if (!value)
+    {
+        if (m_SizeCheckBox.GetCheck() != BST_CHECKED)
+           m_SizeCheckBox.SetCheck(BST_CHECKED);
+    } else
+    {
+        if (m_SizeCheckBox.GetCheck() != BST_UNCHECKED)
+           m_SizeCheckBox.SetCheck(BST_UNCHECKED);
+    }
+
+    /* Update the size in GiB */
+    text.Format("(%0.2f GiB)", (float)value / (float)(1 << 10));
+    m_SizeGiB.SetWindowText(text);
 }
 
-void CTSOptionsDlg::OnTimerHelp() 
+void CTSOptionsDlg::OnKillfocusTSSize() 
 {
-    MessageBox("To record for a given duration (in minutes) just enter a number in the 'How Long\n"
-			   "To Record' box. If the 'Record Start Time' was left at zero, the next time you\n"
-			   "press 'Record' the duration of the recording will be the number of minutes you\n"
-			   "entered in the 'How Long To Record' box.\n"
-			   "\n"
-			   "Please Note: each time you choose the 'Time Shift' options dialog the 'How Long\n"
-			   "To Record' value is reset to zero, so you should set it just before each timed\n"
-			   "recording. 'How Long To Record' is also set at zero each time Dscaler is started.\n"
-			   "When 'How Long To Record' = zero, DScaler required manual intervention to stop a\n"
-			   "recording (unless you run out of disk space).\n"
-			   "\n"
-			   "If you enter a value for 'Record Start Time' (valid values from 0001 to 2359 with\n"
-			   "zero indicating 'Not Set') a recording will start at that time in the next 24 hour\n"
-			   "period. NOTE that when you have set 'Record Start Time' you need to press 'Record'\n"
-			   "for the scheduled recording to happen. If 'How Long To Record' is also set the\n"
-			   "scheduled recording will be of the length (in minutes) you specified. If 'How Long\n"
-			   "To Record' = zero, DScaler required manual intervention to stop a recording (unless\n"
-			   "you run out of disk space).\n"
-			   "\n"
-			   "When 'Record Start Time' = zero pressing 'Record' will start a recording immediately.\n"
-			   "When it is not zero and a valid time (24 clock style), pressing 'Record' will start\n"
-			   "recording at the specified time (that is, DScaler will wait until the specified time\n"
-			   "before starting to record).\n"
-			   "\n"		   
-			   "Please Note: each time you choose the 'Time Shift' options dialog the 'Record Start\n"
-			   "Time' value is reset to zero, so you should set it just before each each scheduled\n"
-			   "recording (and remember to press 'Record' after setting a scheduled recoring).\n" 
-			   "\n"
-			   "Its a bit primative but better than nothing! Good luck!",            
-               "Timer / Scheduler Help",
-               MB_OK);
+    DWORD value;
+
+    /* Make sure something's being displayed in the edit control to reduce
+       confusion */
+    if (m_SizeEdit.GetWindowTextLength() <= 0)
+       SetDlgItemInt(IDC_TS_SIZE, 0, FALSE);
+       else
+       {
+           /* Validate the data. Make sure the value is in the range of valid
+              values. */
+           value = GetDlgItemInt(IDC_TS_SIZE, NULL, FALSE);
+           if (value > MAX_FILE_SIZE)
+              value = MAX_FILE_SIZE;
+
+           /* This will set the value back into the edit box. Weird formatting
+              like leading zeroes will also be removed after the value is
+              set. */
+           SetDlgItemInt(IDC_TS_SIZE, value, FALSE);
+
+           /* Save the value as the last size if it's not zero */
+           if (value)
+              m_lastSize = value;
+       }
 }
 
-void CTSOptionsDlg::UpdateINI()
+void CTSOptionsDlg::OnTSSizeNoLimit() 
 {
+    if (m_SizeCheckBox.GetCheck()==BST_CHECKED)
+       SetDlgItemInt(IDC_TS_SIZE, 0, FALSE);
+       else
+       SetDlgItemInt(IDC_TS_SIZE, m_lastSize ? m_lastSize :
+                                               (MAX_FILE_SIZE >> 1), FALSE);
 }

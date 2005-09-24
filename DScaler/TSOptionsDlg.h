@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TSOptionsDlg.h,v 1.11 2005-07-17 20:46:25 dosx86 Exp $
+// $Id: TSOptionsDlg.h,v 1.12 2005-09-24 18:48:21 dosx86 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // Put radio button to enable / disable 'TimeShift' warnings.
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2005/07/17 20:46:25  dosx86
+// Updated to use the new time shift options dialog. Redid some of the help text.
+//
 // Revision 1.10  2004/08/12 16:27:47  adcockj
 // added timeshift changes from emu
 //
@@ -73,15 +76,21 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
+#include "TimeShift.h"
 
-// Declare this for friend declaration below.
-class CTimeShift;
+/** Holds all of the configuration variables for the TimeShift options */
+typedef struct
+{
+    int        recHeight;  /**< Equal to a TS_* height constant */
+    tsFormat_t format;     /**< A FORMAT_* constant */
+    DWORD      sizeLimit;  /**< The maximum size of each recorded file (0 = no limit) */
+    char       path[MAX_PATH + 1];
+    FOURCC     fcc;        /**< The FOURCC of the video codec to use */
+} TS_OPTIONS;
 
-/** Timeshift options dialog
-*/
+/** TimeShift options dialog */
 class CTSOptionsDlg : public CDialog
 {
-    friend CTimeShift;
 
 public:
 // Construction
@@ -90,15 +99,13 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CTSOptionsDlg)
 	enum { IDD = IDD_TSOPTIONS };
+	CEdit	m_PathDisplay;
+	CStatic	m_SizeGiB;
+	CButton	m_SizeCheckBox;
+	CEdit	m_SizeEdit;
 	CComboBox	m_WaveOutComboBox;
 	CComboBox	m_WaveInComboBox;
-	int m_Sync;
-	int m_Start;
-	int	m_Time;
 	//}}AFX_DATA
-
-    int  m_recHeight;   /**< Equal to a TS_* height constant */
-    bool m_formatYUY2;  /**< True if the recording format is YUY2 */
 
 // Overrides
 	// ClassWizard generated virtual function overrides
@@ -117,22 +124,27 @@ protected:
 	afx_msg void OnCompressionhelp();
 	afx_msg void OnWavehelp();
 	afx_msg void OnHeighthelp();
-	afx_msg void OnMixerhelp();
 	afx_msg void OnButtonMixer();
-	afx_msg void OnTimerHelp();
-	afx_msg void OnButtonUpdate();
-	afx_msg void OnQuit();
-	afx_msg void UpdateINI();
+	afx_msg void OnTSPathSelect();
+	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+	afx_msg void OnDestroy();
+	afx_msg void OnUpdateTSSize();
+	afx_msg void OnKillfocusTSSize();
+	afx_msg void OnTSSizeNoLimit();
+	virtual void OnOK();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 
     BOOL IsChecked(int id);
     void SetChecked(int id, BOOL checked);
-    void EnableCtrl(int id, BOOL enable);
 
 private:
-    void GetSettings(void);
+    TS_OPTIONS options;
 
+    /** Keeps track of the last usable size (> 0) so it can be restored if the
+     * "no limit" check box is unchecked
+     */
+    DWORD m_lastSize;
 };
 
 //{{AFX_INSERT_LOCATION}}

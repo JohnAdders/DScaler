@@ -257,6 +257,8 @@
 #define IDC_ERROR_MESSAGE               1001
 #define IDC_TSVIDEOFORMAT               1002
 #define IDC_TSAUDIOFORMAT               1003
+#define IDC_TS_SIZE_NO_LIMIT            1003
+#define IDC_TS_SIZE_GIB                 1005
 #define IDC_TOP_STATIC                  1006
 #define IDC_BOTTOM_STATIC               1007
 #define IDM_END                         1032
@@ -320,6 +322,7 @@
 #define IDC_TOOLBAR_VOLUME_CHANNEL      1415
 #define IDC_OPEN_BROWSE                 1415
 #define IDC_TSCONFIGVIDEO               1415
+#define IDC_TS_PATH_SELECT              1415
 #define IDC_BUTTON2                     1416
 #define IDC_TOOLBAR_CHANNELS_SPINDOWN   1416
 #define IDC_AUDIOSTANDARD_MANUAL_DETECTSTEREO 1416
@@ -460,9 +463,11 @@
 #define IDC_SCAN_MAX_FREQ               1523
 #define IDC_OPEN_FILE                   1523
 #define IDC_VPS_NAME                    1523
+#define IDC_TS_PATH_DISPLAY             1523
 #define IDC_EDIT2                       1524
 #define IDC_SCAN_MIN_FREQ               1524
 #define IDC_VPS_CNI                     1524
+#define IDC_TS_SIZE                     1524
 #define IDC_EDIT3                       1525
 #define IDC_SCAN_STEPS                  1525
 #define IDC_VPS_LABEL                   1525
@@ -1330,7 +1335,7 @@
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        268
 #define _APS_NEXT_COMMAND_VALUE         33024
-#define _APS_NEXT_CONTROL_VALUE         1000
+#define _APS_NEXT_CONTROL_VALUE         1006
 #define _APS_NEXT_SYMED_VALUE           2526
 #endif
 #endif

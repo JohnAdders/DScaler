@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.cpp,v 1.38 2005-07-24 08:47:35 adcockj Exp $
+// $Id: TimeShift.cpp,v 1.39 2005-09-24 18:42:37 dosx86 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.38  2005/07/24 08:47:35  adcockj
+// removed unused setting
+//
 // Revision 1.37  2005/07/17 20:43:23  dosx86
 // Removed the C++ class and reorganized the functions. Uses the new AVI file
 // functions.
@@ -217,15 +220,12 @@
     MessageBox(NULL, bugText, "Error", MB_OK);\
 }
 
-static DWORD AVIFileSizeLimit  = 0;
-static char  ExePath[MAX_PATH] = { 0 };
-static char  *SavingPath       = NULL;
-
 /* This is just to ensure that the TimeShift data is handled properly */
 TIME_SHIFT *timeShift = NULL;
 
 /* Internal function prototypes */
-bool TimeShiftSetDimensions(void);
+bool TimeShiftGetDimensions(BITMAPINFOHEADER *bih, int recHeight,
+                            tsFormat_t format);
 bool TimeShiftGetWaveInDeviceIndex(int *index);
 bool TimeShiftGetWaveOutDeviceIndex(int *index);
 bool TimeShiftReadFromINI(void);
@@ -833,7 +833,10 @@ ULONGLONG GetFreeDiskSpace(void)
     CString strProcName, strErrMsg;
     char lpszDrivePath[4] = "c:\\";
 
-    lpszDrivePath[0] = SavingPath[0];
+    if (!timeShift)
+       return totalbytes;
+
+    lpszDrivePath[0] = timeShift->savingPath[0];
 
     // Get Operating System Version information
     if(!GetVersionEx(&VersionInfo))
@@ -914,6 +917,43 @@ ULONGLONG GetFreeDiskSpace(void)
     return totalbytes;
 }
 
+/** Gets a maximum file size for a volume
+ * \return 0 if there's no restrictions for the volume or the maximum file size
+ *         in mebibytes for the volume in savingPath.
+ */
+
+DWORD GetMaximumVolumeFileSize(const char *path)
+{
+    char  volume[] = "C:\\";
+    char  fileSystem[32];
+    DWORD result   = 0;
+
+    if (!timeShift || !path)
+       return result;
+
+    volume[0] = path[0];
+
+    if (!GetVolumeInformation(volume, NULL, 0, NULL, NULL, NULL, fileSystem,
+                              sizeof(fileSystem)))
+       return result;
+
+    strlwr(fileSystem);
+    if (strlen(fileSystem) >= 3)
+    {
+        /* Check for a FAT file system. Look for the string fat([0-9][0-9])? */
+        if (strncmp(fileSystem, "fat", 3)==0)
+        {
+            if (strlen(fileSystem)==3 ||
+                (strlen(fileSystem)==5 &&
+                 fileSystem[3] >= '0' && fileSystem[3] <= '9' &&
+                 fileSystem[4] >= '0' && fileSystem[4] <= '9'))
+               result = 4000; /* Set a 4000 MiB limit (around 4 GiB) */
+        }
+    }
+
+    return result;
+}
+
 /** Finds the name of a file that data can be written to
  * \param fileName A pointer to where the file name will be stored
  * \param length   The length of \a fileName in bytes
@@ -923,6 +963,9 @@ ULONGLONG GetFreeDiskSpace(void)
 bool FindNextFileName(char *fileName, DWORD length)
 {
     int curFile = 0;
+
+    if (!timeShift)
+       return false;
 
     do
     {
@@ -934,8 +977,8 @@ bool FindNextFileName(char *fileName, DWORD length)
             return false;
         }
 
-        if (_snprintf(fileName, length, "%s\\ds%.3u.avi", SavingPath,
-                      curFile++) >= length)
+        if (_snprintf(fileName, length, "%sds%.3u.avi",
+                      timeShift->savingPath, curFile++) >= length)
         {
             BUG();
             return false;
@@ -982,6 +1025,9 @@ bool TimeShiftInit(HWND hWnd)
         wfx->wBitsPerSample  = 16;
         wfx->nBlockAlign     = (wfx->nChannels * wfx->wBitsPerSample) / 8;
         wfx->nAvgBytesPerSec = wfx->nSamplesPerSec * wfx->nBlockAlign;
+
+        /* Set the default saving path */
+        TimeShiftSetSavingPath(NULL);
 
         /* Overwrite any of the above defaults with whatever's in the INI
            file */
@@ -1037,7 +1083,7 @@ bool TimeShiftRecord(void)
 {
     int       deviceId;
     DWORD     rate, scale;
-    char      fileName[MAX_PATH];
+    char      fileName[MAX_PATH + 1];
     bool      result = false;
     ULONGLONG freeSpace;
 
@@ -1066,7 +1112,8 @@ bool TimeShiftRecord(void)
         TimeShiftStop();
 
         /* Update the recording format */
-        TimeShiftSetDimensions();
+        TimeShiftGetDimensions(&timeShift->bih, timeShift->recHeight,
+                               timeShift->format);
 
         /* Set up the scanline function pointers */
         if (CpuFeatureFlags & P3_OR_BETTER)
@@ -1449,54 +1496,38 @@ bool TimeShiftCancelSchedule(void)
  *                    TimeShift get/set functions                     *
  **********************************************************************/
 
-bool TimeShiftSetDimensions(void)
+bool TimeShiftGetDimensions(BITMAPINFOHEADER *bih, int recHeight,
+                            tsFormat_t format)
 {
     CSource *pSource = Providers_GetCurrentSource();
     int     w, h;
     bool    result = false;
 
-    if (!pSource)
+    if (!pSource || !bih)
     {
         BUG();
         return false;
     }
 
-    if (!timeShift)
-       return false;
+    /* Use the default width and field heights to determine the size */
+    w = pSource->GetWidth();
+    h = pSource->GetHeight();
 
-    EnterCriticalSection(&timeShift->lock);
+    /* Create the bitmap info header */
+    memset(bih, 0, sizeof(BITMAPINFOHEADER));
+    bih->biSize  = sizeof(BITMAPINFOHEADER);
+    bih->biWidth = (w >> 2) << 2; /* 4-pixel (12-byte) align */
 
-    if (timeShift->mode==MODE_STOPPED)
-    {
-        /* Use current pixel width and field heights to determine our AVI
-           size */
-        w = pSource->GetWidth();
-        h = pSource->GetHeight();
+    bih->biHeight = h >> 1;
+    if (recHeight==TS_FULLHEIGHT)
+       bih->biHeight <<= 1; /* Make biHeight a multiple of 2 */
 
-        /* Recreate the bitmap info header */
-        memset(&timeShift->bih, 0, sizeof(BITMAPINFOHEADER));
-        timeShift->bih.biSize  = sizeof(BITMAPINFOHEADER);
-        timeShift->bih.biWidth = (w >> 2) << 2; /* 4-pixel (12-byte) align */
+    bih->biPlanes      = 1;
+    bih->biBitCount    = format==FORMAT_YUY2 ? 16 : 24;
+    bih->biCompression = format==FORMAT_YUY2 ? YUY2_FOURCC : RGB_FOURCC;
+    bih->biSizeImage   = (bih->biBitCount >> 3) * bih->biWidth * bih->biHeight;
 
-        timeShift->bih.biHeight = h >> 1;
-        if (timeShift->recHeight==TS_FULLHEIGHT)
-           timeShift->bih.biHeight <<= 1; /* Make biHeight a multiple of 2 */
-
-        timeShift->bih.biPlanes      = 1;
-        timeShift->bih.biBitCount    = (timeShift->format==FORMAT_YUY2) ?
-                                            16 : 24;
-        timeShift->bih.biCompression = (timeShift->format==FORMAT_YUY2) ?
-                                            YUY2_FOURCC : RGB_FOURCC;
-        timeShift->bih.biSizeImage   = (timeShift->bih.biBitCount >> 3) *
-                                       timeShift->bih.biWidth *
-                                       timeShift->bih.biHeight;
-
-        result = true;
-    }
-
-    LeaveCriticalSection(&timeShift->lock);
-
-    return result;
+    return true;
 }
 
 bool TimeShiftGetWaveInDeviceIndex(int *index)
@@ -1609,6 +1640,156 @@ bool TimeShiftSetWaveOutDevice(char *pszDevice)
     return result;
 }
 
+/** Sets a new saving path. DScaler's directory is used by default if the
+ * given path was invalid.
+ * \param path The new path to set. The default path is always set if this is
+ *             NULL.
+ * \return true if \a path was used or false if the default path was set
+ *         instead
+ */
+
+bool TimeShiftSetSavingPath(char *path)
+{
+    DWORD attr;
+    BOOL  failed = TRUE;
+    int   i;
+    char  *subString;
+
+    if (!timeShift)
+       return false;
+
+    EnterCriticalSection(&timeShift->lock);
+
+    if (timeShift->mode==MODE_STOPPED)
+    {
+        failed = FALSE;
+
+        if (!path)
+           failed = TRUE;
+
+        if (!failed)
+        {
+            /* Get a copy of the new path */
+            if (strlen(path) < sizeof(timeShift->savingPath) - 1)
+            {
+                strcpy(timeShift->savingPath, path);
+
+                /* Convert all forward slashes to back slashes */
+                for (i = strlen(timeShift->savingPath) - 1; i >= 0; i--)
+                {
+                    if (timeShift->savingPath[i]=='/')
+                       timeShift->savingPath[i] = '\\';
+                }
+            } else
+            {
+                /* Can't use the path because it's longer than our buffer */
+                failed = TRUE;
+            }
+        }
+
+        if (!failed)
+        {
+            /* Check the file attributes first. Make sure the path exists. */
+            attr = GetFileAttributes(timeShift->savingPath);
+            if (attr != INVALID_FILE_ATTRIBUTES)
+            {
+                if (!(attr & FILE_ATTRIBUTE_DIRECTORY))
+                {
+                    /* Might be a file. Try removing everything after the last
+                       back slash in the path. */
+                    subString = strrchr(timeShift->savingPath, '\\');
+                    if (subString)
+                    {
+                        /* This should be safe. Even if this points to the last
+                           non-NULL character, there always needs to be one
+                           byte reserved for the NULL charater at the end of
+                           the string. */
+                        subString[1] = '\0';
+
+                        attr = GetFileAttributes(timeShift->savingPath);
+                        if (attr==INVALID_FILE_ATTRIBUTES ||
+                            !(attr & FILE_ATTRIBUTE_DIRECTORY))
+                           failed = TRUE;
+                    } else
+                      failed = TRUE;
+                }
+            } else
+              failed = TRUE;
+        }
+
+        if (failed)
+        {
+            if (path)
+               LOG(1, "Bad path: %s. Using the default.", path);
+
+            /* Use the default path */
+            attr = GetModuleFileName(NULL, timeShift->savingPath,
+                                     sizeof(timeShift->savingPath));
+            if (!attr || attr >= sizeof(timeShift->savingPath))
+               strncpy(timeShift->savingPath, TS_DEFAULT_PATH,
+                       sizeof(timeShift->savingPath));
+        }
+
+        /* Make sure the path ends with a back slash */
+        i = strlen(timeShift->savingPath) - 1;
+        if (timeShift->savingPath[i] != '\\')
+        {
+            if (i + 2 < sizeof(timeShift->savingPath))
+            {
+                timeShift->savingPath[i + 1] = '\\';
+                timeShift->savingPath[i + 2] = '\0';
+            } else
+              strncpy(timeShift->savingPath, TS_DEFAULT_PATH,
+                      sizeof(timeShift->savingPath));
+        }
+    }
+
+    LeaveCriticalSection(&timeShift->lock);
+
+    return failed ? false : true;
+}
+
+bool TimeShiftIsPathValid(const char *path)
+{
+    DWORD attr = GetFileAttributes(path);
+
+    return (attr==INVALID_FILE_ATTRIBUTES ||
+            !(attr & FILE_ATTRIBUTE_DIRECTORY)) ? false : true;
+}
+
+bool TimeShiftSetFileSizeLimit(DWORD sizeLimit)
+{
+    bool result = false;
+
+    if (timeShift)
+    {
+        EnterCriticalSection(&timeShift->lock);
+
+        if (timeShift->mode==MODE_STOPPED)
+        {
+            if (sizeLimit > MAX_FILE_SIZE)
+               sizeLimit = MAX_FILE_SIZE;
+
+            timeShift->sizeLimit = sizeLimit;
+            result               = true;
+        }
+
+        LeaveCriticalSection(&timeShift->lock);
+    }
+
+    return result;
+}
+
+const char *TimeShiftGetSavingPath(void)
+{
+    return timeShift ? timeShift->savingPath : NULL;
+}
+
+DWORD TimeShiftGetFileSizeLimit(void)
+{
+    return timeShift ? timeShift->sizeLimit : 0;
+}
+
 bool TimeShiftGetDimensions(int *w, int *h)
 {
     bool result = false;
@@ -1718,84 +1899,85 @@ bool TimeShiftSetRecFormat(tsFormat_t format)
     return result;
 }
 
-bool TimeShiftSetPixelWidth(int pixelWidth)
+bool TimeShiftGetFourCC(FOURCC *fcc)
 {
-    bool    result = false;
-    CSource *pSource;
+    bool result = false;
 
-    if (timeShift)
+    if (timeShift && fcc)
     {
-        pSource = Providers_GetCurrentSource();
-        if (pSource)
-           pSource->SetWidth(pixelWidth);
+        EnterCriticalSection(&timeShift->lock);
 
-        result = true;
+        if (timeShift->mode==MODE_STOPPED)
+        {
+            *fcc   = timeShift->fccHandler;
+            result = true;
+        }
+
+        LeaveCriticalSection(&timeShift->lock);
     }
 
     return result;
 }
 
-bool TimeShiftDoMute(bool mute)
+bool TimeShiftSetFourCC(FOURCC fcc)
 {
     bool result = false;
 
     if (timeShift)
     {
-        Mixer_SetMute(mute);
+        EnterCriticalSection(&timeShift->lock);
 
-        //  I don't know what this below is for but what it's doing
-        //  can cause a lot of problems --AtNak 2003-07-29
-
-/*        if (mute)
+        if (timeShift->mode==MODE_STOPPED)
         {
-            m_pTimeShift->m_origUseMixer = bUseMixer;
-            bUseMixer = TRUE;
-
-            // This is kind of ugly since there's no real interface to the mixer
-            // module for what needs to be done here, but this does the job.
-            // Adapted from MixerDev.cpp.
-            extern CSoundSystem* pSoundSystem;
-            extern long MixerIndex;
-            pSoundSystem->SetMixer(MixerIndex);
-            if (pSoundSystem->GetMixer())
-            {
-                /// \todo ???
-                //Mixer_OnInputChange((eVideoSourceType)Setting_GetValue(
-                //   BT848_GetSetting(VIDEOSOURCE)));
-
-                Mixer_Mute();
-            }
-            else
-            {
-                // Mixer device not present, revert to original settings.
-                bUseMixer = m_pTimeShift->m_origUseMixer;
-                m_pTimeShift->m_origUseMixer = -1;
-            }
+            timeShift->fccHandler = fcc;
+            result                = true;
         }
-        else if (m_pTimeShift->m_origUseMixer != -1)
-        {
-            Mixer_UnMute();
 
-            // Revert to original settings.
-            bUseMixer = m_pTimeShift->m_origUseMixer;
-            m_pTimeShift->m_origUseMixer = -1;
-        }*/
-
-        result = true;
+        LeaveCriticalSection(&timeShift->lock);
     }
 
     return result;
 }
 
-/** Gets a text description for the current video or audio settings
- * \param dest   Where the text should be stored
- * \param length The total length of dest in bytes
- * \param video  true to get the description for the video or false to get a
- *               description for the audio
- * \return true on success or false on failure
+/** Gets a text description describing the specified video settings
+ * \param dest      Where the text should be stored
+ * \param length    The total length of dest in bytes
+ * \param recHeight A TS_*HEIGHT constant
+ * \param format    A FORMAT_* constant
+ * \return true if the description was saved in \a dest or false if there was
+ *         an error
  */
 
-bool TimeShiftGetCompressionDesc(LPSTR dest, DWORD length, bool video)
+bool TimeShiftGetVideoCompressionDesc(LPSTR dest, DWORD length, int recHeight,
+                                      tsFormat_t format)
+{
+    bool             result = false;
+    BITMAPINFOHEADER bih;
+
+    if (dest)
+    {
+        if (TimeShiftGetDimensions(&bih, recHeight, format))
+        {
+            if (_snprintf(dest, length, "%dx%dx%d (%s)",
+                                bih.biWidth,
+                                bih.biHeight,
+                                bih.biBitCount,
+                                format==FORMAT_YUY2 ? "YUY2" : "RGB") > 0)
+               result = true;
+        }
+    }
+
+    return result;
+}
+
+/** Gets a text description describing the specified audio settings
+ * \param dest   Where the text should be stored
+ * \param length The total length of dest in bytes
+ * \return true if the description was saved in \a dest or false if there was
+ *         an error
+ */
+
+bool TimeShiftGetAudioCompressionDesc(LPSTR dest, DWORD length)
 {
     bool result = false;
 
@@ -1803,24 +1985,12 @@ bool TimeShiftGetCompressionDesc(LPSTR dest, DWORD length, bool video)
     {
         EnterCriticalSection(&timeShift->lock);
 
-        if (video)
-        {
-            if (_snprintf(dest, length, "%dx%dx%d (%s)",
-                                timeShift->bih.biWidth,
-                                timeShift->bih.biHeight,
-                                timeShift->bih.biBitCount,
-                                timeShift->format==FORMAT_YUY2 ? "YUY2" :
-                                                                 "RGB") > 0)
-               result = true;
-        } else
-        {
-            if (_snprintf(dest, length, "%d Hz, %d bits, %s",
-                                timeShift->waveFormat.nSamplesPerSec,
-                                timeShift->waveFormat.wBitsPerSample,
-                                timeShift->waveFormat.nChannels==2 ?
-                                                "stereo" : "mono") > 0)
-               result = true;
-        }
+        if (_snprintf(dest, length, "%d Hz, %d bits, %s",
+                      timeShift->waveFormat.nSamplesPerSec,
+                      timeShift->waveFormat.wBitsPerSample,
+                      timeShift->waveFormat.nChannels==2 ? "stereo" :
+                                                           "mono") > 0)
+           result = true;
 
         LeaveCriticalSection(&timeShift->lock);
     }
@@ -1846,12 +2016,10 @@ bool TimeShiftOnOptions(void)
         {
             CTSOptionsDlg dlg(CWnd::FromHandle(timeShift->hWnd));
             if (dlg.DoModal()==IDOK)
-               result = true;
-
-            // Save off any changes we've made now, rather than in destructor.
-            // Even if cancel was hit, there still may be new compressions
-            // options to save.
-            TimeShiftWriteToINI();
+            {
+                result = true;
+                TimeShiftWriteToINI();
+            }
         } else
           MessageBox(timeShift->hWnd,
                      "TimeShift options are only available during stop mode.",
@@ -1862,47 +2030,37 @@ bool TimeShiftOnOptions(void)
     return result;
 }
 
-bool TimeShiftCompressionOptions(HWND hWndParent)
+/** Selects a codec to use for video compression
+ * \param hWndParent The parent window of the dialog that will be displayed
+ * \param recHeight  A TS_*HEIGHT constant
+ * \param format     A FORMAT_* constant
+ * \param fccHandler A pointer to the default FCC to use. The selected FCC will
+ *                   also be stored here.
+ * \retval true  A new FCC has been selected and \a fccHandler was updated
+ * \retval false A new FCC was not selected and the value of \a fccHandler was
+ *               not changed
+ */
+
+bool TimeShiftVideoCompressionOptions(HWND hWndParent, int recHeight,
+                                      tsFormat_t format, FOURCC *fccHandler)
 {
-    bool result = false;
+    COMPVARS         cv;
+    bool             result = false;
+    BITMAPINFOHEADER bih;
 
-    if (timeShift)
+    if (fccHandler && TimeShiftGetDimensions(&bih, recHeight, format))
     {
-        /* Must be stopped before attempting to bring up compression options
-           dialog */
-        if (timeShift->mode != MODE_STOPPED)
-           return false;
+        memset(&cv, 0, sizeof(COMPVARS));
 
-        /* Update these settings for the options dialog to display */
-        TimeShiftSetDimensions();
+        cv.cbSize     = sizeof(COMPVARS);
+        cv.dwFlags    = ICMF_COMPVARS_VALID;
+        cv.fccType    = ICTYPE_VIDEO;
+        cv.fccHandler = *fccHandler;
 
-        CTSCompressionDlg dlg(CWnd::FromHandle(hWndParent));
-        if (dlg.DoModal()==IDOK)
-           result = true;
-    }
-
-    return result;
-}
-
-bool TimeShiftVideoCompressionOptions(HWND hWndParent)
-{
-    COMPVARS cv;
-    bool     result = false;
-
-    memset(&cv, 0, sizeof(COMPVARS));
-
-    cv.cbSize     = sizeof(COMPVARS);
-    cv.dwFlags    = ICMF_COMPVARS_VALID;
-    cv.fccType    = ICTYPE_VIDEO;
-    cv.fccHandler = timeShift->fccHandler;
-
-    if (timeShift && timeShift->mode==MODE_STOPPED)
-    {
-        if (ICCompressorChoose(hWndParent, 0, &timeShift->bih, NULL, &cv,
-                               NULL))
+        if (ICCompressorChoose(hWndParent, 0, &bih, NULL, &cv, NULL))
         {
-            timeShift->fccHandler = cv.fccHandler;
-            result = true;
+            *fccHandler = cv.fccHandler;
+            result      = true;
 
             ICCompressorFree(&cv);
         }
@@ -1963,73 +2121,10 @@ bool TimeShiftOnSetMenu(HMENU hMenu)
  *                        TimeShift settings                          *
  **********************************************************************/
 
-SETTING TimeShiftSettings[TIMESHIFT_SETTING_LASTONE] =
-{
-    {
-        "Saving path for timeshift files", CHARSTRING, 0, (long *)&SavingPath,
-         (long)ExePath, 0, 0, 0, 0,
-         NULL,
-        "TimeShift", "SavingPath", NULL,
-    },
-    {
-        "AVI file size limit in MB", SLIDER, 0, (long *)&AVIFileSizeLimit,
-        0, 0, 1000000, 1, 1,
-        NULL,
-        "TimeShift", "AVIFileSizeLimit", NULL,
-    },
-};
-
-SETTING *TimeShift_GetSetting(TIMESHIFT_SETTING Setting)
-{
-    if (Setting > -1 && Setting < TIMESHIFT_SETTING_LASTONE)
-       return &TimeShiftSettings[Setting];
-
-    return NULL;
-}
-
-void TimeShift_ReadSettingsFromIni(void)
-{
-    int i;
-    struct stat st;
-
-    GetModuleFileName (NULL, ExePath, sizeof(ExePath));
-    *(strrchr(ExePath, '\\')) = '\0';
-
-    for (i = 0; i < TIMESHIFT_SETTING_LASTONE; i++)
-        Setting_ReadFromIni(&TimeShiftSettings[i]);
-
-    if (!SavingPath || stat(SavingPath, &st))
-    {
-        LOG(1, "Incorrect path for timeshift files; using %s", ExePath);
-        Setting_SetValue(TimeShift_GetSetting(TIMESHIFTSAVINGPATH), (long)ExePath);
-    }
-}
-
-void TimeShift_WriteSettingsToIni(BOOL bOptimizeFileAccess)
-{
-    int i;
-
-    for (i = 0; i < TIMESHIFT_SETTING_LASTONE; i++)
-        Setting_WriteToIni(&TimeShiftSettings[i], bOptimizeFileAccess);
-}
-
-CTreeSettingsGeneric* TimeShift_GetTreeSettingsPage(void)
-{
-    return new CTreeSettingsGeneric("TimeShift Settings", TimeShiftSettings,
-                                    TIMESHIFT_SETTING_LASTONE);
-}
-
-void TimeShift_FreeSettings(void)
-{
-    int i;
-
-    for (i = 0; i < TIMESHIFT_SETTING_LASTONE; i++)
-        Setting_Free(&TimeShiftSettings[i]);
-}
-
 bool TimeShiftReadFromINI(void)
 {
     extern char szIniFile[MAX_PATH];
+    char        path[MAX_PATH + 1];
     bool        result = false;
 
     if (timeShift)
@@ -2057,6 +2152,16 @@ bool TimeShiftReadFromINI(void)
                                 &timeShift->fccHandler, sizeof(FOURCC),
                                 szIniFile);
 
+        GetPrivateProfileString("TimeShift", "SavingPath",
+                                timeShift->savingPath, path, sizeof(path),
+                                szIniFile);
+        TimeShiftSetSavingPath(path);
+
+        TimeShiftSetFileSizeLimit(GetPrivateProfileInt("TimeShift",
+                                                       "AVIFileSizeLimit",
+                                                       timeShift->sizeLimit,
+                                                       szIniFile));
+
         result = true;
     }
 
@@ -2071,6 +2176,13 @@ bool TimeShiftWriteToINI(void)
 
     if (timeShift)
     {
+        WritePrivateProfileString("TimeShift", "SavingPath",
+                                  timeShift->savingPath, szIniFile);
+
+        _snprintf(temp, sizeof(temp), "%u", timeShift->sizeLimit);
+        WritePrivateProfileString("TimeShift", "AVIFileSizeLimit", temp,
+                                  szIniFile);
+
         WritePrivateProfileString("TimeShift", "WaveInDevice",
                                   timeShift->waveInDevice, szIniFile);
         WritePrivateProfileString("TimeShift", "WaveOutDevice",
@@ -2334,6 +2446,75 @@ bool CTimeShift::OnRecord(void)
             m_pTimeShift->Record(false) : false;
 
         LeaveCriticalSection(&m_pTimeShift->m_lock);
+    }
+
+    return result;
+}
+
+bool TimeShiftSetPixelWidth(int pixelWidth)
+{
+    bool    result = false;
+    CSource *pSource;
+
+    if (timeShift)
+    {
+        pSource = Providers_GetCurrentSource();
+        if (pSource)
+           pSource->SetWidth(pixelWidth);
+
+        result = true;
+    }
+
+    return result;
+}
+
+bool TimeShiftDoMute(bool mute)
+{
+    bool result = false;
+
+    if (timeShift)
+    {
+        Mixer_SetMute(mute);
+
+        //  I don't know what this below is for but what it's doing
+        //  can cause a lot of problems --AtNak 2003-07-29
+
+/*        if (mute)
+        {
+            m_pTimeShift->m_origUseMixer = bUseMixer;
+            bUseMixer = TRUE;
+
+            // This is kind of ugly since there's no real interface to the mixer
+            // module for what needs to be done here, but this does the job.
+            // Adapted from MixerDev.cpp.
+            extern CSoundSystem* pSoundSystem;
+            extern long MixerIndex;
+            pSoundSystem->SetMixer(MixerIndex);
+            if (pSoundSystem->GetMixer())
+            {
+                /// \todo ???
+                //Mixer_OnInputChange((eVideoSourceType)Setting_GetValue(
+                //   BT848_GetSetting(VIDEOSOURCE)));
+
+                Mixer_Mute();
+            }
+            else
+            {
+                // Mixer device not present, revert to original settings.
+                bUseMixer = m_pTimeShift->m_origUseMixer;
+                m_pTimeShift->m_origUseMixer = -1;
+            }
+        }
+        else if (m_pTimeShift->m_origUseMixer != -1)
+        {
+            Mixer_UnMute();
+
+            // Revert to original settings.
+            bUseMixer = m_pTimeShift->m_origUseMixer;
+            m_pTimeShift->m_origUseMixer = -1;
+        }*/
+
+        result = true;
     }
 
     return result;

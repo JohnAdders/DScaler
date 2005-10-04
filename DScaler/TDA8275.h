@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA8275.h,v 1.5 2005-09-27 18:10:26 to_see Exp $
+// $Id: TDA8275.h,v 1.6 2005-10-04 19:59:09 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2005 Atsushi Nakagawa.  All rights reserved.
@@ -21,6 +21,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2005/09/27 18:10:26  to_see
+// Merged code from Keld Damsbo to support the TDA8275A chip revision.
+//
 // Revision 1.4  2005/03/09 13:25:23  atnak
 // Fixed accessibility of inherited class.
 //
@@ -54,40 +57,36 @@
 #define I2C_ADDR_TDA8275_2		0x62
 #define I2C_ADDR_TDA8275_3		0x63
 
+// Common Subaddresses used by TDA8275 and TDA8275A (Read-Only status register)
+#define TDA8275_SR0			    0x00
+#define TDA8275_SR1				0x10
+#define TDA8275_SR2				0x20
+#define TDA8275_SR3				0x30
 
-// Subaddresses used by TDA8275.  Addresses marked R
-// are read mode.  The rest are write mode.
-#define TDA8275_STATUS						0x00	// R
-#define TDA8275_DB1							0x00
-#define TDA8275_DB2							0x10
-#define TDA8275_DB3							0x20
-#define TDA8275_CB1							0x30
-#define TDA8275_BB							0x40
-#define TDA8275_AB1							0x50
-#define TDA8275_AB2							0x60
-#define TDA8275_AB3							0x70
-#define TDA8275_AB4							0x80
-#define TDA8275_GB							0x90
-#define TDA8275_TB							0xA0
-#define TDA8275_SDB3						0xB0
-#define TDA8275_SDB4						0xC0
+// Common Subaddresses used by TDA8275 and TDA8275A.
+#define TDA8275_DB1				0x00
+#define TDA8275_DB2				0x10
+#define TDA8275_DB3				0x20
+#define TDA8275_CB1				0x30
+#define TDA8275_BB				0x40
+#define TDA8275_AB1				0x50
+#define TDA8275_AB2				0x60
 
+// Subaddresses used by TDA8275 only.
+#define TDA8275_AB3				0x70
+#define TDA8275_AB4				0x80
+#define TDA8275_GB				0x90
+#define TDA8275_TB				0xA0
+#define TDA8275_SDB3			0xB0
+#define TDA8275_SDB4			0xC0
 
-// Subaddresses used by TDA8275A.
-#define TDA8275A_STATUS                     0x00	// R
-#define TDA8275A_DB1                        0x00
-#define TDA8275A_DB2                        0x10
-#define TDA8275A_DB3                        0x20
-#define TDA8275A_CB1                        0x30
-#define TDA8275A_BB							0x40
-#define TDA8275A_AB1                        0x50
-#define TDA8275A_AB2                        0x60
-#define TDA8275A_IB1                        0x70
-#define TDA8275A_AB3                        0x80
-#define TDA8275A_IB2                        0x90
-#define TDA8275A_CB2                        0xA0
-#define TDA8275A_IB3                        0xB0
-#define TDA8275A_CB3                        0xC0
+// Subaddresses used by TDA8275A only.
+#define TDA8275A_IB1            0x70
+#define TDA8275A_AB3            0x80
+#define TDA8275A_IB2            0x90
+#define TDA8275A_CB2            0xA0
+#define TDA8275A_IB3            0xB0
+#define TDA8275A_CB3            0xC0
 
 
 class CTDA8275 : public II2CTuner

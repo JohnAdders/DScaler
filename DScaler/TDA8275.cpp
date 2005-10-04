@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA8275.cpp,v 1.9 2005-09-27 18:10:26 to_see Exp $
+// $Id: TDA8275.cpp,v 1.10 2005-10-04 19:59:48 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2005 Atsushi Nakagawa.  All rights reserved.
@@ -27,6 +27,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2005/09/27 18:10:26  to_see
+// Merged code from Keld Damsbo to support the TDA8275A chip revision.
+//
 // Revision 1.8  2005/03/20 05:13:51  atnak
 // Speeds up channel changing.
 //
@@ -61,6 +64,7 @@
 #include "stdafx.h"
 #include "TDA8275.h"
 #include "TDA8290.h"
+#include "DebugLog.h"
 
 
 // TDA8275 analog TV frequency dependent parameters (prgTab)
@@ -228,15 +232,14 @@ long CTDA8275::GetFrequency()
 
 eTunerLocked CTDA8275::IsLocked()
 {
-	BYTE status[3];
+    BYTE Result(0);
+    if (ReadFromSubAddress(TDA8275_SR1, &Result, 1))
+    {
+        // LOCK = bit 22
+        return (Result & 0x40) != 0 ? TUNER_LOCK_ON : TUNER_LOCK_OFF;
+    }
 
-	if (ReadFromSubAddress(TDA8275_STATUS, status, 3))
-	{
-		// LOCK = bit 22
-		return (status[2] & 0x40) != 0 ? TUNER_LOCK_ON : TUNER_LOCK_OFF;
-	}
-
-	return TUNER_LOCK_NOTSUPPORTED;
+    return TUNER_LOCK_NOTSUPPORTED;
 }
 
 eTunerAFCStatus CTDA8275::GetAFCStatus(long &nFreqDeviation)
@@ -255,18 +258,32 @@ BYTE CTDA8275::GetDefaultAddress() const
 
 bool CTDA8275::IsTDA8275A()
 {
-    BYTE status[3];
-    if (ReadFromSubAddress(TDA8275_STATUS, status, 3))
-	{
-        // Read HID Bit's (18:21) : 0000 = TDA8275
-        //                          0010 = TDA8275A
-        return (status[2] & 0x3c) == 0x08 ? true : false;
-	}
+    BYTE Result(0);
+
+    // Read HID Bit's (18:21) : 0000 = TDA8275
+    //                          0010 = TDA8275A
+
+    if (ReadFromSubAddress(TDA8275_SR1, &Result, 1))
+    {
+        if ((Result & 0x3C) == 0x08)
+        {
+            LOG(1, "TDA8275: TDA8275A revision found.");
+            return true;
+        }
+        else
+        {
+            LOG(1, "TDA8275: Found.");
+            return false;
+        }
+    }
+
+    LOG(0, "TDA8275: Error while detecting chip revision.");
     return false;
 }
 
 bool CTDA8275::IsDvbMode()
 {
+    // \TODO
     return false;
 }
 
@@ -275,11 +292,11 @@ void CTDA8275::WriteTDA8275Initialization()
 	// 2 TDA8275A Initialization
     if (IsTDA8275A())
     {
-        WriteToSubAddress(TDA8275A_DB1, 0x00);
-        WriteToSubAddress(TDA8275A_DB2, 0x00);
-        WriteToSubAddress(TDA8275A_DB3, 0x00);
-        WriteToSubAddress(TDA8275A_AB1, 0xAB);
-        WriteToSubAddress(TDA8275A_AB2, 0x3C);
+        WriteToSubAddress(TDA8275_DB1, 0x00);
+        WriteToSubAddress(TDA8275_DB2, 0x00);
+        WriteToSubAddress(TDA8275_DB3, 0x00);
+        WriteToSubAddress(TDA8275_AB1, 0xAB);
+        WriteToSubAddress(TDA8275_AB2, 0x3C);
         WriteToSubAddress(TDA8275A_IB1, 0x04);
         WriteToSubAddress(TDA8275A_AB3, 0x24);
         WriteToSubAddress(TDA8275A_IB2, 0xFF);
@@ -386,12 +403,12 @@ bool CTDA8275::SetFrequency(long frequencyHz, eTDA8290Standard standard)
             }
 
             // 2.2 Re-initialize PLL and gain path
-            WriteToSubAddress(TDA8275A_AB2, 0x3C);
+            WriteToSubAddress(TDA8275_AB2, 0x3C);
             WriteToSubAddress(TDA8275A_CB2, 0x40);
             Sleep(2);
-            WriteToSubAddress(TDA8275A_CB1, (0x04 << 2) | (row->SCR >> 2));
+            WriteToSubAddress(TDA8275_CB1, (0x04 << 2) | (row->SCR >> 2));
             Sleep(550); // 550ms delay required.
-            WriteToSubAddress(TDA8275A_AB1, (0x02 << 6) | (row->GC3 << 4) | 0x0F);
+            WriteToSubAddress(TDA8275_AB1, (0x02 << 6) | (row->GC3 << 4) | 0x0F);
         }
         else
         {
@@ -419,18 +436,18 @@ bool CTDA8275::SetFrequency(long frequencyHz, eTDA8290Standard standard)
             channelBytes[11] = 0x00;
             channelBytes[12] = sgIFLPFilter ? 0x3B : 0x39; // 7MHz (US) / 9Mhz (Europe);
 
-            if (!WriteToSubAddress(TDA8275A_DB1, channelBytes, 12))
+            if (!WriteToSubAddress(TDA8275_DB1, channelBytes, 12))
             {
                 return false;
             }
 
             // 2.2 Re-initialize PLL and gain path
-            WriteToSubAddress(TDA8275A_AB2, 0x3C);
+            WriteToSubAddress(TDA8275_AB2,  0x3C);
             WriteToSubAddress(TDA8275A_CB2, 0xC0);
             Sleep(2);
-            WriteToSubAddress(TDA8275A_CB1, (0x04 << 2) | (row->SCR >> 2));
+            WriteToSubAddress(TDA8275_CB1, (0x04 << 2) | (row->SCR >> 2));
             Sleep(550); // 550ms delay required.
-            WriteToSubAddress(TDA8275A_AB1, (0x02 << 6) | (row->GC3 << 4) | 0x0F);
+            WriteToSubAddress(TDA8275_AB1, (0x02 << 6) | (row->GC3 << 4) | 0x0F);
             // 3 Enabling VSYNC only for analog TV 
             WriteToSubAddress(TDA8275A_AB3, 0x28);
             WriteToSubAddress(TDA8275A_IB3, 0x01);

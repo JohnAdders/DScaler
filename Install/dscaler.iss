@@ -1,5 +1,5 @@
 ;////////////////////////////////////////////////////////////////////////////
-;// $Id: dscaler.iss,v 1.32 2005-03-09 20:26:52 adcockj Exp $
+;// $Id: dscaler.iss,v 1.33 2005-10-12 10:54:38 adcockj Exp $
 ;/////////////////////////////////////////////////////////////////////////////
 ;// Copyright (c) 2002 Rob Muller.  All rights reserved.
 ;/////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 ;// CVS Log
 ;//
 ;// $Log: not supported by cvs2svn $
+;// Revision 1.32  2005/03/09 20:26:52  adcockj
+;// put help back
+;//
 ;// Revision 1.31  2005/03/08 13:48:04  adcockj
 ;// Moved items based on Rob's comments
 ;//
@@ -121,8 +124,8 @@
 ;  For more information about InnoSetup see http://www.innosetup.com
 
 [Setup]
-AppName=DScaler 4.1.12
-AppVerName=DScaler 4.1.12
+AppName=DScaler 4.1.13
+AppVerName=DScaler 4.1.13
 AppPublisherURL=http://www.dscaler.org
 AppSupportURL=http://www.dscaler.org/phpBB/
 AppUpdatesURL=http://www.dscaler.org

@@ -699,11 +699,12 @@ BEGIN
                     ES_READONLY
     LTEXT           "Save recorded files to",IDC_STATIC,18,99,111,9
     PUSHBUTTON      "Select",IDC_TS_PATH_SELECT,183,111,30,12
-    EDITTEXT        IDC_TS_SIZE,18,138,45,12,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_TS_SIZE,18,138,45,12,ES_AUTOHSCROLL | ES_NUMBER | 
+                    WS_DISABLED
     LTEXT           "MiB",IDC_STATIC,66,141,15,8
     LTEXT           "Size of each recorded file",IDC_STATIC,18,126,138,8
     CONTROL         "No limit",IDC_TS_SIZE_NO_LIMIT,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,135,141,51,9
+                    WS_DISABLED | WS_TABSTOP,135,141,51,9
     GROUPBOX        "Audio",IDC_STATIC,9,24,216,63
     LTEXT           "(0000.00 GiB)",IDC_TS_SIZE_GIB,84,141,48,8
 END

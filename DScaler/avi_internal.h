@@ -1,4 +1,4 @@
-/* $Id: avi_internal.h,v 1.3 2005-07-30 17:53:35 dosx86 Exp $ */
+/* $Id: avi_internal.h,v 1.4 2005-10-13 04:55:03 dosx86 Exp $ */
 
 #ifndef __AVI_INTERNAL_H
 #define __AVI_INTERNAL_H
@@ -35,9 +35,12 @@ void aviUnlockAudio(AVI_FILE *file);
 
 extern __inline int64 aviGetTimerFreq(void);
 extern __inline int64 aviGetTimer(void);
-extern __inline BOOL aviTimerStarted(AVI_FILE *file);
-extern __inline void aviTimerSetStart(AVI_FILE *file, int64 value);
+extern __inline BOOL  aviTimerStarted(AVI_FILE *file);
+extern __inline void  aviTimerSetStart(AVI_FILE *file, int64 value);
 extern __inline int64 aviTimerGetStart(AVI_FILE *file);
+
+extern __inline void  aviAddStreamValue(STREAM_VALUES *value, DWORD amount);
+extern __inline int64 aviGetStreamValueAverage(STREAM_VALUES *value);
 
 /* From avi_index.c */
 void aviWriteInitialSuperIndex(AVI_FILE *file, stream_t type);

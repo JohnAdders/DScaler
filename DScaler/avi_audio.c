@@ -1,4 +1,4 @@
-/* $Id: avi_audio.c,v 1.3 2005-07-30 17:51:58 dosx86 Exp $ */
+/* $Id: avi_audio.c,v 1.4 2005-10-13 04:54:24 dosx86 Exp $ */
 
 /** \file
  * Audio recording and compression functions
@@ -125,15 +125,17 @@ void CALLBACK waveInCallback(HWAVEIN hWaveIn, UINT uMsg, DWORD dwInstance,
             {
                 size    = whdr->dwBytesRecorded - startOffset;
                 samples = bytesToSamples(file, &file->audio.wfxIn, size);
-                aviSaveAudio(file, (BYTE *)whdr->lpData + startOffset, size,
-                             samples);
 
                 aviLockAudio(file);
 
-                if (size > file->audio.largestChunk)
-                   file->audio.largestChunk = size;
+                /* Update the maximum and average chunk sizes for this
+                   stream */
+                aviAddStreamValue(&file->audio.values, size);
 
                 file->audio.streamLength += samples;
+
+                aviSaveAudio(file, (BYTE *)whdr->lpData + startOffset, size,
+                             samples);
 
                 aviUnlockAudio(file);
             }

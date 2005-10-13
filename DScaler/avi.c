@@ -1,4 +1,4 @@
-/* $Id: avi.c,v 1.3 2005-07-30 17:49:26 dosx86 Exp $ */
+/* $Id: avi.c,v 1.4 2005-10-13 04:51:12 dosx86 Exp $ */
 
 /** \file
  * Main AVI file interface functions
@@ -153,6 +153,10 @@ void aviDisplayError(AVI_FILE *file, HWND hWnd, char *post)
       MessageBox(hWnd, "Unknown error", title, MB_OK | MB_ICONERROR);
 }
 
+/************************************************
+ *            Interface functions               *
+ ************************************************/
+
 /** Gets the CC data for a stream
  * \param file The file containing the stream
  * \param type A *_STREAM constant
@@ -261,9 +265,9 @@ BOOL aviBeginWriting(AVI_FILE *file, char *fileName)
     memset(&file->timer, 0, sizeof(struct AVI_FILE_TIMER));
     memset(&file->video.timer, 0, sizeof(struct AVI_FILE_VIDEO_TIMER));
 
-    /* Reset the largest chunk sizes for each stream */
-    file->video.largestChunk = 0;
-    file->audio.largestChunk = 0;
+    /* Clear the stream values */
+    memset(&file->video.values, 0, sizeof(file->video.values));
+    memset(&file->audio.values, 0, sizeof(file->audio.values));
 
     file->timer.freq = aviGetTimerFreq();
     if (!file->timer.freq)
@@ -448,6 +452,8 @@ BOOL aviBeginWriting(AVI_FILE *file, char *fileName)
 
 void aviEndWriting(AVI_FILE *file)
 {
+    DWORD largestChunk;
+
     if (file)
     {
         aviVideoCompressorClose(file);
@@ -472,12 +478,18 @@ void aviEndWriting(AVI_FILE *file)
             fileSeek(file, aviGetBaseOffset(file, AVIH_BASE) +
                            offsetof(MainAVIHeader, dwSuggestedBufferSize));
 
+            /* The suggested buffer size should be the size of the largest
+               chunk in any of the streams written to the file. Determine which
+               stream has the largest chunk then write that size to the
+               file. */
             if (((file->flags & AVI_FLAG_AUDIO) &&
-                 file->video.largestChunk > file->audio.largestChunk) ||
+                 file->video.values.max > file->audio.values.max) ||
                 !(file->flags & AVI_FLAG_AUDIO))
-               fileWrite(file, &file->video.largestChunk, sizeof(DWORD));
+               largestChunk = file->video.values.max;
                else
-               fileWrite(file, &file->audio.largestChunk, sizeof(DWORD));
+               largestChunk = file->audio.values.max;
+
+            fileWrite(file, &largestChunk, sizeof(DWORD));
 
             /* Update dwLength in the video stream header */
             fileSeek(file, file->video.strhOffset +
@@ -489,7 +501,8 @@ void aviEndWriting(AVI_FILE *file)
             fileSeek(file, file->video.strhOffset +
                            offsetof(AVIStreamHeader, dwSuggestedBufferSize));
 
-            fileWrite(file, &file->video.largestChunk, sizeof(DWORD));
+            largestChunk = file->video.values.max;
+            fileWrite(file, &largestChunk, sizeof(DWORD));
 
             if (file->flags & AVI_FLAG_AUDIO)
             {
@@ -504,7 +517,8 @@ void aviEndWriting(AVI_FILE *file)
                                offsetof(AVIStreamHeader,
                                         dwSuggestedBufferSize));
 
-                fileWrite(file, &file->audio.largestChunk, sizeof(DWORD));
+                largestChunk = file->audio.values.max;
+                fileWrite(file, &largestChunk, sizeof(DWORD));
             }
 
             /* Update dwTotalFrames in the extended AVI header */
@@ -886,8 +900,8 @@ BOOL aviSaveFrame(AVI_FILE *file, void *src, aviTime_t inTime)
         size = aviEndChunkWithIndex(file, VIDEO_STREAM, writeFrames - 1, 1,
                                     isKey);
 
-        if (size > file->video.largestChunk)
-           file->video.largestChunk = size;
+        /* Update the maximum and average chunk sizes for this stream */
+        aviAddStreamValue(&file->video.values, size);
 
         file->video.numFrames += writeFrames;
 
@@ -947,9 +961,9 @@ BOOL aviFrameReady(AVI_FILE *file)
     return TRUE;
 }
 
-/*******************
- * Timer functions *
- *******************/
+/************************************************
+ *              Timer functions                 *
+ ************************************************/
 
 /** Gets the number of ticks in one second for the timer
  * \retval 0        If an error occurred
@@ -1007,9 +1021,9 @@ __inline aviTime_t aviTimerGetStart(AVI_FILE *file)
     return file->timer.start;
 }
 
-/*********************
- * Locking/unlocking *
- *********************/
+/************************************************
+ *              Locking/unlocking               *
+ ************************************************/
 
 /** Locks access to the file
  * \param file An open file
@@ -1097,4 +1111,32 @@ void aviUnlockAudio(AVI_FILE *file)
 {
     if (file)
        LeaveCriticalSection(&file->lock.audio);
+}
+
+/************************************************
+ *            Stream value functions            *
+ ************************************************/
+
+/** Updates the total count and maximum values for a given amount
+ * \param value  The values to update
+ * \param amount The amount to add
+ */
+
+__inline void aviAddStreamValue(STREAM_VALUES *value, DWORD amount)
+{
+    value->total += (int64)amount;
+    value->count++;
+
+    if (amount > value->max)
+       value->max = amount;
+}
+
+/** Gets the average of all the added amounts
+ * \param value The values to average
+ * \return The average of the amounts entered into \a value
+ */
+
+__inline int64 aviGetStreamValueAverage(STREAM_VALUES *value)
+{
+    return (value->count > 0) ? (value->total / (int64)value->count) : 0;
 }

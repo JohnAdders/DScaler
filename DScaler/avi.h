@@ -1,4 +1,4 @@
-/* $Id: avi.h,v 1.4 2005-07-30 17:50:48 dosx86 Exp $ */
+/* $Id: avi.h,v 1.5 2005-10-13 04:52:14 dosx86 Exp $ */
 
 /** \file
  * Main AVI file header
@@ -139,6 +139,14 @@ typedef struct
     FOURCC index; /**< The CC used for the index chunks */
 } STREAM_CC;
 
+/** Keeps track of average and maximum chunk sizes for each stream */
+typedef struct
+{
+    int64 total;    /**< The sum of all the values entered */
+    DWORD max;      /**< The maximum value that was entered */
+    DWORD count;    /**< The number of values that were entered */
+} STREAM_VALUES;
+
 /** Video compressor data */
 typedef struct
 {
@@ -236,7 +244,6 @@ typedef struct
 
         STREAM_CC        cc;
         DWORD            strhOffset;   /**< Offset to the beginning of the stream header structure */
-        DWORD            largestChunk; /**< The size of the largest chunk in the stream in bytes */
         BITMAPINFOHEADER info;         /**< Image input format */
         DWORD            rate;         /**< Rate of the video */
         DWORD            scale;        /**< Used in the equation FPS = rate / scale */
@@ -244,6 +251,7 @@ typedef struct
         VIDEO_COMP       comp;         /**< Compression data */
         DWORD            numFrames;    /**< The number of frames that were saved */
         float            fps;          /**< The precalculated value of FPS for the video data */
+        STREAM_VALUES    values;
     } video;
 
     /** Audio stream */
@@ -258,8 +266,8 @@ typedef struct
         UINT_PTR     deviceID;     /**< The ID of the waveIn device to use */
 
         /* These are protected by the audio lock */
-        DWORD streamLength; /**< The length of the audio stream */
-        DWORD largestChunk; /**< The size of the largest chunk in this stream in bytes */
+        DWORD         streamLength; /**< The length of the audio stream */
+        STREAM_VALUES values;
 
         /* Make sure the number of buffers doesn't go below four. It's a nice
            thing to have especially if the system becomes heavily loaded. If

@@ -1,4 +1,4 @@
-/* $Id: avi_file.c,v 1.4 2005-09-24 18:39:27 dosx86 Exp $ */
+/* $Id: avi_file.c,v 1.5 2005-10-13 04:56:49 dosx86 Exp $ */
 
 /** \file
  * Async file writing functions
@@ -707,6 +707,10 @@ DWORD WINAPI asyncThread(AVI_FILE *file)
     DWORD totalSpace;
     DWORD usedSpace;
 
+    /* Make sure this thread is supposed to be running before doing anything */
+    if (WaitForSingleObject(file->async.hExit, 0)==WAIT_OBJECT_0)
+       return 0;
+
     priority = GetThreadPriority(GetCurrentThread());
     if (priority==THREAD_PRIORITY_ERROR_RETURN)
        priority = THREAD_PRIORITY_NORMAL;
@@ -835,12 +839,13 @@ BOOL fileOpen(AVI_FILE *file, char *fileName)
     }
 
     file->async.f = CreateFile(fileName, GENERIC_READ | GENERIC_WRITE, 0, NULL,
-                               CREATE_ALWAYS, 0, NULL);
+                               CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
     if (file->async.f==INVALID_HANDLE_VALUE)
     {
         fileClose(file);
         aviSetError(file, AVI_ERROR_FILE_OPEN,
-                          "Could not open the file for writing");
+                          "Could not open the file for writing. An invalid "
+                          "path might have been used.");
         return FALSE;
     }
 
@@ -858,6 +863,10 @@ void fileClose(AVI_FILE *file)
     if (file->async.hThread)
     {
         SetEvent(file->async.hExit);
+
+        /* The thread might be suspended if the file is being closed because of
+           an error */
+        ResumeThread(file->async.hThread);
 
         /* Wake up the thread and wait for it to finish */
         SetEvent(file->async.hThreadKick);

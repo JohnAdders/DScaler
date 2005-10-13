@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.cpp,v 1.39 2005-09-24 18:42:37 dosx86 Exp $
+// $Id: TimeShift.cpp,v 1.40 2005-10-13 04:57:46 dosx86 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.39  2005/09/24 18:42:37  dosx86
+// Some of the settings functions were changed so they don't depend on the current values in the TIME_SHIFT structure. The settings only get saved when OK is pressed in the configuration dialog.
+//
 // Revision 1.38  2005/07/24 08:47:35  adcockj
 // removed unused setting
 //
@@ -1640,6 +1643,49 @@ bool TimeShiftSetWaveOutDevice(char *pszDevice)
     return result;
 }
 
+/** Determines if the saving path is valid
+ * \return true if the saving path is valid or false otherwise
+ * \pre The path to check should be set in savingPath in timeShift
+ * \pre If the path contains slashes, they must be back slashes
+ */
+
+bool TimeShiftVerifySavingPath(void)
+{
+    bool  result;
+    DWORD attr;
+    char  *subString;
+
+    result = true;
+
+    /* Check the file attributes first. Make sure the path exists. */
+    attr = GetFileAttributes(timeShift->savingPath);
+    if (attr != INVALID_FILE_ATTRIBUTES)
+    {
+        if (!(attr & FILE_ATTRIBUTE_DIRECTORY))
+        {
+            /* Might be a file. Try removing everything after the last back
+               slash in the path. */
+            subString = strrchr(timeShift->savingPath, '\\');
+            if (subString)
+            {
+                /* This should be safe. Even if this points to the last
+                   non-NULL character, there always needs to be one byte
+                   reserved for the NULL charater at the end of the string. */
+                subString[1] = '\0';
+
+                attr = GetFileAttributes(timeShift->savingPath);
+                if (attr==INVALID_FILE_ATTRIBUTES ||
+                    !(attr & FILE_ATTRIBUTE_DIRECTORY))
+                   result = false;
+            } else
+              result = false;
+        }
+    } else
+      result = false;
+
+    return result;
+}
+
 /** Sets a new saving path. DScaler's directory is used by default if the
  * given path was invalid.
  * \param path The new path to set. The default path is always set if this is
@@ -1650,10 +1696,9 @@ bool TimeShiftSetWaveOutDevice(char *pszDevice)
 
 bool TimeShiftSetSavingPath(char *path)
 {
-    DWORD attr;
+    DWORD size;
     BOOL  failed = TRUE;
     int   i;
-    char  *subString;
 
     if (!timeShift)
        return false;
@@ -1689,32 +1734,9 @@ bool TimeShiftSetSavingPath(char *path)
 
         if (!failed)
         {
-            /* Check the file attributes first. Make sure the path exists. */
-            attr = GetFileAttributes(timeShift->savingPath);
-            if (attr != INVALID_FILE_ATTRIBUTES)
-            {
-                if (!(attr & FILE_ATTRIBUTE_DIRECTORY))
-                {
-                    /* Might be a file. Try removing everything after the last
-                       back slash in the path. */
-                    subString = strrchr(timeShift->savingPath, '\\');
-                    if (subString)
-                    {
-                        /* This should be safe. Even if this points to the last
-                           non-NULL character, there always needs to be one
-                           byte reserved for the NULL charater at the end of
-                           the string. */
-                        subString[1] = '\0';
-
-                        attr = GetFileAttributes(timeShift->savingPath);
-                        if (attr==INVALID_FILE_ATTRIBUTES ||
-                            !(attr & FILE_ATTRIBUTE_DIRECTORY))
-                           failed = TRUE;
-                    } else
-                      failed = TRUE;
-                }
-            } else
-              failed = TRUE;
+            /* Check to see if this path is valid */
+            if (!TimeShiftVerifySavingPath())
+               failed = TRUE;
         }
 
         if (failed)
@@ -1723,9 +1745,10 @@ bool TimeShiftSetSavingPath(char *path)
                LOG(1, "Bad path: %s. Using the default.", path);
 
             /* Use the default path */
-            attr = GetModuleFileName(NULL, timeShift->savingPath,
+            size = GetModuleFileName(NULL, timeShift->savingPath,
                                      sizeof(timeShift->savingPath));
-            if (!attr || attr >= sizeof(timeShift->savingPath))
+            if (!size || size >= sizeof(timeShift->savingPath) ||
+                !TimeShiftVerifySavingPath())
                strncpy(timeShift->savingPath, TS_DEFAULT_PATH,
                        sizeof(timeShift->savingPath));
         }

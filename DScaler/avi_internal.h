@@ -1,4 +1,4 @@
-/* $Id: avi_internal.h,v 1.4 2005-10-13 04:55:03 dosx86 Exp $ */
+/* $Id: avi_internal.h,v 1.5 2005-10-15 19:44:06 dosx86 Exp $ */
 
 #ifndef __AVI_INTERNAL_H
 #define __AVI_INTERNAL_H
@@ -21,8 +21,9 @@ DWORD     aviEndChunkWithIndex(AVI_FILE *file, stream_t type, DWORD replicate,
                                DWORD duration, BOOL keyFrame);
 void      aviEndAllChunks(AVI_FILE *file);
 void      aviWriteFourCC(AVI_FILE *file, FOURCC cc);
-void      aviCheckFile(AVI_FILE *file);
-BOOL      aviSaveAudio(AVI_FILE *file, void *src, DWORD size, DWORD samples);
+void      aviCheckFile(AVI_FILE *file, STREAM_VALUES *values);
+BOOL      aviSaveAudio(AVI_FILE *file, void *src, DWORD size, DWORD samples,
+                       STREAM_VALUES *values);
 
 void aviLockFile(AVI_FILE *file);
 void aviUnlockFile(AVI_FILE *file);

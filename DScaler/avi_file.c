@@ -1,4 +1,4 @@
-/* $Id: avi_file.c,v 1.5 2005-10-13 04:56:49 dosx86 Exp $ */
+/* $Id: avi_file.c,v 1.6 2005-10-15 19:43:55 dosx86 Exp $ */
 
 /** \file
  * Async file writing functions
@@ -48,7 +48,9 @@ BOOL __seek(AVI_FILE *file, int64 offset)
     LARGE_INTEGER dest;
 
     dest.QuadPart = offset;
-    if (!SetFilePointerEx(file->async.f, dest, NULL, FILE_BEGIN))
+    if (SetFilePointer(file->async.f, dest.LowPart, &dest.HighPart,
+                       FILE_BEGIN)==INVALID_SET_FILE_POINTER &&
+        GetLastError() != NO_ERROR)
     {
         aviSetError(file, AVI_ERROR_FILE, "Seek failed");
         return FALSE;

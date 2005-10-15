@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.168 2005-07-24 09:58:37 laurentg Exp $
+// $Id: DS_Control.h,v 1.169 2005-10-15 19:47:17 dosx86 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.168  2005/07/24 09:58:37  laurentg
+// timeshift setting suppressed
+//
 // Revision 1.167  2005/07/09 13:41:28  laurentg
 // Two new EPG settings
 //
@@ -1856,21 +1859,6 @@ typedef enum
 #define WM_FLT_COLORIMETRY_GETVALUE       (WM_APP + 56)
 #define WM_FLT_COLORIMETRY_SETVALUE       (WM_APP + 156)
 #define WM_FLT_COLORIMETRY_CHANGEVALUE    (WM_APP + 256)
-
-/////////////////////////////////////////////////////////////////////////////
-// Control settings contained in TimeShift.cpp
-/////////////////////////////////////////////////////////////////////////////
-
-typedef enum
-{
-	TIMESHIFTSAVINGPATH,
-	TIMESHIFTFILELIMIT,
-    TIMESHIFT_SETTING_LASTONE,
-} TIMESHIFT_SETTING;
-
-#define WM_TIMESHIFT_GETVALUE		(WM_APP + 57)
-#define WM_TIMESHIFT_SETVALUE		(WM_APP + 157)
-#define WM_TIMESHIFT_CHANGEVALUE	(WM_APP + 257)
 
 /////////////////////////////////////////////////////////////////////////////
 // Control settings contained in StillSource.cpp

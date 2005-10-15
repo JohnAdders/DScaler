@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Audio.cpp,v 1.36 2005-03-21 08:20:37 atnak Exp $
+// $Id: SAA7134Card_Audio.cpp,v 1.37 2005-10-15 19:09:37 kelddamsbo Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.36  2005/03/21 08:20:37  atnak
+// String buffer problem fix.
+//
 // Revision 1.35  2005/03/20 11:13:30  atnak
 // Added minor comment.
 //
@@ -465,6 +468,8 @@ void CSAA7134Card::SetAudioStandard7133(eAudioStandard audioStandard)
 	// Use static standard select mode for now.  (Maybe change to expert
 	// mode in future.)
 	BYTE mode = SAA7133_DDEP_STATIC;
+//	BYTE mode = SAA7133_DDEP_AUTO;
+//	BYTE mode = SAA7133_DDEP_EXPERT;
 
 	if (mode == SAA7133_DDEP_STATIC)
 	{
@@ -519,11 +524,22 @@ void CSAA7134Card::SetAudioStandard7133(eAudioStandard audioStandard)
 		case AUDIOSTANDARD_SAT_ADR: // no match
 			break;
 		}
-
 		// Static Standard Select
 		WriteDSPData7133(SAA7133_A_EASY_PROGRAMMING,
 			_B(SAA7133_A_EASY_PROGRAMMING_EPMODE, 0x1)|
-			_B(SAA7133_A_EASY_PROGRAMMING_STDSEL, stdsel));
+			_B(SAA7133_A_EASY_PROGRAMMING_STDSEL, stdsel)|
+			_B(SAA7133_A_EASY_PROGRAMMING_REST, 0)|
+			_B(SAA7133_A_EASY_PROGRAMMING_OVMADPT, 0)|
+			_B(SAA7133_A_EASY_PROGRAMMING_DDMUTE, 0)|
+			_B(SAA7133_A_EASY_PROGRAMMING_FILTBW, 0x0)|
+			_B(SAA7133_A_EASY_PROGRAMMING_IDMOD, 0x0)|
+			_B(SAA7133_A_EASY_PROGRAMMING_SAPDBX, 0)|
+			_B(SAA7133_A_EASY_PROGRAMMING_FHPAL, 0)|
+			_B(SAA7133_A_EASY_PROGRAMMING_OVMTHR, 0x0));
+
+		// Restart decoder
+		WriteDSPData7133(SAA7133_A_EASY_PROGRAMMING,
+			_B(SAA7133_A_EASY_PROGRAMMING_REST, 1));
 	}
 	else if (mode == SAA7133_DDEP_EXPERT)
 	{
@@ -538,19 +554,63 @@ void CSAA7134Card::SetAudioStandard7133(eAudioStandard audioStandard)
 		SetAudioCarrier2Mode7133(m_AudioStandards[audioStandard].Carrier2Mode);
 
 		SetFMDeemphasis7133(m_AudioStandards[audioStandard].Ch1FMDeemphasis);
+
+		// Restart decoder
+		WriteDSPData7133(SAA7133_A_EASY_PROGRAMMING,
+			_B(SAA7133_A_EASY_PROGRAMMING_REST, 1));
 	}
 	else if (mode == SAA7133_DDEP_AUTO)
 	{
 		// Auto standard detect allowing B/G/D/K/M.
 		WriteDSPData7133(SAA7133_A_EASY_PROGRAMMING, 0x00004c);
 
+
+
+
+
 		// Set REST to high (for high edge after the previously set LOW) to
 		// restart automatic standard detection.
 		WriteDSPData7133(SAA7133_A_EASY_PROGRAMMING,
 			_B(SAA7133_A_EASY_PROGRAMMING_REST, 1));
+
+
+		// Decide norm
+//		BYTE stdsel = 0x00; // All Standards 1f
+//		switch (audioStandard)
+//		{
+//		case VIDEOSTANDARD_PAL_BGDHI:
+//		case VIDEOSTANDARD_PAL_N_COMBO:
+//		case VIDEOSTANDARD_PAL_60:
+//		case VIDEOSTANDARD_PAL_M:
+//			stdsel = 0x0b; // B/G + D/K + I
+//			break;
+//		case VIDEOSTANDARD_SECAM:
+//			stdsel = 0x06; // L + D/K
+//			break;
+//		case VIDEOSTANDARD_NTSC_M:
+//		case VIDEOSTANDARD_NTSC_60:
+//		case VIDEOSTANDARD_NTSC_Japan:
+//		case VIDEOSTANDARD_NTSC_50:
+//		case VIDEOSTANDARD_NTSC_N:
+//			stdsel = 0x10; // M
+//			break;
+//		}
+
+		// Automatic Standard Detection
+		WriteDSPData7133(SAA7133_A_EASY_PROGRAMMING,
+			_B(SAA7133_A_EASY_PROGRAMMING_EPMODE, 0x0)|
+//			_B(SAA7133_A_EASY_PROGRAMMING_STDSEL, stdsel)|
+			_B(SAA7133_A_EASY_PROGRAMMING_STDSEL, 0x0b)|
+			_B(SAA7133_A_EASY_PROGRAMMING_REST, 0)|
+			_B(SAA7133_A_EASY_PROGRAMMING_OVMADPT, 0)|
+			_B(SAA7133_A_EASY_PROGRAMMING_DDMUTE, 0)|
+			_B(SAA7133_A_EASY_PROGRAMMING_FILTBW, 0x0)|
+			_B(SAA7133_A_EASY_PROGRAMMING_IDMOD, 0x0)|
+			_B(SAA7133_A_EASY_PROGRAMMING_SAPDBX, 0)|
+			_B(SAA7133_A_EASY_PROGRAMMING_FHPAL, 0)|
+			_B(SAA7133_A_EASY_PROGRAMMING_OVMTHR, 0x0));
 	}
 }
-
 
 void CSAA7134Card::SetAudioCarrier1Freq(DWORD Carrier)
 {

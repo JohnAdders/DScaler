@@ -1,4 +1,4 @@
-/* $Id: avi_video.c,v 1.1 2005-07-17 20:38:34 dosx86 Exp $ */
+/* $Id: avi_video.c,v 1.2 2005-10-15 19:44:44 dosx86 Exp $ */
 
 /** \file
  * Video compression functions
@@ -188,8 +188,6 @@ BOOL aviVideoCompressorClose(AVI_FILE *file)
 
     comp = &file->video.comp;
 
-    comp->compressing = FALSE;
-
     if (comp->hIC)
     {
         if (comp->compressing)
@@ -207,6 +205,8 @@ BOOL aviVideoCompressorClose(AVI_FILE *file)
         free(comp->format);
         comp->format = NULL;
     }
+
+    comp->compressing = FALSE;
 
     return TRUE;
 }

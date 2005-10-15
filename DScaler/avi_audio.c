@@ -1,4 +1,4 @@
-/* $Id: avi_audio.c,v 1.4 2005-10-13 04:54:24 dosx86 Exp $ */
+/* $Id: avi_audio.c,v 1.5 2005-10-15 19:42:58 dosx86 Exp $ */
 
 /** \file
  * Audio recording and compression functions
@@ -80,6 +80,10 @@ void CALLBACK waveInCallback(HWAVEIN hWaveIn, UINT uMsg, DWORD dwInstance,
         whdr = (WAVEHDR *)dwParam1;
         file = (AVI_FILE *)dwInstance;
 
+        /* Stop here if no more data is supposed to be written */
+        if (file->hold)
+           return;
+
         if (whdr->dwBytesRecorded > 0)
         {
             save         = FALSE;
@@ -135,7 +139,7 @@ void CALLBACK waveInCallback(HWAVEIN hWaveIn, UINT uMsg, DWORD dwInstance,
                 file->audio.streamLength += samples;
 
                 aviSaveAudio(file, (BYTE *)whdr->lpData + startOffset, size,
-                             samples);
+                             samples, &file->audio.values);
 
                 aviUnlockAudio(file);
             }
@@ -241,6 +245,10 @@ BOOL aviAudioBegin(AVI_FILE *file)
     }
 
     bufferLength = file->audio.wfxIn.nAvgBytesPerSec;
+
+    /* Reset the pointers of the buffers */
+    for (i = 0; i < MAX_WAVE_BUFFER; i++)
+        file->audio.buffer[i] = NULL;
 
     /* Allocate the buffers and set up the wave headers */
     for (i = 0; i < MAX_WAVE_BUFFER; i++)

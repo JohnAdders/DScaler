@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.cpp,v 1.40 2005-10-13 04:57:46 dosx86 Exp $
+// $Id: TimeShift.cpp,v 1.41 2005-10-15 19:45:54 dosx86 Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.40  2005/10/13 04:57:46  dosx86
+// Changed the path verification so that the default path is also verified before it's used
+//
 // Revision 1.39  2005/09/24 18:42:37  dosx86
 // Some of the settings functions were changed so they don't depend on the current values in the TIME_SHIFT structure. The settings only get saved when OK is pressed in the configuration dialog.
 //
@@ -950,7 +953,7 @@ DWORD GetMaximumVolumeFileSize(const char *path)
                 (strlen(fileSystem)==5 &&
                  fileSystem[3] >= '0' && fileSystem[3] <= '9' &&
                  fileSystem[4] >= '0' && fileSystem[4] <= '9'))
-               result = 4000; /* Set a 4000 MiB limit (around 4 GiB) */
+               result = AVI_4GiB_LIMIT; /* Use a limit that's a bit less than 4GiB */
         }
     }
 
@@ -1089,6 +1092,7 @@ bool TimeShiftRecord(void)
     char      fileName[MAX_PATH + 1];
     bool      result = false;
     ULONGLONG freeSpace;
+    DWORD     limit;
 
     if (!timeShift)
        return false;
@@ -1224,6 +1228,24 @@ bool TimeShiftRecord(void)
 
             if (result)
             {
+                limit = GetMaximumVolumeFileSize(fileName);
+                if (limit)
+                {
+                    /* There's a limit to the size of the recorded files. If
+                       the set TimeShift limit is 0 (unlimited) or greater than
+                       the value that GetMaximumVolumeFileSize returned then
+                       use the returned value. Otherwise, use the non-zero
+                       limit that the user set. */
+                    if (timeShift->sizeLimit && timeShift->sizeLimit < limit)
+                       limit = timeShift->sizeLimit;
+                } else
+                {
+                    /* There's no specific limit to the size of the recorded
+                       files so use the limit that was set by the user */
+                    limit = timeShift->sizeLimit;
+                }
+
+                aviSetLimit(timeShift->file, limit);
                 if (aviBeginWriting(timeShift->file, fileName))
                    timeShift->mode = MODE_RECORDING;
                    else
@@ -1427,6 +1449,16 @@ bool TimeShiftOnNewInputFrame(TDeinterlaceInfo *pInfo)
             {
                 result = false;
                 error  = true;
+            } else
+            {
+                /* If the file size limit has been reached then start recording
+                   to a different file */
+                if (aviLimitReached(timeShift->file))
+                {
+                    /* This is pretty cheap but it works */
+                    TimeShiftStop();
+                    TimeShiftRecord();
+                }
             }
         }
 
@@ -1439,34 +1471,9 @@ bool TimeShiftOnNewInputFrame(TDeinterlaceInfo *pInfo)
                             "Recording stopped. You can try and recover "
                             "the data with VirtualDub.");
             TimeShiftStop();
+        } else
+        {
         }
-
-        /* It would be a good idea to fix the file size limitation. Until then
-           we split the AVI. */
-        /*if(m_pTimeShift->m_BytesWritten > AVIFileSizeLimit*1024*1024
-            || m_pTimeShift->m_BytesWritten > AVIFileSizeLimitTemp*1024*1024)
-        {
-            m_pTimeShift->OnStop();
-            
-
-            // Check free disk space while file splitting.
-            // If less than 300 MB free disk space don't start a new file. 
-            if (GetFreeDiskSpace() < 314572800)
-                nofreespace = true; //this flag stops a new file being created
-            m_pTimeShift->OnRecord();
-        }*/
-
-        /*// Timed recording check for completed
-        if (RecordTimerF) // is it a timed recording?
-        {
-            time_t seconds;
-            seconds = time (NULL);
-            if (seconds >= EndRecordTime)
-            {   m_pTimeShift->OnStop();   // Close the timed video recoding file    
-                TimedRecodingDone = true; // Set the flag for timed recording done              
-                m_pTimeShift->OnRecord(); // Message and close down
-            }
-        }*/
     }
 
     return result;

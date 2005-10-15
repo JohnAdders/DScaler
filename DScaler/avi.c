@@ -1,4 +1,4 @@
-/* $Id: avi.c,v 1.4 2005-10-13 04:51:12 dosx86 Exp $ */
+/* $Id: avi.c,v 1.5 2005-10-15 19:41:36 dosx86 Exp $ */
 
 /** \file
  * Main AVI file interface functions
@@ -179,6 +179,7 @@ AVI_FILE *aviFileCreate(void)
 {
     AVI_FILE *file;
     int      i;
+    HANDLE   hLibrary;
 
     file = (AVI_FILE *)malloc(sizeof(AVI_FILE));
     if (!file)
@@ -200,6 +201,19 @@ AVI_FILE *aviFileCreate(void)
     /* Initialize the error data */
     InitializeCriticalSection(&file->error.lock);
     file->error.type = AVI_ERROR_NONE;
+
+    /* Check for large file support */
+    hLibrary = GetModuleHandle("kernel32.dll");
+    if (hLibrary)
+    {
+        if (GetProcAddress(hLibrary, "SetFilePointerEx"))
+           file->flags |= AVI_FLAG_LARGE_FILES;
+    }
+
+    /* If large file support isn't available then set the default file size
+       limit to 4GiB */
+    if (!(file->flags & AVI_FLAG_LARGE_FILES))
+       aviSetLimit(file, AVI_4GiB_LIMIT);
 
     return file;
 }
@@ -242,6 +256,12 @@ BOOL aviBeginWriting(AVI_FILE *file, char *fileName)
     BITMAPINFOHEADER      *biOut;
     ODMLExtendedAVIHeader odmlAVIh;
 
+    #define AVI_BEGIN_WRITING_ABORT()\
+    {\
+        aviEndWriting(file);\
+        return FALSE;\
+    }
+
     if (!file || !(file->flags & AVI_FLAG_VIDEO))
        return FALSE;
 
@@ -250,10 +270,16 @@ BOOL aviBeginWriting(AVI_FILE *file, char *fileName)
     cprintf("----------------------\n");
     #endif
 
+    /* Just to be safe */
+    aviEndWriting(file);
+
     /**** Variable initialization ****/
 
     /* Clear any errors */
     aviSetError(file, AVI_ERROR_NONE, "No error");
+
+    /* Make sure audio and video data can be written */
+    file->hold = FALSE;
 
     /* Reset the legacy data */
     memset(&file->legacy, 0, sizeof(file->legacy));
@@ -274,7 +300,7 @@ BOOL aviBeginWriting(AVI_FILE *file, char *fileName)
     {
         aviSetError(file, AVI_ERROR_BEGIN, "Couldn't get the timer's "
                                            "frequency");
-        return FALSE;
+        AVI_BEGIN_WRITING_ABORT();
     }
 
     file->video.timer.step = (aviTime_t)((double)file->timer.freq / ((double)file->video.rate / (double)file->video.scale));
@@ -285,7 +311,7 @@ BOOL aviBeginWriting(AVI_FILE *file, char *fileName)
         cprintf("Couldn't open the video compressor\n");
         #endif
 
-        return FALSE;
+        AVI_BEGIN_WRITING_ABORT();
     }
 
     if ((file->flags & AVI_FLAG_AUDIO) && !aviAudioBegin(file))
@@ -294,11 +320,11 @@ BOOL aviBeginWriting(AVI_FILE *file, char *fileName)
         cprintf("Audio initialization failed\n");
         #endif
 
-        return FALSE;
+        AVI_BEGIN_WRITING_ABORT();
     }
 
     if (!fileOpen(file, fileName))
-       return FALSE;
+       AVI_BEGIN_WRITING_ABORT();
 
     /* Initialize critical sections */
     InitializeCriticalSection(&file->lock.file);
@@ -555,6 +581,62 @@ void aviFileDestroy(AVI_FILE *file)
     }
 }
 
+/** Determines if expected time for the next frame has arrived
+ * \param file An open file
+ * \retval TRUE  If the next frame is expected to be saved
+ * \retval FALSE If the next frame is not expected yet
+ */
+
+BOOL aviFrameReady(AVI_FILE *file)
+{
+    /**** DScaler already does its own timing and doesn't need this ****/
+    /*if (!aviTimerStarted(file) ||
+        aviGetTimer() < file->video.timer.next)
+       return TRUE;
+
+    return FALSE;*/
+
+    return TRUE;
+}
+
+/** Determines if the file size limit has been reached
+ * \param file An open file
+ * \retval TRUE  The file size limit has been reached and the file should be
+ *               closed
+ * \retval FALSE The file size limit has not been reached and data can still be
+ *               written to the file
+ */
+
+BOOL aviLimitReached(AVI_FILE *file)
+{
+    if (!file)
+       return FALSE;
+
+    return file->hold;
+}
+
+/** Set the maximum size of a recorded file. Audio and video data stops being
+ * written when the file size reaches or exceeds the limit. This isn't exact so
+ * leave a few hundred mebibytes of space from your ideal value so there's
+ * enough room to stop.
+ * \warning Only call this function before recording begins
+ * \param file     A valid file
+ * \param limitMiB The size limit for the file in mebibytes. Using a value of 0
+ *                 means there is no set limit to the size of the file.
+ */
+
+void aviSetLimit(AVI_FILE *file, DWORD limitMiB)
+{
+    if (file)
+    {
+        if (!(file->flags & AVI_FLAG_LARGE_FILES) &&
+            (limitMiB > AVI_4GiB_LIMIT || !limitMiB))
+           limitMiB = AVI_4GiB_LIMIT;
+
+        file->limit = (int64)limitMiB * (int64)1048576;
+    }
+}
+
 /**********
  * Chunks *
  **********/
@@ -713,14 +795,32 @@ void aviWriteFourCC(AVI_FILE *file, FOURCC cc)
 }
 
 /** Checks the current RIFF AVI/X chunk to see if it's getting too large
- * \param file An open file
+ * \param file   An open file
+ * \param values Values for one of the streams. This can be NULL.
  * \note This should be called after any new stream data is added
+ * \note If \a values is being taken from the audio or video data then make
+ *       sure the corresponding structures are locked first
  * \pre The file has been locked
  */
 
-void aviCheckFile(AVI_FILE *file)
+void aviCheckFile(AVI_FILE *file, STREAM_VALUES *values)
 {
-    if (fileTell(file) - aviGetBaseOffset(file, RIFF_BASE) >= CHUNK_LIMIT)
+    int64 average;
+
+    if (values)
+       average = aviGetStreamValueAverage(values);
+       else
+       average = 0;
+
+    if (file->limit)
+    {
+        /* Determine if the file is getting too large */
+        if (fileTell(file) >= file->limit + average)
+           file->hold = TRUE;
+    }
+
+    if (fileTell(file) - aviGetBaseOffset(file, RIFF_BASE) >=
+        (int64)CHUNK_LIMIT + average)
     {
         /* Split the file */
 
@@ -765,6 +865,10 @@ BOOL aviSaveFrame(AVI_FILE *file, void *src, aviTime_t inTime)
 
     if (!file || !src)
        return FALSE;
+
+    /* Stop here if no more data is supposed to be written */
+    if (file->hold)
+       return TRUE;
 
     writeFrames = 1;
 
@@ -905,7 +1009,7 @@ BOOL aviSaveFrame(AVI_FILE *file, void *src, aviTime_t inTime)
 
         file->video.numFrames += writeFrames;
 
-        aviCheckFile(file);
+        aviCheckFile(file, &file->video.values);
         aviUnlockFile(file);
     }
 
@@ -918,12 +1022,16 @@ BOOL aviSaveFrame(AVI_FILE *file, void *src, aviTime_t inTime)
  * \param src     A pointer to the uncompressed PCM data
  * \param size    The size of \a src in bytes
  * \param samples The size of \a src in samples
+ * \param values  The values for the audio stream to use. If this is being
+ *                taken from the audio structure then make sure it's locked
+ *                first.
  * \retval TRUE  The data was written to the file
  * \retval FALSE The data could not be written because of an error
  * \pre The data pointed to by \a src matches the recording format
  */
 
-BOOL aviSaveAudio(AVI_FILE *file, void *src, DWORD size, DWORD samples)
+BOOL aviSaveAudio(AVI_FILE *file, void *src, DWORD size, DWORD samples,
+                  STREAM_VALUES *values)
 {
     BOOL result;
 
@@ -936,29 +1044,11 @@ BOOL aviSaveAudio(AVI_FILE *file, void *src, DWORD size, DWORD samples)
     result = fileWrite(file, src, size);
     aviEndChunkWithIndex(file, AUDIO_STREAM, 0, samples, FALSE);
 
-    aviCheckFile(file);
+    aviCheckFile(file, values);
 
     aviUnlockFile(file);
 
     return result;
-}
-
-/** Determines if expected time for the next frame has arrived
- * \param file An open file
- * \retval TRUE  If the next frame is expected to be saved
- * \retval FALSE If the next frame is not expected yet
- */
-
-BOOL aviFrameReady(AVI_FILE *file)
-{
-    /**** DScaler already does its own timing and doesn't need this ****/
-    /*if (!aviTimerStarted(file) ||
-        aviGetTimer() < file->video.timer.next)
-       return TRUE;
-
-    return FALSE;*/
-
-    return TRUE;
 }
 
 /************************************************

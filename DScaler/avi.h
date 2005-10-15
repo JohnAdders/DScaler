@@ -1,4 +1,4 @@
-/* $Id: avi.h,v 1.5 2005-10-13 04:52:14 dosx86 Exp $ */
+/* $Id: avi.h,v 1.6 2005-10-15 19:42:19 dosx86 Exp $ */
 
 /** \file
  * Main AVI file header
@@ -39,6 +39,11 @@ extern "C"
 /** The maximum amount of memory to allocate for the async data writer */
 #define ASYNC_MEM_LIMIT (12 * 1024 * 1024) /* 12 mega bytes */
 
+/** The size in mebibytes to limit a file to when files are limited to 4GiB.
+ * This value should actually be a bit less than 4GiB.
+ */
+#define AVI_4GiB_LIMIT 3980
+
 typedef __int64 int64;
 
 /** Time data type
@@ -64,8 +69,9 @@ typedef int64 aviTime_t;
 #define SUPER_INDEX_ENTRIES 16384
 
 /* The main AVI_FILE flags */
-#define AVI_FLAG_VIDEO 0x1 /**< A video stream is defined */
-#define AVI_FLAG_AUDIO 0x2 /**< An audio stream is defined */
+#define AVI_FLAG_VIDEO       0x1  /**< A video stream is defined */
+#define AVI_FLAG_AUDIO       0x2  /**< An audio stream is defined */
+#define AVI_FLAG_LARGE_FILES 0x80 /**< Large files (> 4GiB) are supported */
 
 #define MAX_CHUNK       8
 #define MAX_SUPER_INDEX 64
@@ -163,6 +169,10 @@ typedef struct
 typedef struct
 {
     BYTE flags; /**< Zero or more AVI_FLAG_* constants */
+
+    /* These control the overall size of the file */
+    BOOL  hold;  /**< Set to TRUE when no more audio or video data should be written */
+    int64 limit; /**< The maximum size of the file in bytes. 0 mean there's no limit. */
 
     /** Error data */
     struct
@@ -298,8 +308,10 @@ AVI_FILE *aviFileCreate(void);
 BOOL     aviBeginWriting(AVI_FILE *file, char *fileName);
 void     aviEndWriting(AVI_FILE *file);
 void     aviFileDestroy(AVI_FILE *file);
-BOOL     aviSaveFrame(AVI_FILE *file, void *src, aviTime_t inTime);
 BOOL     aviFrameReady(AVI_FILE *file);
+BOOL     aviLimitReached(AVI_FILE *file);
+void     aviSetLimit(AVI_FILE *file, DWORD limitMiB);
+BOOL     aviSaveFrame(AVI_FILE *file, void *src, aviTime_t inTime);
 
 extern __inline aviTime_t aviGetTimer(void);
 

@@ -1,4 +1,4 @@
-/* $Id: avi_file.c,v 1.6 2005-10-15 19:43:55 dosx86 Exp $ */
+/* $Id: avi_file.c,v 1.7 2005-10-16 15:19:15 dosx86 Exp $ */
 
 /** \file
  * Async file writing functions
@@ -750,7 +750,8 @@ DWORD WINAPI asyncThread(AVI_FILE *file)
                     break;
                 }
 
-                if (setPriority != THREAD_PRIORITY_ERROR_RETURN)
+                if (setPriority != THREAD_PRIORITY_ERROR_RETURN &&
+                    priority != setPriority)
                 {
                     if (SetThreadPriority(GetCurrentThread(), setPriority))
                     {
@@ -965,7 +966,7 @@ BOOL fileWrite(AVI_FILE *file, void *data, DWORD size)
     if (!file || file->async.f==INVALID_HANDLE_VALUE || !data || !size)
        return FALSE;
 
-    if (size > ASYNC_MEM_LIMIT + sizeof(ASYNC_DATA_HEADER))
+    if (size + sizeof(ASYNC_DATA_HEADER) > ASYNC_MEM_LIMIT)
     {
         aviSetError(file, AVI_ERROR_ASYNC,
                           "Tried to write a block of data that was larger than"

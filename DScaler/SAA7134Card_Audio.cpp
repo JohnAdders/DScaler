@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Audio.cpp,v 1.37 2005-10-15 19:09:37 kelddamsbo Exp $
+// $Id: SAA7134Card_Audio.cpp,v 1.38 2005-10-16 10:13:48 kelddamsbo Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.37  2005/10/15 19:09:37  kelddamsbo
+// Fix sound mute on SAA7135
+//
 // Revision 1.36  2005/03/21 08:20:37  atnak
 // String buffer problem fix.
 //
@@ -468,8 +471,6 @@ void CSAA7134Card::SetAudioStandard7133(eAudioStandard audioStandard)
 	// Use static standard select mode for now.  (Maybe change to expert
 	// mode in future.)
 	BYTE mode = SAA7133_DDEP_STATIC;
-//	BYTE mode = SAA7133_DDEP_AUTO;
-//	BYTE mode = SAA7133_DDEP_EXPERT;
 
 	if (mode == SAA7133_DDEP_STATIC)
 	{
@@ -537,7 +538,7 @@ void CSAA7134Card::SetAudioStandard7133(eAudioStandard audioStandard)
 			_B(SAA7133_A_EASY_PROGRAMMING_FHPAL, 0)|
 			_B(SAA7133_A_EASY_PROGRAMMING_OVMTHR, 0x0));
 
-		// Restart decoder
+		// Restart Automatic Standard Detection.
 		WriteDSPData7133(SAA7133_A_EASY_PROGRAMMING,
 			_B(SAA7133_A_EASY_PROGRAMMING_REST, 1));
 	}
@@ -555,52 +556,44 @@ void CSAA7134Card::SetAudioStandard7133(eAudioStandard audioStandard)
 
 		SetFMDeemphasis7133(m_AudioStandards[audioStandard].Ch1FMDeemphasis);
 
-		// Restart decoder
+		// Restart Automatic Standard Detection.
 		WriteDSPData7133(SAA7133_A_EASY_PROGRAMMING,
 			_B(SAA7133_A_EASY_PROGRAMMING_REST, 1));
 	}
 	else if (mode == SAA7133_DDEP_AUTO)
 	{
-		// Auto standard detect allowing B/G/D/K/M.
-		WriteDSPData7133(SAA7133_A_EASY_PROGRAMMING, 0x00004c);
-
-
-
-
-
-		// Set REST to high (for high edge after the previously set LOW) to
-		// restart automatic standard detection.
-		WriteDSPData7133(SAA7133_A_EASY_PROGRAMMING,
-			_B(SAA7133_A_EASY_PROGRAMMING_REST, 1));
-
-
-		// Decide norm
-//		BYTE stdsel = 0x00; // All Standards 1f
-//		switch (audioStandard)
-//		{
-//		case VIDEOSTANDARD_PAL_BGDHI:
-//		case VIDEOSTANDARD_PAL_N_COMBO:
-//		case VIDEOSTANDARD_PAL_60:
-//		case VIDEOSTANDARD_PAL_M:
-//			stdsel = 0x0b; // B/G + D/K + I
-//			break;
-//		case VIDEOSTANDARD_SECAM:
-//			stdsel = 0x06; // L + D/K
-//			break;
-//		case VIDEOSTANDARD_NTSC_M:
-//		case VIDEOSTANDARD_NTSC_60:
-//		case VIDEOSTANDARD_NTSC_Japan:
-//		case VIDEOSTANDARD_NTSC_50:
-//		case VIDEOSTANDARD_NTSC_N:
-//			stdsel = 0x10; // M
-//			break;
-//		}
-
-		// Automatic Standard Detection
+		// Decide main norm for Auto standard detection
+		BYTE stdsel = 0x00;
+		BYTE dcstd;
+		dcstd = ReadByte(SAA7134_STATUS_VIDEO) & SAA7134_STATUS_VIDEO_DCSTD;
+		// Read DCSTD Bit's (0:1) : 00 = B/W
+		//                          01 = NTSC
+		//                          10 = PAL
+		//                          11 = SECAM
+		if (dcstd == 0x01)
+		{
+			stdsel = 0x10; // M
+			LOG(1, "SAA713x: NTSC signal detected for sound.");
+		}
+		else if  (dcstd == 0x02)
+		{
+			stdsel = 0x0b; // B/G + D/K + I
+			LOG(1, "SAA713x: PAL signal detected for sound.");
+		}
+		else if  (dcstd == 0x03)
+		{
+			stdsel = 0x06; // L + D/K
+			LOG(1, "SAA713x: SECAM signal detected for sound.");
+		}
+		else
+		{
+			stdsel = 0x1f; // Enable detection of all standards
+			LOG(1, "SAA713x: BW signal detected for sound.");
+		}
+		// Write Automatic Standard Detection
 		WriteDSPData7133(SAA7133_A_EASY_PROGRAMMING,
 			_B(SAA7133_A_EASY_PROGRAMMING_EPMODE, 0x0)|
-//			_B(SAA7133_A_EASY_PROGRAMMING_STDSEL, stdsel)|
-			_B(SAA7133_A_EASY_PROGRAMMING_STDSEL, 0x0b)|
+			_B(SAA7133_A_EASY_PROGRAMMING_STDSEL, stdsel)|
 			_B(SAA7133_A_EASY_PROGRAMMING_REST, 0)|
 			_B(SAA7133_A_EASY_PROGRAMMING_OVMADPT, 0)|
 			_B(SAA7133_A_EASY_PROGRAMMING_DDMUTE, 0)|
@@ -609,8 +602,13 @@ void CSAA7134Card::SetAudioStandard7133(eAudioStandard audioStandard)
 			_B(SAA7133_A_EASY_PROGRAMMING_SAPDBX, 0)|
 			_B(SAA7133_A_EASY_PROGRAMMING_FHPAL, 0)|
 			_B(SAA7133_A_EASY_PROGRAMMING_OVMTHR, 0x0));
+
+		// Restart Automatic Standard Detection.
+		WriteDSPData7133(SAA7133_A_EASY_PROGRAMMING,
+			_B(SAA7133_A_EASY_PROGRAMMING_REST, 1));
 	}
 }
+
 
 void CSAA7134Card::SetAudioCarrier1Freq(DWORD Carrier)
 {

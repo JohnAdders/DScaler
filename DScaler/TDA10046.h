@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA10046.h,v 1.1 2005-10-15 20:01:54 kelddamsbo Exp $
+// $Id: TDA10046.h,v 1.2 2005-10-16 17:02:58 kelddamsbo Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2005 Keld Damsbo.  All rights reserved.
@@ -21,6 +21,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2005/10/15 20:01:54  kelddamsbo
+// Initial Upload
+//
 // Revision 1.0  2005/10/09 17:59:00  kdamsbo
 // Initial upload.
 //
@@ -127,8 +130,19 @@
 #define TDA10046_DSP_CODE_IN		0x58
 
 
+class CTDA10046 : public CI2CDevice
+
+
 protected:
 	// from CI2CDevice
 
 	// Gets the default I2C bus address for this tuner.
 	virtual BYTE			GetDefaultAddress() const;
+
+
+protected:
+	// Writes the registers necessary for initialization.
+	virtual void			WriteTDA10046Initialization();
+
+	virtual void			EnableTuner();
+	virtual void			DisableTuner();

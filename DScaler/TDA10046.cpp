@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA10046.cpp,v 1.1 2005-10-15 20:01:33 kelddamsbo Exp $
+// $Id: TDA10046.cpp,v 1.2 2005-10-16 17:02:40 kelddamsbo Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2005 Keld Damsbo.  All rights reserved.
@@ -26,6 +26,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2005/10/15 20:01:33  kelddamsbo
+// Initial Upload
+//
 // Revision 1.0  2005/10/09 17:59:00  kdamsbo
 // Initial upload.
 //
@@ -59,49 +62,67 @@ void CTDA10046::WriteTDA10046Initialization()
 //	}
 
 	// TDA10046 Setup
-	tda1004x_write_mask(state, TDA1004X_CONFC4, 0x20, 0); // disable DSP watchdog timer
-	tda1004x_write_byteI(state, TDA1004X_AUTO, 7); // select HP stream
-	tda1004x_write_byteI(state, TDA1004X_CONFC1, 8); // disable pulse killer
+	MaskDataByte(TDA10046_CONF_C4, 0, 0x20); // disable DSP watchdog timer
+	WriteToSubAddress(TDA10046_AUTO, 0x07); // select HP stream
+	WriteToSubAddress(TDA10046_CONF_C1, 0x08); // disable pulse killer
 
-	tda10046_init_plls(fe);
-	switch (state->config->agc_config) {
-	case TDA10046_AGC_DEFAULT:
-		tda1004x_write_byteI(state, TDA10046H_AGC_CONF, 0x00); // AGC setup
-		tda1004x_write_byteI(state, TDA10046H_CONF_POLARITY, 0x60); // set AGC polarities
-		break;
-	case TDA10046_AGC_IFO_AUTO_NEG:
-		tda1004x_write_byteI(state, TDA10046H_AGC_CONF, 0x0a); // AGC setup
-		tda1004x_write_byteI(state, TDA10046H_CONF_POLARITY, 0x60); // set AGC polarities
-		break;
-	case TDA10046_AGC_IFO_AUTO_POS:
-		tda1004x_write_byteI(state, TDA10046H_AGC_CONF, 0x0a); // AGC setup
-		tda1004x_write_byteI(state, TDA10046H_CONF_POLARITY, 0x00); // set AGC polarities
-		break;
-	case TDA10046_AGC_TDA827X:
-		tda1004x_write_byteI(state, TDA10046H_AGC_CONF, 0x02);   // AGC setup
-		tda1004x_write_byteI(state, TDA10046H_AGC_THR, 0x70);    // AGC Threshold
-		tda1004x_write_byteI(state, TDA10046H_AGC_RENORM, 0x0E); // Gain Renormalize
-		tda1004x_write_byteI(state, TDA10046H_CONF_POLARITY, 0x60); // set AGC polarities
-		break;
-	}
-	tda1004x_write_byteI(state, TDA10046H_CONF_TRISTATE1, 0x61); // Turn both AGC outputs on
-	tda1004x_write_byteI(state, TDA10046H_AGC_TUN_MIN, 0);	  // }
-	tda1004x_write_byteI(state, TDA10046H_AGC_TUN_MAX, 0xff); // } AGC min/max values
-	tda1004x_write_byteI(state, TDA10046H_AGC_IF_MIN, 0);	  // }
-	tda1004x_write_byteI(state, TDA10046H_AGC_IF_MAX, 0xff);  // }
-	tda1004x_write_byteI(state, TDA10046H_AGC_GAINS, 1); // IF gain 2, TUN gain 1
-	tda1004x_write_byteI(state, TDA10046H_CVBER_CTRL, 0x1a); // 10^6 VBER measurement bits
-	tda1004x_write_byteI(state, TDA1004X_CONF_TS1, 7); // MPEG2 interface config
-	tda1004x_write_byteI(state, TDA1004X_CONF_TS2, 0xc0); // MPEG2 interface config
-	tda1004x_write_mask(state, 0x3a, 0x80, state->config->invert_oclk << 7);
+//	tda10046_init_plls(fe);
+//	switch (state->config->agc_config) {
 
-	tda1004x_write_byteI(state, TDA10046H_CONF_TRISTATE2, 0xe1); // tristate setup
-	tda1004x_write_byteI(state, TDA10046H_GPIO_OUT_SEL, 0xcc); // GPIO output config
-	tda1004x_write_byteI(state, TDA10046H_GPIO_SELECT, 8); // GPIO select
+//	case TDA10046_AGC_DEFAULT:
+//		WriteToSubAddress(TDA10046_AGC_CONF, 0x00); // AGC setup
+//		WriteToSubAddress(TDA10046_CONF_POLARITY, 0x60); // set AGC polarities
+//		break;
+//	case TDA10046_AGC_IFO_AUTO_NEG:
+//		WriteToSubAddress(TDA10046_AGC_CONF, 0x0A); // AGC setup
+//		WriteToSubAddress(TDA10046_CONF_POLARITY, 0x60); // set AGC polarities
+//		break;
+//	case TDA10046_AGC_IFO_AUTO_POS:
+//		WriteToSubAddress(TDA10046H_AGC_CONF, 0x0A); // AGC setup
+//		WriteToSubAddress(TDA10046_CONF_POLARITY, 0x00); // set AGC polarities
+//		break;
+//	case TDA10046_AGC_TDA827X:
+		WriteToSubAddress(TDA10046_AGC_CONF, 0x02);   // AGC setup
+		WriteToSubAddress(TDA10046_AGC_THRESHOLD, 0x70);    // AGC Threshold
+		WriteToSubAddress(TDA10046_AGC_RENORM, 0x0E); // Gain Renormalize
+		WriteToSubAddress(TDA10046_CONF_POLARITY, 0x60); // set AGC polarities
+//		break;
+//	}
+	WriteToSubAddress(TDA10046_CONF_TRISTATE1, 0x61); // Turn both AGC outputs on
+	WriteToSubAddress(TDA10046_AGC_TUN_MIN, 0x00);	  // }
+	WriteToSubAddress(TDA10046_AGC_TUN_MAX, 0xFF); // } AGC min/max values
+	WriteToSubAddress(TDA10046_AGC_IF_MIN, 0x00);	  // }
+	WriteToSubAddress(TDA10046_AGC_IF_MAX, 0xFF);  // }
+	WriteToSubAddress(TDA10046_AGC_GAINS, 0x01); // IF gain 2, TUN gain 1
+	WriteToSubAddress(TDA10046_CVBER_CTRL, 0x1A); // 10^6 VBER measurement bits
+	WriteToSubAddress(TDA10046_CONF_TS1, 0x07); // MPEG2 interface config
+	WriteToSubAddress(TDA10046_CONF_TS2, 0xC0); // MPEG2 interface config
+	MaskDataByte(TDA10046_IC_MODE, 0x01, 0x80); // Invert OCLK
+
+	WriteToSubAddress(TDA10046_CONF_TRISTATE2, 0xE1); // tristate setup
+	WriteToSubAddress(TDA10046_GPIO_OUT_SEL, 0xCC); // GPIO output config
+	WriteToSubAddress(TDA10046_GPIO_SELECT, 0x08); // GPIO select
 
 	state->initialised = 1;
 	return 0;
 }
+
+
+void CTDA10046::EnableTuner()
+{
+
+	Result = MaskDataByte(TDA10046_CONF_C4, 0x02, 0x02);
+	sleep(1);
+	return Result;
+}
+
+void CTDA10046::DisableTuner()
+{
+	return MaskDataByte(TDA10046_CONF_C4, 0x00, 0x02);
+}
+
+
+
 
 
 
@@ -119,70 +140,6 @@ struct tda1004x_state {
 	enum tda1004x_demod demod_type;
 };
 
-static int tda1004x_write_byteI(struct tda1004x_state *state, int reg, int data)
-{
-	int ret;
-	u8 buf[] = { reg, data };
-	struct i2c_msg msg = { .flags = 0, .buf = buf, .len = 2 };
-
-	dprintk("%s: reg=0x%x, data=0x%x\n", __FUNCTION__, reg, data);
-
-	msg.addr = state->config->demod_address;
-	ret = i2c_transfer(state->i2c, &msg, 1);
-
-	if (ret != 1)
-		dprintk("%s: error reg=0x%x, data=0x%x, ret=%i\n",
-			__FUNCTION__, reg, data, ret);
-
-	dprintk("%s: success reg=0x%x, data=0x%x, ret=%i\n", __FUNCTION__,
-		reg, data, ret);
-	return (ret != 1) ? -1 : 0;
-}
-
-static int tda1004x_read_byte(struct tda1004x_state *state, int reg)
-{
-	int ret;
-	u8 b0[] = { reg };
-	u8 b1[] = { 0 };
-	struct i2c_msg msg[] = {{ .flags = 0, .buf = b0, .len = 1 },
-				{ .flags = I2C_M_RD, .buf = b1, .len = 1 }};
-
-	dprintk("%s: reg=0x%x\n", __FUNCTION__, reg);
-
-	msg[0].addr = state->config->demod_address;
-	msg[1].addr = state->config->demod_address;
-	ret = i2c_transfer(state->i2c, msg, 2);
-
-	if (ret != 2) {
-		dprintk("%s: error reg=0x%x, ret=%i\n", __FUNCTION__, reg,
-			ret);
-		return -1;
-	}
-
-	dprintk("%s: success reg=0x%x, data=0x%x, ret=%i\n", __FUNCTION__,
-		reg, b1[0], ret);
-	return b1[0];
-}
-
-static int tda1004x_write_mask(struct tda1004x_state *state, int reg, int mask, int data)
-{
-	int val;
-	dprintk("%s: reg=0x%x, mask=0x%x, data=0x%x\n", __FUNCTION__, reg,
-		mask, data);
-
-	// read a byte and check
-	val = tda1004x_read_byte(state, reg);
-	if (val < 0)
-		return val;
-
-	// mask if off
-	val = val & ~mask;
-	val |= data & 0xff;
-
-	// write it out again
-	return tda1004x_write_byteI(state, reg, val);
-}
-
 static int tda1004x_write_buf(struct tda1004x_state *state, int reg, unsigned char *buf, int len)
 {
 	int i;
@@ -198,23 +155,6 @@ static int tda1004x_write_buf(struct tda1004x_state *state, int reg, unsigned ch
 	}
 
 	return result;
-}
-
-static int tda1004x_enable_tuner_i2c(struct tda1004x_state *state)
-{
-	int result;
-	dprintk("%s\n", __FUNCTION__);
-
-	result = tda1004x_write_mask(state, TDA1004X_CONFC4, 2, 2);
-	msleep(1);
-	return result;
-}
-
-static int tda1004x_disable_tuner_i2c(struct tda1004x_state *state)
-{
-	dprintk("%s\n", __FUNCTION__);
-
-	return tda1004x_write_mask(state, TDA1004X_CONFC4, 2, 0);
 }
 
 static int tda10046h_set_bandwidth(struct tda1004x_state *state,

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.cpp,v 1.30 2005-08-11 13:42:35 laurentg Exp $
+// $Id: EPG.cpp,v 1.31 2005-10-18 18:58:08 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2005/08/11 13:42:35  laurentg
+// EPG: detect changes of channel through a video input
+//
 // Revision 1.29  2005/07/26 22:19:31  laurentg
 // Use the new function Channel_GetVBIName
 //
@@ -1352,6 +1355,48 @@ int CEPG::GetNextviewEPGProviders()
 	string* newProvider;
 	char* c;
 
+	char* DefaultProvider = (char*)Setting_GetValue(EPG_GetSetting(EPG_NXTVEPGPROVIDER));
+	if (strlen(DefaultProvider) > 0)
+	{
+		strcpy(SearchFiles, Exe);
+		c = strrchr(SearchFiles, '\\');
+		if (c)
+		{
+			sprintf(c+1, "nxtv%s.epg", DefaultProvider);
+		}
+		else
+		{
+			sprintf(SearchFiles, "nxtv%s.epg", DefaultProvider);
+		}
+		if (!stat(SearchFiles, &st))
+		{
+			strncpy(Provider, &SearchFiles[strlen(SearchFiles)-8], 4);
+			Provider[4] = '\0';
+			newProvider = new string(Provider);
+			m_NextviewProviders.push_back(newProvider);
+			return m_NextviewProviders.size();
+		}
+
+		strcpy(SearchFiles, Exe);
+		c = strrchr(SearchFiles, '\\');
+		if (c)
+		{
+			sprintf(c+1, "nxtvdb-%s", DefaultProvider);
+		}
+		else
+		{
+			sprintf(SearchFiles, "nxtvdb-%s", DefaultProvider);
+		}
+		if (!stat(SearchFiles, &st))
+		{
+			strncpy(Provider, &SearchFiles[strlen(SearchFiles)-4], 4);
+			Provider[4] = '\0';
+			newProvider = new string(Provider);
+			m_NextviewProviders.push_back(newProvider);
+			return m_NextviewProviders.size();
+		}
+	}
+
 	strcpy(SearchFiles, Exe);
 	c = strrchr(SearchFiles, '\\');
 	if (c)
@@ -1493,6 +1538,7 @@ void CEPG::SetMenu(HMENU hMenu)
 
 static char		ExePath[MAX_PATH] = {0};
 static char*	NextviewEPGExePath = NULL;
+static char*	NextviewEPGProvider = NULL;
 static long		EPG_DefaultSizePerc = 5;
 static long		EPG_FrameDuration = 1;
 static BOOL		EPG_ChannelFiltering = FALSE;
@@ -1538,6 +1584,12 @@ SETTING EPGSettings[EPG_SETTING_LASTONE] =
          75, 20, 128, 1, 1,
          NULL,
         "EPG", "MaxCharsPerLine", NULL,
+    },
+    {
+        "NextviewEPG default provider", CHARSTRING, 0, (long*)&NextviewEPGProvider,
+         (long)"", 0, 0, 0, 0,
+         NULL,
+        "EPG", "NextviewProvider", NULL,
     },
 };
 

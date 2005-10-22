@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.h,v 1.21 2005-07-23 19:13:27 laurentg Exp $
+// $Id: EPG.h,v 1.22 2005-10-22 13:00:12 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2005/07/23 19:13:27  laurentg
+// EPG: put common code in a new function
+//
 // Revision 1.20  2005/07/20 22:29:06  laurentg
 // EPG: display of previous and next programmes improved
 //
@@ -202,8 +205,8 @@ private:
 	// defined in DScaler
 	BOOL IsValidChannelName(LPCSTR EPGName, LPCSTR *Name=NULL, int *Number=NULL);
 
-	// Insert a new programme in the list keeping an order by dates of the programmes
-	void InsertProgramme(CProgramme* NewProg);
+	// Insert a new programme in the list keeping a certain order for the programmes
+	void InsertProgramme(CProgramme* NewProg, int Sorting);
 
 	void ClearNextviewEPGProviders();
 	int GetNextviewEPGProviders();

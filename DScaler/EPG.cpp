@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.cpp,v 1.31 2005-10-18 18:58:08 laurentg Exp $
+// $Id: EPG.cpp,v 1.32 2005-10-22 13:00:12 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2005/10/18 18:58:08  laurentg
+// New setting to store a default NextviewEPG provider
+//
 // Revision 1.30  2005/08/11 13:42:35  laurentg
 // EPG: detect changes of channel through a video input
 //
@@ -1188,9 +1191,9 @@ int CEPG::CheckProgrammeValidity(time_t StartTime, time_t EndTime, LPCSTR Channe
 
 
 //
-// Insert a new programme in the list keeping an order by dates of the programmes
+// Insert a new programme in the list keeping a certain order for the programmes
 //
-void CEPG::InsertProgramme(CProgramme* NewProg)
+void CEPG::InsertProgramme(CProgramme* NewProg, int Sorting)
 {
 	time_t NewProgStart, NewProgEnd;
 	time_t ProgStart, ProgEnd;
@@ -1198,22 +1201,99 @@ void CEPG::InsertProgramme(CProgramme* NewProg)
 	NewProg->GetProgrammeDates(&NewProgStart, &NewProgEnd);
 
 	int added = 0;
-	// Search the first programme having a start time later
-	// or an identical start time but a end time later
-	for(CProgrammes::iterator it = m_Programmes.begin();
-		it != m_Programmes.end();
-		++it)
+
+	if (Sorting == 1)
 	{
-		(*it)->GetProgrammeDates(&ProgStart, &ProgEnd);
-		if (   (ProgStart > NewProgStart)
-			|| ((ProgStart == NewProgStart) && (ProgEnd > NewProgEnd))
-		   )
+		string	NewChannel;
+		string	NewChannelEPG;
+		string	Channel;
+		string	ChannelEPG;
+		int		NewNumber, Number;
+		BOOL	bTime = FALSE;
+
+		NewProg->GetProgrammeChannelData(NewChannel, NewChannelEPG, &NewNumber);
+
+		for(CProgrammes::iterator it = m_Programmes.begin();
+			it != m_Programmes.end();
+			)
 		{
-			m_Programmes.insert(it, NewProg);
-			added = 1;
-			break;
+			(*it)->GetProgrammeChannelData(Channel, ChannelEPG, &Number);
+			if (bTime == TRUE)
+			{
+				if (_stricmp(NewChannel.c_str(), Channel.c_str()))
+				{
+					m_Programmes.insert(it, NewProg);
+					added = 1;
+					break;
+				}
+				(*it)->GetProgrammeDates(&ProgStart, &ProgEnd);
+				if (   (ProgStart > NewProgStart)
+					|| ((ProgStart == NewProgStart) && (ProgEnd > NewProgEnd))
+				   )
+				{
+					m_Programmes.insert(it, NewProg);
+					added = 1;
+					break;
+				}
+				++it;
+			}
+			else
+			{
+				if (NewNumber != -1)
+				{
+					if (   (Number == -1)
+						|| (Number > NewNumber)
+					   )
+					{
+						m_Programmes.insert(it, NewProg);
+						added = 1;
+						break;
+					}
+					else if (NewNumber == Number)
+					{
+						bTime = TRUE;
+					}
+					else
+					{
+						++it;
+					}
+				}
+				else
+				{
+					if (   (Number == -1)
+					    && !_stricmp(NewChannel.c_str(), Channel.c_str())
+					   )
+					{
+						bTime = TRUE;
+					}
+					else
+					{
+						++it;
+					}
+				}
+			}
 		}
 	}
+	else
+	{
+		// Search the first programme having a start time later
+		// or an identical start time but a end time later
+		for(CProgrammes::iterator it = m_Programmes.begin();
+			it != m_Programmes.end();
+			++it)
+		{
+			(*it)->GetProgrammeDates(&ProgStart, &ProgEnd);
+			if (   (ProgStart > NewProgStart)
+				|| ((ProgStart == NewProgStart) && (ProgEnd > NewProgEnd))
+			   )
+			{
+				m_Programmes.insert(it, NewProg);
+				added = 1;
+				break;
+			}
+		}
+	}
+
 	if (!added)
 	{
 		m_Programmes.push_back(NewProg);
@@ -1226,7 +1306,7 @@ void CEPG::AddProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR C
 	if ( (EndTime > m_LoadedTimeMin) && (StartTime <= m_LoadedTimeMax) )
 	{
 		CProgramme* newProgramme = new CProgramme(StartTime, EndTime, Title, ChannelName, ChannelEPGName, ChannelNumber, "", "", "");
-		InsertProgramme(newProgramme);
+		InsertProgramme(newProgramme, Setting_GetValue(EPG_GetSetting(EPG_SORTING)));
 	}
 }
 
@@ -1236,7 +1316,7 @@ void CEPG::AddProgramme(time_t StartTime, time_t EndTime, LPCSTR Title, LPCSTR C
 	if ( (EndTime > m_LoadedTimeMin) && (StartTime <= m_LoadedTimeMax) )
 	{
 		CProgramme* newProgramme = new CProgramme(StartTime, EndTime, Title, ChannelName, ChannelEPGName, ChannelNumber, SubTitle, Category, Description);
-		InsertProgramme(newProgramme);
+		InsertProgramme(newProgramme, Setting_GetValue(EPG_GetSetting(EPG_SORTING)));
 	}
 }
 
@@ -1543,9 +1623,23 @@ static long		EPG_DefaultSizePerc = 5;
 static long		EPG_FrameDuration = 1;
 static BOOL		EPG_ChannelFiltering = FALSE;
 static long		EPG_MaxCharsPerLine = 75;
+static int		EPG_ProgSorting = 0;
+static const char* EPG_ProgSortingLabels[2] = 
+{
+    "Programme start time",
+    "Channel order / Programme start time",
+};
 
 
 BOOL ChannelFiltering_OnChange(long NewValue)
+{
+	OSD_Clear();
+	MyEPG.ReloadEPGData();
+    return FALSE;
+}
+
+
+BOOL ProgSorting_OnChange(long NewValue)
 {
 	OSD_Clear();
 	MyEPG.ReloadEPGData();
@@ -1590,6 +1684,12 @@ SETTING EPGSettings[EPG_SETTING_LASTONE] =
          (long)"", 0, 0, 0, 0,
          NULL,
         "EPG", "NextviewProvider", NULL,
+    },
+    {
+        "Programmes sorting", ITEMFROMLIST, 0, (long*)&EPG_ProgSorting,
+        0, 0, 1, 1, 1,
+        EPG_ProgSortingLabels,
+        "EPG", "Sorting", ProgSorting_OnChange,
     },
 };
 

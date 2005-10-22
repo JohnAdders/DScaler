@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.170 2005-10-18 18:57:08 laurentg Exp $
+// $Id: DS_Control.h,v 1.171 2005-10-22 12:59:37 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.170  2005/10/18 18:57:08  laurentg
+// New setting to store a default NextviewEPG provider
+//
 // Revision 1.169  2005/10/15 19:47:17  dosx86
 // Removed the old TimeShift settings
 //
@@ -1875,6 +1878,7 @@ typedef enum
 	EPG_CHANNELFILTERING,
 	EPG_MAXCHARSPERLINE,
 	EPG_NXTVEPGPROVIDER,
+	EPG_SORTING,
     EPG_SETTING_LASTONE,
 } EPG_SETTING;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Audio.cpp,v 1.38 2005-10-16 10:13:48 kelddamsbo Exp $
+// $Id: SAA7134Card_Audio.cpp,v 1.39 2005-10-23 10:14:03 kelddamsbo Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.38  2005/10/16 10:13:48  kelddamsbo
+// Updated Audio Auto Detection
+//
 // Revision 1.37  2005/10/15 19:09:37  kelddamsbo
 // Fix sound mute on SAA7135
 //
@@ -562,7 +565,21 @@ void CSAA7134Card::SetAudioStandard7133(eAudioStandard audioStandard)
 	}
 	else if (mode == SAA7133_DDEP_AUTO)
 	{
+		// Write Automatic Standard Detection
+		WriteDSPData7133(SAA7133_A_EASY_PROGRAMMING,
+			_B(SAA7133_A_EASY_PROGRAMMING_EPMODE, 0x0)|
+			_B(SAA7133_A_EASY_PROGRAMMING_STDSEL, 0x00)|
+			_B(SAA7133_A_EASY_PROGRAMMING_REST, 0)|
+			_B(SAA7133_A_EASY_PROGRAMMING_OVMADPT, 0)|
+			_B(SAA7133_A_EASY_PROGRAMMING_DDMUTE, 0)|
+			_B(SAA7133_A_EASY_PROGRAMMING_FILTBW, 0x0)|
+			_B(SAA7133_A_EASY_PROGRAMMING_IDMOD, 0x0)|
+			_B(SAA7133_A_EASY_PROGRAMMING_SAPDBX, 0)|
+			_B(SAA7133_A_EASY_PROGRAMMING_FHPAL, 0)|
+			_B(SAA7133_A_EASY_PROGRAMMING_OVMTHR, 0x0));
+
 		// Decide main norm for Auto standard detection
+		Sleep(500);
 		BYTE stdsel = 0x00;
 		BYTE dcstd;
 		dcstd = ReadByte(SAA7134_STATUS_VIDEO) & SAA7134_STATUS_VIDEO_DCSTD;
@@ -590,20 +607,10 @@ void CSAA7134Card::SetAudioStandard7133(eAudioStandard audioStandard)
 			stdsel = 0x1f; // Enable detection of all standards
 			LOG(1, "SAA713x: BW signal detected for sound.");
 		}
-		// Write Automatic Standard Detection
-		WriteDSPData7133(SAA7133_A_EASY_PROGRAMMING,
-			_B(SAA7133_A_EASY_PROGRAMMING_EPMODE, 0x0)|
-			_B(SAA7133_A_EASY_PROGRAMMING_STDSEL, stdsel)|
-			_B(SAA7133_A_EASY_PROGRAMMING_REST, 0)|
-			_B(SAA7133_A_EASY_PROGRAMMING_OVMADPT, 0)|
-			_B(SAA7133_A_EASY_PROGRAMMING_DDMUTE, 0)|
-			_B(SAA7133_A_EASY_PROGRAMMING_FILTBW, 0x0)|
-			_B(SAA7133_A_EASY_PROGRAMMING_IDMOD, 0x0)|
-			_B(SAA7133_A_EASY_PROGRAMMING_SAPDBX, 0)|
-			_B(SAA7133_A_EASY_PROGRAMMING_FHPAL, 0)|
-			_B(SAA7133_A_EASY_PROGRAMMING_OVMTHR, 0x0));
 
-		// Restart Automatic Standard Detection.
+		// Write norm and restart Automatic Standard Detection.
+		WriteDSPData7133(SAA7133_A_EASY_PROGRAMMING,
+			_B(SAA7133_A_EASY_PROGRAMMING_STDSEL, stdsel));
 		WriteDSPData7133(SAA7133_A_EASY_PROGRAMMING,
 			_B(SAA7133_A_EASY_PROGRAMMING_REST, 1));
 	}

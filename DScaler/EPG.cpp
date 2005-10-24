@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.cpp,v 1.33 2005-10-23 14:36:35 laurentg Exp $
+// $Id: EPG.cpp,v 1.34 2005-10-24 19:36:36 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2005/10/23 14:36:35  laurentg
+// EPG programmes sorting optimized
+//
 // Revision 1.32  2005/10/22 13:00:12  laurentg
 // New EPG setting for different programmes sorting
 //
@@ -732,6 +735,14 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 
 	case IDM_DISPLAY_EPG:
 		if (   (m_Displayed == 1)
+			&& (m_UseProgFronBrowser == FALSE)
+			&& (Setting_GetValue(EPG_GetSetting(EPG_TOGGLEBUTTONS)) == TRUE)
+		   )
+		{
+			OSD_Clear();
+			return TRUE;
+		}
+		if (   (m_Displayed == 1)
 			|| (m_UseProgFronBrowser == FALSE) )
 		{
 			m_UseProgFronBrowser = FALSE;
@@ -757,6 +768,13 @@ BOOL CEPG::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 		break;
 
 	case IDM_DISPLAY_EPG_NOW:
+		if (   (m_Displayed == 2)
+			&& (Setting_GetValue(EPG_GetSetting(EPG_TOGGLEBUTTONS)) == TRUE)
+		   )
+		{
+			OSD_Clear();
+			return TRUE;
+		}
 		if ( (m_Displayed == 1) && (m_UseProgFronBrowser == TRUE) )
 		{
 			// Force to recompute by the OSD which page to display
@@ -1667,6 +1685,7 @@ static long		EPG_FrameDuration = 1;
 static BOOL		EPG_ChannelFiltering = FALSE;
 static long		EPG_MaxCharsPerLine = 75;
 static int		EPG_ProgSorting = 0;
+static BOOL		EPG_ToggleButtons = FALSE;
 static const char* EPG_ProgSortingLabels[2] = 
 {
     "Programme start time",
@@ -1733,6 +1752,12 @@ SETTING EPGSettings[EPG_SETTING_LASTONE] =
         0, 0, 1, 1, 1,
         EPG_ProgSortingLabels,
         "EPG", "Sorting", ProgSorting_OnChange,
+    },
+    {
+        "Use keyboard shortcuts as toggle buttons", YESNO, 0, (long*)&EPG_ToggleButtons,
+         FALSE, 0, 1, 1, 1,
+         NULL,
+        "EPG", "ToggleButtons", NULL,
     },
 };
 

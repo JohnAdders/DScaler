@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingValue.h,v 1.1 2004-08-06 17:12:10 atnak Exp $
+// $Id: SettingValue.h,v 1.2 2005-10-25 08:17:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,12 +21,14 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2004/08/06 17:12:10  atnak
+// Setting repository initial upload.
+//
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef __SETTINGVALUE_H__
 #define __SETTINGVALUE_H__
 
-#include <Windows.h>
 #include <string>
 
 #define SETTING_VALUE_USE_LAZYCOPY

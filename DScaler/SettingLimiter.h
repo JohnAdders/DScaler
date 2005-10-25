@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingLimiter.h,v 1.3 2005-03-17 03:55:19 atnak Exp $
+// $Id: SettingLimiter.h,v 1.4 2005-10-25 08:17:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2005/03/17 03:55:19  atnak
+// Syncing wip.
+//
 // Revision 1.2  2004/08/14 13:45:23  adcockj
 // Fixes to get new settings code working under VS6
 //
@@ -32,7 +35,6 @@
 #ifndef __SETTINGLIMITER_H__
 #define __SETTINGLIMITER_H__
 
-#include <Windows.h>
 #include "SettingValue.h"
 
 typedef class CSettingLimiter *PSETTINGLIMITER;

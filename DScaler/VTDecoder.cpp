@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDecoder.cpp,v 1.18 2005-07-27 22:49:33 laurentg Exp $
+// $Id: VTDecoder.cpp,v 1.19 2005-10-25 08:17:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,6 +44,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2005/07/27 22:49:33  laurentg
+// Use WORD instead of DWORD
+//
 // Revision 1.17  2005/07/26 19:36:03  laurentg
 // New functions to get network ID from P8/30/1,2
 // History of 2 consecutive values for NetworkIDCode inside P8/30/1
@@ -1790,7 +1793,7 @@ void CVTDecoder::GetStatusDisplay(LPSTR lpBuffer, LONG nLength)
 
 WORD CVTDecoder::GetNetworkIDFromP8301()
 {
-	DWORD wCode = 0;
+	WORD wCode = 0;
 	EnterCriticalSection(&m_ServiceDataStoreMutex);
 	// Check that there are at leat two values received
 	// and with same values

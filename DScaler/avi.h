@@ -1,4 +1,4 @@
-/* $Id: avi.h,v 1.6 2005-10-15 19:42:19 dosx86 Exp $ */
+/* $Id: avi.h,v 1.7 2005-10-25 08:17:59 adcockj Exp $ */
 
 /** \file
  * Main AVI file header
@@ -12,6 +12,9 @@
 extern "C"
 {
 #endif
+
+#define WINVER 0x0400
+#define _WIN32_WINNT 0x0400
 
 #include <windows.h>
 #include <vfw.h>

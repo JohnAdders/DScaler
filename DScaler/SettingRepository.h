@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingRepository.h,v 1.6 2005-03-18 16:19:06 atnak Exp $
+// $Id: SettingRepository.h,v 1.7 2005-10-25 08:17:59 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2005/03/18 16:19:06  atnak
+// Synchronizing work in progress.
+//
 // Revision 1.5  2005/03/05 12:15:20  atnak
 // Syncing files.
 //
@@ -41,7 +44,6 @@
 #ifndef __SETTINGREPOSITORY_H__
 #define __SETTINGREPOSITORY_H__
 
-#include <Windows.h>
 #include <crtdbg.h>
 #include <list>
 #include <new>

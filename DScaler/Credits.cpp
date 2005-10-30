@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Credits.cpp,v 1.10 2004-08-30 16:16:28 adcockj Exp $
+// $Id: Credits.cpp,v 1.11 2005-10-30 21:26:55 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) 1998-2001 Mark Findlay.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2004/08/30 16:16:28  adcockj
+// Updated developer list
+//
 // Revision 1.9  2003/10/27 10:39:51  adcockj
 // Updated files for better doxygen compatability
 //
@@ -120,7 +123,7 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 
 char *ArrCredits[] = { 	"DScaler\n",
 						"",
-						"Copyright © 2004\f",
+						"Copyright © 2005\f",
 						"DScaler Team\f",
 						"All Rights Reserved\f",
 						"",

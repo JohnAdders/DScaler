@@ -1,4 +1,4 @@
-/* $Id: avi_file.c,v 1.7 2005-10-16 15:19:15 dosx86 Exp $ */
+/* $Id: avi_file.c,v 1.8 2005-11-01 13:56:37 dosx86 Exp $ */
 
 /** \file
  * Async file writing functions
@@ -69,10 +69,13 @@ BOOL __seek(AVI_FILE *file, int64 offset)
 BOOL __tell(AVI_FILE *file, int64 *offset)
 {
     LARGE_INTEGER result;
-    LARGE_INTEGER dest;
 
-    dest.QuadPart = 0;
-    if (!SetFilePointerEx(file->async.f, dest, &result, FILE_CURRENT))
+    result.QuadPart = 0;
+    if ((result.LowPart = SetFilePointer(file->async.f,
+                                         result.LowPart,
+                                         &result.HighPart,
+                                         FILE_CURRENT))==INVALID_SET_FILE_POINTER &&
+        GetLastError() != NO_ERROR)
     {
         aviSetError(file, AVI_ERROR_FILE, "Get file pointer falied");
         return FALSE;

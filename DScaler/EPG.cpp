@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.cpp,v 1.34 2005-10-24 19:36:36 laurentg Exp $
+// $Id: EPG.cpp,v 1.35 2005-11-08 21:51:19 laurentg Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.34  2005/10/24 19:36:36  laurentg
+// New EPG setting for using keys G and Ctrl+Shift+G as a toggle buttons
+//
 // Revision 1.33  2005/10/23 14:36:35  laurentg
 // EPG programmes sorting optimized
 //
@@ -1499,6 +1502,13 @@ int CEPG::GetNextviewEPGProviders()
 	char* DefaultProvider = (char*)Setting_GetValue(EPG_GetSetting(EPG_NXTVEPGPROVIDER));
 	if (strlen(DefaultProvider) > 0)
 	{
+		if (!strcmp(DefaultProvider, "merged"))
+		{
+			newProvider = new string(DefaultProvider);
+			m_NextviewProviders.push_back(newProvider);
+			return m_NextviewProviders.size();
+		}
+
 		strcpy(SearchFiles, Exe);
 		c = strrchr(SearchFiles, '\\');
 		if (c)

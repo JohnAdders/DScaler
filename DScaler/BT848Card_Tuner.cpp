@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Tuner.cpp,v 1.20 2005-03-09 15:10:45 atnak Exp $
+// $Id: BT848Card_Tuner.cpp,v 1.21 2005-12-27 19:29:11 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2005/03/09 15:10:45  atnak
+// Added support for TDA8275 tuner and TDA8290.
+//
 // Revision 1.19  2005/03/09 09:49:33  atnak
 // Added a new ITuner::InitializeTuner() function for performing tuner chip
 // initializations.
@@ -121,6 +124,8 @@
 #include "BT848_VoodooTV_IFdem.h"
 #include "TDA8275.h"
 #include "TDA8290.h"
+#include "TEA5767.h"
+
 
 BOOL CBT848Card::InitTuner(eTunerId tunerId)
 {
@@ -249,8 +254,9 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
     // Scan the I2C bus addresses 0xC0 - 0xCF for tuners
     BOOL bFoundTuner = FALSE;
 
-    int kk = strlen(m_TunerType);
-    for (BYTE test = 0xC0; test < 0xCF; test +=2)
+	// Scan the I2C bus addresses 0xC0 - 0xCF for tuners.
+	BYTE test = IsTEA5767PresentAtC0(m_I2CBus) ? 0xC2 : 0xC0;
+	for ( ; test < 0xCF; test += 0x02)
     {
         if (m_I2CBus->Write(&test, sizeof(test)))
         {
@@ -259,10 +265,11 @@ BOOL CBT848Card::InitTuner(eTunerId tunerId)
             // Initialize the tuner.
             if (m_Tuner->InitializeTuner())
             {
-                sprintf(m_TunerType + kk, "@ I2C address 0x%02X", test);
-                bFoundTuner = TRUE;
-                LOG(1,"Tuner: Found at I2C address 0x%02x",test);
-                break;
+				bFoundTuner = TRUE;
+				int length = strlen(m_TunerType);
+				sprintf(m_TunerType + length, "@ I2C address 0x%02X", test);
+				LOG(1,"Tuner: Found at I2C address 0x%02x", test);
+				break;
             }
         }
     }

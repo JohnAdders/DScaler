@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Tuner.cpp,v 1.8 2005-05-12 20:06:22 to_see Exp $
+// $Id: CX2388xCard_Tuner.cpp,v 1.9 2005-12-27 19:29:35 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2005/05/12 20:06:22  to_see
+// Moved m_TunerHauppaugeAnalog to TunerID.h for common using for BT and CX cards.
+//
 // Revision 1.7  2005/03/09 15:10:45  atnak
 // Added support for TDA8275 tuner and TDA8290.
 //
@@ -160,19 +163,9 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
     // Scan the I2C bus addresses for tuners
     BOOL bFoundTuner = FALSE;
 
-    // Try to detect TEA5767 FM-Radio chip 
-    BYTE StartAddress;
-    if(IsTEA5767PresentAtC0(m_I2CBus))
-    {
-        StartAddress = 0xC2;
-    }
-    else
-    {
-        StartAddress = 0xC0;
-    }
-
-    int kk = strlen(m_TunerType);
-    for (BYTE test = StartAddress; test < 0xCF; test +=2)
+	// Scan the I2C bus addresses 0xC0 - 0xCF for tuners.
+	BYTE test = IsTEA5767PresentAtC0(m_I2CBus) ? 0xC2 : 0xC0;
+	for ( ; test < 0xCF; test += 0x02)
     {
         if (m_I2CBus->Write(&test, sizeof(test)))
         {
@@ -181,10 +174,11 @@ BOOL CCX2388xCard::InitTuner(eTunerId tunerId)
             // Initialize the tuner.
             if (m_Tuner->InitializeTuner())
             {
-                sprintf(m_TunerType + kk, " at I2C address 0x%02x", test);
-                bFoundTuner = TRUE;
-                LOG(1,"Tuner: Found at I2C address 0x%02x",test);
-                break;
+				bFoundTuner = TRUE;
+				int length = strlen(m_TunerType);
+				sprintf(m_TunerType + length, "@ I2C address 0x%02X", test);
+				LOG(1,"Tuner: Found at I2C address 0x%02x", test);
+				break;
             }
         }
     }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.65 2005-03-23 14:20:35 adcockj Exp $
+// $Id: AspectGUI.cpp,v 1.66 2006-01-23 12:39:08 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.65  2005/03/23 14:20:35  adcockj
+// Test fix for threading issues
+//
 // Revision 1.64  2005/01/12 21:42:04  robmuller
 // Zooming and zoom center now uses smaller steps.
 //
@@ -776,7 +779,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         break;
 
     case IDM_VT_PAGE_MINUS:
-        AspectSettings.ZoomCenterX -= 5;
+        AspectSettings.ZoomCenterX -= 1;
         if (AspectSettings.ZoomCenterX < -100)
         {
             AspectSettings.ZoomCenterX = -100;
@@ -786,7 +789,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         break;
 
     case IDM_VT_PAGE_PLUS:
-        AspectSettings.ZoomCenterX += 5;
+        AspectSettings.ZoomCenterX += 1;
         if (AspectSettings.ZoomCenterX > 200)
         {
             AspectSettings.ZoomCenterX = 200;
@@ -796,7 +799,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         break;
 
     case IDM_VT_PAGE_DOWN:
-        AspectSettings.ZoomCenterY += 5;
+        AspectSettings.ZoomCenterY += 1;
         if (AspectSettings.ZoomCenterY > 200)
         {
             AspectSettings.ZoomCenterY = 200;
@@ -806,7 +809,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
         break;
 
     case IDM_VT_PAGE_UP:
-        AspectSettings.ZoomCenterY -= 5;
+        AspectSettings.ZoomCenterY -= 1;
         if (AspectSettings.ZoomCenterY < -100)
         {
             AspectSettings.ZoomCenterY = 100;

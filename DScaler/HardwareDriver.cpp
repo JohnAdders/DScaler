@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareDriver.cpp,v 1.22 2003-10-27 10:39:51 adcockj Exp $
+// $Id: HardwareDriver.cpp,v 1.23 2006-03-16 17:20:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2003/10/27 10:39:51  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.21  2003/04/10 23:31:36  robmuller
 // Improved code to adjust access rights.
 //
@@ -109,8 +112,6 @@
 // define this to force uninstallation of the NT driver on every destruction of the class.
 //#define ALWAYS_UNINSTALL_NTDRIVER
 
-static const LPSTR NTDriverName = "DSDrv4";
-
 // the access rights that are needed to just use DScaler (no (un)installation).
 #define DRIVER_ACCESS_RIGHTS (SERVICE_START | SERVICE_STOP)
 
@@ -125,6 +126,16 @@ CHardwareDriver::CHardwareDriver()
     GetVersionEx( &ov);
     m_bWindows95 = (ov.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS);
     m_WeStartedDriver = TRUE;
+    strcpy(m_NTDriverName, "DSDrvNT");
+    
+    // we are a 32bit program possibly running on 64bit hardware
+    // if this is the case then we need to load up an arch
+    // specific driver, we just append the arch to the standard name
+    const char* arch64Bit = getenv("PROCESSOR_ARCHITEW6432");
+    if(arch64Bit)
+    {
+        strcat(m_NTDriverName, arch64Bit);
+    }
 }
 
 CHardwareDriver::~CHardwareDriver()
@@ -171,7 +182,7 @@ BOOL CHardwareDriver::LoadDriver()
 
         if(!bError)
         {
-            m_hService = OpenService(hSCManager, NTDriverName, DRIVER_ACCESS_RIGHTS);
+            m_hService = OpenService(hSCManager, m_NTDriverName, DRIVER_ACCESS_RIGHTS);
 
             if(m_hService == NULL)
             {
@@ -397,7 +408,7 @@ BOOL CHardwareDriver::InstallNTDriver()
 
     if(!bError)
     {
-        strcat(szDriverPath, NTDriverName);
+        strcat(szDriverPath, m_NTDriverName);
         strcat(szDriverPath, ".sys");       
         
         hSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
@@ -415,8 +426,8 @@ BOOL CHardwareDriver::InstallNTDriver()
 
         m_hService = CreateService(
             hSCManager,            // SCManager database
-            NTDriverName,          // name of service
-            NTDriverName,          // name to display
+            m_NTDriverName,          // name of service
+            m_NTDriverName,          // name to display
             SERVICE_ALL_ACCESS,    // desired access
             SERVICE_KERNEL_DRIVER, // service type
             SERVICE_DEMAND_START,  // start type
@@ -435,7 +446,7 @@ BOOL CHardwareDriver::InstallNTDriver()
             // this might prevent problems when the existing service points to another driver.
             if(GetLastError() == ERROR_SERVICE_EXISTS)
             {              
-                m_hService = OpenService(hSCManager, NTDriverName, SERVICE_ALL_ACCESS);
+                m_hService = OpenService(hSCManager, m_NTDriverName, SERVICE_ALL_ACCESS);
                 if(DeleteService(m_hService) == FALSE)
                 {
                     LOG(0,"DeleteService failed, error 0x%X", GetLastError());
@@ -450,8 +461,8 @@ BOOL CHardwareDriver::InstallNTDriver()
                 {
                     m_hService = CreateService(
                         hSCManager,            // SCManager database
-                        NTDriverName,          // name of service
-                        NTDriverName,          // name to display
+                        m_NTDriverName,          // name of service
+                        m_NTDriverName,          // name to display
                         SERVICE_ALL_ACCESS,    // desired access
                         SERVICE_KERNEL_DRIVER, // service type
                         SERVICE_DEMAND_START,  // start type
@@ -675,7 +686,7 @@ BOOL CHardwareDriver::UnInstallNTDriver()
 
         if(!bError)
         {
-            m_hService = OpenService(hSCManager, NTDriverName, SERVICE_ALL_ACCESS);
+            m_hService = OpenService(hSCManager, m_NTDriverName, SERVICE_ALL_ACCESS);
             if(m_hService == NULL)
             {
                 if(GetLastError() == ERROR_SERVICE_DOES_NOT_EXIST)

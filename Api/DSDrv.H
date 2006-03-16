@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSDrv.H,v 1.14 2004-04-14 10:01:59 adcockj Exp $
+// $Id: DSDrv.H,v 1.15 2006-03-16 17:20:55 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 //                                     Changed meaning of memory access parameters
 //                                     (see note in header)
 //
+// 13 Mar 2006   Michael Lutz          Adapted for Win64 support
+//                                     Bumped minor driver version
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #if ! defined (__DSDRVDEF_H)
@@ -42,8 +45,9 @@
 // define version number to be compiled into both files
 // we use this to make sure that we are speaking the same language in both the 
 // drivers and the dll
-#define DSDRV_VERSION 0x4003
+#define DSDRV_VERSION 0x4004
 
+// allocate a continous block of memory
 #define ALLOC_MEMORY_CONTIG 1
 
 typedef struct
@@ -52,6 +56,16 @@ typedef struct
 	DWORD dwPhysical;
 } TPageStruct, * PPageStruct;
 
+// keep struct size a multiple of 8, simplifies things for Itanium
+typedef struct
+{
+	ULONGLONG llPhysical;
+	DWORD dwSize;
+	DWORD dummy;
+} TPageStruct64, * PPageStruct64;
+
+// keep size of TMemStruct a multiple of 8 FOR 64-bit VERSIONS
+// sizeof(void*)==8 then, so it's okay right now
 typedef struct
 {
 	DWORD dwTotalSize;
@@ -64,7 +78,7 @@ typedef struct
 
 typedef struct
 {
-    DWORD  dwMemoryAddress;
+    DWORD*  dwMemoryAddress;
     DWORD  dwMemoryLength;
     DWORD  dwSubSystemId;
     DWORD  dwBusNumber;
@@ -202,6 +216,9 @@ extern "C" {
 #define IOCTL_DSDRV_SETPCICONFIGOFFSET \
     CTL_CODE(FILE_DEVICE_DSCALER, (DSDRV_BASE + 22), METHOD_OUT_DIRECT, FILE_ANY_ACCESS)
 
+#define IOCTL_DSDRV_ALLOCMEMORY64 \
+    CTL_CODE(FILE_DEVICE_DSCALER, (DSDRV_BASE + 23), METHOD_BUFFERED, FILE_ANY_ACCESS)
+
 
 /** These are the old codes used by older version of the driver
     and should not be used in new code
@@ -276,9 +293,9 @@ extern "C" {
 
 typedef struct tagDSDrvParam
 {
-	DWORD   dwAddress;
-	DWORD   dwValue;
-	DWORD   dwFlags;
+	DWORD*    dwAddress;
+	DWORD*    dwValue;
+	DWORD     dwFlags;
 } TDSDrvParam, * PDSDrvParam;
 
 //---------------------------------------------------------------------------

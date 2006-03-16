@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCIENUM.CPP,v 1.9 2004-04-14 10:02:02 adcockj Exp $
+// $Id: PCIENUM.CPP,v 1.10 2006-03-16 17:20:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -33,10 +33,15 @@
 //               Conexant Systems      that have had several boards installed
 //                                     over the life of the system.
 //                                     
+// 13 Mar 2006   Michael Lutz          Modifications for Win64
+//
 /////////////////////////////////////////////////////////////////////////////
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2004/04/14 10:02:02  adcockj
+// Added new offset functions for manipulating PCI config space
+//
 // Revision 1.8  2002/06/16 18:53:36  robmuller
 // Renamed pciGetDeviceConfig() to pciGetDeviceInfo().
 // Implemented pciGetDeviceConfig() and pciSetDeviceConfig().
@@ -68,7 +73,7 @@ NTSTATUS CIOAccessDevice::pciFindDevice(
                                             DWORD deviceID, 
                                             DWORD dwCardIndex,
                                             DWORD* pdwBusNumber, 
-                                            DWORD*  pdwSlotNumber
+                                            DWORD* pdwSlotNumber
                                        )
 {
     PCI_SLOT_NUMBER         slotNumber;
@@ -118,11 +123,11 @@ NTSTATUS CIOAccessDevice::pciFindDevice(
                 // Read the complete 256 bytes of configuration information
                 //
 
-                if(HalGetBusData(PCIConfiguration,
-                                     busNumber,
-                                     slotNumber.u.AsULONG,
-                                     &pciData,
-                                     sizeof(DWORD)) == 0)
+                if(HalGetBusDataByOffset(PCIConfiguration,
+                                    busNumber,
+                                    slotNumber.u.AsULONG,
+                                    &pciData, 0,
+                                    sizeof(DWORD)) == 0)
                 {
                     //
                     // The specified PCI bus does not exist.  We are done
@@ -179,6 +184,11 @@ NTSTATUS CIOAccessDevice::pciGetDeviceInfo(TPCICARDINFO* pPCICardInfo)
                                                     PCIConfig.u.type0.InterruptLine);
 
     pPCICardInfo->dwMemoryAddress = PCIConfig.u.type0.BaseAddresses[0] & 0xFFFFFFF0;
+#ifdef _WIN64
+    // TODO: test with actual hardware
+    if ((PCIConfig.u.type0.BaseAddresses[0] & 0x6) == 0x4)
+        pPCICardInfo->dwMemoryAddress |= (DWORD_PTR)(PCIConfig.u.type0.BaseAddresses[1] & 0xFFFFFFFF) << 32ULL;
+#endif
     pPCICardInfo->dwMemoryLength = 0x1000;
     pPCICardInfo->dwSubSystemId = (PCIConfig.u.type0.SubSystemID << 16) + PCIConfig.u.type0.SubVendorID;
 
@@ -189,14 +199,14 @@ NTSTATUS CIOAccessDevice::pciGetDeviceConfig(PCI_COMMON_CONFIG *pPCIConfig, DWOR
 {
     debugOut(dbTrace,"get pci configuration for bus %X slot %X",Bus, Slot);
 
-    return HalGetBusData(PCIConfiguration, Bus, Slot, pPCIConfig, sizeof(PCI_COMMON_CONFIG));
+    return HalGetBusDataByOffset(PCIConfiguration, Bus, Slot, pPCIConfig, 0, sizeof(PCI_COMMON_CONFIG));
 }
 
 NTSTATUS CIOAccessDevice::pciSetDeviceConfig(PCI_COMMON_CONFIG *pPCIConfig, DWORD Bus, DWORD Slot)
 {
     debugOut(dbTrace,"set pci configuration for bus %X slot %X",Bus, Slot);
 
-    return HalSetBusData(PCIConfiguration, Bus, Slot, pPCIConfig, sizeof(PCI_COMMON_CONFIG));
+    return HalSetBusDataByOffset(PCIConfiguration, Bus, Slot, pPCIConfig, 0, sizeof(PCI_COMMON_CONFIG));
 }
 
 

@@ -46,18 +46,22 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "Comments", "John Adcock & Mathias Ellinger\0"
+            VALUE "Comments", "John Adcock, Mathias Ellinger & Michael Lutz\0"
             VALUE "CompanyName", "\0"
             VALUE "FileDescription", "hardware access driver\0"
             VALUE "FileVersion", VERSTRING_ZT
             VALUE "InternalName", "DSDrv4.sys\0"
-            VALUE "LegalCopyright", "Copyright © 2000, 2001, 2002, 2003\0"
+            VALUE "LegalCopyright", "Copyright © 2000, 2001, 2002, 2003, 2006\0"
             VALUE "LegalTrademarks", "This driver is covered by the term of the GNU GPL\0"
             VALUE "OriginalFilename", "DSDrv4.sys\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "\0"
             VALUE "ProductVersion", VERSTRING_ZT
+#ifdef _WIN64
+            VALUE "SpecialBuild", "64-bit enabled\0"
+#else
             VALUE "SpecialBuild", "\0"
+#endif
         END
     END
     BLOCK "VarFileInfo"
@@ -108,4 +112,3 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
-

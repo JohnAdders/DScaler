@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Ioclass.cpp,v 1.14 2005-05-13 10:12:46 adcockj Exp $
+// $Id: Ioclass.cpp,v 1.15 2006-03-16 17:20:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -29,10 +29,15 @@
 // 24 Jul 2000   John Adcock           Original dTV Release
 //                                     Added Memory Alloc functions
 //
+// 13 Mar 2006   Michael Lutz          Modifications for Win64
+//
 /////////////////////////////////////////////////////////////////////////////
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2005/05/13 10:12:46  adcockj
+// fixed uninitialised variable
+//
 // Revision 1.13  2004/04/14 10:02:02  adcockj
 // Added new offset functions for manipulating PCI config space
 //
@@ -69,14 +74,21 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "precomp.h"
+#include "DSDrvNt.h"
 
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
 CIOAccessDevice::CIOAccessDevice(void) :
-    m_AllowDepricatedIOCTLs(false)
+    m_AllowDeprecatedIOCTLs(false)
 {
     memset(&memoryList, 0, sizeof(memoryList));
+    memset(&mappingList, 0, sizeof(mappingList));
+    
+#ifndef _WIN64
+    // only on win32
+    m_PAEEnabled = ExIsProcessorFeaturePresent(PF_PAE_ENABLED) == TRUE;
+#endif
 }
 
 //---------------------------------------------------------------------------
@@ -95,10 +107,20 @@ CIOAccessDevice::~CIOAccessDevice()
     {
         node = &memoryList[Index];
 
-        if(node->dwSystemAddress)
+        if(node->pSystemAddress)
         {
             freeMemory (node);
         }
+    }
+    
+    //
+    // Remove mappings
+    //
+    
+    for (Index = 0; Index < MAX_FREE_MAPPING_NODES; Index++)
+    {
+        if ( mappingList[Index].pUser )
+            unmapMemory(mappingList[Index].pUser, mappingList[Index].ulLength);
     }
 }
 
@@ -115,7 +137,14 @@ NTSTATUS CIOAccessDevice::deviceIOControl(PIRP irp)
     DWORD                   outputBufferLength;
     NTSTATUS                ntStatus;
     DWORD                   ioControlCode;
+    TDSDrvParam             ioDrvParam;
+    bool                    is32 = false;
 
+#ifdef _WIN64
+    is32 = IoIs32bitProcess( irp ) == TRUE;
+#endif
+    
+    RtlZeroMemory( &ioDrvParam, sizeof(TDSDrvParam) );
     //
     // Get a pointer to the current location in the Irp. This is where
     //     the function codes and parameters are located.
@@ -137,7 +166,7 @@ NTSTATUS CIOAccessDevice::deviceIOControl(PIRP irp)
         }
         else
         {
-            inputBuffer        = irp->AssociatedIrp.SystemBuffer;
+            inputBuffer       = irp->AssociatedIrp.SystemBuffer;
         }
 
         inputBufferLength   = irpStack->Parameters.DeviceIoControl.InputBufferLength;
@@ -149,6 +178,8 @@ NTSTATUS CIOAccessDevice::deviceIOControl(PIRP irp)
         if ( irp->MdlAddress )
         {
             outputBuffer      = MmGetSystemAddressForMdl( irp->MdlAddress );
+            if (!outputBuffer)
+                debugOut(dbError, "No address for MDL (io=%X)", ioControlCode);
         }
         else
         {
@@ -167,11 +198,38 @@ NTSTATUS CIOAccessDevice::deviceIOControl(PIRP irp)
         outputBufferLength = irpStack->Parameters.DeviceIoControl.OutputBufferLength;
         break;
     }
-
-    ntStatus = deviceControl(ioControlCode,
-                            (PDSDrvParam) inputBuffer,
-                            (PULONG) outputBuffer,
-                            &irp->IoStatus.Information);
+    
+    if ( ioControlCode == IOCTL_DSDRV_FREEMEMORY )
+        // inputBuffer points to a PMemStruct
+        ntStatus = deviceControl(ioControlCode,
+                                (PDSDrvParam) inputBuffer,
+                                (DWORD*) outputBuffer, outputBufferLength,
+                                &irp->IoStatus.Information, is32);
+    else
+    {
+#ifdef _WIN64
+        if ( is32 )
+        {
+            debugOut(dbTrace, "thunking needed: size=%d", inputBufferLength);
+            PDSDrvParam_32 in32 = (PDSDrvParam_32)inputBuffer;
+            if ( inputBufferLength >= sizeof(DWORD) )
+                ioDrvParam.dwAddress = (DWORD_PTR)(in32->dwAddress);
+            if ( inputBufferLength >= (sizeof(DWORD) + FIELD_OFFSET(TDSDrvParam_32, dwValue)) )
+                ioDrvParam.dwValue = (DWORD_PTR)(in32->dwValue);
+            if ( inputBufferLength >= (sizeof(DWORD) + FIELD_OFFSET(TDSDrvParam_32, dwFlags)) )
+                ioDrvParam.dwFlags = in32->dwFlags;
+        }
+        else
+#endif
+            if ( inputBufferLength > 0 )
+                RtlCopyMemory( &ioDrvParam, inputBuffer,
+                    inputBufferLength > sizeof(TDSDrvParam) ? sizeof(TDSDrvParam) : inputBufferLength );
+                
+        ntStatus = deviceControl(ioControlCode,
+                                &ioDrvParam,
+                                (DWORD*) outputBuffer, outputBufferLength,
+                                &irp->IoStatus.Information, is32);
+    }
 
     return ntStatus;
 }
@@ -183,7 +241,7 @@ NTSTATUS CIOAccessDevice::deviceIOControl(PIRP irp)
 // The READ/WRITE_REGISTER_* calls manipulate I/O registers in MEMORY space.
 // (Use x86 move instructions)
 //---------------------------------------------------------------------------
-NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam, DWORD* outputBuffer, DWORD* pBytesWritten)
+NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam, DWORD* outputBuffer, DWORD outLen, DWORD_PTR* pBytesWritten, bool is32)
 {
     NTSTATUS Status;
 
@@ -193,7 +251,7 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
     switch ( ioControlCode )
     {
     case IOCTL_DEPRICATED_READPORTBYTE:
-        if(m_AllowDepricatedIOCTLs == false)
+        if(m_AllowDeprecatedIOCTLs == false)
         {
             debugOut(dbError,"Called on Deprecated Interface %lX",ioControlCode);
             return STATUS_INVALID_PARAMETER;
@@ -208,7 +266,7 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         break;
 
     case IOCTL_DEPRICATED_READPORTWORD:
-        if(m_AllowDepricatedIOCTLs == false)
+        if(m_AllowDeprecatedIOCTLs == false)
         {
             debugOut(dbError,"Called on Deprecated Interface %lX",ioControlCode);
             return STATUS_INVALID_PARAMETER;
@@ -223,7 +281,7 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         break;
 
     case IOCTL_DEPRICATED_READPORTDWORD:
-        if(m_AllowDepricatedIOCTLs == false)
+        if(m_AllowDeprecatedIOCTLs == false)
         {
             debugOut(dbError,"Called on Deprecated Interface %lX",ioControlCode);
             return STATUS_INVALID_PARAMETER;
@@ -237,7 +295,7 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         break;
 
     case IOCTL_DEPRICATED_WRITEPORTBYTE:
-        if(m_AllowDepricatedIOCTLs == false)
+        if(m_AllowDeprecatedIOCTLs == false)
         {
             debugOut(dbError,"Called on Deprecated Interface %lX",ioControlCode);
             return STATUS_INVALID_PARAMETER;
@@ -248,7 +306,7 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         break;
 
     case IOCTL_DEPRICATED_WRITEPORTWORD:
-        if(m_AllowDepricatedIOCTLs == false)
+        if(m_AllowDeprecatedIOCTLs == false)
         {
             debugOut(dbError,"Called on Deprecated Interface %lX",ioControlCode);
             return STATUS_INVALID_PARAMETER;
@@ -259,18 +317,18 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         break;
 
     case IOCTL_DEPRICATED_WRITEPORTDWORD:
-        if(m_AllowDepricatedIOCTLs == false)
+        if(m_AllowDeprecatedIOCTLs == false)
         {
             debugOut(dbError,"Called on Deprecated Interface %lX",ioControlCode);
             return STATUS_INVALID_PARAMETER;
         }
         // ... deliberate drop through ...
     case IOCTL_DSDRV_WRITEPORTDWORD:
-        WRITE_PORT_ULONG(&ioParam->dwAddress, (ULONG)ioParam->dwValue);
+        WRITE_PORT_ULONG((PULONG)&ioParam->dwAddress, (ULONG)ioParam->dwValue);
         break;
 
     case IOCTL_DEPRICATED_GETPCIINFO:
-        if(m_AllowDepricatedIOCTLs == false)
+        if(m_AllowDeprecatedIOCTLs == false)
         {
             debugOut(dbError,"Called on Deprecated Interface %lX",ioControlCode);
             return STATUS_INVALID_PARAMETER;
@@ -279,33 +337,58 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
     case IOCTL_DSDRV_GETPCIINFO:
         if (isValidAddress(outputBuffer))
         {
-            TPCICARDINFO* pPCICardInfo = (TPCICARDINFO*)outputBuffer;
+            TPCICARDINFO tPCICardInfo;
             Status = pciFindDevice(
-                                       ioParam->dwAddress,
-                                       ioParam->dwValue,
+                                       (DWORD)ioParam->dwAddress,
+                                       (DWORD)ioParam->dwValue,
                                        ioParam->dwFlags,
-                                       &(pPCICardInfo->dwBusNumber),
-                                       &(pPCICardInfo->dwSlotNumber)
+                                       &(tPCICardInfo.dwBusNumber),
+                                       &(tPCICardInfo.dwSlotNumber)
                                   );
 
-            if ( Status == STATUS_SUCCESS)
+            if (Status == STATUS_SUCCESS)
             {
-                Status = pciGetDeviceInfo(pPCICardInfo);
+                Status = pciGetDeviceInfo(&tPCICardInfo);
+                if (Status == STATUS_SUCCESS)
+                {
+#ifdef _WIN64
+                    if ( is32 )
+                    {
+                        TPCICARDINFO_32 *pPCI32 = (TPCICARDINFO_32*)outputBuffer;
+                        if ((UINT_PTR)tPCICardInfo.dwMemoryAddress > 0xFFFFFFFFU)
+                        {
+                            // Too bad, not in good address space
+                            debugOut(dbError, "ioctlGetPCIInfo: hardware address not in range (0x%IX)", tPCICardInfo.dwMemoryAddress);
+                            return STATUS_CONFLICTING_ADDRESSES;
+                        }
+                        pPCI32->dwMemoryAddress = (DWORD)tPCICardInfo.dwMemoryAddress;
+                        pPCI32->dwMemoryLength = tPCICardInfo.dwMemoryLength;
+                        pPCI32->dwSubSystemId = tPCICardInfo.dwSubSystemId;
+                        pPCI32->dwBusNumber = tPCICardInfo.dwBusNumber;
+                        pPCI32->dwSlotNumber = tPCICardInfo.dwSlotNumber;
+                        *pBytesWritten = sizeof(TPCICARDINFO_32);
+                    }
+                    else
+#endif
+                    {
+                        RtlCopyMemory(outputBuffer, &tPCICardInfo, sizeof(TPCICARDINFO));
+                        *pBytesWritten = sizeof(TPCICARDINFO);
+                    }
+                }
             }
             else
             {
-                debugOut(dbTrace,"ioctlGetPCIInfo: pci device for vendor %lX deviceID %lX not found",ioParam->dwAddress,ioParam->dwValue);
+                debugOut(dbTrace,"ioctlGetPCIInfo: pci device for vendor %lX deviceID %lX not found", (DWORD)ioParam->dwAddress, (DWORD)ioParam->dwValue);
             }
-            *pBytesWritten = sizeof(TPCICARDINFO);
         }
         else
         {
-            debugOut(dbError,"! invalid system address %X",outputBuffer);
+            debugOut(dbError,"! invalid system address %IX",outputBuffer);
         }
         break;
 
     case IOCTL_DEPRICATED_ALLOCMEMORY:
-        if(m_AllowDepricatedIOCTLs == false)
+        if(m_AllowDeprecatedIOCTLs == false)
         {
             debugOut(dbError,"Called on Deprecated Interface %lX",ioControlCode);
             return STATUS_INVALID_PARAMETER;
@@ -313,14 +396,100 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         // ... deliberate drop through ...
     case IOCTL_DSDRV_ALLOCMEMORY:
         {
-            PMemStruct pMem = (PMemStruct)outputBuffer;
-            Status = allocMemory(ioParam->dwValue, ioParam->dwFlags, ioParam->dwAddress,  pMem);
-            *pBytesWritten = sizeof(TMemStruct) + pMem->dwPages * sizeof(TPageStruct);
+#ifdef _WIN64
+            if (is32)
+            {
+                PMemStruct_32 pMem32 = (PMemStruct_32)outputBuffer;
+                char *outBuf = new char[outLen+sizeof(DWORD)];
+                if (!outBuf)
+                {
+                    debugOut(dbError, "allocMemory: not enough memory for buffer");
+                    return STATUS_INSUFFICIENT_RESOURCES;
+                }
+                PMemStruct pMem = (PMemStruct)outBuf;
+                Status = allocMemory((ULONG)ioParam->dwValue, ioParam->dwFlags, (PVOID)ioParam->dwAddress, pMem, false);
+                if (Status == STATUS_SUCCESS)
+                {
+                    // thunk to 32-bit structure
+                    pMem32->dwTotalSize = pMem->dwTotalSize;
+                    pMem32->dwPages = pMem->dwPages;
+                    pMem32->dwHandle = pMem->dwHandle;
+                    pMem32->dwFlags = pMem->dwFlags;
+                    if ((UINT_PTR)pMem->dwUser > 0xFFFFFFFFU)
+                    {
+                        // Too bad, not in address space range
+                        debugOut(dbError, "allocMemory() returned 64-bit address: 0x%IX. User address was 0x%IX", pMem->dwUser, ioParam->dwAddress);
+                        delete[] outBuf;
+                        return STATUS_CONFLICTING_ADDRESSES;
+                    }
+                    pMem32->dwUser = PtrToUint(pMem->dwUser);
+                    // copy page structs
+                    RtlCopyMemory(pMem32+1, pMem+1, sizeof(TPageStruct) * pMem32->dwPages);
+                    
+                    *pBytesWritten = sizeof(TMemStruct_32) + pMem32->dwPages * sizeof(TPageStruct);
+                }
+                delete[] outBuf;
+            }
+            else
+#endif
+            {
+                Status = allocMemory((ULONG)ioParam->dwValue, ioParam->dwFlags, (PVOID)ioParam->dwAddress, (PMemStruct)outputBuffer, false);
+                *pBytesWritten = sizeof(TMemStruct) + ((PMemStruct)outputBuffer)->dwPages * sizeof(TPageStruct);
+            }
+            
+        }
+        break;
+
+    case IOCTL_DSDRV_ALLOCMEMORY64:
+        // allocate memory above 4GB
+        // almost a copy of above, just with TPageStruct64s
+        {
+#ifdef _WIN64
+            if (is32)
+            {
+                PMemStruct_32 pMem32 = (PMemStruct_32)outputBuffer;
+                char *outBuf = new char[outLen+sizeof(DWORD)];
+                if (!outBuf)
+                {
+                    debugOut(dbError, "allocMemory: not enough memory for buffer");
+                    return STATUS_INSUFFICIENT_RESOURCES;
+                }
+                PMemStruct pMem = (PMemStruct)outBuf;
+                Status = allocMemory((ULONG)ioParam->dwValue, ioParam->dwFlags, (PVOID)ioParam->dwAddress, pMem, true);
+                if (Status == STATUS_SUCCESS)
+                {
+                    // thunk to 32-bit structure
+                    pMem32->dwTotalSize = pMem->dwTotalSize;
+                    pMem32->dwPages = pMem->dwPages;
+                    pMem32->dwHandle = pMem->dwHandle;
+                    pMem32->dwFlags = pMem->dwFlags;
+                    if ((UINT_PTR)pMem->dwUser > 0xFFFFFFFFU)
+                    {
+                        // Too bad, not in address space range
+                        debugOut(dbError, "allocMemory() returned 64-bit address: 0x%IX. User address was 0x%IX", pMem->dwUser, ioParam->dwAddress);
+                        delete[] outBuf;
+                        return STATUS_CONFLICTING_ADDRESSES;
+                    }
+                    pMem32->dwUser = PtrToUint(pMem->dwUser);
+                    // copy page structs
+                    RtlCopyMemory(pMem32+1, pMem+1, sizeof(TPageStruct64) * pMem32->dwPages);
+                    
+                    *pBytesWritten = sizeof(TMemStruct_32) + pMem32->dwPages * sizeof(TPageStruct64);
+                }
+                delete[] outBuf;
+            }
+            else
+#endif
+            {
+                Status = allocMemory((ULONG)ioParam->dwValue, ioParam->dwFlags, (PVOID)ioParam->dwAddress, (PMemStruct)outputBuffer, true);
+                *pBytesWritten = sizeof(TMemStruct) + ((PMemStruct)outputBuffer)->dwPages * sizeof(TPageStruct64);
+            }
+            
         }
         break;
 
     case IOCTL_DEPRICATED_FREEMEMORY:
-        if(m_AllowDepricatedIOCTLs == false)
+        if(m_AllowDeprecatedIOCTLs == false)
         {
             debugOut(dbError,"Called on Deprecated Interface %lX",ioControlCode);
             return STATUS_INVALID_PARAMETER;
@@ -328,36 +497,70 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         // ... deliberate drop through ...
     case IOCTL_DSDRV_FREEMEMORY:
         {
-            PMemStruct pMem = (PMemStruct)ioParam;
-            Status = freeMemory(pMem);
+#ifdef _WIN64
+            if (is32)
+            {
+                PMemStruct_32   pMem32 = (PMemStruct_32)ioParam;
+                TMemStruct      tMem;
+                tMem.dwTotalSize = pMem32->dwTotalSize;
+                tMem.dwPages = pMem32->dwPages;
+                tMem.dwHandle = pMem32->dwHandle;
+                tMem.dwFlags = pMem32->dwFlags;
+                tMem.dwUser = UintToPtr(pMem32->dwUser);
+                Status = freeMemory(&tMem);
+            }
+            else
+#endif
+            {
+                PMemStruct pMem = (PMemStruct)ioParam;
+                Status = freeMemory(pMem);
+            }
         }
         break;
 
     case IOCTL_DEPRICATED_MAPMEMORY:
-        if(m_AllowDepricatedIOCTLs == false)
+        if(m_AllowDeprecatedIOCTLs == false)
         {
             debugOut(dbError,"Called on Deprecated Interface %lX",ioControlCode);
             return STATUS_INVALID_PARAMETER;
         }
         // ... deliberate drop through ...
     case IOCTL_DSDRV_MAPMEMORY:
-        *outputBuffer = mapMemory(ioParam->dwAddress,  ioParam->dwValue, ioParam->dwFlags);
-        *pBytesWritten = 4;
+#ifdef _WIN64
+        if (is32)
+        {
+            PVOID   out = NULL;
+            Status = mapMemory((DWORD)ioParam->dwAddress, ioParam->dwValue, ioParam->dwFlags, &out);
+            if ( (UINT_PTR)out > 0xFFFFFFFFU ) {
+                debugOut(dbError, "mapMemory() returned 64-bit address: 0x%IX. Input was 0x%IX", out, ioParam->dwValue);
+                return STATUS_CONFLICTING_ADDRESSES;
+            }
+            *(DWORD*)outputBuffer = PtrToUint(out);
+            *pBytesWritten = sizeof(DWORD);
+            debugOut(dbTrace, "mapMemory() returned user address 0x%X", *(DWORD*)outputBuffer);
+        }
+        else
+#endif
+        {
+            Status = mapMemory((DWORD)ioParam->dwAddress, ioParam->dwValue, ioParam->dwFlags, (PVOID*)outputBuffer);
+            *pBytesWritten = sizeof(PVOID);
+            debugOut(dbTrace, "mapMemory() returned user address 0x%IX", *(DWORD_PTR*)outputBuffer);
+        }
         break;
 
     case IOCTL_DEPRICATED_UNMAPMEMORY:
-        if(m_AllowDepricatedIOCTLs == false)
+        if(m_AllowDeprecatedIOCTLs == false)
         {
             debugOut(dbError,"Called on Deprecated Interface %lX",ioControlCode);
             return STATUS_INVALID_PARAMETER;
         }
         // ... deliberate drop through ...
     case IOCTL_DSDRV_UNMAPMEMORY:
-        unmapMemory(ioParam->dwAddress,  ioParam->dwValue);
+        unmapMemory((PVOID)ioParam->dwAddress, (ULONG)ioParam->dwValue);
         break;
 
     case IOCTL_DEPRICATED_READMEMORYDWORD:
-        if(m_AllowDepricatedIOCTLs == false)
+        if(m_AllowDeprecatedIOCTLs == false)
         {
             debugOut(dbError,"Called on Deprecated Interface %lX",ioControlCode);
             return STATUS_INVALID_PARAMETER;
@@ -366,14 +569,14 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
     case IOCTL_DSDRV_READMEMORYDWORD:
         if (ioParam->dwAddress)
         {
-            *outputBuffer = READ_REGISTER_ULONG((PULONG)ioParam->dwAddress);
+            *outputBuffer = READ_REGISTER_ULONG((PULONG)(ioParam->dwAddress));
             *pBytesWritten = 4;
-            debugOut(dbTrace,"memory %X read %X",ioParam->dwAddress, *outputBuffer);
+            debugOut(dbTrace,"memory %IX read %X",ioParam->dwAddress, *outputBuffer);
         }
         break;
 
     case IOCTL_DEPRICATED_WRITEMEMORYDWORD:
-        if(m_AllowDepricatedIOCTLs == false)
+        if(m_AllowDeprecatedIOCTLs == false)
         {
             debugOut(dbError,"Called on Deprecated Interface %lX",ioControlCode);
             return STATUS_INVALID_PARAMETER;
@@ -382,13 +585,13 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
     case IOCTL_DSDRV_WRITEMEMORYDWORD:
         if (ioParam->dwAddress)
         {
-            WRITE_REGISTER_ULONG((PULONG)ioParam->dwAddress, ioParam->dwValue);
-            debugOut(dbTrace,"memory %X write %X",ioParam->dwAddress, ioParam->dwValue);
+            WRITE_REGISTER_ULONG((PULONG)ioParam->dwAddress, (ULONG)ioParam->dwValue);
+            debugOut(dbTrace,"memory %IX write %X",ioParam->dwAddress, ioParam->dwValue);
         }
         break;
 
     case IOCTL_DEPRICATED_READMEMORYWORD:
-        if(m_AllowDepricatedIOCTLs == false)
+        if(m_AllowDeprecatedIOCTLs == false)
         {
             debugOut(dbError,"Called on Deprecated Interface %lX",ioControlCode);
             return STATUS_INVALID_PARAMETER;
@@ -398,14 +601,14 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         if (ioParam->dwAddress)
         {
             USHORT* pWord = (USHORT*)outputBuffer;
-            *pWord = READ_REGISTER_USHORT((PUSHORT)ioParam->dwAddress);
+            *pWord = READ_REGISTER_USHORT((PUSHORT)(ioParam->dwAddress));
             *pBytesWritten = 2;
-            debugOut(dbTrace,"memory %X read %X",ioParam->dwAddress, *pWord);
+            debugOut(dbTrace,"memory %IX read %lX",ioParam->dwAddress, *pWord);
         }
         break;
 
     case IOCTL_DEPRICATED_WRITEMEMORYWORD:
-        if(m_AllowDepricatedIOCTLs == false)
+        if(m_AllowDeprecatedIOCTLs == false)
         {
             debugOut(dbError,"Called on Deprecated Interface %lX",ioControlCode);
             return STATUS_INVALID_PARAMETER;
@@ -415,12 +618,12 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         if (ioParam->dwAddress)
         {
             WRITE_REGISTER_USHORT((PUSHORT)ioParam->dwAddress, (USHORT)ioParam->dwValue);
-            debugOut(dbTrace,"memory %X write %X",ioParam->dwAddress, ioParam->dwValue);
+            debugOut(dbTrace,"memory %IX write %X",ioParam->dwAddress, ioParam->dwValue);
         }
         break;
 
     case IOCTL_DEPRICATED_READMEMORYBYTE:
-        if(m_AllowDepricatedIOCTLs == false)
+        if(m_AllowDeprecatedIOCTLs == false)
         {
             debugOut(dbError,"Called on Deprecated Interface %lX",ioControlCode);
             return STATUS_INVALID_PARAMETER;
@@ -430,14 +633,15 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         if (ioParam->dwAddress)
         {
             UCHAR* pByte = (UCHAR*)outputBuffer;
-            *pByte = READ_REGISTER_UCHAR((PUCHAR)ioParam->dwAddress);
+            *pByte = READ_REGISTER_UCHAR((PUCHAR)(ioParam->dwAddress));
             *pBytesWritten = 1;
-            debugOut(dbTrace,"memory %X read %X",ioParam->dwAddress, *pByte);
-        }
+            debugOut(dbTrace, "memory %IX read %lX (to 0x%IX)", ioParam->dwAddress, *pByte, outputBuffer);
+        } else
+            debugOut(dbError, " ! memory read no address");
         break;
 
     case IOCTL_DEPRICATED_WRITEMEMORYBYTE:
-        if(m_AllowDepricatedIOCTLs == false)
+        if(m_AllowDeprecatedIOCTLs == false)
         {
             debugOut(dbError,"Called on Deprecated Interface %lX",ioControlCode);
             return STATUS_INVALID_PARAMETER;
@@ -447,7 +651,7 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         if (ioParam->dwAddress)
         {
             WRITE_REGISTER_UCHAR((PUCHAR)ioParam->dwAddress, (UCHAR)ioParam->dwValue);
-            debugOut(dbTrace,"memory %X write %X",ioParam->dwAddress, ioParam->dwValue);
+            debugOut(dbTrace,"memory %IX write %X",ioParam->dwAddress, ioParam->dwValue);
         }
         break;
 
@@ -458,7 +662,7 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         // IOCTLS that we depricated because of problems in XP
         *outputBuffer = DSDRV_VERSION;
         *pBytesWritten = sizeof(DWORD);
-        m_AllowDepricatedIOCTLs = true;
+        m_AllowDeprecatedIOCTLs = true;
         break;
 
     case IOCTL_DSDRV_GETVERSION:
@@ -467,7 +671,7 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         break;
 
     case IOCTL_DEPRICATED_GETPCICONFIG:
-        if(m_AllowDepricatedIOCTLs == false)
+        if(m_AllowDeprecatedIOCTLs == false)
         {
             debugOut(dbError,"Called on Deprecated Interface %lX",ioControlCode);
             return STATUS_INVALID_PARAMETER;
@@ -478,18 +682,18 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         {
             PCI_COMMON_CONFIG *pPCIConfig = (PCI_COMMON_CONFIG*)outputBuffer;
 
-            Status = pciGetDeviceConfig(pPCIConfig, ioParam->dwAddress, ioParam->dwValue);
+            Status = pciGetDeviceConfig(pPCIConfig, (DWORD)ioParam->dwAddress, (DWORD)ioParam->dwValue);
 
             *pBytesWritten = sizeof(PCI_COMMON_CONFIG);
         }
         else
         {
-            debugOut(dbError,"! invalid system address %X",outputBuffer);
+            debugOut(dbError,"! invalid system address %IX",outputBuffer);
         }
         break;
 
     case IOCTL_DEPRICATED_SETPCICONFIG:
-        if(m_AllowDepricatedIOCTLs == false)
+        if(m_AllowDeprecatedIOCTLs == false)
         {
             debugOut(dbError,"Called on Deprecated Interface %lX",ioControlCode);
             return STATUS_INVALID_PARAMETER;
@@ -500,13 +704,13 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         {
             PCI_COMMON_CONFIG *pPCIConfig = (PCI_COMMON_CONFIG*)outputBuffer;
 
-            Status = pciSetDeviceConfig(pPCIConfig, ioParam->dwAddress, ioParam->dwValue);
+            Status = pciSetDeviceConfig(pPCIConfig, (DWORD)ioParam->dwAddress, (DWORD)ioParam->dwValue);
 
             *pBytesWritten = sizeof(PCI_COMMON_CONFIG);
         }
         else
         {
-            debugOut(dbError,"! invalid system address %X",outputBuffer);
+            debugOut(dbError,"! invalid system address %IX",outputBuffer);
         }
         break;
 
@@ -515,13 +719,13 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         {
             BYTE *pPCIConfig = (BYTE*)outputBuffer;
 
-            Status = pciGetDeviceConfigOffset(pPCIConfig, ioParam->dwFlags, ioParam->dwAddress, ioParam->dwValue);
+            Status = pciGetDeviceConfigOffset(pPCIConfig, ioParam->dwFlags, (DWORD)ioParam->dwAddress, (DWORD)ioParam->dwValue);
 
             *pBytesWritten = 1;
         }
         else
         {
-            debugOut(dbError,"! invalid system address %X",outputBuffer);
+            debugOut(dbError,"! invalid system address %IX",outputBuffer);
         }
         break;
 
@@ -530,13 +734,13 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         {
             BYTE *pPCIConfig = (BYTE*)outputBuffer;
 
-            Status = pciSetDeviceConfigOffset(pPCIConfig, ioParam->dwFlags, ioParam->dwAddress, ioParam->dwValue);
+            Status = pciSetDeviceConfigOffset(pPCIConfig, ioParam->dwFlags, (DWORD)ioParam->dwAddress, (DWORD)ioParam->dwValue);
 
             *pBytesWritten = 1;
         }
         else
         {
-            debugOut(dbError,"! invalid system address %X",outputBuffer);
+            debugOut(dbError,"! invalid system address %IX",outputBuffer);
         }
         break;
 
@@ -546,6 +750,7 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         *pBytesWritten = 0;
         break;
     }
+    debugOut(dbExit, "");
     return Status;
 }
 
@@ -554,13 +759,13 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
 //---------------------------------------------------------------------------
 int CIOAccessDevice::isValidAddress(void * pvAddress)
 {
-    return MmIsAddressValid( pvAddress);
+    return MmIsAddressValid(pvAddress);
 }
 
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
-NTSTATUS CIOAccessDevice::allocMemory(DWORD dwLength, DWORD dwFlags, DWORD dwUserAddress, PMemStruct pMemStruct)
+NTSTATUS CIOAccessDevice::allocMemory(ULONG ulLength, DWORD dwFlags, PVOID pUserAddress, PMemStruct pMemStruct, bool above4G)
 {
     NTSTATUS      ntStatus;
     PMemoryNode   node;
@@ -572,19 +777,33 @@ NTSTATUS CIOAccessDevice::allocMemory(DWORD dwLength, DWORD dwFlags, DWORD dwUse
     pMemStruct->dwHandle = 0;
     pMemStruct->dwPages = 0;
     pMemStruct->dwTotalSize = 0;
-    pMemStruct->dwUser = (void*)dwUserAddress;
+    pMemStruct->dwUser = pUserAddress;
+
+    // don't return memory above 4GB unless the app wants it.
+    // it seems the only way to ensure that is via MmAllocateContiguousMemory().    
+    // FIXME: determine highest physical address and use for decision
+#ifdef _WIN64
+    if (!above4G)
+#else
+    if (!above4G && m_PAEEnabled)
+#endif
+    {
+        dwFlags |= ALLOC_MEMORY_CONTIG;
+        debugOut(dbTrace, "allocMemory set contig b/c of 4gb limit");
+    }
 
     //
     //  First alloc our own free memory descriptor
     //
-    debugOut(dbTrace,"allocMemory %lu ",dwLength);
+    debugOut(dbTrace,"allocMemory %lu ",ulLength);
 
     for ( dwIndex = 0; dwIndex < MAX_FREE_MEMORY_NODES; dwIndex++)
     {
         node = &memoryList[ dwIndex ];
 
-        if ( ! node->dwSystemAddress )
+        if ( ! node->pSystemAddress )
         {
+            node->pSystemAddress = (PVOID)1; // mark as used
             break;
         }
     }
@@ -599,44 +818,67 @@ NTSTATUS CIOAccessDevice::allocMemory(DWORD dwLength, DWORD dwFlags, DWORD dwUse
 
     PHYSICAL_ADDRESS highestAcceptableAddress;
 
-    highestAcceptableAddress.LowPart  =  -1;
-    highestAcceptableAddress.HighPart =  -1;
-
-    if(dwFlags & ALLOC_MEMORY_CONTIG)
+    if (!above4G)
     {
-        node->dwSystemAddress = (DWORD) MmAllocateContiguousMemory(dwLength, highestAcceptableAddress);
-        if (!node->dwSystemAddress)
+        // clamp to 4GB
+        highestAcceptableAddress.LowPart  = -1;
+        highestAcceptableAddress.HighPart = 0;
+    }
+    else
+    {
+        // app doesn't care, use all we can get
+        highestAcceptableAddress.LowPart  = -1;
+        highestAcceptableAddress.HighPart = -1;
+    }
+
+    if (dwFlags & ALLOC_MEMORY_CONTIG)
+    {
+        debugOut(dbTrace, "allocating contigous memory");
+        node->pSystemAddress = MmAllocateContiguousMemory(ulLength, highestAcceptableAddress);
+        if (!node->pSystemAddress)
         {
             debugOut(dbTrace,"! cannot alloc ContiguousMemory");
             return STATUS_INSUFFICIENT_RESOURCES;
         }
-        dwUserAddress = node->dwSystemAddress;
+        pUserAddress = node->pSystemAddress;
     }
 
-    debugOut(dbTrace,"alloc %lu bytes of system memory %X", dwLength, dwUserAddress);
+    debugOut(dbTrace,"alloc %lu bytes of system memory 0x%IX", ulLength, pUserAddress);
 
     //
     // build the MDL to desribe the memory pages
     //
-    node->pMdl = IoAllocateMdl((void*)dwUserAddress, dwLength, FALSE, FALSE, NULL);
+    node->pMdl = IoAllocateMdl(pUserAddress, ulLength, FALSE, FALSE, NULL);
     if (!node->pMdl)
     {
         if(dwFlags & ALLOC_MEMORY_CONTIG)
         {
-            MmFreeContiguousMemory((PVOID) node->dwSystemAddress);
-            node->dwSystemAddress = 0;
+            MmFreeContiguousMemory(node->pSystemAddress);
         }
-        debugOut(dbTrace,"! cannot alloc MDL");
+        node->pSystemAddress = NULL;
+        debugOut(dbError, " ! cannot alloc MDL");
         return  STATUS_INSUFFICIENT_RESOURCES;
     }
     else
     {
-        debugOut(dbTrace,"node->pMdl %X", node->pMdl);
+        debugOut(dbTrace,"node->pMdl 0x%IX", node->pMdl);
         //
         // Map locked pages into process's user address space
         //
-        MmProbeAndLockPages(node->pMdl, KernelMode, IoModifyAccess);
-        debugOut(dbTrace,"Locked");
+        if (dwFlags & ALLOC_MEMORY_CONTIG)
+           MmBuildMdlForNonPagedPool(node->pMdl);
+        else
+        {
+            __try {
+                MmProbeAndLockPages(node->pMdl, KernelMode, IoModifyAccess);
+            } __except (EXCEPTION_EXECUTE_HANDLER) {
+                debugOut(dbError, " ! ProbeAndLock failed: user=0x%IX", node->pUserAddress);
+                IoFreeMdl(node->pMdl);
+                node->pSystemAddress = NULL;
+                return STATUS_INSUFFICIENT_RESOURCES;
+            }
+            debugOut(dbTrace,"Locked");
+        }
 
         // OK so we've got some memory and we can fill
         // in the return structure
@@ -645,42 +887,130 @@ NTSTATUS CIOAccessDevice::allocMemory(DWORD dwLength, DWORD dwFlags, DWORD dwUse
         // any contig memory
         node->dwFlags = dwFlags;
 
-        pMemStruct->dwTotalSize = dwLength;
-        pMemStruct->dwHandle = (DWORD)node;
+        pMemStruct->dwTotalSize = ulLength;
+        pMemStruct->dwHandle = PtrToUlong(node);
         if(dwFlags & ALLOC_MEMORY_CONTIG)
         {
-            node->dwUserAddress = (DWORD) MmMapLockedPages(node->pMdl, UserMode );
-            pMemStruct->dwPages = 1;
-            pMemStruct->dwUser = (void*)node->dwUserAddress;
-            pPages[0].dwSize = dwLength;
-            pPages[0].dwPhysical = GetPhysAddr(node->dwUserAddress);
+            __try {
+                node->pUserAddress = MmMapLockedPages(node->pMdl, UserMode);
+            } __except (EXCEPTION_EXECUTE_HANDLER) {
+                MmFreeContiguousMemory(node->pSystemAddress);
+                IoFreeMdl(node->pMdl);
+                debugOut(dbError, "MmMapLockedPages caused an exception (user=0x%IX)", node->pUserAddress);
+                node->pSystemAddress = NULL;
+                return STATUS_INSUFFICIENT_RESOURCES;       
+            }
+        }
+        
+        if ( above4G )
+            ntStatus = buildPageStruct64(pMemStruct, node);
+        else
+            ntStatus = buildPageStruct32(pMemStruct, node);
+        
+        if (ntStatus != STATUS_SUCCESS)
+        {
+            debugOut(dbError, "allocMemory: something went wrong, aborting!");
+            freeMemory(node);
         }
         else
         {
-            node->dwSystemAddress = GetPhysAddr(dwUserAddress);
-            node->dwUserAddress = dwUserAddress;
-            DWORD LastUserAddr = dwUserAddress;
-            int Pages(1);
-            pPages[0].dwPhysical = GetPhysAddr(dwUserAddress); 
-            for(DWORD i = dwUserAddress; i < dwUserAddress + dwLength; i++)
-            {
-                if(i % 4096 == 0)
-                {
-                    pPages[Pages].dwPhysical = GetPhysAddr(i); 
-                    pPages[Pages - 1].dwSize = i - LastUserAddr;
-                    Pages++;
-                    LastUserAddr = i;
-                }
-            }
-            pPages[Pages - 1].dwSize = i - LastUserAddr;
-            pMemStruct->dwPages = Pages;
+            debugOut(dbTrace,"node->dwUserAddress 0x%IX", node->pUserAddress);
+            debugOut(dbTrace,"Pages %d", (node->pMdl->Size - sizeof(MDL))/4);
         }
-        debugOut(dbTrace,"node->dwUserAddress %X", node->dwUserAddress);
-        debugOut(dbTrace,"Pages %d", (node->pMdl->Size - sizeof(MDL))/4);
     }
     return ntStatus;
 }
 
+//---------------------------------------------------------------------------
+//
+//---------------------------------------------------------------------------
+NTSTATUS CIOAccessDevice::buildPageStruct32(PMemStruct pMemStruct, PMemoryNode node)
+{
+    PPageStruct pPages = (PPageStruct)(pMemStruct + 1);
+    
+    if (node->dwFlags & ALLOC_MEMORY_CONTIG)
+    {
+        pMemStruct->dwPages = 1;
+        pMemStruct->dwUser = node->pUserAddress;
+        ULONGLONG phys = GetPhysAddr(node->pUserAddress).QuadPart;
+        if (phys > 0xFFFFFFFFU)
+        {
+            // Too bad, not in address space range
+            debugOut(dbError, "allocMemory() returned 64-bit address: 0x%I64X. User address was 0x%IX", phys, node->pUserAddress);
+            return STATUS_CONFLICTING_ADDRESSES;
+        }        
+        pPages[0].dwPhysical = (DWORD)phys;
+        pPages[0].dwSize = pMemStruct->dwTotalSize;
+    }
+    else
+    {
+        int Pages = 1;
+        DWORD_PTR LastUserAddr = (DWORD_PTR)node->pUserAddress;
+        ULONGLONG phys = GetPhysAddr(node->pUserAddress).QuadPart;
+        if (phys > 0xFFFFFFFFU)
+        {
+            // Too bad, not in address space range
+            debugOut(dbError, "allocMemory() returned 64-bit address: 0x%I64X. User address was 0x%IX", phys, node->pUserAddress);
+            return STATUS_CONFLICTING_ADDRESSES;
+        }        
+        pPages[0].dwPhysical = (DWORD)phys; 
+        for(DWORD_PTR i = (DWORD_PTR)node->pUserAddress; i < (DWORD_PTR)node->pUserAddress + pMemStruct->dwTotalSize; i++)
+        {
+            if(i % 4096 == 0)
+            {
+                phys = GetPhysAddr((PVOID)i).QuadPart;
+                if (phys > 0xFFFFFFFFU)
+                {
+                    // Too bad, not in address space range
+                    debugOut(dbError, "allocMemory() returned 64-bit address: 0x%I64X. User address was 0x%IX", phys, i);
+                    return STATUS_CONFLICTING_ADDRESSES;
+                }        
+                pPages[Pages].dwPhysical = (DWORD)phys;
+                pPages[Pages - 1].dwSize = (DWORD)(i - LastUserAddr);
+                Pages++;
+                LastUserAddr = i;
+            }
+        }
+        pPages[Pages - 1].dwSize = (DWORD)(i - LastUserAddr);
+        pMemStruct->dwPages = Pages;
+    }
+    return STATUS_SUCCESS;
+}
+
+//---------------------------------------------------------------------------
+//
+//---------------------------------------------------------------------------
+NTSTATUS CIOAccessDevice::buildPageStruct64(PMemStruct pMemStruct, PMemoryNode node)
+{
+    PPageStruct64 pPages = (PPageStruct64)(pMemStruct + 1);
+    
+    if (node->dwFlags & ALLOC_MEMORY_CONTIG)
+    {
+        pMemStruct->dwPages = 1;
+        pMemStruct->dwUser = node->pUserAddress;
+        pPages[0].llPhysical = GetPhysAddr(node->pUserAddress).QuadPart;
+        pPages[0].dwSize = pMemStruct->dwTotalSize;
+    }
+    else
+    {
+        int Pages = 1;
+        DWORD_PTR LastUserAddr = (DWORD_PTR)node->pUserAddress;
+        pPages[0].llPhysical = GetPhysAddr(node->pUserAddress).QuadPart; 
+        for(DWORD_PTR i = (DWORD_PTR)node->pUserAddress; i < (DWORD_PTR)node->pUserAddress + pMemStruct->dwTotalSize; i++)
+        {
+            if(i % 4096 == 0)
+            {
+                pPages[Pages].llPhysical = GetPhysAddr((PVOID)i).QuadPart;
+                pPages[Pages - 1].dwSize = (DWORD)(i - LastUserAddr);
+                Pages++;
+                LastUserAddr = i;
+            }
+        }
+        pPages[Pages - 1].dwSize = (DWORD)(i - LastUserAddr);
+        pMemStruct->dwPages = Pages;
+    }
+    return STATUS_SUCCESS;
+}
 
 
 //---------------------------------------------------------------------------
@@ -702,7 +1032,7 @@ CIOAccessDevice::freeMemory(PMemStruct pMemStruct)
     {
         node = &memoryList[ dwIndex ];
 
-        if ((DWORD)node == pMemStruct->dwHandle)
+        if (PtrToUlong(node) == pMemStruct->dwHandle)
         {
             freeMemory(node);
             return STATUS_SUCCESS;
@@ -722,16 +1052,16 @@ void CIOAccessDevice::freeMemory(PMemoryNode node)
     debugOut(dbTrace,"free node");
     if(node->dwFlags & ALLOC_MEMORY_CONTIG)
     {
-        MmUnmapLockedPages((PVOID) node->dwUserAddress, node->pMdl);
+        MmUnmapLockedPages(node->pUserAddress, node->pMdl);
     }
-    
-    MmUnlockPages(node->pMdl);
+    else
+        MmUnlockPages(node->pMdl);
 
     IoFreeMdl(node->pMdl);
 
     if(node->dwFlags & ALLOC_MEMORY_CONTIG)
     {
-        MmFreeContiguousMemory((PVOID)node->dwSystemAddress);
+        MmFreeContiguousMemory(node->pSystemAddress);
     }
     memset(node, 0, sizeof(MemoryNode));
 }
@@ -739,33 +1069,46 @@ void CIOAccessDevice::freeMemory(PMemoryNode node)
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
-DWORD CIOAccessDevice::GetPhysAddr(DWORD UserAddr)
+PHYSICAL_ADDRESS CIOAccessDevice::GetPhysAddr(PVOID UserAddr)
 {
-    PHYSICAL_ADDRESS phys;
-    phys = MmGetPhysicalAddress((void*)UserAddr);
-    return phys.LowPart;
+    return MmGetPhysicalAddress(UserAddr);
 }
 
 
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
-DWORD CIOAccessDevice::mapMemory(DWORD dwBusNumber, DWORD dwPhysicalAddress, DWORD dwLength)
+NTSTATUS CIOAccessDevice::mapMemory(DWORD dwBusNumber, DWORD_PTR dwPhysicalAddress, ULONG ulLength, PVOID *pUserMapping)
 {
-    debugOut(dbTrace,"mapMemory for %X", dwPhysicalAddress);
+    debugOut(dbTrace,"mapMemory for 0x%IX", dwPhysicalAddress);
 
     PHYSICAL_ADDRESS translatedAddress;
     PHYSICAL_ADDRESS busAddress;
-    DWORD addressSpace;
-    DWORD dwMemoryBase;
-    BOOLEAN bTranslate;
+    DWORD            addressSpace;
+    PVOID            pMemoryBase;
+    BOOLEAN          bTranslate;
+    PMappingNode     node = NULL;
 
     KIRQL irql;
 
-    KeRaiseIrql(PASSIVE_LEVEL, &irql);
+    // find unused node
+    for ( DWORD i = 0; i < MAX_FREE_MAPPING_NODES; i++ )
+        if ( mappingList[i].pUser == NULL )
+        {
+            node = &mappingList[i];	   
+            break;
+        }
 
-    busAddress.LowPart          = dwPhysicalAddress;
-    busAddress.HighPart         = 0;
+    if ( !node )
+    {
+       debugOut(dbError," ! no free mapping descriptor available");
+       return STATUS_INSUFFICIENT_RESOURCES;
+    }
+
+    // TODO: what's the reason for this??
+    //KeRaiseIrql(PASSIVE_LEVEL, &irql);
+
+    busAddress.QuadPart         = dwPhysicalAddress;
     translatedAddress.LowPart   = 0;
     translatedAddress.HighPart  = 0;
     addressSpace                = 0x00;
@@ -778,20 +1121,53 @@ DWORD CIOAccessDevice::mapMemory(DWORD dwBusNumber, DWORD dwPhysicalAddress, DWO
 
     if (!bTranslate)
     {
-        debugOut(dbError,"HalTranslateBusAddress() failed, addressSpace %X",addressSpace);
-        translatedAddress.LowPart = dwPhysicalAddress;
+        debugOut(dbError,"HalTranslateBusAddress() failed for 0x%IX, addressSpace %d", dwPhysicalAddress, addressSpace);
+        translatedAddress.QuadPart = dwPhysicalAddress;
     }
 
     //
-    // memory space
+    // kernel space
     //
-    dwMemoryBase = (DWORD) MmMapIoSpace(translatedAddress, dwLength, MmNonCached);
+    pMemoryBase = MmMapIoSpace(translatedAddress, ulLength, MmNonCached);
+    debugOut(dbTrace, "MmMapIoSpace physical address 0x%I64X to memory base 0x%IX, length %d", translatedAddress.QuadPart, pMemoryBase, ulLength);
+    node->pSystem = pMemoryBase;
+    node->ulLength = ulLength;
 
-    debugOut(dbTrace,"MmMapIoSpace physical address %X to memory base %X, length %d",translatedAddress.LowPart, dwMemoryBase, dwLength);
-
-    KeLowerIrql(irql);
-
-    return dwMemoryBase;
+    //KeLowerIrql(irql);
+    
+    //
+    // user space
+    //
+    node->pMdl = IoAllocateMdl(pMemoryBase, ulLength, FALSE, FALSE, NULL);
+    if (!(node->pMdl))
+    {
+        MmUnmapIoSpace(pMemoryBase, ulLength);
+        debugOut(dbError, "IoAllocateMdl failed");
+        return STATUS_INSUFFICIENT_RESOURCES;
+    }
+    
+    MmBuildMdlForNonPagedPool(node->pMdl);
+    __try {
+        node->pUser = MmMapLockedPagesSpecifyCache(node->pMdl, UserMode, MmNonCached, NULL, FALSE, NormalPagePriority);
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        node->pUser = NULL;
+        IoFreeMdl(node->pMdl);
+        MmUnmapIoSpace(pMemoryBase, ulLength);
+        debugOut(dbError, "MmMapLockedPages caused an exception");
+        return STATUS_INSUFFICIENT_RESOURCES;       
+    }
+    if (!(node->pUser))
+    {
+        IoFreeMdl(node->pMdl);
+        MmUnmapIoSpace(pMemoryBase, ulLength);
+        debugOut(dbError, "MmMapLockedPages faild for 0x%IX", pMemoryBase);
+        return STATUS_INSUFFICIENT_RESOURCES;       
+    }
+    
+    debugOut(dbTrace, "MmMapLockedPages to user address 0x%IX", node->pUser);
+    
+    *pUserMapping = node->pUser;
+    return STATUS_SUCCESS;
 }
 
 
@@ -799,16 +1175,31 @@ DWORD CIOAccessDevice::mapMemory(DWORD dwBusNumber, DWORD dwPhysicalAddress, DWO
 //
 //---------------------------------------------------------------------------
 void
-CIOAccessDevice::unmapMemory(DWORD dwMemoryBase, DWORD dwMappedMemoryLength)
+CIOAccessDevice::unmapMemory(PVOID pMemoryBase, ULONG ulMappedMemoryLength)
 {
-    if(dwMemoryBase)
+    if (pMemoryBase)
     {
-        KIRQL irql;
-        KeRaiseIrql(PASSIVE_LEVEL, &irql);
-
-        debugOut(dbTrace,"MMUnmapIoSpace() %X, length %d",dwMemoryBase, dwMappedMemoryLength);
-        MmUnmapIoSpace( (PVOID) dwMemoryBase, dwMappedMemoryLength);
-
-        KeLowerIrql(irql);
+        for (int i = 0; i < MAX_FREE_MAPPING_NODES; i++)
+            if (mappingList[i].pUser == pMemoryBase)
+            {
+                KIRQL irql;
+                
+                if ( mappingList[i].ulLength != ulMappedMemoryLength )
+                    debugOut(dbWarning, "unmapMemory: length argument invalid, using driver value");
+                
+                // free user mapping
+                MmUnmapLockedPages(mappingList[i].pUser, mappingList[i].pMdl);
+                IoFreeMdl(mappingList[i].pMdl);
+                
+                // TODO: what's the reason for this??
+                //KeRaiseIrql(PASSIVE_LEVEL, &irql);
+        
+                debugOut(dbTrace,"MMUnmapIoSpace() %IX, length %d", mappingList[i].pSystem, mappingList[i].ulLength);
+                MmUnmapIoSpace(mappingList[i].pSystem, mappingList[i].ulLength);
+        
+                //KeLowerIrql(irql);
+                
+                mappingList[i].pUser = NULL;
+            }
     }
 }

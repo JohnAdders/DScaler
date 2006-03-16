@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Ioclass.h,v 1.11 2004-04-14 10:02:02 adcockj Exp $
+// $Id: Ioclass.h,v 1.12 2006-03-16 17:20:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,8 @@
 // 24 Jul 2000   John Adcock           Original dTV Release
 //                                     Added Memory Alloc functions
 //
+// 13 Mar 2006   Michael Lutz          Modifications for Win64
+//
 /////////////////////////////////////////////////////////////////////////////
 
 #if ! defined (__IOCLASS_H)
@@ -41,17 +43,27 @@
 #endif
 
 #define MAX_FREE_MEMORY_NODES   32
+#define MAX_FREE_MAPPING_NODES   8
 
 class MemoryNode
 {
 public:
-    DWORD dwSystemAddress;
-    DWORD dwUserAddress;
-    DWORD dwFlags;
-    PMDL pMdl;
+    PVOID  pSystemAddress;
+    PVOID  pUserAddress;
+    DWORD  dwFlags;
+    PMDL   pMdl;
 };
 typedef MemoryNode * PMemoryNode;
 
+class MappingNode
+{
+public:
+    PVOID  pUser;
+    PVOID  pSystem;
+    ULONG  ulLength;
+    PMDL   pMdl;
+};
+typedef MappingNode * PMappingNode;
 
 
 //---------------------------------------------------------------------------
@@ -67,27 +79,33 @@ public:
 
 protected:
     int isValidAddress(void * pvAddress);
-    NTSTATUS deviceControl(DWORD ioControlCode, PDSDrvParam ioParam, DWORD* outputBuffer, DWORD* pulBytesWritten);
-    NTSTATUS pciFindDevice(DWORD vendorID, DWORD deviceID, DWORD dwCardIndex, DWORD* pdwBusNumber, DWORD* pdwSlotNumber);
+    NTSTATUS deviceControl(DWORD ioControlCode, PDSDrvParam ioParam, DWORD *outputBuffer, DWORD outLen, DWORD_PTR *pulBytesWritten, bool is32);
+    NTSTATUS pciFindDevice(DWORD vendorID, DWORD deviceID, DWORD dwCardIndex, DWORD* pdwBusNumber, DWORD *pdwSlotNumber);
     NTSTATUS pciGetDeviceInfo(TPCICARDINFO* pPCICardInfo);
-    NTSTATUS allocMemory(DWORD ulLength,DWORD ulFlags,DWORD ulUserAddress, PMemStruct pMemStruct);
+    NTSTATUS allocMemory(ULONG ulLength, DWORD ulFlags, PVOID ulUserAddress, PMemStruct pMemStruct, bool above4G);
+    NTSTATUS CIOAccessDevice::buildPageStruct32(PMemStruct pMemStruct, PMemoryNode node);
+    NTSTATUS CIOAccessDevice::buildPageStruct64(PMemStruct pMemStruct, PMemoryNode node);
     NTSTATUS freeMemory(PMemStruct pMemStruct);
     void freeMemory(PMemoryNode node);
-    DWORD mapMemory(DWORD dwBusNumber, DWORD dwBaseAddress, DWORD ulLength);
-    void unmapMemory(DWORD dwMemoryBase, DWORD dwMappedMemoryLength);
+    MemoryNode memoryList[MAX_FREE_MEMORY_NODES];
+    
+    NTSTATUS mapMemory(DWORD dwBusNumber, DWORD_PTR dwBaseAddress, ULONG ulLength, PVOID *pUserMapping);
+    void unmapMemory(PVOID dwMemoryBase, ULONG ulMappedMemoryLength);
+    MappingNode mappingList[MAX_FREE_MAPPING_NODES];
 
 protected:
     NTSTATUS pciGetDeviceConfig(PCI_COMMON_CONFIG *pPCIConfig, DWORD Bus, DWORD Slot);
     NTSTATUS pciSetDeviceConfig(PCI_COMMON_CONFIG *pPCIConfig, DWORD Bus, DWORD Slot);
-    NTSTATUS pciGetDeviceConfigOffset(BYTE* pPCIConfig, DWORD Offset, DWORD Bus, DWORD Slot);
+    NTSTATUS pciGetDeviceConfigOffset(BYTE *pPCIConfig, DWORD Offset, DWORD Bus, DWORD Slot);
     NTSTATUS pciSetDeviceConfigOffset(BYTE *pPCIConfig, DWORD Offset, DWORD Bus, DWORD Slot);
-    MemoryNode memoryList[MAX_FREE_MEMORY_NODES];
-    DWORD GetPhysAddr(DWORD UserAddr);
+    PHYSICAL_ADDRESS GetPhysAddr(PVOID UserAddr);
 private:
-    bool m_AllowDepricatedIOCTLs;
+    bool m_AllowDeprecatedIOCTLs;
+#ifndef _WIN64
+    bool m_PAEEnabled;
+#endif
 };
 
 #endif
-
 
 

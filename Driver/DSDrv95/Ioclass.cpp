@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Ioclass.cpp,v 1.10 2004-04-14 10:02:01 adcockj Exp $
+// $Id: Ioclass.cpp,v 1.11 2006-03-16 17:20:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -33,6 +33,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2004/04/14 10:02:01  adcockj
+// Added new offset functions for manipulating PCI config space
+//
 // Revision 1.9  2002/10/22 16:01:43  adcockj
 // Changed definition of IOCTLs
 //
@@ -223,7 +226,7 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         }
         // ... deliberate drop through ...
     case IOCTL_DSDRV_WRITEPORTDWORD:
-        _outpd((PORTADDRTYPE)ioParam->dwAddress, ioParam->dwValue);
+        _outpd((PORTADDRTYPE)ioParam->dwAddress, (ULONG)ioParam->dwValue);
         break;
 
     case IOCTL_DEPRICATED_GETPCIINFO:
@@ -238,8 +241,8 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         {
             TPCICARDINFO* pPCICardInfo = (TPCICARDINFO*)outputBuffer;
             Status = pciFindDevice(
-                                       ioParam->dwAddress,
-                                       ioParam->dwValue,
+                                       (ULONG)ioParam->dwAddress,
+                                       (ULONG)ioParam->dwValue,
                                        ioParam->dwFlags,
                                        &(pPCICardInfo->dwBusNumber),
                                        &(pPCICardInfo->dwSlotNumber)
@@ -271,11 +274,19 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
     case IOCTL_DSDRV_ALLOCMEMORY:
         {
             PMemStruct pMem = (PMemStruct)outputBuffer;
-            Status = allocMemory(ioParam->dwValue, ioParam->dwFlags, ioParam->dwAddress,  pMem);
+            Status = allocMemory((ULONG)ioParam->dwValue, ioParam->dwFlags, (ULONG)ioParam->dwAddress, pMem, false);
             *pBytesWritten = sizeof(TMemStruct) + pMem->dwPages * sizeof(TPageStruct);
         }
         break;
 
+    case IOCTL_DSDRV_ALLOCMEMORY64:
+        {
+            PMemStruct pMem = (PMemStruct)outputBuffer;
+            Status = allocMemory((ULONG)ioParam->dwValue, ioParam->dwFlags, (ULONG)ioParam->dwAddress, pMem, true);
+            *pBytesWritten = sizeof(TMemStruct) + pMem->dwPages * sizeof(TPageStruct64);
+        }
+        break;
+        
     case IOCTL_DEPRICATED_FREEMEMORY:
         if(m_AllowDepricatedIOCTLs == false)
         {
@@ -298,7 +309,7 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         }
         // ... deliberate drop through ...
     case IOCTL_DSDRV_MAPMEMORY:
-        *outputBuffer = mapMemory(ioParam->dwValue, ioParam->dwFlags);
+        *outputBuffer = mapMemory((ULONG)ioParam->dwValue, ioParam->dwFlags);
         *pBytesWritten = 4;
         break;
 
@@ -341,7 +352,7 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         if (ioParam->dwAddress)
         {
             ULONG* Address = (ULONG*)ioParam->dwAddress;
-            *Address = ioParam->dwValue;
+            *Address = (ULONG)ioParam->dwValue;
             debugOut(dbTrace,"memory %X write %X",ioParam->dwAddress, ioParam->dwValue);
         }
         break;
@@ -441,7 +452,7 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         {
             PCI_COMMON_CONFIG *pPCIConfig = (PCI_COMMON_CONFIG*)outputBuffer;
 
-            Status = pciGetDeviceConfig(pPCIConfig, ioParam->dwAddress, ioParam->dwValue);
+            Status = pciGetDeviceConfig(pPCIConfig, (ULONG)ioParam->dwAddress, (ULONG)ioParam->dwValue);
 
             *pBytesWritten = sizeof(PCI_COMMON_CONFIG);
         }
@@ -463,7 +474,7 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         {
             PCI_COMMON_CONFIG *pPCIConfig = (PCI_COMMON_CONFIG*)outputBuffer;
 
-            Status = pciSetDeviceConfig(pPCIConfig, ioParam->dwAddress, ioParam->dwValue);
+            Status = pciSetDeviceConfig(pPCIConfig, (ULONG)ioParam->dwAddress, (ULONG)ioParam->dwValue);
 
             *pBytesWritten = sizeof(PCI_COMMON_CONFIG);
         }
@@ -478,7 +489,7 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         {
             BYTE *pPCIConfig = (BYTE*)outputBuffer;
 
-            Status = pciGetDeviceConfigOffset(pPCIConfig, ioParam->dwFlags, ioParam->dwAddress, ioParam->dwValue);
+            Status = pciGetDeviceConfigOffset(pPCIConfig, ioParam->dwFlags, (ULONG)ioParam->dwAddress, (ULONG)ioParam->dwValue);
 
             *pBytesWritten = 1;
         }
@@ -493,7 +504,7 @@ NTSTATUS CIOAccessDevice::deviceControl(DWORD ioControlCode, PDSDrvParam ioParam
         {
             BYTE *pPCIConfig = (BYTE*)outputBuffer;
 
-            Status = pciSetDeviceConfigOffset(pPCIConfig, ioParam->dwFlags, ioParam->dwAddress, ioParam->dwValue);
+            Status = pciSetDeviceConfigOffset(pPCIConfig, ioParam->dwFlags, (ULONG)ioParam->dwAddress, (ULONG)ioParam->dwValue);
 
             *pBytesWritten = 1;
         }
@@ -521,7 +532,7 @@ int CIOAccessDevice::isValidAddress(void * pvAddress)
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
-NTSTATUS CIOAccessDevice::allocMemory(DWORD dwLength, DWORD dwFlags, DWORD dwUserAddress, PMemStruct pMemStruct)
+NTSTATUS CIOAccessDevice::allocMemory(DWORD dwLength, DWORD dwFlags, DWORD dwUserAddress, PMemStruct pMemStruct, bool is64)
 {
     NTSTATUS      ntStatus;
     PMemoryNode   node;
@@ -610,7 +621,8 @@ NTSTATUS CIOAccessDevice::allocMemory(DWORD dwLength, DWORD dwFlags, DWORD dwUse
         if(pPages[0].dwPhysical == 0xFFFFFFFF)
         {
             debugOut(dbTrace,"! cannot get Physical Address");
-            _LinPageUnLock(dwUserAddress >> 12, nPages, 0);
+            _LinPageUnLock(node->dwUserAddress >> 12, nPages, 0);
+            node->dwSystemAddress = 0;
             return  STATUS_INSUFFICIENT_RESOURCES;
         }
         pPages[0].dwSize = 4096 - LinOffset; 
@@ -621,7 +633,8 @@ NTSTATUS CIOAccessDevice::allocMemory(DWORD dwLength, DWORD dwFlags, DWORD dwUse
             if(pPages[i].dwPhysical == 0xFFFFFFFF)
             {
                 debugOut(dbTrace,"! cannot get Physical Address");
-                _LinPageUnLock(dwUserAddress >> 12, nPages, 0);
+                _LinPageUnLock(node->dwUserAddress >> 12, nPages, 0);
+                node->dwSystemAddress = 0;
                 return  STATUS_INSUFFICIENT_RESOURCES;
             }
             if((dwLength - SizeUsed) > 4096)
@@ -634,7 +647,7 @@ NTSTATUS CIOAccessDevice::allocMemory(DWORD dwLength, DWORD dwFlags, DWORD dwUse
                 pPages[i].dwSize = (dwLength - SizeUsed);
             }
         }
-        
+
         node->dwFlags = dwFlags;
         node->dwPages = nPages;
         node->dwSystemAddress = dwUserAddress;
@@ -645,6 +658,22 @@ NTSTATUS CIOAccessDevice::allocMemory(DWORD dwLength, DWORD dwFlags, DWORD dwUse
         pMemStruct->dwPages = nPages;
     }
     return ntStatus;
+}
+
+//---------------------------------------------------------------------------
+//
+//---------------------------------------------------------------------------
+NTSTATUS CIOAccessDevice::buildPageStruct(PMemStruct pMemStruct, PMemoryNode node, DWORD phys)
+{
+    PPageStruct pPages = (PPageStruct)(pMemStruct + 1);
+    
+    if (node->dwFlags & ALLOC_MEMORY_CONTIG)
+    {
+    }
+    else
+    {
+    }
+    return STATUS_SUCCESS;
 }
 
 

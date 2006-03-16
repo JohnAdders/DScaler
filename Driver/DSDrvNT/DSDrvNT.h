@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSDrvNT.h,v 1.4 2001-11-02 16:36:54 adcockj Exp $
+// $Id: DSDrvNT.h,v 1.5 2006-03-16 17:20:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -26,6 +26,8 @@
 //
 // 11 Jun 2001   Torbjörn Jansson      moved forward defines from DSDrvNT.cpp
 //
+// 13 Mar 2006   Michael Lutz          added 32-bit thunking structures
+//
 /////////////////////////////////////////////////////////////////////////////
 
 //#ifdef DBG
@@ -39,6 +41,35 @@
 //name of symbolic link
 #define DSDRVNT_LNKNAME L"\\DosDevices\\DSDrv4"
 
+#ifdef _WIN64
+
+typedef struct
+{
+    DWORD  dwTotalSize;
+    DWORD  dwPages;
+    DWORD  dwHandle;
+    DWORD  dwFlags;
+    DWORD  dwUser;
+} TMemStruct_32, * PMemStruct_32;
+
+
+typedef struct
+{
+    DWORD  dwMemoryAddress;
+    DWORD  dwMemoryLength;
+    DWORD  dwSubSystemId;
+    DWORD  dwBusNumber;
+    DWORD  dwSlotNumber;
+} TPCICARDINFO_32;
+
+
+typedef struct tagDSDrvParam_32
+{
+    DWORD   dwAddress;
+    DWORD   dwValue;
+    DWORD   dwFlags;
+} TDSDrvParam_32, * PDSDrvParam_32;
+#endif
 
 NTSTATUS DSDrvDispatch(IN PDEVICE_OBJECT deviceObject, IN PIRP Irp);
 VOID DSDrvUnload  (IN PDRIVER_OBJECT driverObject);

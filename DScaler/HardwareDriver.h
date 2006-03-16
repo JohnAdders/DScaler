@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareDriver.h,v 1.9 2003-10-27 10:39:51 adcockj Exp $
+// $Id: HardwareDriver.h,v 1.10 2006-03-16 17:20:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,7 @@ private:
     HANDLE      m_hFile;
     BOOL        m_bWindows95;
     BOOL        m_WeStartedDriver;
+    char        m_NTDriverName[MAX_PATH];
 };
 
 

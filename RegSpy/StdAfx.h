@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StdAfx.h,v 1.2 2002-12-04 14:15:06 adcockj Exp $
+// $Id: StdAfx.h,v 1.3 2006-03-16 17:20:56 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,9 @@
 #if _MSC_VER > 1000
 #pragma once
 #endif // _MSC_VER > 1000
+
+#define WINVER 0x0400
+#define _WIN32_WINNT 0x0400
 
 #define VC_EXTRALEAN
 #include <afxwin.h>

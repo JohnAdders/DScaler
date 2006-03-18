@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Ioclass.cpp,v 1.15 2006-03-16 17:20:56 adcockj Exp $
+// $Id: Ioclass.cpp,v 1.16 2006-03-18 13:28:45 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -35,6 +35,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2006/03/16 17:20:56  adcockj
+// Added Michael Lutz's 64 bit code
+//
 // Revision 1.14  2005/05/13 10:12:46  adcockj
 // fixed uninitialised variable
 //
@@ -1089,7 +1092,7 @@ NTSTATUS CIOAccessDevice::mapMemory(DWORD dwBusNumber, DWORD_PTR dwPhysicalAddre
     BOOLEAN          bTranslate;
     PMappingNode     node = NULL;
 
-    KIRQL irql;
+    //KIRQL irql;
 
     // find unused node
     for ( DWORD i = 0; i < MAX_FREE_MAPPING_NODES; i++ )
@@ -1182,7 +1185,7 @@ CIOAccessDevice::unmapMemory(PVOID pMemoryBase, ULONG ulMappedMemoryLength)
         for (int i = 0; i < MAX_FREE_MAPPING_NODES; i++)
             if (mappingList[i].pUser == pMemoryBase)
             {
-                KIRQL irql;
+                //KIRQL irql;
                 
                 if ( mappingList[i].ulLength != ulMappedMemoryLength )
                     debugOut(dbWarning, "unmapMemory: length argument invalid, using driver value");

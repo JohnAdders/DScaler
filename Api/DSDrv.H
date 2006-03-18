@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSDrv.H,v 1.15 2006-03-16 17:20:55 adcockj Exp $
+// $Id: DSDrv.H,v 1.16 2006-03-18 13:28:45 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -78,7 +78,11 @@ typedef struct
 
 typedef struct
 {
-    DWORD*  dwMemoryAddress;
+#ifdef _WIN64
+    DWORD_PTR  dwMemoryAddress;
+#else
+    DWORD  dwMemoryAddress;
+#endif
     DWORD  dwMemoryLength;
     DWORD  dwSubSystemId;
     DWORD  dwBusNumber;
@@ -293,8 +297,13 @@ extern "C" {
 
 typedef struct tagDSDrvParam
 {
-	DWORD*    dwAddress;
-	DWORD*    dwValue;
+#ifdef _WIN64
+	DWORD_PTR    dwAddress;
+	DWORD_PTR    dwValue;
+#else
+	DWORD    dwAddress;
+	DWORD    dwValue;
+#endif
 	DWORD     dwFlags;
 } TDSDrvParam, * PDSDrvParam;
 

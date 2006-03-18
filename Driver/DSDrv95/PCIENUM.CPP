@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PCIENUM.CPP,v 1.11 2006-03-16 17:20:56 adcockj Exp $
+// $Id: PCIENUM.CPP,v 1.12 2006-03-18 13:28:45 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2006/03/16 17:20:56  adcockj
+// Added Michael Lutz's 64 bit code
+//
 // Revision 1.10  2004/04/14 10:02:02  adcockj
 // Added new offset functions for manipulating PCI config space
 //
@@ -207,7 +210,7 @@ NTSTATUS CIOAccessDevice::pciGetDeviceInfo(TPCICARDINFO* pPCICardInfo)
 
     debugOut(dbTrace,"get PCI device info for node %lX returns %X",pPCICardInfo->dwSlotNumber, cr);
 
-    pPCICardInfo->dwMemoryAddress = (ULONG*)(PCIConfiguration.u.type0.BaseAddresses[0] & 0xFFFFFFF0);
+    pPCICardInfo->dwMemoryAddress = PCIConfiguration.u.type0.BaseAddresses[0] & 0xFFFFFFF0;
     pPCICardInfo->dwMemoryLength = 0x1000;
     pPCICardInfo->dwSubSystemId = (PCIConfiguration.u.type0.SubSystemID << 16) + PCIConfiguration.u.type0.SubVendorID;
     return cr;

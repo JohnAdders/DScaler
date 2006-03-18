@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSDrv.H,v 1.16 2006-03-18 13:28:45 adcockj Exp $
+// $Id: DSDrv.H,v 1.17 2006-03-18 16:38:23 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -42,6 +42,33 @@
 #if ! defined (__DSDRVDEF_H)
 #define __DSDRVDEF_H
 
+
+#if !defined(_W64) 
+	
+	#if (defined(_X86_) || defined(_M_IX86)) && _MSC_VER >= 1300 
+		#define _W64 __w64 
+	#else 
+		#define _W64 
+	#endif 
+#endif
+
+#if defined(_WIN64)
+    typedef __int64 INT_PTR, *PINT_PTR;
+    typedef unsigned __int64 UINT_PTR, *PUINT_PTR;
+
+    typedef __int64 LONG_PTR, *PLONG_PTR;
+    typedef unsigned __int64 ULONG_PTR, *PULONG_PTR; 
+#else
+    typedef _W64 int INT_PTR, *PINT_PTR;
+    typedef _W64 unsigned int UINT_PTR, *PUINT_PTR;
+
+    typedef _W64 long LONG_PTR, *PLONG_PTR;
+    typedef _W64 unsigned long ULONG_PTR, *PULONG_PTR; 
+#endif
+
+typedef ULONG_PTR DWORD_PTR, *PDWORD_PTR;
+
+
 // define version number to be compiled into both files
 // we use this to make sure that we are speaking the same language in both the 
 // drivers and the dll
@@ -78,11 +105,7 @@ typedef struct
 
 typedef struct
 {
-#ifdef _WIN64
     DWORD_PTR  dwMemoryAddress;
-#else
-    DWORD  dwMemoryAddress;
-#endif
     DWORD  dwMemoryLength;
     DWORD  dwSubSystemId;
     DWORD  dwBusNumber;
@@ -297,13 +320,8 @@ extern "C" {
 
 typedef struct tagDSDrvParam
 {
-#ifdef _WIN64
 	DWORD_PTR    dwAddress;
 	DWORD_PTR    dwValue;
-#else
-	DWORD    dwAddress;
-	DWORD    dwValue;
-#endif
 	DWORD     dwFlags;
 } TDSDrvParam, * PDSDrvParam;
 

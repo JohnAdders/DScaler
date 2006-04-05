@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Ioclass.cpp,v 1.11 2006-03-16 17:20:56 adcockj Exp $
+// $Id: Ioclass.cpp,v 1.12 2006-04-05 08:06:38 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -33,6 +33,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2006/03/16 17:20:56  adcockj
+// Added Michael Lutz's 64 bit code
+//
 // Revision 1.10  2004/04/14 10:02:01  adcockj
 // Added new offset functions for manipulating PCI config space
 //
@@ -596,12 +599,13 @@ NTSTATUS CIOAccessDevice::allocMemory(DWORD dwLength, DWORD dwFlags, DWORD dwUse
         pMemStruct->dwPages = 1;
         pMemStruct->dwUser = (void*)node->dwUserAddress;
 
-        pPages[0].dwSize = dwLength;
-        pPages[0].dwPhysical = PhysAddress;
+        if (is64)
+            ntStatus = buildPageStruct64(pMemStruct, node, PhysAddress);
+        else
+            ntStatus = buildPageStruct32(pMemStruct, node, PhysAddress);        
     }
     else
     {
-        DWORD LinOffset = dwUserAddress & 0xfff; // page offset of memory to map
         DWORD nPages;
 
         // Calculate # of pages to lock
@@ -614,40 +618,6 @@ NTSTATUS CIOAccessDevice::allocMemory(DWORD dwLength, DWORD dwFlags, DWORD dwUse
             return  STATUS_INSUFFICIENT_RESOURCES;
         }
 
-        // work out the physical addresses for each distinct page in the
-        // input buffer
-        DWORD SizeUsed;
-        pPages[0].dwPhysical = GetPhysAddr(dwUserAddress); 
-        if(pPages[0].dwPhysical == 0xFFFFFFFF)
-        {
-            debugOut(dbTrace,"! cannot get Physical Address");
-            _LinPageUnLock(node->dwUserAddress >> 12, nPages, 0);
-            node->dwSystemAddress = 0;
-            return  STATUS_INSUFFICIENT_RESOURCES;
-        }
-        pPages[0].dwSize = 4096 - LinOffset; 
-        SizeUsed = pPages[0].dwSize;
-        for(DWORD i = 1; i < nPages; i++)
-        {
-            pPages[i].dwPhysical = GetPhysAddr(dwUserAddress + SizeUsed);
-            if(pPages[i].dwPhysical == 0xFFFFFFFF)
-            {
-                debugOut(dbTrace,"! cannot get Physical Address");
-                _LinPageUnLock(node->dwUserAddress >> 12, nPages, 0);
-                node->dwSystemAddress = 0;
-                return  STATUS_INSUFFICIENT_RESOURCES;
-            }
-            if((dwLength - SizeUsed) > 4096)
-            {
-                pPages[i].dwSize = 4096;
-                SizeUsed += 4096;
-            }
-            else
-            {
-                pPages[i].dwSize = (dwLength - SizeUsed);
-            }
-        }
-
         node->dwFlags = dwFlags;
         node->dwPages = nPages;
         node->dwSystemAddress = dwUserAddress;
@@ -656,26 +626,120 @@ NTSTATUS CIOAccessDevice::allocMemory(DWORD dwLength, DWORD dwFlags, DWORD dwUse
         pMemStruct->dwTotalSize = dwLength;
         pMemStruct->dwHandle = (DWORD)node;
         pMemStruct->dwPages = nPages;
+        
+        if (is64)
+            ntStatus = buildPageStruct64(pMemStruct, node, 0);
+        else
+            ntStatus = buildPageStruct32(pMemStruct, node, 0);
     }
     return ntStatus;
 }
 
+
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
-NTSTATUS CIOAccessDevice::buildPageStruct(PMemStruct pMemStruct, PMemoryNode node, DWORD phys)
+NTSTATUS CIOAccessDevice::buildPageStruct32(PMemStruct pMemStruct, PMemoryNode node, DWORD phys)
 {
     PPageStruct pPages = (PPageStruct)(pMemStruct + 1);
     
     if (node->dwFlags & ALLOC_MEMORY_CONTIG)
     {
+        pPages[0].dwSize = pMemStruct->dwTotalSize;
+        pPages[0].dwPhysical = phys;
     }
     else
     {
+        // work out the physical addresses for each distinct page in the
+        // input buffer
+        DWORD LinOffset = node->dwUserAddress & 0xfff; // page offset of memory to map
+        DWORD SizeUsed = 0;
+        pPages[0].dwPhysical = GetPhysAddr(node->dwUserAddress); 
+        if(pPages[0].dwPhysical == 0xFFFFFFFF)
+        {
+            debugOut(dbTrace,"! cannot get Physical Address");
+            _LinPageUnLock(node->dwUserAddress >> 12, node->dwPages, 0);
+            node->dwSystemAddress = 0;
+            return  STATUS_INSUFFICIENT_RESOURCES;
+        }
+        pPages[0].dwSize = 4096 - LinOffset; 
+        SizeUsed = pPages[0].dwSize;
+        for(DWORD i = 1; i < node->dwPages; i++)
+        {
+            pPages[i].dwPhysical = GetPhysAddr(node->dwUserAddress + SizeUsed);
+            if(pPages[i].dwPhysical == 0xFFFFFFFF)
+            {
+                debugOut(dbTrace,"! cannot get Physical Address");
+                _LinPageUnLock(node->dwUserAddress >> 12, node->dwPages, 0);
+                node->dwSystemAddress = 0;
+                return  STATUS_INSUFFICIENT_RESOURCES;
+            }
+            if((pMemStruct->dwTotalSize - SizeUsed) > 4096)
+            {
+                pPages[i].dwSize = 4096;
+                SizeUsed += 4096;
+            }
+            else
+            {
+                pPages[i].dwSize = (pMemStruct->dwTotalSize - SizeUsed);
+            }
+        }
     }
     return STATUS_SUCCESS;
 }
 
+
+//---------------------------------------------------------------------------
+//
+//---------------------------------------------------------------------------
+NTSTATUS CIOAccessDevice::buildPageStruct64(PMemStruct pMemStruct, PMemoryNode node, DWORD phys)
+{
+    PPageStruct64 pPages = (PPageStruct64)(pMemStruct + 1);
+    
+    if (node->dwFlags & ALLOC_MEMORY_CONTIG)
+    {
+        pPages[0].dwSize = pMemStruct->dwTotalSize;
+        pPages[0].llPhysical = phys;
+    }
+    else
+    {
+        // work out the physical addresses for each distinct page in the
+        // input buffer
+        DWORD LinOffset = node->dwUserAddress & 0xfff; // page offset of memory to map
+        DWORD SizeUsed = 0;
+        pPages[0].llPhysical = GetPhysAddr(node->dwUserAddress); 
+        if(pPages[0].llPhysical == 0xFFFFFFFFU)
+        {
+            debugOut(dbTrace,"! cannot get Physical Address");
+            _LinPageUnLock(node->dwUserAddress >> 12, node->dwPages, 0);
+            node->dwSystemAddress = 0;
+            return  STATUS_INSUFFICIENT_RESOURCES;
+        }
+        pPages[0].dwSize = 4096 - LinOffset; 
+        SizeUsed = pPages[0].dwSize;
+        for(DWORD i = 1; i < node->dwPages; i++)
+        {
+            pPages[i].llPhysical = GetPhysAddr(node->dwUserAddress + SizeUsed);
+            if(pPages[i].llPhysical == 0xFFFFFFFFU)
+            {
+                debugOut(dbTrace,"! cannot get Physical Address");
+                _LinPageUnLock(node->dwUserAddress >> 12, node->dwPages, 0);
+                node->dwSystemAddress = 0;
+                return  STATUS_INSUFFICIENT_RESOURCES;
+            }
+            if((pMemStruct->dwTotalSize - SizeUsed) > 4096)
+            {
+                pPages[i].dwSize = 4096;
+                SizeUsed += 4096;
+    }
+    else
+    {
+                pPages[i].dwSize = (pMemStruct->dwTotalSize - SizeUsed);
+            }
+        }
+    }
+    return STATUS_SUCCESS;
+}
 
 
 //---------------------------------------------------------------------------

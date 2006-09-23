@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareDriver.cpp,v 1.23 2006-03-16 17:20:56 adcockj Exp $
+// $Id: HardwareDriver.cpp,v 1.24 2006-09-23 21:04:21 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2006/03/16 17:20:56  adcockj
+// Added Michael Lutz's 64 bit code
+//
 // Revision 1.22  2003/10/27 10:39:51  adcockj
 // Updated files for better doxygen compatability
 //
@@ -126,7 +129,7 @@ CHardwareDriver::CHardwareDriver()
     GetVersionEx( &ov);
     m_bWindows95 = (ov.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS);
     m_WeStartedDriver = TRUE;
-    strcpy(m_NTDriverName, "DSDrvNT");
+    strcpy(m_NTDriverName, "DSDrv4");
     
     // we are a 32bit program possibly running on 64bit hardware
     // if this is the case then we need to load up an arch

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.381 2005-09-24 18:40:08 dosx86 Exp $
+// $Id: DScaler.cpp,v 1.382 2006-09-23 23:09:37 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.381  2005/09/24 18:40:08  dosx86
+// Changed AspectRatio to Aspect Ratio
+//
 // Revision 1.380  2005/07/17 20:39:27  dosx86
 // Uses the new time shift functions
 //
@@ -1434,8 +1437,24 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     MSG msg;
     HWND hPrevWindow;
 
-    // used by the InnoSetup installer to prevent (un)installation when DScaler is running.
-    CreateMutex(NULL, FALSE, "DScaler"); 
+    // also used by the InnoSetup installer to prevent (un)installation when DScaler is running.
+    if(CreateMutex(NULL, FALSE, "DScaler"))
+	{
+		// RM sept 23 2006
+		// Do not start if the mutex already exists.
+		// There is another similar check that test for the dscaler window name further on. 
+		// This did not always work because several things happen before the window is created,
+		// sometimes there is a delay in starting up before the window is created. The user
+		// then tries to start the program a second time. This might result in corrupting the 
+		// ini file.
+		// I am uncertain what is causing the occasional delay in startup. This delay happens
+		// for example when Windows Explorer (the shell) is busy, as can be seen by a 
+		// non-responding task bar.
+		if(GetLastError() == ERROR_ALREADY_EXISTS)
+		{
+			return FALSE;
+		}
+	}
 
     hDScalerInst = hInstance;
     hMainThread = GetCurrentThreadId();

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.172 2005-10-24 19:35:43 laurentg Exp $
+// $Id: DS_Control.h,v 1.173 2006-09-24 01:08:16 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.172  2005/10/24 19:35:43  laurentg
+// New EPG setting for using keys G and Ctrl+Shift+G as a toggle buttons
+//
 // Revision 1.171  2005/10/22 12:59:37  laurentg
 // New EPG setting for different programmes sorting
 //
@@ -869,7 +872,6 @@ typedef enum
     TUNERSWITCHSCREENUPDATEDELAY,
     DOACCURATEFLIPS,
     AUTODETECT,
-    WAITFORVSYNC,
     DOJUDDERTERMINATORONVIDEO,
     OUTTHREADS_SETTING_LASTONE,
 } OUTTHREADS_SETTING;

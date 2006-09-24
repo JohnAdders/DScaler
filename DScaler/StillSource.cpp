@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.106 2005-03-23 14:21:00 adcockj Exp $
+// $Id: StillSource.cpp,v 1.107 2006-09-24 02:44:46 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.106  2005/03/23 14:21:00  adcockj
+// Test fix for threading issues
+//
 // Revision 1.105  2005/03/11 14:54:40  adcockj
 // Get rid of a load of compilation warnings in vs.net
 //
@@ -1750,14 +1753,13 @@ BOOL CStillSource::ReadNextFrameInFile()
             //
             // WARNING: optimized memcpy seems to be the source of problem with certain hardware configurations
             //
-            if (m_pMemcpy == NULL)
-            {
-                memcpy(m_StillFrame.pData, m_OriginalFrame.pData, m_LinePitch * m_Height);
-            }
-            else
-            {
-                m_pMemcpy(m_StillFrame.pData, m_OriginalFrame.pData, m_LinePitch * m_Height);
-            }
+			// RM sept 24 2006: Added missing emms instruction, maybe this was causing these problems?
+			//
+            m_pMemcpy(m_StillFrame.pData, m_OriginalFrame.pData, m_LinePitch * m_Height);
+			_asm
+			{
+				emms
+			}
             return TRUE;
         }
         return FALSE;

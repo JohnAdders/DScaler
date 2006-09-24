@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_LinearCorrection.c,v 1.19 2002-06-18 19:46:09 adcockj Exp $
+// $Id: FLT_LinearCorrection.c,v 1.20 2006-09-24 02:44:46 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2002/06/18 19:46:09  adcockj
+// Changed appliaction Messages to use WM_APP instead of WM_USER
+//
 // Revision 1.18  2002/06/13 12:10:26  adcockj
 // Move to new Setings dialog for filers, video deint and advanced settings
 //
@@ -513,6 +516,11 @@ BOOL LinearCorrection(TDeinterlaceInfo* pInfo)
         }
         Pixels += pInfo->InputPitch;
     }
+    _asm
+    {
+        emms
+    }
+
     if(MaskType == MASK_STRETCH)
     {
         return 1333;

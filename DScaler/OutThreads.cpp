@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.139 2006-09-24 01:08:16 robmuller Exp $
+// $Id: OutThreads.cpp,v 1.140 2006-09-24 02:44:46 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.139  2006/09/24 01:08:16  robmuller
+// Removed unused variable bWaitForVsync.
+//
 // Revision 1.138  2005/07/17 20:40:58  dosx86
 // Uses the new time shift functions. Removed the "on new output frame" function.
 //
@@ -1540,7 +1543,10 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 							DestLine += LinePitch;
 							CurrentLine += Info.OverlayPitch;
 						}
-
+						_asm
+						{
+							emms
+						}
                         Overlay_Unlock();
 					}
 					else

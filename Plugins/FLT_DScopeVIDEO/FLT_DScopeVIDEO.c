@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_DScopeVIDEO.c,v 1.3 2003-04-20 10:54:58 laurentg Exp $
+// $Id: FLT_DScopeVIDEO.c,v 1.4 2006-09-24 02:44:46 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) 2003 Michael Joubert   All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2003/04/20 10:54:58  laurentg
+// Last updates from Michael Joubert
+//
 // Revision 1.2  2003/04/01 20:58:38  laurentg
 // Compile without warnings and few bugs fixed (from Michael Joubert)
 //
@@ -527,6 +530,10 @@ int DisplayScope(TDeinterlaceInfo* pInfo)
             pLineDestination = pInfo->Overlay + (i * pInfo->OverlayPitch);
             pInfo->pMemcpy(pLineDestination, &LineBuffer[0], pInfo->LineLength);// copy line
         }
+    }
+    _asm
+    {
+        emms
     }
     
 	// draw Y grid-lines

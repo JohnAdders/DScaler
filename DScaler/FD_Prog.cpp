@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_Prog.cpp,v 1.2 2003-10-27 10:39:51 adcockj Exp $
+// $Id: FD_Prog.cpp,v 1.3 2006-09-24 02:44:46 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2003/10/27 10:39:51  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.1  2002/09/11 18:32:43  adcockj
 // Preliminary support for H3D card
 //
@@ -302,6 +305,10 @@ BOOL ProgMode(TDeinterlaceInfo* pInfo)
                 lpOverlay += pInfo->OverlayPitch;
                 CurrentLine += pInfo->InputPitch;
             }
+			_asm
+			{
+				emms
+			}
             return TRUE;
         }
         else

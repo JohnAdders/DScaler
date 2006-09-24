@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_TemporalComb.c,v 1.19 2003-06-26 11:42:54 adcockj Exp $
+// $Id: FLT_TemporalComb.c,v 1.20 2006-09-24 02:44:46 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001, 2002 Lindsey Dubb.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2003/06/26 11:42:54  adcockj
+// Reduced teh size of some of the dlls
+//
 // Revision 1.18  2002/11/04 23:34:58  lindsey
 // Corrected an obsolete comment
 //
@@ -632,6 +635,10 @@ LONG UpdateBuffers( TDeinterlaceInfo* pInfo )
             pInfo->PictureHistory[0]->pData + (Index*pInfo->InputPitch),
             pInfo->LineLength
         );
+    }
+    _asm
+    {
+        emms
     }
 
     if (sHistoryWait > 100)

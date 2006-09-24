@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.113 2006-09-24 00:51:03 robmuller Exp $
+// $Id: OSD.cpp,v 1.114 2006-09-24 14:00:43 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.113  2006/09/24 00:51:03  robmuller
+// Added more info to developers screen.
+//
 // Revision 1.112  2005/07/23 19:13:27  laurentg
 // EPG: put common code in a new function
 //
@@ -3069,7 +3072,7 @@ SETTING OSDSettings[OSD_SETTING_LASTONE] =
         "OSD", "AutoHide", OSD_AutoHide_OnChange,
     },
     {
-        "Use General Screen", ONOFF, 0, (long*)&(ActiveScreens[2].active),
+        "Use General Screen", ONOFF, 0, (long*)&(ActiveScreens[4].active),
          TRUE, 0, 1, 1, 1,
          NULL,
         "OSD", "UseGeneralScreen", NULL,

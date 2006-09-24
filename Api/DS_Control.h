@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.173 2006-09-24 01:08:16 robmuller Exp $
+// $Id: DS_Control.h,v 1.174 2006-09-24 13:28:38 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.173  2006/09/24 01:08:16  robmuller
+// Removed unused variable bWaitForVsync.
+//
 // Revision 1.172  2005/10/24 19:35:43  laurentg
 // New EPG setting for using keys G and Ctrl+Shift+G as a toggle buttons
 //
@@ -1741,6 +1744,8 @@ typedef enum
     SAA7134VBIDEBUGOVERLAY,
     SAA7134AUTOMATICGAINCONTROL,
     SAA7134GAINCONTROLLEVEL,
+	SAA7134GAMMACONTROL,
+	SAA7134GAMMALEVEL,
     SAA7134VIDEOMIRROR,
     SAA7134AUDIOLINE1VOLTAGE,
     SAA7134AUDIOLINE2VOLTAGE,

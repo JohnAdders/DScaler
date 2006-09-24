@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_DScopeVIDEO.c,v 1.4 2006-09-24 02:44:46 robmuller Exp $
+// $Id: FLT_DScopeVIDEO.c,v 1.5 2006-09-24 21:09:29 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) 2003 Michael Joubert   All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2006/09/24 02:44:46  robmuller
+// Added missing emms instructions. Should fix problems on non-sse machines.
+//
 // Revision 1.3  2003/04/20 10:54:58  laurentg
 // Last updates from Michael Joubert
 //
@@ -654,7 +657,9 @@ BOOL DScopeVideoEnabled_OnChange( long NewValue ) // gets called when filter sta
     UseDScopeVideo = (BOOL) NewValue;
 
     // MJ DEBUGGING
+#ifdef _DEBUG
     OutputDebugString   ( "DScopeVideoEnabled_OnChange called" );
+#endif
     
     if ( UseDScopeVideo )
     {
@@ -676,15 +681,18 @@ BOOL DScopeVideoEnabled_OnChange( long NewValue ) // gets called when filter sta
 */
 void DScopeVideoStart( void )
 {    
+#ifdef _DEBUG
     OutputDebugString ( "DSCOPE_VIDEO - START" );
+#endif
     
     hPrevWindow = FindWindow((LPCTSTR) "DScaler", NULL); 
 	
+#ifdef _DEBUG
     if (hPrevWindow == NULL)
 	{
 		OutputDebugString ( "Could not find DScaler !!" );
     }
-
+#endif
     
     // ## problem here ## DScaler does not provide valid data that would be
     // useful at this point, such as pointers to source or overlay, pInfo data
@@ -707,7 +715,9 @@ void DScopeVideoStart( void )
 */
 void DScopeVideoStop( void )
 {
+#ifdef _DEBUG
     OutputDebugString ( "DSCOPE_VIDEO - STOP" );
+#endif
     return;
 }
 

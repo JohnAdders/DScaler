@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.112 2005-07-23 19:13:27 laurentg Exp $
+// $Id: OSD.cpp,v 1.113 2006-09-24 00:51:03 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.112  2005/07/23 19:13:27  laurentg
+// EPG: put common code in a new function
+//
 // Revision 1.111  2005/07/23 18:56:08  laurentg
 // EPG with external tuner using teletext/VPS to get channel name
 //
@@ -2326,6 +2329,7 @@ static void OSD_RefreshDeveloperScreen(double Size)
     int         i;
     double      pos;
 	DWORD		Total = 0;
+	DWORD		Cycles = 0;
 
     if (Size == 0)
     {
@@ -2344,6 +2348,24 @@ static void OSD_RefreshDeveloperScreen(double Size)
     sprintf (szInfo, "Last second : %d", pPerf->GetDroppedFieldsLastSecond());
     OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
     sprintf (szInfo, "Average / s : %.1f", pPerf->GetAverageDroppedFields());
+    OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+
+    OSD_AddText("Not waited", Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+
+    sprintf (szInfo, "Number : %ld", pPerf->GetNumberNotWaitedFields());
+    OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    sprintf (szInfo, "Last second : %d", pPerf->GetNotWaitedFieldsLastSecond());
+    OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    sprintf (szInfo, "Average / s : %.1f", pPerf->GetAverageNotWaitedFields());
+    OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+
+    OSD_AddText("Processed late", Size, OSD_COLOR_SECTION, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+
+    sprintf (szInfo, "Number : %ld", pPerf->GetNumberLateFields());
+    OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    sprintf (szInfo, "Last second : %d", pPerf->GetLateFieldsLastSecond());
+    OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
+    sprintf (szInfo, "Average / s : %.1f", pPerf->GetAverageLateFields());
     OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 1 - dfMargin, OSD_GetLineYpos (nLine++, dfMargin, Size));
 
     nLine = 3;
@@ -2367,6 +2389,14 @@ static void OSD_RefreshDeveloperScreen(double Size)
     OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos);
     sprintf(szInfo, "%d", Total);
     OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.45, pos);
+	nLine += 2;
+	pos = OSD_GetLineYpos (nLine, dfMargin, Size);
+    sprintf(szInfo, "%s", "Duration since start");
+    OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_LEFT, dfMargin, pos);
+	Cycles = pPerf->GetNbCycles(1);
+    sprintf(szInfo, "%d:%02d", Cycles/60, Cycles % 60);
+    OSD_AddText(szInfo, Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.45, pos);
+	
 }
 
 

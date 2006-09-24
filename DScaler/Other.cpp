@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.75 2006-09-24 03:14:05 robmuller Exp $
+// $Id: Other.cpp,v 1.76 2006-09-24 03:47:19 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.75  2006/09/24 03:14:05  robmuller
+// Change number of backbuffers in real-time.
+//
 // Revision 1.74  2005/03/23 14:20:58  adcockj
 // Test fix for threading issues
 //
@@ -983,6 +986,7 @@ BOOL Overlay_Create()
     DDSCAPS caps;
     int minBuffers, maxBuffers, numBuffers;
     char msg[500];
+	int loopcounter = 0;
 
     if (lpDDOverlay)
     {
@@ -1004,7 +1008,7 @@ BOOL Overlay_Create()
 	// handle the case where we are in a funny in between state
 	// by looping, this happens sometimes with Ctrl-alt-delete on
 	// some graphics cards.
-	while(ddrval == DDERR_UNSUPPORTEDMODE)
+	while(ddrval == DDERR_UNSUPPORTEDMODE && loopcounter++ < 20)
 	{
 		Sleep(100);
 	    ddrval = lpDD->CreateSurface(&SurfaceDesc, &lpDDSurface, NULL);

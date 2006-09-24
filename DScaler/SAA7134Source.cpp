@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.99 2005-07-26 22:19:31 laurentg Exp $
+// $Id: SAA7134Source.cpp,v 1.100 2006-09-24 14:14:44 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.99  2005/07/26 22:19:31  laurentg
+// Use the new function Channel_GetVBIName
+//
 // Revision 1.98  2005/05/18 12:18:32  robmuller
 // Added gamma control.
 //
@@ -644,7 +647,7 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
     m_GainControlLevel = new CGainControlLevelSetting(this, "Gain Control Level", 0x0100, 0x0000, 0x01FF, IniSection, pGainControlGroup);
     m_Settings.push_back(m_GainControlLevel);
 
-    m_GammaControl = new CGammaControlSetting(this, "Gamma Control", FALSE, IniSection, pVideoGroup);
+    m_GammaControl = new CGammaControlSetting(this, "Gamma Control", TRUE, IniSection, pVideoGroup);
     m_Settings.push_back(m_GammaControl);
 
     m_GammaLevel = new CGammaLevelSetting(this, "Gamma Level", 1300, 0x0000, 3000, IniSection, pVideoGroup);

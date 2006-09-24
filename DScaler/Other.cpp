@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.74 2005-03-23 14:20:58 adcockj Exp $
+// $Id: Other.cpp,v 1.75 2006-09-24 03:14:05 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.74  2005/03/23 14:20:58  adcockj
+// Test fix for threading issues
+//
 // Revision 1.73  2005/03/11 17:16:40  adcockj
 // ifdefed out stuff that required newer sdk
 //
@@ -1886,6 +1889,14 @@ BOOL Overlay_UseControls_OnChange(long NewValue)
     return FALSE;
 }
 
+BOOL BackBuffers_OnChange(long NewValue)
+{
+   BackBuffers = NewValue;
+   Overlay_Stop(GetMainWnd());
+   Overlay_Start(GetMainWnd());
+   return FALSE;
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // Start of Settings related code
 /////////////////////////////////////////////////////////////////////////////
@@ -1896,7 +1907,7 @@ SETTING OtherSettings[OTHER_SETTING_LASTONE] =
         "Back Buffers", SLIDER, 0, (long*)&BackBuffers,
         -1, -1, 2, 1, 1,
         NULL,
-        "Overlay", "BackBuffers", NULL,
+        "Overlay", "BackBuffers", BackBuffers_OnChange,
     },
     {
         "Overlay Colorkey", SLIDER, 0, (long*)&g_OverlayColor,

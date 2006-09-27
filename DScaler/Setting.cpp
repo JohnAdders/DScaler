@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: Setting.cpp,v 1.33 2004-08-06 16:24:36 atnak Exp $
+// $Id: Setting.cpp,v 1.34 2006-09-27 17:11:31 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2004/08/06 16:24:36  atnak
+// Removed the hook that was put in for the new setting master and reverted code to how it was before.
+//
 // Revision 1.32  2004/04/06 12:20:48  adcockj
 // Added .NET 2003 project files and some fixes to support this
 //
@@ -527,11 +530,11 @@ void CSimpleSetting::WriteToIniSubSection(LPCSTR szSubSection, BOOL bOptimizeFil
         if(bWriteValue)
         {
             WritePrivateProfileInt(szSubSection, szIniEntry, Val, GetIniFileForSettings());
-            LOG(2, " WriteToIniSubSection %s %s Value %d", szSubSection, szIniEntry, Val);
+            LOG(2, " WriteToIniSubSection %s %s Value %d Was %d", szSubSection, szIniEntry, Val, m_SectionLastSavedValue);
         }
         else
         {
-            LOG(2, " WriteToIniSubSection Not Written %s %s Value %d Was ", szSubSection, szIniEntry, Val, m_SectionLastSavedValue);
+            LOG(2, " WriteToIniSubSection Not Written %s %s Value %d", szSubSection, szIniEntry, Val);
         }
 
 
@@ -549,14 +552,14 @@ void CSimpleSetting::WriteToIni(BOOL bOptimizeFileAccess)
         // here we want all settings in the ini file
         // so we only optimize if the value and section 
         // were the same as what was loaded
-        if(!bOptimizeFileAccess || Val != m_pSetting->LastSavedValue || m_sLastSavedValueIniSection != m_pSetting->szIniSection)
+        if(!bOptimizeFileAccess || Val != m_pSetting->LastSavedValue)
         {
             WritePrivateProfileInt(m_pSetting->szIniSection, m_pSetting->szIniEntry, Val, GetIniFileForSettings());
-            LOG(2, " WriteToIni %s %s Value %d", m_pSetting->szIniSection, m_pSetting->szIniEntry, Val);
+            LOG(2, " WriteToIni %s %s Value %d Optimize %d Was %d", m_pSetting->szIniSection, m_pSetting->szIniEntry, Val, bOptimizeFileAccess, m_pSetting->LastSavedValue);
         }
         else
         {
-            LOG(2, " WriteToIni Not Written %s %s Value %d Was ", m_pSetting->szIniSection, m_pSetting->szIniEntry, Val, m_pSetting->LastSavedValue);
+            LOG(2, " WriteToIni Not Written %s %s Value %d", m_pSetting->szIniSection, m_pSetting->szIniEntry, Val);
         }
 
         m_pSetting->LastSavedValue = Val;

@@ -1,5 +1,5 @@
 //
-// $Id: ISetting.cpp,v 1.6 2003-10-27 10:39:52 adcockj Exp $
+// $Id: ISetting.cpp,v 1.7 2006-09-27 17:23:58 robmuller Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2003/10/27 10:39:52  adcockj
+// Updated files for better doxygen compatability
+//
 /////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -44,7 +47,7 @@ CSettingGroup::CSettingGroup(LPCSTR szName, DWORD Flags, BOOL IsActiveByDefault)
 
 CSettingGroup::~CSettingGroup()
 {
-    m_IsActive->WriteToIni(FALSE);
+    m_IsActive->WriteToIni(TRUE);
     delete m_IsActive;
 }
 

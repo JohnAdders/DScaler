@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.61 2005-09-24 18:40:51 dosx86 Exp $
+// $Id: Settings.cpp,v 1.62 2006-09-28 18:13:04 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.61  2005/09/24 18:40:51  dosx86
+// Removed the TimeShift settings
+//
 // Revision 1.60  2005/03/27 20:22:20  laurentg
 // EPG: new improvements
 //
@@ -605,7 +608,26 @@ void BeautifyIniFile(LPCTSTR lpIniFileName)
         fclose(TempFile);
     }
     remove(lpIniFileName);
-    rename(szTempFile, lpIniFileName);
+
+	// RM Sept 28 2006: The following while loop and Sleep statement should not be needed.
+	// It was added because Antivir Personal Edition Classic was causing problems when
+	// the win32 file heuristic of the Antivir Guard was set to the medium level.
+	// Antivir causes a delay in removing the ini file which causes the rename to fail.
+	//
+	int i = 0;
+	while(rename(szTempFile, lpIniFileName) != 0)
+	{
+		Sleep(1);
+	    if(i++ > 100)
+		{
+			LOG(1, "BeautifyIniFile: rename failed.");
+			break;
+		}
+	}
+	if(i != 0)
+	{
+		LOG(1, "BeautifyIniFile: Sleep needed %d time(s) before rename.", i);
+	}
 }
 
 void WriteSettingsToIni(BOOL bOptimizeFileAccess)

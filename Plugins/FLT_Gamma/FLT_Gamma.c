@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_Gamma.c,v 1.17 2004-04-06 12:20:56 adcockj Exp $
+// $Id: FLT_Gamma.c,v 1.18 2006-10-06 13:35:32 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2004/04/06 12:20:56  adcockj
+// Added .NET 2003 project files and some fixes to support this
+//
 // Revision 1.16  2003/09/13 08:36:16  adcockj
 // Crash patch from Steve Gotthardt (Patch-805174)
 //
@@ -47,6 +50,8 @@
 // Added CVS tags and removed tabs
 //
 /////////////////////////////////////////////////////////////////////////////
+
+#define _CRT_SECURE_NO_DEPRECATE
 
 #include "windows.h"
 #include "DS_Filter.h"

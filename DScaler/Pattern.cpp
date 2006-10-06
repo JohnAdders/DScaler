@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Pattern.cpp,v 1.6 2003-10-27 10:39:52 adcockj Exp $
+// $Id: Pattern.cpp,v 1.7 2006-10-06 13:35:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2003/10/27 10:39:52  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.5  2003/03/05 22:08:45  laurentg
 // Updated management of 16 bytes aligned buffer for stills
 //
@@ -757,7 +760,8 @@ void CSubPattern::GetSumDeltaColor(BOOL YUV, int* pR_Y, int* pG_U, int* pB_V, in
     int sum_delta[4];
 
     // Set the sums to 0
-    for (int j = 0 ; j <= 3 ; j++)
+    int j;
+    for (j = 0 ; j <= 3 ; j++)
     {
         sum_delta[j] = 0;
     }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: stdafx.h,v 1.24 2005-05-12 08:33:19 adcockj Exp $
+// $Id: stdafx.h,v 1.25 2006-10-06 13:35:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2005/05/12 08:33:19  adcockj
+// hopefully fixed win98 comapatability
+//
 // Revision 1.23  2005/03/20 14:06:54  adcockj
 // Added defines for new SDK
 //
@@ -82,6 +85,7 @@
  * @file stdafx.h Precompiled Header file
  */
  
+#define _CRT_SECURE_NO_DEPRECATE
 
 #if _MSC_VER > 1000
 #pragma once

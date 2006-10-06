@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_LogoKill.c,v 1.24 2005-03-11 13:31:55 adcockj Exp $
+// $Id: FLT_LogoKill.c,v 1.25 2006-10-06 13:35:32 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.24  2005/03/11 13:31:55  adcockj
+// Get rid of a load of compilation warnings in vs.net
+//
 // Revision 1.23  2002/11/18 20:08:55  robmuller
 // Added Smoothing Only mode.
 //
@@ -81,6 +84,8 @@
 // Added CVS tags and removed tabs
 //
 /////////////////////////////////////////////////////////////////////////////
+
+#define _CRT_SECURE_NO_DEPRECATE
 
 #pragma warning(disable : 4799)
 

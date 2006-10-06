@@ -1,5 +1,5 @@
 //
-// $Id: I2CBus.cpp,v 1.4 2005-03-24 17:57:57 adcockj Exp $
+// $Id: I2CBus.cpp,v 1.5 2006-10-06 13:35:28 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2005/03/24 17:57:57  adcockj
+// Card access from one thread at a time
+//
 // Revision 1.3  2003/10/27 10:39:51  adcockj
 // Updated files for better doxygen compatability
 //
@@ -111,7 +114,9 @@ bool CI2CBus::Read(const BYTE *writeBuffer,
         return false;
     }
     
-    for (size_t i = 0; i < (readBufferSize - 1); i++)
+    size_t i;
+
+    for (i = 0; i < (readBufferSize - 1); i++)
         readBuffer[i] = Read(false);
     readBuffer[i] = Read(true);
     Stop();

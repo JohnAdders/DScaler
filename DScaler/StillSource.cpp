@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.107 2006-09-24 02:44:46 robmuller Exp $
+// $Id: StillSource.cpp,v 1.108 2006-10-06 13:35:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.107  2006/09/24 02:44:46  robmuller
+// Added missing emms instructions. Should fix problems on non-sse machines.
+//
 // Revision 1.106  2005/03/23 14:21:00  adcockj
 // Test fix for threading issues
 //
@@ -628,7 +631,7 @@ BOOL CStillSource::LoadPlayList(LPCSTR FileName)
                 else
                 {
                     char FilePath[MAX_PATH];
-                    char* pStr = strrchr(FileName, '\\');
+                    const char* pStr = strrchr(FileName, '\\');
                     if (pStr == NULL)
                     {
                         strcpy(FilePath, FileName);

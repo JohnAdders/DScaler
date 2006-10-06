@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTDecoder.cpp,v 1.19 2005-10-25 08:17:59 adcockj Exp $
+// $Id: VTDecoder.cpp,v 1.20 2006-10-06 13:35:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -44,6 +44,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2005/10/25 08:17:59  adcockj
+// added winver and got to clean compile
+//
 // Revision 1.18  2005/07/27 22:49:33  laurentg
 // Use WORD instead of DWORD
 //
@@ -1173,7 +1176,8 @@ WORD CVTDecoder::GetNonVisiblePageNumbers(LPWORD lpNumberList, WORD nListSize)
         pPage != NULL && nPagesCount < nListSize;
         pPage = FindReceivedPage(pPage->pNextPage))
     {
-        for (WORD i = 0; i < nPagesCount; i++)
+        WORD i;
+        for (i = 0; i < nPagesCount; i++)
         {
             if (lpNumberList[i] == LOWORD(pPage->dwPageCode))
             {
@@ -1571,7 +1575,8 @@ BYTE CVTDecoder::SearchPageProc(TVTPage*, WORD wPoint, LPWORD,
         // If the string has repetitive substrings, it is
         // necessary check if the shifting the starting point
         // to the start of the substrings will find a match.
-        for (int j = 1; j < *pIndex; j++)
+        int j;
+        for (j = 1; j < *pIndex; j++)
         {
             if ((nLength + j) > (40 - nCol))
             {

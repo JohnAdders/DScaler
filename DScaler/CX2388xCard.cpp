@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.74 2005-07-14 05:05:21 dosx86 Exp $
+// $Id: CX2388xCard.cpp,v 1.75 2006-10-06 13:35:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.74  2005/07/14 05:05:21  dosx86
+// Fixed the white crush major selection mask so it's two bits wide instead of four
+//
 // Revision 1.73  2005/06/09 23:22:00  robmuller
 // Fixed bug in GetTickCount().
 //
@@ -1561,7 +1564,8 @@ void CCX2388xCard::ResetHardware()
 {
     // Clear out the SRAM Channel Management data structures
     // for all 12 devices
-    for (int i(1); i<=12; ++i)
+    int i;
+    for (i = 1; i<=12; ++i)
     {   
         DWORD dwaddr = 0x180000+i*0x40;
         for (int j(0); j<5; ++j)

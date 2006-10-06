@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_H3D.cpp,v 1.10 2005-03-09 09:35:16 atnak Exp $
+// $Id: CX2388xCard_H3D.cpp,v 1.11 2006-10-06 13:35:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2005/03/09 09:35:16  atnak
+// Renamed CI2CDevice:::Attach(...) to SetI2CBus(...) to better portray its
+// non-intrusive nature.
+//
 // Revision 1.9  2003/11/26 17:40:58  adcockj
 // Scaler fixes
 //
@@ -120,7 +124,8 @@ void CCX2388xCard::InitH3D()
         return;
     }
 
-    for(DWORD i(0x390000); i <= 0x39000F; ++i)
+    DWORD i;
+    for(i = 0x390000; i <= 0x39000F; ++i)
     {
         fprintf(hFile, "%06x\t%02x\n", i, ReadByte(i));
     }

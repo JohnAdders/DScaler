@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Deinterlace.cpp,v 1.50 2005-03-23 14:20:56 adcockj Exp $
+// $Id: Deinterlace.cpp,v 1.51 2006-10-06 13:35:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.50  2005/03/23 14:20:56  adcockj
+// Test fix for threading issues
+//
 // Revision 1.49  2003/10/27 10:39:51  adcockj
 // Updated files for better doxygen compatability
 //
@@ -929,7 +932,7 @@ int DeintMethodCompare(const void* arg1, const void* arg2)
 
 void AddUIForDeintPlugin(HMENU hMenu, DEINTERLACE_METHOD* DeintMethod)
 {
-    static MenuId = 6000;
+    static DWORD MenuId = 6000;
     if(DeintMethod->MenuId == 0)
     {
         DeintMethod->MenuId = MenuId++;

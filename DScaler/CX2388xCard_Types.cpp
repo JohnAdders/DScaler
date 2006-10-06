@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Types.cpp,v 1.31 2004-12-25 22:40:18 to_see Exp $
+// $Id: CX2388xCard_Types.cpp,v 1.32 2006-10-06 13:35:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2004/12/25 22:40:18  to_see
+// Changed the card list to an ini file
+//
 // Revision 1.30  2004/09/29 20:36:02  to_see
 // Added Card AverTV303, Thanks to Zbigniew Pluta
 //
@@ -385,8 +388,9 @@ void CCX2388xCard::ReadCardUseTDA9887Proc(int report, const CParseTag* tag, unsi
         if (parseInfo->pCurrentCard->bUseTDA9887)
         {
             int count = 0;
+            int i;
             // Count the number of non-zero masks.
-            for (int i = 0; i < TDA9887_FORMAT_LASTONE; i++)
+            for (i = 0; i < TDA9887_FORMAT_LASTONE; i++)
             {
                 if (parseInfo->useTDA9887Info.tdaModes[i].mask != 0)
                 {

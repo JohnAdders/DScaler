@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.71 2004-12-14 21:25:15 laurentg Exp $
+// $Id: DSSource.cpp,v 1.72 2006-10-06 13:35:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.71  2004/12/14 21:25:15  laurentg
+// DShow ChangeRes run by the output thread
+//
 // Revision 1.70  2004/12/12 01:17:53  laurentg
 // Extended choice of resolution
 //
@@ -725,18 +728,18 @@ int CDSCaptureSource::ChangeRes(int nResIndex)
 		CDShowGraph::eChangeRes_Error err=m_pDSGraph->ChangeRes(m_VideoFmt[nResIndex]);
 		switch(err)
 		{
-		case CDShowGraph::eChangeRes_Error::ERROR_NO_GRAPH:
+		case CDShowGraph::ERROR_NO_GRAPH:
 			ErrorBox("Can't change resolution because there is no filter graph (bug)");
 			break;
-		case CDShowGraph::eChangeRes_Error::ERROR_CHANGED_BACK:
+		case CDShowGraph::ERROR_CHANGED_BACK:
 			ErrorBox("The selected resolution is not valid or coud not be used");
 			break;
-		case CDShowGraph::eChangeRes_Error::ERROR_FAILED_TO_CHANGE_BACK:
+		case CDShowGraph::ERROR_FAILED_TO_CHANGE_BACK:
 			ErrorBox("Failed to change resolution and faild to change back to previous resolution");
 			//shod probably call Stop() or Reset() here since the
 			//filter graph is most likely broken now
 			break;
-		case CDShowGraph::eChangeRes_Error::SUCCESS:
+		case CDShowGraph::SUCCESS:
 			m_Resolution->SetValue(nResIndex);
 			resu = 0;
 			break;
@@ -1646,19 +1649,19 @@ void CDSCaptureSource::Start()
 			CDShowGraph::eChangeRes_Error err=m_pDSGraph->ChangeRes(m_VideoFmt[m_Resolution->GetValue()]);
 			switch(err)
 			{
-				case CDShowGraph::eChangeRes_Error::ERROR_NO_GRAPH:
+				case CDShowGraph::ERROR_NO_GRAPH:
 					LOG(2,"Error restoring resolution, no filter graph (bug)");
 					break;
-				case CDShowGraph::eChangeRes_Error::ERROR_CHANGED_BACK:
+				case CDShowGraph::ERROR_CHANGED_BACK:
 					LOG(2,"Error restoring resolution, failed to change to new resolution or format not supported");
 					break;
-				case CDShowGraph::eChangeRes_Error::ERROR_FAILED_TO_CHANGE_BACK:
+				case CDShowGraph::ERROR_FAILED_TO_CHANGE_BACK:
 					//oops we broke the filter graph, reset resolution 
 					//setting so we don't break it the next time too.
 					m_Resolution->SetValue(-1);
 					LOG(2,"Error restoring resolution, broke filter graph");
 					break;
-				case CDShowGraph::eChangeRes_Error::SUCCESS:
+				case CDShowGraph::SUCCESS:
 					break;
 			}
 		}

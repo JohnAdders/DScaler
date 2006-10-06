@@ -1,5 +1,5 @@
 //
-// $Id: WindowBorder.cpp,v 1.6 2003-10-27 10:39:54 adcockj Exp $
+// $Id: WindowBorder.cpp,v 1.7 2006-10-06 13:35:28 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2003/10/27 10:39:54  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.5  2002/10/08 08:23:33  kooiman
 // Fixed lost border buttons.
 //
@@ -611,7 +614,8 @@ void CWindowBorder::MergeBorderRegions(vector<LPRECT> *AllRegions, LPRECT lpRcEx
          pRowList = new POINT[TopSize * (TotalWidth+2)];
          pRowListSize = new int[TopSize];
         
-         for (int h = 0; h < TopSize; h++)
+         int h;
+         for (h = 0; h < TopSize; h++)
          {
              p = &pRowList[h * (TotalWidth+2) + pRowListSize[h] ];
              pRowListSize[h] = 0;

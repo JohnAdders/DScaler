@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_DScopeVIDEO.c,v 1.5 2006-09-24 21:09:29 robmuller Exp $
+// $Id: FLT_DScopeVIDEO.c,v 1.6 2006-10-06 13:35:31 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) 2003 Michael Joubert   All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2006/09/24 21:09:29  robmuller
+// OutputDebugString only in debug builds.
+//
 // Revision 1.4  2006/09/24 02:44:46  robmuller
 // Added missing emms instructions. Should fix problems on non-sse machines.
 //
@@ -67,6 +70,7 @@
 
 */
 
+#define _CRT_SECURE_NO_DEPRECATE
 
 #include "windows.h"
 #include "..\..\Api\DS_Filter.h"

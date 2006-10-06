@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.cpp,v 1.36 2005-09-24 18:46:57 dosx86 Exp $
+// $Id: TreeSettingsDlg.cpp,v 1.37 2006-10-06 13:35:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.36  2005/09/24 18:46:57  dosx86
+// Removed the TimeShift options
+//
 // Revision 1.35  2005/03/27 20:22:21  laurentg
 // EPG: new improvements
 //
@@ -218,7 +221,8 @@ END_MESSAGE_MAP()
 
 void CTreeSettingsDlg::OnOK()
 {
-	for(int i=0;i<m_pages.size();i++)
+    int i;
+	for(i=0;i<m_pages.size();i++)
 	{
 		CTreeSettingsPage *pPage=m_pages[i].m_pPage;
 		//check if the page has been created
@@ -250,7 +254,8 @@ void CTreeSettingsDlg::OnOK()
 
 void CTreeSettingsDlg::OnCancel()
 {
-	for(int i=0;i<m_pages.size();i++)
+    int i;
+	for(i=0;i<m_pages.size();i++)
 	{
 		CTreeSettingsPage *pPage=m_pages[i].m_pPage;
 		if(!pPage->OnQueryCancel())
@@ -738,9 +743,9 @@ void CTreeSettingsDlg::OnPaint()
 	dc.DrawFrameControl(rc,DFC_SCROLL,DFCS_SCROLLSIZEGRIP);
 }
 
-UINT CTreeSettingsDlg::OnNcHitTest(CPoint point) 
+LRESULT CTreeSettingsDlg::OnNcHitTest(CPoint point) 
 {
-	UINT ht = CDialog::OnNcHitTest(point);
+	LRESULT ht = CDialog::OnNcHitTest(point);
 
 	if(ht==HTCLIENT)
 	{

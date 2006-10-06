@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_VideoText.cpp,v 1.84 2005-08-28 18:27:55 to_see Exp $
+// $Id: VBI_VideoText.cpp,v 1.85 2006-10-06 13:35:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.84  2005/08/28 18:27:55  to_see
+// Updated RegisteredCNICodes - changed some station names and sorted the list by wNI_P8301
+//
 // Revision 1.83  2005/08/14 16:09:11  to_see
 // Fixed typo in RegisteredCNICodes
 //
@@ -2424,7 +2427,8 @@ void VT_PerformUpscrollDuplicationFilter()
             {
                 if (memcmp(VTVisiblePage.Frame[i + 2], VTVisiblePage.Frame[i], 40) == 0)
                 {
-                    for (int j = i + 2; j <= 23; j += 2)
+                    int j;
+                    for (j = i + 2; j <= 23; j += 2)
                     {
                         if ((VTVisiblePage.LineState[j + 2] & CACHESTATE_HASDATA) == 0 ||
                             (VTVisiblePage.LineState[j + 2] & CACHESTATE_UPDATED))
@@ -2623,7 +2627,8 @@ BYTE VT_UpdateHilightListProc(TVTPage*, WORD wPoint, LPWORD lpFlags,
         // If the string has repetitive substrings, it is
         // necessary check if the shifting the starting point
         // to the start of the substrings will find a match.
-        for (int j = 1; j < nIndex; j++)
+        int j;
+        for (j = 1; j < nIndex; j++)
         {
             if ((nLength + j) > (40 - nCol))
             {

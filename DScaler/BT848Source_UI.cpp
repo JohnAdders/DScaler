@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_UI.cpp,v 1.26 2005-03-11 14:54:39 adcockj Exp $
+// $Id: BT848Source_UI.cpp,v 1.27 2006-10-06 13:35:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2005/03/11 14:54:39  adcockj
+// Get rid of a load of compilation warnings in vs.net
+//
 // Revision 1.25  2004/03/25 17:59:44  adcockj
 // Added Sweetspot as new card type
 //
@@ -468,7 +471,8 @@ BOOL APIENTRY CBT848Source::AudioStandardManualProc(HWND hDlg, UINT message, UIN
 					SetDlgItemText(hDlg, IDC_AUDIOSTANDARD_MANUAL_DETECTNOW, "Detect");
 					EnableWindow(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_LIST), TRUE);
 					int Num = pThis->m_pBT848Card->GetNumAudioStandards();
-					for (int i = 0; i < Num; i++)
+                    int i;
+					for (i = 0; i < Num; i++)
 					{
 						if (ListBox_GetItemData(GetDlgItem(hDlg, IDC_AUDIOSTANDARD_LIST), i) == pThis->m_AudioStandardManual->GetValue())
 						{

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsOleProperties.cpp,v 1.9 2002-10-15 15:03:24 kooiman Exp $
+// $Id: TreeSettingsOleProperties.cpp,v 1.10 2006-10-06 13:35:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2002/10/15 15:03:24  kooiman
+// Resizable tree setting dialog
+//
 // Revision 1.8  2002/08/17 18:04:53  tobbej
 // changed parent window to be the tab controll and not the dialog
 //
@@ -141,7 +144,8 @@ BOOL CTreeSettingsOleProperties::OnInitDialog()
 	CTreeSettingsPage::OnInitDialog();
 	
 	//find maximum width and height of the pages
-	for(int i=0;i<m_pages.size();i++)
+    int i;
+	for(i=0;i<m_pages.size();i++)
 	{
 		PROPPAGEINFO pageInfo;
 		HRESULT hr=m_pages[i]->m_pPropertyPage->GetPageInfo(&pageInfo);

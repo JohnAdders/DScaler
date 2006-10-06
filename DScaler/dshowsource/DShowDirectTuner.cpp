@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DShowDirectTuner.cpp,v 1.2 2002-11-08 21:11:34 tobbej Exp $
+// $Id: DShowDirectTuner.cpp,v 1.3 2006-10-06 13:35:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/11/08 21:11:34  tobbej
+// removed dependency on IAMTVTuner, shoud make tuning faster
+//
 // Revision 1.1  2002/10/29 19:30:43  tobbej
 // new tuner class for direct tuning to a frequency
 //
@@ -234,25 +237,25 @@ long CDShowDirectTuner::GetSignalStrength(CDShowDirectTuner::eSignalType &type)
 	}
 	catch(CDShowException e)
 	{
-		type=eSignalType::SIGNALTYPE_NONE;
+		type = SIGNALTYPE_NONE;
 		return 0;
 	}
 
 	if(ModeCaps.Strategy==KS_TUNER_STRATEGY_PLL)
 	{
-		type=eSignalType::SIGNALTYPE_PLL;
+		type=SIGNALTYPE_PLL;
 		GetKSData(m_pKSProp,KSPROPERTY_TUNER_STATUS,TunerStatus);
 		return TunerStatus.PLLOffset;
 	}
 	else if(ModeCaps.Strategy==KS_TUNER_STRATEGY_SIGNAL_STRENGTH)
 	{
-		type=eSignalType::SIGNALTYPE_SIGNALSTRENGTH;
+		type=SIGNALTYPE_SIGNALSTRENGTH;
 		GetKSData(m_pKSProp,KSPROPERTY_TUNER_STATUS,TunerStatus);
 		return TunerStatus.SignalStrength;
 	}
 	else
 	{
-		type=eSignalType::SIGNALTYPE_NONE;
+		type=SIGNALTYPE_NONE;
 		return 0;
 	}
 }

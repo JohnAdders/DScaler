@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////
 //
-// $Id: SAA7118.cpp,v 1.6 2003-11-14 13:24:55 adcockj Exp $
+// $Id: SAA7118.cpp,v 1.7 2006-10-06 13:35:28 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
@@ -19,6 +19,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2003/11/14 13:24:55  adcockj
+// PMS card fixes
+//
 // Revision 1.5  2003/10/27 10:39:53  adcockj
 // Updated files for better doxygen compatability
 //
@@ -122,7 +125,8 @@ void CSAA7118::DumpSettings(LPCSTR Filename)
         return;
     }
 
-	for(int i(0); i < 0x2d; ++i)
+    int i;
+	for(i = 0; i < 0x2d; ++i)
 	{
 	    fprintf(hFile, "%02x\t%02x\n", i, GetRegister(i));
 	}

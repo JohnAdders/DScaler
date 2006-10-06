@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: main.cpp,v 1.2 2003-02-22 16:50:28 tobbej Exp $
+// $Id: main.cpp,v 1.3 2006-10-06 13:35:29 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2003/02/22 16:50:28  tobbej
+// modified to use country names instead of numbers
+//
 // Revision 1.1  2002/10/30 18:04:16  tobbej
 // new tool for extracting frequency tables from directshow to channel.txt format
 //
@@ -450,7 +453,8 @@ int main(int argc, char* argv[])
 			Broadcast[RcCountryList[Index].BroadcastFreqTable].push_back(RcCountryList[Index].CountryCode);
 			Index++;
 		}
-		for(std::map<long,std::vector<long> >::iterator it=Cable.begin();it!=Cable.end();it++)
+        std::map<long,std::vector<long> >::iterator it;
+		for(it=Cable.begin();it!=Cable.end();it++)
 		{
 			char lName[20];
 			sprintf(lName,"#%d",it->first);

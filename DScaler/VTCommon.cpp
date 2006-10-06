@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VTCommon.cpp,v 1.5 2005-03-11 14:54:41 adcockj Exp $
+// $Id: VTCommon.cpp,v 1.6 2006-10-06 13:35:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2005/03/11 14:54:41  adcockj
+// Get rid of a load of compilation warnings in vs.net
+//
 // Revision 1.4  2003/10/27 10:39:54  adcockj
 // Updated files for better doxygen compatability
 //
@@ -241,7 +244,9 @@ DWORD CVTCommon::Unham2418(BYTE Byte[3], BOOL* Error)
 void CVTCommon::Unham2418(BYTE Source[3], BYTE* Dest, BYTE BitOffset, BOOL* Error)
 {
     // Zero out the destination
-    for (int BitsLeft = BitOffset, i = 0; BitsLeft > 0; BitsLeft -= 8, i++)
+    int BitsLeft;
+    int i(0);
+    for (BitsLeft = BitOffset; BitsLeft > 0; BitsLeft -= 8, i++)
     {
         Dest[i] &= ~(0xff << BitsLeft);
     }

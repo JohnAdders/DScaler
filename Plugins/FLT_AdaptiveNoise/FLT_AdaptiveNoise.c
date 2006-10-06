@@ -16,6 +16,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2003/06/26 11:42:54  adcockj
+// Reduced teh size of some of the dlls
+//
 // Revision 1.17  2002/11/04 02:09:32  lindsey
 // Removed the debug flag again
 //
@@ -86,6 +89,8 @@
 //
 //
 /////////////////////////////////////////////////////////////////////////////
+
+#define _CRT_SECURE_NO_DEPRECATE
 
 // #define ADAPTIVE_NOISE_DEBUG
 

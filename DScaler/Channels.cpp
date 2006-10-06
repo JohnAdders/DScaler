@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Channels.cpp,v 1.11 2005-03-26 18:53:22 laurentg Exp $
+// $Id: Channels.cpp,v 1.12 2006-10-06 13:35:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2005/03/26 18:53:22  laurentg
+// EPG code improved
+// => possibility to set the EPG channel name in the channel setup dialog box
+// => automatic loading of new data when needed
+// => OSD scrrens updated
+// => first step for programs "browser"
+//
 // Revision 1.10  2005/03/08 03:25:26  robmuller
 // Added CVS keywords.
 //
@@ -324,7 +331,7 @@ BOOL CChannelList::RemoveChannel(int index)
     }
     //this sequence is truly bizarre...
     delete m_Channels[index];
-    m_Channels.erase(&m_Channels[index]);      
+    m_Channels.erase(m_Channels.begin() + index);      
     UpdateFields();
     return TRUE;
 }
@@ -867,7 +874,7 @@ BOOL CCountryList::RemoveChannels(int index)
     }
     
     delete m_Countries[index];
-    m_Countries.erase(&m_Countries[index]);          
+    m_Countries.erase(m_Countries.begin() + index);
     return TRUE;
 }
 

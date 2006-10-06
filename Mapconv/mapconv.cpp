@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: mapconv.cpp,v 1.5 2005-03-11 13:31:52 adcockj Exp $
+// $Id: mapconv.cpp,v 1.6 2006-10-06 13:35:29 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) 1998-2002 Avery Lee.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2005/03/11 13:31:52  adcockj
+// Get rid of a load of compilation warnings in vs.net
+//
 // Revision 1.4  2002/09/17 19:29:29  adcockj
 // Fixed compile warnings
 //
@@ -39,6 +42,8 @@
 // Added code and tools for crash logging from VirtualDub
 //
 //////////////////////////////////////////////////////////////////////////////
+
+#define _CRT_SECURE_NO_DEPRECATE
 
 //  mapconv - symbolic debugging info generator for VirtualDub
 //  Copyright (C) 2002 Avery Lee, All Rights Reserved

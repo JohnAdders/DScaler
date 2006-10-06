@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.114 2006-09-24 14:00:43 robmuller Exp $
+// $Id: OSD.cpp,v 1.115 2006-10-06 13:35:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.114  2006/09/24 14:00:43  robmuller
+// Fixed: General Screen could not be disabled.
+//
 // Revision 1.113  2006/09/24 00:51:03  robmuller
 // Added more info to developers screen.
 //
@@ -914,7 +917,8 @@ void OSD_ShowNextInfosScreen(HDC hDC, LPRECT lpRect, DOUBLE Size)
     int nScreens = sizeof(ActiveScreens) / sizeof(ActiveScreens[0]);
 
     // determine which screen to display
-    for (int i = OSD_IdxCurrentScreen + 1; i < nScreens; i++)
+    int i;
+    for (i = OSD_IdxCurrentScreen + 1; i < nScreens; i++)
     {
         if (ActiveScreens[i].active && !ActiveScreens[i].managed_by_app)
         {
@@ -1202,7 +1206,8 @@ LONG OSD_GetPaintedRects(RECT* pRectBuffer, LONG nBufferSize)
         return 0;
     }
 
-    for (int i = 0 ; i < nBufferSize && i < OSD_nTextCount ; i++)
+    int i;
+    for (i = 0 ; i < nBufferSize && i < OSD_nTextCount ; i++)
     {
         CopyRect(&pRectBuffer[i], &OSD_Text[i].CurrentRect);        
     }
@@ -2767,12 +2772,12 @@ void OSD_AddText(LPCTSTR szText, double Size, long NewTextColor, long Background
 {
     char      SingleLine[512];
     int       SingleLineIndex = 0;
-    char      *s;
+    const char *s;
 
     // convert "\r\n" to "\n"
     while(s = strstr(szText, "\r\n"))
     {
-        strcpy(&s[0], &s[1]);
+        strcpy((char*)&s[0], &s[1]);
     }
 
     for(int i = 0; i < strlen(szText); i++)
@@ -2815,13 +2820,13 @@ int OSD_CutLines(LPCTSTR szText, long MaxCharsPerLine)
 {
 	int       IndexLine = 0;
     int       InLineIndex = 0;
-    char      *s;
+    const char      *cs;
 	int       i;
 
     // convert "\r\n" to "\n"
-    while(s = strstr(szText, "\r\n"))
+    while(cs = strstr(szText, "\r\n"))
     {
-        strcpy(&s[0], &s[1]);
+        strcpy((char *)&cs[0], &cs[1]);
     }
 
     for(i = 0; i < strlen(szText); i++)
@@ -2865,7 +2870,7 @@ int OSD_CutLines(LPCTSTR szText, long MaxCharsPerLine)
 				else
 				{
 					// Search the last space in the buffered line
-					s = strrchr(TextLines[IndexLine], ' ');
+					char* s = strrchr(TextLines[IndexLine], ' ');
 					if (s)
 					{
 						*s = 0x00;

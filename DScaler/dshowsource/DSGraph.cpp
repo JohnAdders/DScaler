@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.cpp,v 1.31 2004-12-11 21:53:09 laurentg Exp $
+// $Id: DSGraph.cpp,v 1.32 2006-10-06 13:35:28 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2004/12/11 21:53:09  laurentg
+// Allow GraphEdit remote connection even in the release build
+//
 // Revision 1.30  2003/09/28 09:22:41  adcockj
 // Fixed crash when graph doesn't support seeking
 //
@@ -622,7 +625,7 @@ CDShowGraph::eChangeRes_Error CDShowGraph::ChangeRes(CDShowGraph::CVideoFormat f
 {
 	if(m_renderer==NULL)
 	{
-		return eChangeRes_Error::ERROR_NO_GRAPH;
+		return ERROR_NO_GRAPH;
 	}
 
 	CDShowPinEnum RendPins(m_renderer,PINDIR_INPUT);
@@ -754,7 +757,7 @@ CDShowGraph::eChangeRes_Error CDShowGraph::ChangeRes(CDShowGraph::CVideoFormat f
 	/*hr=m_pDSRendSettings->put_ForceYUY2(fmt.m_bForceYUY2 ? TRUE : FALSE);
 	hr=m_pDSRendSettings->put_FieldFormat(fmt.m_FieldFmt);*/
 
-	eChangeRes_Error result=eChangeRes_Error::ERROR_FAILED_TO_CHANGE_BACK;
+	eChangeRes_Error result=ERROR_FAILED_TO_CHANGE_BACK;
 	//change the format
 	//first try VIDEOINFOHEADER2,YUY2,field
 	//this format is exactly what dscaler uses internaly and will make dsrend use the
@@ -813,7 +816,7 @@ CDShowGraph::eChangeRes_Error CDShowGraph::ChangeRes(CDShowGraph::CVideoFormat f
 							if(SUCCEEDED(hr))
 							{
 								//failed to change mediatype, but was able to reconnect using old mediatype
-								result=eChangeRes_Error::ERROR_CHANGED_BACK;
+								result=ERROR_CHANGED_BACK;
 							}
 						}
 						else
@@ -822,33 +825,33 @@ CDShowGraph::eChangeRes_Error CDShowGraph::ChangeRes(CDShowGraph::CVideoFormat f
 							if(SUCCEEDED(hr))
 							{
 								//was able to change back to old format
-								result=eChangeRes_Error::ERROR_CHANGED_BACK;
+								result=ERROR_CHANGED_BACK;
 							}
 						}
 					}
 					else
 					{
-						result=eChangeRes_Error::SUCCESS;
+						result=SUCCESS;
 					}
 				}
 				else
 				{
-					result=eChangeRes_Error::SUCCESS;
+					result=SUCCESS;
 				}
 			}
 			else
 			{
-				result=eChangeRes_Error::SUCCESS;
+				result=SUCCESS;
 			}
 		}
 		else
 		{
-			result=eChangeRes_Error::SUCCESS;
+			result=SUCCESS;
 		}
 	}
 	else
 	{
-		result=eChangeRes_Error::SUCCESS;
+		result=SUCCESS;
 	}
 
 	//free mediatypes

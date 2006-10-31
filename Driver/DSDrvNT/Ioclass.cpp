@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Ioclass.cpp,v 1.16 2006-03-18 13:28:45 adcockj Exp $
+// $Id: Ioclass.cpp,v 1.17 2006-10-31 13:42:09 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -35,6 +35,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2006/03/18 13:28:45  adcockj
+// fixed compile issues with vs 6
+//
 // Revision 1.15  2006/03/16 17:20:56  adcockj
 // Added Michael Lutz's 64 bit code
 //
@@ -91,6 +94,7 @@ CIOAccessDevice::CIOAccessDevice(void) :
 #ifndef _WIN64
     // only on win32
     m_PAEEnabled = ExIsProcessorFeaturePresent(PF_PAE_ENABLED) == TRUE;
+    debugOut(dbTrace, m_PAEEnabled ? "PAE enabled" : "PAE not enabled");
 #endif
 }
 
@@ -773,7 +777,7 @@ NTSTATUS CIOAccessDevice::allocMemory(ULONG ulLength, DWORD dwFlags, PVOID pUser
     NTSTATUS      ntStatus;
     PMemoryNode   node;
     DWORD         dwIndex;
-    PPageStruct pPages = (PPageStruct)(pMemStruct + 1);
+    PPageStruct   pPages = (PPageStruct)(pMemStruct + 1);
 
     // Initialize the MemStruct
     pMemStruct->dwFlags = dwFlags;
@@ -904,6 +908,8 @@ NTSTATUS CIOAccessDevice::allocMemory(ULONG ulLength, DWORD dwFlags, PVOID pUser
                 return STATUS_INSUFFICIENT_RESOURCES;       
             }
         }
+        else
+            node->pUserAddress = pUserAddress;
         
         if ( above4G )
             ntStatus = buildPageStruct64(pMemStruct, node);
@@ -956,6 +962,7 @@ NTSTATUS CIOAccessDevice::buildPageStruct32(PMemStruct pMemStruct, PMemoryNode n
             debugOut(dbError, "allocMemory() returned 64-bit address: 0x%I64X. User address was 0x%IX", phys, node->pUserAddress);
             return STATUS_CONFLICTING_ADDRESSES;
         }        
+        node->pSystemAddress = (PVOID)phys;
         pPages[0].dwPhysical = (DWORD)phys; 
         for(DWORD_PTR i = (DWORD_PTR)node->pUserAddress; i < (DWORD_PTR)node->pUserAddress + pMemStruct->dwTotalSize; i++)
         {
@@ -999,6 +1006,7 @@ NTSTATUS CIOAccessDevice::buildPageStruct64(PMemStruct pMemStruct, PMemoryNode n
         int Pages = 1;
         DWORD_PTR LastUserAddr = (DWORD_PTR)node->pUserAddress;
         pPages[0].llPhysical = GetPhysAddr(node->pUserAddress).QuadPart; 
+        node->pSystemAddress = (PVOID)pPages[0].llPhysical;
         for(DWORD_PTR i = (DWORD_PTR)node->pUserAddress; i < (DWORD_PTR)node->pUserAddress + pMemStruct->dwTotalSize; i++)
         {
             if(i % 4096 == 0)

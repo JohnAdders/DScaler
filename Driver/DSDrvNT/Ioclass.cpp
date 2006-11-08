@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Ioclass.cpp,v 1.17 2006-10-31 13:42:09 to_see Exp $
+// $Id: Ioclass.cpp,v 1.18 2006-11-08 09:50:30 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -35,6 +35,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2006/10/31 13:42:09  to_see
+// Added Michael's Patch (error on i386 platforms)
+//
 // Revision 1.16  2006/03/18 13:28:45  adcockj
 // fixed compile issues with vs 6
 //
@@ -909,7 +912,9 @@ NTSTATUS CIOAccessDevice::allocMemory(ULONG ulLength, DWORD dwFlags, PVOID pUser
             }
         }
         else
+        {
             node->pUserAddress = pUserAddress;
+        }
         
         if ( above4G )
             ntStatus = buildPageStruct64(pMemStruct, node);
@@ -948,6 +953,7 @@ NTSTATUS CIOAccessDevice::buildPageStruct32(PMemStruct pMemStruct, PMemoryNode n
             debugOut(dbError, "allocMemory() returned 64-bit address: 0x%I64X. User address was 0x%IX", phys, node->pUserAddress);
             return STATUS_CONFLICTING_ADDRESSES;
         }        
+        node->pSystemAddress = (PVOID)phys;
         pPages[0].dwPhysical = (DWORD)phys;
         pPages[0].dwSize = pMemStruct->dwTotalSize;
     }
@@ -1066,7 +1072,9 @@ void CIOAccessDevice::freeMemory(PMemoryNode node)
         MmUnmapLockedPages(node->pUserAddress, node->pMdl);
     }
     else
+    {
         MmUnlockPages(node->pMdl);
+    }
 
     IoFreeMdl(node->pMdl);
 

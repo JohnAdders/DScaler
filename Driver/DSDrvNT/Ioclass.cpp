@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Ioclass.cpp,v 1.18 2006-11-08 09:50:30 adcockj Exp $
+// $Id: Ioclass.cpp,v 1.19 2006-11-09 21:18:09 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -35,6 +35,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2006/11/08 09:50:30  adcockj
+// fix for i386 driver issues from Michael Lutz
+//
 // Revision 1.17  2006/10/31 13:42:09  to_see
 // Added Michael's Patch (error on i386 platforms)
 //
@@ -953,7 +956,6 @@ NTSTATUS CIOAccessDevice::buildPageStruct32(PMemStruct pMemStruct, PMemoryNode n
             debugOut(dbError, "allocMemory() returned 64-bit address: 0x%I64X. User address was 0x%IX", phys, node->pUserAddress);
             return STATUS_CONFLICTING_ADDRESSES;
         }        
-        node->pSystemAddress = (PVOID)phys;
         pPages[0].dwPhysical = (DWORD)phys;
         pPages[0].dwSize = pMemStruct->dwTotalSize;
     }

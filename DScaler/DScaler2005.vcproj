@@ -21,7 +21,7 @@
 			IntermediateDirectory=".\Release"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			UseOfMFC="1"
+			UseOfMFC="2"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
 			>
@@ -52,9 +52,9 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="..\api,.\"
-				PreprocessorDefinitions="NDEBUG;_WINDOWS;WIN32;_WIN32_DCOM"
+				PreprocessorDefinitions="NDEBUG;_WINDOWS;WIN32;_WIN32_DCOM;_CRT_SECURE_NO_DEPRECATE"
 				StringPooling="true"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="2"
@@ -126,7 +126,7 @@
 			IntermediateDirectory=".\Debug"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			UseOfMFC="1"
+			UseOfMFC="2"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
 			>
@@ -155,7 +155,7 @@
 				Optimization="0"
 				AdditionalIncludeDirectories="..\api,.\"
 				PreprocessorDefinitions="_DEBUG;_WINDOWS;WIN32;_WIN32_DCOM"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdafx.h"
@@ -2739,6 +2739,10 @@
 						BrowseInformation="1"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\MultiMon.cpp"
+				>
 			</File>
 			<File
 				RelativePath="OpenDlg.cpp"

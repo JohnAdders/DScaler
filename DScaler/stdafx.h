@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: stdafx.h,v 1.25 2006-10-06 13:35:28 adcockj Exp $
+// $Id: stdafx.h,v 1.26 2006-12-12 23:43:10 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.25  2006/10/06 13:35:28  adcockj
+// Added projects for .NET 2005 and fixed most of the warnings and errors
+//
 // Revision 1.24  2005/05/12 08:33:19  adcockj
 // hopefully fixed win98 comapatability
 //
@@ -85,7 +88,7 @@
  * @file stdafx.h Precompiled Header file
  */
  
-#define _CRT_SECURE_NO_DEPRECATE
+#define _AFX_ENABLE_INLINES
 
 #if _MSC_VER > 1000
 #pragma once

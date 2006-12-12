@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="DI_BlendedClip"
 	ProjectGUID="{2F9AF3C5-AEA3-4EEA-A4CF-9D4B825AF51F}"
+	RootNamespace="DI_BlendedClip"
 	>
 	<Platforms>
 		<Platform
@@ -71,6 +72,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="user32.lib"
 				OutputFile="..\..\Debug/DI_BlendedClip.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"

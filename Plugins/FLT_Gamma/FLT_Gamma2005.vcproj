@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="FLT_Gamma"
 	ProjectGUID="{8A910216-D2FF-422B-894B-6427C2E84502}"
+	RootNamespace="FLT_Gamma"
 	>
 	<Platforms>
 		<Platform
@@ -168,6 +169,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="user32.lib"
 				OutputFile="..\..\Debug/FLT_Gamma.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"

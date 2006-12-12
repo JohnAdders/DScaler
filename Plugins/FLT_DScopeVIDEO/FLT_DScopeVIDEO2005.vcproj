@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="FLT_DScopeVIDEO"
 	ProjectGUID="{0A1BDB48-810A-4105-ABBC-28333AD3097C}"
+	RootNamespace="FLT_DScopeVIDEO"
 	>
 	<Platforms>
 		<Platform
@@ -167,6 +168,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="user32.lib"
 				OutputFile="..\..\Debug/FLT_DScopeVIDEO.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"

@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="DI_Adaptive"
 	ProjectGUID="{454FB767-448C-4F85-9830-2906FE5F4C7A}"
+	RootNamespace="DI_Adaptive"
 	>
 	<Platforms>
 		<Platform
@@ -167,6 +168,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="user32.lib"
 				OutputFile="..\..\Debug/DI_Adaptive.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"

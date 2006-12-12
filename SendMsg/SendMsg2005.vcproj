@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="SendMsg"
 	ProjectGUID="{CA11128F-D860-4252-A75D-6BDF95B66831}"
+	RootNamespace="SendMsg"
 	>
 	<Platforms>
 		<Platform
@@ -72,6 +73,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="user32.lib"
 				OutputFile="..\Debug/SendMsg.exe"
 				LinkIncremental="0"
 				SuppressStartupBanner="true"

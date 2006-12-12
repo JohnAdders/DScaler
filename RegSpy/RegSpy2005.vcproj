@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="RegSpy"
 	ProjectGUID="{A854F094-3DCC-4B63-BA74-11AF953AB9FA}"
+	RootNamespace="RegSpy"
 	Keyword="MFCProj"
 	>
 	<Platforms>
@@ -20,7 +21,7 @@
 			IntermediateDirectory=".\Debug"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			UseOfMFC="1"
+			UseOfMFC="2"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
 			>
@@ -51,7 +52,7 @@
 				AdditionalIncludeDirectories="..\api,.\DScaler,.\"
 				PreprocessorDefinitions="_DEBUG;_WINDOWS;WIN32;_WIN32_DCOM"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdafx.h"
 				PrecompiledHeaderFile=".\Debug/RegSpy.pch"

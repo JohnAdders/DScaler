@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="DI_GreedyH"
 	ProjectGUID="{FCEB20D5-822B-4605-BB6F-5AAE193AD152}"
+	RootNamespace="DI_GreedyH"
 	>
 	<Platforms>
 		<Platform
@@ -74,6 +75,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="user32.lib"
 				OutputFile="..\..\Debug/DI_GreedyH.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"

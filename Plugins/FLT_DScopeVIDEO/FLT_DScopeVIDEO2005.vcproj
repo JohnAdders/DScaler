@@ -75,6 +75,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
+				AdditionalDependencies="user32.lib"
 				OutputFile="..\..\Release\FLT_DScopeVIDEO.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"

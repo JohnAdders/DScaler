@@ -172,6 +172,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
+				AdditionalDependencies="user32.lib"
 				OutputFile="..\..\Release/DI_GreedyH.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DevEnum.cpp,v 1.6 2005-03-11 14:54:41 adcockj Exp $
+// $Id: DevEnum.cpp,v 1.7 2006-12-13 02:38:42 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2005/03/11 14:54:41  adcockj
+// Get rid of a load of compilation warnings in vs.net
+//
 // Revision 1.5  2004/04/06 12:20:49  adcockj
 // Added .NET 2003 project files and some fixes to support this
 //
@@ -120,13 +123,15 @@ bool CDShowDevEnum::getNext()
 		WCHAR *szDisplayName=NULL;
 		if(SUCCEEDED(pMoniker->GetDisplayName(NULL,NULL,&szDisplayName)))
 		{
-			m_DisplayName = szDisplayName ? szDisplayName : L"";
+			USES_CONVERSION;
+
+			m_DisplayName = szDisplayName ? OLE2T(szDisplayName) : "";
 			CoTaskMemFree(szDisplayName);
 		}
 		else
 		{
 			//sätt den till en tom sträng om de blev fel
-			m_DisplayName=L"";
+			m_DisplayName="";
 		}
 
 		return true;

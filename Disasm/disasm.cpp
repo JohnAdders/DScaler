@@ -80,7 +80,7 @@ void oops(const char *format, ...) {
 	va_start(val, format);
 	vprintf(format, val);
 	va_end(val);
-	getch();
+	_getch();
 	exit(5);
 }
 
@@ -229,7 +229,7 @@ void parse_ia(FILE *f) {
 					}
 
 					for(; it!=itEnd; ++it, ++index) {
-						if (!stricmp((*it).name.c_str(), token))
+						if (!_stricmp((*it).name.c_str(), token))
 							break;
 					}
 
@@ -269,37 +269,37 @@ void parse_ia(FILE *f) {
 				} else if (*s == '$') {	// macro expansion
 					++s;
 
-					if (!strnicmp(s, "p_cs", 4)) {
+					if (!_strnicmp(s, "p_cs", 4)) {
 						r.result += kTarget_p_cs;
 						s += 4;
-					} else if (!strnicmp(s, "p_ss", 4)) {
+					} else if (!_strnicmp(s, "p_ss", 4)) {
 						r.result += kTarget_p_ss;
 						s += 4;
-					} else if (!strnicmp(s, "p_ds", 4)) {
+					} else if (!_strnicmp(s, "p_ds", 4)) {
 						r.result += kTarget_p_ds;
 						s += 4;
-					} else if (!strnicmp(s, "p_es", 4)) {
+					} else if (!_strnicmp(s, "p_es", 4)) {
 						r.result += kTarget_p_es;
 						s += 4;
-					} else if (!strnicmp(s, "p_fs", 4)) {
+					} else if (!_strnicmp(s, "p_fs", 4)) {
 						r.result += kTarget_p_fs;
 						s += 4;
-					} else if (!strnicmp(s, "p_gs", 4)) {
+					} else if (!_strnicmp(s, "p_gs", 4)) {
 						r.result += kTarget_p_gs;
 						s += 4;
-					} else if (!strnicmp(s, "p_66", 4)) {
+					} else if (!_strnicmp(s, "p_66", 4)) {
 						r.result += kTarget_p_66;
 						s += 4;
-					} else if (!strnicmp(s, "p_67", 4)) {
+					} else if (!_strnicmp(s, "p_67", 4)) {
 						r.result += kTarget_p_67;
 						s += 4;
-					} else if (!strnicmp(s, "p_F2", 4)) {
+					} else if (!_strnicmp(s, "p_F2", 4)) {
 						r.result += kTarget_p_F2;
 						s += 4;
-					} else if (!strnicmp(s, "p_F3", 4)) {
+					} else if (!_strnicmp(s, "p_F3", 4)) {
 						r.result += kTarget_p_F3;
 						s += 4;
-					} else if (!strnicmp(s, "ap", 2)) {
+					} else if (!_strnicmp(s, "ap", 2)) {
 						r.result += kTarget_ap;
 						s += 2;
 					} else {
@@ -345,47 +345,47 @@ void parse_ia(FILE *f) {
 
 						char control_byte;
 
-						if (!stricmp(s, "r32")) {
+						if (!_stricmp(s, "r32")) {
 							control_byte = kTarget_r32;
-						} else if (!stricmp(s, "r16")) {
+						} else if (!_stricmp(s, "r16")) {
 							control_byte = kTarget_r16;
-						} else if (!stricmp(s, "r1632")) {
+						} else if (!_stricmp(s, "r1632")) {
 							control_byte = kTarget_r1632;
-						} else if (!stricmp(s, "r8")) {
+						} else if (!_stricmp(s, "r8")) {
 							control_byte = kTarget_r8;
-						} else if (!stricmp(s, "rm")) {
+						} else if (!_stricmp(s, "rm")) {
 							control_byte = kTarget_rm;
-						} else if (!stricmp(s, "rx")) {
+						} else if (!_stricmp(s, "rx")) {
 							control_byte = kTarget_rx;
-						} else if (!stricmp(s, "rmx")) {
+						} else if (!_stricmp(s, "rmx")) {
 							control_byte = kTarget_rmx;
-						} else if (!stricmp(s, "rc")) {
+						} else if (!_stricmp(s, "rc")) {
 							control_byte = kTarget_rc;
-						} else if (!stricmp(s, "rd")) {
+						} else if (!_stricmp(s, "rd")) {
 							control_byte = kTarget_rd;
-						} else if (!stricmp(s, "rs")) {
+						} else if (!_stricmp(s, "rs")) {
 							control_byte = kTarget_rs;
-						} else if (!stricmp(s, "rf")) {
+						} else if (!_stricmp(s, "rf")) {
 							control_byte = kTarget_rf;
-						} else if (!stricmp(s, "x")) {
+						} else if (!_stricmp(s, "x")) {
 							control_byte = kTarget_x;
-						} else if (!stricmp(s, "hx")) {
+						} else if (!_stricmp(s, "hx")) {
 							control_byte = kTarget_hx;
-						} else if (!stricmp(s, "lx")) {
+						} else if (!_stricmp(s, "lx")) {
 							control_byte = kTarget_lx;
-						} else if (!stricmp(s, "o")) {
+						} else if (!_stricmp(s, "o")) {
 							control_byte = kTarget_o;
-						} else if (!stricmp(s, "ho")) {
+						} else if (!_stricmp(s, "ho")) {
 							control_byte = kTarget_ho;
-						} else if (!stricmp(s, "lo")) {
+						} else if (!_stricmp(s, "lo")) {
 							control_byte = kTarget_lo;
-						} else if (!stricmp(s, "a")) {
+						} else if (!_stricmp(s, "a")) {
 							control_byte = kTarget_a;
-						} else if (!stricmp(s, "ha")) {
+						} else if (!_stricmp(s, "ha")) {
 							control_byte = kTarget_ha;
-						} else if (!stricmp(s, "la")) {
+						} else if (!_stricmp(s, "la")) {
 							control_byte = kTarget_la;
-						} else if (!stricmp(s, "s")) {
+						} else if (!_stricmp(s, "s")) {
 							control_byte = kTarget_s;
 						} else {
 							oops("unknown macro expansion mode: '%s'\n", s);

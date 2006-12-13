@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PlugTest.cpp,v 1.16 2002-12-10 12:33:39 adcockj Exp $
+// $Id: PlugTest.cpp,v 1.17 2006-12-13 01:10:01 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/12/10 12:33:39  adcockj
+// Fixed bug in pic support
+//
 // Revision 1.15  2002/06/03 17:50:07  tobbej
 // added missing emms instruction
 //
@@ -560,7 +563,7 @@ int ProcessSnapShot(char* SnapshotFile, char* FilterPlugin, char* DeintPlugin, c
         }
     }
 
-    if (!stricmp(DeintPlugin, "pic1"))
+    if (!_stricmp(DeintPlugin, "pic1"))
     {
         PictureToStore = 0;
     }

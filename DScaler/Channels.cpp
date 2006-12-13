@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Channels.cpp,v 1.12 2006-10-06 13:35:28 adcockj Exp $
+// $Id: Channels.cpp,v 1.13 2006-12-13 01:10:00 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2006/10/06 13:35:28  adcockj
+// Added projects for .NET 2005 and fixed most of the warnings and errors
+//
 // Revision 1.11  2005/03/26 18:53:22  laurentg
 // EPG code improved
 // => possibility to set the EPG channel name in the channel setup dialog box
@@ -521,7 +524,7 @@ BOOL CUserChannels::ReadASCIIImpl(FILE* SettingFile)
         }
 
 
-        if(strnicmp(sbuf, "Name:", 5) == 0)
+        if(_strnicmp(sbuf, "Name:", 5) == 0)
         {
             if(Frequency != -1)
             {
@@ -556,7 +559,7 @@ BOOL CUserChannels::ReadASCIIImpl(FILE* SettingFile)
             Format = -1;
             Active = TRUE;
         }
-        else if(strnicmp(sbuf, "EPGName:", 8) == 0)
+        else if(_strnicmp(sbuf, "EPGName:", 8) == 0)
         {
             // skip "Name:"
             char* StartChar = sbuf + 8;
@@ -579,25 +582,25 @@ BOOL CUserChannels::ReadASCIIImpl(FILE* SettingFile)
         }
         // cope with old style frequencies
         // cope with old style frequencies
-        else if(strnicmp(sbuf, "Freq:", 5) == 0)
+        else if(_strnicmp(sbuf, "Freq:", 5) == 0)
         {
             Frequency = atol(sbuf + 5);           
             Frequency = Frequency * 1000;
         }
-        else if(strnicmp(sbuf, "Freq2:", 6) == 0)
+        else if(_strnicmp(sbuf, "Freq2:", 6) == 0)
         {
             Frequency = atol(sbuf + 6);
             Frequency = MulDiv(Frequency, 1000000, 16);
         }
-        else if(strnicmp(sbuf, "Chan:", 5) == 0)
+        else if(_strnicmp(sbuf, "Chan:", 5) == 0)
         {
             Channel = atoi(sbuf + 5);
         }
-        else if(strnicmp(sbuf, "Form:", 5) == 0)
+        else if(_strnicmp(sbuf, "Form:", 5) == 0)
         {
             Format = atoi(sbuf + 5);
         }
-        else if(strnicmp(sbuf, "Active:", 7) == 0)
+        else if(_strnicmp(sbuf, "Active:", 7) == 0)
         {
             Active = (atoi(sbuf + 7) != 0);
         }
@@ -885,7 +888,7 @@ eVideoFormat StrToVideoFormat(char* pszFormat)
 {
     for(int a = 0; a < VIDEOFORMAT_LASTONE; ++a)
     {
-        if(!stricmp(pszFormat, VideoFormatNames[a]))
+        if(!_stricmp(pszFormat, VideoFormatNames[a]))
         {
             return (eVideoFormat)a;
         }  

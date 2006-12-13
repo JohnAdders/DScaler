@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.cpp,v 1.41 2005-10-15 19:45:54 dosx86 Exp $
+// $Id: TimeShift.cpp,v 1.42 2006-12-13 01:10:01 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.41  2005/10/15 19:45:54  dosx86
+// Added support for file size limits
+//
 // Revision 1.40  2005/10/13 04:57:46  dosx86
 // Changed the path verification so that the default path is also verified before it's used
 //
@@ -943,7 +946,7 @@ DWORD GetMaximumVolumeFileSize(const char *path)
                               sizeof(fileSystem)))
        return result;
 
-    strlwr(fileSystem);
+    _strlwr(fileSystem);
     if (strlen(fileSystem) >= 3)
     {
         /* Check for a FAT file system. Look for the string fat([0-9][0-9])? */

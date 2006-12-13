@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SettingsMaster.cpp,v 1.12 2003-10-27 10:39:54 adcockj Exp $
+// $Id: SettingsMaster.cpp,v 1.13 2006-12-13 01:10:01 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2003/10/27 10:39:54  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.11  2003/05/31 18:45:21  laurentg
 // Possibility to save video format per video input corrected
 //
@@ -334,7 +337,7 @@ void CSettingsMaster::SetVideoInput(long NewValue)
     if (NewValue>=0)
     {
         char szBuffer[33];
-        m_VideoInputName = string("VideoInput") +  itoa(NewValue, szBuffer, 10);
+        m_VideoInputName = string("VideoInput") +  _itoa(NewValue, szBuffer, 10);
     }
     else
     {
@@ -348,7 +351,7 @@ void CSettingsMaster::SetAudioInput(long NewValue)
     if (NewValue>=0)
     {
         char szBuffer[33];
-        m_AudioInputName = string("AudioInput") +  itoa(NewValue, szBuffer, 10);
+        m_AudioInputName = string("AudioInput") +  _itoa(NewValue, szBuffer, 10);
     }
     else
     {

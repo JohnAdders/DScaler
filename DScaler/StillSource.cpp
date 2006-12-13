@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.108 2006-10-06 13:35:28 adcockj Exp $
+// $Id: StillSource.cpp,v 1.109 2006-12-13 01:10:01 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.108  2006/10/06 13:35:28  adcockj
+// Added projects for .NET 2005 and fixed most of the warnings and errors
+//
 // Revision 1.107  2006/09/24 02:44:46  robmuller
 // Added missing emms instructions. Should fix problems on non-sse machines.
 //
@@ -667,19 +670,19 @@ BOOL CStillSource::OpenPictureFile(LPCSTR FileName)
     int h = m_Height;
     int w = m_Width;
 
-    if(strlen(FileName) > 4 && stricmp(FileName + strlen(FileName) - 4, ".tif") == 0 ||
-        strlen(FileName) > 5 && stricmp(FileName + strlen(FileName) - 5, ".tiff") == 0)
+    if(strlen(FileName) > 4 && _stricmp(FileName + strlen(FileName) - 4, ".tif") == 0 ||
+        strlen(FileName) > 5 && _stricmp(FileName + strlen(FileName) - 5, ".tiff") == 0)
     {
         CTiffHelper TiffHelper(this, TIFF_CLASS_R);
         FileRead = TiffHelper.OpenMediaFile(FileName);
     }
-    else if(strlen(FileName) > 4 && stricmp(FileName + strlen(FileName) - 4, ".pat") == 0)
+    else if(strlen(FileName) > 4 && _stricmp(FileName + strlen(FileName) - 4, ".pat") == 0)
     {
         CPatternHelper PatternHelper(this);
         FileRead = PatternHelper.OpenMediaFile(FileName);
     }
-    else if(strlen(FileName) > 4 && stricmp(FileName + strlen(FileName) - 4, ".jpg") == 0 ||
-            strlen(FileName) > 5 && stricmp(FileName + strlen(FileName) - 5, ".jpeg") == 0)
+    else if(strlen(FileName) > 4 && _stricmp(FileName + strlen(FileName) - 4, ".jpg") == 0 ||
+            strlen(FileName) > 5 && _stricmp(FileName + strlen(FileName) - 5, ".jpeg") == 0)
     {
         CJpegHelper JpegHelper(this);
         FileRead = JpegHelper.OpenMediaFile(FileName);
@@ -795,7 +798,7 @@ BOOL CStillSource::OpenMediaFile(LPCSTR FileName, BOOL NewPlayList)
 
     // test for the correct extension and work out the 
     // correct helper for the file type
-    if(strlen(FileName) > 4 && stricmp(FileName + strlen(FileName) - 4, ".d3u") == 0)
+    if(strlen(FileName) > 4 && _stricmp(FileName + strlen(FileName) - 4, ".d3u") == 0)
     {
         if (LoadPlayList(FileName))
         {

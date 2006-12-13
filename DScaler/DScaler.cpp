@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.383 2006-10-01 15:22:27 robmuller Exp $
+// $Id: DScaler.cpp,v 1.384 2006-12-13 01:10:00 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.383  2006/10/01 15:22:27  robmuller
+// Fixed: command line parameters not working anymore due to last check-in.
+//
 // Revision 1.382  2006/09/23 23:09:37  robmuller
 // Stop startup of second instance earlier.
 //
@@ -2438,7 +2441,7 @@ void UpdateSleepMode(TSMState* SMState, char* Text)
         // Set timer to remainder of period if applicable
         if( SMState->SleepAt > curr )
         {
-            uiPeriod = ( SMState->SleepAt - curr ) * 1000;
+            uiPeriod = (UINT)(( SMState->SleepAt - curr ) * 1000);
             SetTimer(hWnd, TIMER_SLEEPMODE, uiPeriod, NULL);
         }
         else

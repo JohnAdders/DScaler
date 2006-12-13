@@ -1,5 +1,5 @@
 //
-// $Id: WindowBorder.cpp,v 1.7 2006-10-06 13:35:28 adcockj Exp $
+// $Id: WindowBorder.cpp,v 1.8 2006-12-13 01:10:01 robmuller Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2006/10/06 13:35:28  adcockj
+// Added projects for .NET 2005 and fixed most of the warnings and errors
+//
 // Revision 1.6  2003/10/27 10:39:54  adcockj
 // Updated files for better doxygen compatability
 //
@@ -1031,15 +1034,15 @@ BOOL CWindowBorder::LoadSkin(const char *szSkinIniFile, const char *szSection,
                     }
                 }                
             }
-            if (!stricmp(sP1.c_str(),"Left")) 
+            if (!_stricmp(sP1.c_str(),"Left")) 
             {
                 PntLocation.x = -1;
             }
-            else if ((!stricmp(sP1.c_str(),"Center")) || (!stricmp(sP1.c_str(),"Middle")))
+            else if ((!_stricmp(sP1.c_str(),"Center")) || (!_stricmp(sP1.c_str(),"Middle")))
             {
                 PntLocation.x = -2;
             }
-            else if (!stricmp(sP1.c_str(),"Right")) 
+            else if (!_stricmp(sP1.c_str(),"Right")) 
             {
                 PntLocation.x = -3;
             }
@@ -1049,15 +1052,15 @@ BOOL CWindowBorder::LoadSkin(const char *szSkinIniFile, const char *szSection,
                 if (PntLocation.x<0) { PntLocation.x=0; }
             }
 
-            if (!stricmp(sP2.c_str(),"Top")) 
+            if (!_stricmp(sP2.c_str(),"Top")) 
             {
                 PntLocation.y = -1;
             }
-            else if ((!stricmp(sP2.c_str(),"Center")) || (!stricmp(sP2.c_str(),"Middle")))
+            else if ((!_stricmp(sP2.c_str(),"Center")) || (!_stricmp(sP2.c_str(),"Middle")))
             {
                 PntLocation.y = -2;
             }
-            else if (!stricmp(sP2.c_str(),"Bottom")) 
+            else if (!_stricmp(sP2.c_str(),"Bottom")) 
             {
                 PntLocation.y = -3;
             }
@@ -1070,7 +1073,7 @@ BOOL CWindowBorder::LoadSkin(const char *szSkinIniFile, const char *szSection,
             int i = 0;
             for (i=0; i<WINDOWBORDER_LASTONE; i++)
             {
-                if (stricmp(szBorderNames[i],sLocationName.c_str())==0) break;
+                if (_stricmp(szBorderNames[i],sLocationName.c_str())==0) break;
             }
             RelativePos = i;
         }

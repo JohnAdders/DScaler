@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.59 2006-10-06 13:35:28 adcockj Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.60 2006-12-13 01:10:01 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.59  2006/10/06 13:35:28  adcockj
+// Added projects for .NET 2005 and fixed most of the warnings and errors
+//
 // Revision 1.58  2004/12/16 04:53:51  atnak
 // Added "auto detect" and "user setup" to tuner parsing.
 //
@@ -494,7 +497,7 @@ void CSAA7134Card::ReadCardInfoProc(int report, const CParseTag* tag, unsigned c
         }
         for (size_t i = 0; i < parseInfo->nGoodCards; i++)
         {
-            if (stricmp((*parseInfo->pCardList)[i].szName, value->GetString()) == 0)
+            if (_stricmp((*parseInfo->pCardList)[i].szName, value->GetString()) == 0)
             {
                 throw string("A card was already specified with this name");
             }

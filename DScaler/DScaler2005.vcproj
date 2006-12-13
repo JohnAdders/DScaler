@@ -154,7 +154,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\api,.\"
-				PreprocessorDefinitions="_DEBUG;_WINDOWS;WIN32;_WIN32_DCOM"
+				PreprocessorDefinitions="_DEBUG;_WINDOWS;WIN32;_WIN32_DCOM;_CRT_SECURE_NO_DEPRECATE"
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="2"

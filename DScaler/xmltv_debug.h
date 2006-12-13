@@ -18,7 +18,7 @@
  *    XMLTV parser demo package. Only the minimum necessary to compile
  *    other files of the package has been kept.
  *
- *  $Id: xmltv_debug.h,v 1.3 2005-07-11 15:18:59 laurentg Exp $
+ *  $Id: xmltv_debug.h,v 1.4 2006-12-13 01:10:01 robmuller Exp $
  */
 
 #ifndef __XMLTV_DEBUG_H
@@ -51,7 +51,7 @@
 #define	xmalloc(SIZE)			malloc(SIZE)
 #define	xrealloc(PTR, SIZE)		realloc(PTR, SIZE)
 #define xfree(PTR)				free(PTR)
-#define xstrdup(PTR)			strdup(PTR)
+#define xstrdup(PTR)			_strdup(PTR)
 
 
 #endif  /* not __XMLTV_DEBUG_H */

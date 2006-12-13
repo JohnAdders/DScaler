@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: mapconv.cpp,v 1.6 2006-10-06 13:35:29 adcockj Exp $
+// $Id: mapconv.cpp,v 1.7 2006-12-13 01:10:01 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) 1998-2002 Avery Lee.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2006/10/06 13:35:29  adcockj
+// Added projects for .NET 2005 and fixed most of the warnings and errors
+//
 // Revision 1.5  2005/03/11 13:31:52  adcockj
 // Get rid of a load of compilation warnings in vs.net
 //
@@ -373,7 +376,7 @@ int main(int argc, char **argv)
                 continue;
             }
 
-            RVAEnt entry = { rva, strdup(line) };
+            RVAEnt entry = { rva, _strdup(line) };
 
             rvabuf.push_back(entry);
 
@@ -405,7 +408,7 @@ int main(int argc, char **argv)
                     continue;
                 }
 
-                RVAEnt entry = { rva, strdup(line) };
+                RVAEnt entry = { rva, _strdup(line) };
 
                 rvabuf.push_back(entry);
 

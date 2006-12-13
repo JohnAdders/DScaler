@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HierarchicalConfigParser.cpp,v 1.15 2005-05-12 08:33:18 adcockj Exp $
+// $Id: HierarchicalConfigParser.cpp,v 1.16 2006-12-13 01:10:01 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2005/05/12 08:33:18  adcockj
+// hopefully fixed win98 comapatability
+//
 // Revision 1.14  2005/03/20 14:05:48  adcockj
 // Fixed win98 runtime error
 //
@@ -851,7 +854,7 @@ bool CHCParser::ProcessTag()
 		parseTag = m_parseStates.front().parseTags;
 		for ( ; parseTag->tagName != NULL; parseTag++)
 		{
-			if (stricmp(parseTag->tagName, parseStart) == 0)
+			if (_stricmp(parseTag->tagName, parseStart) == 0)
 			{
 				break;
 			}
@@ -1072,7 +1075,7 @@ bool CHCParser::AcceptValue(const CParseTag* parseTag, unsigned char types,
 		const CParseConstant* pc = parseTag->attributes.constants;
 		for ( ; pc->constant != NULL; pc++)
 		{
-			if (stricmp(pc->constant, value) == 0)
+			if (_stricmp(pc->constant, value) == 0)
 			{
 				break;
 			}

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Types.cpp,v 1.32 2006-10-06 13:35:28 adcockj Exp $
+// $Id: CX2388xCard_Types.cpp,v 1.33 2006-12-13 01:10:00 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2006/10/06 13:35:28  adcockj
+// Added projects for .NET 2005 and fixed most of the warnings and errors
+//
 // Revision 1.31  2004/12/25 22:40:18  to_see
 // Changed the card list to an ini file
 //
@@ -454,7 +457,7 @@ void CCX2388xCard::ReadCardInfoProc(int report, const CParseTag* tag, unsigned c
         
         for (size_t i = 0; i < parseInfo->nGoodCards; i++)
         {
-            if (stricmp((*parseInfo->pCardList)[i].szName, value->GetString()) == 0)
+            if (_stricmp((*parseInfo->pCardList)[i].szName, value->GetString()) == 0)
             {
                 throw string("A card was already specified with this name");
             }

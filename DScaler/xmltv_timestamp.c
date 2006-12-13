@@ -487,7 +487,7 @@ time_t parse_xmltv_date_v5( const char *date, unsigned int full_len )
             tm_obj.tm_mon = ATOI_2(date + DATE_OFF_MON);
             tm_obj.tm_year = ATOI_4(date + DATE_OFF_YEAR);
 
-            tm_obj.tm_sec = tm_obj.tm_sec - tz + gmtoff;
+            tm_obj.tm_sec = tm_obj.tm_sec - (int)tz + gmtoff;
             tm_obj.tm_mon -= 1;
             tm_obj.tm_year -= 1900;
             tm_obj.tm_isdst = -1;

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSTVTuner.cpp,v 1.7 2004-04-06 12:20:49 adcockj Exp $
+// $Id: DSTVTuner.cpp,v 1.8 2006-12-13 02:07:19 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2004/04/06 12:20:49  adcockj
+// Added .NET 2003 project files and some fixes to support this
+//
 // Revision 1.6  2003/10/27 10:39:57  adcockj
 // Updated files for better doxygen compatability
 //
@@ -456,7 +459,7 @@ BOOL CDShowTVTuner::SetTunerFrequency(long dwFrequency)
             // Set new values
             LOG(2,"DShowTVTuner: Set registrykey custom frequency (%d Hz)",dwFrequency);
             char szChannel[20];
-            itoa(Index+m_MinChannel,szChannel,10);
+            _itoa(Index+m_MinChannel,szChannel,10);
             if (RegSetValueEx(RegKey, szChannel, 0, REG_DWORD, (BYTE*)&dwFrequency, sizeof(DWORD)) == ERROR_SUCCESS)
             {
                 m_AutoTuneInfo[Index] = dwFrequency;

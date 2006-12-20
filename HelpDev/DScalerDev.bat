@@ -6,7 +6,7 @@ REM
 REM to use you must have both 
 REM doxygen.exe, hhc.exe and dot.exe in your path
 REM 
-REM Get doxygen from
+REM Get doxygen from http://www.stack.nl/~dimitri/doxygen/
 REM Get dot.exe from http://www.graphviz.org/pub/graphviz/windows/
 REM        (You will also need cygwin1.dll)
 REM Get hhc.exe by installing htmlhelp from the service pack

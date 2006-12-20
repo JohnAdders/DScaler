@@ -4625,6 +4625,42 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\RemoteInput.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Express|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Express|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="SAA7118.cpp"
 				>
 				<FileConfiguration
@@ -7677,6 +7713,10 @@
 			</File>
 			<File
 				RelativePath="Providers.h"
+				>
+			</File>
+			<File
+				RelativePath=".\RemoteInput.h"
 				>
 			</File>
 			<File

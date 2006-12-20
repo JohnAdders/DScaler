@@ -81,6 +81,7 @@ void Overlay_ReadSettingsFromIni()
         OverlaySettingsHolder.AddSetting(&ConfigOutput.GetOtherSettings()[BACKBUFFERS]);
         OverlaySettingsHolder.AddSetting(&ConfigOutput.GetOtherSettings()[OVERLAYCOLOR]);
         OverlaySettingsHolder.AddSetting(&ConfigOutput.GetOtherSettings()[USEOVERLAYCONTROLS]);
+        OverlaySettingsHolder.AddSetting(&ConfigOutput.GetOtherSettings()[ALLOWBOBMODE]);
 #ifdef _DEBUG
         if (OTHER_SETTING_LASTONE != OverlaySettingsHolder.GetNumSettings())
         {

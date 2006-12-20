@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.386 2006-12-20 17:41:15 adcockj Exp $
+// $Id: DScaler.cpp,v 1.387 2006-12-20 17:43:55 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.386  2006/12/20 17:41:15  adcockj
+// reorganised the handling of mce remote
+//
 // Revision 1.385  2006/12/20 07:45:07  adcockj
 // added DirectX code from Daniel Sabel
 //
@@ -4968,13 +4971,6 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             return OnChar(hWnd, message, wParam, lParam);
         }
         break;
-
-
-#ifdef WM_APPCOMMAND
-    case WM_APPCOMMAND:
-        return OnAppCommand(hWnd, wParam, lParam);
-        break;
-#endif
 
     case WM_PAINT:
         {

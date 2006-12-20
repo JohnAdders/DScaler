@@ -201,6 +201,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug Express|Win32"
+			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			>
 			<Tool

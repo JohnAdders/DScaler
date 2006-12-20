@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.175 2006-12-20 07:45:06 adcockj Exp $
+// $Id: DS_Control.h,v 1.176 2006-12-20 17:42:18 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.175  2006/12/20 07:45:06  adcockj
+// added DirectX code from Daniel Sabel
+//
 // Revision 1.174  2006/09/24 13:28:38  robmuller
 // Added missing SAA7134 settings.
 //
@@ -902,6 +905,7 @@ typedef enum
     OVERLAYSATURATION,
     OVERLAYGAMMA,
     OVERLAYSHARPNESS,
+    ALLOWBOBMODE,
     OTHER_SETTING_LASTONE,
 } OTHER_SETTING;
 

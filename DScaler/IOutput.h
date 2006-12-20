@@ -37,7 +37,6 @@ public:
 
 	// Get Hold of the Other.c file settings
 
-	virtual void LoadDynamicFunctions()=0;
 	virtual void SetCurrentMonitor(HWND hWnd)=0;
 	virtual void CheckChangeMonitor(HWND hWnd)=0;
 	virtual void GetMonitorRect(HWND hWnd, RECT* rect);
@@ -61,6 +60,7 @@ public:
 	virtual BOOL Overlay_Flip(DWORD FlipFlag, BOOL bUseExtraBuffer, BYTE* lpExternalMemoryBuffer, int ExternalPitch, TDeinterlaceInfo* pInfo)=0;
 	virtual HDC Overlay_GetDC()=0;
 	virtual void Overlay_ReleaseDC(HDC hDC)=0;
+    virtual void WaitForVerticalBlank() = 0;
 
 	virtual CTreeSettingsGeneric* Other_GetTreeSettingsPage()=0;
 

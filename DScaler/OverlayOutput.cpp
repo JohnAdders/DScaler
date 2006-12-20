@@ -23,10 +23,6 @@
 // so that we continue to run on NT 4
 HMONITOR (WINAPI * lpMonitorFromWindow)( IN HWND hwnd, IN DWORD dwFlags) = NULL;
 BOOL (WINAPI* lpGetMonitorInfoA)( IN HMONITOR hMonitor, OUT LPMONITORINFO lpmi) = NULL;
-#ifdef WM_INPUT
-BOOL (WINAPI* lpRegisterRawInputDevices)(IN PCRAWINPUTDEVICE pRawInputDevices,IN UINT uiNumDevices,IN UINT cbSize) = NULL;
-UINT (WINAPI* lpGetRawInputData)(IN HRAWINPUT hRawInput,IN UINT uiCommand,OUT LPVOID pData,IN OUT PUINT pcbSize,IN UINT cbSizeHeader) = NULL;
-#endif
 
 //-----------------------------------------------------------------------------
 // Callback function used by DirectDrawEnumerateEx to find all monitors
@@ -120,27 +116,6 @@ void COverlayOutput::LoadDynamicFunctions()
 	HINSTANCE h = LoadLibrary("user32.dll");
     lpMonitorFromWindow = (HMONITOR (WINAPI *)( IN HWND hwnd, IN DWORD dwFlags)) GetProcAddress(h,"MonitorFromWindow");
     lpGetMonitorInfoA = (BOOL (WINAPI *)( IN HMONITOR hMonitor, OUT LPMONITORINFO lpmi)) GetProcAddress(h,"GetMonitorInfoA");
-#ifdef WM_INPUT
-    lpRegisterRawInputDevices = (BOOL (WINAPI *)(IN PCRAWINPUTDEVICE pRawInputDevices,IN UINT uiNumDevices,IN UINT cbSize))GetProcAddress(h,"RegisterRawInputDevices");
-    lpGetRawInputData = (UINT (WINAPI*)(IN HRAWINPUT hRawInput,IN UINT uiCommand,OUT LPVOID pData,IN OUT PUINT pcbSize,IN UINT cbSizeHeader))GetProcAddress(h,"GetRawInputData");;
-
-    // register for messages from MCE remote
-    // this will mean we will get sent WM_INPUT messages
-    if(lpRegisterRawInputDevices && lpGetRawInputData)
-    {
-        RAWINPUTDEVICE Rid[1];
-
-        Rid[0].usUsagePage = 0xFFBC;
-        Rid[0].usUsage = 0x88; 
-        Rid[0].dwFlags = 0;
-        Rid[0].hwndTarget = NULL;
-
-        if(lpRegisterRawInputDevices(Rid, 1, sizeof(Rid[0])))
-        {
-        	LOG(1, "Registered for MCE remote messages");
-        }
-    }
-#endif
         
     // If the library was loaded by calling LoadLibrary(),
     // then you must use FreeLibrary() to let go of it.
@@ -148,93 +123,6 @@ void COverlayOutput::LoadDynamicFunctions()
     // it's OK to Free it here before we've even called the functions
     FreeLibrary(h);
 }
-
-#ifdef WM_INPUT
-LONG COverlayOutput::OnInput(HWND hWnd, UINT wParam, LONG lParam)
-{
-    if(GET_RAWINPUT_CODE_WPARAM(wParam) == RIM_INPUT)
-    {
-        UINT dwSize;
-        BOOL bHandled = FALSE;
-
-        lpGetRawInputData((HRAWINPUT)lParam, RID_INPUT, NULL, &dwSize, sizeof(RAWINPUTHEADER));
-        LPBYTE lpb = new BYTE[dwSize];
-
-        if (lpb != NULL) 
-        {
-            if (lpGetRawInputData((HRAWINPUT)lParam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER)) == dwSize )
-            {
-                RAWINPUT* raw = (RAWINPUT*)lpb;
-
-                if (raw->header.dwType == RIM_TYPEHID) 
-                {
-                    if(raw->data.hid.dwSizeHid == 2 && raw->data.hid.dwCount == 1)
-                    {
-                        if(raw->data.hid.bRawData[0] == 3)
-                        {
-                            switch(raw->data.hid.bRawData[1])
-                            {
-                            case 13:
-                                // ehome (green button)
-                                // just exit if the user want to get
-                                // the media center home page
-                                // (or any of the other TV ones)
-                                PostMessageToMainWindow(WM_CLOSE, 0, 0);
-                                break;
-                            case 90:
-                                // teletext
-                                PostMessageToMainWindow(WM_COMMAND, IDM_CALL_VIDEOTEXT, 0);
-                                bHandled = TRUE;
-                                break;
-                            case 91:
-                                //red
-                                PostMessageToMainWindow(WM_COMMAND, IDM_TELETEXT_KEY1, 0);
-                                bHandled = TRUE;
-                                break;
-                            case 92:
-                                // green
-                                PostMessageToMainWindow(WM_COMMAND, IDM_TELETEXT_KEY2, 0);
-                                bHandled = TRUE;
-                                break;
-                            case 93:
-                                // yellow
-                                PostMessageToMainWindow(WM_COMMAND, IDM_TELETEXT_KEY3, 0);
-                                bHandled = TRUE;
-                                break;
-                            case 94:
-                                // blue
-                                PostMessageToMainWindow(WM_COMMAND, IDM_TELETEXT_KEY4, 0);
-                                bHandled = TRUE;
-                                break;
-                            default:
-                                LOG(1, "MCE Remote key %d", raw->data.hid.bRawData[1]);
-                                break;
-                            }
-                        }
-                    }
-                } 
-            }
-            
-            delete[] lpb; 
-        }
-        
-        if(bHandled)
-        {
-            return FALSE;
-        }
-        else
-        {
-            DefWindowProc(hWnd, WM_INPUT, wParam, lParam);
-            return TRUE;
-        }
-    }
-    else
-    {
-        DefWindowProc(hWnd, WM_INPUT, wParam, lParam);
-        return TRUE;
-    }
-}
-#endif
 
 //-----------------------------------------------------------------------------
 LPDIRECTDRAW COverlayOutput::GetCurrentDD(HWND hWnd)
@@ -455,7 +343,7 @@ BOOL COverlayOutput::Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwF
             DDOverlayFX.dckDestColorkey.dwColorSpaceHighValue = dwPhysicalOverlayColor;
             DDOverlayFX.dckDestColorkey.dwColorSpaceLowValue = dwPhysicalOverlayColor;
         }
-        if(bCanDoBob)
+        if(bCanDoBob && bAllowBobMode)
         {
             dwFlags |= DDOVER_BOB;
         }
@@ -1489,7 +1377,8 @@ void COverlayOutput::ExitDD(void)
     DeleteCriticalSection(&hDDCritSect);
 }
 
-OUTPUTTYPES COverlayOutput::Type() {
+OUTPUTTYPES COverlayOutput::Type() 
+{
 	return OUT_OVERLAY;
 }
 
@@ -1564,6 +1453,14 @@ BOOL COverlayOutput::Overlay_UseControls_OnChange(long NewValue)
     return FALSE;
 }
 
+BOOL COverlayOutput::Overlay_AllowBobMode_OnChange(long NewValue)
+{
+   ((COverlayOutput *)ActiveOutput)->bAllowBobMode = NewValue;
+   Overlay_Stop(GetMainWnd());
+   Overlay_Start(GetMainWnd());
+   return FALSE;
+}
+
 BOOL COverlayOutput::Overlay_BackBuffers_OnChange(long NewValue)
 {
    ((COverlayOutput *)ActiveOutput)->BackBuffers = NewValue;
@@ -1572,14 +1469,19 @@ BOOL COverlayOutput::Overlay_BackBuffers_OnChange(long NewValue)
    return FALSE;
 }
 
-
-
-
-
 CTreeSettingsGeneric* COverlayOutput::Other_GetTreeSettingsPage()
 {
-    return new CTreeSettingsGeneric("Overlay Settings",OtherSettings, OVERLAYBRIGHTNESS);
+    return new CTreeSettingsGeneric("Overlay Settings", OtherSettings, OVERLAYBRIGHTNESS);
 }
+
+void COverlayOutput::WaitForVerticalBlank()
+{
+	if (lpDD != NULL)
+	{
+		lpDD->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN, NULL);
+	}
+}
+
 
 void COverlayOutput::InitOtherSettings()
 {    
@@ -1644,6 +1546,12 @@ void COverlayOutput::InitOtherSettings()
 			NULL,
 			"Overlay", "OverlaySharpness", Overlay_Sharpness_OnChange,
 		},
+		{
+			"Allow Bob Mode", ONOFF, 0, (long*)&bAllowBobMode,
+			FALSE, 0, 1, 1, 1,
+			NULL,
+			"Overlay", "AllowBobMode", Overlay_AllowBobMode_OnChange,
+		},
 	};
 }
 
@@ -1662,6 +1570,7 @@ COverlayOutput::COverlayOutput(void)
 	bCanDoColorKey=false;
 	pDDColorControl=NULL;
 	bUseOverlayControls=FALSE;
+	bAllowBobMode=FALSE;
 	OutputTicksPerFrame=0;
 	OverlayBrightness=75;
 	OverlayContrast = 100;
@@ -1673,6 +1582,8 @@ COverlayOutput::COverlayOutput(void)
 	DestSizeAlign=1;
 	SrcSizeAlign=1;
     m_bSettingInitialized = false;
+    
+    LoadDynamicFunctions();
 }
 
 COverlayOutput::~COverlayOutput(void)

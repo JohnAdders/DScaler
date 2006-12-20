@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutReso.cpp,v 1.17 2005-03-11 14:54:40 adcockj Exp $
+// $Id: OutReso.cpp,v 1.18 2006-12-20 07:45:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2005/03/11 14:54:40  adcockj
+// Get rid of a load of compilation warnings in vs.net
+//
 // Revision 1.16  2003/10/27 10:39:52  adcockj
 // Updated files for better doxygen compatability
 //
@@ -84,7 +87,7 @@
 #include "DScaler.h"
 #include "OutReso.h"
 #include "Setting.h"
-#include "Other.h"
+#include "IOutput.h"
 #include "DebugLog.h"
 #include "Providers.h"
 
@@ -432,7 +435,7 @@ void OutReso_Change(HWND hWnd, HWND hPSWnd, BOOL bUseRegistrySettings, BOOL bCap
 		
 		if(changeRes == TRUE)
 		{
-			BOOL bOverlay = OverlayActive();
+			BOOL bOverlay = ActiveOutput->OverlayActive();
 
 			// Stop the overlay (and the capture)
 			if (bOverlay)
@@ -443,7 +446,7 @@ void OutReso_Change(HWND hWnd, HWND hPSWnd, BOOL bUseRegistrySettings, BOOL bCap
 				}
 				else
 				{
-					Overlay_Destroy();
+					ActiveOutput->Overlay_Destroy();
 				}
 			}
 
@@ -466,7 +469,7 @@ void OutReso_Change(HWND hWnd, HWND hPSWnd, BOOL bUseRegistrySettings, BOOL bCap
 				}
 				else
 				{
-					Overlay_Create();
+					ActiveOutput->Overlay_Create();
 				}
 			}
 		}
@@ -518,7 +521,7 @@ void OutReso_Change(HWND hWnd, HWND hPSWnd, BOOL bUseRegistrySettings, BOOL bCap
 			  || (dm.dmBitsPerPel != dm_cur.dmBitsPerPel)
 			  || (dm.dmDisplayFrequency != dm_cur.dmDisplayFrequency))
 			{
-				BOOL bOverlay = OverlayActive();
+				BOOL bOverlay = ActiveOutput->OverlayActive();
 
 				// Stop the overlay (and the capture)
 				if (bOverlay)
@@ -529,7 +532,7 @@ void OutReso_Change(HWND hWnd, HWND hPSWnd, BOOL bUseRegistrySettings, BOOL bCap
 					}
 					else
 					{
-						Overlay_Destroy();
+						ActiveOutput->Overlay_Destroy();
 					}
 				}
 
@@ -546,7 +549,7 @@ void OutReso_Change(HWND hWnd, HWND hPSWnd, BOOL bUseRegistrySettings, BOOL bCap
 					}
 					else
 					{
-						Overlay_Create();
+						ActiveOutput->Overlay_Create();
 					}
 				}
 			}

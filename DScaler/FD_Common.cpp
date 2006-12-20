@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FD_Common.cpp,v 1.29 2003-10-27 10:39:51 adcockj Exp $
+// $Id: FD_Common.cpp,v 1.30 2006-12-20 07:45:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2003/10/27 10:39:51  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.28  2003/04/15 13:05:35  adcockj
 // Unused test code for comb and diff
 //
@@ -111,7 +114,7 @@
 #include "FD_Common.h"
 #include "FD_CommonFunctions.h"
 #include "DebugLog.h"
-#include "Other.h"
+#include "IOutput.h"
 
 
 // Settings

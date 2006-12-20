@@ -99,7 +99,7 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 ddraw.lib dxguid.lib kernel32.lib user32.lib gdi32.lib advapi32.lib winmm.lib comdlg32.lib ..\driver\bin\hwiodrv.lib /nologo /subsystem:windows /incremental:yes /machine:I386
 # SUBTRACT BASE LINK32 /profile /map /debug /nodefaultlib
-# ADD LINK32 COMMODE.OBJ libtiff.lib libjpeg.lib ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib strmiids.lib quartz.lib setupapi.lib /nologo /subsystem:windows /pdb:none /map:"..\Release/DScaler.map" /machine:I386 /out:"..\Release\DScaler.exe" /libpath:"..\ThirdParty\LibTiff\\" /libpath:"..\ThirdParty\LibJpeg\\"
+# ADD LINK32 COMMODE.OBJ libtiff.lib libjpeg.lib ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib strmiids.lib quartz.lib setupapi.lib d3d9.lib /nologo /subsystem:windows /pdb:none /map:"..\Release/DScaler.map" /machine:I386 /out:"..\Release\DScaler.exe" /libpath:"..\ThirdParty\LibTiff\\" /libpath:"..\ThirdParty\LibJpeg\\"
 # Begin Special Build Tool
 ProjDir=.
 SOURCE="$(InputPath)"
@@ -293,6 +293,10 @@ SOURCE=.\CX2388xSource_Audio.cpp
 # Begin Source File
 
 SOURCE=.\CX2388xSource_UI.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\D3D9Output.cpp
 # End Source File
 # Begin Source File
 
@@ -510,6 +514,10 @@ SOURCE=.\I2CDevice.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\IOutput.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ISetting.cpp
 # End Source File
 # Begin Source File
@@ -570,15 +578,15 @@ SOURCE=.\OSD.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Other.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\OutReso.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\OutThreads.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\OverlayOutput.cpp
 # End Source File
 # Begin Source File
 
@@ -1140,6 +1148,10 @@ SOURCE=.\CX2388xSource.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\D3D9Output.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\dshowsource\debug.h
 # End Source File
 # Begin Source File
@@ -1328,6 +1340,10 @@ SOURCE=.\I2CLineInterface.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\IOutput.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\ISetting.h
 # End Source File
 # Begin Source File
@@ -1397,6 +1413,10 @@ SOURCE=.\OutReso.h
 # Begin Source File
 
 SOURCE=.\OutThreads.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\OverlayOutput.h
 # End Source File
 # Begin Source File
 

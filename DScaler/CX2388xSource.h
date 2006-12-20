@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.h,v 1.39 2004-12-30 18:14:42 to_see Exp $
+// $Id: CX2388xSource.h,v 1.40 2006-12-20 07:45:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,7 +34,7 @@
 #include "Setting.h"
 #include "CX2388x_Defines.h"
 /// \todo get rid of dependencies below here
-#include "Other.h"
+#include "IOutput.h"
 
 /** The source controls a specific CCX2388xCard to provide interlaced video
 */

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectDetect.cpp,v 1.36 2003-10-27 10:39:50 adcockj Exp $
+// $Id: AspectDetect.cpp,v 1.37 2006-12-20 07:45:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -39,6 +39,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.36  2003/10/27 10:39:50  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.35  2003/01/07 23:27:00  laurentg
 // New overscan settings
 //
@@ -142,7 +145,7 @@
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
-#include "Other.h"
+#include "IOutput.h"
 #include "AspectRatio.h"
 #include "DebugLog.h"
 #include "Status.h"

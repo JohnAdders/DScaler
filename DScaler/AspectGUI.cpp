@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.66 2006-01-23 12:39:08 robmuller Exp $
+// $Id: AspectGUI.cpp,v 1.67 2006-12-20 07:45:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.66  2006/01/23 12:39:08  robmuller
+// Moving the image now happens with 0.01 steps.
+//
 // Revision 1.65  2005/03/23 14:20:35  adcockj
 // Test fix for threading issues
 //
@@ -204,7 +207,7 @@
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
-#include "Other.h"
+#include "IOutput.h"
 #include "AspectRatio.h"
 #include "DebugLog.h"
 #include "DScaler.h"
@@ -212,6 +215,7 @@
 #include "OutThreads.h"
 #include "SettingsPerChannel.h"
 #include "Providers.h"
+#include "OverlayOutput.h"
 
 
 CSettingsHolderStandAlone AspectSettingsHolder;
@@ -936,7 +940,7 @@ BOOL ProcessAspectRatioSelection(HWND hWnd, WORD wMenuID)
 //----------------------------------------------------------------------------
 // Repaints the overlay colorkey, optionally with black borders around it
 // during aspect ratio control
-extern LPDIRECTDRAW lpDD; // Temporary expierement MRS 2-22-01
+
 
 void PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect, BOOL bNoMiddlePainting)
 {
@@ -948,9 +952,9 @@ void PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect, BOOL bNoMi
     RECT r;
     RECT r2, winRect;
 
-    if (bEnable && OverlayActive())
+    if (bEnable && ActiveOutput->OverlayActive())
     {
-        Overlay = CreateSolidBrush(Overlay_GetCorrectedColor(hDC));
+        Overlay = CreateSolidBrush(ActiveOutput->Overlay_GetCorrectedColor(hDC));
     }
     else
     {
@@ -1010,7 +1014,7 @@ void PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect, BOOL bNoMi
         // MRS 2-22-01
         // Intended to prevent purple flashing by setting overlay
         // after drawing black but before drawing purple.
-        Overlay_Update(&AspectSettings.SourceRect, &AspectSettings.DestinationRectWindow, DDOVER_SHOW);
+        ActiveOutput->Overlay_Update(&AspectSettings.SourceRect, &AspectSettings.DestinationRectWindow, DDOVER_SHOW);
         AspectSettings.OverlayNeedsSetting = FALSE;
         // Wait till current frame is done before drawing purple...
         // Overlay changes do not seem to take place (at least on a GeForce)
@@ -1020,10 +1024,13 @@ void PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect, BOOL bNoMi
         // the flashing has been much reduced by using dark grey as
         // overlay colour.  Also this may cause the pausing effect
         // on Teletext and CC
-        if (lpDD != NULL && AspectSettings.bWaitForVerticalBlank == TRUE)
-        {
-            lpDD->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN, NULL);
-        }
+        if(ActiveOutput->Type()==OUT_OVERLAY) {
+			if (((COverlayOutput *)ActiveOutput)->lpDD != NULL && AspectSettings.bWaitForVerticalBlank == TRUE)
+			{
+				((COverlayOutput *)ActiveOutput)->lpDD->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN, NULL);
+			}
+		}
+
     }
 
     // Draw overlay color in the middle.

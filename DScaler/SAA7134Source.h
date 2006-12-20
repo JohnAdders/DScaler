@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.h,v 1.47 2005-05-18 12:18:32 robmuller Exp $
+// $Id: SAA7134Source.h,v 1.48 2006-12-20 07:45:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.47  2005/05/18 12:18:32  robmuller
+// Added gamma control.
+//
 // Revision 1.46  2004/11/20 14:23:55  atnak
 // Added SAA7134 card name setting for storing the card selection as text.
 //
@@ -188,7 +191,7 @@
 #include "HardwareMemory.h"
 #include "Setting.h"
 /// \todo get rid of dependencies below here
-#include "Other.h"
+#include "IOutput.h"
 
 /** The source controls a specific CSAA7134Card to provide interlaced video
 */

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.384 2006-12-13 01:10:00 robmuller Exp $
+// $Id: DScaler.cpp,v 1.385 2006-12-20 07:45:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.384  2006/12/13 01:10:00  robmuller
+// Fix compile warnings with Visual Studio 2005 Express.
+//
 // Revision 1.383  2006/10/01 15:22:27  robmuller
 // Fixed: command line parameters not working anymore due to last check-in.
 //
@@ -1186,7 +1189,7 @@
 #define ISDSCALERCPPFILE
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
-#include "Other.h"
+#include "IOutput.h"
 #include "CPU.h"
 #include "MixerDev.h"
 #include "VBI_VideoText.h"
@@ -1234,6 +1237,9 @@
 #include "SAA7134Card.h"
 #include "CX2388xCard.h"
 #include "EPG.h"
+#include "OverlayOutput.h"
+#include "D3D9Output.h"
+
 
 #ifdef WANT_DSHOW_SUPPORT
 #include "dshowsource/DSSourceBase.h"
@@ -1358,6 +1364,7 @@ CWindowBorder* WindowBorder = NULL;
 CToolbarControl* ToolbarControl = NULL;
 
 CPaintingHDC OffscreenHDC;
+COverlayOutput ConfigOutput; // points to an uninitialized overlay instance .. just for config vars
 
 BOOL IsFullScreen_OnChange(long NewValue);
 BOOL DisplayStatusBar_OnChange(long NewValue);
@@ -1406,6 +1413,12 @@ static const char* DecodingPriorityNames[5] =
     "Very High",
 };
 
+static const char* OutputMethodNames[2] = 
+{
+    "Overlay",
+    "Direct3D",
+};
+
 static const char* MinimizeHandlingLabels[3] = 
 {
     "User control / Continue capture",
@@ -1426,6 +1439,8 @@ static long m_EventTimerID = 0;
 
 static int ChannelPreviewNbCols = 4;
 static int ChannelPreviewNbRows = 4;
+
+static int OutputMethod = 0;
 
 static HANDLE hMainWindowEvent = NULL;
 
@@ -1730,7 +1745,19 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     // 2000-10-31 Added by Mark: Changed to WS_POPUP for more cosmetic direct-to-full-screen startup,
     // let UpdateWindowState() handle initialization of windowed dTV instead.
 
-	LoadDynamicFunctions();
+    switch(OutputMethod) 
+    {
+    case 0:
+        // overlay
+        ActiveOutput = new COverlayOutput();
+        break;
+    case 1:
+        // d3d
+        ActiveOutput = new CD3D9Output();
+        break;
+    }
+
+	ActiveOutput->LoadDynamicFunctions();
 
     hWnd = CreateWindow(DSCALER_APPNAME, DSCALER_APPNAME, WS_POPUP, 0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), NULL, NULL, hInstance, NULL);
     if (!hWnd) return FALSE;
@@ -1743,7 +1770,7 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
 	// which is no more active
 	// The default position is on the primary monitor
 	RECT screenRect;
-	GetMonitorRect(hWnd, &screenRect);
+	ActiveOutput->GetMonitorRect(hWnd, &screenRect);
 	if ( (MainWndLeft > screenRect.right)
 	  || ((MainWndLeft+MainWndWidth) < screenRect.left)
 	  || (MainWndTop > screenRect.bottom)
@@ -2189,8 +2216,15 @@ BOOL ProcessVTMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         // Draw the OSD over the top
         OSD_Redraw(hDC, &OSDDrawRect);
-
-        OffscreenHDC.BitBltRects(PaintedRects, nPaintedRects, hWndDC);
+        switch(ActiveOutput->Type()) 
+        {
+        case OUT_OVERLAY:
+			OffscreenHDC.BitBltRects(PaintedRects, nPaintedRects, hWndDC);
+            break;
+        case OUT_D3D:		
+			OffscreenHDC.BitBltRectsD3D(PaintedRects, nPaintedRects, ((CD3D9Output *)ActiveOutput)->lpDDOSD);
+            break;
+        }
     }
 
     ReleaseDC(hWnd, hWndDC);
@@ -2267,8 +2301,16 @@ BOOL ProcessOSDMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         LONG nPaintedRects = OSD_GetPaintedRects(PaintedRects, OSD_MAX_TEXT);
 
         if (nPaintedRects != 0)
-        {
-            OffscreenHDC.BitBltRects(PaintedRects, nPaintedRects, hWndDC);
+        {            
+            switch(ActiveOutput->Type()) 
+            {
+            case OUT_OVERLAY:
+				OffscreenHDC.BitBltRects(PaintedRects, nPaintedRects, hWndDC);
+                break;
+            case OUT_D3D:
+				OffscreenHDC.BitBltRectsD3D(PaintedRects, nPaintedRects, ((CD3D9Output *)ActiveOutput)->lpDDOSD);
+                break;
+            }            
         }
     }
 
@@ -4084,7 +4126,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_OVERLAYSETTINGS:
-            if(!CanDoOverlayColorControl())
+            if(!ActiveOutput->CanDoOverlayColorControl())
             {
                 MessageBox(hWnd, "Overlay color control is not supported by your video card.",
                            "DScaler", MB_OK);
@@ -4096,7 +4138,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
         case IDM_USE_DSCALER_OVERLAY:
-            Setting_SetValue(Other_GetSetting(USEOVERLAYCONTROLS), !Setting_GetValue(Other_GetSetting(USEOVERLAYCONTROLS)));
+            Setting_SetValue(Overlay_GetSetting(USEOVERLAYCONTROLS), !Setting_GetValue(Overlay_GetSetting(USEOVERLAYCONTROLS)));
             break;
 
         case IDM_FAST_REPAINT:
@@ -4283,6 +4325,54 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 			WorkoutOverlaySize(FALSE);
             InvalidateRect(hWnd, NULL, FALSE);
             break;
+        case IDM_OUTPUTTYPE_DIRECT3D:
+            if(CheckMenuItem(hMenu, IDM_OUTPUTTYPE_DIRECT3D, MF_CHECKED)!=MF_CHECKED) 
+            {
+                bool bInitDone = false;                
+                Overlay_Stop(hWnd);
+                ActiveOutput->ExitDD();
+                if(ActiveOutput->Type()==OUT_D3D) 
+                {
+                    OffscreenHDC.ReleaseD3DBuffer();
+                }
+                delete ActiveOutput;
+                ActiveOutput = new CD3D9Output();
+                ActiveOutput->LoadDynamicFunctions();
+                if(ActiveOutput->InitDD(hWnd)==TRUE)
+                {
+                    Overlay_Start(hWnd);
+                    bInitDone = true;                    
+                }
+                CheckMenuItemBool(hMenu, IDM_OUTPUTTYPE_OVERLAY, MF_UNCHECKED);                
+                CheckMenuItemBool(hMenu, IDM_OUTPUTTYPE_DIRECT3D, MF_CHECKED);
+                OutputMethod=1;
+            }
+            break;
+        case IDM_OUTPUTTYPE_OVERLAY:            
+            if(CheckMenuItem(hMenu, IDM_OUTPUTTYPE_OVERLAY, MF_CHECKED)!=MF_CHECKED) 
+            {
+                bool bInitDone = false;                
+                Overlay_Stop(hWnd);
+                ActiveOutput->ExitDD();
+                if(ActiveOutput->Type()==OUT_D3D) 
+                {
+                    OffscreenHDC.ReleaseD3DBuffer();
+                }
+                delete ActiveOutput;
+                ActiveOutput = new COverlayOutput();
+                ActiveOutput->LoadDynamicFunctions();
+                if(ActiveOutput->InitDD(hWnd)==TRUE) 
+                {
+                    Overlay_Start(hWnd);                
+                    bInitDone = true;
+                }
+                CheckMenuItemBool(hMenu, IDM_OUTPUTTYPE_DIRECT3D, MF_UNCHECKED);
+                CheckMenuItemBool(hMenu, IDM_OUTPUTTYPE_OVERLAY, MF_CHECKED);               
+                
+                OutputMethod=0;
+            }
+            break;
+
         
 		default:
             bDone = FALSE;
@@ -5126,11 +5216,29 @@ void MainWndOnInitBT(HWND hWnd)
         {
             Providers_ChangeSettingsBasedOnHW(Setting_GetValue(DScaler_GetSetting(PROCESSORSPEED)), Setting_GetValue(DScaler_GetSetting(TRADEOFF)));
         }
-        if(InitDD(hWnd) == TRUE)
+        if(ActiveOutput->InitDD(hWnd) == TRUE)
         {
-            if(Overlay_Create() == TRUE)
+            if(ActiveOutput->Overlay_Create() == TRUE)
             {
                 bInitOK = TRUE;
+            }
+        }
+        else 
+        {
+            // no supported d3d hardware?
+            if(ActiveOutput->Type()==OUT_D3D)
+            {
+                // try fallback to overlay
+                delete ActiveOutput;
+                ActiveOutput = new COverlayOutput();
+                ActiveOutput->LoadDynamicFunctions();
+                if(ActiveOutput->InitDD(hWnd) == TRUE)
+                {
+                    if(ActiveOutput->Overlay_Create() == TRUE)
+                    {
+                        bInitOK = TRUE;
+                    }
+                }
             }
         }
     }
@@ -5284,7 +5392,7 @@ void MainWndOnInitBT(HWND hWnd)
 
         AddSplashTextLine("Start Video");
         Start_Capture();
-		SetCurrentMonitor(hWnd);
+		ActiveOutput->SetCurrentMonitor(hWnd);
         
     }
     else
@@ -5532,7 +5640,7 @@ void MainWndOnDestroy()
     __try
     {
         LOG(1, "Try ExitDD");
-        ExitDD();
+        ActiveOutput->ExitDD();
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {LOG(1, "Error ExitDD");}
 
@@ -5711,7 +5819,7 @@ LONG OnSize(HWND hWnd, UINT wParam, LONG lParam)
 				bCheckSignalPresent = FALSE;
 				bCheckSignalMissing = (MinimizeHandling == 2);
                 IsFullScreen_OnChange(TRUE);
-				if ((MinimizeHandling == 1) && bMinimized && !OverlayActive())
+				if ((MinimizeHandling == 1) && bMinimized && !ActiveOutput->OverlayActive())
 				{
 					Overlay_Start(hWnd);
 				}
@@ -5720,7 +5828,7 @@ LONG OnSize(HWND hWnd, UINT wParam, LONG lParam)
             break;
         case SIZE_MINIMIZED:
 			bMinimized = TRUE;
-			if (OverlayActive() && (MinimizeHandling == 1))
+			if (ActiveOutput->OverlayActive() && (MinimizeHandling == 1))
 			{
 	            Overlay_Stop(hWnd);
 			}
@@ -5728,9 +5836,9 @@ LONG OnSize(HWND hWnd, UINT wParam, LONG lParam)
 			{
 				OutReso_Change(hWnd, hPSWnd, TRUE, TRUE, lPStripTimingString, TRUE);
 			}
-			if (OverlayActive())
+			if (ActiveOutput->OverlayActive())
 			{
-		        Overlay_Update(NULL, NULL, DDOVER_HIDE);
+		        ActiveOutput->Overlay_Update(NULL, NULL, DDOVER_HIDE);
 			}
             if (bMinToTray)
 			{
@@ -5755,11 +5863,11 @@ LONG OnSize(HWND hWnd, UINT wParam, LONG lParam)
 					OutReso_Change(hWnd, hPSWnd, FALSE, TRUE, NULL, FALSE);
 				}
 			}
-            if ((MinimizeHandling == 1) && !OverlayActive())
+            if ((MinimizeHandling == 1) && !ActiveOutput->OverlayActive())
 			{
                 Overlay_Start(hWnd);
 			}
-			if (OverlayActive())
+			if (ActiveOutput->OverlayActive())
 			{
 	            WorkoutOverlaySize(FALSE);
 			}
@@ -5791,7 +5899,7 @@ void SetMenuAnalog()
     CheckMenuItemBool(hMenu, IDM_VT_AUTOCODEPAGE, bVTAutoCodePage);
     CheckMenuItemBool(hMenu, IDM_VT_ANTIALIAS, bVTAntiAlias);
 
-    CheckMenuItemBool(hMenu, IDM_USE_DSCALER_OVERLAY, Setting_GetValue(Other_GetSetting(USEOVERLAYCONTROLS)));
+    CheckMenuItemBool(hMenu, IDM_USE_DSCALER_OVERLAY, Setting_GetValue(Overlay_GetSetting(USEOVERLAYCONTROLS)));
     //EnableMenuItem(hMenu,IDM_OVERLAYSETTINGS, Setting_GetValue(Other_GetSetting(USEOVERLAYCONTROLS))?MF_ENABLED:MF_GRAYED);
 
     EnableMenuItem(hMenu, IDM_OVERLAY_START, bMinimized ? MF_GRAYED : MF_ENABLED);
@@ -5829,6 +5937,9 @@ void SetMenuAnalog()
     CheckMenuItemBool(hMenu, ID_SETTINGS_SAVESETTINGSPERCHANNEL, SettingsPerChannel_IsPerChannel());
     CheckMenuItemBool(hMenu, ID_SETTINGS_SAVESETTINGSPERINPUT, SettingsPerChannel_IsPerInput());
     CheckMenuItemBool(hMenu, ID_SETTINGS_SAVESETTINGSPERFORMAT, SettingsPerChannel_IsPerFormat());
+    
+    CheckMenuItemBool(hMenu, IDM_OUTPUTTYPE_OVERLAY, ActiveOutput->Type()==OUT_OVERLAY);
+    CheckMenuItemBool(hMenu, IDM_OUTPUTTYPE_DIRECT3D, ActiveOutput->Type()==OUT_D3D);
 }
 
 // This function checks the name of the menu item. A message box is shown with a debug build
@@ -6150,7 +6261,7 @@ void Overlay_Stop(HWND hWnd)
         PaintColorkey(hWnd, FALSE, hDC, &winRect);
         ReleaseDC(hWnd,hDC);
         Stop_Capture();
-        Overlay_Destroy();
+        ActiveOutput->Overlay_Destroy();
         InvalidateRect(hWnd, NULL, FALSE);
         g_bOverlayStopped = TRUE;
     }
@@ -6167,7 +6278,7 @@ void Overlay_Start(HWND hWnd)
     if (g_bOverlayStopped != FALSE)
     {
         InvalidateRect(hWnd, NULL, FALSE);
-        Overlay_Create();
+        ActiveOutput->Overlay_Create();
         Start_Capture();
         g_bOverlayStopped = FALSE;
     }
@@ -6200,7 +6311,7 @@ void UpdateWindowState()
 		SetWindowLong(hWnd, GWL_STYLE, WS_VISIBLE | (IsWindowEnabled(hWnd) ? 0 : WS_DISABLED));
         SetMenu(hWnd, NULL);
         StatusBar_ShowWindow(FALSE);
-		GetMonitorRect(hWnd, &ScreenRect);
+		ActiveOutput->GetMonitorRect(hWnd, &ScreenRect);
         SetWindowPos(hWnd,
                     bAlwaysOnTopFull?HWND_TOPMOST:HWND_NOTOPMOST,
                     ScreenRect.left,
@@ -7138,6 +7249,13 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
          NULL,
         "Still", "ChannelPreviewNbRows", ChannelPreviewNbRows_OnChange,
     },
+    {
+        "Output Method", ITEMFROMLIST, 0, (long*)&OutputMethod,
+        0, 0, 1, 1, 1,
+        OutputMethodNames,
+        "MainWindow", "OutputMethod", NULL,
+    },
+
 };
 
 SETTING* DScaler_GetSetting(DSCALER_SETTING Setting)

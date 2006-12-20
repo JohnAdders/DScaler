@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.62 2006-09-28 18:13:04 robmuller Exp $
+// $Id: Settings.cpp,v 1.63 2006-12-20 07:45:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.62  2006/09/28 18:13:04  robmuller
+// Fixed: Antivir causes DScaler to forget all settings.
+//
 // Revision 1.61  2005/09/24 18:40:51  dosx86
 // Removed the TimeShift settings
 //
@@ -226,7 +229,7 @@
 #include "MixerDev.h"
 #include "DScaler.h"
 #include "ProgramList.h"
-#include "other.h"
+#include "IOutput.h"
 #include "FD_50Hz.h"
 #include "FD_60Hz.h"
 #include "FD_Common.h"
@@ -243,6 +246,7 @@
 #include "SettingsPerChannel.h"
 #include "TimeShift.h"
 #include "EPG.h"
+#include "OverlayOutput.h"
 
 typedef SETTING* (__cdecl GENERICGETSETTING)(long SettingIndex);
 typedef void (__cdecl GENERICREADSETTINGS)();
@@ -251,9 +255,9 @@ typedef void (__cdecl GENERICFREESETTINGS)();
 
 typedef struct
 {
-    UINT GetValueMessage;
-    GENERICGETSETTING* pfnGetSetting;
-    GENERICREADSETTINGS* pfnReadSettings;
+    UINT GetValueMessage;    
+    GENERICGETSETTING* pfnGetSetting;        
+    GENERICREADSETTINGS* pfnReadSettings;    
     GENERICWRITESETTINGS* pfnWriteSettings;
     GENERICFREESETTINGS* pfnFreeSettings;
 } TFileWithSettings;
@@ -290,9 +294,9 @@ TFileWithSettings Settings[] =
     },
     {
         WM_OTHER_GETVALUE,
-        (GENERICGETSETTING*)Other_GetSetting,
-        Other_ReadSettingsFromIni,
-        Other_WriteSettingsToIni,
+        (GENERICGETSETTING*)Overlay_GetSetting,
+        Overlay_ReadSettingsFromIni,
+        Overlay_WriteSettingsToIni,
 		NULL,
     },
     {

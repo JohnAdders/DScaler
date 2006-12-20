@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.cpp,v 1.37 2006-10-06 13:35:28 adcockj Exp $
+// $Id: TreeSettingsDlg.cpp,v 1.38 2006-12-20 07:45:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.37  2006/10/06 13:35:28  adcockj
+// Added projects for .NET 2005 and fixed most of the warnings and errors
+//
 // Revision 1.36  2005/09/24 18:46:57  dosx86
 // Removed the TimeShift options
 //
@@ -155,7 +158,7 @@
 #include "AspectRatio.h"
 #include "FieldTiming.h"
 #include "DebugLog.h"
-#include "Other.h"
+#include "IOutput.h"
 #include "ProgramList.h"
 #include "StillSource.h"
 #include "DScaler.h"
@@ -684,7 +687,7 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
 	    pages.push_back(pPage);
 	    dlg.AddPage(pPage, Root);
 
-        pPage = Other_GetTreeSettingsPage();
+        pPage = ActiveOutput->Other_GetTreeSettingsPage();
 	    pPage->SetHelpID(IDH_OVERLAY);
 	    pages.push_back(pPage);
 	    dlg.AddPage(pPage, Root);
@@ -760,7 +763,7 @@ LRESULT CTreeSettingsDlg::OnNcHitTest(CPoint point)
 			ht = HTBOTTOMRIGHT;
 		}
 	}
-	return ht;
+	return (UINT)ht;
 }
 
 void CTreeSettingsDlg::OnGetMinMaxInfo(MINMAXINFO FAR* lpMMI) 

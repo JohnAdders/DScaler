@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.65 2004-05-12 16:52:42 adcockj Exp $
+// $Id: BT848Source.h,v 1.66 2006-12-20 07:45:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.65  2004/05/12 16:52:42  adcockj
+// Added channel gains fgor PMS cards
+//
 // Revision 1.64  2004/04/06 12:20:48  adcockj
 // Added .NET 2003 project files and some fixes to support this
 //
@@ -108,7 +111,7 @@
 #include "Setting.h"
 #include "Bt848_Defines.h"
 /// \todo get rid of dependencies below here
-#include "Other.h"
+#include "IOutput.h"
 
 /** The source controls a specific CBT848Card to provide interlaced video
 */

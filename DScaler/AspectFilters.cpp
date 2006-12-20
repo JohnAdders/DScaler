@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectFilters.cpp,v 1.35 2005-03-23 14:20:35 adcockj Exp $
+// $Id: AspectFilters.cpp,v 1.36 2006-12-20 07:45:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.35  2005/03/23 14:20:35  adcockj
+// Test fix for threading issues
+//
 // Revision 1.34  2003/10/27 10:39:50  adcockj
 // Updated files for better doxygen compatability
 //
@@ -129,7 +132,7 @@
 #include "resource.h"
 #include "AspectFilters.h"
 #include "AspectRatio.h"
-#include "Other.h"
+#include "IOutput.h"
 #include "DScaler.h"
 #include "Providers.h"
 
@@ -681,13 +684,13 @@ BOOL CScreenSanityAspectFilter::adjustAspect(CAspectRectangles &ar)
     ar.m_CurrentOverlaySrcRect.cropToFitRect(sourceRect);
 
     // make sure that any alignment restrictions are taken care of
-    if (SrcSizeAlign > 1)
+    if (ActiveOutput->SrcSizeAlign > 1)
     {
-        ar.m_CurrentOverlaySrcRect.align(SrcSizeAlign);
+        ar.m_CurrentOverlaySrcRect.align(ActiveOutput->SrcSizeAlign);
     }
-    if (DestSizeAlign > 1)
+    if (ActiveOutput->DestSizeAlign > 1)
     {
-        ar.m_CurrentOverlayDestRect.align(DestSizeAlign);
+        ar.m_CurrentOverlayDestRect.align(ActiveOutput->DestSizeAlign);
     }
 
     // Ensure we do not shrink too small...avoids crashes when window gets too small

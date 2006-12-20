@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MultiFrames.cpp,v 1.13 2005-03-23 14:20:57 adcockj Exp $
+// $Id: MultiFrames.cpp,v 1.14 2006-12-20 07:45:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2005/03/23 14:20:57  adcockj
+// Test fix for threading issues
+//
 // Revision 1.12  2003/10/27 10:39:52  adcockj
 // Updated files for better doxygen compatability
 //
@@ -70,7 +73,7 @@
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
 #include "MultiFrames.h"
-#include "Other.h"
+#include "IOutput.h"
 #include "StillSource.h"
 #include "DebugLog.h"
 #include "AspectRatio.h"
@@ -430,7 +433,7 @@ void CMultiFrames::UpdateFrame(TDeinterlaceInfo* pInfo, BOOL* bUseExtraBuffer, B
 	SelectFrameBuffer(m_CurrentFrame, FALSE, &lpFrameBuffer, &iFrameLinePitch, &iFrameWidth, &iFrameHeight);
 
 	// Copy (with resize) the input picture into its frame
-    Overlay_Lock_Back_Buffer(pInfo, *bUseExtraBuffer);
+    ActiveOutput->Overlay_Lock_Back_Buffer(pInfo, *bUseExtraBuffer);
 	if (m_Source->HasSquarePixels())
 	{
 		// Keep the original ratio
@@ -474,7 +477,7 @@ void CMultiFrames::UpdateFrame(TDeinterlaceInfo* pInfo, BOOL* bUseExtraBuffer, B
 		}
 	}
 	ResizeFrame(pInfo->Overlay, pInfo->OverlayPitch, pInfo->FrameWidth, InHalfHeightMode() ? pInfo->FieldHeight : pInfo->FrameHeight, lpFrameBuffer, iFrameLinePitch, iFrameWidth, iFrameHeight);
-    Overlay_Unlock_Back_Buffer(*bUseExtraBuffer);
+    ActiveOutput->Overlay_Unlock_Back_Buffer(*bUseExtraBuffer);
 
 	if (m_ContentChanged == TRUE)
 	{

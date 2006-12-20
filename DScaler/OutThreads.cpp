@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.140 2006-09-24 02:44:46 robmuller Exp $
+// $Id: OutThreads.cpp,v 1.141 2006-12-20 07:45:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.140  2006/09/24 02:44:46  robmuller
+// Added missing emms instructions. Should fix problems on non-sse machines.
+//
 // Revision 1.139  2006/09/24 01:08:16  robmuller
 // Removed unused variable bWaitForVsync.
 //
@@ -486,7 +489,7 @@
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
 #include "OutThreads.h"
-#include "Other.h"
+#include "IOutput.h"
 #include "VBI_VideoText.h"
 #include "VBI.h"
 #include "Deinterlace.h"
@@ -595,7 +598,7 @@ void AssertOnOutThread()
 void Start_Thread()
 {
     // make sure we start with a clean sheet of paper
-    Overlay_Clean();
+    ActiveOutput->Overlay_Clean();
 
     bStopThread = FALSE;
 
@@ -790,7 +793,7 @@ void Start_Capture()
     if (g_nCaptureStatus++ == 0)
     {
         // make sure half height Modes are set correctly
-        Overlay_Clean();
+        ActiveOutput->Overlay_Clean();
 
         // moved this stuff out of the processing thared to avoid windo calls
         // in the processing thread
@@ -853,7 +856,7 @@ void Reset_Capture()
     if (!Providers_GetCurrentSource())
         return;
     Stop_Capture();
-    Overlay_Clean();
+    ActiveOutput->Overlay_Clean();
     PrepareDeinterlaceMode();
     Providers_GetCurrentSource()->Reset();
     WorkoutOverlaySize(TRUE);
@@ -1295,7 +1298,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 #ifdef USE_PERFORMANCE_STATS
 	                        pPerf->StartCount(PERF_LOCK_OVERLAY);
 #endif
-							if(!Overlay_Lock_Back_Buffer(&Info, bUseExtraBuffer))
+							if(!ActiveOutput->Overlay_Lock_Back_Buffer(&Info, bUseExtraBuffer))
 							{
 								Providers_GetCurrentSource()->Stop();
 								LOG(1, "Falling out after Overlay_Lock_Back_Buffer");
@@ -1376,7 +1379,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 						if(bOverlayLocked)
 						{
 							// somewhere above we will have locked the buffer, unlock before flip
-							if(!Overlay_Unlock_Back_Buffer(bUseExtraBuffer))
+							if(!ActiveOutput->Overlay_Unlock_Back_Buffer(bUseExtraBuffer))
 							{
 								Providers_GetCurrentSource()->Stop();
 								LOG(1, "Falling out after Overlay_Unlock_Back_Buffer");
@@ -1453,7 +1456,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 								Timing_IncrementNoFlipAtTime();
 							}
 
-							if(!Overlay_Flip(FlipFlag, bUseExtraBuffer, lpMultiBuffer, MultiPitch, &Info))
+							if(!ActiveOutput->Overlay_Flip(FlipFlag, bUseExtraBuffer, lpMultiBuffer, MultiPitch, &Info))
 							{
 								Providers_GetCurrentSource()->Stop();
 								LOG(1, "Falling out after Overlay_Flip");
@@ -1462,7 +1465,8 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 								DScalerDeinitializeThread();
 								return 1;
 							}
-                            
+                                                       
+
                             // update which surface we write to only after a flip
 							bUseExtraBuffer = Filter_WillWeDoOutput()
 										   || (pMultiFrames && pMultiFrames->IsActive())
@@ -1483,7 +1487,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         pPerf->StartCount(PERF_UNLOCK_OVERLAY);
 #endif
 
-                        Overlay_Unlock_Back_Buffer(bUseExtraBuffer);
+                        ActiveOutput->Overlay_Unlock_Back_Buffer(bUseExtraBuffer);
 
 #ifdef USE_PERFORMANCE_STATS
                         pPerf->StopCount(PERF_UNLOCK_OVERLAY);
@@ -1533,7 +1537,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 					BYTE* StillBuffer = Info.Overlay;
 					int LinePitch = Info.OverlayPitch;
 
-					if(Overlay_Lock(&Info))
+					if(ActiveOutput->Overlay_Lock(&Info))
 					{
 						BYTE* CurrentLine = Info.Overlay;
 						BYTE* DestLine = StillBuffer;
@@ -1547,7 +1551,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 						{
 							emms
 						}
-                        Overlay_Unlock();
+                        ActiveOutput->Overlay_Unlock();
 					}
 					else
 					{

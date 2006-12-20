@@ -1438,6 +1438,11 @@ BEGIN
         MENUITEM "Image Shift/Si&ze Adjustments ...", IDM_SIZESETTINGS
         MENUITEM "&Overlay Adjustments ...",    IDM_OVERLAYSETTINGS
         MENUITEM "&Advanced Settings...",       IDM_SETTINGS_CHANGESETTINGS
+        POPUP "Output &Type"
+        BEGIN
+            MENUITEM "Overlay",                     IDM_OUTPUTTYPE_OVERLAY
+            MENUITEM "Direct3D",                    IDM_OUTPUTTYPE_DIRECT3D
+        END
         MENUITEM SEPARATOR
         MENUITEM "&Save settings per Channel",  ID_SETTINGS_SAVESETTINGSPERCHANNEL
 

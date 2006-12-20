@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.174 2006-09-24 13:28:38 robmuller Exp $
+// $Id: DS_Control.h,v 1.175 2006-12-20 07:45:06 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.174  2006/09/24 13:28:38  robmuller
+// Added missing SAA7134 settings.
+//
 // Revision 1.173  2006/09/24 01:08:16  robmuller
 // Removed unused variable bWaitForVsync.
 //
@@ -856,6 +859,7 @@ typedef enum
 	SKINNAME,
 	CHANNELPREVIEWWNBCOLS,
 	CHANNELPREVIEWNBROWS,
+	OUTPUTMETHOD,
     DSCALER_SETTING_LASTONE,
 } DSCALER_SETTING;
 

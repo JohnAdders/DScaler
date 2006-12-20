@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.115 2006-10-06 13:35:28 adcockj Exp $
+// $Id: OSD.cpp,v 1.116 2006-12-20 07:45:07 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.115  2006/10/06 13:35:28  adcockj
+// Added projects for .NET 2005 and fixed most of the warnings and errors
+//
 // Revision 1.114  2006/09/24 14:00:43  robmuller
 // Fixed: General Screen could not be disabled.
 //
@@ -428,7 +431,7 @@
 #include "stdafx.h"
 #include "OSD.h"
 #include "AspectRatio.h"
-#include "Other.h"
+#include "IOutput.h"
 #include "Audio.h"
 #include "OutThreads.h"
 #include "FD_60Hz.h"
@@ -1121,7 +1124,7 @@ void OSD_Redraw(HDC hDC, LPRECT lpRect)
 
                     SetBkMode(hDC, TRANSPARENT);
                     SetTextColor(hDC, OSD_Text[i].BackgroundColor);
-                    SetBkColor(hDC, Overlay_GetCorrectedColor(hDC));
+                    SetBkColor(hDC, ActiveOutput->Overlay_GetCorrectedColor(hDC));
 
                     HBITMAP hBM = CreateBitmap(8, 8, 1, 1, (LPBYTE)bBrushBits); 
                     HBRUSH hBrush = CreatePatternBrush(hBM);
@@ -1414,9 +1417,9 @@ static void OSD_RefreshGeneralScreen(double Size)
     // Video and overlay settings
     nLine = 4;
     DisplayTitle = FALSE;
-    UseOverlayCtrl = Setting_GetValue(Other_GetSetting(USEOVERLAYCONTROLS));
+    UseOverlayCtrl = Setting_GetValue(Overlay_GetSetting(USEOVERLAYCONTROLS));
     pSetting = pSource != NULL ? pSource->GetBrightness() : NULL;
-    OverlaySetting = Setting_GetValue(Other_GetSetting(OVERLAYBRIGHTNESS));
+    OverlaySetting = Setting_GetValue(Overlay_GetSetting(OVERLAYBRIGHTNESS));
     if(pSetting != NULL || UseOverlayCtrl)
     {
         OSD_AddText("Brightness", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
@@ -1437,7 +1440,7 @@ static void OSD_RefreshGeneralScreen(double Size)
         nLine++;
     }
     pSetting = pSource != NULL ? pSource->GetContrast() : NULL;
-    OverlaySetting = Setting_GetValue(Other_GetSetting(OVERLAYCONTRAST));
+    OverlaySetting = Setting_GetValue(Overlay_GetSetting(OVERLAYCONTRAST));
     if(pSetting != NULL || UseOverlayCtrl)
     {
         OSD_AddText("Contrast", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
@@ -1458,7 +1461,7 @@ static void OSD_RefreshGeneralScreen(double Size)
         nLine++;
     }
     pSetting = pSource != NULL ? pSource->GetHue() : NULL;
-    OverlaySetting = Setting_GetValue(Other_GetSetting(OVERLAYHUE));
+    OverlaySetting = Setting_GetValue(Overlay_GetSetting(OVERLAYHUE));
     if(pSetting != NULL || UseOverlayCtrl)
     {
         OSD_AddText("Hue", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
@@ -1479,7 +1482,7 @@ static void OSD_RefreshGeneralScreen(double Size)
         nLine++;
     }
     pSetting = pSource != NULL ? pSource->GetSaturation() : NULL;
-    OverlaySetting = Setting_GetValue(Other_GetSetting(OVERLAYSATURATION));
+    OverlaySetting = Setting_GetValue(Overlay_GetSetting(OVERLAYSATURATION));
     if(pSetting != NULL || UseOverlayCtrl)
     {
         OSD_AddText("Color", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
@@ -1517,7 +1520,7 @@ static void OSD_RefreshGeneralScreen(double Size)
         DisplayTitle = TRUE;
         nLine++;
     }
-    OverlaySetting = Setting_GetValue(Other_GetSetting(OVERLAYGAMMA));
+    OverlaySetting = Setting_GetValue(Overlay_GetSetting(OVERLAYGAMMA));
     if(UseOverlayCtrl)
     {
         OSD_AddText("Gamma", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));
@@ -1526,7 +1529,7 @@ static void OSD_RefreshGeneralScreen(double Size)
         DisplayTitle = TRUE;
         nLine++;
     }
-    OverlaySetting = Setting_GetValue(Other_GetSetting(OVERLAYSHARPNESS));
+    OverlaySetting = Setting_GetValue(Overlay_GetSetting(OVERLAYSHARPNESS));
     if(UseOverlayCtrl)
     {
         OSD_AddText("Sharpness", Size, -1, -1, OSDB_USERDEFINED, OSD_XPOS_RIGHT, 0.8 - dfMargin, OSD_GetLineYpos (nLine, dfMargin, Size));

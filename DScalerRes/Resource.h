@@ -89,7 +89,10 @@
 #define IDM_CHANNELMINUS                267
 #define IDD_TSCOMPRESSION               267
 #define IDM_TOGGLE_MENU                 268
+#define ID_SETTINGS_OUTPUTTYPE          269
 #define IDM_HWINFO                      270
+#define IDM_OUTPUTTYPE_OVERLAY          20075
+#define IDM_OUTPUTTYPE_DIRECT3D         20076
 #define IDM_RESET                       280
 #define IDD_OPEN                        300
 #define IDD_TOOLBAR_MEDIAPLAYER         301

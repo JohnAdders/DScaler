@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: stdafx.h,v 1.26 2006-12-12 23:43:10 robmuller Exp $
+// $Id: stdafx.h,v 1.27 2006-12-20 10:06:54 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2006/12/12 23:43:10  robmuller
+// Fix compile errors with Visual Studio 2005 Express.
+//
 // Revision 1.25  2006/10/06 13:35:28  adcockj
 // Added projects for .NET 2005 and fixed most of the warnings and errors
 //
@@ -87,8 +90,10 @@
 /** 
  * @file stdafx.h Precompiled Header file
  */
- 
+
+#ifdef VS80_EXPRESS_BUILD
 #define _AFX_ENABLE_INLINES
+#endif
 
 #if _MSC_VER > 1000
 #pragma once

@@ -10,6 +10,8 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
+#define _CRT_SECURE_NO_DEPRECATE
+
 #define WIN32_LEAN_AND_MEAN     // Exclude rarely-used stuff from Windows headers
 
 #include <stdio.h>

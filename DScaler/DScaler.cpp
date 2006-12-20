@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.385 2006-12-20 07:45:07 adcockj Exp $
+// $Id: DScaler.cpp,v 1.386 2006-12-20 17:41:15 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.385  2006/12/20 07:45:07  adcockj
+// added DirectX code from Daniel Sabel
+//
 // Revision 1.384  2006/12/13 01:10:00  robmuller
 // Fix compile warnings with Visual Studio 2005 Express.
 //
@@ -1239,6 +1242,7 @@
 #include "EPG.h"
 #include "OverlayOutput.h"
 #include "D3D9Output.h"
+#include "RemoteInput.h"
 
 
 #ifdef WANT_DSHOW_SUPPORT
@@ -1756,8 +1760,6 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
         ActiveOutput = new CD3D9Output();
         break;
     }
-
-	ActiveOutput->LoadDynamicFunctions();
 
     hWnd = CreateWindow(DSCALER_APPNAME, DSCALER_APPNAME, WS_POPUP, 0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), NULL, NULL, hInstance, NULL);
     if (!hWnd) return FALSE;
@@ -2859,7 +2861,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 {
     char Text[128];
     int i;
-    BOOL bDone;
+    BOOL bDone = FALSE;
     ISetting* pSetting = NULL;
     ISetting* pSetting2 = NULL;
     ISetting* pSetting3 = NULL;
@@ -4337,7 +4339,6 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 }
                 delete ActiveOutput;
                 ActiveOutput = new CD3D9Output();
-                ActiveOutput->LoadDynamicFunctions();
                 if(ActiveOutput->InitDD(hWnd)==TRUE)
                 {
                     Overlay_Start(hWnd);
@@ -4360,7 +4361,6 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 }
                 delete ActiveOutput;
                 ActiveOutput = new COverlayOutput();
-                ActiveOutput->LoadDynamicFunctions();
                 if(ActiveOutput->InitDD(hWnd)==TRUE) 
                 {
                     Overlay_Start(hWnd);                
@@ -4976,12 +4976,6 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
         break;
 #endif
 
-#ifdef WM_INPUT
-    case WM_INPUT:
-        return OnInput(hWnd, wParam, lParam);
-        break;
-#endif
-
     case WM_PAINT:
         {
             PAINTSTRUCT sPaint;
@@ -5109,7 +5103,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 
     default:
         {
-            LONG RetVal = Settings_HandleSettingMsgs(hWnd, message, wParam, lParam, &bDone);
+            LONG RetVal = Remote_HandleMsgs(hWnd, message, wParam, lParam, &bDone);
+            if(!bDone)
+            {
+                RetVal = Settings_HandleSettingMsgs(hWnd, message, wParam, lParam, &bDone);
+            }
             if(!bDone)
             {
                 RetVal = Deinterlace_HandleSettingsMsg(hWnd, message, wParam, lParam, &bDone);
@@ -5231,7 +5229,6 @@ void MainWndOnInitBT(HWND hWnd)
                 // try fallback to overlay
                 delete ActiveOutput;
                 ActiveOutput = new COverlayOutput();
-                ActiveOutput->LoadDynamicFunctions();
                 if(ActiveOutput->InitDD(hWnd) == TRUE)
                 {
                     if(ActiveOutput->Overlay_Create() == TRUE)
@@ -5389,6 +5386,8 @@ void MainWndOnInitBT(HWND hWnd)
             VT_SetState(NULL, NULL, VT_BLACK);
             VT_SetPage(NULL, NULL, InitialTextPage);
         }
+
+        RemoteRegister();
 
         AddSplashTextLine("Start Video");
         Start_Capture();
@@ -5756,50 +5755,6 @@ LONG OnChar(HWND hWnd, UINT message, UINT wParam, LONG lParam)
     }
     return 0;
 }
-
-#ifdef WM_APPCOMMAND
-// Cope with new media commands 
-// MCE remote sends these for the basic keys
-LONG OnAppCommand(HWND hWnd, UINT wParam, LONG lParam)
-{
-    LONG RetVal = TRUE;
-
-    switch(GET_APPCOMMAND_LPARAM(lParam))
-    {
-    case APPCOMMAND_BROWSER_BACKWARD:
-        PostMessage(hWnd, WM_CLOSE, 0, 0);
-        break;
-    case APPCOMMAND_MEDIA_CHANNEL_DOWN:
-        PostMessage(hWnd, WM_COMMAND, IDM_CHANNELMINUS, 0);
-        break;
-    case APPCOMMAND_MEDIA_CHANNEL_UP:
-        PostMessage(hWnd, WM_COMMAND, IDM_CHANNELPLUS, 0);
-        break;
-    case APPCOMMAND_MEDIA_NEXTTRACK:
-        PostMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_NEXT, 0);
-        break;
-    case APPCOMMAND_MEDIA_PREVIOUSTRACK:
-        PostMessage(hWnd, WM_COMMAND, IDM_PLAYLIST_PREVIOUS, 0);
-        break;
-    case APPCOMMAND_MEDIA_PLAY_PAUSE:
-        PostMessage(hWnd, WM_COMMAND, IDM_CAPTURE_PAUSE, 0);
-        break;
-    case APPCOMMAND_VOLUME_DOWN:
-        PostMessage(hWnd, WM_COMMAND, IDM_VOLUMEMINUS, 0);
-        break;
-    case APPCOMMAND_VOLUME_UP:
-        PostMessage(hWnd, WM_COMMAND, IDM_VOLUMEPLUS, 0);
-        break;
-    case APPCOMMAND_VOLUME_MUTE:
-        PostMessage(hWnd, WM_COMMAND, IDM_MUTE, 0);
-        break;
-    default:
-        RetVal = FALSE;
-        break;
-    }
-    return RetVal;
-}
-#endif
 
 LONG OnSize(HWND hWnd, UINT wParam, LONG lParam)
 {

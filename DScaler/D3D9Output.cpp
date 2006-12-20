@@ -28,9 +28,6 @@ struct CUSTOMVERTEX
 
 
 
-void CD3D9Output::LoadDynamicFunctions() {
-}
-
 //-----------------------------------------------------------------------------
 void CD3D9Output::SetCurrentMonitor(HWND hWnd)
 {

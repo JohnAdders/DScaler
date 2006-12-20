@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.67 2006-12-20 07:45:06 adcockj Exp $
+// $Id: AspectGUI.cpp,v 1.68 2006-12-20 17:41:15 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.67  2006/12/20 07:45:06  adcockj
+// added DirectX code from Daniel Sabel
+//
 // Revision 1.66  2006/01/23 12:39:08  robmuller
 // Moving the image now happens with 0.01 steps.
 //
@@ -1024,13 +1027,10 @@ void PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect, BOOL bNoMi
         // the flashing has been much reduced by using dark grey as
         // overlay colour.  Also this may cause the pausing effect
         // on Teletext and CC
-        if(ActiveOutput->Type()==OUT_OVERLAY) {
-			if (((COverlayOutput *)ActiveOutput)->lpDD != NULL && AspectSettings.bWaitForVerticalBlank == TRUE)
-			{
-				((COverlayOutput *)ActiveOutput)->lpDD->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN, NULL);
-			}
+		if (AspectSettings.bWaitForVerticalBlank == TRUE)
+		{
+            ActiveOutput->WaitForVerticalBlank();
 		}
-
     }
 
     // Draw overlay color in the middle.

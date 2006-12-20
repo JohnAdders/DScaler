@@ -31,7 +31,6 @@ public:
 	CD3D9Output(void);
 	~CD3D9Output(void);
 
-	void LoadDynamicFunctions();
 	void SetCurrentMonitor(HWND hWnd);
 	void CheckChangeMonitor(HWND hWnd);
 	BOOL CanDoOverlayColorControl();
@@ -57,6 +56,7 @@ public:
 	void Overlay_ReleaseDC(HDC hDC);
 	BOOL InitDD(HWND hWnd);
 	void ExitDD(void);
+    void WaitForVerticalBlank() {};
 
 	RECT Overlay_GetCurrentDestRect();
 	RECT Overlay_GetCurrentSrcRect();

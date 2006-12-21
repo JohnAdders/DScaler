@@ -630,6 +630,11 @@ SOURCE=.\Providers.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\RemoteInput.cpp
+# SUBTRACT CPP /YX /Yc /Yu
+# End Source File
+# Begin Source File
+
 SOURCE=.\SAA7118.cpp
 # End Source File
 # Begin Source File
@@ -1457,6 +1462,10 @@ SOURCE=.\ProgramList.h
 # Begin Source File
 
 SOURCE=.\Providers.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\RemoteInput.h
 # End Source File
 # Begin Source File
 

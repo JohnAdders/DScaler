@@ -50,7 +50,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="COMMODE.OBJ libtiff.lib libjpeg.lib ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib strmiids.lib quartz.lib setupapi.lib"
+				AdditionalDependencies="COMMODE.OBJ libtiff.lib libjpeg.lib ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib strmiids.lib quartz.lib setupapi.lib d3d9.lib"
 				OutputFile="..\Release\DScaler.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -121,7 +121,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libtiff.lib libjpeg.lib ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib strmiids.lib quartz.lib setupapi.lib"
+				AdditionalDependencies="libtiff.lib libjpeg.lib ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib strmiids.lib quartz.lib setupapi.lib d3d9.lib"
 				OutputFile="..\Debug\DScaler.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
@@ -1006,6 +1006,9 @@
 						PreprocessorDefinitions=""
 						BrowseInformation="1"/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\D3D9Output.cpp">
 			</File>
 			<File
 				RelativePath="dshowsource\debug.cpp">
@@ -1918,6 +1921,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\IOutput.cpp">
+			</File>
+			<File
 				RelativePath="ISetting.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -2233,27 +2239,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Other.cpp">
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BrowseInformation="1"/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="OutReso.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -2294,6 +2279,9 @@
 						PreprocessorDefinitions=""
 						BrowseInformation="1"/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\OverlayOutput.cpp">
 			</File>
 			<File
 				RelativePath="OverlaySettings.cpp">
@@ -2467,6 +2455,21 @@
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BrowseInformation="1"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\RemoteInput.cpp">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"/>
 				</FileConfiguration>
 			</File>
 			<File
@@ -3955,6 +3958,9 @@
 				RelativePath="CX2388xSource.h">
 			</File>
 			<File
+				RelativePath=".\D3D9Output.h">
+			</File>
+			<File
 				RelativePath="dshowsource\debug.h">
 			</File>
 			<File
@@ -4096,6 +4102,9 @@
 				RelativePath="I2CLineInterface.h">
 			</File>
 			<File
+				RelativePath=".\IOutput.h">
+			</File>
+			<File
 				RelativePath="ISetting.h">
 			</File>
 			<File
@@ -4150,6 +4159,9 @@
 				RelativePath="OutThreads.h">
 			</File>
 			<File
+				RelativePath=".\OverlayOutput.h">
+			</File>
+			<File
 				RelativePath="OverlaySettings.h">
 			</File>
 			<File
@@ -4178,6 +4190,9 @@
 			</File>
 			<File
 				RelativePath="Providers.h">
+			</File>
+			<File
+				RelativePath=".\RemoteInput.h">
 			</File>
 			<File
 				RelativePath="resource.h">

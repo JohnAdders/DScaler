@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.cpp,v 1.38 2006-12-20 07:45:07 adcockj Exp $
+// $Id: TreeSettingsDlg.cpp,v 1.39 2006-12-22 12:24:26 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.38  2006/12/20 07:45:07  adcockj
+// added DirectX code from Daniel Sabel
+//
 // Revision 1.37  2006/10/06 13:35:28  adcockj
 // Added projects for .NET 2005 and fixed most of the warnings and errors
 //
@@ -215,7 +218,7 @@ BEGIN_MESSAGE_MAP(CTreeSettingsDlg, CDialog)
 	ON_WM_SIZE()
 	ON_WM_PAINT()
 	ON_WM_GETMINMAXINFO()
-	ON_WM_NCHITTEST()
+//	ON_WM_NCHITTEST()
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 

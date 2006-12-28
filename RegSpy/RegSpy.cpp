@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: RegSpy.cpp,v 1.20 2004-12-16 02:32:05 atnak Exp $
+// $Id: RegSpy.cpp,v 1.21 2006-12-28 14:18:36 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2004/12/16 02:32:05  atnak
+// Added proper SAA7133 registers.
+//
 // Revision 1.19  2004/08/14 13:45:23  adcockj
 // Fixes to get new settings code working under VS6
 //
@@ -235,6 +238,7 @@ void __cdecl BT848RegSpy(TRegister** hRegisterListTail)
     AddDWRegister(BT848_GPIO_DATA);
     AddDWRegister(BT848_RISC_STRT_ADD);
     AddWRegister(BT848_GPIO_DMA_CTL);
+    AddDWRegister(BT848_INT_STAT);
 }
 
 

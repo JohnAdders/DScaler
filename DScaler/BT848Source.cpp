@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.137 2005-07-26 22:19:13 laurentg Exp $
+// $Id: BT848Source.cpp,v 1.138 2006-12-28 14:18:36 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.137  2005/07/26 22:19:13  laurentg
+// Use the new function Channel_GetVBIName
+//
 // Revision 1.136  2005/03/29 13:06:59  adcockj
 // Avoid tight loops in processing
 //
@@ -525,7 +528,7 @@ CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CU
     m_ChipName(ChipName),
     m_DeviceIndex(DeviceIndex),
     m_DetectingAudioStandard(0),
-	m_InitialSetup(FALSE)
+    m_InitialSetup(FALSE)
 {
     CreateSettings(IniSection);
 
@@ -560,6 +563,18 @@ CBT848Source::CBT848Source(CBT848Card* pBT848Card, CContigMemory* RiscDMAMem, CU
     
     SetupCard();
 
+    // can't test for IsSPISource until settings are initialized
+    if (m_pBT848Card->IsSPISource(m_VideoSource->GetValue()))
+    {
+        m_IsVideoProgressive->SetValue(TRUE);
+        for (int k(0); k < 5; k++)
+        {
+            m_OddFields[k].pData = m_pDisplay[k];
+            m_OddFields[k].Flags = PICTURE_PROGRESSIVE;
+            m_OddFields[k].IsFirstInSeries = FALSE;
+        }
+    }
+
     InitializeUI();
 }
 
@@ -592,11 +607,11 @@ void CBT848Source::SetSourceAsCurrent()
     {
         Channel_Reset();
     }
-	else
-	{
-		// We read what is the video format saved for this video input
-	    SettingsMaster->LoadOneSetting(m_VideoFormat);
-	}
+    else
+    {
+        // We read what is the video format saved for this video input
+        SettingsMaster->LoadOneSetting(m_VideoFormat);
+    }
 
     // tell the world if the format has changed
     if(OldFormat != m_VideoFormat->GetValue())
@@ -604,8 +619,8 @@ void CBT848Source::SetSourceAsCurrent()
         EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldFormat, m_VideoFormat->GetValue());
         EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldFormat, m_VideoFormat->GetValue());
 
-		// We save the video format attached to this video input
-	    SettingsMaster->WriteOneSetting(m_VideoFormat);
+        // We save the video format attached to this video input
+        SettingsMaster->WriteOneSetting(m_VideoFormat);
     }
 
     // make sure the defaults are correct
@@ -631,9 +646,9 @@ void CBT848Source::OnEvent(CEventObject *pEventObject, eEventType Event, long Ol
             ChannelChange(0, OldValue, NewValue);
         }
     }
-	
+
     if ((Event == EVENT_AUDIOSTANDARD_DETECTED) || (Event == EVENT_AUDIOCHANNELSUPPORT_DETECTED))
-	{
+    {
         CAudioDecoder* pAudioDecoder;
         try 
         {
@@ -649,11 +664,11 @@ void CBT848Source::OnEvent(CEventObject *pEventObject, eEventType Event, long Ol
             if (Event == EVENT_AUDIOSTANDARD_DETECTED)
             {
                 AudioStandardDetected(NewValue);        
-	        }
-	        else if (Event == EVENT_AUDIOCHANNELSUPPORT_DETECTED)
-	        {
-		        SupportedSoundChannelsDetected((eSupportedSoundChannels)NewValue);
-	        }
+            }
+            else if (Event == EVENT_AUDIOCHANNELSUPPORT_DETECTED)
+            {
+                SupportedSoundChannelsDetected((eSupportedSoundChannels)NewValue);
+            }
         }
     }
 }
@@ -665,14 +680,15 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     CSettingGroup *pAudioGroup = GetSettingsGroup("BT848 - Audio", SETTING_BY_CHANNEL);
     CSettingGroup *pAudioStandard = GetSettingsGroup("BT848 - Audio Standard", SETTING_BY_CHANNEL);
     CSettingGroup *pPMSGroup = GetSettingsGroup("BT848 - PMS", SETTING_BY_FORMAT | SETTING_BY_INPUT, TRUE);
+    CSettingGroup *pAtlasGroup = GetSettingsGroup("BT848 - Atlas", SETTING_BY_FORMAT | SETTING_BY_INPUT, TRUE);
 
-	//
-	// WARNING : temporary change to have correct tuner audio input after DScaler first start
-	//
-	//CSettingGroup *pAudioSource = GetSettingsGroup("BT848 - Audio Source", SETTING_BY_INPUT, TRUE);
+    //
+    // WARNING : temporary change to have correct tuner audio input after DScaler first start
+    //
+    //CSettingGroup *pAudioSource = GetSettingsGroup("BT848 - Audio Source", SETTING_BY_INPUT, TRUE);
     CSettingGroup *pAudioSource = GetSettingsGroup("BT848 - Audio Source", 0);
 
-	CSettingGroup *pAudioChannel = GetSettingsGroup("BT848 - Audio Channel", SETTING_BY_CHANNEL);
+    CSettingGroup *pAudioChannel = GetSettingsGroup("BT848 - Audio Channel", SETTING_BY_CHANNEL);
     CSettingGroup *pAudioControl = GetSettingsGroup("BT848 - Audio Control", SETTING_BY_CHANNEL);
     CSettingGroup *pAudioOther  = GetSettingsGroup("BT848 - Audio Other", SETTING_BY_CHANNEL);
     CSettingGroup *pAudioEqualizerGroup = GetSettingsGroup("BT848 - Audio Equalizer", SETTING_BY_CHANNEL);
@@ -761,7 +777,7 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     m_BtWhiteCrushDown = new CBtWhiteCrushDownSetting(this, "White Crush Lower", 0x7F, 0, 255, IniSection, pAdvancedGroup);
     m_Settings.push_back(m_BtWhiteCrushDown);
 
-    m_PixelWidth = new CPixelWidthSetting(this, "Sharpness", 720, 120, DSCALER_MAX_WIDTH, IniSection, pAdvancedGroup);
+    m_PixelWidth = new CPixelWidthSetting(this, "Pixel Width", 720, 120, DSCALER_MAX_WIDTH, IniSection, pVideoGroup);
     m_PixelWidth->SetStepValue(2);
     m_Settings.push_back(m_PixelWidth);
 
@@ -914,11 +930,58 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     m_PMSGain4 = new CPMSGain4Setting(this, "Gain Channel 4", 302, 0, 511, IniSection, pPMSGroup);
     m_Settings.push_back(m_PMSGain4);
 
+    m_HorizOffset = new CHorizOffsetSetting(this, "Horizontal Offset", 0, 0, 255, IniSection, pAtlasGroup);
+    m_Settings.push_back(m_HorizOffset);
+
+    m_VertOffset = new CVertOffsetSetting(this, "Vertical Offset", 0, 0, 63, IniSection, pAtlasGroup);
+    m_Settings.push_back(m_VertOffset);
+
+    m_IsVideoProgressive = new CIsVideoProgressiveSetting(this, "Is Video Progressive", FALSE, IniSection, pAtlasGroup);
+    m_Settings.push_back(m_IsVideoProgressive);
+
+    m_AD9882PLL = new CAD9882PLLSetting(this, "AD9882 PLL (Width)", 800, 0, 4095, IniSection, pAtlasGroup);
+    m_Settings.push_back(m_AD9882PLL);
+
+    m_AD9882VCO = new CAD9882VCOSetting(this, "AD9882 VCO", 1, 0, 3, IniSection, pAtlasGroup);
+    m_Settings.push_back(m_AD9882VCO);
+
+    m_AD9882Pump = new CAD9882PumpSetting(this, "AD9882 Pump", 1, 0, 7, IniSection, pAtlasGroup);
+    m_Settings.push_back(m_AD9882Pump);
+
+    m_AD9882Phase = new CAD9882PhaseSetting(this, "AD9882 Phase", 0, 0, 31, IniSection, pAtlasGroup);
+    m_Settings.push_back(m_AD9882Phase);
+
+    m_AD9882PreCoast = new CAD9882PreCoastSetting(this, "AD9882 Pre-Coast", 0, 0, 255, IniSection, pAtlasGroup);
+    m_Settings.push_back(m_AD9882PreCoast);
+
+    m_AD9882PostCoast = new CAD9882PostCoastSetting(this, "AD9882 Post-Coast", 0, 0, 255, IniSection, pAtlasGroup);
+    m_Settings.push_back(m_AD9882PostCoast);
+
+    m_AD9882HSync = new CAD9882HSyncSetting(this, "AD9882 Hsync PW (Pos)", 32, 0, 255, IniSection, pAtlasGroup);
+    m_Settings.push_back(m_AD9882HSync);
+
+    m_AD9882SyncSep = new CAD9882SyncSepSetting(this, "AD9882 Sync Sep Thresh", 32, 0, 255, IniSection, pAtlasGroup);
+    m_Settings.push_back(m_AD9882SyncSep);
+
+    m_AD9882SOGThresh = new CAD9882SOGThreshSetting(this, "AD9882 SOG Thresh", 15, 0, 31, IniSection, pAtlasGroup);
+    m_Settings.push_back(m_AD9882SOGThresh);
+
+    m_AD9882SOG = new CAD9882SOGSetting(this, "AD9882 Sync-On-Green", FALSE, IniSection, pAtlasGroup);
+    m_Settings.push_back(m_AD9882SOG);
+
+    m_AD9882CoastSel = new CAD9882CoastSelSetting(this, "AD9882 Coast Enabled", TRUE, IniSection, pAtlasGroup);
+    m_Settings.push_back(m_AD9882CoastSel);
+
+    m_AD9882CoastOvr = new CAD9882CoastOvrSetting(this, "AD9882 Coast Override", FALSE, IniSection, pAtlasGroup);
+    m_Settings.push_back(m_AD9882CoastOvr);
+
+    m_AD9882CoastPol = new CAD9882CoastPolSetting(this, "AD9882 Active High Coast Polarity", TRUE, IniSection, pAtlasGroup);
+    m_Settings.push_back(m_AD9882CoastPol);
 
 #ifdef _DEBUG    
     if (BT848_SETTING_LASTONE != m_Settings.size())
     {
-		LOGD("Number of settings in BT848 source is not equal to the number of settings in DS_Control.h");
+        LOGD("Number of settings in BT848 source is not equal to the number of settings in DS_Control.h");
         LOGD("DS_Control.h or BT848Source.cpp are probably not in sync with eachother.");
     }
 #endif
@@ -927,7 +990,14 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
 void CBT848Source::Start()
 {
     m_pBT848Card->StopCapture();
-    CreateRiscCode(bCaptureVBI);
+    if (m_IsVideoProgressive->GetValue())
+    {
+        CreateSPIRiscCode();
+    }
+    else
+    {
+        CreateRiscCode(bCaptureVBI);
+    }
     m_pBT848Card->StartCapture(bCaptureVBI);
     m_pBT848Card->SetDMA(TRUE);
     Timing_Reset();
@@ -1015,6 +1085,50 @@ void CBT848Source::Reset()
     
     NotifySizeChange();
 
+    // may have changed from interlaced to progressive or vice-versa
+    if (m_pBT848Card->IsSPISource(m_VideoSource->GetValue()))
+    {
+        m_IsVideoProgressive->SetValue(TRUE);
+    }
+    else
+    {
+        m_IsVideoProgressive->SetValue(FALSE);
+    }
+
+    if((m_CardType->GetValue() == TVCARD_CWCEC_ATLAS) &&
+        m_pBT848Card->IsSPISource(m_VideoSource->GetValue()))
+    {
+        m_pBT848Card->GetAD9882()->Wakeup();
+        m_pBT848Card->GetAD9882()->SetPLL((WORD)m_AD9882PLL->GetValue());
+        m_pBT848Card->GetAD9882()->SetVCO((BYTE)m_AD9882VCO->GetValue());
+        m_pBT848Card->GetAD9882()->SetPump((BYTE)m_AD9882Pump->GetValue());
+        m_pBT848Card->GetAD9882()->SetPhase((BYTE)m_AD9882Phase->GetValue());
+        m_pBT848Card->GetAD9882()->SetPreCoast((BYTE)m_AD9882PreCoast->GetValue());
+        m_pBT848Card->GetAD9882()->SetPostCoast((BYTE)m_AD9882PostCoast->GetValue());
+        m_pBT848Card->GetAD9882()->SetHSync((BYTE)m_AD9882HSync->GetValue());
+        m_pBT848Card->GetAD9882()->SetSyncSep((BYTE)m_AD9882SyncSep->GetValue());
+        m_pBT848Card->GetAD9882()->SetSOGThresh((BYTE)m_AD9882SOGThresh->GetValue());
+        m_pBT848Card->GetAD9882()->SetSOG((BOOLEAN)m_AD9882SOG->GetValue());
+        m_pBT848Card->GetAD9882()->SetCoastSel((BOOLEAN)m_AD9882CoastSel->GetValue());
+        m_pBT848Card->GetAD9882()->SetCoastOvr((BOOLEAN)m_AD9882CoastOvr->GetValue());
+        m_pBT848Card->GetAD9882()->SetCoastPol((BOOLEAN)m_AD9882CoastPol->GetValue());
+    }
+
+    for (int i(0); i < 5; i++)
+    {
+        if (m_IsVideoProgressive->GetValue())
+        {
+            m_OddFields[i].pData = m_pDisplay[i];
+            m_OddFields[i].Flags = PICTURE_PROGRESSIVE;
+        }
+        else
+        {
+            m_OddFields[i].pData = m_pDisplay[i] + 2048;
+            m_OddFields[i].Flags = PICTURE_INTERLACED_ODD;
+        }
+        m_OddFields[i].IsFirstInSeries = FALSE;
+    }
+
     m_MSP34xxFlags->SetValue(m_MSP34xxFlags->GetValue());
         
     InitAudio();    
@@ -1031,6 +1145,7 @@ void CBT848Source::CreateRiscCode(BOOL bCaptureVBI)
     DWORD GotBytesPerLine;
     DWORD BytesPerLine = 0;
 
+    m_NumFields = 10;
     pRiscCode = (DWORD*)m_RiscBaseLinear;
     // we create the RISC code for 10 fields
     // the first one (0) is even
@@ -1119,6 +1234,72 @@ void CBT848Source::CreateRiscCode(BOOL bCaptureVBI)
 }
 
 
+void CBT848Source::CreateSPIRiscCode()
+{
+    DWORD* pRiscCode;
+    WORD nField;
+    WORD nLine;
+    LPBYTE pUser;
+    DWORD pPhysical;
+    DWORD GotBytesPerLine;
+    DWORD BytesPerLine = 0;
+    DWORD HorizOffs = m_HorizOffset->GetValue();
+    DWORD VertOffs = m_VertOffset->GetValue();
+
+    m_NumFields = 5;  // really, number of frames
+    pRiscCode = (DWORD*)m_RiscBaseLinear;
+    // we create the RISC code for 5 non-interlaced odd fields
+    // Note: no VBI support
+    for(nField = 0; nField < m_NumFields; nField++)
+    {
+        // sync with packed FIFO data
+        *(pRiscCode++) = (DWORD) (BT848_RISC_SYNC | BT848_RISC_RESYNC | BT848_FIFO_STATUS_FM1);
+        *(pRiscCode++) = 0;
+
+        BytesPerLine = m_CurrentX * 2;
+        // skip unused lines (required for AD9882 capture)
+        for(nLine = 0; nLine < VertOffs; nLine++)
+        {
+            *(pRiscCode++) = (DWORD) (BT848_RISC_SKIP | BT848_RISC_SOL | BT848_RISC_EOL | (BytesPerLine + HorizOffs));
+        }
+
+        // work out the position of the first line
+        pUser = m_pDisplay[nField];
+        for(nLine = 0; nLine < m_CurrentY; nLine++)
+        {
+
+            pPhysical = m_DisplayDMAMem[nField]->TranslateToPhysical(pUser, BytesPerLine, &GotBytesPerLine);
+            if(pPhysical == 0 || BytesPerLine > GotBytesPerLine)
+            {
+                return;
+            }
+            if(HorizOffs)
+            {
+                // skip unused pixels (required for AD9882 capture)
+                *(pRiscCode++) = BT848_RISC_SKIP | BT848_RISC_SOL | HorizOffs;
+                *(pRiscCode++) = BT848_RISC_WRITE | BT848_RISC_EOL | BytesPerLine;
+            }
+            else
+            {
+                *(pRiscCode++) = BT848_RISC_WRITE | BT848_RISC_SOL | BT848_RISC_EOL | BytesPerLine;
+            }
+            *(pRiscCode++) = pPhysical;
+            // non-interlaced, so don't skip lines
+            pUser += 2048;
+        }
+        // sync to even field
+        *(pRiscCode++) = (DWORD) (BT848_RISC_SYNC | BT848_RISC_RESYNC | BT848_FIFO_STATUS_VRE);
+        *(pRiscCode++) = 0;
+    }
+
+    m_BytesPerRISCField = ((long)pRiscCode - (long)m_RiscBaseLinear) / 5;
+    *(pRiscCode++) = BT848_RISC_JUMP;
+    *(pRiscCode++) = m_RiscBasePhysical;
+
+    m_pBT848Card->SetRISCStartAddress(m_RiscBasePhysical);
+}
+
+
 void CBT848Source::Stop()
 {
     // disable OnChange messages while video is stopped
@@ -1142,35 +1323,48 @@ void CBT848Source::GetNextField(TDeinterlaceInfo* pInfo, BOOL AccurateTiming)
         GetNextFieldNormal(pInfo);
     }
 
-    ShiftPictureHistory(pInfo, 10);
-    if(m_IsFieldOdd)
+    ShiftPictureHistory(pInfo, m_NumFields);
+
+    if(m_IsVideoProgressive->GetValue())
     {
-        if(m_ReversePolarity->GetValue() == FALSE)
-        {
-            pInfo->PictureHistory[0] = &m_OddFields[pInfo->CurrentFrame];
-        }
-        else
-        {
-            pInfo->PictureHistory[0] = &m_EvenFields[pInfo->CurrentFrame];
-        }
+        pInfo->PictureHistory[0] = &m_OddFields[pInfo->CurrentFrame];
+        pInfo->LineLength = m_CurrentX * 2;
+        pInfo->FrameWidth = m_CurrentX;
+        pInfo->FrameHeight = m_CurrentY;
+        pInfo->FieldHeight = m_CurrentY;
+        pInfo->InputPitch = 2048;
     }
     else
     {
-        if(m_ReversePolarity->GetValue() == FALSE)
+        if(m_IsFieldOdd)
         {
-            pInfo->PictureHistory[0] = &m_EvenFields[pInfo->CurrentFrame];
+            if(m_ReversePolarity->GetValue() == FALSE)
+            {
+                pInfo->PictureHistory[0] = &m_OddFields[pInfo->CurrentFrame];
+            }
+            else
+            {
+                pInfo->PictureHistory[0] = &m_EvenFields[pInfo->CurrentFrame];
+            }
         }
         else
         {
-            pInfo->PictureHistory[0] = &m_OddFields[(pInfo->CurrentFrame + 4) % 5];
+            if(m_ReversePolarity->GetValue() == FALSE)
+            {
+                pInfo->PictureHistory[0] = &m_EvenFields[pInfo->CurrentFrame];
+            }
+            else
+            {
+                pInfo->PictureHistory[0] = &m_OddFields[(pInfo->CurrentFrame + 4) % 5];
+            }
         }
-    }
 
-    pInfo->LineLength = m_CurrentX * 2;
-    pInfo->FrameWidth = m_CurrentX;
-    pInfo->FrameHeight = m_CurrentY;
-    pInfo->FieldHeight = m_CurrentY / 2;
-    pInfo->InputPitch = 4096;
+        pInfo->LineLength = m_CurrentX * 2;
+        pInfo->FrameWidth = m_CurrentX;
+        pInfo->FrameHeight = m_CurrentY;
+        pInfo->FieldHeight = m_CurrentY / 2;
+        pInfo->InputPitch = 4096;
+    }
 
     Timing_IncrementUsedFields();
 
@@ -1190,7 +1384,7 @@ int CBT848Source::GetHeight()
 
 void CBT848Source::SetWidth(int w)
 {
-	m_PixelWidth->SetValue(w);
+    m_PixelWidth->SetValue(w);
 }
 
 CBT848Card* CBT848Source::GetBT848Card()
@@ -1220,8 +1414,8 @@ LPCSTR CBT848Source::GetStatus()
 
 int CBT848Source::GetRISCPosAsInt()
 {
-    int CurrentPos = 10;
-    while(CurrentPos > 9)
+    int CurrentPos = m_NumFields;
+    while(CurrentPos > (m_NumFields - 1))
     {
         DWORD CurrentRiscPos = m_pBT848Card->GetRISCPos();
         CurrentPos = (CurrentRiscPos - m_RiscBasePhysical) / m_BytesPerRISCField;
@@ -1402,20 +1596,29 @@ void CBT848Source::BtHorFilterOnChange(long NewValue, long OldValue)
 void CBT848Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
 {
     BOOL bSlept = FALSE;
-	BOOL bLate = TRUE;
+    BOOL bLate = TRUE;
     int NewPos;
     int FieldDistance;
-    int OldPos = (pInfo->CurrentFrame * 2 + m_IsFieldOdd + 1) % 10;
+    int OldPos;
     DWORD StartOfWait = GetTickCount();
     
+    if(m_IsVideoProgressive->GetValue())
+    {
+        OldPos = (pInfo->CurrentFrame + 1) % m_NumFields;
+    }
+    else
+    {
+        OldPos = (pInfo->CurrentFrame * 2 + m_IsFieldOdd + 1) % m_NumFields;
+    }
+
     while(OldPos == (NewPos = GetRISCPosAsInt()))
     {
         // need to sleep more often
         // so that we don't take total control of machine
         // in normal operation
         Timing_SmartSleep(pInfo, FALSE, bSlept);
-        pInfo->bRunningLate = FALSE;            // if we waited then we are not late
-        bLate = FALSE;							// if we waited then we are not late
+        pInfo->bRunningLate = FALSE;       // if we waited then we are not late
+        bLate = FALSE;                     // if we waited then we are not late
 
         //check we're not in a tight loop here for too long
         //sometimes boards with external chips seem to hang and need
@@ -1427,31 +1630,31 @@ void CBT848Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
             break;      
         }
     }
-	if (bLate)
-	{
-		if (bAlwaysSleep)
-		{
-			Timing_SmartSleep(pInfo, pInfo->bRunningLate, bSlept);
-		}
-		Timing_IncrementNotWaitedFields();
-	}
+    if (bLate)
+    {
+        if (bAlwaysSleep)
+        {
+            Timing_SmartSleep(pInfo, pInfo->bRunningLate, bSlept);
+        }
+        Timing_IncrementNotWaitedFields();
+    }
 
-    FieldDistance = (10 + NewPos - OldPos) % 10;
+    FieldDistance = (m_NumFields + NewPos - OldPos) % m_NumFields;
     if(FieldDistance == 1)
     {
         pInfo->bMissedFrame = FALSE;
-		if (bLate)
-		{
+        if (bLate)
+        {
             LOG(2, " Running late but right field");
-			if (pInfo->bRunningLate)
-			{
-				Timing_AddDroppedFields(1);
-			}
-		}
+            if (pInfo->bRunningLate)
+            {
+                Timing_AddDroppedFields(1);
+            }
+        }
     }
     else if (FieldDistance <= (MaxFieldShift+1))
     {
-        NewPos = (OldPos + 1) % 10;
+        NewPos = (OldPos + 1) % m_NumFields;
         pInfo->bMissedFrame = FALSE;
         Timing_AddLateFields(FieldDistance - 1);
         LOG(2, " Running late by %d fields", FieldDistance - 1);
@@ -1465,36 +1668,52 @@ void CBT848Source::GetNextFieldNormal(TDeinterlaceInfo* pInfo)
         LOG(2, " Dropped %d Field(s)", FieldDistance - 1);
     }
 
-    switch(NewPos)
+    if(m_IsVideoProgressive->GetValue())
     {
-    case 0: m_IsFieldOdd = TRUE;  pInfo->CurrentFrame = 4; break;
-    case 1: m_IsFieldOdd = FALSE; pInfo->CurrentFrame = 0; break;
-    case 2: m_IsFieldOdd = TRUE;  pInfo->CurrentFrame = 0; break;
-    case 3: m_IsFieldOdd = FALSE; pInfo->CurrentFrame = 1; break;
-    case 4: m_IsFieldOdd = TRUE;  pInfo->CurrentFrame = 1; break;
-    case 5: m_IsFieldOdd = FALSE; pInfo->CurrentFrame = 2; break;
-    case 6: m_IsFieldOdd = TRUE;  pInfo->CurrentFrame = 2; break;
-    case 7: m_IsFieldOdd = FALSE; pInfo->CurrentFrame = 3; break;
-    case 8: m_IsFieldOdd = TRUE;  pInfo->CurrentFrame = 3; break;
-    case 9: m_IsFieldOdd = FALSE; pInfo->CurrentFrame = 4; break;
+        pInfo->CurrentFrame = (NewPos + m_NumFields - 1) % m_NumFields;
+    }
+    else
+    {
+        switch(NewPos)
+        {
+        case 0: m_IsFieldOdd = TRUE;  pInfo->CurrentFrame = 4; break;
+        case 1: m_IsFieldOdd = FALSE; pInfo->CurrentFrame = 0; break;
+        case 2: m_IsFieldOdd = TRUE;  pInfo->CurrentFrame = 0; break;
+        case 3: m_IsFieldOdd = FALSE; pInfo->CurrentFrame = 1; break;
+        case 4: m_IsFieldOdd = TRUE;  pInfo->CurrentFrame = 1; break;
+        case 5: m_IsFieldOdd = FALSE; pInfo->CurrentFrame = 2; break;
+        case 6: m_IsFieldOdd = TRUE;  pInfo->CurrentFrame = 2; break;
+        case 7: m_IsFieldOdd = FALSE; pInfo->CurrentFrame = 3; break;
+        case 8: m_IsFieldOdd = TRUE;  pInfo->CurrentFrame = 3; break;
+        case 9: m_IsFieldOdd = FALSE; pInfo->CurrentFrame = 4; break;
+        }
     }
 }
 
 void CBT848Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
 {
     BOOL bSlept = FALSE;
-	BOOL bLate = TRUE;
+    BOOL bLate = TRUE;
     int NewPos;
     int FieldDistance;
-    int OldPos = (pInfo->CurrentFrame * 2 + m_IsFieldOdd + 1) % 10;
+    int OldPos;
     static int FieldCount(-1);
     int Counter(0);
     DWORD StartOfWait = GetTickCount();
     
+    if(m_IsVideoProgressive->GetValue())
+    {
+        OldPos = (pInfo->CurrentFrame + 1) % m_NumFields;
+    }
+    else
+    {
+        OldPos = (pInfo->CurrentFrame * 2 + m_IsFieldOdd + 1) % m_NumFields;
+    }
+
     while(OldPos == (NewPos = GetRISCPosAsInt()))
     {
-        pInfo->bRunningLate = FALSE;            // if we waited then we are not late
-        bLate = FALSE;							// if we waited then we are not late
+        pInfo->bRunningLate = FALSE;    // if we waited then we are not late
+        bLate = FALSE;                  // if we waited then we are not late
         if(++Counter == 1000)
         {
             //check we're not in a tight loop here for too long
@@ -1509,23 +1728,23 @@ void CBT848Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
             Counter = 0;
         }
     }
-	if (bLate)
-	{
-		Timing_IncrementNotWaitedFields();
-	}
+    if (bLate)
+    {
+        Timing_IncrementNotWaitedFields();
+    }
 
-    FieldDistance = (10 + NewPos - OldPos) % 10;
+    FieldDistance = (m_NumFields + NewPos - OldPos) % m_NumFields;
     if(FieldDistance == 1)
     {
         // No skipped fields, do nothing
-		if (bLate)
-		{
+        if (bLate)
+        {
             LOG(2, " Running late but right field");
-		}
+        }
     }
     else if (FieldDistance <= (MaxFieldShift+1))
     {
-        NewPos = (OldPos + 1) % 10;
+        NewPos = (OldPos + 1) % m_NumFields;
         Timing_SetFlipAdjustFlag(TRUE);
         Timing_AddLateFields(FieldDistance - 1);
         LOG(2, " Running late by %d fields", FieldDistance - 1);
@@ -1541,42 +1760,49 @@ void CBT848Source::GetNextFieldAccurate(TDeinterlaceInfo* pInfo)
         FieldCount = -1;
     }
 
-    switch(NewPos)
+    if(m_IsVideoProgressive->GetValue())
     {
-    case 0: m_IsFieldOdd = TRUE;  pInfo->CurrentFrame = 4; break;
-    case 1: m_IsFieldOdd = FALSE; pInfo->CurrentFrame = 0; break;
-    case 2: m_IsFieldOdd = TRUE;  pInfo->CurrentFrame = 0; break;
-    case 3: m_IsFieldOdd = FALSE; pInfo->CurrentFrame = 1; break;
-    case 4: m_IsFieldOdd = TRUE;  pInfo->CurrentFrame = 1; break;
-    case 5: m_IsFieldOdd = FALSE; pInfo->CurrentFrame = 2; break;
-    case 6: m_IsFieldOdd = TRUE;  pInfo->CurrentFrame = 2; break;
-    case 7: m_IsFieldOdd = FALSE; pInfo->CurrentFrame = 3; break;
-    case 8: m_IsFieldOdd = TRUE;  pInfo->CurrentFrame = 3; break;
-    case 9: m_IsFieldOdd = FALSE; pInfo->CurrentFrame = 4; break;
+        pInfo->CurrentFrame = (NewPos + m_NumFields - 1) % m_NumFields;
+    }
+    else
+    {
+        switch(NewPos)
+        {
+        case 0: m_IsFieldOdd = TRUE;  pInfo->CurrentFrame = 4; break;
+        case 1: m_IsFieldOdd = FALSE; pInfo->CurrentFrame = 0; break;
+        case 2: m_IsFieldOdd = TRUE;  pInfo->CurrentFrame = 0; break;
+        case 3: m_IsFieldOdd = FALSE; pInfo->CurrentFrame = 1; break;
+        case 4: m_IsFieldOdd = TRUE;  pInfo->CurrentFrame = 1; break;
+        case 5: m_IsFieldOdd = FALSE; pInfo->CurrentFrame = 2; break;
+        case 6: m_IsFieldOdd = TRUE;  pInfo->CurrentFrame = 2; break;
+        case 7: m_IsFieldOdd = FALSE; pInfo->CurrentFrame = 3; break;
+        case 8: m_IsFieldOdd = TRUE;  pInfo->CurrentFrame = 3; break;
+        case 9: m_IsFieldOdd = FALSE; pInfo->CurrentFrame = 4; break;
+        }
     }
     
     // do input frequency on cleanish field changes only
-	if (FieldCount != -1)
-	{
-	    FieldCount += FieldDistance;
-	}
+    if (FieldCount != -1)
+    {
+        FieldCount += FieldDistance;
+    }
     if(FieldDistance == 1 && !bLate)
     {
-	    if(FieldCount > 1)
-		{
-	        Timing_UpdateRunningAverage(pInfo, FieldCount);
-	        FieldCount = 0;
-		}
-		else if (FieldCount == -1)
-		{
-	        FieldCount = 0;
-		}
+        if(FieldCount > 1)
+        {
+            Timing_UpdateRunningAverage(pInfo, FieldCount);
+            FieldCount = 0;
+        }
+        else if (FieldCount == -1)
+        {
+            FieldCount = 0;
+        }
     }
 
-	if (bAlwaysSleep || !bLate)
-	{
-	    Timing_SmartSleep(pInfo, pInfo->bRunningLate, bSlept);
-	}
+    if (bAlwaysSleep || !bLate)
+    {
+        Timing_SmartSleep(pInfo, pInfo->bRunningLate, bSlept);
+    }
 }
 
 void CBT848Source::VideoSourceOnChange(long NewValue, long OldValue)
@@ -1605,11 +1831,11 @@ void CBT848Source::VideoSourceOnChange(long NewValue, long OldValue)
     {
         Channel_SetCurrent();
     }
-	else
-	{
-		// We read what is the video format saved for this video input
-	    SettingsMaster->LoadOneSetting(m_VideoFormat);
-	}
+    else
+    {
+        // We read what is the video format saved for this video input
+        SettingsMaster->LoadOneSetting(m_VideoFormat);
+    }
 
     // tell the world if the format has changed
     if(OldFormat != m_VideoFormat->GetValue())
@@ -1617,8 +1843,8 @@ void CBT848Source::VideoSourceOnChange(long NewValue, long OldValue)
         EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_PRECHANGE, OldFormat, m_VideoFormat->GetValue());
         EventCollector->RaiseEvent(this, EVENT_VIDEOFORMAT_CHANGE, OldFormat, m_VideoFormat->GetValue());
 
-		// We save the video format attached to this video input
-	    SettingsMaster->WriteOneSetting(m_VideoFormat);
+        // We save the video format attached to this video input
+        SettingsMaster->WriteOneSetting(m_VideoFormat);
     }
 
     // make sure the defaults are correct
@@ -1666,7 +1892,10 @@ void CBT848Source::PixelWidthOnChange(long NewValue, long OldValue)
         NewValue != 720 &&
         NewValue != 640 &&
         NewValue != 384 &&
-        NewValue != 320)
+        NewValue != 320 &&
+		!(m_CardType->GetValue() == TVCARD_CWCEC_ATLAS &&
+        (NewValue == 800 ||
+        NewValue == 1024)))
     {
         m_CustomPixelWidth->SetValue(NewValue);
     }
@@ -1864,6 +2093,137 @@ void CBT848Source::PMSGain4OnChange(long Gain, long OldValue)
     }
 }
 
+void CBT848Source::HorizOffsetOnChange(long NewValue, long OldValue)
+{
+    if(m_CardType->GetValue() == TVCARD_CWCEC_ATLAS)
+    {
+        // since this setting affects the DMA program, we must do a stop/start
+        Stop_Capture();
+        Start_Capture();
+    }
+}
+
+void CBT848Source::VertOffsetOnChange(long NewValue, long OldValue)
+{
+    if(m_CardType->GetValue() == TVCARD_CWCEC_ATLAS)
+    {
+        // since this setting affects the DMA program, we must do a stop/start
+        Stop_Capture();
+        Start_Capture();
+    }
+}
+
+void CBT848Source::IsVideoProgressiveOnChange(long NewValue, long OldValue)
+{
+    // since this setting affects the DMA program, we must do a stop/start
+    Stop_Capture();
+    Start_Capture();
+}
+
+void CBT848Source::AD9882PLLOnChange(long NewValue, long OldValue)
+{
+    if(m_CardType->GetValue() == TVCARD_CWCEC_ATLAS)
+    {
+        m_pBT848Card->GetAD9882()->SetPLL((WORD)NewValue);
+    }
+}
+
+void CBT848Source::AD9882VCOOnChange(long NewValue, long OldValue)
+{
+    if(m_CardType->GetValue() == TVCARD_CWCEC_ATLAS)
+    {
+        m_pBT848Card->GetAD9882()->SetVCO((BYTE)NewValue);
+    }
+}
+
+void CBT848Source::AD9882PumpOnChange(long NewValue, long OldValue)
+{
+    if(m_CardType->GetValue() == TVCARD_CWCEC_ATLAS)
+    {
+        m_pBT848Card->GetAD9882()->SetPump((BYTE)NewValue);
+    }
+}
+
+void CBT848Source::AD9882PhaseOnChange(long NewValue, long OldValue)
+{
+    if(m_CardType->GetValue() == TVCARD_CWCEC_ATLAS)
+    {
+        m_pBT848Card->GetAD9882()->SetPhase((BYTE)NewValue);
+    }
+}
+
+void CBT848Source::AD9882PreCoastOnChange(long NewValue, long OldValue)
+{
+    if(m_CardType->GetValue() == TVCARD_CWCEC_ATLAS)
+    {
+        m_pBT848Card->GetAD9882()->SetPreCoast((BYTE)NewValue);
+    }
+}
+
+void CBT848Source::AD9882PostCoastOnChange(long NewValue, long OldValue)
+{
+    if(m_CardType->GetValue() == TVCARD_CWCEC_ATLAS)
+    {
+        m_pBT848Card->GetAD9882()->SetPostCoast((BYTE)NewValue);
+    }
+}
+
+void CBT848Source::AD9882HSyncOnChange(long NewValue, long OldValue)
+{
+    if(m_CardType->GetValue() == TVCARD_CWCEC_ATLAS)
+    {
+        m_pBT848Card->GetAD9882()->SetHSync((BYTE)NewValue);
+    }
+}
+
+void CBT848Source::AD9882SyncSepOnChange(long NewValue, long OldValue)
+{
+    if(m_CardType->GetValue() == TVCARD_CWCEC_ATLAS)
+    {
+        m_pBT848Card->GetAD9882()->SetSyncSep((BYTE)NewValue);
+    }
+}
+
+void CBT848Source::AD9882SOGThreshOnChange(long NewValue, long OldValue)
+{
+    if(m_CardType->GetValue() == TVCARD_CWCEC_ATLAS)
+    {
+        m_pBT848Card->GetAD9882()->SetSOGThresh((BYTE)NewValue);
+    }
+}
+
+void CBT848Source::AD9882SOGOnChange(long NewValue, long OldValue)
+{
+    if(m_CardType->GetValue() == TVCARD_CWCEC_ATLAS)
+    {
+        m_pBT848Card->GetAD9882()->SetSOG((BOOLEAN)NewValue);
+    }
+}
+
+void CBT848Source::AD9882CoastSelOnChange(long NewValue, long OldValue)
+{
+    if(m_CardType->GetValue() == TVCARD_CWCEC_ATLAS)
+    {
+        m_pBT848Card->GetAD9882()->SetCoastSel((BOOLEAN)NewValue);
+    }
+}
+
+void CBT848Source::AD9882CoastOvrOnChange(long NewValue, long OldValue)
+{
+    if(m_CardType->GetValue() == TVCARD_CWCEC_ATLAS)
+    {
+        m_pBT848Card->GetAD9882()->SetCoastOvr((BOOLEAN)NewValue);
+    }
+}
+
+void CBT848Source::AD9882CoastPolOnChange(long NewValue, long OldValue)
+{
+    if(m_CardType->GetValue() == TVCARD_CWCEC_ATLAS)
+    {
+        m_pBT848Card->GetAD9882()->SetCoastPol((BOOLEAN)NewValue);
+    }
+}
+
 BOOL CBT848Source::IsInTunerMode()
 {
     return m_pBT848Card->IsInputATuner(m_VideoSource->GetValue());
@@ -1876,7 +2236,7 @@ void CBT848Source::SetupCard()
 
     if(m_CardType->GetValue() == TVCARD_UNKNOWN)
     {
-		m_InitialSetup = TRUE;
+        m_InitialSetup = TRUE;
 
         // try to detect the card
         m_CardType->SetValue(m_pBT848Card->AutoDetectCardType());
@@ -1979,7 +2339,7 @@ BOOL CBT848Source::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
     //Doesn't work yet
     if(VideoFormat == (VIDEOFORMAT_LASTONE+1))
     {
-    	return m_pBT848Card->GetTuner()->SetRadioFrequency(FrequencyId);
+        return m_pBT848Card->GetTuner()->SetRadioFrequency(FrequencyId);
     }
     
     if(VideoFormat == VIDEOFORMAT_LASTONE)
@@ -2068,77 +2428,77 @@ const char* CBT848Source::GetChipName()
 
 int  CBT848Source::NumInputs(eSourceInputType InputType)
 {
-  if (InputType == VIDEOINPUT)
-  {
-      return m_pBT848Card->GetNumInputs();      
-  }
-  /*
-  else if (InputType == AUDIOINPUT)
-  {
-      return m_pBT848Card->GetNumAudioInputs();      
-  }
-  */
+    if (InputType == VIDEOINPUT)
+    {
+        return m_pBT848Card->GetNumInputs();      
+    }
+    /*
+    else if (InputType == AUDIOINPUT)
+    {
+        return m_pBT848Card->GetNumAudioInputs();      
+    }
+    */
   return 0;
 }
 
 BOOL CBT848Source::SetInput(eSourceInputType InputType, int Nr)
 {
-  if (InputType == VIDEOINPUT)
-  {
-      m_VideoSource->SetValue(Nr);
-      return TRUE;
-  }
-  else if (InputType == AUDIOINPUT)
-  {      
-      m_pBT848Card->SetAudioSource((eAudioInput)Nr);          
-      return TRUE;      
-  }
-  return FALSE;
+    if (InputType == VIDEOINPUT)
+    {
+        m_VideoSource->SetValue(Nr);
+        return TRUE;
+    }
+    else if (InputType == AUDIOINPUT)
+    {      
+        m_pBT848Card->SetAudioSource((eAudioInput)Nr);          
+        return TRUE;      
+    }
+    return FALSE;
 }
 
 int CBT848Source::GetInput(eSourceInputType InputType)
 {
-  if (InputType == VIDEOINPUT)
-  {
-      return m_VideoSource->GetValue();
-  }
-  else if (InputType == AUDIOINPUT)
-  {
-      return m_pBT848Card->GetAudioInput();    
-  }
-  return -1;
+    if (InputType == VIDEOINPUT)
+    {
+        return m_VideoSource->GetValue();
+    }
+    else if (InputType == AUDIOINPUT)
+    {
+        return m_pBT848Card->GetAudioInput();    
+    }
+    return -1;
 }
 
 const char* CBT848Source::GetInputName(eSourceInputType InputType, int Nr)
 {
-  if (InputType == VIDEOINPUT)
-  {
-      if ((Nr>=0) && (Nr < m_pBT848Card->GetNumInputs()) )
-      {
-          return m_pBT848Card->GetInputName(Nr);
-      }
-  } 
-  else if (InputType == AUDIOINPUT)
-  {      
-      return m_pBT848Card->GetAudioInputName((eAudioInput)Nr);
-  }
-  return NULL;
+    if (InputType == VIDEOINPUT)
+    {
+        if ((Nr>=0) && (Nr < m_pBT848Card->GetNumInputs()) )
+        {
+            return m_pBT848Card->GetInputName(Nr);
+        }
+    } 
+    else if (InputType == AUDIOINPUT)
+    {      
+        return m_pBT848Card->GetAudioInputName((eAudioInput)Nr);
+    }
+    return NULL;
 }
 
 BOOL CBT848Source::InputHasTuner(eSourceInputType InputType, int Nr)
 {
-  if (InputType == VIDEOINPUT)
-  {
-    if(m_TunerType->GetValue() != TUNER_ABSENT)
+    if (InputType == VIDEOINPUT)
     {
-        return m_pBT848Card->IsInputATuner(Nr);
+        if(m_TunerType->GetValue() != TUNER_ABSENT)
+        {
+            return m_pBT848Card->IsInputATuner(Nr);
+        }
+        else
+        {
+            return FALSE;
+        }
     }
-    else
-    {
-        return FALSE;
-    }
-  }
-  return FALSE;
+    return FALSE;
 }
 
 
@@ -2187,6 +2547,25 @@ CTreeSettingsPage* CBT848Source::GetTreeSettingsPage()
     vSettingsList.push_back(m_HDelay);
     vSettingsList.push_back(m_VDelay);
     vSettingsList.push_back(m_ReversePolarity);
+
+    if(m_CardType->GetValue() == TVCARD_CWCEC_ATLAS)
+    {
+        vSettingsList.push_back(m_HorizOffset);
+        vSettingsList.push_back(m_VertOffset);
+        vSettingsList.push_back(m_AD9882PLL);
+        vSettingsList.push_back(m_AD9882VCO);
+        vSettingsList.push_back(m_AD9882Pump);
+        vSettingsList.push_back(m_AD9882Phase);
+        vSettingsList.push_back(m_AD9882PreCoast);
+        vSettingsList.push_back(m_AD9882PostCoast);
+        vSettingsList.push_back(m_AD9882HSync);
+        vSettingsList.push_back(m_AD9882SyncSep);
+        vSettingsList.push_back(m_AD9882SOGThresh);
+        vSettingsList.push_back(m_AD9882SOG);
+        vSettingsList.push_back(m_AD9882CoastSel);
+        vSettingsList.push_back(m_AD9882CoastOvr);
+        vSettingsList.push_back(m_AD9882CoastPol);
+    }
 
     return new CTreeSettingsGeneric("BT8x8 Advanced",vSettingsList);
 }

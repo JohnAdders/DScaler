@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TVFormats.h,v 1.8 2003-10-27 10:39:54 adcockj Exp $
+// $Id: TVFormats.h,v 1.9 2006-12-28 14:18:36 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2003/10/27 10:39:54  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.7  2003/05/30 10:06:25  adcockj
 // Fix for format names in ini file
 //
@@ -64,6 +67,13 @@ enum eVideoFormat
     VIDEOFORMAT_NTSC_M_Japan,
     VIDEOFORMAT_NTSC_50,
 
+    VIDEOFORMAT_RGB_640X480_60,
+    VIDEOFORMAT_RGB_800X600_60,
+    VIDEOFORMAT_RGB_1024X768_60,
+    VIDEOFORMAT_RGB_640X480_75,
+    VIDEOFORMAT_RGB_800X600_75,
+    VIDEOFORMAT_RGB_1024X768_75,
+
     VIDEOFORMAT_LASTONE
 };
 
@@ -100,6 +110,7 @@ TTVFormat* GetTVFormat(eVideoFormat Format);
 bool IsPALVideoFormat(eVideoFormat Format);
 bool IsNTSCVideoFormat(eVideoFormat Format);
 bool IsSECAMVideoFormat(eVideoFormat Format);
+bool IsRGBVideoFormat(eVideoFormat Format);
 
 extern const char* VideoFormatNames[];
 extern const char* VideoFormatSaveNames[];

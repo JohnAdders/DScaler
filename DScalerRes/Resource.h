@@ -205,6 +205,8 @@
 #define IDM_TASPECT_200                 745
 #define IDM_TASPECT_235                 746
 #define IDM_TASPECT_CUSTOM              750
+#define IDM_SETTINGS_PIXELWIDTH_1024    758
+#define IDM_SETTINGS_PIXELWIDTH_800     759
 #define IDM_SETTINGS_PIXELWIDTH_768     760
 #define IDM_SETTINGS_PIXELWIDTH_720     761
 #define IDM_SETTINGS_PIXELWIDTH_640     762
@@ -294,6 +296,12 @@
 #define IDM_TYPEFORMAT_7                1127
 #define IDM_TYPEFORMAT_8                1128
 #define IDM_TYPEFORMAT_9                1129
+#define IDM_TYPEFORMAT_10               1130
+#define IDM_TYPEFORMAT_11               1131
+#define IDM_TYPEFORMAT_12               1132
+#define IDM_TYPEFORMAT_13               1133
+#define IDM_TYPEFORMAT_14               1134
+#define IDM_TYPEFORMAT_15               1135
 #define IDM_TREADPRIOR_0                1150
 #define IDM_TREADPRIOR_1                1151
 #define IDM_TREADPRIOR_2                1152
@@ -1180,6 +1188,7 @@
 #define IDC_RETARD                      8103
 #define IDC_TIMERHELP                   8104
 #define IDC_ADVANCE                     8105
+#define IDC_ATLAS                       9000
 #define IDM_SETTINGS_FILTERSETTINGS     32771
 #define IDM_SOURCE_INITIAL              32772
 #define IDM_DSHOW_FILTERS               32773

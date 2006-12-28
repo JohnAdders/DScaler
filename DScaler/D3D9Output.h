@@ -24,6 +24,7 @@ private:
 	int BUFFERWIDTH, BUFFERHEIGHT;
 	HRESULT FlipResult;
 	HMONITOR hCurrentMon;
+	BOOL bIsRGB;
 public:
 	LPDIRECT3DDEVICE9 pDevice;
 	LPDIRECT3DSURFACE9 lpDDOSD;
@@ -61,6 +62,8 @@ public:
 	RECT Overlay_GetCurrentDestRect();
 	RECT Overlay_GetCurrentSrcRect();
 	HWND GetHWnd();
+	void Overlay_SetRGB(BOOL IsRGB);
+	BOOL Overlay_GetRGB();
 
 
     void InitOtherSettings();

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.66 2006-12-20 07:45:06 adcockj Exp $
+// $Id: BT848Source.h,v 1.67 2006-12-28 14:18:36 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.66  2006/12/20 07:45:06  adcockj
+// added DirectX code from Daniel Sabel
+//
 // Revision 1.65  2004/05/12 16:52:42  adcockj
 // Added channel gains fgor PMS cards
 //
@@ -144,11 +147,11 @@ public:
     ISetting* GetBottomOverscan();
     ISetting* GetLeftOverscan();
     ISetting* GetRightOverscan();
-	ISetting* GetHDelay();
-	ISetting* GetVDelay();
+    ISetting* GetHDelay();
+    ISetting* GetVDelay();
     /// Gets the current field being processed by the card
     int GetRISCPosAsInt();
-	
+
     eVideoFormat GetFormat();
     void SetFormat(eVideoFormat NewFormat);
     BOOL IsInTunerMode();
@@ -189,11 +192,11 @@ public:
     void Pause() {return;};
     void UnPause() {return;};
 
-	BOOL HasMediaControl() {return FALSE;};
+    BOOL HasMediaControl() {return FALSE;};
 
     BOOL IsAudioMixerAccessAllowed() {return TRUE;};
 
-	BOOL IsInitialSetup() {return m_InitialSetup;};
+    BOOL IsInitialSetup() {return m_InitialSetup;};
 
     void InitializeUI();
 
@@ -201,10 +204,11 @@ private:
     virtual void CreateSettings(LPCSTR IniSection);
 
     void CreateRiscCode(BOOL bCaptureVBI);
+    void CreateSPIRiscCode();
     
     static BOOL APIENTRY SelectCardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
     static BOOL APIENTRY AudioSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
-    static BOOL APIENTRY AudioStandardManualProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);	
+    static BOOL APIENTRY AudioStandardManualProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
     
     void GetNextFieldNormal(TDeinterlaceInfo* pInfo);
     void GetNextFieldAccurate(TDeinterlaceInfo* pInfo);
@@ -217,7 +221,7 @@ private:
 
     ISetting* GetCurrentAudioSetting();
 
-    //static void StaticAudioStandardDetected(void *pThis, int What, long Value);	
+    //static void StaticAudioStandardDetected(void *pThis, int What, long Value);
     void AudioStandardDetected(long Standard);
     void SupportedSoundChannelsDetected(eSupportedSoundChannels supported);
 
@@ -240,6 +244,7 @@ private:
     std::string  m_ChannelSubSection;
     std::string  m_ChipName;
     int          m_DeviceIndex;
+    int          m_NumFields;
 
     std::string  m_Section;
     std::string  m_IDString;
@@ -251,7 +256,7 @@ private:
     CYesNoSetting* m_ReversePolarity;
     CSliderSetting* m_CardType;
 
-	BOOL		 m_InitialSetup;
+    BOOL         m_InitialSetup;
 
     HINSTANCE m_hBT8x8ResourceInst;
 
@@ -326,6 +331,22 @@ private:
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, PMSGain2);
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, PMSGain3);
     DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, PMSGain4);
+    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, HorizOffset);
+    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, VertOffset);
+    DEFINE_YESNO_CALLBACK_SETTING(CBT848Source, IsVideoProgressive);
+    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AD9882PLL);
+    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AD9882VCO);
+    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AD9882Pump);
+    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AD9882Phase);
+    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AD9882PreCoast);
+    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AD9882PostCoast);
+    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AD9882HSync);
+    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AD9882SyncSep);
+    DEFINE_SLIDER_CALLBACK_SETTING(CBT848Source, AD9882SOGThresh);
+    DEFINE_YESNO_CALLBACK_SETTING(CBT848Source, AD9882SOG);
+    DEFINE_YESNO_CALLBACK_SETTING(CBT848Source, AD9882CoastSel);
+    DEFINE_YESNO_CALLBACK_SETTING(CBT848Source, AD9882CoastOvr);
+    DEFINE_YESNO_CALLBACK_SETTING(CBT848Source, AD9882CoastPol);
 
 protected:
     void ChangeDefaultsForVideoFormat(BOOL bDontSetValue);

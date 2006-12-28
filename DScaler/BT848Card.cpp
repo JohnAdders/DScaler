@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.48 2005-06-09 23:22:00 robmuller Exp $
+// $Id: BT848Card.cpp,v 1.49 2006-12-28 14:18:35 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.48  2005/06/09 23:22:00  robmuller
+// Fixed bug in GetTickCount().
+//
 // Revision 1.47  2005/03/24 17:57:54  adcockj
 // Card access from one thread at a time
 //
@@ -388,7 +391,7 @@ void CBT848Card::ResetHardware(DWORD RiscBasePhysical)
     WriteDword(BT848_INT_STAT, (DWORD) 0x0fffffff);
     WriteDword(BT848_INT_MASK, 0);
     
-	WriteByte(BT848_ADC, BT848_ADC_RESERVED);
+    WriteByte(BT848_ADC, BT848_ADC_RESERVED);
 
     SetPLL(PLL_NONE);
 }
@@ -972,9 +975,23 @@ BOOL CBT848Card::IsCCIRSource(int nInput)
     return (m_TVCards[m_CardType].Inputs[nInput].InputType == INPUTTYPE_CCIR);
 }
 
+BOOL CBT848Card::IsSPISource(int nInput)
+{
+    return (m_TVCards[m_CardType].Inputs[nInput].InputType == INPUTTYPE_SPI);
+}
+
 BOOL CBT848Card::IsVideoPresent()
 {
-    return ((ReadByte(BT848_DSTATUS) & (BT848_DSTATUS_PRES | BT848_DSTATUS_HLOC)) == (BT848_DSTATUS_PRES | BT848_DSTATUS_HLOC)) ? TRUE : FALSE;
+    if (IsSPISource(m_CurrentInput))
+    {
+        DWORD stat = ReadDword(BT848_INT_STAT);
+        WriteDword(BT848_INT_STAT, BT848_INT_HSYNC);
+        return (stat & BT848_INT_HSYNC); 
+    }
+    else
+    {
+        return ((ReadByte(BT848_DSTATUS) & (BT848_DSTATUS_PRES | BT848_DSTATUS_HLOC)) == (BT848_DSTATUS_PRES | BT848_DSTATUS_HLOC)) ? TRUE : FALSE;
+    }
 }
 
 
@@ -1005,7 +1022,11 @@ void CBT848Card::StopCapture()
 void CBT848Card::StartCapture(BOOL bCaptureVBI)
 {
     int nFlags = BT848_CAP_CTL_CAPTURE_EVEN | BT848_CAP_CTL_CAPTURE_ODD;
-    if (bCaptureVBI == TRUE)
+    if (IsSPISource(m_CurrentInput))
+    {
+        nFlags = BT848_CAP_CTL_CAPTURE_ODD;
+    }
+    else if (bCaptureVBI == TRUE)
     {
         nFlags |= BT848_CAP_CTL_CAPTURE_VBI_EVEN | BT848_CAP_CTL_CAPTURE_VBI_ODD;
     }
@@ -1073,7 +1094,7 @@ ULONG CBT848Card::GetTickCount()
     QueryPerformanceFrequency((PLARGE_INTEGER)&frequency);
     QueryPerformanceCounter((PLARGE_INTEGER)&ticks);
 
-	ticks = ticks * 1000 / frequency;
+    ticks = ticks * 1000 / frequency;
     return (ULONG)ticks;
 }
 

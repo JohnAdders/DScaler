@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.h,v 1.24 2004-05-02 14:09:32 atnak Exp $
+// $Id: Other.h,v 1.25 2006-12-28 14:18:36 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,12 @@
 //                                     Got rid of global.h structs.h defines.h
 //
 /////////////////////////////////////////////////////////////////////////////
+// CVS Log
+//
+// $Log: not supported by cvs2svn $
+//
+//
+///////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file other.h other Header file
@@ -44,15 +50,15 @@
 
 #include "settings.h"
 
-// Get Hold of the Other.c file settings
+// Get Hold of the Other.cpp file settings
 SETTING* Other_GetSetting(OTHER_SETTING Setting);
 void Other_ReadSettingsFromIni();
 void Other_WriteSettingsToIni(BOOL bOptimizeFileAccess);
 CTreeSettingsGeneric* Other_GetTreeSettingsPage();
 
 
-#define DSCALER_MAX_WIDTH 768
-#define DSCALER_MAX_HEIGHT 576
+#define DSCALER_MAX_WIDTH 1024
+#define DSCALER_MAX_HEIGHT 768
 
 void LoadDynamicFunctions();
 void SetCurrentMonitor(HWND hWnd);
@@ -78,6 +84,8 @@ BOOL Overlay_Unlock();
 BOOL Overlay_Flip(DWORD FlipFlag, BOOL bUseExtraBuffer, BYTE* lpExternalMemoryBuffer, int ExternalPitch, TDeinterlaceInfo* pInfo);
 HDC Overlay_GetDC();
 void Overlay_ReleaseDC(HDC hDC);
+void Overlay_SetRGB(BOOL IsRGB);
+BOOL Overlay_GetRGB();
 
 extern DWORD DestSizeAlign;
 extern DWORD SrcSizeAlign;

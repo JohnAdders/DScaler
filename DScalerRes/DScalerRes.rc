@@ -2078,6 +2078,64 @@ BEGIN
     END
 END
 
+IDC_ATLAS MENU DISCARDABLE 
+BEGIN
+    POPUP "&CWCEC Atlas"
+    BEGIN
+        POPUP "&Video Input"
+        BEGIN
+            MENUITEM "Input &1\tCtrl+Alt+F1",       IDM_SOURCE_INPUT1
+            MENUITEM "Input &2\tCtrl+Alt+F2",       IDM_SOURCE_INPUT2
+            MENUITEM "Input &3\tCtrl+Alt+F3",       IDM_SOURCE_INPUT3
+            MENUITEM "Input &4\tCtrl+Alt+F4",       IDM_SOURCE_INPUT4
+            MENUITEM "Input &5\tCtrl+Alt+F5",       IDM_SOURCE_INPUT5
+            MENUITEM "Input &6\tCtrl+Alt+F6",       IDM_SOURCE_INPUT6
+            MENUITEM "Input &7\tCtrl+Alt+F7",       IDM_SOURCE_INPUT7
+        END
+        POPUP "Video &Format"
+        BEGIN
+            MENUITEM "&PAL-BDGHI",                  IDM_TYPEFORMAT_0
+            MENUITEM "&NTSC",                       IDM_TYPEFORMAT_1
+            MENUITEM "&SECAM",                      IDM_TYPEFORMAT_2
+            MENUITEM "PAL-&M",                      IDM_TYPEFORMAT_3
+            MENUITEM "PA&L-N",                      IDM_TYPEFORMAT_4
+            MENUITEM "NTSC-&Japan ",                IDM_TYPEFORMAT_5
+            MENUITEM "PAL-&60",                     IDM_TYPEFORMAT_6
+            MENUITEM "NTSC-&50",                    IDM_TYPEFORMAT_7
+            MENUITEM "PAL-N&C",                     IDM_TYPEFORMAT_8
+            MENUITEM SEPARATOR
+            MENUITEM "6&40x480@60Hz",               IDM_TYPEFORMAT_10
+            MENUITEM "&800x600@60Hz",               IDM_TYPEFORMAT_11
+            MENUITEM "&1024x768@60Hz",              IDM_TYPEFORMAT_12
+            MENUITEM "640x480@75Hz",                IDM_TYPEFORMAT_13
+            MENUITEM "800x600@75Hz",                IDM_TYPEFORMAT_14
+            MENUITEM "1024x768@75Hz",               IDM_TYPEFORMAT_15
+        END
+        POPUP "Pixel &Width"
+        BEGIN
+            MENUITEM "1024",                        IDM_SETTINGS_PIXELWIDTH_1024
+            MENUITEM "800",                         IDM_SETTINGS_PIXELWIDTH_800
+            MENUITEM "768",                         IDM_SETTINGS_PIXELWIDTH_768
+
+            MENUITEM "754",                         IDM_SETTINGS_PIXELWIDTH_754
+
+            MENUITEM "720",                         IDM_SETTINGS_PIXELWIDTH_720
+            , CHECKED
+            MENUITEM "640",                         IDM_SETTINGS_PIXELWIDTH_640
+
+            MENUITEM "480",                         IDM_SETTINGS_PIXELWIDTH_480
+
+            MENUITEM "384",                         IDM_SETTINGS_PIXELWIDTH_384
+
+            MENUITEM "320",                         IDM_SETTINGS_PIXELWIDTH_320
+
+            MENUITEM "Custom ...",                  IDM_SETTINGS_PIXELWIDTH_CUSTOM
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "&Setup Hardware ...",         IDM_SETUPCARD
+        MENUITEM "Reset Capture Card",          IDM_RESET
+    END
+END
 
 /////////////////////////////////////////////////////////////////////////////
 //

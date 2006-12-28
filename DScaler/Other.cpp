@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Other.cpp,v 1.76 2006-09-24 03:47:19 robmuller Exp $
+// $Id: Other.cpp,v 1.77 2006-12-28 14:18:36 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.76  2006/09/24 03:47:19  robmuller
+// Stop potential endless loop.
+//
 // Revision 1.75  2006/09/24 03:14:05  robmuller
 // Change number of backbuffers in real-time.
 //
@@ -325,6 +328,7 @@ DDCOLORCONTROL OriginalColorControls;
 LPDIRECTDRAWCOLORCONTROL pDDColorControl = NULL;
 BOOL bUseOverlayControls = FALSE;
 ULONG OutputTicksPerFrame = 0;
+BOOL bIsRGB = FALSE;
 
 long OverlayBrightness = 75;
 long OverlayContrast = 100;
@@ -335,11 +339,11 @@ long OverlaySharpness = 5;
 
 SETTING OtherSettings[];
 
-#define MAX_MONITORS	4
+#define MAX_MONITORS        4
 
 typedef struct {
-	HMONITOR hMon;
-	LPDIRECTDRAW lpDD;
+        HMONITOR hMon;
+        LPDIRECTDRAW lpDD;
 } TMonitor;
 
 static TMonitor Monitors[MAX_MONITORS];
@@ -359,46 +363,46 @@ UINT (WINAPI* lpGetRawInputData)(IN HRAWINPUT hRawInput,IN UINT uiCommand,OUT LP
 //-----------------------------------------------------------------------------
 // Callback function used by DirectDrawEnumerateEx to find all monitors
 static BOOL WINAPI DDEnumCallbackEx(GUID* pGuid, LPTSTR pszDesc, LPTSTR pszDriverName,
-							 VOID* pContext, HMONITOR hMonitor )
+		     VOID* pContext, HMONITOR hMonitor )
 {
-	MONITORINFO MonInfo;
-	LPDIRECTDRAW lpDD;
-	
-	if (NbMonitors == MAX_MONITORS)
-		return DDENUMRET_CANCEL;
+    MONITORINFO MonInfo;
+    LPDIRECTDRAW lpDD;
+        
+    if (NbMonitors == MAX_MONITORS)
+        return DDENUMRET_CANCEL;
 
-	// DirectDrawEnumerateEx returns hMonitor = NULL on single monitor configuration 
-	// and both NULL and non-NULL value for the primary monitor in multiple monitors context !
-	// However MonitorFromWindow/Rect functions always return non-NULL HMONITOR handles
-	// so we need to replace the NULL handle in single monitor context with the non-NULL value
-	if (hMonitor == NULL)
-	{
-		hMonitor = lpMonitorFromWindow(NULL, MONITOR_DEFAULTTOPRIMARY);
-	}	
-	LOG(2, "Monitor %d %s %s", hMonitor, pszDesc, pszDriverName);
+    // DirectDrawEnumerateEx returns hMonitor = NULL on single monitor configuration 
+    // and both NULL and non-NULL value for the primary monitor in multiple monitors context !
+    // However MonitorFromWindow/Rect functions always return non-NULL HMONITOR handles
+    // so we need to replace the NULL handle in single monitor context with the non-NULL value
+    if (hMonitor == NULL)
+    {
+        hMonitor = lpMonitorFromWindow(NULL, MONITOR_DEFAULTTOPRIMARY);
+    }        
+    LOG(2, "Monitor %d %s %s", hMonitor, pszDesc, pszDriverName);
 
-	// and therefore test if we found again the same monitor !
-	for (int i = 0; i < NbMonitors; i++)
-	{
-		if (Monitors[i].hMon == hMonitor)
-		{
-			LOG(2, "Monitor alrady listed");
-			return DDENUMRET_OK;
-		}
-	}
+    // and therefore test if we found again the same monitor !
+    for (int i = 0; i < NbMonitors; i++)
+    {
+        if (Monitors[i].hMon == hMonitor)
+        {
+            LOG(2, "Monitor alrady listed");
+            return DDENUMRET_OK;
+        }
+    }
 
-	MonInfo.cbSize = sizeof(MONITORINFO);
-	if (lpGetMonitorInfoA(hMonitor, &MonInfo))
-	{
-		if (SUCCEEDED(DirectDrawCreate(pGuid, &lpDD, NULL)))
-		{
-			Monitors[NbMonitors].hMon = hMonitor;
-			Monitors[NbMonitors].lpDD = lpDD;
-			NbMonitors++;
-			LOG(1, "Monitor %d (%d %d %d %d)", NbMonitors, MonInfo.rcMonitor.left, MonInfo.rcMonitor.right, MonInfo.rcMonitor.top, MonInfo.rcMonitor.bottom);
-		}
-	}
-	
+    MonInfo.cbSize = sizeof(MONITORINFO);
+    if (lpGetMonitorInfoA(hMonitor, &MonInfo))
+    {
+        if (SUCCEEDED(DirectDrawCreate(pGuid, &lpDD, NULL)))
+        {
+            Monitors[NbMonitors].hMon = hMonitor;
+            Monitors[NbMonitors].lpDD = lpDD;
+            NbMonitors++;
+            LOG(1, "Monitor %d (%d %d %d %d)", NbMonitors, MonInfo.rcMonitor.left, MonInfo.rcMonitor.right, MonInfo.rcMonitor.top, MonInfo.rcMonitor.bottom);
+        }
+    }
+        
     return DDENUMRET_OK; // Keep enumerating
 }
 
@@ -407,24 +411,24 @@ static BOOL ListMonitors(HWND hWnd)
 {
     BOOL RetVal = TRUE;
 
-	HINSTANCE h = LoadLibrary("ddraw.dll");
+    HINSTANCE h = LoadLibrary("ddraw.dll");
 
     // If ddraw.dll doesn't exist in the search path,
     // then DirectX probably isn't installed, so fail.
     if(h != NULL)
     {
-	    // Retrieve the function from the DDL
+        // Retrieve the function from the DDL
         LPDIRECTDRAWENUMERATEEX lpDDEnumEx;
         lpDDEnumEx = (LPDIRECTDRAWENUMERATEEX) GetProcAddress(h,"DirectDrawEnumerateExA");
         if (lpDDEnumEx)
-	    {
-		    // If the function is there, call it to enumerate all display 
-		    // devices attached to the desktop
-		    if(lpDDEnumEx(DDEnumCallbackEx, NULL, DDENUM_ATTACHEDSECONDARYDEVICES) != DD_OK)
+        {
+            // If the function is there, call it to enumerate all display 
+            // devices attached to the desktop
+            if(lpDDEnumEx(DDEnumCallbackEx, NULL, DDENUM_ATTACHEDSECONDARYDEVICES) != DD_OK)
             {
                 RetVal = FALSE;
             }
-	    }
+        }
         else
         {
             RetVal = FALSE;
@@ -433,7 +437,7 @@ static BOOL ListMonitors(HWND hWnd)
         // If the library was loaded by calling LoadLibrary(),
         // then you must use FreeLibrary() to let go of it.
         FreeLibrary(h);
-	}
+    }
     else
     {
         RetVal = FALSE;
@@ -445,7 +449,7 @@ void LoadDynamicFunctions()
 {
     // we've got to load these functions dynamically 
     // so that we continue to run on NT 4
-	HINSTANCE h = LoadLibrary("user32.dll");
+    HINSTANCE h = LoadLibrary("user32.dll");
     lpMonitorFromWindow = (HMONITOR (WINAPI *)( IN HWND hwnd, IN DWORD dwFlags)) GetProcAddress(h,"MonitorFromWindow");
     lpGetMonitorInfoA = (BOOL (WINAPI *)( IN HMONITOR hMonitor, OUT LPMONITORINFO lpmi)) GetProcAddress(h,"GetMonitorInfoA");
 #ifdef WM_INPUT
@@ -465,7 +469,7 @@ void LoadDynamicFunctions()
 
         if(lpRegisterRawInputDevices(Rid, 1, sizeof(Rid[0])))
         {
-        	LOG(1, "Registered for MCE remote messages");
+            LOG(1, "Registered for MCE remote messages");
         }
     }
 #endif
@@ -568,7 +572,7 @@ LONG OnInput(HWND hWnd, UINT wParam, LONG lParam)
 //-----------------------------------------------------------------------------
 static LPDIRECTDRAW GetCurrentDD(HWND hWnd)
 {
-    // if we can't see these new functions or we fail to list the moitors just use a normal DD create
+    // if we can't see these new functions or we fail to list the monitors just use a normal DD create
     if(lpMonitorFromWindow == NULL || lpGetMonitorInfoA == NULL || ListMonitors(hWnd) == FALSE)
     {
         if (FAILED(DirectDrawCreate(NULL, &lpDD, NULL)))
@@ -580,16 +584,16 @@ static LPDIRECTDRAW GetCurrentDD(HWND hWnd)
     }
 
     // got the list of monitors then get the DD context from the current one
-	HMONITOR hMonitor = lpMonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
+        HMONITOR hMonitor = lpMonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
 
-	for (int i=0 ; i<NbMonitors ; i++)
-	{
-		if (Monitors[i].hMon == hMonitor)
-		{
-			return Monitors[i].lpDD;
-		}
-	}
-	return NULL;
+        for (int i=0 ; i<NbMonitors ; i++)
+        {
+                if (Monitors[i].hMon == hMonitor)
+                {
+                        return Monitors[i].lpDD;
+                }
+        }
+        return NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -604,14 +608,14 @@ void GetMonitorRect(HWND hWnd, RECT* rect)
         return;
     }
 
-	HMONITOR hMonitor = lpMonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
-	MONITORINFO MonInfo;
+    HMONITOR hMonitor = lpMonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
+    MONITORINFO MonInfo;
 
-	MonInfo.cbSize = sizeof(MONITORINFO);
+    MonInfo.cbSize = sizeof(MONITORINFO);
 
-	lpGetMonitorInfoA(hMonitor, &MonInfo);
-	memcpy(rect, &MonInfo.rcMonitor, sizeof(RECT));
-	LOG(2, "GetMonitorRect %d %d %d %d", rect->left, rect->right, rect->top, rect->bottom);
+    lpGetMonitorInfoA(hMonitor, &MonInfo);
+    memcpy(rect, &MonInfo.rcMonitor, sizeof(RECT));
+    LOG(2, "GetMonitorRect %d %d %d %d", rect->left, rect->right, rect->top, rect->bottom);
 }
 
 //-----------------------------------------------------------------------------
@@ -619,7 +623,7 @@ void SetCurrentMonitor(HWND hWnd)
 {
     if(lpMonitorFromWindow != NULL)
     {
-    	hCurrentMon = lpMonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
+        hCurrentMon = lpMonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
     }
 }
 
@@ -628,29 +632,29 @@ void CheckChangeMonitor(HWND hWnd)
 {
     if(lpMonitorFromWindow == NULL)
     {
-    	return;
+        return;
     }
 
-	HMONITOR hMon = lpMonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
+    HMONITOR hMon = lpMonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
 
-	if (hCurrentMon == NULL)
-		return;
+    if (hCurrentMon == NULL)
+        return;
 
-	if (hMon != hCurrentMon)
-	{
-		hCurrentMon = hMon;
-		Overlay_Stop(hWnd);
-		if (lpDD != NULL)
-		{
-			Overlay_Destroy();
-			lpDD = NULL;
-		}
-		DeleteCriticalSection(&hDDCritSect);
-		if (InitDD(hWnd))
-		{
-			Overlay_Start(hWnd);
-		}
-	}
+    if (hMon != hCurrentMon)
+    {
+        hCurrentMon = hMon;
+        Overlay_Stop(hWnd);
+        if (lpDD != NULL)
+        {
+            Overlay_Destroy();
+            lpDD = NULL;
+        }
+        DeleteCriticalSection(&hDDCritSect);
+        if (InitDD(hWnd))
+        {
+            Overlay_Start(hWnd);
+        }
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -779,18 +783,18 @@ BOOL Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags)
         {
             dwFlags |= DDOVER_KEYDESTOVERRIDE;
 
-			COLORREF overlayColour;
-			HDC hDC;
+            COLORREF overlayColour;
+            HDC hDC;
 
-			if (SUCCEEDED(lpDDSurface->GetDC(&hDC)))
-			{
-				overlayColour = Overlay_GetCorrectedColor(hDC);
-				lpDDSurface->ReleaseDC(hDC);
-			}
-			else
-			{
-				overlayColour = Overlay_GetColor();
-			}
+            if (SUCCEEDED(lpDDSurface->GetDC(&hDC)))
+            {
+                overlayColour = Overlay_GetCorrectedColor(hDC);
+                lpDDSurface->ReleaseDC(hDC);
+            }
+            else
+            {
+                overlayColour = Overlay_GetColor();
+            }
 
             DWORD dwPhysicalOverlayColor = Overlay_ColorMatch(lpDDSurface, overlayColour);
             if (dwPhysicalOverlayColor == 0 && overlayColour != 0)      // sometimes we glitch and can't get the Value
@@ -894,8 +898,8 @@ void Overlay_ResetColorControls()
     if(OriginalColorControls.dwFlags != 0)
     {
         HRESULT ddrval = pDDColorControl->SetColorControls(&OriginalColorControls);
-		// if we have lost the surface e.g Ctrl-alt-del
-		// just carry on
+        // if we have lost the surface e.g Ctrl-alt-del
+        // just carry on
         if(ddrval != DDERR_SURFACELOST && FAILED(ddrval))
         {
             char szErrorMsg[200];
@@ -986,7 +990,7 @@ BOOL Overlay_Create()
     DDSCAPS caps;
     int minBuffers, maxBuffers, numBuffers;
     char msg[500];
-	int loopcounter = 0;
+    int loopcounter = 0;
 
     if (lpDDOverlay)
     {
@@ -1005,14 +1009,14 @@ BOOL Overlay_Create()
     SurfaceDesc.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
     ddrval = lpDD->CreateSurface(&SurfaceDesc, &lpDDSurface, NULL);
 
-	// handle the case where we are in a funny in between state
-	// by looping, this happens sometimes with Ctrl-alt-delete on
-	// some graphics cards.
-	while(ddrval == DDERR_UNSUPPORTEDMODE && loopcounter++ < 20)
-	{
-		Sleep(100);
-	    ddrval = lpDD->CreateSurface(&SurfaceDesc, &lpDDSurface, NULL);
-	}
+    // handle the case where we are in a funny in between state
+    // by looping, this happens sometimes with Ctrl-alt-delete on
+    // some graphics cards.
+    while(ddrval == DDERR_UNSUPPORTEDMODE && loopcounter++ < 20)
+    {
+        Sleep(100);
+        ddrval = lpDD->CreateSurface(&SurfaceDesc, &lpDDSurface, NULL);
+    }
     if (FAILED(ddrval))
     {
         sprintf(msg, "Error creating primary surface: %x", ddrval);
@@ -1023,9 +1027,20 @@ BOOL Overlay_Create()
 
     memset(&PixelFormat, 0x00, sizeof(PixelFormat));
     PixelFormat.dwSize = sizeof(DDPIXELFORMAT);
-    PixelFormat.dwFlags = DDPF_FOURCC;
-    PixelFormat.dwFourCC = MAKEFOURCC('Y', 'U', 'Y', '2');
-    PixelFormat.dwYUVBitCount = 16;
+    if (bIsRGB)
+    {
+        PixelFormat.dwFlags = DDPF_RGB;
+        PixelFormat.dwRGBBitCount = 16;
+        PixelFormat.dwRBitMask = 0xf800;
+        PixelFormat.dwGBitMask = 0x07e0;
+        PixelFormat.dwBBitMask = 0x001f;
+    }
+    else
+    {
+        PixelFormat.dwFlags = DDPF_FOURCC;
+        PixelFormat.dwFourCC = MAKEFOURCC('Y', 'U', 'Y', '2');
+        PixelFormat.dwYUVBitCount = 16;
+    }
 
     memset(&SurfaceDesc, 0x00, sizeof(SurfaceDesc));
     SurfaceDesc.dwSize = sizeof(SurfaceDesc);
@@ -1056,10 +1071,10 @@ BOOL Overlay_Create()
         }
         ddrval = lpDD->CreateSurface(&SurfaceDesc, &lpDDOverlay, NULL);
 
-		// stop trying if we succeeded
-		// or if we are told there is not enough memory
-		// maybe E_INVALIDARG means that the card doesn't support that many
-		// buffers so loop if we get that too
+        // stop trying if we succeeded
+        // or if we are told there is not enough memory
+        // maybe E_INVALIDARG means that the card doesn't support that many
+        // buffers so loop if we get that too
         if (SUCCEEDED(ddrval) || (ddrval != DDERR_OUTOFVIDEOMEMORY && ddrval != E_INVALIDARG))
             break;
     }
@@ -1205,7 +1220,7 @@ BOOL Overlay_Create()
     ddrval = lpDDOverlay->QueryInterface(IID_IDirectDrawColorControl, (void **) &pDDColorControl);
     if(SUCCEEDED(ddrval))
     {
-		OriginalColorControls.dwSize = sizeof(DDCOLORCONTROL);
+        OriginalColorControls.dwSize = sizeof(DDCOLORCONTROL);
         ddrval = pDDColorControl->GetColorControls(&OriginalColorControls);
         if(SUCCEEDED(ddrval))
         {
@@ -1223,12 +1238,12 @@ BOOL Overlay_Create()
         else
         {
             pDDColorControl->Release();
-			pDDColorControl = NULL;
+            pDDColorControl = NULL;
         }
     }
     else
     {
-		pDDColorControl = NULL;
+        pDDColorControl = NULL;
     }
 
 
@@ -1293,8 +1308,8 @@ BOOL Overlay_Create()
 
 //-----------------------------------------------------------------------------
 // Name: DDColorMatch()
-// Desc: Convert a RGB color to a pysical color.
-//       We do this by leting GDI SetPixel() do the color matching
+// Desc: Convert a RGB color to a physical color.
+//       We do this by letting GDI SetPixel() do the color matching
 //       then we lock the memory and see what it got mapped to.
 //-----------------------------------------------------------------------------
 DWORD Overlay_ColorMatch(LPDIRECTDRAWSURFACE pdds, COLORREF rgb)
@@ -1409,8 +1424,8 @@ COLORREF Overlay_GetColor()
 
 COLORREF Overlay_GetCorrectedColor(HDC hDC)
 {
-	COLORREF nearest = GetNearestColor(hDC, g_OverlayColor);
-	return (nearest == CLR_INVALID) ? g_OverlayColor : nearest;
+    COLORREF nearest = GetNearestColor(hDC, g_OverlayColor);
+    return (nearest == CLR_INVALID) ? g_OverlayColor : nearest;
 }
 
 
@@ -1750,7 +1765,7 @@ BOOL InitDD(HWND hWnd)
 
     InitializeCriticalSection(&hDDCritSect);
 
-	lpDD = GetCurrentDD(hWnd);
+    lpDD = GetCurrentDD(hWnd);
 
     // can we use Overlay ??
     memset(&DriverCaps, 0x00, sizeof(DriverCaps));
@@ -1816,10 +1831,10 @@ void ExitDD(void)
         Overlay_Destroy();
         if(lpMonitorFromWindow != NULL)
         {
-	        for (int i=0 ; i<NbMonitors ; i++)
-	        {
-		        Monitors[i].lpDD->Release();
-	        }
+            for (int i=0 ; i<NbMonitors ; i++)
+            {
+                Monitors[i].lpDD->Release();
+            }
         }
         else
         {
@@ -1899,6 +1914,16 @@ BOOL BackBuffers_OnChange(long NewValue)
    Overlay_Stop(GetMainWnd());
    Overlay_Start(GetMainWnd());
    return FALSE;
+}
+
+void Overlay_SetRGB(BOOL IsRGB)
+{
+    bIsRGB = IsRGB;
+}
+
+BOOL Overlay_GetRGB()
+{
+    return bIsRGB;
 }
 
 /////////////////////////////////////////////////////////////////////////////

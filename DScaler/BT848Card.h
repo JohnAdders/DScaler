@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.47 2005-05-12 20:06:22 to_see Exp $
+// $Id: BT848Card.h,v 1.48 2006-12-28 14:18:35 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.47  2005/05/12 20:06:22  to_see
+// Moved m_TunerHauppaugeAnalog to TunerID.h for common using for BT and CX cards.
+//
 // Revision 1.46  2005/03/24 17:57:57  adcockj
 // Card access from one thread at a time
 //
@@ -151,6 +154,7 @@
 #include "AudioControls.h"
 
 #include "SAA7118.h"
+#include "AD9882.h"
 
 #define BT_INPUTS_PER_CARD 12
 
@@ -177,6 +181,8 @@ private:
         INPUTTYPE_CCIR,
         /// Radio input so no video
         INPUTTYPE_RADIO,
+        /// Synchronous Pixel Interface input on the GPIO pins
+        INPUTTYPE_SPI,
     };
 
     /// Sounds chips we expect to find on a card
@@ -184,8 +190,8 @@ private:
     {
         SOUNDCHIP_NONE,
         SOUNDCHIP_MSP,
-		SOUNDCHIP_TDA9875,
-		SOUNDCHIP_TDA9874
+        SOUNDCHIP_TDA9875,
+        SOUNDCHIP_TDA9874
     };
 
     /// Does the card have a PLL generator - used for PAL & SECAM
@@ -369,11 +375,14 @@ public:
     bool GetUseInputPin1();
     void SetUseInputPin1(bool AValue);
 
-	void SetPMSChannelGain(int ChannelNum, WORD Gain);
+    void SetPMSChannelGain(int ChannelNum, WORD Gain);
     
     BOOL IsMyAudioDecoder(CAudioDecoder* pAudioDecoder);
 
     static BOOL APIENTRY ChipSettingProc(HWND hDlg, UINT message, UINT wParam, LONG lParam);
+
+    BOOL IsSPISource(int nInput);
+    CAD9882* GetAD9882() { return m_AD9882; }
 
     // I2C stuff
     void SetSDA(bool value);
@@ -434,20 +443,30 @@ private:
     eTVCardId m_CardType;
 
     CI2CBus*        m_I2CBus;
-    II2CTuner*         m_Tuner;
+    II2CTuner*      m_Tuner;
     CAudioDecoder*  m_AudioDecoder;
     CAudioControls* m_AudioControls;
 
-	CSAA7118*       m_SAA7118;
-	int             m_CurrentInput;
+    CSAA7118*       m_SAA7118;
+    int             m_CurrentInput;
+    CAD9882*        m_AD9882;
+    DWORD           m_PixelWidth;
 
-	void InitPMSDeluxe();
-	void PMSDeluxeInputSelect(int nInput);
-	void SetPMSDeluxeFormat(int nInput, eVideoFormat TVFormat);
-	void SetPMSDeluxeContrastBrightness(WORD Contrast, WORD Brightness);
-	void SetPMSDeluxeSaturationU(WORD SaturationU);
-	void SetPMSDeluxeSaturationV(WORD SaturationV);
-	void SetPMSDeluxeHue(BYTE Hue);
+    void InitPMSDeluxe();
+    void PMSDeluxeInputSelect(int nInput);
+    void SetPMSDeluxeFormat(int nInput, eVideoFormat TVFormat);
+    void SetPMSDeluxeContrastBrightness(WORD Contrast, WORD Brightness);
+    void SetPMSDeluxeSaturationU(WORD SaturationU);
+    void SetPMSDeluxeSaturationV(WORD SaturationV);
+    void SetPMSDeluxeHue(BYTE Hue);
+
+    void InitAtlas();
+    void AtlasInputSelect(int nInput);
+    void SetAtlasFormat(int nInput, eVideoFormat TVFormat);
+    void SetAtlasContrastBrightness(WORD Contrast, WORD Brightness);
+    void SetAtlasSaturationU(WORD SaturationU);
+    void SetAtlasSaturationV(WORD SaturationV);
+    void SetAtlasHue(BYTE Hue);
 
     void SetAnalogContrastBrightness(WORD Contrast, WORD Brightness);
     void SetAnalogSaturationU(WORD SaturationU);

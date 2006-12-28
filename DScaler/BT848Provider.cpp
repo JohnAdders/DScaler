@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Provider.cpp,v 1.10 2005-03-11 14:54:38 adcockj Exp $
+// $Id: BT848Provider.cpp,v 1.11 2006-12-28 14:18:36 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2005/03/11 14:54:38  adcockj
+// Get rid of a load of compilation warnings in vs.net
+//
 // Revision 1.9  2003/10/27 10:39:50  adcockj
 // Updated files for better doxygen compatability
 //
@@ -131,7 +134,7 @@ CBT848Provider::CBT848Provider(CHardwareDriver* pHardwareDriver)
         {
             if(!IsMemoryInitialized)
             {
-			    // need to allocate memory for display, VBI and RISC code once
+                // need to allocate memory for display, VBI and RISC code once
                 if(MemoryInit(pHardwareDriver) == FALSE)
                 {
                     return;
@@ -221,7 +224,7 @@ BOOL CBT848Provider::MemoryInit(CHardwareDriver* pHardwareDriver)
     {
         for (int i(0); i < 5; i++)
         {
-            m_DisplayDMAMem[i] = new CUserMemory(pHardwareDriver, 1024 * 576 * 2);
+            m_DisplayDMAMem[i] = new CUserMemory(pHardwareDriver, 1024 * 768 * 2);
         }
     }
     catch(...)

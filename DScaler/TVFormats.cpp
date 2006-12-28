@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TVFormats.cpp,v 1.12 2003-10-27 10:39:54 adcockj Exp $
+// $Id: TVFormats.cpp,v 1.13 2006-12-28 14:18:36 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2003/10/27 10:39:54  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.11  2003/05/30 10:06:25  adcockj
 // Fix for format names in ini file
 //
@@ -206,6 +209,51 @@ static TTVFormat TVFormats[VIDEOFORMAT_LASTONE] =
         ((4.5 * 455.0) / (286 * 2)), 28.636363, FALSE, 15,      
         16, 
     },
+    // RGB formats for Atlas. The only values used are wCropHeight, wTotalWidth,
+    // wHDelayx1, wHActivex1 and wCropOffset (which we reuse to be the
+    // difference between total vertical size and crop height).
+    // RGB 640x480@60Hz
+    {
+        480, 800, 0x68, 0x5c, (BT848_IFORM_NTSC|BT848_IFORM_XT0),
+        110, 640, 13, 20, FALSE, 400, 13,
+        ((4.5 * 455.0) / (286 * 2)), 28.636363,  FALSE, 11, 
+        10,
+    },
+    // RGB 800x600@60Hz
+    {
+        600, 1024, 0x68, 0x5c, (BT848_IFORM_NTSC|BT848_IFORM_XT0),
+        178, 800, 21, 24, FALSE, 400, 13,
+        ((4.5 * 455.0) / (286 * 2)), 28.636363,  FALSE, 11, 
+        10,
+    },
+    // RGB 1024x768@60Hz
+    {
+        768, 1344, 0x68, 0x5c, (BT848_IFORM_NTSC|BT848_IFORM_XT0),
+        236, 1024, 26, 30, FALSE, 400, 13,
+        ((4.5 * 455.0) / (286 * 2)), 28.636363,  FALSE, 11, 
+        10,
+    },
+    // RGB 640x480@75Hz
+    {
+        480, 816, 0x68, 0x5c, (BT848_IFORM_NTSC|BT848_IFORM_XT0),
+        110, 640, 13, 24, FALSE, 400, 13,
+        ((4.5 * 455.0) / (286 * 2)), 28.636363,  FALSE, 11, 
+        10,
+    },
+    // RGB 800x600@75Hz
+    {
+        600, 1040, 0x68, 0x5c, (BT848_IFORM_NTSC|BT848_IFORM_XT0),
+        178, 800, 21, 29, FALSE, 400, 13,
+        ((4.5 * 455.0) / (286 * 2)), 28.636363,  FALSE, 11, 
+        10,
+    },
+    // RGB 1024x768@75Hz
+    {
+        768, 1376, 0x68, 0x5c, (BT848_IFORM_NTSC|BT848_IFORM_XT0),
+        236, 1024, 26, 37, FALSE, 400, 13,
+        ((4.5 * 455.0) / (286 * 2)), 28.636363,  FALSE, 11, 
+        10,
+    },
 };
 
 const char *VideoFormatNames[VIDEOFORMAT_LASTONE] = 
@@ -232,6 +280,13 @@ const char *VideoFormatNames[VIDEOFORMAT_LASTONE] =
     "NTSC-M",
     "NTSC-M-Japan",
     "NTSC-50",
+
+    "RGB-640x480@60",
+    "RGB-800x600@60",
+    "RGB-1024x768@60",
+    "RGB-640x480@75",
+    "RGB-800x600@75",
+    "RGB-1024x768@75",
 };
 
 const char *VideoFormatSaveNames[VIDEOFORMAT_LASTONE] = 
@@ -258,6 +313,13 @@ const char *VideoFormatSaveNames[VIDEOFORMAT_LASTONE] =
     "NTSC-M",
     "NTSC-M-Japan",
     "NTSC-50",
+
+    "RGB-640x480@60",
+    "RGB-800x600@60",
+    "RGB-1024x768@60",
+    "RGB-640x480@75",
+    "RGB-800x600@75",
+    "RGB-1024x768@75",
 };
 
 TTVFormat* GetTVFormat(eVideoFormat Format)
@@ -312,6 +374,23 @@ bool IsSECAMVideoFormat(eVideoFormat Format)
     case VIDEOFORMAT_SECAM_K1:
     case VIDEOFORMAT_SECAM_L:
     case VIDEOFORMAT_SECAM_L1:
+        result = true;
+        break;
+    }
+    return result;
+}
+
+bool IsRGBVideoFormat(eVideoFormat Format)
+{
+    bool result = false;
+    switch (Format)
+    {
+    case VIDEOFORMAT_RGB_640X480_60:
+    case VIDEOFORMAT_RGB_800X600_60:
+    case VIDEOFORMAT_RGB_1024X768_60:
+    case VIDEOFORMAT_RGB_640X480_75:
+    case VIDEOFORMAT_RGB_800X600_75:
+    case VIDEOFORMAT_RGB_1024X768_75:
         result = true;
         break;
     }

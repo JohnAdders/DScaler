@@ -147,7 +147,7 @@ BOOL CD3D9Output::Overlay_Create() {
 		}		
 	}
 
-	if(FAILED(pDevice->CreateOffscreenPlainSurface(DSCALER_MAX_WIDTH, DSCALER_MAX_HEIGHT, D3DFMT_YUY2, D3DPOOL_DEFAULT,
+	if(FAILED(pDevice->CreateOffscreenPlainSurface(DSCALER_MAX_WIDTH, DSCALER_MAX_HEIGHT, (bIsRGB ? D3DFMT_R5G6B5 : D3DFMT_YUY2), D3DPOOL_DEFAULT,
 		&lpDDOverlay, NULL))) 
 	{
 		ErrorBox("CreateOffscreenPlainSurface failed");
@@ -300,7 +300,7 @@ BOOL CD3D9Output::Overlay_Lock(TDeinterlaceInfo* pInfo) {
     if(FAILED(pDevice->CreateOffscreenPlainSurface(
         GetSystemMetrics(SM_CXFULLSCREEN), 
         GetSystemMetrics(SM_CYFULLSCREEN),
-        D3DFMT_YUY2,
+        (bIsRGB ? D3DFMT_R5G6B5 : D3DFMT_YUY2),
         D3DPOOL_SYSTEMMEM,
         &lpDDFrontBuffer,
         NULL)))
@@ -608,7 +608,17 @@ BOOL CD3D9Output::InitDD(HWND hWnd) {
 
 	return true;
 }
-	
+
+void CD3D9Output::Overlay_SetRGB(BOOL IsRGB)
+{
+    bIsRGB = IsRGB;
+}
+
+BOOL CD3D9Output::Overlay_GetRGB()
+{
+    return bIsRGB;
+}
+
 void CD3D9Output::ExitDD(void) {
 	if(pDevice!=NULL)
 	{

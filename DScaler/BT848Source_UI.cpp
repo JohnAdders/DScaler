@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_UI.cpp,v 1.27 2006-10-06 13:35:28 adcockj Exp $
+// $Id: BT848Source_UI.cpp,v 1.28 2006-12-28 14:18:36 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2006/10/06 13:35:28  adcockj
+// Added projects for .NET 2005 and fixed most of the warnings and errors
+//
 // Revision 1.26  2005/03/11 14:54:39  adcockj
 // Get rid of a load of compilation warnings in vs.net
 //
@@ -1111,6 +1114,13 @@ void CBT848Source::SetMenu(HMENU hMenu)
 
     EnableMenuItemBool(m_hMenu, IDM_SETTINGS_PIXELWIDTH_768, GetTVFormat((eVideoFormat)m_VideoFormat->GetValue())->wHActivex1 >= 768);
 
+    if(m_CardType->GetValue() == TVCARD_CWCEC_ATLAS)
+    {
+        CheckMenuItemBool(m_hMenu, IDM_SETTINGS_PIXELWIDTH_1024, (m_PixelWidth->GetValue() == 1024));
+        DoneWidth |= (m_PixelWidth->GetValue() == 1024);
+        CheckMenuItemBool(m_hMenu, IDM_SETTINGS_PIXELWIDTH_800, (m_PixelWidth->GetValue() == 800));
+        DoneWidth |= (m_PixelWidth->GetValue() == 800);
+    }
     CheckMenuItemBool(m_hMenu, IDM_SETTINGS_PIXELWIDTH_768, (m_PixelWidth->GetValue() == 768));
     DoneWidth |= (m_PixelWidth->GetValue() == 768);
     CheckMenuItemBool(m_hMenu, IDM_SETTINGS_PIXELWIDTH_754, (m_PixelWidth->GetValue() == 754));
@@ -1154,6 +1164,15 @@ void CBT848Source::SetMenu(HMENU hMenu)
     CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_6, (videoFormat == VIDEOFORMAT_PAL_60));
     CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_7, (videoFormat == VIDEOFORMAT_NTSC_50));
     CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_8, (videoFormat == VIDEOFORMAT_PAL_N_COMBO));
+    if(m_CardType->GetValue() == TVCARD_CWCEC_ATLAS)
+    {
+        CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_10, (videoFormat == VIDEOFORMAT_RGB_640X480_60));
+        CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_11, (videoFormat == VIDEOFORMAT_RGB_800X600_60));
+        CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_12, (videoFormat == VIDEOFORMAT_RGB_1024X768_60));
+        CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_13, (videoFormat == VIDEOFORMAT_RGB_640X480_75));
+        CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_14, (videoFormat == VIDEOFORMAT_RGB_800X600_75));
+        CheckMenuItemBool(m_hMenu, IDM_TYPEFORMAT_15, (videoFormat == VIDEOFORMAT_RGB_1024X768_75));
+    }
 
     CheckMenuItemBool(m_hMenu, IDM_AUDIO_0, (GetCurrentAudioSetting()->GetValue() == 0));
     CheckMenuItemBool(m_hMenu, IDM_AUDIO_1, (GetCurrentAudioSetting()->GetValue() == 1));
@@ -1483,6 +1502,30 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             m_VideoFormat->SetValue(VIDEOFORMAT_PAL_N_COMBO);
             ShowText(hWnd, GetStatus());
             break;
+        case IDM_TYPEFORMAT_10:
+            m_VideoFormat->SetValue(VIDEOFORMAT_RGB_640X480_60);
+            ShowText(hWnd, GetStatus());
+            break;
+        case IDM_TYPEFORMAT_11:
+            m_VideoFormat->SetValue(VIDEOFORMAT_RGB_800X600_60);
+            ShowText(hWnd, GetStatus());
+            break;
+        case IDM_TYPEFORMAT_12:
+            m_VideoFormat->SetValue(VIDEOFORMAT_RGB_1024X768_60);
+            ShowText(hWnd, GetStatus());
+            break;
+        case IDM_TYPEFORMAT_13:
+            m_VideoFormat->SetValue(VIDEOFORMAT_RGB_640X480_75);
+            ShowText(hWnd, GetStatus());
+            break;
+        case IDM_TYPEFORMAT_14:
+            m_VideoFormat->SetValue(VIDEOFORMAT_RGB_800X600_75);
+            ShowText(hWnd, GetStatus());
+            break;
+        case IDM_TYPEFORMAT_15:
+            m_VideoFormat->SetValue(VIDEOFORMAT_RGB_1024X768_75);
+            ShowText(hWnd, GetStatus());
+            break;
 
         case IDM_DSVIDEO_STANDARD_0:
             // "Custom Settings ..." menu
@@ -1494,6 +1537,14 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
             {
                 ShowText(hWnd, "BT8x8Res.dll not loaded");
             }
+            break;
+
+        case IDM_SETTINGS_PIXELWIDTH_1024:
+            m_PixelWidth->SetValue(1024);
+            break;
+
+        case IDM_SETTINGS_PIXELWIDTH_800:
+            m_PixelWidth->SetValue(800);
             break;
 
         case IDM_SETTINGS_PIXELWIDTH_768:
@@ -1574,7 +1625,92 @@ BOOL CBT848Source::HandleWindowsCommands(HWND hWnd, UINT wParam, LONG lParam)
 void CBT848Source::ChangeDefaultsForVideoFormat(BOOL bDontSetValue)
 {
     eVideoFormat format = GetFormat();
-    if(IsNTSCVideoFormat(format))
+    TTVFormat *tvFormat = GetTVFormat(format);
+
+    if(m_pBT848Card->IsSPISource(m_VideoSource->GetValue()) &&
+        (m_CardType->GetValue() == TVCARD_CWCEC_ATLAS))
+    {
+        int hpixels, vlines, ilace, vfreq;
+        int pll_phase, hsync_pw, syncsep, sogthresh;
+        int precoast_act, precoast_inact;
+        int vco_range, cpump;
+        int hoffs, voffs;
+        BOOL sog;
+
+        pll_phase = 0;
+        syncsep = 32;
+        hpixels = tvFormat->wTotalWidth;
+        if(IsRGBVideoFormat(format))
+        {
+            vlines = tvFormat->wCropHeight + tvFormat->wCropOffset;
+            hsync_pw = 32;
+            sogthresh = 15;
+            precoast_act = 0;
+            precoast_inact = 0;
+            ilace = 0;
+            vfreq = 75;
+            sog = FALSE;
+            hoffs = tvFormat->wHDelayx1;
+            voffs = tvFormat->wVDelay;
+            if ((format >= VIDEOFORMAT_RGB_640X480_60) &&
+                (format <= VIDEOFORMAT_RGB_1024X768_60))
+            {
+                vfreq = 60;
+            }
+            if ((format == VIDEOFORMAT_RGB_800X600_60) ||
+                (format == VIDEOFORMAT_RGB_800X600_75))
+            {
+                pll_phase = 16;
+            }
+        }
+        else
+        {
+            ilace = 1;
+            sogthresh = 24;
+            hsync_pw = 128;
+            sog = TRUE;
+            switch (format)
+            {
+            case VIDEOFORMAT_NTSC_M:
+            default:
+                vlines = 525;
+                precoast_act = 7;
+                precoast_inact = 4;
+                vfreq = 60;
+                hoffs = 114;
+                voffs = 15;
+                break;
+            case VIDEOFORMAT_PAL_B:
+            case VIDEOFORMAT_PAL_D:
+            case VIDEOFORMAT_PAL_G:
+            case VIDEOFORMAT_PAL_H:
+            case VIDEOFORMAT_PAL_I:
+                vlines = 625;
+                precoast_act = 3;
+                precoast_inact = 2;
+                vfreq = 50;
+                hoffs = 156;
+                voffs = 19;
+                break;
+            }
+        }
+        m_pBT848Card->GetAD9882()->calcAD9882PLL(hpixels, vlines, vfreq,
+                ilace, vco_range, cpump);
+
+        m_AD9882PLL->ChangeDefault(hpixels, bDontSetValue);
+        m_AD9882VCO->ChangeDefault(vco_range, bDontSetValue);
+        m_AD9882Pump->ChangeDefault(cpump, bDontSetValue);
+        m_AD9882Phase->ChangeDefault(pll_phase, bDontSetValue);
+        m_AD9882PreCoast->ChangeDefault(precoast_act, bDontSetValue);
+        m_AD9882PostCoast->ChangeDefault(precoast_inact, bDontSetValue);
+        m_AD9882HSync->ChangeDefault(hsync_pw, bDontSetValue);
+        m_AD9882SyncSep->ChangeDefault(syncsep, bDontSetValue);
+        m_AD9882SOGThresh->ChangeDefault(sogthresh, bDontSetValue);
+        m_AD9882SOG->ChangeDefault(sog, bDontSetValue);
+        m_HorizOffset->ChangeDefault(hoffs, bDontSetValue);
+        m_VertOffset->ChangeDefault(voffs, bDontSetValue);
+    }
+    else if(IsNTSCVideoFormat(format))
     {
         if(m_CardType->GetValue() != TVCARD_PMSDELUXE && m_CardType->GetValue() != TVCARD_SWEETSPOT)
         {

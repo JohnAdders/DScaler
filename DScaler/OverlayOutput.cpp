@@ -563,9 +563,20 @@ BOOL COverlayOutput::Overlay_Create()
 
     memset(&PixelFormat, 0x00, sizeof(PixelFormat));
     PixelFormat.dwSize = sizeof(DDPIXELFORMAT);
-    PixelFormat.dwFlags = DDPF_FOURCC;
-    PixelFormat.dwFourCC = MAKEFOURCC('Y', 'U', 'Y', '2');
-    PixelFormat.dwYUVBitCount = 16;
+    if (bIsRGB)
+    {
+        PixelFormat.dwFlags = DDPF_RGB;
+        PixelFormat.dwRGBBitCount = 16;
+        PixelFormat.dwRBitMask = 0xf800;
+        PixelFormat.dwGBitMask = 0x07e0;
+        PixelFormat.dwBBitMask = 0x001f;
+    }
+    else
+    {
+        PixelFormat.dwFlags = DDPF_FOURCC;
+        PixelFormat.dwFourCC = MAKEFOURCC('Y', 'U', 'Y', '2');
+        PixelFormat.dwYUVBitCount = 16;
+    }
 
     memset(&SurfaceDesc, 0x00, sizeof(SurfaceDesc));
     SurfaceDesc.dwSize = sizeof(SurfaceDesc);
@@ -1283,6 +1294,18 @@ void COverlayOutput::Overlay_ReleaseDC(HDC hDC)
 }
 
 //-----------------------------------------------------------------------------
+// Support for RGB surface
+void COverlayOutput::Overlay_SetRGB(BOOL IsRGB)
+{
+    bIsRGB = IsRGB;
+}
+
+BOOL COverlayOutput::Overlay_GetRGB()
+{
+    return bIsRGB;
+}
+
+//-----------------------------------------------------------------------------
 // Initialize DirectDraw
 BOOL COverlayOutput::InitDD(HWND hWnd)
 {
@@ -1582,6 +1605,7 @@ COverlayOutput::COverlayOutput(void)
 	DestSizeAlign=1;
 	SrcSizeAlign=1;
     m_bSettingInitialized = false;
+	bIsRGB = FALSE;
     
     LoadDynamicFunctions();
 }

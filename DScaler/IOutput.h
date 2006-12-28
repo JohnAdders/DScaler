@@ -3,8 +3,8 @@
 
 #include "settings.h"
 
-#define DSCALER_MAX_WIDTH 768
-#define DSCALER_MAX_HEIGHT 576
+#define DSCALER_MAX_WIDTH 1024
+#define DSCALER_MAX_HEIGHT 768
 
 class IOutput;
 
@@ -61,6 +61,8 @@ public:
 	virtual HDC Overlay_GetDC()=0;
 	virtual void Overlay_ReleaseDC(HDC hDC)=0;
     virtual void WaitForVerticalBlank() = 0;
+	virtual void Overlay_SetRGB(BOOL IsRGB)=0;
+	virtual BOOL Overlay_GetRGB()=0;
 
 	virtual CTreeSettingsGeneric* Other_GetTreeSettingsPage()=0;
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.176 2006-12-20 17:42:18 adcockj Exp $
+// $Id: DS_Control.h,v 1.177 2006-12-28 14:18:35 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.176  2006/12/20 17:42:18  adcockj
+// reorganised the handling of mce remote
+//
 // Revision 1.175  2006/12/20 07:45:06  adcockj
 // added DirectX code from Daniel Sabel
 //
@@ -625,6 +628,14 @@ enum eVideoFormat
     VIDEOFORMAT_NTSC_M_Japan,
     VIDEOFORMAT_NTSC_50,
 
+    // used on CWCEC Atlas card
+    VIDEOFORMAT_RGB_640X480_60,
+    VIDEOFORMAT_RGB_800X600_60,
+    VIDEOFORMAT_RGB_1024X768_60,
+    VIDEOFORMAT_RGB_640X480_75,
+    VIDEOFORMAT_RGB_800X600_75,
+    VIDEOFORMAT_RGB_1024X768_75,
+
     VIDEOFORMAT_LASTONE
 };
 
@@ -806,10 +817,27 @@ typedef enum
     BOTTOMOVERSCAN,
     LEFTOVERSCAN,
     RIGHTOVERSCAN,
-	PMSGAIN1,
-	PMSGAIN2,
-	PMSGAIN3,
-	PMSGAIN4,
+    PMSGAIN1,
+    PMSGAIN2,
+    PMSGAIN3,
+    PMSGAIN4,
+    // used on CWCEC Atlas card
+    HORIZOFFSET,
+    VERTOFFSET,
+    AD9882PLL,
+    AD9882VCO,
+    AD9882PUMP,
+    AD9882PHASE,
+    AD9882PRECOAST,
+    AD9882POSTCOAST,
+    AD9882HSYNCPW,
+    AD9882SYNCSEPTHRESH,
+    AD9882SOGTHRESH,
+    AD9882SOG,
+    AD9882COASTSEL,
+    AD9882COASTOVR,
+    AD9882COASTPOL,
+
     BT848_SETTING_LASTONE,
 } BT848_SETTING;
 
@@ -1904,5 +1932,6 @@ typedef enum
 #define WM_EPG_GETVALUE     (WM_APP + 58)
 #define WM_EPG_SETVALUE     (WM_APP + 158)
 #define WM_EPG_CHANGEVALUE  (WM_APP + 258)
+
 
 #endif

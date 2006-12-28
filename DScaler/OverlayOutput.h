@@ -45,6 +45,8 @@ public:
 	BOOL InitDD(HWND hWnd);
 	void ExitDD(void);
     void WaitForVerticalBlank();
+	void Overlay_SetRGB(BOOL IsRGB);
+	BOOL Overlay_GetRGB();
 
     void InitOtherSettings();
 	
@@ -86,6 +88,7 @@ private:
 	long OverlayGamma;
 	long OverlaySharpness;
 	HRESULT FlipResult;             // Need to try again for flip?
+	BOOL bIsRGB;
 
 	
 	

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Types.cpp,v 1.45 2006-10-06 13:35:27 adcockj Exp $
+// $Id: BT848Card_Types.cpp,v 1.46 2006-12-28 14:18:36 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.45  2006/10/06 13:35:27  adcockj
+// Added projects for .NET 2005 and fixed most of the warnings and errors
+//
 // Revision 1.44  2005/05/12 20:06:22  to_see
 // Moved m_TunerHauppaugeAnalog to TunerID.h for common using for BT and CX cards.
 //
@@ -4371,20 +4374,74 @@ const CBT848Card::TCardType CBT848Card::m_TVCards[TVCARD_LASTONE] =
                 1,
             },
         },
-		PLL_28,
-		TUNER_PHILIPS_PAL,
-		SOUNDCHIP_TDA9874,
-		NULL,
-		&StandardBT848InputSelect,
-		&SetAnalogContrastBrightness,
-		&SetAnalogSaturationU,
-		&SetAnalogSaturationV,
-		&SetAnalogHue,
-		&StandardSetFormat,
-		CAudioDecoder::AUDIODECODERTYPE_TDA9874,
-		0, 
-		/* not applicable for tda9874 because pic16c54 controls mute/unmute*/
-		{0, 0, 0, 0, 0, 0, }
+        PLL_28,
+        TUNER_PHILIPS_PAL,
+        SOUNDCHIP_TDA9874,
+        NULL,
+        &StandardBT848InputSelect,
+        &SetAnalogContrastBrightness,
+        &SetAnalogSaturationU,
+        &SetAnalogSaturationV,
+        &SetAnalogHue,
+        &StandardSetFormat,
+        CAudioDecoder::AUDIODECODERTYPE_TDA9874,
+        0, 
+        /* not applicable for tda9874 because pic16c54 controls mute/unmute*/
+        {0, 0, 0, 0, 0, 0, }
+    },
+    {
+        "Curtiss-Wright Controls Atlas",
+        7,
+        {
+            {
+                "S-Video",
+                INPUTTYPE_SVIDEO,
+                1,
+            },
+            {
+                "Composite 1 (HSIN)",
+                INPUTTYPE_COMPOSITE,
+                2,
+            },
+            {
+                "Composite 2 (Green)",
+                INPUTTYPE_COMPOSITE,
+                3,
+            },
+            {
+                "Composite 3 (Red)",
+                INPUTTYPE_COMPOSITE,
+                1,
+            },
+            {
+                "Composite 4 (Blue)",
+                INPUTTYPE_COMPOSITE,
+                0,
+            },
+            {
+                "RGBS/DVI",
+                INPUTTYPE_SPI,
+                0,
+            },
+            {
+                "Hi-Res Composite",
+                INPUTTYPE_SPI,
+                0,
+            },
+        },
+        PLL_28,
+        TUNER_ABSENT,
+        SOUNDCHIP_NONE,
+        &InitAtlas,
+        &AtlasInputSelect,
+        &SetAtlasContrastBrightness,
+        &SetAtlasSaturationU,
+        &SetAtlasSaturationV,
+        &SetAtlasHue,
+        &SetAtlasFormat,
+        CAudioDecoder::AUDIODECODERTYPE_NONE,
+        0,
+        {0, 0, 0, 0, 0, 0, }
     },
 };
 
@@ -4447,6 +4504,7 @@ const CBT848Card::TAutoDectect878 CBT848Card::m_AutoDectect878[] =
     { 0xa0fca1a0, TVCARD_ZOLTRIX,       "Face to Face Tvmax" },    
     { 0x31323334, TVCARD_GRANDTEC,      "GrandTec XCapture" },
     { 0x109e306e, TVCARD_KWORLD_MPEGTV, "KWorld MPEGTV RF Pro" },
+    { 0xae40ccec, TVCARD_CWCEC_ATLAS,   "Curtiss-Wright Controls Atlas" },
     { 0, (eTVCardId)-1, NULL }
 };
 
@@ -4933,47 +4991,47 @@ eTVCardId CBT848Card::AutoDetectCardType()
 bool CBT848Card::AutoDetectMSP3400()
 {
     BYTE writebf[4];
-	BYTE readbf[3];
+    BYTE readbf[3];
     
     bool HasMSP34xx = false;
 
     writebf[0] = I2C_MSP3400C_0; //address
-			
+
     if (m_I2CBus->Read(writebf, 1, readbf, 1))
     {
-     	// It´s responding ... Try a better check!
-		// Reset MSP!
+        // It´s responding ... Try a better check!
+        // Reset MSP!
 
         static BYTE reset_off[4] = { I2C_MSP3400C_0, 0x00, 0x80, 0x00 };
-        static BYTE reset_on[4]  = { I2C_MSP3400C_0, 0x00, 0x00, 0x00 };	
-        
-        m_I2CBus->Write(reset_off, 4);		
-		if (m_I2CBus->Write(reset_on, 4)) 
+        static BYTE reset_on[4]  = { I2C_MSP3400C_0, 0x00, 0x00, 0x00 };
+
+        m_I2CBus->Write(reset_off, 4);
+        if (m_I2CBus->Write(reset_on, 4)) 
         {
-			// If Reset went ok, Get revision            			
+            // If Reset went ok, Get revision
             writebf[1] = 0x12 + 1;       //DFP
-			writebf[2] = 0x1e >> 8;
-			writebf[3] = 0x1e & 0xff;            
+            writebf[2] = 0x1e >> 8;
+            writebf[3] = 0x1e & 0xff;            
             if (m_I2CBus->Read(writebf, 4, readbf, 2))
             {
-				WORD rev1;
+                WORD rev1;
                 WORD rev2;
 
                 rev1 = ( WORD(readbf[0]) << 8) | readbf[1] ;
-				writebf[2] = 0x1f >> 8;
-				writebf[3] = 0x1f & 0xff;
-				if (m_I2CBus->Read(writebf, 4, readbf, 2))
+                writebf[2] = 0x1f >> 8;
+                writebf[3] = 0x1f & 0xff;
+                if (m_I2CBus->Read(writebf, 4, readbf, 2))
                 {
-					rev2 = ( WORD(readbf[0]) << 8) | readbf[1] ;
-					if ( (rev1 != rev2) || (rev1 != 0 && rev1 != 0xFFFF) ) 
+                    rev2 = ( WORD(readbf[0]) << 8) | readbf[1] ;
+                    if ( (rev1 != rev2) || (rev1 != 0 && rev1 != 0xFFFF) ) 
                     {
-						// Revision seems to be OK! ... Accept!
-						HasMSP34xx = true;					
-					}
-				}
-			}
-		}
-	}
+                        // Revision seems to be OK! ... Accept!
+                        HasMSP34xx = true;
+                    }
+                }
+            }
+        }
+    }
     return HasMSP34xx;
 }
 
@@ -5269,6 +5327,10 @@ HMENU CBT848Card::GetCardSpecificMenu()
     if(m_CardType == TVCARD_PMSDELUXE || m_CardType == TVCARD_SWEETSPOT)
     {
         return LoadMenu(hResourceInst, MAKEINTRESOURCE(IDC_PMS));
+    }
+    else if(m_CardType == TVCARD_CWCEC_ATLAS)
+    {
+        return LoadMenu(hResourceInst, MAKEINTRESOURCE(IDC_ATLAS));
     }
     else
     {

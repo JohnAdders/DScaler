@@ -243,6 +243,119 @@ for format.</td>
 for format.</td>
 </tr>
 
+<td colspan="3">The following settings are available only when using the
+CWCEC Atlas board. The defaults vary depending on the current video format.
+</td>
+
+<td>Horizontal Offset</td>
+<td align="center">0</td>
+<td>Number of pixels to skip on the left edge when DMAing SPI data to memory.
+Used to center the image in the display window.
+</td>
+</tr>
+
+<td>Vertical Offset</td>
+<td align="center">0</td>
+<td>Number of lines to skip at the top when DMAing SPI data to memory.
+Used to center the image in the display window.
+</td>
+</tr>
+
+<td>Is Video Progressive</td>
+<td align="center">off</td>
+<td>When checked, input video is progressive (non-interlaced) format.
+When unchecked, input video is standard interlace format. This is
+normally automatically set true (on) when capturing RGB/DVI or Hi-Res
+video, and false (off) otherwise.
+</td>
+</tr>
+
+<td>AD9882 PLL (Width)</td>
+<td align="center">800</td>
+<td>PLL divisor. Can be used fine tune the image width when using the AD9882
+for video capture.
+</td>
+</tr>
+
+<td>AD9882 VCO</td>
+<td align="center">1</td>
+<td>Selects VCO frequency range.
+</td>
+</tr>
+
+<td>AD9882 Pump</td>
+<td align="center">1</td>
+<td>Varies the current that drives the PLL loop filter.
+</td>
+</tr>
+
+<td>AD9882 Phase</td>
+<td align="center">0</td>
+<td>ADC clock pahse adjustment.
+</td>
+</tr>
+
+<td>AD9882 Pre-Coast</td>
+<td align="center">0</td>
+<td>Number of Hsync periods that coast goes active prior to Vsync.
+</td>
+</tr>
+
+<td>AD9882 Post-Coast</td>
+<td align="center">0</td>
+<td>Number of Hsync periods before coast goes inactive following Vsync.
+</td>
+</tr>
+
+<td>AD9882 Hsync PW (Pos)</td>
+<td align="center">32</td>
+<td>Sets the number of pixel clocks that HSOUT will remain active. Can
+be used to fine tune the horizontal position of the image.
+</td>
+</tr>
+
+<td>AD9882 Sync Sep Thresh</td>
+<td align="center">32</td>
+<td>Sets how many pixel clocks to count before toggling high or low.
+This should be set to some number greater than the maximum Hsync or
+equalization pulsewidth.
+</td>
+</tr>
+
+<td>AD9882 SOG Threshold</td>
+<td align="center">15</td>
+<td>Sets the voltage level of the Sync-on-Green slicer's comparator.
+</td>
+</tr>
+
+<td>AD9882 Sync-On-Green</td>
+<td align="center">off</td>
+<td>Force Hsync and Vsync to come from the green input.
+</td>
+</tr>
+
+<td>AD9882 Coast Enabled</td>
+<td align="center">on</td>
+<td>When checked, coasting with internally generated coast signal. When
+not checked, coast is disabled.
+</td>
+</tr>
+
+<td>AD9882 Coast Override</td>
+<td align="center">off</td>
+<td>When checked, coast polarity is set by the Active High Coast Polarity
+setting. When unchecked, coast polarity determined automatically by
+the chip.
+</td>
+</tr>
+
+<td>AD9882 Active High Coast Polarity</td>
+<td align="center">on</td>
+<td>When checked, input coast polarity is active high. When unchecked,
+coast polarity is active low.
+</td>
+</tr>
+
 </table>
 
 

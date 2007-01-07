@@ -660,6 +660,8 @@ CD3D9Output::CD3D9Output(void)
 	FlipResult=S_OK;
 	hCurrentMon =NULL;
     lpDDFrontBuffer=NULL;
+	bIsRGB = FALSE;
+
 
 	BUFFERWIDTH=GetSystemMetrics(SM_CXFULLSCREEN);
 	BUFFERHEIGHT=GetSystemMetrics(SM_CYFULLSCREEN);

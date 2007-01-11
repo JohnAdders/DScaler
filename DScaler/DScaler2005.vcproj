@@ -233,6 +233,10 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat;for;f90"
 			>
 			<File
+				RelativePath=".\AD9882.cpp"
+				>
+			</File>
+			<File
 				RelativePath="AspectDetect.cpp"
 				>
 				<FileConfiguration
@@ -673,6 +677,10 @@
 						BrowseInformation="1"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\BT848Card_Atlas.cpp"
+				>
 			</File>
 			<File
 				RelativePath="BT848Card_Audio.cpp"
@@ -1275,6 +1283,10 @@
 						BrowseInformation="1"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\D3D9Output.cpp"
+				>
 			</File>
 			<File
 				RelativePath="dshowsource\debug.cpp"
@@ -2797,32 +2809,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Other.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BrowseInformation="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BrowseInformation="1"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="OutReso.cpp"
 				>
 				<FileConfiguration
@@ -2873,6 +2859,10 @@
 						BrowseInformation="1"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\OverlayOutput.cpp"
+				>
 			</File>
 			<File
 				RelativePath="OverlaySettings.cpp"
@@ -3089,6 +3079,10 @@
 						BrowseInformation="1"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\RemoteInput.cpp"
+				>
 			</File>
 			<File
 				RelativePath="SAA7118.cpp"
@@ -4798,6 +4792,10 @@
 			Filter="h;hpp;hxx;hm;inl;fi;fd"
 			>
 			<File
+				RelativePath=".\AD9882.h"
+				>
+			</File>
+			<File
 				RelativePath="AspectFilters.h"
 				>
 			</File>
@@ -4947,6 +4945,10 @@
 			</File>
 			<File
 				RelativePath="CX2388xSource.h"
+				>
+			</File>
+			<File
+				RelativePath=".\D3D9Output.h"
 				>
 			</File>
 			<File
@@ -5138,6 +5140,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\IOutput.h"
+				>
+			</File>
+			<File
 				RelativePath="ISetting.h"
 				>
 			</File>
@@ -5210,6 +5216,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\OverlayOutput.h"
+				>
+			</File>
+			<File
 				RelativePath="OverlaySettings.h"
 				>
 			</File>
@@ -5247,6 +5257,10 @@
 			</File>
 			<File
 				RelativePath="Providers.h"
+				>
+			</File>
+			<File
+				RelativePath=".\RemoteInput.h"
 				>
 			</File>
 			<File

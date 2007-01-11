@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Ioclass.cpp,v 1.19 2006-11-09 21:18:09 adcockj Exp $
+// $Id: Ioclass.cpp,v 1.20 2007-01-11 05:34:07 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -35,6 +35,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2006/11/09 21:18:09  adcockj
+// Fixed error in previous patch
+//
 // Revision 1.18  2006/11/08 09:50:30  adcockj
 // fix for i386 driver issues from Michael Lutz
 //
@@ -961,6 +964,7 @@ NTSTATUS CIOAccessDevice::buildPageStruct32(PMemStruct pMemStruct, PMemoryNode n
     }
     else
     {
+		DWORD_PTR i = 0;
         int Pages = 1;
         DWORD_PTR LastUserAddr = (DWORD_PTR)node->pUserAddress;
         ULONGLONG phys = GetPhysAddr(node->pUserAddress).QuadPart;
@@ -972,7 +976,7 @@ NTSTATUS CIOAccessDevice::buildPageStruct32(PMemStruct pMemStruct, PMemoryNode n
         }        
         node->pSystemAddress = (PVOID)phys;
         pPages[0].dwPhysical = (DWORD)phys; 
-        for(DWORD_PTR i = (DWORD_PTR)node->pUserAddress; i < (DWORD_PTR)node->pUserAddress + pMemStruct->dwTotalSize; i++)
+        for(i = (DWORD_PTR)node->pUserAddress; i < (DWORD_PTR)node->pUserAddress + pMemStruct->dwTotalSize; i++)
         {
             if(i % 4096 == 0)
             {
@@ -1011,11 +1015,12 @@ NTSTATUS CIOAccessDevice::buildPageStruct64(PMemStruct pMemStruct, PMemoryNode n
     }
     else
     {
+		DWORD_PTR i = 0;
         int Pages = 1;
         DWORD_PTR LastUserAddr = (DWORD_PTR)node->pUserAddress;
         pPages[0].llPhysical = GetPhysAddr(node->pUserAddress).QuadPart; 
         node->pSystemAddress = (PVOID)pPages[0].llPhysical;
-        for(DWORD_PTR i = (DWORD_PTR)node->pUserAddress; i < (DWORD_PTR)node->pUserAddress + pMemStruct->dwTotalSize; i++)
+        for(i = (DWORD_PTR)node->pUserAddress; i < (DWORD_PTR)node->pUserAddress + pMemStruct->dwTotalSize; i++)
         {
             if(i % 4096 == 0)
             {

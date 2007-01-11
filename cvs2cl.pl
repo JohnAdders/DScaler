@@ -6,8 +6,8 @@
 ###                                                        ###
 ##############################################################
 
-## $Revision: 1.1 $
-## $Date: 2002-11-05 13:08:29 $
+## $Revision: 1.2 $
+## $Date: 2007-01-11 17:42:44 $
 ## $Author: adcockj $
 ##
 ##   (C) 1999 Karl Fogel <kfogel@red-bean.com>, under the GNU GPL.
@@ -73,7 +73,7 @@ use File::Basename;
 my $Log_Source_Command = "cvs -z3 log";
 
 # In case we have to print it out:
-my $VERSION = '$Revision: 1.1 $';
+my $VERSION = '$Revision: 1.2 $';
 $VERSION =~ s/\S+\s+(\S+)\s+\S+/$1/;
 
 ## Vars set by options:
@@ -91,7 +91,7 @@ my $Print_Usage = 0;
 my $Distributed = 0;
 
 # What file should we generate (defaults to "ChangeLog")?
-my $Log_File_Name = "ChangeLog";
+my $Log_File_Name = "ChangeLog.txt";
 
 # Expand usernames to email addresses based on a map file?
 my $User_Map_File = "";

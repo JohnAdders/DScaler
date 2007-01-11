@@ -51,7 +51,7 @@ BEGIN
             VALUE "FileDescription", "hardware access driver\0"
             VALUE "FileVersion", VERSTRING_ZT
             VALUE "InternalName", "DSDrv4.sys\0"
-            VALUE "LegalCopyright", "Copyright © 2000, 2001, 2002, 2003, 2006\0"
+            VALUE "LegalCopyright", "Copyright © 2000-2007\0"
             VALUE "LegalTrademarks", "This driver is covered by the term of the GNU GPL\0"
             VALUE "OriginalFilename", "DSDrv4.sys\0"
             VALUE "PrivateBuild", "\0"

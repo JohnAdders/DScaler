@@ -4497,7 +4497,7 @@
 			</File>
 		</Filter>
 		<File
-			RelativePath="READ_ME_FIRST_NOW.txt">
+			RelativePath="..\ReadMe.NET.txt">
 		</File>
 	</Files>
 	<Globals>

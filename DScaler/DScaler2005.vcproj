@@ -9625,7 +9625,7 @@
 			</File>
 		</Filter>
 		<File
-			RelativePath="READ_ME_FIRST_NOW.txt"
+			RelativePath="..\ReadMe.VS2005.txt"
 			>
 		</File>
 	</Files>

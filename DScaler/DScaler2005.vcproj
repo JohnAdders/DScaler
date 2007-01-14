@@ -225,7 +225,7 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Debug Express|Win32"
+			Name="Debug_Express|Win32"
 			OutputDirectory="$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
@@ -329,7 +329,7 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Release Express|Win32"
+			Name="Release_Express|Win32"
 			OutputDirectory="$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
@@ -471,7 +471,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -482,7 +482,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -519,7 +519,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -530,7 +530,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -567,7 +567,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -578,7 +578,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -615,7 +615,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -626,7 +626,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -663,7 +663,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -674,7 +674,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -711,7 +711,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -722,7 +722,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -759,7 +759,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -770,7 +770,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -807,7 +807,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -818,7 +818,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -849,7 +849,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -857,7 +857,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -885,7 +885,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -893,7 +893,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -921,7 +921,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -929,7 +929,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -957,7 +957,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -965,7 +965,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -993,7 +993,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1001,7 +1001,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1035,7 +1035,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1046,7 +1046,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1083,7 +1083,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1094,7 +1094,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1131,7 +1131,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1142,7 +1142,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1183,7 +1183,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1194,7 +1194,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1231,7 +1231,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1242,7 +1242,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1283,7 +1283,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1294,7 +1294,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1331,7 +1331,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1342,7 +1342,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1379,7 +1379,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1390,7 +1390,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1427,7 +1427,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1438,7 +1438,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1475,7 +1475,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1486,7 +1486,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1523,7 +1523,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1534,7 +1534,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1571,7 +1571,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1582,7 +1582,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1619,7 +1619,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1630,7 +1630,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1667,7 +1667,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1678,7 +1678,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1715,7 +1715,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1726,7 +1726,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1763,7 +1763,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1774,7 +1774,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1811,7 +1811,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1822,7 +1822,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1859,7 +1859,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1870,7 +1870,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1907,7 +1907,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1918,7 +1918,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1955,7 +1955,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1966,7 +1966,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2003,7 +2003,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2014,7 +2014,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2051,7 +2051,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2062,7 +2062,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2099,7 +2099,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2110,7 +2110,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2151,7 +2151,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2162,7 +2162,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2199,7 +2199,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2210,7 +2210,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2247,7 +2247,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2258,7 +2258,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2295,7 +2295,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2306,7 +2306,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2343,7 +2343,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2354,7 +2354,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2395,7 +2395,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2406,7 +2406,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2443,7 +2443,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2454,7 +2454,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2491,7 +2491,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2502,7 +2502,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2539,7 +2539,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2550,7 +2550,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2587,7 +2587,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2598,7 +2598,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2635,7 +2635,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2646,7 +2646,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2683,7 +2683,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2694,7 +2694,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2731,7 +2731,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2742,7 +2742,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2783,7 +2783,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2794,7 +2794,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2831,7 +2831,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2842,7 +2842,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2879,7 +2879,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2890,7 +2890,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2927,7 +2927,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2938,7 +2938,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2975,7 +2975,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2986,7 +2986,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3023,7 +3023,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3034,7 +3034,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3071,7 +3071,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3082,7 +3082,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3119,7 +3119,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3130,7 +3130,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3167,7 +3167,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3178,7 +3178,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3215,7 +3215,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3226,7 +3226,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3263,7 +3263,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3274,7 +3274,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3311,7 +3311,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3322,7 +3322,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3359,7 +3359,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3370,7 +3370,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3407,7 +3407,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3418,7 +3418,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3455,7 +3455,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3466,7 +3466,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3503,7 +3503,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3514,7 +3514,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3555,7 +3555,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3566,7 +3566,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3603,7 +3603,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3614,7 +3614,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3651,7 +3651,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3662,7 +3662,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3699,7 +3699,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3710,7 +3710,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3747,7 +3747,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3758,7 +3758,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3795,7 +3795,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3806,7 +3806,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3839,7 +3839,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -3848,7 +3848,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -3883,7 +3883,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3894,7 +3894,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3931,7 +3931,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3942,7 +3942,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3979,7 +3979,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3990,7 +3990,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4027,7 +4027,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4038,7 +4038,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4075,7 +4075,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4086,7 +4086,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4123,7 +4123,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4134,7 +4134,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4171,7 +4171,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4182,7 +4182,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4219,7 +4219,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4230,7 +4230,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4271,7 +4271,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4282,7 +4282,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4319,7 +4319,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4330,7 +4330,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4367,7 +4367,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4378,7 +4378,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4415,7 +4415,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4426,7 +4426,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4467,7 +4467,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4478,7 +4478,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4515,7 +4515,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4526,7 +4526,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4563,7 +4563,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4574,7 +4574,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4611,7 +4611,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4622,7 +4622,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4659,7 +4659,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4670,7 +4670,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4707,7 +4707,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4718,7 +4718,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4755,7 +4755,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4766,7 +4766,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4803,7 +4803,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4814,7 +4814,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4851,7 +4851,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4862,7 +4862,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4899,7 +4899,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4910,7 +4910,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4947,7 +4947,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4958,7 +4958,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4995,7 +4995,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5006,7 +5006,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5043,7 +5043,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5054,7 +5054,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5095,7 +5095,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5106,7 +5106,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5143,7 +5143,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5154,7 +5154,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5191,7 +5191,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5202,7 +5202,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5239,7 +5239,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5250,7 +5250,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5291,7 +5291,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5302,7 +5302,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5339,7 +5339,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5350,7 +5350,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5391,7 +5391,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5402,7 +5402,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5439,7 +5439,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5450,7 +5450,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5487,7 +5487,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5498,7 +5498,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5539,7 +5539,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5550,7 +5550,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5587,7 +5587,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5598,7 +5598,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5635,7 +5635,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5646,7 +5646,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5677,7 +5677,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5685,7 +5685,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5719,7 +5719,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5730,7 +5730,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5767,7 +5767,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5778,7 +5778,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5815,7 +5815,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5826,7 +5826,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5863,7 +5863,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5874,7 +5874,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5911,7 +5911,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5922,7 +5922,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5959,7 +5959,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5970,7 +5970,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6007,7 +6007,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6018,7 +6018,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6055,7 +6055,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6066,7 +6066,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6103,7 +6103,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6114,7 +6114,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6151,7 +6151,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6162,7 +6162,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6199,7 +6199,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6210,7 +6210,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6247,7 +6247,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6258,7 +6258,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6299,7 +6299,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6310,7 +6310,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6355,7 +6355,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6366,7 +6366,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6419,7 +6419,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6430,7 +6430,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6467,7 +6467,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6478,7 +6478,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6515,7 +6515,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6526,7 +6526,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6567,7 +6567,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6578,7 +6578,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6615,7 +6615,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6626,7 +6626,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6663,7 +6663,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6674,7 +6674,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6711,7 +6711,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6722,7 +6722,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6759,7 +6759,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6770,7 +6770,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6807,7 +6807,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6818,7 +6818,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6857,7 +6857,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6869,7 +6869,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6907,7 +6907,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6918,7 +6918,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6955,7 +6955,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6966,7 +6966,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7015,7 +7015,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7026,7 +7026,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7071,7 +7071,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7082,7 +7082,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7119,7 +7119,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7130,7 +7130,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7167,7 +7167,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7178,7 +7178,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7215,7 +7215,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7226,7 +7226,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7267,7 +7267,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7278,7 +7278,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7315,7 +7315,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7326,7 +7326,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7363,7 +7363,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7374,7 +7374,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7411,7 +7411,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7422,7 +7422,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7459,7 +7459,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7470,7 +7470,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7511,7 +7511,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7522,7 +7522,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7559,7 +7559,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7570,7 +7570,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7607,7 +7607,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7618,7 +7618,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7655,7 +7655,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7666,7 +7666,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7711,7 +7711,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7722,7 +7722,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7759,7 +7759,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7770,7 +7770,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7807,7 +7807,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7818,7 +7818,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7855,7 +7855,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7866,7 +7866,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7903,7 +7903,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7914,7 +7914,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7951,7 +7951,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7962,7 +7962,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -7999,7 +7999,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -8010,7 +8010,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -8047,7 +8047,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -8058,7 +8058,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -8091,7 +8091,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -8100,7 +8100,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -8135,7 +8135,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -8146,7 +8146,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -8183,7 +8183,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -8194,7 +8194,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -8231,7 +8231,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -8242,7 +8242,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -8279,7 +8279,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -8290,7 +8290,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -8327,7 +8327,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -8338,7 +8338,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -8375,7 +8375,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -8386,7 +8386,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -8423,7 +8423,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -8434,7 +8434,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -8471,7 +8471,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -8482,7 +8482,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -8515,7 +8515,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -8524,7 +8524,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -8555,7 +8555,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -8564,7 +8564,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -8595,7 +8595,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -8604,7 +8604,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -8635,7 +8635,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -8644,7 +8644,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -8675,7 +8675,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -8684,7 +8684,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -8715,7 +8715,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -8724,7 +8724,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -8755,7 +8755,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -8764,7 +8764,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -9595,7 +9595,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug Express|Win32"
+					Name="Debug_Express|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
@@ -9603,7 +9603,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release Express|Win32"
+					Name="Release_Express|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool

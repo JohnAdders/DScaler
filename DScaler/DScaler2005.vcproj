@@ -21,7 +21,7 @@
 			IntermediateDirectory=".\Release"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			UseOfMFC="2"
+			UseOfMFC="1"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
 			>
@@ -54,7 +54,7 @@
 				AdditionalIncludeDirectories="..\api,.\"
 				PreprocessorDefinitions="NDEBUG;_WINDOWS;WIN32;_WIN32_DCOM;_CRT_SECURE_NO_DEPRECATE"
 				StringPooling="true"
-				RuntimeLibrary="2"
+				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="2"
@@ -126,7 +126,7 @@
 			IntermediateDirectory=".\Debug"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			UseOfMFC="2"
+			UseOfMFC="1"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
 			>
@@ -155,7 +155,7 @@
 				Optimization="0"
 				AdditionalIncludeDirectories="..\api,.\"
 				PreprocessorDefinitions="_DEBUG;_WINDOWS;WIN32;_WIN32_DCOM;_CRT_SECURE_NO_DEPRECATE"
-				RuntimeLibrary="3"
+				RuntimeLibrary="1"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdafx.h"
@@ -189,6 +189,7 @@
 				AdditionalLibraryDirectories="..\ThirdParty\LibTiff\,..\ThirdParty\LibJpeg\"
 				GenerateManifest="false"
 				ManifestFile="$(TargetFileName).manifest"
+				IgnoreAllDefaultLibraries="false"
 				GenerateDebugInformation="true"
 				GenerateMapFile="true"
 				MapFileName="..\Debug/DScaler.map"
@@ -5068,6 +5069,23 @@
 			<File
 				RelativePath=".\MultiMon.cpp"
 				>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						RuntimeLibrary="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="OpenDlg.cpp"

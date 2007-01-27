@@ -6,8 +6,8 @@ if "%2" == "" goto usage
 cd ..\..
 md DScalerBuild%1
 cd DScalerBuild%1
-cvs -z3 -d:ext:%2@cvs.sf.net:/cvsroot/deinterlace co DScaler
-cvs -z3 -d:ext:%2@cvs.sf.net:/cvsroot/deinterlace co DSRend
+cvs -z3 -d:ext:%2@deinterlace.cvs.sourceforge.net:/cvsroot/deinterlace co DScaler
+cvs -z3 -d:ext:%2@deinterlace.cvs.sourceforge.net:/cvsroot/deinterlace co DSRend
 cd DScaler\Dscaler
 ..\..\..\Dscaler\Release\verinc
 cvs commit -m "Update Verion for release %1"

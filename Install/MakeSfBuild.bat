@@ -22,7 +22,16 @@ cd Help
 cd ..\DScaler
 call c:\PROGRA~1\MICROS~4\VC98\bin\vcvars32.bat
 msdev Dscaler.dsw /MAKE "All"
-cd ..\Install
+pushd
+call C:\WINDDK\3790~1.183\bin\setenv.bat C:\WINDDK\3790~1.183 fre 64 WNET
+popd
+cd ..\Driver\DSDrvNT
+build
+pushd
+call C:\WINDDK\3790~1.183\bin\setenv.bat C:\WINDDK\3790~1.183 fre AMD64 WNET
+popd
+build
+cd ..\..\Install
 "c:\Program Files\Inno Setup 5\Compil32.exe" /cc DScaler.iss
 copy Output\Setup.exe ..\..\DScaler%1.exe
 cd ..\..

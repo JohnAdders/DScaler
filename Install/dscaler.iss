@@ -1,5 +1,5 @@
 ;////////////////////////////////////////////////////////////////////////////
-;// $Id: dscaler.iss,v 1.35 2005-12-18 20:37:20 adcockj Exp $
+;// $Id: dscaler.iss,v 1.36 2007-01-27 14:42:30 adcockj Exp $
 ;/////////////////////////////////////////////////////////////////////////////
 ;// Copyright (c) 2002 Rob Muller.  All rights reserved.
 ;/////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 ;// CVS Log
 ;//
 ;// $Log: not supported by cvs2svn $
+;// Revision 1.35  2005/12/18 20:37:20  adcockj
+;// prepare for release
+;//
 ;// Revision 1.34  2005/10/19 18:39:53  adcockj
 ;// version prep
 ;//
@@ -130,8 +133,8 @@
 ;  For more information about InnoSetup see http://www.innosetup.com
 
 [Setup]
-AppName=DScaler 4.1.15
-AppVerName=DScaler 4.1.15
+AppName=DScaler 4.1.16
+AppVerName=DScaler 4.1.16
 AppPublisherURL=http://www.dscaler.org
 AppSupportURL=http://www.dscaler.org/phpBB/
 AppUpdatesURL=http://www.dscaler.org
@@ -190,6 +193,8 @@ Source: "..\Release\dscaler.d3u"; DestDir: "{app}"; Flags: ignoreversion; Compon
 Source: "..\Release\dscaler_intro.tif"; DestDir: "{app}"; Flags: ignoreversion; Components: main
 Source: "..\Release\DScaler.vdi"; DestDir: "{app}"; Flags: ignoreversion; Components: main
 Source: "..\Release\DSDrv4.sys"; DestDir: "{app}"; Flags: ignoreversion; Components: main
+Source: "..\Release\DSDrv4ia64.sys"; DestDir: "{app}"; Flags: ignoreversion; Components: main
+Source: "..\Release\DSDrv4amd64.sys"; DestDir: "{app}"; Flags: ignoreversion; Components: main
 Source: "..\Release\DSDrv4.vxd"; DestDir: "{app}"; Flags: ignoreversion; Components: main
 Source: "..\Release\channel.txt"; DestDir: "{app}"; Flags: ignoreversion; Components: main
 Source: "..\Release\DScaler.chm"; DestDir: "{app}"; Flags: ignoreversion; Components: main
@@ -197,8 +202,8 @@ Source: "..\Release\cx2388xCards.ini"; DestDir: "{app}"; Flags: ignoreversion; C
 Source: "..\Release\SAA713xCards.ini"; DestDir: "{app}"; Flags: ignoreversion; Components: main
 Source: "..\Release\Patterns\*.pat"; DestDir: "{app}\Patterns"; Flags: ignoreversion; Components: main
 Source: "..\Release\Patterns\*.d3u"; DestDir: "{app}\Patterns"; Flags: ignoreversion; Components: main
-Source: "..\Release\Skins\default\*.bmp"; DestDir: "{app}\Skins\default"; Flags: ignoreversion recursesubdirs; Components: main
-Source: "..\Release\Skins\default\*.ini"; DestDir: "{app}\Skins\default"; Flags: ignoreversion recursesubdirs; Components: main
+Source: "..\Release\Skins\*.bmp"; DestDir: "{app}\Skins"; Flags: ignoreversion recursesubdirs; Components: main
+Source: "..\Release\Skins\*.ini"; DestDir: "{app}\Skins"; Flags: ignoreversion recursesubdirs; Components: main
 Source: "..\ThirdParty\LibTiff\libtiff.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main
 Source: "..\ThirdParty\LibJpeg\libjpeg.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main
 Source: "..\ThirdParty\zlib\zlib.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: main

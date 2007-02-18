@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Channels.h,v 1.8 2005-03-26 18:53:22 laurentg Exp $
+// $Id: Channels.h,v 1.9 2007-02-18 17:33:57 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2005/03/26 18:53:22  laurentg
+// EPG code improved
+// => possibility to set the EPG channel name in the channel setup dialog box
+// => automatic loading of new data when needed
+// => OSD scrrens updated
+// => first step for programs "browser"
+//
 // Revision 1.7  2005/03/08 03:23:27  robmuller
 // Added CVS keywords.
 //
@@ -133,7 +140,7 @@ public :
     //in the channels.txt file (channels/country)
     //It would be nice to use the comment next to the frequency
     //but some are really too large..
-    BOOL AddChannel(DWORD dwFrequency, int iChannelNumber, eVideoFormat eVideoFormat = VIDEOFORMAT_LASTONE, BOOL bActive = TRUE);
+    BOOL AddChannel(DWORD dwFrequency, int iChannelNumber, eVideoFormat eVideoFormat = VIDEOFORMAT_LAST_TV, BOOL bActive = TRUE);
 
     //The given channel will be destroyed when list is cleared
     BOOL AddChannel(CChannel*);
@@ -233,7 +240,7 @@ class CCountryChannels : public CChannelList
     friend class CCountryList;
 
 public:
-    CCountryChannels(LPCSTR szSomeIdentifierString, eVideoFormat eCountryVideoFormat = VIDEOFORMAT_LASTONE);        
+    CCountryChannels(LPCSTR szSomeIdentifierString, eVideoFormat eCountryVideoFormat = VIDEOFORMAT_LAST_TV);        
     CCountryChannels(const CCountryChannels&);
 
     ~CCountryChannels();

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: StillSource.cpp,v 1.109 2006-12-13 01:10:01 robmuller Exp $
+// $Id: StillSource.cpp,v 1.110 2007-02-18 17:06:01 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.109  2006/12/13 01:10:01  robmuller
+// Fix compile warnings with Visual Studio 2005 Express.
+//
 // Revision 1.108  2006/10/06 13:35:28  adcockj
 // Added projects for .NET 2005 and fixed most of the warnings and errors
 //
@@ -389,7 +392,7 @@
 #include "Pattern.h"
 #include "OutThreads.h"
 #include "AspectRatio.h"
-#include "Other.h"
+#include "ioutput.h"
 #include "Filter.h"
 #include "Dialogs.h"
 #include "OSD.h"

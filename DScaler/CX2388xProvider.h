@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xProvider.h,v 1.2 2003-10-27 10:39:51 adcockj Exp $
+// $Id: CX2388xProvider.h,v 1.3 2007-02-18 21:32:44 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,8 @@
 /** 
  * @file cx2388xprovider.h  cx2388xprovider Header file
  */
+
+#ifdef WANT_CX2388X_SUPPORT
 
 #ifndef __CX2388xPROVIDER_H___
 #define __CX2388xPROVIDER_H___
@@ -62,3 +64,5 @@ private:
 };
 
 #endif
+
+#endif // WANT_CX2388X_SUPPORT

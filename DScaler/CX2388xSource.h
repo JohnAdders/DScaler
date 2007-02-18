@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.h,v 1.40 2006-12-20 07:45:06 adcockj Exp $
+// $Id: CX2388xSource.h,v 1.41 2007-02-18 21:32:44 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,8 @@
 /** 
  * @file cx2388xsource.h  cx2388xsource Header file
  */
+
+#ifdef WANT_CX2388X_SUPPORT
 
 #ifndef __CX2388XSOURCE_H___
 #define __CX2388XSOURCE_H___
@@ -233,7 +235,6 @@ protected:
     void ChangeDefaultsForAudioInput(BOOL bDontSetValue) {};
 };
 
-
-
-
 #endif
+
+#endif // WANT_CX2388X_SUPPORT

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xProvider.cpp,v 1.4 2003-10-27 10:39:51 adcockj Exp $
+// $Id: CX2388xProvider.cpp,v 1.5 2007-02-18 21:32:44 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2003/10/27 10:39:51  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.3  2002/11/02 09:47:36  adcockj
 // Removed test code commited by accident
 //
@@ -52,6 +55,9 @@
  */
 
 #include "stdafx.h"
+
+#ifdef WANT_CX2388X_SUPPORT
+
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
 #include "CX2388xProvider.h"
@@ -223,3 +229,5 @@ void CCX2388xProvider::MemoryFree()
         }
     }
 }
+
+#endif // WANT_CX2388X_SUPPORT

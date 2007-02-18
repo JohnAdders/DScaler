@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.75 2007-02-18 21:15:31 robmuller Exp $
+// $Id: Providers.cpp,v 1.76 2007-02-18 21:32:44 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.75  2007/02/18 21:15:31  robmuller
+// Added option to not compile BT8x8 code.
+//
 // Revision 1.74  2005/03/23 14:20:59  adcockj
 // Test fix for threading issues
 //
@@ -322,7 +325,10 @@ static CHardwareDriver* HardwareDriver = NULL;
 static CBT848Provider* BT848Provider = NULL;
 #endif
 
+#ifdef WANT_CX2388X_SUPPORT
 static CCX2388xProvider* CX2388xProvider = NULL;
+#endif
+
 static CSAA7134Provider* SAA7134Provider = NULL;
 static CStillProvider* StillProvider = NULL;
 static long CurrentSource = 0;
@@ -395,6 +401,7 @@ int Providers_Load(HMENU hMenu)
         }
 #endif // WANT_BT8X8_SUPPORT
 
+#ifdef WANT_CX2388X_SUPPORT
         CX2388xProvider = new CCX2388xProvider(HardwareDriver);
 
         // if we have any of these cards warn the user about the driver issues
@@ -452,6 +459,7 @@ int Providers_Load(HMENU hMenu)
             // Mute the audio of each source
             CX2388xProvider->GetSource(i)->Mute();
         }
+#endif // WANT_CX2388X_SUPPORT
 
         SAA7134Provider = new CSAA7134Provider(HardwareDriver);
         for(i = 0; i < SAA7134Provider->GetNumberOfSources(); ++i)
@@ -623,11 +631,13 @@ void Providers_Unload()
         BT848Provider = NULL;
     }
 #endif
+#ifdef WANT_CX2388X_SUPPORT
     if(CX2388xProvider != NULL)
     {
         delete CX2388xProvider;
         CX2388xProvider = NULL;
     }
+#endif
     if(SAA7134Provider != NULL)
     {
         delete SAA7134Provider;

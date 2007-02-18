@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_Audio.cpp,v 1.15 2005-03-23 14:20:37 adcockj Exp $
+// $Id: CX2388xSource_Audio.cpp,v 1.16 2007-02-18 21:32:44 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2005/03/23 14:20:37  adcockj
+// Test fix for threading issues
+//
 // Revision 1.14  2005/03/11 14:54:39  adcockj
 // Get rid of a load of compilation warnings in vs.net
 //
@@ -87,6 +90,9 @@
  */
 
 #include "stdafx.h"
+
+#ifdef WANT_CX2388X_SUPPORT
+
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
 #include "CX2388xSource.h"
@@ -375,3 +381,5 @@ eSoundChannel CCX2388xSource::AutoDetect_I()
 	eSoundChannel SoundChannel = SOUNDCHANNEL_MONO;
 	return SoundChannel;
 }
+
+#endif // WANT_CX2388X_SUPPORT

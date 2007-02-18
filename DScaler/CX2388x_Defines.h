@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388x_Defines.h,v 1.27 2005-01-13 20:29:33 to_see Exp $
+// $Id: CX2388x_Defines.h,v 1.28 2007-02-18 21:32:44 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,8 @@
 /** 
  * @file cx2388x_defines.h  cx2388x_defines Header file
  */
+
+#ifdef WANT_CX2388X_SUPPORT
 
 #ifndef __CX2388X_DEFINES_H___ 
 #define __CX2388X_DEFINES_H___
@@ -862,5 +864,6 @@ enum eCX2388xStereoType
 // largest possible value in SRAM
 #define SRAM_MAX                       0x187FFF
 
-
 #endif
+
+#endif // WANT_CX2388X_SUPPORT

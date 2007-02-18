@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_H3D.cpp,v 1.11 2006-10-06 13:35:28 adcockj Exp $
+// $Id: CX2388xCard_H3D.cpp,v 1.12 2007-02-18 21:32:44 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2006/10/06 13:35:28  adcockj
+// Added projects for .NET 2005 and fixed most of the warnings and errors
+//
 // Revision 1.10  2005/03/09 09:35:16  atnak
 // Renamed CI2CDevice:::Attach(...) to SetI2CBus(...) to better portray its
 // non-intrusive nature.
@@ -88,6 +91,9 @@
  */
 
 #include "stdafx.h"
+
+#ifdef WANT_CX2388X_SUPPORT
+
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
 #include "CX2388xCard.h"
@@ -561,3 +567,5 @@ void CCX2388xCard::SetFLIFilmDetect(BOOL FLIFilmDetect)
 	}
 	m_I2CBus->Write(Buffer, 3);
 }
+
+#endif // WANT_CX2388X_SUPPORT

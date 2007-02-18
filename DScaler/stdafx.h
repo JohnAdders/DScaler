@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: stdafx.h,v 1.28 2007-02-18 21:15:31 robmuller Exp $
+// $Id: stdafx.h,v 1.29 2007-02-18 21:32:44 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2007/02/18 21:15:31  robmuller
+// Added option to not compile BT8x8 code.
+//
 // Revision 1.27  2006/12/20 10:06:54  adcockj
 // Added new files to vs2005 projects and added new configurations for express
 //
@@ -123,6 +126,7 @@
 #endif
 
 #define WANT_BT8X8_SUPPORT
+#define WANT_CX2388X_SUPPORT
 
 //#include <windows.h>
 #include <windowsx.h>

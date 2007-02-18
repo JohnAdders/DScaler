@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard_Types.cpp,v 1.33 2006-12-13 01:10:00 robmuller Exp $
+// $Id: CX2388xCard_Types.cpp,v 1.34 2007-02-18 21:32:44 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2006/12/13 01:10:00  robmuller
+// Fix compile warnings with Visual Studio 2005 Express.
+//
 // Revision 1.32  2006/10/06 13:35:28  adcockj
 // Added projects for .NET 2005 and fixed most of the warnings and errors
 //
@@ -172,6 +175,9 @@
  */
 
 #include "stdafx.h"
+
+#ifdef WANT_CX2388X_SUPPORT
+
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
 #include "CX2388xCard.h"
@@ -874,3 +880,5 @@ BOOL CCX2388xCard::IsThisCardH3D(eCX2388xCardId CardId)
         return FALSE;
     }
 }
+
+#endif // WANT_CX2388X_SUPPORT

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.h,v 1.39 2005-05-12 20:06:22 to_see Exp $
+// $Id: CX2388xCard.h,v 1.40 2007-02-18 21:32:44 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,8 @@
 /** 
  * @file cx2388xcard.h  cx2388xcard Header file
  */
+
+#ifdef WANT_CX2388X_SUPPORT
 
 #ifndef __CX2388XCARD_H___
 #define __CX2388XCARD_H___
@@ -370,5 +372,6 @@ private:
     static const HCParser::CParseTag k_parseCardList[];
 };
 
-
 #endif
+
+#endif // WANT_CX2388X_SUPPORT

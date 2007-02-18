@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.387 2006-12-20 17:43:55 adcockj Exp $
+// $Id: DScaler.cpp,v 1.388 2007-02-18 21:32:44 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.387  2006/12/20 17:43:55  adcockj
+// reorganised the handling of mce remote
+//
 // Revision 1.386  2006/12/20 17:41:15  adcockj
 // reorganised the handling of mce remote
 //
@@ -1669,7 +1672,7 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     }
 
 	// Load up the list of SAA713x and CX2388x cards
-	if (!CSAA7134Card::InitializeSAA713xCardList() || !CCX2388xCard::InitializeCX2388xCardList() )
+	if (!CSAA7134Card::InitializeSAA713xCardList())
 	{
 		// Caution, this code exits DScaler abruptly based on the user input.
 		// Although this is not done forcefully using a call like exit(), it
@@ -1678,6 +1681,18 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
 		// mapping operations should not be moved before this. --atnak 04-11-21
 		return 0;
 	}
+
+#ifdef WANT_CX2388X_SUPPORT
+	if (!CCX2388xCard::InitializeCX2388xCardList())
+	{
+		// Caution, this code exits DScaler abruptly based on the user input.
+		// Although this is not done forcefully using a call like exit(), it
+		// should be noted that DScaler can exit here.  Any code requiring
+		// clean up should be careful about this.  Driver related and memory
+		// mapping operations should not be moved before this. --atnak 04-11-21
+		return 0;
+	}
+#endif
 
     ShowHWSetupBox =    !Setting_ReadFromIni(DScaler_GetSetting(PROCESSORSPEED))
                      || !Setting_ReadFromIni(DScaler_GetSetting(TRADEOFF))

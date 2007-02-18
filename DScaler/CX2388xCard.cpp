@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.76 2007-02-18 15:18:00 robmuller Exp $
+// $Id: CX2388xCard.cpp,v 1.77 2007-02-18 21:32:44 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.76  2007/02/18 15:18:00  robmuller
+// Improve accuracy of sleep() (used for i2c timing).
+//
 // Revision 1.75  2006/10/06 13:35:28  adcockj
 // Added projects for .NET 2005 and fixed most of the warnings and errors
 //
@@ -342,6 +345,9 @@
  */
 
 #include "stdafx.h"
+
+#ifdef WANT_CX2388X_SUPPORT
+
 #include "..\DScalerRes\resource.h"
 #include "..\DScalerResDbg\CX2388xRes\resource.h"
 #include "resource.h"
@@ -2307,3 +2313,4 @@ BOOL APIENTRY CCX2388xCard::RegisterEditProc(HWND hDlg, UINT message, UINT wPara
     return (FALSE);
 }
 
+#endif // WANT_CX2388X_SUPPORT

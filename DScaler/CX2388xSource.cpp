@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.77 2007-02-18 21:15:31 robmuller Exp $
+// $Id: CX2388xSource.cpp,v 1.78 2007-02-18 21:32:44 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.77  2007/02/18 21:15:31  robmuller
+// Added option to not compile BT8x8 code.
+//
 // Revision 1.76  2005/08/15 19:17:48  to_see
 // Corrected Logging in StartStopConexantDriver
 //
@@ -366,6 +369,9 @@
  */
 
 #include "stdafx.h"
+
+#ifdef WANT_CX2388X_SUPPORT
+
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
 #include "CX2388xSource.h"
@@ -2336,3 +2342,5 @@ BOOL CCX2388xSource::StartStopConexantDriver(DWORD NewState)
 	
 	return bFound;
 }
+
+#endif // WANT_CX2388X_SUPPORT

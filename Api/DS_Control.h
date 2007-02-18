@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.177 2006-12-28 14:18:35 adcockj Exp $
+// $Id: DS_Control.h,v 1.178 2007-02-18 17:34:34 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.177  2006/12/28 14:18:35  adcockj
+// Added patch for Curtiss-Wright cards from Bill Randle
+//
 // Revision 1.176  2006/12/20 17:42:18  adcockj
 // reorganised the handling of mce remote
 //
@@ -628,8 +631,10 @@ enum eVideoFormat
     VIDEOFORMAT_NTSC_M_Japan,
     VIDEOFORMAT_NTSC_50,
 
+	VIDEOFORMAT_LAST_TV,
+
     // used on CWCEC Atlas card
-    VIDEOFORMAT_RGB_640X480_60,
+    VIDEOFORMAT_RGB_640X480_60 = VIDEOFORMAT_LAST_TV,
     VIDEOFORMAT_RGB_800X600_60,
     VIDEOFORMAT_RGB_1024X768_60,
     VIDEOFORMAT_RGB_640X480_75,

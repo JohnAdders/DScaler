@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: D3D9Output.cpp,v 1.5 2007-02-18 16:31:53 robmuller Exp $
+// $Id: D3D9Output.cpp,v 1.6 2007-02-18 18:40:08 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2007/02/18 16:31:53  robmuller
+// Added CVS log.
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -614,7 +617,7 @@ BOOL CD3D9Output::InitDD(HWND hWnd) {
 	ZeroMemory( &d3dpp, sizeof(d3dpp) );
 	d3dpp.Windowed   = TRUE;
 	d3dpp.SwapEffect = D3DSWAPEFFECT_COPY;
-	d3dpp.PresentationInterval=D3DPRESENT_INTERVAL_IMMEDIATE;
+	d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
 	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
 	d3dpp.BackBufferWidth=BUFFERWIDTH;
 	d3dpp.BackBufferHeight=BUFFERHEIGHT;

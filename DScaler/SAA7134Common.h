@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Common.h,v 1.29 2005-03-10 05:06:06 atnak Exp $
+// $Id: SAA7134Common.h,v 1.30 2007-02-18 21:50:04 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2005/03/10 05:06:06  atnak
+// Added auxiliary via DAC lines.
+//
 // Revision 1.28  2004/11/20 14:20:41  atnak
 // Tab to space changes.
 //
@@ -115,6 +118,8 @@
  * @file saa7134common.h saa7134common Header file
  */
  
+#ifdef WANT_SAA713X_SUPPORT
+
 #ifndef __SAA7134COMMON_H___
 #define __SAA7134COMMON_H___
 
@@ -431,5 +436,6 @@ protected:
     static TAudioStandardDefinition m_AudioStandards[];
 };
 
-
 #endif
+
+#endif//xxx

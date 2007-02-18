@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card.h,v 1.51 2005-05-18 12:18:32 robmuller Exp $
+// $Id: SAA7134Card.h,v 1.52 2007-02-18 21:50:04 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.	 All rights	reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.51  2005/05/18 12:18:32  robmuller
+// Added gamma control.
+//
 // Revision 1.50  2005/03/24 17:57:58  adcockj
 // Card access from one thread at a time
 //
@@ -191,6 +194,8 @@
  * @file saa7134card.h saa7134card Header file
  */
  
+#ifdef WANT_SAA713X_SUPPORT
+
 #ifndef	__SAA7134CARD_H___
 #define	__SAA7134CARD_H___
 
@@ -633,6 +638,7 @@ private:
 	BOOL				m_bStereoExternalLines;
 };
 
-
 #endif
+
+#endif//xxx
 

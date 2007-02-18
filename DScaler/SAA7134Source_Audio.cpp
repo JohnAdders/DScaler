@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_Audio.cpp,v 1.20 2005-03-16 15:03:56 atnak Exp $
+// $Id: SAA7134Source_Audio.cpp,v 1.21 2007-02-18 21:50:04 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2005/03/16 15:03:56  atnak
+// Fixed problem with Audio Channel reverting to Stereo automatically on
+// load with external lines.
+//
 // Revision 1.19  2004/08/06 16:23:02  atnak
 // Added typecast to make some warnings go away.
 //
@@ -94,6 +98,9 @@
  */
 
 #include "stdafx.h"
+
+#ifdef WANT_SAA713X_SUPPORT
+
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
 #include "SAA7134Source.h"
@@ -355,3 +362,5 @@ void CSAA7134Source::AutomaticVolumeLevelOnChange(long NewValue, long OldValue)
 {
     m_pSAA7134Card->SetAutomaticVolume((eAutomaticVolume)NewValue);
 }
+
+#endif//xxx

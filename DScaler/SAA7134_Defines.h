@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134_Defines.h,v 1.14 2004-12-16 01:51:42 atnak Exp $
+// $Id: SAA7134_Defines.h,v 1.15 2007-02-18 21:50:04 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2004/12/16 01:51:42  atnak
+// Minor changes to SAA7133 registers.
+//
 // Revision 1.13  2004/12/06 09:02:26  atnak
 // Changed register masks to precalculated values instead of bit lengths.
 //
@@ -71,6 +74,8 @@
  * @file saa7134_defines.h saa7134_defines Header file
  */
  
+#ifdef WANT_SAA713X_SUPPORT
+
 #ifndef __SAA7134_DEFINES_H___
 #define __SAA7134_DEFINES_H___
 
@@ -876,3 +881,5 @@
 #define		SAA7133_A_EXPERT_MODE6_EXPREG5			0, _ltomask(24)
 
 #endif
+
+#endif//xxx

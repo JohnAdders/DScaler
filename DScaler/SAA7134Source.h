@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.h,v 1.48 2006-12-20 07:45:07 adcockj Exp $
+// $Id: SAA7134Source.h,v 1.49 2007-02-18 21:50:04 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.48  2006/12/20 07:45:07  adcockj
+// added DirectX code from Daniel Sabel
+//
 // Revision 1.47  2005/05/18 12:18:32  robmuller
 // Added gamma control.
 //
@@ -182,6 +185,8 @@
  * @file saa7134source.h saa7134source Header file
  */
  
+#ifdef WANT_SAA713X_SUPPORT
+
 #ifndef __SAA7134SOURCE_H___
 #define __SAA7134SOURCE_H___
 
@@ -428,6 +433,7 @@ private:
     DEFINE_SLIDER_CALLBACK_SETTING(CSAA7134Source, AudioCh2FMDeemph);
 };
 
-
 #endif
+
+#endif//xxx
 

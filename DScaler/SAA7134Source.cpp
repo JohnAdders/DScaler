@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.101 2007-02-18 17:19:22 robmuller Exp $
+// $Id: SAA7134Source.cpp,v 1.102 2007-02-18 21:50:04 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.101  2007/02/18 17:19:22  robmuller
+// Patch from Bill Randle to fix problems with new video formats.
+//
 // Revision 1.100  2006/09/24 14:14:44  robmuller
 // Enable gamma control by default.
 //
@@ -353,6 +356,9 @@
  */
 
 #include "stdafx.h"
+
+#ifdef WANT_SAA713X_SUPPORT
+
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
 #include "SAA7134Source.h"
@@ -1946,4 +1952,4 @@ void CSAA7134Source::AudioLine2VoltageOnChange(long NewValue, long OldValue)
     m_pSAA7134Card->SetAudioLine2Voltage((eAudioLineVoltage)NewValue);
 }
 
-
+#endif//xxx

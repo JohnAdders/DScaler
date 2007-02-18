@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134I2CInterface.h,v 1.5 2005-03-24 17:57:58 adcockj Exp $
+// $Id: SAA7134I2CInterface.h,v 1.6 2007-02-18 21:50:04 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2005/03/24 17:57:58  adcockj
+// Card access from one thread at a time
+//
 // Revision 1.4  2003/10/27 10:39:53  adcockj
 // Updated files for better doxygen compatability
 //
@@ -44,6 +47,8 @@
  * @file saa7134i2cinterface.h saa7134i2cinterface Header file
  */
  
+#ifdef WANT_SAA713X_SUPPORT
+
 #ifndef __SAA7134I2CINTERFACE_H__
 #define __SAA7134I2CINTERFACE_H__
 
@@ -91,5 +96,6 @@ public:
     virtual void I2CUnlock()=0;
 };
 
-
 #endif
+
+#endif//xxx

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Video.cpp,v 1.13 2005-05-18 12:18:32 robmuller Exp $
+// $Id: SAA7134Card_Video.cpp,v 1.14 2007-02-18 21:50:04 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2005/05/18 12:18:32  robmuller
+// Added gamma control.
+//
 // Revision 1.12  2004/11/19 23:47:21  atnak
 // Changes to get rid of warnings.
 //
@@ -76,6 +79,9 @@
  */
 
 #include "stdafx.h"
+
+#ifdef WANT_SAA713X_SUPPORT
+
 #include "SAA7134Card.h"
 #include "SAA7134_Defines.h"
 #include "SAA7134Common.h"
@@ -664,3 +670,5 @@ void CSAA7134Card::ResetHPrescale(eTaskID TaskID)
     WriteByte(SAA7134_LEVEL_CTRL(TaskMask), 0x00);
     MaskDataByte(SAA7134_FIR_PREFILTER_CTRL(TaskMask), 0x08, 0x0F); /* VPFY ?? */
 }
+
+#endif//xxx

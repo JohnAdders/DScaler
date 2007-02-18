@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Audio.cpp,v 1.39 2005-10-23 10:14:03 kelddamsbo Exp $
+// $Id: SAA7134Card_Audio.cpp,v 1.40 2007-02-18 21:50:04 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.39  2005/10/23 10:14:03  kelddamsbo
+// Update sound autodetection
+//
 // Revision 1.38  2005/10/16 10:13:48  kelddamsbo
 // Updated Audio Auto Detection
 //
@@ -147,6 +150,9 @@
  */
 
 #include "stdafx.h"
+
+#ifdef WANT_SAA713X_SUPPORT
+
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
 #include "SAA7134Card.h"
@@ -2092,3 +2098,4 @@ LPCSTR CSAA7134Card::GetAudioStandardName(eAudioStandard audioStandard)
 	return m_AudioStandards[audioStandard].Name;
 }
 
+#endif//xxx

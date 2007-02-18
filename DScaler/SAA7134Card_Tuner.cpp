@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Tuner.cpp,v 1.21 2005-03-09 15:20:04 atnak Exp $
+// $Id: SAA7134Card_Tuner.cpp,v 1.22 2007-02-18 21:50:04 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2005/03/09 15:20:04  atnak
+// Minor changes.
+//
 // Revision 1.20  2005/03/09 13:29:39  atnak
 // Added support for TDA8275 tuner and TDA8290.
 //
@@ -96,6 +99,9 @@
  */
 
 #include "stdafx.h"
+
+#ifdef WANT_SAA713X_SUPPORT
+
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
 #include "SAA7134Card.h"
@@ -253,3 +259,4 @@ LPCSTR CSAA7134Card::GetTunerType()
     return m_TunerType;
 }
 
+#endif//xxx

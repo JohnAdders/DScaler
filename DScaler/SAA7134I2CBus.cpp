@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134I2CBus.cpp,v 1.7 2007-02-18 15:18:00 robmuller Exp $
+// $Id: SAA7134I2CBus.cpp,v 1.8 2007-02-18 21:50:04 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2007/02/18 15:18:00  robmuller
+// Improve accuracy of sleep() (used for i2c timing).
+//
 // Revision 1.6  2005/06/09 23:22:01  robmuller
 // Fixed bug in GetTickCount().
 //
@@ -56,6 +59,9 @@
  */
 
 #include "stdafx.h"
+
+#ifdef WANT_SAA713X_SUPPORT
+
 #include "I2CBus.h"
 #include "SAA7134I2CBus.h"
 #include "SAA7134I2CInterface.h"
@@ -389,5 +395,4 @@ void CSAA7134I2CBus::SendNAK()
     // Unsupported
 }
 
-
-
+#endif//xxx

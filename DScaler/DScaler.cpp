@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.388 2007-02-18 21:32:44 robmuller Exp $
+// $Id: DScaler.cpp,v 1.389 2007-02-18 21:50:04 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.388  2007/02/18 21:32:44  robmuller
+// Added option to not compile cx2388x code.
+//
 // Revision 1.387  2006/12/20 17:43:55  adcockj
 // reorganised the handling of mce remote
 //
@@ -1672,6 +1675,7 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     }
 
 	// Load up the list of SAA713x and CX2388x cards
+#ifdef WANT_SAA713X_SUPPORT
 	if (!CSAA7134Card::InitializeSAA713xCardList())
 	{
 		// Caution, this code exits DScaler abruptly based on the user input.
@@ -1681,6 +1685,7 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
 		// mapping operations should not be moved before this. --atnak 04-11-21
 		return 0;
 	}
+#endif
 
 #ifdef WANT_CX2388X_SUPPORT
 	if (!CCX2388xCard::InitializeCX2388xCardList())

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Card_Types.cpp,v 1.60 2006-12-13 01:10:01 robmuller Exp $
+// $Id: SAA7134Card_Types.cpp,v 1.61 2007-02-18 21:50:04 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +37,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.60  2006/12/13 01:10:01  robmuller
+// Fix compile warnings with Visual Studio 2005 Express.
+//
 // Revision 1.59  2006/10/06 13:35:28  adcockj
 // Added projects for .NET 2005 and fixed most of the warnings and errors
 //
@@ -131,6 +134,9 @@
  */
 
 #include "stdafx.h"
+
+#ifdef WANT_SAA713X_SUPPORT
+
 #include "DScaler.h"
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
@@ -926,3 +932,4 @@ void CSAA7134Card::StandardSAA7134InputSelect(int nInput)
     }
 }
 
+#endif//xxx

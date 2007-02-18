@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.76 2007-02-18 21:32:44 robmuller Exp $
+// $Id: Providers.cpp,v 1.77 2007-02-18 21:50:04 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.76  2007/02/18 21:32:44  robmuller
+// Added option to not compile cx2388x code.
+//
 // Revision 1.75  2007/02/18 21:15:31  robmuller
 // Added option to not compile BT8x8 code.
 //
@@ -329,7 +332,10 @@ static CBT848Provider* BT848Provider = NULL;
 static CCX2388xProvider* CX2388xProvider = NULL;
 #endif
 
+#ifdef WANT_SAA713X_SUPPORT
 static CSAA7134Provider* SAA7134Provider = NULL;
+#endif
+
 static CStillProvider* StillProvider = NULL;
 static long CurrentSource = 0;
 static long DefSourceIdx = -1;
@@ -461,6 +467,7 @@ int Providers_Load(HMENU hMenu)
         }
 #endif // WANT_CX2388X_SUPPORT
 
+#ifdef WANT_SAA713X_SUPPORT
         SAA7134Provider = new CSAA7134Provider(HardwareDriver);
         for(i = 0; i < SAA7134Provider->GetNumberOfSources(); ++i)
         {
@@ -489,6 +496,7 @@ int Providers_Load(HMENU hMenu)
             // Mute the audio of each source
             SAA7134Provider->GetSource(i)->Mute();
         }
+#endif//xxx
 
 		// Use by default the first BT8x8/CX2388x/SAA7134 source as initial source
 		// Do that before loading other sources
@@ -638,11 +646,13 @@ void Providers_Unload()
         CX2388xProvider = NULL;
     }
 #endif
+#ifdef WANT_SAA713X_SUPPORT
     if(SAA7134Provider != NULL)
     {
         delete SAA7134Provider;
         SAA7134Provider = NULL;
     }
+#endif
     if(HardwareDriver != NULL)
     {
         HardwareDriver->UnloadDriver();

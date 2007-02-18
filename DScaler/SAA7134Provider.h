@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Provider.h,v 1.6 2003-10-27 10:39:53 adcockj Exp $
+// $Id: SAA7134Provider.h,v 1.7 2007-02-18 21:50:04 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2003/10/27 10:39:53  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.5  2002/10/03 23:36:22  atnak
 // Various changes (major): VideoStandard, AudioStandard, CSAA7134Common, cleanups, tweaks etc,
 //
@@ -46,6 +49,8 @@
  * @file saa7134provider.h saa7134provider Header file
  */
  
+#ifdef WANT_SAA713X_SUPPORT
+
 #ifndef __SAA7134PROVIDER_H___
 #define __SAA7134PROVIDER_H___
 
@@ -89,3 +94,5 @@ private:
 };
 
 #endif
+
+#endif//xxx

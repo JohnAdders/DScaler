@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: stdafx.h,v 1.29 2007-02-18 21:32:44 robmuller Exp $
+// $Id: stdafx.h,v 1.30 2007-02-18 21:50:04 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.29  2007/02/18 21:32:44  robmuller
+// Added option to not compile cx2388x code.
+//
 // Revision 1.28  2007/02/18 21:15:31  robmuller
 // Added option to not compile BT8x8 code.
 //
@@ -127,6 +130,7 @@
 
 #define WANT_BT8X8_SUPPORT
 #define WANT_CX2388X_SUPPORT
+#define WANT_SAA713X_SUPPORT
 
 //#include <windows.h>
 #include <windowsx.h>

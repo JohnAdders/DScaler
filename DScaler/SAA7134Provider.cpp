@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Provider.cpp,v 1.12 2004-11-19 23:45:45 atnak Exp $
+// $Id: SAA7134Provider.cpp,v 1.13 2007-02-18 21:50:04 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2004/11/19 23:45:45  atnak
+// Changes to get rid of warnings.
+//
 // Revision 1.11  2003/10/27 10:39:53  adcockj
 // Updated files for better doxygen compatability
 //
@@ -65,6 +68,9 @@
  */
 
 #include "stdafx.h"
+
+#ifdef WANT_SAA713X_SUPPORT
+
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
 #include "SAA7134Provider.h"
@@ -283,3 +289,5 @@ void CSAA7134Provider::MemoryFree()
         }
     }
 }
+
+#endif//xxx

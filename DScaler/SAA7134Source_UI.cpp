@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source_UI.cpp,v 1.49 2005-05-18 12:18:32 robmuller Exp $
+// $Id: SAA7134Source_UI.cpp,v 1.50 2007-02-18 21:50:04 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.49  2005/05/18 12:18:32  robmuller
+// Added gamma control.
+//
 // Revision 1.48  2005/03/16 14:42:32  atnak
 // Fixed problem with Stereo not appearing selected in the Audio Channel
 // menu with external lines.
@@ -187,6 +190,9 @@
  */
 
 #include "stdafx.h"
+
+#ifdef WANT_SAA713X_SUPPORT
+
 #include "..\DScalerRes\resource.h"
 #include "..\DScalerResDbg\SAA7134Res\resource.h"
 #include "resource.h"
@@ -1815,3 +1821,4 @@ CTreeSettingsPage* CSAA7134Source::GetTreeSettingsPage()
     return pPage;
 }
 
+#endif//xxx

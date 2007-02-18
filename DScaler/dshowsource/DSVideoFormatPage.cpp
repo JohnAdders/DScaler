@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSVideoFormatPage.cpp,v 1.5 2003-01-06 21:31:08 tobbej Exp $
+// $Id: DSVideoFormatPage.cpp,v 1.6 2007-02-18 16:52:53 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2003/01/06 21:31:08  tobbej
+// removed ForceYUY2 and field format selection from dialog since its no longer needed
+//
 // Revision 1.4  2002/09/17 19:29:56  adcockj
 // Fixed compile problems with dshow off
 //
@@ -48,7 +51,7 @@
 
 #include "..\dscaler.h"
 #include "DSVideoFormatPage.h"
-#include "Other.h"
+#include "ioutput.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.cpp,v 1.42 2006-12-13 01:10:01 robmuller Exp $
+// $Id: TimeShift.cpp,v 1.43 2007-02-18 22:42:37 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.42  2006/12/13 01:10:01  robmuller
+// Fix compile warnings with Visual Studio 2005 Express.
+//
 // Revision 1.41  2005/10/15 19:45:54  dosx86
 // Added support for file size limits
 //
@@ -217,8 +220,6 @@
 #include "Cpu.h"          // CpuFeatureFlags
 #include "Providers.h"    // Providers_GetCurrentSource
 #include "DebugLog.h"     // LOG
-
-#include "SchedMessageBox.h" // For schedule timer notification
 
 #define P3_OR_BETTER (FEATURE_SSE | FEATURE_MMXEXT)
 #define BUG()\

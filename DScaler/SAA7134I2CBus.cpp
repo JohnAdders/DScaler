@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134I2CBus.cpp,v 1.6 2005-06-09 23:22:01 robmuller Exp $
+// $Id: SAA7134I2CBus.cpp,v 1.7 2007-02-18 15:18:00 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2005/06/09 23:22:01  robmuller
+// Fixed bug in GetTickCount().
+//
 // Revision 1.5  2005/03/24 17:57:58  adcockj
 // Card access from one thread at a time
 //
@@ -203,7 +206,15 @@ bool CSAA7134I2CBus::Write(const BYTE *writeBuffer, size_t writeBufferSize)
 
 void CSAA7134I2CBus::Sleep()
 {
-    for (volatile ULONG i = m_I2CSleepCycle; i > 0; i--);
+    ULONGLONG ticks = 0;
+	ULONGLONG start;
+
+    QueryPerformanceCounter((PLARGE_INTEGER)&start);
+
+	while(start + m_I2CSleepCycle > ticks)
+	{
+		QueryPerformanceCounter((PLARGE_INTEGER)&ticks);
+	}
 }
 
 
@@ -307,19 +318,11 @@ bool CSAA7134I2CBus::I2CContinue()
 
 void CSAA7134I2CBus::InitializeSleep()
 {
-    m_I2CSleepCycle = 10000L;
-    ULONG elapsed = 0L;
+	ULONGLONG frequency;
+	QueryPerformanceFrequency((PLARGE_INTEGER)&frequency);
+	
+	m_I2CSleepCycle = (unsigned long)(frequency / 50000);
 
-    // get a stable reading
-    while (elapsed < 5)
-    {
-        m_I2CSleepCycle *= 10;
-        ULONG start = GetTickCount();
-        for (volatile ULONG i = m_I2CSleepCycle; i > 0; i--);
-        elapsed = GetTickCount() - start;
-    }
-    // calculate how many cycles a 50kHZ is (half I2C bus cycle)
-    m_I2CSleepCycle = m_I2CSleepCycle / elapsed * 1000L / 50000L;
     m_InitializedSleep = TRUE;
 }
 

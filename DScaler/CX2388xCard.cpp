@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.75 2006-10-06 13:35:28 adcockj Exp $
+// $Id: CX2388xCard.cpp,v 1.76 2007-02-18 15:18:00 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.75  2006/10/06 13:35:28  adcockj
+// Added projects for .NET 2005 and fixed most of the warnings and errors
+//
 // Revision 1.74  2005/07/14 05:05:21  dosx86
 // Fixed the white crush major selection mask so it's two bits wide instead of four
 //
@@ -1806,25 +1809,25 @@ void CCX2388xCard::InitializeI2C()
     WriteDword(CX2388X_I2C, 1);
     m_I2CRegister = ReadDword(CX2388X_I2C);
 
-    m_I2CSleepCycle = 10000L;
-    DWORD elapsed = 0L;
-    // get a stable reading
-    while (elapsed < 5)
-    {
-        m_I2CSleepCycle *= 10;
-        DWORD start = GetTickCount();
-        for (volatile DWORD i = m_I2CSleepCycle; i > 0; i--);
-        elapsed = GetTickCount() - start;
-    }
-    // calculate how many cycles a 50kHZ is (half I2C bus cycle)
-    m_I2CSleepCycle = m_I2CSleepCycle / elapsed * 1000L / 50000L;
+	ULONGLONG frequency;
+	QueryPerformanceFrequency((PLARGE_INTEGER)&frequency);
+	
+	m_I2CSleepCycle = (unsigned long)(frequency / 50000);
     
     m_I2CInitialized = true;
 }
 
 void CCX2388xCard::Sleep()
 {
-    for (volatile DWORD i = m_I2CSleepCycle; i > 0; i--);
+    ULONGLONG ticks = 0;
+	ULONGLONG start;
+
+    QueryPerformanceCounter((PLARGE_INTEGER)&start);
+
+	while(start + m_I2CSleepCycle > ticks)
+	{
+		QueryPerformanceCounter((PLARGE_INTEGER)&ticks);
+	}
 }
 
 void CCX2388xCard::SetSDA(bool value)

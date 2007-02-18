@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.49 2006-12-28 14:18:35 adcockj Exp $
+// $Id: BT848Card.cpp,v 1.50 2007-02-18 15:18:00 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.49  2006/12/28 14:18:35  adcockj
+// Added patch for Curtiss-Wright cards from Bill Randle
+//
 // Revision 1.48  2005/06/09 23:22:00  robmuller
 // Fixed bug in GetTickCount().
 //
@@ -1103,25 +1106,25 @@ void CBT848Card::InitializeI2C()
     WriteDword(BT848_I2C, 1);
     m_I2CRegister = ReadDword(BT848_I2C);
 
-    m_I2CSleepCycle = 10000L;
-    DWORD elapsed = 0L;
-    // get a stable reading
-    while (elapsed < 5)
-    {
-        m_I2CSleepCycle *= 10;
-        DWORD start = GetTickCount();
-        for (volatile DWORD i = m_I2CSleepCycle; i > 0; i--);
-        elapsed = GetTickCount() - start;
-    }
-    // calculate how many cycles a 50kHZ is (half I2C bus cycle)
-    m_I2CSleepCycle = m_I2CSleepCycle / elapsed * 1000L / 50000L;
+	ULONGLONG frequency;
+	QueryPerformanceFrequency((PLARGE_INTEGER)&frequency);
+	
+	m_I2CSleepCycle = (unsigned long)(frequency / 50000);
     
     m_I2CInitialized = true;
 }
 
 void CBT848Card::Sleep()
 {
-    for (volatile DWORD i = m_I2CSleepCycle; i > 0; i--);
+    ULONGLONG ticks = 0;
+	ULONGLONG start;
+
+    QueryPerformanceCounter((PLARGE_INTEGER)&start);
+
+	while(start + m_I2CSleepCycle > ticks)
+	{
+		QueryPerformanceCounter((PLARGE_INTEGER)&ticks);
+	}
 }
 
 void CBT848Card::SetSDA(bool value)

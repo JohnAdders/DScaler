@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_Audio.cpp,v 1.35 2005-03-11 14:54:39 adcockj Exp $
+// $Id: BT848Source_Audio.cpp,v 1.36 2007-02-18 21:15:31 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.35  2005/03/11 14:54:39  adcockj
+// Get rid of a load of compilation warnings in vs.net
+//
 // Revision 1.34  2003/10/27 10:39:50  adcockj
 // Updated files for better doxygen compatability
 //
@@ -128,6 +131,9 @@
  */
 
 #include "stdafx.h"
+
+#ifdef WANT_BT8X8_SUPPORT
+
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
 #include "BT848Source.h"
@@ -636,3 +642,5 @@ void CBT848Source::InitAudioControls()
     m_AudioSpatialEffect->SetValue(m_AudioSpatialEffect->GetValue());
     m_AudioAutoVolumeCorrection->SetValue(m_AudioAutoVolumeCorrection->GetValue()); 
 }
+
+#endif // WANT_BT8X8_SUPPORT

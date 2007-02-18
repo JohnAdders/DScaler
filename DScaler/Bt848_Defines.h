@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Bt848_Defines.h,v 1.31 2006-12-28 14:18:36 adcockj Exp $
+// $Id: Bt848_Defines.h,v 1.32 2007-02-18 21:15:31 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,7 @@
 /** 
  *@file bt848_defines.h bt848 defines
  */
+
 
 #ifndef __BT848_DEFINES_H___
 #define __BT848_DEFINES_H___
@@ -60,6 +61,8 @@
 #define BT848_IFORM_AUTO       0
 #define BT848_IFORM_NORM       7
 
+// always include the code above since the video formats are used by code other than the BT8x8 code 
+#ifdef WANT_BT8X8_SUPPORT
 
 #define BT848_FCNTR            0x0E8
 #define BT848_PLL_F_LO         0x0F0
@@ -499,5 +502,6 @@ enum eTVCardId
 #define DEFAULT_SAT_U_SECAM 197
 #define DEFAULT_SAT_V_SECAM 162
 
+#endif // WANT_BT8X8_SUPPORT
 
 #endif

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Tuner.cpp,v 1.21 2005-12-27 19:29:11 to_see Exp $
+// $Id: BT848Card_Tuner.cpp,v 1.22 2007-02-18 21:15:31 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2005/12/27 19:29:11  to_see
+// Added tea5767 auto-detection
+//
 // Revision 1.20  2005/03/09 15:10:45  atnak
 // Added support for TDA8275 tuner and TDA8290.
 //
@@ -111,6 +114,9 @@
  */
 
 #include "stdafx.h"
+
+#ifdef WANT_BT8X8_SUPPORT
+
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
 #include "BT848Card.h"
@@ -295,3 +301,5 @@ ITuner* CBT848Card::GetTuner() const
 {
     return m_Tuner;
 }
+
+#endif // WANT_BT8X8_SUPPORT

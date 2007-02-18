@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0AudioDecoder.cpp,v 1.5 2004-01-16 09:14:03 adcockj Exp $
+// $Id: MSP34x0AudioDecoder.cpp,v 1.6 2007-02-18 21:15:31 robmuller Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2004/01/16 09:14:03  adcockj
+// Fixed a couple of bugs spotted by Robert Schlabbach
+//
 // Revision 1.4  2003/10/27 10:39:52  adcockj
 // Updated files for better doxygen compatability
 //
@@ -41,6 +44,9 @@
  */
 
 #include "stdafx.h"
+
+#ifdef WANT_BT8X8_SUPPORT
+
 #include "MSP34x0.h"
 #include "MSP34x0AudioDecoder.h"
 #include "Providers.h"
@@ -1240,3 +1246,5 @@ int CMSP34x0AudioDecoder::DetectThread()
     }
     return 0;
 }
+
+#endif//xxx

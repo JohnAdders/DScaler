@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.cpp,v 1.33 2003-10-27 10:39:52 adcockj Exp $
+// $Id: MSP34x0.cpp,v 1.34 2007-02-18 21:15:31 robmuller Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.33  2003/10/27 10:39:52  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.32  2002/10/11 21:50:34  ittarnavsky
 // moved the CMSP34x0Decoder to a separate file and renamed to CMSP34x0AudioDecoder
 //
@@ -146,6 +149,9 @@
 */
 
 #include "stdafx.h"
+
+#ifdef WANT_BT8X8_SUPPORT
+
 #include "MSP34x0.h"
 #include "DebugLog.h"
 #include "DScaler.h"
@@ -240,3 +246,5 @@ WORD CMSP34x0::GetProductCode()
     WORD result = GetDSPRegister(DSP_RD_PRODUCT_CODE);
     return result;
 }
+
+#endif//xxx

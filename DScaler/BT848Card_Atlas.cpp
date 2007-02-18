@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Atlas.cpp,v 1.1 2006-12-28 14:18:35 adcockj Exp $
+// $Id: BT848Card_Atlas.cpp,v 1.2 2007-02-18 21:15:31 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2006 Curtiss-Wright Controls, Inc.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2006/12/28 14:18:35  adcockj
+// Added patch for Curtiss-Wright cards from Bill Randle
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -32,6 +35,9 @@
  */
 
 #include "stdafx.h"
+
+#ifdef WANT_BT8X8_SUPPORT
+
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
 #include "BT848Card.h"
@@ -184,3 +190,4 @@ void CBT848Card::SetAtlasSaturationV(WORD Saturation)
     }
 }
 
+#endif // WANT_BT8X8_SUPPORT

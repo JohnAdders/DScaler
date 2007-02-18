@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource_UI.cpp,v 1.46 2004-12-25 22:40:18 to_see Exp $
+// $Id: CX2388xSource_UI.cpp,v 1.47 2007-02-18 21:15:31 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.46  2004/12/25 22:40:18  to_see
+// Changed the card list to an ini file
+//
 // Revision 1.45  2004/11/13 21:45:56  to_see
 // - Some minor fixes
 // - Added "Vertical Sync Detection" in CX2388x Advanced Settings, enabled by default.
@@ -232,7 +235,8 @@
 #include "SettingsPerChannel.h"
 
 extern const char *TunerNames[TUNER_LASTONE];
-extern long EnableCancelButton;
+
+long EnableCxCancelButton = 1;
 
 BOOL APIENTRY CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
 {
@@ -252,7 +256,7 @@ BOOL APIENTRY CCX2388xSource::SelectCardProc(HWND hDlg, UINT message, UINT wPara
         pThis = (CCX2388xSource*)lParam;
         sprintf(buf, "Setup card %s", pThis->IDString());
         SetWindowText(hDlg, buf);
-        Button_Enable(GetDlgItem(hDlg, IDCANCEL), EnableCancelButton);
+        Button_Enable(GetDlgItem(hDlg, IDCANCEL), EnableCxCancelButton);
         
         SendMessage(GetDlgItem(hDlg, IDC_CARDSSELECT), CB_RESETCONTENT, 0, 0);
         for(i = 0; i < pThis->m_pCard->GetMaxCards(); i++)

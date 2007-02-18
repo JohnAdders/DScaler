@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0.h,v 1.23 2003-10-27 10:39:52 adcockj Exp $
+// $Id: MSP34x0.h,v 1.24 2007-02-18 21:15:31 robmuller Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.23  2003/10/27 10:39:52  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.22  2002/10/27 12:33:33  adcockj
 // Fixed UseInputPin1 code
 //
@@ -96,6 +99,8 @@
 /**
  * @file msp34x0.h msp34x0 Header
  */
+
+#ifdef WANT_BT8X8_SUPPORT
 
 #if !defined(__MSP34X0_H__)
 #define __MSP34X0_H__
@@ -281,3 +286,5 @@ private:
 };
 
 #endif // !defined(__MSP34X0_H__)
+
+#endif//xxx

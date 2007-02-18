@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Audio.cpp,v 1.34 2005-03-09 09:35:15 atnak Exp $
+// $Id: BT848Card_Audio.cpp,v 1.35 2007-02-18 21:15:31 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.34  2005/03/09 09:35:15  atnak
+// Renamed CI2CDevice:::Attach(...) to SetI2CBus(...) to better portray its
+// non-intrusive nature.
+//
 // Revision 1.33  2004/09/25 16:22:25  to_see
 // Added autodetection for tda9874
 //
@@ -131,6 +135,9 @@
  */
 
 #include "stdafx.h"
+
+#ifdef WANT_BT8X8_SUPPORT
+
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
 #include "BT848Card.h"
@@ -654,3 +661,5 @@ BOOL CBT848Card::IsMyAudioDecoder(CAudioDecoder* pAudioDecoder)
 {
     return (m_AudioDecoder == pAudioDecoder);
 }
+
+#endif // WANT_BT8X8_SUPPORT

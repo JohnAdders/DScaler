@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Provider.h,v 1.8 2003-10-27 10:39:50 adcockj Exp $
+// $Id: BT848Provider.h,v 1.9 2007-02-18 21:15:31 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,8 @@
 /** 
  *@file bt848provider.h 
  */
+
+#ifdef WANT_BT8X8_SUPPORT
 
 #ifndef __BT848PROVIDER_H___
 #define __BT848PROVIDER_H___
@@ -61,3 +63,5 @@ private:
 };
 
 #endif
+
+#endif // WANT_BT8X8_SUPPORT

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.50 2007-02-18 15:18:00 robmuller Exp $
+// $Id: BT848Card.cpp,v 1.51 2007-02-18 21:15:31 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.50  2007/02/18 15:18:00  robmuller
+// Improve accuracy of sleep() (used for i2c timing).
+//
 // Revision 1.49  2006/12/28 14:18:35  adcockj
 // Added patch for Curtiss-Wright cards from Bill Randle
 //
@@ -199,6 +202,9 @@
  */
 
 #include "stdafx.h"
+
+#ifdef WANT_BT8X8_SUPPORT
+
 #include "..\DScalerRes\resource.h"
 #include "..\DScalerResDbg\BT8x8Res\resource.h"
 #include "resource.h"
@@ -1424,3 +1430,5 @@ BOOL APIENTRY CBT848Card::RegisterEditProc(HWND hDlg, UINT message, UINT wParam,
     }
     return (FALSE);
 }
+
+#endif // WANT_BT8X8_SUPPORT

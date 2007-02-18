@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_PMS.cpp,v 1.8 2005-03-11 14:54:38 adcockj Exp $
+// $Id: BT848Card_PMS.cpp,v 1.9 2007-02-18 21:15:31 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2005/03/11 14:54:38  adcockj
+// Get rid of a load of compilation warnings in vs.net
+//
 // Revision 1.7  2005/03/09 09:35:16  atnak
 // Renamed CI2CDevice:::Attach(...) to SetI2CBus(...) to better portray its
 // non-intrusive nature.
@@ -52,6 +55,9 @@
  */
 
 #include "stdafx.h"
+
+#ifdef WANT_BT8X8_SUPPORT
+
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
 #include "BT848Card.h"
@@ -616,3 +622,4 @@ void CBT848Card::SetPMSDeluxeSaturationV(WORD Saturation)
     }
 }
 
+#endif // WANT_BT8X8_SUPPORT

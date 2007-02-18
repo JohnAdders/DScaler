@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Providers.cpp,v 1.74 2005-03-23 14:20:59 adcockj Exp $
+// $Id: Providers.cpp,v 1.75 2007-02-18 21:15:31 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.74  2005/03/23 14:20:59  adcockj
+// Test fix for threading issues
+//
 // Revision 1.73  2004/12/04 00:06:51  atnak
 // Got rid of warnings in VC++ .Net 2003.
 //
@@ -314,7 +317,11 @@ void Providers_NotifySourcePreChange();
 
 static SOURCELIST Sources;
 static CHardwareDriver* HardwareDriver = NULL;
+
+#ifdef WANT_BT8X8_SUPPORT
 static CBT848Provider* BT848Provider = NULL;
+#endif
+
 static CCX2388xProvider* CX2388xProvider = NULL;
 static CSAA7134Provider* SAA7134Provider = NULL;
 static CStillProvider* StillProvider = NULL;
@@ -357,6 +364,7 @@ int Providers_Load(HMENU hMenu)
     HardwareDriver = new CHardwareDriver();
     if(HardwareDriver->LoadDriver() == TRUE)
     {
+#ifdef WANT_BT8X8_SUPPORT
         BT848Provider = new CBT848Provider(HardwareDriver);
         for(i = 0; i < BT848Provider->GetNumberOfSources(); ++i)
         {
@@ -385,6 +393,7 @@ int Providers_Load(HMENU hMenu)
             // Mute the audio of each source
             BT848Provider->GetSource(i)->Mute();
         }
+#endif // WANT_BT8X8_SUPPORT
 
         CX2388xProvider = new CCX2388xProvider(HardwareDriver);
 
@@ -607,11 +616,13 @@ void Providers_Unload()
         delete StillProvider;
         StillProvider = NULL;
     }
+#ifdef WANT_BT8X8_SUPPORT
     if(BT848Provider != NULL)
     {
         delete BT848Provider;
         BT848Provider = NULL;
     }
+#endif
     if(CX2388xProvider != NULL)
     {
         delete CX2388xProvider;

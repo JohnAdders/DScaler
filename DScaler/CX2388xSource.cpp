@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.76 2005-08-15 19:17:48 to_see Exp $
+// $Id: CX2388xSource.cpp,v 1.77 2007-02-18 21:15:31 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.76  2005/08/15 19:17:48  to_see
+// Corrected Logging in StartStopConexantDriver
+//
 // Revision 1.75  2005/07/26 22:19:31  laurentg
 // Use the new function Channel_GetVBIName
 //
@@ -389,7 +392,7 @@
 #include <setupapi.h>	// for Start/Stopping driver
 #include <devguid.h>	// for Start/Stopping driver, define GUID_DEVCLASS_MEDIA
 
-extern long EnableCancelButton;
+extern long EnableCxCancelButton;
 
 const char* CombFilterSzList[] =
 {
@@ -1830,9 +1833,9 @@ void CCX2388xSource::SetupCard()
         m_TunerType->SetValue(m_pCard->AutoDetectTuner((eCX2388xCardId)m_CardType->GetValue()));
 
         // then display the hardware setup dialog
-        EnableCancelButton = 0;
+        EnableCxCancelButton = 0;
         DialogBoxParam(hResourceInst, MAKEINTRESOURCE(IDD_SELECTCARD), GetMainWnd(), (DLGPROC) SelectCardProc, (LPARAM)this);
-        EnableCancelButton = 1;
+        EnableCxCancelButton = 1;
     }
 
     m_pCard->SetCardType(m_CardType->GetValue());

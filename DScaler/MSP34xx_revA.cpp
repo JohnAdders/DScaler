@@ -1,5 +1,5 @@
 //
-// $Id: MSP34xx_revA.cpp,v 1.3 2003-10-27 10:39:52 adcockj Exp $
+// $Id: MSP34xx_revA.cpp,v 1.4 2007-02-18 21:15:31 robmuller Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2003/10/27 10:39:52  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.2  2002/10/11 21:53:56  ittarnavsky
 // moved the CMSP34x0Decoder to separate files and renamed to CMSP34x0AudioDecoder
 // renamed 3400 to RevA and 34x1G to RevG
@@ -38,6 +41,9 @@
  */
 
 #include "stdafx.h"
+
+#ifdef WANT_BT8X8_SUPPORT
+
 #include "MSP34x0.h"
 #include "MSP34x0AudioDecoder.h"
 #include "DebugLog.h"
@@ -704,3 +710,5 @@ void CMSP34x0AudioDecoder::SetCarrierRevA(eCarrier MajorCarrier, eCarrier MinorC
 
     SetDEMRegister(DEM_WR_LOAD_REG_12, 0); 
 }
+
+#endif//xxx

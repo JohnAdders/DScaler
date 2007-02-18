@@ -1,5 +1,5 @@
 //
-// $Id: BT848_VoodooTV_IFdem.cpp,v 1.2 2003-10-27 10:39:50 adcockj Exp $
+// $Id: BT848_VoodooTV_IFdem.cpp,v 1.3 2007-02-18 21:15:31 robmuller Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2003/10/27 10:39:50  adcockj
+// Updated files for better doxygen compatability
+//
 /////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -29,6 +32,8 @@
  */
 
 #include "stdafx.h"
+
+#ifdef WANT_BT8X8_SUPPORT
 
 #include "BT848_VoodooTV_IFdem.h"
 
@@ -75,3 +80,4 @@ void CPreTuneVoodooFM::TunerSet(bool bPreSet, eVideoFormat videoFormat)
     }
 }
 
+#endif // WANT_BT8X8_SUPPORT

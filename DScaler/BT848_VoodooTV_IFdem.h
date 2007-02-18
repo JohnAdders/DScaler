@@ -1,5 +1,5 @@
 //
-// $Id: BT848_VoodooTV_IFdem.h,v 1.2 2003-10-27 10:39:50 adcockj Exp $
+// $Id: BT848_VoodooTV_IFdem.h,v 1.3 2007-02-18 21:15:31 robmuller Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,11 +22,16 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2003/10/27 10:39:50  adcockj
+// Updated files for better doxygen compatability
+//
 /////////////////////////////////////////////////////////////////////////////
 
 /** 
  * @file BT848_VOODOOTV_IFDEM.h  CPreTuneVoodooFM Header file
  */
+
+#ifdef WANT_BT8X8_SUPPORT
 
 #ifndef _BT848_VOODOOTV_IFDEM_H_
 #define _BT848_VOODOOTV_IFDEM_H_
@@ -52,3 +57,5 @@ private:
 };
 
 #endif
+
+#endif // WANT_BT8X8_SUPPORT

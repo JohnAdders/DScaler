@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: stdafx.h,v 1.27 2006-12-20 10:06:54 adcockj Exp $
+// $Id: stdafx.h,v 1.28 2007-02-18 21:15:31 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.27  2006/12/20 10:06:54  adcockj
+// Added new files to vs2005 projects and added new configurations for express
+//
 // Revision 1.26  2006/12/12 23:43:10  robmuller
 // Fix compile errors with Visual Studio 2005 Express.
 //
@@ -118,6 +121,8 @@
 	#define NO_DSHOW_STRSAFE
     #include <dshow.h>
 #endif
+
+#define WANT_BT8X8_SUPPORT
 
 //#include <windows.h>
 #include <windowsx.h>

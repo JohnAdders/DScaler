@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0AudioControls.cpp,v 1.5 2003-10-27 10:39:52 adcockj Exp $
+// $Id: MSP34x0AudioControls.cpp,v 1.6 2007-02-18 21:15:31 robmuller Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2003/10/27 10:39:52  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.4  2002/10/15 19:16:29  kooiman
 // Fixed Spatial effect for Audio decoder & MSP
 //
@@ -41,6 +44,9 @@
  */
 
 #include "stdafx.h"
+
+#ifdef WANT_BT8X8_SUPPORT
+
 #include "MSP34x0.h"
 #include "MSP34x0AudioControls.h"
 #include "DebugLog.h"
@@ -377,4 +383,4 @@ long CMSP34x0AudioControls::GetAutoVolumeCorrection()
     return 0;
 }
 
- 
+#endif//xxx

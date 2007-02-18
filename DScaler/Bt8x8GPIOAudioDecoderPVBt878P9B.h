@@ -1,5 +1,5 @@
 //
-// $Id: Bt8x8GPIOAudioDecoderPVBt878P9B.h,v 1.2 2003-10-27 10:39:50 adcockj Exp $
+// $Id: Bt8x8GPIOAudioDecoderPVBt878P9B.h,v 1.3 2007-02-18 21:15:31 robmuller Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2003/10/27 10:39:50  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.1  2002/09/12 21:47:34  ittarnavsky
 // Bt8x8 GPIO based AudioDecoders (actually sound channel selectors)
 //
@@ -30,6 +33,8 @@
 /**
  * @file bt8x8gpioaudiodecoderpvbt878p9b.h bt8x8gpioaudiodecoderpvbt878p9b Header
  */
+
+#ifdef WANT_BT8X8_SUPPORT
 
 #if !defined(__BT8X8GPIOAUDIODECODERPVBT878P9B_H__)
 #define __BT8X8GPIOAUDIODECODERPVBT878P9B_H__
@@ -48,3 +53,5 @@ public:
 };
 
 #endif // !defined(__BT8X8GPIOAUDIODECODERPVBT878P9B_H__)
+
+#endif // WANT_BT8X8_SUPPORT

@@ -1,5 +1,5 @@
 //
-// $Id: btwdmprop.h,v 1.2 2003-10-27 10:39:57 adcockj Exp $
+// $Id: btwdmprop.h,v 1.3 2007-02-18 21:15:32 robmuller Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,11 +22,17 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2003/10/27 10:39:57  adcockj
+// Updated files for better doxygen compatability
+//
 /////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file btwdmprop.h various ir related stuff from btwincap driver
  */
+
+#ifdef WANT_BT8X8_SUPPORT
+
 #include <ks.h>
 
 //{C44A1A10-4A38-11D2-8328-006097BA83AB}
@@ -49,3 +55,5 @@ typedef struct
 	KSPROPERTY Property;
 	ULONG Caps;				// Capabilities (KSPROPERTY_IR_CAPS_...)
 } KSPROPERTY_IR_CAPS_S, *PKSPROPERTY_IR_CAPS_S;
+
+#endif // WANT_BT8X8_SUPPORT

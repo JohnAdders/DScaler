@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0AudioControls.h,v 1.4 2003-10-27 10:39:52 adcockj Exp $
+// $Id: MSP34x0AudioControls.h,v 1.5 2007-02-18 21:15:31 robmuller Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2003/10/27 10:39:52  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.3  2002/10/15 19:16:29  kooiman
 // Fixed Spatial effect for Audio decoder & MSP
 //
@@ -36,6 +39,8 @@
 /**
  * @file msp34x0audiocontrols.h msp34x0audiocontrols Header
  */
+
+#ifdef WANT_BT8X8_SUPPORT
 
 #if !defined(__MSP34X0AUDIOCONTROLS_H__)
 #define __MSP34X0AUDIOCONTROLS_H__
@@ -95,3 +100,5 @@ private:
 };
 
 #endif // !defined(__MSP34X0AUDIOCONTROLS_H__)
+
+#endif

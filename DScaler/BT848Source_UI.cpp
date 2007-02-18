@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source_UI.cpp,v 1.28 2006-12-28 14:18:36 adcockj Exp $
+// $Id: BT848Source_UI.cpp,v 1.29 2007-02-18 21:15:31 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2006/12/28 14:18:36  adcockj
+// Added patch for Curtiss-Wright cards from Bill Randle
+//
 // Revision 1.27  2006/10/06 13:35:28  adcockj
 // Added projects for .NET 2005 and fixed most of the warnings and errors
 //
@@ -294,6 +297,9 @@
  */
 
 #include "stdafx.h"
+
+#ifdef WANT_BT8X8_SUPPORT
+
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
 #include "BT848Source.h"
@@ -1815,3 +1821,5 @@ void CBT848Source::InitializeUI()
         InsertMenuItem(hSubMenu, 3, TRUE, &MenuItemInfo);
     }
 }
+
+#endif // WANT_BT8X8_SUPPORT

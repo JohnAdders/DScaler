@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.h,v 1.67 2006-12-28 14:18:36 adcockj Exp $
+// $Id: BT848Source.h,v 1.68 2007-02-18 21:15:31 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.67  2006/12/28 14:18:36  adcockj
+// Added patch for Curtiss-Wright cards from Bill Randle
+//
 // Revision 1.66  2006/12/20 07:45:06  adcockj
 // added DirectX code from Daniel Sabel
 //
@@ -104,6 +107,8 @@
 /** 
  * @file bt848source.h  bt848source Header file
  */
+
+#ifdef WANT_BT8X8_SUPPORT
 
 #ifndef __BT848SOURCE_H___
 #define __BT848SOURCE_H___
@@ -354,7 +359,6 @@ protected:
     void ChangeDefaultsForAudioInput(BOOL bDontSetValue) {};
 };
 
-
-
-
 #endif
+
+#endif // WANT_BT8X8_SUPPORT

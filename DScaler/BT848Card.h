@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.h,v 1.48 2006-12-28 14:18:35 adcockj Exp $
+// $Id: BT848Card.h,v 1.49 2007-02-18 21:15:31 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,9 @@
 //  GNU General Public License for more details
 /////////////////////////////////////////////////////////////////////////////
 // $Log: not supported by cvs2svn $
+// Revision 1.48  2006/12/28 14:18:35  adcockj
+// Added patch for Curtiss-Wright cards from Bill Randle
+//
 // Revision 1.47  2005/05/12 20:06:22  to_see
 // Moved m_TunerHauppaugeAnalog to TunerID.h for common using for BT and CX cards.
 //
@@ -139,6 +142,8 @@
 /** 
  * @file bt848card.h  bt848card Header file
  */
+
+#ifdef WANT_BT8X8_SUPPORT
 
 #ifndef __BT848CARD_H___
 #define __BT848CARD_H___
@@ -485,3 +490,5 @@ private:
 
 
 #endif
+
+#endif // WANT_BT8X8_SUPPORT

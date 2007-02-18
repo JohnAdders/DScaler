@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SAA7134Source.cpp,v 1.100 2006-09-24 14:14:44 robmuller Exp $
+// $Id: SAA7134Source.cpp,v 1.101 2007-02-18 17:19:22 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.100  2006/09/24 14:14:44  robmuller
+// Enable gamma control by default.
+//
 // Revision 1.99  2005/07/26 22:19:31  laurentg
 // Use the new function Channel_GetVBIName
 //
@@ -547,7 +550,7 @@ void CSAA7134Source::CreateSettings(LPCSTR IniSection)
     m_VideoSource = new CVideoSourceSetting(this, "Video Source", 0, 0, 6, IniSection);
     m_Settings.push_back(m_VideoSource);
 
-    m_VideoFormat = new CVideoFormatSetting(this, "Video Format", VIDEOFORMAT_NTSC_M, 0, VIDEOFORMAT_LASTONE - 1, IniSection, pVideoFormatGroup);
+    m_VideoFormat = new CVideoFormatSetting(this, "Video Format", VIDEOFORMAT_NTSC_M, 0, VIDEOFORMAT_LAST_TV - 1, IniSection, pVideoFormatGroup);
     m_Settings.push_back(m_VideoFormat);
 
     m_ReversePolarity = new CYesNoSetting("Reverse Polarity", FALSE, IniSection, "ReversePolarity");
@@ -1396,7 +1399,7 @@ void CSAA7134Source::SetupCard()
 
 BOOL CSAA7134Source::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
 {
-    if (VideoFormat == VIDEOFORMAT_LASTONE)
+    if (VideoFormat == VIDEOFORMAT_LAST_TV)
     {
         VideoFormat = m_pSAA7134Card->GetTuner()->GetDefaultVideoFormat();
     }

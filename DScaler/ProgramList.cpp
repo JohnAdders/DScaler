@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.114 2005-09-03 21:54:11 to_see Exp $
+// $Id: ProgramList.cpp,v 1.115 2007-02-18 17:19:21 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.114  2005/09/03 21:54:11  to_see
+// Deleted: VPS_GetChannelName because it is not usefull for detecting channel names
+// Fixed: Same channel names in some cases after doing auto channel search
+//
 // Revision 1.113  2005/07/27 22:59:02  laurentg
 // Use new function to search the channel with the VPS CNI
 //
@@ -554,7 +558,7 @@ eVideoFormat SelectedVideoFormat(HWND hDlg)
     int Format = ComboBox_GetCurSel(GetDlgItem(hDlg, IDC_FORMAT)) - 1;
     if(Format == -1)
     {
-        Format = VIDEOFORMAT_LASTONE;
+        Format = VIDEOFORMAT_LAST_TV;
     }
 
     return (eVideoFormat)Format;
@@ -826,7 +830,7 @@ DWORD FindFrequency(DWORD Freq, int Format, DWORD dwAFCFrequencyDeviationThresho
     }
     if(Format == -1)
     {
-        Format = VIDEOFORMAT_LASTONE;
+        Format = VIDEOFORMAT_LAST_TV;
     }
     
     CSource* currentSource = Providers_GetCurrentSource();
@@ -1268,7 +1272,7 @@ BOOL APIENTRY ProgramListProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
         
             // fill the formats box
             ComboBox_AddString(GetDlgItem(hDlg, IDC_FORMAT), "Same as Tuner");
-            for(i = 0; i < VIDEOFORMAT_LASTONE; ++i)
+            for(i = 0; i < VIDEOFORMAT_LAST_TV; ++i)
             {
                 ComboBox_AddString(GetDlgItem(hDlg, IDC_FORMAT), VideoFormatNames[i]);
             }
@@ -1872,7 +1876,7 @@ void Channel_Change(int NewChannel, int DontStorePrevious)
                 }
                 else
                 {
-                    VideoFormat = VIDEOFORMAT_LASTONE;
+                    VideoFormat = VIDEOFORMAT_LAST_TV;
                 }
                 
                 if (TunerSwitchScreenUpdateDelay > 0)

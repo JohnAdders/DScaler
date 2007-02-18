@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Channels.cpp,v 1.13 2006-12-13 01:10:00 robmuller Exp $
+// $Id: Channels.cpp,v 1.14 2007-02-18 17:19:21 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2006/12/13 01:10:00  robmuller
+// Fix compile warnings with Visual Studio 2005 Express.
+//
 // Revision 1.12  2006/10/06 13:35:28  adcockj
 // Added projects for .NET 2005 and fixed most of the warnings and errors
 //
@@ -886,7 +889,7 @@ BOOL CCountryList::RemoveChannels(int index)
 //Used in Load_Country_Settings
 eVideoFormat StrToVideoFormat(char* pszFormat)
 {
-    for(int a = 0; a < VIDEOFORMAT_LASTONE; ++a)
+    for(int a = 0; a < VIDEOFORMAT_LAST_TV; ++a)
     {
         if(!_stricmp(pszFormat, VideoFormatNames[a]))
         {
@@ -894,7 +897,7 @@ eVideoFormat StrToVideoFormat(char* pszFormat)
         }  
     }
    
-    return VIDEOFORMAT_LASTONE;
+    return VIDEOFORMAT_LAST_TV;
 }
 
 BOOL CCountryList::ReadASCII(LPCSTR szFilename) 
@@ -924,7 +927,7 @@ BOOL CCountryList::ReadASCII(FILE* CountryFile)
     char*     eol_ptr;
     CString   channelName;
     CCountryChannels* NewCountry = NULL;
-    eVideoFormat Format = VIDEOFORMAT_LASTONE;     
+    eVideoFormat Format = VIDEOFORMAT_LAST_TV;     
     int channelCounter = 0;
    
     while (fgets(line, sizeof(line), CountryFile) != NULL)
@@ -958,7 +961,7 @@ BOOL CCountryList::ReadASCII(FILE* CountryFile)
             dummy[Pos1-Pos] = '\0';                          
             channelCounter = 0;
             NewCountry = new CCountryChannels((LPCSTR)dummy);
-            Format = VIDEOFORMAT_LASTONE;
+            Format = VIDEOFORMAT_LAST_TV;
         }
         else
         {

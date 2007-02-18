@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TVFormats.h,v 1.9 2006-12-28 14:18:36 adcockj Exp $
+// $Id: TVFormats.h,v 1.10 2007-02-18 17:19:22 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2006/12/28 14:18:36  adcockj
+// Added patch for Curtiss-Wright cards from Bill Randle
+//
 // Revision 1.8  2003/10/27 10:39:54  adcockj
 // Updated files for better doxygen compatability
 //
@@ -67,7 +70,9 @@ enum eVideoFormat
     VIDEOFORMAT_NTSC_M_Japan,
     VIDEOFORMAT_NTSC_50,
 
-    VIDEOFORMAT_RGB_640X480_60,
+    VIDEOFORMAT_LAST_TV,
+
+    VIDEOFORMAT_RGB_640X480_60 = VIDEOFORMAT_LAST_TV,
     VIDEOFORMAT_RGB_800X600_60,
     VIDEOFORMAT_RGB_1024X768_60,
     VIDEOFORMAT_RGB_640X480_75,

@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0AudioDecoder.h,v 1.3 2007-02-18 21:15:31 robmuller Exp $
+// $Id: MSP34x0AudioDecoder.h,v 1.4 2007-02-18 21:17:43 robmuller Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2007/02/18 21:15:31  robmuller
+// Added option to not compile BT8x8 code.
+//
 // Revision 1.2  2003/10/27 10:39:52  adcockj
 // Updated files for better doxygen compatability
 //
@@ -271,4 +274,4 @@ private:
 
 #endif // !defined(__MSP34X0AUDIODECODER_H__)
 
-#endif//xxx
+#endif // WANT_BT8X8_SUPPORT

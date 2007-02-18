@@ -1,5 +1,5 @@
 //
-// $Id: MSP34x0AudioDecoder.cpp,v 1.6 2007-02-18 21:15:31 robmuller Exp $
+// $Id: MSP34x0AudioDecoder.cpp,v 1.7 2007-02-18 21:17:43 robmuller Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -22,6 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2007/02/18 21:15:31  robmuller
+// Added option to not compile BT8x8 code.
+//
 // Revision 1.5  2004/01/16 09:14:03  adcockj
 // Fixed a couple of bugs spotted by Robert Schlabbach
 //
@@ -1247,4 +1250,4 @@ int CMSP34x0AudioDecoder::DetectThread()
     return 0;
 }
 
-#endif//xxx
+#endif // WANT_BT8X8_SUPPORT

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OverlayOutput.cpp,v 1.4 2007-02-18 15:00:37 robmuller Exp $
+// $Id: OverlayOutput.cpp,v 1.5 2007-02-18 20:16:12 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2007/02/18 15:00:37  robmuller
+// Added CVS log.
+//
 //
 //
 /////////////////////////////////////////////////////////////////////////////
@@ -422,7 +425,9 @@ void COverlayOutput::CheckChangeMonitor(HWND hWnd)
 	HMONITOR hMon = lpMonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
 
 	if (hCurrentMon == NULL)
+	{
 		return;
+	}
 
 	if (hMon != hCurrentMon)
 	{
@@ -863,7 +868,9 @@ BOOL COverlayOutput::Overlay_Create()
 		// maybe E_INVALIDARG means that the card doesn't support that many
 		// buffers so loop if we get that too
         if (SUCCEEDED(ddrval) || (ddrval != DDERR_OUTOFVIDEOMEMORY && ddrval != E_INVALIDARG))
+		{
             break;
+		}
     }
 
     if (FAILED(ddrval))

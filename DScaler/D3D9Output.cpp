@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: D3D9Output.cpp,v 1.6 2007-02-18 18:40:08 robmuller Exp $
+// $Id: D3D9Output.cpp,v 1.7 2007-02-18 20:16:12 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2007/02/18 18:40:08  robmuller
+// Wait for vsync.
+//
 // Revision 1.5  2007/02/18 16:31:53  robmuller
 // Added CVS log.
 //
@@ -60,12 +63,16 @@ void CD3D9Output::SetCurrentMonitor(HWND hWnd)
 //   hCurrentMon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);    
 }
 
-void CD3D9Output::CheckChangeMonitor(HWND hWnd) {
+void CD3D9Output::CheckChangeMonitor(HWND hWnd)
+{
 	return;
+
 	HMONITOR hMon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
 
 	if (hCurrentMon == NULL)
+	{
 		return;
+	}
 
 	if (hMon != hCurrentMon)
 	{
@@ -81,24 +88,31 @@ void CD3D9Output::CheckChangeMonitor(HWND hWnd) {
 	}
 }
 
-BOOL CD3D9Output::CanDoOverlayColorControl() {
+BOOL CD3D9Output::CanDoOverlayColorControl()
+{
 	return false;
 }
 	
-BOOL CD3D9Output::OverlayActive() {
+BOOL CD3D9Output::OverlayActive()
+{
 	return lpDDOverlay!=NULL;
 }
 	
-void CD3D9Output::Overlay_Clean() {
+void CD3D9Output::Overlay_Clean()
+{
 }
 
-HWND CD3D9Output::GetHWnd() {
+HWND CD3D9Output::GetHWnd()
+{
 	return m_hWnd;
 }
 	
-BOOL CD3D9Output::Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags) {
+BOOL CD3D9Output::Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlags)
+{
 	if( g_pD3D==NULL || pDevice==NULL || lpDDOverlay==NULL)
+	{
 		return false;
+	}
 
 	EnterCriticalSection(&hDDCritSect);
 	if (pSrcRect == NULL)
@@ -134,13 +148,16 @@ BOOL CD3D9Output::Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlag
 	return true;
 }
 
-void CD3D9Output::Overlay_ResetColorControls() {
+void CD3D9Output::Overlay_ResetColorControls()
+{
 }
 	
-void CD3D9Output::Overlay_SetColorControls() {
+void CD3D9Output::Overlay_SetColorControls()
+{
 }
 	
-BOOL CD3D9Output::Overlay_Create() {
+BOOL CD3D9Output::Overlay_Create()
+{
 	char msg[500];
 
 	if (lpDDOverlay)
@@ -215,15 +232,17 @@ BOOL CD3D9Output::Overlay_Create() {
 	return true;
 }
 	
-DWORD CD3D9Output::Overlay_ColorMatch(LPDIRECTDRAWSURFACE pdds, COLORREF rgb) {
+DWORD CD3D9Output::Overlay_ColorMatch(LPDIRECTDRAWSURFACE pdds, COLORREF rgb)
+{
 	return 1;
 }
 	
-BOOL CD3D9Output::Overlay_Destroy() {
+BOOL CD3D9Output::Overlay_Destroy()
+{
     EnterCriticalSection(&hDDCritSect);
 
     // Now destroy the Extra Surface
-    if (lpExtraMemoryForFilters != NULL)
+    if(lpExtraMemoryForFilters != NULL)
     {
         free(lpExtraMemoryForFilters);
         lpExtraMemoryForFilters = NULL;
@@ -251,15 +270,18 @@ BOOL CD3D9Output::Overlay_Destroy() {
 	return true;
 }
 	
-COLORREF CD3D9Output::Overlay_GetColor() {
+COLORREF CD3D9Output::Overlay_GetColor()
+{
 	return (COLORREF)0x00101020;
 }
 	
-COLORREF CD3D9Output::Overlay_GetCorrectedColor(HDC hDC) {
+COLORREF CD3D9Output::Overlay_GetCorrectedColor(HDC hDC)
+{
 		return (COLORREF)0x00101020;
 }
 	
-BOOL CD3D9Output::Overlay_Lock_Extra_Buffer(TDeinterlaceInfo* pInfo) {
+BOOL CD3D9Output::Overlay_Lock_Extra_Buffer(TDeinterlaceInfo* pInfo)
+{
 	if(lpExtraMemoryForFilters == NULL)
     {
         LOG(1, "Extra Buffer has been deleted");
@@ -273,7 +295,8 @@ BOOL CD3D9Output::Overlay_Lock_Extra_Buffer(TDeinterlaceInfo* pInfo) {
     return TRUE;
 }
 	
-BOOL CD3D9Output::Overlay_Lock_Back_Buffer(TDeinterlaceInfo* pInfo, BOOL bUseExtraBuffer) {
+BOOL CD3D9Output::Overlay_Lock_Back_Buffer(TDeinterlaceInfo* pInfo, BOOL bUseExtraBuffer)
+{
 	HRESULT ddrval;
 	
 	if(bUseExtraBuffer && lpExtraMemoryForFilters != NULL)
@@ -303,7 +326,8 @@ BOOL CD3D9Output::Overlay_Lock_Back_Buffer(TDeinterlaceInfo* pInfo, BOOL bUseExt
 	return true;
 }
 	
-BOOL CD3D9Output::Overlay_Lock(TDeinterlaceInfo* pInfo) {
+BOOL CD3D9Output::Overlay_Lock(TDeinterlaceInfo* pInfo)
+{
     // \todo this doesn't really work for now (GetFrontBufferData always fails) .. do we need this anyway?????
     if(pDevice==NULL)
     {
@@ -413,7 +437,8 @@ BOOL CD3D9Output::Overlay_Unlock_Back_Buffer(BOOL bUseExtraBuffer)
 		// ok, now update the backbuffer
 		LPDIRECT3DSURFACE9 back;
 	
-		if(SUCCEEDED(pDevice->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO, &back))) {
+		if(SUCCEEDED(pDevice->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO, &back)))
+		{
 
 			// draw tv picture
 			pDevice->StretchRect(lpDDOverlay, NULL, back, NULL, D3DTEXF_NONE);
@@ -473,10 +498,6 @@ BOOL CD3D9Output::Overlay_Unlock_Back_Buffer(BOOL bUseExtraBuffer)
 		}
 	}
 
-
-
-
-
 	LeaveCriticalSection(&hDDCritSect);
 	return RetVal;
 }
@@ -493,7 +514,8 @@ RECT CD3D9Output::Overlay_GetCurrentSrcRect()
 }
 
 	
-void CD3D9Output::Overlay_Copy_External(BYTE* lpExternalMemoryBuffer, int ExternalPitch, TDeinterlaceInfo* pInfo) {
+void CD3D9Output::Overlay_Copy_External(BYTE* lpExternalMemoryBuffer, int ExternalPitch, TDeinterlaceInfo* pInfo)
+{
 	BYTE* FromPtr = lpExternalMemoryBuffer + (16 - ((DWORD)lpExternalMemoryBuffer % 16));
     long FromPitch = ExternalPitch;
     Overlay_Lock_Back_Buffer(pInfo, FALSE);
@@ -514,7 +536,8 @@ void CD3D9Output::Overlay_Copy_External(BYTE* lpExternalMemoryBuffer, int Extern
 
 }
 
-void CD3D9Output::Overlay_Copy_Extra(TDeinterlaceInfo* pInfo) {
+void CD3D9Output::Overlay_Copy_Extra(TDeinterlaceInfo* pInfo)
+{
 	Overlay_Lock_Extra_Buffer(pInfo);
     BYTE* FromPtr = pInfo->Overlay;
     long FromPitch = pInfo->OverlayPitch;
@@ -536,7 +559,8 @@ void CD3D9Output::Overlay_Copy_Extra(TDeinterlaceInfo* pInfo) {
 }
 
 	
-BOOL CD3D9Output::Overlay_Flip(DWORD FlipFlag, BOOL bUseExtraBuffer, BYTE* lpExternalMemoryBuffer, int ExternalPitch, TDeinterlaceInfo* pInfo) {
+BOOL CD3D9Output::Overlay_Flip(DWORD FlipFlag, BOOL bUseExtraBuffer, BYTE* lpExternalMemoryBuffer, int ExternalPitch, TDeinterlaceInfo* pInfo)
+{
 	if(lpDDOverlay == NULL)
     {
         LOG(1, "D3DDevice has been deleted - trying to reset");
@@ -554,9 +578,7 @@ BOOL CD3D9Output::Overlay_Flip(DWORD FlipFlag, BOOL bUseExtraBuffer, BYTE* lpExt
     {
         Overlay_Copy_Extra(pInfo);
     }
-
 	
-
     EnterCriticalSection(&hDDCritSect);
 
     BOOL RetVal = TRUE;
@@ -579,16 +601,20 @@ BOOL CD3D9Output::Overlay_Flip(DWORD FlipFlag, BOOL bUseExtraBuffer, BYTE* lpExt
     return RetVal;	
 }
 
-HDC CD3D9Output::Overlay_GetDC() {
+HDC CD3D9Output::Overlay_GetDC()
+{
 	return 0;
 }
 	
-void CD3D9Output::Overlay_ReleaseDC(HDC hDC) {
+void CD3D9Output::Overlay_ReleaseDC(HDC hDC)
+{
 }
 	
-BOOL CD3D9Output::InitDD(HWND hWnd) {
+BOOL CD3D9Output::InitDD(HWND hWnd)
+{
 	InitializeCriticalSection(&hDDCritSect);
-	if( NULL == (g_pD3D = Direct3DCreate9(D3D_SDK_VERSION))) {
+	if( NULL == (g_pD3D = Direct3DCreate9(D3D_SDK_VERSION)))
+	{
 		ErrorBox("Direct3DCreate9 failed");
         return false;
 	}
@@ -626,7 +652,8 @@ BOOL CD3D9Output::InitDD(HWND hWnd) {
 
 	if( FAILED( g_pD3D->CreateDevice( adapter_id, D3DDEVTYPE_HAL, hWnd,
                                   D3DCREATE_SOFTWARE_VERTEXPROCESSING|D3DCREATE_MULTITHREADED,
-								  &d3dpp, &pDevice ) ) ) {
+								  &d3dpp, &pDevice ) ) )
+	{
 		ErrorBox("D3D CreateDevice failed");
 		return false;
 	}
@@ -645,7 +672,8 @@ BOOL CD3D9Output::Overlay_GetRGB()
     return bIsRGB;
 }
 
-void CD3D9Output::ExitDD(void) {
+void CD3D9Output::ExitDD(void)
+{
 	if(pDevice!=NULL)
 	{
 		pDevice->Release();
@@ -660,11 +688,13 @@ void CD3D9Output::ExitDD(void) {
 }
 
 	
-CTreeSettingsGeneric* CD3D9Output::Other_GetTreeSettingsPage() {	
+CTreeSettingsGeneric* CD3D9Output::Other_GetTreeSettingsPage()
+{	
 	return new CTreeSettingsGeneric("Direct3D Settings", OtherSettings, 0);
 }
 
-OUTPUTTYPES CD3D9Output::Type() {
+OUTPUTTYPES CD3D9Output::Type()
+{
 	return OUT_D3D;
 }
 
@@ -688,10 +718,8 @@ CD3D9Output::CD3D9Output(void)
     lpDDFrontBuffer=NULL;
 	bIsRGB = FALSE;
 
-
 	BUFFERWIDTH=GetSystemMetrics(SM_CXFULLSCREEN);
 	BUFFERHEIGHT=GetSystemMetrics(SM_CYFULLSCREEN);
-
 }
 
 CD3D9Output::~CD3D9Output(void)

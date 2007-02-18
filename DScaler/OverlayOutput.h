@@ -1,3 +1,26 @@
+/////////////////////////////////////////////////////////////////////////////
+// $Id: OverlayOutput.h,v 1.4 2007-02-18 15:02:16 robmuller Exp $
+/////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2000 John Adcock.  All rights reserved.
+/////////////////////////////////////////////////////////////////////////////
+//
+//  This file is subject to the terms of the GNU General Public License as
+//  published by the Free Software Foundation.  A copy of this license is
+//  included with this software distribution in the file COPYING.  If you
+//  do not have a copy, you may obtain a copy by writing to the Free
+//  Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+//
+//  This software is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details
+/////////////////////////////////////////////////////////////////////////////
+// CVS Log
+//
+// $Log: not supported by cvs2svn $
+//
+/////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 #include "ioutput.h"
 

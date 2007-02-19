@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OverlayOutput.cpp,v 1.5 2007-02-18 20:16:12 robmuller Exp $
+// $Id: OverlayOutput.cpp,v 1.6 2007-02-19 03:09:21 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2007/02/18 20:16:12  robmuller
+// Applied coding standards.
+//
 // Revision 1.4  2007/02/18 15:00:37  robmuller
 // Added CVS log.
 //
@@ -1752,7 +1755,7 @@ BOOL COverlayOutput::Overlay_BackBuffers_OnChange(long NewValue)
 
 CTreeSettingsGeneric* COverlayOutput::Other_GetTreeSettingsPage()
 {
-    return new CTreeSettingsGeneric("Overlay Settings", OtherSettings, OVERLAYBRIGHTNESS);
+    return new CTreeSettingsGeneric("Overlay Settings", GetOtherSettings(), OVERLAYBRIGHTNESS);
 }
 
 void COverlayOutput::WaitForVerticalBlank()
@@ -1766,7 +1769,7 @@ void COverlayOutput::WaitForVerticalBlank()
 
 void COverlayOutput::InitOtherSettings()
 {    
-    SETTING OtherSettings[OTHER_SETTING_LASTONE] =
+    const SETTING LocalOtherSettings[OTHER_SETTING_LASTONE] =
 	{
 		{
 			"Back Buffers", SLIDER, 0, (long*)&BackBuffers,
@@ -1834,6 +1837,7 @@ void COverlayOutput::InitOtherSettings()
 			"Overlay", "AllowBobMode", Overlay_AllowBobMode_OnChange,
 		},
 	};
+	memmove(OtherSettings, LocalOtherSettings, sizeof(OtherSettings));
 }
 
 COverlayOutput::COverlayOutput(void)

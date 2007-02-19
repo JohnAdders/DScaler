@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.389 2007-02-18 21:50:04 robmuller Exp $
+// $Id: DScaler.cpp,v 1.390 2007-02-19 00:28:04 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.389  2007/02/18 21:50:04  robmuller
+// Added option to not compile saa713x code.
+//
 // Revision 1.388  2007/02/18 21:32:44  robmuller
 // Added option to not compile cx2388x code.
 //
@@ -1249,10 +1252,10 @@
 #include "SAA7134Card.h"
 #include "CX2388xCard.h"
 #include "EPG.h"
+#include "ScheduledRecording.h"
 #include "OverlayOutput.h"
 #include "D3D9Output.h"
 #include "RemoteInput.h"
-
 
 #ifdef WANT_DSHOW_SUPPORT
 #include "dshowsource/DSSourceBase.h"
@@ -1834,6 +1837,7 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     // That way, if the end user has configured dTV to startup maximized,
     // it won't flash a window right before maximizing.
     UpdateWindowState();
+	CScheduledRecording::initScheduledRecordingThreadProc();
 
     PostMessage(hWnd, WM_SIZE, SIZENORMAL, MAKELONG(MainWndWidth, MainWndHeight));
     if ((hAccel = LoadAccelerators(hResourceInst, MAKEINTRESOURCE(IDA_DSCALER))) == NULL)
@@ -4038,6 +4042,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             TimeShiftOnOptions();
             break;
 
+		case IDM_SCHEDULE: 
+			ScheduledRecordingDlg();
+			break;
+						
         case IDM_TSRECORD:
             if (TimeShiftRecord())
             {

@@ -91,6 +91,7 @@
 #define IDM_TOGGLE_MENU                 268
 #define ID_SETTINGS_OUTPUTTYPE          269
 #define IDM_HWINFO                      270
+#define IDD_SCHEDULE                    271
 #define IDM_OUTPUTTYPE_OVERLAY          20075
 #define IDM_OUTPUTTYPE_DIRECT3D         20076
 #define IDM_RESET                       280
@@ -266,6 +267,18 @@
 #define IDC_TS_SIZE_GIB                 1005
 #define IDC_TOP_STATIC                  1006
 #define IDC_BOTTOM_STATIC               1007
+#define IDC_SCHEDULE_STATIC3            1008
+#define IDC_SCHEDULE_DATEPICKER         1009
+#define IDC_SCHEDULE_TIMEPICKER         1010
+#define IDC_SCHEDULE_COMBO              1011
+#define IDC_SCHEDULE_STATIC1            1012
+#define IDC_SCHEDULE_STATIC2            1013
+#define IDC_SCHEDULE_STATIC4            1014
+#define IDC_SCHEDULE_STATIC5            1015
+#define IDC_SCHEDULE_STATICMINUTES      1016
+#define IDC_DATETIMEPICKER1             1017
+#define IDC_SCHEDULE_ENDTIMEPICKER      1018
+#define IDC_SCHEDULE_STATIC             1019
 #define IDM_END                         1032
 #define IDM_SOURCE_INPUT1               1089
 #define IDM_SOURCE_INPUT2               1090
@@ -334,13 +347,16 @@
 #define IDC_OPEN_BROWSE                 1415
 #define IDC_TSCONFIGVIDEO               1415
 #define IDC_TS_PATH_SELECT              1415
+#define IDC_SCHEDULE_REMOVE             1415
 #define IDC_BUTTON2                     1416
 #define IDC_TOOLBAR_CHANNELS_SPINDOWN   1416
 #define IDC_AUDIOSTANDARD_MANUAL_DETECTSTEREO 1416
 #define IDC_TSCONFIGAUDIO               1416
+#define IDC_SCHEDULE_ADD                1416
 #define IDC_BUTTON3                     1417
 #define IDC_TOOLBAR_CHANNELS_PREVIOUS   1417
 #define IDC_BUTTON4                     1418
+#define IDC_SCHEDULE_OK                 1418
 #define IDC_BUTTON5                     1419
 #define IDC_BUTTON6                     1420
 #define IDC_BUTTON7                     1421
@@ -475,6 +491,7 @@
 #define IDC_OPEN_FILE                   1523
 #define IDC_VPS_NAME                    1523
 #define IDC_TS_PATH_DISPLAY             1523
+#define IDC_SCHEDULE_EDIT_NAME          1523
 #define IDC_EDIT2                       1524
 #define IDC_SCAN_MIN_FREQ               1524
 #define IDC_VPS_CNI                     1524
@@ -482,6 +499,7 @@
 #define IDC_EDIT3                       1525
 #define IDC_SCAN_STEPS                  1525
 #define IDC_VPS_LABEL                   1525
+#define IDC_SCHEDULE_EDIT_DURATION      1525
 #define IDC_EDIT4                       1526
 #define IDC_VPS_MONTH                   1526
 #define IDC_EDIT5                       1527
@@ -756,6 +774,7 @@
 #define IDC_SH2                         1789
 #define IDC_SH3                         1790
 #define IDC_SH4                         1791
+#define IDC_SCHEDULE_LIST               1791
 #define IDC_SH5                         1792
 #define IDC_SH6                         1793
 #define IDC_SH7                         1794
@@ -1326,6 +1345,10 @@
 #define IDM_EPG_HOUR21                  33021
 #define IDM_EPG_HOUR22                  33022
 #define IDM_EPG_HOUR23                  33023
+#define ID_HOLDER                       33024
+#define ID_RECORDING_SCHEDULE           33025
+#define ID_SCHEDULE                     33026
+#define IDM_SCHEDULE                    33027
 #define IDM_POPUP_SOURCES               65535
 #define IDM_POPUP_HOLDER                65535
 #define IDM_POPUP_MODE                  65535
@@ -1345,9 +1368,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        268
-#define _APS_NEXT_COMMAND_VALUE         33024
-#define _APS_NEXT_CONTROL_VALUE         1006
+#define _APS_NEXT_RESOURCE_VALUE        281
+#define _APS_NEXT_COMMAND_VALUE         33028
+#define _APS_NEXT_CONTROL_VALUE         1020
 #define _APS_NEXT_SYMED_VALUE           2526
 #endif
 #endif

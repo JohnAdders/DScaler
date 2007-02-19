@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: IOutput.h,v 1.4 2007-02-18 15:02:16 robmuller Exp $
+// $Id: IOutput.h,v 1.5 2007-02-19 10:13:45 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2007/02/18 15:02:16  robmuller
+// Added CVS log.
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -76,13 +79,26 @@ public:
 	virtual COLORREF Overlay_GetColor()=0;
 	virtual COLORREF Overlay_GetCorrectedColor(HDC hDC)=0;
 	virtual void Overlay_SetColorControls()=0;
+
+    ///////////////////////////////////////////////////////////////////////////
+    // The following 2 pairs of function hold the critical section
+    // between calls and so must always be used in pairs
+    ///////////////////////////////////////////////////////////////////////////
+
+    // **** WARNING ****
+    // This function is paired with Overlay_Unlock_Back_Buffer
+    // If this function succeeds then Overlay_Unlock_Back_Buffer must be called
+    // on ALL paths
 	virtual BOOL Overlay_Lock_Back_Buffer(TDeinterlaceInfo* pInfo, BOOL bUseExtraBuffer)=0;
-	virtual BOOL Overlay_Lock(TDeinterlaceInfo* pInfo)=0;
 	virtual BOOL Overlay_Unlock_Back_Buffer(BOOL bUseExtraBuffer)=0;
+    // **** WARNING ****
+    // This function is paired with Overlay_Unlock
+    // If this function succeeds then Overlay_Unlock must be called
+    // on ALL paths
+	virtual BOOL Overlay_Lock(TDeinterlaceInfo* pInfo)=0;
 	virtual BOOL Overlay_Unlock()=0;
+
 	virtual BOOL Overlay_Flip(DWORD FlipFlag, BOOL bUseExtraBuffer, BYTE* lpExternalMemoryBuffer, int ExternalPitch, TDeinterlaceInfo* pInfo)=0;
-	virtual HDC Overlay_GetDC()=0;
-	virtual void Overlay_ReleaseDC(HDC hDC)=0;
     virtual void WaitForVerticalBlank() = 0;
 	virtual void Overlay_SetRGB(BOOL IsRGB)=0;
 	virtual BOOL Overlay_GetRGB()=0;

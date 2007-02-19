@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MultiFrames.cpp,v 1.14 2006-12-20 07:45:07 adcockj Exp $
+// $Id: MultiFrames.cpp,v 1.15 2007-02-19 10:13:45 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2006/12/20 07:45:07  adcockj
+// added DirectX code from Daniel Sabel
+//
 // Revision 1.13  2005/03/23 14:20:57  adcockj
 // Test fix for threading issues
 //
@@ -433,7 +436,13 @@ void CMultiFrames::UpdateFrame(TDeinterlaceInfo* pInfo, BOOL* bUseExtraBuffer, B
 	SelectFrameBuffer(m_CurrentFrame, FALSE, &lpFrameBuffer, &iFrameLinePitch, &iFrameWidth, &iFrameHeight);
 
 	// Copy (with resize) the input picture into its frame
-    ActiveOutput->Overlay_Lock_Back_Buffer(pInfo, *bUseExtraBuffer);
+    if(!ActiveOutput->Overlay_Lock_Back_Buffer(pInfo, *bUseExtraBuffer))
+    {
+        return;
+    }
+
+    // we need to ensure that the back buffer is always unlocked
+
 	if (m_Source->HasSquarePixels())
 	{
 		// Keep the original ratio
@@ -477,6 +486,9 @@ void CMultiFrames::UpdateFrame(TDeinterlaceInfo* pInfo, BOOL* bUseExtraBuffer, B
 		}
 	}
 	ResizeFrame(pInfo->Overlay, pInfo->OverlayPitch, pInfo->FrameWidth, InHalfHeightMode() ? pInfo->FieldHeight : pInfo->FrameHeight, lpFrameBuffer, iFrameLinePitch, iFrameWidth, iFrameHeight);
+    
+    // there were no exit paths between the unlock and the lock
+    // so we hsould be OK
     ActiveOutput->Overlay_Unlock_Back_Buffer(*bUseExtraBuffer);
 
 	if (m_ContentChanged == TRUE)

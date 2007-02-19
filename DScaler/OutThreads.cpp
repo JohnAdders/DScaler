@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.141 2006-12-20 07:45:07 adcockj Exp $
+// $Id: OutThreads.cpp,v 1.142 2007-02-19 10:13:45 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.141  2006/12/20 07:45:07  adcockj
+// added DirectX code from Daniel Sabel
+//
 // Revision 1.140  2006/09/24 02:44:46  robmuller
 // Added missing emms instructions. Should fix problems on non-sse machines.
 //
@@ -1298,7 +1301,8 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 #ifdef USE_PERFORMANCE_STATS
 	                        pPerf->StartCount(PERF_LOCK_OVERLAY);
 #endif
-							if(!ActiveOutput->Overlay_Lock_Back_Buffer(&Info, bUseExtraBuffer))
+							// Need to be careful with the locking
+                            if(!ActiveOutput->Overlay_Lock_Back_Buffer(&Info, bUseExtraBuffer))
 							{
 								Providers_GetCurrentSource()->Stop();
 								LOG(1, "Falling out after Overlay_Lock_Back_Buffer");
@@ -1378,7 +1382,9 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
 						if(bOverlayLocked)
 						{
-							// somewhere above we will have locked the buffer, unlock before flip
+							// there should be no exit paths between this unlock and the lock
+                            // so we should be OK
+                            // somewhere above we will have locked the buffer, unlock before flip
 							if(!ActiveOutput->Overlay_Unlock_Back_Buffer(bUseExtraBuffer))
 							{
 								Providers_GetCurrentSource()->Stop();
@@ -1537,6 +1543,8 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 					BYTE* StillBuffer = Info.Overlay;
 					int LinePitch = Info.OverlayPitch;
 
+                    // make sure the lock is checked
+                    // and paired
 					if(ActiveOutput->Overlay_Lock(&Info))
 					{
 						BYTE* CurrentLine = Info.Overlay;

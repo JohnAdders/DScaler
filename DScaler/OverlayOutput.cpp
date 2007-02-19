@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OverlayOutput.cpp,v 1.6 2007-02-19 03:09:21 robmuller Exp $
+// $Id: OverlayOutput.cpp,v 1.7 2007-02-19 10:13:45 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2007/02/19 03:09:21  robmuller
+// Fix: overlay settings in Advanced Settings dialog did not work.
+//
 // Revision 1.5  2007/02/18 20:16:12  robmuller
 // Applied coding standards.
 //
@@ -441,7 +444,6 @@ void COverlayOutput::CheckChangeMonitor(HWND hWnd)
 			Overlay_Destroy();
 			lpDD = NULL;
 		}
-		DeleteCriticalSection(&hDDCritSect);
 		if (InitDD(hWnd))
 		{
 			Overlay_Start(hWnd);
@@ -1374,6 +1376,7 @@ BOOL COverlayOutput::Overlay_Unlock_Back_Buffer(BOOL bUseExtraBuffer)
     {
         return TRUE;
     }
+    // make sure we always release the critical section
     if(lpDDOverlayBack == NULL)
     {
         LOG(1, "Overlay has been deleted");
@@ -1398,6 +1401,7 @@ BOOL COverlayOutput::Overlay_Unlock_Back_Buffer(BOOL bUseExtraBuffer)
 
 BOOL COverlayOutput::Overlay_Unlock()
 {
+    // make sure we always leave the critical section
     if(lpDDOverlay == NULL)
     {
         LOG(1, "Overlay has been deleted");
@@ -1424,21 +1428,24 @@ void COverlayOutput::Overlay_Copy_External(BYTE* lpExternalMemoryBuffer, int Ext
 {
     BYTE* FromPtr = lpExternalMemoryBuffer + (16 - ((DWORD)lpExternalMemoryBuffer % 16));
     long FromPitch = ExternalPitch;
-    Overlay_Lock_Back_Buffer(pInfo, FALSE);
-    BYTE* ToPtr = pInfo->Overlay;
-
-    for(int i(0) ; i < pInfo->FrameHeight; ++i)
+    // careful as we need to ensure this is always unlocked
+    if(Overlay_Lock_Back_Buffer(pInfo, FALSE))
     {
-        pInfo->pMemcpy(ToPtr, FromPtr, pInfo->LineLength);
-        FromPtr += FromPitch;
-        ToPtr += pInfo->OverlayPitch;
-    }
-    _asm
-    {
-        emms
-    }
+        BYTE* ToPtr = pInfo->Overlay;
 
-    Overlay_Unlock_Back_Buffer(FALSE);
+        for(int i(0) ; i < pInfo->FrameHeight; ++i)
+        {
+            pInfo->pMemcpy(ToPtr, FromPtr, pInfo->LineLength);
+            FromPtr += FromPitch;
+            ToPtr += pInfo->OverlayPitch;
+        }
+        _asm
+        {
+            emms
+        }
+
+        Overlay_Unlock_Back_Buffer(FALSE);
+    }
 }
 
 void COverlayOutput::Overlay_Copy_Extra(TDeinterlaceInfo* pInfo)
@@ -1446,21 +1453,24 @@ void COverlayOutput::Overlay_Copy_Extra(TDeinterlaceInfo* pInfo)
     Overlay_Lock_Extra_Buffer(pInfo);
     BYTE* FromPtr = pInfo->Overlay;
     long FromPitch = pInfo->OverlayPitch;
-    Overlay_Lock_Back_Buffer(pInfo, FALSE);
-    BYTE* ToPtr = pInfo->Overlay;
-
-    for(int i(0) ; i < pInfo->FrameHeight; ++i)
+    // careful as we need to ensure this is always unlocked
+    if(Overlay_Lock_Back_Buffer(pInfo, FALSE))
     {
-        pInfo->pMemcpy(ToPtr, FromPtr, pInfo->LineLength);
-        FromPtr += FromPitch;
-        ToPtr += pInfo->OverlayPitch;
-    }
-    _asm
-    {
-        emms
-    }
+        BYTE* ToPtr = pInfo->Overlay;
 
-    Overlay_Unlock_Back_Buffer(FALSE);
+        for(int i(0) ; i < pInfo->FrameHeight; ++i)
+        {
+            pInfo->pMemcpy(ToPtr, FromPtr, pInfo->LineLength);
+            FromPtr += FromPitch;
+            ToPtr += pInfo->OverlayPitch;
+        }
+        _asm
+        {
+            emms
+        }
+
+        Overlay_Unlock_Back_Buffer(FALSE);
+    }
 }
 
 BOOL COverlayOutput::Overlay_Flip(DWORD FlipFlag, BOOL bUseExtraBuffer, BYTE* lpExternalMemoryBuffer, int ExternalPitch, TDeinterlaceInfo* pInfo)
@@ -1517,43 +1527,6 @@ BOOL COverlayOutput::Overlay_Flip(DWORD FlipFlag, BOOL bUseExtraBuffer, BYTE* lp
     return RetVal;
 }
 
-HDC COverlayOutput::Overlay_GetDC()
-{
-    if(lpDDSurface == NULL)
-    {
-        LOG(1, "Surface has been deleted");
-        return NULL;
-    }
-
-    HDC hDC;
-    EnterCriticalSection(&hDDCritSect);
-    HRESULT ddrval = lpDDSurface->GetDC(&hDC);
-    if(FAILED(ddrval))
-    {
-        LOG(1, "Surface GetDC failed %8x", ddrval);        
-        hDC = NULL;
-        LeaveCriticalSection(&hDDCritSect);
-    }
-    // stay in critical section if successful
-    return hDC;
-}
-
-void COverlayOutput::Overlay_ReleaseDC(HDC hDC)
-{
-    if(hDC == NULL || lpDDSurface == NULL)
-    {
-        LOG(1, "Overlay_ReleaseDC called with invalid params");
-        return;
-    }
-    // we are already in critical section
-    HRESULT ddrval = lpDDSurface->ReleaseDC(hDC);
-    if(FAILED(ddrval))
-    {
-        LOG(1, "Surface ReleaseDC failed %8x", ddrval);        
-    }
-    LeaveCriticalSection(&hDDCritSect);
-}
-
 //-----------------------------------------------------------------------------
 // Support for RGB surface
 void COverlayOutput::Overlay_SetRGB(BOOL IsRGB)
@@ -1572,8 +1545,6 @@ BOOL COverlayOutput::InitDD(HWND hWnd)
 {
     HRESULT ddrval;
     DDCAPS DriverCaps;
-
-    InitializeCriticalSection(&hDDCritSect);
 
 	lpDD = GetCurrentDD(hWnd);
 
@@ -1658,7 +1629,6 @@ void COverlayOutput::ExitDD(void)
         }
         lpDD = NULL;
     }
-    DeleteCriticalSection(&hDDCritSect);
 }
 
 OUTPUTTYPES COverlayOutput::Type() 
@@ -1870,10 +1840,13 @@ COverlayOutput::COverlayOutput(void)
 	bIsRGB = FALSE;
     
     LoadDynamicFunctions();
+
+    InitializeCriticalSection(&hDDCritSect);
 }
 
 COverlayOutput::~COverlayOutput(void)
 {
+    DeleteCriticalSection(&hDDCritSect);
 }
 
 

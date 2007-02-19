@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: D3D9Output.cpp,v 1.7 2007-02-18 20:16:12 robmuller Exp $
+// $Id: D3D9Output.cpp,v 1.8 2007-02-19 10:13:45 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2007/02/18 20:16:12  robmuller
+// Applied coding standards.
+//
 // Revision 1.6  2007/02/18 18:40:08  robmuller
 // Wait for vsync.
 //
@@ -63,7 +66,7 @@ void CD3D9Output::SetCurrentMonitor(HWND hWnd)
 //   hCurrentMon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);    
 }
 
-void CD3D9Output::CheckChangeMonitor(HWND hWnd)
+void CD3D9Output::CheckChangeMonitor(HWND hWnd) 
 {
 	return;
 
@@ -79,7 +82,6 @@ void CD3D9Output::CheckChangeMonitor(HWND hWnd)
 		hCurrentMon = hMon;
 		Overlay_Stop(hWnd);
 		Overlay_Destroy();		
-		DeleteCriticalSection(&hDDCritSect);
 		ExitDD();
 		if (InitDD(hWnd))
 		{
@@ -121,24 +123,15 @@ BOOL CD3D9Output::Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlag
 	}
 	else 
 	{
-		if(srcrect==NULL)
-		{
-			srcrect=(LPRECT) malloc(sizeof(RECT));
-		}
-		CopyRect(srcrect, pSrcRect);
+		CopyRect(&srcrect, pSrcRect);
 		// scale srcrect
-		srcrect->left=(int)((float)BUFFERWIDTH/(float)DSCALER_MAX_WIDTH*srcrect->left);
-		srcrect->right=(int)((float)BUFFERWIDTH/(float)DSCALER_MAX_WIDTH*srcrect->right);
-		srcrect->top=(int)((float)BUFFERHEIGHT/(float)DSCALER_MAX_HEIGHT*srcrect->top);
-		srcrect->bottom=(int)((float)BUFFERHEIGHT/(float)DSCALER_MAX_HEIGHT*srcrect->bottom);
+		srcrect.left=(int)((float)BUFFERWIDTH/(float)DSCALER_MAX_WIDTH*srcrect.left);
+		srcrect.right=(int)((float)BUFFERWIDTH/(float)DSCALER_MAX_WIDTH*srcrect.right);
+		srcrect.top=(int)((float)BUFFERHEIGHT/(float)DSCALER_MAX_HEIGHT*srcrect.top);
+		srcrect.bottom=(int)((float)BUFFERHEIGHT/(float)DSCALER_MAX_HEIGHT*srcrect.bottom);
 		
-		
-		if(destrect==NULL)
-		{
-			destrect=(LPRECT) malloc(sizeof(RECT));
-		}
-		CopyRect(destrect, pDestRect);		
-		MapWindowPoints(HWND_DESKTOP, m_hWnd, (LPPOINT)destrect, 2);			
+		CopyRect(&destrect, pDestRect);		
+		MapWindowPoints(HWND_DESKTOP, m_hWnd, (LPPOINT)&destrect, 2);			
 	}
 
 	VT_SetOverlayColour((COLORREF)0x00101020);
@@ -177,7 +170,7 @@ BOOL CD3D9Output::Overlay_Create()
 			// ok to reset
 			if(SUCCEEDED(pDevice->Reset(&d3dpp)))
 			{                
-				Overlay_Update(srcrect, destrect, SW_SHOW);
+				Overlay_Update(&srcrect, &destrect, SW_SHOW);
 			}
 			else
 			{
@@ -406,17 +399,21 @@ BOOL CD3D9Output::Overlay_Lock(TDeinterlaceInfo* pInfo)
 
 BOOL CD3D9Output::Overlay_Unlock() 
 {
+    // always leave the critical section
     if(lpDDFrontBuffer==NULL)
     {
+        LeaveCriticalSection(&hDDCritSect);
         return FALSE;
     }
     if(FAILED(lpDDFrontBuffer->UnlockRect()))
     {
         LOG(1, "Unlock failed");
+        LeaveCriticalSection(&hDDCritSect);
         return FALSE;
     }
     lpDDFrontBuffer->Release();
     lpDDFrontBuffer=NULL;
+    LeaveCriticalSection(&hDDCritSect);
     return TRUE;
 }
 
@@ -427,7 +424,9 @@ BOOL CD3D9Output::Overlay_Unlock_Back_Buffer(BOOL bUseExtraBuffer)
     {
         return TRUE;
     }
-	BOOL RetVal = TRUE;
+
+    // make sure we always release the critical section
+    BOOL RetVal = TRUE;
 	if(FAILED( lpDDOverlay->UnlockRect()))
 	{
 		RetVal=false;
@@ -437,9 +436,8 @@ BOOL CD3D9Output::Overlay_Unlock_Back_Buffer(BOOL bUseExtraBuffer)
 		// ok, now update the backbuffer
 		LPDIRECT3DSURFACE9 back;
 	
-		if(SUCCEEDED(pDevice->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO, &back)))
-		{
-
+		if(SUCCEEDED(pDevice->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO, &back))) 
+        {
 			// draw tv picture
 			pDevice->StretchRect(lpDDOverlay, NULL, back, NULL, D3DTEXF_NONE);
 			
@@ -505,57 +503,61 @@ BOOL CD3D9Output::Overlay_Unlock_Back_Buffer(BOOL bUseExtraBuffer)
 
 RECT CD3D9Output::Overlay_GetCurrentDestRect() 
 {
-	return *destrect;
+	return destrect;
 }
 
 RECT CD3D9Output::Overlay_GetCurrentSrcRect() 
 {
-	return *srcrect;
+	return srcrect;
 }
-
 	
 void CD3D9Output::Overlay_Copy_External(BYTE* lpExternalMemoryBuffer, int ExternalPitch, TDeinterlaceInfo* pInfo)
 {
 	BYTE* FromPtr = lpExternalMemoryBuffer + (16 - ((DWORD)lpExternalMemoryBuffer % 16));
     long FromPitch = ExternalPitch;
-    Overlay_Lock_Back_Buffer(pInfo, FALSE);
-    BYTE* ToPtr = pInfo->Overlay;
-
-    for(int i(0) ; i < pInfo->FrameHeight; ++i)
+    // careful as we need to ensure this is always unlocked
+    if(Overlay_Lock_Back_Buffer(pInfo, FALSE))
     {
-        pInfo->pMemcpy(ToPtr, FromPtr, pInfo->LineLength);
-        FromPtr += FromPitch;
-        ToPtr += pInfo->OverlayPitch;
-    }
-    _asm
-    {
-        emms
-    }
+        BYTE* ToPtr = pInfo->Overlay;
 
-    Overlay_Unlock_Back_Buffer(FALSE);
+        for(int i(0) ; i < pInfo->FrameHeight; ++i)
+        {
+            pInfo->pMemcpy(ToPtr, FromPtr, pInfo->LineLength);
+            FromPtr += FromPitch;
+            ToPtr += pInfo->OverlayPitch;
+        }
+        _asm
+        {
+            emms
+        }
 
+        Overlay_Unlock_Back_Buffer(FALSE);
+    }
 }
 
-void CD3D9Output::Overlay_Copy_Extra(TDeinterlaceInfo* pInfo)
+void CD3D9Output::Overlay_Copy_Extra(TDeinterlaceInfo* pInfo) 
 {
 	Overlay_Lock_Extra_Buffer(pInfo);
     BYTE* FromPtr = pInfo->Overlay;
     long FromPitch = pInfo->OverlayPitch;
-    Overlay_Lock_Back_Buffer(pInfo, FALSE);
-    BYTE* ToPtr = pInfo->Overlay;
-
-    for(int i(0) ; i < pInfo->FrameHeight; ++i)
+    // careful as we need to ensure this is always unlocked
+    if(Overlay_Lock_Back_Buffer(pInfo, FALSE))
     {
-        pInfo->pMemcpy(ToPtr, FromPtr, pInfo->LineLength);
-        FromPtr += FromPitch;
-        ToPtr += pInfo->OverlayPitch;
-    }
-    _asm
-    {
-        emms
-    }
+        BYTE* ToPtr = pInfo->Overlay;
 
-    Overlay_Unlock_Back_Buffer(FALSE);
+        for(int i(0) ; i < pInfo->FrameHeight; ++i)
+        {
+            pInfo->pMemcpy(ToPtr, FromPtr, pInfo->LineLength);
+            FromPtr += FromPitch;
+            ToPtr += pInfo->OverlayPitch;
+        }
+        _asm
+        {
+            emms
+        }
+
+        Overlay_Unlock_Back_Buffer(FALSE);
+    }
 }
 
 	
@@ -582,7 +584,7 @@ BOOL CD3D9Output::Overlay_Flip(DWORD FlipFlag, BOOL bUseExtraBuffer, BYTE* lpExt
     EnterCriticalSection(&hDDCritSect);
 
     BOOL RetVal = TRUE;
-	FlipResult = pDevice->Present(srcrect, destrect, m_hWnd, NULL);
+	FlipResult = pDevice->Present(&srcrect, &destrect, m_hWnd, NULL);
 	
     
     if(FlipResult==D3DERR_DEVICELOST || FlipResult==D3DERR_DRIVERINTERNALERROR)
@@ -601,20 +603,10 @@ BOOL CD3D9Output::Overlay_Flip(DWORD FlipFlag, BOOL bUseExtraBuffer, BYTE* lpExt
     return RetVal;	
 }
 
-HDC CD3D9Output::Overlay_GetDC()
+BOOL CD3D9Output::InitDD(HWND hWnd) 
 {
-	return 0;
-}
-	
-void CD3D9Output::Overlay_ReleaseDC(HDC hDC)
-{
-}
-	
-BOOL CD3D9Output::InitDD(HWND hWnd)
-{
-	InitializeCriticalSection(&hDDCritSect);
-	if( NULL == (g_pD3D = Direct3DCreate9(D3D_SDK_VERSION)))
-	{
+	if( NULL == (g_pD3D = Direct3DCreate9(D3D_SDK_VERSION))) 
+    {
 		ErrorBox("Direct3DCreate9 failed");
         return false;
 	}
@@ -672,8 +664,9 @@ BOOL CD3D9Output::Overlay_GetRGB()
     return bIsRGB;
 }
 
-void CD3D9Output::ExitDD(void)
+void CD3D9Output::ExitDD(void) 
 {
+    EnterCriticalSection(&hDDCritSect);
 	if(pDevice!=NULL)
 	{
 		pDevice->Release();
@@ -685,6 +678,8 @@ void CD3D9Output::ExitDD(void)
 		g_pD3D->Release();	
 		g_pD3D=NULL;
 	}
+    
+    LeaveCriticalSection(&hDDCritSect);
 }
 
 	
@@ -710,8 +705,8 @@ CD3D9Output::CD3D9Output(void)
 	lpDDOverlay=NULL;
 	SrcSizeAlign = 1;
 	DestSizeAlign = 1;
-	srcrect=NULL;
-	destrect=NULL;
+	memset(&srcrect, 0, sizeof(RECT));
+	memset(&destrect, 0, sizeof(RECT));
 	m_FramesPresented=0;
 	FlipResult=S_OK;
 	hCurrentMon =NULL;
@@ -720,11 +715,12 @@ CD3D9Output::CD3D9Output(void)
 
 	BUFFERWIDTH=GetSystemMetrics(SM_CXFULLSCREEN);
 	BUFFERHEIGHT=GetSystemMetrics(SM_CYFULLSCREEN);
+
+    InitializeCriticalSection(&hDDCritSect);
 }
 
 CD3D9Output::~CD3D9Output(void)
 {
-	if(srcrect!=NULL) free(srcrect);
-	if(destrect!=NULL) free(destrect);
 	Overlay_Destroy();
+    DeleteCriticalSection(&hDDCritSect);
 }

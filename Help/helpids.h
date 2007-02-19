@@ -51,3 +51,4 @@
 #define IDH_PROGRAM_LIST                131135
 #define IDH_TELETEXT                    131136
 #define IDH_EPG                         131137
+#define IDH_D3D9                        131138

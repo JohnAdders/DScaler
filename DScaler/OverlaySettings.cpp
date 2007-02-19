@@ -21,7 +21,7 @@
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
-#include "IOutput.h"
+#include "OverlayOutput.h"
 #include "OverlaySettings.h"
 #include "Slider.h"
 

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OverlayOutput.cpp,v 1.7 2007-02-19 10:13:45 adcockj Exp $
+// $Id: OverlayOutput.cpp,v 1.8 2007-02-19 14:48:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2007/02/19 10:13:45  adcockj
+// Fixes for Critical thread and RECT issuesin D3D9 and overlay code
+//
 // Revision 1.6  2007/02/19 03:09:21  robmuller
 // Fix: overlay settings in Advanced Settings dialog did not work.
 //
@@ -277,6 +280,8 @@
     #define DDFLIP_DONOTWAIT 0
 #endif
 
+// the instance of the overlay object
+COverlayOutput OverlayOutputInstance;
 
 
 // we've got to load these functions dynamically 
@@ -1631,101 +1636,118 @@ void COverlayOutput::ExitDD(void)
     }
 }
 
-OUTPUTTYPES COverlayOutput::Type() 
+IOutput::OUTPUTTYPES COverlayOutput::Type() 
 {
 	return OUT_OVERLAY;
 }
 
 BOOL COverlayOutput::Overlay_ColorKey_OnChange(long NewValue)
 {
-	if(ActiveOutput->Type()!=OUT_OVERLAY) return FALSE;
-    ((COverlayOutput *)ActiveOutput)->g_OverlayColor = (COLORREF)NewValue;
-    WorkoutOverlaySize(TRUE);
+    OverlayOutputInstance.g_OverlayColor = (COLORREF)NewValue;
+    if(GetActiveOutput()->Type() == OUT_OVERLAY)
+    {
+        WorkoutOverlaySize(TRUE);
+    }
     return FALSE;
 }
 
 BOOL COverlayOutput::Overlay_Brightness_OnChange(long NewValue)
 {
-   if(ActiveOutput->Type()!=OUT_OVERLAY) return FALSE;
-   ((COverlayOutput *)ActiveOutput)->OverlayBrightness = NewValue;   
-   ActiveOutput->Overlay_SetColorControls();
-   return FALSE;
+    OverlayOutputInstance.OverlayBrightness = NewValue;   
+    if(GetActiveOutput()->Type() == OUT_OVERLAY)
+    {
+        GetActiveOutput()->Overlay_SetColorControls();
+    }
+    return FALSE;
 }
 
 BOOL COverlayOutput::Overlay_Contrast_OnChange(long NewValue)
 {
-   if(ActiveOutput->Type()!=OUT_OVERLAY) return FALSE;
-   ((COverlayOutput *)ActiveOutput)->OverlayContrast = NewValue;   
-   ActiveOutput->Overlay_SetColorControls();   
-   return FALSE;
+    OverlayOutputInstance.OverlayContrast = NewValue;   
+    if(GetActiveOutput()->Type() == OUT_OVERLAY)
+    {
+        GetActiveOutput()->Overlay_SetColorControls();   
+    }
+    return FALSE;
 }
 
 BOOL COverlayOutput::Overlay_Hue_OnChange(long NewValue)
 {
-   if(ActiveOutput->Type()!=OUT_OVERLAY) return FALSE;
-   ((COverlayOutput *)ActiveOutput)->OverlayHue = NewValue;   
-   ActiveOutput->Overlay_SetColorControls();      
-   return FALSE;
+    OverlayOutputInstance.OverlayHue = NewValue;   
+    if(GetActiveOutput()->Type() == OUT_OVERLAY)
+    {
+        GetActiveOutput()->Overlay_SetColorControls();      
+    }
+    return FALSE;
 }
 
 BOOL COverlayOutput::Overlay_Saturation_OnChange(long NewValue)
 {
-   if(ActiveOutput->Type()!=OUT_OVERLAY) return FALSE;
-   ((COverlayOutput *)ActiveOutput)->OverlaySaturation = NewValue;   
-   ActiveOutput->Overlay_SetColorControls();      
-   return FALSE;
+    OverlayOutputInstance.OverlaySaturation = NewValue;   
+    if(GetActiveOutput()->Type() == OUT_OVERLAY)
+    {
+        GetActiveOutput()->Overlay_SetColorControls();      
+    }
+    return FALSE;
 }
 
 BOOL COverlayOutput::Overlay_Gamma_OnChange(long NewValue)
 {
-   if(ActiveOutput->Type()!=OUT_OVERLAY) return FALSE;
-   ((COverlayOutput *)ActiveOutput)->OverlayGamma = NewValue;   
-   ActiveOutput->Overlay_SetColorControls();      
-   return FALSE;
+    OverlayOutputInstance.OverlayGamma = NewValue;   
+    if(GetActiveOutput()->Type() == OUT_OVERLAY)
+    {
+        GetActiveOutput()->Overlay_SetColorControls();      
+    }
+    return FALSE;
 }
 
 BOOL COverlayOutput::Overlay_Sharpness_OnChange(long NewValue)
 {
-   if(ActiveOutput->Type()!=OUT_OVERLAY) return FALSE;
-   ((COverlayOutput *)ActiveOutput)->OverlaySharpness = NewValue;   
-   ActiveOutput->Overlay_SetColorControls();      
-   return FALSE;
+    OverlayOutputInstance.OverlaySharpness = NewValue;   
+    if(GetActiveOutput()->Type() == OUT_OVERLAY)
+    {
+        GetActiveOutput()->Overlay_SetColorControls();      
+    }
+    return FALSE;
 }
 
 BOOL COverlayOutput::Overlay_UseControls_OnChange(long NewValue)
 {
-	if(ActiveOutput->Type()!=OUT_OVERLAY) return FALSE;
-    ((COverlayOutput *)ActiveOutput)->bUseOverlayControls = NewValue;
-    if(((COverlayOutput *)ActiveOutput)->bUseOverlayControls)
+	OverlayOutputInstance.bUseOverlayControls = NewValue;
+    if(GetActiveOutput()->Type() == OUT_OVERLAY)
     {
-       ActiveOutput->Overlay_SetColorControls();
-    }
-    else
-    {
-       ((COverlayOutput *)ActiveOutput)->Overlay_ResetColorControls();
+        if(OverlayOutputInstance.bUseOverlayControls)
+        {
+           GetActiveOutput()->Overlay_SetColorControls();
+        }
+        else
+        {
+           OverlayOutputInstance.Overlay_ResetColorControls();
+        }
     }
     return FALSE;
 }
 
 BOOL COverlayOutput::Overlay_AllowBobMode_OnChange(long NewValue)
 {
-   ((COverlayOutput *)ActiveOutput)->bAllowBobMode = NewValue;
-   Overlay_Stop(GetMainWnd());
-   Overlay_Start(GetMainWnd());
-   return FALSE;
+    OverlayOutputInstance.bAllowBobMode = NewValue;
+    if(GetActiveOutput()->Type() == OUT_OVERLAY)
+    {
+        Overlay_Stop(GetMainWnd());
+        Overlay_Start(GetMainWnd());
+    }
+    return FALSE;
 }
 
 BOOL COverlayOutput::Overlay_BackBuffers_OnChange(long NewValue)
 {
-   ((COverlayOutput *)ActiveOutput)->BackBuffers = NewValue;
-   Overlay_Stop(GetMainWnd());
-   Overlay_Start(GetMainWnd());
-   return FALSE;
-}
-
-CTreeSettingsGeneric* COverlayOutput::Other_GetTreeSettingsPage()
-{
-    return new CTreeSettingsGeneric("Overlay Settings", GetOtherSettings(), OVERLAYBRIGHTNESS);
+    OverlayOutputInstance.BackBuffers = NewValue;
+    if(GetActiveOutput()->Type() == OUT_OVERLAY)
+    {
+        Overlay_Stop(GetMainWnd());
+        Overlay_Start(GetMainWnd());
+    }
+    return FALSE;
 }
 
 void COverlayOutput::WaitForVerticalBlank()
@@ -1850,3 +1872,55 @@ COverlayOutput::~COverlayOutput(void)
 }
 
 
+SETTING* Overlay_GetSetting(OTHER_SETTING Setting)
+{
+    if(Setting > -1 && Setting < OTHER_SETTING_LASTONE)
+    {
+        return &(OverlayOutputInstance.GetOtherSettings()[Setting]);
+    }
+    else
+    {
+        return NULL;
+    }
+}
+
+CSettingsHolderStandAlone OverlaySettingsHolder;
+
+void Overlay_ReadSettingsFromIni()
+{
+    CSettingGroup *pOverlayGroup = OverlaySettingsHolder.GetSettingsGroup("Overlay", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
+
+    OverlaySettingsHolder.AddSetting(&OverlayOutputInstance.GetOtherSettings()[OVERLAYBRIGHTNESS], pOverlayGroup);
+    OverlaySettingsHolder.AddSetting(&OverlayOutputInstance.GetOtherSettings()[OVERLAYCONTRAST], pOverlayGroup);
+    OverlaySettingsHolder.AddSetting(&OverlayOutputInstance.GetOtherSettings()[OVERLAYHUE], pOverlayGroup);
+    OverlaySettingsHolder.AddSetting(&OverlayOutputInstance.GetOtherSettings()[OVERLAYSATURATION], pOverlayGroup);
+    OverlaySettingsHolder.AddSetting(&OverlayOutputInstance.GetOtherSettings()[OVERLAYGAMMA], pOverlayGroup);
+    OverlaySettingsHolder.AddSetting(&OverlayOutputInstance.GetOtherSettings()[OVERLAYSHARPNESS], pOverlayGroup);
+
+    OverlaySettingsHolder.AddSetting(&OverlayOutputInstance.GetOtherSettings()[BACKBUFFERS]);
+    OverlaySettingsHolder.AddSetting(&OverlayOutputInstance.GetOtherSettings()[OVERLAYCOLOR]);
+    OverlaySettingsHolder.AddSetting(&OverlayOutputInstance.GetOtherSettings()[USEOVERLAYCONTROLS]);
+    OverlaySettingsHolder.AddSetting(&OverlayOutputInstance.GetOtherSettings()[ALLOWBOBMODE]);
+
+#ifdef _DEBUG
+    if (OTHER_SETTING_LASTONE != OverlaySettingsHolder.GetNumSettings())
+    {
+        LOGD("Number of settings in Overlay source is not equal to the number of settings in DS_Control.h");
+        LOGD("DS_Control.h or Other.cpp are probably not in sync with each other.");
+    }
+#endif
+
+    OverlaySettingsHolder.DisableOnChange();
+    OverlaySettingsHolder.ReadFromIni();
+    OverlaySettingsHolder.EnableOnChange();
+}
+
+void Overlay_WriteSettingsToIni(BOOL bOptimizeFileAccess)
+{
+    OverlaySettingsHolder.WriteToIni(bOptimizeFileAccess);
+}
+
+CTreeSettingsGeneric* Overlay_GetTreeSettingsPage()
+{
+    return new CTreeSettingsGeneric("Overlay Settings", OverlayOutputInstance.GetOtherSettings(), OVERLAYBRIGHTNESS);
+}

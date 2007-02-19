@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TreeSettingsDlg.cpp,v 1.39 2006-12-22 12:24:26 adcockj Exp $
+// $Id: TreeSettingsDlg.cpp,v 1.40 2007-02-19 14:48:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.39  2006/12/22 12:24:26  adcockj
+// updated 2003 project
+//
 // Revision 1.38  2006/12/20 07:45:07  adcockj
 // added DirectX code from Daniel Sabel
 //
@@ -161,7 +164,8 @@
 #include "AspectRatio.h"
 #include "FieldTiming.h"
 #include "DebugLog.h"
-#include "IOutput.h"
+#include "OverlayOutput.h"
+#include "D3D9Output.h"
 #include "ProgramList.h"
 #include "StillSource.h"
 #include "DScaler.h"
@@ -690,7 +694,7 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
 	    pages.push_back(pPage);
 	    dlg.AddPage(pPage, Root);
 
-        pPage = ActiveOutput->Other_GetTreeSettingsPage();
+        pPage = Overlay_GetTreeSettingsPage();
 	    pPage->SetHelpID(IDH_OVERLAY);
 	    pages.push_back(pPage);
 	    dlg.AddPage(pPage, Root);
@@ -717,6 +721,11 @@ void CTreeSettingsDlg::ShowTreeSettingsDlg(int iSettingsMask)
 
         pPage = EPG_GetTreeSettingsPage();
 	    pPage->SetHelpID(IDH_EPG);
+	    pages.push_back(pPage);
+	    dlg.AddPage(pPage, Root);
+
+        pPage = D3D9_GetTreeSettingsPage();
+	    pPage->SetHelpID(IDH_D3D9);
 	    pages.push_back(pPage);
 	    dlg.AddPage(pPage, Root);
     }

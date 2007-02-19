@@ -316,6 +316,11 @@
 			<param name="ImageNumber" value="11">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="DirectX 3D">
+			<param name="Local" value="D3D9.HTM">
+			<param name="ImageNumber" value="11">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Ini File Settings">
 			<param name="Local" value="IniFile.HTM">
 			<param name="ImageNumber" value="11">

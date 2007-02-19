@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectRatio.cpp,v 1.49 2006-12-20 07:45:06 adcockj Exp $
+// $Id: AspectRatio.cpp,v 1.50 2007-02-19 14:48:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -72,6 +72,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.49  2006/12/20 07:45:06  adcockj
+// added DirectX code from Daniel Sabel
+//
 // Revision 1.48  2005/03/23 14:20:36  adcockj
 // Test fix for threading issues
 //
@@ -270,9 +273,9 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
         static BOOL InFunction = FALSE;
         if(InFunction == TRUE) return;
 
-	    ActiveOutput->CheckChangeMonitor(GetMainWnd());
+	    GetActiveOutput()->CheckChangeMonitor(GetMainWnd());
 	    RECT ScreenRect;
-	    ActiveOutput->GetMonitorRect(GetMainWnd(), &ScreenRect);
+	    GetActiveOutput()->GetMonitorRect(GetMainWnd(), &ScreenRect);
 
         CAspectRectangles ar;
         CSource* pSource = Providers_GetCurrentSource();
@@ -421,10 +424,10 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
             // at least on nVidia cards
             if (memcmp(&ar.m_PrevSrcRect,&AspectSettings.SourceRect,sizeof(ar.m_PrevSrcRect)))
             {
-                ActiveOutput->Overlay_Update(NULL, NULL, DDOVER_HIDE);
+                GetActiveOutput()->Overlay_Update(NULL, NULL, DDOVER_HIDE);
             }
 
-            ActiveOutput->Overlay_Update(&AspectSettings.SourceRect, &AspectSettings.DestinationRectWindow, DDOVER_SHOW);
+            GetActiveOutput()->Overlay_Update(&AspectSettings.SourceRect, &AspectSettings.DestinationRectWindow, DDOVER_SHOW);
 
             InvalidateRect(GetMainWnd(), NULL, FALSE);
         }
@@ -438,10 +441,10 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
                 // at least on nVidia cards
                 if (memcmp(&ar.m_PrevSrcRect,&AspectSettings.SourceRect,sizeof(ar.m_PrevSrcRect)))
                 {
-                    ActiveOutput->Overlay_Update(NULL, NULL, DDOVER_HIDE);
+                    GetActiveOutput()->Overlay_Update(NULL, NULL, DDOVER_HIDE);
                 }
 
-                ActiveOutput->Overlay_Update(&AspectSettings.SourceRect, &AspectSettings.DestinationRectWindow, DDOVER_SHOW);
+                GetActiveOutput()->Overlay_Update(&AspectSettings.SourceRect, &AspectSettings.DestinationRectWindow, DDOVER_SHOW);
 
                 // repaint if needed
                 if (memcmp(&ar.m_PrevDestRect,&AspectSettings.DestinationRect,sizeof(ar.m_PrevDestRect)))
@@ -470,10 +473,10 @@ void WorkoutOverlaySize(BOOL ForceRedraw, BOOL allowResize)
                     // at least on nVidia cards
                     if (memcmp(&ar.m_PrevSrcRect,&AspectSettings.SourceRect,sizeof(ar.m_PrevSrcRect)))
                     {
-                        ActiveOutput->Overlay_Update(NULL, NULL, DDOVER_HIDE);
+                        GetActiveOutput()->Overlay_Update(NULL, NULL, DDOVER_HIDE);
                     }
                     // If not invalidating, we need to update the overlay now...
-                    ActiveOutput->Overlay_Update(&AspectSettings.SourceRect, &AspectSettings.DestinationRectWindow, DDOVER_SHOW);
+                    GetActiveOutput()->Overlay_Update(&AspectSettings.SourceRect, &AspectSettings.DestinationRectWindow, DDOVER_SHOW);
                     AspectSettings.OverlayNeedsSetting = FALSE;
                 }
             }

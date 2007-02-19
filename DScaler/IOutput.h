@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: IOutput.h,v 1.5 2007-02-19 10:13:45 adcockj Exp $
+// $Id: IOutput.h,v 1.6 2007-02-19 14:48:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2007/02/19 10:13:45  adcockj
+// Fixes for Critical thread and RECT issuesin D3D9 and overlay code
+//
 // Revision 1.4  2007/02/18 15:02:16  robmuller
 // Added CVS log.
 //
@@ -32,31 +35,15 @@
 #define DSCALER_MAX_WIDTH 1024
 #define DSCALER_MAX_HEIGHT 768
 
-class IOutput;
-
-extern IOutput *ActiveOutput; // currently active output .. may be overlay or d3d
-
-
-enum OUTPUTTYPES { OUT_OVERLAY, OUT_D3D };
-
-SETTING* Overlay_GetSetting(OTHER_SETTING Setting);
-void Overlay_ReadSettingsFromIni();
-void Overlay_WriteSettingsToIni(BOOL bOptimizeFileAccess);
-
-
-
 // Interface for an output to screen (currently overlay, d3d9)
 class IOutput
 {
-protected:
-    bool m_bSettingInitialized;
-    SETTING OtherSettings[OTHER_SETTING_LASTONE];   
-    
 public:
-	DWORD DestSizeAlign;
-	DWORD SrcSizeAlign;
-    
-
+    enum OUTPUTTYPES 
+    { 
+        OUT_OVERLAY, 
+        OUT_D3D 
+    };
 
 	IOutput(void);
 	virtual ~IOutput(void);
@@ -103,14 +90,21 @@ public:
 	virtual void Overlay_SetRGB(BOOL IsRGB)=0;
 	virtual BOOL Overlay_GetRGB()=0;
 
-	virtual CTreeSettingsGeneric* Other_GetTreeSettingsPage()=0;
-
 	virtual OUTPUTTYPES Type()=0;
 
     virtual void InitOtherSettings()=0;
     SETTING* GetOtherSettings();
+    DWORD GetDestSizeAlign() const {return DestSizeAlign;};
+    DWORD GetSrcSizeAlign() const {return SrcSizeAlign;};
+
+protected:
+    bool m_bSettingInitialized;
+    SETTING OtherSettings[OTHER_SETTING_LASTONE];   
+	DWORD DestSizeAlign;
+	DWORD SrcSizeAlign;
 };
 
-
+IOutput* GetActiveOutput();
+void SetActiveOutput(IOutput::OUTPUTTYPES eType);
 
 #endif

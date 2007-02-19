@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: D3D9Output.cpp,v 1.8 2007-02-19 10:13:45 adcockj Exp $
+// $Id: D3D9Output.cpp,v 1.9 2007-02-19 14:48:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2007/02/19 10:13:45  adcockj
+// Fixes for Critical thread and RECT issuesin D3D9 and overlay code
+//
 // Revision 1.7  2007/02/18 20:16:12  robmuller
 // Applied coding standards.
 //
@@ -45,6 +48,9 @@
 #include "SettingsPerChannel.h"
 #include "PaintingHDC.h"
 #include <multimon.h>
+
+// the instance of the d3d9 object
+CD3D9Output D3D9OutputInstance;
 
 extern CPaintingHDC OffscreenHDC;
 
@@ -123,12 +129,18 @@ BOOL CD3D9Output::Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlag
 	}
 	else 
 	{
+        RECT oldSrc(srcrect);
 		CopyRect(&srcrect, pSrcRect);
 		// scale srcrect
 		srcrect.left=(int)((float)BUFFERWIDTH/(float)DSCALER_MAX_WIDTH*srcrect.left);
 		srcrect.right=(int)((float)BUFFERWIDTH/(float)DSCALER_MAX_WIDTH*srcrect.right);
 		srcrect.top=(int)((float)BUFFERHEIGHT/(float)DSCALER_MAX_HEIGHT*srcrect.top);
 		srcrect.bottom=(int)((float)BUFFERHEIGHT/(float)DSCALER_MAX_HEIGHT*srcrect.bottom);
+
+        if(srcrect.right > oldSrc.right || srcrect.bottom > oldSrc.bottom)
+        {
+            OffscreenHDC.ReleaseD3DBuffer();
+        }
 		
 		CopyRect(&destrect, pDestRect);		
 		MapWindowPoints(HWND_DESKTOP, m_hWnd, (LPPOINT)&destrect, 2);			
@@ -678,17 +690,14 @@ void CD3D9Output::ExitDD(void)
 		g_pD3D->Release();	
 		g_pD3D=NULL;
 	}
+
+    OffscreenHDC.ReleaseD3DBuffer();
     
     LeaveCriticalSection(&hDDCritSect);
 }
 
 	
-CTreeSettingsGeneric* CD3D9Output::Other_GetTreeSettingsPage()
-{	
-	return new CTreeSettingsGeneric("Direct3D Settings", OtherSettings, 0);
-}
-
-OUTPUTTYPES CD3D9Output::Type()
+IOutput::OUTPUTTYPES CD3D9Output::Type()
 {
 	return OUT_D3D;
 }
@@ -723,4 +732,45 @@ CD3D9Output::~CD3D9Output(void)
 {
 	Overlay_Destroy();
     DeleteCriticalSection(&hDDCritSect);
+}
+
+SETTING* D3D9_GetSetting(OTHER_SETTING Setting)
+{
+    if(Setting > -1 && Setting < OTHER_SETTING_LASTONE)
+    {
+        return &(D3D9OutputInstance.GetOtherSettings()[Setting]);
+    }
+    else
+    {
+        return NULL;
+    }
+}
+
+CSettingsHolderStandAlone D3D9SettingsHolder;
+
+void D3D9_ReadSettingsFromIni()
+{
+    CSettingGroup *pD3D9Group = D3D9SettingsHolder.GetSettingsGroup("D3D9", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
+
+#ifdef _DEBUG
+    if (D3D9_SETTING_LASTONE != D3D9SettingsHolder.GetNumSettings())
+    {
+        LOGD("Number of settings in D3D9 source is not equal to the number of settings in DS_Control.h");
+        LOGD("DS_Control.h or D3D9Output.cpp are probably not in sync with each other.");
+    }
+#endif
+
+    D3D9SettingsHolder.DisableOnChange();
+    D3D9SettingsHolder.ReadFromIni();
+    D3D9SettingsHolder.EnableOnChange();
+}
+
+void D3D9_WriteSettingsToIni(BOOL bOptimizeFileAccess)
+{
+    D3D9SettingsHolder.WriteToIni(bOptimizeFileAccess);
+}
+
+CTreeSettingsGeneric* D3D9_GetTreeSettingsPage()
+{	
+	return new CTreeSettingsGeneric("Direct3D Settings", D3D9OutputInstance.GetOtherSettings(), 0);
 }

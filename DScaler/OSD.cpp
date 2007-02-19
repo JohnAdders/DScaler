@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OSD.cpp,v 1.116 2006-12-20 07:45:07 adcockj Exp $
+// $Id: OSD.cpp,v 1.117 2007-02-19 14:48:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.116  2006/12/20 07:45:07  adcockj
+// added DirectX code from Daniel Sabel
+//
 // Revision 1.115  2006/10/06 13:35:28  adcockj
 // Added projects for .NET 2005 and fixed most of the warnings and errors
 //
@@ -431,7 +434,7 @@
 #include "stdafx.h"
 #include "OSD.h"
 #include "AspectRatio.h"
-#include "IOutput.h"
+#include "OverlayOutput.h"
 #include "Audio.h"
 #include "OutThreads.h"
 #include "FD_60Hz.h"
@@ -1124,7 +1127,7 @@ void OSD_Redraw(HDC hDC, LPRECT lpRect)
 
                     SetBkMode(hDC, TRANSPARENT);
                     SetTextColor(hDC, OSD_Text[i].BackgroundColor);
-                    SetBkColor(hDC, ActiveOutput->Overlay_GetCorrectedColor(hDC));
+                    SetBkColor(hDC, GetActiveOutput()->Overlay_GetCorrectedColor(hDC));
 
                     HBITMAP hBM = CreateBitmap(8, 8, 1, 1, (LPBYTE)bBrushBits); 
                     HBRUSH hBrush = CreatePatternBrush(hBM);

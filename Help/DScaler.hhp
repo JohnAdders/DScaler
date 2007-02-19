@@ -60,6 +60,7 @@ Advanced.htm
 32Pulldown.htm
 Logging.htm
 Overlay.htm
+D3D9.htm
 PulldownShared.htm
 Aspect.htm
 IniFile.htm
@@ -133,6 +134,7 @@ IDH_TOMSMOCOMP=TomsMoComp.htm
 IDH_VIDEOBOB=VideoBob.htm
 IDH_VIDEOWEAVE=VideoWeave.htm
 IDH_WEAVE=Weave.htm
+IDH_D3D9=D3D9.htm
 
 [MAP]
 #include helpids.h

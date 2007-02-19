@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.142 2007-02-19 10:13:45 adcockj Exp $
+// $Id: OutThreads.cpp,v 1.143 2007-02-19 14:48:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.142  2007/02/19 10:13:45  adcockj
+// Fixes for Critical thread and RECT issuesin D3D9 and overlay code
+//
 // Revision 1.141  2006/12/20 07:45:07  adcockj
 // added DirectX code from Daniel Sabel
 //
@@ -601,7 +604,7 @@ void AssertOnOutThread()
 void Start_Thread()
 {
     // make sure we start with a clean sheet of paper
-    ActiveOutput->Overlay_Clean();
+    GetActiveOutput()->Overlay_Clean();
 
     bStopThread = FALSE;
 
@@ -796,7 +799,7 @@ void Start_Capture()
     if (g_nCaptureStatus++ == 0)
     {
         // make sure half height Modes are set correctly
-        ActiveOutput->Overlay_Clean();
+        GetActiveOutput()->Overlay_Clean();
 
         // moved this stuff out of the processing thared to avoid windo calls
         // in the processing thread
@@ -859,7 +862,7 @@ void Reset_Capture()
     if (!Providers_GetCurrentSource())
         return;
     Stop_Capture();
-    ActiveOutput->Overlay_Clean();
+    GetActiveOutput()->Overlay_Clean();
     PrepareDeinterlaceMode();
     Providers_GetCurrentSource()->Reset();
     WorkoutOverlaySize(TRUE);
@@ -1302,7 +1305,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 	                        pPerf->StartCount(PERF_LOCK_OVERLAY);
 #endif
 							// Need to be careful with the locking
-                            if(!ActiveOutput->Overlay_Lock_Back_Buffer(&Info, bUseExtraBuffer))
+                            if(!GetActiveOutput()->Overlay_Lock_Back_Buffer(&Info, bUseExtraBuffer))
 							{
 								Providers_GetCurrentSource()->Stop();
 								LOG(1, "Falling out after Overlay_Lock_Back_Buffer");
@@ -1385,7 +1388,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 							// there should be no exit paths between this unlock and the lock
                             // so we should be OK
                             // somewhere above we will have locked the buffer, unlock before flip
-							if(!ActiveOutput->Overlay_Unlock_Back_Buffer(bUseExtraBuffer))
+							if(!GetActiveOutput()->Overlay_Unlock_Back_Buffer(bUseExtraBuffer))
 							{
 								Providers_GetCurrentSource()->Stop();
 								LOG(1, "Falling out after Overlay_Unlock_Back_Buffer");
@@ -1462,7 +1465,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 								Timing_IncrementNoFlipAtTime();
 							}
 
-							if(!ActiveOutput->Overlay_Flip(FlipFlag, bUseExtraBuffer, lpMultiBuffer, MultiPitch, &Info))
+							if(!GetActiveOutput()->Overlay_Flip(FlipFlag, bUseExtraBuffer, lpMultiBuffer, MultiPitch, &Info))
 							{
 								Providers_GetCurrentSource()->Stop();
 								LOG(1, "Falling out after Overlay_Flip");
@@ -1493,7 +1496,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         pPerf->StartCount(PERF_UNLOCK_OVERLAY);
 #endif
 
-                        ActiveOutput->Overlay_Unlock_Back_Buffer(bUseExtraBuffer);
+                        GetActiveOutput()->Overlay_Unlock_Back_Buffer(bUseExtraBuffer);
 
 #ifdef USE_PERFORMANCE_STATS
                         pPerf->StopCount(PERF_UNLOCK_OVERLAY);
@@ -1545,7 +1548,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 
                     // make sure the lock is checked
                     // and paired
-					if(ActiveOutput->Overlay_Lock(&Info))
+					if(GetActiveOutput()->Overlay_Lock(&Info))
 					{
 						BYTE* CurrentLine = Info.Overlay;
 						BYTE* DestLine = StillBuffer;
@@ -1559,7 +1562,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 						{
 							emms
 						}
-                        ActiveOutput->Overlay_Unlock();
+                        GetActiveOutput()->Overlay_Unlock();
 					}
 					else
 					{

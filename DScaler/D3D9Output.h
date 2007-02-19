@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: D3D9Output.h,v 1.5 2007-02-19 10:13:45 adcockj Exp $
+// $Id: D3D9Output.h,v 1.6 2007-02-19 14:48:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2007/02/19 10:13:45  adcockj
+// Fixes for Critical thread and RECT issuesin D3D9 and overlay code
+//
 // Revision 1.4  2007/02/18 16:31:53  robmuller
 // Added CVS log.
 //
@@ -109,7 +112,10 @@ public:
 
     void InitOtherSettings();
 
-	CTreeSettingsGeneric* Other_GetTreeSettingsPage();
-
 	OUTPUTTYPES Type();
 };
+
+CTreeSettingsGeneric* D3D9_GetTreeSettingsPage();
+SETTING* D3D9_GetSetting(OTHER_SETTING Setting);
+void D3D9_ReadSettingsFromIni();
+void D3D9_WriteSettingsToIni(BOOL bOptimizeFileAccess);

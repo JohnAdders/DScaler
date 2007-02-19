@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: MultiFrames.cpp,v 1.15 2007-02-19 10:13:45 adcockj Exp $
+// $Id: MultiFrames.cpp,v 1.16 2007-02-19 14:48:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.15  2007/02/19 10:13:45  adcockj
+// Fixes for Critical thread and RECT issuesin D3D9 and overlay code
+//
 // Revision 1.14  2006/12/20 07:45:07  adcockj
 // added DirectX code from Daniel Sabel
 //
@@ -436,7 +439,7 @@ void CMultiFrames::UpdateFrame(TDeinterlaceInfo* pInfo, BOOL* bUseExtraBuffer, B
 	SelectFrameBuffer(m_CurrentFrame, FALSE, &lpFrameBuffer, &iFrameLinePitch, &iFrameWidth, &iFrameHeight);
 
 	// Copy (with resize) the input picture into its frame
-    if(!ActiveOutput->Overlay_Lock_Back_Buffer(pInfo, *bUseExtraBuffer))
+    if(!GetActiveOutput()->Overlay_Lock_Back_Buffer(pInfo, *bUseExtraBuffer))
     {
         return;
     }
@@ -489,7 +492,7 @@ void CMultiFrames::UpdateFrame(TDeinterlaceInfo* pInfo, BOOL* bUseExtraBuffer, B
     
     // there were no exit paths between the unlock and the lock
     // so we hsould be OK
-    ActiveOutput->Overlay_Unlock_Back_Buffer(*bUseExtraBuffer);
+    GetActiveOutput()->Overlay_Unlock_Back_Buffer(*bUseExtraBuffer);
 
 	if (m_ContentChanged == TRUE)
 	{

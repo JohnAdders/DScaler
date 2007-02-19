@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Settings.cpp,v 1.63 2006-12-20 07:45:07 adcockj Exp $
+// $Id: Settings.cpp,v 1.64 2007-02-19 14:48:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -50,6 +50,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.63  2006/12/20 07:45:07  adcockj
+// added DirectX code from Daniel Sabel
+//
 // Revision 1.62  2006/09/28 18:13:04  robmuller
 // Fixed: Antivir causes DScaler to forget all settings.
 //
@@ -229,7 +232,8 @@
 #include "MixerDev.h"
 #include "DScaler.h"
 #include "ProgramList.h"
-#include "IOutput.h"
+#include "OverlayOutput.h"
+#include "D3D9Output.h"
 #include "FD_50Hz.h"
 #include "FD_60Hz.h"
 #include "FD_Common.h"
@@ -246,7 +250,6 @@
 #include "SettingsPerChannel.h"
 #include "TimeShift.h"
 #include "EPG.h"
-#include "OverlayOutput.h"
 
 typedef SETTING* (__cdecl GENERICGETSETTING)(long SettingIndex);
 typedef void (__cdecl GENERICREADSETTINGS)();
@@ -410,6 +413,13 @@ TFileWithSettings Settings[] =
         EPG_ReadSettingsFromIni,
         EPG_WriteSettingsToIni,
 		EPG_FreeSettings,
+    },
+    {
+        WM_D3D9_GETVALUE,
+        (GENERICGETSETTING*)D3D9_GetSetting,
+        D3D9_ReadSettingsFromIni,
+        D3D9_WriteSettingsToIni,
+		NULL,
     },
 };
 

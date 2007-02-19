@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.68 2006-12-20 17:41:15 adcockj Exp $
+// $Id: AspectGUI.cpp,v 1.69 2007-02-19 14:48:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.68  2006/12/20 17:41:15  adcockj
+// reorganised the handling of mce remote
+//
 // Revision 1.67  2006/12/20 07:45:06  adcockj
 // added DirectX code from Daniel Sabel
 //
@@ -955,9 +958,9 @@ void PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect, BOOL bNoMi
     RECT r;
     RECT r2, winRect;
 
-    if (bEnable && ActiveOutput->OverlayActive())
+    if (bEnable && GetActiveOutput()->OverlayActive())
     {
-        Overlay = CreateSolidBrush(ActiveOutput->Overlay_GetCorrectedColor(hDC));
+        Overlay = CreateSolidBrush(GetActiveOutput()->Overlay_GetCorrectedColor(hDC));
     }
     else
     {
@@ -1017,7 +1020,7 @@ void PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect, BOOL bNoMi
         // MRS 2-22-01
         // Intended to prevent purple flashing by setting overlay
         // after drawing black but before drawing purple.
-        ActiveOutput->Overlay_Update(&AspectSettings.SourceRect, &AspectSettings.DestinationRectWindow, DDOVER_SHOW);
+        GetActiveOutput()->Overlay_Update(&AspectSettings.SourceRect, &AspectSettings.DestinationRectWindow, DDOVER_SHOW);
         AspectSettings.OverlayNeedsSetting = FALSE;
         // Wait till current frame is done before drawing purple...
         // Overlay changes do not seem to take place (at least on a GeForce)
@@ -1029,7 +1032,7 @@ void PaintColorkey(HWND hWnd, BOOL bEnable, HDC hDC, RECT* PaintRect, BOOL bNoMi
         // on Teletext and CC
 		if (AspectSettings.bWaitForVerticalBlank == TRUE)
 		{
-            ActiveOutput->WaitForVerticalBlank();
+            GetActiveOutput()->WaitForVerticalBlank();
 		}
     }
 

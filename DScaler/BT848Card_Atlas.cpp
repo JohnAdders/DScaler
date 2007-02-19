@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card_Atlas.cpp,v 1.2 2007-02-18 21:15:31 robmuller Exp $
+// $Id: BT848Card_Atlas.cpp,v 1.3 2007-02-19 14:48:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2006 Curtiss-Wright Controls, Inc.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2007/02/18 21:15:31  robmuller
+// Added option to not compile BT8x8 code.
+//
 // Revision 1.1  2006/12/28 14:18:35  adcockj
 // Added patch for Curtiss-Wright cards from Bill Randle
 //
@@ -99,7 +102,7 @@ void CBT848Card::AtlasInputSelect(int nInput)
 
 void CBT848Card::SetAtlasFormat(int nInput, eVideoFormat TVFormat)
 {
-    BOOL bOverlay = ActiveOutput->OverlayActive();
+    BOOL bOverlay = GetActiveOutput()->OverlayActive();
 
     if (!IsSPISource(nInput))
     {
@@ -107,16 +110,16 @@ void CBT848Card::SetAtlasFormat(int nInput, eVideoFormat TVFormat)
         // change overlay format to YUV, if needed
         if (bOverlay)
         {
-            if (ActiveOutput->Overlay_GetRGB())
+            if (GetActiveOutput()->Overlay_GetRGB())
             {
-                ActiveOutput->Overlay_Destroy();
-                ActiveOutput->Overlay_SetRGB(FALSE);
-                ActiveOutput->Overlay_Create();
+                GetActiveOutput()->Overlay_Destroy();
+                GetActiveOutput()->Overlay_SetRGB(FALSE);
+                GetActiveOutput()->Overlay_Create();
             }
         }
         else
         {
-            ActiveOutput->Overlay_SetRGB(FALSE);
+            GetActiveOutput()->Overlay_SetRGB(FALSE);
         }
 
         return;
@@ -145,16 +148,16 @@ void CBT848Card::SetAtlasFormat(int nInput, eVideoFormat TVFormat)
     // change overlay format to RGB16, if needed
     if (bOverlay)
     {
-        if (!ActiveOutput->Overlay_GetRGB())
+        if (!GetActiveOutput()->Overlay_GetRGB())
         {
-            ActiveOutput->Overlay_Destroy();
-            ActiveOutput->Overlay_SetRGB(TRUE);
-            ActiveOutput->Overlay_Create();
+            GetActiveOutput()->Overlay_Destroy();
+            GetActiveOutput()->Overlay_SetRGB(TRUE);
+            GetActiveOutput()->Overlay_Create();
         }
     }
     else
     {
-        ActiveOutput->Overlay_SetRGB(TRUE);
+        GetActiveOutput()->Overlay_SetRGB(TRUE);
     }
 }
 

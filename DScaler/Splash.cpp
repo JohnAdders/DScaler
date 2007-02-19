@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: Splash.cpp,v 1.13 2006-12-20 07:45:07 adcockj Exp $
+// $Id: Splash.cpp,v 1.14 2007-02-19 14:48:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.13  2006/12/20 07:45:07  adcockj
+// added DirectX code from Daniel Sabel
+//
 // Revision 1.12  2005/03/23 14:21:00  adcockj
 // Test fix for threading issues
 //
@@ -85,7 +88,7 @@ BOOL APIENTRY SplashProc(HWND hDlg, UINT message, UINT wParam, LONG lParam)
     case WM_INITDIALOG:
         {
 			RECT ScreenRect;
-			ActiveOutput->GetMonitorRect(GetMainWnd(), &ScreenRect);
+			GetActiveOutput()->GetMonitorRect(GetMainWnd(), &ScreenRect);
             int Width = ScreenRect.right  - ScreenRect.left;
             int Height = ScreenRect.bottom - ScreenRect.top;
             hSplashBm = (HBITMAP)LoadImage(hDScalerInst, MAKEINTRESOURCE(IDB_STARTUP), IMAGE_BITMAP, 0, 0, LR_VGACOLOR);

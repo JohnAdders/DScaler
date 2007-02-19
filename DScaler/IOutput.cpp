@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: IOutput.cpp,v 1.3 2007-02-18 15:02:16 robmuller Exp $
+// $Id: IOutput.cpp,v 1.4 2007-02-19 14:48:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2007/02/18 15:02:16  robmuller
+// Added CVS log.
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -25,11 +28,12 @@
 #include "ioutput.h"
 #include "DebugLog.h"
 #include "OverlayOutput.h"
+#include "D3D9Output.h"
 
 IOutput *ActiveOutput=NULL;
-
-
-    
+extern COverlayOutput OverlayOutputInstance;
+extern CD3D9Output D3D9OutputInstance;
+   
 	
 
 IOutput::IOutput(void)
@@ -74,51 +78,20 @@ SETTING* IOutput::GetOtherSettings()
     return OtherSettings;
 }
 
-SETTING* Overlay_GetSetting(OTHER_SETTING Setting)
+
+IOutput* GetActiveOutput()
 {
-    if(Setting > -1 && Setting < OTHER_SETTING_LASTONE)
+    return ActiveOutput;
+}
+
+void SetActiveOutput(IOutput::OUTPUTTYPES eType)
+{
+    if(eType == IOutput::OUT_OVERLAY)
     {
-        return &(ConfigOutput.GetOtherSettings()[Setting]);
+        ActiveOutput = &OverlayOutputInstance;
     }
     else
     {
-        return NULL;
+        ActiveOutput = &D3D9OutputInstance;
     }
-}
-
-CSettingsHolderStandAlone OverlaySettingsHolder;
-
-void Overlay_ReadSettingsFromIni()
-{
-    if(OverlaySettingsHolder.GetNumSettings() == 0)
-    {
-        CSettingGroup *pOverlayGroup = OverlaySettingsHolder.GetSettingsGroup("Overlay", SETTING_BY_CHANNEL | SETTING_BY_FORMAT | SETTING_BY_INPUT, FALSE);
-
-        OverlaySettingsHolder.AddSetting(&ConfigOutput.GetOtherSettings()[OVERLAYBRIGHTNESS], pOverlayGroup);
-        OverlaySettingsHolder.AddSetting(&ConfigOutput.GetOtherSettings()[OVERLAYCONTRAST], pOverlayGroup);
-        OverlaySettingsHolder.AddSetting(&ConfigOutput.GetOtherSettings()[OVERLAYHUE], pOverlayGroup);
-        OverlaySettingsHolder.AddSetting(&ConfigOutput.GetOtherSettings()[OVERLAYSATURATION], pOverlayGroup);
-        OverlaySettingsHolder.AddSetting(&ConfigOutput.GetOtherSettings()[OVERLAYGAMMA], pOverlayGroup);
-        OverlaySettingsHolder.AddSetting(&ConfigOutput.GetOtherSettings()[OVERLAYSHARPNESS], pOverlayGroup);
-
-        OverlaySettingsHolder.AddSetting(&ConfigOutput.GetOtherSettings()[BACKBUFFERS]);
-        OverlaySettingsHolder.AddSetting(&ConfigOutput.GetOtherSettings()[OVERLAYCOLOR]);
-        OverlaySettingsHolder.AddSetting(&ConfigOutput.GetOtherSettings()[USEOVERLAYCONTROLS]);
-        OverlaySettingsHolder.AddSetting(&ConfigOutput.GetOtherSettings()[ALLOWBOBMODE]);
-#ifdef _DEBUG
-        if (OTHER_SETTING_LASTONE != OverlaySettingsHolder.GetNumSettings())
-        {
-            LOGD("Number of settings in Overlay source is not equal to the number of settings in DS_Control.h");
-            LOGD("DS_Control.h or Other.cpp are probably not in sync with each other.");
-        }
-#endif
-    }
-    OverlaySettingsHolder.DisableOnChange();
-    OverlaySettingsHolder.ReadFromIni();
-    OverlaySettingsHolder.EnableOnChange();
-}
-
-void Overlay_WriteSettingsToIni(BOOL bOptimizeFileAccess)
-{
-    OverlaySettingsHolder.WriteToIni(bOptimizeFileAccess);
 }

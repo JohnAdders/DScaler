@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.178 2007-02-18 17:34:34 robmuller Exp $
+// $Id: DS_Control.h,v 1.179 2007-02-19 14:48:49 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.178  2007/02/18 17:34:34  robmuller
+// Sync video formats.
+//
 // Revision 1.177  2006/12/28 14:18:35  adcockj
 // Added patch for Curtiss-Wright cards from Bill Randle
 //
@@ -924,7 +927,7 @@ typedef enum
 #define WM_OUTTHREADS_CHANGEVALUE   (WM_APP + 204)
 
 /////////////////////////////////////////////////////////////////////////////
-// Control settings contained in Other.c
+// Control settings contained in OverlayOutput.c
 /////////////////////////////////////////////////////////////////////////////
 
 typedef enum
@@ -1938,5 +1941,17 @@ typedef enum
 #define WM_EPG_SETVALUE     (WM_APP + 158)
 #define WM_EPG_CHANGEVALUE  (WM_APP + 258)
 
+/////////////////////////////////////////////////////////////////////////////
+// Control settings contained in D3D9Output.c
+/////////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+    D3D9_SETTING_LASTONE,
+} D3D9_SETTING;
+
+#define WM_D3D9_GETVALUE           (WM_APP + 59)
+#define WM_D3D9_SETVALUE           (WM_APP + 159)
+#define WM_D3D9_CHANGEVALUE        (WM_APP + 259)
 
 #endif

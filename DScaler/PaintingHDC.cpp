@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PaintingHDC.cpp,v 1.6 2006-12-20 07:45:07 adcockj Exp $
+// $Id: PaintingHDC.cpp,v 1.7 2007-02-19 14:48:50 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Mike Temperton.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2006/12/20 07:45:07  adcockj
+// added DirectX code from Daniel Sabel
+//
 // Revision 1.6  2006/12/01 16:07:52  sabeld
 // Added support for Direct3D output
 //
@@ -89,12 +92,12 @@ void CPaintingHDC::ReleaseD3DBuffer()
 
 void CPaintingHDC::CreateD3DBuffer()
 {
-    if(m_ddsurface==NULL && ActiveOutput->Type()==OUT_D3D) 
+    if(m_ddsurface==NULL && GetActiveOutput()->Type() == IOutput::OUT_D3D) 
     {
-        RECT src=((CD3D9Output *)ActiveOutput)->Overlay_GetCurrentSrcRect();
-        ((CD3D9Output *)ActiveOutput)->pDevice->CreateOffscreenPlainSurface(src.right,src.bottom,
+        RECT src=((CD3D9Output *)GetActiveOutput())->Overlay_GetCurrentSrcRect();
+        ((CD3D9Output *)GetActiveOutput())->pDevice->CreateOffscreenPlainSurface(src.right,src.bottom,
                  D3DFMT_X8R8G8B8, D3DPOOL_SYSTEMMEM, &m_ddsurface, NULL);					
-        ((CD3D9Output *)ActiveOutput)->pDevice->CreateOffscreenPlainSurface(src.right,src.bottom,
+        ((CD3D9Output *)GetActiveOutput())->pDevice->CreateOffscreenPlainSurface(src.right,src.bottom,
                  D3DFMT_A8R8G8B8, D3DPOOL_SYSTEMMEM, &m_alphasurface, NULL);
     }
 }
@@ -109,11 +112,15 @@ HDC CPaintingHDC::BeginPaint(HDC hDC, LPRECT pRect)
 
 void CPaintingHDC::EndPaint()
 {
-    if(ActiveOutput->Type()==OUT_OVERLAY) {
+    if(GetActiveOutput()->Type() == IOutput::OUT_OVERLAY) 
+    {
         BitBltRects(&m_PaintRect, 1);
         m_hOriginalDC = NULL;
-    } else 
-        BitBltRectsD3D(&m_PaintRect, 1, ((CD3D9Output *)ActiveOutput)->lpDDOSD);
+    } 
+    else 
+    {
+        BitBltRectsD3D(&m_PaintRect, 1, ((CD3D9Output *)GetActiveOutput())->lpDDOSD);
+    }
 }
 
 
@@ -244,7 +251,7 @@ void CPaintingHDC::BitBltRectsD3D(LPRECT pRectList, LONG nRectCount, LPDIRECT3DS
     }
 
     // get rect we output video to
-    RECT outRect = ((CD3D9Output *)ActiveOutput)->Overlay_GetCurrentDestRect();
+    RECT outRect = ((CD3D9Output *)GetActiveOutput())->Overlay_GetCurrentDestRect();
 
 
     // VT_BLACK gets painted directly
@@ -312,7 +319,7 @@ void CPaintingHDC::BitBltRectsD3D(LPRECT pRectList, LONG nRectCount, LPDIRECT3DS
                 // TODO: this could be optimized somehow -- any ideas???
 
 
-                RECT src=((CD3D9Output *)ActiveOutput)->Overlay_GetCurrentSrcRect();
+                RECT src=((CD3D9Output *)GetActiveOutput())->Overlay_GetCurrentSrcRect();
 
                 // some scaling around to get proper coordinates for stretchblt
 
@@ -342,15 +349,13 @@ void CPaintingHDC::BitBltRectsD3D(LPRECT pRectList, LONG nRectCount, LPDIRECT3DS
 
                 // Set alpha channel according to color key - we can't use Direct3D here, at least i found no way
                 // read memory access seems to be slow .. so asm isn't much faster here
-
-
                 
                 D3DLOCKED_RECT lr, ddlr;
                 if(SUCCEEDED(m_ddsurface->LockRect(&ddlr, &or, D3DLOCK_READONLY )))
                 {
                     if(SUCCEEDED(m_alphasurface->LockRect(&lr, &or, 0)))
                     {		
-                        COLORREF colorkey=ActiveOutput->Overlay_GetColor();                        
+                        COLORREF colorkey=GetActiveOutput()->Overlay_GetColor();                        
                         colorkey=((colorkey&0xFF)<<16)|(colorkey&0xFF00)|((colorkey&0xFF0000)>>16);
 
                         for (int nLine = 0; nLine < or.bottom-or.top; nLine++)
@@ -389,7 +394,7 @@ void CPaintingHDC::BitBltRectsD3D(LPRECT pRectList, LONG nRectCount, LPDIRECT3DS
 
     if(VT_GetState()!=VT_BLACK)
     {
-        ((CD3D9Output *)ActiveOutput)->pDevice->UpdateSurface(m_alphasurface, NULL, target, NULL);				
+        ((CD3D9Output *)GetActiveOutput())->pDevice->UpdateSurface(m_alphasurface, NULL, target, NULL);				
     }
 }
 

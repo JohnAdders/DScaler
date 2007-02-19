@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.391 2007-02-19 14:48:50 adcockj Exp $
+// $Id: DScaler.cpp,v 1.392 2007-02-19 17:37:44 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.391  2007/02/19 14:48:50  adcockj
+// Fixed various issues with d3d9 code and settings
+//
 // Revision 1.390  2007/02/19 00:28:04  robmuller
 // New scheduling code from Radoslav Masaryk.
 //
@@ -1458,7 +1461,7 @@ static long m_EventTimerID = 0;
 static int ChannelPreviewNbCols = 4;
 static int ChannelPreviewNbRows = 4;
 
-static int OutputMethod = 0;
+static IOutput::OUTPUTTYPES OutputMethod = IOutput::OUT_OVERLAY;
 
 static HANDLE hMainWindowEvent = NULL;
 
@@ -1728,17 +1731,7 @@ int APIENTRY WinMainOld(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCm
     // the ini file location may have changed
     LoadSettingsFromIni();
     
-    switch(OutputMethod) 
-    {
-    case 0:
-        // overlay
-        SetActiveOutput(IOutput::OUT_OVERLAY);
-        break;
-    case 1:
-        // d3d
-        SetActiveOutput(IOutput::OUT_D3D);
-        break;
-    }
+    SetActiveOutput(OutputMethod);
 
     // make sure dscaler.ini exists with many of the options in it.
     // even if dscaler crashes a new user is able to make changes to dscaler.ini.
@@ -4368,7 +4361,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 SetActiveOutput(IOutput::OUT_D3D);
                 CheckMenuItemBool(hMenu, IDM_OUTPUTTYPE_OVERLAY, MF_UNCHECKED);                
                 CheckMenuItemBool(hMenu, IDM_OUTPUTTYPE_DIRECT3D, MF_CHECKED);
-                OutputMethod=1;
+                OutputMethod = IOutput::OUT_D3D;
                 if(GetActiveOutput()->InitDD(hWnd)==TRUE)
                 {
                     Overlay_Start(hWnd);
@@ -4383,7 +4376,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 SetActiveOutput(IOutput::OUT_OVERLAY);
                 CheckMenuItemBool(hMenu, IDM_OUTPUTTYPE_DIRECT3D, MF_UNCHECKED);
                 CheckMenuItemBool(hMenu, IDM_OUTPUTTYPE_OVERLAY, MF_CHECKED);               
-                OutputMethod=0;
+                OutputMethod = IOutput::OUT_OVERLAY;
                 if(GetActiveOutput()->InitDD(hWnd)==TRUE)
                 {
                     Overlay_Start(hWnd);
@@ -5225,6 +5218,7 @@ void MainWndOnInitBT(HWND hWnd)
         {
             Providers_ChangeSettingsBasedOnHW(Setting_GetValue(DScaler_GetSetting(PROCESSORSPEED)), Setting_GetValue(DScaler_GetSetting(TRADEOFF)));
         }
+
         if(GetActiveOutput()->InitDD(hWnd) == TRUE)
         {
             if(GetActiveOutput()->Overlay_Create() == TRUE)
@@ -5249,6 +5243,21 @@ void MainWndOnInitBT(HWND hWnd)
             }
             else
             {
+				if (MessageBox(hWnd,
+							   "The overlay couldn't be created.\n"
+							   "Do you want to try DirectX?", 
+							   "DScaler - Overlay create Failed", 
+							   MB_YESNO | MB_ICONQUESTION | MB_APPLMODAL) == IDYES)
+                {
+                    SetActiveOutput(IOutput::OUT_D3D);
+                    if(GetActiveOutput()->InitDD(hWnd) == TRUE)
+                    {
+                        if(GetActiveOutput()->Overlay_Create() == TRUE)
+                        {
+                            bInitOK = TRUE;
+                        }
+                    }
+                }
             }
         }
     }

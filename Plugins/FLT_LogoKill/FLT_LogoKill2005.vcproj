@@ -74,6 +74,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="msvcrt.lib libcmt.lib"
 				OutputFile="..\..\Release/FLT_LogoKill.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -165,6 +166,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="msvcrt.lib libcmtd.lib"
 				OutputFile="..\..\Debug/FLT_LogoKill.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -257,6 +259,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="msvcrt.lib libcmtd.lib"
 				OutputFile="..\..\Debug/FLT_LogoKill.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -351,6 +354,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="msvcrt.lib libcmt.lib"
 				OutputFile="..\..\Release/FLT_LogoKill.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"

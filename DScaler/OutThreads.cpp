@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.143 2007-02-19 14:48:50 adcockj Exp $
+// $Id: OutThreads.cpp,v 1.144 2007-02-19 23:20:36 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.143  2007/02/19 14:48:50  adcockj
+// Fixed various issues with d3d9 code and settings
+//
 // Revision 1.142  2007/02/19 10:13:45  adcockj
 // Fixes for Critical thread and RECT issuesin D3D9 and overlay code
 //
@@ -1487,7 +1490,6 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 						}
                     }
                 }                   
-                // if there is any exception thrown in the above then just carry on
                 __except (CrashHandler((EXCEPTION_POINTERS*)_exception_info())) 
                 { 
                     if(bOverlayLocked == TRUE)
@@ -1502,7 +1504,9 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
                         pPerf->StopCount(PERF_UNLOCK_OVERLAY);
 #endif
                     }
-                    LOG(1, "Crash in output code");
+                    ErrorBox("Crash in output code. Restart DScaler.");
+					DScalerDeinitializeThread();
+					return 1;
                 }
             
                 // Vertical flipping support
@@ -1646,7 +1650,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     __except (CrashHandler((EXCEPTION_POINTERS*)_exception_info())) 
     { 
         Providers_GetCurrentSource()->Stop();
-        LOG(1, "Crash in OutThreads main loop");
+		ErrorBox("Crash in OutThreads main loop. Restart DScaler.");
 
 #ifdef WANT_DSHOW_SUPPORT
 		//i don't know if it's a good idea or not to call CoUninitialize when there has been a crash
@@ -1664,7 +1668,7 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
     // if there is any exception thrown then exit the thread
     __except (CrashHandler((EXCEPTION_POINTERS*)_exception_info())) 
     {
-        LOG(1, "Crash in in OutThreads Providers_GetCurrentSource()->Stop()");
+		ErrorBox("Crash in in OutThreads Providers_GetCurrentSource()->Stop(). Restart DScaler.");
 #ifdef WANT_DSHOW_SUPPORT
 		CoUninitialize();
 #endif

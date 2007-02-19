@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: D3D9Output.cpp,v 1.9 2007-02-19 14:48:50 adcockj Exp $
+// $Id: D3D9Output.cpp,v 1.10 2007-02-19 22:10:51 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2007/02/19 14:48:50  adcockj
+// Fixed various issues with d3d9 code and settings
+//
 // Revision 1.8  2007/02/19 10:13:45  adcockj
 // Fixes for Critical thread and RECT issuesin D3D9 and overlay code
 //
@@ -186,11 +189,13 @@ BOOL CD3D9Output::Overlay_Create()
 			}
 			else
 			{
+				LeaveCriticalSection(&hDDCritSect);
 				return false;
 			}
 		}
 		else
 		{
+			LeaveCriticalSection(&hDDCritSect);
 			return false;
 		}		
 	}
@@ -198,6 +203,7 @@ BOOL CD3D9Output::Overlay_Create()
 	if(FAILED(pDevice->CreateOffscreenPlainSurface(DSCALER_MAX_WIDTH, DSCALER_MAX_HEIGHT, (bIsRGB ? D3DFMT_R5G6B5 : D3DFMT_YUY2), D3DPOOL_DEFAULT,
 		&lpDDOverlay, NULL))) 
 	{
+		LeaveCriticalSection(&hDDCritSect);
 		ErrorBox("CreateOffscreenPlainSurface failed");
 		return false;
 	}
@@ -206,12 +212,14 @@ BOOL CD3D9Output::Overlay_Create()
 
 	if(FAILED(pDevice->CreateTexture(BUFFERWIDTH, BUFFERHEIGHT, 1, D3DUSAGE_RENDERTARGET ,D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &m_lpOsdTexture, NULL))) 
 	{
+		LeaveCriticalSection(&hDDCritSect);
 		ErrorBox("Creating OSD texture failed");
 		return false;
 	}
 	
 	if(FAILED(m_lpOsdTexture->GetSurfaceLevel(0, &lpDDOSD))) 
 	{
+		LeaveCriticalSection(&hDDCritSect);
 		ErrorBox("Getting surface from OSD texture failed");
 		return false;
 	}

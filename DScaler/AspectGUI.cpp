@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectGUI.cpp,v 1.69 2007-02-19 14:48:50 adcockj Exp $
+// $Id: AspectGUI.cpp,v 1.70 2007-02-20 18:09:12 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -40,6 +40,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.69  2007/02/19 14:48:50  adcockj
+// Fixed various issues with d3d9 code and settings
+//
 // Revision 1.68  2006/12/20 17:41:15  adcockj
 // reorganised the handling of mce remote
 //
@@ -213,7 +216,6 @@
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
-#include "IOutput.h"
 #include "AspectRatio.h"
 #include "DebugLog.h"
 #include "DScaler.h"

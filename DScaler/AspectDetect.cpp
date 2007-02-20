@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: AspectDetect.cpp,v 1.37 2006-12-20 07:45:06 adcockj Exp $
+// $Id: AspectDetect.cpp,v 1.38 2007-02-20 18:09:12 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Michael Samblanet.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -39,6 +39,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.37  2006/12/20 07:45:06  adcockj
+// added DirectX code from Daniel Sabel
+//
 // Revision 1.36  2003/10/27 10:39:50  adcockj
 // Updated files for better doxygen compatability
 //
@@ -145,7 +148,6 @@
 #include "stdafx.h"
 #include "..\DScalerRes\resource.h"
 #include "resource.h"
-#include "IOutput.h"
 #include "AspectRatio.h"
 #include "DebugLog.h"
 #include "Status.h"

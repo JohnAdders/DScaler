@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.392 2007-02-19 17:37:44 adcockj Exp $
+// $Id: DScaler.cpp,v 1.393 2007-02-21 05:18:37 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.392  2007/02/19 17:37:44  adcockj
+// Implement DirectX as overlay fallback
+//
 // Revision 1.391  2007/02/19 14:48:50  adcockj
 // Fixed various issues with d3d9 code and settings
 //
@@ -1262,6 +1265,7 @@
 #include "OverlayOutput.h"
 #include "D3D9Output.h"
 #include "RemoteInput.h"
+#include "..\API\DScalerVersion.h"
 
 #ifdef WANT_DSHOW_SUPPORT
 #include "dshowsource/DSSourceBase.h"
@@ -5430,6 +5434,26 @@ void MainWndOnCreate(HWND hWnd)
     int i;
     int ProcessorMask;
     SYSTEM_INFO SysInfo;
+
+    LOG(1 , "DScaler Version %s Compiled %s %s Build %d", VERSTRING, __DATE__, __TIME__, gBuildNum);
+
+    OSVERSIONINFO ovi;
+    ovi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+
+    if(GetVersionEx(&ovi))
+    {
+        LOG(1, "Windows %d.%d (Win%s build %d) [%s]"
+            ,ovi.dwMajorVersion
+            ,ovi.dwMinorVersion
+            ,ovi.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS
+            ? (ovi.dwMinorVersion>0 ? (ovi.dwMinorVersion>10 ? "Me" : "98") : "95")
+                : ovi.dwPlatformId == VER_PLATFORM_WIN32_NT
+                    ? (ovi.dwMajorVersion==5 &&ovi.dwMinorVersion==1 ? "XP" :
+                    (ovi.dwMajorVersion >= 5 ? "2000" : "NT"))
+                    : "?"
+            ,ovi.dwBuildNumber & 0xffff
+            ,ovi.szCSDVersion);
+    }
 
     pCalibration = new CCalibration();
 

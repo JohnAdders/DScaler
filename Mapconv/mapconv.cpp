@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: mapconv.cpp,v 1.7 2006-12-13 01:10:01 robmuller Exp $
+// $Id: mapconv.cpp,v 1.8 2007-02-22 09:42:05 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) 1998-2002 Avery Lee.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2006/12/13 01:10:01  robmuller
+// Fix compile warnings with Visual Studio 2005 Express.
+//
 // Revision 1.6  2006/10/06 13:35:29  adcockj
 // Added projects for .NET 2005 and fixed most of the warnings and errors
 //
@@ -58,8 +61,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_CNAMBUF     (131072)
-#define MAX_FNAMBUF     (131072)
+#define MAX_CNAMBUF     (1310720)
+#define MAX_FNAMBUF     (1310720)
 #define MAX_SEGMENTS    (64)
 #define MAX_GROUPS      (64)
 
@@ -82,7 +85,7 @@ unsigned int segcnt=0;
 int seggrp[MAX_SEGMENTS];
 long grpstart[MAX_GROUPS];
 
-char line[8192];
+char line[32768];
 long codeseg_flags = 0;
 FILE *f, *fo;
 

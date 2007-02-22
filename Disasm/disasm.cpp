@@ -448,8 +448,11 @@ void dump_ia(FILE *f) {
 			if(l > 0)
 			{
 				for(i=0; i<4; ++i) {
-					int tprematch = std::mismatch(last_match[i].begin(), last_match[i].end(), r.match_stream.begin()).first - last_match[i].begin();
-					int tpostmatch = std::mismatch(last_match[i].rbegin(), last_match[i].rend(), r.match_stream.rbegin()).first - last_match[i].rbegin();
+				    size_t l2 = last_match[i].size();
+				    if (l2 > l)
+					    l2 = l;					
+                    int tprematch = std::mismatch(last_match[i].begin(), last_match[i].begin() + l2, r.match_stream.begin()).first - last_match[i].begin();
+					int tpostmatch = std::mismatch(last_match[i].rbegin(), last_match[i].rbegin() + l2, r.match_stream.rbegin()).first - last_match[i].rbegin();
 
 					if (tprematch+tpostmatch > prematch+postmatch) {
 						prematch = tprematch;
@@ -489,8 +492,11 @@ void dump_ia(FILE *f) {
 			prematch = postmatch = 0;
 
 			for(i=0; i<4; ++i) {
-				int tprematch = std::mismatch(last_result[i].begin(), last_result[i].end(), r.result.begin()).first - last_result[i].begin();
-				int tpostmatch = std::mismatch(last_result[i].rbegin(), last_result[i].rend(), r.result.rbegin()).first - last_result[i].rbegin();
+			    size_t l2 = last_result[i].size();
+			    if (l2 > l)
+				    l2 = l;
+				int tprematch = std::mismatch(last_result[i].begin(), last_result[i].begin() + l2, r.result.begin()).first - last_result[i].begin();
+				int tpostmatch = std::mismatch(last_result[i].rbegin(), last_result[i].rbegin() + l2, r.result.rbegin()).first - last_result[i].rbegin();
 
 				if (tprematch+tpostmatch > prematch+postmatch) {
 					prematch = tprematch;
@@ -512,7 +518,7 @@ void dump_ia(FILE *f) {
 			ruleHeap.push_back(1+l - prematch - postmatch);
 			s = ruleHeap.size();
 			ruleHeap.resize(s + l - prematch - postmatch);
-			std::copy(r.result.begin() + prematch, r.result.begin() + l - postmatch, &ruleHeap[s]);
+			std::copy(r.result.begin() + prematch, r.result.begin() + l - postmatch, ruleHeap.begin() + s);
 
 			decomp_bytes += l+1;
 

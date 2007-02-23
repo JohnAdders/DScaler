@@ -584,7 +584,7 @@ FONT 8, "MS Sans Serif"
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,105,127,58,13
     CTEXT           "DScaler Version 4.x",IDC_VERSION,0,3,277,9
-    CTEXT           "Copyright © 2000-2002 John Adcock",IDC_STATIC,0,27,277,
+    CTEXT           "Copyright © 2000-2007 John Adcock",IDC_STATIC,0,27,277,
                     10
     GROUPBOX        "License Information",IDC_STATIC,0,39,277,82
     CTEXT           "http://www.dscaler.org",IDC_LINK,0,15,277,9,SS_NOTIFY | 

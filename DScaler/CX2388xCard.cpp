@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.78 2007-02-23 15:35:56 to_see Exp $
+// $Id: CX2388xCard.cpp,v 1.79 2007-02-23 15:58:17 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.78  2007/02/23 15:35:56  to_see
+// Deleted unused code lines
+//
 // Revision 1.77  2007/02/18 21:32:44  robmuller
 // Added option to not compile cx2388x code.
 //
@@ -1035,6 +1038,8 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
             m_FilterDefault |= 1 << 5;
             // Disable luma dec
             m_FilterDefault |= 1 << 12;
+            // Disable chroma filter
+			m_FilterDefault &= ~(1 << 19);
         }
         else
         {
@@ -1254,6 +1259,8 @@ void CCX2388xCard::SetGeoSize(int nInput, eVideoFormat TVFormat, long& CurrentX,
             m_FilterDefault |= 1 << 5;
             // Disable luma dec
             m_FilterDefault |= 1 << 12;
+            // Disable chroma filter
+			m_FilterDefault &= ~(1 << 19);
         }
         else
         {

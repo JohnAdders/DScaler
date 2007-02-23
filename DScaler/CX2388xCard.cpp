@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xCard.cpp,v 1.77 2007-02-18 21:32:44 robmuller Exp $
+// $Id: CX2388xCard.cpp,v 1.78 2007-02-23 15:35:56 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.77  2007/02/18 21:32:44  robmuller
+// Added option to not compile cx2388x code.
+//
 // Revision 1.76  2007/02/18 15:18:00  robmuller
 // Improve accuracy of sleep() (used for i2c timing).
 //
@@ -1398,113 +1401,11 @@ DWORD CCX2388xCard::GetRISCPos()
     return ReadDword(CX2388X_VIDY_GP_CNT);
 }
 
-// question to other developers:
-// the following code is not realy working.
-// when stop WDM-driver on DS's start
-// an restart on DS's exit bundled soft works correct.
-// we should delete them.
 void CCX2388xCard::ManageMyState()
 {
     // This function doesn't seem to work properly for some
     // reason.  It causes crashes so don't bother trying.
     return;
-
-    // save and restore everything that might be used
-    // by the real drivers
-
-    // save and restore the whole of the SRAM
-    // as the drivers might well have stored code and fifo
-    // buffers in there that we will overwrite
-    for(DWORD i(0x180040); i < 0x187FFF; i += 4)
-    {
-        ManageDword(i);
-    }
-
-    // save and restore the registers than we overwrite
-    ManageDword(MO_DMA21_PTR2);
-    ManageDword(MO_DMA21_CNT1);
-    ManageDword(MO_DMA21_CNT2);
-
-    ManageDword(MO_DMA24_PTR2);
-    ManageDword(MO_DMA24_CNT1);
-    ManageDword(MO_DMA24_CNT2);
-    
-    ManageDword(MO_DMA25_PTR2);
-    ManageDword(MO_DMA25_CNT1);
-    ManageDword(MO_DMA25_CNT2);
-
-    ManageDword(MO_DMA26_PTR2);
-    ManageDword(MO_DMA26_CNT1);
-    ManageDword(MO_DMA26_CNT2);
-
-    // Drivers seem to reset most things when they run
-    // so just return here especially now that we leave the chip
-    // in a more shut down state
-    return;
-
-
-    // do these last just in case the chip was
-    // left in a running mode
-    ManageDword(CX2388X_DEV_CNTRL2); 
-    ManageDword(CX2388X_VID_DMA_CNTRL);
-    ManageDword(CX2388X_CAPTURECONTROL);
-    
-    ManageDword(CX2388X_VID_INTMSK);
-
-    ManageDword(CX2388X_VIDEO_INPUT);
-    ManageDword(CX2388X_TEMPORAL_DEC);
-    ManageDword(CX2388X_AGC_BURST_DELAY);
-    ManageDword(CX2388X_BRIGHT_CONTRAST); 
-    ManageDword(CX2388X_UVSATURATION);    
-    ManageDword(CX2388X_HUE);             
-    ManageDword(CX2388X_WHITE_CRUSH);
-    ManageDword(CX2388X_PIXEL_CNT_NOTCH);
-    ManageDword(CX2388X_HORZ_DELAY_EVEN);
-    ManageDword(CX2388X_HORZ_DELAY_ODD);
-    ManageDword(CX2388X_VERT_DELAY_EVEN);
-    ManageDword(CX2388X_VERT_DELAY_ODD);
-    ManageDword(CX2388X_VDELAYCCIR_EVEN);
-    ManageDword(CX2388X_VDELAYCCIR_ODD);
-    ManageDword(CX2388X_HACTIVE_EVEN);
-    ManageDword(CX2388X_HACTIVE_ODD);
-    ManageDword(CX2388X_VACTIVE_EVEN);    
-    ManageDword(CX2388X_VACTIVE_ODD);     
-    ManageDword(CX2388X_HSCALE_EVEN);     
-    ManageDword(CX2388X_HSCALE_ODD);      
-    ManageDword(CX2388X_VSCALE_EVEN);     
-    ManageDword(CX2388X_VSCALE_ODD);      
-    ManageDword(CX2388X_FILTER_EVEN);     
-    ManageDword(CX2388X_FILTER_ODD);      
-    ManageDword(CX2388X_FORMAT_2HCOMB);
-    //ManageDword(CX2388X_PLL);
-    //ManageDword(CX2388X_PLL_ADJUST);
-    ManageDword(CX2388X_VBI_SIZE);
-    ManageDword(CX2388X_FIELD_CAP_CNT);
-    ManageDword(CX2388X_VIP_CONFIG);
-    ManageDword(CX2388X_VIP_CONTBRGT);
-    ManageDword(CX2388X_VIP_HSCALE);
-    ManageDword(CX2388X_VIP_VSCALE);
-    
-    ManageDword(CX2388X_VIDEO_COLOR_FORMAT);
-
-    ManageDword(MO_PDMA_STHRSH);
-    ManageDword(MO_PDMA_DTHRSH);
-
-    ManageDword(CX2388X_AGC_SYNC_TIP1); 
-    ManageDword(CX2388X_AGC_BACK_VBI); 
-
-    ManageDword(CX2388X_SAMPLERATEFIFO);  
-    ManageDword(CX2388X_SAMPLERATECONV);  
-    ManageDword(CX2388X_SUBCARRIERSTEP);  
-    ManageDword(CX2388X_SUBCARRIERSTEPDR);
-
-    ManageDword(MO_GP0_IO);
-    ManageDword(MO_GP1_IO);   
-    ManageDword(MO_GP2_IO);
-    ManageDword(MO_GP3_IO);
-    ManageDword(MO_GPIO);
-    ManageDword(MO_GPOE);
-    ManageDword(MO_GP_ISM);
 }
 
 void CCX2388xCard::ResetChip()

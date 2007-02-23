@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.78 2007-02-18 21:32:44 robmuller Exp $
+// $Id: CX2388xSource.cpp,v 1.79 2007-02-23 17:46:35 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.78  2007/02/18 21:32:44  robmuller
+// Added option to not compile cx2388x code.
+//
 // Revision 1.77  2007/02/18 21:15:31  robmuller
 // Added option to not compile BT8x8 code.
 //
@@ -735,7 +738,7 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
     m_AnalogueBlanking = new CAnalogueBlankingSetting(this, "Analogue Blanking", FALSE, IniSection, pVideoGroup);
     m_Settings.push_back(m_AnalogueBlanking);
 
-    m_ConexantStopDriver = new CConexantStopDriverSetting(this, "Stop Conexant driver while DScaler is running", TRUE, IniSection, pAudioGroup);
+    m_ConexantStopDriver = new CConexantStopDriverSetting(this, "Stop Conexant driver while DScaler is running", FALSE, IniSection, pAudioGroup);
     m_Settings.push_back(m_ConexantStopDriver);
 
     m_AutoMute = new CAutoMuteSetting(this, "Automute if no Tunersignal", TRUE, IniSection, pVideoGroup);

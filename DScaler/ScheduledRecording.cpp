@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ScheduledRecording.cpp,v 1.1 2007-02-19 00:28:04 robmuller Exp $
+// $Id: ScheduledRecording.cpp,v 1.2 2007-03-09 16:57:37 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2007 Radoslav Masaryk (pyroteam@centrum.sk) All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2007/02/19 00:28:04  robmuller
+// New scheduling code from Radoslav Masaryk.
+//
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -104,7 +107,7 @@ void ScheduleDlg::OnDurationUpdate()
 		return;
 
 	CString str_dur;
-	(CEdit*)SchDlg->GetDlgItemTextA(IDC_SCHEDULE_EDIT_DURATION,str_dur);
+	(CEdit*)SchDlg->GetDlgItemText(IDC_SCHEDULE_EDIT_DURATION,str_dur);
 	
 	for(int i=0;i<str_dur.GetLength();i++)
 	{
@@ -112,8 +115,8 @@ void ScheduleDlg::OnDurationUpdate()
 		
 		if(::IsCharAlphaA(chEntered))
 		{
-			((CEdit*)SchDlg->GetDlgItemTextA(IDC_SCHEDULE_EDIT_DURATION,str_dur))->SetSel(i,i);
-			((CEdit*)SchDlg->GetDlgItemTextA(IDC_SCHEDULE_EDIT_DURATION,str_dur))->Clear();
+			((CEdit*)SchDlg->GetDlgItemText(IDC_SCHEDULE_EDIT_DURATION,str_dur))->SetSel(i,i);
+			((CEdit*)SchDlg->GetDlgItemText(IDC_SCHEDULE_EDIT_DURATION,str_dur))->Clear();
 			return;
 		}
 	}
@@ -124,7 +127,7 @@ void ScheduleDlg::OnDurationUpdate()
 		m_bPrevTimeSet = true;
 	}
 
-	CTimeSpan end_timespan(0,0,atoi(str_dur.GetBuffer()),0);
+	CTimeSpan end_timespan(0,0,atoi(str_dur.GetBuffer(0)),0);
 	CTime new_time(prev_time);
 
 	new_time += end_timespan;
@@ -148,7 +151,6 @@ void ScheduleDlg::OnTimePickerChanged(NMHDR* nmhdr, LRESULT* lResult)
 	
 	if(start_timespan > end_timespan)
 	{
-	//	((CDateTimeCtrl*)SchDlg->GetDlgItem(IDC_SCHEDULE_TIMEPICKER))->SetTime(&prev_time);
 		setDurationCtrl(0);
 		return;
 	}
@@ -172,8 +174,6 @@ void ScheduleDlg::OnEndTimePickerChanged(NMHDR* nmhdr, LRESULT* lResult)
 
 	if(end_time < start_time)
 	{
-	//	end_time = start_time;
-	//	((CDateTimeCtrl*)SchDlg->GetDlgItem(IDC_SCHEDULE_TIMEPICKER))->SetTime(&start_time);
 		setDurationCtrl(0);
 		return;
 	}
@@ -216,8 +216,8 @@ void ScheduleDlg::setCtrls()
 	
 	CTime time_now = CTime::GetCurrentTime();
 	
-	SchDlg->SetDlgItemTextA(IDC_SCHEDULE_EDIT_NAME,"Name");
-	SchDlg->SetDlgItemTextA(IDC_SCHEDULE_EDIT_DURATION,"90");
+	SchDlg->SetDlgItemText(IDC_SCHEDULE_EDIT_NAME,"Name");
+	SchDlg->SetDlgItemText(IDC_SCHEDULE_EDIT_DURATION,"90");
 	((CDateTimeCtrl*)SchDlg->GetDlgItem(IDC_SCHEDULE_DATEPICKER))->SetTime(&time_now);
 	((CDateTimeCtrl*)SchDlg->GetDlgItem(IDC_SCHEDULE_TIMEPICKER))->SetTime(&time_now);
 	
@@ -248,35 +248,12 @@ void ScheduleDlg::setCtrls()
 ******************************************/
 CSchedule::CSchedule(char* name, char* program_name, int duration, int state, CTime time)
 {	
-	m_name = new char[20];
-	m_program_name = new char[15];
-
 	strcpy(m_name,name);
 	strcpy(m_program_name,program_name);
 
 	m_duration = duration;
 	m_state = state;
 	m_time_start = time;
-}
-
-void CSchedule::clearData()
-{
-	delete[] m_name;
-	delete[] m_program_name;
-}
-
-char* CSchedule::getDateStr() const
-{
-	char* chDate = new char[16];
-	strcpy(chDate,m_time_start.Format("%m.%d.%Y").GetBuffer());
-	return chDate;
-}
-
-char* CSchedule::getTimeStr() const
-{
-	char* chTime = new char[6];
-	strcpy(chTime,m_time_start.Format("%H:%M").GetBuffer());
-	return chTime;
 }
 
 /*****************************************
@@ -318,14 +295,14 @@ void CScheduledRecording::getChannels(std::vector<std::string> &channels)
 	CUserChannels MyChannels;
 	MyChannels.ReadASCII(SZ_DEFAULT_PROGRAMS_FILENAME);
 		
-	int count = MyChannels.GetMaxChannelNumber(); 
+	int count = MyChannels.GetSize(); 
 
 	std::string channel_name;
 	CChannel* channel;
 
-	for(int i=0;i<=count;i++)                    
+	for(int i=0;i<count;i++)                    
 	{
-		channel = MyChannels.GetChannelByNumber(i);
+		channel = MyChannels.GetChannel(i);
 
 		if(!channel)
 			continue;
@@ -347,7 +324,7 @@ void CScheduledRecording::addSchedule()
 	CString program;
 	CString strDuration;
 		
-	SchDlg->GetDlgItemTextA(IDC_SCHEDULE_EDIT_NAME,name);
+	SchDlg->GetDlgItemText(IDC_SCHEDULE_EDIT_NAME,name);
 	
 	if(name.IsEmpty())
 	{
@@ -356,19 +333,19 @@ void CScheduledRecording::addSchedule()
 	}
 
 	for(std::vector<CSchedule>::iterator iter=m_schedules.begin();iter!=m_schedules.end();iter++)
-		if(strcmp(iter->getName(),name.GetBuffer()) == 0)
+		if(strcmp(iter->getName(),name.GetBuffer(0)) == 0)
 		{
 			char err_text[50];
 			strcpy(err_text,"Schedule name ");
 			
-			strcat(err_text,name.GetBuffer());
+			strcat(err_text,name.GetBuffer(0));
 			strcat(err_text,"already used");
 			
 			MessageBox(GetMainWnd(),err_text,"Error",MB_OK);
 			return;
 		}
 	
-	SchDlg->GetDlgItemTextA(IDC_SCHEDULE_EDIT_DURATION,strDuration);
+	SchDlg->GetDlgItemText(IDC_SCHEDULE_EDIT_DURATION,strDuration);
 
 	if(strDuration.IsEmpty())
 	{
@@ -376,9 +353,9 @@ void CScheduledRecording::addSchedule()
 		return;
 	}
 
-	int duration = atoi(strDuration.GetBuffer());
+	int duration = atoi(strDuration.GetBuffer(0));
 	
-	comboCtrl->GetWindowTextA(program);
+	comboCtrl->GetWindowText(program);
 	
 	SYSTEMTIME date;
 	SYSTEMTIME time;
@@ -391,8 +368,8 @@ void CScheduledRecording::addSchedule()
 	char chName[20];
 	char chProgramName[15];
 
-	strcpy(chName,name.GetBuffer());
-	strcpy(chProgramName,program.GetBuffer());
+	strcpy(chName,name.GetBuffer(0));
+	strcpy(chProgramName,program.GetBuffer(0));
 	
 	CSchedule schedule(chName,chProgramName,duration,READY,time_start);
 	
@@ -414,7 +391,7 @@ void CScheduledRecording::removeSchedule()
 			item_text = list->GetItemText(i,0);
 			
 			for(std::vector<CSchedule>::iterator iter=m_schedules.begin();iter!=m_schedules.end();iter++)
-				if(strcmp(iter->getName(),item_text.GetBuffer()) == 0)
+				if(strcmp(iter->getName(),item_text.GetBuffer(0)) == 0)
 				{
 					if(iter->getState() == RECORDING)
 					{
@@ -422,7 +399,6 @@ void CScheduledRecording::removeSchedule()
 						return;
 					}
 
-					iter->clearData();
 					m_schedules.erase(iter);
 					
 					break;
@@ -614,8 +590,15 @@ void CScheduledRecording::showRecords()
 
 		list->InsertItem(0,iter->getName());
 		list->SetItem(0,1,LVIF_TEXT,iter->getProgramName(),0,0,0,0);
-		list->SetItem(0,2,LVIF_TEXT,iter->getDateStr(),0,0,0,0);
-		list->SetItem(0,3,LVIF_TEXT,iter->getTimeStr(),0,0,0,0);
+
+		char chDate[13];
+		iter->getDateStr(chDate);
+		list->SetItem(0,2,LVIF_TEXT,chDate,0,0,0,0);
+
+		char chTime[6];
+		iter->getTimeStr(chTime);
+		list->SetItem(0,3,LVIF_TEXT,chTime,0,0,0,0);
+
 		list->SetItem(0,4,LVIF_TEXT,chBuff,0,0,0,0);
 		
 		switch(iter->getState())
@@ -631,6 +614,7 @@ void CScheduledRecording::showRecords()
 			break;
 		case RECORDING:
 			list->SetItem(0,5,LVIF_TEXT,"Recording",0,0,0,0);
+            break;
 		}		
 	}
 }
@@ -727,7 +711,7 @@ bool CScheduledRecording::IsEndOfRecording()
 			
 }
 
-void CScheduledRecording::setRecordState(char* schedule_name, int state)
+void CScheduledRecording::setRecordState(const char* schedule_name, int state)
 {
 	for(std::vector<CSchedule>::iterator iter=m_schedules.begin();iter!=m_schedules.end();iter++)
 		if(strcmp(iter->getName(),schedule_name) == 0 )
@@ -756,7 +740,6 @@ void CScheduledRecording::exitScheduledRecording()
 		setRecordState(m_recording_program.getName(),CANCELED);
 		TimeShiftStop();
 		saveToXml(m_schedules);
-		m_recording_program.clearData();
 	}
 	
 	m_bExitThread = true;

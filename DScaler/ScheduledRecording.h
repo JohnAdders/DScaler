@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ScheduledRecording.h,v 1.1 2007-02-19 00:28:04 robmuller Exp $
+// $Id: ScheduledRecording.h,v 1.2 2007-03-09 16:57:37 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2007 Radoslav Masaryk (pyroteam@centrum.sk) All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2007/02/19 00:28:04  robmuller
+// New scheduling code from Radoslav Masaryk.
+//
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -56,23 +59,21 @@ public:
 	CSchedule(char* schedule_name, char* program_name, int duration, int state, CTime time);
 	~CSchedule(){};
 		
-	char* getName()        const   {return m_name;};
-	char* getProgramName() const   {return m_program_name;};
-    char* getDateStr()     const;  
-	char* getTimeStr()     const;  
-	int getDuration()      const   {return m_duration;};
-	CTime getStartTime()   const   {return m_time_start;};
-	CTime getTimeEnd()     const   {return m_time_end;};
-	int getState()         const   {return m_state;};
+	const char* getName()         const   {return m_name;};
+	const char* getProgramName()  const   {return m_program_name;};
+	void getDateStr(char* chDate) const   {strcpy(chDate,m_time_start.Format("%m.%d.%Y").GetBuffer(0));};  
+	void getTimeStr(char* chTime) const   {strcpy(chTime,m_time_start.Format("%H:%M").GetBuffer(0));};  
+	int getDuration()             const   {return m_duration;};
+	CTime getStartTime()          const   {return m_time_start;};
+	CTime getTimeEnd()            const   {return m_time_end;};
+	int getState()                const   {return m_state;};
 	
 	void setTimeEnd(CTime time) {m_time_end = time;};
 	void setState(int state) {m_state = state;};
 
-	void clearData();
-	
 private:
-	char* m_name;
-	char* m_program_name;
+	char m_name[20];
+	char m_program_name[15];
 	
 	CTime m_time_start;
 	CTime m_time_end;
@@ -101,7 +102,7 @@ public:
 private:
 	void loadFromXml();
 	void saveToXml(std::vector<CSchedule> schedules);
-	void setRecordState(char* schedule_name, int state);
+	void setRecordState(const char* schedule_name, int state);
 	int  getRecordsCount();
 	
 	bool IsEndOfRecording();

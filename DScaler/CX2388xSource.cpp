@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: CX2388xSource.cpp,v 1.79 2007-02-23 17:46:35 to_see Exp $
+// $Id: CX2388xSource.cpp,v 1.80 2007-03-15 18:28:30 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.79  2007/02/23 17:46:35  to_see
+// Driver disabled by default changed to off
+//
 // Revision 1.78  2007/02/18 21:32:44  robmuller
 // Added option to not compile cx2388x code.
 //
@@ -613,7 +616,7 @@ void CCX2388xSource::CreateSettings(LPCSTR IniSection)
     m_VideoSource = new CVideoSourceSetting(this, "Video Source", 0, 0, 7, IniSection);
     m_Settings.push_back(m_VideoSource);
 
-    m_VideoFormat = new CVideoFormatSetting(this, "Video Format", VIDEOFORMAT_NTSC_M, 0, VIDEOFORMAT_LASTONE - 1, IniSection, pVideoFormatGroup);
+    m_VideoFormat = new CVideoFormatSetting(this, "Video Format", VIDEOFORMAT_NTSC_M, 0, VIDEOFORMAT_LAST_TV - 1, IniSection, pVideoFormatGroup);
     m_Settings.push_back(m_VideoFormat);
 
     m_CardType = new CSliderSetting("Card Type", CX2388xCARD_UNKNOWN, CX2388xCARD_UNKNOWN, m_pCard->GetMaxCards() - 1, IniSection, "CardType");
@@ -1923,7 +1926,7 @@ void CCX2388xSource::ChangeTVSettingsBasedOnTuner()
 
 BOOL CCX2388xSource::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
 {
-    if(VideoFormat == VIDEOFORMAT_LASTONE)
+    if(VideoFormat == VIDEOFORMAT_LAST_TV)
     {
         VideoFormat = m_pCard->GetTuner()->GetDefaultVideoFormat();
     }

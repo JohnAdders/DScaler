@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Source.cpp,v 1.139 2007-02-18 21:15:31 robmuller Exp $
+// $Id: BT848Source.cpp,v 1.140 2007-03-15 19:55:11 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.139  2007/02/18 21:15:31  robmuller
+// Added option to not compile BT8x8 code.
+//
 // Revision 1.138  2006/12/28 14:18:36  adcockj
 // Added patch for Curtiss-Wright cards from Bill Randle
 //
@@ -794,7 +797,7 @@ void CBT848Source::CreateSettings(LPCSTR IniSection)
     m_VideoSource = new CVideoSourceSetting(this, "Video Source", 0, 0, 12, IniSection);
     m_Settings.push_back(m_VideoSource);
 
-    m_VideoFormat = new CVideoFormatSetting(this, "Video Format", VIDEOFORMAT_NTSC_M, 0, VIDEOFORMAT_LASTONE - 1, IniSection, pVideoFormatGroup);
+    m_VideoFormat = new CVideoFormatSetting(this, "Video Format", VIDEOFORMAT_NTSC_M, 0, VIDEOFORMAT_LAST_TV - 1, IniSection, pVideoFormatGroup);
     m_Settings.push_back(m_VideoFormat);
 
     m_HDelay = new CHDelaySetting(this, "Horizontal Delay Adjust", 0, -16, 16, IniSection, pAdvancedTimingGroup);
@@ -2342,13 +2345,16 @@ void CBT848Source::ChangeTVSettingsBasedOnTuner()
 
 BOOL CBT848Source::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFormat)
 {
+    /*
     //Doesn't work yet
+    // T.S.: that's ok because DScaler is no radio app
     if(VideoFormat == (VIDEOFORMAT_LASTONE+1))
     {
         return m_pBT848Card->GetTuner()->SetRadioFrequency(FrequencyId);
     }
-    
-    if(VideoFormat == VIDEOFORMAT_LASTONE)
+    */
+
+    if(VideoFormat == VIDEOFORMAT_LAST_TV)
     {
         VideoFormat = m_pBT848Card->GetTuner()->GetDefaultVideoFormat();
     }

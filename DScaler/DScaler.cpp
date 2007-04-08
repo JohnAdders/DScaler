@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.393 2007-02-21 05:18:37 robmuller Exp $
+// $Id: DScaler.cpp,v 1.394 2007-04-08 15:24:42 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.393  2007/02/21 05:18:37  robmuller
+// Write DScaler and Windows versions to log file.
+//
 // Revision 1.392  2007/02/19 17:37:44  adcockj
 // Implement DirectX as overlay fallback
 //
@@ -4034,7 +4037,8 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             ResetDeinterlaceStats();
             ResetARStats();
             pPerf->Reset();
-            ShowText(hWnd, "Statistics reset");
+            // don't show the message since it will hide the statistics.
+            //ShowText(hWnd, "Statistics reset");
             break;
 
         case IDM_TSOPTIONS:
@@ -4544,6 +4548,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             // here.  Perhaps the video overlay drivers needed to reinitialize.
             SendMessage(HWND_BROADCAST, WM_PAINT, 0, 0);
             Sleep(500);
+            Reset_Capture();
+            if(Providers_GetCurrentSource()->IsInTunerMode())
+            {
+                Channel_Reset();
+            }
             Overlay_Start(hWnd);
             break;
         }

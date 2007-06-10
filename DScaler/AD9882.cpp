@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////
 //
-// $Id: AD9882.cpp,v 1.1 2006-12-28 14:18:35 adcockj Exp $
+// $Id: AD9882.cpp,v 1.2 2007-06-10 21:35:57 to_see Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2006 Curtiss-Wright Controls, Inc..  All rights reserved.
@@ -19,6 +19,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2006/12/28 14:18:35  adcockj
+// Added patch for Curtiss-Wright cards from Bill Randle
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -140,7 +143,7 @@ void CAD9882::calcAD9882PLL(int htotal, int vtotal, int vf, int ilace,
         postdiv = 1;
         vco_range = 3;
     }
-    ipump = (hf * 62.8);
+    ipump = (hf * 6.28) / 15.5;
     ipump *= ipump;
     ipump /= ct_inv;
     ipump *= (htotal * postdiv);

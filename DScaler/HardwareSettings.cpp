@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: HardwareSettings.cpp,v 1.12 2005-03-06 01:05:48 robmuller Exp $
+// $Id: HardwareSettings.cpp,v 1.13 2007-07-27 02:03:17 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2005/03/06 01:05:48  robmuller
+// Never use JudderTerminator as a result of the General Hardware Setup dialog.
+//
 // Revision 1.11  2003/10/27 10:39:51  adcockj
 // Updated files for better doxygen compatability
 //
@@ -126,8 +129,8 @@ static void ChangeSettingsBasedOnHW(int ProcessorSpeed, int TradeOff, int Usage,
         Setting_ChangeDefault(OutThreads_GetSetting(WAITFORFLIP), TRUE);
         Setting_ChangeDefault(OutThreads_GetSetting(DOACCURATEFLIPS), FALSE);
         Setting_ChangeDefault(OutThreads_GetSetting(AUTODETECT), TRUE);
-        Setting_ChangeDefault(FD60_GetSetting(NTSCFILMFALLBACKMODE), INDEX_VIDEO_TOMSMOCOMP);
-        Setting_ChangeDefault(FD50_GetSetting(PALFILMFALLBACKMODE), INDEX_VIDEO_TOMSMOCOMP);
+        Setting_ChangeDefault(FD60_GetSetting(NTSCFILMFALLBACKMODE), INDEX_VIDEO_MOCOMP2);
+        Setting_ChangeDefault(FD50_GetSetting(PALFILMFALLBACKMODE), INDEX_VIDEO_MOCOMP2);
     }
 
     if (Usage == 1)

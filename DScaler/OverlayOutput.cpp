@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OverlayOutput.cpp,v 1.8 2007-02-19 14:48:50 adcockj Exp $
+// $Id: OverlayOutput.cpp,v 1.9 2007-07-27 00:49:03 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2007/02/19 14:48:50  adcockj
+// Fixed various issues with d3d9 code and settings
+//
 // Revision 1.7  2007/02/19 10:13:45  adcockj
 // Fixes for Critical thread and RECT issuesin D3D9 and overlay code
 //
@@ -1289,7 +1292,15 @@ BOOL COverlayOutput::Overlay_Lock_Back_Buffer(TDeinterlaceInfo* pInfo, BOOL bUse
 
     memset(&SurfaceDesc, 0x00, sizeof(SurfaceDesc));
     SurfaceDesc.dwSize = sizeof(SurfaceDesc);
-    ddrval = lpDDOverlayBack->Lock(NULL, &SurfaceDesc, dwFlags, NULL);
+    while(ddrval = lpDDOverlayBack->Lock(NULL, &SurfaceDesc, dwFlags & !DDLOCK_WAIT, NULL) == DDERR_WASSTILLDRAWING)
+	{
+        // RM 7-27-7: We are probably waiting for the vertical sync. 
+        // To prevent spending useless cpu cycles waiting for the vsync we release control
+        // so other applications can do their thing. This not only reduces cpu usage but 
+        // hopefully it reduces frame dropping as well since there is never such a large
+        // amount of time to spare then at this moment.
+		Sleep(1);
+	}
 
     // fix suggested by christoph for NT 4.0 sp6
     if(ddrval == E_INVALIDARG && (dwFlags & DDLOCK_NOSYSLOCK))

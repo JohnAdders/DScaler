@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ProgramList.cpp,v 1.115 2007-02-18 17:19:21 robmuller Exp $
+// $Id: ProgramList.cpp,v 1.116 2007-07-27 01:07:43 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.115  2007/02/18 17:19:21  robmuller
+// Patch from Bill Randle to fix problems with new video formats.
+//
 // Revision 1.114  2005/09/03 21:54:11  to_see
 // Deleted: VPS_GetChannelName because it is not usefull for detecting channel names
 // Fixed: Same channel names in some cases after doing auto channel search
@@ -1966,10 +1969,6 @@ void Channel_Increment()
         }
     
         Channel_Change(CurrentProg);
-
-        StatusBar_ShowText(STATUS_TEXT, MyChannels.GetChannelName(CurrentProgram));
-        OSD_ShowText(MyChannels.GetChannelName(CurrentProgram), 0);
-		MyEPG.ShowOSD();
     }
     else
     {
@@ -2012,10 +2011,6 @@ void Channel_Decrement()
         }
     
         Channel_Change(CurrentProg);
-
-        StatusBar_ShowText(STATUS_TEXT, MyChannels.GetChannel(CurrentProgram)->GetName());
-		OSD_ShowText(MyChannels.GetChannel(CurrentProgram)->GetName(), 0);
-		MyEPG.ShowOSD();
     }
     else
     {
@@ -2029,11 +2024,9 @@ void Channel_Previous()
     if(MyChannels.GetSize() > 0)
     {
         if (MyChannels.GetChannelFrequency(PreviousProgram) != 0)
+        {
             Channel_Change(PreviousProgram);
-
-        StatusBar_ShowText(STATUS_TEXT, MyChannels.GetChannel(CurrentProgram)->GetName());
-		OSD_ShowText(MyChannels.GetChannel(CurrentProgram)->GetName(), 0);
-		MyEPG.ShowOSD();
+        }
     }
     else
     {
@@ -2069,14 +2062,6 @@ void Channel_ChangeToNumber(int ChannelNumber, int DontStorePrevious)
     if (found)
     {
         Channel_Change(ChannelNumber, DontStorePrevious);
-        found = CurrentProgram == ChannelNumber;
-    }
-
-    if (found && CurrentProgram>=0 && CurrentProgram<MyChannels.GetSize())
-    {
-        StatusBar_ShowText(STATUS_TEXT, MyChannels.GetChannel(CurrentProgram)->GetName());
-		OSD_ShowText(MyChannels.GetChannel(CurrentProgram)->GetName(), 0);
-		MyEPG.ShowOSD();
     }
     else
     {

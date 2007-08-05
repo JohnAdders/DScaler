@@ -691,7 +691,7 @@ SOURCE=.\SAA7134Source_UI.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\SchedMessageBox.cpp
+SOURCE=.\ScheduledRecording.cpp
 # End Source File
 # Begin Source File
 
@@ -1521,6 +1521,10 @@ SOURCE=.\SchedMessageBox.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\ScheduledRecording.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Setting.h
 # End Source File
 # Begin Source File
@@ -1842,6 +1846,10 @@ SOURCE=..\Release\SAA713xCards.ini
 # End Group
 # End Target
 # End Project
+# Section DScaler : {F08DF954-8592-11D1-B16A-00C0F0283628}
+# 	2:21:DefaultSinkHeaderFile:slider.h
+# 	2:16:DefaultSinkClass:CSlider
+# End Section
 # Section DScaler : {F08DF952-8592-11D1-B16A-00C0F0283628}
 # 	2:5:Class:CSlider
 # 	2:10:HeaderFile:slider.h
@@ -1851,8 +1859,4 @@ SOURCE=..\Release\SAA713xCards.ini
 # 	2:5:Class:CPicture
 # 	2:10:HeaderFile:picture.h
 # 	2:8:ImplFile:picture.cpp
-# End Section
-# Section DScaler : {F08DF954-8592-11D1-B16A-00C0F0283628}
-# 	2:21:DefaultSinkHeaderFile:slider.h
-# 	2:16:DefaultSinkClass:CSlider
 # End Section

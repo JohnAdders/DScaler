@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: TDA8290.cpp,v 1.6 2005-03-19 11:15:43 atnak Exp $
+// $Id: TDA8290.cpp,v 1.7 2007-08-12 17:42:25 dosx86 Exp $
 /////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2005 Atsushi Nakagawa.  All rights reserved.
@@ -27,6 +27,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2005/03/19 11:15:43  atnak
+// Minor changes.
+//
 // Revision 1.5  2005/03/09 13:48:51  atnak
 // Added more LOGs for debugging.
 //
@@ -77,7 +80,17 @@ void CTDA8290::Init(bool bPreInit, eVideoFormat videoFormat)
 {
 	if (bPreInit)
 	{
+        /* Write the default value into the CLEAR register. Sets soft reset and
+           standby to the "normal operation" setting. There's no video or audio
+           without this. */
+		WriteToSubAddress(TDA8290_CLEAR, 0x1);
+
 		// Set TDA8290 gate for TDA8275 communication
+        /* DEBUG:
+            Sets
+            GP2_CF (Bits 0-3) (GPIO2 Pin Configuration) to 1
+            IICSW_ON to 1 (I2C Switch Command)
+            IICSW_EN to 1 (Enable GPIO_1,2 as I2C switch) */
 		WriteToSubAddress(TDA8290_GPIO2, 0xC1);
 	}
 	else

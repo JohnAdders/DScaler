@@ -832,6 +832,58 @@ SOURCE=.\TimeShift.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\tinystr.cpp
+
+!IF  "$(CFG)" == "DScaler - Win32 Debug"
+
+!ELSEIF  "$(CFG)" == "DScaler - Win32 Release"
+
+# SUBTRACT CPP /YX /Yc /Yu
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\tinyxml.cpp
+
+!IF  "$(CFG)" == "DScaler - Win32 Debug"
+
+!ELSEIF  "$(CFG)" == "DScaler - Win32 Release"
+
+# SUBTRACT CPP /YX /Yc /Yu
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\tinyxmlerror.cpp
+
+!IF  "$(CFG)" == "DScaler - Win32 Debug"
+
+!ELSEIF  "$(CFG)" == "DScaler - Win32 Release"
+
+# SUBTRACT CPP /YX /Yc /Yu
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\tinyxmlparser.cpp
+
+!IF  "$(CFG)" == "DScaler - Win32 Debug"
+
+!ELSEIF  "$(CFG)" == "DScaler - Win32 Release"
+
+# SUBTRACT CPP /YX /Yc /Yu
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
 SOURCE=.\ToolbarControl.cpp
 # End Source File
 # Begin Source File
@@ -1666,6 +1718,14 @@ SOURCE=.\TiffHelper.h
 # Begin Source File
 
 SOURCE=.\TimeShift.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\tinystr.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\tinyxml.h
 # End Source File
 # Begin Source File
 

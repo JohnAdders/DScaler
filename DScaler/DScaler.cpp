@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.394 2007-04-08 15:24:42 robmuller Exp $
+// $Id: DScaler.cpp,v 1.395 2007-09-11 17:22:21 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.394  2007/04/08 15:24:42  robmuller
+// Improved resume after suspend.
+//
 // Revision 1.393  2007/02/21 05:18:37  robmuller
 // Write DScaler and Windows versions to log file.
 //
@@ -1429,16 +1432,16 @@ static const char* UIPriorityNames[3] =
 {
     "Normal",
     "High",
-    "Very High",
+    "Real time",
 };
 
 static const char* DecodingPriorityNames[5] = 
 {
-    "Low",
+    "Below normal",
     "Normal",
     "Above Normal",
     "High",
-    "Very High",
+    "Time critical",
 };
 
 static const char* OutputMethodNames[2] = 
@@ -2541,6 +2544,21 @@ void UpdateSleepMode(TSMState* SMState, char* Text)
     }
 }
 
+void UpdatePriorityClass()
+{
+    if (PriorClassId == 2)
+    {
+        SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS);
+    }
+    else if (PriorClassId == 1)
+    {
+        SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
+    }
+    else
+    {
+        SetPriorityClass(GetCurrentProcess(), NORMAL_PRIORITY_CLASS);        
+    }
+}
 
 BOOL GetDisplayAreaRect(HWND hWnd, LPRECT lpRect, BOOL WithToolbar)
 {
@@ -3912,39 +3930,6 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                 OSD_ShowText("Keyboard lock off", 0);
             }
             
-            break;
-
-        case IDM_TREADPRIOR_0:
-        case IDM_TREADPRIOR_1:
-        case IDM_TREADPRIOR_2:
-        case IDM_TREADPRIOR_3:
-        case IDM_TREADPRIOR_4:
-            ThreadClassId = LOWORD(wParam) - IDM_TREADPRIOR_0;
-            Stop_Capture();
-            Start_Capture();
-            break;
-
-        case IDM_PRIORCLASS_0:
-        case IDM_PRIORCLASS_1:
-        case IDM_PRIORCLASS_2:
-            PriorClassId = LOWORD(wParam) - IDM_PRIORCLASS_0;
-            strcpy(Text, "Can't set Priority");
-            if (PriorClassId == 0)
-            {
-                if (SetPriorityClass(GetCurrentProcess(), NORMAL_PRIORITY_CLASS) == TRUE)
-                    strcpy(Text, "Normal Priority");
-            }
-            else if (PriorClassId == 1)
-            {
-                if (SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS) == TRUE)
-                    strcpy(Text, "High Priority");
-            }
-            else
-            {
-                if (SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS) == TRUE)
-                    strcpy(Text, "Real-Time Priority");
-            }
-            ShowText(hWnd, Text);
             break;
 
         case IDM_JUDDERTERMINATOR:
@@ -5516,6 +5501,8 @@ void MainWndOnCreate(HWND hWnd)
     ProcessorMask = 1 << (MainProcessor);
     i = SetThreadAffinityMask(GetCurrentThread(), ProcessorMask);
 
+    UpdatePriorityClass();
+
     Cursor_UpdateVisibility();
 
     TimeShiftInit(hWnd);
@@ -5895,9 +5882,6 @@ LONG OnSize(HWND hWnd, UINT wParam, LONG lParam)
 //---------------------------------------------------------------------------
 void SetMenuAnalog()
 {
-    CheckMenuItem(hMenu, ThreadClassId + 1150, MF_CHECKED);
-    CheckMenuItem(hMenu, PriorClassId + 1160, MF_CHECKED);
-
     CheckMenuItemBool(hMenu, IDM_TOGGLECURSOR, bShowCursor);
     EnableMenuItem(hMenu,IDM_TOGGLECURSOR, bAutoHideCursor?MF_GRAYED:MF_ENABLED);
     CheckMenuItemBool(hMenu, IDM_STATUSBAR, bDisplayStatusBar);
@@ -6421,26 +6405,6 @@ BOOL IsToolBarVisible()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void SetThreadProcessorAndPriority()
-{
-    DWORD rc;
-    int ProcessorMask;
-
-    ProcessorMask = 1 << (DecodeProcessor);
-    rc = SetThreadAffinityMask(GetCurrentThread(), ProcessorMask);
-    
-    if (ThreadClassId == 0)
-        SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_BELOW_NORMAL);
-    else if (ThreadClassId == 1)
-        SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_NORMAL);
-    else if (ThreadClassId == 2)
-        SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_ABOVE_NORMAL);
-    else if (ThreadClassId == 3)
-        SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
-    else if (ThreadClassId == 4)
-        SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);
-}
-
 void Cursor_SetVisibility(BOOL bVisible)
 {
     static int nCursorIndex = 1;
@@ -6929,6 +6893,20 @@ BOOL AlwaysOnTop_OnChange(long NewValue)
     return FALSE;
 }
 
+BOOL PriorClassId_OnChange(long NewValue)
+{
+    PriorClassId = (long)NewValue;
+    UpdatePriorityClass();
+    return FALSE;
+}
+
+BOOL ThreadClassId_OnChange(long NewValue)
+{
+    ThreadClassId = (long)NewValue;
+    SetOutputThreadPriority();
+    return FALSE;
+}
+
 BOOL AlwaysOnTopFull_OnChange(long NewValue)
 {
     bAlwaysOnTopFull = (BOOL)NewValue;
@@ -7092,16 +7070,16 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
         "Threads", "DecodeProcessor", NULL,
     },
     {
-        "UI Thread", ITEMFROMLIST, 0, (long*)&PriorClassId,
+        "Priority class", ITEMFROMLIST, 0, (long*)&PriorClassId,
         0, 0, 2, 1, 1,
         UIPriorityNames,
-        "Threads", "WindowPriority", NULL,
+        "Threads", "WindowPriority", PriorClassId_OnChange,
     },
     {
         "Decoding / Output Thread", ITEMFROMLIST, 0, (long*)&ThreadClassId,
         1, 0, 4, 1, 1,
         DecodingPriorityNames,
-        "Threads", "ThreadPriority", NULL,
+        "Threads", "ThreadPriority", ThreadClassId_OnChange,
     },
     {
         "Autosave settings", ONOFF, 0, (long*)&bUseAutoSave,

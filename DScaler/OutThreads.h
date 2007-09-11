@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.h,v 1.24 2004-12-16 21:58:17 robmuller Exp $
+// $Id: OutThreads.h,v 1.25 2007-09-11 17:22:21 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -85,6 +85,7 @@ void PutRequest(TGUIRequest *req);
 
 void Start_Thread();
 void Stop_Thread();
+void SetOutputThreadPriority();
 
 void SetupCaptureFlags();
 

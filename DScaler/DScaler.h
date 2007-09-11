@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.h,v 1.56 2005-07-11 12:49:00 laurentg Exp $
+// $Id: DScaler.h,v 1.57 2007-09-11 17:22:21 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -57,8 +57,6 @@ CTreeSettingsGeneric* DScaler_GetTreeSettingsPage();
 CTreeSettingsGeneric* DScaler_GetTreeSettingsPage2();
 CTreeSettingsGeneric* DScaler_GetTreeSettingsPage3();
 CTreeSettingsGeneric* DScaler_GetTreeSettingsPage4();
-
-void SetThreadProcessorAndPriority();
 
 LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam);
 LONG APIENTRY MainWndProcSafe(HWND hWnd, UINT message, UINT wParam, LONG lParam);
@@ -187,5 +185,8 @@ extern BOOL bVTSingleKeyToggle;
 extern BOOL bVTAutoCodePage;
 
 extern BOOL bMinimized;
+
+extern int DecodeProcessor;
+extern int ThreadClassId;
 
 #endif

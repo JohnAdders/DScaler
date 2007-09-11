@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OutThreads.cpp,v 1.144 2007-02-19 23:20:36 robmuller Exp $
+// $Id: OutThreads.cpp,v 1.145 2007-09-11 17:22:21 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +68,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.144  2007/02/19 23:20:36  robmuller
+// Stop output thread when a crash happens.
+//
 // Revision 1.143  2007/02/19 14:48:50  adcockj
 // Fixed various issues with d3d9 code and settings
 //
@@ -872,6 +875,38 @@ void Reset_Capture()
     Start_Capture();
 }
 
+void SetOutputThreadProcessor()
+{
+    DWORD rc;
+    int ProcessorMask;
+
+    if(!g_hOutThread)
+    {
+        return;
+    }
+    ProcessorMask = 1 << (DecodeProcessor);
+    rc = SetThreadAffinityMask(g_hOutThread, ProcessorMask);
+}
+
+void SetOutputThreadPriority()
+{
+    if(!g_hOutThread)
+    {
+        return;
+    }
+    
+    if (ThreadClassId == 0)
+        SetThreadPriority(g_hOutThread, THREAD_PRIORITY_BELOW_NORMAL);
+    else if (ThreadClassId == 1)
+        SetThreadPriority(g_hOutThread, THREAD_PRIORITY_NORMAL);
+    else if (ThreadClassId == 2)
+        SetThreadPriority(g_hOutThread, THREAD_PRIORITY_ABOVE_NORMAL);
+    else if (ThreadClassId == 3)
+        SetThreadPriority(g_hOutThread, THREAD_PRIORITY_HIGHEST);
+    else if (ThreadClassId == 4)
+        SetThreadPriority(g_hOutThread, THREAD_PRIORITY_TIME_CRITICAL);
+}
+
 DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
 {
     BOOL bFlipNow = TRUE;
@@ -934,7 +969,8 @@ DWORD WINAPI YUVOutThread(LPVOID lpThreadParameter)
         bNoScreenUpdateDuringTuning = FALSE;   
 
         // Sets processor Affinity and Thread priority according to menu selection
-        SetThreadProcessorAndPriority();
+        SetOutputThreadProcessor();
+        SetOutputThreadPriority();
 
         PrevDeintMethod = GetCurrentDeintMethod();
 

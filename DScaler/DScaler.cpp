@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.396 2007-09-16 12:23:55 robmuller Exp $
+// $Id: DScaler.cpp,v 1.397 2007-09-16 13:38:24 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.396  2007/09/16 12:23:55  robmuller
+// Remove delay when changing channels with some sources (like my card in DShow mode).
+//
 // Revision 1.395  2007/09/11 17:22:21  robmuller
 // Fix: priority class was not being set.
 // Priority class and output thread priority can now be changed in real-time.
@@ -4441,10 +4444,13 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             if(!bDone)
             {
                 bDone = ProcessProgramSelection(hWnd, LOWORD(wParam));
-            // return here. SetMenuAnalog() is called otherwise. This adds a delay with some
-            // sources since the audio signal menu entries are updated and the audio signal status is 
-            // unknown since we have just switched channels.
-                return 0;
+                if(bDone)
+                {
+                    // return here. SetMenuAnalog() is called otherwise. This adds a delay with some
+                    // sources since the audio signal menu entries are updated and the audio signal status is 
+                    // unknown since we have just switched channels.
+                    return 0;
+                }
             }
             if(!bDone)
             {

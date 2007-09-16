@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.395 2007-09-11 17:22:21 robmuller Exp $
+// $Id: DScaler.cpp,v 1.396 2007-09-16 12:23:55 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,11 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.395  2007/09/11 17:22:21  robmuller
+// Fix: priority class was not being set.
+// Priority class and output thread priority can now be changed in real-time.
+// Updated several priority related names.
+//
 // Revision 1.394  2007/04/08 15:24:42  robmuller
 // Improved resume after suspend.
 //
@@ -3242,7 +3247,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 					}
                 }
             }
-            break;
+            // return instead of break. SetMenuAnalog() is called otherwise. This adds a delay with some
+            // sources since the audio signal menu entries are updated and the audio signal status is 
+            // unknown since we have just switched channels.
+            return 0;
 
         case IDM_CHANNELMINUS:
             if (!ProcessVTMessage(hWnd, message, wParam, lParam))
@@ -3266,7 +3274,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 					}
                 }
             }
-            break;
+            // return instead of break. SetMenuAnalog() is called otherwise. This adds a delay with some
+            // sources since the audio signal menu entries are updated and the audio signal status is 
+            // unknown since we have just switched channels.
+            return 0;
 
         case IDM_CHANNEL_PREVIOUS:
             if (!ProcessVTMessage(hWnd, message, wParam, lParam))
@@ -3276,7 +3287,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                     Channel_Previous();
                 }
             }
-            break;
+            // return instead of break. SetMenuAnalog() is called otherwise. This adds a delay with some
+            // sources since the audio signal menu entries are updated and the audio signal status is 
+            // unknown since we have just switched channels.
+            return 0;
 
 		case IDM_CHANNEL_PREVIEW:
             if (pMultiFrames)
@@ -3306,7 +3320,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
 					pMultiFrames->AckContentChange();
 				}
 			}
-			break;
+            // return instead of break. SetMenuAnalog() is called otherwise. This adds a delay with some
+            // sources since the audio signal menu entries are updated and the audio signal status is 
+            // unknown since we have just switched channels.
+            return 0;
 
         case IDC_TOOLBAR_CHANNELS_LIST:
             if (!ProcessVTMessage(hWnd, message, wParam, lParam))
@@ -3316,7 +3333,11 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
                     Channel_Change(lParam);
                 }
             }
-            break;
+            // return instead of break. SetMenuAnalog() is called otherwise. This adds a delay with some
+            // sources since the audio signal menu entries are updated and the audio signal status is 
+            // unknown since we have just switched channels.
+            return 0;
+
             
         case IDM_PATTERN_SELECT:
             pCalibration->SelectTestPattern(lParam);
@@ -4420,6 +4441,10 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             if(!bDone)
             {
                 bDone = ProcessProgramSelection(hWnd, LOWORD(wParam));
+            // return here. SetMenuAnalog() is called otherwise. This adds a delay with some
+            // sources since the audio signal menu entries are updated and the audio signal status is 
+            // unknown since we have just switched channels.
+                return 0;
             }
             if(!bDone)
             {

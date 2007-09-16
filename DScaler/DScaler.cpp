@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.397 2007-09-16 13:38:24 robmuller Exp $
+// $Id: DScaler.cpp,v 1.398 2007-09-16 16:49:02 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.397  2007/09/16 13:38:24  robmuller
+// Fix problem introduced by last checkin.
+//
 // Revision 1.396  2007/09/16 12:23:55  robmuller
 // Remove delay when changing channels with some sources (like my card in DShow mode).
 //
@@ -6935,6 +6938,16 @@ BOOL ThreadClassId_OnChange(long NewValue)
 {
     ThreadClassId = (long)NewValue;
     SetOutputThreadPriority();
+    if (ThreadClassId == 0)
+        SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_BELOW_NORMAL);
+    else if (ThreadClassId == 1)
+        SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_NORMAL);
+    else if (ThreadClassId == 2)
+        SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_ABOVE_NORMAL);
+    else if (ThreadClassId == 3)
+        SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
+    else if (ThreadClassId == 4)
+        SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);
     return FALSE;
 }
 
@@ -7107,7 +7120,7 @@ SETTING DScalerSettings[DSCALER_SETTING_LASTONE] =
         "Threads", "WindowPriority", PriorClassId_OnChange,
     },
     {
-        "Decoding / Output Thread", ITEMFROMLIST, 0, (long*)&ThreadClassId,
+        "Decoding / Output and UI Thread", ITEMFROMLIST, 0, (long*)&ThreadClassId,
         1, 0, 4, 1, 1,
         DecodingPriorityNames,
         "Threads", "ThreadPriority", ThreadClassId_OnChange,

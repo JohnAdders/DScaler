@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="DI_ScalerBob"
 	ProjectGUID="{76EF7E3B-4B8D-41CF-9137-7F79A67CAB90}"
 	>
@@ -233,10 +233,11 @@
 				AdditionalIncludeDirectories="..\..\Api"
 				PreprocessorDefinitions="DI_SCALERBOB_EXPORTS;WIN32;_DEBUG;_WINDOWS"
 				RuntimeLibrary="1"
-				PrecompiledHeaderFile=".\Debug/DI_ScalerBob.pch"
-				AssemblerListingLocation=".\Debug/"
-				ObjectFile=".\Debug/"
-				ProgramDataBaseFileName=".\Debug/"
+				PrecompiledHeaderFile=""
+				AssemblerListingLocation="$(IntDir)\"
+				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\"
+				BrowseInformation="1"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
@@ -255,12 +256,13 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="user32.lib"
 				OutputFile="..\..\Debug/DI_ScalerBob.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\Debug/DI_ScalerBob.pdb"
-				ImportLibrary=".\Debug/DI_ScalerBob.lib"
+				ProgramDatabaseFile="$(IntDir)\DI_ScalerBob.pdb"
+				ImportLibrary="$(IntDir)\DI_ScalerBob.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -327,10 +329,10 @@
 				AdditionalIncludeDirectories="..\..\Api"
 				PreprocessorDefinitions="DI_SCALERBOB_EXPORTS;WIN32;NDEBUG;_WINDOWS"
 				RuntimeLibrary="0"
-				PrecompiledHeaderFile=".\Release/DI_ScalerBob.pch"
-				AssemblerListingLocation=".\Release/"
-				ObjectFile=".\Release/"
-				ProgramDataBaseFileName=".\Release/"
+				PrecompiledHeaderFile=""
+				AssemblerListingLocation="$(IntDir)\"
+				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				CompileAs="0"
@@ -349,11 +351,12 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
+				AdditionalDependencies="user32.lib"
 				OutputFile="..\..\Release/DI_ScalerBob.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				OptimizeForWindows98="1"
-				ImportLibrary=".\Release/DI_ScalerBob.lib"
+				ImportLibrary="$(IntDir)\DI_ScalerBob.lib"
 				TargetMachine="1"
 			/>
 			<Tool

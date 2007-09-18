@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="DI_Greedy2Frame"
 	ProjectGUID="{E87D1F65-7BA7-41DB-88AC-F67CE7A6C99A}"
 	>
@@ -230,13 +230,14 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\api,..\..\Api"
+				AdditionalIncludeDirectories="..\..\Api"
 				PreprocessorDefinitions="DI_GREEDY2FRAME_EXPORTS;WIN32;_DEBUG;_WINDOWS"
 				RuntimeLibrary="1"
-				PrecompiledHeaderFile=".\Debug/DI_Greedy2Frame.pch"
-				AssemblerListingLocation=".\Debug/"
-				ObjectFile=".\Debug/"
-				ProgramDataBaseFileName=".\Debug/"
+				PrecompiledHeaderFile=""
+				AssemblerListingLocation="$(IntDir)\"
+				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\"
+				BrowseInformation="1"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
@@ -255,12 +256,13 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="user32.lib"
 				OutputFile="..\..\Debug/DI_Greedy2Frame.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\Debug/DI_Greedy2Frame.pdb"
-				ImportLibrary=".\Debug/DI_Greedy2Frame.lib"
+				ProgramDatabaseFile="$(IntDir)\DI_Greedy2Frame.pdb"
+				ImportLibrary="$(IntDir)\DI_Greedy2Frame.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -327,10 +329,10 @@
 				AdditionalIncludeDirectories="..\..\Api"
 				PreprocessorDefinitions="DI_GREEDY2FRAME_EXPORTS;WIN32;NDEBUG;_WINDOWS"
 				RuntimeLibrary="0"
-				PrecompiledHeaderFile=".\Release/DI_Greedy2Frame.pch"
-				AssemblerListingLocation=".\Release/"
-				ObjectFile=".\Release/"
-				ProgramDataBaseFileName=".\Release/"
+				PrecompiledHeaderFile="$(IntDir)\DI_Greedy2Frame.pch"
+				AssemblerListingLocation="$(IntDir)\"
+				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				CompileAs="0"
@@ -349,11 +351,12 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
+				AdditionalDependencies="user32.lib"
 				OutputFile="..\..\Release/DI_Greedy2Frame.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				OptimizeForWindows98="1"
-				ImportLibrary=".\Release/DI_Greedy2Frame.lib"
+				ImportLibrary="$(IntDir)\DI_Greedy2Frame.lib"
 				TargetMachine="1"
 			/>
 			<Tool

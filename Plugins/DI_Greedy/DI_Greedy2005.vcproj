@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="DI_Greedy"
 	ProjectGUID="{0EA8DA54-B54A-4532-AAFB-B408D0B47841}"
 	>
@@ -233,10 +233,11 @@
 				AdditionalIncludeDirectories="..\..\Api"
 				PreprocessorDefinitions="DI_GREEDY_EXPORTS;WIN32;_DEBUG;_WINDOWS"
 				RuntimeLibrary="1"
-				PrecompiledHeaderFile=".\Debug/DI_Greedy.pch"
-				AssemblerListingLocation=".\Debug/"
-				ObjectFile=".\Debug/"
-				ProgramDataBaseFileName=".\Debug/"
+				PrecompiledHeaderFile="$(IntDir)\DI_Greedy.pch"
+				AssemblerListingLocation="$(IntDir)\"
+				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\"
+				BrowseInformation="1"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
@@ -255,12 +256,13 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="user32.lib"
 				OutputFile="..\..\Debug/DI_Greedy.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\Debug/DI_Greedy.pdb"
-				ImportLibrary=".\Debug/DI_Greedy.lib"
+				ProgramDatabaseFile="$(IntDir)\DI_Greedy.pdb"
+				ImportLibrary="$(IntDir)\DI_Greedy.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -327,10 +329,10 @@
 				AdditionalIncludeDirectories="..\..\Api"
 				PreprocessorDefinitions="DI_GREEDY_EXPORTS;WIN32;NDEBUG;_WINDOWS"
 				RuntimeLibrary="0"
-				PrecompiledHeaderFile=".\Release/DI_Greedy.pch"
-				AssemblerListingLocation=".\Release/"
-				ObjectFile=".\Release/"
-				ProgramDataBaseFileName=".\Release/"
+				PrecompiledHeaderFile="$(IntDir)\DI_Greedy.pch"
+				AssemblerListingLocation="$(IntDir)\"
+				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				CompileAs="0"
@@ -349,11 +351,12 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
+				AdditionalDependencies="user32.lib"
 				OutputFile="..\..\Release/DI_Greedy.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				OptimizeForWindows98="1"
-				ImportLibrary=".\Release/DI_Greedy.lib"
+				ImportLibrary="$(IntDir)\DI_Greedy.lib"
 				TargetMachine="1"
 			/>
 			<Tool

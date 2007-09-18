@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="DI_EvenOnly"
 	ProjectGUID="{8F886664-F7B6-4444-ACF9-3E567D86115E}"
 	>
@@ -233,10 +233,11 @@
 				AdditionalIncludeDirectories="..\..\Api"
 				PreprocessorDefinitions="DI_EVENONLY_EXPORTS;WIN32;_DEBUG;_WINDOWS"
 				RuntimeLibrary="1"
-				PrecompiledHeaderFile=".\Debug/DI_EvenOnly.pch"
-				AssemblerListingLocation=".\Debug/"
-				ObjectFile=".\Debug/"
-				ProgramDataBaseFileName=".\Debug/"
+				PrecompiledHeaderFile=""
+				AssemblerListingLocation="$(IntDir)\"
+				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\"
+				BrowseInformation="1"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
@@ -255,12 +256,13 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="user32.lib"
 				OutputFile="..\..\Debug/DI_EvenOnly.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\Debug/DI_EvenOnly.pdb"
-				ImportLibrary=".\Debug/DI_EvenOnly.lib"
+				ProgramDatabaseFile="$(IntDir)\DI_EvenOnly.pdb"
+				ImportLibrary="$(IntDir)\DI_EvenOnly.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -327,10 +329,10 @@
 				AdditionalIncludeDirectories="..\..\Api"
 				PreprocessorDefinitions="DI_EVENONLY_EXPORTS;WIN32;NDEBUG;_WINDOWS"
 				RuntimeLibrary="0"
-				PrecompiledHeaderFile=".\Release/DI_EvenOnly.pch"
-				AssemblerListingLocation=".\Release/"
-				ObjectFile=".\Release/"
-				ProgramDataBaseFileName=".\Release/"
+				PrecompiledHeaderFile=""
+				AssemblerListingLocation="$(IntDir)\"
+				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				CompileAs="0"
@@ -349,11 +351,12 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
+				AdditionalDependencies="user32.lib"
 				OutputFile="..\..\Release/DI_EvenOnly.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				OptimizeForWindows98="1"
-				ImportLibrary=".\Release/DI_EvenOnly.lib"
+				ImportLibrary="$(IntDir)\DI_EvenOnly.lib"
 				TargetMachine="1"
 			/>
 			<Tool

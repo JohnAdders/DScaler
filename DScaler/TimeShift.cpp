@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: TimeShift.cpp,v 1.43 2007-02-18 22:42:37 robmuller Exp $
+// $Id: TimeShift.cpp,v 1.44 2007-09-20 03:14:03 robmuller Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Eric Schmidt.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.43  2007/02/18 22:42:37  robmuller
+// Removed include to unused header file.
+//
 // Revision 1.42  2006/12/13 01:10:01  robmuller
 // Fix compile warnings with Visual Studio 2005 Express.
 //
@@ -1031,7 +1034,7 @@ bool TimeShiftInit(HWND hWnd)
 
         wfx->wFormatTag      = WAVE_FORMAT_PCM;
         wfx->nChannels       = 2;
-        wfx->nSamplesPerSec  = 44100;
+        wfx->nSamplesPerSec  = 48000;
         wfx->wBitsPerSample  = 16;
         wfx->nBlockAlign     = (wfx->nChannels * wfx->wBitsPerSample) / 8;
         wfx->nAvgBytesPerSec = wfx->nSamplesPerSec * wfx->nBlockAlign;

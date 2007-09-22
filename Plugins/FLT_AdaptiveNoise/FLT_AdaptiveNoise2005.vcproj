@@ -329,7 +329,7 @@
 				AdditionalIncludeDirectories="..\..\Api"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;FLT_AdaptiveNoise_EXPORTS"
 				RuntimeLibrary="0"
-				PrecompiledHeaderFile="$(IntDir)\FLT_AdaptiveNoise.pch"
+				PrecompiledHeaderFile=""
 				AssemblerListingLocation="$(IntDir)\"
 				ObjectFile="$(IntDir)\"
 				ProgramDataBaseFileName="$(IntDir)\"

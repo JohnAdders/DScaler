@@ -330,8 +330,10 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
-				InlineFunctionExpansion="1"
+				Optimization="3"
+				InlineFunctionExpansion="2"
+				EnableIntrinsicFunctions="true"
+				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="..\..\Api"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;DI_MoComp2_EXPORTS"
 				StringPooling="true"

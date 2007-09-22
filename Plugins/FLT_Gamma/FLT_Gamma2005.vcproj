@@ -341,7 +341,7 @@
 				AdditionalIncludeDirectories="..\..\Api"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;FLT_GAMMA_EXPORTS"
 				RuntimeLibrary="2"
-				PrecompiledHeaderFile=".\Release/FLT_Gamma.pch"
+				PrecompiledHeaderFile=""
 				AssemblerListingLocation="$(IntDir)\"
 				ObjectFile="$(IntDir)\"
 				ProgramDataBaseFileName="$(IntDir)\"

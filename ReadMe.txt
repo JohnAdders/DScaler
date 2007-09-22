@@ -16,7 +16,7 @@ Follow the guide in ReadMe.NET.txt
 Follow the guide in ReadMe.VS2005.txt
 
 4) Visual Studio C++ Express Edition 2005
-Follow the guide in ReadMe.VS2005.txt
+Follow the guide in ReadMe.Express.txt
 
 Thanks
 

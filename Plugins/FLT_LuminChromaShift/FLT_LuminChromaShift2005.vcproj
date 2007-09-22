@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="FLT_LuminChromaShift"
 	ProjectGUID="{5581D72F-461A-477A-B3EF-10CDDF145F4E}"
 	>
@@ -234,15 +234,16 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				InlineFunctionExpansion="1"
+				InlineFunctionExpansion="0"
 				AdditionalIncludeDirectories="..\..\Api"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;FLT_LUMINCHROMASHIFT_EXPORTS"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				PrecompiledHeaderFile=".\Debug/FLT_LuminChromaShift.pch"
-				AssemblerListingLocation=".\Debug/"
-				ObjectFile=".\Debug/"
-				ProgramDataBaseFileName=".\Debug/"
+				PrecompiledHeaderFile=""
+				AssemblerListingLocation="$(IntDir)\"
+				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\"
+				BrowseInformation="1"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
@@ -265,8 +266,8 @@
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\Debug/FLT_LuminChromaShift.pdb"
-				ImportLibrary=".\Debug/FLT_LuminChromaShift.lib"
+				ProgramDatabaseFile="$(IntDir)\FLT_LuminChromaShift.pdb"
+				ImportLibrary="$(IntDir)\FLT_LuminChromaShift.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -327,17 +328,20 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
+				Optimization="3"
 				InlineFunctionExpansion="2"
+				EnableIntrinsicFunctions="true"
+				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="..\..\Api"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;FLT_LUMINCHROMASHIFT_EXPORTS"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
-				PrecompiledHeaderFile=".\Release/FLT_LuminChromaShift.pch"
-				AssemblerListingLocation=".\Release/"
-				ObjectFile=".\Release/"
-				ProgramDataBaseFileName=".\Release/"
+				PrecompiledHeaderFile=""
+				AssemblerListingLocation="$(IntDir)\"
+				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\"
+				BrowseInformation="1"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				CompileAs="0"
@@ -355,11 +359,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				IgnoreImportLibrary="true"
+				IgnoreImportLibrary="false"
 				OutputFile="..\..\Release/FLT_LuminChromaShift.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				ImportLibrary=".\Release/FLT_LuminChromaShift.lib"
+				OptimizeForWindows98="1"
+				ImportLibrary="$(IntDir)\FLT_LuminChromaShift.lib"
 				TargetMachine="1"
 			/>
 			<Tool

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="FLT_TNoise"
 	ProjectGUID="{B29C1CDC-BD37-4017-BF87-7B63D391E1F7}"
 	>
@@ -233,10 +233,11 @@
 				AdditionalIncludeDirectories="..\..\Api"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;FLT_TNOISE_EXPORTS"
 				RuntimeLibrary="1"
-				PrecompiledHeaderFile=".\Debug/FLT_TNoise.pch"
-				AssemblerListingLocation=".\Debug/"
-				ObjectFile=".\Debug/"
-				ProgramDataBaseFileName=".\Debug/"
+				PrecompiledHeaderFile=""
+				AssemblerListingLocation="$(IntDir)\"
+				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\"
+				BrowseInformation="1"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
@@ -259,8 +260,8 @@
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\Debug/FLT_TNoise.pdb"
-				ImportLibrary=".\Debug/FLT_TNoise.lib"
+				ProgramDatabaseFile="$(IntDir)\FLT_TNoise.pdb"
+				ImportLibrary="$(IntDir)\FLT_TNoise.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -327,10 +328,11 @@
 				AdditionalIncludeDirectories="..\..\Api"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;FLT_TNOISE_EXPORTS"
 				RuntimeLibrary="0"
-				PrecompiledHeaderFile=".\Release/FLT_TNoise.pch"
-				AssemblerListingLocation=".\Release/"
-				ObjectFile=".\Release/"
-				ProgramDataBaseFileName=".\Release/"
+				PrecompiledHeaderFile=""
+				AssemblerListingLocation="$(IntDir)\"
+				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\"
+				BrowseInformation="1"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				CompileAs="0"
@@ -353,7 +355,7 @@
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				OptimizeForWindows98="1"
-				ImportLibrary=".\Release/FLT_TNoise.lib"
+				ImportLibrary="$(IntDir)\FLT_TNoise.lib"
 				TargetMachine="1"
 			/>
 			<Tool

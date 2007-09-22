@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="FLT_GradualNoise"
 	ProjectGUID="{346A70F2-41AA-4DC7-9E6D-23B62176DC4F}"
 	>
@@ -234,10 +234,10 @@
 				AdditionalIncludeDirectories="..\..\Api"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;FLT_GradualNoise_EXPORTS"
 				RuntimeLibrary="1"
-				PrecompiledHeaderFile=".\Debug/FLT_GradualNoise.pch"
-				AssemblerListingLocation=".\Debug/"
-				ObjectFile=".\Debug/"
-				ProgramDataBaseFileName=".\Debug/"
+				PrecompiledHeaderFile=""
+				AssemblerListingLocation="$(IntDir)\"
+				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\"
 				BrowseInformation="1"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
@@ -261,8 +261,8 @@
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\Debug/FLT_GradualNoise.pdb"
-				ImportLibrary=".\Debug/FLT_GradualNoise.lib"
+				ProgramDatabaseFile="$(IntDir)\FLT_GradualNoise.pdb"
+				ImportLibrary="$(IntDir)\FLT_GradualNoise.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -329,10 +329,11 @@
 				AdditionalIncludeDirectories="..\..\Api"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;FLT_GradualNoise_EXPORTS"
 				RuntimeLibrary="0"
-				PrecompiledHeaderFile=".\Release/FLT_GradualNoise.pch"
-				AssemblerListingLocation=".\Release/"
-				ObjectFile=".\Release/"
-				ProgramDataBaseFileName=".\Release/"
+				PrecompiledHeaderFile=""
+				AssemblerListingLocation="$(IntDir)\"
+				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\"
+				BrowseInformation="1"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				CompileAs="0"
@@ -355,7 +356,7 @@
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				OptimizeForWindows98="1"
-				ImportLibrary=".\Release/FLT_GradualNoise.lib"
+				ImportLibrary="$(IntDir)\FLT_GradualNoise.lib"
 				TargetMachine="1"
 			/>
 			<Tool

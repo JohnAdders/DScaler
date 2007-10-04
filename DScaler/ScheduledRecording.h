@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ScheduledRecording.h,v 1.2 2007-03-09 16:57:37 to_see Exp $
+// $Id: ScheduledRecording.h,v 1.3 2007-10-04 20:04:47 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2007 Radoslav Masaryk (pyroteam@centrum.sk) All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,21 +18,24 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2007/03/09 16:57:37  to_see
+// Updated scheduling code from Radoslav Masaryk
+//
 // Revision 1.1  2007/02/19 00:28:04  robmuller
 // New scheduling code from Radoslav Masaryk.
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-class ScheduleDlg :public CDialog
+class CScheduleDlg : public CDialog
 {
 public:
-	ScheduleDlg(CWnd *pParent = NULL);
-	virtual BOOL OnInitDialog();
-	
-	void setCtrls();
+	CScheduleDlg(CWnd *pParent = NULL);   // standard constructor
+	~CScheduleDlg();
 
-	DECLARE_MESSAGE_MAP()
+protected:
+    //{{AFX_MSG(ScheduleDlg)
+	virtual BOOL OnInitDialog();
 	afx_msg void OnAddClicked();
 	afx_msg void OnRemoveClicked();
 	afx_msg void OnOkClicked();
@@ -40,16 +43,19 @@ public:
 	afx_msg void OnTimePickerChanged(NMHDR* nmhdr, LRESULT* lResult);
 	afx_msg void OnEndTimePickerChanged(NMHDR* nmhdr, LRESULT* lResult);
 	afx_msg LRESULT OnDscalerExit(WPARAM wParam, LPARAM lParam);
+	//}}AFX_MSG
+	DECLARE_MESSAGE_MAP()
 
 private:
-	void setDurationCtrl(int minutes);
+	void InitCtrls();
+	void SetDurationCtrl(int minutes);
 
 	SYSTEMTIME prev_time;
 	bool m_bPrevTimeSet;
 	bool m_bCtrlsInit;
 };
 
-void ScheduledRecordingDlg();
+void ShowSchedRecDlg();
 DWORD WINAPI RecordThreadProc();
 
 class CSchedule

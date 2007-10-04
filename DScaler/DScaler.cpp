@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.398 2007-09-16 16:49:02 robmuller Exp $
+// $Id: DScaler.cpp,v 1.399 2007-10-04 20:04:47 to_see Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.398  2007/09/16 16:49:02  robmuller
+// Keep the priority of the UI thread at the same value as the priority of the output thread.
+//
 // Revision 1.397  2007/09/16 13:38:24  robmuller
 // Fix problem introduced by last checkin.
 //
@@ -4058,7 +4061,7 @@ LONG APIENTRY MainWndProc(HWND hWnd, UINT message, UINT wParam, LONG lParam)
             break;
 
 		case IDM_SCHEDULE: 
-			ScheduledRecordingDlg();
+			ShowSchedRecDlg();
 			break;
 						
         case IDM_TSRECORD:

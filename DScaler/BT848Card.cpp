@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: BT848Card.cpp,v 1.51 2007-02-18 21:15:31 robmuller Exp $
+// $Id: BT848Card.cpp,v 1.52 2007-12-14 19:31:47 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.51  2007/02/18 21:15:31  robmuller
+// Added option to not compile BT8x8 code.
+//
 // Revision 1.50  2007/02/18 15:18:00  robmuller
 // Improve accuracy of sleep() (used for i2c timing).
 //
@@ -385,11 +388,13 @@ void CBT848Card::ManageMyState()
 void CBT848Card::ResetHardware(DWORD RiscBasePhysical)
 {
     SetDMA(FALSE);
+    WriteByte(BT848_CAP_CTL, 0x00);
+
     WriteByte(BT848_SRESET, 0);
     ::Sleep(100);
 
-    WriteDword(BT848_RISC_STRT_ADD, RiscBasePhysical);
     WriteByte(BT848_CAP_CTL, 0x00);
+    WriteDword(BT848_RISC_STRT_ADD, RiscBasePhysical);
     WriteByte(BT848_VBI_PACK_SIZE, (VBI_SPL / 4) & 0xff);
     WriteByte(BT848_VBI_PACK_DEL, (VBI_SPL / 4) >> 8);
     WriteWord(BT848_GPIO_DMA_CTL, 0xfc);

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OverlayOutput.cpp,v 1.9 2007-07-27 00:49:03 robmuller Exp $
+// $Id: OverlayOutput.cpp,v 1.10 2007-12-14 19:31:47 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2007/07/27 00:49:03  robmuller
+// Reduce cpu usage (and hopefully dropped frames) when waiting for the vsync.
+//
 // Revision 1.8  2007/02/19 14:48:50  adcockj
 // Fixed various issues with d3d9 code and settings
 //
@@ -1324,6 +1327,12 @@ BOOL COverlayOutput::Overlay_Lock_Back_Buffer(TDeinterlaceInfo* pInfo, BOOL bUse
 
     pInfo->OverlayPitch = SurfaceDesc.lPitch;         // Set new pitch, may change
     pInfo->Overlay = (BYTE*)SurfaceDesc.lpSurface;
+	if(pInfo->Overlay == NULL)
+	{
+		LeaveCriticalSection(&hDDCritSect);
+        return FALSE;
+	}
+
     // stay in critical section
     return TRUE;
 }
@@ -1380,6 +1389,11 @@ BOOL COverlayOutput::Overlay_Lock(TDeinterlaceInfo* pInfo)
 
     pInfo->OverlayPitch = SurfaceDesc.lPitch;         // Set new pitch, may change
     pInfo->Overlay = (BYTE*)SurfaceDesc.lpSurface;
+	if(pInfo->Overlay == NULL)
+	{
+		LeaveCriticalSection(&hDDCritSect);
+        return FALSE;
+	}
 
 	
     // stay in critical section

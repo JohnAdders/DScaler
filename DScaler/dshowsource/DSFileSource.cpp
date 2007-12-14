@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSFileSource.cpp,v 1.14 2003-10-10 13:34:16 laurentg Exp $
+// $Id: DSFileSource.cpp,v 1.15 2007-12-14 19:31:47 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.14  2003/10/10 13:34:16  laurentg
+// Movie file has no more a default square pixel ratio
+//
 // Revision 1.13  2003/08/12 19:10:05  laurentg
 // Move some methods from CDSFileSource to CDSSourceBase
 //
@@ -161,12 +164,12 @@ BOOL CDSFileSource::OpenMediaFile(LPCSTR FileName, BOOL NewPlayList)
 		m_pDSGraph->start();
 		return TRUE;
 	}
-	catch(CDShowUnsupportedFileException e)
+	catch(CDShowUnsupportedFileException& e)
 	{
 		LOG(1, "CDShowUnsupportedFileException - %s", (LPCSTR)e.getErrorText());
 		return FALSE;
 	}
-	catch(CDShowException e)
+	catch(CDShowException& e)
 	{
 		AfxMessageBox((LPCSTR)e.getErrorText(),MB_OK|MB_ICONERROR);
         LOG(1, "Failed to open DShow file - %s", (LPCSTR)e.getErrorText());

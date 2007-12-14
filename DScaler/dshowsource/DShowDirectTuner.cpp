@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DShowDirectTuner.cpp,v 1.3 2006-10-06 13:35:28 adcockj Exp $
+// $Id: DShowDirectTuner.cpp,v 1.4 2007-12-14 19:31:47 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2006/10/06 13:35:28  adcockj
+// Added projects for .NET 2005 and fixed most of the warnings and errors
+//
 // Revision 1.2  2002/11/08 21:11:34  tobbej
 // removed dependency on IAMTVTuner, shoud make tuning faster
 //
@@ -167,7 +170,7 @@ void CDShowDirectTuner::SetFrequency(long Freq,AMTunerModeType Mode,AnalogVideoS
 		{
 			SetTVFormat(Format);
 		}
-		catch(CDShowException e)
+		catch(CDShowException& e)
 		{
 			LOG(1,"CDShowDirectTuner::SetFrequency: Exception from SetTVFormat - %s",e.getErrorText());
 		}
@@ -235,7 +238,7 @@ long CDShowDirectTuner::GetSignalStrength(CDShowDirectTuner::eSignalType &type)
 		ModeCaps.Mode=Mode;
 		GetKSData(m_pKSProp,KSPROPERTY_TUNER_MODE_CAPS,ModeCaps);
 	}
-	catch(CDShowException e)
+	catch(CDShowException&)
 	{
 		type = SIGNALTYPE_NONE;
 		return 0;

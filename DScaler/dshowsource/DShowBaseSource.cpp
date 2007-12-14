@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DShowBaseSource.cpp,v 1.2 2002-09-24 17:18:14 tobbej Exp $
+// $Id: DShowBaseSource.cpp,v 1.3 2007-12-14 19:31:47 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2002/09/24 17:18:14  tobbej
+// support for files with multiple audio streams when using a user specified audio renderer
+// changed some log messages
+//
 // Revision 1.1  2002/02/07 22:05:43  tobbej
 // new classes for file input
 // rearanged class inheritance a bit
@@ -78,7 +82,7 @@ CComPtr<IBaseFilter> CDShowBaseSource::GetNewAudioRenderer()
 		{
 			CDShowDevEnum::createDevice(m_AudioDevice,IID_IBaseFilter,&pAudioDevice);
 		}
-		catch(CDShowDevEnumException e)
+		catch(CDShowDevEnumException& e)
 		{
 			//the audio device coud not be created, change the error message
 			//to something less cryptic

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PaintingHDC.cpp,v 1.7 2007-02-19 14:48:50 adcockj Exp $
+// $Id: PaintingHDC.cpp,v 1.8 2007-12-14 19:31:47 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Mike Temperton.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2007/02/19 14:48:50  adcockj
+// Fixed various issues with d3d9 code and settings
+//
 // Revision 1.6  2006/12/20 07:45:07  adcockj
 // added DirectX code from Daniel Sabel
 //
@@ -92,7 +95,7 @@ void CPaintingHDC::ReleaseD3DBuffer()
 
 void CPaintingHDC::CreateD3DBuffer()
 {
-    if(m_ddsurface==NULL && GetActiveOutput()->Type() == IOutput::OUT_D3D) 
+    if(m_ddsurface==NULL && GetActiveOutput()->Type() == IOutput::OUT_D3D && ((CD3D9Output *)GetActiveOutput())->pDevice != NULL) 
     {
         RECT src=((CD3D9Output *)GetActiveOutput())->Overlay_GetCurrentSrcRect();
         ((CD3D9Output *)GetActiveOutput())->pDevice->CreateOffscreenPlainSurface(src.right,src.bottom,
@@ -226,7 +229,7 @@ void CPaintingHDC::BitBltRects(LPRECT pRectList, LONG nRectCount, HDC hDstDC)
 
 void CPaintingHDC::BitBltRectsD3D(LPRECT pRectList, LONG nRectCount, LPDIRECT3DSURFACE9 target, HDC hDstDC)
 {
-    if (m_hBufferDC == NULL)
+    if (m_hBufferDC == NULL || target == NULL)
     {
         return;
     }

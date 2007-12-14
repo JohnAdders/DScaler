@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSProvider.cpp,v 1.10 2003-02-05 19:39:46 tobbej Exp $
+// $Id: DSProvider.cpp,v 1.11 2007-12-14 19:31:47 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2003/02/05 19:39:46  tobbej
+// renamed some functions
+//
 // Revision 1.9  2002/12/03 22:02:18  tobbej
 // added some checks before enabling dshow support,
 // currently it checks that dsrend is properly installed
@@ -103,7 +106,7 @@ CDSProvider::CDSProvider()
 				m_SourceNames[m_DSSources.size()-1]=deviceName;
 			}
 		}
-		catch(CDShowDevEnumException e)
+		catch(CDShowDevEnumException&)
 		{
 			//creation of device enumerator failed, this probably means that CLSID_VideoInputDeviceCategory is empty/non existant
 		}
@@ -113,11 +116,11 @@ CDSProvider::CDSProvider()
 		m_DSSources.push_back(src);
 		m_SourceNames[m_DSSources.size()-1]="Media file";
     }
-    catch(std::runtime_error e)
+    catch(std::runtime_error& e)
     {
         ErrorBox(e.what());
     }
-    catch(CDShowException e)
+    catch(CDShowException& e)
     {
         ErrorBox(e.getErrorText());
     }

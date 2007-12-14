@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ScheduledRecording.h,v 1.3 2007-10-04 20:04:47 to_see Exp $
+// $Id: ScheduledRecording.h,v 1.4 2007-12-14 19:31:47 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2007 Radoslav Masaryk (pyroteam@centrum.sk) All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2007/10/04 20:04:47  to_see
+// Fixed crash in ScheduledRecordingDlg when StartTime changed too fast
+//
 // Revision 1.2  2007/03/09 16:57:37  to_see
 // Updated scheduling code from Radoslav Masaryk
 //
@@ -32,6 +35,7 @@ class CScheduleDlg : public CDialog
 public:
 	CScheduleDlg(CWnd *pParent = NULL);   // standard constructor
 	~CScheduleDlg();
+	static void OnDscalerExit();
 
 protected:
     //{{AFX_MSG(ScheduleDlg)
@@ -42,7 +46,6 @@ protected:
 	afx_msg void OnDurationUpdate();
 	afx_msg void OnTimePickerChanged(NMHDR* nmhdr, LRESULT* lResult);
 	afx_msg void OnEndTimePickerChanged(NMHDR* nmhdr, LRESULT* lResult);
-	afx_msg LRESULT OnDscalerExit(WPARAM wParam, LPARAM lParam);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 

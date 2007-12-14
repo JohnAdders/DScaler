@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: D3D9Output.cpp,v 1.11 2007-02-20 19:06:44 robmuller Exp $
+// $Id: D3D9Output.cpp,v 1.12 2007-12-14 19:31:47 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.11  2007/02/20 19:06:44  robmuller
+// Release surface.
+//
 // Revision 1.10  2007/02/19 22:10:51  robmuller
 // Add missing LeaveCriticalSection() calls.
 //
@@ -314,6 +317,11 @@ BOOL CD3D9Output::Overlay_Lock_Extra_Buffer(TDeinterlaceInfo* pInfo)
 BOOL CD3D9Output::Overlay_Lock_Back_Buffer(TDeinterlaceInfo* pInfo, BOOL bUseExtraBuffer)
 {
 	HRESULT ddrval;
+
+	if(lpDDOverlay == NULL)
+	{
+		return FALSE;
+	}
 	
 	if(bUseExtraBuffer && lpExtraMemoryForFilters != NULL)
     {

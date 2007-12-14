@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSGraph.cpp,v 1.32 2006-10-06 13:35:28 adcockj Exp $
+// $Id: DSGraph.cpp,v 1.33 2007-12-14 19:31:47 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2006/10/06 13:35:28  adcockj
+// Added projects for .NET 2005 and fixed most of the warnings and errors
+//
 // Revision 1.31  2004/12/11 21:53:09  laurentg
 // Allow GraphEdit remote connection even in the release build
 //
@@ -359,9 +362,8 @@ void CDShowGraph::ConnectGraph()
             {
 			    m_pSeeking=new CDShowSeeking(m_pGraph);
             }
-            catch(CDShowException e)
+            catch(CDShowException&)
             {
-                delete m_pSeeking;
                 m_pSeeking = NULL;
             }
 		}
@@ -492,7 +494,7 @@ void CDShowGraph::BuildFilterList()
 				}
 			}
 		}
-		catch(CDShowException e)
+		catch(CDShowException& )
 		{
 		}
 
@@ -905,7 +907,7 @@ bool CDShowGraph::IsValidRes(CDShowGraph::CVideoFormat fmt)
 		{
 			FindStreamConfig();
 		}
-		catch(CDShowException e)
+		catch(CDShowException& e)
 		{
             LOG(1, "DShow Exception - %s", (LPCSTR)e.getErrorText());
 			return false;

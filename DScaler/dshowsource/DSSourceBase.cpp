@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSourceBase.cpp,v 1.28 2005-03-11 14:54:41 adcockj Exp $
+// $Id: DSSourceBase.cpp,v 1.29 2007-12-14 19:31:47 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.28  2005/03/11 14:54:41  adcockj
+// Get rid of a load of compilation warnings in vs.net
+//
 // Revision 1.27  2004/12/15 00:38:26  laurentg
 // Unnecessary Sleep was added
 //
@@ -375,7 +378,7 @@ void CDSSourceBase::UpdateDroppedFields()
 	{
 		dropped=m_pDSGraph->getDroppedFrames();
 	}
-	catch(CDShowException e)
+	catch(CDShowException& e)
 	{
 		LOG(1, "DShow Exception - %s", (LPCSTR)e.getErrorText());
 		return;
@@ -565,7 +568,7 @@ void CDSSourceBase::Mute()
 			pControls->SetVolume(min);
 			EventCollector->RaiseEvent(this,EVENT_MUTE,0,1);
 		}
-		catch(CDShowException e)
+		catch(CDShowException& e)
 		{
 			LOG(3,"Exception in Mute, Error: %s",(LPCSTR)e.getErrorText());
 		}
@@ -593,7 +596,7 @@ void CDSSourceBase::UnMute()
 			pControls->SetVolume(volume);
 			EventCollector->RaiseEvent(this,EVENT_MUTE,1,0);
 		}
-		catch(CDShowException e)
+		catch(CDShowException& e)
 		{
 			LOG(3,"Exception in UnMute, Error: %s",(LPCSTR)e.getErrorText());
 		}
@@ -677,7 +680,7 @@ void CDSSourceBase::VolumeOnChange(long NewValue, long OldValue)
 		pControlls->SetVolume(NewValue);
 		EventCollector->RaiseEvent(this, EVENT_VOLUME, OldValue, NewValue);
 	}
-	catch(CDShowException e)
+	catch(CDShowException& e)
 	{
 		LOG(3,"Exception in VolumeOnChange, Error: %s",(LPCSTR)e.getErrorText());
 		m_Volume->SetValue(OldValue);
@@ -703,7 +706,7 @@ void CDSSourceBase::BalanceOnChange(long NewValue, long OldValue)
 	{
 		pControlls->SetBalance(NewValue);
 	}
-	catch(CDShowException e)
+	catch(CDShowException& e)
 	{
 		LOG(3,"Exception in BalanceOnChange, Error: %s",(LPCSTR)e.getErrorText());
 		m_Balance->SetValue(OldValue);

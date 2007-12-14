@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DShowSeeking.cpp,v 1.2 2003-11-11 21:26:43 robmuller Exp $
+// $Id: DShowSeeking.cpp,v 1.3 2007-12-14 19:31:47 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2003/11/11 21:26:43  robmuller
+// Exclude some more when WANT_DSHOW_SUPPORT is not defined.
+//
 // Revision 1.1  2003/08/10 11:54:38  tobbej
 // implemented the base for seeking in files
 //
@@ -54,6 +57,7 @@ CDShowSeeking::CDShowSeeking(CComPtr<IGraphBuilder> &pGraph)
 	HRESULT hr=pGraph.QueryInterface(&m_pSeeking);
 	if(FAILED(hr))
 	{
+		m_pSeeking.Release();
 		throw CDShowException("Failed to find IMediaSeeking",hr);
 	}
 	
@@ -63,11 +67,13 @@ CDShowSeeking::CDShowSeeking(CComPtr<IGraphBuilder> &pGraph)
 		hr=m_pSeeking->SetTimeFormat(&TIME_FORMAT_MEDIA_TIME);
 		if(FAILED(hr))
 		{
+			m_pSeeking.Release();
 			throw CDShowException("IMediaSeeking::SetTimeFormat failed",hr);
 		}
 	}
 	else
 	{
+		m_pSeeking.Release();
 		throw CDShowException("IMediaSeeking doesn't support the required time format");
 	}
 }

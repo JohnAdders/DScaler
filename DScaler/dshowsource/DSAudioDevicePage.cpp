@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSAudioDevicePage.cpp,v 1.3 2003-02-05 19:12:38 tobbej Exp $
+// $Id: DSAudioDevicePage.cpp,v 1.4 2007-12-14 19:31:47 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2003/02/05 19:12:38  tobbej
+// added support for capture devices where audio can be rendered from directshow
+// modified audio setings dialog so audio rendering can be turned off (usefull for devices with both internal and external audio)
+//
 // Revision 1.2  2002/09/17 19:29:56  adcockj
 // Fixed compile problems with dshow off
 //
@@ -113,7 +117,7 @@ BOOL CDSAudioDevicePage::OnInitDialog()
 			}
 		}
 	}
-	catch(CDShowDevEnumException e)
+	catch(CDShowDevEnumException&)
 	{
 	}
 	

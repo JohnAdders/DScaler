@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DSSource.cpp,v 1.72 2006-10-06 13:35:28 adcockj Exp $
+// $Id: DSSource.cpp,v 1.73 2007-12-14 19:31:47 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Torbjörn Jansson.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.72  2006/10/06 13:35:28  adcockj
+// Added projects for .NET 2005 and fixed most of the warnings and errors
+//
 // Revision 1.71  2004/12/14 21:25:15  laurentg
 // DShow ChangeRes run by the output thread
 //
@@ -414,7 +417,7 @@ ISetting* CDSCaptureSource::GetBrightness()
 				m_Brightness->ChangeDefault(def, TRUE);
 				return m_Brightness;
 			}
-			catch(CDShowException e)
+			catch(CDShowException& e)
 			{
 				LOG(1, "Exception in CDSCaptureSource::GetBrightness - %s", (LPCSTR)e.getErrorText());
 			}
@@ -440,7 +443,7 @@ void CDSCaptureSource::BrightnessOnChange(long Brightness, long OldValue)
 			pCap->set(VideoProcAmp_Brightness,Brightness,VideoProcAmp_Flags_Manual);
 		}
 	}
-	catch(CDShowException e)
+	catch(CDShowException& e)
 	{
 		ErrorBox(e.getErrorText());
 	}
@@ -478,7 +481,7 @@ ISetting* CDSCaptureSource::GetContrast()
 				m_Contrast->ChangeDefault(def, TRUE);
 				return m_Contrast;
 			}
-			catch(CDShowException e)
+			catch(CDShowException& e)
 			{
 				LOG(1, "Exception in CDSCaptureSource::GetContrast - %s", (LPCSTR)e.getErrorText());
 			}
@@ -503,7 +506,7 @@ void CDSCaptureSource::ContrastOnChange(long Contrast, long OldValue)
 			pCap->set(VideoProcAmp_Contrast,Contrast,VideoProcAmp_Flags_Manual);
 		}
 	}
-	catch(CDShowException e)
+	catch(CDShowException& e)
 	{
 		ErrorBox(e.getErrorText());
 	}
@@ -541,7 +544,7 @@ ISetting* CDSCaptureSource::GetHue()
 				m_Hue->ChangeDefault(def, TRUE);
 				return m_Hue;
 			}
-			catch(CDShowException e)
+			catch(CDShowException& e)
 			{
 				LOG(1, "Exception in CDSCaptureSource::GetHue - %s", (LPCSTR)e.getErrorText());
 			}
@@ -566,7 +569,7 @@ void CDSCaptureSource::HueOnChange(long Hue, long OldValue)
 			pCap->set(VideoProcAmp_Hue,Hue,VideoProcAmp_Flags_Manual);
 		}
 	}
-	catch(CDShowException e)
+	catch(CDShowException& e)
 	{
 		ErrorBox(e.getErrorText());
 	}
@@ -604,7 +607,7 @@ ISetting* CDSCaptureSource::GetSaturation()
 				m_Saturation->ChangeDefault(def, TRUE);
 				return m_Saturation;
 			}
-			catch(CDShowException e)
+			catch(CDShowException& e)
 			{
 				LOG(1, "Exception in CDSCaptureSource::GetSaturation - %s", (LPCSTR)e.getErrorText());
 			}
@@ -629,7 +632,7 @@ void CDSCaptureSource::SaturationOnChange(long Saturation, long OldValue)
 			pCap->set(VideoProcAmp_Saturation,Saturation,VideoProcAmp_Flags_Manual);
 		}
 	}
-	catch(CDShowException e)
+	catch(CDShowException& e)
 	{
 		ErrorBox(e.getErrorText());
 	}
@@ -1166,7 +1169,7 @@ BOOL CDSCaptureSource::SetTunerFrequency(long FrequencyId, eVideoFormat VideoFor
 			}
 		}
 	}
-	catch(CDShowException e)
+	catch(CDShowException& e)
 	{
 		LOG(1, "CDSCaptureSource::SetTunerFrequency: DShow Exception - %s", (LPCSTR)e.getErrorText());
 		return FALSE;
@@ -1228,7 +1231,7 @@ BOOL CDSCaptureSource::IsVideoPresent()
 		}*/
 		return pCap->IsHorizontalLocked();
 	}
-	catch(CDShowException e)
+	catch(CDShowException& e)
 	{
 		LOG(1, "CDSCaptureSource::IsVideoPresent: DShow Exception - %s", (LPCSTR)e.getErrorText());
 	}
@@ -1351,7 +1354,7 @@ void CDSCaptureSource::SetMenu(HMENU hMenu)
 			formats=pCap->GetSupportedTVFormats();
 			selectedFormat=pCap->GetTVFormat();
 		}
-		catch(CDShowException e)
+		catch(CDShowException& e)
 		{
             LOG(1, "Exception in CDSCaptureSource::SetMenu - %s", (LPCSTR)e.getErrorText());
         }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: ScheduledRecording.cpp,v 1.3 2007-10-04 20:04:47 to_see Exp $
+// $Id: ScheduledRecording.cpp,v 1.4 2007-12-14 19:31:47 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2007 Radoslav Masaryk (pyroteam@centrum.sk) All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2007/10/04 20:04:47  to_see
+// Fixed crash in ScheduledRecordingDlg when StartTime changed too fast
+//
 // Revision 1.2  2007/03/09 16:57:37  to_see
 // Updated scheduling code from Radoslav Masaryk
 //
@@ -92,17 +95,14 @@ BEGIN_MESSAGE_MAP(CScheduleDlg, CDialog)
 	ON_BN_CLICKED(IDC_SCHEDULE_REMOVE, OnRemoveClicked)
 	ON_BN_CLICKED(IDC_SCHEDULE_OK, OnOkClicked)
 	ON_EN_UPDATE(IDC_SCHEDULE_EDIT_DURATION, OnDurationUpdate)
-	ON_MESSAGE(WM_QUIT, OnDscalerExit)
 	ON_NOTIFY(DTN_DATETIMECHANGE, IDC_SCHEDULE_TIMEPICKER, OnTimePickerChanged)
 	ON_NOTIFY(DTN_DATETIMECHANGE, IDC_SCHEDULE_ENDTIMEPICKER, OnEndTimePickerChanged)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
-LRESULT CScheduleDlg::OnDscalerExit(WPARAM wParam, LPARAM lParam)
+void CScheduleDlg::OnDscalerExit()
 {
 	pSchRec->exitScheduledRecording();
-	
-	return 0;
 }
 
 void CScheduleDlg::OnAddClicked()

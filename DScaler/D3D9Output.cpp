@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: D3D9Output.cpp,v 1.12 2007-12-14 19:31:47 adcockj Exp $
+// $Id: D3D9Output.cpp,v 1.13 2007-12-16 20:59:04 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2007/12/14 19:31:47  adcockj
+// Fixes for Vista crashing
+// Consistent exception handling as references
+//
 // Revision 1.11  2007/02/20 19:06:44  robmuller
 // Release surface.
 //
@@ -78,13 +82,11 @@ struct CUSTOMVERTEX
 //-----------------------------------------------------------------------------
 void CD3D9Output::SetCurrentMonitor(HWND hWnd)
 {
-//   hCurrentMon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);    
+   hCurrentMon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);    
 }
 
 void CD3D9Output::CheckChangeMonitor(HWND hWnd) 
 {
-	return;
-
 	HMONITOR hMon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
 
 	if (hCurrentMon == NULL)
@@ -152,7 +154,13 @@ BOOL CD3D9Output::Overlay_Update(LPRECT pSrcRect, LPRECT pDestRect, DWORD dwFlag
         }
 		
 		CopyRect(&destrect, pDestRect);		
-		MapWindowPoints(HWND_DESKTOP, m_hWnd, (LPPOINT)&destrect, 2);			
+		MapWindowPoints(HWND_DESKTOP, m_hWnd, (LPPOINT)&destrect, 2);
+
+		// Fix for multi mon
+		RECT ScreenRect;
+		GetActiveOutput()->GetMonitorRect(GetMainWnd(), &ScreenRect);
+
+		OffsetRect(&destrect, ScreenRect.left, ScreenRect.top);
 	}
 
 	VT_SetOverlayColour((COLORREF)0x00101020);

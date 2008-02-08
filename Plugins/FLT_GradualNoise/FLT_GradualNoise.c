@@ -16,6 +16,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.12  2002/11/04 01:09:12  lindsey
+// Slightly changed the response curve to more closely resemble the
+// chi-squaredish optimum; Reduced the default parameter value
+//
 // Revision 1.11  2002/10/13 07:48:26  lindsey
 // Corrected the HistoryRequired field
 //
@@ -220,7 +224,6 @@ you the "comical posterization" filter.
 /////////////////////////////////////////////////////////////////////////////
 
 __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo( long CpuFeatureFlags );
-BOOL WINAPI     _DllMainCRTStartup( HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved );
 long            DispatchGradualNoise( TDeinterlaceInfo *pInfo );
 
 static long         FilterGradualNoise_SSE_PREFETCH( TDeinterlaceInfo *pInfo );
@@ -372,7 +375,7 @@ __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo( long CpuFeatureFlags )
     return &GradualNoiseMethod;
 }
 
-BOOL WINAPI _DllMainCRTStartup( HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved )
+BOOL WINAPI DllMain( HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved )
 {
     return TRUE;
 }

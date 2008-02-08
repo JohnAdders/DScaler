@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.400 2007-12-14 19:31:47 adcockj Exp $
+// $Id: DScaler.cpp,v 1.401 2008-02-08 13:43:19 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.400  2007/12/14 19:31:47  adcockj
+// Fixes for Vista crashing
+// Consistent exception handling as references
+//
 // Revision 1.399  2007/10/04 20:04:47  to_see
 // Fixed crash in ScheduledRecordingDlg when StartTime changed too fast
 //
@@ -7435,3 +7439,5 @@ void ResetMainWindowEvent()
         ResetEvent(hMainWindowEvent);
     }
 }
+
+#pragma comment(linker, "\"/manifestdependency:type='Win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='X86' publicKeyToken='6595b64144ccf1df' language='*'\"")

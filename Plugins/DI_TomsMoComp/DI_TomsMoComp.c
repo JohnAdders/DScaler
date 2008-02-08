@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_TomsMoComp.c,v 1.7 2003-06-17 12:46:29 adcockj Exp $
+// $Id: DI_TomsMoComp.c,v 1.8 2008-02-08 13:43:20 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2003/06/17 12:46:29  adcockj
+// Added Help for new deinterlace methods
+//
 // Revision 1.6  2003/03/25 10:13:10  laurentg
 // Allow running of TomsMoComp SSE and 3DNOW methods with Toms'agreement
 //
@@ -150,7 +153,7 @@ __declspec(dllexport) DEINTERLACE_METHOD* GetDeinterlacePluginInfo(long CpuFeatu
     return &TomsMoCompMethod;
 }
 
-BOOL WINAPI _DllMainCRTStartup(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
+BOOL WINAPI DllMain(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
 {
     return TRUE;
 }

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_Colorimetry.c,v 1.5 2005-03-11 13:31:54 adcockj Exp $
+// $Id: FLT_Colorimetry.c,v 1.6 2008-02-08 13:43:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2005/03/11 13:31:54  adcockj
+// Get rid of a load of compilation warnings in vs.net
+//
 // Revision 1.4  2003/11/13 13:57:26  robmuller
 // Don't load when SSE is not available.
 //
@@ -247,7 +250,7 @@ __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo(long CpuFeatureFlags)
     }
 }
 
-BOOL WINAPI _DllMainCRTStartup(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
+BOOL WINAPI DllMain(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
 {
     return TRUE;
 }

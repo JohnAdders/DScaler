@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_Weave.c,v 1.8 2002-06-13 12:10:25 adcockj Exp $
+// $Id: DI_Weave.c,v 1.9 2008-02-08 13:43:20 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/06/13 12:10:25  adcockj
+// Move to new Setings dialog for filers, video deint and advanced settings
+//
 // Revision 1.7  2001/11/22 13:32:04  adcockj
 // Finished changes caused by changes to TDeinterlaceInfo - Compiles
 //
@@ -115,7 +118,7 @@ __declspec(dllexport) DEINTERLACE_METHOD* GetDeinterlacePluginInfo(long CpuFeatu
     return &WeaveMethod;
 }
 
-BOOL WINAPI _DllMainCRTStartup(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
+BOOL WINAPI DllMain(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
 {
     return TRUE;
 }

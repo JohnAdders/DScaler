@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_MoComp2.c,v 1.3 2003-06-17 12:46:28 adcockj Exp $
+// $Id: DI_MoComp2.c,v 1.4 2008-02-08 13:43:20 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Tom Barry & John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.3  2003/06/17 12:46:28  adcockj
+// Added Help for new deinterlace methods
+//
 // Revision 1.2  2003/03/05 13:55:20  adcockj
 // Allow SSE optimizations
 //
@@ -124,7 +127,7 @@ __declspec(dllexport) DEINTERLACE_METHOD* GetDeinterlacePluginInfo(long CpuFeatu
     return &MoComp2Method;
 }
 
-BOOL WINAPI _DllMainCRTStartup(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
+BOOL WINAPI DllMain(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
 {
     return TRUE;
 }

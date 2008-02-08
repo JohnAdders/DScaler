@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_Adaptive.c,v 1.17 2003-02-14 21:53:49 laurentg Exp $
+// $Id: DI_Adaptive.c,v 1.18 2008-02-08 13:43:19 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Mark Rejhon and Steve Grimm.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2003/02/14 21:53:49  laurentg
+// TomsMoComp used as default mode instead of GreedyHM for low and high motion modes
+//
 // Revision 1.16  2002/06/18 19:46:06  adcockj
 // Changed appliaction Messages to use WM_APP instead of WM_USER
 //
@@ -320,7 +323,7 @@ __declspec(dllexport) DEINTERLACE_METHOD* GetDeinterlacePluginInfo(long CpuFeatu
     return &AdaptiveMethod;
 }
 
-BOOL WINAPI _DllMainCRTStartup(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
+BOOL WINAPI DllMain(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
 {
     return TRUE;
 }

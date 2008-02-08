@@ -19,6 +19,6 @@
 #define CREATEPROCESS_MANIFEST_RESOURCE_ID 1 
 #endif 
 
-CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "res\\DScaler.exe.manifest"
+//CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "res\\DScaler.exe.manifest"
 
 /////////////////////////////////////////////////////////////////////////////

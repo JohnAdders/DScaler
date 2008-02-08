@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OverlayOutput.cpp,v 1.10 2007-12-14 19:31:47 adcockj Exp $
+// $Id: OverlayOutput.cpp,v 1.11 2008-02-08 13:43:19 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,10 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2007/12/14 19:31:47  adcockj
+// Fixes for Vista crashing
+// Consistent exception handling as references
+//
 // Revision 1.9  2007/07/27 00:49:03  robmuller
 // Reduce cpu usage (and hopefully dropped frames) when waiting for the vsync.
 //
@@ -279,7 +283,7 @@
 #include "DebugLog.h"
 #include "AspectRatio.h"
 #include "SettingsPerChannel.h"
-#include <dxerr9.h>
+//#include <dxerr9.h>
 
 // cope with older DX header files
 #if !defined(DDFLIP_DONOTWAIT)
@@ -288,12 +292,6 @@
 
 // the instance of the overlay object
 COverlayOutput OverlayOutputInstance;
-
-
-// we've got to load these functions dynamically 
-// so that we continue to run on NT 4
-HMONITOR (WINAPI * lpMonitorFromWindow)( IN HWND hwnd, IN DWORD dwFlags) = NULL;
-BOOL (WINAPI* lpGetMonitorInfoA)( IN HMONITOR hMonitor, OUT LPMONITORINFO lpmi) = NULL;
 
 //-----------------------------------------------------------------------------
 // Callback function used by DirectDrawEnumerateEx to find all monitors
@@ -312,7 +310,7 @@ BOOL WINAPI COverlayOutput::DDEnumCallbackEx(GUID* pGuid, LPTSTR pszDesc, LPTSTR
 	// so we need to replace the NULL handle in single monitor context with the non-NULL value
 	if (hMonitor == NULL)
 	{
-		hMonitor = lpMonitorFromWindow(NULL, MONITOR_DEFAULTTOPRIMARY);
+		hMonitor = OverlayOutputInstance.lpMonitorFromWindow(NULL, MONITOR_DEFAULTTOPRIMARY);
 	}	
 	LOG(2, "Monitor %d %s %s", hMonitor, pszDesc, pszDriverName);
 
@@ -327,9 +325,9 @@ BOOL WINAPI COverlayOutput::DDEnumCallbackEx(GUID* pGuid, LPTSTR pszDesc, LPTSTR
 	}
 
 	MonInfo.cbSize = sizeof(MONITORINFO);
-	if (lpGetMonitorInfoA(hMonitor, &MonInfo))
+	if (OverlayOutputInstance.lpGetMonitorInfoA(hMonitor, &MonInfo))
 	{
-		if (SUCCEEDED(DirectDrawCreate(pGuid, &lpDD, NULL)))
+		if (SUCCEEDED(OverlayOutputInstance.lpDirectDrawCreate(pGuid, &lpDD, NULL)))
 		{
 			Monitors[NbMonitors].hMon = hMonitor;
 			Monitors[NbMonitors].lpDD = lpDD;
@@ -384,15 +382,12 @@ void COverlayOutput::LoadDynamicFunctions()
 {
     // we've got to load these functions dynamically 
     // so that we continue to run on NT 4
-	HINSTANCE h = LoadLibrary("user32.dll");
-    lpMonitorFromWindow = (HMONITOR (WINAPI *)( IN HWND hwnd, IN DWORD dwFlags)) GetProcAddress(h,"MonitorFromWindow");
-    lpGetMonitorInfoA = (BOOL (WINAPI *)( IN HMONITOR hMonitor, OUT LPMONITORINFO lpmi)) GetProcAddress(h,"GetMonitorInfoA");
-        
-    // If the library was loaded by calling LoadLibrary(),
-    // then you must use FreeLibrary() to let go of it.
-    // Since we will already have an outstanding reference to user32.dll
-    // it's OK to Free it here before we've even called the functions
-    FreeLibrary(h);
+	hUserLib = LoadLibrary("user32.dll");
+    lpMonitorFromWindow = (HMONITOR (WINAPI *)( IN HWND hwnd, IN DWORD dwFlags)) GetProcAddress(hUserLib, "MonitorFromWindow");
+    lpGetMonitorInfoA = (BOOL (WINAPI *)( IN HMONITOR hMonitor, OUT LPMONITORINFO lpmi)) GetProcAddress(hUserLib, "GetMonitorInfoA");
+
+    hDDrawLib = LoadLibrary("ddraw.dll");
+    lpDirectDrawCreate = (HRESULT (WINAPI* )( GUID FAR *, LPDIRECTDRAW FAR *, IUnknown FAR * )) GetProcAddress(hDDrawLib, "DirectDrawCreate");
 }
 
 //-----------------------------------------------------------------------------
@@ -401,7 +396,7 @@ LPDIRECTDRAW COverlayOutput::GetCurrentDD(HWND hWnd)
     // if we can't see these new functions or we fail to list the moitors just use a normal DD create
     if(lpMonitorFromWindow == NULL || lpGetMonitorInfoA == NULL || ListMonitors(hWnd) == FALSE)
     {
-        if (FAILED(DirectDrawCreate(NULL, &lpDD, NULL)))
+        if (FAILED(lpDirectDrawCreate(NULL, &lpDD, NULL)))
         {
             ErrorBox("DirectDrawCreate failed");
             return (FALSE);
@@ -1893,6 +1888,8 @@ COverlayOutput::COverlayOutput(void)
 
 COverlayOutput::~COverlayOutput(void)
 {
+    FreeLibrary(hUserLib);
+    FreeLibrary(hDDrawLib);
     DeleteCriticalSection(&hDDCritSect);
 }
 

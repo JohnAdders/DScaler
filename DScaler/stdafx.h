@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: stdafx.h,v 1.30 2007-02-18 21:50:04 robmuller Exp $
+// $Id: stdafx.h,v 1.31 2008-02-08 13:43:19 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.30  2007/02/18 21:50:04  robmuller
+// Added option to not compile saa713x code.
+//
 // Revision 1.29  2007/02/18 21:32:44  robmuller
 // Added option to not compile cx2388x code.
 //
@@ -119,7 +122,6 @@
 #include <atlbase.h>
 
 //uncomment the folowing line if you want to try the experimental direct show support
-#define WANT_DSHOW_SUPPORT 0
 #ifdef WANT_DSHOW_SUPPORT
 	// JA 7-Mar-2005 added to get compiled
     // want to remove the need for this
@@ -127,10 +129,6 @@
 	#define NO_DSHOW_STRSAFE
     #include <dshow.h>
 #endif
-
-#define WANT_BT8X8_SUPPORT
-#define WANT_CX2388X_SUPPORT
-#define WANT_SAA713X_SUPPORT
 
 //#include <windows.h>
 #include <windowsx.h>

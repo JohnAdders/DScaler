@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_VideoBob.c,v 1.7 2002-06-18 19:46:07 adcockj Exp $
+// $Id: DI_VideoBob.c,v 1.8 2008-02-08 13:43:20 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 // Based on code from Virtual Dub Plug-in by Gunnar Thalin
@@ -26,6 +26,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.7  2002/06/18 19:46:07  adcockj
+// Changed appliaction Messages to use WM_APP instead of WM_USER
+//
 // Revision 1.6  2002/06/13 12:10:25  adcockj
 // Move to new Setings dialog for filers, video deint and advanced settings
 //
@@ -122,7 +125,7 @@ __declspec(dllexport) DEINTERLACE_METHOD* GetDeinterlacePluginInfo(long CpuFeatu
     return &VideoBobMethod;
 }
 
-BOOL WINAPI _DllMainCRTStartup(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
+BOOL WINAPI DllMain(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
 {
     return TRUE;
 }

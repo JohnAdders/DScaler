@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_GreedyH.c,v 1.16 2002-06-18 19:46:07 adcockj Exp $
+// $Id: DI_GreedyH.c,v 1.17 2008-02-08 13:43:20 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -36,6 +36,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.16  2002/06/18 19:46:07  adcockj
+// Changed appliaction Messages to use WM_APP instead of WM_USER
+//
 // Revision 1.15  2002/06/13 12:10:24  adcockj
 // Move to new Setings dialog for filers, video deint and advanced settings
 //
@@ -644,7 +647,7 @@ __declspec(dllexport) DEINTERLACE_METHOD* GetDeinterlacePluginInfo(long CpuFeatu
 	return &GreedyHMethod;
 }
 
-BOOL WINAPI _DllMainCRTStartup(HANDLE hInstance, ULONG ul_reason_for_call, LPVOID lpReserved)
+BOOL WINAPI DllMain(HANDLE hInstance, ULONG ul_reason_for_call, LPVOID lpReserved)
 {
     hInst = hInstance;
 	return TRUE;

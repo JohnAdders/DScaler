@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: OverlayOutput.h,v 1.6 2007-02-19 14:48:50 adcockj Exp $
+// $Id: OverlayOutput.h,v 1.7 2008-02-08 13:43:19 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2007/02/19 14:48:50  adcockj
+// Fixed various issues with d3d9 code and settings
+//
 // Revision 1.5  2007/02/19 10:13:45  adcockj
 // Fixes for Critical thread and RECT issuesin D3D9 and overlay code
 //
@@ -150,6 +153,13 @@ private:
     static BOOL Overlay_AllowBobMode_OnChange(long NewValue);
     
     LPDIRECTDRAW lpDD; 
+    // we've got to load these functions dynamically 
+    // so that we continue to run on NT 4
+    HMONITOR (WINAPI * lpMonitorFromWindow)( IN HWND hwnd, IN DWORD dwFlags);
+    BOOL (WINAPI* lpGetMonitorInfoA)( IN HMONITOR hMonitor, OUT LPMONITORINFO lpmi);
+    HRESULT (WINAPI* lpDirectDrawCreate)( GUID FAR *lpGUID, LPDIRECTDRAW FAR *lplpDD, IUnknown FAR *pUnkOuter );
+    HINSTANCE hUserLib;
+    HINSTANCE hDDrawLib;
 };
 
 CTreeSettingsGeneric* Overlay_GetTreeSettingsPage();

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_Gamma.c,v 1.18 2006-10-06 13:35:32 adcockj Exp $
+// $Id: FLT_Gamma.c,v 1.19 2008-02-08 13:43:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.18  2006/10/06 13:35:32  adcockj
+// Added projects for .NET 2005 and fixed most of the warnings and errors
+//
 // Revision 1.17  2004/04/06 12:20:56  adcockj
 // Added .NET 2003 project files and some fixes to support this
 //
@@ -265,7 +268,7 @@ __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo(long CpuFeatureFlags)
     return &GammaMethod;
 }
 
-BOOL WINAPI _DllMainCRTStartup(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
+BOOL WINAPI DllMain(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
 {
     return TRUE;
 }

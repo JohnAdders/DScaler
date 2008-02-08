@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_BlendedClip.c,v 1.10 2002-06-18 19:46:06 adcockj Exp $
+// $Id: DI_BlendedClip.c,v 1.11 2008-02-08 13:43:19 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Tom Barry.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.10  2002/06/18 19:46:06  adcockj
+// Changed appliaction Messages to use WM_APP instead of WM_USER
+//
 // Revision 1.9  2002/06/13 12:10:23  adcockj
 // Move to new Setings dialog for filers, video deint and advanced settings
 //
@@ -967,7 +970,7 @@ __declspec(dllexport) DEINTERLACE_METHOD* GetDeinterlacePluginInfo(long CpuFeatu
     return &BlendedClipMethod;
 }
 
-BOOL WINAPI _DllMainCRTStartup(HANDLE hInstance, ULONG ul_reason_for_call, LPVOID lpReserved)
+BOOL WINAPI DllMain(HANDLE hInstance, ULONG ul_reason_for_call, LPVOID lpReserved)
 {
     hInst = hInstance;
     return TRUE;

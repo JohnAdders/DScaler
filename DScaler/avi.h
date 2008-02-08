@@ -1,4 +1,4 @@
-/* $Id: avi.h,v 1.7 2005-10-25 08:17:59 adcockj Exp $ */
+/* $Id: avi.h,v 1.8 2008-02-08 13:43:19 adcockj Exp $ */
 
 /** \file
  * Main AVI file header
@@ -48,6 +48,8 @@ extern "C"
 #define AVI_4GiB_LIMIT 3980
 
 typedef __int64 int64;
+
+struct FIFO;
 
 /** Time data type
  * \warning This needs to be signed
@@ -192,7 +194,7 @@ typedef struct
         HANDLE f;   /**< Handle to the file */
 
         /* This is shared between threads */
-        void *fifo; /**< A FIFO buffer that contains the data to write */
+        void* fifo; /**< A FIFO buffer that contains the data to write */
 
         /* Events */
         HANDLE hWriteEvent; /**< This event is signaled after a write completes */
@@ -234,7 +236,7 @@ typedef struct
     } timer;
 
     /** Video stream */
-    struct
+    struct VIDEO_STREAM 
     {
         /** Video timing data */
         struct AVI_FILE_VIDEO_TIMER

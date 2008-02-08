@@ -16,6 +16,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.19  2006/10/06 13:35:31  adcockj
+// Added projects for .NET 2005 and fixed most of the warnings and errors
+//
 // Revision 1.18  2003/06/26 11:42:54  adcockj
 // Reduced teh size of some of the dlls
 //
@@ -576,14 +579,10 @@ __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo( long CpuFeatureFlags )
 }
 
 
-// Need malloc() and free(), so this is commented out:
-/*
-BOOL WINAPI _DllMainCRTStartup( HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved )
+BOOL WINAPI DllMain( HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved )
 {
     return TRUE;
 }
-*/
-
 
 /*
 

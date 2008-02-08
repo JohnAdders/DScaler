@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_Chroma.c,v 1.4 2003-06-26 11:42:54 adcockj Exp $
+// $Id: FLT_Chroma.c,v 1.5 2008-02-08 13:43:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.4  2003/06/26 11:42:54  adcockj
+// Reduced teh size of some of the dlls
+//
 // Revision 1.3  2003/01/03 17:26:27  adcockj
 // First cut of the chroma filter - sssslllloooowwwww
 //
@@ -885,7 +888,7 @@ __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo(long CpuFeatureFlags)
 }
 
 
-BOOL WINAPI _DllMainCRTStartup(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
+BOOL WINAPI DllMain(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
 {
     return TRUE;
 }

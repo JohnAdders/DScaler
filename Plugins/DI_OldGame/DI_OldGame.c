@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DI_OldGame.c,v 1.6 2002-06-13 12:10:24 adcockj Exp $
+// $Id: DI_OldGame.c,v 1.7 2008-02-08 13:43:20 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 Lindsey Dubb.  All rights reserved.
 // based on OddOnly and Temporal Noise DScaler Plugins
@@ -20,6 +20,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2002/06/13 12:10:24  adcockj
+// Move to new Setings dialog for filers, video deint and advanced settings
+//
 // Revision 1.5  2002/01/04 01:38:56  lindsey
 // Turned off the debug flag
 //
@@ -89,7 +92,7 @@ Ways this filter could be improved:
 /////////////////////////////////////////////////////////////////////////////
 
 __declspec(dllexport) DEINTERLACE_METHOD* GetDeinterlacePluginInfo(long CpuFeatureFlags);
-BOOL WINAPI _DllMainCRTStartup(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved);
+BOOL WINAPI DllMain(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved);
 long OldGameFilter_SSE(TDeinterlaceInfo *pInfo);
 long OldGameFilter_3DNOW(TDeinterlaceInfo *pInfo);
 long OldGameFilter_MMX(TDeinterlaceInfo *pInfo);
@@ -222,7 +225,7 @@ __declspec(dllexport) DEINTERLACE_METHOD* GetDeinterlacePluginInfo(long CpuFeatu
 }
 
 
-BOOL WINAPI _DllMainCRTStartup(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
+BOOL WINAPI DllMain(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
 {
     return TRUE;
 }

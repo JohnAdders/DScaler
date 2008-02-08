@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_BlackWhite.c,v 1.5 2003-06-26 11:42:54 adcockj Exp $
+// $Id: FLT_BlackWhite.c,v 1.6 2008-02-08 13:43:21 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2003 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.5  2003/06/26 11:42:54  adcockj
+// Reduced teh size of some of the dlls
+//
 // Revision 1.4  2003/03/29 22:35:05  laurentg
 // Label of the setting updated
 //
@@ -129,7 +132,7 @@ __declspec(dllexport) FILTER_METHOD* GetFilterPluginInfo(long CpuFeatureFlags)
     return &BlackWhiteMethod;
 }
 
-BOOL WINAPI _DllMainCRTStartup(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
+BOOL WINAPI DllMain(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
 {
     return TRUE;
 }

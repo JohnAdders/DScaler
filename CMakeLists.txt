@@ -1,5 +1,5 @@
 #/////////////////////////////////////////////////////////////////////////////
-#// $Id: CMakeLists.txt,v 1.2 2008-02-08 13:43:19 adcockj Exp $
+#// $Id: CMakeLists.txt,v 1.3 2008-03-10 17:41:46 adcockj Exp $
 #/////////////////////////////////////////////////////////////////////////////
 #// Copyright (c) 2008 John Adcock.  All rights reserved.
 #/////////////////////////////////////////////////////////////////////////////
@@ -26,6 +26,9 @@
 #// CVS Log
 #//
 #// $Log: not supported by cvs2svn $
+#// Revision 1.2  2008/02/08 13:43:19  adcockj
+#// Changes to support cmake compilation
+#//
 #//
 #/////////////////////////////////////////////////////////////////////////////
 
@@ -40,6 +43,7 @@ set(USESHAREDLIBS ON CACHE BOOL "Use shared libraries")
 
 SET ( DScalerDir ${CMAKE_HOME_DIRECTORY}/DScaler )
 SET ( RegLogDir ${CMAKE_HOME_DIRECTORY}/RegLog )
+SET ( PlugTestDir ${CMAKE_HOME_DIRECTORY}/PlugTest )
 
 SET ( EXECUTABLE_OUTPUT_PATH ${CMAKE_HOME_DIRECTORY} CACHE PATH  "Single output directory for building all executables." )
 SET ( LIBRARY_OUTPUT_PATH ${CMAKE_HOME_DIRECTORY} CACHE PATH  "Single output directory for building all libaries." )
@@ -89,7 +93,6 @@ MACRO ( CreateExeProject ProjectName ExtraSources)
     # need to remove certain known files from projects
     FILE ( GLOB RemoveSources 
             ${Dir}/DVBT*.* 
-#            ${Dir}/MultiMon.* 
          )
     
     FOREACH( REMOVESOURCE ${RemoveSources} )
@@ -100,10 +103,21 @@ MACRO ( CreateExeProject ProjectName ExtraSources)
 
 ENDMACRO ( CreateExeProject )
 
+# Macro that adds all files in a directory to a res project
+# with appropriate settings
+MACRO ( CreateResProject ProjectName Dir)
+
+    # add your other extensions here (this could be probably done nicer)
+    FILE ( GLOB DirSources ${Dir}/*.c ${Dir}/*.cpp ${Dir}/*.h ${Dir}/*.inl ${Dir}/*.rc ${Dir}/*.ico )
+
+    add_library(${ProjectName} SHARED ${DirSources} )
+
+    SET_TARGET_PROPERTIES(${ProjectName} PROPERTIES LINK_FLAGS "/NOENTRY")
+ENDMACRO ( CreateResProject )
 
 # Macro that adds all files in a directory to a exe project
 # with appropriate settings
-MACRO ( CreateCommandExeProject ProjectName )
+MACRO ( CreateCommandExeProject ProjectName ExtraSources)
 
     # get the file lists
     SET ( Dir ${CMAKE_HOME_DIRECTORY}/${ProjectName} )
@@ -114,7 +128,7 @@ MACRO ( CreateCommandExeProject ProjectName )
     # add your other extensions here (this could be probably done nicer)
     FILE ( GLOB_RECURSE AsmSources ${Dir}/*.asm )
     
-    add_executable(${ProjectName} ${DirSources} ${AsmSources})
+    add_executable(${ProjectName} ${DirSources} ${AsmSources} ${ExtraSources})
 
 ENDMACRO ( CreateCommandExeProject )
 
@@ -182,19 +196,36 @@ FILE ( GLOB DScalerExtra
 
 
 CreateExeProject( DScaler "${DScalerExtra};${CMAKE_CURRENT_BINARY_DIR}/VerStub.obj;${CMAKE_CURRENT_BINARY_DIR}/FD_CommonFunctions.obj" )
-CreateCommandExeProject( Mapconv )
-CreateCommandExeProject( Disasm )
+CreateCommandExeProject( Mapconv "")
+CreateCommandExeProject( Disasm  "")
+CreateCommandExeProject( PlugTest ${DScalerDir}/CPU.cpp)
+CreateCommandExeProject( VerInc "")
+CreateExeProject( Reflasher "")
+CreateExeProject( SendMsg "")
+
+CreateResProject( DScalerRes ${CMAKE_HOME_DIRECTORY}/DScalerRes )
+CreateResProject( BT8x8Res ${CMAKE_HOME_DIRECTORY}/DScalerResDbg/BT8x8Res )
+CreateResProject( CX2388xRes ${CMAKE_HOME_DIRECTORY}/DScalerResDbg/CX2388xRes )
+CreateResProject( SAA7134Res ${CMAKE_HOME_DIRECTORY}/DScalerResDbg/SAA7134Res )
 
 FILE ( GLOB RegSpyExtra 
             ${DScalerDir}/BitVector.* 
             ${DScalerDir}/ErrorBox.* 
-            ${RegLogDir}/GenericCard.* 
             ${DScalerDir}/HardwareDriver.* 
             ${DScalerDir}/PCICard.* 
          )
 
-CreateExeProject( RegSpy "${RegSpyExtra}" )
+FILE ( GLOB RegSpyExtra2
+            ${RegLogDir}/GenericCard.* 
+         )
+         
+CreateExeProject( RegSpy "${RegSpyExtra};${RegSpyExtra2}" )
+CreateExeProject( RegLog "${RegSpyExtra}")
 
+ADD_DEPENDENCIES(DScaler ${Plugins})
+ADD_DEPENDENCIES(DScaler Mapconv)
+ADD_DEPENDENCIES(DScaler Disasm)
+ADD_DEPENDENCIES(PlugTest ${Plugins})
 
 include_directories( 
   ${CMAKE_HOME_DIRECTORY}/api
@@ -205,6 +236,8 @@ add_definitions(
   -D_WIN32_DCOM
   -D_WINDOWS
   -D_X86_
+  -DWINVER=0x0400
+  -D_WIN32_WINNT=0x0400
 )
 
 if(USEBT8X8)
@@ -228,23 +261,26 @@ IF(USESHAREDLIBS)
     set(CMAKE_MFC_FLAG 2)
 	add_definitions(-D_AFXDLL)
 	add_definitions(-D_DLL)
+	SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_AFX_ENABLE_INLINES")
 ELSE(USESHAREDLIBS)
     set(CMAKE_MFC_FLAG 1)
-ENDIF(USESHAREDLIBS)
-
-target_link_libraries( DScaler ${CMAKE_HOME_DIRECTORY}/ThirdParty/LibTiff/LibTiff ${CMAKE_HOME_DIRECTORY}/ThirdParty/LibJpeg/LibJpeg winmm comctl32 version htmlhelp vfw32 strmiids quartz setupapi d3d9)
-
-IF(USESHAREDLIBS)
-	set_target_properties(DScaler PROPERTIES CMAKE_MFC_FLAG 2)
-	set_target_properties(RegSpy PROPERTIES CMAKE_MFC_FLAG 2)
-    SET_TARGET_PROPERTIES( DScaler PROPERTIES COMPILE_FLAGS "-I${DScalerDir}")
-ELSE(USESHAREDLIBS)
-	set_target_properties(DScaler PROPERTIES CMAKE_MFC_FLAG 1)
-	set_target_properties(RegSpy PROPERTIES CMAKE_MFC_FLAG 1)
-    SET_TARGET_PROPERTIES(DScaler PROPERTIES COMPILE_FLAGS "-I${DScalerDir}")
     STRING(REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
     STRING(REPLACE "/MD" "/MT" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
     STRING(REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
     STRING(REPLACE "/MD" "/MT" CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
 ENDIF(USESHAREDLIBS)
 
+SET_TARGET_PROPERTIES(DScaler PROPERTIES COMPILE_FLAGS "-I${DScalerDir}")
+SET_TARGET_PROPERTIES(PlugTest PROPERTIES COMPILE_FLAGS "-I${PlugTestDir}")
+
+IF(USESHAREDLIBS)
+ELSE(USESHAREDLIBS)
+ENDIF(USESHAREDLIBS)
+
+target_link_libraries( DScaler ${CMAKE_HOME_DIRECTORY}/ThirdParty/LibTiff/LibTiff.lib ${CMAKE_HOME_DIRECTORY}/ThirdParty/LibJpeg/LibJpeg.lib winmm comctl32 version htmlhelp vfw32 strmiids quartz setupapi d3d9)
+
+ADD_CUSTOM_COMMAND(TARGET DScaler 
+                    POST_BUILD
+                    COMMAND ${DScalerDir}/CopyExtraFiles.bat ${CMAKE_CFG_INTDIR}
+                    WORKING_DIRECTORY ${DScalerDir}
+                    COMMENT "Copy Extra Files")

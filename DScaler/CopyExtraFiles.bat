@@ -8,15 +8,15 @@ xcopy ..\ThirdParty\LibTiff\*.dll ..\%1\ /Y /D
 xcopy ..\ThirdParty\zlib\*.dll ..\%1\ /Y /D
 rem It copies the extra files from the Release folder to the Debug folder.
 if "%1" == "Release" goto endbatch
-if "%2" == "" xcopy ..\release\DSDrv4.sys ..\debug\ /Y /D
-if "%2" == "" xcopy ..\release\DSDrv4.vxd ..\debug\ /Y /D
-xcopy ..\release\channel.txt ..\debug\ /Y /D
-xcopy ..\release\channel.txt ..\debug\ /Y /D
-xcopy ..\release\dscaler.d3u ..\debug\ /Y /D
-xcopy ..\release\dscaler_intro.tif ..\debug\ /Y /D
-xcopy ..\release\skins\*.* ..\debug\skins\ /E /Y /D
-xcopy ..\release\patterns\*.* ..\debug\patterns\ /E /Y /D
-if exist ..\release\DScaler.chm xcopy ..\release\DScaler.chm ..\debug\ /Y /D
-xcopy ..\release\SAA713xCards.ini ..\debug\ /Y /D
-xcopy ..\release\CX2388xCards.ini ..\debug\ /Y /D
+if "%2" == "" xcopy ..\release\DSDrv4.sys ..\%1\ /Y /D
+if "%2" == "" xcopy ..\release\DSDrv4.vxd ..\%1\ /Y /D
+xcopy ..\release\channel.txt ..\%1\ /Y /D
+xcopy ..\release\channel.txt ..\%1\ /Y /D
+xcopy ..\release\dscaler.d3u ..\%1\ /Y /D
+xcopy ..\release\dscaler_intro.tif ..\%1\ /Y /D
+xcopy ..\release\skins\*.* ..\%1\skins\ /E /Y /D
+xcopy ..\release\patterns\*.* ..\%1\patterns\ /E /Y /D
+if exist ..\release\DScaler.chm xcopy ..\release\DScaler.chm ..\%1\ /Y /D
+xcopy ..\release\SAA713xCards.ini ..\%1\ /Y /D
+xcopy ..\release\CX2388xCards.ini ..\%1\ /Y /D
 :endbatch

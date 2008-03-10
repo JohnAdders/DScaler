@@ -17,7 +17,7 @@
  *  Author: Tom Zoerner
  *          L. Garnier for interfacing with DScaler
  *
- *  $Id: xmltv_db.h,v 1.2 2005-07-11 14:56:06 laurentg Exp $
+ *  $Id: xmltv_db.h,v 1.3 2008-03-10 17:41:46 adcockj Exp $
  */
 
 #ifndef __XMLTV_DB_H
@@ -48,7 +48,7 @@ void Xmltv_ChannelAddUrl( XML_STR_BUF * pBuf );
 
 void Xmltv_TsOpen( void );
 void Xmltv_TsClose( void );
-bool Xmltv_TsFilter( void );
+Bool Xmltv_TsFilter( void );
 void Xmltv_TsSetChannel( XML_STR_BUF * pBuf );
 void Xmltv_TsSetStartTime( XML_STR_BUF * pBuf );
 void Xmltv_TsSetStopTime( XML_STR_BUF * pBuf );
@@ -120,7 +120,7 @@ void Xmltv_PiCreditsAddGuest( XML_STR_BUF * pBuf );
 // Interface to main control module
 //
 #ifdef __EPGBLOCK_H
-void XmltvDb_Init( XMLTV_DTD_VERSION dtd, bool isPeek );
+void XmltvDb_Init( XMLTV_DTD_VERSION dtd, Bool isPeek );
 void XmltvDb_Destroy( void );
 EPGDB_CONTEXT * XmltvDb_GetDatabase( void );
 #endif

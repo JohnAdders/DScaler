@@ -16,7 +16,7 @@
  *
  *  Author: Tom Zoerner
  *
- *  $Id: xml_cdata.h,v 1.2 2005-07-11 14:56:06 laurentg Exp $
+ *  $Id: xml_cdata.h,v 1.3 2008-03-10 17:41:46 adcockj Exp $
  */
 
 #ifndef __XMLTV_CDATA_H
@@ -54,14 +54,14 @@ void XmlCdata_Free( XML_STR_BUF * pBuf );
 void XmlCdata_Grow( XML_STR_BUF * pBuf, uint len );
 void XmlCdata_Assign( XML_STR_BUF * pDestBuf, XML_STR_BUF * pSrcBuf );
 void XmlCdata_TrimWhitespace( XML_STR_BUF * pBuf );
-void XmlCdata_AppendParagraph( XML_STR_BUF * pBuf, bool insertTwo );
+void XmlCdata_AppendParagraph( XML_STR_BUF * pBuf, Bool insertTwo );
 void XmlCdata_AppendRawNOINLINE( XML_STR_BUF * pBuf, const char * pStr, uint len );
 void XmlCdata_AppendUtf8ToLatin1( XML_STR_BUF * pBuf, const char * pStr, uint len );
 void XmlCdata_AppendLatin1ToUtf8( XML_STR_BUF * pBuf, const char * pStr, uint len );
-bool XmlCdata_CheckLatin1( const char * pStr );
-bool XmlCdata_CheckLatin1Name( const char * pStr, bool isNmToken );
-bool XmlCdata_CheckUtf8( const char * pStr );
-bool XmlCdata_CheckUtf8Name( const char * pStr, bool isNmtoken );
+Bool XmlCdata_CheckLatin1( const char * pStr );
+Bool XmlCdata_CheckLatin1Name( const char * pStr, Bool isNmToken );
+Bool XmlCdata_CheckUtf8( const char * pStr );
+Bool XmlCdata_CheckUtf8Name( const char * pStr, Bool isNmtoken );
 
 #ifdef XML_CDATA_INLINE
 #define XmlCdata_AppendRaw(PBUF,PSTR,LEN) \

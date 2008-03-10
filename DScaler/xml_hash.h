@@ -16,7 +16,7 @@
  *
  *  Author: Tom Zoerner
  *
- *  $Id: xml_hash.h,v 1.1 2005-07-06 19:42:39 laurentg Exp $
+ *  $Id: xml_hash.h,v 1.2 2008-03-10 17:41:46 adcockj Exp $
  */
 
 #ifndef __XML_HASH_H
@@ -31,7 +31,7 @@ typedef void (* XML_HASH_FREE_CB)( XML_HASH_PTR pHash, char * pPayload );
 // Function interface
 
 XML_HASH_PAYLOAD XmlHash_SearchEntry( XML_HASH_PTR pHash, const char * pStr );
-XML_HASH_PAYLOAD XmlHash_CreateEntry( XML_HASH_PTR pHash, const char * pStr, bool * pIsNew );
+XML_HASH_PAYLOAD XmlHash_CreateEntry( XML_HASH_PTR pHash, const char * pStr, Bool * pIsNew );
 
 void XmlHash_Destroy( XML_HASH_PTR pHash, XML_HASH_FREE_CB pCb );
 XML_HASH_PTR XmlHash_Init( void );

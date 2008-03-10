@@ -19,7 +19,7 @@
  *
  *  Author: Tom Zoerner
  *
- *  $Id: xmltv_types.h,v 1.3 2006-12-13 01:10:01 robmuller Exp $
+ *  $Id: xmltv_types.h,v 1.4 2008-03-10 17:41:46 adcockj Exp $
  */
 
 #ifndef __XMLTV_TYPES_H
@@ -45,7 +45,7 @@ typedef DWORD          uint32_t;
 #endif
 
 // required basic types
-typedef unsigned char  bool;     // >=1 bit unsigned
+typedef unsigned char  Bool;     // >=1 bit unsigned
 typedef   signed char  schar;    // 8 bit signed
 typedef unsigned char  uchar;    // 8 bit unsigned
 typedef   signed int   sint;     // >=32 bit signed
@@ -60,7 +60,7 @@ typedef unsigned long  ulong;    // >=32 bit unsigned
 #endif
 typedef   signed long  slong;    // >=32 bit signed
 
-// boolean values
+// Boolean values
 #define FALSE 0
 #define TRUE  1
 

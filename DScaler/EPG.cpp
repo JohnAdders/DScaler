@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: EPG.cpp,v 1.35 2005-11-08 21:51:19 laurentg Exp $
+// $Id: EPG.cpp,v 1.36 2008-03-10 17:41:46 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Laurent Garnier.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.35  2005/11/08 21:51:19  laurentg
+// Possibility to import a merged database from NextViewEPG
+//
 // Revision 1.34  2005/10/24 19:36:36  laurentg
 // New EPG setting for using keys G and Ctrl+Shift+G as a toggle buttons
 //
@@ -150,7 +153,7 @@
 #include "VBI_VPSdecode.h"
 
 
-extern "C" void XmltvParser_Start( const char * pFilename );
+void XmltvParser_Start( const char * pFilename );
 
 
 #define	ONE_DAY				86400
@@ -1830,9 +1833,6 @@ void EPG_FreeSettings()
 // -----------------------------------------------------
 
 
-extern "C"
-{
-
 int CheckProgrammeValidity(time_t StartTime, time_t EndTime, char * ChannelName)
 {
 	return 	MyEPG.CheckProgrammeValidity(StartTime, EndTime, ChannelName);
@@ -1841,6 +1841,4 @@ int CheckProgrammeValidity(time_t StartTime, time_t EndTime, char * ChannelName)
 void AddProgramme(time_t StartTime, time_t EndTime, char * Title, char * ChannelName, char * SubTitle, char * Category, char * Description)
 {
 	MyEPG.AddProgramme(StartTime, EndTime, Title, ChannelName, SubTitle, Category, Description);
-}
-
 }

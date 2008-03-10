@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: PlugTest.cpp,v 1.17 2006-12-13 01:10:01 robmuller Exp $
+// $Id: PlugTest.cpp,v 1.18 2008-03-10 17:41:46 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.17  2006/12/13 01:10:01  robmuller
+// Fix compile warnings with Visual Studio 2005 Express.
+//
 // Revision 1.16  2002/12/10 12:33:39  adcockj
 // Fixed bug in pic support
 //
@@ -59,7 +62,9 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "../DScaler/CPU.h"
+#include "..\DScaler\CPU.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 char szIniFile[MAX_PATH];
 void ReadFromIni(SETTING* pSetting, char* szIniFile);

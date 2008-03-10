@@ -1,4 +1,4 @@
-//Microsoft Developer Studio generated resource script.
+// Microsoft Visual C++ generated resource script.
 //
 #include "resource.h"
 
@@ -27,18 +27,17 @@ LANGUAGE LANG_GERMAN, SUBLANG_GERMAN
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE DISCARDABLE 
+1 TEXTINCLUDE 
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE DISCARDABLE 
+2 TEXTINCLUDE 
 BEGIN
-    "#include ""afxres.h""\r\n"
-    "\0"
+    "#include ""afxres.h""\r\0"
 END
 
-3 TEXTINCLUDE DISCARDABLE 
+3 TEXTINCLUDE 
 BEGIN
     "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
     "#define _AFX_NO_OLE_RESOURCES\r\n"
@@ -51,9 +50,8 @@ BEGIN
     "#pragma code_page(1252)\r\n"
     "#endif //_WIN32\r\n"
     "#include ""res\\Reflasher.rc2""  // Nicht mit Microsoft Visual C++ bearbeitete Ressourcen\r\n"
-    "#include ""l.deu\\afxres.rc""          // Standardkomponenten\r\n"
-    "#endif\r\n"
-    "\0"
+    "#include ""afxres.rc""          // Standardkomponenten\r\n"
+    "#endif\r\0"
 END
 
 #endif    // APSTUDIO_INVOKED
@@ -78,9 +76,8 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_SYS_DEFAULT
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDR_MAINFRAME           ICON    DISCARDABLE     "res\\Reflasher.ico"
+IDR_MAINFRAME           ICON                    "res\\Reflasher.ico"
 
-#ifndef _MAC
 /////////////////////////////////////////////////////////////////////////////
 //
 // Version
@@ -103,18 +100,16 @@ BEGIN
     BEGIN
         BLOCK "000004b0"
         BEGIN
-            VALUE "Comments", "Torsten Seeboth\0"
-            VALUE "CompanyName", "DScaler team\0"
-            VALUE "FileDescription", "Reflasher\0"
-            VALUE "FileVersion", "1, 0, 0, 1\0"
-            VALUE "InternalName", "Reflasher\0"
-            VALUE "LegalCopyright", "Copyright (C) 2004\0"
-            VALUE "LegalTrademarks", "This driver is covered by the term of the GNU GPL\0"
-            VALUE "OriginalFilename", "Reflasher.EXE\0"
-            VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "Reflasher\0"
-            VALUE "ProductVersion", "1, 0, 0, 1\0"
-            VALUE "SpecialBuild", "\0"
+            VALUE "Comments", "Torsten Seeboth"
+            VALUE "CompanyName", "DScaler team"
+            VALUE "FileDescription", "Reflasher"
+            VALUE "FileVersion", "1, 0, 0, 1"
+            VALUE "InternalName", "Reflasher"
+            VALUE "LegalCopyright", "Copyright (C) 2004"
+            VALUE "LegalTrademarks", "This driver is covered by the term of the GNU GPL"
+            VALUE "OriginalFilename", "Reflasher.EXE"
+            VALUE "ProductName", "Reflasher"
+            VALUE "ProductVersion", "1, 0, 0, 1"
         END
     END
     BLOCK "VarFileInfo"
@@ -123,67 +118,58 @@ BEGIN
     END
 END
 
-#endif    // !_MAC
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // Dialog
 //
 
-IDD_ABOUTBOX DIALOG DISCARDABLE  0, 0, 235, 55
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_ABOUTBOX DIALOG  0, 0, 235, 55
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Info über Reflasher"
 FONT 8, "MS Sans Serif"
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
-    LTEXT           "Reflasher Version 1.0",IDC_STATIC,40,10,119,8,
-                    SS_NOPREFIX
+    LTEXT           "Reflasher Version 1.0",IDC_STATIC,40,10,119,8,SS_NOPREFIX
     LTEXT           "Copyright (C) 2004",IDC_STATIC,40,25,119,8
     DEFPUSHBUTTON   "OK",IDOK,178,7,50,14,WS_GROUP
 END
 
-IDD_PAGE1 DIALOG DISCARDABLE  0, 0, 277, 102
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_PAGE1 DIALOG  0, 0, 277, 102
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Card Info - Reflasher"
 FONT 8, "MS Sans Serif"
 BEGIN
     LTEXT           "",IDC_STATIC_CARD,25,60,100,8
     LTEXT           "",IDC_STATIC_EEPROM,25,80,105,8
-    LTEXT           "This is an reflashing tool for MSI Master capture cards with a corrupted EEPROM caused by running DScaler.\n\nYou can do this at your own risk.",
-                    IDC_STATIC,10,10,225,41
+    LTEXT           "This is an reflashing tool for MSI Master capture cards with a corrupted EEPROM caused by running DScaler.\n\nYou can do this at your own risk.",IDC_STATIC,10,10,225,41
 END
 
-IDD_PAGE3 DIALOG DISCARDABLE  0, 0, 277, 102
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_PAGE3 DIALOG  0, 0, 277, 102
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Warning - Reflasher"
 FONT 8, "MS Sans Serif"
 BEGIN
-    LTEXT           "* WARNING *\n\nAre you realy shure to reflash the EEPROM?\nType 'YES' in upper case.",
-                    IDC_STATIC,5,5,265,55
+    LTEXT           "* WARNING *\n\nAre you realy shure to reflash the EEPROM?\nType 'YES' in upper case.",IDC_STATIC,5,5,265,55
     EDITTEXT        IDC_EDIT_YES,45,70,40,14,ES_AUTOHSCROLL
 END
 
-IDD_PAGE2 DIALOG DISCARDABLE  0, 0, 277, 102
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_PAGE2 DIALOG  0, 0, 277, 102
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "TV System - Reflasher"
 FONT 8, "MS Sans Serif"
 BEGIN
-    CONTROL         "PAL",IDC_RADIO_PAL,"Button",BS_AUTORADIOBUTTON | 
-                    WS_GROUP,25,60,29,10
-    CONTROL         "NTSC",IDC_RADIO_NTSC,"Button",BS_AUTORADIOBUTTON,25,75,
-                    35,10
-    LTEXT           "Reflasher can normally autodetect your TV Standard based on your chip typ. However you may need to select the your TV System by hand below.",
-                    IDC_STATIC,5,5,260,45
+    CONTROL         "PAL",IDC_RADIO_PAL,"Button",BS_AUTORADIOBUTTON | WS_GROUP,25,60,29,10
+    CONTROL         "NTSC",IDC_RADIO_NTSC,"Button",BS_AUTORADIOBUTTON,25,75,35,10
+    LTEXT           "Reflasher can normally autodetect your TV Standard based on your chip typ. However you may need to select the your TV System by hand below.",IDC_STATIC,5,5,260,45
 END
 
-IDD_PAGE4 DIALOG DISCARDABLE  0, 0, 277, 102
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_PAGE4 DIALOG  0, 0, 277, 102
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Reflasher"
 FONT 8, "MS Sans Serif"
 BEGIN
-    LTEXT           "Your EEPROM is now reflashed. Please reboot your computer.",
-                    IDC_END,5,5,265,80
+    LTEXT           "Your EEPROM is now reflashed. Please reboot your computer.",IDC_END,5,5,265,80
 END
 
 
@@ -193,7 +179,7 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO DISCARDABLE 
+GUIDELINES DESIGNINFO 
 BEGIN
     IDD_ABOUTBOX, DIALOG
     BEGIN
@@ -243,7 +229,7 @@ END
 // String Table
 //
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     IDS_ABOUTBOX            "About Reflasher.."
 END
@@ -269,7 +255,7 @@ LANGUAGE 7, 1
 #pragma code_page(1252)
 #endif //_WIN32
 #include "res\Reflasher.rc2"  // Nicht mit Microsoft Visual C++ bearbeitete Ressourcen
-#include "l.deu\afxres.rc"          // Standardkomponenten
+#include "afxres.rc"          // Standardkomponenten
 #endif
 
 /////////////////////////////////////////////////////////////////////////////

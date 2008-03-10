@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: RegLog.cpp,v 1.8 2002-12-05 17:11:11 adcockj Exp $
+// $Id: RegLog.cpp,v 1.9 2008-03-10 17:41:47 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2002 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.8  2002/12/05 17:11:11  adcockj
+// Sound fixes
+//
 // Revision 1.7  2002/12/04 14:15:06  adcockj
 // Fixed RegSpy Problems
 //
@@ -319,8 +322,8 @@ typedef void (__cdecl REGLOGFUNC)(CGenericCard* pCard, LPCSTR Filename);
 
 typedef struct
 {
-    DWORD VendorId;
-    DWORD DeviceId;
+    WORD VendorId;
+    WORD DeviceId;
     char* FileNameSpec;
     REGLOGFUNC* DumpFunction;
 } TChip;
@@ -423,5 +426,18 @@ void __cdecl OSD_Redraw(struct HWND__ *,struct HDC__ *)
 }
 
 void __cdecl OSD_ShowTextPersistent(struct HWND__ *,char const *,double)
+{
+}
+
+void __cdecl OSD_ProcessDisplayUpdate(struct HDC__ *,struct tagRECT *)
+{
+}
+
+int __cdecl GetDisplayAreaRect(struct HWND__ *,struct tagRECT *, BOOL)
+{
+    return FALSE;
+}
+
+void __cdecl OSD_ShowTextPersistent(char const *,double)
 {
 }

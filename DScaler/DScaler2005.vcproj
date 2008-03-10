@@ -182,7 +182,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libtiff.lib libjpeg.lib ddraw.lib dxguid.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib strmiids.lib quartz.lib setupapi.lib d3d9.lib"
+				AdditionalDependencies="libtiff.lib libjpeg.lib winmm.lib COMCTL32.LIB version.lib htmlhelp.lib vfw32.lib strmiids.lib quartz.lib setupapi.lib d3d9.lib"
 				OutputFile="..\Debug\DScaler.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -8722,6 +8722,7 @@
 						Name="VCCLCompilerTool"
 						PreprocessorDefinitions="_X86_"
 						UsePrecompiledHeader="0"
+						CompileAs="1"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -8731,6 +8732,7 @@
 						Name="VCCLCompilerTool"
 						PreprocessorDefinitions="_X86_"
 						UsePrecompiledHeader="0"
+						CompileAs="1"
 					/>
 				</FileConfiguration>
 				<FileConfiguration

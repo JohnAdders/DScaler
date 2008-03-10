@@ -1,4 +1,4 @@
-/* $Id: avi.h,v 1.8 2008-02-08 13:43:19 adcockj Exp $ */
+/* $Id: avi.h,v 1.9 2008-03-10 17:41:46 adcockj Exp $ */
 
 /** \file
  * Main AVI file header
@@ -49,7 +49,7 @@ extern "C"
 
 typedef __int64 int64;
 
-struct FIFO;
+//struct FIFO;
 
 /** Time data type
  * \warning This needs to be signed

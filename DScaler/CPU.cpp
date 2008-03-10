@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// $Id: CPU.cpp,v 1.6 2003-10-27 10:39:51 adcockj Exp $
+// $Id: CPU.cpp,v 1.7 2008-03-10 17:41:46 adcockj Exp $
 ///////////////////////////////////////////////////////////////////////////////
 //  This file is subject to the terms of the GNU General Public License as
 //  published by the Free Software Foundation.  A copy of this license is
@@ -23,6 +23,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2003/10/27 10:39:51  adcockj
+// Updated files for better doxygen compatability
+//
 // Revision 1.5  2001/07/27 16:11:32  adcockj
 // Added support for new Crash dialog
 //
@@ -51,7 +54,7 @@
  *  each feature.
  */
 
-#include "stdafx.h"
+#include <stdafx.h>
 #include "cpu.h"
 
 // Symbolic constants for feature flags in CPUID standard feature flags 

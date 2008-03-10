@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: verinc.c,v 1.2 2006-10-06 13:35:33 adcockj Exp $
+// $Id: verinc.c,v 1.3 2008-03-10 17:41:47 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 //	Copyright (C) 2001 Avery Lee.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -33,12 +33,13 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.2  2006/10/06 13:35:33  adcockj
+// Added projects for .NET 2005 and fixed most of the warnings and errors
+//
 // Revision 1.1  2001/07/24 12:19:00  adcockj
 // Added code and tools for crash logging from VirtualDub
 //
 //////////////////////////////////////////////////////////////////////////////
-
-#define _CRT_SECURE_NO_DEPRECATE
 
 #include <stdio.h>
 #include <memory.h>

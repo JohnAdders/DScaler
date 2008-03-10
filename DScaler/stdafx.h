@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: stdafx.h,v 1.31 2008-02-08 13:43:19 adcockj Exp $
+// $Id: stdafx.h,v 1.32 2008-03-10 17:41:46 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.31  2008/02/08 13:43:19  adcockj
+// Changes to support cmake compilation
+//
 // Revision 1.30  2007/02/18 21:50:04  robmuller
 // Added option to not compile saa713x code.
 //
@@ -103,16 +106,9 @@
  * @file stdafx.h Precompiled Header file
  */
 
-#ifdef VS80_EXPRESS_BUILD
-#define _AFX_ENABLE_INLINES
-#endif
-
 #if _MSC_VER > 1000
 #pragma once
 #endif // _MSC_VER > 1000
-
-#define WINVER 0x0400
-#define _WIN32_WINNT 0x0400
 
 #define VC_EXTRALEAN
 #include <afxwin.h>

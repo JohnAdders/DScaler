@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_LogoKill.c,v 1.26 2008-02-08 13:43:21 adcockj Exp $
+// $Id: FLT_LogoKill.c,v 1.27 2008-03-10 17:41:47 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2001 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.26  2008/02/08 13:43:21  adcockj
+// Changes to support cmake compilation
+//
 // Revision 1.25  2006/10/06 13:35:32  adcockj
 // Added projects for .NET 2005 and fixed most of the warnings and errors
 //
@@ -87,8 +90,6 @@
 // Added CVS tags and removed tabs
 //
 /////////////////////////////////////////////////////////////////////////////
-
-#define _CRT_SECURE_NO_DEPRECATE
 
 #pragma warning(disable : 4799)
 

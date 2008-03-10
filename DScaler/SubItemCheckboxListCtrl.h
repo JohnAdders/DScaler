@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: SubItemCheckboxListCtrl.h,v 1.1 2004-08-12 14:06:32 atnak Exp $
+// $Id: SubItemCheckboxListCtrl.h,v 1.2 2008-03-10 17:41:46 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2004 Atsushi Nakagawa.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2004/08/12 14:06:32  atnak
+// A CListCtrl delivative for having checkbox subitems.
+//
 //////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -29,8 +32,6 @@
 
 #ifndef __SUBITEMCHECKBOXLISTCTRL_H__
 #define __SUBITEMCHECKBOXLISTCTRL_H__
-
-#include <Windows.h>
 
 //
 // Description:

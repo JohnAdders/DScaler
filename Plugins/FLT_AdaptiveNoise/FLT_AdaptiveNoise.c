@@ -16,6 +16,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.20  2008/02/08 13:43:20  adcockj
+// Changes to support cmake compilation
+//
 // Revision 1.19  2006/10/06 13:35:31  adcockj
 // Added projects for .NET 2005 and fixed most of the warnings and errors
 //
@@ -92,8 +95,6 @@
 //
 //
 /////////////////////////////////////////////////////////////////////////////
-
-#define _CRT_SECURE_NO_DEPRECATE
 
 // #define ADAPTIVE_NOISE_DEBUG
 

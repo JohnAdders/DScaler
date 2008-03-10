@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: FLT_DScopeVIDEO.c,v 1.6 2006-10-06 13:35:31 adcockj Exp $
+// $Id: FLT_DScopeVIDEO.c,v 1.7 2008-03-10 17:41:46 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) 2003 Michael Joubert   All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,9 @@
 // Change Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.6  2006/10/06 13:35:31  adcockj
+// Added projects for .NET 2005 and fixed most of the warnings and errors
+//
 // Revision 1.5  2006/09/24 21:09:29  robmuller
 // OutputDebugString only in debug builds.
 //
@@ -69,8 +72,6 @@
 - right justify line marker text
 
 */
-
-#define _CRT_SECURE_NO_DEPRECATE
 
 #include "windows.h"
 #include "..\..\Api\DS_Filter.h"

@@ -16,7 +16,7 @@
  *
  *  Author: Tom Zoerner
  *
- *  $Id: xmltv_tags.h,v 1.2 2005-07-11 14:56:06 laurentg Exp $
+ *  $Id: xmltv_tags.h,v 1.3 2008-03-10 17:41:46 adcockj Exp $
  */
 
 #ifndef __XMLTV_TAGS_H
@@ -39,15 +39,13 @@ typedef enum
 } XMLTV_DTD_VERSION;
 
 // bitfield with detection codes
-typedef enum
-{
-   XMLTV_DETECTED_UNSUP_ENC     = (1<<0),    // scanner found unsupported encoding
-   XMLTV_DETECTED_XML           = (1<<1),    // <?xml...?> found
-   XMLTV_DETECTED_UNSUP_XMLENC  = (1<<2),    // <?xml encoding="..."?> mismatch
-   XMLTV_DETECTED_DOCTYPE       = (1<<3),    // <!DOCTYPE tv...> found
-   XMLTV_DETECTED_NOT_TV        = (1<<4),    // wrong top-level tag found -> XML but not XMLTV
-   XMLTV_DETECTED_SYNTAX        = (1<<5),    // syntax error found
-} XMLTV_DETECTION;
+typedef DWORD XMLTV_DETECTION;
+#define XMLTV_DETECTED_UNSUP_ENC     (1<<0)    // scanner found unsupported encoding
+#define XMLTV_DETECTED_XML           (1<<1)    // <?xml...?> found
+#define XMLTV_DETECTED_UNSUP_XMLENC  (1<<2)    // <?xml encoding="..."?> mismatch
+#define XMLTV_DETECTED_DOCTYPE       (1<<3)    // <!DOCTYPE tv...> found
+#define XMLTV_DETECTED_NOT_TV        (1<<4)    // wrong top-level tag found -> XML but not XMLTV
+#define XMLTV_DETECTED_SYNTAX        (1<<5)    // syntax error found
 
 // language codes
 typedef uint XML_LANG_CODE;
@@ -60,11 +58,11 @@ typedef uint XML_LANG_CODE;
 
 // Interface to lexigraphical scanner (callback functions)
 void XmltvTags_Open( const char * pTagName );
-bool XmltvTags_Close( const char * pTagName );
+Bool XmltvTags_Close( const char * pTagName );
 void XmltvTags_Data( XML_STR_BUF * pBuf );
 void XmltvTags_AttribIdentify( const char * pName );
 void XmltvTags_AttribData( XML_STR_BUF * pBuf );
-bool XmltvTags_AttribsComplete( void );
+Bool XmltvTags_AttribsComplete( void );
 void Xmltv_SyntaxError( const char * pMsg, const char * pStr );
 void Xmltv_ScanFatalError( const char * pMsg );
 void XmltvTags_ScanUnsupEncoding( const char * pName );
@@ -93,7 +91,7 @@ XML_LANG_CODE XmltvTags_GetLanguage( void );
 void XmlScan_Init( void );
 void XmlScan_Destroy( void );
 void XmlScan_Stop( void );
-bool XmlScan_SetEncoding( XML_ENCODING encoding );
+Bool XmlScan_SetEncoding( XML_ENCODING encoding );
 void XmlScan_EntityDefName( const char * pName, int isParamEntity );
 void XmlScan_EntityDefValue( const char * pValue );
 

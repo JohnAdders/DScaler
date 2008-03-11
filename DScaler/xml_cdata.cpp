@@ -21,12 +21,13 @@
  *
  *  Author: Tom Zoerner
  *
- *  $Id: xml_cdata.c,v 1.3 2005-07-11 22:08:36 laurentg Exp $
+ *  $Id: xml_cdata.cpp,v 1.1 2008-03-11 10:07:38 adcockj Exp $
  */
 
 #define DEBUG_SWITCH DEBUG_SWITCH_XMLTV
 #define DPRINTF_OFF
 
+#include "stdafx.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -130,11 +131,11 @@ void XmlCdata_Grow( XML_STR_BUF * pBuf, uint len )
    // copy content into the new buffer and free the old one
    if ((pBuf->pStrBuf != NULL) && (pBuf->skip == 0))
    {
-      pNewbuf = xrealloc(pBuf->pStrBuf, newSize);
+      pNewbuf = (char*) xrealloc(pBuf->pStrBuf, newSize);
    }
    else
    {
-      pNewbuf = xmalloc(newSize);
+      pNewbuf = (char*) xmalloc(newSize);
       if (pBuf->pStrBuf != NULL)
       {
          memcpy(pNewbuf, pBuf->pStrBuf + pBuf->skip, pBuf->size - pBuf->skip);
@@ -268,7 +269,7 @@ void XmlCdata_TrimWhitespace( XML_STR_BUF * pBuf )
 // ----------------------------------------------------------------------------
 // Append paragraph break to text buffer
 //
-void XmlCdata_AppendParagraph( XML_STR_BUF * pBuf, bool insertTwo )
+void XmlCdata_AppendParagraph( XML_STR_BUF * pBuf, Bool insertTwo )
 {
    // if string is empty, do nothing
    if (pBuf->off > 0)
@@ -414,10 +415,10 @@ void XmlCdata_AppendUtf8ToLatin1( XML_STR_BUF * pBuf, const char * pStr, uint le
 // - note the character check functions are required because the scanner does
 //   not check for invalid control codes for performance reasons
 //
-bool XmlCdata_CheckLatin1( const char * pStr )
+Bool XmlCdata_CheckLatin1( const char * pStr )
 {
    uchar code;
-   bool result = TRUE;
+   Bool result = TRUE;
 
    if (pStr != NULL)
    {
@@ -443,10 +444,10 @@ bool XmlCdata_CheckLatin1( const char * pStr )
 // - note the name check functions are required because the scanner just matches in
 //   the ASCII range; all codes >= 0x80 are treated as letters and passed through
 //
-bool XmlCdata_CheckLatin1Name( const char * pStr, bool isNmtoken )
+Bool XmlCdata_CheckLatin1Name( const char * pStr, Bool isNmtoken )
 {
    uchar code;
-   bool result = TRUE;
+   Bool result = TRUE;
 
    if (pStr != NULL)
    {
@@ -497,11 +498,11 @@ bool XmlCdata_CheckLatin1Name( const char * pStr, bool isNmtoken )
 //   headers must be followed by the correct amount of trailing bytes
 // - secondly, all characters must be in the range allowed by XML 1.0, ed. 3
 //
-bool XmlCdata_CheckUtf8( const char * pStr )
+Bool XmlCdata_CheckUtf8( const char * pStr )
 {
    uchar c1, c2, c3, c4;
    uint code;
-   bool result = TRUE;
+   Bool result = TRUE;
 
    if (pStr != NULL)
    {
@@ -694,12 +695,12 @@ static const XML_CDATA_UTF_RANGE XmlCData_UtfDigiCombExtRange3[] =
 };
 #define XML_UTF_DIGICOMBEXT_RANGE3_COUNT  (sizeof(XmlCData_UtfDigiCombExtRange3)/sizeof(XmlCData_UtfDigiCombExtRange3[0]))
 
-static bool XmlCdata_SearchUtfCodeRange( uint code, const XML_CDATA_UTF_RANGE * pRange, uint count )
+static Bool XmlCdata_SearchUtfCodeRange( uint code, const XML_CDATA_UTF_RANGE * pRange, uint count )
 {
    uint  lowIdx  = 0;
    uint  highIdx = count - 1;
    uint  idx;
-   bool  result = FALSE;
+   Bool  result = FALSE;
 
    //assert(count > 0);
 
@@ -737,11 +738,11 @@ static bool XmlCdata_SearchUtfCodeRange( uint code, const XML_CDATA_UTF_RANGE * 
 // Check if all characters in a UTF-8 encoded string are letters
 // - valid range for letters is defined by XML 1.0 3rd ed., Annex B
 //
-bool XmlCdata_CheckUtf8Name( const char * pStr, bool isNmtoken )
+Bool XmlCdata_CheckUtf8Name( const char * pStr, Bool isNmtoken )
 {
    uchar c1, c2, c3;
    uint code;
-   bool result = TRUE;
+   Bool result = TRUE;
 
    if (pStr != NULL)
    {

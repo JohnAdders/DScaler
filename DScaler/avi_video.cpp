@@ -1,10 +1,11 @@
-/* $Id: avi_video.c,v 1.2 2005-10-15 19:44:44 dosx86 Exp $ */
+/* $Id: avi_video.cpp,v 1.1 2008-03-11 10:07:38 adcockj Exp $ */
 
 /** \file
  * Video compression functions
  * \author Nick Kochakian
  */
 
+#include "stdafx.h"
 #include "avi.h"
 #include "avi_internal.h"
 
@@ -161,7 +162,7 @@ BOOL aviVideoCompressorOpen(AVI_FILE *file)
         vars->hic        = comp->hIC;
         vars->fccType    = ICTYPE_VIDEO;
         vars->fccHandler = file->video.fccHandler;
-        vars->lpbiOut    = comp->format;
+        vars->lpbiOut    = (LPBITMAPINFO)comp->format;
         vars->lQ         = comp->quality;
 
         if (!ICSeqCompressFrameStart(vars, (BITMAPINFO *)&file->video.info))
@@ -239,7 +240,7 @@ void *aviVideoCompressData(AVI_FILE *file, void *src, BOOL *isKey,
         *outSize = ((BITMAPINFOHEADER *)comp->format)->biSizeImage;
         *isKey   = TRUE;
     } else
-      result = ICSeqCompressFrame(&comp->vars, 0, src, isKey, outSize);
+      result = ICSeqCompressFrame(&comp->vars, 0, src, isKey, (LONG*)outSize);
 
     return result;
 }
@@ -255,5 +256,5 @@ BITMAPINFOHEADER *aviVideoGetOutputFormat(AVI_FILE *file)
     if (!file)
        return NULL;
 
-    return file->video.comp.format;
+    return (BITMAPINFOHEADER *)file->video.comp.format;
 }

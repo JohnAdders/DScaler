@@ -1,10 +1,11 @@
-/* $Id: avi_file.c,v 1.8 2005-11-01 13:56:37 dosx86 Exp $ */
+/* $Id: avi_file.cpp,v 1.1 2008-03-11 10:07:38 adcockj Exp $ */
 
 /** \file
  * Async file writing functions
  * \author Nick Kochakian
  */
 
+#include "stdafx.h"
 #include "avi.h"
 #include "avi_internal.h"
 
@@ -703,8 +704,9 @@ void fileReserveLegacyIndex(AVI_FILE *file)
  *       to sleep forever if they try to wait for free space in the buffer.
  */
 
-DWORD WINAPI asyncThread(AVI_FILE *file)
+DWORD WINAPI asyncThread(LPVOID vFile)
 {
+    AVI_FILE* file = (AVI_FILE*)vFile;
     BOOL  bExit;
     BOOL  bFinishedWriting;
     int   priority;
@@ -722,20 +724,20 @@ DWORD WINAPI asyncThread(AVI_FILE *file)
 
     setPriority = THREAD_PRIORITY_ERROR_RETURN;
 
-    totalSpace = fifoTotalSpace(file->async.fifo);
+    totalSpace = fifoTotalSpace((FIFO*)file->async.fifo);
 
     bExit            = FALSE;
     bFinishedWriting = FALSE;
     while (!bExit || (bExit && !bFinishedWriting))
     {
         /* Attempt to write any data that might be in the FIFO buffer */
-        while (fifoDumpBlock(file->async.fifo, file))
+        while (fifoDumpBlock((FIFO*)file->async.fifo, file))
         {
             SetEvent(file->async.hWriteEvent);
 
             if (!bExit)
             {
-                usedSpace = fifoReadableSpace(file->async.fifo);
+                usedSpace = fifoReadableSpace((FIFO*)file->async.fifo);
                 switch (priority)
                 {
                     case THREAD_PRIORITY_NORMAL:
@@ -915,7 +917,7 @@ void fileClose(AVI_FILE *file)
 
     if (file->async.fifo)
     {
-        fifoDestroy(file->async.fifo);
+        fifoDestroy((FIFO*)file->async.fifo);
         file->async.fifo = NULL;
     }
 }
@@ -987,7 +989,7 @@ BOOL fileWrite(AVI_FILE *file, void *data, DWORD size)
 
     /* Try to write the data to the FIFO buffer. If that fails, wait until
        enough space is available. */
-    while (!fifoWrite(file->async.fifo, &header, data))
+    while (!fifoWrite((FIFO*)file->async.fifo, &header, (BYTE*)data))
     {
         #ifdef AVI_DEBUG
         cprintf("Mem limit reached\n");

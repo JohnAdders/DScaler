@@ -77,12 +77,13 @@
  *  Author: Tom Zoerner
  *          L. Garnier for interfacing with DScaler
  *
- *  $Id: xmltv_db.c,v 1.5 2005-07-23 13:00:44 laurentg Exp $
+ *  $Id: xmltv_db.cpp,v 1.1 2008-03-11 10:07:38 adcockj Exp $
  */
 
 #define DEBUG_SWITCH DEBUG_SWITCH_XMLTV
 #define DPRINTF_OFF
 
+#include "stdafx.h"
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -147,7 +148,7 @@ typedef struct
 {
    uint         chn_count;
    uint         chn_tab_size;
-   bool         chn_open;
+   Bool         chn_open;
    char       * p_chn_id_tmp;
    XMLTV_CHN  * p_chn_table;
    XML_HASH_PTR pChannelHash;
@@ -195,7 +196,7 @@ typedef struct
 #endif
    XMLTV_DTD_VERSION dtd;
 #ifdef ALL_CONTENT
-   bool         isPeek;
+   Bool         isPeek;
 #endif
 
 } PARSE_STATE;
@@ -402,7 +403,7 @@ void Xmltv_ChannelCreate( void )
          memcpy(pTmp, xds.p_chn_table, xds.chn_tab_size * sizeof(*xds.p_chn_table));
          xfree(xds.p_chn_table);
       }
-      xds.p_chn_table = pTmp;
+      xds.p_chn_table = (XMLTV_CHN*)pTmp;
       // grow table in steps of 64 (64 should be enough for everyone)
       xds.chn_tab_size += 64;
    }
@@ -411,8 +412,8 @@ void Xmltv_ChannelCreate( void )
 
 void Xmltv_ChannelClose( void )
 {
-   bool   isNew;
-   bool   result;
+   Bool   isNew;
+   Bool   result;
    uint * pChnIdx;
 
    assert(xds.chn_open);
@@ -424,7 +425,7 @@ void Xmltv_ChannelClose( void )
       if ( (xds.p_chn_id_tmp != NULL) &&
            (xds.p_chn_table[xds.chn_count].p_disp_name != NULL) )
       {
-         pChnIdx = XmlHash_CreateEntry(xds.pChannelHash, xds.p_chn_id_tmp, &isNew);
+         pChnIdx = (uint*)XmlHash_CreateEntry(xds.pChannelHash, xds.p_chn_id_tmp, &isNew);
          if (isNew)
          {
             dprintf3("Xmltv-ChannelClose: add channel #%d '%s' (ID '%s')\n", xds.chn_count, xds.p_chn_table[xds.chn_count].p_disp_name, p_chn_id_tmp);
@@ -530,7 +531,7 @@ void Xmltv_TsOpen( void )
 #endif
 }
 
-bool Xmltv_TsFilter( void )
+Bool Xmltv_TsFilter( void )
 {
 	if (   (xds.pi_start_time == 0)
 		|| (xds.pi_stop_time == 0)
@@ -603,7 +604,7 @@ void Xmltv_TsSetChannel( XML_STR_BUF * pBuf )
    char * pStr = XML_STR_BUF_GET_STR(*pBuf);
    uint * pChnIdx;
 
-   pChnIdx = XmlHash_SearchEntry(xds.pChannelHash, pStr);
+   pChnIdx = (uint*)XmlHash_SearchEntry(xds.pChannelHash, pStr);
    if (pChnIdx != NULL)
    {
       xds.pi_netwop_no = *pChnIdx;

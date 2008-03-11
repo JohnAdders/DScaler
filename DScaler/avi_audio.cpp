@@ -1,10 +1,11 @@
-/* $Id: avi_audio.c,v 1.5 2005-10-15 19:42:58 dosx86 Exp $ */
+/* $Id: avi_audio.cpp,v 1.1 2008-03-11 10:07:38 adcockj Exp $ */
 
 /** \file
  * Audio recording and compression functions
  * \author Nick Kochakian
  */
 
+#include "stdafx.h"
 #include "avi.h"
 #include "avi_internal.h"
 
@@ -138,7 +139,7 @@ void CALLBACK waveInCallback(HWAVEIN hWaveIn, UINT uMsg, DWORD dwInstance,
 
                 file->audio.streamLength += samples;
 
-                aviSaveAudio(file, (BYTE *)whdr->lpData + startOffset, size,
+                aviSaveAudio(file, whdr->lpData + startOffset, size,
                              samples, &file->audio.values);
 
                 aviUnlockAudio(file);
@@ -232,7 +233,7 @@ BOOL aviAudioBegin(AVI_FILE *file)
 
     if (result != MMSYSERR_NOERROR)
     {
-        file->audio.hWaveIn = INVALID_HANDLE_VALUE;
+        file->audio.hWaveIn = (HWAVEIN)INVALID_HANDLE_VALUE;
 
         if (result==WAVERR_BADFORMAT)
            aviSetError(file, AVI_ERROR_AUDIO_OPEN,
@@ -263,7 +264,7 @@ BOOL aviAudioBegin(AVI_FILE *file)
 
         whdr = &file->audio.whdr[i];
 
-        whdr->lpData         = file->audio.buffer[i];
+        whdr->lpData         = (LPSTR)file->audio.buffer[i];
         whdr->dwBufferLength = bufferLength;
         whdr->dwFlags        = 0;
 
@@ -324,7 +325,7 @@ void aviAudioEnd(AVI_FILE *file)
             }
 
             waveInClose(file->audio.hWaveIn);
-            file->audio.hWaveIn = INVALID_HANDLE_VALUE;
+            file->audio.hWaveIn = (HWAVEIN)INVALID_HANDLE_VALUE;
         }
     }
 }

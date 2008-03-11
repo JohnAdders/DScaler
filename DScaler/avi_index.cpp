@@ -1,10 +1,11 @@
-/* $Id: avi_index.c,v 1.3 2005-07-30 17:52:53 dosx86 Exp $ */
+/* $Id: avi_index.cpp,v 1.1 2008-03-11 10:07:38 adcockj Exp $ */
 
 /** \file
  * OpenDML indexing
  * \author Nick Kochakian
  */
 
+#include "stdafx.h"
 #include "avi.h"
 #include "avi_internal.h"
 
@@ -131,11 +132,11 @@ void aviIndexFlush(AVI_FILE *file)
 
     /* Write data that's most likely closest to the current write position */
     for (i = 0; i < NUM_STREAMS; i++)
-        aviIndexFlushStd(file, i);
+        aviIndexFlushStd(file, (stream_t)i);
 
     /* Write data that's closer to the beginning of the file */
     for (i = 0; i < NUM_STREAMS; i++)
-        aviIndexFlushSuper(file, i);
+        aviIndexFlushSuper(file, (stream_t)i);
 }
 
 /** Adds a standard index entry

@@ -23,6 +23,7 @@
 #define DEBUG_SWITCH DEBUG_SWITCH_XMLTV
 #define DPRINTF_OFF
 
+#include "stdafx.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

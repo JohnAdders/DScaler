@@ -1,9 +1,13 @@
-/* $Id: avi.c,v 1.5 2005-10-15 19:41:36 dosx86 Exp $ */
+/* $Id: avi.cpp,v 1.1 2008-03-11 10:07:38 adcockj Exp $ */
 
 /** \file
  * Main AVI file interface functions
  * \author Nick Kochakian
  */
+
+#include "stdafx.h"
+
+#pragma
 
 #include <io.h>
 #include <conio.h>
@@ -179,7 +183,7 @@ AVI_FILE *aviFileCreate(void)
 {
     AVI_FILE *file;
     int      i;
-    HANDLE   hLibrary;
+    HMODULE  hLibrary;
 
     file = (AVI_FILE *)malloc(sizeof(AVI_FILE));
     if (!file)
@@ -189,7 +193,7 @@ AVI_FILE *aviFileCreate(void)
 
     /* Initialize handles */
     file->async.f       = INVALID_HANDLE_VALUE;
-    file->audio.hWaveIn = INVALID_HANDLE_VALUE;
+    file->audio.hWaveIn = (HWAVEIN)INVALID_HANDLE_VALUE;
 
     /* Initialize the super index headers */
     for (i = 0; i < NUM_STREAMS; i++)
@@ -288,8 +292,8 @@ BOOL aviBeginWriting(AVI_FILE *file, char *fileName)
     aviIndexClearCounters(file);
 
     /* Set up the timer stuff */
-    memset(&file->timer, 0, sizeof(struct AVI_FILE_TIMER));
-    memset(&file->video.timer, 0, sizeof(struct AVI_FILE_VIDEO_TIMER));
+    memset(&file->timer, 0, sizeof(struct AVI_FILE::AVI_FILE_TIMER));
+    memset(&file->video.timer, 0, sizeof(struct AVI_FILE::VIDEO_STREAM::AVI_FILE_VIDEO_TIMER));
 
     /* Clear the stream values */
     memset(&file->video.values, 0, sizeof(file->video.values));

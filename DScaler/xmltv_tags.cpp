@@ -32,12 +32,13 @@
  *
  *  Author: Tom Zoerner
  *
- *  $Id: xmltv_tags.c,v 1.3 2005-07-11 23:10:56 laurentg Exp $
+ *  $Id: xmltv_tags.cpp,v 1.1 2008-03-11 10:07:38 adcockj Exp $
  */
 
 #define DEBUG_SWITCH DEBUG_SWITCH_XMLTV
 #define DPRINTF_OFF
 
+#include "stdafx.h"
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -401,7 +402,7 @@ typedef struct
 {
    const char * pName;
    void (* SetAttr) ( XML_STR_BUF * pBuf );
-   bool strip;
+   Bool strip;
 } XMLTV_ATTS;
 
 static const XMLTV_ATTS xmltv5_attr_tv[] =
@@ -593,7 +594,7 @@ typedef struct
       void (* TagOpen) ( void );
       void (* TagClose) ( void );
       void (* AddContent) ( XML_STR_BUF * pBuf );
-      bool (* PostAttr) ( void );
+      Bool (* PostAttr) ( void );
    } cb;
    struct {
       const XMLTV_ATTS * pTagAttr;
@@ -1004,7 +1005,7 @@ static void XmltvScan_CheckTablesConsistency( void )
 #ifdef DEBUG_SWITCH
    uint  tagIdx;
    uint  childIdx;
-   bool  refTable[XMLTV_TAG_COUNT];
+   Bool  refTable[XMLTV_TAG_COUNT];
 
    assert(sizeof(xmltv_tag_def) == sizeof(xmltv_tag_def[0]) * XMLTV_TAG_COUNT);
    memset(refTable, 0, sizeof(refTable));
@@ -1059,7 +1060,7 @@ typedef struct
    XML_LANG_CODE        lang[XML_STACK_MAX_DEPTH];
    uint                 stackIdx;
    uint                 syntaxError;
-   bool                 earlyStop;
+   Bool                 earlyStop;
    uint                 xmlAttrToken;
    XMLTV_DTD_VERSION    dtd;
    XML_ENCODING         encoding;
@@ -1115,7 +1116,7 @@ void XmltvTags_Open( const char * pTagName )
    const XMLTV_TAG  * pChild;
    XMLTV_TAG  state;
    uint  childIdx;
-   bool  found;
+   Bool  found;
 
    if (xps.stackIdx + 1 < XML_STACK_MAX_DEPTH)
    {
@@ -1175,7 +1176,7 @@ void XmltvTags_Open( const char * pTagName )
 // - tag name can be NULL for empty tags (e.g. <stereo />)
 // - returns FALSE if the document top-level tag is closed
 //
-bool XmltvTags_Close( const char * pTagName )
+Bool XmltvTags_Close( const char * pTagName )
 {
    XMLTV_TAG  state;
 
@@ -1257,10 +1258,10 @@ void XmltvTags_Data( XML_STR_BUF * pBuf )
 // - note this function is currently not called for empty tags, i.e. when the
 //   has no childs nor content
 //
-bool XmltvTags_AttribsComplete( void )
+Bool XmltvTags_AttribsComplete( void )
 {
    XMLTV_TAG  state;
-   bool result = TRUE;
+   Bool result = TRUE;
 
    state = xps.tagStack[xps.stackIdx];
 
@@ -1284,7 +1285,7 @@ void XmltvTags_AttribIdentify( const char * pName )
    const XMLTV_ATTS * pAttrib;
    XMLTV_TAG  state;
    uint  attrIdx;
-   bool  found;
+   Bool  found;
 
    state = xps.tagStack[xps.stackIdx];
    pAttrib = xmltv_tag_def[state].at.pTagAttr;
@@ -1361,7 +1362,7 @@ void XmltvTags_ScanUnsupEncoding( const char * pName )
 //
 void XmltvTags_Encoding( const char * pName )
 {
-   bool result;
+   Bool result;
 
    if ( (strncasecmp(pName, "iso8859", 7) == 0) ||
         (strncasecmp(pName, "iso-8859", 8) == 0) ||

@@ -360,7 +360,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\avi.c">
+				RelativePath=".\avi.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
@@ -375,7 +375,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\avi_audio.c">
+				RelativePath=".\avi_audio.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
@@ -390,7 +390,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\avi_file.c">
+				RelativePath=".\avi_file.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
@@ -405,7 +405,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\avi_index.c">
+				RelativePath=".\avi_index.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
@@ -420,7 +420,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\avi_video.c">
+				RelativePath=".\avi_video.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
@@ -3763,7 +3763,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\xml_cdata.c">
+				RelativePath=".\xml_cdata.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
@@ -3780,7 +3780,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\xml_hash.c">
+				RelativePath=".\xml_hash.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
@@ -3797,7 +3797,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\xml_prolog.tab.c">
+				RelativePath=".\xml_prolog.tab.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
@@ -3814,7 +3814,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\xml_scan.yy.c">
+				RelativePath=".\xml_scan.yy.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
@@ -3831,7 +3831,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\xmltv_db.c">
+				RelativePath=".\xmltv_db.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
@@ -3848,7 +3848,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\xmltv_tags.c">
+				RelativePath=".\xmltv_tags.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
@@ -3865,7 +3865,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\xmltv_timestamp.c">
+				RelativePath=".\xmltv_timestamp.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool

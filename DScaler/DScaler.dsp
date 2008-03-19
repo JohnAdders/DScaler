@@ -154,27 +154,27 @@ SOURCE=.\AutoCriticalSection.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\avi.c
+SOURCE=.\avi.cpp
 # SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
-SOURCE=.\avi_audio.c
+SOURCE=.\avi_audio.cpp
 # SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
-SOURCE=.\avi_file.c
+SOURCE=.\avi_file.cpp
 # SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
-SOURCE=.\avi_index.c
+SOURCE=.\avi_index.cpp
 # SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
-SOURCE=.\avi_video.c
+SOURCE=.\avi_video.cpp
 # SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
@@ -1019,43 +1019,43 @@ SOURCE=.\WindowBorder.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\xml_cdata.c
+SOURCE=.\xml_cdata.cpp
 # ADD CPP /D "_X86_"
 # SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
-SOURCE=.\xml_hash.c
+SOURCE=.\xml_hash.cpp
 # ADD CPP /D "_X86_"
 # SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
-SOURCE=.\xml_prolog.tab.c
+SOURCE=.\xml_prolog.tab.cpp
 # ADD CPP /D "_X86_"
 # SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
-SOURCE=.\xml_scan.yy.c
+SOURCE=.\xml_scan.yy.cpp
 # ADD CPP /D "_X86_"
 # SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
-SOURCE=.\xmltv_db.c
+SOURCE=.\xmltv_db.cpp
 # ADD CPP /D "_X86_"
 # SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
-SOURCE=.\xmltv_tags.c
+SOURCE=.\xmltv_tags.cpp
 # ADD CPP /D "_X86_"
 # SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
-SOURCE=.\xmltv_timestamp.c
+SOURCE=.\xmltv_timestamp.cpp
 # ADD CPP /D "_X86_"
 # SUBTRACT CPP /YX /Yc /Yu
 # End Source File

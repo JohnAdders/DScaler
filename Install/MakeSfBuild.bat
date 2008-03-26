@@ -24,7 +24,7 @@ vcbuild Dscaler2005.sln "Release|Win32"
 rem cd ..\Driver\DSDrvNT
 rem cmd /c ..\..\Install\makeSfBuild2.bat 64
 rem cmd /c ..\..\Install\makeSfBuild2.bat AMD64
-cd ..\..\Install
+cd ..\Install
 "c:\Program Files\Inno Setup 5\Compil32.exe" /cc DScaler.iss
 copy Output\Setup.exe ..\..\DScaler%1.exe
 cd ..\..

@@ -1,5 +1,5 @@
 #/////////////////////////////////////////////////////////////////////////////
-#// $Id: CMakeLists.txt,v 1.3 2008-03-10 17:41:46 adcockj Exp $
+#// $Id: CMakeLists.txt,v 1.4 2008-03-26 14:55:25 adcockj Exp $
 #/////////////////////////////////////////////////////////////////////////////
 #// Copyright (c) 2008 John Adcock.  All rights reserved.
 #/////////////////////////////////////////////////////////////////////////////
@@ -26,11 +26,16 @@
 #// CVS Log
 #//
 #// $Log: not supported by cvs2svn $
+#// Revision 1.3  2008/03/10 17:41:46  adcockj
+#// Update to cmake files
+#//
 #// Revision 1.2  2008/02/08 13:43:19  adcockj
 #// Changes to support cmake compilation
 #//
 #//
 #/////////////////////////////////////////////////////////////////////////////
+
+#cmake_policy(VERSION 2.4)
 
 # Names the solution
 PROJECT (DScaler)
@@ -39,6 +44,7 @@ set(USEBT8X8 ON CACHE BOOL "Support Bt8x8 Chipset Input")
 set(USECX2388X ON CACHE BOOL "Support CX2388X Chipset Input")
 set(USESAA713X ON CACHE BOOL "Support SAA713X Chipset Input")
 set(USEDSHOW ON CACHE BOOL "Support for DShow Input")
+
 set(USESHAREDLIBS ON CACHE BOOL "Use shared libraries")
 
 SET ( DScalerDir ${CMAKE_HOME_DIRECTORY}/DScaler )

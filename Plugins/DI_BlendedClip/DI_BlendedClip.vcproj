@@ -151,7 +151,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;DI_BLENDEDCLIP_EXPORTS;$(NoInherit)"/>
+						PreprocessorDefinitions=""/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32">
@@ -159,7 +159,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="3"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;DI_BLENDEDCLIP_EXPORTS;$(NoInherit)"/>
+						PreprocessorDefinitions=""/>
 				</FileConfiguration>
 			</File>
 			<File

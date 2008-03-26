@@ -417,7 +417,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="DI_GreedyH_EXPORTS;WIN32;_DEBUG;_WINDOWS;$(NoInherit)"
+						PreprocessorDefinitions=""
 						BrowseInformation="1"
 					/>
 				</FileConfiguration>
@@ -428,7 +428,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="DI_GreedyH_EXPORTS;WIN32;NDEBUG;_WINDOWS;$(NoInherit)"
+						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -438,7 +438,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="DI_GreedyH_EXPORTS;WIN32;_DEBUG;_WINDOWS;$(NoInherit)"
+						PreprocessorDefinitions=""
 						BrowseInformation="1"
 					/>
 				</FileConfiguration>
@@ -449,7 +449,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="DI_GreedyH_EXPORTS;WIN32;NDEBUG;_WINDOWS;$(NoInherit)"
+						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
 			</File>
@@ -463,7 +463,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="DI_GreedyH_EXPORTS;WIN32;_DEBUG;_WINDOWS;$(NoInherit)"
+						PreprocessorDefinitions=""
 						BrowseInformation="1"
 					/>
 				</FileConfiguration>
@@ -474,7 +474,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="DI_GreedyH_EXPORTS;WIN32;NDEBUG;_WINDOWS;$(NoInherit)"
+						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -484,7 +484,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="DI_GreedyH_EXPORTS;WIN32;_DEBUG;_WINDOWS;$(NoInherit)"
+						PreprocessorDefinitions=""
 						BrowseInformation="1"
 					/>
 				</FileConfiguration>
@@ -495,7 +495,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="DI_GreedyH_EXPORTS;WIN32;NDEBUG;_WINDOWS;$(NoInherit)"
+						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
 			</File>
@@ -509,7 +509,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="DI_GreedyH_EXPORTS;WIN32;_DEBUG;_WINDOWS;$(NoInherit)"
+						PreprocessorDefinitions=""
 						BrowseInformation="1"
 					/>
 				</FileConfiguration>
@@ -520,7 +520,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="DI_GreedyH_EXPORTS;WIN32;NDEBUG;_WINDOWS;$(NoInherit)"
+						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -530,7 +530,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="DI_GreedyH_EXPORTS;WIN32;_DEBUG;_WINDOWS;$(NoInherit)"
+						PreprocessorDefinitions=""
 						BrowseInformation="1"
 					/>
 				</FileConfiguration>
@@ -541,7 +541,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="DI_GreedyH_EXPORTS;WIN32;NDEBUG;_WINDOWS;$(NoInherit)"
+						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
 			</File>
@@ -555,7 +555,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="DI_GreedyH_EXPORTS;WIN32;_DEBUG;_WINDOWS;$(NoInherit)"
+						PreprocessorDefinitions=""
 						BrowseInformation="1"
 					/>
 				</FileConfiguration>
@@ -566,7 +566,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="DI_GreedyH_EXPORTS;WIN32;NDEBUG;_WINDOWS;$(NoInherit)"
+						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -576,7 +576,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="DI_GreedyH_EXPORTS;WIN32;_DEBUG;_WINDOWS;$(NoInherit)"
+						PreprocessorDefinitions=""
 						BrowseInformation="1"
 					/>
 				</FileConfiguration>
@@ -587,7 +587,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="DI_GreedyH_EXPORTS;WIN32;NDEBUG;_WINDOWS;$(NoInherit)"
+						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
 			</File>
@@ -601,7 +601,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="DI_GreedyH_EXPORTS;WIN32;_DEBUG;_WINDOWS;$(NoInherit)"
+						PreprocessorDefinitions=""
 						BrowseInformation="1"
 					/>
 				</FileConfiguration>
@@ -612,7 +612,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="DI_GreedyH_EXPORTS;WIN32;NDEBUG;_WINDOWS;$(NoInherit)"
+						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -622,7 +622,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="DI_GreedyH_EXPORTS;WIN32;_DEBUG;_WINDOWS;$(NoInherit)"
+						PreprocessorDefinitions=""
 						BrowseInformation="1"
 					/>
 				</FileConfiguration>
@@ -633,7 +633,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="DI_GreedyH_EXPORTS;WIN32;NDEBUG;_WINDOWS;$(NoInherit)"
+						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
 			</File>
@@ -647,7 +647,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="DI_GreedyH_EXPORTS;WIN32;_DEBUG;_WINDOWS;$(NoInherit)"
+						PreprocessorDefinitions=""
 						BrowseInformation="1"
 					/>
 				</FileConfiguration>
@@ -658,7 +658,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="DI_GreedyH_EXPORTS;WIN32;NDEBUG;_WINDOWS;$(NoInherit)"
+						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -668,7 +668,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="DI_GreedyH_EXPORTS;WIN32;_DEBUG;_WINDOWS;$(NoInherit)"
+						PreprocessorDefinitions=""
 						BrowseInformation="1"
 					/>
 				</FileConfiguration>
@@ -679,7 +679,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="DI_GreedyH_EXPORTS;WIN32;NDEBUG;_WINDOWS;$(NoInherit)"
+						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
 			</File>

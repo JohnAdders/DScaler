@@ -150,7 +150,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="DI_GREEDY2FRAME_EXPORTS;WIN32;_DEBUG;_WINDOWS;$(NoInherit)"/>
+						PreprocessorDefinitions=""/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32">
@@ -161,7 +161,7 @@
 						EnableIntrinsicFunctions="FALSE"
 						FavorSizeOrSpeed="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="DI_GREEDY2FRAME_EXPORTS;WIN32;NDEBUG;_WINDOWS;$(NoInherit)"
+						PreprocessorDefinitions=""
 						AssemblerOutput="4"/>
 				</FileConfiguration>
 			</File>

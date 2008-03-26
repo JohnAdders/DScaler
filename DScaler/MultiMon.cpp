@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////
 //
-// $Id: MultiMon.cpp,v 1.1 2006-12-12 23:43:10 robmuller Exp $
+// $Id: MultiMon.cpp,v 1.2 2008-03-26 14:55:26 adcockj Exp $
 //
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2006 Rob Muller.  All rights reserved.
@@ -19,6 +19,9 @@
 /////////////////////////////////////////////////////////////////////////////
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.1  2006/12/12 23:43:10  robmuller
+// Fix compile errors with Visual Studio 2005 Express.
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -28,5 +31,9 @@
 #pragma once
 
 #include "stdafx.h"
+
+// need stubs with VS6 and with shared library builds
+#if _MSC_VER < 1300 || defined(_AFXDLL)
 #define COMPILE_MULTIMON_STUBS
 #include <multimon.h>
+#endif

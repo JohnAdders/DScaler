@@ -150,7 +150,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;FLT_TemporalComb_EXPORTS;$(NoInherit)"/>
+						PreprocessorDefinitions=""/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32">
@@ -158,7 +158,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="3"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;FLT_TemporalComb_EXPORTS;$(NoInherit)"/>
+						PreprocessorDefinitions=""/>
 				</FileConfiguration>
 			</File>
 		</Filter>

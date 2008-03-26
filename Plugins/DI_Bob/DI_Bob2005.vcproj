@@ -402,7 +402,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="3"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="DI_BOB_EXPORTS;WIN32;NDEBUG;_WINDOWS;$(NoInherit)"
+						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -412,7 +412,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="DI_BOB_EXPORTS;WIN32;_DEBUG;_WINDOWS;$(NoInherit)"
+						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -422,7 +422,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="DI_BOB_EXPORTS;WIN32;_DEBUG;_WINDOWS;$(NoInherit)"
+						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -432,7 +432,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="3"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="DI_BOB_EXPORTS;WIN32;NDEBUG;_WINDOWS;$(NoInherit)"
+						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
 			</File>

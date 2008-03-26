@@ -413,7 +413,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;FLT_MIRROR_EXPORTS;$(NoInherit)"
+						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -423,7 +423,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_MBCS;_USRDLL;FLT_MIRROR_EXPORTS;$(NoInherit)"
+						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
 					/>
 				</FileConfiguration>
@@ -434,7 +434,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_MBCS;_USRDLL;FLT_MIRROR_EXPORTS;$(NoInherit)"
+						PreprocessorDefinitions=""
 						BasicRuntimeChecks="3"
 					/>
 				</FileConfiguration>
@@ -445,7 +445,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;FLT_MIRROR_EXPORTS;$(NoInherit)"
+						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
 			</File>

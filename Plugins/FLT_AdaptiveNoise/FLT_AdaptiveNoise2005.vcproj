@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="FLT_AdaptiveNoise"
 	ProjectGUID="{A273AE9F-58F2-4476-9016-996C2861A94D}"
 	>
@@ -47,7 +47,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\Api"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;FLT_AdaptiveNoise_EXPORTS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;FLT_AdaptiveNoise_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
 				RuntimeLibrary="1"
 				PrecompiledHeaderFile=".\Debug/FLT_AdaptiveNoise.pch"
 				AssemblerListingLocation=".\Debug/"
@@ -142,7 +142,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="..\..\Api"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;FLT_AdaptiveNoise_EXPORTS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;FLT_AdaptiveNoise_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
 				RuntimeLibrary="0"
 				PrecompiledHeaderFile=".\Release/FLT_AdaptiveNoise.pch"
 				AssemblerListingLocation=".\Release/"
@@ -232,7 +232,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\Api"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;FLT_AdaptiveNoise_EXPORTS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;FLT_AdaptiveNoise_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
 				RuntimeLibrary="1"
 				PrecompiledHeaderFile="$(IntDir)\FLT_AdaptiveNoise.pch"
 				AssemblerListingLocation="$(IntDir)\"
@@ -327,7 +327,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="..\..\Api"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;FLT_AdaptiveNoise_EXPORTS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;FLT_AdaptiveNoise_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
 				RuntimeLibrary="0"
 				PrecompiledHeaderFile=""
 				AssemblerListingLocation="$(IntDir)\"
@@ -401,7 +401,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;FLT_AdaptiveNoise_EXPORTS;$(NoInherit)"
+						PreprocessorDefinitions=""
 						BrowseInformation="1"
 					/>
 				</FileConfiguration>
@@ -412,7 +412,6 @@
 						Name="VCCLCompilerTool"
 						Optimization="3"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;FLT_AdaptiveNoise_EXPORTS;$(NoInherit)"
 						BrowseInformation="1"
 					/>
 				</FileConfiguration>
@@ -423,7 +422,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;FLT_AdaptiveNoise_EXPORTS;$(NoInherit)"
+						PreprocessorDefinitions=""
 						BrowseInformation="1"
 					/>
 				</FileConfiguration>
@@ -434,7 +433,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="3"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;FLT_AdaptiveNoise_EXPORTS;$(NoInherit)"
+						PreprocessorDefinitions=""
 						BrowseInformation="1"
 					/>
 				</FileConfiguration>

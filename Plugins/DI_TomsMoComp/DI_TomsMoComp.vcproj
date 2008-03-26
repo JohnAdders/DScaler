@@ -154,7 +154,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;DI_TOMSMOCOMP_EXPORTS;$(NoInherit)"/>
+						PreprocessorDefinitions=""/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -162,7 +162,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="DI_TOMSMOCOMP_EXPORTS;WIN32;_DEBUG;_WINDOWS;$(NoInherit)"
+						PreprocessorDefinitions=""
 						BrowseInformation="1"/>
 				</FileConfiguration>
 			</File>
@@ -174,7 +174,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;DI_TOMSMOCOMP_EXPORTS;$(NoInherit)"/>
+						PreprocessorDefinitions=""/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -182,7 +182,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="DI_TOMSMOCOMP_EXPORTS;WIN32;_DEBUG;_WINDOWS;$(NoInherit)"
+						PreprocessorDefinitions=""
 						BrowseInformation="1"/>
 				</FileConfiguration>
 			</File>
@@ -194,7 +194,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;DI_TOMSMOCOMP_EXPORTS;$(NoInherit)"/>
+						PreprocessorDefinitions=""/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -202,7 +202,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="DI_TOMSMOCOMP_EXPORTS;WIN32;_DEBUG;_WINDOWS;$(NoInherit)"
+						PreprocessorDefinitions=""
 						BrowseInformation="1"/>
 				</FileConfiguration>
 			</File>
@@ -214,7 +214,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;DI_TOMSMOCOMP_EXPORTS;$(NoInherit)"/>
+						PreprocessorDefinitions=""/>
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -222,7 +222,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="DI_TOMSMOCOMP_EXPORTS;WIN32;_DEBUG;_WINDOWS;$(NoInherit)"
+						PreprocessorDefinitions=""
 						BrowseInformation="1"/>
 				</FileConfiguration>
 			</File>

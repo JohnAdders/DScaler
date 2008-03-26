@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// $Id: DScaler.cpp,v 1.401 2008-02-08 13:43:19 adcockj Exp $
+// $Id: DScaler.cpp,v 1.402 2008-03-26 14:55:26 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.401  2008/02/08 13:43:19  adcockj
+// Changes to support cmake compilation
+//
 // Revision 1.400  2007/12/14 19:31:47  adcockj
 // Fixes for Vista crashing
 // Consistent exception handling as references
@@ -7440,4 +7443,6 @@ void ResetMainWindowEvent()
     }
 }
 
+#if _MSC_VER > 1310
 #pragma comment(linker, "\"/manifestdependency:type='Win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='X86' publicKeyToken='6595b64144ccf1df' language='*'\"")
+#endif

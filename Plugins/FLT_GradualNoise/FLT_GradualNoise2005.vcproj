@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="FLT_GradualNoise"
 	ProjectGUID="{346A70F2-41AA-4DC7-9E6D-23B62176DC4F}"
+	RootNamespace="FLT_GradualNoise"
 	>
 	<Platforms>
 		<Platform
@@ -402,7 +403,6 @@
 						Name="VCCLCompilerTool"
 						Optimization="3"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;FLT_GradualNoise_EXPORTS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -412,7 +412,6 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;FLT_GradualNoise_EXPORTS;$(NoInherit)"
 						BrowseInformation="1"
 					/>
 				</FileConfiguration>
@@ -423,7 +422,6 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;FLT_GradualNoise_EXPORTS;$(NoInherit)"
 						BrowseInformation="1"
 					/>
 				</FileConfiguration>
@@ -434,7 +432,6 @@
 						Name="VCCLCompilerTool"
 						Optimization="3"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;FLT_GradualNoise_EXPORTS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 			</File>

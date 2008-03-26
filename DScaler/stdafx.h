@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: stdafx.h,v 1.32 2008-03-10 17:41:46 adcockj Exp $
+// $Id: stdafx.h,v 1.33 2008-03-26 14:55:26 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2008/03/10 17:41:46  adcockj
+// Update to cmake files
+//
 // Revision 1.31  2008/02/08 13:43:19  adcockj
 // Changes to support cmake compilation
 //
@@ -105,6 +108,10 @@
 /** 
  * @file stdafx.h Precompiled Header file
  */
+#ifndef WINVER
+	#define WINVER 0x0400
+	#define _WIN32_WINNT 0x0400
+#endif
 
 #if _MSC_VER > 1000
 #pragma once

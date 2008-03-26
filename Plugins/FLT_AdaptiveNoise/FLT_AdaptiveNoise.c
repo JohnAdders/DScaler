@@ -16,6 +16,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.21  2008/03/10 17:41:46  adcockj
+// Update to cmake files
+//
 // Revision 1.20  2008/02/08 13:43:20  adcockj
 // Changes to support cmake compilation
 //
@@ -106,7 +109,6 @@
 #include "windows.h"
 #include "DS_Filter.h"
 #include "..\help\helpids.h"
-
 
 // See FLT_AdaptiveNoise.txt for an explanation of this filter.
 

@@ -29,7 +29,7 @@
 				FavorSizeOrSpeed="1"
 				OptimizeForProcessor="2"
 				AdditionalIncludeDirectories="..\api,.\"
-				PreprocessorDefinitions="NDEBUG;_WINDOWS;WIN32;_WIN32_DCOM"
+				PreprocessorDefinitions="NDEBUG;_WINDOWS;WIN32;_WIN32_DCOM;;WANT_BT8X8_SUPPORT;WANT_SAA7134_SUPPORT;WANT_CX2388X_SUPPORT;WANT_DSHOW_SUPPORT"
 				StringPooling="TRUE"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="TRUE"
@@ -103,7 +103,7 @@
 				ImproveFloatingPointConsistency="TRUE"
 				OptimizeForProcessor="2"
 				AdditionalIncludeDirectories="..\api,.\"
-				PreprocessorDefinitions="_DEBUG;_WINDOWS;WIN32;_WIN32_DCOM"
+				PreprocessorDefinitions="_DEBUG;_WINDOWS;WIN32;_WIN32_DCOM;WANT_BT8X8_SUPPORT;WANT_SAA7134_SUPPORT;WANT_CX2388X_SUPPORT;WANT_DSHOW_SUPPORT"
 				RuntimeLibrary="1"
 				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="3"
@@ -1222,6 +1222,18 @@
 			</File>
 			<File
 				RelativePath="DScaler.rc">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCResourceCompilerTool"
+						PreprocessorDefinitions="NDEBUG;PRE_2005_COMPILE"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCResourceCompilerTool"
+						PreprocessorDefinitions="_DEBUG;PRE_2005_COMPILE"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="DScalerApp.cpp">
@@ -2767,7 +2779,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\SchedMessageBox.cpp">
+				RelativePath=".\ScheduledRecording.cpp">
 			</File>
 			<File
 				RelativePath="Setting.cpp">
@@ -3249,6 +3261,66 @@
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
 						BrowseInformation="1"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\tinystr.cpp">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\tinyxml.cpp">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\tinyxmlerror.cpp">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\tinyxmlparser.cpp">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"/>
 				</FileConfiguration>
 			</File>
 			<File
@@ -4270,6 +4342,9 @@
 				RelativePath=".\SchedMessageBox.h">
 			</File>
 			<File
+				RelativePath=".\ScheduledRecording.h">
+			</File>
+			<File
 				RelativePath="Setting.h">
 			</File>
 			<File
@@ -4376,6 +4451,12 @@
 			</File>
 			<File
 				RelativePath="TimeShift.h">
+			</File>
+			<File
+				RelativePath=".\tinystr.h">
+			</File>
+			<File
+				RelativePath=".\tinyxml.h">
 			</File>
 			<File
 				RelativePath="ToolbarControl.h">

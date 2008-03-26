@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="FLT_Gamma"
 	ProjectGUID="{8A910216-D2FF-422B-894B-6427C2E84502}"
 	RootNamespace="FLT_Gamma"
@@ -51,7 +51,7 @@
 				InlineFunctionExpansion="2"
 				FavorSizeOrSpeed="0"
 				AdditionalIncludeDirectories="..\..\Api"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;FLT_GAMMA_EXPORTS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;FLT_GAMMA_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
 				RuntimeLibrary="2"
 				PrecompiledHeaderFile=".\Release/FLT_Gamma.pch"
 				AssemblerListingLocation=".\Release/"
@@ -145,7 +145,7 @@
 				InlineFunctionExpansion="1"
 				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="..\..\Api"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;FLT_GAMMA_EXPORTS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;FLT_GAMMA_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
 				RuntimeLibrary="3"
 				BufferSecurityCheck="false"
 				PrecompiledHeaderFile=".\Debug/FLT_Gamma.pch"
@@ -241,7 +241,7 @@
 				InlineFunctionExpansion="0"
 				FavorSizeOrSpeed="0"
 				AdditionalIncludeDirectories="..\..\Api"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;FLT_GAMMA_EXPORTS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;FLT_GAMMA_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
 				RuntimeLibrary="3"
 				BufferSecurityCheck="false"
 				PrecompiledHeaderFile=""
@@ -339,7 +339,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="..\..\Api"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;FLT_GAMMA_EXPORTS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;FLT_GAMMA_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
 				RuntimeLibrary="2"
 				PrecompiledHeaderFile=""
 				AssemblerListingLocation="$(IntDir)\"
@@ -416,7 +416,6 @@
 						Optimization="3"
 						FavorSizeOrSpeed="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;FLT_GAMMA_EXPORTS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -426,7 +425,6 @@
 						Name="VCCLCompilerTool"
 						Optimization="3"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_MBCS;_USRDLL;FLT_GAMMA_EXPORTS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -436,7 +434,6 @@
 						Name="VCCLCompilerTool"
 						Optimization="3"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_MBCS;_USRDLL;FLT_GAMMA_EXPORTS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -447,7 +444,6 @@
 						Optimization="3"
 						FavorSizeOrSpeed="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;FLT_GAMMA_EXPORTS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 			</File>

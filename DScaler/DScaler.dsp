@@ -155,27 +155,22 @@ SOURCE=.\AutoCriticalSection.cpp
 # Begin Source File
 
 SOURCE=.\avi.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\avi_audio.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\avi_file.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\avi_index.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\avi_video.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
@@ -833,54 +828,22 @@ SOURCE=.\TimeShift.cpp
 # Begin Source File
 
 SOURCE=.\tinystr.cpp
-
-!IF  "$(CFG)" == "DScaler - Win32 Debug"
-
-!ELSEIF  "$(CFG)" == "DScaler - Win32 Release"
-
 # SUBTRACT CPP /YX /Yc /Yu
-
-!ENDIF 
-
 # End Source File
 # Begin Source File
 
 SOURCE=.\tinyxml.cpp
-
-!IF  "$(CFG)" == "DScaler - Win32 Debug"
-
-!ELSEIF  "$(CFG)" == "DScaler - Win32 Release"
-
 # SUBTRACT CPP /YX /Yc /Yu
-
-!ENDIF 
-
 # End Source File
 # Begin Source File
 
 SOURCE=.\tinyxmlerror.cpp
-
-!IF  "$(CFG)" == "DScaler - Win32 Debug"
-
-!ELSEIF  "$(CFG)" == "DScaler - Win32 Release"
-
 # SUBTRACT CPP /YX /Yc /Yu
-
-!ENDIF 
-
 # End Source File
 # Begin Source File
 
 SOURCE=.\tinyxmlparser.cpp
-
-!IF  "$(CFG)" == "DScaler - Win32 Debug"
-
-!ELSEIF  "$(CFG)" == "DScaler - Win32 Release"
-
 # SUBTRACT CPP /YX /Yc /Yu
-
-!ENDIF 
-
 # End Source File
 # Begin Source File
 
@@ -1020,44 +983,30 @@ SOURCE=.\WindowBorder.cpp
 # Begin Source File
 
 SOURCE=.\xml_cdata.cpp
-# ADD CPP /D "_X86_"
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\xml_hash.cpp
-# ADD CPP /D "_X86_"
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\xml_prolog.tab.cpp
-# ADD CPP /D "_X86_"
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\xml_scan.yy.cpp
-# ADD CPP /D "_X86_"
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\xmltv_db.cpp
-# ADD CPP /D "_X86_"
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\xmltv_tags.cpp
-# ADD CPP /D "_X86_"
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\xmltv_timestamp.cpp
-# ADD CPP /D "_X86_"
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -1906,10 +1855,6 @@ SOURCE=..\Release\SAA713xCards.ini
 # End Group
 # End Target
 # End Project
-# Section DScaler : {F08DF954-8592-11D1-B16A-00C0F0283628}
-# 	2:21:DefaultSinkHeaderFile:slider.h
-# 	2:16:DefaultSinkClass:CSlider
-# End Section
 # Section DScaler : {F08DF952-8592-11D1-B16A-00C0F0283628}
 # 	2:5:Class:CSlider
 # 	2:10:HeaderFile:slider.h
@@ -1919,4 +1864,8 @@ SOURCE=..\Release\SAA713xCards.ini
 # 	2:5:Class:CPicture
 # 	2:10:HeaderFile:picture.h
 # 	2:8:ImplFile:picture.cpp
+# End Section
+# Section DScaler : {F08DF954-8592-11D1-B16A-00C0F0283628}
+# 	2:21:DefaultSinkHeaderFile:slider.h
+# 	2:16:DefaultSinkClass:CSlider
 # End Section

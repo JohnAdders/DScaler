@@ -32,7 +32,7 @@
  *
  *  Author: Tom Zoerner
  *
- *  $Id: xmltv_tags.cpp,v 1.1 2008-03-11 10:07:38 adcockj Exp $
+ *  $Id: xmltv_tags.cpp,v 1.2 2008-03-26 14:55:26 adcockj Exp $
  */
 
 #define DEBUG_SWITCH DEBUG_SWITCH_XMLTV
@@ -51,6 +51,8 @@
 #include "xml_cdata.h"
 #include "xmltv_db.h"
 #include "xmltv_tags.h"
+
+#pragma warning(disable : 4390)
 
 extern FILE *yyin;
 extern int yyparse( void );

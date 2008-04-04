@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_CCdecode.cpp,v 1.22 2005-03-23 14:21:02 adcockj Exp $
+// $Id: VBI_CCdecode.cpp,v 1.23 2008-04-04 16:42:57 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 Mike Baker.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.22  2005/03/23 14:21:02  adcockj
+// Test fix for threading issues
+//
 // Revision 1.21  2005/03/11 14:54:41  adcockj
 // Get rid of a load of compilation warnings in vs.net
 //
@@ -123,7 +126,7 @@ char          InfoCheckSum;
 //ccdecode
 char*         Ratings[] = {"(NOT RATED)","TV-Y","TV-Y7","TV-G","TV-PG","TV-14","TV-MA","(NOT RATED)"};
 int           RowData[] = {10,0,0,1,2,3,11,12,13,14,4,5,6,7,8,9};
-char*         SpecialChars[] = {"®","°","½","¿","™","¢","£","¶ ","à"," ","è","â","ê","î","ô","û"};
+char*         SpecialChars[] = {"®","°","½","¿","™","¢","£","¶","à"," ","è","â","ê","î","ô","û"};
 char*         Modes[]={"current","future","channel","miscellanious","public service","reserved","invalid","invalid","invalid","invalid"};
 int           LastCode;
 int           CCDisplayMode=1;       //cc1 or cc2
@@ -131,6 +134,7 @@ char          CCBuf[3][256];      //cc is 32 columns per row, this allows for ex
 
 int CC_Clock;
 int CC_Gap;
+extern BOOL bOldCCMethod;
 
 
 void CC_Init_Data(double VBI_Frequency)
@@ -645,7 +649,7 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                         case 0x20:
                             if(CaptionMode)
                             {
-                                if (Mode != POP_ON)
+                                if (bOldCCMethod || Mode != POP_ON)
                                 {
 								    // Only reset on the first pop_on command
                                     if (ScreenToWrite == 0)
@@ -697,7 +701,7 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                         case 0x27: //4 row caption
                             if(CaptionMode)
                             {
-                                if (Mode != ROLL_UP)
+                                if (bOldCCMethod || Mode != ROLL_UP)
                                 {
                                     Mode = ROLL_UP;
                                     ModeRows = b2 - 0x23;
@@ -729,7 +733,7 @@ int CCdecode(int data, BOOL CaptionMode, int Channel)
                         case 0x29: //resume direct caption
                             if(CaptionMode)
                             {
-                                if (Mode != PAINT_ON)
+                                if (bOldCCMethod || Mode != PAINT_ON)
                                 {
                                     ScreenToWrite = 0;
                                     Mode = PAINT_ON;
@@ -956,7 +960,7 @@ COLORREF CC_GetColor(eCCColor Color)
 }
 
 
-void CC_PaintChars(HWND hWnd, TCCChar* Char, char* szLine, HDC hDC, RECT* PaintRect, int nFontsize)
+void CC_PaintChars(HWND hWnd, TCCChar* Char, wchar_t* szLine, HDC hDC, RECT* PaintRect, int nFontsize)
 {
     SIZE sizeText;
     HFONT hTmp, hOSDfont;
@@ -977,18 +981,18 @@ void CC_PaintChars(HWND hWnd, TCCChar* Char, char* szLine, HDC hDC, RECT* PaintR
         
         if(hTmp)
         {
-            GetTextExtentPoint32(hDC, szLine, strlen(szLine), &sizeText);
+            GetTextExtentPoint32W(hDC, szLine, wcslen(szLine), &sizeText);
 
             SetBkMode(hDC, TRANSPARENT);
             SetTextColor(hDC, CC_GetColor(Char->BackColor));
 
-            TextOut(hDC, PaintRect->left - 2, PaintRect->top, szLine, strlen(szLine));
-            TextOut(hDC, PaintRect->left + 2, PaintRect->top, szLine, strlen(szLine));
-            TextOut(hDC, PaintRect->left, PaintRect->top - 2, szLine, strlen(szLine));
-            TextOut(hDC, PaintRect->left, PaintRect->top + 2, szLine, strlen(szLine));
+            TextOutW(hDC, PaintRect->left - 2, PaintRect->top, szLine, wcslen(szLine));
+            TextOutW(hDC, PaintRect->left + 2, PaintRect->top, szLine, wcslen(szLine));
+            TextOutW(hDC, PaintRect->left, PaintRect->top - 2, szLine, wcslen(szLine));
+            TextOutW(hDC, PaintRect->left, PaintRect->top + 2, szLine, wcslen(szLine));
             
             SetTextColor(hDC, CC_GetColor(Char->ForeColor));
-            TextOut(hDC, PaintRect->left, PaintRect->top, szLine, strlen(szLine));
+            TextOutW(hDC, PaintRect->left, PaintRect->top, szLine, wcslen(szLine));
 
             PaintRect->left += sizeText.cx;
 
@@ -1005,7 +1009,7 @@ void CC_PaintLine(HWND hWnd, TCCChar* Line, HDC hDC, RECT* PaintRect, int nFonts
     BOOL bAnyText = FALSE;
     int Count = 0;
     int LineWidth = (PaintRect->right - PaintRect->left);
-    char szString[CC_CHARS_PER_LINE + 1];
+    wchar_t szString[CC_CHARS_PER_LINE + 1];
     TCCChar* LastChar = NULL;
     int StrPos = 0;
 
@@ -1061,6 +1065,9 @@ void CC_PaintLine(HWND hWnd, TCCChar* Line, HDC hDC, RECT* PaintRect, int nFonts
             case '~':
                 szString[StrPos++] = 'ñ';
                 break;
+            // convert music symbol
+            case 0xb6:
+                szString[StrPos++] = 0x226A;
             default:
                 szString[StrPos++] = Line[i].Text;
                 break;

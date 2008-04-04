@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: DS_Control.h,v 1.179 2007-02-19 14:48:49 adcockj Exp $
+// $Id: DS_Control.h,v 1.180 2008-04-04 16:42:57 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.179  2007/02/19 14:48:49  adcockj
+// Fixed various issues with d3d9 code and settings
+//
 // Revision 1.178  2007/02/18 17:34:34  robmuller
 // Sync video formats.
 //
@@ -1190,6 +1193,7 @@ typedef enum
     DOVPS,
     DOWSS,
     SEARCHHIGHLIGHT,
+    USEORIGINALCCCODE,
     VBI_SETTING_LASTONE,
 } VBI_SETTING;
 

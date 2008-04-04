@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI.cpp,v 1.32 2005-08-03 18:06:03 to_see Exp $
+// $Id: VBI.cpp,v 1.33 2008-04-04 16:42:57 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2000 John Adcock.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,9 @@
 // CVS Log
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.32  2005/08/03 18:06:03  to_see
+// Fix: VPS data is transmitted only on even field
+//
 // Revision 1.31  2003/10/27 10:39:54  adcockj
 // Updated files for better doxygen compatability
 //
@@ -161,6 +164,7 @@ BOOL DoTeletext = FALSE;
 BOOL DoVPS = FALSE;
 BOOL DoWSS = FALSE;
 BOOL bSearchHighlight = TRUE;
+BOOL bOldCCMethod = FALSE;
 
 eCCMode CCMode = CCMODE_OFF;
 
@@ -312,6 +316,12 @@ SETTING VBISettings[VBI_SETTING_LASTONE] =
         TRUE, 0, 1, 1, 1,
         NULL,
         "VBI", "SearchHighLight", VT_HilightSearchOnChange,
+    },
+    {
+        "Use Original CC Method", ONOFF, 0, (long*)&bOldCCMethod,
+        TRUE, 0, 1, 1, 1,
+        NULL,
+        "VBI", "UseOriginalCCMethod", NULL,
     },
 };
 

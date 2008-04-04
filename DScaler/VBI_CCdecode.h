@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// $Id: VBI_CCdecode.h,v 1.8 2003-10-27 10:39:54 adcockj Exp $
+// $Id: VBI_CCdecode.h,v 1.9 2008-04-04 16:42:57 adcockj Exp $
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 1998 Timecop.  All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -47,7 +47,7 @@ enum eCCColor
 typedef struct
 {
     BOOL bIsActive;
-    char Text;
+    wchar_t Text;
     eCCColor ForeColor;
     eCCColor BackColor;
     BOOL bUnderline;

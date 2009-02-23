@@ -76,7 +76,7 @@ ColourInversion.htm
 SAA713xAdvanced.htm
 BT848Advanced.htm
 CX2388xAdvanced.htm
-SourceSpecific.HTM
+SourceSpecific.htm
 ProgramList.htm
 Teletext2.htm
 BlackWhite.htm
@@ -124,7 +124,7 @@ IDH_PULLDOWN_SHARED=PulldownShared.htm
 IDH_SAA713X_ADV=SAA713xAdvanced.htm
 IDH_SCALER_BOB=ScalerBob.htm
 IDH_SHARPNESS=Sharpness.htm
-IDH_SOURCE_SPECIFIC=SourceSpecific.HTM
+IDH_SOURCE_SPECIFIC=SourceSpecific.htm
 IDH_STILL=Still.htm
 IDH_TELETEXT=Teletext2.htm
 IDH_TEMPORAL_COMB=TemporalComb.htm

@@ -6,7 +6,7 @@
 <title>3:2 Pulldown Spec</title>
 <!-- #EndEditable -->
 <meta http-equiv="Content-Type" content=
-"text/html; charset=iso-8859-1">
+"text/html; charset=utf-8">
 <style type="text/css">
 <!--
 p {  font-family: Arial, Helvetica, sans-serif; font-size: 10pt}
@@ -39,7 +39,7 @@ height="1"></td>
 <td colspan="2" align="right" valign="bottom"><font face=
 "Verdana, Arial, Helvetica, sans-serif" size="5"><b>
 <!-- #BeginEditable "Page%20Title" -->
-3:2 Pulldown Alogrithm 
+3:2 Pulldown AlogrithmÂ 
 <!-- #EndEditable --></b></font></td>
 </tr>
 
@@ -49,7 +49,7 @@ height="2"></td>
 </tr>
 
 <tr>
-<td colspan="3"> </td>
+<td colspan="3">Â </td>
 </tr>
 
 <tr>
@@ -307,50 +307,50 @@ set MOVIE_VERIFY_CYCLE = 0
 set MODE = VIDEO
 set FRAMES_PER_SECOND = 60
 LOOP
-   IF new field has now arrived on TV card
-     GRAB new current field (add to queue of fields)
-     COMPARE two fields: current field and two fields ago.
-     IF fields DO NOT match THEN
-         IF MISMATCH_COUNT does not exceed MAX_MISMATCH
-             increment MISMATCH_COUNT by 1
-         ELSE
-             set MODE = VIDEO
-             set MOVIE_VERIFY_CYCLE = 0
-             set MOVIE_FIELD_CYCLE = 0
-         ENDIF
-     ELSE IF fields match THEN
-         IF MISMATCH_COUNT is 4
-             IF MOVIE_VERIFY_CYCLE equals or exceeds MAX_VERIFY_CYCLES
-                 set MODE = MOVIE
-                 set MOVIE_FIELD_CYCLE = 0
-             ELSE
-                 increment MOVIE_VERIFY_CYCLE by 1
-             ENDIF
-         ELSE MISMATCH_COUNT not equal to 4
-         ENDIF
-         set MISMATCH_COUNT = 0
-     ENDIF
-    
-     IF MODE is MOVIE
-         set FRAMES_PER_SECOND = 24
-         BEGIN movie-source deinterlacer
-             IF MOVIE_FIELD_CYCLE equals 2 or MOVIE_FIELD_CYCLE equals 4
-                  Weave current field with previous field
-                  Add resulting field to OUTPUT queue
-             ENDIF
-             increment MOVIE_FIELD_CYCLE by 1
-             IF MOVIE_FIELD_CYCLE equals 5 THEN
-                 set MOVIE_FIELD_CYCLE = 0
-             ENDIF
-         END
-     ELSEIF MODE is VIDEO
-         set FRAMES_PER_SECOND = 60
-         BEGIN video-source deinterlacer
-             Apply video source deinterlace algorithm
-             Add resulting field to OUTPUT queue
-         END
-     ENDIF
-   ENDIF
+ Â  IF new field has now arrived on TV card
+ Â Â Â  GRAB new current field (add to queue of fields)
+ Â Â Â  COMPARE two fields: current field and two fields ago.
+ Â Â Â  IF fields DO NOT match THEN
+ Â Â Â Â Â Â Â  IF MISMATCH_COUNT does not exceed MAX_MISMATCH
+ Â Â Â Â Â Â Â Â Â Â Â  increment MISMATCH_COUNT by 1
+ Â Â Â Â Â Â Â  ELSE
+ Â Â Â Â Â Â Â Â Â Â Â  set MODE = VIDEO
+ Â Â Â Â Â Â Â Â Â Â Â  set MOVIE_VERIFY_CYCLE = 0
+ Â Â Â Â Â Â Â Â Â Â Â  set MOVIE_FIELD_CYCLE = 0
+ Â Â Â Â Â Â Â  ENDIF
+ Â Â Â  ELSE IF fields match THEN
+ Â Â Â Â Â Â Â  IF MISMATCH_COUNT is 4
+ Â Â Â Â Â Â Â Â Â Â Â  IF MOVIE_VERIFY_CYCLE equals or exceeds MAX_VERIFY_CYCLES
+ Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â  set MODE = MOVIE
+ Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â  set MOVIE_FIELD_CYCLE = 0
+ Â Â Â Â Â Â Â Â Â Â Â  ELSE
+ Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â  increment MOVIE_VERIFY_CYCLE by 1
+ Â Â Â Â Â Â Â Â Â Â Â  ENDIF
+ Â Â Â Â Â Â Â  ELSE MISMATCH_COUNT not equal to 4
+ Â Â Â Â Â Â Â  ENDIF
+ Â Â Â Â Â Â Â  set MISMATCH_COUNT = 0
+ Â Â Â  ENDIF
+ Â Â Â 
+ Â Â Â  IF MODE is MOVIE
+ Â Â Â Â Â Â Â  set FRAMES_PER_SECOND = 24
+ Â Â Â Â Â Â Â  BEGIN movie-source deinterlacer
+ Â Â Â Â Â Â Â Â Â Â Â  IF MOVIE_FIELD_CYCLE equals 2 or MOVIE_FIELD_CYCLE equals 4
+ Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â  Weave current field with previous field
+ Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â  Add resulting field to OUTPUT queue
+ Â Â Â Â Â Â Â Â Â Â Â  ENDIF
+ Â Â Â Â Â Â Â Â Â Â Â  increment MOVIE_FIELD_CYCLE by 1
+ Â Â Â Â Â Â Â Â Â Â Â  IF MOVIE_FIELD_CYCLE equals 5 THEN
+ Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â  set MOVIE_FIELD_CYCLE = 0
+ Â Â Â Â Â Â Â Â Â Â Â  ENDIF
+ Â Â Â Â Â Â Â  END
+ Â Â Â  ELSEIF MODE is VIDEO
+ Â Â Â Â Â Â Â  set FRAMES_PER_SECOND = 60
+ Â Â Â Â Â Â Â  BEGIN video-source deinterlacer
+ Â Â Â Â Â Â Â Â Â Â Â  Apply video source deinterlace algorithm
+ Â Â Â Â Â Â Â Â Â Â Â  Add resulting field to OUTPUT queue
+ Â Â Â Â Â Â Â  END
+ Â Â Â  ENDIF
+ Â  ENDIF
 ENDLOOP
 </pre>
 </code>
@@ -363,7 +363,7 @@ ENDLOOP
 </tr>
 
 <tr>
-<td colspan="3"> </td>
+<td colspan="3">Â </td>
 </tr>
 
 <tr bgcolor="#FFCC00">
@@ -374,7 +374,7 @@ ENDLOOP
 </tr>
 </table>
 
-<p> </p>
+<p>Â </p>
 
 <!-- #EndTemplate -->
 </body>

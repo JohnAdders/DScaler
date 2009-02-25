@@ -77,7 +77,7 @@
  *  Author: Tom Zoerner
  *          L. Garnier for interfacing with DScaler
  *
- *  $Id: xmltv_db.cpp,v 1.1 2008-03-11 10:07:38 adcockj Exp $
+ *  $Id$
  */
 
 #define DEBUG_SWITCH DEBUG_SWITCH_XMLTV

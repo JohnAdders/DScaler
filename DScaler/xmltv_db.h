@@ -17,7 +17,7 @@
  *  Author: Tom Zoerner
  *          L. Garnier for interfacing with DScaler
  *
- *  $Id: xmltv_db.h,v 1.3 2008-03-10 17:41:46 adcockj Exp $
+ *  $Id$
  */
 
 #ifndef __XMLTV_DB_H

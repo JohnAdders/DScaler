@@ -1809,7 +1809,7 @@ char *yytext;
  *
  *  Author: Tom Zoerner
  *
- *  $Id: xml_scan.yy.cpp,v 1.1 2008-03-11 10:07:38 adcockj Exp $
+ *  $Id$
  */
 //#line 46 "xml_scan.lex"
 #define DEBUG_SWITCH DEBUG_SWITCH_XMLTV

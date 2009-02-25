@@ -21,7 +21,7 @@
  *
  *  Author: Tom Zoerner
  *
- *  $Id: xml_cdata.cpp,v 1.1 2008-03-11 10:07:38 adcockj Exp $
+ *  $Id$
  */
 
 #define DEBUG_SWITCH DEBUG_SWITCH_XMLTV

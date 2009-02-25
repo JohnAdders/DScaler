@@ -1,4 +1,4 @@
-/* $Id: opendml.h,v 1.3 2005-07-27 01:42:18 dosx86 Exp $ */
+/* $Id$ */
 
 /** \file
  * OpenDML definition header

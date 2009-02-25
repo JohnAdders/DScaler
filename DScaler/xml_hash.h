@@ -16,7 +16,7 @@
  *
  *  Author: Tom Zoerner
  *
- *  $Id: xml_hash.h,v 1.2 2008-03-10 17:41:46 adcockj Exp $
+ *  $Id$
  */
 
 #ifndef __XML_HASH_H

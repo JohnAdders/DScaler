@@ -1,5 +1,5 @@
 //
-// $Id: AD9882.h,v 1.1 2006-12-28 14:18:35 adcockj Exp $
+// $Id$
 //
 /////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2006 Curtiss-Wright Controls, Inc..  All rights reserved.

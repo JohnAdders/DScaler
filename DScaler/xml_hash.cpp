@@ -39,7 +39,7 @@
  *    Copyright (c) 1991-1993 The Regents of the University of California.
  *    Copyright (c) 1994 Sun Microsystems, Inc.
  *
- *  $Id: xml_hash.cpp,v 1.1 2008-03-11 10:07:38 adcockj Exp $
+ *  $Id$
  */
 
 #define DEBUG_SWITCH DEBUG_SWITCH_XMLTV

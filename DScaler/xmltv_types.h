@@ -19,7 +19,7 @@
  *
  *  Author: Tom Zoerner
  *
- *  $Id: xmltv_types.h,v 1.4 2008-03-10 17:41:46 adcockj Exp $
+ *  $Id$
  */
 
 #ifndef __XMLTV_TYPES_H

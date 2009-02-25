@@ -1,4 +1,4 @@
-/* $Id: avi_audio.cpp,v 1.1 2008-03-11 10:07:38 adcockj Exp $ */
+/* $Id$ */
 
 /** \file
  * Audio recording and compression functions

@@ -1,4 +1,4 @@
-/* $Id: avi_index.cpp,v 1.1 2008-03-11 10:07:38 adcockj Exp $ */
+/* $Id$ */
 
 /** \file
  * OpenDML indexing

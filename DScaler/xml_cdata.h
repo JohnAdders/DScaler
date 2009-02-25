@@ -16,7 +16,7 @@
  *
  *  Author: Tom Zoerner
  *
- *  $Id: xml_cdata.h,v 1.3 2008-03-10 17:41:46 adcockj Exp $
+ *  $Id$
  */
 
 #ifndef __XMLTV_CDATA_H

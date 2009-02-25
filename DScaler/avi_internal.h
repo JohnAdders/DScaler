@@ -1,4 +1,4 @@
-/* $Id: avi_internal.h,v 1.5 2005-10-15 19:44:06 dosx86 Exp $ */
+/* $Id$ */
 
 #ifndef __AVI_INTERNAL_H
 #define __AVI_INTERNAL_H

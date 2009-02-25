@@ -16,7 +16,7 @@
  *
  *  Author: Tom Zoerner
  *
- *  $Id: xmltv_tags.h,v 1.3 2008-03-10 17:41:46 adcockj Exp $
+ *  $Id$
  */
 
 #ifndef __XMLTV_TAGS_H

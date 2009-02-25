@@ -32,7 +32,7 @@
  *
  *  Author: Tom Zoerner
  *
- *  $Id: xmltv_tags.cpp,v 1.2 2008-03-26 14:55:26 adcockj Exp $
+ *  $Id$
  */
 
 #define DEBUG_SWITCH DEBUG_SWITCH_XMLTV

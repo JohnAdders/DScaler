@@ -18,7 +18,7 @@
  *    XMLTV parser demo package. Only the minimum necessary to compile
  *    other files of the package has been kept.
  *
- *  $Id: xmltv_debug.h,v 1.4 2006-12-13 01:10:01 robmuller Exp $
+ *  $Id$
  */
 
 #ifndef __XMLTV_DEBUG_H

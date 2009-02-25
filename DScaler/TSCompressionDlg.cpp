@@ -1,4 +1,4 @@
-/* $Id: TSCompressionDlg.cpp,v 1.2 2005-09-24 18:47:46 dosx86 Exp $ */
+/* $Id$ */
 
 /** \file
  * Time Shift compression options dialog

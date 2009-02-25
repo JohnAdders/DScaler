@@ -1,4 +1,4 @@
-/* $Id: avi.h,v 1.10 2008-03-26 14:55:26 adcockj Exp $ */
+/* $Id$ */
 
 /** \file
  * Main AVI file header
